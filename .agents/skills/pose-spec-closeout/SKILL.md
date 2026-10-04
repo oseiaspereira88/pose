@@ -107,7 +107,7 @@ Before reviewing or closing a cross-project task, run `pose context --task <xref
    without a fragment (post-adoption).
 10. Run `pose lint-spec <slug> --strict`.
 11. Create any confirmed successor spec with `pose new-spec <slug>` (defaults to dated flat `.pose/specs/YYYY-MM-DD-<slug>.md`) and revalidate its intent instead of copying follow-up text verbatim.
-12. Run `pose assess discover --update-state` upon spec closure to update dynamic platform assessments.
+12. Run `pose assess discover --if-stale --update-state` upon spec closure; unchanged components are reused, changed ones refreshed.
 13. Inspect residual live backlog with `pose followups --open --json`.
 14. When Contributor Mode is active, if the delivery cycle revealed POSE engine friction, false-positive linters, or tooling gaps, stage a sanitized feedback report with `pose contribute stage --type enhancement --title "<summary>"`.
 

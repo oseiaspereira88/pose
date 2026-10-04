@@ -40,7 +40,7 @@ siga direto para a leitura abaixo — o artefato é aditivo, nunca bloqueante.
    ```
 3. Obter métricas de LOC, estrutura do módulo e dívidas técnicas antes de modificar o código:
    ```bash
-   pose assess discover --component <dir>  # ou use a tool pose_component_discover
+   pose assess discover --if-stale --component <dir>  # ou use a tool pose_component_discover; reaproveita o assessment se conteúdo, motor e matriz não mudaram
    ```
 4. Consultar knowledge relacionada (handoffs anteriores, decision-logs do módulo), citando cada um usado como `knowledge:<slug>` na spec — a forma que `pose knowledge-usage` conta:
    ```bash
@@ -65,7 +65,7 @@ siga direto para a leitura abaixo — o artefato é aditivo, nunca bloqueante.
    ```
 12. Atualizar métricas dinâmicas da plataforma após a entrega:
     ```bash
-    pose assess discover --update-state
+    pose assess discover --if-stale --update-state
     ```
 13. Se o Modo Contribuidor estiver ativo e o escopo revelar regras de stack ausentes ou capacidades reutilizáveis para o motor POSE, registre uma proposta de contribuição com `pose contribute stage --type enhancement --title "<resumo>"`.
 

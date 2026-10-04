@@ -51,6 +51,7 @@ var producerPhases = map[string][]string{
 	"closeout":           {PhaseCloseout},
 	"review":             {PhaseReview, PhaseCloseout},
 	"start":              {PhaseCloseout},
+	"assessments":        {},
 	"action-requests":    {PhaseStart, PhaseExecution, PhaseReview, PhaseCloseout, PhaseRelease},
 	"release":            {PhaseRelease},
 	"docs-review":        {PhaseCloseout},

@@ -564,6 +564,11 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 	var targetComp string
 	var asJSON bool
 	var updateState bool
+	// --if-stale reuses a component's assessment while its committed
+	// content, the engine and the matrix are unchanged (spec
+	// pose-adaptive-assessment-freshness).
+	var ifStale bool
+	decisions := map[string]string{}
 
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -576,6 +581,8 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 			asJSON = true
 		case "--update-state":
 			updateState = true
+		case "--if-stale":
+			ifStale = true
 		}
 	}
 
@@ -594,6 +601,17 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 
 	var results []*pose.ComponentDiscoveryState
 	for _, t := range targets {
+		if ifStale {
+			fresh := store.ComponentAssessmentFreshness(t)
+			if fresh.State == pose.AssessmentFresh {
+				if reused, err := store.LoadComponentState(fresh.Component); err == nil && reused != nil {
+					decisions[reused.ComponentSlug] = "reused (content, engine and matrix unchanged)"
+					results = append(results, reused)
+					continue
+				}
+			}
+			decisions[fresh.Component] = "refreshed (" + fresh.State + ": " + strings.Join(fresh.Reasons, "; ") + ")"
+		}
 		state, err := store.DiscoverComponent(t)
 		if err != nil {
 			fmt.Fprintf(stderr, "pose assess discover %s: %v\n", t, err)
@@ -636,6 +654,9 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 	for _, res := range results {
 		fmt.Fprintf(stdout, "  - %-30s LOC: %d (prod) / %d (test) | Debt TODOs: %d, FIXMEs: %d\n",
 			res.ComponentSlug, res.Metrics.LOCProduction, res.Metrics.LOCTests, res.TechnicalDebt.TODOs, res.TechnicalDebt.FIXMEs)
+		if decision, ok := decisions[res.ComponentSlug]; ok {
+			render(stdout, stderr).Field("assess.freshness."+res.ComponentSlug, decision)
+		}
 	}
 	return 0
 }

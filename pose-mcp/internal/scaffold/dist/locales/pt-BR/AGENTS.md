@@ -67,12 +67,12 @@ profundo no diretório afetado); (3) `AGENTS.md` mais abrangente (raiz). Leia ap
 Agentes de IA devem utilizar as ferramentas de assessment em momentos específicos do fluxo:
 
 1. **Início de Task / Spec (`pose-feature`)**:
-   - Executar `pose assess discover [--component <dir>]` / `pose_component_discover` para obter métricas de LOC, dívidas e estrutura do módulo afetado antes de modificar código.
+   - Executar `pose assess discover --if-stale [--component <dir>]` / `pose_component_discover` antes de modificar código: o assessment de um componente é reaproveitado enquanto o conteúdo commitado, o motor e a matriz de validação não mudam, e é refeito caso contrário.
 2. **Alteração de Contrato Inter-Módulo / PR Review (`pose-review`)**:
    - Executar `pose assess integrate` / `pose_integration_check` quando tocar em Protobuf, Kafka, APIs REST ou ferramentas MCP.
    - Executar `pose assess tech-debt` / `pose_tech_debt_check` durante code review para garantir que marcadores (`TODO`, `FIXME`, `stub`, `panic`) foram cobertos por follow-ups ou specs.
 3. **Fechamento de Spec (`pose-spec-closeout`)**:
-   - Executar `pose assess discover --update-state` ao concluir a entrega para recalcular a completude dinâmica da plataforma e atualizar `.pose/assessments/` e `.pose/state/`.
+   - Executar `pose assess discover --if-stale --update-state` ao concluir a entrega (componentes que a entrega não mudou são reaproveitados, não reescaneados) para recalcular a completude dinâmica da plataforma e atualizar `.pose/assessments/` e `.pose/state/`.
 
 ## Rules por domínio
 

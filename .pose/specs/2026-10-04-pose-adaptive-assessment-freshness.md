@@ -1,12 +1,13 @@
 ---
 slug: pose-adaptive-assessment-freshness
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-effective-governance-projection, pose-obligation-projection, pose-material-equivalence-reuse
 priority: 2
 components: pose-mcp
+delivers: capability:assessment-freshness
 task_type: feature
 ---
 
@@ -74,17 +75,37 @@ Assessment scan, state freshness, feature and closeout skills, AGENTS template.
 ### Artifacts
 
 - created: .pose/specs/2026-10-04-pose-adaptive-assessment-freshness.md
-- modified: pose-mcp/internal/pose/assessment_scan.go
-- modified: pose-mcp/internal/pose/state.go
-- modified: pose-mcp/internal/cli/assess.go
+- created: pose-mcp/internal/pose/assessment_freshness.go
 - created: pose-mcp/internal/pose/assessment_freshness_test.go
+- modified: pose-mcp/internal/pose/discovery.go
+- modified: pose-mcp/internal/pose/obligation_projection.go
+- modified: pose-mcp/internal/pose/readiness_phases.go
+- modified: pose-mcp/internal/cli/assess.go
+- created: pose-mcp/internal/cli/assessment_freshness_workflow_test.go
+- modified: AGENTS.md
+- modified: locales/pt-BR/AGENTS.md
 - modified: .agents/skills/pose-feature/SKILL.md
 - modified: .agents/skills/pose-spec-closeout/SKILL.md
+- modified: locales/pt-BR/.agents/skills/pose-feature/SKILL.md
+- modified: locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
 - modified: pose-mcp/internal/scaffold/dist/AGENTS.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/AGENTS.md
+- modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-adaptive-assessment-freshness.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- capability:assessment-freshness module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -93,7 +114,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

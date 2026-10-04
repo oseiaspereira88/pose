@@ -27,7 +27,7 @@ stale, go straight to the reading below — the artifact is additive, never bloc
 ## Steps
 
 1. Resolve the task before creating or starting work: run `pose context --task <typed-or-qualified-artifact-ref> --json`. Reuse the canonical spec when it resolves; stop on ambiguity, unsupported metadata or `transfer-in-progress`. Do not infer an external task from a bare slug or matching checkout path. Use `pose new-spec <slug>` for a local draft. For a new cross-project authority, pass the exact `xref:<project>/spec:<slug>` and the fresh `context_revision` to `pose new-spec-qualified <slug> --task <xref> --expect-context <digest>`; the target must have an explicit `POSE_PROJECT_ROOTS` binding. The distinct verb makes pre-contract engines reject the operation. Keep requirements in the authority spec and link coordinator composition through qualified references.
-2. Run `pose assess discover [--component <dir>]` / `pose_component_discover` to obtain LOC metrics, module structure, and debts before modifying code.
+2. Run `pose assess discover --if-stale [--component <dir>]` / `pose_component_discover` before modifying code; it reuses an assessment bound to the same committed content, engine and matrix, and refreshes a stale one.
 3. Search `.pose/knowledge/` for related handoffs and decision logs; cite each one used as `knowledge:<slug>` in the spec, the form `pose knowledge-usage` counts.
 4. Complete Intent, Requirements, Technical Plan, and Tasks before coding.
 5. When a decision, approval, input, external operation or acceptance genuinely belongs to someone else, record it with `pose action open` instead of stopping the session or hiding it in a follow-up — but only when a different answer would materially change execution, scope, authority, risk acceptance, closeout or publication and no authorization already given covers it. Give it targets and the phases it restricts (`--effect closeout:block` when it does not stop implementation), keep working on what it does not restrict, and present the open requests together with `pose state --attention`. A cosmetic or reversible choice you can make within the authorized scope is not a request.
@@ -36,7 +36,7 @@ stale, go straight to the reading below — the artifact is additive, never bloc
 8. Create a handoff with `pose new-knowledge handoff <slug>` when another execution needs partial state, follow-ups, or owner transition.
 9. Complete the Final Report with delivered scope and residual risk.
 10. Use [pose-spec-closeout](../pose-spec-closeout/SKILL.md). When review bundles are enabled, seal the validated subject (`pose review bundle spec:<slug> --seal`), attach the independent attestation (`pose review auto-attest <bundle-id> --reviewer agent:<id>` to collect the mechanical half, then `pose review attest` to answer what it reports as pending) and require `pose review verify spec:<slug>` before closeout. Disposition follow-ups from `pose followups --all` and pass `pose lint-spec <slug> --strict`.
-11. Run `pose assess discover --update-state` upon delivery completion to refresh dynamic platform metrics.
+11. Run `pose assess discover --if-stale --update-state` upon delivery completion to refresh the metrics of the components the delivery changed.
 12. When Contributor Mode is active and scope reveals missing POSE stack rules or reusable engine capabilities, stage a contribution proposal with `pose contribute stage --type enhancement --title "<summary>"`.
 
 ## Output requirements

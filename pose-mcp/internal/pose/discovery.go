@@ -120,6 +120,9 @@ type ComponentDiscoveryState struct {
 	Metadata          map[string]string         `json:"metadata,omitempty"`
 	Status            string                    `json:"status"`
 	CompletenessScore float64                   `json:"completeness_score"`
+	// Binding is what this assessment was computed from (spec
+	// pose-adaptive-assessment-freshness); absent on older records.
+	Binding *AssessmentBinding `json:"binding,omitempty"`
 }
 
 // AssessmentsDir returns the path to .pose/assessments
@@ -335,8 +338,13 @@ func (s Store) DiscoverComponent(relPath string) (*ComponentDiscoveryState, erro
 		return nil, fmt.Errorf("discover component %q: %w", relPath, err)
 	}
 	slug := slugifyAssessmentPath(cleanPath)
+	var binding *AssessmentBinding
+	if current, committed := s.CurrentAssessmentBinding(cleanPath); committed {
+		binding = &current
+	}
 
 	state := &ComponentDiscoveryState{
+		Binding:           binding,
 		SchemaVersion:     1,
 		ComponentSlug:     slug,
 		Path:              cleanPath,

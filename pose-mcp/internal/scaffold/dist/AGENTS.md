@@ -67,12 +67,12 @@ On conflict: (1) direct instruction of the current task; (2) the most specific
 AI agents must use assessment tools at specific points in the flow:
 
 1. **Task / Spec Start (`pose-feature`)**:
-   - Run `pose assess discover [--component <dir>]` / `pose_component_discover` to obtain LOC metrics, debts, and module structure before modifying code.
+   - Run `pose assess discover --if-stale [--component <dir>]` / `pose_component_discover` before modifying code: a component's assessment is reused while its committed content, the engine and the validation matrix are unchanged, and refreshed otherwise.
 2. **Inter-Module Contract Change / PR Review (`pose-review`)**:
    - Run `pose assess integrate` / `pose_integration_check` when touching Protobuf, Kafka, REST APIs, or MCP tools.
    - Run `pose assess tech-debt` / `pose_tech_debt_check` during code review to ensure markers (`TODO`, `FIXME`, `stub`, `panic`) are covered by follow-ups or specs.
 3. **Spec Closure (`pose-spec-closeout`)**:
-   - Run `pose assess discover --update-state` upon delivery completion to recalculate dynamic platform completeness and update `.pose/assessments/` and `.pose/state/`.
+   - Run `pose assess discover --if-stale --update-state` upon delivery completion (components the delivery did not change are reused, not rescanned) to recalculate dynamic platform completeness and update `.pose/assessments/` and `.pose/state/`.
 
 ## Domain rules
 

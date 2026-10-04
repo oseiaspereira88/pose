@@ -173,7 +173,7 @@ Antes de revisar ou fechar tarefa entre projetos, rode `pose context --task <xre
    ```
 11. Atualizar métricas dinâmicas da plataforma após o fechamento da spec:
     ```bash
-    pose assess discover --update-state
+    pose assess discover --if-stale --update-state
     ```
 12. Verificação final: inspecionar o backlog restante:
     ```bash
