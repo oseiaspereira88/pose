@@ -137,6 +137,14 @@ Fixtures for each candidate kind; no-auto-close invariant.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:followup-candidates evidence:integration test:TestCandidatesAreRaisedWithReasonsAndNothingIsDispositioned check:followup-candidates-integration
+- R2 [satisfied] <no duplicate kind exists; similarity is never a candidate> test:TestCandidatesAreRaisedWithReasonsAndNothingIsDispositioned check:followup-candidates-integration
+- R3 [satisfied] test:TestCandidatesAreRaisedWithReasonsAndNothingIsDispositioned check:followup-candidates-integration
+- R4 [satisfied] test:TestCandidatesAreRaisedWithReasonsAndNothingIsDispositioned check:followup-candidates-integration
+- R5 [satisfied] test:TestFollowupCandidatesAreReachableAndWriteNothing check:followup-candidates-integration
+
 ## 7. Final Report
 
 ### Delivered scope
