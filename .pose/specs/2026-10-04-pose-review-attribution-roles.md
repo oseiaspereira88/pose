@@ -190,6 +190,16 @@ not populate `confirmed_by`.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:review-attribution-roles evidence:integration test:TestReviewAttestRecordsExplicitAttributionAndVerifyRendersIt check:review-attribution-roles-integration test:TestReviewAttributionDistinguishesTheFourObservedCases
+- R2 [satisfied] test:TestReviewConfirmationIsBoundToTheContentItConfirmed check:review-attribution-roles-integration
+- R3 [satisfied] test:TestReviewAttributionDistinguishesTheFourObservedCases check:review-attribution-roles-integration
+- R4 [satisfied] test:TestReviewAttributionDistinguishesTheFourObservedCases check:review-attribution-roles-integration test:TestReviewAttributionRefusesInconsistentConfirmation
+- R5 [satisfied] test:TestReviewerFlagNeverFillsAttributionRoles check:review-attribution-roles-integration
+- R6 [satisfied] test:TestAnAttestationWithoutAttributionSerializesAsBefore check:review-attribution-roles-integration test:TestAttributionSupplementClarifiesWithoutAlteringOrConfirming
+- R7 [satisfied] test:TestThe630CycleAttestationsReadAsLegacyNotHumanReview check:review-attribution-roles-integration
+
 ## 7. Final Report
 
 ### Delivered scope
