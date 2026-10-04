@@ -152,6 +152,15 @@ collision test for same R-ID across specs and projects.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] test:TestEveryCategoryValidatesAndRestrictsOnlyItsPhase check:obligation-contract-integration
+- R2 [satisfied] test:TestObligationIDIsStableAcrossWordingOrderAndTime check:obligation-contract-integration
+- R3 [satisfied] test:TestSameLocalNodeInDifferentSpecsOrProjectsNeverCollides check:obligation-contract-integration
+- R4 [satisfied] test:TestUnknownIsNeverAResolution check:obligation-contract-integration
+- R5 [satisfied] <ADR 2026-10-04-obligations-are-projected-action-requests-are-persisted is Accepted with examples per category>
+- R6 [satisfied] <pose-mcp/schemas/v1/obligation.schema.json> test:TestObligationSchemaMatchesTheEngineVocabulary check:obligation-contract-integration
+
 ## 7. Final Report
 
 ### Delivered scope
