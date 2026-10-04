@@ -165,6 +165,15 @@ transfer interrupted tests still pass.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:blocked-semantics evidence:integration <skill, manual, template comment and help describe blocked as non-terminal> test:TestLintWarnsOnBlockedWithoutACauseAndNeverFails check:blocked-semantics-integration
+- R2 [satisfied] test:TestBlockedReadinessIsNonTerminalAndExplainsItsCause check:blocked-semantics-integration test:TestStateListsBlockedSpecsWithTheirCause
+- R3 [satisfied] test:TestAdoptionMetricsKeepsV1AndAddsAV2WithoutBlockedAsResolved check:blocked-semantics-integration
+- R4 [satisfied] <existing interrupted-transfer tests kept passing> test:TestSpecTransferInterruptedOperationsResumeWithoutDuplicateAuthority check:blocked-semantics-integration test:TestSpecTransferReconcileTerminalResumesAfterInterruption
+- R5 [satisfied] test:TestNoCommandRewritesALegacyBlockedSpec check:blocked-semantics-integration
+- R6 [satisfied] test:TestLintWarnsOnBlockedWithoutACauseAndNeverFails check:blocked-semantics-integration
+
 ## 7. Final Report
 
 ### Delivered scope
