@@ -86,7 +86,7 @@ type ProjectState struct {
 	// contracts and capabilities are in force here, not which the engine
 	// ships (spec pose-effective-governance-projection).
 	EffectiveGovernance *GovernanceProjection `json:"effective_governance,omitempty"`
-	Tampered                    bool                  `json:"tampered"`
+	Tampered            bool                  `json:"tampered"`
 	// RefreshPending is the hook event kind a failed automatic refresh
 	// could not process (spec pose-project-state-refresh-contract R5) —
 	// "" when no refresh is pending. Cleared by the next successful
