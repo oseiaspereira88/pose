@@ -141,6 +141,14 @@ Fixture with a failing falsifier check raises candidate; no automatic status cha
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] test:TestAFailedFalsifierCheckRaisesAReconsiderationCandidate check:falsifier-integration
+- R2 [satisfied] test:TestAPassingOrAbsentObservationRaisesNothingAndTheDecisionIsKept check:falsifier-integration
+- R3 [satisfied] <the candidate is advisory and states the failure is not a verdict> test:TestAFailedFalsifierCheckRaisesAReconsiderationCandidate check:falsifier-integration
+- R4 [satisfied] test:TestFalsifierFieldsAreOptInAndValidated check:falsifier-integration
+- R5 [satisfied] test:TestFalsifierFieldsAreOptInAndValidated check:falsifier-integration
+
 ## 7. Final Report
 
 ### Delivered scope
