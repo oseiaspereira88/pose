@@ -348,26 +348,26 @@ type ReviewAuthorityClaim struct {
 }
 
 type ReviewAttestation struct {
-	SchemaVersion int                         `json:"schema_version"`
-	AttestationID string                      `json:"attestation_id"`
-	BundleID      string                      `json:"bundle_id"`
-	BundleDigest  string                      `json:"bundle_digest"`
-	Reviewer      string                      `json:"reviewer"`
-	Decision      string                      `json:"decision"`
-	Criteria      []ReviewCriterion           `json:"criteria"`
-	Tools         []ReviewToolDisposition     `json:"tools,omitempty"`
-	EvidenceRefs  []string                    `json:"evidence_refs,omitempty"`
-	Findings      []ReviewFinding             `json:"findings"`
-	Authority     *ReviewAuthorityClaim       `json:"authority,omitempty"`
+	SchemaVersion int                     `json:"schema_version"`
+	AttestationID string                  `json:"attestation_id"`
+	BundleID      string                  `json:"bundle_id"`
+	BundleDigest  string                  `json:"bundle_digest"`
+	Reviewer      string                  `json:"reviewer"`
+	Decision      string                  `json:"decision"`
+	Criteria      []ReviewCriterion       `json:"criteria"`
+	Tools         []ReviewToolDisposition `json:"tools,omitempty"`
+	EvidenceRefs  []string                `json:"evidence_refs,omitempty"`
+	Findings      []ReviewFinding         `json:"findings"`
+	Authority     *ReviewAuthorityClaim   `json:"authority,omitempty"`
 	// Attribution separates who prepared, concluded, confirmed and applied
 	// the review (spec pose-review-attribution-roles). Absent on every record
 	// written before it, which renders as legacy-undifferentiated.
-	Attribution *ReviewAttribution       `json:"attribution,omitempty"`
-	ReusedFrom    []ReviewAttestationReuse    `json:"reused_from,omitempty"`
-	Supersedes    string                      `json:"supersedes,omitempty"`
-	Envelope      *ReviewAttestationSignature `json:"envelope,omitempty"`
-	AttestedAt    string                      `json:"attested_at"`
-	Path          string                      `json:"path,omitempty"`
+	Attribution *ReviewAttribution          `json:"attribution,omitempty"`
+	ReusedFrom  []ReviewAttestationReuse    `json:"reused_from,omitempty"`
+	Supersedes  string                      `json:"supersedes,omitempty"`
+	Envelope    *ReviewAttestationSignature `json:"envelope,omitempty"`
+	AttestedAt  string                      `json:"attested_at"`
+	Path        string                      `json:"path,omitempty"`
 }
 
 type ReviewAttestationEnvelope struct {

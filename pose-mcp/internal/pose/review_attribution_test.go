@@ -76,12 +76,12 @@ func TestReviewConfirmationIsBoundToTheContentItConfirmed(t *testing.T) {
 
 func TestReviewAttributionRefusesInconsistentConfirmation(t *testing.T) {
 	for name, a := range map[string]ReviewAttribution{
-		"confirmed without mode":    {ConfirmedBy: "human:p"},
-		"mode without confirmer":    {ConcludedBy: "agent:a", ConfirmationMode: ReviewConfirmationAdoptedConclusions},
-		"unknown mode":              {ConfirmedBy: "human:p", ConfirmationMode: "nodded"},
-		"empty block":               {},
-		"malformed principal":       {PreparedBy: "claude"},
-		"digest without confirmer":  {ConcludedBy: "agent:a", ConfirmationDigest: "sha256:x"},
+		"confirmed without mode":   {ConfirmedBy: "human:p"},
+		"mode without confirmer":   {ConcludedBy: "agent:a", ConfirmationMode: ReviewConfirmationAdoptedConclusions},
+		"unknown mode":             {ConfirmedBy: "human:p", ConfirmationMode: "nodded"},
+		"empty block":              {},
+		"malformed principal":      {PreparedBy: "claude"},
+		"digest without confirmer": {ConcludedBy: "agent:a", ConfirmationDigest: "sha256:x"},
 	} {
 		a.SchemaVersion = ReviewAttributionSchemaVersion
 		att := ReviewAttestation{Attribution: &a}
