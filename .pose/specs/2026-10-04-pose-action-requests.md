@@ -173,6 +173,15 @@ corpus case for a non-material question.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:action-requests evidence:integration <CLI open previews until --apply; MCP pose_action_open is the same domain call> test:TestActionOpenPreviewsThenRecordsAndShowsTheBoundContent check:action-identity-integration test:TestActionRequestSurvivesTheSessionWithIDAndDigest check:action-requests-integration test:TestToolsCall_ActionOpen_PreviewsThenRecords
+- R2 [satisfied] <append-only journal under .pose/actions/> test:TestActionRequestSurvivesTheSessionWithIDAndDigest check:action-requests-integration
+- R3 [satisfied] <show/list and pose_action_requests return the derived state> test:TestActionOpenPreviewsThenRecordsAndShowsTheBoundContent check:action-identity-integration test:TestSupersededRequestLeavesTheProjection check:action-requests-integration
+- R4 [satisfied] <an unassigned recipient is accepted and rendered> test:TestActionRequestOpeningRefusesIncompleteRequests check:action-requests-integration test:TestToolsCall_ActionOpen_PreviewsThenRecords
+- R5 [satisfied] test:TestOpenActionRequestIsProjectedAsAnActorObligation check:action-resolution-integration
+- R6 [satisfied] <materiality criterion in POSE.md and the pose-feature skill; corpus case trivial-change-raises-a-request> test:TestAdversarialCorpus check:action-resolution-integration
+
 ## 7. Final Report
 
 R1 also asks for the MCP equivalent of `pose action open`, which the first implementation left out: MCP could only read requests. `pose_action_open` now previews unless `apply` is true and calls the same domain function as the CLI. It needed a fourth catalog risk class, `governance-write`, recorded in ADR `2026-10-04-mcp-governance-write-risk-class`, because `gate` promises no writes. Resolution stays CLI-only.
