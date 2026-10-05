@@ -69,6 +69,7 @@ Install scaffolding, a localized onboarding template, setup.
 - modified: pose-mcp/internal/cli/install.go
 - modified: pose-mcp/internal/cli/setup.go
 - modified: pose-mcp/internal/cli/setup_test.go
+- modified: pose-mcp/internal/cli/stack_seed_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
