@@ -102,6 +102,11 @@ var SelfReferentialPolicyFiles = []string{
 	// template ships the roles empty; a project names its own principals
 	// (spec pose-agency-readiness-pilot, R5).
 	"actions.json",
+	// adoption-decisions.json records which capabilities this repository
+	// declined or deferred. It is a statement about one project, so it is not
+	// shipped at all: a new instance starts with no decision recorded (spec
+	// pose-capability-catalog).
+	"adoption-decisions.json",
 }
 
 // SelfReferentialIndexFiles are `.pose/indexes/` files whose live content in

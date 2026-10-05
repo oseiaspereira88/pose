@@ -218,7 +218,7 @@ func (s Store) EffectiveGovernance(scope string) (GovernanceProjection, error) {
 	// A governed capability that is not adopted names the command that turns
 	// it on (spec pose-governed-capabilities-default-on-new-instances).
 	for i, entry := range out.Entries {
-		if _, governed := LookupGovernedCapability(entry.ID); governed && entry.Kind == GovernanceCapability && !entry.Configured {
+		if _, governed := LookupCatalogEntry(entry.ID); governed && entry.Kind == GovernanceCapability && !entry.Configured {
 			out.Entries[i].Explanation += "; turn it on with `pose adopt " + entry.ID + " --apply`"
 		}
 	}
