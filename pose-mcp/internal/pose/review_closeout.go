@@ -232,6 +232,13 @@ type ReviewPolicy struct {
 	// protected baseline an administrator controls and not from whatever
 	// directory the engine happens to be run in.
 	AuthorityAudience string `json:"authority_audience,omitempty"`
+	// AuthorityProject is the project id a claim must name as the project its
+	// decision governs. AuthorityAudience names the verifier installation the
+	// claim is addressed to, which several projects can share; only this binding
+	// stops a claim issued for one of them from satisfying another (spec
+	// pose-authority-claim-project-is-not-the-audience). Like the audience it is
+	// read from the protected policy, never from the environment.
+	AuthorityProject string `json:"authority_project,omitempty"`
 }
 
 // ReviewIdentityAssurance resolves the assurance a scope kind requires,
@@ -562,6 +569,9 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 		if verified {
 			if strings.TrimSpace(p.AuthorityAudience) == "" || strings.ContainsAny(p.AuthorityAudience, "\r\n") {
 				return ReviewPolicy{}, fmt.Errorf("pose: verified identity assurance requires a non-empty authority_audience")
+			}
+			if !validGovernanceProjectID(p.AuthorityProject) {
+				return ReviewPolicy{}, fmt.Errorf("pose: verified identity assurance requires authority_project, the project id claims must name (got %q)", p.AuthorityProject)
 			}
 			if len(p.TrustedAttestationIssuers) == 0 {
 				return ReviewPolicy{}, fmt.Errorf("pose: verified identity assurance requires at least one trusted attestation issuer")

@@ -678,6 +678,15 @@ também exige um grant específico. Bundles sem esse gate selado continuam
 auditáveis em modo `declared`; o POSE não infere independência cognitiva nem
 exige Harne8 para review offline.
 
+Uma claim carrega dois vínculos, ambos lidos da policy de review protegida e nunca
+do ambiente. `project` precisa ser igual a `authority_project`, o id do projeto que
+a decisão governa; `audience` precisa ser igual a `authority_audience`, a
+instalação do verificador a que a claim se destina. Uma instalação pode servir
+vários projetos, então só a audience deixaria uma claim emitida para um deles
+valer em outro; por isso a garantia verificada exige as duas chaves, e cada
+divergência é recusada com o seu próprio motivo. Claims de action request sob
+`verified` seguem a mesma regra.
+
 Toda superfície de review informa o que o seu registro prova. `review-plan`
 mostra a garantia de identidade em vigor; `review verify`, `review-check` e
 `closeout-check` mostram uma linha de garantia e trazem um objeto `assurance`

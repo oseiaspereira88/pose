@@ -43,6 +43,7 @@ func verifiedAuthorityFixture(t *testing.T, independence string) authorityFixtur
 	policy["reviewer_independence"] = map[string]any{"spec": independence}
 	policy["identity_assurance"] = map[string]any{"spec": ReviewIdentityAssuranceVerified}
 	policy["authority_audience"] = "fixture-project"
+	policy["authority_project"] = "fixture-project"
 	policy["trusted_attestation_issuers"] = []string{issuer + "#" + digestBytes(public)}
 	encoded, err := json.MarshalIndent(policy, "", "  ")
 	if err != nil {

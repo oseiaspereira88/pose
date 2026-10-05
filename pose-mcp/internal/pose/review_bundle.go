@@ -3209,8 +3209,8 @@ func (s Store) verifiedAuthorityBlockers(bundle ReviewBundle, att ReviewAttestat
 		}
 		if claim.Project == "" {
 			blockers = append(blockers, "the authority claim names no project")
-		} else if claim.Project != policy.AuthorityAudience {
-			blockers = append(blockers, "the authority claim names project "+claim.Project+" and this project answers to "+policy.AuthorityAudience)
+		} else if claim.Project != policy.AuthorityProject {
+			blockers = append(blockers, "the authority claim names project "+claim.Project+" and this project is "+policy.AuthorityProject)
 		}
 	}
 	if _, err := time.Parse(time.RFC3339, claim.IssuedAt); err != nil {

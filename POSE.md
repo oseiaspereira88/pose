@@ -671,6 +671,15 @@ the review plan. A human role also needs a dedicated authority grant. Existing
 bundles without this sealed gate remain auditable in `declared` mode; POSE does
 not infer cognitive independence or require Harne8 for offline review.
 
+A claim carries two bindings, both read from the protected review policy and
+never from the environment. `project` must equal `authority_project`, the project
+id the decision governs; `audience` must equal `authority_audience`, the verifier
+installation the claim is addressed to. One installation can serve several
+projects, so the audience alone would let a claim issued for one of them satisfy
+another; verified assurance therefore requires both keys, and each mismatch is
+refused with its own reason. Action-request claims under `verified` follow the
+same rule.
+
 Every review surface discloses what its record proves. `review-plan` prints the
 identity assurance in force; `review verify`, `review-check` and
 `closeout-check` print one assurance line and carry an `assurance` object in

@@ -244,8 +244,12 @@ func (s Store) verifyActionClaim(r ActionRequest, res ActionResolution, role str
 	switch {
 	case review.AuthorityAudience == "":
 		return fail("the review policy declares no authority_audience, so a claim for any project would satisfy it")
-	case claim.Audience != review.AuthorityAudience || claim.Project != review.AuthorityAudience:
+	case review.AuthorityProject == "":
+		return fail("the review policy declares no authority_project, so a claim for any project served by this verifier would satisfy it")
+	case claim.Audience != review.AuthorityAudience:
 		return fail("the claim is addressed to " + claim.Audience + " and this project answers to " + review.AuthorityAudience)
+	case claim.Project != review.AuthorityProject:
+		return fail("the claim names project " + claim.Project + " and this project is " + review.AuthorityProject)
 	case claim.RequestID != r.ID || claim.RequestDigest != r.RequestDigest:
 		return fail("the claim binds another request or another version of it")
 	case claim.Principal != res.Actor:
