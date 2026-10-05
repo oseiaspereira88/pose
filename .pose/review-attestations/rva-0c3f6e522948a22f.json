@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-0c3f6e522948a22f",
+  "bundle_id": "rvb-b20275151c1e8280",
+  "bundle_digest": "sha256:b20275151c1e828018a20897153b1b9a9b4b566389c6906e11f41e6f38b42b12",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration",
+      "rationale": "Test-only; no runtime change."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration",
+      "rationale": "README lists every case and the review skill carries the cheapest-formal-satisfaction question."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration",
+      "rationale": "Known gaps fail when closed so the corpus is flipped, never silently."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration",
+      "rationale": "Delivers the corpus with one case per gate of the program, including delegated and known-gap cases. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration",
+      "rationale": "Cases prove refusals; disabling a gate was shown to fail its case."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-mechanization-adversarial-corpus --strict exited 0 with no error for this spec; its 528 warnings are repository-wide orphan paths outside this spec"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "check:skills-check",
+      "rationale": "pose skills-check --strict exited 0 at the sealed revision"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration",
+      "rationale": "surface-check --spec pose-mechanization-adversarial-corpus --strict reported zero findings against the sealed integration and reachability evidence"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration",
+      "rationale": "The full matrix passed 103 of 103 checks at aa34f63, including the integration checks this spec registered"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration",
+      "rationale": "The full matrix passed 103 of 103 checks at aa34f63, including the integration checks this spec registered"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/adversarial-corpus-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:claude-opus-5-5",
+    "concluded_by": "agent:claude-opus-5-5",
+    "applied_by": "agent:claude-opus-5-5"
+  },
+  "attested_at": "2026-10-05T03:43:08Z",
+  "path": ".pose/review-attestations/rva-0c3f6e522948a22f.json"
+}

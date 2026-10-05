@@ -1,8 +1,8 @@
 ---
 slug: pose-mechanization-adversarial-corpus
-status: in-progress
+status: done
 created_at: 2026-10-04
-completed_at:
+completed_at: 2026-10-05
 supersedes:
 depends_on: pose-review-assurance-disclosure, pose-obligation-contract
 priority: 1
@@ -154,7 +154,7 @@ Seven cases were added for the gates delivered later in the program (R5): a stal
 
 ### Delivered scope
 
-Not started. Filled at closeout from the requirement trace and the change sets.
+Delivers the corpus with one case per gate of the program, including delegated and known-gap cases. Each requirement is traced to its tests and matrix checks under Validation. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it.
 
 ### Follow-ups
 
