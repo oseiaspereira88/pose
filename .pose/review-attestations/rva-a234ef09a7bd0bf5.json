@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-a234ef09a7bd0bf5",
+  "bundle_id": "rvb-035ba2086ab59642",
+  "bundle_digest": "sha256:035ba2086ab596428d43bc0afa3739a2e0e0b1b6ceb3d8b4c894d00a6d0b9d41",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "Legacy keys now produce the cutoff they always declared; stamped bundles keep their stamp."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "Manuals and doctor docs describe the sources."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "doctor review.adoption-source names absent, empty, map, legacy and shadowed declarations."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "Delivers reading of every registered legacy adoption key with map precedence and doctor reporting. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "An unparsable registered date is refused instead of silently ignored."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-legacy-contract-cutoffs --strict exited 0 with no error for this spec; its 528 warnings are repository-wide orphan paths outside this spec"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "surface-check --spec pose-legacy-contract-cutoffs --strict reported zero findings against the sealed integration and reachability evidence"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "The full matrix passed 103 of 103 checks at aa34f63, including the integration checks this spec registered"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "The full matrix passed 103 of 103 checks at aa34f63, including the integration checks this spec registered"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/legacy-contract-cutoffs-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:claude-opus-5-5",
+    "concluded_by": "agent:claude-opus-5-5",
+    "applied_by": "agent:claude-opus-5-5"
+  },
+  "attested_at": "2026-10-05T03:38:49Z",
+  "path": ".pose/review-attestations/rva-a234ef09a7bd0bf5.json"
+}
