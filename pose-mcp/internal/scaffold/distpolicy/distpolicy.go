@@ -96,6 +96,12 @@ var SelfReferentialPolicyFiles = []string{
 	// dates and no adopted overlays; the stamp writes the day this instance
 	// received each contract (spec review-policy-adoption-is-the-instances).
 	"review.json",
+	// actions.json names who may answer action requests in this repository.
+	// Shipped verbatim it granted this repository's maintainer the authority
+	// to answer requests in every project installed from it. The neutral
+	// template ships the roles empty; a project names its own principals
+	// (spec pose-agency-readiness-pilot, R5).
+	"actions.json",
 }
 
 // SelfReferentialIndexFiles are `.pose/indexes/` files whose live content in
@@ -275,6 +281,15 @@ func NeutralPolicyTemplates() map[string][]byte {
   "allow_in_scope_remediation_spec": true,
   "require_review_for_legacy_done_scopes": false,
   "overlay_profiles": []
+}
+`),
+		".pose/policy/actions.json": []byte(`{
+  "_comment": "Roles that may answer action requests (spec pose-action-request-resolution). No principal is named: list this project's own, for example \"maintainer\": [\"human:<you>\"]. A request addressed to a principal can be answered without a role.",
+  "schema_version": 1,
+  "roles": {
+    "maintainer": []
+  },
+  "identity_assurance": "declared"
 }
 `),
 		".pose/policy/release.json": []byte(`{
