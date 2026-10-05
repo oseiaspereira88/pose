@@ -2226,6 +2226,28 @@ func (s Store) recordReviewAttestation(att ReviewAttestation, now time.Time, sig
 	return att, nil
 }
 
+// PreflightReviewAttestation returns the reasons the verifier would reject an
+// approving attestation before it is written, by running the verifier itself
+// over the attestation as it would be recorded. A non-approving decision is an
+// audit record the verifier rejects for closeout by definition, so it gets no
+// preflight (spec pose-attest-refuses-what-verify-rejects).
+func (s Store) PreflightReviewAttestation(att ReviewAttestation, now time.Time) []string {
+	if att.Decision != "approved" && att.Decision != "approved-with-reservations" {
+		return nil
+	}
+	bundle, err := s.LoadReviewBundle(att.BundleID)
+	if err != nil {
+		return []string{strings.TrimPrefix(err.Error(), "pose: ")}
+	}
+	candidate := att
+	candidate.SchemaVersion = ReviewBundleSchemaVersion
+	candidate.BundleID, candidate.BundleDigest = bundle.BundleID, bundle.BundleDigest
+	if candidate.AttestedAt == "" {
+		candidate.AttestedAt = now.UTC().Truncate(time.Second).Format(time.RFC3339)
+	}
+	return s.validateBundleAttestation(bundle, candidate)
+}
+
 // VerifyReviewAttestationEnvelope verifies an optional provider-neutral
 // Ed25519 envelope. Trust is pinned as <issuer>#sha256:<public-key-digest> in
 // review policy; a self-declared issuer or public key is never trusted alone.

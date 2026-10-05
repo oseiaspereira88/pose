@@ -1654,6 +1654,19 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "attest-preflight-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "AttestPreflight|ReviewRecordDelegatesToBundleAttestation|ReviewAttestationWontFixCannotApproveThroughCLI",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

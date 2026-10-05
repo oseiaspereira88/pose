@@ -600,6 +600,12 @@ Os três ficam distintos porque "ainda não temos evidência", "não se aplica" 
 "aceitamos o risco" são três afirmações que um único campo vazio escondia.
 Registre com
 `pose review attest --mapping <criterion>|<delta>|<basis-or-disposition>|<why>`.
+Uma atestação que aprova e que o verify reprovaria é recusada antes de ser
+gravada: `pose review attest`, no preview e com `--apply`, e
+`pose review auto-attest --apply` rodam o verificador sobre ela e mostram cada
+motivo, de modo que um comando corrigido substitui uma atestação gravada e uma
+segunda. Atestação `changes-requested` ou `rejected` é registro de auditoria e é
+gravada.
 
 O engine verifica namespace, existência e alcance até um requisito — apontar
 decisão que não alcança nada afirma escolha sem o requisito que a paga — e nunca

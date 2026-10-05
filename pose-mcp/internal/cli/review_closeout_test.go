@@ -305,12 +305,19 @@ func TestReviewBundleCLISealsAttestsAndVerifies(t *testing.T) {
 func TestReviewRecordDelegatesToBundleAttestationWhenAdopted(t *testing.T) {
 	root := reviewBundleCLIFixture(t)
 	var out, errOut bytes.Buffer
-	if code := cmdReview(root, []string{"bundle", "spec:bundle", "--seal"}, &out, &errOut); code != 0 {
+	if code := cmdReview(root, []string{"bundle", "spec:bundle", "--seal", "--json"}, &out, &errOut); code != 0 {
 		t.Fatalf("seal code=%d err=%s", code, errOut.String())
+	}
+	var sealed posemodel.ReviewBundle
+	if err := json.Unmarshal(out.Bytes(), &sealed); err != nil {
+		t.Fatal(err)
 	}
 	out.Reset()
 	errOut.Reset()
-	args := []string{"record", "spec:bundle", "--reviewer", "agent:bundle-review", "--decision", "approved", "--evidence", "unit:bundle", "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--apply"}
+	// Cite evidence the bundle seals: an approval citing anything else is
+	// refused before it is written (spec pose-attest-refuses-what-verify-rejects).
+	sealedEvidence := sealed.Payload.Evidence[0].EvidenceClass + ":" + sealed.Payload.Evidence[0].ID
+	args := []string{"record", "spec:bundle", "--reviewer", "agent:bundle-review", "--decision", "approved", "--evidence", sealedEvidence, "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--apply"}
 	if code := cmdReview(root, args, &out, &errOut); code != 0 {
 		t.Fatalf("record adapter code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
@@ -334,13 +341,13 @@ func TestReviewAttestationWontFixCannotApproveThroughCLI(t *testing.T) {
 	out.Reset()
 	errOut.Reset()
 	args := []string{"attest", bundle.BundleID, "--reviewer", "agent:risk-cli", "--decision", "approved", "--evidence", ref, "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--finding", "f1|critical|wont-fix|leave unresolved|" + ref, "--apply"}
-	if code := cmdReview(root, args, &out, &errOut); code != 0 {
-		t.Fatal(errOut.String())
-	}
-	out.Reset()
-	errOut.Reset()
-	if code := cmdReview(root, []string{"verify", "spec:bundle", "--json"}, &out, &errOut); code != 1 || !strings.Contains(out.String(), "unapproved or incomplete accepted risk") {
+	// The verifier's refusal now comes from attest itself, and nothing is
+	// written (spec pose-attest-refuses-what-verify-rejects).
+	if code := cmdReview(root, args, &out, &errOut); code != 1 || !strings.Contains(errOut.String(), "unapproved or incomplete accepted risk") {
 		t.Fatalf("CLI approved risk: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	if entries, _ := os.ReadDir(filepath.Join(root, ".pose", "review-attestations")); len(entries) != 0 {
+		t.Fatalf("a refused approval was written: %v", entries)
 	}
 }
 

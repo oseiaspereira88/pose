@@ -581,6 +581,11 @@ reaches one, or an explicit `missing-evidence`, `not-applicable` or
 evidence yet", "this does not apply" and "we accept this risk" are three
 statements a single blank used to hide. Record them with
 `pose review attest --mapping <criterion>|<delta>|<basis-or-disposition>|<why>`.
+An approving attestation that verify would reject is refused before it is
+written: `pose review attest`, in preview and with `--apply`, and
+`pose review auto-attest --apply` run the verifier over it and print each reason,
+so one corrected command replaces a written attestation and a second one. A
+`changes-requested` or `rejected` attestation is an audit record and is written.
 
 The engine checks the namespace, the existence and the reach to a requirement —
 pointing at a decision that reaches nothing states a choice without the
