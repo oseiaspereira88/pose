@@ -1789,6 +1789,19 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "mcp-action-resolve-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/mcpserver",
+            "-run",
+            "ActionResolve|Catalog|ToolsList",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

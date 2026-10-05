@@ -1128,6 +1128,56 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return map[string]any{"preview": true, "request": prepared, "apply": "false (call again with apply: true to record it)"}, nil
 		}
 		return store.OpenActionRequest(r, time.Now())
+	case "pose_action_resolve":
+		// The MCP way to record an answer (spec
+		// pose-mcp-action-resolve-signed-only): only an answer the principal
+		// proved — a signature by a key registered to it, or a trusted
+		// issuer's claim. An agent writing a principal name proves nothing,
+		// so no declared answer is accepted here under any assurance.
+		var a struct {
+			ID               string                     `json:"id"`
+			Actor            string                     `json:"actor"`
+			Answer           string                     `json:"answer"`
+			RequestDigest    string                     `json:"request_digest"`
+			ExpectedRevision int                        `json:"expected_revision"`
+			IdempotencyKey   string                     `json:"idempotency_key"`
+			Role             string                     `json:"role"`
+			Evidence         []string                   `json:"evidence"`
+			Execution        string                     `json:"execution"`
+			Signature        string                     `json:"signature"`
+			Claim            *pose.ActionAuthorityClaim `json:"claim"`
+			Envelope         *pose.ActionClaimEnvelope  `json:"envelope"`
+			Apply            bool                       `json:"apply"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_action_resolve: invalid arguments")
+		}
+		for name, value := range map[string]string{"id": a.ID, "actor": a.Actor, "answer": a.Answer, "idempotency_key": a.IdempotencyKey} {
+			if strings.TrimSpace(value) == "" {
+				return nil, fmt.Errorf("pose_action_resolve: required argument %q missing", name)
+			}
+		}
+		view, err := store.LoadActionRequest(a.ID)
+		if err != nil {
+			return nil, err
+		}
+		statement := pose.AnswerStatement(view.Request, a.Actor, a.Answer, a.IdempotencyKey)
+		if !a.Apply {
+			return map[string]any{
+				"preview":           true,
+				"request":           view,
+				"statement":         string(statement.Canonical()),
+				"statement_command": fmt.Sprintf("pose action statement %s --actor %s --answer %s --idempotency-key %s", a.ID, shellQuote(a.Actor), shellQuote(a.Answer), shellQuote(a.IdempotencyKey)),
+				"sign_command":      "ssh-keygen -Y sign -f <private key registered to " + a.Actor + "> -n " + pose.ActionAnswerNamespace,
+				"apply":             "false (the principal signs the statement; call again with signature and apply: true)",
+			}, nil
+		}
+		if strings.TrimSpace(a.Signature) == "" && (a.Claim == nil || a.Envelope == nil) {
+			return nil, fmt.Errorf("pose_action_resolve: %w: an answer over MCP needs the principal's proof — a signature by a key registered to %s over the statement the preview returns, or a trusted issuer's claim; a principal name written by an agent is not one", pose.ErrActionVerificationFailed, a.Actor)
+		}
+		return store.ResolveActionRequest(pose.ActionResolution{RequestID: a.ID, Type: pose.ActionEventAnswered, Actor: a.Actor, Answer: a.Answer,
+			RequestDigest: a.RequestDigest, ExpectedRevision: a.ExpectedRevision, IdempotencyKey: a.IdempotencyKey, Role: a.Role, Evidence: a.Evidence,
+			Execution: a.Execution, Channel: "mcp", Signature: a.Signature, Claim: a.Claim, Envelope: a.Envelope}, time.Now())
 	case "pose_action_requests":
 		var a struct {
 			ID      string `json:"id"`
@@ -2227,8 +2277,8 @@ func toolDefinitions() []map[string]any {
 			"description": "Open a material request to a person or an external system — the MCP equivalent of `pose action open`. " +
 				"Open one only when a different answer would materially change execution, scope, authority, risk acceptance, " +
 				"closeout or publication and no authorization already given covers it. Previews (writes nothing) unless apply " +
-				"is true; with apply it appends to the request's journal under .pose/actions/. Resolving stays on the CLI, " +
-				"where an answer names the digest and revision it answers and needs the recipient role.",
+				"is true; with apply it appends to the request's journal under .pose/actions/. An answer is recorded with " +
+				"pose_action_resolve, only with the principal's signature or a trusted issuer's claim, or on the CLI.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
@@ -2253,13 +2303,41 @@ func toolDefinitions() []map[string]any {
 			},
 		},
 		{
+			"name": "pose_action_resolve",
+			"description": "Record a principal's answer to an action request — only with the principal's proof: a signature by a key " +
+				"registered to it in .pose/policy/actions.json (`pose identity add`), or a trusted issuer's claim. Without apply it is a " +
+				"preview that returns the exact statement to sign and the ssh-keygen command; the principal signs it on their machine " +
+				"and the signature is passed back with apply: true. A call without a proof is refused under any identity assurance: a " +
+				"principal name written by an agent is a declaration, not a proof. Cancel, waive and invalidate stay on the CLI.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"id":                map[string]any{"type": "string", "description": "act-<16 hex> id"},
+					"actor":             map[string]any{"type": "string", "description": "The answering principal (human:<id> or agent:<id>)"},
+					"answer":            map[string]any{"type": "string", "description": "An option id, or the text of an input"},
+					"request_digest":    map[string]any{"type": "string", "description": "The request digest the answer was given for"},
+					"expected_revision": map[string]any{"type": "integer", "description": "The journal revision the answer was given against"},
+					"idempotency_key":   map[string]any{"type": "string", "description": "Key that makes a retry a no-op; it is part of the signed statement"},
+					"role":              map[string]any{"type": "string", "description": "For an unassigned request: the role the actor answers under"},
+					"evidence":          map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "description": "Evidence references (an external operation reported done needs one)"},
+					"execution":         map[string]any{"type": "string", "description": "Optional id of the relaying execution"},
+					"signature":         map[string]any{"type": "string", "description": "Armored SSH signature (ssh-keygen -Y sign -n pose-action-answer) over the preview's statement"},
+					"claim":             map[string]any{"type": "object", "description": "A trusted issuer's authority claim (with envelope), instead of a signature"},
+					"envelope":          map[string]any{"type": "object", "description": "The claim's Ed25519 envelope"},
+					"apply":             map[string]any{"type": "boolean", "description": "Record the answer; without it the call is a preview"},
+					"project_id":        map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
+				},
+				"required": []string{"id", "actor", "answer", "idempotency_key"},
+			},
+		},
+		{
 			"name": "pose_action_requests",
 			"description": "Read material requests to a person or an external system (decision, approval, input, " +
 				"external operation, acceptance): question, options with consequences, recipient, qualified targets, " +
 				"per-phase effects, the request digest an answer must name, the append-only journal and the derived " +
 				"state and satisfaction (answered is not satisfied: a declined approval leaves the condition unmet). " +
-				"Read-only: open with pose_action_open or `pose action open`; resolve with `pose action resolve` on the CLI, " +
-				"where a resolution names the digest and revision it answers and needs the recipient role.",
+				"Read-only: open with pose_action_open or `pose action open`; resolve with pose_action_resolve (signed answers only) " +
+				"or `pose action resolve` on the CLI, where a resolution names the digest and revision it answers and needs the recipient role.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
@@ -3324,4 +3402,12 @@ func writeRPC(w http.ResponseWriter, resp rpcResponse) {
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		log.Printf("pose-mcp: writing response: %v", err)
 	}
+}
+
+// shellQuote quotes a value for a command line a person will paste.
+func shellQuote(value string) string {
+	if value != "" && strings.Trim(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:._-/@") == "" {
+		return value
+	}
+	return "'" + strings.ReplaceAll(value, "'", `'\''`) + "'"
 }

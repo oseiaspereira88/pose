@@ -67,6 +67,7 @@ MCP server tool dispatch, definitions and catalog.
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/catalog.go
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- modified: pose-mcp/internal/mcpserver/server_test.go
 - created: pose-mcp/internal/mcpserver/action_resolve_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
@@ -98,13 +99,20 @@ The tool driven over HTTP JSON-RPC: preview, unsigned refusal under declared ass
 
 ### Requirement trace
 
+- R1 [satisfied] test:TestToolsCall_ActionResolve_RefusesAnAnswerWithoutProof check:mcp-action-resolve-integration
+- R2 [satisfied] test:TestToolsCall_ActionResolve_RefusesAnAnswerWithoutProof test:TestToolsCall_ActionResolve_RecordsASignedAnswer check:mcp-action-resolve-integration
+- R3 [satisfied] test:TestToolsCall_ActionResolve_RefusesAnAnswerWithoutProof check:mcp-action-resolve-integration
+- R4 [satisfied] test:TestCatalogMatchesGolden test:TestCatalogDocsConformance test:TestToolsList check:mcp-action-resolve-integration
+
 ### Known gaps
+
+- The positive path needs `ssh-keygen` and skips without it; the refusals do not.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+`pose_action_resolve` (governance-write): preview with the statement and signing command; apply only with a registered key's signature or an issuer claim, recorded with channel `mcp`; descriptions of `pose_action_open` and `pose_action_requests` updated.
 
 ### Residual risks
 
