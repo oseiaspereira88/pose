@@ -41,6 +41,14 @@
       "digest": "sha256:4453860259beafa2e2174fbd21d8037717fa4ff1c4db7dc72a09d0a1b156f642"
     },
     {
+      "spec": "pose-attention-federated-parity",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose state --attention` now reads obligations through the same governed store as MCP, so federated acceptance blockers that `pose_obligations` reported are no longer missing from the CLI for the same snapshot.",
+      "path": "pose-attention-federated-parity.md",
+      "digest": "sha256:16e6f3e1d779f256e18d535cc24398008637acd0342339ed4ddb42c49fbbe220"
+    },
+    {
       "spec": "pose-blocked-semantics-alignment",
       "category": "changed",
       "breaking": false,
@@ -175,6 +183,14 @@
       "body": "Review attestations can record who prepared, concluded, confirmed and applied a review, with `--prepared-by`, `--concluded-by`, `--confirmed-by` plus `--confirmation-mode adopted-conclusions|authorized-operation`, and `--applied-by`. Roles are never filled from `--reviewer`, a confirmation is bound to the exact content written, and review surfaces render the difference between adopting conclusions and authorizing an operation. Older records show as `legacy-undifferentiated`, and `pose review attribution-supplement` clarifies them by reference without altering them; the sixteen 6.3.0 cycle attestations now carry such supplements.",
       "path": "pose-review-attribution-roles.md",
       "digest": "sha256:b653aaa8e54fe2b89c5006bd07cc124fa54a2f0a60c7c569dd4c734d6db5902f"
+    },
+    {
+      "spec": "pose-spec-surface-single-key",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose new-spec --surface` fills the template's `surface:` key instead of adding a second one.",
+      "path": "pose-spec-surface-single-key.md",
+      "digest": "sha256:21b47561952790313ab78d5115e67e21bf8a51a2be9e94fcf313cf6bbf72029f"
     },
     {
       "spec": "pose-state-attention",
