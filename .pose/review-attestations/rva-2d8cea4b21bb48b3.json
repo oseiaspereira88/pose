@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-2d8cea4b21bb48b3",
+  "bundle_id": "rvb-72e26e79514265b2",
+  "bundle_digest": "sha256:72e26e79514265b2f64cb1f06e3aeede66bde249a347850a8dbf0a063d81ddbb",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration",
+      "rationale": "Existing stats fields unchanged; --waits/--rework now compute only their dimensions unless --outcomes is given."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration",
+      "rationale": "Manuals, help catalog and cli.md describe the flags and the script."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration",
+      "rationale": "Each dimension prints its population, unknowns and limitations; the pilot measured 88 s fixed to 13 ms."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration",
+      "rationale": "Delivers --waits, --rework, --outcomes and the benchmark script, as dimensions without a score. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration",
+      "rationale": "Reads journals, bundles and attestations only; no personal data beyond declared principals."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-governance-wait-rework-observability --strict exited 0 with no error for this spec; its 522 warnings are repository-wide orphan paths outside this spec"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration",
+      "rationale": "assess integrate reported provider-without-consumer gaps only: MCP tools and HTTP endpoints whose consumers are outside this repository, including pose_action_open and pose_action_requests, whose Harne8 consumer is planned in harne8-attention-surface; no contract mismatch was reported"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/governance-waits-reachability",
+      "rationale": "surface-check --spec pose-governance-wait-rework-observability --strict reported zero findings against the sealed integration and reachability evidence"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration",
+      "rationale": "The full matrix passed 103 of 103 checks at aa34f63, including the integration checks this spec registered"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "the matrix registers no check for module docs-site; validate --strict --module docs-site ran 0 steps"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-waits-integration",
+      "rationale": "The full matrix passed 103 of 103 checks at aa34f63, including the integration checks this spec registered"
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "the matrix registers no check for module scripts; validate --strict --module scripts ran 0 steps"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/governance-waits-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:claude-opus-5-5",
+    "concluded_by": "agent:claude-opus-5-5",
+    "applied_by": "agent:claude-opus-5-5"
+  },
+  "attested_at": "2026-10-05T03:43:07Z",
+  "path": ".pose/review-attestations/rva-2d8cea4b21bb48b3.json"
+}
