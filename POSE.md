@@ -180,8 +180,9 @@ and avoid cascading drift:
 pose help                          # show help
 
 # Scaffold and specs
-pose init [--wizard [--yes]]       # ensure minimal structure; --wizard detects
-                                   # stacks and seeds the validation matrix
+pose init [--wizard [--yes]]       # install here when no instance exists (installer
+                                   # flags pass through), else confirm it is installed;
+                                   # --wizard then detects stacks and seeds the matrix
 pose specs [--recent N] [--status S] [--since D] [--components tags] [--json]
                                    # list and discover specs chronologically
 pose spec-format <migrate <slug>|--all [--format folder|flat] [--dry-run]|status> [--json]

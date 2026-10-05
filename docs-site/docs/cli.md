@@ -9,7 +9,7 @@ without Bash or Python fallbacks and works offline.
 
 | Command | Purpose |
 |---|---|
-| `pose init [--wizard [--yes]]` | Ensure the minimal structure; the wizard detects stacks and seeds the validation matrix |
+| `pose init [--wizard [--yes]]` | Install POSE in the current repository when no instance exists (the installer's flags pass through), otherwise confirm it is installed; the wizard then detects stacks and seeds the validation matrix |
 | `pose specs [--recent N] [--status S] [--since D] [--json]` | List and discover specifications chronologically (newest first) |
 | `pose spec-format <migrate|status> [<slug>|--all] [--format folder|flat] [--dry-run]` | Inspect and migrate specifications to chronological layout with companion preservation |
 | `pose new-spec <slug> [--folder\|--legacy]` | Create `.pose/specs/YYYY-MM-DD-<slug>.md` from the template; `--folder` writes `YYYY-MM-DD-<slug>/spec.md`, `--legacy` writes `<slug>/spec.md` |

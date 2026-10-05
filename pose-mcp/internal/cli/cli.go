@@ -51,20 +51,12 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 		}
 		return cmdVersion(stdout, target)
 	case "init":
-		if len(args) > 0 && args[0] == "--wizard" {
-			root, err := projectRoot()
-			if err != nil {
-				fmt.Fprintf(stderr, "pose init: %v\n", err)
-				return 1
-			}
-			return cmdInitWizard(root, args[1:], stdout, stderr)
-		}
 		root, err := projectRoot()
 		if err != nil {
 			fmt.Fprintf(stderr, "pose init: %v\n", err)
 			return 1
 		}
-		return cmdInit(root, stdout, stderr)
+		return cmdInitCommand(root, args, stdout, stderr)
 	case "context":
 		root, err := projectRoot()
 		if err != nil {

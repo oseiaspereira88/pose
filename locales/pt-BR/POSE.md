@@ -184,8 +184,9 @@ determinismo do CLI nem gerar drift em cascata:
 pose help                          # mostra ajuda
 
 # Scaffold e specs
-pose init [--wizard [--yes]]       # garante estrutura mínima; --wizard detecta
-                                   # stacks e popula a matriz de validação
+pose init [--wizard [--yes]]       # instala aqui quando não há instância (flags do
+                                   # instalador repassadas), senão confirma a instalação;
+                                   # --wizard depois detecta stacks e popula a matriz
 pose specs [--recent N] [--status S] [--since D] [--components tags] [--json]
                                    # lista e descobre specs cronologicamente
 pose spec-format <migrate <slug>|--all [--format folder|flat] [--dry-run]|status> [--json]

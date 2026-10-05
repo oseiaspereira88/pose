@@ -46,14 +46,19 @@ func knownCommandNames() []string {
 var commandHelpCatalog = map[string]CommandHelp{
 	"init": {
 		Name:            "init",
-		SummaryEN:       "Initialize POSE structure in the current repository",
-		SummaryPtBR:     "Inicializa a estrutura do POSE no repositório atual",
-		Usage:           "pose init [--wizard [--yes]]",
-		DescriptionEN:   "Ensures the minimum required .pose directory structure, policy files, and indexes. When --wizard is provided, scans the repository to auto-detect stacks and seed the validation matrix.",
-		DescriptionPtBR: "Garante a estrutura mínima necessária de diretórios, políticas e índices do .pose. Quando --wizard é informado, escaneia o repositório para auto-detectar stacks e semear a matriz de validação.",
+		SummaryEN:       "Install POSE in the current repository, or confirm it is installed",
+		SummaryPtBR:     "Instala o POSE no repositório atual, ou confirma que já está instalado",
+		Usage:           "pose init [--wizard [--yes]] [--locale <tag>] [--project-name <name>] [--project-id <id>] [--skip-mcp] [--allow-non-git]",
+		DescriptionEN:   "Where no POSE instance exists, runs the full installation into the current repository — the same instance `pose install .` produces, ready for `pose check --strict` and `pose new-spec`. On an installed instance it only ensures the directory structure, writes nothing else and names `pose update` to refresh it. The installer's flags pass through. --wizard then detects stack modules and seeds the validation matrix.",
+		DescriptionPtBR: "Onde não há instância POSE, roda a instalação completa no repositório atual — a mesma instância que `pose install .` produz, pronta para `pose check --strict` e `pose new-spec`. Numa instância instalada, só garante a estrutura de diretórios, não grava mais nada e aponta `pose update` para atualizá-la. As flags do instalador são repassadas. --wizard depois detecta os módulos de stack e semeia a matriz de validação.",
 		Flags: []FlagHelp{
 			{"--wizard", "Run interactive onboarding wizard to detect modules and stack rules", "Executa o assistente de onboarding para detectar módulos e regras de stack"},
 			{"--yes", "Auto-accept wizard prompts with recommended defaults", "Aceita automaticamente as perguntas do assistente com os padrões recomendados"},
+			{"--locale <tag>", "Locale of the installed manuals (installer flag)", "Idioma dos manuais instalados (flag do instalador)"},
+			{"--project-name <name>", "Project name to stamp (installer flag)", "Nome do projeto a carimbar (flag do instalador)"},
+			{"--project-id <id>", "Project id to declare in .pose/project.json (installer flag)", "Id do projeto a declarar em .pose/project.json (flag do instalador)"},
+			{"--skip-mcp", "Do not write .mcp.json (installer flag)", "Não grava o .mcp.json (flag do instalador)"},
+			{"--allow-non-git", "Install outside a git repository (installer flag)", "Instala fora de um repositório git (flag do instalador)"},
 		},
 		Examples: []string{
 			"pose init",
