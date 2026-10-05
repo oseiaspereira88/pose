@@ -1,8 +1,8 @@
 ---
 slug: pose-review-assurance-disclosure
-status: in-progress
+status: done
 created_at: 2026-10-04
-completed_at:
+completed_at: 2026-10-05
 supersedes:
 depends_on: 
 priority: 0
@@ -156,7 +156,7 @@ Golden tests for declared and verified fixtures; a negative test that a declared
 
 ### Delivered scope
 
-Not started. Filled at closeout from the requirement trace and the change sets.
+Delivers declared/verified disclosure and three separation fields on verify, check, closeout and plan outputs. Each requirement is traced to its tests and matrix checks under Validation. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it.
 
 ### Follow-ups
 
