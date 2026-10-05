@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-045952984dca5b45",
+  "bundle_id": "rvb-b685b04d79f49981",
+  "bundle_digest": "sha256:b685b04d79f499811429b7c7062a574ee577cc7beb5a22a5074939d6b5b16db4",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration",
+      "rationale": "Additive: new .pose/actions/ directory, new CLI verbs and two MCP tools with a new governance-write risk class recorded in an ADR; nothing existing changes behaviour."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration",
+      "rationale": "POSE.md in both locales and the scaffold describe open, the journal, MCP open and the materiality criterion; mcp.md lists both tools."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration",
+      "rationale": "Open refuses incomplete requests with named causes, previews by default and warns when identity is derived from the directory name."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration",
+      "rationale": "Delivers the request domain, append-only journal, CLI open/list/show, MCP pose_action_open and pose_action_requests and the projection adapter named in the spec; resolution is the separate resolution spec. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration",
+      "rationale": "Targets must be qualified xrefs, the journal is append-only and digest-bound, MCP open previews unless apply and cannot resolve, and a directory-derived identity is disclosed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-action-requests --strict exited 0 with no error for this spec; its 513 warnings are repository-wide orphan paths outside this spec"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration",
+      "rationale": "assess integrate reported provider-without-consumer gaps only: MCP tools and HTTP endpoints whose consumers are outside this repository, including pose_action_open and pose_action_requests, whose Harne8 consumer is planned in harne8-attention-surface; no contract mismatch was reported"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "check:skills-check",
+      "rationale": "pose skills-check --strict exited 0 at the sealed revision"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration",
+      "rationale": "surface-check --spec pose-action-requests --strict reported zero findings against the sealed integration and reachability evidence"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration",
+      "rationale": "The full matrix passed 103 of 103 checks at aa34f63, including the integration checks this spec registered"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "the matrix registers no check for module docs-site; validate --strict --module docs-site ran 0 steps"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-identity-integration",
+      "rationale": "The full matrix passed 103 of 103 checks at aa34f63, including the integration checks this spec registered"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/action-identity-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:claude-opus-5-5",
+    "concluded_by": "agent:claude-opus-5-5",
+    "applied_by": "agent:claude-opus-5-5"
+  },
+  "attested_at": "2026-10-05T03:43:05Z",
+  "path": ".pose/review-attestations/rva-045952984dca5b45.json"
+}

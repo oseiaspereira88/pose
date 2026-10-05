@@ -1,8 +1,8 @@
 ---
 slug: pose-action-requests
-status: in-progress
+status: done
 created_at: 2026-10-04
-completed_at:
+completed_at: 2026-10-05
 supersedes:
 depends_on: pose-obligation-contract, pose-obligation-projection
 priority: 1
@@ -192,7 +192,7 @@ The agency-readiness pilot rehearsal, run in a clone named `pilot-clone`, record
 
 ### Delivered scope
 
-Not started. Filled at closeout from the requirement trace and the change sets.
+Delivers the request domain, append-only journal, CLI open/list/show, MCP pose_action_open and pose_action_requests and the projection adapter named in the spec; resolution is the separate resolution spec. Each requirement is traced to its tests and matrix checks under Validation. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it.
 
 ### Follow-ups
 
