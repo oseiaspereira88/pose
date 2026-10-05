@@ -21,6 +21,7 @@ import (
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/scaffold"
+	"github.com/harne8/pose-mcp/internal/version"
 )
 
 // doctorSchemaVersion versions doctor's own JSON output shape (distinct
@@ -990,6 +991,17 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 						add("actions.roles", "ok", fmt.Sprintf(text("%d principal(s) hold action-request roles", "%d principal(is) com papéis de action request"), held), "")
 					}
 				}
+			}
+			// Capabilities this project has not decided for the engine it runs
+			// are a next step, not a fault (spec pose-setup-command).
+			if pending, pendingErr := posemodel.CapabilitiesToReview(root, version.ReleaseBase()); pendingErr == nil && len(pending) > 0 {
+				ids := make([]string, 0, len(pending))
+				for _, state := range pending {
+					ids = append(ids, state.ID)
+				}
+				add("setup.capabilities", "next",
+					fmt.Sprintf(text("%d capability decision(s) pending since the last configuration review: %s", "%d decisão(ões) de capacidade pendente(s) desde a última revisão de configuração: %s"), len(pending), strings.Join(ids, ", ")),
+					text("run `pose setup`: it shows what each changes and asks, one confirmed decision at a time", "rode `pose setup`: mostra o que cada uma muda e pergunta, uma decisão confirmada por vez"))
 			}
 			// A human role under verified assurance needs a way to prove an
 			// answer: a registered key (one that proves presence, for a

@@ -220,6 +220,13 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 2
 		}
 		return cmdStart(root, args, stdout, stderr)
+	case "setup":
+		root, err := projectRoot()
+		if err != nil {
+			render(stdout, stderr).Failure("pose setup: " + err.Error())
+			return 2
+		}
+		return cmdSetup(root, args, stdout, stderr)
 	case "identity":
 		root, err := projectRoot()
 		if err != nil {

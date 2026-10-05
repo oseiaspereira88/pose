@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"errors"
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/scaffold"
 	"github.com/harne8/pose-mcp/internal/version"
 	"os/exec"
@@ -207,8 +208,22 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 
+	// An update names what it brings that this project has not decided, so a
+	// new capability is never left in limbo (spec pose-setup-command).
+	pending, _ := posemodel.CapabilitiesToReview(root, version.ReleaseBase())
+	if len(pending) > 0 {
+		ids := make([]string, 0, len(pending))
+		for _, state := range pending {
+			ids = append(ids, state.ID)
+		}
+		render(stdout, stderr).ContractLine(text("[INFO] ", "[INFO] ") + text(
+			strconv.Itoa(len(pending))+" capability decision(s) pending since the last configuration review: "+strings.Join(ids, ", ")+" — `pose setup` shows each and asks",
+			strconv.Itoa(len(pending))+" decisão(ões) de capacidade pendente(s) desde a última revisão de configuração: "+strings.Join(ids, ", ")+" — `pose setup` mostra cada uma e pergunta"))
+	}
 	if current == nativeSchemaVersion && !force {
-		fmt.Fprintf(stdout, text("[INFO] instance already at schema v%d. Nothing to do.\n", "[INFO] instância já está no schema v%d. Nada a fazer.\n"), current)
+		if len(pending) == 0 {
+			fmt.Fprintf(stdout, text("[INFO] instance already at schema v%d. Nothing to do.\n", "[INFO] instância já está no schema v%d. Nada a fazer.\n"), current)
+		}
 		return 0
 	}
 

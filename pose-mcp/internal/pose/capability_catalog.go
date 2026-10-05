@@ -436,11 +436,19 @@ type AdoptionDecision struct {
 	Reason   string `json:"reason"`
 	// Request is the action request whose answer recorded it, when one did.
 	Request string `json:"request,omitempty"`
+	// Version is the engine release the decision was taken under; a
+	// deferral is asked again once the engine moves past it (spec
+	// pose-setup-command).
+	Version string `json:"version,omitempty"`
 }
 
 type AdoptionDecisions struct {
-	SchemaVersion int                         `json:"schema_version"`
-	Decisions     map[string]AdoptionDecision `json:"decisions"`
+	SchemaVersion int `json:"schema_version"`
+	// ReviewedVersion is the engine release whose capabilities this project
+	// last reviewed: a capability introduced after it, and undecided, is new
+	// (spec pose-setup-command). A fresh install records its own version.
+	ReviewedVersion string                      `json:"reviewed_version,omitempty"`
+	Decisions       map[string]AdoptionDecision `json:"decisions"`
 }
 
 func adoptionDecisionsPath(root string) string {
@@ -502,6 +510,80 @@ func RecordAdoptionDecisionFor(root, id string, decision AdoptionDecision) error
 	}
 	doc.Decisions[id] = decision
 	return writeAdoptionDecisions(root, doc)
+}
+
+// SetReviewedVersion records the engine release whose capabilities the
+// project has reviewed.
+func SetReviewedVersion(root, version string) error {
+	doc, err := ReadAdoptionDecisions(root)
+	if err != nil {
+		return err
+	}
+	if doc.ReviewedVersion == version {
+		return nil
+	}
+	doc.ReviewedVersion = version
+	return writeAdoptionDecisions(root, doc)
+}
+
+// CompareReleaseVersions orders two `MAJOR.MINOR.PATCH` versions (a suffix
+// after `-` is ignored); an unreadable part counts as zero.
+func CompareReleaseVersions(a, b string) int {
+	parse := func(v string) [3]int {
+		var out [3]int
+		v = strings.TrimPrefix(strings.SplitN(v, "-", 2)[0], "v")
+		for i, part := range strings.SplitN(v, ".", 3) {
+			n := 0
+			for _, r := range part {
+				if r < '0' || r > '9' {
+					break
+				}
+				n = n*10 + int(r-'0')
+			}
+			out[i] = n
+		}
+		return out
+	}
+	pa, pb := parse(a), parse(b)
+	for i := range pa {
+		if pa[i] != pb[i] {
+			if pa[i] < pb[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	return 0
+}
+
+// CapabilitiesToReview returns the capabilities this project has not decided
+// for the engine release it runs: off, undecided and introduced after the
+// reviewed version (every off, undecided one when none is recorded), and
+// deferrals taken under an older release. Capabilities that need setup are
+// not decisions yet and are not returned.
+func CapabilitiesToReview(root, engine string) ([]CapabilityState, error) {
+	states, err := CapabilityStates(root)
+	if err != nil {
+		return nil, err
+	}
+	decisions, err := ReadAdoptionDecisions(root)
+	if err != nil {
+		return nil, err
+	}
+	out := []CapabilityState{}
+	for _, state := range states {
+		switch state.State {
+		case CapabilityOff:
+			if decisions.ReviewedVersion == "" || CompareReleaseVersions(state.IntroducedIn, decisions.ReviewedVersion) > 0 {
+				out = append(out, state)
+			}
+		case CapabilityDeferred:
+			if state.Decision != nil && (state.Decision.Version == "" || CompareReleaseVersions(state.Decision.Version, engine) < 0) {
+				out = append(out, state)
+			}
+		}
+	}
+	return out, nil
 }
 
 // ClearAdoptionDecision forgets a recorded decision, as adopting does.

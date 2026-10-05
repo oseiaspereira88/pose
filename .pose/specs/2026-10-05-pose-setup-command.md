@@ -71,6 +71,7 @@ A new `pose setup` command, the adoption decision record, install/update summari
 - modified: pose-mcp/internal/cli/adopt.go
 - modified: pose-mcp/internal/cli/install.go
 - modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/cli/compat_test.go
 - modified: pose-mcp/internal/cli/doctor.go
 - modified: pose-mcp/internal/cli/cli.go
 - modified: pose-mcp/internal/cli/help_catalog.go
@@ -104,13 +105,21 @@ A fresh install and an older instance read through `pose setup --json`; the inte
 
 ### Requirement trace
 
+- R1 [satisfied] test:TestSetupOnAFreshInstallNamesTheNextStep test:TestSetupFindsCapabilitiesAnOlderInstanceHasNotDecided check:setup-command-integration
+- R2 [satisfied] test:TestSetupOnAFreshInstallNamesTheNextStep test:TestSetupAtATerminalPerformsOnlyConfirmedSteps test:TestSetupDeferralIsAskedAgainUnderANewerEngine check:setup-command-integration
+- R3 [satisfied] test:TestSetupAtATerminalPerformsOnlyConfirmedSteps test:TestSetupOnAFreshInstallNamesTheNextStep check:setup-command-integration
+- R4 [satisfied] test:TestSetupFindsCapabilitiesAnOlderInstanceHasNotDecided test:TestCompatibilityUpgradeFromLegacyInstance check:setup-command-integration
+- R5 [satisfied] test:TestSetupFindsCapabilitiesAnOlderInstanceHasNotDecided check:setup-command-integration
+
 ### Known gaps
+
+None.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+`pose setup` (report, `--json`, interactive with explicit confirmation), `reviewed_version` and decision versions in the adoption record, capabilities to review, the install and update next steps, and doctor's `setup.capabilities`.
 
 ### Residual risks
 

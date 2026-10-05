@@ -360,6 +360,22 @@ var commandHelpCatalog = map[string]CommandHelp{
 			"pose action resolve act-0123456789abcdef --actor human:maintainer --answer preserve-v1 --request-digest sha256:... --expected-revision 1 --idempotency-key answer-1 --apply",
 		},
 	},
+	"setup": {
+		Name:            "setup",
+		SummaryEN:       "See what is in force, what is new and what is missing, and set it up step by step",
+		SummaryPtBR:     "Mostra o que está em vigor, o que é novo e o que falta, e configura passo a passo",
+		Usage:           "pose setup [--json] [--no-input]",
+		DescriptionEN:   "One map of the instance's configuration: project identity, principals and keys (with the principal your git identity suggests — a name, not a proof), the pre-commit gate, capabilities in force, capabilities new since the last configuration review (reviewed_version in .pose/policy/adoption-decisions.json), what needs setup, and one next step with its command. At a terminal it offers each open step — installing the hook, registering your key with the maintainer role, deciding each new capability (adopt, decline or defer with a reason) — and performs it only after an explicit yes. Without a terminal, with --no-input or --json, it changes nothing and prints the commands, so an agent can ask the person.",
+		DescriptionPtBR: "Um mapa da configuração da instância: identidade do projeto, principals e chaves (com o principal que sua identidade git sugere — um nome, não uma prova), o gate de pre-commit, capacidades em vigor, capacidades novas desde a última revisão de configuração (reviewed_version em .pose/policy/adoption-decisions.json), o que precisa de setup e um próximo passo com seu comando. Num terminal, oferece cada passo aberto — instalar o hook, registrar sua chave com o papel maintainer, decidir cada capacidade nova (adotar, recusar ou adiar com motivo) — e só o executa depois de um sim explícito. Sem terminal, com --no-input ou --json, não muda nada e imprime os comandos, para que um agente pergunte à pessoa.",
+		Flags: []FlagHelp{
+			{"--json", "Print the plan as JSON and change nothing", "Mostra o plano em JSON e não muda nada"},
+			{"--no-input", "Report only, even at a terminal", "Só relata, mesmo num terminal"},
+		},
+		Examples: []string{
+			"pose setup",
+			"pose setup --json",
+		},
+	},
 	"identity": {
 		Name:            "identity",
 		SummaryEN:       "Register the SSH keys a principal proves its answers with",

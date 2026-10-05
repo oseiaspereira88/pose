@@ -513,6 +513,20 @@ bundle, project audience, reviewer principal and required executions. Human
 claims need a separate authority grant. Legacy bundles remain auditable under
 the assurance mode sealed when they were created.
 
+### Guided setup
+
+`pose setup` is the one place to see an instance's configuration and the next
+step: project identity, principals and keys, the pre-commit gate, capabilities
+in force, capabilities new since the last configuration review, what needs
+setup, and whether the configuration is committed. At a terminal it offers each
+open step and performs it only after an explicit yes; with `--json`,
+`--no-input` or no terminal it only reports, with the commands. A fresh install
+records its engine version as reviewed in `.pose/policy/adoption-decisions.json`
+(`reviewed_version`); an older instance sees every capability it has not
+decided. `pose install` ends with `pose setup` as the next step, `pose update`
+names the pending decisions instead of "Nothing to do", and `pose doctor`
+reports them as a `next` step. A deferral is asked again under a newer engine.
+
 ### Signed action answers
 
 A project can verify who answered an action request without any external

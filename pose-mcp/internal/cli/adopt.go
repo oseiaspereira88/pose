@@ -14,6 +14,7 @@ import (
 	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
+	"github.com/harne8/pose-mcp/internal/version"
 )
 
 const adoptUsage = "Usage: pose adopt --list [--json] | pose adopt <capability> [--off | --decline --reason <text> | --defer --reason <text>] [--date YYYY-MM-DD] [--apply]"
@@ -113,10 +114,11 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 		if !apply {
 			return 0
 		}
-		if err := posemodel.RecordAdoptionDecision(root, entry.ID, mode, reason, date); err != nil {
+		if err := posemodel.RecordAdoptionDecisionFor(root, entry.ID, posemodel.AdoptionDecision{Decision: mode, Reason: reason, Date: date, Version: version.ReleaseBase()}); err != nil {
 			out.Failure("pose adopt: " + err.Error())
 			return 1
 		}
+		advanceReviewedVersion(root)
 		return 0
 	}
 
@@ -164,6 +166,7 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 	if mode == "on" {
 		_ = posemodel.ClearAdoptionDecision(root, entry.ID)
 	}
+	advanceReviewedVersion(root)
 	return 0
 }
 
@@ -177,6 +180,9 @@ func adoptGovernedCapabilitiesAtInstall(target string, now time.Time, log func(e
 		return
 	}
 	date := now.UTC().Format(time.DateOnly)
+	// A new instance has reviewed this engine's catalog by adopting its
+	// defaults; only what a later engine introduces is new to it.
+	_ = posemodel.SetReviewedVersion(target, version.ReleaseBase())
 	adopted := []string{}
 	for _, entry := range posemodel.CapabilityCatalog() {
 		if !entry.DefaultForNew || entry.Adopted(docs) {

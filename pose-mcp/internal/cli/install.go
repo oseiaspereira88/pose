@@ -421,6 +421,10 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	log("install complete — POSE is ready in %s", "instalação concluída — POSE pronto em %s", target)
+	if newReviewPolicy {
+		// An install never ends without a next step (spec pose-setup-command).
+		log("next: `pose setup` — identity, the commit gate and capability decisions, one confirmed step at a time", "próximo: `pose setup` — identidade, gate de commit e decisões de capacidades, um passo confirmado por vez")
+	}
 	return 0
 }
 
