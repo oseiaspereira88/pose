@@ -215,4 +215,4 @@ precisa de baseline v2 por spec e pode revelar diagnósticos de basis em
 specs existentes. `pose amend` segue só para specs em pasta.
 
 ### Follow-ups
-- [open] Adotar `contract_nodes_version` nas instâncias depois do stop/go do piloto de campo, com baseline v2 das specs em pasta. (owner:@pose-maintainers crit:medium review:2026-11-01)
+- [done] Adotado no pose-dist em 2026-10-05 por decisão do maintainer (action request act-7d587a8e4f3bf0fc, após o shadow de pose-abm-capability-adoption sem efeito observável neste corpus); a adoção no Harne8 segue a spec harne8-adopt-agency-readiness. Item original: adotar `contract_nodes_version` nas instâncias depois do stop/go do piloto de campo, com baseline v2 das specs em pasta. (owner:@pose-maintainers crit:medium review:2026-11-01)
