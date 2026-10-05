@@ -29,6 +29,9 @@ func TestMinimalSurfaceKeepsGovernanceAndDropsRitual(t *testing.T) {
 			t.Errorf("minimal surface lacks %q", want)
 		}
 	}
+	if n := strings.Count(text, "\nsurface:"); n != 1 {
+		t.Errorf("frontmatter carries %d surface keys, want 1", n)
+	}
 	for _, gone := range []string{"## 4. Tasks", "### Files and modules changed", "### Validation executed"} {
 		if strings.Contains(text, gone) {
 			t.Errorf("minimal surface still carries %q", gone)

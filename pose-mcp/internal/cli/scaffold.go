@@ -361,10 +361,15 @@ func cmdNewRoadmap(root string, args []string, stdout, stderr io.Writer) int {
 // pose-progressive-spec-surface): the planner-local Tasks section and the
 // Final Report subsections `pose specs facts` derives. Intent, requirements,
 // artifacts, the requirement trace and follow-ups stay.
+var templateSurfaceKey = regexp.MustCompile(`(?m)^surface:[^\n]*$`)
+
 func applySpecSurface(content, surface string) string {
-	content = strings.Replace(content, "\ntask_type:", "\nsurface: "+surface+"\ntask_type:", 1)
-	if !strings.Contains(content, "\nsurface: ") {
-		content = strings.Replace(content, "\n---\n", "\nsurface: "+surface+"\n---\n", 1)
+	// The template already carries a commented `surface:` key; fill it rather
+	// than adding a second one (spec pose-spec-surface-single-key).
+	if loc := templateSurfaceKey.FindStringIndex(content); loc != nil {
+		content = content[:loc[0]] + "surface: " + surface + content[loc[1]:]
+	} else {
+		content = strings.Replace(content, "\ntask_type:", "\nsurface: "+surface+"\ntask_type:", 1)
 	}
 	if surface != pose.SpecSurfaceMinimal {
 		return content
