@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-8220c4c3288e1b04",
+  "bundle_id": "rvb-b2e1ed35c57520d4",
+  "bundle_digest": "sha256:b2e1ed35c57520d4b417fc19717bbac5df06897317cbf8b84192dd43855ceee9",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration",
+      "rationale": "Additive --candidates flag and an annotation on the projection."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration",
+      "rationale": "Manuals and help describe --candidates."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration",
+      "rationale": "Each candidate states why it was raised and the limits of the evidence."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration",
+      "rationale": "Delivers candidates with reasons; no automatic disposition. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration",
+      "rationale": "Read-only; candidates never change a follow-up."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-followup-reconciliation-candidates --strict exited 0 with no error for this spec; its 527 warnings are repository-wide orphan paths outside this spec"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration",
+      "rationale": "surface-check --spec pose-followup-reconciliation-candidates --strict reported zero findings against the sealed integration and reachability evidence"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration",
+      "rationale": "The full matrix passed 103 of 103 checks at aa34f63, including the integration checks this spec registered"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/followup-candidates-integration",
+      "rationale": "The full matrix passed 103 of 103 checks at aa34f63, including the integration checks this spec registered"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/followup-candidates-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:claude-opus-5-5",
+    "concluded_by": "agent:claude-opus-5-5",
+    "applied_by": "agent:claude-opus-5-5"
+  },
+  "attested_at": "2026-10-05T03:38:51Z",
+  "path": ".pose/review-attestations/rva-8220c4c3288e1b04.json"
+}
