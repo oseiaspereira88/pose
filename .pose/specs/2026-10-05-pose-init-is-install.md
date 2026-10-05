@@ -67,7 +67,6 @@ CLI dispatch for `init`, the wizard, help, docs.
 - created: .pose/starts/pose-init-is-install.json
 - modified: pose-mcp/internal/cli/cli.go
 - modified: pose-mcp/internal/cli/init.go
-- modified: pose-mcp/internal/cli/wizard.go
 - modified: pose-mcp/internal/cli/help_catalog.go
 - created: pose-mcp/internal/cli/init_install_test.go
 - modified: pose-mcp/internal/cli/cli_test.go
