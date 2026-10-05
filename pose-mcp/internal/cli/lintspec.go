@@ -300,6 +300,12 @@ func lintFollowupDisposition(content string, knownSlugs map[string]bool, current
 		}
 		return disposition, fmt.Sprintf(cliText(locale, "disposition [%s] requires a %s (use [%s: <%s>])", "disposição [%s] exige %s (use [%s: <%s>])"), disposition, kind, disposition, kind)
 	}
+	if knownSlugs != nil && dispositionSlugTargeted[disposition] && strings.HasPrefix(target, "xref:") {
+		if reason := lintQualifiedFollowupTarget(target); reason != "" {
+			return disposition, fmt.Sprintf(cliText(locale, "disposition [%s: %s] %s", "disposição [%s: %s] %s"), disposition, target, reason)
+		}
+		return disposition, ""
+	}
 	if knownSlugs != nil && dispositionSlugTargeted[disposition] {
 		if currentSlug != "" && target == currentSlug {
 			return disposition, fmt.Sprintf(cliText(locale, "disposition [%s] points to the current spec (%s)", "disposição [%s] aponta para a própria spec (%s)"), disposition, target)
@@ -309,6 +315,38 @@ func lintFollowupDisposition(content string, knownSlugs map[string]bool, current
 		}
 	}
 	return disposition, ""
+}
+
+// lintQualifiedFollowupTarget checks a disposition target in another project
+// (spec pose-followup-dispositions-accept-qualified-refs). What can be checked
+// is: a bound project must hold the spec. An unbound project is not evidence
+// that the spec is missing — the other repository is simply not here — so the
+// target is accepted, and verified wherever both projects are bound.
+func lintQualifiedFollowupTarget(target string) string {
+	ref, err := posepkg.ParseArtifactRef(target)
+	if err != nil {
+		return "is not a valid qualified reference (xref:<project>/spec:<slug>)"
+	}
+	if ref.Kind != "spec" {
+		return "names a " + ref.Kind + "; only a spec can take over a follow-up"
+	}
+	root, err := projectRoot()
+	if err != nil {
+		return ""
+	}
+	resolver, project, err := posepkg.EnvironmentArtifactResolver(root, "")
+	if err != nil {
+		return "cannot be checked: " + err.Error()
+	}
+	resolution := resolver.Resolve(project, target)
+	switch {
+	case resolution.Resolved:
+		return ""
+	case resolution.State == "unknown-project" || resolution.State == "unavailable-project" || resolution.State == "unauthorized-project":
+		return ""
+	default:
+		return "does not resolve: " + resolution.State
+	}
 }
 
 type ridEntry struct {
