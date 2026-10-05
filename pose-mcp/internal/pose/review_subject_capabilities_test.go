@@ -55,3 +55,11 @@ func TestReviewSubjectClassifiesTheCapabilityAssessment(t *testing.T) {
 		t.Errorf("capability history is not an excluded derived-evidence input: %+v", bundle.ExcludedInputs)
 	}
 }
+
+// Spec pose-review-attribution-roles: supplements are review records, read
+// like attestations, never a review subject of their own.
+func TestAttributionSupplementsAreDerivedReviewEvidence(t *testing.T) {
+	if class, include := reviewBundlePathClass(".pose/review-attribution-supplements/ras-0000000000000000.json", ScopeRef{Kind: "spec", Slug: "x"}, nil); class != "derived-evidence" || include {
+		t.Fatalf("supplement classified as %q include=%v", class, include)
+	}
+}
