@@ -1,8 +1,8 @@
 ---
 slug: pose-falsifier-reconsideration
-status: in-progress
+status: done
 created_at: 2026-10-04
-completed_at:
+completed_at: 2026-10-05
 supersedes:
 depends_on: pose-assumption-validity-scope
 priority: 3
@@ -153,7 +153,7 @@ Fixture with a failing falsifier check raises candidate; no automatic status cha
 
 ### Delivered scope
 
-Not started. Filled at closeout from the requirement trace and the change sets.
+Delivers optional Expected effect and Falsifier check fields and the falsifier-observed projection. Each requirement is traced to its tests and matrix checks under Validation. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it.
 
 ### Follow-ups
 
