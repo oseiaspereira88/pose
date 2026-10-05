@@ -1,8 +1,8 @@
 ---
 slug: pose-action-request-resolution
-status: in-progress
+status: done
 created_at: 2026-10-04
-completed_at:
+completed_at: 2026-10-05
 supersedes:
 depends_on: pose-review-attribution-roles, pose-action-requests
 priority: 0
@@ -173,7 +173,7 @@ verified path with a test issuer.
 
 ### Delivered scope
 
-Not started. Filled at closeout from the requirement trace and the change sets.
+Delivers resolve, cancel, waive and invalidate with roles, digests, revisions, idempotency and verified claims as specified. Each requirement is traced to its tests and matrix checks under Validation. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it.
 
 ### Follow-ups
 
