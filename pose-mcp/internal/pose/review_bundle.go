@@ -1049,10 +1049,12 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	}
 	// .pose/transfers/ holds transfer and reconciliation plans, receipts,
 	// archived sources and redirects: the record of who owns a spec.
+	// .pose/actions/ holds action request journals: decisions, approvals and
+	// their answers, which restrict phases (spec pose-action-requests).
 	// .pose/capabilities/ holds the capability assessment, whose bullets are
 	// the authority on each mechanism's state (spec
 	// review-subject-classifies-capabilities).
-	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/", ".pose/capabilities/"} {
+	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/", ".pose/capabilities/", ".pose/actions/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "governance", true
 		}

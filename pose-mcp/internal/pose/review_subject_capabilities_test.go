@@ -63,3 +63,11 @@ func TestAttributionSupplementsAreDerivedReviewEvidence(t *testing.T) {
 		t.Fatalf("supplement classified as %q include=%v", class, include)
 	}
 }
+
+// Spec pose-action-requests: an action request journal is a governance record
+// a reviewer reads with the change.
+func TestActionRequestJournalsAreGovernanceSubjects(t *testing.T) {
+	if class, include := reviewBundlePathClass(".pose/actions/act-0000000000000000.jsonl", ScopeRef{Kind: "spec", Slug: "x"}, nil); class != "governance" || !include {
+		t.Fatalf("journal classified as %q include=%v", class, include)
+	}
+}
