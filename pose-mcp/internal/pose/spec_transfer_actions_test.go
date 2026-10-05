@@ -24,6 +24,10 @@ func openSourceRequest(t *testing.T, sourceRoot string) ActionRequestView {
 }
 
 func TestTransferInvalidatesSourceRequestsOnceEvenWhenResumed(t *testing.T) {
+	// Each fixture root is its own project, identified by its directory; a
+	// declared identity in the environment would make them all one project.
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "")
+	t.Setenv("POSE_PROJECT_ROOTS", "")
 	resolver, sourceRoot, destinationRoot, _, _ := setupSiblingTransferFixture(t)
 	view := openSourceRequest(t, sourceRoot)
 	plan, err := PreviewSpecTransfer(resolver, transferRequest(true), "2026-09-24")
@@ -67,6 +71,10 @@ func TestTransferInvalidatesSourceRequestsOnceEvenWhenResumed(t *testing.T) {
 }
 
 func TestTransferRefusesARequestOpenedAfterThePreview(t *testing.T) {
+	// Each fixture root is its own project, identified by its directory; a
+	// declared identity in the environment would make them all one project.
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "")
+	t.Setenv("POSE_PROJECT_ROOTS", "")
 	resolver, sourceRoot, _, _, _ := setupSiblingTransferFixture(t)
 	plan, err := PreviewSpecTransfer(resolver, transferRequest(true), "2026-09-24")
 	if err != nil {
