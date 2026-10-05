@@ -210,6 +210,11 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	// governed capabilities from today. One that already existed is a project
 	// under way and decides with `pose adopt` (spec
 	// pose-governed-capabilities-default-on-new-instances).
+	// The identity this install resolved is declared once, in a committed
+	// file every checkout reads (spec pose-project-identity-file).
+	if written, err := posemodel.WriteProjectFile(target, projectID, projectName); err == nil && written {
+		log("project identity: %s → .pose/project.json", "identidade do projeto: %s → .pose/project.json", projectID)
+	}
 	_, reviewPolicyErr := os.Stat(filepath.Join(target, ".pose", "policy", "review.json"))
 	newReviewPolicy := os.IsNotExist(reviewPolicyErr)
 	seedAbsentInstanceConfig(dist, target, log)

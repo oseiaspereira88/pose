@@ -586,12 +586,16 @@ func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 	}
 	if err != nil || project == "" {
 		project = DefaultProjectID(s.Root)
-		snap.Limitations = append(snap.Limitations, "project identity fell back to the directory name")
+		reason := "project identity fell back to the directory name"
+		if err != nil {
+			reason += " (" + err.Error() + ")"
+		}
+		snap.Limitations = append(snap.Limitations, reason)
 	} else if !ProjectIdentityDeclared(s.Root) {
 		// The resolver derives the id from the directory name without an
 		// error; say so, because a checkout under another name reads (and
 		// records references under) another project.
-		snap.Limitations = append(snap.Limitations, "project identity fell back to the directory name (no POSE_DEFAULT_PROJECT_ID or POSE_PROJECT_ROOTS binding)")
+		snap.Limitations = append(snap.Limitations, "project identity fell back to the directory name; declare it in .pose/project.json")
 	}
 	snap.Project = project
 	if head, err := exec.Command("git", "-C", s.Root, "rev-parse", "--verify", "HEAD").Output(); err == nil {

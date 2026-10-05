@@ -151,7 +151,7 @@ func actionIdentityFallback(store posemodel.Store) string {
 	snapshot := store.CurrentObligationSnapshot()
 	for _, limitation := range snapshot.Limitations {
 		if strings.Contains(limitation, "fell back to the directory name") {
-			return "the request is qualified as " + snapshot.Project + ", derived from the directory name; declare POSE_DEFAULT_PROJECT_ID (in .mcp.json) so every checkout records the same project"
+			return "the request is qualified as " + snapshot.Project + ", derived from the directory name; declare it in .pose/project.json so every checkout records the same project"
 		}
 	}
 	return ""

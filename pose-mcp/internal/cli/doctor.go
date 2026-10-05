@@ -307,6 +307,17 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		}
 	}
 
+	// Where this project's identity is declared, and whether an environment
+	// binding disagrees with it (spec pose-project-identity-file).
+	if declared, ok, fileErr := posemodel.ReadProjectFile(root); fileErr != nil {
+		add("project.identity", "error", fileErr.Error(), text("fix .pose/project.json: {\"schema_version\":1,\"project_id\":\"proj.<name>\"}", "corrija .pose/project.json: {\"schema_version\":1,\"project_id\":\"proj.<nome>\"}"))
+	} else if !ok {
+		add("project.identity", "warn", fmt.Sprintf(text("no .pose/project.json: the project id is derived from the directory name (%s) and changes with the checkout", "sem .pose/project.json: o id do projeto vem do nome do diretório (%s) e muda com o checkout"), posemodel.DefaultProjectID(root)), text("declare it: {\"schema_version\":1,\"project_id\":\"proj.<name>\"} in .pose/project.json", "declare-o: {\"schema_version\":1,\"project_id\":\"proj.<nome>\"} em .pose/project.json"))
+	} else if env := os.Getenv("POSE_DEFAULT_PROJECT_ID"); env != "" && env != declared {
+		add("project.identity", "warn", fmt.Sprintf(text("POSE_DEFAULT_PROJECT_ID is %s but .pose/project.json declares %s; resolution refuses the conflict", "POSE_DEFAULT_PROJECT_ID é %s mas .pose/project.json declara %s; a resolução recusa o conflito"), env, declared), text("make the binding (.mcp.json or the environment) name the declared id", "faça o vínculo (.mcp.json ou ambiente) usar o id declarado"))
+	} else {
+		add("project.identity", "ok", fmt.Sprintf(text("project %s declared in .pose/project.json", "projeto %s declarado em .pose/project.json"), declared), "")
+	}
 	// 6. MCP uses the same native binary directly.
 	if b, err := os.ReadFile(filepath.Join(root, ".mcp.json")); err != nil {
 		add("mcp.config", "warn", text("static .mcp.json configuration not found", "configuração estática .mcp.json ausente"), text("run 'pose install', then restart/reconnect the client and call pose_mcp_context", "rode 'pose install', reinicie/reconecte o cliente e chame pose_mcp_context"))
