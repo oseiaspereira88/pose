@@ -77,6 +77,8 @@ own spec or amendment).
 - created: .pose/reports/pose-agency-readiness-pilot.md
 - created: .pose/results/pose-agency-readiness-pilot.json
 - created: .pose/actions/act-dd6a58232dd28ea5.jsonl
+- modified: .pose/policy/review.json
+- created: .pose/policy/actions.json
 
 Reconciled against the tree at activation.
 
@@ -124,7 +126,17 @@ Pre-registered scenarios and baseline taken before enabling the capability.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] <automated rehearsal: open, Attention, refusal, resolve, revalidation and continuation on a real spec> report:.pose/reports/pose-agency-readiness-pilot.md
+- R2 [satisfied] <an unrelated commit kept the answer; a subject change re-asked> report:.pose/reports/pose-agency-readiness-pilot.md
+- R3 [satisfied] <two defects and the unknowns recorded; no gate adjusted> report:.pose/reports/pose-agency-readiness-pilot.md
+- R4 [satisfied] <baseline comparison of capability, commands, interventions and invalidations; time per step in the results file> report:.pose/reports/pose-agency-readiness-pilot.md
+- R5 [satisfied] <stop/go answered by human:oseias (declared) on 2026-10-05: go, delimited to pose-dist, with the stated rollback condition; policy changed only after the answer> report:.pose/reports/pose-agency-readiness-pilot.md
+
 ## 7. Final Report
+
+The stop/go was answered on 2026-10-05 by human:oseias through the Claude Code session (declared identity, applied by agent:claude-opus-5-5): option go-delimited. `agency_readiness_version: 1` and `.pose/policy/actions.json` (maintainer = human:oseias, declared assurance) were committed after the answer; `pose state --governance` reports the capability effective. Rollback: remove the key if a request blocks a closeout the maintainer judges should proceed because of an engine defect, or if Attention misses an existing request.
 
 An automated rehearsal ran the slice on a disposable clone at 768e6c7 (report `.pose/reports/pose-agency-readiness-pilot.md`, record `.pose/results/pose-agency-readiness-pilot.json`). It is not human experience: the answering principal was a script fixture. All 17 steps behaved as designed, including four refusals and one subject-change invalidation, and an unrelated commit did not re-ask the answered decision. Two defects surfaced and were fixed under their owning specs: `stats governance --waits` took 88 s (2a0fdc8, now 13 ms) and a directory-derived project identity was silent (768e6c7). Authority transfer and Harne8 consumption were not exercised. The stop/go (R5) is open as action request `act-dd6a58232dd28ea5`, addressed to human:oseias with the agent's recommendation; the policy stays unadopted until it is answered, so this spec cannot close before then.
 
