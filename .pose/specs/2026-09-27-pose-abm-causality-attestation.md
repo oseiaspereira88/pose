@@ -200,4 +200,4 @@ julgamento do revisor. O shadow comparativo previsto no rollout não foi
 executado, porque a capability não está adotada.
 
 ### Follow-ups
-- [open] Rodar o shadow comparativo do causality-closeout sobre os corpora e adotar `causality_closeout_version` depois do stop/go do piloto. (owner:@pose-maintainers crit:medium review:2026-11-01)
+- [done] Adotado no pose-dist em 2026-10-05 por decisão do maintainer (action request act-08a9fd2d9a0e50bb): duas medições (sem e com `structural-materiality@1`), quatro remediações no motor (pose-validation-check-additions-are-not-material, pose-causality-closeout-adoption-cutoff, pose-attest-refuses-what-verify-rejects, pose-governed-capabilities-default-on-new-instances) e então `pose adopt causality-closeout --date 2026-10-06 --apply`. Instâncias novas adotam na instalação. Item original: rodar o shadow comparativo do causality-closeout sobre os corpora e adotar `causality_closeout_version` depois do stop/go do piloto. (owner:@pose-maintainers crit:medium review:2026-11-01)
