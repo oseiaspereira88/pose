@@ -130,6 +130,8 @@ start and contract nodes on the next real specs.
 
 ## 7. Final Report
 
+Decision 2 of 3 recorded on 2026-10-05: atomic start adopted after a cutoff (act-fa1d72f029d567a0 answered adopt, option B). The cutoff landed as spec pose-atomic-start-adoption-cutoff; `atomic_start_version: 1` with `atomic_start_adopted_at: 2026-10-06` (chosen by the maintainer so no existing spec blocks) was committed after it, and effective governance reports it effective with zero start-reconciliation obligations.
+
 Decision 1 of 3 recorded on 2026-10-05: contract nodes adopted (act-7d587a8e4f3bf0fc answered adopt by human:oseias, declared); `contract_nodes_version: 1` committed after the answer and reported effective by `pose state --governance`.
 
 A shadow on five disposable clones at ce17db6 (report `.pose/reports/pose-abm-capability-adoption.md`) measured each capability against an unadopted baseline. Contract nodes had no observable effect in this corpus. Atomic start added 39 closeout-restricting `start-reconciliation` obligations, one per spec already in progress, with no command to record a legacy baseline and no adoption cutoff; that stops its rollout without invalidating the code. Causality closeout stamped its contract on all 39 prepared bundles; its attestation cost was not measured. No implementation was added. The three adoption decisions are open as action requests act-7d587a8e4f3bf0fc, act-fa1d72f029d567a0 and act-08a9fd2d9a0e50bb, addressed to human:oseias with the agent's recommendation (adopt, defer, defer); the review policy changes only after each answer.
@@ -140,4 +142,4 @@ Not started. Filled at closeout from the requirement trace and the change sets.
 
 ### Follow-ups
 
-- [open] Atomic start needs a baseline command for specs already in progress, or an adoption cutoff, before it can be adopted: the shadow measured 39 closeout-blocking reconciliations with no remedy (owner:@pose-maintainers crit:medium review:2026-11-01)
+- [done] Resolved by the adoption cutoff (spec pose-atomic-start-adoption-cutoff), chosen by the maintainer over a baseline command. Original item: atomic start needs a baseline command for specs already in progress, or an adoption cutoff, before it can be adopted: the shadow measured 39 closeout-blocking reconciliations with no remedy (owner:@pose-maintainers crit:medium review:2026-11-01)
