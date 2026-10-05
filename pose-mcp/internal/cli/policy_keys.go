@@ -75,6 +75,10 @@ func policyKeyChecks() []policyKeyCheck {
 			known: posemodel.PolicyKnownKeys(posemodel.ChangelogPolicy{}),
 		},
 		{
+			file: "actions.json", check: "actions.policy-keys", label: "actions",
+			known: posemodel.PolicyKnownKeys(posemodel.ActionPolicy{}),
+		},
+		{
 			file: "dor.json", check: "dor.policy-keys", label: "definition-of-ready",
 			known: posemodel.PolicyKnownKeys(posemodel.DoRPolicy{}),
 		},

@@ -79,6 +79,7 @@ own spec or amendment).
 - created: .pose/actions/act-dd6a58232dd28ea5.jsonl
 - modified: .pose/policy/review.json
 - created: .pose/policy/actions.json
+- modified: pose-mcp/internal/cli/policy_keys.go
 
 Reconciled against the tree at activation.
 
