@@ -65,7 +65,8 @@
             "test",
             "--if-present"
           ],
-          "severity": "required"
+          "severity": "required",
+          "evidenceClass": "unit"
         },
         {
           "name": "build",
@@ -75,7 +76,8 @@
             "build",
             "--if-present"
           ],
-          "severity": "required"
+          "severity": "required",
+          "evidenceClass": "build"
         },
         {
           "name": "typecheck",
@@ -132,7 +134,8 @@
           "args": [
             "test"
           ],
-          "severity": "required"
+          "severity": "required",
+          "evidenceClass": "unit"
         }
       ]
     },
@@ -148,7 +151,8 @@
           "severity": "required",
           "when": {
             "fileExists": "pom.xml"
-          }
+          },
+          "evidenceClass": "unit"
         },
         {
           "name": "gradle-test",
@@ -159,7 +163,8 @@
           "severity": "required",
           "when": {
             "fileExists": "gradlew"
-          }
+          },
+          "evidenceClass": "unit"
         },
         {
           "name": "gradle-test-wrapper",
@@ -171,7 +176,8 @@
           "when": {
             "fileExists": "build.gradle",
             "fileNotExists": "gradlew"
-          }
+          },
+          "evidenceClass": "unit"
         },
         {
           "name": "gradle-test-wrapper-kts",
@@ -183,7 +189,8 @@
           "when": {
             "fileExists": "build.gradle.kts",
             "fileNotExists": "gradlew"
-          }
+          },
+          "evidenceClass": "unit"
         }
       ]
     },
@@ -200,7 +207,8 @@
           "severity": "required",
           "when": {
             "fileExists": "poetry.lock"
-          }
+          },
+          "evidenceClass": "unit"
         },
         {
           "name": "pipenv-test",
@@ -216,7 +224,8 @@
             "fileNotExistsAny": [
               "poetry.lock"
             ]
-          }
+          },
+          "evidenceClass": "unit"
         },
         {
           "name": "pip-test",
@@ -231,7 +240,8 @@
               "poetry.lock",
               "Pipfile"
             ]
-          }
+          },
+          "evidenceClass": "unit"
         },
         {
           "name": "setuptools-test",
@@ -247,7 +257,8 @@
               "Pipfile",
               "requirements.txt"
             ]
-          }
+          },
+          "evidenceClass": "unit"
         },
         {
           "name": "pep517-test",
@@ -264,7 +275,8 @@
               "requirements.txt",
               "setup.py"
             ]
-          }
+          },
+          "evidenceClass": "unit"
         }
       ]
     },
@@ -276,7 +288,8 @@
           "args": [
             "test"
           ],
-          "severity": "required"
+          "severity": "required",
+          "evidenceClass": "unit"
         }
       ]
     },
@@ -1744,6 +1757,20 @@
             "./internal/cli",
             "-run",
             "InitIsInstall|InitOnAnInstalled|InitNative",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "fresh-install-health-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "FreshInstallHealth|ShippedStack|APhaseWithAnUnreadProducer|DoctorWarnsWhenAgencyReadinessHasNoPrincipal|DoctorFindingsHaveEvidence",
             "-count=1"
           ],
           "severity": "required",

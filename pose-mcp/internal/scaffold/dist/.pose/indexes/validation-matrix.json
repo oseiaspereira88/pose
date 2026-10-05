@@ -33,8 +33,8 @@
     "node": {
       "checks": [
         {"name": "lint", "program": "npm", "args": ["run", "lint", "--if-present"], "severity": "optional", "evidenceClass": "lint"},
-        {"name": "test", "program": "npm", "args": ["test", "--if-present"], "severity": "required"},
-        {"name": "build", "program": "npm", "args": ["run", "build", "--if-present"], "severity": "required"},
+        {"name": "test", "program": "npm", "args": ["test", "--if-present"], "severity": "required", "evidenceClass": "unit"},
+        {"name": "build", "program": "npm", "args": ["run", "build", "--if-present"], "severity": "required", "evidenceClass": "build"},
         {"name": "typecheck", "program": "npm", "args": ["run", "typecheck", "--if-present"], "severity": "optional", "evidenceClass": "typecheck"}
       ]
     },
@@ -47,29 +47,29 @@
     },
     "rust": {
       "checks": [
-        {"name": "test", "program": "cargo", "args": ["test"], "severity": "required"}
+        {"name": "test", "program": "cargo", "args": ["test"], "severity": "required", "evidenceClass": "unit"}
       ]
     },
     "java": {
       "checks": [
-        {"name": "maven-test", "program": "mvn", "args": ["-B", "test"], "severity": "required", "when": {"fileExists": "pom.xml"}},
-        {"name": "gradle-test", "program": "./gradlew", "args": ["test"], "severity": "required", "when": {"fileExists": "gradlew"}},
-        {"name": "gradle-test-wrapper", "program": "gradle", "args": ["test"], "severity": "required", "when": {"fileExists": "build.gradle", "fileNotExists": "gradlew"}},
-        {"name": "gradle-test-wrapper-kts", "program": "gradle", "args": ["test"], "severity": "required", "when": {"fileExists": "build.gradle.kts", "fileNotExists": "gradlew"}}
+        {"name": "maven-test", "program": "mvn", "args": ["-B", "test"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "pom.xml"}},
+        {"name": "gradle-test", "program": "./gradlew", "args": ["test"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "gradlew"}},
+        {"name": "gradle-test-wrapper", "program": "gradle", "args": ["test"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "build.gradle", "fileNotExists": "gradlew"}},
+        {"name": "gradle-test-wrapper-kts", "program": "gradle", "args": ["test"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "build.gradle.kts", "fileNotExists": "gradlew"}}
       ]
     },
     "python": {
       "checks": [
-        {"name": "poetry-test", "program": "poetry", "args": ["run", "pytest", "-q"], "severity": "required", "when": {"fileExists": "poetry.lock"}},
-        {"name": "pipenv-test", "program": "pipenv", "args": ["run", "pytest", "-q"], "severity": "required", "when": {"fileExists": "Pipfile", "fileNotExistsAny": ["poetry.lock"]}},
-        {"name": "pip-test", "program": "pytest", "args": ["-q"], "severity": "required", "when": {"fileExists": "requirements.txt", "fileNotExistsAny": ["poetry.lock", "Pipfile"]}},
-        {"name": "setuptools-test", "program": "pytest", "args": ["-q"], "severity": "required", "when": {"fileExists": "setup.py", "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt"]}},
-        {"name": "pep517-test", "program": "pytest", "args": ["-q"], "severity": "optional", "when": {"fileExists": "pyproject.toml", "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt", "setup.py"]}}
+        {"name": "poetry-test", "program": "poetry", "args": ["run", "pytest", "-q"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "poetry.lock"}},
+        {"name": "pipenv-test", "program": "pipenv", "args": ["run", "pytest", "-q"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "Pipfile", "fileNotExistsAny": ["poetry.lock"]}},
+        {"name": "pip-test", "program": "pytest", "args": ["-q"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "requirements.txt", "fileNotExistsAny": ["poetry.lock", "Pipfile"]}},
+        {"name": "setuptools-test", "program": "pytest", "args": ["-q"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "setup.py", "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt"]}},
+        {"name": "pep517-test", "program": "pytest", "args": ["-q"], "severity": "optional", "evidenceClass": "unit", "when": {"fileExists": "pyproject.toml", "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt", "setup.py"]}}
       ]
     },
     "dotnet": {
       "checks": [
-        {"name": "dotnet-test", "program": "dotnet", "args": ["test"], "severity": "required"}
+        {"name": "dotnet-test", "program": "dotnet", "args": ["test"], "severity": "required", "evidenceClass": "unit"}
       ]
     },
     "cloudflare-workers": {

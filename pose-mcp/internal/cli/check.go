@@ -417,6 +417,12 @@ func isRuntimeReference(ref string) bool {
 		".pose/project.json",
 		".pose/closeout-plans",
 		".pose/contributions",
+		// The docs manifest exists once `pose docs-init` runs, and release
+		// records once the project releases; a fresh install has neither, and
+		// Attention reads their absence as a source the project does not use
+		// (spec pose-fresh-install-doctor-is-clean).
+		".pose/docs.json",
+		".pose/releases",
 		".pose/feedback",
 		".pose/results",
 		".pose/reports/history",

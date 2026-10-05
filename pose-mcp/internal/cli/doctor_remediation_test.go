@@ -92,7 +92,7 @@ func TestDoctorFindingsHaveEvidenceAndRemediationClass(t *testing.T) {
 			if f.Check == "" {
 				t.Errorf("finding missing stable code: %+v", f)
 			}
-			if f.Level != "ok" && f.Level != "warn" && f.Level != "error" {
+			if f.Level != "ok" && f.Level != "next" && f.Level != "warn" && f.Level != "error" {
 				t.Errorf("finding has invalid severity: %+v", f)
 			}
 			if f.Evidence == "" {

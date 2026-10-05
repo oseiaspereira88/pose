@@ -1,6 +1,8 @@
 package pose
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -58,7 +60,16 @@ func TestALocalizedRestrictionIsNotAFullStopNorProofOfIndependence(t *testing.T)
 
 func TestAPhaseWithAnUnreadProducerIsUnknownNotClear(t *testing.T) {
 	s := actionFixture(t)
+	// A source this project does not have owes nothing: the phase is not
+	// unknown because of it (spec pose-fresh-install-doctor-is-clean).
 	phases, _ := s.SpecPhaseReadiness("storage")
+	if release := phaseOf(t, phases, PhaseRelease); len(release.Unread) != 0 {
+		t.Fatalf("release is unread for sources the project does not have: %+v", release)
+	}
+	if err := os.MkdirAll(filepath.Join(s.Root, ".pose", "releases", "v1.0.0"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	phases, _ = s.SpecPhaseReadiness("storage")
 	release := phaseOf(t, phases, PhaseRelease)
 	if release.State != PhaseUnknown || len(release.Unread) == 0 {
 		t.Fatalf("release is judged by producers that are not integrated: %+v", release)

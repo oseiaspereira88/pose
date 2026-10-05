@@ -151,8 +151,8 @@ func TestAdoptTogglesACapabilityThroughTheReader(t *testing.T) {
 func TestDoctorWarnsWhenAgencyReadinessHasNoPrincipal(t *testing.T) {
 	repo, _ := installedInstance(t)
 	finding, found := findDoctorFinding(runDoctorJSON(t, repo), "actions.roles")
-	if !found || finding.Level != "warn" || !strings.Contains(finding.Message, "no principal holds a role") {
-		t.Fatalf("doctor did not warn about the empty role map: found=%v %+v", found, finding)
+	if !found || finding.Level != "next" || !strings.Contains(finding.Message, "no principal holds a role") {
+		t.Fatalf("doctor did not name the empty role map as a next step: found=%v %+v", found, finding)
 	}
 	actions := filepath.Join(repo, ".pose", "policy", "actions.json")
 	if err := os.WriteFile(actions, []byte(`{"schema_version":1,"roles":{"maintainer":["human:someone"]},"identity_assurance":"declared"}`), 0o644); err != nil {

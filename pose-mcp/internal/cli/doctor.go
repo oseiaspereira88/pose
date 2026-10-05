@@ -27,7 +27,9 @@ import (
 // from the POSE instance schema-version). Existing fields are never
 // renamed or removed across versions — only added — so consumers pinned to
 // v1 keep working; bump this only for a genuinely breaking shape change.
-const doctorSchemaVersion = 1
+// Version 2 added the "next" level and the "next_steps" count (spec
+// pose-fresh-install-doctor-is-clean).
+const doctorSchemaVersion = 2
 
 // remediationClass distinguishes what an operator (or an automated caller)
 // can do about a finding (spec pose-doctor-guided-remediation R2):
@@ -47,7 +49,7 @@ const (
 
 type doctorFinding struct {
 	Check             string `json:"check"`
-	Level             string `json:"level"` // ok | warn | error
+	Level             string `json:"level"` // ok | next | warn | error
 	Message           string `json:"message"`
 	Hint              string `json:"hint,omitempty"`
 	Evidence          string `json:"evidence,omitempty"`
@@ -338,7 +340,9 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	// 7. Git hooks.
 	hook := filepath.Join(root, ".git", "hooks", "pre-commit")
 	if _, err := os.Lstat(hook); err != nil {
-		add("hooks.pre-commit", "warn", text("pre-commit hook not installed", "pre-commit não instalado"), text("run 'pose hooks install' for an automatic commit gate", "rode 'pose hooks install' para gate automático no commit"))
+		// A recommended step, not a problem: a fresh install reports it as next
+		// (spec pose-fresh-install-doctor-is-clean).
+		add("hooks.pre-commit", "next", text("pre-commit hook not installed", "pre-commit não instalado"), text("run 'pose hooks install' (or 'pose doctor --fix --yes') for an automatic commit gate", "rode 'pose hooks install' (ou 'pose doctor --fix --yes') para gate automático no commit"))
 	} else {
 		add("hooks.pre-commit", "ok", text("pre-commit hook installed", "pre-commit instalado"), "")
 	}
@@ -817,6 +821,11 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				}
 			}
 		}
+		// Milestone and roadmap profiles judge roadmap work; a project with no
+		// roadmap is held to none of their criteria, so a fresh install is not
+		// told it lacks integration evidence (spec
+		// pose-fresh-install-doctor-is-clean).
+		roadmaps, _ := filepath.Glob(filepath.Join(root, ".pose", "roadmaps", "*.md"))
 		demands := []classDemand{}
 		for id := range selected {
 			if id == "" {
@@ -827,6 +836,7 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				continue
 			}
 			var profile struct {
+				Scope     string `json:"scope"`
 				Selectors struct {
 					Languages []string `json:"languages"`
 				} `json:"selectors"`
@@ -840,6 +850,9 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				} `json:"tools"`
 			}
 			if json.Unmarshal(raw, &profile) != nil {
+				continue
+			}
+			if (profile.Scope == "milestone" || profile.Scope == "roadmap") && len(roadmaps) == 0 {
 				continue
 			}
 			if len(profile.Selectors.Languages) > 0 && len(domains) > 0 {
@@ -966,7 +979,9 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 						held += len(principals)
 					}
 					if held == 0 {
-						add("actions.roles", "warn",
+						// The default adoption leaves the roles empty on
+						// purpose: naming them is the next step, not a fault.
+						add("actions.roles", "next",
 							text("agency readiness is adopted and no principal holds a role in .pose/policy/actions.json: a request addressed to a role cannot be answered",
 								"agency readiness está adotada e nenhum principal tem papel em .pose/policy/actions.json: um request endereçado a um papel não pode ser respondido"),
 							text("list this project's own principals, e.g. \"maintainer\": [\"human:<you>\"]; a request addressed to a principal is unaffected",
@@ -1143,6 +1158,26 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	// module looks covered and contributes nothing.
 	if raw, err := os.ReadFile(filepath.Join(root, ".pose", "indexes", "validation-matrix.json")); err == nil {
 		if matrix, parseErr := parseValidationMatrix(raw); parseErr == nil {
+			// A shipped stack counts only when some module here uses it, and
+			// only for its required checks: a stack nothing selects never runs,
+			// and an optional probe the distribution ships (wrangler --version)
+			// gates nothing, so neither is a gap in this project's evidence.
+			// The project's own overrides are all its declarations and are all
+			// read (spec pose-fresh-install-doctor-is-clean).
+			required := func(check validationCheck) bool {
+				return check.Severity == "" || check.Severity == "required"
+			}
+			inUse := map[string]bool{}
+			if modules, discoverErr := discoverValidationModules(root); discoverErr == nil {
+				for _, module := range modules {
+					inUse[module.Stack] = true
+				}
+			}
+			for _, override := range matrix.ModuleOverrides {
+				if override.Stack != "" {
+					inUse[override.Stack] = true
+				}
+			}
 			unclassed := []string{}
 			for name, override := range matrix.ModuleOverrides {
 				for _, check := range override.Checks {
@@ -1152,8 +1187,11 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				}
 			}
 			for name, stack := range matrix.Stacks {
+				if !inUse[name] {
+					continue
+				}
 				for _, check := range stack.Checks {
-					if strings.TrimSpace(check.EvidenceClass) == "" {
+					if required(check) && strings.TrimSpace(check.EvidenceClass) == "" {
 						unclassed = append(unclassed, "stack:"+name+"/"+check.Name)
 					}
 				}
@@ -1167,7 +1205,7 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 					text("declare the class each check actually produces in .pose/indexes/validation-matrix.json — a passing check with no class leaves the module looking covered while contributing nothing to a review",
 						"declare em .pose/indexes/validation-matrix.json a classe que cada check de fato produz — um check verde sem classe deixa o módulo parecendo coberto sem contribuir nada para uma review"))
 			} else {
-				add("validate.evidence-class-coverage", "ok", text("every registered check declares an evidence class", "todo check registrado declara uma classe de evidência"), "")
+				add("validate.evidence-class-coverage", "ok", text("every required check of the stacks in use declares an evidence class", "todo check obrigatório das stacks em uso declara uma classe de evidência"), "")
 			}
 		}
 	}
@@ -1218,6 +1256,17 @@ func engineSchemaVersion(root string) int {
 	return nativeSchemaVersion
 }
 
+// countNext counts the recommended steps that are not problems: they are
+// listed and counted apart, and never change the exit code.
+func countNext(findings []doctorFinding) (next int) {
+	for _, f := range findings {
+		if f.Level == "next" {
+			next++
+		}
+	}
+	return
+}
+
 func countLevels(findings []doctorFinding) (errors, warns int) {
 	for _, f := range findings {
 		switch f.Level {
@@ -1232,7 +1281,7 @@ func countLevels(findings []doctorFinding) (errors, warns int) {
 
 func renderFindingsText(findings []doctorFinding, stdout io.Writer, locale cliLocale) {
 	for _, f := range findings {
-		icon := map[string]string{"ok": "✓", "warn": "!", "error": "✗"}[f.Level]
+		icon := map[string]string{"ok": "✓", "next": "→", "warn": "!", "error": "✗"}[f.Level]
 		suffix := ""
 		if f.RemediationClass == remediationFixable {
 			suffix = cliText(locale, " (fixable: pose doctor --fix)", " (corrigível: pose doctor --fix)")
@@ -1244,8 +1293,9 @@ func renderFindingsText(findings []doctorFinding, stdout io.Writer, locale cliLo
 	}
 }
 
-func printSummaryLine(errors, warns int, stdout io.Writer, locale cliLocale) {
-	fmt.Fprintf(stdout, cliText(locale, "\ndoctor: %d error(s), %d warning(s)\n", "\ndoctor: %d erro(s), %d aviso(s)\n"), errors, warns)
+func printSummaryLine(findings []doctorFinding, stdout io.Writer, locale cliLocale) {
+	errors, warns := countLevels(findings)
+	fmt.Fprintf(stdout, cliText(locale, "\ndoctor: %d error(s), %d warning(s), %d next step(s)\n", "\ndoctor: %d erro(s), %d aviso(s), %d próximo(s) passo(s)\n"), errors, warns, countNext(findings))
 }
 
 func doctorReport(root string, findings []doctorFinding, jsonOut bool, stdout io.Writer, locale cliLocale) int {
@@ -1258,10 +1308,11 @@ func doctorReport(root string, findings []doctorFinding, jsonOut bool, stdout io
 			"findings":              findings,
 			"errors":                errors,
 			"warnings":              warns,
+			"next_steps":            countNext(findings),
 		})
 	} else {
 		renderFindingsText(findings, stdout, locale)
-		printSummaryLine(errors, warns, stdout, locale)
+		printSummaryLine(findings, stdout, locale)
 		PrintContributorDoctorHint(root, stdout, locale)
 	}
 	if errors > 0 {
@@ -1292,6 +1343,7 @@ func doctorFixPreview(findings []doctorFinding, candidates []string, jsonOut boo
 			"findings":              findings,
 			"errors":                errors,
 			"warnings":              warns,
+			"next_steps":            countNext(findings),
 			"fix": map[string]any{
 				"mode":       "dry-run",
 				"candidates": planned,
@@ -1299,7 +1351,7 @@ func doctorFixPreview(findings []doctorFinding, candidates []string, jsonOut boo
 		})
 	} else {
 		renderFindingsText(findings, stdout, locale)
-		printSummaryLine(errors, warns, stdout, locale)
+		printSummaryLine(findings, stdout, locale)
 		if len(candidates) == 0 {
 			fmt.Fprintln(stdout, cliText(locale, "\nfix: nothing fixable right now.", "\nfix: nada corrigível no momento."))
 		} else {
@@ -1337,11 +1389,12 @@ func doctorFixApply(root string, before []doctorFinding, candidates []string, js
 				"findings":              before,
 				"errors":                errors,
 				"warnings":              warns,
+				"next_steps":            countNext(before),
 				"fix":                   map[string]any{"mode": "apply", "results": []doctorFixResult{}},
 			})
 		} else {
 			renderFindingsText(before, stdout, locale)
-			printSummaryLine(errors, warns, stdout, locale)
+			printSummaryLine(before, stdout, locale)
 			fmt.Fprintln(stdout, cliText(locale, "\nfix: nothing fixable right now.", "\nfix: nada corrigível no momento."))
 		}
 		return 0
@@ -1379,6 +1432,7 @@ func doctorFixApply(root string, before []doctorFinding, candidates []string, js
 			"findings":              after,
 			"errors":                errors,
 			"warnings":              warns,
+			"next_steps":            countNext(after),
 			"fix": map[string]any{
 				"mode":    "apply",
 				"results": results,
@@ -1386,7 +1440,7 @@ func doctorFixApply(root string, before []doctorFinding, candidates []string, js
 		})
 	} else {
 		renderFindingsText(after, stdout, locale)
-		printSummaryLine(errors, warns, stdout, locale)
+		printSummaryLine(after, stdout, locale)
 		fmt.Fprintln(stdout, cliText(locale, "\n[APPLIED]", "\n[APLICADO]"))
 		for _, r := range results {
 			detail := ""
