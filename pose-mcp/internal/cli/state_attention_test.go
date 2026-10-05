@@ -61,3 +61,15 @@ func TestStateAttentionAndMCPShareIDs(t *testing.T) {
 		t.Fatalf("attention grouping: %+v", payload.Attention)
 	}
 }
+
+// Spec pose-attention-federated-parity: the CLI reads obligations through the
+// same governed store as MCP, with the federated resolver and project, so
+// federated acceptance blockers are not missing from the CLI.
+func TestStateAttentionReadsThroughTheGovernedStore(t *testing.T) {
+	root := t.TempDir()
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "proj.parity")
+	store := attentionStore(root)
+	if store.FederatedResolver == nil || store.FederatedProjectID != "proj.parity" {
+		t.Fatalf("attention reads a store without federation: resolver=%v project=%q", store.FederatedResolver != nil, store.FederatedProjectID)
+	}
+}

@@ -46,7 +46,7 @@ func cmdStateAttention(root string, args []string, stdout, stderr io.Writer) int
 	// The actor filters what is shown first; every obligation stays in the
 	// report so phase blocking is never hidden by the actor view.
 	q.Actor = ""
-	report, err := pose.Store{Root: root}.ProjectObligations(q)
+	report, err := attentionStore(root).ProjectObligations(q)
 	if err != nil {
 		render(stdout, stderr).Failure("pose state --attention: " + err.Error())
 		return 1
@@ -146,4 +146,11 @@ func shortRev(value string) string {
 		return value[:12]
 	}
 	return value
+}
+
+// attentionStore is the governed store MCP reads through: with the federated
+// resolver and project, federated acceptance blockers are projected on the
+// CLI too (spec pose-attention-federated-parity).
+func attentionStore(root string) pose.Store {
+	return cliGovernedStore(root)
 }
