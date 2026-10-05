@@ -1,8 +1,8 @@
 ---
 slug: pose-review-attribution-roles
-status: in-progress
+status: done
 created_at: 2026-10-04
-completed_at:
+completed_at: 2026-10-05
 supersedes:
 depends_on: pose-review-assurance-disclosure
 priority: 0
@@ -205,7 +205,7 @@ not populate `confirmed_by`.
 
 ### Delivered scope
 
-Not started. Filled at closeout from the requirement trace and the change sets.
+Delivers the attribution block, explicit role flags, confirmation binding and supplements. Each requirement is traced to its tests and matrix checks under Validation. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it.
 
 ### Follow-ups
 
