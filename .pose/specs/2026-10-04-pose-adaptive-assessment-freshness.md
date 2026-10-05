@@ -1,8 +1,8 @@
 ---
 slug: pose-adaptive-assessment-freshness
-status: in-progress
+status: done
 created_at: 2026-10-04
-completed_at:
+completed_at: 2026-10-05
 supersedes:
 depends_on: pose-effective-governance-projection, pose-obligation-projection, pose-material-equivalence-reuse
 priority: 2
@@ -163,7 +163,7 @@ Binding mutation tests; workflow text test that no always-run instruction remain
 
 ### Delivered scope
 
-Not started. Filled at closeout from the requirement trace and the change sets.
+Delivers binding-based freshness, assess discover --if-stale and the advisory assessment obligation. Each requirement is traced to its tests and matrix checks under Validation. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it.
 
 ### Follow-ups
 
