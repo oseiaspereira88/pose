@@ -984,11 +984,60 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 						add("actions.roles", "next",
 							text("agency readiness is adopted and no principal holds a role in .pose/policy/actions.json: a request addressed to a role cannot be answered",
 								"agency readiness está adotada e nenhum principal tem papel em .pose/policy/actions.json: um request endereçado a um papel não pode ser respondido"),
-							text("list this project's own principals, e.g. \"maintainer\": [\"human:<you>\"]; a request addressed to a principal is unaffected",
-								"liste os principals deste projeto, ex.: \"maintainer\": [\"human:<você>\"]; um request endereçado a um principal não é afetado"))
+							text("register yourself: pose identity add --key ~/.ssh/<key>.pub --role maintainer --apply (or list principals in .pose/policy/actions.json); a request addressed to a principal is unaffected",
+								"registre-se: pose identity add --key ~/.ssh/<chave>.pub --role maintainer --apply (ou liste principals em .pose/policy/actions.json); um request endereçado a um principal não é afetado"))
 					} else {
 						add("actions.roles", "ok", fmt.Sprintf(text("%d principal(s) hold action-request roles", "%d principal(is) com papéis de action request"), held), "")
 					}
+				}
+			}
+			// A human role under verified assurance needs a way to prove an
+			// answer: a registered key (one that proves presence, for a
+			// person) or a trusted issuer authorised for humans (spec
+			// pose-signed-action-answers).
+			if actions, actionsErr := posemodel.LoadActionPolicy(root); actionsErr != nil {
+				add("actions.keys", "error", "invalid .pose/policy/actions.json: "+actionsErr.Error(), text("fix the policy; `pose identity list` reads it the same way", "corrija a policy; `pose identity list` a lê do mesmo jeito"))
+			} else if actions.IdentityAssurance == posemodel.ReviewIdentityAssuranceVerified {
+				unproven, untouched := []string{}, []string{}
+				for _, principal := range actions.Principals() {
+					if !strings.HasPrefix(principal, "human:") || strings.HasSuffix(principal, "*") || len(actions.RolesOf(principal)) == 0 {
+						continue
+					}
+					keys := actions.KeysFor(principal)
+					if len(keys) == 0 {
+						if len(policy.HumanAuthorityIssuers) == 0 {
+							unproven = append(unproven, principal)
+						}
+						continue
+					}
+					present := false
+					for _, key := range keys {
+						present = present || key.ProvesPresence()
+					}
+					if !present {
+						untouched = append(untouched, principal)
+					}
+				}
+				switch {
+				case len(unproven) > 0:
+					add("actions.keys", "warn",
+						fmt.Sprintf(text("identity assurance is verified and %s can prove no answer: no registered key and no issuer authorised for humans",
+							"a garantia de identidade é verified e %s não consegue provar resposta: nenhuma chave registrada e nenhum emissor autorizado para humanos"), strings.Join(unproven, ", ")),
+						text("register a key: pose identity add <principal> --key <file.pub> --apply (a security key, ssh-keygen -t ed25519-sk, also proves presence)",
+							"registre uma chave: pose identity add <principal> --key <arquivo.pub> --apply (uma chave de segurança, ssh-keygen -t ed25519-sk, também prova presença)"))
+				case len(untouched) > 0 && actions.RequirePresence:
+					add("actions.keys", "error",
+						fmt.Sprintf(text("require_presence is set and %s holds only keys that cannot prove presence, so no answer of theirs is accepted",
+							"require_presence está ativo e %s só tem chaves que não provam presença, então nenhuma resposta é aceita"), strings.Join(untouched, ", ")),
+						text("register a security key (ssh-keygen -t ed25519-sk) with pose identity add", "registre uma chave de segurança (ssh-keygen -t ed25519-sk) com pose identity add"))
+				case len(untouched) > 0:
+					add("actions.keys", "warn",
+						fmt.Sprintf(text("%s signs with keys that cannot prove presence: whoever holds the key file can answer as them",
+							"%s assina com chaves que não provam presença: quem tiver o arquivo da chave responde por eles"), strings.Join(untouched, ", ")),
+						text("prefer a security key (ssh-keygen -t ed25519-sk); set require_presence in .pose/policy/actions.json to demand it",
+							"prefira uma chave de segurança (ssh-keygen -t ed25519-sk); ative require_presence em .pose/policy/actions.json para exigi-la"))
+				default:
+					add("actions.keys", "ok", text("every human role holder can prove an answer", "todo humano com papel consegue provar uma resposta"), "")
 				}
 			}
 			// Legacy attempts live in `.pose/reviews/*.md` — the directory

@@ -82,7 +82,6 @@ Action policy, resolution verification, a native SSHSIG verifier, the `pose iden
 - modified: pose-mcp/internal/cli/cli.go
 - modified: pose-mcp/internal/cli/help_catalog.go
 - modified: pose-mcp/internal/cli/doctor.go
-- modified: pose-mcp/internal/cli/policy_keys.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
@@ -99,6 +98,23 @@ Action policy, resolution verification, a native SSHSIG verifier, the `pose iden
 
 - A hand-written verifier could accept what OpenSSH rejects; tests cover tampered statements, wrong namespace, wrong key, unregistered key and truncated blobs, and an interop test verifies a signature made by the real `ssh-keygen` when it is installed.
 
+## 4. Tasks
+
+### Implementation
+- [x] Native SSHSIG verifier with in-process signers for plain and security keys, and an OpenSSH interop test
+- [x] Principal keys in the action policy, the signed statement and verification in the resolution path
+- [x] `pose identity`, `pose action statement`, `resolve --sign|--signature`, re-verification in `action show`
+- [x] `actions.keys` in doctor
+
+### Validation
+- [x] Run the deterministic checks below and retain results
+
+## 5. Decisions
+
+- D1: The git identity only suggests a name; the proof is a signature by a key the project registered. Rationale: `user.email` is set by anyone, a key is held.
+- D2: A registered key's signature and a trusted issuer's claim are two emitters of one proof, accepted alike under verified assurance. Rationale: POSE works standalone and with Harne8 without a second assurance mode.
+- D3: Humans are warned, not refused, when their keys cannot prove presence; `require_presence` makes it a refusal. Rationale: decision 7 open choice, taken as recommended.
+
 ## 6. Validation
 
 ### Strategy
@@ -113,13 +129,23 @@ Signatures produced in-process for plain and security keys (with and without pre
 
 ### Requirement trace
 
+- R1 [satisfied] test:TestPrincipalKeyPolicyRefusesBadKeysAndSharedKeys check:signed-action-answers-integration
+- R2 [satisfied] test:TestIdentityAddSuggestsTheGitNameAndRegistersTheKey check:signed-action-answers-integration
+- R3 [satisfied] test:TestSignedAnswerThroughTheCLIIsVerifiedAndReverified check:signed-action-answers-integration
+- R4 [satisfied] test:TestSignedAnswerByARegisteredKeyIsVerifiedWithoutAnIssuer test:TestSignedAnswerRefusesEveryMismatch test:TestSSHSigVerifiesPlainAndSecurityKeys test:TestSSHSigRefusesWhatOpenSSHWouldRefuse test:TestSSHSigInteroperatesWithSSHKeygen check:signed-action-answers-integration
+- R5 [satisfied] test:TestSignedAnswerRequirePresenceRefusesAnUntouchedKey test:TestSignedAnswerThroughTheCLIIsVerifiedAndReverified check:signed-action-answers-integration
+- R6 [satisfied] test:TestDoctorReportsHumanRolesThatCannotProveAnAnswer check:signed-action-answers-integration
+- R7 [satisfied] test:TestSignedAnswerByARegisteredKeyIsVerifiedWithoutAnIssuer test:TestSignedAnswerThroughTheCLIIsVerifiedAndReverified check:signed-action-answers-integration
+
 ### Known gaps
+
+- The CLI tests and the interop test need `ssh-keygen`; they skip without it. The in-process tests cover the verifier, presence and every mismatch without it.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+Native SSHSIG verification (Ed25519 and FIDO Ed25519, presence and verification flags), principal keys in the action policy, `pose identity add|list|remove`, `pose action statement`, `resolve --sign|--signature`, re-verification in `action show`, `actions.keys` in doctor. Interop with OpenSSH 9.6 confirmed in both directions.
 
 ### Residual risks
 

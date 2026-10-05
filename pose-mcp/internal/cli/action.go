@@ -14,7 +14,7 @@ import (
 // pose-action-request-resolution): open, read and resolve material requests
 // to an actor. Writes are preview by default and need --apply.
 func cmdAction(root string, args []string, stdout, stderr io.Writer) int {
-	const usage = "Usage: pose action <open|list|show|resolve|cancel|waive|invalidate> ..."
+	const usage = "Usage: pose action <open|list|show|statement|resolve|cancel|waive|invalidate> ..."
 	if len(args) == 0 {
 		return usageError(stderr, usage)
 	}
@@ -25,6 +25,8 @@ func cmdAction(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdActionList(root, args[1:], stdout, stderr)
 	case "show":
 		return cmdActionShow(root, args[1:], stdout, stderr)
+	case "statement":
+		return cmdActionStatement(root, args[1:], stdout, stderr)
 	case "resolve", "cancel", "waive", "invalidate":
 		return cmdActionResolve(root, args[0], args[1:], stdout, stderr)
 	default:
@@ -285,6 +287,24 @@ func renderActionView(out interface{ Field(string, string) }, v posemodel.Action
 	out.Field("action.request_digest", r.RequestDigest)
 	if v.State == posemodel.ActionStateAnswered {
 		out.Field("action.answer", fmt.Sprintf("%s by %s (%s)", v.Answer, v.AnsweredBy, v.Assurance))
+		// A signed answer is verified again from the journal alone, so the
+		// reader does not have to trust the recorded assurance label.
+		for i := len(v.Events) - 1; i >= 0; i-- {
+			event := v.Events[i]
+			if event.Type != posemodel.ActionEventAnswered || event.SSHSignature == nil {
+				continue
+			}
+			presence := "no presence asserted"
+			if event.SSHSignature.UserPresent {
+				presence = "presence asserted"
+			}
+			if err := posemodel.VerifyRecordedActionSignature(r, event); err != nil {
+				out.Field("action.signature", event.SSHSignature.Fingerprint+" — does NOT re-verify: "+err.Error())
+			} else {
+				out.Field("action.signature", event.SSHSignature.Fingerprint+" ("+presence+"), re-verified from the journal")
+			}
+			break
+		}
 	}
 	for _, limitation := range v.Limitations {
 		out.Field("action.limitation", limitation)

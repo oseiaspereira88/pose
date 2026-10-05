@@ -26,6 +26,13 @@ type ActionPolicy struct {
 	// bound to the request digest; a human role also needs the human
 	// authority grant.
 	IdentityAssurance string `json:"identity_assurance,omitempty"`
+	// Keys maps a principal to the SSH public keys it signs answers with
+	// (spec pose-signed-action-answers). An answer signed by one of them is
+	// verified without any external issuer.
+	Keys map[string][]PrincipalKey `json:"keys,omitempty"`
+	// RequirePresence refuses a human answer whose signature does not assert
+	// that a person touched a security key.
+	RequirePresence bool `json:"require_presence,omitempty"`
 }
 
 // ActionResolution is a requested write to a request's journal.
@@ -49,6 +56,9 @@ type ActionResolution struct {
 	ExpectedRevision int
 	Claim            *ActionAuthorityClaim
 	Envelope         *ActionClaimEnvelope
+	// Signature is an armored SSHSIG over AnswerStatement, made by a key
+	// registered to Actor.
+	Signature string
 }
 
 // LoadActionPolicy reads the policy; an absent file is the empty declared
@@ -76,6 +86,9 @@ func LoadActionPolicy(root string) (ActionPolicy, error) {
 	}
 	if policy.Roles == nil {
 		policy.Roles = map[string][]string{}
+	}
+	if err := ValidatePrincipalKeys(policy.Keys); err != nil {
+		return policy, fmt.Errorf("pose: invalid .pose/policy/actions.json: %w", err)
 	}
 	return policy, nil
 }
@@ -169,7 +182,18 @@ func (s Store) ResolveActionRequest(res ActionResolution, now time.Time) (Action
 			return ActionRequestView{}, err
 		}
 		event.Role = role
-		if res.Claim != nil || res.Envelope != nil || policy.IdentityAssurance == ReviewIdentityAssuranceVerified {
+		// A signature by a registered key and a trusted issuer's claim are
+		// two emitters of the same proof; either verifies the answer, and
+		// whichever is presented must hold.
+		if strings.TrimSpace(res.Signature) != "" {
+			signature, err := verifyActionSignature(policy, r, res)
+			if err != nil {
+				return ActionRequestView{}, err
+			}
+			event.SSHSignature = signature
+			event.Assurance = ReviewIdentityAssuranceVerified
+		}
+		if res.Claim != nil || res.Envelope != nil || policy.IdentityAssurance == ReviewIdentityAssuranceVerified && event.SSHSignature == nil {
 			if err := s.verifyActionClaim(r, res, role); err != nil {
 				return ActionRequestView{}, err
 			}
@@ -217,7 +241,7 @@ func (s Store) verifyActionClaim(r ActionRequest, res ActionResolution, role str
 	fail := func(reason string) error { return fmt.Errorf("%w: %s", ErrActionVerificationFailed, reason) }
 	claim, envelope := res.Claim, res.Envelope
 	if claim == nil || envelope == nil {
-		return fail("the action policy requires verified identity and the resolution carries no signed claim; a principal string is a declaration, not a proof")
+		return fail("the action policy requires verified identity and the resolution carries neither a signature by a key registered to " + res.Actor + " (`pose action resolve --sign`) nor a trusted issuer's claim; a principal string is a declaration, not a proof")
 	}
 	review, _, err := s.loadReviewPolicy()
 	if err != nil {

@@ -513,6 +513,33 @@ bundle, project audience, reviewer principal and required executions. Human
 claims need a separate authority grant. Legacy bundles remain auditable under
 the assurance mode sealed when they were created.
 
+### Signed action answers
+
+A project can verify who answered an action request without any external
+service. Each principal registers the SSH public keys it signs with:
+
+```bash
+pose identity add --key ~/.ssh/id_ed25519_sk.pub --role maintainer --apply
+pose identity list
+pose identity remove human:ada --fingerprint SHA256:... --apply
+```
+
+With no principal, `identity add` suggests `human:<name>` from the git
+identity; the name is only a name — the registered key is the proof. Keys live
+in `.pose/policy/actions.json` under `keys`; only `ssh-ed25519` and
+`sk-ssh-ed25519@openssh.com` are accepted, and a key belongs to one principal.
+`pose action resolve … --sign <private key>` signs the answer with the user's
+own `ssh-keygen -Y sign` (namespace `pose-action-answer`; POSE never reads the
+key), and `--signature <file>` attaches a signature made elsewhere over the
+bytes `pose action statement <act-id> --actor <p> --answer <a> --idempotency-key <k>`
+prints. The statement binds project, request id and digest, actor, answer and
+idempotency key. POSE verifies the SSHSIG natively, records the statement,
+signature and key in the journal, and `pose action show` verifies it again.
+Under `identity_assurance: verified`, an answer needs such a signature or a
+trusted issuer's claim (Harne8 is one such issuer); a security key also records
+whether it was touched, and `require_presence` refuses a human answer without
+it. `pose doctor` reports human role holders that cannot prove an answer.
+
 ### Retrospective ABM replay
 
 `pose stats replay --json` scans local historical attestations and the newest sealed subject of each spec without writing project artifacts. It compares frozen contracts with hypothetical explicit judgment and structural causality invariants. Counts retain invalid inputs, unknown structural coverage, unbaselined nodes and denominators. Use `--limit N` (1–20000) to bound work; incomplete reports cannot support an exhaustive adoption claim. A counterfactual does not revoke historical approvals, record a baseline or prove reviewer utility. Experimental judgments remain opt-in.

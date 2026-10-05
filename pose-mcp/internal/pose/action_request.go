@@ -415,6 +415,7 @@ type ActionEvent struct {
 	Role             string                `json:"role,omitempty"`
 	Claim            *ActionAuthorityClaim `json:"claim,omitempty"`
 	Envelope         *ActionClaimEnvelope  `json:"envelope,omitempty"`
+	SSHSignature     *ActionSSHSignature   `json:"ssh_signature,omitempty"`
 	IdempotencyKey   string                `json:"idempotency_key,omitempty"`
 	SupersededBy     string                `json:"superseded_by,omitempty"`
 }
