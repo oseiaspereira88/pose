@@ -115,6 +115,7 @@ regression fixtures.
 - created: .pose/review-attribution-supplements/ras-d95b251af78afcb9.json
 - created: .pose/review-attribution-supplements/ras-f516d63eafabda4f.json
 - created: .pose/review-attribution-supplements/ras-fa5875f2b91dc117.json
+- modified: pose-mcp/internal/pose/review_subject_capabilities_test.go
 
 Reconciled against the tree at activation.
 
