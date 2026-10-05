@@ -17,10 +17,10 @@ import (
 	"github.com/harne8/pose-mcp/internal/version"
 )
 
-const adoptUsage = "Usage: pose adopt --list [--json] | pose adopt <capability> [--off | --decline --reason <text> | --defer --reason <text>] [--date YYYY-MM-DD] [--apply]"
+const adoptUsage = "Usage: pose adopt --list [--json] | pose adopt <capability> [--off | --decline --reason <text> | --defer --reason <text>] [--date YYYY-MM-DD] [--apply] | pose adopt --request <act-id> [--apply]"
 
 func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
-	id, mode, reason, apply, list, jsonOutput := "", "on", "", false, false, false
+	id, mode, reason, apply, list, jsonOutput, requestID := "", "on", "", false, false, false, ""
 	date := time.Now().UTC().Format(time.DateOnly)
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -36,14 +36,17 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 			mode = posemodel.AdoptionDeferred
 		case "--apply":
 			apply = true
-		case "--date", "--reason":
+		case "--date", "--reason", "--request":
 			if i+1 >= len(args) {
 				return usageError(stderr, adoptUsage)
 			}
-			if args[i] == "--date" {
+			switch args[i] {
+			case "--date":
 				date = args[i+1]
-			} else {
+			case "--reason":
 				reason = args[i+1]
+			default:
+				requestID = args[i+1]
 			}
 			i++
 		default:
@@ -77,6 +80,36 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 			}
 			out.Field("adopt."+state.ID, line)
 		}
+		return 0
+	}
+	if requestID != "" {
+		// An answered configuration-review request decides the capability
+		// it asked about (spec pose-update-configuration-review).
+		if id != "" || mode != "on" || reason != "" {
+			return usageError(stderr, adoptUsage)
+		}
+		req, err := loadReviewRequest(root, requestID)
+		if err != nil {
+			out.Failure("pose adopt: " + err.Error())
+			return 1
+		}
+		out.Field("adopt.request", requestID)
+		out.Field("adopt.capability", req.Capability)
+		out.Field("adopt.answer", req.View.Answer+" by "+req.View.AnsweredBy+" ("+req.View.Assurance+")")
+		if reviewAnswerApplied(root, req) {
+			out.Field("adopt.result", "already applied; nothing to change")
+			return 0
+		}
+		out.Field("adopt.apply", boolString(apply))
+		if !apply {
+			return 0
+		}
+		result, err := applyReviewAnswer(root, req, date)
+		if err != nil {
+			out.Failure("pose adopt: " + err.Error())
+			return 1
+		}
+		out.Field("adopt.result", result)
 		return 0
 	}
 	if id == "" {

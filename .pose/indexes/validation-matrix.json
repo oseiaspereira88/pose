@@ -1828,6 +1828,19 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "configuration-review-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "ConfigurationReview|SetupAnswersAndAppliesAReviewRequest",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

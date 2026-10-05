@@ -39,6 +39,7 @@ type setupStep struct {
 	// performable steps can be done by setup itself after a yes.
 	performable bool
 	capability  string
+	request     string
 }
 
 type setupYou struct {
@@ -197,7 +198,23 @@ func buildSetupPlan(root string) (setupPlan, error) {
 	}
 	plan.Steps = append(plan.Steps, step)
 
+	requests, _ := configurationReviewRequests(root)
+	openRequest, answered := map[string]reviewRequest{}, map[string]reviewRequest{}
+	for _, req := range requests {
+		switch {
+		case req.View.State == posemodel.ActionStateOpen:
+			openRequest[req.Capability] = req
+		case req.View.State == posemodel.ActionStateAnswered && !reviewAnswerApplied(root, req):
+			answered[req.Capability] = req
+		}
+	}
 	for _, state := range plan.New {
+		if req, ok := answered[state.ID]; ok {
+			plan.Steps = append(plan.Steps, setupStep{ID: "review:" + req.View.Request.ID, Area: "capabilities", State: "todo",
+				Summary: state.ID + " — answered " + req.View.Answer + " by " + req.View.AnsweredBy + " in " + req.View.Request.ID + "; not applied yet",
+				Command: "pose adopt --request " + req.View.Request.ID + " --apply", performable: true, capability: state.ID, request: req.View.Request.ID})
+			continue
+		}
 		recommendation := "decide"
 		if state.DefaultForNew {
 			recommendation = "recommended: adopt (on in new instances)"
@@ -209,8 +226,17 @@ func buildSetupPlan(root string) (setupPlan, error) {
 		if state.Missing != "" {
 			summary += "; " + state.Missing
 		}
-		plan.Steps = append(plan.Steps, setupStep{ID: "capability:" + state.ID, Area: "capabilities", State: "todo", Summary: summary,
-			Command: "pose adopt " + state.ID + " --apply  |  --decline --reason <why> --apply  |  --defer --reason <why> --apply", performable: true, capability: state.ID})
+		step := setupStep{ID: "capability:" + state.ID, Area: "capabilities", State: "todo", Summary: summary,
+			Command: "pose adopt " + state.ID + " --apply  |  --decline --reason <why> --apply  |  --defer --reason <why> --apply", performable: true, capability: state.ID}
+		if req, ok := openRequest[state.ID]; ok {
+			// The update asked the maintainer: the answer goes on the request,
+			// so the decision keeps who answered and with what proof.
+			step.request = req.View.Request.ID
+			step.Summary += "; asked in " + req.View.Request.ID
+			step.Command = "pose action resolve " + req.View.Request.ID + " --actor " + who + " --answer adopt|decline|defer [--reason <why>] --request-digest " + req.View.Request.RequestDigest +
+				" --expected-revision " + strconv.Itoa(req.View.Revision) + " --idempotency-key <key> [--sign <key>] --apply, then pose adopt --request " + req.View.Request.ID + " --apply"
+		}
+		plan.Steps = append(plan.Steps, step)
 	}
 
 	if dirty, err := setupUncommitted(root); err == nil && dirty != "" {
@@ -370,9 +396,13 @@ func renderSetupPlan(rawField func(string, string), section func(string), plan s
 		sort.Strings(plan.Available)
 		field("setup.available", strings.Join(plan.Available, ", ")+" — off; `pose adopt --list` explains each")
 	}
+	lifecycle := false
 	for _, step := range plan.Steps {
 		if step.Area == "lifecycle" {
-			section("Lifecycle")
+			if !lifecycle {
+				section("Lifecycle")
+				lifecycle = true
+			}
 			field("setup."+step.ID, step.State+" — "+step.Summary)
 		}
 	}
@@ -440,6 +470,17 @@ func runSetupInteractive(root string, plan setupPlan, in *bufio.Reader, stdout, 
 			if code := cmdIdentityAdd(root, []string{principal, "--key", keyFile, "--role", "maintainer", "--apply"}, stdout, stderr); code != 0 {
 				return code
 			}
+		case strings.HasPrefix(step.ID, "review:"):
+			if !yes(ask("Apply the maintainer's answer — " + step.Summary + "? [y/N] ")) {
+				continue
+			}
+			if code := cmdAdopt(root, []string{"--request", step.request, "--apply"}, stdout, stderr); code != 0 {
+				return code
+			}
+		case step.capability != "" && step.request != "":
+			if code, handled := answerReviewRequestInteractively(root, plan, step, ask, stdout, stderr); handled && code != 0 {
+				return code
+			}
 		case step.capability != "":
 			answer := strings.ToLower(ask(step.Summary + "\n  [a]dopt, [d]ecline, [l]ater (defer), [s]kip? "))
 			switch answer {
@@ -489,4 +530,56 @@ func advanceReviewedVersion(root string) {
 	if pending, err := posemodel.CapabilitiesToReview(root, engine); err == nil && len(pending) == 0 {
 		_ = posemodel.SetReviewedVersion(root, engine)
 	}
+}
+
+// answerReviewRequestInteractively records the person's answer on the
+// configuration-review request — as the principal their git identity
+// suggests, when it holds the maintainer role, signed when the policy
+// requires proof — and applies it.
+func answerReviewRequestInteractively(root string, plan setupPlan, step setupStep, ask func(string) string, stdout, stderr io.Writer) (int, bool) {
+	out := render(stdout, stderr)
+	answer := strings.ToLower(ask(step.Summary + "\n  [a]dopt, [d]ecline, [l]ater (defer), [s]kip? "))
+	choice := map[string]string{"a": reviewAnswerAdopt, "adopt": reviewAnswerAdopt, "d": reviewAnswerDecline, "decline": reviewAnswerDecline, "l": reviewAnswerDefer, "later": reviewAnswerDefer, "defer": reviewAnswerDefer}[answer]
+	if choice == "" {
+		return 0, false
+	}
+	actor := plan.You.Suggested
+	holds := false
+	for _, role := range plan.You.Roles {
+		holds = holds || role == reviewRecipient
+	}
+	if actor == "" || !holds {
+		out.Hint("the request is addressed to the maintainer role and " + strings.TrimSpace(actor+" ") + "does not hold it; answer with: " + step.Command)
+		return 0, false
+	}
+	view, err := posemodel.Store{Root: root}.LoadActionRequest(step.request)
+	if err != nil {
+		out.Failure("pose setup: " + err.Error())
+		return 1, true
+	}
+	args := []string{step.request, "--actor", actor, "--answer", choice, "--request-digest", view.Request.RequestDigest,
+		"--expected-revision", strconv.Itoa(view.Revision), "--idempotency-key", "setup-" + step.request, "--channel", "pose-setup", "--apply"}
+	if choice != reviewAnswerAdopt {
+		reason := ask("Reason (kept so the decision can be revisited): ")
+		if reason == "" {
+			out.Hint("skipped: a decision needs a reason")
+			return 0, false
+		}
+		args = append(args, "--reason", reason)
+	}
+	if plan.Assurance == posemodel.ReviewIdentityAssuranceVerified {
+		key := strings.TrimSuffix(plan.You.KeyFile, ".pub")
+		if answer := ask("Private key to sign the answer with [" + key + "]: "); answer != "" {
+			key = answer
+		}
+		if key == "" {
+			out.Hint("skipped: identity assurance is verified and no key was given to sign with")
+			return 0, false
+		}
+		args = append(args, "--sign", key)
+	}
+	if code := cmdActionResolve(root, "resolve", args, stdout, stderr); code != 0 {
+		return code, true
+	}
+	return cmdAdopt(root, []string{"--request", step.request, "--apply"}, stdout, stderr), true
 }

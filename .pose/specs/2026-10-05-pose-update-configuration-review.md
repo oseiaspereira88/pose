@@ -69,7 +69,7 @@ Update, a review spec template, action requests opened by the engine, `pose adop
 - modified: pose-mcp/internal/cli/maintenance.go
 - modified: pose-mcp/internal/cli/adopt.go
 - modified: pose-mcp/internal/cli/setup.go
-- modified: pose-mcp/internal/pose/capability_catalog.go
+- modified: pose-mcp/internal/cli/help_catalog.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
@@ -99,13 +99,20 @@ An older instance updated: the review spec and one request per new capability ap
 
 ### Requirement trace
 
+- R1 [satisfied] test:TestConfigurationReviewAsksOncePerCapabilityAndChangesNothing check:configuration-review-integration
+- R2 [satisfied] test:TestConfigurationReviewAsksOncePerCapabilityAndChangesNothing check:configuration-review-integration
+- R3 [satisfied] test:TestConfigurationReviewAppliesOnlyAnsweredRequests check:configuration-review-integration
+- R4 [satisfied] test:TestConfigurationReviewAppliesOnlyAnsweredRequests test:TestSetupAnswersAndAppliesAReviewRequestAtATerminal check:configuration-review-integration
+
 ### Known gaps
+
+None.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+The update writes the review spec (localized) and one decision request per undecided capability, idempotently; `pose adopt --request` applies answered requests with their reason and id; `pose setup` lists open and answered requests and, at a terminal, answers as the maintainer (signing under verified assurance) and applies.
 
 ### Residual risks
 

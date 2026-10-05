@@ -208,6 +208,20 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 
+	// What this engine brings that the project has not decided becomes a
+	// configuration-review spec with one decision request per capability
+	// (spec pose-update-configuration-review); nothing is adopted here.
+	reviewLocale := ""
+	if machineryLocale(scaffold.Dist(), root, "", false) == "pt-BR" {
+		reviewLocale = "pt-BR"
+	}
+	if rel, opened, err := scaffoldConfigurationReview(root, version.ReleaseBase(), reviewLocale, time.Now()); err != nil {
+		render(stdout, stderr).ContractLine("[WARN] configuration review not written: " + err.Error())
+	} else if len(opened) > 0 {
+		render(stdout, stderr).ContractLine("[INFO] " + text(
+			"configuration review: "+rel+" — "+strconv.Itoa(len(opened))+" decision request(s) for the maintainer role; nothing is adopted until they are answered",
+			"revisão de configuração: "+rel+" — "+strconv.Itoa(len(opened))+" decision request(s) para o papel maintainer; nada é adotado até serem respondidos"))
+	}
 	// An update names what it brings that this project has not decided, so a
 	// new capability is never left in limbo (spec pose-setup-command).
 	pending, _ := posemodel.CapabilitiesToReview(root, version.ReleaseBase())
