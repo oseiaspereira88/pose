@@ -82,7 +82,9 @@ func TestSetupOnAFreshInstallNamesTheNextStep(t *testing.T) {
 	if maintainer.State != "todo" || !strings.Contains(maintainer.Command, "pose identity add") || !strings.Contains(maintainer.Command, "--role maintainer") {
 		t.Fatalf("an empty role map under agency readiness is not the first step: %+v", maintainer)
 	}
-	if plan.Next == nil || plan.Next.ID != "identity.maintainer" {
+	// The onboarding spec tracks the steps, so starting it comes first (spec
+	// pose-onboarding-spec).
+	if plan.Next == nil || plan.Next.ID != "onboarding" || plan.Next.Command != "pose start spec:pose-onboarding" || plan.Onboarding == "" {
 		t.Fatalf("next = %+v", plan.Next)
 	}
 	if len(plan.InForce) == 0 || len(plan.Available) == 0 {
@@ -92,7 +94,7 @@ func TestSetupOnAFreshInstallNamesTheNextStep(t *testing.T) {
 	withSetupAnswers(t, "")
 	setupInput = func() (io.Reader, bool) { return strings.NewReader("y\n"), false }
 	code, out := runPose(t, repo, "setup")
-	if code != 0 || !strings.Contains(out, "setup.next.command=pose identity add human:<you> --key <file.pub> --role maintainer --apply") || !strings.Contains(out, "ssh-keygen -t ed25519-sk") {
+	if code != 0 || !strings.Contains(out, "setup.identity.maintainer.command=pose identity add human:<you> --key <file.pub> --role maintainer --apply") || !strings.Contains(out, "ssh-keygen -t ed25519-sk") {
 		t.Fatalf("report: %d %s", code, out)
 	}
 	if _, err := os.Lstat(filepath.Join(repo, ".git", "hooks", "pre-commit")); err == nil {

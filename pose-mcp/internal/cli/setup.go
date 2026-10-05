@@ -64,6 +64,7 @@ type setupPlan struct {
 	New             []posemodel.CapabilityState `json:"new"`
 	NeedsSetup      []posemodel.CapabilityState `json:"needs_setup"`
 	Available       []string                    `json:"available"`
+	Onboarding      string                      `json:"onboarding_spec,omitempty"`
 	Steps           []setupStep                 `json:"steps"`
 	Next            *setupStep                  `json:"next,omitempty"`
 }
@@ -215,6 +216,34 @@ func buildSetupPlan(root string) (setupPlan, error) {
 	if dirty, err := setupUncommitted(root); err == nil && dirty != "" {
 		plan.Steps = append(plan.Steps, setupStep{ID: "commit", Area: "lifecycle", State: "todo", Summary: dirty, Command: "git add -A && git commit -m \"Adopt POSE\""})
 	}
+	// The onboarding spec tracks these steps (spec pose-onboarding-spec):
+	// started first, closed once nothing else is open.
+	if rel := findOnboardingSpec(root); rel != "" {
+		if spec, err := (posemodel.Store{Root: root}).GetSpec(onboardingSlug); err == nil {
+			open := 0
+			for _, other := range plan.Steps {
+				if other.State == "todo" {
+					open++
+				}
+			}
+			step := setupStep{ID: "onboarding", Area: "lifecycle", State: "done", Summary: rel + " is " + spec.Status}
+			switch spec.Status {
+			case "draft":
+				step.State, step.Summary, step.Command = "todo", rel+" tracks these steps as governed work: start it first", "pose start spec:"+onboardingSlug
+				plan.Steps = append([]setupStep{step}, plan.Steps...)
+			case "in-progress":
+				if open == 0 {
+					step.State, step.Summary, step.Command = "todo", rel+": every step is done — run its checks, fill the requirement trace and close it", "pose close spec:"+onboardingSlug
+				} else {
+					step.State, step.Summary = "optional", rel+" is in progress; the open steps above complete it"
+				}
+				plan.Steps = append(plan.Steps, step)
+			default:
+				plan.Steps = append(plan.Steps, step)
+			}
+			plan.Onboarding = rel
+		}
+	}
 	for i := range plan.Steps {
 		if plan.Steps[i].State == "todo" {
 			plan.Next = &plan.Steps[i]
@@ -280,7 +309,23 @@ func cmdSetup(root string, args []string, stdout, stderr io.Writer) int {
 	return runSetupInteractive(root, plan, bufio.NewReader(input), stdout, stderr)
 }
 
-func renderSetupPlan(field func(string, string), section func(string), plan setupPlan) {
+func renderSetupPlan(rawField func(string, string), section func(string), plan setupPlan) {
+	// Every open step carries its command, not only the next one.
+	commands := map[string]string{}
+	for _, step := range plan.Steps {
+		if step.State != "done" && step.Command != "" {
+			commands["setup."+step.ID] = step.Command
+			if step.capability != "" {
+				commands["setup.new."+step.capability] = step.Command
+			}
+		}
+	}
+	field := func(name, value string) {
+		rawField(name, value)
+		if command, ok := commands[name]; ok && name != "setup.next" {
+			rawField(name+".command", command)
+		}
+	}
 	section("Identity")
 	for _, step := range plan.Steps {
 		if step.Area == "identity" {

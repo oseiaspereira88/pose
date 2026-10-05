@@ -220,6 +220,12 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	seedAbsentInstanceConfig(dist, target, log)
 	if newReviewPolicy {
 		adoptGovernedCapabilitiesAtInstall(target, time.Now(), log)
+		// Adopting POSE is the new instance's first governed spec (spec
+		// pose-onboarding-spec); an install over an existing instance, and
+		// `pose update`, never create it.
+		if rel, written, err := scaffoldOnboardingSpec(target, locale, projectName, time.Now().UTC().Format(time.DateOnly)); err == nil && written {
+			log("onboarding spec: %s — `pose setup` drives its steps", "spec de onboarding: %s — `pose setup` conduz seus passos", rel)
+		}
 	}
 
 	// 3. Legal texts vendored under .pose/.

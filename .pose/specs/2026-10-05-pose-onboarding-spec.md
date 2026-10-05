@@ -68,6 +68,7 @@ Install scaffolding, a localized onboarding template, setup.
 - created: pose-mcp/internal/cli/onboarding_test.go
 - modified: pose-mcp/internal/cli/install.go
 - modified: pose-mcp/internal/cli/setup.go
+- modified: pose-mcp/internal/cli/setup_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
@@ -97,13 +98,20 @@ Fresh installs in both locales: the spec exists, lints, passes the strict check 
 
 ### Requirement trace
 
+- R1 [satisfied] test:TestOnboardingSpecIsScaffoldedReadyToStartInEitherLocale check:onboarding-spec-integration
+- R2 [satisfied] test:TestOnboardingSpecIsScaffoldedReadyToStartInEitherLocale check:onboarding-spec-integration
+- R3 [satisfied] test:TestOnboardingSpecIsNeverCreatedByUpdateNorOverwritten check:onboarding-spec-integration
+- R4 [satisfied] test:TestSetupDrivesTheOnboardingSpecToClose test:TestSetupOnAFreshInstallNamesTheNextStep check:onboarding-spec-integration
+
 ### Known gaps
+
+- The drive-to-close test needs `ssh-keygen` to register a key and skips without it.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+Localized onboarding spec scaffolded by a new install (requirements, tasks, a decision, checks), lint-clean and ready to start; `pose setup` names its start first and its close last.
 
 ### Residual risks
 
