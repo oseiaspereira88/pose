@@ -1021,7 +1021,7 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if path == ".pose/capabilities/history.jsonl" {
 		return "derived-evidence", false
 	}
-	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/review-attribution-supplements/", ".pose/contributions/", ".pose/feedback/"} {
+	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/review-attribution-supplements/", ".pose/closeout-plans/", ".pose/contributions/", ".pose/feedback/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "derived-evidence", false
 		}

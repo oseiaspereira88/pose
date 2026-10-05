@@ -71,3 +71,11 @@ func TestActionRequestJournalsAreGovernanceSubjects(t *testing.T) {
 		t.Fatalf("journal classified as %q include=%v", class, include)
 	}
 }
+
+// Spec pose-recoverable-closeout-plan: a closeout checkpoint is runtime
+// progress, not something to review.
+func TestCloseoutCheckpointsAreDerivedEvidence(t *testing.T) {
+	if class, include := reviewBundlePathClass(".pose/closeout-plans/spec-x.json", ScopeRef{Kind: "spec", Slug: "x"}, nil); class != "derived-evidence" || include {
+		t.Fatalf("checkpoint classified as %q include=%v", class, include)
+	}
+}
