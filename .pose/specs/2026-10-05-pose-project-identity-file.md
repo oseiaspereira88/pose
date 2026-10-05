@@ -67,6 +67,7 @@ Project identity resolution, install, update seeding, obligation snapshot, actio
 - created: .pose/specs/2026-10-05-pose-project-identity-file.md
 - created: .pose/starts/pose-project-identity-file.json
 - created: .pose/project.json
+- created: .pose/roadmaps/pose-v7-onboarding-and-consolidation.md
 - created: pose-mcp/internal/pose/project_file.go
 - created: pose-mcp/internal/pose/project_file_test.go
 - modified: pose-mcp/internal/pose/artifact_ref.go
