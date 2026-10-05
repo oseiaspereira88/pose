@@ -130,6 +130,8 @@ start and contract nodes on the next real specs.
 
 ## 7. Final Report
 
+Decision 3 of 3 recorded on 2026-10-05: causality closeout adopted as designed (act-08a9fd2d9a0e50bb answered adopt). A first measurement showed the flag alone protects nothing under `spec-closeout@1`; a second, with `structural-materiality@1`, measured the real obligation and its reach. Four engine remediations landed first (pose-validation-check-additions-are-not-material, pose-causality-closeout-adoption-cutoff, pose-attest-refuses-what-verify-rejects, pose-governed-capabilities-default-on-new-instances), then `pose adopt causality-closeout --date 2026-10-06 --apply` set `causality_closeout_version: 1` with the overlay, both dated 2026-10-06. Report section "Causality closeout — measured cost and decision".
+
 Decision 2 of 3 recorded on 2026-10-05: atomic start adopted after a cutoff (act-fa1d72f029d567a0 answered adopt, option B). The cutoff landed as spec pose-atomic-start-adoption-cutoff; `atomic_start_version: 1` with `atomic_start_adopted_at: 2026-10-06` (chosen by the maintainer so no existing spec blocks) was committed after it, and effective governance reports it effective with zero start-reconciliation obligations.
 
 Decision 1 of 3 recorded on 2026-10-05: contract nodes adopted (act-7d587a8e4f3bf0fc answered adopt by human:oseias, declared); `contract_nodes_version: 1` committed after the answer and reported effective by `pose state --governance`.
