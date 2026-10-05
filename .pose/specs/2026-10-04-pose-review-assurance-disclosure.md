@@ -158,6 +158,10 @@ Golden tests for declared and verified fixtures; a negative test that a declared
 
 Delivers declared/verified disclosure and three separation fields on verify, check, closeout and plan outputs. Each requirement is traced to its tests and matrix checks under Validation. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it.
 
+### Coverage of earlier follow-ups
+
+This spec covers the follow-up in pose-abm-review-soundness that reviewer authority is satisfied by a declared prefix while `different-actor` and `mandatory-human` assert an identity they do not verify: every output now states the identity as declared and the separation as not verified, so nothing asserts what was not checked. Requiring verified identity by default is a separate decision, taken with the Harne8 confirmation channel that would issue the claims. Confirmed by the maintainer on 2026-10-05 while resolving the backlog reconciliation (spec pose-open-backlog-reconciliation, Decision 5).
+
 ### Follow-ups
 
 None recorded at planning time.

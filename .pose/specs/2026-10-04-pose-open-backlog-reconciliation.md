@@ -87,6 +87,14 @@ The twelve non-terminal specs, follow-up inventory, reports.
 - modified: .pose/specs/2026-09-19-pose-abm-review-authority.md
 - modified: .pose/specs/2026-09-26-pose-federated-milestone-scoped-acceptance.md
 - modified: .pose/specs/2026-09-26-pose-roadmap-gate-scopes-milestones-and-external-members.md
+- modified: .pose/specs/2026-08-08-pose-dependency-pin-refresh.md
+- modified: .pose/specs/2026-09-06-pose-release-security-gate-integrity.md
+- modified: .pose/specs/2026-09-08-pose-contract-adoption-registry.md
+- modified: .pose/specs/2026-09-19-pose-abm-review-soundness.md
+- modified: .pose/specs/2026-09-29-test-git-repos-run-no-background-maintenance.md
+- modified: .pose/specs/2026-10-02-pose-dependabot-runtime-repair.md
+- modified: .pose/specs/2026-10-04-pose-review-assurance-disclosure.md
+- modified: .github/dependabot.yml
 
 Reconciled against the tree at activation.
 

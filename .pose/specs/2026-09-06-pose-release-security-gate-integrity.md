@@ -268,7 +268,7 @@ are separate, independently verifiable steps.
 - [open] The release workflow fails silently: ten consecutive failed releases
   produced no notification, and the drift was found only by an audit. A failed
   release on a tag should page the maintainer.
-- [open] Dependabot bumps action SHAs without refreshing
+- [covered: pose-dependabot-runtime-repair] The bump now has its runtime record refreshed by the repair workflow. Confirmed by the maintainer on 2026-10-05 (pose-open-backlog-reconciliation, Decision 5). Original item: Dependabot bumps action SHAs without refreshing
   `.github/action-runtimes.json`, so every actions bump breaks `main` until
   fixed by hand. Either teach the bump to refresh the record, or gate the
   dependabot PR on the same test so it never merges red.

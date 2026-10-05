@@ -84,5 +84,9 @@ First real Dependabot repair requires the workflow on the default branch; tests 
 ## 7. Final Report
 ### Delivered scope
 A trusted default-branch workflow repairs only derived runtime evidence for eligible Dependabot action pins. PR review and existing security gates remain required.
+### Coverage of earlier follow-ups
+
+This spec covers two earlier follow-ups: the automation asked for in pose-dependency-pin-refresh (a Dependabot PR fails CI until `.github/action-runtimes.json` is refreshed) and the same defect recorded in pose-release-security-gate-integrity (every actions bump breaks `main` until fixed by hand). Its tests run in `go test ./...` through `TestDependabotRuntimeRepairTrustBoundary`. Confirmed by the maintainer on 2026-10-05 while resolving the backlog reconciliation (spec pose-open-backlog-reconciliation, Decision 5). It had not yet processed a real Dependabot PR at that date: the first one after the workflow landed is the end-to-end proof.
+
 ### Follow-ups
 None.

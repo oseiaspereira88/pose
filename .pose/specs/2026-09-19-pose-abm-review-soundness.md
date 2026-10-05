@@ -312,6 +312,6 @@ observation and governance outcomes are not in this increment.
 
 ### Follow-ups
 
-- [open] Reviewer authority is still satisfied by a declared prefix, so `different-actor`
+- [covered: pose-review-assurance-disclosure] Outputs now state the identity as declared and the separation as not verified; requiring verified identity by default is decided with the Harne8 confirmation channel. Confirmed by the maintainer on 2026-10-05 (pose-open-backlog-reconciliation, Decision 5). Original item: Reviewer authority is still satisfied by a declared prefix, so `different-actor`
   and `mandatory-human` assert identity they do not verify (owner:@pose-maintainers
   crit:high review:2026-10-03)

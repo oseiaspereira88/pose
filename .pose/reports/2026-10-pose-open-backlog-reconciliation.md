@@ -115,3 +115,21 @@ them, rather than being assigned by default.
 The classification reads the tree at one head. It does not re-run each cited
 check, does not verify Harne8-side items beyond the roadmap status named above,
 and does not publish or close anything outside this repository.
+
+## Maintainer confirmation — 2026-10-05
+
+The maintainer confirmed the proposals above in the Claude Code session
+(Decision 5, alternative A-extended), after each coverage claim was checked
+against the code:
+
+| # | Disposition recorded | Check made before recording |
+|---|---|---|
+| 025, 065 | `[covered: pose-dependabot-runtime-repair]` | The repair workflow exists; its seven tests run in `go test ./...` through `TestDependabotRuntimeRepairTrustBoundary`. It has not yet processed a real Dependabot PR: the last actions PR (#128) predates it. The `dependabot.yml` comment that still prescribed the manual refresh was corrected. |
+| 071 | `[covered: test-git-repos-run-no-background-maintenance]` | The three packages whose tests commit isolate git in `TestMain`; the only other fixture that inits a repository never commits. |
+| 100, and "compose `governance:verified-review-authority` in Harne8" | `[covered: xref:proj.harne8/spec:harne8-action-request-confirmation-channel]` | That spec's R2 and R4 are the issuer for action requests and review drafts. Qualified dispositions were refused by `lint-spec` until pose-followup-dispositions-accept-qualified-refs. |
+| "`Project` and `Audience` compared with the same value" | `[spawned: pose-authority-claim-project-is-not-the-audience]` | Resolved before 7.0.0: `project` binds `authority_project`, `audience` binds `authority_audience`. |
+| 104 | `[covered: pose-review-assurance-disclosure]` | Outputs state the identity as declared and the separation as not verified. Requiring verified identity by default is decided with the Harne8 confirmation channel. |
+| 115, 116, 117 | `[done]` | Resolved by the adoption decisions of pose-abm-capability-adoption. |
+
+Each covering spec now names the follow-ups it covers in its Final Report, so the
+covered-anchor check finds them.
