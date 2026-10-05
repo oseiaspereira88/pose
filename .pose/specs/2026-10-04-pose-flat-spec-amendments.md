@@ -1,8 +1,8 @@
 ---
 slug: pose-flat-spec-amendments
-status: in-progress
+status: done
 created_at: 2026-10-04
-completed_at:
+completed_at: 2026-10-05
 supersedes:
 depends_on: pose-legacy-contract-cutoffs
 priority: 1
@@ -149,7 +149,7 @@ tests.
 
 ### Delivered scope
 
-Not started. Filled at closeout from the requirement trace and the change sets.
+Delivers per-spec journals for flat specs through the store resolver. Each requirement is traced to its tests and matrix checks under Validation. Reviewed by agent:claude-opus-5-5 in the same session that implemented it; no separate execution or person reviewed it.
 
 ### Follow-ups
 
