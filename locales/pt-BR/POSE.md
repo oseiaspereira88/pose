@@ -578,7 +578,12 @@ A materialidade é limitada de propósito. Dependência transitiva, lock file,
 renomeação e manifesto ilegível são todos observados e reportados, e nenhum é
 material: os dois primeiros são consequência e não decisão, um `component` com
 ação `changed` apenas repete a edição de manifesto ao lado dele, e leitura unknown
-é incerteza — `structure.unknown` mostra e nunca cobra. Nada é resolvido se nenhum
+é incerteza — `structure.unknown` mostra e nunca cobra. A matriz de validação é
+lida por check: uma mudança que só acrescenta checks com nomes que a matriz não
+tinha é reportada como um fato `validation-check` por check e não é cobrada,
+porque registrar um check reforça o que roda; qualquer outra mudança na matriz,
+inclusive um check novo que reusa um nome existente, continua sendo um fato
+material `delivery-metadata`. Nada é resolvido se nenhum
 profile adotado selecionar por estrutura: quem não optou não paga nada, nem as
 leituras de Git.
 

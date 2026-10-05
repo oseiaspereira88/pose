@@ -16,6 +16,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -24,7 +25,10 @@ import (
 
 const (
 	DesignDeltaSchemaVersion = 1
-	DesignDeltaParserVersion = "pose-design-delta/v1"
+	// v2 reads the validation matrix by check: a change that only registers new
+	// checks is reported, not charged (spec
+	// pose-validation-check-additions-are-not-material).
+	DesignDeltaParserVersion = "pose-design-delta/v2"
 	defaultDesignDeltaFiles  = 4096
 	defaultDesignDeltaBytes  = 16 << 20
 )
@@ -378,6 +382,14 @@ func (c *designDeltaCollector) observeEntry(base, head string, entry ReviewBundl
 
 	if kind := designMetadataKind(path); kind != "" {
 		c.markObserved(detectorForKind(kind))
+		if path == validationMatrixPath && beforeState == "observed" && afterState == "observed" {
+			if additions, ok := validationMatrixCheckAdditions(before, after); ok {
+				for _, added := range additions {
+					c.addDelta(StructuralDelta{Kind: "validation-check", Action: "added", State: "observed", Subject: added, Path: path})
+				}
+				return
+			}
+		}
 		c.addDelta(StructuralDelta{Kind: kind, Action: normalizeDesignAction(entry.Action), State: "observed", Subject: path, Path: path, OldPath: entry.OldPath, NewPath: entry.NewPath, BeforeDigest: optionalDigest(before, beforeState), AfterDigest: optionalDigest(after, afterState)})
 		return
 	}
@@ -839,4 +851,130 @@ func designPublicContractKind(path string) string {
 		return "public-contract"
 	}
 	return ""
+}
+
+const validationMatrixPath = ".pose/indexes/validation-matrix.json"
+
+// validationMatrixCheckAdditions reports the checks a matrix change only
+// appended, as "<location>:<name>", and whether that is all the change did.
+//
+// Registering a spec's own check rewrites the matrix in almost every change,
+// and charging a structural mapping for it buys a pasted sentence, not a
+// decision. Adding a check only strengthens what the matrix runs, so it is
+// reported and not charged, the way a lock file is. Everything else stays the
+// material fact it was: a removed or edited check, a changed mode, stack,
+// override or profile, a new module, and an added check whose name any check
+// already carries — appended beside a stack check of the same name it shares
+// that check's evidence identity, so it could stand in for it unreviewed. A
+// side that does not parse proves nothing and is charged too.
+func validationMatrixCheckAdditions(before, after []byte) ([]string, bool) {
+	var left, right any
+	if decodeDesignJSON(before, &left) != nil || decodeDesignJSON(after, &right) != nil {
+		return nil, false
+	}
+	existing := map[string]bool{}
+	collectValidationCheckNames(left, "", existing)
+	additions := []string{}
+	seen := map[string]bool{}
+	stripped, ok := stripAddedValidationChecks(left, right, "", existing, seen, &additions)
+	if !ok || len(additions) == 0 || !reflect.DeepEqual(left, stripped) {
+		return nil, false
+	}
+	sort.Strings(additions)
+	return additions, true
+}
+
+func decodeDesignJSON(raw []byte, out *any) error {
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.UseNumber()
+	if err := decoder.Decode(out); err != nil {
+		return err
+	}
+	if decoder.More() {
+		return errors.New("trailing content")
+	}
+	return nil
+}
+
+func collectValidationCheckNames(value any, key string, names map[string]bool) {
+	switch typed := value.(type) {
+	case map[string]any:
+		for k, v := range typed {
+			collectValidationCheckNames(v, k, names)
+		}
+	case []any:
+		for _, item := range typed {
+			if key == "checks" {
+				if check, ok := item.(map[string]any); ok {
+					if name, ok := check["name"].(string); ok {
+						names[name] = true
+					}
+				}
+			}
+			collectValidationCheckNames(item, "", names)
+		}
+	}
+}
+
+// stripAddedValidationChecks returns the new side with every newly named check
+// removed from a `checks` array the old side already had at the same place.
+// It refuses (false) a new name used twice, so two additions cannot collide
+// with each other either.
+func stripAddedValidationChecks(left, right any, location string, existing, seen map[string]bool, additions *[]string) (any, bool) {
+	switch typed := right.(type) {
+	case map[string]any:
+		old, _ := left.(map[string]any)
+		out := make(map[string]any, len(typed))
+		for k, v := range typed {
+			child := k
+			if location != "" {
+				child = location + "." + k
+			}
+			if k == "checks" {
+				if _, isOld := old[k].([]any); isOld {
+					if items, isArray := v.([]any); isArray {
+						kept := make([]any, 0, len(items))
+						for _, item := range items {
+							check, _ := item.(map[string]any)
+							name, _ := check["name"].(string)
+							if name == "" || existing[name] {
+								kept = append(kept, item)
+								continue
+							}
+							if seen[name] {
+								return nil, false
+							}
+							seen[name] = true
+							*additions = append(*additions, location+":"+name)
+						}
+						out[k] = kept
+						continue
+					}
+				}
+			}
+			stripped, ok := stripAddedValidationChecks(old[k], v, child, existing, seen, additions)
+			if !ok {
+				return nil, false
+			}
+			out[k] = stripped
+		}
+		return out, true
+	case []any:
+		old, _ := left.([]any)
+		out := make([]any, len(typed))
+		for i, item := range typed {
+			var prior any
+			if i < len(old) {
+				prior = old[i]
+			}
+			stripped, ok := stripAddedValidationChecks(prior, item, fmt.Sprintf("%s[%d]", location, i), existing, seen, additions)
+			if !ok {
+				return nil, false
+			}
+			out[i] = stripped
+		}
+		return out, true
+	default:
+		return right, true
+	}
 }

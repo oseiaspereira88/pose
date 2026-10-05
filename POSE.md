@@ -573,6 +573,11 @@ and an unreadable manifest are all observed and all reported, and none is
 material: the first two are consequences rather than decisions, a `component`
 whose action is `changed` only restates the manifest edit beside it, and an
 unknown reading is uncertainty, which `structure.unknown` shows and never charges.
+The validation matrix is read by check: a change that only appends checks under
+names the matrix did not carry is reported as one `validation-check` fact per
+check and not charged, because registering a check strengthens what runs; any
+other change to the matrix, including an added check that reuses an existing
+name, stays a material `delivery-metadata` fact.
 Nothing is resolved at all unless an adopted profile selects on structure, so a
 repository that did not opt in pays nothing, not even the Git reads.
 
