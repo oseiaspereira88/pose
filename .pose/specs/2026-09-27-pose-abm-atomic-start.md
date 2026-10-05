@@ -204,4 +204,4 @@ diretório; discos de rede sem `O_EXCL` confiável não foram testados. Um lock
 deixado por queda exige remoção manual após confirmação.
 
 ### Follow-ups
-- [open] Adotar `atomic_start_version` depois do stop/go do piloto, junto com `contract_nodes_version`. (owner:@pose-maintainers crit:medium review:2026-11-01)
+- [done] Adotado no pose-dist em 2026-10-05 por decisão do maintainer (action request act-fa1d72f029d567a0, opção B): primeiro a data de corte (spec pose-atomic-start-adoption-cutoff), depois `atomic_start_version: 1` com `atomic_start_adopted_at: 2026-10-06`; specs mais antigas aparecem como legacy-unbaselined sem bloquear. A adoção no Harne8 segue harne8-adopt-agency-readiness. Item original: adotar `atomic_start_version` depois do stop/go do piloto, junto com `contract_nodes_version`. (owner:@pose-maintainers crit:medium review:2026-11-01)
