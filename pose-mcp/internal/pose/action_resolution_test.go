@@ -162,6 +162,10 @@ func TestAStaleDigestOrAChangedSubjectDoesNotSatisfy(t *testing.T) {
 }
 
 func TestAResolutionFromAnotherProjectIsRefused(t *testing.T) {
+	// Each fixture root is its own project, identified by its directory; a
+	// declared identity in the environment would make them all one project.
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "")
+	t.Setenv("POSE_PROJECT_ROOTS", "")
 	s := actionFixture(t)
 	view := openedDecision(t, s)
 	other := actionFixture(t)
