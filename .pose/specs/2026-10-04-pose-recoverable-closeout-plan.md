@@ -95,6 +95,8 @@ Closeout domain, continuous closeout, CLI/MCP close, closeout skill.
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-recoverable-closeout-plan.md
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_subject_capabilities_test.go
 
 Reconciled against the tree at activation.
 
