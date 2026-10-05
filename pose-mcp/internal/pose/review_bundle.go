@@ -1054,7 +1054,9 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	// .pose/capabilities/ holds the capability assessment, whose bullets are
 	// the authority on each mechanism's state (spec
 	// review-subject-classifies-capabilities).
-	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/", ".pose/capabilities/", ".pose/actions/"} {
+	// .pose/starts/ holds atomic start records: the baseline a started spec is
+	// reconciled against (spec pose-atomic-start-adoption-cutoff).
+	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/", ".pose/capabilities/", ".pose/actions/", ".pose/starts/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "governance", true
 		}
