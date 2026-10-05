@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/scaffold"
@@ -205,7 +206,16 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	// "Result: SUCCESS" update whose very next `pose check --strict` failed
 	// with broken references, undetected by `pose doctor`
 	// (spec pose-upgrade-path-audit-fixes).
+	// A review policy this install creates is a new instance: it adopts the
+	// governed capabilities from today. One that already existed is a project
+	// under way and decides with `pose adopt` (spec
+	// pose-governed-capabilities-default-on-new-instances).
+	_, reviewPolicyErr := os.Stat(filepath.Join(target, ".pose", "policy", "review.json"))
+	newReviewPolicy := os.IsNotExist(reviewPolicyErr)
 	seedAbsentInstanceConfig(dist, target, log)
+	if newReviewPolicy {
+		adoptGovernedCapabilitiesAtInstall(target, time.Now(), log)
+	}
 
 	// 3. Legal texts vendored under .pose/.
 	_ = copyFile(dist, "LICENSE", filepath.Join(target, ".pose", "LICENSE"), 0o644)

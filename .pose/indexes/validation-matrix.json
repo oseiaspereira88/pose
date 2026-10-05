@@ -1667,6 +1667,20 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "governed-capabilities-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "GovernedCapabilit|Adopt|DoctorWarnsWhenAgency|ABMProgressiveReview",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

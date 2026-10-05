@@ -354,6 +354,24 @@ var commandHelpCatalog = map[string]CommandHelp{
 			"pose action resolve act-0123456789abcdef --actor human:maintainer --answer preserve-v1 --request-digest sha256:... --expected-revision 1 --idempotency-key answer-1 --apply",
 		},
 	},
+	"adopt": {
+		Name:            "adopt",
+		SummaryEN:       "Turn a governed capability on or off in this instance",
+		SummaryPtBR:     "Liga ou desliga uma capacidade governada nesta instância",
+		Usage:           "pose adopt <capability> [--off] [--date YYYY-MM-DD] [--apply]",
+		DescriptionEN:   "Previews, and with --apply writes, the review-policy keys of one governed capability: agency-readiness, atomic-start, causality-closeout (with the structural-materiality overlay) or contract-nodes. A capability with a cutoff is dated today or --date, so work created before it is not re-judged; adopting an adopted capability keeps its date. --off removes the same keys. The result is refused when the review-policy reader would refuse it. A new instance adopts every governed capability at install; `pose update` never does.",
+		DescriptionPtBR: "Mostra, e com --apply grava, as chaves da policy de review de uma capacidade governada: agency-readiness, atomic-start, causality-closeout (com o overlay structural-materiality) ou contract-nodes. Capacidade com corte é datada com hoje ou --date, para que trabalho criado antes não seja rejulgado; adotar uma capacidade já adotada mantém a data. --off remove as mesmas chaves. O resultado é recusado quando o leitor da policy o recusaria. Uma instância nova adota todas as capacidades governadas na instalação; `pose update` nunca adota.",
+		Flags: []FlagHelp{
+			{"--off", "Remove the capability's keys", "Remove as chaves da capacidade"},
+			{"--date YYYY-MM-DD", "Adoption date for a capability with a cutoff (default today)", "Data de adoção para capacidade com corte (padrão hoje)"},
+			{"--apply", "Write the previewed change", "Grava a mudança mostrada"},
+		},
+		Examples: []string{
+			"pose adopt causality-closeout",
+			"pose adopt atomic-start --date 2026-10-06 --apply",
+			"pose adopt contract-nodes --off --apply",
+		},
+	},
 	"start": {
 		Name:            "start",
 		SummaryEN:       "Preview or apply the atomic start of a draft spec",

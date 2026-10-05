@@ -943,6 +943,28 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 			}
 			add("review.adoption-source", "ok",
 				fmt.Sprintf(text("contract adoption sources: %s", "origem das adoções de contrato: %s"), strings.Join(sources, ", ")), "")
+			// Agency readiness makes an unanswered request block what it
+			// restricts; a new instance adopts it with an empty role map, so a
+			// request addressed to a role has nobody to answer it until the
+			// project names one (spec
+			// pose-governed-capabilities-default-on-new-instances).
+			if policy.AgencyReadinessVersion == posemodel.AgencyReadinessPolicyVersion {
+				if actions, actionsErr := posemodel.LoadActionPolicy(root); actionsErr == nil {
+					held := 0
+					for _, principals := range actions.Roles {
+						held += len(principals)
+					}
+					if held == 0 {
+						add("actions.roles", "warn",
+							text("agency readiness is adopted and no principal holds a role in .pose/policy/actions.json: a request addressed to a role cannot be answered",
+								"agency readiness está adotada e nenhum principal tem papel em .pose/policy/actions.json: um request endereçado a um papel não pode ser respondido"),
+							text("list this project's own principals, e.g. \"maintainer\": [\"human:<you>\"]; a request addressed to a principal is unaffected",
+								"liste os principals deste projeto, ex.: \"maintainer\": [\"human:<você>\"]; um request endereçado a um principal não é afetado"))
+					} else {
+						add("actions.roles", "ok", fmt.Sprintf(text("%d principal(s) hold action-request roles", "%d principal(is) com papéis de action request"), held), "")
+					}
+				}
+			}
 			// Legacy attempts live in `.pose/reviews/*.md` — the directory
 			// Store.ListReviewAttempts reads. An earlier version of this check
 			// globbed `.pose/review-attempts/`, which nothing writes, so the

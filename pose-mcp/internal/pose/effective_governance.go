@@ -215,6 +215,13 @@ func (s Store) EffectiveGovernance(scope string) (GovernanceProjection, error) {
 	deliveryEntry.Explanation = pick(deliveryEntry.Effective, "declared delivery targets must be proven reachable with current evidence before close", "delivery targets are not gated here")
 	out.Entries = append(out.Entries, deliveryEntry)
 
+	// A governed capability that is not adopted names the command that turns
+	// it on (spec pose-governed-capabilities-default-on-new-instances).
+	for i, entry := range out.Entries {
+		if _, governed := LookupGovernedCapability(entry.ID); governed && entry.Kind == GovernanceCapability && !entry.Configured {
+			out.Entries[i].Explanation += "; turn it on with `pose adopt " + entry.ID + " --apply`"
+		}
+	}
 	if scope != "" {
 		out.Scope = scope
 		ctx := &GovernanceScopeContext{}

@@ -161,7 +161,7 @@ func shouldRecordCLIUsage(tool string, code int) bool {
 
 func isKnownCLICommand(tool string) bool {
 	switch tool {
-	case "init", "new-spec", "new-roadmap", "new-adr", "new-knowledge", "followups", "amend", "assess", "state",
+	case "init", "new-spec", "new-roadmap", "new-adr", "new-knowledge", "followups", "amend", "adopt", "assess", "state",
 		"docs-init", "docs-check", "docs-review", "docs-sync", "public-claims", "report-limitation", "feedback", "report", "validate", "check",
 		"review", "review-check", "closeout-check", "close", "continuous-closeout", "artifact-check", "artifact-backfill", "surface-check", "roadmap-check",
 		"update", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping",
