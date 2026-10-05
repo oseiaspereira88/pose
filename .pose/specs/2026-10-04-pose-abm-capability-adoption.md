@@ -79,6 +79,7 @@ ABM capability follow-ups, pilot report, review policy (only after decision).
 - created: .pose/actions/act-7d587a8e4f3bf0fc.jsonl
 - created: .pose/actions/act-fa1d72f029d567a0.jsonl
 - created: .pose/actions/act-08a9fd2d9a0e50bb.jsonl
+- modified: .pose/policy/review.json
 
 Reconciled against the tree at activation.
 
@@ -128,6 +129,8 @@ start and contract nodes on the next real specs.
 - Expected: pass
 
 ## 7. Final Report
+
+Decision 1 of 3 recorded on 2026-10-05: contract nodes adopted (act-7d587a8e4f3bf0fc answered adopt by human:oseias, declared); `contract_nodes_version: 1` committed after the answer and reported effective by `pose state --governance`.
 
 A shadow on five disposable clones at ce17db6 (report `.pose/reports/pose-abm-capability-adoption.md`) measured each capability against an unadopted baseline. Contract nodes had no observable effect in this corpus. Atomic start added 39 closeout-restricting `start-reconciliation` obligations, one per spec already in progress, with no command to record a legacy baseline and no adoption cutoff; that stops its rollout without invalidating the code. Causality closeout stamped its contract on all 39 prepared bundles; its attestation cost was not measured. No implementation was added. The three adoption decisions are open as action requests act-7d587a8e4f3bf0fc, act-fa1d72f029d567a0 and act-08a9fd2d9a0e50bb, addressed to human:oseias with the agent's recommendation (adopt, defer, defer); the review policy changes only after each answer.
 
