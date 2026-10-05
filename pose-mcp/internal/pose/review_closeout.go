@@ -162,6 +162,10 @@ type ReviewPolicy struct {
 	// AtomicStartVersion adopts `pose start --apply` (spec
 	// pose-abm-atomic-start); preview needs no adoption.
 	AtomicStartVersion int `json:"atomic_start_version,omitempty"`
+	// AtomicStartAdoptedAt (YYYY-MM-DD) limits the capability to specs
+	// created on or after it; older in-progress specs are reported without a
+	// reconciliation (spec pose-atomic-start-adoption-cutoff).
+	AtomicStartAdoptedAt string `json:"atomic_start_adopted_at,omitempty"`
 	// AgencyReadinessVersion adopts governed effects: unsatisfied action
 	// requests refuse the transitions they restrict (spec
 	// pose-governed-effect-enforcement); 0 keeps the legacy behaviour.
@@ -450,6 +454,11 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 	}
 	if p.AtomicStartVersion != 0 && p.AtomicStartVersion != AtomicStartPolicyVersion {
 		return ReviewPolicy{}, fmt.Errorf("pose: unsupported atomic_start_version %d (engine supports %d)", p.AtomicStartVersion, AtomicStartPolicyVersion)
+	}
+	if p.AtomicStartAdoptedAt != "" {
+		if _, err := time.Parse("2006-01-02", p.AtomicStartAdoptedAt); err != nil {
+			return ReviewPolicy{}, fmt.Errorf("pose: atomic_start_adopted_at must be YYYY-MM-DD, got %q", p.AtomicStartAdoptedAt)
+		}
 	}
 	if p.ContractNodesVersion != 0 && p.ContractNodesVersion != ContractNodesPolicyVersion {
 		return ReviewPolicy{}, fmt.Errorf("pose: unsupported contract_nodes_version %d (engine supports %d)", p.ContractNodesVersion, ContractNodesPolicyVersion)

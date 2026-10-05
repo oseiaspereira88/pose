@@ -66,15 +66,18 @@ type NodeOrigin struct {
 
 // StartStatus reports a spec's start state without writing anything.
 type StartStatus struct {
-	SchemaVersion   int          `json:"schema_version"`
-	Spec            string       `json:"spec"`
-	Status          string       `json:"status"`
-	Phase           string       `json:"phase"` // not-started | baseline-recorded | started
-	Nodes           []NodeOrigin `json:"nodes"`
-	Removed         []string     `json:"removed,omitempty"`
-	Obligations     []string     `json:"obligations"`
-	Reconciliation  []string     `json:"reconciliation,omitempty"`
-	CapabilityAdopt bool         `json:"capability_adopted"`
+	SchemaVersion  int          `json:"schema_version"`
+	Spec           string       `json:"spec"`
+	Status         string       `json:"status"`
+	Phase          string       `json:"phase"` // not-started | baseline-recorded | started
+	Nodes          []NodeOrigin `json:"nodes"`
+	Removed        []string     `json:"removed,omitempty"`
+	Obligations    []string     `json:"obligations"`
+	Reconciliation []string     `json:"reconciliation,omitempty"`
+	// Notes explain a state that needs no action, such as a spec that was
+	// already in progress before atomic start was adopted.
+	Notes           []string `json:"notes,omitempty"`
+	CapabilityAdopt bool     `json:"capability_adopted"`
 }
 
 // StartFailureHook lets tests interrupt apply after a phase.
@@ -93,6 +96,15 @@ func (s Store) AtomicStartAdopted() (bool, error) {
 		return false, err
 	}
 	return policy.AtomicStartVersion == AtomicStartPolicyVersion, nil
+}
+
+// atomicStartCutoff is the policy's atomic_start_adopted_at, or "".
+func (s Store) atomicStartCutoff() string {
+	policy, err := s.GetReviewPolicy()
+	if err != nil {
+		return ""
+	}
+	return policy.AtomicStartAdoptedAt
 }
 
 // PreviewStart builds the plan. It reads the spec, its readiness, the declared
@@ -327,7 +339,15 @@ func (s Store) GetStartStatus(slug string) (StartStatus, error) {
 			status.Nodes = append(status.Nodes, NodeOrigin{ID: node.ID, Origin: "legacy-unbaselined"})
 		}
 		if adopted && spec.Status != "draft" && !terminalStatuses[spec.Status] {
-			status.Reconciliation = append(status.Reconciliation, fmt.Sprintf("spec is %s without a recorded start; its nodes stay legacy-unbaselined until a baseline is recorded explicitly", spec.Status))
+			// A spec created before the adoption cutoff predates the
+			// capability: it is reported, never blocked (spec
+			// pose-atomic-start-adoption-cutoff). Without a cutoff the
+			// capability applies to every spec, as before.
+			if cutoff := s.atomicStartCutoff(); cutoff != "" && spec.CreatedAt != "" && spec.CreatedAt < cutoff {
+				status.Notes = append(status.Notes, fmt.Sprintf("spec was created on %s, before atomic start was adopted on %s; its nodes stay legacy-unbaselined and nothing is required", spec.CreatedAt, cutoff))
+			} else {
+				status.Reconciliation = append(status.Reconciliation, fmt.Sprintf("spec is %s without a recorded start; its nodes stay legacy-unbaselined until a baseline is recorded explicitly", spec.Status))
+			}
 		}
 		return status, nil
 	}

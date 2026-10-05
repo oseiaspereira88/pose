@@ -132,7 +132,7 @@ func (s Store) EffectiveGovernance(scope string) (GovernanceProjection, error) {
 	}
 	capability("atomic-start", "review.atomic_start_version", policy.AtomicStartVersion == AtomicStartPolicyVersion, version(policy.AtomicStartVersion),
 		policy.AtomicStartVersion == AtomicStartPolicyVersion, nil,
-		pick(policy.AtomicStartVersion == AtomicStartPolicyVersion, "`pose start --apply` records the R/A/D baseline and moves draft to in-progress under a lock", "supported and not adopted: `pose start` previews, `--apply` is refused"))
+		pick(policy.AtomicStartVersion == AtomicStartPolicyVersion, "`pose start --apply` records the R/A/D baseline and moves draft to in-progress under a lock"+atomicStartCutoffNote(policy.AtomicStartAdoptedAt), "supported and not adopted: `pose start` previews, `--apply` is refused"))
 	capability("contract-nodes", "review.contract_nodes_version", policy.ContractNodesVersion == ContractNodesPolicyVersion, version(policy.ContractNodesVersion),
 		policy.ContractNodesVersion == ContractNodesPolicyVersion, nil,
 		pick(policy.ContractNodesVersion == ContractNodesPolicyVersion, "amendments track requirements, assumptions and decisions as schema-2 nodes", "supported and not adopted: amendments stay requirement-only"))
@@ -240,4 +240,11 @@ func pick(cond bool, yes, no string) string {
 		return yes
 	}
 	return no
+}
+
+func atomicStartCutoffNote(cutoff string) string {
+	if cutoff == "" {
+		return "; no adoption cutoff, so every in-progress spec without a start needs reconciliation"
+	}
+	return "; specs created before " + cutoff + " are reported as legacy-unbaselined, not blocked"
 }
