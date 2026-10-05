@@ -621,6 +621,15 @@ a cobertura estrutural é desconhecida; e banda elevated ou critical com fatos
 materiais sem critério que responda por eles é recusada, sem exigir revisor
 humano. Bundles selados sem o carimbo mantêm o veredito.
 
+A adoção pode ser datada para valer para o trabalho que começa depois dela.
+`causality_closeout_adopted_at: YYYY-MM-DD` carimba o contrato só em escopo com
+spec criada na data ou depois; escopo cujas specs são todas anteriores é selado sem
+ele e o bundle diz por quê. `overlay_adopted_at` faz o mesmo por overlay —
+`{"structural-materiality@1": "YYYY-MM-DD"}` — de modo que adotar um overlay não
+cobra seus critérios, nem mapping estrutural, de trabalho já em andamento; overlay
+pulado aparece no explain do plano e não custa leitura de Git. Spec sem data de
+criação nunca é isentada, e overlay sem data vale para todo escopo que seleciona.
+
 ### Baseline de policy protegida
 
 Um diff que altera o contrato de review não pode ser a autoridade que o aprova.

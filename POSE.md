@@ -616,6 +616,16 @@ structural coverage is unknown; and an elevated or critical band with material
 facts but no criterion answering for them is refused, without requiring a human
 reviewer. Bundles sealed without the stamp keep their verdict.
 
+Adoption can be dated so it applies to the work that starts after it.
+`causality_closeout_adopted_at: YYYY-MM-DD` stamps the contract only on a scope
+with a spec created on or after the date; a scope whose specs are all older is
+sealed without it and the bundle says why. `overlay_adopted_at` does the same per
+overlay — `{"structural-materiality@1": "YYYY-MM-DD"}` — so adopting an overlay
+does not charge its criteria, or a structural mapping, to work already under way;
+a skipped overlay is named in the plan's explain trail and costs no Git read. A
+spec without a creation date is never exempted, and an undated overlay applies to
+every scope it selects.
+
 ### Protected policy baseline
 
 A diff that changes the review contract cannot be the authority that approves

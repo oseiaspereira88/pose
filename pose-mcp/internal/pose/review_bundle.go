@@ -501,7 +501,9 @@ func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (Re
 
 	bundle.Payload.ConsumedInputs = s.reviewBundleConsumedInputs(plan)
 	bundle.Payload.GoverningContracts = governingContractsAtSeal()
-	if adopted, err := s.CausalityCloseoutAdopted(); err == nil && adopted {
+	if adopted, err := s.CausalityCloseoutAdopted(); err == nil && adopted && s.causalityCloseoutExempts(scope) {
+		bundle.Warnings = append(bundle.Warnings, "causality closeout not stamped: every spec in "+scope.String()+" was created before causality_closeout_adopted_at "+s.causalityCloseoutCutoff())
+	} else if err == nil && adopted {
 		// Stamped only on adoption, so no bundle is held to it retroactively.
 		bundle.Payload.GoverningContracts = uniqueSorted(append(bundle.Payload.GoverningContracts, CausalityCloseoutContract))
 		bundle.Payload.Plan.Band = plan.Band

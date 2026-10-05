@@ -291,6 +291,12 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 			if overlay.Scope != scope.Kind {
 				continue
 			}
+			// An overlay adopted after work was under way applies to the work
+			// that starts after it (spec pose-causality-closeout-adoption-cutoff).
+			if date := policy.OverlayAdoptedAt[overlayRef]; s.reviewScopeCreatedBefore(scope, date) {
+				plan.Explain = append(plan.Explain, overlayRef+" not selected: adopted on "+date+", after every spec in "+ref+" was created")
+				continue
+			}
 			overlays = append(overlays, overlay)
 		}
 		// Resolved only when something selects on it. A repository that adopted
