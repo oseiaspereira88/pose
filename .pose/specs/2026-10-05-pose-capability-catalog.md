@@ -105,7 +105,7 @@ Drive every catalog entry on and off through `pose adopt` on an installed fixtur
 ### Requirement trace
 
 - R1 [satisfied] test:TestCapabilityCatalogDescribesEveryEntry test:TestCapabilityCatalogRecordsDeclineAndDefer check:capability-catalog-integration
-- R2 [satisfied] test:TestCapabilityCatalogAdoptsAndRetiresEveryToggleThroughTheReader test:TestAdoptCatalogTogglesEveryCapabilityKind check:capability-catalog-integration
+- R2 [satisfied] test:TestCapabilityCatalogAdoptsAndRetiresEveryToggleThroughTheReader test:TestCapabilityCatalogVerifiedIdentityWritesTheDeclaredProject test:TestAdoptCatalogTogglesEveryCapabilityKind check:capability-catalog-integration
 - R3 [satisfied] test:TestCapabilityCatalogRefusesMissingRequirementsAndPrerequisites test:TestAdoptCatalogTogglesEveryCapabilityKind check:capability-catalog-integration
 - R4 [satisfied] test:TestCapabilityCatalogRecordsDeclineAndDefer test:TestAdoptCatalogRecordsDeclineAndDeferAndAdoptClearsThem check:capability-catalog-integration
 - R5 [satisfied] test:TestAdoptCatalogRecordsDeclineAndDeferAndAdoptClearsThem check:capability-catalog-integration

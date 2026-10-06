@@ -25,12 +25,15 @@ import (
 type PolicyDocs struct {
 	Review map[string]any
 	DoR    map[string]any
+	// Root is the instance the documents were loaded from, for an adoption
+	// that copies a declared value (the project id) into policy.
+	Root string
 
 	reviewOriginal, dorOriginal []byte
 }
 
 func LoadPolicyDocs(root string) (PolicyDocs, error) {
-	docs := PolicyDocs{}
+	docs := PolicyDocs{Root: root}
 	load := func(rel string) (map[string]any, []byte, error) {
 		raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", rel))
 		if errors.Is(err, os.ErrNotExist) {
@@ -327,6 +330,14 @@ func catalogEntries() []CatalogEntry {
 			},
 			Adopt: func(docs PolicyDocs, _ string) []string {
 				changes := []string{}
+				// Verified assurance needs authority_project; the prerequisite
+				// accepts the declared identity for it, so adoption writes it.
+				if project, _ := docs.Review["authority_project"].(string); project == "" && docs.Root != "" {
+					if id, ok, err := ReadProjectFile(docs.Root); ok && err == nil {
+						docs.Review["authority_project"] = id
+						changes = append(changes, "set authority_project="+id+" (from .pose/project.json)")
+					}
+				}
 				levels, _ := docs.Review["identity_assurance"].(map[string]any)
 				if levels == nil {
 					levels = map[string]any{}

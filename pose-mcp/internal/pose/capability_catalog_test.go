@@ -183,3 +183,28 @@ func TestCapabilityCatalogIsDocumented(t *testing.T) {
 		}
 	}
 }
+
+// Verified identity names the project its claims must bind; adopting it where
+// .pose/project.json declares the id writes authority_project, so the policy
+// the reader then loads is valid.
+func TestCapabilityCatalogVerifiedIdentityWritesTheDeclaredProject(t *testing.T) {
+	root := catalogFixture(t)
+	if _, err := WriteProjectFile(root, "proj.catalog", ""); err != nil {
+		t.Fatal(err)
+	}
+	docs, _ := LoadPolicyDocs(root)
+	docs.Review["trusted_attestation_issuers"] = []any{"test:issuer#sha256:" + strings.Repeat("a", 64)}
+	docs.Review["authority_audience"] = "harne8:tenant-a"
+	entry, _ := LookupCatalogEntry("verified-identity")
+	if blocker := CatalogAdoptBlocker(root, docs, entry); blocker != "" {
+		t.Fatalf("verified identity is blocked: %s", blocker)
+	}
+	changes := entry.Adopt(docs, "2026-10-06")
+	if err := docs.Write(root, Store{Root: root}); err != nil {
+		t.Fatalf("adopting verified identity produced a policy the reader refuses: %v (changes %v)", err, changes)
+	}
+	policy, err := Store{Root: root}.GetReviewPolicy()
+	if err != nil || policy.AuthorityProject != "proj.catalog" {
+		t.Fatalf("authority_project = %q (%v)", policy.AuthorityProject, err)
+	}
+}
