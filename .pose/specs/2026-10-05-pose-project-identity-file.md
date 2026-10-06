@@ -126,7 +126,7 @@ None.
 
 ### Delivered scope
 
-Not started.
+`.pose/project.json` is read by CLI and MCP identity resolution, install and update seed it without overwriting, malformed or conflicting declarations fail closed, and doctor/setup explain the declared identity and remedy for directory-name fallback. The project identity integration tests passed on 2026-10-06.
 
 ### Residual risks
 
