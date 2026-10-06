@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:38ce8d42ef31302f5e350ebb395eadf66d329f20da00bd6949c03677c3a3b866",
-  "provenance_digest": "sha256:8ca4506ecaf8fe1821b8bb3f76d3254f2eea092afd36fa017b8613037b159342",
+  "input_digest": "sha256:472a3d1c6d60ef77a67279168e0e1df9cc4d7660acf9c167edbd1e1b3ce39bb7",
+  "provenance_digest": "sha256:3d57e71f7fc686cc476c2247e79094f7e0067d4507bcd1b10241cb139f177e2d",
   "implied_edges": [
     "changes"
   ],
@@ -8106,6 +8106,13 @@
       }
     },
     {
+      "id": "artifact:.pose/review-attestations/rva-d3fd359390ed39d1.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/review-attestations/rva-d3fd359390ed39d1.json"
+      }
+    },
+    {
       "id": "artifact:.pose/review-attestations/rva-d67edc9c8b1167d7.json",
       "type": "artifact",
       "attributes": {
@@ -9734,6 +9741,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/review-bundles/rvb-364991aaf2d09861.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/review-bundles/rvb-3657945c5aa8be04.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/review-bundles/rvb-3657945c5aa8be04.json"
       }
     },
     {
@@ -23785,6 +23799,14 @@
       }
     },
     {
+      "id": "change-set:cs-0c6504191a2c",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:31f6428d4d182c5c327ea14338d3e1444d21e73a2bcd306fdeaaa6aeb757814f",
+        "selector": "trailers:pose-project-binding-consistency"
+      }
+    },
+    {
       "id": "change-set:cs-0cea649dc268",
       "type": "change-set",
       "attributes": {
@@ -24558,14 +24580,6 @@
       "attributes": {
         "diff_digest": "sha256:ef604a9e645de93ab5ae2bb5b2d5d82f13ffaf3a3cb3320f1dfbc91b74b05ae5",
         "selector": "trailers:pose-review-root-binding-parity"
-      }
-    },
-    {
-      "id": "change-set:cs-51fa999d5b98",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:b257e3a488019cc103f0c31b4c73a953ddd19b831c8bdee1d94214db5753c990",
-        "selector": "trailers:pose-project-binding-consistency"
       }
     },
     {
@@ -31080,7 +31094,7 @@
       "id": "spec:pose-project-binding-consistency",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -72042,7 +72056,7 @@
     },
     {
       "from": "spec:pose-project-binding-consistency",
-      "to": "change-set:cs-51fa999d5b98",
+      "to": "change-set:cs-0c6504191a2c",
       "type": "observed-by"
     },
     {
@@ -101962,6 +101976,62 @@
       "diff_digest": "sha256:3cc8bbc7331ba0192623eb80722df0f3d069922c32fd768e0e230444aac63088"
     },
     {
+      "id": "cs-0c6504191a2c",
+      "spec": "pose-project-binding-consistency",
+      "selector": "trailers:pose-project-binding-consistency",
+      "base": "2107cb02face61d34d4d0d6eb3c1bc0e99232ced^",
+      "head": "2300b959be059f9a2b85c1faa44da40f77b2347c",
+      "resolved_base": "a6080d1c4bc4c1e28450806c70d05cc044c57fff",
+      "resolved_head": "2300b959be059f9a2b85c1faa44da40f77b2347c",
+      "commits": [
+        "2107cb02face61d34d4d0d6eb3c1bc0e99232ced",
+        "2300b959be059f9a2b85c1faa44da40f77b2347c"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-project-binding-consistency.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-d3fd359390ed39d1.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-3657945c5aa8be04.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-10-06-pose-project-binding-consistency.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-project-binding-consistency.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/setup.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/setup_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/artifact_ref.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/project_file_test.go"
+        }
+      ],
+      "diff_digest": "sha256:31f6428d4d182c5c327ea14338d3e1444d21e73a2bcd306fdeaaa6aeb757814f"
+    },
+    {
       "id": "cs-0cea649dc268",
       "spec": "pose-dora-five-metrics-v2",
       "selector": "range:3131e6c^..3131e6c",
@@ -115086,49 +115156,6 @@
         }
       ],
       "diff_digest": "sha256:ef604a9e645de93ab5ae2bb5b2d5d82f13ffaf3a3cb3320f1dfbc91b74b05ae5"
-    },
-    {
-      "id": "cs-51fa999d5b98",
-      "spec": "pose-project-binding-consistency",
-      "selector": "trailers:pose-project-binding-consistency",
-      "base": "2107cb02face61d34d4d0d6eb3c1bc0e99232ced^",
-      "head": "2107cb02face61d34d4d0d6eb3c1bc0e99232ced",
-      "resolved_base": "a6080d1c4bc4c1e28450806c70d05cc044c57fff",
-      "resolved_head": "2107cb02face61d34d4d0d6eb3c1bc0e99232ced",
-      "commits": [
-        "2107cb02face61d34d4d0d6eb3c1bc0e99232ced"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-project-binding-consistency.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-10-06-pose-project-binding-consistency.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-project-binding-consistency.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/setup.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/setup_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/artifact_ref.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/project_file_test.go"
-        }
-      ],
-      "diff_digest": "sha256:b257e3a488019cc103f0c31b4c73a953ddd19b831c8bdee1d94214db5753c990"
     },
     {
       "id": "cs-5379135a4646",
