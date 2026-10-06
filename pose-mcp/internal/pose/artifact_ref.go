@@ -484,16 +484,14 @@ func EnvironmentArtifactResolver(root, projectsDir string) (ArtifactResolver, st
 		// project in another repository's references. Say how to replace it.
 		return ArtifactResolver{}, "", fmt.Errorf("invalid-project-id: POSE_DEFAULT_PROJECT_ID %q is not a valid project id; declare %q instead (in .mcp.json, `pose doctor --fix` rewrites it)", id, ProjectIDFor(strings.TrimPrefix(id, "proj.")))
 	}
-	if id == "" {
-		for candidate, path := range explicit {
-			if !sameProjectRoot(root, path) {
-				continue
-			}
-			if id != "" && id != candidate {
-				return ArtifactResolver{}, "", fmt.Errorf("conflicting-project-binding")
-			}
-			id = candidate
+	for candidate, path := range explicit {
+		if !sameProjectRoot(root, path) {
+			continue
 		}
+		if id != "" && id != candidate {
+			return ArtifactResolver{}, "", fmt.Errorf("conflicting-project-binding: this root is bound to both %s and %s", id, candidate)
+		}
+		id = candidate
 	}
 	declared, hasFile, fileErr := ReadProjectFile(root)
 	if fileErr != nil {

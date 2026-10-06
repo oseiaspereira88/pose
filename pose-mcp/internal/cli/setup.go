@@ -94,11 +94,11 @@ func buildSetupPlan(root string) (setupPlan, error) {
 		return plan, err
 	}
 	plan.ReviewedVersion = decisions.ReviewedVersion
-	id, declared, err := posemodel.ReadProjectFile(root)
+	_, id, err := posemodel.EnvironmentArtifactResolver(root, "")
 	if err != nil {
 		return plan, err
 	}
-	plan.Project, plan.ProjectDeclared = posemodel.DefaultProjectID(root), declared && id != ""
+	plan.Project, plan.ProjectDeclared = id, posemodel.ProjectIdentityDeclared(root)
 	policy, err := posemodel.LoadActionPolicy(root)
 	if err != nil {
 		return plan, err
@@ -155,7 +155,12 @@ func buildSetupPlan(root string) (setupPlan, error) {
 	}
 
 	// Steps, in the order a newcomer meets them.
-	step := setupStep{ID: "identity.project", Area: "identity", State: "done", Summary: "project id " + plan.Project + " declared in .pose/project.json"}
+	step := setupStep{ID: "identity.project", Area: "identity", State: "done", Summary: "project id " + plan.Project + " declared"}
+	if _, hasFile, _ := posemodel.ReadProjectFile(root); hasFile {
+		step.Summary += " in .pose/project.json"
+	} else if plan.ProjectDeclared {
+		step.Summary += " by an explicit environment binding"
+	}
 	if !plan.ProjectDeclared {
 		step.State, step.Summary, step.Command = "todo", "project id "+plan.Project+" is derived from the directory name, so another checkout would be another project", "pose update"
 	}

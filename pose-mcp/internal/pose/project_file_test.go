@@ -1,11 +1,32 @@
 package pose
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+func TestProjectFileChecksRootsEvenWithAnExplicitDefault(t *testing.T) {
+	root := projectFileRoot(t, `{"schema_version":1,"project_id":"proj.real"}`)
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "proj.real")
+	for _, bound := range []string{"proj.other", "proj.real"} {
+		roots, err := json.Marshal(map[string]string{bound: root})
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Setenv("POSE_PROJECT_ROOTS", string(roots))
+		_, id, err := EnvironmentArtifactResolver(root, "")
+		if bound == "proj.other" {
+			if err == nil || !strings.Contains(err.Error(), "conflicting-project-binding") || !strings.Contains(err.Error(), bound) || !strings.Contains(err.Error(), "proj.real") {
+				t.Fatalf("conflicting root accepted with explicit default: id=%q err=%v", id, err)
+			}
+		} else if err != nil || id != "proj.real" {
+			t.Fatalf("agreeing declarations refused: id=%q err=%v", id, err)
+		}
+	}
+}
 
 // Spec pose-project-identity-file.
 

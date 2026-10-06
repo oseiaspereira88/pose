@@ -15,6 +15,31 @@ import (
 
 // Spec pose-setup-command.
 
+func TestSetupRefusesConflictingProjectBindingsBeforePrompting(t *testing.T) {
+	repo := freshInstall(t)
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "proj.other")
+	withSetupAnswers(t, "y\n")
+	setupInput = func() (io.Reader, bool) {
+		t.Fatal("setup prompted before refusing conflicting project bindings")
+		return nil, false
+	}
+	if code, out := runPose(t, repo, "setup"); code == 0 || !strings.Contains(out, "conflicting-project-binding") {
+		t.Fatalf("setup accepted a conflicting identity: %d %s", code, out)
+	}
+}
+
+func TestSetupReportsAnEnvironmentOnlyDeclaredIdentity(t *testing.T) {
+	repo := freshInstall(t)
+	if err := os.Remove(filepath.Join(repo, ".pose", "project.json")); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "proj.environment")
+	plan := setupJSON(t, repo)
+	if plan.Project != "proj.environment" || !plan.ProjectDeclared || stepOf(plan, "identity.project").State != "done" {
+		t.Fatalf("setup ignored the declared environment identity: %+v", plan)
+	}
+}
+
 func setupJSON(t *testing.T, repo string) setupPlan {
 	t.Helper()
 	var plan setupPlan
