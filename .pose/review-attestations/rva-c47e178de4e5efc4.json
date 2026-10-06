@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-c47e178de4e5efc4",
+  "bundle_id": "rvb-d92dbb85de76ed33",
+  "bundle_digest": "sha256:d92dbb85de76ed33049bcf4e8e833ac808a5574cb0db904e5f230e0aa1098362",
+  "reviewer": "agent:claude-sonnet-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "A non-approving decision is still written as an audit record; only approvals the verifier would reject are refused, with the own reasons of the verifier, and nothing already recorded changes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "POSE.md, its pt-BR copy and the scaffold copies state that attest and auto-attest refuse what verify would reject."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "A malformed attestation is refused at preview and at --apply instead of leaving an immutable record that costs a second attestation."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "One function decides for both attest and verify, so the rules are those of the verifier and not a copy; changes stay in review closeout and bundle code."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The change only tightens what can be written and cannot make verify accept more; the verifier stays the authority. Same-session review: the implementing session reviewed its own work; this is declared, not an independent review."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/abm-atomic-start-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:claude-sonnet-5-5",
+    "concluded_by": "agent:claude-sonnet-5-5",
+    "confirmed_by": "human:oseias",
+    "applied_by": "agent:claude-sonnet-5-5",
+    "confirmation_mode": "authorized-operation",
+    "confirmation_digest": "sha256:cb869514eee44544f75736d00ef4662e523f2e4570b16b3dbf5b90ea716fe132"
+  },
+  "attested_at": "2026-10-06T23:18:34Z",
+  "path": ".pose/review-attestations/rva-c47e178de4e5efc4.json"
+}
