@@ -104,6 +104,7 @@ A fixture with one spec created before and one after the cutoff, the policy with
 - R2 [satisfied] test:TestAtomicStartCutoffReportsOlderSpecsWithoutBlocking check:atomic-start-cutoff-integration
 - R3 [satisfied] test:TestAtomicStartCutoffReportsOlderSpecsWithoutBlocking check:atomic-start-cutoff-integration
 - R4 [satisfied] <the atomic-start capability description names the cutoff> test:TestUnadoptedCapabilitiesAreSupportedAndNotInForce check:effective-governance-integration
+- R5 [satisfied] test:TestStartRecordIsAGovernanceSubjectPath
 
 ### Known gaps
 
