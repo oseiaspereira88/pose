@@ -98,6 +98,7 @@ components:
 task_type: feature
 surface: minimal
 delivers:
+changelog: none
 ---
 
 # Spec: Review the capabilities POSE {{ENGINE}} brings
@@ -193,6 +194,7 @@ components:
 task_type: feature
 surface: minimal
 delivers:
+changelog: none
 ---
 
 # Spec: Revisar as capacidades que o POSE {{ENGINE}} traz
