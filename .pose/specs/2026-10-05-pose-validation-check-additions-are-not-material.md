@@ -108,7 +108,7 @@ None.
 
 ### Delivered scope
 
-Not started.
+The structural detector reports uniquely named additive validation checks as non-material validation-check facts; all other matrix changes remain material. Parser v2 and all four manual copies agree. Reviewed against TestValidationCheckMaterialityReportsNewChecksWithoutCharging and TestValidationCheckMaterialityKeepsEveryOtherChangeMaterial on 2026-10-06.
 
 ### Residual risks
 
