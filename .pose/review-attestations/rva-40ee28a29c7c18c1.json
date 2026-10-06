@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-40ee28a29c7c18c1",
+  "bundle_id": "rvb-e80a3f4a82615f3c",
+  "bundle_digest": "sha256:e80a3f4a82615f3ccfb9a335c60590419c8d02718566b722cb9309555ce2ff85",
+  "reviewer": "agent:claude-sonnet-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test",
+      "rationale": "No product behaviour changes; only .gitleaks.toml gains scoped allowances."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test",
+      "rationale": "No user-facing documentation is affected and the spec declares changelog: none."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test",
+      "rationale": "The secrets gate stops failing on action-request journals, so full-history scans on main and pull requests pass again."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test",
+      "rationale": "Changes are limited to .gitleaks.toml: the journal exception plus the one historical commit that quoted an idempotency key in its spec."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test",
+      "rationale": "The exception is conjunctive and match-scoped to .pose/actions/act-\u003c16 hex\u003e.jsonl and a slug-shaped idempotency-key; a secret elsewhere in a journal line still fails, and detection is not weakened elsewhere. Same-session review: the implementing session reviewed its own work; this is declared, not an independent review."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:mcp-enforce/go/build"
+    }
+  ],
+  "evidence_refs": [
+    "unit:mcp-enforce/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:claude-sonnet-5-5",
+    "concluded_by": "agent:claude-sonnet-5-5",
+    "confirmed_by": "human:oseias",
+    "applied_by": "agent:claude-sonnet-5-5",
+    "confirmation_mode": "authorized-operation",
+    "confirmation_digest": "sha256:9e2b916661cc9fe98b9569d3e1c45f775cd614fdc073691c173529bfea7b7456"
+  },
+  "attested_at": "2026-10-06T23:20:40Z",
+  "path": ".pose/review-attestations/rva-40ee28a29c7c18c1.json"
+}
