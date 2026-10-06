@@ -39,3 +39,18 @@ id = "generic-api-key"
   paths = ['''^\.harne8-agent-sync\.json$''']
   regexTarget = "line"
   regexes = ['''"[^"]+":"[0-9a-f]{64}"''']
+
+  # Action-request journals (spec pose-action-requests) record each answer's
+  # idempotency key, a dedup token the answering principal chooses
+  # ("decision4-2026-10-05"); generic-api-key matches it on the word "key".
+  # Conjunctive like the entry above: only inside a journal path AND only for a
+  # slug-shaped value, so anything else in a journal — and the same shape
+  # anywhere else — still fails (spec pose-gitleaks-action-idempotency-keys).
+  [[rules.allowlists]]
+  description = "Slug-shaped idempotency keys in .pose/actions journals."
+  condition = "and"
+  paths = ['''^\.pose/actions/act-[0-9a-f]{16}\.jsonl$''']
+  # "match", not "line": a journal event is one JSON line, so a line-scoped
+  # exception would also excuse a secret pasted into its answer or evidence.
+  regexTarget = "match"
+  regexes = ['''potency_key":"[a-z0-9][a-z0-9._-]{0,63}"$''']
