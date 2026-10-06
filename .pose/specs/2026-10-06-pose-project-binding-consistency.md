@@ -1,8 +1,8 @@
 ---
 slug: pose-project-binding-consistency
-status: in-progress
+status: done
 created_at: 2026-10-06
-completed_at:
+completed_at: 2026-10-06
 depends_on:
 remediates: spec:pose-project-identity-file@defect-fix, spec:pose-setup-command@defect-fix
 priority: 1
