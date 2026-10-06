@@ -66,6 +66,44 @@ PY
 "$BIN" lint-spec pose-onboarding >/dev/null 2>&1 || fail "the onboarding spec does not lint"
 ok "journey 1: fresh install — strict check, clean doctor, onboarding spec first, nothing to review"
 
+# The onboarding spec is taken to done by the steps setup names.
+out="$("$BIN" start spec:pose-onboarding 2>&1)"
+"$BIN" start spec:pose-onboarding --apply --digest "$(field start.digest <<<"$out")" >/dev/null 2>&1 || fail "start pose-onboarding failed"
+commit "$REPO" "Start onboarding" && git commit -q --amend -m "Start onboarding" -m "POSE-Spec: pose-onboarding" --no-verify
+"$BIN" identity add --key "$KEYS/id_ed25519.pub" --role maintainer --apply >/dev/null 2>&1 || fail "identity add failed"
+"$BIN" hooks install >/dev/null 2>&1 || fail "hooks install failed"
+git add -A && git commit -qm "Register the maintainer" -m "POSE-Spec: pose-onboarding" --no-verify
+ONBOARDING="$(find .pose/specs -name '*-pose-onboarding.md' | head -1)"
+python3 - "$ONBOARDING" <<'PY'
+import sys
+p = sys.argv[1]
+s = open(p, encoding="utf-8").read()
+trace = "".join(f"- R{i} [satisfied] doc:{d}\n" for i, d in enumerate(
+    [".pose/project.json", ".pose/policy/actions.json", ".git/hooks/pre-commit", ".pose/policy/adoption-decisions.json", ".pose/project.json"], 1))
+s = s.replace("### Requirement trace\n", "### Requirement trace\n" + trace, 1)
+open(p, "w", encoding="utf-8").write(s)
+PY
+git add -A && git commit -qm "Trace onboarding" -m "POSE-Spec: pose-onboarding" --no-verify
+next="$("$BIN" setup --json | python3 -c 'import json,sys; print(json.load(sys.stdin)["next"]["command"])')"
+[ "$next" = "pose close spec:pose-onboarding" ] || fail "with every step done, setup names $next instead of closing the onboarding spec"
+code=0
+out="$("$BIN" close spec:pose-onboarding --apply --reviewer agent:reviewer 2>&1)" || code=$?
+[ "$code" = 3 ] || fail "closing the onboarding spec did not stop for the reviewer (exit $code): $out"
+ATTEST="$(field closeout_plan.attest <<<"$out")"
+ATTEST="${ATTEST//<id>/agent:reviewer}"
+ATTEST="${ATTEST//<your conclusion>/checked against the onboarding requirements}"
+ATTEST="$(sed -E 's/<decision that reaches a requirement, e.g. D1>/D2/g; s/<why [^>]*>/configuration only, as the onboarding requirements state/g' <<<"$ATTEST")"
+ATTEST="${ATTEST/#pose /\"$BIN\" }"
+eval "$ATTEST" >/dev/null 2>&1 || fail "the printed attest command for the onboarding spec was refused: $ATTEST"
+out="$("$BIN" close spec:pose-onboarding --resume 2>&1)" || fail "closing the onboarding spec failed: $out"
+grep -q "^status: done" "$ONBOARDING" || fail "the onboarding spec is not done"
+git add -A && git commit -qm "Close onboarding" -m "POSE-Spec: pose-onboarding" --no-verify
+out="$("$BIN" check --strict 2>&1)" || fail "the instance fails the strict check after onboarding: $out"
+grep -q "warning" <<<"$out" && fail "closing the onboarding spec leaves a warning: $(grep -i warning <<<"$out")"
+"$BIN" lint-spec pose-onboarding --strict >/dev/null 2>&1 || fail "the closed onboarding spec fails lint"
+grep -q "nothing to set up" <<<"$("$BIN" setup --no-input 2>&1)" || fail "setup still has steps after onboarding"
+ok "journey 1b: the onboarding spec is started, driven by setup and closed through review"
+
 # Journey 2 — installed by the latest published release, then updated.
 if [ -z "$PREVIOUS" ]; then
   location="$(curl -fsSI https://github.com/oseiaspereira88/pose/releases/latest | tr -d '\r' | sed -n 's/^[Ll]ocation: .*\/tag\/v//p')"
