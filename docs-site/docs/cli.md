@@ -9,7 +9,7 @@ without Bash or Python fallbacks and works offline.
 
 | Command | Purpose |
 |---|---|
-| `pose init [--wizard [--yes]]` | Ensure the minimal structure; the wizard detects stacks and seeds the validation matrix |
+| `pose init [--wizard [--yes]]` | Install POSE in the current repository when no instance exists (the installer's flags pass through), otherwise confirm it is installed; the wizard then detects stacks and seeds the validation matrix |
 | `pose specs [--recent N] [--status S] [--since D] [--json]` | List and discover specifications chronologically (newest first) |
 | `pose spec-format <migrate|status> [<slug>|--all] [--format folder|flat] [--dry-run]` | Inspect and migrate specifications to chronological layout with companion preservation |
 | `pose new-spec <slug> [--folder\|--legacy]` | Create `.pose/specs/YYYY-MM-DD-<slug>.md` from the template; `--folder` writes `YYYY-MM-DD-<slug>/spec.md`, `--legacy` writes `<slug>/spec.md` |
@@ -512,6 +512,55 @@ attestation must carry a trusted, signed authority claim bound to the sealed
 bundle, project audience, reviewer principal and required executions. Human
 claims need a separate authority grant. Legacy bundles remain auditable under
 the assurance mode sealed when they were created.
+
+### Guided setup
+
+`pose setup` is the one place to see an instance's configuration and the next
+step: project identity, principals and keys, the pre-commit gate, capabilities
+in force, capabilities new since the last configuration review, what needs
+setup, and whether the configuration is committed. At a terminal it offers each
+open step and performs it only after an explicit yes; with `--json`,
+`--no-input` or no terminal it only reports, with the commands. A fresh install
+records its engine version as reviewed in `.pose/policy/adoption-decisions.json`
+(`reviewed_version`); an older instance sees every capability it has not
+decided. `pose install` ends with `pose setup` as the next step, `pose update`
+names the pending decisions instead of "Nothing to do", and `pose doctor`
+reports them as a `next` step. A deferral is asked again under a newer engine.
+
+`pose adopt --list` shows every capability in the catalog with its state;
+`pose adopt <capability> [--off | --decline --reason <why> | --defer --reason <why>] --apply`
+decides one. When `pose update` finds capabilities the project has not decided,
+it writes a configuration-review spec and opens one decision request per
+capability for the `maintainer` role; nothing is adopted until an answer exists,
+and `pose adopt --request <act-id> --apply` (or `pose setup`) applies it,
+recording the request and the answer's reason.
+
+### Signed action answers
+
+A project can verify who answered an action request without any external
+service. Each principal registers the SSH public keys it signs with:
+
+```bash
+pose identity add --key ~/.ssh/id_ed25519_sk.pub --role maintainer --apply
+pose identity list
+pose identity remove human:ada --fingerprint SHA256:... --apply
+```
+
+With no principal, `identity add` suggests `human:<name>` from the git
+identity; the name is only a name — the registered key is the proof. Keys live
+in `.pose/policy/actions.json` under `keys`; only `ssh-ed25519` and
+`sk-ssh-ed25519@openssh.com` are accepted, and a key belongs to one principal.
+`pose action resolve … --sign <private key>` signs the answer with the user's
+own `ssh-keygen -Y sign` (namespace `pose-action-answer`; POSE never reads the
+key), and `--signature <file>` attaches a signature made elsewhere over the
+bytes `pose action statement <act-id> --actor <p> --answer <a> --idempotency-key <k>`
+prints. The statement binds project, request id and digest, actor, answer and
+idempotency key. POSE verifies the SSHSIG natively, records the statement,
+signature and key in the journal, and `pose action show` verifies it again.
+Under `identity_assurance: verified`, an answer needs such a signature or a
+trusted issuer's claim (Harne8 is one such issuer); a security key also records
+whether it was touched, and `require_presence` refuses a human answer without
+it. `pose doctor` reports human role holders that cannot prove an answer.
 
 ### Retrospective ABM replay
 

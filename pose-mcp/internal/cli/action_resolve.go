@@ -1,9 +1,13 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -17,7 +21,7 @@ import (
 func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer) int {
 	usage := "Usage: pose action " + verb + " <act-id> --actor <principal> --request-digest <digest> --expected-revision <n> --idempotency-key <key> " +
 		"[--answer <option|text>] [--evidence <ref>]... [--reason <text>] [--role <role>] [--execution <id>] [--channel <name>] [--prepared-by <p>] [--applied-by <p>] " +
-		"[--confirmation-mode adopted-conclusions|authorized-operation] [--claim <project-relative json>] [--apply] [--json]"
+		"[--confirmation-mode adopted-conclusions|authorized-operation] [--claim <project-relative json>] [--sign <ssh key> | --signature <file>] [--apply] [--json]"
 	if len(args) == 0 || strings.HasPrefix(args[0], "-") {
 		return usageError(stderr, usage)
 	}
@@ -32,7 +36,7 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 	case "invalidate":
 		res.Type = posemodel.ActionEventInvalidated
 	}
-	apply, jsonOutput, claimPath := false, false, ""
+	apply, jsonOutput, claimPath, signKey, signatureFile := false, false, "", "", ""
 	for i := 1; i < len(args); i++ {
 		flag := args[i]
 		switch flag {
@@ -81,6 +85,10 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 			res.ConfirmationMode = value
 		case "--claim":
 			claimPath = value
+		case "--sign":
+			signKey = value
+		case "--signature":
+			signatureFile = value
 		default:
 			return usageError(stderr, usage)
 		}
@@ -110,6 +118,34 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 	}
 	out := render(stdout, stderr)
 	store := posemodel.Store{Root: root}
+	if signKey != "" || signatureFile != "" {
+		if res.Type != posemodel.ActionEventAnswered || signKey != "" && signatureFile != "" {
+			return usageError(stderr, "--sign or --signature (one of them) proves an answer: use it with pose action resolve")
+		}
+		if signatureFile != "" {
+			raw, err := os.ReadFile(signatureFile)
+			if err != nil {
+				out.Failure("pose action " + verb + ": " + err.Error())
+				return 2
+			}
+			res.Signature = string(raw)
+		} else if apply {
+			// Signing happens only when the answer is recorded, so a preview
+			// never asks for a touch.
+			view, err := store.LoadActionRequest(res.RequestID)
+			if err != nil {
+				out.Failure("pose action " + verb + ": " + err.Error())
+				return 1
+			}
+			statement := posemodel.AnswerStatement(view.Request, res.Actor, res.Answer, res.IdempotencyKey)
+			signature, err := sshSign(signKey, statement.Canonical())
+			if err != nil {
+				out.Failure("pose action " + verb + ": " + err.Error())
+				return 1
+			}
+			res.Signature = signature
+		}
+	}
 	if !apply {
 		view, err := store.LoadActionRequest(res.RequestID)
 		if err != nil {
@@ -130,5 +166,60 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 		return writeJSON(stdout, view)
 	}
 	renderActionView(out, view)
+	return 0
+}
+
+// sshSign signs message with the user's own ssh-keygen; POSE hands it the key
+// path and never reads the key. A security key asks for its touch here.
+func sshSign(keyPath string, message []byte) (string, error) {
+	keygen, err := exec.LookPath("ssh-keygen")
+	if err != nil {
+		return "", errors.New("ssh-keygen is not installed; sign `pose action statement` elsewhere and pass --signature <file>")
+	}
+	cmd := exec.Command(keygen, "-Y", "sign", "-f", keyPath, "-n", posemodel.ActionAnswerNamespace)
+	cmd.Stdin = bytes.NewReader(message)
+	var signature, diagnostics bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &signature, &diagnostics
+	if err := cmd.Run(); err != nil {
+		return "", fmt.Errorf("ssh-keygen -Y sign failed: %v: %s", err, strings.TrimSpace(diagnostics.String()))
+	}
+	return signature.String(), nil
+}
+
+// cmdActionStatement prints the exact bytes an answer signature covers, for
+// a principal who signs on another machine:
+// pose action statement <id> --actor <p> --answer <a> --idempotency-key <k> | ssh-keygen -Y sign -f <key> -n pose-action-answer
+func cmdActionStatement(root string, args []string, stdout, stderr io.Writer) int {
+	const usage = "Usage: pose action statement <act-id> --actor <principal> --answer <answer> --idempotency-key <key>"
+	if len(args) == 0 || strings.HasPrefix(args[0], "-") {
+		return usageError(stderr, usage)
+	}
+	id, actor, answer, key := args[0], "", "", ""
+	for i := 1; i < len(args); i++ {
+		if i+1 >= len(args) {
+			return usageError(stderr, usage)
+		}
+		switch args[i] {
+		case "--actor":
+			actor = args[i+1]
+		case "--answer":
+			answer = args[i+1]
+		case "--idempotency-key":
+			key = args[i+1]
+		default:
+			return usageError(stderr, usage)
+		}
+		i++
+	}
+	if actor == "" || answer == "" || key == "" {
+		return usageError(stderr, usage)
+	}
+	view, err := posemodel.Store{Root: root}.LoadActionRequest(id)
+	if err != nil {
+		render(stdout, stderr).Failure("pose action statement: " + err.Error())
+		return 1
+	}
+	// Raw bytes, not rendered fields: what is printed is what gets signed.
+	_, _ = stdout.Write(posemodel.AnswerStatement(view.Request, actor, answer, key).Canonical())
 	return 0
 }

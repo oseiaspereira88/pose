@@ -80,6 +80,9 @@ own spec or amendment).
 - modified: .pose/policy/review.json
 - created: .pose/policy/actions.json
 - modified: pose-mcp/internal/cli/policy_keys.go
+- modified: pose-mcp/internal/scaffold/dist/.pose/policy/actions.json
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy.go
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go
 
 Reconciled against the tree at activation.
 

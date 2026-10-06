@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/scaffold"
@@ -205,7 +206,27 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	// "Result: SUCCESS" update whose very next `pose check --strict` failed
 	// with broken references, undetected by `pose doctor`
 	// (spec pose-upgrade-path-audit-fixes).
+	// A review policy this install creates is a new instance: it adopts the
+	// governed capabilities from today. One that already existed is a project
+	// under way and decides with `pose adopt` (spec
+	// pose-governed-capabilities-default-on-new-instances).
+	// The identity this install resolved is declared once, in a committed
+	// file every checkout reads (spec pose-project-identity-file).
+	if written, err := posemodel.WriteProjectFile(target, projectID, projectName); err == nil && written {
+		log("project identity: %s → .pose/project.json", "identidade do projeto: %s → .pose/project.json", projectID)
+	}
+	_, reviewPolicyErr := os.Stat(filepath.Join(target, ".pose", "policy", "review.json"))
+	newReviewPolicy := os.IsNotExist(reviewPolicyErr)
 	seedAbsentInstanceConfig(dist, target, log)
+	if newReviewPolicy {
+		adoptGovernedCapabilitiesAtInstall(target, time.Now(), log)
+		// Adopting POSE is the new instance's first governed spec (spec
+		// pose-onboarding-spec); an install over an existing instance, and
+		// `pose update`, never create it.
+		if rel, written, err := scaffoldOnboardingSpec(target, locale, projectName, time.Now().UTC().Format(time.DateOnly)); err == nil && written {
+			log("onboarding spec: %s — `pose setup` drives its steps", "spec de onboarding: %s — `pose setup` conduz seus passos", rel)
+		}
+	}
 
 	// 3. Legal texts vendored under .pose/.
 	_ = copyFile(dist, "LICENSE", filepath.Join(target, ".pose", "LICENSE"), 0o644)
@@ -406,6 +427,10 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	log("install complete — POSE is ready in %s", "instalação concluída — POSE pronto em %s", target)
+	if newReviewPolicy {
+		// An install never ends without a next step (spec pose-setup-command).
+		log("next: `pose setup` — identity, the commit gate and capability decisions, one confirmed step at a time", "próximo: `pose setup` — identidade, gate de commit e decisões de capacidades, um passo confirmado por vez")
+	}
 	return 0
 }
 

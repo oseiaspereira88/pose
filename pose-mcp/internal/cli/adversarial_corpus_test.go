@@ -133,8 +133,10 @@ var adversarialCorpus = []adversarialCase{
 	{"ready-from-absent-blockers", "enforced", "pose-phase-scoped-readiness", func(t *testing.T) (bool, string) {
 		// No restriction found is not clearance while a producer that could
 		// restrict the phase was not read (release queues are not projected).
+		// The project releases, so the unprojected queue is a source it uses.
 		root := t.TempDir()
 		mustWrite(t, filepath.Join(root, ".pose/specs/2026-10-04-s.md"), "---\nslug: s\nstatus: draft\n---\n\n# Spec: s\n")
+		mustWrite(t, filepath.Join(root, ".pose/releases/v1.0.0/release.json"), "{}\n")
 		phases, err := posemodel.Store{Root: root}.SpecPhaseReadiness("s")
 		if err != nil {
 			return false, err.Error()

@@ -36,6 +36,9 @@ func TestABMProgressiveReviewInstallAndCLIPlan(t *testing.T) {
 	}
 	// Adopt explicitly only in the isolated installed fixture.
 	policy["overlay_profiles"] = []string{"engineering-judgment@1", "high-criticality-review@1"}
+	// A fresh install dates the structural overlay it adopts; replacing the
+	// overlay list drops it, so its date goes too (an orphaned date is refused).
+	delete(policy, "overlay_adopted_at")
 	policy["component_aware"] = true
 	policy["schema_version"] = 2
 	policy["component_aware_adopted_at"] = "2026-09-19"
@@ -103,6 +106,9 @@ func TestABMProgressiveReviewCLIShowsBandAndDeclaredForecast(t *testing.T) {
 		t.Fatal(err)
 	}
 	policy["overlay_profiles"] = []string{"engineering-judgment@1", "high-criticality-review@1"}
+	// A fresh install dates the structural overlay it adopts; replacing the
+	// overlay list drops it, so its date goes too (an orphaned date is refused).
+	delete(policy, "overlay_adopted_at")
 	policy["component_aware"] = true
 	policy["schema_version"] = 2
 	policy["component_aware_adopted_at"] = "2026-09-19"

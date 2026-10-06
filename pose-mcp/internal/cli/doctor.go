@@ -21,13 +21,16 @@ import (
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/scaffold"
+	"github.com/harne8/pose-mcp/internal/version"
 )
 
 // doctorSchemaVersion versions doctor's own JSON output shape (distinct
 // from the POSE instance schema-version). Existing fields are never
 // renamed or removed across versions — only added — so consumers pinned to
 // v1 keep working; bump this only for a genuinely breaking shape change.
-const doctorSchemaVersion = 1
+// Version 2 added the "next" level and the "next_steps" count (spec
+// pose-fresh-install-doctor-is-clean).
+const doctorSchemaVersion = 2
 
 // remediationClass distinguishes what an operator (or an automated caller)
 // can do about a finding (spec pose-doctor-guided-remediation R2):
@@ -47,7 +50,7 @@ const (
 
 type doctorFinding struct {
 	Check             string `json:"check"`
-	Level             string `json:"level"` // ok | warn | error
+	Level             string `json:"level"` // ok | next | warn | error
 	Message           string `json:"message"`
 	Hint              string `json:"hint,omitempty"`
 	Evidence          string `json:"evidence,omitempty"`
@@ -307,6 +310,17 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		}
 	}
 
+	// Where this project's identity is declared, and whether an environment
+	// binding disagrees with it (spec pose-project-identity-file).
+	if declared, ok, fileErr := posemodel.ReadProjectFile(root); fileErr != nil {
+		add("project.identity", "error", fileErr.Error(), text("fix .pose/project.json: {\"schema_version\":1,\"project_id\":\"proj.<name>\"}", "corrija .pose/project.json: {\"schema_version\":1,\"project_id\":\"proj.<nome>\"}"))
+	} else if !ok {
+		add("project.identity", "warn", fmt.Sprintf(text("no .pose/project.json: the project id is derived from the directory name (%s) and changes with the checkout", "sem .pose/project.json: o id do projeto vem do nome do diretório (%s) e muda com o checkout"), posemodel.DefaultProjectID(root)), text("declare it: {\"schema_version\":1,\"project_id\":\"proj.<name>\"} in .pose/project.json", "declare-o: {\"schema_version\":1,\"project_id\":\"proj.<nome>\"} em .pose/project.json"))
+	} else if env := os.Getenv("POSE_DEFAULT_PROJECT_ID"); env != "" && env != declared {
+		add("project.identity", "warn", fmt.Sprintf(text("POSE_DEFAULT_PROJECT_ID is %s but .pose/project.json declares %s; resolution refuses the conflict", "POSE_DEFAULT_PROJECT_ID é %s mas .pose/project.json declara %s; a resolução recusa o conflito"), env, declared), text("make the binding (.mcp.json or the environment) name the declared id", "faça o vínculo (.mcp.json ou ambiente) usar o id declarado"))
+	} else {
+		add("project.identity", "ok", fmt.Sprintf(text("project %s declared in .pose/project.json", "projeto %s declarado em .pose/project.json"), declared), "")
+	}
 	// 6. MCP uses the same native binary directly.
 	if b, err := os.ReadFile(filepath.Join(root, ".mcp.json")); err != nil {
 		add("mcp.config", "warn", text("static .mcp.json configuration not found", "configuração estática .mcp.json ausente"), text("run 'pose install', then restart/reconnect the client and call pose_mcp_context", "rode 'pose install', reinicie/reconecte o cliente e chame pose_mcp_context"))
@@ -327,7 +341,9 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	// 7. Git hooks.
 	hook := filepath.Join(root, ".git", "hooks", "pre-commit")
 	if _, err := os.Lstat(hook); err != nil {
-		add("hooks.pre-commit", "warn", text("pre-commit hook not installed", "pre-commit não instalado"), text("run 'pose hooks install' for an automatic commit gate", "rode 'pose hooks install' para gate automático no commit"))
+		// A recommended step, not a problem: a fresh install reports it as next
+		// (spec pose-fresh-install-doctor-is-clean).
+		add("hooks.pre-commit", "next", text("pre-commit hook not installed", "pre-commit não instalado"), text("run 'pose hooks install' (or 'pose doctor --fix --yes') for an automatic commit gate", "rode 'pose hooks install' (ou 'pose doctor --fix --yes') para gate automático no commit"))
 	} else {
 		add("hooks.pre-commit", "ok", text("pre-commit hook installed", "pre-commit instalado"), "")
 	}
@@ -543,15 +559,17 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				if !ok || ruleExtensionInstalled(root, ruleFile) {
 					continue
 				}
-				recommend = append(recommend, fmt.Sprintf("%s (%s) -> pose extension install <path-to-%s>", modPath, stack, extID))
+				recommend = append(recommend, fmt.Sprintf("%s (%s) -> pose extension install %s", modPath, stack, extID))
 			}
 			if len(recommend) > 0 {
-				add("rules.stack-extension-available", "warn",
+				// A rule pack the project can add is a recommended step, not
+				// a fault (spec pose-quickstart-real-lifecycle).
+				add("rules.stack-extension-available", "next",
 					fmt.Sprintf(text("%d module(s) match a rule extension not yet installed: %s",
 						"%d módulo(s) combinam com uma extensão de rule ainda não instalada: %s"),
 						len(recommend), strings.Join(recommend, "; ")),
-					text("obtain the extension package and run 'pose extension install <path>' — see AGENTS.md's Domain rules section",
-						"obtenha o pacote da extensão e rode 'pose extension install <path>' — veja a seção Domain rules do AGENTS.md"))
+					text("'pose extension install <id>' resolves it from the release catalog ('<path>' installs a local package) — see AGENTS.md's Domain rules section",
+						"'pose extension install <id>' resolve pelo catálogo da release ('<path>' instala um pacote local) — veja a seção Domain rules do AGENTS.md"))
 			} else {
 				add("rules.stack-extension-available", "ok", text("no unmatched rule extensions for detected modules", "nenhuma extensão de rule pendente para os módulos detectados"), "")
 			}
@@ -806,6 +824,11 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				}
 			}
 		}
+		// Milestone and roadmap profiles judge roadmap work; a project with no
+		// roadmap is held to none of their criteria, so a fresh install is not
+		// told it lacks integration evidence (spec
+		// pose-fresh-install-doctor-is-clean).
+		roadmaps, _ := filepath.Glob(filepath.Join(root, ".pose", "roadmaps", "*.md"))
 		demands := []classDemand{}
 		for id := range selected {
 			if id == "" {
@@ -816,6 +839,7 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				continue
 			}
 			var profile struct {
+				Scope     string `json:"scope"`
 				Selectors struct {
 					Languages []string `json:"languages"`
 				} `json:"selectors"`
@@ -829,6 +853,9 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				} `json:"tools"`
 			}
 			if json.Unmarshal(raw, &profile) != nil {
+				continue
+			}
+			if (profile.Scope == "milestone" || profile.Scope == "roadmap") && len(roadmaps) == 0 {
 				continue
 			}
 			if len(profile.Selectors.Languages) > 0 && len(domains) > 0 {
@@ -943,6 +970,90 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 			}
 			add("review.adoption-source", "ok",
 				fmt.Sprintf(text("contract adoption sources: %s", "origem das adoções de contrato: %s"), strings.Join(sources, ", ")), "")
+			// Agency readiness makes an unanswered request block what it
+			// restricts; a new instance adopts it with an empty role map, so a
+			// request addressed to a role has nobody to answer it until the
+			// project names one (spec
+			// pose-governed-capabilities-default-on-new-instances).
+			if policy.AgencyReadinessVersion == posemodel.AgencyReadinessPolicyVersion {
+				if actions, actionsErr := posemodel.LoadActionPolicy(root); actionsErr == nil {
+					held := 0
+					for _, principals := range actions.Roles {
+						held += len(principals)
+					}
+					if held == 0 {
+						// The default adoption leaves the roles empty on
+						// purpose: naming them is the next step, not a fault.
+						add("actions.roles", "next",
+							text("agency readiness is adopted and no principal holds a role in .pose/policy/actions.json: a request addressed to a role cannot be answered",
+								"agency readiness está adotada e nenhum principal tem papel em .pose/policy/actions.json: um request endereçado a um papel não pode ser respondido"),
+							text("register yourself: pose identity add --key ~/.ssh/<key>.pub --role maintainer --apply (or list principals in .pose/policy/actions.json); a request addressed to a principal is unaffected",
+								"registre-se: pose identity add --key ~/.ssh/<chave>.pub --role maintainer --apply (ou liste principals em .pose/policy/actions.json); um request endereçado a um principal não é afetado"))
+					} else {
+						add("actions.roles", "ok", fmt.Sprintf(text("%d principal(s) hold action-request roles", "%d principal(is) com papéis de action request"), held), "")
+					}
+				}
+			}
+			// Capabilities this project has not decided for the engine it runs
+			// are a next step, not a fault (spec pose-setup-command).
+			if pending, pendingErr := posemodel.CapabilitiesToReview(root, version.ReleaseBase()); pendingErr == nil && len(pending) > 0 {
+				ids := make([]string, 0, len(pending))
+				for _, state := range pending {
+					ids = append(ids, state.ID)
+				}
+				add("setup.capabilities", "next",
+					fmt.Sprintf(text("%d capability decision(s) pending since the last configuration review: %s", "%d decisão(ões) de capacidade pendente(s) desde a última revisão de configuração: %s"), len(pending), strings.Join(ids, ", ")),
+					text("run `pose setup`: it shows what each changes and asks, one confirmed decision at a time", "rode `pose setup`: mostra o que cada uma muda e pergunta, uma decisão confirmada por vez"))
+			}
+			// A human role under verified assurance needs a way to prove an
+			// answer: a registered key (one that proves presence, for a
+			// person) or a trusted issuer authorised for humans (spec
+			// pose-signed-action-answers).
+			if actions, actionsErr := posemodel.LoadActionPolicy(root); actionsErr != nil {
+				add("actions.keys", "error", "invalid .pose/policy/actions.json: "+actionsErr.Error(), text("fix the policy; `pose identity list` reads it the same way", "corrija a policy; `pose identity list` a lê do mesmo jeito"))
+			} else if actions.IdentityAssurance == posemodel.ReviewIdentityAssuranceVerified {
+				unproven, untouched := []string{}, []string{}
+				for _, principal := range actions.Principals() {
+					if !strings.HasPrefix(principal, "human:") || strings.HasSuffix(principal, "*") || len(actions.RolesOf(principal)) == 0 {
+						continue
+					}
+					keys := actions.KeysFor(principal)
+					if len(keys) == 0 {
+						if len(policy.HumanAuthorityIssuers) == 0 {
+							unproven = append(unproven, principal)
+						}
+						continue
+					}
+					present := false
+					for _, key := range keys {
+						present = present || key.ProvesPresence()
+					}
+					if !present {
+						untouched = append(untouched, principal)
+					}
+				}
+				switch {
+				case len(unproven) > 0:
+					add("actions.keys", "warn",
+						fmt.Sprintf(text("identity assurance is verified and %s can prove no answer: no registered key and no issuer authorised for humans",
+							"a garantia de identidade é verified e %s não consegue provar resposta: nenhuma chave registrada e nenhum emissor autorizado para humanos"), strings.Join(unproven, ", ")),
+						text("register a key: pose identity add <principal> --key <file.pub> --apply (a security key, ssh-keygen -t ed25519-sk, also proves presence)",
+							"registre uma chave: pose identity add <principal> --key <arquivo.pub> --apply (uma chave de segurança, ssh-keygen -t ed25519-sk, também prova presença)"))
+				case len(untouched) > 0 && actions.RequirePresence:
+					add("actions.keys", "error",
+						fmt.Sprintf(text("require_presence is set and %s holds only keys that cannot prove presence, so no answer of theirs is accepted",
+							"require_presence está ativo e %s só tem chaves que não provam presença, então nenhuma resposta é aceita"), strings.Join(untouched, ", ")),
+						text("register a security key (ssh-keygen -t ed25519-sk) with pose identity add", "registre uma chave de segurança (ssh-keygen -t ed25519-sk) com pose identity add"))
+				case len(untouched) > 0:
+					add("actions.keys", "warn",
+						fmt.Sprintf(text("%s signs with keys that cannot prove presence: whoever holds the key file can answer as them",
+							"%s assina com chaves que não provam presença: quem tiver o arquivo da chave responde por eles"), strings.Join(untouched, ", ")),
+						text("prefer a security key (ssh-keygen -t ed25519-sk); set require_presence in .pose/policy/actions.json to demand it",
+							"prefira uma chave de segurança (ssh-keygen -t ed25519-sk); ative require_presence em .pose/policy/actions.json para exigi-la"))
+				default:
+					add("actions.keys", "ok", text("every human role holder can prove an answer", "todo humano com papel consegue provar uma resposta"), "")
+				}
+			}
 			// Legacy attempts live in `.pose/reviews/*.md` — the directory
 			// Store.ListReviewAttempts reads. An earlier version of this check
 			// globbed `.pose/review-attempts/`, which nothing writes, so the
@@ -1110,6 +1221,26 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	// module looks covered and contributes nothing.
 	if raw, err := os.ReadFile(filepath.Join(root, ".pose", "indexes", "validation-matrix.json")); err == nil {
 		if matrix, parseErr := parseValidationMatrix(raw); parseErr == nil {
+			// A shipped stack counts only when some module here uses it, and
+			// only for its required checks: a stack nothing selects never runs,
+			// and an optional probe the distribution ships (wrangler --version)
+			// gates nothing, so neither is a gap in this project's evidence.
+			// The project's own overrides are all its declarations and are all
+			// read (spec pose-fresh-install-doctor-is-clean).
+			required := func(check validationCheck) bool {
+				return check.Severity == "" || check.Severity == "required"
+			}
+			inUse := map[string]bool{}
+			if modules, discoverErr := discoverValidationModules(root); discoverErr == nil {
+				for _, module := range modules {
+					inUse[module.Stack] = true
+				}
+			}
+			for _, override := range matrix.ModuleOverrides {
+				if override.Stack != "" {
+					inUse[override.Stack] = true
+				}
+			}
 			unclassed := []string{}
 			for name, override := range matrix.ModuleOverrides {
 				for _, check := range override.Checks {
@@ -1119,8 +1250,11 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				}
 			}
 			for name, stack := range matrix.Stacks {
+				if !inUse[name] {
+					continue
+				}
 				for _, check := range stack.Checks {
-					if strings.TrimSpace(check.EvidenceClass) == "" {
+					if required(check) && strings.TrimSpace(check.EvidenceClass) == "" {
 						unclassed = append(unclassed, "stack:"+name+"/"+check.Name)
 					}
 				}
@@ -1134,7 +1268,7 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 					text("declare the class each check actually produces in .pose/indexes/validation-matrix.json — a passing check with no class leaves the module looking covered while contributing nothing to a review",
 						"declare em .pose/indexes/validation-matrix.json a classe que cada check de fato produz — um check verde sem classe deixa o módulo parecendo coberto sem contribuir nada para uma review"))
 			} else {
-				add("validate.evidence-class-coverage", "ok", text("every registered check declares an evidence class", "todo check registrado declara uma classe de evidência"), "")
+				add("validate.evidence-class-coverage", "ok", text("every required check of the stacks in use declares an evidence class", "todo check obrigatório das stacks em uso declara uma classe de evidência"), "")
 			}
 		}
 	}
@@ -1185,6 +1319,17 @@ func engineSchemaVersion(root string) int {
 	return nativeSchemaVersion
 }
 
+// countNext counts the recommended steps that are not problems: they are
+// listed and counted apart, and never change the exit code.
+func countNext(findings []doctorFinding) (next int) {
+	for _, f := range findings {
+		if f.Level == "next" {
+			next++
+		}
+	}
+	return
+}
+
 func countLevels(findings []doctorFinding) (errors, warns int) {
 	for _, f := range findings {
 		switch f.Level {
@@ -1199,7 +1344,7 @@ func countLevels(findings []doctorFinding) (errors, warns int) {
 
 func renderFindingsText(findings []doctorFinding, stdout io.Writer, locale cliLocale) {
 	for _, f := range findings {
-		icon := map[string]string{"ok": "✓", "warn": "!", "error": "✗"}[f.Level]
+		icon := map[string]string{"ok": "✓", "next": "→", "warn": "!", "error": "✗"}[f.Level]
 		suffix := ""
 		if f.RemediationClass == remediationFixable {
 			suffix = cliText(locale, " (fixable: pose doctor --fix)", " (corrigível: pose doctor --fix)")
@@ -1211,8 +1356,9 @@ func renderFindingsText(findings []doctorFinding, stdout io.Writer, locale cliLo
 	}
 }
 
-func printSummaryLine(errors, warns int, stdout io.Writer, locale cliLocale) {
-	fmt.Fprintf(stdout, cliText(locale, "\ndoctor: %d error(s), %d warning(s)\n", "\ndoctor: %d erro(s), %d aviso(s)\n"), errors, warns)
+func printSummaryLine(findings []doctorFinding, stdout io.Writer, locale cliLocale) {
+	errors, warns := countLevels(findings)
+	fmt.Fprintf(stdout, cliText(locale, "\ndoctor: %d error(s), %d warning(s), %d next step(s)\n", "\ndoctor: %d erro(s), %d aviso(s), %d próximo(s) passo(s)\n"), errors, warns, countNext(findings))
 }
 
 func doctorReport(root string, findings []doctorFinding, jsonOut bool, stdout io.Writer, locale cliLocale) int {
@@ -1225,10 +1371,11 @@ func doctorReport(root string, findings []doctorFinding, jsonOut bool, stdout io
 			"findings":              findings,
 			"errors":                errors,
 			"warnings":              warns,
+			"next_steps":            countNext(findings),
 		})
 	} else {
 		renderFindingsText(findings, stdout, locale)
-		printSummaryLine(errors, warns, stdout, locale)
+		printSummaryLine(findings, stdout, locale)
 		PrintContributorDoctorHint(root, stdout, locale)
 	}
 	if errors > 0 {
@@ -1259,6 +1406,7 @@ func doctorFixPreview(findings []doctorFinding, candidates []string, jsonOut boo
 			"findings":              findings,
 			"errors":                errors,
 			"warnings":              warns,
+			"next_steps":            countNext(findings),
 			"fix": map[string]any{
 				"mode":       "dry-run",
 				"candidates": planned,
@@ -1266,7 +1414,7 @@ func doctorFixPreview(findings []doctorFinding, candidates []string, jsonOut boo
 		})
 	} else {
 		renderFindingsText(findings, stdout, locale)
-		printSummaryLine(errors, warns, stdout, locale)
+		printSummaryLine(findings, stdout, locale)
 		if len(candidates) == 0 {
 			fmt.Fprintln(stdout, cliText(locale, "\nfix: nothing fixable right now.", "\nfix: nada corrigível no momento."))
 		} else {
@@ -1304,11 +1452,12 @@ func doctorFixApply(root string, before []doctorFinding, candidates []string, js
 				"findings":              before,
 				"errors":                errors,
 				"warnings":              warns,
+				"next_steps":            countNext(before),
 				"fix":                   map[string]any{"mode": "apply", "results": []doctorFixResult{}},
 			})
 		} else {
 			renderFindingsText(before, stdout, locale)
-			printSummaryLine(errors, warns, stdout, locale)
+			printSummaryLine(before, stdout, locale)
 			fmt.Fprintln(stdout, cliText(locale, "\nfix: nothing fixable right now.", "\nfix: nada corrigível no momento."))
 		}
 		return 0
@@ -1346,6 +1495,7 @@ func doctorFixApply(root string, before []doctorFinding, candidates []string, js
 			"findings":              after,
 			"errors":                errors,
 			"warnings":              warns,
+			"next_steps":            countNext(after),
 			"fix": map[string]any{
 				"mode":    "apply",
 				"results": results,
@@ -1353,7 +1503,7 @@ func doctorFixApply(root string, before []doctorFinding, candidates []string, js
 		})
 	} else {
 		renderFindingsText(after, stdout, locale)
-		printSummaryLine(errors, warns, stdout, locale)
+		printSummaryLine(after, stdout, locale)
 		fmt.Fprintln(stdout, cliText(locale, "\n[APPLIED]", "\n[APLICADO]"))
 		for _, r := range results {
 			detail := ""

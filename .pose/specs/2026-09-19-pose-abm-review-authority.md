@@ -238,15 +238,15 @@ Harne8 issuer integration is intentionally a later scope.
 
 ### Follow-ups
 
-- [open] Compor `governance:verified-review-authority` no Harne8 e provar
+- [covered: xref:proj.harne8/spec:harne8-action-request-confirmation-channel] Composed by the Harne8 channel that issues the claims. Confirmed by the maintainer on 2026-10-05 (pose-open-backlog-reconciliation, Decision 5). Original item: Compor `governance:verified-review-authority` no Harne8 e provar
   alcançabilidade ponta a ponta; o alvo declarado aqui é local e de governança,
   e nenhuma instância adotou `verified` ainda (owner:@pose-maintainers
   crit:medium review:2026-10-19)
-- [open] Fornecer, no Harne8, o adapter de issuer e a projeção de policy
+- [covered: xref:proj.harne8/spec:harne8-action-request-confirmation-channel] The Harne8 channel's R2 and R4 are this issuer, for action requests and review drafts. Confirmed by the maintainer on 2026-10-05 (pose-open-backlog-reconciliation, Decision 5). Original item: Fornecer, no Harne8, o adapter de issuer e a projeção de policy
   protegida que permitem emitir claims de autoridade; sem eles o modo `verified`
   existe no motor e não tem quem o alimente (owner:@harne8-platform crit:medium
   review:2026-10-19)
-- [open] `Project` e `Audience` da claim são comparados ao mesmo
+- [spawned: pose-authority-claim-project-is-not-the-audience] Resolved before 7.0.0: `project` is compared with the new `authority_project`, `audience` with `authority_audience`. Confirmed by the maintainer on 2026-10-05 (pose-open-backlog-reconciliation, Decision 5). Original item: `Project` e `Audience` da claim são comparados ao mesmo
   `authority_audience` e nunca podem divergir; decidir se um dos dois sai do
   contrato (owner:@pose-maintainers crit:low review:2026-10-19)
 - [done] `claim.SchemaVersion` é comparado com `ReviewSchemaVersion`, a

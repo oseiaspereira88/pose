@@ -143,7 +143,17 @@ func (s Store) EffectiveGovernance(scope string) (GovernanceProjection, error) {
 	}
 	capability("causality-closeout", "review.causality_closeout_version", causality, version(policy.CausalityCloseoutVersion),
 		causality && bundlesOn, causalityReasons,
-		pick(causality && bundlesOn, "new bundles stamp the causality-closeout contract", "supported and not in force: no bundle stamps causality-closeout"))
+		pick(causality && bundlesOn, "new bundles stamp the causality-closeout contract"+causalityCutoffNote(policy.CausalityCloseoutAdoptedAt), "supported and not in force: no bundle stamps causality-closeout"))
+	// A dated overlay applies to the work that starts after it (spec
+	// pose-causality-closeout-adoption-cutoff); an undated one to every scope.
+	for _, ref := range uniqueSorted(policy.OverlayProfiles) {
+		date := policy.OverlayAdoptedAt[ref]
+		explanation := ref + " applies to every scope it selects"
+		if date != "" {
+			explanation = ref + " applies to specs created on or after " + date + "; a scope whose specs are all older is not selected"
+		}
+		capability("review-overlay:"+ref, "review.overlay_profiles", true, date, reviewOn, nil, explanation)
+	}
 	capability("agency-readiness", "review.agency_readiness_version", policy.AgencyReadinessVersion == AgencyReadinessPolicyVersion, version(policy.AgencyReadinessVersion),
 		policy.AgencyReadinessVersion == AgencyReadinessPolicyVersion, nil,
 		pick(policy.AgencyReadinessVersion == AgencyReadinessPolicyVersion, "unsatisfied action requests refuse the start, close and release they restrict", "supported and not adopted: action requests are shown in Attention and restrict no transition"))
@@ -205,6 +215,13 @@ func (s Store) EffectiveGovernance(scope string) (GovernanceProjection, error) {
 	deliveryEntry.Explanation = pick(deliveryEntry.Effective, "declared delivery targets must be proven reachable with current evidence before close", "delivery targets are not gated here")
 	out.Entries = append(out.Entries, deliveryEntry)
 
+	// A governed capability that is not adopted names the command that turns
+	// it on (spec pose-governed-capabilities-default-on-new-instances).
+	for i, entry := range out.Entries {
+		if _, governed := LookupCatalogEntry(entry.ID); governed && entry.Kind == GovernanceCapability && !entry.Configured {
+			out.Entries[i].Explanation += "; turn it on with `pose adopt " + entry.ID + " --apply`"
+		}
+	}
 	if scope != "" {
 		out.Scope = scope
 		ctx := &GovernanceScopeContext{}
@@ -240,6 +257,13 @@ func pick(cond bool, yes, no string) string {
 		return yes
 	}
 	return no
+}
+
+func causalityCutoffNote(cutoff string) string {
+	if cutoff == "" {
+		return "; no adoption cutoff, so every new bundle is held to it"
+	}
+	return "; specs created before " + cutoff + " are not held to causality closeout"
 }
 
 func atomicStartCutoffNote(cutoff string) string {

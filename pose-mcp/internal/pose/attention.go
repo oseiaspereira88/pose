@@ -11,6 +11,9 @@ type Attention struct {
 	// this before anything that suggests continuing.
 	Incomplete bool               `json:"incomplete"`
 	Coverage   []ProducerCoverage `json:"coverage_limits,omitempty"`
+	// NotUsed names the sources this project does not have, which no producer
+	// needs to read (spec pose-fresh-install-doctor-is-clean).
+	NotUsed []string `json:"not_used,omitempty"`
 	// ForActor holds what requires the queried actor or role, or, without a
 	// query, what waits on any person or role.
 	ForActor []string `json:"for_actor"`
@@ -27,6 +30,12 @@ type Attention struct {
 func BuildAttention(report ObligationReport, actor string) Attention {
 	a := Attention{Blocking: map[string][]string{}, ForActor: []string{}, Gates: []string{}, Residual: []string{}}
 	for _, c := range report.Coverage {
+		if c.NotUsed {
+			// A source this project does not have owes nothing; it is listed
+			// apart, never as a coverage gap.
+			a.NotUsed = append(a.NotUsed, c.Producer)
+			continue
+		}
 		if c.State != CoverageStateCurrent {
 			a.Incomplete = true
 			a.Coverage = append(a.Coverage, c)

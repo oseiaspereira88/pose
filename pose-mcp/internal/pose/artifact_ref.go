@@ -410,15 +410,52 @@ func ProjectIDFor(name string) string {
 	return "proj." + slug
 }
 
-// DefaultProjectID is the id of a project root that declares none.
+// DefaultProjectID is the id of a project root that no environment binding
+// names: the one `.pose/project.json` declares, else the directory name. A
+// malformed file falls back here, which only a reader may accept; a writer
+// uses ResolveDefaultProjectID or Store.WriteProjectID.
 func DefaultProjectID(root string) string {
+	if id, ok, err := ReadProjectFile(root); ok && err == nil {
+		return id
+	}
 	return ProjectIDFor(filepath.Base(filepath.Clean(root)))
 }
 
+// ResolveDefaultProjectID is DefaultProjectID for a caller about to act on
+// the identity: a malformed .pose/project.json is an error, never a fallback
+// to the directory name.
+func ResolveDefaultProjectID(root string) (string, error) {
+	if id, ok, err := ReadProjectFile(root); err != nil {
+		return "", err
+	} else if ok {
+		return id, nil
+	}
+	return ProjectIDFor(filepath.Base(filepath.Clean(root))), nil
+}
+
+// WriteProjectID is the project a governance write is recorded under. Unlike
+// the snapshot, which reports a failed resolution as a limitation and goes on
+// reading, a write refuses: a conflicting binding or a malformed
+// .pose/project.json would attribute it to another project.
+func (s Store) WriteProjectID() (string, error) {
+	_, project, err := EnvironmentArtifactResolver(s.Root, "")
+	if err != nil {
+		return "", fmt.Errorf("pose: project identity: %w", err)
+	}
+	if project == "" {
+		return ResolveDefaultProjectID(s.Root)
+	}
+	return project, nil
+}
+
 // ProjectIdentityDeclared reports whether this root's project id was declared
-// (POSE_DEFAULT_PROJECT_ID, or an explicit POSE_PROJECT_ROOTS binding) rather
-// than derived from the directory name, which changes with the checkout.
+// (.pose/project.json, POSE_DEFAULT_PROJECT_ID, or an explicit
+// POSE_PROJECT_ROOTS binding) rather than derived from the directory name,
+// which changes with the checkout.
 func ProjectIdentityDeclared(root string) bool {
+	if _, ok, err := ReadProjectFile(root); ok && err == nil {
+		return true
+	}
 	if os.Getenv("POSE_DEFAULT_PROJECT_ID") != "" {
 		return true
 	}
@@ -458,8 +495,19 @@ func EnvironmentArtifactResolver(root, projectsDir string) (ArtifactResolver, st
 			id = candidate
 		}
 	}
-	if id == "" {
+	declared, hasFile, fileErr := ReadProjectFile(root)
+	if fileErr != nil {
+		return ArtifactResolver{}, "", fileErr
+	}
+	switch {
+	case id == "" && hasFile:
+		id = declared
+	case id == "":
 		id = DefaultProjectID(root)
+	case hasFile && id != declared:
+		// Two declarations of one project's identity that disagree: refuse,
+		// naming both, instead of letting the environment win silently.
+		return ArtifactResolver{}, "", fmt.Errorf("conflicting-project-binding: the environment binds this root to %s and .pose/project.json declares %s", id, declared)
 	}
 	if ValidateSlug(id) != nil {
 		return ArtifactResolver{}, "", fmt.Errorf("invalid-project-id: %q is not a valid project id", id)

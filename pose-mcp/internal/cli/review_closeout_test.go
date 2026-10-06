@@ -28,7 +28,7 @@ func closeoutCLIFixture(t *testing.T) string {
 	root := t.TempDir()
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"},"continuous_closeout":true}`)
 	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
-	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-02\ncompleted_at:\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n")
+	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-02\ncompleted_at:\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n\n## 6. Validation\n\n### Requirement trace\n- R1 [satisfied] test:TestFixture\n")
 	return root
 }
 
@@ -226,6 +226,9 @@ Keep compatibility.
 Use immutable JSON.
 
 ## 6. Validation
+
+### Requirement trace
+- R1 [satisfied] test:TestFixture
 Pending.
 
 ## 7. Final Report
@@ -305,12 +308,19 @@ func TestReviewBundleCLISealsAttestsAndVerifies(t *testing.T) {
 func TestReviewRecordDelegatesToBundleAttestationWhenAdopted(t *testing.T) {
 	root := reviewBundleCLIFixture(t)
 	var out, errOut bytes.Buffer
-	if code := cmdReview(root, []string{"bundle", "spec:bundle", "--seal"}, &out, &errOut); code != 0 {
+	if code := cmdReview(root, []string{"bundle", "spec:bundle", "--seal", "--json"}, &out, &errOut); code != 0 {
 		t.Fatalf("seal code=%d err=%s", code, errOut.String())
+	}
+	var sealed posemodel.ReviewBundle
+	if err := json.Unmarshal(out.Bytes(), &sealed); err != nil {
+		t.Fatal(err)
 	}
 	out.Reset()
 	errOut.Reset()
-	args := []string{"record", "spec:bundle", "--reviewer", "agent:bundle-review", "--decision", "approved", "--evidence", "unit:bundle", "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--apply"}
+	// Cite evidence the bundle seals: an approval citing anything else is
+	// refused before it is written (spec pose-attest-refuses-what-verify-rejects).
+	sealedEvidence := sealed.Payload.Evidence[0].EvidenceClass + ":" + sealed.Payload.Evidence[0].ID
+	args := []string{"record", "spec:bundle", "--reviewer", "agent:bundle-review", "--decision", "approved", "--evidence", sealedEvidence, "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--apply"}
 	if code := cmdReview(root, args, &out, &errOut); code != 0 {
 		t.Fatalf("record adapter code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
@@ -334,13 +344,13 @@ func TestReviewAttestationWontFixCannotApproveThroughCLI(t *testing.T) {
 	out.Reset()
 	errOut.Reset()
 	args := []string{"attest", bundle.BundleID, "--reviewer", "agent:risk-cli", "--decision", "approved", "--evidence", ref, "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--finding", "f1|critical|wont-fix|leave unresolved|" + ref, "--apply"}
-	if code := cmdReview(root, args, &out, &errOut); code != 0 {
-		t.Fatal(errOut.String())
-	}
-	out.Reset()
-	errOut.Reset()
-	if code := cmdReview(root, []string{"verify", "spec:bundle", "--json"}, &out, &errOut); code != 1 || !strings.Contains(out.String(), "unapproved or incomplete accepted risk") {
+	// The verifier's refusal now comes from attest itself, and nothing is
+	// written (spec pose-attest-refuses-what-verify-rejects).
+	if code := cmdReview(root, args, &out, &errOut); code != 1 || !strings.Contains(errOut.String(), "unapproved or incomplete accepted risk") {
 		t.Fatalf("CLI approved risk: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	if entries, _ := os.ReadDir(filepath.Join(root, ".pose", "review-attestations")); len(entries) != 0 {
+		t.Fatalf("a refused approval was written: %v", entries)
 	}
 }
 
@@ -378,7 +388,7 @@ func TestReviewAutoAttestCLI(t *testing.T) {
 	root := t.TempDir()
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":2,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"},"review_bundles":true,"review_bundles_adopted_at":"2026-08-14"}`)
 	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
-	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-02\ncompleted_at:\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n")
+	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-02\ncompleted_at:\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n\n## 6. Validation\n\n### Requirement trace\n- R1 [satisfied] test:TestFixture\n")
 	writeCloseoutCLIFile(t, root, "pose-mcp/lib.go", "package posemcp\n")
 	graph := posemodel.DeliveryIntegrityGraph{
 		SchemaVersion:    1,
@@ -477,7 +487,7 @@ func TestPoseCloseWithLiveGitTrailerNoReport(t *testing.T) {
 	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
 	writeCloseoutCLIFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","governed_roots":["internal"],"severities":{"action-mismatch":"error","undeclared":"error"}}`)
 	writeCloseoutCLIFile(t, root, ".pose/policy/delivery.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","results_path":".pose/results/current.json"}`)
-	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-03\ncompleted_at:\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n\n## 3. Technical Plan\n\n### Artifacts\n- created: internal/feature.go\n\n## 4. Tasks\nwork\n")
+	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-03\ncompleted_at:\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n\n## 3. Technical Plan\n\n### Artifacts\n- created: internal/feature.go\n\n## 4. Tasks\nwork\n\n## 6. Validation\n\n### Requirement trace\n- R1 [satisfied] test:TestFixture\n")
 	writeCloseoutCLIFile(t, root, "README.md", "baseline\n")
 	artifactGit(t, root, "add", "--", ".")
 	artifactGit(t, root, "commit", "-q", "-m", "baseline")
@@ -602,6 +612,11 @@ Nenhum
 
 ## 4. Tasks
 - [x] Document ADR.
+
+## 6. Validation
+
+### Requirement trace
+- R1 [satisfied] test:TestFixture
 `)
 	writeCloseoutCLIFile(t, root, "README.md", "baseline\n")
 	artifactGit(t, root, "add", "--", ".")
@@ -715,6 +730,11 @@ Nenhum
 
 ## 4. Tasks
 - [x] Configure root manifests.
+
+## 6. Validation
+
+### Requirement trace
+- R1 [satisfied] test:TestFixture
 `)
 	artifactGit(t, root, "add", "--", ".")
 	artifactGit(t, root, "commit", "-q", "-m", "baseline")
@@ -839,6 +859,11 @@ delivers: contract:my-contract
 
 ## 4. Tasks
 - [x] Implement contract and entrypoint.
+
+## 6. Validation
+
+### Requirement trace
+- R1 [satisfied] test:TestFixture
 `)
 	artifactGit(t, root, "add", "--", ".")
 	artifactGit(t, root, "commit", "-q", "-m", "baseline")
@@ -957,6 +982,11 @@ completed_at:
 Nenhum
 ## 4. Tasks
 - [x] A
+
+## 6. Validation
+
+### Requirement trace
+- R1 [satisfied] test:TestFixture
 `)
 	writeCloseoutCLIFile(t, root, ".pose/specs/spec-b.md", `---
 slug: spec-b
@@ -975,6 +1005,11 @@ completed_at:
 Nenhum
 ## 4. Tasks
 - [x] B
+
+## 6. Validation
+
+### Requirement trace
+- R1 [satisfied] test:TestFixture
 `)
 	artifactGit(t, root, "add", "--", ".")
 	artifactGit(t, root, "commit", "-q", "-m", "baseline")

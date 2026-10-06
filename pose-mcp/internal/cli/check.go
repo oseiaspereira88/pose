@@ -408,8 +408,21 @@ func isRuntimeReference(ref string) bool {
 		// role; neither exists on a fresh install (spec pose-action-requests).
 		".pose/actions",
 		".pose/policy/actions.json",
+		// The adoption decision record exists only once a project declines or
+		// defers a capability (spec pose-capability-catalog), and the project
+		// identity file only once an id is declared — an instance installed
+		// before it existed, with no id to recover, has none until it declares
+		// one (spec pose-project-identity-file).
+		".pose/policy/adoption-decisions.json",
+		".pose/project.json",
 		".pose/closeout-plans",
 		".pose/contributions",
+		// The docs manifest exists once `pose docs-init` runs, and release
+		// records once the project releases; a fresh install has neither, and
+		// Attention reads their absence as a source the project does not use
+		// (spec pose-fresh-install-doctor-is-clean).
+		".pose/docs.json",
+		".pose/releases",
 		".pose/feedback",
 		".pose/results",
 		".pose/reports/history",

@@ -51,6 +51,7 @@ type CloseoutPlanStep struct {
 // Closeout step ids, in execution order.
 const (
 	CloseoutStepContext       = "context"
+	CloseoutStepTrace         = "trace"
 	CloseoutStepEvidence      = "evidence"
 	CloseoutStepIndex         = "index"
 	CloseoutStepSeal          = "seal"
@@ -94,7 +95,7 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 	}
 
 	if spec.Status == "done" {
-		for _, id := range []string{CloseoutStepContext, CloseoutStepEvidence, CloseoutStepIndex, CloseoutStepSeal, CloseoutStepMechanical, CloseoutStepJudgment, CloseoutStepVerify, CloseoutStepTransition} {
+		for _, id := range []string{CloseoutStepContext, CloseoutStepTrace, CloseoutStepEvidence, CloseoutStepIndex, CloseoutStepSeal, CloseoutStepMechanical, CloseoutStepJudgment, CloseoutStepVerify, CloseoutStepTransition} {
 			step(id, CloseoutStateDone, "the spec is done")
 		}
 		plan.Terminal = true
@@ -114,6 +115,17 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 		return plan, nil
 	}
 	step(CloseoutStepContext, CloseoutStateDone, "")
+	// The exit gate comes before sealing: completing the trace edits the spec,
+	// which would supersede a bundle sealed first (spec
+	// pose-quickstart-real-lifecycle).
+	if blockers := RequirementTraceCloseoutBlockers(string(raw)); len(blockers) > 0 {
+		reason := "requirement trace incomplete: " + strings.Join(blockers, "; ") + " — declare each under `### Requirement trace`, e.g. `- R1 [satisfied] test:<TestName>`, or [waived: <reason>] / [withdrawn: <reason>], and commit"
+		step(CloseoutStepTrace, CloseoutStateBlocked, reason)
+		plan.Blockers = append(plan.Blockers, reason)
+		plan.Digest = closeoutPlanDigest(plan)
+		return plan, nil
+	}
+	step(CloseoutStepTrace, CloseoutStateDone, "")
 
 	verification, err := s.VerifyReviewBundle(ref)
 	if err != nil {
@@ -261,4 +273,22 @@ func (s Store) WriteCloseoutCheckpoint(cp CloseoutCheckpoint) error {
 func (s Store) ClearCloseoutCheckpoint(ref string) {
 	_ = os.Remove(closeoutCheckpointPath(s.Root, ref))
 	_ = os.Remove(filepath.Join(s.Root, filepath.FromSlash(closeoutCheckpointDir)))
+}
+
+// RequirementTraceCloseoutBlockers is the requirement-trace gate lint applies
+// to a done spec, for a spec about to become done.
+func RequirementTraceCloseoutBlockers(text string) []string {
+	trace := ParseRequirementTrace(text)
+	blockers := append([]string{}, trace.Errors...)
+	for _, id := range trace.Orphans {
+		blockers = append(blockers, id+" is traced but not declared in Requirements")
+	}
+	if trace.HasSection {
+		for _, id := range trace.Missing {
+			blockers = append(blockers, id+" has no trace entry")
+		}
+	} else if len(trace.Requirements) > 0 {
+		blockers = append(blockers, "no `### Requirement trace` subsection in Validation")
+	}
+	return blockers
 }

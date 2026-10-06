@@ -764,6 +764,10 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 			return 2
 		}
 	}
+	if refusals := store.PreflightReviewAttestation(att, time.Now()); len(refusals) > 0 {
+		reportAttestPreflight(stdout, stderr, "pose review attest", refusals)
+		return 1
+	}
 	if !apply {
 		fmt.Fprintf(stdout, "review_attestation.plan=record\nreview_attestation.bundle_id=%s\nreview_attestation.bundle_digest=%s\nreview_attestation.plan_digest=%s\nreview_attestation.apply=false\n", bundle.BundleID, bundle.BundleDigest, bundle.Payload.Plan.PlanDigest)
 		return 0
@@ -775,6 +779,13 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	fmt.Fprintf(stdout, "Review attestation recorded: %s\n", filepath.Join(root, filepath.FromSlash(att.Path)))
 	return 0
+}
+
+// reportAttestPreflight names every reason the verifier would give, so one
+// corrected command replaces the attestation that would otherwise have been
+// written and then rejected.
+func reportAttestPreflight(stdout, stderr io.Writer, command string, refusals []string) {
+	render(stdout, stderr).Failure(command + ": verify would reject this attestation, so nothing was written:\n  - " + strings.Join(refusals, "\n  - "))
 }
 
 // applyReviewCriterionMappings attaches the reviewer's answers about observed
@@ -907,6 +918,10 @@ func cmdReviewAutoAttest(root string, args []string, stdout, stderr io.Writer) i
 	if err != nil {
 		// Fall through to the single reporting site below.
 	} else if prepared.Complete {
+		if refusals := store.PreflightReviewAttestation(att, time.Now()); len(refusals) > 0 {
+			reportAttestPreflight(stdout, stderr, "pose review auto-attest", refusals)
+			return 1
+		}
 		att, err = store.RecordReviewAttestation(att, time.Now())
 	} else {
 		// Verdict first, then the cause, then the action — and exit 1, because
@@ -1531,6 +1546,16 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 			if blockers := deliverySpecBlockers(root, sp.Slug); len(blockers) > 0 {
 				fmt.Fprintf(stderr, "pose close: delivery assurance gate failed: %s\n", strings.Join(blockers, "; "))
 				PrintContributorFailureHint(root, stderr, cliLocaleValue())
+				return 1
+			}
+		}
+		// The exit gate of a spec is its requirement trace: closing marks it
+		// done, and a done spec whose promises point at no evidence fails
+		// lint. Refusing here keeps `pose close` from producing what the
+		// next lint rejects (spec pose-quickstart-real-lifecycle).
+		if raw, err := os.ReadFile(sp.Path); err == nil {
+			if blockers := posemodel.RequirementTraceCloseoutBlockers(string(raw)); len(blockers) > 0 {
+				render(io.Discard, stderr).Failure("pose close: requirement trace gate failed: " + strings.Join(blockers, "; ") + " — declare each under `### Requirement trace`, e.g. `- R1 [satisfied] test:<TestName>`, or [waived: <reason>] / [withdrawn: <reason>]")
 				return 1
 			}
 		}

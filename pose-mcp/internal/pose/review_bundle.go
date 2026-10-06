@@ -501,7 +501,9 @@ func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (Re
 
 	bundle.Payload.ConsumedInputs = s.reviewBundleConsumedInputs(plan)
 	bundle.Payload.GoverningContracts = governingContractsAtSeal()
-	if adopted, err := s.CausalityCloseoutAdopted(); err == nil && adopted {
+	if adopted, err := s.CausalityCloseoutAdopted(); err == nil && adopted && s.causalityCloseoutExempts(scope) {
+		bundle.Warnings = append(bundle.Warnings, "causality closeout not stamped: every spec in "+scope.String()+" was created before causality_closeout_adopted_at "+s.causalityCloseoutCutoff())
+	} else if err == nil && adopted {
 		// Stamped only on adoption, so no bundle is held to it retroactively.
 		bundle.Payload.GoverningContracts = uniqueSorted(append(bundle.Payload.GoverningContracts, CausalityCloseoutContract))
 		bundle.Payload.Plan.Band = plan.Band
@@ -1054,7 +1056,9 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	// .pose/capabilities/ holds the capability assessment, whose bullets are
 	// the authority on each mechanism's state (spec
 	// review-subject-classifies-capabilities).
-	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/", ".pose/capabilities/", ".pose/actions/"} {
+	// .pose/starts/ holds atomic start records: the baseline a started spec is
+	// reconciled against (spec pose-atomic-start-adoption-cutoff).
+	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/", ".pose/capabilities/", ".pose/actions/", ".pose/starts/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "governance", true
 		}
@@ -2222,6 +2226,28 @@ func (s Store) recordReviewAttestation(att ReviewAttestation, now time.Time, sig
 	return att, nil
 }
 
+// PreflightReviewAttestation returns the reasons the verifier would reject an
+// approving attestation before it is written, by running the verifier itself
+// over the attestation as it would be recorded. A non-approving decision is an
+// audit record the verifier rejects for closeout by definition, so it gets no
+// preflight (spec pose-attest-refuses-what-verify-rejects).
+func (s Store) PreflightReviewAttestation(att ReviewAttestation, now time.Time) []string {
+	if att.Decision != "approved" && att.Decision != "approved-with-reservations" {
+		return nil
+	}
+	bundle, err := s.LoadReviewBundle(att.BundleID)
+	if err != nil {
+		return []string{strings.TrimPrefix(err.Error(), "pose: ")}
+	}
+	candidate := att
+	candidate.SchemaVersion = ReviewBundleSchemaVersion
+	candidate.BundleID, candidate.BundleDigest = bundle.BundleID, bundle.BundleDigest
+	if candidate.AttestedAt == "" {
+		candidate.AttestedAt = now.UTC().Truncate(time.Second).Format(time.RFC3339)
+	}
+	return s.validateBundleAttestation(bundle, candidate)
+}
+
 // VerifyReviewAttestationEnvelope verifies an optional provider-neutral
 // Ed25519 envelope. Trust is pinned as <issuer>#sha256:<public-key-digest> in
 // review policy; a self-declared issuer or public key is never trusted alone.
@@ -3183,8 +3209,8 @@ func (s Store) verifiedAuthorityBlockers(bundle ReviewBundle, att ReviewAttestat
 		}
 		if claim.Project == "" {
 			blockers = append(blockers, "the authority claim names no project")
-		} else if claim.Project != policy.AuthorityAudience {
-			blockers = append(blockers, "the authority claim names project "+claim.Project+" and this project answers to "+policy.AuthorityAudience)
+		} else if claim.Project != policy.AuthorityProject {
+			blockers = append(blockers, "the authority claim names project "+claim.Project+" and this project is "+policy.AuthorityProject)
 		}
 	}
 	if _, err := time.Parse(time.RFC3339, claim.IssuedAt); err != nil {

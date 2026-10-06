@@ -128,6 +128,13 @@ func TestUpdateSeedsComputedIndexesWithTargetOwnStateNotPoseDists(t *testing.T) 
 	if err := os.RemoveAll(filepath.Join(repo, ".pose", "review-profiles")); err != nil {
 		t.Fatal(err)
 	}
+	// An old instance has no onboarding spec: a new install's own first spec
+	// is the target's state, not a leak (spec pose-onboarding-spec).
+	if rel := findOnboardingSpec(repo); rel != "" {
+		if err := os.Remove(filepath.Join(repo, filepath.FromSlash(rel))); err != nil {
+			t.Fatal(err)
+		}
+	}
 
 	out.Reset()
 	errB.Reset()

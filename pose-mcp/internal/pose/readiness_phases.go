@@ -78,7 +78,7 @@ func PhasesFromReport(spec *Spec, report ObligationReport) SpecPhases {
 	out := SpecPhases{SchemaVersion: 1, Spec: spec.Slug, Status: spec.Status, Snapshot: report.Snapshot}
 	unread := map[string][]string{}
 	for _, c := range report.Coverage {
-		if c.State == CoverageStateCurrent {
+		if c.State == CoverageStateCurrent || c.NotUsed {
 			continue
 		}
 		// Not adopted is not unread: an unsupported start reconciliation

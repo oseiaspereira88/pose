@@ -77,8 +77,10 @@ delivers:            # optional typed refs: surface:id, contract:id, capability:
 
 ### Delivery targets
 <!-- When `delivers` is populated, declare the exact same refs here. Profiles
-     and evidenceClass requirements come from validation-matrix.json. -->
-- surface:example module:path/to/module profile:web-ui entrypoint:path/to/production-entrypoint
+     and evidenceClass requirements come from validation-matrix.json. Leave the
+     section empty when the spec delivers nothing typed. One line per target,
+     for example: surface:example module:path/to/module profile:web-ui
+     entrypoint:path/to/production-entrypoint (as a "- " list item). -->
 
 ### API/contract changes
 - 

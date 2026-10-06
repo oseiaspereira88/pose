@@ -62,6 +62,7 @@ step "Public claims gate"       "$BIN" public-claims --strict
 step "Artifact-identity negative gate" bash tests/release/verify-negative.sh
 step "Migration guides" bash tests/import/migration-guides.sh
 step "First governed loop" bash tests/quickstart/first-governed-loop.sh
+step "Install and upgrade journeys" bash tests/journeys/install-and-upgrade.sh
 step "Demo fixture verification" bash examples/demo/record.sh --verify
 
 if [ "$FAST" -eq 0 ]; then

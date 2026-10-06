@@ -186,7 +186,7 @@ func TestAVerifiedClaimBoundToTheRequestIsAccepted(t *testing.T) {
 	private := ed25519.NewKeyFromSeed(seed)
 	public := private.Public().(ed25519.PublicKey)
 	pin := "harne8:confirm#" + digestBytes(public)
-	_ = os.WriteFile(filepath.Join(s.Root, ".pose/policy/review.json"), []byte(`{"schema_version":2,"enabled":true,"profiles":{"spec":"spec-closeout@1"},"authority_audience":"proj.fixture","trusted_attestation_issuers":["`+pin+`"],"human_authority_issuers":["`+pin+`"]}`), 0o644)
+	_ = os.WriteFile(filepath.Join(s.Root, ".pose/policy/review.json"), []byte(`{"schema_version":2,"enabled":true,"profiles":{"spec":"spec-closeout@1"},"authority_project":"proj.fixture","authority_audience":"proj.fixture","trusted_attestation_issuers":["`+pin+`"],"human_authority_issuers":["`+pin+`"]}`), 0o644)
 	_ = os.WriteFile(filepath.Join(s.Root, ".pose/policy/actions.json"), []byte(`{"schema_version":1,"roles":{"maintainer":["human:maintainer"]},"identity_assurance":"verified"}`), 0o644)
 	view := openedDecision(t, s)
 	claim := ActionAuthorityClaim{SchemaVersion: 1, Project: "proj.fixture", Audience: "proj.fixture", RequestID: view.Request.ID, RequestDigest: view.Request.RequestDigest,

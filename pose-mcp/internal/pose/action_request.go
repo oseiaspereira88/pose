@@ -125,7 +125,11 @@ func (s Store) PrepareActionRequest(r ActionRequest, now time.Time) (ActionReque
 	}
 	r.SchemaVersion = ActionRequestSchemaVersion
 	if r.Project == "" {
-		r.Project = s.CurrentObligationSnapshot().Project
+		project, err := s.WriteProjectID()
+		if err != nil {
+			return ActionRequest{}, err
+		}
+		r.Project = project
 	}
 	if ValidateSlug(r.Project) != nil {
 		return fail("invalid project id")
@@ -415,6 +419,7 @@ type ActionEvent struct {
 	Role             string                `json:"role,omitempty"`
 	Claim            *ActionAuthorityClaim `json:"claim,omitempty"`
 	Envelope         *ActionClaimEnvelope  `json:"envelope,omitempty"`
+	SSHSignature     *ActionSSHSignature   `json:"ssh_signature,omitempty"`
 	IdempotencyKey   string                `json:"idempotency_key,omitempty"`
 	SupersededBy     string                `json:"superseded_by,omitempty"`
 }

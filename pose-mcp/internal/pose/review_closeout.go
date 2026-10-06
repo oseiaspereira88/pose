@@ -172,7 +172,15 @@ type ReviewPolicy struct {
 	AgencyReadinessVersion int `json:"agency_readiness_version,omitempty"`
 	// CausalityCloseoutVersion stamps the causality-closeout contract on new
 	// bundles (spec pose-abm-causality-attestation).
-	CausalityCloseoutVersion         int               `json:"causality_closeout_version,omitempty"`
+	CausalityCloseoutVersion int `json:"causality_closeout_version,omitempty"`
+	// CausalityCloseoutAdoptedAt (YYYY-MM-DD) limits the contract to scopes
+	// with a spec created on or after it (spec
+	// pose-causality-closeout-adoption-cutoff).
+	CausalityCloseoutAdoptedAt string `json:"causality_closeout_adopted_at,omitempty"`
+	// OverlayAdoptedAt dates an overlay adopted after work was under way: a
+	// dated overlay selects only scopes with a spec created on or after its
+	// date. An overlay without a date applies to every scope, as before.
+	OverlayAdoptedAt                 map[string]string `json:"overlay_adopted_at,omitempty"`
 	SchemaVersion                    int               `json:"schema_version"`
 	Enabled                          bool              `json:"enabled"`
 	AdoptedAt                        string            `json:"adopted_at,omitempty"`
@@ -224,6 +232,13 @@ type ReviewPolicy struct {
 	// protected baseline an administrator controls and not from whatever
 	// directory the engine happens to be run in.
 	AuthorityAudience string `json:"authority_audience,omitempty"`
+	// AuthorityProject is the project id a claim must name as the project its
+	// decision governs. AuthorityAudience names the verifier installation the
+	// claim is addressed to, which several projects can share; only this binding
+	// stops a claim issued for one of them from satisfying another (spec
+	// pose-authority-claim-project-is-not-the-audience). Like the audience it is
+	// read from the protected policy, never from the environment.
+	AuthorityProject string `json:"authority_project,omitempty"`
 }
 
 // ReviewIdentityAssurance resolves the assurance a scope kind requires,
@@ -455,6 +470,23 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 	if p.AtomicStartVersion != 0 && p.AtomicStartVersion != AtomicStartPolicyVersion {
 		return ReviewPolicy{}, fmt.Errorf("pose: unsupported atomic_start_version %d (engine supports %d)", p.AtomicStartVersion, AtomicStartPolicyVersion)
 	}
+	if p.CausalityCloseoutAdoptedAt != "" {
+		if _, err := time.Parse("2006-01-02", p.CausalityCloseoutAdoptedAt); err != nil {
+			return ReviewPolicy{}, fmt.Errorf("pose: causality_closeout_adopted_at must be YYYY-MM-DD, got %q", p.CausalityCloseoutAdoptedAt)
+		}
+	}
+	for ref, date := range p.OverlayAdoptedAt {
+		listed := false
+		for _, overlay := range p.OverlayProfiles {
+			listed = listed || overlay == ref
+		}
+		if !listed {
+			return ReviewPolicy{}, fmt.Errorf("pose: overlay_adopted_at dates %q, which overlay_profiles does not list", ref)
+		}
+		if _, err := time.Parse("2006-01-02", date); err != nil {
+			return ReviewPolicy{}, fmt.Errorf("pose: overlay_adopted_at[%q] must be YYYY-MM-DD, got %q", ref, date)
+		}
+	}
 	if p.AtomicStartAdoptedAt != "" {
 		if _, err := time.Parse("2006-01-02", p.AtomicStartAdoptedAt); err != nil {
 			return ReviewPolicy{}, fmt.Errorf("pose: atomic_start_adopted_at must be YYYY-MM-DD, got %q", p.AtomicStartAdoptedAt)
@@ -537,6 +569,9 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 		if verified {
 			if strings.TrimSpace(p.AuthorityAudience) == "" || strings.ContainsAny(p.AuthorityAudience, "\r\n") {
 				return ReviewPolicy{}, fmt.Errorf("pose: verified identity assurance requires a non-empty authority_audience")
+			}
+			if !validGovernanceProjectID(p.AuthorityProject) {
+				return ReviewPolicy{}, fmt.Errorf("pose: verified identity assurance requires authority_project, the project id claims must name (got %q)", p.AuthorityProject)
 			}
 			if len(p.TrustedAttestationIssuers) == 0 {
 				return ReviewPolicy{}, fmt.Errorf("pose: verified identity assurance requires at least one trusted attestation issuer")

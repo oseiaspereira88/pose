@@ -75,6 +75,9 @@ func cmdStateAttention(root string, args []string, stdout, stderr io.Writer) int
 	} else {
 		out.Field("attention.coverage", "complete")
 	}
+	if len(attention.NotUsed) > 0 {
+		out.Field("attention.not_used", strings.Join(attention.NotUsed, ", ")+" — this project has none of these sources, so nothing can be owed there")
+	}
 	for _, limitation := range report.Snapshot.Limitations {
 		out.Field("attention.limitation", limitation)
 	}

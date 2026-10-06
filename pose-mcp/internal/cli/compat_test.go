@@ -109,7 +109,10 @@ func TestCompatibilityUpgradeFromLegacyInstance(t *testing.T) {
 		if code := Main([]string{"update"}, &out, &errB); code != 0 {
 			t.Fatalf("second update exit=%d", code)
 		}
-		if !strings.Contains(out.String(), "Nothing to do") {
+		// A legacy instance has never reviewed its capabilities, so the
+		// second update names the pending decisions instead of "Nothing to
+		// do" (spec pose-setup-command).
+		if !strings.Contains(out.String(), "Nothing to do") && !strings.Contains(out.String(), "capability decision(s) pending") {
 			t.Errorf("update is not idempotent: %s", out.String())
 		}
 	})

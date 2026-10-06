@@ -147,6 +147,10 @@ Shell test scripts (`tests/**/*.sh`) create repositories outside Go and are not
 covered. None has shown the race, and their cleanup does not fail a gate when a
 directory is left behind.
 
+### Coverage of earlier follow-ups
+
+This spec covers the follow-up in pose-contract-adoption-registry asking to disable automatic git maintenance for every test fixture that inits a repository: the three packages whose tests commit isolate git in `TestMain`, and the only other fixture that inits a repository (`internal/usage`) never commits, which is what starts the maintenance. Confirmed by the maintainer on 2026-10-05 while resolving the backlog reconciliation (spec pose-open-backlog-reconciliation, Decision 5).
+
 ### Follow-ups
 
 None.

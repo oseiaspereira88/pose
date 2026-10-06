@@ -41,6 +41,7 @@ Recording baselines for older specs (option C, not chosen).
 - R2: A spec created on or after the date without a start record shall still need reconciliation; without the date every such spec shall, as before.
 - R3: An unparsable date shall be refused when the policy is read.
 - R4: Effective governance shall state whether a cutoff exists and what it means.
+- R5: A start record under `.pose/starts/` shall be classified in the review subject as a governance record, so a spec started with `pose start --apply` can be sealed.
 
 ### Non-functional
 
@@ -67,6 +68,9 @@ Start status, review policy reader, effective governance, manuals.
 - created: pose-mcp/internal/pose/start_cutoff_test.go
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/effective_governance.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- created: pose-mcp/internal/pose/review_bundle_start_record_test.go
+- created: .pose/specs/2026-10-05-pose-atomic-start-adoption-cutoff.amendments.jsonl
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md

@@ -142,7 +142,9 @@ func TestInitNativeCreatesStructure(t *testing.T) {
 		if code := Main([]string{"init"}, &out, &errB); code != 0 {
 			t.Fatalf("second init exit=%d", code)
 		}
-		if !strings.Contains(out.String(), "already present") {
+		// The first run installed; the second finds the instance and writes
+		// nothing (spec pose-init-is-install).
+		if !strings.Contains(out.String(), "already installed") {
 			t.Fatalf("second init not idempotent: %q", out.String())
 		}
 	})

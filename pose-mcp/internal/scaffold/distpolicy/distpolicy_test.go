@@ -1,6 +1,7 @@
 package distpolicy
 
 import (
+	"bytes"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -294,5 +295,37 @@ func TestExtensionOnlyRuleFilesExcluded(t *testing.T) {
 		if !IsIncluded(rel) {
 			t.Errorf("IsIncluded(%q) = false, want true — universal rules must still sync", rel)
 		}
+	}
+}
+
+// actions.json names who may answer action requests here. Shipped verbatim it
+// granted this repository's maintainer the authority to answer requests in
+// every project installed from it (spec pose-agency-readiness-pilot, R5: the
+// adoption is delimited to pose-dist).
+func TestActionsPolicyShipsNoPrincipal(t *testing.T) {
+	if IsIncluded(".pose/policy/actions.json") {
+		t.Fatal("actions.json is synced verbatim; its role map belongs to this repository")
+	}
+	content, ok := NeutralPolicyTemplates()[".pose/policy/actions.json"]
+	if !ok {
+		t.Fatal("NeutralPolicyTemplates() missing .pose/policy/actions.json")
+	}
+	var doc struct {
+		Roles map[string][]string `json:"roles"`
+	}
+	if err := json.Unmarshal(content, &doc); err != nil {
+		t.Fatal(err)
+	}
+	for role, principals := range doc.Roles {
+		if len(principals) != 0 {
+			t.Fatalf("the shipped actions policy grants role %s to %v", role, principals)
+		}
+	}
+	shipped, err := os.ReadFile(filepath.Join("..", "dist", ".pose", "policy", "actions.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(shipped, content) {
+		t.Fatalf("the embedded actions.json is not the neutral template:\n%s", shipped)
 	}
 }

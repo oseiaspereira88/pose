@@ -22,6 +22,9 @@
     "pose_action_requests": {
       "risk": "read"
     },
+    "pose_action_resolve": {
+      "risk": "governance-write"
+    },
     "pose_capability_history": {
       "risk": "read"
     },
@@ -371,7 +374,7 @@
       "name": "pose_spec_readiness"
     },
     {
-      "description": "Open a material request to a person or an external system — the MCP equivalent of `pose action open`. Open one only when a different answer would materially change execution, scope, authority, risk acceptance, closeout or publication and no authorization already given covers it. Previews (writes nothing) unless apply is true; with apply it appends to the request's journal under .pose/actions/. Resolving stays on the CLI, where an answer names the digest and revision it answers and needs the recipient role.",
+      "description": "Open a material request to a person or an external system — the MCP equivalent of `pose action open`. Open one only when a different answer would materially change execution, scope, authority, risk acceptance, closeout or publication and no authorization already given covers it. Previews (writes nothing) unless apply is true; with apply it appends to the request's journal under .pose/actions/. An answer is recorded with pose_action_resolve, only with the principal's signature or a trusted issuer's claim, or on the CLI.",
       "inputSchema": {
         "properties": {
           "apply": {
@@ -461,7 +464,81 @@
       "name": "pose_action_open"
     },
     {
-      "description": "Read material requests to a person or an external system (decision, approval, input, external operation, acceptance): question, options with consequences, recipient, qualified targets, per-phase effects, the request digest an answer must name, the append-only journal and the derived state and satisfaction (answered is not satisfied: a declined approval leaves the condition unmet). Read-only: open with pose_action_open or `pose action open`; resolve with `pose action resolve` on the CLI, where a resolution names the digest and revision it answers and needs the recipient role.",
+      "description": "Record a principal's answer to an action request — only with the principal's proof: a signature by a key registered to it in .pose/policy/actions.json (`pose identity add`), or a trusted issuer's claim. Without apply it is a preview that returns the exact statement to sign and the ssh-keygen command; the principal signs it on their machine and the signature is passed back with apply: true. A call without a proof is refused under any identity assurance: a principal name written by an agent is a declaration, not a proof. Cancel, waive and invalidate stay on the CLI.",
+      "inputSchema": {
+        "properties": {
+          "actor": {
+            "description": "The answering principal (human:\u003cid\u003e or agent:\u003cid\u003e)",
+            "type": "string"
+          },
+          "answer": {
+            "description": "An option id, or the text of an input",
+            "type": "string"
+          },
+          "apply": {
+            "description": "Record the answer; without it the call is a preview",
+            "type": "boolean"
+          },
+          "claim": {
+            "description": "A trusted issuer's authority claim (with envelope), instead of a signature",
+            "type": "object"
+          },
+          "envelope": {
+            "description": "The claim's Ed25519 envelope",
+            "type": "object"
+          },
+          "evidence": {
+            "description": "Evidence references (an external operation reported done needs one)",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "execution": {
+            "description": "Optional id of the relaying execution",
+            "type": "string"
+          },
+          "expected_revision": {
+            "description": "The journal revision the answer was given against",
+            "type": "integer"
+          },
+          "id": {
+            "description": "act-\u003c16 hex\u003e id",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "description": "Key that makes a retry a no-op; it is part of the signed statement",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "request_digest": {
+            "description": "The request digest the answer was given for",
+            "type": "string"
+          },
+          "role": {
+            "description": "For an unassigned request: the role the actor answers under",
+            "type": "string"
+          },
+          "signature": {
+            "description": "Armored SSH signature (ssh-keygen -Y sign -n pose-action-answer) over the preview's statement",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "actor",
+          "answer",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "name": "pose_action_resolve"
+    },
+    {
+      "description": "Read material requests to a person or an external system (decision, approval, input, external operation, acceptance): question, options with consequences, recipient, qualified targets, per-phase effects, the request digest an answer must name, the append-only journal and the derived state and satisfaction (answered is not satisfied: a declined approval leaves the condition unmet). Read-only: open with pose_action_open or `pose action open`; resolve with pose_action_resolve (signed answers only) or `pose action resolve` on the CLI, where a resolution names the digest and revision it answers and needs the recipient role.",
       "inputSchema": {
         "properties": {
           "actor": {

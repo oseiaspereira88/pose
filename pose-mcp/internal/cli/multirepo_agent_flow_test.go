@@ -403,7 +403,10 @@ func TestMultiRepoAgentSurfaceExposesPathFreeCLIContext(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("POSE_DEFAULT_PROJECT_ID", "proj.engine")
+	// This repository declares its identity in .pose/project.json, so the
+	// binding must agree with it; a different id is refused as a conflict
+	// (spec pose-project-identity-file).
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "proj.pose-dist")
 	t.Setenv("POSE_PROJECT_ROOTS", "{}")
 	t.Setenv("HARNE8_PROJECTS_DIR", "")
 	var stdout, stderr bytes.Buffer
@@ -414,7 +417,7 @@ func TestMultiRepoAgentSurfaceExposesPathFreeCLIContext(t *testing.T) {
 	if err := json.Unmarshal(stdout.Bytes(), &got); err != nil {
 		t.Fatalf("CLI context is not JSON: %v: %s", err, stdout.String())
 	}
-	if got.SelectedProjectID != "proj.engine" || got.Authority == nil || got.Authority.String() != "xref:proj.engine/spec:pose-agent-project-context" || got.ContextRevision == "" {
+	if got.SelectedProjectID != "proj.pose-dist" || got.Authority == nil || got.Authority.String() != "xref:proj.pose-dist/spec:pose-agent-project-context" || got.ContextRevision == "" {
 		t.Fatalf("CLI context omitted selected authority or freshness token: %+v", got)
 	}
 	if strings.Contains(stdout.String(), root) {

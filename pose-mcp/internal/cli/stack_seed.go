@@ -81,6 +81,16 @@ func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portu
 	// additive only, never overwrites an existing entry.
 	seedModuleMetadataFromDiscovery(target, log)
 
+	// An instance installed before .pose/project.json existed already
+	// declared its identity in .mcp.json or AGENTS.md; record that one, never
+	// the directory name, which is only a fallback (spec
+	// pose-project-identity-file).
+	if id, source := declaredProjectIdentity(target); id != "" {
+		if written, err := posemodel.WriteProjectFile(target, id, ""); err == nil && written {
+			log("project identity (seed): %s from %s → .pose/project.json", "identidade do projeto (semente): %s de %s → .pose/project.json", id, source)
+		}
+	}
+
 	// Seed governed configuration contracts for a fresh repository. These
 	// are user-owned after installation, so reruns never overwrite them;
 	// engine defaults still need to exist for direct adoption of review
@@ -441,4 +451,30 @@ func migrateInstanceReviewPolicy(dist fs.FS, target string, log func(english, po
 			}
 		}
 	}
+}
+
+// declaredProjectIdentity returns the project id an instance already declared,
+// and where: the MCP binding first, then the project name stamped in
+// AGENTS.md. It returns "" when neither declares one, so a directory name is
+// never promoted to a declaration.
+func declaredProjectIdentity(target string) (string, string) {
+	agents, agentsErr := os.ReadFile(filepath.Join(target, "AGENTS.md"))
+	name, id := detectProjectIdentity(string(agents), target)
+	if raw, err := os.ReadFile(filepath.Join(target, ".mcp.json")); err == nil && strings.Contains(string(raw), "\"POSE_DEFAULT_PROJECT_ID\": \""+id+"\"") && posemodel.ValidateSlug(id) == nil {
+		return id, ".mcp.json"
+	}
+	if agentsErr != nil {
+		return "", ""
+	}
+	stamped := false
+	for _, marker := range []string{"POSE is the operating standard for agent work in **", "POSE é o padrão operacional de trabalho com agentes em **", "# AGENTS.md — "} {
+		stamped = stamped || strings.Contains(string(agents), marker)
+	}
+	if !stamped {
+		return "", ""
+	}
+	if derived := posemodel.ProjectIDFor(name); posemodel.ValidateSlug(derived) == nil {
+		return derived, "AGENTS.md"
+	}
+	return "", ""
 }

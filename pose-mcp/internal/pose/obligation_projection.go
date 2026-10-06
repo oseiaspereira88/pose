@@ -65,6 +65,11 @@ type ProducerCoverage struct {
 	Producer string `json:"producer"`
 	State    string `json:"state"`
 	Detail   string `json:"detail,omitempty"`
+	// NotUsed marks a producer the engine does not project yet for a source
+	// this project does not have at all (no docs manifest, no adopted
+	// release, ...): nothing can be owed there, so the read is not
+	// incomplete because of it (spec pose-fresh-install-doctor-is-clean).
+	NotUsed bool `json:"not_used,omitempty"`
 }
 
 // Coverage is the mutable form used while producers run.
@@ -89,6 +94,32 @@ var (
 		"findings":           "open findings outside review attestations are not projected yet",
 	}
 )
+
+// pendingSourceUsed reports whether this project has the source a pending
+// producer would read. It only checks that the source exists: a project that
+// has it keeps incomplete coverage until the producer is projected.
+func pendingSourceUsed(root, producer string) bool {
+	exists := func(rel string) bool {
+		_, err := os.Stat(filepath.Join(root, filepath.FromSlash(rel)))
+		return err == nil
+	}
+	any := func(pattern string) bool {
+		matches, _ := filepath.Glob(filepath.Join(root, filepath.FromSlash(pattern)))
+		return len(matches) > 0
+	}
+	switch producer {
+	case "release":
+		policy, err := LoadReleasePolicy(root)
+		return err == nil && policy.AdoptedAt != "" || any(".pose/releases/*")
+	case "docs-review":
+		return exists(".pose/docs.json")
+	case "capability-trigger":
+		return exists(".pose/capabilities/assessment.md")
+	case "findings":
+		return any(".pose/reviews/*.md") || any(".pose/investigations/*")
+	}
+	return true
+}
 
 // actionRequestObligationSource lets the ActionRequest domain register itself
 // without the projection importing its storage details.
@@ -194,7 +225,7 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 	}
 	sort.Strings(pending)
 	for _, producer := range pending {
-		report.Coverage = append(report.Coverage, ProducerCoverage{Producer: producer, State: CoverageStateUnsupported, Detail: obligationProducersPending[producer]})
+		report.Coverage = append(report.Coverage, ProducerCoverage{Producer: producer, State: CoverageStateUnsupported, Detail: obligationProducersPending[producer], NotUsed: !pendingSourceUsed(s.Root, producer)})
 	}
 	report.Limitations = append(report.Limitations, report.Snapshot.Limitations...)
 	return report, nil
@@ -586,12 +617,16 @@ func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 	}
 	if err != nil || project == "" {
 		project = DefaultProjectID(s.Root)
-		snap.Limitations = append(snap.Limitations, "project identity fell back to the directory name")
+		reason := "project identity fell back to the directory name"
+		if err != nil {
+			reason += " (" + err.Error() + ")"
+		}
+		snap.Limitations = append(snap.Limitations, reason)
 	} else if !ProjectIdentityDeclared(s.Root) {
 		// The resolver derives the id from the directory name without an
 		// error; say so, because a checkout under another name reads (and
 		// records references under) another project.
-		snap.Limitations = append(snap.Limitations, "project identity fell back to the directory name (no POSE_DEFAULT_PROJECT_ID or POSE_PROJECT_ROOTS binding)")
+		snap.Limitations = append(snap.Limitations, "project identity fell back to the directory name; declare it in .pose/project.json")
 	}
 	snap.Project = project
 	if head, err := exec.Command("git", "-C", s.Root, "rev-parse", "--verify", "HEAD").Output(); err == nil {

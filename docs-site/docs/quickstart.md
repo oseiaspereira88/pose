@@ -1,6 +1,6 @@
 # Quickstart
 
-**Doc type:** Tutorial &nbsp;·&nbsp; **Applies to:** POSE 6.x (current stable)
+**Doc type:** Tutorial &nbsp;·&nbsp; **Applies to:** POSE 7.x
 
 ## Install
 
@@ -73,45 +73,70 @@ The wizard detects modules by stack markers (`go.mod`, `package.json`,
 `Cargo.toml`, `pom.xml`, `build.gradle`) and seeds them into the validation
 matrix in `tolerant` mode — promote to `strict` when the checks stabilize.
 
-## The first governed loop
+## The first governed delivery
 
 This is the whole point of the quickstart: not to show you twenty commands,
-but to make one thing happen — **a gate that blocks for a reason you
-understand, and then passes**. Follow it in order; there is nothing to choose
-between.
+but to walk one piece of work through the lifecycle every later spec follows —
+and to watch each gate **refuse for a reason you understand, and then pass**.
+Every command below is the one a project runs; no status is edited by hand.
+`tests/quickstart/first-governed-loop.sh` runs this page in CI and asserts the
+outputs shown.
 
 An all-green run would not show you anything. Any tool can agree with you.
 
-### 1. Scaffold a spec
+### Chapter 1 — Set up
+
+`pose install` ends by naming the next step:
+
+```
+[pose-install] next: `pose setup` — identity, the commit gate and capability decisions, one confirmed step at a time
+```
+
+```bash
+pose setup
+```
+
+`pose setup` shows what is in force, what is new and what is missing, with one
+next step. On a fresh install it asks for a maintainer: a request addressed to
+the maintainer has nobody to answer it until someone holds the role. Register
+yourself with a key — your git identity only suggests the name; the key is the
+proof:
+
+```bash
+pose identity add --key ~/.ssh/id_ed25519_sk.pub --role maintainer --apply
+pose hooks install
+git add -A && git commit -m "Adopt POSE" -m "POSE-Spec: pose-onboarding"
+pose doctor
+```
+
+```
+identity.suggested=human:you (from git user.email; a name, not a proof — the key is the proof)
+identity.presence=proves presence: every signature records whether the security key was touched
+...
+doctor: 0 error(s), 0 warning(s), 1 next step(s)
+```
+
+A security key (`ssh-keygen -t ed25519-sk`) is preferred for a person; a plain
+`ssh-keygen -t ed25519` key works and `pose doctor` says it cannot prove
+presence. The install also scaffolded `.pose/specs/<date>-pose-onboarding.md`,
+which tracks these steps as governed work.
+
+### Chapter 2 — The entry gate
 
 ```bash
 pose new-spec customer-export
-```
-
-```
-Spec created: .pose/specs/2026-09-07-customer-export.md (status: draft)
-```
-
-### 2. Watch the entry gate refuse it
-
-```bash
 pose lint-spec customer-export --ready-check
 ```
 
 ```
+Spec created: .pose/specs/2026-09-07-customer-export.md (status: draft)
 [ERROR] customer-export: DoR: section Intent is missing, empty, or skeletal
 spec.ready=false
-spec.ready.failures=1
 ```
 
 The spec exists, but nothing about it is decided yet. POSE will not let work
-start against a spec that has not said what it is for. This is the *entry*
-gate — Definition of Ready — and most tools do not have one.
-
-### 3. Say what the work is
-
-Open the spec and fill two things: the **Intent** section, and at least one
-acceptance criterion with a stable ID under Requirements.
+start against a spec that has not said what it is for. Fill the **Intent**,
+one acceptance criterion with a stable ID, and the files the work will touch:
 
 ```markdown
 ### Goal
@@ -125,80 +150,118 @@ Auditors currently request exports by hand.
 - R1: The exporter shall write customer records as CSV.
 ```
 
-Run the entry gate again:
+```markdown
+### Artifacts
+- created: svc/export.go
+- created: svc/export_test.go
+```
 
 ```bash
-pose lint-spec customer-export --ready-check
+pose lint-spec customer-export --ready-check     # spec.ready=true
 ```
 
-```
-spec.ready=true
-spec.ready.failures=0
-Resultado: SUCESSO
-```
-
-### 4. Find out what applies here
+### Chapter 3 — Start, implement, prove
 
 ```bash
-pose suggest feature
+pose start spec:customer-export                  # preview: start.ready=true, start.digest=...
+pose start spec:customer-export --apply --digest <start.digest>
+git add -A && git commit -m "Start customer-export" -m "POSE-Spec: customer-export"
 ```
 
-This resolves the workflow, skill, cumulative rules and validation commands
-for this kind of work in this repository — before an agent edits anything. The
-agent does not have to be told your engineering process in a prompt; it can
-ask.
-
-### 5. Implement, then prove it
+`pose start` moves the spec to `in-progress` and records the baseline the work
+is reconciled against. Implement, then run *your* repository's declared checks
+— the commands in the validation matrix, not ones POSE invented — and commit
+with the spec's trailer so the change set is attributed to it:
 
 ```bash
+pose suggest feature          # the workflow, skill, rules and checks for this kind of work
 pose validate --strict
+git add -A && git commit -m "Export customers as CSV" -m "POSE-Spec: customer-export"
 ```
 
-POSE runs *your* repository's declared checks — the test, lint and build
-commands in the validation matrix — not commands it invented.
+### Chapter 4 — A decision the agent cannot take alone
 
-### 6. Declare it done, and watch the exit gate refuse that too
-
-Set `status: done` and `completed_at` in the spec frontmatter, then:
+Midway, the agent hits a question only the maintainer can answer. It does not
+guess; it opens an action request that restricts what the answer affects:
 
 ```bash
-pose lint-spec customer-export --strict
+pose action open --origin spec:customer-export --kind decision \
+  --question "Include inactive customers in the audit export?" \
+  --option "include=Auditors see every customer" --option "exclude=Inactive customers are left out" \
+  --recommend include --recipient-role maintainer --requested-by agent:impl \
+  --target requirement:R1 --effect closeout:block --apply
+pose state --attention --actor maintainer       # the request waits on the maintainer
+pose close spec:customer-export                 # refused: 1 action request(s) restrict closeout
+```
+
+The maintainer answers with a signature from the key they registered; POSE
+verifies it offline and keeps it in the journal:
+
+```bash
+pose action resolve <act-id> --actor human:you --answer include \
+  --request-digest <digest> --expected-revision 1 --idempotency-key answer-1 \
+  --sign ~/.ssh/id_ed25519_sk --apply
+pose action show <act-id>
 ```
 
 ```
-[ERROR] customer-export: requirement trace: R1 has no trace entry
-        (declare satisfied, waived or withdrawn)
+action.answer=include by human:you (verified)
+action.signature=SHA256:... (presence asserted), re-verified from the journal
 ```
 
-Read that error slowly, because it is the product in one line.
+An agent can relay the same answer over MCP with `pose_action_resolve`, which
+records only an answer the principal signed.
 
-You said the work is done. POSE is not disputing your code — the checks
-passed. It is pointing out that **R1, the thing you promised, is not connected
-to any evidence that it happened**. "Done" is a claim by whoever executed;
-POSE requires it to be a property of the repository.
+### Chapter 5 — The exit gate, review and close
 
-### 7. Connect the promise to the proof
+```bash
+pose close spec:customer-export --apply --reviewer agent:reviewer
+```
 
-Under `### Requirement trace`, say how R1 was satisfied:
+```
+closeout_plan.step.trace=blocked — requirement trace incomplete: R1 has no trace entry — declare each under `### Requirement trace`, e.g. `- R1 [satisfied] test:<TestName>` ...
+```
+
+Read that line slowly, because it is the product in one line. The checks
+passed and the decision is answered — POSE is not disputing your code. It is
+pointing out that **R1, the thing you promised, is not connected to any
+evidence that it happened**. "Done" is a claim by whoever executed; POSE
+requires it to be a property of the repository. Connect the promise to the
+proof and commit:
 
 ```markdown
+### Requirement trace
 - R1 [satisfied] test:TestCustomerExportWritesCSV
 ```
 
 ```bash
-pose lint-spec customer-export --strict
+git add -A && git commit -m "Trace R1 to its test" -m "POSE-Spec: customer-export"
+pose close spec:customer-export --apply --reviewer agent:reviewer
+```
+
+This time `pose close` regenerates the evidence, indexes and seals the review
+bundle, then stops for what only a reviewer can conclude — and prints the
+attest command already filled with the sealed evidence and the required tools:
+
+```
+closeout_plan.stopped=waiting on a reviewer: ...
+closeout_plan.attest=pose review attest rvb-... --reviewer <id> --decision approved --evidence unit:svc/go/test --tool 'artifact-check|-|passed|check:artifact|' ... --criterion 'security|passed|unit:svc/go/test|<your conclusion>' --apply
+```
+
+The reviewer writes each conclusion, runs it, and the plan resumes:
+
+```bash
+pose close spec:customer-export --resume
 ```
 
 ```
-spec.trace.present=true
-spec.trace.entries=1
-spec.trace.missing=0
-Resultado: SUCESSO
+closeout_plan.result=closed spec:customer-export; commit the closeout (spec, index, results, bundle, attestation) in one commit with its POSE-Spec trailer
 ```
 
-That is a governed delivery. An entry gate that refused to start
-under-specified work, real repository checks, and an exit gate that refused to
-close until every promise pointed at evidence.
+That is a governed delivery: an entry gate that refused to start
+under-specified work, a recorded start, real repository checks, a decision the
+maintainer proved, an exit gate that refused to close until every promise
+pointed at evidence, and a review bound to a sealed subject.
 
 If a requirement turned out not to apply, you say that instead — `[waived:
 <reason>]` or `[withdrawn: <reason>]`. What you cannot do is stay silent,
@@ -224,7 +287,8 @@ run `pose dora-metrics`; see [Analytics and delivery metrics](analytics.md).
 pose check --strict       # structural integrity + graphs + schema version
 pose validate --tolerant  # run the validation matrix
 pose followups --open     # live backlog from all specs
-pose update               # migrate the contract after engine updates
+pose setup                # what is in force, new and missing; the next step
+pose update               # migrate the contract; asks about new capabilities in a review spec
 pose hooks install        # pre-commit check + post-merge reindex
 ```
 

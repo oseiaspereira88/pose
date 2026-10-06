@@ -46,6 +46,41 @@ func (s Store) CausalityCloseoutAdopted() (bool, error) {
 	return policy.CausalityCloseoutVersion == CausalityCloseoutPolicyVersion, nil
 }
 
+// causalityCloseoutCutoff is the policy's causality_closeout_adopted_at, or "".
+func (s Store) causalityCloseoutCutoff() string {
+	policy, err := s.GetReviewPolicy()
+	if err != nil {
+		return ""
+	}
+	return policy.CausalityCloseoutAdoptedAt
+}
+
+// causalityCloseoutExempts reports whether the adoption cutoff keeps the
+// contract off this scope.
+func (s Store) causalityCloseoutExempts(scope ScopeRef) bool {
+	return s.reviewScopeCreatedBefore(scope, s.causalityCloseoutCutoff())
+}
+
+// reviewScopeCreatedBefore reports whether every spec in scope was created
+// before date, which is what an adoption cutoff exempts. A scope with no spec,
+// or with a spec that carries no creation date, is never exempted: what cannot
+// be dated is held to the contract (spec pose-causality-closeout-adoption-cutoff).
+func (s Store) reviewScopeCreatedBefore(scope ScopeRef, date string) bool {
+	if date == "" {
+		return false
+	}
+	specs, err := s.reviewScopeSpecs(scope)
+	if err != nil || len(specs) == 0 {
+		return false
+	}
+	for _, spec := range specs {
+		if spec.CreatedAt == "" || spec.CreatedAt >= date {
+			return false
+		}
+	}
+	return true
+}
+
 // reviewScopeBasis is the sealed decision basis of a scope: the contract-node
 // digest of each spec it covers.
 func (s Store) reviewScopeBasis(scope ScopeRef) map[string]string {

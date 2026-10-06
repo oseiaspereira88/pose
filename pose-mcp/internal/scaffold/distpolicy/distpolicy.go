@@ -96,6 +96,17 @@ var SelfReferentialPolicyFiles = []string{
 	// dates and no adopted overlays; the stamp writes the day this instance
 	// received each contract (spec review-policy-adoption-is-the-instances).
 	"review.json",
+	// actions.json names who may answer action requests in this repository.
+	// Shipped verbatim it granted this repository's maintainer the authority
+	// to answer requests in every project installed from it. The neutral
+	// template ships the roles empty; a project names its own principals
+	// (spec pose-agency-readiness-pilot, R5).
+	"actions.json",
+	// adoption-decisions.json records which capabilities this repository
+	// declined or deferred. It is a statement about one project, so it is not
+	// shipped at all: a new instance starts with no decision recorded (spec
+	// pose-capability-catalog).
+	"adoption-decisions.json",
 }
 
 // SelfReferentialIndexFiles are `.pose/indexes/` files whose live content in
@@ -277,6 +288,15 @@ func NeutralPolicyTemplates() map[string][]byte {
   "overlay_profiles": []
 }
 `),
+		".pose/policy/actions.json": []byte(`{
+  "_comment": "Roles that may answer action requests (spec pose-action-request-resolution). No principal is named: list this project's own, for example \"maintainer\": [\"human:<you>\"]. A request addressed to a principal can be answered without a role.",
+  "schema_version": 1,
+  "roles": {
+    "maintainer": []
+  },
+  "identity_assurance": "declared"
+}
+`),
 		".pose/policy/release.json": []byte(`{
   "_comment": "Release policy (spec pose-release-closeout). Set adopted_at, provider and repository once release closeout is configured for this project.",
   "schema_version": 1,
@@ -344,8 +364,8 @@ func NeutralIndexTemplates() map[string][]byte {
     "node": {
       "checks": [
         {"name": "lint", "program": "npm", "args": ["run", "lint", "--if-present"], "severity": "optional", "evidenceClass": "lint"},
-        {"name": "test", "program": "npm", "args": ["test", "--if-present"], "severity": "required"},
-        {"name": "build", "program": "npm", "args": ["run", "build", "--if-present"], "severity": "required"},
+        {"name": "test", "program": "npm", "args": ["test", "--if-present"], "severity": "required", "evidenceClass": "unit"},
+        {"name": "build", "program": "npm", "args": ["run", "build", "--if-present"], "severity": "required", "evidenceClass": "build"},
         {"name": "typecheck", "program": "npm", "args": ["run", "typecheck", "--if-present"], "severity": "optional", "evidenceClass": "typecheck"}
       ]
     },
@@ -358,29 +378,29 @@ func NeutralIndexTemplates() map[string][]byte {
     },
     "rust": {
       "checks": [
-        {"name": "test", "program": "cargo", "args": ["test"], "severity": "required"}
+        {"name": "test", "program": "cargo", "args": ["test"], "severity": "required", "evidenceClass": "unit"}
       ]
     },
     "java": {
       "checks": [
-        {"name": "maven-test", "program": "mvn", "args": ["-B", "test"], "severity": "required", "when": {"fileExists": "pom.xml"}},
-        {"name": "gradle-test", "program": "./gradlew", "args": ["test"], "severity": "required", "when": {"fileExists": "gradlew"}},
-        {"name": "gradle-test-wrapper", "program": "gradle", "args": ["test"], "severity": "required", "when": {"fileExists": "build.gradle", "fileNotExists": "gradlew"}},
-        {"name": "gradle-test-wrapper-kts", "program": "gradle", "args": ["test"], "severity": "required", "when": {"fileExists": "build.gradle.kts", "fileNotExists": "gradlew"}}
+        {"name": "maven-test", "program": "mvn", "args": ["-B", "test"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "pom.xml"}},
+        {"name": "gradle-test", "program": "./gradlew", "args": ["test"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "gradlew"}},
+        {"name": "gradle-test-wrapper", "program": "gradle", "args": ["test"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "build.gradle", "fileNotExists": "gradlew"}},
+        {"name": "gradle-test-wrapper-kts", "program": "gradle", "args": ["test"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "build.gradle.kts", "fileNotExists": "gradlew"}}
       ]
     },
     "python": {
       "checks": [
-        {"name": "poetry-test", "program": "poetry", "args": ["run", "pytest", "-q"], "severity": "required", "when": {"fileExists": "poetry.lock"}},
-        {"name": "pipenv-test", "program": "pipenv", "args": ["run", "pytest", "-q"], "severity": "required", "when": {"fileExists": "Pipfile", "fileNotExistsAny": ["poetry.lock"]}},
-        {"name": "pip-test", "program": "pytest", "args": ["-q"], "severity": "required", "when": {"fileExists": "requirements.txt", "fileNotExistsAny": ["poetry.lock", "Pipfile"]}},
-        {"name": "setuptools-test", "program": "pytest", "args": ["-q"], "severity": "required", "when": {"fileExists": "setup.py", "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt"]}},
-        {"name": "pep517-test", "program": "pytest", "args": ["-q"], "severity": "optional", "when": {"fileExists": "pyproject.toml", "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt", "setup.py"]}}
+        {"name": "poetry-test", "program": "poetry", "args": ["run", "pytest", "-q"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "poetry.lock"}},
+        {"name": "pipenv-test", "program": "pipenv", "args": ["run", "pytest", "-q"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "Pipfile", "fileNotExistsAny": ["poetry.lock"]}},
+        {"name": "pip-test", "program": "pytest", "args": ["-q"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "requirements.txt", "fileNotExistsAny": ["poetry.lock", "Pipfile"]}},
+        {"name": "setuptools-test", "program": "pytest", "args": ["-q"], "severity": "required", "evidenceClass": "unit", "when": {"fileExists": "setup.py", "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt"]}},
+        {"name": "pep517-test", "program": "pytest", "args": ["-q"], "severity": "optional", "evidenceClass": "unit", "when": {"fileExists": "pyproject.toml", "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt", "setup.py"]}}
       ]
     },
     "dotnet": {
       "checks": [
-        {"name": "dotnet-test", "program": "dotnet", "args": ["test"], "severity": "required"}
+        {"name": "dotnet-test", "program": "dotnet", "args": ["test"], "severity": "required", "evidenceClass": "unit"}
       ]
     },
     "cloudflare-workers": {
