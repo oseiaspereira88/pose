@@ -85,7 +85,7 @@ New obligation types, artifact ref grammar extension for node refs, schema, ADR.
 - modified: .pose/public/claims.json
 - modified: docs-site/mkdocs.yml
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-obligation-contract.md
+- renamed: .pose/changelogs/unreleased/pose-obligation-contract.md -> .pose/changelogs/v7.0.0/pose-obligation-contract.md
 
 Reconciled against the tree at activation.
 

@@ -92,7 +92,7 @@ State builder, review policy and capability readers, MCP state tool, manual.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-effective-governance-projection.md
+- renamed: .pose/changelogs/unreleased/pose-effective-governance-projection.md -> .pose/changelogs/v7.0.0/pose-effective-governance-projection.md
 
 Reconciled against the tree at activation.
 

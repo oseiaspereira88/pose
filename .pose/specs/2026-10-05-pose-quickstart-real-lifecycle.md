@@ -84,7 +84,7 @@ Closeout transition and plan output, the spec template, the quickstart page and 
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
-- created: .pose/changelogs/unreleased/pose-quickstart-real-lifecycle.md
+- renamed: .pose/changelogs/unreleased/pose-quickstart-real-lifecycle.md -> .pose/changelogs/v7.0.0/pose-quickstart-real-lifecycle.md
 
 ### Delivery targets
 

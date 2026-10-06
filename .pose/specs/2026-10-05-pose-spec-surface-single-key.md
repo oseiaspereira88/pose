@@ -60,7 +60,7 @@ Changing the surfaces.
 ### Artifacts
 
 - created: .pose/specs/2026-10-05-pose-spec-surface-single-key.md
-- created: .pose/changelogs/unreleased/pose-spec-surface-single-key.md
+- renamed: .pose/changelogs/unreleased/pose-spec-surface-single-key.md -> .pose/changelogs/v7.0.0/pose-spec-surface-single-key.md
 - modified: pose-mcp/internal/cli/scaffold.go
 - modified: pose-mcp/internal/cli/spec_surface_test.go
 

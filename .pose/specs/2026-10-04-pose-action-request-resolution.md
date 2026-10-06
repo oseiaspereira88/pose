@@ -89,7 +89,7 @@ tools.
 - modified: pose-mcp/internal/cli/adversarial_corpus_test.go
 - modified: pose-mcp/internal/cli/testdata/adversarial/README.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-action-request-resolution.md
+- renamed: .pose/changelogs/unreleased/pose-action-request-resolution.md -> .pose/changelogs/v7.0.0/pose-action-request-resolution.md
 
 Reconciled against the tree at activation.
 

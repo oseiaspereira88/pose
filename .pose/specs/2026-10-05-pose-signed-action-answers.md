@@ -88,7 +88,7 @@ Action policy, resolution verification, a native SSHSIG verifier, the `pose iden
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: docs-site/docs/cli.md
-- created: .pose/changelogs/unreleased/pose-signed-action-answers.md
+- renamed: .pose/changelogs/unreleased/pose-signed-action-answers.md -> .pose/changelogs/v7.0.0/pose-signed-action-answers.md
 
 ### Delivery targets
 

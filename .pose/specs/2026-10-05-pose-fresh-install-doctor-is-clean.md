@@ -84,7 +84,7 @@ Doctor levels and three checks, the shipped stack catalog, obligation coverage, 
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
-- created: .pose/changelogs/unreleased/pose-fresh-install-doctor-is-clean.md
+- renamed: .pose/changelogs/unreleased/pose-fresh-install-doctor-is-clean.md -> .pose/changelogs/v7.0.0/pose-fresh-install-doctor-is-clean.md
 
 ### Delivery targets
 

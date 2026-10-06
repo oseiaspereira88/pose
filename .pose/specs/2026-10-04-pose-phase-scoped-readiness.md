@@ -90,7 +90,7 @@ Readiness domain, start preview, state, MCP readiness/next steps.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-phase-scoped-readiness.md
+- renamed: .pose/changelogs/unreleased/pose-phase-scoped-readiness.md -> .pose/changelogs/v7.0.0/pose-phase-scoped-readiness.md
 
 Reconciled against the tree at activation.
 

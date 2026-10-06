@@ -80,7 +80,7 @@ Capability registry, `pose adopt`, effective governance, distribution policy, ma
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-capability-catalog.md
+- renamed: .pose/changelogs/unreleased/pose-capability-catalog.md -> .pose/changelogs/v7.0.0/pose-capability-catalog.md
 
 ### Delivery targets
 

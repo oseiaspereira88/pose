@@ -111,6 +111,8 @@ selection in `releaseInputs`. The shipped policy template and the release manual
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: docs-site/docs/cli.md
+- modified: docs-site/docs/ci.md
+- modified: pose-mcp/internal/version/version.go
 - created: .pose/specs/2026-10-02-pose-release-version-source.md
 - created: .pose/adr/2026-10-02-release-version-source-is-declared-by-the-project.md
 - created: .pose/changelogs/unreleased/pose-release-version-source.md

@@ -84,7 +84,7 @@ Amend CLI, amendments domain, store resolution.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-flat-spec-amendments.md
+- renamed: .pose/changelogs/unreleased/pose-flat-spec-amendments.md -> .pose/changelogs/v7.0.0/pose-flat-spec-amendments.md
 
 Reconciled against the tree at activation.
 

@@ -62,7 +62,7 @@ EnvironmentArtifactResolver and buildSetupPlan, with negative and positive regre
 - modified: pose-mcp/internal/pose/project_file_test.go
 - modified: pose-mcp/internal/cli/setup.go
 - modified: pose-mcp/internal/cli/setup_test.go
-- created: .pose/changelogs/unreleased/pose-project-binding-consistency.md
+- renamed: .pose/changelogs/unreleased/pose-project-binding-consistency.md -> .pose/changelogs/v7.0.0/pose-project-binding-consistency.md
 
 ### Delivery targets
 

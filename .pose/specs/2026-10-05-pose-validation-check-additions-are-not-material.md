@@ -70,7 +70,7 @@ Structural delta detector, manual.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-validation-check-additions-are-not-material.md
+- renamed: .pose/changelogs/unreleased/pose-validation-check-additions-are-not-material.md -> .pose/changelogs/v7.0.0/pose-validation-check-additions-are-not-material.md
 - created: .pose/starts/pose-validation-check-additions-are-not-material.json
 
 ### Delivery targets

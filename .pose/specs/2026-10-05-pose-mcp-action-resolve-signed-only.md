@@ -75,7 +75,7 @@ MCP server tool dispatch, definitions and catalog.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: docs-site/docs/mcp.md
-- created: .pose/changelogs/unreleased/pose-mcp-action-resolve-signed-only.md
+- renamed: .pose/changelogs/unreleased/pose-mcp-action-resolve-signed-only.md -> .pose/changelogs/v7.0.0/pose-mcp-action-resolve-signed-only.md
 
 ### Delivery targets
 

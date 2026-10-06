@@ -99,7 +99,7 @@ Assessment scan, state freshness, feature and closeout skills, AGENTS template.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-adaptive-assessment-freshness.md
+- renamed: .pose/changelogs/unreleased/pose-adaptive-assessment-freshness.md -> .pose/changelogs/v7.0.0/pose-adaptive-assessment-freshness.md
 
 Reconciled against the tree at activation.
 

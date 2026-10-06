@@ -75,7 +75,7 @@ Install scaffolding, a localized onboarding template, setup.
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
-- created: .pose/changelogs/unreleased/pose-onboarding-spec.md
+- renamed: .pose/changelogs/unreleased/pose-onboarding-spec.md -> .pose/changelogs/v7.0.0/pose-onboarding-spec.md
 
 ### Delivery targets
 

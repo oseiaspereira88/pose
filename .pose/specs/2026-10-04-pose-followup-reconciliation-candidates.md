@@ -85,7 +85,7 @@ Follow-up aggregation, Attention residual section.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-followup-reconciliation-candidates.md
+- renamed: .pose/changelogs/unreleased/pose-followup-reconciliation-candidates.md -> .pose/changelogs/v7.0.0/pose-followup-reconciliation-candidates.md
 
 Reconciled against the tree at activation.
 

@@ -77,7 +77,7 @@ CLI dispatch for `init`, the wizard, help, docs.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-init-is-install.md
+- renamed: .pose/changelogs/unreleased/pose-init-is-install.md -> .pose/changelogs/v7.0.0/pose-init-is-install.md
 
 ### Delivery targets
 

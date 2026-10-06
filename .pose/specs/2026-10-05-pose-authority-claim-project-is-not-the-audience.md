@@ -75,7 +75,7 @@ Review policy reader, review authority verification, action-request claim verifi
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-authority-claim-project-is-not-the-audience.md
+- renamed: .pose/changelogs/unreleased/pose-authority-claim-project-is-not-the-audience.md -> .pose/changelogs/v7.0.0/pose-authority-claim-project-is-not-the-audience.md
 
 ### Delivery targets
 

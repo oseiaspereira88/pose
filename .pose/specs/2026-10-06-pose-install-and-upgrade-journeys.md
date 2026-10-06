@@ -71,7 +71,7 @@ A journey script and its CI step, setup's identity step, doctor's rule-extension
 - modified: scripts/verify.sh
 - modified: pose-mcp/internal/cli/rule_extension_resolver_test.go
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-install-and-upgrade-journeys.md
+- renamed: .pose/changelogs/unreleased/pose-install-and-upgrade-journeys.md -> .pose/changelogs/v7.0.0/pose-install-and-upgrade-journeys.md
 
 ### Delivery targets
 

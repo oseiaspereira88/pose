@@ -74,7 +74,7 @@ Review attestation recording in the CLI, the store's verification entry point, m
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-attest-refuses-what-verify-rejects.md
+- renamed: .pose/changelogs/unreleased/pose-attest-refuses-what-verify-rejects.md -> .pose/changelogs/v7.0.0/pose-attest-refuses-what-verify-rejects.md
 
 ### Delivery targets
 

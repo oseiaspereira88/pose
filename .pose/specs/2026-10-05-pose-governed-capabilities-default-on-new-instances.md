@@ -82,7 +82,7 @@ Capability registry in the engine, install, a new `adopt` command, doctor, effec
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-governed-capabilities-default-on-new-instances.md
+- renamed: .pose/changelogs/unreleased/pose-governed-capabilities-default-on-new-instances.md -> .pose/changelogs/v7.0.0/pose-governed-capabilities-default-on-new-instances.md
 
 ### Delivery targets
 

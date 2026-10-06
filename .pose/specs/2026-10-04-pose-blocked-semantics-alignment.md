@@ -100,7 +100,7 @@ Readiness, state, adoption metrics, spec transfer, closeout skill, manual and te
 - modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md
 - modified: pose-mcp/internal/scaffold/dist/.pose/templates/spec.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-blocked-semantics-alignment.md
+- renamed: .pose/changelogs/unreleased/pose-blocked-semantics-alignment.md -> .pose/changelogs/v7.0.0/pose-blocked-semantics-alignment.md
 
 Reconciled against the tree at activation.
 

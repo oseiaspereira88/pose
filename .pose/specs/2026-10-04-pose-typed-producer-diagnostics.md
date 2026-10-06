@@ -86,7 +86,7 @@ Readiness, review bundle pendencies, closeout state, start obligations, renderin
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-typed-producer-diagnostics.md
+- renamed: .pose/changelogs/unreleased/pose-typed-producer-diagnostics.md -> .pose/changelogs/v7.0.0/pose-typed-producer-diagnostics.md
 
 Reconciled against the tree at activation.
 

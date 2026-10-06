@@ -83,7 +83,7 @@ Attention rendering, MCP presentation surface.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-action-request-presentation.md
+- renamed: .pose/changelogs/unreleased/pose-action-request-presentation.md -> .pose/changelogs/v7.0.0/pose-action-request-presentation.md
 
 Reconciled against the tree at activation.
 

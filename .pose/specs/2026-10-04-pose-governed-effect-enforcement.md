@@ -92,7 +92,7 @@ Start, close, release lifecycle domain functions; capability policy; CLI/MCP.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-governed-effect-enforcement.md
+- renamed: .pose/changelogs/unreleased/pose-governed-effect-enforcement.md -> .pose/changelogs/v7.0.0/pose-governed-effect-enforcement.md
 
 Reconciled against the tree at activation.
 

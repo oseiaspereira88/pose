@@ -86,7 +86,7 @@ diagnostics.
 - modified: pose-mcp/internal/cli/doctor.go
 - created: pose-mcp/internal/cli/doctor_legacy_contract_cutoffs_test.go
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-legacy-contract-cutoffs.md
+- renamed: .pose/changelogs/unreleased/pose-legacy-contract-cutoffs.md -> .pose/changelogs/v7.0.0/pose-legacy-contract-cutoffs.md
 
 Reconciled against the tree at activation.
 

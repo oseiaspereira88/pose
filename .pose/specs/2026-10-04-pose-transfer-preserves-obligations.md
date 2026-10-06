@@ -81,7 +81,7 @@ Spec transfer preview/apply/resume, action request journal remapping.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-transfer-preserves-obligations.md
+- renamed: .pose/changelogs/unreleased/pose-transfer-preserves-obligations.md -> .pose/changelogs/v7.0.0/pose-transfer-preserves-obligations.md
 
 Reconciled against the tree at activation.
 

@@ -75,7 +75,7 @@ Update, a review spec template, action requests opened by the engine, `pose adop
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
-- created: .pose/changelogs/unreleased/pose-update-configuration-review.md
+- renamed: .pose/changelogs/unreleased/pose-update-configuration-review.md -> .pose/changelogs/v7.0.0/pose-update-configuration-review.md
 
 ### Delivery targets
 

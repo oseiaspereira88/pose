@@ -89,7 +89,7 @@ Design basis, evidence binding, obligation adapters.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-falsifier-reconsideration.md
+- renamed: .pose/changelogs/unreleased/pose-falsifier-reconsideration.md -> .pose/changelogs/v7.0.0/pose-falsifier-reconsideration.md
 
 Reconciled against the tree at activation.
 

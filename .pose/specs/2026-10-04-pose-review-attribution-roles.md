@@ -98,7 +98,7 @@ regression fixtures.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-review-attribution-roles.md
+- renamed: .pose/changelogs/unreleased/pose-review-attribution-roles.md -> .pose/changelogs/v7.0.0/pose-review-attribution-roles.md
 - created: .pose/review-attribution-supplements/ras-0ca079e2c924c0e8.json
 - created: .pose/review-attribution-supplements/ras-21f767fd60315767.json
 - created: .pose/review-attribution-supplements/ras-221f26e00b557474.json

@@ -76,7 +76,7 @@ Review policy reader, bundle sealing, review plan overlay selection, effective g
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
-- created: .pose/changelogs/unreleased/pose-causality-closeout-adoption-cutoff.md
+- renamed: .pose/changelogs/unreleased/pose-causality-closeout-adoption-cutoff.md -> .pose/changelogs/v7.0.0/pose-causality-closeout-adoption-cutoff.md
 
 ### Delivery targets
 

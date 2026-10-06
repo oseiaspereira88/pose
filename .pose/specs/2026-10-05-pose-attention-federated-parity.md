@@ -60,7 +60,7 @@ Changing which producers exist.
 ### Artifacts
 
 - created: .pose/specs/2026-10-05-pose-attention-federated-parity.md
-- created: .pose/changelogs/unreleased/pose-attention-federated-parity.md
+- renamed: .pose/changelogs/unreleased/pose-attention-federated-parity.md -> .pose/changelogs/v7.0.0/pose-attention-federated-parity.md
 - modified: pose-mcp/internal/cli/state_attention.go
 - modified: pose-mcp/internal/cli/state_attention_test.go
 - modified: .pose/indexes/validation-matrix.json
