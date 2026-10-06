@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:3fd4524ef5a3018f5b8c909a4d33e0da496100f54129ddd1750fa39da18f8024",
-  "provenance_digest": "sha256:298713b472b80366050ef86aa2779a7abce407e44102d6d3ab86b7ec064fbd7d",
+  "input_digest": "sha256:1ef56953bfe37152787027968fe3e5a209a8c8497db412f9a2d3fa6e4fe33df0",
+  "provenance_digest": "sha256:5a7806249bdf1f20a909fc60a57fcc1a2152d3af78f2b013c0b81c4aa974e7d4",
   "implied_edges": [
     "changes"
   ],
@@ -8057,6 +8057,13 @@
       }
     },
     {
+      "id": "artifact:.pose/review-attestations/rva-cd81e5692778badd.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/review-attestations/rva-cd81e5692778badd.json"
+      }
+    },
+    {
       "id": "artifact:.pose/review-attestations/rva-cf8f7c2a7ac8029a.json",
       "type": "artifact",
       "attributes": {
@@ -10833,6 +10840,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/review-bundles/rvb-7a3cc91f77048a06.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/review-bundles/rvb-7a4aed6105e14e36.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/review-bundles/rvb-7a4aed6105e14e36.json"
       }
     },
     {
@@ -25153,6 +25167,14 @@
       }
     },
     {
+      "id": "change-set:cs-7b7be9ae6957",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:0b07b53038fa69995d2f5afaee1230c83adf05283ef2640c862aafc665d3d4ae",
+        "selector": "trailers:pose-onboarding-spec"
+      }
+    },
+    {
       "id": "change-set:cs-7bd36066ed77",
       "type": "change-set",
       "attributes": {
@@ -26502,14 +26524,6 @@
       "attributes": {
         "diff_digest": "sha256:2d1aa6edf20cb9e5074dba29453762527ad471e5d4e89146bb0a7879df03098e",
         "selector": "range:504fdf3c8de09c7136775d33829446d608561483..b9807d23681323bc3b9fcfd3ca1dfad98491553d"
-      }
-    },
-    {
-      "id": "change-set:cs-e82ba3e1bed8",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:1c9edf2bcc135e64e19521ea2824b876a0d7527080313ee87ff98f8ceb9973c6",
-        "selector": "trailers:pose-onboarding-spec"
       }
     },
     {
@@ -31073,7 +31087,7 @@
       "id": "spec:pose-onboarding-spec",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -71217,7 +71231,7 @@
     },
     {
       "from": "spec:pose-onboarding-spec",
-      "to": "change-set:cs-e82ba3e1bed8",
+      "to": "change-set:cs-7b7be9ae6957",
       "type": "observed-by"
     },
     {
@@ -122385,6 +122399,93 @@
       "diff_digest": "sha256:271f59810ed10e7ac53b64b36538151cae2967216065b696ff7351a33c1f3333"
     },
     {
+      "id": "cs-7b7be9ae6957",
+      "spec": "pose-onboarding-spec",
+      "selector": "trailers:pose-onboarding-spec",
+      "base": "e1aece41819d11cd2ee481703e3bf7cee0118824^",
+      "head": "aad522abdfbbf00d665edc9e19ab5c2b90578340",
+      "resolved_base": "082a775b05caa324f0ee9c70db681a18d2b11a46",
+      "resolved_head": "aad522abdfbbf00d665edc9e19ab5c2b90578340",
+      "commits": [
+        "e1aece41819d11cd2ee481703e3bf7cee0118824",
+        "7630cc5cf8b17081f6ffcebcff263f33f73670a7",
+        "9163a5c18b0d4ee39a5e0e41354ba099feb32d7e",
+        "a0fa84f02118371ea7b12b80264a77e5f85751f5",
+        "aad522abdfbbf00d665edc9e19ab5c2b90578340"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-onboarding-spec.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-cd81e5692778badd.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-7a4aed6105e14e36.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-10-05-pose-onboarding-spec.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-onboarding-spec.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/onboarding.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/onboarding_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/install.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/setup.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/setup_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/stack_seed_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:0b07b53038fa69995d2f5afaee1230c83adf05283ef2640c862aafc665d3d4ae"
+    },
+    {
       "id": "cs-7bd36066ed77",
       "spec": "pose-component-aware-review-plans",
       "selector": "range:504fdf3c8de09c7136775d33829446d608561483..b734dcf71d328bcaacf39d3d23bc023c80d108eb",
@@ -141554,80 +141655,6 @@
         }
       ],
       "diff_digest": "sha256:2d1aa6edf20cb9e5074dba29453762527ad471e5d4e89146bb0a7879df03098e"
-    },
-    {
-      "id": "cs-e82ba3e1bed8",
-      "spec": "pose-onboarding-spec",
-      "selector": "trailers:pose-onboarding-spec",
-      "base": "e1aece41819d11cd2ee481703e3bf7cee0118824^",
-      "head": "a0fa84f02118371ea7b12b80264a77e5f85751f5",
-      "resolved_base": "082a775b05caa324f0ee9c70db681a18d2b11a46",
-      "resolved_head": "a0fa84f02118371ea7b12b80264a77e5f85751f5",
-      "commits": [
-        "e1aece41819d11cd2ee481703e3bf7cee0118824",
-        "7630cc5cf8b17081f6ffcebcff263f33f73670a7",
-        "9163a5c18b0d4ee39a5e0e41354ba099feb32d7e",
-        "a0fa84f02118371ea7b12b80264a77e5f85751f5"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-onboarding-spec.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-10-05-pose-onboarding-spec.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-onboarding-spec.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/onboarding.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/onboarding_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/install.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/setup.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/setup_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/stack_seed_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:1c9edf2bcc135e64e19521ea2824b876a0d7527080313ee87ff98f8ceb9973c6"
     },
     {
       "id": "cs-e8748deafb3e",
