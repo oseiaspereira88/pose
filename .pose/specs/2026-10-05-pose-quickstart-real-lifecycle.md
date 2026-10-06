@@ -41,6 +41,7 @@ Teaching every command; the quickstart is one governed delivery.
 - R2: When `pose close --apply` stops for a reviewer, it shall print the sealed evidence refs and an attest command filled with them, one `--tool` per required tool and one `--criterion` per pending judgment.
 - R3: The spec template's delivery-target example shall not be a declared target, so a scaffolded spec that delivers nothing typed closes.
 - R4: The quickstart shall follow, in chapters, install and `pose setup`, the entry gate, `pose start`, implementation and evidence, an action request answered with a registered key's signature and visible in Attention, review with the filled attest command, the trace gate refusing and then accepting `pose close`; `tests/quickstart/first-governed-loop.sh` shall execute every chapter and assert the documented states in CI.
+- R5: `pose doctor` shall report an available stack rule extension as a `next` step, not a warning, so a project with code that followed setup reads clean.
 
 ### Non-functional
 
@@ -68,6 +69,10 @@ Closeout transition and plan output, the spec template, the quickstart page and 
 - modified: pose-mcp/internal/cli/closeout_plan.go
 - modified: pose-mcp/internal/cli/review_closeout_test.go
 - created: pose-mcp/internal/cli/close_trace_gate_test.go
+- created: pose-mcp/internal/cli/quickstart_script_test.go
+- modified: pose-mcp/internal/cli/doctor.go
+- modified: pose-mcp/internal/cli/rule_extension_resolver_test.go
+- modified: pose-mcp/internal/pose/closeout_plan.go
 - modified: .pose/templates/spec.md
 - modified: locales/pt-BR/.pose/templates/spec.md
 - modified: pose-mcp/internal/scaffold/dist/.pose/templates/spec.md
@@ -98,18 +103,26 @@ The quickstart script on a fresh repository; the trace gate and the filled attes
 ### Deterministic checks
 
 #### Test
-- Command: `cd pose-mcp && go test ./internal/cli -run 'CloseTraceGate|ReviewCloseout|Closeout' && bash tests/quickstart/first-governed-loop.sh`
+- Command: `cd pose-mcp && go test ./internal/cli -run 'CloseTraceGate|QuickstartScript|StackExtension'`
 - Expected: pass
 
 ### Requirement trace
 
+- R1 [satisfied] test:TestCloseTraceGateRefusesAnIncompleteTrace test:TestCloseTraceGateBlocksThePlanBeforeSealing check:quickstart-real-lifecycle-integration
+- R2 [satisfied] test:TestQuickstartScriptRunsEveryChapter check:quickstart-real-lifecycle-integration
+- R3 [satisfied] test:TestCloseTraceGateSpecTemplateDeclaresNoExampleTarget test:TestQuickstartScriptRunsEveryChapter check:quickstart-real-lifecycle-integration
+- R4 [satisfied] test:TestQuickstartScriptRunsEveryChapter check:quickstart-real-lifecycle-integration
+- R5 [satisfied] test:TestDoctorRecommendsUnmatchedStackExtension check:quickstart-real-lifecycle-integration
+
 ### Known gaps
+
+- The quickstart test skips where `ssh-keygen`, `bash`, `python3` or `go` is missing, and under `-short`; CI runs it in full, and the CI step runs the script directly as well.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+The trace gate at the plan's `trace` step and at the transition; the filled attest command; the template's example target kept out of declarations; the stack rule extension as a next step; the quickstart rewritten in five chapters over the real lifecycle, executed in CI.
 
 ### Residual risks
 

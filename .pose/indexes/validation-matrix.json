@@ -1841,6 +1841,19 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "quickstart-real-lifecycle-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "CloseTraceGate|QuickstartScript|StackExtension",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

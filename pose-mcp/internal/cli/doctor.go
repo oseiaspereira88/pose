@@ -562,7 +562,9 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				recommend = append(recommend, fmt.Sprintf("%s (%s) -> pose extension install <path-to-%s>", modPath, stack, extID))
 			}
 			if len(recommend) > 0 {
-				add("rules.stack-extension-available", "warn",
+				// A rule pack the project can add is a recommended step, not
+				// a fault (spec pose-quickstart-real-lifecycle).
+				add("rules.stack-extension-available", "next",
 					fmt.Sprintf(text("%d module(s) match a rule extension not yet installed: %s",
 						"%d módulo(s) combinam com uma extensão de rule ainda não instalada: %s"),
 						len(recommend), strings.Join(recommend, "; ")),

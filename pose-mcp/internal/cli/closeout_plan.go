@@ -96,6 +96,13 @@ func cmdClosePlan(root string, args []string, stdout, stderr io.Writer) int {
 		if next.State == posemodel.CloseoutStateWaiting {
 			renderCloseoutPlan(out, plan)
 			out.Field("closeout_plan.stopped", "waiting on a reviewer: answer the pending criteria with `pose review attest "+plan.BundleID+" --reviewer <id> --decision approved --evidence <ref> --criterion ID|passed|<evidence>|<conclusion> ... --apply`, then `pose close "+ref+" --resume`")
+			// The reviewer should not have to discover the evidence refs and
+			// required tools by trial and error (spec
+			// pose-quickstart-real-lifecycle): the sealed bundle names them.
+			if refs, attest := closeoutAttestTemplate(store, plan); attest != "" {
+				out.Field("closeout_plan.evidence", strings.Join(refs, ", "))
+				out.Field("closeout_plan.attest", attest)
+			}
 			record(next.ID, fmt.Errorf("waiting on a reviewer"))
 			return 3
 		}
@@ -201,4 +208,61 @@ func renderCloseoutPlan(out interface{ Field(string, string) }, plan posemodel.C
 func lastLine(text string) string {
 	lines := strings.Split(strings.TrimSpace(text), "\n")
 	return lines[len(lines)-1]
+}
+
+// closeoutAttestTemplate returns the sealed evidence refs and an attest
+// command filled with them: one --tool per required tool the review owes,
+// one --criterion per pending judgment, each with a conclusion left for the
+// reviewer to write.
+func closeoutAttestTemplate(store posemodel.Store, plan posemodel.CloseoutPlan) ([]string, string) {
+	bundle, err := store.LoadReviewBundle(plan.BundleID)
+	if err != nil {
+		return nil, ""
+	}
+	refs := []string{}
+	byClass := map[string]string{}
+	for _, ev := range bundle.Payload.Evidence {
+		ref := ev.EvidenceClass + ":" + ev.ID
+		refs = append(refs, ref)
+		if _, ok := byClass[ev.EvidenceClass]; !ok && ev.Outcome == "pass" {
+			byClass[ev.EvidenceClass] = ref
+		}
+	}
+	if len(refs) == 0 {
+		return nil, ""
+	}
+	pick := func(classes []string) string {
+		for _, class := range classes {
+			if ref, ok := byClass[class]; ok {
+				return ref
+			}
+		}
+		for _, class := range []string{"unit", "integration", "e2e", "build"} {
+			if ref, ok := byClass[class]; ok {
+				return ref
+			}
+		}
+		return refs[0]
+	}
+	primary := pick(nil)
+	parts := []string{"pose review attest " + plan.BundleID, "--reviewer <id>", "--decision approved", "--evidence " + primary}
+	for _, tool := range bundle.Payload.Plan.Tools {
+		if tool.Requiredness != "required" || cliReviewToolHasPrecondition(tool, "review-complete") {
+			continue
+		}
+		component := tool.Component
+		if component == "" {
+			component = "-"
+		}
+		evidence := "check:" + tool.ID
+		if len(tool.EvidenceClasses) > 0 {
+			evidence = pick(tool.EvidenceClasses)
+		}
+		parts = append(parts, "--tool '"+tool.ID+"|"+component+"|passed|"+evidence+"|'")
+	}
+	for _, pending := range plan.Pending {
+		parts = append(parts, "--criterion '"+pending.Criterion+"|passed|"+primary+"|<your conclusion>'")
+	}
+	parts = append(parts, "--apply")
+	return refs, strings.Join(parts, " ")
 }

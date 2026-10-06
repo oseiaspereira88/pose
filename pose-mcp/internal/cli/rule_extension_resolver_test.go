@@ -94,8 +94,8 @@ func TestDoctorRecommendsUnmatchedStackExtension(t *testing.T) {
 	if !ok {
 		t.Fatal("expected a rules.stack-extension-available finding")
 	}
-	if f.Level != "warn" {
-		t.Errorf("rules.stack-extension-available level=%q, want warn", f.Level)
+	if f.Level != "next" {
+		t.Errorf("rules.stack-extension-available level=%q, want next (a recommendation, not a fault)", f.Level)
 	}
 	if !strings.Contains(f.Message, "pose-rule-backend-go") {
 		t.Errorf("message does not name the matching extension: %q", f.Message)

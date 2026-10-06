@@ -1549,6 +1549,16 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 				return 1
 			}
 		}
+		// The exit gate of a spec is its requirement trace: closing marks it
+		// done, and a done spec whose promises point at no evidence fails
+		// lint. Refusing here keeps `pose close` from producing what the
+		// next lint rejects (spec pose-quickstart-real-lifecycle).
+		if raw, err := os.ReadFile(sp.Path); err == nil {
+			if blockers := posemodel.RequirementTraceCloseoutBlockers(string(raw)); len(blockers) > 0 {
+				render(io.Discard, stderr).Failure("pose close: requirement trace gate failed: " + strings.Join(blockers, "; ") + " — declare each under `### Requirement trace`, e.g. `- R1 [satisfied] test:<TestName>`, or [waived: <reason>] / [withdrawn: <reason>]")
+				return 1
+			}
+		}
 		path = sp.Path
 	} else {
 		var gateOut, gateErr bytes.Buffer
