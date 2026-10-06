@@ -68,7 +68,6 @@ Capability registry, `pose adopt`, effective governance, distribution policy, ma
 - created: .pose/starts/pose-capability-catalog.json
 - created: pose-mcp/internal/pose/capability_catalog.go
 - created: pose-mcp/internal/pose/capability_catalog_test.go
-- modified: pose-mcp/internal/pose/governed_capabilities.go
 - modified: pose-mcp/internal/pose/effective_governance.go
 - modified: pose-mcp/internal/cli/adopt.go
 - created: pose-mcp/internal/cli/adopt_catalog_test.go
