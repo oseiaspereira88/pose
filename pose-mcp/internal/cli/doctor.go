@@ -559,7 +559,7 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				if !ok || ruleExtensionInstalled(root, ruleFile) {
 					continue
 				}
-				recommend = append(recommend, fmt.Sprintf("%s (%s) -> pose extension install <path-to-%s>", modPath, stack, extID))
+				recommend = append(recommend, fmt.Sprintf("%s (%s) -> pose extension install %s", modPath, stack, extID))
 			}
 			if len(recommend) > 0 {
 				// A rule pack the project can add is a recommended step, not
@@ -568,8 +568,8 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 					fmt.Sprintf(text("%d module(s) match a rule extension not yet installed: %s",
 						"%d módulo(s) combinam com uma extensão de rule ainda não instalada: %s"),
 						len(recommend), strings.Join(recommend, "; ")),
-					text("obtain the extension package and run 'pose extension install <path>' — see AGENTS.md's Domain rules section",
-						"obtenha o pacote da extensão e rode 'pose extension install <path>' — veja a seção Domain rules do AGENTS.md"))
+					text("'pose extension install <id>' resolves it from the release catalog ('<path>' installs a local package) — see AGENTS.md's Domain rules section",
+						"'pose extension install <id>' resolve pelo catálogo da release ('<path>' instala um pacote local) — veja a seção Domain rules do AGENTS.md"))
 			} else {
 				add("rules.stack-extension-available", "ok", text("no unmatched rule extensions for detected modules", "nenhuma extensão de rule pendente para os módulos detectados"), "")
 			}

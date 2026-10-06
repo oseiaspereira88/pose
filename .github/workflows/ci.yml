@@ -57,8 +57,14 @@ jobs:
       # whether their run diverged. That only holds while the shown output is
       # the real one, and two of the steps depend on a gate *failing*
       # (spec pose-first-governed-loop-quickstart).
-      - name: Quickstart loop behaves as documented (spec pose-first-governed-loop-quickstart)
+      - name: Quickstart loop behaves as documented (specs pose-first-governed-loop-quickstart, pose-quickstart-real-lifecycle)
         run: bash tests/quickstart/first-governed-loop.sh
+      # A fresh install and an instance installed by the latest published
+      # release, then updated, are the two ways a project meets this engine;
+      # each must read clean and ask before adopting anything
+      # (spec pose-install-and-upgrade-journeys).
+      - name: Install and upgrade journeys hold (spec pose-install-and-upgrade-journeys)
+        run: bash tests/journeys/install-and-upgrade.sh
       # The launch demo's whole argument is that every conventional check is
       # green and the delivery still cannot close. If the scenario ever goes
       # all-green, the recording made from it argues the opposite of the

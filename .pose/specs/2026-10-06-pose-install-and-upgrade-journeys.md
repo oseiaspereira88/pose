@@ -69,6 +69,7 @@ A journey script and its CI step, setup's identity step, doctor's rule-extension
 - modified: pose-mcp/internal/cli/doctor.go
 - modified: .github/workflows/ci.yml
 - modified: scripts/verify.sh
+- modified: pose-mcp/internal/cli/rule_extension_resolver_test.go
 - modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-install-and-upgrade-journeys.md
 
@@ -94,13 +95,19 @@ The journey script against the latest published release.
 
 ### Requirement trace
 
+- R1 [satisfied] test:TestJourneysInstallAndUpgradeFromThePublishedRelease check:install-and-upgrade-journeys-integration
+- R2 [satisfied] test:TestJourneysInstallAndUpgradeFromThePublishedRelease check:install-and-upgrade-journeys-integration
+- R3 [satisfied] test:TestDoctorRecommendsUnmatchedStackExtension check:quickstart-real-lifecycle-integration
+
 ### Known gaps
+
+- Offline, the Go test cannot fetch the previous release and fails under `POSE_JOURNEYS=1`; without the variable it skips.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+The journey script (fresh install; upgrade from the latest published release, verified by checksum) in CI and `scripts/verify.sh`; setup asks for a maintainer when a role-addressed request is open; doctor names rule extensions by catalog id. Walked against 6.2.0.
 
 ### Residual risks
 

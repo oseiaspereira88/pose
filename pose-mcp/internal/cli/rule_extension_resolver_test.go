@@ -97,8 +97,8 @@ func TestDoctorRecommendsUnmatchedStackExtension(t *testing.T) {
 	if f.Level != "next" {
 		t.Errorf("rules.stack-extension-available level=%q, want next (a recommendation, not a fault)", f.Level)
 	}
-	if !strings.Contains(f.Message, "pose-rule-backend-go") {
-		t.Errorf("message does not name the matching extension: %q", f.Message)
+	if !strings.Contains(f.Message, "pose extension install pose-rule-backend-go") || strings.Contains(f.Message, "<path-to-") {
+		t.Errorf("message does not name the command that installs the extension by its id: %q", f.Message)
 	}
 }
 

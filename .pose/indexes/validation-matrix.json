@@ -1854,6 +1854,22 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "install-and-upgrade-journeys-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "Journeys",
+            "-count=1"
+          ],
+          "env": {
+            "POSE_JOURNEYS": "1"
+          },
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

@@ -177,7 +177,7 @@ func buildSetupPlan(root string) (setupPlan, error) {
 	switch {
 	case plan.You.Registered && len(plan.You.Roles) > 0:
 		step.State, step.Summary, step.performable = "done", who+" holds "+strings.Join(plan.You.Roles, ", ")+" and can prove answers with a registered key", false
-	case rolesHeld == 0 && agency:
+	case rolesHeld == 0 && (agency || len(openRoleRequests(root)) > 0):
 		step.State, step.Summary = "todo", "nobody holds a role, so a request addressed to the maintainer has nobody to answer it"
 	case plan.Assurance == posemodel.ReviewIdentityAssuranceVerified && !plan.You.Registered:
 		step.State, step.Summary = "todo", "identity assurance is verified and "+who+" has no registered key to prove answers"
@@ -582,4 +582,19 @@ func answerReviewRequestInteractively(root string, plan setupPlan, step setupSte
 		return code, true
 	}
 	return cmdAdopt(root, []string{"--request", step.request, "--apply"}, stdout, stderr), true
+}
+
+// openRoleRequests lists the open action requests addressed to a role.
+func openRoleRequests(root string) []string {
+	views, err := posemodel.Store{Root: root}.ListActionRequests()
+	if err != nil {
+		return nil
+	}
+	out := []string{}
+	for _, view := range views {
+		if view.State == posemodel.ActionStateOpen && view.Request.Recipient.Role != "" {
+			out = append(out, view.Request.ID)
+		}
+	}
+	return out
 }
