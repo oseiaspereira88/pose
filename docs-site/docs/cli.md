@@ -527,6 +527,14 @@ decided. `pose install` ends with `pose setup` as the next step, `pose update`
 names the pending decisions instead of "Nothing to do", and `pose doctor`
 reports them as a `next` step. A deferral is asked again under a newer engine.
 
+`pose adopt --list` shows every capability in the catalog with its state;
+`pose adopt <capability> [--off | --decline --reason <why> | --defer --reason <why>] --apply`
+decides one. When `pose update` finds capabilities the project has not decided,
+it writes a configuration-review spec and opens one decision request per
+capability for the `maintainer` role; nothing is adopted until an answer exists,
+and `pose adopt --request <act-id> --apply` (or `pose setup`) applies it,
+recording the request and the answer's reason.
+
 ### Signed action answers
 
 A project can verify who answered an action request without any external

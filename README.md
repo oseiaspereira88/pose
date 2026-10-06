@@ -157,20 +157,24 @@ ordered idempotent migrations; downgrade is unsupported by contract.
 ### Run a first governed delivery
 
 ```bash
-pose init --wizard --yes
+pose setup                                   # identity, commit gate, capability decisions — one confirmed step at a time
 pose new-spec customer-export
 pose suggest feature
 
 # Fill Intent, R1/R2... requirements and Technical Plan.
 pose lint-spec customer-export --ready-check
+pose start spec:customer-export --apply --digest <start.digest>
 
-# Implement, then run the repository's declared checks.
+# Implement, run the repository's declared checks, commit with POSE-Spec: customer-export.
 pose validate --strict
-pose report --task "customer-export" --spec customer-export
 
-# Stamp completed_at and disposition every follow-up before done.
-pose lint-spec customer-export --strict
+# Trace every requirement to its evidence, then close through review.
+pose close spec:customer-export --apply --reviewer agent:<id>
 ```
+
+The [quickstart](docs-site/docs/quickstart.md) walks the same delivery chapter
+by chapter, including a decision the maintainer answers with a signed key; CI
+runs it as written.
 
 ### Bring specs from another SDD tool
 
@@ -337,6 +341,10 @@ the unit stops being a repository.
 | Local insights and recurrence         | Central reliability, cost and policy views        |
 | Native MCP governance API             | Context enrichment through GraphForge             |
 | Optional OPA policy enforcement       | Central identity, approvals, audit and operations |
+
+Identity follows the same rule: a maintainer proves an answer with an SSH key
+the project registered (`pose identity add`, verified offline), and Harne8's
+issuer is one more emitter of that same proof, not a requirement for it.
 
 The boundary is intentional, and it is not a paywall: nothing is withheld from
 POSE to create demand for Harne8. They govern different scopes. Harne8 becomes

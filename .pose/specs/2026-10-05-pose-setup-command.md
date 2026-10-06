@@ -81,6 +81,7 @@ A new `pose setup` command, the adoption decision record, install/update summari
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: docs-site/docs/cli.md
+- modified: README.md
 - created: .pose/changelogs/unreleased/pose-setup-command.md
 
 ### Delivery targets
