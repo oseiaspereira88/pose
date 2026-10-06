@@ -1,6 +1,6 @@
 # Concepts
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 6.x (current stable)
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 7.x (current stable)
 
 ## The closed loop
 
