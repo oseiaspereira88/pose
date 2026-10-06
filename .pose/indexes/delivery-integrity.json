@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:25f6ec3afce1fa09853af8faf2b46fcfd58ba9c5ad11859da8cd61eb6a561ad8",
-  "provenance_digest": "sha256:af57db07237762492323d0d3fcae4841d2d52a8a026458168dfd7899a47aebd7",
+  "input_digest": "sha256:db5ebc0ff170d1b4ca4be1f7e6316cb272728f5559f1869444665b99ceb921ff",
+  "provenance_digest": "sha256:1716fa8175928e3e7b37fc8d7a5806af0eb53744c0581b7b531268bb9e37eef2",
   "implied_edges": [
     "changes"
   ],
@@ -6503,6 +6503,13 @@
       }
     },
     {
+      "id": "artifact:.pose/review-attestations/rva-71535c16f503f2ff.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/review-attestations/rva-71535c16f503f2ff.json"
+      }
+    },
+    {
       "id": "artifact:.pose/review-attestations/rva-71bcac8468a53829.json",
       "type": "artifact",
       "attributes": {
@@ -12674,6 +12681,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/review-bundles/rvb-e5d2c70d9c5b235b.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/review-bundles/rvb-e69814112f967364.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/review-bundles/rvb-e69814112f967364.json"
       }
     },
     {
@@ -25101,6 +25115,14 @@
       }
     },
     {
+      "id": "change-set:cs-7a74a91c8938",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:86eaec04f16a6591da4f55438c74e931a060aaffc7477000429495e3d368ba14",
+        "selector": "trailers:pose-fresh-install-doctor-is-clean"
+      }
+    },
+    {
       "id": "change-set:cs-7aad60f2ab97",
       "type": "change-set",
       "attributes": {
@@ -26642,14 +26664,6 @@
       "attributes": {
         "diff_digest": "sha256:ab105e9a99743df7edf112e2fe642466da594fd5ee99b7958b15abd9a50de8d0",
         "selector": "trailers:pose-test-self-exec-flake-fix"
-      }
-    },
-    {
-      "id": "change-set:cs-f3fee54365b6",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:f7aa25e55de3287e8897b25338d8d471d7c5bf9b4abf0163ab09e70f1628d207",
-        "selector": "trailers:pose-fresh-install-doctor-is-clean"
       }
     },
     {
@@ -30695,7 +30709,7 @@
       "id": "spec:pose-fresh-install-doctor-is-clean",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -68729,7 +68743,7 @@
     },
     {
       "from": "spec:pose-fresh-install-doctor-is-clean",
-      "to": "change-set:cs-f3fee54365b6",
+      "to": "change-set:cs-7a74a91c8938",
       "type": "observed-by"
     },
     {
@@ -122128,6 +122142,123 @@
       "diff_digest": "sha256:b832f0ae9eeca0074eaec538444033eab0275331a7cf6f12f42e5c8bc1dd7e3b"
     },
     {
+      "id": "cs-7a74a91c8938",
+      "spec": "pose-fresh-install-doctor-is-clean",
+      "selector": "trailers:pose-fresh-install-doctor-is-clean",
+      "base": "20e9157b3b23d0440a1adbf00367eccc64447bd5^",
+      "head": "3d5ab632ad2d9e104a66e3dda824588f3dc647b6",
+      "resolved_base": "08e543891ee336f21528109b3cf798b9b78417b2",
+      "resolved_head": "3d5ab632ad2d9e104a66e3dda824588f3dc647b6",
+      "commits": [
+        "20e9157b3b23d0440a1adbf00367eccc64447bd5",
+        "d276341384d3f3f8c7f95c0847bdfc1a8b58a2e8",
+        "3d5ab632ad2d9e104a66e3dda824588f3dc647b6"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-fresh-install-doctor-is-clean.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-71535c16f503f2ff.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-e69814112f967364.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-10-05-pose-fresh-install-doctor-is-clean.amendments.jsonl"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-10-05-pose-fresh-install-doctor-is-clean.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-fresh-install-doctor-is-clean.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/fresh_install_health_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/adopt_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/adversarial_corpus_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/check.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/doctor.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/doctor_remediation_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/state_attention.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/attention.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/obligation_projection.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/readiness_phases.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/readiness_phases_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy.go"
+        }
+      ],
+      "diff_digest": "sha256:86eaec04f16a6591da4f55438c74e931a060aaffc7477000429495e3d368ba14"
+    },
+    {
       "id": "cs-7aad60f2ab97",
       "spec": "pose-roadmap-check-reaches-its-gate",
       "selector": "trailers:pose-roadmap-check-reaches-its-gate",
@@ -144400,110 +144531,6 @@
         }
       ],
       "diff_digest": "sha256:ab105e9a99743df7edf112e2fe642466da594fd5ee99b7958b15abd9a50de8d0"
-    },
-    {
-      "id": "cs-f3fee54365b6",
-      "spec": "pose-fresh-install-doctor-is-clean",
-      "selector": "trailers:pose-fresh-install-doctor-is-clean",
-      "base": "20e9157b3b23d0440a1adbf00367eccc64447bd5^",
-      "head": "d276341384d3f3f8c7f95c0847bdfc1a8b58a2e8",
-      "resolved_base": "08e543891ee336f21528109b3cf798b9b78417b2",
-      "resolved_head": "d276341384d3f3f8c7f95c0847bdfc1a8b58a2e8",
-      "commits": [
-        "20e9157b3b23d0440a1adbf00367eccc64447bd5",
-        "d276341384d3f3f8c7f95c0847bdfc1a8b58a2e8"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-fresh-install-doctor-is-clean.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-10-05-pose-fresh-install-doctor-is-clean.amendments.jsonl"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-10-05-pose-fresh-install-doctor-is-clean.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-fresh-install-doctor-is-clean.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/fresh_install_health_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/adopt_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/adversarial_corpus_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/check.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/doctor.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/doctor_remediation_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/state_attention.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/attention.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/obligation_projection.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/readiness_phases.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/readiness_phases_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy.go"
-        }
-      ],
-      "diff_digest": "sha256:f7aa25e55de3287e8897b25338d8d471d7c5bf9b4abf0163ab09e70f1628d207"
     },
     {
       "id": "cs-f43d6923ee8c",
