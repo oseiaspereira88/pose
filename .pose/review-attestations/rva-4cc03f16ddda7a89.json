@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-4cc03f16ddda7a89",
+  "bundle_id": "rvb-7b4da64a12ad7f8b",
+  "bundle_digest": "sha256:7b4da64a12ad7f8b19c6973eef728fdcbc3fa881452d1def591dce79466ce1d6",
+  "reviewer": "human:pose-maintainer",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "fresh install and upgrade preserve published compatibility"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "journeys are documented and exercised in CI"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "journey failures identify the divergent step"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "reviewed artifacts match the spec scope"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "upgrade verifies the published checksum"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact attribution is clean"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "journey integration is covered"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "passed",
+      "evidence": "check:closeout-check",
+      "rationale": "closeout prerequisites are satisfied"
+    },
+    {
+      "id": "review-check",
+      "disposition": "passed",
+      "evidence": "check:review-check",
+      "rationale": "review bundle checks are satisfied"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "journey surface is reachable"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "full validation evidence is current"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "module validation is current"
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "scripts has no registered validation producer for this delivery"
+    },
+    {
+      "id": "validate",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "tests has no registered validation producer for this delivery"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/install-and-upgrade-journeys-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-06T06:13:05Z",
+  "path": ".pose/review-attestations/rva-4cc03f16ddda7a89.json"
+}

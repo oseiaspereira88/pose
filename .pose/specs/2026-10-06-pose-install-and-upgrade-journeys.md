@@ -1,8 +1,8 @@
 ---
 slug: pose-install-and-upgrade-journeys
-status: in-progress
+status: done
 created_at: 2026-10-06
-completed_at:        # stamped on the transition to status: done
+completed_at: 2026-10-06
 supersedes:          # slug of the superseded spec (when applicable)
 depends_on: 
 remediates: 
