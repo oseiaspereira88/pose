@@ -122,9 +122,14 @@ PY
     # one being cut (spec pose-compat-gate-candidate-integrity).
     (cd "$fixture" && "$candidate" update --no-self >/dev/null) || return 1
     (cd "$fixture" && "$candidate" check --strict >/dev/null) || return 1
+    local requests_before requests_after
+    requests_before="$(cd "$fixture" && "$candidate" action list --json | jq -c '[.[] | select(.request.requested_by.principal == "agent:pose-update") | .request.id] | sort')" || return 1
     local reapply
     reapply="$(cd "$fixture" && "$candidate" update --no-self)"
-    [[ "$reapply" == *"already at schema"* ]] || return 1
+    requests_after="$(cd "$fixture" && "$candidate" action list --json | jq -c '[.[] | select(.request.requested_by.principal == "agent:pose-update") | .request.id] | sort')" || return 1
+    # Reapplying may continue to report unanswered capability decisions; it
+    # must not create another configuration review or duplicate its requests.
+    [[ "$requests_after" == "$requests_before" ]] || return 1
     # The upgrade is allowed — required, since pose-manual-distribution-merge —
     # to refresh engine-owned manual content. What it may never do is lose what
     # the instance wrote: that survives in the manual, or in the .pose-backup the
