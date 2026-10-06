@@ -115,7 +115,9 @@ None.
 
 ### Delivered scope
 
-Not started.
+`pose init` now enforces the installed checkout contract, reports actionable
+installation state, and keeps native initialization behavior aligned with the
+documented lifecycle and compatibility rules.
 
 ### Residual risks
 
