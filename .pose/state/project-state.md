@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-06T03:46:24Z
-baseline_commit: 4d053a23723cf309a4f754512dc746293e3feadf
+generated_at: 2026-10-06T13:49:04Z
+baseline_commit: 9f3218b24c834037c9b0e40be2c3d3cc872c5089
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:6e4336f1c0f8 -->
+<!-- state:derived hash:95595d338639 -->
 
-- specs: total=343 draft=2 in-progress=32 blocked=0 done=309 superseded=0 abandoned=0
+- specs: total=343 draft=2 in-progress=20 blocked=0 done=321 superseded=0 abandoned=0
 - roadmaps: total=17 active=1 done=11
 - últimos closeouts:
+  - spec:pose-signed-action-answers (2026-10-06)
   - spec:pose-validation-check-additions-are-not-material (2026-10-06)
-  - spec:pose-followup-reconciliation-candidates (2026-10-05)
-  - spec:pose-attention-federated-parity (2026-10-05)
-  - spec:pose-review-attribution-roles (2026-10-05)
-  - spec:pose-v7-legacy-cleanup-plan (2026-10-05)
-  - ... e mais 304 (ver `pose_list_specs status:done`)
+  - spec:pose-fresh-install-doctor-is-clean (2026-10-06)
+  - spec:pose-init-is-install (2026-10-06)
+  - spec:pose-install-and-upgrade-journeys (2026-10-06)
+  - ... e mais 316 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:e9b044be7c74 -->
@@ -61,15 +61,15 @@ capacidade.
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
-<!-- state:derived hash:b8f47d8fd574 -->
+<!-- state:derived hash:f78c15dbd473 -->
 
-- ADRs: total=44
-  - adr:2026-08-15-retired-machinery-files-stay-on-disk-never-auto-migrated-by-pose-update.md
-  - adr:2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type.md
-  - adr:2026-08-14-unified-review-convergence-and-auto-attestation.md
-  - adr:2026-08-13-sealed-review-bundles-and-attestations.md
-  - adr:2026-08-12-component-aware-effective-review-plans.md
-- knowledge: total=10 ativo=10 expirado=0
+- ADRs: total=63
+  - adr:2026-10-04-obligations-are-projected-action-requests-are-persisted.md
+  - adr:2026-10-04-mcp-governance-write-risk-class.md
+  - adr:2026-10-02-trusted-dependabot-runtime-repairs.md
+  - adr:2026-10-02-release-version-source-is-declared-by-the-project.md
+  - adr:2026-10-01-scoped-git-batch-reader-for-structural-assessment.md
+- knowledge: total=7 ativo=7 expirado=0
 
 ## Validação & Evidência
 <!-- state:derived hash:d3076e2addb6 -->

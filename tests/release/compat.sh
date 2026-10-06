@@ -124,8 +124,7 @@ PY
     (cd "$fixture" && "$candidate" check --strict >/dev/null) || return 1
     local requests_before requests_after
     requests_before="$(cd "$fixture" && "$candidate" action list --json | jq -c '[.[] | select(.request.requested_by.principal == "agent:pose-update") | .request.id] | sort')" || return 1
-    local reapply
-    reapply="$(cd "$fixture" && "$candidate" update --no-self)"
+    (cd "$fixture" && "$candidate" update --no-self >/dev/null) || return 1
     requests_after="$(cd "$fixture" && "$candidate" action list --json | jq -c '[.[] | select(.request.requested_by.principal == "agent:pose-update") | .request.id] | sort')" || return 1
     # Reapplying may continue to report unanswered capability decisions; it
     # must not create another configuration review or duplicate its requests.
