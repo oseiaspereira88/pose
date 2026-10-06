@@ -136,7 +136,10 @@ func (s Store) ResolveActionRequest(res ActionResolution, now time.Time) (Action
 		return ActionRequestView{}, err
 	}
 	r := view.Request
-	project := s.CurrentObligationSnapshot().Project
+	project, err := s.WriteProjectID()
+	if err != nil {
+		return ActionRequestView{}, err
+	}
 	if r.Project != project {
 		return ActionRequestView{}, fmt.Errorf("%w: request %s belongs to %s, this project is %s", ErrActionForeignProject, r.ID, r.Project, project)
 	}

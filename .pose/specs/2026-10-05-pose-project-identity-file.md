@@ -71,6 +71,10 @@ Project identity resolution, install, update seeding, obligation snapshot, actio
 - created: pose-mcp/internal/pose/project_file.go
 - created: pose-mcp/internal/pose/project_file_test.go
 - modified: pose-mcp/internal/pose/artifact_ref.go
+- modified: pose-mcp/internal/pose/action_request.go
+- modified: pose-mcp/internal/pose/action_request_test.go
+- modified: pose-mcp/internal/pose/action_resolution.go
+- modified: pose-mcp/internal/bootstrap/bootstrap.go
 - modified: pose-mcp/internal/pose/obligation_projection.go
 - modified: pose-mcp/internal/cli/install.go
 - modified: pose-mcp/internal/cli/stack_seed.go
@@ -108,7 +112,7 @@ Fixture roots named differently from their declared id; environment bindings tha
 ### Requirement trace
 
 - R1 [satisfied] test:TestProjectFileDeclaresTheIdentity check:project-identity-integration
-- R2 [satisfied] test:TestProjectFileRefusesAConflictingBindingAndAMalformedFile check:project-identity-integration
+- R2 [satisfied] test:TestProjectFileRefusesAConflictingBindingAndAMalformedFile test:TestActionWritesFailClosedOnAMalformedProjectFile check:project-identity-integration
 - R3 [satisfied] test:TestProjectFileIsWrittenByInstallAndSeededByUpdate test:TestProjectFileWriteNeverOverwrites check:project-identity-integration
 - R4 [satisfied] test:TestProjectFileIsWrittenByInstallAndSeededByUpdate check:project-identity-integration
 - R5 [satisfied] test:TestProjectFileRemovesTheDirectoryNameLimitation test:TestProjectFileIsReportedByDoctor check:project-identity-integration

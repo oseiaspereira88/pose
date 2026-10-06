@@ -142,3 +142,28 @@ func TestSupersededRequestLeavesTheProjection(t *testing.T) {
 		t.Fatalf("the superseded request is still projected: %+v", r.Obligations)
 	}
 }
+
+// Spec pose-project-identity-file: a write never falls back to the directory
+// name when .pose/project.json is malformed.
+func TestActionWritesFailClosedOnAMalformedProjectFile(t *testing.T) {
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "")
+	t.Setenv("POSE_PROJECT_ROOTS", "")
+	s := actionFixture(t)
+	view, err := s.OpenActionRequest(decisionRequest(), time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(s.Root, ".pose", "project.json"), []byte(`{"schema_version":1,"project_id":"Not A Slug"}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ResolveDefaultProjectID(s.Root); err == nil || !strings.Contains(err.Error(), "invalid-project-id") {
+		t.Fatalf("a malformed project file resolved: %v", err)
+	}
+	if _, err := s.OpenActionRequest(decisionRequest(), time.Now()); err == nil || !strings.Contains(err.Error(), "invalid-project-id") {
+		t.Fatalf("an action request was opened under a derived project: %v", err)
+	}
+	res := ActionResolution{RequestID: view.Request.ID, Type: ActionEventAnswered, Actor: "human:maintainer", Answer: "preserve-v1", RequestDigest: view.Request.RequestDigest, ExpectedRevision: view.Revision, IdempotencyKey: "k1"}
+	if _, err := s.ResolveActionRequest(res, time.Now()); err == nil || !strings.Contains(err.Error(), "invalid-project-id") {
+		t.Fatalf("an answer was recorded under a derived project: %v", err)
+	}
+}

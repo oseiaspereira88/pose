@@ -112,7 +112,13 @@ func Run(args []string) {
 			log.Fatalf("pose-mcp: no .pose/ under project root %q: %v", root, err)
 		}
 		if defaultProjectID == "" {
-			defaultProjectID = pose.DefaultProjectID(root)
+			// A malformed .pose/project.json stops the server rather than
+			// serving the project under its directory name.
+			resolved, err := pose.ResolveDefaultProjectID(root)
+			if err != nil {
+				log.Fatalf("pose-mcp: %v", err)
+			}
+			defaultProjectID = resolved
 		}
 	} else {
 		defaultProjectID = "" // no root -> no default project
