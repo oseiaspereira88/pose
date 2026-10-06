@@ -27,6 +27,7 @@ components:
 task_type: feature
 surface: minimal
 delivers:
+changelog: none
 ---
 
 # Spec: Adopt POSE in {{PROJECT_NAME}}
@@ -112,6 +113,14 @@ POSE configuration only: identity, roles and keys, the adoption record.
 - Consequences: ` + "`pose adopt <capability> --off --apply`" + ` turns one off; ` + "`pose adopt --list`" + ` shows what each changes
 - Falsifier: a default blocks routine work without catching a real problem
 
+### Decision D2
+- Basis: R2
+- Minimal option: answer action requests as a declared principal
+- Selected option: register the maintainer's SSH key in ` + "`.pose/policy/actions.json`" + ` with ` + "`pose identity add`" + `
+- Rationale: a principal name proves nothing; a signature by a registered key proves who answered, offline
+- Consequences: the action policy names the maintainer and their key; ` + "`pose identity remove`" + ` revokes it for future answers
+- Falsifier: answers are never signed, so the key proves nothing in practice
+
 ## 6. Validation
 
 ### Strategy
@@ -156,6 +165,7 @@ components:
 task_type: feature
 surface: minimal
 delivers:
+changelog: none
 ---
 
 # Spec: Adotar o POSE em {{PROJECT_NAME}}
@@ -240,6 +250,14 @@ Somente configuração do POSE: identidade, papéis e chaves, o registro de ado�
 - Rationale: os padrões são o que um projeto POSE novo deve usar, e trabalho criado antes da data de uma capacidade nunca é julgado por ela
 - Consequences: ` + "`pose adopt <capability> --off --apply`" + ` desliga uma; ` + "`pose adopt --list`" + ` mostra o que cada uma muda
 - Falsifier: um padrão bloqueia trabalho rotineiro sem pegar um problema real
+
+### Decision D2
+- Basis: R2
+- Minimal option: responder action requests como principal declarado
+- Selected option: registrar a chave SSH do maintainer em ` + "`.pose/policy/actions.json`" + ` com ` + "`pose identity add`" + `
+- Rationale: um nome de principal não prova nada; uma assinatura de chave registrada prova quem respondeu, offline
+- Consequences: a policy de actions nomeia o maintainer e sua chave; ` + "`pose identity remove`" + ` a revoga para respostas futuras
+- Falsifier: respostas nunca são assinadas, então a chave não prova nada na prática
 
 ## 6. Validation
 
