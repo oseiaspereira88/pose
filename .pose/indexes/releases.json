@@ -1,383 +1,458 @@
 {
-  "pending": [
-    {
-      "spec": "pose-action-request-presentation",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose action list --present` (and `pose_action_requests` with `present: true`) groups the requests still waiting for an answer for one conversation: by origin and the earliest phase they restrict, with what blocks start or execution first and release-only questions marked as able to wait. Every request keeps its own id, digest and answer, the person sees exactly what the answer binds to, and settled requests are not asked again.",
-      "path": "pose-action-request-presentation.md",
-      "digest": "sha256:c61439e26b76529a9f48696fe5fffd2e9ecdb49017b5de6699cbc5c3dcc16430"
-    },
-    {
-      "spec": "pose-action-request-resolution",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose action resolve|cancel|waive|invalidate` records answers that count only when they should: the actor must hold the recipient role in `.pose/policy/actions.json`; the write names the request digest it answers (a changed request or subject makes an earlier answer insufficient) and the revision it read (a second answer against the same revision is refused); an idempotency key makes retries no-ops and refuses the same key with other content. Under verified assurance a resolution needs an Ed25519 claim from a pinned issuer bound to project, audience, digest, principal and answer, so an agent writing `human:\u003cname\u003e` is not a verified confirmation. A declined approval is recorded and authorizes nothing; the requester may cancel its own question, and a waiver needs the authority and a reason.",
-      "path": "pose-action-request-resolution.md",
-      "digest": "sha256:9a15ed4eeaad74c6d76c57cfc5f16f3dc9f87a2b153a2277e1dc7ddde984dc4e"
-    },
-    {
-      "spec": "pose-action-requests",
-      "category": "added",
-      "breaking": false,
-      "body": "POSE can record a material request to a person or an external system — a decision, approval, input, external operation or acceptance — with `pose action open`: question, options and consequences, recommendation, recipient principal or role (or `unassigned`), qualified targets, per-phase effects and an optional subject. Each request is an append-only journal under `.pose/actions/` that survives sessions with its id and request digest, appears in `pose state --attention` and `pose_obligations` as an actor obligation restricting only the phases it names, and is readable over MCP with `pose_action_requests`. The materiality criterion is part of the contract: an ordinary question is not a request.",
-      "path": "pose-action-requests.md",
-      "digest": "sha256:63ee0ed7995f8609cb400dc1bab0b055c9a9d8ba8e17438b72c11cc2a7d319d4"
-    },
-    {
-      "spec": "pose-adaptive-assessment-freshness",
-      "category": "changed",
-      "breaking": false,
-      "body": "Component assessments now record what they were computed from — the committed tree of the component, the engine version and the validation matrix — and `pose assess discover --if-stale` reuses an assessment whose inputs are unchanged and refreshes one that is stale, saying why. Age alone never stales an assessment. The feature and closeout workflows and the AGENTS template use `--if-stale` instead of rescanning every component before and after each change, and a missing or stale assessment of a component an in-progress spec declares appears in Attention as advisory work.",
-      "path": "pose-adaptive-assessment-freshness.md",
-      "digest": "sha256:0c5eeac9329e8149b89de90941a9fcd8630e1bb489453accf0f6400d951c933b"
-    },
-    {
-      "spec": "pose-assumption-validity-scope",
-      "category": "added",
-      "breaking": false,
-      "body": "A material assumption can declare `Valid scope:` and pinned `Stale trigger:` entries (`doc:\u003cpath\u003e@\u003csha256 prefix\u003e` and other local kinds). When the pinned content changes, the obligation projection emits a `premise-stale` judgment obligation, advisory on review and scoped to the assumption and the decisions based on it; the recorded evidence stays, described as judged against the old content. Calendar expiry is not evaluated, trivial assumptions need no field, and existing design digests are unchanged.",
-      "path": "pose-assumption-validity-scope.md",
-      "digest": "sha256:4453860259beafa2e2174fbd21d8037717fa4ff1c4db7dc72a09d0a1b156f642"
-    },
-    {
-      "spec": "pose-atomic-start-adoption-cutoff",
-      "category": "added",
-      "breaking": false,
-      "body": "`atomic_start_adopted_at: YYYY-MM-DD` limits atomic start to specs created on or after the date. An older spec already in progress without a start is reported as `legacy-unbaselined` with a note and blocks nothing; without the date every such spec still needs reconciliation, and a malformed date is refused.",
-      "path": "pose-atomic-start-adoption-cutoff.md",
-      "digest": "sha256:5be35c0a15d7048298efd88e8d268903aa5869c0f1cf0bf16033b0f8a28cc7c6"
-    },
-    {
-      "spec": "pose-attention-federated-parity",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`pose state --attention` now reads obligations through the same governed store as MCP, so federated acceptance blockers that `pose_obligations` reported are no longer missing from the CLI for the same snapshot.",
-      "path": "pose-attention-federated-parity.md",
-      "digest": "sha256:16e6f3e1d779f256e18d535cc24398008637acd0342339ed4ddb42c49fbbe220"
-    },
-    {
-      "spec": "pose-attest-refuses-what-verify-rejects",
-      "category": "changed",
-      "breaking": false,
-      "body": "`pose review attest` (preview and `--apply`) and `pose review auto-attest --apply` now run the verifier over an approving attestation before it is written and refuse it, listing every reason, when `pose review verify` would reject it — an unmapped structural fact, an undeclared basis, a mapping without a reason, evidence absent from the bundle. Negative decisions are still recorded as audit.",
-      "path": "pose-attest-refuses-what-verify-rejects.md",
-      "digest": "sha256:678c623998d39c8fbd74857ad482ec90c53c669a995b465da816f25f63fa4ffd"
-    },
-    {
-      "spec": "pose-authority-claim-project-is-not-the-audience",
-      "category": "changed",
-      "breaking": true,
-      "body": "A signed authority claim binds its project and its audience separately: `project` is compared with the new `authority_project` in the review policy (the project the decision governs) and `audience` with `authority_audience` (the verifier installation). Verified identity assurance now requires `authority_project`, for review and action-request claims alike, so a claim issued for one project served by a shared verifier no longer satisfies another. Breaking only for a policy that already adopted `verified`.",
-      "path": "pose-authority-claim-project-is-not-the-audience.md",
-      "digest": "sha256:cd712ebfeb6777d3bd9ac7350ddfe0f4bface01c3b37508e6273ae2b0dd2da43"
-    },
-    {
-      "spec": "pose-blocked-semantics-alignment",
-      "category": "changed",
-      "breaking": false,
-      "body": "`blocked` now means one thing everywhere: a non-terminal operational condition, never a delivery outcome. Readiness reports `terminal` and, for a blocked spec, `cause: dependency` with its unmet prerequisites or `cause: unknown`; `pose state` lists blocked specs with that cause; `pose lint-spec` warns when a blocked spec declares no prerequisite. `pose adoption-metrics` keeps the v1 success ratio unchanged and adds a labelled `task_success_ratio_v2` that reads flat and folder specs alike and keeps blocked out of resolved outcomes. No command rewrites a legacy blocked spec, and spec transfer keeps using the status as its staging guard.",
-      "path": "pose-blocked-semantics-alignment.md",
-      "digest": "sha256:117a248f6ea44a1f4f3ff6dae25d80f0bca6e7b8ba9ebe76cce973d3a2581e56"
-    },
-    {
-      "spec": "pose-capability-catalog",
-      "category": "added",
-      "breaking": false,
-      "body": "Every adoptable capability is in one catalog, and `pose adopt` decides each: review-policy capabilities, criterion reuse, the Definition of Ready, the review overlays (`overlay:\u003cprofile\u003e`), qualified references and spec authority transfer (raising `schema_version` as their contract requires), signed attestations and verified identity. `pose adopt --list` shows each with its state (on, off, declined, deferred, needs-setup), its day-to-day effect, its introducing version and whether a new instance gets it. Missing requirements and prerequisites are refused with what is missing; `--decline` and `--defer` record the decision in `.pose/policy/adoption-decisions.json` so it is not asked again. A new instance now also adopts the Definition of Ready.",
-      "path": "pose-capability-catalog.md",
-      "digest": "sha256:6cd247e40275d4e589e47138dc4d541b208158cd64f26f8b957a6f380625f7f8"
-    },
-    {
-      "spec": "pose-causality-closeout-adoption-cutoff",
-      "category": "added",
-      "breaking": false,
-      "body": "`causality_closeout_adopted_at: YYYY-MM-DD` stamps causality closeout only on scopes with a spec created on or after the date, and `overlay_adopted_at: {\"\u003coverlay\u003e@\u003cn\u003e\": \"YYYY-MM-DD\"}` selects a late-adopted overlay only for such scopes, so adopting either does not charge work already under way. A spec without a creation date is never exempted; malformed dates and dates for unlisted overlays are refused; effective governance states both.",
-      "path": "pose-causality-closeout-adoption-cutoff.md",
-      "digest": "sha256:d15986273f3e5965ae8ed4e659db452953a89ba9164240ea3fcce9589d45feb7"
-    },
-    {
-      "spec": "pose-effective-governance-projection",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose state --governance [--scope \u003cref\u003e] [--json]` shows, live and read-only, what governance is in force in this instance rather than what the engine ships: for each review contract, optional capability and gate, whether it is supported, configured, applicable and effective, with reason codes such as `not-adopted`, `no-readiness-cutoff` or `legacy-cutoff:\u003cdate\u003e`. With `--scope`, it compares the contracts the scope's newest sealed bundle stamped with what the policy seals today. `pose_project_state` carries the same projection as `effective_governance`.",
-      "path": "pose-effective-governance-projection.md",
-      "digest": "sha256:284e24b9ca97df7094cb45b2f469d37b12c06db4023db252892d7c7266898c46"
-    },
-    {
-      "spec": "pose-falsifier-reconsideration",
-      "category": "added",
-      "breaking": false,
-      "body": "A material decision can name its `Expected effect:` and a `Falsifier check: check:\u003cmodule\u003e/\u003ccheck\u003e`. When the delivery index holds a failed result for that check, the obligation projection emits a `falsifier-observed` reconsideration candidate on the decision, advisory and addressed to a person. The decision and its rationale are never edited, no cause is inferred, and small decisions need neither field.",
-      "path": "pose-falsifier-reconsideration.md",
-      "digest": "sha256:af7c83a004eea4ee7e461c2c46f302d0e6b000126c074eba4fcc1cc6929a4df0"
-    },
-    {
-      "spec": "pose-flat-spec-amendments",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`pose amend` now resolves the spec through the store, so flat dated specs (`.pose/specs/YYYY-MM-DD-\u003cslug\u003e.md`) record amendments like folder specs. Each flat spec gets its own `YYYY-MM-DD-\u003cslug\u003e.amendments.jsonl` beside it instead of the shared directory journal the sibling rule implied; lint, the MCP amendments view and `pose spec-format migrate` read and carry that journal, and existing folder journals are read unchanged.",
-      "path": "pose-flat-spec-amendments.md",
-      "digest": "sha256:b1fbedde7badefdc93e80d6d7ac5fcd54ebd2caeffffd5da52a004833f5e0742"
-    },
-    {
-      "spec": "pose-followup-dispositions-accept-qualified-refs",
-      "category": "added",
-      "breaking": false,
-      "body": "A `covered`, `duplicate` or `spawned` follow-up can name a spec in another project as `xref:\u003cproject\u003e/spec:\u003cslug\u003e`. `lint-spec` verifies it against the other project when that project is bound in `POSE_PROJECT_ROOTS`, accepts it when it is not, and refuses a malformed target or one that names a non-spec artifact.",
-      "path": "pose-followup-dispositions-accept-qualified-refs.md",
-      "digest": "sha256:345b05104e8fac5b91e1d2e9b684a7f7460ab22cd0310a9072ba35f5eeab7709"
-    },
-    {
-      "spec": "pose-followup-reconciliation-candidates",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose followups --candidates` lists open follow-ups worth reconciling — a named spec that is now done, a named test that now exists, a passed review date, lexical near-duplicates — each with its evidence and the limits of that evidence. Nothing is closed or marked duplicate automatically; Attention shows the same reason on the follow-up, and the disposition stays a written decision in the spec.",
-      "path": "pose-followup-reconciliation-candidates.md",
-      "digest": "sha256:d9cb20facf0049081b7076a53a334b1efefcbc9bcc568e3a62e80d921d930879"
-    },
-    {
-      "spec": "pose-fresh-install-doctor-is-clean",
-      "category": "fixed",
-      "breaking": false,
-      "body": "A fresh install now opens `pose doctor` with no warning and, once committed, `pose state --attention` with complete coverage. Doctor gains a `next` level for recommended steps that are not problems — the pre-commit hook and naming action roles — listed and counted apart (`next_steps` in the JSON, `doctor_schema_version` 2) and never changing the exit code. Milestone and roadmap profiles count in the class-producers check only once the project has a roadmap; evidence-class coverage reads only the required checks of the shipped stacks some module uses, and every shipped test and build check now declares its evidence class. Attention lists the not-yet-projected sources a project does not have (docs manifest, release, capability assessment, legacy findings) as `not_used` instead of calling coverage incomplete; a source the project does use still does.",
-      "path": "pose-fresh-install-doctor-is-clean.md",
-      "digest": "sha256:a073b117001763b8f57a3b8a379b86b7ed22153747285d4b6c0f678e41eb35aa"
-    },
-    {
-      "spec": "pose-governance-wait-rework-observability",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose stats governance --waits --rework` adds two dimensions beside the outcomes: request age, attributed waiting and known whole-spec blocking (simultaneous intervals counted once, nothing read as inactivity), and why review work was redone (what changed between superseded bundles, review disagreement or invalid earlier attestations, otherwise unknown). `scripts/bench-governance.sh` times state, check and index on one revision with corpus and engine version recorded. Bundle diffs no longer compute the per-criterion reuse explanation outside verify, and closeout reuses the bundle and attestation it already settled on to describe review assurance.",
-      "path": "pose-governance-wait-rework-observability.md",
-      "digest": "sha256:74ae85013ee55691fb8d08b3fd8cf8873d8177dd841714c2830ea81e848a5807"
-    },
-    {
-      "spec": "pose-governed-capabilities-default-on-new-instances",
-      "category": "added",
-      "breaking": false,
-      "body": "A new instance adopts the governed capabilities: when `pose install` creates the review policy it turns on agency readiness, contract nodes, atomic start and causality closeout with the `structural-materiality@1` overlay, dated with the install day. Existing instances are unchanged — install over an existing policy and `pose update` never adopt — and toggle each capability with `pose adopt \u003ccapability\u003e [--off] [--date YYYY-MM-DD] [--apply]`, which writes only a policy the reader accepts. `state --governance` names the command for a capability not adopted, and `pose doctor` warns when agency readiness has no principal holding a role.",
-      "path": "pose-governed-capabilities-default-on-new-instances.md",
-      "digest": "sha256:67a74a670f75fd9e0b258d28577e0b6b3ea6cc47e77ac674bf622bc919fb671e"
-    },
-    {
-      "spec": "pose-governed-effect-enforcement",
-      "category": "added",
-      "breaking": false,
-      "body": "Action requests can now restrict transitions, opt-in with `agency_readiness_version: 1` in the review policy. Once adopted, `pose close` refuses with the request's cause while it restricts closeout, `closeout-check` and `pose_closeout_state` report the typed `action-request-pending` diagnostic and an `answer-action-request` next step, continuous closeout cannot complete, `pose start --apply` refuses a restricted start (and a preview taken before the request is stale), and `pose release prepare` refuses while a request restricts the release. Each gate recomputes when it runs; without adoption nothing changes.",
-      "path": "pose-governed-effect-enforcement.md",
-      "digest": "sha256:87f3a65ef81e1572356657100cee9e7d2d71c7bfbad28e7122a7300926f715ca"
-    },
-    {
-      "spec": "pose-init-is-install",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`pose init` in a repository without POSE now runs the full installation — the same instance `pose install .` produces — instead of creating empty directories that `pose check` rejects and `pose new-spec` cannot use. On an installed instance it writes nothing and names `pose update`. The installer's `--locale`, `--project-name`, `--project-id`, `--skip-mcp` and `--allow-non-git` flags pass through, and `--wizard` runs after the installation.",
-      "path": "pose-init-is-install.md",
-      "digest": "sha256:9f41d9b3c539af5c72fa158978038151def82eb9b71bb7afb64adf7790734fdf"
-    },
-    {
-      "spec": "pose-install-and-upgrade-journeys",
-      "category": "fixed",
-      "breaking": false,
-      "body": "CI now walks a fresh install and an upgrade from the latest published release (verified against its checksums): both must pass the strict check and read clean in `pose doctor`, and the upgrade must open one review request per new capability, ask only once, and apply a signed answer through `pose adopt --request`. Walking them fixed two gaps: `pose setup` now asks for a maintainer whenever a request is addressed to a role nobody holds, and `pose doctor` names an available rule extension by the catalog id `pose extension install` resolves.",
-      "path": "pose-install-and-upgrade-journeys.md",
-      "digest": "sha256:47cbfefa6ad21be5fb88cca9fec65102dc35573a7ee53f3f137750255900b563"
-    },
-    {
-      "spec": "pose-legacy-contract-cutoffs",
-      "category": "fixed",
-      "breaking": false,
-      "body": "The review policy now reads `explicit_judgment_adopted_at` and `structural_causality_adopted_at`, so the cutoff an instance declared for the two 6.0.0 contracts takes effect for unstamped history; `contract_adoptions` still wins, sealed bundles keep their stamped contracts, an unparsable date is refused with its key named, and `pose doctor` shows where every contract adoption comes from.",
-      "path": "pose-legacy-contract-cutoffs.md",
-      "digest": "sha256:80440d5ce7159510e5da2a0a3ed86c22cb77f82db14f24d36526ffc2f601ec36"
-    },
-    {
-      "spec": "pose-material-equivalence-reuse",
-      "category": "added",
-      "breaking": false,
-      "body": "When a review bundle is superseded, `pose review verify` now explains reuse criterion by criterion: `equivalent` when every input the answer depends on is unchanged, `changed` with the exact inputs that differ (subject paths, evidence, governing inputs, tools, definition), or `new`; each reused answer names its origin attestation. Reuse itself still follows the criterion input digest and the policy, so a bookkeeping edit keeps answers valid and a code change invalidates the ones that depend on it.",
-      "path": "pose-material-equivalence-reuse.md",
-      "digest": "sha256:d34f6e40f1405880e5b2681a03b4c63cc0feff15de6f538941ba935a5433a2b2"
-    },
-    {
-      "spec": "pose-mcp-action-resolve-signed-only",
-      "category": "added",
-      "breaking": false,
-      "body": "New MCP tool `pose_action_resolve` (risk class `governance-write`) records an answer to an action request only with the principal's proof: an SSH signature by a key registered to it (`pose identity add`) or a trusted issuer's claim. Its preview returns the exact statement to sign and the `ssh-keygen -Y sign -n pose-action-answer` command, so an agent can relay a person's answer without being able to forge it; a call without a proof is refused under any identity assurance.",
-      "path": "pose-mcp-action-resolve-signed-only.md",
-      "digest": "sha256:ed9cffbcd5477054ee991edd591dba19f9eff68e7d34c3075184074b5b209cfe"
-    },
-    {
-      "spec": "pose-obligation-contract",
-      "category": "added",
-      "breaking": false,
-      "body": "POSE defines a versioned obligation read model (`schemas/v1/obligation.schema.json`): one shape for anything still owed, projected from the subsystem that owns it, with a stable id derived from its logical source, project-qualified node references (`xref:\u003cproject\u003e/spec:\u003cslug\u003e#requirement:R4`), and separate fields for satisfaction, knowledge, waiting and per-phase effects. Unknown is never a resolution, and a blocker known only as text keeps its origin without an invented actor or target. The documentation page \"Obligations and readiness\" describes the model.",
-      "path": "pose-obligation-contract.md",
-      "digest": "sha256:583585d6e0d227cfb90b727b458aa4945a35831ec0f4f9d36a4f0deb7fcc6bb0"
-    },
-    {
-      "spec": "pose-obligation-projection",
-      "category": "added",
-      "breaking": false,
-      "body": "POSE can aggregate everything still owed into one read-only answer: unmet prerequisites and unexplained blocks from readiness, closeout and review obligations of in-progress specs (including each judgment criterion a sealed bundle still owes), start reconciliation when atomic start is adopted, and open follow-ups as advisory residual debt. Every answer is bound to a snapshot (revision, dirty working tree, policy and contract digests, delivery index) and lists per-producer coverage; a producer that fails or is not integrated yet is shown as such, never as zero obligations, and a later change of policy or revision is detectable before any write.",
-      "path": "pose-obligation-projection.md",
-      "digest": "sha256:12db83fda9e99abe95199b86ab3b5516f5cf6fc7e14b1c2aec8caff452a8b860"
-    },
-    {
-      "spec": "pose-onboarding-spec",
-      "category": "added",
-      "breaking": false,
-      "body": "A new instance now starts with a governed first spec, `.pose/specs/\u003cdate\u003e-pose-onboarding.md`, in the install's locale: adopting POSE is the project's first piece of work — declared identity, a maintainer who can prove answers, the commit gate, reviewed capability defaults and the committed instance — with tasks that point to `pose setup`. It passes lint, the strict check and the Definition of Ready as written; `pose setup` names `pose start spec:pose-onboarding` first and its close once every other step is done. `pose update` and reinstalls never create or overwrite it.",
-      "path": "pose-onboarding-spec.md",
-      "digest": "sha256:24948d5ed74bcdb8d5b44c85dd85951399e79bbf83b39ad19804e2b92d6e1cbe"
-    },
-    {
-      "spec": "pose-phase-scoped-readiness",
-      "category": "added",
-      "breaking": false,
-      "body": "Readiness can now be read per phase: `pose_spec_readiness` with `phases: true` and `pose state --attention --scope spec:\u003cslug\u003e` say whether start, execution, review, closeout and release are clear, restricted, partially restricted on named nodes, or unknown because a producer that could restrict them was not read. A closeout-only request no longer reads as a stop to implementation, a restriction on one requirement is reported as partial without claiming the rest is independent, and the legacy `ready` keeps its meaning.",
-      "path": "pose-phase-scoped-readiness.md",
-      "digest": "sha256:116ff5c206b95917012b337bba87f367f9c428aef9123c88df351c6bc8b688c7"
-    },
-    {
-      "spec": "pose-progressive-spec-surface",
-      "category": "added",
-      "breaking": false,
-      "body": "Small changes can use a smaller spec: `pose new-spec \u003cslug\u003e --surface minimal` keeps intent, requirements, artifacts, the requirement trace and follow-ups, and drops the planner-local Tasks section and the report sections that `pose specs facts \u003cslug\u003e` now derives from the delivery index (paths changed and checks run). `lint-spec` honours the surface for Tasks only; every lifecycle gate stays as strict, and derived facts never include intent, rationale or accepted risk.",
-      "path": "pose-progressive-spec-surface.md",
-      "digest": "sha256:d7eebe26cbc66f65e17d218e1f9e08e4a84954697619d8d031da75801a996862"
-    },
-    {
-      "spec": "pose-project-binding-consistency",
-      "category": "fixed",
-      "breaking": false,
-      "body": "Conflicting project bindings are refused even with an explicit default project id. Setup checks the same identity before offering changes and recognizes environment-only declarations.",
-      "path": "pose-project-binding-consistency.md",
-      "digest": "sha256:7c8f8b2b8a0cfac88de8acd888731c4e550506211839046e2bc1a2a550330302"
-    },
-    {
-      "spec": "pose-project-identity-file",
-      "category": "added",
-      "breaking": false,
-      "body": "A project declares its id once in `.pose/project.json`. `pose install` writes it and `pose update` seeds it from the id an older instance declared in `.mcp.json` or `AGENTS.md`, so the CLI, the MCP server and every checkout resolve the same project under any directory name. An environment binding that disagrees with the file is refused as `conflicting-project-binding`; `pose doctor` reports the declared identity under `project.identity`, and the directory-name limitation now names the file as the remedy.",
-      "path": "pose-project-identity-file.md",
-      "digest": "sha256:c6840cf766274942d3419172cb89bee7738dc33a769de30b9add9bb58867539d"
-    },
-    {
-      "spec": "pose-public-claims-publication-provenance",
-      "category": "changed",
-      "breaking": false,
-      "body": "`pose public-claims` no longer calls the locally read engine version \"released\". It reports the candidate version and its release lifecycle state (unprepared, prepared, tagged, published, verified) and, separately, the latest version whose publication is proven by retained release events, or `unproven`. The JSON keeps `released_version` with its old value for one minor, marked deprecated, and adds `version_provenance`.",
-      "path": "pose-public-claims-publication-provenance.md",
-      "digest": "sha256:18849e8e994415e14da2cbf40eba8da6a14c66a2586aa9b0ac184f9fa933a579"
-    },
-    {
-      "spec": "pose-quickstart-real-lifecycle",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`pose close` no longer marks a spec done with an incomplete requirement trace: the closeout plan stops at a new `trace` step before anything is sealed, and the transition refuses for the same reason, naming each requirement and how to declare it. When the plan stops for a reviewer it prints the sealed evidence refs and an attest command filled with them (`closeout_plan.attest`). The spec template's example delivery target is no longer a declared target that blocked closeout, and an available stack rule extension is a `next` step in `pose doctor`. The quickstart now walks the real lifecycle in five chapters — setup, the entry gate, `pose start`, a decision answered with a signature, and review and close — each executed in CI as written.",
-      "path": "pose-quickstart-real-lifecycle.md",
-      "digest": "sha256:5257042d39085693cf6ab17695832168807312258f4f6a754033bb177dde368f"
-    },
-    {
-      "spec": "pose-recoverable-closeout-plan",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose close spec:\u003cslug\u003e --plan|--apply|--resume` turns closeout into an ordered, recoverable plan computed from the repository: evidence is regenerated into `results_path` and indexed before sealing, the bundle is sealed, criteria answered by sealed evidence are recorded under the reviewer you name, and the guarded transition runs. The plan stops with exit 3 at a judgment criterion and never answers it; an interrupted run resumes without repeating steps or duplicating bundles and attestations, and a plan that no longer matches the repository is refused.",
-      "path": "pose-recoverable-closeout-plan.md",
-      "digest": "sha256:5e4a303e81aeb7e585b1a00f92df8220ee2445fa191f87f1004b8358afcec074"
-    },
-    {
-      "spec": "pose-review-assurance-disclosure",
-      "category": "changed",
-      "breaking": false,
-      "body": "Review surfaces now say what a review record proves about its reviewer. `review-plan` prints the identity assurance in force; `review verify`, `review-check` and `closeout-check` print an assurance line and carry an `assurance` object that keeps required, declared and verified separation apart. A `human:` or `agent:independent-` prefix under declared assurance is shown as a declaration, a verified claim is shown with its principal, executions, issuer and audience, and cognitive independence is always reported as not observable.",
-      "path": "pose-review-assurance-disclosure.md",
-      "digest": "sha256:b01a331379892dd70efa74cefc426a5a62ae83a4bab15d2ce44ca40588373ed7"
-    },
-    {
-      "spec": "pose-review-attribution-roles",
-      "category": "added",
-      "breaking": false,
-      "body": "Review attestations can record who prepared, concluded, confirmed and applied a review, with `--prepared-by`, `--concluded-by`, `--confirmed-by` plus `--confirmation-mode adopted-conclusions|authorized-operation`, and `--applied-by`. Roles are never filled from `--reviewer`, a confirmation is bound to the exact content written, and review surfaces render the difference between adopting conclusions and authorizing an operation. Older records show as `legacy-undifferentiated`, and `pose review attribution-supplement` clarifies them by reference without altering them; the sixteen 6.3.0 cycle attestations now carry such supplements.",
-      "path": "pose-review-attribution-roles.md",
-      "digest": "sha256:b653aaa8e54fe2b89c5006bd07cc124fa54a2f0a60c7c569dd4c734d6db5902f"
-    },
-    {
-      "spec": "pose-setup-command",
-      "category": "added",
-      "breaking": false,
-      "body": "New `pose setup`: one map of the instance — project identity, principals and keys, the pre-commit gate, capabilities in force, capabilities new since the last configuration review, what needs setup, whether the configuration is committed — and one next step with its command. At a terminal it offers each open step (the hook, registering your key with the maintainer role, adopting, declining or deferring each new capability) and performs it only after an explicit yes; with `--json`, `--no-input` or no terminal it changes nothing. `.pose/policy/adoption-decisions.json` records `reviewed_version` (a fresh install records its own); `pose install` ends with `pose setup`, `pose update` names pending capability decisions instead of \"Nothing to do\", and `pose doctor` reports them as a next step.",
-      "path": "pose-setup-command.md",
-      "digest": "sha256:dc13137db9ea9011bf475c278d057a51e3d7ac5e87442fffbc148bce07e247df"
-    },
-    {
-      "spec": "pose-signed-action-answers",
-      "category": "added",
-      "breaking": false,
-      "body": "Action answers can be proven without any external service. `pose identity add [\u003cprincipal\u003e] --key \u003cfile.pub\u003e [--role \u003crole\u003e] --apply` registers a principal's SSH key (`ssh-ed25519` or the security-key form `sk-ssh-ed25519@openssh.com`) under `keys` in `.pose/policy/actions.json`, suggesting `human:\u003cname\u003e` from the git identity; `pose identity list` and `remove` manage them. `pose action resolve … --sign \u003ckey\u003e` signs the answer with the user's own `ssh-keygen` (POSE never reads the key), `--signature \u003cfile\u003e` attaches a signature made elsewhere over `pose action statement`, and POSE verifies the SSHSIG natively, records it on the answer and re-verifies it in `pose action show`. Under verified assurance an answer needs such a signature or a trusted issuer's claim; `require_presence` refuses a human answer whose security key was not touched, and `pose doctor` reports human role holders that cannot prove an answer.",
-      "path": "pose-signed-action-answers.md",
-      "digest": "sha256:3bf9e184a7a216cd1ed900e5219391329444144ffade9a0714fd420a4feeaec6"
-    },
-    {
-      "spec": "pose-spec-surface-single-key",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`pose new-spec --surface` fills the template's `surface:` key instead of adding a second one.",
-      "path": "pose-spec-surface-single-key.md",
-      "digest": "sha256:21b47561952790313ab78d5115e67e21bf8a51a2be9e94fcf313cf6bbf72029f"
-    },
-    {
-      "spec": "pose-state-attention",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose state --attention [--scope \u003cref\u003e] [--actor \u003cid|role\u003e] [--phase \u003cp\u003e] [--kind \u003cc\u003e] [--json]` answers what is still owed, by whom and restricting which phase: coverage first (an answer is `INCOMPLETE` while any producer failed or is not integrated, so an empty group never reads as nothing owed), then what needs the actor or any person or role, then what restricts start, execution, review, closeout and release, then advisory residual debt. The new MCP tool `pose_obligations` returns the same obligation ids from the same domain function. Attention is not a gate.",
-      "path": "pose-state-attention.md",
-      "digest": "sha256:a34f0290b7b92d08b3f914a3f12155fd2b8b055ed40bd3f79d1158fac4e3510e"
-    },
-    {
-      "spec": "pose-transfer-preserves-obligations",
-      "category": "changed",
-      "breaking": false,
-      "body": "Spec transfer now carries action requests safely: the preview lists the source spec's requests with their disposition, retiring the source invalidates every open or answered one exactly once (a resumed transfer records nothing twice), a request opened after the preview makes the plan stale, and nothing answered in the source project authorizes or restricts the destination.",
-      "path": "pose-transfer-preserves-obligations.md",
-      "digest": "sha256:15be0776d3ef01f365f2e46b105e617e1048aa142209e298c7b6951b9b55c90d"
-    },
-    {
-      "spec": "pose-typed-producer-diagnostics",
-      "category": "added",
-      "breaking": false,
-      "body": "Pending-state producers now emit typed diagnostics alongside their prose. `closeout-check --json` and `pose_closeout_state` carry `diagnostics` (code, domain, refs and satisfaction condition, with text blockers the engine cannot type yet marked `opaque`) and a typed `next_step`; readiness `waiting_on` entries carry a `code`; auto-attest pendencies carry `code`, `source` and `condition`; start previews list owed review criteria as typed items. Codes come from one catalog and do not change with wording or locale.",
-      "path": "pose-typed-producer-diagnostics.md",
-      "digest": "sha256:896b887c433a9da10ba2f8f9d2ef21aa18704cba54d561940e902bfa964859aa"
-    },
-    {
-      "spec": "pose-update-configuration-review",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose update` now asks the maintainer about capabilities the project has not decided for the engine it runs: it writes `.pose/specs/\u003cdate\u003e-pose-configuration-review-\u003cversion\u003e.md` and opens one decision request per capability (adopt, decline or defer, with the recommendation), addressed to the maintainer role. Nothing is adopted by the update; a second update for the same version asks nothing again. `pose adopt --request \u003cact-id\u003e --apply` applies an answered request — recording the answer's reason and the request id for a decline or deferral — and `pose setup` lists open and answered requests and can answer and apply them at a terminal.",
-      "path": "pose-update-configuration-review.md",
-      "digest": "sha256:7d295099da7e8f1d8397251b654c60ab191c9af21e6d85de9181afafa91a402e"
-    },
-    {
-      "spec": "pose-v7-legacy-cleanup-plan",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose migrate v7 --dry-run [--json]` inventories, without writing, what a future major would convert, keep or refuse — spec layouts, blocked specs, legacy and unknown review policy keys (an unknown key is reported as a gate that may be silently off), sealed bundles, attestations by identity mode and attribution, and incomplete transfers on this project's side — each with its removal criterion. `--apply` is refused in 6.x, and sealed records are never rewritten. The help catalog now lists `specs facts`, `followups --candidates`, `new-spec --surface`, `action list --present` and `stats governance --waits/--rework`.",
-      "path": "pose-v7-legacy-cleanup-plan.md",
-      "digest": "sha256:9320f8a896245a2c7719a7ccdff79d1d7eb63fdb125ba325a62eb2615d177e69"
-    },
-    {
-      "spec": "pose-validation-check-additions-are-not-material",
-      "category": "changed",
-      "breaking": false,
-      "body": "The structural delta reads `.pose/indexes/validation-matrix.json` by check. A change that only appends newly named checks is reported as non-material `validation-check` facts, so registering a spec's own check no longer owes a causal mapping; every other matrix change, including an added check that reuses an existing name, stays a material `delivery-metadata` fact. The delta parser version is now `pose-design-delta/v2`.",
-      "path": "pose-validation-check-additions-are-not-material.md",
-      "digest": "sha256:7d8fcb0c890bcd4bb15d4c245adbda9308a5af7ccccb50a709287420ac266f4b"
-    }
-  ],
+  "pending": [],
   "releases": [
+    {
+      "version": "v7.0.0",
+      "state": "prepared",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v7.0.0",
+        "previous_version": "v6.3.0",
+        "prepared_at": "2026-10-06T07:57:42Z",
+        "specs": [
+          "pose-action-request-presentation",
+          "pose-action-request-resolution",
+          "pose-action-requests",
+          "pose-adaptive-assessment-freshness",
+          "pose-assumption-validity-scope",
+          "pose-atomic-start-adoption-cutoff",
+          "pose-attention-federated-parity",
+          "pose-attest-refuses-what-verify-rejects",
+          "pose-authority-claim-project-is-not-the-audience",
+          "pose-blocked-semantics-alignment",
+          "pose-capability-catalog",
+          "pose-causality-closeout-adoption-cutoff",
+          "pose-effective-governance-projection",
+          "pose-falsifier-reconsideration",
+          "pose-flat-spec-amendments",
+          "pose-followup-dispositions-accept-qualified-refs",
+          "pose-followup-reconciliation-candidates",
+          "pose-fresh-install-doctor-is-clean",
+          "pose-governance-wait-rework-observability",
+          "pose-governed-capabilities-default-on-new-instances",
+          "pose-governed-effect-enforcement",
+          "pose-init-is-install",
+          "pose-install-and-upgrade-journeys",
+          "pose-legacy-contract-cutoffs",
+          "pose-material-equivalence-reuse",
+          "pose-mcp-action-resolve-signed-only",
+          "pose-obligation-contract",
+          "pose-obligation-projection",
+          "pose-onboarding-spec",
+          "pose-phase-scoped-readiness",
+          "pose-progressive-spec-surface",
+          "pose-project-binding-consistency",
+          "pose-project-identity-file",
+          "pose-public-claims-publication-provenance",
+          "pose-quickstart-real-lifecycle",
+          "pose-recoverable-closeout-plan",
+          "pose-review-assurance-disclosure",
+          "pose-review-attribution-roles",
+          "pose-setup-command",
+          "pose-signed-action-answers",
+          "pose-spec-surface-single-key",
+          "pose-state-attention",
+          "pose-transfer-preserves-obligations",
+          "pose-typed-producer-diagnostics",
+          "pose-update-configuration-review",
+          "pose-v7-legacy-cleanup-plan",
+          "pose-validation-check-additions-are-not-material"
+        ],
+        "categories": {
+          "added": 30,
+          "changed": 8,
+          "fixed": 9
+        },
+        "fragments": [
+          {
+            "spec": "pose-action-request-presentation",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose action list --present` (and `pose_action_requests` with `present: true`) groups the requests still waiting for an answer for one conversation: by origin and the earliest phase they restrict, with what blocks start or execution first and release-only questions marked as able to wait. Every request keeps its own id, digest and answer, the person sees exactly what the answer binds to, and settled requests are not asked again.",
+            "path": "pose-action-request-presentation.md",
+            "digest": "sha256:c61439e26b76529a9f48696fe5fffd2e9ecdb49017b5de6699cbc5c3dcc16430"
+          },
+          {
+            "spec": "pose-action-request-resolution",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose action resolve|cancel|waive|invalidate` records answers that count only when they should: the actor must hold the recipient role in `.pose/policy/actions.json`; the write names the request digest it answers (a changed request or subject makes an earlier answer insufficient) and the revision it read (a second answer against the same revision is refused); an idempotency key makes retries no-ops and refuses the same key with other content. Under verified assurance a resolution needs an Ed25519 claim from a pinned issuer bound to project, audience, digest, principal and answer, so an agent writing `human:\u003cname\u003e` is not a verified confirmation. A declined approval is recorded and authorizes nothing; the requester may cancel its own question, and a waiver needs the authority and a reason.",
+            "path": "pose-action-request-resolution.md",
+            "digest": "sha256:9a15ed4eeaad74c6d76c57cfc5f16f3dc9f87a2b153a2277e1dc7ddde984dc4e"
+          },
+          {
+            "spec": "pose-action-requests",
+            "category": "added",
+            "breaking": false,
+            "body": "POSE can record a material request to a person or an external system — a decision, approval, input, external operation or acceptance — with `pose action open`: question, options and consequences, recommendation, recipient principal or role (or `unassigned`), qualified targets, per-phase effects and an optional subject. Each request is an append-only journal under `.pose/actions/` that survives sessions with its id and request digest, appears in `pose state --attention` and `pose_obligations` as an actor obligation restricting only the phases it names, and is readable over MCP with `pose_action_requests`. The materiality criterion is part of the contract: an ordinary question is not a request.",
+            "path": "pose-action-requests.md",
+            "digest": "sha256:63ee0ed7995f8609cb400dc1bab0b055c9a9d8ba8e17438b72c11cc2a7d319d4"
+          },
+          {
+            "spec": "pose-adaptive-assessment-freshness",
+            "category": "changed",
+            "breaking": false,
+            "body": "Component assessments now record what they were computed from — the committed tree of the component, the engine version and the validation matrix — and `pose assess discover --if-stale` reuses an assessment whose inputs are unchanged and refreshes one that is stale, saying why. Age alone never stales an assessment. The feature and closeout workflows and the AGENTS template use `--if-stale` instead of rescanning every component before and after each change, and a missing or stale assessment of a component an in-progress spec declares appears in Attention as advisory work.",
+            "path": "pose-adaptive-assessment-freshness.md",
+            "digest": "sha256:0c5eeac9329e8149b89de90941a9fcd8630e1bb489453accf0f6400d951c933b"
+          },
+          {
+            "spec": "pose-assumption-validity-scope",
+            "category": "added",
+            "breaking": false,
+            "body": "A material assumption can declare `Valid scope:` and pinned `Stale trigger:` entries (`doc:\u003cpath\u003e@\u003csha256 prefix\u003e` and other local kinds). When the pinned content changes, the obligation projection emits a `premise-stale` judgment obligation, advisory on review and scoped to the assumption and the decisions based on it; the recorded evidence stays, described as judged against the old content. Calendar expiry is not evaluated, trivial assumptions need no field, and existing design digests are unchanged.",
+            "path": "pose-assumption-validity-scope.md",
+            "digest": "sha256:4453860259beafa2e2174fbd21d8037717fa4ff1c4db7dc72a09d0a1b156f642"
+          },
+          {
+            "spec": "pose-atomic-start-adoption-cutoff",
+            "category": "added",
+            "breaking": false,
+            "body": "`atomic_start_adopted_at: YYYY-MM-DD` limits atomic start to specs created on or after the date. An older spec already in progress without a start is reported as `legacy-unbaselined` with a note and blocks nothing; without the date every such spec still needs reconciliation, and a malformed date is refused.",
+            "path": "pose-atomic-start-adoption-cutoff.md",
+            "digest": "sha256:5be35c0a15d7048298efd88e8d268903aa5869c0f1cf0bf16033b0f8a28cc7c6"
+          },
+          {
+            "spec": "pose-attention-federated-parity",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose state --attention` now reads obligations through the same governed store as MCP, so federated acceptance blockers that `pose_obligations` reported are no longer missing from the CLI for the same snapshot.",
+            "path": "pose-attention-federated-parity.md",
+            "digest": "sha256:16e6f3e1d779f256e18d535cc24398008637acd0342339ed4ddb42c49fbbe220"
+          },
+          {
+            "spec": "pose-attest-refuses-what-verify-rejects",
+            "category": "changed",
+            "breaking": false,
+            "body": "`pose review attest` (preview and `--apply`) and `pose review auto-attest --apply` now run the verifier over an approving attestation before it is written and refuse it, listing every reason, when `pose review verify` would reject it — an unmapped structural fact, an undeclared basis, a mapping without a reason, evidence absent from the bundle. Negative decisions are still recorded as audit.",
+            "path": "pose-attest-refuses-what-verify-rejects.md",
+            "digest": "sha256:678c623998d39c8fbd74857ad482ec90c53c669a995b465da816f25f63fa4ffd"
+          },
+          {
+            "spec": "pose-authority-claim-project-is-not-the-audience",
+            "category": "changed",
+            "breaking": true,
+            "body": "A signed authority claim binds its project and its audience separately: `project` is compared with the new `authority_project` in the review policy (the project the decision governs) and `audience` with `authority_audience` (the verifier installation). Verified identity assurance now requires `authority_project`, for review and action-request claims alike, so a claim issued for one project served by a shared verifier no longer satisfies another. Breaking only for a policy that already adopted `verified`.",
+            "path": "pose-authority-claim-project-is-not-the-audience.md",
+            "digest": "sha256:cd712ebfeb6777d3bd9ac7350ddfe0f4bface01c3b37508e6273ae2b0dd2da43"
+          },
+          {
+            "spec": "pose-blocked-semantics-alignment",
+            "category": "changed",
+            "breaking": false,
+            "body": "`blocked` now means one thing everywhere: a non-terminal operational condition, never a delivery outcome. Readiness reports `terminal` and, for a blocked spec, `cause: dependency` with its unmet prerequisites or `cause: unknown`; `pose state` lists blocked specs with that cause; `pose lint-spec` warns when a blocked spec declares no prerequisite. `pose adoption-metrics` keeps the v1 success ratio unchanged and adds a labelled `task_success_ratio_v2` that reads flat and folder specs alike and keeps blocked out of resolved outcomes. No command rewrites a legacy blocked spec, and spec transfer keeps using the status as its staging guard.",
+            "path": "pose-blocked-semantics-alignment.md",
+            "digest": "sha256:117a248f6ea44a1f4f3ff6dae25d80f0bca6e7b8ba9ebe76cce973d3a2581e56"
+          },
+          {
+            "spec": "pose-capability-catalog",
+            "category": "added",
+            "breaking": false,
+            "body": "Every adoptable capability is in one catalog, and `pose adopt` decides each: review-policy capabilities, criterion reuse, the Definition of Ready, the review overlays (`overlay:\u003cprofile\u003e`), qualified references and spec authority transfer (raising `schema_version` as their contract requires), signed attestations and verified identity. `pose adopt --list` shows each with its state (on, off, declined, deferred, needs-setup), its day-to-day effect, its introducing version and whether a new instance gets it. Missing requirements and prerequisites are refused with what is missing; `--decline` and `--defer` record the decision in `.pose/policy/adoption-decisions.json` so it is not asked again. A new instance now also adopts the Definition of Ready.",
+            "path": "pose-capability-catalog.md",
+            "digest": "sha256:6cd247e40275d4e589e47138dc4d541b208158cd64f26f8b957a6f380625f7f8"
+          },
+          {
+            "spec": "pose-causality-closeout-adoption-cutoff",
+            "category": "added",
+            "breaking": false,
+            "body": "`causality_closeout_adopted_at: YYYY-MM-DD` stamps causality closeout only on scopes with a spec created on or after the date, and `overlay_adopted_at: {\"\u003coverlay\u003e@\u003cn\u003e\": \"YYYY-MM-DD\"}` selects a late-adopted overlay only for such scopes, so adopting either does not charge work already under way. A spec without a creation date is never exempted; malformed dates and dates for unlisted overlays are refused; effective governance states both.",
+            "path": "pose-causality-closeout-adoption-cutoff.md",
+            "digest": "sha256:d15986273f3e5965ae8ed4e659db452953a89ba9164240ea3fcce9589d45feb7"
+          },
+          {
+            "spec": "pose-effective-governance-projection",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose state --governance [--scope \u003cref\u003e] [--json]` shows, live and read-only, what governance is in force in this instance rather than what the engine ships: for each review contract, optional capability and gate, whether it is supported, configured, applicable and effective, with reason codes such as `not-adopted`, `no-readiness-cutoff` or `legacy-cutoff:\u003cdate\u003e`. With `--scope`, it compares the contracts the scope's newest sealed bundle stamped with what the policy seals today. `pose_project_state` carries the same projection as `effective_governance`.",
+            "path": "pose-effective-governance-projection.md",
+            "digest": "sha256:284e24b9ca97df7094cb45b2f469d37b12c06db4023db252892d7c7266898c46"
+          },
+          {
+            "spec": "pose-falsifier-reconsideration",
+            "category": "added",
+            "breaking": false,
+            "body": "A material decision can name its `Expected effect:` and a `Falsifier check: check:\u003cmodule\u003e/\u003ccheck\u003e`. When the delivery index holds a failed result for that check, the obligation projection emits a `falsifier-observed` reconsideration candidate on the decision, advisory and addressed to a person. The decision and its rationale are never edited, no cause is inferred, and small decisions need neither field.",
+            "path": "pose-falsifier-reconsideration.md",
+            "digest": "sha256:af7c83a004eea4ee7e461c2c46f302d0e6b000126c074eba4fcc1cc6929a4df0"
+          },
+          {
+            "spec": "pose-flat-spec-amendments",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose amend` now resolves the spec through the store, so flat dated specs (`.pose/specs/YYYY-MM-DD-\u003cslug\u003e.md`) record amendments like folder specs. Each flat spec gets its own `YYYY-MM-DD-\u003cslug\u003e.amendments.jsonl` beside it instead of the shared directory journal the sibling rule implied; lint, the MCP amendments view and `pose spec-format migrate` read and carry that journal, and existing folder journals are read unchanged.",
+            "path": "pose-flat-spec-amendments.md",
+            "digest": "sha256:b1fbedde7badefdc93e80d6d7ac5fcd54ebd2caeffffd5da52a004833f5e0742"
+          },
+          {
+            "spec": "pose-followup-dispositions-accept-qualified-refs",
+            "category": "added",
+            "breaking": false,
+            "body": "A `covered`, `duplicate` or `spawned` follow-up can name a spec in another project as `xref:\u003cproject\u003e/spec:\u003cslug\u003e`. `lint-spec` verifies it against the other project when that project is bound in `POSE_PROJECT_ROOTS`, accepts it when it is not, and refuses a malformed target or one that names a non-spec artifact.",
+            "path": "pose-followup-dispositions-accept-qualified-refs.md",
+            "digest": "sha256:345b05104e8fac5b91e1d2e9b684a7f7460ab22cd0310a9072ba35f5eeab7709"
+          },
+          {
+            "spec": "pose-followup-reconciliation-candidates",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose followups --candidates` lists open follow-ups worth reconciling — a named spec that is now done, a named test that now exists, a passed review date, lexical near-duplicates — each with its evidence and the limits of that evidence. Nothing is closed or marked duplicate automatically; Attention shows the same reason on the follow-up, and the disposition stays a written decision in the spec.",
+            "path": "pose-followup-reconciliation-candidates.md",
+            "digest": "sha256:d9cb20facf0049081b7076a53a334b1efefcbc9bcc568e3a62e80d921d930879"
+          },
+          {
+            "spec": "pose-fresh-install-doctor-is-clean",
+            "category": "fixed",
+            "breaking": false,
+            "body": "A fresh install now opens `pose doctor` with no warning and, once committed, `pose state --attention` with complete coverage. Doctor gains a `next` level for recommended steps that are not problems — the pre-commit hook and naming action roles — listed and counted apart (`next_steps` in the JSON, `doctor_schema_version` 2) and never changing the exit code. Milestone and roadmap profiles count in the class-producers check only once the project has a roadmap; evidence-class coverage reads only the required checks of the shipped stacks some module uses, and every shipped test and build check now declares its evidence class. Attention lists the not-yet-projected sources a project does not have (docs manifest, release, capability assessment, legacy findings) as `not_used` instead of calling coverage incomplete; a source the project does use still does.",
+            "path": "pose-fresh-install-doctor-is-clean.md",
+            "digest": "sha256:a073b117001763b8f57a3b8a379b86b7ed22153747285d4b6c0f678e41eb35aa"
+          },
+          {
+            "spec": "pose-governance-wait-rework-observability",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose stats governance --waits --rework` adds two dimensions beside the outcomes: request age, attributed waiting and known whole-spec blocking (simultaneous intervals counted once, nothing read as inactivity), and why review work was redone (what changed between superseded bundles, review disagreement or invalid earlier attestations, otherwise unknown). `scripts/bench-governance.sh` times state, check and index on one revision with corpus and engine version recorded. Bundle diffs no longer compute the per-criterion reuse explanation outside verify, and closeout reuses the bundle and attestation it already settled on to describe review assurance.",
+            "path": "pose-governance-wait-rework-observability.md",
+            "digest": "sha256:74ae85013ee55691fb8d08b3fd8cf8873d8177dd841714c2830ea81e848a5807"
+          },
+          {
+            "spec": "pose-governed-capabilities-default-on-new-instances",
+            "category": "added",
+            "breaking": false,
+            "body": "A new instance adopts the governed capabilities: when `pose install` creates the review policy it turns on agency readiness, contract nodes, atomic start and causality closeout with the `structural-materiality@1` overlay, dated with the install day. Existing instances are unchanged — install over an existing policy and `pose update` never adopt — and toggle each capability with `pose adopt \u003ccapability\u003e [--off] [--date YYYY-MM-DD] [--apply]`, which writes only a policy the reader accepts. `state --governance` names the command for a capability not adopted, and `pose doctor` warns when agency readiness has no principal holding a role.",
+            "path": "pose-governed-capabilities-default-on-new-instances.md",
+            "digest": "sha256:67a74a670f75fd9e0b258d28577e0b6b3ea6cc47e77ac674bf622bc919fb671e"
+          },
+          {
+            "spec": "pose-governed-effect-enforcement",
+            "category": "added",
+            "breaking": false,
+            "body": "Action requests can now restrict transitions, opt-in with `agency_readiness_version: 1` in the review policy. Once adopted, `pose close` refuses with the request's cause while it restricts closeout, `closeout-check` and `pose_closeout_state` report the typed `action-request-pending` diagnostic and an `answer-action-request` next step, continuous closeout cannot complete, `pose start --apply` refuses a restricted start (and a preview taken before the request is stale), and `pose release prepare` refuses while a request restricts the release. Each gate recomputes when it runs; without adoption nothing changes.",
+            "path": "pose-governed-effect-enforcement.md",
+            "digest": "sha256:87f3a65ef81e1572356657100cee9e7d2d71c7bfbad28e7122a7300926f715ca"
+          },
+          {
+            "spec": "pose-init-is-install",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose init` in a repository without POSE now runs the full installation — the same instance `pose install .` produces — instead of creating empty directories that `pose check` rejects and `pose new-spec` cannot use. On an installed instance it writes nothing and names `pose update`. The installer's `--locale`, `--project-name`, `--project-id`, `--skip-mcp` and `--allow-non-git` flags pass through, and `--wizard` runs after the installation.",
+            "path": "pose-init-is-install.md",
+            "digest": "sha256:9f41d9b3c539af5c72fa158978038151def82eb9b71bb7afb64adf7790734fdf"
+          },
+          {
+            "spec": "pose-install-and-upgrade-journeys",
+            "category": "fixed",
+            "breaking": false,
+            "body": "CI now walks a fresh install and an upgrade from the latest published release (verified against its checksums): both must pass the strict check and read clean in `pose doctor`, and the upgrade must open one review request per new capability, ask only once, and apply a signed answer through `pose adopt --request`. Walking them fixed two gaps: `pose setup` now asks for a maintainer whenever a request is addressed to a role nobody holds, and `pose doctor` names an available rule extension by the catalog id `pose extension install` resolves.",
+            "path": "pose-install-and-upgrade-journeys.md",
+            "digest": "sha256:47cbfefa6ad21be5fb88cca9fec65102dc35573a7ee53f3f137750255900b563"
+          },
+          {
+            "spec": "pose-legacy-contract-cutoffs",
+            "category": "fixed",
+            "breaking": false,
+            "body": "The review policy now reads `explicit_judgment_adopted_at` and `structural_causality_adopted_at`, so the cutoff an instance declared for the two 6.0.0 contracts takes effect for unstamped history; `contract_adoptions` still wins, sealed bundles keep their stamped contracts, an unparsable date is refused with its key named, and `pose doctor` shows where every contract adoption comes from.",
+            "path": "pose-legacy-contract-cutoffs.md",
+            "digest": "sha256:80440d5ce7159510e5da2a0a3ed86c22cb77f82db14f24d36526ffc2f601ec36"
+          },
+          {
+            "spec": "pose-material-equivalence-reuse",
+            "category": "added",
+            "breaking": false,
+            "body": "When a review bundle is superseded, `pose review verify` now explains reuse criterion by criterion: `equivalent` when every input the answer depends on is unchanged, `changed` with the exact inputs that differ (subject paths, evidence, governing inputs, tools, definition), or `new`; each reused answer names its origin attestation. Reuse itself still follows the criterion input digest and the policy, so a bookkeeping edit keeps answers valid and a code change invalidates the ones that depend on it.",
+            "path": "pose-material-equivalence-reuse.md",
+            "digest": "sha256:d34f6e40f1405880e5b2681a03b4c63cc0feff15de6f538941ba935a5433a2b2"
+          },
+          {
+            "spec": "pose-mcp-action-resolve-signed-only",
+            "category": "added",
+            "breaking": false,
+            "body": "New MCP tool `pose_action_resolve` (risk class `governance-write`) records an answer to an action request only with the principal's proof: an SSH signature by a key registered to it (`pose identity add`) or a trusted issuer's claim. Its preview returns the exact statement to sign and the `ssh-keygen -Y sign -n pose-action-answer` command, so an agent can relay a person's answer without being able to forge it; a call without a proof is refused under any identity assurance.",
+            "path": "pose-mcp-action-resolve-signed-only.md",
+            "digest": "sha256:ed9cffbcd5477054ee991edd591dba19f9eff68e7d34c3075184074b5b209cfe"
+          },
+          {
+            "spec": "pose-obligation-contract",
+            "category": "added",
+            "breaking": false,
+            "body": "POSE defines a versioned obligation read model (`schemas/v1/obligation.schema.json`): one shape for anything still owed, projected from the subsystem that owns it, with a stable id derived from its logical source, project-qualified node references (`xref:\u003cproject\u003e/spec:\u003cslug\u003e#requirement:R4`), and separate fields for satisfaction, knowledge, waiting and per-phase effects. Unknown is never a resolution, and a blocker known only as text keeps its origin without an invented actor or target. The documentation page \"Obligations and readiness\" describes the model.",
+            "path": "pose-obligation-contract.md",
+            "digest": "sha256:583585d6e0d227cfb90b727b458aa4945a35831ec0f4f9d36a4f0deb7fcc6bb0"
+          },
+          {
+            "spec": "pose-obligation-projection",
+            "category": "added",
+            "breaking": false,
+            "body": "POSE can aggregate everything still owed into one read-only answer: unmet prerequisites and unexplained blocks from readiness, closeout and review obligations of in-progress specs (including each judgment criterion a sealed bundle still owes), start reconciliation when atomic start is adopted, and open follow-ups as advisory residual debt. Every answer is bound to a snapshot (revision, dirty working tree, policy and contract digests, delivery index) and lists per-producer coverage; a producer that fails or is not integrated yet is shown as such, never as zero obligations, and a later change of policy or revision is detectable before any write.",
+            "path": "pose-obligation-projection.md",
+            "digest": "sha256:12db83fda9e99abe95199b86ab3b5516f5cf6fc7e14b1c2aec8caff452a8b860"
+          },
+          {
+            "spec": "pose-onboarding-spec",
+            "category": "added",
+            "breaking": false,
+            "body": "A new instance now starts with a governed first spec, `.pose/specs/\u003cdate\u003e-pose-onboarding.md`, in the install's locale: adopting POSE is the project's first piece of work — declared identity, a maintainer who can prove answers, the commit gate, reviewed capability defaults and the committed instance — with tasks that point to `pose setup`. It passes lint, the strict check and the Definition of Ready as written; `pose setup` names `pose start spec:pose-onboarding` first and its close once every other step is done. `pose update` and reinstalls never create or overwrite it.",
+            "path": "pose-onboarding-spec.md",
+            "digest": "sha256:24948d5ed74bcdb8d5b44c85dd85951399e79bbf83b39ad19804e2b92d6e1cbe"
+          },
+          {
+            "spec": "pose-phase-scoped-readiness",
+            "category": "added",
+            "breaking": false,
+            "body": "Readiness can now be read per phase: `pose_spec_readiness` with `phases: true` and `pose state --attention --scope spec:\u003cslug\u003e` say whether start, execution, review, closeout and release are clear, restricted, partially restricted on named nodes, or unknown because a producer that could restrict them was not read. A closeout-only request no longer reads as a stop to implementation, a restriction on one requirement is reported as partial without claiming the rest is independent, and the legacy `ready` keeps its meaning.",
+            "path": "pose-phase-scoped-readiness.md",
+            "digest": "sha256:116ff5c206b95917012b337bba87f367f9c428aef9123c88df351c6bc8b688c7"
+          },
+          {
+            "spec": "pose-progressive-spec-surface",
+            "category": "added",
+            "breaking": false,
+            "body": "Small changes can use a smaller spec: `pose new-spec \u003cslug\u003e --surface minimal` keeps intent, requirements, artifacts, the requirement trace and follow-ups, and drops the planner-local Tasks section and the report sections that `pose specs facts \u003cslug\u003e` now derives from the delivery index (paths changed and checks run). `lint-spec` honours the surface for Tasks only; every lifecycle gate stays as strict, and derived facts never include intent, rationale or accepted risk.",
+            "path": "pose-progressive-spec-surface.md",
+            "digest": "sha256:d7eebe26cbc66f65e17d218e1f9e08e4a84954697619d8d031da75801a996862"
+          },
+          {
+            "spec": "pose-project-binding-consistency",
+            "category": "fixed",
+            "breaking": false,
+            "body": "Conflicting project bindings are refused even with an explicit default project id. Setup checks the same identity before offering changes and recognizes environment-only declarations.",
+            "path": "pose-project-binding-consistency.md",
+            "digest": "sha256:7c8f8b2b8a0cfac88de8acd888731c4e550506211839046e2bc1a2a550330302"
+          },
+          {
+            "spec": "pose-project-identity-file",
+            "category": "added",
+            "breaking": false,
+            "body": "A project declares its id once in `.pose/project.json`. `pose install` writes it and `pose update` seeds it from the id an older instance declared in `.mcp.json` or `AGENTS.md`, so the CLI, the MCP server and every checkout resolve the same project under any directory name. An environment binding that disagrees with the file is refused as `conflicting-project-binding`; `pose doctor` reports the declared identity under `project.identity`, and the directory-name limitation now names the file as the remedy.",
+            "path": "pose-project-identity-file.md",
+            "digest": "sha256:c6840cf766274942d3419172cb89bee7738dc33a769de30b9add9bb58867539d"
+          },
+          {
+            "spec": "pose-public-claims-publication-provenance",
+            "category": "changed",
+            "breaking": false,
+            "body": "`pose public-claims` no longer calls the locally read engine version \"released\". It reports the candidate version and its release lifecycle state (unprepared, prepared, tagged, published, verified) and, separately, the latest version whose publication is proven by retained release events, or `unproven`. The JSON keeps `released_version` with its old value for one minor, marked deprecated, and adds `version_provenance`.",
+            "path": "pose-public-claims-publication-provenance.md",
+            "digest": "sha256:18849e8e994415e14da2cbf40eba8da6a14c66a2586aa9b0ac184f9fa933a579"
+          },
+          {
+            "spec": "pose-quickstart-real-lifecycle",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose close` no longer marks a spec done with an incomplete requirement trace: the closeout plan stops at a new `trace` step before anything is sealed, and the transition refuses for the same reason, naming each requirement and how to declare it. When the plan stops for a reviewer it prints the sealed evidence refs and an attest command filled with them (`closeout_plan.attest`). The spec template's example delivery target is no longer a declared target that blocked closeout, and an available stack rule extension is a `next` step in `pose doctor`. The quickstart now walks the real lifecycle in five chapters — setup, the entry gate, `pose start`, a decision answered with a signature, and review and close — each executed in CI as written.",
+            "path": "pose-quickstart-real-lifecycle.md",
+            "digest": "sha256:5257042d39085693cf6ab17695832168807312258f4f6a754033bb177dde368f"
+          },
+          {
+            "spec": "pose-recoverable-closeout-plan",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose close spec:\u003cslug\u003e --plan|--apply|--resume` turns closeout into an ordered, recoverable plan computed from the repository: evidence is regenerated into `results_path` and indexed before sealing, the bundle is sealed, criteria answered by sealed evidence are recorded under the reviewer you name, and the guarded transition runs. The plan stops with exit 3 at a judgment criterion and never answers it; an interrupted run resumes without repeating steps or duplicating bundles and attestations, and a plan that no longer matches the repository is refused.",
+            "path": "pose-recoverable-closeout-plan.md",
+            "digest": "sha256:5e4a303e81aeb7e585b1a00f92df8220ee2445fa191f87f1004b8358afcec074"
+          },
+          {
+            "spec": "pose-review-assurance-disclosure",
+            "category": "changed",
+            "breaking": false,
+            "body": "Review surfaces now say what a review record proves about its reviewer. `review-plan` prints the identity assurance in force; `review verify`, `review-check` and `closeout-check` print an assurance line and carry an `assurance` object that keeps required, declared and verified separation apart. A `human:` or `agent:independent-` prefix under declared assurance is shown as a declaration, a verified claim is shown with its principal, executions, issuer and audience, and cognitive independence is always reported as not observable.",
+            "path": "pose-review-assurance-disclosure.md",
+            "digest": "sha256:b01a331379892dd70efa74cefc426a5a62ae83a4bab15d2ce44ca40588373ed7"
+          },
+          {
+            "spec": "pose-review-attribution-roles",
+            "category": "added",
+            "breaking": false,
+            "body": "Review attestations can record who prepared, concluded, confirmed and applied a review, with `--prepared-by`, `--concluded-by`, `--confirmed-by` plus `--confirmation-mode adopted-conclusions|authorized-operation`, and `--applied-by`. Roles are never filled from `--reviewer`, a confirmation is bound to the exact content written, and review surfaces render the difference between adopting conclusions and authorizing an operation. Older records show as `legacy-undifferentiated`, and `pose review attribution-supplement` clarifies them by reference without altering them; the sixteen 6.3.0 cycle attestations now carry such supplements.",
+            "path": "pose-review-attribution-roles.md",
+            "digest": "sha256:b653aaa8e54fe2b89c5006bd07cc124fa54a2f0a60c7c569dd4c734d6db5902f"
+          },
+          {
+            "spec": "pose-setup-command",
+            "category": "added",
+            "breaking": false,
+            "body": "New `pose setup`: one map of the instance — project identity, principals and keys, the pre-commit gate, capabilities in force, capabilities new since the last configuration review, what needs setup, whether the configuration is committed — and one next step with its command. At a terminal it offers each open step (the hook, registering your key with the maintainer role, adopting, declining or deferring each new capability) and performs it only after an explicit yes; with `--json`, `--no-input` or no terminal it changes nothing. `.pose/policy/adoption-decisions.json` records `reviewed_version` (a fresh install records its own); `pose install` ends with `pose setup`, `pose update` names pending capability decisions instead of \"Nothing to do\", and `pose doctor` reports them as a next step.",
+            "path": "pose-setup-command.md",
+            "digest": "sha256:dc13137db9ea9011bf475c278d057a51e3d7ac5e87442fffbc148bce07e247df"
+          },
+          {
+            "spec": "pose-signed-action-answers",
+            "category": "added",
+            "breaking": false,
+            "body": "Action answers can be proven without any external service. `pose identity add [\u003cprincipal\u003e] --key \u003cfile.pub\u003e [--role \u003crole\u003e] --apply` registers a principal's SSH key (`ssh-ed25519` or the security-key form `sk-ssh-ed25519@openssh.com`) under `keys` in `.pose/policy/actions.json`, suggesting `human:\u003cname\u003e` from the git identity; `pose identity list` and `remove` manage them. `pose action resolve … --sign \u003ckey\u003e` signs the answer with the user's own `ssh-keygen` (POSE never reads the key), `--signature \u003cfile\u003e` attaches a signature made elsewhere over `pose action statement`, and POSE verifies the SSHSIG natively, records it on the answer and re-verifies it in `pose action show`. Under verified assurance an answer needs such a signature or a trusted issuer's claim; `require_presence` refuses a human answer whose security key was not touched, and `pose doctor` reports human role holders that cannot prove an answer.",
+            "path": "pose-signed-action-answers.md",
+            "digest": "sha256:3bf9e184a7a216cd1ed900e5219391329444144ffade9a0714fd420a4feeaec6"
+          },
+          {
+            "spec": "pose-spec-surface-single-key",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose new-spec --surface` fills the template's `surface:` key instead of adding a second one.",
+            "path": "pose-spec-surface-single-key.md",
+            "digest": "sha256:21b47561952790313ab78d5115e67e21bf8a51a2be9e94fcf313cf6bbf72029f"
+          },
+          {
+            "spec": "pose-state-attention",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose state --attention [--scope \u003cref\u003e] [--actor \u003cid|role\u003e] [--phase \u003cp\u003e] [--kind \u003cc\u003e] [--json]` answers what is still owed, by whom and restricting which phase: coverage first (an answer is `INCOMPLETE` while any producer failed or is not integrated, so an empty group never reads as nothing owed), then what needs the actor or any person or role, then what restricts start, execution, review, closeout and release, then advisory residual debt. The new MCP tool `pose_obligations` returns the same obligation ids from the same domain function. Attention is not a gate.",
+            "path": "pose-state-attention.md",
+            "digest": "sha256:a34f0290b7b92d08b3f914a3f12155fd2b8b055ed40bd3f79d1158fac4e3510e"
+          },
+          {
+            "spec": "pose-transfer-preserves-obligations",
+            "category": "changed",
+            "breaking": false,
+            "body": "Spec transfer now carries action requests safely: the preview lists the source spec's requests with their disposition, retiring the source invalidates every open or answered one exactly once (a resumed transfer records nothing twice), a request opened after the preview makes the plan stale, and nothing answered in the source project authorizes or restricts the destination.",
+            "path": "pose-transfer-preserves-obligations.md",
+            "digest": "sha256:15be0776d3ef01f365f2e46b105e617e1048aa142209e298c7b6951b9b55c90d"
+          },
+          {
+            "spec": "pose-typed-producer-diagnostics",
+            "category": "added",
+            "breaking": false,
+            "body": "Pending-state producers now emit typed diagnostics alongside their prose. `closeout-check --json` and `pose_closeout_state` carry `diagnostics` (code, domain, refs and satisfaction condition, with text blockers the engine cannot type yet marked `opaque`) and a typed `next_step`; readiness `waiting_on` entries carry a `code`; auto-attest pendencies carry `code`, `source` and `condition`; start previews list owed review criteria as typed items. Codes come from one catalog and do not change with wording or locale.",
+            "path": "pose-typed-producer-diagnostics.md",
+            "digest": "sha256:896b887c433a9da10ba2f8f9d2ef21aa18704cba54d561940e902bfa964859aa"
+          },
+          {
+            "spec": "pose-update-configuration-review",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose update` now asks the maintainer about capabilities the project has not decided for the engine it runs: it writes `.pose/specs/\u003cdate\u003e-pose-configuration-review-\u003cversion\u003e.md` and opens one decision request per capability (adopt, decline or defer, with the recommendation), addressed to the maintainer role. Nothing is adopted by the update; a second update for the same version asks nothing again. `pose adopt --request \u003cact-id\u003e --apply` applies an answered request — recording the answer's reason and the request id for a decline or deferral — and `pose setup` lists open and answered requests and can answer and apply them at a terminal.",
+            "path": "pose-update-configuration-review.md",
+            "digest": "sha256:7d295099da7e8f1d8397251b654c60ab191c9af21e6d85de9181afafa91a402e"
+          },
+          {
+            "spec": "pose-v7-legacy-cleanup-plan",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose migrate v7 --dry-run [--json]` inventories, without writing, what a future major would convert, keep or refuse — spec layouts, blocked specs, legacy and unknown review policy keys (an unknown key is reported as a gate that may be silently off), sealed bundles, attestations by identity mode and attribution, and incomplete transfers on this project's side — each with its removal criterion. `--apply` is refused in 6.x, and sealed records are never rewritten. The help catalog now lists `specs facts`, `followups --candidates`, `new-spec --surface`, `action list --present` and `stats governance --waits/--rework`.",
+            "path": "pose-v7-legacy-cleanup-plan.md",
+            "digest": "sha256:9320f8a896245a2c7719a7ccdff79d1d7eb63fdb125ba325a62eb2615d177e69"
+          },
+          {
+            "spec": "pose-validation-check-additions-are-not-material",
+            "category": "changed",
+            "breaking": false,
+            "body": "The structural delta reads `.pose/indexes/validation-matrix.json` by check. A change that only appends newly named checks is reported as non-material `validation-check` facts, so registering a spec's own check no longer owes a causal mapping; every other matrix change, including an added check that reuses an existing name, stays a material `delivery-metadata` fact. The delta parser version is now `pose-design-delta/v2`.",
+            "path": "pose-validation-check-additions-are-not-material.md",
+            "digest": "sha256:7d8fcb0c890bcd4bb15d4c245adbda9308a5af7ccccb50a709287420ac266f4b"
+          }
+        ],
+        "breaking": true,
+        "notes_digest": "sha256:47bde7a650063e71f144d70a4142e5a7c2b2b42e3d9f141b7e796e74fa588fef",
+        "release_input_digest": "sha256:04f8ac1ba35d4c9bf292572610a1f916c8cf7b0fed940c780a25b44f5526eb88",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v7.0.0"
+        }
+      },
+      "events": [],
+      "gaps": []
+    },
     {
       "version": "v6.3.0",
       "state": "prepared",
