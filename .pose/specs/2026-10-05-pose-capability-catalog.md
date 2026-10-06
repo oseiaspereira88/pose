@@ -119,7 +119,9 @@ None.
 
 ### Delivered scope
 
-Not started.
+The capability catalog now records governed capabilities with stable IDs, delivery
+metadata, and explicit decline/defer/adopt outcomes. The catalog is documented and
+excludes self-referential policy files from its capability surface.
 
 ### Residual risks
 
