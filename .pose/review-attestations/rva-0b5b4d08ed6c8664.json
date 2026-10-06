@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-0b5b4d08ed6c8664",
+  "bundle_id": "rvb-f36a9818da184716",
+  "bundle_digest": "sha256:f36a9818da1847160f9d1bf060562ea6fffab121d34ec9ba5fd23b2e5fd7a77a",
+  "reviewer": "agent:claude-sonnet-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Without causality_closeout_adopted_at or overlay_adopted_at behaviour is unchanged; nothing sealed is rewritten, and malformed dates or dates for unlisted overlays are refused."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "POSE.md and its pt-BR and scaffold copies describe both dates; effective governance states them."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Adopting causality closeout or a late overlay no longer charges work already under way; effective governance shows whether a cutoff exists."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Changes stay in causality closeout, overlay selection, review planning and effective governance."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "A spec without a creation date is never exempted, and a scope whose specs cannot be dated is held to the contract, so the exemption cannot be obtained by omission. Same-session review: the implementing session reviewed its own work; this is declared, not an independent review."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/abm-atomic-start-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:claude-sonnet-5-5",
+    "concluded_by": "agent:claude-sonnet-5-5",
+    "confirmed_by": "human:oseias",
+    "applied_by": "agent:claude-sonnet-5-5",
+    "confirmation_mode": "authorized-operation",
+    "confirmation_digest": "sha256:fa792bbb7357db1f34c8bf5079a022db95c1bae64e89ab2ea9c8076210f0d07b"
+  },
+  "attested_at": "2026-10-06T23:17:51Z",
+  "path": ".pose/review-attestations/rva-0b5b4d08ed6c8664.json"
+}
