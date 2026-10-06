@@ -254,14 +254,63 @@ func closeoutAttestTemplate(store posemodel.Store, plan posemodel.CloseoutPlan) 
 		if component == "" {
 			component = "-"
 		}
-		evidence := "check:" + tool.ID
+		disposition := "passed|check:" + tool.ID + "|"
 		if len(tool.EvidenceClasses) > 0 {
-			evidence = pick(tool.EvidenceClasses)
+			matched := ""
+			for _, class := range tool.EvidenceClasses {
+				if ref, ok := byClass[class]; ok {
+					matched = ref
+					break
+				}
+			}
+			switch {
+			case matched != "":
+				disposition = "passed|" + matched + "|"
+			case cliReviewToolHasPrecondition(tool, "delivery-target-declared"):
+				// No sealed evidence of its class and no delivery target in
+				// scope: the tool is deferred, never fed evidence of another
+				// class it would refuse.
+				disposition = "deferred||no delivery target in this scope"
+			case tool.ProducerCoverage == "none":
+				disposition = "not-used||no registered check produces " + strings.Join(tool.EvidenceClasses, "|") + " here"
+			default:
+				disposition = "passed|<" + strings.Join(tool.EvidenceClasses, "|") + " evidence>|"
+			}
 		}
-		parts = append(parts, "--tool '"+tool.ID+"|"+component+"|passed|"+evidence+"|'")
+		parts = append(parts, "--tool '"+tool.ID+"|"+component+"|"+disposition+"'")
 	}
+	pendingIDs := map[string]bool{}
 	for _, pending := range plan.Pending {
+		pendingIDs[pending.Criterion] = true
 		parts = append(parts, "--criterion '"+pending.Criterion+"|passed|"+primary+"|<your conclusion>'")
+	}
+	for _, criterion := range bundle.Payload.Plan.Criteria {
+		// A mechanical criterion with no sealed evidence of its class (a
+		// configuration-only spec) is answered as not applicable, with the
+		// reviewer's reason — never with evidence of another class.
+		if !criterion.Required || pendingIDs[criterion.ID] || len(criterion.EvidenceClasses) == 0 {
+			continue
+		}
+		covered := false
+		for _, class := range criterion.EvidenceClasses {
+			if _, ok := byClass[class]; ok {
+				covered = true
+				break
+			}
+		}
+		if !covered {
+			parts = append(parts, "--criterion '"+criterion.ID+"|not-applicable||<why no "+strings.Join(criterion.EvidenceClasses, "|")+" evidence applies>'")
+		}
+	}
+	if structure := bundle.Payload.Plan.Structure; structure != nil {
+		for _, criterion := range bundle.Payload.Plan.Criteria {
+			if !criterion.RequiresStructuralMapping {
+				continue
+			}
+			for _, fact := range structure.Material {
+				parts = append(parts, "--mapping '"+criterion.ID+"|"+fact.ID+"|<decision that reaches a requirement, e.g. D1>|<why "+fact.Kind+" "+fact.Action+" "+fact.Subject+">'")
+			}
+		}
 	}
 	parts = append(parts, "--apply")
 	return refs, strings.Join(parts, " ")
