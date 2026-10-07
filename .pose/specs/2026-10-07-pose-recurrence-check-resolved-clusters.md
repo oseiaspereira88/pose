@@ -1,8 +1,8 @@
 ---
 slug: pose-recurrence-check-resolved-clusters
-status: in-progress
+status: done
 created_at: 2026-10-07
-completed_at:
+completed_at: 2026-10-07
 supersedes:
 depends_on:
 remediates:

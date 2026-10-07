@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-0ada0403de86404b",
+  "bundle_id": "rvb-331465dff60d88fa",
+  "bundle_digest": "sha256:331465dff60d88fab0a28f811f7f084fec366b014394bdcb98ef6a10ea6b3f86",
+  "reviewer": "agent:claude-sonnet-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-cluster-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-cluster-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-cluster-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-cluster-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-cluster-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The exit code, the flags and --include-pass keep their meaning, and the JSON gains findings with code resolved and one field without removing any. What changes is that a task is no longer flagged for failures a later pass of the same stable_hash settled, so a gate that was red on those may turn green."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-cluster-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The manual in POSE.md, its pt-BR copy and the scaffold copies describe the cluster rule, resolved findings and --include-pass, and the spec records the history it was measured on."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Settled clusters stay visible as resolved findings with their failure count and the time of the pass, and recurrence.resolved_clusters counts them, so nothing is silenced. Against the harne8 history the strict hash is listed as resolved and only the 4 failures of the tolerant hash are still flagged."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-cluster-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Changes stay in cmdRecurrenceCheck, the stable_hash field of the history record, the new test file, the manual and the changelog fragment; flaky tasks that alternate fail and pass are a declared non-goal with a follow-up."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The checker reads the same history files as before and adds no input or write path. A pass of one stable_hash never settles another hash, so a failure cannot be hidden by an unrelated pass. Same-session review: the implementing session reviewed its own work; this is declared, not an independent review."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/recurrence-cluster-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:claude-sonnet-5-5",
+    "concluded_by": "agent:claude-sonnet-5-5",
+    "confirmed_by": "human:oseias",
+    "applied_by": "agent:claude-sonnet-5-5",
+    "confirmation_mode": "authorized-operation",
+    "confirmation_digest": "sha256:9ffad623b9237579381906a8d95a5c4a77e04e829a500dbe5100c7d732b3bd48"
+  },
+  "attested_at": "2026-10-07T07:39:27Z",
+  "path": ".pose/review-attestations/rva-0ada0403de86404b.json"
+}
