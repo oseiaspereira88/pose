@@ -93,16 +93,16 @@ maintainer with a warm toolchain does.
 ## 4. Tasks
 
 ### Planning
-- [ ] Confirm the recovery version number and whether it is a patch or minor
+- [x] Confirm the recovery version number and whether it is a patch or minor (no recovery tag was needed; the regular releases v6.0.0 to v6.2.0 published the artifact set)
 
 ### Implementation
 - [x] Increment 1: Run the snapshot rehearsal and fix whatever it surfaces (R1)
-- [ ] Increment 2: Push the recovery tag and confirm the artifact set (R2)
-- [ ] Increment 3: Clean-container install verification (R3, R4)
+- [x] Increment 2: Push the recovery tag and confirm the artifact set (R2) (done through the regular tags v6.0.0 to v6.2.0)
+- [x] Increment 3: Clean-container install verification (R3, R4) (release-liveness.yml, job installs-on-a-clean-machine, green daily; last run 2026-10-07)
 - [x] Increment 4: Scheduled latest-release liveness check (R5)
 
 ### Validation
-- [ ] Verify from a container with no toolchain and no checkout
+- [x] Verify from a container with no toolchain and no checkout (same job: debian:stable-slim, no Go toolchain, no checkout)
 
 ---
 
@@ -162,7 +162,7 @@ themselves. Those remain unproven until a real tag, which is why R2 stays open.
 
 ### Requirement trace
 - R1 [satisfied] <run 34089740483 surfaced a latent defect that blocked the rehearsal path entirely; fixed and re-run green as 34089934192 — security gate, goreleaser build and artifact identity all pass>
-- R2 [deferred-integration: spec:pose-release-recovery-verification] <requires pushing a recovery tag>
+- R2 [satisfied] <no separate recovery tag was needed: the releases v6.0.0 to v6.2.0 went through the repaired pipeline, and v6.2.0 carries 36 assets — archives for darwin, linux and windows on amd64 and arm64, checksums.txt, six CycloneDX SBOMs, Sigstore bundles, compatibility.json, install.sh and the package-manager manifests; `pose release status --version v6.2.0` reports verified>
 - R3 [satisfied] <.github/workflows/release-liveness.yml, job installer-is-reachable — asserts HTTP 200, a non-empty file and a shebang>
 - R4 [satisfied] <.github/workflows/release-liveness.yml, job installs-on-a-clean-machine — debian:stable-slim, no Go toolchain, no checkout; runs pose version, pose install and pose doctor>
 - R5 [satisfied] <same workflow, daily schedule plus workflow_dispatch; also asserts the latest release carries checksums.txt, install.sh and archives for linux_amd64, darwin_arm64 and windows_amd64>
@@ -202,4 +202,4 @@ themselves. Those remain unproven until a real tag, which is why R2 stays open.
 
 ### Follow-ups
 
-- [open]
+- [open] The liveness check verifies that the installer downloads and the binary runs, but not the checksum or the Sigstore signature of what it downloaded; a daily job that also verified identity would be stronger. (owner:@pose-maintainers crit:low review:2026-11-06)
