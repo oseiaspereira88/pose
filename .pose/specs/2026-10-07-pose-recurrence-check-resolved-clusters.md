@@ -98,6 +98,12 @@ Table tests over history fixtures, plus a run against a copy of the harne8 `stan
 
 ### Requirement trace
 
+- R1 [satisfied] test:TestRecurrenceGroupsResolveFailuresByALaterPassOfTheSameHash test:TestRecurrenceCheckDisclosesResolvedClustersAndExitsClean
+- R2 [satisfied] test:TestRecurrenceGroupsResolveFailuresByALaterPassOfTheSameHash test:TestRecurrenceCheckStillFlagsAnUnresolvedCluster
+- R3 [satisfied] test:TestRecurrenceGroupsResolveFailuresByALaterPassOfTheSameHash test:TestRecurrenceCheckStillFlagsAnUnresolvedCluster
+- R4 [satisfied] test:TestRecurrenceCheckDisclosesResolvedClustersAndExitsClean
+- R5 [satisfied] test:TestRecurrenceGroupsResolveFailuresByALaterPassOfTheSameHash
+
 ### Known gaps
 - A flaky task that alternates fail and pass is not flagged.
 
