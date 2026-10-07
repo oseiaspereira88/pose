@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:449c485a8660053203353fe7d8ca5dca5cf49b02c746caa68e3e5379dd9fd84d",
-  "provenance_digest": "sha256:44551ca9fd0aafd297d43489d22605f136238d55a806a792c095b5c703f6049a",
+  "input_digest": "sha256:48ed11d078bdee07e217fe5f8bb943b68b18fb6dcece11a251bb12271e74c923",
+  "provenance_digest": "sha256:e02f2b7eba0bc655fab8773eff4b1d58d0dadefd0210325694d0790323e38922",
   "implied_edges": [
     "changes"
   ],
@@ -24762,14 +24762,6 @@
       }
     },
     {
-      "id": "change-set:cs-2a12a94b85e3",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:a6ef13937ca13e4fc851e5baca15b69d51f86ec404a61c2e49a220df00731d40",
-        "selector": "trailers:pose-atomic-start-adoption-cutoff"
-      }
-    },
-    {
       "id": "change-set:cs-2a26206dcf3a",
       "type": "change-set",
       "attributes": {
@@ -25407,6 +25399,14 @@
       "attributes": {
         "diff_digest": "sha256:9e9d729e9dafca940163df8152b14f5f2d929321a786c5a43984f358aad511d6",
         "selector": "trailers:pose-abm-authority-fixture-clock"
+      }
+    },
+    {
+      "id": "change-set:cs-583be1215cd7",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:e5f9ff03c90d6f0742118026d6710087bc96b81318cd65c67a8610cf63337d87",
+        "selector": "trailers:pose-atomic-start-adoption-cutoff"
       }
     },
     {
@@ -63878,7 +63878,7 @@
     },
     {
       "from": "spec:pose-atomic-start-adoption-cutoff",
-      "to": "change-set:cs-2a12a94b85e3",
+      "to": "change-set:cs-583be1215cd7",
       "type": "observed-by"
     },
     {
@@ -110243,363 +110243,6 @@
       "diff_digest": "sha256:80be1ab77e2738eb24ffeff16cfdb3875253144b971e38ab9bedcf84171292e4"
     },
     {
-      "id": "cs-2a12a94b85e3",
-      "spec": "pose-atomic-start-adoption-cutoff",
-      "selector": "trailers:pose-atomic-start-adoption-cutoff",
-      "base": "68cc4ef863bad2edd83394d3d499357bad587c6d^",
-      "head": "bf6df5bb35a2b7fe749a49f6274835080802a63e",
-      "resolved_base": "176349941c212663c981440aa7c9603a4cb559b0",
-      "resolved_head": "bf6df5bb35a2b7fe749a49f6274835080802a63e",
-      "commits": [
-        "68cc4ef863bad2edd83394d3d499357bad587c6d",
-        "06ef65ccf185891e5cd6150a48d9c1d72f9c3f33",
-        "7c6cd636fce80d22148e336f26fcc8fda2724c47",
-        "49e3aeaeef7afbbcda91d95f57c3f7d4e0bc93ff",
-        "bf6df5bb35a2b7fe749a49f6274835080802a63e"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/v7.0.0.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/changelogs/v7.0.0/pose-atomic-start-adoption-cutoff.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/releases/v7.0.0/manifest.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-36329fdd8f4999c8.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-4e1042af038a2e8a.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-14a18e9c5ad759bc.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-d8fd40cb3e1dc163.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-10-05-pose-atomic-start-adoption-cutoff.amendments.jsonl"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-10-05-pose-atomic-start-adoption-cutoff.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_bundle_start_record_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/start_cutoff_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/policy/actions.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/actions/act-fa1d72f029d567a0.jsonl"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/roadmaps.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/effective_governance.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_closeout.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/start.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-action-request-presentation.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-action-request-presentation.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-action-request-resolution.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-action-request-resolution.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-action-requests.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-action-requests.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-adaptive-assessment-freshness.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-adaptive-assessment-freshness.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-assumption-validity-scope.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-assumption-validity-scope.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-attention-federated-parity.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-attention-federated-parity.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-attest-refuses-what-verify-rejects.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-attest-refuses-what-verify-rejects.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-authority-claim-project-is-not-the-audience.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-authority-claim-project-is-not-the-audience.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-blocked-semantics-alignment.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-blocked-semantics-alignment.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-capability-catalog.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-capability-catalog.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-causality-closeout-adoption-cutoff.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-causality-closeout-adoption-cutoff.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-effective-governance-projection.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-effective-governance-projection.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-falsifier-reconsideration.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-falsifier-reconsideration.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-flat-spec-amendments.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-flat-spec-amendments.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-followup-dispositions-accept-qualified-refs.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-followup-dispositions-accept-qualified-refs.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-followup-reconciliation-candidates.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-followup-reconciliation-candidates.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-fresh-install-doctor-is-clean.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-fresh-install-doctor-is-clean.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-governance-wait-rework-observability.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-governance-wait-rework-observability.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-governed-capabilities-default-on-new-instances.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-governed-capabilities-default-on-new-instances.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-governed-effect-enforcement.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-governed-effect-enforcement.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-init-is-install.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-init-is-install.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-install-and-upgrade-journeys.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-install-and-upgrade-journeys.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-legacy-contract-cutoffs.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-legacy-contract-cutoffs.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-material-equivalence-reuse.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-material-equivalence-reuse.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-mcp-action-resolve-signed-only.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-mcp-action-resolve-signed-only.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-obligation-contract.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-obligation-contract.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-obligation-projection.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-obligation-projection.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-onboarding-spec.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-onboarding-spec.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-phase-scoped-readiness.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-phase-scoped-readiness.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-progressive-spec-surface.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-progressive-spec-surface.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-project-binding-consistency.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-project-binding-consistency.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-project-identity-file.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-project-identity-file.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-public-claims-publication-provenance.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-public-claims-publication-provenance.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-quickstart-real-lifecycle.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-quickstart-real-lifecycle.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-recoverable-closeout-plan.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-recoverable-closeout-plan.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-review-assurance-disclosure.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-review-assurance-disclosure.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-review-attribution-roles.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-review-attribution-roles.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-setup-command.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-setup-command.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-signed-action-answers.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-signed-action-answers.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-spec-surface-single-key.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-spec-surface-single-key.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-state-attention.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-state-attention.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-transfer-preserves-obligations.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-transfer-preserves-obligations.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-typed-producer-diagnostics.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-typed-producer-diagnostics.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-update-configuration-review.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-update-configuration-review.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-v7-legacy-cleanup-plan.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-v7-legacy-cleanup-plan.md"
-        },
-        {
-          "action": "renamed",
-          "old_path": ".pose/changelogs/unreleased/pose-validation-check-additions-are-not-material.md",
-          "new_path": ".pose/changelogs/v7.0.0/pose-validation-check-additions-are-not-material.md"
-        }
-      ],
-      "diff_digest": "sha256:a6ef13937ca13e4fc851e5baca15b69d51f86ec404a61c2e49a220df00731d40"
-    },
-    {
       "id": "cs-2a26206dcf3a",
       "spec": "pose-sbom-license-inventory",
       "selector": "trailers:pose-sbom-license-inventory",
@@ -123393,6 +123036,364 @@
         }
       ],
       "diff_digest": "sha256:9e9d729e9dafca940163df8152b14f5f2d929321a786c5a43984f358aad511d6"
+    },
+    {
+      "id": "cs-583be1215cd7",
+      "spec": "pose-atomic-start-adoption-cutoff",
+      "selector": "trailers:pose-atomic-start-adoption-cutoff",
+      "base": "68cc4ef863bad2edd83394d3d499357bad587c6d^",
+      "head": "d496c3cf78f0947764dc502cae2466409e216761",
+      "resolved_base": "176349941c212663c981440aa7c9603a4cb559b0",
+      "resolved_head": "d496c3cf78f0947764dc502cae2466409e216761",
+      "commits": [
+        "68cc4ef863bad2edd83394d3d499357bad587c6d",
+        "06ef65ccf185891e5cd6150a48d9c1d72f9c3f33",
+        "7c6cd636fce80d22148e336f26fcc8fda2724c47",
+        "49e3aeaeef7afbbcda91d95f57c3f7d4e0bc93ff",
+        "bf6df5bb35a2b7fe749a49f6274835080802a63e",
+        "d496c3cf78f0947764dc502cae2466409e216761"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/v7.0.0.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/changelogs/v7.0.0/pose-atomic-start-adoption-cutoff.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/releases/v7.0.0/manifest.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-36329fdd8f4999c8.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-4e1042af038a2e8a.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-14a18e9c5ad759bc.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-d8fd40cb3e1dc163.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-10-05-pose-atomic-start-adoption-cutoff.amendments.jsonl"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-10-05-pose-atomic-start-adoption-cutoff.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_bundle_start_record_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/start_cutoff_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/policy/actions.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/actions/act-fa1d72f029d567a0.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/effective_governance.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/start.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-action-request-presentation.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-action-request-presentation.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-action-request-resolution.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-action-request-resolution.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-action-requests.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-action-requests.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-adaptive-assessment-freshness.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-adaptive-assessment-freshness.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-assumption-validity-scope.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-assumption-validity-scope.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-attention-federated-parity.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-attention-federated-parity.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-attest-refuses-what-verify-rejects.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-attest-refuses-what-verify-rejects.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-authority-claim-project-is-not-the-audience.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-authority-claim-project-is-not-the-audience.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-blocked-semantics-alignment.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-blocked-semantics-alignment.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-capability-catalog.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-capability-catalog.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-causality-closeout-adoption-cutoff.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-causality-closeout-adoption-cutoff.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-effective-governance-projection.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-effective-governance-projection.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-falsifier-reconsideration.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-falsifier-reconsideration.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-flat-spec-amendments.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-flat-spec-amendments.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-followup-dispositions-accept-qualified-refs.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-followup-dispositions-accept-qualified-refs.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-followup-reconciliation-candidates.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-followup-reconciliation-candidates.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-fresh-install-doctor-is-clean.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-fresh-install-doctor-is-clean.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-governance-wait-rework-observability.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-governance-wait-rework-observability.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-governed-capabilities-default-on-new-instances.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-governed-capabilities-default-on-new-instances.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-governed-effect-enforcement.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-governed-effect-enforcement.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-init-is-install.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-init-is-install.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-install-and-upgrade-journeys.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-install-and-upgrade-journeys.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-legacy-contract-cutoffs.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-legacy-contract-cutoffs.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-material-equivalence-reuse.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-material-equivalence-reuse.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-mcp-action-resolve-signed-only.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-mcp-action-resolve-signed-only.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-obligation-contract.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-obligation-contract.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-obligation-projection.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-obligation-projection.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-onboarding-spec.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-onboarding-spec.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-phase-scoped-readiness.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-phase-scoped-readiness.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-progressive-spec-surface.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-progressive-spec-surface.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-project-binding-consistency.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-project-binding-consistency.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-project-identity-file.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-project-identity-file.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-public-claims-publication-provenance.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-public-claims-publication-provenance.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-quickstart-real-lifecycle.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-quickstart-real-lifecycle.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-recoverable-closeout-plan.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-recoverable-closeout-plan.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-review-assurance-disclosure.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-review-assurance-disclosure.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-review-attribution-roles.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-review-attribution-roles.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-setup-command.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-setup-command.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-signed-action-answers.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-signed-action-answers.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-spec-surface-single-key.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-spec-surface-single-key.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-state-attention.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-state-attention.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-transfer-preserves-obligations.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-transfer-preserves-obligations.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-typed-producer-diagnostics.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-typed-producer-diagnostics.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-update-configuration-review.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-update-configuration-review.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-v7-legacy-cleanup-plan.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-v7-legacy-cleanup-plan.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-validation-check-additions-are-not-material.md",
+          "new_path": ".pose/changelogs/v7.0.0/pose-validation-check-additions-are-not-material.md"
+        }
+      ],
+      "diff_digest": "sha256:e5f9ff03c90d6f0742118026d6710087bc96b81318cd65c67a8610cf63337d87"
     },
     {
       "id": "cs-590404b4d128",
