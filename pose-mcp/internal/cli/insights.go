@@ -24,6 +24,7 @@ type historyRecord struct {
 	TaskSlug    string `json:"task_slug"`
 	Context     string `json:"context"`
 	ReportType  string `json:"report_type"`
+	StableHash  string `json:"stable_hash"`
 	// Optional telemetry (spec pose-recurrence-effectiveness): absent fields
 	// yield partial metrics, never fabricated ones.
 	DurationSeconds *float64 `json:"duration_seconds,omitempty"`
@@ -113,40 +114,17 @@ func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) in
 	defer gate.Close()
 	records, _ := readHistory(root, stderr)
 	cutoff := time.Now().UTC().AddDate(0, 0, -days)
-	buckets := map[string][]historyRecord{}
-	for _, r := range records {
-		t, ok := parseHistoryTime(r.GeneratedAt)
-		if !ok || t.Before(cutoff) || (!includePass && r.Outcome == "pass") {
-			continue
-		}
-		task := r.TaskSlug
-		if task == "" {
-			task = "<unknown>"
-		}
-		typ := r.ReportType
-		if typ == "" {
-			typ = "standard"
-		}
-		key := task + "\x00" + typ
-		buckets[key] = append(buckets[key], r)
-	}
-	keys := make([]string, 0, len(buckets))
-	for k := range buckets {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
+	groups, resolved := recurrenceGroups(records, cutoff, includePass)
 	flagged := 0
-	for _, k := range keys {
-		rs := buckets[k]
-		if len(rs) < threshold {
+	for _, g := range groups {
+		if len(g.records) < threshold {
 			continue
 		}
 		flagged++
-		parts := strings.Split(k, "\x00")
 		counts := map[string]int{}
 		latest := ""
 		workflow := ""
-		for _, r := range rs {
+		for _, r := range g.records {
 			o := r.Outcome
 			if o == "" {
 				o = "unknown"
@@ -168,7 +146,7 @@ func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) in
 		for _, n := range names {
 			summary = append(summary, fmt.Sprintf("%s=%d", n, counts[n]))
 		}
-		message := fmt.Sprintf("%d runs in %dd; outcomes=%s; latest=%s", len(rs), days, strings.Join(summary, ", "), latest)
+		message := fmt.Sprintf("%d runs in %dd; outcomes=%s; latest=%s", len(g.records), days, strings.Join(summary, ", "), latest)
 		if workflow != "" {
 			message += "; workflow=" + workflow
 		}
@@ -176,8 +154,15 @@ func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) in
 		if mode == "strict" {
 			state = cliout.StateError
 		}
-		gate.r.Finding(cliout.Finding{State: state, Code: "recurrent", Path: parts[0] + " (" + parts[1] + ")", Message: message})
+		gate.r.Finding(cliout.Finding{State: state, Code: "recurrent", Path: g.task + " (" + g.reportType + ")", Message: message})
 	}
+	// A cluster that a later pass resolved is not an incident, and it is not
+	// hidden either (spec pose-recurrence-check-resolved-clusters).
+	for _, c := range resolved {
+		gate.r.Finding(cliout.Finding{State: cliout.StateInfo, Code: "resolved", Path: c.task + " (" + c.reportType + ")",
+			Message: fmt.Sprintf("%s: %d failed run(s) in %dd, resolved by a pass at %s", c.hashLabel(), c.failures, days, c.passAt)})
+	}
+	gate.Field("recurrence.resolved_clusters", strconv.Itoa(len(resolved)))
 	gate.Field("recurrence.window_days", strconv.Itoa(days))
 	gate.Field("recurrence.threshold", strconv.Itoa(threshold))
 	gate.Field("recurrence.records_scanned", strconv.Itoa(len(records)))
@@ -200,6 +185,107 @@ func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) in
 		return 1
 	}
 	return 0
+}
+
+// recurrenceGroup is the unresolved failure records of one task and report
+// type, summed over its stable_hash clusters.
+type recurrenceGroup struct {
+	task, reportType string
+	records          []historyRecord
+}
+
+// resolvedCluster is a stable_hash cluster whose failures a later pass settled.
+type resolvedCluster struct {
+	task, reportType, hash string
+	failures               int
+	passAt                 string
+}
+
+func (c resolvedCluster) hashLabel() string {
+	if c.hash == "" {
+		return "no stable_hash"
+	}
+	if len(c.hash) > 8 {
+		return "stable_hash " + c.hash[:8]
+	}
+	return "stable_hash " + c.hash
+}
+
+// recurrenceGroups groups the window's history by task, report type and
+// stable_hash. A pass settles the failures of its own cluster that precede it;
+// what a cluster failed after its latest pass, or without any pass, is
+// unresolved and counts toward the task. A pass never settles another hash.
+// With includePass the checker keeps its earlier meaning and counts every
+// record of the task.
+func recurrenceGroups(records []historyRecord, cutoff time.Time, includePass bool) ([]recurrenceGroup, []resolvedCluster) {
+	type clusterKey struct{ task, typ, hash string }
+	clusters := map[clusterKey][]historyRecord{}
+	for _, r := range records {
+		t, ok := parseHistoryTime(r.GeneratedAt)
+		if !ok || t.Before(cutoff) {
+			continue
+		}
+		task := r.TaskSlug
+		if task == "" {
+			task = "<unknown>"
+		}
+		typ := r.ReportType
+		if typ == "" {
+			typ = "standard"
+		}
+		k := clusterKey{task, typ, r.StableHash}
+		if includePass {
+			k.hash = ""
+		}
+		clusters[k] = append(clusters[k], r)
+	}
+	byTask := map[[2]string]*recurrenceGroup{}
+	var resolved []resolvedCluster
+	for k, rs := range clusters {
+		sort.SliceStable(rs, func(i, j int) bool {
+			ti, _ := parseHistoryTime(rs[i].GeneratedAt)
+			tj, _ := parseHistoryTime(rs[j].GeneratedAt)
+			return ti.Before(tj)
+		})
+		var failed []historyRecord
+		failures, passAt := 0, ""
+		for _, r := range rs {
+			if r.Outcome == "pass" && !includePass {
+				if len(failed) > 0 {
+					failures, passAt = failures+len(failed), r.GeneratedAt
+				}
+				failed = nil
+				continue
+			}
+			failed = append(failed, r)
+		}
+		if len(failed) == 0 && failures == 0 {
+			continue
+		}
+		if failures > 0 && len(failed) == 0 {
+			resolved = append(resolved, resolvedCluster{task: k.task, reportType: k.typ, hash: k.hash, failures: failures, passAt: passAt})
+		}
+		if len(failed) == 0 {
+			continue
+		}
+		gk := [2]string{k.task, k.typ}
+		if byTask[gk] == nil {
+			byTask[gk] = &recurrenceGroup{task: k.task, reportType: k.typ}
+		}
+		byTask[gk].records = append(byTask[gk].records, failed...)
+	}
+	groups := make([]recurrenceGroup, 0, len(byTask))
+	for _, g := range byTask {
+		groups = append(groups, *g)
+	}
+	sort.Slice(groups, func(i, j int) bool {
+		return groups[i].task+"\x00"+groups[i].reportType < groups[j].task+"\x00"+groups[j].reportType
+	})
+	sort.Slice(resolved, func(i, j int) bool {
+		a, b := resolved[i], resolved[j]
+		return a.task+"\x00"+a.reportType+"\x00"+a.hash < b.task+"\x00"+b.reportType+"\x00"+b.hash
+	})
+	return groups, resolved
 }
 
 type statRow = posepkg.InsightRow

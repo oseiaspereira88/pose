@@ -1,6 +1,6 @@
 ---
 slug: pose-recurrence-check-resolved-clusters
-status: draft
+status: in-progress
 created_at: 2026-10-07
 completed_at:
 supersedes:
@@ -23,7 +23,7 @@ Make `pose recurrence-check` flag a failure cluster only while its latest outcom
 
 ### Business value
 
-The checker counts every `fail` record of a task and ignores `pass` records, so a development attempt that failed and was then fixed counts as an unresolved incident. In harne8 the strict gate has flagged `validate-native` (standard) with 24 failures between 2026-09-26 and 2026-09-28 although the last record of each of its two `stable_hash` values is `pass` (2026-09-30). The recurrence workflow already says that a failed attempt followed by a pass is evidence but not an uncovered incident; the checker contradicts it. The decision log `escalation-validate-native` deferred this fix on 2026-08-21, its TTL lapsed on 2026-09-20 and was renewed on 2026-10-07 with a deadline of 2026-11-06. Meanwhile the gate turns CI red for a signal that ages out only after the window, which trains people to silence it by hand.
+The checker counts every `fail` record of a task and ignores `pass` records, so a development attempt that failed and was then fixed counts as an unresolved incident. In harne8 the strict gate has flagged `validate-native` (standard) with 24 failures between 2026-09-26 and 2026-09-28, 20 of them from the strict-profile hash `5b47855e`, whose latest record is a `pass` (2026-09-30); the other 4 belong to the tolerant-profile hash `5698000d`, which has not run since 2026-09-26. The recurrence workflow already says that a failed attempt followed by a pass is evidence but not an uncovered incident; the checker contradicts it. The decision log `escalation-validate-native` deferred this fix on 2026-08-21, its TTL lapsed on 2026-09-20 and was renewed on 2026-10-07 with a deadline of 2026-11-06. Meanwhile the gate turns CI red for a signal that ages out only after the window, which trains people to silence it by hand.
 
 ### Constraints
 
@@ -41,7 +41,7 @@ Deciding why the attempts failed. Detecting a flaky task that alternates fail an
 - R1: When every failure of a cluster (`task_slug`, `report_type`, `stable_hash`) inside the window is followed by a `pass` of the same cluster, `pose recurrence-check` shall not flag that cluster.
 - R2: When a cluster has `--threshold` or more failures after its latest `pass` in the window, or has no `pass` in the window, `pose recurrence-check` shall flag it, as today.
 - R3: When a `pass` of one `stable_hash` exists, the checker shall not use it to resolve failures of a different `stable_hash` of the same task.
-- R4: The checker shall list the clusters it did not flag because a later `pass` resolved them, with their failure count and the time of the resolving `pass`, in the human report and in the `--json` document, and shall keep `recurrence.flagged_keys` counting only flagged clusters.
+- R4: The checker shall list the clusters it did not flag because a later `pass` resolved them, with their failure count and the time of the resolving `pass`, in the human report and in the `--json` document (findings with code `resolved`), and shall keep `recurrence.flagged_keys` counting only flagged clusters.
 - R5: A record without `stable_hash` shall form one cluster with the other records of the same task and report type, so existing histories keep their meaning.
 
 ### Non-functional
@@ -51,7 +51,7 @@ Deciding why the attempts failed. Detecting a flaky task that alternates fail an
 - The checker only reads history files already read today.
 
 ### Compatibility
-- The JSON document gains a field and loses none; `--include-pass` keeps its meaning.
+- The JSON document gains findings and a field and loses none; `--include-pass` keeps its meaning.
 
 ---
 
@@ -63,6 +63,7 @@ Deciding why the attempts failed. Detecting a flaky task that alternates fail an
 ### Artifacts
 - created: .pose/specs/2026-10-07-pose-recurrence-check-resolved-clusters.md
 - modified: pose-mcp/internal/cli/insights.go
+- created: .pose/changelogs/unreleased/pose-recurrence-check-resolved-clusters.md
 - created: pose-mcp/internal/cli/recurrence_check_clusters_test.go
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
@@ -72,7 +73,7 @@ Deciding why the attempts failed. Detecting a flaky task that alternates fail an
 ### Delivery targets
 
 ### API/contract changes
-- The output of `pose recurrence-check` lists resolved clusters; `--json` adds a `resolved` array.
+- The output of `pose recurrence-check` lists resolved clusters as findings with code `resolved` (severity `info`), and `recurrence.resolved_clusters` counts them.
 
 ### Data/storage changes
 - None.
@@ -86,7 +87,7 @@ Deciding why the attempts failed. Detecting a flaky task that alternates fail an
 
 ### Strategy
 
-Table tests over history fixtures, plus a run against a copy of the harne8 `standard-validate-native.jsonl`, which must flag nothing and list both hashes as resolved.
+Table tests over history fixtures, plus a run against a copy of the harne8 `standard-validate-native.jsonl`, which must list the strict hash as resolved and flag only the 4 failures of the tolerant hash.
 
 ### Deterministic checks
 
