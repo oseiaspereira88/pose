@@ -10,7 +10,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 surface: minimal
-delivers:
+delivers: capability:recurrence-cluster-resolution
 ---
 
 # Spec: recurrence-check judges resolved failure clusters, not attempts
@@ -63,6 +63,7 @@ Deciding why the attempts failed. Detecting a flaky task that alternates fail an
 ### Artifacts
 - created: .pose/specs/2026-10-07-pose-recurrence-check-resolved-clusters.md
 - modified: pose-mcp/internal/cli/insights.go
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-recurrence-check-resolved-clusters.md
 - created: pose-mcp/internal/cli/recurrence_check_clusters_test.go
 - modified: POSE.md
@@ -71,6 +72,8 @@ Deciding why the attempts failed. Detecting a flaky task that alternates fail an
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
+
+- capability:recurrence-cluster-resolution module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### API/contract changes
 - The output of `pose recurrence-check` lists resolved clusters as findings with code `resolved` (severity `info`), and `recurrence.resolved_clusters` counts them.
@@ -92,17 +95,17 @@ Table tests over history fixtures, plus a run against a copy of the harne8 `stan
 ### Deterministic checks
 
 #### Test
-- Command: `go test ./internal/cli -run RecurrenceCheck`
+- Command: `go test ./internal/cli -run Recurrence`
 - Scope: pose-mcp
 - Expected: `fail then pass` does not flag; `fail, fail, fail` flags; distinct hashes do not resolve each other; a record without hash clusters with its task; resolved clusters are disclosed.
 
 ### Requirement trace
 
-- R1 [satisfied] test:TestRecurrenceGroupsResolveFailuresByALaterPassOfTheSameHash test:TestRecurrenceCheckDisclosesResolvedClustersAndExitsClean
-- R2 [satisfied] test:TestRecurrenceGroupsResolveFailuresByALaterPassOfTheSameHash test:TestRecurrenceCheckStillFlagsAnUnresolvedCluster
-- R3 [satisfied] test:TestRecurrenceGroupsResolveFailuresByALaterPassOfTheSameHash test:TestRecurrenceCheckStillFlagsAnUnresolvedCluster
-- R4 [satisfied] test:TestRecurrenceCheckDisclosesResolvedClustersAndExitsClean
-- R5 [satisfied] test:TestRecurrenceGroupsResolveFailuresByALaterPassOfTheSameHash
+- R1 [satisfied] test:TestRecurrenceGroupsResolveFailuresByALaterPassOfTheSameHash test:TestRecurrenceCheckDisclosesResolvedClustersAndExitsClean check:recurrence-cluster-integration
+- R2 [satisfied] test:TestRecurrenceGroupsResolveFailuresByALaterPassOfTheSameHash test:TestRecurrenceCheckStillFlagsAnUnresolvedCluster check:recurrence-cluster-integration
+- R3 [satisfied] test:TestRecurrenceGroupsResolveFailuresByALaterPassOfTheSameHash test:TestRecurrenceCheckStillFlagsAnUnresolvedCluster check:recurrence-cluster-integration
+- R4 [satisfied] test:TestRecurrenceCheckDisclosesResolvedClustersAndExitsClean check:recurrence-cluster-integration
+- R5 [satisfied] test:TestRecurrenceGroupsResolveFailuresByALaterPassOfTheSameHash check:recurrence-cluster-integration
 
 ### Known gaps
 - A flaky task that alternates fail and pass is not flagged.

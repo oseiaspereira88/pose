@@ -1722,6 +1722,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "recurrence-cluster-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "Recurrence",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "project-identity-integration",
           "program": "go",
           "args": [
