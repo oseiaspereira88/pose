@@ -118,8 +118,8 @@ fails, so this spec blocks the whole `community-launch` roadmap.
 ### Validation
 - [x] Run the gitleaks gate exactly as CI invokes it
 - [x] Run the full `pose-mcp` test suite
-- [ ] Rehearse the pipeline end to end via `workflow_dispatch` snapshot
-- [ ] Confirm a tagged release publishes its artifact set
+- [x] Rehearse the pipeline end to end via `workflow_dispatch` snapshot (run 34089934192, recorded as R1 of `pose-release-recovery-verification`)
+- [x] Confirm a tagged release publishes its artifact set (v6.0.0 to v6.2.0 were published; v6.2.0 carries 36 assets and `pose release status --version v6.2.0` reports verified)
 
 ---
 
@@ -231,11 +231,10 @@ transition from failing to passing is caused by these changes.
 - R6 [satisfied] check:shallow-clone-repro — a depth-1 clone produces 256 `pose check --strict` errors against 0 on a full clone; `fetch-depth: 0` added to the governance job
 
 ### Known gaps
-- The steps after the security gate (cosign signing, goreleaser publish,
-  `verify.sh`, package-manager manifests) have not executed since v1.6.0.
-  They are unproven against the current tree, not known-broken. The snapshot
-  rehearsal in `pose-release-recovery-verification` exists to surface any
-  latent failure there before a real tag is pushed.
+- None. The steps after the security gate (cosign signing, goreleaser publish,
+  `verify.sh`, package-manager manifests) were unproven when this spec was
+  written; the snapshot rehearsal and the releases v6.0.0 to v6.2.0 have since
+  executed them.
 
 ---
 
@@ -264,14 +263,16 @@ are separate, independently verifiable steps.
   on it, exactly as with the ten failed releases. Two independent automated
   signals were screaming and neither reached a human. Whatever notification
   gap causes that is the real defect; the two fixes here only remove today's
-  noise.
+  noise. (owner:@pose-maintainers crit:medium review:2026-11-06)
 - [open] The release workflow fails silently: ten consecutive failed releases
   produced no notification, and the drift was found only by an audit. A failed
-  release on a tag should page the maintainer.
+  release on a tag should page the maintainer. No workflow in this repository
+  alerts on a failed release as of 2026-10-07.
+  (owner:@pose-maintainers crit:high review:2026-11-06)
 - [covered: pose-dependabot-runtime-repair] The bump now has its runtime record refreshed by the repair workflow. Confirmed by the maintainer on 2026-10-05 (pose-open-backlog-reconciliation, Decision 5). Original item: Dependabot bumps action SHAs without refreshing
   `.github/action-runtimes.json`, so every actions bump breaks `main` until
   fixed by hand. Either teach the bump to refresh the record, or gate the
   dependabot PR on the same test so it never merges red.
-- [open] `.harne8-agent-sync.json` is still tracked in the parent `harne8`
-  repository. The same false positive will surface there if it ever runs an
-  equivalent history scan.
+- [done] `.harne8-agent-sync.json` is no longer tracked in the parent `harne8`
+  repository (`git ls-files` lists nothing and the file is ignored), so the
+  false positive cannot surface there.
