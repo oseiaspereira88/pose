@@ -1,8 +1,8 @@
 ---
 slug: pose-mcp-review-attest-signed-only
-status: in-progress
+status: done
 created_at: 2026-10-08
-completed_at:
+completed_at: 2026-10-08
 supersedes:
 depends_on: pose-review-attribution-roles, pose-mcp-action-resolve-signed-only
 remediates:
@@ -139,5 +139,7 @@ The tool driven over HTTP JSON-RPC on a fixture with a sealed bundle and a trust
 `pose_review_attest` (governance-write): a preview that completes a draft attestation as recording would, binding the confirmation digest when it names `confirmed_by`, and returns the exact signing bytes with the blockers verify would report; with `apply`, recording only from a trusted issuer's envelope, the same verification and record path as `pose review attest --envelope` (now shared through `RecordReviewAttestationEnvelope`). Recording and preview share `completeReviewAttestation`, so a signed preview records under the id it was signed with.
 
 ### Residual risks
+
+Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent. The install-and-upgrade journey fails at origin/main as well (the update from the published 7.0.0 opens no configuration review), outside this scope.
 
 ### Follow-ups

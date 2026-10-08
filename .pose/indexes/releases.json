@@ -1,6 +1,14 @@
 {
   "pending": [
     {
+      "spec": "pose-mcp-review-attest-signed-only",
+      "category": "added",
+      "breaking": false,
+      "body": "New MCP tool `pose_review_attest` records a review attestation only inside a trusted issuer's envelope, the same proof `pose review attest --envelope` verifies. Its preview completes a draft for a sealed bundle, binding the confirmation to the exact conclusions when it names a confirming person, and returns the bytes to sign; a call that applies without an envelope is refused under any identity assurance. A trusted channel such as the Harne8 issuer can now deliver a person's confirmation of review conclusions over MCP.",
+      "path": "pose-mcp-review-attest-signed-only.md",
+      "digest": "sha256:e05630f06f377c48bb4dbcd467bbceeedfb7e535234cac2bf9052e738122f626"
+    },
+    {
       "spec": "pose-recurrence-check-resolved-clusters",
       "category": "fixed",
       "breaking": false,
@@ -12,7 +20,7 @@
   "releases": [
     {
       "version": "v7.0.0",
-      "state": "prepared",
+      "state": "tagged",
       "manifest": {
         "schema_version": 1,
         "version": "v7.0.0",

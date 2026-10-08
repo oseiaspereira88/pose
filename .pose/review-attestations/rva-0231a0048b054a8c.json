@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-0231a0048b054a8c",
+  "bundle_id": "rvb-c408d7fa1bb0fbdf",
+  "bundle_digest": "sha256:c408d7fa1bb0fbdfdb23618f4bc094b14979087903d2a6993c63456b8c44f16a",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-0668acf2ee18d2e9",
+      "rationale": "Additive: a governance-write pose_review_attest and a read-only pose_review_prepare. The CLI, the recorded attestation format, the envelope and claim formats are unchanged; recording and the CLI envelope import now share completeReviewAttestation and RecordReviewAttestationEnvelope, and the existing review and attribution suites pass unchanged."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-0668acf2ee18d2e9",
+      "rationale": "POSE.md, the pt-BR manual, both scaffold copies and docs-site mcp.md name both tools, the proof requirement and the read-only preparation; the catalog golden and the docs conformance test hold them to the advertised set."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "The preview returns the exact bytes an issuer signs and the blockers verify would report, so a channel sees a refusal before signing; refusals name the binding that failed. Full native run at the sealed head with the candidate CLI built from it: 122 of 123 steps pass. The one failure, install-and-upgrade-journeys-integration (the update did not open a configuration review), fails identically on origin/main 25ed81e without this change, run with POSE_JOURNEYS=1 in a separate worktree."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-0668acf2ee18d2e9",
+      "rationale": "Two MCP tools, one shared completion function extracted from recording, an exported envelope record path, tests, a matrix check, manuals and a fragment. Verification semantics are untouched. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "The server holds no key; an apply without a trusted issuer's envelope is refused under any assurance, an untrusted key or content changed after signing is refused with nothing recorded, and an agent confirmation stays declared."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --strict with the candidate CLI exited 0: 15 claims against 15 observed paths; the remaining findings are repository-wide orphans."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-0668acf2ee18d2e9",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "pose assess integrate ran with the candidate CLI and exited 0."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "surface-check --strict exited 0: one capability target, 123 results, 0 findings; mcp-review-attest-integration drives the tools over JSON-RPC and the engine path."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 122 of 123 steps pass. The one failure, install-and-upgrade-journeys-integration (the update did not open a configuration review), fails identically on origin/main 25ed81e without this change, run with POSE_JOURNEYS=1 in a separate worktree."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares no check for docs-site (producer_coverage none); the manual change is held by the docs conformance test in pose-mcp."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "pose-mcp tests, build and every pose-mcp integration check passed in the sealed run, including mcp-review-attest-integration."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/mcp-action-resolve-integration",
+    "integration:pose-mcp/go/mcp-review-attest-integration",
+    "structure:design-0668acf2ee18d2e9",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-08T15:09:11Z",
+  "path": ".pose/review-attestations/rva-0231a0048b054a8c.json"
+}
