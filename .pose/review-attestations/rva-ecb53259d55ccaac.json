@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-ecb53259d55ccaac",
+  "bundle_id": "rvb-4e55c6d489876bfe",
+  "bundle_digest": "sha256:4e55c6d489876bfe61ca4418ae4c33f3e031ccb69cf50fe3f001957e728ec2dc",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-7883703fb240f2d7",
+      "rationale": "Test-only change; --previous and POSE_PREVIOUS_RELEASE still override the choice, and the asserted states after the update are unchanged."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-7883703fb240f2d7",
+      "rationale": "The script comment and the spec explain why the journey must start below the engine's version, with the CI history that showed it."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "The journey upgrades from v6.2.0 to the 7.0.0 build and passes in the full native run (123 of 123); with no older release it fails naming the reason."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-7883703fb240f2d7",
+      "rationale": "One test script and its spec. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-7883703fb240f2d7",
+      "rationale": "The downloaded archive is still verified against checksums.txt; drafts and pre-releases are never chosen."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --strict with the candidate CLI exited 0; claims and observed paths reconcile."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-7883703fb240f2d7",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Full native run at the sealed head with the candidate CLI: 123 of 123 steps pass, including install-and-upgrade-journeys-integration, which failed at 7f67249 before this change."
+    },
+    {
+      "id": "validate",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares no check for tests (producer_coverage none); the journey script runs through install-and-upgrade-journeys-integration in pose-mcp."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+    "structure:design-7883703fb240f2d7"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-08T17:12:54Z",
+  "path": ".pose/review-attestations/rva-ecb53259d55ccaac.json"
+}
