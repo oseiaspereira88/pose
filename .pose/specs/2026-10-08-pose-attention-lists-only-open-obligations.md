@@ -10,7 +10,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 surface: minimal
-delivers:
+delivers: capability:attention-open-obligations
 ---
 
 # Spec: Attention lists only what is still open
@@ -64,6 +64,11 @@ Attention grouping.
 - modified: pose-mcp/internal/pose/attention.go
 - created: pose-mcp/internal/pose/attention_open_only_test.go
 - created: .pose/changelogs/unreleased/pose-attention-lists-only-open-obligations.md
+- modified: .pose/indexes/validation-matrix.json
+
+### Delivery targets
+
+- capability:attention-open-obligations module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -94,8 +99,8 @@ A test over a report with every satisfaction state, with and without an actor qu
 
 ### Requirement trace
 
-- R1 [satisfied] test:TestAttentionListsOnlyOpenObligations check:test evidence:unit
-- R2 [satisfied] test:TestAttentionListsOnlyOpenObligations check:test evidence:unit
+- R1 [satisfied] capability:attention-open-obligations check:state-attention-integration evidence:integration test:TestAttentionListsOnlyOpenObligations
+- R2 [satisfied] capability:attention-open-obligations check:state-attention-integration evidence:integration test:TestAttentionListsOnlyOpenObligations
 
 ### Known gaps
 
@@ -103,7 +108,7 @@ A test over a report with every satisfaction state, with and without an actor qu
 
 ### Delivered scope
 
-`BuildAttention` lists under `for_actor` and `gates` only pending or invalidated obligations; closed ones stay in the report. Found by the Harne8 agency-readiness rehearsal.
+`BuildAttention` lists under `for_actor` and `gates` only pending or invalidated obligations; closed ones stay in the report. Found by the Harne8 agency-readiness rehearsal. `state-attention-integration` now also runs the engine package, so the capability's evidence includes the test. A first close was refused for the undeclared delivery root; commit 6c72cf9b, pushed with a closing message before that refusal was seen, recorded only the superseded attestation.
 
 ### Residual risks
 
