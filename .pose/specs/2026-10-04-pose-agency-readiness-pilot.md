@@ -1,8 +1,8 @@
 ---
 slug: pose-agency-readiness-pilot
-status: in-progress
+status: done
 created_at: 2026-10-04
-completed_at:
+completed_at: 2026-10-08
 supersedes:
 depends_on: pose-state-attention, pose-action-request-resolution, pose-phase-scoped-readiness, pose-governed-effect-enforcement, pose-mechanization-adversarial-corpus
 priority: 1

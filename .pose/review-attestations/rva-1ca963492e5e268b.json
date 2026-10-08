@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-1ca963492e5e268b",
+  "bundle_id": "rvb-64ddaca0d5f32daf",
+  "bundle_digest": "sha256:64ddaca0d5f32daf94b893095dcb3029c7bfede6a731d78613ffb37eae465bac",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-capabilities-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-capabilities-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-9994e912efc74807",
+      "rationale": "The capability is opt-in and adopted only where a maintainer answered the stop/go; the scaffold ships the actions policy without this repository's maintainer, so a new instance adopts nobody by default."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-capabilities-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-9994e912efc74807",
+      "rationale": "The report states what each rehearsal is and is not, step by step with durations, the baseline, the four defects with their fixing specs, the unknowns and both stop/go decisions; the final report and follow-ups carry what remains."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-capabilities-integration",
+      "rationale": "state --governance reports agency-readiness effective in pose-dist and Harne8; doctor checks the adopted actions policy's keys. Full native run at the sealed head with the candidate CLI: 123 of 123 steps pass. In the previous run install-and-upgrade-journeys failed once in journey 2b (contract-nodes not on after the answer was applied); it passed in this run and five standalone runs, so it is intermittent and unrelated to this spec's changes."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-capabilities-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-9994e912efc74807",
+      "rationale": "The report and record, the stop/go request, the review and actions policies, the doctor's policy keys, the shipped actions policy and its test. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-9994e912efc74807",
+      "rationale": "The shipped actions policy names no maintainer, so no instance trusts this repository's person; each repository's role map names its own maintainer with declared assurance, stated as such."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-9994e912efc74807",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-capabilities-integration",
+      "rationale": "pose assess integrate ran with the candidate CLI and exited 0."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-capabilities-integration",
+      "rationale": "surface-check --strict exited 0 for capability:agency-readiness-adoption."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI: 123 of 123 steps pass. In the previous run install-and-upgrade-journeys failed once in journey 2b (contract-nodes not on after the answer was applied); it passed in this run and five standalone runs, so it is intermittent and unrelated to this spec's changes."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-capabilities-integration",
+      "rationale": "pose-mcp tests and governed-capabilities-integration passed in the sealed run."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/governed-capabilities-integration",
+    "structure:design-9994e912efc74807",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-08T21:33:10Z",
+  "path": ".pose/review-attestations/rva-1ca963492e5e268b.json"
+}
