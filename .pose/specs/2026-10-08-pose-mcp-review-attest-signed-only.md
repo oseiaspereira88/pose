@@ -77,6 +77,7 @@ Review attestation preparation (shared by recording and preview), MCP tool dispa
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: docs-site/docs/mcp.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-mcp-review-attest-signed-only.md
 
 ### Delivery targets
@@ -120,12 +121,12 @@ The tool driven over HTTP JSON-RPC on a fixture with a sealed bundle and a trust
 
 ### Requirement trace
 
-- R1 [satisfied] test:TestSignedPreviewIsWhatTheEnvelopeRecordsAndTheConfirmationIsVerified test:TestThePreviewBindsOnlyWhatItIsGiven test:TestToolsCall_ReviewAttest_PreviewNeedsADraftForASealedBundle
-- R2 [satisfied] test:TestToolsCall_ReviewAttest_RefusesAnAttestationWithoutAnEnvelope test:TestSignedPreviewIsWhatTheEnvelopeRecordsAndTheConfirmationIsVerified
-- R3 [satisfied] test:TestAnEnvelopeOverOtherContentIsRefused test:TestToolsCall_ReviewAttest_RefusesAnUntrustedEnvelope
-- R4 [satisfied] test:TestSignedPreviewIsWhatTheEnvelopeRecordsAndTheConfirmationIsVerified test:TestAnAgentConfirmationStaysDeclared
-- R5 [satisfied] test:TestCatalogMatchesGolden test:TestCatalogDocsConformance test:TestToolsList
-- R6 [satisfied] test:TestToolsCall_ReviewPrepare_IsReadOnlyAndNeedsABundleAndAReviewer test:TestCatalogMatchesGolden
+- R1 [satisfied] capability:mcp-signed-review-attestation check:mcp-review-attest-integration evidence:integration test:TestSignedPreviewIsWhatTheEnvelopeRecordsAndTheConfirmationIsVerified test:TestThePreviewBindsOnlyWhatItIsGiven test:TestToolsCall_ReviewAttest_PreviewNeedsADraftForASealedBundle
+- R2 [satisfied] capability:mcp-signed-review-attestation check:mcp-review-attest-integration evidence:integration test:TestToolsCall_ReviewAttest_RefusesAnAttestationWithoutAnEnvelope test:TestSignedPreviewIsWhatTheEnvelopeRecordsAndTheConfirmationIsVerified
+- R3 [satisfied] check:mcp-review-attest-integration evidence:integration test:TestAnEnvelopeOverOtherContentIsRefused test:TestToolsCall_ReviewAttest_RefusesAnUntrustedEnvelope
+- R4 [satisfied] check:mcp-review-attest-integration evidence:integration test:TestSignedPreviewIsWhatTheEnvelopeRecordsAndTheConfirmationIsVerified test:TestAnAgentConfirmationStaysDeclared
+- R5 [satisfied] check:mcp-action-resolve-integration evidence:integration test:TestCatalogMatchesGolden test:TestCatalogDocsConformance test:TestToolsList
+- R6 [satisfied] check:mcp-review-attest-integration evidence:integration test:TestToolsCall_ReviewPrepare_IsReadOnlyAndNeedsABundleAndAReviewer test:TestCatalogMatchesGolden
 
 ### Known gaps
 

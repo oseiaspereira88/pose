@@ -1804,6 +1804,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "mcp-review-attest-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/mcpserver",
+            "./internal/pose",
+            "-run",
+            "ReviewAttest|ReviewPrepare|SignedPreview|EnvelopeOverOther|AgentConfirmation|PreviewBindsOnly",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "mcp-action-resolve-integration",
           "program": "go",
           "args": [
