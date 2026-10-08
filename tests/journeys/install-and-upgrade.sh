@@ -104,10 +104,30 @@ grep -q "warning" <<<"$out" && fail "closing the onboarding spec leaves a warnin
 grep -q "nothing to set up" <<<"$("$BIN" setup --no-input 2>&1)" || fail "setup still has steps after onboarding"
 ok "journey 1b: the onboarding spec is started, driven by setup and closed through review"
 
-# Journey 2 — installed by the latest published release, then updated.
+# Journey 2 — installed by the newest published release older than the
+# engine under test, then updated. "Older" matters: once a version is
+# published, the latest release equals a build of that same version, an
+# update between them has nothing to review, and the journey would test
+# nothing (spec pose-upgrade-journey-starts-below-current).
 if [ -z "$PREVIOUS" ]; then
-  location="$(curl -fsSI https://github.com/oseiaspereira88/pose/releases/latest | tr -d '\r' | sed -n 's/^[Ll]ocation: .*\/tag\/v//p')"
-  PREVIOUS="${location:?could not resolve the latest published release}"
+  CURRENT="$("$BIN" version | sed -n '1s/^pose \([0-9][0-9.]*\).*/\1/p')"
+  [ -n "$CURRENT" ] || fail "could not read the version of the engine under test"
+  RELEASES="$(mktemp)"
+  curl -fsSL -o "$RELEASES" "https://api.github.com/repos/oseiaspereira88/pose/releases?per_page=50" || fail "listing the published releases"
+  PREVIOUS="$(python3 - "$CURRENT" "$RELEASES" <<'PY'
+import json, re, sys
+current = tuple(int(x) for x in sys.argv[1].split("."))
+older = []
+for release in json.load(open(sys.argv[2])):
+    if release.get("draft") or release.get("prerelease"):
+        continue
+    m = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", release.get("tag_name", ""))
+    if m and tuple(map(int, m.groups())) < current:
+        older.append(tuple(map(int, m.groups())))
+print(".".join(map(str, max(older))) if older else "")
+PY
+)"
+  [ -n "$PREVIOUS" ] || fail "no published release is older than the engine under test ($CURRENT)"
 fi
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 case "$(uname -m)" in x86_64|amd64) ARCH=amd64 ;; aarch64|arm64) ARCH=arm64 ;; *) fail "unsupported architecture $(uname -m)" ;; esac
