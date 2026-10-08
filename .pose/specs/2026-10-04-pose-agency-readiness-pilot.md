@@ -8,6 +8,7 @@ depends_on: pose-state-attention, pose-action-request-resolution, pose-phase-sco
 priority: 1
 components: pose-mcp
 task_type: feature
+changelog: none
 delivers: capability:agency-readiness-adoption
 ---
 
