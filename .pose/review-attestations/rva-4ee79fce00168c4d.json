@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-4ee79fce00168c4d",
+  "bundle_id": "rvb-ef8bc7abf1fb8340",
+  "bundle_digest": "sha256:ef8bc7abf1fb8340e09f7d580af616a2e02b6e77beb8873b70c2a214f058992e",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-3ee7a07aa70c7a50",
+      "rationale": "The design rests on two measured premises, both recorded in the ADR: the pilot's false positives come from scope mixing in the attributed subject, and the range makes the obligation depend on interleaving (14 specs charged for exempt check additions, one own edit hidden). The prediction that the narrowing would remove false positives was measured and refuted; the spec claims only what the measurement shows."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-3ee7a07aa70c7a50",
+      "rationale": "Additive: subject.attribution and shared_with are omitempty, the implementation, patch and tree digests leave the attribution out, and a bundle without it is compared over its range as before (TestABMStructuralAttributionIsContentIdentity). Newly sealed bundles get facts whose digests describe the scope's own change; nothing sealed is reread."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-3ee7a07aa70c7a50",
+      "rationale": "The only material fact is the ADR this scope adds, mapped to R1.",
+      "mappings": [
+        {
+          "delta": "SD-e4a8481d",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The ADR records the decision that implements R1 and its invariants."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-3ee7a07aa70c7a50",
+      "rationale": "POSE.md, the pt-BR manual and both scaffold copies state how paths are compared, what shared_with means and how a reviewer answers it; the locale parity and embedded dist tests hold them together. The ADR records options, the measurement and the invariants."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration",
+      "rationale": "One bounded git log per sealed subject, none when nothing is attributed; when Git cannot answer the subject keeps the range reading and range_observations says whether it is contaminated. Full native run at the sealed head with the candidate CLI built from it: 123 of 123 steps pass."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-3ee7a07aa70c7a50",
+      "rationale": "One new attribution file, the segment comparison in the design delta, the mark carried to the plan and replay, schemas, manuals, ADR and fragment. The check-addition exemption and verification are untouched. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration",
+      "rationale": "Blob reads keep the byte bound and refuse symlink modes; segment ids are validated as hex before reaching git cat-file; trailers are read, never executed."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-3ee7a07aa70c7a50",
+      "rationale": "The maintainer chose between marking only, marking with the narrowing, and also revisiting the exemption after the universe measurement; the narrowing is one bounded Git call and a content-addressed field, smaller than any per-commit model, and the mark asks for judgment instead of dismissing facts."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-3ee7a07aa70c7a50",
+      "rationale": "Structural delta observed in the sealed bundle, read through the new attribution."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration",
+      "rationale": "pose assess integrate ran with the candidate CLI and exited 0."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration",
+      "rationale": "surface-check --spec pose-structural-facts-stay-in-their-commits --strict exited 0: one capability target, 123 results, 0 findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 123 of 123 steps pass."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration",
+      "rationale": "pose-mcp tests, build and every pose-mcp integration check passed in the sealed run, including abm-progressive-review-integration and abm-retrospective-replay-integration."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/abm-progressive-review-integration",
+    "integration:pose-mcp/go/abm-retrospective-replay-integration",
+    "structure:design-3ee7a07aa70c7a50",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-08T23:01:17Z",
+  "path": ".pose/review-attestations/rva-4ee79fce00168c4d.json"
+}

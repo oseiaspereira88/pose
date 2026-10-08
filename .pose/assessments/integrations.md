@@ -1,14 +1,14 @@
 # Integration Assessment: pose-dist
 
 > **Gerado por**: POSE Integration Engine (`pose assess integrate`)
-> **Data de Avaliação**: 2026-10-06T03:06:11Z
-> **Baseline Commit**: a6080d1c4bc4
+> **Data de Avaliação**: 2026-10-08T22:59:01Z
+> **Baseline Commit**: 09c2a3e5a0c5
 
 ## 1. Resumo Executivo
 
-- **Total de Contratos Observados**: 62
+- **Total de Contratos Observados**: 64
 - **Contratos com Provedor e Consumidor**: 1
-- **Gaps de Integração**: 61
+- **Gaps de Integração**: 63
 
 ## 2. Matriz de Contratos
 
@@ -57,8 +57,10 @@
 | MCP tool pose_project_state | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_release_status | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_requirement_trace | `mcp` | `pose-mcp` | `unobserved` | `gap` |
+| MCP tool pose_review_attest | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_review_bundle | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_review_plan | `mcp` | `pose-mcp` | `unobserved` | `gap` |
+| MCP tool pose_review_prepare | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_skills_check | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_spec_amendments | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_spec_readiness | `mcp` | `pose-mcp` | `unobserved` | `gap` |
@@ -331,6 +333,12 @@
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
+### [GAP-7fe36cf5] No consumer observed for MCP tool pose_review_attest
+- **Severidade**: medium
+- **Provedor**: `pose-mcp`
+- **Consumidor**: `unobserved`
+- **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
+
 ### [GAP-0aed6fe8] No consumer observed for MCP tool pose_review_bundle
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
@@ -338,6 +346,12 @@
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
 ### [GAP-d5ec9388] No consumer observed for MCP tool pose_review_plan
+- **Severidade**: medium
+- **Provedor**: `pose-mcp`
+- **Consumidor**: `unobserved`
+- **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
+
+### [GAP-82926d92] No consumer observed for MCP tool pose_review_prepare
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`

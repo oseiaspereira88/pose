@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "evaluated_at": "2026-10-06T03:06:11Z",
-  "baseline_commit": "a6080d1c4bc4",
+  "evaluated_at": "2026-10-08T22:59:01Z",
+  "baseline_commit": "09c2a3e5a0c5",
   "summary": {
-    "total_integrations": 62,
+    "total_integrations": 64,
     "active_contracts": 1,
-    "identified_gaps": 61
+    "identified_gaps": 63
   },
   "contracts": [
     {
@@ -310,6 +310,13 @@
       "status": "gap"
     },
     {
+      "name": "MCP tool pose_review_attest",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
       "name": "MCP tool pose_review_bundle",
       "protocol": "mcp",
       "provider": "pose-mcp",
@@ -318,6 +325,13 @@
     },
     {
       "name": "MCP tool pose_review_plan",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_review_prepare",
       "protocol": "mcp",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -781,6 +795,14 @@
       "description": "A provider declaration was observed, but no repository consumer reference was found."
     },
     {
+      "gap_id": "GAP-7fe36cf5",
+      "title": "No consumer observed for MCP tool pose_review_attest",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
       "gap_id": "GAP-0aed6fe8",
       "title": "No consumer observed for MCP tool pose_review_bundle",
       "severity": "medium",
@@ -791,6 +813,14 @@
     {
       "gap_id": "GAP-d5ec9388",
       "title": "No consumer observed for MCP tool pose_review_plan",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-82926d92",
+      "title": "No consumer observed for MCP tool pose_review_prepare",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",

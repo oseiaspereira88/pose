@@ -1,8 +1,8 @@
 ---
 slug: pose-structural-facts-stay-in-their-commits
-status: in-progress
+status: done
 created_at: 2026-10-08
-completed_at:
+completed_at: 2026-10-08
 supersedes:
 depends_on: pose-validation-check-additions-are-not-material
 remediates:
