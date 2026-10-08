@@ -8,6 +8,7 @@ depends_on: pose-state-attention, pose-action-request-resolution, pose-phase-sco
 priority: 1
 components: pose-mcp
 task_type: feature
+delivers: capability:agency-readiness-adoption
 ---
 
 # Spec: Pilot the agency and readiness vertical slice before broad enforcement
@@ -84,7 +85,11 @@ own spec or amendment).
 - modified: pose-mcp/internal/scaffold/distpolicy/distpolicy.go
 - modified: pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go
 
-Reconciled against the tree at activation.
+Reconciled against the tree at activation, and at closeout on 2026-10-08: the report also carries the Harne8 run.
+
+### Delivery targets
+
+- capability:agency-readiness-adoption module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -94,14 +99,14 @@ Reconciled against the tree at activation.
 
 ### Planning
 - [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
-- [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
+- [x] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area (not stale for the touched area)
 
 ### Implementation
-- [ ] Write the failing tests named in Validation first (the gate must fail before it passes)
-- [ ] Implement incrementally, one requirement group per commit with `POSE-Spec: pose-agency-readiness-pilot`
+- [x] Write the failing tests named in Validation first (the gate must fail before it passes)
+- [x] Implement incrementally, one requirement group per commit with `POSE-Spec: pose-agency-readiness-pilot`
 
 ### Validation
-- [ ] Run the deterministic checks below and retain results
+- [x] Run the deterministic checks below and retain results
 
 ## 5. Decisions
 
@@ -136,18 +141,27 @@ Pre-registered scenarios and baseline taken before enabling the capability.
 - R2 [satisfied] <an unrelated commit kept the answer; a subject change re-asked> report:.pose/reports/pose-agency-readiness-pilot.md
 - R3 [satisfied] <two defects and the unknowns recorded; no gate adjusted> report:.pose/reports/pose-agency-readiness-pilot.md
 - R4 [satisfied] <baseline comparison of capability, commands, interventions and invalidations; time per step in the results file> report:.pose/reports/pose-agency-readiness-pilot.md
-- R5 [satisfied] <stop/go answered by human:oseias (declared) on 2026-10-05: go, delimited to pose-dist, with the stated rollback condition; policy changed only after the answer> report:.pose/reports/pose-agency-readiness-pilot.md
+- R5 [satisfied] <stop/go answered by human:oseias (declared) on 2026-10-05: go, delimited to pose-dist, with the stated rollback condition; policy changed only after the answer> report:.pose/reports/pose-agency-readiness-pilot.md capability:agency-readiness-adoption check:governed-capabilities-integration evidence:integration
 
 ## 7. Final Report
 
 The stop/go was answered on 2026-10-05 by human:oseias through the Claude Code session (declared identity, applied by agent:claude-opus-5-5): option go-delimited. `agency_readiness_version: 1` and `.pose/policy/actions.json` (maintainer = human:oseias, declared assurance) were committed after the answer; `pose state --governance` reports the capability effective. Rollback: remove the key if a request blocks a closeout the maintainer judges should proceed because of an engine defect, or if Attention misses an existing request.
 
-An automated rehearsal ran the slice on a disposable clone at 768e6c7 (report `.pose/reports/pose-agency-readiness-pilot.md`, record `.pose/results/pose-agency-readiness-pilot.json`). It is not human experience: the answering principal was a script fixture. All 17 steps behaved as designed, including four refusals and one subject-change invalidation, and an unrelated commit did not re-ask the answered decision. Two defects surfaced and were fixed under their owning specs: `stats governance --waits` took 88 s (2a0fdc8, now 13 ms) and a directory-derived project identity was silent (768e6c7). Authority transfer and Harne8 consumption were not exercised. The stop/go (R5) is open as action request `act-dd6a58232dd28ea5`, addressed to human:oseias with the agent's recommendation; the policy stays unadopted until it is answered, so this spec cannot close before then.
+An automated rehearsal ran the slice on a disposable clone at 768e6c7 (report `.pose/reports/pose-agency-readiness-pilot.md`, record `.pose/results/pose-agency-readiness-pilot.json`). It is not human experience: the answering principal was a script fixture. All 17 steps behaved as designed, including four refusals and one subject-change invalidation, and an unrelated commit did not re-ask the answered decision. Two defects surfaced and were fixed under their owning specs: `stats governance --waits` took 88 s (2a0fdc8, now 13 ms) and a directory-derived project identity was silent (768e6c7). Authority transfer was not exercised. The stop/go (R5) was raised as action request `act-dd6a58232dd28ea5`, addressed to human:oseias with the agent's recommendation, and answered as above.
 
 ### Delivered scope
 
-Not started. Filled at closeout from the requirement trace and the change sets.
+Two automated rehearsals of the slice, one per repository, each with a step record and a report: pose-dist (17 steps at 768e6c7) and Harne8 (11 steps through the Harne8 conductor's Attention and trusted answer routes, 2026-10-08, added to this report). Four defects were found and fixed under their owning specs: the slow `stats governance --waits`, the silent directory-derived identity, Attention listing closed obligations as waiting (`pose-attention-lists-only-open-obligations`) and the Harne8 conductor answering 409 to a replay. The stop/go was answered go-delimited in each repository by its maintainer and the capability adopted only after the answer: pose-dist on 2026-10-05, Harne8 on 2026-10-08 (`xref:proj.harne8/spec:harne8-adopt-agency-readiness`). The scaffold ships the actions policy without this repository's maintainer, and doctor checks the adopted policy's keys.
+
+### Residual risks
+
+- Nobody ran the slice as a person in either repository; both rehearsals answered with a fixture. Both stop/go decisions adopted with that limit known.
+- Attention takes 2.2 to 2.6 s here and 30 to 37 s on the Harne8 corpus, against the 1 s target.
+- Authority transfer under the adopted capability was not exercised.
+- Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent.
 
 ### Follow-ups
 
-None recorded at planning time.
+- [open] Run the slice as a person in pose-dist and record the friction in this report before any adoption beyond pose-dist and Harne8 (owner:@pose-maintainers crit:medium review:2026-11-05)
+- [open] Bring Attention close to its 1 s target on large corpora; Harne8 reads take 30 to 37 s (owner:@pose-maintainers crit:medium review:2026-10-22)
+- [open] Exercise authority transfer with an open action request under the adopted capability (owner:@pose-maintainers crit:low review:2026-11-15)
