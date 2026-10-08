@@ -81,3 +81,28 @@ func TestToolsCall_ReviewAttest_PreviewNeedsADraftForASealedBundle(t *testing.T)
 		t.Fatalf("a draft for an unknown bundle was completed: %+v", out)
 	}
 }
+
+// R6: preparation is read-only, needs a bundle and a reviewer, and refuses an
+// unknown bundle rather than inventing a draft.
+func TestToolsCall_ReviewPrepare_IsReadOnlyAndNeedsABundleAndAReviewer(t *testing.T) {
+	root, ts := reviewAttestServer(t)
+	if risk := catalogGovernance["pose_review_prepare"].Risk; risk != RiskRead {
+		t.Fatalf("pose_review_prepare risk = %s, want %s", risk, RiskRead)
+	}
+	call := func(args map[string]any) rpcResult {
+		raw, _ := json.Marshal(map[string]any{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": map[string]any{"name": "pose_review_prepare", "arguments": args}})
+		_, out := post(t, ts, string(raw))
+		return out
+	}
+	for _, args := range []map[string]any{{"reviewer": "human:maintainer"}, {"bundle_id": "rvb-0123456789abcdef"}} {
+		if out := call(args); out.Result["isError"] != true || !strings.Contains(toolText(out), "missing") {
+			t.Fatalf("a preparation without %v was accepted: %+v", args, out)
+		}
+	}
+	if out := call(map[string]any{"bundle_id": "rvb-0123456789abcdef", "reviewer": "human:maintainer"}); out.Result["isError"] != true {
+		t.Fatalf("a draft was prepared for an unknown bundle: %+v", out)
+	}
+	if entries, _ := os.ReadDir(filepath.Join(root, ".pose", "review-attestations")); len(entries) != 0 {
+		t.Fatalf("a preparation wrote %d records", len(entries))
+	}
+}

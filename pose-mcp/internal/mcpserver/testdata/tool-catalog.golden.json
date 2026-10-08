@@ -145,6 +145,9 @@
     "pose_review_plan": {
       "risk": "read"
     },
+    "pose_review_prepare": {
+      "risk": "read"
+    },
     "pose_skills_check": {
       "risk": "gate"
     },
@@ -539,6 +542,31 @@
         "type": "object"
       },
       "name": "pose_action_resolve"
+    },
+    {
+      "description": "Read-only auto-attest preparation of a sealed review bundle (the MCP form of `pose review auto-attest` without --apply): a draft attestation answering every criterion automation may answer from sealed evidence, and the judgment criteria still pending. It writes nothing; a person or reviewer completes the draft and records it with pose_review_attest inside a trusted issuer's envelope.",
+      "inputSchema": {
+        "properties": {
+          "bundle_id": {
+            "description": "Sealed review bundle id (rvb-\u003c16 hex\u003e)",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "reviewer": {
+            "description": "The reviewer principal the draft names (human:\u003cid\u003e or agent:\u003cid\u003e)",
+            "type": "string"
+          }
+        },
+        "required": [
+          "bundle_id",
+          "reviewer"
+        ],
+        "type": "object"
+      },
+      "name": "pose_review_prepare"
     },
     {
       "description": "Record a review attestation — only inside a trusted issuer's ReviewAttestationEnvelope, the proof `pose review attest --envelope` verifies (issuer pinned in the review policy's trusted_attestation_issuers). Without apply it is a preview: a draft attestation for a sealed bundle is completed as recording would (bundle digest, attested time, id and, when it names confirmed_by, the confirmation digest) and the exact bytes to sign are returned with the blockers verify would report; an envelope is verified without being stored. A confirmation by a human is disclosed as verified only when the signed authority claim names that human. A call that applies without an envelope is refused under any identity assurance: a reviewer or confirming principal written by an agent is a declaration, not a proof.",

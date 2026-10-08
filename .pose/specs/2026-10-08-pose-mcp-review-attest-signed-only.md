@@ -42,6 +42,7 @@ Signing inside the MCP server; changing what makes a confirmation verified (spec
 - R3: An envelope that does not verify (untrusted issuer or key, another bundle, content changed after signing, a confirmation bound to other content) shall be refused with the reason, and nothing recorded.
 - R4: A recorded attestation whose authority claim names a `human:` principal equal to `confirmed_by`, signed by an issuer the review policy trusts, shall be disclosed with confirmation assurance `verified`; the same attestation with an agent principal or without the claim shall be disclosed as `declared`.
 - R5: The tool catalog, `pose_review_bundle` and the manuals shall name the tool and its proof requirement.
+- R6: A read-only `pose_review_prepare` shall return, for a sealed bundle and a reviewer principal, the auto-attest draft and its pending judgment criteria, writing nothing, so a channel can present a draft for a person to complete and confirm.
 
 ### Non-functional
 
@@ -84,7 +85,7 @@ Review attestation preparation (shared by recording and preview), MCP tool dispa
 
 ### API/contract changes
 
-- New governance-write MCP tool `pose_review_attest`.
+- New governance-write MCP tool `pose_review_attest` and read-only `pose_review_prepare`.
 
 ### Data/storage changes
 
@@ -124,6 +125,7 @@ The tool driven over HTTP JSON-RPC on a fixture with a sealed bundle and a trust
 - R3 [satisfied] test:TestAnEnvelopeOverOtherContentIsRefused test:TestToolsCall_ReviewAttest_RefusesAnUntrustedEnvelope
 - R4 [satisfied] test:TestSignedPreviewIsWhatTheEnvelopeRecordsAndTheConfirmationIsVerified test:TestAnAgentConfirmationStaysDeclared
 - R5 [satisfied] test:TestCatalogMatchesGolden test:TestCatalogDocsConformance test:TestToolsList
+- R6 [satisfied] test:TestToolsCall_ReviewPrepare_IsReadOnlyAndNeedsABundleAndAReviewer test:TestCatalogMatchesGolden
 
 ### Known gaps
 

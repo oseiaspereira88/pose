@@ -1178,6 +1178,24 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		return store.ResolveActionRequest(pose.ActionResolution{RequestID: a.ID, Type: pose.ActionEventAnswered, Actor: a.Actor, Answer: a.Answer,
 			RequestDigest: a.RequestDigest, ExpectedRevision: a.ExpectedRevision, IdempotencyKey: a.IdempotencyKey, Role: a.Role, Evidence: a.Evidence,
 			Execution: a.Execution, Channel: "mcp", Signature: a.Signature, Claim: a.Claim, Envelope: a.Envelope}, time.Now())
+	case "pose_review_prepare":
+		// Read-only auto-attest preparation over MCP (spec
+		// pose-mcp-review-attest-signed-only R6): the criteria automation can
+		// answer from sealed evidence, and the rest as pendencies. It writes
+		// nothing; recording goes through pose_review_attest with an envelope.
+		var a struct {
+			BundleID string `json:"bundle_id"`
+			Reviewer string `json:"reviewer"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_review_prepare: invalid arguments")
+		}
+		for name, value := range map[string]string{"bundle_id": a.BundleID, "reviewer": a.Reviewer} {
+			if strings.TrimSpace(value) == "" {
+				return nil, fmt.Errorf("pose_review_prepare: required argument %q missing", name)
+			}
+		}
+		return store.PrepareReviewAttestation(a.BundleID, a.Reviewer, time.Now())
 	case "pose_review_attest":
 		// The MCP way to record a review attestation (spec
 		// pose-mcp-review-attest-signed-only): only inside a trusted issuer's
@@ -2377,6 +2395,21 @@ func toolDefinitions() []map[string]any {
 					"project_id":        map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
 				},
 				"required": []string{"id", "actor", "answer", "idempotency_key"},
+			},
+		},
+		{
+			"name": "pose_review_prepare",
+			"description": "Read-only auto-attest preparation of a sealed review bundle (the MCP form of `pose review auto-attest` without --apply): a draft " +
+				"attestation answering every criterion automation may answer from sealed evidence, and the judgment criteria still pending. It writes nothing; " +
+				"a person or reviewer completes the draft and records it with pose_review_attest inside a trusted issuer's envelope.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"bundle_id":  map[string]any{"type": "string", "description": "Sealed review bundle id (rvb-<16 hex>)"},
+					"reviewer":   map[string]any{"type": "string", "description": "The reviewer principal the draft names (human:<id> or agent:<id>)"},
+					"project_id": map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
+				},
+				"required": []string{"bundle_id", "reviewer"},
 			},
 		},
 		{
