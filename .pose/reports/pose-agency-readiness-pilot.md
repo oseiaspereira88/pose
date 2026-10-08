@@ -85,3 +85,41 @@ recommendation, which is not the decision:
   the request; or if Attention misses a request that exists.
 - **Before any wider adoption:** one run of the slice by a person, and the Harne8
   attention surface.
+
+## Harne8 run — automated rehearsal, 2026-10-08
+
+Owned by `xref:proj.harne8/spec:harne8-adopt-agency-readiness`; full report in Harne8 at
+`.pose/reports/2026-harne8-agency-readiness-pilot.md`, step record at
+`.pose/results/harne8-agency-readiness-pilot.json`. Same kind of evidence as above: the
+answering person is a Portal session fixture, so it says nothing about friction for a person.
+
+On a disposable copy of Harne8 (`04d99bd3`, pose-dist pinned at `0202568a`) with the
+capability adopted in the copy only, a decision restricting the closeout of a real
+in-progress spec (`harne8-assisted-smoke-all-modes`) went through the Harne8 conductor's
+Attention and trusted answer routes — an Ed25519 claim from the conductor's issuer,
+verified by the engine — and the engine's gates.
+
+| Measure | Harne8 rehearsal |
+|---|---|
+| Steps | 11, all as designed: open, Attention shows it, closeout restricted, answer without proof refused, stale revision refused, verified answer, replay a no-op, Attention and closeout clear, unrelated commit keeps the answer, subject change re-asks |
+| Scripted human interventions | 1 answer, through the trusted channel |
+| Invalidations by cause | 1 subject-changed, 0 unrelated |
+| Refusals | 3 expected, 3 observed |
+| Attention per read | 30 to 37 s on the Harne8 corpus |
+
+Defects found, each fixed under its owning spec with a test that fails without it:
+
+- Attention kept an answered request in `for_actor` (and closed obligations in `gates`)
+  although it restricted nothing: fixed here in `pose-attention-lists-only-open-obligations`
+  (`0202568a`).
+- Sending a recorded answer again returned `409 request_changed` from the Harne8 conductor:
+  fixed in Harne8 `harne8-action-answer-replay-returns-recorded-state`.
+
+Unknowns added by this run: Attention takes 30 to 37 s per read on Harne8's corpus, far above
+the 1 s target; Harne8's review policy does not yet pin the conductor's issuer, so a real
+installation would refuse answers through the trusted channel until it does.
+
+Harne8's stop/go went through the flow: `act-ebd1d45a6408dbce` answered `go-delimited` by
+`human:oseias` (declared) on 2026-10-08, against the agent's recommendation to defer.
+Harne8 adopted `agency_readiness_version: 1` after the answer, delimited to Harne8. The
+condition set above — a run by a person before wider adoption — is still unmet.
