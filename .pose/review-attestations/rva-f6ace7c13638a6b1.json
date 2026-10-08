@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-f6ace7c13638a6b1",
+  "bundle_id": "rvb-c7878923258db22c",
+  "bundle_digest": "sha256:c7878923258db22cfa40f363945669a26279b237661ab81ee088230332b2f2fb",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-3f796885ddfd3654",
+      "rationale": "The decision rests on no unverified premise: the open predicate is Restricts' own, read in obligation.go, and the defect was observed in a real rehearsal before the change."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/state-attention-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/state-attention-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-3f796885ddfd3654",
+      "rationale": "The obligation report is unchanged; only the grouping drops closed obligations from for_actor and gates, by the predicate Restricts already uses. The compatibility note names the one reader-visible change."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/state-attention-integration"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-3f796885ddfd3654",
+      "rationale": "D1 follows from the observed cause: BuildAttention grouped by recipient without looking at satisfaction while Blocking used Restricts; the test failed for exactly the closed states before the fix. The matrix delta serves R1's evidence.",
+      "mappings": [
+        {
+          "delta": "SD-7821a778",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The matrix change widens state-attention-integration to the engine package so the integration evidence for R1 includes TestAttentionListsOnlyOpenObligations; it adds no check and removes none."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-3f796885ddfd3654",
+      "rationale": "The field comments say the lists hold what is still open; the spec records the Harne8 pilot finding, the delivery target, the refused first close and the misleading earlier commit message; the fragment describes the fix."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/state-attention-integration",
+      "rationale": "state-attention-integration now runs the engine package and passes; the full native run passes 123 of 123 steps."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/state-attention-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-3f796885ddfd3654",
+      "rationale": "One grouping function, one test, the integration check's package list, the spec and a fragment. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-3f796885ddfd3654",
+      "rationale": "No input, permission or secret changes; a closed obligation remains visible in the report, so nothing is hidden from an auditor."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-3f796885ddfd3654",
+      "rationale": "The minimal option: reuse the existing predicate in one function; no new list, field or state."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-3f796885ddfd3654",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/state-attention-integration",
+      "rationale": "pose assess integrate ran with the candidate CLI and exited 0."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/state-attention-integration",
+      "rationale": "surface-check --strict exited 0: one capability target, 0 findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI: 123 of 123 steps pass."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/state-attention-integration",
+      "rationale": "pose-mcp tests and the widened state-attention-integration passed in the sealed run."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/state-attention-integration",
+    "structure:design-3f796885ddfd3654",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-08T18:22:46Z",
+  "path": ".pose/review-attestations/rva-f6ace7c13638a6b1.json"
+}
