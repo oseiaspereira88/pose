@@ -1178,6 +1178,55 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		return store.ResolveActionRequest(pose.ActionResolution{RequestID: a.ID, Type: pose.ActionEventAnswered, Actor: a.Actor, Answer: a.Answer,
 			RequestDigest: a.RequestDigest, ExpectedRevision: a.ExpectedRevision, IdempotencyKey: a.IdempotencyKey, Role: a.Role, Evidence: a.Evidence,
 			Execution: a.Execution, Channel: "mcp", Signature: a.Signature, Claim: a.Claim, Envelope: a.Envelope}, time.Now())
+	case "pose_review_attest":
+		// The MCP way to record a review attestation (spec
+		// pose-mcp-review-attest-signed-only): only inside a trusted issuer's
+		// envelope, the proof `pose review attest --envelope` verifies. Without
+		// apply it previews: a draft is completed as recording would and the
+		// exact bytes to sign are returned; an envelope is verified, not stored.
+		var a struct {
+			Attestation *pose.ReviewAttestation         `json:"attestation"`
+			Envelope    *pose.ReviewAttestationEnvelope `json:"envelope"`
+			Apply       bool                            `json:"apply"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_review_attest: invalid arguments")
+		}
+		if a.Apply {
+			if a.Envelope == nil {
+				return nil, fmt.Errorf("pose_review_attest: a review attestation over MCP is recorded only inside a trusted issuer's envelope (the proof `pose review attest --envelope` verifies); a reviewer or confirming principal written by an agent is a declaration, not a proof")
+			}
+			recorded, err := store.RecordReviewAttestationEnvelope(*a.Envelope, true)
+			if err != nil {
+				return nil, err
+			}
+			return map[string]any{"recorded": true, "attestation": recorded}, nil
+		}
+		if a.Envelope != nil {
+			verified, err := store.RecordReviewAttestationEnvelope(*a.Envelope, false)
+			if err != nil {
+				return nil, err
+			}
+			return map[string]any{"preview": true, "verified": true, "attestation": verified, "apply": "false (call again with the same envelope and apply: true to record it)"}, nil
+		}
+		if a.Attestation == nil {
+			return nil, fmt.Errorf("pose_review_attest: required argument %q missing", "attestation or envelope")
+		}
+		completed, canonical, err := store.SignableReviewAttestation(*a.Attestation, time.Now())
+		if err != nil {
+			return nil, err
+		}
+		blockers := store.PreflightReviewAttestation(completed, time.Now())
+		if blockers == nil {
+			blockers = []string{}
+		}
+		return map[string]any{
+			"preview":         true,
+			"attestation":     completed,
+			"signing_bytes":   string(canonical),
+			"verify_blockers": blockers,
+			"sign":            "a trusted issuer signs signing_bytes with Ed25519 into a ReviewAttestationEnvelope (subject: the bundle id); call again with envelope and apply: true",
+		}, nil
 	case "pose_action_requests":
 		var a struct {
 			ID      string `json:"id"`
@@ -2328,6 +2377,24 @@ func toolDefinitions() []map[string]any {
 					"project_id":        map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
 				},
 				"required": []string{"id", "actor", "answer", "idempotency_key"},
+			},
+		},
+		{
+			"name": "pose_review_attest",
+			"description": "Record a review attestation — only inside a trusted issuer's ReviewAttestationEnvelope, the proof `pose review attest --envelope` " +
+				"verifies (issuer pinned in the review policy's trusted_attestation_issuers). Without apply it is a preview: a draft attestation for a sealed " +
+				"bundle is completed as recording would (bundle digest, attested time, id and, when it names confirmed_by, the confirmation digest) and the " +
+				"exact bytes to sign are returned with the blockers verify would report; an envelope is verified without being stored. A confirmation by a " +
+				"human is disclosed as verified only when the signed authority claim names that human. A call that applies without an envelope is refused " +
+				"under any identity assurance: a reviewer or confirming principal written by an agent is a declaration, not a proof.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"attestation": map[string]any{"type": "object", "description": "Draft review attestation for a sealed bundle (bundle_id, reviewer, decision, criteria, tools, findings, attribution, authority) to complete and preview"},
+					"envelope":    map[string]any{"type": "object", "description": "ReviewAttestationEnvelope signed by a trusted issuer over the completed attestation"},
+					"apply":       map[string]any{"type": "boolean", "description": "Record the attestation in the envelope; without it the call is a preview"},
+					"project_id":  map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
+				},
 			},
 		},
 		{

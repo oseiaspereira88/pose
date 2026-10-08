@@ -136,6 +136,9 @@
     "pose_requirement_trace": {
       "risk": "read"
     },
+    "pose_review_attest": {
+      "risk": "governance-write"
+    },
     "pose_review_bundle": {
       "risk": "read"
     },
@@ -536,6 +539,31 @@
         "type": "object"
       },
       "name": "pose_action_resolve"
+    },
+    {
+      "description": "Record a review attestation — only inside a trusted issuer's ReviewAttestationEnvelope, the proof `pose review attest --envelope` verifies (issuer pinned in the review policy's trusted_attestation_issuers). Without apply it is a preview: a draft attestation for a sealed bundle is completed as recording would (bundle digest, attested time, id and, when it names confirmed_by, the confirmation digest) and the exact bytes to sign are returned with the blockers verify would report; an envelope is verified without being stored. A confirmation by a human is disclosed as verified only when the signed authority claim names that human. A call that applies without an envelope is refused under any identity assurance: a reviewer or confirming principal written by an agent is a declaration, not a proof.",
+      "inputSchema": {
+        "properties": {
+          "apply": {
+            "description": "Record the attestation in the envelope; without it the call is a preview",
+            "type": "boolean"
+          },
+          "attestation": {
+            "description": "Draft review attestation for a sealed bundle (bundle_id, reviewer, decision, criteria, tools, findings, attribution, authority) to complete and preview",
+            "type": "object"
+          },
+          "envelope": {
+            "description": "ReviewAttestationEnvelope signed by a trusted issuer over the completed attestation",
+            "type": "object"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_review_attest"
     },
     {
       "description": "Read material requests to a person or an external system (decision, approval, input, external operation, acceptance): question, options with consequences, recipient, qualified targets, per-phase effects, the request digest an answer must name, the append-only journal and the derived state and satisfaction (answered is not satisfied: a declined approval leaves the condition unmet). Read-only: open with pose_action_open or `pose action open`; resolve with pose_action_resolve (signed answers only) or `pose action resolve` on the CLI, where a resolution names the digest and revision it answers and needs the recipient role.",

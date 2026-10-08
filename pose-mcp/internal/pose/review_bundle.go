@@ -2170,6 +2170,39 @@ func (s Store) recordReviewAttestation(att ReviewAttestation, now time.Time, sig
 	if policy.RequireSignedAttestations && !signed {
 		return ReviewAttestation{}, fmt.Errorf("pose: review policy requires a trusted signed attestation envelope")
 	}
+	att, err = completeReviewAttestation(bundle, att, now)
+	if err != nil {
+		return ReviewAttestation{}, err
+	}
+	att.Path = filepath.ToSlash(filepath.Join(".pose", "review-attestations", att.AttestationID+".json"))
+	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), true)
+	if err != nil {
+		return ReviewAttestation{}, err
+	}
+	path := filepath.Join(dir, att.AttestationID+".json")
+	if existing, loadErr := s.LoadReviewAttestation(att.AttestationID); loadErr == nil {
+		existingRaw, _ := json.Marshal(existing)
+		candidateRaw, _ := json.Marshal(att)
+		if bytes.Equal(existingRaw, candidateRaw) {
+			return existing, nil
+		}
+		return ReviewAttestation{}, fmt.Errorf("pose: review attestation identity collision for %s", att.AttestationID)
+	}
+	raw, err := json.MarshalIndent(att, "", "  ")
+	if err != nil {
+		return ReviewAttestation{}, err
+	}
+	if err := writeImmutableJSON(path, append(raw, '\n')); err != nil {
+		return ReviewAttestation{}, err
+	}
+	return att, nil
+}
+
+// completeReviewAttestation fills and checks what recording sets: the bundle
+// binding, schema, attested time and content-derived id. Recording and the MCP
+// preview share it, so an issuer that signs a previewed attestation signs the
+// bytes that will be recorded (spec pose-mcp-review-attest-signed-only).
+func completeReviewAttestation(bundle ReviewBundle, att ReviewAttestation, now time.Time) (ReviewAttestation, error) {
 	if att.BundleDigest == "" {
 		att.BundleDigest = bundle.BundleDigest
 	}
@@ -2202,28 +2235,47 @@ func (s Store) recordReviewAttestation(att ReviewAttestation, now time.Time, sig
 	if !strings.HasPrefix(att.AttestationID, "rva-") || len(att.AttestationID) != 20 {
 		return ReviewAttestation{}, fmt.Errorf("pose: invalid attestation id")
 	}
-	att.Path = filepath.ToSlash(filepath.Join(".pose", "review-attestations", att.AttestationID+".json"))
-	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), true)
-	if err != nil {
-		return ReviewAttestation{}, err
-	}
-	path := filepath.Join(dir, att.AttestationID+".json")
-	if existing, loadErr := s.LoadReviewAttestation(att.AttestationID); loadErr == nil {
-		existingRaw, _ := json.Marshal(existing)
-		candidateRaw, _ := json.Marshal(att)
-		if bytes.Equal(existingRaw, candidateRaw) {
-			return existing, nil
-		}
-		return ReviewAttestation{}, fmt.Errorf("pose: review attestation identity collision for %s", att.AttestationID)
-	}
-	raw, err := json.MarshalIndent(att, "", "  ")
-	if err != nil {
-		return ReviewAttestation{}, err
-	}
-	if err := writeImmutableJSON(path, append(raw, '\n')); err != nil {
-		return ReviewAttestation{}, err
-	}
 	return att, nil
+}
+
+// SignableReviewAttestation completes a draft attestation for its sealed bundle
+// as recording would, including the confirmation digest when the draft names a
+// confirming principal, and returns it with the canonical bytes a trusted
+// issuer signs into a ReviewAttestationEnvelope. It records nothing.
+func (s Store) SignableReviewAttestation(att ReviewAttestation, now time.Time) (ReviewAttestation, []byte, error) {
+	bundle, err := s.LoadReviewBundle(att.BundleID)
+	if err != nil {
+		return ReviewAttestation{}, nil, err
+	}
+	if att.BundleDigest == "" {
+		att.BundleDigest = bundle.BundleDigest
+	}
+	if a := att.Attribution; a != nil && a.ConfirmedBy != "" && a.ConfirmationDigest == "" {
+		bound := *a
+		bound.ConfirmationDigest = ReviewConfirmationDigest(att)
+		att.Attribution = &bound
+	}
+	att.Path, att.Envelope = "", nil
+	completed, err := completeReviewAttestation(bundle, att, now)
+	if err != nil {
+		return ReviewAttestation{}, nil, err
+	}
+	canonical, err := json.Marshal(completed)
+	if err != nil {
+		return ReviewAttestation{}, nil, err
+	}
+	return completed, canonical, nil
+}
+
+// RecordReviewAttestationEnvelope verifies a trusted issuer's envelope and,
+// with apply, records the attestation it carries: the path both
+// `pose review attest --envelope` and the MCP tool take.
+func (s Store) RecordReviewAttestationEnvelope(envelope ReviewAttestationEnvelope, apply bool) (ReviewAttestation, error) {
+	attestation, err := s.VerifyReviewAttestationEnvelope(envelope)
+	if err != nil || !apply {
+		return attestation, err
+	}
+	return s.recordReviewAttestation(attestation, time.Now(), true)
 }
 
 // PreflightReviewAttestation returns the reasons the verifier would reject an
@@ -2308,11 +2360,7 @@ func (s Store) ImportReviewAttestationEnvelope(rel string, apply bool) (ReviewAt
 	if err := strictJSONFile(filepath.Join(s.Root, clean), &envelope); err != nil {
 		return ReviewAttestation{}, fmt.Errorf("pose: reading review attestation envelope: %w", err)
 	}
-	attestation, err := s.VerifyReviewAttestationEnvelope(envelope)
-	if err != nil || !apply {
-		return attestation, err
-	}
-	return s.recordReviewAttestation(attestation, time.Now(), true)
+	return s.RecordReviewAttestationEnvelope(envelope, apply)
 }
 
 func (s Store) LoadReviewAttestation(id string) (ReviewAttestation, error) {

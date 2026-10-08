@@ -51,6 +51,7 @@ var catalogGovernance = map[string]toolGovernance{
 	"pose_obligations":                  {Risk: RiskRead},
 	"pose_action_open":                  {Risk: RiskGovernanceWrite},
 	"pose_action_resolve":               {Risk: RiskGovernanceWrite},
+	"pose_review_attest":                {Risk: RiskGovernanceWrite},
 	"pose_action_requests":              {Risk: RiskRead},
 	"pose_mcp_context":                  {Risk: RiskRead},
 	"pose_project_state":                {Risk: RiskRead},
