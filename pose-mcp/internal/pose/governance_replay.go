@@ -30,11 +30,14 @@ type GovernanceReplayReport struct {
 	SpecsUnknown                   int            `json:"specs_unknown"`
 	StructuralFacts                int            `json:"structural_facts"`
 	UntracedFacts                  int            `json:"untraced_facts"`
-	SpecsWithUnknownStructure      int            `json:"specs_with_unknown_structure"`
-	UnbaselinedNodes               int            `json:"unbaselined_nodes"`
-	UnknownStartOrigins            int            `json:"unknown_start_origins"`
-	Limit                          int            `json:"limit"`
-	Limitations                    []string       `json:"limitations"`
+	// SharedCommitFacts counts material facts that came from a commit other
+	// specs also claim. Only bundles sealed with path attribution can tell.
+	SharedCommitFacts         int      `json:"shared_commit_facts"`
+	SpecsWithUnknownStructure int      `json:"specs_with_unknown_structure"`
+	UnbaselinedNodes          int      `json:"unbaselined_nodes"`
+	UnknownStartOrigins       int      `json:"unknown_start_origins"`
+	Limit                     int      `json:"limit"`
+	Limitations               []string `json:"limitations"`
 }
 
 func replayReason(blocker string) string {
@@ -233,6 +236,9 @@ func (s Store) GovernanceReplay(limit int) (GovernanceReplayReport, error) {
 			}
 			material = true
 			report.StructuralFacts++
+			if len(fact.SharedWith) > 0 {
+				report.SharedCommitFacts++
+			}
 			if !mapped[fact.DisplayID] {
 				report.UntracedFacts++
 			}

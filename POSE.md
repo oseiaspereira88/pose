@@ -591,6 +591,17 @@ names the matrix did not carry is reported as one `validation-check` fact per
 check and not charged, because registering a check strengthens what runs; any
 other change to the matrix, including an added check that reuses an existing
 name, stays a material `delivery-metadata` fact.
+Each path is compared over what the scope's own commits did to it, not over the
+subject's `base..head`: a range spans every commit between the first and the last
+attributed one, so its diff also carries what other specs and releases changed in
+between. The sealed subject records, per path, the blobs at the ends of each
+uninterrupted run of attributed commits (`subject.attribution`), which keeps the
+reading content-addressed. A run that includes a commit whose `POSE-Spec:`
+trailers also name other specs cannot be split by commit; its facts carry
+`shared_with`, and the plan warns that the reviewer should map the fact if this
+scope made the change, or answer its mapping `not-applicable` with the reason.
+A bundle sealed before this, or where Git cannot answer, is compared over its
+range as before, and `range_observations` says whether that range is contaminated.
 Nothing is resolved at all unless an adopted profile selects on structure, so a
 repository that did not opt in pays nothing, not even the Git reads.
 

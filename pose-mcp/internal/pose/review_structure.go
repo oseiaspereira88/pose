@@ -78,6 +78,9 @@ type ReviewStructuralFact struct {
 	Subject string `json:"subject"`
 	Path    string `json:"path,omitempty"`
 	Runtime string `json:"runtime,omitempty"`
+	// SharedWith names the other specs whose trailer is on a commit that made
+	// this change. Absent otherwise, so plans without it keep their digest.
+	SharedWith []string `json:"shared_with,omitempty"`
 }
 
 // ReviewPlanStructure is the observed structural context of a plan.
@@ -142,6 +145,7 @@ func (s Store) resolveReviewStructure(scope ScopeRef, components []ReviewPlanCom
 		structure.Material = append(structure.Material, ReviewStructuralFact{
 			ID: delta.DisplayID, Kind: delta.Kind, Action: delta.Action,
 			Subject: delta.Subject, Path: delta.Path, Runtime: delta.Runtime,
+			SharedWith: delta.SharedWith,
 		})
 	}
 	for _, detector := range report.Coverage.Detectors {

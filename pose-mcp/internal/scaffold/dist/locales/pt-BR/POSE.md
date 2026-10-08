@@ -596,7 +596,19 @@ lida por check: uma mudança que só acrescenta checks com nomes que a matriz n�
 tinha é reportada como um fato `validation-check` por check e não é cobrada,
 porque registrar um check reforça o que roda; qualquer outra mudança na matriz,
 inclusive um check novo que reusa um nome existente, continua sendo um fato
-material `delivery-metadata`. Nada é resolvido se nenhum
+material `delivery-metadata`.
+Cada caminho é comparado pelo que os commits do próprio escopo fizeram nele, e não
+pelo `base..head` do subject: um intervalo cobre todos os commits entre o primeiro
+e o último atribuídos, então o diff dele também traz o que outras specs e releases
+mudaram no meio. O subject selado registra, por caminho, os blobs nas pontas de
+cada sequência ininterrupta de commits atribuídos (`subject.attribution`), o que
+mantém a leitura endereçada por conteúdo. Uma sequência que inclui um commit cujos
+trailers `POSE-Spec:` também nomeiam outras specs não pode ser separada por commit;
+os fatos dela levam `shared_with`, e o plano avisa que o revisor deve mapear o
+fato se este escopo fez a mudança, ou responder o mapping dele como
+`not-applicable` com o motivo. Um bundle selado antes disso, ou em que o Git não
+responde, é comparado pelo intervalo como antes, e `range_observations` diz se esse
+intervalo está contaminado. Nada é resolvido se nenhum
 profile adotado selecionar por estrutura: quem não optou não paga nada, nem as
 leituras de Git.
 

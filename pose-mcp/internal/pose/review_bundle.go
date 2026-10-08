@@ -94,6 +94,13 @@ type ReviewBundleSubject struct {
 	PatchDigest          string                     `json:"patch_digest"`
 	TreeDigest           string                     `json:"tree_digest"`
 	Entries              []ReviewBundleSubjectEntry `json:"entries"`
+	// Attribution narrows each path to what this scope's own commits changed
+	// (see ReviewBundlePathAttribution). It is not implementation identity, so
+	// the implementation, patch and tree digests leave it out; it is sealed with
+	// the rest of the payload. Absent on bundles sealed before it existed, and
+	// whenever Git could not answer: the structural assessment then compares
+	// Base and Head.
+	Attribution []ReviewBundlePathAttribution `json:"attribution,omitempty"`
 }
 
 type ReviewBundlePlan struct {
@@ -795,6 +802,7 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 	treeRaw, _ := json.Marshal(treeEntries)
 	subject.TreeDigest = digestBytes(treeRaw)
 	subject.ImplementationDigest = reviewImplementationDigest(subject)
+	subject.Attribution = reviewBundleAttribution(s.Root, sets, allowedSpecs, subject.Entries)
 	return subject, sortedBundleInputs(excluded), blockers, nil
 }
 

@@ -113,7 +113,8 @@
         "id": {"type": "string", "pattern": "^SD-[0-9a-f]{8,12}$"},
         "kind": {"enum": ["dependency", "component", "delivery-metadata", "governance-contract", "public-contract", "submodule"]},
         "action": {"enum": ["added", "removed", "renamed", "changed"]},
-        "subject": {"type": "string"}, "path": {"type": "string"}, "runtime": {"type": "string"}
+        "subject": {"type": "string"}, "path": {"type": "string"}, "runtime": {"type": "string"},
+        "shared_with": {"type": "array", "items": {"type": "string"}}
       }
     },
     "tool": {

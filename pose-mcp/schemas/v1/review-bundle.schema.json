@@ -25,7 +25,15 @@
             "implementation_digest": {"$ref": "#/$defs/digest"},
             "patch_digest": {"$ref": "#/$defs/digest"},
             "tree_digest": {"$ref": "#/$defs/digest"},
-            "entries": {"type": "array", "items": {"type": "object"}}
+            "entries": {"type": "array", "items": {"type": "object"}},
+            "attribution": {"type": "array", "items": {"type": "object", "required": ["path", "segments"], "properties": {
+              "path": {"type": "string"},
+              "segments": {"type": "array", "items": {"type": "object", "properties": {
+                "before_mode": {"type": "string"}, "before": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
+                "after_mode": {"type": "string"}, "after": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
+                "shared_with": {"type": "array", "items": {"type": "string"}}
+              }}}
+            }}}
           }
         },
         "plan": {

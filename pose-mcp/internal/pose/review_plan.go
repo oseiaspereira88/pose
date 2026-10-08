@@ -314,6 +314,11 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 			for _, unknown := range plan.Structure.Unknown {
 				plan.Warnings = append(plan.Warnings, "unresolved structural coverage "+unknown)
 			}
+			for _, fact := range plan.Structure.Material {
+				if len(fact.SharedWith) > 0 {
+					plan.Warnings = append(plan.Warnings, "structural fact "+fact.ID+" on "+firstNonempty(fact.Path, fact.Subject)+" comes from a commit also attributed to "+strings.Join(fact.SharedWith, ", ")+"; map it if this scope made the change, otherwise answer this fact's mapping not-applicable with the reason")
+				}
+			}
 			break
 		}
 		selected = selectReviewOverlays(overlays, context)

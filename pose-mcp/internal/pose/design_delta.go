@@ -100,6 +100,9 @@ type StructuralDelta struct {
 	Runtime      string `json:"runtime,omitempty"`
 	BeforeDigest string `json:"before_digest,omitempty"`
 	AfterDigest  string `json:"after_digest,omitempty"`
+	// SharedWith names the other specs whose trailer is on a commit that made
+	// this change. It is not part of the fact's identity.
+	SharedWith []string `json:"shared_with,omitempty"`
 }
 
 type DesignDeltaReport struct {
@@ -138,6 +141,9 @@ type designDeltaCollector struct {
 	warnings   []string
 	bytesLeft  int
 	gitReader  *gitBatchReader
+	// sharedWith is attached to every fact observed while it is set: the
+	// segment being compared came from a commit other specs also claim.
+	sharedWith []string
 }
 
 var errDesignDeltaTooLarge = errors.New("design delta read exceeds configured byte limit")
@@ -234,12 +240,28 @@ func AssessDesignDelta(root string, subject ReviewBundleSubject, scope string, o
 		entries = entries[:options.MaxFiles]
 	}
 
-	if subject.Base == "" || subject.Head == "" {
+	attributed := map[string]ReviewBundlePathAttribution{}
+	for _, attribution := range subject.Attribution {
+		attributed[attribution.Path] = attribution
+	}
+	rangeEntries := []ReviewBundleSubjectEntry{}
+	for _, entry := range entries {
+		// A path the scope's own commits account for is compared over those
+		// commits only; everything else keeps the Base..Head comparison.
+		if attribution, ok := attributed[entry.Path]; ok && entry.Action != "renamed" && len(attribution.Segments) > 0 {
+			collector.observeAttributedEntry(entry, attribution)
+			continue
+		}
+		rangeEntries = append(rangeEntries, entry)
+	}
+	if len(rangeEntries) == 0 {
+		// Nothing needs the range.
+	} else if subject.Base == "" || subject.Head == "" {
 		collector.warn("subject has no immutable base/head; structural comparison is unknown")
 	} else if !designDeltaRevisionRE.MatchString(subject.Base) || !designDeltaRevisionRE.MatchString(subject.Head) {
 		collector.warn("subject base/head is not a safe immutable Git revision")
 	} else {
-		for _, entry := range entries {
+		for _, entry := range rangeEntries {
 			collector.observeEntry(subject.Base, subject.Head, entry)
 		}
 	}
@@ -322,6 +344,59 @@ func designDeltaEntryKey(entry ReviewBundleSubjectEntry) string {
 }
 
 func (c *designDeltaCollector) observeEntry(base, head string, entry ReviewBundleSubjectEntry) {
+	path, ok := c.observeEntryShape(entry)
+	if !ok {
+		return
+	}
+	basePath := entry.OldPath
+	if basePath == "" {
+		basePath = entry.Path
+	}
+	before, beforeState := c.readGitFile(base, basePath)
+	after, afterState := c.readGitFile(head, path)
+	c.observeEntryContent(path, entry, before, beforeState, after, afterState)
+}
+
+// observeAttributedEntry compares each segment of the scope's own commits on
+// the path, instead of the subject's Base and Head.
+func (c *designDeltaCollector) observeAttributedEntry(entry ReviewBundleSubjectEntry, attribution ReviewBundlePathAttribution) {
+	shared := []string{}
+	for _, segment := range attribution.Segments {
+		shared = append(shared, segment.SharedWith...)
+	}
+	c.sharedWith = uniqueSorted(shared)
+	path, ok := c.observeEntryShape(entry)
+	c.sharedWith = nil
+	if !ok {
+		return
+	}
+	counted := false
+	for _, segment := range attribution.Segments {
+		if segment.Before == segment.After && segment.BeforeMode == segment.AfterMode {
+			continue
+		}
+		before, beforeState := c.readGitBlob(segment.Before, segment.BeforeMode)
+		after, afterState := c.readGitBlob(segment.After, segment.AfterMode)
+		step := entry
+		switch {
+		case beforeState == "absent":
+			step.Action = "added"
+		case afterState == "absent":
+			step.Action = "removed"
+		default:
+			step.Action = "modified"
+		}
+		c.sharedWith = segment.SharedWith
+		c.observeEntryContentOnce(path, step, before, beforeState, after, afterState, !counted)
+		c.sharedWith = nil
+		counted = true
+	}
+}
+
+// observeEntryShape validates the entry and records the facts that come from
+// its shape alone: a rename or removal, and a submodule. ok is false when there
+// is no content left to compare.
+func (c *designDeltaCollector) observeEntryShape(entry ReviewBundleSubjectEntry) (string, bool) {
 	path := entry.Path
 	if entry.NewPath != "" {
 		path = entry.NewPath
@@ -329,13 +404,13 @@ func (c *designDeltaCollector) observeEntry(base, head string, entry ReviewBundl
 	if _, err := validateArtifactPathSyntax(path); err != nil {
 		c.coverage.FilesSkipped++
 		c.markUnknown("git-actions", err.Error())
-		return
+		return path, false
 	}
 	if entry.OldPath != "" {
 		if _, err := validateArtifactPathSyntax(entry.OldPath); err != nil {
 			c.coverage.FilesSkipped++
 			c.markUnknown("git-actions", err.Error())
-			return
+			return path, false
 		}
 	}
 	c.markObserved("git-actions")
@@ -352,16 +427,18 @@ func (c *designDeltaCollector) observeEntry(base, head string, entry ReviewBundl
 	if entry.Class == "submodule" {
 		c.addDelta(StructuralDelta{Kind: "submodule", Action: normalizeDesignAction(entry.Action), State: "observed", Subject: path, Path: path, OldPath: entry.OldPath, NewPath: entry.NewPath})
 		c.coverage.FilesObserved++
-		return
+		return path, false
 	}
+	return path, true
+}
 
-	basePath := entry.OldPath
-	if basePath == "" {
-		basePath = entry.Path
-	}
-	afterPath := path
-	before, beforeState := c.readGitFile(base, basePath)
-	after, afterState := c.readGitFile(head, afterPath)
+func (c *designDeltaCollector) observeEntryContent(path string, entry ReviewBundleSubjectEntry, before []byte, beforeState string, after []byte, afterState string) {
+	c.observeEntryContentOnce(path, entry, before, beforeState, after, afterState, true)
+}
+
+// observeEntryContentOnce compares one before/after pair. count is false for
+// the second and later segment of the same path, which is still one file.
+func (c *designDeltaCollector) observeEntryContentOnce(path string, entry ReviewBundleSubjectEntry, before []byte, beforeState string, after []byte, afterState string, count bool) {
 	if beforeState == "symlink" || afterState == "symlink" {
 		c.coverage.FilesSkipped++
 		c.markUnknown(detectorForPath(path), "symlink content is intentionally not followed")
@@ -378,7 +455,9 @@ func (c *designDeltaCollector) observeEntry(base, head string, entry ReviewBundl
 		c.markUnknown(detectorForPath(path), "Git revision or path is not safely readable")
 		return
 	}
-	c.coverage.FilesObserved++
+	if count {
+		c.coverage.FilesObserved++
+	}
 
 	if kind := designMetadataKind(path); kind != "" {
 		c.markObserved(detectorForKind(kind))
@@ -636,6 +715,43 @@ func (c *designDeltaCollector) readGitFile(revision, path string) ([]byte, strin
 	return raw, "observed"
 }
 
+// readGitBlob reads a blob named by its id, as an attribution segment records
+// it. An empty id is an absent side; a symlink is not followed, as in
+// readGitFile.
+func (c *designDeltaCollector) readGitBlob(oid, mode string) ([]byte, string) {
+	if oid == "" {
+		return nil, "absent"
+	}
+	if !designDeltaRevisionRE.MatchString(oid) {
+		return nil, "invalid"
+	}
+	switch mode {
+	case "120000":
+		return nil, "symlink"
+	case "100644", "100755":
+	default:
+		return nil, "invalid"
+	}
+	remaining := c.bytesLeft
+	if remaining <= 0 {
+		return nil, "too-large"
+	}
+	raw, err := c.gitReader.read(oid, remaining)
+	if errors.Is(err, errGitBatchMissing) {
+		return nil, "invalid"
+	}
+	if err != nil {
+		if errors.Is(err, errDesignDeltaTooLarge) {
+			c.bytesLeft = 0
+			return nil, "too-large"
+		}
+		return nil, "invalid"
+	}
+	c.bytesLeft -= len(raw)
+	c.coverage.BytesRead += len(raw)
+	return raw, "observed"
+}
+
 func gitObjectExists(root, revision, path string) (bool, error) {
 	cmd := exec.Command("git", "-C", root, "cat-file", "-e", revision+":"+path)
 	err := cmd.Run()
@@ -678,9 +794,22 @@ func (c *designDeltaCollector) addDelta(delta StructuralDelta) {
 		Kind, Action, State, Subject, Path, OldPath, NewPath, Runtime, BeforeDigest, AfterDigest string
 	}{delta.Kind, delta.Action, delta.State, delta.Subject, delta.Path, delta.OldPath, delta.NewPath, delta.Runtime, delta.BeforeDigest, delta.AfterDigest})
 	if c.deltaKeys[string(key)] {
+		// The same change seen again from a shared commit keeps that warning.
+		if len(c.sharedWith) > 0 {
+			sum := sha256.Sum256(key)
+			full := "sd-" + hex.EncodeToString(sum[:16])
+			for i := range c.deltas {
+				if c.deltas[i].ID == full {
+					c.deltas[i].SharedWith = uniqueSorted(append(c.deltas[i].SharedWith, c.sharedWith...))
+				}
+			}
+		}
 		return
 	}
 	c.deltaKeys[string(key)] = true
+	if len(c.sharedWith) > 0 {
+		delta.SharedWith = append([]string{}, c.sharedWith...)
+	}
 	sum := sha256.Sum256(key)
 	full := "sd-" + hex.EncodeToString(sum[:16])
 	short := "SD-" + hex.EncodeToString(sum[:4])
