@@ -14,12 +14,12 @@ type Attention struct {
 	// NotUsed names the sources this project does not have, which no producer
 	// needs to read (spec pose-fresh-install-doctor-is-clean).
 	NotUsed []string `json:"not_used,omitempty"`
-	// ForActor holds what requires the queried actor or role, or, without a
-	// query, what waits on any person or role.
+	// ForActor holds what still requires the queried actor or role, or,
+	// without a query, what still waits on any person or role.
 	ForActor []string `json:"for_actor"`
 	// Blocking maps each phase to the obligations that restrict it.
 	Blocking map[string][]string `json:"blocking"`
-	// Gates are mandatory, non-actor obligations (evidence, dependency,
+	// Gates are open mandatory, non-actor obligations (evidence, dependency,
 	// reconciliation) that restrict a phase.
 	Gates []string `json:"gates"`
 	// Residual is advisory debt; it never restricts a phase by default.
@@ -49,6 +49,18 @@ func BuildAttention(report ObligationReport, actor string) Attention {
 			a.Residual = append(a.Residual, o.ID)
 			continue
 		}
+		for _, phase := range []string{PhaseStart, PhaseExecution, PhaseReview, PhaseCloseout, PhaseRelease} {
+			if o.Restricts(phase) {
+				a.Blocking[phase] = append(a.Blocking[phase], o.ID)
+			}
+		}
+		// What waits is what is still open: a satisfied, waived or cancelled
+		// obligation stays in the report but asks nothing of anyone, as it
+		// already restricts no phase; an invalidated one is open again (spec
+		// pose-attention-lists-only-open-obligations).
+		if o.Satisfaction != SatisfactionPending && o.Satisfaction != SatisfactionInvalidated {
+			continue
+		}
 		forActor := false
 		if actor == "" {
 			forActor = o.Waiting == WaitingActor || o.Recipient.Principal != "" || o.Recipient.Role != ""
@@ -59,11 +71,6 @@ func BuildAttention(report ObligationReport, actor string) Attention {
 			a.ForActor = append(a.ForActor, o.ID)
 		} else {
 			a.Gates = append(a.Gates, o.ID)
-		}
-		for _, phase := range []string{PhaseStart, PhaseExecution, PhaseReview, PhaseCloseout, PhaseRelease} {
-			if o.Restricts(phase) {
-				a.Blocking[phase] = append(a.Blocking[phase], o.ID)
-			}
 		}
 	}
 	for _, list := range [][]string{a.ForActor, a.Gates, a.Residual} {
