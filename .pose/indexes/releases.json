@@ -1,6 +1,14 @@
 {
   "pending": [
     {
+      "spec": "pose-attention-lists-only-open-obligations",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Attention no longer lists an answered, waived or cancelled obligation under `for_actor` or `gates`. An answered action request used to keep appearing as something waiting on the person even after it stopped restricting any phase; it now stays only in the obligation report, and reappears if its answer is invalidated.",
+      "path": "pose-attention-lists-only-open-obligations.md",
+      "digest": "sha256:fd917c385ebbc662c53a83a4491b03abc81258cb6f2dce511ae84975657ce5ab"
+    },
+    {
       "spec": "pose-mcp-review-attest-signed-only",
       "category": "added",
       "breaking": false,
