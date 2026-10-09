@@ -86,13 +86,8 @@ const (
 // Producers the projection integrates, and the ones it does not yet. The
 // second list is part of every answer so absence is never silent.
 var (
-	obligationProducers        = []string{"readiness", "closeout", "review", "start", "followups", "action-requests", "assessments", "premises", "falsifiers"}
-	obligationProducersPending = map[string]string{
-		"release":            "release queues are not projected yet",
-		"docs-review":        "docs review pendencies are not projected yet",
-		"capability-trigger": "capability stale triggers are not projected yet",
-		"findings":           "open findings outside review attestations are not projected yet",
-	}
+	obligationProducers        = []string{"readiness", "closeout", "review", "start", "followups", "action-requests", "assessments", "premises", "falsifiers", "docs-review", "capability-trigger", "release", "findings"}
+	obligationProducersPending = map[string]string{}
 )
 
 // pendingSourceUsed reports whether this project has the source a pending
@@ -162,6 +157,10 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 		{"assessments", func() ([]Obligation, error) { return s.assessmentObligations(project, specs), nil }},
 		{"premises", func() ([]Obligation, error) { return s.premiseObligations(project, specs) }},
 		{"falsifiers", func() ([]Obligation, error) { return s.falsifierObligations(project, specs) }},
+		{"docs-review", func() ([]Obligation, error) { return s.docsReviewObligations(project) }},
+		{"capability-trigger", func() ([]Obligation, error) { return s.capabilityTriggerObligations(project) }},
+		{"release", func() ([]Obligation, error) { return s.releaseQueueObligations(project) }},
+		{"findings", func() ([]Obligation, error) { return s.findingObligations(project, time.Now()) }},
 		{"action-requests", func() ([]Obligation, error) {
 			if actionRequestObligationSource == nil {
 				cov := report.producerState["action-requests"]

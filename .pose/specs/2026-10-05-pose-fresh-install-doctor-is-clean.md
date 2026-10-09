@@ -131,4 +131,4 @@ None beyond the technical risk.
 
 ### Follow-ups
 
-- [open] Project the four pending Attention sources (release queues, docs review pendencies, capability stale triggers, open findings outside attestations) so a project that uses them gets complete coverage. (owner:@pose-maintainers crit:medium review:2026-11-15)
+- [spawned: pose-attention-projects-every-source] Project the four pending Attention sources (release queues, docs review pendencies, capability stale triggers, open findings outside attestations) so a project that uses them gets complete coverage. (owner:@pose-maintainers crit:medium review:2026-11-15)

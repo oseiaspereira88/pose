@@ -53,6 +53,10 @@ func ParseArtifactRef(raw string) (ArtifactRef, error) {
 	switch r.Kind {
 	case "spec", "roadmap":
 		r.Slug = raw
+	case "project":
+		// The project itself, for obligations no spec owns (spec
+		// pose-attention-projects-every-source).
+		r.Slug = raw
 	case "milestone":
 		var ok bool
 		r.Slug, r.Milestone, ok = strings.Cut(raw, "/")

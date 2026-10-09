@@ -191,7 +191,7 @@ type NodeRef struct {
 }
 
 // Node kinds a reference may name inside an artifact.
-var nodeKinds = enumSet("requirement", "assumption", "decision", "criterion", "surface", "release", "followup", "finding", "action")
+var nodeKinds = enumSet("requirement", "assumption", "decision", "criterion", "surface", "release", "followup", "finding", "action", "doc", "capability")
 
 func (n NodeRef) String() string {
 	if n.Kind == "" {

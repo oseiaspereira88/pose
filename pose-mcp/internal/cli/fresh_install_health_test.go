@@ -91,23 +91,27 @@ func TestFreshInstallHealthAttentionCoverageIsComplete(t *testing.T) {
 	if attention["incomplete"] != false {
 		t.Fatalf("a fresh install reads incomplete coverage: %v", attention)
 	}
-	notUsed, _ := attention["not_used"].([]any)
-	if len(notUsed) != 4 {
-		t.Fatalf("the unused sources are not named: %v", attention["not_used"])
+	// Every source is projected now (spec pose-attention-projects-every-source),
+	// so none is reported as unused or unprojected.
+	if notUsed, _ := attention["not_used"].([]any); len(notUsed) != 0 {
+		t.Fatalf("a projected source is still reported as unused: %v", notUsed)
 	}
 
-	// A source the project does use keeps coverage incomplete until the
-	// producer is projected.
+	// A project that uses a source keeps complete coverage, because the source
+	// is read; an open docs review mark becomes an obligation.
 	if err := os.WriteFile(filepath.Join(repo, ".pose", "docs.json"), []byte(`{"schema_version":1,"docs":[]}`+"\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	attention = freshAttention(t, repo)
-	if attention["incomplete"] != true {
-		t.Fatalf("a used, unprojected source does not make coverage incomplete: %v", attention)
+	if err := os.WriteFile(filepath.Join(repo, ".pose", "docs-review.jsonl"), []byte(`{"at":"2026-10-09T00:00:00Z","doc":"docs/guide.md","kind":"marked","trigger":"spec:demo"}`+"\n"), 0o644); err != nil {
+		t.Fatal(err)
 	}
-	limits, _ := json.Marshal(attention["coverage_limits"])
-	if !strings.Contains(string(limits), "docs-review") {
-		t.Fatalf("coverage limits do not name docs-review: %s", limits)
+	attention = freshAttention(t, repo)
+	if attention["incomplete"] != false {
+		t.Fatalf("a used, projected source made coverage incomplete: %v", attention)
+	}
+	if gates, _ := attention["gates"].([]any); len(gates) != 1 {
+		raw, _ := json.Marshal(attention)
+		t.Fatalf("the open docs review mark is not in Attention: %s", raw)
 	}
 }
 
