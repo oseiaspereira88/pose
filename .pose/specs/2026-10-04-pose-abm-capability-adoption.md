@@ -91,14 +91,14 @@ Reconciled against the tree at activation.
 
 ### Planning
 - [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
-- [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
+- [x] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area — not applicable: no engine code in this spec
 
 ### Implementation
-- [ ] Write the failing tests named in Validation first (the gate must fail before it passes)
-- [ ] Implement incrementally, one requirement group per commit with `POSE-Spec: pose-abm-capability-adoption`
+- [x] Write the failing tests named in Validation first (the gate must fail before it passes) — not applicable: no second implementation; the engine remediations carry their own tests
+- [x] Implement incrementally, one requirement group per commit with `POSE-Spec: pose-abm-capability-adoption`
 
 ### Validation
-- [ ] Run the deterministic checks below and retain results
+- [x] Run the deterministic checks below and retain results
 
 ## 5. Decisions
 
@@ -128,6 +128,14 @@ start and contract nodes on the next real specs.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] report:.pose/reports/pose-abm-capability-adoption.md evidence:manual <no implementation was added for contract nodes, atomic start or causality closeout; the four engine remediations the measurements required landed as their own specs>
+- R2 [satisfied] report:.pose/reports/pose-abm-capability-adoption.md evidence:manual <a shadow on five disposable clones measured each capability against an unadopted baseline, and a second causality measurement under `structural-materiality@1` measured the obligation and its reach; the follow-ups were dispositioned>
+- R3 [satisfied] report:.pose/results/pose-abm-capability-adoption.json evidence:manual <each policy change was committed after the maintainer answered its action request: act-7d587a8e4f3bf0fc (contract nodes), act-fa1d72f029d567a0 (atomic start, after a cutoff) and act-08a9fd2d9a0e50bb (causality closeout)>
+- R4 [satisfied] report:.pose/reports/pose-abm-capability-adoption.md evidence:manual <the shadow showed atomic start adding 39 closeout-restricting obligations; that stopped its rollout until the cutoff spec landed, without invalidating the delivered code>
+- R5 [satisfied] report:.pose/reports/pose-abm-capability-adoption.md evidence:manual <`pose state --governance` reports contract-nodes, atomic-start and causality-closeout configured and effective on 2026-10-09>
+
 ## 7. Final Report
 
 Decision 3 of 3 recorded on 2026-10-05: causality closeout adopted as designed (act-08a9fd2d9a0e50bb answered adopt). A first measurement showed the flag alone protects nothing under `spec-closeout@1`; a second, with `structural-materiality@1`, measured the real obligation and its reach. Four engine remediations landed first (pose-validation-check-additions-are-not-material, pose-causality-closeout-adoption-cutoff, pose-attest-refuses-what-verify-rejects, pose-governed-capabilities-default-on-new-instances), then `pose adopt causality-closeout --date 2026-10-06 --apply` set `causality_closeout_version: 1` with the overlay, both dated 2026-10-06. Report section "Causality closeout — measured cost and decision".
@@ -140,7 +148,11 @@ A shadow on five disposable clones at ce17db6 (report `.pose/reports/pose-abm-ca
 
 ### Delivered scope
 
-Not started. Filled at closeout from the requirement trace and the change sets.
+All three capabilities were shadowed, measured, decided by the maintainer through action requests and adopted: contract nodes as designed, atomic start after a cutoff, causality closeout with the structural overlay after four engine remediations.
+
+### Residual risks
+
+- Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent.
 
 ### Follow-ups
 
