@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-437b06904691270b",
+  "bundle_id": "rvb-1f62c9b82dbf1010",
+  "bundle_digest": "sha256:1f62c9b82dbf1010f3dc7396fa0c086c38f3661f069236c699c0894f354d9995",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-snapshot-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-snapshot-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-snapshot-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-snapshot-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-snapshot-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-cb83bb646f81c2b4",
+      "rationale": "Identical answers: obligation ids and satisfaction match before and after on Harne8 and pose-dist. A store outside a projection has no snapshot and behaves as before; the snapshot is never shared across operations, so an edit between two reads is always seen."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-snapshot-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-cb83bb646f81c2b4",
+      "rationale": "The code comments name the measured cause; the spec records the attempt that did not help (a content memo) and the timings; the changelog fragment states the user-visible effect."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-cb83bb646f81c2b4",
+      "rationale": "Attention takes 1.33 s on Harne8, where the pilot measured 30 to 37 s, and 0.91 s on pose-dist. Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-snapshot-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-cb83bb646f81c2b4",
+      "rationale": "A snapshot type and its use in ListSpecs, the resolver and scoped bundle listing, its activation in the projection, tests, a matrix check, a fragment and the spawned disposition. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-cb83bb646f81c2b4",
+      "rationale": "Read-only; callers receive copies of each spec's slices, so no caller can alter another's view, and bundles are still loaded and verified per call."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-attention-within-a-second --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-cb83bb646f81c2b4",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-snapshot-integration",
+      "rationale": "pose assess integrate ran with the candidate CLI and exited 0."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-snapshot-integration",
+      "rationale": "surface-check --spec pose-attention-within-a-second --strict exited 0."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/attention-snapshot-integration",
+    "structure:design-cb83bb646f81c2b4",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T09:23:55Z",
+  "path": ".pose/review-attestations/rva-437b06904691270b.json"
+}
