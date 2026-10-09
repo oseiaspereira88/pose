@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-030933faade0c338",
+  "bundle_id": "rvb-e5f4d33e80db3d97",
+  "bundle_digest": "sha256:e5f4d33e80db3d97af45d357ebe0ad0c9d2ad4d9232be9869caaf70389ec6148",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-577ebfaa3d84f082",
+      "rationale": "Text only: no CLI or artifact format change; public-claims --strict passes on every declared surface."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:mcp-enforce/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-577ebfaa3d84f082",
+      "rationale": "This spec is documentation: the trace names, per requirement, the surface and section that carries it, and the two surfaces outside the repository are recorded as a deferred integration and a follow-up."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-577ebfaa3d84f082",
+      "rationale": "Readers meet one description and one lifecycle on every surface in the repository. Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-577ebfaa3d84f082",
+      "rationale": "README, pt-BR README, docs home and concepts page; the site and the GitHub description are outside this repository. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-577ebfaa3d84f082",
+      "rationale": "No executable change."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-canonical-positioning --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-577ebfaa3d84f082",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares no check for docs-site (producer_coverage none)."
+    }
+  ],
+  "evidence_refs": [
+    "build:mcp-enforce/go/build",
+    "integration:pose-mcp/go/abm-atomic-start-integration",
+    "structure:design-577ebfaa3d84f082",
+    "unit:mcp-enforce/go/test",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T09:47:58Z",
+  "path": ".pose/review-attestations/rva-030933faade0c338.json"
+}
