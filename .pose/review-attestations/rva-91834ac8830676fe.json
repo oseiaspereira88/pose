@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-91834ac8830676fe",
+  "bundle_id": "rvb-a2ba179f79ab1976",
+  "bundle_digest": "sha256:a2ba179f79ab1976f50c65fe3059185014ee7f18ec400dcc699d2f150e73189d",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-d775f51f8e972a66",
+      "rationale": "Documentation and a test script; the amendment of R4 is recorded through pose amend with the maintainer as author, so the requirement's history is kept."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:mcp-enforce/go/build"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-d775f51f8e972a66",
+      "rationale": "The quickstart page states the measured budget and what it excludes; the spec records the amendment, the measurement report and the follow-up for a human first use."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-d775f51f8e972a66",
+      "rationale": "tests/quickstart/first-governed-loop.sh runs the page in CI; the clean-container measurement of the published v7.0.0 installer took 8.178 s. Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-d775f51f8e972a66",
+      "rationale": "The page budget, the measurement report, the amendment and the spec; the demo script is claimed only because a shared commit changed it for both specs. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-d775f51f8e972a66",
+      "rationale": "The measurement runs in a disposable container from the published installer; nothing in the repository executes downloaded code outside it."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-first-governed-loop-quickstart --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-d775f51f8e972a66",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "examples",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "pose assess integrate ran with the candidate CLI and exited 0."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "examples",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares no check for docs-site (producer_coverage none)."
+    },
+    {
+      "id": "validate",
+      "component": "examples",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares no check for examples (producer_coverage none)."
+    },
+    {
+      "id": "validate",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares no check for tests (producer_coverage none)."
+    }
+  ],
+  "evidence_refs": [
+    "build:mcp-enforce/go/build",
+    "integration:pose-mcp/go/abm-atomic-start-integration",
+    "structure:design-d775f51f8e972a66",
+    "unit:mcp-enforce/go/test",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T10:39:54Z",
+  "path": ".pose/review-attestations/rva-91834ac8830676fe.json"
+}
