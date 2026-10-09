@@ -6,8 +6,9 @@
 # nowhere. A failed run on main or on a tag now opens one issue per workflow,
 # assigned to the repository owner, which GitHub delivers as a notification.
 # Further failures comment on that issue instead of opening another, and the
-# issue closes itself when the same workflow next succeeds on main or on a
-# release tag (Release only ever runs on a tag).
+# issue closes itself when the same workflow next succeeds on main's current
+# head or on a release tag (Release only ever runs on a tag); a late success of
+# an older commit does not clear it.
 #
 # workflow_run carries attacker-influenceable values (a branch name), so every
 # event field is bound through env and checked before use, and nothing is
@@ -64,6 +65,15 @@ jobs:
             -q ".[] | select(.title == \"$title\") | .number" | head -1)"
 
           if [ "$CONCLUSION" = "success" ]; then
+            # A run of an older commit can finish after a newer one failed;
+            # only a success at the branch's current head clears the alert.
+            if [ "$BRANCH" = "main" ]; then
+              head="$(gh api "repos/$REPO/commits/main" -q .sha)"
+              if [ "$head" != "$SHA" ]; then
+                echo "success at $SHA is not main's head ($head); the alert stays open"
+                exit 0
+              fi
+            fi
             if [ -n "$existing" ]; then
               gh issue close "$existing" --repo "$REPO" \
                 --comment "$WORKFLOW passed again on \`$BRANCH\` at $SHA: $RUN_URL"

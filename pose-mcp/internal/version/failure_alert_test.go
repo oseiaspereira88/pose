@@ -10,6 +10,7 @@ package version_test
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -122,5 +123,86 @@ func TestFailureAlertContractRejectsAnUnwatchedWorkflow(t *testing.T) {
 	got := unwatchedWorkflows(workflows, map[string]bool{"CI": true})
 	if strings.Join(got, ",") != "Nightly" {
 		t.Fatalf("unwatched = %v, want [Nightly]", got)
+	}
+}
+
+// alertStep returns the shell of the alert step, as the runner executes it.
+func alertStep(t *testing.T) string {
+	t.Helper()
+	raw, err := os.ReadFile("../../../.github/workflows/failure-alert.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	lines := strings.Split(string(raw), "\n")
+	for i, line := range lines {
+		if strings.TrimSpace(line) != "run: |" {
+			continue
+		}
+		indent := len(line) - len(strings.TrimLeft(line, " ")) + 2
+		body := []string{}
+		for _, next := range lines[i+1:] {
+			if strings.TrimSpace(next) != "" && len(next)-len(strings.TrimLeft(next, " ")) < indent {
+				break
+			}
+			if len(next) >= indent {
+				next = next[indent:]
+			}
+			body = append(body, next)
+		}
+		return strings.Join(body, "\n")
+	}
+	t.Fatal("failure-alert.yml has no run block")
+	return ""
+}
+
+// runAlert executes the step with a recording gh whose main head is head and
+// whose open alert issue, if any, is existing.
+func runAlert(t *testing.T, workflow, conclusion, branch, sha, head, existing string) []string {
+	t.Helper()
+	dir := t.TempDir()
+	log := filepath.Join(dir, "gh.log")
+	gh := "#!/usr/bin/env bash\necho \"$*\" >> \"$GH_LOG\"\ncase \"$1 $2\" in\n  \"api repos/o/pose/commits/main\") echo \"$MAIN_HEAD\" ;;\n  \"issue list\") [ -n \"$EXISTING\" ] && echo \"$EXISTING\" ;;\nesac\nexit 0\n"
+	if err := os.WriteFile(filepath.Join(dir, "gh"), []byte(gh), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	script := filepath.Join(dir, "step.sh")
+	if err := os.WriteFile(script, []byte(alertStep(t)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	cmd := exec.Command("bash", script)
+	cmd.Env = append(os.Environ(), "PATH="+dir+":"+os.Getenv("PATH"), "GH_LOG="+log, "REPO=o/pose", "OWNER=o",
+		"WORKFLOW="+workflow, "CONCLUSION="+conclusion, "BRANCH="+branch, "SHA="+sha, "MAIN_HEAD="+head, "EXISTING="+existing,
+		"RUN_URL=https://github.com/o/pose/actions/runs/1")
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("alert step failed: %v\n%s", err, out)
+	}
+	raw, _ := os.ReadFile(log)
+	return strings.Split(strings.TrimSpace(string(raw)), "\n")
+}
+
+func ghCalled(calls []string, prefix string) bool {
+	for _, call := range calls {
+		if strings.HasPrefix(call, prefix) {
+			return true
+		}
+	}
+	return false
+}
+
+// A late success of an older commit must not clear the alert of a newer red
+// run; a success at main's head does (spec pose-red-signal-clears-only-at-the-head).
+func TestFailureAlertClearsOnlyAtMainsHead(t *testing.T) {
+	old, head := strings.Repeat("a", 40), strings.Repeat("b", 40)
+	if calls := runAlert(t, "CI", "success", "main", old, head, "134"); ghCalled(calls, "issue close") {
+		t.Fatalf("a success of an older commit cleared the alert: %v", calls)
+	}
+	if calls := runAlert(t, "CI", "success", "main", head, head, "134"); !ghCalled(calls, "issue close 134") {
+		t.Fatalf("a success at main's head did not clear the alert: %v", calls)
+	}
+	if calls := runAlert(t, "Release", "success", "v7.1.0", old, head, "9"); !ghCalled(calls, "issue close 9") {
+		t.Fatalf("a successful release on its tag did not clear the alert: %v", calls)
+	}
+	if calls := runAlert(t, "CI", "failure", "main", head, head, ""); !ghCalled(calls, "issue create") {
+		t.Fatalf("a red run on main opened no alert: %v", calls)
 	}
 }
