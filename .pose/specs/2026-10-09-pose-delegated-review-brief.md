@@ -37,7 +37,7 @@ Read-only; deterministic for a given bundle; no vendor-specific wording. Require
 - R1: `pose review brief <bundle|scope>` shall render the scope, the change set diff reference, the plan's pending criteria and tool dispositions, the material structural facts and the sealed evidence, from the sealed bundle only.
 - R2: The same sealed bundle shall render the same bytes, and the brief shall carry its own digest and template version.
 - R3: Implementer notes shall be accepted only through `--note-file` and rendered in a section labelled as the implementer's, never mixed with the generated instructions.
-- R4: The brief shall state the reviewer's boundaries: report defects with file and line, do not change the repository, do not record an attestation unless the policy assigns that step to the reviewer.
+- R4: The brief shall state the reviewer's boundaries: report defects with file and line, do not change the repository, do not record an attestation — the engine records a verified run's conclusion (ADR decision 1).
 - R5: A stale or superseded bundle shall be refused.
 - R6: The brief shall have three kinds — `review` (a spec's sealed bundle), `adjudication` (an independent verdict on a recorded question, such as a pilot's outcomes, with the evidence it names) and `smoke` (a scripted run of a delivered surface with its expected observations) — each with its own versioned template and the same boundaries.
 

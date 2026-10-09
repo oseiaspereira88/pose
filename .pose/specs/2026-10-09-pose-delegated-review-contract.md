@@ -76,7 +76,7 @@ The contract is ADR `2026-10-09-delegated-review-is-an-adapter`, accepted on 202
 
 - R1 [satisfied] evidence:manual <ADR section "Maintainer's decisions (2026-10-09)" records the four answers and their rationale>
 - R2 [satisfied] evidence:manual <ADR status: accepted, no open decision>
-- R3 [satisfied] evidence:manual <brief R6, dispatch R5/R7, capability R4-R7 amended to the answers before any spec started>
+- R3 [satisfied] evidence:manual <brief R4/R6, dispatch R5/R7, capability R4-R7 amended to the answers before any spec started; brief R4 corrected after the independent review found it still let the reviewer record>
 
 ## 7. Final Report
 
