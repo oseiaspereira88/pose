@@ -16,7 +16,7 @@ import (
 // wholesale `.pose/policy` sync, and the placeholder shipped instead must be
 // schema-valid and inert (empty roots, disabled).
 func TestSelfReferentialPolicyFilesExcluded(t *testing.T) {
-	for _, rel := range []string{".pose/policy/delivery.json", ".pose/policy/artifacts.json", ".pose/policy/review.json"} {
+	for _, rel := range []string{".pose/policy/delivery.json", ".pose/policy/artifacts.json", ".pose/policy/review.json", ".pose/policy/dor.json"} {
 		if IsIncluded(rel) {
 			t.Errorf("IsIncluded(%q) = true, want false — self-referential policy must not be synced verbatim", rel)
 		}
@@ -26,8 +26,11 @@ func TestSelfReferentialPolicyFilesExcluded(t *testing.T) {
 	// a dated field per governed contract and the overlays this repository
 	// adopted, all of which are statements about this repository rather than
 	// defaults for a target.
+	// dor.json followed on 2026-10-09 (spec pose-scaffold-ships-a-neutral-dor-policy):
+	// once this repository adopted the Definition of Ready, its adoption date
+	// was about to gate every new instance.
 	// Sanity: other policy files stay on the wholesale allowlist.
-	for _, rel := range []string{".pose/policy/state.json", ".pose/policy/dor.json"} {
+	for _, rel := range []string{".pose/policy/state.json"} {
 		if !IsIncluded(rel) {
 			t.Errorf("IsIncluded(%q) = false, want true — unrelated policy files must still sync", rel)
 		}
@@ -327,5 +330,23 @@ func TestActionsPolicyShipsNoPrincipal(t *testing.T) {
 	}
 	if !bytes.Equal(shipped, content) {
 		t.Fatalf("the embedded actions.json is not the neutral template:\n%s", shipped)
+	}
+}
+
+// The neutral Definition of Ready ships the gate off: no adoption date.
+func TestNeutralDoRPolicyShipsTheGateOff(t *testing.T) {
+	raw, ok := NeutralPolicyTemplates()[".pose/policy/dor.json"]
+	if !ok {
+		t.Fatal("no neutral dor.json template")
+	}
+	var doc map[string]any
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		t.Fatal(err)
+	}
+	if doc["adopted_at"] != "" {
+		t.Fatalf("the neutral DoR ships adopted_at=%v", doc["adopted_at"])
+	}
+	if _, ok := doc["taskTypes"].(map[string]any)["feature"]; !ok {
+		t.Fatal("the neutral DoR lost its task types")
 	}
 }

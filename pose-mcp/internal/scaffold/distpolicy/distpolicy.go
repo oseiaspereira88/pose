@@ -102,6 +102,11 @@ var SelfReferentialPolicyFiles = []string{
 	// template ships the roles empty; a project names its own principals
 	// (spec pose-agency-readiness-pilot, R5).
 	"actions.json",
+	// dor.json carries `adopted_at` once this repository adopts the Definition
+	// of Ready, and shipped verbatim it gated every new instance's specs from
+	// this repository's date. The neutral template ships the gate off (spec
+	// pose-scaffold-ships-a-neutral-dor-policy).
+	"dor.json",
 	// adoption-decisions.json records which capabilities this repository
 	// declined or deferred. It is a statement about one project, so it is not
 	// shipped at all: a new instance starts with no decision recorded (spec
@@ -219,6 +224,31 @@ func IsIncluded(rel string) bool {
 // drift guard once did before this package existed.
 func NeutralPolicyTemplates() map[string][]byte {
 	return map[string][]byte{
+		// pose-dist adopts the Definition of Ready for itself; a new instance
+		// must start with the gate off, not with pose-dist's adoption date
+		// (spec pose-scaffold-ships-a-neutral-dor-policy).
+		".pose/policy/dor.json": []byte(`{
+  "_comment": "Definition of Ready policy (spec pose-spec-readiness-gate). Opt-in: the gate applies to specs created on or after adopted_at, and an empty value means it applies to none — set the date this project adopted it. taskTypes names the sections each kind of spec must fill.",
+  "schemaVersion": 1,
+  "adopted_at": "",
+  "defaultTaskType": "feature",
+  "taskTypes": {
+    "feature": [
+      "Intent",
+      "Requirements",
+      "Technical Plan"
+    ],
+    "bugfix": [
+      "Intent",
+      "Technical Plan"
+    ],
+    "refactor": [
+      "Intent",
+      "Technical Plan"
+    ]
+  }
+}
+`),
 		".pose/policy/changelog.json": []byte(`{
   "_comment": "Changelog policy (spec pose-release-changelog). adopted_at is stamped with the day this instance received the policy; a done spec completed on or after it needs a changelog fragment. An empty value means the contract is not adopted and no spec is held to it. categories lists the fragment categories this project accepts.",
   "schema_version": 1,
