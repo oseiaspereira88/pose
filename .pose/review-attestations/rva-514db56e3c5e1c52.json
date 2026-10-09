@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-514db56e3c5e1c52",
+  "bundle_id": "rvb-54264f9eed77a84d",
+  "bundle_digest": "sha256:54264f9eed77a84d3ea6d55d589ee6a53cc3498469aa28157784f701fde46663",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "The published 7.1.0 checksums.txt was independently downloaded to /tmp/pose720-independent-review.CToHzl and hashes to 451e962361f2dce23fb1ce19b42531eb8490e3ae39533e35666a9799a4e7c182, matching the pin and verified evidence. All 13 prior upgrades are unchanged. The reviewer prefix agent:independent- is an engine-required declaration under declared identity assurance; this review is by OpenAI, a different vendor from implementer Claude Opus 5.5 (Anthropic), not a cryptographically verified identity claim."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "No CLI, file or MCP behavior is changed. The compatibility log compat720.log records COMPATIBLE and all 14 upgrades plus contracts and installer E2E. Its recorded base is d47ec0c, while current sealed validation is bound to f4c6d312; reviewed commit adds only the version alignment and spec artifacts shown in the declared scope. Existing pins and schema version remain unchanged."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-89dff206433aa9ed",
+      "rationale": "R1 requires agreement across version metadata; updating both registry version fields directly satisfies it. R2 is met by a single authenticated upgrade entry with existing entries preserved. No new governance gate or architecture is introduced.",
+      "mappings": [
+        {
+          "delta": "SD-d1dc60e2",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "Both MCP registry version fields must agree with the authoritative CLI version 7.2.0, as R1 explicitly requires."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "Both README locales now pin POSIX and PowerShell installation to 7.2.0 and the CI guide pins v7.2.0. Public claims passes with 18 surfaces and zero errors; the release remains unprepared as expected for this pre-release alignment scope."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "The development binary retains -dev, avoiding release impersonation; release stamping remains unchanged. Installer checksum verification is retained and upgrade authentication precedes binary execution. No error, logging or concurrency paths change."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "Rules applied during review: mixed metadata/documentation; workflow .pose/workflows/review.md; security for checksum and secret integrity, backend-go for version contract and deterministic Go evidence, documentation-style for both locales and CI pins, delivery-evidence for closure gates. Knowledge-governance was consulted; no knowledge artifact is required because no residual risk is accepted. Python runtime, UI and infrastructure rules are inapplicable. Artifact check reconciles 8 claims with 8 observed artifacts. Existing repository orphan warnings and external MCP consumer observations are outside this metadata-only diff. Recurrence reports zero flagged keys and one historical resolved/flapping validation signal, with no matching defect in this scope."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "Independent SHA-256 verification confirms the trusted upgrade pin; no prior pin is replaced, TLS verification remains enabled, and review of the entire commit finds no credentials or sensitive data. No dependency, authorization or executable input handling is changed."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "A metadata-only version replacement plus one pinned upgrade is the smallest sufficient change for R1/R2. No abstraction, dependency or speculative extension is added. Changing supported upgrades, checksum bytes, or release numbering would invalidate this conclusion and require a fresh review."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "Executed strict artifact reconciliation: 8 claims and 8 observed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-89dff206433aa9ed",
+      "rationale": "Executed bounded design assessment; one public-contract metadata delta."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "Executed freshness-aware discovery."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "Executed freshness-aware discovery."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "Executed freshness-aware discovery."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "Executed integration assessment; existing external consumer observations do not arise from version field changes."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed debt assessment: zero uncovered markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "Executed component rule selection."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "Executed component rule selection."
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/public-claims-release-line-integration",
+      "rationale": "Executed component rule selection."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed full strict validation; sealed HEAD evidence also covers pose-mcp."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The sealed plan declares producer_coverage none; the validation matrix registers no checks for this component. Metadata checked directly and by public-claims and compatibility evidence."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full strict validation executes all registered pose-mcp checks; no duplicate run needed."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "The sealed plan declares producer_coverage none; the validation matrix registers no checks for this component. Metadata checked directly and by public-claims and compatibility evidence."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/public-claims-release-line-integration",
+    "structure:design-89dff206433aa9ed",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-gpt-6.1-sol-review",
+    "concluded_by": "agent:independent-gpt-6.1-sol-review",
+    "applied_by": "agent:independent-gpt-6.1-sol-review"
+  },
+  "attested_at": "2026-10-09T23:54:02Z",
+  "path": ".pose/review-attestations/rva-514db56e3c5e1c52.json"
+}
