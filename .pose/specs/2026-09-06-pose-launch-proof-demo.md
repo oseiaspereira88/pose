@@ -79,8 +79,8 @@ agent, which is what every reader already assumes exists.
 ### Implementation
 - [x] Increment 1: Scripted scenario reaching a genuine blocked state (R1, R3)
 - [x] Increment 2: Resolution path to a closed delivery (R2)
-- [ ] Increment 3: Record and trim under 60s (R4)
-- [ ] Increment 4: Embed on landing and README (R5)
+- [ ] Increment 3: Record and trim under 60s (R4) — deferred: capture step
+- [ ] Increment 4: Embed on landing and README (R5) — deferred: Harne8 site
 
 ---
 
@@ -113,8 +113,8 @@ agent, which is what every reader already assumes exists.
 - R1 [satisfied] <examples/demo/record.sh; check:demo-scenario-verify asserts the block and its reason>
 - R2 [satisfied] <same script, resolution step; asserts spec.trace.missing=0 afterwards>
 - R3 [satisfied] <the scenario is a script in the repository, re-runnable and re-recordable; check:ci-demo-scenario>
-- R4 [deferred-integration: spec:pose-launch-proof-demo] <the recording itself is a capture step, not code>
-- R5 [deferred-integration: spec:harne8-pose-launch-surfaces] <landing embedding belongs to the site repository>
+- R4 [deferred-integration: spec:pose-launch-proof-demo] <the scripted scenario runs in CI; the recording and its trim under 60 seconds are a capture step, recorded as a follow-up>
+- R5 [deferred-integration: xref:proj.harne8/spec:harne8-pose-open-integrations-reconciliation] <the landing and README embedding belong to the Harne8 integration follow-up; on 2026-10-09 neither embeds a demo>
 
 ### Known gaps
 - No recording exists yet. Producing one means pointing asciinema, vhs or a
@@ -129,6 +129,14 @@ agent, which is what every reader already assumes exists.
 
 ## 7. Final Report
 
+### Delivered scope
+
+`examples/demo/record.sh` runs a delivery whose conventional checks pass and that POSE still blocks for a reason, then resolves it through a real disposition; CI re-runs the scenario. The recording itself and its embedding are not done.
+
+### Residual risks
+
+- Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent.
+
 ### Follow-ups
 
-- [open]
+- [open] Record the demo from `examples/demo/record.sh`, trimmed under 60 seconds, so it can be embedded (owner:@pose-maintainers crit:medium review:2026-11-01)
