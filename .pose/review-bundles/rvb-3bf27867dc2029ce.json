@@ -1,0 +1,585 @@
+{
+  "schema_version": 1,
+  "bundle_id": "rvb-3bf27867dc2029ce",
+  "bundle_digest": "sha256:3bf27867dc2029cec870a6d5149b5f5c59a6ffac7e7d14e5cb466cfc58c7b1cb",
+  "state": "sealed",
+  "sealed_at": "2026-10-09T09:41:22Z",
+  "payload": {
+    "scope": {
+      "ref": "spec:pose-readme-evaluation-path",
+      "kind": "spec",
+      "slug": "pose-readme-evaluation-path",
+      "depends_on": [
+        "pose-canonical-positioning"
+      ],
+      "components": [
+        "docs"
+      ],
+      "sections": [
+        {
+          "kind": "semantic-section",
+          "path": "decisions",
+          "digest": "sha256:4688950b3a9b6989ad750fbc164813df87d9258194ce3244a97504b7d1c16909",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "intent",
+          "digest": "sha256:afa35baef54dd908d21b001b85f0ee970d0dbe8fbc1c0d07b22613ae4cdb0a7d",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "requirements",
+          "digest": "sha256:c27aede631c7cf4671277a6a9e906fbaabda560b2a7e1b1baf324a270c473574",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "technical plan",
+          "digest": "sha256:c2f485bf4e2278d3681b275a38bc293de437825ea6a34b2d945287a6e75507bd",
+          "reason": "governed semantic review input"
+        }
+      ]
+    },
+    "subject": {
+      "change_sets": [
+        "cs-3bedabc503bd"
+      ],
+      "base": "949956f73d653090830bf05d9f0ac746310428ad",
+      "head": "ee2c9679ab3eb1ce09cdff188e73ee06acb40d3f",
+      "implementation_digest": "sha256:071223479c53615df85afb4d08c8d92aaf18cf37b18e37f5927d366db144b79e",
+      "patch_digest": "sha256:bf342ef1383dd05e95d97e0f076b54ac4be5a267002590bd02e59a289b865b8f",
+      "tree_digest": "sha256:c2b87e65b20be952000c3d75c3b9e38d04ee76f5b763715d59ea09ef9d8b1b82",
+      "entries": [
+        {
+          "action": "modified",
+          "path": "README.pt-BR.md",
+          "class": "documentation",
+          "digest": "sha256:8ae293d7ee1c2bcbb99ce100bbf6fe1d146b5a42e7a1a4ced9f6d7e39468403a",
+          "reason": "attributed documentation path in the immutable change set"
+        }
+      ],
+      "attribution": [
+        {
+          "path": "README.pt-BR.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "a193da1a3a86368180bcd7a17698832069ad0ebe",
+              "after_mode": "100644",
+              "after": "7a4ff20d26932ad93c6502c516aa5aeab4c62962"
+            }
+          ]
+        }
+      ]
+    },
+    "plan": {
+      "plan_digest": "sha256:819ecacf9f3a8e5c7ea7262ac68852c722cd5b6b09f5a595fb8f06dd1cea5bed",
+      "independence": "same-actor-separate-execution",
+      "components": [],
+      "criteria": [
+        {
+          "id": "compatibility",
+          "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "correctness",
+          "description": "Functional and negative behavior is correct.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "documentation",
+          "description": "Operational docs, templates and scaffold match runtime behavior.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "operability",
+          "description": "Errors, explanations and remediation are actionable.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "requirements",
+          "description": "Every requirement has current, relevant evidence.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "scope",
+          "description": "The implementation matches the approved spec scope.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "security",
+          "description": "Inputs, paths, evidence and authority boundaries are safe.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "security"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "id": "artifact-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "artifact-check",
+            "--spec",
+            "pose-readme-evaluation-path",
+            "--strict"
+          ],
+          "rationale": "reconcile declared artifacts with Git-observed provenance",
+          "criteria": [
+            "requirements",
+            "scope"
+          ],
+          "preconditions": [
+            "artifacts-attributed"
+          ]
+        },
+        {
+          "id": "assess-design",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "design",
+            "--spec",
+            "pose-readme-evaluation-path",
+            "--json"
+          ],
+          "rationale": "observe bounded structural deltas on the canonical review subject",
+          "evidence_classes": [
+            "structure"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-tech-debt",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "tech-debt"
+          ],
+          "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+          "criteria": [
+            "correctness"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "closeout-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "closeout-check",
+            "spec:pose-readme-evaluation-path"
+          ],
+          "rationale": "verify remaining hierarchical closeout blockers",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "review-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "review-check",
+            "spec:pose-readme-evaluation-path"
+          ],
+          "rationale": "verify exact review-plan coverage and freshness",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "criteria": [
+            "correctness",
+            "requirements"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        }
+      ],
+      "selected_profiles": [
+        {
+          "ref": "spec-closeout@1",
+          "category": "base",
+          "order": 0,
+          "source": ".pose/review-profiles/spec-closeout.json",
+          "rationale": "selected by terminal scope policy"
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "id": "design-430d446555974d3a",
+        "check": "assess-design",
+        "evidence_class": "structure",
+        "outcome": "pass",
+        "subject_digest": "sha256:071223479c53615df85afb4d08c8d92aaf18cf37b18e37f5927d366db144b79e",
+        "subject_observation": "observed",
+        "provenance_digest": "sha256:430d446555974d3a62343eac066742d8f88aa7ff9ec42d4ec503849437a81ac0",
+        "report": "derived:design-delta/430d446555974d3a62343eac066742d8f88aa7ff9ec42d4ec503849437a81ac0"
+      }
+    ],
+    "governing_contracts": [
+      "component-aware",
+      "evidence-vocabulary",
+      "explicit-judgment",
+      "review-bundles",
+      "structural-causality"
+    ],
+    "gates": {
+      "accepted_risk_severities": [
+        "low"
+      ],
+      "allow_criterion_reuse": true,
+      "identity_assurance": "declared"
+    },
+    "consumed_inputs": [
+      {
+        "kind": "governed-config",
+        "path": ".pose/indexes/validation-matrix.json",
+        "digest": "sha256:5cbae6e16e4b1d29691da444a1a5ac4f0871ad1739b882fd9b5585f885115fc4",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "governed-config",
+        "path": ".pose/policy/review.json",
+        "digest": "sha256:7f54672efaa283defea31e279fb04ed0e071cdfa32d3fa787013a24725515c11",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "review-plan",
+        "path": "spec-closeout@1",
+        "digest": "sha256:819ecacf9f3a8e5c7ea7262ac68852c722cd5b6b09f5a595fb8f06dd1cea5bed",
+        "reason": "effective component-aware plan contract"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/spec-closeout.json",
+        "digest": "sha256:3d114c8cb6398ab16bd0a1daca8540728af282558ff37156aea878bcc9d238a5",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/documentation-style.md",
+        "digest": "sha256:5c5c666fc6c796cf9ae3876d25d3fd4fa523d121892459dc0d681d73da1d60ae",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/security.md",
+        "digest": "sha256:1cbf29c12d09cad0799e2d8715e94f84a49ee8fa09867bb5f12a544f8df43774",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "schema",
+        "path": "review-bundle@1",
+        "digest": "sha256:e7c9643ec88eccb2a6dea3ee3291c351983d78e1d2fa44b61399514c5021bcb0",
+        "reason": "canonical bundle and attestation schema identity"
+      },
+      {
+        "kind": "tool-catalog",
+        "path": "native-review-tools@1",
+        "digest": "sha256:819ecacf9f3a8e5c7ea7262ac68852c722cd5b6b09f5a595fb8f06dd1cea5bed",
+        "reason": "closed resolved native tool contract"
+      }
+    ]
+  },
+  "excluded_inputs": [
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/results/delivery-validation.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-index",
+      "path": ".pose/indexes/delivery-integrity.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-index",
+      "path": ".pose/indexes/roadmaps.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-index",
+      "path": ".pose/indexes/spec-graph.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-section",
+      "path": "final report",
+      "digest": "sha256:0dd6b7868d1a59e6689723337790395a2e21a9703c283124e5de576e9e030fbb",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "tasks",
+      "digest": "sha256:d2e6f00f6f2ca082916ec3a16b71ff7e1af3508772eeb093797e576fb3966653",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "validation",
+      "digest": "sha256:f341a8629f7fd3d07f961d69deeedd4f5768e5adf37f9e314c3dc39222a7f9bd",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "lifecycle",
+      "path": ".pose/specs/2026-09-06-pose-readme-evaluation-path.md",
+      "reason": "status and completed_at do not define the reviewed semantic subject"
+    },
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/2026-09-06-pose-readme-evaluation-path.md",
+      "reason": "attributed path is outside the semantic review subject"
+    }
+  ],
+  "range_observations": [
+    {
+      "change_set": "cs-3bedabc503bd",
+      "state": "contaminated",
+      "attributed_commits": 3,
+      "range_commits": 623,
+      "unattributed_commits": 620,
+      "unattributed_specs": [
+        "pose-abm-atomic-start",
+        "pose-abm-capability-adoption",
+        "pose-abm-causality-attestation",
+        "pose-abm-contract-nodes",
+        "pose-action-request-presentation",
+        "pose-action-request-resolution",
+        "pose-action-requests",
+        "pose-action-runtime-currency-gate",
+        "pose-adaptive-assessment-freshness",
+        "pose-adoption-stamp-stays-readable",
+        "pose-agency-readiness-pilot",
+        "pose-assumption-validity-scope",
+        "pose-atomic-start-adoption-cutoff",
+        "pose-attention-federated-parity",
+        "pose-attention-lists-only-open-obligations",
+        "pose-attention-projects-every-source",
+        "pose-attention-within-a-second",
+        "pose-attest-records-not-applicable",
+        "pose-attest-refuses-what-verify-rejects",
+        "pose-attestation-evidence-must-be-in-the-bundle",
+        "pose-authority-claim-project-is-not-the-audience",
+        "pose-blocked-semantics-alignment",
+        "pose-bundle-findings-take-the-contract-the-legacy-path-had",
+        "pose-bundles-seal-the-contracts-that-govern-them",
+        "pose-canonical-positioning",
+        "pose-capability-catalog",
+        "pose-causality-closeout-adoption-cutoff",
+        "pose-changelog-adoption-is-the-instances",
+        "pose-changelog-and-dor-policy-types",
+        "pose-check-spawns-fewer-git-processes",
+        "pose-ci-release-completeness",
+        "pose-class-producers-reads-the-disjunction",
+        "pose-clean-activation-evidence",
+        "pose-cli-live-helper-coverage",
+        "pose-cli-output-machine-channel",
+        "pose-cli-profile-parity",
+        "pose-closeout-regenerates-before-sealing",
+        "pose-code-cites-the-specs-that-delivered-it",
+        "pose-compat-fixture-delivery-example",
+        "pose-compat-gate-pose-md-preservation",
+        "pose-component-evidence-is-not-inherited-upward",
+        "pose-contract-adoption-registry",
+        "pose-contract-adoption-stamp",
+        "pose-cross-version-guard-is-this-repositorys",
+        "pose-delivery-integrity-index-compaction",
+        "pose-dependabot-runtime-repair",
+        "pose-design-delta-batched-git-reads",
+        "pose-diagnose-invisible-governance-failures",
+        "pose-dist-adopt-published-v6-1-0",
+        "pose-docs-and-manuals-match-5-0-2",
+        "pose-doctor-fixtures-exercise-production-path",
+        "pose-doctor-reports-a-profile-left-behind",
+        "pose-doctor-reports-unread-policy-keys",
+        "pose-doctor-selected-profiles-only",
+        "pose-effective-governance-projection",
+        "pose-emittable-analysis-evidence-classes",
+        "pose-evidence-scoped-to-component",
+        "pose-extension-target-preview",
+        "pose-falsifier-reconsideration",
+        "pose-flat-spec-amendments",
+        "pose-followup-dispositions-accept-qualified-refs",
+        "pose-followup-reconciliation-candidates",
+        "pose-fresh-install-doctor-is-clean",
+        "pose-gitleaks-action-idempotency-keys",
+        "pose-governance-residual-diagnostics",
+        "pose-governance-wait-rework-observability",
+        "pose-governed-capabilities-default-on-new-instances",
+        "pose-governed-effect-enforcement",
+        "pose-help-names-flags-the-parser-accepts",
+        "pose-history-quiet-tolerated-verdict",
+        "pose-init-is-install",
+        "pose-install-and-upgrade-journeys",
+        "pose-legacy-contract-cutoffs",
+        "pose-lint-spec-all-is-a-gate",
+        "pose-live-policy-reads-through-aliases",
+        "pose-locale-obligation-flags",
+        "pose-machinery-backs-up-only-local-edits",
+        "pose-manual-merge-backs-up-only-local-edits",
+        "pose-material-equivalence-reuse",
+        "pose-mcp-action-resolve-signed-only",
+        "pose-mcp-review-attest-signed-only",
+        "pose-mcp-server-survives-self-update",
+        "pose-mechanization-adversarial-corpus",
+        "pose-obligation-contract",
+        "pose-obligation-projection",
+        "pose-onboarding-spec",
+        "pose-one-evidence-class-vocabulary",
+        "pose-one-follow-up-format",
+        "pose-only-the-signing-gate-is-read-live",
+        "pose-open-backlog-reconciliation",
+        "pose-package-channels-deferred-native-verification",
+        "pose-parity-reads-the-cli-surface",
+        "pose-phase-scoped-readiness",
+        "pose-policy-keys-and-release-surface-coverage",
+        "pose-progressive-spec-surface",
+        "pose-project-binding-consistency",
+        "pose-project-identity-file",
+        "pose-public-claims-contract",
+        "pose-public-claims-onboarding",
+        "pose-public-claims-publication-provenance",
+        "pose-quickstart-real-lifecycle",
+        "pose-range-names-its-other-work",
+        "pose-recoverable-closeout-plan",
+        "pose-recurrence-check-resolved-clusters",
+        "pose-recurrence-flapping-signal",
+        "pose-red-signals-reach-a-person",
+        "pose-release-archival-attested-by-the-ledger",
+        "pose-release-boundary-rehearsal",
+        "pose-release-compatibility-matrix",
+        "pose-release-doc-discovery-and-sbom-parser",
+        "pose-release-notes-name-contract-adoption",
+        "pose-release-recovery-verification",
+        "pose-release-security-gate-integrity",
+        "pose-release-version-source",
+        "pose-remaining-command-surfaces-coverage",
+        "pose-report-a-demanded-class-nothing-produces",
+        "pose-report-coverage-that-rests-on-inference",
+        "pose-report-help-names-every-flag",
+        "pose-reuse-is-sealed-signing-stays-live",
+        "pose-review-assurance-disclosure",
+        "pose-review-attribution-roles",
+        "pose-review-plan-producible-evidence-classes",
+        "pose-review-subject-and-scope-precision",
+        "pose-review-subject-submodule-classification",
+        "pose-review-subject-unclassified-removals",
+        "pose-roadmap-check-reaches-its-gate",
+        "pose-seal-names-carried-forward-evidence",
+        "pose-self-update-handoff-path",
+        "pose-setup-command",
+        "pose-shipped-review-profiles-are-schema-v2",
+        "pose-signed-action-answers",
+        "pose-spec-surface-single-key",
+        "pose-state-attention",
+        "pose-stdio-server-honours-sigterm",
+        "pose-structural-facts-stay-in-their-commits",
+        "pose-suite-history-promise-per-step",
+        "pose-the-guard-signal-is-declared-not-inherited",
+        "pose-tool-dispositions-must-be-supported",
+        "pose-trace-test-refs-resolve",
+        "pose-transfer-preserves-obligations",
+        "pose-typed-producer-diagnostics",
+        "pose-update-configuration-review",
+        "pose-update-reports-what-it-delivered",
+        "pose-upgrade-journey-starts-below-current",
+        "pose-usage-findings-adjudication",
+        "pose-v6-1-0-release-readiness",
+        "pose-v6-2-0-delivery-authority-diagnostics",
+        "pose-v6-2-0-release-stability",
+        "pose-v6-2-0-version-alignment",
+        "pose-v6-3-0-version-alignment",
+        "pose-v6-release-readiness",
+        "pose-v7-legacy-cleanup-plan",
+        "pose-validate-report-carries-its-run",
+        "pose-validation-check-additions-are-not-material",
+        "pose-version-contract",
+        "public-claims-reads-release-lines",
+        "review-subject-classifies-capabilities"
+      ],
+      "untrailed_commits": 28,
+      "reason": "the range spans commits this change set does not attribute; its paths are attributed, its base..head is not"
+    }
+  ],
+  "warnings": [
+    "causality closeout not stamped: every spec in spec:pose-readme-evaluation-path was created before causality_closeout_adopted_at 2026-10-06",
+    "change set cs-3bedabc503bd attributes 3 commit(s) but its range spans 623; 620 commit(s) in base..head belong to other work; they carry trailers of pose-abm-atomic-start, pose-abm-capability-adoption, pose-abm-causality-attestation, pose-abm-contract-nodes, pose-action-request-presentation, pose-action-request-resolution, pose-action-requests, pose-action-runtime-currency-gate, pose-adaptive-assessment-freshness, pose-adoption-stamp-stays-readable, pose-agency-readiness-pilot, pose-assumption-validity-scope, pose-atomic-start-adoption-cutoff, pose-attention-federated-parity, pose-attention-lists-only-open-obligations, pose-attention-projects-every-source, pose-attention-within-a-second, pose-attest-records-not-applicable, pose-attest-refuses-what-verify-rejects, pose-attestation-evidence-must-be-in-the-bundle, pose-authority-claim-project-is-not-the-audience, pose-blocked-semantics-alignment, pose-bundle-findings-take-the-contract-the-legacy-path-had, pose-bundles-seal-the-contracts-that-govern-them, pose-canonical-positioning, pose-capability-catalog, pose-causality-closeout-adoption-cutoff, pose-changelog-adoption-is-the-instances, pose-changelog-and-dor-policy-types, pose-check-spawns-fewer-git-processes, pose-ci-release-completeness, pose-class-producers-reads-the-disjunction, pose-clean-activation-evidence, pose-cli-live-helper-coverage, pose-cli-output-machine-channel, pose-cli-profile-parity, pose-closeout-regenerates-before-sealing, pose-code-cites-the-specs-that-delivered-it, pose-compat-fixture-delivery-example, pose-compat-gate-pose-md-preservation, pose-component-evidence-is-not-inherited-upward, pose-contract-adoption-registry, pose-contract-adoption-stamp, pose-cross-version-guard-is-this-repositorys, pose-delivery-integrity-index-compaction, pose-dependabot-runtime-repair, pose-design-delta-batched-git-reads, pose-diagnose-invisible-governance-failures, pose-dist-adopt-published-v6-1-0, pose-docs-and-manuals-match-5-0-2, pose-doctor-fixtures-exercise-production-path, pose-doctor-reports-a-profile-left-behind, pose-doctor-reports-unread-policy-keys, pose-doctor-selected-profiles-only, pose-effective-governance-projection, pose-emittable-analysis-evidence-classes, pose-evidence-scoped-to-component, pose-extension-target-preview, pose-falsifier-reconsideration, pose-flat-spec-amendments, pose-followup-dispositions-accept-qualified-refs, pose-followup-reconciliation-candidates, pose-fresh-install-doctor-is-clean, pose-gitleaks-action-idempotency-keys, pose-governance-residual-diagnostics, pose-governance-wait-rework-observability, pose-governed-capabilities-default-on-new-instances, pose-governed-effect-enforcement, pose-help-names-flags-the-parser-accepts, pose-history-quiet-tolerated-verdict, pose-init-is-install, pose-install-and-upgrade-journeys, pose-legacy-contract-cutoffs, pose-lint-spec-all-is-a-gate, pose-live-policy-reads-through-aliases, pose-locale-obligation-flags, pose-machinery-backs-up-only-local-edits, pose-manual-merge-backs-up-only-local-edits, pose-material-equivalence-reuse, pose-mcp-action-resolve-signed-only, pose-mcp-review-attest-signed-only, pose-mcp-server-survives-self-update, pose-mechanization-adversarial-corpus, pose-obligation-contract, pose-obligation-projection, pose-onboarding-spec, pose-one-evidence-class-vocabulary, pose-one-follow-up-format, pose-only-the-signing-gate-is-read-live, pose-open-backlog-reconciliation, pose-package-channels-deferred-native-verification, pose-parity-reads-the-cli-surface, pose-phase-scoped-readiness, pose-policy-keys-and-release-surface-coverage, pose-progressive-spec-surface, pose-project-binding-consistency, pose-project-identity-file, pose-public-claims-contract, pose-public-claims-onboarding, pose-public-claims-publication-provenance, pose-quickstart-real-lifecycle, pose-range-names-its-other-work, pose-recoverable-closeout-plan, pose-recurrence-check-resolved-clusters, pose-recurrence-flapping-signal, pose-red-signals-reach-a-person, pose-release-archival-attested-by-the-ledger, pose-release-boundary-rehearsal, pose-release-compatibility-matrix, pose-release-doc-discovery-and-sbom-parser, pose-release-notes-name-contract-adoption, pose-release-recovery-verification, pose-release-security-gate-integrity, pose-release-version-source, pose-remaining-command-surfaces-coverage, pose-report-a-demanded-class-nothing-produces, pose-report-coverage-that-rests-on-inference, pose-report-help-names-every-flag, pose-reuse-is-sealed-signing-stays-live, pose-review-assurance-disclosure, pose-review-attribution-roles, pose-review-plan-producible-evidence-classes, pose-review-subject-and-scope-precision, pose-review-subject-submodule-classification, pose-review-subject-unclassified-removals, pose-roadmap-check-reaches-its-gate, pose-seal-names-carried-forward-evidence, pose-self-update-handoff-path, pose-setup-command, pose-shipped-review-profiles-are-schema-v2, pose-signed-action-answers, pose-spec-surface-single-key, pose-state-attention, pose-stdio-server-honours-sigterm, pose-structural-facts-stay-in-their-commits, pose-suite-history-promise-per-step, pose-the-guard-signal-is-declared-not-inherited, pose-tool-dispositions-must-be-supported, pose-trace-test-refs-resolve, pose-transfer-preserves-obligations, pose-typed-producer-diagnostics, pose-update-configuration-review, pose-update-reports-what-it-delivered, pose-upgrade-journey-starts-below-current, pose-usage-findings-adjudication, pose-v6-1-0-release-readiness, pose-v6-2-0-delivery-authority-diagnostics, pose-v6-2-0-release-stability, pose-v6-2-0-version-alignment, pose-v6-3-0-version-alignment, pose-v6-release-readiness, pose-v7-legacy-cleanup-plan, pose-validate-report-carries-its-run, pose-validation-check-additions-are-not-material, pose-version-contract, public-claims-reads-release-lines, review-subject-classifies-capabilities; 28 carry no POSE-Spec trailer, so the range is provenance and the attributed paths are the subject",
+    "unmapped review component explicit:docs",
+    "unmapped review component path:README.pt-BR.md"
+  ],
+  "path": ".pose/review-bundles/rvb-3bf27867dc2029ce.json"
+}

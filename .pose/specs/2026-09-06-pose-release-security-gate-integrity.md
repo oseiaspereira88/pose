@@ -1,8 +1,8 @@
 ---
 slug: pose-release-security-gate-integrity
-status: in-progress
+status: done
 created_at: 2026-09-06
-completed_at:
+completed_at: 2026-10-09
 supersedes:
 depends_on:
 priority: 0

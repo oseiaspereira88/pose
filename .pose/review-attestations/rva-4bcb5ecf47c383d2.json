@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-4bcb5ecf47c383d2",
+  "bundle_id": "rvb-10e201cc7c0d7a3d",
+  "bundle_digest": "sha256:10e201cc7c0d7a3d3fbf69923e86f899c979862fd328e9b92e352aacde8b4177",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-a3447bac5a92bde0",
+      "rationale": "Repository configuration only: a rule-scoped gitleaks allowlist, an untracked cache file, a refreshed action-runtime record and a deeper checkout for the governance job; no CLI or artifact format changes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:mcp-enforce/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-a3447bac5a92bde0",
+      "rationale": "The spec records the causal chain from commit to failing gate, each fix, and how its follow-ups were dispositioned, including the alerting gap now delivered by pose-red-signals-reach-a-person."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-a3447bac5a92bde0",
+      "rationale": "Releases v6.0.0 to v6.2.0 and v7.0.0 published through the repaired pipeline. Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-a3447bac5a92bde0",
+      "rationale": "The two blockers named in the requirements; publication proof is the spawned recovery spec and alerting the spawned red-signals spec. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-a3447bac5a92bde0",
+      "rationale": "The gitleaks exception is rule-scoped with condition and over path and match shape, so it cannot hide another secret; the full history scan reports no leaks."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-release-security-gate-integrity --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-a3447bac5a92bde0",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    }
+  ],
+  "evidence_refs": [
+    "build:mcp-enforce/go/build",
+    "integration:pose-mcp/go/abm-atomic-start-integration",
+    "structure:design-a3447bac5a92bde0",
+    "unit:mcp-enforce/go/test",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T09:43:09Z",
+  "path": ".pose/review-attestations/rva-4bcb5ecf47c383d2.json"
+}
