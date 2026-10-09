@@ -115,3 +115,42 @@ func TestRecurrenceCheckStillFlagsAnUnresolvedCluster(t *testing.T) {
 		t.Errorf("unresolved cluster not flagged:\n%s", out.String())
 	}
 }
+
+// A task that keeps alternating is reported as flapping, never gated, even
+// when every failure cluster resolved (spec pose-recurrence-flapping-signal).
+func TestRecurrenceFlappingIsReportedNotGated(t *testing.T) {
+	now := time.Now()
+	outcomes := []string{"fail", "pass", "fail", "pass", "fail", "pass"}
+	records := []historyRecord{}
+	for i, o := range outcomes {
+		records = append(records, rec(now.Add(time.Duration(i-len(outcomes))*time.Hour), "validate-native", "5b47855e60f6", o))
+	}
+	root := writeRecurrenceHistory(t, records)
+	var out, errb bytes.Buffer
+	if code := cmdRecurrenceCheck(root, []string{"--strict"}, &out, &errb); code != 0 {
+		t.Fatalf("flapping gated the run: exit %d\n%s%s", code, out.String(), errb.String())
+	}
+	text := out.String()
+	for _, want := range []string{"flapping", "5 transitions between failing and passing in 6 runs", "recurrence.flapping_keys=1"} {
+		if !strings.Contains(text, want) {
+			t.Errorf("output lacks %q:\n%s", want, text)
+		}
+	}
+
+	// Below the threshold, and with a higher threshold, nothing is reported.
+	out.Reset()
+	cmdRecurrenceCheck(root, []string{"--strict", "--flap-threshold", "6"}, &out, &errb)
+	if !strings.Contains(out.String(), "recurrence.flapping_keys=0") {
+		t.Errorf("a raised threshold still reported flapping:\n%s", out.String())
+	}
+	steady := writeRecurrenceHistory(t, []historyRecord{
+		rec(now.Add(-3*time.Hour), "validate-native", "h", "fail"),
+		rec(now.Add(-2*time.Hour), "validate-native", "h", "pass"),
+		rec(now.Add(-time.Hour), "validate-native", "h", "pass"),
+	})
+	out.Reset()
+	cmdRecurrenceCheck(steady, []string{"--strict"}, &out, &errb)
+	if !strings.Contains(out.String(), "recurrence.flapping_keys=0") {
+		t.Errorf("a single recovery was reported as flapping:\n%s", out.String())
+	}
+}

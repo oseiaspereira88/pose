@@ -78,7 +78,7 @@ func parseHistoryTime(value string) (time.Time, bool) {
 }
 
 func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) int {
-	mode, days, threshold, includePass := "strict", 14, 3, false
+	mode, days, threshold, includePass, flapThreshold := "strict", 14, 3, false, 4
 	args, flags, flagErr := splitOutputFlags(args)
 	if flagErr != "" {
 		return usageError(stderr, "pose recurrence-check: "+flagErr)
@@ -91,7 +91,7 @@ func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) in
 			mode = "tolerant"
 		case "--include-pass":
 			includePass = true
-		case "--window-days", "--threshold":
+		case "--window-days", "--threshold", "--flap-threshold":
 			if i+1 >= len(args) {
 				return usageError(stderr, "pose recurrence-check: value required")
 			}
@@ -99,14 +99,17 @@ func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) in
 			if e != nil || n < 1 {
 				return usageError(stderr, "pose recurrence-check: expected integer > 0")
 			}
-			if args[i] == "--window-days" {
+			switch args[i] {
+			case "--window-days":
 				days = n
-			} else {
+			case "--threshold":
 				threshold = n
+			default:
+				flapThreshold = n
 			}
 			i++
 		default:
-			return usageError(stderr, "Usage: pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold N] [--include-pass] [--json] [--quiet] [--color auto|always|never]")
+			return usageError(stderr, "Usage: pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold N] [--flap-threshold N] [--include-pass] [--json] [--quiet] [--color auto|always|never]")
 		}
 	}
 	gate := newGateOutput("recurrence-check", flags, stdout, stderr)
@@ -162,6 +165,15 @@ func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) in
 		gate.r.Finding(cliout.Finding{State: cliout.StateInfo, Code: "resolved", Path: c.task + " (" + c.reportType + ")",
 			Message: fmt.Sprintf("%s: %d failed run(s) in %dd, resolved by a pass at %s", c.hashLabel(), c.failures, days, c.passAt)})
 	}
+	// A task that keeps alternating is unstable even when its latest run
+	// passed and every failure cluster resolved. It is reported, never gated
+	// (spec pose-recurrence-flapping-signal).
+	flapping := flappingTasks(records, cutoff, flapThreshold)
+	for _, f := range flapping {
+		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "flapping", Path: f.task + " (" + f.reportType + ")",
+			Message: fmt.Sprintf("%d transitions between failing and passing in %d runs over %dd; the outcome is unstable even where it now passes", f.transitions, f.runs, days)})
+	}
+	gate.Field("recurrence.flapping_keys", strconv.Itoa(len(flapping)))
 	gate.Field("recurrence.resolved_clusters", strconv.Itoa(len(resolved)))
 	gate.Field("recurrence.window_days", strconv.Itoa(days))
 	gate.Field("recurrence.threshold", strconv.Itoa(threshold))
@@ -286,6 +298,55 @@ func recurrenceGroups(records []historyRecord, cutoff time.Time, includePass boo
 		return a.task+"\x00"+a.reportType+"\x00"+a.hash < b.task+"\x00"+b.reportType+"\x00"+b.hash
 	})
 	return groups, resolved
+}
+
+// flappingTask is a task whose outcome alternated at least the threshold
+// number of times in the window.
+type flappingTask struct {
+	task, reportType  string
+	transitions, runs int
+}
+
+// flappingTasks counts, per task and report type across every stable_hash,
+// how often consecutive runs switch between passing and not passing.
+func flappingTasks(records []historyRecord, cutoff time.Time, threshold int) []flappingTask {
+	byTask := map[[2]string][]historyRecord{}
+	for _, r := range records {
+		t, ok := parseHistoryTime(r.GeneratedAt)
+		if !ok || t.Before(cutoff) {
+			continue
+		}
+		task, typ := r.TaskSlug, r.ReportType
+		if task == "" {
+			task = "<unknown>"
+		}
+		if typ == "" {
+			typ = "standard"
+		}
+		k := [2]string{task, typ}
+		byTask[k] = append(byTask[k], r)
+	}
+	out := []flappingTask{}
+	for k, rs := range byTask {
+		sort.SliceStable(rs, func(i, j int) bool {
+			ti, _ := parseHistoryTime(rs[i].GeneratedAt)
+			tj, _ := parseHistoryTime(rs[j].GeneratedAt)
+			return ti.Before(tj)
+		})
+		transitions := 0
+		for i := 1; i < len(rs); i++ {
+			if (rs[i].Outcome == "pass") != (rs[i-1].Outcome == "pass") {
+				transitions++
+			}
+		}
+		if transitions >= threshold {
+			out = append(out, flappingTask{task: k[0], reportType: k[1], transitions: transitions, runs: len(rs)})
+		}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		return out[i].task+"\x00"+out[i].reportType < out[j].task+"\x00"+out[j].reportType
+	})
+	return out
 }
 
 type statRow = posepkg.InsightRow

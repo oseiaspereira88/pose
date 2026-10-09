@@ -121,4 +121,4 @@ Table tests over history fixtures, plus a run against a copy of the harne8 `stan
 
 ### Follow-ups
 
-- [open] Detect a task that alternates fail and pass many times in the window, as a separate non-blocking signal (owner:@pose-maintainers crit:medium review:2026-11-06)
+- [spawned: pose-recurrence-flapping-signal] Detect a task that alternates fail and pass many times in the window, as a separate non-blocking signal (owner:@pose-maintainers crit:medium review:2026-11-06)

@@ -528,6 +528,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "recurrence-flapping-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestRecurrence",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "attention-sources-integration",
           "program": "go",
           "args": [
