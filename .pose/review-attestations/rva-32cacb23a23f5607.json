@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-32cacb23a23f5607",
+  "bundle_id": "rvb-c0d8c1a125075315",
+  "bundle_digest": "sha256:c0d8c1a125075315e63e82a9f2c26d28810053b36430665e11f4c3b98fe7c26f",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "adopted_at is repository-local; template and embedded drift-guard tests verify the premise. Existing 131/131 validation ran at clone HEAD 24b54a69 with POSE_PREVIOUS_RELEASE=6.2.0; the engine carries it forward by provenance against subject head bce65a43."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/fresh-install-health-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/fresh-install-health-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/fresh-install-health-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/fresh-install-health-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/fresh-install-health-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/fresh-install-health-integration",
+      "rationale": "New instances retain the previous empty adoption date, schemaVersion, defaultTaskType and taskTypes. Existing instances retain their policy. No CLI or MCP contract changes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/fresh-install-health-integration"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-912ebd1128ae9f0a",
+      "rationale": "Verbatim copying of the repository adoption date caused the defect. Exclusion plus a neutral template uses the existing self-referential policy mechanism and directly satisfies R1 and R2."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Rules applied: backend-go for Go scaffold, security for policy boundaries, documentation-style for spec and template. The opt-in comment matches empty-date behavior. Knowledge-governance consulted; no knowledge artifact needed."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/fresh-install-health-integration",
+      "rationale": "Template explains local opt-in. Existing adoption stays local; embedded drift guard remains actionable. No new failure paths, logging, concurrency or lifecycle behavior."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/fresh-install-health-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-912ebd1128ae9f0a",
+      "rationale": "Approved only pose-scaffold-ships-a-neutral-dor-policy: one exclusion and one neutral template with regression coverage. The agent:independent- prefix is an engine-required declaration under declared identity, not verified identity or cognitive independence. Review performed by another vendor: Codex, gpt-6.1-sol; implementation by Claude Opus 5.5. The residual-risk note in the spec describes the earlier implementer review, not this separate review."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No secrets, new external input, filesystem authority or authentication paths. Empty adoption date prevents propagation of repository governance state. No new governance gate introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-912ebd1128ae9f0a",
+      "rationale": "Joining the established exclusion/template mechanism is the smallest sufficient fix, with no new abstraction or speculative extensibility. Revisit if DoR schema or task-type defaults change; drift guard and template tests bound this choice."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict reconciliation; warnings are repository-wide orphans."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-912ebd1128ae9f0a",
+      "rationale": "Derived structural delta generated and inspected in bundle preparation."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed discover --if-stale --update-state."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/fresh-install-health-integration",
+      "rationale": "Executed integration assessment and inspected sealed fresh-install integration."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed assessment: zero debt markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed component rule selection."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Prior executed validation: 131/131 with POSE_PREVIOUS_RELEASE=6.2.0; fresh clone HEAD evidence."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Prior executed full matrix covers pose-mcp; no code changes since validation."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/fresh-install-health-integration",
+    "structure:design-912ebd1128ae9f0a",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T22:57:51Z",
+  "path": ".pose/review-attestations/rva-32cacb23a23f5607.json"
+}
