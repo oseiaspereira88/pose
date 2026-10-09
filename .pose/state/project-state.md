@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-09T10:43:02Z
-baseline_commit: 7c320f41661b0bd8b057e5a9790bb6912f35aa56
+generated_at: 2026-10-09T10:45:25Z
+baseline_commit: 6e123f78a5c75ca4cff260d459262c6634f7af5c
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:3cdc5045f886 -->
+<!-- state:derived hash:a3a44b1f55a8 -->
 
-- specs: total=356 draft=2 in-progress=5 blocked=0 done=349 superseded=0 abandoned=0
+- specs: total=356 draft=2 in-progress=4 blocked=0 done=350 superseded=0 abandoned=0
 - roadmaps: total=17 active=1 done=11
 - últimos closeouts:
-  - spec:pose-first-governed-loop-quickstart (2026-10-09)
-  - spec:pose-attention-within-a-second (2026-10-09)
+  - spec:pose-attention-projects-every-source (2026-10-09)
+  - spec:pose-readme-evaluation-path (2026-10-09)
   - spec:pose-trace-test-refs-resolve (2026-10-09)
-  - spec:pose-launch-proof-demo (2026-10-09)
-  - spec:pose-release-recovery-verification (2026-10-09)
-  - ... e mais 344 (ver `pose_list_specs status:done`)
+  - spec:pose-first-governed-loop-quickstart (2026-10-09)
+  - spec:pose-release-security-gate-integrity (2026-10-09)
+  - ... e mais 345 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:c186cbb45925 -->
