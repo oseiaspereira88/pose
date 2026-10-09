@@ -1,8 +1,8 @@
 ---
 slug: pose-cli-output-rendering-system
-status: in-progress
+status: done
 created_at: 2026-09-11
-completed_at:
+completed_at: 2026-10-09
 supersedes:
 depends_on: pose-cli-universal-help-and-subcommand-introspection
 priority: 1
