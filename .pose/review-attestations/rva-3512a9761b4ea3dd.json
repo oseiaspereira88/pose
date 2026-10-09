@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-3512a9761b4ea3dd",
+  "bundle_id": "rvb-ff9ded9f4ead063f",
+  "bundle_digest": "sha256:ff9ded9f4ead063fc89f2d73d7d5b846ac6783b99647c36637519545b36d1b4f",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-flapping-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-flapping-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-flapping-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-flapping-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-flapping-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-254d65bb3d923eb0",
+      "rationale": "Additive: one warning, one machine field and one optional flag; the exit code, the recurrence count and resolved clusters are unchanged, so no gate that passed fails."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-flapping-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-254d65bb3d923eb0",
+      "rationale": "Both manuals, their scaffold copies and the help catalog document the flag, the field and that the signal never gates; the changelog fragment states it for users."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-254d65bb3d923eb0",
+      "rationale": "On real histories it surfaced validate-native flapping in both repositories, recorded as a follow-up to investigate. Full native run at the sealed head with the candidate CLI built from it: every step passes, including recurrence-flapping-integration."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-flapping-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-254d65bb3d923eb0",
+      "rationale": "One function and its wiring in insights.go, the help entry, a test, manuals, a fragment, a matrix check and the spawned disposition. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-254d65bb3d923eb0",
+      "rationale": "Reads the local history only and adds no input beyond an integer flag validated like the existing ones."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-recurrence-flapping-signal --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-254d65bb3d923eb0",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-flapping-integration",
+      "rationale": "pose assess integrate ran with the candidate CLI and exited 0."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/recurrence-flapping-integration",
+      "rationale": "surface-check --spec pose-recurrence-flapping-signal --strict exited 0."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: every step passes, including recurrence-flapping-integration."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: every step passes, including recurrence-flapping-integration."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/recurrence-flapping-integration",
+    "structure:design-254d65bb3d923eb0",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T08:41:36Z",
+  "path": ".pose/review-attestations/rva-3512a9761b4ea3dd.json"
+}

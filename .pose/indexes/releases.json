@@ -9,12 +9,28 @@
       "digest": "sha256:fd917c385ebbc662c53a83a4491b03abc81258cb6f2dce511ae84975657ce5ab"
     },
     {
+      "spec": "pose-attention-projects-every-source",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose state --attention` and `pose_obligations` now project four sources they listed as not yet projected: open docs review marks, capability mechanisms with stale triggers, releases in flight past the newest verified one, and legacy review findings past their review date. A project that uses them reads complete coverage and sees what they owe. Obligations of this kind originate on the project itself (`xref:\u003cproject\u003e/project:\u003cproject\u003e`).",
+      "path": "pose-attention-projects-every-source.md",
+      "digest": "sha256:c510631cc74dfbd5bb3d7298d43138f1ae5310f367c75e244abba3b131468f94"
+    },
+    {
       "spec": "pose-mcp-review-attest-signed-only",
       "category": "added",
       "breaking": false,
       "body": "New MCP tool `pose_review_attest` records a review attestation only inside a trusted issuer's envelope, the same proof `pose review attest --envelope` verifies. Its preview completes a draft for a sealed bundle, binding the confirmation to the exact conclusions when it names a confirming person, and returns the bytes to sign; a call that applies without an envelope is refused under any identity assurance. A trusted channel such as the Harne8 issuer can now deliver a person's confirmation of review conclusions over MCP.",
       "path": "pose-mcp-review-attest-signed-only.md",
       "digest": "sha256:e05630f06f377c48bb4dbcd467bbceeedfb7e535234cac2bf9052e738122f626"
+    },
+    {
+      "spec": "pose-range-names-its-other-work",
+      "category": "changed",
+      "breaking": false,
+      "body": "When a review bundle's commit range spans work it does not attribute, the warning now names the specs whose `POSE-Spec:` trailer is on those commits and how many carry no trailer, instead of only counting them.",
+      "path": "pose-range-names-its-other-work.md",
+      "digest": "sha256:8705e7c08924c1a6d119ebeabf7171696a1273faafb0ac2d5d5f6f6787872c04"
     },
     {
       "spec": "pose-recurrence-check-resolved-clusters",
@@ -25,12 +41,28 @@
       "digest": "sha256:d5ef43463acfdd0af6ff8b49f529c135758d5d234bd8850d490adb46fa9e05dc"
     },
     {
+      "spec": "pose-recurrence-flapping-signal",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose recurrence-check` now reports a task whose runs keep switching between failing and passing as a `flapping` warning (default: 4 transitions in the window, `--flap-threshold N`), counted in `recurrence.flapping_keys`. It never changes the exit code.",
+      "path": "pose-recurrence-flapping-signal.md",
+      "digest": "sha256:d34a7e666fe757d39e9b839b0c16c4b4c18e3e4cea192774d32bacde04a6c4f0"
+    },
+    {
       "spec": "pose-structural-facts-stay-in-their-commits",
       "category": "changed",
       "breaking": false,
       "body": "Structural review facts now describe what the spec's own commits changed. A subject path used to be compared between the first and the last attributed commit, so changes other specs or releases made to the same file in between were reported, and charged, as this spec's. Newly sealed bundles record the content each spec's commits produced and compare that; a fact that comes from a commit shared with other specs names them and asks the reviewer to confirm it. Bundles sealed earlier keep their reading.",
       "path": "pose-structural-facts-stay-in-their-commits.md",
       "digest": "sha256:8751a47c0f122900b2b25f06e137e9faa78993c1222ac2b131d50112afa39949"
+    },
+    {
+      "spec": "pose-trace-test-refs-resolve",
+      "category": "changed",
+      "breaking": false,
+      "body": "`lint-spec` and `pose close` now check that every `test:` ref in a requirement trace names a test that exists — a Go test or subtest, a JavaScript/TypeScript test title, a Python or Rust test, a tracked test file, or a `go test -run` pattern — in the repository, its submodules or a nested module repository the validation matrix registers. An unresolved ref fails an open spec and is only reported on a closed one, so history is not rewritten.",
+      "path": "pose-trace-test-refs-resolve.md",
+      "digest": "sha256:e4000e280f5acaa42a99cea06e75e8da8dfe5b48388d20bd1dffe818524c696b"
     }
   ],
   "releases": [
