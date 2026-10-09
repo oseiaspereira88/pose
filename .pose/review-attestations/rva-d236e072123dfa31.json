@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-d236e072123dfa31",
+  "bundle_id": "rvb-cddc952584b9f131",
+  "bundle_digest": "sha256:cddc952584b9f1315152d62b1ecbeba55d68737a76c24f967a60ad6c0dad3664",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-bce30d5d61f0e9d4",
+      "rationale": "Adds a scheduled liveness workflow and evidence records; no CLI or artifact format changes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:mcp-enforce/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-bce30d5d61f0e9d4",
+      "rationale": "The spec records the rehearsal runs, that no separate recovery tag was needed, and the liveness jobs with what each asserts."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-bce30d5d61f0e9d4",
+      "rationale": "release-liveness runs daily from outside: the published installer resolves, the latest release carries archives and checksums, and a clean container installs and runs pose doctor; failures now reach the owner through failure-alert. Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-bce30d5d61f0e9d4",
+      "rationale": "The rehearsal, the confirmation through regular releases and the liveness workflow; checksum and signature verification in the liveness job stays an open low follow-up. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-bce30d5d61f0e9d4",
+      "rationale": "The liveness job installs in a container with no toolchain and no checkout; its follow-up records that it does not yet verify checksum or signature of what it downloads."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-release-recovery-verification --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-bce30d5d61f0e9d4",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    }
+  ],
+  "evidence_refs": [
+    "build:mcp-enforce/go/build",
+    "integration:pose-mcp/go/abm-atomic-start-integration",
+    "structure:design-bce30d5d61f0e9d4",
+    "unit:mcp-enforce/go/test",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T09:45:35Z",
+  "path": ".pose/review-attestations/rva-d236e072123dfa31.json"
+}
