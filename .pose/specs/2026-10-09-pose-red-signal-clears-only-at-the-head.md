@@ -5,7 +5,7 @@ created_at: 2026-10-09
 completed_at:
 supersedes:
 depends_on: pose-red-signals-reach-a-person
-remediates: pose-red-signals-reach-a-person
+remediates: spec:pose-red-signals-reach-a-person@defect-fix
 priority: 0
 components: ci, release
 task_type: bugfix
