@@ -65,8 +65,9 @@ evaluator sees.
 - `README.md`, `README.pt-BR.md`
 
 ### Artifacts
-- modified: README.md
 - modified: README.pt-BR.md
+
+The English README was restructured in commits of `pose-canonical-positioning` (`3ed4cc0` and `46fd11b8`), which carry that spec's trailer, so it is claimed there and described here rather than claimed twice.
 
 ### Technical risks
 - Cutting too far leaves an evaluator unable to judge depth. The 47 MCP tools,
