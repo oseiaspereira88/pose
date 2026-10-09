@@ -94,6 +94,7 @@ The twelve non-terminal specs, follow-up inventory, reports.
 - modified: .pose/specs/2026-10-02-pose-dependabot-runtime-repair.md
 - modified: .pose/specs/2026-10-04-pose-review-assurance-disclosure.md
 - modified: .github/dependabot.yml
+- modified: .pose/specs/2026-08-16-pose-update-instance-directory-completeness.md
 
 Reconciled against the tree at activation.
 
