@@ -28,7 +28,7 @@ Origin: the 2026-10-09 review of `pose-native-attestation-issuer` by Codex throu
 
 ### Constraints
 
-POSE depends on no vendor CLI. The repository the user works in is never written by a reviewer run. Requirements assume the ADR's provisional answers until `pose-delegated-review-contract` closes.
+POSE depends on no vendor CLI. The repository the user works in is never written by a reviewer run. Requirements follow the maintainer's decisions recorded in the accepted ADR on 2026-10-09.
 
 ## 2. Requirements
 
@@ -38,8 +38,9 @@ POSE depends on no vendor CLI. The repository the user works in is never written
 - R2: `pose review dispatch <bundle> --via <adapter>` shall create a disposable worktree at the bundle's sealed commit, pass the brief on stdin, and remove the worktree afterwards.
 - R3: A run shall be recorded under `.pose/review-runs/` with adapter, vendor, model, start and end time, exit code, brief digest, transcript digest and the reviewer's draft attestation or findings.
 - R4: A run that changes the sealed commit's files, exceeds its timeout or budget, or exits non-zero shall be recorded as failed, never as a review.
-- R5: Dispatch shall never record an attestation.
+- R5: Dispatch alone shall not record an attestation; recording a run's conclusion is the engine's verified step, specified by `pose-delegated-review-capability`, and runs only when the run passes every check there.
 - R6: With no adapter configured, dispatch shall print the brief and the configuration needed, not fail silently.
+- R7: `pose review dispatch` shall accept every brief kind (`review`, `adjudication`, `smoke`) with the same run record.
 
 ## 3. Technical Plan
 
@@ -62,7 +63,7 @@ Implementation artifacts are declared when the spec starts.
 
 ## 5. Decisions
 
-No decision recorded yet; the contract is ADR `2026-10-09-delegated-review-is-an-adapter`, pending acceptance.
+The contract is ADR `2026-10-09-delegated-review-is-an-adapter`, accepted on 2026-10-09 with the maintainer's decisions: the engine records a verified run, people by exception through policy, agent independence by differing vendor or model (different vendor preferred), and reviews, adjudications and smoke runs from the first delivery.
 
 ## 6. Validation
 

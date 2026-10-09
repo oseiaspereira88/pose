@@ -28,7 +28,7 @@ Origin: the 2026-10-09 review of `pose-native-attestation-issuer` by Codex throu
 
 ### Constraints
 
-Read-only; deterministic for a given bundle; no vendor-specific wording. Requirements assume the ADR's provisional answers until `pose-delegated-review-contract` closes.
+Read-only; deterministic for a given bundle; no vendor-specific wording. Requirements follow the maintainer's decisions recorded in the accepted ADR on 2026-10-09.
 
 ## 2. Requirements
 
@@ -39,6 +39,7 @@ Read-only; deterministic for a given bundle; no vendor-specific wording. Require
 - R3: Implementer notes shall be accepted only through `--note-file` and rendered in a section labelled as the implementer's, never mixed with the generated instructions.
 - R4: The brief shall state the reviewer's boundaries: report defects with file and line, do not change the repository, do not record an attestation unless the policy assigns that step to the reviewer.
 - R5: A stale or superseded bundle shall be refused.
+- R6: The brief shall have three kinds — `review` (a spec's sealed bundle), `adjudication` (an independent verdict on a recorded question, such as a pilot's outcomes, with the evidence it names) and `smoke` (a scripted run of a delivered surface with its expected observations) — each with its own versioned template and the same boundaries.
 
 ## 3. Technical Plan
 
@@ -60,7 +61,7 @@ Implementation artifacts are declared when the spec starts.
 
 ## 5. Decisions
 
-No decision recorded yet; the contract is ADR `2026-10-09-delegated-review-is-an-adapter`, pending acceptance.
+The contract is ADR `2026-10-09-delegated-review-is-an-adapter`, accepted on 2026-10-09 with the maintainer's decisions: the engine records a verified run, people by exception through policy, agent independence by differing vendor or model (different vendor preferred), and reviews, adjudications and smoke runs from the first delivery.
 
 ## 6. Validation
 

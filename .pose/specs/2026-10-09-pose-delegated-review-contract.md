@@ -1,6 +1,6 @@
 ---
 slug: pose-delegated-review-contract
-status: draft
+status: in-progress
 created_at: 2026-10-09
 completed_at:
 supersedes:
@@ -28,7 +28,7 @@ Origin: the 2026-10-09 review of `pose-native-attestation-issuer` by Codex throu
 
 ### Constraints
 
-No code. The specs below stay draft until this one closes. Requirements assume the ADR's provisional answers until `pose-delegated-review-contract` closes.
+No code. The specs below stay draft until this one closes. Requirements follow the maintainer's decisions recorded in the accepted ADR on 2026-10-09.
 
 ## 2. Requirements
 
@@ -49,18 +49,22 @@ Record the answers in the ADR, flip its status and amend the affected specs' req
 - created: .pose/specs/2026-10-09-pose-delegated-review-contract.md
 - created: .pose/adr/2026-10-09-delegated-review-is-an-adapter.md
 - created: .pose/roadmaps/delegated-review.md
+- created: .pose/starts/pose-delegated-review-contract.json
+- modified: .pose/specs/2026-10-09-pose-delegated-review-brief.md
+- modified: .pose/specs/2026-10-09-pose-delegated-review-dispatch.md
+- modified: .pose/specs/2026-10-09-pose-delegated-review-capability.md
 
 Implementation artifacts are declared when the spec starts.
 
 ## 4. Tasks
 
-- [ ] Collect the maintainer's four answers
-- [ ] Accept the ADR
-- [ ] Reconcile the roadmap's specs
+- [x] Collect the maintainer's four answers
+- [x] Accept the ADR
+- [x] Reconcile the roadmap's specs
 
 ## 5. Decisions
 
-No decision recorded yet; the contract is ADR `2026-10-09-delegated-review-is-an-adapter`, pending acceptance.
+The contract is ADR `2026-10-09-delegated-review-is-an-adapter`, accepted on 2026-10-09 with the maintainer's decisions: the engine records a verified run, people by exception through policy, agent independence by differing vendor or model (different vendor preferred), and reviews, adjudications and smoke runs from the first delivery.
 
 ## 6. Validation
 
@@ -70,11 +74,15 @@ No decision recorded yet; the contract is ADR `2026-10-09-delegated-review-is-an
 
 ### Requirement trace
 
+- R1 [satisfied] evidence:manual <ADR section "Maintainer's decisions (2026-10-09)" records the four answers and their rationale>
+- R2 [satisfied] evidence:manual <ADR status: accepted, no open decision>
+- R3 [satisfied] evidence:manual <brief R6, dispatch R5/R7, capability R4-R7 amended to the answers before any spec started>
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: part of roadmap `delegated-review`, opened on 2026-10-09.
+The ADR is accepted with the maintainer's four decisions and the roadmap's specs follow them.
 
 ### Residual risks
 

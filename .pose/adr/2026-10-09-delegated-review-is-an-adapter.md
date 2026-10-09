@@ -1,6 +1,6 @@
 ---
 title: A delegated reviewer is an adapter that turns a sealed bundle into a draft
-status: proposed
+status: accepted
 date: 2026-10-09
 decision_type: architecture
 ---
@@ -39,7 +39,7 @@ what is missing from POSE:
 4. **An MCP tool the implementing agent calls**: the shortest path to an
    agent looping until it is approved.
 
-## Decision (proposed)
+## Decision
 
 Option 2, with option 3 as the way Harne8's Conductor or CI runs the same
 contract, and option 1 as the documentation of both:
@@ -53,8 +53,22 @@ contract, and option 1 as the documentation of both:
   Code and depends on neither.
 - **Disposable copy.** The reviewer runs on a worktree at the sealed commit;
   it may run tests there and cannot change the repository.
-- **Draft, never record.** A run produces a draft attestation and a run
-  record under `.pose/review-runs/`; recording is a separate step.
+- **The engine records a verified run, not an actor.** A run produces a
+  run record under `.pose/review-runs/` and the reviewer's conclusion. When
+  the run passes the engine's checks — brief generated from the sealed
+  bundle, disposable copy left unchanged, run record intact and signed,
+  vendor or model different from the implementation's, conclusion complete
+  and accepted by the same preflight as any attestation, no earlier
+  rejection on an unchanged bundle — the engine records the attestation
+  itself. An approval closes without anyone; a rejection is recorded and
+  blocks until the code changes.
+- **People by exception, through policy.** A person is asked only when
+  review policy says so: criteria marked as requiring a person (risk
+  acceptance, public contracts, or whatever the project chooses), reviewers
+  in conflict, a reviewer asking for a business decision, or the run budget
+  exhausted without approval. Each case is an action request with the
+  question ready, answered as a confirmation or approval, never as manual
+  steps.
 - **Independence as evidence.** The run record names adapter, vendor and
   model, binds the prompt and output digests, and can be signed by a native
   issuer; `different-actor` is read from that record, not from a reviewer
@@ -63,20 +77,18 @@ contract, and option 1 as the documentation of both:
   on an unchanged bundle needs a recorded reason.
 - **Opt-in.** A catalog capability, `delegated-review`, off by default.
 
-## Open decisions (the maintainer's)
+## Maintainer's decisions (2026-10-09)
 
-1. Who records the attestation: the reviewer run itself, the maintainer, or
-   the implementer applying the reviewer's draft unchanged.
-2. Whether an agent run can satisfy `different-actor` when vendor or model
-   differ, or only a person can and agent runs stay advisory drafts.
-3. Whether a different vendor is required or preferred.
-4. Initial scope: spec reviews only, or also adjudications and smoke runs.
-
-Until they are answered the specs of roadmap `delegated-review` assume: the
-maintainer or a configured policy applies; an agent run satisfies
-`different-actor` only with a run record whose vendor/model differs from the
-implementation's; a different vendor is preferred, not required; spec
-reviews first.
+1. **Who records:** the engine records the conclusion of a run that passes
+   its checks; a person is involved only where review policy escalates. The
+   maintainer rejected "the maintainer applies" as a manual step that runs
+   against POSE's aim of autonomous development, and the implementer or the
+   reviewer recording on their own as unverified.
+2. **Agent independence:** an agent run satisfies `different-actor` when its
+   run record shows a vendor or model different from the implementation's.
+3. **Vendor:** a different vendor is preferred, not required.
+4. **Scope:** reviews, independent adjudications and smoke runs from the
+   first delivery, through the same contract.
 
 ## Consequences
 
