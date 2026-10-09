@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-5c690173152af167",
+  "bundle_id": "rvb-ff930370e6fde91f",
+  "bundle_digest": "sha256:ff930370e6fde91faa3ad860cc4188a4ccc6fef6089c36de8f5ba1eea48fafdf",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-git-spawns-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-git-spawns-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-git-spawns-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-git-spawns-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-git-spawns-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-bcf761db2cd75f04",
+      "rationale": "No output changes: pose check --strict on pose-dist printed the same report before and after. The status snapshot is per subject, so a long-lived server never answers from a stale working tree; only immutable commit paths are cached, bounded at 20,000 commits."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-git-spawns-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-bcf761db2cd75f04",
+      "rationale": "The new file's header records the measurement and why each read is cached or snapshotted; the spec records the counts before and after and the remaining indexing cost as a follow-up."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-bcf761db2cd75f04",
+      "rationale": "29,500 Git processes and 125 s became 8,911 and 101 s for check --strict on pose-dist. Full native run at the sealed head with the candidate CLI built from it: every step passes, including check-git-spawns-integration."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-git-spawns-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-bcf761db2cd75f04",
+      "rationale": "One new file with the cache and the snapshot, two call sites in review_bundle.go, equivalence tests, one matrix check and the spawned disposition. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-bcf761db2cd75f04",
+      "rationale": "Commits stay validated as full object ids before any Git call; the snapshot runs one read-only git status with -z parsing, so no path reaches a shell."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-check-spawns-fewer-git-processes --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-bcf761db2cd75f04",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-git-spawns-integration",
+      "rationale": "pose assess integrate ran with the candidate CLI and exited 0."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-git-spawns-integration",
+      "rationale": "surface-check --spec pose-check-spawns-fewer-git-processes --strict exited 0."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: every step passes, including check-git-spawns-integration."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: every step passes, including check-git-spawns-integration."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/check-git-spawns-integration",
+    "structure:design-bcf761db2cd75f04",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T05:05:23Z",
+  "path": ".pose/review-attestations/rva-5c690173152af167.json"
+}

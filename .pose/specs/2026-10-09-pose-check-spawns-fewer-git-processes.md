@@ -1,8 +1,8 @@
 ---
 slug: pose-check-spawns-fewer-git-processes
-status: in-progress
+status: done
 created_at: 2026-10-09
-completed_at:
+completed_at: 2026-10-09
 supersedes:
 depends_on: check-worker-count-is-the-machines
 priority: 1
