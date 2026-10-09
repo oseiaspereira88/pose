@@ -1,8 +1,8 @@
 ---
 slug: pose-red-signal-clears-only-at-the-head
-status: in-progress
+status: done
 created_at: 2026-10-09
-completed_at:
+completed_at: 2026-10-09
 supersedes:
 depends_on: pose-red-signals-reach-a-person
 remediates: spec:pose-red-signals-reach-a-person@defect-fix
