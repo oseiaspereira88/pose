@@ -73,12 +73,12 @@ Comprova que o agente AGY conectado à plataforma Harne8 via Desktop executa spe
 - [x] Validar Definition of Ready
 
 ### Implementation
-- [ ] Criar arquivo `examples/smoke-test-agy.txt` com marca de execução
-- [ ] Executar `pose validate --fast` ou checks aplicáveis
+- [ ] Criar arquivo `examples/smoke-test-agy.txt` com marca de execução — adiado: requer execução real do AGY pelo Harne8 Desktop
+- [ ] Executar `pose validate --fast` ou checks aplicáveis — adiado: requer execução real do AGY pelo Harne8 Desktop
 
 ### Validation
-- [ ] Verificar existência e integridade do arquivo criado
-- [ ] Atualizar spec para status `done`
+- [ ] Verificar existência e integridade do arquivo criado — adiado: requer execução real do AGY pelo Harne8 Desktop
+- [x] Atualizar spec para status `done`
 
 ---
 
@@ -113,8 +113,8 @@ Validação determinística através de checagem do arquivo gerado e execução 
 
 ### Requirement trace
 <!-- No closeout, um bullet por R-ID declarado:
-- R1 [satisfied] check:file-exists report:examples/smoke-test-agy.txt
-- R2 [satisfied] check:pose-validate
+- R1 [deferred-integration: xref:proj.harne8/spec:harne8-pose-open-integrations-reconciliation] <the trace previously claimed this satisfied, but `examples/smoke-test-agy.txt` was never committed; the smoke needs a real AGY agent driven from Harne8 Desktop, which the Harne8 integration follow-up owns>
+- R2 [deferred-integration: xref:proj.harne8/spec:harne8-pose-open-integrations-reconciliation] <depends on the same real AGY run; no run has been recorded>
 -->
 
 ### Gaps conhecidos
@@ -125,7 +125,10 @@ Validação determinística através de checagem do arquivo gerado e execução 
 ## 7. Final Report
 
 ### Escopo entregue
-<!-- A preencher no closeout pelo agente executor -->
+Nenhuma execução do AGY foi registrada; o trace, que afirmava os dois requisitos satisfeitos sem o arquivo existir, foi corrigido para integração adiada com dono.
+
+### Residual risks
+- Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent.
 
 ### Arquivos e módulos alterados
 - `examples/smoke-test-agy.txt`
@@ -138,4 +141,4 @@ Validação determinística através de checagem do arquivo gerado e execução 
 - none
 
 ### Follow-ups
-- [open] Avaliar automação periódica de smoke tests em CI.
+- [open] Avaliar automação periódica de smoke tests em CI. (owner:@pose-maintainers crit:low review:2027-01-09)
