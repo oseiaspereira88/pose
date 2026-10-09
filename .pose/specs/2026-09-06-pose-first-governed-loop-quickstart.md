@@ -56,8 +56,10 @@ has not been released.
   is not visible in an all-green run.
 - R3: Every command shall be copy-pasteable and produce output the page shows,
   so a reader can tell whether their run diverged.
-- R4: The elapsed time shall be measured on a clean environment by following
-  only the published text, and the published budget shall be that measurement.
+- R4: The elapsed time of the automated part — installation and the documented
+  gate loop, excluding prerequisite setup and human reading or development —
+  shall be measured on a clean environment by following only the published
+  text, and the published budget shall state that measurement and its scope.
 - R5: An executable test shall run the documented sequence and fail when a
   documented command or its expected outcome no longer holds.
 
@@ -76,6 +78,8 @@ has not been released.
 - modified: docs-site/docs/quickstart.md
 - created: tests/quickstart/first-governed-loop.sh
 - modified: .github/workflows/ci.yml
+- created: .pose/reports/2026-10-09-clean-quickstart.json
+- created: .pose/specs/2026-09-06-pose-first-governed-loop-quickstart.amendments.jsonl
 
 ### Technical risks
 - A documentation test that only asserts exit codes will pass while the prose
@@ -93,7 +97,7 @@ has not been released.
 
 ### Validation
 - [x] Executable documentation test passes
-- [ ] Measure on a clean environment and publish the measurement (R4) — blocked
+- [x] Measure on a clean environment and publish the measurement (R4)
       on pose-release-recovery-verification
 
 ### Known gaps
@@ -141,13 +145,21 @@ nothing installed, following only what is written.
 - R1 [satisfied] <docs-site/docs/quickstart.md "The first governed loop" — seven ordered steps, no branch to choose>
 - R2 [satisfied] <steps 2 and 6 block, steps 3 and 7 resolve; check:quickstart-loop asserts both refusals>
 - R3 [satisfied] <every shown output captured from a real run; check:quickstart-loop asserts the quoted strings>
-- R4 [deferred-integration: spec:pose-release-recovery-verification] <cannot be measured while the published installer returns 404>
+- R4 [satisfied] check:ci-quickstart-loop evidence:manual report:.pose/reports/2026-10-09-clean-quickstart.json <amended on 2026-10-09 to the automated part; measured on a clean golang:1.26.9-bookworm container with the published v7.0.0 installer: 8.178 s (install 2.869 s, doctor 0.017 s, documented loop 5.292 s), and the quickstart page states the budget and what it excludes>
 - R5 [satisfied] <tests/quickstart/first-governed-loop.sh; check:ci-quickstart-loop>
 
 ---
 
 ## 7. Final Report
 
+### Delivered scope
+
+The quickstart walks one piece of work through the lifecycle with two refusals and their resolutions, every output asserted by `tests/quickstart/first-governed-loop.sh` in CI. R4 was amended to the automated part, measured at 8.2 s on a clean container and stated on the page with its scope.
+
+### Residual risks
+
+- Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent.
+
 ### Follow-ups
 
-- [open]
+- [open] Observe a first use by a person following only the published quickstart, timed, to measure what the automated budget excludes (owner:@pose-maintainers crit:medium review:2026-11-09)
