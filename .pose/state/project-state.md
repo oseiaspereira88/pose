@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-09T03:42:37Z
-baseline_commit: fdd1d4332e15e3a38fa93893958e52962b33e357
+generated_at: 2026-10-09T04:16:20Z
+baseline_commit: cd8ed7d24bd7d465fc7c131f9d97cd81aa092ad4
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,9 +27,9 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:aab78684d2c8 -->
+<!-- state:derived hash:4773ed05f047 -->
 
-- specs: total=349 draft=2 in-progress=12 blocked=0 done=335 superseded=0 abandoned=0
+- specs: total=350 draft=2 in-progress=13 blocked=0 done=335 superseded=0 abandoned=0
 - roadmaps: total=17 active=1 done=11
 - últimos closeouts:
   - spec:pose-red-signals-reach-a-person (2026-10-09)
@@ -40,10 +40,10 @@ capacidade.
   - ... e mais 330 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:8c32158d9af0 -->
+<!-- state:derived hash:06ef4ed40a26 -->
 
-- abertos: 106
-- por criticidade: high=4 medium=27 low=55 sem-classificação=20
+- abertos: 105
+- por criticidade: high=4 medium=26 low=55 sem-classificação=20
 - vencidos (review < hoje): 10
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)

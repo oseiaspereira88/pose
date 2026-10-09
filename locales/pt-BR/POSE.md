@@ -155,7 +155,13 @@ priority:                # inteiro >= 0 (menor = mais prioritário)
   `test:`, `report:`, `commit:`), `[waived: <motivo>]` ou
   `[withdrawn: <motivo>]`. IDs órfãos ou ausentes falham no
   `lint-spec --strict`; a tool MCP `pose_requirement_trace` expõe a projeção
-  bidirecional.
+  bidirecional. Uma ref `test:` precisa nomear um teste que existe no
+  repositório, nos submódulos ou num repositório aninhado que o validation
+  matrix registra como módulo: função de teste ou subteste Go, título de teste
+  JavaScript/TypeScript (exato ou em slug), função `test_` Python ou `#[test]`
+  Rust, arquivo de teste rastreado, ou padrão de `go test -run` que seleciona um
+  teste. Uma ref não resolvida falha `lint-spec` e `pose close` enquanto a spec
+  está aberta e só é reportada numa spec fechada.
 
 O fechamento é um passo explícito (skill [`pose-spec-closeout`](.agents/skills/pose-spec-closeout/SKILL.md)):
 definir `status: done`, preencher `completed_at`, triar cada follow-up e passar o

@@ -483,6 +483,8 @@ func TestPoseCloseWithLiveGitTrailerNoReport(t *testing.T) {
 	artifactGit(t, root, "init", "-q")
 	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
 	artifactGit(t, root, "config", "user.name", "POSE Tests")
+	// The trace cites test:TestFixture, and a traced test must exist (spec pose-trace-test-refs-resolve).
+	writeCloseoutCLIFile(t, root, "fixture_test.go", "package fixture\n\nfunc TestFixture(t *testing.T) {}\n")
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"}}`)
 	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
 	writeCloseoutCLIFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","governed_roots":["internal"],"severities":{"action-mismatch":"error","undeclared":"error"}}`)
@@ -554,6 +556,8 @@ func TestReviewBundleSealAndCloseoutForDocOnlySpecWithNoDeliveryTargets(t *testi
 	artifactGit(t, root, "init", "-q")
 	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
 	artifactGit(t, root, "config", "user.name", "POSE Tests")
+	// The trace cites test:TestFixture, and a traced test must exist (spec pose-trace-test-refs-resolve).
+	writeCloseoutCLIFile(t, root, "fixture_test.go", "package fixture\n\nfunc TestFixture(t *testing.T) {}\n")
 
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{
   "schema_version": 2,
@@ -671,6 +675,8 @@ func TestReviewBundleSealSingleModuleRootFilesAndManifests(t *testing.T) {
 	artifactGit(t, root, "init", "-q")
 	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
 	artifactGit(t, root, "config", "user.name", "POSE Tests")
+	// The trace cites test:TestFixture, and a traced test must exist (spec pose-trace-test-refs-resolve).
+	writeCloseoutCLIFile(t, root, "fixture_test.go", "package fixture\n\nfunc TestFixture(t *testing.T) {}\n")
 
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{
   "schema_version": 2,
@@ -792,6 +798,8 @@ func TestReviewBundleSealSingleModuleSubdirectoryDeliveryTarget(t *testing.T) {
 	artifactGit(t, root, "init", "-q")
 	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
 	artifactGit(t, root, "config", "user.name", "POSE Tests")
+	// The trace cites test:TestFixture, and a traced test must exist (spec pose-trace-test-refs-resolve).
+	writeCloseoutCLIFile(t, root, "fixture_test.go", "package fixture\n\nfunc TestFixture(t *testing.T) {}\n")
 
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{
   "schema_version": 2,
@@ -934,6 +942,8 @@ func TestReviewVerifyScopeIsolationFromUnrelatedCorruptedBundle(t *testing.T) {
 	artifactGit(t, root, "init", "-q")
 	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
 	artifactGit(t, root, "config", "user.name", "POSE Tests")
+	// The trace cites test:TestFixture, and a traced test must exist (spec pose-trace-test-refs-resolve).
+	writeCloseoutCLIFile(t, root, "fixture_test.go", "package fixture\n\nfunc TestFixture(t *testing.T) {}\n")
 
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{
   "schema_version": 2,

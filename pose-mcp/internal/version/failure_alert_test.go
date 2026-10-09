@@ -20,9 +20,9 @@ import (
 // notAlerting names the workflows that run on main, a tag, a release or a
 // schedule but are deliberately not watched, each with its reason.
 var notAlerting = map[string]string{
-	"Package channels":                    "dispatch-only optional round that gates nothing (pose-package-channels-deferred-native-verification)",
+	"Package channels":                   "dispatch-only optional round that gates nothing (pose-package-channels-deferred-native-verification)",
 	"Repair Dependabot runtime evidence": "reacts to CI on Dependabot branches; a red CI it repairs is already alerted",
-	"Failure alert":                       "the alert itself; watching it would loop",
+	"Failure alert":                      "the alert itself; watching it would loop",
 }
 
 var (

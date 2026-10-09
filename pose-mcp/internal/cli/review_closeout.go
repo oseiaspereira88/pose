@@ -1558,6 +1558,12 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 				render(io.Discard, stderr).Failure("pose close: requirement trace gate failed: " + strings.Join(blockers, "; ") + " — declare each under `### Requirement trace`, e.g. `- R1 [satisfied] test:<TestName>`, or [waived: <reason>] / [withdrawn: <reason>]")
 				return 1
 			}
+			// A test: ref must name a test that exists, or the trace points a
+			// promise at nothing (spec pose-trace-test-refs-resolve).
+			if unresolved := posemodel.UnresolvedTestRefs(posemodel.ParseRequirementTrace(string(raw)), posemodel.LoadTestCatalog(root)); len(unresolved) > 0 {
+				render(io.Discard, stderr).Failure("pose close: requirement trace gate failed: " + strings.Join(unresolved, "; ") + " names no test in this repository or its submodules — cite the test function, subtest, test title or test file")
+				return 1
+			}
 		}
 		path = sp.Path
 	} else {

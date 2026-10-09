@@ -718,6 +718,22 @@ func lintOneSpecWith(r *cliout.Renderer, fields bool, specPath string, requiredO
 		lint.finding(cliout.StateError, "requirement-trace", fmt.Sprintf(cliText(locale, "requirement trace: %s is traced but not declared in Requirements", "requirement trace: %s rastreado mas não declarado em Requirements"), id))
 		traceFailures++
 	}
+	// A test: ref must name a test that exists (spec pose-trace-test-refs-resolve).
+	// An unresolved ref blocks a spec that can still change, so an invented name
+	// no longer closes; on a closed spec it is reported, because history is not
+	// rewritten and the --all gate must not turn red on it. The root is the
+	// spec's own repository, whatever the working directory.
+	if root, err := projectRootAt(filepath.Dir(specPath)); err == nil {
+		for _, ref := range posepkg.UnresolvedTestRefs(trace, posepkg.LoadTestCatalog(root)) {
+			switch specStatus {
+			case "done", "superseded", "abandoned":
+				lint.finding(cliout.StateWarning, "requirement-trace", fmt.Sprintf(cliText(locale, "requirement trace: %s names no test in this repository or its submodules", "requirement trace: %s não nomeia nenhum teste deste repositório ou de seus submódulos"), ref))
+			default:
+				lint.finding(cliout.StateError, "requirement-trace", fmt.Sprintf(cliText(locale, "requirement trace: %s names no test in this repository or its submodules (cite the test function, subtest, test title or test file)", "requirement trace: %s não nomeia nenhum teste deste repositório ou de seus submódulos (cite a função de teste, o subteste, o título ou o arquivo de teste)"), ref))
+				traceFailures++
+			}
+		}
+	}
 	traceEntries := 0
 	for _, r := range trace.Requirements {
 		if r.Entry != nil {

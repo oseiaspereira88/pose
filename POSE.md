@@ -151,7 +151,13 @@ priority:                # integer >= 0 (lower = higher priority)
   evidence (free text plus structured refs `check:`, `test:`, `report:`,
   `commit:`), `[waived: <reason>]` or `[withdrawn: <reason>]`. Orphaned or
   missing IDs fail `lint-spec --strict`; the MCP tool
-  `pose_requirement_trace` exposes the bidirectional projection.
+  `pose_requirement_trace` exposes the bidirectional projection. A `test:` ref
+  must name a test that exists in the repository, its submodules or a nested
+  module repository the validation matrix registers: a Go test function or
+  subtest, a JavaScript/TypeScript test title (exact or in slug form), a Python
+  `test_` or Rust `#[test]` function, a tracked test file, or a `go test -run`
+  pattern that selects a test. An unresolved ref fails `lint-spec` and
+  `pose close` while the spec is open, and is only reported on a closed spec.
 
 Closeout is an explicit step (skill [`pose-spec-closeout`](.agents/skills/pose-spec-closeout/SKILL.md)):
 set `status: done`, fill `completed_at`, triage every follow-up and pass the

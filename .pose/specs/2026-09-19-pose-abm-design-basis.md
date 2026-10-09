@@ -347,7 +347,7 @@ disposition — `pose followups --open` aggregates the open ones.
 - [open] Compor `governance:design-basis-projection` no Harne8 e provar
   alcançabilidade antes de afirmar capacidade composta; o alvo declarado aqui é
   local e de governança (owner:@pose-maintainers crit:medium review:2026-10-19)
-- [open] O requirement trace de R7 citava `TestABMDesignBasisDigestStable`, que
+- [spawned: pose-trace-test-refs-resolve] O requirement trace de R7 citava `TestABMDesignBasisDigestStable`, que
   não existe: `lint-spec --strict` conta as entradas mas não resolve os refs
   `test:`, então uma referência inventada passa no gate. Decidir se o lint passa
   a resolvê-los (owner:@pose-maintainers crit:medium review:2026-10-19)
