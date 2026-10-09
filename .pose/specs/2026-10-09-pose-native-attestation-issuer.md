@@ -77,6 +77,7 @@ Hosted key management, hardware-key enforcement for issuers, and changing how th
 - created: pose-mcp/internal/pose/issuer_key_test.go
 - created: pose-mcp/internal/pose/issuer_key_links_unix.go
 - created: pose-mcp/internal/pose/issuer_key_links_windows.go
+- created: pose-mcp/internal/pose/issuer_key_special_unix_test.go
 - created: pose-mcp/internal/cli/issuer.go
 - created: pose-mcp/internal/cli/issuer_test.go
 - modified: pose-mcp/internal/cli/cli.go
@@ -136,6 +137,8 @@ Unit tests for key creation, permissions, pin computation and signing; an integr
 
 2026-10-09, third independent review (agent:gpt-6.1-sol): one low-severity defect. A valid issuer name containing `.retired-` (for example `ops.retired-backup`) was read as a retired key by `issuer list` and disappeared from it. Listing now reads the issuer from the key file and treats only `<issuer>.key` as current; `TestIssuerNameContainingRetiredIsListed` failed on 24b54a69 and passes on 5a590598.
 
+2026-10-09, fourth independent review (agent:gpt-6.1-sol): medium severity. A FIFO named `<x>.key` in the key directory blocked `issuer list` and `issuer pin`, because the file was read before its type was checked. Listing now opens only regular files, and loading refuses any non-regular key file before reading; `TestIssuerSpecialFileIsNeverOpened` blocked on e440104a and passes now.
+
 ### Requirement trace
 
 - R1 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeIssuerKeyIsPrivateAndNeverOverwritten test:TestNativeIssuerKeyIsRefusedInsideTheProject test:TestNativeIssuerKeyFileMustNotBeALink
@@ -144,7 +147,7 @@ Unit tests for key creation, permissions, pin computation and signing; an integr
 - R4 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeAuthorityClaimSatisfiesVerifiedIdentity
 - R5 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeAndExternalIssuersCoexist
 - R6 [satisfied] capability:native-attestation-issuer evidence:integration test:TestNativeIssuerJourneyWithPOSEAlone
-- R7 [satisfied] capability:native-attestation-issuer evidence:unit test:TestRotatedIssuerKeepsEarlierSignaturesValid test:TestRotationsInTheSameSecondKeepEveryRetiredKey test:TestIssuerNameContainingRetiredIsListed
+- R7 [satisfied] capability:native-attestation-issuer evidence:unit test:TestRotatedIssuerKeepsEarlierSignaturesValid test:TestRotationsInTheSameSecondKeepEveryRetiredKey test:TestIssuerNameContainingRetiredIsListed test:TestIssuerSpecialFileIsNeverOpened
 
 ## 7. Final Report
 

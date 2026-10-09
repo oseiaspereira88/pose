@@ -320,6 +320,11 @@ func ListIssuerKeys(root string) ([]IssuerKeySummary, error) {
 // issuerOfKeyFile reads the issuer a key file declares, without loading the
 // key; the full load still checks links, permissions and the key itself.
 func issuerOfKeyFile(path string) (string, bool) {
+	// Never open anything but a regular file: reading a FIFO or a device
+	// blocks, and the listing would hang (found in review by agent:gpt-6.1-sol).
+	if info, err := os.Lstat(path); err != nil || !info.Mode().IsRegular() {
+		return "", false
+	}
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return "", false
@@ -357,6 +362,9 @@ func requirePrivate(path string, isDir bool) error {
 	}
 	if !isDir && info.Mode()&os.ModeSymlink != 0 {
 		return fmt.Errorf("pose: %s is a symlink; an issuer key must be a regular file in the key directory", path)
+	}
+	if !isDir && !info.Mode().IsRegular() {
+		return fmt.Errorf("pose: %s is not a regular file; an issuer key must be a regular file in the key directory", path)
 	}
 	if !isDir && extraHardLinks(info) {
 		return fmt.Errorf("pose: %s has another hard link, so a copy of the key may live elsewhere; keep a single link", path)
