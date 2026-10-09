@@ -24,7 +24,7 @@ func cmdIssuer(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	switch args[0] {
 	case "init":
-		return cmdIssuerInit(args[1:], stdout, stderr)
+		return cmdIssuerInit(root, args[1:], stdout, stderr)
 	case "pin":
 		return cmdIssuerPin(root, args[1:], stdout, stderr)
 	case "list":
@@ -35,11 +35,11 @@ func cmdIssuer(root string, args []string, stdout, stderr io.Writer) int {
 	return usageError(stderr, issuerUsage)
 }
 
-func cmdIssuerInit(args []string, stdout, stderr io.Writer) int {
+func cmdIssuerInit(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) != 1 || strings.HasPrefix(args[0], "-") {
 		return usageError(stderr, issuerUsage)
 	}
-	key, err := posemodel.CreateIssuerKey(args[0], time.Now())
+	key, err := posemodel.CreateIssuerKey(root, args[0], time.Now())
 	if err != nil {
 		render(stdout, stderr).Failure("pose issuer init: " + strings.TrimPrefix(err.Error(), "pose: "))
 		return 1
@@ -55,7 +55,7 @@ func cmdIssuerInit(args []string, stdout, stderr io.Writer) int {
 
 // resolveIssuerPin accepts a local issuer name, or `name:<base64 public key>`
 // for an issuer whose key lives elsewhere (another machine, a teammate).
-func resolveIssuerPin(value string) (string, error) {
+func resolveIssuerPin(root, value string) (string, error) {
 	if name, public, ok := strings.Cut(value, ":"); ok {
 		if err := posemodel.ValidIssuerName(name); err != nil {
 			return "", err
@@ -66,7 +66,7 @@ func resolveIssuerPin(value string) (string, error) {
 		}
 		return posemodel.IssuerPin(name, raw), nil
 	}
-	key, err := posemodel.LoadIssuerKey(value)
+	key, err := posemodel.LoadIssuerKey(root, value)
 	if err != nil {
 		return "", err
 	}
@@ -107,7 +107,7 @@ func cmdIssuerPin(root string, args []string, stdout, stderr io.Writer) int {
 }
 
 func pinIssuer(root, target string, attestations, humanAuthority bool, audience string, apply bool, command string, stdout, stderr io.Writer) int {
-	pin, err := resolveIssuerPin(target)
+	pin, err := resolveIssuerPin(root, target)
 	if err != nil {
 		render(stdout, stderr).Failure(command + ": " + strings.TrimPrefix(err.Error(), "pose: "))
 		return 1
@@ -157,7 +157,7 @@ func cmdIssuerList(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) > 1 || len(args) == 1 && !asJSON {
 		return usageError(stderr, issuerUsage)
 	}
-	keys, err := posemodel.ListIssuerKeys()
+	keys, err := posemodel.ListIssuerKeys(root)
 	if err != nil {
 		render(stdout, stderr).Failure("pose issuer list: " + err.Error())
 		return 1
@@ -242,7 +242,7 @@ func cmdIssuerRotate(root string, args []string, stdout, stderr io.Writer) int {
 		return usageError(stderr, issuerUsage)
 	}
 	name, apply := args[0], len(args) == 2
-	old, err := posemodel.LoadIssuerKey(name)
+	old, err := posemodel.LoadIssuerKey(root, name)
 	if err != nil {
 		render(stdout, stderr).Failure("pose issuer rotate: " + strings.TrimPrefix(err.Error(), "pose: "))
 		return 1
@@ -269,7 +269,7 @@ func cmdIssuerRotate(root string, args []string, stdout, stderr io.Writer) int {
 		return false
 	}
 	attestations, human := inList("trusted_attestation_issuers"), inList("human_authority_issuers")
-	_, current, err := posemodel.RotateIssuerKey(name, time.Now())
+	_, current, err := posemodel.RotateIssuerKey(root, name, time.Now())
 	if err != nil {
 		render(stdout, stderr).Failure("pose issuer rotate: " + strings.TrimPrefix(err.Error(), "pose: "))
 		return 1

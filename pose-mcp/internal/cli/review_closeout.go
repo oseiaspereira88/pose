@@ -816,7 +816,7 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 // through the same envelope verification an external issuer's envelope takes,
 // so a natively signed attestation is held to exactly the same proof.
 func signAndRecordAttestation(store posemodel.Store, att posemodel.ReviewAttestation, issuer string, claimAuthority bool, reviewExecution, implementationPrincipal, implementationExecution, claimTTL string, apply bool, stdout, stderr io.Writer) int {
-	key, err := posemodel.LoadIssuerKey(issuer)
+	key, err := posemodel.LoadIssuerKey(store.Root, issuer)
 	if err != nil {
 		render(stdout, stderr).Failure("pose review attest: " + strings.TrimPrefix(err.Error(), "pose: "))
 		return 1

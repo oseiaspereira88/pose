@@ -52,7 +52,7 @@ func reseal(t *testing.T, f *authorityFixture) {
 // owner-only, never overwritten, and refused once others can read it.
 func TestNativeIssuerKeyIsPrivateAndNeverOverwritten(t *testing.T) {
 	dir := useIssuerHome(t)
-	key, err := CreateIssuerKey("maintainer", time.Now())
+	key, err := CreateIssuerKey("", "maintainer", time.Now())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,21 +71,21 @@ func TestNativeIssuerKeyIsPrivateAndNeverOverwritten(t *testing.T) {
 	if !strings.HasPrefix(key.Pin(), "maintainer#sha256:") || !validHumanAuthorityIssuerPin(key.Pin()) {
 		t.Fatalf("malformed pin %q", key.Pin())
 	}
-	if _, err := CreateIssuerKey("maintainer", time.Now()); err == nil || !strings.Contains(err.Error(), "already has a key") {
+	if _, err := CreateIssuerKey("", "maintainer", time.Now()); err == nil || !strings.Contains(err.Error(), "already has a key") {
 		t.Fatalf("an existing key was overwritten: %v", err)
 	}
-	loaded, err := LoadIssuerKey("maintainer")
+	loaded, err := LoadIssuerKey("", "maintainer")
 	if err != nil || loaded.Pin() != key.Pin() {
 		t.Fatalf("reload changed the key: %v", err)
 	}
 	if err := os.Chmod(key.Path, 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := LoadIssuerKey("maintainer"); err == nil || !strings.Contains(err.Error(), "accessible to other users") {
+	if _, err := LoadIssuerKey("", "maintainer"); err == nil || !strings.Contains(err.Error(), "accessible to other users") {
 		t.Fatalf("a world-readable key was used: %v", err)
 	}
 	for _, bad := range []string{"Upper", "a#b", "../x", "", "a/b"} {
-		if _, err := CreateIssuerKey(bad, time.Now()); err == nil {
+		if _, err := CreateIssuerKey("", bad, time.Now()); err == nil {
 			t.Fatalf("issuer name %q was accepted", bad)
 		}
 	}
@@ -97,7 +97,7 @@ func TestNativeAndExternalIssuersCoexist(t *testing.T) {
 	useIssuerHome(t)
 	f := verifiedAuthorityFixture(t, "different-actor")
 	external := f.issuer + "#" + digestBytes(f.public)
-	native, err := CreateIssuerKey("maintainer", f.now)
+	native, err := CreateIssuerKey("", "maintainer", f.now)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -130,7 +130,7 @@ func TestNativeAndExternalIssuersCoexist(t *testing.T) {
 		t.Fatalf("the external issuer stopped counting once a native one was pinned: %v", err)
 	}
 	// A native key that is not pinned is refused.
-	stranger, err := CreateIssuerKey("stranger", f.now)
+	stranger, err := CreateIssuerKey("", "stranger", f.now)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -149,7 +149,7 @@ func TestNativeAndExternalIssuersCoexist(t *testing.T) {
 func TestNativeAuthorityClaimSatisfiesVerifiedIdentity(t *testing.T) {
 	useIssuerHome(t)
 	f := verifiedAuthorityFixture(t, "different-actor")
-	native, err := CreateIssuerKey("maintainer", f.now)
+	native, err := CreateIssuerKey("", "maintainer", f.now)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -197,7 +197,7 @@ func TestNativeAuthorityClaimSatisfiesVerifiedIdentity(t *testing.T) {
 func TestRotatedIssuerKeepsEarlierSignaturesValid(t *testing.T) {
 	useIssuerHome(t)
 	f := verifiedAuthorityFixture(t, "different-actor")
-	old, err := CreateIssuerKey("maintainer", f.now)
+	old, err := CreateIssuerKey("", "maintainer", f.now)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -206,7 +206,7 @@ func TestRotatedIssuerKeepsEarlierSignaturesValid(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	retired, current, err := RotateIssuerKey("maintainer", f.now.Add(time.Hour))
+	retired, current, err := RotateIssuerKey("", "maintainer", f.now.Add(time.Hour))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -217,7 +217,7 @@ func TestRotatedIssuerKeepsEarlierSignaturesValid(t *testing.T) {
 	if _, err := f.store.RecordReviewAttestationEnvelope(signed, false); err != nil {
 		t.Fatalf("an attestation signed before the rotation stopped verifying: %v", err)
 	}
-	keys, err := ListIssuerKeys()
+	keys, err := ListIssuerKeys("")
 	if err != nil || len(keys) != 2 || keys[0].Retired == keys[1].Retired {
 		t.Fatalf("list after rotation: %+v %v", keys, err)
 	}
@@ -226,17 +226,51 @@ func TestRotatedIssuerKeepsEarlierSignaturesValid(t *testing.T) {
 // No serialized form a caller can reach carries the private key.
 func TestNativeIssuerNeverExposesThePrivateKey(t *testing.T) {
 	useIssuerHome(t)
-	key, err := CreateIssuerKey("maintainer", time.Now())
+	key, err := CreateIssuerKey("", "maintainer", time.Now())
 	if err != nil {
 		t.Fatal(err)
 	}
 	seed := base64.StdEncoding.EncodeToString(key.private.Seed())
-	keys, _ := ListIssuerKeys()
+	keys, _ := ListIssuerKeys("")
 	exposed, _ := json.Marshal(map[string]any{"key": key, "list": keys})
 	if strings.Contains(string(exposed), seed) {
 		t.Fatal("the private key is reachable through a serialized value")
 	}
 	if len(key.public) != ed25519.PublicKeySize {
 		t.Fatal("public key not loaded")
+	}
+}
+
+// R1: a key directory inside the project is refused, directly or through a
+// symlink, before any key is written (found in review by agent:gpt-6.1-sol).
+func TestNativeIssuerKeyIsRefusedInsideTheProject(t *testing.T) {
+	root := t.TempDir()
+	inside := filepath.Join(root, ".pose", "issuers")
+	t.Setenv("POSE_ISSUER_HOME", inside)
+	if _, err := CreateIssuerKey(root, "maintainer", time.Now()); err == nil || !strings.Contains(err.Error(), "outside the project") {
+		t.Fatalf("a key directory inside the project was accepted: %v", err)
+	}
+	if _, err := os.Stat(inside); !os.IsNotExist(err) {
+		t.Fatalf("the refused directory was created: %v", err)
+	}
+	outside := t.TempDir()
+	link := filepath.Join(outside, "link")
+	if err := os.Symlink(root, link); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("POSE_ISSUER_HOME", filepath.Join(link, "keys"))
+	if _, err := CreateIssuerKey(root, "maintainer", time.Now()); err == nil || !strings.Contains(err.Error(), "outside the project") {
+		t.Fatalf("a symlink into the project was accepted: %v", err)
+	}
+	t.Setenv("POSE_ISSUER_HOME", filepath.Join(outside, "keys"))
+	if _, err := CreateIssuerKey(root, "maintainer", time.Now()); err != nil {
+		t.Fatalf("a directory outside the project was refused: %v", err)
+	}
+	if _, err := LoadIssuerKey(root, "maintainer"); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("POSE_ISSUER_HOME", filepath.Join(link, "keys"))
+	if _, err := LoadIssuerKey(root, "maintainer"); err == nil {
+		t.Fatal("signing from a key directory inside the project was allowed")
 	}
 }

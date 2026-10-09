@@ -128,9 +128,11 @@ Unit tests for key creation, permissions, pin computation and signing; an integr
 
 2026-10-09: the CLI journey test first failed on the implementation itself: `--sign` ran the preflight on the attestation before the envelope was attached, and the preflight refused it as unsigned under `signed-attestations`; the envelope is now verified first. `go test ./...` in pose-mcp passes; the composition contract gained `POSE_ISSUER_HOME`.
 
+2026-10-09, independent review (agent:gpt-6.1-sol, Codex): changes required, high severity. `POSE_ISSUER_HOME` accepted a directory inside the project and `issuer init` wrote the private key there (for example `<project>/.pose/issuers/`), one `git add -A` from publication, against R1. Every key operation now takes the project root and refuses a key directory inside it, symlinks resolved, before anything is written; `TestNativeIssuerKeyIsRefusedInsideTheProject` covers the direct path, a symlink into the project, and signing from such a directory.
+
 ### Requirement trace
 
-- R1 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeIssuerKeyIsPrivateAndNeverOverwritten
+- R1 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeIssuerKeyIsPrivateAndNeverOverwritten test:TestNativeIssuerKeyIsRefusedInsideTheProject
 - R2 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeAndExternalIssuersCoexist
 - R3 [satisfied] capability:native-attestation-issuer evidence:integration test:TestNativeIssuerJourneyWithPOSEAlone
 - R4 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeAuthorityClaimSatisfiesVerifiedIdentity

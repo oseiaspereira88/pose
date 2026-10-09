@@ -87,14 +87,62 @@ func ValidIssuerName(name string) error {
 
 func issuerKeyPath(dir, name string) string { return filepath.Join(dir, name+".key") }
 
+// issuerKeyDirOutside returns the key directory after checking it is not
+// inside the project at root, symlinks resolved: a key under the project is a
+// key one `git add -A` away from being published. An empty root skips the
+// check, for callers with no project.
+func issuerKeyDirOutside(root string) (string, error) {
+	dir, err := IssuerKeyDir()
+	if err != nil {
+		return "", err
+	}
+	if root == "" {
+		return dir, nil
+	}
+	realDir, err := resolveExisting(dir)
+	if err != nil {
+		return "", err
+	}
+	realRoot, err := resolveExisting(root)
+	if err != nil {
+		return "", err
+	}
+	if rel, err := filepath.Rel(realRoot, realDir); err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return "", fmt.Errorf("pose: issuer keys must live outside the project, and %s is inside %s; point POSE_ISSUER_HOME elsewhere", dir, root)
+	}
+	return dir, nil
+}
+
+// resolveExisting resolves symlinks in the longest existing prefix of path
+// and appends the rest, so a directory that does not exist yet is judged by
+// where it would be created.
+func resolveExisting(path string) (string, error) {
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+	rest := ""
+	for current := abs; ; {
+		if real, err := filepath.EvalSymlinks(current); err == nil {
+			return filepath.Join(real, rest), nil
+		}
+		parent := filepath.Dir(current)
+		if parent == current {
+			return abs, nil
+		}
+		rest = filepath.Join(filepath.Base(current), rest)
+		current = parent
+	}
+}
+
 // CreateIssuerKey creates a new key for name. It refuses to replace an
 // existing key: losing a key would orphan its pin, and overwriting it would
 // silently change what the pin trusts.
-func CreateIssuerKey(name string, now time.Time) (IssuerKey, error) {
+func CreateIssuerKey(root, name string, now time.Time) (IssuerKey, error) {
 	if err := ValidIssuerName(name); err != nil {
 		return IssuerKey{}, err
 	}
-	dir, err := IssuerKeyDir()
+	dir, err := issuerKeyDirOutside(root)
 	if err != nil {
 		return IssuerKey{}, err
 	}
@@ -136,8 +184,8 @@ func writeIssuerKey(name, path string, now time.Time) (IssuerKey, error) {
 // RotateIssuerKey retires the current key of name (kept beside it, so the old
 // pin can still be inspected) and creates a new one. Pins are policy and are
 // not touched here: the caller pins the new key next to the old one.
-func RotateIssuerKey(name string, now time.Time) (retired, current IssuerKey, err error) {
-	retired, err = LoadIssuerKey(name)
+func RotateIssuerKey(root, name string, now time.Time) (retired, current IssuerKey, err error) {
+	retired, err = LoadIssuerKey(root, name)
 	if err != nil {
 		return IssuerKey{}, IssuerKey{}, err
 	}
@@ -157,12 +205,12 @@ func RotateIssuerKey(name string, now time.Time) (retired, current IssuerKey, er
 }
 
 // LoadIssuerKey reads name's current key, refusing a key file or directory
-// that other users can read.
-func LoadIssuerKey(name string) (IssuerKey, error) {
+// that other users can read or that lies inside the project at root.
+func LoadIssuerKey(root, name string) (IssuerKey, error) {
 	if err := ValidIssuerName(name); err != nil {
 		return IssuerKey{}, err
 	}
-	dir, err := IssuerKeyDir()
+	dir, err := issuerKeyDirOutside(root)
 	if err != nil {
 		return IssuerKey{}, err
 	}
@@ -210,8 +258,8 @@ type IssuerKeySummary struct {
 
 // ListIssuerKeys lists the native issuer keys on this machine, current and
 // retired. Unreadable or foreign files are skipped, not reported as keys.
-func ListIssuerKeys() ([]IssuerKeySummary, error) {
-	dir, err := IssuerKeyDir()
+func ListIssuerKeys(root string) ([]IssuerKeySummary, error) {
+	dir, err := issuerKeyDirOutside(root)
 	if err != nil {
 		return nil, err
 	}
