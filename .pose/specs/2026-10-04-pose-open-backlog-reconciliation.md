@@ -1,8 +1,8 @@
 ---
 slug: pose-open-backlog-reconciliation
-status: in-progress
+status: done
 created_at: 2026-10-04
-completed_at:
+completed_at: 2026-10-09
 supersedes:
 depends_on: pose-review-assurance-disclosure
 priority: 0
