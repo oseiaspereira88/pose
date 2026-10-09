@@ -73,7 +73,13 @@ type ReviewBundleRangeObservation struct {
 	AttributedCommits   int    `json:"attributed_commits"`
 	RangeCommits        int    `json:"range_commits,omitempty"`
 	UnattributedCommits int    `json:"unattributed_commits,omitempty"`
-	Reason              string `json:"reason,omitempty"`
+	// UnattributedSpecs names the specs whose POSE-Spec trailer is on a
+	// commit the range spans but this change set does not attribute, and
+	// UntrailedCommits counts those that carry no trailer at all, so the
+	// reviewer knows whose work the range also holds.
+	UnattributedSpecs []string `json:"unattributed_specs,omitempty"`
+	UntrailedCommits  int      `json:"untrailed_commits,omitempty"`
+	Reason            string   `json:"reason,omitempty"`
 }
 
 type ReviewBundleSubject struct {
@@ -866,6 +872,7 @@ func (s Store) reviewBundleRangeObservations(ids []string, graph DeliveryIntegri
 				observation.State = "contaminated"
 				observation.RangeCommits = count
 				observation.UnattributedCommits = count - len(set.Commits)
+				observation.UnattributedSpecs, observation.UntrailedCommits = rangeUnattributedOwners(s.Root, set)
 				observation.Reason = "the range spans commits this change set does not attribute; its paths are attributed, its base..head is not"
 			default:
 				observation.State = "clean"
@@ -876,6 +883,48 @@ func (s Store) reviewBundleRangeObservations(ids []string, graph DeliveryIntegri
 	}
 	sort.Slice(observations, func(i, j int) bool { return observations[i].ChangeSet < observations[j].ChangeSet })
 	return observations
+}
+
+// rangeUnattributedOwners reads the trailers of the commits set's range spans
+// but does not attribute. It reports nothing when Git cannot answer: the
+// counts above already say the range is contaminated.
+func rangeUnattributedOwners(root string, set ChangeSet) ([]string, int) {
+	attributed := map[string]bool{}
+	for _, commit := range set.Commits {
+		attributed[commit] = true
+	}
+	var out bytes.Buffer
+	cmd := exec.Command("git", "-C", root, "log", "--no-color", "--format=%x01%H%n%B%x02", set.ResolvedBase+".."+set.ResolvedHead, "--")
+	cmd.Stdout = &limitedWriter{buf: &out, limit: reviewAttributionMaxBytes}
+	if cmd.Run() != nil {
+		return nil, 0
+	}
+	specs := []string{}
+	untrailed := 0
+	for _, chunk := range strings.Split(out.String(), "\x01") {
+		end := strings.Index(chunk, "\x02")
+		newline := strings.Index(chunk, "\n")
+		if end < 0 || newline < 0 || newline > end {
+			continue
+		}
+		sha := strings.TrimSpace(chunk[:newline])
+		if attributed[sha] {
+			continue
+		}
+		owned := false
+		for _, line := range strings.Split(chunk[newline+1:end], "\n") {
+			if spec, ok := strings.CutPrefix(strings.TrimSpace(line), "POSE-Spec:"); ok && strings.TrimSpace(spec) != "" {
+				owned = true
+				if strings.TrimSpace(spec) != set.Spec {
+					specs = append(specs, strings.TrimSpace(spec))
+				}
+			}
+		}
+		if !owned {
+			untrailed++
+		}
+	}
+	return uniqueSorted(specs), untrailed
 }
 
 func gitRevListCount(root, base, head string) (int, error) {
@@ -1292,8 +1341,15 @@ func rangeObservationWarnings(observations []ReviewBundleRangeObservation) []str
 	for _, observation := range observations {
 		switch observation.State {
 		case "contaminated":
-			warnings = append(warnings, fmt.Sprintf("change set %s attributes %d commit(s) but its range spans %d; %d commit(s) in base..head belong to other work, so the range is provenance and the attributed paths are the subject",
-				observation.ChangeSet, observation.AttributedCommits, observation.RangeCommits, observation.UnattributedCommits))
+			owners := ""
+			if len(observation.UnattributedSpecs) > 0 {
+				owners = "; they carry trailers of " + strings.Join(observation.UnattributedSpecs, ", ")
+			}
+			if observation.UntrailedCommits > 0 {
+				owners += fmt.Sprintf("; %d carry no POSE-Spec trailer", observation.UntrailedCommits)
+			}
+			warnings = append(warnings, fmt.Sprintf("change set %s attributes %d commit(s) but its range spans %d; %d commit(s) in base..head belong to other work%s, so the range is provenance and the attributed paths are the subject",
+				observation.ChangeSet, observation.AttributedCommits, observation.RangeCommits, observation.UnattributedCommits, owners))
 		case "unknown":
 			warnings = append(warnings, fmt.Sprintf("change set %s could not have its range counted: %s", observation.ChangeSet, observation.Reason))
 		}

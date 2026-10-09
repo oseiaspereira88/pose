@@ -528,6 +528,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "range-ownership-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "SubjectRange",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "locale-obligation-flags-integration",
           "program": "go",
           "args": [

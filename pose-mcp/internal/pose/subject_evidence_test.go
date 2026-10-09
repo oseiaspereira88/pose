@@ -236,3 +236,36 @@ func TestSubjectEvidenceObservationDoesNotEnterTheDigest(t *testing.T) {
 		t.Fatal("the observation state must not change the sealed identity")
 	}
 }
+
+// A contaminated range names whose work it also holds: the specs whose trailer
+// is on an unattributed commit, and how many carry none (spec
+// pose-range-names-its-other-work).
+func TestSubjectRangeObservationNamesTheOtherWork(t *testing.T) {
+	root, store := attributionFixture(t)
+	// A commit with no trailer lands inside the range too.
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	set := graph.ChangeSets[0]
+	designDeltaGit(t, root, "checkout", "-q", set.Commits[0])
+	writeReviewFixture(t, root, "notes.txt", "untrailed\n")
+	designDeltaGit(t, root, "add", "--", "notes.txt")
+	designDeltaGit(t, root, "commit", "-q", "-m", "a commit nobody claims")
+	untrailed := strings.TrimSpace(string(mustDesignDeltaGitOutput(t, root, "rev-parse", "HEAD")))
+	designDeltaGit(t, root, "checkout", "-q", "-")
+	designDeltaGit(t, root, "merge", "-q", "--no-edit", untrailed)
+	set.ResolvedHead = strings.TrimSpace(string(mustDesignDeltaGitOutput(t, root, "rev-parse", "HEAD")))
+	observations := store.reviewBundleRangeObservations([]string{set.ID}, DeliveryIntegrityGraph{ChangeSets: []ChangeSet{set}})
+	if len(observations) != 1 || observations[0].State != "contaminated" {
+		t.Fatalf("observations = %+v", observations)
+	}
+	got := observations[0]
+	if strings.Join(got.UnattributedSpecs, ",") != "other" || got.UntrailedCommits < 1 {
+		t.Fatalf("the range does not name its other work: %+v", got)
+	}
+	warning := strings.Join(rangeObservationWarnings(observations), "\n")
+	if !strings.Contains(warning, "trailers of other") || !strings.Contains(warning, "carry no POSE-Spec trailer") {
+		t.Fatalf("the reviewer is not told: %s", warning)
+	}
+}

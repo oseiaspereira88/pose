@@ -236,6 +236,6 @@ assessment that will consume the identity is a later spec.
 
 ### Follow-ups
 
-- [open] The range observation counts commits without naming which specs the unattributed
+- [spawned: pose-range-names-its-other-work] The range observation counts commits without naming which specs the unattributed
   ones belong to; moving the trailer scan out of the CLI layer would let it say
   (owner:@pose-maintainers crit:medium review:2026-10-17)
