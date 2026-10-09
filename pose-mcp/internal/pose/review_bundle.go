@@ -1880,7 +1880,13 @@ func (s Store) ListReviewBundles(scope string) ([]ReviewBundle, error) {
 			continue
 		}
 		id := strings.TrimSuffix(entry.Name(), ".json")
-		if scope != "" {
+		if scope != "" && s.specs != nil {
+			// One operation reads each bundle's scope once (spec
+			// pose-attention-within-a-second).
+			if s.specs.bundleScope(dir, entry.Name()) != scope {
+				continue
+			}
+		} else if scope != "" {
 			raw, err := os.ReadFile(filepath.Join(dir, entry.Name()))
 			if err != nil {
 				continue

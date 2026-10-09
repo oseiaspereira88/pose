@@ -124,6 +124,10 @@ const ObligationReportSchemaVersion = 1
 
 // ProjectObligations aggregates obligations read-only. It changes no file.
 func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
+	// Every producer asks for specs; one read of the directory serves them all.
+	if s.specs == nil {
+		s = s.withSpecSnapshot()
+	}
 	report := ObligationReport{SchemaVersion: ObligationReportSchemaVersion, Query: q, Counts: map[string]int{}, Durations: map[string]float64{}, producerState: map[string]*Coverage{}}
 	for _, producer := range obligationProducers {
 		report.producerState[producer] = &Coverage{Producer: producer, State: CoverageStateCurrent}
@@ -334,6 +338,7 @@ func (s Store) readinessObligations(project string, specs []Spec) ([]Obligation,
 	if err != nil {
 		return nil, err
 	}
+	resolver = resolver.WithSpecSnapshots()
 	return forEachSpec(specs, func(sp Spec) ([]Obligation, error) {
 		if terminalStatuses[sp.Status] {
 			return nil, nil

@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 // ArtifactRef is identity, not evidence. Project is empty only for an unbound
@@ -93,6 +94,17 @@ type ArtifactResolver struct {
 	// Authorize runs BEFORE registry lookup, including for transitive refs.
 	// nil is the trusted local CLI boundary: explicitly configured roots only.
 	Authorize func(projectID string) bool
+	// snapshots, when set, gives every store this resolver opens one spec
+	// listing per project for the operation (spec
+	// pose-attention-within-a-second).
+	snapshots *sync.Map
+}
+
+// WithSpecSnapshots returns a resolver whose stores read each project's specs
+// once for the rest of the operation.
+func (r ArtifactResolver) WithSpecSnapshots() ArtifactResolver {
+	r.snapshots = &sync.Map{}
+	return r
 }
 
 func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
@@ -119,6 +131,10 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 		return out
 	}
 	s, err := r.Roots.StoreFor(ref.Project)
+	if err == nil && r.snapshots != nil {
+		snapshot, _ := r.snapshots.LoadOrStore(ref.Project, &specSnapshot{})
+		s.specs = snapshot.(*specSnapshot)
+	}
 	if err != nil {
 		out.State = "unknown-project"
 		var conflict ProjectBindingConflictError

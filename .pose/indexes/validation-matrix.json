@@ -528,6 +528,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "attention-snapshot-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "AttentionSnapshot|TestObligation|AttentionSource",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "recurrence-flapping-integration",
           "program": "go",
           "args": [

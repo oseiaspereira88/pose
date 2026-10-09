@@ -164,5 +164,5 @@ Two automated rehearsals of the slice, one per repository, each with a step reco
 ### Follow-ups
 
 - [open] Run the slice as a person in pose-dist and record the friction in this report before any adoption beyond pose-dist and Harne8 (owner:@pose-maintainers crit:medium review:2026-11-05)
-- [open] Bring Attention close to its 1 s target on large corpora; Harne8 reads take 30 to 37 s (owner:@pose-maintainers crit:medium review:2026-10-22)
+- [spawned: pose-attention-within-a-second] Bring Attention close to its 1 s target on large corpora; Harne8 reads take 30 to 37 s (owner:@pose-maintainers crit:medium review:2026-10-22)
 - [open] Exercise authority transfer with an open action request under the adopted capability (owner:@pose-maintainers crit:low review:2026-11-15)

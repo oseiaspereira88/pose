@@ -4,6 +4,7 @@
 package pose
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -48,6 +50,71 @@ type Store struct {
 	Root               string // project root containing .pose/
 	FederatedProjectID string
 	FederatedResolver  *ArtifactResolver
+	// specs, when set, is the spec listing of one operation, read once
+	// (spec pose-attention-within-a-second). Nil outside such an operation.
+	specs *specSnapshot
+}
+
+// specSnapshot holds one read of the specs directory. GetSpec lists every
+// spec to find one, and the obligation producers call it per spec, so a
+// projection read every spec file once per spec per producer.
+type specSnapshot struct {
+	once  sync.Once
+	specs []Spec
+	err   error
+	// bundleScopes maps a review bundle file to the scope its payload names,
+	// read once per operation; ListReviewBundles otherwise decodes every
+	// bundle for every scoped call.
+	bundleScopes sync.Map
+}
+
+// bundleScope returns the scope ref of the bundle file name in dir, reading
+// it on first use. An unreadable bundle has no scope and matches nothing.
+func (snapshot *specSnapshot) bundleScope(dir, name string) string {
+	if scope, ok := snapshot.bundleScopes.Load(name); ok {
+		return scope.(string)
+	}
+	scope := ""
+	if raw, err := os.ReadFile(filepath.Join(dir, name)); err == nil {
+		var header struct {
+			Payload struct {
+				Scope struct {
+					Ref string `json:"ref"`
+				} `json:"scope"`
+			} `json:"payload"`
+		}
+		if json.Unmarshal(raw, &header) == nil {
+			scope = header.Payload.Scope.Ref
+		}
+	}
+	snapshot.bundleScopes.Store(name, scope)
+	return scope
+}
+
+// withSpecSnapshot returns a store whose spec listing is read once and reused
+// for the rest of the operation. Specs do not change during one read.
+func (s Store) withSpecSnapshot() Store {
+	s.specs = &specSnapshot{}
+	return s
+}
+
+// cloneSpec copies the slices so no caller can change another's spec.
+func cloneSpec(sp Spec) Spec {
+	clone := func(values []string) []string {
+		if values == nil {
+			return nil
+		}
+		return append(make([]string, 0, len(values)), values...)
+	}
+	sp.DependsOn = clone(sp.DependsOn)
+	sp.Remediates = clone(sp.Remediates)
+	sp.Components = clone(sp.Components)
+	sp.Delivers = clone(sp.Delivers)
+	if sp.Priority != nil {
+		priority := *sp.Priority
+		sp.Priority = &priority
+	}
+	return sp
 }
 
 func (s Store) specsDir() string { return filepath.Join(s.Root, ".pose", "specs") }
@@ -96,6 +163,29 @@ func (s Store) GetSpec(slug string) (*Spec, error) {
 // preserving the pre-existing behavior for callers that only care about
 // status.
 func (s Store) ListSpecs(status, components string) ([]Spec, error) {
+	if s.specs == nil {
+		return s.listSpecs(status, components)
+	}
+	s.specs.once.Do(func() { s.specs.specs, s.specs.err = s.listSpecs("", "") })
+	if s.specs.err != nil {
+		return nil, s.specs.err
+	}
+	wantedStatus := splitStatusFilter(status)
+	wantedComponents := splitCommaFilter(components)
+	specs := []Spec{}
+	for _, sp := range s.specs.specs {
+		if len(wantedStatus) > 0 && !statusMatchesAny(sp.Status, wantedStatus) {
+			continue
+		}
+		if len(wantedComponents) > 0 && !componentsMatchAny(sp.Components, wantedComponents) {
+			continue
+		}
+		specs = append(specs, cloneSpec(sp))
+	}
+	return specs, nil
+}
+
+func (s Store) listSpecs(status, components string) ([]Spec, error) {
 	wantedStatus := splitStatusFilter(status)
 	wantedComponents := splitCommaFilter(components)
 	entries, err := os.ReadDir(s.specsDir())
