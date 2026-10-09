@@ -53,6 +53,8 @@ Comprova que o agente AGY conectado à plataforma Harne8 via Desktop executa spe
 - `examples/`
 
 ### Artifacts
+- modified: .pose/specs/2026-08-19-pose-agy-smoke-test.md
+
 `examples/smoke-test-agy.txt` was planned as this spec's artifact and was never committed; nothing is claimed until a real run produces it.
 
 ### API/contract changes
