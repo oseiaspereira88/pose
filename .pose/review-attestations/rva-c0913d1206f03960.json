@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-c0913d1206f03960",
+  "bundle_id": "rvb-478d0f8a5ee68598",
+  "bundle_digest": "sha256:478d0f8a5ee68598805dc80811ff3d367b59e311f186a1a42c0d15a321b5dba2",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-730c97d22201506a",
+      "rationale": "A scenario script and its CI check; no CLI or artifact change."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:mcp-enforce/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-730c97d22201506a",
+      "rationale": "The trace separates the scripted, re-runnable scenario from the recording and its embedding, both deferred with owners."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-730c97d22201506a",
+      "rationale": "CI re-runs the scenario and asserts the block, its reason and the resolution. Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-730c97d22201506a",
+      "rationale": "examples/demo/record.sh and its check; the recording and embedding are follow-ups. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-730c97d22201506a",
+      "rationale": "The scenario runs in a temporary repository and touches nothing outside it."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-launch-proof-demo --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-730c97d22201506a",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "examples",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "examples",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "validate",
+      "component": "examples",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares no check for examples (producer_coverage none)."
+    }
+  ],
+  "evidence_refs": [
+    "build:mcp-enforce/go/build",
+    "integration:pose-mcp/go/abm-atomic-start-integration",
+    "structure:design-730c97d22201506a",
+    "unit:mcp-enforce/go/test",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T10:42:17Z",
+  "path": ".pose/review-attestations/rva-c0913d1206f03960.json"
+}
