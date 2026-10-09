@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-e6a464528bea3df9",
+  "bundle_id": "rvb-49de8674c4bbf57e",
+  "bundle_digest": "sha256:49de8674c4bbf57e4d0cc7375fd5cf1b82553acddb4322cf219f61feb2fe6977",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-430d446555974d3a",
+      "rationale": "Text only; public-claims --strict passes on both READMEs."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:mcp-enforce/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-430d446555974d3a",
+      "rationale": "The trace names, per requirement, the README section that carries it; the English README is claimed by the positioning spec and described here."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-430d446555974d3a",
+      "rationale": "An evaluator meets what POSE is, its lifecycle and an example before the capability list, and no per-release or hardcoded counts that go stale. Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-430d446555974d3a",
+      "rationale": "The pt-BR README count removal and the spec record; the English README changes were made under the positioning spec. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-430d446555974d3a",
+      "rationale": "No executable change."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-readme-evaluation-path --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-430d446555974d3a",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    }
+  ],
+  "evidence_refs": [
+    "build:mcp-enforce/go/build",
+    "integration:pose-mcp/go/abm-atomic-start-integration",
+    "structure:design-430d446555974d3a",
+    "unit:mcp-enforce/go/test",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T10:00:58Z",
+  "path": ".pose/review-attestations/rva-e6a464528bea3df9.json"
+}
