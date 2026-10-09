@@ -106,7 +106,7 @@ link the launch generates would be divided between them.
 ### Implementation
 - [x] Increment 1: Declare the canonical route in the claims contract (R1)
 - [x] Increment 2: Emit canonical links from every page (R2)
-- [ ] Increment 3: Redirect the non-canonical host path-preservingly (R3)
+- [ ] Increment 3: Redirect the non-canonical host path-preservingly (R3) — deferred: hosting configuration outside the repository
 - [x] Increment 4: Repoint README badge and links (R4)
 - [x] Increment 5: Gate on it (R5)
 
@@ -154,12 +154,26 @@ link the launch generates would be divided between them.
 - Expected: each redirects to the canonical equivalent with the path preserved
 
 ### Requirement trace
-<!-- Filled at closeout. -->
+
+- R1 [satisfied] check:public-claims evidence:manual <`.pose/public/claims.json` (the contract settled on JSON, not the YAML the requirement named) records `docs_canonical: https://docs.harne8.com/POSE/`, and every declared surface is checked against it>
+- R2 [deferred-integration: xref:proj.harne8/spec:harne8-pose-open-integrations-reconciliation] <`docs-site/mkdocs.yml` sets `site_url`, so every page this repository builds emits the canonical link: on 2026-10-09 the non-canonical host served `<link rel="canonical" href="https://docs.harne8.com/POSE/concepts/">`; the canonical host itself is served by the Harne8 docs portal, whose pages emit no canonical link>
+- R3 [deferred-integration: spec:pose-docs-canonical-route] <a path-preserving redirect is configured on the hosting of oseiaspereira88.github.io, outside the repository; on 2026-10-09 it still answers 200 with the canonical link pointing at the new host>
+- R4 [satisfied] check:public-claims evidence:manual <README badge and links point at docs.harne8.com/POSE; no surface links to the deprecated host>
+- R5 [satisfied] check:public-claims evidence:integration test:TestPublicClaimsFailsOnSchemaOrgVersionAndNonCanonicalDocs
 
 ---
 
 ## 7. Final Report
 
+### Delivered scope
+
+The canonical documentation route is declared in the public claims contract, the README points at it, `pose public-claims --strict` fails on the deprecated host, and every page this repository builds names the canonical URL. The redirect of the old host and the canonical link on the Harne8-served host are outside this repository.
+
+### Residual risks
+
+- Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent.
+
 ### Follow-ups
 
-- [open]
+- [open] Configure a path-preserving redirect from oseiaspereira88.github.io/pose to docs.harne8.com/POSE; the old host still answers 200 (owner:@pose-maintainers crit:low review:2026-11-09)
+- [open] Make the Harne8 docs portal emit `<link rel="canonical">` on the POSE pages it serves at docs.harne8.com/POSE (owner:@harne8-platform crit:low review:2026-11-09)
