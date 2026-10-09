@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-08T23:02:09Z
-baseline_commit: 09c2a3e5a0c5a41d084dfc1a3942c389c70c6665
+generated_at: 2026-10-09T03:42:37Z
+baseline_commit: fdd1d4332e15e3a38fa93893958e52962b33e357
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,24 +27,24 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:970651f20bbb -->
+<!-- state:derived hash:aab78684d2c8 -->
 
-- specs: total=348 draft=2 in-progress=12 blocked=0 done=334 superseded=0 abandoned=0
+- specs: total=349 draft=2 in-progress=12 blocked=0 done=335 superseded=0 abandoned=0
 - roadmaps: total=17 active=1 done=11
 - últimos closeouts:
-  - spec:pose-mcp-review-attest-signed-only (2026-10-08)
-  - spec:pose-upgrade-journey-starts-below-current (2026-10-08)
-  - spec:pose-attention-lists-only-open-obligations (2026-10-08)
+  - spec:pose-red-signals-reach-a-person (2026-10-09)
   - spec:pose-agency-readiness-pilot (2026-10-08)
+  - spec:pose-attention-lists-only-open-obligations (2026-10-08)
+  - spec:pose-upgrade-journey-starts-below-current (2026-10-08)
   - spec:pose-structural-facts-stay-in-their-commits (2026-10-08)
-  - ... e mais 329 (ver `pose_list_specs status:done`)
+  - ... e mais 330 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:4a06f7e4db39 -->
+<!-- state:derived hash:8c32158d9af0 -->
 
-- abertos: 108
-- por criticidade: high=5 medium=28 low=55 sem-classificação=20
-- vencidos (review < hoje): 8
+- abertos: 106
+- por criticidade: high=4 medium=27 low=55 sem-classificação=20
+- vencidos (review < hoje): 10
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
   - spec:pose-release-signing-rejection (owner:@pose-maintainers review:2026-10-02)
@@ -53,6 +53,8 @@ capacidade.
   - spec:pose-review-root-binding-parity (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-federated-spec-dependency-acceptance (owner:@harne8-platform review:2026-10-03)
   - spec:pose-spec-transfer-reconcile-terminal (owner:@harne8-platform review:2026-10-03)
+  - spec:pose-governance-gate-activation (owner:@pose-maintainers review:2026-10-08)
+  - spec:pose-package-channel-install-repair (owner:@pose-maintainers review:2026-10-08)
 
 ## Capabilities
 <!-- state:derived hash:7db5fb52757a -->

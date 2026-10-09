@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-be0ab30dd38b2b0b",
+  "bundle_id": "rvb-d6c4b3ffc6d27726",
+  "bundle_digest": "sha256:d6c4b3ffc6d27726b65d3219204a510614f6c93d671aa944682935160ce5bf07",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/red-signal-contract"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/red-signal-contract"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/red-signal-contract"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/red-signal-contract"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/red-signal-contract"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-be77be3c1bb0a6bb",
+      "rationale": "Additive: one new workflow and one contract test; no existing workflow changes. The only permission raised is issues: write, on the alert job alone."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/red-signal-contract"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-be77be3c1bb0a6bb",
+      "rationale": "The workflow header states why it exists, what it watches and how event values are handled; the spec records the decision, the local exercise of each case and the gap that the first real alert comes with the next red run."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-be77be3c1bb0a6bb",
+      "rationale": "One open issue per red workflow, commented on repeat failures and closed by the next success on main or a tag, so the signal neither floods nor goes stale. Full native run at the sealed head with the candidate CLI built from it: 124 of 124 steps pass, including red-signal-contract."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/red-signal-contract"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-be77be3c1bb0a6bb",
+      "rationale": "One workflow, one contract test, one matrix check, the spec and the two spawned dispositions in the source spec. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-be77be3c1bb0a6bb",
+      "rationale": "No checkout and no third-party action; every workflow_run value is bound through env and validated against fixed patterns before reaching gh, and an unexpected name or a ref with shell characters stopped the step in the local run. Pull requests and forks never alert."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-red-signals-reach-a-person --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-be77be3c1bb0a6bb",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/red-signal-contract",
+      "rationale": "pose assess integrate ran with the candidate CLI and exited 0."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 124 of 124 steps pass, including red-signal-contract."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 124 of 124 steps pass, including red-signal-contract."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/red-signal-contract",
+    "structure:design-be77be3c1bb0a6bb",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T03:41:50Z",
+  "path": ".pose/review-attestations/rva-be0ab30dd38b2b0b.json"
+}
