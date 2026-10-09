@@ -91,8 +91,8 @@ before touching. The barrier is not the code. It is that no path exists from
 ### Implementation
 - [x] Increment 1: Contributor-facing governance expectations (R1)
 - [x] Increment 2: One documented local command reproducing CI (R5)
-- [ ] Increment 3: Scoped issues with verification instructions (R2)
-- [ ] Increment 4: Discussion categories including RFC (R3, R4)
+- [ ] Increment 3: Scoped issues with verification instructions (R2) — deferred: public repository action
+- [ ] Increment 4: Discussion categories including RFC (R3, R4) — deferred: repository settings
 
 ---
 
@@ -142,6 +142,14 @@ before touching. The barrier is not the code. It is that no path exists from
 
 ## 7. Final Report
 
+### Delivered scope
+
+`CONTRIBUTING.md` explains how POSE governs a contribution and separates contributor from maintainer duties, and `scripts/verify.sh` runs the CI validation locally. Opening scoped issues and enabling Discussions with an RFC category are actions on the public repository, not performed here.
+
+### Residual risks
+
+- Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent.
+
 ### Follow-ups
 
-- [open]
+- [open] Open the first scoped issues from the issue template and enable Discussions with an RFC category and the initial maintainer threads (owner:@pose-maintainers crit:low review:2026-11-09)
