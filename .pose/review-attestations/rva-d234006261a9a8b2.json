@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-d234006261a9a8b2",
+  "bundle_id": "rvb-09084dbe606e79b9",
+  "bundle_digest": "sha256:09084dbe606e79b96add1f8ce5af963b2377836162294fd7d316b4858e9f0379",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "The issuer is a local permission-protected signer, not proof that a human confirmed a review. Explicit pins remain the trust boundary; compromised-account risk is stated and hardware enforcement is outside R1-R7."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation passed for the registered affected-module checks; regression tests and negative authority paths were inspected."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation passed for the registered affected-module checks; regression tests and negative authority paths were inspected."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation passed for the registered affected-module checks; regression tests and negative authority paths were inspected."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation passed for the registered affected-module checks; regression tests and negative authority paths were inspected."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation passed for the registered affected-module checks; regression tests and negative authority paths were inspected."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "The Ed25519 envelope and existing verifier are unchanged. Native signing goes through envelope verification before preflight; adding or rotating pins preserves external pins and earlier signatures."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation passed for the registered affected-module checks; regression tests and negative authority paths were inspected."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation passed for the registered affected-module checks; regression tests and negative authority paths were inspected."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "D1 uses the existing envelope/verifier to satisfy R3-R5 without a second proof format. D2 preserves authority scope. Reviewed path, link, rotation, listing and FIFO corrections enforce R1/R7; sealed structural observation reports no additional material delta."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "CLI help and docs describe init/pin/list/rotate, signing and authority flags, external coexistence and explicit trust. Paths and permission errors match the implementation; all five prior regression cases are covered."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "Invalid names, permissions, project-local directories, linked files and special files fail with actionable errors. Pin and rotation require apply; rotations preserve archives and report the new pin. Fresh-instance signing journey passes."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation passed for the registered affected-module checks; regression tests and negative authority paths were inspected."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "R1-R7 and the five fixes were independently inspected; no unrelated runtime changes are attributed. Reviewer agent:independent-gpt-6.1-sol-review uses the prefix required by the engine under declared identity, as authorized by the maintainer until run-provenance replaces it. This review is by another vendor: OpenAI Codex versus implementer Anthropic Claude Opus 5.5 (agent:claude-opus-5-5); the prefix is a declaration, not authenticated run provenance."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "Private seed remains only in the external key file; output and serialization exclude it. Loading rejects symlinks, extra Unix hard links, nonregular files and broad permissions. Trust requires an explicit public-key pin; unpinned envelopes and unauthorized human claims fail. Native signing does not bypass preflight. Cheapest fake independence is a typed prefix under declared assurance: adversarial corpus declared-independent-prefix prevents presenting that as authenticated separation; this attestation discloses it."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "A native signer around the existing verifier is the smallest sufficient alternative to the external-only issuer. No new envelope, network service or hosted key manager. The design would need revisiting if passphrase/hardware protection became required."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "Executed during this independent review."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "Executed assess design for this spec and discover --if-stale --update-state for all mapped components."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "Executed assess design for this spec and discover --if-stale --update-state for all mapped components."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "Executed assess design for this spec and discover --if-stale --update-state for all mapped components."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Executed during this independent review."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "Executed during this independent review."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate will be executed immediately after recording the attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate will be executed immediately after recording the attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "Executed during this independent review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "structure:design-6726264da861df54",
+      "rationale": "Executed during this independent review."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Executed during this independent review."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed strict full validation, including every registered pose-mcp check; existing sealed evidence at HEAD 582f6c96 was preserved."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The matrix declares no registered producer for docs-site; CLI documentation was manually reviewed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed strict full validation, including every registered pose-mcp check; existing sealed evidence at HEAD 582f6c96 was preserved."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/attest-preflight-integration",
+    "structure:design-6726264da861df54",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T23:28:48Z",
+  "path": ".pose/review-attestations/rva-d234006261a9a8b2.json"
+}
