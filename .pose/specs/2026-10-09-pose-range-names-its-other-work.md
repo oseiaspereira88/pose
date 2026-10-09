@@ -1,8 +1,8 @@
 ---
 slug: pose-range-names-its-other-work
-status: in-progress
+status: done
 created_at: 2026-10-09
-completed_at:
+completed_at: 2026-10-09
 supersedes:
 depends_on: pose-abm-subject-evidence
 priority: 1

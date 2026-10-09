@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-2e48e7fdc2e12720",
+  "bundle_id": "rvb-e17218b2df563c15",
+  "bundle_digest": "sha256:e17218b2df563c1542a410c5d209ba452674f878d463e973120c29d20add9856",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/range-ownership-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/range-ownership-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/range-ownership-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/range-ownership-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/range-ownership-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-66fd382ad58d65d0",
+      "rationale": "Two optional fields on the range observation, which sits outside the sealed payload, so no bundle digest or review changes; the schema documents them."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/range-ownership-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-66fd382ad58d65d0",
+      "rationale": "The type comment explains both fields, the warning text names the owners, and the schema lists the fields."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-66fd382ad58d65d0",
+      "rationale": "One bounded git log per contaminated change set, only when the range is already known to be contaminated; when Git cannot answer the counts stand alone. Full native run at the sealed head with the candidate CLI built from it: every step passes, including range-ownership-integration."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/range-ownership-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-66fd382ad58d65d0",
+      "rationale": "One function and the warning in review_bundle.go, a test, the schema, a matrix check and the spawned disposition. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-66fd382ad58d65d0",
+      "rationale": "Commit messages are read, never executed; output is bounded at 64 MiB and only trailer names reach the warning."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-range-names-its-other-work --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-66fd382ad58d65d0",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/range-ownership-integration",
+      "rationale": "pose assess integrate ran with the candidate CLI and exited 0."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/range-ownership-integration",
+      "rationale": "surface-check --spec pose-range-names-its-other-work --strict exited 0."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: every step passes, including range-ownership-integration."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: every step passes, including range-ownership-integration."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/range-ownership-integration",
+    "structure:design-66fd382ad58d65d0",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T05:02:48Z",
+  "path": ".pose/review-attestations/rva-2e48e7fdc2e12720.json"
+}
