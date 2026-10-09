@@ -4,8 +4,9 @@
 
 **Spec-Driven Development for governed agentic software delivery.**
 
-POSE (Project Operating Standard for Engineering) is an open-source SDD
-framework built around an executable repository contract. It is the local
+POSE (Project Operating Standard for Engineering) is an open-source
+Spec-Driven Development framework for governed agentic software delivery,
+built around an executable repository contract. It is the local
 operating contract around humans, coding agents and CI, and it turns intent,
 policy, execution, evidence and learning into versioned artifacts and
 deterministic gates:

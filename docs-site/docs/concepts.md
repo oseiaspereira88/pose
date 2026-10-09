@@ -5,7 +5,13 @@
 ## The closed loop
 
 POSE's central idea: **work that leaves no machine-checkable trace didn't
-finish.** Every stage of the cycle emits an artifact the next stage consumes:
+finish.** The lifecycle is the same everywhere POSE is described:
+
+```text
+discover → specify → route → execute → prove → close → learn
+```
+
+Each part of it leaves an artifact the next one consumes:
 
 1. **Spec** — a living document with flat frontmatter (status, dates,
    dependencies, priority) and seven sections (Intent → Final Report).

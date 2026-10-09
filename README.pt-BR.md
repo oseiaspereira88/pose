@@ -22,9 +22,10 @@ pertencente ao repositório e verificável por máquina.**
 
 **Spec-Driven Development para entrega de software agêntica governada.**
 
-O POSE é um framework SDD open source que transforma especificações, política,
-execução, evidência, follow-ups e conhecimento de engenharia em um sistema de
-entrega versionado no repositório e verificável por máquina. Um único binário
+O POSE é um framework open source de Spec-Driven Development para entrega de
+software agêntica governada. Ele transforma especificações, política, execução,
+evidência, follow-ups e conhecimento de engenharia em um sistema de entrega
+versionado no repositório e verificável por máquina. Um único binário
 Go nativo, Apache-2.0, local-first.
 
 ```mermaid
@@ -309,7 +310,7 @@ precisa de conta Harne8 nem de serviço hospedado para cumprir sua função. O
 Harne8 usa o POSE como engine de governança e resolve outro problema — o que
 aparece quando a unidade deixa de ser um repositório.
 
-| Comece com o POSE                     | Escale com o Harne8                                   |
+| O POSE governa um repositório         | O Harne8 governa um portfólio                         |
 |---------------------------------------|-------------------------------------------------------|
 | Specs e roadmaps locais ao repositório | Portfólio visual multi-projeto                        |
 | Workflows, regras e skills portáveis  | Orquestração durável de tarefas através do Conductor  |

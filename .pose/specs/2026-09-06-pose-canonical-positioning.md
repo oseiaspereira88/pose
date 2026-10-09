@@ -152,12 +152,25 @@ Backfilled on 2026-09-29: `82726a3` (docs: keep the Diátaxis applicability line
 - Expected: exit 0 — no surface contradicts the canonical description
 
 ### Requirement trace
-<!-- Filled at closeout. -->
+
+- R1 [deferred-integration: xref:proj.harne8/spec:harne8-pose-open-integrations-reconciliation] <README.md, README.pt-BR.md (translated) and docs-site/docs/index.md carry the canonical description verbatim, as `.pose/public/claims.json` declares it, and `pose public-claims --strict` passes; the harne8.com site belongs to the Harne8 authority, and the GitHub repository description is an operation on the hosting account recorded as a follow-up>
+- R2 [satisfied] check:public-claims evidence:manual <README.md, README.pt-BR.md, docs-site/docs/index.md and docs-site/docs/concepts.md show `discover → specify → route → execute → prove → close → learn`; the six-stage loop of the concepts page is now presented as the artifacts each part of that lifecycle leaves, not a competing variant>
+- R3 [satisfied] check:public-claims evidence:manual <README "POSE and other SDD frameworks" states migration interoperability and a single lifecycle after adoption, and "Agent-neutral, lifecycle-authoritative" names requirement IDs, status, dependencies, readiness, definition of done, closeout and knowledge>
+- R4 [satisfied] check:public-claims evidence:manual <README states that agent-neutral is not SDD-framework-neutral: neutral about who executes, not about who owns the lifecycle>
+- R5 [satisfied] check:public-claims evidence:manual <README "POSE and Harne8" presents POSE as complete within its domain, with no paywall; the table that read "Start with POSE / Scale with Harne8" now reads "POSE governs a repository / Harne8 governs a portfolio", in both languages>
 
 ---
 
 ## 7. Final Report
 
+### Delivered scope
+
+The canonical description appears verbatim in the README and the docs home, and in the pt-BR README in translation; the lifecycle signature is on every surface in this repository that explains POSE, including the concepts page, whose six-stage loop no longer competes with it; the interoperability and agent-neutrality sections state the model; the Harne8 section and its table describe two scopes rather than a scale path. `pose docs-check` has no manifest in this repository, so `pose public-claims --strict` is the deterministic check, and it passes.
+
+### Residual risks
+
+- Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent.
+
 ### Follow-ups
 
-- [open]
+- [open] Set the GitHub repository description to the canonical description ("an open-source Spec-Driven Development framework for governed agentic software delivery"); it currently reads "A modern governance framework for agentic software engineering" (owner:@pose-maintainers crit:low review:2026-10-23)

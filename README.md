@@ -19,9 +19,10 @@ delivery system.**
 
 **Spec-Driven Development for governed agentic software delivery.**
 
-POSE is an open-source SDD framework that turns specifications, policy,
-execution, evidence, follow-ups and engineering knowledge into a
-repository-owned, machine-checkable delivery system. One native Go binary,
+POSE is an open-source Spec-Driven Development framework for governed agentic
+software delivery. It turns specifications, policy, execution, evidence,
+follow-ups and engineering knowledge into a repository-owned, machine-checkable
+delivery system. One native Go binary,
 Apache-2.0, local-first.
 
 ```mermaid
@@ -333,7 +334,7 @@ Harne8 account and no hosted service to do its job. Harne8 uses POSE as its
 governance engine and solves a different problem — the one that appears when
 the unit stops being a repository.
 
-| Start with POSE                       | Scale with Harne8                                 |
+| POSE governs a repository             | Harne8 governs a portfolio                        |
 |---------------------------------------|---------------------------------------------------|
 | Repository-local specs and roadmaps   | Visual multi-project portfolio                    |
 | Workflows, rules and portable skills  | Durable task orchestration through Conductor      |
