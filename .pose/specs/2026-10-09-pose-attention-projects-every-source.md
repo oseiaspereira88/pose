@@ -1,8 +1,8 @@
 ---
 slug: pose-attention-projects-every-source
-status: in-progress
+status: done
 created_at: 2026-10-09
-completed_at:
+completed_at: 2026-10-09
 supersedes:
 depends_on: pose-fresh-install-doctor-is-clean
 priority: 1

@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-abe2ad0dd4c39901",
+  "bundle_id": "rvb-94a884bf8b46108c",
+  "bundle_digest": "sha256:94a884bf8b46108cb7eb11aaeef1188fcff9166d1376f4866a2b51fbce07a6cc",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-81394a6570012c35",
+      "rationale": "The premise, that these four sources belong to no spec, was checked against each one: docs, mechanisms and releases have no spec field, and a finding's scope may be done. The release rule rests on a measurement: 21 unverified records on pose-dist, all but one superseded."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-sources-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-sources-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-sources-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-sources-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-sources-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-81394a6570012c35",
+      "rationale": "Additive to obligation schema v1: a new origin kind and two node kinds; existing obligation ids keep their sources, so none moves. All new effects are advisory, so no phase that was clear becomes blocked; a fresh install still reads complete."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-sources-integration"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-81394a6570012c35",
+      "rationale": "The ADR is the decision record of R1.",
+      "mappings": [
+        {
+          "delta": "SD-6746c639",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The ADR records the project-level origin R1 introduces."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-81394a6570012c35",
+      "rationale": "POSE.md, the pt-BR manual and both scaffold copies describe the four sources and drop the not_used wording; the ADR records the contract change and the schema documents the new kinds."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-81394a6570012c35",
+      "rationale": "Attention on pose-dist reads complete and shows the one release actually in flight; Harne8 shows its four open docs review marks. Each producer reads files the engine already parses. Full native run at the sealed head with the candidate CLI built from it: every step passes, including attention-sources-integration."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-sources-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-81394a6570012c35",
+      "rationale": "One producer file, the registration in the projection, the two contract enums, schema, manuals, the ADR, tests, a matrix check and the spawned disposition. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-81394a6570012c35",
+      "rationale": "Read-only: the producers read the docs review log, the capability assessment, release records and legacy review records under the repository and write nothing; owners come from the project's own manifests."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-81394a6570012c35",
+      "rationale": "One origin kind and two node kinds is the smallest contract change that lets the four sources be owed without inventing a spec owner; the release rule keeps history out instead of adding a filter flag."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-attention-projects-every-source --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-81394a6570012c35",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-sources-integration",
+      "rationale": "pose assess integrate ran with the candidate CLI and exited 0."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attention-sources-integration",
+      "rationale": "surface-check --spec pose-attention-projects-every-source --strict exited 0."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: every step passes, including attention-sources-integration."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: every step passes, including attention-sources-integration."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/attention-sources-integration",
+    "structure:design-81394a6570012c35",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T08:29:11Z",
+  "path": ".pose/review-attestations/rva-abe2ad0dd4c39901.json"
+}
