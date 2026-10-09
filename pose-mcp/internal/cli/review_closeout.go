@@ -648,8 +648,32 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 	var attribution posemodel.ReviewAttribution
 	attributed := false
 	apply := false
+	// A native issuer signs the attestation in place of recording it unsigned
+	// (spec pose-native-attestation-issuer).
+	var signWith, reviewExecution, implementationPrincipal, implementationExecution, claimTTL string
+	claimAuthority := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
+		case "--authority":
+			claimAuthority = true
+		case "--sign", "--review-execution", "--implementation-principal", "--implementation-execution", "--claim-ttl":
+			if i+1 >= len(args) {
+				render(stdout, stderr).Failure("pose review attest: missing option value")
+				return 2
+			}
+			i++
+			switch args[i-1] {
+			case "--sign":
+				signWith = args[i]
+			case "--review-execution":
+				reviewExecution = args[i]
+			case "--implementation-principal":
+				implementationPrincipal = args[i]
+			case "--implementation-execution":
+				implementationExecution = args[i]
+			case "--claim-ttl":
+				claimTTL = args[i]
+			}
 		case "--prepared-by", "--concluded-by", "--confirmed-by", "--applied-by", "--confirmation-mode":
 			if i+1 >= len(args) {
 				render(stdout, stderr).Failure("pose review attest: missing option value")
@@ -764,6 +788,13 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 			return 2
 		}
 	}
+	if claimAuthority && signWith == "" {
+		render(stdout, stderr).Failure("pose review attest: --authority needs --sign <issuer>: a claim is only as good as its signature")
+		return 2
+	}
+	if signWith != "" {
+		return signAndRecordAttestation(store, att, signWith, claimAuthority, reviewExecution, implementationPrincipal, implementationExecution, claimTTL, apply, stdout, stderr)
+	}
 	if refusals := store.PreflightReviewAttestation(att, time.Now()); len(refusals) > 0 {
 		reportAttestPreflight(stdout, stderr, "pose review attest", refusals)
 		return 1
@@ -778,6 +809,68 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	fmt.Fprintf(stdout, "Review attestation recorded: %s\n", filepath.Join(root, filepath.FromSlash(att.Path)))
+	return 0
+}
+
+// signAndRecordAttestation signs att with a native issuer key and records it
+// through the same envelope verification an external issuer's envelope takes,
+// so a natively signed attestation is held to exactly the same proof.
+func signAndRecordAttestation(store posemodel.Store, att posemodel.ReviewAttestation, issuer string, claimAuthority bool, reviewExecution, implementationPrincipal, implementationExecution, claimTTL string, apply bool, stdout, stderr io.Writer) int {
+	key, err := posemodel.LoadIssuerKey(issuer)
+	if err != nil {
+		render(stdout, stderr).Failure("pose review attest: " + strings.TrimPrefix(err.Error(), "pose: "))
+		return 1
+	}
+	var authority *posemodel.NativeAuthority
+	if claimAuthority {
+		if reviewExecution == "" {
+			render(stdout, stderr).Failure("pose review attest: --authority needs --review-execution <id> naming this review's run")
+			return 2
+		}
+		authority = &posemodel.NativeAuthority{ReviewExecution: reviewExecution, ImplementationPrincipal: implementationPrincipal, ImplementationExecution: implementationExecution}
+		if claimTTL != "" {
+			ttl, err := time.ParseDuration(claimTTL)
+			if err != nil || ttl <= 0 {
+				render(stdout, stderr).Failure("pose review attest: --claim-ttl must be a positive duration such as 720h")
+				return 2
+			}
+			authority.TTL = ttl
+		}
+	}
+	now := time.Now()
+	envelope, err := store.SignReviewAttestation(att, key, authority, now)
+	if err != nil {
+		render(stdout, stderr).Failure("pose review attest: " + strings.TrimPrefix(err.Error(), "pose: "))
+		return 1
+	}
+	// Verify the envelope first: the preflight has to see the attestation as
+	// it will be recorded, signature included.
+	verified, err := store.RecordReviewAttestationEnvelope(envelope, false)
+	if err != nil {
+		render(stdout, stderr).Failure("pose review attest: " + strings.TrimPrefix(err.Error(), "pose: "))
+		return 1
+	}
+	if refusals := store.PreflightReviewAttestation(verified, now); len(refusals) > 0 {
+		reportAttestPreflight(stdout, stderr, "pose review attest", refusals)
+		return 1
+	}
+	recorded := verified
+	if apply {
+		if recorded, err = store.RecordReviewAttestationEnvelope(envelope, true); err != nil {
+			render(stdout, stderr).Failure("pose review attest: " + strings.TrimPrefix(err.Error(), "pose: "))
+			return 1
+		}
+	}
+	out := render(stdout, stderr)
+	out.Field("review_attestation.envelope", "verified")
+	out.Field("review_attestation.issuer", key.Name)
+	out.Field("review_attestation.pin", key.Pin())
+	out.Field("review_attestation.authority", fmt.Sprint(authority != nil))
+	out.Field("review_attestation.bundle_id", recorded.BundleID)
+	out.Field("review_attestation.apply", fmt.Sprint(apply))
+	if apply {
+		out.ContractLine("Review attestation recorded: " + recorded.Path)
+	}
 	return 0
 }
 

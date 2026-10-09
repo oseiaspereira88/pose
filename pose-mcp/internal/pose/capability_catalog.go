@@ -213,7 +213,7 @@ func catalogEntries() []CatalogEntry {
 	}
 	trustedIssuer := func(_ string, docs PolicyDocs) string {
 		if len(governedStringList(docs.Review["trusted_attestation_issuers"])) == 0 {
-			return "no trusted issuer is pinned in trusted_attestation_issuers; register one (a Harne8 installation or a signer) before requiring signatures"
+			return "no trusted issuer is pinned in trusted_attestation_issuers; create a native one with pose issuer init <name> and pose issuer pin <name> --attestations --human-authority --apply, or pin an external issuer such as a Harne8 installation"
 		}
 		return ""
 	}

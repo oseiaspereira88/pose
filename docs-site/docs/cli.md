@@ -562,6 +562,38 @@ trusted issuer's claim (Harne8 is one such issuer); a security key also records
 whether it was touched, and `require_presence` refuses a human answer without
 it. `pose doctor` reports human role holders that cannot prove an answer.
 
+### Native attestation issuers
+
+A project with POSE alone can sign review attestations. An issuer is an
+Ed25519 key that lives outside the project, under `$POSE_ISSUER_HOME` or the
+user config directory (`pose/issuers`), readable only by its owner; POSE never
+prints it.
+
+```bash
+pose issuer init maintainer
+pose issuer pin maintainer --attestations --human-authority --apply
+pose adopt signed-attestations --apply
+pose review attest spec:my-spec --reviewer human:ada --decision approved \
+  --evidence unit:pkg --sign maintainer \
+  --authority --review-execution review-2 \
+  --implementation-principal agent:impl --implementation-execution impl-1 --apply
+```
+
+`pin` adds `<name>#sha256:<public-key-digest>` to `trusted_attestation_issuers`
+and, with `--human-authority`, to `human_authority_issuers`, keeping every pin
+already there; it sets `authority_audience` and `authority_project` only when
+they are empty. Native and external issuers coexist: a developer working with
+the repository and POSE signs natively, one also using Harne8 signs through its
+Conductor, and either pinned issuer's envelope counts. An envelope from an
+unpinned key is refused. `--sign` produces the same envelope an external issuer
+does and records it through the same verification; `--authority` adds the
+reviewer authority claim that `verified-identity` reads. `pin name:<base64
+public key>` trusts an issuer whose key is on another machine, and `pose issuer
+rotate <name> --apply` replaces a key and pins the new one beside the old, so
+attestations signed before the rotation keep verifying until the old pin is
+removed. `pose issuer list` shows the pinned issuers and the keys on this
+machine.
+
 ### Retrospective ABM replay
 
 `pose stats replay --json` scans local historical attestations and the newest sealed subject of each spec without writing project artifacts. It compares frozen contracts with hypothetical explicit judgment and structural causality invariants. Counts retain invalid inputs, unknown structural coverage, unbaselined nodes and denominators. Use `--limit N` (1–20000) to bound work; incomplete reports cannot support an exhaustive adoption claim. A counterfactual does not revoke historical approvals, record a baseline or prove reviewer utility. Experimental judgments remain opt-in.

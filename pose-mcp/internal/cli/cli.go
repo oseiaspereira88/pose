@@ -227,6 +227,13 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 2
 		}
 		return cmdSetup(root, args, stdout, stderr)
+	case "issuer":
+		root, err := projectRoot()
+		if err != nil {
+			render(stdout, stderr).Failure("pose issuer: " + err.Error())
+			return 2
+		}
+		return cmdIssuer(root, args, stdout, stderr)
 	case "identity":
 		root, err := projectRoot()
 		if err != nil {

@@ -1,6 +1,6 @@
 ---
 slug: pose-native-attestation-issuer
-status: draft
+status: in-progress
 created_at: 2026-10-09
 completed_at:
 supersedes:
@@ -9,7 +9,7 @@ priority: 0
 components: pose-mcp
 task_type: feature
 changelog:
-delivers:
+delivers: capability:native-attestation-issuer
 ---
 
 # Spec: Native attestation issuer, coexisting with external issuers
@@ -71,8 +71,22 @@ Hosted key management, hardware-key enforcement for issuers, and changing how th
 ### Artifacts
 
 - created: .pose/specs/2026-10-09-pose-native-attestation-issuer.md
+- created: .pose/starts/pose-native-attestation-issuer.json
+- created: .pose/changelogs/unreleased/pose-native-attestation-issuer.md
+- created: pose-mcp/internal/pose/issuer_key.go
+- created: pose-mcp/internal/pose/issuer_key_test.go
+- created: pose-mcp/internal/cli/issuer.go
+- created: pose-mcp/internal/cli/issuer_test.go
+- modified: pose-mcp/internal/cli/cli.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/pose/capability_catalog.go
+- modified: composition-contract.json
+- modified: docs-site/docs/cli.md
 
-Implementation artifacts are declared when the spec starts.
+### Delivery targets
+
+- capability:native-attestation-issuer module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -81,16 +95,28 @@ Implementation artifacts are declared when the spec starts.
 ## 4. Tasks
 
 ### Implementation
-- [ ] Issuer key store and `pose issuer init|pin|rotate`
-- [ ] `review attest --sign` and native reviewer authority claims
-- [ ] Prerequisite messages and docs
+- [x] Issuer key store and `pose issuer init|pin|rotate`
+- [x] `review attest --sign` and native reviewer authority claims
+- [x] Prerequisite messages and docs
 
 ### Validation
-- [ ] Fresh-instance journey with only a native issuer, then with native and external pins together
+- [x] Fresh-instance journey with only a native issuer, then with native and external pins together
 
 ## 5. Decisions
 
-No decision recorded yet; the spec is a draft.
+### Decision D1
+- Date: 2026-10-09
+- Context: the verifier already accepted any issuer pinned in `trusted_attestation_issuers` and `human_authority_issuers`; the only emitter was the Harne8 Conductor.
+- Options considered: (a) a native emitter of the same envelope, pinned like any other issuer; (b) a separate native proof type with its own verifier.
+- Decision: (a).
+- Rationale: one proof and one verifier keep native and external issuers interchangeable, which is what lets them coexist (the maintainer's direction), and leave Conductor envelopes untouched.
+- Consequences: a native signature is held to exactly the checks an external one is; `--sign` verifies the envelope before the preflight and records it through `RecordReviewAttestationEnvelope`.
+
+### Decision D2
+- Date: 2026-10-09
+- Context: an authority claim names one audience and one project, the ones review policy declares.
+- Decision: `pose issuer pin` sets `authority_audience` and `authority_project` only when empty, defaulting both to the project id from `.pose/project.json` for `--human-authority`, and refuses to replace a different value.
+- Rationale: every issuer's claims answer to the same audience; replacing it to suit a new issuer would invalidate the others' claims.
 
 ## 6. Validation
 
@@ -98,16 +124,29 @@ No decision recorded yet; the spec is a draft.
 
 Unit tests for key creation, permissions, pin computation and signing; an integration test that adopts `signed-attestations` in a fresh instance with only a native issuer, closes a spec with a natively signed attestation, then adds a second (external-style) pin and verifies envelopes from both.
 
+### Execution log
+
+2026-10-09: the CLI journey test first failed on the implementation itself: `--sign` ran the preflight on the attestation before the envelope was attached, and the preflight refused it as unsigned under `signed-attestations`; the envelope is now verified first. `go test ./...` in pose-mcp passes; the composition contract gained `POSE_ISSUER_HOME`.
+
 ### Requirement trace
+
+- R1 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeIssuerKeyIsPrivateAndNeverOverwritten
+- R2 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeAndExternalIssuersCoexist
+- R3 [satisfied] capability:native-attestation-issuer evidence:integration test:TestNativeIssuerJourneyWithPOSEAlone
+- R4 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeAuthorityClaimSatisfiesVerifiedIdentity
+- R5 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeAndExternalIssuersCoexist
+- R6 [satisfied] capability:native-attestation-issuer evidence:integration test:TestNativeIssuerJourneyWithPOSEAlone
+- R7 [satisfied] capability:native-attestation-issuer evidence:unit test:TestRotatedIssuerKeepsEarlierSignaturesValid
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: opened on 2026-10-09 from the POSE 7.1.0 adoption in Harne8, pose-dist, audio-relay and storageclose.
+`pose issuer init|pin|list|rotate` and `pose review attest --sign <issuer> [--authority …]`: a project with POSE alone signs review attestations and reviewer authority claims, and native and external issuers coexist in the same policy lists.
 
 ### Residual risks
 
-None yet.
+- The issuer key is protected by file permissions, not a passphrase or hardware; a compromised account can sign as the issuer until its pin is removed.
+- Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent.
 
 ### Follow-ups

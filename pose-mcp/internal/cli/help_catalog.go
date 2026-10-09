@@ -376,6 +376,25 @@ var commandHelpCatalog = map[string]CommandHelp{
 			"pose setup --json",
 		},
 	},
+	"issuer": {
+		Name:            "issuer",
+		SummaryEN:       "Create and pin native issuers that sign review attestations",
+		SummaryPtBR:     "Cria e fixa emissores nativos que assinam atestações de review",
+		Usage:           "pose issuer init <name> | pose issuer pin <name|name:public-key> [--attestations] [--human-authority] [--audience <id>] [--apply] | pose issuer list [--json] | pose issuer rotate <name> [--apply]",
+		DescriptionEN:   "A native issuer is an Ed25519 key that lives outside the project, under $POSE_ISSUER_HOME or the user config directory (pose/issuers), with owner-only permissions; POSE never prints it. Review policy trusts it through a pin, <name>#sha256:<public-key-digest>, in trusted_attestation_issuers (signing attestations) and human_authority_issuers (vouching that a reviewer is a person). Native and external issuers, such as a Harne8 Conductor, coexist: any pinned issuer's envelope counts, and pinning or rotating one never removes another. Sign with pose review attest ... --sign <name> [--authority --review-execution <id>]. pin, without a local key, takes name:<base64 public key> for an issuer that lives elsewhere. Writes are previews until --apply.",
+		DescriptionPtBR: "Um emissor nativo é uma chave Ed25519 que fica fora do projeto, em $POSE_ISSUER_HOME ou no diretório de configuração do usuário (pose/issuers), com permissão só do dono; o POSE nunca a imprime. A policy de review confia nele por um pin, <nome>#sha256:<digest-da-chave-pública>, em trusted_attestation_issuers (assinar atestações) e human_authority_issuers (afirmar que um revisor é uma pessoa). Emissores nativos e externos, como o Conductor do Harne8, coexistem: o envelope de qualquer emissor fixado conta, e fixar ou rotacionar um nunca remove outro. Assine com pose review attest ... --sign <nome> [--authority --review-execution <id>]. Sem chave local, pin aceita nome:<chave pública base64> para um emissor que vive em outro lugar. Escritas são preview até --apply.",
+		Subcommands: []SubcommandHelp{
+			{"init", "pose issuer init <name>", "Create a key outside the project and print its pin", "Cria uma chave fora do projeto e mostra seu pin"},
+			{"pin", "pose issuer pin <name|name:public-key> [--attestations] [--human-authority] [--audience <id>] [--apply]", "Trust an issuer in review policy, keeping every other pin", "Confia num emissor na policy de review, mantendo os outros pins"},
+			{"list", "pose issuer list [--json]", "Show pinned issuers and the keys on this machine", "Mostra os emissores fixados e as chaves desta máquina"},
+			{"rotate", "pose issuer rotate <name> [--apply]", "Replace a key and pin the new one next to the old", "Troca a chave e fixa a nova ao lado da antiga"},
+		},
+		Examples: []string{
+			"pose issuer init maintainer",
+			"pose issuer pin maintainer --attestations --human-authority --apply",
+			"pose review attest spec:my-spec --reviewer human:ada --decision approved --evidence unit:pkg --sign maintainer --apply",
+		},
+	},
 	"identity": {
 		Name:            "identity",
 		SummaryEN:       "Register the SSH keys a principal proves its answers with",
