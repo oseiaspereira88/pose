@@ -114,12 +114,23 @@ evaluator sees.
   docs host
 
 ### Requirement trace
-<!-- Filled at closeout. -->
+
+- R1 [satisfied] check:public-claims evidence:manual <README.md opens with the canonical description, the lifecycle diagram and the problem it governs; the quickstart example comes before "What is in the box">
+- R2 [satisfied] check:public-claims evidence:manual <"Latest release" only points to Releases and `.pose/changelogs/`; no per-release section remains>
+- R3 [satisfied] check:public-claims evidence:manual <the last hardcoded count, "10 roadmaps e 115 specs hoje" in README.pt-BR.md, was removed; no other count of commands, tools, checks or specs is stated in either README>
+- R4 [satisfied] check:public-claims evidence:manual <"Where POSE is strongest" says when POSE is the wrong choice — a prompt turned into a short-lived plan — without presenting other frameworks as a preliminary stage>
+- R5 [satisfied] check:public-claims evidence:manual <the closing statement presents POSE as a standalone Apache-2.0 project that also powers Harne8's governance, in that order>
 
 ---
 
 ## 7. Final Report
 
-### Follow-ups
+### Delivered scope
 
-- [open]
+Both READMEs follow the evaluation path the requirements set; the remaining hardcoded count in the pt-BR README was removed at closeout. `pose docs-check` has no manifest in this repository, so `pose public-claims --strict` is the deterministic check, and it passes.
+
+### Residual risks
+
+- Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent.
+
+### Follow-ups

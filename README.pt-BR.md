@@ -250,8 +250,8 @@ componente e mecanismo. Leia a
 maturidade atual e lacunas frente ao estado da arte. Os
 [roadmaps de produto](docs-site/docs/product-roadmaps.md) governados
 convertem essas descobertas em roadmaps, specs de implementação e gates de
-release conscientes de dependências — 10 roadmaps e 115 specs hoje,
-acompanhados em `.pose/roadmaps/` e `.pose/specs/`.
+release conscientes de dependências, acompanhados em `.pose/roadmaps/` e
+`.pose/specs/`.
 
 ## Release mais recente
 
