@@ -80,6 +80,9 @@ has not been released.
 - modified: .github/workflows/ci.yml
 - created: .pose/reports/2026-10-09-clean-quickstart.json
 - created: .pose/specs/2026-09-06-pose-first-governed-loop-quickstart.amendments.jsonl
+- modified: examples/demo/record.sh
+
+`examples/demo/record.sh` belongs to `pose-launch-proof-demo`; it is claimed here because `bccf925a` (derive completion dates in the fixtures) carried both specs' trailers and changed it for both.
 
 ### Technical risks
 - A documentation test that only asserts exit codes will pass while the prose
