@@ -95,11 +95,10 @@ The twelve non-terminal specs, follow-up inventory, reports.
 - modified: .pose/specs/2026-10-04-pose-review-assurance-disclosure.md
 - modified: .github/dependabot.yml
 - modified: .pose/specs/2026-08-16-pose-update-instance-directory-completeness.md
-- created: .pose/changelogs/unreleased/pose-trace-test-refs-resolve.md
-- created: .pose/changelogs/unreleased/pose-range-names-its-other-work.md
-- created: .pose/changelogs/unreleased/pose-attention-projects-every-source.md
 
 Reconciled against the tree at activation.
+
+The changelog fragments of pose-trace-test-refs-resolve, pose-range-names-its-other-work and pose-attention-projects-every-source were written under this spec's trailer on 2026-10-09 and archived by the v7.1.0 release; they belong to those specs, so they are described here rather than claimed.
 
 ### Technical risks
 
