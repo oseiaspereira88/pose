@@ -74,7 +74,13 @@ correctly and removes the switching cost in the same breath.
 - modified: README.md
 - modified: .github/workflows/ci.yml
 - created: docs-site/docs/migrate/openspec.md
-- created: tests/import/fixtures/
+- created: tests/import/fixtures/openspec/openspec/changes/add-2fa/design.md
+- created: tests/import/fixtures/openspec/openspec/changes/add-2fa/proposal.md
+- created: tests/import/fixtures/openspec/openspec/changes/add-2fa/specs/auth/spec.md
+- created: tests/import/fixtures/openspec/openspec/changes/add-2fa/tasks.md
+- created: tests/import/fixtures/spec-kit/.specify/specs/customer-export/plan.md
+- created: tests/import/fixtures/spec-kit/.specify/specs/customer-export/spec.md
+- created: tests/import/fixtures/spec-kit/.specify/specs/customer-export/tasks.md
 - created: tests/import/migration-guides.sh
 
 ### Technical risks
