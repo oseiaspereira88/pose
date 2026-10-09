@@ -134,6 +134,8 @@ Unit tests for key creation, permissions, pin computation and signing; an integr
 
 2026-10-09, second independent review (agent:gpt-6.1-sol): two more defects. High: the key directory was checked but the `<issuer>.key` file could be a symlink to a key inside the project, and loading followed it. Medium: two rotations in the same second archived to the same file and `rename` silently replaced the earlier retired key. The key file is now read with `Lstat` and refused when it is a symlink or has another hard link (Unix; Windows has no link count), and a retired key is archived with a hard link that fails instead of replacing, numbered when the name is taken. `TestNativeIssuerKeyFileMustNotBeALink` and `TestRotationsInTheSameSecondKeepEveryRetiredKey` failed on 7932776b and pass now.
 
+2026-10-09, third independent review (agent:gpt-6.1-sol): one low-severity defect. A valid issuer name containing `.retired-` (for example `ops.retired-backup`) was read as a retired key by `issuer list` and disappeared from it. Listing now reads the issuer from the key file and treats only `<issuer>.key` as current; `TestIssuerNameContainingRetiredIsListed` failed on 24b54a69 and passes on 5a590598.
+
 ### Requirement trace
 
 - R1 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeIssuerKeyIsPrivateAndNeverOverwritten test:TestNativeIssuerKeyIsRefusedInsideTheProject test:TestNativeIssuerKeyFileMustNotBeALink
@@ -142,7 +144,7 @@ Unit tests for key creation, permissions, pin computation and signing; an integr
 - R4 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeAuthorityClaimSatisfiesVerifiedIdentity
 - R5 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeAndExternalIssuersCoexist
 - R6 [satisfied] capability:native-attestation-issuer evidence:integration test:TestNativeIssuerJourneyWithPOSEAlone
-- R7 [satisfied] capability:native-attestation-issuer evidence:unit test:TestRotatedIssuerKeepsEarlierSignaturesValid test:TestRotationsInTheSameSecondKeepEveryRetiredKey
+- R7 [satisfied] capability:native-attestation-issuer evidence:unit test:TestRotatedIssuerKeepsEarlierSignaturesValid test:TestRotationsInTheSameSecondKeepEveryRetiredKey test:TestIssuerNameContainingRetiredIsListed
 
 ## 7. Final Report
 
