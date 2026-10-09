@@ -123,6 +123,7 @@ Before reviewing or closing a cross-project task, run `pose context --task <xref
 ## Anti-patterns
 
 - Closing before deterministic validation.
+- Editing `status: done` by hand instead of `pose review record`/`pose close`: `pose check --strict` then fails with `review closeout: record or remediate a fresh review`, and the cause is not obvious from the error.
 - Reusing follow-ups automatically without confirmation.
 - Treating lexical candidates as semantic verdicts.
 - Deleting history instead of using `wont-do`.

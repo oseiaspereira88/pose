@@ -528,6 +528,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "locale-obligation-flags-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/scaffold",
+            "-run",
+            "LocaleCoverage|LocaleObligationFlags",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "trace-test-refs-integration",
           "program": "go",
           "args": [

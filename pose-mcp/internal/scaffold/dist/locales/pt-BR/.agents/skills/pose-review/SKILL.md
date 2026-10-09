@@ -33,7 +33,7 @@ Resolva a tarefa selecionada com `pose context --task <referência-tipificada-ou
    ```bash
    find .pose/knowledge -name "*<modulo>*.md" -type f -not -path '*/archive/*'
    ```
-6. Exigir evidência de `pose validate` proporcional ao risco. Se ausente, bloquear até execução.
+6. Exigir evidência determinística de `pose validate --strict` correspondente aos delivery targets. Se ausente, bloquear até execução.
 7. Avaliar nas dimensões: correção funcional, contratos públicos, segurança, observabilidade, performance, regressão.
 8. Classificar findings por severidade (`crítico | alto | médio | baixo`) com evidência e ação esperada por item.
 9. Verificar se há sinal de recorrência sistêmica:

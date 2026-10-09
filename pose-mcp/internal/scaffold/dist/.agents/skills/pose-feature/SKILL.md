@@ -35,7 +35,7 @@ stale, go straight to the reading below — the artifact is additive, never bloc
 7. Record executed commands and results in Validation.
 8. Create a handoff with `pose new-knowledge handoff <slug>` when another execution needs partial state, follow-ups, or owner transition.
 9. Complete the Final Report with delivered scope and residual risk.
-10. Use [pose-spec-closeout](../pose-spec-closeout/SKILL.md). When review bundles are enabled, seal the validated subject (`pose review bundle spec:<slug> --seal`), attach the independent attestation (`pose review auto-attest <bundle-id> --reviewer agent:<id>` to collect the mechanical half, then `pose review attest` to answer what it reports as pending) and require `pose review verify spec:<slug>` before closeout. Disposition follow-ups from `pose followups --all` and pass `pose lint-spec <slug> --strict`.
+10. Use [pose-spec-closeout](../pose-spec-closeout/SKILL.md). When review bundles are enabled, seal the validated subject (`pose review bundle spec:<slug> --seal`), attach the independent attestation (`pose review auto-attest <bundle-id> --reviewer agent:<id>` to collect the mechanical half, then `pose review attest spec:<slug> ... --apply` to answer what it reports as pending) and require `pose review verify spec:<slug>` before closeout. Disposition follow-ups from `pose followups --all` and pass `pose lint-spec <slug> --strict`.
 11. Run `pose assess discover --if-stale --update-state` upon delivery completion to refresh the metrics of the components the delivery changed.
 12. When Contributor Mode is active and scope reveals missing POSE stack rules or reusable engine capabilities, stage a contribution proposal with `pose contribute stage --type enhancement --title "<summary>"`.
 

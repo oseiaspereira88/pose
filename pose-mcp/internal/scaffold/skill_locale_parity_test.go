@@ -59,6 +59,54 @@ func taughtCommands(content string, surface cliSurface) map[string]bool {
 	return out
 }
 
+// obligationFlags are the flags that change what a command obliges or does:
+// `surface-check` reports, `surface-check --strict` gates; `review attest`
+// previews, `review attest --apply` records. Other flags are examples, whose
+// lists differ legitimately between a terse source and an example-rich
+// translation, so they stay out (spec pose-locale-obligation-flags).
+var (
+	obligationFlags = []string{"--strict", "--apply", "--seal"}
+	inlineSpanRe    = regexp.MustCompile("`([^`]+)`")
+)
+
+// taughtObligations returns "command --flag" for every obligation flag that
+// appears in the same code span, or fenced code line, as the command it
+// qualifies.
+func taughtObligations(content string, surface cliSurface) map[string]bool {
+	spans := []string{}
+	prose := []string{}
+	inFence := false
+	for _, line := range strings.Split(content, "\n") {
+		if strings.HasPrefix(strings.TrimSpace(line), "```") {
+			inFence = !inFence
+			continue
+		}
+		if inFence {
+			spans = append(spans, line)
+		} else {
+			prose = append(prose, line)
+		}
+	}
+	for _, m := range inlineSpanRe.FindAllStringSubmatch(strings.Join(strings.Fields(strings.Join(prose, " ")), " "), -1) {
+		spans = append(spans, m[1])
+	}
+	out := map[string]bool{}
+	for _, span := range spans {
+		fields := map[string]bool{}
+		for _, field := range strings.Fields(span) {
+			fields[field] = true
+		}
+		for cmd := range taughtCommands(span, surface) {
+			for _, flag := range obligationFlags {
+				if fields[flag] {
+					out[cmd+" "+flag] = true
+				}
+			}
+		}
+	}
+	return out
+}
+
 func TestSkillLocaleParity(t *testing.T) {
 	root := poseDistDir(t)
 	skillsDir := filepath.Join(root, ".agents", "skills")

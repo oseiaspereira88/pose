@@ -29,5 +29,5 @@ capabilities: read, workflow-write, rule-write
 
 - Decision log linked to historical outcomes.
 - Rule, workflow, or matrix change that addresses the systemic cause.
-- Expected successful strict recurrence check after the next cycle.
+- `pose recurrence-check --strict` expected to pass after the next cycle (the remediation worked).
 - Updated escalation workflow when the escalation pattern is new.

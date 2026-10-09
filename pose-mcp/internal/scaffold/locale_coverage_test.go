@@ -15,7 +15,8 @@ package scaffold
 // The comparisons are deliberately structural. Prose differs by language and
 // the skills differ in shape by design (terse English, example-rich pt-BR), so
 // asserting sameness of text would be noise. What must hold is that both sides
-// describe the same thing: the same heading tree, and the same POSE commands.
+// describe the same thing: the same heading tree, the same POSE commands, and
+// the same obligation flags on them (--strict, --apply, --seal).
 
 import (
 	"os"
@@ -145,6 +146,15 @@ func TestLocaleCoverage(t *testing.T) {
 					t.Errorf("%s/%s: translation teaches %d POSE command(s) the source does not: %s",
 						loc.Name(), rel, len(extra), strings.Join(capTokens(extra), ", "))
 				}
+				so, go_ := taughtObligations(src, surface), taughtObligations(tgt, surface)
+				if missing := diffTokens(so, go_); len(missing) > 0 {
+					t.Errorf("%s/%s: source obliges %s, which the translation teaches without that flag — the two documents prescribe different behaviour",
+						loc.Name(), rel, strings.Join(capTokens(missing), ", "))
+				}
+				if extra := diffTokens(go_, so); len(extra) > 0 {
+					t.Errorf("%s/%s: translation obliges %s, which the source teaches without that flag — the two documents prescribe different behaviour",
+						loc.Name(), rel, strings.Join(capTokens(extra), ", "))
+				}
 			}
 			return nil
 		})
@@ -171,5 +181,20 @@ func TestLocaleCoverage(t *testing.T) {
 		if !found {
 			t.Errorf("localeComparisons declares %s but no locale translates it — remove the declaration", rel)
 		}
+	}
+}
+
+// The flag comparison reports a strict gate taught as a plain report, and only
+// in the same span as its command.
+func TestLocaleObligationFlagsDistinguishAGateFromAReport(t *testing.T) {
+	surface := loadCLISurface(t)
+	src := "Run `pose surface-check --strict` before closing.\n\n```bash\npose review attest spec:x --apply\n```\n"
+	tgt := "Rode `pose surface-check` antes de fechar; use `--strict` se quiser.\n\n```bash\npose review attest spec:x --apply\n```\n"
+	missing := diffTokens(taughtObligations(src, surface), taughtObligations(tgt, surface))
+	if strings.Join(missing, ",") != "surface-check --strict" {
+		t.Fatalf("missing = %v, want [surface-check --strict]", missing)
+	}
+	if extra := diffTokens(taughtObligations(tgt, surface), taughtObligations(src, surface)); len(extra) != 0 {
+		t.Fatalf("a flag outside its command's span was counted: %v", extra)
 	}
 }
