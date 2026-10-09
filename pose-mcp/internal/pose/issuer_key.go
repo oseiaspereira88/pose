@@ -190,8 +190,25 @@ func RotateIssuerKey(root, name string, now time.Time) (retired, current IssuerK
 		return IssuerKey{}, IssuerKey{}, err
 	}
 	dir := filepath.Dir(retired.Path)
-	archive := filepath.Join(dir, fmt.Sprintf("%s.retired-%s.key", name, now.UTC().Format("20060102T150405Z")))
-	if err := os.Rename(retired.Path, archive); err != nil {
+	// A hard link fails instead of replacing an existing file, so a second
+	// rotation in the same second can never overwrite an earlier retired key.
+	stamp := now.UTC().Format("20060102T150405Z")
+	archive := ""
+	for i := 0; archive == ""; i++ {
+		candidate := filepath.Join(dir, fmt.Sprintf("%s.retired-%s.key", name, stamp))
+		if i > 0 {
+			candidate = filepath.Join(dir, fmt.Sprintf("%s.retired-%s-%d.key", name, stamp, i))
+		}
+		switch err := os.Link(retired.Path, candidate); {
+		case err == nil:
+			archive = candidate
+		case errors.Is(err, os.ErrExist) && i < 1000:
+		default:
+			return IssuerKey{}, IssuerKey{}, err
+		}
+	}
+	if err := os.Remove(retired.Path); err != nil {
+		os.Remove(archive)
 		return IssuerKey{}, IssuerKey{}, err
 	}
 	retired.Path = archive
@@ -306,12 +323,25 @@ func ensurePrivateDir(dir string) error {
 // requirePrivate refuses a path group or others can access. A key readable by
 // another account is a key that account may have copied.
 func requirePrivate(path string, isDir bool) error {
-	info, err := os.Stat(path)
+	stat := os.Stat
+	if !isDir {
+		// A key file is read where it is, never through a link: a symlink or
+		// a second hard link can place the key inside a project even when the
+		// key directory is outside it.
+		stat = os.Lstat
+	}
+	info, err := stat(path)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil
 	}
 	if err != nil {
 		return err
+	}
+	if !isDir && info.Mode()&os.ModeSymlink != 0 {
+		return fmt.Errorf("pose: %s is a symlink; an issuer key must be a regular file in the key directory", path)
+	}
+	if !isDir && extraHardLinks(info) {
+		return fmt.Errorf("pose: %s has another hard link, so a copy of the key may live elsewhere; keep a single link", path)
 	}
 	if isDir != info.IsDir() {
 		return fmt.Errorf("pose: %s is not a %s", path, map[bool]string{true: "directory", false: "file"}[isDir])

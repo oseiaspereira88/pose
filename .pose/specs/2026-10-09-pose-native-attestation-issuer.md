@@ -75,6 +75,8 @@ Hosted key management, hardware-key enforcement for issuers, and changing how th
 - created: .pose/changelogs/unreleased/pose-native-attestation-issuer.md
 - created: pose-mcp/internal/pose/issuer_key.go
 - created: pose-mcp/internal/pose/issuer_key_test.go
+- created: pose-mcp/internal/pose/issuer_key_links_unix.go
+- created: pose-mcp/internal/pose/issuer_key_links_windows.go
 - created: pose-mcp/internal/cli/issuer.go
 - created: pose-mcp/internal/cli/issuer_test.go
 - modified: pose-mcp/internal/cli/cli.go
@@ -130,15 +132,17 @@ Unit tests for key creation, permissions, pin computation and signing; an integr
 
 2026-10-09, independent review (agent:gpt-6.1-sol, Codex): changes required, high severity. `POSE_ISSUER_HOME` accepted a directory inside the project and `issuer init` wrote the private key there (for example `<project>/.pose/issuers/`), one `git add -A` from publication, against R1. Every key operation now takes the project root and refuses a key directory inside it, symlinks resolved, before anything is written; `TestNativeIssuerKeyIsRefusedInsideTheProject` covers the direct path, a symlink into the project, and signing from such a directory.
 
+2026-10-09, second independent review (agent:gpt-6.1-sol): two more defects. High: the key directory was checked but the `<issuer>.key` file could be a symlink to a key inside the project, and loading followed it. Medium: two rotations in the same second archived to the same file and `rename` silently replaced the earlier retired key. The key file is now read with `Lstat` and refused when it is a symlink or has another hard link (Unix; Windows has no link count), and a retired key is archived with a hard link that fails instead of replacing, numbered when the name is taken. `TestNativeIssuerKeyFileMustNotBeALink` and `TestRotationsInTheSameSecondKeepEveryRetiredKey` failed on 7932776b and pass now.
+
 ### Requirement trace
 
-- R1 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeIssuerKeyIsPrivateAndNeverOverwritten test:TestNativeIssuerKeyIsRefusedInsideTheProject
+- R1 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeIssuerKeyIsPrivateAndNeverOverwritten test:TestNativeIssuerKeyIsRefusedInsideTheProject test:TestNativeIssuerKeyFileMustNotBeALink
 - R2 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeAndExternalIssuersCoexist
 - R3 [satisfied] capability:native-attestation-issuer evidence:integration test:TestNativeIssuerJourneyWithPOSEAlone
 - R4 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeAuthorityClaimSatisfiesVerifiedIdentity
 - R5 [satisfied] capability:native-attestation-issuer evidence:unit test:TestNativeAndExternalIssuersCoexist
 - R6 [satisfied] capability:native-attestation-issuer evidence:integration test:TestNativeIssuerJourneyWithPOSEAlone
-- R7 [satisfied] capability:native-attestation-issuer evidence:unit test:TestRotatedIssuerKeepsEarlierSignaturesValid
+- R7 [satisfied] capability:native-attestation-issuer evidence:unit test:TestRotatedIssuerKeepsEarlierSignaturesValid test:TestRotationsInTheSameSecondKeepEveryRetiredKey
 
 ## 7. Final Report
 

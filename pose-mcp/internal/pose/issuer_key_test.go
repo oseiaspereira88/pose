@@ -274,3 +274,67 @@ func TestNativeIssuerKeyIsRefusedInsideTheProject(t *testing.T) {
 		t.Fatal("signing from a key directory inside the project was allowed")
 	}
 }
+
+// R1: the key file itself must be a regular, singly linked file: a symlink or
+// a hard link can place the key inside the project even when the key
+// directory is outside it (found in review by agent:gpt-6.1-sol).
+func TestNativeIssuerKeyFileMustNotBeALink(t *testing.T) {
+	root := t.TempDir()
+	dir := useIssuerHome(t)
+	key, err := CreateIssuerKey(root, "maintainer", time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	inProject := filepath.Join(root, "maintainer.key")
+	if err := os.Rename(key.Path, inProject); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(inProject, key.Path); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := LoadIssuerKey(root, "maintainer"); err == nil || !strings.Contains(err.Error(), "symlink") {
+		t.Fatalf("a key file symlinked into the project was loaded: %v", err)
+	}
+	if err := os.Remove(key.Path); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Link(inProject, key.Path); err != nil {
+		t.Skipf("hard links unsupported here: %v", err)
+	}
+	if _, err := LoadIssuerKey(root, "maintainer"); err == nil || !strings.Contains(err.Error(), "hard link") {
+		t.Fatalf("a key file hard-linked into the project was loaded: %v", err)
+	}
+	_ = dir
+}
+
+// R7: rotations in the same second keep every retired key.
+func TestRotationsInTheSameSecondKeepEveryRetiredKey(t *testing.T) {
+	useIssuerHome(t)
+	now := time.Now()
+	first, err := CreateIssuerKey("", "maintainer", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	retired1, _, err := RotateIssuerKey("", "maintainer", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	retired2, current, err := RotateIssuerKey("", "maintainer", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if retired1.Path == retired2.Path {
+		t.Fatalf("two rotations archived to the same file %s", retired1.Path)
+	}
+	keys, err := ListIssuerKeys("")
+	if err != nil || len(keys) != 3 {
+		t.Fatalf("keys after two rotations: %+v %v", keys, err)
+	}
+	pins := map[string]bool{}
+	for _, k := range keys {
+		pins[k.Pin] = true
+	}
+	if !pins[first.Pin()] || !pins[current.Pin()] || len(pins) != 3 {
+		t.Fatalf("a retired key was lost: %+v", keys)
+	}
+}
