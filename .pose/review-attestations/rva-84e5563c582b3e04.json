@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-84e5563c582b3e04",
+  "bundle_id": "rvb-1756a8bf71b5ed19",
+  "bundle_digest": "sha256:1756a8bf71b5ed1986bd99531e455e72b3d5c33ffe23782ea9bd31ec136dc854",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-e945c52fc0aa2718",
+      "rationale": "Spec record only."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-e945c52fc0aa2718",
+      "rationale": "The trace that claimed a file that was never committed is corrected, and the deferral names the Harne8 integration follow-up that owns the real run."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-e945c52fc0aa2718",
+      "rationale": "No smoke was run; the deferral is explicit so nothing reads the AGY path as verified. Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-e945c52fc0aa2718",
+      "rationale": "Correction of the spec's own record. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-e945c52fc0aa2718",
+      "rationale": "No executable change."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-agy-smoke-test --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-e945c52fc0aa2718",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "examples",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "examples",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "validate",
+      "component": "examples",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares no check for examples (producer_coverage none)."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/abm-atomic-start-integration",
+    "structure:design-e945c52fc0aa2718",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T11:28:34Z",
+  "path": ".pose/review-attestations/rva-84e5563c582b3e04.json"
+}

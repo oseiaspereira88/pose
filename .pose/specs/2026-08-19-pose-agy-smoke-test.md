@@ -1,8 +1,8 @@
 ---
 slug: pose-agy-smoke-test
-status: draft
+status: done
 created_at: 2026-08-19
-completed_at:
+completed_at: 2026-10-09
 priority: 1
 components: examples
 ---
