@@ -1,8 +1,8 @@
 ---
 slug: pose-community-contribution-surfaces
-status: in-progress
+status: done
 created_at: 2026-09-06
-completed_at:
+completed_at: 2026-10-09
 supersedes:
 depends_on: pose-readme-evaluation-path
 priority: 3

@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-09T10:01:42Z
-baseline_commit: 708e9c0f1f12ac355f07c0b2c0e71bf473002728
+generated_at: 2026-10-09T10:25:16Z
+baseline_commit: 38809fb7b04906febdfab79b10518cdef2c70aa6
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:c64c697343ae -->
+<!-- state:derived hash:ac6fd5a5ec5f -->
 
-- specs: total=356 draft=2 in-progress=8 blocked=0 done=346 superseded=0 abandoned=0
+- specs: total=356 draft=2 in-progress=7 blocked=0 done=347 superseded=0 abandoned=0
 - roadmaps: total=17 active=1 done=11
 - últimos closeouts:
-  - spec:pose-canonical-positioning (2026-10-09)
+  - spec:pose-community-contribution-surfaces (2026-10-09)
+  - spec:pose-attention-projects-every-source (2026-10-09)
+  - spec:pose-attention-within-a-second (2026-10-09)
   - spec:pose-locale-obligation-flags (2026-10-09)
-  - spec:pose-trace-test-refs-resolve (2026-10-09)
-  - spec:pose-release-recovery-verification (2026-10-09)
-  - spec:pose-release-security-gate-integrity (2026-10-09)
-  - ... e mais 341 (ver `pose_list_specs status:done`)
+  - spec:pose-canonical-positioning (2026-10-09)
+  - ... e mais 342 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:3a1e0b2723c5 -->
+<!-- state:derived hash:c186cbb45925 -->
 
-- abertos: 101
-- por criticidade: high=4 medium=20 low=57 sem-classificação=20
+- abertos: 106
+- por criticidade: high=4 medium=22 low=60 sem-classificação=20
 - vencidos (review < hoje): 10
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)

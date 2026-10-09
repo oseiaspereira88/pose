@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-0dd1939b2a9f748f",
+  "bundle_id": "rvb-fc6778c6d26a0650",
+  "bundle_digest": "sha256:fc6778c6d26a0650d853c107c3abf1bd915971cc410cf852a2023f430bcfc3d7",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-01796b2532dfef0d",
+      "rationale": "Contributor documentation and a local verification script; no CLI or artifact change."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:mcp-enforce/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-01796b2532dfef0d",
+      "rationale": "CONTRIBUTING.md is the deliverable; the trace and the follow-up separate what is in the repository from the issues and Discussions that are actions on the public repository."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-01796b2532dfef0d",
+      "rationale": "A contributor runs scripts/verify.sh and gets the validation CI runs. Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:mcp-enforce/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-01796b2532dfef0d",
+      "rationale": "CONTRIBUTING.md and scripts/verify.sh; issues and Discussions are deferred with a follow-up. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-01796b2532dfef0d",
+      "rationale": "verify.sh runs the same checks as CI locally and needs no credentials."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-community-contribution-surfaces --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-01796b2532dfef0d",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: 131 of 131 steps pass."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares no check for scripts (producer_coverage none)."
+    }
+  ],
+  "evidence_refs": [
+    "build:mcp-enforce/go/build",
+    "integration:pose-mcp/go/abm-atomic-start-integration",
+    "structure:design-01796b2532dfef0d",
+    "unit:mcp-enforce/go/test",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T10:24:31Z",
+  "path": ".pose/review-attestations/rva-0dd1939b2a9f748f.json"
+}
