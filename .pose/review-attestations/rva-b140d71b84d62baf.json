@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-b140d71b84d62baf",
+  "bundle_id": "rvb-243fbc9c367cacf8",
+  "bundle_digest": "sha256:243fbc9c367cacf8065cf8680ca7fb6e0f7f34b2103a44ca353a17ee05c469dc",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-c6f96a2d137f4278",
+      "rationale": "The premise that flags were ignored to avoid noise is the source spec's own; it holds for example flags, which stay out. The comparison was measured before becoming a gate: it reported five skills and nothing else, each a real difference in prescribed behaviour."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/locale-obligation-flags-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/locale-obligation-flags-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/locale-obligation-flags-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/locale-obligation-flags-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/locale-obligation-flags-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-c6f96a2d137f4278",
+      "rationale": "Only skill text changes for adopters: five skills now prescribe the same obligation in both languages, each aligned to the stricter or more explicit side, and pose update ships them through the scaffold. The gate itself is a repository test."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/locale-obligation-flags-integration"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-c6f96a2d137f4278",
+      "rationale": "Each of the four English skill changes is mapped to R3, which requires the skills that differed to prescribe the same obligations.",
+      "mappings": [
+        {
+          "delta": "SD-17708def",
+          "basis": "R3",
+          "disposition": "mapped",
+          "rationale": "Names --apply on review attest, as the translation did."
+        },
+        {
+          "delta": "SD-1acea420",
+          "basis": "R3",
+          "disposition": "mapped",
+          "rationale": "Names the housekeeping subcommands with --apply, as the translation did."
+        },
+        {
+          "delta": "SD-435b40e6",
+          "basis": "R3",
+          "disposition": "mapped",
+          "rationale": "States recurrence-check --strict as the output requirement, as the translation did."
+        },
+        {
+          "delta": "SD-75eb463d",
+          "basis": "R3",
+          "disposition": "mapped",
+          "rationale": "Adds the check --strict anti-pattern the translation carried."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-c6f96a2d137f4278",
+      "rationale": "The five skills are the documentation change; the test header and the obligationFlags comment state which flags count and why the others stay out."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-c6f96a2d137f4278",
+      "rationale": "A new flag that changes an obligation must be added to obligationFlags; the decision records that consequence. Full native run at the sealed head with the candidate CLI built from it: every step passes, including locale-obligation-flags-integration."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/locale-obligation-flags-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-c6f96a2d137f4278",
+      "rationale": "Two test files, five skills in the source tree with their scaffold copies, one matrix check and the spawned disposition. Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-c6f96a2d137f4278",
+      "rationale": "Text and test only; no runtime path changes."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-c6f96a2d137f4278",
+      "rationale": "A closed set of three flags compared per code span, inside the existing locale test, is the smallest change that guards the doctrine without reintroducing the example-list noise."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-locale-obligation-flags --strict with the candidate CLI exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-c6f96a2d137f4278",
+      "rationale": "Structural delta observed in the sealed bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/locale-obligation-flags-integration",
+      "rationale": "pose assess integrate ran with the candidate CLI and exited 0."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/locale-obligation-flags-integration",
+      "rationale": "pose skills-check --strict with the candidate CLI exited 0: no errors, no warnings."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: every step passes, including locale-obligation-flags-integration."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full native run at the sealed head with the candidate CLI built from it: every step passes, including locale-obligation-flags-integration."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/locale-obligation-flags-integration",
+    "structure:design-c6f96a2d137f4278",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T04:33:26Z",
+  "path": ".pose/review-attestations/rva-b140d71b84d62baf.json"
+}
