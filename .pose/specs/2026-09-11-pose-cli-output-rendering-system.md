@@ -188,7 +188,11 @@ The architecture, and the alternatives rejected, are in ADR
 - modified: pose-mcp/internal/cli/cli.go
 - created: pose-mcp/internal/cli/cliout/record.go
 - created: pose-mcp/internal/cli/output_contract_test.go
-- created: .pose/changelogs/unreleased/pose-cli-output-rendering-system.md
+- created: .pose/changelogs/v5.0.7/pose-cli-output-rendering-system.md
+- modified: pose-mcp/internal/version/version.go
+- modified: docs-site/docs/ci.md
+
+The v5.0.7 release commit (`c5fc8ca3`) carried this spec's trailer: it archived the changelog fragment under `v5.0.7/` and changed the version source and the CI page, so those paths are claimed where they now are.
 - modified: pose-mcp/internal/cli/usage.go
 - modified: pose-mcp/internal/cli/check.go
 - modified: docs-site/docs/cli.md
