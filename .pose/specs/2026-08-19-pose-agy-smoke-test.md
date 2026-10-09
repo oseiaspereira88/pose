@@ -114,10 +114,9 @@ Validação determinística através de checagem do arquivo gerado e execução 
 - Avisos:
 
 ### Requirement trace
-<!-- No closeout, um bullet por R-ID declarado:
+<!-- No closeout, um bullet por R-ID declarado: -->
 - R1 [deferred-integration: xref:proj.harne8/spec:harne8-pose-open-integrations-reconciliation] <the trace previously claimed this satisfied, but `examples/smoke-test-agy.txt` was never committed; the smoke needs a real AGY agent driven from Harne8 Desktop, which the Harne8 integration follow-up owns>
 - R2 [deferred-integration: xref:proj.harne8/spec:harne8-pose-open-integrations-reconciliation] <depends on the same real AGY run; no run has been recorded>
--->
 
 ### Gaps conhecidos
 - none
