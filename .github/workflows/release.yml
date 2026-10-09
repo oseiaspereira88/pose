@@ -55,7 +55,7 @@ jobs:
           echo "RELEASE_VERSION=$VERSION" >> "$GITHUB_ENV"
       - run: bash tests/release/assert-clean-tree.sh "Resolve release version"
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with: { go-version: "1.26.6", cache: true, cache-dependency-path: pose-mcp/go.mod }
+        with: { go-version: "1.26.9", cache: true, cache-dependency-path: pose-mcp/go.mod }
       # goreleaser refuses to build from a dirty worktree, but only finds out
       # after every gate below has run, and names the files rather than the step
       # that wrote them. Asserting after each step that could write turns a late,

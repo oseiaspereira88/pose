@@ -2,7 +2,7 @@
 # Automated command-path timing, not a human reading/development budget.
 set -euo pipefail
 root="$(git rev-parse --show-toplevel)"
-image="${QUICKSTART_IMAGE:-golang:1.26.6-bookworm}"
+image="${QUICKSTART_IMAGE:-golang:1.26.9-bookworm}"
 output="${1:-$root/.pose/reports/2026-10-02-clean-quickstart.json}"
 work="$(mktemp -d)"
 container=""
