@@ -1,8 +1,8 @@
 ---
 slug: pose-sdd-migration-acquisition
-status: in-progress
+status: done
 created_at: 2026-09-06
-completed_at:
+completed_at: 2026-10-09
 supersedes:
 depends_on: pose-canonical-positioning
 priority: 3
