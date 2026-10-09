@@ -259,12 +259,12 @@ are separate, independently verifiable steps.
 
 - [spawned: pose-release-recovery-verification] Prove end to end that a tagged
   release publishes its artifacts and installs on a clean machine.
-- [open] CI has been red on `main` since at least 2026-08-22 and nobody acted
+- [spawned: pose-red-signals-reach-a-person] CI has been red on `main` since at least 2026-08-22 and nobody acted
   on it, exactly as with the ten failed releases. Two independent automated
   signals were screaming and neither reached a human. Whatever notification
   gap causes that is the real defect; the two fixes here only remove today's
   noise. (owner:@pose-maintainers crit:medium review:2026-11-06)
-- [open] The release workflow fails silently: ten consecutive failed releases
+- [spawned: pose-red-signals-reach-a-person] The release workflow fails silently: ten consecutive failed releases
   produced no notification, and the drift was found only by an audit. A failed
   release on a tag should page the maintainer. No workflow in this repository
   alerts on a failed release as of 2026-10-07.

@@ -1,0 +1,84 @@
+# Make a red release or a red main reach a person
+# (spec pose-red-signals-reach-a-person).
+#
+# Ten consecutive releases failed and CI stayed red on main for weeks with
+# nobody acting: the workflows were failing correctly, and the failure went
+# nowhere. A failed run on main or on a tag now opens one issue per workflow,
+# assigned to the repository owner, which GitHub delivers as a notification.
+# Further failures comment on that issue instead of opening another, and the
+# issue closes itself when the same workflow next succeeds on main or on a
+# release tag (Release only ever runs on a tag).
+#
+# workflow_run carries attacker-influenceable values (a branch name), so every
+# event field is bound through env and checked before use, and nothing is
+# checked out.
+name: Failure alert
+on:
+  workflow_run:
+    workflows: ["CI", "POSE docs", "Governance audit", "Release", "Release liveness", "Scorecard", "Security", "Verify release"]
+    types: [completed]
+permissions: { contents: read }
+jobs:
+  alert:
+    # Only runs of this repository's main branch or of a tag. Pull requests
+    # and forks are red by design while being fixed; they are not alerts.
+    if: >-
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'schedule' || github.event.workflow_run.event == 'workflow_dispatch' || github.event.workflow_run.event == 'release' || github.event.workflow_run.event == 'workflow_run') &&
+      (github.event.workflow_run.conclusion == 'failure' || github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'timed_out')
+    runs-on: ubuntu-latest
+    permissions: { issues: write }
+    steps:
+      - name: Open, update or close the alert issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+          WORKFLOW: ${{ github.event.workflow_run.name }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          set -euo pipefail
+          # Validate every event-supplied value before it reaches a command.
+          case "$WORKFLOW" in
+            "CI"|"POSE docs"|"Governance audit"|"Release"|"Release liveness"|"Scorecard"|"Security"|"Verify release") ;;
+            *) echo "::error::unexpected workflow name"; exit 1 ;;
+          esac
+          case "$CONCLUSION" in failure|success|timed_out) ;; *) echo "::error::unexpected conclusion"; exit 1 ;; esac
+          [[ "$SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::unexpected sha"; exit 1; }
+          [[ "$BRANCH" =~ ^[A-Za-z0-9._/-]{1,100}$ ]] || { echo "::error::unexpected ref name"; exit 1; }
+          [[ "$RUN_URL" =~ ^https://github\.com/[A-Za-z0-9._/-]+/actions/runs/[0-9]+$ ]] || { echo "::error::unexpected run url"; exit 1; }
+          # A tag run has the tag as head_branch; main is the only branch that alerts.
+          if [ "$BRANCH" != "main" ] && ! [[ "$BRANCH" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "not main or a release tag: $BRANCH"; exit 0
+          fi
+
+          title="Red signal: $WORKFLOW"
+          label="red-signal"
+          gh label create "$label" --repo "$REPO" --color B60205 \
+            --description "A gating workflow failed on main or on a release tag" 2>/dev/null || true
+          existing="$(gh issue list --repo "$REPO" --state open --label "$label" \
+            --search "\"$title\" in:title" --json number,title \
+            -q ".[] | select(.title == \"$title\") | .number" | head -1)"
+
+          if [ "$CONCLUSION" = "success" ]; then
+            if [ -n "$existing" ]; then
+              gh issue close "$existing" --repo "$REPO" \
+                --comment "$WORKFLOW passed again on \`$BRANCH\` at $SHA: $RUN_URL"
+            fi
+            exit 0
+          fi
+
+          body="$WORKFLOW ended in **$CONCLUSION** on \`$BRANCH\` at \`$SHA\`.
+
+          Run: $RUN_URL
+
+          This issue closes itself when $WORKFLOW next passes on main or on a release tag."
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$REPO" --body "$body"
+          else
+            gh issue create --repo "$REPO" --title "$title" --label "$label" \
+              --assignee "$OWNER" --body "$body"
+          fi

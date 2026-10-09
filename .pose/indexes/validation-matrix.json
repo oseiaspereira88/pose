@@ -528,6 +528,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "red-signal-contract",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/version",
+            "-run",
+            "FailureAlert",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "completed-review-retention-integration",
           "program": "go",
           "args": [
