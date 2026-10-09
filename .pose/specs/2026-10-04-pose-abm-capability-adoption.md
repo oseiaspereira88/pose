@@ -1,8 +1,8 @@
 ---
 slug: pose-abm-capability-adoption
-status: in-progress
+status: done
 created_at: 2026-10-04
-completed_at:
+completed_at: 2026-10-09
 supersedes:
 depends_on: pose-open-backlog-reconciliation, pose-flat-spec-amendments, pose-effective-governance-projection
 priority: 1
