@@ -1,8 +1,8 @@
 ---
 slug: pose-package-channels-deferred-native-verification
-status: in-progress
+status: done
 created_at: 2026-10-01
-completed_at:
+completed_at: 2026-10-09
 depends_on:
 priority: 9
 components: pose-mcp

@@ -1,8 +1,8 @@
 # Integration Assessment: pose-dist
 
 > **Gerado por**: POSE Integration Engine (`pose assess integrate`)
-> **Data de Avaliação**: 2026-10-09T15:22:44Z
-> **Baseline Commit**: 2c4d56959c66
+> **Data de Avaliação**: 2026-10-09T17:31:55Z
+> **Baseline Commit**: de6c940a708b
 
 ## 1. Resumo Executivo
 

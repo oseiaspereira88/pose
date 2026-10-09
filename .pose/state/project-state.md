@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-09T15:24:14Z
-baseline_commit: 2c4d56959c66c71452614521dfbaa44b30ee04bb
+generated_at: 2026-10-09T17:33:39Z
+baseline_commit: de6c940a708b2a39b892cc25962f86eb520fc50b
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:d8c7868eba52 -->
+<!-- state:derived hash:474471307bf0 -->
 
-- specs: total=359 draft=1 in-progress=0 blocked=0 done=358 superseded=0 abandoned=0
+- specs: total=359 draft=0 in-progress=0 blocked=0 done=359 superseded=0 abandoned=0
 - roadmaps: total=17 active=1 done=11
 - últimos closeouts:
-  - spec:pose-red-signal-clears-only-at-the-head (2026-10-09)
-  - spec:pose-docs-canonical-route (2026-10-09)
-  - spec:pose-locale-obligation-flags (2026-10-09)
   - spec:pose-upgrade-journey-starts-below-the-newest-capability (2026-10-09)
-  - spec:pose-trace-test-refs-resolve (2026-10-09)
-  - ... e mais 353 (ver `pose_list_specs status:done`)
+  - spec:pose-cli-output-rendering-system (2026-10-09)
+  - spec:pose-range-names-its-other-work (2026-10-09)
+  - spec:pose-check-spawns-fewer-git-processes (2026-10-09)
+  - spec:pose-attention-within-a-second (2026-10-09)
+  - ... e mais 354 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:ad1a012c750b -->
+<!-- state:derived hash:548db2273f15 -->
 
-- abertos: 108
-- por criticidade: high=4 medium=23 low=62 sem-classificação=19
+- abertos: 107
+- por criticidade: high=4 medium=22 low=62 sem-classificação=19
 - vencidos (review < hoje): 10
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
@@ -74,10 +74,10 @@ capacidade.
 - knowledge: total=7 ativo=7 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:ec59bdfafda6 -->
+<!-- state:derived hash:96e8dc7b9224 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-02T11:43:40Z)
-- últimos 30 dias: total=139 outcome_ok=117 outcome_outro=22
+- últimos 30 dias: total=137 outcome_ok=115 outcome_outro=22
 - reports revisados (.md): total=166
   - report:2026-10-pose-open-backlog-reconciliation.md
   - report:pose-agency-readiness-pilot.md
