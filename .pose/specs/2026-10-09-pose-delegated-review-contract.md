@@ -1,14 +1,14 @@
 ---
 slug: pose-delegated-review-contract
-status: in-progress
+status: done
 created_at: 2026-10-09
-completed_at:
+completed_at: 2026-10-09
 supersedes:
 depends_on: 
 priority: 1
 components: pose-mcp
 task_type: feature
-changelog:
+changelog: none
 delivers:
 ---
 

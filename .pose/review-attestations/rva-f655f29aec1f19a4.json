@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-f655f29aec1f19a4",
+  "bundle_id": "rvb-f193deab81ebfefe",
+  "bundle_digest": "sha256:f193deab81ebfefe02979b9c8ada5ba3266eb803f7ddc13ced9b2516e4617c7f",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-d50a1e1e3cdd737e",
+      "rationale": "The four maintainer decisions are explicit in the accepted ADR. Future adapter behavior is planned; no delegated runtime or authenticated independence is claimed as delivered."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation confirms the inherited backend baseline remains green. This spec only accepts an ADR and amends draft requirements; no executable backend, concurrency, API, input or observability behavior is changed. Semantic contract consistency was reviewed in compatibility, scope and documentation."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation confirms the inherited backend baseline remains green. This spec only accepts an ADR and amends draft requirements; no executable backend, concurrency, API, input or observability behavior is changed. Semantic contract consistency was reviewed in compatibility, scope and documentation."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation confirms the inherited backend baseline remains green. This spec only accepts an ADR and amends draft requirements; no executable backend, concurrency, API, input or observability behavior is changed. Semantic contract consistency was reviewed in compatibility, scope and documentation."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation confirms the inherited backend baseline remains green. This spec only accepts an ADR and amends draft requirements; no executable backend, concurrency, API, input or observability behavior is changed. Semantic contract consistency was reviewed in compatibility, scope and documentation."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation confirms the inherited backend baseline remains green. This spec only accepts an ADR and amends draft requirements; no executable backend, concurrency, API, input or observability behavior is changed. Semantic contract consistency was reviewed in compatibility, scope and documentation."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-d50a1e1e3cdd737e",
+      "rationale": "No runtime, policy or capability changes. Draft brief R4 forbids reviewer recording, dispatch R5 defers recording to the verified capability step, and capability R5-R7 follow the accepted decisions."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation and manual strict lints passed. No executable feature is delivered. R1-R3 were manually checked against the accepted sealed ADR and the amended draft specs; conclusions and concrete requirement mapping are in scope, documentation and design-causality. Strict lint of each amended spec passed."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-d50a1e1e3cdd737e",
+      "rationale": "The accepted ADR answers R1-R2 and amended brief R4/R6, dispatch R5/R7 and capability R4-R7 answer R3. The considered adapter-only option is qualified by the final Decision: the engine records verified conclusions, people only by policy exception. SD-97474faf is the required accepted governance contract.",
+      "mappings": [
+        {
+          "delta": "SD-97474faf",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The new accepted ADR is the artifact that records the maintainer answers required by R1; its accepted status satisfies R2 and directs the R3 amendments."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-d50a1e1e3cdd737e",
+      "rationale": "Reviewed the ADR, roadmap and all three amended draft specs together. Engine recording, vendor-or-model independence, cross-vendor preference and review/adjudication/smoke scope agree with the four stated maintainer answers."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-d50a1e1e3cdd737e",
+      "rationale": "The roadmap orders contract, brief, dispatch, trust and adoption. Person-required decisions become prepared action requests rather than manual application; failed and rejected attempts stay recorded in the planned contract."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Strict full validation and manual strict lints passed. No executable feature is delivered. R1-R3 were manually checked against the accepted sealed ADR and the amended draft specs; conclusions and concrete requirement mapping are in scope, documentation and design-causality. Strict lint of each amended spec passed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-d50a1e1e3cdd737e",
+      "rationale": "R1-R3 are satisfied by the four recorded answers, accepted ADR and coherent draft amendments; no code is delivered. Reviewer agent:independent-gpt-6.1-sol-review uses the prefix required by the engine under declared identity, as authorized by the maintainer until run-provenance replaces it. This review is by another vendor: OpenAI Codex versus implementer Anthropic Claude Opus 5.5 (agent:claude-opus-5-5); the prefix is a declaration, not authenticated run provenance."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-d50a1e1e3cdd737e",
+      "rationale": "Documentation alone does not turn on delegated review or weaken existing gates. Future independence must be run-backed, immutable and signed; the implementer and reviewer cannot record unchecked conclusions. Prefix assurance remains explicitly declared until the provenance spec. No secrets or private implementation data were introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-d50a1e1e3cdd737e",
+      "rationale": "Accepting one ADR and amending draft requirements is sufficient before implementation. No launcher, runner or vendor dependency is introduced. A change to any of the four maintainer decisions requires revisiting this contract and dependent draft specs."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "structure:design-d50a1e1e3cdd737e",
+      "rationale": "Executed during this independent review."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-d50a1e1e3cdd737e",
+      "rationale": "Executed assess design for this spec and discover --if-stale --update-state for all mapped components."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "structure:design-d50a1e1e3cdd737e",
+      "rationale": "Executed assess design for this spec and discover --if-stale --update-state for all mapped components."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/attest-preflight-integration",
+      "rationale": "Executed during this independent review."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "structure:design-d50a1e1e3cdd737e",
+      "rationale": "Executed during this independent review."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate will be executed immediately after recording the attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate will be executed immediately after recording the attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "structure:design-d50a1e1e3cdd737e",
+      "rationale": "Executed during this independent review."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed strict full validation, including every registered pose-mcp check; existing sealed evidence at HEAD 582f6c96 was preserved."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed strict full validation, including every registered pose-mcp check; existing sealed evidence at HEAD 582f6c96 was preserved."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/attest-preflight-integration",
+    "structure:design-d50a1e1e3cdd737e",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-09T23:28:49Z",
+  "path": ".pose/review-attestations/rva-f655f29aec1f19a4.json"
+}
