@@ -243,7 +243,7 @@ depend on today (Decision 7).
 - [x] A test that a non-terminal run writes no escape sequence
 - [x] Bilingual parity over the catalog, format verbs included
 - [x] The ratchet falls in every increment (1138 → 1094)
-- [ ] A golden suite per profile for every command in the lifecycle core
+- [ ] A golden suite per profile for every command in the lifecycle core — deferred to a follow-up
 
 ---
 
@@ -395,14 +395,17 @@ capture) with tests that fail against today's code.
 
 ### Requirement trace
 - R1 [satisfied] <TestProfileIsResolvedPerStream and TestColourPrecedenceAndCapabilities: a buffer is never a terminal, and NO_COLOR/POSE_COLOR/--color/TERM/COLUMNS/POSE_LOCALE each decide what they own>
+- R2 [satisfied] evidence:unit test:TestDirectPrintSitesOnlyShrink <the guard fails on a direct `fmt.Fprint*` in command code outside its allowlist, and the allowlist may only shrink>
 - R3 [satisfied] <TestStateVocabularyIsClosedAndAsciiCapable and TestColourNeverCarriesMeaningAlone: every state has a word, an ASCII symbol and a round-tripping key, and the word survives stripping the colour>
 - R4 [satisfied] <TestFindingCarriesItsRemediationAndStaysOnStdout, TestHintAndFailureGoToStderr, and the migrated commands' tests now read findings from stdout>
 - R5 [satisfied] <testdata/contract-lines.json with TestRendererKeepsTheContractLines, TestLegacyValidationLogsStillParse and TestReportReadsTheRunNotItsProse>
 - R6 [satisfied] <TestStepsArePlainLinesWithoutATerminal, TestStepsRepaintOnlyOnATerminal, TestQuietSuppressesProgressEntirely, TestValidatePrintsAStepPerCheckAndCapturesTheirOutput>
 - R7 [satisfied] <TestValidatePrintsAStepPerCheckAndCapturesTheirOutput and TestValidateVerboseStreamsTheCheckOutputAgain: captured by default, tail on failure, streamed on request, and the result file unchanged>
+- R8 [satisfied] check:machine-channel-integration evidence:integration test:TestQuietCheckPrintsTheVerdictAlone test:TestEveryGateOnTheMachineChannelPrintsOneDocument <`pose check --json` prints one document built from the rendered events, `--quiet` the verdict alone, and the exit codes are 0, 1 and 2>
 - R9 [satisfied] <TestFindingCarriesItsRemediationAndStaysOnStdout; artifact-check and surface-check pass the graph's fields through unflattened>
 - R10 [satisfied] <TestCatalogParity: both languages and the same format verbs for every id>
 - R11 [satisfied] <TestUnknownTokenSuggestsOnlyANeighbour and the unknown-command tests: the token alone, with a suggestion only when one is within a typo's distance>
+- R12 [satisfied] check:public-claims evidence:manual <docs-site/docs/cli.md and both POSE.md locales document the two channels, `--json`, `--quiet`, `--verbose`, `--color`, `POSE_COLOR`, `NO_COLOR`, `COLUMNS` and the exit codes; `POSE_LOCALE`, missing from the manuals, was added at closeout>
 
 ### Known gaps
 - R2, R8 and R12 are not traced yet: the trace vocabulary is closed
@@ -429,8 +432,13 @@ long runs report what they are doing, and the machine channel is one document
 built from the same events the human channel shows. Two commands of nine use
 that channel so far.
 
+### Residual risks
+
+- Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent.
+
 ### Follow-ups
 
+- [open] Add a golden output suite per profile for every command in the lifecycle core; the contract lines and per-command tests cover the anchors, not the full rendering (owner:@pose-maintainers crit:low review:2027-01-09)
 - [covered: pose-cli-output-machine-channel] Give the remaining seven gates a machine channel, add `--json-out <path>`, deprecate `validate --json <path>`, and empty the allowlist the ratchet holds at 1094.
 - [done] `pose report` records the first changed file with its leading character cut: `reportChangedFiles` trims the whole `git status --porcelain` output before slicing the three-character prefix, so `README.md` is written as `EADME.md`, as this release's own evidence shows. Found by the review of pose#112 and carried as R4 of `pose-cli-output-machine-channel` (owner:unowned crit:low review:2026-12-12) Resolved in current source; regression: `TestReportChangedFilesKeepsTheFirstPath`.
 - [open] Raise localisation parity beyond the lines this work touched: 28% of print sites were localisable when it started, and the catalog only covers what the renderer emits (owner:unowned crit:low review:2027-03-12)
