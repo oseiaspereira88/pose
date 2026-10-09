@@ -109,14 +109,14 @@ Reconciled against the tree at activation.
 
 ### Planning
 - [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
-- [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
+- [x] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area — not applicable: no engine code changed
 
 ### Implementation
-- [ ] Write the failing tests named in Validation first (the gate must fail before it passes)
-- [ ] Implement incrementally, one requirement group per commit with `POSE-Spec: pose-open-backlog-reconciliation`
+- [x] Write the failing tests named in Validation first (the gate must fail before it passes) — not applicable: a reconciliation, no new behaviour
+- [x] Implement incrementally, one requirement group per commit with `POSE-Spec: pose-open-backlog-reconciliation`
 
 ### Validation
-- [ ] Run the deterministic checks below and retain results
+- [x] Run the deterministic checks below and retain results
 
 ## 5. Decisions
 
@@ -146,9 +146,23 @@ dispositions before applying; `pose followups --open` before/after with snapshot
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] report:.pose/reports/2026-10-pose-open-backlog-reconciliation.md evidence:manual <every remaining requirement of the twelve non-terminal specs is classified with its source in the report table; on 2026-10-09 each of those specs was closed with its own trace, external parts recorded as deferred integrations with owners>
+- R2 [satisfied] report:.pose/reports/2026-10-pose-open-backlog-reconciliation.md evidence:manual <the quickstart's R4 was amended by the maintainer on 2026-10-09 to the automated part, measured at 8.178 s on a clean container, and a human first use was recorded as a follow-up>
+- R3 [satisfied] report:.pose/results/pose-open-backlog-reconciliation.json evidence:manual <each open follow-up carries a class in the JSON; the 2026-10-09 section of the report reclassifies the snapshot of that day>
+- R4 [satisfied] report:.pose/reports/2026-10-pose-open-backlog-reconciliation.md evidence:manual <dispositions were applied only as `done` with evidence or after the maintainer's confirmation (2026-10-05 and 2026-10-09); the rest stays open with the reason>
+- R5 [satisfied] report:.pose/reports/2026-10-pose-open-backlog-reconciliation.md evidence:manual <both sections name their snapshot (head and spec-graph digest) and compare no counts across them as productivity>
+
 ## 7. Final Report
 
 ### Delivered scope
+
+The reconciliation classified every remaining requirement and open follow-up, applied dispositions only with evidence or the maintainer's confirmation, and on 2026-10-09 drove the program it informed: the twelve non-terminal specs and the medium and high follow-ups were closed or delivered in new specs, with external operations deferred to named owners.
+
+### Residual risks
+
+- Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent.
 
 Not started. Filled at closeout from the requirement trace and the change sets.
 

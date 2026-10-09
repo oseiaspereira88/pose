@@ -133,3 +133,39 @@ against the code:
 
 Each covering spec now names the follow-ups it covers in its Final Report, so the
 covered-anchor check finds them.
+
+## Second pass — 2026-10-09
+
+| Field | Value |
+|---|---|
+| Repository head when measured | `191e568e` |
+| `spec-graph.json` sha256 prefix | `0703bd3e11fa0372` |
+| Open follow-ups (`pose followups --open --json`) | 107 open, 10 overdue, 43 unowned, of 307 total |
+
+The counts come from a different head than the first pass and are not a measure
+of progress.
+
+The maintainer set the scope of this pass: close every non-terminal spec and
+deliver the high and medium material follow-ups before the next release;
+low-criticality items stay open with owners as the next version's backlog;
+requirements that depend on an operation outside the repository are recorded as
+deferred integrations with an owner, never as satisfied; the quickstart's R4 is
+amended to what was measured.
+
+Delivered in new specs, each closed with its own review: red signals reach a
+person (`pose-red-signals-reach-a-person`), trace `test:` refs resolve
+(`pose-trace-test-refs-resolve`), locale parity compares obligation flags
+(`pose-locale-obligation-flags`), a contaminated range names its other work
+(`pose-range-names-its-other-work`), `pose check` spawns 70% fewer Git
+processes (`pose-check-spawns-fewer-git-processes`), Attention projects every
+source (`pose-attention-projects-every-source`) and answers in about a second
+(`pose-attention-within-a-second`), and recurrence-check reports flapping tasks
+(`pose-recurrence-flapping-signal`). Two discovery follow-ups were recorded as
+covered by `pose-discovery-gitignore-and-root-alias-fix` after the maintainer's
+confirmation.
+
+The twelve specs of the first pass were closed with requirement traces.
+External parts deferred with owners: the old docs host redirect, the canonical
+link on the Harne8-served docs, the GitHub repository description, scoped
+issues and Discussions, the demo recording and its embedding, the AGY smoke and
+the final native package-channel round.
