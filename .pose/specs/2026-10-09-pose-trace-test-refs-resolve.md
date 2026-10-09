@@ -1,8 +1,8 @@
 ---
 slug: pose-trace-test-refs-resolve
-status: in-progress
+status: done
 created_at: 2026-10-09
-completed_at:
+completed_at: 2026-10-09
 supersedes:
 depends_on: pose-requirement-evidence-traceability
 priority: 1
