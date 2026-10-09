@@ -196,6 +196,6 @@ this size — which is the argument for the override rather than for a new defau
 
 ### Follow-ups
 
-- [open] Batch Git object reads through cat-file --batch: 7,248 spawns per run, about a
+- [spawned: pose-check-spawns-fewer-git-processes] Batch Git object reads through cat-file --batch: 7,248 spawns per run, about a
   quarter of the remaining item work, and the only lever left that does not depend on
   cores (owner:@pose-maintainers crit:medium review:2026-11-21)

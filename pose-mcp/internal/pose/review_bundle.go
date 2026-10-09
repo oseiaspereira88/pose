@@ -718,6 +718,8 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 		}
 	}
 	gitlinks := reviewBundleGitlinks(s.Root, uniqueSorted(candidatePaths))
+	// One status of the tree for the whole subject, taken on first need.
+	var status *workingTreeSnapshot
 	for _, set := range sets {
 		subject.ChangeSets = append(subject.ChangeSets, set.ID)
 		if subject.Base == "" {
@@ -771,7 +773,10 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 				excluded = append(excluded, ReviewBundleInput{Kind: class, Path: path, Reason: "attributed path is outside the semantic review subject"})
 				continue
 			}
-			if dirty, detail := reviewBundleWorkingTreeChange(s.Root, path); dirty {
+			if status == nil {
+				status = takeWorkingTreeSnapshot(s.Root)
+			}
+			if dirty, detail := status.change(path); dirty {
 				blockers = append(blockers, "review subject path "+path+" has working-tree-only content"+detail)
 			}
 			if include && observed.Action != "removed" {
@@ -1260,16 +1265,8 @@ func (s Store) reviewBundleCommitChangedPath(commit, path string) bool {
 			return false
 		}
 	}
-	raw, err := exec.Command("git", "-C", s.Root, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", commit, "--", path).Output()
-	if err != nil {
-		return false
-	}
-	for _, changed := range strings.Split(strings.TrimSpace(string(raw)), "\n") {
-		if changed == path {
-			return true
-		}
-	}
-	return false
+	paths, ok := commitChangedPaths(s.Root, commit)
+	return ok && paths[path]
 }
 
 func (s Store) reviewBundleCommittedArchive(rel string) bool {

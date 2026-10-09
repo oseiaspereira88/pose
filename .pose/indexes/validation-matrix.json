@@ -528,6 +528,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "check-git-spawns-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "CheckGitSpawns",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "range-ownership-integration",
           "program": "go",
           "args": [
