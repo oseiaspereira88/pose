@@ -90,7 +90,7 @@ correctly and removes the switching cost in the same breath.
 - [x] Increment 2: Spec Kit guide, including what does not transfer (R1, R2, R3)
 - [x] Increment 3: OpenSpec guide (R1, R2, R3)
 - [x] Increment 4: Executable migration tests (R4)
-- [ ] Increment 5: Surface the guides from landing and README (R5)
+- [x] Increment 5: Surface the guides from landing and README (R5)
 
 ---
 
@@ -123,7 +123,7 @@ correctly and removes the switching cost in the same breath.
 - R2 [satisfied] <"What does not transfer" in both guides, derived from import.go rather than assumed; check:migration-guides>
 - R3 [satisfied] <"POSE becomes the lifecycle authority" in spec-kit.md, referenced from openspec.md>
 - R4 [satisfied] <tests/import/migration-guides.sh against tests/import/fixtures/; check:ci-migration-guides>
-- R5 [deferred-integration: spec:harne8-pose-launch-surfaces] <README links added; the landing-page link belongs to the site repository's spec>
+- R5 [satisfied] check:ci-migration-guides evidence:manual <the README links both guides, and on 2026-10-09 the published landing https://harne8.com/pose links migrate/spec-kit and migrate/openspec>
 
 ### Known gaps
 - R5 is half done. The README points at both guides; the landing page does not
@@ -137,6 +137,12 @@ correctly and removes the switching cost in the same breath.
 
 ## 7. Final Report
 
-### Follow-ups
+### Delivered scope
 
-- [open]
+Migration guides for Spec Kit and OpenSpec state what transfers and what does not, the authority model, and are exercised by `tests/import/migration-guides.sh` against fixtures; both the README and the published landing reach them.
+
+### Residual risks
+
+- Reviewed in the same session that implemented it, with no separate reviewer execution: declared, not independent.
+
+### Follow-ups
