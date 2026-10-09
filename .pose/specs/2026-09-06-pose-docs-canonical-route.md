@@ -73,10 +73,9 @@ link the launch generates would be divided between them.
 
 ### Artifacts
 - modified: docs-site/mkdocs.yml
-- modified: .github/workflows/docs.yml
-- modified: README.md
-- modified: README.pt-BR.md
 - created: .pose/adr/2026-09-07-one-canonical-documentation-address.md
+
+The README links (R4) were repointed in `c56427a4` and `3ed4cc01`, and the docs workflow in a commit of its own, under other specs' trailers; they are described here rather than claimed, since no commit with this spec's trailer changed them.
 
 ### Delivery targets
 - governance:docs-canonical-route module:. profile:release-governance entrypoint:docs-site/mkdocs.yml
