@@ -148,7 +148,7 @@ dispositions before applying; `pose followups --open` before/after with snapshot
 
 ### Requirement trace
 
-- R1 [satisfied] report:.pose/reports/2026-10-pose-open-backlog-reconciliation.md evidence:manual <every remaining requirement of the twelve non-terminal specs is classified with its source in the report table; on 2026-10-09 each of those specs was closed with its own trace, external parts recorded as deferred integrations with owners>
+- R1 [satisfied] report:.pose/reports/2026-10-pose-open-backlog-reconciliation.md evidence:manual <every remaining requirement of the twelve non-terminal specs is classified with its source in the report table; on 2026-10-09 eleven were closed with their own traces, external parts recorded as deferred integrations with owners, and the package-channel verification closes with the next release, whose native round it records>
 - R2 [satisfied] report:.pose/reports/2026-10-pose-open-backlog-reconciliation.md evidence:manual <the quickstart's R4 was amended by the maintainer on 2026-10-09 to the automated part, measured at 8.178 s on a clean container, and a human first use was recorded as a follow-up>
 - R3 [satisfied] report:.pose/results/pose-open-backlog-reconciliation.json evidence:manual <each open follow-up carries a class in the JSON; the 2026-10-09 section of the report reclassifies the snapshot of that day>
 - R4 [satisfied] report:.pose/reports/2026-10-pose-open-backlog-reconciliation.md evidence:manual <dispositions were applied only as `done` with evidence or after the maintainer's confirmation (2026-10-05 and 2026-10-09); the rest stays open with the reason>

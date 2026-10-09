@@ -164,8 +164,10 @@ source (`pose-attention-projects-every-source`) and answers in about a second
 covered by `pose-discovery-gitignore-and-root-alias-fix` after the maintainer's
 confirmation.
 
-The twelve specs of the first pass were closed with requirement traces.
-External parts deferred with owners: the old docs host redirect, the canonical
-link on the Harne8-served docs, the GitHub repository description, scoped
-issues and Discussions, the demo recording and its embedding, the AGY smoke and
-the final native package-channel round.
+Eleven of the twelve specs of the first pass were closed with requirement
+traces. The twelfth, `pose-package-channels-deferred-native-verification`,
+closes with the next release, whose native round it exists to record. External
+parts deferred with owners: the old docs host redirect, the canonical link on
+the Harne8-served docs, the GitHub repository description, scoped issues and
+Discussions, the demo recording and its embedding, and the AGY smoke, whose
+earlier trace claimed a file that was never committed.
