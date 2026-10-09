@@ -338,3 +338,24 @@ func TestRotationsInTheSameSecondKeepEveryRetiredKey(t *testing.T) {
 		t.Fatalf("a retired key was lost: %+v", keys)
 	}
 }
+
+// A valid issuer name containing ".retired-" is listed as a current key, and
+// its rotation still archives (found in review by agent:gpt-6.1-sol).
+func TestIssuerNameContainingRetiredIsListed(t *testing.T) {
+	useIssuerHome(t)
+	key, err := CreateIssuerKey("", "ops.retired-backup", time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	keys, err := ListIssuerKeys("")
+	if err != nil || len(keys) != 1 || keys[0].Issuer != "ops.retired-backup" || keys[0].Retired || keys[0].Pin != key.Pin() {
+		t.Fatalf("list: %+v %v", keys, err)
+	}
+	if _, _, err := RotateIssuerKey("", "ops.retired-backup", time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	keys, _ = ListIssuerKeys("")
+	if len(keys) != 2 || keys[0].Retired == keys[1].Retired {
+		t.Fatalf("list after rotation: %+v", keys)
+	}
+}

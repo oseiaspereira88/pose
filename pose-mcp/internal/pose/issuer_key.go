@@ -293,12 +293,16 @@ func ListIssuerKeys(root string) ([]IssuerKeySummary, error) {
 		if entry.IsDir() || !strings.HasSuffix(file, ".key") {
 			continue
 		}
-		stem := strings.TrimSuffix(file, ".key")
-		name, retired := stem, false
-		if i := strings.Index(stem, ".retired-"); i > 0 {
-			name, retired = stem[:i], true
+		path := filepath.Join(dir, file)
+		// The issuer comes from the key file, not its name: a valid issuer
+		// name may itself contain ".retired-", so only "<issuer>.key" is the
+		// current key and any other file of that issuer is a retired one.
+		name, ok := issuerOfKeyFile(path)
+		if !ok {
+			continue
 		}
-		key, err := loadIssuerKeyFile(name, filepath.Join(dir, file))
+		retired := file != name+".key"
+		key, err := loadIssuerKeyFile(name, path)
 		if err != nil {
 			continue
 		}
@@ -311,6 +315,20 @@ func ListIssuerKeys(root string) ([]IssuerKeySummary, error) {
 		return strings.Compare(a.CreatedAt, b.CreatedAt)
 	})
 	return out, nil
+}
+
+// issuerOfKeyFile reads the issuer a key file declares, without loading the
+// key; the full load still checks links, permissions and the key itself.
+func issuerOfKeyFile(path string) (string, bool) {
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return "", false
+	}
+	var doc issuerKeyFile
+	if json.Unmarshal(raw, &doc) != nil || ValidIssuerName(doc.Issuer) != nil {
+		return "", false
+	}
+	return doc.Issuer, true
 }
 
 func ensurePrivateDir(dir string) error {
