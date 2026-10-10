@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-1059452bfff646a4",
+  "bundle_id": "rvb-eb68cb578d332f9f",
+  "bundle_digest": "sha256:eb68cb578d332f9fc4922941d826dab6dede3439008c24eef47267b2d2ec701d",
+  "reviewer": "agent:independent-claude-opus-5-5-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "The only unreleased fragment is pose-review-subject-classifies-engine-records (status done, completed_at 2026-10-10), category fixed, breaking false, which supports a patch bump to 7.4.1. The new 7.4.0 pin equals the checksums.txt digest in .pose/releases/v7.4.0/verified-evidence.json (bce6822d...449c); every prior pin is unchanged. Publication is out of scope."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed in pose validate --tolerant at 777846c8 (one doc-only spec commit after the subject head), including the full Go unit suite and release-version-source integration; this diff changes version literals and one matrix entry only."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed in pose validate --tolerant at 777846c8 (one doc-only spec commit after the subject head), including the full Go unit suite and release-version-source integration; this diff changes version literals and one matrix entry only."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed in pose validate --tolerant at 777846c8 (one doc-only spec commit after the subject head), including the full Go unit suite and release-version-source integration; this diff changes version literals and one matrix entry only."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed in pose validate --tolerant at 777846c8 (one doc-only spec commit after the subject head), including the full Go unit suite and release-version-source integration; this diff changes version literals and one matrix entry only."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed in pose validate --tolerant at 777846c8 (one doc-only spec commit after the subject head), including the full Go unit suite and release-version-source integration; this diff changes version literals and one matrix entry only."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Re-ran POSE_PREVIOUS_RELEASE=7.4.0 bash tests/release/compat.sh v7.4.1 independently: COMPATIBLE, 17 of 17 authenticated populated-instance upgrades (0.18.2 through 7.4.0), all contract gates and the installer E2E passed; stamped candidate reports 7.4.1 on every surface. Registry transport and CLI and MCP behaviour are unchanged."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed in pose validate --tolerant at 777846c8 (one doc-only spec commit after the subject head), including the full Go unit suite and release-version-source integration; this diff changes version literals and one matrix entry only. pose version reports 7.4.1-dev for the unstamped candidate, keeping the dev suffix."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed in pose validate --tolerant at 777846c8 (one doc-only spec commit after the subject head), including the full Go unit suite and release-version-source integration; this diff changes version literals and one matrix entry only. assess integrate output differs from the committed assessment only in evaluated_at and baseline_commit."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-a16d86bb23166473",
+      "rationale": "The single observed delta SD-097b29cf is pose-mcp/server.json; the diff changes only version_detail.version and packages[0].version from 7.4.0 to 7.4.1, as R1 requires. No new MCP contract.",
+      "mappings": [
+        {
+          "delta": "SD-097b29cf",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "Registry manifest version fields must agree with CLI, matrix, READMEs and CI guide at 7.4.1; only the version values change."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "README.md and README.pt-BR.md set V=7.4.1 in both the POSIX and PowerShell snippets; docs-site/docs/ci.md pins rev v7.4.1. git grep finds no stale 7.4.0 outside the matrix entry and release records. pose public-claims --strict: 18 surfaces, 0 errors, SUCCESS."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "The CLI keeps its -dev suffix for development builds; the compatibility gate builds a stamped 7.4.1 candidate and proves upgrade, strict gate, preservation and idempotent reapply. No runtime, logging, deploy or rollback path changed."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "R1: all seven version surfaces agree on 7.4.1 (verified by diff, git grep and public-claims). R2: the matrix keeps all 16 prior entries and adds 7.4.0 with the verified digest. R3: compat gate re-run COMPATIBLE 17 of 17 with contract checks and installer E2E. All 131 registered checks passed in pose validate --tolerant at 777846c8 (one doc-only spec commit after the subject head), including the full Go unit suite and release-version-source integration; this diff changes version literals and one matrix entry only."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Reviewed the full 84b2b722 diff (8 files, same surface set as the 7.4.0 alignment 916df895). Strict artifact-check: claims=8 observed=8, change set cs-191fbe873037, exit 0. Only this spec is closed; pose-update-dry-run-reports-the-whole-update stays open by maintainer decision. The independent- prefix of agent:independent-claude-opus-5-5-review is a declaration required by the engine and authorized by the maintainer: this review is another execution of the same vendor and model as the implementer agent:claude-opus-5-5 (Anthropic Claude Opus 5.5), run as fallback because the other-vendor reviewer (Codex) was unavailable due to usage limits. Independence of execution, not of vendor."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "No secrets in the diff. All prior authentication pins preserved; the new pin matches verified release evidence, and the gate verifies pins before executing any downloaded binary. No dependency, authorization, input handling or TLS change. Applied security and documentation-style rules."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Version literals plus one authenticated upgrade entry are the minimal sufficient change; no refactor or speculative extension."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Ran artifact-check --spec pose-v7-4-1-version-alignment --strict: claims 8, observed 8, exit 0. Orphan warnings are historical and outside scope."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-a16d86bb23166473",
+      "rationale": "Ran assess design --spec: 7 of 7 files covered, one delta SD-097b29cf (server.json version fields)."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Ran assess discover --if-stale --update-state; docs-site refreshed (content and engine changed)."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Ran assess discover --if-stale --update-state; pose-mcp refreshed (content and engine changed)."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "scripts is an unchanged release entrypoint and not a discovered component; global discovery refreshed all three registered components."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Ran assess integrate: 64 integrations, result identical to the committed assessment except timestamp and baseline commit."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Ran assess tech-debt: zero uncovered markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Ran suggest review --path docs-site: pose-review skill, security and documentation-style rules."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Ran suggest review --path pose-mcp: pose-review skill, security and documentation-style rules."
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Ran suggest review --path scripts: pose-review skill, security and documentation-style rules."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Ran pose validate --tolerant --json-out .pose/results/delivery-validation.json: 131 of 131 pass, no failure exception."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares no checks for docs-site; this scope changes one documentation literal there, covered by public-claims --strict."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Ran repository validate --tolerant: 131 of 131 pass, including all pose-mcp checks."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares no checks for scripts; the release entrypoint is unchanged and was exercised by the compatibility gate."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/release-version-source-integration",
+    "structure:design-a16d86bb23166473",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-10T18:46:41Z",
+  "path": ".pose/review-attestations/rva-1059452bfff646a4.json"
+}
