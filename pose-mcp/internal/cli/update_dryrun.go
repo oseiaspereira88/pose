@@ -232,12 +232,7 @@ func (c *dryRunCopier) link(src, dst string) error {
 	}
 	resolved, err := filepath.EvalSymlinks(src)
 	if err != nil {
-		// A broken link stays broken.
-		raw, rerr := os.Readlink(src)
-		if rerr != nil {
-			return nil
-		}
-		return os.Symlink(raw, dst)
+		return c.brokenLink(src, dst)
 	}
 	copyAt, done := c.copied[resolved]
 	if !done {
@@ -279,6 +274,31 @@ func (c *dryRunCopier) link(src, dst string) error {
 		target = relativeTo(dst, copyAt)
 	}
 	return os.Symlink(target, dst)
+}
+
+// brokenLink recreates a link whose target does not exist as a link that is
+// still broken, pointing at the same missing path inside the shadow or at a
+// missing path next to it — never at the original target. Copying the target
+// verbatim let the update create a file outside the copy through it (found in
+// review: an absolute .pose/rules/security.md link made the dry-run write the
+// external file and still say nothing was applied).
+func (c *dryRunCopier) brokenLink(src, dst string) error {
+	raw, err := os.Readlink(src)
+	if err != nil {
+		return nil
+	}
+	intended := raw
+	if !filepath.IsAbs(intended) {
+		intended = filepath.Join(filepath.Dir(src), raw)
+	}
+	intended = filepath.Clean(intended)
+	for _, base := range []string{c.root, c.rootReal} {
+		if rel, err := filepath.Rel(base, intended); err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+			return os.Symlink(relativeTo(dst, filepath.Join(c.shadow, rel)), dst)
+		}
+	}
+	c.n++
+	return os.Symlink(filepath.Join(c.outside, fmt.Sprint(c.n), "missing", filepath.Base(intended)), dst)
 }
 
 func relativeTo(link, target string) string {

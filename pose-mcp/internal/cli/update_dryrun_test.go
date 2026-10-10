@@ -255,3 +255,32 @@ func TestUpdateDryRunLinksADirectoryThatContainsTheLink(t *testing.T) {
 		})
 	}
 }
+
+// A broken link never points the copy at its original target: the update
+// may create that target, and the dry-run writes nothing (found in review).
+func TestUpdateDryRunNeverWritesThroughABrokenLink(t *testing.T) {
+	repo := olderInstance(t)
+	outside := filepath.Join(t.TempDir(), "outside-security.md")
+	inside := filepath.Join(repo, ".pose", "missing-inside.md")
+	_ = os.Remove(filepath.Join(repo, ".pose/rules/security.md"))
+	if err := os.MkdirAll(filepath.Join(repo, ".pose/rules"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(outside, filepath.Join(repo, ".pose/rules/security.md")); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	if err := os.Symlink("../missing-inside.md", filepath.Join(repo, ".pose/rules/inside.md")); err != nil {
+		t.Fatal(err)
+	}
+	_ = os.Remove(filepath.Join(repo, ".pose/state/machinery-manifest.json"))
+	before, _ := hashTree(repo, true)
+	runPose(t, repo, "update", "--dry-run")
+	for _, path := range []string{outside, inside} {
+		if _, err := os.Lstat(path); err == nil {
+			t.Fatalf("the dry-run created %s through a broken link", path)
+		}
+	}
+	if after, _ := hashTree(repo, true); len(diffTrees(before, after)) != 0 {
+		t.Fatal("the dry-run wrote into the instance")
+	}
+}
