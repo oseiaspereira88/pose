@@ -102,6 +102,19 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 			out.Field("adopt.result", "already applied; nothing to change")
 			return 0
 		}
+		// The preview of an answered request shows what applying it does,
+		// sealing included, as the direct path does (found in review by
+		// agent:gpt-6.1-sol).
+		if req.View.Answer == reviewAnswerAdopt {
+			effects, err := posemodel.PlanAdoptionEffects(root, req.Capability, issuer, time.Now())
+			if err != nil {
+				out.Failure("pose adopt: " + strings.TrimPrefix(err.Error(), "pose: "))
+				return 1
+			}
+			for _, effect := range effects {
+				out.Field("adopt.change", effect.Description)
+			}
+		}
 		out.Field("adopt.apply", boolString(apply))
 		if !apply {
 			return 0

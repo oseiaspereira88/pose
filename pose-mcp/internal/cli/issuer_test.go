@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
@@ -162,5 +163,96 @@ func TestAdoptingSignedAttestationsSealsHistory(t *testing.T) {
 	// that path is covered by TestLegacyLedgerKeepsSealedAttestationsValid.
 	if msg := run(1, verify, "spec:alpha"); !strings.Contains(msg, "superseded") {
 		t.Fatalf("verify on an open scope after a policy change: %s", msg)
+	}
+}
+
+// historyInstance is an instance with one sealed bundle and one unsigned
+// attestation, as a project with history has.
+func historyInstance(t *testing.T) string {
+	t.Helper()
+	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":2,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"},"review_bundles":true,"review_bundles_adopted_at":"2026-08-14"}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
+	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-02\ncompleted_at:\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n\n## 6. Validation\n\n### Requirement trace\n- R1 [satisfied] test:TestFixture\n")
+	writeCloseoutCLIFile(t, root, "pose-mcp/lib.go", "package posemcp\n")
+	graph := posemodel.DeliveryIntegrityGraph{
+		SchemaVersion:    1,
+		ProvenanceDigest: "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+		ChangeSets: []posemodel.ChangeSet{{
+			ID: "cs-alpha", Spec: "alpha", Selector: "range:base..head", Base: "base", Head: "head", ResolvedBase: "base-resolved", ResolvedHead: "head-resolved",
+			Paths:      []posemodel.ObservedPath{{Action: "modified", Path: "pose-mcp/lib.go"}},
+			DiffDigest: "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+		}},
+		Deliveries:        []posemodel.DeliveryTarget{{Spec: "alpha", Ref: "contract:alpha-api", Kind: "contract", ID: "alpha-api", Module: "pose-mcp", Profile: "api-contract", Entrypoint: "pose-mcp/lib.go"}},
+		ValidationResults: []posemodel.DeliveryValidationResult{{ID: "val-alpha", Module: "pose-mcp", Check: "go-test", EvidenceClass: "integration", Severity: "required", Outcome: "pass", GitHead: "head-resolved", ProvenanceDigest: "sha256:1111111111111111111111111111111111111111111111111111111111111111"}},
+		Reverse:           map[string][]string{"pose-mcp/lib.go": {"alpha"}},
+	}
+	rawGraph, _ := json.Marshal(graph)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", string(rawGraph))
+	run := func(want int, f func([]string, *bytes.Buffer, *bytes.Buffer) int, args ...string) string {
+		t.Helper()
+		var out, errOut bytes.Buffer
+		if code := f(args, &out, &errOut); code != want {
+			t.Fatalf("%v: code=%d want %d\nout=%s\nerr=%s", args, code, want, out.String(), errOut.String())
+		}
+		return out.String() + errOut.String()
+	}
+	issuer := func(args []string, out, errOut *bytes.Buffer) int { return cmdIssuer(root, args, out, errOut) }
+	adopt := func(args []string, out, errOut *bytes.Buffer) int { return cmdAdopt(root, args, out, errOut) }
+	attest := func(args []string, out, errOut *bytes.Buffer) int { return cmdReviewAttest(root, args, out, errOut) }
+	verify := func(args []string, out, errOut *bytes.Buffer) int { return cmdReviewVerify(root, args, out, errOut) }
+	seal := func(args []string, out, errOut *bytes.Buffer) int { return cmdReviewBundle(root, args, out, errOut) }
+
+	_ = issuer
+	_ = adopt
+	_ = verify
+	run(0, seal, "spec:alpha", "--seal")
+	run(0, attest, "spec:alpha", "--reviewer", "agent:reviewer", "--decision", "approved", "--evidence", "integration:val-alpha",
+		"--criterion", "correctness|passed|integration:val-alpha|negative paths were exercised against the sealed subject", "--apply")
+	return root
+}
+
+// R1 through a configuration-review answer: the request preview shows the
+// sealing and names an ambiguous issuer, like the direct path (found in
+// review by agent:gpt-6.1-sol).
+func TestAdoptRequestPreviewShowsTheSealing(t *testing.T) {
+	t.Setenv("POSE_ISSUER_HOME", filepath.Join(t.TempDir(), "issuers"))
+	root := historyInstance(t)
+	writeCloseoutCLIFile(t, root, ".pose/policy/actions.json", `{"schema_version":1,"roles":{"maintainer":["human:ada"]},"identity_assurance":"declared"}`)
+	for _, name := range []string{"maintainer", "second"} {
+		if code, out := runPose(t, root, "issuer", "init", name); code != 0 {
+			t.Fatal(out)
+		}
+		if code, out := runPose(t, root, "issuer", "pin", name, "--apply"); code != 0 {
+			t.Fatal(out)
+		}
+	}
+	view, err := posemodel.Store{Root: root}.OpenActionRequest(posemodel.ActionRequest{
+		Origin: "spec:alpha", Kind: posemodel.ActionDecision, Question: "Adopt signed-attestations in this project?",
+		Context:     reviewContextKey + "signed-attestations\nIntroduced in POSE 5.0.0.",
+		RequestedBy: posemodel.ActionPrincipal{Principal: reviewRequestedBy}, Recipient: posemodel.ObligationActor{Role: reviewRecipient},
+		Options: []posemodel.ActionOption{{ID: reviewAnswerAdopt, Consequence: "on"}, {ID: reviewAnswerDecline, Consequence: "off"}, {ID: reviewAnswerDefer, Consequence: "later"}},
+		Targets: []posemodel.NodeRef{{Artifact: "self", Kind: "requirement", ID: "R1"}},
+		Effects: []posemodel.ObligationEffect{{Phase: posemodel.PhaseCloseout, Mode: posemodel.EffectBlock}},
+	}, time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	answerReview(t, root, reviewRequest{View: view, Capability: "signed-attestations"}, "adopt", "")
+	if code, out := runPose(t, root, "adopt", "--request", view.Request.ID); code == 0 || !strings.Contains(out, "--issuer") {
+		t.Fatalf("the request preview hid an ambiguous sealer: %d %s", code, out)
+	}
+	code, out := runPose(t, root, "adopt", "--request", view.Request.ID, "--issuer", "second")
+	if code != 0 || !strings.Contains(out, "seal 1 attestation(s)") || !strings.Contains(out, "second#sha256:") || !strings.Contains(out, "adopt.apply=false") {
+		t.Fatalf("the request preview does not show the sealing: %d %s", code, out)
+	}
+	if entries, _ := os.ReadDir(filepath.Join(root, ".pose/review-ledgers")); len(entries) != 0 {
+		t.Fatal("the request preview sealed a ledger")
+	}
+	if code, out := runPose(t, root, "adopt", "--request", view.Request.ID, "--issuer", "second", "--apply"); code != 0 {
+		t.Fatalf("apply: %s", out)
+	}
+	if entries, _ := os.ReadDir(filepath.Join(root, ".pose/review-ledgers")); len(entries) != 1 {
+		t.Fatalf("the request apply did not seal one ledger: %d", len(entries))
 	}
 }

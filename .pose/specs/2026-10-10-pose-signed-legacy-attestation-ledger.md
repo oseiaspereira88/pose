@@ -107,9 +107,11 @@ Unit tests for each refusal in R4 and for sealing rules; a CLI journey for R1-R5
 
 2026-10-10, second independent review (agent:gpt-6.1-sol): two medium defects. Sealing trusted the plan it received: a plan computed before adoption, or before a new unsigned attestation, still sealed (with access to the pinned key), against R2. And `.pose/review-ledgers` as a symlink was followed both when writing and when reading, so a ledger outside the project was written and trusted. Sealing now re-plans at the moment of writing and refuses unless the policy still does not require signing and the history is exactly the planned entries; the directory goes through the same symlink-refusing guard as other review artifacts on both paths. `TestLegacyLedgerSealingRechecksAndRefusesSymlinkedDir` failed on 2f6109fa and passes now.
 
+2026-10-10, third independent review (agent:gpt-6.1-sol): medium severity. The preview of `pose adopt --request <id>` returned before planning the adoption effects, so it showed neither the sealing nor the chosen issuer and did not report an ambiguous one; apply still checked. The request preview now plans and prints the effects without writing. `TestAdoptRequestPreviewShowsTheSealing` failed on 9f4aeb7a and passes now.
+
 ### Requirement trace
 
-- R1 [satisfied] capability:signed-legacy-attestation-ledger evidence:integration test:TestAdoptingSignedAttestationsSealsHistory
+- R1 [satisfied] capability:signed-legacy-attestation-ledger evidence:integration test:TestAdoptingSignedAttestationsSealsHistory test:TestAdoptRequestPreviewShowsTheSealing
 - R2 [satisfied] capability:signed-legacy-attestation-ledger evidence:unit test:TestLegacyLedgerIsSealedOnlyBeforeAdoption
 - R3 [satisfied] capability:signed-legacy-attestation-ledger evidence:unit test:TestLegacyLedgerKeepsSealedAttestationsValid
 - R4 [satisfied] capability:signed-legacy-attestation-ledger evidence:unit test:TestLegacyLedgerRefusesEverythingOutsideIt test:TestLegacyLedgerSealingRechecksAndRefusesSymlinkedDir
