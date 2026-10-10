@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-10T13:32:26Z
-baseline_commit: 59aab41758cb740eee3a7856216698a685a9e25a
+generated_at: 2026-10-10T13:55:14Z
+baseline_commit: 73cda152d2fa54ad6460ebc89c463f7f3fd1d9b7
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:db8906e0a806 -->
+<!-- state:derived hash:a4748f8e2a0d -->
 
-- specs: total=379 draft=4 in-progress=2 blocked=0 done=372 superseded=0 abandoned=1
+- specs: total=379 draft=4 in-progress=1 blocked=0 done=373 superseded=0 abandoned=1
 - roadmaps: total=18 active=1 done=11
 - últimos closeouts:
-  - spec:pose-update-seeds-an-answerable-maintainer (2026-10-10)
-  - spec:pose-delegated-review-brief (2026-10-10)
   - spec:pose-configuration-review-7-1-0 (2026-10-10)
+  - spec:pose-same-actor-level-admits-a-different-actor (2026-10-10)
+  - spec:pose-delegated-review-dispatch (2026-10-10)
   - spec:pose-v7-3-0-version-alignment (2026-10-10)
-  - spec:pose-ci-avoids-anonymous-rate-limits (2026-10-10)
-  - ... e mais 367 (ver `pose_list_specs status:done`)
+  - spec:pose-release-prepare-guards-claimed-fragments (2026-10-10)
+  - ... e mais 368 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:858c9edfc075 -->

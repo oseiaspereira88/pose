@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-7e9971b1de638ec3",
+  "bundle_id": "rvb-1965bb3394c97608",
+  "bundle_digest": "sha256:1965bb3394c97608ced8264783b6f748e32f9784ba83392fad801e187d61337b",
+  "reviewer": "agent:independent-claude-opus-5-5-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Verified: Go's Wait returns ErrWaitDelay only when the process itself succeeded and the pipes outlived WaitDelay, and an ExitError takes precedence (probed: exit 3 with a lingering child is recorded failed, exit status 3). Verified: an unstaged move shows as D plus ??, a staged one as R old -\u003e new, both now checked. Accepted risk, already in the spec: the reviewer runs with the user's permissions and can write outside the worktree or hide edits from git status (skip-worktree, a corrupted worktree index; the status error is ignored); the check targets accidental edits by a configured adapter, not a hostile one."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The adapter runs in its own process group (Setpgid); ctx cancellation kills the group, the group is killed again after Run, and WaitDelay 5s bounds pipe draining. TestReviewDispatchTimeoutKillsTheAdaptersChildren returns in under a second; TestReviewDispatchJudgesTheRunNotItsLeftovers fails on 484a9459 (checked by reverting internal/pose/review_dispatch.go) and passes on HEAD. Deferred worktree removal runs before the temp dir removal (LIFO). On Windows no group kill exists, so a lingering child of a successful run survives the run; documented in review_dispatch_windows.go, low."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "Additive: a new subcommand, a new optional policy file .pose/policy/reviewers.json (schema_version 1, absent means no adapter) and new records under .pose/review-runs/. No existing attestation, bundle or CLI contract changes; mcp-review-attest-integration and the review suites pass unchanged. The dispatch path itself is exercised end to end through the CLI in pose-mcp/go/test (unit class in the matrix)."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Policy is validated on load (schema_version, command/vendor/model required, timeout parsed); an unknown adapter lists the configured ones; a sealed commit absent from the repository is refused before any worktree; missing --via or target is a usage error."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "Dispatch only reads bundles and briefs and writes .pose/review-runs; it records no attestation (R5), so verify and close are unaffected; the review attestation integration check passes unchanged."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Each run records adapter, vendor, model, times, exit code, brief and transcript digests, the transcript and a failure reason naming the changed paths, the timeout or the command error. No secrets are written beyond what the adapter prints."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "Nothing existing changes shape; an instance without reviewers.json behaves as before and dispatch then prints the example policy and the brief (R6)."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed all four commits with the trailer (d7240e36, 59aab417, 484a9459, 73cda152), both fixes against the findings of the second review. Probed with temporary adapters (removed): staged rename into '.pose/state/a b é.go' fails naming pose-mcp/lib.go; staged edit fails; an untracked 'new file.go' fails; a commit fails as moved off the sealed commit; exit 3 with a lingering child fails. Builds for linux, windows and darwin. pose validate --tolerant --json-out .pose/results/delivery-validation.json at 73cda152 with the candidate CLI built from it: 131 of 131 steps pass, including pose-mcp/go/test, which runs TestReviewDispatchRunsAndRecordsAdapters, TestReviewDispatchRecordsEveryBriefKind, TestReviewDispatchTimeoutKillsTheAdaptersChildren and TestReviewDispatchJudgesTheRunNotItsLeftovers."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-39f8c8efb16d40b1",
+      "rationale": "The derived-state allowlist answers the first real run's false failure; process groups answer the hang; accepting ErrWaitDelay only on a successful ProcessState answers the false failure on exit 0; splitting the rename answers the destination-only check. assess design observed the subject."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Help catalog names review dispatch; the spec, execution log and changelog fragment describe the adapter policy, the run record and the residual risks. Applied the review workflow, security and documentation-style rules."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "With no adapter the command prints the example policy and the brief instead of failing silently; failures name what changed or why; exit code 1 on a failed run."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1-R7 each map to a passing test in the trace; checked the example adapters enable nothing (ExampleReviewersPolicy is only printed), the worktree is detached at the sealed head and removed, brief on stdin, budget counted per adapter per bundle."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-39f8c8efb16d40b1",
+      "rationale": "Matches the Technical Plan artifacts; no attestation recording, which stays with pose-delegated-review-capability. Reviewer prefix agent:independent-claude-opus-5-5-review is a declaration the engine requires. This review is another execution of the same vendor and model as the implementer (Claude Opus 5.5, agent:claude-opus-5-5), run as fallback because the other-vendor reviewer (Codex) was unavailable: independence of execution, not of vendor. The maintainer authorised this use."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The user's working tree is not written by the reviewer process (disposable detached worktree); argv is a list, no shell interpolation by POSE; {output} is a temp path. Residual risk recorded in the spec: the adapter runs with user permissions; the examples run read-only."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-39f8c8efb16d40b1",
+      "rationale": "One store function, one CLI command, two tiny platform files; no daemon or sandbox layer, which the ADR leaves to the adapter."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact",
+      "rationale": "Executed artifact-check --spec pose-delegated-review-dispatch --strict: exit 0; remaining warnings are repository-wide orphans unrelated to this spec."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-39f8c8efb16d40b1",
+      "rationale": "Executed assess design --spec pose-delegated-review-dispatch --json after index: observed."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "doc:.pose/assessments/pose-mcp.md",
+      "rationale": "Executed assess discover --component pose-mcp: 0 TODO, 0 FIXME."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "Executed assess integrate: exit 0; provider-without-observed-consumer diagnostics are repository-wide."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "doc:.pose/assessments/technical-debt.md",
+      "rationale": "Executed assess tech-debt: 0 uncovered items."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "doc:.pose/workflows/review.md",
+      "rationale": "Executed suggest review --path pose-mcp; applied review workflow, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "Executed surface-check --spec pose-delegated-review-dispatch --strict: 1 target, 131 results, 0 findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "pose validate --tolerant --json-out .pose/results/delivery-validation.json at 73cda152 with the candidate CLI built from it: 131 of 131 steps pass, including pose-mcp/go/test, which runs TestReviewDispatchRunsAndRecordsAdapters, TestReviewDispatchRecordsEveryBriefKind, TestReviewDispatchTimeoutKillsTheAdaptersChildren and TestReviewDispatchJudgesTheRunNotItsLeftovers."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "pose validate --tolerant --json-out .pose/results/delivery-validation.json at 73cda152 with the candidate CLI built from it: 131 of 131 steps pass, including pose-mcp/go/test, which runs TestReviewDispatchRunsAndRecordsAdapters, TestReviewDispatchRecordsEveryBriefKind, TestReviewDispatchTimeoutKillsTheAdaptersChildren and TestReviewDispatchJudgesTheRunNotItsLeftovers."
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/mcp-review-attest-integration",
+    "structure:design-39f8c8efb16d40b1",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-claude-opus-5-5-review",
+    "concluded_by": "agent:independent-claude-opus-5-5-review",
+    "applied_by": "agent:independent-claude-opus-5-5-review"
+  },
+  "attested_at": "2026-10-10T13:54:24Z",
+  "path": ".pose/review-attestations/rva-7e9971b1de638ec3.json"
+}
