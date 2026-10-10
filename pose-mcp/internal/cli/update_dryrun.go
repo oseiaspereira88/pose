@@ -79,8 +79,19 @@ func dryRunUpdate(root string, args []string, stdout, stderr io.Writer, text fun
 		return 1
 	}
 	changes := diffTrees(before, after)
+	opened := 0
 	for _, change := range changes {
+		// A request's id hashes the second it is opened, so the copy's ids
+		// are not the ones the update will write: count them, do not name
+		// them (found in review).
+		if change.verb == "create" && isActionRequestFile(change.path) {
+			opened++
+			continue
+		}
 		r.ContractLine("[DRY-RUN] " + text("would "+change.verb+": ", map[string]string{"create": "criaria", "modify": "modificaria", "remove": "removeria"}[change.verb]+": ") + change.path)
+	}
+	if opened > 0 {
+		r.ContractLine(fmt.Sprintf("[DRY-RUN] "+text("would open %d action request(s) under .pose/actions/ (ids are assigned when they are opened)", "abriria %d pedido(s) de ação em .pose/actions/ (ids são atribuídos ao abrir)"), opened))
 	}
 	engineAfter := recordedEngineVersion(shadow)
 	if engineAfter != engineBefore {
@@ -92,6 +103,10 @@ func dryRunUpdate(root string, args []string, stdout, stderr io.Writer, text fun
 	}
 	r.ContractLine(fmt.Sprintf(text("Result: DRY-RUN — the update would change %d file(s); nothing was applied.", "Resultado: DRY-RUN — a atualização mudaria %d arquivo(s); nada foi aplicado."), len(changes)))
 	return 0
+}
+
+func isActionRequestFile(path string) bool {
+	return strings.HasPrefix(path, ".pose/actions/act-") && strings.HasSuffix(path, ".jsonl") && !strings.Contains(strings.TrimPrefix(path, ".pose/actions/"), "/")
 }
 
 func orDash(s string) string {
@@ -188,9 +203,16 @@ func (c *dryRunCopier) copy(src, dst string) error {
 		}
 		rel, _ := filepath.Rel(src, path)
 		target := filepath.Join(dst, rel)
-		switch {
-		case d.IsDir():
+		if d.IsDir() {
 			return os.MkdirAll(target, 0o755)
+		}
+		// A directory reached both through a link and by its own path is
+		// copied once: the second pass would collide with the links and the
+		// read-only files the first one wrote (found in review).
+		if _, err := os.Lstat(target); err == nil {
+			return nil
+		}
+		switch {
 		case d.Type().IsRegular():
 			return copyPlainFile(path, target)
 		case d.Type()&fs.ModeSymlink != 0:
@@ -223,6 +245,10 @@ func (c *dryRunCopier) link(src, dst string) error {
 			copyAt = filepath.Join(c.outside, fmt.Sprint(c.n), filepath.Base(resolved))
 		}
 		c.copied[resolved] = copyAt
+		if _, err := os.Lstat(copyAt); err == nil && strings.HasPrefix(copyAt, c.shadow+string(filepath.Separator)) {
+			// Already copied by its own path.
+			return os.Symlink(relativeTo(dst, copyAt), dst)
+		}
 		info, err := os.Stat(resolved)
 		if err != nil {
 			return nil
@@ -241,11 +267,16 @@ func (c *dryRunCopier) link(src, dst string) error {
 	}
 	target := copyAt
 	if strings.HasPrefix(copyAt, c.shadow+string(filepath.Separator)) {
-		if rel, err := filepath.Rel(filepath.Dir(dst), copyAt); err == nil {
-			target = rel
-		}
+		target = relativeTo(dst, copyAt)
 	}
 	return os.Symlink(target, dst)
+}
+
+func relativeTo(link, target string) string {
+	if rel, err := filepath.Rel(filepath.Dir(link), target); err == nil {
+		return rel
+	}
+	return target
 }
 
 func copyPlainFile(src, dst string) error {

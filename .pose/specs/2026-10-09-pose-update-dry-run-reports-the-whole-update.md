@@ -82,9 +82,11 @@ A fixture instance stamped 6.1.0: the dry-run output lists the merges, stamp and
 
 2026-10-10, second independent review (agent:independent-gpt-6.1-sol-review): medium severity. Following links turned them into plain directories, hiding the update's refusals: with `.pose/templates` symlinked the dry-run returned 0 and the real update 1. The copy now keeps links as links, pointing at copies of their targets (inside the shadow, or next to it for targets outside the instance), so the update meets the same links and nothing it writes reaches the instance; `hashTree` reads through links to compare content. `TestUpdateDryRunMeetsTheLinksTheUpdateMeets` fails on the previous copy.
 
+2026-10-10, third independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): two medium findings and one low. (1, 2) A directory reached through a link and by its own path (`.claude/skills -> ../.agents/skills`) was copied twice, and the second pass failed on the links and read-only files the first wrote, where the update succeeds; the copy is now idempotent. `TestUpdateDryRunCopiesALinkedDirectoryOnce` fails on the previous copy. (3) Action request ids hash the second they are opened, so the copy's file names were not the update's, and `TestUpdateDryRunListsWhatTheUpdateChanges` failed about 1 in 300 runs; the dry-run now counts the requests it would open instead of naming them, and the test compares counts (40 consecutive runs pass).
+
 ### Requirement trace
 
-- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy test:TestUpdateDryRunMeetsTheLinksTheUpdateMeets
+- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy test:TestUpdateDryRunMeetsTheLinksTheUpdateMeets test:TestUpdateDryRunCopiesALinkedDirectoryOnce
 - R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 - R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 

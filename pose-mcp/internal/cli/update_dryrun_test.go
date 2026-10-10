@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -68,6 +69,12 @@ func TestUpdateDryRunListsWhatTheUpdateChanges(t *testing.T) {
 				predicted = append(predicted, verb+" "+rest)
 			}
 		}
+		var opened int
+		if _, err := fmt.Sscanf(line, "[DRY-RUN] would open %d action request(s)", &opened); err == nil {
+			for i := 0; i < opened; i++ {
+				predicted = append(predicted, "create .pose/actions/act-<id>.jsonl")
+			}
+		}
 	}
 
 	if code, out := runPose(t, repo, "update", "--no-self"); code != 0 {
@@ -76,6 +83,9 @@ func TestUpdateDryRunListsWhatTheUpdateChanges(t *testing.T) {
 	afterReal, _ := hashTree(repo, true)
 	actual := []string{}
 	for _, change := range diffTrees(before, afterReal) {
+		if change.verb == "create" && isActionRequestFile(change.path) {
+			change.path = ".pose/actions/act-<id>.jsonl"
+		}
 		actual = append(actual, change.verb+" "+change.path)
 	}
 	sort.Strings(predicted)
@@ -163,6 +173,36 @@ func TestUpdateDryRunMeetsTheLinksTheUpdateMeets(t *testing.T) {
 	}
 	realCode, realOut := runPose(t, repo, "update", "--no-self")
 	if (dryCode == 0) != (realCode == 0) || (realCode != 0) != strings.Contains(dryOut, "would fail") {
+		t.Fatalf("dry-run %d and update %d disagree:\n%s\n---\n%s", dryCode, realCode, dryOut, realOut)
+	}
+}
+
+// A directory reached through a link and by its own path, holding links and
+// read-only files, is copied once (found in review: .claude/skills ->
+// ../.agents/skills made the dry-run fail where the update succeeds).
+func TestUpdateDryRunCopiesALinkedDirectoryOnce(t *testing.T) {
+	repo := olderInstance(t)
+	skills := filepath.Join(repo, ".agents/skills")
+	if err := os.MkdirAll(skills, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	mustWrite(t, filepath.Join(skills, "local", "notes.md"), "local\n")
+	if err := os.Chmod(filepath.Join(skills, "local", "notes.md"), 0o444); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("notes.md", filepath.Join(skills, "local", "alias.md")); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	_ = os.RemoveAll(filepath.Join(repo, ".claude/skills"))
+	if err := os.MkdirAll(filepath.Join(repo, ".claude"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("../.agents/skills", filepath.Join(repo, ".claude/skills")); err != nil {
+		t.Fatal(err)
+	}
+	dryCode, dryOut := runPose(t, repo, "update", "--dry-run")
+	realCode, realOut := runPose(t, repo, "update", "--no-self")
+	if dryCode != realCode || strings.Contains(dryOut, "preparing the dry-run copy") {
 		t.Fatalf("dry-run %d and update %d disagree:\n%s\n---\n%s", dryCode, realCode, dryOut, realOut)
 	}
 }
