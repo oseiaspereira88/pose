@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v7.3.0",
+  "previous_version": "v7.2.0",
+  "prepared_at": "2026-10-10T02:32:30Z",
+  "specs": [
+    "pose-signed-legacy-attestation-ledger"
+  ],
+  "categories": {
+    "added": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-signed-legacy-attestation-ledger",
+      "category": "added",
+      "breaking": false,
+      "body": "A project with history can now adopt signed attestations. `pose adopt signed-attestations` seals the attestations recorded without a signature into a ledger signed by the local issuer pinned for attestations, so they keep counting unchanged while every new or altered one must be signed; the preview shows what will be sealed. `pose issuer init` now suggests pinning a new key for attestations only, since a key any agent of the account can read must not vouch for a person.",
+      "path": "pose-signed-legacy-attestation-ledger.md",
+      "digest": "sha256:df6d33974314e7f0a2a2887fb36ed5fa6298b967f98bb3535539c8c9956689c0"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:7aa9f3958173580a07fcc32db62918ddf7858591b6bd58f421bd7ba5286d0bc6",
+  "release_input_digest": "sha256:ca56cef2f689a09e9761e7b8522391d2522e46676fd25a562b759a725f35e6cf",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v7.3.0"
+  }
+}
