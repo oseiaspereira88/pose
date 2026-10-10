@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-3f2f5200cb29dc64",
+  "bundle_id": "rvb-c1a00de0a5308e38",
+  "bundle_digest": "sha256:c1a00de0a5308e3867a95a643acee494855af75e23a8dfd79f03835de4b5201f",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "The 7.2.0 published checksum was downloaded independently outside the clone and hashes to b07e1344940bcaf867b3f7d8a48c1b009ed91621b9e8e3b85b3f9ff8e441cf00, matching the preserved verified evidence and matrix pin. This independent review is by OpenAI, a different vendor from implementer Anthropic Claude Opus 5.5. The agent: prefix is a declaration required by the engine under declared identity, not cryptographic proof of actor identity; the maintainer authorized this reviewer name."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 14 previous upgrade entries and their digests are unchanged; 7.2.0 adds the fifteenth authenticated source. Inspected compat730.log: all 15 upgrades, contract gates and installer E2E pass COMPATIBLE. The log reports the pre-commit base because the candidate changes were then in the working tree; current HEAD validation and sealed subject cover the committed candidate. No CLI, schema or MCP tool contract changed."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-baea3d00c6f1b42b",
+      "rationale": "R1 is addressed by synchronizing version.go, both server.json versions, both POSIX and PowerShell README snippets and ci.md on 7.3.0. R2 adds only the authenticated prior-release entry; R3 is supported by the compatibility gate and current deterministic validation. SD-1bca3a2e changes only registry version metadata, preserving the existing manifest structure.",
+      "mappings": [
+        {
+          "delta": "SD-1bca3a2e",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "Registry version metadata must agree with the authoritative Go version; manifest schema and MCP contracts are preserved."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Rules applied during review: mixed release metadata/documentation change; workflow .pose/workflows/review.md; security for artifact authentication and secret exposure; backend-go for the Go version source and deterministic checks; documentation-style for both locales and CI instructions; delivery-evidence for sealed HEAD results; knowledge-governance for consulted prior decisions. Frontend, Kubernetes and concurrency-specific rules are not applicable. Both README installation variants and CI pin agree on 7.3.0."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Installer and contract gates pass in the inspected log; public-claims --strict reports candidate 7.3.0 unprepared and published 7.2.0 verified, correctly separating this metadata preparation from publication. Errors and runtime handling are unchanged. No release or tag is authorized by this closeout."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All eight declared artifact paths reconcile with the attributed bcda7536 change set; its contiguous POSE-Spec trailer matches the slug. No unrelated refactor or engine gate change. No findings or accepted residual risks for this scope. Existing assessment warnings concern unchanged surfaces and are not defects introduced here. Recurrence check has zero flagged keys; historical validation flapping does not identify recurring rework in this change."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "The independent checksum download used TLS and matches the release verification record. Existing upgrade authentication pins are preserved; no new dependencies, executable inputs, authorization paths or secret-bearing configuration are introduced. Inspected the complete changed diff for sensitive data: none exposed."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Updating version metadata plus one authenticated upgrade pin is the smallest cohesive change satisfying R1-R3. Minor 7.3.0 is consistent with the existing non-breaking added fragment. No architecture or structural contract change requires a new ADR."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed the resolved native command independently; logs retained outside the clone."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-baea3d00c6f1b42b",
+      "rationale": "Executed the resolved native command independently; logs retained outside the clone."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed the resolved native command independently; logs retained outside the clone."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed the resolved native command independently; logs retained outside the clone."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed the resolved native command independently; logs retained outside the clone."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed the resolved native command independently; logs retained outside the clone."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed the resolved native command independently; logs retained outside the clone."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed the resolved native command independently; logs retained outside the clone."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed the resolved native command independently; logs retained outside the clone."
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed the resolved native command independently; logs retained outside the clone."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed the resolved native command independently; logs retained outside the clone."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The registered validation matrix declares no producer checks for this component; source metadata inspected directly and global validation executed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed the resolved native command independently; logs retained outside the clone."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "The registered validation matrix declares no producer checks for this component; source metadata inspected directly and global validation executed."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/release-version-source-integration",
+    "structure:design-baea3d00c6f1b42b",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-10T02:29:05Z",
+  "path": ".pose/review-attestations/rva-3f2f5200cb29dc64.json"
+}
