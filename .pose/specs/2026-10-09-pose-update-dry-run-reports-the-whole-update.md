@@ -80,9 +80,11 @@ A fixture instance stamped 6.1.0: the dry-run output lists the merges, stamp and
 
 2026-10-10, independent review (agent:independent-gpt-6.1-sol-review): medium severity. The copy skipped symlinks, so with `.pose/policy` symlinked the dry-run predicted 23 files and 12 requests the real update does not create. The copy now follows symlinks as the update reads through them (cycles broken, broken links skipped); `TestUpdateDryRunFollowsASymlinkedPolicy` fails on the previous copy.
 
+2026-10-10, second independent review (agent:independent-gpt-6.1-sol-review): medium severity. Following links turned them into plain directories, hiding the update's refusals: with `.pose/templates` symlinked the dry-run returned 0 and the real update 1. The copy now keeps links as links, pointing at copies of their targets (inside the shadow, or next to it for targets outside the instance), so the update meets the same links and nothing it writes reaches the instance; `hashTree` reads through links to compare content. `TestUpdateDryRunMeetsTheLinksTheUpdateMeets` fails on the previous copy.
+
 ### Requirement trace
 
-- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy
+- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy test:TestUpdateDryRunMeetsTheLinksTheUpdateMeets
 - R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 - R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 

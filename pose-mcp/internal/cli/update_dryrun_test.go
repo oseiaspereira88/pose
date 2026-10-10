@@ -139,3 +139,30 @@ func dryRunOutput(t *testing.T, repo string) string {
 	}
 	return strings.Join(lines, "\n")
 }
+
+// The copy keeps links as links: an update that refuses a symlinked managed
+// directory makes the dry-run say the update would fail, and nothing the
+// dry-run runs writes through the link into the instance (found in review).
+func TestUpdateDryRunMeetsTheLinksTheUpdateMeets(t *testing.T) {
+	repo := olderInstance(t)
+	shared := filepath.Join(t.TempDir(), "templates")
+	if err := os.Rename(filepath.Join(repo, ".pose/templates"), shared); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(shared, filepath.Join(repo, ".pose/templates")); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	before, _ := hashTree(shared, false)
+	repoBefore, _ := hashTree(repo, true)
+	dryCode, dryOut := runPose(t, repo, "update", "--dry-run")
+	if after, _ := hashTree(shared, false); len(diffTrees(before, after)) != 0 {
+		t.Fatal("the dry-run wrote through the link")
+	}
+	if after, _ := hashTree(repo, true); len(diffTrees(repoBefore, after)) != 0 {
+		t.Fatal("the dry-run wrote into the instance")
+	}
+	realCode, realOut := runPose(t, repo, "update", "--no-self")
+	if (dryCode == 0) != (realCode == 0) || (realCode != 0) != strings.Contains(dryOut, "would fail") {
+		t.Fatalf("dry-run %d and update %d disagree:\n%s\n---\n%s", dryCode, realCode, dryOut, realOut)
+	}
+}

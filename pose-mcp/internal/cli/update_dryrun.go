@@ -119,51 +119,74 @@ func recordedEngineVersion(root string) string {
 // snapshotForDryRun copies what an update touches into shadow and returns the
 // hashes of the copy as it was before the update.
 func snapshotForDryRun(root, shadow string) (map[string]string, error) {
+	c, err := newDryRunCopier(root, shadow)
+	if err != nil {
+		return nil, err
+	}
 	entries, err := os.ReadDir(root)
 	if err != nil {
 		return nil, err
 	}
 	for _, entry := range entries {
-		// Stat follows a symlink: the update reads through it.
-		if info, err := os.Stat(filepath.Join(root, entry.Name())); err == nil && info.Mode().IsRegular() {
-			if err := copyPlainFile(filepath.Join(root, entry.Name()), filepath.Join(shadow, entry.Name())); err != nil {
+		path := filepath.Join(root, entry.Name())
+		switch {
+		case entry.Type().IsRegular():
+			if err := copyPlainFile(path, filepath.Join(shadow, entry.Name())); err != nil {
 				return nil, err
+			}
+		case entry.Type()&fs.ModeSymlink != 0:
+			if info, err := os.Stat(path); err == nil && info.Mode().IsRegular() {
+				if err := c.link(path, filepath.Join(shadow, entry.Name())); err != nil {
+					return nil, err
+				}
 			}
 		}
 	}
 	for _, dir := range dryRunCopied {
-		src := filepath.Join(root, dir)
-		info, err := os.Stat(src)
-		if err != nil || !info.IsDir() {
-			continue
-		}
-		if err := copyDryRunTree(src, filepath.Join(shadow, dir), map[string]bool{}); err != nil {
+		if err := c.copy(filepath.Join(root, dir), filepath.Join(shadow, dir)); err != nil {
 			return nil, err
 		}
 	}
 	return hashTree(shadow, true)
 }
 
-// copyDryRunTree copies src into dst, following symlinks the way the update
-// reads through them: a symlinked .pose/policy is policy the update sees, and
-// skipping it made the dry-run predict files and requests the real update
-// does not create (found in review). visited breaks symlink cycles; broken
-// links and special files are skipped.
-func copyDryRunTree(src, dst string, visited map[string]bool) error {
-	real, err := filepath.EvalSymlinks(src)
+// dryRunCopier copies an instance into the shadow keeping its symlinks as
+// symlinks, so the update meets the same links it would in the instance — it
+// refuses some (a symlinked .pose/templates) and reads through others (found
+// in review: turning links into plain directories hid those refusals). A link
+// never points back into the instance: a target inside it is copied into the
+// shadow and linked relatively, a target outside it is copied next to the
+// shadow, so whatever the update writes through a link lands in a copy.
+type dryRunCopier struct {
+	root, rootReal, shadow, outside string
+	copied                          map[string]string
+	n                               int
+}
+
+func newDryRunCopier(root, shadow string) (*dryRunCopier, error) {
+	rootReal, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		return nil, err
+	}
+	return &dryRunCopier{root: root, rootReal: rootReal, shadow: shadow, outside: filepath.Join(filepath.Dir(shadow), ".linked"), copied: map[string]string{}}, nil
+}
+
+func (c *dryRunCopier) copy(src, dst string) error {
+	info, err := os.Lstat(src)
 	if err != nil {
 		return nil
 	}
-	if visited[real] {
+	if info.Mode()&fs.ModeSymlink != 0 {
+		return c.link(src, dst)
+	}
+	if !info.IsDir() {
 		return nil
 	}
-	visited[real] = true
-	defer delete(visited, real)
-	return filepath.WalkDir(real, func(path string, d fs.DirEntry, err error) error {
+	return filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		rel, _ := filepath.Rel(real, path)
+		rel, _ := filepath.Rel(src, path)
 		target := filepath.Join(dst, rel)
 		switch {
 		case d.IsDir():
@@ -171,18 +194,58 @@ func copyDryRunTree(src, dst string, visited map[string]bool) error {
 		case d.Type().IsRegular():
 			return copyPlainFile(path, target)
 		case d.Type()&fs.ModeSymlink != 0:
-			info, err := os.Stat(path)
-			switch {
-			case err != nil:
-				return nil
-			case info.IsDir():
-				return copyDryRunTree(path, target, visited)
-			case info.Mode().IsRegular():
-				return copyPlainFile(path, target)
+			return c.link(path, target)
+		}
+		return nil // special files are not copied
+	})
+}
+
+// link recreates the symlink at src as dst, pointing at a copy of its target.
+func (c *dryRunCopier) link(src, dst string) error {
+	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+		return err
+	}
+	resolved, err := filepath.EvalSymlinks(src)
+	if err != nil {
+		// A broken link stays broken.
+		raw, rerr := os.Readlink(src)
+		if rerr != nil {
+			return nil
+		}
+		return os.Symlink(raw, dst)
+	}
+	copyAt, done := c.copied[resolved]
+	if !done {
+		if rel, err := filepath.Rel(c.rootReal, resolved); err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+			copyAt = filepath.Join(c.shadow, rel)
+		} else {
+			c.n++
+			copyAt = filepath.Join(c.outside, fmt.Sprint(c.n), filepath.Base(resolved))
+		}
+		c.copied[resolved] = copyAt
+		info, err := os.Stat(resolved)
+		if err != nil {
+			return nil
+		}
+		if info.IsDir() {
+			if err := c.copy(resolved, copyAt); err != nil {
+				return err
+			}
+		} else if info.Mode().IsRegular() {
+			if _, err := os.Lstat(copyAt); err != nil {
+				if err := copyPlainFile(resolved, copyAt); err != nil {
+					return err
+				}
 			}
 		}
-		return nil
-	})
+	}
+	target := copyAt
+	if strings.HasPrefix(copyAt, c.shadow+string(filepath.Separator)) {
+		if rel, err := filepath.Rel(filepath.Dir(dst), copyAt); err == nil {
+			target = rel
+		}
+	}
+	return os.Symlink(target, dst)
 }
 
 func copyPlainFile(src, dst string) error {
@@ -200,21 +263,50 @@ func copyPlainFile(src, dst string) error {
 	return os.WriteFile(dst, raw, info.Mode().Perm())
 }
 
-// hashTree maps every regular file under root, except .git, to its content.
+// hashTree maps every regular file under root, except .git, to its content,
+// reading through symlinks so content behind a link is compared too; a link
+// back to a directory already being read is not followed again.
 func hashTree(root string, skipGit bool) (map[string]string, error) {
 	out := map[string]string{}
-	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+	err := hashTreeInto(out, root, "", skipGit, map[string]bool{})
+	return out, err
+}
+
+func hashTreeInto(out map[string]string, dir, prefix string, skipGit bool, visiting map[string]bool) error {
+	real, err := filepath.EvalSymlinks(dir)
+	if err != nil {
+		return nil
+	}
+	if visiting[real] {
+		return nil
+	}
+	visiting[real] = true
+	defer delete(visiting, real)
+	return filepath.WalkDir(real, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		rel, _ := filepath.Rel(root, path)
+		rel, _ := filepath.Rel(real, path)
+		if prefix != "" {
+			rel = filepath.Join(prefix, rel)
+		}
 		if skipGit && (rel == ".git" || strings.HasPrefix(rel, ".git"+string(filepath.Separator))) {
 			if d.IsDir() {
 				return filepath.SkipDir
 			}
 			return nil
 		}
-		if !d.Type().IsRegular() {
+		if d.Type()&fs.ModeSymlink != 0 {
+			info, err := os.Stat(path)
+			switch {
+			case err != nil:
+				return nil
+			case info.IsDir():
+				return hashTreeInto(out, path, rel, skipGit, visiting)
+			case !info.Mode().IsRegular():
+				return nil
+			}
+		} else if !d.Type().IsRegular() {
 			return nil
 		}
 		raw, err := os.ReadFile(path)
@@ -224,7 +316,6 @@ func hashTree(root string, skipGit bool) (map[string]string, error) {
 		out[filepath.ToSlash(rel)] = string(raw)
 		return nil
 	})
-	return out, err
 }
 
 type treeChange struct{ verb, path string }
