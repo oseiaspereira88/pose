@@ -335,3 +335,38 @@ func TestReleaseVersionSourceLeavesTheEngineRepositoryOnItsCompiledVersion(t *te
 		t.Fatalf("engine evidence changed shape: %s", raw)
 	}
 }
+
+// Spec pose-release-prepare-guards-claimed-fragments: a fragment another spec
+// claims at its unreleased path is named by plan, refused by prepare unless
+// --allow-moved-claims, and reported by check on the prepared tree.
+func TestReleasePrepareRefusesFragmentsOtherSpecsClaim(t *testing.T) {
+	root := t.TempDir()
+	target := "v" + version.ReleaseBase()
+	writeReleaseFixture(t, root, ".pose/release-policy.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo"}`)
+	markAsEngineRepository(t, root)
+	writeReleaseFixture(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: done\n---\n\n## 3. Technical Plan\n\n### Artifacts\n\n- created: .pose/changelogs/unreleased/alpha.md\n")
+	writeReleaseFixture(t, root, ".pose/specs/backlog/spec.md", "---\nslug: backlog\nstatus: done\n---\n\n## 3. Technical Plan\n\n### Artifacts\n\n- created: .pose/changelogs/unreleased/alpha.md\n")
+	writeReleaseFixture(t, root, ".pose/changelogs/unreleased/alpha.md", "---\nspec: alpha\ncategory: added\nbreaking: false\n---\n\nAdds alpha.\n")
+	var out, errOut bytes.Buffer
+	if code := cmdReleasePlan(root, []string{"--version", target}, &out, &errOut); code != 0 || !strings.Contains(out.String(), "spec backlog claims .pose/changelogs/unreleased/alpha.md, the fragment of alpha") || strings.Contains(out.String(), "spec alpha claims") {
+		t.Fatalf("plan does not name the foreign claim only: %d %s %s", code, out.String(), errOut.String())
+	}
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReleasePrepare(root, []string{"--version", target, "--apply"}, &out, &errOut); code == 0 || !strings.Contains(out.String()+errOut.String(), "--allow-moved-claims") {
+		t.Fatalf("prepare froze over a foreign claim: %d %s %s", code, out.String(), errOut.String())
+	}
+	if _, err := os.Stat(filepath.Join(root, ".pose/changelogs/unreleased/alpha.md")); err != nil {
+		t.Fatal("the refused prepare moved the fragment")
+	}
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReleasePrepare(root, []string{"--version", target, "--apply", "--allow-moved-claims"}, &out, &errOut); code != 0 {
+		t.Fatalf("prepare with --allow-moved-claims: %d %s", code, errOut.String())
+	}
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReleaseCheck(root, []string{"--version", target, "--strict"}, &out, &errOut); code == 0 || !strings.Contains(errOut.String(), "spec backlog claims") {
+		t.Fatalf("check on the prepared tree does not report the moved claim: %d %s", code, errOut.String())
+	}
+}

@@ -1,6 +1,6 @@
 ---
 slug: pose-release-prepare-guards-claimed-fragments
-status: draft
+status: in-progress
 created_at: 2026-10-09
 completed_at:
 supersedes:
@@ -10,7 +10,7 @@ components: pose-mcp
 task_type: bugfix
 surface: minimal
 changelog:
-delivers:
+delivers: governance:release-prepare-guards-claimed-fragments
 ---
 
 # Spec: Release prepare does not break specs that claim unreleased fragments
@@ -38,12 +38,23 @@ The v7.1.0 freeze (`2cf8d4b1`) turned CI red on main: `pose-open-backlog-reconci
 ### Artifacts
 
 - created: .pose/specs/2026-10-09-pose-release-prepare-guards-claimed-fragments.md
+- created: .pose/starts/pose-release-prepare-guards-claimed-fragments.json
+- created: .pose/changelogs/unreleased/pose-release-prepare-guards-claimed-fragments.md
+- created: pose-mcp/internal/pose/release_claimed_fragments.go
+- modified: pose-mcp/internal/cli/release_lifecycle.go
+- modified: pose-mcp/internal/cli/release_lifecycle_test.go
 
-Implementation artifacts are declared when the spec starts.
+### Delivery targets
+
+- governance:release-prepare-guards-claimed-fragments module:pose-mcp profile:release-governance entrypoint:scripts/release.sh
 
 ## 5. Decisions
 
-No decision recorded yet; the spec is a draft.
+### Decision D1
+- Date: 2026-10-10
+- Context: the guard needs each spec's Artifacts claims, which `ListSpecs` does not carry; the first version read metadata only and found nothing.
+- Decision: load each spec's body (`GetSpec`) before parsing its claims.
+- Rationale: measured on the tree just before the v7.1.0 freeze (2cf8d4b1^): the metadata-only version reported 0 foreign claims; the fixed one reports exactly the three that failed CI.
 
 ## 6. Validation
 
@@ -51,13 +62,21 @@ No decision recorded yet; the spec is a draft.
 
 Fixture with one spec claiming another spec's unreleased fragment: plan lists it, prepare refuses, and the test fails on the current engine.
 
+### Execution log
+
+2026-10-10: on a worktree at 2cf8d4b1^ (pose-dist just before the v7.1.0 freeze), `ForeignFragmentClaims` over the nine unreleased fragments reports exactly three claims: pose-open-backlog-reconciliation claiming the fragments of pose-attention-projects-every-source, pose-range-names-its-other-work and pose-trace-test-refs-resolve — the three CI rejected on main after the freeze.
+
 ### Requirement trace
+
+- R1 [satisfied] governance:release-prepare-guards-claimed-fragments evidence:integration test:TestReleasePrepareRefusesFragmentsOtherSpecsClaim
+- R2 [satisfied] governance:release-prepare-guards-claimed-fragments evidence:integration test:TestReleasePrepareRefusesFragmentsOtherSpecsClaim
+- R3 [satisfied] governance:release-prepare-guards-claimed-fragments evidence:integration test:TestReleasePrepareRefusesFragmentsOtherSpecsClaim
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: opened on 2026-10-09 from the POSE 7.1.0 adoption in Harne8, pose-dist, audio-relay and storageclose.
+`release plan` names each spec that claims another spec's fragment at its unreleased path, `release prepare --apply` refuses unless `--allow-moved-claims`, and `release check` reports it on a prepared tree.
 
 ### Residual risks
 

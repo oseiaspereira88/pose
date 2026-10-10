@@ -208,18 +208,29 @@ func cmdReleasePlan(root string, args []string, stdout, stderr io.Writer) int {
 			recommendation = "minor"
 		}
 	}
-	result := map[string]any{"version": target, "previous_version": previous, "fragment_count": len(fragments), "specs": manifest.Specs, "breaking": manifest.Breaking, "recommendation": recommendation, "release_input_digest": manifest.ReleaseInputDigest, "dry_run": true, "blockers": []string{}}
+	blockers, err := posemodel.Store{Root: root}.ForeignFragmentClaims(fragments)
+	if err != nil {
+		render(stdout, stderr).Failure("pose release plan: " + err.Error())
+		return 1
+	}
+	if blockers == nil {
+		blockers = []string{}
+	}
+	result := map[string]any{"version": target, "previous_version": previous, "fragment_count": len(fragments), "specs": manifest.Specs, "breaking": manifest.Breaking, "recommendation": recommendation, "release_input_digest": manifest.ReleaseInputDigest, "dry_run": true, "blockers": blockers}
 	if releaseFlag(args, "--json") {
 		raw, _ := json.MarshalIndent(result, "", "  ")
 		fmt.Fprintln(stdout, string(raw))
 	} else {
 		fmt.Fprintf(stdout, "Release plan %s: %d fragments, recommendation=%s, digest=%s (dry-run)\n", target, len(fragments), recommendation, manifest.ReleaseInputDigest)
+		for _, blocker := range blockers {
+			render(stdout, stderr).Field("release.blocker", blocker)
+		}
 	}
 	return 0
 }
 
 func cmdReleasePrepare(root string, args []string, stdout, stderr io.Writer) int {
-	if err := rejectReleaseArgs(args, map[string]bool{"--version": true}, map[string]bool{"--apply": true, "--json": true}); err != nil {
+	if err := rejectReleaseArgs(args, map[string]bool{"--version": true}, map[string]bool{"--apply": true, "--json": true, "--allow-moved-claims": true}); err != nil {
 		return usageError(stderr, err.Error())
 	}
 	target, ok, _ := releaseArg(args, "--version")
@@ -258,6 +269,21 @@ func cmdReleasePrepare(root string, args []string, stdout, stderr io.Writer) int
 			out.Field("release.refused."+refusal.Code, refusal.Message)
 		}
 		out.Failure(fmt.Sprintf("pose release prepare: %d action request(s) restrict this release", len(refusals)))
+		return 1
+	}
+	// A fragment another spec claims would leave that claim pointing at a
+	// path the freeze removes (spec pose-release-prepare-guards-claimed-fragments).
+	foreign, err := posemodel.Store{Root: root}.ForeignFragmentClaims(fragments)
+	if err != nil {
+		render(stdout, stderr).Failure("pose release prepare: " + err.Error())
+		return 1
+	}
+	if len(foreign) > 0 && !releaseFlag(args, "--allow-moved-claims") {
+		out := render(stdout, stderr)
+		for _, claim := range foreign {
+			out.Field("release.refused.moved-claim", claim)
+		}
+		out.Failure(fmt.Sprintf("pose release prepare: %d claim(s) name fragments this release moves; fix them first, or pass --allow-moved-claims", len(foreign)))
 		return 1
 	}
 	if !releaseFlag(args, "--apply") {
@@ -387,6 +413,13 @@ func cmdReleaseCheck(root string, args []string, stdout, stderr io.Writer) int {
 		return usageError(stderr, "pose release check: --version is required")
 	}
 	gaps, manifest := checkRelease(root, target)
+	// On a prepared tree the fragments sit in the archive; a claim at their
+	// unreleased path by another spec is what CI's structural gate rejects.
+	if archived, err := posemodel.LoadReleaseFragments(filepath.Join(root, ".pose", "changelogs", target), posemodel.LoadChangelogPolicy(root)); err == nil {
+		if foreign, err := (posemodel.Store{Root: root}).ForeignFragmentClaims(archived); err == nil {
+			gaps = append(gaps, foreign...)
+		}
+	}
 	tagCommit, tagged := resolveReleaseTag(root, target)
 	if tagged && manifest == nil {
 		gaps = append(gaps, "tag exists without prepared manifest")
