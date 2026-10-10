@@ -112,7 +112,7 @@ func TestCompatibilityUpgradeFromLegacyInstance(t *testing.T) {
 		// A legacy instance has never reviewed its capabilities, so the
 		// second update names the pending decisions instead of "Nothing to
 		// do" (spec pose-setup-command).
-		if !strings.Contains(out.String(), "Nothing to do") && !strings.Contains(out.String(), "capability decision(s) pending") {
+		if !strings.Contains(out.String(), "manuals and machinery are current") && !strings.Contains(out.String(), "capability decision(s) pending") {
 			t.Errorf("update is not idempotent: %s", out.String())
 		}
 	})

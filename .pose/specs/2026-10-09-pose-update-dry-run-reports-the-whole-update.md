@@ -1,6 +1,6 @@
 ---
 slug: pose-update-dry-run-reports-the-whole-update
-status: draft
+status: in-progress
 created_at: 2026-10-09
 completed_at:
 supersedes:
@@ -10,7 +10,7 @@ components: pose-mcp
 task_type: bugfix
 surface: minimal
 changelog:
-delivers:
+delivers: capability:update-dry-run-reports-the-whole-update
 ---
 
 # Spec: The update dry-run reports the whole update, and a stale instance is visible
@@ -42,12 +42,29 @@ The dry-run writes nothing, as today.
 ### Artifacts
 
 - created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.md
+- created: .pose/starts/pose-update-dry-run-reports-the-whole-update.json
+- created: .pose/changelogs/unreleased/pose-update-dry-run-reports-the-whole-update.md
+- created: pose-mcp/internal/cli/update_dryrun.go
+- created: pose-mcp/internal/cli/update_dryrun_test.go
+- modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/doctor.go
+- modified: pose-mcp/internal/cli/compat_test.go
+- modified: pose-mcp/internal/cli/upgrade_test.go
+- modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
 
-Implementation artifacts are declared when the spec starts.
+### Delivery targets
+
+- capability:update-dry-run-reports-the-whole-update module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ## 5. Decisions
 
-No decision recorded yet; the spec is a draft.
+### Decision D1
+- Date: 2026-10-10
+- Context: a dry-run that describes the update is a second implementation of it, and the first one drifted.
+- Decision: the dry-run runs the same `cmdUpdate`, without the binary self-update, on a disposable copy of `.pose`, `.agents`, `.claude`, `.codex`, `.github` and the top-level files, then reports the files it would create, modify or remove, the `engine_version` stamp, and the update's own output prefixed `[DRY-RUN]`.
+- Rationale: fidelity by construction; the test compares the dry-run's list with the real update's changes on the same fixture.
+- Consequences: an update step that reads source directories outside the copy (module discovery for absent seeds) sees none in the dry-run.
 
 ## 6. Validation
 
@@ -55,16 +72,24 @@ No decision recorded yet; the spec is a draft.
 
 A fixture instance stamped 6.1.0: the dry-run output lists the merges, stamp and requests the real update then performs (compared line by line), and `doctor` warns before the update and not after. The test must fail on the current engine first.
 
+### Execution log
+
+2026-10-10: on storageclose (stamped 7.1.0), the dry-run reported the machinery merges, `would modify: .pose/state/machinery-manifest.json` and `would stamp engine_version: 7.1.0 -> 7.3.0-dev`, and left the working tree unchanged. The real update's "instance already at schema v1. Nothing to do." line, printed after merging machinery, now says the manuals and machinery are current for the engine.
+
 ### Requirement trace
+
+- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
+- R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
+- R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: opened on 2026-10-09 from the POSE 7.1.0 adoption in Harne8, pose-dist, audio-relay and storageclose.
+`pose update --dry-run` runs the update on a disposable copy and lists what it would change and stamp; `doctor` and `check` warn while the instance was last updated by an older engine.
 
 ### Residual risks
 
-None yet.
+- Module discovery for absent seeds reads source directories the dry-run copy does not include.
 
 ### Follow-ups

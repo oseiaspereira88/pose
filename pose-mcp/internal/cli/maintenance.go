@@ -115,25 +115,20 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 	}
 
 	if dry {
+		out := render(stdout, stderr)
 		if current < nativeSchemaVersion {
-			fmt.Fprintf(stdout, text("[INFO] schema update: v%d -> v%d\n", "[INFO] atualização de schema: v%d -> v%d\n"), current, nativeSchemaVersion)
-			fmt.Fprintln(stdout, text("[DRY-RUN] would apply: 001-baseline", "[DRY-RUN] aplicaria: 001-baseline"))
-		} else {
-			fmt.Fprintf(stdout, text("[INFO] instance already at schema v%d.\n", "[INFO] instância já está no schema v%d.\n"), current)
+			out.ContractLine(fmt.Sprintf(text("[INFO] schema update: v%d -> v%d", "[INFO] atualização de schema: v%d -> v%d"), current, nativeSchemaVersion))
+			out.ContractLine(text("[DRY-RUN] would apply: 001-baseline", "[DRY-RUN] aplicaria: 001-baseline"))
 		}
 		if raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "review.json")); err == nil {
 			var p map[string]any
 			if err := json.Unmarshal(raw, &p); err == nil {
 				if sv, _ := p["schema_version"].(float64); int(sv) == 1 {
-					fmt.Fprintln(stdout, text("[DRY-RUN] would migrate review policy: .pose/policy/review.json (schema v1 -> v2)", "[DRY-RUN] migraria política de review: .pose/policy/review.json (schema v1 -> v2)"))
+					out.ContractLine(text("[DRY-RUN] would migrate review policy: .pose/policy/review.json (schema v1 -> v2)", "[DRY-RUN] migraria política de review: .pose/policy/review.json (schema v1 -> v2)"))
 				}
 			}
 		}
-		if force {
-			fmt.Fprintln(stdout, text("[DRY-RUN] would refresh scaffolds and rules (--force)", "[DRY-RUN] atualizaria scaffolds e regras (--force)"))
-		}
-		fmt.Fprintln(stdout, text("Result: DRY-RUN — no changes applied.", "Resultado: DRY-RUN — nenhuma alteração aplicada."))
-		return 0
+		return dryRunUpdate(root, args, stdout, stderr, text)
 	}
 
 	// instanceDirs (init.go) is the same canonical directory contract
@@ -236,7 +231,7 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	if current == nativeSchemaVersion && !force {
 		if len(pending) == 0 {
-			fmt.Fprintf(stdout, text("[INFO] instance already at schema v%d. Nothing to do.\n", "[INFO] instância já está no schema v%d. Nada a fazer.\n"), current)
+			fmt.Fprintf(stdout, text("[INFO] instance at schema v%d; manuals and machinery are current for engine %s.\n", "[INFO] instância no schema v%d; manuais e maquinário em dia para o motor %s.\n"), current, version.ReleaseBase())
 		}
 		return 0
 	}

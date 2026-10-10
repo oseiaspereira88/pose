@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/version"
 	"io"
 	"os"
 	"os/exec"
@@ -147,6 +148,9 @@ func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, lo
 	appendReleasePolicyChecks(checker)
 	checker.checkReadyTransitions()
 	checker.checkCapabilities()
+	if stale := staleInstanceEngine(checker.root); stale != "" {
+		checker.issue(cliout.StateWarning, checker.message("instance: last updated by POSE "+stale+", older than this engine "+version.ReleaseBase()+"; run pose update", "instância: atualizada pela última vez pelo POSE "+stale+", mais antigo que este motor "+version.ReleaseBase()+"; rode pose update"))
+	}
 	checker.checkDocs()
 	checker.checkCommandReference()
 	out.RecordCount("errors", checker.errors)

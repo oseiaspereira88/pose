@@ -187,7 +187,7 @@ func TestUpgradeApplyIsIdempotentAndPreservesInstanceContent(t *testing.T) {
 		if code := Main([]string{"update"}, &out, &errB); code != 0 {
 			t.Fatalf("reapply exit=%d out=%s err=%s", code, out.String(), errB.String())
 		}
-		if !strings.Contains(out.String(), "already at schema v1") {
+		if !strings.Contains(out.String(), "manuals and machinery are current") {
 			t.Errorf("reapply did not report a no-op: %s", out.String())
 		}
 	})

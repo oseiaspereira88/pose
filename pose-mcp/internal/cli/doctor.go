@@ -321,6 +321,11 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	} else {
 		add("project.identity", "ok", fmt.Sprintf(text("project %s declared in .pose/project.json", "projeto %s declarado em .pose/project.json"), declared), "")
 	}
+	// An instance last updated by an older engine reads current everywhere else;
+	// only its stamp says otherwise (spec pose-update-dry-run-reports-the-whole-update).
+	if stale := staleInstanceEngine(root); stale != "" {
+		add("instance.engine", "warn", fmt.Sprintf(text("the instance was last updated by POSE %s and this engine is %s", "a instância foi atualizada pela última vez pelo POSE %s e este motor é %s"), stale, version.ReleaseBase()), text("run 'pose update' (preview with 'pose update --dry-run')", "rode 'pose update' (prévia com 'pose update --dry-run')"))
+	}
 	// 6. MCP uses the same native binary directly.
 	if b, err := os.ReadFile(filepath.Join(root, ".mcp.json")); err != nil {
 		add("mcp.config", "warn", text("static .mcp.json configuration not found", "configuração estática .mcp.json ausente"), text("run 'pose install', then restart/reconnect the client and call pose_mcp_context", "rode 'pose install', reinicie/reconecte o cliente e chame pose_mcp_context"))
