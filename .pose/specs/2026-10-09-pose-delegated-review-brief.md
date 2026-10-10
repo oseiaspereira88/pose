@@ -1,6 +1,6 @@
 ---
 slug: pose-delegated-review-brief
-status: draft
+status: in-progress
 created_at: 2026-10-09
 completed_at:
 supersedes:
@@ -9,7 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: feature
 changelog:
-delivers:
+delivers: capability:delegated-review-brief
 ---
 
 # Spec: Review brief generated from the sealed bundle
@@ -50,14 +50,23 @@ A brief renderer in `pose-mcp/internal/pose` over `ReviewBundle`, a versioned te
 ### Artifacts
 
 - created: .pose/specs/2026-10-09-pose-delegated-review-brief.md
+- created: .pose/starts/pose-delegated-review-brief.json
+- created: .pose/changelogs/unreleased/pose-delegated-review-brief.md
+- created: pose-mcp/internal/pose/review_brief.go
+- created: pose-mcp/internal/pose/review_brief_test.go
+- created: pose-mcp/internal/cli/review_brief.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/help_catalog.go
 
-Implementation artifacts are declared when the spec starts.
+### Delivery targets
+
+- capability:delegated-review-brief module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ## 4. Tasks
 
-- [ ] Brief renderer and template
-- [ ] `pose review brief` with `--note-file` and `--json`
-- [ ] Determinism and staleness tests
+- [x] Brief renderer and template
+- [x] `pose review brief` with `--note-file` and `--json`
+- [x] Determinism and staleness tests
 
 ## 5. Decisions
 
@@ -69,16 +78,27 @@ The contract is ADR `2026-10-09-delegated-review-is-an-adapter`, accepted on 202
 
 Golden test: the same bundle renders identical bytes; a fixture with a seeded defect is reviewed from the brief alone in the adoption milestone's journey.
 
+### Execution log
+
+2026-10-10: `pose review brief spec:pose-v7-3-0-version-alignment` renders the scope, the range bb938fc6..42ee510e with its seven attributed paths, every planned criterion with its kind and evidence classes, the plan's tools and the sealed evidence, from `rvb-b0ae3428882f27f6` alone. The seeded-defect review named in this spec's validation strategy belongs to the capability milestone's journey, where a reviewer run exists.
+
 ### Requirement trace
+
+- R1 [satisfied] capability:delegated-review-brief evidence:unit test:TestReviewBriefIsRenderedFromTheBundleDeterministically
+- R2 [satisfied] capability:delegated-review-brief evidence:unit test:TestReviewBriefIsRenderedFromTheBundleDeterministically
+- R3 [satisfied] capability:delegated-review-brief evidence:unit test:TestReviewBriefLabelsImplementerNotes
+- R4 [satisfied] capability:delegated-review-brief evidence:unit test:TestReviewBriefIsRenderedFromTheBundleDeterministically
+- R5 [satisfied] capability:delegated-review-brief evidence:unit test:TestReviewBriefRefusesStaleBundlesAndHasThreeKinds
+- R6 [satisfied] capability:delegated-review-brief evidence:unit test:TestReviewBriefRefusesStaleBundlesAndHasThreeKinds
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: part of roadmap `delegated-review`, opened on 2026-10-09.
+`pose review brief` renders the request a delegated reviewer receives from the sealed bundle, in three kinds, with fixed boundaries and implementer notes fenced in a labelled section.
 
 ### Residual risks
 
-None yet.
+- The brief does not inline the diff or the spec text: the reviewer reads them from the repository at the named range, which the dispatch milestone gives it as a disposable worktree.
 
 ### Follow-ups
