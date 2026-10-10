@@ -3374,12 +3374,16 @@ func (s Store) verifiedAuthorityBlockers(bundle ReviewBundle, att ReviewAttestat
 	// was moot, since nothing was verified either way. Under `verified` it was a
 	// hole, because there the engine does claim to have checked separation
 	// (spec pose-abm-review-authority).
+	//
+	// The lowest value asks for a separate execution, not for the same actor:
+	// a review by another principal, in another run, is more separation, and
+	// refusing it made the floor stricter than `different-actor` for exactly
+	// the delegated reviews the roadmap delegated-review makes standard
+	// (spec pose-same-actor-level-admits-a-different-actor).
 	switch bundle.Payload.Plan.Independence {
 	case "same-actor-separate-execution":
 		if claim.ImplementationPrincipal == "" || claim.ImplementationExecution == "" {
 			blockers = append(blockers, "review policy requires the implementation principal and execution in the authority claim")
-		} else if claim.Principal != claim.ImplementationPrincipal {
-			blockers = append(blockers, "review policy requires the same actor and the authority claim names different principals")
 		} else if claim.ReviewExecution == claim.ImplementationExecution {
 			blockers = append(blockers, "review policy requires a separate execution and the claim names the implementation's own run")
 		}

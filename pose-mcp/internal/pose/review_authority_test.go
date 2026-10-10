@@ -391,3 +391,22 @@ func TestABMReviewAuthorityRejectsUnsupportedClaimSchema(t *testing.T) {
 		t.Fatalf("unsupported claim schema accepted or misdiagnosed: %+v", verification)
 	}
 }
+
+// Spec pose-same-actor-level-admits-a-different-actor: the lowest
+// independence asks for a separate execution; another principal in another
+// run satisfies it, and the implementation's own run still does not.
+func TestSameActorLevelAdmitsADifferentActor(t *testing.T) {
+	f := verifiedAuthorityFixture(t, "same-actor-separate-execution")
+	other := f.attestation(t, "agent:reviewer", "agent:implementer", "review-run-2", "implementation-run-1")
+	if blockers := f.store.validateBundleAttestation(f.bundle, other); len(blockers) != 0 {
+		t.Fatalf("another actor in another run was refused at the lowest level: %v", blockers)
+	}
+	same := f.attestation(t, "agent:reviewer", "agent:reviewer", "review-run-2", "implementation-run-1")
+	if blockers := f.store.validateBundleAttestation(f.bundle, same); len(blockers) != 0 {
+		t.Fatalf("the same actor in a separate run was refused: %v", blockers)
+	}
+	ownRun := f.attestation(t, "agent:reviewer", "agent:implementer", "run-1", "run-1")
+	if blockers := f.store.validateBundleAttestation(f.bundle, ownRun); !containsSubstring(blockers, "separate execution") {
+		t.Fatalf("the implementation's own run was accepted: %v", blockers)
+	}
+}
