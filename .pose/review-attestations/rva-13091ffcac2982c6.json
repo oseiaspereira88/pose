@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-13091ffcac2982c6",
+  "bundle_id": "rvb-85fcd83cf6968da4",
+  "bundle_digest": "sha256:85fcd83cf6968da4165ec11cb5e6b0748e161691af6c23e6bb63f8ae695cf569",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All six remaining fragments belong to done specs; two are added and none breaking, supporting minor version 7.4.0. The 7.3.0 checksum matches verified-evidence.json and all prior pins are unchanged. Publication is outside scope."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed at the sealed HEAD, including full Go tests and release contract integration; this diff changes version metadata only."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed at the sealed HEAD, including full Go tests and release contract integration; this diff changes version metadata only."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed at the sealed HEAD, including full Go tests and release contract integration; this diff changes version metadata only."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed at the sealed HEAD, including full Go tests and release contract integration; this diff changes version metadata only."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed at the sealed HEAD, including full Go tests and release contract integration; this diff changes version metadata only."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "POSE_PREVIOUS_RELEASE=7.3.0 bash tests/release/compat.sh v7.4.0 returned COMPATIBLE: 16/16 authenticated populated-instance upgrades plus all contract gates and installer E2E, preserving customizations and idempotent reapply. Registry transport and CLI/file/MCP behavior remain unchanged."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed at the sealed HEAD, including full Go tests and release contract integration; this diff changes version metadata only."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed at the sealed HEAD, including full Go tests and release contract integration; this diff changes version metadata only."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-9108231ac1dc9766",
+      "rationale": "R1 directly requires both version fields in server.json to become 7.4.0. The observed SD-573aad5a is precisely this metadata alignment, not a new MCP contract. R2 adds the authenticated 7.3.0 entry while retaining every existing pin; R3 was exercised against the candidate tree.",
+      "mappings": [
+        {
+          "delta": "SD-573aad5a",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "Registry version_detail.version and packages.version must agree with CLI and matrix at 7.4.0; only the version values change."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Both README locales have 7.4.0 in POSIX and PowerShell; CI guide pins v7.4.0. public-claims --strict passed 18 surfaces with zero errors. All six fragments reference done specs. The dry-run fragment was withdrawn in 4edcb4b4; its spec remains in-progress."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "CLI retains its -dev suffix for development; the release compatibility gate builds a stamped 7.4.0 candidate and proves upgrades, strict checks, preservation and idempotence. No runtime error, logging, deployment or rollback path changed."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "All 131 registered checks passed at the sealed HEAD, including full Go tests and release contract integration; this diff changes version metadata only."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Reviewed the full 916df895 diff and 4edcb4b4 withdrawal. Strict artifact-check: claims=8 observed=8, cs-0f03119c1aad. Only this spec is approved for closure. The independent- prefix is a declaration required by the engine and authorized by the maintainer; this review is by another vendor, OpenAI, of Anthropic implementer agent:claude-opus-5-5. Reviewer: agent:independent-gpt-6.1-sol-review."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Inspected changed diff for secrets: none. All old authentication pins are preserved and the new pin matches verified evidence; compatibility gate authenticates downloads before execution. No dependencies, authorization, input handling or TLS behavior changed. Applied security, documentation-style, backend-go and delivery-evidence rules."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Version literals plus one authenticated prior-upgrade entry are the smallest sufficient change. There is no speculative extension or refactor. A stale public surface, changed old pin or failed upgrade would invalidate approval; public-claims and all 16 upgrade checks passed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Ran strict artifact-check: 8 claims, 8 observed, exit 0. Historical orphan warnings are outside scope."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-9108231ac1dc9766",
+      "rationale": "Ran assess design and reviewed the immutable subject: registry version delta only."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Ran discover --if-stale --update-state, refreshing all registered components."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Ran discover --if-stale --update-state, refreshing all registered components."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "scripts is an unchanged release entrypoint, not a discovered module; global discovery refreshed all three registered components."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Ran integrate; 64 observations and 63 unobserved consumers match the prior committed assessment except timestamp and baseline. No tool contract changed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Ran tech-debt: zero uncovered markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Ran component-specific suggest review; selected effective security, documentation-style and backend-go rules."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Ran component-specific suggest review; selected effective security, documentation-style and backend-go rules."
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Ran component-specific suggest review; selected effective security, documentation-style and backend-go rules."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Ran repository validate --tolerant with canonical json-out: 131/131 pass, including full affected-module checks; no failure exception."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The matrix declares no checks for this component; this scope maps only documentation literals or an unchanged entrypoint. Candidate release contract and installer gates were executed separately."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Ran repository validate --tolerant with canonical json-out: 131/131 pass, including full affected-module checks; no failure exception."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "The matrix declares no checks for this component; this scope maps only documentation literals or an unchanged entrypoint. Candidate release contract and installer gates were executed separately."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/release-version-source-integration",
+    "structure:design-9108231ac1dc9766",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-10T14:48:24Z",
+  "path": ".pose/review-attestations/rva-13091ffcac2982c6.json"
+}

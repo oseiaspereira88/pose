@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-10T13:55:14Z
-baseline_commit: 73cda152d2fa54ad6460ebc89c463f7f3fd1d9b7
+generated_at: 2026-10-10T14:49:28Z
+baseline_commit: 916df895a48a3cbeb4d58874b7411bd9a6d56767
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:a4748f8e2a0d -->
+<!-- state:derived hash:cb03722bcd2a -->
 
-- specs: total=379 draft=4 in-progress=1 blocked=0 done=373 superseded=0 abandoned=1
+- specs: total=380 draft=4 in-progress=1 blocked=0 done=374 superseded=0 abandoned=1
 - roadmaps: total=18 active=1 done=11
 - últimos closeouts:
   - spec:pose-configuration-review-7-1-0 (2026-10-10)
   - spec:pose-same-actor-level-admits-a-different-actor (2026-10-10)
   - spec:pose-delegated-review-dispatch (2026-10-10)
+  - spec:pose-v7-4-0-version-alignment (2026-10-10)
   - spec:pose-v7-3-0-version-alignment (2026-10-10)
-  - spec:pose-release-prepare-guards-claimed-fragments (2026-10-10)
-  - ... e mais 368 (ver `pose_list_specs status:done`)
+  - ... e mais 369 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:858c9edfc075 -->
+<!-- state:derived hash:1b4afebc744f -->
 
-- abertos: 107
-- por criticidade: high=4 medium=22 low=62 sem-classificação=19
+- abertos: 108
+- por criticidade: high=4 medium=22 low=63 sem-classificação=19
 - vencidos (review < hoje): 11
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
@@ -75,10 +75,10 @@ capacidade.
 - knowledge: total=7 ativo=7 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:1f3ab94aa826 -->
+<!-- state:derived hash:ddba31d7c732 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-02T11:43:40Z)
-- últimos 30 dias: total=122 outcome_ok=100 outcome_outro=22
+- últimos 30 dias: total=120 outcome_ok=98 outcome_outro=22
 - reports revisados (.md): total=166
   - report:2026-10-pose-open-backlog-reconciliation.md
   - report:pose-agency-readiness-pilot.md
@@ -87,10 +87,10 @@ capacidade.
   - report:pose-v7-legacy-cleanup-plan.md
 
 ## Arquitetura
-<!-- state:derived hash:7b042b1a4cdc status:active -->
+<!-- state:derived hash:b5c8c2463dc2 status:active -->
 
 - componentes: total=3 verificados=3 completude=100.0%
-- linhas_de_codigo: producao=70144 testes=54867 total=125011
+- linhas_de_codigo: producao=70319 testes=55100 total=125419
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63

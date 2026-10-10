@@ -1,8 +1,8 @@
 ---
 slug: pose-v7-4-0-version-alignment
-status: in-progress
+status: done
 created_at: 2026-10-10
-completed_at:
+completed_at: 2026-10-10
 priority: 0
 components: pose-mcp
 task_type: feature
@@ -72,6 +72,10 @@ Minor version 7.4.0: the unreleased fragments add or fix behaviour and none is b
 2026-10-10: the 7.3.0 pin is `8d550cb64b9bd15d99a4edfb588475407cc2875f46b943432a8182b8b2749d68`, the `checksums.txt` digest in `.pose/releases/v7.3.0/verified-evidence.json`. `public-claims --strict` passed. The compatibility gate passed every contract check, the installer E2E and all 16 authenticated upgrades (0.18.2 through 7.3.0 → 7.4.0): COMPATIBLE.
 
 ### Requirement trace
+
+Independent review on 2026-10-10 by `agent:independent-gpt-6.1-sol-review` (OpenAI, a different vendor from implementer `agent:claude-opus-5-5`): inspected commit 916df895 and withdrawal 4edcb4b4. `POSE_PREVIOUS_RELEASE=7.3.0 bash tests/release/compat.sh v7.4.0` returned COMPATIBLE, 16/16 authenticated populated-instance upgrades, all contract gates and installer E2E passed. `pose public-claims --strict` passed (18 surfaces, zero errors). `pose validate --tolerant --json-out .pose/results/delivery-validation.json` passed all 131 checks at HEAD 916df895. Every prior upgrade pin is unchanged; the 7.3.0 pin matches verified evidence. All six unreleased fragments reference done specs; the dry-run spec remains in-progress without a fragment.
+
+Rules applied: `.pose/workflows/review.md`, `.pose/rules/security.md` (diff contains no secrets; checksum authentication retained), `.pose/rules/backend-go.md` (version constant only, no concurrency or handler change), `.pose/rules/documentation-style.md` (both locales and shell variants aligned), `.pose/rules/delivery-evidence.md` (current candidate checks). No knowledge artifact or application API is changed. `pose assess design` observed only the registry version metadata as a public-contract delta; `pose assess tech-debt` found zero uncovered markers. Integration assessment observations are unchanged apart from timestamp and baseline commit. Recurrence check has zero flagged keys; its historical validate-native flapping signal is unrelated to this version-only scope and the current validation is green.
 
 - R1 [satisfied] governance:pose-v7-4-0-version-alignment evidence:unit check:public-claims
 - R2 [satisfied] governance:pose-v7-4-0-version-alignment report:.pose/releases/v7.3.0/verified-evidence.json
