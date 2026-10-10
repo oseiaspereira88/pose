@@ -37,7 +37,7 @@ func dryRunUpdate(root string, args []string, stdout, stderr io.Writer, text fun
 		r.Failure("pose update: " + err.Error())
 		return 1
 	}
-	defer os.RemoveAll(tmp)
+	defer removeDryRunCopy(tmp)
 	shadow := filepath.Join(tmp, filepath.Base(root))
 	if err := os.MkdirAll(shadow, 0o755); err != nil {
 		r.Failure("pose update: " + err.Error())
@@ -165,7 +165,39 @@ func snapshotForDryRun(root, shadow string) (map[string]string, error) {
 			return nil, err
 		}
 	}
+	if info, err := os.Stat(root); err == nil {
+		c.dirModes = append(c.dirModes, dirMode{shadow, info.Mode().Perm()})
+	}
+	c.applyDirModes()
 	return hashTree(shadow, true)
+}
+
+// dirMode is a copied directory and the permissions of its original. They are
+// applied after the copy, deepest first, since a read-only directory cannot
+// receive the files copied into it; a read-only .pose made the update fail
+// while the dry-run, on 0755 copies, said it would change nothing (found in
+// review).
+type dirMode struct {
+	path string
+	mode fs.FileMode
+}
+
+func (c *dryRunCopier) applyDirModes() {
+	for i := len(c.dirModes) - 1; i >= 0; i-- {
+		_ = os.Chmod(c.dirModes[i].path, c.dirModes[i].mode)
+	}
+}
+
+// removeDryRunCopy makes every directory of the copy writable again, so the
+// read-only ones it reproduced can be removed.
+func removeDryRunCopy(tmp string) {
+	_ = filepath.WalkDir(tmp, func(path string, d fs.DirEntry, err error) error {
+		if err == nil && d.IsDir() {
+			_ = os.Chmod(path, 0o700)
+		}
+		return nil
+	})
+	_ = os.RemoveAll(tmp)
 }
 
 // dryRunCopier copies an instance into the shadow keeping its symlinks as
@@ -179,6 +211,7 @@ type dryRunCopier struct {
 	root, rootReal, shadow, outside string
 	copied                          map[string]string
 	n                               int
+	dirModes                        []dirMode
 }
 
 func newDryRunCopier(root, shadow string) (*dryRunCopier, error) {
@@ -207,6 +240,9 @@ func (c *dryRunCopier) copy(src, dst string) error {
 		rel, _ := filepath.Rel(src, path)
 		target := filepath.Join(dst, rel)
 		if d.IsDir() {
+			if info, err := d.Info(); err == nil {
+				c.dirModes = append(c.dirModes, dirMode{target, info.Mode().Perm()})
+			}
 			return os.MkdirAll(target, 0o755)
 		}
 		// A directory reached both through a link and by its own path is

@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
 )
 
 // Spec pose-update-dry-run-reports-the-whole-update: on an instance last
@@ -318,5 +319,30 @@ func TestUpdateDryRunKeepsABrokenTopLevelLink(t *testing.T) {
 	realCode, realOut := runPose(t, repo, "update", "--no-self", "--force")
 	if dryCode != realCode {
 		t.Fatalf("dry-run %d and update %d disagree:\n%s\n---\n%s", dryCode, realCode, dryOut, realOut)
+	}
+}
+
+// A read-only directory stays read-only in the copy: the update fails on it,
+// and the dry-run must say so (found in review).
+func TestUpdateDryRunKeepsDirectoryPermissions(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root ignores directory permissions")
+	}
+	repo := olderInstance(t)
+	pose := filepath.Join(repo, ".pose")
+	if err := os.Chmod(pose, 0o555); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(pose, 0o755) })
+	dryCode, dryOut := runPose(t, repo, "update", "--dry-run")
+	realCode, realOut := runPose(t, repo, "update", "--no-self")
+	if dryCode != realCode || (realCode != 0) != strings.Contains(dryOut, "would fail") {
+		t.Fatalf("dry-run %d and update %d disagree:\n%s\n---\n%s", dryCode, realCode, dryOut, realOut)
+	}
+	leftovers, _ := filepath.Glob(filepath.Join(os.TempDir(), "pose-update-dry-run-*"))
+	for _, dir := range leftovers {
+		if info, err := os.Stat(dir); err == nil && time.Since(info.ModTime()) < time.Minute {
+			t.Fatalf("the dry-run left its copy behind: %s", dir)
+		}
 	}
 }
