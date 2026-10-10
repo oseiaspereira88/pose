@@ -227,6 +227,9 @@ func (c *dryRunCopier) link(src, dst string) error {
 	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
 		return err
 	}
+	if _, err := os.Lstat(dst); err == nil {
+		return nil // recreated already, by a pass that reached it through another link
+	}
 	resolved, err := filepath.EvalSymlinks(src)
 	if err != nil {
 		// A broken link stays broken.
@@ -240,6 +243,13 @@ func (c *dryRunCopier) link(src, dst string) error {
 	if !done {
 		if rel, err := filepath.Rel(c.rootReal, resolved); err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
 			copyAt = filepath.Join(c.shadow, rel)
+			// A link to a directory that contains it (`.pose/self -> .`,
+			// `.agents/up -> ..`) points at a copy being made, or at the
+			// shadow itself: link it, do not copy it into itself (found in
+			// review).
+			if copyAt == c.shadow || strings.HasPrefix(dst, copyAt+string(filepath.Separator)) {
+				return os.Symlink(relativeTo(dst, copyAt), dst)
+			}
 		} else {
 			c.n++
 			copyAt = filepath.Join(c.outside, fmt.Sprint(c.n), filepath.Base(resolved))

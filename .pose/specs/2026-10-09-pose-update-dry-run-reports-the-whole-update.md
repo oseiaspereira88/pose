@@ -86,9 +86,11 @@ A fixture instance stamped 6.1.0: the dry-run output lists the merges, stamp and
 
 2026-10-10, fourth independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): medium severity. The "already copied" shortcut took a directory as copied because its path existed, which a link to one file inside it had created first; with `.pose/policy -> ../config/policy` and an alias to one policy file, the dry-run predicted 31 changes and 12 requests against the update's 9 and 8. The shortcut is gone: a linked directory is always copied, and the copy skips what is already there. `TestUpdateDryRunCopiesADirectoryAfterALinkIntoIt` fails on the previous copy.
 
+2026-10-10, fifth independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): medium severity. A link to a directory that contains it (`.pose/self -> .`, `.agents/up -> ..`) made the copy reach the same link again and fail with "file exists", where the update succeeds; the self case regressed in 5e2579af. Such a link is now linked to the copy of its target without copying the target into itself, and a link already recreated is left alone. `TestUpdateDryRunLinksADirectoryThatContainsTheLink` fails on the previous copy.
+
 ### Requirement trace
 
-- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy test:TestUpdateDryRunMeetsTheLinksTheUpdateMeets test:TestUpdateDryRunCopiesALinkedDirectoryOnce test:TestUpdateDryRunCopiesADirectoryAfterALinkIntoIt
+- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy test:TestUpdateDryRunMeetsTheLinksTheUpdateMeets test:TestUpdateDryRunCopiesALinkedDirectoryOnce test:TestUpdateDryRunCopiesADirectoryAfterALinkIntoIt test:TestUpdateDryRunLinksADirectoryThatContainsTheLink
 - R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 - R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 

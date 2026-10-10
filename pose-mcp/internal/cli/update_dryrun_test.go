@@ -234,3 +234,24 @@ func TestUpdateDryRunCopiesADirectoryAfterALinkIntoIt(t *testing.T) {
 		t.Fatalf("a link into the policy hid the rest of it:\nwant:\n%s\ngot:\n%s", want, got)
 	}
 }
+
+// A link to a directory that contains it is linked, not copied into itself,
+// and the dry-run agrees with the update (found in review).
+func TestUpdateDryRunLinksADirectoryThatContainsTheLink(t *testing.T) {
+	for name, link := range map[string][2]string{"self": {".pose/self", "."}, "parent": {".agents/up", ".."}} {
+		t.Run(name, func(t *testing.T) {
+			repo := olderInstance(t)
+			if err := os.MkdirAll(filepath.Join(repo, filepath.Dir(link[0])), 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Symlink(link[1], filepath.Join(repo, link[0])); err != nil {
+				t.Skipf("symlinks unavailable: %v", err)
+			}
+			dryCode, dryOut := runPose(t, repo, "update", "--dry-run")
+			realCode, realOut := runPose(t, repo, "update", "--no-self")
+			if dryCode != realCode || strings.Contains(dryOut, "preparing the dry-run copy") {
+				t.Fatalf("dry-run %d and update %d disagree:\n%s\n---\n%s", dryCode, realCode, dryOut, realOut)
+			}
+		})
+	}
+}
