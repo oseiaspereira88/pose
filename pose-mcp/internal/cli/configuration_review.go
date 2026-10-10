@@ -445,6 +445,15 @@ func applyReviewAnswer(root string, req reviewRequest, date string) (string, err
 		if _, _, _, _, err := docs.Rendered(posemodel.Store{Root: root}); err != nil {
 			return "", fmt.Errorf("the resulting policy would be refused: %v", err)
 		}
+		effects, err := posemodel.PlanAdoptionEffects(root, req.Capability, "", time.Now())
+		if err != nil {
+			return "", err
+		}
+		for _, effect := range effects {
+			if err := effect.Apply(); err != nil {
+				return "", err
+			}
+		}
 		if err := docs.Write(root, posemodel.Store{Root: root}); err != nil {
 			return "", err
 		}

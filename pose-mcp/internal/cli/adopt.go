@@ -17,10 +17,10 @@ import (
 	"github.com/harne8/pose-mcp/internal/version"
 )
 
-const adoptUsage = "Usage: pose adopt --list [--json] | pose adopt <capability> [--off | --decline --reason <text> | --defer --reason <text>] [--date YYYY-MM-DD] [--apply] | pose adopt --request <act-id> [--apply]"
+const adoptUsage = "Usage: pose adopt --list [--json] | pose adopt <capability> [--off | --decline --reason <text> | --defer --reason <text>] [--date YYYY-MM-DD] [--issuer <name>] [--apply] | pose adopt --request <act-id> [--apply]"
 
 func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
-	id, mode, reason, apply, list, jsonOutput, requestID := "", "on", "", false, false, false, ""
+	id, mode, reason, apply, list, jsonOutput, requestID, issuer := "", "on", "", false, false, false, "", ""
 	date := time.Now().UTC().Format(time.DateOnly)
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -36,7 +36,7 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 			mode = posemodel.AdoptionDeferred
 		case "--apply":
 			apply = true
-		case "--date", "--reason", "--request":
+		case "--date", "--reason", "--request", "--issuer":
 			if i+1 >= len(args) {
 				return usageError(stderr, adoptUsage)
 			}
@@ -45,6 +45,8 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 				date = args[i+1]
 			case "--reason":
 				reason = args[i+1]
+			case "--issuer":
+				issuer = args[i+1]
 			default:
 				requestID = args[i+1]
 			}
@@ -171,6 +173,15 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		changes = entry.Adopt(docs, date)
 	}
+	var effects []posemodel.AdoptionEffect
+	if mode == "on" && len(changes) > 0 {
+		planned, err := posemodel.PlanAdoptionEffects(root, entry.ID, issuer, time.Now())
+		if err != nil {
+			out.Failure("pose adopt: " + strings.TrimPrefix(err.Error(), "pose: "))
+			return 1
+		}
+		effects = planned
+	}
 	if len(changes) == 0 {
 		if mode == "off" {
 			out.Field("adopt.result", entry.ID+" is not adopted; nothing to change")
@@ -182,6 +193,9 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 	for _, change := range changes {
 		out.Field("adopt.change", change)
 	}
+	for _, effect := range effects {
+		out.Field("adopt.change", effect.Description)
+	}
 	// The readers decide, before anything is written: a policy they would
 	// refuse is never left behind.
 	if _, _, _, _, err := docs.Rendered(posemodel.Store{Root: root}); err != nil {
@@ -191,6 +205,12 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 	out.Field("adopt.apply", boolString(apply))
 	if !apply {
 		return 0
+	}
+	for _, effect := range effects {
+		if err := effect.Apply(); err != nil {
+			out.Failure("pose adopt: " + strings.TrimPrefix(err.Error(), "pose: "))
+			return 1
+		}
 	}
 	if err := docs.Write(root, posemodel.Store{Root: root}); err != nil {
 		out.Failure("pose adopt: " + err.Error())

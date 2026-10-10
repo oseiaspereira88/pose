@@ -2952,6 +2952,11 @@ func reviewFindingDecisionBlockers(bundle ReviewBundle, att ReviewAttestation) [
 
 func (s Store) verifyStoredReviewAttestationSignature(att ReviewAttestation) error {
 	if att.Envelope == nil {
+		// Recorded before signing was required, and sealed unchanged into a
+		// trusted legacy ledger (spec pose-signed-legacy-attestation-ledger).
+		if s.legacyLedgerCovers(att) {
+			return nil
+		}
 		return fmt.Errorf("signed attestation proof is required by review policy")
 	}
 	proof := *att.Envelope

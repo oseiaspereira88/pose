@@ -594,6 +594,16 @@ attestations signed before the rotation keep verifying until the old pin is
 removed. `pose issuer list` shows the pinned issuers and the keys on this
 machine.
 
+A project with history adopts signed attestations through the same command.
+Signing stays required for every bundle, old ones included, so `pose adopt
+signed-attestations` also seals the attestations recorded without a signature
+into a ledger under `.pose/review-ledgers/`, signed by the local issuer pinned
+for attestations (`--issuer <name>` when there are several). The ledger names
+each attestation by its full content digest: those, unchanged, keep counting;
+one recorded or changed afterwards does not, and no ledger can be sealed once
+signing is required. The preview shows how many attestations will be sealed
+and by which issuer.
+
 ### Retrospective ABM replay
 
 `pose stats replay --json` scans local historical attestations and the newest sealed subject of each spec without writing project artifacts. It compares frozen contracts with hypothetical explicit judgment and structural causality invariants. Counts retain invalid inputs, unknown structural coverage, unbaselined nodes and denominators. Use `--limit N` (1–20000) to bound work; incomplete reports cannot support an exhaustive adoption claim. A counterfactual does not revoke historical approvals, record a baseline or prove reviewer utility. Experimental judgments remain opt-in.

@@ -1,0 +1,8 @@
+---
+spec: pose-signed-legacy-attestation-ledger
+category: added
+breaking: false
+refs:
+---
+
+A project with history can now adopt signed attestations. `pose adopt signed-attestations` seals the attestations recorded without a signature into a ledger signed by the local issuer pinned for attestations, so they keep counting unchanged while every new or altered one must be signed; the preview shows what will be sealed. `pose issuer init` now suggests pinning a new key for attestations only, since a key any agent of the account can read must not vouch for a person.

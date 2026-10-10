@@ -49,7 +49,10 @@ func cmdIssuerInit(root string, args []string, stdout, stderr io.Writer) int {
 	out.Field("issuer.pin", key.Pin())
 	out.Field("issuer.public_key", key.PublicKey())
 	out.Field("issuer.key_path", key.Path)
-	out.Field("issuer.next", "pose issuer pin "+key.Name+" --attestations --human-authority --apply")
+	// A key any agent of this account can read must not vouch for a person
+	// (spec pose-signed-legacy-attestation-ledger, R6).
+	out.Field("issuer.next", "pose issuer pin "+key.Name+" --attestations --apply")
+	out.Field("issuer.note", "add --human-authority only for a key a person alone controls; agents running as this user can sign with this one")
 	return 0
 }
 

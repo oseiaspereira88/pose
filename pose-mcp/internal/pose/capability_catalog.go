@@ -303,7 +303,19 @@ func catalogEntries() []CatalogEntry {
 			Adopted: func(docs PolicyDocs) bool { return intKeyIs(docs, "spec_authority_transfer_version", 1) },
 		},
 		{
-			ID: "signed-attestations", Summary: "signatures on review attestations", IntroducedIn: "5.0.0", Prerequisite: trustedIssuer,
+			ID: "signed-attestations", Summary: "signatures on review attestations", IntroducedIn: "5.0.0",
+			Prerequisite: func(root string, docs PolicyDocs) string {
+				if missing := trustedIssuer(root, docs); missing != "" {
+					return missing
+				}
+				// Signing stays live for old bundles, so adopting seals the
+				// unsigned history with a local pinned issuer (spec
+				// pose-signed-legacy-attestation-ledger).
+				if blocker := signedHistoryBlocker(root, docs, ""); blocker != "" {
+					return blocker
+				}
+				return ""
+			},
 			Effect: "a review attestation counts only when a trusted issuer signed it",
 			Adopt: func(docs PolicyDocs, _ string) []string {
 				return setBool(docs.Review, "require_signed_attestations", true)
