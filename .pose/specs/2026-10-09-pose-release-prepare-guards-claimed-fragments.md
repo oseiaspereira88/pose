@@ -43,6 +43,7 @@ The v7.1.0 freeze (`2cf8d4b1`) turned CI red on main: `pose-open-backlog-reconci
 - created: pose-mcp/internal/pose/release_claimed_fragments.go
 - modified: pose-mcp/internal/cli/release_lifecycle.go
 - modified: pose-mcp/internal/cli/release_lifecycle_test.go
+- modified: pose-mcp/internal/cli/help_catalog.go
 
 ### Delivery targets
 
@@ -65,6 +66,8 @@ Fixture with one spec claiming another spec's unreleased fragment: plan lists it
 ### Execution log
 
 2026-10-10: on a worktree at 2cf8d4b1^ (pose-dist just before the v7.1.0 freeze), `ForeignFragmentClaims` over the nine unreleased fragments reports exactly three claims: pose-open-backlog-reconciliation claiming the fragments of pose-attention-projects-every-source, pose-range-names-its-other-work and pose-trace-test-refs-resolve — the three CI rejected on main after the freeze.
+
+2026-10-10, independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): low severity. With `--allow-moved-claims` prepare froze without naming the claims, and the help did not show the flag. Prepare now prints `release.allowed.moved-claim=` for each, the test asserts it, and the help lists the flag.
 
 ### Requirement trace
 

@@ -361,7 +361,7 @@ func TestReleasePrepareRefusesFragmentsOtherSpecsClaim(t *testing.T) {
 	}
 	out.Reset()
 	errOut.Reset()
-	if code := cmdReleasePrepare(root, []string{"--version", target, "--apply", "--allow-moved-claims"}, &out, &errOut); code != 0 {
+	if code := cmdReleasePrepare(root, []string{"--version", target, "--apply", "--allow-moved-claims"}, &out, &errOut); code != 0 || !strings.Contains(out.String(), "release.allowed.moved-claim=spec backlog claims") {
 		t.Fatalf("prepare with --allow-moved-claims: %d %s", code, errOut.String())
 	}
 	out.Reset()

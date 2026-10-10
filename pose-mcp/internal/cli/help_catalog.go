@@ -530,7 +530,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		DescriptionPtBR: "Orquestra ciclos imutáveis de release, compilando fragmentos de changelog, gerando notas de release e validando garantias de entrega.",
 		Subcommands: []SubcommandHelp{
 			{"plan", "pose release plan --version vX.Y.Z", "Preview the release cut, eligible specs, and changelog entries", "Visualiza o corte de release, specs elegíveis e itens do changelog"},
-			{"prepare", "pose release prepare --version vX.Y.Z [--apply]", "Freeze selected fragments into canonical release notes and manifest", "Congela fragmentos em notas canônicas de release e manifesto"},
+			{"prepare", "pose release prepare --version vX.Y.Z [--apply] [--allow-moved-claims]", "Freeze selected fragments into canonical release notes and manifest", "Congela fragmentos em notas canônicas de release e manifesto"},
 			{"check", "pose release check --version vX.Y.Z", "Validate release readiness and delivery evidence completeness", "Valida prontidão da release e completude das evidências de entrega"},
 			{"notes", "pose release notes --version vX.Y.Z", "Display the immutable release notes for the specified version", "Exibe as notas imutáveis de release da versão especificada"},
 			{"record", "pose release record --version vX.Y.Z --event tagged|published|verified|failed|yanked --evidence <file>", "Import provider or verification evidence as an append-only release event", "Importa evidência do provedor ou da verificação como evento de release append-only"},

@@ -278,6 +278,13 @@ func cmdReleasePrepare(root string, args []string, stdout, stderr io.Writer) int
 		render(stdout, stderr).Failure("pose release prepare: " + err.Error())
 		return 1
 	}
+	if len(foreign) > 0 && releaseFlag(args, "--allow-moved-claims") {
+		// Allowed, still named: the operator sees what the freeze leaves
+		// pointing at a moved path (found in review).
+		for _, claim := range foreign {
+			render(stdout, stderr).Field("release.allowed.moved-claim", claim)
+		}
+	}
 	if len(foreign) > 0 && !releaseFlag(args, "--allow-moved-claims") {
 		out := render(stdout, stderr)
 		for _, claim := range foreign {
