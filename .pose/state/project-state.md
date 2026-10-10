@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-10T02:30:06Z
-baseline_commit: bcda7536faf3846d47098c3485a7c31dd620b267
+generated_at: 2026-10-10T04:10:18Z
+baseline_commit: 2342abded3e8eaf3e378bdff566798b82aa18d95
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:c8354b173c77 -->
+<!-- state:derived hash:3e3aea0cf28b -->
 
-- specs: total=377 draft=11 in-progress=1 blocked=0 done=365 superseded=0 abandoned=0
+- specs: total=378 draft=10 in-progress=2 blocked=0 done=366 superseded=0 abandoned=0
 - roadmaps: total=18 active=1 done=11
 - últimos closeouts:
   - spec:pose-v7-3-0-version-alignment (2026-10-10)
   - spec:pose-signed-legacy-attestation-ledger (2026-10-10)
+  - spec:pose-configuration-review-7-1-0 (2026-10-10)
+  - spec:pose-trace-test-refs-resolve (2026-10-09)
   - spec:pose-red-signal-clears-only-at-the-head (2026-10-09)
-  - spec:pose-range-names-its-other-work (2026-10-09)
-  - spec:pose-v7-2-0-version-alignment (2026-10-09)
-  - ... e mais 360 (ver `pose_list_specs status:done`)
+  - ... e mais 361 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:858c9edfc075 -->
@@ -75,10 +75,10 @@ capacidade.
 - knowledge: total=7 ativo=7 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:aea29e3ab4e5 -->
+<!-- state:derived hash:6bf4009ad55f -->
 
 - último registro: task=validate-native outcome=pass (2026-10-02T11:43:40Z)
-- últimos 30 dias: total=126 outcome_ok=104 outcome_outro=22
+- últimos 30 dias: total=125 outcome_ok=103 outcome_outro=22
 - reports revisados (.md): total=166
   - report:2026-10-pose-open-backlog-reconciliation.md
   - report:pose-agency-readiness-pilot.md
@@ -87,10 +87,10 @@ capacidade.
   - report:pose-v7-legacy-cleanup-plan.md
 
 ## Arquitetura
-<!-- state:derived hash:6153b56e575c status:active -->
+<!-- state:derived hash:897c0caf7873 status:active -->
 
 - componentes: total=3 verificados=3 completude=100.0%
-- linhas_de_codigo: producao=68440 testes=53845 total=122285
+- linhas_de_codigo: producao=69086 testes=54371 total=123457
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63

@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-2033d6408c511e48",
+  "bundle_id": "rvb-d2e5276f0cc02940",
+  "bundle_digest": "sha256:d2e5276f0cc029400492396b246d9ecfaacbb5de08f8f73a63746e7192adf53f",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-f6ebc4bacac38438",
+      "rationale": "The maintainer answers are facts under declared identity assurance, not authenticated identity. Each matches its request digest and requirement. No unresolved technical premise is needed for this configuration adoption."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/configuration-review-integration",
+      "rationale": "Existing policy readers and 2026-10-09 adoption cutoffs activate the DoR and overlays without rejudging earlier work. No runtime CLI, schema or MCP code changed."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/configuration-review-integration",
+      "rationale": "All 131 validation steps passed, including configuration-review, setup, capability catalog and action-resolution integration. Direct journal and policy inspection confirms all three adopt answers were applied."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-f6ebc4bacac38438",
+      "rationale": "The dated DoR implements R1; the two overlay entries implement R2 and R3. The reviewed-version registry records the capability review without inventing decline or defer decisions. Each structural delta has its own mapping and reason.",
+      "mappings": [
+        {
+          "delta": "SD-e7bb9058",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "Setting DoR adopted_at activates readiness for new specs only, directly applying the R1 maintainer answer."
+        },
+        {
+          "delta": "SD-a7ba54ca",
+          "basis": "R2",
+          "disposition": "mapped",
+          "rationale": "The two overlay profiles and separate dated entries apply the R2 and R3 adopt answers while preserving earlier scopes."
+        },
+        {
+          "delta": "SD-f7d77567",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The reviewed_version registry records the 7.1.0 capability review; its decisions map is empty because every answer was adopt, with no decline or defer to store."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/configuration-review-integration",
+      "rationale": "Rules applied: documentation-style for requirement and policy consistency; security for authority and secret exposure; delivery-evidence for artifact attribution and validation; knowledge-governance for consuming the prior review-provenance note. Stack rules do not apply to this configuration-only diff. All three requirement traces match their journals and policy dates."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/configuration-review-integration",
+      "rationale": "Doctor has no setup.capabilities step; setup has no new capability decision; adopt --list shows all three on. Action journals retain the maintainer choices. Unmapped governance-path and unrelated repository warnings do not hide an unresolved requirement in this scope."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/configuration-review-integration",
+      "rationale": "R1 is answered adopt in act-8baf0b912e8f8404 and applied in dor.json; R2 in act-2299f4cbbb16aa92 and engineering-judgment@1; R3 in act-2af5a58184fbd577 and high-criticality-review@1. Dates are 2026-10-09. No decline/defer rationale is recorded or required for these adopt choices."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/configuration-review-integration",
+      "rationale": "Reviewed the full diff of commit 7eeca305ab35: 8 declared artifacts match 8 observed paths. Only answered capabilities and the instance stamp changed. The maintainer authorized agent:independent-gpt-6.1-sol-review; independent- is the declaration required by the engine, not authenticated separation. This review is by OpenAI Codex, a different vendor from Anthropic implementer agent:claude-opus-5-5."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/configuration-review-integration",
+      "rationale": "No secrets or credentials appear in the eight-path diff. Answers have declared maintainer authority and matching request digests. No policy or answer was changed during review. TestConfigurationReviewAppliesOnlyAnsweredRequests rejects unanswered or foreign requests; adversarial declared-independent-prefix discloses that a reviewer name does not authenticate separation."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-f6ebc4bacac38438",
+      "rationale": "Applying three answered requests through existing dated policy fields is the smallest sufficient solution. No new mechanism or speculative extension was added. Absent, declined or mismatched answers, or inactive policy readers, would invalidate the choice; direct inspection and integration checks rule those conditions out."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact",
+      "rationale": "Executed strict reconciliation: 8 claims equal 8 observed artifacts; repository orphan diagnostics are warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-f6ebc4bacac38438",
+      "rationale": "Executed design assessment and inspected all three governance deltas."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:.pose/assessments/technical-debt.md",
+      "rationale": "Executed native debt assessment: zero markers and zero uncovered items."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate to execute after recording this attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate to execute after recording this attestation."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/configuration-review-integration",
+      "rationale": "Executed the requested tolerant validation: all 131 checks pass, including every required check; no failed check requires a waiver."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/configuration-review-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-10T04:09:16Z",
+  "path": ".pose/review-attestations/rva-2033d6408c511e48.json"
+}
