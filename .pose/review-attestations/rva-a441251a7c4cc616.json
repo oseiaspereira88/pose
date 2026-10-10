@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-a441251a7c4cc616",
+  "bundle_id": "rvb-b7a16826e40a107f",
+  "bundle_digest": "sha256:b7a16826e40a107fd0360b5e586b176293930995437da04290a19e8020dda7b6",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-82c4e655feb010c5",
+      "rationale": "D1 correctly identifies the missing fallback, while D2 corrects its mistaken signing premise: reason is now included in both SSH canonical bytes and issuer canonical claim. TestSignedAnswerCoversItsReason and TestAVerifiedClaimBoundToTheRequestIsAccepted were executed and passed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No new concurrent state or lifecycle ownership; the full Go suite passed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "The optional fields and CLI branches were checked against existing callers; full contract and integration checks passed."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed argument parsing and negative paths; tests exercise rejection and diagnostic behavior."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Production CLI routing and shared store consumers remain connected; integration assessment was executed and registered integration checks passed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Returned errors and rendered fields identify the failed condition without printing private key material."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Empty reasons are omitted to preserve existing signed bytes. Reasoned answers now must sign their reason as R1 requires; CLI statement and signing callers carry it. --reason is additive for adopt --request."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Read all attributed implementation diffs and current paths; the 131 registered checks and focused regression tests passed."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-82c4e655feb010c5",
+      "rationale": "R1 is implemented by optional reason in ActionAnswerStatement and ActionAuthorityClaim plus equality checks at verification; R2 rejects missing reasons and uses the explicit fallback only when the answer has none; R3 reads the persisted decision reason."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "D2 records the prior review defect and corrected premise; the spec trace names existing regression tests, and help exposes the request fallback."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "A declined/deferred request without a reason fails with --reason guidance before writing a decision; an existing answer reason wins over the fallback. Tested refusal, persisted fallback and adopt --list."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Compared each requirement and trace with implementation and executed tests; the registered full Go suite passed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Independent review by OpenAI of implementation by Anthropic agent:claude-opus-5-5. The independent- prefix in agent:independent-gpt-6.1-sol-review is a declaration required by the engine, not cryptographic proof; the maintainer authorized this name. Reviewed only this spec and its attributed changes. Rules applied: backend-go for Go errors and boundaries, security for authority and paths, documentation-style for CLI/spec wording, delivery-evidence for closure; workflow .pose/workflows/review.md. Knowledge-governance was consulted; no knowledge artifact or accepted residual risk was created."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed paths, argument handling, proof boundaries and changed diff for secrets; no dependencies, network authorization or unsafe shell interpolation were introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-82c4e655feb010c5",
+      "rationale": "Adding one omitted-when-empty field to each existing proof is the smallest cohesive fix. No new signer or persistence format was invented; empty-reason signed bytes remain compatible. This choice would fail if a consumer omitted reason from canonicalization."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check",
+      "rationale": "Executed artifact-check --spec pose-adopt-request-keeps-the-reason --strict: passed; declared paths reconcile with attributed commits."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-82c4e655feb010c5",
+      "rationale": "Executed assess design --spec pose-adopt-request-keeps-the-reason --json: observed with no material structural deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "assessment:.pose/assessments/pose-mcp.md",
+      "rationale": "Executed assess discover --if-stale --update-state: refreshed pose-mcp against current committed content; unchanged components reused."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Executed assess integrate: provider-consumer observations inspected; existing unobserved-consumer gaps are advisory and do not affect this CLI delivery."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "assessment:.pose/assessments/technical-debt.md",
+      "rationale": "Executed assess tech-debt: zero uncovered markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate will be executed immediately after attestation and before close."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate will be executed immediately after attestation and before close."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest-review",
+      "rationale": "Executed suggest review --path pose-mcp and read effective plan rules."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed pose validate --tolerant --json-out .pose/results/delivery-validation.json as explicitly instructed by maintainer; all 131 checks passed, including all module checks. No out-of-scope failure exception was needed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed pose validate --tolerant --json-out .pose/results/delivery-validation.json as explicitly instructed by maintainer; all 131 checks passed, including all module checks. No out-of-scope failure exception was needed."
+    }
+  ],
+  "evidence_refs": [
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-gpt-6.1-sol-review",
+    "concluded_by": "agent:independent-gpt-6.1-sol-review",
+    "applied_by": "agent:independent-gpt-6.1-sol-review"
+  },
+  "attested_at": "2026-10-10T08:53:37Z",
+  "path": ".pose/review-attestations/rva-a441251a7c4cc616.json"
+}
