@@ -109,5 +109,8 @@ A fixture instance stamped 6.1.0: the dry-run output lists the merges, stamp and
 ### Residual risks
 
 - Module discovery for absent seeds reads source directories the dry-run copy does not include.
+- Symlink layouts. Eight review rounds each found a rarer layout where the copy and the instance differed; all eight are fixed and tested. On 2026-10-10 the maintainer decided that the ninth round is the last for this spec: a symlink layout not yet covered is a residual risk tracked by the follow-up below, and only a defect outside symlink layouts blocks closing. The copy never points a link outside itself, so an uncovered layout can make the dry-run's prediction wrong, not make it write into the instance or elsewhere.
 
 ### Follow-ups
+
+- [open] Symlink layouts the dry-run copy may still reproduce differently from the instance; a more robust approach is a copy-on-write overlay or a dry-run mode inside the update itself that records instead of writing (owner:@oseiaspereira88 crit:low review:2026-11-10)
