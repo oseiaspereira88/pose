@@ -1,55 +1,228 @@
 {
   "pending": [
     {
-      "spec": "pose-adopt-request-keeps-the-reason",
+      "spec": "pose-review-subject-classifies-engine-records",
       "category": "fixed",
       "breaking": false,
-      "body": "A capability declined or deferred through a configuration-review answer is now recorded only with a reason: the one given in `pose action resolve … --reason`, or `pose adopt --request \u003cid\u003e --reason \u003ctext\u003e`. It used to be recorded as \"answered decline in act-…\", so the reason a project gave was lost. A reason given with a signed answer is now covered by the signature or issuer claim, so it cannot be edited after signing; `pose action statement` takes `--reason`.",
-      "path": "pose-adopt-request-keeps-the-reason.md",
-      "digest": "sha256:f864b601cdcfc4ab1cb4a149ea886117bcc6f9fa8c812b1a9f4bd0eb18ac2fad"
-    },
-    {
-      "spec": "pose-delegated-review-brief",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose review brief \u003cbundle|scope\u003e [--kind review|adjudication|smoke]` renders the request a second agent receives to review, adjudicate or smoke-test a scope, generated from its sealed bundle alone: the change, the criteria and tools the plan owes, the structural facts and the sealed evidence, with fixed boundaries. The implementer no longer writes the reviewer's prompt; notes passed with `--note-file` appear only in a section labelled as the implementer's.",
-      "path": "pose-delegated-review-brief.md",
-      "digest": "sha256:c927ef208224877f849254b1ee10310d7a99799935043b2ba08f1f8184ed14e2"
-    },
-    {
-      "spec": "pose-delegated-review-dispatch",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose review dispatch \u003cbundle|scope\u003e --via \u003cadapter\u003e --apply` hands a sealed review to a configured second agent — Codex, Claude Code or any command declared in `.pose/policy/reviewers.json` — on a disposable worktree at the sealed commit, with the brief on stdin, and records the run under `.pose/review-runs/`. A run that changes files, times out, exceeds its budget or fails is recorded as failed, never as a review, and dispatch never records an attestation.",
-      "path": "pose-delegated-review-dispatch.md",
-      "digest": "sha256:6d8eb6b528651b9dc464db6ad740b1defc4492233c77d911bf1cd79a44292ae9"
-    },
-    {
-      "spec": "pose-release-prepare-guards-claimed-fragments",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`pose release prepare` no longer freezes a release over a changelog fragment that another spec still claims at its unreleased path, which left that claim pointing at a moved file and turned CI red after the v7.1.0 freeze. `release plan` names each such claim, `prepare --apply` refuses unless `--allow-moved-claims`, and `release check` reports it on a prepared tree.",
-      "path": "pose-release-prepare-guards-claimed-fragments.md",
-      "digest": "sha256:b908fe09bdfbf2f675ac01a108a0815e23c5e9ba7a9492957a1b2e0161fbbef0"
-    },
-    {
-      "spec": "pose-same-actor-level-admits-a-different-actor",
-      "category": "fixed",
-      "breaking": false,
-      "body": "Under verified identity, a review policy requiring `same-actor-separate-execution` no longer refuses a signed review by another principal in another execution; only the implementation's own run is refused, consistent with `different-actor` and `mandatory-human` above it.",
-      "path": "pose-same-actor-level-admits-a-different-actor.md",
-      "digest": "sha256:ac77a7f59ae6c71f01539d0429126acf3937b5da5017f48db031aa2354603dd1"
-    },
-    {
-      "spec": "pose-update-seeds-an-answerable-maintainer",
-      "category": "fixed",
-      "breaking": false,
-      "body": "When `pose update` opens configuration-review requests to the maintainer role and nobody holds it, the update now warns and names `pose setup`; answering such a request says that nobody holds the role and how to name its holder, instead of only rejecting the actor.",
-      "path": "pose-update-seeds-an-answerable-maintainer.md",
-      "digest": "sha256:5f39c7678e775837356bae5cbfd611044580f91c362257e9eae492700f1e8358"
+      "body": "`pose review bundle --seal` no longer refuses a scope that carries the signed legacy ledger `pose adopt signed-attestations` writes under `.pose/review-ledgers/`; the ledger is reviewed as governance. Delegated review runs, DORA events, investigation notes, the usage verdict journal, the telemetry switch, a running continuous closeout, the validate log, the distribution's `LICENSE` and `NOTICE` copies and `.pose/schema-version` are classified too, and a test keeps every directory the engine writes under `.pose/` classified.",
+      "path": "pose-review-subject-classifies-engine-records.md",
+      "digest": "sha256:093a8252b81a64e55ce91c0e2b5901a8fabf1206685bce8922c2c3509d4a5b89"
     }
   ],
   "releases": [
+    {
+      "version": "v7.4.0",
+      "state": "verified",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v7.4.0",
+        "previous_version": "v7.3.0",
+        "prepared_at": "2026-10-10T14:51:56Z",
+        "specs": [
+          "pose-adopt-request-keeps-the-reason",
+          "pose-delegated-review-brief",
+          "pose-delegated-review-dispatch",
+          "pose-release-prepare-guards-claimed-fragments",
+          "pose-same-actor-level-admits-a-different-actor",
+          "pose-update-seeds-an-answerable-maintainer"
+        ],
+        "categories": {
+          "added": 2,
+          "fixed": 4
+        },
+        "fragments": [
+          {
+            "spec": "pose-adopt-request-keeps-the-reason",
+            "category": "fixed",
+            "breaking": false,
+            "body": "A capability declined or deferred through a configuration-review answer is now recorded only with a reason: the one given in `pose action resolve … --reason`, or `pose adopt --request \u003cid\u003e --reason \u003ctext\u003e`. It used to be recorded as \"answered decline in act-…\", so the reason a project gave was lost. A reason given with a signed answer is now covered by the signature or issuer claim, so it cannot be edited after signing; `pose action statement` takes `--reason`.",
+            "path": "pose-adopt-request-keeps-the-reason.md",
+            "digest": "sha256:f864b601cdcfc4ab1cb4a149ea886117bcc6f9fa8c812b1a9f4bd0eb18ac2fad"
+          },
+          {
+            "spec": "pose-delegated-review-brief",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose review brief \u003cbundle|scope\u003e [--kind review|adjudication|smoke]` renders the request a second agent receives to review, adjudicate or smoke-test a scope, generated from its sealed bundle alone: the change, the criteria and tools the plan owes, the structural facts and the sealed evidence, with fixed boundaries. The implementer no longer writes the reviewer's prompt; notes passed with `--note-file` appear only in a section labelled as the implementer's.",
+            "path": "pose-delegated-review-brief.md",
+            "digest": "sha256:c927ef208224877f849254b1ee10310d7a99799935043b2ba08f1f8184ed14e2"
+          },
+          {
+            "spec": "pose-delegated-review-dispatch",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose review dispatch \u003cbundle|scope\u003e --via \u003cadapter\u003e --apply` hands a sealed review to a configured second agent — Codex, Claude Code or any command declared in `.pose/policy/reviewers.json` — on a disposable worktree at the sealed commit, with the brief on stdin, and records the run under `.pose/review-runs/`. A run that changes files, times out, exceeds its budget or fails is recorded as failed, never as a review, and dispatch never records an attestation.",
+            "path": "pose-delegated-review-dispatch.md",
+            "digest": "sha256:6d8eb6b528651b9dc464db6ad740b1defc4492233c77d911bf1cd79a44292ae9"
+          },
+          {
+            "spec": "pose-release-prepare-guards-claimed-fragments",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose release prepare` no longer freezes a release over a changelog fragment that another spec still claims at its unreleased path, which left that claim pointing at a moved file and turned CI red after the v7.1.0 freeze. `release plan` names each such claim, `prepare --apply` refuses unless `--allow-moved-claims`, and `release check` reports it on a prepared tree.",
+            "path": "pose-release-prepare-guards-claimed-fragments.md",
+            "digest": "sha256:b908fe09bdfbf2f675ac01a108a0815e23c5e9ba7a9492957a1b2e0161fbbef0"
+          },
+          {
+            "spec": "pose-same-actor-level-admits-a-different-actor",
+            "category": "fixed",
+            "breaking": false,
+            "body": "Under verified identity, a review policy requiring `same-actor-separate-execution` no longer refuses a signed review by another principal in another execution; only the implementation's own run is refused, consistent with `different-actor` and `mandatory-human` above it.",
+            "path": "pose-same-actor-level-admits-a-different-actor.md",
+            "digest": "sha256:ac77a7f59ae6c71f01539d0429126acf3937b5da5017f48db031aa2354603dd1"
+          },
+          {
+            "spec": "pose-update-seeds-an-answerable-maintainer",
+            "category": "fixed",
+            "breaking": false,
+            "body": "When `pose update` opens configuration-review requests to the maintainer role and nobody holds it, the update now warns and names `pose setup`; answering such a request says that nobody holds the role and how to name its holder, instead of only rejecting the actor.",
+            "path": "pose-update-seeds-an-answerable-maintainer.md",
+            "digest": "sha256:5f39c7678e775837356bae5cbfd611044580f91c362257e9eae492700f1e8358"
+          }
+        ],
+        "breaking": false,
+        "notes_digest": "sha256:bd1627a3069e5fa8e88381b3b4a69c2dd86388b5ea9929084e0576b1b37fc9f3",
+        "release_input_digest": "sha256:382f466904d4c967d68ec30a6b450f2954fe4c053e74d1dc066465d12df75e52",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v7.4.0"
+        }
+      },
+      "events": [
+        {
+          "schema_version": 1,
+          "version": "v7.4.0",
+          "state": "tagged",
+          "recorded_at": "2026-10-10T15:49:28Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "git",
+            "repository": "oseiaspereira88/pose",
+            "version": "v7.4.0",
+            "tag": "v7.4.0",
+            "commit": "df1c99ddabc754d6f6a32e832225cfcf2635f66c",
+            "published_at": "2026-10-10T11:53:58-03:00",
+            "url": "https://github.com/oseiaspereira88/pose/tree/v7.4.0"
+          },
+          "evidence_digest": "sha256:c3ab30d632dbf81b1e4a92e1c6a9caa4c3deeff8faf00e6ca5fbfe3d01da267d"
+        },
+        {
+          "schema_version": 1,
+          "version": "v7.4.0",
+          "state": "published",
+          "recorded_at": "2026-10-10T15:49:28Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github",
+            "repository": "oseiaspereira88/pose",
+            "version": "v7.4.0",
+            "tag": "v7.4.0",
+            "commit": "df1c99ddabc754d6f6a32e832225cfcf2635f66c",
+            "published_at": "2026-10-10T15:47:22Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v7.4.0",
+            "workflow_run": "38063981142",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:4b094c4b6412160cf39ff3460b0813cbb47e7f072f88db758cfd1d3d0ed73f73",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:9df240c00e3f36657039c5fbed7f3dc9d3877a126d27a8fd2e92324246f81ffd",
+              "Harne8.Pose.yaml": "sha256:21869ed54399ae4aec629fdd43296b91a1d96e81cc1a626d3ea1dd4a5e54fdb3",
+              "checksums.txt": "sha256:bce6822db971275e7c7d700fa52edecf3905d09278e2d820e5bae24134f7449c",
+              "checksums.txt.sigstore.json": "sha256:a75456e0570e27506faeca20a16d35c68418621daafaea8d4b15d689288fb6fa",
+              "compatibility-report.md": "sha256:fa77adc2a92dfbabb376926e2c66894259ec406539eb0898d67d76450e9f67c9",
+              "compatibility.json": "sha256:1b395a7da1113d2176be425aedfc5f89a3cf49084d910fbd4c613b398127fad0",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:44f1e0f27e1056715e68093b769bc01d787e143dd3816815998a516128e9bb65",
+              "pose-rule-kubernetes.tar.gz": "sha256:32985a1018ff3e25256f1195ad7d3018c4557fdb7d977b5aa6fa604108c87587",
+              "pose.rb": "sha256:c166852e07f92ba8a2c13754da2ac17b9159c9bd8dd1c75340f977b270111649",
+              "pose_7.4.0_darwin_amd64.tar.gz": "sha256:3d298721fc89e8ecc675aae0fc74ea82ced4c568d28e2039a3a50dd6d416c358",
+              "pose_7.4.0_darwin_amd64.tar.gz.cdx.json": "sha256:839e7aae9792f25403921af7acbaa5fbdd933e7590a5520e43db56b1a18ca0df",
+              "pose_7.4.0_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:4179654dbff5762b8d5ca0fdfa970957577488259a03489904f60909a65410ad",
+              "pose_7.4.0_darwin_amd64.tar.gz.sigstore.json": "sha256:c4af33a3e372cde28da1cd4c2d7ec9a901fedd1b9fff6583345bb09701dcb41e",
+              "pose_7.4.0_darwin_arm64.tar.gz": "sha256:1b9702f213bd85dd123ee1007c2a62a4a6af5c3fb7cafb1da7b7adeb5adc1ef9",
+              "pose_7.4.0_darwin_arm64.tar.gz.cdx.json": "sha256:3ab754c8ad171f83d3050ce7b0cbb978c11e9c518ee7e83befaf20b661805828",
+              "pose_7.4.0_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:b39da3563cc0d24b0656dffa36a95ec021777547ac1007a7c3f79dace68bcd93",
+              "pose_7.4.0_darwin_arm64.tar.gz.sigstore.json": "sha256:44d29828f8669335dc15817be1c525e2d4d5ea355161a3829304dc2909de9912",
+              "pose_7.4.0_linux_amd64.tar.gz": "sha256:5a8e5612550db1f5d2f2f4c43a56264ed1adcf0876627094bb6e01545a8c4ccc",
+              "pose_7.4.0_linux_amd64.tar.gz.cdx.json": "sha256:0e9dafbfe513768b7a2975fcc73e7e085cd3471db43f1f1e8d4364fa9948137c",
+              "pose_7.4.0_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:d208ec0981c920fb101ce629e099c5f871f17bb72f52561dd7ac936d04bde445",
+              "pose_7.4.0_linux_amd64.tar.gz.sigstore.json": "sha256:f53917dd551a28d4c7c04d98f9362420c8eea5ab5eb76b10ceb32c21079c440d",
+              "pose_7.4.0_linux_arm64.tar.gz": "sha256:8f6727e3ba720bd56ed7834f4aa6b15f83ca3afd65975a34fba1d680f0349081",
+              "pose_7.4.0_linux_arm64.tar.gz.cdx.json": "sha256:ee9101f49ffeec6c1e39a2d6c76b1a3d97f871b0546308e1792dfa12c11f8c02",
+              "pose_7.4.0_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:c953caf4658397d7dc60c4b3a65b6a3ba4fe1d558a0736c5a40eff8cbc9da427",
+              "pose_7.4.0_linux_arm64.tar.gz.sigstore.json": "sha256:71a311878a401504542b9a682e60b35e67ebcc4af763959029cf6783f2890476",
+              "pose_7.4.0_windows_amd64.zip": "sha256:93a4e1894e4e6b559d5e565b9e0486882a0a95d1797a45ab91130bba31f78e82",
+              "pose_7.4.0_windows_amd64.zip.cdx.json": "sha256:3689057526b04857fdea2ce1c7b56a59c36e3a277aa390bcac1ea32be69294da",
+              "pose_7.4.0_windows_amd64.zip.cdx.json.sigstore.json": "sha256:12926b223ab53633fbb650b556b506c6fd29b5024d527dd6e10bfc23d920b6df",
+              "pose_7.4.0_windows_amd64.zip.sigstore.json": "sha256:949d61ea84797e1d1e44caef7178f2a1fb89f23e753ef63caf33cf1d46bdf563",
+              "pose_7.4.0_windows_arm64.zip": "sha256:894779e98baee0422daa29baee4bd00bec28e3e3312868381fcd6ac1539a2e8b",
+              "pose_7.4.0_windows_arm64.zip.cdx.json": "sha256:d2091444a1f2e7eb100009cbfe2d66024f3429ecfd587a3f12c19a0116519841",
+              "pose_7.4.0_windows_arm64.zip.cdx.json.sigstore.json": "sha256:7128d1261abe2a2fe8807ede92b98c4c94fe11788f720daaa6c838291c5d0fa1",
+              "pose_7.4.0_windows_arm64.zip.sigstore.json": "sha256:56737e3a69b891ac61599b63d0e99f0d97a7820dcd57978226d26d22a7ba3be9",
+              "publication-evidence.json": "sha256:c1b9f9c915e451d5031c93fa7deea436860d29d99c6c2fd071a92d70af06ea05"
+            }
+          },
+          "evidence_digest": "sha256:b46b6f1df646ee759593782421f0229c133d674327a690ab750d6e200cedc932"
+        },
+        {
+          "schema_version": 1,
+          "version": "v7.4.0",
+          "state": "verified",
+          "recorded_at": "2026-10-10T15:49:28Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v7.4.0",
+            "tag": "v7.4.0",
+            "commit": "df1c99ddabc754d6f6a32e832225cfcf2635f66c",
+            "published_at": "2026-10-10T15:48:46Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v7.4.0",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/38065040747",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:4b094c4b6412160cf39ff3460b0813cbb47e7f072f88db758cfd1d3d0ed73f73",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:9df240c00e3f36657039c5fbed7f3dc9d3877a126d27a8fd2e92324246f81ffd",
+              "Harne8.Pose.yaml": "sha256:21869ed54399ae4aec629fdd43296b91a1d96e81cc1a626d3ea1dd4a5e54fdb3",
+              "checksums.txt": "sha256:bce6822db971275e7c7d700fa52edecf3905d09278e2d820e5bae24134f7449c",
+              "checksums.txt.sigstore.json": "sha256:a75456e0570e27506faeca20a16d35c68418621daafaea8d4b15d689288fb6fa",
+              "compatibility-report.md": "sha256:fa77adc2a92dfbabb376926e2c66894259ec406539eb0898d67d76450e9f67c9",
+              "compatibility.json": "sha256:1b395a7da1113d2176be425aedfc5f89a3cf49084d910fbd4c613b398127fad0",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:44f1e0f27e1056715e68093b769bc01d787e143dd3816815998a516128e9bb65",
+              "pose-rule-kubernetes.tar.gz": "sha256:32985a1018ff3e25256f1195ad7d3018c4557fdb7d977b5aa6fa604108c87587",
+              "pose.rb": "sha256:c166852e07f92ba8a2c13754da2ac17b9159c9bd8dd1c75340f977b270111649",
+              "pose_7.4.0_darwin_amd64.tar.gz": "sha256:3d298721fc89e8ecc675aae0fc74ea82ced4c568d28e2039a3a50dd6d416c358",
+              "pose_7.4.0_darwin_amd64.tar.gz.cdx.json": "sha256:839e7aae9792f25403921af7acbaa5fbdd933e7590a5520e43db56b1a18ca0df",
+              "pose_7.4.0_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:4179654dbff5762b8d5ca0fdfa970957577488259a03489904f60909a65410ad",
+              "pose_7.4.0_darwin_amd64.tar.gz.sigstore.json": "sha256:c4af33a3e372cde28da1cd4c2d7ec9a901fedd1b9fff6583345bb09701dcb41e",
+              "pose_7.4.0_darwin_arm64.tar.gz": "sha256:1b9702f213bd85dd123ee1007c2a62a4a6af5c3fb7cafb1da7b7adeb5adc1ef9",
+              "pose_7.4.0_darwin_arm64.tar.gz.cdx.json": "sha256:3ab754c8ad171f83d3050ce7b0cbb978c11e9c518ee7e83befaf20b661805828",
+              "pose_7.4.0_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:b39da3563cc0d24b0656dffa36a95ec021777547ac1007a7c3f79dace68bcd93",
+              "pose_7.4.0_darwin_arm64.tar.gz.sigstore.json": "sha256:44d29828f8669335dc15817be1c525e2d4d5ea355161a3829304dc2909de9912",
+              "pose_7.4.0_linux_amd64.tar.gz": "sha256:5a8e5612550db1f5d2f2f4c43a56264ed1adcf0876627094bb6e01545a8c4ccc",
+              "pose_7.4.0_linux_amd64.tar.gz.cdx.json": "sha256:0e9dafbfe513768b7a2975fcc73e7e085cd3471db43f1f1e8d4364fa9948137c",
+              "pose_7.4.0_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:d208ec0981c920fb101ce629e099c5f871f17bb72f52561dd7ac936d04bde445",
+              "pose_7.4.0_linux_amd64.tar.gz.sigstore.json": "sha256:f53917dd551a28d4c7c04d98f9362420c8eea5ab5eb76b10ceb32c21079c440d",
+              "pose_7.4.0_linux_arm64.tar.gz": "sha256:8f6727e3ba720bd56ed7834f4aa6b15f83ca3afd65975a34fba1d680f0349081",
+              "pose_7.4.0_linux_arm64.tar.gz.cdx.json": "sha256:ee9101f49ffeec6c1e39a2d6c76b1a3d97f871b0546308e1792dfa12c11f8c02",
+              "pose_7.4.0_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:c953caf4658397d7dc60c4b3a65b6a3ba4fe1d558a0736c5a40eff8cbc9da427",
+              "pose_7.4.0_linux_arm64.tar.gz.sigstore.json": "sha256:71a311878a401504542b9a682e60b35e67ebcc4af763959029cf6783f2890476",
+              "pose_7.4.0_windows_amd64.zip": "sha256:93a4e1894e4e6b559d5e565b9e0486882a0a95d1797a45ab91130bba31f78e82",
+              "pose_7.4.0_windows_amd64.zip.cdx.json": "sha256:3689057526b04857fdea2ce1c7b56a59c36e3a277aa390bcac1ea32be69294da",
+              "pose_7.4.0_windows_amd64.zip.cdx.json.sigstore.json": "sha256:12926b223ab53633fbb650b556b506c6fd29b5024d527dd6e10bfc23d920b6df",
+              "pose_7.4.0_windows_amd64.zip.sigstore.json": "sha256:949d61ea84797e1d1e44caef7178f2a1fb89f23e753ef63caf33cf1d46bdf563",
+              "pose_7.4.0_windows_arm64.zip": "sha256:894779e98baee0422daa29baee4bd00bec28e3e3312868381fcd6ac1539a2e8b",
+              "pose_7.4.0_windows_arm64.zip.cdx.json": "sha256:d2091444a1f2e7eb100009cbfe2d66024f3429ecfd587a3f12c19a0116519841",
+              "pose_7.4.0_windows_arm64.zip.cdx.json.sigstore.json": "sha256:7128d1261abe2a2fe8807ede92b98c4c94fe11788f720daaa6c838291c5d0fa1",
+              "pose_7.4.0_windows_arm64.zip.sigstore.json": "sha256:56737e3a69b891ac61599b63d0e99f0d97a7820dcd57978226d26d22a7ba3be9",
+              "publication-evidence.json": "sha256:c1b9f9c915e451d5031c93fa7deea436860d29d99c6c2fd071a92d70af06ea05"
+            },
+            "publication_digest": "sha256:b46b6f1df646ee759593782421f0229c133d674327a690ab750d6e200cedc932"
+          },
+          "evidence_digest": "sha256:4415cd829140aeda20058408c7c03d7ec6a3864079647ce57ebf7627b8e6e8d8"
+        }
+      ],
+      "gaps": []
+    },
     {
       "version": "v7.3.0",
       "state": "verified",

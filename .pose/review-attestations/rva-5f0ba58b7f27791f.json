@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-5f0ba58b7f27791f",
+  "bundle_id": "rvb-f79c8cd3714dbbad",
+  "bundle_digest": "sha256:f79c8cd3714dbbad0f582c865f78282acca12c43dece4df4397ed17cc19e0289",
+  "reviewer": "agent:independent-claude-opus-5-5-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-2b02a1858c4a2cdc",
+      "rationale": "Premise checked, not taken: the ledger directory is written by pose adopt signed-attestations and previously fell through to unclassified; the scan test is meaningful because it requires at least 20 names and the commits record it failing on the previous classifier."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Pure function over a path string; no shared state."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-capabilities-integration",
+      "rationale": "New exported ReviewSubjectPathClass is a read-only wrapper for tests; no CLI, file or MCP contract changes."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Paths are cleaned and slash-normalised before matching, as before; empty and dot paths unchanged."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-capabilities-integration",
+      "rationale": "Only the review bundle classifier consumes the lists; review-bundle-convergence and review-subject-capabilities integration passed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No logging change; an unclassified path is still reported by name in the seal refusal."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-capabilities-integration",
+      "rationale": "Classification only widens: paths that were refused as unclassified now seal; no previously classified path changed class. install-and-upgrade-journeys and review-subject-capabilities integration passed in the sealed run."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Independent probe beyond the scan: every filepath.Join on a pose-dir variable (poseDir and similar) names only schema-version and transfers, both classified; so the literal-pattern blind spot holds no unclassified name today. The .pose/LICENSE and .pose/NOTICE classification (documentation, included) matches the generic rule for license and notice basenames. Minor, non-blocking: the install test discards the WalkDir error, so a missing .pose would pass vacuously; freshInstall always creates it."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-2b02a1858c4a2cdc",
+      "rationale": "assess design: status observed, 6 subject paths, 6 covered, 0 material deltas. D1 now names Basis R1, R2, R3 and the amendment log ends with a baseline acknowledging D1, R1, R2, R3 at their current hashes, the correction from the third review (32a1a449)."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-2b02a1858c4a2cdc",
+      "rationale": "Changelog fragment (fixed, not breaking) describes the user-visible change; rules applied: security, documentation-style, delivery-evidence. Spec execution log records all three earlier reviews."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "pose validate --tolerant at 32a1a449: 131 step(s), 131 pass, Result: SUCCESS, no failing step and no waiver. Residual risk recorded in the spec: a path built neither as a literal nor by install/update escapes both guards."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 by TestLegacyLedgerIsAGovernanceRecord (.pose/review-ledgers/ governance, included); R2 by the switch and prefix lists in review_bundle.go reviewBundlePathClass, each name checked against the spec list; R3 by TestEveryEngineDirectoryUnderPoseIsClassified (walks the whole pose-mcp module, any case, extensions) and TestEveryFileTheEngineWritesUnderPoseIsClassified (fresh install and update). All four tests ran and passed locally and in the sealed run."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-2b02a1858c4a2cdc",
+      "rationale": "The agent: prefix is a declaration the engine requires; this review is another execution of the same vendor and model as the implementer (Claude Opus 5.5), done as a fallback because the other-vendor reviewer (Codex) was unavailable: independence of execution, not of vendor. Reviewed the four commits with POSE-Spec: pose-review-subject-classifies-engine-records (edc003e2, 47d8a834, 9b957f43, 32a1a449): artifact-check --strict gives 7 claims equal 7 observed; nothing outside review_bundle.go, the two tests and the spec records."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-2b02a1858c4a2cdc",
+      "rationale": "Authority records (.pose/review-ledgers/, .pose/usage/, .pose/schema-version) are classified as governance and included in the review subject, never skipped as derived output; only evidence and operational state are derived-evidence. No secret in the diff."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-2b02a1858c4a2cdc",
+      "rationale": "Extending two hand-kept lists plus a source-scan guard and an install/update guard is the smallest change; no classifier redesign."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "structure:design-2b02a1858c4a2cdc",
+      "rationale": "pose artifact-check --spec pose-review-subject-classifies-engine-records --strict exited 0: claims=7, observed=7; orphan warnings belong to other paths."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-2b02a1858c4a2cdc",
+      "rationale": "pose assess design --spec pose-review-subject-classifies-engine-records --json exited 0: status observed, 0 deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "structure:design-2b02a1858c4a2cdc",
+      "rationale": "pose assess discover --if-stale --component pose-mcp exited 0: refreshed (component content changed), 0 TODO, 0 FIXME."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-capabilities-integration",
+      "rationale": "pose assess integrate exited 0; no protocol contract touched by this diff."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "structure:design-2b02a1858c4a2cdc",
+      "rationale": "pose assess tech-debt exited 0: 0 uncovered debt items."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "structure:design-2b02a1858c4a2cdc",
+      "rationale": "pose suggest review --path pose-mcp exited 0: rules security and documentation-style, no spec or ADR required, validation evidence required (provided by the sealed run)."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "pose validate --tolerant at 32a1a449: 131 step(s), 131 pass, Result: SUCCESS, no failing step and no waiver."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "pose validate --tolerant at 32a1a449: 131 step(s), 131 pass, Result: SUCCESS, no failing step and no waiver; pose-mcp test, build and integration checks all pass."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/review-subject-capabilities-integration",
+    "structure:design-2b02a1858c4a2cdc",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-10T18:11:15Z",
+  "path": ".pose/review-attestations/rva-5f0ba58b7f27791f.json"
+}

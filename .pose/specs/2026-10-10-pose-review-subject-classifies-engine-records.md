@@ -1,8 +1,8 @@
 ---
 slug: pose-review-subject-classifies-engine-records
-status: in-progress
+status: done
 created_at: 2026-10-10
-completed_at:
+completed_at: 2026-10-10
 supersedes:
 depends_on:
 priority: 0

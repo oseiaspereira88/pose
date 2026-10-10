@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-10T14:49:28Z
-baseline_commit: 916df895a48a3cbeb4d58874b7411bd9a6d56767
+generated_at: 2026-10-10T18:12:09Z
+baseline_commit: 32a1a44998a74fe5e56428e77c891592b3dc4089
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:cb03722bcd2a -->
+<!-- state:derived hash:b405310894da -->
 
-- specs: total=380 draft=4 in-progress=1 blocked=0 done=374 superseded=0 abandoned=1
+- specs: total=381 draft=4 in-progress=1 blocked=0 done=375 superseded=0 abandoned=1
 - roadmaps: total=18 active=1 done=11
 - últimos closeouts:
   - spec:pose-configuration-review-7-1-0 (2026-10-10)
-  - spec:pose-same-actor-level-admits-a-different-actor (2026-10-10)
+  - spec:pose-review-subject-classifies-engine-records (2026-10-10)
   - spec:pose-delegated-review-dispatch (2026-10-10)
   - spec:pose-v7-4-0-version-alignment (2026-10-10)
   - spec:pose-v7-3-0-version-alignment (2026-10-10)
-  - ... e mais 369 (ver `pose_list_specs status:done`)
+  - ... e mais 370 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:1b4afebc744f -->
@@ -75,10 +75,10 @@ capacidade.
 - knowledge: total=7 ativo=7 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:ddba31d7c732 -->
+<!-- state:derived hash:d1916a92d3de -->
 
 - último registro: task=validate-native outcome=pass (2026-10-02T11:43:40Z)
-- últimos 30 dias: total=120 outcome_ok=98 outcome_outro=22
+- últimos 30 dias: total=117 outcome_ok=95 outcome_outro=22
 - reports revisados (.md): total=166
   - report:2026-10-pose-open-backlog-reconciliation.md
   - report:pose-agency-readiness-pilot.md
