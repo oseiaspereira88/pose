@@ -63,13 +63,13 @@ The journey still runs without a token locally; images stay pinned by digest; no
 
 ### Strategy
 
-Locally, `POSE_JOURNEYS=1 go test ./internal/cli -run TestJourneysInstallAndUpgradeFromThePublishedRelease` passes with and without `GITHUB_TOKEN`; `actionlint` accepts the workflow. In CI, the journey and the image build pass on the pushed commit.
+Locally, `POSE_JOURNEYS=1 go test ./internal/cli -run TestJourneysInstallAndUpgradeFromThePublishedRelease` passes with and without `GITHUB_TOKEN`; `actionlint` accepts the workflow. In CI, run 38021679842 on aa29027d passed the journey (with the workflow token) and the image build (through the mirror). Token-absent behaviour is the local run without `GITHUB_TOKEN`.
 
 ### Requirement trace
 
 - R1 [satisfied] governance:ci-avoids-anonymous-rate-limits check:install-and-upgrade-journeys-integration evidence:integration test:TestJourneysInstallAndUpgradeFromThePublishedRelease
 - R2 [satisfied] governance:ci-avoids-anonymous-rate-limits evidence:manual <ci.yml journey step env GITHUB_TOKEN; actionlint>
-- R3 [satisfied] governance:ci-avoids-anonymous-rate-limits evidence:manual <ci.yml mirror step before "Delivery images build and start"; CI run on the pushed commit>
+- R3 [satisfied] governance:ci-avoids-anonymous-rate-limits evidence:manual <ci.yml mirror step before "Delivery images build and start"; CI run https://github.com/oseiaspereira88/pose/actions/runs/38021679842 on aa29027d: success, the mirror step printed ["https://mirror.gcr.io/"] and the journey and the image build passed>
 
 ## 7. Final Report
 
