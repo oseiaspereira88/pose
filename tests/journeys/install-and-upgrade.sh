@@ -119,7 +119,13 @@ if [ -z "$PREVIOUS" ]; then
     CURRENT="$NEWEST_CAPABILITY"
   fi
   RELEASES="$(mktemp)"
-  curl -fsSL -o "$RELEASES" "https://api.github.com/repos/oseiaspereira88/pose/releases?per_page=50" || fail "listing the published releases"
+  # Anonymous API calls share a per-IP limit that hosted runners exhaust; a
+  # token, when the environment provides one, keeps the listing reliable
+  # (spec pose-ci-avoids-anonymous-rate-limits).
+  AUTH=()
+  TOKEN="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
+  [ -n "$TOKEN" ] && AUTH=(-H "Authorization: Bearer $TOKEN")
+  curl -fsSL "${AUTH[@]}" -o "$RELEASES" "https://api.github.com/repos/oseiaspereira88/pose/releases?per_page=50" || fail "listing the published releases"
   PREVIOUS="$(python3 - "$CURRENT" "$RELEASES" <<'PY'
 import json, re, sys
 current = tuple(int(x) for x in sys.argv[1].split("."))

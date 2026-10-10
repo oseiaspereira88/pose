@@ -64,6 +64,10 @@ jobs:
       # each must read clean and ask before adopting anything
       # (spec pose-install-and-upgrade-journeys).
       - name: Install and upgrade journeys hold (spec pose-install-and-upgrade-journeys)
+        env:
+          # Authenticated release listing: anonymous API calls share the
+          # runner's per-IP limit (spec pose-ci-avoids-anonymous-rate-limits).
+          GITHUB_TOKEN: ${{ github.token }}
         run: bash tests/journeys/install-and-upgrade.sh
       # The launch demo's whole argument is that every conventional check is
       # green and the delivery still cannot close. If the scenario ever goes
@@ -71,6 +75,14 @@ jobs:
       # product (spec pose-launch-proof-demo).
       - name: Launch demo scenario still blocks then closes (spec pose-launch-proof-demo)
         run: bash examples/demo/record.sh --verify
+      - name: Pull Docker Hub images through a mirror
+        # Anonymous Docker Hub pulls hit a per-IP limit on hosted runners (429).
+        # Every base image is pinned by digest, so the mirror serves the same
+        # bytes (spec pose-ci-avoids-anonymous-rate-limits).
+        run: |
+          echo '{"registry-mirrors":["https://mirror.gcr.io"]}' | sudo tee /etc/docker/daemon.json >/dev/null
+          sudo systemctl restart docker
+          docker info --format '{{json .RegistryConfig.Mirrors}}'
       - name: Delivery images build and start
         # pose-mcp/Dockerfile and mcp-enforce/Dockerfile are composed in
         # production by the harne8 monorepo and were built by nothing here, so a
