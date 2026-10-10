@@ -245,10 +245,9 @@ func (c *dryRunCopier) link(src, dst string) error {
 			copyAt = filepath.Join(c.outside, fmt.Sprint(c.n), filepath.Base(resolved))
 		}
 		c.copied[resolved] = copyAt
-		if _, err := os.Lstat(copyAt); err == nil && strings.HasPrefix(copyAt, c.shadow+string(filepath.Separator)) {
-			// Already copied by its own path.
-			return os.Symlink(relativeTo(dst, copyAt), dst)
-		}
+		// A directory is copied even when its path already exists in the
+		// shadow: the path may exist only because a link to one file inside it
+		// was copied first (found in review). copy skips what is already there.
 		info, err := os.Stat(resolved)
 		if err != nil {
 			return nil

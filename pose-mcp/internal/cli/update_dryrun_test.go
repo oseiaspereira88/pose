@@ -206,3 +206,31 @@ func TestUpdateDryRunCopiesALinkedDirectoryOnce(t *testing.T) {
 		t.Fatalf("dry-run %d and update %d disagree:\n%s\n---\n%s", dryCode, realCode, dryOut, realOut)
 	}
 }
+
+// A link to one file inside a directory, copied before a link to the
+// directory itself, does not stop the rest of the directory from being
+// copied (found in review).
+func TestUpdateDryRunCopiesADirectoryAfterALinkIntoIt(t *testing.T) {
+	repo := olderInstance(t)
+	want := dryRunOutput(t, repo)
+	config := filepath.Join(repo, "config")
+	if err := os.MkdirAll(config, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Rename(filepath.Join(repo, ".pose/policy"), filepath.Join(config, "policy")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("../config/policy", filepath.Join(repo, ".pose/policy")); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	entries, _ := os.ReadDir(filepath.Join(config, "policy"))
+	if len(entries) < 2 {
+		t.Fatalf("fixture: the policy has %d file(s)", len(entries))
+	}
+	if err := os.Symlink("../config/policy/"+entries[0].Name(), filepath.Join(repo, ".pose/a-policy-alias")); err != nil {
+		t.Fatal(err)
+	}
+	if got := dryRunOutput(t, repo); got != want {
+		t.Fatalf("a link into the policy hid the rest of it:\nwant:\n%s\ngot:\n%s", want, got)
+	}
+}
