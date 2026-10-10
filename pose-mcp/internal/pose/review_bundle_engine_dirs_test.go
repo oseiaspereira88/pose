@@ -18,8 +18,12 @@ func TestEveryEngineDirectoryUnderPoseIsClassified(t *testing.T) {
 	// Names with an extension count too (.pose/telemetry.json), and every
 	// package of the module is read, not a chosen few (found in review:
 	// internal/usage writes .pose/usage/ and was not scanned).
-	joined := regexp.MustCompile(`"\.pose",\s*"([a-z][a-z0-9.-]*)"`)
-	literal := regexp.MustCompile(`"\.pose/([a-z][a-z0-9.-]*)(?:/|")`)
+	// Upper case and underscores count too (.pose/LICENSE, found in review).
+	joined := regexp.MustCompile(`"\.pose",\s*"([A-Za-z_][A-Za-z0-9_.-]*)"`)
+	literal := regexp.MustCompile(`"\.pose/([A-Za-z_][A-Za-z0-9_.-]*)(?:/|")`)
+	// Names that follow ".pose" in an argument list without being under it:
+	// setup.go passes ".pose", "AGENTS.md", "POSE.md" to git status.
+	notUnderPose := map[string]bool{"AGENTS.md": true, "POSE.md": true}
 	dirs := map[string]string{}
 	err := filepath.WalkDir("../..", func(file string, d os.DirEntry, err error) error {
 		if err == nil && d.IsDir() && d.Name() == "testdata" {
@@ -34,6 +38,9 @@ func TestEveryEngineDirectoryUnderPoseIsClassified(t *testing.T) {
 		}
 		for _, re := range []*regexp.Regexp{joined, literal} {
 			for _, m := range re.FindAllStringSubmatch(string(raw), -1) {
+				if re == joined && notUnderPose[m[1]] {
+					continue
+				}
 				if _, seen := dirs[m[1]]; !seen {
 					dirs[m[1]] = file
 				}

@@ -1068,6 +1068,14 @@ func reviewBundleWorkingTreeChange(root, path string) (bool, string) {
 	return true, " (git status " + status + ")"
 }
 
+// ReviewSubjectPathClass is the review-subject class of a path outside any
+// scope's own files, "" when the path is unclassified and a seal would refuse
+// it. Tests outside this package use it to guard what the engine writes.
+func ReviewSubjectPathClass(path string) string {
+	class, _ := reviewBundlePathClass(path, ScopeRef{Kind: "spec", Slug: "\x00none"}, nil)
+	return class
+}
+
 func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanComponent) (string, bool) {
 	path = filepath.ToSlash(filepath.Clean(path))
 	if path == "." || path == "" {
@@ -1094,6 +1102,10 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	switch path {
 	case ".pose/telemetry.json", ".pose/continuous-closeout.json", ".pose/pose-validate.log":
 		return "derived-evidence", false
+	case ".pose/LICENSE", ".pose/NOTICE":
+		// The distribution's license terms, copied by install; classified
+		// like the repository's own LICENSE and NOTICE (found in review).
+		return "documentation", true
 	}
 	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/review-attribution-supplements/", ".pose/closeout-plans/", ".pose/contributions/", ".pose/feedback/", ".pose/review-runs/", ".pose/events/", ".pose/investigations/"} {
 		if strings.HasPrefix(path, prefix) {

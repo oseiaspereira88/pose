@@ -34,8 +34,8 @@ A path that decides authority is reviewed with its scope; evidence about work is
 ### Functional
 
 - R1: `.pose/review-ledgers/` shall be classified as governance and included in the review subject.
-- R2: `.pose/review-runs/`, `.pose/events/`, `.pose/investigations/`, `.pose/telemetry.json`, `.pose/continuous-closeout.json` and `.pose/pose-validate.log` shall be classified as derived evidence, and `.pose/schema-version` and `.pose/usage/` as governance.
-- R3: A test shall read the names the engine writes under `.pose/`, directories and files with an extension, from every package of its source, and fail when one has no class.
+- R2: `.pose/review-runs/`, `.pose/events/`, `.pose/investigations/`, `.pose/telemetry.json`, `.pose/continuous-closeout.json` and `.pose/pose-validate.log` shall be classified as derived evidence, `.pose/schema-version` and `.pose/usage/` as governance, and `.pose/LICENSE` and `.pose/NOTICE` as documentation, like the repository's own.
+- R3: A test shall read the names the engine writes under `.pose/` from every package of its source, in any case and with any extension, and a second test shall check every file a fresh install and an update leave under `.pose/`; each fails when a name has no class.
 
 ## 3. Technical Plan
 
@@ -45,6 +45,7 @@ A path that decides authority is reviewed with its scope; evidence about work is
 - created: .pose/starts/pose-review-subject-classifies-engine-records.json
 - created: .pose/changelogs/unreleased/pose-review-subject-classifies-engine-records.md
 - modified: pose-mcp/internal/pose/review_bundle.go
+- created: pose-mcp/internal/cli/install_review_subject_test.go
 - created: pose-mcp/internal/pose/review_bundle_engine_dirs_test.go
 - created: .pose/specs/2026-10-10-pose-review-subject-classifies-engine-records.amendments.jsonl
 
@@ -66,6 +67,8 @@ A path that decides authority is reviewed with its scope; evidence about work is
 
 2026-10-10, independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): high and medium. The scan read only three packages, so `.pose/usage/` (the usage verdict journal, written by `internal/usage`) had no class and the seal refused it; and the patterns skipped names with an extension, missing `.pose/telemetry.json`, `.pose/continuous-closeout.json` and `.pose/pose-validate.log`. The scan now walks the whole module and matches extensions; the four names are classified, R2 and R3 amended. The widened scan fails on the previous classifier listing exactly those four.
 
+2026-10-10, second independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): high severity. `.pose/LICENSE` and `.pose/NOTICE`, which install copies, had no class, and the scan's patterns skipped upper-case names. They are classified as documentation; the patterns accept any case and underscores (with `AGENTS.md` and `POSE.md`, which only follow `.pose` in a `git status` argument list, excluded); and because the scan reads string patterns, a second test checks every file a fresh install and an update actually write under `.pose/`. Both tests fail on the previous classifier naming exactly these two files.
+
 ### Strategy
 
 `TestEveryEngineDirectoryUnderPoseIsClassified` and `TestLegacyLedgerIsAGovernanceRecord` fail on the previous classifier (the scan lists events, investigations, review-ledgers, review-runs and schema-version) and pass on the new one.
@@ -74,7 +77,7 @@ A path that decides authority is reviewed with its scope; evidence about work is
 
 - R1 [satisfied] governance:review-subject-classifies-engine-records evidence:unit test:TestLegacyLedgerIsAGovernanceRecord
 - R2 [satisfied] governance:review-subject-classifies-engine-records evidence:unit test:TestEveryEngineDirectoryUnderPoseIsClassified test:TestUsageVerdictJournalIsAGovernanceRecord
-- R3 [satisfied] governance:review-subject-classifies-engine-records evidence:unit test:TestEveryEngineDirectoryUnderPoseIsClassified
+- R3 [satisfied] governance:review-subject-classifies-engine-records evidence:unit test:TestEveryEngineDirectoryUnderPoseIsClassified test:TestEveryFileTheEngineWritesUnderPoseIsClassified
 
 ## 7. Final Report
 
@@ -84,6 +87,6 @@ Every directory and file the engine writes under `.pose/` has a review-subject c
 
 ### Residual risks
 
-- The scan reads string literals; a path built another way escapes it.
+- The scan reads string literals; a path built another way escapes it, unless install or update writes it, which the second test checks. A path only other commands write is covered by the scan alone.
 
 ### Follow-ups
