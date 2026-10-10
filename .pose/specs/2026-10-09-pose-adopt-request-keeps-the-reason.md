@@ -1,6 +1,6 @@
 ---
 slug: pose-adopt-request-keeps-the-reason
-status: draft
+status: in-progress
 created_at: 2026-10-09
 completed_at:
 supersedes:
@@ -10,7 +10,7 @@ components: pose-mcp
 task_type: bugfix
 surface: minimal
 changelog:
-delivers:
+delivers: governance:adopt-request-keeps-the-reason
 ---
 
 # Spec: A declined or deferred configuration answer keeps its reason
@@ -38,12 +38,24 @@ Record why a capability was declined or deferred when the decision arrives as an
 ### Artifacts
 
 - created: .pose/specs/2026-10-09-pose-adopt-request-keeps-the-reason.md
+- created: .pose/starts/pose-adopt-request-keeps-the-reason.json
+- created: .pose/changelogs/unreleased/pose-adopt-request-keeps-the-reason.md
+- modified: pose-mcp/internal/cli/configuration_review.go
+- modified: pose-mcp/internal/cli/configuration_review_test.go
+- modified: pose-mcp/internal/cli/adopt.go
+- modified: pose-mcp/internal/cli/help_catalog.go
 
-Implementation artifacts are declared when the spec starts.
+### Delivery targets
+
+- governance:adopt-request-keeps-the-reason module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
 
 ## 5. Decisions
 
-No decision recorded yet; the spec is a draft.
+### Decision D1
+- Date: 2026-10-10
+- Context: `pose action resolve` already accepts `--reason`, stored in the answer event and read back by `adopt --request`; `adopt --list` already shows a decision's reason. The gap was the fallback: an answer without a reason was recorded as "answered decline in act-…".
+- Decision: refuse to record a decline or deferral without a reason, and let `adopt --request` take `--reason` when the answer has none.
+- Rationale: R1 and R3 already held; the placeholder is what let the reasons of audio-relay and storageclose go unrecorded on 2026-10-09, which the independent closeout review found on 2026-10-10.
 
 ## 6. Validation
 
@@ -53,11 +65,15 @@ Decline through a request with a rationale; `adoption-decisions.json` and `adopt
 
 ### Requirement trace
 
+- R1 [satisfied] governance:adopt-request-keeps-the-reason evidence:integration test:TestConfigurationReviewAppliesOnlyAnsweredRequests
+- R2 [satisfied] governance:adopt-request-keeps-the-reason evidence:integration test:TestDeclinedRequestNeedsAReason
+- R3 [satisfied] governance:adopt-request-keeps-the-reason evidence:integration test:TestDeclinedRequestNeedsAReason
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: opened on 2026-10-09 from the POSE 7.1.0 adoption in Harne8, pose-dist, audio-relay and storageclose.
+A declined or deferred configuration answer is recorded only with a reason: the answer's own, or `adopt --request … --reason`.
 
 ### Residual risks
 

@@ -425,7 +425,7 @@ func requirementNaming(spec, capability string) string {
 }
 
 // applyReviewAnswer applies an answered configuration-review request.
-func applyReviewAnswer(root string, req reviewRequest, date, issuer string) (string, error) {
+func applyReviewAnswer(root string, req reviewRequest, date, issuer, givenReason string) (string, error) {
 	switch req.View.Answer {
 	case reviewAnswerAdopt:
 		docs, err := posemodel.LoadPolicyDocs(root)
@@ -472,8 +472,14 @@ func applyReviewAnswer(root string, req reviewRequest, date, issuer string) (str
 				break
 			}
 		}
+		// A decline or deferral is revisited by its reason, so it is never
+		// recorded without one: the answer's own, else --reason (spec
+		// pose-adopt-request-keeps-the-reason).
 		if reason == "" {
-			reason = "answered " + req.View.Answer + " in " + req.View.Request.ID
+			reason = strings.TrimSpace(givenReason)
+		}
+		if reason == "" {
+			return "", fmt.Errorf("%s was answered %s without a reason; pass --reason <text> (or answer with pose action resolve ... --reason)", req.View.Request.ID, req.View.Answer)
 		}
 		if err := posemodel.RecordAdoptionDecisionFor(root, req.Capability, posemodel.AdoptionDecision{Decision: decision, Reason: reason, Date: date,
 			Request: req.View.Request.ID, Version: engineRelease()}); err != nil {

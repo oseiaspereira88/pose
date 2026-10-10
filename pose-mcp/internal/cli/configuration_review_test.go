@@ -236,3 +236,23 @@ func mustRun(t *testing.T, dir string, name string, args ...string) {
 		t.Fatalf("%s %v: %v %s", name, args, err, out)
 	}
 }
+
+// Spec pose-adopt-request-keeps-the-reason: a decline answered without a
+// reason is not recorded until one is given, and adopt --list shows it.
+func TestDeclinedRequestNeedsAReason(t *testing.T) {
+	repo, requests := reviewedInstance(t)
+	decline := requestFor(t, requests, "criterion-reuse")
+	answerReview(t, repo, decline, "decline", "")
+	if code, out := runPose(t, repo, "adopt", "--request", decline.View.Request.ID, "--apply"); code == 0 || !strings.Contains(out, "--reason") {
+		t.Fatalf("a decline without a reason was recorded: %d %s", code, out)
+	}
+	if states, _ := posemodel.CapabilityStates(repo); stateOf(states, "criterion-reuse") == posemodel.CapabilityDeclined {
+		t.Fatal("a refused apply recorded the decline")
+	}
+	if code, out := runPose(t, repo, "adopt", "--request", decline.View.Request.ID, "--reason", "every bundle is reviewed in full here", "--apply"); code != 0 {
+		t.Fatalf("apply with --reason: %s", out)
+	}
+	if _, out := runPose(t, repo, "adopt", "--list"); !strings.Contains(out, "every bundle is reviewed in full here") {
+		t.Fatalf("adopt --list does not show the reason: %s", out)
+	}
+}
