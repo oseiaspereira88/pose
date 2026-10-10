@@ -109,6 +109,11 @@ func authorizeActionActor(policy ActionPolicy, r ActionRequest, actor, declaredR
 	switch {
 	case r.Recipient.Role != "":
 		if !policy.holds(r.Recipient.Role, actor) {
+			// Nobody holding the role is a setup gap, not a wrong actor
+			// (spec pose-update-seeds-an-answerable-maintainer).
+			if len(policy.Roles[r.Recipient.Role]) == 0 {
+				return "", fmt.Errorf("%w: nobody holds role %s in .pose/policy/actions.json, so this request cannot be answered yet; name its holder with pose setup (or add the principal under roles.%s)", ErrActionNotAuthorized, r.Recipient.Role, r.Recipient.Role)
+			}
 			return "", fmt.Errorf("%w: %s does not hold role %s in .pose/policy/actions.json", ErrActionNotAuthorized, actor, r.Recipient.Role)
 		}
 		return r.Recipient.Role, nil

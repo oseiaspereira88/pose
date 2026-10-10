@@ -256,3 +256,25 @@ func TestDeclinedRequestNeedsAReason(t *testing.T) {
 		t.Fatalf("adopt --list does not show the reason: %s", out)
 	}
 }
+
+// Spec pose-update-seeds-an-answerable-maintainer: an update that opens
+// requests to a role nobody holds says so, and answering one names the empty
+// role and how to fill it instead of blaming the actor.
+func TestUpdateNamesAnUnansweredMaintainerRole(t *testing.T) {
+	repo := olderInstance(t)
+	mustWrite(t, filepath.Join(repo, ".pose/policy/actions.json"), `{"schema_version":1,"roles":{"maintainer":[]},"identity_assurance":"declared"}`)
+	out := updateOnce(t, repo)
+	if !strings.Contains(out, "nobody holds the maintainer role") || !strings.Contains(out, "pose setup") {
+		t.Fatalf("update does not name the empty role:\n%s", out)
+	}
+	requests, err := configurationReviewRequests(repo)
+	if err != nil || len(requests) == 0 {
+		t.Fatalf("requests: %v %v", requests, err)
+	}
+	req := requests[0]
+	args := []string{"action", "resolve", req.View.Request.ID, "--actor", "human:ada", "--answer", "adopt", "--request-digest", req.View.Request.RequestDigest,
+		"--expected-revision", strconv.Itoa(req.View.Revision), "--idempotency-key", "k", "--apply"}
+	if code, out := runPose(t, repo, args...); code == 0 || !strings.Contains(out, "nobody holds role maintainer") || !strings.Contains(out, "pose setup") {
+		t.Fatalf("resolve does not name the empty role: %d %s", code, out)
+	}
+}

@@ -1,6 +1,6 @@
 ---
 slug: pose-update-seeds-an-answerable-maintainer
-status: draft
+status: in-progress
 created_at: 2026-10-09
 completed_at:
 supersedes:
@@ -10,7 +10,7 @@ components: pose-mcp
 task_type: bugfix
 surface: minimal
 changelog:
-delivers:
+delivers: governance:update-seeds-an-answerable-maintainer
 ---
 
 # Spec: An update opens only requests someone can answer
@@ -42,12 +42,23 @@ The engine must not invent a principal: a name from git is a suggestion, confirm
 ### Artifacts
 
 - created: .pose/specs/2026-10-09-pose-update-seeds-an-answerable-maintainer.md
+- created: .pose/starts/pose-update-seeds-an-answerable-maintainer.json
+- created: .pose/changelogs/unreleased/pose-update-seeds-an-answerable-maintainer.md
+- modified: pose-mcp/internal/pose/action_resolution.go
+- modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/cli/configuration_review_test.go
 
-Implementation artifacts are declared when the spec starts.
+### Delivery targets
+
+- governance:update-seeds-an-answerable-maintainer module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
 
 ## 5. Decisions
 
-No decision recorded yet; the spec is a draft.
+### Decision D1
+- Date: 2026-10-10
+- Context: measured before implementing. The 2026-10-09 error `actor must be an agent: or human: principal` came from the implementer's script, which passed `null` read from the empty role list as the actor; with a valid actor the engine already answered "<actor> does not hold role maintainer". `pose setup` already offers naming the maintainer (`identity.maintainer`) when nobody holds a role.
+- Decision: keep R2 as delivered by `setup`; make the update warn when it opens requests to a role nobody holds, and make the resolve error name the empty role and `pose setup` instead of the actor.
+- Rationale: the remaining gap is that nothing said nobody could answer.
 
 ## 6. Validation
 
@@ -57,11 +68,15 @@ Fixture without `actions.json`: update, then resolve; the messages name the empt
 
 ### Requirement trace
 
+- R1 [satisfied] governance:update-seeds-an-answerable-maintainer evidence:integration test:TestUpdateNamesAnUnansweredMaintainerRole
+- R2 [satisfied] governance:update-seeds-an-answerable-maintainer evidence:integration test:TestSetupOnAFreshInstallNamesTheNextStep
+- R3 [satisfied] governance:update-seeds-an-answerable-maintainer evidence:integration test:TestUpdateNamesAnUnansweredMaintainerRole
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: opened on 2026-10-09 from the POSE 7.1.0 adoption in Harne8, pose-dist, audio-relay and storageclose.
+An update that opens requests to a role nobody holds warns and names `pose setup`; answering one says nobody holds the role instead of blaming the actor.
 
 ### Residual risks
 

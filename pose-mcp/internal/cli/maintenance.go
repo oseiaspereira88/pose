@@ -213,6 +213,11 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 	if rel, opened, err := scaffoldConfigurationReview(root, version.ReleaseBase(), reviewLocale, time.Now()); err != nil {
 		render(stdout, stderr).ContractLine("[WARN] configuration review not written: " + err.Error())
 	} else if len(opened) > 0 {
+		if policy, err := posemodel.LoadActionPolicy(root); err == nil && len(policy.Roles["maintainer"]) == 0 {
+			render(stdout, stderr).ContractLine("[WARN] " + text(
+				"nobody holds the maintainer role these requests are addressed to; name its holder with `pose setup` before answering them",
+				"ninguém tem o papel maintainer a que esses pedidos se dirigem; nomeie quem o tem com `pose setup` antes de respondê-los"))
+		}
 		render(stdout, stderr).ContractLine("[INFO] " + text(
 			"configuration review: "+rel+" — "+strconv.Itoa(len(opened))+" decision request(s) for the maintainer role; nothing is adopted until they are answered",
 			"revisão de configuração: "+rel+" — "+strconv.Itoa(len(opened))+" decision request(s) para o papel maintainer; nada é adotado até serem respondidos"))
