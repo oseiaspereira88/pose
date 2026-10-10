@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-9eb58a97fee5e054",
+  "bundle_id": "rvb-a92f4cee5ce29ca2",
+  "bundle_digest": "sha256:a92f4cee5ce29ca2f4c12d8b80486251fb511cc0c602ed03616cb1e47158566f",
+  "reviewer": "agent:independent-claude-opus-5-5-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "D1 rests on the levels being ordered (review_plan.go ranks same-actor-separate-execution 1, different-actor 2, mandatory-human 3) and on the declared path, which already accepts any agent: or human: reviewer at this level (review_closeout.go). The abm R5 wording is ambiguous; the ordering reading is the consistent one and D1 records it."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "Pure synchronous validation in verifiedAuthorityBlockers; no shared state, goroutines or lifecycle change."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "Attestation, claim and policy schemas unchanged; only one blocker message disappears. different-actor and mandatory-human branches are untouched; TestABMReviewAuthorityRejectsSameActor and RejectsSameExecution still pass."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "A claim missing implementation principal or execution is still refused at this level; same review and implementation execution is still refused whoever reviews (R2), covered by the ownRun case."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+      "rationale": "Only verified-assurance instances requiring same-actor-separate-execution are affected, and only by accepting more separated reviews; declared assurance behaviour is unchanged. Harne8 needs a pin containing dd4b47d3, as the spec states."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "Remaining blockers still name the missing fields or the shared execution; no secrets or key material are printed."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "Relaxation only: every attestation that verified before still verifies; no CLI flag, schema or policy value changes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "Reviewed the full diff of dd4b47d3 (the only commit with the trailer). The removed branch was the only same-principal requirement; the separate-execution check remains. The new test fails on the parent code with the exact refusal and passes on HEAD. pose validate --tolerant --json-out .pose/results/delivery-validation.json at 59aab417: 130/131 checks pass; the single failure is pose-mcp/go/test, only in TestUpdateDryRunListsWhatTheUpdateChanges (spec pose-update-dry-run-reports-the-whole-update, not this spec): the action request id includes RequestedAt truncated to the second, so the dry-run and the real update name different act-* files when they straddle a second boundary. Reproduced on b4e9e81a, the commit before this spec (1 of 300 runs of go test -count=300), so the failure predates this change; internal/pose, the only package this spec touches, passed in the same run. The spec test TestSameActorLevelAdmitsADifferentActor was also run directly: passes on HEAD and fails on dd4b47d3 with review_bundle.go reverted, with the refusal Harne8 met."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-77ca76496b9fe1e4",
+      "rationale": "Root cause is the equality-of-principals branch contradicting the ordering comment directly above it; the fix removes that branch. assess design observed 4/4 files with no structural deltas."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "Applied review workflow, security and documentation-style rules. The code comment, spec D1 and changelog fragment explain the change; no manual describes same-actor-separate-execution as requiring the same principal, so no doc update is owed."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+      "rationale": "Removes a refusal operators could not work around except by lowering separation; no new configuration."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "R1: the other case in TestSameActorLevelAdmitsADifferentActor verifies with no blockers. R2: the ownRun case is refused with separate execution. Also covered: same actor in a separate run still accepted."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "artifact-check: 5 claims, 5 observed, single commit dd4b47d3. Only this spec is being closed; no code, policy or capabilities changed by the review. Reviewer identity: the prefix agent:independent- is a declaration required by the engine; this review is another execution of the same vendor and model as the implementer (Anthropic Claude Opus 5.5, agent:claude-opus-5-5), done as fallback because the other-vendor reviewer (Codex) was unavailable: independence of execution, not of vendor, authorised by the maintainer."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "Weakening check reviewed adversarially: an implementer cannot self-approve under this level by naming another principal, because the claim is signed by a trusted issuer and the execution must still differ; at this level the declared path already admits any agent. Higher levels keep principal inequality and human role checks. No secrets in the diff."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "Deleting two lines and adding one test is the smallest correct change; no new mode or flag."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact",
+      "rationale": "Executed artifact-check --spec pose-same-actor-level-admits-a-different-actor --strict: 5 claims, 5 observed; repository orphan warnings are pre-existing and unrelated."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-77ca76496b9fe1e4",
+      "rationale": "Executed assess design --spec pose-same-actor-level-admits-a-different-actor --json after index: observed, 4/4 files, no deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "doc:.pose/assessments/pose-mcp.md",
+      "rationale": "Executed assess discover --if-stale --update-state: pose-mcp refreshed, other components reused."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "Executed assess integrate; provider-without-observed-consumer diagnostics are repository-wide and unrelated to this check."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "doc:.pose/assessments/technical-debt.md",
+      "rationale": "Executed assess tech-debt: 0 uncovered items. recurrence-check --tolerant --window-days 14: 0 flagged keys."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "doc:.pose/workflows/review.md",
+      "rationale": "Executed suggest review --path pose-mcp; applied review workflow, security and documentation-style rules."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "pose validate --tolerant --json-out .pose/results/delivery-validation.json at 59aab417: 130/131 checks pass; the single failure is pose-mcp/go/test, only in TestUpdateDryRunListsWhatTheUpdateChanges (spec pose-update-dry-run-reports-the-whole-update, not this spec): the action request id includes RequestedAt truncated to the second, so the dry-run and the real update name different act-* files when they straddle a second boundary. Reproduced on b4e9e81a, the commit before this spec (1 of 300 runs of go test -count=300), so the failure predates this change; internal/pose, the only package this spec touches, passed in the same run. The spec test TestSameActorLevelAdmitsADifferentActor was also run directly: passes on HEAD and fails on dd4b47d3 with review_bundle.go reverted, with the refusal Harne8 met."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/authority-project-integration",
+      "rationale": "Same repository run covers every pose-mcp check; see the validate disposition for the one pre-existing, out-of-scope failure."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/authority-project-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-claude-opus-5-5-review",
+    "concluded_by": "agent:independent-claude-opus-5-5-review",
+    "applied_by": "agent:independent-claude-opus-5-5-review"
+  },
+  "attested_at": "2026-10-10T13:31:33Z",
+  "path": ".pose/review-attestations/rva-9eb58a97fee5e054.json"
+}

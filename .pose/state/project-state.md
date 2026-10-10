@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-10T11:59:24Z
-baseline_commit: c55deb049567e1f53aa8ae18aff7d156d3aa4a99
+generated_at: 2026-10-10T13:32:26Z
+baseline_commit: 59aab41758cb740eee3a7856216698a685a9e25a
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:5024c3c2ecb9 -->
+<!-- state:derived hash:db8906e0a806 -->
 
-- specs: total=378 draft=5 in-progress=1 blocked=0 done=371 superseded=0 abandoned=1
+- specs: total=379 draft=4 in-progress=2 blocked=0 done=372 superseded=0 abandoned=1
 - roadmaps: total=18 active=1 done=11
 - últimos closeouts:
   - spec:pose-update-seeds-an-answerable-maintainer (2026-10-10)
-  - spec:pose-signed-legacy-attestation-ledger (2026-10-10)
-  - spec:pose-ci-avoids-anonymous-rate-limits (2026-10-10)
+  - spec:pose-delegated-review-brief (2026-10-10)
+  - spec:pose-configuration-review-7-1-0 (2026-10-10)
   - spec:pose-v7-3-0-version-alignment (2026-10-10)
-  - spec:pose-adopt-request-keeps-the-reason (2026-10-10)
-  - ... e mais 366 (ver `pose_list_specs status:done`)
+  - spec:pose-ci-avoids-anonymous-rate-limits (2026-10-10)
+  - ... e mais 367 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:858c9edfc075 -->
@@ -75,10 +75,10 @@ capacidade.
 - knowledge: total=7 ativo=7 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:d10b70ff9d01 -->
+<!-- state:derived hash:1f3ab94aa826 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-02T11:43:40Z)
-- últimos 30 dias: total=123 outcome_ok=101 outcome_outro=22
+- últimos 30 dias: total=122 outcome_ok=100 outcome_outro=22
 - reports revisados (.md): total=166
   - report:2026-10-pose-open-backlog-reconciliation.md
   - report:pose-agency-readiness-pilot.md
@@ -87,10 +87,10 @@ capacidade.
   - report:pose-v7-legacy-cleanup-plan.md
 
 ## Arquitetura
-<!-- state:derived hash:f32717afe05b status:active -->
+<!-- state:derived hash:7b042b1a4cdc status:active -->
 
 - componentes: total=3 verificados=3 completude=100.0%
-- linhas_de_codigo: producao=69617 testes=54680 total=124297
+- linhas_de_codigo: producao=70144 testes=54867 total=125011
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63

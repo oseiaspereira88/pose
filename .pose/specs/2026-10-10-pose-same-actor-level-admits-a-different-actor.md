@@ -1,8 +1,8 @@
 ---
 slug: pose-same-actor-level-admits-a-different-actor
-status: in-progress
+status: done
 created_at: 2026-10-10
-completed_at:
+completed_at: 2026-10-10
 supersedes:
 depends_on:
 priority: 0

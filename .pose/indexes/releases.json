@@ -17,12 +17,28 @@
       "digest": "sha256:c927ef208224877f849254b1ee10310d7a99799935043b2ba08f1f8184ed14e2"
     },
     {
+      "spec": "pose-delegated-review-dispatch",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose review dispatch \u003cbundle|scope\u003e --via \u003cadapter\u003e --apply` hands a sealed review to a configured second agent — Codex, Claude Code or any command declared in `.pose/policy/reviewers.json` — on a disposable worktree at the sealed commit, with the brief on stdin, and records the run under `.pose/review-runs/`. A run that changes files, times out, exceeds its budget or fails is recorded as failed, never as a review, and dispatch never records an attestation.",
+      "path": "pose-delegated-review-dispatch.md",
+      "digest": "sha256:6d8eb6b528651b9dc464db6ad740b1defc4492233c77d911bf1cd79a44292ae9"
+    },
+    {
       "spec": "pose-release-prepare-guards-claimed-fragments",
       "category": "fixed",
       "breaking": false,
       "body": "`pose release prepare` no longer freezes a release over a changelog fragment that another spec still claims at its unreleased path, which left that claim pointing at a moved file and turned CI red after the v7.1.0 freeze. `release plan` names each such claim, `prepare --apply` refuses unless `--allow-moved-claims`, and `release check` reports it on a prepared tree.",
       "path": "pose-release-prepare-guards-claimed-fragments.md",
       "digest": "sha256:b908fe09bdfbf2f675ac01a108a0815e23c5e9ba7a9492957a1b2e0161fbbef0"
+    },
+    {
+      "spec": "pose-same-actor-level-admits-a-different-actor",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Under verified identity, a review policy requiring `same-actor-separate-execution` no longer refuses a signed review by another principal in another execution; only the implementation's own run is refused, consistent with `different-actor` and `mandatory-human` above it.",
+      "path": "pose-same-actor-level-admits-a-different-actor.md",
+      "digest": "sha256:ac77a7f59ae6c71f01539d0429126acf3937b5da5017f48db031aa2354603dd1"
     },
     {
       "spec": "pose-update-dry-run-reports-the-whole-update",
