@@ -425,7 +425,7 @@ func requirementNaming(spec, capability string) string {
 }
 
 // applyReviewAnswer applies an answered configuration-review request.
-func applyReviewAnswer(root string, req reviewRequest, date string) (string, error) {
+func applyReviewAnswer(root string, req reviewRequest, date, issuer string) (string, error) {
 	switch req.View.Answer {
 	case reviewAnswerAdopt:
 		docs, err := posemodel.LoadPolicyDocs(root)
@@ -445,7 +445,7 @@ func applyReviewAnswer(root string, req reviewRequest, date string) (string, err
 		if _, _, _, _, err := docs.Rendered(posemodel.Store{Root: root}); err != nil {
 			return "", fmt.Errorf("the resulting policy would be refused: %v", err)
 		}
-		effects, err := posemodel.PlanAdoptionEffects(root, req.Capability, "", time.Now())
+		effects, err := posemodel.PlanAdoptionEffects(root, req.Capability, issuer, time.Now())
 		if err != nil {
 			return "", err
 		}

@@ -147,7 +147,13 @@ func TestAdoptingSignedAttestationsSealsHistory(t *testing.T) {
 	if entries, _ := os.ReadDir(filepath.Join(root, ".pose/review-ledgers")); len(entries) != 0 {
 		t.Fatal("the preview sealed a ledger")
 	}
-	run(0, adopt, "signed-attestations", "--apply")
+	// A second local issuer makes the sealer a choice: --issuer resolves it.
+	run(0, issuer, "init", "second")
+	run(0, issuer, "pin", "second", "--apply")
+	if msg := run(1, adopt, "signed-attestations", "--apply"); !strings.Contains(msg, "--issuer") {
+		t.Fatalf("an ambiguous sealer was not named: %s", msg)
+	}
+	run(0, adopt, "signed-attestations", "--issuer", "maintainer", "--apply")
 	if entries, _ := os.ReadDir(filepath.Join(root, ".pose/review-ledgers")); len(entries) != 1 {
 		t.Fatalf("adoption did not seal exactly one ledger: %d", len(entries))
 	}

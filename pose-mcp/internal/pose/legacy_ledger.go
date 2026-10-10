@@ -272,7 +272,10 @@ func localAttestationIssuers(root string, docs PolicyDocs) []IssuerKeySummary {
 
 // signedHistoryBlocker explains why adopting signed attestations cannot seal
 // the project's unsigned history, or returns "" when it can (or need not).
-func signedHistoryBlocker(root string, docs PolicyDocs, issuer string) string {
+// With checkAmbiguity false (the catalog prerequisite, which knows no
+// --issuer) only a missing issuer blocks; the choice among several is the
+// planner's, which receives --issuer.
+func signedHistoryBlocker(root string, docs PolicyDocs, issuer string, checkAmbiguity bool) string {
 	uncovered, err := (Store{Root: root}).UncoveredUnsignedAttestations()
 	if err != nil || uncovered == 0 {
 		return ""
@@ -283,7 +286,7 @@ func signedHistoryBlocker(root string, docs PolicyDocs, issuer string) string {
 	switch n := len(localAttestationIssuers(root, docs)); {
 	case n == 0:
 		return fmt.Sprintf("%d attestation(s) were recorded without a signature; adopting seals them into a ledger signed by a local issuer pinned for attestations, and none is on this machine — create one with pose issuer init <name> and pose issuer pin <name> --apply", uncovered)
-	case n > 1:
+	case n > 1 && checkAmbiguity:
 		return fmt.Sprintf("%d attestation(s) were recorded without a signature and %d local issuers could seal them; choose one with --issuer <name>", uncovered, n)
 	}
 	return ""
@@ -302,7 +305,7 @@ func PlanAdoptionEffects(root, capability, issuer string, now time.Time) ([]Adop
 	if err != nil {
 		return nil, err
 	}
-	if blocker := signedHistoryBlocker(root, docs, issuer); blocker != "" {
+	if blocker := signedHistoryBlocker(root, docs, issuer, true); blocker != "" {
 		return nil, fmt.Errorf("pose: %s", blocker)
 	}
 	store := Store{Root: root}

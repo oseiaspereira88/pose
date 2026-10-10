@@ -204,3 +204,27 @@ func TestAdoptingSignedAttestationsSealsTheHistory(t *testing.T) {
 		t.Fatalf("no local issuer and the blocker does not say what to do: %q", blocker)
 	}
 }
+
+// R1/R5: with two local issuers pinned, --issuer chooses the sealer and its
+// absence names --issuer; the catalog prerequisite alone does not block
+// (found in review by agent:gpt-6.1-sol).
+func TestAdoptingWithSeveralIssuersHonoursTheChoice(t *testing.T) {
+	f := ledgerFixtureWithHistory(t)
+	second, err := CreateIssuerKey(f.root, "second", f.now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pinNative(t, f.root, second, true, false)
+	entry, _ := LookupCatalogEntry("signed-attestations")
+	docs, _ := LoadPolicyDocs(f.root)
+	if blocker := CatalogAdoptBlocker(f.root, docs, entry); blocker != "" {
+		t.Fatalf("the prerequisite blocks a choice it cannot see: %q", blocker)
+	}
+	if _, err := PlanAdoptionEffects(f.root, "signed-attestations", "", f.now); err == nil || !strings.Contains(err.Error(), "--issuer") {
+		t.Fatalf("an ambiguous sealer was not named: %v", err)
+	}
+	effects, err := PlanAdoptionEffects(f.root, "signed-attestations", "second", f.now)
+	if err != nil || len(effects) != 1 || !strings.Contains(effects[0].Description, second.Pin()) {
+		t.Fatalf("--issuer second was not honoured: %+v %v", effects, err)
+	}
+}

@@ -311,7 +311,7 @@ func catalogEntries() []CatalogEntry {
 				// Signing stays live for old bundles, so adopting seals the
 				// unsigned history with a local pinned issuer (spec
 				// pose-signed-legacy-attestation-ledger).
-				if blocker := signedHistoryBlocker(root, docs, ""); blocker != "" {
+				if blocker := signedHistoryBlocker(root, docs, "", false); blocker != "" {
 					return blocker
 				}
 				return ""

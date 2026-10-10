@@ -17,7 +17,7 @@ import (
 	"github.com/harne8/pose-mcp/internal/version"
 )
 
-const adoptUsage = "Usage: pose adopt --list [--json] | pose adopt <capability> [--off | --decline --reason <text> | --defer --reason <text>] [--date YYYY-MM-DD] [--issuer <name>] [--apply] | pose adopt --request <act-id> [--apply]"
+const adoptUsage = "Usage: pose adopt --list [--json] | pose adopt <capability> [--off | --decline --reason <text> | --defer --reason <text>] [--date YYYY-MM-DD] [--issuer <name>] [--apply] | pose adopt --request <act-id> [--issuer <name>] [--apply]"
 
 func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 	id, mode, reason, apply, list, jsonOutput, requestID, issuer := "", "on", "", false, false, false, "", ""
@@ -106,7 +106,7 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 		if !apply {
 			return 0
 		}
-		result, err := applyReviewAnswer(root, req, date)
+		result, err := applyReviewAnswer(root, req, date, issuer)
 		if err != nil {
 			out.Failure("pose adopt: " + err.Error())
 			return 1
