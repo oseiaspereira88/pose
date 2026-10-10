@@ -93,3 +93,17 @@ func TestUpdateDryRunListsWhatTheUpdateChanges(t *testing.T) {
 		t.Fatalf("a current instance's dry-run does not say nothing would change: %s", out)
 	}
 }
+
+// --force goes through install, which needs a real repository in the copy.
+func TestUpdateDryRunWithForceRunsOnTheCopy(t *testing.T) {
+	repo := olderInstance(t)
+	before, _ := hashTree(repo, true)
+	code, out := runPose(t, repo, "update", "--dry-run", "--force")
+	if code != 0 || strings.Contains(out, "would fail") || !strings.Contains(out, "Result: DRY-RUN") {
+		t.Fatalf("dry-run --force: %d %s", code, out)
+	}
+	after, _ := hashTree(repo, true)
+	if changes := diffTrees(before, after); len(changes) != 0 {
+		t.Fatalf("the dry-run --force wrote: %+v", changes)
+	}
+}

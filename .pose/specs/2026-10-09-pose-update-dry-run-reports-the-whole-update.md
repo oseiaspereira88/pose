@@ -76,9 +76,11 @@ A fixture instance stamped 6.1.0: the dry-run output lists the merges, stamp and
 
 2026-10-10: on storageclose (stamped 7.1.0), the dry-run reported the machinery merges, `would modify: .pose/state/machinery-manifest.json` and `would stamp engine_version: 7.1.0 -> 7.3.0-dev`, and left the working tree unchanged. The real update's "instance already at schema v1. Nothing to do." line, printed after merging machinery, now says the manuals and machinery are current for the engine.
 
+2026-10-10, independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): medium severity. `pose update --dry-run --force` reported "the update would fail" because the copy held an empty `.git` and `--force` runs install, which refuses a directory git does not recognise; the real `--force` update succeeded. The copy is now `git init`-ed; `TestUpdateDryRunWithForceRunsOnTheCopy` covers it (reproduced on audio-relay before the fix).
+
 ### Requirement trace
 
-- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
+- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy
 - R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 - R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 

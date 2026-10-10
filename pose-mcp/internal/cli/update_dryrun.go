@@ -18,6 +18,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -38,8 +39,14 @@ func dryRunUpdate(root string, args []string, stdout, stderr io.Writer, text fun
 	}
 	defer os.RemoveAll(tmp)
 	shadow := filepath.Join(tmp, filepath.Base(root))
-	if err := os.MkdirAll(filepath.Join(shadow, ".git"), 0o755); err != nil {
+	if err := os.MkdirAll(shadow, 0o755); err != nil {
 		r.Failure("pose update: " + err.Error())
+		return 1
+	}
+	// A real repository, not an empty .git: --force runs install, which
+	// refuses a target git does not recognise (found in review).
+	if out, err := exec.Command("git", "init", "-q", shadow).CombinedOutput(); err != nil {
+		r.Failure("pose update: preparing the dry-run copy: " + strings.TrimSpace(string(out)))
 		return 1
 	}
 	before, err := snapshotForDryRun(root, shadow)
