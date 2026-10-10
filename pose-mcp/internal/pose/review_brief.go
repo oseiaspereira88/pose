@@ -14,6 +14,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -82,14 +83,60 @@ func (s Store) RenderReviewBrief(target, kind string, notes string) (ReviewBrief
 		}
 		bundle = *current
 	}
-	body := renderReviewBriefBody(bundle, kind, template, notes)
+	var smoke *smokeScript
+	if kind == ReviewBriefKindSmoke {
+		script, err := s.smokeScriptFor(bundle.Payload.Scope)
+		if err != nil {
+			return ReviewBrief{}, err
+		}
+		smoke = &script
+	}
+	body := renderReviewBriefBody(bundle, kind, template, notes, smoke)
 	sum := sha256.Sum256([]byte(body))
 	digest := "sha256:" + hex.EncodeToString(sum[:])
 	return ReviewBrief{Kind: kind, TemplateVersion: template, Scope: bundle.Payload.Scope.Ref, BundleID: bundle.BundleID,
 		BundleDigest: bundle.BundleDigest, Digest: digest, Text: body + "\n<!-- brief-digest: " + digest + " -->\n"}, nil
 }
 
-func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string) string {
+// smokeScript is what a smoke run exercises: each delivered surface with its
+// entrypoint, and the requirements it is observed against. Without it a
+// smoke brief only repeated the review criteria (found in review).
+type smokeScript struct {
+	Surfaces     []DeliveryTarget
+	Requirements []string
+}
+
+func (s Store) smokeScriptFor(scope ReviewBundleScope) (smokeScript, error) {
+	if scope.Slug == "" {
+		return smokeScript{}, nil
+	}
+	spec, err := s.GetSpec(scope.Slug)
+	if err != nil {
+		return smokeScript{}, err
+	}
+	targets, _, err := ParseDeliveryTargets(*spec)
+	if err != nil {
+		return smokeScript{}, err
+	}
+	sort.Slice(targets, func(i, j int) bool { return targets[i].Ref < targets[j].Ref })
+	script := smokeScript{Surfaces: targets}
+	inRequirements := false
+	for _, raw := range strings.Split(strings.ReplaceAll(spec.Body, "\r\n", "\n"), "\n") {
+		line := strings.TrimSpace(raw)
+		if strings.HasPrefix(line, "## ") {
+			inRequirements = strings.Contains(strings.ToLower(line), "requirements")
+			continue
+		}
+		if inRequirements && requirementLine.MatchString(line) {
+			script.Requirements = append(script.Requirements, strings.TrimPrefix(line, "- "))
+		}
+	}
+	return script, nil
+}
+
+var requirementLine = regexp.MustCompile(`^- R[0-9]+:`)
+
+func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, smoke *smokeScript) string {
 	var b strings.Builder
 	line := func(format string, a ...any) { fmt.Fprintf(&b, format+"\n", a...) }
 	scope := bundle.Payload.Scope
@@ -147,6 +194,29 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string) st
 		line("- %s %s (%s)", e.Action, entryPath(e), e.Class)
 	}
 	line("")
+
+	if smoke != nil {
+		line("## Surfaces to run")
+		line("")
+		if len(smoke.Surfaces) == 0 {
+			line("The scope declares no delivery targets. Report that there is nothing to smoke and stop.")
+		}
+		for _, t := range smoke.Surfaces {
+			line("- %s (module %s, profile %s): start from `%s`", t.Ref, orNone(t.Module), orNone(t.Profile), orNone(t.Entrypoint))
+		}
+		line("")
+		line("## Expected observations")
+		line("")
+		line("Observe each requirement through the surfaces above, as their user would see it.")
+		line("")
+		for _, r := range smoke.Requirements {
+			line("- %s", r)
+		}
+		if len(smoke.Requirements) == 0 {
+			line("- none recorded in the spec; report that and stop.")
+		}
+		line("")
+	}
 
 	line("## Criteria to answer")
 	line("")
@@ -223,6 +293,13 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string) st
 
 	line("## What to return")
 	line("")
+	if smoke != nil {
+		line("1. A decision: `approved` if every expected observation held, otherwise `changes-requested`.")
+		line("2. For each surface: the commands you ran from its entrypoint and what they printed or did.")
+		line("3. For each expected observation: observed, not observed or not reachable, with the command and output that show it.")
+		line("4. Every defect, with file, line and severity.")
+		return b.String()
+	}
 	line("1. A decision: `approved` or `changes-requested`.")
 	line("2. For each criterion above: passed, failed or not-applicable, with your evidence (a sealed evidence ref, a command you ran, or file and line).")
 	if plan.Structure != nil && len(plan.Structure.Material) > 0 {

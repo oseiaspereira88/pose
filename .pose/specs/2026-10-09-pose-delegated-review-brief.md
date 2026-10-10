@@ -82,6 +82,8 @@ Golden test: the same bundle renders identical bytes; a fixture with a seeded de
 
 2026-10-10: `pose review brief spec:pose-v7-3-0-version-alignment` renders the scope, the range bb938fc6..42ee510e with its seven attributed paths, every planned criterion with its kind and evidence classes, the plan's tools and the sealed evidence, from `rvb-b0ae3428882f27f6` alone. The seeded-defect review named in this spec's validation strategy belongs to the capability milestone's journey, where a reviewer run exists.
 
+2026-10-10, independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): low severity. The smoke brief repeated the review criteria instead of scripting a run. It now lists each delivery target of the spec with its entrypoint under "Surfaces to run", the spec's requirements under "Expected observations", and asks for observations per surface and per requirement.
+
 ### Requirement trace
 
 - R1 [satisfied] capability:delegated-review-brief evidence:unit test:TestReviewBriefIsRenderedFromTheBundleDeterministically
@@ -89,7 +91,7 @@ Golden test: the same bundle renders identical bytes; a fixture with a seeded de
 - R3 [satisfied] capability:delegated-review-brief evidence:unit test:TestReviewBriefLabelsImplementerNotes
 - R4 [satisfied] capability:delegated-review-brief evidence:unit test:TestReviewBriefIsRenderedFromTheBundleDeterministically
 - R5 [satisfied] capability:delegated-review-brief evidence:unit test:TestReviewBriefRefusesStaleBundlesAndHasThreeKinds
-- R6 [satisfied] capability:delegated-review-brief evidence:unit test:TestReviewBriefRefusesStaleBundlesAndHasThreeKinds
+- R6 [satisfied] capability:delegated-review-brief evidence:unit test:TestReviewBriefRefusesStaleBundlesAndHasThreeKinds test:TestSmokeBriefScriptsTheDeliveredSurfaces
 
 ## 7. Final Report
 

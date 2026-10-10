@@ -96,3 +96,26 @@ func TestReviewBriefRefusesStaleBundlesAndHasThreeKinds(t *testing.T) {
 		t.Fatalf("a superseded bundle was briefed: %v", err)
 	}
 }
+
+// R6: a smoke brief scripts the run — each delivered surface with its
+// entrypoint and the requirements to observe — and asks for observations,
+// not for criteria verdicts (found in review).
+func TestSmokeBriefScriptsTheDeliveredSurfaces(t *testing.T) {
+	store, bundle := briefFixture(t)
+	brief, err := store.RenderReviewBrief(bundle.BundleID, ReviewBriefKindSmoke, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"## Surfaces to run", "contract:backend-api (module api, profile api-contract): start from `api/server.go`", "## Expected observations", "- R1: The backend shall remain compatible.", "For each expected observation: observed, not observed or not reachable"} {
+		if !strings.Contains(brief.Text, want) {
+			t.Fatalf("smoke brief lacks %q:\n%s", want, brief.Text)
+		}
+	}
+	review, err := store.RenderReviewBrief(bundle.BundleID, ReviewBriefKindReview, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(review.Text, "## Surfaces to run") {
+		t.Fatal("a review brief carries the smoke script")
+	}
+}
