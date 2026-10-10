@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-52903e27fcdb3141",
+  "bundle_id": "rvb-43c2442b1e563c82",
+  "bundle_digest": "sha256:43c2442b1e563c825028e5637804c5c9f3e330845e19c36404a4adeaf69a4214",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/setup-command-integration",
+      "rationale": "D1 distinguishes the original null actor from a valid unauthorized principal. Holding reviewer does not fill maintainer. The regression passes on HEAD and fails with pre-c55deb04 setup.go using a Go overlay; no source edits were needed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Only synchronous role checks and diagnostics change; no new concurrency, cancellation or lifecycle behavior. Existing action concurrency tests pass."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-resolution-integration",
+      "rationale": "ErrActionNotAuthorized, principal matching and persisted policy/request schemas are preserved. Only the diagnostic for an empty recipient role changes."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "An empty role remains unauthorized and receives setup guidance; populated roles continue rejecting non-holders. Malformed principals still fail input validation."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/configuration-review-integration",
+      "rationale": "Update opens requests without adoption. Setup confirms identity registration before capability decisions. Existing action, setup and configuration integration checks pass."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Warnings name maintainer and pose setup; the wrapped resolution error names the empty role and policy path. No keys or sensitive authority material are printed by the added code."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-resolution-integration",
+      "rationale": "No CLI arguments, sentinel error, policy schema or authority boundaries change; the improved empty-role message is compatible and has integration coverage."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "131 registered repository checks passed, including go test ./... and go vet ./...; targeted tests also passed. The maintainer regression fails against pre-c55deb04 and passes on HEAD."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/setup-command-integration",
+      "rationale": "R1/R3 name the cause of unanswerable role requests. R2 checks len(policy.Roles[maintainer]) before the registered-any-role shortcut, directly addressing the execution-log defect. D1 preserves existing setup machinery; assess design finds no material structural deltas."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Applied review workflow, backend-go, security and documentation-style rules. The spec, trace and changelog describe runtime warnings and remediation; pose setup provides the confirmed identity-add command permitted by R1. No knowledge changes or residual-risk handoff is needed."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/setup-command-integration",
+      "rationale": "The empty-maintainer todo step precedes capability decisions and prints identity add --role maintainer. Interactive setup asks for principal/public key and explicit confirmation. Update and action resolve guide users to that flow."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1/R3: TestUpdateNamesAnUnansweredMaintainerRole. R2: TestSetupOnAFreshInstallNamesTheNextStep and TestSetupWantsAMaintainerEvenWhenYouHoldAnotherRole. The sealed unit result covers every actual test; setup integration also exercises the R2 regression."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed all attributed commits, including a12cb6d9 and c55deb04; artifact-check reports 8 claims and 8 observations. The maintainer authorized agent:independent-gpt-6.1-sol-review as the default: independent- is a declaration required by the engine, and the review is by OpenAI, another vendor than implementer agent:claude-opus-5-5 (Anthropic). Cognitive independence is not observable by the engine. Only this spec is being closed; no code, policy or capabilities are changed."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-resolution-integration",
+      "rationale": "No authority is granted by the patch. Empty roles still reject answers; naming a principal remains a confirmed user action. Reviewed modified paths for secrets and key disclosure; no dependency or identity-grant changes are introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/setup-command-integration",
+      "rationale": "Checking the specific maintainer role before the existing shortcut and improving two diagnostics is the smallest sufficient correction. No new registration subsystem or implicit grants are needed. A change of the role addressed by configuration requests would invalidate the role-specific premise; no speculative extension was added."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact",
+      "rationale": "Executed artifact-check --spec pose-update-seeds-an-answerable-maintainer --strict; 8/8 paths reconcile; repository orphan diagnostics remain warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-c8d9b8ae5658a67b",
+      "rationale": "Executed assess design --spec pose-update-seeds-an-answerable-maintainer --json after index; no material structural deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "doc:.pose/assessments/pose-mcp.md",
+      "rationale": "Executed assess discover --if-stale --update-state: pose-mcp refreshed at c55deb04; unchanged components reused."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-resolution-integration",
+      "rationale": "Executed assess integrate. Provider-without-observed-consumer repository diagnostics do not originate in this local role diagnostic patch; current action/configuration integrations pass."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "doc:.pose/assessments/technical-debt.md",
+      "rationale": "Executed assess tech-debt: zero uncovered markers. recurrence-check --tolerant --window-days 14: zero flagged keys; historical validate-native flapping is unrelated. followups --all inspected; this spec has none."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "doc:.pose/workflows/review.md",
+      "rationale": "Executed suggest review --path pose-mcp and read selected workflow/rules plus backend-go from the effective plan."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed validate --tolerant --json-out .pose/results/delivery-validation.json as explicitly requested; 131/131 checks pass, zero failed/errored/optional-failed checks."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The same repository validation executes every registered pose-mcp check, including build, test, vet and integration. Tolerant is the user-authorized invocation."
+    }
+  ],
+  "evidence_refs": [
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-gpt-6.1-sol-review",
+    "concluded_by": "agent:independent-gpt-6.1-sol-review",
+    "applied_by": "agent:independent-gpt-6.1-sol-review"
+  },
+  "attested_at": "2026-10-10T11:58:16Z",
+  "path": ".pose/review-attestations/rva-52903e27fcdb3141.json"
+}

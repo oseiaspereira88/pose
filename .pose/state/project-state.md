@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-10T09:02:56Z
-baseline_commit: 5b5ad41529e6ca11b62a057b157a72ccbbbae118
+generated_at: 2026-10-10T11:59:24Z
+baseline_commit: c55deb049567e1f53aa8ae18aff7d156d3aa4a99
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:e8a134a2bf1c -->
+<!-- state:derived hash:5024c3c2ecb9 -->
 
-- specs: total=378 draft=5 in-progress=2 blocked=0 done=370 superseded=0 abandoned=1
+- specs: total=378 draft=5 in-progress=1 blocked=0 done=371 superseded=0 abandoned=1
 - roadmaps: total=18 active=1 done=11
 - últimos closeouts:
-  - spec:pose-release-prepare-guards-claimed-fragments (2026-10-10)
-  - spec:pose-ci-avoids-anonymous-rate-limits (2026-10-10)
-  - spec:pose-adopt-request-keeps-the-reason (2026-10-10)
-  - spec:pose-v7-3-0-version-alignment (2026-10-10)
+  - spec:pose-update-seeds-an-answerable-maintainer (2026-10-10)
   - spec:pose-signed-legacy-attestation-ledger (2026-10-10)
-  - ... e mais 365 (ver `pose_list_specs status:done`)
+  - spec:pose-ci-avoids-anonymous-rate-limits (2026-10-10)
+  - spec:pose-v7-3-0-version-alignment (2026-10-10)
+  - spec:pose-adopt-request-keeps-the-reason (2026-10-10)
+  - ... e mais 366 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:858c9edfc075 -->
@@ -87,10 +87,10 @@ capacidade.
   - report:pose-v7-legacy-cleanup-plan.md
 
 ## Arquitetura
-<!-- state:derived hash:f4133ce772ba status:active -->
+<!-- state:derived hash:f32717afe05b status:active -->
 
 - componentes: total=3 verificados=3 completude=100.0%
-- linhas_de_codigo: producao=69592 testes=54618 total=124210
+- linhas_de_codigo: producao=69617 testes=54680 total=124297
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63
