@@ -1085,7 +1085,10 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if path == ".pose/capabilities/history.jsonl" {
 		return "derived-evidence", false
 	}
-	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/review-attribution-supplements/", ".pose/closeout-plans/", ".pose/contributions/", ".pose/feedback/"} {
+	// .pose/review-runs/ records delegated review runs, .pose/events/ DORA
+	// events and .pose/investigations/ investigation notes: evidence about
+	// work, like reviews (spec pose-review-subject-classifies-engine-records).
+	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/review-attribution-supplements/", ".pose/closeout-plans/", ".pose/contributions/", ".pose/feedback/", ".pose/review-runs/", ".pose/events/", ".pose/investigations/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "derived-evidence", false
 		}
@@ -1120,7 +1123,15 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	// review-subject-classifies-capabilities).
 	// .pose/starts/ holds atomic start records: the baseline a started spec is
 	// reconciled against (spec pose-atomic-start-adoption-cutoff).
-	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/", ".pose/capabilities/", ".pose/actions/", ".pose/starts/"} {
+	// .pose/review-ledgers/ holds signed legacy ledgers, which decide which
+	// unsigned attestations stay trusted; `pose adopt` writes them, and a scope
+	// that carried one could not be sealed (spec
+	// pose-review-subject-classifies-engine-records). .pose/schema-version is
+	// the instance's schema stamp.
+	if path == ".pose/schema-version" {
+		return "governance", true
+	}
+	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/", ".pose/capabilities/", ".pose/actions/", ".pose/starts/", ".pose/review-ledgers/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "governance", true
 		}
