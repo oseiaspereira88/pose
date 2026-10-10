@@ -121,14 +121,26 @@ func (s Store) PlanLegacyLedger(key IssuerKey, now time.Time) (LegacyLedger, err
 	return ledger, nil
 }
 
-// SealLegacyLedger signs and writes ledger. It never replaces a file.
+// SealLegacyLedger signs and writes ledger. It re-checks, at the moment of
+// writing, everything the plan was computed from — the policy still does not
+// require signing and the unsigned history is exactly the planned entries —
+// so a plan kept past adoption, or past a new unsigned attestation, seals
+// nothing (found in review by agent:gpt-6.1-sol). It never replaces a file
+// and never writes through a symlinked directory.
 func (s Store) SealLegacyLedger(ledger LegacyLedger, key IssuerKey) (LegacyLedger, error) {
 	if key.private == nil || key.Name != ledger.Issuer || key.PublicKey() != ledger.PublicKey {
 		return LegacyLedger{}, fmt.Errorf("pose: the ledger was planned for another issuer key")
 	}
+	current, err := s.PlanLegacyLedger(key, time.Now())
+	if err != nil {
+		return LegacyLedger{}, err
+	}
+	if current.Project != ledger.Project || !sameLedgerEntries(current.Entries, ledger.Entries) {
+		return LegacyLedger{}, fmt.Errorf("pose: the unsigned history changed since the ledger was planned; plan the adoption again")
+	}
 	ledger.Signature = base64.StdEncoding.EncodeToString(ed25519.Sign(key.private, ledger.signable()))
-	dir := filepath.Join(s.Root, filepath.FromSlash(legacyLedgerDir))
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	dir, err := ensureReviewArtifactDir(s.Root, legacyLedgerDir, true)
+	if err != nil {
 		return LegacyLedger{}, err
 	}
 	stamp, _ := time.Parse(time.RFC3339, ledger.SealedAt)
@@ -154,16 +166,33 @@ func (s Store) SealLegacyLedger(ledger LegacyLedger, key IssuerKey) (LegacyLedge
 	return ledger, nil
 }
 
+func sameLedgerEntries(a, b []LegacyLedgerEntry) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
 // trustedLegacyEntries returns the entries of every ledger whose signature
 // verifies under a pinned attestation issuer and whose project is this one,
 // keyed by attestation id. Ledgers that fail are skipped, never trusted.
 func (s Store) trustedLegacyEntries() (map[string]string, error) {
 	entries := map[string]string{}
-	dir := filepath.Join(s.Root, filepath.FromSlash(legacyLedgerDir))
-	files, err := os.ReadDir(dir)
-	if errors.Is(err, os.ErrNotExist) {
+	if _, err := os.Lstat(filepath.Join(s.Root, filepath.FromSlash(legacyLedgerDir))); errors.Is(err, os.ErrNotExist) {
 		return entries, nil
 	}
+	// A symlinked ledger directory is refused, so a ledger outside the
+	// project is never trusted.
+	dir, err := ensureReviewArtifactDir(s.Root, legacyLedgerDir, false)
+	if err != nil {
+		return nil, err
+	}
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}

@@ -105,12 +105,14 @@ Unit tests for each refusal in R4 and for sealing rules; a CLI journey for R1-R5
 
 2026-10-10, independent review (agent:gpt-6.1-sol): medium severity. With two local issuers pinned, `pose adopt signed-attestations --issuer first --apply` was refused asking for `--issuer`: the catalog prerequisite ran before the planner and could not see the choice. The prerequisite now blocks only when no local issuer can seal; the choice among several is the planner's, which receives `--issuer`, and `pose adopt --request` accepts `--issuer` too. `TestAdoptingWithSeveralIssuersHonoursTheChoice` failed on 9fedf820 and passes now.
 
+2026-10-10, second independent review (agent:gpt-6.1-sol): two medium defects. Sealing trusted the plan it received: a plan computed before adoption, or before a new unsigned attestation, still sealed (with access to the pinned key), against R2. And `.pose/review-ledgers` as a symlink was followed both when writing and when reading, so a ledger outside the project was written and trusted. Sealing now re-plans at the moment of writing and refuses unless the policy still does not require signing and the history is exactly the planned entries; the directory goes through the same symlink-refusing guard as other review artifacts on both paths. `TestLegacyLedgerSealingRechecksAndRefusesSymlinkedDir` failed on 2f6109fa and passes now.
+
 ### Requirement trace
 
 - R1 [satisfied] capability:signed-legacy-attestation-ledger evidence:integration test:TestAdoptingSignedAttestationsSealsHistory
 - R2 [satisfied] capability:signed-legacy-attestation-ledger evidence:unit test:TestLegacyLedgerIsSealedOnlyBeforeAdoption
 - R3 [satisfied] capability:signed-legacy-attestation-ledger evidence:unit test:TestLegacyLedgerKeepsSealedAttestationsValid
-- R4 [satisfied] capability:signed-legacy-attestation-ledger evidence:unit test:TestLegacyLedgerRefusesEverythingOutsideIt
+- R4 [satisfied] capability:signed-legacy-attestation-ledger evidence:unit test:TestLegacyLedgerRefusesEverythingOutsideIt test:TestLegacyLedgerSealingRechecksAndRefusesSymlinkedDir
 - R5 [satisfied] capability:signed-legacy-attestation-ledger evidence:unit test:TestAdoptingSignedAttestationsSealsTheHistory test:TestAdoptingSignedAttestationsSealsHistory test:TestAdoptingWithSeveralIssuersHonoursTheChoice
 - R6 [satisfied] capability:signed-legacy-attestation-ledger evidence:integration test:TestNativeIssuerJourneyWithPOSEAlone
 

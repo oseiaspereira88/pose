@@ -228,3 +228,59 @@ func TestAdoptingWithSeveralIssuersHonoursTheChoice(t *testing.T) {
 		t.Fatalf("--issuer second was not honoured: %+v %v", effects, err)
 	}
 }
+
+// R2/R4: a plan kept past adoption or past a new unsigned attestation seals
+// nothing, and a symlinked ledger directory is neither written nor trusted
+// (found in review by agent:gpt-6.1-sol).
+func TestLegacyLedgerSealingRechecksAndRefusesSymlinkedDir(t *testing.T) {
+	f := ledgerFixtureWithHistory(t)
+	plan, err := f.store.PlanLegacyLedger(f.key, f.now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.store.RecordReviewAttestation(approvedBundleAttestation(f.bundle, "agent:later"), f.now.Add(time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.store.SealLegacyLedger(plan, f.key); err == nil || !strings.Contains(err.Error(), "changed since") {
+		t.Fatalf("a stale plan sealed: %v", err)
+	}
+	plan, err = f.store.PlanLegacyLedger(f.key, f.now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.requireSigned(t)
+	if _, err := f.store.SealLegacyLedger(plan, f.key); err == nil || !strings.Contains(err.Error(), "before adoption") {
+		t.Fatalf("a plan sealed after adoption: %v", err)
+	}
+
+	g := ledgerFixtureWithHistory(t)
+	outside := t.TempDir()
+	if err := os.Symlink(outside, filepath.Join(g.root, ".pose", "review-ledgers")); err != nil {
+		t.Fatal(err)
+	}
+	plan, err = g.store.PlanLegacyLedger(g.key, g.now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := g.store.SealLegacyLedger(plan, g.key); err == nil || !strings.Contains(err.Error(), "symlink") {
+		t.Fatalf("a ledger was written through a symlinked directory: %v", err)
+	}
+	if entries, _ := os.ReadDir(outside); len(entries) != 0 {
+		t.Fatal("a ledger landed outside the project")
+	}
+	// A valid ledger placed in the symlink target is still not trusted.
+	os.Remove(filepath.Join(g.root, ".pose", "review-ledgers"))
+	sealed := g.seal(t)
+	raw, _ := os.ReadFile(filepath.Join(g.root, filepath.FromSlash(sealed.Path)))
+	os.RemoveAll(filepath.Join(g.root, ".pose", "review-ledgers"))
+	if err := os.WriteFile(filepath.Join(outside, "legacy.json"), raw, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(outside, filepath.Join(g.root, ".pose", "review-ledgers")); err != nil {
+		t.Fatal(err)
+	}
+	g.requireSigned(t)
+	if len(signatureBlockers(g, g.old)) == 0 {
+		t.Fatal("a ledger behind a symlinked directory was trusted")
+	}
+}
