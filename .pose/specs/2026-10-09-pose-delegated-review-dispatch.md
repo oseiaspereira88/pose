@@ -58,6 +58,8 @@ Adapter policy reader, worktree lifecycle, process runner with timeout, run reco
 - created: pose-mcp/internal/cli/review_dispatch_test.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/cli/help_catalog.go
+- created: pose-mcp/internal/pose/review_dispatch_unix.go
+- created: pose-mcp/internal/pose/review_dispatch_windows.go
 
 ### Delivery targets
 
@@ -84,12 +86,16 @@ A fake adapter (shell script) exercises success, timeout, non-zero exit and a ru
 
 2026-10-10, first real run: `pose review dispatch spec:pose-ci-avoids-anonymous-rate-limits --via codex --apply` with the example Codex adapter (gpt-6.1-sol, read-only) ran on a worktree at aa29027d, received the generated brief and returned a full review — a decision, a judgment per planned criterion with file and line evidence, and one medium defect in that spec. The run was recorded as failed because the worktree showed `.pose/assessments/technical-debt.md` and `.pose/state/technical-debt.json` modified: the reviewer ran the `assess tech-debt` tool the plan requires, which regenerates derived state. The change check now ignores derived state (`.pose/assessments`, `.pose/state`, `.pose/indexes`, `.pose/results`, `.pose/review-bundles`, `.pose/review-runs`, `.pose/reports/history`) and still fails a run that edits anything else; the test covers both.
 
+### Execution log
+
+2026-10-10, independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): medium severity. The timeout killed only the adapter's process; a child holding stdout (the shape of `codex exec` and `claude -p`) kept the dispatch waiting until it ended. The adapter now runs in its own process group, the group is killed on timeout and after the run, and `WaitDelay` releases the pipes. `TestReviewDispatchTimeoutKillsTheAdaptersChildren` took 30s on the previous code and fails; it now returns in under a second.
+
 ### Requirement trace
 
 - R1 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
 - R2 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
 - R3 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
-- R4 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
+- R4 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters test:TestReviewDispatchTimeoutKillsTheAdaptersChildren
 - R5 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
 - R6 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
 - R7 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRecordsEveryBriefKind

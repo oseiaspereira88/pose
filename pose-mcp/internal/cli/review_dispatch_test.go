@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
@@ -150,5 +151,22 @@ func TestReviewDispatchRecordsEveryBriefKind(t *testing.T) {
 	}
 	if len(runs) != 2 || !kinds["smoke"] || !kinds["adjudication"] {
 		t.Fatalf("runs: %+v", runs)
+	}
+}
+
+// R4: the timeout holds when the adapter's child keeps running and holds its
+// output — the shape of codex exec and claude -p (found in review).
+func TestReviewDispatchTimeoutKillsTheAdaptersChildren(t *testing.T) {
+	root := dispatchInstance(t)
+	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{
+		"spawner": {Command: []string{"sh", "-c", "cat >/dev/null; sleep 30; true"}, Vendor: "test", Model: "spawn-1", Timeout: "300ms"},
+	})
+	start := time.Now()
+	code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "spawner", "--apply")
+	if elapsed := time.Since(start); elapsed > 10*time.Second {
+		t.Fatalf("the timeout did not hold: %s", elapsed)
+	}
+	if code == 0 || !strings.Contains(out, "review_dispatch.status=failed") || !strings.Contains(out, "timeout") {
+		t.Fatalf("spawner: %d %s", code, out)
 	}
 }

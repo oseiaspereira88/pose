@@ -247,7 +247,15 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 	cmd.Stdin = strings.NewReader(plan.Brief.Text)
 	var combined bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &combined, &combined
+	// Adapters such as `codex exec` and `claude -p` start children; killing
+	// only the parent left a child holding stdout, so the timeout never fired
+	// (found in review). The run gets its own process group, the whole group
+	// is killed on timeout and after the run, and pipes are released at most
+	// a few seconds after the kill.
+	isolateProcessGroup(cmd)
+	cmd.WaitDelay = 5 * time.Second
 	runErr := cmd.Run()
+	killProcessGroup(cmd)
 	transcript = combined.Bytes()
 	if cmd.ProcessState != nil {
 		run.ExitCode = cmd.ProcessState.ExitCode()
