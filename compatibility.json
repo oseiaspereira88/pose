@@ -1,6 +1,6 @@
 {
   "matrix_version": 1,
-  "engine_version": "7.3.0",
+  "engine_version": "7.4.0",
   "schema_version": 1,
   "support_policy": {
     "window": "Releases from 0.18.2 onward. Earlier releases had no installed base, so upgrades from them are not supported and are not exercised. Every entry in supported_upgrades is exercised by the release compatibility gate: install with the prior release, then upgrade with the candidate.",
@@ -9,6 +9,10 @@
     "prior_artifact_authentication": "Each supported prior release pins the SHA-256 of its checksums.txt; the compatibility gate verifies the pin before executing any downloaded binary."
   },
   "supported_upgrades": [
+    {
+      "from": "7.3.0",
+      "checksums_sha256": "8d550cb64b9bd15d99a4edfb588475407cc2875f46b943432a8182b8b2749d68"
+    },
     {
       "from": "7.2.0",
       "checksums_sha256": "b07e1344940bcaf867b3f7d8a48c1b009ed91621b9e8e3b85b3f9ff8e441cf00"
