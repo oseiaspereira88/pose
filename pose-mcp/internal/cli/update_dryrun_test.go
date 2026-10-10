@@ -346,3 +346,32 @@ func TestUpdateDryRunKeepsDirectoryPermissions(t *testing.T) {
 		}
 	}
 }
+
+// A file nobody may read does not stop the dry-run when the update does not
+// read it, inside the instance's root or its managed directories (found in
+// review).
+func TestUpdateDryRunToleratesUnreadableFiles(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root reads every file")
+	}
+	repo := olderInstance(t)
+	for _, rel := range []string{"unrelated.txt", ".pose/notes/private.md"} {
+		mustWrite(t, filepath.Join(repo, rel), "secret\n")
+		if err := os.Chmod(filepath.Join(repo, rel), 0o000); err != nil {
+			t.Fatal(err)
+		}
+		path := filepath.Join(repo, rel)
+		t.Cleanup(func() { _ = os.Chmod(path, 0o644) })
+	}
+	locked := filepath.Join(repo, ".pose", "locked")
+	mustWrite(t, filepath.Join(locked, "inside.md"), "x\n")
+	if err := os.Chmod(locked, 0o000); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(locked, 0o755) })
+	dryCode, dryOut := runPose(t, repo, "update", "--dry-run")
+	realCode, realOut := runPose(t, repo, "update", "--no-self")
+	if dryCode != realCode || strings.Contains(dryOut, "preparing the dry-run copy") || strings.Contains(dryOut, "reading the dry-run copy") {
+		t.Fatalf("dry-run %d and update %d disagree:\n%s\n---\n%s", dryCode, realCode, dryOut, realOut)
+	}
+}

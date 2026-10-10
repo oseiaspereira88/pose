@@ -14,6 +14,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -235,6 +236,11 @@ func (c *dryRunCopier) copy(src, dst string) error {
 	}
 	return filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
+			// An unreadable directory is reproduced empty with its mode,
+			// which the walk recorded before failing to list it.
+			if errors.Is(err, fs.ErrPermission) {
+				return nil
+			}
 			return err
 		}
 		rel, _ := filepath.Rel(src, path)
@@ -371,12 +377,17 @@ func relativeTo(link, target string) string {
 }
 
 func copyPlainFile(src, dst string) error {
-	raw, err := os.ReadFile(src)
+	info, err := os.Stat(src)
 	if err != nil {
 		return err
 	}
-	info, err := os.Stat(src)
-	if err != nil {
+	raw, err := os.ReadFile(src)
+	if errors.Is(err, fs.ErrPermission) {
+		// A file nobody may read is reproduced as one: same mode, no
+		// content, so the update meets the same refusal — and a file the
+		// update never reads no longer stops the dry-run (found in review).
+		raw = nil
+	} else if err != nil {
 		return err
 	}
 	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
@@ -406,6 +417,9 @@ func hashTreeInto(out map[string]string, dir, prefix string, skipGit bool, visit
 	defer delete(visiting, real)
 	return filepath.WalkDir(real, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
+			if errors.Is(err, fs.ErrPermission) {
+				return nil
+			}
 			return err
 		}
 		rel, _ := filepath.Rel(real, path)
@@ -432,6 +446,10 @@ func hashTreeInto(out map[string]string, dir, prefix string, skipGit bool, visit
 			return nil
 		}
 		raw, err := os.ReadFile(path)
+		if errors.Is(err, fs.ErrPermission) {
+			out[filepath.ToSlash(rel)] = "\x00unreadable"
+			return nil
+		}
 		if err != nil {
 			return err
 		}
