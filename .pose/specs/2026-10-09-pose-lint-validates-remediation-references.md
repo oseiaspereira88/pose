@@ -1,6 +1,6 @@
 ---
 slug: pose-lint-validates-remediation-references
-status: draft
+status: abandoned
 created_at: 2026-10-09
 completed_at:
 supersedes:
@@ -42,7 +42,11 @@ Implementation artifacts are declared when the spec starts.
 
 ## 5. Decisions
 
-No decision recorded yet; the spec is a draft.
+### Decision D1
+- Date: 2026-10-10
+- Context: before implementing, the premise was measured: a copy of the 2026-10-09 spec with `remediates: pose-red-signals-reach-a-person` fails `pose lint-spec` with `remediation-lineage/syntax: expected reference@category`, the same error the seal gave. `lintspec.go` already validates every `remediates:` entry through `ValidateRemediationLineage`.
+- Decision: abandon the spec.
+- Rationale: the premise was wrong. On 2026-10-09 lint-spec was not run on that spec before sealing; the spec attributed to the engine a step the implementer skipped.
 
 ## 6. Validation
 
@@ -56,7 +60,7 @@ A spec with `remediates: <bare-slug>` fails lint-spec; `spec:<slug>@defect-fix` 
 
 ### Delivered scope
 
-Not started: opened on 2026-10-09 from the POSE 7.1.0 adoption in Harne8, pose-dist, audio-relay and storageclose.
+Nothing to deliver: `lint-spec` already validates remediation references. Abandoned after measuring the premise (D1).
 
 ### Residual risks
 
