@@ -256,6 +256,12 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 	cmd.WaitDelay = 5 * time.Second
 	runErr := cmd.Run()
 	killProcessGroup(cmd)
+	// The adapter exited and a child it left still held the output when
+	// WaitDelay expired: the run finished, its leftover is killed above, and
+	// the exit status decides (found in review).
+	if errors.Is(runErr, exec.ErrWaitDelay) && cmd.ProcessState != nil && cmd.ProcessState.Success() {
+		runErr = nil
+	}
 	transcript = combined.Bytes()
 	if cmd.ProcessState != nil {
 		run.ExitCode = cmd.ProcessState.ExitCode()
@@ -280,12 +286,12 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 			if len(line) < 4 {
 				continue
 			}
-			path := strings.TrimSpace(line[3:])
-			if i := strings.Index(path, " -> "); i >= 0 {
-				path = path[i+4:]
-			}
-			if !derivedReviewPath(path) {
-				changed = append(changed, path)
+			// A rename touches both paths: moving sealed content into
+			// derived state still removed it (found in review).
+			for _, path := range strings.Split(strings.TrimSpace(line[3:]), " -> ") {
+				if path = strings.Trim(path, `"`); !derivedReviewPath(path) {
+					changed = append(changed, path)
+				}
 			}
 		}
 		if len(changed) > 0 {

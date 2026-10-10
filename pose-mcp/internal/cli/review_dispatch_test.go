@@ -170,3 +170,19 @@ func TestReviewDispatchTimeoutKillsTheAdaptersChildren(t *testing.T) {
 		t.Fatalf("spawner: %d %s", code, out)
 	}
 }
+
+// R4: a run that exits 0 leaving a child on its output completes, and a run
+// that renames sealed content into derived state fails (found in review).
+func TestReviewDispatchJudgesTheRunNotItsLeftovers(t *testing.T) {
+	root := dispatchInstance(t)
+	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{
+		"lingers": {Command: []string{"sh", "-c", "cat >/dev/null; echo decision: approved; sleep 8 & exit 0"}, Vendor: "test", Model: "linger-1", Timeout: "60s"},
+		"mover":   {Command: []string{"sh", "-c", "cat >/dev/null; mkdir -p .pose/state && git mv pose-mcp/lib.go .pose/state/lib.go"}, Vendor: "test", Model: "move-1", Timeout: "30s"},
+	})
+	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "lingers", "--apply"); code != 0 || !strings.Contains(out, "review_dispatch.status=completed") {
+		t.Fatalf("a finished run with a lingering child: %d %s", code, out)
+	}
+	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "mover", "--apply"); code == 0 || !strings.Contains(out, "review_dispatch.status=failed") || !strings.Contains(out, "pose-mcp/lib.go") {
+		t.Fatalf("a rename out of the sealed content: %d %s", code, out)
+	}
+}

@@ -90,12 +90,14 @@ A fake adapter (shell script) exercises success, timeout, non-zero exit and a ru
 
 2026-10-10, independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): medium severity. The timeout killed only the adapter's process; a child holding stdout (the shape of `codex exec` and `claude -p`) kept the dispatch waiting until it ended. The adapter now runs in its own process group, the group is killed on timeout and after the run, and `WaitDelay` releases the pipes. `TestReviewDispatchTimeoutKillsTheAdaptersChildren` took 30s on the previous code and fails; it now returns in under a second.
 
+2026-10-10, second independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): medium and low. (A) With `WaitDelay`, an adapter that exited 0 leaving a child on its output was recorded as failed; a run whose process succeeded and only hit `ErrWaitDelay` now completes, its leftover killed with the group. (B) For a rename, only the destination was checked, so moving sealed content into derived state passed; both paths are checked. `TestReviewDispatchJudgesTheRunNotItsLeftovers` fails on the previous code.
+
 ### Requirement trace
 
 - R1 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
 - R2 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
 - R3 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
-- R4 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters test:TestReviewDispatchTimeoutKillsTheAdaptersChildren
+- R4 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters test:TestReviewDispatchTimeoutKillsTheAdaptersChildren test:TestReviewDispatchJudgesTheRunNotItsLeftovers
 - R5 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
 - R6 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
 - R7 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRecordsEveryBriefKind
