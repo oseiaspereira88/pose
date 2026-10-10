@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -230,4 +231,36 @@ func stateIDs(states []posemodel.CapabilityState) string {
 		ids = append(ids, state.ID)
 	}
 	return strings.Join(ids, ",")
+}
+
+// Spec pose-update-seeds-an-answerable-maintainer, R2: holding another role
+// with a registered key does not complete the maintainer step while nobody
+// holds maintainer (found in review).
+func TestSetupWantsAMaintainerEvenWhenYouHoldAnotherRole(t *testing.T) {
+	isolateHome(t)
+	repo := freshInstall(t)
+	if out, err := exec.Command("git", "-C", repo, "config", "user.email", "ada@example.com").CombinedOutput(); err != nil {
+		t.Fatalf("%v %s", err, out)
+	}
+	keyFile := filepath.Join(t.TempDir(), "id")
+	if out, err := exec.Command("ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-C", "ada", "-f", keyFile).CombinedOutput(); err != nil {
+		t.Skipf("ssh-keygen unavailable: %v %s", err, out)
+	}
+	pub, err := os.ReadFile(keyFile + ".pub")
+	if err != nil {
+		t.Fatal(err)
+	}
+	policy := map[string]any{"schema_version": 1, "identity_assurance": "declared",
+		"roles": map[string][]string{"reviewer": {"human:ada"}},
+		"keys":  map[string][]map[string]string{"human:ada": {{"key": strings.TrimSpace(string(pub)), "added_at": "2026-10-10"}}}}
+	raw, _ := json.Marshal(policy)
+	mustWrite(t, filepath.Join(repo, ".pose/policy/actions.json"), string(raw))
+	plan := setupJSON(t, repo)
+	if !plan.You.Registered {
+		t.Fatalf("fixture: ada is not registered: %+v", plan.You)
+	}
+	maintainer := stepOf(plan, "identity.maintainer")
+	if maintainer.State != "todo" || !strings.Contains(maintainer.Summary, "nobody holds the maintainer role") || !strings.Contains(maintainer.Command, "--role maintainer") {
+		t.Fatalf("a reviewer with a key completed the maintainer step: %+v", maintainer)
+	}
 }

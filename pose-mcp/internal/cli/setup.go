@@ -167,10 +167,10 @@ func buildSetupPlan(root string) (setupPlan, error) {
 	plan.Steps = append(plan.Steps, step)
 
 	step = setupStep{ID: "identity.maintainer", Area: "identity", performable: true}
-	rolesHeld := 0
-	for _, list := range policy.Roles {
-		rolesHeld += len(list)
-	}
+	// The maintainer role is what configuration-review and onboarding
+	// requests are addressed to; another role held does not answer them
+	// (spec pose-update-seeds-an-answerable-maintainer, found in review).
+	maintainers := len(policy.Roles["maintainer"])
 	keyArg := "<file.pub>"
 	if plan.You.KeyFile != "" {
 		keyArg = plan.You.KeyFile
@@ -180,10 +180,10 @@ func buildSetupPlan(root string) (setupPlan, error) {
 		who = "human:<you>"
 	}
 	switch {
+	case maintainers == 0 && (agency || len(openRoleRequests(root)) > 0):
+		step.State, step.Summary = "todo", "nobody holds the maintainer role, so a request addressed to the maintainer has nobody to answer it"
 	case plan.You.Registered && len(plan.You.Roles) > 0:
 		step.State, step.Summary, step.performable = "done", who+" holds "+strings.Join(plan.You.Roles, ", ")+" and can prove answers with a registered key", false
-	case rolesHeld == 0 && (agency || len(openRoleRequests(root)) > 0):
-		step.State, step.Summary = "todo", "nobody holds a role, so a request addressed to the maintainer has nobody to answer it"
 	case plan.Assurance == posemodel.ReviewIdentityAssuranceVerified && !plan.You.Registered:
 		step.State, step.Summary = "todo", "identity assurance is verified and "+who+" has no registered key to prove answers"
 	default:

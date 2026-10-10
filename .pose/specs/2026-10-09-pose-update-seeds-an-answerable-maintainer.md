@@ -47,6 +47,8 @@ The engine must not invent a principal: a name from git is a suggestion, confirm
 - modified: pose-mcp/internal/pose/action_resolution.go
 - modified: pose-mcp/internal/cli/maintenance.go
 - modified: pose-mcp/internal/cli/configuration_review_test.go
+- modified: pose-mcp/internal/cli/setup.go
+- modified: pose-mcp/internal/cli/setup_test.go
 
 ### Delivery targets
 
@@ -66,10 +68,14 @@ The engine must not invent a principal: a name from git is a suggestion, confirm
 
 Fixture without `actions.json`: update, then resolve; the messages name the empty role; after `identity add --role maintainer --apply` the resolve succeeds.
 
+### Execution log
+
+2026-10-10, independent review (agent:independent-gpt-6.1-sol-review): medium severity. `setup` marked `identity.maintainer` done for a principal with a registered key holding only `reviewer`, while nobody held `maintainer`. The step now asks for a maintainer whenever that role is empty under agency readiness or open role requests; `TestSetupWantsAMaintainerEvenWhenYouHoldAnotherRole` fails on the previous step.
+
 ### Requirement trace
 
 - R1 [satisfied] governance:update-seeds-an-answerable-maintainer evidence:integration test:TestUpdateNamesAnUnansweredMaintainerRole
-- R2 [satisfied] governance:update-seeds-an-answerable-maintainer evidence:integration test:TestSetupOnAFreshInstallNamesTheNextStep
+- R2 [satisfied] governance:update-seeds-an-answerable-maintainer evidence:integration test:TestSetupOnAFreshInstallNamesTheNextStep test:TestSetupWantsAMaintainerEvenWhenYouHoldAnotherRole
 - R3 [satisfied] governance:update-seeds-an-answerable-maintainer evidence:integration test:TestUpdateNamesAnUnansweredMaintainerRole
 
 ## 7. Final Report
