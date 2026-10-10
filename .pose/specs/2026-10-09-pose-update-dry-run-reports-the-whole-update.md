@@ -78,9 +78,11 @@ A fixture instance stamped 6.1.0: the dry-run output lists the merges, stamp and
 
 2026-10-10, independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): medium severity. `pose update --dry-run --force` reported "the update would fail" because the copy held an empty `.git` and `--force` runs install, which refuses a directory git does not recognise; the real `--force` update succeeded. The copy is now `git init`-ed; `TestUpdateDryRunWithForceRunsOnTheCopy` covers it (reproduced on audio-relay before the fix).
 
+2026-10-10, independent review (agent:independent-gpt-6.1-sol-review): medium severity. The copy skipped symlinks, so with `.pose/policy` symlinked the dry-run predicted 23 files and 12 requests the real update does not create. The copy now follows symlinks as the update reads through them (cycles broken, broken links skipped); `TestUpdateDryRunFollowsASymlinkedPolicy` fails on the previous copy.
+
 ### Requirement trace
 
-- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy
+- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy
 - R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 - R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 

@@ -107,3 +107,35 @@ func TestUpdateDryRunWithForceRunsOnTheCopy(t *testing.T) {
 		t.Fatalf("the dry-run --force wrote: %+v", changes)
 	}
 }
+
+// A symlinked .pose/policy is read through by the update, so the dry-run
+// copy follows it instead of predicting a policy-less update (found in review).
+func TestUpdateDryRunFollowsASymlinkedPolicy(t *testing.T) {
+	repo := olderInstance(t)
+	want := dryRunOutput(t, repo)
+	shared := filepath.Join(t.TempDir(), "policy")
+	if err := os.Rename(filepath.Join(repo, ".pose/policy"), shared); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(shared, filepath.Join(repo, ".pose/policy")); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	if got := dryRunOutput(t, repo); got != want {
+		t.Fatalf("the dry-run differs through a symlinked policy:\nwant:\n%s\ngot:\n%s", want, got)
+	}
+}
+
+func dryRunOutput(t *testing.T, repo string) string {
+	t.Helper()
+	code, out := runPose(t, repo, "update", "--dry-run")
+	if code != 0 {
+		t.Fatalf("dry-run: %d %s", code, out)
+	}
+	lines := []string{}
+	for _, line := range strings.Split(out, "\n") {
+		if strings.Contains(line, "would ") || strings.HasPrefix(line, "Result:") {
+			lines = append(lines, line)
+		}
+	}
+	return strings.Join(lines, "\n")
+}

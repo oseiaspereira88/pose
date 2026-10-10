@@ -124,7 +124,8 @@ func snapshotForDryRun(root, shadow string) (map[string]string, error) {
 		return nil, err
 	}
 	for _, entry := range entries {
-		if entry.Type().IsRegular() {
+		// Stat follows a symlink: the update reads through it.
+		if info, err := os.Stat(filepath.Join(root, entry.Name())); err == nil && info.Mode().IsRegular() {
 			if err := copyPlainFile(filepath.Join(root, entry.Name()), filepath.Join(shadow, entry.Name())); err != nil {
 				return nil, err
 			}
@@ -132,31 +133,55 @@ func snapshotForDryRun(root, shadow string) (map[string]string, error) {
 	}
 	for _, dir := range dryRunCopied {
 		src := filepath.Join(root, dir)
-		info, err := os.Lstat(src)
+		info, err := os.Stat(src)
 		if err != nil || !info.IsDir() {
 			continue
 		}
-		if err := copyDryRunTree(src, filepath.Join(shadow, dir)); err != nil {
+		if err := copyDryRunTree(src, filepath.Join(shadow, dir), map[string]bool{}); err != nil {
 			return nil, err
 		}
 	}
 	return hashTree(shadow, true)
 }
 
-func copyDryRunTree(src, dst string) error {
-	return filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
+// copyDryRunTree copies src into dst, following symlinks the way the update
+// reads through them: a symlinked .pose/policy is policy the update sees, and
+// skipping it made the dry-run predict files and requests the real update
+// does not create (found in review). visited breaks symlink cycles; broken
+// links and special files are skipped.
+func copyDryRunTree(src, dst string, visited map[string]bool) error {
+	real, err := filepath.EvalSymlinks(src)
+	if err != nil {
+		return nil
+	}
+	if visited[real] {
+		return nil
+	}
+	visited[real] = true
+	defer delete(visited, real)
+	return filepath.WalkDir(real, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		rel, _ := filepath.Rel(src, path)
+		rel, _ := filepath.Rel(real, path)
 		target := filepath.Join(dst, rel)
 		switch {
 		case d.IsDir():
 			return os.MkdirAll(target, 0o755)
 		case d.Type().IsRegular():
 			return copyPlainFile(path, target)
+		case d.Type()&fs.ModeSymlink != 0:
+			info, err := os.Stat(path)
+			switch {
+			case err != nil:
+				return nil
+			case info.IsDir():
+				return copyDryRunTree(path, target, visited)
+			case info.Mode().IsRegular():
+				return copyPlainFile(path, target)
+			}
 		}
-		return nil // symlinks and special files are not followed
+		return nil
 	})
 }
 
