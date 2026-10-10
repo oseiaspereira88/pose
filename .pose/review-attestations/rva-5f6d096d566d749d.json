@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-5f6d096d566d749d",
+  "bundle_id": "rvb-b0ae3428882f27f6",
+  "bundle_digest": "sha256:b0ae3428882f27f6876c4f4c9c89abe1d9ba179d546aca1c6638d52036d4c744",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Reattestation of unchanged metadata and authenticated 7.2.0 pin b07e1344940bcaf867b3f7d8a48c1b009ed91621b9e8e3b85b3f9ff8e441cf00, matching verified-evidence.json and prior review. No new download claimed in this session. agent:independent-gpt-6.1-sol-review is a maintainer-authorized declaration required by the engine under declared assurance, not cryptographic proof of identity or observable cognitive independence."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Compared all six source paths against 42ee510e: identical. Original change preserves all fourteen earlier upgrade pins and adds authenticated 7.2.0. Sealed current-HEAD validation passes; prior reviewed compatibility gate covered fifteen upgrades, contract checks and installer E2E. No new CLI, schema or MCP tool contract."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-baea3d00c6f1b42b",
+      "rationale": "R1 requires consistent 7.3.0 metadata across Go, registry and documentation; R2 adds only the authenticated prior-release pin. R3 retains the prior compatibility gate evidence plus renewed deterministic validation. The single material registry delta changes versions only, preserving manifest shape and tool contracts.",
+      "mappings": [
+        {
+          "delta": "SD-1bca3a2e",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "Registry version metadata must match the authoritative Go version; only the version values change, preserving schema and MCP contracts."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Rules applied during review: mixed metadata/documentation; .pose/workflows/review.md; .pose/rules/security.md for pins, authority and secret exposure; backend-go.md for version source and checks; documentation-style.md for both README locales and CI; delivery-evidence.md for sealed results; knowledge-governance.md for prior-context lookup (no matching note). Both POSIX and PowerShell snippets and CI pin remain 7.3.0. No frontend or deployment behavior changed."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Same implementation as previous approval. Current sealed validation includes release-version-source and installer/upgrade journey checks. Restoring a committed sealed bundle makes the review record resolvable without altering engine policy or capabilities. This operation does not reopen the done spec or publish a release."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Compared current source files to approved 42ee510e with no differences and inspected bcda7536 patch. Only reattestation and generated governance evidence are being committed. Artifact reconciliation confirms declared source scope. No new functional findings or accepted residual risks."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Inspected original source patch and unchanged current metadata: no credentials, new dependencies or executable inputs introduced. Existing authenticated upgrade pins preserved; new 7.2.0 pin matches verified release evidence. Sealed evidence is current by provenance; declared reviewer label is not represented as verified identity."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Recording a fresh attestation together with its sealed bundle and generated indexes is sufficient to repair the missing evidence reference. No source, policy or capability change is needed. A changed semantic subject, mismatched pin or failed gate would invalidate this approval."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed resolved native command during this reattestation; successful log retained in /tmp/pose-reattest-artifact-check.log."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-baea3d00c6f1b42b",
+      "rationale": "Executed resolved native command during this reattestation; successful log retained in /tmp/pose-reattest-assess-design.log."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed resolved native command during this reattestation; successful log retained in /tmp/pose-reattest-assess-discover-docs-site.log."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed resolved native command during this reattestation; successful log retained in /tmp/pose-reattest-assess-discover-pose-mcp.log."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed resolved native command during this reattestation; successful log retained in /tmp/pose-reattest-assess-discover-scripts.log."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed resolved native command during this reattestation; successful log retained in /tmp/pose-reattest-assess-integrate.log."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed resolved native command during this reattestation; successful log retained in /tmp/pose-reattest-assess-tech-debt.log."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-review verification gate; executed after this attestation. Spec already done and close is not run."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-review verification gate; executed after this attestation. Spec already done and close is not run."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed resolved native command during this reattestation; successful log retained in /tmp/pose-reattest-suggest-review-docs-site.log."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed resolved native command during this reattestation; successful log retained in /tmp/pose-reattest-suggest-review-pose-mcp.log."
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-version-source-integration",
+      "rationale": "Executed resolved native command during this reattestation; successful log retained in /tmp/pose-reattest-suggest-review-scripts.log."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed global validate --strict in this session; this run executes the registered pose-mcp module checks and covers both global and module plan entries."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Registered matrix declares no producer checks for this component; unchanged documentation inspected directly and global strict validation executed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed global validate --strict in this session; this run executes the registered pose-mcp module checks and covers both global and module plan entries."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Registered matrix declares no producer checks for this component; unchanged documentation inspected directly and global strict validation executed."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/release-version-source-integration",
+    "structure:design-baea3d00c6f1b42b",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-gpt-6.1-sol-review",
+    "concluded_by": "agent:independent-gpt-6.1-sol-review",
+    "applied_by": "agent:independent-gpt-6.1-sol-review"
+  },
+  "attested_at": "2026-10-10T02:53:14Z",
+  "path": ".pose/review-attestations/rva-5f6d096d566d749d.json"
+}
