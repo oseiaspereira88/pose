@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-1c4f6e7599077d65",
+  "bundle_id": "rvb-b9d71bd4db50e1b7",
+  "bundle_digest": "sha256:b9d71bd4db50e1b7381503a2cc3349fbf452c51dd3061e9028046d93684ca3c0",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Independent Codex review by another vendor than agent:claude-opus-5-5. The agent: prefix is a declaration required by the engine, not verified identity. The maintainer authorized agent:independent-gpt-6.1-sol-review. Pinned signing keys remain trusted authorities; native sealing refuses after adoption and rechecks history."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Optional legacy ledgers extend unsigned history verification without weakening live signing for uncovered attestations. Direct and answered-request adoption honor explicit issuer selection and share sealing. Signed envelopes are unaffected."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "D1 binds exact prior content rather than a date exemption; D2 puts sealing before policy activation in the single adopt contract. Full SHA256 content and Ed25519 signature prevent entry injection and same-ID content substitution."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Rules applied during review: mixed feature and bugfix; workflow .pose/workflows/review.md; backend-go for Go errors and tests, security for pins signatures and paths, documentation-style for CLI and issuer guidance, delivery-evidence for closeout. No UI or infrastructure rules apply. docs-site/docs/cli.md and help match native behavior."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Missing or ambiguous local issuers give init/pin or --issuer remediation. Both previews do not write ledgers. Independent failure injection left a signed ledger with policy disabled; retry reused coverage without duplicating it. Invalid ledgers fail closed."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed all four attributed commits from 9fedf820 through 73efabb4 against R1-R6; declared artifacts reconcile and delivery composition passes. No unrelated refactor or dependency added. Prior four findings have regression coverage and pass."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Cheapest bypass is injecting a new ledger or changing an entry: without pinned key a valid Ed25519 signature is unavailable. LegacyLedgerRefusesEverythingOutsideIt and SealingRechecksAndRefusesSymlinkedDir exercise refusals; extra ephemeral probes passed for same-ID modified content, unsigned injected ledger, file symlink and FIFO. Another project and unpinned keys are refused. Corpus README has no dedicated ledger case; equivalent focused negative tests provide this evidence. A holder of the trusted pinned key can sign manually, the existing attestation authority boundary. Diff secret-pattern scan found no matches; no dependency change."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Smallest sufficient alternative retaining live signatures is an exact signed set. Date cutoffs permit later forged history; rereviewing all history imposes avoidable cost. No separate sealing command or extensibility added. Choice would need reassessment if pinned issuers were no longer trusted signing authorities."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed native tool during independent review; discover covered both components; strict validation covers pose-mcp."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:sha256:ec2e64b86c92c00c520bb20da7d66b65508c9ee9cf22498cae15f988e1c119e4",
+      "rationale": "Executed native tool during independent review; discover covered both components; strict validation covers pose-mcp."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed native tool during independent review; discover covered both components; strict validation covers pose-mcp."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed native tool during independent review; discover covered both components; strict validation covers pose-mcp."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Executed native tool during independent review; discover covered both components; strict validation covers pose-mcp."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed native tool during independent review; discover covered both components; strict validation covers pose-mcp."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed native tool during independent review; discover covered both components; strict validation covers pose-mcp."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed native tool during independent review; discover covered both components; strict validation covers pose-mcp."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Executed native tool during independent review; discover covered both components; strict validation covers pose-mcp."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed native tool during independent review; discover covered both components; strict validation covers pose-mcp."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Validation matrix declares no producer for this documentation-only component; docs reviewed manually."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed native tool during independent review; discover covered both components; strict validation covers pose-mcp."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delivery-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-10T02:11:51Z",
+  "path": ".pose/review-attestations/rva-1c4f6e7599077d65.json"
+}

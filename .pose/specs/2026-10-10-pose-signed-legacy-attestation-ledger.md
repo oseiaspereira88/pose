@@ -1,8 +1,8 @@
 ---
 slug: pose-signed-legacy-attestation-ledger
-status: in-progress
+status: done
 created_at: 2026-10-10
-completed_at:
+completed_at: 2026-10-10
 supersedes:
 depends_on: pose-native-attestation-issuer, pose-reuse-is-sealed-signing-stays-live
 priority: 0
