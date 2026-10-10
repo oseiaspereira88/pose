@@ -118,6 +118,11 @@ type ActionAnswerStatement struct {
 	Principal      string `json:"principal"`
 	Answer         string `json:"answer"`
 	IdempotencyKey string `json:"idempotency_key"`
+	// Reason is covered by the signature when the answer carries one, so a
+	// declined or deferred capability's recorded reason cannot be edited
+	// after signing (spec pose-adopt-request-keeps-the-reason). Omitted when
+	// empty, so statements without a reason keep their bytes.
+	Reason string `json:"reason,omitempty"`
 }
 
 // Canonical is the exact byte sequence signed: compact JSON and a newline,
@@ -128,9 +133,9 @@ func (st ActionAnswerStatement) Canonical() []byte {
 }
 
 // AnswerStatement builds the statement for an answer to r.
-func AnswerStatement(r ActionRequest, principal, answer, idempotencyKey string) ActionAnswerStatement {
+func AnswerStatement(r ActionRequest, principal, answer, idempotencyKey, reason string) ActionAnswerStatement {
 	return ActionAnswerStatement{SchemaVersion: 1, Namespace: ActionAnswerNamespace, Project: r.Project, RequestID: r.ID, RequestDigest: r.RequestDigest,
-		Principal: principal, Answer: answer, IdempotencyKey: idempotencyKey}
+		Principal: principal, Answer: answer, IdempotencyKey: idempotencyKey, Reason: strings.TrimSpace(reason)}
 }
 
 // ActionSSHSignature is the proof recorded on an answer: enough to verify
@@ -152,7 +157,7 @@ func VerifyRecordedActionSignature(r ActionRequest, event ActionEvent) error {
 	if sig == nil {
 		return errors.New("the event carries no signature")
 	}
-	want := AnswerStatement(r, event.Actor, event.Answer, event.IdempotencyKey)
+	want := AnswerStatement(r, event.Actor, event.Answer, event.IdempotencyKey, event.Reason)
 	want.RequestDigest = event.RequestDigest
 	if sig.Statement != string(want.Canonical()) {
 		return errors.New("the recorded statement is not this answer's")
@@ -171,7 +176,7 @@ func VerifyRecordedActionSignature(r ActionRequest, event ActionEvent) error {
 // policy registers for the actor.
 func verifyActionSignature(policy ActionPolicy, r ActionRequest, res ActionResolution) (*ActionSSHSignature, error) {
 	fail := func(reason string) error { return fmt.Errorf("%w: %s", ErrActionVerificationFailed, reason) }
-	statement := AnswerStatement(r, res.Actor, res.Answer, res.IdempotencyKey)
+	statement := AnswerStatement(r, res.Actor, res.Answer, res.IdempotencyKey, res.Reason)
 	check, err := VerifySSHSignature(res.Signature, ActionAnswerNamespace, statement.Canonical())
 	if err != nil {
 		return nil, fail(err.Error() + " (it must sign `pose action statement` for this request version, actor, answer and idempotency key)")

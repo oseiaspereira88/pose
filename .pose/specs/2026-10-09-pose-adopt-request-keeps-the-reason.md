@@ -44,6 +44,14 @@ Record why a capability was declined or deferred when the decision arrives as an
 - modified: pose-mcp/internal/cli/configuration_review_test.go
 - modified: pose-mcp/internal/cli/adopt.go
 - modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/action_resolve.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/action_resolve_test.go
+- modified: pose-mcp/internal/pose/action_request.go
+- modified: pose-mcp/internal/pose/action_resolution.go
+- modified: pose-mcp/internal/pose/action_resolution_test.go
+- modified: pose-mcp/internal/pose/principal_keys.go
+- modified: pose-mcp/internal/pose/principal_keys_test.go
 
 ### Delivery targets
 
@@ -55,7 +63,13 @@ Record why a capability was declined or deferred when the decision arrives as an
 - Date: 2026-10-10
 - Context: `pose action resolve` already accepts `--reason`, stored in the answer event and read back by `adopt --request`; `adopt --list` already shows a decision's reason. The gap was the fallback: an answer without a reason was recorded as "answered decline in act-…".
 - Decision: refuse to record a decline or deferral without a reason, and let `adopt --request` take `--reason` when the answer has none.
-- Rationale: R1 and R3 already held; the placeholder is what let the reasons of audio-relay and storageclose go unrecorded on 2026-10-09, which the independent closeout review found on 2026-10-10.
+- Rationale: R3 already held; the placeholder is what let the reasons of audio-relay and storageclose go unrecorded on 2026-10-09, which the independent closeout review found on 2026-10-10.
+
+### Decision D2
+- Date: 2026-10-10
+- Context: the independent review (agent:independent-claude-opus-5-5-review, fallback reviewer) found that D1 was wrong about R1: the reason was stored but neither the SSH answer statement nor the issuer claim signed it, so a signed answer's reason could be edited in the journal and still verify.
+- Decision: the answer statement and the authority claim carry `reason` (omitted when empty, so answers without one keep their signed bytes); resolve refuses a reason the signature or claim does not cover, and the recorded signature re-verifies against the event's reason. `pose action statement` takes `--reason`.
+- Rationale: R1 says "covered by the answer's digest"; storing alone does not meet it.
 
 ## 6. Validation
 
@@ -65,7 +79,7 @@ Decline through a request with a rationale; `adoption-decisions.json` and `adopt
 
 ### Requirement trace
 
-- R1 [satisfied] governance:adopt-request-keeps-the-reason evidence:integration test:TestConfigurationReviewAppliesOnlyAnsweredRequests
+- R1 [satisfied] governance:adopt-request-keeps-the-reason evidence:integration test:TestConfigurationReviewAppliesOnlyAnsweredRequests test:TestSignedAnswerCoversItsReason
 - R2 [satisfied] governance:adopt-request-keeps-the-reason evidence:integration test:TestDeclinedRequestNeedsAReason
 - R3 [satisfied] governance:adopt-request-keeps-the-reason evidence:integration test:TestDeclinedRequestNeedsAReason
 

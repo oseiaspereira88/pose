@@ -194,6 +194,13 @@ func TestAVerifiedClaimBoundToTheRequestIsAccepted(t *testing.T) {
 	canonical, _ := json.Marshal(claim)
 	envelope := ActionClaimEnvelope{Issuer: "harne8:confirm", Algorithm: "ed25519", PublicKey: base64.StdEncoding.EncodeToString(public), Signature: base64.StdEncoding.EncodeToString(ed25519.Sign(private, canonical))}
 
+	// A reason the claim does not sign is refused (spec pose-adopt-request-keeps-the-reason).
+	reasoned := answer(view, "human:maintainer", "preserve-v1", "k2")
+	reasoned.Reason = "added after signing"
+	reasoned.Claim, reasoned.Envelope = &claim, &envelope
+	if _, err := s.ResolveActionRequest(reasoned, time.Now()); !errors.Is(err, ErrActionVerificationFailed) {
+		t.Fatalf("a reason outside the claim verified: %v", err)
+	}
 	tampered := answer(view, "human:maintainer", "break-v1", "k0")
 	tampered.Claim, tampered.Envelope = &claim, &envelope
 	if _, err := s.ResolveActionRequest(tampered, time.Now()); !errors.Is(err, ErrActionVerificationFailed) {

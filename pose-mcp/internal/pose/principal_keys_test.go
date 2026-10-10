@@ -36,7 +36,7 @@ func keysPolicy(assurance string, keys map[string][]string, extra map[string]any
 
 func signedAnswer(view ActionRequestView, key sshTestKey, actor, value, idem string, flags byte) ActionResolution {
 	res := answer(view, actor, value, idem)
-	res.Signature = key.sign(ActionAnswerNamespace, AnswerStatement(view.Request, actor, value, idem).Canonical(), flags)
+	res.Signature = key.sign(ActionAnswerNamespace, AnswerStatement(view.Request, actor, value, idem, "").Canonical(), flags)
 	return res
 }
 
@@ -107,7 +107,7 @@ func TestSignedAnswerRefusesEveryMismatch(t *testing.T) {
 		},
 		"another namespace": func(view ActionRequestView) ActionResolution {
 			res := answer(view, "human:maintainer", "preserve-v1", "k1")
-			res.Signature = key.sign("git", AnswerStatement(view.Request, "human:maintainer", "preserve-v1", "k1").Canonical(), 0)
+			res.Signature = key.sign("git", AnswerStatement(view.Request, "human:maintainer", "preserve-v1", "k1", "").Canonical(), 0)
 			return res
 		},
 	}
@@ -191,5 +191,45 @@ func TestPrincipalKeyPolicyRefusesBadKeysAndSharedKeys(t *testing.T) {
 	policy, _ := LoadActionPolicy(s.Root)
 	if len(policy.KeysFor("human:a")) != 1 || !policy.holds("maintainer", "human:a") {
 		t.Fatalf("written policy: %+v", policy)
+	}
+}
+
+// Spec pose-adopt-request-keeps-the-reason, R1: an answer's reason is signed
+// with it — an answer whose signature omits the reason is refused, and a
+// recorded reason edited afterwards no longer re-verifies (found in review).
+func TestSignedAnswerCoversItsReason(t *testing.T) {
+	s := actionFixture(t)
+	key := newSSHTestKey(t, false)
+	writeActionPolicy(t, s, keysPolicy("verified", map[string][]string{"human:maintainer": {key.line("laptop")}}, nil))
+	view := openedDecision(t, s)
+	unsignedReason := answer(view, "human:maintainer", "preserve-v1", "k1")
+	unsignedReason.Reason = "readers still need v1"
+	unsignedReason.Signature = key.sign(ActionAnswerNamespace, AnswerStatement(view.Request, "human:maintainer", "preserve-v1", "k1", "").Canonical(), 0)
+	if _, err := s.ResolveActionRequest(unsignedReason, time.Now()); err == nil {
+		t.Fatal("a reason the signature does not cover was accepted")
+	}
+	signed := answer(view, "human:maintainer", "preserve-v1", "k1")
+	signed.Reason = "readers still need v1"
+	signed.Signature = key.sign(ActionAnswerNamespace, AnswerStatement(view.Request, "human:maintainer", "preserve-v1", "k1", signed.Reason).Canonical(), 0)
+	after, err := s.ResolveActionRequest(signed, time.Now())
+	if err != nil {
+		t.Fatalf("a signed reason was refused: %v", err)
+	}
+	var answered *ActionEvent
+	for i := range after.Events {
+		if after.Events[i].Type == ActionEventAnswered {
+			answered = &after.Events[i]
+		}
+	}
+	if answered == nil || answered.Reason != "readers still need v1" {
+		t.Fatalf("reason not recorded: %+v", answered)
+	}
+	if err := VerifyRecordedActionSignature(after.Request, *answered); err != nil {
+		t.Fatalf("the recorded answer does not re-verify: %v", err)
+	}
+	edited := *answered
+	edited.Reason = "nobody needs it"
+	if VerifyRecordedActionSignature(after.Request, edited) == nil {
+		t.Fatal("an edited reason still verified")
 	}
 }

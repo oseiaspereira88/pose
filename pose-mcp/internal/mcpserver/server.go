@@ -1161,7 +1161,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err != nil {
 			return nil, err
 		}
-		statement := pose.AnswerStatement(view.Request, a.Actor, a.Answer, a.IdempotencyKey)
+		statement := pose.AnswerStatement(view.Request, a.Actor, a.Answer, a.IdempotencyKey, "")
 		if !a.Apply {
 			return map[string]any{
 				"preview":           true,

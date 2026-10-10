@@ -64,7 +64,7 @@ func TestToolsCall_ActionResolve_RefusesAnAnswerWithoutProof(t *testing.T) {
 	if sc["preview"] != true || !strings.Contains(statement, view.Request.RequestDigest) || !strings.Contains(sc["sign_command"].(string), "-n pose-action-answer") {
 		t.Fatalf("the preview does not give the statement to sign: %+v", preview)
 	}
-	want := string(pose.AnswerStatement(view.Request, "human:maintainer", "preserve-v1", "k1").Canonical())
+	want := string(pose.AnswerStatement(view.Request, "human:maintainer", "preserve-v1", "k1", "").Canonical())
 	if statement != want {
 		t.Fatalf("preview statement differs from the CLI's:\n%s\n%s", statement, want)
 	}

@@ -288,6 +288,8 @@ func (s Store) verifyActionClaim(r ActionRequest, res ActionResolution, role str
 		return fail("the claim principal is not the answering actor")
 	case claim.Answer != res.Answer:
 		return fail("the claim signs another answer")
+	case claim.Reason != strings.TrimSpace(res.Reason):
+		return fail("the claim does not sign the answer's reason")
 	case claim.SchemaVersion != 1:
 		return fail("unsupported claim schema")
 	}

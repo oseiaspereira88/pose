@@ -137,7 +137,7 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 				out.Failure("pose action " + verb + ": " + err.Error())
 				return 1
 			}
-			statement := posemodel.AnswerStatement(view.Request, res.Actor, res.Answer, res.IdempotencyKey)
+			statement := posemodel.AnswerStatement(view.Request, res.Actor, res.Answer, res.IdempotencyKey, res.Reason)
 			signature, err := sshSign(signKey, statement.Canonical())
 			if err != nil {
 				out.Failure("pose action " + verb + ": " + err.Error())
@@ -190,11 +190,11 @@ func sshSign(keyPath string, message []byte) (string, error) {
 // a principal who signs on another machine:
 // pose action statement <id> --actor <p> --answer <a> --idempotency-key <k> | ssh-keygen -Y sign -f <key> -n pose-action-answer
 func cmdActionStatement(root string, args []string, stdout, stderr io.Writer) int {
-	const usage = "Usage: pose action statement <act-id> --actor <principal> --answer <answer> --idempotency-key <key>"
+	const usage = "Usage: pose action statement <act-id> --actor <principal> --answer <answer> --idempotency-key <key> [--reason <text>]"
 	if len(args) == 0 || strings.HasPrefix(args[0], "-") {
 		return usageError(stderr, usage)
 	}
-	id, actor, answer, key := args[0], "", "", ""
+	id, actor, answer, key, reason := args[0], "", "", "", ""
 	for i := 1; i < len(args); i++ {
 		if i+1 >= len(args) {
 			return usageError(stderr, usage)
@@ -206,6 +206,8 @@ func cmdActionStatement(root string, args []string, stdout, stderr io.Writer) in
 			answer = args[i+1]
 		case "--idempotency-key":
 			key = args[i+1]
+		case "--reason":
+			reason = args[i+1]
 		default:
 			return usageError(stderr, usage)
 		}
@@ -220,6 +222,6 @@ func cmdActionStatement(root string, args []string, stdout, stderr io.Writer) in
 		return 1
 	}
 	// Raw bytes, not rendered fields: what is printed is what gets signed.
-	_, _ = stdout.Write(posemodel.AnswerStatement(view.Request, actor, answer, key).Canonical())
+	_, _ = stdout.Write(posemodel.AnswerStatement(view.Request, actor, answer, key, reason).Canonical())
 	return 0
 }

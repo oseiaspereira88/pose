@@ -385,9 +385,12 @@ type ActionAuthorityClaim struct {
 	Role          string `json:"role"`
 	Execution     string `json:"execution,omitempty"`
 	Answer        string `json:"answer"`
-	Issuer        string `json:"issuer"`
-	IssuedAt      string `json:"issued_at"`
-	ExpiresAt     string `json:"expires_at,omitempty"`
+	// Reason, when the answer has one, is signed with it (spec
+	// pose-adopt-request-keeps-the-reason); omitted when empty.
+	Reason    string `json:"reason,omitempty"`
+	Issuer    string `json:"issuer"`
+	IssuedAt  string `json:"issued_at"`
+	ExpiresAt string `json:"expires_at,omitempty"`
 }
 
 // ActionClaimEnvelope carries the Ed25519 signature over the canonical claim.
