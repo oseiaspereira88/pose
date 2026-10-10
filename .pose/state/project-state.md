@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-10T08:55:14Z
-baseline_commit: 4d7a93a871cb508a7b32d25226afde4e57ab197d
+generated_at: 2026-10-10T08:59:12Z
+baseline_commit: 1035a474f2153e26955e786a41b09b8ac605de02
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:f2b55b1c0e34 -->
+<!-- state:derived hash:ec3b6e16edcf -->
 
-- specs: total=378 draft=5 in-progress=4 blocked=0 done=368 superseded=0 abandoned=1
+- specs: total=378 draft=5 in-progress=3 blocked=0 done=369 superseded=0 abandoned=1
 - roadmaps: total=18 active=1 done=11
 - últimos closeouts:
-  - spec:pose-configuration-review-7-1-0 (2026-10-10)
+  - spec:pose-delegated-review-brief (2026-10-10)
   - spec:pose-adopt-request-keeps-the-reason (2026-10-10)
-  - spec:pose-signed-legacy-attestation-ledger (2026-10-10)
-  - spec:pose-v7-3-0-version-alignment (2026-10-10)
   - spec:pose-ci-avoids-anonymous-rate-limits (2026-10-10)
-  - ... e mais 363 (ver `pose_list_specs status:done`)
+  - spec:pose-v7-3-0-version-alignment (2026-10-10)
+  - spec:pose-signed-legacy-attestation-ledger (2026-10-10)
+  - ... e mais 364 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:858c9edfc075 -->
