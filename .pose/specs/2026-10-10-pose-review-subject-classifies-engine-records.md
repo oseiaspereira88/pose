@@ -57,6 +57,7 @@ A path that decides authority is reviewed with its scope; evidence about work is
 
 ### Decision D1
 - Date: 2026-10-10
+- Basis: R1, R2, R3
 - Context: the classifier is a hand-kept list; the ledger directory was added by `pose-signed-legacy-attestation-ledger` and never added to it.
 - Decision: classify the five names, and guard the list with a test that scans the engine's source for `.pose/<name>` literals and `filepath.Join(…, ".pose", "<name>")` calls.
 - Rationale: a review of the classifier alone would not have found the gap; the scan found it, and four more.
@@ -68,6 +69,8 @@ A path that decides authority is reviewed with its scope; evidence about work is
 2026-10-10, independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): high and medium. The scan read only three packages, so `.pose/usage/` (the usage verdict journal, written by `internal/usage`) had no class and the seal refused it; and the patterns skipped names with an extension, missing `.pose/telemetry.json`, `.pose/continuous-closeout.json` and `.pose/pose-validate.log`. The scan now walks the whole module and matches extensions; the four names are classified, R2 and R3 amended. The widened scan fails on the previous classifier listing exactly those four.
 
 2026-10-10, second independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): high severity. `.pose/LICENSE` and `.pose/NOTICE`, which install copies, had no class, and the scan's patterns skipped upper-case names. They are classified as documentation; the patterns accept any case and underscores (with `AGENTS.md` and `POSE.md`, which only follow `.pose` in a `git status` argument list, excluded); and because the scan reads string patterns, a second test checks every file a fresh install and an update actually write under `.pose/`. Both tests fail on the previous classifier naming exactly these two files.
+
+2026-10-10, third independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): the code was approved; the spec failed `lint-spec --strict` once closed. Its amendment log began with a `semantic` event and no baseline, so R1 and D1 read as added after the start, and D1 had no `Basis`. D1 now names its basis and a baseline event acknowledges the current nodes; `lint-spec --strict` on a copy marked done passes. The amendment gate runs only on done specs, which is why it surfaced after `pose close`.
 
 ### Strategy
 
