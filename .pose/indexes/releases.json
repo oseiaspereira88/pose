@@ -1,6 +1,30 @@
 {
   "pending": [
     {
+      "spec": "pose-adopt-request-keeps-the-reason",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A capability declined or deferred through a configuration-review answer is now recorded only with a reason: the one given in `pose action resolve … --reason`, or `pose adopt --request \u003cid\u003e --reason \u003ctext\u003e`. It used to be recorded as \"answered decline in act-…\", so the reason a project gave was lost.",
+      "path": "pose-adopt-request-keeps-the-reason.md",
+      "digest": "sha256:f293a303dbbe891a96764baec2f7c655b71d0c80cd0f2bebc7a56ddb4f761d6f"
+    },
+    {
+      "spec": "pose-delegated-review-brief",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose review brief \u003cbundle|scope\u003e [--kind review|adjudication|smoke]` renders the request a second agent receives to review, adjudicate or smoke-test a scope, generated from its sealed bundle alone: the change, the criteria and tools the plan owes, the structural facts and the sealed evidence, with fixed boundaries. The implementer no longer writes the reviewer's prompt; notes passed with `--note-file` appear only in a section labelled as the implementer's.",
+      "path": "pose-delegated-review-brief.md",
+      "digest": "sha256:c927ef208224877f849254b1ee10310d7a99799935043b2ba08f1f8184ed14e2"
+    },
+    {
+      "spec": "pose-release-prepare-guards-claimed-fragments",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose release prepare` no longer freezes a release over a changelog fragment that another spec still claims at its unreleased path, which left that claim pointing at a moved file and turned CI red after the v7.1.0 freeze. `release plan` names each such claim, `prepare --apply` refuses unless `--allow-moved-claims`, and `release check` reports it on a prepared tree.",
+      "path": "pose-release-prepare-guards-claimed-fragments.md",
+      "digest": "sha256:b908fe09bdfbf2f675ac01a108a0815e23c5e9ba7a9492957a1b2e0161fbbef0"
+    },
+    {
       "spec": "pose-update-dry-run-reports-the-whole-update",
       "category": "fixed",
       "breaking": false,

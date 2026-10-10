@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-8e505677f0e43c4c",
+  "bundle_id": "rvb-ae0bbbb9d843a00c",
+  "bundle_digest": "sha256:ae0bbbb9d843a00c31c63e5c4bedf3f506b3ccd00787e355a5f9a4aed83d7fbf",
+  "reviewer": "agent:independent-claude-opus-5-5-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-225f6d072ed200f9",
+      "rationale": "Premises checked rather than taken: run 38021679842 is CI on aa29027d with conclusion success, and its test job shows the journey step, the mirror step (printed [\"https://mirror.gcr.io/\"]) and Delivery images build and start all successful; release.yml line 25 calls ci.yml as a reusable workflow, so the Release run that failed with the 403 gets the same token."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Without GITHUB_TOKEN or GH_TOKEN the journey sends no Authorization header; I ran POSE_JOURNEYS=1 TestJourneysInstallAndUpgradeFromThePublishedRelease with both unset and with a token set, and both passed. Both Dockerfiles pin golang and alpine by sha256 digest, so the mirror cannot change the image bytes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "install-and-upgrade-journeys-integration passed in the sealed run with POSE_JOURNEYS=1; the empty AUTH array is safe under set -u on the bash 5 runners, and the [ -n ] \u0026\u0026 assignment does not trip set -e."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-225f6d072ed200f9",
+      "rationale": "The design delta has no material structural fact; the four changed paths are the spec, its start record, the journey script (R1) and ci.yml (R2 journey env, R3 mirror step before the image build)."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-225f6d072ed200f9",
+      "rationale": "Rules applied: security (the token is sent only as a header, never echoed; curl -fsSL prints no headers), delivery-evidence (R3 names the CI run, confirmed through the GitHub API), documentation-style. Each workflow step carries a comment naming the spec. D1 records the mirror-versus-login choice."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "pose validate --tolerant: 131 step(s), 131 pass, Result: SUCCESS, no failing step and no waiver. Residual risk recorded in the spec: if mirror.gcr.io is down the daemon falls back to Docker Hub. Observation, not a defect: the step overwrites /etc/docker/daemon.json instead of merging, which the passing run shows is harmless on ubuntu-latest today."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "R1 by the journey run with and without a token; R2 by ci.yml line 70 (GITHUB_TOKEN: github.token on the journey step); R3 by the mirror step at ci.yml lines 78-85, ahead of the image build, and by run 38021679842."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-225f6d072ed200f9",
+      "rationale": "Reviewed both commits with POSE-Spec: pose-ci-avoids-anonymous-rate-limits (aa29027d, 51397624): 4 claims equal 4 observed paths, nothing outside the journey, the workflow and the spec records. The reviewer id agent:independent-claude-opus-5-5-review carries the independent- prefix only as the declaration the engine requires; this review is another execution of the same vendor and model as the implementer (Claude Opus 5.5, agent:claude-opus-5-5), run as a fallback because the other-vendor reviewer (Codex) was unavailable: independence of execution, not of vendor. The maintainer authorized this reviewer id."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-225f6d072ed200f9",
+      "rationale": "No new secret: the workflow token under permissions contents: read; the token never reaches logs or files; the mirror serves digest-pinned images only. No credential appears in the diff."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-225f6d072ed200f9",
+      "rationale": "An optional header and one daemon config step are the smallest changes that remove both anonymous limits; docker login would have needed a provisioned secret (D1)."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "pose artifact-check --spec pose-ci-avoids-anonymous-rate-limits --strict exited 0: claims=4, observed=4; the orphan warnings belong to other paths."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-225f6d072ed200f9",
+      "rationale": "pose assess design --spec pose-ci-avoids-anonymous-rate-limits --json exited 0, status observed, no material fact."
+    },
+    {
+      "id": "assess-discover",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "structure:design-225f6d072ed200f9",
+      "rationale": "pose assess tech-debt exited 0: 0 uncovered debt items."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "tests",
+      "disposition": "passed",
+      "evidence": "structure:design-225f6d072ed200f9",
+      "rationale": "pose suggest review --path tests exited 0: no spec or ADR required, validation evidence required (provided by the sealed run)."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "pose validate --tolerant: 131 step(s), 131 pass, Result: SUCCESS, no failing step and no waiver."
+    },
+    {
+      "id": "validate",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares no check for tests (producer_coverage none); the journey ran under pose-mcp."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+    "structure:design-225f6d072ed200f9"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-10T08:03:06Z",
+  "path": ".pose/review-attestations/rva-8e505677f0e43c4c.json"
+}

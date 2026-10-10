@@ -1,8 +1,8 @@
 ---
 slug: pose-ci-avoids-anonymous-rate-limits
-status: in-progress
+status: done
 created_at: 2026-10-10
-completed_at:
+completed_at: 2026-10-10
 supersedes:
 depends_on:
 priority: 1
