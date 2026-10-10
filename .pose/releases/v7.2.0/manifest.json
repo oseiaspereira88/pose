@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v7.2.0",
+  "previous_version": "v7.1.0",
+  "prepared_at": "2026-10-09T23:59:44Z",
+  "specs": [
+    "pose-native-attestation-issuer"
+  ],
+  "categories": {
+    "added": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-native-attestation-issuer",
+      "category": "added",
+      "breaking": false,
+      "body": "A project with POSE alone can now require signed review attestations and verified reviewer identity. `pose issuer init` creates an issuer key outside the project, `pose issuer pin` trusts it in review policy, and `pose review attest … --sign \u003cissuer\u003e [--authority …]` signs the attestation and the reviewer's authority claim. Native issuers coexist with external ones such as a Harne8 Conductor: any pinned issuer's signature counts, and pinning or rotating one never removes another.",
+      "path": "pose-native-attestation-issuer.md",
+      "digest": "sha256:d10a0231e99161cec9e79d41d8bdc83ac45ea9fa0aef3c91928dddfef09a65ec"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:f3f993731ce0520c959b75b4fc5ccb6281bb7cf807d6e50dcf00518a82bdbb25",
+  "release_input_digest": "sha256:a20a0b429cd07f58f5ae64bf3d5e66a072853e1f103adddfc8701e58abe4e02d",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v7.2.0"
+  }
+}
