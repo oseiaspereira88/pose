@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:e7d3472af0d9e281ac47c2d084217b1f7f30ac383b98f998a0e709b9d7c37b31",
-  "provenance_digest": "sha256:51020a94f4e96e3a77829ec1548732358873ffa6ec2804a02ab26790603638b6",
+  "input_digest": "sha256:89ef84df698b7b518e39f3f6c2574dc80849d8f43e80d0d653e98e8edf405900",
+  "provenance_digest": "sha256:cfdf2857cfa547e1a97be26cf2840e66119514cdf9a5f21bb875a94d53fe867a",
   "implied_edges": [
     "changes"
   ],
@@ -5240,6 +5240,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/review-attestations/rva-050547b3377ff61c.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/review-attestations/rva-05493fd603d28d69.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/review-attestations/rva-05493fd603d28d69.json"
       }
     },
     {
@@ -14221,6 +14228,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/review-bundles/rvb-f2d3bca8d67079bb.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/review-bundles/rvb-f312a7578c1a3bc9.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/review-bundles/rvb-f312a7578c1a3bc9.json"
       }
     },
     {
@@ -26497,6 +26511,14 @@
       }
     },
     {
+      "id": "change-set:cs-35fd7a03db5d",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:c93e2bef81f214ffc557431cb67a07e94c557f8c82a20419b8c1c754ab29e223",
+        "selector": "trailers:pose-delegated-review-brief"
+      }
+    },
+    {
       "id": "change-set:cs-368d273032f1",
       "type": "change-set",
       "attributes": {
@@ -26950,14 +26972,6 @@
       "attributes": {
         "diff_digest": "sha256:9e9d729e9dafca940163df8152b14f5f2d929321a786c5a43984f358aad511d6",
         "selector": "trailers:pose-abm-authority-fixture-clock"
-      }
-    },
-    {
-      "id": "change-set:cs-575ef8d2bff8",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:deb9cd9c06110a0bd9c91ae5f36f03330af57eaea467f48965fb814b8c3f0418",
-        "selector": "trailers:pose-delegated-review-brief"
       }
     },
     {
@@ -34293,7 +34307,7 @@
       "id": "spec:pose-release-prepare-guards-claimed-fragments",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -71572,7 +71586,7 @@
     },
     {
       "from": "spec:pose-delegated-review-brief",
-      "to": "change-set:cs-575ef8d2bff8",
+      "to": "change-set:cs-35fd7a03db5d",
       "type": "observed-by"
     },
     {
@@ -122753,6 +122767,92 @@
       "diff_digest": "sha256:4f02a45fa70ae4fd5e5014fce7bd8d9aabb4a5da6b0da7b29799a204d8de8144"
     },
     {
+      "id": "cs-35fd7a03db5d",
+      "spec": "pose-delegated-review-brief",
+      "selector": "trailers:pose-delegated-review-brief",
+      "base": "14505fee3ae2220311cab60c55498a19d2df3f3d^",
+      "head": "5b5ad41529e6ca11b62a057b157a72ccbbbae118",
+      "resolved_base": "0372d9745100efc1acfa3d7a81d5be7dfccf5d67",
+      "resolved_head": "5b5ad41529e6ca11b62a057b157a72ccbbbae118",
+      "commits": [
+        "14505fee3ae2220311cab60c55498a19d2df3f3d",
+        "6555163f04517dbcda7cb09b3e2a73863d6d1420",
+        "40549d3fc6a1c624416b9b7882111408a40db95f",
+        "5b5ad41529e6ca11b62a057b157a72ccbbbae118"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-delegated-review-brief.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-05493fd603d28d69.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-f312a7578c1a3bc9.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-brief.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-delegated-review-brief.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/review_brief.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_brief.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_brief_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/consolidated.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/history.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/refresh-log.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/help_catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout.go"
+        }
+      ],
+      "diff_digest": "sha256:c93e2bef81f214ffc557431cb67a07e94c557f8c82a20419b8c1c754ab29e223"
+    },
+    {
       "id": "cs-368d273032f1",
       "spec": "pose-governance-wait-rework-observability",
       "selector": "trailers:pose-governance-wait-rework-observability",
@@ -131499,55 +131599,6 @@
         }
       ],
       "diff_digest": "sha256:9e9d729e9dafca940163df8152b14f5f2d929321a786c5a43984f358aad511d6"
-    },
-    {
-      "id": "cs-575ef8d2bff8",
-      "spec": "pose-delegated-review-brief",
-      "selector": "trailers:pose-delegated-review-brief",
-      "base": "14505fee3ae2220311cab60c55498a19d2df3f3d^",
-      "head": "40549d3fc6a1c624416b9b7882111408a40db95f",
-      "resolved_base": "0372d9745100efc1acfa3d7a81d5be7dfccf5d67",
-      "resolved_head": "40549d3fc6a1c624416b9b7882111408a40db95f",
-      "commits": [
-        "14505fee3ae2220311cab60c55498a19d2df3f3d",
-        "6555163f04517dbcda7cb09b3e2a73863d6d1420",
-        "40549d3fc6a1c624416b9b7882111408a40db95f"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-delegated-review-brief.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-10-09-pose-delegated-review-brief.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-delegated-review-brief.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/review_brief.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_brief.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_brief_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/help_catalog.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_closeout.go"
-        }
-      ],
-      "diff_digest": "sha256:deb9cd9c06110a0bd9c91ae5f36f03330af57eaea467f48965fb814b8c3f0418"
     },
     {
       "id": "cs-590404b4d128",

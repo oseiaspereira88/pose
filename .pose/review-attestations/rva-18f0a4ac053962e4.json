@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-18f0a4ac053962e4",
+  "bundle_id": "rvb-5960483e5b27b1c2",
+  "bundle_digest": "sha256:5960483e5b27b1c2ccd6bac5bab3aaeafe224cfb6ae9f37d70534b2fb2d4780f",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-6002001c04fa952a",
+      "rationale": "D1 distinguishes spec metadata from loaded bodies and records the historical three-claim measurement. Current code calls GetSpec before ParseArtifactClaims, matching the measured cause. The synthetic foreign-claim regression passed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No new concurrent state or lifecycle ownership; the full Go suite passed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "The optional fields and CLI branches were checked against existing callers; full contract and integration checks passed."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed argument parsing and negative paths; tests exercise rejection and diagnostic behavior."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Production CLI routing and shared store consumers remain connected; integration assessment was executed and registered integration checks passed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Returned errors and rendered fields identify the failed condition without printing private key material."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The stricter refusal is the requested guard and has an explicit --allow-moved-claims override. Release help exposes the override; canonical release archives and manifest formats stay compatible."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Read all attributed implementation diffs and current paths; the 131 registered checks and focused regression tests passed."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Read scripts/release.sh: the production release entrypoint runs native release check --strict before creating a tag. The changed Go prepared-tree check is exercised by TestReleasePrepareRefusesFragmentsOtherSpecsClaim and the registered integration corpus."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-6002001c04fa952a",
+      "rationale": "ForeignFragmentClaims maps cut fragments to unreleased paths and compares all loaded specs except each fragment owner. Plan exposes these claims, prepare refuses before moving files, and prepared-tree check reads the archive. The prior defect is fixed: the override prints each allowed claim."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Spec trace covers plan, refusal, override reporting and prepared-tree strict failure. Help now shows --allow-moved-claims. The observed foreign claim is named even when explicitly allowed."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Plan names blockers; refusal names spec and path plus the override, before filesystem movement. The allowed path prints release.allowed.moved-claim for every claim. TestReleasePrepareRefusesFragmentsOtherSpecsClaim passed."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Compared each requirement and trace with implementation and executed tests; the registered full Go suite passed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Independent review by OpenAI of implementation by Anthropic agent:claude-opus-5-5. The independent- prefix in agent:independent-gpt-6.1-sol-review is a declaration required by the engine, not cryptographic proof; the maintainer authorized this name. Reviewed only this spec and its attributed changes. Rules applied: backend-go for Go errors and boundaries, security for authority and paths, documentation-style for CLI/spec wording, delivery-evidence for closure; workflow .pose/workflows/review.md. Knowledge-governance was consulted; no knowledge artifact or accepted residual risk was created."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed paths, argument handling, proof boundaries and changed diff for secrets; no dependencies, network authorization or unsafe shell interpolation were introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-6002001c04fa952a",
+      "rationale": "One shared claim projection used by three release commands is the smallest sufficient guard. It does not rewrite other specs or manufacture ownership; the explicit escape flag preserves operator control. A changed fragment-path contract would invalidate the mapping."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check",
+      "rationale": "Executed artifact-check --spec pose-release-prepare-guards-claimed-fragments --strict: passed; declared paths reconcile with attributed commits."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-6002001c04fa952a",
+      "rationale": "Executed assess design --spec pose-release-prepare-guards-claimed-fragments --json: observed with no material structural deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "assessment:.pose/assessments/pose-mcp.md",
+      "rationale": "Executed assess discover --if-stale --update-state: refreshed pose-mcp against current committed content; unchanged components reused."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "passed",
+      "evidence": "assessment:.pose/assessments/scripts.md",
+      "rationale": "Executed assess discover --if-stale --update-state: refreshed pose-mcp against current committed content; unchanged components reused."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Executed assess integrate: provider-consumer observations inspected; existing unobserved-consumer gaps are advisory and do not affect this CLI delivery."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "assessment:.pose/assessments/technical-debt.md",
+      "rationale": "Executed assess tech-debt: zero uncovered markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "review-check will run before close; closeout-check will run after the lifecycle transition, since it requires status done."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "review-check will run before close; closeout-check will run after the lifecycle transition, since it requires status done."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest-review",
+      "rationale": "Executed suggest review --path pose-mcp and read effective plan rules."
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "passed",
+      "evidence": "command:pose suggest-review",
+      "rationale": "Executed suggest review --path scripts and read effective plan rules."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed pose validate --tolerant --json-out .pose/results/delivery-validation.json as explicitly instructed by maintainer; all 131 checks passed, including all module checks. No out-of-scope failure exception was needed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed pose validate --tolerant --json-out .pose/results/delivery-validation.json as explicitly instructed by maintainer; all 131 checks passed, including all module checks. No out-of-scope failure exception was needed."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "The registered scripts module has replaceDefaultChecks=true and no checks. The full repository validation visited scripts, and the release CLI behavior was validated in pose-mcp; no scripts evidence producer was invented."
+    }
+  ],
+  "evidence_refs": [
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-gpt-6.1-sol-review",
+    "concluded_by": "agent:independent-gpt-6.1-sol-review",
+    "applied_by": "agent:independent-gpt-6.1-sol-review"
+  },
+  "attested_at": "2026-10-10T08:54:56Z",
+  "path": ".pose/review-attestations/rva-18f0a4ac053962e4.json"
+}

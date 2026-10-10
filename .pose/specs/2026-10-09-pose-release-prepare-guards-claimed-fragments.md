@@ -1,8 +1,8 @@
 ---
 slug: pose-release-prepare-guards-claimed-fragments
-status: in-progress
+status: done
 created_at: 2026-10-09
-completed_at:
+completed_at: 2026-10-10
 supersedes:
 depends_on:
 priority: 1
