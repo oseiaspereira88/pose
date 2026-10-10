@@ -10,7 +10,7 @@ components: pose-mcp
 task_type: bugfix
 surface: minimal
 changelog:
-delivers: governance:amendment-history-holds-before-close
+delivers:
 ---
 
 # Spec: The amendment history holds before a spec closes
