@@ -15,27 +15,34 @@ import (
 // it as an unclassified path (found in Harne8's independent review), so the
 // set is read from the engine's own source rather than kept by hand.
 func TestEveryEngineDirectoryUnderPoseIsClassified(t *testing.T) {
-	joined := regexp.MustCompile(`"\.pose",\s*"([a-z][a-z0-9-]*)"`)
-	literal := regexp.MustCompile(`"\.pose/([a-z][a-z0-9-]*)(?:/|")`)
+	// Names with an extension count too (.pose/telemetry.json), and every
+	// package of the module is read, not a chosen few (found in review:
+	// internal/usage writes .pose/usage/ and was not scanned).
+	joined := regexp.MustCompile(`"\.pose",\s*"([a-z][a-z0-9.-]*)"`)
+	literal := regexp.MustCompile(`"\.pose/([a-z][a-z0-9.-]*)(?:/|")`)
 	dirs := map[string]string{}
-	for _, pkg := range []string{".", "../cli", "../mcpserver"} {
-		files, _ := filepath.Glob(filepath.Join(pkg, "*.go"))
-		for _, file := range files {
-			if strings.HasSuffix(file, "_test.go") {
-				continue
-			}
-			raw, err := os.ReadFile(file)
-			if err != nil {
-				t.Fatal(err)
-			}
-			for _, re := range []*regexp.Regexp{joined, literal} {
-				for _, m := range re.FindAllStringSubmatch(string(raw), -1) {
-					if _, seen := dirs[m[1]]; !seen {
-						dirs[m[1]] = file
-					}
+	err := filepath.WalkDir("../..", func(file string, d os.DirEntry, err error) error {
+		if err == nil && d.IsDir() && d.Name() == "testdata" {
+			return filepath.SkipDir
+		}
+		if err != nil || d.IsDir() || !strings.HasSuffix(file, ".go") || strings.HasSuffix(file, "_test.go") {
+			return err
+		}
+		raw, err := os.ReadFile(file)
+		if err != nil {
+			return err
+		}
+		for _, re := range []*regexp.Regexp{joined, literal} {
+			for _, m := range re.FindAllStringSubmatch(string(raw), -1) {
+				if _, seen := dirs[m[1]]; !seen {
+					dirs[m[1]] = file
 				}
 			}
 		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 	if len(dirs) < 20 {
 		t.Fatalf("the scan found only %d directories; the patterns no longer match the source", len(dirs))
@@ -62,5 +69,13 @@ func TestLegacyLedgerIsAGovernanceRecord(t *testing.T) {
 	class, include := reviewBundlePathClass(".pose/review-ledgers/legacy-harne8-agents-20261010T032511Z.json", ScopeRef{Kind: "spec", Slug: "x"}, nil)
 	if class != "governance" || !include {
 		t.Fatalf("legacy ledger: class=%q include=%v", class, include)
+	}
+}
+
+// The usage verdict journal is reviewed in Git; it is governance.
+func TestUsageVerdictJournalIsAGovernanceRecord(t *testing.T) {
+	class, include := reviewBundlePathClass(".pose/usage/verdicts.jsonl", ScopeRef{Kind: "spec", Slug: "x"}, nil)
+	if class != "governance" || !include {
+		t.Fatalf("usage verdicts: class=%q include=%v", class, include)
 	}
 }

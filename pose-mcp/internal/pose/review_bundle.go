@@ -1088,6 +1088,13 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	// .pose/review-runs/ records delegated review runs, .pose/events/ DORA
 	// events and .pose/investigations/ investigation notes: evidence about
 	// work, like reviews (spec pose-review-subject-classifies-engine-records).
+	// .pose/telemetry.json, .pose/continuous-closeout.json and
+	// .pose/pose-validate.log are operational state: an opt-in switch, a
+	// running closeout session and a log.
+	switch path {
+	case ".pose/telemetry.json", ".pose/continuous-closeout.json", ".pose/pose-validate.log":
+		return "derived-evidence", false
+	}
 	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/review-attribution-supplements/", ".pose/closeout-plans/", ".pose/contributions/", ".pose/feedback/", ".pose/review-runs/", ".pose/events/", ".pose/investigations/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "derived-evidence", false
@@ -1127,11 +1134,12 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	// unsigned attestations stay trusted; `pose adopt` writes them, and a scope
 	// that carried one could not be sealed (spec
 	// pose-review-subject-classifies-engine-records). .pose/schema-version is
-	// the instance's schema stamp.
+	// the instance's schema stamp. .pose/usage/ holds the usage verdict
+	// journal, reviewed in Git (ADR 2026-10-01-reviewable-usage-verdict-journal).
 	if path == ".pose/schema-version" {
 		return "governance", true
 	}
-	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/", ".pose/capabilities/", ".pose/actions/", ".pose/starts/", ".pose/review-ledgers/"} {
+	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/", ".pose/capabilities/", ".pose/actions/", ".pose/starts/", ".pose/review-ledgers/", ".pose/usage/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "governance", true
 		}

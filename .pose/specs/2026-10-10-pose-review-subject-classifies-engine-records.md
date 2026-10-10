@@ -34,8 +34,8 @@ A path that decides authority is reviewed with its scope; evidence about work is
 ### Functional
 
 - R1: `.pose/review-ledgers/` shall be classified as governance and included in the review subject.
-- R2: `.pose/review-runs/`, `.pose/events/` and `.pose/investigations/` shall be classified as derived evidence, and `.pose/schema-version` as governance.
-- R3: A test shall read the directories the engine writes under `.pose/` from its own source and fail when one has no class.
+- R2: `.pose/review-runs/`, `.pose/events/`, `.pose/investigations/`, `.pose/telemetry.json`, `.pose/continuous-closeout.json` and `.pose/pose-validate.log` shall be classified as derived evidence, and `.pose/schema-version` and `.pose/usage/` as governance.
+- R3: A test shall read the names the engine writes under `.pose/`, directories and files with an extension, from every package of its source, and fail when one has no class.
 
 ## 3. Technical Plan
 
@@ -46,6 +46,7 @@ A path that decides authority is reviewed with its scope; evidence about work is
 - created: .pose/changelogs/unreleased/pose-review-subject-classifies-engine-records.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 - created: pose-mcp/internal/pose/review_bundle_engine_dirs_test.go
+- created: .pose/specs/2026-10-10-pose-review-subject-classifies-engine-records.amendments.jsonl
 
 ### Delivery targets
 
@@ -61,6 +62,10 @@ A path that decides authority is reviewed with its scope; evidence about work is
 
 ## 6. Validation
 
+### Execution log
+
+2026-10-10, independent review (agent:independent-claude-opus-5-5-review, fallback reviewer): high and medium. The scan read only three packages, so `.pose/usage/` (the usage verdict journal, written by `internal/usage`) had no class and the seal refused it; and the patterns skipped names with an extension, missing `.pose/telemetry.json`, `.pose/continuous-closeout.json` and `.pose/pose-validate.log`. The scan now walks the whole module and matches extensions; the four names are classified, R2 and R3 amended. The widened scan fails on the previous classifier listing exactly those four.
+
 ### Strategy
 
 `TestEveryEngineDirectoryUnderPoseIsClassified` and `TestLegacyLedgerIsAGovernanceRecord` fail on the previous classifier (the scan lists events, investigations, review-ledgers, review-runs and schema-version) and pass on the new one.
@@ -68,7 +73,7 @@ A path that decides authority is reviewed with its scope; evidence about work is
 ### Requirement trace
 
 - R1 [satisfied] governance:review-subject-classifies-engine-records evidence:unit test:TestLegacyLedgerIsAGovernanceRecord
-- R2 [satisfied] governance:review-subject-classifies-engine-records evidence:unit test:TestEveryEngineDirectoryUnderPoseIsClassified
+- R2 [satisfied] governance:review-subject-classifies-engine-records evidence:unit test:TestEveryEngineDirectoryUnderPoseIsClassified test:TestUsageVerdictJournalIsAGovernanceRecord
 - R3 [satisfied] governance:review-subject-classifies-engine-records evidence:unit test:TestEveryEngineDirectoryUnderPoseIsClassified
 
 ## 7. Final Report
