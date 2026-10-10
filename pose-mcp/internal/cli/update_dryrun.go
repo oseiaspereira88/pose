@@ -292,13 +292,36 @@ func (c *dryRunCopier) brokenLink(src, dst string) error {
 		intended = filepath.Join(filepath.Dir(src), raw)
 	}
 	intended = filepath.Clean(intended)
+	// The stand-in keeps what the update can observe: the target is missing,
+	// and its parent directory exists exactly when the original's does, so
+	// writing through the link succeeds or fails as it would (found in review).
+	parentExists := false
+	if info, err := os.Stat(filepath.Dir(intended)); err == nil && info.IsDir() {
+		parentExists = true
+	}
+	standIn := ""
 	for _, base := range []string{c.root, c.rootReal} {
 		if rel, err := filepath.Rel(base, intended); err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
-			return os.Symlink(relativeTo(dst, filepath.Join(c.shadow, rel)), dst)
+			standIn = filepath.Join(c.shadow, rel)
+			break
 		}
 	}
-	c.n++
-	return os.Symlink(filepath.Join(c.outside, fmt.Sprint(c.n), "missing", filepath.Base(intended)), dst)
+	if standIn == "" {
+		c.n++
+		standIn = filepath.Join(c.outside, fmt.Sprint(c.n), filepath.Base(intended))
+		if !parentExists {
+			standIn = filepath.Join(c.outside, fmt.Sprint(c.n), "missing", filepath.Base(intended))
+		}
+	}
+	if parentExists {
+		if err := os.MkdirAll(filepath.Dir(standIn), 0o755); err != nil {
+			return err
+		}
+	}
+	if strings.HasPrefix(standIn, c.shadow+string(filepath.Separator)) {
+		return os.Symlink(relativeTo(dst, standIn), dst)
+	}
+	return os.Symlink(standIn, dst)
 }
 
 func relativeTo(link, target string) string {

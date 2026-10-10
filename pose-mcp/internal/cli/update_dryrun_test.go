@@ -284,3 +284,24 @@ func TestUpdateDryRunNeverWritesThroughABrokenLink(t *testing.T) {
 		t.Fatal("the dry-run wrote into the instance")
 	}
 }
+
+// A broken link whose missing target sits in an existing directory: the
+// update writes through it, so the dry-run must agree that it succeeds, and
+// still write nothing outside the copy (found in review).
+func TestUpdateDryRunAgreesOnABrokenLinkIntoAnExistingDirectory(t *testing.T) {
+	repo := olderInstance(t)
+	outside := filepath.Join(t.TempDir(), "outside-security.md")
+	_ = os.Remove(filepath.Join(repo, ".pose/rules/security.md"))
+	if err := os.Symlink(outside, filepath.Join(repo, ".pose/rules/security.md")); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	_ = os.Remove(filepath.Join(repo, ".pose/state/machinery-manifest.json"))
+	dryCode, dryOut := runPose(t, repo, "update", "--dry-run")
+	if _, err := os.Lstat(outside); err == nil {
+		t.Fatal("the dry-run created the external target")
+	}
+	realCode, realOut := runPose(t, repo, "update", "--no-self")
+	if dryCode != realCode || (realCode == 0) == strings.Contains(dryOut, "would fail") {
+		t.Fatalf("dry-run %d and update %d disagree:\n%s\n---\n%s", dryCode, realCode, dryOut, realOut)
+	}
+}
