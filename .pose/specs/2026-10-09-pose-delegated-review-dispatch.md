@@ -1,6 +1,6 @@
 ---
 slug: pose-delegated-review-dispatch
-status: draft
+status: in-progress
 created_at: 2026-10-09
 completed_at:
 supersedes:
@@ -9,7 +9,7 @@ priority: 2
 components: pose-mcp
 task_type: feature
 changelog:
-delivers:
+delivers: capability:delegated-review-dispatch
 ---
 
 # Spec: Dispatch a delegated review to a configured adapter
@@ -51,15 +51,24 @@ Adapter policy reader, worktree lifecycle, process runner with timeout, run reco
 ### Artifacts
 
 - created: .pose/specs/2026-10-09-pose-delegated-review-dispatch.md
+- created: .pose/starts/pose-delegated-review-dispatch.json
+- created: .pose/changelogs/unreleased/pose-delegated-review-dispatch.md
+- created: pose-mcp/internal/pose/review_dispatch.go
+- created: pose-mcp/internal/cli/review_dispatch.go
+- created: pose-mcp/internal/cli/review_dispatch_test.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/help_catalog.go
 
-Implementation artifacts are declared when the spec starts.
+### Delivery targets
+
+- capability:delegated-review-dispatch module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ## 4. Tasks
 
-- [ ] Adapter policy and examples
-- [ ] Disposable worktree runner
-- [ ] Run record and draft capture
-- [ ] Failure classification
+- [x] Adapter policy and examples
+- [x] Disposable worktree runner
+- [x] Run record and draft capture
+- [x] Failure classification
 
 ## 5. Decisions
 
@@ -71,16 +80,29 @@ The contract is ADR `2026-10-09-delegated-review-is-an-adapter`, accepted on 202
 
 A fake adapter (shell script) exercises success, timeout, non-zero exit and a run that edits files; the user's working tree is byte-identical afterwards.
 
+### Execution log
+
+2026-10-10, first real run: `pose review dispatch spec:pose-ci-avoids-anonymous-rate-limits --via codex --apply` with the example Codex adapter (gpt-6.1-sol, read-only) ran on a worktree at aa29027d, received the generated brief and returned a full review — a decision, a judgment per planned criterion with file and line evidence, and one medium defect in that spec. The run was recorded as failed because the worktree showed `.pose/assessments/technical-debt.md` and `.pose/state/technical-debt.json` modified: the reviewer ran the `assess tech-debt` tool the plan requires, which regenerates derived state. The change check now ignores derived state (`.pose/assessments`, `.pose/state`, `.pose/indexes`, `.pose/results`, `.pose/review-bundles`, `.pose/review-runs`, `.pose/reports/history`) and still fails a run that edits anything else; the test covers both.
+
 ### Requirement trace
+
+- R1 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
+- R2 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
+- R3 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
+- R4 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
+- R5 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
+- R6 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRunsAndRecordsAdapters
+- R7 [satisfied] capability:delegated-review-dispatch evidence:integration test:TestReviewDispatchRecordsEveryBriefKind
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: part of roadmap `delegated-review`, opened on 2026-10-09.
+`pose review dispatch` runs a configured reviewer adapter on a disposable worktree at the sealed commit with the brief on stdin, records completed and failed runs with their transcripts under `.pose/review-runs/`, and records no attestation.
 
 ### Residual risks
 
-None yet.
+- The worktree is disposable but the reviewer process runs with the user's permissions: an adapter can still write outside the worktree. The example adapters run read-only (`codex exec -s read-only`, `claude --permission-mode plan`).
+- Runs are append-only by convention here; immutability and the rerun rule are spec `pose-delegated-review-attempt-ledger`.
 
 ### Follow-ups

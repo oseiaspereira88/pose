@@ -340,7 +340,7 @@ func writeJSON(w io.Writer, value any) int {
 
 func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|attest|auto-attest|verify|record|attribution-supplement> ...")
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|dispatch|attest|auto-attest|verify|record|attribution-supplement> ...")
 		return 2
 	}
 	if code, handled := routeQualifiedReviewScope(root, args, stdout, stderr); handled {
@@ -351,6 +351,8 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdReviewBundle(root, args[1:], stdout, stderr)
 	case "brief":
 		return cmdReviewBrief(root, args[1:], stdout, stderr)
+	case "dispatch":
+		return cmdReviewDispatch(root, args[1:], stdout, stderr)
 	case "attest":
 		return cmdReviewAttest(root, args[1:], stdout, stderr)
 	case "auto-attest":
@@ -362,7 +364,7 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 	case "attribution-supplement":
 		return cmdReviewAttributionSupplement(root, args[1:], stdout, stderr)
 	default:
-		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|attest|auto-attest|verify|record|attribution-supplement> ...")
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|dispatch|attest|auto-attest|verify|record|attribution-supplement> ...")
 		return 2
 	}
 }
