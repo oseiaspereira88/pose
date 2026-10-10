@@ -43,7 +43,6 @@ The dry-run writes nothing, as today.
 
 - created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.md
 - created: .pose/starts/pose-update-dry-run-reports-the-whole-update.json
-- created: .pose/changelogs/unreleased/pose-update-dry-run-reports-the-whole-update.md
 - created: pose-mcp/internal/cli/update_dryrun.go
 - created: pose-mcp/internal/cli/update_dryrun_test.go
 - modified: pose-mcp/internal/cli/maintenance.go
@@ -97,6 +96,8 @@ A fixture instance stamped 6.1.0: the dry-run output lists the merges, stamp and
 2026-10-10, ninth independent review (agent:independent-gpt-6.1-sol-review): medium severity, outside symlink layouts. Directories were recreated 0755, so with `.pose` read-only the update failed while the dry-run said it would change nothing. The copy now applies each directory's original permissions after copying, deepest first, and makes them writable again to remove the copy. `TestUpdateDryRunKeepsDirectoryPermissions` fails on the previous copy.
 
 2026-10-10, tenth independent review (agent:independent-gpt-6.1-sol-review): medium severity. The copy read every file at the root, so an unrelated unreadable file (mode 000) made the dry-run fail where the update succeeds. An unreadable file is now reproduced as an empty file with the same mode, and an unreadable directory as an empty one with its mode, so the update meets the same refusals; comparisons skip what cannot be read. `TestUpdateDryRunToleratesUnreadableFiles` fails on the previous copy.
+
+2026-10-10, after the tenth independent review (a directory with mode 0100 can be read by name but not listed, so the copy came out empty): the maintainer decided that POSE 7.4.0 ships without this spec. Its changelog fragment is withdrawn from `.pose/changelogs/unreleased/`, so 7.4.0's notes do not announce the dry-run; the spec stays open and is redone for 7.5.0 with the approach of the open follow-up (the update recording what it would do instead of running on a copy). The copy-based dry-run already on main stays in the code until then.
 
 ### Requirement trace
 
