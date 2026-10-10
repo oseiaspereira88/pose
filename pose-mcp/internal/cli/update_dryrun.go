@@ -150,7 +150,10 @@ func snapshotForDryRun(root, shadow string) (map[string]string, error) {
 				return nil, err
 			}
 		case entry.Type()&fs.ModeSymlink != 0:
-			if info, err := os.Stat(path); err == nil && info.Mode().IsRegular() {
+			// A link to a file, or a broken one: the update writes through
+			// both (found in review). A link to a directory outside the
+			// copied set is not the update's to read.
+			if info, err := os.Stat(path); err != nil || info.Mode().IsRegular() {
 				if err := c.link(path, filepath.Join(shadow, entry.Name())); err != nil {
 					return nil, err
 				}

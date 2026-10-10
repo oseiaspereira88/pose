@@ -305,3 +305,18 @@ func TestUpdateDryRunAgreesOnABrokenLinkIntoAnExistingDirectory(t *testing.T) {
 		t.Fatalf("dry-run %d and update %d disagree:\n%s\n---\n%s", dryCode, realCode, dryOut, realOut)
 	}
 }
+
+// A broken link at the top of the instance is copied too: the update fails
+// through it, and so must the dry-run (found in review).
+func TestUpdateDryRunKeepsABrokenTopLevelLink(t *testing.T) {
+	repo := olderInstance(t)
+	_ = os.Remove(filepath.Join(repo, "AGENTS.md"))
+	if err := os.Symlink(filepath.Join(t.TempDir(), "missing", "AGENTS.md"), filepath.Join(repo, "AGENTS.md")); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	dryCode, dryOut := runPose(t, repo, "update", "--dry-run", "--force")
+	realCode, realOut := runPose(t, repo, "update", "--no-self", "--force")
+	if dryCode != realCode {
+		t.Fatalf("dry-run %d and update %d disagree:\n%s\n---\n%s", dryCode, realCode, dryOut, realOut)
+	}
+}

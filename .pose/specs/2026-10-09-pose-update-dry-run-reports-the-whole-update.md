@@ -92,9 +92,11 @@ A fixture instance stamped 6.1.0: the dry-run output lists the merges, stamp and
 
 2026-10-10, seventh independent review (agent:independent-gpt-6.1-sol-review): medium severity. The stand-in for an external broken link lost whether its parent directory exists, so with the target's directory present the dry-run said the update would fail while the update created the file. The stand-in's parent now exists exactly when the original's does. `TestUpdateDryRunAgreesOnABrokenLinkIntoAnExistingDirectory` fails on the previous copy.
 
+2026-10-10, eighth independent review (agent:independent-gpt-6.1-sol-review): medium severity. A broken link at the top of the instance (`AGENTS.md` pointing into a missing directory) was left out of the copy, so with `--force` the dry-run predicted success where the update fails. Top-level links to files and broken top-level links are now copied as links. `TestUpdateDryRunKeepsABrokenTopLevelLink` fails on the previous copy.
+
 ### Requirement trace
 
-- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy test:TestUpdateDryRunMeetsTheLinksTheUpdateMeets test:TestUpdateDryRunCopiesALinkedDirectoryOnce test:TestUpdateDryRunCopiesADirectoryAfterALinkIntoIt test:TestUpdateDryRunLinksADirectoryThatContainsTheLink test:TestUpdateDryRunNeverWritesThroughABrokenLink test:TestUpdateDryRunAgreesOnABrokenLinkIntoAnExistingDirectory
+- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy test:TestUpdateDryRunMeetsTheLinksTheUpdateMeets test:TestUpdateDryRunCopiesALinkedDirectoryOnce test:TestUpdateDryRunCopiesADirectoryAfterALinkIntoIt test:TestUpdateDryRunLinksADirectoryThatContainsTheLink test:TestUpdateDryRunNeverWritesThroughABrokenLink test:TestUpdateDryRunAgreesOnABrokenLinkIntoAnExistingDirectory test:TestUpdateDryRunKeepsABrokenTopLevelLink
 - R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 - R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 
