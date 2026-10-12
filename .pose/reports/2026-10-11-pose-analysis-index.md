@@ -12,7 +12,7 @@ e análises anteriores como intenção e contexto a reconciliar.
 | 4 | [Pendências, ações humanas, obrigações e bloqueios](2026-10-12-pose-front-04-actions-obligations.md) | Documento produzido; validação registrada nele |
 | 5 | [Dívida técnica, defeitos e trabalho incompleto acumulado](2026-10-12-pose-front-05-residual-work.md) | Documento produzido; validação registrada nele |
 | 6 | [Escopo, compromissos e suficiência de releases](2026-10-12-pose-front-06-release-sufficiency.md) | Documento produzido; validação registrada nele |
-| 7 | Eficiência operacional, combate à mecanização e UX | A analisar |
+| 7 | [Eficiência operacional, combate à mecanização e UX](2026-10-12-pose-front-07-operational-ux.md) | Documento produzido; validação registrada nele |
 | 8 | Performance, processo residente e arquitetura compartilhada | A analisar |
 | 9 | Consistência, concorrência e recuperação de falhas | A analisar |
 | 10 | Documentação, backlog consolidado e composição das releases | A analisar |
