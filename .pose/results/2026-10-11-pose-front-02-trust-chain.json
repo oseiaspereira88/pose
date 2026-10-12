@@ -1,0 +1,517 @@
+{
+  "schema_version": 1,
+  "document_type": "trust_chain_analysis",
+  "analysis_date": "2026-10-11",
+  "timezone": "America/Recife",
+  "repository": "oseiaspereira88/pose",
+  "source_revision": "deca220e14d402039d682952663e9a109a719da6",
+  "code_baseline": "7.4.1, unchanged executable source after PR147",
+  "status": "analysis_only_not_implemented",
+  "priority_definitions": {
+    "P0": "Integridade de prova persistida antes de confiar em satisfaction/assurance. Prioridade proposta, sem claim de exploração remota.",
+    "P1": "Correção ou contrato necessário para consistência da cadeia de confiança."
+  },
+  "runtime_binary_sha256": "9ae6e0855c8b82599cab1d9999ae3a20644e091a5e0490b2f85d593294104d66",
+  "observations": {
+    "bundles": 1416,
+    "bundle_assurance": {
+      "declared_explicit": 921,
+      "legacy_absent": 495
+    },
+    "attestations": 1402,
+    "signed_attestations": 0,
+    "attribution": {
+      "differentiated": 46,
+      "legacy": 1356
+    },
+    "review_policy_explicit_strong_trust_keys": []
+  },
+  "runtime_probes": {
+    "source_bundle": "rvb-ff9ded9f4ead063f.json",
+    "bundle_required_criteria": 12,
+    "signed_incomplete_approval": {
+      "preview_blockers": [
+        "missing criterion backend-concurrency",
+        "missing criterion backend-contracts",
+        "missing criterion backend-input-errors",
+        "missing criterion backend-integration-impact",
+        "missing criterion backend-observability",
+        "missing criterion compatibility",
+        "missing criterion correctness",
+        "missing criterion documentation",
+        "missing criterion operability",
+        "missing criterion requirements",
+        "missing criterion scope",
+        "missing criterion security",
+        "missing required review tool disposition artifact-check",
+        "missing required review tool disposition closeout-check",
+        "missing required review tool disposition review-check",
+        "missing required review tool disposition surface-check",
+        "missing required review tool disposition validate",
+        "missing required review tool disposition validate (component pose-mcp)"
+      ],
+      "apply_is_error": false,
+      "recorded": true,
+      "records_written": 1
+    },
+    "untrusted_control": {
+      "is_error": true,
+      "message": "pose: untrusted review attestation issuer or public key"
+    },
+    "tampered_signature_control": {
+      "is_error": true,
+      "message": "pose: review attestation signature verification failed"
+    },
+    "cli_envelope_replay": {
+      "exit_code": 0,
+      "stdout": "review_attestation.envelope=verified\nreview_attestation.id=rva-398d13d728be32da\nreview_attestation.bundle_id=rvb-ff9ded9f4ead063f\nreview_attestation.apply=true",
+      "stderr": ""
+    },
+    "proofless_verified_action_read": {
+      "exit_code": 0,
+      "state": "answered",
+      "satisfaction": "satisfied",
+      "assurance": "verified",
+      "has_signature": false,
+      "has_claim": false,
+      "limitations": []
+    },
+    "issuer_claim_without_presence": {
+      "require_presence": true,
+      "is_error": false,
+      "state": "answered",
+      "assurance": "verified",
+      "message": null
+    },
+    "changed_answer_after_verified_write": {
+      "exit_code": 0,
+      "state": "answered",
+      "assurance": "verified",
+      "view_answer": "decline",
+      "signed_claim_answer": "adopt",
+      "answers_differ": true,
+      "limitations": []
+    },
+    "missing_human_grant_control": {
+      "is_error": true,
+      "message": "action-claim-not-verified: issuer probe is not authorised to assert a human principal"
+    },
+    "misspelled_assurance_scope": {
+      "exit_code": 0,
+      "entry": [
+        {
+          "id": "verified-identity",
+          "kind": "capability",
+          "supported": true,
+          "configured": true,
+          "applicable": true,
+          "effective": true,
+          "source": "review.identity_assurance",
+          "value": "spce",
+          "explanation": "reviewer identity and separation for spce come from signed claims"
+        }
+      ],
+      "stderr": ""
+    }
+  },
+  "items": [
+    {
+      "id": "T2-01",
+      "priority": "P0",
+      "evidence_level": "runtime_reproduced",
+      "title": "Verificar a prova do evento persistido antes de derivar satisfaction e assurance",
+      "sources": [
+        "E07",
+        "E08",
+        "E09",
+        "E14"
+      ],
+      "acceptance_criteria": [
+        "show JSON, MCP, Attention e gates não aceitam label verified sem prova",
+        "Answer, actor, digest ou reason adulterado não satisfaz o efeito",
+        "Legado declared não recebe proof retrospectivo nem bloqueio universal"
+      ],
+      "owner_front": "front-02",
+      "integration_fronts": [
+        "front-04",
+        "front-09"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T2-02",
+      "priority": "P1",
+      "evidence_level": "runtime_reproduced",
+      "title": "Unificar o preflight semântico no writer de domínio para approvals",
+      "sources": [
+        "E01",
+        "E13",
+        "E16",
+        "E27"
+      ],
+      "acceptance_criteria": [
+        "A mesma approval inválida escreve zero records em CLI, import, MCP e Store",
+        "Negativas continuam registráveis",
+        "Approval válida conserva o resultado"
+      ],
+      "owner_front": "front-02",
+      "integration_fronts": [
+        "front-03"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T2-03",
+      "priority": "P1",
+      "evidence_level": "source_confirmed",
+      "title": "Construir disclosure a partir do resultado efetivo da verificação de prova",
+      "sources": [
+        "E01",
+        "E03",
+        "E04"
+      ],
+      "acceptance_criteria": [
+        "Assinatura inválida não emite identity/separation/confirmation verified",
+        "Identity válida pode coexistir com critério semanticamente inválido",
+        "Todas as superfícies consomem o mesmo resultado"
+      ],
+      "owner_front": "front-02",
+      "integration_fronts": [
+        "front-07"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T2-04",
+      "priority": "P1",
+      "evidence_level": "runtime_reproduced",
+      "title": "Dar semântica coerente a require_presence entre os emitters",
+      "sources": [
+        "E08",
+        "E09",
+        "E28"
+      ],
+      "acceptance_criteria": [
+        "Policy declara se presence é universal ou restrita ao canal SSH",
+        "Issuer sem a prova admitida não dispensa presence silenciosamente",
+        "Matriz inclui SSH plain, SK touched/untouched e issuer"
+      ],
+      "owner_front": "front-02",
+      "integration_fronts": [
+        "front-07",
+        "front-10"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T2-05",
+      "priority": "P1",
+      "evidence_level": "source_confirmed",
+      "title": "Explicitar perdas e integridade na ordem de reviews e ledgers",
+      "sources": [
+        "E01",
+        "E02",
+        "E06"
+      ],
+      "acceptance_criteria": [
+        "Rejeição recente ilegível não desaparece de uma sequência complete",
+        "Falha é localizada no escopo afetado",
+        "Legado compatível é distinto de corrupção"
+      ],
+      "owner_front": "front-02",
+      "integration_fronts": [
+        "front-09"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T2-06",
+      "priority": "P1",
+      "evidence_level": "source_confirmed",
+      "title": "Definir e verificar a proveniência exigida da fonte de reuso",
+      "sources": [
+        "E01",
+        "E02"
+      ],
+      "acceptance_criteria": [
+        "Fonte com prova alterada recebe diagnóstico",
+        "Reassunção atual é distinta de reuso histórico comprovado",
+        "Implementação limita ciclos, profundidade e custo"
+      ],
+      "owner_front": "front-02",
+      "integration_fronts": [
+        "front-08",
+        "front-09"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T2-07",
+      "priority": "P1",
+      "evidence_level": "source_confirmed",
+      "title": "Formalizar emissão, aceitação, expiração, revogação e clock skew",
+      "sources": [
+        "E01",
+        "E08"
+      ],
+      "acceptance_criteria": [
+        "Testa future-issued e expiry anterior à emissão",
+        "Define validade histórica separada de autorização atual",
+        "Clock é injetável; TTL universal não é imposto"
+      ],
+      "owner_front": "front-02",
+      "integration_fronts": [
+        "front-03",
+        "front-09",
+        "front-10"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T2-08",
+      "priority": "P1",
+      "evidence_level": "runtime_reproduced",
+      "title": "Validar scopes e não reportar capability efetiva para chave desconhecida",
+      "sources": [
+        "E01",
+        "E02",
+        "E11"
+      ],
+      "acceptance_criteria": [
+        "Typo spce não é effective",
+        "Scopes conhecidos preservam seleção",
+        "Extensão futura é explicitamente versionada ou unsupported"
+      ],
+      "owner_front": "front-02",
+      "integration_fronts": [
+        "front-07",
+        "front-10"
+      ],
+      "status": "proposed"
+    }
+  ],
+  "sources": [
+    {
+      "id": "E01",
+      "path": "pose-mcp/internal/pose/review_bundle.go",
+      "sha256": "9b144c8d4a14376433740ec490784f6b3fdb32bfd3b0b0b6f5760ac4c801ee5a",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/review_bundle.go"
+    },
+    {
+      "id": "E02",
+      "path": "pose-mcp/internal/pose/review_closeout.go",
+      "sha256": "1004eebdf08fa8f8fd831c79c634c06084b0eff79fa0061428f309e1d2b28bb6",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/review_closeout.go"
+    },
+    {
+      "id": "E03",
+      "path": "pose-mcp/internal/pose/review_assurance.go",
+      "sha256": "5158b3f511c8732c7c2080310aa51e2ea592df0ca0726668066c937bc4bdfe2e",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/review_assurance.go"
+    },
+    {
+      "id": "E04",
+      "path": "pose-mcp/internal/pose/review_attribution.go",
+      "sha256": "1eb0330cb55ad8222e661165ac6dcdda299b1acf763e7a0805f68ad6844e8563",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/review_attribution.go"
+    },
+    {
+      "id": "E05",
+      "path": "pose-mcp/internal/pose/issuer_key.go",
+      "sha256": "b1b408448526e616f27cfc3baa77608757d145c96a51512b356e655dd88ba418",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/issuer_key.go"
+    },
+    {
+      "id": "E06",
+      "path": "pose-mcp/internal/pose/legacy_ledger.go",
+      "sha256": "1a4bf5a6530ae79665d673d999031e3349c0f4635523d363159282bf540b9aec",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/legacy_ledger.go"
+    },
+    {
+      "id": "E07",
+      "path": "pose-mcp/internal/pose/action_request.go",
+      "sha256": "1780f8bc3ae34b324b4bde0f0d64fe64d1620bd7417b636511f4f949b5ba1f3b",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/action_request.go"
+    },
+    {
+      "id": "E08",
+      "path": "pose-mcp/internal/pose/action_resolution.go",
+      "sha256": "35644a3e6df42b171f7a93aeda2e722cfcbc5a298013f2f6536e5071b43917d3",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/action_resolution.go"
+    },
+    {
+      "id": "E09",
+      "path": "pose-mcp/internal/pose/principal_keys.go",
+      "sha256": "fbb57b9baf01288f2d8a3213434e346255df06d123a3dc930de89426d39e3ca2",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/principal_keys.go"
+    },
+    {
+      "id": "E10",
+      "path": "pose-mcp/internal/pose/sshsig.go",
+      "sha256": "0ba5d9b86d05fb1543e29c4c57218949fdfdd0b3c8c26034e449f3cca928e61d",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/sshsig.go"
+    },
+    {
+      "id": "E11",
+      "path": "pose-mcp/internal/pose/effective_governance.go",
+      "sha256": "24806729b814afbedd3ee4a594e5af3b49cb349d1e77cfccc27cf074d89b3e0b",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/effective_governance.go"
+    },
+    {
+      "id": "E12",
+      "path": "pose-mcp/internal/pose/governed_effects.go",
+      "sha256": "f165f1d38dfc3d3a6cf25cf00ce27178f8eb6dd2d0e7e9ac60299ec98d5f8f80",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/governed_effects.go"
+    },
+    {
+      "id": "E13",
+      "path": "pose-mcp/internal/cli/review_closeout.go",
+      "sha256": "19da2c8be12fbb815bbd5fed341126509acb279d7063b5a2e981b035daae473f",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/cli/review_closeout.go"
+    },
+    {
+      "id": "E14",
+      "path": "pose-mcp/internal/cli/action.go",
+      "sha256": "3769be9af8ed086e3f55dbcd8cc76d0dac68086f8f35b0c202d1de7244ff9ae2",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/cli/action.go"
+    },
+    {
+      "id": "E15",
+      "path": "pose-mcp/internal/cli/issuer.go",
+      "sha256": "7f35bc9487d90d15ed2690bf64359838abc774be3421cda86a73d3f73ef3fc22",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/cli/issuer.go"
+    },
+    {
+      "id": "E16",
+      "path": "pose-mcp/internal/mcpserver/server.go",
+      "sha256": "6ea4e84cc10185199ee24b95b7f21a098793297a1c7af07fab4afd62535b4091",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/mcpserver/server.go"
+    },
+    {
+      "id": "E17",
+      "path": "pose-mcp/internal/pose/review_authority_test.go",
+      "sha256": "908262dc913b1dbb6d7c502893c862db535cebe032eede317b9ed9a359955850",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/review_authority_test.go"
+    },
+    {
+      "id": "E18",
+      "path": "pose-mcp/internal/pose/review_assurance_test.go",
+      "sha256": "dc48c404aa7f0bdfd7fd45c94cafe0298eb03bf0a373fe136208b9a5d1256a1b",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/review_assurance_test.go"
+    },
+    {
+      "id": "E19",
+      "path": "pose-mcp/internal/pose/review_attribution_test.go",
+      "sha256": "4e99cc3489ea444ae60d6a2f2c38ca0bda1434903d5d29898ace3136ccd19d6f",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/review_attribution_test.go"
+    },
+    {
+      "id": "E20",
+      "path": "pose-mcp/internal/pose/review_attest_signed_test.go",
+      "sha256": "536be27495c7834f472a44cb078c47de3a781126271b342b1c3e9d4dd28e9cd8",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/review_attest_signed_test.go"
+    },
+    {
+      "id": "E21",
+      "path": "pose-mcp/internal/pose/principal_keys_test.go",
+      "sha256": "92e6f39f43fe393bffaa2a12afd5c2b7cc3c17b935a740002b39b853102c896e",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/principal_keys_test.go"
+    },
+    {
+      "id": "E22",
+      "path": "pose-mcp/internal/pose/legacy_ledger_test.go",
+      "sha256": "8ffce25fbfb9f8bf980732cb11c1a4d9d1e8f18d3c0ae67c9235790a66adf8dc",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/legacy_ledger_test.go"
+    },
+    {
+      "id": "E23",
+      "path": "pose-mcp/internal/pose/issuer_key_test.go",
+      "sha256": "06bea9877e96a4797b380265f7720e5ab5098840eb4936619be4d8da8c635896",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/issuer_key_test.go"
+    },
+    {
+      "id": "E24",
+      "path": "pose-mcp/internal/pose/completed_review_retention_test.go",
+      "sha256": "f10cbf8904a4102b81f2ca6679dbe437dfb376f2d0ceb9f0fe1ab01aa03d74c4",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/completed_review_retention_test.go"
+    },
+    {
+      "id": "E25",
+      "path": "pose-mcp/internal/pose/subject_evidence_test.go",
+      "sha256": "2e54d62cda25d1e08ab9fe7bc78f2b5f19eb0ce5fe2fd66c32d8cf1a2afb27b4",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/pose/subject_evidence_test.go"
+    },
+    {
+      "id": "E26",
+      "path": "pose-mcp/internal/mcpserver/review_attest_test.go",
+      "sha256": "37d4574cf36ad90581fddd0d6ae8e61f87437d532b882f351e2c34b20491b9f3",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/pose-mcp/internal/mcpserver/review_attest_test.go"
+    },
+    {
+      "id": "E27",
+      "path": ".pose/specs/2026-10-05-pose-attest-refuses-what-verify-rejects.md",
+      "sha256": "bc8ad9bc35cb4e63224366c637225e93ee657d086056443ae443181f4bb0431d",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/.pose/specs/2026-10-05-pose-attest-refuses-what-verify-rejects.md"
+    },
+    {
+      "id": "E28",
+      "path": ".pose/specs/2026-10-05-pose-signed-action-answers.md",
+      "sha256": "1cbbf6a976fb50db4f07435e9cb25a766f601349b8ba40b20b66a2adccd358ca",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/.pose/specs/2026-10-05-pose-signed-action-answers.md"
+    },
+    {
+      "id": "E29",
+      "path": ".pose/adr/2026-10-09-delegated-review-is-an-adapter.md",
+      "sha256": "0762469a706a49986f1f4a19928ec0d190449e098d85f9b35d840e349c88a630",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/.pose/adr/2026-10-09-delegated-review-is-an-adapter.md"
+    },
+    {
+      "id": "E30",
+      "path": ".pose/policy/review.json",
+      "sha256": "c1702a1a287889a35afcedc7d2adba0d5b8b435d5f00fe94cb90e657be1e013e",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/.pose/policy/review.json"
+    },
+    {
+      "id": "E31",
+      "path": ".pose/policy/actions.json",
+      "sha256": "d0a6c8035f907d62c836d63bc7f94c398e751e7c6ec0de4c1f683665906c505e",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/.pose/policy/actions.json"
+    },
+    {
+      "id": "E32",
+      "path": ".github/workflows/ci.yml",
+      "sha256": "fc9044c36dece824eddbe6f4c2a87fbb6b9b714c6d7db30ed91289403f44f5e8",
+      "url": "https://github.com/oseiaspereira88/pose/blob/deca220e14d402039d682952663e9a109a719da6/.github/workflows/ci.yml"
+    }
+  ],
+  "validation": {
+    "local_go_suite_rerun": false,
+    "go_suite_limit": "Go toolchain unavailable locally. Fresh suite execution is not claimed.",
+    "ci_observed": {
+      "revision": "deca220e14d402039d682952663e9a109a719da6",
+      "url": "https://github.com/oseiaspereira88/pose/actions/runs/38193224519",
+      "conclusion": "success"
+    },
+    "runtime_probes": "Published CLI and stdio MCP on disposable fixtures, ephemeral Ed25519 key in memory; no real policy or journal changed.",
+    "document_checks": {
+      "json_parse": true,
+      "unique_backlog_items": 8,
+      "evidence_hashes_verified": 32,
+      "relative_links_resolve": true,
+      "whitespace_check": true
+    },
+    "structural_check": {
+      "command": "pose check --strict",
+      "exit_code": 0,
+      "result": "SUCCESS",
+      "warnings": 30,
+      "output_sha256": "dfb0cab7a8e4a64228bc6a9bf0efc1e7239cefeafebc673439f7db907d4bdd32"
+    }
+  },
+  "limits": [
+    "No end-to-end closeout bypass was demonstrated.",
+    "Journal alteration scenarios assume file write access; acquiring that access was not tested.",
+    "No vendor-agent runs, production rollout, local Go suite or performance benchmark.",
+    "Four items were reproduced; four are source-confirmed and need additional targeted tests."
+  ]
+}
