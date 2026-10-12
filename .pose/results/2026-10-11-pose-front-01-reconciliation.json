@@ -1,0 +1,973 @@
+{
+  "schema_version": 1,
+  "document_type": "analysis_reconciliation",
+  "analysis_date": "2026-10-11",
+  "timezone": "America/Recife",
+  "repository": "oseiaspereira88/pose",
+  "source_revision": "8d26872587496a3c14c705568ac0f37096be82a4",
+  "previous_source_revision": "392aaa5a007f745cdf1804f65631ea2792567fd9",
+  "runtime_binary": "published POSE 7.4.1; source-equivalent to audited HEAD except publication records",
+  "classification_meanings": {
+    "implementation_present": "Implementation and relevant tests inspected; not a declaration that every historical acceptance criterion was rerun.",
+    "partial": "Useful implementation exists, with remaining scope or integrity limits.",
+    "adoption_recorded": "Adoption found in current policy and retained records.",
+    "adoption_recorded_human_validation_pending": "Delimitated adoption recorded; human usability evidence remains absent.",
+    "inventory_only": "Inventory/planning is present; applying a migration is not implemented."
+  },
+  "snapshot": {
+    "spec_count": 383,
+    "spec_statuses": {
+      "draft": 5,
+      "done": 376,
+      "abandoned": 1,
+      "in-progress": 1
+    },
+    "nonterminal_specs": [
+      {
+        "slug": "pose-amendment-history-holds-before-close",
+        "status": "draft",
+        "path": ".pose/specs/2026-10-10-pose-amendment-history-holds-before-close.md"
+      },
+      {
+        "slug": "pose-delegated-review-action-fulfillment",
+        "status": "draft",
+        "path": ".pose/specs/2026-10-09-pose-delegated-review-action-fulfillment.md"
+      },
+      {
+        "slug": "pose-delegated-review-attempt-ledger",
+        "status": "draft",
+        "path": ".pose/specs/2026-10-09-pose-delegated-review-attempt-ledger.md"
+      },
+      {
+        "slug": "pose-delegated-review-capability",
+        "status": "draft",
+        "path": ".pose/specs/2026-10-09-pose-delegated-review-capability.md"
+      },
+      {
+        "slug": "pose-delegated-review-run-provenance",
+        "status": "draft",
+        "path": ".pose/specs/2026-10-09-pose-delegated-review-run-provenance.md"
+      },
+      {
+        "slug": "pose-update-dry-run-reports-the-whole-update",
+        "status": "in-progress",
+        "path": ".pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.md"
+      }
+    ],
+    "followups": {
+      "total": 309,
+      "open": 108,
+      "overdue": 11,
+      "unowned": 42
+    },
+    "open_followups_by_criticality": {
+      "low": 63,
+      "medium": 22,
+      "unset": 19,
+      "high": 4
+    },
+    "open_followups_by_spec_status": {
+      "done": 107,
+      "in-progress": 1
+    },
+    "attention": {
+      "complete": true,
+      "snapshot": {
+        "project_id": "proj.pose-dist",
+        "source_revision": "8d26872587496a3c14c705568ac0f37096be82a4",
+        "worktree_dirty": false,
+        "policy_digest": "sha256:f9493731543e161f55b8dd9bd5384f317967dcab36ad85f9876582d1b74c8753",
+        "contract_digest": "9e8669f8b82f479772406e8d82e939d306eaf7d6c5f1e6f1d6729ccbeaadce9c",
+        "authority_context_revision": "968617072b802689206cbc451e7ef69b03f80b291ca7f4e71fa428635ca8d16e",
+        "index_digest": "sha256:e43d5bb05dce6fd3be8d718d8189ae62bf0d001d31b3ee0f7380db4b37744efb",
+        "generated_at": "2026-10-12T01:08:57Z",
+        "coherent": true,
+        "digest": "sha256:d86dedbde2ca580add796b7c45eb9240e8ff40bb80ef5466f6b71c9af678e0c6"
+      },
+      "coverage": [
+        {
+          "producer": "readiness",
+          "state": "current"
+        },
+        {
+          "producer": "closeout",
+          "state": "current"
+        },
+        {
+          "producer": "review",
+          "state": "current"
+        },
+        {
+          "producer": "start",
+          "state": "current"
+        },
+        {
+          "producer": "followups",
+          "state": "current"
+        },
+        {
+          "producer": "action-requests",
+          "state": "current"
+        },
+        {
+          "producer": "assessments",
+          "state": "current"
+        },
+        {
+          "producer": "premises",
+          "state": "current"
+        },
+        {
+          "producer": "falsifiers",
+          "state": "current"
+        },
+        {
+          "producer": "docs-review",
+          "state": "current"
+        },
+        {
+          "producer": "capability-trigger",
+          "state": "current"
+        },
+        {
+          "producer": "release",
+          "state": "current"
+        },
+        {
+          "producer": "findings",
+          "state": "current"
+        }
+      ],
+      "counts": {
+        "dependency": 2,
+        "evidence": 1,
+        "judgment": 1,
+        "residual-debt": 108
+      },
+      "producer_seconds_single_run": {
+        "action-requests": 0.014677674,
+        "assessments": 0.023036091,
+        "capability-trigger": 0.000127412,
+        "closeout": 0.994103295,
+        "docs-review": 1.6364e-05,
+        "falsifiers": 0.000101743,
+        "findings": 0.026859656,
+        "followups": 0.180712133,
+        "premises": 0.00055908,
+        "readiness": 0.105442209,
+        "release": 0.079028294,
+        "start": 0.628809227
+      },
+      "interpretation_limit": "Current coverage is a producer report, not proof of no silent failures or immutable read isolation."
+    }
+  },
+  "local_validation": {
+    "executed": [
+      "pose version",
+      "pose specs --json",
+      "pose state --attention --json",
+      "pose followups --all --json"
+    ],
+    "go_suite_rerun": false,
+    "go_suite_limit": "Go toolchain was not available; local fresh Go suite execution is not claimed. CI at audited HEAD was separately observed successful.",
+    "benchmark_rerun": false,
+    "followup_read_error_probe": {
+      "scenario": "One readable spec and a .md spec path that cannot be read (dangling symlink)",
+      "exit_code": 0,
+      "stderr": "",
+      "items": 1,
+      "open": 1,
+      "coverage_or_error_fields": []
+    },
+    "baseline_structural_check": {
+      "command": "pose check --strict",
+      "exit_code": 0,
+      "result": "SUCCESS",
+      "warnings": 30,
+      "output_sha256": "a9dc5c6de58869b92b7d08b4a39186aa3b7957b50f5623012c726c1f11020168"
+    },
+    "ci_observed": {
+      "revision": "8d26872587496a3c14c705568ac0f37096be82a4",
+      "conclusion": "success",
+      "url": "https://github.com/oseiaspereira88/pose/actions/runs/38086886171",
+      "command_in_workflow": "go -C pose-mcp test ./... -count=1"
+    },
+    "runtime_binary_sha256": "9ae6e0855c8b82599cab1d9999ae3a20644e091a5e0490b2f85d593294104d66",
+    "final_structural_check": {
+      "command": "pose check --strict",
+      "exit_code": 0,
+      "result": "SUCCESS",
+      "warnings": 30,
+      "output_sha256": "a9dc5c6de58869b92b7d08b4a39186aa3b7957b50f5623012c726c1f11020168",
+      "baseline_warnings_unchanged": true
+    },
+    "static_document_checks": {
+      "json_parse": true,
+      "unique_previous_items": 33,
+      "evidence_hashes_verified": 66,
+      "relative_links_resolve": true,
+      "diff_whitespace_check": true
+    }
+  },
+  "items": [
+    {
+      "previous_id": "POSE-01",
+      "title": "Corrigir a leitura dos cutoffs legados de judgment e structural causality",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-legacy-contract-cutoffs",
+        "path": ".pose/specs/2026-10-04-pose-legacy-contract-cutoffs.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/review_closeout.go",
+          "sha256": "1004eebdf08fa8f8fd831c79c634c06084b0eff79fa0061428f309e1d2b28bb6",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/review_closeout.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/review_contract_legacy_test.go",
+          "sha256": "86d8a7bfbff1891b922dc91085b4c0da5c4eb115407d962b4472434d6e8f39d7",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/review_contract_legacy_test.go"
+        }
+      ],
+      "residual_or_limit": "A matriz de cutoffs foi implementada; preservar precedência e contratos selados."
+    },
+    {
+      "previous_id": "POSE-02",
+      "title": "Distinguir versão candidata, preparada e publicada em public claims",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-public-claims-publication-provenance",
+        "path": ".pose/specs/2026-10-04-pose-public-claims-publication-provenance.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/cli/publicclaims.go",
+          "sha256": "071568932c050da12867122d5800e0f64d8d9468f25cd1f15d27e23a05a8f9e5",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/cli/publicclaims.go"
+        },
+        {
+          "path": "pose-mcp/internal/cli/publicclaims_provenance_test.go",
+          "sha256": "675c95226b577fd1fd5b70e659ceffd05ba2ac394d6f31d1ecc96e2833034c24",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/cli/publicclaims_provenance_test.go"
+        }
+      ],
+      "residual_or_limit": "Candidato, preparado e publicado agora têm proveniência própria."
+    },
+    {
+      "previous_id": "POSE-03",
+      "title": "Expor garantias reais de identidade e separação de review",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-review-assurance-disclosure",
+        "path": ".pose/specs/2026-10-04-pose-review-assurance-disclosure.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/review_assurance.go",
+          "sha256": "5158b3f511c8732c7c2080310aa51e2ea592df0ca0726668066c937bc4bdfe2e",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/review_assurance.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/review_assurance_test.go",
+          "sha256": "dc48c404aa7f0bdfd7fd45c94cafe0298eb03bf0a373fe136208b9a5d1256a1b",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/review_assurance_test.go"
+        }
+      ],
+      "residual_or_limit": "Declared e verified são discriminados; isso não autentica a execução delegada."
+    },
+    {
+      "previous_id": "POSE-04",
+      "title": "Versionar a atribuição de autoria, conclusão, confirmação e aplicação de review",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-review-attribution-roles",
+        "path": ".pose/specs/2026-10-04-pose-review-attribution-roles.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/review_attribution.go",
+          "sha256": "1eb0330cb55ad8222e661165ac6dcdda299b1acf763e7a0805f68ad6844e8563",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/review_attribution.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/review_attribution_test.go",
+          "sha256": "4e99cc3489ea444ae60d6a2f2c38ca0bda1434903d5d29898ace3136ccd19d6f",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/review_attribution_test.go"
+        }
+      ],
+      "residual_or_limit": "Papéis e suplementos existem; não converter atribuição legada em confirmação humana."
+    },
+    {
+      "previous_id": "POSE-05",
+      "title": "Alinhar blocked entre lifecycle, transfer, readiness e métricas",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-blocked-semantics-alignment",
+        "path": ".pose/specs/2026-10-04-pose-blocked-semantics-alignment.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/readiness.go",
+          "sha256": "0cdc5ea5431421c5c4427fce2fe298d6b533663957604a19d46a2f38550a1d10",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/readiness.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/readiness_blocked_test.go",
+          "sha256": "1e7cb772d16136de71cb058e4d65e1cac983e9d8db02f325d94f233d201da217",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/readiness_blocked_test.go"
+        }
+      ],
+      "residual_or_limit": "Blocked é operacional; adoption metrics conserva v1 e acrescenta v2."
+    },
+    {
+      "previous_id": "POSE-06",
+      "title": "Reconciliar specs abertas e follow-ups com requisitos e evidência atual",
+      "classification": "partial",
+      "existing_spec": {
+        "slug": "pose-open-backlog-reconciliation",
+        "path": ".pose/specs/2026-10-04-pose-open-backlog-reconciliation.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/followups_parse.go",
+          "sha256": "aca5fe17f7f791fdd39d85799e13b71a6bc82270ded8a6322fc6307a53901ffa",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/followups_parse.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/followup_candidates_test.go",
+          "sha256": "c2111ba150d99d314ac5f02bafe10836569316f657ef113081ccd4688dd33c04",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/followup_candidates_test.go"
+        }
+      ],
+      "residual_or_limit": "Houve duas reconciliações; 108 follow-ups atuais ainda exigem classificação individual."
+    },
+    {
+      "previous_id": "POSE-07",
+      "title": "Dar ao layout flat de spec a mesma integridade de amendments do layout em pasta",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-flat-spec-amendments",
+        "path": ".pose/specs/2026-10-04-pose-flat-spec-amendments.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/amendments.go",
+          "sha256": "3bf051236c4965a3556cbc1a7981c31679ee6ce9cb9ef45f6e7ae071e4a35325",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/amendments.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/amendments_flat_test.go",
+          "sha256": "19c4a1969ac34f1e23c932e03eaa0b3cb56f646391904d7b01e516586d36c3c7",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/amendments_flat_test.go"
+        }
+      ],
+      "residual_or_limit": "Journals flat são separados; o gate anterior ao close tem uma nova spec aberta."
+    },
+    {
+      "previous_id": "POSE-08",
+      "title": "Projetar governança suportada, configurada, aplicável e efetiva",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-effective-governance-projection",
+        "path": ".pose/specs/2026-10-04-pose-effective-governance-projection.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/effective_governance.go",
+          "sha256": "24806729b814afbedd3ee4a594e5af3b49cb349d1e77cfccc27cf074d89b3e0b",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/effective_governance.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/effective_governance_test.go",
+          "sha256": "f3faac37ea90f39f05504b7ae23fb5330e4243e770beeddc58e8c9b73c99c72f",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/effective_governance_test.go"
+        }
+      ],
+      "residual_or_limit": "A introspecção existe; eficácia em uso não se deduz só de policy flags."
+    },
+    {
+      "previous_id": "POSE-09",
+      "title": "Definir o contrato comum de obrigação e suas referências",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-obligation-contract",
+        "path": ".pose/specs/2026-10-04-pose-obligation-contract.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/obligation.go",
+          "sha256": "136c7b561e9985e38a60c0c76d83ba6514fdf49e3b5f71ada02800d038a8e0fe",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/obligation.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/obligation_test.go",
+          "sha256": "f2f10196ae10723ae5d713b5a01fa235342508ccefed567fd7ec09cc7075c2e3",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/obligation_test.go"
+        }
+      ],
+      "residual_or_limit": "Read model normalizado, sem segundo ledger de resolução."
+    },
+    {
+      "previous_id": "POSE-10",
+      "title": "Adicionar reason codes e referências estruturadas aos produtores",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-typed-producer-diagnostics",
+        "path": ".pose/specs/2026-10-04-pose-typed-producer-diagnostics.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/diagnostic_codes.go",
+          "sha256": "17362e6b519e7b8e2f374e16eaa1dd04583a47d6e92e19a9444c8b9eacce1ce0",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/diagnostic_codes.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/diagnostic_codes_test.go",
+          "sha256": "2c5e0406c84f3775a38fdb0bf0921cb8315f4956ab0b1bd7b4a2bacb13777449",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/diagnostic_codes_test.go"
+        }
+      ],
+      "residual_or_limit": "Diagnósticos tipados existem, mas há fallback legacy-opaque para certos blockers."
+    },
+    {
+      "previous_id": "POSE-11",
+      "title": "Implementar agregação de obligations somente leitura",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-obligation-projection",
+        "path": ".pose/specs/2026-10-04-pose-obligation-projection.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/obligation_projection.go",
+          "sha256": "03447d868291a29df86213567fe60c379a9d9cf8e20527ca4040c5e7c4cafb5b",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/obligation_projection.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/obligation_projection_test.go",
+          "sha256": "3d07a6b0ee8ddb46931121b2b66204fe70b380aece7adc3a32250a747b7b83b0",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/obligation_projection_test.go"
+        }
+      ],
+      "residual_or_limit": "13 produtores são declarados e responderam current nesta execução."
+    },
+    {
+      "previous_id": "POSE-12",
+      "title": "Garantir snapshot, freshness e cobertura nas respostas operacionais",
+      "classification": "partial",
+      "existing_spec": {
+        "slug": "pose-obligation-projection",
+        "path": ".pose/specs/2026-10-04-pose-obligation-projection.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/obligation_projection.go",
+          "sha256": "03447d868291a29df86213567fe60c379a9d9cf8e20527ca4040c5e7c4cafb5b",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/obligation_projection.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/spec_snapshot_test.go",
+          "sha256": "e6164edf4433b3707311feb9a834ff7174dcf4acd34f937cdc1da35480519b59",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/spec_snapshot_test.go"
+        }
+      ],
+      "residual_or_limit": "Binding e cobertura existem; snapshot não é isolamento dos arquivos durante toda a operação."
+    },
+    {
+      "previous_id": "POSE-13",
+      "title": "Expor Attention e obligations com uma lógica comum para CLI e MCP",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-state-attention",
+        "path": ".pose/specs/2026-10-04-pose-state-attention.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/attention.go",
+          "sha256": "b047f8085441cd12aef4b42079991cb3b1bf88285148a54ede01bf5423170a73",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/attention.go"
+        },
+        {
+          "path": "pose-mcp/internal/mcpserver/state_tool_test.go",
+          "sha256": "aea61867119fdd4fe57e7584f3591e21447dd625efe77d5ca60e6a1f46c3b022",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/mcpserver/state_tool_test.go"
+        }
+      ],
+      "residual_or_limit": "CLI e MCP têm projeção comum; wrappers de outros gates ainda usam subprocessos."
+    },
+    {
+      "previous_id": "POSE-14",
+      "title": "Persistir ActionRequest material com identidade e ciclo de vida mínimos",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-action-requests",
+        "path": ".pose/specs/2026-10-04-pose-action-requests.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/action_request.go",
+          "sha256": "1780f8bc3ae34b324b4bde0f0d64fe64d1620bd7417b636511f4f949b5ba1f3b",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/action_request.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/action_request_test.go",
+          "sha256": "26a611ca4e1346b9b7f61dd9c4b8bba6f009e2dc9ddbaf7815dfeea34e19fb1a",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/action_request_test.go"
+        }
+      ],
+      "residual_or_limit": "Solicitações persistentes com assunto, efeitos e identidade já existem."
+    },
+    {
+      "previous_id": "POSE-15",
+      "title": "Resolver solicitações com atribuição e autoridade adequadas",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-action-request-resolution",
+        "path": ".pose/specs/2026-10-04-pose-action-request-resolution.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/action_resolution.go",
+          "sha256": "35644a3e6df42b171f7a93aeda2e722cfcbc5a298013f2f6536e5071b43917d3",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/action_resolution.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/action_resolution_test.go",
+          "sha256": "85059896318c26dc2c7a084bef994b65b36afa7fb7a40d4e182665a0b5fd77a4",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/action_resolution_test.go"
+        }
+      ],
+      "residual_or_limit": "Resolução checa papel, projeto, digest e provas quando exigidas."
+    },
+    {
+      "previous_id": "POSE-16",
+      "title": "Proteger resoluções contra replay, conflito, retries e mudança do assunto",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-action-request-resolution",
+        "path": ".pose/specs/2026-10-04-pose-action-request-resolution.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/action_resolution.go",
+          "sha256": "35644a3e6df42b171f7a93aeda2e722cfcbc5a298013f2f6536e5071b43917d3",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/action_resolution.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/action_resolution_test.go",
+          "sha256": "85059896318c26dc2c7a084bef994b65b36afa7fb7a40d4e182665a0b5fd77a4",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/action_resolution_test.go"
+        }
+      ],
+      "residual_or_limit": "Revision e idempotency são exigidas; auditaremos concorrência e falhas na frente 9."
+    },
+    {
+      "previous_id": "POSE-17",
+      "title": "Projetar readiness por fase e escopo com continuidade conservadora",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-phase-scoped-readiness",
+        "path": ".pose/specs/2026-10-04-pose-phase-scoped-readiness.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/readiness_phases.go",
+          "sha256": "6fe4779a0d46f1a5cb08dec049c947955eef9a297411e38ef3c45c560c9789b5",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/readiness_phases.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/readiness_phases_test.go",
+          "sha256": "1023af3237b443d9896530fa0ffcf271a129990bd8bf8e9e2e55687d1d7dcb2c",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/readiness_phases_test.go"
+        }
+      ],
+      "residual_or_limit": "Estados por fase preservam unknown e restrição parcial."
+    },
+    {
+      "previous_id": "POSE-18",
+      "title": "Aplicar efeitos governados nos gates de escrita de domínio, CLI e MCP",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-governed-effect-enforcement",
+        "path": ".pose/specs/2026-10-04-pose-governed-effect-enforcement.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/governed_effects.go",
+          "sha256": "f165f1d38dfc3d3a6cf25cf00ce27178f8eb6dd2d0e7e9ac60299ec98d5f8f80",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/governed_effects.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/governed_effects_test.go",
+          "sha256": "4da68490942baefb87dbf4222183cf8e487148d3f6e25378fa85f148f1d9efef",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/governed_effects_test.go"
+        }
+      ],
+      "residual_or_limit": "Requests são enforced nos pontos de escrita; outros domínios conservam seus gates."
+    },
+    {
+      "previous_id": "POSE-19",
+      "title": "Preservar solicitações e obrigações durante transfer e reconciliação de autoridade",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-transfer-preserves-obligations",
+        "path": ".pose/specs/2026-10-04-pose-transfer-preserves-obligations.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/spec_transfer.go",
+          "sha256": "2dbd2508ffdc21b61d1882a9dd87b152fb120bead5bd1c5ce073e76b88640238",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/spec_transfer.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/spec_transfer_actions_test.go",
+          "sha256": "0514cc9d6550f692e173b4af6247402d85e098a8b8967ae017b1e11e5a8952fe",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/spec_transfer_actions_test.go"
+        }
+      ],
+      "residual_or_limit": "Transfer já trata requests; integração externa atual não foi reexecutada."
+    },
+    {
+      "previous_id": "POSE-20",
+      "title": "Agrupar pedidos relacionados e apresentar perguntas concretas ao usuário",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-action-request-presentation",
+        "path": ".pose/specs/2026-10-04-pose-action-request-presentation.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/action_presentation.go",
+          "sha256": "780c19746df82b256f01310f290e4fafad9e7b7751daade3f446cbb5f53d2c05",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/action_presentation.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/action_presentation_test.go",
+          "sha256": "09faee35c01b839bf202f56ffbf6d5752bf39d4ff04b7fa54084d5da25406f6e",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/action_presentation_test.go"
+        }
+      ],
+      "residual_or_limit": "Agrupamento e perguntas concretas existem; satisfação humana de UX ainda precisa observação."
+    },
+    {
+      "previous_id": "POSE-21",
+      "title": "Evoluir closeout para um plano mecânico recuperável",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-recoverable-closeout-plan",
+        "path": ".pose/specs/2026-10-04-pose-recoverable-closeout-plan.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/closeout_plan.go",
+          "sha256": "ca2aff22a3092ce09bf218027e07cef888b38be0b2d8ae3c20f1511eda9369aa",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/closeout_plan.go"
+        },
+        {
+          "path": "pose-mcp/internal/cli/closeout_plan_test.go",
+          "sha256": "fa9bba10cd1f5ba693c4000fbbf201596dff0baa80f3f6469b4fe9cf5396d691",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/cli/closeout_plan_test.go"
+        }
+      ],
+      "residual_or_limit": "Plano e checkpoint existem; falha do Git ainda pode aparentar contexto limpo."
+    },
+    {
+      "previous_id": "POSE-22",
+      "title": "Reusar evidência e critérios por equivalência material e proveniência",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-material-equivalence-reuse",
+        "path": ".pose/specs/2026-10-04-pose-material-equivalence-reuse.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/reuse_equivalence.go",
+          "sha256": "577eac485c00d9348fec76773d306039037754ca2a2071b3cbed1301545ff01b",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/reuse_equivalence.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/reuse_equivalence_test.go",
+          "sha256": "3a430cdffcd3ebf12b4f23e782947e4ec00b25a855f269d8c52db12730b76279",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/reuse_equivalence_test.go"
+        }
+      ],
+      "residual_or_limit": "Reuso material é explicado; não equivale a cache residente compartilhado."
+    },
+    {
+      "previous_id": "POSE-23",
+      "title": "Aplicar freshness e materialidade aos assessments",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-adaptive-assessment-freshness",
+        "path": ".pose/specs/2026-10-04-pose-adaptive-assessment-freshness.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/assessment_freshness.go",
+          "sha256": "28d3683c45e97b3c73b7ae925210f554b21acfd69c4588c4c0c098198600709d",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/assessment_freshness.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/assessment_freshness_test.go",
+          "sha256": "5209623703b0e3f0a6004677e5acad87a5fd9906e21f7317a0a7573a80ef88ca",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/assessment_freshness_test.go"
+        }
+      ],
+      "residual_or_limit": "Freshness depende de conteúdo, versão e matrix, não de TTL arbitrário."
+    },
+    {
+      "previous_id": "POSE-24",
+      "title": "Oferecer spec progressiva e gerar conteúdo factual derivável",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-progressive-spec-surface",
+        "path": ".pose/specs/2026-10-04-pose-progressive-spec-surface.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/spec_facts.go",
+          "sha256": "5474234cf5681b066d94ee556fc070a25fcaeee8c2abd65e6df1da02c179ff57",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/spec_facts.go"
+        },
+        {
+          "path": "pose-mcp/internal/cli/spec_surface_test.go",
+          "sha256": "d119654fe16789894f022ce355ea8761889360b61355de6da94eeff17b2d68b5",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/cli/spec_surface_test.go"
+        }
+      ],
+      "residual_or_limit": "Superfície progressiva e fatos derivados existem."
+    },
+    {
+      "previous_id": "POSE-25",
+      "title": "Sinalizar candidatos a reconciliação de follow-ups sem auto-close",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-followup-reconciliation-candidates",
+        "path": ".pose/specs/2026-10-04-pose-followup-reconciliation-candidates.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/followup_candidates.go",
+          "sha256": "141321bbc499d2b062b1cee6446fd596d60f8c643c41775f3885e88192a0e651",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/followup_candidates.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/followup_candidates_test.go",
+          "sha256": "c2111ba150d99d314ac5f02bafe10836569316f657ef113081ccd4688dd33c04",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/followup_candidates_test.go"
+        }
+      ],
+      "residual_or_limit": "Candidatos são apresentados sem auto-close."
+    },
+    {
+      "previous_id": "POSE-26",
+      "title": "Observar idade de pendências e intervalos de espera por causa",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-governance-wait-rework-observability",
+        "path": ".pose/specs/2026-10-04-pose-governance-wait-rework-observability.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/governance_waits.go",
+          "sha256": "1c8d30c63a50a0cb0147e48b65fc353c7c7563918bad8c0546507cb45233bd4c",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/governance_waits.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/governance_waits_test.go",
+          "sha256": "8d060a40439472a28239481361aa58ce22a214386985deb2a182bacdc291e682",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/governance_waits_test.go"
+        }
+      ],
+      "residual_or_limit": "Idade, espera atribuída e bloqueio conhecido são separados."
+    },
+    {
+      "previous_id": "POSE-27",
+      "title": "Explicar retrabalho de governança e medir custo computacional",
+      "classification": "partial",
+      "existing_spec": {
+        "slug": "pose-governance-wait-rework-observability",
+        "path": ".pose/specs/2026-10-04-pose-governance-wait-rework-observability.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/governance_waits.go",
+          "sha256": "1c8d30c63a50a0cb0147e48b65fc353c7c7563918bad8c0546507cb45233bd4c",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/governance_waits.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/governance_waits_test.go",
+          "sha256": "8d060a40439472a28239481361aa58ce22a214386985deb2a182bacdc291e682",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/governance_waits_test.go"
+        }
+      ],
+      "residual_or_limit": "Há métricas e script; benchmark ignora exit codes e restaura árvores com git checkout."
+    },
+    {
+      "previous_id": "POSE-28",
+      "title": "Manter corpus adversarial contra cumprimento formal sem valor",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-mechanization-adversarial-corpus",
+        "path": ".pose/specs/2026-10-04-pose-mechanization-adversarial-corpus.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/abm_golden_test.go",
+          "sha256": "71289464e7bc3810c40fa3f4728d3b03b633fa2389d6049ac029da61c75c13bd",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/abm_golden_test.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/abm_review_soundness_test.go",
+          "sha256": "1b2b4927fe4a20226d5e5f50a89d93dcd4fdbb57c56c1cd0956e443cb44c5390",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/abm_review_soundness_test.go"
+        }
+      ],
+      "residual_or_limit": "Corpus existe; precisa incorporar os novos riscos de delegação, snapshot e release."
+    },
+    {
+      "previous_id": "POSE-29",
+      "title": "Executar piloto do corte vertical de agência e readiness antes do enforcement amplo",
+      "classification": "adoption_recorded_human_validation_pending",
+      "existing_spec": {
+        "slug": "pose-agency-readiness-pilot",
+        "path": ".pose/specs/2026-10-04-pose-agency-readiness-pilot.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/governed_effects.go",
+          "sha256": "f165f1d38dfc3d3a6cf25cf00ce27178f8eb6dd2d0e7e9ac60299ec98d5f8f80",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/governed_effects.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/governed_effects_test.go",
+          "sha256": "4da68490942baefb87dbf4222183cf8e487148d3f6e25378fa85f148f1d9efef",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/governed_effects_test.go"
+        }
+      ],
+      "residual_or_limit": "Piloto automatizado e adoção delimitada registrados; fricção de uma pessoa segue não medida."
+    },
+    {
+      "previous_id": "POSE-30",
+      "title": "Concluir piloto e decisão de adoção das capacidades ABM já implementadas",
+      "classification": "adoption_recorded",
+      "existing_spec": {
+        "slug": "pose-abm-capability-adoption",
+        "path": ".pose/specs/2026-10-04-pose-abm-capability-adoption.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/effective_governance.go",
+          "sha256": "24806729b814afbedd3ee4a594e5af3b49cb349d1e77cfccc27cf074d89b3e0b",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/effective_governance.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/start_cutoff_test.go",
+          "sha256": "0e3eb198f6c29b0b66e7906d8890455a620f217915a30fe22b0a53114f250ab1",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/start_cutoff_test.go"
+        }
+      ],
+      "residual_or_limit": "Policy atual adota contract-nodes, atomic-start e causality-closeout; preservar cutoffs."
+    },
+    {
+      "previous_id": "POSE-31",
+      "title": "Representar staleness material de premissas e seus scopes",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-assumption-validity-scope",
+        "path": ".pose/specs/2026-10-04-pose-assumption-validity-scope.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/premise_validity.go",
+          "sha256": "9b7b12c91b7810b9a6a0114bb748263b12db4f55b5e8cb69c78aae1fdd8e42f6",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/premise_validity.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/assumption_validity_test.go",
+          "sha256": "fb85b82b8eab9598f6005c4f69d91e08954d1367e772dda0657357a767fa9945",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/assumption_validity_test.go"
+        }
+      ],
+      "residual_or_limit": "Premissas usam triggers materiais e podem permanecer unknown/unsupported."
+    },
+    {
+      "previous_id": "POSE-32",
+      "title": "Fechar o ciclo de falsifiers e efeitos esperados com reconsideração explícita",
+      "classification": "implementation_present",
+      "existing_spec": {
+        "slug": "pose-falsifier-reconsideration",
+        "path": ".pose/specs/2026-10-04-pose-falsifier-reconsideration.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/falsifier_observation.go",
+          "sha256": "6bee889f12a7e3a2449caa22020e9aa06d85474e393c213198e66c420c1d6539",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/falsifier_observation.go"
+        },
+        {
+          "path": "pose-mcp/internal/pose/falsifier_observation_test.go",
+          "sha256": "b928299ba0f15d46ae1c1a9474f2478b5517113ed8956b84c56533c010ca0bd8",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/falsifier_observation_test.go"
+        }
+      ],
+      "residual_or_limit": "Contradição observada gera candidato a julgamento, não verdict automático de arquitetura."
+    },
+    {
+      "previous_id": "POSE-33",
+      "title": "Planejar limpeza de schema, campos legados e blocked numa major apropriada",
+      "classification": "inventory_only",
+      "existing_spec": {
+        "slug": "pose-v7-legacy-cleanup-plan",
+        "path": ".pose/specs/2026-10-04-pose-v7-legacy-cleanup-plan.md",
+        "status": "done"
+      },
+      "evidence": [
+        {
+          "path": "pose-mcp/internal/pose/legacy_inventory.go",
+          "sha256": "2304a468d020069f15c69d6ec40b6afb848c75df8535e9ae5c70e3a3bc2c092d",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/pose/legacy_inventory.go"
+        },
+        {
+          "path": "pose-mcp/internal/cli/migrate_dryrun_test.go",
+          "sha256": "e8eef18c3d3fa677c96775fcb089160530bf4fa048cd3b56a6775f3da0531671",
+          "url": "https://github.com/oseiaspereira88/pose/blob/8d26872587496a3c14c705568ac0f37096be82a4/pose-mcp/internal/cli/migrate_dryrun_test.go"
+        }
+      ],
+      "residual_or_limit": "Inventário/dry-run existem; não há apply de migração e a mensagem ainda fala em 6.x."
+    }
+  ]
+}
