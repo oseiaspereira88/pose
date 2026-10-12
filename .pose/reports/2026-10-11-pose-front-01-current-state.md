@@ -1,11 +1,17 @@
 # POSE — frente 1: estado real e reconciliação das análises recentes
 
-**Data:** 2026-10-11, America/Recife. As execuções locais atravessaram 2026-10-12 em UTC.  
-**Repositório:** `oseiaspereira88/pose`.  
-**Baseline:** `8d26872587496a3c14c705568ac0f37096be82a4`, main observada no início da auditoria.  
-**Referência anterior:** `392aaa5a007f745cdf1804f65631ea2792567fd9`, análise consolidada de 2026-10-03.  
-**Natureza:** diagnóstico e reconciliação; não implementa correções, altera políticas, aceita riscos nem fecha specs.  
-**Companion:** [reconciliação dos 33 itens e snapshot estruturado](../results/2026-10-11-pose-front-01-reconciliation.json).  
+**Data:** 2026-10-11, America/Recife. As execuções locais atravessaram 2026-10-12 em UTC.
+
+**Repositório:** `oseiaspereira88/pose`.
+
+**Baseline:** `8d26872587496a3c14c705568ac0f37096be82a4`, main observada no início da auditoria.
+
+**Referência anterior:** `392aaa5a007f745cdf1804f65631ea2792567fd9`, análise consolidada de 2026-10-03.
+
+**Natureza:** diagnóstico e reconciliação; não implementa correções, altera políticas, aceita riscos nem fecha specs.
+
+**Companion:** [reconciliação dos 33 itens e snapshot estruturado](../results/2026-10-11-pose-front-01-reconciliation.json).
+
 **Programa:** [índice das dez frentes](2026-10-11-pose-analysis-index.md).
 
 ## 1. Parecer executivo
