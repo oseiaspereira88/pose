@@ -8,7 +8,7 @@ e análises anteriores como intenção e contexto a reconciliar.
 |---|---|---|
 | 1 | [Estado real e reconciliação](2026-10-11-pose-front-01-current-state.md) | Documento produzido; validação registrada nele |
 | 2 | [Autoridade, identidade, evidências e atestações](2026-10-11-pose-front-02-trust-chain.md) | Documento produzido; validação registrada nele |
-| 3 | Agentes secundários e revisão delegada nativa | A analisar |
+| 3 | [Agentes secundários e revisão delegada nativa](2026-10-11-pose-front-03-delegated-review.md) | Documento produzido; validação registrada nele |
 | 4 | Pendências, ações humanas, obrigações e bloqueios | A analisar |
 | 5 | Dívida técnica, defeitos e trabalho incompleto acumulado | A analisar |
 | 6 | Escopo, compromissos e suficiência de releases | A analisar |
