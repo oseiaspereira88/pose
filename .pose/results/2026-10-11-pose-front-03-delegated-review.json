@@ -1,0 +1,546 @@
+{
+  "schema_version": 1,
+  "document_type": "delegated_review_analysis",
+  "analysis_date": "2026-10-11",
+  "timezone": "America/Recife",
+  "repository": "oseiaspereira88/pose",
+  "source_revision": "e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6",
+  "code_baseline": "v7.4.1; pose-mcp unchanged after release",
+  "status": "analysis_only_not_implemented",
+  "runtime_binary_sha256": "9ae6e0855c8b82599cab1d9999ae3a20644e091a5e0490b2f85d593294104d66",
+  "runtime_environment": "Unix, synthetic disposable Git fixtures, fake sh adapters; no vendor agents",
+  "runtime_probes": {
+    "empty_output": {
+      "exit_code": 0,
+      "run_status": "completed",
+      "output_empty": true,
+      "attestations_written": 0
+    },
+    "concurrent_budget": {
+      "max_runs_per_bundle": 1,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "completed_runs": 2,
+      "recorded_runs": 2
+    },
+    "edit_control": {
+      "exit_code": 1,
+      "run_status": "failed",
+      "failure": "the run changed files in the sealed worktree: pose-mcp/lib.go"
+    },
+    "assume_unchanged_edit": {
+      "exit_code": 0,
+      "run_status": "completed",
+      "failure": null,
+      "attestations_written": 0
+    },
+    "post_run_git_status_error": {
+      "exit_code": 0,
+      "run_status": "completed",
+      "failure": null
+    },
+    "main_fixture_write": {
+      "exit_code": 0,
+      "run_status": "completed",
+      "outside_worktree_changed": true
+    },
+    "tampered_budget_record": {
+      "exit_code": 0,
+      "completed_runs": 2,
+      "records_written": 2,
+      "tampered_transcript_present": true
+    },
+    "unchanged_rerun": {
+      "exit_codes": [
+        0,
+        0
+      ],
+      "run_statuses": [
+        "completed",
+        "completed"
+      ],
+      "same_bundle": true,
+      "same_brief": true
+    },
+    "timeout_control": {
+      "exit_code": 1,
+      "run_status": "failed",
+      "failure": "timeout after 100ms"
+    },
+    "setup_failure_record": {
+      "exit_code": 1,
+      "recorded_runs": 0,
+      "stderr": "Error: pose review dispatch: creating the review worktree: exit status 32:"
+    }
+  },
+  "probe_harness": "2026-10-11-pose-front-03-dispatch-probes.py",
+  "counts": {
+    "specs_done": 3,
+    "specs_draft": 4,
+    "backlog_candidates": 10,
+    "runtime_reproduced_backlog_items": 3,
+    "runtime_probes": 10
+  },
+  "accepted_contract": {
+    "records_conclusion": "engine_after_verified_run",
+    "human_involvement": "policy_exceptions_only",
+    "independence": "different_vendor_or_model_verified_from_run",
+    "cross_vendor": "preferred_not_required",
+    "initial_complete_kinds": [
+      "review",
+      "adjudication",
+      "smoke"
+    ],
+    "adoption": "opt_in_off_by_default"
+  },
+  "items": [
+    {
+      "id": "T3-01",
+      "priority": "P1",
+      "evidence_level": "runtime_reproduced",
+      "title": "Reservar orçamento e registrar toda tentativa",
+      "sources": [
+        "E02",
+        "E05",
+        "E18"
+      ],
+      "acceptance_criteria": [
+        "No máximo K execuções para cota K sob concorrência",
+        "Setup failure e interrupção preservam tentativa recuperável",
+        "Idempotência impede duas execuções para a mesma chave"
+      ]
+    },
+    {
+      "id": "T3-02",
+      "priority": "P1",
+      "evidence_level": "runtime_reproduced",
+      "title": "Verificar snapshot e recusar erro de inspeção",
+      "sources": [
+        "E02",
+        "E14",
+        "E05"
+      ],
+      "acceptance_criteria": [
+        "Assume-unchanged e falha de git status não produzem run elegível",
+        "Paths e regeneração derivada têm leitura e permissão explícitas",
+        "Bundle superado não produz efeito no escopo atual"
+      ]
+    },
+    {
+      "id": "T3-03",
+      "priority": "P1",
+      "evidence_level": "runtime_reproduced",
+      "title": "Verificar ledger e preservar rejeições",
+      "sources": [
+        "E02",
+        "E10",
+        "E18"
+      ],
+      "acceptance_criteria": [
+        "Corrupção ou remoção não restaura orçamento nem aprovação",
+        "Rejeição permanece visível e bloqueia bundle inalterado",
+        "Reason registra exceção sem apagar rejeição"
+      ]
+    },
+    {
+      "id": "T3-04",
+      "priority": "P1",
+      "evidence_level": "source_confirmed_planned_gap",
+      "title": "Provar execução e independência",
+      "sources": [
+        "E02",
+        "E15",
+        "E17"
+      ],
+      "acceptance_criteria": [
+        "Prova vincula bundle, configuração, executor, prompt e output",
+        "Vendor ou modelo diferente é verificado conforme ADR",
+        "Machine-attested não é atribuído a pessoa"
+      ]
+    },
+    {
+      "id": "T3-05",
+      "priority": "P1",
+      "evidence_level": "source_confirmed_planned_gap",
+      "title": "Validar conclusão e registrar três destinos",
+      "sources": [
+        "E01",
+        "E02",
+        "E03",
+        "E19"
+      ],
+      "acceptance_criteria": [
+        "Output incompleto não produz efeito",
+        "Engine registra aprovação ou rejeição válida sem aplicação manual",
+        "Review, adjudication e smoke possuem destinos tipados e jornadas"
+      ]
+    },
+    {
+      "id": "T3-06",
+      "priority": "P1",
+      "evidence_level": "source_confirmed_boundary_runtime_illustrated",
+      "title": "Declarar isolamento, recursos e retenção",
+      "sources": [
+        "E02",
+        "E07",
+        "E08",
+        "E16"
+      ],
+      "acceptance_criteria": [
+        "Adapter atende política explícita de isolamento",
+        "Valores inválidos não desligam limites silenciosamente",
+        "Streams, cleanup e retenção têm limites verificáveis por plataforma"
+      ]
+    },
+    {
+      "id": "T3-07",
+      "priority": "P2",
+      "evidence_level": "source_confirmed",
+      "title": "Fornecer contexto suficiente e preservar autoridade",
+      "sources": [
+        "E01",
+        "E04",
+        "E06",
+        "E14"
+      ],
+      "acceptance_criteria": [
+        "Inputs de smoke são vinculados ao snapshot",
+        "Notas não alteram permissões, critérios ou destino no engine",
+        "Evidência revela provenance e observações relevantes"
+      ]
+    },
+    {
+      "id": "T3-08",
+      "priority": "P1",
+      "evidence_level": "source_confirmed_planned_gap",
+      "title": "Cumprir requests e escalar exceções",
+      "sources": [
+        "E19",
+        "E20"
+      ],
+      "acceptance_criteria": [
+        "Request local/remoto usa mesma prova e correlação",
+        "Pessoa por política não é satisfeita por run de agente",
+        "Cota esgotada, conflito e negócio geram pergunta e opções"
+      ]
+    },
+    {
+      "id": "T3-09",
+      "priority": "P2",
+      "evidence_level": "source_confirmed_planned_gap",
+      "title": "Integrar adoção, closeout e observabilidade",
+      "sources": [
+        "E09",
+        "E11",
+        "E12",
+        "E13",
+        "E19"
+      ],
+      "acceptance_criteria": [
+        "Opt-in requer adapter apto e preserva instâncias antigas",
+        "Jornada autônoma não espera aplicação manual",
+        "Métricas expõem tentativas, rejeições e escalations"
+      ]
+    },
+    {
+      "id": "T3-10",
+      "priority": "P2",
+      "evidence_level": "source_confirmed",
+      "title": "Reconciliar specs e demonstrar eficácia",
+      "sources": [
+        "E15",
+        "E17",
+        "E18",
+        "E19",
+        "E20",
+        "E21",
+        "E22"
+      ],
+      "acceptance_criteria": [
+        "Drafts e roadmap seguem ADR aceito",
+        "Dependências refletem prova, capacidade e fulfillment",
+        "Cada kind atravessa jornada antes da entrega completa"
+      ]
+    }
+  ],
+  "release_proposals": [
+    {
+      "id": "A",
+      "scope": "Correct dispatch guarantees before complete capability",
+      "items": [
+        "T3-01",
+        "T3-02",
+        "T3-06"
+      ],
+      "claim": "dispatch_corrections_not_complete_autonomous_review"
+    },
+    {
+      "id": "B",
+      "scope": "Complete opt-in capability across review/adjudication/smoke and local/remote requests",
+      "items": [
+        "T3-03",
+        "T3-04",
+        "T3-05",
+        "T3-07",
+        "T3-08",
+        "T3-09",
+        "T3-10"
+      ],
+      "prerequisites": [
+        "A",
+        "front02_read_proof_integrity",
+        "front02_preflight_write_parity"
+      ],
+      "version_commitment": null
+    }
+  ],
+  "sources": [
+    {
+      "id": "E01",
+      "path": "pose-mcp/internal/pose/review_brief.go",
+      "sha256": "1ff2a1c3b38b0207b1db11c4349dc17ddf7b9cfbfd032351067ffd64929bd0b7",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/pose-mcp/internal/pose/review_brief.go"
+    },
+    {
+      "id": "E02",
+      "path": "pose-mcp/internal/pose/review_dispatch.go",
+      "sha256": "f7952db4752e35be94cc7a796b62fc021fb39d7303c997ae7b89d0bb51255252",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/pose-mcp/internal/pose/review_dispatch.go"
+    },
+    {
+      "id": "E03",
+      "path": "pose-mcp/internal/cli/review_dispatch.go",
+      "sha256": "270e889425fb079ac9662a6e3c03d2d98f745cbec54bc86c3b4c74b95b4bd344",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/pose-mcp/internal/cli/review_dispatch.go"
+    },
+    {
+      "id": "E04",
+      "path": "pose-mcp/internal/pose/review_brief_test.go",
+      "sha256": "e6e062987f6bffe1c9faee3eed5f1d88f2266d690d08bd8e2e0a17a5dcafb2d1",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/pose-mcp/internal/pose/review_brief_test.go"
+    },
+    {
+      "id": "E05",
+      "path": "pose-mcp/internal/cli/review_dispatch_test.go",
+      "sha256": "dedf417a0614b9e305ed1cd1b807610d6ac1e33ed1080017793c6d619336d9ff",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/pose-mcp/internal/cli/review_dispatch_test.go"
+    },
+    {
+      "id": "E06",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-brief.md",
+      "sha256": "d0a929914c8c5b49e85cdd264cb07c6943a9bce07464c61eeeca6189088f5a9b",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/.pose/specs/2026-10-09-pose-delegated-review-brief.md"
+    },
+    {
+      "id": "E07",
+      "path": "pose-mcp/internal/pose/review_dispatch_unix.go",
+      "sha256": "81a23b6b07c1b018d998a5dd3f5faeebc3fe6b54d4861261365e6007c47cc061",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/pose-mcp/internal/pose/review_dispatch_unix.go"
+    },
+    {
+      "id": "E08",
+      "path": "pose-mcp/internal/pose/review_dispatch_windows.go",
+      "sha256": "8ee6cd712af5429c2b9425cd9b98dda79cf20a360ebf6be4d52d44628ecd7cec",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/pose-mcp/internal/pose/review_dispatch_windows.go"
+    },
+    {
+      "id": "E09",
+      "path": "pose-mcp/internal/pose/closeout_plan.go",
+      "sha256": "ca2aff22a3092ce09bf218027e07cef888b38be0b2d8ae3c20f1511eda9369aa",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/pose-mcp/internal/pose/closeout_plan.go"
+    },
+    {
+      "id": "E10",
+      "path": "pose-mcp/internal/cli/historycheck.go",
+      "sha256": "a77ca99de92d51d5d2b798c51d52c64134dd540d9f0ffd60f299d94063205ac8",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/pose-mcp/internal/cli/historycheck.go"
+    },
+    {
+      "id": "E11",
+      "path": "pose-mcp/internal/pose/capability_catalog.go",
+      "sha256": "f063a421ce285250e0e4241d3c36577b0b0839de77875d587b4451d8b13e766b",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/pose-mcp/internal/pose/capability_catalog.go"
+    },
+    {
+      "id": "E12",
+      "path": "pose-mcp/internal/mcpserver/catalog.go",
+      "sha256": "8e3de028f14efc60bcc79ed429eea20c815d50e1f0c52238e9757f026ce7afec",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/pose-mcp/internal/mcpserver/catalog.go"
+    },
+    {
+      "id": "E13",
+      "path": "pose-mcp/internal/pose/insights.go",
+      "sha256": "deed9a5f94c750cee2b38b8867e4142f41f10d811689c15d2f1662161308cd08",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/pose-mcp/internal/pose/insights.go"
+    },
+    {
+      "id": "E14",
+      "path": "pose-mcp/internal/pose/review_bundle.go",
+      "sha256": "9b144c8d4a14376433740ec490784f6b3fdb32bfd3b0b0b6f5760ac4c801ee5a",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/pose-mcp/internal/pose/review_bundle.go"
+    },
+    {
+      "id": "E15",
+      "path": ".pose/adr/2026-10-09-delegated-review-is-an-adapter.md",
+      "sha256": "0762469a706a49986f1f4a19928ec0d190449e098d85f9b35d840e349c88a630",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/.pose/adr/2026-10-09-delegated-review-is-an-adapter.md"
+    },
+    {
+      "id": "E16",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-dispatch.md",
+      "sha256": "23e0b661d3069908d0d098663b1a6ad83969fd7ea059fe9bfe2563a58e68bb1c",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/.pose/specs/2026-10-09-pose-delegated-review-dispatch.md"
+    },
+    {
+      "id": "E17",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-run-provenance.md",
+      "sha256": "da93e4b168608a142a063bb6b29b30b9ee2f61e41242eeb79c2f9be095828041",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/.pose/specs/2026-10-09-pose-delegated-review-run-provenance.md"
+    },
+    {
+      "id": "E18",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-attempt-ledger.md",
+      "sha256": "4e1cf96aa2606a368f3a21c5f5c989112dc596401280ac02183ebcf4def5ef84",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/.pose/specs/2026-10-09-pose-delegated-review-attempt-ledger.md"
+    },
+    {
+      "id": "E19",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-capability.md",
+      "sha256": "eda319ef6ffc0c055e5a2c3771337d75f0d6adb69e67927b0c4e8d0c0f590920",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/.pose/specs/2026-10-09-pose-delegated-review-capability.md"
+    },
+    {
+      "id": "E20",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-action-fulfillment.md",
+      "sha256": "09eb4979e531f71a44491c77395b4ea88f4a35d1e9ba5ed925d57338e01ade7e",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/.pose/specs/2026-10-09-pose-delegated-review-action-fulfillment.md"
+    },
+    {
+      "id": "E21",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-contract.md",
+      "sha256": "94944cb095bc80ce2dae64c7cc18d3cf3785c53a29382d1aad153df179259cfd",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/.pose/specs/2026-10-09-pose-delegated-review-contract.md"
+    },
+    {
+      "id": "E22",
+      "path": ".pose/roadmaps/delegated-review.md",
+      "sha256": "6259d96931c1f7532811461c433dc17ffc558defa0412aa603a237de1e6b5a3f",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/.pose/roadmaps/delegated-review.md"
+    },
+    {
+      "id": "E23",
+      "path": ".github/workflows/ci.yml",
+      "sha256": "fc9044c36dece824eddbe6f4c2a87fbb6b9b714c6d7db30ed91289403f44f5e8",
+      "url": "https://github.com/oseiaspereira88/pose/blob/e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6/.github/workflows/ci.yml"
+    }
+  ],
+  "validation": {
+    "document_check": {
+      "command": "pose check --strict",
+      "exit_code": 0,
+      "result": "SUCCESS",
+      "warnings": 30,
+      "warning_categories": {
+        "changelog": 27,
+        "capabilities": 2,
+        "instance": 1
+      },
+      "verified_at_utc": "2026-10-12T02:36:13.895394+00:00"
+    },
+    "local_go_suite": "not_run_go_unavailable",
+    "baseline_ci": {
+      "name": "CI",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/oseiaspereira88/pose/actions/runs/38195019353",
+      "head_sha": "e68f3e7b3d1f056f1ef9a336e9422ea5ce9bd4c6"
+    },
+    "limitations": [
+      "No real vendor execution",
+      "No Harne8 source inspection",
+      "No end-to-end closeout bypass demonstrated",
+      "No claim of complete filesystem sandbox",
+      "Concurrent probe depends on scheduling"
+    ],
+    "artifact_checks": {
+      "json": true,
+      "unique_candidate_ids": 10,
+      "source_hashes_verified": 23,
+      "harness_hash_verified": true,
+      "existing_spec_states_verified": 7,
+      "relative_links": true,
+      "python_syntax": true,
+      "staged_diff_whitespace": true
+    }
+  },
+  "probe_harness_sha256": "e7cbc10382ff22c1533201f53c0180cbdae2edfc0bfadb13985442eb9d8d2104",
+  "reproduction_verification": {
+    "portable_harness_executed": true,
+    "results_equal_to_initial_run": true,
+    "vendors_executed": false
+  },
+  "existing_spec_map": [
+    {
+      "slug": "pose-delegated-review-contract",
+      "status": "done",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-contract.md"
+    },
+    {
+      "slug": "pose-delegated-review-brief",
+      "status": "done",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-brief.md"
+    },
+    {
+      "slug": "pose-delegated-review-dispatch",
+      "status": "done",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-dispatch.md"
+    },
+    {
+      "slug": "pose-delegated-review-run-provenance",
+      "status": "draft",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-run-provenance.md"
+    },
+    {
+      "slug": "pose-delegated-review-attempt-ledger",
+      "status": "draft",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-attempt-ledger.md"
+    },
+    {
+      "slug": "pose-delegated-review-capability",
+      "status": "draft",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-capability.md"
+    },
+    {
+      "slug": "pose-delegated-review-action-fulfillment",
+      "status": "draft",
+      "path": ".pose/specs/2026-10-09-pose-delegated-review-action-fulfillment.md"
+    }
+  ],
+  "cross_front_dependencies": {
+    "2": [
+      "proof validation on persisted read",
+      "preflight/write semantic parity",
+      "shared native issuer"
+    ],
+    "4": [
+      "ActionRequest classification, authorized satisfaction and effects"
+    ],
+    "6": [
+      "release sufficiency and version scope"
+    ],
+    "7": [
+      "operational UX and anti-rubber-stamp workflow"
+    ],
+    "8": [
+      "shared engine and runtime performance"
+    ],
+    "9": [
+      "concurrency, idempotency and recovery"
+    ],
+    "10": [
+      "consolidated roadmap and publication"
+    ]
+  }
+}
