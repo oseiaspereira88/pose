@@ -14,7 +14,7 @@ e análises anteriores como intenção e contexto a reconciliar.
 | 6 | [Escopo, compromissos e suficiência de releases](2026-10-12-pose-front-06-release-sufficiency.md) | Documento produzido; validação registrada nele |
 | 7 | [Eficiência operacional, combate à mecanização e UX](2026-10-12-pose-front-07-operational-ux.md) | Documento produzido; validação registrada nele |
 | 8 | [Performance, processo residente e arquitetura compartilhada](2026-10-12-pose-front-08-resident-performance.md) | Documento produzido; validação registrada nele |
-| 9 | Consistência, concorrência e recuperação de falhas | A analisar |
+| 9 | [Consistência, concorrência e recuperação de falhas](2026-10-12-pose-front-09-consistency-recovery.md) | Documento produzido; validação registrada nele |
 | 10 | Documentação, backlog consolidado e composição das releases | A analisar |
 
 Os candidatos da frente 1 orientam a investigação; não são issues adjudicadas,
