@@ -15,7 +15,7 @@ e análises anteriores como intenção e contexto a reconciliar.
 | 7 | [Eficiência operacional, combate à mecanização e UX](2026-10-12-pose-front-07-operational-ux.md) | Documento produzido; validação registrada nele |
 | 8 | [Performance, processo residente e arquitetura compartilhada](2026-10-12-pose-front-08-resident-performance.md) | Documento produzido; validação registrada nele |
 | 9 | [Consistência, concorrência e recuperação de falhas](2026-10-12-pose-front-09-consistency-recovery.md) | Documento produzido; validação registrada nele |
-| 10 | Documentação, backlog consolidado e composição das releases | A analisar |
+| 10 | [Documentação, backlog consolidado e composição das releases](2026-10-12-pose-front-10-consolidated-backlog.md) | Documento produzido; validação registrada nele |
 
 Os candidatos da frente 1 orientam a investigação; não são issues adjudicadas,
 mudanças implementadas ou compromissos de release. Reutilizar specs e roadmaps
@@ -27,3 +27,12 @@ adoção e eficácia, apontar evidências no código e testes, propor alternativ
 e critérios de aceite e nomear a frente responsável por achados transversais.
 O [snapshot estruturado da frente 1](../results/2026-10-11-pose-front-01-reconciliation.json)
 retém a reconciliação dos 33 itens anteriores.
+
+Programa de dez análises concluído na revisão fonte
+`35ffb4a66817803c4cc42f56e41bf2e667e52da9`. A
+[consolidação final](2026-10-12-pose-front-10-consolidated-backlog.md) reúne
+96 candidatos em 44 unidades com origem, foundations, aceite e dependências;
+o [catálogo estruturado](../results/2026-10-12-pose-front-10-consolidated-backlog.json)
+propõe seis ondas e preserva a reconciliação dos 33 itens históricos.
+As propostas permanecem não adjudicadas: não equivalem a mudanças de motor,
+adoção, dispositions aplicadas ou releases preparadas.
