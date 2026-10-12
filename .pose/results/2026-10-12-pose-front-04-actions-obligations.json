@@ -1,0 +1,825 @@
+{
+  "schema_version": 1,
+  "document_type": "actions_obligations_analysis",
+  "analysis_date": "2026-10-12",
+  "timezone": "America/Recife",
+  "repository": "oseiaspereira88/pose",
+  "source_revision": "85486b3de14261818e2fcd6159f60e6b51118a1e",
+  "code_baseline": "v7.4.1; pose-mcp unchanged after release",
+  "status": "analysis_only_not_implemented",
+  "runtime_binary_sha256": "9ae6e0855c8b82599cab1d9999ae3a20644e091a5e0490b2f85d593294104d66",
+  "runtime_environment": "Synthetic disposable Git fixtures; only CLI binary and generic principals; no vendors or network",
+  "runtime_probes": {
+    "same_origin_start_control": {
+      "ready": false,
+      "codes": [
+        "action-request-pending"
+      ]
+    },
+    "cross_target_scope": {
+      "origin_alpha_ready": false,
+      "target_beta_ready": true,
+      "beta_attention_actions": 0,
+      "beta_start_apply_exit": 0,
+      "beta_status_after_apply": "in-progress"
+    },
+    "explicit_effect_scope": {
+      "fixture_construction": "imported typed opening with recomputed material digest and derived ID",
+      "loaded_effect_scope": [
+        {
+          "artifact": "xref:proj.action-probe/spec:beta"
+        }
+      ],
+      "origin_alpha_ready": false,
+      "target_beta_ready": true,
+      "target_beta_start_apply_exit": 0
+    },
+    "roadmap_scope": {
+      "member_alpha_ready": false,
+      "nonmember_beta_ready": false
+    },
+    "terminal_origin_visibility": {
+      "project_actions": 0,
+      "explicit_scope_actions": 1,
+      "present_requests": 1
+    },
+    "verified_lifecycle_waiver": {
+      "unsigned_answer_exit": 1,
+      "unsigned_waiver_exit": 0,
+      "state": "waived",
+      "satisfaction": "waived",
+      "start_ready": true,
+      "last_event_has_proof": false
+    },
+    "supersession_changes_obligation": {
+      "prior_state": "superseded",
+      "new_origin": "xref:proj.action-probe/spec:beta",
+      "prior_alpha_start_ready": true,
+      "superseding_actor": "agent:other"
+    },
+    "invalidated_presented_but_not_answerable": {
+      "state": "invalidated",
+      "present_requests": 1,
+      "fresh_resolution_exit": 1,
+      "not_open_diagnostic": true
+    },
+    "missing_subject_routing": {
+      "state": "answered",
+      "satisfaction": "pending",
+      "subject_unknown": true,
+      "present_requests": 0,
+      "blocking_start": 1
+    },
+    "role_holder_routing": {
+      "principal_groups": 0,
+      "role_groups": 1
+    },
+    "resolution_preview_and_refusal": {
+      "preview_exit": 0,
+      "apply_exit": 1,
+      "revision_after_refusal": 1,
+      "refused_events": 0
+    },
+    "decline_and_blocking_metrics": {
+      "blocking_execution": 1,
+      "present_requests": 0,
+      "stats": {
+        "waits": {
+          "schema_version": 1,
+          "requests": 1,
+          "resolved": 1,
+          "open": 0,
+          "age_seconds": {
+            "count": 1,
+            "median": 86400,
+            "max": 86400
+          },
+          "attributed_wait_seconds_by_cause": {
+            "actor": 86400
+          },
+          "known_blocking_seconds": 86400,
+          "unknown": 0,
+          "limitations": [
+            "age, attributed waiting and known blocking are different measures; none is inactivity",
+            "only action requests are timed; waits recorded nowhere stay unknown"
+          ]
+        }
+      }
+    },
+    "action_change_snapshot_identity": {
+      "same_digest": true,
+      "same_source_revision": true,
+      "same_dirty": true,
+      "blocking_start_before": 1,
+      "blocking_start_after": 0
+    },
+    "node_reference_validation": {
+      "missing_target_opened": true,
+      "wrong_kind_subject_opened": true,
+      "subject_node_kind": "decision",
+      "subject_has_digest": true
+    },
+    "idempotency_control": {
+      "first_exit": 0,
+      "retry_exit": 0,
+      "revision": 2,
+      "satisfaction": "satisfied"
+    }
+  },
+  "probe_harness": "2026-10-12-pose-front-04-action-probes.py",
+  "probe_harness_sha256": "2ff64067f2c448aa08de9e10005f8bb3ddf970a7bd1406f98b735c944e785229",
+  "counts": {
+    "runtime_scenarios": 15,
+    "backlog_candidates": 10,
+    "runtime_supported_candidates": 8,
+    "source_only_candidates": 2,
+    "source_hashes": 43
+  },
+  "live_baseline_observation": {
+    "complete": true,
+    "producer_coverage": [
+      {
+        "producer": "readiness",
+        "state": "current"
+      },
+      {
+        "producer": "closeout",
+        "state": "current"
+      },
+      {
+        "producer": "review",
+        "state": "current"
+      },
+      {
+        "producer": "start",
+        "state": "current"
+      },
+      {
+        "producer": "followups",
+        "state": "current"
+      },
+      {
+        "producer": "action-requests",
+        "state": "current"
+      },
+      {
+        "producer": "assessments",
+        "state": "current"
+      },
+      {
+        "producer": "premises",
+        "state": "current"
+      },
+      {
+        "producer": "falsifiers",
+        "state": "current"
+      },
+      {
+        "producer": "docs-review",
+        "state": "current"
+      },
+      {
+        "producer": "capability-trigger",
+        "state": "current"
+      },
+      {
+        "producer": "release",
+        "state": "current"
+      },
+      {
+        "producer": "findings",
+        "state": "current"
+      }
+    ],
+    "obligation_counts": {
+      "dependency": 2,
+      "evidence": 1,
+      "judgment": 1,
+      "residual-debt": 108
+    },
+    "attention_counts": {
+      "for_actor": 1,
+      "gates": 3,
+      "residual": 108,
+      "blocking": {
+        "closeout": 1,
+        "execution": 2,
+        "start": 2
+      }
+    },
+    "action_count": 7,
+    "action_states": {
+      "answered": 7
+    },
+    "action_satisfaction": {
+      "satisfied": 7
+    },
+    "action_kinds": {
+      "decision": 7
+    },
+    "action_assurance": {
+      "declared": 7
+    },
+    "agency_readiness_version": 1,
+    "scope_limitation": "Default query selects non-terminal specs for action-request origin filtering; see T4-01"
+  },
+  "items": [
+    {
+      "id": "T4-01",
+      "priority": "P1",
+      "evidence_level": "runtime_reproduced",
+      "title": "Aplicar e apresentar restrições no escopo certo",
+      "sources": [
+        "E02",
+        "E05",
+        "E06",
+        "E10"
+      ],
+      "acceptance_criteria": [
+        "Cross-target protege apenas o destino material declarado",
+        "Roadmap não restringe não-membros",
+        "Requests pendentes em origens terminais continuam visíveis"
+      ]
+    },
+    {
+      "id": "T4-02",
+      "priority": "P1",
+      "evidence_level": "runtime_reproduced",
+      "title": "Autoridade adequada para dispensas e supersessions",
+      "sources": [
+        "E02",
+        "E03",
+        "E21"
+      ],
+      "acceptance_criteria": [
+        "Waiver verified exige prova adequada",
+        "Terceiro não retira condição alheia por supersession",
+        "Cancelamento legítimo não apaga obrigação de outro producer"
+      ]
+    },
+    {
+      "id": "T4-03",
+      "priority": "P1",
+      "evidence_level": "runtime_reproduced",
+      "title": "Alinhar recuperação, apresentação e writer",
+      "sources": [
+        "E02",
+        "E09",
+        "E24"
+      ],
+      "acceptance_criteria": [
+        "Invalidated encaminha nova request ou operação suportada",
+        "Missing subject revela reparo necessário",
+        "Decline não repete pergunta só para obter approve"
+      ]
+    },
+    {
+      "id": "T4-04",
+      "priority": "P1",
+      "evidence_level": "runtime_reproduced_and_source_confirmed",
+      "title": "Resolver identidade de referências e expor scopes por fase",
+      "sources": [
+        "E02",
+        "E04",
+        "E13",
+        "E15"
+      ],
+      "acceptance_criteria": [
+        "Artifact/kind/ID identificam exatamente o nó",
+        "Ausência material não recebe hash de outro kind",
+        "Scope estruturado preserva compatibilidade CLI/MCP"
+      ]
+    },
+    {
+      "id": "T4-05",
+      "priority": "P2",
+      "evidence_level": "runtime_observed_contract_reconciliation",
+      "title": "Preflight útil e contrato honesto de recusas",
+      "sources": [
+        "E03",
+        "E14",
+        "E15",
+        "E40"
+      ],
+      "acceptance_criteria": [
+        "Preview revela inadmissibilidade sem write ou toque",
+        "Apply revalida",
+        "Auditoria de refusal corresponde a fatos realmente registrados"
+      ]
+    },
+    {
+      "id": "T4-06",
+      "priority": "P1",
+      "evidence_level": "runtime_reproduced_and_source_confirmed",
+      "title": "Identidade de leitura e cobertura honestas",
+      "sources": [
+        "E06",
+        "E19",
+        "E23"
+      ],
+      "acceptance_criteria": [
+        "Mudança material de journal/subject muda identidade relevante",
+        "Descarte de item invalida completude no recorte",
+        "Interleaving gera retry ou incoerência explícita"
+      ]
+    },
+    {
+      "id": "T4-07",
+      "priority": "P2",
+      "evidence_level": "runtime_observed_routing_and_source_confirmed",
+      "title": "Distinguir destinatário, executor e orientação",
+      "sources": [
+        "E09",
+        "E13",
+        "E15"
+      ],
+      "acceptance_criteria": [
+        "Query literal ou por capacidade tem semântica declarada",
+        "Review por agente não é rotulado como pessoa necessária",
+        "Pendência advisory não é apresentada como gate obrigatório"
+      ]
+    },
+    {
+      "id": "T4-08",
+      "priority": "P2",
+      "evidence_level": "runtime_reproduced_synthetic_interval",
+      "title": "Separar resposta, condição pendente e tempo de bloqueio",
+      "sources": [
+        "E08",
+        "E34"
+      ],
+      "acceptance_criteria": [
+        "Decline não encerra artificialmente duração da restrição",
+        "Reopening sem timestamp observado permanece unknown",
+        "União de intervalos e scopes permanece correta"
+      ]
+    },
+    {
+      "id": "T4-09",
+      "priority": "P2",
+      "evidence_level": "source_confirmed_improvement",
+      "title": "Preservar materialidade e autorização existente",
+      "sources": [
+        "E02",
+        "E32",
+        "E36"
+      ],
+      "acceptance_criteria": [
+        "Autorização suficiente é reutilizada no contexto",
+        "Handoff preserva request/digest/efeito/próximo passo",
+        "Dedup semântico não descarta condição automaticamente"
+      ]
+    },
+    {
+      "id": "T4-10",
+      "priority": "P2",
+      "evidence_level": "source_confirmed_integration_proposal",
+      "title": "Demonstrar jornada completa de resolução e retomada",
+      "sources": [
+        "E27",
+        "E29",
+        "E33",
+        "E35",
+        "E42",
+        "E43"
+      ],
+      "acceptance_criteria": [
+        "Decisão humana, review por agente, input e operação externa retomam fase correta",
+        "Negative outcome fica rastreável",
+        "Docs/release afirmam apenas jornada demonstrada"
+      ]
+    }
+  ],
+  "existing_spec_map": [
+    {
+      "slug": "pose-action-request-presentation",
+      "status": "done",
+      "path": ".pose/specs/2026-10-04-pose-action-request-presentation.md"
+    },
+    {
+      "slug": "pose-action-request-resolution",
+      "status": "done",
+      "path": ".pose/specs/2026-10-04-pose-action-request-resolution.md"
+    },
+    {
+      "slug": "pose-action-requests",
+      "status": "done",
+      "path": ".pose/specs/2026-10-04-pose-action-requests.md"
+    },
+    {
+      "slug": "pose-agency-readiness-pilot",
+      "status": "done",
+      "path": ".pose/specs/2026-10-04-pose-agency-readiness-pilot.md"
+    },
+    {
+      "slug": "pose-blocked-semantics-alignment",
+      "status": "done",
+      "path": ".pose/specs/2026-10-04-pose-blocked-semantics-alignment.md"
+    },
+    {
+      "slug": "pose-governance-wait-rework-observability",
+      "status": "done",
+      "path": ".pose/specs/2026-10-04-pose-governance-wait-rework-observability.md"
+    },
+    {
+      "slug": "pose-governed-effect-enforcement",
+      "status": "done",
+      "path": ".pose/specs/2026-10-04-pose-governed-effect-enforcement.md"
+    },
+    {
+      "slug": "pose-obligation-contract",
+      "status": "done",
+      "path": ".pose/specs/2026-10-04-pose-obligation-contract.md"
+    },
+    {
+      "slug": "pose-obligation-projection",
+      "status": "done",
+      "path": ".pose/specs/2026-10-04-pose-obligation-projection.md"
+    },
+    {
+      "slug": "pose-phase-scoped-readiness",
+      "status": "done",
+      "path": ".pose/specs/2026-10-04-pose-phase-scoped-readiness.md"
+    },
+    {
+      "slug": "pose-state-attention",
+      "status": "done",
+      "path": ".pose/specs/2026-10-04-pose-state-attention.md"
+    },
+    {
+      "slug": "pose-mcp-action-resolve-signed-only",
+      "status": "done",
+      "path": ".pose/specs/2026-10-05-pose-mcp-action-resolve-signed-only.md"
+    },
+    {
+      "slug": "pose-attention-lists-only-open-obligations",
+      "status": "done",
+      "path": ".pose/specs/2026-10-08-pose-attention-lists-only-open-obligations.md"
+    },
+    {
+      "slug": "pose-attention-projects-every-source",
+      "status": "done",
+      "path": ".pose/specs/2026-10-09-pose-attention-projects-every-source.md"
+    }
+  ],
+  "release_proposals": [
+    {
+      "id": "A",
+      "scope": "Confiabilidade de autoridade, restrição, referências e leitura",
+      "items": [
+        "T4-01",
+        "T4-02",
+        "T4-04",
+        "T4-06"
+      ],
+      "prerequisites": [
+        "Front 2 proof verifier",
+        "Front 9 coherent reads/writes"
+      ]
+    },
+    {
+      "id": "B",
+      "scope": "Operação, apresentação, recuperação, métricas e jornada completa",
+      "items": [
+        "T4-03",
+        "T4-05",
+        "T4-07",
+        "T4-08",
+        "T4-09",
+        "T4-10"
+      ],
+      "prerequisites": [
+        "A",
+        "Front 3 verified delegated-review fulfillment"
+      ],
+      "version_commitment": null
+    }
+  ],
+  "cross_front_dependencies": {
+    "2": [
+      "shared proof verification and persisted read integrity"
+    ],
+    "3": [
+      "delegated review and typed fulfillment"
+    ],
+    "5": [
+      "debt classification and source reconciliation"
+    ],
+    "6": [
+      "release membership and sufficiency"
+    ],
+    "7": [
+      "UX, routing and avoiding repetitive approvals"
+    ],
+    "8": [
+      "complete input identity before resident cache"
+    ],
+    "9": [
+      "coherent reads, event authority, idempotency and recovery"
+    ],
+    "10": [
+      "consolidated roadmap, publication and docs"
+    ]
+  },
+  "sources": [
+    {
+      "id": "E01",
+      "path": "pose-mcp/internal/pose/obligation.go",
+      "sha256": "136c7b561e9985e38a60c0c76d83ba6514fdf49e3b5f71ada02800d038a8e0fe",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/obligation.go"
+    },
+    {
+      "id": "E02",
+      "path": "pose-mcp/internal/pose/action_request.go",
+      "sha256": "1780f8bc3ae34b324b4bde0f0d64fe64d1620bd7417b636511f4f949b5ba1f3b",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/action_request.go"
+    },
+    {
+      "id": "E03",
+      "path": "pose-mcp/internal/pose/action_resolution.go",
+      "sha256": "35644a3e6df42b171f7a93aeda2e722cfcbc5a298013f2f6536e5071b43917d3",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/action_resolution.go"
+    },
+    {
+      "id": "E04",
+      "path": "pose-mcp/internal/pose/contract_nodes.go",
+      "sha256": "f3982b7e526c2ec6f2df4f1447567d5cd1bbedb6d2fe68d2cce26af7b594a28e",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/contract_nodes.go"
+    },
+    {
+      "id": "E05",
+      "path": "pose-mcp/internal/pose/readiness_phases.go",
+      "sha256": "6fe4779a0d46f1a5cb08dec049c947955eef9a297411e38ef3c45c560c9789b5",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/readiness_phases.go"
+    },
+    {
+      "id": "E06",
+      "path": "pose-mcp/internal/pose/obligation_projection.go",
+      "sha256": "03447d868291a29df86213567fe60c379a9d9cf8e20527ca4040c5e7c4cafb5b",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/obligation_projection.go"
+    },
+    {
+      "id": "E07",
+      "path": "pose-mcp/internal/pose/obligation_sources.go",
+      "sha256": "5f3afa58b6c99a8a56dd3bba390c80224cd2b8da08dde6ead8b90c03766a4c66",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/obligation_sources.go"
+    },
+    {
+      "id": "E08",
+      "path": "pose-mcp/internal/pose/governance_waits.go",
+      "sha256": "1c8d30c63a50a0cb0147e48b65fc353c7c7563918bad8c0546507cb45233bd4c",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/governance_waits.go"
+    },
+    {
+      "id": "E09",
+      "path": "pose-mcp/internal/pose/action_presentation.go",
+      "sha256": "780c19746df82b256f01310f290e4fafad9e7b7751daade3f446cbb5f53d2c05",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/action_presentation.go"
+    },
+    {
+      "id": "E10",
+      "path": "pose-mcp/internal/pose/governed_effects.go",
+      "sha256": "f165f1d38dfc3d3a6cf25cf00ce27178f8eb6dd2d0e7e9ac60299ec98d5f8f80",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/governed_effects.go"
+    },
+    {
+      "id": "E11",
+      "path": "pose-mcp/internal/pose/readiness.go",
+      "sha256": "0cdc5ea5431421c5c4427fce2fe298d6b533663957604a19d46a2f38550a1d10",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/readiness.go"
+    },
+    {
+      "id": "E12",
+      "path": "pose-mcp/internal/pose/start.go",
+      "sha256": "9adc14284d8056b3be4840caa36029a5944e9d8aa5fdbd61bdbf1411c864e550",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/start.go"
+    },
+    {
+      "id": "E13",
+      "path": "pose-mcp/internal/cli/action.go",
+      "sha256": "3769be9af8ed086e3f55dbcd8cc76d0dac68086f8f35b0c202d1de7244ff9ae2",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/cli/action.go"
+    },
+    {
+      "id": "E14",
+      "path": "pose-mcp/internal/cli/action_resolve.go",
+      "sha256": "6c1ea309bec60064454332199d556854eec27152b6bc2be2bcbe16702133fefb",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/cli/action_resolve.go"
+    },
+    {
+      "id": "E15",
+      "path": "pose-mcp/internal/mcpserver/server.go",
+      "sha256": "6ea4e84cc10185199ee24b95b7f21a098793297a1c7af07fab4afd62535b4091",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/mcpserver/server.go"
+    },
+    {
+      "id": "E16",
+      "path": "pose-mcp/internal/pose/review_closeout.go",
+      "sha256": "1004eebdf08fa8f8fd831c79c634c06084b0eff79fa0061428f309e1d2b28bb6",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/review_closeout.go"
+    },
+    {
+      "id": "E17",
+      "path": "pose-mcp/internal/cli/release_lifecycle.go",
+      "sha256": "3dac6a922fecedc8fefbfedab040231d5ce1f7fa33662f748398245b17a2b746",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/cli/release_lifecycle.go"
+    },
+    {
+      "id": "E18",
+      "path": "pose-mcp/internal/pose/release_lifecycle.go",
+      "sha256": "de723d6446154d75c82abf6488cdc56c55ddefd7b0e6f9994c8cbad85363a510",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/release_lifecycle.go"
+    },
+    {
+      "id": "E19",
+      "path": "pose-mcp/internal/pose/agent_project_context.go",
+      "sha256": "035e59b96cec73c9911e83ffc5ca853ac4b2d2b6a445b2df5b1c8a92e895ca75",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/agent_project_context.go"
+    },
+    {
+      "id": "E20",
+      "path": "pose-mcp/internal/pose/action_request_test.go",
+      "sha256": "26a611ca4e1346b9b7f61dd9c4b8bba6f009e2dc9ddbaf7815dfeea34e19fb1a",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/action_request_test.go"
+    },
+    {
+      "id": "E21",
+      "path": "pose-mcp/internal/pose/action_resolution_test.go",
+      "sha256": "85059896318c26dc2c7a084bef994b65b36afa7fb7a40d4e182665a0b5fd77a4",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/action_resolution_test.go"
+    },
+    {
+      "id": "E22",
+      "path": "pose-mcp/internal/pose/governed_effects_test.go",
+      "sha256": "4da68490942baefb87dbf4222183cf8e487148d3f6e25378fa85f148f1d9efef",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/governed_effects_test.go"
+    },
+    {
+      "id": "E23",
+      "path": "pose-mcp/internal/pose/obligation_projection_test.go",
+      "sha256": "3d07a6b0ee8ddb46931121b2b66204fe70b380aece7adc3a32250a747b7b83b0",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/obligation_projection_test.go"
+    },
+    {
+      "id": "E24",
+      "path": "pose-mcp/internal/pose/action_presentation_test.go",
+      "sha256": "09faee35c01b839bf202f56ffbf6d5752bf39d4ff04b7fa54084d5da25406f6e",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/pose-mcp/internal/pose/action_presentation_test.go"
+    },
+    {
+      "id": "E25",
+      "path": ".pose/specs/2026-10-04-pose-blocked-semantics-alignment.md",
+      "sha256": "a372950d4bb0dc7a2880151ce0593121c41545cbd085c0feec66d93bae4c8e4d",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-04-pose-blocked-semantics-alignment.md"
+    },
+    {
+      "id": "E26",
+      "path": ".pose/specs/2026-10-09-pose-attention-projects-every-source.md",
+      "sha256": "aa9f51b939e3a24db0d77ae822fd8f6e9a3bfed456544b47b2513f6a066d54d7",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-09-pose-attention-projects-every-source.md"
+    },
+    {
+      "id": "E27",
+      "path": ".pose/specs/2026-10-04-pose-action-requests.md",
+      "sha256": "271e5c06907b61fcda0ab446dd1f54e6ba5121a631fd8029d601b19ab388e6ec",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-04-pose-action-requests.md"
+    },
+    {
+      "id": "E28",
+      "path": ".pose/specs/2026-10-08-pose-attention-lists-only-open-obligations.md",
+      "sha256": "6ed64a09d1b9c9b60a1a6d3e1110c105e7d2e38efb6a36a6bc613418bcc7add1",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-08-pose-attention-lists-only-open-obligations.md"
+    },
+    {
+      "id": "E29",
+      "path": ".pose/specs/2026-10-04-pose-governed-effect-enforcement.md",
+      "sha256": "9e00171f8cab0321edff4eb24a2459b80915b273e2080c454fc6ba4686206312",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-04-pose-governed-effect-enforcement.md"
+    },
+    {
+      "id": "E30",
+      "path": ".pose/specs/2026-10-05-pose-mcp-action-resolve-signed-only.md",
+      "sha256": "1db64fbed2b50b04b3d0d5abcb955a5e06a1f27ba33e921f6147623a5b3a5c7a",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-05-pose-mcp-action-resolve-signed-only.md"
+    },
+    {
+      "id": "E31",
+      "path": ".pose/specs/2026-10-04-pose-phase-scoped-readiness.md",
+      "sha256": "bf745a800c014f305e27c6fd5e30fbe762e857cd29dae47e2b9bfb2da0f495e3",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-04-pose-phase-scoped-readiness.md"
+    },
+    {
+      "id": "E32",
+      "path": ".pose/adr/2026-10-04-obligations-are-projected-action-requests-are-persisted.md",
+      "sha256": "03dee43325a7d2ca528a2c16943db547c35c810beae3273be705260b26d13645",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/adr/2026-10-04-obligations-are-projected-action-requests-are-persisted.md"
+    },
+    {
+      "id": "E33",
+      "path": ".pose/adr/2026-10-09-obligations-may-originate-on-the-project.md",
+      "sha256": "d13161345ebd22b9d732434ddcf69cba442fa1de149db540ff605e462c504f29",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/adr/2026-10-09-obligations-may-originate-on-the-project.md"
+    },
+    {
+      "id": "E34",
+      "path": ".pose/specs/2026-10-04-pose-governance-wait-rework-observability.md",
+      "sha256": "6091739f62f090ed0e390ed7ca3bac56673b17ced56ec4452f789acd7701c4c7",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-04-pose-governance-wait-rework-observability.md"
+    },
+    {
+      "id": "E35",
+      "path": "docs-site/docs/obligations.md",
+      "sha256": "980c74b956deed300497656b67576c68fab19190d28a001e264733365ee0e17e",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/docs-site/docs/obligations.md"
+    },
+    {
+      "id": "E36",
+      "path": ".agents/skills/pose-feature/SKILL.md",
+      "sha256": "cc6f4602b8903452511ccb5606bee5ec44640557acfa6fd0cec79f722460cb2b",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.agents/skills/pose-feature/SKILL.md"
+    },
+    {
+      "id": "E37",
+      "path": ".pose/specs/2026-10-04-pose-obligation-contract.md",
+      "sha256": "deb3a219b49350dbb32ab8851f245f1f9be125a3f2b2614f0c3f939e417f6393",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-04-pose-obligation-contract.md"
+    },
+    {
+      "id": "E38",
+      "path": ".pose/specs/2026-10-04-pose-obligation-projection.md",
+      "sha256": "002381dc8ed9aa20c5e2d5ac54d9d9523d30705dcd0c0f4fab472e8dbd5332bf",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-04-pose-obligation-projection.md"
+    },
+    {
+      "id": "E39",
+      "path": ".pose/specs/2026-10-04-pose-state-attention.md",
+      "sha256": "4a040e3dcbf6b8545239dccb014794649e437deb855dd98ba8a6abe7e12fdd4c",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-04-pose-state-attention.md"
+    },
+    {
+      "id": "E40",
+      "path": ".pose/specs/2026-10-04-pose-action-request-resolution.md",
+      "sha256": "ba934021d8506f8666eb712f1f7f2e26063f8dc45ac9065cb8a112d307c553d0",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-04-pose-action-request-resolution.md"
+    },
+    {
+      "id": "E41",
+      "path": ".pose/specs/2026-10-04-pose-action-request-presentation.md",
+      "sha256": "dd224804d45121db308a44ff79fdb8696aae87c83b46613b33202047cd6d198d",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-04-pose-action-request-presentation.md"
+    },
+    {
+      "id": "E42",
+      "path": ".pose/specs/2026-10-04-pose-agency-readiness-pilot.md",
+      "sha256": "4a06b8af19f9f93de43b60af204a3e00887999b757db8faa43e6ed1a91f20f9f",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/specs/2026-10-04-pose-agency-readiness-pilot.md"
+    },
+    {
+      "id": "E43",
+      "path": ".pose/roadmaps/agency-readiness.md",
+      "sha256": "5dc6bb532e9e8489f732bddfd3dbe3a0656934f24c4e5667d580ffba1f1e1fc0",
+      "url": "https://github.com/oseiaspereira88/pose/blob/85486b3de14261818e2fcd6159f60e6b51118a1e/.pose/roadmaps/agency-readiness.md"
+    }
+  ],
+  "validation": {
+    "document_check": {
+      "command": "pose check --strict",
+      "exit_code": 0,
+      "result": "SUCCESS",
+      "warnings": 30,
+      "warning_categories": {
+        "changelog": 27,
+        "capabilities": 2,
+        "instance": 1
+      },
+      "verified_at_utc": "2026-10-12T03:24:12.910034+00:00"
+    },
+    "local_go_suite": "not_run_go_unavailable",
+    "baseline_ci": {
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/oseiaspereira88/pose/actions/runs/38198180881",
+      "head_sha": "85486b3de14261818e2fcd6159f60e6b51118a1e"
+    },
+    "limitations": [
+      "No real human confirmation proved",
+      "No vendor execution",
+      "No end-to-end release or closeout bypass claimed",
+      "Historical wait timestamps are synthetic",
+      "Runtime-supported candidates include contract/UX behavior, not only defects",
+      "Typed effect.scope scenario imports a synthetic opening with recomputed digest; current CLI/MCP open cannot express it",
+      "Typed effect.scope scenario imports a synthetic opening with recomputed digest; current CLI/MCP open cannot express it"
+    ],
+    "artifact_checks": {
+      "json": true,
+      "unique_candidate_ids": 10,
+      "source_hashes_verified": 43,
+      "existing_spec_states_verified": 14,
+      "harness_digest": true,
+      "python_syntax": true,
+      "relative_links": true,
+      "staged_diff_whitespace": true,
+      "runtime_scenarios_executed": 15
+    }
+  }
+}
