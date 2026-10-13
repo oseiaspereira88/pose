@@ -10,9 +10,9 @@
     "sha256": "f138929bdb835291c6cbae165d7b5776c3cd538155038fb523390378c11f9dd1"
   },
   "authorization": {
-    "scope": "Escrever somente o lote 1, autorizado em conversa em 2026-10-13 após merge de #159.",
-    "current_authoring_batch": 1,
-    "next_authoring_batch": 2,
+    "scope": "Escrever somente o lote 2 após merge de #160; antecipar o roadmap de B07 sem escrever suas demais unidades.",
+    "current_authoring_batch": 2,
+    "next_authoring_batch": 3,
     "future_batch_implementation_authorized": false
   },
   "counts": {
@@ -22,8 +22,8 @@
     "new_specs": 36,
     "conditional_new_specs": 1,
     "unique_reused_specs": 8,
-    "materialized_implementation_specs": 3,
-    "unmaterialized_implementation_specs": 34
+    "materialized_implementation_specs": 6,
+    "unmaterialized_implementation_specs": 31
   },
   "candidate_ownership": {
     "T2-01": "B01",
@@ -303,12 +303,39 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-proof-presence-channel-parity",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-proof-presence-channel-parity.md",
+          "status": "draft",
+          "sha256": "f810a113f07d4b2199149d7c30dfdd227dfdf70e4b60512e9ed1dc59ac90f800"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec escrita em draft no lote documental 2; nenhuma implementação funcional neste lote.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-historical-trust-and-review-reuse",
+        "pose-action-answers-reverify-on-read",
+        "pose-review-disclosure-requires-proof",
+        "pose-native-attestation-issuer",
+        "pose-signed-action-answers"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "T2-04": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8"
+        ]
+      }
     },
     {
       "id": "B04",
@@ -519,12 +546,56 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-source-coverage-integrity",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-source-coverage-integrity.md",
+          "status": "draft",
+          "sha256": "8031a7ea71682c6a1b641a6ad20e443be2217da8d1e2c67d0a18eefe8a0c146e"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec escrita em draft no lote documental 2; nenhuma implementação funcional neste lote.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-obligation-projection",
+        "pose-debt-marker-lexical-precision"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "T2-05": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R8"
+        ],
+        "D01": [
+          "R1",
+          "R2",
+          "R5"
+        ],
+        "D13": [
+          "R2",
+          "R6"
+        ],
+        "F05-01": [
+          "R1",
+          "R2",
+          "R5",
+          "R8",
+          "R9"
+        ],
+        "F05-03": [
+          "R1",
+          "R2",
+          "R7",
+          "R8",
+          "R9"
+        ]
+      }
     },
     {
       "id": "B07",
@@ -577,12 +648,45 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-git-and-dispatch-snapshot-integrity",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-git-and-dispatch-snapshot-integrity.md",
+          "status": "draft",
+          "sha256": "b5b8bc1cf5598b1d2e430e135f82f7d73ba3a4b65c8b179dcd0c0a7df75bcd38"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec escrita em draft no lote documental 2; nenhuma implementação funcional neste lote.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-recoverable-closeout-plan",
+        "pose-delegated-review-dispatch"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "D02": [
+          "R1",
+          "R7"
+        ],
+        "T3-02": [
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R8"
+        ],
+        "CONS-03": [
+          "R1",
+          "R2",
+          "R6",
+          "R7",
+          "R8"
+        ]
+      }
     },
     {
       "id": "B08",
@@ -2583,7 +2687,10 @@
       "unique_substantive_specs": 3,
       "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
       "authoring_spec": "pose-consolidation-batch-1-authoring",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-1-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-1-authoring.md",
+      "authoring_merged": true,
+      "merged_pr": 160,
+      "native_closeout_pending": true
     },
     {
       "id": 2,
@@ -2598,10 +2705,12 @@
         "pose-proof-presence-channel-parity",
         "pose-source-coverage-integrity"
       ],
-      "status": "draft",
+      "status": "in-progress",
       "conditional": false,
       "unique_substantive_specs": 3,
-      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
+      "authoring_spec": "pose-consolidation-batch-2-authoring",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-2-authoring.md"
     },
     {
       "id": 3,
@@ -2865,7 +2974,8 @@
         "temporal-trust",
         "verified-proof",
         "approval-preflight",
-        "policy-scopes"
+        "policy-scopes",
+        "presence-channel-parity"
       ]
     },
     {
@@ -2880,7 +2990,10 @@
         "B09",
         "B10"
       ],
-      "bootstrap_only": false
+      "bootstrap_only": false,
+      "materialized_milestones": [
+        "source-coverage-integrity"
+      ]
     },
     {
       "slug": "governance-efficiency",
@@ -2920,9 +3033,9 @@
     },
     {
       "slug": "pose-state-consistency-and-recovery",
-      "path": null,
+      "path": ".pose/roadmaps/pose-state-consistency-and-recovery.md",
       "planned_path": ".pose/roadmaps/pose-state-consistency-and-recovery.md",
-      "materialized": false,
+      "materialized": true,
       "action": "create",
       "units_owned": [
         "B07",
@@ -2933,7 +3046,12 @@
         "B34",
         "B36"
       ],
-      "bootstrap_only": false
+      "bootstrap_only": false,
+      "materialized_milestones": [
+        "git-dispatch-snapshot"
+      ],
+      "materialized_in_authoring_batch": 2,
+      "scheduling_adjustment": "Antecipar criação do roadmap do lote 7 para o lote 2 para ownership de B07; demais unidades e lotes inalterados."
     },
     {
       "slug": "pose-release-sufficiency-and-recovery",
@@ -2991,7 +3109,10 @@
         "xref:proj.pose-dist/milestone:record-truthfulness/temporal-trust",
         "xref:proj.pose-dist/milestone:record-truthfulness/verified-proof",
         "xref:proj.pose-dist/milestone:record-truthfulness/approval-preflight",
-        "xref:proj.pose-dist/milestone:record-truthfulness/policy-scopes"
+        "xref:proj.pose-dist/milestone:record-truthfulness/policy-scopes",
+        "xref:proj.pose-dist/milestone:record-truthfulness/presence-channel-parity",
+        "xref:proj.pose-dist/milestone:agency-readiness/source-coverage-integrity",
+        "xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/git-dispatch-snapshot"
       ]
     },
     {
@@ -3218,7 +3339,7 @@
   ],
   "bootstrap_spec": "pose-consolidation-program-bootstrap",
   "counts_scope": "As 36 novas specs de implementação, uma condicionada e oito reutilizadas excluem as specs documentais de atribuição dos lotes.",
-  "last_authoring_revision": "32b306cd61d2985de08a8338da1faef9989ae984",
+  "last_authoring_revision": "6dba937748644d8f00419f136c5e84a57c8cf12b",
   "authoring_history": [
     {
       "batch": 0,
@@ -3230,8 +3351,17 @@
     {
       "batch": 1,
       "source_revision": "32b306cd61d2985de08a8338da1faef9989ae984",
+      "phase": "merged",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-1-authoring.md",
+      "pr": 160,
+      "merge_commit_sha": "6dba937748644d8f00419f136c5e84a57c8cf12b",
+      "native_closeout_pending": true
+    },
+    {
+      "batch": 2,
+      "source_revision": "6dba937748644d8f00419f136c5e84a57c8cf12b",
       "phase": "in-progress",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-1-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-2-authoring.md"
     }
   ]
 }

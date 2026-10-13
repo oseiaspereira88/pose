@@ -36,17 +36,37 @@ Este milestone entrega somente o lote 0, não a implementação do programa.
 dependências e vínculos atuais validados. Este milestone qualifica a escrita,
 não as implementações de B04/B02/B05.
 
-## Milestone: trust-foundations
+## Milestone: batch-two-authoring
 - after: batch-one-authoring
 - target_start:
 - target_due:
-- specs:
-- consumes: xref:proj.pose-dist/milestone:record-truthfulness/temporal-trust, xref:proj.pose-dist/milestone:record-truthfulness/verified-proof, xref:proj.pose-dist/milestone:record-truthfulness/approval-preflight, xref:proj.pose-dist/milestone:record-truthfulness/policy-scopes
+- specs: pose-consolidation-batch-2-authoring
 
-**Exit gate:** consumir o aceite verificado dos quatro milestones de confiança
+**Exit gate:** B03/B06/B07 escritos em draft; matriz, coverage de aceites,
+ownership e refs válidos. Qualificar a escrita separadamente do comportamento.
+
+## Milestone: trust-foundations
+- after: batch-two-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:record-truthfulness/temporal-trust, xref:proj.pose-dist/milestone:record-truthfulness/verified-proof, xref:proj.pose-dist/milestone:record-truthfulness/approval-preflight, xref:proj.pose-dist/milestone:record-truthfulness/policy-scopes, xref:proj.pose-dist/milestone:record-truthfulness/presence-channel-parity
+
+**Exit gate:** consumir o aceite verificado dos cinco milestones de confiança
 do roadmap responsável, sem copiar a ownership das specs. Não encerrar esta
 etapa quando apenas a escrita passou. Os demais resultados ainda precisam de
 materialização e qualificação nos seus lotes.
+
+## Milestone: source-and-snapshot-integrity
+- after: batch-two-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:agency-readiness/source-coverage-integrity, xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/git-dispatch-snapshot
+
+**Exit gate:** consumir coverage por fonte de B06 e integridade Git/dispatch de
+B07 nos responsáveis. Ambos são raízes independentes da cadeia B01/B04/B03;
+existência de specs e sucesso documental não qualificam os resultados.
 
 ## Etapas planejadas para materialização incremental
 
