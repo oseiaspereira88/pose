@@ -10,9 +10,9 @@
     "sha256": "f138929bdb835291c6cbae165d7b5776c3cd538155038fb523390378c11f9dd1"
   },
   "authorization": {
-    "scope": "Escrever somente lote 6 após merge de #164: B28/B44/B38 e roadmap responsável por B38; sem execução funcional.",
-    "current_authoring_batch": 6,
-    "next_authoring_batch": 7,
+    "scope": "Escrever somente lote 7 após merge de #165: B14/B15/B32 e roadmap de runtime no recorte B32; sem execução funcional.",
+    "current_authoring_batch": 7,
+    "next_authoring_batch": 8,
     "future_batch_implementation_authorized": false
   },
   "counts": {
@@ -22,8 +22,8 @@
     "new_specs": 36,
     "conditional_new_specs": 1,
     "unique_reused_specs": 8,
-    "materialized_implementation_specs": 16,
-    "unmaterialized_implementation_specs": 21
+    "materialized_implementation_specs": 19,
+    "unmaterialized_implementation_specs": 18
   },
   "candidate_ownership": {
     "T2-01": "B01",
@@ -1277,12 +1277,45 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-writer-coordination-and-atomic-publication",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-writer-coordination-and-atomic-publication.md",
+          "status": "draft",
+          "sha256": "71ac16efb10c9275de8ba46b9baccdb0d613777f76f115b4fdac4485417be7a7"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec prospectiva escrita em draft no lote documental 7; nenhuma execução da unidade neste lote.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-cli-mcp-operation-results",
+        "pose-journal-checkpoint-and-lock-recovery",
+        "pose-spec-authority-transfer",
+        "pose-abm-atomic-start"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "CONS-04": [
+          "R1",
+          "R2",
+          "R5",
+          "R8"
+        ],
+        "CONS-06": [
+          "R3",
+          "R4",
+          "R8"
+        ],
+        "CONS-09": [
+          "R2",
+          "R6",
+          "R7",
+          "R8"
+        ]
+      }
     },
     {
       "id": "B15",
@@ -1319,12 +1352,36 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-index-generation-integrity",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-index-generation-integrity.md",
+          "status": "draft",
+          "sha256": "bf11db8544bf07e4ad87b639e5dc9c5e96195006874884d8831e1f9516f5cfa3"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec prospectiva escrita em draft no lote documental 7; nenhuma execução da unidade neste lote.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-writer-coordination-and-atomic-publication",
+        "pose-delivery-integrity-index-compaction"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "CONS-05": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8"
+        ]
+      }
     },
     {
       "id": "B16",
@@ -2264,12 +2321,51 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-governance-operation-performance",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-governance-operation-performance.md",
+          "status": "draft",
+          "sha256": "39870c6f931a6ceaf87a09cb0faf0313a7689d661a0d3d50183938fbf79107a9"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec prospectiva escrita em draft no lote documental 7; nenhuma execução da unidade neste lote.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-check-spawns-fewer-git-processes",
+        "pose-attention-within-a-second"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "D12": [
+          "R1",
+          "R8"
+        ],
+        "PERF-01": [
+          "R3",
+          "R4",
+          "R7",
+          "R8"
+        ],
+        "PERF-02": [
+          "R1",
+          "R2",
+          "R8"
+        ],
+        "PERF-03": [
+          "R5",
+          "R8"
+        ],
+        "PERF-05": [
+          "R4",
+          "R6",
+          "R7",
+          "R8"
+        ]
+      }
     },
     {
       "id": "B33",
@@ -3097,7 +3193,10 @@
       "unique_substantive_specs": 3,
       "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
       "authoring_spec": "pose-consolidation-batch-6-authoring",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-6-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-6-authoring.md",
+      "authoring_merged": true,
+      "merged_pr": 165,
+      "native_closeout_pending": true
     },
     {
       "id": 7,
@@ -3112,10 +3211,12 @@
         "pose-index-generation-integrity",
         "pose-writer-coordination-and-atomic-publication"
       ],
-      "status": "draft",
+      "status": "in-progress",
       "conditional": false,
       "unique_substantive_specs": 3,
-      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
+      "authoring_spec": "pose-consolidation-batch-7-authoring",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-7-authoring.md"
     },
     {
       "id": 8,
@@ -3375,7 +3476,9 @@
       "materialized_milestones": [
         "git-dispatch-snapshot",
         "operation-results",
-        "journal-checkpoint-lock-recovery"
+        "journal-checkpoint-lock-recovery",
+        "writer-publication",
+        "index-generation"
       ],
       "materialized_in_authoring_batch": 2,
       "scheduling_adjustment": "Antecipar criação do roadmap do lote 7 para o lote 2 para ownership de B07; demais unidades e lotes inalterados."
@@ -3401,9 +3504,9 @@
     },
     {
       "slug": "pose-shared-runtime",
-      "path": null,
+      "path": ".pose/roadmaps/pose-shared-runtime.md",
       "planned_path": ".pose/roadmaps/pose-shared-runtime.md",
-      "materialized": false,
+      "materialized": true,
       "action": "create",
       "units_owned": [
         "B31",
@@ -3411,7 +3514,11 @@
         "B33",
         "B35"
       ],
-      "bootstrap_only": false
+      "bootstrap_only": false,
+      "materialized_milestones": [
+        "operation-performance"
+      ],
+      "materialized_in_authoring_batch": 7
     },
     {
       "slug": "epistemic-lifecycle",
@@ -3453,7 +3560,10 @@
         "xref:proj.pose-dist/milestone:governance-efficiency/amendment-history-preclose",
         "xref:proj.pose-dist/milestone:governance-efficiency/terminal-closeout-verification",
         "xref:proj.pose-dist/milestone:governance-efficiency/update-dry-run-qualification",
-        "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/manifest-tag-integrity"
+        "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/manifest-tag-integrity",
+        "xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/writer-publication",
+        "xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/index-generation",
+        "xref:proj.pose-dist/milestone:pose-shared-runtime/operation-performance"
       ],
       "materialized_units_owned": [
         "B28",
@@ -3684,7 +3794,7 @@
   ],
   "bootstrap_spec": "pose-consolidation-program-bootstrap",
   "counts_scope": "As 36 novas specs de implementação, uma condicionada e oito reutilizadas excluem as specs documentais de atribuição dos lotes.",
-  "last_authoring_revision": "916513340afb701ef6f921c0177e4ef6c100dce4",
+  "last_authoring_revision": "4a60ccc4713efe18566ea72a52e2ae04f6a49c03",
   "authoring_history": [
     {
       "batch": 0,
@@ -3741,8 +3851,17 @@
     {
       "batch": 6,
       "source_revision": "916513340afb701ef6f921c0177e4ef6c100dce4",
+      "phase": "merged",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-6-authoring.md",
+      "pr": 165,
+      "merge_commit_sha": "4a60ccc4713efe18566ea72a52e2ae04f6a49c03",
+      "native_closeout_pending": true
+    },
+    {
+      "batch": 7,
+      "source_revision": "4a60ccc4713efe18566ea72a52e2ae04f6a49c03",
       "phase": "in-progress",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-6-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-7-authoring.md"
     }
   ]
 }

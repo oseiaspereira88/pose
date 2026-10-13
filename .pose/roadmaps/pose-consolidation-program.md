@@ -167,6 +167,26 @@ Este delta documental é distinto da escrita administrativa do lote.
 coordenador possui B28/B44 e as specs de escrita; não duplica a ownership de B38.
 Resultados resolvidos ou merge de docs não encerram programas parciais.
 
+## Milestone: batch-seven-authoring
+- after: batch-six-authoring
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-7-authoring
+
+**Exit gate:** B14/B15/B32 escritos em draft e roadmap de runtime criado apenas
+no recorte B32; aceites/dependências/baselines/ownership conferidos.
+
+## Milestone: publication-generation-and-performance
+- after: batch-seven-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/writer-publication, xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/index-generation, xref:proj.pose-dist/milestone:pose-shared-runtime/operation-performance
+
+**Exit gate:** consumir coordenação/publicação, geração e performance nos
+responsáveis sem duplicar ownership. B14 exige B12/B13, B15 exige B14 e B32 é
+independente. Escrita e merge não qualificam os comportamentos ou daemon futuro.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |

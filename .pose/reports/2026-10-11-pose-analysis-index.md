@@ -89,3 +89,10 @@ Consultar o [relatório do lote 6](2026-10-13-pose-batch-6-authoring.md) para
 B28/B44/B38. Dezesseis specs propostas estão materializadas em draft e 21 ainda
 ausentes. O coordenador possui B28/B44; o roadmap de release possui B38 somente.
 A escrita não altera instruções operacionais, tags, narrativa histórica ou motor.
+
+## Escrita do lote 7 — 2026-10-13
+
+Consultar o [relatório do lote 7](2026-10-13-pose-batch-7-authoring.md) para
+B14/B15/B32. Dezenove specs propostas estão em draft e 18 ainda ausentes.
+Consistência/recovery possui B14/B15 e o novo roadmap de runtime possui B32.
+A escrita não publica gerações, executa benchmarks nem implementa daemon.
