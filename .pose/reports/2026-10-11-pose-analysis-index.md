@@ -96,3 +96,11 @@ Consultar o [relatório do lote 7](2026-10-13-pose-batch-7-authoring.md) para
 B14/B15/B32. Dezenove specs propostas estão em draft e 18 ainda ausentes.
 Consistência/recovery possui B14/B15 e o novo roadmap de runtime possui B32.
 A escrita não publica gerações, executa benchmarks nem implementa daemon.
+
+## Escrita do lote 8 — 2026-10-13
+
+Consultar o [relatório do lote 8](2026-10-13-pose-batch-8-authoring.md) para B16/B22/B23.
+Ledger reutilizado com continuidade prospectiva; dois novos deltas draft de residual.
+Agora 21 propostas estão materializadas e 16 ausentes; oito specs reutilizadas
+preservadas. Delegated-review possui B16 e governance-efficiency possui B22/B23;
+a escrita não executa dispatch, reserva, migração de IDs ou dispositions.
