@@ -208,6 +208,27 @@ em governance-efficiency sem duplicar ownership. B16 exige B06/B14, B22 exige B0
 e B23 exige B06/B22. Merge/escrita não certificam cota, integridade ou resolução;
 programas parciais e extensão contratual de B16 continuam sujeitos a qualificação.
 
+## Milestone: batch-nine-authoring
+- after: batch-eight-authoring
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-9-authoring
+
+**Exit gate:** B34/B36 escritos em draft, com aceites, closure/cursor prospectivos,
+DAG, digests e ownership conferidos; não inferir implementação ou residência.
+
+## Milestone: coherent-reading-and-queries
+- after: batch-nine-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/governance-read-view, xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/generation-query-cursors
+
+**Exit gate:** consumir os resultados de read view e consultas no responsável,
+sem duplicar ownership. B34 exige B06/B07/B14/B15 e B36 exige B34; materialização,
+merge e refs resolvidas não qualificam coerência, frescor, cobertura ou custo de queries.
+Gates permanecem completos no recorte e revalidam autorização atual.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |
