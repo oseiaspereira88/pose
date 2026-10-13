@@ -46,3 +46,11 @@ as correções mergeadas de #157/#158 sem alterar o diagnóstico histórico acim
 Planejar 36 novas specs, uma condicionada e oito existentes reutilizadas.
 Escrever somente o lote autorizado; execução, qualificação, adoção e release
 continuam etapas explícitas. As 44 unidades não estão declaradas concluídas.
+
+## Escrita do lote 1 — 2026-10-13
+
+Consultar o [relatório do lote 1](2026-10-13-pose-batch-1-authoring.md) para
+B04/B02/B05 e seus gates de execução. A matriz distingue três specs de
+implementação agora materializadas em draft das 34 propostas ainda ausentes.
+Os milestones de confiança atuais têm refs existentes e ownership única;
+esta escrita não declara os requisitos funcionais implementados.
