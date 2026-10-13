@@ -68,6 +68,26 @@ materialização e qualificação nos seus lotes.
 B07 nos responsáveis. Ambos são raízes independentes da cadeia B01/B04/B03;
 existência de specs e sucesso documental não qualificam os resultados.
 
+## Milestone: batch-three-authoring
+- after: batch-two-authoring
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-3-authoring
+
+**Exit gate:** B08/B09/B10 escritos em draft, com aceites, artefatos prospectivos,
+casos, dependências e vínculos válidos; nenhuma eficácia funcional inferida.
+
+## Milestone: action-condition-integrity
+- after: batch-three-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:agency-readiness/action-target-scoping, xref:proj.pose-dist/milestone:agency-readiness/action-lifecycle-authority, xref:proj.pose-dist/milestone:agency-readiness/action-recovery-preflight
+
+**Exit gate:** consumir os três resultados de actions no responsável, sem
+duplicar ownership. B08 é independente; B09 exige B01/B05 e B10 exige B09.
+Escrita, aprovação do PR e refs resolvidas não qualificam esses comportamentos.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |

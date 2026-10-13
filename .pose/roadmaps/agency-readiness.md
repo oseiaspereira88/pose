@@ -72,7 +72,44 @@ perdas nas fontes existentes; não adota enforcement nem altera o cut histórico
 recorte; negativa ilegível não permite aprovação antiga silenciosa; follow-ups
 têm paridade CLI/MCP/Attention. Unknown não vira zero complete.
 Consultar o [lote 2](../reports/2026-10-13-pose-batch-2-authoring.md).
-B08/B09/B10 permanecem planejados para lote 3, sem refs nativas ausentes aqui.
+B08/B09/B10 são materializados abaixo na continuação do lote 3; esta etapa
+continua qualificando somente B06.
+
+## Continuação prospectiva — lote 3
+
+Consultar o [lote 3](../reports/2026-10-13-pose-batch-3-authoring.md). Manter os
+members abaixo draft e preservar o cut histórico 6.4 e os contratos done.
+
+## Milestone: action-target-scoping
+- after: spec:pose-phase-scoped-readiness, spec:pose-governed-effect-enforcement
+- target_start:
+- target_due:
+- specs: pose-action-target-and-node-scoping
+
+**Exit gate:** B08 restringe apenas destino/fase corretos; roadmap não restringe
+não-membros; requests de origem terminal continuam visíveis; artifact/kind/ID
+resolvem exatamente o conteúdo material. B08 é raiz independente.
+
+## Milestone: action-lifecycle-authority
+- after: spec:pose-action-answers-reverify-on-read, spec:pose-review-disclosure-requires-proof, spec:pose-policy-scope-validation
+- target_start:
+- target_due:
+- specs: pose-action-waiver-and-supersession-authority
+
+**Exit gate:** B09 exige autoridade/prova adequadas para waiver e supersession;
+terceiro não retira condição alheia; cancellation legítima não apaga obrigação
+de outro producer. Qualificar/encerrar B01/B05 antes de executar.
+
+## Milestone: action-recovery-preflight
+- after: action-lifecycle-authority
+- target_start:
+- target_due:
+- specs: pose-action-request-recovery-and-preflight
+
+**Exit gate:** B10 apresenta próximo passo suportado para invalidated/subject
+ausente/decline; preview read-only revela admissibilidade e prova pendente;
+apply revalida e retry da mesma intenção completa supersession uma vez.
+Auditoria de refusal deve corresponder a fatos realmente persistidos.
 
 ## Risk controls
 
