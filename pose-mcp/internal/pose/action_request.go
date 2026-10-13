@@ -525,7 +525,58 @@ func (s Store) LoadActionRequest(id string) (ActionRequestView, error) {
 	if ActionRequestDigest(*events[0].Request) != events[0].Request.RequestDigest {
 		return ActionRequestView{}, fmt.Errorf("pose: action request %s: request digest does not match its content", id)
 	}
+	if err := s.verifyActionAnswers(events); err != nil {
+		return ActionRequestView{}, fmt.Errorf("pose: action request %s: %w", id, err)
+	}
 	return s.deriveActionView(events), nil
+}
+
+// Labels do not establish proof. Validate persisted answers in the shared
+// reader, so JSON, MCP, projections and gates cannot bypass verification.
+func (s Store) verifyActionAnswers(events []ActionEvent) error {
+	if len(events) == 0 || events[0].Request == nil {
+		return fmt.Errorf("%w: journal has no request", ErrActionVerificationFailed)
+	}
+	r := *events[0].Request
+	for _, event := range events[1:] {
+		if event.Type != ActionEventAnswered {
+			continue
+		}
+		fail := func(err error) error {
+			return fmt.Errorf("%w: answer sequence %d: %v", ErrActionVerificationFailed, event.Seq, err)
+		}
+		proof := event.SSHSignature != nil || event.Claim != nil || event.Envelope != nil
+		if !proof {
+			if event.Assurance == ReviewIdentityAssuranceVerified {
+				return fail(errors.New("verified answer carries no proof"))
+			}
+			continue // Declared legacy answers are not retroactively upgraded.
+		}
+		if event.RequestDigest != r.RequestDigest {
+			return fail(errors.New("the answer binds another request version"))
+		}
+		if event.SSHSignature != nil {
+			if err := VerifyRecordedActionSignature(r, event); err != nil {
+				return fail(err)
+			}
+		}
+		if event.Claim != nil || event.Envelope != nil {
+			at, err := time.Parse(time.RFC3339, event.At)
+			if err != nil {
+				return fail(errors.New("issuer answer has no valid acceptance time"))
+			}
+			latest := at
+			if !strings.Contains(event.At, ".") {
+				latest = at.Add(time.Second - time.Nanosecond)
+			}
+			res := ActionResolution{Actor: event.Actor, Answer: event.Answer, Reason: event.Reason,
+				RequestDigest: event.RequestDigest, Claim: event.Claim, Envelope: event.Envelope}
+			if err := s.verifyActionClaimWithin(r, res, event.Role, at, latest); err != nil {
+				return fail(err)
+			}
+		}
+	}
+	return nil
 }
 
 func parseActionJournal(raw []byte) ([]ActionEvent, error) {
@@ -560,7 +611,11 @@ func (s Store) deriveActionView(events []ActionEvent) ActionRequestView {
 	for _, event := range events[1:] {
 		switch event.Type {
 		case ActionEventAnswered:
-			view.State, view.Answer, view.AnsweredBy, view.Assurance = ActionStateAnswered, event.Answer, event.Actor, event.Assurance
+			view.State, view.Answer, view.AnsweredBy = ActionStateAnswered, event.Answer, event.Actor
+			view.Assurance = ReviewIdentityAssuranceDeclared
+			if event.SSHSignature != nil || event.Claim != nil || event.Envelope != nil {
+				view.Assurance = ReviewIdentityAssuranceVerified
+			}
 			view.Satisfaction = SatisfactionPending
 			if actionAnswerSatisfies(request, event.Answer) {
 				view.Satisfaction = SatisfactionSatisfied
@@ -736,6 +791,9 @@ func (s Store) appendActionEvent(id string, event ActionEvent, expected int, now
 	}
 	events, err := parseActionJournal(raw)
 	if err != nil {
+		return ActionRequestView{}, err
+	}
+	if err := s.verifyActionAnswers(events); err != nil {
 		return ActionRequestView{}, err
 	}
 	for _, prior := range events {
