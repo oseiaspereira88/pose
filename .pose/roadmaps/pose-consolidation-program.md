@@ -108,6 +108,26 @@ casos, dependências e vínculos válidos; nenhuma eficácia funcional inferida.
 sem duplicar ownership. B12/B30 são raízes; B13 exige B12. Refs resolvidas e merge
 da escrita não qualificam os comportamentos nem encerram os programas parciais.
 
+## Milestone: batch-five-authoring
+- after: batch-four-authoring
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-5-authoring
+
+**Exit gate:** um delta draft de B11 e planos de continuidade nas duas specs
+existentes de B11/B29; aceites, dependências, ownership e baselines conferidos.
+
+## Milestone: semantic-closeout-and-update-fidelity
+- after: batch-five-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:governance-efficiency/amendment-history-preclose, xref:proj.pose-dist/milestone:governance-efficiency/terminal-closeout-verification, xref:proj.pose-dist/milestone:governance-efficiency/update-dry-run-qualification
+
+**Exit gate:** consumir resultados de amendments, verificação terminal e
+fidelidade de update no responsável, sem duplicar ownership. Escrita e merge
+não qualificam implementações nem mudam status de specs reutilizadas.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |
