@@ -61,3 +61,10 @@ Consultar o [relatório do lote 2](2026-10-13-pose-batch-2-authoring.md) para
 B03/B06/B07, seus aceites e gates. Agora seis specs de implementação estão
 materializadas em draft e 31 propostas seguem ausentes. O roadmap de consistência
 foi antecipado somente para ownership de B07; nenhuma implementação foi iniciada.
+
+## Escrita do lote 3 — 2026-10-13
+
+Consultar o [relatório do lote 3](2026-10-13-pose-batch-3-authoring.md) para
+B08/B09/B10, seus aceites e gates. Nove specs de implementação estão em draft;
+28 propostas seguem ausentes. Agency-readiness possui os novos members e o
+coordenador consome seus resultados; a escrita não implementa o comportamento.
