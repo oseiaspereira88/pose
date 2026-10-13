@@ -68,3 +68,10 @@ Consultar o [relatório do lote 3](2026-10-13-pose-batch-3-authoring.md) para
 B08/B09/B10, seus aceites e gates. Nove specs de implementação estão em draft;
 28 propostas seguem ausentes. Agency-readiness possui os novos members e o
 coordenador consome seus resultados; a escrita não implementa o comportamento.
+
+## Escrita do lote 4 — 2026-10-13
+
+Consultar o [relatório do lote 4](2026-10-13-pose-batch-4-authoring.md) para
+B12/B13/B30, seus aceites e gates. Doze specs de implementação estão em draft;
+25 propostas seguem ausentes. Os responsáveis possuem os novos members e o
+coordenador consome seus resultados; a escrita não implementa o comportamento.

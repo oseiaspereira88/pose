@@ -10,9 +10,9 @@
     "sha256": "f138929bdb835291c6cbae165d7b5776c3cd538155038fb523390378c11f9dd1"
   },
   "authorization": {
-    "scope": "Escrever somente o lote 3 após merge de #161, sem iniciar implementação funcional.",
-    "current_authoring_batch": 3,
-    "next_authoring_batch": 4,
+    "scope": "Escrever somente o lote 4 após merge de #162, sem iniciar implementação funcional.",
+    "current_authoring_batch": 4,
+    "next_authoring_batch": 5,
     "future_batch_implementation_authorized": false
   },
   "counts": {
@@ -22,8 +22,8 @@
     "new_specs": 36,
     "conditional_new_specs": 1,
     "unique_reused_specs": 8,
-    "materialized_implementation_specs": 9,
-    "unmaterialized_implementation_specs": 28
+    "materialized_implementation_specs": 12,
+    "unmaterialized_implementation_specs": 25
   },
   "candidate_ownership": {
     "T2-01": "B01",
@@ -1053,12 +1053,53 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-cli-mcp-operation-results",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-cli-mcp-operation-results.md",
+          "status": "draft",
+          "sha256": "1febdb1324520fc718b895c647e357b5133ce275c784bdae8d016878e48db6d4"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec escrita em draft no lote documental 4; nenhuma implementação funcional neste lote.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-recoverable-closeout-plan"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "F07-02": [
+          "R1",
+          "R2",
+          "R7",
+          "R9"
+        ],
+        "F07-03": [
+          "R3",
+          "R7",
+          "R9"
+        ],
+        "F07-09": [
+          "R1",
+          "R4",
+          "R8"
+        ],
+        "PERF-07": [
+          "R1",
+          "R5",
+          "R7",
+          "R9"
+        ],
+        "CONS-13": [
+          "R1",
+          "R5",
+          "R6",
+          "R7"
+        ]
+      }
     },
     {
       "id": "B13",
@@ -1109,12 +1150,44 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-journal-checkpoint-and-lock-recovery",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-journal-checkpoint-and-lock-recovery.md",
+          "status": "draft",
+          "sha256": "172850e27e9a6d7367ad2f0a36079e57f5e2800f32a25058472c1a446a660216"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec escrita em draft no lote documental 4; nenhuma implementação funcional neste lote.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-cli-mcp-operation-results",
+        "pose-recoverable-closeout-plan",
+        "pose-abm-atomic-start"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "CONS-02": [
+          "R1",
+          "R2",
+          "R9"
+        ],
+        "CONS-07": [
+          "R3",
+          "R4",
+          "R5",
+          "R9"
+        ],
+        "CONS-12": [
+          "R6",
+          "R7",
+          "R8",
+          "R9"
+        ]
+      }
     },
     {
       "id": "B14",
@@ -1983,12 +2056,35 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-spec-facts-evidence-binding",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md",
+          "status": "draft",
+          "sha256": "bdcd479ba69ea0086707d99ad0ebf0fc2ba39c56ed8353beca2c28992f751b74"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec escrita em draft no lote documental 4; nenhuma implementação funcional neste lote.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-progressive-spec-surface"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "F07-05": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8"
+        ]
+      }
     },
     {
       "id": "B31",
@@ -2821,7 +2917,10 @@
       "unique_substantive_specs": 3,
       "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
       "authoring_spec": "pose-consolidation-batch-3-authoring",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-3-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-3-authoring.md",
+      "authoring_merged": true,
+      "merged_pr": 162,
+      "native_closeout_pending": true
     },
     {
       "id": 4,
@@ -2836,10 +2935,12 @@
         "pose-journal-checkpoint-and-lock-recovery",
         "pose-spec-facts-evidence-binding"
       ],
-      "status": "draft",
+      "status": "in-progress",
       "conditional": false,
       "unique_substantive_specs": 3,
-      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
+      "authoring_spec": "pose-consolidation-batch-4-authoring",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-4-authoring.md"
     },
     {
       "id": 5,
@@ -3109,7 +3210,10 @@
         "B30",
         "B42"
       ],
-      "bootstrap_only": false
+      "bootstrap_only": false,
+      "materialized_milestones": [
+        "spec-facts-binding"
+      ]
     },
     {
       "slug": "delegated-review",
@@ -3144,7 +3248,9 @@
       ],
       "bootstrap_only": false,
       "materialized_milestones": [
-        "git-dispatch-snapshot"
+        "git-dispatch-snapshot",
+        "operation-results",
+        "journal-checkpoint-lock-recovery"
       ],
       "materialized_in_authoring_batch": 2,
       "scheduling_adjustment": "Antecipar criação do roadmap do lote 7 para o lote 2 para ownership de B07; demais unidades e lotes inalterados."
@@ -3211,7 +3317,10 @@
         "xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/git-dispatch-snapshot",
         "xref:proj.pose-dist/milestone:agency-readiness/action-target-scoping",
         "xref:proj.pose-dist/milestone:agency-readiness/action-lifecycle-authority",
-        "xref:proj.pose-dist/milestone:agency-readiness/action-recovery-preflight"
+        "xref:proj.pose-dist/milestone:agency-readiness/action-recovery-preflight",
+        "xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/operation-results",
+        "xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/journal-checkpoint-lock-recovery",
+        "xref:proj.pose-dist/milestone:governance-efficiency/spec-facts-binding"
       ]
     },
     {
@@ -3438,7 +3547,7 @@
   ],
   "bootstrap_spec": "pose-consolidation-program-bootstrap",
   "counts_scope": "As 36 novas specs de implementação, uma condicionada e oito reutilizadas excluem as specs documentais de atribuição dos lotes.",
-  "last_authoring_revision": "7a7b87b28d95bd99da169852d56050bfb3bcdc71",
+  "last_authoring_revision": "66df0bba3ddee07e757f6c458b8fc51f9fcf4ac3",
   "authoring_history": [
     {
       "batch": 0,
@@ -3468,8 +3577,17 @@
     {
       "batch": 3,
       "source_revision": "7a7b87b28d95bd99da169852d56050bfb3bcdc71",
+      "phase": "merged",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-3-authoring.md",
+      "pr": 162,
+      "merge_commit_sha": "66df0bba3ddee07e757f6c458b8fc51f9fcf4ac3",
+      "native_closeout_pending": true
+    },
+    {
+      "batch": 4,
+      "source_revision": "66df0bba3ddee07e757f6c458b8fc51f9fcf4ac3",
       "phase": "in-progress",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-3-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-4-authoring.md"
     }
   ]
 }

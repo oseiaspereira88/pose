@@ -53,6 +53,21 @@ items POSE-20 to POSE-27, POSE-29 and POSE-30.
 
 **Exit gate:** contract nodes, atomic start and causality closeout each have an explicit adopt-or-defer decision backed by pilot and shadow evidence; no second implementation.
 
+## Continuação prospectiva — lote 4
+
+Preservar o programa histórico e seus gates. Consultar o
+[lote 4](../reports/2026-10-13-pose-batch-4-authoring.md).
+
+## Milestone: spec-facts-binding
+- after: spec:pose-progressive-spec-surface
+- target_start:
+- target_due:
+- specs: pose-spec-facts-evidence-binding
+
+**Exit gate:** B30 distingue associated evidence de candidato não vinculado,
+divulga binding/freshness e preserva reuso adequado; facts não geram judgment,
+rationale ou conclusão semântica. B30 não depende artificialmente de B12/B13.
+
 ## Risk controls
 
 - No aggregate efficiency or quality score; dimensions only.
