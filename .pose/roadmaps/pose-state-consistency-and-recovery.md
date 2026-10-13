@@ -13,9 +13,8 @@ Consultar a [matriz](../results/pose-implementation-plan.json) e a
 [análise de consistência](../reports/2026-10-12-pose-front-09-consistency-recovery.md).
 
 Este responsável foi materializado no lote 2 para B07, antecipando somente o
-arquivo previsto no lote 7. O lote 4 acrescenta B12/B13; os demais deltas conservam
-seus lotes. Os três members atuais estão draft; não representar o recorte como
-programa completo.
+arquivo previsto no lote 7. Os lotes 4 e 7 acrescentam B12/B13 e B14/B15; B34/B36 conservam seu lote.
+Os cinco members atuais estão draft; não representar o recorte como programa completo.
 
 ## Milestone: git-dispatch-snapshot
 - after: spec:pose-recoverable-closeout-plan, spec:pose-delegated-review-dispatch
@@ -53,11 +52,34 @@ não vira absent; resume revalida inputs/progresso e falha de persistência é v
 Owner vivo/desconhecido nunca tem lock quebrado por idade. Runtime futuro deve
 consumir o contrato; este milestone não declara daemon implementado.
 
+## Continuação prospectiva — lote 7
+
+Consultar o [lote 7](../reports/2026-10-13-pose-batch-7-authoring.md).
+
+## Milestone: writer-publication
+- after: operation-results, journal-checkpoint-lock-recovery, spec:pose-spec-authority-transfer, spec:pose-abm-atomic-start
+- target_start:
+- target_due:
+- specs: pose-writer-coordination-and-atomic-publication
+
+**Exit gate:** B14 usa staging exclusivo e coordenação/CAS pertinente; sem lost
+update, overwrite de imutável ou dupla autoridade. Curated e efeitos antes de
+erro têm preservação/receipt e recovery verificáveis; limites de writers externos explícitos.
+
+## Milestone: index-generation
+- after: writer-publication, spec:pose-delivery-integrity-index-compaction
+- target_start:
+- target_due:
+- specs: pose-index-generation-integrity
+
+**Exit gate:** B15 publica conjunto completo identificado ou unavailable;
+reader fixa geração e retry/crash não mistura versões. Compatibilidade dos
+consumers e retenção de geração viva qualificadas antes de encerramento.
+
 ## Continuação planejada
 
 | Unidades | Lote de escrita | Resultado a materializar |
 |---|---|---|
-| B14/B15 | 7 | Escritas concorrentes e recuperação de geração parcial. |
 | B34/B36 | 9 | Read views/invalidação; cursor e consulta ligados à geração. |
 
 As linhas são planejamento; não criar refs nativas para specs ausentes.
@@ -69,4 +91,4 @@ Conferir os aceites e dependências exatos na matriz em cada lote.
 - Materializar e qualificar todos os deltas obrigatórios antes de encerrar o programa.
 - Preservar identidade de worktree, histórico e compatibilidade; não alegar sandbox pelo check antes/depois.
 - Consumir evidência real de corrida/crash/retry quando o delta correspondente existir.
-- Não encerrar este roadmap pelo aceite isolado de B07/B12/B13 ou por resolução de suas refs.
+- Não encerrar este roadmap pelo aceite isolado dos cinco members atuais ou por resolução de suas refs.
