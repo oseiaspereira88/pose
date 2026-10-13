@@ -68,6 +68,44 @@ Preservar o programa histórico e seus gates. Consultar o
 divulga binding/freshness e preserva reuso adequado; facts não geram judgment,
 rationale ou conclusão semântica. B30 não depende artificialmente de B12/B13.
 
+## Continuação prospectiva — lote 5
+
+Consultar o [lote 5](../reports/2026-10-13-pose-batch-5-authoring.md). Preservar
+R-IDs/status/baselines das duas specs abertas reutilizadas; o relatório formaliza
+os planos prospectivos, sem alterar seus contratos históricos.
+
+## Milestone: amendment-history-preclose
+- after: spec:pose-action-target-and-node-scoping
+- target_start:
+- target_due:
+- specs: pose-amendment-history-holds-before-close
+
+**Exit gate:** continuar R1–R3 na spec existente: baseline da primeira emenda
+derivada do start, warning in-progress e recusa antes de close. Reconciliar
+artefatos/dependências antes de start; manter append-only.
+
+## Milestone: terminal-closeout-verification
+- after: amendment-history-preclose
+- target_start:
+- target_due:
+- specs: pose-closeout-terminal-verification
+
+**Exit gate:** B11 distingue done/no-op de verified/terminal; plano e closeout
+compartilham verificação aplicável, sem gate duplicado de amendments ou
+enforcement retrospectivo de legacy/cutoffs.
+
+## Milestone: update-dry-run-qualification
+- after:
+- target_start:
+- target_due:
+- specs: pose-update-dry-run-reports-the-whole-update
+
+**Exit gate:** B29 confronta implementação/revisões e a decisão registrada de
+refazer a abordagem; compara preview/update em fixtures, incluindo source
+discovery, symlinks/permissões, e reconcilia trace/evidência antes do closeout.
+Código presente e trace histórico satisfeito não encerram o gap residual.
+B29 é independente de B11; a escrita não executa update desta instância.
+
 ## Risk controls
 
 - No aggregate efficiency or quality score; dimensions only.

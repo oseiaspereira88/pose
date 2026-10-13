@@ -75,3 +75,10 @@ Consultar o [relatório do lote 4](2026-10-13-pose-batch-4-authoring.md) para
 B12/B13/B30, seus aceites e gates. Doze specs de implementação estão em draft;
 25 propostas seguem ausentes. Os responsáveis possuem os novos members e o
 coordenador consome seus resultados; a escrita não implementa o comportamento.
+
+## Escrita do lote 5 — 2026-10-13
+
+Consultar o [relatório do lote 5](2026-10-13-pose-batch-5-authoring.md) para
+B11/B29: um novo delta draft e continuidade de duas specs abertas, sem duplicar
+requisitos ou alterar baselines. Treze novas specs de implementação estão em
+draft; 24 propostas seguem ausentes. Execução e closeouts continuam pendentes.
