@@ -169,6 +169,10 @@ func VerifyRecordedActionSignature(r ActionRequest, event ActionEvent) error {
 	if check.Key.AuthorizedKey() != sig.Key {
 		return errors.New("the signature was made by another key than the one recorded")
 	}
+	if sig.Namespace != ActionAnswerNamespace || sig.Fingerprint != check.Key.Fingerprint() ||
+		sig.UserPresent != check.UserPresent || sig.UserVerified != check.UserVerified {
+		return errors.New("the recorded signature metadata does not match its proof")
+	}
 	return nil
 }
 

@@ -1,0 +1,309 @@
+# POSE Report - 2026-10-13
+
+## Report Type
+- standard
+
+## Task
+- validate-native
+- Task slug: validate-native
+
+## Outcome
+- Outcome: fail (source: derived)
+
+## Rules Applied
+- _Not provided_
+
+## Files Changed
+- pose-mcp/internal/pose/action_request.go
+- pose-mcp/internal/pose/action_resolution.go
+- pose-mcp/internal/pose/principal_keys.go
+- .pose/changelogs/unreleased/pose-action-answers-reverify-on-read.md
+- .pose/knowledge/2026-10-13-decision-log-action-answer-proof-and-historical-time.md
+- .pose/specs/2026-10-13-pose-action-answers-reverify-on-read.md
+- .pose/starts/pose-action-answers-reverify-on-read.json
+- pose-mcp/internal/pose/action_answer_read_test.go
+
+## Validation Commands
+- go build ./...
+- go test ./...
+- go vet ./...
+- go test ./internal/pose -run ReviewReleaseArchive -count=1
+- go test ./internal/pose -run GovernanceReplay|ABMGolden -count=1
+- go test ./internal/cli -run GovernanceReplayCLIReachability -count=1
+- go test ./internal/pose ./internal/cli ./internal/scaffold -run BundlePathWontFix|NegativeDecisionIsAudit|ReuseCannotLaunder|SignedRiskIsNotApproval|WontFixCannotApprove|DistributedReviewSoundness|ReviewAttestationEnvelope -count=1
+- go test ./internal/pose ./internal/cli ./internal/mcpserver -run GovernanceOutcomes|GovernanceStats|RemediationProjection -count=1
+- go test ./internal/pose ./internal/cli -run RemediationLineage|RemediationProjection -count=1
+- go test ./internal/pose ./internal/cli ./internal/mcpserver -run ABMContractNodes|ABMNodeTransitions|ABMNodeDigest|Amend -count=1
+- go test ./internal/pose ./internal/cli ./internal/mcpserver -run ABMAtomicStart -count=1
+- go test ./internal/pose ./internal/cli -run ABMCausalityCloseout -count=1
+- go test ./internal/pose ./internal/cli -run ABMProgressiveReview|ABMCriticality|ABMPolicyDowngrade|ABMProtectedBaseline|ABMStructural -count=1
+- go test ./internal/pose -run ArtifactClaims -count=1
+- go test ./internal/cli -run CheckVerdictMode -count=1
+- go test ./internal/cli -run AnyDirectoryName|DeclaredProjectID|InvalidStampedProjectID|InvalidExplicitProjectID|NeverResolved -count=1
+- go test ./internal/cli -run CompletionOneDayBeforeUTCCreation -count=1
+- go test ./internal/testgit -count=1
+- go test ./internal/version -run ReleaseWorkflowWaitsForCI|ReleaseNeedsCIFindings -count=1
+- go test ./internal/pose -run AttentionSnapshot|TestObligation|AttentionSource -count=1
+- go test ./internal/cli -run TestRecurrence -count=1
+- go test ./internal/pose ./internal/cli -run AttentionSource|FreshInstallHealthAttention|TestAPhaseWithAnUnreadProducerIsUnknownNotClear|TestAdversarialCorpus -count=1
+- go test ./internal/pose -run CheckGitSpawns -count=1
+- go test ./internal/pose -run SubjectRange -count=1
+- go test ./internal/scaffold -run LocaleCoverage|LocaleObligationFlags -count=1
+- go test ./internal/pose ./internal/cli -run TraceTestRefs -count=1
+- go test ./internal/version -run FailureAlert -count=1
+- go test ./internal/pose -run CompletedReviewRetention|FederatedRoadmapMilestoneBundleSealsOwnManifest|ReviewCheckNamesANegativeVerdict -count=1
+- go test ./internal/pose -run ReviewSubjectClassifiesTheCapabilityAssessment -count=1
+- go test ./internal/cli -run PublicClaimsReadsAMajorReleaseLine|EveryDocsPageThatNamesAReleaseLineIsADeclaredSurface -count=1
+- go test ./internal/version ./internal/cli -run CIGovernanceJobRunsLintSpecAll|ReleasePrepareFindsADatePrefixedSpec -count=1
+- go test ./internal/cli -run LintSpecJSON|LintSpecQuiet|LintSpecHumanOutput|IndexJSON|EveryGateOnTheMachineChannel|JSONOutWrites|ValidateJSONPathIsADeprecatedAlias|ReportChangedFilesKeepsTheFirstPath|QuietCheckPrintsTheVerdictAlone -count=1
+- go test ./internal/usage ./internal/cli ./internal/mcpserver -run Verdict|UsageAdjudicate|UsageMCPReportsHumanVerdicts|ValidateUsageUsesStructuredCheckFindings -count=1
+- go test ./internal/cli ./internal/mcpserver -run UsageAdjudicate|UsageMCPReportsHumanVerdicts -count=1
+- go test ./internal/cli -run FocusSurfaceGraph|DeliverySpecBlockersFromShared -count=1
+- go test ./internal/pose -run DeliveryGraphCache|DeliveryGraphCopy|DesignDeltaMemo|DesignDeltaCopy -count=1
+- go test -race ./internal/cli -run FailOrWarnPerItem -count=1
+- go test ./internal/cli ./internal/version ./internal/pose -run CheckWorkerCount|CompositionContract|PublishedRootManifests -count=1
+- go test ./internal/cli -run InstallStampsItsOwnReviewAdoption|ShippedReviewPolicyCarriesNoAdoptionDate|UpdateKeepsRecordedAdoption -count=1
+- go test ./internal/pose ./internal/cli ./internal/mcpserver -run Delivery|Surface|RoadmapCheck|Contributor -count=1
+- go test ./internal/cli ./internal/mcpserver -run Surface|DeliveryIntegrity|RoadmapCheck|Contributor -count=1
+- go test ./internal/pose ./internal/cli ./internal/mcpserver -run ReviewBundle|ReviewAttestation|ReviewPlanGroupsRepeatedWarnings|ReviewPlanActionableToolPhases|ToolCatalog -count=1
+- go test ./internal/pose ./internal/cli ./internal/mcpserver -run TestQualifiedArtifact -count=1
+- go test ./internal/pose ./internal/cli -run TestFederatedRoadmap|TestFederatedAcceptance -count=1
+- go test ./internal/pose -run TestFederatedSpecAcceptance|TestLegacyReviewBundlePayloadOmitsFederatedManifest -count=1
+- go test ./internal/pose ./internal/cli -run TestFederatedAcceptanceNegative -count=1
+- go test ./internal/pose ./internal/cli -run TestSpecTransfer -count=1
+- go test ./internal/pose ./internal/cli -run TestSpecTransferNegative|TestSpecTransferBoundary|TestSpecTransferPreviewBlocks|TestSpecTransferResumeBlocks|TestSpecTransferResolverRejects|TestSpecAuthorityTransferPolicySchema -count=1
+- go test ./internal/mcpserver -run TestSpecTransferStatus -count=1
+- go test ./internal/cli ./internal/mcpserver -run TestMultiRepoAgentSurface -count=1
+- go test ./internal/cli ./internal/mcpserver -run TestMultiRepoAgent -count=1
+- go test ./internal/cli ./internal/mcpserver -run TestMultiRepoAgentNegative -count=1
+- go test ./internal/cli -run TestMultiRepoAgentInstalled -count=1
+- go test ./internal/version -run TestDependabotRuntimeRepairTrustBoundary -count=1
+- go test ./internal/version -run TestLocalVerify|TestReleaseObligationsAndNegativeControls -count=1
+- go test ./internal/cli/cliout -run TestLifecycleRendererProfileGoldens|TestColouredTablesKeepPlainAlignment|TestUTF8ProseWrapsByCharacters|TestUnknownKindsAreFullyLocalised -count=1
+- go test ./internal/cli -run TestExtensionInstallTargetFlag|TestExtensionInstallRejectsInvalidTargetBeforeLookup|TestExtensionInstallDryRunShowsDefaultTargetWithoutWriting -count=1
+- go test ./internal/pose ./internal/cli -run ReleaseVersionSource|ReleasePolicyOmitsAnUnsetVersionSource|LoadReleasePolicyValidatesTheVersionSource|TestReleasePrepare|TestReleasePlan|TestReleaseCheck -count=1
+- go test ./internal/pose ./internal/cli -run CompactIndex|DeliveryIntegrityIndexReads|StoreReadsTheIndexItWroteInSchemaTwo|TestIndexWrites -count=1
+- go test ./internal/cli -run TestReleaseVersionSource -count=1
+- go test ./internal/version -run TestActivationRecordingContract -count=1
+- go test ./internal/pose ./internal/cli -run TestContractAdopt|TestLegacyKeyCutoffs|TestLoadReviewPolicyRejectsAnUnparsableRegisteredAdoptionDate|TestDoctorReports(Legacy|AShadowed) -count=1
+- go test ./internal/cli -run TestDoctorReports(Legacy|AShadowed) -count=1
+- go test ./internal/cli -run TestPublicClaims -count=1
+- go test ./internal/cli -run TestPublicClaimsReportsAPreparedCandidate|TestPublicClaimsWithoutRetainedPublication|TestPublicClaimsRejectsAPublicationWithLifecycleGaps -count=1
+- go test ./internal/pose ./internal/cli -run Assurance|TestDeclared|TestVerifiedAssurance|TestLegacyAttemptUnder|TestReviewSurfacesDisclose|TestNoSurfaceClaimsAnIndependentReview|TestABMReviewAuthority -count=1
+- go test ./internal/cli -run TestReviewSurfacesDiscloseDeclaredAssuranceOfAHumanLabel -count=1
+- go test ./internal/pose ./internal/cli -run Attribution|630Cycle|SerializesAsBefore|OnlyAVerifiedHuman|ReviewConfirmation|TestReviewerFlagNeverFills|TestReviewAttestRecordsExplicitAttribution -count=1
+- go test ./internal/cli -run TestReviewerFlagNeverFills|TestReviewAttestRecordsExplicitAttribution -count=1
+- go test ./internal/pose ./internal/cli -run Blocked|TestAdoptionMetricsKeepsV1|TestLintWarnsOnBlocked|TestNoCommandRewrites|TestStateListsBlocked|TestSpecReadiness|Transfer -count=1
+- go test ./internal/cli -run TestAdoptionMetricsKeepsV1|TestLintWarnsOnBlocked|TestNoCommandRewrites -count=1
+- go test ./internal/pose ./internal/cli -run Amend|TestSpecFormat|AmendmentsPath -count=1
+- go test ./internal/cli -run TestAmendWorksForFlat|TestSpecFormatMigrationCarries -count=1
+- go test ./internal/pose -run Obligation|Collides|UnknownIsNever|LegacyOpaque|SchemaDrift|EveryCategoryValidates -count=1
+- go test ./internal/pose ./internal/cli ./internal/mcpserver -run Governance|Unadopted|ProjectionReads|ScopedProjection|ProjectionWrites|ProjectState -count=1
+- go test ./internal/cli ./internal/mcpserver -run TestStateGovernanceIsReachableAndReadOnly|TestToolsCall_ProjectState_CarriesEffectiveGovernance -count=1
+- go test ./internal/cli -run TestAdversarialCorpus -count=1
+- go test ./internal/pose ./internal/cli -run Diagnostic|WaitingRefsCarry|JudgmentPendencyNames|CloseoutDiagnostics|TestCloseoutCheckJSONCarriesTypedDiagnostics|TestSpecReadiness|TestABMReviewSoundness -count=1
+- go test ./internal/cli -run TestCloseoutCheckJSONCarriesTypedDiagnostics -count=1
+- go test ./internal/pose ./internal/cli -run Projection|Resolving|FailingProducer|Unintegrated|Correlation|SnapshotChanges|QueryFilters|TestAdversarialCorpus|Followup -count=1
+- go test ./internal/cli ./internal/mcpserver -run TestStateAttentionShowsCoverageFirstAndSeparatesKinds|TestStateAttentionAndMCPShareIDs|TestToolsCall_Obligations_ReturnsReportWithCoverage -count=1
+- go test ./internal/cli -run TestActionOpenPreviewsThenRecordsAndShowsTheBoundContent -count=1
+- go test ./internal/pose ./internal/cli -run Actor|Declining|DeclaredHuman|CancelAndWaive|ReplayIs|StaleDigest|AnotherProject|VerifiedClaim|TestActionResolve|TestAdversarialCorpus -count=1
+- go test ./internal/cli -run TestActionResolveRefusesTheWrongActorAndRecordsTheRightOne -count=1
+- go test ./internal/pose ./internal/mcpserver ./internal/cli -run CloseoutOnlyRequest|LocalizedRestriction|UnreadProducer|LegacyReadyKeeps|PhasesBesideLegacy|TestAdversarialCorpus|TestSpecReadiness -count=1
+- go test ./internal/mcpserver -run TestToolsCall_SpecReadiness_PhasesBesideLegacyReady -count=1
+- go test ./internal/pose ./internal/cli ./internal/mcpserver -run WithoutAdoption|AdoptedEffects|DeclinedRequestKeeps|StartPreviewTaken|CloseRefusesWhile|CarriesTheGovernedEffect|Governance -count=1
+- go test ./internal/cli ./internal/mcpserver -run TestCloseRefusesWhileAnAdoptedRequestRestrictsCloseout|TestToolsCall_CloseoutState_CarriesTheGovernedEffect -count=1
+- go test ./internal/pose -run TransferInvalidates|TransferRefusesARequest|SpecTransfer -count=1
+- go test ./internal/cli -run ClosePlan|InterruptedCloseout|StopsAtJudgment|StalePlanDigest|TestAdversarialCorpus -count=1
+- go test ./internal/cli -run TestAnInterruptedCloseoutResumesWithoutDuplication|TestClosePlanPreviewsWithoutWriting -count=1
+- go test ./internal/pose ./internal/cli -run BookkeepingChanges|EquivalenceAgrees|Reuse|reuse -count=1
+- go test ./internal/pose ./internal/cli -run AssessmentFreshness|StaleAssessment|TestNoWorkflowAlwaysRunsDiscovery|Discover -count=1
+- go test ./internal/pose ./internal/cli -run CandidatesAreRaised|FollowupCandidatesAreReachable|Followup -count=1
+- go test ./internal/cli -run TestFollowupCandidatesAreReachableAndWriteNothing -count=1
+- go test ./internal/pose ./internal/mcpserver -run RelatedRequestsAreGrouped|TestToolsList|TestCatalog -count=1
+- go test ./internal/cli ./internal/pose -run MinimalSurface|LintAppliesTheSurface|SpecFactsAreDerived|TestNewSpec -count=1
+- go test ./internal/cli -run TestMinimalSurfaceKeepsGovernanceAndDropsRitual|TestLintAppliesTheSurfaceButNotToLifecycleGates -count=1
+- go test ./internal/pose -run ContractChangeAsks|TrivialAssumptions|ValidityFieldsAreParsed|PortugueseValidity|TestABMDesignBasis -count=1
+- go test ./internal/pose -run FailedFalsifier|PassingOrAbsent|FalsifierFieldsAreOptIn|TestABMDesignBasis -count=1
+- go test ./internal/cli -run MigrateDryRun|TestHelp -count=1
+- go test ./internal/cli -run TestActionOpenDisclosesADirectoryDerivedIdentity|TestActionOpenPreviews -count=1
+- go test ./internal/cli -run TestAdversarialCorpus|TestDelegatedCorpusCasesStillExist -count=1
+- go test ./internal/pose ./internal/cli -run WaitsSeparate|ReworkClassifies|MissingTimestamp|BookkeepingChanges|EquivalenceAgrees|TestGovernanceStats|WaitsAloneDoesNotComputeOutcomes -count=1
+- go test ./internal/pose ./internal/cli ./internal/mcpserver -run TestActionRequest|TestActionOpen|TestOpenActionRequest|TestSupersededRequest|TestToolsCall_ActionOpen|TestCatalog|TestToolsList -count=1
+- go test ./internal/cli -run TestWaitsAloneDoesNotComputeOutcomes -count=1
+- go test ./internal/cli -run TestMigrateDryRunInventoriesLegacyWithoutWriting -count=1
+- go test ./internal/cli ./internal/mcpserver ./internal/pose -run Attention|TestToolsCall_Obligations|TestToolsList|TestCatalog -count=1
+- go test ./internal/pose -run AtomicStartCutoff|TestStart|PreviewStart|ApplyStart -count=1
+- go test ./internal/pose -run ValidationCheckMateriality -count=1
+- go test ./internal/pose -run CausalityCutoff|ABMCausalityCloseout -count=1
+- go test ./internal/cli -run AttestPreflight|ReviewRecordDelegatesToBundleAttestation|ReviewAttestationWontFixCannotApproveThroughCLI -count=1
+- go test ./internal/pose ./internal/cli -run GovernedCapabilit|Adopt|DoctorWarnsWhenAgency|ABMProgressiveReview -count=1
+- go test ./internal/pose -run AuthorityProject|ABMReviewAuthority|VerifiedClaim -count=1
+- go test ./internal/cli -run QualifiedFollowup -count=1
+- go test ./internal/cli -run Recurrence -count=1
+- go test ./internal/pose ./internal/cli -run ProjectFile -count=1
+- go test ./internal/pose ./internal/cli -run CapabilityCatalog|AdoptCatalog|GovernedCapabilit -count=1
+- go test ./internal/cli -run InitIsInstall|InitOnAnInstalled|InitNative -count=1
+- go test ./internal/pose ./internal/cli -run FreshInstallHealth|ShippedStack|APhaseWithAnUnreadProducer|DoctorWarnsWhenAgencyReadinessHasNoPrincipal|DoctorFindingsHaveEvidence -count=1
+- go test ./internal/pose ./internal/cli -run SSHSig|PrincipalKey|SignedAnswer|Identity|DoctorReportsHumanRoles -count=1
+- go test ./internal/mcpserver ./internal/pose -run ReviewAttest|ReviewPrepare|SignedPreview|EnvelopeOverOther|AgentConfirmation|PreviewBindsOnly -count=1
+- go test ./internal/mcpserver -run ActionResolve|Catalog|ToolsList -count=1
+- go test ./internal/cli -run Setup|CompatibilityUpgradeFromLegacyInstance -count=1
+- go test ./internal/cli -run Onboarding -count=1
+- go test ./internal/cli -run ConfigurationReview|SetupAnswersAndAppliesAReviewRequest -count=1
+- go test ./internal/cli -run CloseTraceGate|QuickstartScript|StackExtension -count=1
+- go test ./internal/cli -run Journeys -count=1
+
+## Results
+- - [error] pose-mcp/go/build (0.0s)
+- - [error] pose-mcp/go/test (0.0s)
+- - [error] pose-mcp/go/vet (0.0s)
+- - [error] pose-mcp/go/release-review-archive-integration (0.0s)
+- - [error] pose-mcp/go/abm-retrospective-replay-integration (0.0s)
+- - [error] pose-mcp/go/abm-replay-reachability (0.0s)
+- - [error] pose-mcp/go/review-soundness-residuals-integration (0.0s)
+- - [error] pose-mcp/go/governance-outcomes-v2-contract (0.0s)
+- - [error] pose-mcp/go/abm-remediation-lineage-integration (0.0s)
+- - [error] pose-mcp/go/abm-contract-nodes-integration (0.0s)
+- - [error] pose-mcp/go/abm-atomic-start-integration (0.0s)
+- - [error] pose-mcp/go/abm-causality-closeout-integration (0.0s)
+- - [error] pose-mcp/go/abm-progressive-review-integration (0.0s)
+- - [error] pose-mcp/go/artifact-claim-boundary-integration (0.0s)
+- - [error] pose-mcp/go/check-verdict-mode-integration (0.0s)
+- - [error] pose-mcp/go/project-id-derivation-integration (0.0s)
+- - [error] pose-mcp/go/calendar-date-skew-integration (0.0s)
+- - [error] pose-mcp/go/test-git-isolation-integration (0.0s)
+- - [error] pose-mcp/go/release-needs-ci-contract (0.0s)
+- - [error] pose-mcp/go/attention-snapshot-integration (0.0s)
+- - [error] pose-mcp/go/recurrence-flapping-integration (0.0s)
+- - [error] pose-mcp/go/attention-sources-integration (0.0s)
+- - [error] pose-mcp/go/check-git-spawns-integration (0.0s)
+- - [error] pose-mcp/go/range-ownership-integration (0.0s)
+- - [error] pose-mcp/go/locale-obligation-flags-integration (0.0s)
+- - [error] pose-mcp/go/trace-test-refs-integration (0.0s)
+- - [error] pose-mcp/go/red-signal-contract (0.0s)
+- - [error] pose-mcp/go/completed-review-retention-integration (0.0s)
+- - [error] pose-mcp/go/review-subject-capabilities-integration (0.0s)
+- - [error] pose-mcp/go/public-claims-release-line-integration (0.0s)
+- - [error] pose-mcp/go/lint-spec-all-gate-contract (0.0s)
+- - [error] pose-mcp/go/machine-channel-integration (0.0s)
+- - [error] pose-mcp/go/usage-adjudication-integration (0.0s)
+- - [error] pose-mcp/go/usage-adjudication-reachability (0.0s)
+- - [error] pose-mcp/go/delivery-graph-reuse-integration (0.0s)
+- - [error] pose-mcp/go/parse-memo-integration (0.0s)
+- - [error] pose-mcp/go/parallel-gate-integration (0.0s)
+- - [error] pose-mcp/go/check-workers-integration (0.0s)
+- - [error] pose-mcp/go/review-policy-adoption-integration (0.0s)
+- - [error] pose-mcp/go/delivery-integration (0.0s)
+- - [error] pose-mcp/go/delivery-reachability (0.0s)
+- - [error] pose-mcp/go/review-bundle-convergence (0.0s)
+- - [error] pose-mcp/go/qualified-artifact-resolution-integration (0.0s)
+- - [error] pose-mcp/go/federated-roadmap-acceptance-integration (0.0s)
+- - [error] pose-mcp/go/federated-spec-acceptance-integration (0.0s)
+- - [error] pose-mcp/go/federated-roadmap-negative-gates (0.0s)
+- - [error] pose-mcp/go/spec-authority-transfer-integration (0.0s)
+- - [error] pose-mcp/go/spec-authority-transfer-negative-gates (0.0s)
+- - [error] pose-mcp/go/spec-authority-transfer-mcp-status (0.0s)
+- - [error] pose-mcp/go/multi-repo-agent-context-reachability (0.0s)
+- - [error] pose-mcp/go/multi-repo-agent-context-integration (0.0s)
+- - [error] pose-mcp/go/multi-repo-agent-negative-gates (0.0s)
+- - [error] pose-mcp/go/multi-repo-agent-installed-journey (0.0s)
+- - [error] pose-mcp/go/dependabot-runtime-repair-integration (0.0s)
+- - [error] pose-mcp/go/ci-release-obligations-integration (0.0s)
+- - [error] pose-mcp/go/cli-profile-parity-integration (0.0s)
+- - [error] pose-mcp/go/extension-target-integration (0.0s)
+- - [error] pose-mcp/go/release-version-source-integration (0.0s)
+- - [error] pose-mcp/go/delivery-integrity-index-compaction-integration (0.0s)
+- - [error] pose-mcp/go/release-version-source-reachability (0.0s)
+- - [error] pose-mcp/go/clean-activation-recording-integration (0.0s)
+- - [error] pose-mcp/go/legacy-contract-cutoffs-integration (0.0s)
+- - [error] pose-mcp/go/legacy-contract-cutoffs-reachability (0.0s)
+- - [error] pose-mcp/go/public-claims-provenance-integration (0.0s)
+- - [error] pose-mcp/go/public-claims-provenance-reachability (0.0s)
+- - [error] pose-mcp/go/review-assurance-disclosure-integration (0.0s)
+- - [error] pose-mcp/go/review-assurance-disclosure-reachability (0.0s)
+- - [error] pose-mcp/go/review-attribution-roles-integration (0.0s)
+- - [error] pose-mcp/go/review-attribution-roles-reachability (0.0s)
+- - [error] pose-mcp/go/blocked-semantics-integration (0.0s)
+- - [error] pose-mcp/go/blocked-semantics-reachability (0.0s)
+- - [error] pose-mcp/go/flat-spec-amendments-integration (0.0s)
+- - [error] pose-mcp/go/flat-spec-amendments-reachability (0.0s)
+- - [error] pose-mcp/go/obligation-contract-integration (0.0s)
+- - [error] pose-mcp/go/effective-governance-integration (0.0s)
+- - [error] pose-mcp/go/effective-governance-reachability (0.0s)
+- - [error] pose-mcp/go/adversarial-corpus (0.0s)
+- - [error] pose-mcp/go/typed-diagnostics-integration (0.0s)
+- - [error] pose-mcp/go/typed-diagnostics-reachability (0.0s)
+- - [error] pose-mcp/go/obligation-projection-integration (0.0s)
+- - [error] pose-mcp/go/state-attention-reachability (0.0s)
+- - [error] pose-mcp/go/action-requests-reachability (0.0s)
+- - [error] pose-mcp/go/action-resolution-integration (0.0s)
+- - [error] pose-mcp/go/action-resolution-reachability (0.0s)
+- - [error] pose-mcp/go/phase-readiness-integration (0.0s)
+- - [error] pose-mcp/go/phase-readiness-reachability (0.0s)
+- - [error] pose-mcp/go/governed-effects-integration (0.0s)
+- - [error] pose-mcp/go/governed-effects-reachability (0.0s)
+- - [error] pose-mcp/go/transfer-actions-integration (0.0s)
+- - [error] pose-mcp/go/closeout-plan-integration (0.0s)
+- - [error] pose-mcp/go/closeout-plan-reachability (0.0s)
+- - [error] pose-mcp/go/material-reuse-integration (0.0s)
+- - [error] pose-mcp/go/assessment-freshness-integration (0.0s)
+- - [error] pose-mcp/go/followup-candidates-integration (0.0s)
+- - [error] pose-mcp/go/followup-candidates-reachability (0.0s)
+- - [error] pose-mcp/go/action-presentation-integration (0.0s)
+- - [error] pose-mcp/go/spec-surface-integration (0.0s)
+- - [error] pose-mcp/go/spec-surface-reachability (0.0s)
+- - [error] pose-mcp/go/premise-validity-integration (0.0s)
+- - [error] pose-mcp/go/falsifier-integration (0.0s)
+- - [error] pose-mcp/go/migrate-dryrun-integration (0.0s)
+- - [error] pose-mcp/go/action-identity-integration (0.0s)
+- - [error] pose-mcp/go/adversarial-corpus-integration (0.0s)
+- - [error] pose-mcp/go/governance-waits-integration (0.0s)
+- - [error] pose-mcp/go/action-requests-integration (0.0s)
+- - [error] pose-mcp/go/governance-waits-reachability (0.0s)
+- - [error] pose-mcp/go/migrate-dryrun-reachability (0.0s)
+- - [error] pose-mcp/go/state-attention-integration (0.0s)
+- - [error] pose-mcp/go/atomic-start-cutoff-integration (0.0s)
+- - [error] pose-mcp/go/validation-check-materiality-integration (0.0s)
+- - [error] pose-mcp/go/causality-cutoff-integration (0.0s)
+- - [error] pose-mcp/go/attest-preflight-integration (0.0s)
+- - [error] pose-mcp/go/governed-capabilities-integration (0.0s)
+- - [error] pose-mcp/go/authority-project-integration (0.0s)
+- - [error] pose-mcp/go/qualified-followup-integration (0.0s)
+- - [error] pose-mcp/go/recurrence-cluster-integration (0.0s)
+- - [error] pose-mcp/go/project-identity-integration (0.0s)
+- - [error] pose-mcp/go/capability-catalog-integration (0.0s)
+- - [error] pose-mcp/go/init-is-install-integration (0.0s)
+- - [error] pose-mcp/go/fresh-install-health-integration (0.0s)
+- - [error] pose-mcp/go/signed-action-answers-integration (0.0s)
+- - [error] pose-mcp/go/mcp-review-attest-integration (0.0s)
+- - [error] pose-mcp/go/mcp-action-resolve-integration (0.0s)
+- - [error] pose-mcp/go/setup-command-integration (0.0s)
+- - [error] pose-mcp/go/onboarding-spec-integration (0.0s)
+- - [error] pose-mcp/go/configuration-review-integration (0.0s)
+- - [error] pose-mcp/go/quickstart-real-lifecycle-integration (0.0s)
+- - [error] pose-mcp/go/install-and-upgrade-journeys-integration (0.0s)
+- Result: FAILURE (required check failed)
+
+## Execution Metadata
+- Generated at (UTC): 2026-10-13T01:09:29Z
+- Context: auto-validate
+- Validation profile: tolerant
+- Sequence for task/spec: 221
+- Stable comparison hash: 5698000da1fa3d1dc09c88a5c178e5fab91c31deecd321ea182a96719596b628
+
+## Historical Comparison
+- Previous execution: 2026-10-02T11:43:40Z
+- Status: changed
+- Stable field diffs:
+- validation_profile: "strict" -> "tolerant"
+
+## Risks
+- _No risks provided_
+
+## Follow-ups
+- _Add next steps if needed._
+
+## Human Review Needed
+- [ ] Review functional impact
+- [ ] Review validation coverage
+- [ ] Approve merge

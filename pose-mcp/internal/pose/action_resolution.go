@@ -202,7 +202,7 @@ func (s Store) ResolveActionRequest(res ActionResolution, now time.Time) (Action
 			event.Assurance = ReviewIdentityAssuranceVerified
 		}
 		if res.Claim != nil || res.Envelope != nil || policy.IdentityAssurance == ReviewIdentityAssuranceVerified && event.SSHSignature == nil {
-			if err := s.verifyActionClaim(r, res, role); err != nil {
+			if err := s.verifyActionClaimAt(r, res, role, now); err != nil {
 				return ActionRequestView{}, err
 			}
 			event.Assurance = ReviewIdentityAssuranceVerified
@@ -246,6 +246,16 @@ func actionAnswerAdmitted(r ActionRequest, answer string) bool {
 // to this project, audience, request digest, principal, role and answer. A
 // declared `human:` actor without such a claim never passes as verified.
 func (s Store) verifyActionClaim(r ActionRequest, res ActionResolution, role string) error {
+	return s.verifyActionClaimAt(r, res, role, time.Now().UTC())
+}
+
+func (s Store) verifyActionClaimAt(r ActionRequest, res ActionResolution, role string, at time.Time) error {
+	return s.verifyActionClaimWithin(r, res, role, at, at)
+}
+
+// Historical events stored whole seconds. Their acceptance interval is bounded
+// by that precision; a new write has an exact supplied clock instead.
+func (s Store) verifyActionClaimWithin(r ActionRequest, res ActionResolution, role string, earliest, latest time.Time) error {
 	fail := func(reason string) error { return fmt.Errorf("%w: %s", ErrActionVerificationFailed, reason) }
 	claim, envelope := res.Claim, res.Envelope
 	if claim == nil || envelope == nil {
@@ -302,12 +312,16 @@ func (s Store) verifyActionClaim(r ActionRequest, res ActionResolution, role str
 	if strings.HasPrefix(claim.Principal, "human:") && !reviewIssuerHoldsGrant(review.HumanAuthorityIssuers, envelope.Issuer, envelope.PublicKey) {
 		return fail("issuer " + envelope.Issuer + " is not authorised to assert a human principal")
 	}
-	if _, err := time.Parse(time.RFC3339, claim.IssuedAt); err != nil {
+	issued, err := time.Parse(time.RFC3339, claim.IssuedAt)
+	if err != nil {
 		return fail("the claim has no valid issued_at")
+	}
+	if issued.After(latest) {
+		return fail("the claim was issued after the answer's acceptance time")
 	}
 	if claim.ExpiresAt != "" {
 		expiry, err := time.Parse(time.RFC3339, claim.ExpiresAt)
-		if err != nil || expiry.Before(time.Now().UTC()) {
+		if err != nil || expiry.Before(issued) || expiry.Before(earliest) {
 			return fail("the claim is expired or its expiry is unreadable")
 		}
 	}
