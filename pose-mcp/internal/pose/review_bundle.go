@@ -2713,7 +2713,9 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	// bundle sealed before that must not be permanently exempt from it — the
 	// exemption would be exactly the work an attacker or a hurry would want
 	// (spec pose-reuse-is-sealed-signing-stays-live).
-	if policy.RequireSignedAttestations || att.Envelope != nil {
+	// Verified authority checks the signature in the shared proof path below,
+	// also used by disclosure. Declared records retain their signing gate.
+	if bundle.Payload.SealedGates().IdentityAssurance != ReviewIdentityAssuranceVerified && (policy.RequireSignedAttestations || att.Envelope != nil) {
 		if err := s.verifyStoredReviewAttestationSignature(att); err != nil {
 			blockers = append(blockers, err.Error())
 		}
@@ -3323,6 +3325,15 @@ func reviewBundleEntryPath(entry ReviewBundleSubjectEntry) string {
 // independence is not, and the engine must not be read as claiming it.
 func (s Store) verifiedAuthorityBlockers(bundle ReviewBundle, att ReviewAttestation) []string {
 	blockers := []string{}
+	// Claim fields are declarations until their signed bytes and bundle binding
+	// are authenticated. Keep this proof check shared with assurance disclosure
+	// (spec pose-review-disclosure-requires-proof), apart from approval semantics.
+	if att.BundleID != bundle.BundleID || att.BundleDigest != bundle.BundleDigest {
+		blockers = append(blockers, "attestation does not reference the exact sealed bundle")
+	}
+	if err := s.verifyStoredReviewAttestationSignature(att); err != nil {
+		blockers = append(blockers, err.Error())
+	}
 	claim := att.Authority
 	if claim == nil {
 		return append(blockers, "review policy requires verified identity assurance and the attestation carries no authority claim; a reviewer prefix is a declaration, not a proof")
