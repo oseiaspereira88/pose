@@ -66,17 +66,17 @@ Test damaged signatures, unsigned content tampering, missing proof, revoked pins
 
 ### Requirement trace
 
-Execution pending. Map R1/R2 to adversarial proof cases, R3 to the valid-proof/invalid-criteria and declared-history pairs, and R4 to the cross-consumer and confirmation regressions. Keep the spec in-progress until independent review and closeout.
+Regression mapping: R1 uses TestReviewAssuranceRejectsInvalidCryptographicProof; R2 adds TestReviewAssuranceBindsTheSuppliedBundle; R3 uses TestReviewAssuranceKeepsIdentitySeparateFromApproval; R4 uses TestReviewConsumersAgreeOnTamperedProof and TestReviewInvalidProofCannotVerifyHumanConfirmation. Execution evidence and exact tested commits are recorded in [PR #158](https://github.com/oseiaspereira88/pose/pull/158). Keep the spec in-progress until independent review and closeout.
 
 ### Known gaps
 
-Local gofmt and lint-spec passed. The local Go toolchain is truncated; the native module-validation attempt ended FAILURE with 128 required checks failing because Go is absent from PATH. Retain its report and history, and use CI for functional evidence. Do not claim local Go or race-detector success. Structural validation uses the published 7.4.1 binary until CI builds the implementation.
+Local gofmt, lint-spec and artifact-check --strict passed. The local Go toolchain is truncated; the native module-validation attempt ended FAILURE with 128 required checks failing because Go is absent from PATH. Retain its report and history, and use CI for functional evidence. Do not claim local Go or race-detector success. Local structural validation uses the published 7.4.1 binary; CI builds the implementation.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Implementation and regression tests delivered; CI execution and independent review pending. No spec closure is asserted.
+Implementation and regression tests delivered. Consult the PR checks for current CI execution evidence. Independent review and spec closure remain pending.
 
 ### Residual risks
 
