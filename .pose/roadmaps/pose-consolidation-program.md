@@ -128,6 +128,45 @@ existentes de B11/B29; aceites, dependências, ownership e baselines conferidos.
 fidelidade de update no responsável, sem duplicar ownership. Escrita e merge
 não qualificam implementações nem mudam status de specs reutilizadas.
 
+## Milestone: batch-six-authoring
+- after: batch-five-authoring
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-6-authoring
+
+**Exit gate:** B28/B44/B38 escritos em draft e responsável de B38 criado no recorte
+correto; fontes, aceites, dependências e ownership conferidos.
+
+## Milestone: distributed-instructions
+- after: spec:pose-adaptive-assessment-freshness, spec:pose-v7-legacy-cleanup-plan
+- target_start:
+- target_due:
+- specs: pose-distributed-instructions-parity
+
+**Exit gate:** B28 alinha freshness em root/scaffold/pt-BR; suggest divulga
+availability/extension-needed e migrate explica apply indisponível sem promessa.
+
+## Milestone: planning-release-narrative
+- after: spec:pose-delegated-review-contract, spec:pose-v7-legacy-cleanup-plan
+- target_start:
+- target_due:
+- specs: pose-planning-and-release-narrative-reconciliation
+
+**Exit gate:** B44 preserva história 6.x/7.0/ADRs aceitos e publica reconciliação
+atual de entrega/adoção/eficácia/planejamento com fontes, sem capabilities ausentes.
+Este delta documental é distinto da escrita administrativa do lote.
+
+## Milestone: release-snapshot-integrity
+- after: batch-six-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/manifest-tag-integrity
+
+**Exit gate:** consumir integridade do snapshot/tag de B38 no responsável. O
+coordenador possui B28/B44 e as specs de escrita; não duplica a ownership de B38.
+Resultados resolvidos ou merge de docs não encerram programas parciais.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |

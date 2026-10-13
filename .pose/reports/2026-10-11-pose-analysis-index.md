@@ -82,3 +82,10 @@ Consultar o [relatório do lote 5](2026-10-13-pose-batch-5-authoring.md) para
 B11/B29: um novo delta draft e continuidade de duas specs abertas, sem duplicar
 requisitos ou alterar baselines. Treze novas specs de implementação estão em
 draft; 24 propostas seguem ausentes. Execução e closeouts continuam pendentes.
+
+## Escrita do lote 6 — 2026-10-13
+
+Consultar o [relatório do lote 6](2026-10-13-pose-batch-6-authoring.md) para
+B28/B44/B38. Dezesseis specs propostas estão materializadas em draft e 21 ainda
+ausentes. O coordenador possui B28/B44; o roadmap de release possui B38 somente.
+A escrita não altera instruções operacionais, tags, narrativa histórica ou motor.
