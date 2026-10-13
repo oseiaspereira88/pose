@@ -36,3 +36,13 @@ o [catálogo estruturado](../results/2026-10-12-pose-front-10-consolidated-backl
 propõe seis ondas e preserva a reconciliação dos 33 itens históricos.
 As propostas permanecem não adjudicadas: não equivalem a mudanças de motor,
 adoção, dispositions aplicadas ou releases preparadas.
+
+## Planejamento de implementação — lote 0, 2026-10-13
+
+Continuar pela [reconciliação do plano](2026-10-13-pose-plan-reconciliation.md),
+pela [matriz de lotes](../results/pose-implementation-plan.json) e pelo
+[coordenador](../roadmaps/pose-consolidation-program.md). Esse plano incorpora
+as correções mergeadas de #157/#158 sem alterar o diagnóstico histórico acima.
+Planejar 36 novas specs, uma condicionada e oito existentes reutilizadas.
+Escrever somente o lote autorizado; execução, qualificação, adoção e release
+continuam etapas explícitas. As 44 unidades não estão declaradas concluídas.

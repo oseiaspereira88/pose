@@ -1,0 +1,3130 @@
+{
+  "schema_version": 1,
+  "document_type": "pose-implementation-plan",
+  "status": "draft",
+  "created_at": "2026-10-13",
+  "source_revision": "1e3c61c480379dd2d57b7cbcbb77bcae30bdd5ac",
+  "historical_catalog": {
+    "path": ".pose/results/2026-10-12-pose-front-10-consolidated-backlog.json",
+    "revision": "35ffb4a66817803c4cc42f56e41bf2e667e52da9",
+    "sha256": "f138929bdb835291c6cbae165d7b5776c3cd538155038fb523390378c11f9dd1"
+  },
+  "authorization": {
+    "scope": "Escrever somente o lote 0 do planejamento aceito em conversa em 2026-10-13.",
+    "current_authoring_batch": 0,
+    "next_authoring_batch": 1,
+    "future_batch_implementation_authorized": false
+  },
+  "counts": {
+    "source_candidates": 96,
+    "canonical_units": 44,
+    "authoring_batches": 17,
+    "new_specs": 36,
+    "conditional_new_specs": 1,
+    "unique_reused_specs": 8
+  },
+  "candidate_ownership": {
+    "T2-01": "B01",
+    "T2-03": "B01",
+    "T2-02": "B02",
+    "T2-04": "B03",
+    "T2-06": "B04",
+    "T2-07": "B04",
+    "T2-08": "B05",
+    "T2-05": "B06",
+    "D01": "B06",
+    "D13": "B06",
+    "F05-01": "B06",
+    "F05-03": "B06",
+    "D02": "B07",
+    "T3-02": "B07",
+    "CONS-03": "B07",
+    "T4-01": "B08",
+    "T4-04": "B08",
+    "T4-02": "B09",
+    "T4-03": "B10",
+    "T4-05": "B10",
+    "CONS-01": "B10",
+    "D09": "B11",
+    "F07-01": "B11",
+    "F07-02": "B12",
+    "F07-03": "B12",
+    "F07-09": "B12",
+    "PERF-07": "B12",
+    "CONS-13": "B12",
+    "CONS-02": "B13",
+    "CONS-07": "B13",
+    "CONS-12": "B13",
+    "CONS-04": "B14",
+    "CONS-06": "B14",
+    "CONS-09": "B14",
+    "CONS-05": "B15",
+    "D05": "B16",
+    "T3-01": "B16",
+    "T3-03": "B16",
+    "D04": "B17",
+    "T3-04": "B17",
+    "D06": "B18",
+    "T3-06": "B18",
+    "T3-05": "B19",
+    "T3-07": "B19",
+    "T3-08": "B20",
+    "T3-09": "B21",
+    "T3-10": "B21",
+    "F05-02": "B22",
+    "F05-04": "B22",
+    "F05-05": "B23",
+    "F05-06": "B23",
+    "D07": "B24",
+    "F05-07": "B24",
+    "F05-08": "B25",
+    "F05-09": "B25",
+    "T4-08": "B26",
+    "F05-10": "B26",
+    "T4-07": "B27",
+    "T4-09": "B27",
+    "T4-10": "B27",
+    "F07-07": "B27",
+    "F07-08": "B27",
+    "D11": "B28",
+    "F07-06": "B28",
+    "D10": "B29",
+    "F07-05": "B30",
+    "F07-04": "B31",
+    "PERF-06": "B31",
+    "D12": "B32",
+    "PERF-01": "B32",
+    "PERF-02": "B32",
+    "PERF-03": "B32",
+    "PERF-05": "B32",
+    "PERF-04": "B33",
+    "PERF-10": "B33",
+    "CONS-11": "B33",
+    "D03": "B34",
+    "T4-06": "B34",
+    "PERF-09": "B34",
+    "CONS-10": "B34",
+    "PERF-08": "B35",
+    "PERF-12": "B35",
+    "PERF-11": "B36",
+    "D08": "B37",
+    "F06-01": "B37",
+    "F06-02": "B37",
+    "F06-03": "B37",
+    "F06-04": "B38",
+    "F06-06": "B38",
+    "F06-05": "B39",
+    "F06-09": "B39",
+    "F06-10": "B39",
+    "F06-07": "B40",
+    "F06-08": "B40",
+    "CONS-08": "B41",
+    "F07-10": "B42"
+  },
+  "units": [
+    {
+      "id": "B01",
+      "title": "Prova persistida e disclosure coerentes",
+      "authoring_batch": 0,
+      "source_wave": "R1",
+      "priority_proposed": "P0",
+      "source_candidates": [
+        "T2-01",
+        "T2-03"
+      ],
+      "source_fronts": [
+        2
+      ],
+      "source_acceptance": {
+        "T2-01": [
+          "show JSON, MCP, Attention e gates não aceitam label verified sem prova",
+          "Answer, actor, digest ou reason adulterado não satisfaz o efeito",
+          "Legado declared não recebe proof retrospectivo nem bloqueio universal"
+        ],
+        "T2-03": [
+          "Assinatura inválida não emite identity/separation/confirmation verified",
+          "Identity válida pode coexistir com critério semanticamente inválido",
+          "Todas as superfícies consomem o mesmo resultado"
+        ]
+      },
+      "decisive_acceptance": "Adulteração de answer/actor/digest/proof não satisfaz condição; JSON/MCP/gate consomem a mesma prova sem promover legado.",
+      "depends_on": [
+        "B04"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "record-truthfulness",
+      "foundation_specs": [
+        {
+          "slug": "pose-action-request-resolution",
+          "path": ".pose/specs/2026-10-04-pose-action-request-resolution.md",
+          "status": "done",
+          "sha256": "ba934021d8506f8666eb712f1f7f2e26063f8dc45ac9065cb8a112d307c553d0"
+        },
+        {
+          "slug": "pose-review-assurance-disclosure",
+          "path": ".pose/specs/2026-10-04-pose-review-assurance-disclosure.md",
+          "status": "done",
+          "sha256": "9b27974277d2a99803c8f7478b36a6120413d53e2b30a0a4830a242a9950e126"
+        }
+      ],
+      "reused_specs": [
+        {
+          "slug": "pose-action-answers-reverify-on-read",
+          "path": ".pose/specs/2026-10-13-pose-action-answers-reverify-on-read.md",
+          "status": "in-progress",
+          "sha256": "f95a90c88e575c6e52d201e356083f5759dc1fbde39b8bb5a6f2bfef62b0100e"
+        },
+        {
+          "slug": "pose-review-disclosure-requires-proof",
+          "path": ".pose/specs/2026-10-13-pose-review-disclosure-requires-proof.md",
+          "status": "in-progress",
+          "sha256": "cb9d26a8082ae52db503e925e00e806877025b00e95c905b8a34d5ea13fe03ee"
+        }
+      ],
+      "proposed_specs": [],
+      "implementation_observations": [
+        {
+          "pull_requests": [
+            157,
+            158
+          ],
+          "scope": "Correções mergeadas de action-answer proof e review disclosure. Qualificar o aceite completo e os closeouts; manter as duas specs in-progress.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false
+    },
+    {
+      "id": "B02",
+      "title": "Preflight semântico de aprovação no domínio",
+      "authoring_batch": 1,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "T2-02"
+      ],
+      "source_fronts": [
+        2
+      ],
+      "source_acceptance": {
+        "T2-02": [
+          "A mesma approval inválida escreve zero records em CLI, import, MCP e Store",
+          "Negativas continuam registráveis",
+          "Approval válida conserva o resultado"
+        ]
+      },
+      "decisive_acceptance": "Approval inválida grava zero artefatos em Store/CLI/import/MCP; negativa legítima permanece registrável.",
+      "depends_on": [
+        "B01"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "record-truthfulness",
+      "foundation_specs": [
+        {
+          "slug": "pose-review-bundle-convergence",
+          "path": ".pose/specs/2026-08-13-pose-review-bundle-convergence.md",
+          "status": "done",
+          "sha256": "aa0756971d2c4e101f66baae40d20286de802d701f98a2542355583d913817b4"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-review-approval-domain-preflight",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B03",
+      "title": "Presença consistente entre emitters",
+      "authoring_batch": 2,
+      "source_wave": "R2",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "T2-04"
+      ],
+      "source_fronts": [
+        2
+      ],
+      "source_acceptance": {
+        "T2-04": [
+          "Policy declara se presence é universal ou restrita ao canal SSH",
+          "Issuer sem a prova admitida não dispensa presence silenciosamente",
+          "Matriz inclui SSH plain, SK touched/untouched e issuer"
+        ]
+      },
+      "decisive_acceptance": "Policy delimita presença e nenhum canal alternativo a dispensa; matriz SSH/SK/issuer verifica o contrato.",
+      "depends_on": [
+        "B01",
+        "B04"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "record-truthfulness",
+      "foundation_specs": [
+        {
+          "slug": "pose-native-attestation-issuer",
+          "path": ".pose/specs/2026-10-09-pose-native-attestation-issuer.md",
+          "status": "done",
+          "sha256": "d3608824cc28313b55c0ec0b448fd9e147609fd5827cde9f10e8d2dbeb2439dc"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-proof-presence-channel-parity",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B04",
+      "title": "Tempo de confiança e proveniência de reuso",
+      "authoring_batch": 1,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "T2-06",
+        "T2-07"
+      ],
+      "source_fronts": [
+        2
+      ],
+      "source_acceptance": {
+        "T2-06": [
+          "Fonte com prova alterada recebe diagnóstico",
+          "Reassunção atual é distinta de reuso histórico comprovado",
+          "Implementação limita ciclos, profundidade e custo"
+        ],
+        "T2-07": [
+          "Testa future-issued e expiry anterior à emissão",
+          "Define validade histórica separada de autorização atual",
+          "Clock é injetável; TTL universal não é imposto"
+        ]
+      },
+      "decisive_acceptance": "Separar validade histórica de autorização atual; clock injetável e fonte do reuso verificada, com ciclos/custo limitados.",
+      "depends_on": [],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "record-truthfulness",
+      "foundation_specs": [
+        {
+          "slug": "pose-material-equivalence-reuse",
+          "path": ".pose/specs/2026-10-04-pose-material-equivalence-reuse.md",
+          "status": "done",
+          "sha256": "51fb81c2c50ebaf207bd7bae73edc6379dccb4dc2f099e1eaf448aa1e278625a"
+        },
+        {
+          "slug": "pose-native-attestation-issuer",
+          "path": ".pose/specs/2026-10-09-pose-native-attestation-issuer.md",
+          "status": "done",
+          "sha256": "d3608824cc28313b55c0ec0b448fd9e147609fd5827cde9f10e8d2dbeb2439dc"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-historical-trust-and-review-reuse",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [
+        {
+          "pull_requests": [
+            157
+          ],
+          "scope": "Somente o tempo de aceitação de action answers recebeu implementação. Validade histórica de reviews e proveniência de reuso continuam pendentes.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false
+    },
+    {
+      "id": "B05",
+      "title": "Scopes de policy e efetividade válidos",
+      "authoring_batch": 1,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "T2-08"
+      ],
+      "source_fronts": [
+        2
+      ],
+      "source_acceptance": {
+        "T2-08": [
+          "Typo spce não é effective",
+          "Scopes conhecidos preservam seleção",
+          "Extensão futura é explicitamente versionada ou unsupported"
+        ]
+      },
+      "decisive_acceptance": "Typo de scope não se apresenta como proteção efetiva; extensão desconhecida tem diagnóstico/versionamento.",
+      "depends_on": [],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "record-truthfulness",
+      "foundation_specs": [
+        {
+          "slug": "pose-effective-governance-projection",
+          "path": ".pose/specs/2026-10-04-pose-effective-governance-projection.md",
+          "status": "done",
+          "sha256": "086c1351ad694201058c8cfe09abd61ac54c3e6e6beec42857c99ed54d09909c"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-policy-scope-validation",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B06",
+      "title": "Leitura completa ou perda explicitada por fonte",
+      "authoring_batch": 2,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "T2-05",
+        "D01",
+        "D13",
+        "F05-01",
+        "F05-03"
+      ],
+      "source_fronts": [
+        1,
+        2,
+        5
+      ],
+      "source_acceptance": {
+        "T2-05": [
+          "Rejeição recente ilegível não desaparece de uma sequência complete",
+          "Falha é localizada no escopo afetado",
+          "Legado compatível é distinto de corrupção"
+        ],
+        "D01": [
+          "Prioridade de integridade; retornar cobertura/erro útil"
+        ],
+        "D13": [
+          "Reproduzir e definir o significado de completude com perdas explícitas"
+        ],
+        "F05-01": [
+          "P01 retorna o mesmo conjunto não resolvido em CLI, MCP e Attention; formato inválido aparece com diagnóstico; fonte ilegível declara cobertura incompleta"
+        ],
+        "F05-03": [
+          "P04 encontra o TODO ou informa scan incompleto; testar arquivo ilegível, scanner error e exclusões; nenhum consumidor apresenta zero como cobertura completa"
+        ]
+      },
+      "decisive_acceptance": "Journal/scan/parser ilegível ou descartado não vira zero completo; paridade de follow-ups e cobertura por recorte.",
+      "depends_on": [],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "agency-readiness",
+      "foundation_specs": [
+        {
+          "slug": "pose-obligation-projection",
+          "path": ".pose/specs/2026-10-04-pose-obligation-projection.md",
+          "status": "done",
+          "sha256": "002381dc8ed9aa20c5e2d5ac54d9d9523d30705dcd0c0f4fab472e8dbd5332bf"
+        },
+        {
+          "slug": "pose-debt-marker-lexical-precision",
+          "path": ".pose/specs/2026-08-03-pose-debt-marker-lexical-precision.md",
+          "status": "done",
+          "sha256": "281d17f36202a4d4179cceb4f0335c17f719bc0f5e0facd9dedc7a7383afca4d"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-source-coverage-integrity",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B07",
+      "title": "Git desconhecido e snapshot de dispatch verificável",
+      "authoring_batch": 2,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "D02",
+        "T3-02",
+        "CONS-03"
+      ],
+      "source_fronts": [
+        1,
+        3,
+        9
+      ],
+      "source_acceptance": {
+        "D02": [
+          "Investigar recusa/unknown sem autorizar continuidade silenciosa"
+        ],
+        "T3-02": [
+          "Assume-unchanged e falha de git status não produzem run elegível",
+          "Paths e regeneração derivada têm leitura e permissão explícitas",
+          "Bundle superado não produz efeito no escopo atual"
+        ],
+        "CONS-03": [
+          "Status/HEAD/inputs falhos não autorizam clean ou complete; erro tipado"
+        ]
+      },
+      "decisive_acceptance": "Status com erro/assume-unchanged não certifica árvore intacta; paths e inputs selados são verificados antes/depois.",
+      "depends_on": [],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-state-consistency-and-recovery",
+      "foundation_specs": [
+        {
+          "slug": "pose-recoverable-closeout-plan",
+          "path": ".pose/specs/2026-10-04-pose-recoverable-closeout-plan.md",
+          "status": "done",
+          "sha256": "6cc28c3c651c3720afdd5cd26adf174cf051377eb025de0e92977eb07b50f283"
+        },
+        {
+          "slug": "pose-delegated-review-dispatch",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-dispatch.md",
+          "status": "done",
+          "sha256": "23e0b661d3069908d0d098663b1a6ad83969fd7ea059fe9bfe2563a58e68bb1c"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-git-and-dispatch-snapshot-integrity",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B08",
+      "title": "Restrições por target, fase e identidade de nó",
+      "authoring_batch": 3,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "T4-01",
+        "T4-04"
+      ],
+      "source_fronts": [
+        4
+      ],
+      "source_acceptance": {
+        "T4-01": [
+          "Cross-target protege apenas o destino material declarado",
+          "Roadmap não restringe não-membros",
+          "Requests pendentes em origens terminais continuam visíveis"
+        ],
+        "T4-04": [
+          "Artifact/kind/ID identificam exatamente o nó",
+          "Ausência material não recebe hash de outro kind",
+          "Scope estruturado preserva compatibilidade CLI/MCP"
+        ]
+      },
+      "decisive_acceptance": "Cross-target e roadmap só restringem o destino correto; requests de origem terminal seguem visíveis; kind/ID resolvem exatamente.",
+      "depends_on": [],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "agency-readiness",
+      "foundation_specs": [
+        {
+          "slug": "pose-phase-scoped-readiness",
+          "path": ".pose/specs/2026-10-04-pose-phase-scoped-readiness.md",
+          "status": "done",
+          "sha256": "bf745a800c014f305e27c6fd5e30fbe762e857cd29dae47e2b9bfb2da0f495e3"
+        },
+        {
+          "slug": "pose-governed-effect-enforcement",
+          "path": ".pose/specs/2026-10-04-pose-governed-effect-enforcement.md",
+          "status": "done",
+          "sha256": "9e00171f8cab0321edff4eb24a2459b80915b273e2080c454fc6ba4686206312"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-action-target-and-node-scoping",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B09",
+      "title": "Autoridade de waiver e supersession",
+      "authoring_batch": 3,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "T4-02"
+      ],
+      "source_fronts": [
+        4
+      ],
+      "source_acceptance": {
+        "T4-02": [
+          "Waiver verified exige prova adequada",
+          "Terceiro não retira condição alheia por supersession",
+          "Cancelamento legítimo não apaga obrigação de outro producer"
+        ]
+      },
+      "decisive_acceptance": "Dispensa e substituição não retiram condição de terceiro sem autoridade/prova exigidas; cancellation mantém a semântica própria.",
+      "depends_on": [
+        "B01",
+        "B05"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "agency-readiness",
+      "foundation_specs": [
+        {
+          "slug": "pose-action-request-resolution",
+          "path": ".pose/specs/2026-10-04-pose-action-request-resolution.md",
+          "status": "done",
+          "sha256": "ba934021d8506f8666eb712f1f7f2e26063f8dc45ac9065cb8a112d307c553d0"
+        },
+        {
+          "slug": "pose-action-requests",
+          "path": ".pose/specs/2026-10-04-pose-action-requests.md",
+          "status": "done",
+          "sha256": "271e5c06907b61fcda0ab446dd1f54e6ba5121a631fd8029d601b19ab388e6ec"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-action-waiver-and-supersession-authority",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B10",
+      "title": "Recuperação e preflight de requests",
+      "authoring_batch": 3,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "T4-03",
+        "T4-05",
+        "CONS-01"
+      ],
+      "source_fronts": [
+        4,
+        9
+      ],
+      "source_acceptance": {
+        "T4-03": [
+          "Invalidated encaminha nova request ou operação suportada",
+          "Missing subject revela reparo necessário",
+          "Decline não repete pergunta só para obter approve"
+        ],
+        "T4-05": [
+          "Preview revela inadmissibilidade sem write ou toque",
+          "Apply revalida",
+          "Auditoria de refusal corresponde a fatos realmente registrados"
+        ],
+        "CONS-01": [
+          "Lock/falha entre journals deixa fase explícita; retry mesmo ID converge uma vez"
+        ]
+      },
+      "decisive_acceptance": "Retry do mesmo ID completa supersession uma vez; invalidated/missing-subject/decline têm próximo passo suportado; preview verifica admissibilidade sem escrever.",
+      "depends_on": [
+        "B09"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "agency-readiness",
+      "foundation_specs": [
+        {
+          "slug": "pose-action-requests",
+          "path": ".pose/specs/2026-10-04-pose-action-requests.md",
+          "status": "done",
+          "sha256": "271e5c06907b61fcda0ab446dd1f54e6ba5121a631fd8029d601b19ab388e6ec"
+        },
+        {
+          "slug": "pose-action-request-presentation",
+          "path": ".pose/specs/2026-10-04-pose-action-request-presentation.md",
+          "status": "done",
+          "sha256": "dd224804d45121db308a44ff79fdb8696aae87c83b46613b33202047cd6d198d"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-action-request-recovery-and-preflight",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B11",
+      "title": "Fechamento semântico e histórico de amendments",
+      "authoring_batch": 5,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "D09",
+        "F07-01"
+      ],
+      "source_fronts": [
+        1,
+        7
+      ],
+      "source_acceptance": {
+        "D09": [
+          "Trabalhar na spec aberta; evitar duplicação"
+        ],
+        "F07-01": [
+          "P02 distingue done/no-op de verified/terminal; plano e closeout compartilham verificador aplicável; legacy não sofre enforcement retrospectivo; mensagem não certifica passos não executados"
+        ]
+      },
+      "decisive_acceptance": "Done/no-op não certifica review ausente; close antecipa gate de amendments e preserva baseline append-only e cutoffs.",
+      "depends_on": [
+        "B08"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "governance-efficiency",
+      "foundation_specs": [
+        {
+          "slug": "pose-amendment-history-holds-before-close",
+          "path": ".pose/specs/2026-10-10-pose-amendment-history-holds-before-close.md",
+          "status": "draft",
+          "sha256": "b2e10501712ab24e9a10a3b3e5d84c142b5e8157279ddd045fe64664550245ee"
+        },
+        {
+          "slug": "pose-recoverable-closeout-plan",
+          "path": ".pose/specs/2026-10-04-pose-recoverable-closeout-plan.md",
+          "status": "done",
+          "sha256": "6cc28c3c651c3720afdd5cd26adf174cf051377eb025de0e92977eb07b50f283"
+        }
+      ],
+      "reused_specs": [
+        {
+          "slug": "pose-amendment-history-holds-before-close",
+          "path": ".pose/specs/2026-10-10-pose-amendment-history-holds-before-close.md",
+          "status": "draft",
+          "sha256": "b2e10501712ab24e9a10a3b3e5d84c142b5e8157279ddd045fe64664550245ee"
+        }
+      ],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-closeout-terminal-verification",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B12",
+      "title": "Resultado e parsing comuns CLI/MCP",
+      "authoring_batch": 4,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "F07-02",
+        "F07-03",
+        "F07-09",
+        "PERF-07",
+        "CONS-13"
+      ],
+      "source_fronts": [
+        7,
+        8,
+        9
+      ],
+      "source_acceptance": {
+        "F07-02": [
+          "P03 emite um JSON válido em success/wait/failure quando solicitado; inclui step/result/pending/next action; human output e machine output derivam do mesmo resultado; P08 implementa ou recusa flag explicitamente"
+        ],
+        "F07-03": [
+          "P06 rejeita flags/datas/números inválidos; P07 rejeita modos incompatíveis; aliases documentados seguem funcionando; invalid args não produzem um conjunto falsamente completo"
+        ],
+        "F07-09": [
+          "Waiting exit 3 não é failed genérico; distinguish query success de readiness/coverage; contar trabalho gerado/reusado e causa de rework; não transformar ausência de evento em tempo zero"
+        ],
+        "PERF-07": [
+          "Probe não resulta em gate reprovado; erro tipado, contexto propagado e output parcial identificado"
+        ],
+        "CONS-13": [
+          "Typed outcome distingue verdict, timeout, conflict e committed effects em CLI/MCP"
+        ]
+      },
+      "decisive_acceptance": "Um JSON por chamada; flags/modos inválidos recusados; waiting/deadline/conflict/partial-commit distintos de verdict de domínio.",
+      "depends_on": [],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-state-consistency-and-recovery",
+      "foundation_specs": [
+        {
+          "slug": "pose-recoverable-closeout-plan",
+          "path": ".pose/specs/2026-10-04-pose-recoverable-closeout-plan.md",
+          "status": "done",
+          "sha256": "6cc28c3c651c3720afdd5cd26adf174cf051377eb025de0e92977eb07b50f283"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-cli-mcp-operation-results",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B13",
+      "title": "Journals, checkpoints e recovery de locks",
+      "authoring_batch": 4,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "CONS-02",
+        "CONS-07",
+        "CONS-12"
+      ],
+      "source_fronts": [
+        9
+      ],
+      "source_acceptance": {
+        "CONS-02": [
+          "Exigir EOF por linha e seq/schema; diagnóstico preserva bytes sem inventar resposta"
+        ],
+        "CONS-07": [
+          "Corrupção/erro de persistência visíveis; resume revalida inputs e progresso"
+        ],
+        "CONS-12": [
+          "Owner verificável; daemon restart/fallback mantém geração e intenção sem quebrar lock vivo"
+        ]
+      },
+      "decisive_acceptance": "EOF/schema/seq integrais; checkpoint corrupt/unavailable não vira absent; owner vivo nunca tem lock quebrado por idade.",
+      "depends_on": [
+        "B12"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-state-consistency-and-recovery",
+      "foundation_specs": [
+        {
+          "slug": "pose-recoverable-closeout-plan",
+          "path": ".pose/specs/2026-10-04-pose-recoverable-closeout-plan.md",
+          "status": "done",
+          "sha256": "6cc28c3c651c3720afdd5cd26adf174cf051377eb025de0e92977eb07b50f283"
+        },
+        {
+          "slug": "pose-abm-atomic-start",
+          "path": ".pose/specs/2026-09-27-pose-abm-atomic-start.md",
+          "status": "done",
+          "sha256": "475d10166396e0c46273979b6ce018ec1f3079d0b8f95096f4fd73ecbee66a29"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-journal-checkpoint-and-lock-recovery",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B14",
+      "title": "Publisher exclusivo e coordenação/CAS entre writers",
+      "authoring_batch": 7,
+      "source_wave": "R2",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "CONS-04",
+        "CONS-06",
+        "CONS-09"
+      ],
+      "source_fronts": [
+        9
+      ],
+      "source_acceptance": {
+        "CONS-04": [
+          "Writers não compartilham staging; mutáveis não perdem updates; imutáveis não sobrescrevem"
+        ],
+        "CONS-06": [
+          "Start vs close vs transfer vs editor/CI tem conflito/fase explicável; nenhuma dupla autoridade"
+        ],
+        "CONS-09": [
+          "Partial commit explicitado; history reparável; curated concorrente preservada"
+        ]
+      },
+      "decisive_acceptance": "Sem staging compartilhado ou lost update; curated preservada; efeito antes de erro tem receipt e precondições verificáveis.",
+      "depends_on": [
+        "B12",
+        "B13"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-state-consistency-and-recovery",
+      "foundation_specs": [
+        {
+          "slug": "pose-spec-authority-transfer",
+          "path": ".pose/specs/2026-09-21-pose-spec-authority-transfer.md",
+          "status": "done",
+          "sha256": "b4f87f2a91a4ca48acedb517a7603774354b916d0875002b10a93de3ec89d58f"
+        },
+        {
+          "slug": "pose-abm-atomic-start",
+          "path": ".pose/specs/2026-09-27-pose-abm-atomic-start.md",
+          "status": "done",
+          "sha256": "475d10166396e0c46273979b6ce018ec1f3079d0b8f95096f4fd73ecbee66a29"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-writer-coordination-and-atomic-publication",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B15",
+      "title": "Geração completa dos índices",
+      "authoring_batch": 7,
+      "source_wave": "R2",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "CONS-05"
+      ],
+      "source_fronts": [
+        9
+      ],
+      "source_acceptance": {
+        "CONS-05": [
+          "Leitor vê geração completa ou estado indisponível; retry/crash não mistura versões"
+        ]
+      },
+      "decisive_acceptance": "Leitor recebe conjunto coerente ou unavailable; falha/crash não certifica mistura de gerações; migração preserva consumers atuais.",
+      "depends_on": [
+        "B14"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-state-consistency-and-recovery",
+      "foundation_specs": [
+        {
+          "slug": "pose-delivery-integrity-index-compaction",
+          "path": ".pose/specs/2026-10-02-pose-delivery-integrity-index-compaction.md",
+          "status": "done",
+          "sha256": "313e59185656b129a06da7cef346360a630b55ae219b203cbf17ed3b6bfd658c"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-index-generation-integrity",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B16",
+      "title": "Ledger e reserva durável de tentativas delegadas",
+      "authoring_batch": 8,
+      "source_wave": "R2",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "D05",
+        "T3-01",
+        "T3-03"
+      ],
+      "source_fronts": [
+        1,
+        3
+      ],
+      "source_acceptance": {
+        "D05": [
+          "Repro adversarial antes de ampliar delegação"
+        ],
+        "T3-01": [
+          "No máximo K execuções para cota K sob concorrência",
+          "Setup failure e interrupção preservam tentativa recuperável",
+          "Idempotência impede duas execuções para a mesma chave"
+        ],
+        "T3-03": [
+          "Corrupção ou remoção não restaura orçamento nem aprovação",
+          "Rejeição permanece visível e bloqueia bundle inalterado",
+          "Reason registra exceção sem apagar rejeição"
+        ]
+      },
+      "decisive_acceptance": "Cota K inicia no máximo K runs; setup/crash registrados; retry não duplica; rejeição/corrupção não restaura orçamento.",
+      "depends_on": [
+        "B06",
+        "B14"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "delegated-review",
+      "foundation_specs": [
+        {
+          "slug": "pose-delegated-review-attempt-ledger",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-attempt-ledger.md",
+          "status": "draft",
+          "sha256": "4e1cf96aa2606a368f3a21c5f5c989112dc596401280ac02183ebcf4def5ef84"
+        }
+      ],
+      "reused_specs": [
+        {
+          "slug": "pose-delegated-review-attempt-ledger",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-attempt-ledger.md",
+          "status": "draft",
+          "sha256": "4e1cf96aa2606a368f3a21c5f5c989112dc596401280ac02183ebcf4def5ef84"
+        }
+      ],
+      "proposed_specs": [],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B17",
+      "title": "Run assinado e independência observada",
+      "authoring_batch": 10,
+      "source_wave": "R3",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "D04",
+        "T3-04"
+      ],
+      "source_fronts": [
+        1,
+        3
+      ],
+      "source_acceptance": {
+        "D04": [
+          "Completar o roadmap trust/adoption existente"
+        ],
+        "T3-04": [
+          "Prova vincula bundle, configuração, executor, prompt e output",
+          "Vendor ou modelo diferente é verificado conforme ADR",
+          "Machine-attested não é atribuído a pessoa"
+        ]
+      },
+      "decisive_acceptance": "Bundle/prompt/output/executor/config vinculados; vendor OU modelo distinto conforme ADR; machine-attested não é pessoa.",
+      "depends_on": [
+        "B01",
+        "B04",
+        "B16"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "delegated-review",
+      "foundation_specs": [
+        {
+          "slug": "pose-delegated-review-run-provenance",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-run-provenance.md",
+          "status": "draft",
+          "sha256": "da93e4b168608a142a063bb6b29b30b9ee2f61e41242eeb79c2f9be095828041"
+        }
+      ],
+      "reused_specs": [
+        {
+          "slug": "pose-delegated-review-run-provenance",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-run-provenance.md",
+          "status": "draft",
+          "sha256": "da93e4b168608a142a063bb6b29b30b9ee2f61e41242eeb79c2f9be095828041"
+        }
+      ],
+      "proposed_specs": [],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B18",
+      "title": "Isolamento, recursos e retenção do adapter",
+      "authoring_batch": 10,
+      "source_wave": "R3",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "D06",
+        "T3-06"
+      ],
+      "source_fronts": [
+        1,
+        3
+      ],
+      "source_acceptance": {
+        "D06": [
+          "Delimitar garantias e limites do adapter"
+        ],
+        "T3-06": [
+          "Adapter atende política explícita de isolamento",
+          "Valores inválidos não desligam limites silenciosamente",
+          "Streams, cleanup e retenção têm limites verificáveis por plataforma"
+        ]
+      },
+      "decisive_acceptance": "Worktree não é anunciada como sandbox; recursos/streams/descendentes/retention têm limites e qualificação por plataforma.",
+      "depends_on": [
+        "B07",
+        "B12"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "delegated-review",
+      "foundation_specs": [
+        {
+          "slug": "pose-delegated-review-dispatch",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-dispatch.md",
+          "status": "done",
+          "sha256": "23e0b661d3069908d0d098663b1a6ad83969fd7ea059fe9bfe2563a58e68bb1c"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-delegated-adapter-containment",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B19",
+      "title": "Conclusões governadas de review, adjudication e smoke",
+      "authoring_batch": 10,
+      "source_wave": "R3",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "T3-05",
+        "T3-07"
+      ],
+      "source_fronts": [
+        3
+      ],
+      "source_acceptance": {
+        "T3-05": [
+          "Output incompleto não produz efeito",
+          "Engine registra aprovação ou rejeição válida sem aplicação manual",
+          "Review, adjudication e smoke possuem destinos tipados e jornadas"
+        ],
+        "T3-07": [
+          "Inputs de smoke são vinculados ao snapshot",
+          "Notas não alteram permissões, critérios ou destino no engine",
+          "Evidência revela provenance e observações relevantes"
+        ]
+      },
+      "decisive_acceptance": "Conclusão completa validada vai ao destino tipado pelo engine; seeded defect rejeitado; notas não modificam authority/criteria.",
+      "depends_on": [
+        "B02",
+        "B16",
+        "B17",
+        "B18"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "delegated-review",
+      "foundation_specs": [
+        {
+          "slug": "pose-delegated-review-capability",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-capability.md",
+          "status": "draft",
+          "sha256": "eda319ef6ffc0c055e5a2c3771337d75f0d6adb69e67927b0c4e8d0c0f590920"
+        }
+      ],
+      "reused_specs": [
+        {
+          "slug": "pose-delegated-review-capability",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-capability.md",
+          "status": "draft",
+          "sha256": "eda319ef6ffc0c055e5a2c3771337d75f0d6adb69e67927b0c4e8d0c0f590920"
+        }
+      ],
+      "proposed_specs": [],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B20",
+      "title": "Fulfillment por runner local e remoto",
+      "authoring_batch": 11,
+      "source_wave": "R3",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "T3-08"
+      ],
+      "source_fronts": [
+        3
+      ],
+      "source_acceptance": {
+        "T3-08": [
+          "Request local/remoto usa mesma prova e correlação",
+          "Pessoa por política não é satisfeita por run de agente",
+          "Cota esgotada, conflito e negócio geram pergunta e opções"
+        ]
+      },
+      "decisive_acceptance": "Request satisfeita só por run válido correlacionado; local/CI/Harne8 têm mesmo contrato; pessoa apenas por policy/exceção.",
+      "depends_on": [
+        "B08",
+        "B09",
+        "B10",
+        "B19"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "delegated-review",
+      "foundation_specs": [
+        {
+          "slug": "pose-delegated-review-action-fulfillment",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-action-fulfillment.md",
+          "status": "draft",
+          "sha256": "09eb4979e531f71a44491c77395b4ea88f4a35d1e9ba5ed925d57338e01ade7e"
+        }
+      ],
+      "reused_specs": [
+        {
+          "slug": "pose-delegated-review-action-fulfillment",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-action-fulfillment.md",
+          "status": "draft",
+          "sha256": "09eb4979e531f71a44491c77395b4ea88f4a35d1e9ba5ed925d57338e01ade7e"
+        }
+      ],
+      "proposed_specs": [],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B21",
+      "title": "Adoção e eficácia da delegação completa",
+      "authoring_batch": 10,
+      "source_wave": "R3",
+      "priority_proposed": "P2",
+      "source_candidates": [
+        "T3-09",
+        "T3-10"
+      ],
+      "source_fronts": [
+        3
+      ],
+      "source_acceptance": {
+        "T3-09": [
+          "Opt-in requer adapter apto e preserva instâncias antigas",
+          "Jornada autônoma não espera aplicação manual",
+          "Métricas expõem tentativas, rejeições e escalations"
+        ],
+        "T3-10": [
+          "Drafts e roadmap seguem ADR aceito",
+          "Dependências refletem prova, capacidade e fulfillment",
+          "Cada kind atravessa jornada antes da entrega completa"
+        ]
+      },
+      "decisive_acceptance": "Opt-in delimitado e rollback; três kinds atravessam jornada; rejeição exige mudança; docs/drafts seguem ADR aceito.",
+      "depends_on": [
+        "B19",
+        "B20"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "delegated-review",
+      "foundation_specs": [
+        {
+          "slug": "pose-delegated-review-capability",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-capability.md",
+          "status": "draft",
+          "sha256": "eda319ef6ffc0c055e5a2c3771337d75f0d6adb69e67927b0c4e8d0c0f590920"
+        }
+      ],
+      "reused_specs": [
+        {
+          "slug": "pose-delegated-review-capability",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-capability.md",
+          "status": "draft",
+          "sha256": "eda319ef6ffc0c055e5a2c3771337d75f0d6adb69e67927b0c4e8d0c0f590920"
+        }
+      ],
+      "proposed_specs": [],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B22",
+      "title": "Cobertura material e IDs de residual/marker",
+      "authoring_batch": 8,
+      "source_wave": "R2",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "F05-02",
+        "F05-04"
+      ],
+      "source_fronts": [
+        5
+      ],
+      "source_acceptance": {
+        "F05-02": [
+          "P02 produz associação candidata, sem afirmar compromisso; dois markers no arquivo podem ter cobertura distinta; menção negativa e prefixo de path não cobrem por engano"
+        ],
+        "F05-04": [
+          "P03 distingue ocorrências; P07 preserva identidade rastreada; rewrap e reordenação não perdem vínculos; renomeação/migração declara aliases e limitações"
+        ]
+      },
+      "decisive_acceptance": "Menção a arquivo é associação candidata; ocorrências distintas têm IDs distintos e vínculos sobrevivem rewrap/reordenação.",
+      "depends_on": [
+        "B06"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "governance-efficiency",
+      "foundation_specs": [
+        {
+          "slug": "pose-debt-marker-lexical-precision",
+          "path": ".pose/specs/2026-08-03-pose-debt-marker-lexical-precision.md",
+          "status": "done",
+          "sha256": "281d17f36202a4d4179cceb4f0335c17f719bc0f5e0facd9dedc7a7383afca4d"
+        },
+        {
+          "slug": "pose-covered-followup-anchor-verification",
+          "path": ".pose/specs/2026-08-23-pose-covered-followup-anchor-verification.md",
+          "status": "done",
+          "sha256": "62a44df96f56feca52c748a76ca16678ea6eba74d7ff4a962883c3ebb083dc4e"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-residual-material-coverage-and-identity",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B23",
+      "title": "Metadata válida e destino de encaminhamento reconciliado",
+      "authoring_batch": 8,
+      "source_wave": "R4",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "F05-05",
+        "F05-06"
+      ],
+      "source_fronts": [
+        5
+      ],
+      "source_acceptance": {
+        "F05-05": [
+          "P05 rejeita calendário inválido; cobrir ano bissexto, campos duplicados e metadata incompleta; SLA não vira prazo de implementação"
+        ],
+        "F05-06": [
+          "P06 sinaliza destino abandonado/superseded/órfão; resolve sucessor e detecta ciclo; done exige adequação; nenhum caso aplica disposition automática"
+        ]
+      },
+      "decisive_acceptance": "Datas reais; destino abandoned/órfão/superseded/cíclico sinalizado; done não aplica disposition sem adequação.",
+      "depends_on": [
+        "B06",
+        "B22"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "governance-efficiency",
+      "foundation_specs": [
+        {
+          "slug": "pose-followup-ownership-sla",
+          "path": ".pose/specs/2026-07-18-pose-followup-ownership-sla.md",
+          "status": "done",
+          "sha256": "a168b9fa51fcab0fbf3bb703b4f5bb127d38ea68db44e0c59ef447e4ad0daea5"
+        },
+        {
+          "slug": "pose-followup-reconciliation-candidates",
+          "path": ".pose/specs/2026-10-04-pose-followup-reconciliation-candidates.md",
+          "status": "done",
+          "sha256": "66199af966ab8e4fbaad04ded64c7f057c5f3089ea694555b16c239572c5e4ec"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-followup-metadata-and-routing-integrity",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B24",
+      "title": "Natureza, compromisso e efeito do trabalho residual",
+      "authoring_batch": 11,
+      "source_wave": "R4",
+      "priority_proposed": "P2",
+      "source_candidates": [
+        "D07",
+        "F05-07"
+      ],
+      "source_fronts": [
+        1,
+        5
+      ],
+      "source_acceptance": {
+        "D07": [
+          "Taxonomia e reconciliação; não promover tudo a blocker"
+        ],
+        "F05-07": [
+          "Projetar dívida, defeito, incompletude, evidência e adoção sem mudar lifecycle; legacy fica não classificado; nenhum rótulo cria gate sozinho"
+        ]
+      },
+      "decisive_acceptance": "Dívida/defeito/incompletude/evidência/adoção/opcional distintos; legado não classificado; categoria não cria gate sozinha.",
+      "depends_on": [
+        "B22",
+        "B23"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "governance-efficiency",
+      "foundation_specs": [
+        {
+          "slug": "pose-obligation-contract",
+          "path": ".pose/specs/2026-10-04-pose-obligation-contract.md",
+          "status": "done",
+          "sha256": "deb3a219b49350dbb32ab8851f245f1f9be125a3f2b2614f0c3f939e417f6393"
+        },
+        {
+          "slug": "pose-followup-reconciliation-candidates",
+          "path": ".pose/specs/2026-10-04-pose-followup-reconciliation-candidates.md",
+          "status": "done",
+          "sha256": "66199af966ab8e4fbaad04ded64c7f057c5f3089ea694555b16c239572c5e4ec"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-residual-nature-commitment-and-effect",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B25",
+      "title": "Triagem revisável e risco aceito",
+      "authoring_batch": 12,
+      "source_wave": "R4",
+      "priority_proposed": "P2",
+      "source_candidates": [
+        "F05-08",
+        "F05-09"
+      ],
+      "source_fronts": [
+        5
+      ],
+      "source_acceptance": {
+        "F05-08": [
+          "Reconciliar os 108 por snapshot, diff e fonte; decisões com evidência/autoridade; detectar mudança concorrente e aplicação repetida; manter candidatos abertos"
+        ],
+        "F05-09": [
+          "Distinguir risco aceito de wont-do; preservar razão, policy, validade e sucessão; vencimento gera triagem; exceptions seguem ActionRequest existente"
+        ]
+      },
+      "decisive_acceptance": "108 itens reconciliados por diff/autoridade com razão e gatilho; preview/apply idempotentes sem disposition automática.",
+      "depends_on": [
+        "B01",
+        "B14",
+        "B24"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "governance-efficiency",
+      "foundation_specs": [
+        {
+          "slug": "pose-open-backlog-reconciliation",
+          "path": ".pose/specs/2026-10-04-pose-open-backlog-reconciliation.md",
+          "status": "done",
+          "sha256": "22f552f2cf6a9951a2d28140f41ad02cab98ec1d76aea87c04835f184d8c3e65"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-residual-triage-and-risk-acceptance",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B26",
+      "title": "Métricas de condição, resposta e trabalho",
+      "authoring_batch": 12,
+      "source_wave": "R4",
+      "priority_proposed": "P2",
+      "source_candidates": [
+        "T4-08",
+        "F05-10"
+      ],
+      "source_fronts": [
+        4,
+        5
+      ],
+      "source_acceptance": {
+        "T4-08": [
+          "Decline não encerra artificialmente duração da restrição",
+          "Reopening sem timestamp observado permanece unknown",
+          "União de intervalos e scopes permanece correta"
+        ],
+        "F05-10": [
+          "Separar markers, intenções, cobertura, encaminhamento e implementações devidas; mostrar limites das heurísticas de volume; medir idade desde fatos autoritativos, não mtime"
+        ]
+      },
+      "decisive_acceptance": "Decline não encerra restrição; intervalos não duplicados; desconhecido não vira zero ou timestamp fabricado.",
+      "depends_on": [
+        "B10",
+        "B24"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "governance-efficiency",
+      "foundation_specs": [
+        {
+          "slug": "pose-governance-wait-rework-observability",
+          "path": ".pose/specs/2026-10-04-pose-governance-wait-rework-observability.md",
+          "status": "done",
+          "sha256": "6091739f62f090ed0e390ed7ca3bac56673b17ced56ec4452f789acd7701c4c7"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-condition-response-and-work-metrics",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B27",
+      "title": "Próxima ação proporcional e autorização preservada",
+      "authoring_batch": 11,
+      "source_wave": "R4",
+      "priority_proposed": "P2",
+      "source_candidates": [
+        "T4-07",
+        "T4-09",
+        "T4-10",
+        "F07-07",
+        "F07-08"
+      ],
+      "source_fronts": [
+        4,
+        7
+      ],
+      "source_acceptance": {
+        "T4-07": [
+          "Query literal ou por capacidade tem semântica declarada",
+          "Review por agente não é rotulado como pessoa necessária",
+          "Pendência advisory não é apresentada como gate obrigatório"
+        ],
+        "T4-09": [
+          "Autorização suficiente é reutilizada no contexto",
+          "Handoff preserva request/digest/efeito/próximo passo",
+          "Dedup semântico não descarta condição automaticamente"
+        ],
+        "T4-10": [
+          "Decisão humana, review por agente, input e operação externa retomam fase correta",
+          "Negative outcome fica rastreável",
+          "Docs/release afirmam apenas jornada demonstrada"
+        ],
+        "F07-07": [
+          "Rotas para trivial/bug/contract/decision são condicionais; spec existente é reutilizada; handoff é criado quando necessário; manual closeout aparece como diagnóstico; review delegado segue frente 3"
+        ],
+        "F07-08": [
+          "Próxima ação revela fase, target, responsible actor e autorização existente; não pergunta novamente após replay/retomada sem mudança material; propostas de triagem podem ser revisadas em lote"
+        ]
+      },
+      "decisive_acceptance": "Holder/executor/pessoa/advisory distintos; autorização vigente reaproveitada; quatro kinds retomam a fase pertinente.",
+      "depends_on": [
+        "B08",
+        "B10",
+        "B12"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "governance-efficiency",
+      "foundation_specs": [
+        {
+          "slug": "pose-action-request-presentation",
+          "path": ".pose/specs/2026-10-04-pose-action-request-presentation.md",
+          "status": "done",
+          "sha256": "dd224804d45121db308a44ff79fdb8696aae87c83b46613b33202047cd6d198d"
+        },
+        {
+          "slug": "pose-progressive-spec-surface",
+          "path": ".pose/specs/2026-10-04-pose-progressive-spec-surface.md",
+          "status": "done",
+          "sha256": "f54bb3d0178cbc9e306ad3288375e06aef1acd20f92804b316bd9d8ac99cefcc"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-proportional-next-action",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B28",
+      "title": "Instruções distribuídas executáveis",
+      "authoring_batch": 6,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "D11",
+        "F07-06"
+      ],
+      "source_fronts": [
+        1,
+        7
+      ],
+      "source_acceptance": {
+        "D11": [
+          "Corrigir sem inferir que apply já existe"
+        ],
+        "F07-06": [
+          "Workflows EN/pt-BR/scaffold usam mesma freshness; teste cobre arquivos distribuídos; suggest normaliza aliases e revela regra ausente/extension-needed; não instala automaticamente"
+        ]
+      },
+      "decisive_acceptance": "Workflow/skill/scaffold/pt-BR usam freshness comum; suggest revela regra ausente; migrate explica apply não disponível sem prometer 7.0 futura.",
+      "depends_on": [],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-consolidation-program",
+      "foundation_specs": [
+        {
+          "slug": "pose-adaptive-assessment-freshness",
+          "path": ".pose/specs/2026-10-04-pose-adaptive-assessment-freshness.md",
+          "status": "done",
+          "sha256": "1210a79b8af059302102b3b066a2a9c556df5469907888d911179c1c64e38ca4"
+        },
+        {
+          "slug": "pose-v7-legacy-cleanup-plan",
+          "path": ".pose/specs/2026-10-04-pose-v7-legacy-cleanup-plan.md",
+          "status": "done",
+          "sha256": "aeb6557fe38df5aa0581d200986811d51159bb137e3b2954e0fab66f124a1143"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-distributed-instructions-parity",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B29",
+      "title": "Qualificar e reconciliar update dry-run",
+      "authoring_batch": 5,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "D10"
+      ],
+      "source_fronts": [
+        1
+      ],
+      "source_acceptance": {
+        "D10": [
+          "Examinar código e revisões antes de declarar resolvido"
+        ]
+      },
+      "decisive_acceptance": "Confrontar copy/real update, source discovery, symlink/permissão e trace; código presente não significa novo subsistema nem fechamento automático.",
+      "depends_on": [],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "governance-efficiency",
+      "foundation_specs": [
+        {
+          "slug": "pose-update-dry-run-reports-the-whole-update",
+          "path": ".pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.md",
+          "status": "in-progress",
+          "sha256": "e31eb8cf1586ee32196cbf1e0f63c77339fbff5ba85d1655cdbc371e77a568bd"
+        }
+      ],
+      "reused_specs": [
+        {
+          "slug": "pose-update-dry-run-reports-the-whole-update",
+          "path": ".pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.md",
+          "status": "in-progress",
+          "sha256": "e31eb8cf1586ee32196cbf1e0f63c77339fbff5ba85d1655cdbc371e77a568bd"
+        }
+      ],
+      "proposed_specs": [],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B30",
+      "title": "Facts vinculados à spec e freshness",
+      "authoring_batch": 4,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "F07-05"
+      ],
+      "source_fronts": [
+        7
+      ],
+      "source_acceptance": {
+        "F07-05": [
+          "P05 mostra check não vinculado como candidato/limite, não prova da spec; inclui binding e status do index; conteúdo semântico não é gerado; scoped checks adequados continuam reutilizáveis"
+        ]
+      },
+      "decisive_acceptance": "Check de outro módulo/digest é candidato não vinculado; facts não inventam conclusão semântica; reuso adequado preservado.",
+      "depends_on": [],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "governance-efficiency",
+      "foundation_specs": [
+        {
+          "slug": "pose-progressive-spec-surface",
+          "path": ".pose/specs/2026-10-04-pose-progressive-spec-surface.md",
+          "status": "done",
+          "sha256": "f54bb3d0178cbc9e306ad3288375e06aef1acd20f92804b316bd9d8ac99cefcc"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-spec-facts-evidence-binding",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B31",
+      "title": "API comum e handoff CLI/MCP",
+      "authoring_batch": 14,
+      "source_wave": "R5",
+      "priority_proposed": "P2",
+      "source_candidates": [
+        "F07-04",
+        "PERF-06"
+      ],
+      "source_fronts": [
+        7,
+        8
+      ],
+      "source_acceptance": {
+        "F07-04": [
+          "P04 explica compatibilidade de plan/context ou usa route comum; MCP oferece planejamento read-only ou handoff tipado explícito; P15 preserva paridade da leitura; writes mantêm assurance/authority"
+        ],
+        "PERF-06": [
+          "Paridade de resultados/erros e autorização; wrappers deixam de spawnar onde extraídos"
+        ]
+      },
+      "decisive_acceptance": "Mesmos resultados/erros/authority pelo domínio; wrappers deixam de spawnar onde extraídos; stdio de cliente não é IPC compartilhável.",
+      "depends_on": [
+        "B12",
+        "B14",
+        "B34"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-shared-runtime",
+      "foundation_specs": [
+        {
+          "slug": "pose-recoverable-closeout-plan",
+          "path": ".pose/specs/2026-10-04-pose-recoverable-closeout-plan.md",
+          "status": "done",
+          "sha256": "6cc28c3c651c3720afdd5cd26adf174cf051377eb025de0e92977eb07b50f283"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-common-domain-and-cli-mcp-handoff",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B32",
+      "title": "Algoritmos por operação e benchmark seguro",
+      "authoring_batch": 7,
+      "source_wave": "R2",
+      "priority_proposed": "P2",
+      "source_candidates": [
+        "D12",
+        "PERF-01",
+        "PERF-02",
+        "PERF-03",
+        "PERF-05"
+      ],
+      "source_fronts": [
+        1,
+        8
+      ],
+      "source_acceptance": {
+        "D12": [
+          "Medir em cópia descartável; registrar verdict e ambiente"
+        ],
+        "PERF-01": [
+          "Mesmo verdict/ordem/identidade em layouts e conflitos; leituras de catálogo limitadas à visão"
+        ],
+        "PERF-02": [
+          "Fixture e corpus fixos; tempo, CPU, RSS, leituras/parses/cópias, número Git e bytes"
+        ],
+        "PERF-03": [
+          "Mesmos candidatos exatos, ou aproximação explicitamente contratada; escala de entradas/texto"
+        ],
+        "PERF-05": [
+          "Histórico completo e refs alteradas mantêm claims/observed; limites/framing/falhas preservados"
+        ]
+      },
+      "decisive_acceptance": "Perfil por produtor; catálogo/bundle/Git reusados; clustering preserva semântica; benchmark isolado preserva verdict e arquivos locais.",
+      "depends_on": [],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-shared-runtime",
+      "foundation_specs": [
+        {
+          "slug": "pose-check-spawns-fewer-git-processes",
+          "path": ".pose/specs/2026-10-09-pose-check-spawns-fewer-git-processes.md",
+          "status": "done",
+          "sha256": "9da4821670142e20af5ab7af72ed20feb5134021f6289dfc10a7dddd6fb5a80c"
+        },
+        {
+          "slug": "pose-attention-within-a-second",
+          "path": ".pose/specs/2026-10-09-pose-attention-within-a-second.md",
+          "status": "done",
+          "sha256": "bc4c94abaa06df8be700e6791f1a08864209f3b3fcbf937be5a3668bfbb1332e"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-governance-operation-performance",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B33",
+      "title": "Vistas de grafo e caches limitados/isolados",
+      "authoring_batch": 14,
+      "source_wave": "R5",
+      "priority_proposed": "P2",
+      "source_candidates": [
+        "PERF-04",
+        "PERF-10",
+        "CONS-11"
+      ],
+      "source_fronts": [
+        8,
+        9
+      ],
+      "source_acceptance": {
+        "PERF-04": [
+          "Mesmo grafo/filtragem; mutação de consumidor não altera outro; alocações e RAM menores medidas"
+        ],
+        "PERF-10": [
+          "Alternância de projetos/gerações tem RAM limitada; apenas uma produção por chave concorrente"
+        ],
+        "CONS-11": [
+          "Mutation test e race detector; memória limitada por worktree; sem contaminação cruzada"
+        ]
+      },
+      "decisive_acceptance": "Mutation/race tests profundos; bytes e misses coordenadas limitados; sem cópia/expansão total desnecessária ou contaminação cruzada.",
+      "depends_on": [
+        "B15",
+        "B34"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-shared-runtime",
+      "foundation_specs": [
+        {
+          "slug": "pose-delivery-integrity-index-compaction",
+          "path": ".pose/specs/2026-10-02-pose-delivery-integrity-index-compaction.md",
+          "status": "done",
+          "sha256": "313e59185656b129a06da7cef346360a630b55ae219b203cbf17ed3b6bfd658c"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-bounded-isolated-graph-caches",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B34",
+      "title": "Read views, geração e invalidação de dependências",
+      "authoring_batch": 9,
+      "source_wave": "R2",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "D03",
+        "T4-06",
+        "PERF-09",
+        "CONS-10"
+      ],
+      "source_fronts": [
+        1,
+        4,
+        8,
+        9
+      ],
+      "source_acceptance": {
+        "D03": [
+          "Pré-condição para reutilização entre operações"
+        ],
+        "T4-06": [
+          "Mudança material de journal/subject muda identidade relevante",
+          "Descarte de item invalida completude no recorte",
+          "Interleaving gera retry ou incoerência explícita"
+        ],
+        "PERF-09": [
+          "Alteração mesmo mtime, rename, troca de branch, tests/matriz e perda de watcher não servem stale como atual"
+        ],
+        "CONS-10": [
+          "Alteração de qualquer input relevante é detectada; gates não aceitam mistura de gerações"
+        ]
+      },
+      "decisive_acceptance": "Answer/subject/policy/tests/index/refs relevantes mudam geração; watcher é hint; interleaving causa retry/unknown, não autorização stale.",
+      "depends_on": [
+        "B06",
+        "B07",
+        "B14",
+        "B15"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-state-consistency-and-recovery",
+      "foundation_specs": [
+        {
+          "slug": "pose-obligation-projection",
+          "path": ".pose/specs/2026-10-04-pose-obligation-projection.md",
+          "status": "done",
+          "sha256": "002381dc8ed9aa20c5e2d5ac54d9d9523d30705dcd0c0f4fab472e8dbd5332bf"
+        },
+        {
+          "slug": "pose-spec-authority-transfer",
+          "path": ".pose/specs/2026-09-21-pose-spec-authority-transfer.md",
+          "status": "done",
+          "sha256": "b4f87f2a91a4ca48acedb517a7603774354b916d0875002b10a93de3ec89d58f"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-governance-read-view-generation",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B35",
+      "title": "Runtime opcional por worktree e budgets de concorrência",
+      "authoring_batch": 14,
+      "source_wave": "R5",
+      "priority_proposed": "P2",
+      "source_candidates": [
+        "PERF-08",
+        "PERF-12"
+      ],
+      "source_fronts": [
+        8
+      ],
+      "source_acceptance": {
+        "PERF-08": [
+          "Attach compatível, CI fallback, atualização/restart, permissões e isolamento demonstrados"
+        ],
+        "PERF-12": [
+          "Quota CPU e jobs simultâneos não causam regressão de query; output determinístico e métricas por categoria"
+        ]
+      },
+      "decisive_acceptance": "Handshake engine/schema/root, start/stop/restart, fallback CI/standalone e QoS testados; RAM/CPU/latência medidos por cenário.",
+      "depends_on": [
+        "B07",
+        "B12",
+        "B14",
+        "B15",
+        "B31",
+        "B32",
+        "B33",
+        "B34"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-shared-runtime",
+      "foundation_specs": [
+        {
+          "slug": "pose-attention-within-a-second",
+          "path": ".pose/specs/2026-10-09-pose-attention-within-a-second.md",
+          "status": "done",
+          "sha256": "bc4c94abaa06df8be700e6791f1a08864209f3b3fcbf937be5a3668bfbb1332e"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-optional-worktree-runtime",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B36",
+      "title": "Cursor e consulta ligados à geração",
+      "authoring_batch": 9,
+      "source_wave": "R2",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "PERF-11"
+      ],
+      "source_fronts": [
+        8
+      ],
+      "source_acceptance": {
+        "PERF-11": [
+          "Mutação entre páginas provoca restart explícito ou snapshot; limit evita leitura total quando possível"
+        ]
+      },
+      "decisive_acceptance": "Mutação entre páginas retorna snapshot consistente ou cursor stale explícito; filtros/ordem vinculados; limit reduz trabalho quando indexável.",
+      "depends_on": [
+        "B34"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-state-consistency-and-recovery",
+      "foundation_specs": [
+        {
+          "slug": "pose-obligation-projection",
+          "path": ".pose/specs/2026-10-04-pose-obligation-projection.md",
+          "status": "done",
+          "sha256": "002381dc8ed9aa20c5e2d5ac54d9d9523d30705dcd0c0f4fab472e8dbd5332bf"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-generation-bound-query-cursors",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B37",
+      "title": "Suficiência compartilhada do cut e critérios tipados",
+      "authoring_batch": 12,
+      "source_wave": "R2",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "D08",
+        "F06-01",
+        "F06-02",
+        "F06-03"
+      ],
+      "source_fronts": [
+        1,
+        6
+      ],
+      "source_acceptance": {
+        "D08": [
+          "Investigar compromisso de escopo e blockers derivados"
+        ],
+        "F06-01": [
+          "P01 expõe blockers de spec/escopo selecionado antes de freeze; plan e apply avaliam o mesmo contrato; nenhum roadmap alheio cria bloqueio global"
+        ],
+        "F06-02": [
+          "P13 recusa delivery sem prova exigida; P14 recusa ou declara inválida ref sem evaluator; profile e provenance atuais governam; deferral continua não afirmando entrega"
+        ],
+        "F06-03": [
+          "P02 denuncia heading/intenção não reconhecida; template oferece sintaxe canônica; ausência intencional é distinta de parse incompleto; P03 distingue path existente de approval"
+        ]
+      },
+      "decisive_acceptance": "Plan/apply avaliam mesmo escopo; delivery sem evidência não passa; heading/ref não reconhecido é explicitado; path não é approval.",
+      "depends_on": [
+        "B01",
+        "B02",
+        "B08",
+        "B30"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-release-sufficiency-and-recovery",
+      "foundation_specs": [
+        {
+          "slug": "pose-release-lifecycle-closure",
+          "path": ".pose/specs/2026-08-02-pose-release-lifecycle-closure.md",
+          "status": "done",
+          "sha256": "437d6aa7a29aad18773b664a845858fe32e80d45781089b69ce2e2a70c3f3716"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-release-shared-sufficiency-contract",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B38",
+      "title": "Manifest íntegro e snapshot da tag",
+      "authoring_batch": 6,
+      "source_wave": "R1",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "F06-04",
+        "F06-06"
+      ],
+      "source_fronts": [
+        6
+      ],
+      "source_acceptance": {
+        "F06-04": [
+          "P04 recusa schema inválido e projeções divergentes; campo desconhecido/shapes/version/path têm diagnóstico; rebuild deve detectar cada alteração semanticamente relevante"
+        ],
+        "F06-06": [
+          "P06 recusa tag sem snapshot; conferir archive/notes/version source no tag; commits posteriores de evidência não staleiam cut correto; tag nunca é movida pelo checker"
+        ]
+      },
+      "decisive_acceptance": "Schema/projeções redundantes recompostos; manifest/archive/notes/version source no tree da tag; história legítima não é invalidada por próximo ciclo.",
+      "depends_on": [],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-release-sufficiency-and-recovery",
+      "foundation_specs": [
+        {
+          "slug": "pose-release-lifecycle-closure",
+          "path": ".pose/specs/2026-08-02-pose-release-lifecycle-closure.md",
+          "status": "done",
+          "sha256": "437d6aa7a29aad18773b664a845858fe32e80d45781089b69ce2e2a70c3f3716"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-release-manifest-tag-integrity",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B39",
+      "title": "Replay temporal da evidência de publicação",
+      "authoring_batch": 13,
+      "source_wave": "R2",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "F06-05",
+        "F06-09",
+        "F06-10"
+      ],
+      "source_fronts": [
+        6
+      ],
+      "source_acceptance": {
+        "F06-05": [
+          "P07–P09 não produzem verified total; recomputar hashes; identidade respeita papéis publisher/verifier; cobertura parcial explícita; open-next usa resultado validado"
+        ],
+        "F06-09": [
+          "P05 diferencia candidato stale de história íntegra; prospectividade e migration preview; knobs de policy têm status de suporte; retries/conflitos conservam lineage e invalidam prova superseded"
+        ],
+        "F06-10": [
+          "Resultado nomeia publisher/verifier/run, matriz de assets/plataformas/canais e limitações; CLI/script distinguem snapshot válido, publicação e verificação; import factual não é bloqueado por autorização retrospectiva"
+        ]
+      },
+      "decisive_acceptance": "Hashes/identidade/assets/coverage revalidados; candidate stale distinto de história íntegra; open-next só consome resultado validado.",
+      "depends_on": [
+        "B04",
+        "B38"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-release-sufficiency-and-recovery",
+      "foundation_specs": [
+        {
+          "slug": "pose-release-lifecycle-closure",
+          "path": ".pose/specs/2026-08-02-pose-release-lifecycle-closure.md",
+          "status": "done",
+          "sha256": "437d6aa7a29aad18773b664a845858fe32e80d45781089b69ce2e2a70c3f3716"
+        },
+        {
+          "slug": "pose-reproducible-release-verification",
+          "path": ".pose/specs/2026-07-18-pose-reproducible-release-verification.md",
+          "status": "done",
+          "sha256": "64c98599db49c9b11802b5215ff3405755ffaca954357f8ef9782c2b2fbdefb5"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-release-publication-evidence-replay",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B40",
+      "title": "Seleção de escopo e exclusividade antes do freeze",
+      "authoring_batch": 13,
+      "source_wave": "R4",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "F06-07",
+        "F06-08"
+      ],
+      "source_fronts": [
+        6
+      ],
+      "source_acceptance": {
+        "F06-07": [
+          "P10 é recusado no plan/apply, sem mover fila; compartilhar descoberta com check global; leitura incompleta não vira ausência de assignment"
+        ],
+        "F06-08": [
+          "P11 admite selecionar subconjunto coerente; manifest inclui scope/refs/digests; exclusões e adiamentos têm significado distinto; requisição/policy decide exceções"
+        ]
+      },
+      "decisive_acceptance": "Subconjunto coerente explícito; dupla assignment recusada antes de mover fila; exclusão/adiamento/outcome têm significado próprio.",
+      "depends_on": [
+        "B23",
+        "B24",
+        "B37",
+        "B38",
+        "B39",
+        "B41"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-release-sufficiency-and-recovery",
+      "foundation_specs": [
+        {
+          "slug": "pose-release-lifecycle-closure",
+          "path": ".pose/specs/2026-08-02-pose-release-lifecycle-closure.md",
+          "status": "done",
+          "sha256": "437d6aa7a29aad18773b664a845858fe32e80d45781089b69ce2e2a70c3f3716"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-release-scope-selection-and-exclusivity",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B41",
+      "title": "Prepare/record de release com recovery",
+      "authoring_batch": 13,
+      "source_wave": "R2",
+      "priority_proposed": "P1",
+      "source_candidates": [
+        "CONS-08"
+      ],
+      "source_fronts": [
+        9
+      ],
+      "source_acceptance": {
+        "CONS-08": [
+          "Crash/concorrência por fase preservam inventário; retry evento não duplica nem viola transição"
+        ]
+      },
+      "decisive_acceptance": "Fases/inventário persistidos; retry evento não duplica; compensação falha preserva material; não fabricar manifest por backfill.",
+      "depends_on": [
+        "B12",
+        "B13",
+        "B14",
+        "B38"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-release-sufficiency-and-recovery",
+      "foundation_specs": [
+        {
+          "slug": "pose-release-lifecycle-closure",
+          "path": ".pose/specs/2026-08-02-pose-release-lifecycle-closure.md",
+          "status": "done",
+          "sha256": "437d6aa7a29aad18773b664a845858fe32e80d45781089b69ce2e2a70c3f3716"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-release-prepare-record-recovery",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B42",
+      "title": "Piloto integrado de UX e contratos adversariais",
+      "authoring_batch": 15,
+      "source_wave": "R4",
+      "priority_proposed": "P2",
+      "source_candidates": [
+        "F07-10"
+      ],
+      "source_fronts": [
+        7
+      ],
+      "source_acceptance": {
+        "F07-10": [
+          "Executar os oito percursos acima com pessoa/agente separados; medir corpus fixo; critérios de stop/go e rollback explícitos; regressões incluem instruções e output de erro, não só casos felizes"
+        ]
+      },
+      "decisive_acceptance": "Oito percursos pessoa/agente com baseline/stop-go/rollback; medir trabalho útil/reuso; presença de campo não equivale a eficácia.",
+      "depends_on": [
+        "B21",
+        "B25",
+        "B26",
+        "B27",
+        "B37",
+        "B40"
+      ],
+      "final_qualification_after": [
+        "B31",
+        "B33",
+        "B35"
+      ],
+      "responsible_roadmap_planned": "governance-efficiency",
+      "foundation_specs": [
+        {
+          "slug": "pose-agency-readiness-pilot",
+          "path": ".pose/specs/2026-10-04-pose-agency-readiness-pilot.md",
+          "status": "done",
+          "sha256": "4a06b8af19f9f93de43b60af204a3e00887999b757db8faa43e6ed1a91f20f9f"
+        },
+        {
+          "slug": "pose-mechanization-adversarial-corpus",
+          "path": ".pose/specs/2026-10-04-pose-mechanization-adversarial-corpus.md",
+          "status": "done",
+          "sha256": "8fa8d9b898abf1feac51bcd558d72b988ec042ce997ea00666c82980b1b47ec6"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-integrated-agency-and-runtime-pilot",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B43",
+      "title": "Migração breaking somente após benefício e prova",
+      "authoring_batch": 16,
+      "source_wave": "R6",
+      "priority_proposed": "P3",
+      "source_candidates": [],
+      "source_fronts": [
+        10
+      ],
+      "source_acceptance": {},
+      "decisive_acceptance": "Inventário atual por campo; dry-run sem write; apply com guard/recovery; significado/assinatura de história preservados; major não é reforma geral.",
+      "depends_on": [
+        "B14",
+        "B34"
+      ],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "epistemic-lifecycle",
+      "foundation_specs": [
+        {
+          "slug": "pose-v7-legacy-cleanup-plan",
+          "path": ".pose/specs/2026-10-04-pose-v7-legacy-cleanup-plan.md",
+          "status": "done",
+          "sha256": "aeb6557fe38df5aa0581d200986811d51159bb137e3b2954e0fab66f124a1143"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-legacy-migration-apply-with-recovery",
+          "materialized": false,
+          "conditional": true
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    },
+    {
+      "id": "B44",
+      "title": "Reconciliar narrativa documental e promessas de releases",
+      "authoring_batch": 6,
+      "source_wave": "R1",
+      "priority_proposed": "P2",
+      "source_candidates": [],
+      "source_fronts": [
+        10
+      ],
+      "source_acceptance": {},
+      "decisive_acceptance": "História 6.x/7.0 preservada como contexto; relatório atual distingue entregue/adoção/eficácia; drafts não reabrem ADR aceito nem anunciam capability ausente.",
+      "depends_on": [],
+      "final_qualification_after": [],
+      "responsible_roadmap_planned": "pose-consolidation-program",
+      "foundation_specs": [
+        {
+          "slug": "pose-delegated-review-contract",
+          "path": ".pose/specs/2026-10-09-pose-delegated-review-contract.md",
+          "status": "done",
+          "sha256": "94944cb095bc80ce2dae64c7cc18d3cf3785c53a29382d1aad153df179259cfd"
+        },
+        {
+          "slug": "pose-v7-legacy-cleanup-plan",
+          "path": ".pose/specs/2026-10-04-pose-v7-legacy-cleanup-plan.md",
+          "status": "done",
+          "sha256": "aeb6557fe38df5aa0581d200986811d51159bb137e3b2954e0fab66f124a1143"
+        }
+      ],
+      "reused_specs": [],
+      "proposed_specs": [
+        {
+          "planned_slug": "pose-planning-and-release-narrative-reconciliation",
+          "materialized": false,
+          "conditional": false
+        }
+      ],
+      "implementation_observations": [],
+      "delivery_complete": false
+    }
+  ],
+  "batches": [
+    {
+      "id": 0,
+      "title": "Organização",
+      "units": [
+        "B01"
+      ],
+      "spec_slugs": [
+        "pose-action-answers-reverify-on-read",
+        "pose-review-disclosure-requires-proof",
+        "pose-consolidation-program-bootstrap"
+      ],
+      "status": "in-progress",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
+      "artifacts": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-10-13-pose-consolidation-program-bootstrap.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-consolidation-program-bootstrap.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-consolidation-program-bootstrap.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/roadmaps/pose-consolidation-program.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/pose-implementation-plan.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/2026-10-13-pose-plan-reconciliation.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/reports/2026-10-11-pose-analysis-index.md"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "title": "Confiança e aprovação",
+      "units": [
+        "B04",
+        "B02",
+        "B05"
+      ],
+      "spec_slugs": [
+        "pose-historical-trust-and-review-reuse",
+        "pose-policy-scope-validation",
+        "pose-review-approval-domain-preflight"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 2,
+      "title": "Prova, cobertura e Git",
+      "units": [
+        "B03",
+        "B06",
+        "B07"
+      ],
+      "spec_slugs": [
+        "pose-git-and-dispatch-snapshot-integrity",
+        "pose-proof-presence-channel-parity",
+        "pose-source-coverage-integrity"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 3,
+      "title": "Requests corretas",
+      "units": [
+        "B08",
+        "B09",
+        "B10"
+      ],
+      "spec_slugs": [
+        "pose-action-request-recovery-and-preflight",
+        "pose-action-target-and-node-scoping",
+        "pose-action-waiver-and-supersession-authority"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 4,
+      "title": "Resultados e recuperação",
+      "units": [
+        "B12",
+        "B13",
+        "B30"
+      ],
+      "spec_slugs": [
+        "pose-cli-mcp-operation-results",
+        "pose-journal-checkpoint-and-lock-recovery",
+        "pose-spec-facts-evidence-binding"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 5,
+      "title": "Fechamento e qualificação",
+      "units": [
+        "B11",
+        "B29"
+      ],
+      "spec_slugs": [
+        "pose-amendment-history-holds-before-close",
+        "pose-closeout-terminal-verification",
+        "pose-update-dry-run-reports-the-whole-update"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 6,
+      "title": "Instruções e integridade documental",
+      "units": [
+        "B28",
+        "B44",
+        "B38"
+      ],
+      "spec_slugs": [
+        "pose-distributed-instructions-parity",
+        "pose-planning-and-release-narrative-reconciliation",
+        "pose-release-manifest-tag-integrity"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 7,
+      "title": "Escrita e geração",
+      "units": [
+        "B14",
+        "B15",
+        "B32"
+      ],
+      "spec_slugs": [
+        "pose-governance-operation-performance",
+        "pose-index-generation-integrity",
+        "pose-writer-coordination-and-atomic-publication"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 8,
+      "title": "Ledger e residual íntegro",
+      "units": [
+        "B16",
+        "B22",
+        "B23"
+      ],
+      "spec_slugs": [
+        "pose-delegated-review-attempt-ledger",
+        "pose-followup-metadata-and-routing-integrity",
+        "pose-residual-material-coverage-and-identity"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 9,
+      "title": "Leitura coerente",
+      "units": [
+        "B34",
+        "B36"
+      ],
+      "spec_slugs": [
+        "pose-generation-bound-query-cursors",
+        "pose-governance-read-view-generation"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 2,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 10,
+      "title": "Delegação confiável",
+      "units": [
+        "B17",
+        "B18",
+        "B19",
+        "B21"
+      ],
+      "spec_slugs": [
+        "pose-delegated-adapter-containment",
+        "pose-delegated-review-capability",
+        "pose-delegated-review-run-provenance"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 11,
+      "title": "Fulfillment e proporcionalidade",
+      "units": [
+        "B20",
+        "B27",
+        "B24"
+      ],
+      "spec_slugs": [
+        "pose-delegated-review-action-fulfillment",
+        "pose-proportional-next-action",
+        "pose-residual-nature-commitment-and-effect"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 12,
+      "title": "Triagem, métricas e suficiência",
+      "units": [
+        "B25",
+        "B26",
+        "B37"
+      ],
+      "spec_slugs": [
+        "pose-condition-response-and-work-metrics",
+        "pose-release-shared-sufficiency-contract",
+        "pose-residual-triage-and-risk-acceptance"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 13,
+      "title": "Release recuperável",
+      "units": [
+        "B39",
+        "B41",
+        "B40"
+      ],
+      "spec_slugs": [
+        "pose-release-prepare-record-recovery",
+        "pose-release-publication-evidence-replay",
+        "pose-release-scope-selection-and-exclusivity"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 14,
+      "title": "Domínio e runtime",
+      "units": [
+        "B31",
+        "B33",
+        "B35"
+      ],
+      "spec_slugs": [
+        "pose-bounded-isolated-graph-caches",
+        "pose-common-domain-and-cli-mcp-handoff",
+        "pose-optional-worktree-runtime"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 3,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 15,
+      "title": "Qualificação integrada",
+      "units": [
+        "B42"
+      ],
+      "spec_slugs": [
+        "pose-integrated-agency-and-runtime-pilot"
+      ],
+      "status": "draft",
+      "conditional": false,
+      "unique_substantive_specs": 1,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    },
+    {
+      "id": 16,
+      "title": "Migração condicionada",
+      "units": [
+        "B43"
+      ],
+      "spec_slugs": [
+        "pose-legacy-migration-apply-with-recovery"
+      ],
+      "status": "draft",
+      "conditional": true,
+      "unique_substantive_specs": 1,
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+    }
+  ],
+  "roadmap_plan": [
+    {
+      "slug": "record-truthfulness",
+      "path": ".pose/roadmaps/record-truthfulness.md",
+      "planned_path": ".pose/roadmaps/record-truthfulness.md",
+      "materialized": true,
+      "action": "continue-and-reconcile",
+      "units_owned": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05"
+      ],
+      "bootstrap_only": false
+    },
+    {
+      "slug": "agency-readiness",
+      "path": ".pose/roadmaps/agency-readiness.md",
+      "planned_path": ".pose/roadmaps/agency-readiness.md",
+      "materialized": true,
+      "action": "continue-and-reconcile",
+      "units_owned": [
+        "B06",
+        "B08",
+        "B09",
+        "B10"
+      ],
+      "bootstrap_only": false
+    },
+    {
+      "slug": "governance-efficiency",
+      "path": ".pose/roadmaps/governance-efficiency.md",
+      "planned_path": ".pose/roadmaps/governance-efficiency.md",
+      "materialized": true,
+      "action": "continue-and-reconcile",
+      "units_owned": [
+        "B11",
+        "B22",
+        "B23",
+        "B24",
+        "B25",
+        "B26",
+        "B27",
+        "B29",
+        "B30",
+        "B42"
+      ],
+      "bootstrap_only": false
+    },
+    {
+      "slug": "delegated-review",
+      "path": ".pose/roadmaps/delegated-review.md",
+      "planned_path": ".pose/roadmaps/delegated-review.md",
+      "materialized": true,
+      "action": "continue-and-reconcile",
+      "units_owned": [
+        "B16",
+        "B17",
+        "B18",
+        "B19",
+        "B20",
+        "B21"
+      ],
+      "bootstrap_only": false
+    },
+    {
+      "slug": "pose-state-consistency-and-recovery",
+      "path": null,
+      "planned_path": ".pose/roadmaps/pose-state-consistency-and-recovery.md",
+      "materialized": false,
+      "action": "create",
+      "units_owned": [
+        "B07",
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B34",
+        "B36"
+      ],
+      "bootstrap_only": false
+    },
+    {
+      "slug": "pose-release-sufficiency-and-recovery",
+      "path": null,
+      "planned_path": ".pose/roadmaps/pose-release-sufficiency-and-recovery.md",
+      "materialized": false,
+      "action": "create",
+      "units_owned": [
+        "B37",
+        "B38",
+        "B39",
+        "B40",
+        "B41"
+      ],
+      "bootstrap_only": false
+    },
+    {
+      "slug": "pose-shared-runtime",
+      "path": null,
+      "planned_path": ".pose/roadmaps/pose-shared-runtime.md",
+      "materialized": false,
+      "action": "create",
+      "units_owned": [
+        "B31",
+        "B32",
+        "B33",
+        "B35"
+      ],
+      "bootstrap_only": false
+    },
+    {
+      "slug": "epistemic-lifecycle",
+      "path": ".pose/roadmaps/epistemic-lifecycle.md",
+      "planned_path": ".pose/roadmaps/epistemic-lifecycle.md",
+      "materialized": true,
+      "action": "continue-and-reconcile",
+      "units_owned": [
+        "B43"
+      ],
+      "bootstrap_only": false
+    },
+    {
+      "slug": "pose-consolidation-program",
+      "path": ".pose/roadmaps/pose-consolidation-program.md",
+      "planned_path": ".pose/roadmaps/pose-consolidation-program.md",
+      "materialized": true,
+      "action": "create",
+      "units_owned": [
+        "B28",
+        "B44"
+      ],
+      "bootstrap_only": true
+    },
+    {
+      "slug": "pose-v7-onboarding-and-consolidation",
+      "path": ".pose/roadmaps/pose-v7-onboarding-and-consolidation.md",
+      "materialized": true,
+      "action": "historical-reconciliation",
+      "units_owned": []
+    }
+  ],
+  "technical_execution_layers": [
+    [
+      "B04",
+      "B05",
+      "B06",
+      "B07",
+      "B08",
+      "B12",
+      "B28",
+      "B29",
+      "B30",
+      "B32",
+      "B38",
+      "B44"
+    ],
+    [
+      "B01",
+      "B11",
+      "B13",
+      "B18",
+      "B22",
+      "B39"
+    ],
+    [
+      "B02",
+      "B03",
+      "B09",
+      "B14",
+      "B23"
+    ],
+    [
+      "B10",
+      "B15",
+      "B16",
+      "B24",
+      "B37",
+      "B41"
+    ],
+    [
+      "B17",
+      "B25",
+      "B26",
+      "B27",
+      "B34",
+      "B40"
+    ],
+    [
+      "B19",
+      "B31",
+      "B33",
+      "B36",
+      "B43"
+    ],
+    [
+      "B20",
+      "B35"
+    ],
+    [
+      "B21"
+    ],
+    [
+      "B42"
+    ]
+  ],
+  "final_qualification_layers": [
+    [
+      "B04",
+      "B05",
+      "B06",
+      "B07",
+      "B08",
+      "B12",
+      "B28",
+      "B29",
+      "B30",
+      "B32",
+      "B38",
+      "B44"
+    ],
+    [
+      "B01",
+      "B11",
+      "B13",
+      "B18",
+      "B22",
+      "B39"
+    ],
+    [
+      "B02",
+      "B03",
+      "B09",
+      "B14",
+      "B23"
+    ],
+    [
+      "B10",
+      "B15",
+      "B16",
+      "B24",
+      "B37",
+      "B41"
+    ],
+    [
+      "B17",
+      "B25",
+      "B26",
+      "B27",
+      "B34",
+      "B40"
+    ],
+    [
+      "B19",
+      "B31",
+      "B33",
+      "B36",
+      "B43"
+    ],
+    [
+      "B20",
+      "B35"
+    ],
+    [
+      "B21"
+    ],
+    [
+      "B42"
+    ]
+  ],
+  "execution_policy": {
+    "authoring_order_is_not_execution_order": true,
+    "technical_dependencies_preserved": true,
+    "implementation_requires_separate_scope_authorization": true,
+    "preferred_initial_chain": [
+      "B04",
+      "B01",
+      "B02"
+    ],
+    "preferred_initial_chain_meaning": "Completar tempo/proveniência, qualificar as correções existentes, depois corrigir preflight. Outras raízes elegíveis não dependem artificialmente da cadeia inteira.",
+    "native_refs_added_only_after_materialization": true,
+    "one_executable_owner_per_spec": true,
+    "final_pilot_includes_optional_runtime_after_its_delivery": true
+  },
+  "merged_pull_requests": [
+    {
+      "number": 157,
+      "merged": true,
+      "merged_at": "2026-10-13T04:13:32Z",
+      "merge_commit_sha": "e351fcaf794fe0ff9d590be1ff074e9999f51699",
+      "head_sha": "1fa999c3cb4a3648cd791937918c56e808eab18b",
+      "url": "https://github.com/oseiaspereira88/pose/pull/157"
+    },
+    {
+      "number": 158,
+      "merged": true,
+      "merged_at": "2026-10-13T04:44:17Z",
+      "merge_commit_sha": "1e3c61c480379dd2d57b7cbcbb77bcae30bdd5ac",
+      "head_sha": "93bbd53057c218f3529d8eaa50d6b515fbb0ef9a",
+      "url": "https://github.com/oseiaspereira88/pose/pull/158"
+    }
+  ],
+  "ci_evidence": [
+    {
+      "pr": 157,
+      "tested_head": "1fa999c3cb4a3648cd791937918c56e808eab18b",
+      "ci_run": 38331691527,
+      "security_run": 38331691413,
+      "conclusion": "success"
+    },
+    {
+      "pr": 158,
+      "tested_head": "93bbd53057c218f3529d8eaa50d6b515fbb0ef9a",
+      "ci_run": 38346483120,
+      "security_run": 38346483119,
+      "conclusion": "success"
+    }
+  ],
+  "adr_candidates": [
+    {
+      "batch": 7,
+      "topic": "Persistência, CAS, publicação e gerações",
+      "condition": "Criar apenas se a decisão estrutural não estiver coberta por ADR existente."
+    },
+    {
+      "batch": 11,
+      "topic": "Natureza, compromisso e efeito do residual",
+      "condition": "Reutilizar o ADR de obligations; registrar somente a extensão de contrato necessária."
+    },
+    {
+      "batch": 12,
+      "topic": "Suficiência e evidência temporal de releases",
+      "condition": "Registrar decisões de contrato novo, preservando os ADRs de release existentes."
+    },
+    {
+      "batch": 14,
+      "topic": "Domínio compartilhado, IPC e runtime opcional",
+      "condition": "Reconciliar desenho e limites antes de iniciar as implementações."
+    }
+  ],
+  "closure_policy": {
+    "bootstrap_qualifies_planning_only": true,
+    "materialize_remaining_milestones_before_program_close": true,
+    "require_unit_acceptance_and_current_evidence": true,
+    "require_independent_review_and_native_closeout": true,
+    "require_bounded_adoption_and_pilot_where_applicable": true,
+    "conditional_B43_never_counted_as_implemented_when_deferred": true,
+    "do_not_adopt_policy_or_prepare_release_from_this_plan": true
+  },
+  "limits": [
+    "Sem novas implementações do motor neste lote.",
+    "Sem datas, releases, adoção ou donos individuais fabricados.",
+    "Os 108 follow-ups são inventário histórico; atualizar antes da triagem, sem somá-los aos 96 candidatos.",
+    "Lote 0 materializa apenas o coordenador e a sua spec documental; os demais artefatos permanecem planejados.",
+    "As camadas são elegibilidade técnica, não estimativas de duração ou autorização de execução."
+  ],
+  "bootstrap_spec": "pose-consolidation-program-bootstrap",
+  "counts_scope": "Contar somente as specs de implementação; a spec documental de bootstrap é adicional."
+}
