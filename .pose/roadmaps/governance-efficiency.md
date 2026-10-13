@@ -106,6 +106,35 @@ discovery, symlinks/permissões, e reconcilia trace/evidência antes do closeout
 Código presente e trace histórico satisfeito não encerram o gap residual.
 B29 é independente de B11; a escrita não executa update desta instância.
 
+
+## Continuação prospectiva — lote 8
+
+Consultar o [lote 8](../reports/2026-10-13-pose-batch-8-authoring.md).
+B22/B23 estendem mecanismos existentes após B06; não alteram taxonomia,
+compromissos ou dispositions das unidades ainda planejadas B24–B27/B42.
+
+## Milestone: residual-material-identity
+- after: spec:pose-source-coverage-integrity, spec:pose-debt-marker-lexical-precision, spec:pose-covered-followup-anchor-verification
+- target_start:
+- target_due:
+- specs: pose-residual-material-coverage-and-identity
+
+**Exit gate:** B22 trata menção a arquivo como associação candidata; compromisso
+material e ocorrência delimitam cobertura. Ocorrências idênticas têm IDs distintos;
+identidade rastreada sobrevive a rewrap/reordenação/inserção, e rename/migração
+declara aliases/limites sem retarget automático. Qualificar P02/P03/P07 e paridade.
+
+## Milestone: followup-metadata-routing
+- after: residual-material-identity, spec:pose-source-coverage-integrity, spec:pose-followup-ownership-sla, spec:pose-followup-reconciliation-candidates
+- target_start:
+- target_due:
+- specs: pose-followup-metadata-and-routing-integrity
+
+**Exit gate:** B23 valida calendário, duplicação e metadata incompleta; SLA permanece
+triagem. Destino abandoned/órfão/superseded/cíclico tem diagnóstico, resolução limitada
+e adequação explícita; done isolado não resolve intenção. Qualificar P05/P06, sem
+aplicar disposition automaticamente ou certificar complete após perdas de leitura.
+
 ## Risk controls
 
 - No aggregate efficiency or quality score; dimensions only.

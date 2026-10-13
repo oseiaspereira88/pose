@@ -10,9 +10,9 @@
     "sha256": "f138929bdb835291c6cbae165d7b5776c3cd538155038fb523390378c11f9dd1"
   },
   "authorization": {
-    "scope": "Escrever somente lote 7 após merge de #165: B14/B15/B32 e roadmap de runtime no recorte B32; sem execução funcional.",
-    "current_authoring_batch": 7,
-    "next_authoring_batch": 8,
+    "scope": "Escrever somente lote 8 após merge de #166: continuidade de B16 na spec existente e novos deltas B22/B23; sem execução funcional.",
+    "current_authoring_batch": 8,
+    "next_authoring_batch": 9,
     "future_batch_implementation_authorized": false
   },
   "counts": {
@@ -22,8 +22,8 @@
     "new_specs": 36,
     "conditional_new_specs": 1,
     "unique_reused_specs": 8,
-    "materialized_implementation_specs": 19,
-    "unmaterialized_implementation_specs": 18
+    "materialized_implementation_specs": 21,
+    "unmaterialized_implementation_specs": 16
   },
   "candidate_ownership": {
     "T2-01": "B01",
@@ -1437,8 +1437,56 @@
         }
       ],
       "proposed_specs": [],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Lote 8 formaliza continuidade de B16 sem alterar bytes/R1–R4/status. Extensões E1–E8 de cota/reserva/idempotência/integridade exigem reconciliação prospectiva no mesmo contrato antes de start. Nenhuma execução ou closeout.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "reuse_plan_formalized": true,
+      "reuse_continuation_plan_path": ".pose/reports/2026-10-13-pose-batch-8-authoring.md",
+      "reused_spec_requirement_coverage": {
+        "pose-delegated-review-attempt-ledger": {
+          "T3-03": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        }
+      },
+      "reuse_extension_acceptance_coverage": {
+        "D05": [
+          "E1",
+          "E2",
+          "E3",
+          "E4",
+          "E5",
+          "E6",
+          "E7",
+          "E8"
+        ],
+        "T3-01": [
+          "E1",
+          "E2",
+          "E3",
+          "E4",
+          "E5",
+          "E8"
+        ],
+        "T3-03": [
+          "E3",
+          "E6",
+          "E7",
+          "E8"
+        ]
+      },
+      "reuse_extension_contract_status": "prospective-before-start; E-IDs belong to the report, not the current spec requirement trace",
+      "native_spec_dependencies_before_start": [
+        "pose-delegated-review-dispatch",
+        "pose-source-coverage-integrity",
+        "pose-writer-coordination-and-atomic-publication"
+      ]
     },
     {
       "id": "B17",
@@ -1741,12 +1789,40 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-residual-material-coverage-and-identity",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-residual-material-coverage-and-identity.md",
+          "status": "draft",
+          "sha256": "5f935d6f203b9aaf56cd7705674466687bb448559185936727c2a8933733683b"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec materializada em draft no lote documental 8; nenhum requisito funcional implementado nesta interação.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-source-coverage-integrity",
+        "pose-debt-marker-lexical-precision",
+        "pose-covered-followup-anchor-verification"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "F05-02": [
+          "R1",
+          "R2",
+          "R8"
+        ],
+        "F05-04": [
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8"
+        ]
+      }
     },
     {
       "id": "B23",
@@ -1794,12 +1870,42 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-followup-metadata-and-routing-integrity",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-followup-metadata-and-routing-integrity.md",
+          "status": "draft",
+          "sha256": "1c87c559794635d4179f7c48531950cbbc02403827c2457d9b96d065bc3b5107"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec materializada em draft no lote documental 8; nenhum requisito funcional implementado nesta interação.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-source-coverage-integrity",
+        "pose-residual-material-coverage-and-identity",
+        "pose-followup-ownership-sla",
+        "pose-followup-reconciliation-candidates"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "F05-05": [
+          "R1",
+          "R2",
+          "R3",
+          "R7",
+          "R8"
+        ],
+        "F05-06": [
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8"
+        ]
+      }
     },
     {
       "id": "B24",
@@ -3216,7 +3322,10 @@
       "unique_substantive_specs": 3,
       "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
       "authoring_spec": "pose-consolidation-batch-7-authoring",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-7-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-7-authoring.md",
+      "authoring_merged": true,
+      "merged_pr": 166,
+      "native_closeout_pending": true
     },
     {
       "id": 8,
@@ -3231,10 +3340,12 @@
         "pose-followup-metadata-and-routing-integrity",
         "pose-residual-material-coverage-and-identity"
       ],
-      "status": "draft",
+      "status": "in-progress",
       "conditional": false,
       "unique_substantive_specs": 3,
-      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
+      "authoring_spec": "pose-consolidation-batch-8-authoring",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-8-authoring.md"
     },
     {
       "id": 9,
@@ -3438,7 +3549,9 @@
         "spec-facts-binding",
         "amendment-history-preclose",
         "terminal-closeout-verification",
-        "update-dry-run-qualification"
+        "update-dry-run-qualification",
+        "residual-material-identity",
+        "followup-metadata-routing"
       ]
     },
     {
@@ -3455,7 +3568,15 @@
         "B20",
         "B21"
       ],
-      "bootstrap_only": false
+      "bootstrap_only": false,
+      "materialized_milestones": [
+        "contract",
+        "brief",
+        "dispatch",
+        "trust",
+        "adoption",
+        "attempt-ledger"
+      ]
     },
     {
       "slug": "pose-state-consistency-and-recovery",
@@ -3563,7 +3684,10 @@
         "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/manifest-tag-integrity",
         "xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/writer-publication",
         "xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/index-generation",
-        "xref:proj.pose-dist/milestone:pose-shared-runtime/operation-performance"
+        "xref:proj.pose-dist/milestone:pose-shared-runtime/operation-performance",
+        "xref:proj.pose-dist/milestone:delegated-review/attempt-ledger",
+        "xref:proj.pose-dist/milestone:governance-efficiency/residual-material-identity",
+        "xref:proj.pose-dist/milestone:governance-efficiency/followup-metadata-routing"
       ],
       "materialized_units_owned": [
         "B28",
@@ -3794,7 +3918,7 @@
   ],
   "bootstrap_spec": "pose-consolidation-program-bootstrap",
   "counts_scope": "As 36 novas specs de implementação, uma condicionada e oito reutilizadas excluem as specs documentais de atribuição dos lotes.",
-  "last_authoring_revision": "4a60ccc4713efe18566ea72a52e2ae04f6a49c03",
+  "last_authoring_revision": "95a36d2b945253045bc0cb65e8e0bfba543b78d2",
   "authoring_history": [
     {
       "batch": 0,
@@ -3860,8 +3984,17 @@
     {
       "batch": 7,
       "source_revision": "4a60ccc4713efe18566ea72a52e2ae04f6a49c03",
+      "phase": "merged",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-7-authoring.md",
+      "pr": 166,
+      "merge_commit_sha": "95a36d2b945253045bc0cb65e8e0bfba543b78d2",
+      "native_closeout_pending": true
+    },
+    {
+      "batch": 8,
+      "source_revision": "95a36d2b945253045bc0cb65e8e0bfba543b78d2",
       "phase": "in-progress",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-7-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-8-authoring.md"
     }
   ]
 }

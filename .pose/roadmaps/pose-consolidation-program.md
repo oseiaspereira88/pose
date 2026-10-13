@@ -187,6 +187,27 @@ no recorte B32; aceites/dependências/baselines/ownership conferidos.
 responsáveis sem duplicar ownership. B14 exige B12/B13, B15 exige B14 e B32 é
 independente. Escrita e merge não qualificam os comportamentos ou daemon futuro.
 
+## Milestone: batch-eight-authoring
+- after: batch-seven-authoring
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-8-authoring
+
+**Exit gate:** B16 reutilizado sem alteração de R1–R4/status e B22/B23 escritos
+em draft; extensão prospectiva, aceites, DAG, digests e ownership conferidos.
+
+## Milestone: ledger-and-residual-integrity
+- after: batch-eight-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:delegated-review/attempt-ledger, xref:proj.pose-dist/milestone:governance-efficiency/residual-material-identity, xref:proj.pose-dist/milestone:governance-efficiency/followup-metadata-routing
+
+**Exit gate:** consumir ledger no responsável e identidade/metadata/roteamento
+em governance-efficiency sem duplicar ownership. B16 exige B06/B14, B22 exige B06
+e B23 exige B06/B22. Merge/escrita não certificam cota, integridade ou resolução;
+programas parciais e extensão contratual de B16 continuam sujeitos a qualificação.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |
