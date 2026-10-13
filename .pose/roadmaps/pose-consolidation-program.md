@@ -26,6 +26,28 @@ para os PRs existentes, regras de reaproveitamento, aceite por frente e validaç
 evidências de #157/#158 reconciliadas e planejamento documental revisado.
 Este milestone entrega somente o lote 0, não a implementação do programa.
 
+## Milestone: batch-one-authoring
+- after: planning-bootstrap
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-1-authoring
+
+**Exit gate:** três deltas escritos em draft com aceite, artefatos prospectivos,
+dependências e vínculos atuais validados. Este milestone qualifica a escrita,
+não as implementações de B04/B02/B05.
+
+## Milestone: trust-foundations
+- after: batch-one-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:record-truthfulness/temporal-trust, xref:proj.pose-dist/milestone:record-truthfulness/verified-proof, xref:proj.pose-dist/milestone:record-truthfulness/approval-preflight, xref:proj.pose-dist/milestone:record-truthfulness/policy-scopes
+
+**Exit gate:** consumir o aceite verificado dos quatro milestones de confiança
+do roadmap responsável, sem copiar a ownership das specs. Não encerrar esta
+etapa quando apenas a escrita passou. Os demais resultados ainda precisam de
+materialização e qualificação nos seus lotes.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |

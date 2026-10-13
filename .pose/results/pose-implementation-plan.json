@@ -10,9 +10,9 @@
     "sha256": "f138929bdb835291c6cbae165d7b5776c3cd538155038fb523390378c11f9dd1"
   },
   "authorization": {
-    "scope": "Escrever somente o lote 0 do planejamento aceito em conversa em 2026-10-13.",
-    "current_authoring_batch": 0,
-    "next_authoring_batch": 1,
+    "scope": "Escrever somente o lote 1, autorizado em conversa em 2026-10-13 após merge de #159.",
+    "current_authoring_batch": 1,
+    "next_authoring_batch": 2,
     "future_batch_implementation_authorized": false
   },
   "counts": {
@@ -21,7 +21,9 @@
     "authoring_batches": 17,
     "new_specs": 36,
     "conditional_new_specs": 1,
-    "unique_reused_specs": 8
+    "unique_reused_specs": 8,
+    "materialized_implementation_specs": 3,
+    "unmaterialized_implementation_specs": 34
   },
   "candidate_ownership": {
     "T2-01": "B01",
@@ -231,12 +233,37 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-review-approval-domain-preflight",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-review-approval-domain-preflight.md",
+          "status": "draft",
+          "sha256": "d4958e9744c33e383c7da67a647bd1dbfd3920ad13560040f81f821c693edb6e"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec materializada em draft no lote documental 1; nenhum código deste delta implementado nesta interação.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-historical-trust-and-review-reuse",
+        "pose-action-answers-reverify-on-read",
+        "pose-review-disclosure-requires-proof",
+        "pose-review-bundle-convergence"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "T2-02": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7"
+        ]
+      }
     },
     {
       "id": "B03",
@@ -330,8 +357,11 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-historical-trust-and-review-reuse",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-historical-trust-and-review-reuse.md",
+          "status": "draft",
+          "sha256": "a865d9697d9c0132b9b229e18222d0383c7c36dfd23a1c153df4f06901ff8de9"
         }
       ],
       "implementation_observations": [
@@ -341,9 +371,31 @@
           ],
           "scope": "Somente o tempo de aceitação de action answers recebeu implementação. Validade histórica de reviews e proveniência de reuso continuam pendentes.",
           "unit_complete": false
+        },
+        {
+          "scope": "Spec materializada em draft no lote documental 1; nenhum código deste delta implementado nesta interação.",
+          "unit_complete": false
         }
       ],
-      "delivery_complete": false
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-material-equivalence-reuse",
+        "pose-native-attestation-issuer"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "T2-06": [
+          "R4",
+          "R5",
+          "R6",
+          "R7"
+        ],
+        "T2-07": [
+          "R1",
+          "R2",
+          "R3",
+          "R8"
+        ]
+      }
     },
     {
       "id": "B05",
@@ -380,12 +432,33 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-policy-scope-validation",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-policy-scope-validation.md",
+          "status": "draft",
+          "sha256": "4f32600b71613ef86c913bc69265636f384f8ee64d6c91424d4037dcfc1d5f8c"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec materializada em draft no lote documental 1; nenhum código deste delta implementado nesta interação.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-effective-governance-projection"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "T2-08": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ]
+      }
     },
     {
       "id": "B06",
@@ -2487,7 +2560,10 @@
           "action": "modified",
           "path": ".pose/reports/2026-10-11-pose-analysis-index.md"
         }
-      ]
+      ],
+      "authoring_merged": true,
+      "merged_pr": 159,
+      "native_closeout_pending": true
     },
     {
       "id": 1,
@@ -2502,10 +2578,12 @@
         "pose-policy-scope-validation",
         "pose-review-approval-domain-preflight"
       ],
-      "status": "draft",
+      "status": "in-progress",
       "conditional": false,
       "unique_substantive_specs": 3,
-      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
+      "authoring_spec": "pose-consolidation-batch-1-authoring",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-1-authoring.md"
     },
     {
       "id": 2,
@@ -2782,7 +2860,13 @@
         "B04",
         "B05"
       ],
-      "bootstrap_only": false
+      "bootstrap_only": false,
+      "materialized_milestones": [
+        "temporal-trust",
+        "verified-proof",
+        "approval-preflight",
+        "policy-scopes"
+      ]
     },
     {
       "slug": "agency-readiness",
@@ -2901,7 +2985,14 @@
         "B28",
         "B44"
       ],
-      "bootstrap_only": true
+      "bootstrap_only": false,
+      "owns_authoring_only": true,
+      "materialized_consumes": [
+        "xref:proj.pose-dist/milestone:record-truthfulness/temporal-trust",
+        "xref:proj.pose-dist/milestone:record-truthfulness/verified-proof",
+        "xref:proj.pose-dist/milestone:record-truthfulness/approval-preflight",
+        "xref:proj.pose-dist/milestone:record-truthfulness/policy-scopes"
+      ]
     },
     {
       "slug": "pose-v7-onboarding-and-consolidation",
@@ -3126,5 +3217,21 @@
     "As camadas são elegibilidade técnica, não estimativas de duração ou autorização de execução."
   ],
   "bootstrap_spec": "pose-consolidation-program-bootstrap",
-  "counts_scope": "Contar somente as specs de implementação; a spec documental de bootstrap é adicional."
+  "counts_scope": "As 36 novas specs de implementação, uma condicionada e oito reutilizadas excluem as specs documentais de atribuição dos lotes.",
+  "last_authoring_revision": "32b306cd61d2985de08a8338da1faef9989ae984",
+  "authoring_history": [
+    {
+      "batch": 0,
+      "pr": 159,
+      "merge_commit_sha": "32b306cd61d2985de08a8338da1faef9989ae984",
+      "phase": "merged",
+      "native_closeout_pending": true
+    },
+    {
+      "batch": 1,
+      "source_revision": "32b306cd61d2985de08a8338da1faef9989ae984",
+      "phase": "in-progress",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-1-authoring.md"
+    }
+  ]
 }

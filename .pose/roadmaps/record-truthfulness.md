@@ -44,6 +44,53 @@ candidate stays under the existing release lifecycle and is not part of this roa
 
 **Exit gate:** `blocked` has one non-terminal meaning everywhere with transfer protection intact and metric v1 unchanged; every remaining requirement of the non-terminal specs is classified and only evidence-backed dispositions are applied.
 
+## Continuação prospectiva — programa de consolidação, lote 1
+
+Preservar os milestones e a baseline 6.3.x acima como programa histórico.
+Os deltas abaixo pertencem à consolidação atual; não renomear o cut histórico
+nem anunciar uma nova versão. Consultar a [matriz](../results/pose-implementation-plan.json)
+e o [relatório do lote 1](../reports/2026-10-13-pose-batch-1-authoring.md).
+Os members novos estão draft e suas implementações ainda não foram iniciadas.
+
+## Milestone: temporal-trust
+- after: spec:pose-material-equivalence-reuse, spec:pose-native-attestation-issuer
+- target_start:
+- target_due:
+- specs: pose-historical-trust-and-review-reuse
+
+**Exit gate:** B04 distingue validade temporal histórica, confiança atual e base
+temporal; reuso comprova a fonte ou declara reassunção atual, com orçamento de
+travessia. Claimed timestamp não inventa autorização histórica. Preservar #157.
+
+## Milestone: verified-proof
+- after: temporal-trust
+- target_start:
+- target_due:
+- specs: pose-action-answers-reverify-on-read, pose-review-disclosure-requires-proof
+
+**Exit gate:** qualificar as correções mergeadas de #157/#158 contra o B01 completo,
+o contexto temporal de B04 e os consumidores; fechar as duas specs pelos gates.
+Merge e assinatura não substituem qualificação ou julgamento semântico.
+
+## Milestone: approval-preflight
+- after: verified-proof
+- target_start:
+- target_due:
+- specs: pose-review-approval-domain-preflight
+
+**Exit gate:** nova approval inválida grava zero artefatos de review em Store,
+CLI, import e MCP; negativa legítima e aprovação válida mantêm seus contratos.
+
+## Milestone: policy-scopes
+- after: spec:pose-effective-governance-projection
+- target_start:
+- target_due:
+- specs: pose-policy-scope-validation
+
+**Exit gate:** scope desconhecido ou inválido não aparece applicable/effective;
+domínio, preparação, projeção, CLI e MCP compartilham a taxonomia admitida.
+B05 é uma raiz independente; não depende artificialmente de concluir B04/B01/B02.
+
 ## Risk controls
 
 - Correct the effective data; never disable a gate to make history pass.
