@@ -70,15 +70,15 @@ Regression pairs for proofless verified labels, issuer/SSH tampering, historical
 
 ### Requirement trace
 
-CI execution pending. Planned mapping: R1/R5 use TestActionReadRefusesProoflessVerifiedAndDegradesConsumers; R2 uses TestActionReadReverifiesSSHBindingsAndMetadata and TestActionReadReverifiesIssuerBindings; R3 uses TestActionReadKeepsHistoricalExpiryAndSecondPrecision and TestActionClaimRefusesFutureOrReversedExpiryAtWrite; R4 uses TestActionReadDerivesProofAndPreservesDeclaredAndRotatedSSH.
+The complete Go suite passed on implementation commit 30c2776a5de2f2e9b8d923974c08938242a66be8 in [CI run 38331161368](https://github.com/oseiaspereira88/pose/actions/runs/38331161368). Executed mapping: R1/R5 use TestActionReadRefusesProoflessVerifiedAndDegradesConsumers; R2 uses TestActionReadReverifiesSSHBindingsAndMetadata and TestActionReadReverifiesIssuerBindings; R3 uses TestActionReadKeepsHistoricalExpiryAndSecondPrecision and TestActionClaimRefusesFutureOrReversedExpiryAtWrite; R4 uses TestActionReadDerivesProofAndPreservesDeclaredAndRotatedSSH. The same test job passed the installer, migration, quickstart, install/upgrade, launch-demo, delivery-image and action-runtime checks.
 
-Local gofmt and lint-spec passed. The available Go archive is truncated: compile -V segfaults, so no local test success is claimed. The module validate attempt is retained as FAILURE_TOLERATED (Go unavailable in PATH). CI must execute the Go suite before review readiness.
+Local gofmt, lint-spec, artifact-check --strict and check --strict passed; the latter retained 30 existing warnings. These structural checks used the published 7.4.1 binary. The available Go archive is truncated: compile -V segfaults, so no local Go test success or race-detector execution is claimed. The module validate attempt is retained as FAILURE (Go unavailable in PATH; 128 required checks failed). Functional evidence comes from the CI Go suite. Remaining governance and security jobs must finish before review readiness.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Implementation in progress; no review or closure asserted.
+Implementation and regression tests delivered; independent review and spec closure remain pending.
 
 ### Residual risks
 
