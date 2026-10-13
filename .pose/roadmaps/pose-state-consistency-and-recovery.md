@@ -12,9 +12,10 @@ sem converter unknown em autorização ou geração parcial em complete.
 Consultar a [matriz](../results/pose-implementation-plan.json) e a
 [análise de consistência](../reports/2026-10-12-pose-front-09-consistency-recovery.md).
 
-Materializar este responsável no lote 2 para B07, antecipando somente o arquivo
-previsto no lote 7. Manter os demais deltas nos lotes originais. Este roadmap
-draft possui um member atual; não representar esse recorte como programa completo.
+Este responsável foi materializado no lote 2 para B07, antecipando somente o
+arquivo previsto no lote 7. O lote 4 acrescenta B12/B13; os demais deltas conservam
+seus lotes. Os três members atuais estão draft; não representar o recorte como
+programa completo.
 
 ## Milestone: git-dispatch-snapshot
 - after: spec:pose-recoverable-closeout-plan, spec:pose-delegated-review-dispatch
@@ -26,11 +27,36 @@ draft possui um member atual; não representar esse recorte como programa comple
 inputs pertinentes antes/depois do dispatch, paths e outputs autorizados;
 bundle superado conserva história sem efeito no scope vigente.
 
+## Continuação prospectiva — lote 4
+
+Consultar o [lote 4](../reports/2026-10-13-pose-batch-4-authoring.md); executar
+somente quando o escopo funcional correspondente for autorizado.
+
+## Milestone: operation-results
+- after: spec:pose-recoverable-closeout-plan
+- target_start:
+- target_due:
+- specs: pose-cli-mcp-operation-results
+
+**Exit gate:** B12 compartilha outcome tipado entre CLI/MCP, com um JSON por
+chamada, parsing estrito e distinção entre waiting/deadline/conflict, verdict,
+coverage e efeitos confirmados. B12 é raiz independente de B07.
+
+## Milestone: journal-checkpoint-lock-recovery
+- after: operation-results, spec:pose-abm-atomic-start
+- target_start:
+- target_due:
+- specs: pose-journal-checkpoint-and-lock-recovery
+
+**Exit gate:** B13 exige EOF/schema/seq integrais; checkpoint corrupt/unavailable
+não vira absent; resume revalida inputs/progresso e falha de persistência é visível.
+Owner vivo/desconhecido nunca tem lock quebrado por idade. Runtime futuro deve
+consumir o contrato; este milestone não declara daemon implementado.
+
 ## Continuação planejada
 
 | Unidades | Lote de escrita | Resultado a materializar |
 |---|---|---|
-| B12/B13 | 4 | Parsing comum CLI/MCP; journals, checkpoints e recovery de locks. |
 | B14/B15 | 7 | Escritas concorrentes e recuperação de geração parcial. |
 | B34/B36 | 9 | Read views/invalidação; cursor e consulta ligados à geração. |
 
@@ -43,4 +69,4 @@ Conferir os aceites e dependências exatos na matriz em cada lote.
 - Materializar e qualificar todos os deltas obrigatórios antes de encerrar o programa.
 - Preservar identidade de worktree, histórico e compatibilidade; não alegar sandbox pelo check antes/depois.
 - Consumir evidência real de corrida/crash/retry quando o delta correspondente existir.
-- Não encerrar este roadmap pelo aceite isolado de B07 ou por resolução de suas refs.
+- Não encerrar este roadmap pelo aceite isolado de B07/B12/B13 ou por resolução de suas refs.

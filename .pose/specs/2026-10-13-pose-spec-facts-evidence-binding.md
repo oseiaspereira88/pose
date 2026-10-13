@@ -1,0 +1,139 @@
+---
+slug: pose-spec-facts-evidence-binding
+status: draft
+created_at: 2026-10-13
+completed_at:
+depends_on: pose-progressive-spec-surface
+priority: 1
+components: pose-mcp
+task_type: bugfix
+surface: minimal
+delivers: capability:spec-facts-evidence-binding
+---
+
+# Spec: Vincular facts à evidência pertinente e revelar freshness
+
+## 1. Intent
+
+### Goal
+
+Distinguir checks efetivamente associados à spec de resultados candidatos não vinculados e expor freshness/binding sem gerar conclusão semântica.
+
+### Business value
+
+B30 / F07-05. DeriveSpecFacts inclui resultados de outros módulos quando components estão vazios e lê o index sem qualificar freshness. Preservar fatos gerados e judgment/rationale escritos pelos atores. Consultar o [plano autoritativo](../results/pose-implementation-plan.json)
+e a [análise de UX](../reports/2026-10-12-pose-front-07-operational-ux.md).
+
+### Constraints
+
+Esta interação escreve a spec; não implementa o comportamento. Preservar as
+fundações done, contratos selados, evidências e autorizações já existentes.
+Não adotar policy/capability automaticamente. Classificar compatibilidade antes
+de iniciar: recusa mais estrita ou mudança de semântica pública não é patch por
+definição. Reconciliar decisões estruturais com os ADRs existentes; registrar
+somente decisões adicionais necessárias, antes da implementação correspondente.
+
+## 2. Requirements
+
+- R1: Facts devem distinguir associated evidence de candidatos indexed/unscoped, com binding explícito de spec/change set/inputs/digest/module/check e provenance disponível. Resultado de outro módulo/digest ou components vazios não deve ser apresentado como prova da spec por mera presença no index.
+- R2: Cada associação deve declarar fundamento e limites verificáveis; ausência de scope provenance, binding insuficiente ou escopo desconhecido deve produzir candidato/limitation, nunca associação forte ou evidência fabricada. Components declarados isoladamente não comprovam que o check cobriu o delta.
+- R3: Facts devem revelar source/revision/identidade relevante e status de freshness do index/result em relação aos inputs consumidos, incluindo fresh/stale/unknown/unavailable conforme contrato. Index stale/ilegível/ausente não deve virar resultado current/complete ou entrega vazia provada.
+- R4: Reuso de check adequado deve permanecer possível por bindings/equivalência material comprovados, conservando fonte original e motivo de reuso; commit documental alheio ou ausência de execução nova não deve forçar rerun indiscriminado nem rotular reuso legítimo como execução nova.
+- R5: Generator deve continuar read-only e gerar somente fatos observados, nunca intent, rationale, judgment, accepted risk ou conclusão de requisitos satisfeitos. Mesmo um check associado aprovado não deve sintetizar approval/closeout sem avaliação semântica correspondente.
+- R6: CLI/MCP e render humano/máquina devem divulgar a mesma classificação, binding e freshness; associated e candidato não devem ser misturados em texto que usuário/agente copiaria como evidência de execução da spec.
+- R7: Qualificar P05 com components vazios, check de módulo/digest alheio, scope provenance faltante/mista e index stale/unknown, com controles de check adequado executado/reusado; IDs/ordenação e fatos legítimos devem ser preservados.
+- R8: Leitura de facts não deve exigir rebuild de index a cada consulta nem alterar canonical spec/policy/adoção. Oferecer próximo passo pertinente quando binding/freshness não puderem ser estabelecidos, sem promover rebuild a prova de adequação semântica.
+
+## 3. Technical Plan
+
+### Artifacts
+
+Os paths abaixo são declarações prospectivas para a implementação. Neste lote
+somente esta spec é criada, sob a atribuição documental de
+`pose-consolidation-batch-4-authoring`. Reconciliar os paths exatos antes de start;
+não tratar a declaração de um teste futuro como teste existente ou executado.
+
+- created: .pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md
+- created: .pose/starts/pose-spec-facts-evidence-binding.json
+- created: .pose/changelogs/unreleased/pose-spec-facts-evidence-binding.md
+- modified: pose-mcp/internal/pose/spec_facts.go
+- modified: pose-mcp/internal/pose/spec_facts_test.go
+- created: pose-mcp/internal/cli/spec_facts_binding_test.go
+- created: pose-mcp/internal/mcpserver/spec_facts_binding_test.go
+- modified: .pose/indexes/validation-matrix.json
+- modified: POSE.md
+
+### Delivery targets
+
+- capability:spec-facts-evidence-binding module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/spec_facts.go
+
+### Approach and execution gates
+
+Reutilizar delivery-integrity, scope provenance e contratos de freshness existentes. Definir classificação/binding do resultado e compatibilidade dos campos antes do código; se índice não possuir dados suficientes, conservar unknown/candidato e planejar produtor exato, sem reconstruir prova por coincidência de module/check. Não ampliar este delta para geração atômica de índices (B15), read views (B34) ou julgamento automático.
+
+Antes de executar, aceitar o escopo de implementação, avaliar readiness nativa,
+executar assessment freshness no componente, completar o plano de artefatos,
+registrar produtores de evidência na matriz e criar a baseline por start.
+Não contornar dependência não terminal apenas porque o código parece presente.
+
+## 5. Decisions
+
+### Decision D1
+- Basis: R1, R2, R3, R4, R5
+- Decision: Separar evidência associada, candidato e freshness; preservar reuso comprovado sem gerar julgamento.
+- Rationale: Check indexado ou fresh não prova por si só que a spec foi validada.
+
+## 6. Validation
+
+### Strategy
+
+Usar fixtures sintéticas e relógio controlado. Executar os casos abaixo no domínio
+e nos consumidores indicados, sem simular aprovação pela presença de um campo.
+
+| Caso planejado | Resultado esperado |
+|---|---|
+| V1 — P05 spec sem components e check de outro módulo/digest | Candidato não vinculado com limites, nunca prova da spec. |
+| V2 — Scope provenance ausente/mista ou digest inconclusivo | Fundamento/limitation por resultado; sem associação forte presumida. |
+| V3 — Index fresh/stale/unknown/unavailable e inputs alterados | Status/binding explícitos; ausente não vira zero completo. |
+| V4 — Check adequado executado e reuso material equivalente | Evidência associada preservada com fonte/motivo; sem rerun automático. |
+| V5 — Gerador e texto humano/JSON via CLI/MCP | Classificações iguais; nenhum intent/rationale/judgment gerado. |
+| V6 — Ordenação, IDs e leitura repetida sem rebuild | Fatos estáveis e read-only; próximo passo quando necessário. |
+
+### Deterministic checks
+
+Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
+usar race detector para travessia/memoização ou concorrência quando houver mudança
+nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
+Testes de execução ainda não foram criados ou executados para este delta.
+
+### Requirement trace
+
+Trace planejado; vincular os casos aos produtores reais na implementação.
+Não declarar requisitos funcionais satisfeitos pelo lint.
+
+| Requisito | Casos planejados |
+|---|---|
+| R1 | V1, V2 |
+| R2 | V2 |
+| R3 | V3 |
+| R4 | V4 |
+| R5 | V5 |
+| R6 | V5 |
+| R7 | V1–V6 |
+| R8 | V6 |
+
+## 7. Final Report
+
+### Delivered scope
+
+Spec em draft, escrita no lote 4. Implementação, integração, revisão e closeout
+funcionais pendentes; qualificação da escrita está no relatório do lote.
+
+### Residual risks
+
+O index atual pode não carregar bindings suficientes para associação forte; divulgar esse limite é preferível a inferi-los. Freshness de index e adequação de evidência são eixos distintos. Mudança de schema de facts precisa preservar consumers existentes ou versionar compatibilidade explicitamente.
+
+### Follow-ups
+
+Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
+permanecem na matriz do programa, sem disposition automática.

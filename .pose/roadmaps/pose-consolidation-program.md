@@ -88,6 +88,26 @@ casos, dependências e vínculos válidos; nenhuma eficácia funcional inferida.
 duplicar ownership. B08 é independente; B09 exige B01/B05 e B10 exige B09.
 Escrita, aprovação do PR e refs resolvidas não qualificam esses comportamentos.
 
+## Milestone: batch-four-authoring
+- after: batch-three-authoring
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-4-authoring
+
+**Exit gate:** B12/B13/B30 escritos em draft, com aceites, artefatos prospectivos,
+casos, dependências e vínculos válidos; nenhuma eficácia funcional inferida.
+
+## Milestone: operational-recovery-and-facts
+- after: batch-four-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/operation-results, xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/journal-checkpoint-lock-recovery, xref:proj.pose-dist/milestone:governance-efficiency/spec-facts-binding
+
+**Exit gate:** consumir resultados operacionais, recovery e facts nos responsáveis,
+sem duplicar ownership. B12/B30 são raízes; B13 exige B12. Refs resolvidas e merge
+da escrita não qualificam os comportamentos nem encerram os programas parciais.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |
