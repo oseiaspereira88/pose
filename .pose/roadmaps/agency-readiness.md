@@ -57,6 +57,23 @@ preserved across the fixture corpus, and the pilot stop/go from
 `governance-efficiency` before any instance adopts enforcement. Adoption is a
 separate, explicit decision per instance.
 
+## Continuação prospectiva — lote 2
+
+Preservar o programa histórico 6.4 e seus gates. O delta abaixo qualifica
+perdas nas fontes existentes; não adota enforcement nem altera o cut histórico.
+
+## Milestone: source-coverage-integrity
+- after: spec:pose-obligation-projection, spec:pose-debt-marker-lexical-precision
+- target_start:
+- target_due:
+- specs: pose-source-coverage-integrity
+
+**Exit gate:** B06 expõe perda de leitura/parse/validação/scan por produtor e
+recorte; negativa ilegível não permite aprovação antiga silenciosa; follow-ups
+têm paridade CLI/MCP/Attention. Unknown não vira zero complete.
+Consultar o [lote 2](../reports/2026-10-13-pose-batch-2-authoring.md).
+B08/B09/B10 permanecem planejados para lote 3, sem refs nativas ausentes aqui.
+
 ## Risk controls
 
 - Derive, don't duplicate: no resolution journal for derived obligations.

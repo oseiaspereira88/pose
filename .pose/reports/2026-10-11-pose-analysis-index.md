@@ -54,3 +54,10 @@ B04/B02/B05 e seus gates de execução. A matriz distingue três specs de
 implementação agora materializadas em draft das 34 propostas ainda ausentes.
 Os milestones de confiança atuais têm refs existentes e ownership única;
 esta escrita não declara os requisitos funcionais implementados.
+
+## Escrita do lote 2 — 2026-10-13
+
+Consultar o [relatório do lote 2](2026-10-13-pose-batch-2-authoring.md) para
+B03/B06/B07, seus aceites e gates. Agora seis specs de implementação estão
+materializadas em draft e 31 propostas seguem ausentes. O roadmap de consistência
+foi antecipado somente para ownership de B07; nenhuma implementação foi iniciada.

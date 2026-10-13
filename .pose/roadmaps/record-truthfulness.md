@@ -91,6 +91,16 @@ CLI, import e MCP; negativa legítima e aprovação válida mantêm seus contrat
 domínio, preparação, projeção, CLI e MCP compartilham a taxonomia admitida.
 B05 é uma raiz independente; não depende artificialmente de concluir B04/B01/B02.
 
+## Milestone: presence-channel-parity
+- after: verified-proof
+- target_start:
+- target_due:
+- specs: pose-proof-presence-channel-parity
+
+**Exit gate:** B03 declara escopo de presença e prova admitida; SSH/SK/issuer
+obedecem ao mesmo contrato de canal, sem dispensa silenciosa ou touch fabricado.
+Consultar o [lote 2](../reports/2026-10-13-pose-batch-2-authoring.md).
+
 ## Risk controls
 
 - Correct the effective data; never disable a gate to make history pass.

@@ -1,0 +1,149 @@
+---
+slug: pose-source-coverage-integrity
+status: draft
+created_at: 2026-10-13
+completed_at:
+depends_on: pose-obligation-projection, pose-debt-marker-lexical-precision
+priority: 1
+components: pose-mcp
+task_type: bugfix
+surface: minimal
+delivers: capability:source-coverage-integrity
+---
+
+# Spec: Expor perdas de leitura e completude por fonte e recorte
+
+## 1. Intent
+
+### Goal
+
+Impedir que erros de leitura, parse, validação ou scan apareçam como ausência completa de trabalho ou histórico.
+
+### Business value
+
+B06 / T2-05, D01, D13, F05-01 e F05-03. Reutilizar coverage por produtor e precisão lexical; completar a propagação das perdas nas fontes e seus consumidores. Consultar também as análises de estado atual e residual. Consultar o [plano autoritativo](../results/pose-implementation-plan.json)
+e a [análise de confiança](../reports/2026-10-11-pose-front-02-trust-chain.md).
+
+### Constraints
+
+Esta interação escreve a spec; não implementa o comportamento. Preservar as
+fundações done, contratos selados, evidências e autorizações já existentes.
+Não adotar policy/capability automaticamente. Classificar compatibilidade antes
+de iniciar: recusa mais estrita ou mudança de semântica pública não é patch por
+definição. Reconciliar decisões estruturais com os ADRs existentes; registrar
+somente decisões adicionais necessárias, antes da implementação correspondente.
+
+## 2. Requirements
+
+- R1: Cada fonte deve distinguir ausência legítima, exclusão declarada, formato legado compatível/unsupported, corrupção, erro de leitura/parse/validação e scan incompleto; diagnóstico deve identificar produtor, artefato e recorte sem alegar conteúdo de bytes indisponíveis.
+- R2: Complete deve significar cobertura do recorte solicitado: elemento perdido, descartado ou inválido dentro desse recorte deve tornar a cobertura incompleta/unknown e aparecer como diagnóstico útil; zero itens não deve ser interpretado como zero pendências quando a leitura falhou.
+- R3: Rejeição recente truncada, ilegível ou com digest inválido não deve desaparecer de uma sequência tratada como complete nem permitir selecionar silenciosamente aprovação anterior. Bundle/journal/ledger ilegíveis devem preservar a incerteza e ordem conhecida, sem reconstruir decisão desconhecida.
+- R4: Falha atribuível a um escopo deve restringir somente a conclusão que depende dele. Artefato cujo header ilegível impede atribuição deve declarar o domínio de incerteza justificável e ampliar cobertura desconhecida somente onde necessário; não assumir que todo arquivo estranho pertence a todos os scopes.
+- R5: Parser de follow-ups deve devolver o mesmo conjunto não resolvido e diagnósticos em CLI, MCP e Attention para o mesmo snapshot/recorte, incluindo open válido, formato inválido, legado e fonte ilegível; não inventar IDs/itens para conteúdo que não foi lido.
+- R6: Descarte por ValidateObligation deve ser rastreado na coverage do produtor e no Complete do report; limitation textual isolada não deve coexistir com alegação de completude do conjunto que perdeu um elemento pertinente.
+- R7: Scan de markers deve encontrar o TODO em arquivo grande ou informar scan incompleto; arquivo ilegível, limite/scanner error e exclusões devem ter cobertura explícita. Exclusão intencional pode permitir completude somente no recorte declarado, sem alegar scan de todo o projeto.
+- R8: Consumidores de review/closeout, follow-ups, obligations e Attention devem preservar os diagnósticos de domínio em JSON e humano; fontes válidas e legado compatível devem continuar úteis sem blocker global por dados de escopo alheio.
+- R9: A implementação deve qualificar fixtures P01/P04 e controles positivos das análises, com estabilidade de IDs e snapshot, e preservar leitura read-only; não corrigir arquivos, reconciliar follow-ups ou criar dispositions automaticamente.
+
+## 3. Technical Plan
+
+### Artifacts
+
+Os paths abaixo são declarações prospectivas para a implementação. Neste lote
+somente esta spec é criada, sob a atribuição documental de
+`pose-consolidation-batch-2-authoring`. Reconciliar os paths exatos antes de start;
+não tratar a declaração de um teste futuro como teste existente ou executado.
+
+- created: .pose/specs/2026-10-13-pose-source-coverage-integrity.md
+- created: .pose/starts/pose-source-coverage-integrity.json
+- created: .pose/changelogs/unreleased/pose-source-coverage-integrity.md
+- modified: pose-mcp/internal/pose/followups_parse.go
+- modified: pose-mcp/internal/pose/obligation_projection.go
+- modified: pose-mcp/internal/pose/obligation_sources.go
+- modified: pose-mcp/internal/pose/techdebt.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- created: pose-mcp/internal/pose/source_coverage_integrity_test.go
+- created: pose-mcp/internal/cli/source_coverage_parity_test.go
+- created: pose-mcp/internal/mcpserver/source_coverage_parity_test.go
+- modified: .pose/indexes/validation-matrix.json
+- modified: POSE.md
+
+### Delivery targets
+
+- capability:source-coverage-integrity module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/obligation_projection.go
+
+### Approach and execution gates
+
+Introduzir resultados de leitura/coverage no domínio e propagá-los em vez de continue silencioso. Conferir os paths exatos dos scanners/Attention/consumidores antes de start e acrescentá-los ao plano. Definir escopo de Complete e compatibilidade dos schemas/callers; adotar enum/diagnóstico compartilhado onde adequado sem construir cache/daemon (B34) ou novo inventário de dispositions (B22–B25). Preservar a diferença entre histórico negativo conhecido e decisão indisponível.
+
+Antes de executar, aceitar o escopo de implementação, avaliar readiness nativa,
+executar assessment freshness no componente, completar o plano de artefatos,
+registrar produtores de evidência na matriz e criar a baseline por start.
+Não contornar dependência não terminal apenas porque o código parece presente.
+
+## 5. Decisions
+
+### Decision D1
+- Basis: R1, R2, R4, R6, R7
+- Decision: Vincular completude ao recorte e à coverage efetiva por produtor.
+- Rationale: Conteúdo descartado não pode ser convertido em ausência provada; incerteza não deve restringir escopos sem relação demonstrada.
+
+## 6. Validation
+
+### Strategy
+
+Usar fixtures sintéticas e relógio controlado. Executar os casos abaixo no domínio
+e nos consumidores indicados, sem simular aprovação pela presença de um campo.
+
+| Caso planejado | Resultado esperado |
+|---|---|
+| V1 — P01 com open válido, malformed e fonte ilegível | CLI/MCP/Attention retornam mesmo conjunto e diagnostics; coverage incompleta onde houve perda. |
+| V2 — Negativa mais recente truncada/ilegível/digest inválido | Nenhuma aprovação antiga selecionada silenciosamente; sequência não complete. |
+| V3 — Header indisponível, scope alheio e legado compatível | Incerteza com recorte justificável; legado não confundido com corrupção; sem blocker arbitrário. |
+| V4 — Obligation descartada por validação | Coverage do produtor e Complete refletem perda, além de limitation. |
+| V5 — P04 TODO além do buffer, scanner error, exclusões e unreadable | Marker encontrado ou scan incomplete explícito; zero não certifica ausência global. |
+| V6 — Fontes válidas e queries read-only | IDs/paridade preservados, nenhuma escrita corretiva ou disposition. |
+
+### Deterministic checks
+
+Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
+usar race detector para travessia/memoização ou concorrência quando houver mudança
+nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
+Testes de execução ainda não foram criados ou executados para este delta.
+
+### Requirement trace
+
+O trace abaixo é planejado; vincular os casos aos produtores reais durante a
+implementação. Não declarar requisitos funcionais satisfeitos pelo lint.
+
+| Requisito | Casos planejados |
+|---|---|
+| R1 | V1–V3, V5 |
+| R2 | V1–V5 |
+| R3 | V2 |
+| R4 | V3 |
+| R5 | V1, V6 |
+| R6 | V4 |
+| R7 | V5 |
+| R8 | V1–V3, V6 |
+| R9 | V1, V5, V6 |
+
+
+Consultar [estado atual](../reports/2026-10-11-pose-front-01-current-state.md) e [residual](../reports/2026-10-12-pose-front-05-residual-work.md).
+
+## 7. Final Report
+
+### Delivered scope
+
+Spec em draft, escrita no lote 2. Implementação, integração, revisão e closeout
+funcionais pendentes; qualificação da escrita está no relatório do lote.
+
+### Residual risks
+
+Mudança de assinatura do parser e schema Complete exige compatibilidade deliberada. Sem associação confiável de artefato ilegível não é possível localizar com precisão fictícia a falha. Journals/recovery B13 e parsing comum CLI/MCP B12 poderão ampliar integridade; B06 permanece uma raiz que qualifica perdas nas fontes existentes.
+
+### Follow-ups
+
+Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
+permanecem na matriz do programa, sem disposition automática.
