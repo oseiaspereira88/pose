@@ -158,8 +158,9 @@ Roadmap-check --strict recusou encerramento como esperado: 43 refs resolvidas,
 terminal false e blockers de members não concluídos. A conferência foi repetida
 no snapshot commitado final após acrescentar o trace dos casos planejados.
 
-CI/Security do head publicado serão acompanhados no PR; o gate de governança
-executa check --strict e validate --strict. O binário local 7.4.1 foi usado nos
+CI/Security do head publicado são acompanhados no PR. O gate de governança
+executa check --strict; Security executa validate --tolerant para gerar SARIF.
+Sucesso do job SARIF não equivale a validate --strict sem findings. O binário local 7.4.1 foi usado nos
 checks estruturais, sem representar execução de novos comportamentos do motor.
 A spec documental permanece in-progress até revisão/closeout nativo; resultados
 funcionais permanecem draft.
