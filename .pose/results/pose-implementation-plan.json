@@ -10,9 +10,9 @@
     "sha256": "f138929bdb835291c6cbae165d7b5776c3cd538155038fb523390378c11f9dd1"
   },
   "authorization": {
-    "scope": "Escrever somente lote 13 após merge #171: B39/B41/B40 draft e proposta ADR/nota de revisão; sem implementação funcional, operações de release ou adoção.",
-    "current_authoring_batch": 13,
-    "next_authoring_batch": 14,
+    "scope": "Escrever somente lote 14 após merge #173: B31/B33/B35 draft e proposta de domínio/IPC/cache; sem implementação funcional, daemon/benchmark de runtime ou adoção.",
+    "current_authoring_batch": 14,
+    "next_authoring_batch": 15,
     "future_batch_implementation_authorized": false
   },
   "counts": {
@@ -22,8 +22,8 @@
     "new_specs": 36,
     "conditional_new_specs": 1,
     "unique_reused_specs": 8,
-    "materialized_implementation_specs": 32,
-    "unmaterialized_implementation_specs": 5
+    "materialized_implementation_specs": 35,
+    "unmaterialized_implementation_specs": 2
   },
   "candidate_ownership": {
     "T2-01": "B01",
@@ -2759,12 +2759,55 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-common-domain-and-cli-mcp-handoff",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-14-pose-common-domain-and-cli-mcp-handoff.md",
+          "status": "draft",
+          "sha256": "cd9a393aa7199ba599248e16fb6c829055130e09b99eeea4ad70de928423867b"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec draft e proposta de domínio/IPC/cache formalizadas no lote 14, sem domínio extraído, cache/vista/IPC/runtime/QoS implementado, serviço iniciado, benchmark funcional ou policy/adoption executada.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-cli-mcp-operation-results",
+        "pose-writer-coordination-and-atomic-publication",
+        "pose-governance-read-view-generation",
+        "pose-recoverable-closeout-plan",
+        "pose-mcp-active-context",
+        "pose-safe-validate-orchestration"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "F07-04": [
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9"
+        ],
+        "PERF-06": [
+          "R1",
+          "R2",
+          "R6",
+          "R7",
+          "R8",
+          "R9"
+        ]
+      },
+      "contract_decision_plan": {
+        "proposal_path": ".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
+        "status": "proposed",
+        "review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-shared-worktree-runtime-review.md",
+        "requires_resolution_before_functional_start": true,
+        "schema_or_adoption_delivered": false
+      }
     },
     {
       "id": "B32",
@@ -2913,12 +2956,55 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-bounded-isolated-graph-caches",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-14-pose-bounded-isolated-graph-caches.md",
+          "status": "draft",
+          "sha256": "8e529dbb40f7a204a661c5f50be2c35f8c5e3209780c848fcebdda2672b5724c"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec draft e proposta de domínio/IPC/cache formalizadas no lote 14, sem domínio extraído, cache/vista/IPC/runtime/QoS implementado, serviço iniciado, benchmark funcional ou policy/adoption executada.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-index-generation-integrity",
+        "pose-governance-read-view-generation",
+        "pose-delivery-integrity-index-compaction"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "PERF-04": [
+          "R1",
+          "R2",
+          "R7",
+          "R8"
+        ],
+        "PERF-10": [
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8"
+        ],
+        "CONS-11": [
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R8"
+        ]
+      },
+      "contract_decision_plan": {
+        "proposal_path": ".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
+        "status": "proposed",
+        "review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-shared-worktree-runtime-review.md",
+        "requires_resolution_before_functional_start": true,
+        "schema_or_adoption_delivered": false
+      }
     },
     {
       "id": "B34",
@@ -3085,12 +3171,57 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-optional-worktree-runtime",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-14-pose-optional-worktree-runtime.md",
+          "status": "draft",
+          "sha256": "4162420144b348bd78ed86ebd2d3842480f0d0ad646543a88eb81b5195ca3d7d"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec draft e proposta de domínio/IPC/cache formalizadas no lote 14, sem domínio extraído, cache/vista/IPC/runtime/QoS implementado, serviço iniciado, benchmark funcional ou policy/adoption executada.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-git-and-dispatch-snapshot-integrity",
+        "pose-cli-mcp-operation-results",
+        "pose-writer-coordination-and-atomic-publication",
+        "pose-index-generation-integrity",
+        "pose-common-domain-and-cli-mcp-handoff",
+        "pose-governance-operation-performance",
+        "pose-bounded-isolated-graph-caches",
+        "pose-governance-read-view-generation",
+        "pose-attention-within-a-second"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "PERF-08": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R7",
+          "R8",
+          "R9"
+        ],
+        "PERF-12": [
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9"
+        ]
+      },
+      "contract_decision_plan": {
+        "proposal_path": ".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
+        "status": "proposed",
+        "review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-shared-worktree-runtime-review.md",
+        "requires_resolution_before_functional_start": true,
+        "schema_or_adoption_delivered": false
+      }
     },
     {
       "id": "B36",
@@ -4095,7 +4226,10 @@
       "authoring_spec": "pose-consolidation-batch-13-authoring",
       "report_path": ".pose/reports/2026-10-14-pose-batch-13-authoring.md",
       "adr_proposal_path": ".pose/adr/2026-10-14-release-temporal-evidence-and-attempt-lineage.md",
-      "decision_review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-release-temporal-evidence-review.md"
+      "decision_review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-release-temporal-evidence-review.md",
+      "authoring_merged": true,
+      "merged_pr": 173,
+      "native_closeout_pending": true
     },
     {
       "id": 14,
@@ -4110,10 +4244,14 @@
         "pose-common-domain-and-cli-mcp-handoff",
         "pose-optional-worktree-runtime"
       ],
-      "status": "draft",
+      "status": "in-progress",
       "conditional": false,
       "unique_substantive_specs": 3,
-      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
+      "authoring_spec": "pose-consolidation-batch-14-authoring",
+      "report_path": ".pose/reports/2026-10-14-pose-batch-14-authoring.md",
+      "adr_proposal_path": ".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
+      "decision_review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-shared-worktree-runtime-review.md"
     },
     {
       "id": 15,
@@ -4310,7 +4448,10 @@
       ],
       "bootstrap_only": false,
       "materialized_milestones": [
-        "operation-performance"
+        "operation-performance",
+        "common-domain-handoff",
+        "bounded-graph-caches",
+        "optional-worktree-runtime"
       ],
       "materialized_in_authoring_batch": 7
     },
@@ -4374,7 +4515,10 @@
         "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/cut-sufficiency",
         "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/publication-evidence-replay",
         "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/prepare-record-recovery",
-        "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/scope-selection-exclusivity"
+        "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/scope-selection-exclusivity",
+        "xref:proj.pose-dist/milestone:pose-shared-runtime/common-domain-handoff",
+        "xref:proj.pose-dist/milestone:pose-shared-runtime/bounded-graph-caches",
+        "xref:proj.pose-dist/milestone:pose-shared-runtime/optional-worktree-runtime"
       ],
       "materialized_units_owned": [
         "B28",
@@ -4588,7 +4732,11 @@
     {
       "batch": 14,
       "topic": "Domínio compartilhado, IPC e runtime opcional",
-      "condition": "Reconciliar desenho e limites antes de iniciar as implementações."
+      "condition": "Reconciliar desenho e limites antes de iniciar as implementações.",
+      "proposal_path": ".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
+      "proposal_status": "proposed",
+      "materialized_in_authoring_batch": 14,
+      "review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-shared-worktree-runtime-review.md"
     }
   ],
   "closure_policy": {
@@ -4609,7 +4757,7 @@
   ],
   "bootstrap_spec": "pose-consolidation-program-bootstrap",
   "counts_scope": "As 36 novas specs de implementação, uma condicionada e oito reutilizadas excluem as specs documentais de atribuição dos lotes.",
-  "last_authoring_revision": "655940a47d5622080dd213f1247b638704be6c43",
+  "last_authoring_revision": "e998177edd6bc66daec6ea378de17bc4a9c431ad",
   "authoring_history": [
     {
       "batch": 0,
@@ -4729,8 +4877,17 @@
     {
       "batch": 13,
       "source_revision": "655940a47d5622080dd213f1247b638704be6c43",
+      "phase": "merged",
+      "report_path": ".pose/reports/2026-10-14-pose-batch-13-authoring.md",
+      "pr": 173,
+      "merge_commit_sha": "e998177edd6bc66daec6ea378de17bc4a9c431ad",
+      "native_closeout_pending": true
+    },
+    {
+      "batch": 14,
+      "source_revision": "e998177edd6bc66daec6ea378de17bc4a9c431ad",
       "phase": "in-progress",
-      "report_path": ".pose/reports/2026-10-14-pose-batch-13-authoring.md"
+      "report_path": ".pose/reports/2026-10-14-pose-batch-14-authoring.md"
     }
   ]
 }

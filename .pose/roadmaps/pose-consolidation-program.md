@@ -314,6 +314,27 @@ B41 exige B12/B13/B14/B38; B40 integra ambos após B23/B24/B37/B38/B39/B41.
 ADR Proposed exige resolução antes de start; não há ciclo B39/B41, estado
 verified fabricado, recovery por backfill ou encerramento por escrita/merge.
 
+## Milestone: batch-fourteen-authoring
+- after: batch-thirteen-authoring
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-14-authoring
+
+**Exit gate:** B31/B33/B35 escritos em draft, ADR Proposed e nota de revisão,
+coverage/digests/DAG/ownership conferidos. Nenhum runtime ou benchmark funcional.
+
+## Milestone: common-domain-caches-and-runtime
+- after: batch-fourteen-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:pose-shared-runtime/common-domain-handoff, xref:proj.pose-dist/milestone:pose-shared-runtime/bounded-graph-caches, xref:proj.pose-dist/milestone:pose-shared-runtime/optional-worktree-runtime
+
+**Exit gate:** consumir resultados do roadmap responsável. B31 exige B12/B14/B34;
+B33 exige B15/B34; B35 exige B07/B12/B14/B15/B31/B32/B33/B34. Fonte única,
+isolamento/generation/authority e QoS têm prova; stdio não é IPC ou grant.
+Resolver ADR antes de start e preservar fronteira Harness, sem adoção por merge.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |
