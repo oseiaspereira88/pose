@@ -279,3 +279,8 @@ ancestral. O pacote final foi reaplicado sem conflitos sobre essa main em
 impl/pose-b04-closeout. Nenhum código de runtime ou sujeito semântico revisado
 foi alterado; os registros nativos conservam seu sujeito publicado 9dcf1c63.
 B01 aguarda merge do PR complementar de fechamento, sem novo start.
+
+O complemento é o [PR #178](https://github.com/oseiaspereira88/pose/pull/178).
+A publicação autorizada começou no head 319cd0a3200eafc845e9eeba3e0600c893e44e89,
+filho da main 01409e35; os índices finais são regenerados nesse head publicado,
+sem construir um novo sujeito semântico ou reescrever os registros selados.
