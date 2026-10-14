@@ -229,6 +229,28 @@ sem duplicar ownership. B34 exige B06/B07/B14/B15 e B36 exige B34; materializaç
 merge e refs resolvidas não qualificam coerência, frescor, cobertura ou custo de queries.
 Gates permanecem completos no recorte e revalidam autorização atual.
 
+## Milestone: batch-ten-authoring
+- after: batch-nine-authoring
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-10-authoring
+
+**Exit gate:** B18 draft e planos de continuidade de B17/B19/B21 nas duas specs
+existentes; R-IDs/bytes/status, aceites/DAG/fases e ownership conferidos.
+
+## Milestone: delegated-trust-and-capability
+- after: batch-ten-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:delegated-review/trust, xref:proj.pose-dist/milestone:delegated-review/adapter-containment, xref:proj.pose-dist/milestone:delegated-review/adoption
+
+**Exit gate:** consumir prova/containment/capability no responsável sem duplicar
+ownership. B17 exige B01/B04/B16, B18 exige B07/B12, B19 exige B02/B16/B17/B18;
+B21 depende de B19/B20 e conserva qualificação posterior ao fulfillment do lote 11.
+A spec compartilhada exige fase B19 verificável antes de B20 e closeout integrado
+somente em B21; merge/escrita não qualificam qualquer kind, adoção ou runner remoto.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |

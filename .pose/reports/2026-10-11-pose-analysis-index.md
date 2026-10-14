@@ -112,3 +112,11 @@ Dois deltas draft de read view/invalidação e cursor/query ligados à geração
 23 propostas materializadas e 14 ausentes. Consistência/recovery possui os sete
 members planejados, ainda sem qualificação funcional; o coordenador consome
 resultados. Nenhum daemon, reuso residente ou paginação funcional implementados.
+
+## Escrita do lote 10 — 2026-10-13
+
+Consultar o [relatório do lote 10](2026-10-13-pose-batch-10-authoring.md) para B17/B18/B19/B21.
+Um delta draft de contenção e continuidade em proveniência/capability existentes,
+com B19/B21 na mesma spec. Agora 24 propostas materializadas e 13 ausentes;
+bytes/status das oito reutilizadas preservados. O roadmap segue ADR aceito e
+ordem B19 → B20 → B21, sem implementar checkpoint, adoção ou dispatch.

@@ -10,9 +10,9 @@
     "sha256": "f138929bdb835291c6cbae165d7b5776c3cd538155038fb523390378c11f9dd1"
   },
   "authorization": {
-    "scope": "Escrever somente lote 9 após merge de #167: B34/B36 e vínculos de leitura/consulta coerentes; sem execução funcional.",
-    "current_authoring_batch": 9,
-    "next_authoring_batch": 10,
+    "scope": "Escrever somente lote 10 após merge de #168: continuidade de B17/B19/B21 nas specs existentes e novo delta B18; sem execução funcional.",
+    "current_authoring_batch": 10,
+    "next_authoring_batch": 11,
     "future_batch_implementation_authorized": false
   },
   "counts": {
@@ -22,8 +22,8 @@
     "new_specs": 36,
     "conditional_new_specs": 1,
     "unique_reused_specs": 8,
-    "materialized_implementation_specs": 23,
-    "unmaterialized_implementation_specs": 14
+    "materialized_implementation_specs": 24,
+    "unmaterialized_implementation_specs": 13
   },
   "candidate_ownership": {
     "T2-01": "B01",
@@ -1537,8 +1537,58 @@
         }
       ],
       "proposed_specs": [],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Lote 10 formaliza continuidade na spec existente, preservando bytes/R-IDs/status/baselines; extensões prospectivas e fases devem ser reconciliadas antes da execução. Nenhuma implementação ou closeout.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "reuse_plan_formalized": true,
+      "reuse_continuation_plan_path": ".pose/reports/2026-10-13-pose-batch-10-authoring.md",
+      "reused_spec_requirement_coverage": {
+        "pose-delegated-review-run-provenance": {
+          "D04": [
+            "R1",
+            "R2",
+            "R3",
+            "R4"
+          ],
+          "T3-04": [
+            "R1",
+            "R2",
+            "R3",
+            "R4"
+          ]
+        }
+      },
+      "reuse_extension_acceptance_coverage": {
+        "D04": [
+          "P1",
+          "P2",
+          "P3",
+          "P4",
+          "P5",
+          "P6"
+        ],
+        "T3-04": [
+          "P1",
+          "P2",
+          "P3",
+          "P4",
+          "P5",
+          "P6"
+        ]
+      },
+      "reuse_extension_contract_status": "prospective-before-start; P-IDs belong to the report, not the current spec requirement trace",
+      "native_spec_dependencies_before_start": [
+        "pose-delegated-review-dispatch",
+        "pose-native-attestation-issuer",
+        "pose-action-answers-reverify-on-read",
+        "pose-review-disclosure-requires-proof",
+        "pose-historical-trust-and-review-reuse",
+        "pose-delegated-review-attempt-ledger"
+      ]
     },
     {
       "id": "B18",
@@ -1583,12 +1633,47 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-delegated-adapter-containment",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-delegated-adapter-containment.md",
+          "status": "draft",
+          "sha256": "5415c39ab332f0a70cf030ac5ebc2e117a268b25fd3e641aea003238feb537b8"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Delta B18 materializado em draft no lote 10; nenhum adapter/backend/plataforma qualificado ou executado nesta escrita.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-git-and-dispatch-snapshot-integrity",
+        "pose-cli-mcp-operation-results",
+        "pose-delegated-review-dispatch"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "D06": [
+          "R1",
+          "R3",
+          "R4",
+          "R6",
+          "R9",
+          "R10"
+        ],
+        "T3-06": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10"
+        ]
+      }
     },
     {
       "id": "B19",
@@ -1641,8 +1726,71 @@
         }
       ],
       "proposed_specs": [],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Lote 10 formaliza continuidade na spec existente, preservando bytes/R-IDs/status/baselines; extensões prospectivas e fases devem ser reconciliadas antes da execução. Nenhuma implementação ou closeout.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "reuse_plan_formalized": true,
+      "reuse_continuation_plan_path": ".pose/reports/2026-10-13-pose-batch-10-authoring.md",
+      "native_spec_dependencies_before_start": [
+        "pose-delegated-review-run-provenance",
+        "pose-delegated-review-attempt-ledger",
+        "pose-review-approval-domain-preflight",
+        "pose-delegated-adapter-containment"
+      ],
+      "reuse_extension_contract_status": "prospective-before-start; C-IDs and phase gates belong to the report, not a delivered native capability",
+      "reused_spec_requirement_coverage": {
+        "pose-delegated-review-capability": {
+          "T3-05": [
+            "R4",
+            "R5",
+            "R6",
+            "R7"
+          ],
+          "T3-07": [
+            "R2",
+            "R3",
+            "R7"
+          ]
+        }
+      },
+      "reuse_extension_acceptance_coverage": {
+        "T3-05": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5"
+        ],
+        "T3-07": [
+          "C6",
+          "C7",
+          "C8"
+        ]
+      },
+      "shared_spec_execution_plan": {
+        "slug": "pose-delegated-review-capability",
+        "units": [
+          "B19",
+          "B21"
+        ],
+        "execution_phases": [
+          "B19",
+          "B20",
+          "B21"
+        ],
+        "intermediate_acceptance_unit": "B19",
+        "final_qualification_after": [
+          "B20"
+        ],
+        "native_gate_formalization_required_before_execution": true,
+        "intermediate_acceptance_is_not_spec_done": true,
+        "phase_gate_plan_path": ".pose/reports/2026-10-13-pose-batch-10-authoring.md",
+        "native_phase_gate_support_claimed": false
+      }
     },
     {
       "id": "B20",
@@ -1741,8 +1889,60 @@
         }
       ],
       "proposed_specs": [],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Lote 10 formaliza continuidade na spec existente, preservando bytes/R-IDs/status/baselines; extensões prospectivas e fases devem ser reconciliadas antes da execução. Nenhuma implementação ou closeout.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "reuse_plan_formalized": true,
+      "reuse_continuation_plan_path": ".pose/reports/2026-10-13-pose-batch-10-authoring.md",
+      "native_spec_dependencies_before_start": [
+        "pose-delegated-review-run-provenance",
+        "pose-delegated-review-attempt-ledger",
+        "pose-review-approval-domain-preflight",
+        "pose-delegated-adapter-containment"
+      ],
+      "reuse_extension_contract_status": "prospective-before-start; C-IDs and phase gates belong to the report, not a delivered native capability",
+      "reused_spec_requirement_coverage": {
+        "pose-delegated-review-capability": {
+          "T3-09": [
+            "R1",
+            "R3",
+            "R4",
+            "R5",
+            "R6"
+          ],
+          "T3-10": [
+            "R1",
+            "R2",
+            "R3",
+            "R4",
+            "R5",
+            "R6",
+            "R7"
+          ]
+        }
+      },
+      "reuse_extension_acceptance_coverage": {
+        "T3-09": [
+          "C9",
+          "C10"
+        ],
+        "T3-10": [
+          "C6",
+          "C7",
+          "C8",
+          "C9",
+          "C10"
+        ]
+      },
+      "shared_spec_execution_plan_ref": {
+        "unit": "B19",
+        "field": "shared_spec_execution_plan",
+        "plan_path": ".pose/reports/2026-10-13-pose-batch-10-authoring.md"
+      }
     },
     {
       "id": "B22",
@@ -3441,7 +3641,10 @@
       "unique_substantive_specs": 2,
       "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
       "authoring_spec": "pose-consolidation-batch-9-authoring",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-9-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-9-authoring.md",
+      "authoring_merged": true,
+      "merged_pr": 168,
+      "native_closeout_pending": true
     },
     {
       "id": 10,
@@ -3457,10 +3660,12 @@
         "pose-delegated-review-capability",
         "pose-delegated-review-run-provenance"
       ],
-      "status": "draft",
+      "status": "in-progress",
       "conditional": false,
       "unique_substantive_specs": 3,
-      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
+      "authoring_spec": "pose-consolidation-batch-10-authoring",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-10-authoring.md"
     },
     {
       "id": 11,
@@ -3655,7 +3860,8 @@
         "dispatch",
         "trust",
         "adoption",
-        "attempt-ledger"
+        "attempt-ledger",
+        "adapter-containment"
       ]
     },
     {
@@ -3771,7 +3977,10 @@
         "xref:proj.pose-dist/milestone:governance-efficiency/residual-material-identity",
         "xref:proj.pose-dist/milestone:governance-efficiency/followup-metadata-routing",
         "xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/governance-read-view",
-        "xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/generation-query-cursors"
+        "xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/generation-query-cursors",
+        "xref:proj.pose-dist/milestone:delegated-review/trust",
+        "xref:proj.pose-dist/milestone:delegated-review/adapter-containment",
+        "xref:proj.pose-dist/milestone:delegated-review/adoption"
       ],
       "materialized_units_owned": [
         "B28",
@@ -4002,7 +4211,7 @@
   ],
   "bootstrap_spec": "pose-consolidation-program-bootstrap",
   "counts_scope": "As 36 novas specs de implementação, uma condicionada e oito reutilizadas excluem as specs documentais de atribuição dos lotes.",
-  "last_authoring_revision": "9ed5b74e4784cad8193d89ed16b7e037d9554edf",
+  "last_authoring_revision": "32626ca12258d135528421cb6b62a3a81e95df20",
   "authoring_history": [
     {
       "batch": 0,
@@ -4086,8 +4295,17 @@
     {
       "batch": 9,
       "source_revision": "9ed5b74e4784cad8193d89ed16b7e037d9554edf",
+      "phase": "merged",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-9-authoring.md",
+      "pr": 168,
+      "merge_commit_sha": "32626ca12258d135528421cb6b62a3a81e95df20",
+      "native_closeout_pending": true
+    },
+    {
+      "batch": 10,
+      "source_revision": "32626ca12258d135528421cb6b62a3a81e95df20",
       "phase": "in-progress",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-9-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-10-authoring.md"
     }
   ]
 }
