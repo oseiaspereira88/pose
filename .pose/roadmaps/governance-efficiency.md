@@ -166,6 +166,37 @@ criticidade ou SLA não criam gate sozinhos, e compromisso vigente não desapare
 por encaminhamento ou renomeação. Sources/lifecycle/coverage preservados, sem
 backlog paralelo, migração, triagem ou risco aceito automaticamente.
 
+
+## Continuação prospectiva — lote 12
+
+Consultar o [lote 12](../reports/2026-10-13-pose-batch-12-authoring.md).
+B25/B26 estão materializados em draft; B42 continua piloto futuro. Não aplicar
+triagem/risco ou métricas nesta escrita. Preservar fundações e ADR de obligations.
+
+## Milestone: residual-triage-risk
+- after: residual-nature-commitment, spec:pose-action-answers-reverify-on-read, spec:pose-review-disclosure-requires-proof, spec:pose-writer-coordination-and-atomic-publication, spec:pose-open-backlog-reconciliation
+- target_start:
+- target_due:
+- specs: pose-residual-triage-and-risk-acceptance
+
+**Exit gate:** B25 reconcilia corpus histórico 108 por snapshot/diff/fonte,
+separado do inventário corrente; candidatos sem evidência/autoridade ficam abertos.
+Preview/apply revalidam inputs, detectam concorrência e replay sem duplicação.
+Risco aceito difere de wont-do, com razão/policy/validade/sucessão e gatilho de
+triagem no vencimento; exceção material usa ActionRequest, sem disposition automática.
+
+## Milestone: condition-work-metrics
+- after: residual-nature-commitment, spec:pose-action-request-recovery-and-preflight, spec:pose-governance-wait-rework-observability
+- target_start:
+- target_due:
+- specs: pose-condition-response-and-work-metrics
+
+**Exit gate:** B26 separa resposta, condição e restrição; decline não encerra
+restrição vigente. Reopening sem timestamp observado fica unknown e intervalos
+são unidos por scope sem duplicação. Markers, intenções, cobertura, encaminhamento
+e implementações devidas têm denominadores/limites próprios; idade vem de fatos,
+nunca mtime. Não inferir produtividade ou eficácia do piloto por volume.
+
 ## Risk controls
 
 - No aggregate efficiency or quality score; dimensions only.

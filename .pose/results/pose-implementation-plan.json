@@ -10,9 +10,9 @@
     "sha256": "f138929bdb835291c6cbae165d7b5776c3cd538155038fb523390378c11f9dd1"
   },
   "authorization": {
-    "scope": "Escrever somente lote 11 após merge de #169: continuidade de B20 na spec existente e novos deltas B27/B24; sem execução funcional.",
-    "current_authoring_batch": 11,
-    "next_authoring_batch": 12,
+    "scope": "Escrever somente lote 12 após merge de #170: novos deltas B25/B26/B37; sem implementação funcional, triagem/apply ou release.",
+    "current_authoring_batch": 12,
+    "next_authoring_batch": 13,
     "future_batch_implementation_authorized": false
   },
   "counts": {
@@ -22,8 +22,8 @@
     "new_specs": 36,
     "conditional_new_specs": 1,
     "unique_reused_specs": 8,
-    "materialized_implementation_specs": 26,
-    "unmaterialized_implementation_specs": 11
+    "materialized_implementation_specs": 29,
+    "unmaterialized_implementation_specs": 8
   },
   "candidate_ownership": {
     "T2-01": "B01",
@@ -2290,12 +2290,42 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-residual-triage-and-risk-acceptance",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-residual-triage-and-risk-acceptance.md",
+          "status": "draft",
+          "sha256": "2c9c7182c41ad07978cc943fda51e33427b0486ee60cd8dfb8ae55b399019e6b"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Delta materializado em draft no lote 12; nenhuma triagem/aplicação, aceitação de risco, alteração de métricas/evaluator ou preparação/publicação de release executada.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-action-answers-reverify-on-read",
+        "pose-review-disclosure-requires-proof",
+        "pose-writer-coordination-and-atomic-publication",
+        "pose-residual-nature-commitment-and-effect",
+        "pose-open-backlog-reconciliation"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "F05-08": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R8"
+        ],
+        "F05-09": [
+          "R5",
+          "R6",
+          "R7",
+          "R8"
+        ]
+      }
     },
     {
       "id": "B26",
@@ -2340,12 +2370,41 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-condition-response-and-work-metrics",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-condition-response-and-work-metrics.md",
+          "status": "draft",
+          "sha256": "a02834a5943f2a7ad78424ccc43205d376217f54fdfd9f3206347e53616dab94"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Delta materializado em draft no lote 12; nenhuma triagem/aplicação, aceitação de risco, alteração de métricas/evaluator ou preparação/publicação de release executada.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-action-request-recovery-and-preflight",
+        "pose-residual-nature-commitment-and-effect",
+        "pose-governance-wait-rework-observability"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "T4-08": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R8"
+        ],
+        "F05-10": [
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8"
+        ]
+      }
     },
     {
       "id": "B27",
@@ -3150,12 +3209,55 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-release-shared-sufficiency-contract",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-release-shared-sufficiency-contract.md",
+          "status": "draft",
+          "sha256": "5ebe313c55b921b685acef4a8614912490be520bfd73069caf2a0accb16fa233"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Delta materializado em draft no lote 12; nenhuma triagem/aplicação, aceitação de risco, alteração de métricas/evaluator ou preparação/publicação de release executada.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-action-answers-reverify-on-read",
+        "pose-review-disclosure-requires-proof",
+        "pose-review-approval-domain-preflight",
+        "pose-action-target-and-node-scoping",
+        "pose-spec-facts-evidence-binding",
+        "pose-release-lifecycle-closure"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "D08": [
+          "R1",
+          "R2",
+          "R7",
+          "R8",
+          "R9"
+        ],
+        "F06-01": [
+          "R1",
+          "R2",
+          "R7",
+          "R9"
+        ],
+        "F06-02": [
+          "R3",
+          "R4",
+          "R7",
+          "R8",
+          "R9"
+        ],
+        "F06-03": [
+          "R5",
+          "R6",
+          "R9"
+        ]
+      }
     },
     {
       "id": "B38",
@@ -3824,7 +3926,10 @@
       "unique_substantive_specs": 3,
       "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
       "authoring_spec": "pose-consolidation-batch-11-authoring",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-11-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-11-authoring.md",
+      "authoring_merged": true,
+      "merged_pr": 170,
+      "native_closeout_pending": true
     },
     {
       "id": 12,
@@ -3839,10 +3944,12 @@
         "pose-release-shared-sufficiency-contract",
         "pose-residual-triage-and-risk-acceptance"
       ],
-      "status": "draft",
+      "status": "in-progress",
       "conditional": false,
       "unique_substantive_specs": 3,
-      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
+      "authoring_spec": "pose-consolidation-batch-12-authoring",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-12-authoring.md"
     },
     {
       "id": 13,
@@ -3979,7 +4086,9 @@
         "residual-material-identity",
         "followup-metadata-routing",
         "proportional-next-action",
-        "residual-nature-commitment"
+        "residual-nature-commitment",
+        "residual-triage-risk",
+        "condition-work-metrics"
       ]
     },
     {
@@ -4051,7 +4160,8 @@
       ],
       "bootstrap_only": false,
       "materialized_milestones": [
-        "manifest-tag-integrity"
+        "manifest-tag-integrity",
+        "cut-sufficiency"
       ],
       "materialized_in_authoring_batch": 6
     },
@@ -4127,7 +4237,10 @@
         "xref:proj.pose-dist/milestone:delegated-review/adoption",
         "xref:proj.pose-dist/milestone:delegated-review/fulfillment",
         "xref:proj.pose-dist/milestone:governance-efficiency/proportional-next-action",
-        "xref:proj.pose-dist/milestone:governance-efficiency/residual-nature-commitment"
+        "xref:proj.pose-dist/milestone:governance-efficiency/residual-nature-commitment",
+        "xref:proj.pose-dist/milestone:governance-efficiency/residual-triage-risk",
+        "xref:proj.pose-dist/milestone:governance-efficiency/condition-work-metrics",
+        "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/cut-sufficiency"
       ],
       "materialized_units_owned": [
         "B28",
@@ -4358,7 +4471,7 @@
   ],
   "bootstrap_spec": "pose-consolidation-program-bootstrap",
   "counts_scope": "As 36 novas specs de implementação, uma condicionada e oito reutilizadas excluem as specs documentais de atribuição dos lotes.",
-  "last_authoring_revision": "bdb514772e1edc465dac24a468301c97dda6ad2d",
+  "last_authoring_revision": "06a5444d6a51d5e5d66a3715e02f71067db38a6c",
   "authoring_history": [
     {
       "batch": 0,
@@ -4460,8 +4573,17 @@
     {
       "batch": 11,
       "source_revision": "bdb514772e1edc465dac24a468301c97dda6ad2d",
+      "phase": "merged",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-11-authoring.md",
+      "pr": 170,
+      "merge_commit_sha": "06a5444d6a51d5e5d66a3715e02f71067db38a6c",
+      "native_closeout_pending": true
+    },
+    {
+      "batch": 12,
+      "source_revision": "06a5444d6a51d5e5d66a3715e02f71067db38a6c",
       "phase": "in-progress",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-11-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-12-authoring.md"
     }
   ]
 }
