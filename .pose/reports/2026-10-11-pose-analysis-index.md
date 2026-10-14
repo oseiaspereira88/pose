@@ -136,3 +136,11 @@ Três novos deltas draft de triagem/risco, condição/resposta/trabalho e sufici
 do cut, com ownership nos roadmaps existentes e fontes/ADRs preservados.
 Agora 29 propostas materializadas e oito ausentes, com oito reutilizadas intactas.
 Nenhuma disposition, risco aceito, métrica funcional ou release executada.
+
+## Escrita do lote 13 — 2026-10-14
+
+Consultar o [relatório do lote 13](2026-10-14-pose-batch-13-authoring.md) para B39/B41/B40.
+Três deltas draft de replay temporal/publicação, prepare/record recuperáveis e
+seleção/exclusividade, com ADR suplementar Proposed e nota de revisão.
+Agora 32 propostas materializadas e cinco ausentes; oito reutilizadas intactas.
+Nenhuma tag, manifest real, import, publicação, migração ou policy/adoption executada.
