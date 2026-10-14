@@ -67,10 +67,10 @@ stays visible, and rerunning an unchanged bundle without a reason is
 refused.
 
 ## Milestone: adoption
-- after: trust, adapter-containment, spec:pose-review-approval-domain-preflight
+- after: trust, adapter-containment, spec:pose-review-approval-domain-preflight, fulfillment
 - target_start:
 - target_due:
-- specs: pose-delegated-review-capability, pose-delegated-review-action-fulfillment
+- specs: pose-delegated-review-capability
 
 **Exit gate:** `delegated-review` is a catalog capability, off by default,
 documented with Codex and Claude Code adapter examples; a "review by another
@@ -108,14 +108,15 @@ vinculados ao bundle, prova atual verificada e independência por vendor OU mode
 Assinatura de executor é declaração vinculada, não receipt independente do vendor;
 assurance machine-attested não é pessoa nem aprovação semântica.
 
-Adoption possui a spec compartilhada B19/B21 e a spec existente de B20 uma vez.
+Adoption possui a spec compartilhada B19/B21; no lote 11, B20 passa ao milestone
+fulfillment abaixo, consumido por adoption, sem alterar a sequência ou duplicar ownership.
 Executar fases B19 → B20 → B21: aceites intermediários de conclusões/destinos de
 B19 precedem fulfillment B20; opt-in/rollback e eficácia integrada B21 vêm depois.
 O relatório exige formalizar um gate executável de aceite corrente por fase antes
 da execução; não alegar que esse gate já existe ou exigir capability done para
 iniciar B20 enquanto a mesma capability precisa de B20 para seu encerramento.
-Não promover aceite intermediário a spec done ou dispensar gates adotados. B20
-não é implementado/formalizado pelo lote 10; sua continuidade conserva o lote 11.
+Não promover aceite intermediário a spec done ou dispensar gates adotados. O lote 10
+não implementou/formalizou B20; sua continuidade documental está no lote 11 abaixo.
 O gate histórico de adoption permanece exigido; local/CI/Harne8 seguem o mesmo
 contrato, com integração externa qualificada antes de ser anunciada.
 
@@ -131,3 +132,24 @@ filhos/cleanup/retention têm limites e outcomes verificáveis; incompatibilidad
 exigida recusa execução. Worktree e process group não são sandbox universal.
 Qualificar fixtures Unix/Windows e evidência/retention, sem executar fornecedores
 ou adotar capability nesta escrita. B18 exige B07/B12, não depende artificialmente de B16.
+
+## Continuação prospectiva — lote 11
+
+Consultar o [lote 11](../reports/2026-10-13-pose-batch-11-authoring.md). Preservar
+R1–R3/status/baseline de fulfillment e reconciliar o texto provisório com o ADR
+aceito antes do start. O gate B19 documentado no lote 10 ainda é prospectivo;
+formalizar/qualificar sua evidência corrente antes de executar B20.
+
+## Milestone: fulfillment
+- after: trust, adapter-containment, spec:pose-action-target-and-node-scoping, spec:pose-action-waiver-and-supersession-authority, spec:pose-action-request-recovery-and-preflight, spec:pose-review-approval-domain-preflight
+- target_start:
+- target_due:
+- specs: pose-delegated-review-action-fulfillment
+
+**Exit gate:** B20 exige B08/B09/B10 e aceite corrente da fase B19, sem depender
+de capability done. Reconciliar F1–F8 do relatório na spec existente: request,
+run/prova/conclusão/destino correlacionados; replay não duplica efeito, negative
+outcome não satisfaz aprovação e pessoa requerida não é substituída por agente.
+Local/CI/Harne8 consomem o mesmo verificador, com fronteira externa demonstrada
+antes de claim. Cota esgotada/conflito/negócio geram pergunta/opções por policy.
+Adoption B21 vem depois; escrita não qualifica runner ou gate de fase.

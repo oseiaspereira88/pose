@@ -251,6 +251,27 @@ B21 depende de B19/B20 e conserva qualificação posterior ao fulfillment do lot
 A spec compartilhada exige fase B19 verificável antes de B20 e closeout integrado
 somente em B21; merge/escrita não qualificam qualquer kind, adoção ou runner remoto.
 
+## Milestone: batch-eleven-authoring
+- after: batch-ten-authoring
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-11-authoring
+
+**Exit gate:** B20 reutilizado com R1–R3/status intactos e B27/B24 escritos em draft;
+aceites, fontes/ADRs, dependências/fases, digests e ownership conferidos.
+
+## Milestone: fulfillment-and-proportional-residual
+- after: batch-eleven-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:delegated-review/fulfillment, xref:proj.pose-dist/milestone:governance-efficiency/proportional-next-action, xref:proj.pose-dist/milestone:governance-efficiency/residual-nature-commitment
+
+**Exit gate:** consumir fulfillment, próxima ação e dimensões do residual nos
+responsáveis, sem copiar ownership. B20 exige B08/B09/B10 e fase B19; B27 exige
+B08/B10/B12 e B24 exige B22/B23. B21 qualifica capability integrada após B20.
+Merge/escrita não entregam gate de fase, runner, triagem ou autorização nova.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |
