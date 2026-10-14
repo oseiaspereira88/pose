@@ -585,9 +585,9 @@ func cmdReviewVerify(root string, args []string, stdout, stderr io.Writer) int {
 				render(stdout, stderr).Field("review_verify.reuse."+e.Criterion, line)
 			}
 		}
-		if verification.Attestation != nil {
-			for _, reuse := range verification.Attestation.ReusedFrom {
-				render(stdout, stderr).Field("review_verify.reused."+reuse.Criterion, "from "+reuse.FromAttestation+"; its inputs digest "+reuse.InputDigest+" is unchanged in this bundle")
+		if verification.Assurance != nil {
+			for _, reuse := range verification.Assurance.Reuse {
+				render(stdout, stderr).Field("review_verify.reused."+reuse.Criterion, "from "+reuse.FromAttestation+"; "+reuse.Mode+"; "+reuse.State)
 			}
 		}
 		for _, warning := range verification.Warnings {

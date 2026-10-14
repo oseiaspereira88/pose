@@ -2004,6 +2004,21 @@
           },
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "historical-trust-reuse-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "ReviewTrustTime|ReviewReuseProvenance|ReviewTrustReuse|PersistedIssuerProof|ReviewAssuranceRejects|ABMReviewAuthority",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

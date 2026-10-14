@@ -1,6 +1,6 @@
 ---
 slug: pose-consolidation-program
-status: draft
+status: in-progress
 created_at: 2026-10-13
 depends_on:
 ---
@@ -377,7 +377,9 @@ ou registrar adiamento explícito. Não encerrar o programa só pela materializa
 
 ## Ativação e encerramento
 
-- Manter o programa draft nesta fase de escrita; não iniciar implementação por inferência.
+- A retomada explícita de 2026-10-14 autoriza implementação incremental, uma spec por PR e espera de merge.
+- B04 é o lote atual pela primeira camada/DAG e cadeia preferencial; consultar o [relatório](../reports/2026-10-14-pose-implementation-b04.md).
+- Separar implementação validada de review/closeout; não promover a entrega pelo merge dos lotes documentais.
 - Preservar specs done e os ADRs aceitos; abrir deltas prospectivos e continuar drafts adequados.
 - Conferir uma autoridade executável por spec e um responsável planejado por unidade.
 - Não alterar adoção/policy nem criar manifest de release a partir desta matriz.

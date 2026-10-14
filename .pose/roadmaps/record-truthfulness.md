@@ -1,6 +1,6 @@
 ---
 slug: record-truthfulness
-status: draft
+status: in-progress
 created_at: 2026-10-04
 depends_on:
 ---
@@ -50,7 +50,8 @@ Preservar os milestones e a baseline 6.3.x acima como programa histórico.
 Os deltas abaixo pertencem à consolidação atual; não renomear o cut histórico
 nem anunciar uma nova versão. Consultar a [matriz](../results/pose-implementation-plan.json)
 e o [relatório do lote 1](../reports/2026-10-13-pose-batch-1-authoring.md).
-Os members novos estão draft e suas implementações ainda não foram iniciadas.
+B04 iniciou implementação sob autorização explícita em 2026-10-14. Os demais
+members novos permanecem draft; B01 conserva código mergeado e closeout pendente.
 
 ## Milestone: temporal-trust
 - after: spec:pose-material-equivalence-reuse, spec:pose-native-attestation-issuer
@@ -61,6 +62,12 @@ Os members novos estão draft e suas implementações ainda não foram iniciadas
 **Exit gate:** B04 distingue validade temporal histórica, confiança atual e base
 temporal; reuso comprova a fonte ou declara reassunção atual, com orçamento de
 travessia. Claimed timestamp não inventa autorização histórica. Preservar #157.
+
+Execução atual: [relatório B04](../reports/2026-10-14-pose-implementation-b04.md).
+Readiness/start/assessment executados, R1–R8 preservados. Evidência funcional é
+registrada após os testes; review different-actor e closeout nativo são gates
+pendentes. Não declarar temporal-trust encerrado nem liberar verified-proof
+somente pela presença do código ou pelo merge do PR.
 
 ## Milestone: verified-proof
 - after: temporal-trust

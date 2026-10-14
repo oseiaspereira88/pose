@@ -65,7 +65,7 @@ func (f authorityFixture) attestation(t *testing.T, reviewer, implementationPrin
 	att := approvedBundleAttestation(f.bundle, reviewer)
 	att.SchemaVersion = ReviewBundleSchemaVersion
 	att.BundleDigest = f.bundle.BundleDigest
-	att.AttestedAt = f.now.Add(time.Minute).Format(time.RFC3339)
+	att.AttestedAt = f.now.Format(time.RFC3339)
 	att.Authority = &ReviewAuthorityClaim{
 		SchemaVersion:           ReviewBundleSchemaVersion,
 		Project:                 "fixture-project",
@@ -124,7 +124,7 @@ func TestABMReviewAuthorityMissingClaim(t *testing.T) {
 	att := approvedBundleAttestation(f.bundle, "agent:reviewer")
 	att.SchemaVersion = ReviewBundleSchemaVersion
 	att.BundleDigest = f.bundle.BundleDigest
-	att.AttestedAt = f.now.Add(time.Minute).Format(time.RFC3339)
+	att.AttestedAt = f.now.Format(time.RFC3339)
 	att.AttestationID = reviewAttestationID(att)
 	verification := verifyAuthorityAttestation(t, f, att)
 	if verification.Approved || !containsSubstring(verification.Blockers, "carries no authority claim") {
@@ -175,9 +175,11 @@ func TestABMReviewAuthorityRejectsReplayAndExpiry(t *testing.T) {
 	att = f.attestation(t, "agent:reviewer", "agent:implementer", "review-run-2", "implementation-run-1")
 	att.Authority.ExpiresAt = f.now.Add(-time.Minute).Format(time.RFC3339)
 	att = resignAuthorityAttestation(t, f, att)
-	verification = verifyAuthorityAttestation(t, f, att)
-	if verification.Approved || !containsSubstring(verification.Blockers, "authority claim expired") {
-		t.Fatalf("expired claim was accepted or diagnosed incorrectly: %+v", verification)
+	if _, err := f.store.recordReviewAttestation(att, f.now, true); err == nil || !strings.Contains(err.Error(), "authority claim expired") {
+		t.Fatalf("expired new operation was accepted: %v", err)
+	}
+	if blockers := f.store.atReviewTime(f.now).verifiedAuthorityBlockers(f.bundle, att); !containsSubstring(blockers, "authority claim expired") {
+		t.Fatalf("expired historical claim was accepted: %v", blockers)
 	}
 }
 
