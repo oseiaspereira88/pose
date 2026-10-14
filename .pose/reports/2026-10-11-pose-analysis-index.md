@@ -144,3 +144,11 @@ Três deltas draft de replay temporal/publicação, prepare/record recuperáveis
 seleção/exclusividade, com ADR suplementar Proposed e nota de revisão.
 Agora 32 propostas materializadas e cinco ausentes; oito reutilizadas intactas.
 Nenhuma tag, manifest real, import, publicação, migração ou policy/adoption executada.
+
+## Escrita do lote 14 — 2026-10-14
+
+Consultar o [relatório do lote 14](2026-10-14-pose-batch-14-authoring.md) para B31/B33/B35.
+Três drafts de domínio/handoff, vistas/caches isolados e runtime opcional por
+worktree, com ADR Proposed e nota de revisão. Agora 35 propostas materializadas
+e duas ausentes; oito reutilizadas intactas. Nenhum IPC/daemon, benchmark de
+runtime, extração de domínio/cache, policy/adoption ou implementação iniciado.
