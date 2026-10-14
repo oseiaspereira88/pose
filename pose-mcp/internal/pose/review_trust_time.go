@@ -10,11 +10,12 @@ import (
 // No local or issuer timestamp proves an observed historical authorization.
 type ReviewTrustTime struct {
 	TimeBasis               string   `json:"time_basis"`
+	HistoricalAt            string   `json:"historical_at,omitempty"`
+	CurrentBasis            string   `json:"current_basis"`
 	HistoricalValidity      string   `json:"historical_validity"`
 	CurrentValidity         string   `json:"current_validity"`
 	CurrentTrust            string   `json:"current_trust"`
 	HistoricalAuthorization string   `json:"historical_authorization"`
-	EvaluatedAt             string   `json:"evaluated_at"`
 	HistoricalBlockers      []string `json:"historical_blockers,omitempty"`
 	CurrentBlockers         []string `json:"current_blockers,omitempty"`
 }
@@ -105,8 +106,8 @@ func reviewNewOperationTimeBlockers(att ReviewAttestation, now time.Time) []stri
 
 func (s Store) reviewAuthorityTime(att ReviewAttestation) ReviewTrustTime {
 	now := s.reviewClock()
-	out := ReviewTrustTime{TimeBasis: "legacy-editable-attested-at", HistoricalValidity: "not-established", CurrentValidity: "not-evaluated", CurrentTrust: "not-verified", HistoricalAuthorization: "not-established", EvaluatedAt: now.Format(time.RFC3339Nano)}
-	if att.Authority == nil {
+	out := ReviewTrustTime{TimeBasis: "legacy-editable-attested-at", HistoricalValidity: "not-established", CurrentValidity: "not-evaluated", CurrentTrust: "not-verified", HistoricalAuthorization: "not-established", HistoricalAt: att.AttestedAt, CurrentBasis: "operation-clock"}
+	if att.Authority == nil && att.Envelope == nil {
 		return out
 	}
 	out.CurrentBlockers = reviewNewOperationTimeBlockers(att, now)
@@ -131,7 +132,9 @@ func (s Store) reviewAuthorityTime(att ReviewAttestation) ReviewTrustTime {
 			out.HistoricalValidity = "invalid-claim"
 		}
 	}
-	if len(out.CurrentBlockers) == 0 {
+	if att.Authority == nil {
+		out.CurrentValidity = "not-evaluated"
+	} else if len(out.CurrentBlockers) == 0 {
 		out.CurrentValidity = "valid-claim"
 	} else {
 		out.CurrentValidity = "invalid-claim"

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func reuseSourceFixture(t *testing.T) (authorityFixture, ReviewAttestation, ReviewAttestation, string) {
@@ -41,10 +42,17 @@ func reuseSourceFixture(t *testing.T) (authorityFixture, ReviewAttestation, Revi
 }
 
 func TestReviewReuseProvenanceAuthenticatesSourceAndBindings(t *testing.T) {
-	for _, name := range []string{"valid", "signature", "authority", "negative", "criterion", "input", "missing", "unsigned", "grant"} {
+	for _, name := range []string{"valid", "signature", "authority", "negative", "criterion", "input", "missing", "unsigned", "grant", "future-source", "future-source-declared"} {
 		t.Run(name, func(t *testing.T) {
 			f, source, current, path := reuseSourceFixture(t)
 			switch name {
+			case "future-source", "future-source-declared":
+				source.AttestedAt = f.now.Add(time.Hour).Format(time.RFC3339)
+				if name == "future-source-declared" {
+					source.Authority = nil
+				}
+				source = resignAuthorityAttestation(t, f, source)
+				current.ReusedFrom[0].FromAttestation = source.AttestationID
 			case "signature":
 				source.Envelope.Signature = "invalid"
 			case "authority":
@@ -106,7 +114,7 @@ func TestReviewReuseProvenanceReaffirmationIsCurrentJudgment(t *testing.T) {
 		t.Fatal(b)
 	}
 	for i := range current.Criteria {
-		current.Criteria[i].Rationale = ""
+		current.Criteria[i].Rationale = " \t "
 	}
 	if b, _ := f.store.evaluateReviewReuse(f.bundle, current, true); len(b) == 0 {
 		t.Fatal("reference dispensed with current judgment")

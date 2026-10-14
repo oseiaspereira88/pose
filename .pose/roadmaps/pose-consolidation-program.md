@@ -1,6 +1,6 @@
 ---
 slug: pose-consolidation-program
-status: in-progress
+status: active
 created_at: 2026-10-13
 depends_on:
 ---

@@ -63,6 +63,9 @@ após execução, separadamente destas declarações.
 - created: pose-mcp/internal/cli/review_trust_reuse_cli_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - created: .pose/actions/act-fa20ae0029b6ad14.jsonl
 - modified: pose-mcp/internal/pose/spec.go
 - modified: pose-mcp/internal/cli/review_closeout.go
@@ -79,6 +82,9 @@ após execução, separadamente destas declarações.
 - modified: .pose/roadmaps/pose-consolidation-program.md
 - modified: pose-mcp/internal/pose/review_assurance.go
 - modified: pose-mcp/internal/pose/review_authority_test.go
+- modified: pose-mcp/internal/pose/issuer_key_test.go
+- modified: pose-mcp/internal/pose/review_assurance_proof_test.go
+- modified: pose-mcp/internal/pose/review_attest_signed_test.go
 - created: .pose/reports/2026-10-14-pose-implementation-b04.md
 - created: .pose/adr/2026-10-14-review-time-context-and-reuse-provenance.md
 

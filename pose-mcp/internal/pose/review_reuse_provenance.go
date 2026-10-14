@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const (
@@ -139,6 +140,7 @@ func (s Store) verifyReuseSource(bundle ReviewBundle, att ReviewAttestation) []s
 	} else if err := s.verifyStoredReviewAttestationSignature(att); err != nil {
 		blockers = append(blockers, "reuse source proof: "+err.Error())
 	}
+	blockers = append(blockers, s.reviewAuthorityTime(att).HistoricalBlockers...)
 	blockers = append(blockers, s.validateBundleAttestationWith(bundle, att, false)...)
 	state.memo[key] = append([]string{}, blockers...)
 	return blockers
@@ -146,7 +148,7 @@ func (s Store) verifyReuseSource(bundle ReviewBundle, att ReviewAttestation) []s
 
 func reviewReaffirmedCriterion(att ReviewAttestation, id string) bool {
 	for _, c := range att.Criteria {
-		if c.ID == id && c.Disposition == "passed" && c.Rationale != "" {
+		if c.ID == id && c.Disposition == "passed" && strings.TrimSpace(c.Rationale) != "" {
 			return true
 		}
 	}
@@ -197,7 +199,9 @@ func (s Store) evaluateReviewReuse(bundle ReviewBundle, att ReviewAttestation, a
 			} else if b, err := s.loadReuseBundle(prior.BundleID); err != nil {
 				add("references an unavailable bundle: " + err.Error())
 			} else {
-				d.Blockers = append(d.Blockers, reviewFindingDecisionBlockers(b, prior)...)
+				for _, blocker := range reviewFindingDecisionBlockers(b, prior) {
+					add("references a non-approving attestation: " + blocker)
+				}
 				contract := ""
 				for _, c := range b.Payload.Plan.Criteria {
 					if c.ID == reuse.Criterion && c.Required {

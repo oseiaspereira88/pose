@@ -118,7 +118,7 @@ func TestNativeAndExternalIssuersCoexist(t *testing.T) {
 
 	// The native issuer signs and its envelope records.
 	authority := &NativeAuthority{ReviewExecution: "review-run-2", ImplementationPrincipal: "agent:implementer", ImplementationExecution: "implementation-run-1", TTL: time.Hour}
-	envelope, err := f.store.SignReviewAttestation(approvedBundleAttestation(f.bundle, "agent:reviewer"), native, authority, f.now.Add(time.Minute))
+	envelope, err := f.store.SignReviewAttestation(approvedBundleAttestation(f.bundle, "agent:reviewer"), native, authority, f.now)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -156,7 +156,7 @@ func TestNativeAuthorityClaimSatisfiesVerifiedIdentity(t *testing.T) {
 	pinNative(t, f.root, native, true, false)
 	reseal(t, &f)
 	authority := &NativeAuthority{ReviewExecution: "review-run-2", ImplementationPrincipal: "agent:implementer", ImplementationExecution: "implementation-run-1"}
-	envelope, err := f.store.SignReviewAttestation(approvedBundleAttestation(f.bundle, "human:ada"), native, authority, f.now.Add(time.Minute))
+	envelope, err := f.store.SignReviewAttestation(approvedBundleAttestation(f.bundle, "human:ada"), native, authority, f.now)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -176,7 +176,7 @@ func TestNativeAuthorityClaimSatisfiesVerifiedIdentity(t *testing.T) {
 
 	pinNative(t, f.root, native, false, true)
 	reseal(t, &f)
-	envelope, err = f.store.SignReviewAttestation(approvedBundleAttestation(f.bundle, "human:ada"), native, authority, f.now.Add(2*time.Minute))
+	envelope, err = f.store.SignReviewAttestation(approvedBundleAttestation(f.bundle, "human:ada"), native, authority, f.now)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,6 +1,6 @@
 ---
 slug: record-truthfulness
-status: in-progress
+status: active
 created_at: 2026-10-04
 depends_on:
 ---
