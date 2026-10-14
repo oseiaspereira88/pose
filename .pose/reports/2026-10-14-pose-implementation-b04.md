@@ -86,3 +86,27 @@ ser revisada no PR; delivery_complete permanece false até gates e closeout.
 Próxima unidade na cadeia preferida: B01, qualificar as duas specs reutilizadas,
 somente após merge e closeout de B04. As demais raízes da camada 1 continuam
 tecnicamente elegíveis, mas esta interação não inicia outro lote.
+
+## Handoff de qualificação nativa
+
+Head documental e48b2f9bc94b84158021ccfd00233efc0b76ba41: CI #754
+(38604918357) e Security #756 (38604918342) passaram integralmente. O head de
+código 4708933 também passou ambos os pipelines; a mudança posterior é somente
+narrativa/matriz/spec. O último head desta atualização deve ter seus próprios
+pipelines conferidos antes da revisão.
+
+Validate --strict --module pose-mcp executou 129 checks: 128 pass e um fail no
+install-and-upgrade-journeys-integration, exclusivamente porque tar tentou chown
+para uid/gid 1001, indisponível neste sandbox. O percurso passou no CI. Repetição
+com TAR_OPTIONS=--no-same-owner preservou os checks, mas o executor desconectou
+e perdeu os processos/checkpoints antes da conclusão. Não computar esse rerun
+como pass e não selar o results_path histórico como prova atual.
+
+A coleta nativa deve ser retomada no fluxo normal: validate successful current
+results_path, assess --if-stale --update-state, index, bundle --seal, preparação
+mecânica, julgamento different-actor, review verify, resposta de aceitação e close.
+O arquivo de results e o índice derivados não são source-tree entregues nesta
+interação; o PR declara somente seus paths efetivamente atribuídos. R1–R8 e
+a baseline permanecem intactos. O pedido act-fa20ae0029b6ad14 restringe closeout.
+B01 não é iniciado nem considerado elegível na cadeia preferida antes de
+qualificação/closeout de B04 e merge. Os closeouts documentais permanecem separados.

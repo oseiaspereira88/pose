@@ -62,8 +62,6 @@ após execução, separadamente destas declarações.
 - created: pose-mcp/internal/pose/review_reuse_provenance_test.go
 - created: pose-mcp/internal/cli/review_trust_reuse_cli_test.go
 - modified: .pose/indexes/validation-matrix.json
-- modified: .pose/indexes/delivery-integrity.json
-- modified: .pose/results/delivery-validation.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
@@ -179,7 +177,7 @@ pending; this trace records functional regressions, not formal closeout.
 
 B04 implementation and targeted regressions recorded in
 [implementation report](../reports/2026-10-14-pose-implementation-b04.md).
-The spec remains in-progress: full deterministic validation, different-actor
+The spec remains in-progress: native evidence qualification, different-actor
 review and native closeout are not promoted from code or merge. Native acceptance
 act-fa20ae0029b6ad14 restricts closeout only. No next unit has started.
 
@@ -191,3 +189,13 @@ Um payload assinado prova a declaração do issuer, não a verdade de um relógi
 
 Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
 permanecem na matriz do programa, sem disposition automática.
+
+### Native qualification handoff
+
+Native validate --strict --module pose-mcp on head e48b2f9 executed 129 checks:
+128 pass and one environmental failure when the upgrade journey tried chown uid
+1001 inside the sandbox. The identical journey passed in CI. A full rerun with
+TAR_OPTIONS=--no-same-owner was interrupted by executor disconnection; no pass
+was inferred. Regenerate the policy results_path with successful current evidence
+before index/seal/review/close. Generated results/index are future closeout
+outputs; they are not claimed as delivered source-tree modifications in this PR.
