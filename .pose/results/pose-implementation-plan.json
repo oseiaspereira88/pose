@@ -10,9 +10,9 @@
     "sha256": "f138929bdb835291c6cbae165d7b5776c3cd538155038fb523390378c11f9dd1"
   },
   "authorization": {
-    "scope": "Escrever somente lote 10 após merge de #168: continuidade de B17/B19/B21 nas specs existentes e novo delta B18; sem execução funcional.",
-    "current_authoring_batch": 10,
-    "next_authoring_batch": 11,
+    "scope": "Escrever somente lote 11 após merge de #169: continuidade de B20 na spec existente e novos deltas B27/B24; sem execução funcional.",
+    "current_authoring_batch": 11,
+    "next_authoring_batch": 12,
     "future_batch_implementation_authorized": false
   },
   "counts": {
@@ -22,8 +22,8 @@
     "new_specs": 36,
     "conditional_new_specs": 1,
     "unique_reused_specs": 8,
-    "materialized_implementation_specs": 24,
-    "unmaterialized_implementation_specs": 13
+    "materialized_implementation_specs": 26,
+    "unmaterialized_implementation_specs": 11
   },
   "candidate_ownership": {
     "T2-01": "B01",
@@ -1837,8 +1837,60 @@
         }
       ],
       "proposed_specs": [],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Lote 11 formaliza continuidade de fulfillment com bytes/R1–R3/status preservados. Gate B19 corrente antes de B20, sem exigir capability done; extensões F1–F8 e artifacts dependem de reconciliação prospectiva. Nenhuma execução ou closeout.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "reuse_plan_formalized": true,
+      "reuse_continuation_plan_path": ".pose/reports/2026-10-13-pose-batch-11-authoring.md",
+      "reused_spec_requirement_coverage": {
+        "pose-delegated-review-action-fulfillment": {
+          "T3-08": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        }
+      },
+      "reuse_extension_acceptance_coverage": {
+        "T3-08": [
+          "F1",
+          "F2",
+          "F3",
+          "F4",
+          "F5",
+          "F6",
+          "F7",
+          "F8"
+        ]
+      },
+      "reuse_extension_contract_status": "prospective-before-start; F-IDs and the B19 phase gate belong to the report, not a delivered native capability",
+      "native_spec_dependencies_before_start": [
+        "pose-delegated-review-dispatch",
+        "pose-action-target-and-node-scoping",
+        "pose-action-waiver-and-supersession-authority",
+        "pose-action-request-recovery-and-preflight",
+        "pose-delegated-review-run-provenance",
+        "pose-delegated-review-attempt-ledger",
+        "pose-delegated-adapter-containment",
+        "pose-review-approval-domain-preflight"
+      ],
+      "phase_acceptance_dependency_plan": {
+        "unit": "B19",
+        "shared_spec": "pose-delegated-review-capability",
+        "gate_plan_path": ".pose/reports/2026-10-13-pose-batch-10-authoring.md",
+        "execution_order": [
+          "B19",
+          "B20",
+          "B21"
+        ],
+        "requires_current_scoped_evidence": true,
+        "requires_shared_spec_done": false,
+        "native_phase_gate_support_claimed": false
+      }
     },
     {
       "id": "B21",
@@ -2154,12 +2206,48 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-residual-nature-commitment-and-effect",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-residual-nature-commitment-and-effect.md",
+          "status": "draft",
+          "sha256": "e215ed4c35391153b2dbe860cbed6bc3d46e293e8656dc46c3d9f95a086196aa"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Delta materializado em draft no lote 11; nenhum mecanismo funcional de next action, taxonomia, gate ou triagem implementado nesta escrita.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-residual-material-coverage-and-identity",
+        "pose-followup-metadata-and-routing-integrity",
+        "pose-obligation-contract",
+        "pose-followup-reconciliation-candidates"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "D07": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R6",
+          "R7",
+          "R8",
+          "R9"
+        ],
+        "F05-07": [
+          "R1",
+          "R2",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9"
+        ]
+      }
     },
     {
       "id": "B25",
@@ -2325,12 +2413,60 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-proportional-next-action",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-13-pose-proportional-next-action.md",
+          "status": "draft",
+          "sha256": "b9991d60cadaad8f847e6804b25ad570e73122a1fabe0e4732489c4390bf6c23"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Delta materializado em draft no lote 11; nenhum mecanismo funcional de next action, taxonomia, gate ou triagem implementado nesta escrita.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-action-target-and-node-scoping",
+        "pose-action-request-recovery-and-preflight",
+        "pose-cli-mcp-operation-results",
+        "pose-action-request-presentation",
+        "pose-progressive-spec-surface"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "T4-07": [
+          "R1",
+          "R2",
+          "R3",
+          "R9"
+        ],
+        "T4-09": [
+          "R3",
+          "R5",
+          "R6",
+          "R7"
+        ],
+        "T4-10": [
+          "R5",
+          "R7",
+          "R8",
+          "R9"
+        ],
+        "F07-07": [
+          "R3",
+          "R4",
+          "R8",
+          "R9"
+        ],
+        "F07-08": [
+          "R3",
+          "R5",
+          "R6",
+          "R7",
+          "R9"
+        ]
+      }
     },
     {
       "id": "B28",
@@ -3665,7 +3801,10 @@
       "unique_substantive_specs": 3,
       "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
       "authoring_spec": "pose-consolidation-batch-10-authoring",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-10-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-10-authoring.md",
+      "authoring_merged": true,
+      "merged_pr": 169,
+      "native_closeout_pending": true
     },
     {
       "id": 11,
@@ -3680,10 +3819,12 @@
         "pose-proportional-next-action",
         "pose-residual-nature-commitment-and-effect"
       ],
-      "status": "draft",
+      "status": "in-progress",
       "conditional": false,
       "unique_substantive_specs": 3,
-      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
+      "authoring_spec": "pose-consolidation-batch-11-authoring",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-11-authoring.md"
     },
     {
       "id": 12,
@@ -3836,7 +3977,9 @@
         "terminal-closeout-verification",
         "update-dry-run-qualification",
         "residual-material-identity",
-        "followup-metadata-routing"
+        "followup-metadata-routing",
+        "proportional-next-action",
+        "residual-nature-commitment"
       ]
     },
     {
@@ -3861,7 +4004,8 @@
         "trust",
         "adoption",
         "attempt-ledger",
-        "adapter-containment"
+        "adapter-containment",
+        "fulfillment"
       ]
     },
     {
@@ -3980,7 +4124,10 @@
         "xref:proj.pose-dist/milestone:pose-state-consistency-and-recovery/generation-query-cursors",
         "xref:proj.pose-dist/milestone:delegated-review/trust",
         "xref:proj.pose-dist/milestone:delegated-review/adapter-containment",
-        "xref:proj.pose-dist/milestone:delegated-review/adoption"
+        "xref:proj.pose-dist/milestone:delegated-review/adoption",
+        "xref:proj.pose-dist/milestone:delegated-review/fulfillment",
+        "xref:proj.pose-dist/milestone:governance-efficiency/proportional-next-action",
+        "xref:proj.pose-dist/milestone:governance-efficiency/residual-nature-commitment"
       ],
       "materialized_units_owned": [
         "B28",
@@ -4211,7 +4358,7 @@
   ],
   "bootstrap_spec": "pose-consolidation-program-bootstrap",
   "counts_scope": "As 36 novas specs de implementação, uma condicionada e oito reutilizadas excluem as specs documentais de atribuição dos lotes.",
-  "last_authoring_revision": "32626ca12258d135528421cb6b62a3a81e95df20",
+  "last_authoring_revision": "bdb514772e1edc465dac24a468301c97dda6ad2d",
   "authoring_history": [
     {
       "batch": 0,
@@ -4304,8 +4451,17 @@
     {
       "batch": 10,
       "source_revision": "32626ca12258d135528421cb6b62a3a81e95df20",
+      "phase": "merged",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-10-authoring.md",
+      "pr": 169,
+      "merge_commit_sha": "bdb514772e1edc465dac24a468301c97dda6ad2d",
+      "native_closeout_pending": true
+    },
+    {
+      "batch": 11,
+      "source_revision": "bdb514772e1edc465dac24a468301c97dda6ad2d",
       "phase": "in-progress",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-10-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-11-authoring.md"
     }
   ]
 }

@@ -135,6 +135,37 @@ triagem. Destino abandoned/órfão/superseded/cíclico tem diagnóstico, resolu�
 e adequação explícita; done isolado não resolve intenção. Qualificar P05/P06, sem
 aplicar disposition automaticamente ou certificar complete após perdas de leitura.
 
+
+## Continuação prospectiva — lote 11
+
+Consultar o [lote 11](../reports/2026-10-13-pose-batch-11-authoring.md). Reusar o
+ADR de obligations; schema/sintaxe novos exigem decisão prospectiva antes do código.
+B25/B26/B42 permanecem futuros, sem triagem automática ou eficácia presumida.
+
+## Milestone: proportional-next-action
+- after: spec:pose-action-target-and-node-scoping, spec:pose-action-request-recovery-and-preflight, spec:pose-cli-mcp-operation-results, spec:pose-action-request-presentation, spec:pose-progressive-spec-surface
+- target_start:
+- target_due:
+- specs: pose-proportional-next-action
+
+**Exit gate:** B27 distingue holder/executor/pessoa/advisory e semântica de actor
+query, reaproveita autorização suficiente e preserva request/digest/efeito na
+retomada/handoff. Rotas trivial/bug/contract/decision são condicionais; triagem
+em lote preserva answers e dedup é candidato. Quatro kinds retomam fase/target
+correto com prova e negatives rastreáveis; apresentação não implementa delegação.
+
+## Milestone: residual-nature-commitment
+- after: residual-material-identity, followup-metadata-routing, spec:pose-obligation-contract, spec:pose-followup-reconciliation-candidates
+- target_start:
+- target_due:
+- specs: pose-residual-nature-commitment-and-effect
+
+**Exit gate:** B24 projeta dívida/defeito/incompletude/evidência/adoção/opcional com
+natureza, compromisso e efeito separados; legado fica não classificado. Rótulo,
+criticidade ou SLA não criam gate sozinhos, e compromisso vigente não desaparece
+por encaminhamento ou renomeação. Sources/lifecycle/coverage preservados, sem
+backlog paralelo, migração, triagem ou risco aceito automaticamente.
+
 ## Risk controls
 
 - No aggregate efficiency or quality score; dimensions only.

@@ -120,3 +120,11 @@ Um delta draft de contenção e continuidade em proveniência/capability existen
 com B19/B21 na mesma spec. Agora 24 propostas materializadas e 13 ausentes;
 bytes/status das oito reutilizadas preservados. O roadmap segue ADR aceito e
 ordem B19 → B20 → B21, sem implementar checkpoint, adoção ou dispatch.
+
+## Escrita do lote 11 — 2026-10-13
+
+Consultar o [relatório do lote 11](2026-10-13-pose-batch-11-authoring.md) para B20/B27/B24.
+Fulfillment reutilizado, com milestone próprio antes de adoption e gate B19
+prospectivo; dois novos deltas draft de próximo passo e dimensões do residual.
+Agora 26 propostas materializadas e 11 ausentes, com oito reutilizadas preservadas.
+Nenhum runner, triagem/apply, nova autorização ou blocker por rótulo implementado.
