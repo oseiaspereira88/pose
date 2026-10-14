@@ -293,6 +293,27 @@ B26 exige B10/B24 e B37 exige B01/B02/B08/B30, sem dependências temáticas arti
 Candidato não é decisão, resposta não é satisfação e path não é approval.
 Merge documental não aceita risco nem qualifica métricas ou prepara release.
 
+## Milestone: batch-thirteen-authoring
+- after: batch-twelve-authoring
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-13-authoring
+
+**Exit gate:** B39/B41/B40 escritos em draft, ADR suplementar Proposed e nota de
+revisão, coverage/digests/DAG/ownership conferidos. Nenhuma operação de release.
+
+## Milestone: publication-recovery-and-selected-cut
+- after: batch-thirteen-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/publication-evidence-replay, xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/prepare-record-recovery, xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/scope-selection-exclusivity
+
+**Exit gate:** consumir resultados do roadmap responsável. B39 exige B04/B38;
+B41 exige B12/B13/B14/B38; B40 integra ambos após B23/B24/B37/B38/B39/B41.
+ADR Proposed exige resolução antes de start; não há ciclo B39/B41, estado
+verified fabricado, recovery por backfill ou encerramento por escrita/merge.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |

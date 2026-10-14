@@ -10,9 +10,9 @@
     "sha256": "f138929bdb835291c6cbae165d7b5776c3cd538155038fb523390378c11f9dd1"
   },
   "authorization": {
-    "scope": "Escrever somente lote 12 após merge de #170: novos deltas B25/B26/B37; sem implementação funcional, triagem/apply ou release.",
-    "current_authoring_batch": 12,
-    "next_authoring_batch": 13,
+    "scope": "Escrever somente lote 13 após merge #171: B39/B41/B40 draft e proposta ADR/nota de revisão; sem implementação funcional, operações de release ou adoção.",
+    "current_authoring_batch": 13,
+    "next_authoring_batch": 14,
     "future_batch_implementation_authorized": false
   },
   "counts": {
@@ -22,8 +22,8 @@
     "new_specs": 36,
     "conditional_new_specs": 1,
     "unique_reused_specs": 8,
-    "materialized_implementation_specs": 29,
-    "unmaterialized_implementation_specs": 8
+    "materialized_implementation_specs": 32,
+    "unmaterialized_implementation_specs": 5
   },
   "candidate_ownership": {
     "T2-01": "B01",
@@ -3379,12 +3379,57 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-release-publication-evidence-replay",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-14-pose-release-publication-evidence-replay.md",
+          "status": "draft",
+          "sha256": "8d84bd6f4f8d240ac73ff71fc4e3997e368edee118ae6df84d04573d19adc146"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec draft e contratos prospectivos formalizados no lote 13. ADR suplementar Proposed; nenhum replay/evaluator/writer funcional, prepare/record/tag/backfill/publicação, migração ou policy/adoption executado.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-historical-trust-and-review-reuse",
+        "pose-release-manifest-tag-integrity",
+        "pose-release-lifecycle-closure",
+        "pose-reproducible-release-verification"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "F06-05": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R9",
+          "R10"
+        ],
+        "F06-09": [
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10"
+        ],
+        "F06-10": [
+          "R3",
+          "R4",
+          "R5",
+          "R9",
+          "R10"
+        ]
+      },
+      "contract_decision_plan": {
+        "proposal_path": ".pose/adr/2026-10-14-release-temporal-evidence-and-attempt-lineage.md",
+        "status": "proposed",
+        "review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-release-temporal-evidence-review.md",
+        "requires_resolution_before_functional_start": true,
+        "schema_or_adoption_delivered": false
+      }
     },
     {
       "id": "B40",
@@ -3430,12 +3475,53 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-release-scope-selection-and-exclusivity",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-14-pose-release-scope-selection-and-exclusivity.md",
+          "status": "draft",
+          "sha256": "638f37ff6d39559668a356a277c17d59c575a5458ed6ae2997530662a931b376"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec draft e contratos prospectivos formalizados no lote 13. ADR suplementar Proposed; nenhum replay/evaluator/writer funcional, prepare/record/tag/backfill/publicação, migração ou policy/adoption executado.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-followup-metadata-and-routing-integrity",
+        "pose-residual-nature-commitment-and-effect",
+        "pose-release-shared-sufficiency-contract",
+        "pose-release-manifest-tag-integrity",
+        "pose-release-publication-evidence-replay",
+        "pose-release-prepare-record-recovery",
+        "pose-release-lifecycle-closure",
+        "pose-release-prepare-guards-claimed-fragments"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "F06-07": [
+          "R3",
+          "R4",
+          "R5",
+          "R8"
+        ],
+        "F06-08": [
+          "R1",
+          "R2",
+          "R5",
+          "R6",
+          "R7",
+          "R8"
+        ]
+      },
+      "contract_decision_plan": {
+        "proposal_path": ".pose/adr/2026-10-14-release-temporal-evidence-and-attempt-lineage.md",
+        "status": "proposed",
+        "review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-release-temporal-evidence-review.md",
+        "requires_resolution_before_functional_start": true,
+        "schema_or_adoption_delivered": false
+      }
     },
     {
       "id": "B41",
@@ -3475,12 +3561,47 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-release-prepare-record-recovery",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-14-pose-release-prepare-record-recovery.md",
+          "status": "draft",
+          "sha256": "65e7f81f922c6a200c36a5bfa08d7dc93528a6c4cc519ce26143476c61ab3e2b"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec draft e contratos prospectivos formalizados no lote 13. ADR suplementar Proposed; nenhum replay/evaluator/writer funcional, prepare/record/tag/backfill/publicação, migração ou policy/adoption executado.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-cli-mcp-operation-results",
+        "pose-journal-checkpoint-and-lock-recovery",
+        "pose-writer-coordination-and-atomic-publication",
+        "pose-release-manifest-tag-integrity",
+        "pose-release-lifecycle-closure"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "CONS-08": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9"
+        ]
+      },
+      "contract_decision_plan": {
+        "proposal_path": ".pose/adr/2026-10-14-release-temporal-evidence-and-attempt-lineage.md",
+        "status": "proposed",
+        "review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-release-temporal-evidence-review.md",
+        "requires_resolution_before_functional_start": true,
+        "schema_or_adoption_delivered": false
+      }
     },
     {
       "id": "B42",
@@ -3949,7 +4070,10 @@
       "unique_substantive_specs": 3,
       "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
       "authoring_spec": "pose-consolidation-batch-12-authoring",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-12-authoring.md"
+      "report_path": ".pose/reports/2026-10-13-pose-batch-12-authoring.md",
+      "authoring_merged": true,
+      "merged_pr": 171,
+      "native_closeout_pending": true
     },
     {
       "id": 13,
@@ -3964,10 +4088,14 @@
         "pose-release-publication-evidence-replay",
         "pose-release-scope-selection-and-exclusivity"
       ],
-      "status": "draft",
+      "status": "in-progress",
       "conditional": false,
       "unique_substantive_specs": 3,
-      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
+      "authoring_spec": "pose-consolidation-batch-13-authoring",
+      "report_path": ".pose/reports/2026-10-14-pose-batch-13-authoring.md",
+      "adr_proposal_path": ".pose/adr/2026-10-14-release-temporal-evidence-and-attempt-lineage.md",
+      "decision_review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-release-temporal-evidence-review.md"
     },
     {
       "id": 14,
@@ -4161,7 +4289,10 @@
       "bootstrap_only": false,
       "materialized_milestones": [
         "manifest-tag-integrity",
-        "cut-sufficiency"
+        "cut-sufficiency",
+        "publication-evidence-replay",
+        "prepare-record-recovery",
+        "scope-selection-exclusivity"
       ],
       "materialized_in_authoring_batch": 6
     },
@@ -4240,7 +4371,10 @@
         "xref:proj.pose-dist/milestone:governance-efficiency/residual-nature-commitment",
         "xref:proj.pose-dist/milestone:governance-efficiency/residual-triage-risk",
         "xref:proj.pose-dist/milestone:governance-efficiency/condition-work-metrics",
-        "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/cut-sufficiency"
+        "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/cut-sufficiency",
+        "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/publication-evidence-replay",
+        "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/prepare-record-recovery",
+        "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/scope-selection-exclusivity"
       ],
       "materialized_units_owned": [
         "B28",
@@ -4445,7 +4579,11 @@
     {
       "batch": 12,
       "topic": "Suficiência e evidência temporal de releases",
-      "condition": "Registrar decisões de contrato novo, preservando os ADRs de release existentes."
+      "condition": "Registrar decisões de contrato novo, preservando os ADRs de release existentes.",
+      "proposal_path": ".pose/adr/2026-10-14-release-temporal-evidence-and-attempt-lineage.md",
+      "proposal_status": "proposed",
+      "materialized_in_authoring_batch": 13,
+      "review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-release-temporal-evidence-review.md"
     },
     {
       "batch": 14,
@@ -4471,7 +4609,7 @@
   ],
   "bootstrap_spec": "pose-consolidation-program-bootstrap",
   "counts_scope": "As 36 novas specs de implementação, uma condicionada e oito reutilizadas excluem as specs documentais de atribuição dos lotes.",
-  "last_authoring_revision": "06a5444d6a51d5e5d66a3715e02f71067db38a6c",
+  "last_authoring_revision": "655940a47d5622080dd213f1247b638704be6c43",
   "authoring_history": [
     {
       "batch": 0,
@@ -4582,8 +4720,17 @@
     {
       "batch": 12,
       "source_revision": "06a5444d6a51d5e5d66a3715e02f71067db38a6c",
+      "phase": "merged",
+      "report_path": ".pose/reports/2026-10-13-pose-batch-12-authoring.md",
+      "pr": 171,
+      "merge_commit_sha": "655940a47d5622080dd213f1247b638704be6c43",
+      "native_closeout_pending": true
+    },
+    {
+      "batch": 13,
+      "source_revision": "655940a47d5622080dd213f1247b638704be6c43",
       "phase": "in-progress",
-      "report_path": ".pose/reports/2026-10-13-pose-batch-12-authoring.md"
+      "report_path": ".pose/reports/2026-10-14-pose-batch-13-authoring.md"
     }
   ]
 }
