@@ -197,6 +197,29 @@ são unidos por scope sem duplicação. Markers, intenções, cobertura, encamin
 e implementações devidas têm denominadores/limites próprios; idade vem de fatos,
 nunca mtime. Não inferir produtividade ou eficácia do piloto por volume.
 
+## Continuação prospectiva — lote 15
+
+Consultar o [lote 15](../reports/2026-10-14-pose-batch-15-authoring.md).
+B42 está draft e mantém as fundações agency-pilot/adversarial intactas. O
+milestone abaixo ordena a qualificação final; não transforma B31/B33/B35 em
+pré-requisitos técnicos da preparação. Seus resultados são obrigatórios para
+closeout de B42, com evidence atual e review do R9; não há gate de fase nativo
+novo. O piloto histórico permanece rehearsal com adoção delimitada, sem prova
+de pessoa real, transferência de autoridade ou utilidade do escopo ampliado.
+
+## Milestone: integrated-agency-runtime-pilot
+- after: residual-triage-risk, condition-work-metrics, proportional-next-action, agency-pilot, spec:pose-delegated-review-capability, spec:pose-release-shared-sufficiency-contract, spec:pose-release-scope-selection-and-exclusivity, spec:pose-mechanization-adversarial-corpus, spec:pose-common-domain-and-cli-mcp-handoff, spec:pose-bounded-isolated-graph-caches, spec:pose-optional-worktree-runtime
+- target_start:
+- target_due:
+- specs: pose-integrated-agency-and-runtime-pilot
+
+**Exit gate:** B42 executa J1–J8 com pessoa/agente separados, corpus/baseline
+fixos, trabalho útil/reuso e coverage, regressões de instruções/output de erro,
+stop/go e rollback delimitados. Runtime opcional/domínio/caches têm prova atual
+e comparação standalone/CI/carga; preparação parcial não encerra a spec. Falta
+de pessoa real, baseline, thresholds ou integrity exige stop/defer, não eficácia
+fabricada por schema/CI. Nenhuma policy/release é aplicada pelo piloto ou merge.
+
 ## Risk controls
 
 - No aggregate efficiency or quality score; dimensions only.

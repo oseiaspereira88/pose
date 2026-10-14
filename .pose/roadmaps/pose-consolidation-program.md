@@ -335,6 +335,29 @@ B33 exige B15/B34; B35 exige B07/B12/B14/B15/B31/B32/B33/B34. Fonte única,
 isolamento/generation/authority e QoS têm prova; stdio não é IPC ou grant.
 Resolver ADR antes de start e preservar fronteira Harness, sem adoção por merge.
 
+## Milestone: batch-fifteen-authoring
+- after: batch-fourteen-authoring
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-15-authoring
+
+**Exit gate:** B42 escrito em draft com oito percursos, trilhas pessoa/agente,
+baseline/métricas/stop-go/rollback e dependencies/coverage conferidos. Escrita
+materializa todas as propostas obrigatórias; implementações e B43 condicional
+continuam pendentes, sem closeout nativo implícito pelo merge.
+
+## Milestone: integrated-pilot-qualification
+- after: batch-fifteen-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:governance-efficiency/integrated-agency-runtime-pilot
+
+**Exit gate:** consumir a qualificação integrada do roadmap proprietário, com
+seis pré-requisitos técnicos e B31/B33/B35 finais aceitos. Pessoa real e agente
+têm evidência separada nos oito percursos; prova de utilidade/compatibilidade,
+coverage, stop/go e rollback não pode ser substituída pelo pipeline documental.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |
@@ -347,9 +370,10 @@ Resolver ADR antes de start e preservar fronteira Harness, sem adoção por merg
 | Qualificação integrada | governance-efficiency | Piloto B42 demonstra jornadas, utilidade, compatibilidade e rollback no escopo completo. |
 | Migração condicionada | epistemic-lifecycle | Decisão por benefício e prova antes de criar e executar B43; manter exclusão explícita se adiado. |
 
-Essas linhas são etapas de planejamento, não milestones executáveis. Não criar
-referências nativas para arquivos ausentes. Materializar os milestones com
-members e dependências reais quando os respectivos lotes forem escritos.
+A tabela resume resultados cujo aceite permanece pendente; as etapas obrigatórias
+já possuem milestones e referências materializadas nos lotes 0–15. B43 permanece
+condicional e ausente: adjudicar benefício/prova antes de criar sua spec/milestone,
+ou registrar adiamento explícito. Não encerrar o programa só pela materialização.
 
 ## Ativação e encerramento
 

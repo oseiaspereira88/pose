@@ -10,9 +10,9 @@
     "sha256": "f138929bdb835291c6cbae165d7b5776c3cd538155038fb523390378c11f9dd1"
   },
   "authorization": {
-    "scope": "Escrever somente lote 14 após merge #173: B31/B33/B35 draft e proposta de domínio/IPC/cache; sem implementação funcional, daemon/benchmark de runtime ou adoção.",
-    "current_authoring_batch": 14,
-    "next_authoring_batch": 15,
+    "scope": "Escrever somente lote 15 após merge #174: B42 draft de piloto integrado com pessoa/agente, corpus adversarial e qualificação final de runtime; sem execução funcional, agentes, runtime, adoção ou migração.",
+    "current_authoring_batch": 15,
+    "next_authoring_batch": 16,
     "future_batch_implementation_authorized": false
   },
   "counts": {
@@ -22,8 +22,8 @@
     "new_specs": 36,
     "conditional_new_specs": 1,
     "unique_reused_specs": 8,
-    "materialized_implementation_specs": 35,
-    "unmaterialized_implementation_specs": 2
+    "materialized_implementation_specs": 36,
+    "unmaterialized_implementation_specs": 1
   },
   "candidate_ownership": {
     "T2-01": "B01",
@@ -3784,12 +3784,69 @@
       "proposed_specs": [
         {
           "planned_slug": "pose-integrated-agency-and-runtime-pilot",
-          "materialized": false,
-          "conditional": false
+          "materialized": true,
+          "conditional": false,
+          "path": ".pose/specs/2026-10-14-pose-integrated-agency-and-runtime-pilot.md",
+          "status": "draft",
+          "sha256": "1712cc14777ed8d921f55546a960c1fb089271de6e310e66936d209fd403b005"
         }
       ],
-      "implementation_observations": [],
-      "delivery_complete": false
+      "implementation_observations": [
+        {
+          "scope": "Spec draft integrada escrita no lote 15, reutilizando piloto/corpus done sem alterar bytes. Nenhum percurso pessoa/agente, fixture/teste novo, baseline atual, benchmark/runtime, stop-go, adoção ou implementação funcional executado.",
+          "unit_complete": false
+        }
+      ],
+      "delivery_complete": false,
+      "native_spec_dependencies": [
+        "pose-delegated-review-capability",
+        "pose-residual-triage-and-risk-acceptance",
+        "pose-condition-response-and-work-metrics",
+        "pose-proportional-next-action",
+        "pose-release-shared-sufficiency-contract",
+        "pose-release-scope-selection-and-exclusivity",
+        "pose-agency-readiness-pilot",
+        "pose-mechanization-adversarial-corpus"
+      ],
+      "source_acceptance_requirement_coverage": {
+        "F07-10": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10"
+        ]
+      },
+      "native_spec_dependencies_before_final_qualification": [
+        "pose-common-domain-and-cli-mcp-handoff",
+        "pose-bounded-isolated-graph-caches",
+        "pose-optional-worktree-runtime"
+      ],
+      "qualification_dependency_plan": {
+        "technical_units": [
+          "B21",
+          "B25",
+          "B26",
+          "B27",
+          "B37",
+          "B40"
+        ],
+        "final_qualification_units": [
+          "B31",
+          "B33",
+          "B35"
+        ],
+        "owning_milestone": "milestone:governance-efficiency/integrated-agency-runtime-pilot",
+        "preparation_does_not_require_runtime_delivery": true,
+        "requires_current_runtime_evidence_before_spec_closeout": true,
+        "native_phase_gate_support_claimed": false,
+        "partial_preparation_is_not_unit_complete": true
+      }
     },
     {
       "id": "B43",
@@ -4251,7 +4308,10 @@
       "authoring_spec": "pose-consolidation-batch-14-authoring",
       "report_path": ".pose/reports/2026-10-14-pose-batch-14-authoring.md",
       "adr_proposal_path": ".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
-      "decision_review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-shared-worktree-runtime-review.md"
+      "decision_review_log_path": ".pose/knowledge/2026-10-14-decision-log-adr-shared-worktree-runtime-review.md",
+      "authoring_merged": true,
+      "merged_pr": 174,
+      "native_closeout_pending": true
     },
     {
       "id": 15,
@@ -4262,10 +4322,12 @@
       "spec_slugs": [
         "pose-integrated-agency-and-runtime-pilot"
       ],
-      "status": "draft",
+      "status": "in-progress",
       "conditional": false,
       "unique_substantive_specs": 1,
-      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita."
+      "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
+      "authoring_spec": "pose-consolidation-batch-15-authoring",
+      "report_path": ".pose/reports/2026-10-14-pose-batch-15-authoring.md"
     },
     {
       "id": 16,
@@ -4354,7 +4416,8 @@
         "proportional-next-action",
         "residual-nature-commitment",
         "residual-triage-risk",
-        "condition-work-metrics"
+        "condition-work-metrics",
+        "integrated-agency-runtime-pilot"
       ]
     },
     {
@@ -4518,7 +4581,8 @@
         "xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/scope-selection-exclusivity",
         "xref:proj.pose-dist/milestone:pose-shared-runtime/common-domain-handoff",
         "xref:proj.pose-dist/milestone:pose-shared-runtime/bounded-graph-caches",
-        "xref:proj.pose-dist/milestone:pose-shared-runtime/optional-worktree-runtime"
+        "xref:proj.pose-dist/milestone:pose-shared-runtime/optional-worktree-runtime",
+        "xref:proj.pose-dist/milestone:governance-efficiency/integrated-agency-runtime-pilot"
       ],
       "materialized_units_owned": [
         "B28",
@@ -4757,7 +4821,7 @@
   ],
   "bootstrap_spec": "pose-consolidation-program-bootstrap",
   "counts_scope": "As 36 novas specs de implementação, uma condicionada e oito reutilizadas excluem as specs documentais de atribuição dos lotes.",
-  "last_authoring_revision": "e998177edd6bc66daec6ea378de17bc4a9c431ad",
+  "last_authoring_revision": "32ffafbc3cecba93711bf1782199d6d8a7e6f118",
   "authoring_history": [
     {
       "batch": 0,
@@ -4886,8 +4950,17 @@
     {
       "batch": 14,
       "source_revision": "e998177edd6bc66daec6ea378de17bc4a9c431ad",
+      "phase": "merged",
+      "report_path": ".pose/reports/2026-10-14-pose-batch-14-authoring.md",
+      "pr": 174,
+      "merge_commit_sha": "32ffafbc3cecba93711bf1782199d6d8a7e6f118",
+      "native_closeout_pending": true
+    },
+    {
+      "batch": 15,
+      "source_revision": "32ffafbc3cecba93711bf1782199d6d8a7e6f118",
       "phase": "in-progress",
-      "report_path": ".pose/reports/2026-10-14-pose-batch-14-authoring.md"
+      "report_path": ".pose/reports/2026-10-14-pose-batch-15-authoring.md"
     }
   ]
 }
