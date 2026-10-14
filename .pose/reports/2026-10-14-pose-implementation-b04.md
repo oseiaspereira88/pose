@@ -110,3 +110,75 @@ interação; o PR declara somente seus paths efetivamente atribuídos. R1–R8 e
 a baseline permanecem intactos. O pedido act-fa20ae0029b6ad14 restringe closeout.
 B01 não é iniciado nem considerado elegível na cadeia preferida antes de
 qualificação/closeout de B04 e merge. Os closeouts documentais permanecem separados.
+
+## Retomada após o merge #176
+
+Base atual: d55b8d41fd283ff1bba3e794fae1cd8c6e7707f7. O head final do PR #176,
+77142f28e6045dfeeb204e07c86d8dab7c3a0fbe, passou CI #755 (38609619410) e
+Security #757 (38609619438). O merge entregou implementação; não encerrou a spec.
+Nenhum código, requisito, baseline, policy ou autorização foi alterado nesta
+retomada. O lote é a qualificação de B04, ainda uma única spec.
+
+`validate --strict --module pose-mcp` passou 129/129 checks em 365.9s na main
+mergeada. Go 1.26.9; GOFLAGS=-buildvcs=false somente no binário local;
+TAR_OPTIONS=--no-same-owner evita chown na extração, mantendo todos os checks.
+O percurso real de instalação/upgrade passou em 31.5s. A evidência estruturada
+é regenerada no results_path canônico antes de index e seal do pacote final.
+Assessment discover --if-stale, integrate, tech-debt, suggest review e design
+foram executados. Tech-debt retornou zero marcadores; a detecção é uma observação
+limitada do scanner, não uma garantia de ausência de todo débito. Recurrence
+identificou um flapping histórico de validate-native, sem cluster não resolvido.
+
+## Preparação dos julgamentos de revisão
+
+Preparador: agent:codex-b04-qualification. Este relatório contém a análise e a
+proposta de conclusões; não é uma attestation different-actor. Nenhuma aprovação
+foi registrada em nome de um bot, de um agente independente ou de human:oseias.
+A revisão do GitHub em 77142f28 também não é uma resposta aos critérios nativos.
+O pacote mecânico preparado fica em
+`.pose/reports/2026-10-14-b04-review-preparation.json`, com o bundle exato e seus
+critérios pendentes; o brief nativo acompanha o mesmo sujeito selado.
+
+| Critério | Conclusão proposta e fundamento |
+|---|---|
+| scope | O delta implementa B04; R1–R8 e D1/D2 permanecem íntegros. B01 e B02 não foram iniciados. |
+| security | `loadReuseAttestation` e `loadReuseBundle` aceitam somente prefixo e 16 dígitos hexadecimais antes de construir paths; as duas chamadas de `reserveReuseArtifact` usam diretórios constantes. O carregador recusa symlinks nos diretórios, valida digest e limita JSON a 4 MiB; assinatura/pins/bindings são verificados antes de aceitar verified-source. |
+| compatibility | `temporal`, `reuse` e `mode` são aditivos. `mode` ausente conserva legacy-reaffirmation; não há TTL universal, migração de registros, adoção de policy nem emissão de release. A semântica mais estrita para nova operação é documentada como minor no ADR. |
+| operability | Diagnósticos distinguem fonte indisponível, proof/binding inválidos, revogação, tempo incompatível e budget inconclusivo. `historical_authorization: not-established` impede apresentar data assinada como recibo observado. |
+| documentation | POSE.md, pt-BR e os dois manuais embutidos descrevem tempo, modos, budgets e limites de confiança iguais aos do domínio. As fixtures de paridade passaram. |
+| assumption-integrity | Uma assinatura autentica a declaração do issuer; não comprova relógio real, autorização histórica observada ou independência cognitiva. Pins/grants atuais continuam a fronteira explícita. Os testes separam essas leituras. |
+| design-causality | O contexto temporal atende R1–R3; a avaliação compartilhada atende R4/R5/R7; budgets e memoização por operação atendem R6. O ADR observado SD-4abee72b é a decisão estrutural para D1/D2 e R2/R3/R4/R5/R6. |
+| solution-proportionality | Um helper temporal e uma travessia local limitam o delta. Não criar serviço persistente, cache global ou receipt retroativo é suficiente para este escopo. A escolha deve ser revista se um contrato futuro exigir autorização histórica observada ou budgets configuráveis. |
+
+Os critérios mecânicos devem citar somente IDs de evidência que o bundle final
+selou, nunca o texto deste relatório como substituto de integração. A proposta
+acima precisa do julgamento do outro ator exigido por high-criticality-review@1.
+
+## Findings do PR #176 e disposições propostas
+
+- A revisão GitHub 5522348432 apontou falta de POSE-Spec no commit c14dd1b8,
+  que não pertence ao histórico mergeado. Os cinco commits efetivos 9646f0a9,
+  2ff049b2, 4708933f, e48b2f9b e 77142f28 têm o trailer literal correto.
+  `artifact-check --spec pose-historical-trust-and-review-reuse --strict`
+  confirmou o change set cs-ab3e90650b05 sem erros. Não reescrever histórico
+  para corrigir uma leitura que não descreve os commits efetivos.
+- CodeQL alert 129 sinalizou path controlado por input em
+  review_reuse_provenance.go:49. Na implementação mergeada, ambos os callers
+  validam IDs hexadecimais e usam diretórios constantes antes da chamada;
+  nenhum separador de path passa por esses callers. A análise propõe
+  não considerar esse fluxo explorável como traversal; o alerta não foi
+  automaticamente dispensado, apagado ou tratado como prova de ausência
+  universal de vulnerabilidades. O outro ator deve confirmar a disposição.
+
+## Gates restantes e próxima unidade
+
+Independent judgment, review verify/review-check e aceite da ação
+act-fa20ae0029b6ad14 continuam necessários antes de close. A policy actions.json
+reserva o papel maintainer a human:oseias; não alterar essa lista nem resolver
+o pedido por um agente. O merge #176 não responde ao pedido de aceitar somente
+após verify aprovado. Delivery_complete permanece false.
+
+Depois da aprovação nativa, resposta válida à ação e closeout de B04, B01 é o
+próximo lote da cadeia: qualificar as duas specs existentes de #157/#158. Aguardar
+o merge deste pacote antes de iniciar esse lote. As outras raízes da primeira
+camada permanecem elegíveis pelo DAG, sem dependência artificial em B01.

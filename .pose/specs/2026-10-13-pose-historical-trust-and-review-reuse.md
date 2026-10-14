@@ -114,7 +114,8 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Context, readiness, assessment and native start with R1–R8 preserved.
 - [x] Implement temporal context and source traversal in shared domain.
 - [x] Exercise signed tampering, temporal boundaries, legacy, budgets and surfaces.
-- [ ] Strict module validation, artifact/surface evidence and separate review.
+- [x] Strict module validation on merged main (129/129), artifact attribution reconciled.
+- [ ] Final current evidence/index/seal and different-actor review.
 - [ ] Native closeout, reconcile matrix/roadmaps and PR with final-head CI/Security.
 
 ## 5. Decisions
@@ -151,7 +152,7 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Targeted temporal/source/surface regressions passed, including action-answer regressions, issuer fixtures, adversarial corpus, locale/scaffold parity and race detector. Full CI/Security passed at 2ff049b2; see report for exact scope. Native strict validation is recorded separately after completion.
+Targeted temporal/source/surface regressions passed, including action-answer regressions, issuer fixtures, adversarial corpus, locale/scaffold parity and race detector. Final PR #176 head 77142f28 passed CI #755 and Security #757. On merged main d55b8d41, native validate --strict --module pose-mcp passed all 129 checks (365.9s), including the real install/upgrade journey, with Go 1.26.9, GOFLAGS=-buildvcs=false and TAR_OPTIONS=--no-same-owner. The latter preserves extraction by the current user; no check was removed or downgraded. See the implementation report and policy results_path for exact evidence. Independent judgment and maintainer acceptance remain pending.
 
 ### Requirement trace
 
@@ -168,8 +169,9 @@ Regressions passed: go test ./internal/pose ./internal/cli ./internal/mcpserver
 -run 'ReviewTrustTime|ReviewReuseProvenance|ReviewTrustReuse|ReviewAssurance|ABMReviewAuthority|OnlyTheSigning|EverySealedGate' -count=1
 (Go 1.26.0; pose 12.095s, CLI 1.772s; MCP-specific package has no matching test,
 but TestReviewTrustReuseCLISignedHistoryMatchesMCPAndDomain exercises its real
-HTTP JSON-RPC consumer). Full module validation and independent review remain
-pending; this trace records functional regressions, not formal closeout.
+HTTP JSON-RPC consumer). Full module validation subsequently passed on merged
+main d55b8d41. This trace records verified behavior; different-actor review and
+native closeout remain pending.
 
 ## 7. Final Report
 
@@ -177,13 +179,13 @@ pending; this trace records functional regressions, not formal closeout.
 
 B04 implementation and targeted regressions recorded in
 [implementation report](../reports/2026-10-14-pose-implementation-b04.md).
-The spec remains in-progress: native evidence qualification, different-actor
+The spec remains in-progress: native strict validation passed, while different-actor
 review and native closeout are not promoted from code or merge. Native acceptance
 act-fa20ae0029b6ad14 restricts closeout only. No next unit has started.
 
 ### Residual risks
 
-Um payload assinado prova a declaração do issuer, não a verdade de um relógio ou a existência de uma autorização histórica não registrada. A definição de histórico versus nova operação precisa de decisão de compatibilidade/contrato antes do código. Cobertura de inventário ilegível é B06; o reuso deve expor suas próprias falhas sem assumir cobertura global completa.
+Um payload assinado prova a declaração do issuer, não a verdade de um relógio ou a existência de uma autorização histórica não registrada. A definição de histórico versus nova operação está registrada no ADR temporal e classificada para minor. Cobertura de inventário ilegível é B06; o reuso deve expor suas próprias falhas sem assumir cobertura global completa.
 
 ### Follow-ups
 
@@ -199,3 +201,9 @@ TAR_OPTIONS=--no-same-owner was interrupted by executor disconnection; no pass
 was inferred. Regenerate the policy results_path with successful current evidence
 before index/seal/review/close. Generated results/index are future closeout
 outputs; they are not claimed as delivered source-tree modifications in this PR.
+
+2026-10-14 resumption: #176 merged as d55b8d41; native strict qualification
+passed 129/129. The earlier failed/interrupted attempts above remain historical
+records. Refresh results and index before sealing the final qualification
+subject; retain pending judgment and act-fa20ae0029b6ad14. Qualification changes
+do not alter R1–R8, D1/D2, the native start baseline, policy or runtime code.

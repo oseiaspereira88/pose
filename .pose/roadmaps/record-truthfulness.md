@@ -79,6 +79,11 @@ somente pela presença do código ou pelo merge do PR.
 o contexto temporal de B04 e os consumidores; fechar as duas specs pelos gates.
 Merge e assinatura não substituem qualificação ou julgamento semântico.
 
+Retomada em 2026-10-14: #176 mergeado (d55b8d41); B04 passou qualificação nativa
+strict 129/129 na main. Evidências e julgamentos estão preparados, mas a revisão
+different-actor, o aceite act-fa20ae0029b6ad14 e o closeout de temporal-trust ainda
+precisam ser satisfeitos. Não considerar verified-proof iniciado pelo merge.
+
 ## Milestone: approval-preflight
 - after: verified-proof
 - target_start:
