@@ -182,3 +182,28 @@ Depois da aprovação nativa, resposta válida à ação e closeout de B04, B01 
 próximo lote da cadeia: qualificar as duas specs existentes de #157/#158. Aguardar
 o merge deste pacote antes de iniciar esse lote. As outras raízes da primeira
 camada permanecem elegíveis pelo DAG, sem dependência artificial em B01.
+
+## Pacote final de qualificação
+
+No head publicado ac70fea3a3e6a2ade4c9c61f43ed06e8736e5ac6,
+`validate --strict` passou 132/132 checks (298.8s), sem falhas ou skips.
+`check --strict` passou com os mesmos 30 warnings históricos; lint da spec
+passou sem findings. Artifact-check e surface-check strict passaram sem erros.
+CI #757 (38636691342) e Security #759 (38636691718) passaram nesse head.
+
+Depois da coleta atual, o índice foi regenerado e o bundle
+rvb-6142452fcef320f2 foi selado, digest
+sha256:6142452fcef320f25999e457b9529a036b32afe6863b955460a235685980ae59.
+O novo change set é cs-0784083fc417; o ID anterior acima descreve a main
+mergeada antes do commit de qualificação. O material observado permanece
+SD-4abee72b. A preparação nativa coletou sete critérios mecânicos e 11 tools;
+os oito judgments da tabela permanecem pendentes e nenhuma attestation foi
+aplicada. A saída textual de auto-attest foi preservada em uma projeção JSON
+explícita, sem apresentá-la como uma attestation nativa.
+
+`review verify` confirmou ready-for-review e somente o blocker
+"sealed review bundle has no attestation". O resultado está em
+`.pose/reports/2026-10-14-b04-review-verify.json`. O brief selado está em
+`.pose/reports/2026-10-14-b04-review-brief.md`. Ainda não há ready-to-close.
+O commit que conserva estes outputs precisa do próprio CI/Security antes
+da conclusão desta interação. Não inferir aceitação ou fechamento desse selo.

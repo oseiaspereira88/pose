@@ -87,10 +87,10 @@ capacidade.
   - report:pose-v7-legacy-cleanup-plan.md
 
 ## Arquitetura
-<!-- state:derived hash:1f94322cb85c status:active -->
+<!-- state:derived hash:9410e2fb441b status:active -->
 
 - componentes: total=3 verificados=3 completude=100.0%
-- linhas_de_codigo: producao=70349 testes=55218 total=125567
+- linhas_de_codigo: producao=70779 testes=56055 total=126834
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63
