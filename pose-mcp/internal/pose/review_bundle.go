@@ -317,6 +317,7 @@ type ReviewBundle struct {
 }
 
 type ReviewAttestationReuse struct {
+	Mode            string `json:"mode,omitempty"`
 	Criterion       string `json:"criterion"`
 	FromAttestation string `json:"from_attestation"`
 	InputDigest     string `json:"input_digest"`
@@ -1765,7 +1766,12 @@ func writeImmutableJSON(path string, raw []byte) error {
 }
 
 func strictJSONFile(path string, target any) error {
-	raw, err := os.ReadFile(path)
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	raw, err := io.ReadAll(io.LimitReader(file, maxReviewBundleBytes+1))
 	if err != nil {
 		return err
 	}
@@ -2272,6 +2278,11 @@ func (s Store) recordReviewAttestation(att ReviewAttestation, now time.Time, sig
 	if err != nil {
 		return ReviewAttestation{}, err
 	}
+	if att.Authority != nil && (att.Decision == "approved" || att.Decision == "approved-with-reservations") {
+		if blockers := reviewNewOperationTimeBlockers(att, now); len(blockers) > 0 {
+			return ReviewAttestation{}, fmt.Errorf("pose: %s", strings.Join(blockers, "; "))
+		}
+	}
 	att.Path = filepath.ToSlash(filepath.Join(".pose", "review-attestations", att.AttestationID+".json"))
 	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), true)
 	if err != nil {
@@ -2373,7 +2384,7 @@ func (s Store) RecordReviewAttestationEnvelope(envelope ReviewAttestationEnvelop
 	if err != nil || !apply {
 		return attestation, err
 	}
-	return s.recordReviewAttestation(attestation, time.Now(), true)
+	return s.recordReviewAttestation(attestation, s.reviewClock(), true)
 }
 
 // PreflightReviewAttestation returns the reasons the verifier would reject an
@@ -2395,7 +2406,8 @@ func (s Store) PreflightReviewAttestation(att ReviewAttestation, now time.Time) 
 	if candidate.AttestedAt == "" {
 		candidate.AttestedAt = now.UTC().Truncate(time.Second).Format(time.RFC3339)
 	}
-	return s.validateBundleAttestation(bundle, candidate)
+	blockers := s.atReviewTime(now).validateBundleAttestation(bundle, candidate)
+	return append(blockers, reviewNewOperationTimeBlockers(candidate, now)...)
 }
 
 // VerifyReviewAttestationEnvelope verifies an optional provider-neutral
@@ -2538,6 +2550,7 @@ func (s Store) ListReviewAttestations(bundleID string) ([]ReviewAttestation, err
 }
 
 func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error) {
+	s = s.reviewOperation()
 	verification, err := s.verifyReviewBundle(scope)
 	if err == nil && verification.Bundle != nil {
 		assurance := s.DescribeReviewAssurance(*verification.Bundle, verification.Attestation)
@@ -2698,6 +2711,7 @@ func (s Store) validateBundleAttestation(bundle ReviewBundle, att ReviewAttestat
 }
 
 func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAttestation, skipEvidenceSupport bool) []string {
+	s = s.reviewOperation()
 	blockers := []string{}
 	policy, _, policyErr := s.loadReviewPolicy()
 	if policyErr != nil {
@@ -2870,58 +2884,8 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	if judgmentGoverned && hasDeliveryTarget && len(required) > 0 && notApplicable == len(required) && len(att.Criteria) == len(required) {
 		blockers = append(blockers, "every required criterion is not-applicable; a scope where the whole plan is inapplicable is not reviewed by it")
 	}
-	reused := map[string]bool{}
-	for _, reuse := range att.ReusedFrom {
-		if reused[reuse.Criterion] {
-			blockers = append(blockers, "duplicate reused criterion "+reuse.Criterion)
-			continue
-		}
-		reused[reuse.Criterion] = true
-		if !bundle.Payload.SealedGates().AllowCriterionReuse {
-			blockers = append(blockers, "criterion reuse is not permitted by the bundle's sealed gates")
-			continue
-		}
-		current, ok := required[reuse.Criterion]
-		if !ok {
-			blockers = append(blockers, "reused criterion "+reuse.Criterion+" is not required by the current bundle")
-			continue
-		}
-		currentDigest := reviewCriterionInputDigest(bundle, current)
-		if currentDigest != reuse.InputDigest {
-			blockers = append(blockers, "reused criterion "+reuse.Criterion+" input digest changed")
-			continue
-		}
-		prior, err := s.LoadReviewAttestation(reuse.FromAttestation)
-		if err != nil {
-			blockers = append(blockers, "reused criterion "+reuse.Criterion+" references an unavailable attestation")
-			continue
-		}
-		priorBundle, err := s.LoadReviewBundle(prior.BundleID)
-		if err != nil {
-			blockers = append(blockers, "reused criterion "+reuse.Criterion+" references an unavailable bundle")
-			continue
-		}
-		for _, blocker := range reviewFindingDecisionBlockers(priorBundle, prior) {
-			blockers = append(blockers, "reused criterion "+reuse.Criterion+" references a non-approving attestation: "+blocker)
-		}
-		priorContract := ""
-		for _, criterion := range priorBundle.Payload.Plan.Criteria {
-			if criterion.ID == reuse.Criterion {
-				priorContract = reviewCriterionInputDigest(priorBundle, criterion)
-				break
-			}
-		}
-		priorPassed := false
-		for _, criterion := range prior.Criteria {
-			if criterion.ID == reuse.Criterion && criterion.Disposition == "passed" {
-				priorPassed = true
-				break
-			}
-		}
-		if priorContract != reuse.InputDigest || !priorPassed {
-			blockers = append(blockers, "reused criterion "+reuse.Criterion+" is not unchanged and passed in the referenced attestation")
-		}
-	}
+	reuseBlockers, _ := s.evaluateReviewReuse(bundle, att, bundle.Payload.SealedGates().AllowCriterionReuse)
+	blockers = append(blockers, reuseBlockers...)
 	sealedEvidence := map[string]ReviewBundleEvidence{}
 	for _, ev := range bundle.Payload.Evidence {
 		sealedEvidence[ev.EvidenceClass+":"+ev.ID] = ev
@@ -3375,18 +3339,7 @@ func (s Store) verifiedAuthorityBlockers(bundle ReviewBundle, att ReviewAttestat
 			blockers = append(blockers, "the authority claim names project "+claim.Project+" and this project is "+policy.AuthorityProject)
 		}
 	}
-	if _, err := time.Parse(time.RFC3339, claim.IssuedAt); err != nil {
-		blockers = append(blockers, "the authority claim has no valid issued_at")
-	}
-	if claim.ExpiresAt != "" {
-		expiry, err := time.Parse(time.RFC3339, claim.ExpiresAt)
-		switch {
-		case err != nil:
-			blockers = append(blockers, "the authority claim has an unparseable expires_at")
-		case expiry.Before(time.Now().UTC()):
-			blockers = append(blockers, "the authority claim expired at "+claim.ExpiresAt)
-		}
-	}
+	blockers = append(blockers, s.reviewAuthorityTime(att).HistoricalBlockers...)
 	if claim.ReviewExecution == "" {
 		blockers = append(blockers, "the authority claim must name the reviewing execution")
 	}

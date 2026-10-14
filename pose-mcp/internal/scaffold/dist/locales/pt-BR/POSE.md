@@ -737,3 +737,27 @@ de autoridade verificada nomeia aquela pessoa. Registros anteriores não têm o
 bloco e aparecem como `legacy-undifferentiated`. `pose review
 attribution-supplement` esclarece um registro existente por referência, sem
 alterá-lo, e não pode acrescentar confirmação.
+
+### Claims históricos de review e reuso de critérios
+
+O assurance de review divulga `temporal`: `attested_at` assinado e afirmado pelo
+issuer, validade do claim nesse tempo histórico, validade temporal atual e
+confiança sob os pins atuais. Esses campos não comprovam autorização histórica
+observada. Expiry admite igualdade, não há TTL universal e timestamps históricos
+com precisão de segundo conservam seu intervalo limitado. Novas operações usam
+seu próprio tempo; approvals com tempo inválido ou expirado são recusadas antes
+de criar artefatos. Pins e grants humanos atuais continuam sendo a fronteira de
+revogação, inclusive após rotação de chave.
+
+`reused_from[].mode` admite `verified-source` e `current-reaffirmation`. O primeiro
+valida prova da fonte, bindings do bundle, critérios selados, decisão/findings e
+proveniência recursiva. O segundo registra judgment atual passed com conclusão e
+conserva a referência. Modo ausente preserva o legado e é divulgado como
+`legacy-reaffirmation`, sem afirmar passagem histórica verificada. Verify,
+review-check, closeout, CLI e MCP consomem o mesmo resultado do domínio. A travessia
+é por operação: 16 níveis, 32 attestations distintas, 128 edges e 16 MiB de fontes.
+Ciclo, fonte ilegível ou budget excedido é inconclusivo e não satisfaz reuso
+verified-source.
+
+Este contrato aditivo é classificado para minor. Não adota policy, não reescreve
+registros históricos e não cria receipts retrospectivos.

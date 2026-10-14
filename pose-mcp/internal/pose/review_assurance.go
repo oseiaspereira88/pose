@@ -13,16 +13,18 @@ import "strings"
 // principals, executions and credentials, never whether a second reviewer
 // thought independently, so that field is a constant and exists to be read.
 type ReviewAssurance struct {
-	IdentityAssurance     string                `json:"identity_assurance"`
-	Reviewer              string                `json:"reviewer,omitempty"`
-	ReviewerIdentity      string                `json:"reviewer_identity"`
-	ReviewerRole          string                `json:"reviewer_role"`
-	SeparationRequired    string                `json:"separation_required"`
-	SeparationDeclared    string                `json:"separation_declared"`
-	SeparationVerified    string                `json:"separation_verified"`
-	VerifiedClaim         *ReviewAssuranceClaim `json:"verified_claim,omitempty"`
-	CognitiveIndependence string                `json:"cognitive_independence"`
-	Limitations           []string              `json:"limitations"`
+	Temporal              *ReviewTrustTime        `json:"temporal,omitempty"`
+	Reuse                 []ReviewReuseDisclosure `json:"reuse,omitempty"`
+	IdentityAssurance     string                  `json:"identity_assurance"`
+	Reviewer              string                  `json:"reviewer,omitempty"`
+	ReviewerIdentity      string                  `json:"reviewer_identity"`
+	ReviewerRole          string                  `json:"reviewer_role"`
+	SeparationRequired    string                  `json:"separation_required"`
+	SeparationDeclared    string                  `json:"separation_declared"`
+	SeparationVerified    string                  `json:"separation_verified"`
+	VerifiedClaim         *ReviewAssuranceClaim   `json:"verified_claim,omitempty"`
+	CognitiveIndependence string                  `json:"cognitive_independence"`
+	Limitations           []string                `json:"limitations"`
 	// Attribution separates who prepared, concluded, confirmed and applied
 	// the record (spec pose-review-attribution-roles).
 	Attribution *ReviewAttributionDisclosure `json:"attribution,omitempty"`
@@ -100,6 +102,7 @@ func reviewVerifiedSeparation(independence string) string {
 // the bundle has no attestation yet; the disclosure then states what will be
 // required and that nothing was verified.
 func (s Store) DescribeReviewAssurance(bundle ReviewBundle, att *ReviewAttestation) ReviewAssurance {
+	s = s.reviewOperation()
 	out := s.describeReviewAssurance(bundle, att)
 	if att != nil {
 		supplements, _ := s.ListReviewAttributionSupplements(att.AttestationID)
@@ -123,6 +126,9 @@ func (s Store) describeReviewAssurance(bundle ReviewBundle, att *ReviewAttestati
 		out.Limitations = []string{ReviewLimitationNoRecord, ReviewLimitationCognitive}
 		return out
 	}
+	temporal := s.reviewAuthorityTime(*att)
+	out.Temporal = &temporal
+	out.Reuse = s.describeReviewReuse(bundle, *att)
 	out.Reviewer = att.Reviewer
 	out.SeparationDeclared = reviewDeclaredSeparation(att.Reviewer)
 	out.ReviewerRole = reviewDeclaredRole(att.Reviewer)
@@ -194,6 +200,12 @@ func RenderReviewAssurance(a ReviewAssurance) string {
 	text := reviewer + " — " + identity + "; assurance " + a.IdentityAssurance +
 		"; separation required " + a.SeparationRequired + ", declared " + a.SeparationDeclared + ", verified " + a.SeparationVerified +
 		"; cognitive independence " + a.CognitiveIndependence
+	if a.Temporal != nil {
+		text += "; historical claim " + a.Temporal.HistoricalValidity + " at " + a.Temporal.TimeBasis + "; current operation " + a.Temporal.CurrentValidity + "; historical authorization " + a.Temporal.HistoricalAuthorization
+	}
+	for _, reuse := range a.Reuse {
+		text += "; reuse " + reuse.Criterion + " " + reuse.Mode + " " + reuse.State
+	}
 	if a.Attribution != nil {
 		text += "; " + RenderReviewAttribution(*a.Attribution)
 	}

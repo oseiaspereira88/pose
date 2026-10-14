@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "document_type": "pose-implementation-plan",
-  "status": "draft",
+  "status": "in-progress",
   "created_at": "2026-10-13",
   "source_revision": "1e3c61c480379dd2d57b7cbcbb77bcae30bdd5ac",
   "historical_catalog": {
@@ -10,10 +10,10 @@
     "sha256": "f138929bdb835291c6cbae165d7b5776c3cd538155038fb523390378c11f9dd1"
   },
   "authorization": {
-    "scope": "Escrever somente lote 15 após merge #174: B42 draft de piloto integrado com pessoa/agente, corpus adversarial e qualificação final de runtime; sem execução funcional, agentes, runtime, adoção ou migração.",
-    "current_authoring_batch": 15,
-    "next_authoring_batch": 16,
-    "future_batch_implementation_authorized": false
+    "scope": "Retomada explícita de implementação em 2026-10-14; lotes pequenos, PR por spec, aguardar merge; sem adoção de policy, publicação ou migração implícita.",
+    "current_implementation_unit": "B04",
+    "future_batch_implementation_authorized": true,
+    "next_batch_requires_previous_merge": true
   },
   "counts": {
     "source_candidates": 96,
@@ -387,8 +387,8 @@
           "materialized": true,
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-historical-trust-and-review-reuse.md",
-          "status": "draft",
-          "sha256": "a865d9697d9c0132b9b229e18222d0383c7c36dfd23a1c153df4f06901ff8de9"
+          "status": "in-progress",
+          "sha256": "2f8d5158cf05a2878afbf0762e9ed91d9cfde88e7219ab706168a19b215e24bf"
         }
       ],
       "implementation_observations": [
@@ -402,6 +402,16 @@
         {
           "scope": "Spec materializada em draft no lote documental 1; nenhum código deste delta implementado nesta interação.",
           "unit_complete": false
+        },
+        {
+          "scope": "Implementação e regressões/race comprovadas; CI/Security e48b2f9 passaram. Native strict: 128/129 pass, fail ambiental chown uid 1001 no upgrade; rerun com extração por usuário interrompido por desconexão. Coleta current results_path, seal/review different-actor, aceitação e closeout permanecem pendentes; não declarar unidade complete.",
+          "unit_complete": false,
+          "report_path": ".pose/reports/2026-10-14-pose-implementation-b04.md",
+          "native_closeout_pending": true,
+          "acceptance_request": "act-fa20ae0029b6ad14",
+          "ci_tested_head": "e48b2f9bc94b84158021ccfd00233efc0b76ba41",
+          "ci_run": 38604918357,
+          "security_run": 38604918342
         }
       ],
       "delivery_complete": false,
@@ -4327,7 +4337,10 @@
       "unique_substantive_specs": 1,
       "exit_condition": "Artefatos do lote escritos, referências válidas, validação documental e revisão; implementação não é implícita.",
       "authoring_spec": "pose-consolidation-batch-15-authoring",
-      "report_path": ".pose/reports/2026-10-14-pose-batch-15-authoring.md"
+      "report_path": ".pose/reports/2026-10-14-pose-batch-15-authoring.md",
+      "authoring_merged": true,
+      "merged_pr": 175,
+      "native_closeout_pending": true
     },
     {
       "id": 16,
@@ -4959,8 +4972,27 @@
     {
       "batch": 15,
       "source_revision": "32ffafbc3cecba93711bf1782199d6d8a7e6f118",
-      "phase": "in-progress",
-      "report_path": ".pose/reports/2026-10-14-pose-batch-15-authoring.md"
+      "phase": "merged",
+      "report_path": ".pose/reports/2026-10-14-pose-batch-15-authoring.md",
+      "pr": 175,
+      "merge_commit_sha": "6c3b6e1fe3481a998110226550e0e622d59ce79c",
+      "native_closeout_pending": true
     }
-  ]
+  ],
+  "authorization_history": [
+    {
+      "scope": "Escrever somente lote 15 após merge #174: B42 draft de piloto integrado com pessoa/agente, corpus adversarial e qualificação final de runtime; sem execução funcional, agentes, runtime, adoção ou migração.",
+      "current_authoring_batch": 15,
+      "next_authoring_batch": 16,
+      "future_batch_implementation_authorized": false
+    }
+  ],
+  "implementation_reconciliation": {
+    "at": "2026-10-14",
+    "main_revision": "6c3b6e1fe3481a998110226550e0e622d59ce79c",
+    "selected_unit": "B04",
+    "basis": "Preferred initial chain and first technical layer; native dependencies terminal. B01 code merged in #157/#158 remains unqualified with closeout pending. Authoring #159–#175 merged with administrative closeout pending. B43 conditional remains unmaterialized; not claimed delivered.",
+    "unit_delivery_complete_count": 0,
+    "administrative_closeouts": "Remain pending, distinct from native functional dependencies; no status promoted from merge alone."
+  }
 }

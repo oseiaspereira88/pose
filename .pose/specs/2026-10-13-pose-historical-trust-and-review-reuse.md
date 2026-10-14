@@ -1,6 +1,6 @@
 ---
 slug: pose-historical-trust-and-review-reuse
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-material-equivalence-reuse, pose-native-attestation-issuer
@@ -26,7 +26,7 @@ e a [análise de confiança](../reports/2026-10-11-pose-front-02-trust-chain.md)
 
 ### Constraints
 
-Esta interação escreve a spec; não implementa o comportamento. Preservar as
+Implementação autorizada em 2026-10-14 pela retomada explícita do programa. Preservar as
 fundações done, contratos selados, evidências e autorizações já existentes.
 Não adotar policy/capability automaticamente. Classificar compatibilidade antes
 de iniciar: recusa mais estrita ou mudança de semântica pública não é patch por
@@ -48,12 +48,11 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-1-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
+Paths reconciliados na main 6c3b6e1f antes do start. A escrita original pertence
+ao lote documental 1; este delta implementa somente B04. Evidência é registrada
+após execução, separadamente destas declarações.
 
-- created: .pose/specs/2026-10-13-pose-historical-trust-and-review-reuse.md
+- modified: .pose/specs/2026-10-13-pose-historical-trust-and-review-reuse.md
 - created: .pose/starts/pose-historical-trust-and-review-reuse.json
 - created: .pose/changelogs/unreleased/pose-historical-trust-and-review-reuse.md
 - modified: pose-mcp/internal/pose/review_bundle.go
@@ -62,9 +61,32 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - created: pose-mcp/internal/pose/review_reuse_provenance.go
 - created: pose-mcp/internal/pose/review_reuse_provenance_test.go
 - created: pose-mcp/internal/cli/review_trust_reuse_cli_test.go
-- created: pose-mcp/internal/mcpserver/review_trust_reuse_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: .pose/actions/act-fa20ae0029b6ad14.jsonl
+- modified: pose-mcp/internal/pose/spec.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/pose-mcp.md
+- modified: .pose/state/components/pose-mcp.json
+- modified: .pose/assessments/integrations.md
+- modified: .pose/assessments/technical-debt.md
+- modified: .pose/state/integrations.json
+- modified: .pose/state/technical-debt.json
+- modified: .pose/results/pose-implementation-plan.json
+- modified: .pose/roadmaps/record-truthfulness.md
+- modified: .pose/roadmaps/pose-consolidation-program.md
+- modified: pose-mcp/internal/pose/review_assurance.go
+- modified: pose-mcp/internal/pose/review_authority_test.go
+- modified: pose-mcp/internal/pose/issuer_key_test.go
+- modified: pose-mcp/internal/pose/review_assurance_proof_test.go
+- modified: pose-mcp/internal/pose/review_attest_signed_test.go
+- created: .pose/reports/2026-10-14-pose-implementation-b04.md
+- created: .pose/adr/2026-10-14-review-time-context-and-reuse-provenance.md
 
 ### Delivery targets
 
@@ -72,12 +94,28 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 
 ### Approach and execution gates
 
+Contract decision: signed attested_at proves an issuer-asserted historical time,
+not an observed receipt or immutable historical grant. Current pins/grants remain
+the revocation boundary. New operations use their supplied operation time.
+Explicit source reuse must authenticate and validate its source; legacy references
+remain current reassumptions, with no retrospective proof promotion.
+Traversal budgets are fixed per operation and failures are inconclusive blockers.
+See ADR 2026-10-14-review-time-context-and-reuse-provenance.
+
 Extrair avaliação temporal contextual e verificação limitada de fonte, reutilizando os verificadores criptográficos de B01. Definir tolerância explícita, conservadora por padrão, sem tolerância escondida ou credibilidade de relógio fabricada. Manter revogação/pins/grants atuais como fronteira explícita enquanto não existir prova histórica suficiente. Registrar a base de confiança limitada do legado; não fabricar histórico de policy. Qualificar os contratos de histórico e operação nova antes de mudar o verdict de registros existentes.
 
 Antes de executar, aceitar o escopo de implementação, avaliar readiness nativa,
 executar assessment freshness no componente, completar o plano de artefatos,
 registrar produtores de evidência na matriz e criar a baseline por start.
 Não contornar dependência não terminal apenas porque o código parece presente.
+
+## 4. Tasks
+
+- [x] Context, readiness, assessment and native start with R1–R8 preserved.
+- [x] Implement temporal context and source traversal in shared domain.
+- [x] Exercise signed tampering, temporal boundaries, legacy, budgets and surfaces.
+- [ ] Strict module validation, artifact/surface evidence and separate review.
+- [ ] Native closeout, reconcile matrix/roadmaps and PR with final-head CI/Security.
 
 ## 5. Decisions
 
@@ -113,19 +151,35 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Targeted temporal/source/surface regressions passed, including action-answer regressions, issuer fixtures, adversarial corpus, locale/scaffold parity and race detector. Full CI/Security passed at 2ff049b2; see report for exact scope. Native strict validation is recorded separately after completion.
 
 ### Requirement trace
 
-Mapear os R-IDs aos casos acima e aos produtores reais durante a implementação.
-Não declarar satisfeitos os requisitos funcionais pelo lint desta spec.
+- R1 [satisfied] test:TestReviewTrustTimeBoundaries; test:TestReviewTrustTimeFutureAndReverseClaimsAreRejected
+- R2 [satisfied] test:TestReviewTrustTimeHistorySurvivesExpiryWithoutHistoricalAuthorization; test:TestReviewTrustReuseCLISignedHistoryMatchesMCPAndDomain
+- R3 [satisfied] test:TestReviewTrustTimeHistorySurvivesExpiryWithoutHistoricalAuthorization; test:TestReviewTrustTimeRevocationAndTamperingDoNotInventHistory
+- R4 [satisfied] test:TestReviewReuseProvenanceAuthenticatesSourceAndBindings
+- R5 [satisfied] test:TestReviewReuseProvenanceReaffirmationIsCurrentJudgment
+- R6 [satisfied] test:TestReviewReuseProvenanceBudgetsAreInconclusiveAndOperationLocal; test:TestReviewReuseProvenanceRealChainStopsAtDepthBudget; test:TestReviewReuseProvenanceRejectsLargeSourceBeforeAllocation
+- R7 [satisfied] test:TestReviewTrustReuseCLISignedHistoryMatchesMCPAndDomain; test:TestReviewTrustReuseCLILegacyTimeIsNotAHistoricalReceipt
+- R8 [satisfied] test:TestReviewAssuranceRejectsInvalidCryptographicProof; test:TestABMReviewAuthorityRejectsKeyRotationWithoutNewPin; test:TestReviewTrustTimeBoundaries
+
+Regressions passed: go test ./internal/pose ./internal/cli ./internal/mcpserver
+-run 'ReviewTrustTime|ReviewReuseProvenance|ReviewTrustReuse|ReviewAssurance|ABMReviewAuthority|OnlyTheSigning|EverySealedGate' -count=1
+(Go 1.26.0; pose 12.095s, CLI 1.772s; MCP-specific package has no matching test,
+but TestReviewTrustReuseCLISignedHistoryMatchesMCPAndDomain exercises its real
+HTTP JSON-RPC consumer). Full module validation and independent review remain
+pending; this trace records functional regressions, not formal closeout.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 1. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+B04 implementation and targeted regressions recorded in
+[implementation report](../reports/2026-10-14-pose-implementation-b04.md).
+The spec remains in-progress: native evidence qualification, different-actor
+review and native closeout are not promoted from code or merge. Native acceptance
+act-fa20ae0029b6ad14 restricts closeout only. No next unit has started.
 
 ### Residual risks
 
@@ -135,3 +189,13 @@ Um payload assinado prova a declaração do issuer, não a verdade de um relógi
 
 Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
 permanecem na matriz do programa, sem disposition automática.
+
+### Native qualification handoff
+
+Native validate --strict --module pose-mcp on head e48b2f9 executed 129 checks:
+128 pass and one environmental failure when the upgrade journey tried chown uid
+1001 inside the sandbox. The identical journey passed in CI. A full rerun with
+TAR_OPTIONS=--no-same-owner was interrupted by executor disconnection; no pass
+was inferred. Regenerate the policy results_path with successful current evidence
+before index/seal/review/close. Generated results/index are future closeout
+outputs; they are not claimed as delivered source-tree modifications in this PR.

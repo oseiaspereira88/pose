@@ -727,3 +727,26 @@ differently, and a confirmation is `verified` only when a verified authority
 claim names that human. Records written before this carry no block and render
 as `legacy-undifferentiated`. `pose review attribution-supplement` clarifies an
 existing record by reference, append-only, and cannot add a confirmation.
+
+### Historical review claims and criterion reuse
+
+Review assurance discloses `temporal`: signed issuer-asserted `attested_at`,
+claim validity at that historical time, current claim validity and current pin
+trust. These fields never establish observed historical authorization. Expiry
+is inclusive at equality, no TTL is imposed, and second-resolution historical
+timestamps retain their bounded precision. New operations use their own time;
+expired approving writes are refused before artifact creation. Current pins and
+human grants remain the revocation boundary, including after key rotation.
+
+`reused_from[].mode` can be `verified-source` or `current-reaffirmation`. The
+former validates source proof, bundle bindings, sealed criteria, decision,
+findings and recursive provenance. The latter records a current passed judgment
+with a conclusion and keeps its source reference. An absent mode preserves
+legacy behavior and is disclosed as `legacy-reaffirmation`, without a verified
+historical-pass claim. Verify, review-check, closeout, CLI and MCP consume the
+same domain result. Source traversal is operation-local: 16 levels, 32 distinct
+attestations, 128 edges and 16 MiB of source files. A cycle, unreadable source or
+exceeded budget is inconclusive and cannot satisfy verified-source.
+
+This additive contract is classified for a minor release. It adopts no policy,
+rewrites no historical record and creates no receipt retrospectively.
