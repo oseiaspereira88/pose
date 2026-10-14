@@ -152,3 +152,12 @@ Três drafts de domínio/handoff, vistas/caches isolados e runtime opcional por
 worktree, com ADR Proposed e nota de revisão. Agora 35 propostas materializadas
 e duas ausentes; oito reutilizadas intactas. Nenhum IPC/daemon, benchmark de
 runtime, extração de domínio/cache, policy/adoption ou implementação iniciado.
+
+## Escrita do lote 15 — 2026-10-14
+
+Consultar o [relatório do lote 15](2026-10-14-pose-batch-15-authoring.md) para B42.
+Draft do piloto integrado com oito percursos, pessoa/agente separados, corpus
+fixo, métricas e stop/go/rollback. Seis dependências técnicas permanecem distintas
+de B31/B33/B35 para qualificação final. Agora 36 propostas materializadas; somente
+B43 condicional ausente. Fundações/oito reutilizadas preservadas; nenhum piloto,
+runtime, teste funcional, policy/adoption, migração ou release executado.
