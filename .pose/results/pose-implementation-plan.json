@@ -387,8 +387,8 @@
           "materialized": true,
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-historical-trust-and-review-reuse.md",
-          "status": "in-progress",
-          "sha256": "6d5f1b762d7ace021e5befa25b39456dad030711f5f5f203da38f3a94285021a"
+          "status": "done",
+          "sha256": "49e12f525cca568c58d3b09617e4b68a0ff8f9554ee9be28233e9712b6e89685"
         }
       ],
       "implementation_observations": [
@@ -435,9 +435,40 @@
             "failed": 0,
             "elapsed_seconds": 365.9
           }
+        },
+        {
+          "pull_requests": [
+            177
+          ],
+          "scope": "Maintainer adopted the eight proposed judgments; native action acceptance satisfied, fresh review approved and native closeout terminal. Identity and actor separation are declared; conclusions were prepared by agent:codex-b04-qualification and adopted by human:oseias. B01 waits for merge of PR #177.",
+          "unit_complete": true,
+          "native_closeout_pending": false,
+          "report_path": ".pose/reports/2026-10-14-pose-implementation-b04.md",
+          "acceptance_request": "act-fa20ae0029b6ad14",
+          "review_bundle": "rvb-acaa76e24d06bc5a",
+          "review_attestation": "rva-2bfad170641ccf18",
+          "native_validation": {
+            "mode": "strict",
+            "head": "9dcf1c63e80f9e31b01b2dd219c4dadd874917ff",
+            "executed": 132,
+            "passed": 132,
+            "failed": 0,
+            "elapsed_seconds": 263.3
+          }
+        },
+        {
+          "at": "2026-10-14",
+          "pull_requests": [
+            177
+          ],
+          "scope": "PR #177 merged before publication of the final native closeout package. The maintainer explicitly authorized publishing the full validation report, indexes and native review/closeout records to the public repository. The terminal B04 package is carried by the complementary branch impl/pose-b04-closeout; B01 still waits for that complement to merge.",
+          "unit_complete": true,
+          "native_closeout_pending": false,
+          "merged_revision": "01409e3537558f364d05cda2c998b9b6508262bf",
+          "complementary_branch": "impl/pose-b04-closeout"
         }
       ],
-      "delivery_complete": false,
+      "delivery_complete": true,
       "native_spec_dependencies": [
         "pose-material-equivalence-reuse",
         "pose-native-attestation-issuer"
@@ -5014,8 +5045,9 @@
     "at": "2026-10-14",
     "main_revision": "d55b8d41fd283ff1bba3e794fae1cd8c6e7707f7",
     "selected_unit": "B04",
-    "basis": "#176 merged with B04 code and final-head CI/Security success. Native strict qualification now passed 129/129; finish current evidence/seal, different-actor judgment, maintainer acceptance and native closeout before B01. Authoring closeouts remain separately pending; B43 is still conditional and unmaterialized.",
-    "unit_delivery_complete_count": 0,
-    "administrative_closeouts": "Remain pending, distinct from native functional dependencies; no status promoted from merge alone."
+    "basis": "B04 completed through native review, maintainer adoption, satisfied acceptance and terminal closeout. PR #177 merged before publication of the final package; publication was explicitly authorized and moved to the complementary closeout PR. B01 waits for merge of that complement. Other units and administrative closeouts are unchanged.",
+    "unit_delivery_complete_count": 1,
+    "administrative_closeouts": "Remain pending, distinct from native functional dependencies; no status promoted from merge alone.",
+    "next_unit_after_merge": "B01"
   }
 }

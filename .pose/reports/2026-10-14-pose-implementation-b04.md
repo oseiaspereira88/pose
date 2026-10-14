@@ -1,5 +1,8 @@
 # Implementação B04 — tempo de confiança e proveniência de reuso
 
+Estado atual (2026-10-14): **B04 fechado nativamente no workspace**, com aceite do maintainer e revisão aprovada. O maintainer autorizou expressamente a publicação do pacote completo; como o PR #177 já foi mergeado, o fechamento é publicado em um PR complementar. Os handoffs abaixo preservam o histórico de qualificação; a seção final registra o resultado atual.
+
+
 Base reconciliada: `6c3b6e1fe3481a998110226550e0e622d59ce79c` (merge #175).
 Escopo: uma spec, `pose-historical-trust-and-review-reuse`, R1–R8 preservados.
 
@@ -207,3 +210,72 @@ explícita, sem apresentá-la como uma attestation nativa.
 `.pose/reports/2026-10-14-b04-review-brief.md`. Ainda não há ready-to-close.
 O commit que conserva estes outputs precisa do próprio CI/Security antes
 da conclusão desta interação. Não inferir aceitação ou fechamento desse selo.
+
+## Aceite e closeout nativo — estado atual
+
+O maintainer respondeu “aceito” à proposta dos oito judgments. A attestation
+rva-529c3589d83e0b60 registrou a adoção no bundle rvb-6142452fcef320f2;
+verify/review-check aprovaram antes da resposta accept à ação
+act-fa20ae0029b6ad14, revision 2, satisfação satisfied. O commit publicado
+d20ce06c5ae659aaf85e9bd9ffbf2259f12c5fd1 conserva esses dois registros.
+O commit 9dcf1c63e80f9e31b01b2dd219c4dadd874917ff reconcilia os roadmaps.
+CI 38642891358 e Security 38642891397 passaram nesse head.
+
+Responder à ação mudou um path do sujeito governado; o gate corretamente recusou
+close enquanto o journal não estava committed/sealed. O bundle sucessor
+rvb-acaa76e24d06bc5a (digest
+sha256:acaa76e24d06bc5a12ce4d0e1c48bf9b21c50da768333bbf43c9b3286a399223)
+incorpora o journal respondido e os roadmaps reconciliados. A coleta nativa
+`validate --strict --json-out .pose/results/delivery-validation.json` passou
+132/132 checks, sem erros/falhas/skips, 263.3s, no head publicado 9dcf1c63.
+Um passe anterior também passou 132/132, mas sem JSON persistido; ele não foi
+usado como substituto do resultado estruturado.
+
+A attestation sucessora rva-2bfad170641ccf18 aplica os mesmos judgments adotados
+ao sujeito atualizado, sem mudança de código ou requisitos. Reviewer/confirmed_by
+= human:oseias; prepared_by/concluded_by/applied_by = agent:codex-b04-qualification;
+confirmation_mode = adopted-conclusions. Identidade, confirmação e separação são
+declaradas; separação verificada permanece not-verified e independência cognitiva
+not-observable. Esse registro não inventa uma revisão humana independente dos
+fundamentos preparados pelo agente nem uma identidade criptográfica.
+
+`review verify` ficou fresh/approved/ready-to-close; `review-check` aprovou sem
+blockers. `close` aplicou status done e `closeout-check` confirmou lifecycle_done
+e terminal, sem blockers. Artefact-check strict do escopo passou; surface-check
+strict de B04 passou com 132 resultados e zero findings depois da coleta atual.
+O surface-check sem filtro continua encontrando declarações de lotes futuros não
+implementados; esse resultado não foi apresentado como passe global.
+
+Relatórios nativos finais:
+- `.pose/reports/2026-10-14-b04-accepted-review-verify.json`
+- `.pose/reports/2026-10-14-b04-accepted-review-check.json`
+- `.pose/reports/2026-10-14-b04-closeout-check.json`
+
+A matriz consome B04 done/delivery_complete e mantém as outras 43 unidades com
+suas pendências. Os roadmaps consomem o status nativo, sem fechar o programa
+inteiro. B01 é a próxima unidade preferencial depois do merge do PR #177.
+
+A revisão automática recusou o upload do relatório completo de validação ao
+repositório público por autorização insuficiente para o payload/destino.
+Verificações confirmaram a conta proprietária/admin, o relatório anterior já
+público e conteúdo equivalente exceto timings, data e hashes de proveniência;
+o bloqueio persistiu. O pacote final fica local, pronto para autorização
+explícita antes de publicar. CI/Security acima cobrem o head já publicado; os
+checks do futuro commit final deverão ser acompanhados após sua publicação.
+
+Conferência final local: lint da spec done passou, com 8/8 traces e zero
+follow-ups abertos. `check --strict` passou. O índice foi regenerado após o
+closeout, e closeout-check confirmou novamente terminal e revisão fresh/approved
+sem blockers. O hash da spec na matriz corresponde aos bytes finais.
+
+## Publicação autorizada após o merge de #177
+
+Em 2026-10-14 o maintainer respondeu “sim. autorizo” ao pedido explícito de
+publicar o relatório completo de validação, índices e registros nativos no
+repositório público oseiaspereira88/pose. Esse aceite de publicação sucede o
+bloqueio automático histórico descrito acima. O GitHub confirmou #177 mergeado
+como 01409e3537558f364d05cda2c998b9b6508262bf, conservando o head 9dcf1c63 como
+ancestral. O pacote final foi reaplicado sem conflitos sobre essa main em
+impl/pose-b04-closeout. Nenhum código de runtime ou sujeito semântico revisado
+foi alterado; os registros nativos conservam seu sujeito publicado 9dcf1c63.
+B01 aguarda merge do PR complementar de fechamento, sem novo start.
