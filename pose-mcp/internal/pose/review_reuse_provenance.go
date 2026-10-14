@@ -161,6 +161,9 @@ func (s Store) describeReviewReuse(bundle ReviewBundle, att ReviewAttestation) [
 }
 
 func (s Store) evaluateReviewReuse(bundle ReviewBundle, att ReviewAttestation, allowed bool) ([]string, []ReviewReuseDisclosure) {
+	if len(att.ReusedFrom) == 0 {
+		return nil, nil
+	}
 	s = s.reviewOperation()
 	raw, _ := json.Marshal(att)
 	key := bundle.BundleDigest + ":" + digestBytes(raw) + ":" + s.reviewTrustContextDigest() + fmt.Sprint(allowed)
