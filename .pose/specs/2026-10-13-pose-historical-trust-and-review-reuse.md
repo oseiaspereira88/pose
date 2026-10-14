@@ -1,8 +1,8 @@
 ---
 slug: pose-historical-trust-and-review-reuse
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-14
 depends_on: pose-material-equivalence-reuse, pose-native-attestation-issuer
 priority: 1
 components: pose-mcp
@@ -115,8 +115,8 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Implement temporal context and source traversal in shared domain.
 - [x] Exercise signed tampering, temporal boundaries, legacy, budgets and surfaces.
 - [x] Strict module validation on merged main (129/129), artifact attribution reconciled.
-- [ ] Final current evidence/index/seal and different-actor review.
-- [ ] Native closeout, reconcile matrix/roadmaps and PR with final-head CI/Security.
+- [x] Final current evidence/index/seal and different-actor review, with declared human adoption of prepared conclusions.
+- [x] Native closeout and matrix/roadmap reconciliation; PR CI/Security tracked on the published head in the implementation report.
 
 ## 5. Decisions
 
@@ -170,8 +170,8 @@ Regressions passed: go test ./internal/pose ./internal/cli ./internal/mcpserver
 (Go 1.26.0; pose 12.095s, CLI 1.772s; MCP-specific package has no matching test,
 but TestReviewTrustReuseCLISignedHistoryMatchesMCPAndDomain exercises its real
 HTTP JSON-RPC consumer). Full module validation subsequently passed on merged
-main d55b8d41. This trace records verified behavior; different-actor review and
-native closeout remain pending.
+main d55b8d41. This trace records verified behavior; the later declared human
+adoption and terminal native closeout are recorded in the Final Report.
 
 ## 7. Final Report
 
@@ -179,9 +179,15 @@ native closeout remain pending.
 
 B04 implementation and targeted regressions recorded in
 [implementation report](../reports/2026-10-14-pose-implementation-b04.md).
-The spec remains in-progress: native strict validation passed, while different-actor
-review and native closeout are not promoted from code or merge. Native acceptance
-act-fa20ae0029b6ad14 restricts closeout only. No next unit has started.
+Native strict qualification passed 132/132. The maintainer adopted the eight
+prepared judgments, review verify/review-check approved the fresh successor
+bundle rvb-acaa76e24d06bc5a, and act-fa20ae0029b6ad14 was answered accept.
+Native close applied done and closeout-check verified terminal with no blockers.
+Attribution is agent-prepared/concluded, human-adopted, with declared identity
+and separation; cognitive independence is not observable. The maintainer explicitly authorized publication of the full derived closeout
+package on 2026-10-14. PR #177 had already merged before that final package was
+published; a complementary closeout PR preserves this delivery. B01 has not
+started and waits for merge of that complement.
 
 ### Residual risks
 
@@ -207,3 +213,12 @@ passed 129/129. The earlier failed/interrupted attempts above remain historical
 records. Refresh results and index before sealing the final qualification
 subject; retain pending judgment and act-fa20ae0029b6ad14. Qualification changes
 do not alter R1–R8, D1/D2, the native start baseline, policy or runtime code.
+
+### Accepted native closeout — 2026-10-14
+
+The historical qualification handoffs above are superseded by structured native
+evidence on published head 9dcf1c63e80f9e31b01b2dd219c4dadd874917ff: 132/132 pass,
+no errors/skips, 263.3s. Successor bundle rvb-acaa76e24d06bc5a and attestation rva-2bfad170641ccf18
+preserve the earlier adopted bundle/attestation and include the answered journal.
+The native reports verify fresh approval and terminal closeout; no runtime code,
+R1–R8, D1/D2, start baseline or policy was changed by this closeout.

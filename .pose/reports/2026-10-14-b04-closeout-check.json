@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "scope": "spec:pose-historical-trust-and-review-reuse",
+  "scope_digest": "sha256:acaa76e24d06bc5a12ce4d0e1c48bf9b21c50da768333bbf43c9b3286a399223",
+  "review": {
+    "required": true,
+    "scope": "spec:pose-historical-trust-and-review-reuse",
+    "scope_digest": "sha256:acaa76e24d06bc5a12ce4d0e1c48bf9b21c50da768333bbf43c9b3286a399223",
+    "plan_digest": "sha256:1b2c11b292a0eef37cb30db1a9b62a2a169b06e86998446d39e37d94bb931937",
+    "profile": "spec-closeout@1",
+    "current": {
+      "schema_version": 1,
+      "review_id": "rva-2bfad170641ccf18",
+      "scope": "spec:pose-historical-trust-and-review-reuse",
+      "scope_digest": "sha256:acaa76e24d06bc5a12ce4d0e1c48bf9b21c50da768333bbf43c9b3286a399223",
+      "plan_digest": "sha256:1b2c11b292a0eef37cb30db1a9b62a2a169b06e86998446d39e37d94bb931937",
+      "profile": "spec-closeout@1",
+      "reviewer": "human:oseias",
+      "decision": "approved",
+      "reviewed_at": "2026-10-14T22:14:14Z",
+      "evidence_refs": [
+        "integration:pose-mcp/go/historical-trust-reuse-integration",
+        "structure:design-fe85e9839baaf254"
+      ],
+      "criteria": [
+        {
+          "id": "assumption-integrity",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+          "rationale": "Uma assinatura autentica a declaração do issuer; não comprova relógio real, autorização histórica observada ou independência cognitiva. Pins/grants atuais continuam a fronteira explícita. Os testes separam essas leituras. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+        },
+        {
+          "id": "backend-concurrency",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+        },
+        {
+          "id": "backend-contracts",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+        },
+        {
+          "id": "backend-input-errors",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+        },
+        {
+          "id": "backend-integration-impact",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+        },
+        {
+          "id": "backend-observability",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+        },
+        {
+          "id": "compatibility",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+          "rationale": "`temporal`, `reuse` e `mode` são aditivos. `mode` ausente conserva legacy-reaffirmation; não há TTL universal, migração de registros, adoção de policy nem emissão de release. A semântica mais estrita para nova operação é documentada como minor no ADR. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+        },
+        {
+          "id": "correctness",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+        },
+        {
+          "id": "design-causality",
+          "disposition": "passed",
+          "evidence": "structure:design-fe85e9839baaf254",
+          "rationale": "O contexto temporal atende R1–R3; a avaliação compartilhada atende R4/R5/R7; budgets e memoização por operação atendem R6. O ADR observado SD-4abee72b é a decisão estrutural para D1/D2 e R2/R3/R4/R5/R6. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177.",
+          "mappings": [
+            {
+              "delta": "SD-4abee72b",
+              "basis": "D1",
+              "disposition": "mapped",
+              "rationale": "O ADR estabelece a separação entre claim histórico assinado, confiança atual e proveniência de fonte para R2/R3/R4/R5, sem fabricar receipt retrospectivo; D2 e R6 complementam os limites da travessia."
+            }
+          ]
+        },
+        {
+          "id": "documentation",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+          "rationale": "POSE.md, pt-BR e os dois manuais embutidos descrevem tempo, modos, budgets e limites de confiança iguais aos do domínio. As fixtures de paridade passaram. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+        },
+        {
+          "id": "operability",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+          "rationale": "Diagnósticos distinguem fonte indisponível, proof/binding inválidos, revogação, tempo incompatível e budget inconclusivo. `historical_authorization: not-established` impede apresentar data assinada como recibo observado. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+        },
+        {
+          "id": "requirements",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+        },
+        {
+          "id": "scope",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+          "rationale": "O delta implementa B04; R1–R8 e D1/D2 permanecem íntegros. B01 e B02 não foram iniciados. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+        },
+        {
+          "id": "security",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+          "rationale": "`loadReuseAttestation` e `loadReuseBundle` aceitam somente prefixo e 16 dígitos hexadecimais antes de construir paths; as duas chamadas de `reserveReuseArtifact` usam diretórios constantes. O carregador recusa symlinks nos diretórios, valida digest e limita JSON a 4 MiB; assinatura/pins/bindings são verificados antes de aceitar verified-source. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+        },
+        {
+          "id": "solution-proportionality",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+          "rationale": "Um helper temporal e uma travessia local limitam o delta. Não criar serviço persistente, cache global ou receipt retroativo é suficiente para este escopo. A escolha deve ser revista se um contrato futuro exigir autorização histórica observada ou budgets configuráveis. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+        }
+      ],
+      "tools": [
+        {
+          "id": "artifact-check",
+          "disposition": "passed",
+          "evidence": "check:artifact-check",
+          "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+        },
+        {
+          "id": "assess-design",
+          "disposition": "passed",
+          "evidence": "structure:design-fe85e9839baaf254",
+          "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+        },
+        {
+          "id": "assess-discover",
+          "component": "pose-mcp",
+          "disposition": "passed",
+          "evidence": "check:assess-discover",
+          "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+        },
+        {
+          "id": "assess-integrate",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+          "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+        },
+        {
+          "id": "assess-tech-debt",
+          "disposition": "passed",
+          "evidence": "check:assess-tech-debt",
+          "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+        },
+        {
+          "id": "closeout-check",
+          "disposition": "deferred",
+          "rationale": "post-review gate"
+        },
+        {
+          "id": "review-check",
+          "disposition": "deferred",
+          "rationale": "post-review gate"
+        },
+        {
+          "id": "suggest-review",
+          "component": "pose-mcp",
+          "disposition": "passed",
+          "evidence": "check:suggest-review",
+          "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+        },
+        {
+          "id": "surface-check",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+          "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+        },
+        {
+          "id": "validate",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+          "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+        },
+        {
+          "id": "validate",
+          "component": "pose-mcp",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+          "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+        }
+      ],
+      "findings": [],
+      "path": ".pose/review-attestations/rva-2bfad170641ccf18.json"
+    },
+    "fresh": true,
+    "approved": true,
+    "blockers": [],
+    "warnings": [
+      "change set cs-410ecef1bd85 attributes 11 commit(s) but its range spans 12; 1 commit(s) in base..head belong to other work; 2 carry no POSE-Spec trailer, so the range is provenance and the attributed paths are the subject",
+      "metadata-incomplete review component pose-mcp missing:owner",
+      "sealed evidence ran against a commit other than the subject head 319cd0a3200e; it is current by provenance, not by having observed this change: build:pose-mcp/go/build, e2e:pose-mcp/go/multi-repo-agent-installed-journey, integration:pose-mcp/go/abm-atomic-start-integration, integration:pose-mcp/go/abm-causality-closeout-integration, integration:pose-mcp/go/abm-contract-nodes-integration, integration:pose-mcp/go/abm-progressive-review-integration, integration:pose-mcp/go/abm-remediation-lineage-integration, integration:pose-mcp/go/abm-retrospective-replay-integration, integration:pose-mcp/go/action-identity-integration, integration:pose-mcp/go/action-presentation-integration, integration:pose-mcp/go/action-requests-integration, integration:pose-mcp/go/action-resolution-integration, integration:pose-mcp/go/adversarial-corpus, integration:pose-mcp/go/adversarial-corpus-integration, integration:pose-mcp/go/artifact-claim-boundary-integration, integration:pose-mcp/go/assessment-freshness-integration, integration:pose-mcp/go/atomic-start-cutoff-integration, integration:pose-mcp/go/attention-snapshot-integration, integration:pose-mcp/go/attention-sources-integration, integration:pose-mcp/go/attest-preflight-integration, integration:pose-mcp/go/authority-project-integration, integration:pose-mcp/go/blocked-semantics-integration, integration:pose-mcp/go/calendar-date-skew-integration, integration:pose-mcp/go/capability-catalog-integration, integration:pose-mcp/go/causality-cutoff-integration, integration:pose-mcp/go/check-git-spawns-integration, integration:pose-mcp/go/check-verdict-mode-integration, integration:pose-mcp/go/check-workers-integration, integration:pose-mcp/go/ci-release-obligations-integration, integration:pose-mcp/go/clean-activation-recording-integration, integration:pose-mcp/go/cli-profile-parity-integration, integration:pose-mcp/go/closeout-plan-integration, integration:pose-mcp/go/completed-review-retention-integration, integration:pose-mcp/go/configuration-review-integration, integration:pose-mcp/go/delivery-graph-reuse-integration, integration:pose-mcp/go/delivery-integration, integration:pose-mcp/go/delivery-integrity-index-compaction-integration, integration:pose-mcp/go/dependabot-runtime-repair-integration, integration:pose-mcp/go/effective-governance-integration, integration:pose-mcp/go/extension-target-integration, integration:pose-mcp/go/falsifier-integration, integration:pose-mcp/go/federated-roadmap-acceptance-integration, integration:pose-mcp/go/federated-roadmap-negative-gates, integration:pose-mcp/go/federated-spec-acceptance-integration, integration:pose-mcp/go/flat-spec-amendments-integration, integration:pose-mcp/go/followup-candidates-integration, integration:pose-mcp/go/fresh-install-health-integration, integration:pose-mcp/go/governance-outcomes-v2-contract, integration:pose-mcp/go/governance-waits-integration, integration:pose-mcp/go/governed-capabilities-integration, integration:pose-mcp/go/governed-effects-integration, integration:pose-mcp/go/historical-trust-reuse-integration, integration:pose-mcp/go/init-is-install-integration, integration:pose-mcp/go/install-and-upgrade-journeys-integration, integration:pose-mcp/go/legacy-contract-cutoffs-integration, integration:pose-mcp/go/lint-spec-all-gate-contract, integration:pose-mcp/go/locale-obligation-flags-integration, integration:pose-mcp/go/machine-channel-integration, integration:pose-mcp/go/material-reuse-integration, integration:pose-mcp/go/mcp-action-resolve-integration, integration:pose-mcp/go/mcp-review-attest-integration, integration:pose-mcp/go/migrate-dryrun-integration, integration:pose-mcp/go/multi-repo-agent-context-integration, integration:pose-mcp/go/multi-repo-agent-negative-gates, integration:pose-mcp/go/obligation-contract-integration, integration:pose-mcp/go/obligation-projection-integration, integration:pose-mcp/go/onboarding-spec-integration, integration:pose-mcp/go/parallel-gate-integration, integration:pose-mcp/go/parse-memo-integration, integration:pose-mcp/go/phase-readiness-integration, integration:pose-mcp/go/premise-validity-integration, integration:pose-mcp/go/project-id-derivation-integration, integration:pose-mcp/go/project-identity-integration, integration:pose-mcp/go/public-claims-provenance-integration, integration:pose-mcp/go/public-claims-release-line-integration, integration:pose-mcp/go/qualified-artifact-resolution-integration, integration:pose-mcp/go/qualified-followup-integration, integration:pose-mcp/go/quickstart-real-lifecycle-integration, integration:pose-mcp/go/range-ownership-integration, integration:pose-mcp/go/recurrence-cluster-integration, integration:pose-mcp/go/recurrence-flapping-integration, integration:pose-mcp/go/red-signal-contract, integration:pose-mcp/go/release-needs-ci-contract, integration:pose-mcp/go/release-review-archive-integration, integration:pose-mcp/go/release-version-source-integration, integration:pose-mcp/go/review-assurance-disclosure-integration, integration:pose-mcp/go/review-attribution-roles-integration, integration:pose-mcp/go/review-bundle-convergence, integration:pose-mcp/go/review-policy-adoption-integration, integration:pose-mcp/go/review-soundness-residuals-integration, integration:pose-mcp/go/review-subject-capabilities-integration, integration:pose-mcp/go/setup-command-integration, integration:pose-mcp/go/signed-action-answers-integration, integration:pose-mcp/go/spec-authority-transfer-integration, integration:pose-mcp/go/spec-authority-transfer-mcp-status, integration:pose-mcp/go/spec-authority-transfer-negative-gates, integration:pose-mcp/go/spec-surface-integration, integration:pose-mcp/go/state-attention-integration, integration:pose-mcp/go/test-git-isolation-integration, integration:pose-mcp/go/trace-test-refs-integration, integration:pose-mcp/go/transfer-actions-integration, integration:pose-mcp/go/typed-diagnostics-integration, integration:pose-mcp/go/usage-adjudication-integration, integration:pose-mcp/go/validation-check-materiality-integration, reachability:pose-mcp/go/abm-replay-reachability, reachability:pose-mcp/go/action-requests-reachability, reachability:pose-mcp/go/action-resolution-reachability, reachability:pose-mcp/go/blocked-semantics-reachability, reachability:pose-mcp/go/closeout-plan-reachability, reachability:pose-mcp/go/delivery-reachability, reachability:pose-mcp/go/effective-governance-reachability, reachability:pose-mcp/go/flat-spec-amendments-reachability, reachability:pose-mcp/go/followup-candidates-reachability, reachability:pose-mcp/go/governance-waits-reachability, reachability:pose-mcp/go/governed-effects-reachability, reachability:pose-mcp/go/legacy-contract-cutoffs-reachability, reachability:pose-mcp/go/migrate-dryrun-reachability, reachability:pose-mcp/go/multi-repo-agent-context-reachability, reachability:pose-mcp/go/phase-readiness-reachability, reachability:pose-mcp/go/public-claims-provenance-reachability, reachability:pose-mcp/go/release-version-source-reachability, reachability:pose-mcp/go/review-assurance-disclosure-reachability, reachability:pose-mcp/go/review-attribution-roles-reachability, reachability:pose-mcp/go/spec-surface-reachability, reachability:pose-mcp/go/state-attention-reachability, reachability:pose-mcp/go/typed-diagnostics-reachability, reachability:pose-mcp/go/usage-adjudication-reachability, unit:pose-mcp/go/test",
+      "unmapped review component path:.pose/actions/act-fa20ae0029b6ad14.jsonl",
+      "unmapped review component path:.pose/adr/2026-10-14-review-time-context-and-reuse-provenance.md",
+      "unmapped review component path:.pose/assessments/README.md",
+      "unmapped review component path:.pose/assessments/consolidated.md",
+      "unmapped review component path:.pose/assessments/integrations.md",
+      "unmapped review component path:.pose/assessments/pose-mcp.md",
+      "unmapped review component path:.pose/assessments/technical-debt.md",
+      "unmapped review component path:.pose/changelogs/unreleased/pose-historical-trust-and-review-reuse.md",
+      "unmapped review component path:.pose/indexes/validation-matrix.json",
+      "unmapped review component path:.pose/reports/2026-10-14-pose-implementation-b04.md",
+      "unmapped review component path:.pose/results/pose-implementation-plan.json",
+      "unmapped review component path:.pose/roadmaps/pose-consolidation-program.md",
+      "unmapped review component path:.pose/roadmaps/record-truthfulness.md",
+      "unmapped review component path:.pose/specs/2026-10-13-pose-historical-trust-and-review-reuse.md",
+      "unmapped review component path:.pose/starts/pose-historical-trust-and-review-reuse.json",
+      "unmapped review component path:.pose/state/components/pose-mcp.json",
+      "unmapped review component path:.pose/state/integrations.json",
+      "unmapped review component path:.pose/state/technical-debt.json",
+      "unmapped review component path:POSE.md",
+      "unmapped review component path:locales/pt-BR/POSE.md"
+    ],
+    "policy_enabled": true,
+    "bundle_id": "rvb-acaa76e24d06bc5a",
+    "bundle_digest": "sha256:acaa76e24d06bc5a12ce4d0e1c48bf9b21c50da768333bbf43c9b3286a399223",
+    "attestation_id": "rva-2bfad170641ccf18",
+    "bundle_state": "closed",
+    "assurance": {
+      "temporal": {
+        "time_basis": "legacy-editable-attested-at",
+        "historical_at": "2026-10-14T22:14:14Z",
+        "current_basis": "operation-clock",
+        "historical_validity": "not-established",
+        "current_validity": "not-evaluated",
+        "current_trust": "not-verified",
+        "historical_authorization": "not-established"
+      },
+      "identity_assurance": "declared",
+      "reviewer": "human:oseias",
+      "reviewer_identity": "declared",
+      "reviewer_role": "human",
+      "separation_required": "different-actor",
+      "separation_declared": "declared-human",
+      "separation_verified": "not-verified",
+      "cognitive_independence": "not-observable",
+      "limitations": [
+        "identity-is-the-string-the-reviewer-wrote",
+        "separation-is-declared-not-authenticated",
+        "cognitive-independence-is-not-observable"
+      ],
+      "attribution": {
+        "state": "differentiated",
+        "prepared_by": "agent:codex-b04-qualification",
+        "concluded_by": "agent:codex-b04-qualification",
+        "confirmed_by": "human:oseias",
+        "applied_by": "agent:codex-b04-qualification",
+        "confirmation_mode": "adopted-conclusions",
+        "confirmation_assurance": "declared"
+      }
+    }
+  },
+  "lifecycle_done": true,
+  "terminal": true,
+  "next_action": "none",
+  "blockers": [],
+  "next_step": {
+    "code": "none",
+    "domain": "closeout",
+    "message": "none"
+  }
+}

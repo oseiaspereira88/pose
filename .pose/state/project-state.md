@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-10T18:47:34Z
-baseline_commit: 777846c872f7f0f3da26179fb64ae787871c40ce
+generated_at: 2026-10-14T22:53:36Z
+baseline_commit: 319cd0a3200eafc845e9eeba3e0600c893e44e89
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,24 +27,24 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:b1e90b02c15c -->
+<!-- state:derived hash:aedf92e12ea1 -->
 
-- specs: total=383 draft=5 in-progress=1 blocked=0 done=376 superseded=0 abandoned=1
-- roadmaps: total=18 active=1 done=11
+- specs: total=438 draft=40 in-progress=20 blocked=0 done=377 superseded=0 abandoned=1
+- roadmaps: total=22 active=3 done=11
 - últimos closeouts:
+  - spec:pose-historical-trust-and-review-reuse (2026-10-14)
+  - spec:pose-delegated-review-brief (2026-10-10)
+  - spec:pose-delegated-review-dispatch (2026-10-10)
   - spec:pose-v7-4-1-version-alignment (2026-10-10)
-  - spec:pose-update-seeds-an-answerable-maintainer (2026-10-10)
-  - spec:pose-ci-avoids-anonymous-rate-limits (2026-10-10)
-  - spec:pose-configuration-review-7-1-0 (2026-10-10)
-  - spec:pose-signed-legacy-attestation-ledger (2026-10-10)
-  - ... e mais 371 (ver `pose_list_specs status:done`)
+  - spec:pose-v7-4-0-version-alignment (2026-10-10)
+  - ... e mais 372 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:1b4afebc744f -->
+<!-- state:derived hash:b971be01bdeb -->
 
-- abertos: 108
-- por criticidade: high=4 medium=22 low=63 sem-classificação=19
-- vencidos (review < hoje): 11
+- abertos: 110
+- por criticidade: high=4 medium=24 low=63 sem-classificação=19
+- vencidos (review < hoje): 12
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
   - spec:pose-release-signing-rejection (owner:@pose-maintainers review:2026-10-02)
@@ -55,7 +55,7 @@ capacidade.
   - spec:pose-spec-transfer-reconcile-terminal (owner:@harne8-platform review:2026-10-03)
   - spec:pose-governance-gate-activation (owner:@pose-maintainers review:2026-10-08)
   - spec:pose-package-channel-install-repair (owner:@pose-maintainers review:2026-10-08)
-  - ... e mais 1 vencidos (ver `pose followups --open`)
+  - ... e mais 2 vencidos (ver `pose followups --open`)
 
 ## Capabilities
 <!-- state:derived hash:7db5fb52757a -->
@@ -75,16 +75,16 @@ capacidade.
 - knowledge: total=7 ativo=7 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:d1916a92d3de -->
+<!-- state:derived hash:1c9983a8de53 -->
 
-- último registro: task=validate-native outcome=pass (2026-10-02T11:43:40Z)
-- últimos 30 dias: total=117 outcome_ok=95 outcome_outro=22
-- reports revisados (.md): total=166
-  - report:2026-10-pose-open-backlog-reconciliation.md
-  - report:pose-agency-readiness-pilot.md
+- último registro: task=validate-native outcome=fail (2026-10-13T04:23:26Z)
+- últimos 30 dias: total=100 outcome_ok=76 outcome_outro=24
+- reports revisados (.md): total=198
+  - report:2026-10-14-pose-implementation-b04.md
+  - report:2026-10-14-b04-review-brief.md
   - report:pose-abm-capability-adoption.md
+  - report:pose-agency-readiness-pilot.md
   - report:pose-v6-2-0-autonomous-work.md
-  - report:pose-v7-legacy-cleanup-plan.md
 
 ## Arquitetura
 <!-- state:derived hash:9410e2fb441b status:active -->

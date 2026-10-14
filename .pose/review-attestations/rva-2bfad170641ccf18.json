@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-2bfad170641ccf18",
+  "bundle_id": "rvb-acaa76e24d06bc5a",
+  "bundle_digest": "sha256:acaa76e24d06bc5a12ce4d0e1c48bf9b21c50da768333bbf43c9b3286a399223",
+  "reviewer": "human:oseias",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Uma assinatura autentica a declaração do issuer; não comprova relógio real, autorização histórica observada ou independência cognitiva. Pins/grants atuais continuam a fronteira explícita. Os testes separam essas leituras. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "`temporal`, `reuse` e `mode` são aditivos. `mode` ausente conserva legacy-reaffirmation; não há TTL universal, migração de registros, adoção de policy nem emissão de release. A semântica mais estrita para nova operação é documentada como minor no ADR. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-fe85e9839baaf254",
+      "rationale": "O contexto temporal atende R1–R3; a avaliação compartilhada atende R4/R5/R7; budgets e memoização por operação atendem R6. O ADR observado SD-4abee72b é a decisão estrutural para D1/D2 e R2/R3/R4/R5/R6. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177.",
+      "mappings": [
+        {
+          "delta": "SD-4abee72b",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "O ADR estabelece a separação entre claim histórico assinado, confiança atual e proveniência de fonte para R2/R3/R4/R5, sem fabricar receipt retrospectivo; D2 e R6 complementam os limites da travessia."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "POSE.md, pt-BR e os dois manuais embutidos descrevem tempo, modos, budgets e limites de confiança iguais aos do domínio. As fixtures de paridade passaram. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Diagnósticos distinguem fonte indisponível, proof/binding inválidos, revogação, tempo incompatível e budget inconclusivo. `historical_authorization: not-established` impede apresentar data assinada como recibo observado. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "O delta implementa B04; R1–R8 e D1/D2 permanecem íntegros. B01 e B02 não foram iniciados. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "`loadReuseAttestation` e `loadReuseBundle` aceitam somente prefixo e 16 dígitos hexadecimais antes de construir paths; as duas chamadas de `reserveReuseArtifact` usam diretórios constantes. O carregador recusa symlinks nos diretórios, valida digest e limita JSON a 4 MiB; assinatura/pins/bindings são verificados antes de aceitar verified-source. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Um helper temporal e uma travessia local limitam o delta. Não criar serviço persistente, cache global ou receipt retroativo é suficiente para este escopo. A escolha deve ser revista se um contrato futuro exigir autorização histórica observada ou budgets configuráveis. Conclusão preparada pelo agente e adotada expressamente pelo maintainer em 2026-10-14 ao aceitar o relatório do PR #177."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-fe85e9839baaf254",
+      "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Execução comprovada na qualificação de B04; o maintainer adotou as conclusões propostas, sem substituir o resultado mecânico por seu aceite."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/historical-trust-reuse-integration",
+    "structure:design-fe85e9839baaf254"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:codex-b04-qualification",
+    "concluded_by": "agent:codex-b04-qualification",
+    "confirmed_by": "human:oseias",
+    "applied_by": "agent:codex-b04-qualification",
+    "confirmation_mode": "adopted-conclusions",
+    "confirmation_digest": "sha256:fca1c1632789bbca107658ffe414e4fb520f2968dde923123d4c4d1f60a1ff32"
+  },
+  "attested_at": "2026-10-14T22:14:14Z",
+  "path": ".pose/review-attestations/rva-2bfad170641ccf18.json"
+}
