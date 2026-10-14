@@ -51,8 +51,28 @@ release, manifest ou migração foi aplicado. ADR temporal registra os limites.
 
 Resultados são registrados após execução; ver seção Validation/Requirement
 trace da spec e `.pose/results/delivery-validation.json` para evidência estruturada.
-Builds locais usam Go 1.26.0 restaurado e GOFLAGS=-buildvcs=false para desabilitar
-somente stamping do binário local; CI valida o head com o toolchain do repositório.
+Regressões ampliadas passaram: pose 55.336s, CLI 8.921s, scaffold 6.116s,
+com source futuro (inclusive declared assinado), whitespace de reafirmação,
+corpus ABM, fixtures de issuer, action answers e paridade dos manuais embutidos.
+Race detector de temporal/proveniência passou (35.498s). A otimização do caso
+sem fontes passou em nova bateria (pose 6.149s, CLI 1.127s).
+
+CI #752 (38600639877) e Security #754 (38600639619) passaram no head
+2ff049b2c1676018124e07272160c56cb216cc75. Isso inclui suíte Go inteira,
+Shellcheck, instalação, import/quickstart, upgrade, demo, imagens, runtimes,
+CodeQL, govulncheck, dependency review e secrets. A validação Security usa
+--tolerant/SARIF e não comprova por si só validate --strict sem findings.
+
+Check --strict passou com 30 warnings históricos: 27 fragments ausentes,
+assessment antigo/baseline distante e instância 7.1.0 versus motor 7.4.1.
+Lint-spec --strict passou com zero findings; artifact-check reconciliou 29 paths
+no primeiro commit sem erros. Os paths adicionais são qualificados depois.
+
+A suíte ampla local com Go 1.26.0 encontrou timeout de 10 minutos em testes de
+CLI/federação; isso não foi computado como pass. O CI com Go 1.26.9 executou a
+suíte completa com sucesso. O toolchain local foi alinhado a 1.26.9 para gerar
+evidência nativa strict. GOFLAGS=-buildvcs=false desabilita somente stamping do
+binário local; o CI conserva o toolchain/stamping do repositório.
 
 ## Revisão e closeout
 

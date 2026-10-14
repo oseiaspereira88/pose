@@ -62,6 +62,8 @@ após execução, separadamente destas declarações.
 - created: pose-mcp/internal/pose/review_reuse_provenance_test.go
 - created: pose-mcp/internal/cli/review_trust_reuse_cli_test.go
 - modified: .pose/indexes/validation-matrix.json
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/results/delivery-validation.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
@@ -151,7 +153,7 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Targeted temporal/source/surface regressions passed; full module validation is recorded separately after completion.
+Targeted temporal/source/surface regressions passed, including action-answer regressions, issuer fixtures, adversarial corpus, locale/scaffold parity and race detector. Full CI/Security passed at 2ff049b2; see report for exact scope. Native strict validation is recorded separately after completion.
 
 ### Requirement trace
 
