@@ -388,7 +388,7 @@
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-historical-trust-and-review-reuse.md",
           "status": "in-progress",
-          "sha256": "2f8d5158cf05a2878afbf0762e9ed91d9cfde88e7219ab706168a19b215e24bf"
+          "sha256": "6d5f1b762d7ace021e5befa25b39456dad030711f5f5f203da38f3a94285021a"
         }
       ],
       "implementation_observations": [
@@ -412,6 +412,29 @@
           "ci_tested_head": "e48b2f9bc94b84158021ccfd00233efc0b76ba41",
           "ci_run": 38604918357,
           "security_run": 38604918342
+        },
+        {
+          "pull_requests": [
+            176
+          ],
+          "scope": "#176 mergeado na main d55b8d41; qualificação nativa strict passou 129/129 com Go 1.26.9 e TAR_OPTIONS=--no-same-owner. Preparação de review não é attestation different-actor; aceite de maintainer e closeout permanecem pendentes. R1–R8 e baseline preservados; B01 não iniciado.",
+          "unit_complete": false,
+          "report_path": ".pose/reports/2026-10-14-pose-implementation-b04.md",
+          "native_closeout_pending": true,
+          "acceptance_request": "act-fa20ae0029b6ad14",
+          "merged_revision": "d55b8d41fd283ff1bba3e794fae1cd8c6e7707f7",
+          "ci_tested_head": "77142f28e6045dfeeb204e07c86d8dab7c3a0fbe",
+          "ci_run": 38609619410,
+          "security_run": 38609619438,
+          "native_validation": {
+            "mode": "strict",
+            "module": "pose-mcp",
+            "head": "d55b8d41fd283ff1bba3e794fae1cd8c6e7707f7",
+            "executed": 129,
+            "passed": 129,
+            "failed": 0,
+            "elapsed_seconds": 365.9
+          }
         }
       ],
       "delivery_complete": false,
@@ -4989,9 +5012,9 @@
   ],
   "implementation_reconciliation": {
     "at": "2026-10-14",
-    "main_revision": "6c3b6e1fe3481a998110226550e0e622d59ce79c",
+    "main_revision": "d55b8d41fd283ff1bba3e794fae1cd8c6e7707f7",
     "selected_unit": "B04",
-    "basis": "Preferred initial chain and first technical layer; native dependencies terminal. B01 code merged in #157/#158 remains unqualified with closeout pending. Authoring #159–#175 merged with administrative closeout pending. B43 conditional remains unmaterialized; not claimed delivered.",
+    "basis": "#176 merged with B04 code and final-head CI/Security success. Native strict qualification now passed 129/129; finish current evidence/seal, different-actor judgment, maintainer acceptance and native closeout before B01. Authoring closeouts remain separately pending; B43 is still conditional and unmaterialized.",
     "unit_delivery_complete_count": 0,
     "administrative_closeouts": "Remain pending, distinct from native functional dependencies; no status promoted from merge alone."
   }

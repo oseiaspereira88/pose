@@ -379,6 +379,7 @@ ou registrar adiamento explícito. Não encerrar o programa só pela materializa
 
 - A retomada explícita de 2026-10-14 autoriza implementação incremental, uma spec por PR e espera de merge.
 - B04 é o lote atual pela primeira camada/DAG e cadeia preferencial; consultar o [relatório](../reports/2026-10-14-pose-implementation-b04.md).
+- #176 foi mergeado na main d55b8d41; B04 passou validação nativa strict 129/129 e global 132/132. O maintainer adotou as conclusões propostas e act-fa20ae0029b6ad14 está satisfeita, com identidade/separação declaradas. Consumir status nativo da spec e relatório B04 para o resultado do closeout. B01 aguarda merge do PR de fechamento e não foi iniciado.
 - Separar implementação validada de review/closeout; não promover a entrega pelo merge dos lotes documentais.
 - Preservar specs done e os ADRs aceitos; abrir deltas prospectivos e continuar drafts adequados.
 - Conferir uma autoridade executável por spec e um responsável planejado por unidade.

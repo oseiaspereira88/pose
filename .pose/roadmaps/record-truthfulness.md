@@ -64,10 +64,13 @@ temporal; reuso comprova a fonte ou declara reassunção atual, com orçamento d
 travessia. Claimed timestamp não inventa autorização histórica. Preservar #157.
 
 Execução atual: [relatório B04](../reports/2026-10-14-pose-implementation-b04.md).
-Readiness/start/assessment executados, R1–R8 preservados. Evidência funcional é
-registrada após os testes; review different-actor e closeout nativo são gates
-pendentes. Não declarar temporal-trust encerrado nem liberar verified-proof
-somente pela presença do código ou pelo merge do PR.
+Readiness/start/assessment executados, R1–R8 preservados; qualificação global
+strict 132/132. O maintainer adotou expressamente as conclusões em 2026-10-14 e
+action act-fa20ae0029b6ad14 está satisfeita. A atribuição é adoção humana de
+conclusões preparadas pelo agente, com identidade/separação declaradas. O status
+nativo da spec e seu relatório registram o resultado do closeout; consumir esse
+resultado, sem inferir entrega pelo merge ou pelo código. B01 aguarda merge do
+PR de fechamento de B04 antes de iniciar sua qualificação.
 
 ## Milestone: verified-proof
 - after: temporal-trust
@@ -78,6 +81,11 @@ somente pela presença do código ou pelo merge do PR.
 **Exit gate:** qualificar as correções mergeadas de #157/#158 contra o B01 completo,
 o contexto temporal de B04 e os consumidores; fechar as duas specs pelos gates.
 Merge e assinatura não substituem qualificação ou julgamento semântico.
+
+Retomada em 2026-10-14: #176 mergeado (d55b8d41); B04 passou qualificação nativa
+strict 129/129 na main e 132/132 global. O aceite do maintainer foi registrado
+em act-fa20ae0029b6ad14. Consumir o status nativo de temporal-trust e o relatório
+B04; verified-proof continua sem start, aguardando merge do PR de fechamento.
 
 ## Milestone: approval-preflight
 - after: verified-proof

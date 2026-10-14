@@ -1,15 +1,326 @@
 {
   "pending": [
     {
-      "spec": "pose-review-subject-classifies-engine-records",
+      "spec": "pose-action-answers-reverify-on-read",
       "category": "fixed",
       "breaking": false,
-      "body": "`pose review bundle --seal` no longer refuses a scope that carries the signed legacy ledger `pose adopt signed-attestations` writes under `.pose/review-ledgers/`; the ledger is reviewed as governance. Delegated review runs, DORA events, investigation notes, the usage verdict journal, the telemetry switch, a running continuous closeout, the validate log, the distribution's `LICENSE` and `NOTICE` copies and `.pose/schema-version` are classified too, and a test keeps every directory the engine writes under `.pose/` classified.",
-      "path": "pose-review-subject-classifies-engine-records.md",
-      "digest": "sha256:093a8252b81a64e55ce91c0e2b5901a8fabf1206685bce8922c2c3509d4a5b89"
+      "body": "Reverify persisted action-answer proof in the shared domain reader before consuming assurance and satisfaction. Reject forged verified labels and altered SSH/issuer bindings, expose incomplete coverage to consumers, and preserve declared history and valid historical acceptance timestamps.",
+      "path": "pose-action-answers-reverify-on-read.md",
+      "digest": "sha256:744b9199a134b6dfebb0264afc2e22bdd7c0f2e9eae89e20fee2d49ffc60759b"
+    },
+    {
+      "spec": "pose-consolidation-batch-1-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Materialize planning batch one as three draft specs for historical trust/reuse, approval-domain preflight and policy-scope validation. Preserve the historical backlog and connect the current trust milestones without claiming implementation or adopting policy.",
+      "path": "pose-consolidation-batch-1-authoring.md",
+      "digest": "sha256:dd951457e91cd6ee435375de9fe88ef91d52f66e8f7f889323125915dc5e6f44"
+    },
+    {
+      "spec": "pose-consolidation-batch-10-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Formalize batch ten with one draft adapter-containment delta and continuation plans for the existing provenance and capability specs. Preserve accepted delegation decisions and qualify the shared capability through B19, fulfillment B20 and integrated adoption B21, without executing agents or enabling policy.",
+      "path": "pose-consolidation-batch-10-authoring.md",
+      "digest": "sha256:22f2226b4a3bb9215daee9e4aa66ac28ec76b541052ab8f4290e178c20e4e3a4"
+    },
+    {
+      "spec": "pose-consolidation-batch-11-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Formalize batch eleven through the existing delegated fulfillment spec and two draft deltas for proportional next actions and separate residual nature, commitment and effect. Preserve scoped B19 acceptance before fulfillment and integrated B21 adoption, without executing runners or applying classifications.",
+      "path": "pose-consolidation-batch-11-authoring.md",
+      "digest": "sha256:4526bf437cb9b725dd2a57a929664854474fa43721d0851f0700f3c71df81a4e"
+    },
+    {
+      "spec": "pose-consolidation-batch-12-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Formalize batch twelve with draft contracts for evidence-backed residual triage and risk acceptance, separate condition/response/work metrics, and shared release-cut sufficiency. Link roadmap ownership and preserve source acceptance without applying dispositions, changing evaluators or preparing releases.",
+      "path": "pose-consolidation-batch-12-authoring.md",
+      "digest": "sha256:17294a37b94fd232c26a6fbdd05146d957abc286f3fd805da1a58937d5c80999"
+    },
+    {
+      "spec": "pose-consolidation-batch-13-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Formalize batch thirteen with draft contracts for publication evidence replay, recoverable release preparation and event recording, and explicit cut selection with assignment exclusivity. Record a proposed temporal/lineage ADR and review note, preserving existing release foundations without running release operations or adopting new contracts.",
+      "path": "pose-consolidation-batch-13-authoring.md",
+      "digest": "sha256:f71adce08829f03aa5853c20cc9b3f8274672a460a20fd818065f3b650bc3649"
+    },
+    {
+      "spec": "pose-consolidation-batch-14-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Formalize batch fourteen with draft contracts for shared CLI/MCP domain and typed handoff, bounded deeply isolated graph caches, and optional per-worktree runtime with compatibility, fallback and QoS. Record a proposed architecture and review note without starting IPC, changing execution trust boundaries or implementing the runtime.",
+      "path": "pose-consolidation-batch-14-authoring.md",
+      "digest": "sha256:c43e7a989e4b2cb8cb79cc946750d229f8befae4ec0a2dbdc8f7f5ef75beaed1"
+    },
+    {
+      "spec": "pose-consolidation-batch-15-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Formalize batch fifteen with a draft integrated UX, adversarial and optional-runtime pilot: eight journeys with separate person and agent evidence, fixed baselines, useful work and reuse metrics, and bounded stop/go and rollback. Preserve the historical foundations and distinguish technical preparation from final runtime qualification; no pilot execution or policy adoption.",
+      "path": "pose-consolidation-batch-15-authoring.md",
+      "digest": "sha256:06e1332bd8eae4e349bda324f5ae7cc7843003063a1bc17f7b53259c330f9c42"
+    },
+    {
+      "spec": "pose-consolidation-batch-2-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Materialize batch two as draft specs for presence across proof channels, source coverage and Git/dispatch snapshot integrity. Connect their roadmap owners and preserve historical candidates, dependencies and future batches without claiming functional delivery.",
+      "path": "pose-consolidation-batch-2-authoring.md",
+      "digest": "sha256:6046ad6782131491606d5f341b7de7fab08ad14134860a35095279e09a7ba01f"
+    },
+    {
+      "spec": "pose-consolidation-batch-3-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Materialize batch three as draft specs for action target/node scoping, lifecycle authority and request recovery/preflight. Preserve historical acceptance and dependencies and connect the agency milestones without claiming functional delivery or changing adoption.",
+      "path": "pose-consolidation-batch-3-authoring.md",
+      "digest": "sha256:280eb91764baa3d9e07d0efa3f6c05f72c1ea3e01b66acdf19b0bb8458ffa012"
+    },
+    {
+      "spec": "pose-consolidation-batch-4-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Materialize batch four as draft specs for CLI/MCP operation results, journal/checkpoint/lock recovery and spec-facts evidence binding. Preserve historical acceptance and dependencies and connect the roadmap owners without claiming functional delivery or changing adoption.",
+      "path": "pose-consolidation-batch-4-authoring.md",
+      "digest": "sha256:5e10ba721e46e00e7b284d1b24b10dbbc7f5465838f622fb46a22d3c37f9cd1c"
+    },
+    {
+      "spec": "pose-consolidation-batch-5-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Formalize batch five with a draft terminal-closeout delta and bounded continuation plans for the existing amendment-history and update-dry-run specs. Preserve their requirements, status and baselines and connect roadmap ownership without claiming functional delivery.",
+      "path": "pose-consolidation-batch-5-authoring.md",
+      "digest": "sha256:76e8cdd6f80b5b14e84ae247a625447aa669d1362b428af1020c0ef82047f30b"
+    },
+    {
+      "spec": "pose-consolidation-batch-6-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Formalize batch six as draft specs for distributed instruction parity, planning/release narrative reconciliation and manifest/tag integrity. Create the bounded release roadmap and preserve historical contracts without claiming functional delivery or changing adoption.",
+      "path": "pose-consolidation-batch-6-authoring.md",
+      "digest": "sha256:09cc8e73d570a7828c789f839d20a2ab74279699c2b9724ddd9547c274962cb4"
+    },
+    {
+      "spec": "pose-consolidation-batch-7-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Formalize batch seven as draft specs for writer coordination/publication, index generation integrity and operation performance. Create the bounded shared-runtime roadmap and preserve historical contracts without executing publication, benchmarks or daemon adoption.",
+      "path": "pose-consolidation-batch-7-authoring.md",
+      "digest": "sha256:49474f44ca30aec6bcc1688d15901aca62cde0cff604c49df311e14c5495bbb9"
+    },
+    {
+      "spec": "pose-consolidation-batch-8-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Formalize batch eight through the existing delegated attempt ledger spec and two draft deltas for residual identity/material coverage and follow-up metadata/routing. Preserve historical requirements and separate documentary qualification from functional delivery.",
+      "path": "pose-consolidation-batch-8-authoring.md",
+      "digest": "sha256:185c3ed014fa04d6adbb82c9b5f5173d62a9515091d73cc0a5f37103cadd12e6"
+    },
+    {
+      "spec": "pose-consolidation-batch-9-authoring",
+      "category": "changed",
+      "breaking": false,
+      "body": "Formalize batch nine as draft specs for governance read views, complete input invalidation and generation-bound queries/cursors. Materialize the remaining consistency roadmap members without implementing runtime, pagination or current-authorization reuse.",
+      "path": "pose-consolidation-batch-9-authoring.md",
+      "digest": "sha256:bda311cf741164ed9d37cfb58e94b67bca9a4adde4bdbf73ff7530556da776e2"
+    },
+    {
+      "spec": "pose-consolidation-program-bootstrap",
+      "category": "changed",
+      "breaking": false,
+      "body": "Formalize the consolidation planning bootstrap: map the 44 canonical units and 96 source candidates into bounded authoring batches, preserve existing specs and merged proof corrections, and keep future implementation, adoption and release qualification explicit.",
+      "path": "pose-consolidation-program-bootstrap.md",
+      "digest": "sha256:dd7a67a589092097bb8a078ac16aee90f525bf8f8cabb531b15ca26d9dac30d2"
+    },
+    {
+      "spec": "pose-historical-trust-and-review-reuse",
+      "category": "security",
+      "breaking": false,
+      "body": "Reviews now disclose historical claim validity separately from current authority\nand distinguish verified source reuse from a current reaffirmation. Verified\nsource reuse authenticates and validates bounded provenance; new approving writes\nwith expired or invalid temporal claims are refused before creating records.",
+      "path": "pose-historical-trust-and-review-reuse.md",
+      "digest": "sha256:aad9235c2b97213efa318b5ec8196b1b59a9add20d55c750e84c4a6fed66882b"
+    },
+    {
+      "spec": "pose-review-disclosure-requires-proof",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Authenticate the signed review proof and exact bundle binding before disclosing verified identity, separation or human confirmation. Share the proof check with review gates while preserving declared legacy records and valid identity evidence when semantic criteria prevent approval.",
+      "path": "pose-review-disclosure-requires-proof.md",
+      "digest": "sha256:45aed9aeb29c9cd0bd5c00b660520a6afbec4311de1e05b1de92f3ceeb7665c6"
     }
   ],
   "releases": [
+    {
+      "version": "v7.4.1",
+      "state": "verified",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v7.4.1",
+        "previous_version": "v7.4.0",
+        "prepared_at": "2026-10-10T18:51:29Z",
+        "specs": [
+          "pose-review-subject-classifies-engine-records"
+        ],
+        "categories": {
+          "fixed": 1
+        },
+        "fragments": [
+          {
+            "spec": "pose-review-subject-classifies-engine-records",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose review bundle --seal` no longer refuses a scope that carries the signed legacy ledger `pose adopt signed-attestations` writes under `.pose/review-ledgers/`; the ledger is reviewed as governance. Delegated review runs, DORA events, investigation notes, the usage verdict journal, the telemetry switch, a running continuous closeout, the validate log, the distribution's `LICENSE` and `NOTICE` copies and `.pose/schema-version` are classified too, and a test keeps every directory the engine writes under `.pose/` classified.",
+            "path": "pose-review-subject-classifies-engine-records.md",
+            "digest": "sha256:093a8252b81a64e55ce91c0e2b5901a8fabf1206685bce8922c2c3509d4a5b89"
+          }
+        ],
+        "breaking": false,
+        "notes_digest": "sha256:c2e91f9ad65123396a6e089366b8b70c46afb3abfa974075ee510c087ed28823",
+        "release_input_digest": "sha256:aa9c3ce8c2038abae78876311a1be71b7b4ff72bd9d51869efe10926ec88c020",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v7.4.1"
+        }
+      },
+      "events": [
+        {
+          "schema_version": 1,
+          "version": "v7.4.1",
+          "state": "tagged",
+          "recorded_at": "2026-10-10T21:14:56Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "git",
+            "repository": "oseiaspereira88/pose",
+            "version": "v7.4.1",
+            "tag": "v7.4.1",
+            "commit": "7ef3be2a44f0d0c2daceaf3f5c63e6840197023a",
+            "published_at": "2026-10-10T15:53:16-03:00",
+            "url": "https://github.com/oseiaspereira88/pose/tree/v7.4.1"
+          },
+          "evidence_digest": "sha256:19bae79a8d7d98c03761e9c89e0a50917a3e5a409fd96c5715c8839bedbd5f3b"
+        },
+        {
+          "schema_version": 1,
+          "version": "v7.4.1",
+          "state": "published",
+          "recorded_at": "2026-10-10T21:14:56Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github",
+            "repository": "oseiaspereira88/pose",
+            "version": "v7.4.1",
+            "tag": "v7.4.1",
+            "commit": "7ef3be2a44f0d0c2daceaf3f5c63e6840197023a",
+            "published_at": "2026-10-10T21:13:09Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v7.4.1",
+            "workflow_run": "38085861720",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:e120c9bd8a37f6a5a1ccfc5eb7740dc2b109790481076de63441bb859382f527",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:e001a1c62741d649184820c1f0101d9a7ddbc0ccf29732570df816736878cb29",
+              "Harne8.Pose.yaml": "sha256:550ff7da3974e6eab2b78523872874173cfa0976e2068e6729aa9cd5eb060f60",
+              "checksums.txt": "sha256:0e232a27547e882b799c00134617d49ee4a88e51c95b4e81e862f069b6793904",
+              "checksums.txt.sigstore.json": "sha256:097eaf8caac0df2878eaba5ac3183c72ae04cfc85fbb3583fee8f1f5eaa9b478",
+              "compatibility-report.md": "sha256:49ee5ff92935efd0eca1ce78eadb77ecb4d3346b7e39b775cab8508be4a685be",
+              "compatibility.json": "sha256:b371faa34445daf5344ab05411944391c8337e3d3a062ab4a290fd487403c6aa",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:0a8257802533e583b0c7458468ba747261a0b6067b463abede4be4bf1616187c",
+              "pose-rule-kubernetes.tar.gz": "sha256:0ddafdb6ee0482e0b489674f0fb9e20b1e8d2ac1a65e1e1115185e666c25a93e",
+              "pose.rb": "sha256:c09fbc00017d5757c1d3cb16df561424b66bb675dddc11e6e9c12915da83d601",
+              "pose_7.4.1_darwin_amd64.tar.gz": "sha256:86292b4486a0679a5a5de0ceabab60fc1c4726b0ba9938dfc6e21cf28c3f6640",
+              "pose_7.4.1_darwin_amd64.tar.gz.cdx.json": "sha256:ce18cb66ea2302553cdd69ffc9c941cfbf49b05a1429099847b1b1e0ef6afd1f",
+              "pose_7.4.1_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:ba0988b6c6e05de4e103c33b4e8f138fe3ba5324092b057342bb5c1e5a12a14e",
+              "pose_7.4.1_darwin_amd64.tar.gz.sigstore.json": "sha256:031030468c4e045cd4d10b45c8d4040705b7b8518fed659231c3fbff5c79c1c2",
+              "pose_7.4.1_darwin_arm64.tar.gz": "sha256:df02c4d2edd19ff1987e4e990b0fc54fd21cd402672e26794c0ed38332507490",
+              "pose_7.4.1_darwin_arm64.tar.gz.cdx.json": "sha256:0a814a22c1eaf2c6677632acd5c7afea3d5618a5bfcbdf1b788809841213bb5c",
+              "pose_7.4.1_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:01d14f325602c716ceebe044c7141b6b287070c42a8b4d53b1c8f7ceaa293b13",
+              "pose_7.4.1_darwin_arm64.tar.gz.sigstore.json": "sha256:dd4575ca3b35c60a710bd08456080ff52590b22bb5ce6f6c28e1fdb5b6b7f470",
+              "pose_7.4.1_linux_amd64.tar.gz": "sha256:6de652f4c4efec7ff0d5f5f3b299ad96eb741753042af54d700dcf8ac181286a",
+              "pose_7.4.1_linux_amd64.tar.gz.cdx.json": "sha256:3f20447d3edc4d1f7f9bc9e89e016f39dde0339e69ed32cc6c668149b2f9f72d",
+              "pose_7.4.1_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:991997d4aa8f3fb5d492d74efa779db94dbfc71b69bbed8834cfeece014a8e74",
+              "pose_7.4.1_linux_amd64.tar.gz.sigstore.json": "sha256:ac330ed7c070bef2ee04717536d84a6a0299c74fb488003f72c652e3b03f38ba",
+              "pose_7.4.1_linux_arm64.tar.gz": "sha256:b15de29414c203294b22c9d5fb68b7fb2b1f4b75032f8ec614bdfbc0e594d547",
+              "pose_7.4.1_linux_arm64.tar.gz.cdx.json": "sha256:f1860d101e710ff3450a5fc9c3d4175b803348a72fddecba8393b260c956bce6",
+              "pose_7.4.1_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:774f2ba34904f668eeac924e5f852a1ebeb162c3c8a126846977e8f8df03d32b",
+              "pose_7.4.1_linux_arm64.tar.gz.sigstore.json": "sha256:e658ed9016733a32da8f16437be41199cd8b9f1726bd997f220a76c502842f17",
+              "pose_7.4.1_windows_amd64.zip": "sha256:13b02227da4039094ce07b852672509399842a29d10c64373a928f1236e8da39",
+              "pose_7.4.1_windows_amd64.zip.cdx.json": "sha256:1f94964c7060506c5b093e78662432b1392744f8117c9c828ce28232dd4309f1",
+              "pose_7.4.1_windows_amd64.zip.cdx.json.sigstore.json": "sha256:6463196cac8013334a586f51219d117a41ffa25d9299bd085764dfbdf1e4b30a",
+              "pose_7.4.1_windows_amd64.zip.sigstore.json": "sha256:7832452419a10f0931784c2c709852e767064ed5ded510bfd4b554c5c6237a0c",
+              "pose_7.4.1_windows_arm64.zip": "sha256:b5e5ba9184fa60d2155824db5f3a15c97da679255d60a0e8041d9e562013258f",
+              "pose_7.4.1_windows_arm64.zip.cdx.json": "sha256:9406dd9a8d39ebb9e82514e799b75c0a1e2b59cecd4cbe76859d78618cb0c31b",
+              "pose_7.4.1_windows_arm64.zip.cdx.json.sigstore.json": "sha256:a70ec68e36fc81cf13e96fbfced010553e1ce94774dc005b105acf71eda14ccf",
+              "pose_7.4.1_windows_arm64.zip.sigstore.json": "sha256:1de472ceb934e494313baff1ba29183e3022321e1761771c4545443ccd03ef86",
+              "publication-evidence.json": "sha256:6facc36809a95b18fb7eb783a3d26b9a3c1ea3b2d982d3d46b6e080e252f6960"
+            }
+          },
+          "evidence_digest": "sha256:9efe9533aa6222ec086d871aaefd9c326108aaaff6c9c8eb636484f5bdc19a7d"
+        },
+        {
+          "schema_version": 1,
+          "version": "v7.4.1",
+          "state": "verified",
+          "recorded_at": "2026-10-10T21:14:56Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v7.4.1",
+            "tag": "v7.4.1",
+            "commit": "7ef3be2a44f0d0c2daceaf3f5c63e6840197023a",
+            "published_at": "2026-10-10T21:14:38Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v7.4.1",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/38086782551",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:e120c9bd8a37f6a5a1ccfc5eb7740dc2b109790481076de63441bb859382f527",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:e001a1c62741d649184820c1f0101d9a7ddbc0ccf29732570df816736878cb29",
+              "Harne8.Pose.yaml": "sha256:550ff7da3974e6eab2b78523872874173cfa0976e2068e6729aa9cd5eb060f60",
+              "checksums.txt": "sha256:0e232a27547e882b799c00134617d49ee4a88e51c95b4e81e862f069b6793904",
+              "checksums.txt.sigstore.json": "sha256:097eaf8caac0df2878eaba5ac3183c72ae04cfc85fbb3583fee8f1f5eaa9b478",
+              "compatibility-report.md": "sha256:49ee5ff92935efd0eca1ce78eadb77ecb4d3346b7e39b775cab8508be4a685be",
+              "compatibility.json": "sha256:b371faa34445daf5344ab05411944391c8337e3d3a062ab4a290fd487403c6aa",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:0a8257802533e583b0c7458468ba747261a0b6067b463abede4be4bf1616187c",
+              "pose-rule-kubernetes.tar.gz": "sha256:0ddafdb6ee0482e0b489674f0fb9e20b1e8d2ac1a65e1e1115185e666c25a93e",
+              "pose.rb": "sha256:c09fbc00017d5757c1d3cb16df561424b66bb675dddc11e6e9c12915da83d601",
+              "pose_7.4.1_darwin_amd64.tar.gz": "sha256:86292b4486a0679a5a5de0ceabab60fc1c4726b0ba9938dfc6e21cf28c3f6640",
+              "pose_7.4.1_darwin_amd64.tar.gz.cdx.json": "sha256:ce18cb66ea2302553cdd69ffc9c941cfbf49b05a1429099847b1b1e0ef6afd1f",
+              "pose_7.4.1_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:ba0988b6c6e05de4e103c33b4e8f138fe3ba5324092b057342bb5c1e5a12a14e",
+              "pose_7.4.1_darwin_amd64.tar.gz.sigstore.json": "sha256:031030468c4e045cd4d10b45c8d4040705b7b8518fed659231c3fbff5c79c1c2",
+              "pose_7.4.1_darwin_arm64.tar.gz": "sha256:df02c4d2edd19ff1987e4e990b0fc54fd21cd402672e26794c0ed38332507490",
+              "pose_7.4.1_darwin_arm64.tar.gz.cdx.json": "sha256:0a814a22c1eaf2c6677632acd5c7afea3d5618a5bfcbdf1b788809841213bb5c",
+              "pose_7.4.1_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:01d14f325602c716ceebe044c7141b6b287070c42a8b4d53b1c8f7ceaa293b13",
+              "pose_7.4.1_darwin_arm64.tar.gz.sigstore.json": "sha256:dd4575ca3b35c60a710bd08456080ff52590b22bb5ce6f6c28e1fdb5b6b7f470",
+              "pose_7.4.1_linux_amd64.tar.gz": "sha256:6de652f4c4efec7ff0d5f5f3b299ad96eb741753042af54d700dcf8ac181286a",
+              "pose_7.4.1_linux_amd64.tar.gz.cdx.json": "sha256:3f20447d3edc4d1f7f9bc9e89e016f39dde0339e69ed32cc6c668149b2f9f72d",
+              "pose_7.4.1_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:991997d4aa8f3fb5d492d74efa779db94dbfc71b69bbed8834cfeece014a8e74",
+              "pose_7.4.1_linux_amd64.tar.gz.sigstore.json": "sha256:ac330ed7c070bef2ee04717536d84a6a0299c74fb488003f72c652e3b03f38ba",
+              "pose_7.4.1_linux_arm64.tar.gz": "sha256:b15de29414c203294b22c9d5fb68b7fb2b1f4b75032f8ec614bdfbc0e594d547",
+              "pose_7.4.1_linux_arm64.tar.gz.cdx.json": "sha256:f1860d101e710ff3450a5fc9c3d4175b803348a72fddecba8393b260c956bce6",
+              "pose_7.4.1_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:774f2ba34904f668eeac924e5f852a1ebeb162c3c8a126846977e8f8df03d32b",
+              "pose_7.4.1_linux_arm64.tar.gz.sigstore.json": "sha256:e658ed9016733a32da8f16437be41199cd8b9f1726bd997f220a76c502842f17",
+              "pose_7.4.1_windows_amd64.zip": "sha256:13b02227da4039094ce07b852672509399842a29d10c64373a928f1236e8da39",
+              "pose_7.4.1_windows_amd64.zip.cdx.json": "sha256:1f94964c7060506c5b093e78662432b1392744f8117c9c828ce28232dd4309f1",
+              "pose_7.4.1_windows_amd64.zip.cdx.json.sigstore.json": "sha256:6463196cac8013334a586f51219d117a41ffa25d9299bd085764dfbdf1e4b30a",
+              "pose_7.4.1_windows_amd64.zip.sigstore.json": "sha256:7832452419a10f0931784c2c709852e767064ed5ded510bfd4b554c5c6237a0c",
+              "pose_7.4.1_windows_arm64.zip": "sha256:b5e5ba9184fa60d2155824db5f3a15c97da679255d60a0e8041d9e562013258f",
+              "pose_7.4.1_windows_arm64.zip.cdx.json": "sha256:9406dd9a8d39ebb9e82514e799b75c0a1e2b59cecd4cbe76859d78618cb0c31b",
+              "pose_7.4.1_windows_arm64.zip.cdx.json.sigstore.json": "sha256:a70ec68e36fc81cf13e96fbfced010553e1ce94774dc005b105acf71eda14ccf",
+              "pose_7.4.1_windows_arm64.zip.sigstore.json": "sha256:1de472ceb934e494313baff1ba29183e3022321e1761771c4545443ccd03ef86",
+              "publication-evidence.json": "sha256:6facc36809a95b18fb7eb783a3d26b9a3c1ea3b2d982d3d46b6e080e252f6960"
+            },
+            "publication_digest": "sha256:9efe9533aa6222ec086d871aaefd9c326108aaaff6c9c8eb636484f5bdc19a7d"
+          },
+          "evidence_digest": "sha256:731f202bcd5aecb203dac6c71e1fa4886bd41a72cd1b37d49f3232b2a6d84154"
+        }
+      ],
+      "gaps": []
+    },
     {
       "version": "v7.4.0",
       "state": "verified",
