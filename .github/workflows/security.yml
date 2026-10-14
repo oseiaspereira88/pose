@@ -90,7 +90,11 @@ jobs:
       - name: Deterministic validation to SARIF
         # Same promise as the CI test job: full history above, and the variable
         # that says so (spec pose-the-guard-signal-is-declared-not-inherited).
-        env: { POSE_RELEASE_HISTORY_AVAILABLE: "true" }
+        env:
+          POSE_RELEASE_HISTORY_AVAILABLE: "true"
+          # pose validate runs the release-listing journey indirectly.
+          # Reuse the authenticated listing contract of the direct CI caller.
+          GITHUB_TOKEN: ${{ github.token }}
         run: go -C pose-mcp run ./cmd/pose validate --tolerant --sarif .pose/reports/validation.sarif
       - uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
