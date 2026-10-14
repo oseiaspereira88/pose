@@ -272,6 +272,27 @@ responsáveis, sem copiar ownership. B20 exige B08/B09/B10 e fase B19; B27 exige
 B08/B10/B12 e B24 exige B22/B23. B21 qualifica capability integrada após B20.
 Merge/escrita não entregam gate de fase, runner, triagem ou autorização nova.
 
+## Milestone: batch-twelve-authoring
+- after: batch-eleven-authoring
+- target_start:
+- target_due:
+- specs: pose-consolidation-batch-12-authoring
+
+**Exit gate:** B25/B26/B37 escritos em draft, fontes/aceites/ADRs, digests,
+contagens, dependências e ownership conferidos; nenhuma execução funcional.
+
+## Milestone: triage-metrics-and-cut-sufficiency
+- after: batch-twelve-authoring
+- target_start:
+- target_due:
+- specs:
+- consumes: xref:proj.pose-dist/milestone:governance-efficiency/residual-triage-risk, xref:proj.pose-dist/milestone:governance-efficiency/condition-work-metrics, xref:proj.pose-dist/milestone:pose-release-sufficiency-and-recovery/cut-sufficiency
+
+**Exit gate:** consumir os três resultados nos responsáveis. B25 exige B01/B14/B24,
+B26 exige B10/B24 e B37 exige B01/B02/B08/B30, sem dependências temáticas artificiais.
+Candidato não é decisão, resposta não é satisfação e path não é approval.
+Merge documental não aceita risco nem qualifica métricas ou prepara release.
+
 ## Etapas planejadas para materialização incremental
 
 | Resultado | Roadmaps a continuar ou criar | Condição para qualificar |

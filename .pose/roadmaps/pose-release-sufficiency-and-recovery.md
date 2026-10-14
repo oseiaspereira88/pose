@@ -11,7 +11,7 @@ depends_on:
 publicação/recuperação com evidência fiel. Consultar a [matriz](../results/pose-implementation-plan.json)
 e a [análise de release](../reports/2026-10-12-pose-front-06-release-sufficiency.md).
 
-Materializar somente B38 no lote 6. Manter os outros deltas nos seus lotes e
+B38 foi materializado no lote 6 e B37 no lote 12, ambos em draft. Manter os outros deltas nos seus lotes e
 não encerrar este recorte parcial como programa completo. Preservar a fundação
 done de lifecycle e a composição/federação já existentes.
 
@@ -25,11 +25,24 @@ done de lifecycle e a composição/federação já existentes.
 source no tree da tag, sem fallback ao worktree ou mover tag. Evidence posterior
 ou novo ciclo não staleiam cut correto. Consultar o [lote 6](../reports/2026-10-13-pose-batch-6-authoring.md).
 
+
+## Milestone: cut-sufficiency
+- after: spec:pose-action-answers-reverify-on-read, spec:pose-review-disclosure-requires-proof, spec:pose-review-approval-domain-preflight, spec:pose-action-target-and-node-scoping, spec:pose-spec-facts-evidence-binding, spec:pose-release-lifecycle-closure
+- target_start:
+- target_due:
+- specs: pose-release-shared-sufficiency-contract
+
+**Exit gate:** B37 faz plan/apply avaliar o mesmo recorte e revalidar inputs antes
+do freeze; blocker alheio não vira global. Delivery exige prova/profile/provenance
+adequados; ref sem evaluator e heading/intenção não reconhecidos têm diagnóstico,
+e path existente não prova approval. Reusar evaluators e ADRs existentes; deferral
+não afirma entrega e história/publicação observada não é reescrita por preflight.
+Consultar o [lote 12](../reports/2026-10-13-pose-batch-12-authoring.md).
+
 ## Continuação planejada
 
 | Unidade | Lote | Resultado a materializar |
 |---|---|---|
-| B37 | 12 | Escopo coerente e sufficiency da seleção. |
 | B39/B40/B41 | 13 | Replay temporal, seleção/exclusividade e recovery de publicação conforme aceites da matriz. |
 
 As linhas são planejamento; não criar refs para specs ausentes. Conferir títulos,

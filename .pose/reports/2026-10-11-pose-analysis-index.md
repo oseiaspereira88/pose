@@ -128,3 +128,11 @@ Fulfillment reutilizado, com milestone próprio antes de adoption e gate B19
 prospectivo; dois novos deltas draft de próximo passo e dimensões do residual.
 Agora 26 propostas materializadas e 11 ausentes, com oito reutilizadas preservadas.
 Nenhum runner, triagem/apply, nova autorização ou blocker por rótulo implementado.
+
+## Escrita do lote 12 — 2026-10-13
+
+Consultar o [relatório do lote 12](2026-10-13-pose-batch-12-authoring.md) para B25/B26/B37.
+Três novos deltas draft de triagem/risco, condição/resposta/trabalho e suficiência
+do cut, com ownership nos roadmaps existentes e fontes/ADRs preservados.
+Agora 29 propostas materializadas e oito ausentes, com oito reutilizadas intactas.
+Nenhuma disposition, risco aceito, métrica funcional ou release executada.
