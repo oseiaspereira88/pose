@@ -104,3 +104,11 @@ Ledger reutilizado com continuidade prospectiva; dois novos deltas draft de resi
 Agora 21 propostas estão materializadas e 16 ausentes; oito specs reutilizadas
 preservadas. Delegated-review possui B16 e governance-efficiency possui B22/B23;
 a escrita não executa dispatch, reserva, migração de IDs ou dispositions.
+
+## Escrita do lote 9 — 2026-10-13
+
+Consultar o [relatório do lote 9](2026-10-13-pose-batch-9-authoring.md) para B34/B36.
+Dois deltas draft de read view/invalidação e cursor/query ligados à geração;
+23 propostas materializadas e 14 ausentes. Consistência/recovery possui os sete
+members planejados, ainda sem qualificação funcional; o coordenador consome
+resultados. Nenhum daemon, reuso residente ou paginação funcional implementados.
