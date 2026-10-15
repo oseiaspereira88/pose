@@ -121,3 +121,15 @@ Consultar o [lote 2](../reports/2026-10-13-pose-batch-2-authoring.md).
 - Correct the effective data; never disable a gate to make history pass.
 - Sealed bundles keep their stamped contracts; no retroactive governance.
 - No auto-close from code existence; external operations are not performed by the program.
+
+## Reconciliação de implementação — 2026-10-15
+
+#178 mergeado na main a5016ce5 publica o closeout nativo de B04 e encerra a
+espera do complemento. B01 é o próximo lote pelo DAG, com código parcial
+mergeado em #157/#158. Este PR qualifica somente
+`pose-action-answers-reverify-on-read`; preservar start/baseline e R1–R5/D1.
+Consultar o [relatório de qualificação](../reports/2026-10-15-pose-b01-action-qualification.md).
+A spec de disclosure permanece in-progress, para um PR próprio após este merge.
+B01 continua delivery_complete false até qualificação e fechamento das duas
+specs. B02 aguarda B01. Closeouts administrativos e B43 condicional continuam
+separados; nenhuma policy/release é adotada.

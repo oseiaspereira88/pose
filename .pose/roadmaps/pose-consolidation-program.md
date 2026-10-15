@@ -397,3 +397,15 @@ assinatura com aprovação semântica, run com conclusão ou MCP com runtime com
 Registrar stop/go e rollback de adoção por instância. A revisão deve recusar
 encerramento enquanto etapas planejadas continuarem sem materialização/aceite:
 o check estrutural, sozinho, não valida essa completude futura.
+
+## Reconciliação de implementação — 2026-10-15
+
+#178 mergeado na main a5016ce5 publica o closeout nativo de B04 e encerra a
+espera do complemento. B01 é o próximo lote pelo DAG, com código parcial
+mergeado em #157/#158. Este PR qualifica somente
+`pose-action-answers-reverify-on-read`; preservar start/baseline e R1–R5/D1.
+Consultar o [relatório de qualificação](../reports/2026-10-15-pose-b01-action-qualification.md).
+A spec de disclosure permanece in-progress, para um PR próprio após este merge.
+B01 continua delivery_complete false até qualificação e fechamento das duas
+specs. B02 aguarda B01. Closeouts administrativos e B43 condicional continuam
+separados; nenhuma policy/release é adotada.

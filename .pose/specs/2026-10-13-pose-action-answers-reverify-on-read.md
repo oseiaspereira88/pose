@@ -50,10 +50,28 @@ Preserve declared legacy answers and SSH verification after key rotation, as req
 - modified: pose-mcp/internal/pose/action_resolution.go
 - modified: pose-mcp/internal/pose/principal_keys.go
 - created: pose-mcp/internal/pose/action_answer_read_test.go
+- created: pose-mcp/internal/cli/action_read_proof_test.go
+- created: pose-mcp/internal/mcpserver/action_read_proof_test.go
+- created: .pose/reports/2026-10-15-pose-b01-action-qualification.md
+- modified: .pose/results/pose-implementation-plan.json
+- modified: .pose/roadmaps/pose-consolidation-program.md
+- modified: .pose/roadmaps/record-truthfulness.md
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/integrations.md
+- modified: .pose/assessments/technical-debt.md
 
 ### Delivery targets
 
 - capability:action-answer-read-verification module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/action_request.go
+
+## 4. Tasks
+
+- [x] Reconcile B04 terminal closeout and preserve the existing start baseline.
+- [x] Exercise persisted-proof failure through CLI JSON and MCP transport.
+- [x] Run domain/surface regression pairs and targeted race detection.
+- [ ] Generate current global native validation, seal review, and obtain different-actor judgment.
+- [ ] Apply native closeout only after review verification and acceptance.
 
 ## 5. Decisions
 
@@ -70,6 +88,19 @@ Regression pairs for proofless verified labels, issuer/SSH tampering, historical
 
 ### Requirement trace
 
+Current qualification after B04/#178 (prior execution history retained below):
+
+- R1 [satisfied] test:TestActionReadRefusesProoflessVerifiedAndDegradesConsumers
+- R2 [satisfied] test:TestActionReadReverifiesSSHBindingsAndMetadata and test:TestActionReadReverifiesIssuerBindings
+- R3 [satisfied] test:TestActionReadKeepsHistoricalExpiryAndSecondPrecision and test:TestActionClaimRefusesFutureOrReversedExpiryAtWrite
+- R4 [satisfied] test:TestActionReadDerivesProofAndPreservesDeclaredAndRotatedSSH
+- R5 [satisfied] test:TestActionCLIRejectsPersistedProoflessVerifiedAnswer, test:TestToolsCall_ActionRequestsRejectsPersistedProoflessVerifiedAnswer and test:TestActionReadRefusesProoflessVerifiedAndDegradesConsumers
+
+All above tests passed on the reconciled main plus these surface tests, with a
+second run under -race (pose 1.165s, CLI 1.076s, MCP 1.050s). Global structured
+evidence and independent review remain pending; prior failed native attempts
+remain historical evidence.
+
 The complete Go suite passed on implementation commit 30c2776a5de2f2e9b8d923974c08938242a66be8 in [CI run 38331161368](https://github.com/oseiaspereira88/pose/actions/runs/38331161368). Executed mapping: R1/R5 use TestActionReadRefusesProoflessVerifiedAndDegradesConsumers; R2 uses TestActionReadReverifiesSSHBindingsAndMetadata and TestActionReadReverifiesIssuerBindings; R3 uses TestActionReadKeepsHistoricalExpiryAndSecondPrecision and TestActionClaimRefusesFutureOrReversedExpiryAtWrite; R4 uses TestActionReadDerivesProofAndPreservesDeclaredAndRotatedSSH. The same test job passed the installer, migration, quickstart, install/upgrade, launch-demo, delivery-image and action-runtime checks.
 
 Local gofmt, lint-spec, artifact-check --strict and check --strict passed; the latter retained 30 existing warnings. These structural checks used the published 7.4.1 binary. The available Go archive is truncated: compile -V segfaults, so no local Go test success or race-detector execution is claimed. The module validate attempt is retained as FAILURE (Go unavailable in PATH; 128 required checks failed). Functional evidence comes from the CI Go suite. Remaining governance and security jobs must finish before review readiness.
@@ -78,7 +109,12 @@ Local gofmt, lint-spec, artifact-check --strict and check --strict passed; the l
 
 ### Delivered scope
 
-Implementation and regression tests delivered; independent review and spec closure remain pending.
+Implementation and regression tests delivered in #157. Current qualification after
+the merge of B04/#178 adds CLI JSON/text/list and MCP request/list/presentation
+regressions, including incomplete Attention/obligations coverage. Consult
+[B01 action qualification](../reports/2026-10-15-pose-b01-action-qualification.md)
+for current execution evidence and review/closeout state. Preserve R1–R5, D1 and
+the existing start baseline; no second start or retrospective proof is created.
 
 ### Residual risks
 
@@ -86,4 +122,4 @@ A journal-contained SSH signature proves its signed bytes, not an immutable hist
 
 ### Follow-ups
 
-- [open] Complete the broader B04 historical authorization and review-source reuse contract after this scoped action-answer correction. (owner:@pose-maintainers crit:medium review:2026-11-13)
+- [done] B04's scoped historical trust and review-source reuse contract was closed natively and published by #178; it explicitly does not establish immutable historical authorization. Consume its spec/closeout evidence rather than infer delivery from the merge.
