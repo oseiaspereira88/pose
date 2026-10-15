@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "scope": "spec:pose-action-answers-reverify-on-read",
+  "scope_digest": "sha256:45c65bb585cb4f1833e8f0feba7b5f1f6de74b4bedc975fc036b5766dc574230",
+  "review": {
+    "required": true,
+    "scope": "spec:pose-action-answers-reverify-on-read",
+    "scope_digest": "sha256:45c65bb585cb4f1833e8f0feba7b5f1f6de74b4bedc975fc036b5766dc574230",
+    "plan_digest": "sha256:fb4a8e0a51796f33290cdfce32df1f24e1a1d0c503ae99c6b1ec1041a204b8da",
+    "profile": "spec-closeout@1",
+    "fresh": true,
+    "approved": false,
+    "blockers": [
+      "sealed review bundle has no attestation"
+    ],
+    "warnings": [
+      "change set cs-f4d94dc673d1 attributes 4 commit(s) but its range spans 57; 53 commit(s) in base..head belong to other work; they carry trailers of pose-consolidation-batch-1-authoring, pose-consolidation-batch-10-authoring, pose-consolidation-batch-11-authoring, pose-consolidation-batch-12-authoring, pose-consolidation-batch-13-authoring, pose-consolidation-batch-14-authoring, pose-consolidation-batch-15-authoring, pose-consolidation-batch-2-authoring, pose-consolidation-batch-3-authoring, pose-consolidation-batch-4-authoring, pose-consolidation-batch-5-authoring, pose-consolidation-batch-6-authoring, pose-consolidation-batch-7-authoring, pose-consolidation-batch-8-authoring, pose-consolidation-batch-9-authoring, pose-consolidation-program-bootstrap, pose-historical-trust-and-review-reuse, pose-review-disclosure-requires-proof, pose-security-validation-release-api-auth; 22 carry no POSE-Spec trailer, so the range is provenance and the attributed paths are the subject",
+      "metadata-incomplete review component pose-mcp missing:owner",
+      "unmapped review component path:.pose/assessments/README.md",
+      "unmapped review component path:.pose/assessments/consolidated.md",
+      "unmapped review component path:.pose/assessments/integrations.md",
+      "unmapped review component path:.pose/assessments/technical-debt.md",
+      "unmapped review component path:.pose/changelogs/unreleased/pose-action-answers-reverify-on-read.md",
+      "unmapped review component path:.pose/knowledge/2026-10-13-decision-log-action-answer-proof-and-historical-time.md",
+      "unmapped review component path:.pose/reports/2026-10-13-standard-validate-native.md",
+      "unmapped review component path:.pose/reports/2026-10-15-pose-b01-action-qualification.md",
+      "unmapped review component path:.pose/reports/history/standard-validate-native.jsonl",
+      "unmapped review component path:.pose/results/pose-implementation-plan.json",
+      "unmapped review component path:.pose/roadmaps/pose-consolidation-program.md",
+      "unmapped review component path:.pose/roadmaps/record-truthfulness.md",
+      "unmapped review component path:.pose/specs/2026-10-13-pose-action-answers-reverify-on-read.md",
+      "unmapped review component path:.pose/starts/pose-action-answers-reverify-on-read.json"
+    ],
+    "policy_enabled": true,
+    "bundle_id": "rvb-45c65bb585cb4f18",
+    "bundle_digest": "sha256:45c65bb585cb4f1833e8f0feba7b5f1f6de74b4bedc975fc036b5766dc574230",
+    "bundle_state": "ready-for-review",
+    "assurance": {
+      "identity_assurance": "declared",
+      "reviewer_identity": "not-verified",
+      "reviewer_role": "unknown",
+      "separation_required": "different-actor",
+      "separation_declared": "none",
+      "separation_verified": "not-verified",
+      "cognitive_independence": "not-observable",
+      "limitations": [
+        "no-review-record",
+        "cognitive-independence-is-not-observable"
+      ]
+    }
+  },
+  "lifecycle_done": false,
+  "terminal": false,
+  "next_action": "obtain a satisfying answer to action request act-3ee9344e0652cc60 (pose action show act-3ee9344e0652cc60)",
+  "blockers": [
+    "act-3ee9344e0652cc60 restricts closeout: act-3ee9344e0652cc60 (acceptance, open): Revisar a qualificação B01 action-answer e os critérios do bundle em execução independente, ou adotar expressamente as conclusões preparadas após examinar as evidências; closeout apenas após verify aprovado.",
+    "lifecycle status is not done",
+    "sealed review bundle has no attestation"
+  ],
+  "diagnostics": [
+    {
+      "code": "action-request-pending",
+      "domain": "closeout",
+      "refs": [
+        "spec:pose-action-answers-reverify-on-read",
+        "act-3ee9344e0652cc60"
+      ],
+      "condition": "the action request receives a satisfying answer from its authority, or is waived",
+      "message": "act-3ee9344e0652cc60 restricts closeout: act-3ee9344e0652cc60 (acceptance, open): Revisar a qualificação B01 action-answer e os critérios do bundle em execução independente, ou adotar expressamente as conclusões preparadas após examinar as evidências; closeout apenas após verify aprovado."
+    },
+    {
+      "code": "lifecycle-not-done",
+      "domain": "closeout",
+      "refs": [
+        "spec:pose-action-answers-reverify-on-read"
+      ],
+      "condition": "the guarded lifecycle transition sets status done",
+      "message": "lifecycle status is not done"
+    },
+    {
+      "code": "review-blocker",
+      "domain": "closeout",
+      "condition": "the review blocker is resolved at its source",
+      "opaque": true,
+      "message": "sealed review bundle has no attestation"
+    },
+    {
+      "code": "review-not-approved",
+      "domain": "closeout",
+      "refs": [
+        "spec:pose-action-answers-reverify-on-read"
+      ],
+      "condition": "a fresh approved attestation of the current sealed bundle",
+      "message": "review of spec:pose-action-answers-reverify-on-read is not approved"
+    }
+  ],
+  "next_step": {
+    "code": "answer-action-request",
+    "domain": "closeout",
+    "refs": [
+      "act-3ee9344e0652cc60"
+    ],
+    "message": "obtain a satisfying answer to action request act-3ee9344e0652cc60 (pose action show act-3ee9344e0652cc60)"
+  }
+}
