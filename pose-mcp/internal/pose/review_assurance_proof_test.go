@@ -117,7 +117,19 @@ func TestReviewAssuranceKeepsIdentitySeparateFromApproval(t *testing.T) {
 			att.Decision = decision
 			att = resignAuthorityAttestation(t, f, att)
 			v := verifyAuthorityAttestation(t, f, att)
-			if v.Approved || !containsSubstring(v.Blockers, "missing criterion") {
+			if decision == "approved" {
+				// Valid proof over invalid criteria is never written as an
+				// approval, yet its identity stays verifiable (spec
+				// pose-review-approval-domain-preflight R6).
+				if v.State != "refused" || !containsSubstring(v.Blockers, "missing criterion") {
+					t.Fatalf("an approval with invalid criteria was recorded: %+v", v)
+				}
+				assurance := f.store.DescribeReviewAssurance(f.bundle, &att)
+				v.Assurance = &assurance
+			} else if !containsSubstring(v.Blockers, "missing criterion") {
+				t.Fatalf("invalid criteria passed: %+v", v)
+			}
+			if v.Approved {
 				t.Fatalf("invalid criteria passed: %+v", v)
 			}
 			if v.Assurance == nil || v.Assurance.ReviewerIdentity != ReviewIdentityAssuranceVerified || v.Assurance.VerifiedClaim == nil || v.Assurance.SeparationVerified != "actor-and-execution" {
@@ -178,6 +190,7 @@ func TestReviewConsumersAgreeOnTamperedProof(t *testing.T) {
 func TestReviewAssuranceInvalidProofCannotVerifyHumanConfirmation(t *testing.T) {
 	f := verifiedAuthorityFixture(t, "different-actor")
 	trustHumanAuthority(t, f)
+	resealAfterPolicyChange(t, &f)
 	completed, canonical, err := f.store.SignableReviewAttestation(confirmationDraft(f, "human:maintainer", "human"), f.now)
 	if err != nil {
 		t.Fatal(err)

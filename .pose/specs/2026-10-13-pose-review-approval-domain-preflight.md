@@ -1,6 +1,6 @@
 ---
 slug: pose-review-approval-domain-preflight
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-historical-trust-and-review-reuse, pose-action-answers-reverify-on-read, pose-review-disclosure-requires-proof, pose-review-bundle-convergence
@@ -26,7 +26,7 @@ e a [análise de confiança](../reports/2026-10-11-pose-front-02-trust-chain.md)
 
 ### Constraints
 
-Esta interação escreve a spec; não implementa o comportamento. Preservar as
+Implementação autorizada em 2026-10-15 pela solicitação explícita de executar o lote B02, após B04 e as duas specs de B01 estarem done (#178/#179/#182). Preservar as
 fundações done, contratos selados, evidências e autorizações já existentes.
 Não adotar policy/capability automaticamente. Classificar compatibilidade antes
 de iniciar: recusa mais estrita ou mudança de semântica pública não é patch por
@@ -47,21 +47,35 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-1-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
+Paths reconciliados na main 1aec323a antes do start. A escrita original pertence
+ao lote documental 1; este delta implementa somente B02. O consumidor MCP é
+exercitado pelo transporte HTTP JSON-RPC real a partir do teste do CLI, como em
+B04, em vez de um arquivo de teste separado em `mcpserver`. Os testes de
+domínio existentes que gravavam aprovações inválidas como fixture passam a
+afirmar a recusa ou a semear histórico explicitamente.
 
-- created: .pose/specs/2026-10-13-pose-review-approval-domain-preflight.md
+- modified: .pose/specs/2026-10-13-pose-review-approval-domain-preflight.md
 - created: .pose/starts/pose-review-approval-domain-preflight.json
 - created: .pose/changelogs/unreleased/pose-review-approval-domain-preflight.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 - created: pose-mcp/internal/pose/review_domain_preflight_test.go
+- created: pose-mcp/internal/pose/review_domain_preflight_helpers_test.go
+- modified: pose-mcp/internal/pose/abm_review_soundness_test.go
+- modified: pose-mcp/internal/pose/completed_review_retention_test.go
+- modified: pose-mcp/internal/pose/issuer_key_test.go
+- modified: pose-mcp/internal/pose/legacy_ledger_test.go
+- modified: pose-mcp/internal/pose/review_assurance_proof_test.go
+- modified: pose-mcp/internal/pose/review_attest_signed_test.go
+- modified: pose-mcp/internal/pose/review_authority_test.go
+- modified: pose-mcp/internal/pose/review_bundle_test.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - created: pose-mcp/internal/cli/review_domain_preflight_test.go
-- created: pose-mcp/internal/mcpserver/review_domain_preflight_test.go
+- modified: pose-mcp/internal/mcpserver/server.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
@@ -69,12 +83,37 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 
 ### Approach and execution gates
 
+Contract decision: `recordReviewAttestation` is the single admission point.
+After `completeReviewAttestation` fixes the canonical identity, an approving
+decision runs `reviewApprovalAdmissionBlockers`: the existing verifier
+(`validateBundleAttestation`, at the operation clock), the new-operation time
+blockers from B04 and the current-subject check (`CurrentReviewBundle`). Any
+blocker returns `*ReviewApprovalRefusal` (`errors.Is` `ErrReviewApprovalRefused`)
+before the attestation directory is touched. `PreflightReviewAttestation` is the
+read-only projection of the same function; the CLI uses it only for previews
+and renders the writer's typed refusal on apply, and MCP maps it to
+`error_code: review_approval_refused`. Negatives skip the semantic bar but keep
+the signed-policy and completion checks. Existing write isolation is unchanged:
+`writeImmutableJSON` with content-addressed IDs and the idempotent identical
+retry; no writer refactor (B14). Compatibility: stricter refusal of writes the
+verifier already rejected, with no schema or historical verdict change; classified
+for a minor release, not a patch.
+
 Mover a garantia para o domínio, reutilizando o verificador de prova e os blockers de critérios/findings/reuso. Completar a identidade canônica antes do preflight sem persistir; persistir somente após admissibilidade e revalidação pertinentes. Remover ou fazer convergir o preflight duplicado do CLI. Conferir isolamento/lock/CAS existentes no ponto da gravação; não transformar este delta em refatoração geral de writers (B14). B02 só fica executável depois de B04 e dos closeouts/qualificação das duas specs do B01; código mergeado não contorna a dependência nativa.
 
 Antes de executar, aceitar o escopo de implementação, avaliar readiness nativa,
 executar assessment freshness no componente, completar o plano de artefatos,
 registrar produtores de evidência na matriz e criar a baseline por start.
 Não contornar dependência não terminal apenas porque o código parece presente.
+
+## 4. Tasks
+
+- [x] Context, readiness, dependency closeouts and native start with R1–R7/D1 preserved.
+- [x] Move the approval preflight into the shared domain writer with a typed refusal.
+- [x] Converge CLI (attest, sign, envelope import, auto-attest) and MCP on the domain result.
+- [x] Exercise V1–V7 in domain, CLI, signed import and MCP HTTP consumer; adapt fixtures that persisted invalid approvals.
+- [ ] Strict module validation, artifact/surface evidence and separate different-actor review.
+- [ ] Native closeout, reconcile matrix/roadmaps and PR with final-head CI/Security.
 
 ## 5. Decisions
 
@@ -105,23 +144,39 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Targeted domain/CLI/MCP regressions and the full module suite ran; formal strict
+module validation through `pose validate` is recorded separately before closeout.
 
 ### Requirement trace
 
-Mapear os R-IDs aos casos acima e aos produtores reais durante a implementação.
-Não declarar satisfeitos os requisitos funcionais pelo lint desta spec.
+- R1 [satisfied] test:TestReviewDomainPreflightKeepsEverySemanticBlocker; test:TestReviewDomainPreflightRefusesReservationsWithInvalidRisk
+- R2 [satisfied] test:TestReviewDomainPreflightRefusesTheSameApprovalOnEveryChannel; test:TestReviewDomainPreflightCLIImportAndMCPAgreeWithTheDomain
+- R3 [satisfied] test:TestReviewDomainPreflightLeavesHistoryAlone; test:TestABMReviewSoundnessOrphanFindingRefusedByStore
+- R4 [satisfied] test:TestReviewDomainPreflightRecordsNegativesButKeepsChannelProof; test:TestReviewDomainPreflightCLIRecordsANegative
+- R5 [satisfied] test:TestReviewDomainPreflightValidApprovalAndRetryKeepIdentity; test:TestReviewDomainPreflightRefusesStaleOrSupersededBundles; test:TestReviewDomainPreflightCLIRefusesASupersededBundle
+- R6 [satisfied] test:TestReviewDomainPreflightSignatureIsNotApproval; test:TestReviewAssuranceKeepsIdentitySeparateFromApproval
+- R7 [satisfied] test:TestReviewDomainPreflightCLIImportAndMCPAgreeWithTheDomain; test:TestReviewDomainPreflightRefusesTheSameApprovalOnEveryChannel
+
+Regressions passed (Go 1.26.0): `go test ./internal/pose ./internal/cli
+./internal/mcpserver -run 'ReviewDomainPreflight|ABMReviewAuthority|ABMReviewSoundness|ABMGolden|ReviewAssurance|LegacyLedger|NativeAndExternal|NativeAuthority|SignedPreview|AnAgentConfirmation|CompletedReviewRetention|AuthorityProject|ReviewAttestationEnvelope|ReviewAttest' -count=1`.
+Full `go test ./... -count=1`: every package passes except three
+`internal/cli` state-hook tests (`TestStateRefreshConsumer_*`,
+`TestIntegration_StrictModePropagatesThroughRealCommand`) that also fail on
+main 1aec323a in this container because it runs as root, where `chmod 0500`
+does not block writes; they are unrelated to this delta. `go vet ./...` clean.
+This trace records functional regressions, not formal closeout.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 1. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+B02 implementation and targeted regressions are recorded above. The spec
+remains in-progress: strict module validation, different-actor review and
+native closeout are not promoted from code or merge.
 
 ### Residual risks
 
-Este delta pode recusar gravações antes aceitas, exigindo classificação de compatibilidade. Não apaga nem reescreve registros históricos inválidos; inventário/coverage são B06. Auditoria de refusal só pode ser alegada se existir mecanismo explicitamente especificado e autorizado.
+Este delta recusa gravações antes aceitas que o verify já reprovava (classificado como minor). Cada aprovação agora prepara o bundle atual para conferir que não está stale, com custo proporcional a `pose review bundle`. O caminho legado de `pose review record` sem review bundles grava attempts `.pose/reviews` e não passa por este writer; está fora do escopo de B02. Não apaga nem reescreve registros históricos inválidos; inventário/coverage são B06. Auditoria de refusal só pode ser alegada se existir mecanismo explicitamente especificado e autorizado.
 
 ### Follow-ups
 

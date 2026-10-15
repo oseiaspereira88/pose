@@ -115,6 +115,8 @@ func TestNativeAndExternalIssuersCoexist(t *testing.T) {
 	if again, _ := PlanIssuerPin(docs, native.Pin(), true, true, "", ""); len(again.Changes) != 0 {
 		t.Fatalf("pinning twice changed policy: %v", again.Changes)
 	}
+	// The pins are sealed inputs: approve the bundle that represents them.
+	reseal(t, &f)
 
 	// The native issuer signs and its envelope records.
 	authority := &NativeAuthority{ReviewExecution: "review-run-2", ImplementationPrincipal: "agent:implementer", ImplementationExecution: "implementation-run-1", TTL: time.Hour}
@@ -163,14 +165,16 @@ func TestNativeAuthorityClaimSatisfiesVerifiedIdentity(t *testing.T) {
 	if envelope.Attestation.Authority == nil || envelope.Attestation.Authority.Issuer != "maintainer" || envelope.Attestation.Authority.Audience != "fixture-project" || envelope.Attestation.Authority.Role != "human" {
 		t.Fatalf("the native claim is not bound to the issuer and the project: %+v", envelope.Attestation.Authority)
 	}
-	if _, err := f.store.RecordReviewAttestationEnvelope(envelope, true); err != nil {
-		t.Fatal(err)
+	before := poseTreeSnapshot(t, f.root)
+	_, err = f.store.RecordReviewAttestationEnvelope(envelope, true)
+	if blockers := requireApprovalRefusal(t, f.root, before, err); !containsSubstring(blockers, "not authorised to assert a human principal") {
+		t.Fatalf("a human claim from an issuer without the grant was recorded: %v", blockers)
 	}
 	verification, err := f.store.VerifyReviewBundle("spec:backend")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if verification.Approved || !containsSubstring(verification.Blockers, "not authorised to assert a human principal") {
+	if verification.Approved {
 		t.Fatalf("a human claim from an issuer without the grant was approved: %v", verification.Blockers)
 	}
 

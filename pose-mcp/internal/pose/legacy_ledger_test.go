@@ -120,10 +120,8 @@ func TestLegacyLedgerIsSealedOnlyBeforeAdoption(t *testing.T) {
 func TestLegacyLedgerRefusesEverythingOutsideIt(t *testing.T) {
 	f := ledgerFixtureWithHistory(t)
 	ledger := f.seal(t)
-	later, err := f.store.RecordReviewAttestation(approvedBundleAttestation(f.bundle, "agent:later"), f.now.Add(3*time.Minute))
-	if err != nil {
-		t.Fatal(err)
-	}
+	// An unsigned record appearing after the ledger, however it was written.
+	later := persistHistoricalAttestation(t, f.store, approvedBundleAttestation(f.bundle, "agent:later"), f.now.Add(3*time.Minute))
 	f.requireSigned(t)
 	if len(signatureBlockers(f, later)) == 0 {
 		t.Fatal("an attestation recorded after the ledger counted")
@@ -238,9 +236,7 @@ func TestLegacyLedgerSealingRechecksAndRefusesSymlinkedDir(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := f.store.RecordReviewAttestation(approvedBundleAttestation(f.bundle, "agent:later"), f.now.Add(time.Minute)); err != nil {
-		t.Fatal(err)
-	}
+	persistHistoricalAttestation(t, f.store, approvedBundleAttestation(f.bundle, "agent:later"), f.now.Add(time.Minute))
 	if _, err := f.store.SealLegacyLedger(plan, f.key); err == nil || !strings.Contains(err.Error(), "changed since") {
 		t.Fatalf("a stale plan sealed: %v", err)
 	}

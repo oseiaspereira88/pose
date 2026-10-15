@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -637,9 +638,20 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintln(stderr, "Usage: pose review attest --envelope <project-relative-path> [--apply]")
 			return 2
 		}
-		attestation, err := cliGovernedStore(root).ImportReviewAttestationEnvelope(args[1], apply)
+		store := cliGovernedStore(root)
+		attestation, err := store.ImportReviewAttestationEnvelope(args[1], apply)
+		if reportApprovalRefusal(stdout, stderr, "pose review attest", err) {
+			return 1
+		}
 		if err != nil {
 			fmt.Fprintf(stderr, "pose review attest: %v\n", err)
+			return 1
+		}
+		// A verified signature is not an admissible approval: the preview
+		// reports what the domain writer would refuse (spec
+		// pose-review-approval-domain-preflight R6).
+		if refusals := store.PreflightReviewAttestation(attestation, time.Now()); !apply && len(refusals) > 0 {
+			reportAttestPreflight(stdout, stderr, "pose review attest", refusals)
 			return 1
 		}
 		fmt.Fprintf(stdout, "review_attestation.envelope=verified\nreview_attestation.id=%s\nreview_attestation.bundle_id=%s\nreview_attestation.apply=%t\n", attestation.AttestationID, attestation.BundleID, apply)
@@ -799,15 +811,20 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 	if signWith != "" {
 		return signAndRecordAttestation(store, att, signWith, claimAuthority, reviewExecution, implementationPrincipal, implementationExecution, claimTTL, apply, stdout, stderr)
 	}
-	if refusals := store.PreflightReviewAttestation(att, time.Now()); len(refusals) > 0 {
-		reportAttestPreflight(stdout, stderr, "pose review attest", refusals)
-		return 1
-	}
 	if !apply {
+		// The preview runs the domain writer's own admission; apply gets the
+		// same answer from the writer itself.
+		if refusals := store.PreflightReviewAttestation(att, time.Now()); len(refusals) > 0 {
+			reportAttestPreflight(stdout, stderr, "pose review attest", refusals)
+			return 1
+		}
 		fmt.Fprintf(stdout, "review_attestation.plan=record\nreview_attestation.bundle_id=%s\nreview_attestation.bundle_digest=%s\nreview_attestation.plan_digest=%s\nreview_attestation.apply=false\n", bundle.BundleID, bundle.BundleDigest, bundle.Payload.Plan.PlanDigest)
 		return 0
 	}
 	att, err = store.RecordReviewAttestation(att, time.Now())
+	if reportApprovalRefusal(stdout, stderr, "pose review attest", err) {
+		return 1
+	}
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
 		return 1
@@ -854,13 +871,17 @@ func signAndRecordAttestation(store posemodel.Store, att posemodel.ReviewAttesta
 		render(stdout, stderr).Failure("pose review attest: " + strings.TrimPrefix(err.Error(), "pose: "))
 		return 1
 	}
-	if refusals := store.PreflightReviewAttestation(verified, now); len(refusals) > 0 {
+	if refusals := store.PreflightReviewAttestation(verified, now); !apply && len(refusals) > 0 {
 		reportAttestPreflight(stdout, stderr, "pose review attest", refusals)
 		return 1
 	}
 	recorded := verified
 	if apply {
-		if recorded, err = store.RecordReviewAttestationEnvelope(envelope, true); err != nil {
+		recorded, err = store.RecordReviewAttestationEnvelope(envelope, true)
+		if reportApprovalRefusal(stdout, stderr, "pose review attest", err) {
+			return 1
+		}
+		if err != nil {
 			render(stdout, stderr).Failure("pose review attest: " + strings.TrimPrefix(err.Error(), "pose: "))
 			return 1
 		}
@@ -883,6 +904,18 @@ func signAndRecordAttestation(store posemodel.Store, att posemodel.ReviewAttesta
 // written and then rejected.
 func reportAttestPreflight(stdout, stderr io.Writer, command string, refusals []string) {
 	render(stdout, stderr).Failure(command + ": verify would reject this attestation, so nothing was written:\n  - " + strings.Join(refusals, "\n  - "))
+}
+
+// reportApprovalRefusal renders the domain writer's typed approval refusal
+// the same way as the preview, and reports whether err was one. The CLI keeps
+// no approval policy of its own (spec pose-review-approval-domain-preflight).
+func reportApprovalRefusal(stdout, stderr io.Writer, command string, err error) bool {
+	var refusal *posemodel.ReviewApprovalRefusal
+	if !errors.As(err, &refusal) {
+		return false
+	}
+	reportAttestPreflight(stdout, stderr, command, refusal.Blockers)
+	return true
 }
 
 // applyReviewCriterionMappings attaches the reviewer's answers about observed
@@ -1015,11 +1048,10 @@ func cmdReviewAutoAttest(root string, args []string, stdout, stderr io.Writer) i
 	if err != nil {
 		// Fall through to the single reporting site below.
 	} else if prepared.Complete {
-		if refusals := store.PreflightReviewAttestation(att, time.Now()); len(refusals) > 0 {
-			reportAttestPreflight(stdout, stderr, "pose review auto-attest", refusals)
+		att, err = store.RecordReviewAttestation(att, time.Now())
+		if reportApprovalRefusal(stdout, stderr, "pose review auto-attest", err) {
 			return 1
 		}
-		att, err = store.RecordReviewAttestation(att, time.Now())
 	} else {
 		// Verdict first, then the cause, then the action — and exit 1, because
 		// nothing is recorded. Reporting success here is what let a scope look

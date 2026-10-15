@@ -632,11 +632,21 @@ Os três ficam distintos porque "ainda não temos evidência", "não se aplica" 
 Registre com
 `pose review attest --mapping <criterion>|<delta>|<basis-or-disposition>|<why>`.
 Uma atestação que aprova e que o verify reprovaria é recusada antes de ser
-gravada: `pose review attest`, no preview e com `--apply`, e
-`pose review auto-attest --apply` rodam o verificador sobre ela e mostram cada
-motivo, de modo que um comando corrigido substitui uma atestação gravada e uma
-segunda. Atestação `changes-requested` ou `rejected` é registro de auditoria e é
-gravada.
+gravada, e a recusa vive no writer de domínio que todos os canais compartilham:
+o Store, `pose review attest` (preview, `--apply`, `--sign` e `--envelope`),
+`pose review auto-attest --apply` e a tool MCP `pose_review_attest` recebem a
+mesma recusa tipada, com cada motivo que o verificador daria, e a tentativa não
+grava atestação, bundle, suplemento nem evento. O writer completa a identidade
+canônica primeiro, julga os gates selados do bundle, as exigências vivas de
+assinatura e confiança e o tempo da nova operação, e recusa a aprovação de um
+bundle que um selo mais novo substituiu ou que não representa mais os inputs
+atuais. Uma assinatura confiável sobre critérios inválidos continua verificando
+a identidade, mas nunca é gravada como aprovação; o preview MCP de um envelope
+retorna `verify_blockers` e um apply recusado retorna
+`error_code: review_approval_refused`. Atestação `changes-requested` ou
+`rejected` é registro de auditoria: é gravada sem cumprir a barra de aprovação e
+ainda exige a prova do seu canal. Registros persistidos antes disto são julgados
+como estão, nunca reescritos.
 
 O engine verifica namespace, existência e alcance até um requisito — apontar
 decisão que não alcança nada afirma escolha sem o requisito que a paga — e nunca

@@ -612,10 +612,21 @@ evidence yet", "this does not apply" and "we accept this risk" are three
 statements a single blank used to hide. Record them with
 `pose review attest --mapping <criterion>|<delta>|<basis-or-disposition>|<why>`.
 An approving attestation that verify would reject is refused before it is
-written: `pose review attest`, in preview and with `--apply`, and
-`pose review auto-attest --apply` run the verifier over it and print each reason,
-so one corrected command replaces a written attestation and a second one. A
-`changes-requested` or `rejected` attestation is an audit record and is written.
+written, and the refusal lives in the domain writer every channel shares: the
+Store, `pose review attest` (preview, `--apply`, `--sign` and `--envelope`),
+`pose review auto-attest --apply` and the MCP `pose_review_attest` tool all get
+the same typed refusal, with each reason the verifier gives, and the attempt
+writes no attestation, bundle, supplement or event. The writer completes the
+canonical identity first, judges the bundle's sealed gates plus the live
+signing and trust requirements and the time of the new operation, and refuses
+the approval of a bundle that a newer seal superseded or that no longer
+represents the current inputs. A trusted signature over invalid criteria still
+verifies its identity, but is never written as an approval; the MCP preview of
+an envelope returns `verify_blockers` and a refused apply returns
+`error_code: review_approval_refused`. A `changes-requested` or `rejected`
+attestation is an audit record: it is written without meeting the approval bar,
+and still needs the proof its channel requires. Records persisted before this
+are judged as they are, never rewritten.
 
 The engine checks the namespace, the existence and the reach to a requirement —
 pointing at a decision that reaches nothing states a choice without the

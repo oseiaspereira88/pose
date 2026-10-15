@@ -12,6 +12,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -2278,10 +2279,12 @@ func (s Store) recordReviewAttestation(att ReviewAttestation, now time.Time, sig
 	if err != nil {
 		return ReviewAttestation{}, err
 	}
-	if att.Authority != nil && (att.Decision == "approved" || att.Decision == "approved-with-reservations") {
-		if blockers := reviewNewOperationTimeBlockers(att, now); len(blockers) > 0 {
-			return ReviewAttestation{}, fmt.Errorf("pose: %s", strings.Join(blockers, "; "))
-		}
+	// The approval preflight runs here, in the one writer every channel shares,
+	// before anything is written: an approval the verifier would reject is
+	// refused, not recorded and rejected later (spec
+	// pose-review-approval-domain-preflight).
+	if blockers := s.reviewApprovalAdmissionBlockers(bundle, att, now); len(blockers) > 0 {
+		return ReviewAttestation{}, &ReviewApprovalRefusal{BundleID: bundle.BundleID, Blockers: blockers}
 	}
 	att.Path = filepath.ToSlash(filepath.Join(".pose", "review-attestations", att.AttestationID+".json"))
 	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), true)
@@ -2387,27 +2390,75 @@ func (s Store) RecordReviewAttestationEnvelope(envelope ReviewAttestationEnvelop
 	return s.recordReviewAttestation(attestation, s.reviewClock(), true)
 }
 
-// PreflightReviewAttestation returns the reasons the verifier would reject an
-// approving attestation before it is written, by running the verifier itself
-// over the attestation as it would be recorded. A non-approving decision is an
-// audit record the verifier rejects for closeout by definition, so it gets no
-// preflight (spec pose-attest-refuses-what-verify-rejects).
+// ErrReviewApprovalRefused classifies a ReviewApprovalRefusal for errors.Is.
+var ErrReviewApprovalRefused = errors.New("pose: review approval refused before persistence")
+
+// ReviewApprovalRefusal is the typed result of the domain approval preflight:
+// every reason the verifier would reject the approval, returned before any
+// artifact of the attempt is written. Every channel — Store, CLI, signed
+// import and MCP — receives this same value.
+type ReviewApprovalRefusal struct {
+	BundleID string   `json:"bundle_id"`
+	Blockers []string `json:"blockers"`
+}
+
+func (e *ReviewApprovalRefusal) Error() string {
+	return "pose: verify would reject this approval for bundle " + e.BundleID + ", so nothing was written: " + strings.Join(e.Blockers, "; ")
+}
+
+func (e *ReviewApprovalRefusal) Unwrap() error { return ErrReviewApprovalRefused }
+
+func reviewDecisionApproves(decision string) bool {
+	return decision == "approved" || decision == "approved-with-reservations"
+}
+
+// reviewApprovalAdmissionBlockers is the semantic admission of a new approving
+// attestation, completed as it will be recorded. It reuses the verifier itself
+// over the bundle's sealed gates and the deliberately live signing and trust
+// requirements, adds the time admissibility of a new operation, and requires
+// the bundle to still be the current sealed subject of its scope, so the
+// approval of a stale preview or of a superseded bundle is not written.
+//
+// A non-approving decision is an audit record the verifier rejects for
+// closeout by definition, so its criteria are not held to the approval bar;
+// its channel's authentication still applies in the writer.
+func (s Store) reviewApprovalAdmissionBlockers(bundle ReviewBundle, att ReviewAttestation, now time.Time) []string {
+	if !reviewDecisionApproves(att.Decision) {
+		return nil
+	}
+	blockers := s.atReviewTime(now).validateBundleAttestation(bundle, att)
+	blockers = append(blockers, reviewNewOperationTimeBlockers(att, now)...)
+	current, err := s.CurrentReviewBundle(bundle.Payload.Scope.Ref)
+	switch {
+	case err != nil:
+		blockers = append(blockers, "the current review subject of "+bundle.Payload.Scope.Ref+" cannot be established: "+strings.TrimPrefix(err.Error(), "pose: "))
+	case current == nil:
+		blockers = append(blockers, "bundle "+bundle.BundleID+" no longer represents the current semantic inputs of "+bundle.Payload.Scope.Ref+"; seal the current bundle and review it")
+	case current.BundleID != bundle.BundleID:
+		blockers = append(blockers, "bundle "+bundle.BundleID+" is superseded by "+current.BundleID+"; review the current bundle")
+	}
+	return uniqueSorted(blockers)
+}
+
+// PreflightReviewAttestation returns the reasons the domain writer would
+// refuse an approving attestation, without writing anything. It completes the
+// attestation exactly as recording would and runs the same admission, so a
+// preview and the write cannot disagree (specs
+// pose-attest-refuses-what-verify-rejects, pose-review-approval-domain-preflight).
 func (s Store) PreflightReviewAttestation(att ReviewAttestation, now time.Time) []string {
-	if att.Decision != "approved" && att.Decision != "approved-with-reservations" {
+	if !reviewDecisionApproves(att.Decision) {
 		return nil
 	}
 	bundle, err := s.LoadReviewBundle(att.BundleID)
 	if err != nil {
 		return []string{strings.TrimPrefix(err.Error(), "pose: ")}
 	}
-	candidate := att
-	candidate.SchemaVersion = ReviewBundleSchemaVersion
-	candidate.BundleID, candidate.BundleDigest = bundle.BundleID, bundle.BundleDigest
-	if candidate.AttestedAt == "" {
-		candidate.AttestedAt = now.UTC().Truncate(time.Second).Format(time.RFC3339)
+	att.Path = ""
+	completed, err := completeReviewAttestation(bundle, att, now)
+	if err != nil {
+		return []string{strings.TrimPrefix(err.Error(), "pose: ")}
 	}
-	blockers := s.atReviewTime(now).validateBundleAttestation(bundle, candidate)
-	return append(blockers, reviewNewOperationTimeBlockers(candidate, now)...)
+	return s.reviewApprovalAdmissionBlockers(bundle, completed, now)
 }
 
 // VerifyReviewAttestationEnvelope verifies an optional provider-neutral

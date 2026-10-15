@@ -1166,10 +1166,19 @@ func TestReviewAttestationEnvelopeTrustPolicy(t *testing.T) {
 	}
 	envelopeRaw, _ := json.Marshal(envelope)
 	writeReviewFixture(t, root, "signed-attestation.json", string(envelopeRaw))
-	imported, err := store.ImportReviewAttestationEnvelope("signed-attestation.json", true)
-	if err != nil || imported.AttestationID != attestation.AttestationID {
+	// The signature is trusted, but this deliberately sparse approval is not
+	// admissible: the import verifies it without apply and refuses to write it
+	// (spec pose-review-approval-domain-preflight R6).
+	imported, err := store.ImportReviewAttestationEnvelope("signed-attestation.json", false)
+	if err != nil || imported.AttestationID != attestation.AttestationID || imported.Envelope == nil {
 		t.Fatalf("trusted signed import failed: att=%+v err=%v", imported, err)
 	}
+	before := poseTreeSnapshot(t, root)
+	_, err = store.ImportReviewAttestationEnvelope("signed-attestation.json", true)
+	if blockers := requireApprovalRefusal(t, root, before, err); !containsSubstring(blockers, "missing required review tool disposition") {
+		t.Fatalf("a sparse signed approval was admitted: %v", blockers)
+	}
+	persistHistoricalAttestation(t, store, imported, time.Now())
 	loaded, err := store.LoadReviewAttestation(imported.AttestationID)
 	if err != nil || loaded.Envelope == nil {
 		t.Fatalf("signed proof was not retained: att=%+v err=%v", loaded, err)
