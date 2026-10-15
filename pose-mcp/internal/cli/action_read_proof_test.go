@@ -10,7 +10,7 @@ import (
 
 // Spec pose-action-answers-reverify-on-read R5: exercise the public CLI,
 // including JSON and Attention, rather than just its domain reader.
-func TestActionCLIRejectsPersistedProoflessVerifiedAnswer(t *testing.T) {
+func TestActionReadCLIRejectsPersistedProoflessVerifiedAnswer(t *testing.T) {
 	root := actionCLIFixture(t)
 	_, raw := runPose(t, root, append(append([]string{}, openArgs...), "--apply", "--json")...)
 	var opened struct {

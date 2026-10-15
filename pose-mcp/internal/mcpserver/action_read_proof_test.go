@@ -13,7 +13,7 @@ import (
 
 // Spec pose-action-answers-reverify-on-read R5: persisted labels cannot
 // bypass proof verification through the actual MCP transport.
-func TestToolsCall_ActionRequestsRejectsPersistedProoflessVerifiedAnswer(t *testing.T) {
+func TestActionReadMCPRejectsPersistedProoflessVerifiedAnswer(t *testing.T) {
 	root, ts, view := actionResolveFixture(t, `{"schema_version":1,"roles":{"maintainer":["human:maintainer"]},"identity_assurance":"declared"}`)
 	store := pose.Store{Root: root}
 	_, err := store.ResolveActionRequest(pose.ActionResolution{Type: pose.ActionEventAnswered, Actor: "human:maintainer", Answer: "preserve-v1",

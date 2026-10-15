@@ -46,20 +46,35 @@ bytes; não comprova julgamento semântico nem autorização histórica imutáve
 ## Validação
 
 Go 1.26.9 alinhado ao CI. A bateria direcionada de domínio, CLI e MCP passou:
-TestActionRead*, TestActionClaimRefuses*, TestActionCLIRejectsPersisted* e
-TestToolsCall_ActionRequestsRejects*. A primeira execução do novo teste MCP
+TestActionRead*, TestActionClaimRefuses*, TestActionReadCLI* e
+TestActionReadMCP*. A primeira execução do novo teste MCP
 identificou Type vazio na fixture; corrigido para answered e reexecutado com pass.
 Não houve alteração do runtime para satisfazer o teste.
 
 Targeted -race also passed: pose 1.165s, CLI 1.076s, MCP 1.050s; no skips.
 Assess integrate retained pre-existing unobserved-consumer diagnostics; tech-debt
-reported zero markers and zero uncovered debt. Recurrence-check found no failure.
+reported zero markers and zero uncovered debt. Recurrence-check flagged zero keys; one historical flapping key remains diagnostic.
 
 Acceptance request act-3ee9344e0652cc60 restricts closeout only; no acceptance
 or human adoption has been recorded in this execution.
 
-Evidência global nativa atual será registrada no results_path antes de selar o
-bundle. Não substituir essa execução pelos resultados anteriores de B04.
+Validação global nativa strict passou 132/132 em 265.6s no sujeito remoto
+4fe2e2a6e814273cc51ebf0fdb02f97552c1d5bb, sem falhas/skips. A suíte Go
+completa também passou (CLI 60.942s, domínio 36.109s). Check strict passou
+com os 30 warnings históricos; lint da spec passou 5/5 traces, zero follow-ups
+abertos e nenhuma alteração de R/D/baseline. Closeout-check de B04 confirmou
+lifecycle_done/terminal, review válida e zero blockers na retomada.
+
+Os nomes dos testes novos agora incluem ActionRead, selecionando-os no check
+historical-trust-reuse-integration já registrado, sem acrescentar outra policy
+ou duplicar a matriz. O results_path .pose/results/delivery-validation.json é
+a fonte da qualificação atual; não substituir por evidência histórica de B04.
+Readiness MCP nativa informou ready=true, waiting_on vazio; execution/review
+clear, closeout restricted por action-open/review-not-approved.
+
+O índice de entrega foi regenerado para verificação local. Seu snapshot global
+será publicado com o closeout; este PR mantém o recorte de qualificação e publica
+os resultados e o bundle nativos, sem promover as outras specs.
 
 ## Rules applied during review
 
@@ -70,6 +85,28 @@ bundle. Não substituir essa execução pelos resultados anteriores de B04.
 - knowledge-governance: consumir knowledge:action-answer-proof-and-historical-time.
 - backend-go: regras do plano efetivo para o componente Go.
 - Frontend/infra: nenhum contrato ou implementação desses domínios foi alterado.
+
+## Conclusões propostas para julgamento
+
+Estas conclusões foram preparadas por agent:codex-b01. Não são uma attestation
+independente nem adoção pelo maintainer.
+
+- Scope: o delta acrescenta provas dos consumidores aos requisitos existentes;
+  nenhuma alteração de runtime, R/D ou baseline foi necessária.
+- Assumption-integrity: horário de aceitação e pin/grant atuais são fronteiras
+  explícitas; assinatura não comprova autorização histórica imutável.
+- Design-causality: reverificar no reader protege todos os consumidores;
+  verificar só no renderer permite que JSON/MCP/gates consumam o label forjado.
+- Solution-proportionality: reutilizar o reader e o check ActionRead existente
+  é suficiente; não adicionar outro motor, cache, policy ou migração.
+- Security: o caso adversarial troca apenas declared por verified no journal;
+  CLI/MCP recusam e a projeção degrada cobertura. Fixtures são sintéticas.
+- Compatibility: declared permanece legível; SSH após rotação e expiry histórico
+  preservam os contratos testados. A identidade não implica validade semântica.
+- Operability: action-claim-not-verified e unavailable/complete false tornam a
+  falha explícita em consulta, lista e Attention; nenhum record é reescrito.
+- Documentation: matriz/roadmaps distinguem código mergeado, qualificação,
+  revisão e fechamento; B01/B02 não são promovidos por este PR.
 
 ## Revisão e limites
 
