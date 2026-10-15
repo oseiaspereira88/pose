@@ -1,7 +1,7 @@
 # B01 — qualificação de respostas persistidas
 
-Estado: in-progress; implementação mergeada e regressões de superfícies
-qualificadas; revisão independente e closeout permanecem pendentes.
+Estado: in-progress; implementação e qualificação revisadas nesta execução independente.
+Closeout aguarda acceptance do maintainer; consumir os resultados nativos finais abaixo.
 Data da execução: 2026-10-15 UTC (retomada solicitada em 2026-10-14 no Brasil).
 Base: a5016ce5eb0991db4e07ff096923a01b3a76741c, merge de #178.
 Spec deste PR: pose-action-answers-reverify-on-read, R1–R5/D1 preservados.
@@ -110,7 +110,7 @@ independente nem adoção pelo maintainer.
 - Documentation: matriz/roadmaps distinguem código mergeado, qualificação,
   revisão e fechamento; B01/B02 não são promovidos por este PR.
 
-## Revisão e limites
+## Revisão e limites da execução implementadora (histórico)
 
 O plano efetivo exige different-actor pelo overlay high-criticality-review@1.
 Esta execução prepara evidências e conclusões, mas não representa esse outro
@@ -139,3 +139,79 @@ bundle e preparação mecânica juntos e conferir o checkout publicado. Nenhum c
 ou requisito foi alterado por essa correção de proveniência. O snapshot nativo
 final e seus blockers estão nos arquivos b01-action-*; julgamento e aceite
 continuam pendentes.
+
+
+## Revisão independente — 2026-10-15
+
+Revisor: `agent:independent-codex-pr179`, o assistente OpenAI Codex desta sessão,
+distinta da execução implementadora `agent:codex-b01`. O identificador descreve
+esta execução real; não representa outra pessoa, outro modelo contratado ou um
+runner externo. A revisão foi feita por leitura própria dos requisitos, do diff
+atribuído de #157, dos testes de domínio e dos transportes adicionados em #179,
+e das evidências seladas. As propostas do implementador foram tratadas como
+hipóteses a conferir, não como conclusões automaticamente adotadas.
+
+A independência é declarada: não há claim assinado de separação, nem demonstração
+de independência cognitiva (não observável). Nenhuma confirmação ou adoção humana
+é atribuída ao maintainer. Não foi instalado adapter nem alterada qualquer policy.
+O bundle inicial `rvb-f9020ebb6c7dff19` estava fresco no head `6ef5db75`;
+a publicação das correções documentais atribuídas exige nova coleta e novo bundle.
+Os IDs definitivos, digests, atribuição e resultado de verify são registrados em
+`.pose/results/b01-action-review-verification.json`, não inferidos deste texto.
+
+### Critérios de julgamento e conclusões próprias
+
+| Critério | Conclusão e referência verificável |
+| --- | --- |
+| assumption-integrity | Passa. R3/D1 limitam a alegação ao instante registrado e à precisão disponível. `verifyActionClaimWithin` compara emissão/expiry com o intervalo de aceitação e consulta pins/grants atuais. O teste `TestActionReadKeepsHistoricalExpiryAndSecondPrecision` prova o caso subsegundo, sem provar autorização histórica imutável. A hipótese de integridade do instante registrado continua explícita. |
+| compatibility | Passa. R4 preserva declared sem prova e deriva verified somente após verificação. `TestActionReadDerivesProofAndPreservesDeclaredAndRotatedSSH` cobre legado, remoção da chave registrada e alteração do label para declared. Os testes CLI/MCP exercitam primeiro uma resposta declared válida; o erro posterior é o endurecimento intencional de R1/R5, sem migração de schema. |
+| design-causality | Passa. R1/R5 exigem proteger consumidores além do texto. `LoadActionRequest` chama `verifyActionAnswers` antes de `deriveActionView`; `appendActionEvent` também recusa histórico inválido antes de idempotência/append. A verificação apenas no renderer deixaria listas, JSON, projeções e gates expostos. D1 reutiliza a verificação com relógio explícito para atender R3 sem expirar história válida. |
+| documentation | Passa após correção editorial. Spec, decision log e changelog descrevem limites reais; as atualizações desta revisão distinguem parecer técnico de acceptance e closeout. Foram corrigidas narrativas atuais dos roadmaps que ainda diziam B01 não iniciado/aguardando merge de B04; registros históricos e baseline permanecem preservados. |
+| operability | Passa. R5 falha com `action-claim-not-verified`; `TestActionReadRefusesProoflessVerifiedAndDegradesConsumers` verifica listagem/gate e cobertura unavailable. Os testes de transporte verificam JSON/text/list/presentation e Attention/obligations incomplete, sem reescrever o journal. Falhar a lista inteira preserva visibilidade da incompletude, em vez de ocultar a ação adulterada. |
+| scope | Passa. O diff original implementa R1–R5 nos três arquivos de domínio; #179 acrescenta dois testes de transporte e qualificação. O intervalo Git contém outras specs, então a revisão usa os segmentos atribuídos do bundle, não atribui todo base..head a este trabalho. Nenhum runtime, R/D, start, baseline, policy ou B04 é alterado nesta revisão. |
+| security | Passa. R2 é conferido em `VerifyRecordedActionSignature` (statement, chave, namespace, fingerprint e flags) e `verifyActionClaimWithin` (assinatura Ed25519, issuer, audience/project, request, principal, answer/reason). A presença de provas mistas exige validar ambas. Os subtestes de adulteração e o caso proofless negam o caminho barato de gravar apenas verified no journal. Fixtures não contêm credenciais reais. Assinatura SSH continua prova dos bytes, não recibo imutável de autorização histórica. |
+| solution-proportionality | Passa. Verificar no reader comum é a menor correção que cobre R1/R5; só verificar no renderer é insuficiente. R3 reutiliza o verificador e R4 conserva o formato legado. Não há cache, daemon, segundo motor, novo runner, policy ou migração especulativa. A necessidade futura de provar autorização histórica ou cargas de leitura muito maiores exigiria novo escopo e medições, não uma ampliação silenciosa desta correção. |
+
+Parecer técnico: aprovado para o escopo desta spec; nenhum finding funcional
+aberto. Correção documental de baixa severidade aplicada nos roadmaps para
+remover estado operacional defasado. Não constitui aceite do maintainer.
+Revalidar o novo sujeito atribuído antes de selar e registrar a attestation;
+resultados mecânicos atuais estão nos arquivos nativos `b01-action-*`.
+
+Rules applied: security (prova e autoridade), backend-go (reader/erros/testes),
+documentation-style e delivery-evidence (estado comprovável), knowledge-governance
+(decision log vigente), `_base-recurrence`. Frontend e infraestrutura não se aplicam.
+Assessment design/discover/integrate/tech-debt e suggest-review foram executados;
+os diagnósticos preexistentes de consumidor não observado não são regressões desta
+spec. Recurrence não encontrou chaves sinalizadas; manteve um flapping histórico.
+Não houve aceitação de risco novo nem follow-up que exija novo handoff.
+Review-check e closeout-check são ferramentas de conclusão, executadas após a
+attestation; a restrição de acceptance não deve ser declarada como sucesso.
+
+### Acceptance exata pendente
+
+`act-3ee9344e0652cc60` permanece open, revision 1, destinada ao papel maintainer.
+A policy `.pose/policy/actions.json` atribui esse papel apenas a `human:oseias`.
+A pergunta solicita examinar a qualificação e a revisão independente ou adotar
+expressamente as conclusões; delegar a operação não manifesta esse aceite.
+O maintainer deve decidir sobre as oito conclusões acima, especialmente R5:
+CLI/MCP/gates recusam prova inválida e a projeção expõe cobertura incompleta;
+declared legado e aceitação histórica válida continuam preservados, dentro dos
+limites de confiança documentados. B01 continua parcial e B02 não é liberado.
+
+Somente após manifestação explícita do maintainer, conferir novamente `pose action
+show act-3ee9344e0652cc60 --json` e, se digest/revision ainda forem estes, registrar:
+
+```bash
+pose action resolve act-3ee9344e0652cc60 --actor human:oseias --answer accept \
+  --request-digest sha256:a2525c04b212fe11fee18ecdb04f32d47875a62dedbbc6d2ceaed5c9f941e716 \
+  --expected-revision 1 --idempotency-key pr179-maintainer-acceptance --apply
+```
+
+Esse comando não foi executado. Em caso de rejeição, usar `--answer reject`,
+registrar os motivos e corrigir antes de repetir a revisão. Após a decisão,
+consultar `pose close spec:pose-action-answers-reverify-on-read --plan --json`;
+usar `--apply`/`--resume --reviewer agent:independent-codex-pr179` conforme o plano,
+revalidando e obtendo nova attestation se os inputs do bundle mudarem. Confirmar
+`review verify`, `review-check` e `closeout-check` antes da transição. Esta sessão
+prepara o closeout até esse gate e mantém a spec in-progress.
