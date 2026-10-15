@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "scope": "spec:pose-review-disclosure-requires-proof",
+  "scope_digest": "sha256:c99b33799d3b9056c68c3c906220ba1625ae84263c9e8fe9419a0e814d6cc7eb",
+  "review": {
+    "required": true,
+    "scope": "spec:pose-review-disclosure-requires-proof",
+    "scope_digest": "sha256:c99b33799d3b9056c68c3c906220ba1625ae84263c9e8fe9419a0e814d6cc7eb",
+    "plan_digest": "sha256:10eb56a14b9c3261d4a89b17b8af4dd109069f9c9ec0ecad69c20e5428646cda",
+    "profile": "spec-closeout@1",
+    "current": {
+      "schema_version": 1,
+      "review_id": "rva-c346ce58ad4e4536",
+      "scope": "spec:pose-review-disclosure-requires-proof",
+      "scope_digest": "sha256:c99b33799d3b9056c68c3c906220ba1625ae84263c9e8fe9419a0e814d6cc7eb",
+      "plan_digest": "sha256:10eb56a14b9c3261d4a89b17b8af4dd109069f9c9ec0ecad69c20e5428646cda",
+      "profile": "spec-closeout@1",
+      "reviewer": "agent:independent-codex-pr182",
+      "decision": "approved",
+      "reviewed_at": "2026-10-15T22:33:19Z",
+      "evidence_refs": [
+        "integration:pose-mcp/go/review-assurance-disclosure-integration",
+        "report:.pose/reports/2026-10-15-pose-b01-disclosure-review.md"
+      ],
+      "criteria": [
+        {
+          "id": "assumption-integrity",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Signed positive and one-variable corruption controls establish proof, not issuer truthfulness or cognitive independence; B04 authenticated historical time remains distinct from current operation validity and historical authorization remains not-established. Current pins and human grants stay live; this reviewer identity and separation are declared, without human adoption. Reaffirmed after inspecting final c3fe80ed metadata: production/tests unchanged since ea536; sealed execution evidence is carried-forward and final-head CI/Security is separate."
+        },
+        {
+          "id": "backend-concurrency",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Native strict132/132 executed on published ea536; sealed integration evidence is explicitly carried-forward to c3fe80ed, never asserted as newly observed. Independently confirmed zero Go/test delta, unchanged R1-R4/D1, and metadata-only completion summaries. Signed controls, proof negatives, identity/semantic separation and actual CLI/MCP consumers remain the supported behavior."
+        },
+        {
+          "id": "backend-contracts",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Native strict132/132 executed on published ea536; sealed integration evidence is explicitly carried-forward to c3fe80ed, never asserted as newly observed. Independently confirmed zero Go/test delta, unchanged R1-R4/D1, and metadata-only completion summaries. Signed controls, proof negatives, identity/semantic separation and actual CLI/MCP consumers remain the supported behavior."
+        },
+        {
+          "id": "backend-input-errors",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Native strict132/132 executed on published ea536; sealed integration evidence is explicitly carried-forward to c3fe80ed, never asserted as newly observed. Independently confirmed zero Go/test delta, unchanged R1-R4/D1, and metadata-only completion summaries. Signed controls, proof negatives, identity/semantic separation and actual CLI/MCP consumers remain the supported behavior."
+        },
+        {
+          "id": "backend-integration-impact",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Native strict132/132 executed on published ea536; sealed integration evidence is explicitly carried-forward to c3fe80ed, never asserted as newly observed. Independently confirmed zero Go/test delta, unchanged R1-R4/D1, and metadata-only completion summaries. Signed controls, proof negatives, identity/semantic separation and actual CLI/MCP consumers remain the supported behavior."
+        },
+        {
+          "id": "backend-observability",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Native strict132/132 executed on published ea536; sealed integration evidence is explicitly carried-forward to c3fe80ed, never asserted as newly observed. Independently confirmed zero Go/test delta, unchanged R1-R4/D1, and metadata-only completion summaries. Signed controls, proof negatives, identity/semantic separation and actual CLI/MCP consumers remain the supported behavior."
+        },
+        {
+          "id": "compatibility",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "No CLI arguments, JSON/file schema or MCP tool contract changed. Verified wording now requires authenticated proof while legacy declared identity and valid identity with rejected criteria retain their distinct meanings. Domain, CLI JSON/text and real HTTP MCP parity pass; B04 time/revocation behavior is preserved. Reaffirmed after inspecting final c3fe80ed metadata: production/tests unchanged since ea536; sealed execution evidence is carried-forward and final-head CI/Security is separate."
+        },
+        {
+          "id": "correctness",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Native strict132/132 executed on published ea536; sealed integration evidence is explicitly carried-forward to c3fe80ed, never asserted as newly observed. Independently confirmed zero Go/test delta, unchanged R1-R4/D1, and metadata-only completion summaries. Signed controls, proof negatives, identity/semantic separation and actual CLI/MCP consumers remain the supported behavior."
+        },
+        {
+          "id": "design-causality",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "D1 addresses the cause: claim-field checking without signed-envelope authentication. Stored-proof and exact bundle ID/digest checks at verifiedAuthorityBlockers now serve disclosure and approval gates, while semantic criteria remain outside proof. Invalid proof therefore cannot populate VerifiedClaim or authenticate human confirmation. Reaffirmed after inspecting final c3fe80ed metadata: production/tests unchanged since ea536; sealed execution evidence is carried-forward and final-head CI/Security is separate."
+        },
+        {
+          "id": "documentation",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Final published c3fe80ed operational docs, report, matrix and roadmaps match native terminal admission; both B01 member file hashes/statuses verified. Historical failed validation and original start remain preserved; pre-fix Intent tense correction is factual, R1-R4/D1 identical. Native proof names exact ea536 test head; final-head CI/Security remains distinct."
+        },
+        {
+          "id": "operability",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Shared blockers distinguish invalid signature, untrusted issuer and bundle mismatch; shared human rendering and JSON/MCP disclose consistent assurance. B04 temporal disclosure separately identifies historical validity, current operation validity and unestablished historical authorization. No new service or state migration is introduced. Reaffirmed after inspecting final c3fe80ed metadata: production/tests unchanged since ea536; sealed execution evidence is carried-forward and final-head CI/Security is separate."
+        },
+        {
+          "id": "requirements",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Native strict132/132 executed on published ea536; sealed integration evidence is explicitly carried-forward to c3fe80ed, never asserted as newly observed. Independently confirmed zero Go/test delta, unchanged R1-R4/D1, and metadata-only completion summaries. Signed controls, proof negatives, identity/semantic separation and actual CLI/MCP consumers remain the supported behavior."
+        },
+        {
+          "id": "scope",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Inspected c3fe80ed final metadata delta: zero Go/test changes after ea536 and unchanged R1-R4/D1/policy. Native lifecycle/history supports B01 member completion; matrix hashes match, roadmaps retain whole-program gates and B02 waits for PR182 merge. No new spec/release/adoption/B02 implementation is introduced."
+        },
+        {
+          "id": "security",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Signed bytes, Ed25519 subject/algorithm, current issuer key pin and authority bundle/principal/audience/role/execution bindings precede verified disclosure. Malformed/missing/damaged proof, unsigned mutations and revoked pins fail. Missing envelope cannot promote legacy-ledger records; human roles retain live grants. Fixtures generate synthetic keys. Candidate CI/Security passed; final published-head checks remain required. Reaffirmed after inspecting final c3fe80ed metadata: production/tests unchanged since ea536; sealed execution evidence is carried-forward and final-head CI/Security is separate."
+        },
+        {
+          "id": "solution-proportionality",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Reusing the stored-envelope verifier at the shared authority boundary is the smallest sufficient fix. Renderer-specific cryptography would duplicate trust logic; semantic validation in proof would wrongly erase valid identity. No new policy/schema/dependency/service is needed. A separately signed identity object would require reconsideration; rollback is the scoped change without rewriting records. Reaffirmed after inspecting final c3fe80ed metadata: production/tests unchanged since ea536; sealed execution evidence is carried-forward and final-head CI/Security is separate."
+        }
+      ],
+      "tools": [
+        {
+          "id": "artifact-check",
+          "disposition": "passed",
+          "evidence": "check:artifact-check",
+          "rationale": "Native strict reconciliation has zero error findings; inspect attributed paths, not contaminated range as scope."
+        },
+        {
+          "id": "assess-design",
+          "disposition": "passed",
+          "evidence": "structure:design-e5928d955774b4b5",
+          "rationale": "Current sealed structural observation covers all attributed final subject files; zero production/test delta independently verified since ea536."
+        },
+        {
+          "id": "assess-discover",
+          "component": "pose-mcp",
+          "disposition": "passed",
+          "evidence": "check:assess-discover",
+          "rationale": "Implementer executed discovery; reviewer inspected effective component metadata and scope; ownership warning remains visible."
+        },
+        {
+          "id": "assess-integrate",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Inspected broad static unobserved-consumer observations; actual affected MCP HTTP consumers verified by integration tests."
+        },
+        {
+          "id": "assess-tech-debt",
+          "disposition": "passed",
+          "evidence": "check:assess-tech-debt",
+          "rationale": "Executed assessment has zero markers; no unresolved debt finding created by this scope."
+        },
+        {
+          "id": "closeout-check",
+          "disposition": "deferred",
+          "rationale": "post-review gate"
+        },
+        {
+          "id": "history-check",
+          "disposition": "passed",
+          "evidence": "check:history-check",
+          "rationale": "Current native strict execution passed; append-only historical evidence retained."
+        },
+        {
+          "id": "knowledge-check",
+          "disposition": "passed",
+          "evidence": "check:knowledge-check",
+          "rationale": "Current native strict execution passed; inspected related dated decision logs."
+        },
+        {
+          "id": "review-check",
+          "disposition": "deferred",
+          "rationale": "post-review gate"
+        },
+        {
+          "id": "suggest-review",
+          "component": "pose-mcp",
+          "disposition": "passed",
+          "evidence": "check:suggest-review",
+          "rationale": "Executed independently; applied security/documentation rules and Go contract review; no unrelated extension adoption."
+        },
+        {
+          "id": "surface-check",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Native strict surface passed for admission; final native delivery graph carries exact ea536 evidence through closed-scope provenance and unchanged Go/tests, with current artifact strict0errors."
+        },
+        {
+          "id": "validate",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Native strict132/132 on published ea536 includes full affected-component129checks; final sealed evidence is carried-forward to c3fe80ed after independently verified zero Go/test delta, never claimed newly executed there."
+        },
+        {
+          "id": "validate",
+          "component": "pose-mcp",
+          "disposition": "passed",
+          "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+          "rationale": "Native strict132/132 on published ea536 includes full affected-component129checks; final sealed evidence is carried-forward to c3fe80ed after independently verified zero Go/test delta, never claimed newly executed there."
+        }
+      ],
+      "findings": [],
+      "path": ".pose/review-attestations/rva-c346ce58ad4e4536.json"
+    },
+    "fresh": true,
+    "approved": true,
+    "blockers": [],
+    "warnings": [
+      "change set cs-c9464ddec9ff attributes 5 commit(s) but its range spans 72; 67 commit(s) in base..head belong to other work; they carry trailers of pose-action-answers-reverify-on-read, pose-consolidation-batch-1-authoring, pose-consolidation-batch-10-authoring, pose-consolidation-batch-11-authoring, pose-consolidation-batch-12-authoring, pose-consolidation-batch-13-authoring, pose-consolidation-batch-14-authoring, pose-consolidation-batch-15-authoring, pose-consolidation-batch-2-authoring, pose-consolidation-batch-3-authoring, pose-consolidation-batch-4-authoring, pose-consolidation-batch-5-authoring, pose-consolidation-batch-6-authoring, pose-consolidation-batch-7-authoring, pose-consolidation-batch-8-authoring, pose-consolidation-batch-9-authoring, pose-consolidation-program-bootstrap, pose-historical-trust-and-review-reuse, pose-security-validation-release-api-auth; 31 carry no POSE-Spec trailer, so the range is provenance and the attributed paths are the subject",
+      "metadata-incomplete review component pose-mcp missing:owner",
+      "sealed evidence ran against a commit other than the subject head c3fe80edbd48; it is current by provenance, not by having observed this change: build:pose-mcp/go/build, e2e:pose-mcp/go/multi-repo-agent-installed-journey, integration:pose-mcp/go/abm-atomic-start-integration, integration:pose-mcp/go/abm-causality-closeout-integration, integration:pose-mcp/go/abm-contract-nodes-integration, integration:pose-mcp/go/abm-progressive-review-integration, integration:pose-mcp/go/abm-remediation-lineage-integration, integration:pose-mcp/go/abm-retrospective-replay-integration, integration:pose-mcp/go/action-identity-integration, integration:pose-mcp/go/action-presentation-integration, integration:pose-mcp/go/action-requests-integration, integration:pose-mcp/go/action-resolution-integration, integration:pose-mcp/go/adversarial-corpus, integration:pose-mcp/go/adversarial-corpus-integration, integration:pose-mcp/go/artifact-claim-boundary-integration, integration:pose-mcp/go/assessment-freshness-integration, integration:pose-mcp/go/atomic-start-cutoff-integration, integration:pose-mcp/go/attention-snapshot-integration, integration:pose-mcp/go/attention-sources-integration, integration:pose-mcp/go/attest-preflight-integration, integration:pose-mcp/go/authority-project-integration, integration:pose-mcp/go/blocked-semantics-integration, integration:pose-mcp/go/calendar-date-skew-integration, integration:pose-mcp/go/capability-catalog-integration, integration:pose-mcp/go/causality-cutoff-integration, integration:pose-mcp/go/check-git-spawns-integration, integration:pose-mcp/go/check-verdict-mode-integration, integration:pose-mcp/go/check-workers-integration, integration:pose-mcp/go/ci-release-obligations-integration, integration:pose-mcp/go/clean-activation-recording-integration, integration:pose-mcp/go/cli-profile-parity-integration, integration:pose-mcp/go/closeout-plan-integration, integration:pose-mcp/go/completed-review-retention-integration, integration:pose-mcp/go/configuration-review-integration, integration:pose-mcp/go/delivery-graph-reuse-integration, integration:pose-mcp/go/delivery-integration, integration:pose-mcp/go/delivery-integrity-index-compaction-integration, integration:pose-mcp/go/dependabot-runtime-repair-integration, integration:pose-mcp/go/effective-governance-integration, integration:pose-mcp/go/extension-target-integration, integration:pose-mcp/go/falsifier-integration, integration:pose-mcp/go/federated-roadmap-acceptance-integration, integration:pose-mcp/go/federated-roadmap-negative-gates, integration:pose-mcp/go/federated-spec-acceptance-integration, integration:pose-mcp/go/flat-spec-amendments-integration, integration:pose-mcp/go/followup-candidates-integration, integration:pose-mcp/go/fresh-install-health-integration, integration:pose-mcp/go/governance-outcomes-v2-contract, integration:pose-mcp/go/governance-waits-integration, integration:pose-mcp/go/governed-capabilities-integration, integration:pose-mcp/go/governed-effects-integration, integration:pose-mcp/go/historical-trust-reuse-integration, integration:pose-mcp/go/init-is-install-integration, integration:pose-mcp/go/install-and-upgrade-journeys-integration, integration:pose-mcp/go/legacy-contract-cutoffs-integration, integration:pose-mcp/go/lint-spec-all-gate-contract, integration:pose-mcp/go/locale-obligation-flags-integration, integration:pose-mcp/go/machine-channel-integration, integration:pose-mcp/go/material-reuse-integration, integration:pose-mcp/go/mcp-action-resolve-integration, integration:pose-mcp/go/mcp-review-attest-integration, integration:pose-mcp/go/migrate-dryrun-integration, integration:pose-mcp/go/multi-repo-agent-context-integration, integration:pose-mcp/go/multi-repo-agent-negative-gates, integration:pose-mcp/go/obligation-contract-integration, integration:pose-mcp/go/obligation-projection-integration, integration:pose-mcp/go/onboarding-spec-integration, integration:pose-mcp/go/parallel-gate-integration, integration:pose-mcp/go/parse-memo-integration, integration:pose-mcp/go/phase-readiness-integration, integration:pose-mcp/go/premise-validity-integration, integration:pose-mcp/go/project-id-derivation-integration, integration:pose-mcp/go/project-identity-integration, integration:pose-mcp/go/public-claims-provenance-integration, integration:pose-mcp/go/public-claims-release-line-integration, integration:pose-mcp/go/qualified-artifact-resolution-integration, integration:pose-mcp/go/qualified-followup-integration, integration:pose-mcp/go/quickstart-real-lifecycle-integration, integration:pose-mcp/go/range-ownership-integration, integration:pose-mcp/go/recurrence-cluster-integration, integration:pose-mcp/go/recurrence-flapping-integration, integration:pose-mcp/go/red-signal-contract, integration:pose-mcp/go/release-needs-ci-contract, integration:pose-mcp/go/release-review-archive-integration, integration:pose-mcp/go/release-version-source-integration, integration:pose-mcp/go/review-assurance-disclosure-integration, integration:pose-mcp/go/review-attribution-roles-integration, integration:pose-mcp/go/review-bundle-convergence, integration:pose-mcp/go/review-policy-adoption-integration, integration:pose-mcp/go/review-soundness-residuals-integration, integration:pose-mcp/go/review-subject-capabilities-integration, integration:pose-mcp/go/setup-command-integration, integration:pose-mcp/go/signed-action-answers-integration, integration:pose-mcp/go/spec-authority-transfer-integration, integration:pose-mcp/go/spec-authority-transfer-mcp-status, integration:pose-mcp/go/spec-authority-transfer-negative-gates, integration:pose-mcp/go/spec-surface-integration, integration:pose-mcp/go/state-attention-integration, integration:pose-mcp/go/test-git-isolation-integration, integration:pose-mcp/go/trace-test-refs-integration, integration:pose-mcp/go/transfer-actions-integration, integration:pose-mcp/go/typed-diagnostics-integration, integration:pose-mcp/go/usage-adjudication-integration, integration:pose-mcp/go/validation-check-materiality-integration, reachability:pose-mcp/go/abm-replay-reachability, reachability:pose-mcp/go/action-requests-reachability, reachability:pose-mcp/go/action-resolution-reachability, reachability:pose-mcp/go/blocked-semantics-reachability, reachability:pose-mcp/go/closeout-plan-reachability, reachability:pose-mcp/go/delivery-reachability, reachability:pose-mcp/go/effective-governance-reachability, reachability:pose-mcp/go/flat-spec-amendments-reachability, reachability:pose-mcp/go/followup-candidates-reachability, reachability:pose-mcp/go/governance-waits-reachability, reachability:pose-mcp/go/governed-effects-reachability, reachability:pose-mcp/go/legacy-contract-cutoffs-reachability, reachability:pose-mcp/go/migrate-dryrun-reachability, reachability:pose-mcp/go/multi-repo-agent-context-reachability, reachability:pose-mcp/go/phase-readiness-reachability, reachability:pose-mcp/go/public-claims-provenance-reachability, reachability:pose-mcp/go/release-version-source-reachability, reachability:pose-mcp/go/review-assurance-disclosure-reachability, reachability:pose-mcp/go/review-attribution-roles-reachability, reachability:pose-mcp/go/spec-surface-reachability, reachability:pose-mcp/go/state-attention-reachability, reachability:pose-mcp/go/typed-diagnostics-reachability, reachability:pose-mcp/go/usage-adjudication-reachability, unit:pose-mcp/go/test",
+      "unmapped review component path:.pose/assessments/README.md",
+      "unmapped review component path:.pose/assessments/consolidated.md",
+      "unmapped review component path:.pose/assessments/integrations.md",
+      "unmapped review component path:.pose/assessments/pose-mcp.md",
+      "unmapped review component path:.pose/assessments/technical-debt.md",
+      "unmapped review component path:.pose/changelogs/unreleased/pose-review-disclosure-requires-proof.md",
+      "unmapped review component path:.pose/knowledge/2026-10-13-decision-log-review-assurance-requires-cryptographic-proof.md",
+      "unmapped review component path:.pose/reports/2026-10-13-review-proof-validate-native.md",
+      "unmapped review component path:.pose/reports/2026-10-15-pose-b01-disclosure-qualification.md",
+      "unmapped review component path:.pose/reports/2026-10-15-pose-b01-disclosure-review.md",
+      "unmapped review component path:.pose/reports/history/standard-validate-native.jsonl",
+      "unmapped review component path:.pose/results/pose-implementation-plan.json",
+      "unmapped review component path:.pose/roadmaps/pose-consolidation-program.md",
+      "unmapped review component path:.pose/roadmaps/record-truthfulness.md",
+      "unmapped review component path:.pose/specs/2026-10-13-pose-review-disclosure-requires-proof.md",
+      "unmapped review component path:.pose/starts/pose-review-disclosure-requires-proof.json"
+    ],
+    "policy_enabled": true,
+    "bundle_id": "rvb-c99b33799d3b9056",
+    "bundle_digest": "sha256:c99b33799d3b9056c68c3c906220ba1625ae84263c9e8fe9419a0e814d6cc7eb",
+    "attestation_id": "rva-c346ce58ad4e4536",
+    "bundle_state": "closed",
+    "assurance": {
+      "temporal": {
+        "time_basis": "legacy-editable-attested-at",
+        "historical_at": "2026-10-15T22:33:19Z",
+        "current_basis": "operation-clock",
+        "historical_validity": "not-established",
+        "current_validity": "not-evaluated",
+        "current_trust": "not-verified",
+        "historical_authorization": "not-established"
+      },
+      "identity_assurance": "declared",
+      "reviewer": "agent:independent-codex-pr182",
+      "reviewer_identity": "declared",
+      "reviewer_role": "agent",
+      "separation_required": "different-actor",
+      "separation_declared": "declared-independent-agent",
+      "separation_verified": "not-verified",
+      "cognitive_independence": "not-observable",
+      "limitations": [
+        "identity-is-the-string-the-reviewer-wrote",
+        "separation-is-declared-not-authenticated",
+        "cognitive-independence-is-not-observable"
+      ],
+      "attribution": {
+        "state": "differentiated",
+        "prepared_by": "agent:independent-codex-pr182",
+        "concluded_by": "agent:independent-codex-pr182",
+        "applied_by": "agent:independent-codex-pr182",
+        "confirmation_mode": "none",
+        "confirmation_assurance": "none"
+      }
+    }
+  },
+  "lifecycle_done": true,
+  "terminal": true,
+  "next_action": "none",
+  "blockers": [],
+  "next_step": {
+    "code": "none",
+    "domain": "closeout",
+    "message": "none"
+  }
+}
