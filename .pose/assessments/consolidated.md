@@ -1,8 +1,8 @@
 # Project Assessment: pose
 
 > **Gerado por**: POSE Discovery Engine (`pose assess discover`)
-> **Data de Avaliação**: 2026-10-15T13:25:34Z
-> **Baseline Commit**: 9d89a2a02b99
+> **Data de Avaliação**: 2026-10-15T15:29:26Z
+> **Baseline Commit**: 781151f1edab
 
 ---
 
@@ -15,7 +15,7 @@
 - **Total de Arquivos Auditados**: 561
 - **Completude Dinâmica da Plataforma**: 0.0%
 - **Dívidas Técnicas em Aberto**: 0 TODOs | 0 FIXMEs | 0 Panics | 0 Stubs
-- **Especificações (Specs) em Aberto**: 60
+- **Especificações (Specs) em Aberto**: 59
 - **Gaps de Integração Identificados**: 63
 
 ---
