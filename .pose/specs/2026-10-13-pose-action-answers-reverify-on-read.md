@@ -70,7 +70,7 @@ Preserve declared legacy answers and SSH verification after key rotation, as req
 - [x] Reconcile B04 terminal closeout and preserve the existing start baseline.
 - [x] Exercise persisted-proof failure through CLI JSON and MCP transport.
 - [x] Run domain/surface regression pairs and targeted race detection.
-- [ ] Generate current global native validation, seal review, and obtain different-actor judgment.
+- [x] Generate current global native validation, seal review, and obtain different-actor judgment.
 - [ ] Apply native closeout only after review verification and acceptance.
 
 ## 5. Decisions
@@ -98,8 +98,11 @@ Current qualification after B04/#178 (prior execution history retained below):
 
 All above tests passed on the reconciled main plus these surface tests, with a
 second run under -race (pose 1.165s, CLI 1.076s, MCP 1.050s). Global native validation passed 132/132 on the published qualification subject;
-current results are in .pose/results/delivery-validation.json. Independent review
-and closeout remain pending; prior failed native attempts remain historical evidence.
+current results are in .pose/results/delivery-validation.json. Independent review was approved by agent:independent-codex-pr179 and the
+maintainer explicitly accepted its conclusions on 2026-10-15. The acceptance
+journal is answered/satisfied; current evidence/review and final closeout state
+are recorded by the native b01-action-* results. Prior failed native attempts
+remain historical evidence.
 
 The complete Go suite passed on implementation commit 30c2776a5de2f2e9b8d923974c08938242a66be8 in [CI run 38331161368](https://github.com/oseiaspereira88/pose/actions/runs/38331161368). Executed mapping: R1/R5 use TestActionReadRefusesProoflessVerifiedAndDegradesConsumers; R2 uses TestActionReadReverifiesSSHBindingsAndMetadata and TestActionReadReverifiesIssuerBindings; R3 uses TestActionReadKeepsHistoricalExpiryAndSecondPrecision and TestActionClaimRefusesFutureOrReversedExpiryAtWrite; R4 uses TestActionReadDerivesProofAndPreservesDeclaredAndRotatedSSH. The same test job passed the installer, migration, quickstart, install/upgrade, launch-demo, delivery-image and action-runtime checks.
 

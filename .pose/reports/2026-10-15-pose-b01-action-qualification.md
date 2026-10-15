@@ -215,3 +215,23 @@ usar `--apply`/`--resume --reviewer agent:independent-codex-pr179` conforme o pl
 revalidando e obtendo nova attestation se os inputs do bundle mudarem. Confirmar
 `review verify`, `review-check` e `closeout-check` antes da transição. Esta sessão
 prepara o closeout até esse gate e mantém a spec in-progress.
+
+
+## Aceite explícito do maintainer — 2026-10-15
+
+Após a entrega da revisão independente e das evidências do head cf4c40ca, o
+maintainer declarou nesta conversa: “eu aceito. prossiga”. O fluxo nativo
+registrou `act-3ee9344e0652cc60` como answered/satisfied, revision 2, answer accept,
+actor human:oseias, com assurance declared. A operação foi aplicada por esta
+sessão Codex; não há assinatura ou confirmação criptográfica. O journal preserva
+a pergunta, o digest, a revisão original e o evento aberto; acrescenta somente
+a resposta autorizada, vinculada às conclusões de rvb-aa88dec0a71ddbdc /
+rva-df0fb2c18df35afc. A attestation técnica anterior não foi reescrita.
+
+Essa alteração supersede o bundle anterior. A retomada renova evidências e
+reafirma os oito julgamentos antes do gate final. Os IDs e o resultado terminal
+definitivos são os dos snapshots nativos `b01-action-review-verification.json`,
+`b01-action-closeout-check.json` e `b01-action-closeout-plan.json`. Esta nota
+supersede a pendência de acceptance acima, que permanece como histórico.
+B01 continua parcial/delivery_complete false, a spec irmã exige outro PR,
+B04 permanece terminal e B02 não é liberado.
