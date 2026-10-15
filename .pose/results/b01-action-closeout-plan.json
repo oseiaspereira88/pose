@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "scope": "spec:pose-action-answers-reverify-on-read",
-  "digest": "sha256:20da57f45069fd83404167497c381e733b42bb2844207ae2eaedb6526e55cf9b",
+  "digest": "sha256:8bea27f7ca179f2eb8675195aecfb27a65bad38fb621277658714ad5098029f1",
   "inputs": {
     "spec_digest": "3e14015509e01bb1d3b2923642a51faa63fb3e7d56001b591c58624efb791c54",
-    "revision": "b2e8ed91b77165171cfed0a7a0c1a206ed6934bd",
+    "revision": "d5b85a143cdbcf1f8af64237713a61ce9ddeade4",
     "policy_digest": "sha256:f9493731543e161f55b8dd9bd5384f317967dcab36ad85f9876582d1b74c8753",
-    "verify_state": "ready-for-review"
+    "verify_state": "ready-to-close"
   },
   "steps": [
     {
@@ -34,89 +34,23 @@
     },
     {
       "id": "mechanical-attestation",
-      "state": "waiting",
-      "reason": "mechanical criteria are recorded together with the judgment in one attestation"
+      "state": "done",
+      "reason": "an approved attestation exists"
     },
     {
       "id": "judgment",
-      "state": "waiting",
-      "reason": "8 criterion/criteria need a reviewer's conclusion; the plan never writes it"
+      "state": "done",
+      "reason": "an approved attestation exists"
     },
     {
       "id": "verify",
-      "state": "pending"
+      "state": "done"
     },
     {
       "id": "transition",
       "state": "pending"
     }
   ],
-  "bundle_id": "rvb-f9020ebb6c7dff19",
-  "pending": [
-    {
-      "criterion": "assumption-integrity",
-      "kind": "judgment",
-      "reason": "no registered check reports on this criterion",
-      "code": "judgment-unanswered",
-      "source": "rvb-f9020ebb6c7dff19",
-      "condition": "a reviewer records a conclusion for the criterion"
-    },
-    {
-      "criterion": "compatibility",
-      "kind": "judgment",
-      "reason": "no registered check reports on this criterion",
-      "code": "judgment-unanswered",
-      "source": "rvb-f9020ebb6c7dff19",
-      "condition": "a reviewer records a conclusion for the criterion"
-    },
-    {
-      "criterion": "design-causality",
-      "kind": "judgment",
-      "reason": "no registered check reports on this criterion",
-      "code": "judgment-unanswered",
-      "source": "rvb-f9020ebb6c7dff19",
-      "condition": "a reviewer records a conclusion for the criterion"
-    },
-    {
-      "criterion": "documentation",
-      "kind": "judgment",
-      "reason": "no registered check reports on this criterion",
-      "code": "judgment-unanswered",
-      "source": "rvb-f9020ebb6c7dff19",
-      "condition": "a reviewer records a conclusion for the criterion"
-    },
-    {
-      "criterion": "operability",
-      "kind": "judgment",
-      "reason": "no registered check reports on this criterion",
-      "code": "judgment-unanswered",
-      "source": "rvb-f9020ebb6c7dff19",
-      "condition": "a reviewer records a conclusion for the criterion"
-    },
-    {
-      "criterion": "scope",
-      "kind": "judgment",
-      "reason": "no registered check reports on this criterion",
-      "code": "judgment-unanswered",
-      "source": "rvb-f9020ebb6c7dff19",
-      "condition": "a reviewer records a conclusion for the criterion"
-    },
-    {
-      "criterion": "security",
-      "kind": "judgment",
-      "reason": "no registered check reports on this criterion",
-      "code": "judgment-unanswered",
-      "source": "rvb-f9020ebb6c7dff19",
-      "condition": "a reviewer records a conclusion for the criterion"
-    },
-    {
-      "criterion": "solution-proportionality",
-      "kind": "judgment",
-      "reason": "no registered check reports on this criterion",
-      "code": "judgment-unanswered",
-      "source": "rvb-f9020ebb6c7dff19",
-      "condition": "a reviewer records a conclusion for the criterion"
-    }
-  ],
+  "bundle_id": "rvb-aa88dec0a71ddbdc",
   "terminal": false
 }

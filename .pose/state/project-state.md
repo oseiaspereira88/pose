@@ -87,10 +87,10 @@ capacidade.
   - report:pose-v6-2-0-autonomous-work.md
 
 ## Arquitetura
-<!-- state:derived hash:9410e2fb441b status:active -->
+<!-- state:derived hash:751375eda7d7 status:active -->
 
 - componentes: total=3 verificados=3 completude=100.0%
-- linhas_de_codigo: producao=70779 testes=56055 total=126834
+- linhas_de_codigo: producao=70779 testes=56168 total=126947
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63
