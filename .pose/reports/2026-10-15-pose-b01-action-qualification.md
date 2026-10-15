@@ -1,5 +1,8 @@
 # B01 — qualificação de respostas persistidas
 
+**Atualização de closeout — 2026-10-15:** spec encerrada pelo fluxo nativo (`done`, `completed_at: 2026-10-15`), após aceite explícito do maintainer. A ação está answered/satisfied, revision 2, com assurance declared. Admissão: bundle `rvb-cfe993ee0dbf209f`, attestation `rva-370e6fda5e127a19`; validation estrita 132/132 no sujeito publicado `9d89a2a0`, verify/review-check aprovados, closeout-check de admissão terminal=true e sem blockers. Os registros anteriores abaixo são históricos. O pacote será reindexado e reverificado após a publicação do lifecycle; os IDs correntes são os de `.pose/results/b01-action-review-verification.json`. B01 continua parcial/delivery_complete false, B04 terminal e B02 aguardando a spec irmã.
+
+
 Estado: in-progress; implementação e qualificação revisadas nesta execução independente.
 Closeout aguarda acceptance do maintainer; consumir os resultados nativos finais abaixo.
 Data da execução: 2026-10-15 UTC (retomada solicitada em 2026-10-14 no Brasil).
@@ -190,6 +193,8 @@ attestation; a restrição de acceptance não deve ser declarada como sucesso.
 
 ### Acceptance exata pendente
 
+Registro histórico da entrega anterior: essa pendência foi satisfeita pelo aceite explícito documentado ao final deste relatório.
+
 `act-3ee9344e0652cc60` permanece open, revision 1, destinada ao papel maintainer.
 A policy `.pose/policy/actions.json` atribui esse papel apenas a `human:oseias`.
 A pergunta solicita examinar a qualificação e a revisão independente ou adotar
@@ -235,3 +240,35 @@ definitivos são os dos snapshots nativos `b01-action-review-verification.json`,
 supersede a pendência de acceptance acima, que permanece como histórico.
 B01 continua parcial/delivery_complete false, a spec irmã exige outro PR,
 B04 permanece terminal e B02 não é liberado.
+
+
+## Closeout nativo após o aceite — 2026-10-15
+
+O fluxo registrou a resposta autorizada sem editar o evento aberto ou a policy.
+A renovação estrita passou em 132/132, sem falhas/erros/skips. Artifact-check
+estrito passou; surface-check teve target=1, results=132, findings=0. O preview
+continuou com sete critérios mecânicos e oito julgamentos pendentes; estes
+foram explicitamente reafirmados nesta sessão, não aprovados pelo preview.
+A revisão renovada foi selada em rvb-cfe993ee0dbf209f e registrada em
+rva-370e6fda5e127a19, preservando a identidade e a separação declaradas.
+
+O gate de contexto inicialmente recusou três assessments gerados não commitados
+(apenas datas e referências de baseline). Eles foram publicados como resultados
+gerados, sem trailer artificial de implementação, em 2aca0f4f. O plano voltou a
+ready-to-close e close --resume aplicou a transição. O resultado nativo de
+admissão está em b01-action-closeout-admission.json: terminal=true, lifecycle_done=true,
+blockers=[]. O log de closeout registra step.transition=done. Nenhum status,
+digest ou aceite foi alterado manualmente.
+
+A publicação do lifecycle e de seus resultados modifica artefatos declarados e
+recebe o trailer exigido pelo próprio fluxo de closeout. Não há mudança em
+R1–R5, D1 ou nos seis arquivos Go de implementação/testes: seus digests seguem
+iguais aos da revisão anterior. A coleta funcional executada em 9d89a2a0 é
+preservada como evidência do sujeito funcional; a metadata publicada é
+reindexada e novamente revisada/verificada antes da entrega final. Resultados
+gerados posteriores são publicados separadamente, sem atribuição como nova
+implementação. Os bundles e attestations anteriores permanecem preservados.
+
+B01 continua parcial/delivery_complete false, com action-answer done e disclosure
+in-progress para outro PR. B04 não é reaberto e B02 não é liberado. Nenhum merge,
+runner de review, adoção de policy ou próxima spec foi iniciado.

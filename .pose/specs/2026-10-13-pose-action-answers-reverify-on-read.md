@@ -1,8 +1,8 @@
 ---
 slug: pose-action-answers-reverify-on-read
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-15
 depends_on:
 priority: 0
 components: pose-mcp
@@ -71,7 +71,7 @@ Preserve declared legacy answers and SSH verification after key rotation, as req
 - [x] Exercise persisted-proof failure through CLI JSON and MCP transport.
 - [x] Run domain/surface regression pairs and targeted race detection.
 - [x] Generate current global native validation, seal review, and obtain different-actor judgment.
-- [ ] Apply native closeout only after review verification and acceptance.
+- [x] Apply native closeout only after review verification and acceptance.
 
 ## 5. Decisions
 
@@ -106,11 +106,15 @@ remain historical evidence.
 
 The complete Go suite passed on implementation commit 30c2776a5de2f2e9b8d923974c08938242a66be8 in [CI run 38331161368](https://github.com/oseiaspereira88/pose/actions/runs/38331161368). Executed mapping: R1/R5 use TestActionReadRefusesProoflessVerifiedAndDegradesConsumers; R2 uses TestActionReadReverifiesSSHBindingsAndMetadata and TestActionReadReverifiesIssuerBindings; R3 uses TestActionReadKeepsHistoricalExpiryAndSecondPrecision and TestActionClaimRefusesFutureOrReversedExpiryAtWrite; R4 uses TestActionReadDerivesProofAndPreservesDeclaredAndRotatedSSH. The same test job passed the installer, migration, quickstart, install/upgrade, launch-demo, delivery-image and action-runtime checks.
 
+Historical implementation environment (2026-10-13; preserved, superseded by the current qualification above):
+
 Local gofmt, lint-spec, artifact-check --strict and check --strict passed; the latter retained 30 existing warnings. These structural checks used the published 7.4.1 binary. The available Go archive is truncated: compile -V segfaults, so no local Go test success or race-detector execution is claimed. The module validate attempt is retained as FAILURE (Go unavailable in PATH; 128 required checks failed). Functional evidence comes from the CI Go suite. Remaining governance and security jobs must finish before review readiness.
 
 ## 7. Final Report
 
 ### Delivered scope
+
+Native closeout accepted on 2026-10-15 after explicit maintainer acceptance: `act-3ee9344e0652cc60` answered/satisfied, revision 2 (declared). Admission used bundle `rvb-cfe993ee0dbf209f`, attestation `rva-370e6fda5e127a19`, strict 132/132 on published subject `9d89a2a0`, and approved native verify/review-check. `close --resume` performed the lifecycle transition; admission closeout-check reports terminal=true with no blockers. Current post-publication review and closeout snapshots are in `.pose/results/b01-action-*`. This closes this spec only; B01 remains partial.
 
 Implementation and regression tests delivered in #157. Current qualification after
 the merge of B04/#178 adds CLI JSON/text/list and MCP request/list/presentation

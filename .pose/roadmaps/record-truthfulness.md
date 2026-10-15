@@ -139,7 +139,9 @@ Revisão independente de #179: os oito julgamentos de action-answer foram
 avaliados por `agent:independent-codex-pr179` (separação declarada, sem adoção
 humana). Consultar o relatório e os resultados nativos `b01-action-*` para
 attestation/verify. O maintainer aceitou explicitamente as conclusões em 2026-10-15; a ação
-`act-3ee9344e0652cc60` está answered/satisfied (revision 2, declared). O closeout
-segue o plano nativo com nova evidência após o aceite; seu estado definitivo
-está em `b01-action-closeout-check.json`. B01 continua parcial/delivery_complete
+`act-3ee9344e0652cc60` está answered/satisfied (revision 2, declared). A spec
+`pose-action-answers-reverify-on-read` foi encerrada nativamente em 2026-10-15,
+com verify/review-check aprovados e admission closeout-check terminal=true/sem
+blockers. Os IDs e o resultado pós-publicação estão em
+`b01-action-review-verification.json` e `b01-action-closeout-check.json`. B01 continua parcial/delivery_complete
 false e B02 aguardando a qualificação e o closeout da spec irmã.

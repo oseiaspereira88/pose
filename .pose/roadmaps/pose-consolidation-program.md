@@ -414,7 +414,8 @@ Revisão de #179: o parecer independente de action-answer foi concluído por
 `agent:independent-codex-pr179`, com separação declarada e sem confirmação
 humana. O relatório e os resultados nativos `b01-action-*` vinculam a attestation
 ao sujeito revalidado. O maintainer aceitou explicitamente em 2026-10-15 e a ação
-`act-3ee9344e0652cc60` está answered/satisfied (revision 2, declared). A retomada
-renova a evidência antes da transição; o estado definitivo de closeout está
-em `b01-action-closeout-check.json`. B01 continua parcial/delivery_complete false;
+`act-3ee9344e0652cc60` está answered/satisfied (revision 2, declared). A spec `pose-action-answers-reverify-on-read` foi encerrada nativamente em
+2026-10-15 após verify/review-check aprovados; o admission closeout-check
+confirma terminal=true e nenhum blocker. O resultado pós-publicação e seus
+IDs estão em `b01-action-closeout-check.json` e `b01-action-review-verification.json`. B01 continua parcial/delivery_complete false;
 disclosure e B02 não são iniciados por esta revisão. B04 permanece encerrado.
