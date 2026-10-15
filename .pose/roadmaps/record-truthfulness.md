@@ -145,3 +145,15 @@ com verify/review-check aprovados e admission closeout-check terminal=true/sem
 blockers. Os IDs e o resultado pós-publicação estão em
 `b01-action-review-verification.json` e `b01-action-closeout-check.json`. B01 continua parcial/delivery_complete
 false e B02 aguardando a qualificação e o closeout da spec irmã.
+
+
+## Qualificação restante de B01 — disclosure, 2026-10-15
+
+A main `1f324461` contém #179 (action-answer done) e #181 (verificação
+pós-publicação e diagnóstico Security). B04 permanece encerrado. O próximo
+recorte é somente `pose-review-disclosure-requires-proof`, preservando start e
+R1–R4/D1. O [relatório](../reports/2026-10-15-pose-b01-disclosure-qualification.md)
+registra os testes e o resultado dos gates; B01 continua parcial enquanto a spec
+não atingir closeout nativo. B02 é a próxima unidade da cadeia preferencial após
+esse resultado e seu merge; B05/B06 e outras raízes continuam independentes.
+Não iniciar nova spec, alterar policy ou inferir entrega dos lotes documentais.

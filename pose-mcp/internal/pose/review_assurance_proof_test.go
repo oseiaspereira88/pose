@@ -175,7 +175,7 @@ func TestReviewConsumersAgreeOnTamperedProof(t *testing.T) {
 	}
 }
 
-func TestReviewInvalidProofCannotVerifyHumanConfirmation(t *testing.T) {
+func TestReviewAssuranceInvalidProofCannotVerifyHumanConfirmation(t *testing.T) {
 	f := verifiedAuthorityFixture(t, "different-actor")
 	trustHumanAuthority(t, f)
 	completed, canonical, err := f.store.SignableReviewAttestation(confirmationDraft(f, "human:maintainer", "human"), f.now)

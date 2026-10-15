@@ -47,9 +47,27 @@ Preserve declared legacy records, existing current issuer pins/grants and review
 - modified: pose-mcp/internal/pose/review_bundle.go
 - created: pose-mcp/internal/pose/review_assurance_proof_test.go
 
+- created: pose-mcp/internal/cli/review_assurance_proof_cli_test.go
+- created: .pose/reports/2026-10-15-pose-b01-disclosure-qualification.md
+- modified: .pose/results/pose-implementation-plan.json
+- modified: .pose/roadmaps/pose-consolidation-program.md
+- modified: .pose/roadmaps/record-truthfulness.md
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/integrations.md
+- modified: .pose/assessments/technical-debt.md
+
 ### Delivery targets
 
 - capability:review-assurance-proof-verification module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/review_bundle.go
+
+## 4. Tasks
+
+- [x] Reconcile merged B04, action-answer #179 and publication complement #181; preserve the original start and R1–R4/D1 baseline.
+- [x] Exercise signed positive, damaged/missing proof and valid identity with invalid criteria through CLI JSON/text and MCP.
+- [ ] Run current native strict validation and targeted race checks.
+- [ ] Obtain the required different-actor review and verify the sealed subject.
+- [ ] Apply native closeout and confirm published evidence before releasing B02.
 
 ## 5. Decisions
 
@@ -66,11 +84,22 @@ Test damaged signatures, unsigned content tampering, missing proof, revoked pins
 
 ### Requirement trace
 
-Regression mapping: R1 uses TestReviewAssuranceRejectsInvalidCryptographicProof; R2 adds TestReviewAssuranceBindsTheSuppliedBundle; R3 uses TestReviewAssuranceKeepsIdentitySeparateFromApproval; R4 uses TestReviewConsumersAgreeOnTamperedProof and TestReviewInvalidProofCannotVerifyHumanConfirmation. Execution evidence and exact tested commits are recorded in [PR #158](https://github.com/oseiaspereira88/pose/pull/158). Keep the spec in-progress until independent review and closeout.
+Current qualification (2026-10-15), following B04 and #179/#181:
+
+- R1 [satisfied] test:TestReviewAssuranceRejectsInvalidCryptographicProof and test:TestReviewAssuranceProofCLIAndMCPConsumers
+- R2 [satisfied] test:TestReviewAssuranceBindsTheSuppliedBundle and test:TestABMReviewAuthority
+- R3 [satisfied] test:TestReviewAssuranceKeepsIdentitySeparateFromApproval, test:TestReviewAssuranceProofCLIAndMCPConsumers and test:TestReviewSurfacesDiscloseDeclaredAssuranceOfAHumanLabel
+- R4 [satisfied] test:TestReviewConsumersAgreeOnTamperedProof, test:TestReviewAssuranceInvalidProofCannotVerifyHumanConfirmation and test:TestReviewAssuranceProofCLIAndMCPConsumers
+
+Domain and CLI/MCP qualification passed. Full validation, race, review and closeout are recorded as they run in [the qualification report](../reports/2026-10-15-pose-b01-disclosure-qualification.md). B01 remains partial until native terminal closeout. The renamed human-confirmation test now matches the existing ReviewAssurance integration selector; no matrix check is weakened.
+
+Historical implementation evidence (2026-10-13, preserved):
+
+Regression mapping: R1 uses TestReviewAssuranceRejectsInvalidCryptographicProof; R2 adds TestReviewAssuranceBindsTheSuppliedBundle; R3 uses TestReviewAssuranceKeepsIdentitySeparateFromApproval; R4 uses TestReviewConsumersAgreeOnTamperedProof and TestReviewAssuranceInvalidProofCannotVerifyHumanConfirmation. Execution evidence and exact tested commits are recorded in [PR #158](https://github.com/oseiaspereira88/pose/pull/158). Keep the spec in-progress until independent review and closeout.
 
 ### Known gaps
 
-Local gofmt, lint-spec and artifact-check --strict passed. The local Go toolchain is truncated; the native module-validation attempt ended FAILURE with 128 required checks failing because Go is absent from PATH. Retain its report and history, and use CI for functional evidence. Do not claim local Go or race-detector success. Local structural validation uses the published 7.4.1 binary; CI builds the implementation.
+Historical implementation environment (2026-10-13): local gofmt, lint-spec and artifact-check --strict passed. The local Go toolchain is truncated; the native module-validation attempt ended FAILURE with 128 required checks failing because Go is absent from PATH. Retain its report and history, and use CI for functional evidence. Do not claim local Go or race-detector success. Local structural validation uses the published 7.4.1 binary; CI builds the implementation.
 
 ## 7. Final Report
 
@@ -84,4 +113,4 @@ Existing review claims still use current pins/grants and current expiry evaluati
 
 ### Follow-ups
 
-- [open] Deliver the B04 review-claim historical validity and reuse-source provenance contract in a separate scoped delta. (owner:@pose-maintainers crit:medium review:2026-11-13)
+- [done] B04 historical claim-time and reuse-source provenance were closed natively and published by #178. Current trust remains governed by live pins/grants; no historical authorization receipt is implied.
