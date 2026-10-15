@@ -378,7 +378,7 @@ ou registrar adiamento explícito. Não encerrar o programa só pela materializa
 ## Ativação e encerramento
 
 - A retomada explícita de 2026-10-14 autoriza implementação incremental, uma spec por PR e espera de merge.
-- B04 foi o lote inicial pela primeira camada/DAG; B01 é a qualificação atual após #178; consultar o [relatório](../reports/2026-10-14-pose-implementation-b04.md).
+- B04 foi o lote inicial pela primeira camada/DAG; B01 encerra as duas specs em #179/#182. B02 aguarda o merge de #182; consultar os relatórios de qualificação e resultados nativos abaixo.
 - #176 foi mergeado na main d55b8d41; B04 passou validação nativa strict 129/129 e global 132/132. O maintainer adotou as conclusões propostas e act-fa20ae0029b6ad14 está satisfeita, com identidade/separação declaradas. Consumir status nativo da spec e relatório B04 para o resultado do closeout. Atualização 2026-10-15: #178 publicou esse closeout; B01 está em qualificação no PR #179.
 - Separar implementação validada de review/closeout; não promover a entrega pelo merge dos lotes documentais.
 - Preservar specs done e os ADRs aceitos; abrir deltas prospectivos e continuar drafts adequados.
@@ -398,11 +398,11 @@ Registrar stop/go e rollback de adoção por instância. A revisão deve recusar
 encerramento enquanto etapas planejadas continuarem sem materialização/aceite:
 o check estrutural, sozinho, não valida essa completude futura.
 
-## Reconciliação de implementação — 2026-10-15
+## Histórico da reconciliação de #179 — 2026-10-15
 
 #178 mergeado na main a5016ce5 publica o closeout nativo de B04 e encerra a
 espera do complemento. B01 é o próximo lote pelo DAG, com código parcial
-mergeado em #157/#158. Este PR qualifica somente
+mergeado em #157/#158. O PR #179 qualificou somente
 `pose-action-answers-reverify-on-read`; preservar start/baseline e R1–R5/D1.
 Consultar o [relatório de qualificação](../reports/2026-10-15-pose-b01-action-qualification.md).
 A spec de disclosure permanece in-progress, para um PR próprio após este merge.
@@ -419,3 +419,23 @@ ao sujeito revalidado. O maintainer aceitou explicitamente em 2026-10-15 e a aç
 confirma terminal=true e nenhum blocker. O resultado pós-publicação e seus
 IDs estão em `b01-action-closeout-check.json` e `b01-action-review-verification.json`. B01 continua parcial/delivery_complete false;
 disclosure e B02 não são iniciados por esta revisão. B04 permanece encerrado.
+
+
+## Qualificação e closeout de B01 — PR #182, 2026-10-15
+
+A main `1f324461` contém #179 (action-answer done) e #181 (verificação
+pós-publicação e diagnóstico Security); B04 permanece encerrado. O PR #182
+qualificou a spec irmã `pose-review-disclosure-requires-proof`, preservando
+start e R1–R4/D1: native strict global132/132 e componente129/129, regressões
+CLI/MCP e race, revisão independente e closeout nativo terminal=true/sem blockers.
+Consultar o [relatório](../reports/2026-10-15-pose-b01-disclosure-qualification.md),
+o [parecer](../reports/2026-10-15-pose-b01-disclosure-review.md) e os resultados
+nativos `b01-disclosure-*` para admissão e verificação publicada atual.
+
+Ambas as specs de B01 estão done e a matriz registra delivery_complete=true.
+Esse resultado dos membros não encerra o roadmap/programa inteiro nem substitui
+seus gates integrados. B02 (`pose-review-approval-domain-preflight`) é a próxima
+unidade da cadeia preferencial após o merge de #182; B03 também exige B01,
+enquanto B05/B06 e outras raízes continuam independentes. Nenhuma nova spec,
+policy, release ou B43 é iniciada neste PR; closeouts administrativos continuam
+separados de entrega funcional. CI e Security devem passar no head final.
