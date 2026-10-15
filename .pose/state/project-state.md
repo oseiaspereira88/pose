@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-15T13:54:46Z
-baseline_commit: 2aca0f4f57eace0ac8ece5395df6bd4ff0dfa77b
+generated_at: 2026-10-15T20:54:11Z
+baseline_commit: 7789e415981d89c61734489e256b9747eb683fe0
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -75,16 +75,16 @@ capacidade.
 - knowledge: total=7 ativo=7 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:3e1af502b959 -->
+<!-- state:derived hash:995ec82fb840 -->
 
 - último registro: task=validate-native outcome=fail (2026-10-13T04:23:26Z)
-- últimos 30 dias: total=100 outcome_ok=76 outcome_outro=24
-- reports revisados (.md): total=199
+- últimos 30 dias: total=99 outcome_ok=75 outcome_outro=24
+- reports revisados (.md): total=200
+  - report:2026-10-15-pr179-closeout-complement.md
   - report:2026-10-15-pose-b01-action-qualification.md
   - report:pose-abm-capability-adoption.md
   - report:pose-agency-readiness-pilot.md
   - report:pose-v6-2-0-autonomous-work.md
-  - report:pose-v7-legacy-cleanup-plan.md
 
 ## Arquitetura
 <!-- state:derived hash:751375eda7d7 status:active -->

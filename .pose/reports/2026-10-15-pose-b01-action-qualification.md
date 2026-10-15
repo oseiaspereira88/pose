@@ -1,5 +1,40 @@
 # B01 — qualificação de respostas persistidas
 
+<!-- pose:generated-publication-verification -->
+**Verificação pós-publicação — 2026-10-15 (gerada dos resultados nativos):**
+O lifecycle foi publicado em `781151f1edabfa913bca9516ae920f76cd76fb09` e
+integrado pelo maintainer no merge `2d016fe678c32f933f273a6aafc6046fc3ef1f9f`.
+Spec remota `done`, completed_at 2026-10-15; review verify `closed`,
+`fresh=true`, `approved=true`; review-check e closeout-check aprovados,
+terminal=true e blockers=[]. A revisão é a anterior, retida pelo motor para o
+escopo encerrado, com os deltas documentais pós-closeout explicitados; não foi
+reaplicada nem reatribuída à execução de continuidade.
+
+Artifact-check estrito confirma nove commits atribuídos, todos ancestrais do
+head publicado. Surface-check: target=1, results=132, findings=0. Lint e check
+estrito passaram, este com 30 warnings históricos. Os seis digests de runtime
+e testes permanecem iguais aos do bundle de admissão. A validação funcional
+132/132 em 9d89a2a0 foi preservada, sem execução duplicada. Roadmaps continuam
+não terminais; seus checks tolerantes são diagnósticos, não aceite dos programas.
+
+**Entrega final ainda bloqueada por Security:** CI no head do PR passou, mas
+Security falhou no job secrets. Gitleaks8.21.2 reproduziu um único falso positivo
+em 1935 commits: o identificador de idempotência do aceite, em
+`.pose/results/b01-action-acceptance.json`, linha106, foi classificado como
+`generic-api-key`. O valor é um identificador de deduplicação, não credencial;
+o journal autoritativo permanece intacto. A simulação com apenas o fingerprint
+exato ignorado passou fora do repositório e não foi adotada. Não houve alteração
+de policy/allowlist, reescrita do histórico ou declaração de aprovação de Security.
+
+Fonte mecânica: `b01-action-post-publication.json`; diagnóstico e proposta não
+aplicada: `b01-action-post-publication-security.json`; achado redigido:
+`b01-action-post-publication-secrets-findings.json`. Os snapshots finais e índices
+foram gerados nesta continuidade e publicados na mesma branch após o merge;
+esses resultados complementares não integram o commit de merge já realizado.
+B01 continua delivery_complete=false; B04 terminal; B02 aguarda a spec irmã.
+<!-- /pose:generated-publication-verification -->
+
+
 **Atualização de closeout — 2026-10-15:** spec encerrada pelo fluxo nativo (`done`, `completed_at: 2026-10-15`), após aceite explícito do maintainer. A ação está answered/satisfied, revision 2, com assurance declared. Admissão: bundle `rvb-cfe993ee0dbf209f`, attestation `rva-370e6fda5e127a19`; validation estrita 132/132 no sujeito publicado `9d89a2a0`, verify/review-check aprovados, closeout-check de admissão terminal=true e sem blockers. Os registros anteriores abaixo são históricos. O pacote será reindexado e reverificado após a publicação do lifecycle; os IDs correntes são os de `.pose/results/b01-action-review-verification.json`. B01 continua parcial/delivery_complete false, B04 terminal e B02 aguardando a spec irmã.
 
 

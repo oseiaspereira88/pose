@@ -1,9 +1,10 @@
 {
   "slug": "pose-action-answers-reverify-on-read",
-  "status": "in-progress",
-  "ready": true,
+  "status": "done",
+  "ready": false,
   "waiting_on": [],
-  "terminal": false,
+  "reason": "spec is in terminal status \"done\"",
+  "terminal": true,
   "phases": [
     {
       "phase": "start",
@@ -22,14 +23,8 @@
     },
     {
       "phase": "closeout",
-      "state": "restricted",
-      "restricting": [
-        {
-          "obligation": "obl-6711f154c15409c0",
-          "category": "actor-action",
-          "reason_code": "action-open"
-        }
-      ]
+      "state": "clear",
+      "note": "no restriction found and every producer relevant to this phase was read"
     },
     {
       "phase": "release",

@@ -1,0 +1,84 @@
+{
+  "scope": "spec:pose-action-answers-reverify-on-read",
+  "operation": "PR179 generated-publication complement and exact scanner exception",
+  "base_main": "2d016fe678c32f933f273a6aafc6046fc3ef1f9f",
+  "integrated_generated_commit": "f6cbbc0a87db1b8c82ce7ab4d9c476e831a78dce",
+  "executed_by": "agent:codex-pr179-complement",
+  "exception": {
+    "path": ".gitleaksignore",
+    "fingerprint": "781151f1edabfa913bca9516ae920f76cd76fb09:.pose/results/b01-action-acceptance.json:generic-api-key:106",
+    "authorization": "Maintainer explicitly said Prossiga after the proposed complement and exact exception scope.",
+    "rule_configuration_changed": false,
+    "workflow_changed": false,
+    "history_rewritten": false
+  },
+  "scanner": {
+    "version": "8.21.2",
+    "root_full_history": {
+      "exit_code": 0,
+      "commits_scanned": 1936,
+      "findings": 0
+    },
+    "ci_working_directory_full_history": {
+      "cwd": "pose-mcp",
+      "target": "..",
+      "config": "../.gitleaks.toml",
+      "exit_code": 0,
+      "commits_scanned": 1936,
+      "findings": 0
+    },
+    "negative_control": {
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "findings": 2,
+      "same_location_different_commit_detected": true,
+      "synthetic_credential_detected": true,
+      "fixture": "isolated scratch repository; redacted output; synthetic values only"
+    }
+  },
+  "preserved_review": {
+    "bundle": "rvb-cfe993ee0dbf209f",
+    "attestation": "rva-370e6fda5e127a19",
+    "reviewer": "agent:independent-codex-pr179",
+    "new_attestation_recorded": false
+  },
+  "program": {
+    "B01_delivery_complete": false,
+    "B04_delivery_complete": true,
+    "B02_delivery_complete": false,
+    "disclosure_status": "in-progress"
+  },
+  "native_verification": {
+    "review-verify": {
+      "state": "closed",
+      "fresh": true,
+      "approved": true
+    },
+    "review-check": {
+      "fresh": true,
+      "approved": true,
+      "blockers": []
+    },
+    "closeout-check": {
+      "terminal": true,
+      "lifecycle_done": true,
+      "blockers": []
+    },
+    "close-plan": {
+      "terminal": true
+    },
+    "lint": {
+      "exit_code": 0,
+      "tail": [
+        "Resultado: SUCESSO"
+      ]
+    },
+    "structural": {
+      "exit_code": 0,
+      "tail": [
+        "Result: SUCCESS — (strict mode) with 30 warning(s)."
+      ]
+    }
+  },
+  "ci_security": "Candidate PR runs will be linked and assessed in the PR description after publication."
+}
