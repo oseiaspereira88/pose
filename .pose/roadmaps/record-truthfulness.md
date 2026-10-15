@@ -123,11 +123,11 @@ Consultar o [lote 2](../reports/2026-10-13-pose-batch-2-authoring.md).
 - Sealed bundles keep their stamped contracts; no retroactive governance.
 - No auto-close from code existence; external operations are not performed by the program.
 
-## Reconciliação de implementação — 2026-10-15
+## Histórico da reconciliação de #179 — 2026-10-15
 
 #178 mergeado na main a5016ce5 publica o closeout nativo de B04 e encerra a
 espera do complemento. B01 é o próximo lote pelo DAG, com código parcial
-mergeado em #157/#158. Este PR qualifica somente
+mergeado em #157/#158. O PR #179 qualificou somente
 `pose-action-answers-reverify-on-read`; preservar start/baseline e R1–R5/D1.
 Consultar o [relatório de qualificação](../reports/2026-10-15-pose-b01-action-qualification.md).
 A spec de disclosure permanece in-progress, para um PR próprio após este merge.
@@ -147,13 +147,21 @@ blockers. Os IDs e o resultado pós-publicação estão em
 false e B02 aguardando a qualificação e o closeout da spec irmã.
 
 
-## Qualificação restante de B01 — disclosure, 2026-10-15
+## Qualificação e closeout de B01 — PR #182, 2026-10-15
 
 A main `1f324461` contém #179 (action-answer done) e #181 (verificação
-pós-publicação e diagnóstico Security). B04 permanece encerrado. O próximo
-recorte é somente `pose-review-disclosure-requires-proof`, preservando start e
-R1–R4/D1. O [relatório](../reports/2026-10-15-pose-b01-disclosure-qualification.md)
-registra os testes e o resultado dos gates; B01 continua parcial enquanto a spec
-não atingir closeout nativo. B02 é a próxima unidade da cadeia preferencial após
-esse resultado e seu merge; B05/B06 e outras raízes continuam independentes.
-Não iniciar nova spec, alterar policy ou inferir entrega dos lotes documentais.
+pós-publicação e diagnóstico Security); B04 permanece encerrado. O PR #182
+qualificou a spec irmã `pose-review-disclosure-requires-proof`, preservando
+start e R1–R4/D1: native strict global132/132 e componente129/129, regressões
+CLI/MCP e race, revisão independente e closeout nativo terminal=true/sem blockers.
+Consultar o [relatório](../reports/2026-10-15-pose-b01-disclosure-qualification.md),
+o [parecer](../reports/2026-10-15-pose-b01-disclosure-review.md) e os resultados
+nativos `b01-disclosure-*` para admissão e verificação publicada atual.
+
+Ambas as specs de B01 estão done e a matriz registra delivery_complete=true.
+Esse resultado dos membros não encerra o roadmap/programa inteiro nem substitui
+seus gates integrados. B02 (`pose-review-approval-domain-preflight`) é a próxima
+unidade da cadeia preferencial após o merge de #182; B03 também exige B01,
+enquanto B05/B06 e outras raízes continuam independentes. Nenhuma nova spec,
+policy, release ou B43 é iniciada neste PR; closeouts administrativos continuam
+separados de entrega funcional. CI e Security devem passar no head final.

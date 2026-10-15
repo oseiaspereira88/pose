@@ -179,8 +179,8 @@
         {
           "slug": "pose-review-disclosure-requires-proof",
           "path": ".pose/specs/2026-10-13-pose-review-disclosure-requires-proof.md",
-          "status": "in-progress",
-          "sha256": "cb9d26a8082ae52db503e925e00e806877025b00e95c905b8a34d5ea13fe03ee"
+          "status": "done",
+          "sha256": "c2f71095bfffca5cee64d28f105700963a4fcb1f43cbc9df67b37c403b783cf6"
         }
       ],
       "proposed_specs": [],
@@ -226,9 +226,30 @@
           ],
           "scope": "Action-answer is natively done and publication complement #181 merged. Resume only the existing disclosure spec after B04; preserve R1–R4/D1 and original start. Add CLI/MCP proof/semantic parity qualification and include human-confirmation test in the existing ReviewAssurance selector. Native full validation, different-actor review and disclosure closeout remain pending; B01 partial and B02 waiting.",
           "unit_complete": false
+        },
+        {
+          "at": "2026-10-15",
+          "pull_requests": [
+            182
+          ],
+          "scope": "Remaining disclosure spec qualified after B04 and #179/#181: R1–R4/D1 and original start preserved; actual CLI JSON/text and MCP positive/negative parity plus targeted race pass. Current global native strict132/132 on published ea53653b, component129/129. Independent different-actor judgments recorded and native close applied terminal transition; admission terminal=true/lifecycle_done=true/no blockers. Final published verification IDs are in b01-disclosure-* snapshots; identity/separation remain declared with no human confirmation. Both B01 reused specs are done; B02 waits for PR182 merge.",
+          "unit_complete": true,
+          "native_closeout_pending": false,
+          "report_path": ".pose/reports/2026-10-15-pose-b01-disclosure-qualification.md",
+          "review_report_path": ".pose/reports/2026-10-15-pose-b01-disclosure-review.md",
+          "admission_review_bundle": "rvb-3bdcc9c37e034dc4",
+          "admission_attestation": "rva-3a33dadbf95db8b8",
+          "native_validation": {
+            "mode": "strict",
+            "head": "ea53653b7f0aeebb8a22d394b9be3ce39eb8578f",
+            "executed": 132,
+            "passed": 132,
+            "failed": 0,
+            "elapsed_seconds": 241.1
+          }
         }
       ],
-      "delivery_complete": false
+      "delivery_complete": true
     },
     {
       "id": "B02",
@@ -5081,12 +5102,14 @@
     "main_revision": "1f3244614d56f377d6d17b7e19ba5dd24e0285ac",
     "selected_unit": "B01",
     "selected_spec": "pose-review-disclosure-requires-proof",
-    "basis": "B04 and action-answer native closeouts are published in merged #178/#179; #181 merged publication verification and Security diagnosis. Qualify the remaining disclosure sibling before B02. Preserve baseline, policies and historical records.",
-    "unit_delivery_complete_count": 1,
+    "basis": "B04 and action-answer closeouts published in #178/#179/#181. PR182 qualifies remaining disclosure sibling, records independent judgments and applies native terminal closeout. B01 now has both specs done. Await PR182 merge before B02; no policy or historical baseline changed.",
+    "unit_delivery_complete_count": 2,
     "administrative_closeouts": "Authoring closeouts remain separate and pending; materialization is not functional delivery.",
     "previous_complementary_pull_request": 181,
     "previous_complementary_merged": true,
     "next_spec_after_merge": "pose-review-approval-domain-preflight",
-    "next_unit_after_b01_closeout": "B02"
+    "next_unit_after_b01_closeout": "B02",
+    "awaiting_merge_pull_request": 182,
+    "native_closeout_pending": false
   }
 }

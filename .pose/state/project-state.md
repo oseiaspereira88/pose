@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-15T21:00:19Z
-baseline_commit: f3fac613f4cc78d4aaef53a7520ffbd678d9cc13
+generated_at: 2026-10-15T22:28:11Z
+baseline_commit: ea53653b7f0aeebb8a22d394b9be3ce39eb8578f
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:1c73f0cc25ff -->
+<!-- state:derived hash:b8109ef566b1 -->
 
-- specs: total=438 draft=40 in-progress=19 blocked=0 done=378 superseded=0 abandoned=1
+- specs: total=438 draft=40 in-progress=18 blocked=0 done=379 superseded=0 abandoned=1
 - roadmaps: total=22 active=3 done=11
 - últimos closeouts:
   - spec:pose-action-answers-reverify-on-read (2026-10-15)
+  - spec:pose-review-disclosure-requires-proof (2026-10-15)
   - spec:pose-historical-trust-and-review-reuse (2026-10-14)
-  - spec:pose-v7-4-1-version-alignment (2026-10-10)
-  - spec:pose-update-seeds-an-answerable-maintainer (2026-10-10)
+  - spec:pose-adopt-request-keeps-the-reason (2026-10-10)
   - spec:pose-v7-4-0-version-alignment (2026-10-10)
-  - ... e mais 373 (ver `pose_list_specs status:done`)
+  - ... e mais 374 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:e214fb9e271f -->
+<!-- state:derived hash:32fc1cfcc743 -->
 
-- abertos: 109
-- por criticidade: high=4 medium=23 low=63 sem-classificação=19
+- abertos: 108
+- por criticidade: high=4 medium=22 low=63 sem-classificação=19
 - vencidos (review < hoje): 12
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
@@ -75,13 +75,13 @@ capacidade.
 - knowledge: total=11 ativo=11 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:995ec82fb840 -->
+<!-- state:derived hash:beae4ef7a1dd -->
 
 - último registro: task=validate-native outcome=fail (2026-10-13T04:23:26Z)
 - últimos 30 dias: total=99 outcome_ok=75 outcome_outro=24
-- reports revisados (.md): total=200
-  - report:2026-10-15-pr179-closeout-complement.md
-  - report:2026-10-15-pose-b01-action-qualification.md
+- reports revisados (.md): total=202
+  - report:2026-10-15-pose-b01-disclosure-qualification.md
+  - report:2026-10-15-pose-b01-disclosure-review.md
   - report:pose-abm-capability-adoption.md
   - report:pose-agency-readiness-pilot.md
   - report:pose-v6-2-0-autonomous-work.md

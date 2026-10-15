@@ -45,8 +45,8 @@ exercise the read path independently of approving-write admission (B02).
 The integration test passed with `go test ./internal/cli -run
 TestReviewAssuranceProofCLIAndMCPConsumers -count=1`.
 
-Targeted race and current global native strict validation results will be
-recorded below when complete. Historical failed validation from #158 remains
+Targeted race and current global native strict validation results are
+recorded below. Historical failed validation from #158 remains
 preserved and is not current evidence. CI and Security must finish on the final
 published head.
 
@@ -62,7 +62,8 @@ published head.
 
 ## Review and closeout
 
-Pending current validation and required different-actor judgments. No mechanical
+Initial qualification required current validation and different-actor judgments;
+the native admission section below records their completion. No mechanical
 preview constitutes approval. Identity/separation are declarations unless the
 native verifier proves otherwise. No maintainer conclusion is inferred from
 authorization to implement. B01 delivery_complete remains false until both
@@ -95,3 +96,53 @@ coverage is distinguished from focused regressions; no absent corpus case is
 claimed. The native plan and `state --attention` require fresh reviewer approval;
 no maintainer acceptance action is owed for this spec. The previous action-answer
 acceptance is neither reused nor fabricated.
+
+
+## Native admission and terminal closeout
+
+Current native global strict passed 132/132 in 241.1s on published
+`ea53653b7f0aeebb8a22d394b9be3ce39eb8578f` (zero failed, optional_failed,
+errored or skipped). Of these,129 checks cover pose-mcp and form the sealed
+component evidence; the other3 cover mcp-enforce. Native artifact-check strict
+had zero errors; surface-check strict had1 composed-capability target,
+132 validation results and zero findings. The versioned execution summary is
+`b01-disclosure-surface-check-summary.json`; authoritative input remains
+`delivery-validation.json`, with native compact delivery index and sealed
+bundle. The summary explicitly is not a substitute validation run. The full
+expanded surface JSON is an intermediate; its exact digest/size are recorded
+without adding a redundant21MB graph to the repository.
+
+Native index ran before seal. Current assess-design observed8/8 attributed files
+and zero material structural deltas. Independent admission sealed
+`rvb-3bdcc9c37e034dc4`, plan
+`sha256:10eb56a14b9c3261d4a89b17b8af4dd109069f9c9ec0ecad69c20e5428646cda`,
+and recorded `rva-3a33dadbf95db8b8`:7 mechanical criteria plus8 explicit causal
+judgments. Verify was fresh/approved/ready-to-close; review-check had no blockers.
+The reviewer prepared, concluded and applied that record; confirmation is none,
+identity/separation are declared and cognition is not observable. There was no
+new maintainer acceptance request, and #179's acceptance was not reused.
+
+`pose close spec:pose-review-disclosure-requires-proof --apply --reviewer
+agent:independent-codex-pr182` applied the guarded transition, including the
+native delivery gate. It emitted `closeout_plan.step.transition=done` and
+`closeout_plan.result=closed`. `b01-disclosure-closeout-admission.json` reports
+terminal=true, lifecycle_done=true, review approved and blockers=[]. Subsequent
+native review verification reported fresh=true, approved=true, state=closed.
+The lifecycle/date were written by the engine. Original start and R1–R4/D1
+remain unchanged; start-status retains all5 recorded-before-managed-execution
+nodes. The completed B04 follow-up is dispositioned done, with its historical
+trust boundary preserved. Native discovery/state was refreshed on closure;
+the existing scripts assessment is included without dropping that component.
+
+Candidate CI38815135675 and Security38815135587 both passed on ea53653b.
+Publishing lifecycle and current summaries adds metadata to the attributed
+subject; the independent reviewer rechecks/reaffirms the final published subject
+before readiness. Latest IDs/state are taken from
+`b01-disclosure-review-verification.json` and `b01-disclosure-closeout-check.json`,
+not inferred from the done flag or the closeout plan. The final PR head's CI and
+Security remain required; their immutable links are recorded in PR #182.
+
+B01 now has both reused specs closed natively and delivery_complete=true.
+B02 is the next preferred technical unit (`pose-review-approval-domain-preflight`)
+after this PR merges. B03 also depends on B01; other roots remain independent.
+No new unit, policy adoption, release or conditional B43 work is started here.
