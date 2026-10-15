@@ -69,8 +69,8 @@ strict 132/132. O maintainer adotou expressamente as conclusões em 2026-10-14 e
 action act-fa20ae0029b6ad14 está satisfeita. A atribuição é adoção humana de
 conclusões preparadas pelo agente, com identidade/separação declaradas. O status
 nativo da spec e seu relatório registram o resultado do closeout; consumir esse
-resultado, sem inferir entrega pelo merge ou pelo código. B01 aguarda merge do
-PR de fechamento de B04 antes de iniciar sua qualificação.
+resultado, sem inferir entrega pelo merge ou pelo código. Atualização 2026-10-15:
+#178 publicou esse closeout; B01 iniciou a qualificação no PR #179.
 
 ## Milestone: verified-proof
 - after: temporal-trust
@@ -85,7 +85,8 @@ Merge e assinatura não substituem qualificação ou julgamento semântico.
 Retomada em 2026-10-14: #176 mergeado (d55b8d41); B04 passou qualificação nativa
 strict 129/129 na main e 132/132 global. O aceite do maintainer foi registrado
 em act-fa20ae0029b6ad14. Consumir o status nativo de temporal-trust e o relatório
-B04; verified-proof continua sem start, aguardando merge do PR de fechamento.
+B04. Atualização 2026-10-15: a spec action-answer de verified-proof está em
+qualificação no PR #179; disclosure ainda aguarda seu próprio PR.
 
 ## Milestone: approval-preflight
 - after: verified-proof
@@ -121,3 +122,26 @@ Consultar o [lote 2](../reports/2026-10-13-pose-batch-2-authoring.md).
 - Correct the effective data; never disable a gate to make history pass.
 - Sealed bundles keep their stamped contracts; no retroactive governance.
 - No auto-close from code existence; external operations are not performed by the program.
+
+## Reconciliação de implementação — 2026-10-15
+
+#178 mergeado na main a5016ce5 publica o closeout nativo de B04 e encerra a
+espera do complemento. B01 é o próximo lote pelo DAG, com código parcial
+mergeado em #157/#158. Este PR qualifica somente
+`pose-action-answers-reverify-on-read`; preservar start/baseline e R1–R5/D1.
+Consultar o [relatório de qualificação](../reports/2026-10-15-pose-b01-action-qualification.md).
+A spec de disclosure permanece in-progress, para um PR próprio após este merge.
+B01 continua delivery_complete false até qualificação e fechamento das duas
+specs. B02 aguarda B01. Closeouts administrativos e B43 condicional continuam
+separados; nenhuma policy/release é adotada.
+
+Revisão independente de #179: os oito julgamentos de action-answer foram
+avaliados por `agent:independent-codex-pr179` (separação declarada, sem adoção
+humana). Consultar o relatório e os resultados nativos `b01-action-*` para
+attestation/verify. O maintainer aceitou explicitamente as conclusões em 2026-10-15; a ação
+`act-3ee9344e0652cc60` está answered/satisfied (revision 2, declared). A spec
+`pose-action-answers-reverify-on-read` foi encerrada nativamente em 2026-10-15,
+com verify/review-check aprovados e admission closeout-check terminal=true/sem
+blockers. Os IDs e o resultado pós-publicação estão em
+`b01-action-review-verification.json` e `b01-action-closeout-check.json`. B01 continua parcial/delivery_complete
+false e B02 aguardando a qualificação e o closeout da spec irmã.

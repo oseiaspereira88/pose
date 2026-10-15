@@ -11,7 +11,7 @@
   },
   "authorization": {
     "scope": "Retomada explícita de implementação em 2026-10-14; lotes pequenos, PR por spec, aguardar merge; sem adoção de policy, publicação ou migração implícita.",
-    "current_implementation_unit": "B04",
+    "current_implementation_unit": "B01",
     "future_batch_implementation_authorized": true,
     "next_batch_requires_previous_merge": true
   },
@@ -173,8 +173,8 @@
         {
           "slug": "pose-action-answers-reverify-on-read",
           "path": ".pose/specs/2026-10-13-pose-action-answers-reverify-on-read.md",
-          "status": "in-progress",
-          "sha256": "f95a90c88e575c6e52d201e356083f5759dc1fbde39b8bb5a6f2bfef62b0100e"
+          "status": "done",
+          "sha256": "0f30c9547594253cf4565a99b1d99f4a5e5cbefc1772c59292a61c2e280b0c3a"
         },
         {
           "slug": "pose-review-disclosure-requires-proof",
@@ -191,6 +191,30 @@
             158
           ],
           "scope": "Correções mergeadas de action-answer proof e review disclosure. Qualificar o aceite completo e os closeouts; manter as duas specs in-progress.",
+          "unit_complete": false
+        },
+        {
+          "at": "2026-10-15",
+          "base_revision": "a5016ce5eb0991db4e07ff096923a01b3a76741c",
+          "scope": "Action-answer qualification after B04: global native strict 132/132 on published 4fe2e2a6; domain, CLI/MCP and targeted race pass. Align new test names with existing ActionRead integration selection. Native review/acceptance/closeout remain pending; disclosure spec deferred to its own PR.",
+          "unit_complete": false
+        },
+        {
+          "at": "2026-10-15",
+          "pull_requests": [
+            179
+          ],
+          "scope": "Independent review by agent:independent-codex-pr179 evaluated all eight judgments against R1–R5, attributed code and domain/CLI/MCP evidence. Declared separation only; no human confirmation. Current native attestation/verify and closeout plan are published in b01-action-* results. Maintainer acceptance act-3ee9344e0652cc60 remains open; spec in-progress. Correct stale current roadmap summaries; preserve B04 terminal and B01 partial, disclosure deferred, B02 waiting.",
+          "unit_complete": false
+        },
+        {
+          "at": "2026-10-15",
+          "scope": "Maintainer explicitly accepted the independent action-answer review conclusions. Native acceptance act-3ee9344e0652cc60 is answered/satisfied, revision 2, declared; refresh evidence/review and consult b01-action-closeout-check.json for the resulting native terminal state. Disclosure sibling remains for a separate PR; B01 is partial and B02 remains waiting.",
+          "unit_complete": false
+        },
+        {
+          "at": "2026-10-15",
+          "scope": "Action-answer spec closed by native close --resume after explicit maintainer acceptance act-3ee9344e0652cc60 (answered/satisfied revision 2, declared). Admission bundle rvb-cfe993ee0dbf209f / attestation rva-370e6fda5e127a19; strict validation132/132 on published subject9d89a2a0, verify/review-check approved, native closeout admission terminal=true/no blockers. Final publication review is recorded in b01-action-review-verification.json and b01-action-closeout-check.json. Disclosure sibling remains in-progress for another PR; B01 partial and B02 waiting.",
           "unit_complete": false
         }
       ],
@@ -5043,13 +5067,16 @@
     }
   ],
   "implementation_reconciliation": {
-    "at": "2026-10-14",
-    "main_revision": "d55b8d41fd283ff1bba3e794fae1cd8c6e7707f7",
-    "selected_unit": "B04",
-    "basis": "B04 completed through native review, maintainer adoption, satisfied acceptance and terminal closeout. PR #177 merged before publication of the final package; publication was explicitly authorized and moved to the complementary closeout PR. B01 waits for merge of that complement. Other units and administrative closeouts are unchanged.",
+    "at": "2026-10-15",
+    "main_revision": "a5016ce5eb0991db4e07ff096923a01b3a76741c",
+    "selected_unit": "B01",
+    "selected_spec": "pose-action-answers-reverify-on-read",
+    "basis": "B04 native terminal closeout and maintainer adoption published in merged #178. B01 implementation from #157/#158 is partial until both reused specs are qualified and closed. Qualify the action-answer spec alone in this PR; preserve original start/baseline.",
     "unit_delivery_complete_count": 1,
-    "administrative_closeouts": "Remain pending, distinct from native functional dependencies; no status promoted from merge alone.",
-    "next_unit_after_merge": "B01",
-    "pending_complementary_pull_request": 178
+    "administrative_closeouts": "Authoring closeouts remain separate and pending; materialization is not functional delivery.",
+    "previous_complementary_pull_request": 178,
+    "previous_complementary_merged": true,
+    "next_spec_after_merge": "pose-review-disclosure-requires-proof",
+    "next_unit_after_b01_closeout": "B02"
   }
 }

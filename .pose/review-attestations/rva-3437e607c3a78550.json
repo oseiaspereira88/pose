@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-3437e607c3a78550",
+  "bundle_id": "rvb-aa88dec0a71ddbdc",
+  "bundle_digest": "sha256:aa88dec0a71ddbdcf97fcef24d8390744ab5bf2c8f6695d880026a9ce5030ca9",
+  "reviewer": "agent:independent-codex-pr179",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "R3/D1: verifyActionClaimWithin uses supplied write time and bounded recorded precision on read; live pins/grants and editable acceptance timestamps do not prove immutable historical authorization. Historical expiry/precision regression passes."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "R4: declared no-proof history remains declared; valid proof derives verified even after label downgrade; recorded SSH verifies after key rotation. CLI/MCP first exercise declared success before intentional proofless-verified refusal. No schema migration."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "R1/R5: LoadActionRequest verifies before deriveActionView and appendActionEvent checks prior history before idempotency. A renderer-only check leaves JSON/MCP/list/gates bypassable. D1 reuses explicit-time issuer verification for R3."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Spec, decision log and changelog preserve R1-R5/D1 and trust limits. Current roadmap statements were corrected after #178. This review distinguishes technical approval from maintainer acceptance; B01 stays partial and B02 waits. See independent review section of qualification report."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "R5 domain and real CLI/MCP transport tests assert action-claim-not-verified for show/list/presentation and incomplete unavailable Attention/obligations. Reader returns an error without rewriting evidence; no silent omission of corrupt actions."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Reviewed attributed bundle path segments, not the contaminated base..head range. Original #157 implements R1-R5 in three domain files; #179 adds two transport tests and qualification. No runtime or requirement/baseline/policy change by this review; B04 remains terminal."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "R2: SSH binds statement/key/namespace/fingerprint/presence flags; issuer verifies Ed25519, pins, audience/project, request, actor, answer/reason and times. Mixed proofs must both validate. Tamper subtests and CLI/MCP deny the cheap verified-label-only bypass. Synthetic credentials only."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Shared-reader verification is the smallest sufficient R1/R5 fix; renderer-only checking is insufficient. Reuse verifier/time parameter for R3 and preserve R4 legacy. No cache/daemon/new policy or migration. Historical authorization receipts or measured load needs would require a separate scoped decision."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed independently; native results published with review"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-61f99b95fceb5ad9",
+      "rationale": "Executed independently; native results published with review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed independently; native results published with review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Executed independently; native results published with review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed independently; native results published with review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "history-check",
+      "disposition": "passed",
+      "evidence": "check:history-check",
+      "rationale": "Executed independently; native results published with review"
+    },
+    {
+      "id": "knowledge-check",
+      "disposition": "passed",
+      "evidence": "check:knowledge-check",
+      "rationale": "Executed independently; native results published with review"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed independently; native results published with review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Executed independently; native results published with review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Executed independently; native results published with review"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Executed independently; native results published with review"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/historical-trust-reuse-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "roadmap-current-state",
+      "severity": "low",
+      "evidence": "commit:22a3c803f88a958f107a785d07f322149e6b5140",
+      "action": "Correct current B01 waiting-for-B04 statements; preserve dated history and B01 partial status",
+      "disposition": "resolved"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-codex-pr179",
+    "concluded_by": "agent:independent-codex-pr179",
+    "applied_by": "agent:independent-codex-pr179"
+  },
+  "attested_at": "2026-10-15T06:12:01Z",
+  "path": ".pose/review-attestations/rva-3437e607c3a78550.json"
+}
