@@ -67,3 +67,31 @@ preview constitutes approval. Identity/separation are declarations unless the
 native verifier proves otherwise. No maintainer conclusion is inferred from
 authorization to implement. B01 delivery_complete remains false until both
 specs are terminal; no next unit starts before this PR merges.
+
+
+## Initial native execution and independent findings
+
+Global `pose validate --strict --json-out .pose/results/delivery-validation.json`
+passed 132/132 in 298.6s, with no failures/errors/skips. This first run began on
+local precursor `e4cde934`; its tree is identical to published `fa47ecc8`, but its
+provenance is retained as that precursor and is not relabelled. After the
+review/documentation candidate is published, regenerate current native results
+before sealing. `go test ./...` passed in both Go modules; the matrix executed
+all declared integration/reachability checks, including the new CLI/MCP test and
+renamed human-confirmation regression through its existing selector.
+
+Targeted `go test -race ./internal/pose ./internal/cli ./internal/mcpserver -run
+'ReviewAssurance|ReviewConsumersAgree|ReviewTrustTime|ABMReviewAuthority|ReviewTrustReuse'
+-count=1` passed: domain 2.469s, CLI 2.751s; MCP package reported no matching tests.
+The actual MCP HTTP interactions run inside the CLI integration test under the
+race detector; no separate MCP-package race coverage is claimed.
+
+`agent:independent-codex-pr182` reviewed the original fix and current qualification
+in a separate agent execution and ran its own focused behavioral tests. The
+[review report](2026-10-15-pose-b01-disclosure-review.md) answers all eight judgments.
+No code/security blocker was found. Its current-section B04 wording finding was
+corrected; historical constraints and D1 remain unchanged. Registered corpus
+coverage is distinguished from focused regressions; no absent corpus case is
+claimed. The native plan and `state --attention` require fresh reviewer approval;
+no maintainer acceptance action is owed for this spec. The previous action-answer
+acceptance is neither reused nor fabricated.

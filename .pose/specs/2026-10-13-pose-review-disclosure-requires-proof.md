@@ -49,6 +49,8 @@ Preserve declared legacy records, existing current issuer pins/grants and review
 
 - created: pose-mcp/internal/cli/review_assurance_proof_cli_test.go
 - created: .pose/reports/2026-10-15-pose-b01-disclosure-qualification.md
+- created: .pose/reports/2026-10-15-pose-b01-disclosure-review.md
+- modified: .pose/assessments/pose-mcp.md
 - modified: .pose/results/pose-implementation-plan.json
 - modified: .pose/roadmaps/pose-consolidation-program.md
 - modified: .pose/roadmaps/record-truthfulness.md
@@ -65,7 +67,7 @@ Preserve declared legacy records, existing current issuer pins/grants and review
 
 - [x] Reconcile merged B04, action-answer #179 and publication complement #181; preserve the original start and R1–R4/D1 baseline.
 - [x] Exercise signed positive, damaged/missing proof and valid identity with invalid criteria through CLI JSON/text and MCP.
-- [ ] Run current native strict validation and targeted race checks.
+- [x] Run native strict validation (initial 132/132) and targeted race checks; regenerate current evidence before sealing.
 - [ ] Obtain the required different-actor review and verify the sealed subject.
 - [ ] Apply native closeout and confirm published evidence before releasing B02.
 
@@ -105,11 +107,11 @@ Historical implementation environment (2026-10-13): local gofmt, lint-spec and a
 
 ### Delivered scope
 
-Implementation and regression tests delivered. Consult the PR checks for current CI execution evidence. Independent review and spec closure remain pending.
+Implementation from #158 is qualified by domain and real CLI/MCP positive/negative regressions, including targeted race execution. Current validation, independent review and native closeout state are recorded in [the qualification report](../reports/2026-10-15-pose-b01-disclosure-qualification.md) and [independent review](../reports/2026-10-15-pose-b01-disclosure-review.md); no terminal delivery is inferred from code or a mechanical preview.
 
 ### Residual risks
 
-Existing review claims still use current pins/grants and current expiry evaluation. Historical trust and reuse-source verification remain in B04. These existing semantics are not broadened here.
+B04 now provides authenticated historical claim-time evaluation and bounded reuse-source verification. Current issuer pins/grants remain live; no observed historical authorization receipt or cognitive independence is established. Identity disclosure stays independent of semantic approval. This qualification changes no adoption policy or authority contract.
 
 ### Follow-ups
 

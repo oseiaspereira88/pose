@@ -87,9 +87,15 @@ capacidade.
   - report:pose-v6-2-0-autonomous-work.md
 
 ## Arquitetura
-<!-- state:derived hash:26bc9a5cafff status:unavailable -->
+<!-- state:derived hash:1a6ee06cee0b status:active -->
 
-GraphForge export local ainda não é publicado por nenhum produtor neste repositório; seção indisponível nesta versão (spec pose-project-state-artifact, Não-objetivos e Compatibilidade).
+- componentes: total=3 verificados=3 completude=100.0%
+- linhas_de_codigo: producao=70779 testes=56339 total=127118
+- linguagens: go
+- saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
+- integracoes: contratos=64 ativos=1 gaps=63
+- divida_tecnica: total=0 coberta=0 descoberta=0
+- ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
 
 ## Docs
 <!-- state:derived hash:d5892e1cac69 -->
