@@ -72,9 +72,11 @@ a fonte da qualificação atual; não substituir por evidência histórica de B0
 Readiness MCP nativa informou ready=true, waiting_on vazio; execution/review
 clear, closeout restricted por action-open/review-not-approved.
 
-O índice de entrega foi regenerado para verificação local. Seu snapshot global
-será publicado com o closeout; este PR mantém o recorte de qualificação e publica
-os resultados e o bundle nativos, sem promover as outras specs.
+O índice de entrega foi regenerado nativamente e seu snapshot é publicado
+com os resultados e o bundle: o leitor da revisão o utiliza para reconstruir
+o sujeito atribuído. A conferência após a primeira publicação detectou o
+índice anterior no checkout remoto; regenerar/publicar o índice e conferir
+novamente a frescura do bundle antes da revisão. Não promover outras specs.
 
 ## Rules applied during review
 
@@ -118,3 +120,22 @@ Manter spec in-progress e delivery_complete false até review verify e closeout.
 
 Próximo recorte após merge: qualificar pose-review-disclosure-requires-proof,
 também em B01. B02 só é elegível depois do fechamento das duas specs.
+
+## Conferência do pacote publicado
+
+O pacote inicial 822e663 omitiu o índice que reconstrói o sujeito da revisão.
+A regeneração posterior detectou também que a publicação mudou a proveniência
+atribuída pela matriz. O bundle rvb-45c65bb585cb4f18 conserva sua execução ce077834;
+a tentativa rvb-4a69fb210314a116 não possui as classes funcionais exigidas e não
+pode aprovar nem fechar a spec. Ambos são preservados como histórico.
+
+ScopedDeliveryProvenanceDigest vincula claims e changesets. O commit 822e663
+atribuía outputs derivados à spec e assim mudava o digest da própria coleta.
+Registrar esta correção documental com POSE-Spec, coletar no último sujeito
+atribuído e publicar somente outputs derivados em commit operacional sem esse
+trailer: eles não implementam/modificam artefatos declarados desta spec. Não
+transportar labels nem editar digests para fazer o gate passar. Gerar índice,
+bundle e preparação mecânica juntos e conferir o checkout publicado. Nenhum código, R/D, baseline, policy
+ou requisito foi alterado por essa correção de proveniência. O snapshot nativo
+final e seus blockers estão nos arquivos b01-action-*; julgamento e aceite
+continuam pendentes.
