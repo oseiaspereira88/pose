@@ -1,0 +1,35 @@
+{
+  "scanner": "gitleaks v8.21.2",
+  "command": "gitleaks git --no-banner --redact --config .gitleaks.toml --report-format json .",
+  "exit_code": 1,
+  "history_commits_scanned": 1935,
+  "findings": 1,
+  "fingerprints": [
+    "781151f1edabfa913bca9516ae920f76cd76fb09:.pose/results/b01-action-acceptance.json:generic-api-key:106"
+  ],
+  "classification": "false positive: the chosen action-answer idempotency identifier is not a credential; the same identifier remains in the authoritative journal.",
+  "policy_changed": false,
+  "history_rewritten": false,
+  "resolution": "Unresolved. The repository full-history scanner keeps finding the published projection. No allowlist or policy exception was added under the task restriction.",
+  "workflow": {
+    "head": "781151f1edabfa913bca9516ae920f76cd76fb09",
+    "ci": "https://github.com/oseiaspereira88/pose/actions/runs/38760071887",
+    "ci_conclusion": "success",
+    "security": "https://github.com/oseiaspereira88/pose/actions/runs/38760071815",
+    "security_conclusion": "failure",
+    "failed_job": "secrets"
+  },
+  "proposed_resolution": {
+    "file": ".gitleaksignore",
+    "entry": "781151f1edabfa913bca9516ae920f76cd76fb09:.pose/results/b01-action-acceptance.json:generic-api-key:106",
+    "scope": "exact published commit, path, rule and line; no general rule change",
+    "status": "not applied; policy-change restriction remains",
+    "simulation": {
+      "command": "gitleaks git --no-banner --redact --config .gitleaks.toml --gitleaks-ignore-path <scratch-only-exact-fingerprint> .",
+      "history_commits_scanned": 1935,
+      "exit_code": 0,
+      "findings": 0,
+      "official_security_gate_satisfied": false
+    }
+  }
+}
