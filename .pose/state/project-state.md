@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-15T20:54:11Z
-baseline_commit: 7789e415981d89c61734489e256b9747eb683fe0
+generated_at: 2026-10-15T21:00:19Z
+baseline_commit: f3fac613f4cc78d4aaef53a7520ffbd678d9cc13
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -58,21 +58,21 @@ capacidade.
   - ... e mais 2 vencidos (ver `pose followups --open`)
 
 ## Capabilities
-<!-- state:derived hash:7db5fb52757a -->
+<!-- state:derived hash:e20a9224b717 -->
 
-- assessment: presente, baseline_commit=commit:dbf5b77, assessed_at=2026-08-17 (0 dias atrás)
+- assessment: presente, baseline_commit=commit:dbf5b77, assessed_at=2026-08-17 (59 dias atrás)
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
-<!-- state:derived hash:f78c15dbd473 -->
+<!-- state:derived hash:6b7e7f699ecb -->
 
-- ADRs: total=63
-  - adr:2026-10-04-obligations-are-projected-action-requests-are-persisted.md
-  - adr:2026-10-04-mcp-governance-write-risk-class.md
-  - adr:2026-10-02-trusted-dependabot-runtime-repairs.md
-  - adr:2026-10-02-release-version-source-is-declared-by-the-project.md
-  - adr:2026-10-01-scoped-git-batch-reader-for-structural-assessment.md
-- knowledge: total=7 ativo=7 expirado=0
+- ADRs: total=69
+  - adr:2026-10-14-shared-domain-and-optional-worktree-runtime.md
+  - adr:2026-10-14-review-time-context-and-reuse-provenance.md
+  - adr:2026-10-14-release-temporal-evidence-and-attempt-lineage.md
+  - adr:2026-10-09-obligations-may-originate-on-the-project.md
+  - adr:2026-10-09-delegated-review-is-an-adapter.md
+- knowledge: total=11 ativo=11 expirado=0
 
 ## Validação & Evidência
 <!-- state:derived hash:995ec82fb840 -->
@@ -87,15 +87,9 @@ capacidade.
   - report:pose-v6-2-0-autonomous-work.md
 
 ## Arquitetura
-<!-- state:derived hash:751375eda7d7 status:active -->
+<!-- state:derived hash:26bc9a5cafff status:unavailable -->
 
-- componentes: total=3 verificados=3 completude=100.0%
-- linhas_de_codigo: producao=70779 testes=56168 total=126947
-- linguagens: go
-- saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
-- integracoes: contratos=64 ativos=1 gaps=63
-- divida_tecnica: total=0 coberta=0 descoberta=0
-- ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
+GraphForge export local ainda não é publicado por nenhum produtor neste repositório; seção indisponível nesta versão (spec pose-project-state-artifact, Não-objetivos e Compatibilidade).
 
 ## Docs
 <!-- state:derived hash:d5892e1cac69 -->
