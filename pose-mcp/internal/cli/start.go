@@ -393,7 +393,11 @@ func startStepsRun(prior, recovery string, reached []string) []posemodel.Operati
 func startLockNextAction(slug string, lock *posemodel.StartLockError) string {
 	switch lock.State {
 	case posemodel.LockOwnerActive:
-		return "another start is running; wait for it to finish, then repeat this command"
+		operation := "a lifecycle call"
+		if lock.Owner != nil && lock.Owner.Operation != "" {
+			operation = lock.Owner.Operation
+		}
+		return operation + " is running on this spec; wait for it to finish, then repeat this command"
 	case posemodel.LockOwnerDead:
 		return "the lock's owner is not running; `pose start spec:" + slug + " --recover-lock " + lock.OwnerDigest + "` removes this lock, then repeat this command"
 	default:

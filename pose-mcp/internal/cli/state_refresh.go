@@ -70,7 +70,8 @@ func recentlyProcessed(root, key string, window int) bool {
 		start = len(entries) - window
 	}
 	for _, e := range entries[start:] {
-		if e.DedupKey == key && e.Result != "failed" {
+		// A failed or partial refresh owes an effect: the same event runs again.
+		if e.DedupKey == key && e.Result != "failed" && e.Result != "partial" {
 			return true
 		}
 	}
@@ -252,7 +253,7 @@ func runRefresh(root string, opts refreshOptions, mustExist bool) (*refreshLogEn
 		}
 	}
 
-	if err := pose.PublishFile(store.StatePath(), []byte(out.String()), 0o644, pose.PublishDerived, pose.ExpectBytes(preimage, exists)); err != nil {
+	if err := pose.PublishFile(store.StatePath(), []byte(out.String()), 0o644, pose.PublishAuthoritative, pose.ExpectBytes(preimage, exists)); err != nil {
 		return failedRefresh(root, opts, key, started, err)
 	}
 	// The state is published; the audit entry is a second effect. Its

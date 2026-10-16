@@ -221,6 +221,12 @@ func (s Store) ungeneratedChanges() []string {
 			continue
 		}
 		path := strings.TrimSpace(line[3:])
+		// A staging file a crashed publication left is not a change of the
+		// repository (spec pose-writer-coordination-and-atomic-publication
+		// R1): it never holds published content.
+		if IsPublisherStaging(path) {
+			continue
+		}
 		generated := false
 		for _, prefix := range generatedCloseoutPaths {
 			generated = generated || strings.HasPrefix(path, prefix)

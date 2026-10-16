@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -61,6 +62,7 @@ func (e *StartLockError) Error() string { return "start: " + e.Code }
 // Start lock error codes.
 const (
 	startLockHeld     = "start-in-progress"
+	lifecycleLockHeld = "spec-lifecycle-in-progress"
 	startLockUnknown  = "start-lock-owner-unknown"
 	startLockOrphaned = "start-lock-orphaned"
 )
@@ -169,7 +171,12 @@ func inspectStartLock(root, slug string) *StartLockError {
 	e.State, e.Reason = state, reason
 	switch state {
 	case LockOwnerActive:
+		// A running start keeps its historical code; any other lifecycle
+		// writer (a close, a transfer) is named for what it is.
 		e.Code = startLockHeld
+		if !strings.HasPrefix(owner.Operation, "start.") {
+			e.Code = lifecycleLockHeld
+		}
 	case LockOwnerDead:
 		e.Code = startLockOrphaned
 	}

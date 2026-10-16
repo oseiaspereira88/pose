@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -128,6 +129,15 @@ func stateRefreshConsumer(root string, ev HookEvent) error {
 	if policy.StrictRefresh {
 		return fmt.Errorf("state-refresh (strict): %w", err)
 	}
+	// A refresh that published the state and failed only its history entry
+	// left a current state: marking it pending would claim a refresh that is
+	// not owed. The partial refresh is in the refresh log, `pose state
+	// validate` reports it, and the next refresh of this event appends the
+	// entry (spec pose-writer-coordination-and-atomic-publication R6/R7).
+	var partial *stateRefreshPartialError
+	if errors.As(err, &partial) {
+		return nil
+	}
 	if markErr := markRefreshPending(root, ev.Kind); markErr != nil {
 		return fmt.Errorf("state-refresh failed (%v) and could not mark refresh_pending (%v)", err, markErr)
 	}
@@ -166,13 +176,24 @@ func markRefreshPending(root, eventKind string) error {
 	} else {
 		content = strings.Replace(content, "---\n", "---\n"+line+"\n", 1)
 	}
-	// Deliberately os.WriteFile, not writeAtomic: this in-place edit only
-	// ever runs when a refresh has just failed, on a file that already
-	// exists — it must succeed independently of whether the containing
-	// directory can accept new entries (writeAtomic's temp+rename needs
-	// that; a same-inode truncate+write does not). The narrow blast radius
-	// (one frontmatter line) makes the small torn-write risk on process
-	// crash an acceptable trade for not compounding an existing failure.
+	// Published over the bytes read, so a curated edit made meanwhile is a
+	// conflict, never lost (spec pose-writer-coordination-and-atomic-publication
+	// R2/R7). This edit runs when a refresh has just failed, possibly because
+	// the directory cannot accept a staging file; then, and only after the
+	// file is checked to still hold the bytes read, it is written in place —
+	// one frontmatter line, whose torn-write risk on a crash is accepted
+	// rather than compounding the failure.
+	err = pose.PublishFile(store.StatePath(), []byte(content), 0o644, pose.PublishAuthoritative, pose.ExpectBytes(raw, true))
+	if err == nil || errors.Is(err, pose.ErrPublishConflict) || errors.Is(err, pose.ErrPublishUnsynced) {
+		return err
+	}
+	current, readErr := os.ReadFile(store.StatePath())
+	if readErr != nil {
+		return readErr
+	}
+	if pose.ExpectBytes(current, true).Digest != pose.ExpectBytes(raw, true).Digest {
+		return &pose.PublishConflictError{Path: store.StatePath(), Expected: pose.ExpectBytes(raw, true).Digest, Found: pose.ExpectBytes(current, true).Digest}
+	}
 	return os.WriteFile(store.StatePath(), []byte(content), 0o644)
 }
 

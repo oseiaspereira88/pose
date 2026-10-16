@@ -1757,6 +1757,9 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 		}
 		path = filepath.Join(root, ".pose", "roadmaps", scope.Slug+".md")
 	}
+	if closeGatesJudged != nil {
+		closeGatesJudged()
+	}
 	// Start, close and transfer of a spec share its lifecycle lock (R3).
 	if scope.Kind == "spec" {
 		unlock, err := posemodel.LockSpecLifecycle(root, scope.Slug, "close.transition")
@@ -1769,6 +1772,17 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 			return 1
 		}
 		defer unlock()
+	}
+	// The authorization is judged again inside the protected region: a
+	// review that stopped being approved, or an action request that now
+	// restricts closeout, while the gates ran does not govern this
+	// publication (spec pose-writer-coordination-and-atomic-publication R4).
+	if current, err := cliCloseoutState(root, ref); err != nil {
+		render(io.Discard, stderr).Failure("pose close: " + err.Error())
+		return 1
+	} else if !current.Review.Approved || hasActionRequestPending(current.Diagnostics) {
+		render(io.Discard, stderr).Failure("pose close: the closeout authorization changed while its gates ran; next action: " + current.NextAction)
+		return 1
 	}
 	if guard != nil {
 		if err := guard(); err != nil {
@@ -2017,3 +2031,19 @@ func replaceFrontmatterValue(content, key, value string) string {
 	}
 	return strings.Join(lines, "\n") + tail
 }
+
+// hasActionRequestPending reports a governed action request that restricts
+// the closeout.
+func hasActionRequestPending(diagnostics []posemodel.Diagnostic) bool {
+	for _, d := range diagnostics {
+		if d.Code == "action-request-pending" {
+			return true
+		}
+	}
+	return false
+}
+
+// closeGatesJudged, when set, runs after the close gates judged the scope and
+// before the protected region. Only tests set it, to change the repository
+// at that point.
+var closeGatesJudged func()

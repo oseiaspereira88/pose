@@ -26,4 +26,9 @@ transfer of a spec another lifecycle call holds is refused as
 A `pose state refresh` that published the state and could not append its
 history now says so (`state.published=`, refresh log `result: partial`)
 instead of reporting a plain failure, and a history entry is never glued to a
-torn last line.
+torn last line. A hook-triggered refresh in best-effort mode no longer marks
+`refresh_pending` when only its history failed; `pose state` reports it as
+`history-not-appended`. The other writers of the state, the artifact backfill
+and the adoption policies also publish only over what they read, and the
+close judges its authorization again inside the lock. A lock held by a close
+or a transfer is reported as `spec-lifecycle-in-progress` with its operation.

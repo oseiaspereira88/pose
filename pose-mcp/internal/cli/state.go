@@ -194,6 +194,9 @@ func cmdStateValidateWith(root string, flags outputFlags, stdout, stderr io.Writ
 	for _, issue := range brokenPointers {
 		gate.r.Finding(cliout.Finding{State: cliout.StateError, Code: "broken-pointer", Message: issue})
 	}
+	if last, ok := lastStateRefresh(root); ok && last.Result == "partial" {
+		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "history-not-appended", Message: "the last refresh published the state but not its history entry: " + last.Error, Remediation: "run `pose state refresh`"})
+	}
 	if state.RefreshPending != "" {
 		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "refresh-pending", Message: fmt.Sprintf("a %q-triggered refresh failed and has not been retried yet", state.RefreshPending), Remediation: "run `pose state refresh`"})
 	}
@@ -360,4 +363,19 @@ func valueOrDash(v string) string {
 		return "-"
 	}
 	return v
+}
+
+// lastStateRefresh is the last refresh-log entry of the state-refresh
+// consumer.
+func lastStateRefresh(root string) (refreshLogEntry, bool) {
+	entries, err := readRefreshLog(stateRefreshLogPath(root))
+	if err != nil {
+		return refreshLogEntry{}, false
+	}
+	for i := len(entries) - 1; i >= 0; i-- {
+		if entries[i].Consumer == "state-refresh" {
+			return entries[i], true
+		}
+	}
+	return refreshLogEntry{}, false
 }

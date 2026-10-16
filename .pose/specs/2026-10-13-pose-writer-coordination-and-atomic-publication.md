@@ -75,6 +75,11 @@ cobertos por B12/B13, por isso não há teste novo em `internal/mcpserver`.
 - modified: pose-mcp/internal/cli/state_refresh.go
 - modified: pose-mcp/internal/cli/state.go
 - modified: pose-mcp/internal/cli/start.go
+- modified: pose-mcp/internal/cli/state_hooks.go
+- modified: pose-mcp/internal/cli/assess.go
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/pose/closeout_plan.go
+- modified: .gitignore
 - modified: pose-mcp/internal/cli/operation_results_test.go
 - created: pose-mcp/internal/cli/writer_publication_test.go
 - modified: .pose/indexes/validation-matrix.json
@@ -85,6 +90,8 @@ cobertos por B12/B13, por isso não há teste novo em `internal/mcpserver`.
 - created: .pose/results/b14-front09-probes.py
 - created: .pose/results/b14-front09-probes.json
 - created: .pose/results/b14-implementation-validation.json
+- created: .pose/results/b14-mutations.py
+- created: .pose/results/b14-mutations.json
 - modified: .pose/results/pose-implementation-plan.json
 - modified: .pose/roadmaps/pose-consolidation-program.md
 - modified: .pose/roadmaps/pose-state-consistency-and-recovery.md
@@ -123,7 +130,8 @@ janela entre a verificação e o rename, limite declarado.
 - [x] Publisher comum com staging exclusivo, precondições e classes; writers migrados.
 - [x] Trava de ciclo de vida compartilhada por start, close e transfer; close vinculado ao digest julgado.
 - [x] State refresh com CAS, resultado parcial e histórico sem colagem em cauda torn.
-- [x] V1–V7 no domínio e na CLI com race detector; probes P01–P04 antes e depois (controle inalterado); 12 mutações reprovando; validação estrita do módulo.
+- [x] V1–V7 no domínio e na CLI com race detector; probes P01–P04 antes e depois (controle inalterado); mutações registradas em `.pose/results/b14-mutations.json`; validação estrita do módulo.
+- [x] Remediar a primeira revisão independente: hook de refresh parcial sem marcar pendente e reportado por `pose state` (F1); demais writers do state, backfill de specs e policies de adoção com CAS (F2, F4); autorização do close revalidada dentro da trava (F3); erro tipado de publicação sem durabilidade confirmada (F5); sync observado por teste (F6); state autoritativo (F7); imutável sem hard link (F8); código de trava fiel à operação (F9); staging órfão ignorado (F10); driver e resultado das mutações versionados, 25/25 (F11).
 - [ ] Revisão por ator diferente, closeout nativo e PR.
 
 ## 5. Decisions

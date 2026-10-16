@@ -30,15 +30,22 @@ type PolicyDocs struct {
 	Root string
 
 	reviewOriginal, dorOriginal []byte
+	// reviewRead and dorRead are the bytes each document was loaded from:
+	// Write publishes only over them (spec
+	// pose-writer-coordination-and-atomic-publication R2).
+	reviewRead, dorRead PublishExpectation
 }
 
 func LoadPolicyDocs(root string) (PolicyDocs, error) {
 	docs := PolicyDocs{Root: root}
+	reads := map[string]PublishExpectation{}
 	load := func(rel string) (map[string]any, []byte, error) {
 		raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", rel))
 		if errors.Is(err, os.ErrNotExist) {
+			reads[rel] = PublishExpectation{Mode: ExpectAbsent}
 			return map[string]any{}, nil, nil
 		}
+		reads[rel] = ExpectBytes(raw, true)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -56,6 +63,7 @@ func LoadPolicyDocs(root string) (PolicyDocs, error) {
 	if docs.DoR, docs.dorOriginal, err = load("dor.json"); err != nil {
 		return docs, err
 	}
+	docs.reviewRead, docs.dorRead = reads["review.json"], reads["dor.json"]
 	return docs, nil
 }
 
@@ -101,12 +109,12 @@ func (d PolicyDocs) Write(root string, store Store) error {
 		return err
 	}
 	if reviewChanged {
-		if err := writePolicyFile(filepath.Join(root, ".pose", "policy", "review.json"), review); err != nil {
+		if err := PublishFile(filepath.Join(root, ".pose", "policy", "review.json"), review, 0o644, PublishAuthoritative, d.reviewRead); err != nil {
 			return err
 		}
 	}
 	if dorChanged {
-		if err := writePolicyFile(filepath.Join(root, ".pose", "policy", "dor.json"), dor); err != nil {
+		if err := PublishFile(filepath.Join(root, ".pose", "policy", "dor.json"), dor, 0o644, PublishAuthoritative, d.dorRead); err != nil {
 			return err
 		}
 	}

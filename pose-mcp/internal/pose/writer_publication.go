@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 // Artifact classes of a publication (spec
@@ -26,7 +27,9 @@ const (
 // Preconditions of a publication.
 const (
 	// ExpectAny publishes whatever is there now: last writer wins. Only for
-	// derived artifacts whose writer recomputes them from their inputs.
+	// derived artifacts whose writer recomputes them from their inputs, or for
+	// a mutable record whose writer holds that record's lock while it reads,
+	// computes and publishes (the start record under the lifecycle lock).
 	ExpectAny = iota
 	// ExpectDigest publishes only if the file still holds the bytes with
 	// Digest (SHA-256, hex): the read-modify-write of a mutable artifact.
@@ -68,6 +71,30 @@ func (e *PublishConflictError) Error() string {
 
 func (e *PublishConflictError) Unwrap() error { return ErrPublishConflict }
 
+// ErrPublishUnsynced marks a publication that took effect but whose
+// durability could not be confirmed: the rename or link happened and the
+// directory sync failed. Errors that carry it are *PublishDurabilityError.
+var ErrPublishUnsynced = errors.New("publish-unsynced")
+
+// PublishDurabilityError is a file that is published — readers see the new
+// bytes — whose directory entry was not confirmed durable. It is never a
+// failure without effect (R6).
+type PublishDurabilityError struct {
+	Path string `json:"path"`
+	Err  error  `json:"-"`
+}
+
+func (e *PublishDurabilityError) Error() string {
+	return fmt.Sprintf("%s: %s is published but its durability is not confirmed: %v", ErrPublishUnsynced, e.Path, e.Err)
+}
+
+func (e *PublishDurabilityError) Unwrap() error { return ErrPublishUnsynced }
+
+// PublishSyncHook, when set, is called before each sync the publisher makes
+// ("file" for the staged file, "dir" for the directory) and its error is
+// used as that sync's error. Only tests set it, to observe and fail syncs.
+var PublishSyncHook func(kind, path string) error
+
 // PublishFault, when set, is called with each path about to be published,
 // after its bytes are staged; an error stops that publication there. Only
 // tests set it, to inject a failure at the publication point.
@@ -102,7 +129,12 @@ func PublishFile(path string, data []byte, perm os.FileMode, class string, expec
 		err = tmp.Chmod(perm)
 	}
 	if err == nil && class == PublishAuthoritative {
-		err = tmp.Sync()
+		if PublishSyncHook != nil {
+			err = PublishSyncHook("file", path)
+		}
+		if err == nil {
+			err = tmp.Sync()
+		}
 	}
 	if closeErr := tmp.Close(); err == nil {
 		err = closeErr
@@ -117,9 +149,12 @@ func PublishFile(path string, data []byte, perm os.FileMode, class string, expec
 	}
 	switch expect.Mode {
 	case ExpectAbsent:
-		if err := os.Link(name, path); err != nil {
+		if err := linkFile(name, path); err != nil {
 			if !errors.Is(err, os.ErrExist) {
-				return err
+				// A filesystem without hard links: create exclusively and
+				// write. A reader may then see a record whose write was cut
+				// short, which the readers of immutable records refuse.
+				return publishExclusive(path, data, perm, class)
 			}
 			current, readErr := os.ReadFile(path)
 			if readErr != nil {
@@ -152,9 +187,42 @@ func PublishFile(path string, data []byte, perm os.FileMode, class string, expec
 		published = true
 	}
 	if class == PublishAuthoritative {
-		return syncDir(dir)
+		err := error(nil)
+		if PublishSyncHook != nil {
+			err = PublishSyncHook("dir", path)
+		}
+		if err == nil {
+			err = syncDir(dir)
+		}
+		if err != nil {
+			return &PublishDurabilityError{Path: path, Err: err}
+		}
 	}
 	return nil
+}
+
+// publishExclusive creates path only if it does not exist and writes data in
+// place, for filesystems that cannot hard-link the staged file.
+func publishExclusive(path string, data []byte, perm os.FileMode, class string) error {
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, perm)
+	if err != nil {
+		if errors.Is(err, os.ErrExist) {
+			current, readErr := os.ReadFile(path)
+			if readErr == nil && digestHex(current) == digestHex(data) {
+				return nil
+			}
+			return &PublishConflictError{Path: path, Expected: "absent", Found: digestHex(current)}
+		}
+		return err
+	}
+	_, err = f.Write(data)
+	if err == nil && class == PublishAuthoritative {
+		err = f.Sync()
+	}
+	if closeErr := f.Close(); err == nil {
+		err = closeErr
+	}
+	return err
 }
 
 // syncDir makes a rename in dir durable where the platform supports syncing
@@ -171,3 +239,27 @@ func syncDir(dir string) error {
 	defer d.Close()
 	return d.Sync()
 }
+
+// IsPublisherStaging reports whether path names a staging file of
+// PublishFile (".<name>.<digits>.tmp"), which a crash can leave behind.
+func IsPublisherStaging(path string) bool {
+	base := filepath.Base(path)
+	if !strings.HasPrefix(base, ".") || !strings.HasSuffix(base, ".tmp") {
+		return false
+	}
+	middle := strings.TrimSuffix(base, ".tmp")
+	dot := strings.LastIndexByte(middle, '.')
+	if dot <= 0 || dot == len(middle)-1 {
+		return false
+	}
+	for _, r := range middle[dot+1:] {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// linkFile is os.Link; tests replace it to stand for a filesystem without
+// hard links.
+var linkFile = os.Link

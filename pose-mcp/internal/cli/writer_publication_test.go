@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -55,7 +56,7 @@ func TestACloseWaitsForNoOtherLifecycleWriter(t *testing.T) {
 	code, _ := runPoseJSON(t, root, &result, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer", "--json")
 	unlock()
 	raw, _ := os.ReadFile(filepath.Join(root, ".pose", "specs", "bundle", "spec.md"))
-	if code != 1 || result.Step != posemodel.CloseoutStepTransition || !strings.Contains(result.Error.Message, "start-in-progress") || !strings.Contains(string(raw), "status: in-progress") {
+	if code != 1 || result.Step != posemodel.CloseoutStepTransition || !strings.Contains(result.Error.Message, "spec-lifecycle-in-progress") || !strings.Contains(string(raw), "status: in-progress") {
 		t.Fatalf("a close interleaved with another lifecycle writer: %d %+v", code, result.OperationResult)
 	}
 	if code, _ := runPoseJSON(t, root, &result, "close", "spec:bundle", "--resume", "--reviewer", "agent:closeout-reviewer", "--json"); code != 0 || result.Outcome != posemodel.OutcomeCompleted {
@@ -206,5 +207,152 @@ func TestACloseIsBoundToTheBytesItsGatesJudged(t *testing.T) {
 	raw, _ := os.ReadFile(spec)
 	if code != 1 || !strings.Contains(errOut.String(), "publish-conflict") || !strings.Contains(string(raw), "status: in-progress") || !strings.Contains(string(raw), "Edited after the gates.") {
 		t.Fatalf("the transition was published over bytes the gates did not judge: %d %s\n%s", code, errOut.String(), raw)
+	}
+}
+
+// V4/R4 — the authorization is judged again inside the protected region: a
+// review that stopped being approved after the gates ran does not govern the
+// transition.
+func TestACloseRevalidatesItsAuthorizationInsideTheLock(t *testing.T) {
+	root := reviewBundleCLIFixture(t)
+	spec := filepath.Join(root, ".pose", "specs", "bundle", "spec.md")
+	posemodel.PublishFault = func(path string) error {
+		if path == spec {
+			return os.ErrPermission
+		}
+		return nil
+	}
+	t.Cleanup(func() { posemodel.PublishFault = nil })
+	if code, _ := runPose(t, root, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer"); code != 1 {
+		t.Fatal("the fixture did not stop at the transition")
+	}
+	posemodel.PublishFault = nil
+	// The delivered artifact changes after the gates judged it: the sealed
+	// bundle no longer represents the current semantic inputs.
+	closeGatesJudged = func() {
+		_ = os.WriteFile(filepath.Join(root, "pose-mcp", "main.go"), []byte("package main\n\nfunc changed() {}\n"), 0o644)
+	}
+	t.Cleanup(func() { closeGatesJudged = nil })
+	var out, errOut bytes.Buffer
+	code := 0
+	inDir(t, root, func() { code = cmdCloseLocal(root, "spec:bundle", nil, &out, &errOut) })
+	raw, _ := os.ReadFile(spec)
+	if code != 1 || !strings.Contains(errOut.String(), "authorization changed while its gates ran") || !strings.Contains(string(raw), "status: in-progress") {
+		t.Fatalf("a stale authorization governed the transition: %d %s\n%s", code, errOut.String(), raw)
+	}
+}
+
+// F1/R6/R7 — a hook-triggered refresh that published the state and failed
+// its history neither claims a pending refresh nor hides the partial
+// effect: `pose state` reports it, and the next run of the event
+// appends the entry.
+func TestAHookRefreshThatPublishedTheStateDoesNotClaimItIsPending(t *testing.T) {
+	root := stateFixture(t)
+	store := posemodel.Store{Root: root}
+	history := store.StateHistoryPath()
+	before, _ := os.ReadFile(history)
+	if err := os.Remove(history); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(history, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := stateRefreshConsumer(root, HookEvent{Kind: "lint_spec_strict", Target: "spec:work"}); err != nil {
+		t.Fatalf("a best-effort hook failed its caller: %v", err)
+	}
+	raw, _ := os.ReadFile(store.StatePath())
+	if strings.Contains(string(raw), "refresh_pending: lint") {
+		t.Fatalf("a current state claims a pending refresh:\n%s", raw)
+	}
+	if code, out := runPose(t, root, "state"); !strings.Contains(out, "history-not-appended") {
+		t.Fatalf("`pose state` hid the partial refresh: %d %s", code, out)
+	}
+	if err := os.Remove(history); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(history, before, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := stateRefreshConsumer(root, HookEvent{Kind: "lint_spec_strict", Target: "spec:work"}); err != nil {
+		t.Fatal(err)
+	}
+	if entries, _ := readStateHistory(history); len(entries) != strings.Count(string(before), "\n")+1 {
+		t.Fatalf("the retry of the event did not append its entry: %d", len(entries))
+	}
+}
+
+// F2/R2 — the other writers of the state publish over what they read.
+func TestEveryStateWriterKeepsACuratedEdit(t *testing.T) {
+	root := stateFixture(t)
+	store := posemodel.Store{Root: root}
+	edit := "Curated while a writer ran."
+	curate := func(path string) error {
+		if path != store.StatePath() {
+			return nil
+		}
+		raw, _ := os.ReadFile(path)
+		return os.WriteFile(path, []byte(strings.Replace(string(raw), "<!-- state:curated -->\n\n", "<!-- state:curated -->\n\n"+edit+"\n", 1)), 0o644)
+	}
+	posemodel.PublishFault = curate
+	t.Cleanup(func() { posemodel.PublishFault = nil })
+	if err := markRefreshPending(root, "lint_spec_strict"); !errors.Is(err, posemodel.ErrPublishConflict) {
+		t.Fatalf("markRefreshPending overwrote a curated edit: %v", err)
+	}
+	if raw, _ := os.ReadFile(store.StatePath()); !strings.Contains(string(raw), edit) {
+		t.Fatal("the curated edit was lost")
+	}
+	posemodel.PublishFault = nil
+	if code, _ := runPose(t, root, "state", "refresh"); code != 0 {
+		t.Fatal("refresh")
+	}
+	posemodel.PublishFault = func(path string) error {
+		if path != store.StatePath() {
+			return nil
+		}
+		raw, _ := os.ReadFile(path)
+		return os.WriteFile(path, append(raw, []byte("\n"+edit+" (again)\n")...), 0o644)
+	}
+	if err := updateProjectStateArchitecture(root, nil); !errors.Is(err, posemodel.ErrPublishConflict) {
+		t.Fatalf("the assess writer overwrote a concurrent edit: %v", err)
+	}
+	if raw, _ := os.ReadFile(store.StatePath()); !strings.Contains(string(raw), edit+" (again)") {
+		t.Fatal("the concurrent edit was lost")
+	}
+}
+
+// F4/R2/R3 — the artifact backfill rewrites specs under their lifecycle lock
+// and only over the bytes it read: it never reverts an edit or a
+// transition made meanwhile.
+func TestTheBackfillNeverOverwritesAConcurrentSpecEdit(t *testing.T) {
+	root, _, _ := artifactGitFixture(t)
+	path := filepath.Join(root, ".pose/specs/alpha/spec.md")
+	raw, _ := os.ReadFile(path)
+	stripped := strings.Replace(string(raw), "### Artifacts\n- modified: internal/core.go\n- created: internal/new.go\n\n", "", 1)
+	if err := os.WriteFile(path, []byte(stripped), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	posemodel.PublishFault = func(p string) error {
+		if p != path {
+			return nil
+		}
+		return os.WriteFile(p, []byte(strings.Replace(stripped, "status: in-progress", "status: done", 1)), 0o644)
+	}
+	t.Cleanup(func() { posemodel.PublishFault = nil })
+	var out, errOut bytes.Buffer
+	code := cmdArtifactBackfill(root, []string{"--from-git", "--apply", "--confirm-spec-edits"}, &out, &errOut)
+	posemodel.PublishFault = nil
+	after, _ := os.ReadFile(path)
+	if code != 1 || !strings.Contains(errOut.String(), "publish-conflict") || !strings.Contains(string(after), "status: done") {
+		t.Fatalf("the backfill reverted a concurrent transition: %d %s\n%s", code, errOut.String(), after)
+	}
+	unlock, err := posemodel.LockSpecLifecycle(root, "alpha", "close.transition")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer unlock()
+	out.Reset()
+	errOut.Reset()
+	if code := cmdArtifactBackfill(root, []string{"--from-git", "--apply", "--confirm-spec-edits"}, &out, &errOut); code != 1 || !strings.Contains(errOut.String(), "spec-lifecycle-in-progress") {
+		t.Fatalf("the backfill interleaved with a close: %d %s", code, errOut.String())
 	}
 }

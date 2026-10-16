@@ -603,17 +603,30 @@ func cmdArtifactBackfill(root string, args []string, stdout, stderr io.Writer) i
 		if len(lines) == 1 {
 			continue
 		}
+		// A spec is the lifecycle record: the backfill takes its lifecycle
+		// lock and publishes over the bytes it read, so it never reverts a
+		// transition or an edit made meanwhile (spec
+		// pose-writer-coordination-and-atomic-publication R2/R3).
+		unlock, err := posemodel.LockSpecLifecycle(root, slug, "artifact-backfill")
+		if err != nil {
+			render(io.Discard, stderr).Failure("pose artifact-backfill: " + err.Error())
+			return 1
+		}
 		raw, err := os.ReadFile(full.Path)
 		if err != nil {
+			unlock()
 			return 1
 		}
 		text := string(raw)
 		marker := "\n## 4. Tasks"
 		if !strings.Contains(text, marker) {
+			unlock()
 			continue
 		}
 		text = strings.Replace(text, marker, strings.Join(lines, "\n")+"\n"+marker, 1)
-		if err := writeAtomic(full.Path, []byte(text), 0o644); err != nil {
+		err = posemodel.PublishFile(full.Path, []byte(text), 0o644, posemodel.PublishAuthoritative, posemodel.ExpectBytes(raw, true))
+		unlock()
+		if err != nil {
 			fmt.Fprintln(stderr, err)
 			return 1
 		}

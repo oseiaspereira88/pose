@@ -61,10 +61,18 @@ call stages its bytes in a temporary file only it creates, next to the target
   conflict.
 
 Artifact classes set durability: `authoritative` (specs, start records,
-policies) syncs the staged file and then the directory (except on Windows,
-whose rename is journaled); `derived` (indexes, state, reports, manuals) is
+policies, the project state, whose curated sections the engine cannot
+recompute) syncs the staged file and then the directory (except on Windows,
+whose rename is journaled); `derived` (indexes, reports, manuals) is
 published whole but not synced, so a crash may lose the last publication and
-never presents a torn one. The precondition compares bytes, so it detects a
+never presents a torn one. A directory sync that fails after the rename is a
+`*PublishDurabilityError` (`ErrPublishUnsynced`): the file is published and
+its durability unconfirmed, never a failure without effect. Where hard links
+are unavailable, an immutable record is created exclusively and written in
+place instead (the readers of immutable records refuse a write cut short),
+so start keeps working on such filesystems. A staging file a crash leaves
+(`.<name>.<digits>.tmp`) is git-ignored in this repository and is not a
+change for the closeout context check. The precondition compares bytes, so it detects a
 writer that ignores POSE's locks, but between the check and the rename a
 non-cooperating writer can still win: writers that coordinate hold the
 resource's lock around read, compute and publish.
@@ -76,27 +84,43 @@ the lifecycle lock), the action policy (`authoritative`, `ExpectDigest` of the
 document it loaded), the adoption policy files (`authoritative`), the state
 (`derived`, `ExpectDigest` of the state it read, so a curated edit made while
 it renders is a conflict, never overwritten) and the close transition
-(`authoritative`, `ExpectDigest` of the bytes the gates judged).
+(`authoritative`, `ExpectDigest` of the bytes the gates judged). The other
+writers of the state — the pending-refresh marker and the architecture
+section `assess discover --update-state` writes — publish over the state they
+read too; the marker, which runs after a failed refresh, falls back to an
+in-place write only when the directory cannot take a staging file, after
+checking the file still holds the bytes read. The artifact backfill rewrites
+specs under their lifecycle lock and over the bytes it read. The start
+record update keeps `ExpectAny`, because it runs under the lifecycle lock
+that coordinates every writer of that record.
 
 **Coordination.** The per-spec start lock of B13 (`.pose/starts/.<slug>.lock`,
 owner recorded, never broken by age) is the spec's lifecycle lock, taken by
 `LockSpecLifecycle` for start, cancel, the close transition and a transfer —
 in the source and the destination project, after the root locks, in
-canonical order (root path, then slug). It never waits, so a held lock is a
-refusal with its owner's state (`start-in-progress`,
-`concurrent-lifecycle-writer` for a transfer), and lifecycle writers cannot
-deadlock. Roots and specs not involved are not locked.
+canonical order (root path, then slug) — and by the artifact backfill. It
+never waits, so a held lock is a refusal with its owner's state: a running
+start is `start-in-progress`, any other running writer
+`spec-lifecycle-in-progress` with its operation, and a transfer refused by
+either is `concurrent-lifecycle-writer`; lifecycle writers cannot deadlock.
+Roots and specs not involved are not locked.
 
 **Close.** `cmdCloseLocal` records the digest of the spec or roadmap its gates
-judge, takes the lifecycle lock for a spec, and publishes the transition only
-over those bytes: an edit made while the gates ran is a
+judge, takes the lifecycle lock for a spec, judges the authorization again
+inside the protected region — a review that stopped being approved, or an
+action request that now restricts closeout, refuses the transition — and
+publishes it only over those bytes: an edit made while the gates ran is a
 `publish-conflict`, the edit stays, and `pose close` again judges the current
 bytes.
 
 **State refresh.** A refresh that published the state and could not append
 its history returns a partial result (`state.published=`, an error naming
 both effects, refresh log `result: partial`) instead of a plain failure; the
-next refresh appends its own entry and none is made up for the failed one. An
+next refresh appends its own entry and none is made up for the failed one.
+A hook-triggered refresh in best-effort mode does the same without marking
+`refresh_pending` (the state is current); `pose state` reports the partial
+refresh as `history-not-appended`, and the event is not deduplicated, so its
+next run appends the entry. An
 append after a torn last line starts on a new line, so the torn bytes stay
 as they were — an unreadable line the reader skips — and the new entry reads.
 
@@ -110,10 +134,17 @@ as they were — an unreadable line the reader skips — and the new entry reads
   or transfer holds the spec. All are additions, classified minor.
 - Tests that injected a failure by planting a directory on a fixed temporary
   path use `PublishFault`, a hook only tests set, at the publication point.
+- Writers not moved, declared as limits: the validation matrix seed
+  (`stack_seed.go`, `wizard.go`), the managed manual merge
+  (`managed_docs.go`), `project.json`, the capability assessment files and the
+  extension lock stage through `writeAtomic` (no shared temporary file) but
+  without a precondition: they run at install, update or assessment time, by
+  one operator, and their content is recomputed from inputs. Moving them to
+  preconditions is left to the read-view and runtime units (B34, B35).
 - Limits: no atomicity across files or roots (index generations are B15);
   non-cooperating writers can still race the check-then-rename window; power
-  loss is not qualified beyond `fsync` of file and directory; hard links are
-  required for immutable publication; MCP has no lifecycle writer route (start,
+  loss is not qualified beyond `fsync` of file and directory; without hard
+  links an immutable record is written in place and can be cut short; MCP has no lifecycle writer route (start,
   close, transfer and state refresh are CLI), so its parity is in the readers
   of these publications.
 

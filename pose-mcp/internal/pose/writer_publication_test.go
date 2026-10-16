@@ -215,3 +215,108 @@ func TestTheActionPolicyIsWrittenOnlyOverWhatWasRead(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// V6/R5 — authoritative publications sync the staged file and the directory;
+// derived ones sync neither.
+func TestAuthoritativePublicationsSyncFileAndDirectory(t *testing.T) {
+	dir := t.TempDir()
+	var calls []string
+	PublishSyncHook = func(kind, path string) error {
+		calls = append(calls, kind+":"+filepath.Base(path))
+		return nil
+	}
+	t.Cleanup(func() { PublishSyncHook = nil })
+	if err := PublishFile(filepath.Join(dir, "spec.md"), []byte("a"), 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAny}); err != nil {
+		t.Fatal(err)
+	}
+	if err := PublishFile(filepath.Join(dir, "index.json"), []byte("b"), 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny}); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Join(calls, ",") != "file:spec.md,dir:spec.md" {
+		t.Fatalf("syncs: %v", calls)
+	}
+}
+
+// R6 — a directory sync that fails after the rename is a publication whose
+// durability is unconfirmed, never a failure without effect.
+func TestAnUnsyncedPublicationSaysItTookEffect(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "spec.md")
+	PublishSyncHook = func(kind, _ string) error {
+		if kind == "dir" {
+			return errors.New("injected")
+		}
+		return nil
+	}
+	t.Cleanup(func() { PublishSyncHook = nil })
+	err := PublishFile(path, []byte("after\n"), 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAny})
+	var unsynced *PublishDurabilityError
+	if !errors.As(err, &unsynced) || !errors.Is(err, ErrPublishUnsynced) || errors.Is(err, ErrPublishConflict) {
+		t.Fatalf("an unsynced publication: %v", err)
+	}
+	if got, _ := os.ReadFile(path); string(got) != "after\n" {
+		t.Fatalf("the publication did not take effect: %q", got)
+	}
+}
+
+// R8 — where hard links are unavailable an immutable record is created
+// exclusively instead, and is still never overwritten.
+func TestAnImmutablePublicationWorksWithoutHardLinks(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "baseline.json")
+	linkFile = func(string, string) error {
+		return &os.LinkError{Op: "link", Err: errors.New("operation not supported")}
+	}
+	t.Cleanup(func() { linkFile = os.Link })
+	if err := PublishFile(path, []byte("sealed\n"), 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
+		t.Fatal(err)
+	}
+	if err := PublishFile(path, []byte("sealed\n"), 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
+		t.Fatalf("a retry of the same bytes: %v", err)
+	}
+	if err := PublishFile(path, []byte("other\n"), 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); !errors.Is(err, ErrPublishConflict) {
+		t.Fatalf("an immutable record was overwritten: %v", err)
+	}
+	if tmp := leftovers(t, dir); len(tmp) != 0 {
+		t.Fatalf("staging files were left: %v", tmp)
+	}
+}
+
+// R1 — a staging file a crash left is recognized as such, and only such.
+func TestStagingFilesAreRecognized(t *testing.T) {
+	for path, want := range map[string]bool{
+		".pose/specs/.2026-10-13-x.md.3612244.tmp": true, ".state.md.1.tmp": true,
+		".pose/specs/x.md": false, ".pose/specs/.x.md.tmp": false, ".pose/specs/.x.md.abc.tmp": false, "x.12.tmp": false,
+	} {
+		if IsPublisherStaging(path) != want {
+			t.Errorf("%s: %v", path, !want)
+		}
+	}
+}
+
+// F4/R2 — the adoption policies are written only over what was read.
+func TestAdoptionPoliciesAreWrittenOnlyOverWhatWasRead(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, ".pose", "policy", "review.json")
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte(`{"schema_version":1,"enabled":false}`+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	docs, err := LoadPolicyDocs(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	docs.Review["atomic_start_version"] = 1
+	other := `{"schema_version":1,"enabled":false,"other":"edit"}` + "\n"
+	if err := os.WriteFile(path, []byte(other), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := docs.Write(root, Store{Root: root}); !errors.Is(err, ErrPublishConflict) {
+		t.Fatalf("an adoption overwrote a policy edit: %v", err)
+	}
+	if got, _ := os.ReadFile(path); string(got) != other {
+		t.Fatalf("the policy changed: %s", got)
+	}
+}
