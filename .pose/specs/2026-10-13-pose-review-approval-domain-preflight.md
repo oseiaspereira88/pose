@@ -144,8 +144,15 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Targeted domain/CLI/MCP regressions and the full module suite ran; formal strict
-module validation through `pose validate` is recorded separately before closeout.
+Targeted domain/CLI/MCP regressions and the full module suite ran. Native
+`pose validate --strict --module pose-mcp` passed 130/130 (318.7s) on ecd9dea2,
+recorded in `.pose/results/b02-implementation-validation.json`, run as a
+non-root user with `ssh-keygen` installed and the proxy CA bundle readable (the
+container's root user defeats the `chmod`-based state-hook checks, and the
+install journey downloads the published release). `pose artifact-check --spec
+pose-review-approval-domain-preflight --strict` passed with 22 claims and 22
+observed paths. No traversal, memoization or concurrency changed, so no race run
+was required.
 
 ### Requirement trace
 
@@ -159,11 +166,9 @@ module validation through `pose validate` is recorded separately before closeout
 
 Regressions passed (Go 1.26.0): `go test ./internal/pose ./internal/cli
 ./internal/mcpserver -run 'ReviewDomainPreflight|ABMReviewAuthority|ABMReviewSoundness|ABMGolden|ReviewAssurance|LegacyLedger|NativeAndExternal|NativeAuthority|SignedPreview|AnAgentConfirmation|CompletedReviewRetention|AuthorityProject|ReviewAttestationEnvelope|ReviewAttest' -count=1`.
-Full `go test ./... -count=1`: every package passes except three
-`internal/cli` state-hook tests (`TestStateRefreshConsumer_*`,
-`TestIntegration_StrictModePropagatesThroughRealCommand`) that also fail on
-main 1aec323a in this container because it runs as root, where `chmod 0500`
-does not block writes; they are unrelated to this delta. `go vet ./...` clean.
+Full `go test ./... -count=1` passes as a non-root user; as root, three
+`internal/cli` state-hook tests fail identically on main 1aec323a because
+`chmod 0500` does not block root writes. `go vet ./...` clean.
 This trace records functional regressions, not formal closeout.
 
 ## 7. Final Report

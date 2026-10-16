@@ -165,3 +165,10 @@ unidade da cadeia preferencial após o merge de #182; B03 também exige B01,
 enquanto B05/B06 e outras raízes continuam independentes. Nenhuma nova spec,
 policy, release ou B43 é iniciada neste PR; closeouts administrativos continuam
 separados de entrega funcional. CI e Security devem passar no head final.
+
+B02 (`pose-review-approval-domain-preflight`) foi iniciado nativamente em
+2026-10-15 após o merge de #182: o writer de domínio compartilhado recusa a
+aprovação inválida com refusal tipada e zero writes em Store/CLI/import/MCP,
+negativas legítimas continuam registráveis e o histórico não é reescrito. A spec
+permanece in-progress até validação estrita, revisão different-actor e closeout
+nativo; delivery_complete permanece false.

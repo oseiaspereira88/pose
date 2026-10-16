@@ -11,7 +11,7 @@
   },
   "authorization": {
     "scope": "Retomada explícita de implementação em 2026-10-14; lotes pequenos, PR por spec, aguardar merge; sem adoção de policy, publicação ou migração implícita.",
-    "current_implementation_unit": "B01",
+    "current_implementation_unit": "B02",
     "future_batch_implementation_authorized": true,
     "next_batch_requires_previous_merge": true
   },
@@ -291,14 +291,19 @@
           "materialized": true,
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-review-approval-domain-preflight.md",
-          "status": "draft",
-          "sha256": "d4958e9744c33e383c7da67a647bd1dbfd3920ad13560040f81f821c693edb6e"
+          "status": "in-progress",
+          "sha256": "1cf73019f2f3ae4806d34ef2e89a0e3c8730328fbc5f5f0dd575ea390b4ab95e"
         }
       ],
       "implementation_observations": [
         {
           "scope": "Spec materializada em draft no lote documental 1; nenhum código deste delta implementado nesta interação.",
           "unit_complete": false
+        },
+        {
+          "scope": "Start nativo após merge de #182. Preflight semântico de aprovação movido para o writer de domínio com refusal tipada e zero writes em Store/CLI/import/MCP; negativas registráveis; histórico não reescrito. Regressões de domínio/CLI/MCP e validação estrita do módulo executadas; different-actor review e closeout nativo pendentes.",
+          "unit_complete": false,
+          "native_closeout_pending": true
         }
       ],
       "delivery_complete": false,
