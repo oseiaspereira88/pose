@@ -312,3 +312,256 @@ ordinary CLI and Store/import/MCP. No code or test fix was made by this reviewer
 Decision: **changes requested**. Stop before index/seal/attestation/close; retain
 in-progress lifecycle and roadmaps. A corrected consumer path and fresh review
 are required before native closeout. The first round above remains intact.
+
+
+## Third round
+
+Date: 2026-10-16 UTC. Reviewed head:
+`c87a7ffc0da64f857980f5b00fe7abff8d511248`, diff `1aec323a..HEAD`, PR #183,
+branch `ccr-4ce0ffc2-alg4id`. Decision: **changes requested**, on F3 and F4
+(medium), reported together after inspecting the complete admission paths.
+Reviewer: `agent:independent-gpt-6.1-sol-review`, authorized by the maintainer.
+
+### Authority, rules and judgments
+
+Native context resolved the in-progress spec to same-project authority
+`proj.pose-dist`, without ambiguity or transfer. Read AGENTS.md, POSE.md's
+review/closeout contract, review workflow, pose-review and pose-spec-closeout
+skills, the spec, production diff, changed regression fixtures and applicable
+security, backend-go, documentation-style, delivery-evidence and knowledge rules.
+Consulted the sealed-review-bundles and action-answer historical-time decision
+logs. No frontend, deployment or infrastructure changes require those rules.
+
+- Assumption-integrity: the prefix `agent:independent-` is a declaration required
+  by the engine until `pose-delegated-review-run-provenance` replaces it. This is
+  a different vendor's execution, Codex/OpenAI versus the implementing
+  Claude/Anthropic (`agent:claude-opus-5-5`). Identity and independence remain
+  declared; no signature, authenticated separation or human confirmation is
+  claimed. The coordinating Claude session's validation is not this review.
+- Compatibility: refusing writes the verifier already rejected is appropriately
+  classified minor. The documented criterion/tool exit 2 to 1 remediation works;
+  the remaining mapping and auto-attest divergences prevent the universal
+  consumer-parity claim from being true.
+- Design-causality: completing canonical identity and reusing the verifier before
+  opening the attestation directory implements D1 in the writer. Transport
+  mapping acceptance and auto-attest freshness still preempt that result.
+- Documentation: the scope and residual-cost disclosures are useful. The claim
+  that CLI surfaces consume the shared blockers needs the remaining convergence.
+- Operability: mapping failures hide other actionable blockers; auto-attest's
+  preparation-only success does not disclose approval-admission failure, and its
+  stale guard hides the full domain result.
+- Scope: excluding legacy non-bundle `review record` is acceptable: it is a
+  separate attempt contract/writer. Recomputing CurrentReviewBundle is the
+  bounded cost of enforcing current semantic inputs, with no general
+  transaction/concurrency redesign claimed. Neither is a new finding.
+- Security: negative records still require their channel's signature/admissibility;
+  a signature authenticates bytes rather than approval. No new persistence bypass
+  was found in the F1/F2 fixes. No credentials or human confirmation were invented.
+- Solution-proportionality: sharing the verifier is cohesive. Finishing the
+  remaining decoders/consumer projections is within B02, without rewriting writers
+  or introducing new policy.
+
+### F1 and F2 verification; independently executed regressions
+
+F1 is resolved for criterion/tool answers: unknown and duplicate answers survive
+syntax decoding; omitted judgment and required-tool answers stay omitted; domain
+admission reports their blockers together. Negatives do not owe those approval
+answers. Recommended-tool warning semantics are unchanged in the domain; invalid
+or missing required-tool dispositions remain blockers. No new approval bypass
+was found from removing those parser checks.
+
+F2 is resolved in `cmdReviewAttest`: an explicit bundle id loads the named
+immutable bundle. The domain reports supersession with other blockers for an
+approval, and the CLI can record a negative about that old bundle. A scope target
+continues to select its current seal. F4 below concerns the separate auto-attest
+consumer, not a failure of the new resolver's ordinary-attest regression.
+
+Executed from `pose-mcp`:
+
+```text
+go test ./internal/pose ./internal/cli ./internal/mcpserver -run 'ReviewDomainPreflight|ReviewAssurance|ABMReviewSoundness|ABMReviewAuthority|ReviewAttest' -count=1
+ok github.com/harne8/pose-mcp/internal/pose 0.513s
+ok github.com/harne8/pose-mcp/internal/cli 0.519s
+ok github.com/harne8/pose-mcp/internal/mcpserver 0.010s
+```
+
+Also executed the following with `-count=1 -v`; all passed, CLI package 0.216s:
+
+```text
+TestReviewDomainPreflightCLISemanticRefusalsComeFromTheDomain (all nine subcases)
+TestReviewDomainPreflightSignedImportAgreesOnSeveralDefects
+TestReviewDomainPreflightNegativesOweNoApprovalAnswers (both subcases)
+TestReviewDomainPreflightCLISupersededBundleIsTheDomainsToJudge
+```
+
+Historical disk fixtures complete canonical identity and explicitly model
+pre-admission history. Their reader assertions still reject invalid history;
+other adapted authority tests assert typed refusal and unchanged .pose content.
+This does not silently authorize new invalid production approvals. The remaining
+coverage gaps are transport mapping and auto-attest admission, not those helpers.
+
+### Updated requirement assessment
+
+| Requirement | Third-round assessment |
+|---|---|
+| R1 | Writer completes identity then validates sealed semantics, current trust, operation time and current subject before artifact creation. No new writer bypass found. |
+| R2 | Domain refusal snapshots preserve existing artifacts. CurrentReviewBundle prepares and matches existing seals without creating a bundle; no record, supplement or approval event is written before refusal. Consumer diagnostics remain incomplete under F3/F4. |
+| R3 | Semantic gates come from the seal; deliberately live signing/trust and historical-reader checks remain distinct. Historical fixtures preserve read-side coverage. |
+| R4 | F1/F2 negatives pass, including omitted approval answers and superseded ordinary-attest targets. A negative carrying a reasonless mapping is still refused solely by the CLI, F3. Signed-channel proof is retained. |
+| R5 | Valid approval, canonical unsigned/signed retry and stale-input refusal regressions pass. Ordinary-attest preview/apply use domain admission; auto-attest preview omits it, F4. No transactional race guarantee beyond the scoped design is claimed. |
+| R6 | Signed invalid semantics can disclose identity proof but cannot persist an approval. Signed import and HTTP MCP regressions pass. |
+| R7 | Not satisfied: mapping rationale acceptance and auto-attest freshness/preview remain CLI-only behavior, F3/F4. |
+| D1 | Domain separation of identity proof, write admission and approval semantics is correct; transport convergence remains incomplete. |
+
+### Complete pre-domain guard inventory
+
+This inventory follows ordinary attest, signed/envelope import and MCP to the
+shared writer, and checks the adjacent auto-attest route explicitly named in the
+spec. It distinguishes representational/channel checks from approval policy.
+
+| Guard or branch | Judgment |
+|---|---|
+| CLI missing option values, required target/reviewer/decision/evidence inputs, unexpected arguments, pipe field counts and slug decoding | Acceptable command grammar/minimum request construction; no plan-specific approval conclusion. Findings decode fields rather than deciding severity/risk acceptance. |
+| Bundle path traversal checks, LoadReviewBundle and scope-to-current-seal selection | Acceptable addressing/integrity. Explicit ordinary-attest ids now preserve the named subject; no supersession verdict is imposed there. |
+| Explicit `--plan-digest` mismatch | Acceptable caller-requested expected-value guard; not implicit approval policy and not required by another channel. |
+| `--mapping` criterion owner and observed-fact addressing | Acceptable bounded flag addressing, as explicitly disclosed: mappings must identify the plan's structural obligation and observed fact. This is distinct from judging an answer's justification. |
+| Mapping field arity, owner/date form restricted to accepted-risk, requiring a basis ref instead of the literal mapped token | Acceptable encoding of the documented alternative flag forms. |
+| Mapping missing-evidence/not-applicable/accepted-risk requires nonempty rationale | Semantic approval acceptance, not decoding: all fields can be represented, the domain already checks this for approval and skips it for negatives. F3. |
+| Attribution schema/role/mode/confirmation binding | Shared domain ValidateReviewAttribution, also called by canonical completion; an internally inconsistent declaration is invalid for negatives too. Acceptable integrity check, without treating a declared principal as proof. |
+| `--authority` needs `--sign`; native key load; `--review-execution`; positive duration parsing | Explicit request to construct an authenticated claim, its required fields and supported duration representation. Acceptable channel/construction guards; actual grants, authority separation, trust and approval are evaluated by the domain. No issuer key or review artifact is created by key loading/signing. |
+| CLI signed import/envelope verification before preview/apply | Shared domain verification authenticates the channel; preview uses PreflightReviewAttestation and apply uses the writer. Negative decisions retain proof checks. |
+| MCP JSON decoding, required draft/envelope, apply requires trusted envelope; server project/access governance | Acceptable transport/authentication boundary. SignableReviewAttestation canonicalizes the draft; envelope/draft preview reports domain blockers; apply invokes RecordReviewAttestationEnvelope. The typed refusal is mapped to review_approval_refused with recorded=false. |
+| Domain policy/signature requirement, canonical bundle digest, reviewer/decision/time/id/attribution validation | Shared request integrity/authentication before semantic admission, not a second CLI/MCP approval policy. |
+| Auto-attest explicit-id supersession and no-current-seal guard | Implicit CLI freshness admission for a named subject, before domain preparation/admission; drops other blockers. F4. |
+| Auto-attest incomplete preparation, pending judgments | Acceptable shared preparation contract (the Store auto-attest route also refuses to invent judgments); does not authorize approval. |
+| Auto-attest complete preview exits before PreflightReviewAttestation | Preparation does not evaluate admission. Current preview and apply can disagree on unchanged inputs, F4. |
+
+No additional medium-or-higher finding was identified in this inventory. In
+particular, recommended-tool warnings do not establish a new required-tool
+approval bypass, and neither attribution nor signed-channel guards dispense
+with proof on negatives.
+
+### Finding F3 — medium — mapping acceptance still lives in CLI
+
+Location: `pose-mcp/internal/cli/review_closeout.go:996`–997; early return
+at :812–815. Domain counterpart: `pose-mcp/internal/pose/review_structure.go:310`–312,
+inside approval validation.
+
+On a sealed plan with a structural-mapping criterion and an observed material
+fact, submit `--mapping CRITERION|DELTA|missing-evidence|` together with an
+approval missing required tools. This is decodable: it names a criterion, a real
+fact and a known disposition, with an empty rationale. CLI returns its own exit
+2 message before constructing the attestation. Store returns ReviewApprovalRefusal
+with both the missing rationale and missing-tool blockers. Changing only the
+decision to rejected records through Store, while CLI still refuses the same
+mapping in preview and apply. The same branch covers not-applicable and
+accepted-risk with empty rationale. This is the same substantive R4/R7 parity
+requirement as F1; it is not the disclosed mapping-addressing exception.
+
+Expected action: decode these dispositions and preserve the empty rationale for
+the domain to judge, retaining genuine addressing/representation guards. Cover
+all three dispositions, multi-defect approval and authorized negatives through
+CLI and domain/signed routes. No production/test fix was made by this reviewer.
+
+Independent diagnostic used a Go overlay stored only under
+`.git/b02-third-round-probe/`; versioned production/tests remained untouched. It
+created a real synthetic Git dependency delta, selected a structural plan,
+sealed it, and exercised the complete command and Store:
+
+```text
+go test -overlay ../.git/b02-third-round-probe/overlay.json ./internal/cli -run '^TestB02ThirdRoundMappingAdmission$' -count=1 -v
+DOMAIN APPROVAL BLOCKERS: [criterion correctness disposes SD-4b7a5faa as missing-evidence with no rationale missing required review tool disposition artifact-check missing required review tool disposition validate (component pose-mcp)]
+CLI approved apply=false exit=2: mapping SD-4b7a5faa for correctness is missing-evidence and needs a rationale
+CLI approved apply=true exit=2: same message
+DOMAIN NEGATIVE recorded: rejected
+CLI rejected apply=false exit=2: same message
+CLI rejected apply=true exit=2: same message
+--- PASS: TestB02ThirdRoundMappingAdmission (0.03s)
+ok github.com/harne8/pose-mcp/internal/cli 0.036s
+```
+
+The diagnostic passes on reproducing the defect, not on satisfying acceptance.
+Its synthetic ids are not B02 approval artifacts.
+
+### Finding F4 — medium — auto-attest omits shared admission on preview and stale targets
+
+Location: `pose-mcp/internal/cli/review_closeout.go:1049`–1059 and :1063–1069.
+The domain writer is reached for a complete apply at :1074, but not for those
+paths. The spec's Tasks and Approach explicitly include auto-attest convergence.
+
+With a complete mechanical plan and different-actor independence, auto-attest
+preview using `agent:reviewer` exits 0 with complete=true and no admission blocker.
+On unchanged inputs its apply receives the domain refusal for reviewer
+independence. After sealing a successor bundle, auto-attest of the old explicit
+id exits at its CLI supersession guard. The domain's same prepared attestation
+has both supersession and independence blockers, but neither preview nor apply
+reports that complete result. F2 fixed ordinary attest, leaving this adjacent
+copy of the freshness policy in place. No invalid approval is persisted: apply's
+writer admission works; the defect is incomplete R7 convergence and preview
+admission disclosure.
+
+Expected action: preserve an explicitly named subject for auto preparation and
+project the shared admission result when presenting a complete approving draft;
+apply must retain writer revalidation. Keep incomplete judgments pending rather
+than fabricating them. Cover unchanged-input preview/apply refusal parity and
+superseded/stale targets with multiple blockers. No fix was made here.
+
+Executed independent overlay diagnostic:
+
+```text
+go test -overlay ../.git/b02-third-round-probe/overlay.json ./internal/cli -run '^TestB02ThirdRoundAutoAttestAdmission$' -count=1 -v
+DOMAIN CURRENT BLOCKERS: [review policy requires a different-actor reviewer identity; under declared assurance that is read from the reviewer prefix, not authenticated]
+AUTO CURRENT apply=false exit=0: pending_count=0 complete=true apply=false
+AUTO CURRENT apply=true exit=1: domain different-actor refusal, nothing written
+DOMAIN OLD BLOCKERS: [bundle rvb-c8c09ea58ae3a634 is superseded by rvb-457c1b0199f62b47; review the current bundle review policy requires a different-actor reviewer identity; under declared assurance that is read from the reviewer prefix, not authenticated]
+AUTO OLD apply=false exit=1: bundle rvb-c8c09ea58ae3a634 is superseded by rvb-457c1b0199f62b47
+AUTO OLD apply=true exit=1: same CLI-only supersession message
+--- PASS: TestB02ThirdRoundAutoAttestAdmission (0.03s)
+ok github.com/harne8/pose-mcp/internal/cli 0.037s
+```
+
+Again, a diagnostic reproduction pass is evidence of a defect, not approval.
+
+### Anti-mechanization
+
+The cheapest formal pass is to exercise only criterion/tool flags and ordinary
+attest, then assume the word "domain" in the writer proves every consumer
+converges. F3 uses valid addressing to reach semantic policy left in a neighboring
+mapping helper; F4 exercises the adjacent auto-attest copy of the stale guard
+and unchanged-input preview. The existing focused suite passes despite both.
+These diagnostics expose gaps; no claim is made that the checked-in adversarial
+corpus already proves them. Historical direct-disk fixtures are not the cause.
+
+### Tool dispositions and decision
+
+- Native context, unsealed bundle explain, focused independent tests and the
+  explicit F1/F2 regressions executed. Explain returned prepared/unsealed with
+  15 criteria, 11 tools, no attributed change set and no collected validation
+  evidence in the existing index; it did not seal B02.
+- Both independent Go-overlay diagnostics executed and reproduced F3/F4.
+  Probe sources remain untracked inside .git, outside production/test artifacts.
+- Assess tech-debt executed: zero markers and zero uncovered items.
+- Assess integrate executed: 64 contracts, 63 static unobserved-consumer gaps,
+  matching prior-round counts. The scanner's absence-of-reference inventory is
+  not evidence of a runtime B02 regression; the real HTTP MCP regression passes.
+- Suggest review for pose-mcp executed. Recurrence-check executed: zero flagged
+  keys, zero flapping keys, one previously resolved cluster, 393 records scanned.
+- Assessment-generated changes to integrations/technical-debt report/state files
+  were restored after inspecting git show --stat; they are not delivery evidence
+  or changes to commit. No discover --update-state output was committed.
+- Global strict validation and jq pass-count publication were not performed in
+  this round: a medium finding stops delivery before index/seal under the user's
+  explicit instruction. The committed delivery snapshot predates c87a7ffc and
+  is not claimed as current-head validation. No environmental failure is used
+  as a substitute for a test result.
+- Artifact/surface/history/knowledge closeout checks, final-head CI/Security,
+  index, seal, attestation, review verify, close, lint-spec --strict and check
+  --strict were not used to advance delivery and are not claimed as passed.
+
+Decision: **changes requested**, F1/F2 resolved, F3/F4 medium outstanding. No
+native sealed B02 bundle, attestation or closeout was produced; verify/close/lint/
+check are not executed for promotion. No closeout commit or push was made, and
+no PR merge, contribution staging, policy/capability/adoption or code/test edit
+was performed. Only this Third round section was appended to the existing
+report. Keep the spec in-progress and reconcile neither roadmap nor delivery
+completion until these findings are remediated and independently reviewed.

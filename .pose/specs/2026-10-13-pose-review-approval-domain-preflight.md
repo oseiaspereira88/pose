@@ -122,6 +122,7 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Exercise V1–V7 in domain, CLI, signed import and MCP HTTP consumer; adapt fixtures that persisted invalid approvals.
 - [x] Remediate F1 of the first independent review: the ordinary CLI decodes criterion and tool flags only and reports the domain's refusal.
 - [x] Remediate F2 of the second independent review: an explicitly named superseded bundle is judged by the domain, not refused by the CLI.
+- [x] Remediate F3 and F4 of the third independent review: mapping rationales reach the domain; auto-attest prepares the named bundle and its preview presents the domain admission.
 - [ ] Strict module validation, artifact/surface evidence and separate different-actor review.
 - [ ] Native closeout, reconcile matrix/roadmaps and PR with final-head CI/Security.
 
@@ -171,10 +172,10 @@ was required.
 - R1 [satisfied] test:TestReviewDomainPreflightKeepsEverySemanticBlocker; test:TestReviewDomainPreflightRefusesReservationsWithInvalidRisk
 - R2 [satisfied] test:TestReviewDomainPreflightRefusesTheSameApprovalOnEveryChannel; test:TestReviewDomainPreflightCLIImportAndMCPAgreeWithTheDomain
 - R3 [satisfied] test:TestReviewDomainPreflightLeavesHistoryAlone; test:TestABMReviewSoundnessOrphanFindingRefusedByStore
-- R4 [satisfied] test:TestReviewDomainPreflightRecordsNegativesButKeepsChannelProof; test:TestReviewDomainPreflightCLIRecordsANegative; test:TestReviewDomainPreflightNegativesOweNoApprovalAnswers; test:TestReviewDomainPreflightCLISupersededBundleIsTheDomainsToJudge
-- R5 [satisfied] test:TestReviewDomainPreflightValidApprovalAndRetryKeepIdentity; test:TestReviewDomainPreflightRefusesStaleOrSupersededBundles; test:TestReviewDomainPreflightCLIRefusesASupersededBundle
+- R4 [satisfied] test:TestReviewDomainPreflightRecordsNegativesButKeepsChannelProof; test:TestReviewDomainPreflightCLIRecordsANegative; test:TestReviewDomainPreflightNegativesOweNoApprovalAnswers; test:TestReviewDomainPreflightCLISupersededBundleIsTheDomainsToJudge; test:TestReviewDomainPreflightCLIMappingRationaleIsTheDomainsToJudge
+- R5 [satisfied] test:TestReviewDomainPreflightAutoAttestPresentsTheDomainAdmission; test:TestReviewDomainPreflightValidApprovalAndRetryKeepIdentity; test:TestReviewDomainPreflightRefusesStaleOrSupersededBundles; test:TestReviewDomainPreflightCLIRefusesASupersededBundle
 - R6 [satisfied] test:TestReviewDomainPreflightSignatureIsNotApproval; test:TestReviewAssuranceKeepsIdentitySeparateFromApproval
-- R7 [satisfied] test:TestReviewDomainPreflightCLIImportAndMCPAgreeWithTheDomain; test:TestReviewDomainPreflightRefusesTheSameApprovalOnEveryChannel; test:TestReviewDomainPreflightCLISemanticRefusalsComeFromTheDomain; test:TestReviewDomainPreflightSignedImportAgreesOnSeveralDefects; test:TestReviewDomainPreflightCLISupersededBundleIsTheDomainsToJudge
+- R7 [satisfied] test:TestReviewDomainPreflightCLIImportAndMCPAgreeWithTheDomain; test:TestReviewDomainPreflightRefusesTheSameApprovalOnEveryChannel; test:TestReviewDomainPreflightCLISemanticRefusalsComeFromTheDomain; test:TestReviewDomainPreflightSignedImportAgreesOnSeveralDefects; test:TestReviewDomainPreflightCLISupersededBundleIsTheDomainsToJudge; test:TestReviewDomainPreflightCLIMappingRationaleIsTheDomainsToJudge; test:TestReviewDomainPreflightAutoAttestPresentsTheDomainAdmission
 
 Regressions passed (Go 1.26.0): `go test ./internal/pose ./internal/cli
 ./internal/mcpserver -run 'ReviewDomainPreflight|ABMReviewAuthority|ABMReviewSoundness|ABMGolden|ReviewAssurance|LegacyLedger|NativeAndExternal|NativeAuthority|SignedPreview|AnAgentConfirmation|CompletedReviewRetention|AuthorityProject|ReviewAttestationEnvelope|ReviewAttest' -count=1`.
@@ -220,6 +221,26 @@ command and the Store; it fails against the previous `review_closeout.go`
 (`382708de`) and passes now. The direct-print ratchet baseline for
 `review_closeout.go` drops from 124 to 122. `go vet ./...` and
 `go test ./... -count=1` pass.
+
+Third independent review (2026-10-16, same reviewer and report, after an
+inventory of every guard between the CLI/MCP and the writer, which it judged
+acceptable as grammar, addressing, explicit caller guards or channel
+authentication) accepted F1 and F2 and requested changes on F3 and F4 (medium).
+F3: `--mapping` still required a rationale for missing-evidence, not-applicable
+and accepted-risk in the CLI, hiding the approval's other blockers and refusing
+a negative the Store records; the decoder now keeps the empty rationale for the
+domain, retaining its addressing and form checks. F4: `auto-attest` kept its own
+supersession guard and its preview of a complete draft did not consult the
+admission, so preview succeeded where apply was refused on unchanged inputs; it
+now prepares the bundle as named and the preview of a complete draft reports the
+domain's refusal, apply keeping the writer's revalidation, while an incomplete
+draft keeps reporting its pending judgments. `TestReviewDomainPreflightCLIMappingRationaleIsTheDomainsToJudge`
+(all three dispositions, approval with several blockers, negatives through the
+command, the Store and a signed import) and
+`TestReviewDomainPreflightAutoAttestPresentsTheDomainAdmission` (current and
+superseded bundle, preview and apply equal to the domain) fail against
+`c87a7ffc` and pass now. The direct-print ratchet for `review_closeout.go` drops
+to 120. `go vet ./...` and `go test ./... -count=1` pass.
 
 ## 7. Final Report
 

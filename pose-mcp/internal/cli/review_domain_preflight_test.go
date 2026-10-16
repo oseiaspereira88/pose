@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -510,6 +511,210 @@ func TestReviewDomainPreflightCLISupersededBundleIsTheDomainsToJudge(t *testing.
 	if _, err := (posemodel.Store{Root: root}).RecordReviewAttestation(att, time.Now()); err != nil {
 		t.Fatalf("Store refused the same negative: %v", err)
 	}
+}
+
+// structuralReviewCLIFixture turns a sealed-bundle fixture into one whose
+// change set adds a dependency, under a profile that makes `correctness`
+// answerable for observed structure, and seals it. It returns the bundle, the
+// sealed evidence ref and the material fact a mapping must answer.
+func structuralReviewCLIFixture(t *testing.T, root string) (posemodel.ReviewBundle, string, string) {
+	t.Helper()
+	git := func(args ...string) string {
+		cmd := exec.Command("git", args...)
+		cmd.Dir = root
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("git %v: %v %s", args, err, out)
+		}
+		return strings.TrimSpace(string(out))
+	}
+	writeCloseoutCLIFile(t, root, "pose-mcp/go.mod", "module example.test/fixture\n\ngo 1.24\n")
+	git("init", "-q")
+	git("config", "user.email", "fixture@example.invalid")
+	git("config", "user.name", "Fixture")
+	git("add", ".")
+	git("commit", "-qm", "base")
+	base := git("rev-parse", "HEAD")
+	writeCloseoutCLIFile(t, root, "pose-mcp/go.mod", "module example.test/fixture\n\ngo 1.24\n\nrequire example.test/newdep v1.0.0\n")
+	git("add", ".")
+	git("commit", "-qm", "head")
+	head := git("rev-parse", "HEAD")
+
+	graphPath := filepath.Join(root, ".pose/indexes/delivery-integrity.json")
+	raw, err := os.ReadFile(graphPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var graph map[string]any
+	if err := json.Unmarshal(raw, &graph); err != nil {
+		t.Fatal(err)
+	}
+	changeSet := graph["change_sets"].([]any)[0].(map[string]any)
+	changeSet["resolved_base"], changeSet["resolved_head"] = base, head
+	changeSet["paths"] = []map[string]string{{"action": "modified", "path": "pose-mcp/go.mod"}, {"action": "modified", "path": "pose-mcp/main.go"}}
+	raw, _ = json.Marshal(graph)
+	if err := os.WriteFile(graphPath, raw, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":2,"id":"spec-closeout","version":2,"scope":"spec","selectors":{"structural_kinds":["dependency"]},"criteria":[{"id":"correctness","description":"reviewed","evidence_classes":["unit"],"requires_structural_mapping":true}]}`)
+	policyPath := filepath.Join(root, ".pose/policy/review.json")
+	raw, err = os.ReadFile(policyPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var policy map[string]any
+	if err := json.Unmarshal(raw, &policy); err != nil {
+		t.Fatal(err)
+	}
+	policy["overlay_profiles"] = []string{"spec-closeout@2"}
+	raw, _ = json.Marshal(policy)
+	if err := os.WriteFile(policyPath, raw, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	bundle, evidence := sealCLIBundle(t, root)
+	if bundle.Payload.Plan.Structure == nil || len(bundle.Payload.Plan.Structure.Material) == 0 {
+		t.Fatalf("fixture: the plan observes no material structure: %+v", bundle.Payload.Plan.Structure)
+	}
+	return bundle, evidence, bundle.Payload.Plan.Structure.Material[0].ID
+}
+
+// F3 of the third independent review, R4/R7: a structural mapping disposed as
+// missing-evidence, not-applicable or accepted-risk with no rationale is the
+// domain's to judge. An approval gets the Store's typed refusal with every
+// blocker — the rationale and the omitted required tools together — and a
+// negative carrying the same mapping is recorded by the command, the Store and
+// a signed import.
+func TestReviewDomainPreflightCLIMappingRationaleIsTheDomainsToJudge(t *testing.T) {
+	for _, disposition := range []string{posemodel.ReviewMappingMissingEvidence, posemodel.ReviewMappingNotApplicable, posemodel.ReviewMappingAcceptedRisk} {
+		t.Run(disposition, func(t *testing.T) {
+			root, private, public := preflightIssuerFixture(t)
+			bundle, evidence, fact := structuralReviewCLIFixture(t, root)
+			store := posemodel.Store{Root: root}
+			criteria := []string{"correctness|passed|" + evidence + "|examined the added dependency"}
+			mapping := "correctness|" + fact + "|" + disposition + "|"
+			build := func(decision string) posemodel.ReviewAttestation {
+				att := cliBuiltAttestation(t, bundle, decision, []string{evidence}, criteria, nil, nil)
+				mapped, err := applyReviewCriterionMappings(posemodel.ReviewPlan{Criteria: bundle.Payload.Plan.Criteria, Structure: bundle.Payload.Plan.Structure}, att.Criteria, []string{mapping})
+				if err != nil {
+					t.Fatalf("a decodable mapping was refused by the decoder: %v", err)
+				}
+				att.Criteria = mapped
+				return att
+			}
+			args := func(decision string, apply bool) []string {
+				return append(cliAttestArgs(bundle.BundleID, decision, []string{evidence}, criteria, nil, nil, apply), "--mapping", mapping)
+			}
+
+			_, err := store.RecordReviewAttestation(build("approved"), time.Now())
+			var refusal *posemodel.ReviewApprovalRefusal
+			if !errors.As(err, &refusal) || !containsText(refusal.Blockers, "as "+disposition+" with no rationale") || !containsText(refusal.Blockers, "missing required review tool disposition") {
+				t.Fatalf("fixture: the Store does not refuse with both blockers: %v", err)
+			}
+			before := reviewArtifactFiles(t, root)
+			for _, apply := range []bool{false, true} {
+				var out, errOut bytes.Buffer
+				code := cmdReview(root, args("approved", apply), &out, &errOut)
+				if got := refusalBlockers(out.String() + errOut.String()); code != 1 || !reflect.DeepEqual(got, refusal.Blockers) {
+					t.Fatalf("CLI apply=%t code=%d diverged from the Store:\n%v\n%v", apply, code, got, refusal.Blockers)
+				}
+			}
+			if after := reviewArtifactFiles(t, root); !reflect.DeepEqual(after, before) {
+				t.Fatalf("a refused approval wrote review artifacts:\n%v\n%v", before, after)
+			}
+
+			var out, errOut bytes.Buffer
+			if code := cmdReview(root, args("rejected", true), &out, &errOut); code != 0 {
+				t.Fatalf("CLI refused a negative carrying the mapping: code=%d %s %s", code, out.String(), errOut.String())
+			}
+			if _, err := store.RecordReviewAttestation(build("changes-requested"), time.Now()); err != nil {
+				t.Fatalf("Store refused a negative carrying the mapping: %v", err)
+			}
+			now := time.Now().Add(time.Second)
+			completed, canonical, err := store.SignableReviewAttestation(posemodel.ReviewAttestation{BundleID: bundle.BundleID, Reviewer: "agent:other-reviewer", Decision: "rejected",
+				EvidenceRefs: []string{evidence}, Criteria: build("rejected").Criteria}, now)
+			if err != nil {
+				t.Fatal(err)
+			}
+			envelope := posemodel.ReviewAttestationEnvelope{SchemaVersion: 1, Issuer: "fixture", Subject: bundle.BundleID, Algorithm: "ed25519",
+				PublicKey: base64.StdEncoding.EncodeToString(public), Signature: base64.StdEncoding.EncodeToString(ed25519.Sign(private, canonical)), Attestation: completed}
+			raw, _ := json.Marshal(envelope)
+			if err := os.WriteFile(filepath.Join(root, "envelope.json"), raw, 0o600); err != nil {
+				t.Fatal(err)
+			}
+			out.Reset()
+			errOut.Reset()
+			if code := cmdReview(root, []string{"attest", "--envelope", "envelope.json", "--apply"}, &out, &errOut); code != 0 {
+				t.Fatalf("signed import refused a negative carrying the mapping: code=%d %s %s", code, out.String(), errOut.String())
+			}
+			atts, err := store.ListReviewAttestations("")
+			if err != nil || len(atts) != 3 {
+				t.Fatalf("want three negatives recorded: %d %v", len(atts), err)
+			}
+		})
+	}
+}
+
+// F4 of the third independent review, R5/R7: auto-attest presents the shared
+// admission. A complete draft the writer would refuse is refused by the
+// preview with the same blockers as the apply, on unchanged inputs; and an
+// explicitly named superseded bundle is prepared as named, its refusal
+// carrying supersession among the domain's other blockers.
+func TestReviewDomainPreflightAutoAttestPresentsTheDomainAdmission(t *testing.T) {
+	root := reviewBundleCLIFixture(t)
+	policyPath := filepath.Join(root, ".pose/policy/review.json")
+	raw, err := os.ReadFile(policyPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var policy map[string]any
+	if err := json.Unmarshal(raw, &policy); err != nil {
+		t.Fatal(err)
+	}
+	policy["reviewer_independence"] = map[string]string{"spec": "different-actor"}
+	raw, _ = json.Marshal(policy)
+	if err := os.WriteFile(policyPath, raw, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	bundle, _ := sealCLIBundle(t, root)
+	store := posemodel.Store{Root: root}
+	prepared, err := store.PrepareReviewAttestation(bundle.BundleID, "agent:reviewer", time.Now())
+	if err != nil || !prepared.Complete {
+		t.Fatalf("fixture: preparation %+v %v", prepared, err)
+	}
+	auto := func(apply bool) (int, []string) {
+		args := []string{"auto-attest", bundle.BundleID, "--reviewer", "agent:reviewer"}
+		if apply {
+			args = append(args, "--apply")
+		}
+		var out, errOut bytes.Buffer
+		code := cmdReview(root, args, &out, &errOut)
+		return code, refusalBlockers(out.String() + errOut.String())
+	}
+	check := func(stage string, want ...string) {
+		t.Helper()
+		domain := store.PreflightReviewAttestation(prepared.Attestation, time.Now())
+		for _, text := range want {
+			if !containsText(domain, text) {
+				t.Fatalf("%s fixture: domain blockers %v lack %q", stage, domain, text)
+			}
+		}
+		before := reviewArtifactFiles(t, root)
+		for _, apply := range []bool{false, true} {
+			if code, got := auto(apply); code != 1 || !reflect.DeepEqual(got, domain) {
+				t.Fatalf("%s auto-attest apply=%t code=%d diverged from the domain:\n%v\n%v", stage, apply, code, got, domain)
+			}
+		}
+		if after := reviewArtifactFiles(t, root); !reflect.DeepEqual(after, before) {
+			t.Fatalf("%s: a refused approval wrote review artifacts:\n%v\n%v", stage, before, after)
+		}
+	}
+	check("current bundle", "different-actor")
+
+	writeCloseoutCLIFile(t, root, ".pose/indexes/validation-matrix.json", `{"defaults":{"mode":"strict"},"moduleOverrides":{"pose-mcp":{"checks":[{"name":"another-check","program":"true","severity":"required","evidenceClass":"unit"}]}}}`)
+	if current, _ := sealCLIBundle(t, root); current.BundleID == bundle.BundleID {
+		t.Fatal("fixture: the inputs did not change the bundle")
+	}
+	check("superseded bundle", "different-actor", "is superseded by")
 }
 
 func containsText(values []string, want string) bool {

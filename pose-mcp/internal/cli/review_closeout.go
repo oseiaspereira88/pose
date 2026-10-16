@@ -992,10 +992,10 @@ func applyReviewCriterionMappings(plan posemodel.ReviewPlan, criteria []posemode
 		}
 		switch answer {
 		case posemodel.ReviewMappingMissingEvidence, posemodel.ReviewMappingNotApplicable, posemodel.ReviewMappingAcceptedRisk:
+			// An empty rationale is kept: the domain requires one for an
+			// approval and not for a negative (spec
+			// pose-review-approval-domain-preflight R4, R7).
 			mapping.Disposition = answer
-			if mapping.Rationale == "" {
-				return nil, fmt.Errorf("mapping %s for %s is %s and needs a rationale: CRITERION|DELTA|%s|<why>", delta, id, answer, answer)
-			}
 		case posemodel.ReviewMappingMapped:
 			return nil, fmt.Errorf("mapping %s for %s must name the basis ref instead of %q", delta, id, answer)
 		default:
@@ -1041,25 +1041,25 @@ func cmdReviewAutoAttest(root string, args []string, stdout, stderr io.Writer) i
 		reviewer = "agent:auto-attest"
 	}
 	store := cliGovernedStore(root)
-	ref, err := resolveReviewBundleScope(store, target)
+	// The bundle as named, like `attest`: supersession is the domain's verdict,
+	// reported with every other blocker (spec pose-review-approval-domain-preflight R7).
+	bundle, err := resolveReviewAttestBundle(store, target)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review auto-attest: %v\n", err)
 		return 1
 	}
-	bundle, err := store.CurrentReviewBundle(ref)
-	if err != nil || bundle == nil {
-		if err == nil {
-			err = fmt.Errorf("scope %s has no current sealed bundle", ref)
-		}
-		fmt.Fprintf(stderr, "pose review auto-attest: %v\n", err)
-		return 1
-	}
-	if strings.HasPrefix(target, "rvb-") && target != bundle.BundleID {
-		fmt.Fprintf(stderr, "pose review auto-attest: bundle %s is superseded by %s\n", target, bundle.BundleID)
-		return 1
-	}
 	prepared, err := store.PrepareReviewAttestation(bundle.BundleID, reviewer, time.Now())
 	att := prepared.Attestation
+	// A complete draft is an approval the writer will judge, so the preview
+	// projects that same admission instead of reporting a preparation success
+	// the apply would refuse on unchanged inputs (spec
+	// pose-review-approval-domain-preflight R5, R7).
+	if err == nil && !apply && prepared.Complete {
+		if refusals := store.PreflightReviewAttestation(att, time.Now()); len(refusals) > 0 {
+			reportAttestPreflight(stdout, stderr, "pose review auto-attest", refusals)
+			return 1
+		}
+	}
 	if err == nil && !apply {
 		pendingLines := ""
 		for _, item := range prepared.Pending {

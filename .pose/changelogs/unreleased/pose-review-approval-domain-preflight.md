@@ -25,3 +25,9 @@ An explicit bundle id given to `pose review attest` is now attested as named:
 the approval of a superseded bundle is refused by the domain with every other
 blocker, and a negative decision about it is recorded, as the Store and a
 signed import already did.
+
+A `--mapping` disposed as missing-evidence, not-applicable or accepted-risk
+without a rationale now reaches the domain too, which refuses it for an
+approval and records it in a negative. `pose review auto-attest` prepares the
+bundle as named and, for a complete draft, its preview reports the same
+refusal the apply would return.
