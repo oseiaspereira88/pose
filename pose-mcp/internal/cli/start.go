@@ -9,6 +9,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
@@ -117,27 +118,24 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		// Repeating a completed start is a no-op. An interrupted one still
 		// previews the same plan, because the spec has not moved yet.
 		if plan.Digest != digest {
-			// An apply that recorded its baseline for this digest and stopped
-			// after moving the spec is finished from its record.
+			// An apply that recorded its baseline for this digest and already
+			// moved the spec is finished from its record. When the spec has not
+			// moved, nothing was published and the current plan judges the
+			// start below.
 			if record, ok, err := store.GetStartRecord(slug); err == nil && ok && record.PlanDigest == digest && record.Phase == "baseline-recorded" {
 				resumed, err := store.ResumeStart(slug, digest)
-				if err != nil {
-					result := startApplyFailure(store, slug, digest, resumed, err)
+				switch {
+				case err == nil:
 					if jsonOutput {
-						r.Failure("pose start: " + err.Error())
-						_ = writeJSON(stdout, result)
-						return 1
+						return writeJSON(stdout, resumed)
 					}
-					r.Failure("pose start: " + err.Error())
-					return 1
+					r.Field("start.result", "resumed")
+					r.Field("start.phase", resumed.Phase)
+					r.Field("start.baseline", resumed.Baseline.Digest)
+					return 0
+				case err.Error() != "start: transition-not-published":
+					return renderStartApplyFailure(r, stdout, jsonOutput, startApplyFailure(store, slug, digest, resumed, err), err)
 				}
-				if jsonOutput {
-					return writeJSON(stdout, resumed)
-				}
-				r.Field("start.result", "resumed")
-				r.Field("start.phase", resumed.Phase)
-				r.Field("start.baseline", resumed.Baseline.Digest)
-				return 0
 			}
 			if record, ok, err := store.GetStartRecord(slug); err == nil && ok && record.PlanDigest == digest && record.Phase == "started" {
 				if jsonOutput {
@@ -151,20 +149,7 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		record, err := store.ApplyStart(plan, digest, nil)
 		if err != nil {
-			result := startApplyFailure(store, slug, digest, record, err)
-			if jsonOutput {
-				r.Failure("pose start: " + err.Error())
-				_ = writeJSON(stdout, result)
-				return 1
-			}
-			for _, effect := range result.Effects {
-				r.Field("start."+effect.Effect, effect.Ref)
-			}
-			if result.NextAction != "" {
-				r.Field("start.next_action", result.NextAction)
-			}
-			r.Failure("pose start: " + err.Error())
-			return 1
+			return renderStartApplyFailure(r, stdout, jsonOutput, startApplyFailure(store, slug, digest, record, err), err)
 		}
 		if jsonOutput {
 			return writeJSON(stdout, record)
@@ -196,6 +181,28 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		r.Field("start.digest", plan.Digest)
 		return 0
 	}
+}
+
+// renderStartApplyFailure renders one apply failure for both channels from
+// the same result: the JSON document, or the recorded effects, the
+// unconfirmed steps and the next action as fields, then the error.
+func renderStartApplyFailure(r *cliout.Renderer, stdout io.Writer, jsonOutput bool, result posemodel.OperationResult, err error) int {
+	if jsonOutput {
+		r.Failure("pose start: " + err.Error())
+		_ = writeJSON(stdout, result)
+		return 1
+	}
+	for _, effect := range result.Effects {
+		r.Field("start."+effect.Effect, effect.Ref)
+	}
+	for _, uncertain := range result.Unconfirmed {
+		r.Field("start.unconfirmed."+uncertain.Step, uncertain.Reason)
+	}
+	if result.NextAction != "" {
+		r.Field("start.next_action", result.NextAction)
+	}
+	r.Failure("pose start: " + err.Error())
+	return 1
 }
 
 // startApplyFailure is the result of an apply that returned an error. The

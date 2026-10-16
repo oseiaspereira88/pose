@@ -101,8 +101,11 @@ Routes:
 - A `pose start --apply` that fails after the domain published its baseline
   reads the start record back: the recorded phase is a confirmed effect, the
   spec transition is `unconfirmed`, and the result is resumable with the same
-  digest. Repeating it resumes from the record (`Store.ResumeStart`), also
-  after the spec already moved and its fresh preview has another digest. A
+  digest. Repeating it resumes from the record (`Store.ResumeStart`) only when
+  the spec already moved, so a published transition is finished although its
+  fresh preview has another digest; a spec that has not moved published
+  nothing and is judged again by the current plan, with today's readiness
+  and governed restrictions — a persisted baseline never authorizes a start. A
   spec changed under the start (`compare-and-swap-conflict`) is not
   resumable, and a record for another plan is a `conflict` this call did not
   write.

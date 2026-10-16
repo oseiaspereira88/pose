@@ -246,9 +246,11 @@ func (s Store) ApplyStart(plan StartPlan, expectedDigest string, failAfter Start
 }
 
 // ResumeStart finishes an apply that recorded its baseline for digest and
-// stopped before the record said started. Once the spec moved, a fresh
-// preview has another digest, so the persisted record — not a new plan —
-// names what to finish (spec pose-cli-mcp-operation-results R6).
+// already moved the spec, then stopped before the record said started. Once
+// the spec moved, a fresh preview has another digest, so the persisted record
+// — not a new plan — names what to finish (spec
+// pose-cli-mcp-operation-results R6). It refuses with
+// transition-not-published when the spec has not moved.
 func (s Store) ResumeStart(slug, digest string) (StartRecord, error) {
 	adopted, err := s.AtomicStartAdopted()
 	if err != nil {
@@ -277,7 +279,22 @@ func (s Store) ResumeStart(slug, digest string) (StartRecord, error) {
 	if !exists || digest == "" || record.PlanDigest != digest {
 		return record, startError("plan-digest-mismatch")
 	}
-	return finishStart(recordPath, filepath.Join(s.Root, filepath.FromSlash(current.SpecPath)), slug, record, nil)
+	if record.Phase == "started" {
+		return record, nil
+	}
+	// Only a transition that was already published is recovered here. A
+	// spec still in its recorded "before" state has published nothing: its
+	// start is judged again by the current plan, with today's readiness and
+	// governed restrictions, never authorized by the persisted baseline.
+	specPath := filepath.Join(s.Root, filepath.FromSlash(current.SpecPath))
+	raw, err := os.ReadFile(specPath)
+	if err != nil {
+		return record, err
+	}
+	if digestHex(raw) != record.SpecDigestAfter {
+		return record, startError("transition-not-published")
+	}
+	return finishStart(recordPath, specPath, slug, record, nil)
 }
 
 // finishStart moves the spec to in-progress, reconciling a transition an

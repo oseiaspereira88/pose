@@ -504,3 +504,60 @@ func TestAStartThatFailsAfterMovingTheSpecResumesWithTheAdvertisedCommand(t *tes
 		t.Fatalf("a finished start is not a no-op: %d %s", code, out)
 	}
 }
+
+func TestARetriedStartDoesNotOutliveARequestThatNowRestrictsIt(t *testing.T) {
+	root := startCLIFixture(t, true)
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "proj.start-retry")
+	mustWrite(t, filepath.Join(root, ".pose", "policy", "review.json"), `{"schema_version":1,"enabled":false,"atomic_start_version":1,"agency_readiness_version":1}`)
+	mustWrite(t, filepath.Join(root, ".pose", "policy", "actions.json"), `{"schema_version":1,"roles":{"maintainer":["human:maintainer"]}}`)
+	out, _, _ := runCLI(t, root, "start", "spec:work", "--json")
+	var plan posemodel.StartPlan
+	if err := json.Unmarshal([]byte(out), &plan); err != nil || !plan.Ready {
+		t.Fatalf("preview: %v %s", err, out)
+	}
+	// The baseline is recorded and the transition fails before publishing.
+	specs := filepath.Join(root, ".pose", "specs")
+	if err := os.Chmod(specs, 0o555); err != nil {
+		t.Fatal(err)
+	}
+	if code, _ := runPose(t, root, "start", "spec:work", "--apply", "--digest", plan.Digest); code != 1 {
+		t.Fatal("the transition did not fail")
+	}
+	if err := os.Chmod(specs, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	// A request now restricts start (fourth-round F9).
+	open := []string{"action", "open", "--origin", "spec:work", "--kind", "decision", "--question", "Start now?",
+		"--option", "go=Start", "--option", "wait=Hold", "--recommend", "wait",
+		"--recipient-role", "maintainer", "--requested-by", "agent:impl", "--target", "requirement:R1",
+		"--effect", "start:block", "--apply"}
+	if code, out := runPose(t, root, open...); code != 0 {
+		t.Fatalf("open: %s", out)
+	}
+	code, out := runPose(t, root, "start", "spec:work", "--apply", "--digest", plan.Digest)
+	spec, _ := os.ReadFile(filepath.Join(specs, "2026-09-27-work.md"))
+	if code == 0 || !strings.Contains(string(spec), "status: draft") {
+		t.Fatalf("the persisted baseline started a restricted spec: %d %s\n%s", code, out, spec)
+	}
+}
+
+func TestAResumeThatFailsAgainKeepsItsReceiptForPeople(t *testing.T) {
+	root := startCLIFixture(t, true)
+	out, _, _ := runCLI(t, root, "start", "spec:work", "--json")
+	var plan posemodel.StartPlan
+	if err := json.Unmarshal([]byte(out), &plan); err != nil {
+		t.Fatal(err)
+	}
+	blocker := filepath.Join(root, ".pose", "starts", "work.json.tmp")
+	if err := os.MkdirAll(blocker, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if code, _ := runPose(t, root, "start", "spec:work", "--apply", "--digest", plan.Digest); code != 1 {
+		t.Fatal("the first apply did not fail")
+	}
+	// The obstacle stays: the resume fails again (fourth-round F10).
+	code, human := runPose(t, root, "start", "spec:work", "--apply", "--digest", plan.Digest)
+	if code != 1 || !strings.Contains(human, "start.baseline-recorded=") || !strings.Contains(human, "start.unconfirmed.transition=") || !strings.Contains(human, "start.next_action=") {
+		t.Fatalf("the human resume failure lost its receipt: %d %s", code, human)
+	}
+}

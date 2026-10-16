@@ -31,7 +31,8 @@ explicit `null` and an empty `since`, and keeps the advertised `sort: "slug"`.
 `pose close <scope> --json` (no plan mode) is refused instead of ignored. A
 `pose start --apply` that fails after recording its baseline reports it as a
 confirmed effect and says the same apply resumes it; repeating it now finishes
-the start from its record even after the spec already moved. With `--json`, a failure of `start`, `close --plan`, `specs` or
+from its record a transition that was already published, while a spec that
+has not moved is judged again by the current plan and its restrictions. With `--json`, a failure of `start`, `close --plan`, `specs` or
 `specs facts` is one JSON operation result instead of an empty stdout.
 
 An MCP gate (`pose_check`, `pose_lint_spec`, `pose_skills_check`) stopped by
