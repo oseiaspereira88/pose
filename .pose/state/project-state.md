@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-16T02:37:49Z
-baseline_commit: e33496b19c6e57cdc4606db62eb95a9bd059e32f
+generated_at: 2026-10-16T04:41:54Z
+baseline_commit: e08138c7e71872463e363dcf064ad555872fb6b9
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:f37612b1f8e8 -->
+<!-- state:derived hash:ed7d135ad502 -->
 
-- specs: total=438 draft=39 in-progress=18 blocked=0 done=380 superseded=0 abandoned=1
+- specs: total=439 draft=39 in-progress=18 blocked=0 done=381 superseded=0 abandoned=1
 - roadmaps: total=22 active=3 done=11
 - últimos closeouts:
   - spec:pose-review-approval-domain-preflight (2026-10-16)
-  - spec:pose-action-answers-reverify-on-read (2026-10-15)
+  - spec:pose-dist-instance-follows-engine (2026-10-16)
   - spec:pose-review-disclosure-requires-proof (2026-10-15)
+  - spec:pose-action-answers-reverify-on-read (2026-10-15)
   - spec:pose-historical-trust-and-review-reuse (2026-10-14)
-  - spec:pose-v7-4-0-version-alignment (2026-10-10)
-  - ... e mais 375 (ver `pose_list_specs status:done`)
+  - ... e mais 376 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:3d469f56370a -->
@@ -75,16 +75,16 @@ capacidade.
 - knowledge: total=11 ativo=11 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:060088458621 -->
+<!-- state:derived hash:78529f3eb571 -->
 
 - último registro: task=validate-native outcome=fail (2026-10-13T04:23:26Z)
 - últimos 30 dias: total=99 outcome_ok=75 outcome_outro=24
 - reports revisados (.md): total=203
-  - report:2026-10-16-pose-b02-domain-preflight-review.md
   - report:pose-abm-capability-adoption.md
   - report:pose-agency-readiness-pilot.md
   - report:pose-v6-2-0-autonomous-work.md
   - report:pose-v7-legacy-cleanup-plan.md
+  - report:2026-10-16-pose-b02-domain-preflight-review.md
 
 ## Arquitetura
 <!-- state:derived hash:1a6ee06cee0b status:active -->
