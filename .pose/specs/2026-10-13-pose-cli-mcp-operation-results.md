@@ -130,6 +130,7 @@ domínio em processo do CLI fica fora: o processo do CLI termina pelo sinal.
 - [x] Remediar a terceira revisão independente: F1 confirmado pelo arquivo (bytes diferentes do snapshot anterior e `generated_at` desta execução), não pelo texto; F8 retomada do start a partir do registro (`ResumeStart`) depois que a spec mudou, sem prometer retomada em conflito CAS.
 - [x] Remediar a quarta revisão independente: F9 a retomada só conclui uma transição já publicada e uma spec que não mudou volta ao plano atual e às restrições governadas; F10 a saída humana de uma retomada que falha mantém efeitos, passos não confirmados e próxima ação.
 - [x] Remediar a quinta revisão independente: F11 `StartRecovery` classifica o que o digest registrado ainda pode fazer; baseline ultrapassada pelo repositório e spec alterada sob o start viram conflito com orientação de cancel e novo preview, e só a transição publicada ou o plano inalterado são retomáveis.
+- [x] Remediar a sexta revisão independente: F12 a falha do start lista como efeito confirmado a transição publicada (spec `in-progress`, com o path) e `steps_run` registra só os passos desta chamada (baseline, transição, registro), separando a retomada dos efeitos herdados, nos dois renderers.
 - [ ] Revisão por ator diferente, closeout nativo e PR.
 
 ## 5. Decisions

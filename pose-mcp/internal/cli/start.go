@@ -123,7 +123,9 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 			// moved, nothing was published and the current plan judges the
 			// start below.
 			if record, ok, err := store.GetStartRecord(slug); err == nil && ok && record.PlanDigest == digest && record.Phase == "baseline-recorded" {
-				resumed, err := store.ResumeStart(slug, digest)
+				prior, _ := store.StartRecovery(slug, digest)
+				var reached []string
+				resumed, err := store.ResumeStart(slug, digest, observeStartPhases(&reached))
 				switch {
 				case err == nil:
 					if jsonOutput {
@@ -134,7 +136,7 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 					r.Field("start.baseline", resumed.Baseline.Digest)
 					return 0
 				case err.Error() != "start: transition-not-published":
-					return renderStartApplyFailure(r, stdout, jsonOutput, startApplyFailure(store, slug, digest, resumed, err), err)
+					return renderStartApplyFailure(r, stdout, jsonOutput, startApplyFailure(store, plan.SpecPath, slug, digest, prior, reached, resumed, err), err)
 				}
 			}
 			if record, ok, err := store.GetStartRecord(slug); err == nil && ok && record.PlanDigest == digest && record.Phase == "started" {
@@ -147,9 +149,11 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 				return 0
 			}
 		}
-		record, err := store.ApplyStart(plan, digest, nil)
+		prior, _ := store.StartRecovery(slug, digest)
+		var reached []string
+		record, err := store.ApplyStart(plan, digest, observeStartPhases(&reached))
 		if err != nil {
-			return renderStartApplyFailure(r, stdout, jsonOutput, startApplyFailure(store, slug, digest, record, err), err)
+			return renderStartApplyFailure(r, stdout, jsonOutput, startApplyFailure(store, plan.SpecPath, slug, digest, prior, reached, record, err), err)
 		}
 		if jsonOutput {
 			return writeJSON(stdout, record)
@@ -192,6 +196,9 @@ func renderStartApplyFailure(r *cliout.Renderer, stdout io.Writer, jsonOutput bo
 		_ = writeJSON(stdout, result)
 		return 1
 	}
+	for _, step := range result.StepsRun {
+		r.Field("start.step."+step.ID, step.Result)
+	}
 	for _, effect := range result.Effects {
 		r.Field("start."+effect.Effect, effect.Ref)
 	}
@@ -205,12 +212,24 @@ func renderStartApplyFailure(r *cliout.Renderer, stdout io.Writer, jsonOutput bo
 	return 1
 }
 
+// observeStartPhases records the phases an apply or a resume reached,
+// without interrupting it.
+func observeStartPhases(reached *[]string) posemodel.StartFailureHook {
+	return func(phase string) error {
+		*reached = append(*reached, phase)
+		return nil
+	}
+}
+
 // startApplyFailure is the result of an apply that returned an error. The
-// domain may have published the baseline before it failed, so the record on
-// disk is read back: a baseline recorded for this plan is a confirmed,
-// resumable state, and the spec transition is left unconfirmed (spec
-// pose-cli-mcp-operation-results R6).
-func startApplyFailure(store posemodel.Store, slug, digest string, returned posemodel.StartRecord, err error) posemodel.OperationResult {
+// domain may have published the baseline and the spec transition before it
+// failed, so the record and the spec on disk are read back: each published
+// state is a confirmed effect, and only the step that did not finish is left
+// unconfirmed (spec pose-cli-mcp-operation-results R6). steps_run lists only
+// what this call executed, from the recovery state before the call (prior)
+// and the phases it reached; an effect whose step is not in steps_run was
+// published by an earlier call.
+func startApplyFailure(store posemodel.Store, specPath, slug, digest, prior string, reached []string, returned posemodel.StartRecord, err error) posemodel.OperationResult {
 	result := posemodel.NewOperationResult("start.apply", "spec:"+slug)
 	// The domain's refusals are "start: <code>"; anything else is an
 	// operational error of the apply.
@@ -222,6 +241,7 @@ func startApplyFailure(store posemodel.Store, slug, digest string, returned pose
 	reconcile := "`pose start spec:" + slug + " --status` shows the record; `pose start spec:" + slug + " --cancel`, a new preview and its digest start again"
 	recovery, _ := store.StartRecovery(slug, digest)
 	persisted, _, _ := store.GetStartRecord(slug)
+	result.StepsRun = startStepsRun(prior, recovery, reached)
 	recorded := func() {
 		result.Effects = append(result.Effects, posemodel.OperationEffect{Step: "baseline", Effect: persisted.Phase, Ref: ".pose/starts/" + slug + ".json"})
 		result.Data = persisted
@@ -230,7 +250,8 @@ func startApplyFailure(store posemodel.Store, slug, digest string, returned pose
 	case posemodel.StartRecoveryPublished:
 		result.Fail(posemodel.OutcomeFailed, "record", cause, err.Error())
 		recorded()
-		result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "record", Reason: "the spec moved but the start record does not say started yet"})
+		result.Effects = append(result.Effects, posemodel.OperationEffect{Step: "transition", Effect: "spec-in-progress", Ref: specPath})
+		result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "record", Reason: "the spec is in-progress but the start record does not say started yet"})
 		result.Resumable = true
 		result.NextAction = "fix the cause, then repeat " + retry + "; it finishes from the start record"
 	case posemodel.StartRecoveryRetry:
@@ -260,4 +281,36 @@ func startApplyFailure(store posemodel.Store, slug, digest string, returned pose
 		result.Fail(posemodel.OutcomeFailed, "", cause, err.Error())
 	}
 	return result
+}
+
+// startStepsRun is what one apply or resume executed, in order. The baseline
+// ran in this call when no record existed for the digest before it and one
+// does now. Reaching "baseline-recorded" means the call went on to the
+// transition; reaching "transitioned" means the spec is in-progress, which
+// this call published unless it was already published before (prior), and
+// that it went on to the record. The record step only ever fails here: a
+// call that finished it returned no error.
+func startStepsRun(prior, recovery string, reached []string) []posemodel.OperationStep {
+	steps := []posemodel.OperationStep{}
+	if prior == posemodel.StartRecoveryNone && recovery != posemodel.StartRecoveryNone {
+		steps = append(steps, posemodel.OperationStep{ID: "baseline", Result: "done"})
+	}
+	reachedPhase := func(phase string) bool {
+		for _, p := range reached {
+			if p == phase {
+				return true
+			}
+		}
+		return false
+	}
+	switch {
+	case reachedPhase("transitioned"):
+		if prior != posemodel.StartRecoveryPublished {
+			steps = append(steps, posemodel.OperationStep{ID: "transition", Result: "done"})
+		}
+		steps = append(steps, posemodel.OperationStep{ID: "record", Result: "failed"})
+	case reachedPhase("baseline-recorded"):
+		steps = append(steps, posemodel.OperationStep{ID: "transition", Result: "failed"})
+	}
+	return steps
 }

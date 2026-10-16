@@ -80,7 +80,8 @@ type StartStatus struct {
 	CapabilityAdopt bool     `json:"capability_adopted"`
 }
 
-// StartFailureHook lets tests interrupt apply after a phase.
+// StartFailureHook is called after each phase apply reaches: tests return an
+// error to interrupt it, and adapters observe which phases the call reached.
 type StartFailureHook func(phase string) error
 
 func startError(code string) error { return fmt.Errorf("start: %s", code) }
@@ -250,8 +251,9 @@ func (s Store) ApplyStart(plan StartPlan, expectedDigest string, failAfter Start
 // the spec moved, a fresh preview has another digest, so the persisted record
 // — not a new plan — names what to finish (spec
 // pose-cli-mcp-operation-results R6). It refuses with
-// transition-not-published when the spec has not moved.
-func (s Store) ResumeStart(slug, digest string) (StartRecord, error) {
+// transition-not-published when the spec has not moved. failAfter observes
+// the phases it reaches, as in ApplyStart.
+func (s Store) ResumeStart(slug, digest string, failAfter StartFailureHook) (StartRecord, error) {
 	adopted, err := s.AtomicStartAdopted()
 	if err != nil {
 		return StartRecord{}, err
@@ -293,7 +295,7 @@ func (s Store) ResumeStart(slug, digest string) (StartRecord, error) {
 	}
 	switch digestHex(raw) {
 	case record.SpecDigestAfter:
-		return finishStart(recordPath, specPath, slug, record, nil)
+		return finishStart(recordPath, specPath, slug, record, failAfter)
 	case record.SpecDigestBefore:
 		return record, startError("transition-not-published")
 	default:

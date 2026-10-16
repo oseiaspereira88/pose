@@ -113,7 +113,15 @@ Routes:
   baseline (`stale-start-baseline`), a spec changed under the start
   (`compare-and-swap-conflict`) and a record for another plan are
   `conflict`s, not resumable, and point to `--status`, then `--cancel` and a
-  new preview.
+  new preview. Every state the failure confirms is an effect: the recorded
+  baseline (`.pose/starts/<slug>.json`) and, once the spec bytes match the
+  recorded `spec_digest_after`, the transition (`spec-in-progress`, with the
+  spec path). `steps_run` lists only the steps this call executed, derived
+  from the recovery state before the call and the phases the domain reports
+  reaching (`StartFailureHook`, observed without interrupting): a retry that
+  finds the baseline and the transition already published runs only
+  `record`, so an effect whose step is absent from `steps_run` was published
+  by an earlier call.
 - `pose close <scope>` without a plan mode has no JSON result: `--json` there
   is refused with exit 2 and the help no longer advertises it.
 - Parsers of `close`, `start`, `specs` and `continuous-closeout` refuse,

@@ -623,3 +623,82 @@ func TestAStaleStartBaselineIsNotAdvertisedAsResumable(t *testing.T) {
 		})
 	}
 }
+
+func stepsOf(result posemodel.OperationResult) string {
+	var steps []string
+	for _, step := range result.StepsRun {
+		steps = append(steps, step.ID+"="+step.Result)
+	}
+	return strings.Join(steps, ",")
+}
+
+// publishedStartFixture previews a start and blocks only the final record
+// write, so the first apply publishes the baseline and the spec transition
+// and then fails (sixth-round F12).
+func publishedStartFixture(t *testing.T) (string, string) {
+	t.Helper()
+	root := startCLIFixture(t, true)
+	var plan posemodel.StartPlan
+	if code, _ := runPoseJSON(t, root, &plan, "start", "spec:work", "--json"); code != 0 {
+		t.Fatal("preview")
+	}
+	if err := os.MkdirAll(filepath.Join(root, ".pose", "starts", "work.json.tmp"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	return root, plan.Digest
+}
+
+func TestAStartReceiptNamesThePublishedTransitionAndOnlyItsOwnSteps(t *testing.T) {
+	const specRef = ".pose/specs/2026-09-27-work.md"
+	root, digest := publishedStartFixture(t)
+	var first posemodel.OperationResult
+	code, _ := runPoseJSON(t, root, &first, "start", "spec:work", "--apply", "--digest", digest, "--json")
+	spec, _ := os.ReadFile(filepath.Join(root, filepath.FromSlash(specRef)))
+	if code != 1 || first.Step != "record" || !strings.Contains(string(spec), "status: in-progress") {
+		t.Fatalf("bad fixture: %d %+v", code, first)
+	}
+	if got := strings.Join(effectNames(first), ","); got != "baseline-recorded,spec-in-progress" || first.Effects[1].Ref != specRef {
+		t.Fatalf("the published transition is not a confirmed effect: %+v", first.Effects)
+	}
+	if got := stepsOf(first); got != "baseline=done,transition=done,record=failed" {
+		t.Fatalf("the first apply's steps: %q", got)
+	}
+	// The retry finds both published and runs only the record.
+	var retry posemodel.OperationResult
+	if code, _ := runPoseJSON(t, root, &retry, "start", "spec:work", "--apply", "--digest", digest, "--json"); code != 1 {
+		t.Fatal("the retry did not fail")
+	}
+	if got := stepsOf(retry); got != "record=failed" || strings.Join(effectNames(retry), ",") != "baseline-recorded,spec-in-progress" {
+		t.Fatalf("the retry mixed inherited effects into its steps: %q %+v", got, retry.Effects)
+	}
+	code, human := runPose(t, root, "start", "spec:work", "--apply", "--digest", digest)
+	if code != 1 || !strings.Contains(human, "start.step.record=failed") || strings.Contains(human, "start.step.baseline") || !strings.Contains(human, "start.spec-in-progress="+specRef) {
+		t.Fatalf("the human retry receipt: %d %s", code, human)
+	}
+
+	root, digest = publishedStartFixture(t)
+	code, human = runPose(t, root, "start", "spec:work", "--apply", "--digest", digest)
+	if code != 1 || !strings.Contains(human, "start.step.baseline=done") || !strings.Contains(human, "start.step.transition=done") || !strings.Contains(human, "start.step.record=failed") || !strings.Contains(human, "start.spec-in-progress="+specRef) {
+		t.Fatalf("the human first-apply receipt: %d %s", code, human)
+	}
+}
+
+func TestAStartWhoseTransitionFailsClaimsNoSpecEffect(t *testing.T) {
+	root := startCLIFixture(t, true)
+	var plan posemodel.StartPlan
+	if code, _ := runPoseJSON(t, root, &plan, "start", "spec:work", "--json"); code != 0 {
+		t.Fatal("preview")
+	}
+	specs := filepath.Join(root, ".pose", "specs")
+	if err := os.Chmod(specs, 0o555); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chmod(specs, 0o755)
+	var result posemodel.OperationResult
+	if code, _ := runPoseJSON(t, root, &result, "start", "spec:work", "--apply", "--digest", plan.Digest, "--json"); code != 1 {
+		t.Fatal("the transition did not fail")
+	}
+	if got := stepsOf(result); got != "baseline=done,transition=failed" || strings.Join(effectNames(result), ",") != "baseline-recorded" {
+		t.Fatalf("a failed transition: %q %+v", got, result.Effects)
+	}
+}
