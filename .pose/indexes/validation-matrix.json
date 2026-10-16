@@ -2019,6 +2019,20 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "review-approval-domain-preflight-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "ReviewDomainPreflight|ABMReviewSoundness|ABMGolden|LegacyLedger|CompletedReviewRetention|AuthorityProject|ReviewAttestationEnvelopeTrustPolicy",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

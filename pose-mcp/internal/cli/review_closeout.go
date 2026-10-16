@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -628,6 +629,39 @@ func resolveReviewBundleScope(store posemodel.Store, target string) (string, err
 	return bundle.Payload.Scope.Ref, nil
 }
 
+// resolveReviewAttestBundle names the bundle an attestation is about. A scope
+// ref means its current sealed bundle; an explicit bundle id or path means
+// that bundle, as named. Whether a named bundle is still the current subject
+// is not decided here: the domain writer refuses the approval of a superseded
+// or stale bundle among its other blockers, and records a legitimate negative
+// about it, exactly as it does for the Store and a signed import (spec
+// pose-review-approval-domain-preflight R4, R5, R7).
+func resolveReviewAttestBundle(store posemodel.Store, target string) (*posemodel.ReviewBundle, error) {
+	if _, err := posemodel.ParseScopeRef(target); err == nil {
+		bundle, err := store.CurrentReviewBundle(target)
+		if err != nil {
+			return nil, err
+		}
+		if bundle == nil {
+			return nil, fmt.Errorf("scope has no current sealed bundle")
+		}
+		return bundle, nil
+	}
+	id := target
+	if strings.HasSuffix(target, ".json") {
+		clean := filepath.Clean(filepath.FromSlash(target))
+		if filepath.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, ".."+string(os.PathSeparator)) {
+			return nil, fmt.Errorf("bundle path escapes project root")
+		}
+		id = strings.TrimSuffix(filepath.Base(clean), ".json")
+	}
+	bundle, err := store.LoadReviewBundle(id)
+	if err != nil {
+		return nil, err
+	}
+	return &bundle, nil
+}
+
 func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) >= 2 && args[0] == "--envelope" {
 		apply := false
@@ -637,9 +671,20 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintln(stderr, "Usage: pose review attest --envelope <project-relative-path> [--apply]")
 			return 2
 		}
-		attestation, err := cliGovernedStore(root).ImportReviewAttestationEnvelope(args[1], apply)
+		store := cliGovernedStore(root)
+		attestation, err := store.ImportReviewAttestationEnvelope(args[1], apply)
+		if reportApprovalRefusal(stdout, stderr, "pose review attest", err) {
+			return 1
+		}
 		if err != nil {
 			fmt.Fprintf(stderr, "pose review attest: %v\n", err)
+			return 1
+		}
+		// A verified signature is not an admissible approval: the preview
+		// reports what the domain writer would refuse (spec
+		// pose-review-approval-domain-preflight R6).
+		if refusals := store.PreflightReviewAttestation(attestation, time.Now()); !apply && len(refusals) > 0 {
+			reportAttestPreflight(stdout, stderr, "pose review attest", refusals)
 			return 1
 		}
 		fmt.Fprintf(stdout, "review_attestation.envelope=verified\nreview_attestation.id=%s\nreview_attestation.bundle_id=%s\nreview_attestation.apply=%t\n", attestation.AttestationID, attestation.BundleID, apply)
@@ -736,21 +781,9 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	store := cliGovernedStore(root)
-	ref, err := resolveReviewBundleScope(store, target)
+	bundle, err := resolveReviewAttestBundle(store, target)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
-		return 1
-	}
-	bundle, err := store.CurrentReviewBundle(ref)
-	if err != nil || bundle == nil {
-		if err == nil {
-			err = fmt.Errorf("scope has no current sealed bundle")
-		}
-		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
-		return 1
-	}
-	if strings.HasPrefix(target, "rvb-") && target != bundle.BundleID {
-		fmt.Fprintln(stderr, "pose review attest: bundle is superseded by current semantic inputs")
 		return 1
 	}
 	if expectedPlanDigest != "" && expectedPlanDigest != bundle.Payload.Plan.PlanDigest {
@@ -758,7 +791,9 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	plan := posemodel.ReviewPlan{Criteria: bundle.Payload.Plan.Criteria, Tools: bundle.Payload.Plan.Tools, Structure: bundle.Payload.Plan.Structure}
-	tools, err := reviewToolDispositions(plan, rawTools, true)
+	// The flags are decoded here; their admissibility is judged once, by the
+	// domain writer every channel shares (spec pose-review-approval-domain-preflight R7).
+	tools, err := decodeReviewToolDispositions(plan, rawTools)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
 		return 2
@@ -769,7 +804,7 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	sort.Strings(evidence)
-	criteria, err := reviewCriterionDispositions(plan, evidence, rawCriteria, parsedFindings)
+	criteria, err := reviewCriterionDispositions(plan, evidence, rawCriteria)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
 		return 2
@@ -799,15 +834,20 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 	if signWith != "" {
 		return signAndRecordAttestation(store, att, signWith, claimAuthority, reviewExecution, implementationPrincipal, implementationExecution, claimTTL, apply, stdout, stderr)
 	}
-	if refusals := store.PreflightReviewAttestation(att, time.Now()); len(refusals) > 0 {
-		reportAttestPreflight(stdout, stderr, "pose review attest", refusals)
-		return 1
-	}
 	if !apply {
+		// The preview runs the domain writer's own admission; apply gets the
+		// same answer from the writer itself.
+		if refusals := store.PreflightReviewAttestation(att, time.Now()); len(refusals) > 0 {
+			reportAttestPreflight(stdout, stderr, "pose review attest", refusals)
+			return 1
+		}
 		fmt.Fprintf(stdout, "review_attestation.plan=record\nreview_attestation.bundle_id=%s\nreview_attestation.bundle_digest=%s\nreview_attestation.plan_digest=%s\nreview_attestation.apply=false\n", bundle.BundleID, bundle.BundleDigest, bundle.Payload.Plan.PlanDigest)
 		return 0
 	}
 	att, err = store.RecordReviewAttestation(att, time.Now())
+	if reportApprovalRefusal(stdout, stderr, "pose review attest", err) {
+		return 1
+	}
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
 		return 1
@@ -854,13 +894,17 @@ func signAndRecordAttestation(store posemodel.Store, att posemodel.ReviewAttesta
 		render(stdout, stderr).Failure("pose review attest: " + strings.TrimPrefix(err.Error(), "pose: "))
 		return 1
 	}
-	if refusals := store.PreflightReviewAttestation(verified, now); len(refusals) > 0 {
+	if refusals := store.PreflightReviewAttestation(verified, now); !apply && len(refusals) > 0 {
 		reportAttestPreflight(stdout, stderr, "pose review attest", refusals)
 		return 1
 	}
 	recorded := verified
 	if apply {
-		if recorded, err = store.RecordReviewAttestationEnvelope(envelope, true); err != nil {
+		recorded, err = store.RecordReviewAttestationEnvelope(envelope, true)
+		if reportApprovalRefusal(stdout, stderr, "pose review attest", err) {
+			return 1
+		}
+		if err != nil {
 			render(stdout, stderr).Failure("pose review attest: " + strings.TrimPrefix(err.Error(), "pose: "))
 			return 1
 		}
@@ -883,6 +927,18 @@ func signAndRecordAttestation(store posemodel.Store, att posemodel.ReviewAttesta
 // written and then rejected.
 func reportAttestPreflight(stdout, stderr io.Writer, command string, refusals []string) {
 	render(stdout, stderr).Failure(command + ": verify would reject this attestation, so nothing was written:\n  - " + strings.Join(refusals, "\n  - "))
+}
+
+// reportApprovalRefusal renders the domain writer's typed approval refusal
+// the same way as the preview, and reports whether err was one. The CLI keeps
+// no approval policy of its own (spec pose-review-approval-domain-preflight).
+func reportApprovalRefusal(stdout, stderr io.Writer, command string, err error) bool {
+	var refusal *posemodel.ReviewApprovalRefusal
+	if !errors.As(err, &refusal) {
+		return false
+	}
+	reportAttestPreflight(stdout, stderr, command, refusal.Blockers)
+	return true
 }
 
 // applyReviewCriterionMappings attaches the reviewer's answers about observed
@@ -936,10 +992,10 @@ func applyReviewCriterionMappings(plan posemodel.ReviewPlan, criteria []posemode
 		}
 		switch answer {
 		case posemodel.ReviewMappingMissingEvidence, posemodel.ReviewMappingNotApplicable, posemodel.ReviewMappingAcceptedRisk:
+			// An empty rationale is kept: the domain requires one for an
+			// approval and not for a negative (spec
+			// pose-review-approval-domain-preflight R4, R7).
 			mapping.Disposition = answer
-			if mapping.Rationale == "" {
-				return nil, fmt.Errorf("mapping %s for %s is %s and needs a rationale: CRITERION|DELTA|%s|<why>", delta, id, answer, answer)
-			}
 		case posemodel.ReviewMappingMapped:
 			return nil, fmt.Errorf("mapping %s for %s must name the basis ref instead of %q", delta, id, answer)
 		default:
@@ -985,25 +1041,25 @@ func cmdReviewAutoAttest(root string, args []string, stdout, stderr io.Writer) i
 		reviewer = "agent:auto-attest"
 	}
 	store := cliGovernedStore(root)
-	ref, err := resolveReviewBundleScope(store, target)
+	// The bundle as named, like `attest`: supersession is the domain's verdict,
+	// reported with every other blocker (spec pose-review-approval-domain-preflight R7).
+	bundle, err := resolveReviewAttestBundle(store, target)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review auto-attest: %v\n", err)
 		return 1
 	}
-	bundle, err := store.CurrentReviewBundle(ref)
-	if err != nil || bundle == nil {
-		if err == nil {
-			err = fmt.Errorf("scope %s has no current sealed bundle", ref)
-		}
-		fmt.Fprintf(stderr, "pose review auto-attest: %v\n", err)
-		return 1
-	}
-	if strings.HasPrefix(target, "rvb-") && target != bundle.BundleID {
-		fmt.Fprintf(stderr, "pose review auto-attest: bundle %s is superseded by %s\n", target, bundle.BundleID)
-		return 1
-	}
 	prepared, err := store.PrepareReviewAttestation(bundle.BundleID, reviewer, time.Now())
 	att := prepared.Attestation
+	// A complete draft is an approval the writer will judge, so the preview
+	// projects that same admission instead of reporting a preparation success
+	// the apply would refuse on unchanged inputs (spec
+	// pose-review-approval-domain-preflight R5, R7).
+	if err == nil && !apply && prepared.Complete {
+		if refusals := store.PreflightReviewAttestation(att, time.Now()); len(refusals) > 0 {
+			reportAttestPreflight(stdout, stderr, "pose review auto-attest", refusals)
+			return 1
+		}
+	}
 	if err == nil && !apply {
 		pendingLines := ""
 		for _, item := range prepared.Pending {
@@ -1015,11 +1071,10 @@ func cmdReviewAutoAttest(root string, args []string, stdout, stderr io.Writer) i
 	if err != nil {
 		// Fall through to the single reporting site below.
 	} else if prepared.Complete {
-		if refusals := store.PreflightReviewAttestation(att, time.Now()); len(refusals) > 0 {
-			reportAttestPreflight(stdout, stderr, "pose review auto-attest", refusals)
+		att, err = store.RecordReviewAttestation(att, time.Now())
+		if reportApprovalRefusal(stdout, stderr, "pose review auto-attest", err) {
 			return 1
 		}
-		att, err = store.RecordReviewAttestation(att, time.Now())
 	} else {
 		// Verdict first, then the cause, then the action — and exit 1, because
 		// nothing is recorded. Reporting success here is what let a scope look
@@ -1253,84 +1308,60 @@ func renderReviewAttempt(id, scope, digest string, plan posemodel.ReviewPlan, pr
 // on evidence that does not support it, or to leave the closeout blocked.
 // `auto-attest` gained the ability to record `not-applicable` with a rationale;
 // a human reviewer should not have fewer options than the automated path.
-func reviewCriterionDispositions(plan posemodel.ReviewPlan, evidence, raw []string, findings []posemodel.ReviewFinding) ([]posemodel.ReviewCriterion, error) {
-	recordedFindings := map[string]bool{}
-	for _, finding := range findings {
-		recordedFindings[finding.ID] = true
-	}
-	planned := map[string]posemodel.ReviewPlanCriterion{}
-	for _, criterion := range plan.Criteria {
-		planned[criterion.ID] = criterion
-	}
-	overrides := map[string]posemodel.ReviewCriterion{}
+//
+// It decodes the flags and nothing more. Whether an answer is admissible — a
+// criterion the plan does not require, a duplicate, an unknown disposition, a
+// not-applicable without a reason, a finding the attestation does not record,
+// a judgment left unanswered — is the domain writer's verdict, so this command
+// reports the same blockers as Store, signed import and MCP, all of them at
+// once, and does not hold a negative decision to the approval bar (spec
+// pose-review-approval-domain-preflight R4, R7).
+func reviewCriterionDispositions(plan posemodel.ReviewPlan, evidence, raw []string) ([]posemodel.ReviewCriterion, error) {
+	overrides := map[string][]posemodel.ReviewCriterion{}
+	order := []string{}
 	for _, value := range raw {
 		parts := strings.Split(value, "|")
 		if len(parts) < 3 || len(parts) > 4 || posemodel.ValidateSlug(parts[0]) != nil {
 			return nil, fmt.Errorf("criterion must be ID|disposition|evidence|rationale")
 		}
-		criterion, ok := planned[parts[0]]
-		if !ok || !criterion.Required {
-			return nil, fmt.Errorf("criterion disposition does not match a required criterion in the effective plan: %s", parts[0])
-		}
-		if _, seen := overrides[parts[0]]; seen {
-			return nil, fmt.Errorf("duplicate criterion disposition: %s", parts[0])
-		}
 		disposition := posemodel.ReviewCriterion{ID: parts[0], Disposition: parts[1], Evidence: parts[2]}
 		if len(parts) == 4 {
 			disposition.Rationale = parts[3]
 		}
-		switch disposition.Disposition {
-		case "passed", "not-applicable", "finding":
-		default:
-			return nil, fmt.Errorf("criterion %s has invalid disposition %q: expected passed, not-applicable or finding", disposition.ID, disposition.Disposition)
+		if _, seen := overrides[disposition.ID]; !seen {
+			order = append(order, disposition.ID)
 		}
-		// Sealing rejects this too, but saying it here names the flag the
-		// reviewer has to change rather than the artifact they cannot see.
-		if disposition.Disposition == "not-applicable" && disposition.Rationale == "" {
-			return nil, fmt.Errorf("criterion %s is not-applicable and needs a rationale: ID|not-applicable||<why>", disposition.ID)
-		}
-		// `finding` says a criterion did not clear and a problem was recorded.
-		// Nothing downstream ties the two together: validateBundleAttestation
-		// checks the disposition and then only rejects findings that exist and
-		// are open, so a criterion marked `finding` with none filed reports a
-		// clean closeout for a criterion the reviewer explicitly did not pass.
-		// The evidence slot names the finding, which is the reference the
-		// disposition is claiming.
-		if disposition.Disposition == "finding" {
-			if disposition.Evidence == "" {
-				return nil, fmt.Errorf("criterion %s is a finding and must name the recorded finding: ID|finding|<finding-id>|<note>", disposition.ID)
-			}
-			if !recordedFindings[disposition.Evidence] {
-				return nil, fmt.Errorf("criterion %s names finding %q, which this attestation does not record; add it with --finding", disposition.ID, disposition.Evidence)
-			}
-		}
-		overrides[parts[0]] = disposition
+		overrides[disposition.ID] = append(overrides[disposition.ID], disposition)
 	}
-	criteria := make([]posemodel.ReviewCriterion, 0, len(plan.Criteria))
-	unanswered := []string{}
+	criteria := make([]posemodel.ReviewCriterion, 0, len(plan.Criteria)+len(raw))
+	placed := map[string]bool{}
 	for _, criterion := range plan.Criteria {
 		if !criterion.Required {
 			continue
 		}
-		if override, ok := overrides[criterion.ID]; ok {
-			criteria = append(criteria, override)
+		if answers, ok := overrides[criterion.ID]; ok {
+			criteria = append(criteria, answers...)
+			placed[criterion.ID] = true
 			continue
 		}
 		// Defaulting to `passed` was this command's other half of the same
 		// problem auto-attest had: a criterion the reviewer never mentioned
 		// came out approved, citing whichever supplied reference matched. For a
 		// criterion a check answers that is a defensible shortcut. For one only
-		// a reviewer can answer it states a conclusion nobody reached, so the
-		// command asks instead of assuming (spec pose-abm-review-soundness).
+		// a reviewer can answer it states a conclusion nobody reached, so it
+		// stays unanswered and the domain names it missing for an approval
+		// (spec pose-abm-review-soundness).
 		if posemodel.ReviewCriterionKind(criterion) == posemodel.ReviewCriterionKindJudgment {
-			unanswered = append(unanswered, criterion.ID)
 			continue
 		}
 		criteria = append(criteria, posemodel.ReviewCriterion{ID: criterion.ID, Disposition: "passed", Evidence: reviewCriterionEvidence(criterion, evidence)})
 	}
-	if len(unanswered) > 0 {
-		sort.Strings(unanswered)
-		return nil, fmt.Errorf("these criteria need an explicit judgment and have none: %s; record each with --criterion ID|passed|<evidence>|<conclusion>, or not-applicable with a reason, or finding naming a recorded finding", strings.Join(unanswered, ", "))
+	// An answer to a criterion the plan does not require is kept, so the domain
+	// names it rather than the command silently dropping it.
+	for _, id := range order {
+		if !placed[id] {
+			criteria = append(criteria, overrides[id]...)
+		}
 	}
 	return criteria, nil
 }
@@ -1348,19 +1379,9 @@ func reviewToolDispositions(plan posemodel.ReviewPlan, raw []string, componentAw
 	}
 	provided := map[string]posemodel.ReviewToolDisposition{}
 	for _, value := range raw {
-		parts := strings.Split(value, "|")
-		if len(parts) < 4 || len(parts) > 5 || posemodel.ValidateSlug(parts[0]) != nil {
-			return nil, fmt.Errorf("tool must be ID|component|disposition|evidence|rationale")
-		}
-		component := parts[1]
-		if component == "-" {
-			component = ""
-		} else if decoded, err := url.QueryUnescape(component); err == nil {
-			component = decoded
-		}
-		disposition := posemodel.ReviewToolDisposition{ID: parts[0], Component: component, Disposition: parts[2], Evidence: parts[3]}
-		if len(parts) == 5 {
-			disposition.Rationale = parts[4]
+		disposition, err := parseCLIReviewToolDisposition(value)
+		if err != nil {
+			return nil, err
 		}
 		key := cliReviewToolKey(disposition.ID, disposition.Component)
 		tool, ok := planned[key]
@@ -1394,6 +1415,56 @@ func reviewToolDispositions(plan posemodel.ReviewPlan, raw []string, componentAw
 		return nil, fmt.Errorf("required review tool %s needs --tool evidence", cliReviewToolLabel(tool.ID, tool.Component))
 	}
 	return result, nil
+}
+
+// decodeReviewToolDispositions is the attestation's counterpart of
+// reviewToolDispositions, which the legacy `review record` path keeps because
+// no domain writer judges what it writes. It decodes the flags, keeps every
+// one in order — unknown and duplicate included, so the domain can name them
+// — and fills only the defaults that state no conclusion: a post-review gate
+// deferred, a recommended tool not used. A required tool left out stays out,
+// and the domain writer names it for an approval (spec
+// pose-review-approval-domain-preflight R4, R7).
+func decodeReviewToolDispositions(plan posemodel.ReviewPlan, raw []string) ([]posemodel.ReviewToolDisposition, error) {
+	result := make([]posemodel.ReviewToolDisposition, 0, len(plan.Tools)+len(raw))
+	provided := map[string]bool{}
+	for _, value := range raw {
+		disposition, err := parseCLIReviewToolDisposition(value)
+		if err != nil {
+			return nil, err
+		}
+		provided[cliReviewToolKey(disposition.ID, disposition.Component)] = true
+		result = append(result, disposition)
+	}
+	for _, tool := range plan.Tools {
+		if provided[cliReviewToolKey(tool.ID, tool.Component)] {
+			continue
+		}
+		if cliReviewToolHasPrecondition(tool, "review-complete") {
+			result = append(result, posemodel.ReviewToolDisposition{ID: tool.ID, Component: tool.Component, Disposition: "deferred", Rationale: "post-review gate"})
+		} else if tool.Requiredness == "recommended" {
+			result = append(result, posemodel.ReviewToolDisposition{ID: tool.ID, Component: tool.Component, Disposition: "not-used", Rationale: "not used during review"})
+		}
+	}
+	return result, nil
+}
+
+func parseCLIReviewToolDisposition(value string) (posemodel.ReviewToolDisposition, error) {
+	parts := strings.Split(value, "|")
+	if len(parts) < 4 || len(parts) > 5 || posemodel.ValidateSlug(parts[0]) != nil {
+		return posemodel.ReviewToolDisposition{}, fmt.Errorf("tool must be ID|component|disposition|evidence|rationale")
+	}
+	component := parts[1]
+	if component == "-" {
+		component = ""
+	} else if decoded, err := url.QueryUnescape(component); err == nil {
+		component = decoded
+	}
+	disposition := posemodel.ReviewToolDisposition{ID: parts[0], Component: component, Disposition: parts[2], Evidence: parts[3]}
+	if len(parts) == 5 {
+		disposition.Rationale = parts[4]
+	}
+	return disposition, nil
 }
 
 func validateCLIReviewToolDisposition(tool posemodel.ReviewPlanTool, disposition posemodel.ReviewToolDisposition) error {

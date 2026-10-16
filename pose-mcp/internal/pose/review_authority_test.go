@@ -100,14 +100,10 @@ func (f authorityFixture) attestation(t *testing.T, reviewer, implementationPrin
 
 func verifyAuthorityAttestation(t *testing.T, f authorityFixture, att ReviewAttestation) ReviewBundleVerification {
 	t.Helper()
-	if _, err := f.store.RecordReviewAttestation(att, f.now.Add(2*time.Minute)); err != nil {
-		t.Fatal(err)
-	}
-	verification, err := f.store.VerifyReviewBundle("spec:backend")
-	if err != nil {
-		t.Fatal(err)
-	}
-	return verification
+	// An approval the verifier rejects is now refused by the writer, with the
+	// verifier's own blockers and nothing written (spec
+	// pose-review-approval-domain-preflight).
+	return recordAndVerifyOrRefusal(t, f.store, "spec:backend", att, f.now.Add(2*time.Minute))
 }
 
 func TestABMReviewAuthorityValid(t *testing.T) {

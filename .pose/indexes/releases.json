@@ -145,6 +145,14 @@
       "digest": "sha256:aad9235c2b97213efa318b5ec8196b1b59a9add20d55c750e84c4a6fed66882b"
     },
     {
+      "spec": "pose-review-approval-domain-preflight",
+      "category": "security",
+      "breaking": false,
+      "body": "The shared review-attestation writer now refuses an approving attestation the\nverifier would reject before writing anything, with one typed refusal for the\nStore, `pose review attest` (preview, apply, sign and envelope import),\n`pose review auto-attest` and the MCP `pose_review_attest` tool. It also refuses\nthe approval of a superseded or stale bundle. A trusted signature over invalid\ncriteria still verifies identity but is never recorded as an approval;\nlegitimate negative decisions remain recordable, and persisted history is not\nrewritten. Classified for a minor release.\n\n`pose review attest` no longer judges `--criterion` and `--tool` answers in its\nown flag parser: a semantic defect (an unknown or duplicate criterion, a finding\nthe attestation does not record, a not-applicable without a reason, an unknown\nor omitted required tool) now returns the domain's refusal with every blocker\nat once (exit 1) instead of the first parser error (exit 2), and a\n`changes-requested` or `rejected` decision no longer needs the approval's\njudgment criteria or required tools.\n\nAn explicit bundle id given to `pose review attest` is now attested as named:\nthe approval of a superseded bundle is refused by the domain with every other\nblocker, and a negative decision about it is recorded, as the Store and a\nsigned import already did.\n\nA `--mapping` disposed as missing-evidence, not-applicable or accepted-risk\nwithout a rationale now reaches the domain too, which refuses it for an\napproval and records it in a negative. `pose review auto-attest` prepares the\nbundle as named and, for a complete draft, its preview reports the same\nrefusal the apply would return.",
+      "path": "pose-review-approval-domain-preflight.md",
+      "digest": "sha256:ff805b84a777ae37b2cab091f33b6e6d398e6dc531b23c56d409b1e704bfd320"
+    },
+    {
       "spec": "pose-review-disclosure-requires-proof",
       "category": "fixed",
       "breaking": false,

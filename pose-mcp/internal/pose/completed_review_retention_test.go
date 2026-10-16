@@ -124,9 +124,8 @@ func TestCompletedReviewRetention(t *testing.T) {
 				break
 			}
 		}
-		if _, err := store.RecordReviewAttestation(invalid, now.Add(3*time.Minute)); err != nil {
-			t.Fatal(err)
-		}
+		// The writer refuses this approval now; it can only exist as history.
+		persistHistoricalAttestation(t, store, invalid, now.Add(3*time.Minute))
 		if blockers := store.validateBundleAttestation(second, invalid); len(blockers) == 0 {
 			t.Fatal("fixture: the newer approval still validates")
 		}

@@ -42,11 +42,14 @@ func TestABMReviewSoundnessSignedRiskIsNotApproval(t *testing.T) {
 		t.Fatal(err)
 	}
 	writeReviewFixture(t, root, "risk-envelope.json", string(raw))
-	if _, err := store.ImportReviewAttestationEnvelope("risk-envelope.json", true); err != nil {
-		t.Fatal(err)
+	// A valid signature does not make the risk acceptable: the signed import
+	// is refused before it writes (spec pose-review-approval-domain-preflight R6).
+	before := poseTreeSnapshot(t, root)
+	_, err = store.ImportReviewAttestationEnvelope("risk-envelope.json", true)
+	if blockers := requireApprovalRefusal(t, root, before, err); !containsSubstring(blockers, "unapproved or incomplete accepted risk") {
+		t.Fatalf("signed risk bypassed gate: %v", blockers)
 	}
-	verification, err := store.VerifyReviewBundle("spec:backend")
-	if err != nil || verification.Approved || !containsSubstring(verification.Blockers, "unapproved or incomplete accepted risk") {
+	if verification, err := store.VerifyReviewBundle("spec:backend"); err != nil || verification.Approved {
 		t.Fatalf("signed risk bypassed gate: %+v %v", verification, err)
 	}
 }
@@ -107,8 +110,11 @@ func TestABMReviewSoundnessReuseCannotLaunderRejectedRisk(t *testing.T) {
 		prior := approvedBundleAttestation(bundle, "agent:prior-risk")
 		prior.Decision = decision
 		prior.Findings = []ReviewFinding{{ID: "f1", Severity: "critical", Disposition: "wont-fix", Action: "leave unresolved"}}
-		recorded, err := store.RecordReviewAttestation(prior, now.Add(time.Duration(i+1)*time.Minute))
-		if err != nil {
+		var recorded ReviewAttestation
+		if decision == "approved" {
+			// The writer now refuses this approval, so it exists only as history.
+			recorded = persistHistoricalAttestation(t, store, prior, now.Add(time.Duration(i+1)*time.Minute))
+		} else if recorded, err = store.RecordReviewAttestation(prior, now.Add(time.Duration(i+1)*time.Minute)); err != nil {
 			t.Fatal(err)
 		}
 		current := approvedBundleAttestation(bundle, "agent:reuse-risk")
@@ -233,9 +239,14 @@ func TestABMReviewSoundnessOrphanFindingRefusedByStore(t *testing.T) {
 	att := approvedBundleAttestation(bundle, "agent:audit")
 	att.Criteria[0].Disposition = "finding"
 	att.Criteria[0].Evidence = "finding-does-not-exist"
-	if _, err := store.RecordReviewAttestation(att, now.Add(time.Minute)); err != nil {
-		t.Fatal(err)
+	before := poseTreeSnapshot(t, store.Root)
+	_, err = store.RecordReviewAttestation(att, now.Add(time.Minute))
+	if blockers := requireApprovalRefusal(t, store.Root, before, err); !containsSubstring(blockers, "which this attestation does not record") {
+		t.Fatalf("expected an orphan-finding refusal, got %v", blockers)
 	}
+	// The same record persisted before the writer refused it still does not
+	// verify approved.
+	persistHistoricalAttestation(t, store, att, now.Add(time.Minute))
 	verification, err := store.VerifyReviewBundle("spec:backend")
 	if err != nil {
 		t.Fatal(err)
@@ -266,14 +277,8 @@ func TestABMReviewSoundnessBlanketNotApplicableRefused(t *testing.T) {
 		att.Criteria[i].Evidence = ""
 		att.Criteria[i].Rationale = "not relevant"
 	}
-	if _, err := store.RecordReviewAttestation(att, now.Add(time.Minute)); err != nil {
-		t.Fatal(err)
-	}
-	verification, err := store.VerifyReviewBundle("spec:backend")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if verification.Approved {
+	verification := recordAndVerifyOrRefusal(t, store, "spec:backend", att, now.Add(time.Minute))
+	if verification.State != "refused" || verification.Approved {
 		t.Fatal("an attestation where the whole plan is inapplicable must not verify approved")
 	}
 	if !containsSubstring(verification.Blockers, "not-applicable") {

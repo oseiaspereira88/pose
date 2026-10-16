@@ -1,0 +1,33 @@
+{
+  "reviewed_head": "e33496b19c6e57cdc4606db62eb95a9bd059e32f",
+  "bundle_id": "rvb-045390915bbf6068",
+  "attestation_id": "rva-98ebc45a80704275",
+  "gates": [
+    {
+      "command": "pose close spec:pose-review-approval-domain-preflight",
+      "exit_code": 0,
+      "stdout": "Closed: spec:pose-review-approval-domain-preflight\n"
+    },
+    {
+      "command": "pose lint-spec pose-review-approval-domain-preflight --strict",
+      "exit_code": 0,
+      "stdout": "---\nspec.path=/tmp/claude-1000/-home-go-IdeaProjects-harne8/296d1fcb-e989-40ae-9362-cf3514db8b26/scratchpad/b02/pose-dist/.pose/specs/2026-10-13-pose-review-approval-domain-preflight.md\nspec.status=done\nspec.sections.total=7\nspec.sections.filled=7\nspec.sections.skeleton=0\nspec.sections.empty=0\nspec.required.missing=0\nspec.followups.total=0\nspec.followups.open=0\nspec.lifecycle.failures=0\nspec.requirements.ids=7\nspec.requirements.duplicate_failures=0\nspec.trace.present=true\nspec.trace.entries=7\nspec.trace.missing=0\nspec.trace.failures=0\nspec.amendments.events=0\nspec.amendments.failures=0\n\nlint.specs.checked=1\nlint.specs.failed=0\nResultado: SUCESSO\n"
+    },
+    {
+      "command": "pose index",
+      "exit_code": 0,
+      "stdout": "POSE indexes updated at /tmp/claude-1000/-home-go-IdeaProjects-harne8/296d1fcb-e989-40ae-9362-cf3514db8b26/scratchpad/b02/pose-dist/.pose/indexes\n"
+    },
+    {
+      "command": "pose check --strict",
+      "exit_code": 0,
+      "stdout": "⚠ warning changelog: done spec without a changelog fragment: pose-agy-smoke-test\n⚠ warning changelog: done spec without a changelog fragment: pose-canonical-positioning\n⚠ warning changelog: done spec without a changelog fragment: pose-community-contribution-surfaces\n⚠ warning changelog: done spec without a changelog fragment: pose-docs-canonical-route\n⚠ warning changelog: done spec without a changelog fragment: pose-first-governed-loop-quickstart\n⚠ warning changelog: done spec without a changelog fragment: pose-launch-proof-demo\n⚠ warning changelog: done spec without a changelog fragment: pose-public-claims-contract\n⚠ warning changelog: done spec without a changelog fragment: pose-readme-evaluation-path\n⚠ warning changelog: done spec without a changelog fragment: pose-release-recovery-verification\n⚠ warning changelog: done spec without a changelog fragment: pose-release-security-gate-integrity\n⚠ warning changelog: done spec without a changelog fragment: pose-sdd-migration-acquisition\n⚠ warning changelog: done spec without a changelog fragment: pose-code-cites-the-specs-that-delivered-it\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-authority-fixture-clock\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-design-basis\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-governance-outcomes\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-remediation-lineage\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-authority\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-tool-deferred-without-delivery\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-structural-delta\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-subject-evidence\n⚠ warning changelog: done spec without a changelog fragment: pose-check-qualified-roadmap-members\n⚠ warning changelog: done spec without a changelog fragment: pose-dist-adopts-spec-authority-transfer\n⚠ warning changelog: done spec without a changelog fragment: pose-federated-external-milestone-members\n⚠ warning changelog: done spec without a changelog fragment: pose-review-bundle-classifies-transfer-records\n⚠ warning changelog: done spec without a changelog fragment: pose-spec-transfer-completion-and-references\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-capability-adoption\n⚠ warning changelog: done spec without a changelog fragment: pose-open-backlog-reconciliation\n⚠ warning capabilities: assessment is 60 days old (policy: 30); consider reassessing\n⚠ warning capabilities: baseline_commit is 1436 commits behind HEAD (policy: 200); consider reassessing\n⚠ warning instance: last updated by POSE 7.1.0, older than this engine 7.4.1; run pose update\nResult: SUCCESS — (strict mode) with 30 warning(s).\n"
+    }
+  ],
+  "review_verify": {
+    "state": "closed",
+    "fresh": true,
+    "approved": true
+  },
+  "publication": "These gates ran before the closeout commit; generated/lifecycle evidence does not claim a new production-code validation run."
+}

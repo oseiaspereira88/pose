@@ -57,6 +57,7 @@ func signEnvelope(f authorityFixture, att ReviewAttestation, canonical []byte) R
 func TestSignedPreviewIsWhatTheEnvelopeRecordsAndTheConfirmationIsVerified(t *testing.T) {
 	f := verifiedAuthorityFixture(t, "different-actor")
 	trustHumanAuthority(t, f)
+	resealAfterPolicyChange(t, &f)
 	completed, canonical, err := f.store.SignableReviewAttestation(confirmationDraft(f, "human:maintainer", "human"), f.now)
 	if err != nil {
 		t.Fatal(err)
@@ -92,6 +93,7 @@ func TestSignedPreviewIsWhatTheEnvelopeRecordsAndTheConfirmationIsVerified(t *te
 func TestAnEnvelopeOverOtherContentIsRefused(t *testing.T) {
 	f := verifiedAuthorityFixture(t, "different-actor")
 	trustHumanAuthority(t, f)
+	resealAfterPolicyChange(t, &f)
 	completed, canonical, err := f.store.SignableReviewAttestation(confirmationDraft(f, "human:maintainer", "human"), f.now)
 	if err != nil {
 		t.Fatal(err)
@@ -118,6 +120,7 @@ func TestAnEnvelopeOverOtherContentIsRefused(t *testing.T) {
 func TestAnAgentConfirmationStaysDeclared(t *testing.T) {
 	f := verifiedAuthorityFixture(t, "different-actor")
 	trustHumanAuthority(t, f)
+	resealAfterPolicyChange(t, &f)
 	completed, canonical, err := f.store.SignableReviewAttestation(confirmationDraft(f, "agent:reviewer", "agent"), f.now)
 	if err != nil {
 		t.Fatal(err)

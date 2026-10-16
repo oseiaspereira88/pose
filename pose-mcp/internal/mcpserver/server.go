@@ -625,6 +625,7 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 		// "pass project_id, the deployment has more than one project."
 		var unknownProj pose.ProjectUnknownError
 		var ambiguousProj pose.ProjectAmbiguousError
+		var approvalRefusal *pose.ReviewApprovalRefusal
 		switch {
 		case errors.As(err, &unknownProj):
 			available, truncated := s.authorizedProjectIDs(ctx, policyInput)
@@ -644,6 +645,14 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 			return result(req.ID, map[string]any{
 				"content":           []map[string]any{{"type": "text", "text": err.Error()}},
 				"structuredContent": structured,
+				"isError":           true,
+			})
+		case errors.As(err, &approvalRefusal):
+			// The domain writer's typed approval refusal, the same blockers
+			// every channel receives (spec pose-review-approval-domain-preflight).
+			return result(req.ID, map[string]any{
+				"content":           []map[string]any{{"type": "text", "text": err.Error()}},
+				"structuredContent": map[string]any{"error_code": "review_approval_refused", "bundle_id": approvalRefusal.BundleID, "blockers": approvalRefusal.Blockers, "recorded": false},
 				"isError":           true,
 			})
 		case errors.As(err, &ambiguousProj):
@@ -1225,7 +1234,13 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			if err != nil {
 				return nil, err
 			}
-			return map[string]any{"preview": true, "verified": true, "attestation": verified, "apply": "false (call again with the same envelope and apply: true to record it)"}, nil
+			// A verified signature is identity, not admissibility: report what
+			// the domain writer would refuse before apply is attempted.
+			blockers := store.PreflightReviewAttestation(verified, time.Now())
+			if blockers == nil {
+				blockers = []string{}
+			}
+			return map[string]any{"preview": true, "verified": true, "attestation": verified, "verify_blockers": blockers, "apply": "false (call again with the same envelope and apply: true to record it)"}, nil
 		}
 		if a.Attestation == nil {
 			return nil, fmt.Errorf("pose_review_attest: required argument %q missing", "attestation or envelope")

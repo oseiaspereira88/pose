@@ -385,37 +385,12 @@ func mustReviewPlan(t *testing.T, root string) posemodel.ReviewPlan {
 }
 
 func TestReviewAutoAttestCLI(t *testing.T) {
-	root := t.TempDir()
-	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":2,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"},"review_bundles":true,"review_bundles_adopted_at":"2026-08-14"}`)
-	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
-	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-02\ncompleted_at:\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n\n## 6. Validation\n\n### Requirement trace\n- R1 [satisfied] test:TestFixture\n")
-	writeCloseoutCLIFile(t, root, "pose-mcp/lib.go", "package posemcp\n")
-	graph := posemodel.DeliveryIntegrityGraph{
-		SchemaVersion:    1,
-		ProvenanceDigest: "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-		ChangeSets: []posemodel.ChangeSet{{
-			ID: "cs-alpha", Spec: "alpha", Selector: "range:base..head",
-			Base: "base", Head: "head", ResolvedBase: "base-resolved", ResolvedHead: "head-resolved",
-			Paths:      []posemodel.ObservedPath{{Action: "modified", Path: "pose-mcp/lib.go"}},
-			DiffDigest: "sha256:2222222222222222222222222222222222222222222222222222222222222222",
-		}},
-		Deliveries:        []posemodel.DeliveryTarget{{Spec: "alpha", Ref: "contract:alpha-api", Kind: "contract", ID: "alpha-api", Module: "pose-mcp", Profile: "api-contract", Entrypoint: "pose-mcp/lib.go"}},
-		ValidationResults: []posemodel.DeliveryValidationResult{{ID: "val-alpha", Module: "pose-mcp", Check: "go-test", EvidenceClass: "integration", Severity: "required", Outcome: "pass", GitHead: "head-resolved", ProvenanceDigest: "sha256:1111111111111111111111111111111111111111111111111111111111111111"}},
-		Reverse:           map[string][]string{"pose-mcp/lib.go": {"alpha"}},
-	}
-	rawGraph, _ := json.Marshal(graph)
-	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", string(rawGraph))
-
+	root := judgmentReviewCLIFixture(t)
 	var out, errOut bytes.Buffer
-	if code := cmdReviewBundle(root, []string{"spec:alpha", "--seal"}, &out, &errOut); code != 0 {
-		t.Fatalf("bundle seal failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
-	}
 	// `correctness` declares no evidence class, so no registered check reports
 	// on it and auto-attest may not answer it. Before the explicit-judgment
 	// contract this recorded an approved attestation citing whichever result
 	// was first in the bundle (spec pose-abm-review-soundness).
-	out.Reset()
-	errOut.Reset()
 	if code := cmdReviewAutoAttest(root, []string{"spec:alpha", "--apply"}, &out, &errOut); code != 1 {
 		t.Fatalf("auto-attest must refuse to answer a judgment criterion: code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
@@ -452,6 +427,39 @@ func TestReviewAutoAttestCLI(t *testing.T) {
 	}
 }
 
+// judgmentReviewCLIFixture seals spec:alpha, whose one required criterion
+// declares no evidence class and so is answerable only by a reviewer's
+// judgment.
+func judgmentReviewCLIFixture(t *testing.T) string {
+	t.Helper()
+	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":2,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"},"review_bundles":true,"review_bundles_adopted_at":"2026-08-14"}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
+	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-02\ncompleted_at:\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n\n## 6. Validation\n\n### Requirement trace\n- R1 [satisfied] test:TestFixture\n")
+	writeCloseoutCLIFile(t, root, "pose-mcp/lib.go", "package posemcp\n")
+	graph := posemodel.DeliveryIntegrityGraph{
+		SchemaVersion:    1,
+		ProvenanceDigest: "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+		ChangeSets: []posemodel.ChangeSet{{
+			ID: "cs-alpha", Spec: "alpha", Selector: "range:base..head",
+			Base: "base", Head: "head", ResolvedBase: "base-resolved", ResolvedHead: "head-resolved",
+			Paths:      []posemodel.ObservedPath{{Action: "modified", Path: "pose-mcp/lib.go"}},
+			DiffDigest: "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+		}},
+		Deliveries:        []posemodel.DeliveryTarget{{Spec: "alpha", Ref: "contract:alpha-api", Kind: "contract", ID: "alpha-api", Module: "pose-mcp", Profile: "api-contract", Entrypoint: "pose-mcp/lib.go"}},
+		ValidationResults: []posemodel.DeliveryValidationResult{{ID: "val-alpha", Module: "pose-mcp", Check: "go-test", EvidenceClass: "integration", Severity: "required", Outcome: "pass", GitHead: "head-resolved", ProvenanceDigest: "sha256:1111111111111111111111111111111111111111111111111111111111111111"}},
+		Reverse:           map[string][]string{"pose-mcp/lib.go": {"alpha"}},
+	}
+	rawGraph, _ := json.Marshal(graph)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", string(rawGraph))
+
+	var out, errOut bytes.Buffer
+	if code := cmdReviewBundle(root, []string{"spec:alpha", "--seal"}, &out, &errOut); code != 0 {
+		t.Fatalf("bundle seal failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	return root
+}
+
 // TestReviewCriterionDispositionsRefuseJudgmentByOmission covers the other half
 // of the same hole: this builder defaulted every criterion the reviewer did not
 // mention to `passed`, so omitting a judgment criterion approved it
@@ -461,15 +469,22 @@ func TestReviewCriterionDispositionsRefuseJudgmentByOmission(t *testing.T) {
 		{ID: "correctness", Required: true, EvidenceClasses: []string{"integration"}},
 		{ID: "operability", Required: true},
 	}}
-	if _, err := reviewCriterionDispositions(plan, []string{"integration:val-alpha"}, nil, nil); err == nil {
-		t.Fatal("omitting a judgment criterion must not default it to passed")
-	} else if !strings.Contains(err.Error(), "operability") || !strings.Contains(err.Error(), "explicit judgment") {
-		t.Fatalf("refusal must name the criterion and what it needs: %v", err)
+	// Omitted, it stays unanswered: the domain names it missing for an
+	// approval, and a negative decision does not owe it (spec
+	// pose-review-approval-domain-preflight R4, R7).
+	omitted, err := reviewCriterionDispositions(plan, []string{"integration:val-alpha"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, criterion := range omitted {
+		if criterion.ID == "operability" {
+			t.Fatalf("omitting a judgment criterion must not default it to passed: %+v", criterion)
+		}
 	}
 	// The mechanical one still defaults, which is the shortcut worth keeping: a
 	// check answers it, and the reference it cites is a real sealed result.
 	criteria, err := reviewCriterionDispositions(plan, []string{"integration:val-alpha"},
-		[]string{"operability|passed|integration:val-alpha|error paths return actionable diagnostics"}, nil)
+		[]string{"operability|passed|integration:val-alpha|error paths return actionable diagnostics"})
 	if err != nil {
 		t.Fatalf("explicit judgment must be accepted: %v", err)
 	}

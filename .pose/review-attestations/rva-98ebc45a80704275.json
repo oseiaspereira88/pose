@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-98ebc45a80704275",
+  "bundle_id": "rvb-045390915bbf6068",
+  "bundle_digest": "sha256:045390915bbf6068214fe5088e0eade9e6a235ba239cdd3bf751687cce5fc9d1",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "The operation clock, sealed gates and current issuer trust have distinct roles. F1-F4 regressions and the old-CLI overlay distinguish observed behavior from the implementer claim. Declared identity is not authenticated independence."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "The current strict run and independent negative/parity tests pass for the sealed implementation; no new concurrency lifecycle or public schema is introduced."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "The current strict run and independent negative/parity tests pass for the sealed implementation; no new concurrency lifecycle or public schema is introduced."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "The current strict run and independent negative/parity tests pass for the sealed implementation; no new concurrency lifecycle or public schema is introduced."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "The current strict run and independent negative/parity tests pass for the sealed implementation; no new concurrency lifecycle or public schema is introduced."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "The current strict run and independent negative/parity tests pass for the sealed implementation; no new concurrency lifecycle or public schema is introduced."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "This is the documented minor-release tightening of approvals the verifier already rejected. Semantic CLI failures now exit 1 with combined blockers instead of parser exit 2; authorized negatives remain writable. No schema migration or history rewrite occurs."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "The current strict run and independent negative/parity tests pass for the sealed implementation; no new concurrency lifecycle or public schema is introduced."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-16ef665ef4ad802c",
+      "rationale": "R1-R7 and D1 are addressed by completing canonical identity then calling the verifier, new-operation time checks and current-subject comparison before creating the attestation directory. Preview projects that same admission; apply rechecks it. F3-F4 remove the remaining consumer verdicts."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "English and Portuguese manuals and their embedded scaffold copies describe the shared refusal, signed identity versus semantic approval, negative-channel proof and unchanged history. The spec and changelog disclose mapping addressing, exit changes, legacy scope and preparation cost."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Typed ReviewApprovalRefusal keeps all sorted blockers and reports nothing written. CLI preview and apply present the same result; MCP returns review_approval_refused with recorded=false and exposes envelope-preview blockers. Auto-attest still reports pending reviewer judgments rather than inventing them."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "The current strict run and independent negative/parity tests pass for the sealed implementation; no new concurrency lifecycle or public schema is introduced."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Reviewed e33496b1 against 1aec323a and the prior guard inventory. R1-R7/D1 stay intact. agent:independent- is the engine-required declaration until pose-delegated-review-run-provenance replaces it. This is a separate Codex/OpenAI execution from the Claude/Anthropic implementer; identity remains declared, unsigned, without human confirmation."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Authenticated envelopes still verify trust, signature and canonical bindings before the writer, including negatives. A valid signature with invalid criteria discloses identity but cannot persist approval. Refusal snapshots preserve existing artifacts and no signing key, policy or capability adoption is introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Reusing the verifier in the single writer is the smallest sufficient correction; duplicating guards in every consumer caused F1-F4. Current-bundle recomputation is an explicit proportional cost. Locks/CAS, legacy review record and historical inventory remain separate program scopes; a future concurrency or performance requirement would warrant revisiting that boundary."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict reconciliation; all declared artifacts observed with no errors."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-16ef665ef4ad802c",
+      "rationale": "Executed canonical structural observation; compared its attributed entries with R1-R7 and D1, with no required structural mappings left unanswered."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed component discovery with freshness binding; clone-named generated assessment output is excluded from publication."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Executed 64-contract static scan: 63 pre-existing unobserved-consumer gaps. Real HTTP MCP approval/refusal integration passes; these static observations are not a runtime B02 failure."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed scan reports zero markers and zero uncovered debt."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate; execute after this attestation is recorded"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate; execute after this attestation is recorded"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed for pose-mcp and applied the selected security and documentation rules; no extension or policy adoption."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Executed strict composed-capability check for the shared writer and current integration evidence."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Executed on e33496b1: strict global 133/133 and strict pose-mcp 130/130. jq confirms no non-pass check in either snapshot."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Executed on e33496b1: strict global 133/133 and strict pose-mcp 130/130. jq confirms no non-pass check in either snapshot."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+    "structure:design-16ef665ef4ad802c"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-gpt-6.1-sol-review",
+    "concluded_by": "agent:independent-gpt-6.1-sol-review",
+    "applied_by": "agent:independent-gpt-6.1-sol-review"
+  },
+  "attested_at": "2026-10-16T02:36:38Z",
+  "path": ".pose/review-attestations/rva-98ebc45a80704275.json"
+}
