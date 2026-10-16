@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-15T22:37:52Z
-baseline_commit: c3fe80edbd48c647c12013e8183874a9b18dbd67
+generated_at: 2026-10-16T02:37:49Z
+baseline_commit: e33496b19c6e57cdc4606db62eb95a9bd059e32f
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,35 +27,35 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:b8109ef566b1 -->
+<!-- state:derived hash:f37612b1f8e8 -->
 
-- specs: total=438 draft=40 in-progress=18 blocked=0 done=379 superseded=0 abandoned=1
+- specs: total=438 draft=39 in-progress=18 blocked=0 done=380 superseded=0 abandoned=1
 - roadmaps: total=22 active=3 done=11
 - últimos closeouts:
+  - spec:pose-review-approval-domain-preflight (2026-10-16)
   - spec:pose-action-answers-reverify-on-read (2026-10-15)
   - spec:pose-review-disclosure-requires-proof (2026-10-15)
   - spec:pose-historical-trust-and-review-reuse (2026-10-14)
-  - spec:pose-adopt-request-keeps-the-reason (2026-10-10)
   - spec:pose-v7-4-0-version-alignment (2026-10-10)
-  - ... e mais 374 (ver `pose_list_specs status:done`)
+  - ... e mais 375 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:32fc1cfcc743 -->
+<!-- state:derived hash:3d469f56370a -->
 
 - abertos: 108
 - por criticidade: high=4 medium=22 low=63 sem-classificação=19
-- vencidos (review < hoje): 12
+- vencidos (review < hoje): 14
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
-  - spec:pose-release-signing-rejection (owner:@pose-maintainers review:2026-10-02)
+  - spec:pose-review-root-binding-parity (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-shellcheck-ci-gate (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-verifier-assets-variable-fix (owner:@pose-maintainers review:2026-10-02)
-  - spec:pose-review-root-binding-parity (owner:@pose-maintainers review:2026-10-02)
+  - spec:pose-release-signing-rejection (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-federated-spec-dependency-acceptance (owner:@harne8-platform review:2026-10-03)
   - spec:pose-spec-transfer-reconcile-terminal (owner:@harne8-platform review:2026-10-03)
-  - spec:pose-governance-gate-activation (owner:@pose-maintainers review:2026-10-08)
   - spec:pose-package-channel-install-repair (owner:@pose-maintainers review:2026-10-08)
-  - ... e mais 2 vencidos (ver `pose followups --open`)
+  - spec:pose-governance-gate-activation (owner:@pose-maintainers review:2026-10-08)
+  - ... e mais 4 vencidos (ver `pose followups --open`)
 
 ## Capabilities
 <!-- state:derived hash:e20a9224b717 -->
@@ -75,16 +75,16 @@ capacidade.
 - knowledge: total=11 ativo=11 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:beae4ef7a1dd -->
+<!-- state:derived hash:060088458621 -->
 
 - último registro: task=validate-native outcome=fail (2026-10-13T04:23:26Z)
 - últimos 30 dias: total=99 outcome_ok=75 outcome_outro=24
-- reports revisados (.md): total=202
-  - report:2026-10-15-pose-b01-disclosure-qualification.md
-  - report:2026-10-15-pose-b01-disclosure-review.md
+- reports revisados (.md): total=203
+  - report:2026-10-16-pose-b02-domain-preflight-review.md
   - report:pose-abm-capability-adoption.md
   - report:pose-agency-readiness-pilot.md
   - report:pose-v6-2-0-autonomous-work.md
+  - report:pose-v7-legacy-cleanup-plan.md
 
 ## Arquitetura
 <!-- state:derived hash:1a6ee06cee0b status:active -->

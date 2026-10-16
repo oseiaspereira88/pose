@@ -565,3 +565,109 @@ no PR merge, contribution staging, policy/capability/adoption or code/test edit
 was performed. Only this Third round section was appended to the existing
 report. Keep the spec in-progress and reconcile neither roadmap nor delivery
 completion until these findings are remediated and independently reviewed.
+
+## Fourth round
+
+Reviewed on 2026-10-16 UTC, source head `e33496b19c6e57cdc4606db62eb95a9bd059e32f`, PR #183, against `1aec323a..HEAD`. Reviewer: `agent:independent-gpt-6.1-sol-review`, a separate Codex/OpenAI execution from the Claude/Anthropic implementation. The coordinating Claude session did not implement code. Identity and separation remain declared; no signature, human confirmation or observed cognitive independence is asserted. The engine currently requires the `agent:independent-` declaration until `pose-delegated-review-run-provenance` replaces it.
+
+### Rules applied during review
+
+Mixed bugfix and documentation review under `.pose/workflows/review.md`, `pose-review` and `pose-spec-closeout`. Applied security (proof and write boundaries), documentation-style (manual/scaffold parity), delivery-evidence (current structured checks) and knowledge-governance (existing operational decisions). Suggest-review selects security and documentation-style for pose-mcp; no backend-go extension is installed, and none was adopted for this review. UI and infrastructure rules do not apply. Consulted the sealed-bundle and proof/historical-time knowledge. Existing program boundaries do not create a new accepted-risk finding or a new handoff obligation.
+
+### Remediation and independent execution
+
+F1 remains resolved: the nine explicit semantic-defect subcases pass through CLI preview/apply to the domain, including several defects together. Signed import agrees, and negatives omit approval judgments/tools. F2 remains resolved: the explicit superseded bundle regression reports the domain's combined blockers and records its negative.
+
+F3 is resolved for missing-evidence, not-applicable and accepted-risk: the decoder preserves an empty rationale, approving requests get both rationale and missing-tool blockers, and CLI, Store and signed import record negatives. F4 is resolved: complete auto-attest preview/apply disclose the same independence blockers for the current seal and independence plus supersession for the old named seal; incomplete judgments remain pending.
+
+Independent execution from pose-mcp:
+
+```text
+go test ./internal/pose ./internal/cli ./internal/mcpserver -run 'ReviewDomainPreflight|ReviewAssurance|ABMReviewSoundness|ABMReviewAuthority|ReviewAttest' -count=1
+ok github.com/harne8/pose-mcp/internal/pose 0.485s
+ok github.com/harne8/pose-mcp/internal/cli 0.690s
+ok github.com/harne8/pose-mcp/internal/mcpserver 0.009s
+```
+
+All six explicit F1-F4 regression functions also passed with `-count=1 -v` (CLI 0.392s), including nine F1 and three F3 subcases. An independent Go overlay replacing only review_closeout.go with c87a7ffc made the F3 test fail in all three subcases (the old rationale guard) and F4 fail on current-bundle preview (exit 0 and no blockers versus the domain's different-actor blocker); CLI 0.079s, expected test exit 1. No production or test source was edited. This is sensitivity evidence, not an extra production finding.
+
+### Requirement assessment
+
+| Requirement | Fourth-round conclusion |
+|---|---|
+| R1 | Satisfied: writer completes canonical identity and invokes shared sealed semantics, operation-time and current-subject admission before ensureReviewArtifactDir/writeImmutableJSON. Both approving decisions are gated. |
+| R2 | Satisfied: .pose snapshots and HTTP/CLI refusal tests preserve existing artifacts. CurrentReviewBundle prepares and matches existing seals, without sealing or writing a record, supplement or approval event. No refusal-audit event is claimed. |
+| R3 | Satisfied: verifier uses sealed gates and deliberately live signing/trust; reader coverage still judges historical fixtures. Direct-disk fixtures explicitly model pre-admission history and do not replace the production refusal tests. |
+| R4 | Satisfied: F1-F3 negatives remain writable without approval answers, including an old named seal and reasonless mapping. Signed-policy and envelope authentication are still required. |
+| R5 | Satisfied: valid unsigned/signed canonical retry and stale-input regressions pass. Complete auto-attest now shares preview admission and writer revalidation. No additional transactional race guarantee is claimed. |
+| R6 | Satisfied: valid cryptographic identity with invalid criteria remains disclosable, while signed import/MCP apply cannot persist that approval. |
+| R7 | Satisfied: all approving consumers reach shared admission; F1-F4 preserve combined blockers and zero-write. Remaining guards are categorized below. |
+| D1 | Satisfied: request/channel integrity, identity proof and approval semantics remain distinct domain concerns. |
+
+### Final guard inventory
+
+The third-round inventory remains the baseline. Rechecked touched F3/F4 branches and traced cmdReviewAttest, signed/envelope routes and MCP to recordReviewAttestation together; no previously covered guard is reopened without new evidence.
+
+| Guard | Disposition |
+|---|---|
+| Required target/reviewer/decision/evidence, missing values, unexpected flags, field arity and slug syntax | Request construction/decoding; acceptable. |
+| Path confinement, bundle loading and scope-to-current-seal addressing | Subject addressing/integrity; explicit ids preserve the named subject, including auto-attest. |
+| Explicit --plan-digest mismatch | Caller-requested expected-value guard; acceptable. |
+| Criterion/tool unknowns, duplicates, dispositions, omitted approval answers | Preserved for domain semantic judgment; F1 remains fixed. Required-tool blockers are not downgraded. |
+| Mapping owner criterion and material-fact addressing | Disclosed flag addressing contract; acceptable. |
+| Mapping alternative forms, owner/date fields only for accepted-risk, literal mapped requiring a basis ref | Encoding of the supported flag forms; acceptable. Empty rationale now reaches domain, F3 fixed. |
+| Attribution schema/roles/mode/confirmation digest | Shared ValidateReviewAttribution integrity, also used by canonical completion; not proof of identity. |
+| Authority requires sign, issuer key loading, review execution and positive-duration parsing | Explicit authenticated-claim construction; acceptable. Grants, trust and separation remain domain judgments. |
+| Signed import/envelope verification and MCP trusted-envelope apply | Channel authentication, retained for negatives. Preview consumes PreflightReviewAttestation; apply authenticates and calls the writer. |
+| MCP JSON/project/access governance and minimum draft/envelope fields | Transport and authority boundary; acceptable. |
+| Domain signing policy, bundle binding, reviewer/decision/time/id/attribution checks | Shared request integrity/authentication before semantic approval admission. |
+| Auto-attest incomplete draft/pending judgments | Shared preparation refuses to invent a judgment; acceptable. Complete previews now run admission, F4 fixed. |
+
+No new approval bypass was found when removing parser verdicts: required tools, findings, unknown/duplicate criteria, evidence, risk acceptance and structural rationale still block in the verifier reused by the writer. Recommended-tool diagnostics remain warnings by the pre-existing domain contract, as documented. The legacy non-bundle review record writes a different attempt contract and is an explicit scope boundary, not a bypass of this writer. Re-preparing the current bundle adds the disclosed proportional cost; no lock/CAS refactor is needed for this bounded change.
+
+### Anti-mechanization and findings
+
+The cheapest false pass would be to assert that moving a function proves consumer parity or that a valid signature proves approval. The focused domain/CLI/signed/real-HTTP tests compare actual blockers and artifact snapshots; the old-code overlay proves that F3/F4 regressions detect their original consumer divergence. Inspected the adversarial corpus: declared-independent-prefix protects honest assurance disclosure; this review does not claim a dedicated corpus row exists for every B02 path. External judgment still checks causal correctness and scope rather than accepting a green checklist as that judgment.
+
+No new findings. F1, F2, F3 and F4 are resolved. No code/test, policy, capability or adoption changes were made; no contribution draft or upstream issue was staged.
+
+### Judgments
+
+- **assumption-integrity**: The operation clock, sealed gates and current issuer trust have distinct roles. F1-F4 regressions and the old-CLI overlay distinguish observed behavior from the implementer claim. Declared identity is not authenticated independence.
+- **compatibility**: This is the documented minor-release tightening of approvals the verifier already rejected. Semantic CLI failures now exit 1 with combined blockers instead of parser exit 2; authorized negatives remain writable. No schema migration or history rewrite occurs.
+- **design-causality**: R1-R7 and D1 are addressed by completing canonical identity then calling the verifier, new-operation time checks and current-subject comparison before creating the attestation directory. Preview projects that same admission; apply rechecks it. F3-F4 remove the remaining consumer verdicts.
+- **documentation**: English and Portuguese manuals and their embedded scaffold copies describe the shared refusal, signed identity versus semantic approval, negative-channel proof and unchanged history. The spec and changelog disclose mapping addressing, exit changes, legacy scope and preparation cost.
+- **operability**: Typed ReviewApprovalRefusal keeps all sorted blockers and reports nothing written. CLI preview and apply present the same result; MCP returns review_approval_refused with recorded=false and exposes envelope-preview blockers. Auto-attest still reports pending reviewer judgments rather than inventing them.
+- **scope**: Reviewed e33496b1 against 1aec323a and the prior guard inventory. R1-R7/D1 stay intact. agent:independent- is the engine-required declaration until pose-delegated-review-run-provenance replaces it. This is a separate Codex/OpenAI execution from the Claude/Anthropic implementer; identity remains declared, unsigned, without human confirmation.
+- **security**: Authenticated envelopes still verify trust, signature and canonical bindings before the writer, including negatives. A valid signature with invalid criteria discloses identity but cannot persist approval. Refusal snapshots preserve existing artifacts and no signing key, policy or capability adoption is introduced.
+- **solution-proportionality**: Reusing the verifier in the single writer is the smallest sufficient correction; duplicating guards in every consumer caused F1-F4. Current-bundle recomputation is an explicit proportional cost. Locks/CAS, legacy review record and historical inventory remain separate program scopes; a future concurrency or performance requirement would warrant revisiting that boundary.
+
+### Tool dispositions, decision and native closeout
+
+Sealed bundle: `rvb-045390915bbf6068`, digest `sha256:045390915bbf6068214fe5088e0eade9e6a235ba239cdd3bf751687cce5fc9d1`.
+Plan: `sha256:ff609e25935ffa7302f4837d01e6e3785d0b1ba0b0f6677515632bbc44364685`; different-actor, 15 criteria
+(seven mechanical, eight judgment), 11 tool entries. Auto-attest preview left
+all eight judgments pending; the reviewer answered them explicitly above.
+Attestation `rva-98ebc45a80704275` is unsigned with explicit prepared/concluded/applied
+attribution to this reviewer and no confirmed-by principal.
+
+- Strict global validation on e33496b1: 133 passed / 133 total; jq non-pass ids `[]`.
+- Strict pose-mcp validation on e33496b1: 130 passed / 130 total; jq non-pass ids `[]`.
+- Executed artifact-check --strict and surface-check --strict: passed. Artifact reconciliation has 30 claims / 30 observed paths and no errors; the sealed implementation subject has 26 attributed entries. Its 601 global orphan warnings have no path in the B02 diff. The two non-attributed commits in the eight-commit range only publish generated validation snapshots, not production changes.
+- Executed history-check --strict: passed, all 107 historical files tracked. Knowledge-check --strict: 11 checked, zero overdue/ref failures. Followups --all inspected; no B02 follow-up or disposition change is needed.
+- Executed suggest-review for pose-mcp and canonical assess-design; design observation is bound to the sealed implementation. No material structural mapping obligation exists in this effective plan.
+- Executed assess-discover --if-stale --component pose-mcp, assess-integrate and assess-tech-debt. Discovery observes 70036 production / 56470 test LOC; tech-debt zero markers/uncovered; integrate 64 contracts / 63 unchanged static unobserved-consumer gaps. Those gaps are not runtime failures of the affected HTTP MCP route. Closure assess-discover --if-stale --update-state was also executed; its generated assessment/state changes were restored from an exact pre-command snapshot. Discover output generated in pose-dist is deliberately excluded from the commit.
+- Executed recurrence-check --tolerant --window-days 14: zero flagged/flapping keys, one resolved cluster, 393 records scanned. No new escalation or contribution was staged.
+- Completion tools closeout-check/review-check were truthfully deferred in the immutable attestation, then actually executed after approval. Native review verify, review-check, closeout-check, close, lint-spec --strict and check --strict passed; after editorial/matrix/roadmap reconciliation, index/verify/check were repeated and remained fresh/approved/closed.
+- Source-head PR CI and Security were independently read as completed/success, including test, governance, validation-findings, CodeQL, govulncheck, secrets, dependency-review and workflow-contract. Publication of the closeout commit has its own external checks; no merge is performed by this execution.
+
+Actual tool commands and results: [review tools](../results/b02-domain-preflight-review-tools.json),
+[global validation](../results/delivery-validation.json), [component validation](../results/b02-implementation-validation.json),
+[review verification](../results/b02-domain-preflight-review-verification.json),
+[review-check](../results/b02-domain-preflight-review-check.json) and
+[closeout state](../results/b02-domain-preflight-closeout-check.json).
+The old third-round and this round's Git overlays are disposable diagnostics,
+removed only after inspecting the closeout commit stat; no git clean is used.
+
+Decision: **approved**, no unresolved findings. Native B02 closeout completed;
+B02 delivery_complete=true. The maintainer retains merge authority for PR #183.

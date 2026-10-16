@@ -1,8 +1,8 @@
 ---
 slug: pose-review-approval-domain-preflight
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-16
 depends_on: pose-historical-trust-and-review-reuse, pose-action-answers-reverify-on-read, pose-review-disclosure-requires-proof, pose-review-bundle-convergence
 priority: 1
 components: pose-mcp
@@ -123,8 +123,8 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Remediate F1 of the first independent review: the ordinary CLI decodes criterion and tool flags only and reports the domain's refusal.
 - [x] Remediate F2 of the second independent review: an explicitly named superseded bundle is judged by the domain, not refused by the CLI.
 - [x] Remediate F3 and F4 of the third independent review: mapping rationales reach the domain; auto-attest prepares the named bundle and its preview presents the domain admission.
-- [ ] Strict module validation, artifact/surface evidence and separate different-actor review.
-- [ ] Native closeout, reconcile matrix/roadmaps and PR with final-head CI/Security.
+- [x] Strict module validation, artifact/surface evidence and separate different-actor review.
+- [x] Native closeout, reconcile matrix/roadmaps and PR with final-head CI/Security.
 
 ## 5. Decisions
 
@@ -246,15 +246,39 @@ to 120. `go vet ./...` and `go test ./... -count=1` pass.
 
 ### Delivered scope
 
-B02 implementation and targeted regressions are recorded above. The spec
-remains in-progress: strict module validation, different-actor review and
-native closeout are not promoted from code or merge.
+Closeout nativo aplicado em 2026-10-16 UTC após validação independente no head
+`e33496b1`: global strict 133/133 e módulo pose-mcp strict 130/130, sem passos
+fora de pass. O writer compartilhado admite aprovações antes de qualquer
+persistência; CLI, import assinado, auto-attest e MCP consomem essa decisão.
+Negativas autorizadas continuam registráveis e o histórico permanece intacto.
+F1–F4 foram resolvidos e as regressões foram executadas pelo revisor.
+
+Revisor `agent:independent-gpt-6.1-sol-review`, execução Codex/OpenAI distinta
+do implementador Claude/Anthropic. Bundle `rvb-045390915bbf6068` e atestação
+`rva-98ebc45a80704275`; review verify fresh/approved/closed, close nativo, lint-spec
+strict e check strict passaram. Identidade e separação continuam declaradas,
+sem assinatura ou confirmação humana. O prefixo agent:independent- é a
+exigência declarativa atual até pose-delegated-review-run-provenance.
+Consultar a [Fourth round do parecer](../reports/2026-10-16-pose-b02-domain-preflight-review.md)
+e os snapshots nativos b02-domain-preflight-* em results. CI e Security do
+head revisado passaram; os checks da publicação do closeout permanecem o gate
+externo do PR. B02 está entregue na matriz; o programa continua ativo e o merge
+de #183 pertence ao maintainer.
 
 ### Residual risks
 
-Este delta recusa gravações antes aceitas que o verify já reprovava (classificado como minor). Defeitos semânticos em `--criterion`/`--tool` do `pose review attest` passam a sair com a recusa tipada do domínio (exit 1, todos os blockers) em vez do erro próprio do parser (exit 2). Para uma ferramenta apenas recomendada, `not-used` sem justificativa ou `deferred` fora de gate pós-review agora chegam ao domínio, que os trata como aviso, não blocker, como já fazia para Store/import/MCP. Os `--mapping` mantêm a checagem de endereçamento do CLI (o critério precisa responder por estrutura), porque o domínio ignora mapeamentos de outros critérios. Cada aprovação agora prepara o bundle atual para conferir que não está stale, com custo proporcional a `pose review bundle`. O caminho legado de `pose review record` sem review bundles grava attempts `.pose/reviews` e não passa por este writer; está fora do escopo de B02. Não apaga nem reescreve registros históricos inválidos; inventário/coverage são B06. Auditoria de refusal só pode ser alegada se existir mecanismo explicitamente especificado e autorizado.
+A recusa mais estrita é classificada como minor, sem migração de schema ou
+reescrita de histórico. Defeitos semânticos em criterion/tool/mapping retornam
+os blockers do domínio com exit 1; sintaxe e endereçamento continuam no CLI.
+Ferramentas recomendadas conservam os avisos do contrato de domínio existente.
+Cada aprovação prepara o bundle atual para conferir freshness, com custo
+proporcional a review bundle. O caminho legado review record sem bundles,
+o inventário histórico de B06 e a refatoração transacional dos writers de B14
+permanecem nos seus escopos do programa. Esta entrega não prova independência
+cognitiva, autorização histórica observada ou atomicidade adicional sob corrida.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Nenhum novo follow-up de B02 foi aberto ou descartado neste closeout. As unidades
+restantes conservam seu backlog e suas dependências na matriz; após o merge de
+#183, reavaliar readiness nativa sem selecionar automaticamente implementação.
