@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-16T17:50:02Z
-baseline_commit: 1615155905283a5ae7ff41b0a7e32ae5198ac6c7
+generated_at: 2026-10-16T20:16:09Z
+baseline_commit: 8e8b13074e1484aef364806a9bed232fde947fca
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:527675f459c9 -->
+<!-- state:derived hash:f69d4aa689d1 -->
 
-- specs: total=440 draft=38 in-progress=18 blocked=0 done=383 superseded=0 abandoned=1
+- specs: total=440 draft=37 in-progress=18 blocked=0 done=384 superseded=0 abandoned=1
 - roadmaps: total=22 active=3 done=11
 - últimos closeouts:
   - spec:pose-cli-mcp-operation-results (2026-10-16)
   - spec:pose-engine-package-stays-mirrorable (2026-10-16)
   - spec:pose-dist-instance-follows-engine (2026-10-16)
   - spec:pose-review-approval-domain-preflight (2026-10-16)
-  - spec:pose-review-disclosure-requires-proof (2026-10-15)
-  - ... e mais 378 (ver `pose_list_specs status:done`)
+  - spec:pose-journal-checkpoint-and-lock-recovery (2026-10-16)
+  - ... e mais 379 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:3d469f56370a -->
@@ -75,12 +75,12 @@ capacidade.
 - knowledge: total=11 ativo=11 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:9d792301947f -->
+<!-- state:derived hash:fb80f559f6c7 -->
 
 - último registro: task=validate-native outcome=fail (2026-10-13T04:23:26Z)
 - últimos 30 dias: total=99 outcome_ok=75 outcome_outro=24
-- reports revisados (.md): total=204
-  - report:2026-10-16-pose-b12-operation-results-review.md
+- reports revisados (.md): total=205
+  - report:2026-10-16-pose-b13-journal-checkpoint-lock-recovery-review.md
   - report:pose-abm-capability-adoption.md
   - report:pose-agency-readiness-pilot.md
   - report:pose-v6-2-0-autonomous-work.md

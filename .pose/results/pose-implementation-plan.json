@@ -1363,8 +1363,8 @@
           "materialized": true,
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-journal-checkpoint-and-lock-recovery.md",
-          "status": "in-progress",
-          "sha256": "715785c906bd3d75c8b471d27edd06314eec13779d3cd2fefb2397e3ae338efe"
+          "status": "done",
+          "sha256": "4ed4a4c80cea2e9b6256901951bf0fa2c1f67934d693b12757cabddd1898911c"
         }
       ],
       "implementation_observations": [
@@ -1377,9 +1377,30 @@
           "scope": "Start nativo após merge de #186. Journal de action requests lido por inteiro com ActionJournalError tipado (interrupted-tail com proposta de truncamento, corrupt) em CLI e MCP; checkpoint de closeout com estados absent/valid/corrupt/unsupported/unavailable, escrita por rename, remoção verificada, bloqueio antes de qualquer passo e conflito de progresso não refletido; trava do start com dono, classificação owner-active/owner-unknown/owner-dead e --recover-lock verificado. Probes P01–P17 antes e depois com controles inalterados, 29 mutações reprovando e validação estrita do módulo 132/132 em 99f5041c; different-actor review e closeout nativo pendentes.",
           "unit_complete": false,
           "native_closeout_pending": true
+        },
+        {
+          "at": "2026-10-16",
+          "pull_requests": [
+            187
+          ],
+          "scope": "Second independent Codex/OpenAI round resolved F1-F4 and re-reviewed all B13 producers and CLI/MCP consumers. Global strict 135/135 and explicit module strict 132/132 at 8e8b1307; Go/vet/race, Windows/Darwin builds, 31 assertion-killed mutations, P01-P17 controls, quickstart, denied checkpoint I/O and lock races passed. Native different-actor approval and guarded closeout completed. Identity/separation declared and unsigned. Await maintainer merge and reassess readiness without selecting another implementation.",
+          "unit_complete": true,
+          "native_closeout_pending": false,
+          "review_report_path": ".pose/reports/2026-10-16-pose-b13-journal-checkpoint-lock-recovery-review.md",
+          "admission_review_bundle": "rvb-bbed7a49533bf1e3",
+          "admission_attestation": "rva-dfa2006f7d36184d",
+          "native_validation": {
+            "mode": "strict",
+            "head": "8e8b13074e1484aef364806a9bed232fde947fca",
+            "executed": 135,
+            "passed": 135,
+            "failed": 0,
+            "component_executed": 132,
+            "component_passed": 132
+          }
         }
       ],
-      "delivery_complete": false,
+      "delivery_complete": true,
       "native_spec_dependencies": [
         "pose-cli-mcp-operation-results",
         "pose-recoverable-closeout-plan",
@@ -5160,12 +5181,13 @@
     "main_revision": "b8c33dadf7e71ee3a742ab15ed37b577bf659367",
     "selected_unit": "B13",
     "selected_spec": "pose-journal-checkpoint-and-lock-recovery",
-    "basis": "PR186 merged B12 (b8c33dad). The maintainer authorized continuing with the next pose-dist unit; B13 depended only on B12 and opens B14. Native start, implementation, probes and strict module validation done; different-actor review and native closeout pending.",
-    "unit_delivery_complete_count": 4,
+    "basis": "PR187 completes B13 after independent second-round review, F1-F4 remediation, strict validation and native terminal closeout. Program remains active; await maintainer merge and reassess native DAG/readiness without selecting implementation.",
+    "unit_delivery_complete_count": 5,
     "administrative_closeouts": "Authoring closeouts remain separate and pending; materialization is not functional delivery.",
     "previous_complementary_pull_request": 186,
     "previous_complementary_merged": true,
-    "native_closeout_pending": true,
-    "next_step": "Different-actor review of B13, native closeout, then maintainer merge."
+    "native_closeout_pending": false,
+    "next_step": "Maintainer merge of PR187; then reassess native DAG/readiness without automatically choosing a new implementation.",
+    "awaiting_merge_pull_request": 187
   }
 }

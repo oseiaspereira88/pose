@@ -153,6 +153,14 @@
       "digest": "sha256:aad9235c2b97213efa318b5ec8196b1b59a9add20d55c750e84c4a6fed66882b"
     },
     {
+      "spec": "pose-journal-checkpoint-and-lock-recovery",
+      "category": "changed",
+      "breaking": false,
+      "body": "Action-request journals are read whole. A line with a second JSON value, a\nduplicate field (also two keys differing only in case), an unknown event\ntype, an unsupported `schema_version`, a sequence gap, an empty line\nor no line terminator used to be read as if it were not there, or made the\nrequest unreadable without saying where; it is now an `action-journal-invalid`\nerror naming the line, byte offset, length and SHA-256 of the bytes, and\nwhether it is an interrupted tail or corruption. `pose action show|list` show it\nin both renderers, MCP returns `error_code: action_journal_invalid` with the\nsame location, and an interrupted tail comes with a truncation proposal for a\nperson to review. The engine never truncates a journal and refuses to append\nto one that does not read. Journals already written read as before.\n\nA closeout checkpoint that does not read, has another schema or names another\nscope is no longer read as absent: `pose close --plan` shows its state\n(`checkpoint` in JSON), and `--apply`/`--resume` stop before any step with\n`checkpoint-corrupt`, `checkpoint-unsupported` or `checkpoint-unavailable`. A\ncheckpoint that records an evidence, index, seal, attestation or transition\nstep the repository does not reflect is a `checkpoint-progress-mismatch`\nconflict instead of being resumed; `--apply --digest \u003ccurrent plan\u003e` starts a\nnew run and reports the checkpoint it replaced. The checkpoint is replaced\nwhole, and a removal that fails at the end of a run is reported.\n\nThe start lock records its owner. A lock another call holds is reported as\n`owner-active` (`start-in-progress`), `owner-unknown`\n(`start-lock-owner-unknown`) or `owner-dead` (`start-lock-orphaned`), never\nbroken by age; `pose start spec:\u003cslug\u003e --status` (and MCP `pose_start_status`)\nshow it, and the new `pose start spec:\u003cslug\u003e --recover-lock \u003cowner digest\u003e`\nremoves a lock whose owner is proven dead on the same Linux machine, leaving\nthe start record to resume. Locks left empty by earlier engines read as\n`owner-unknown` and are removed by a person, as before.",
+      "path": "pose-journal-checkpoint-and-lock-recovery.md",
+      "digest": "sha256:54a0e24e08df3708a79b750f93a20bc595f98ae6bb32efc7ff5c20d2637c47c9"
+    },
+    {
       "spec": "pose-review-approval-domain-preflight",
       "category": "security",
       "breaking": false,

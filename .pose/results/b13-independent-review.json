@@ -1,0 +1,1049 @@
+{
+  "schema_version": 2,
+  "spec": "pose-journal-checkpoint-and-lock-recovery",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "reviewed_head": "8e8b13074e1484aef364806a9bed232fde947fca",
+  "rounds": [
+    {
+      "schema_version": 1,
+      "spec": "pose-journal-checkpoint-and-lock-recovery",
+      "reviewed_head": "c282cabb86b0d902bec60e389784e633ea8296ed",
+      "reviewer": "agent:independent-gpt-6.1-sol-review",
+      "decision": "changes-requested",
+      "scope_judgment": "Maintainer-authorized independent execution by Codex/OpenAI, different vendor from Claude/Anthropic implementer session 296d1fcb-e989-40ae-9362-cf3514db8b26 (agent:claude-opus-5-5). The agent:independent- prefix is an engine-required declaration until pose-delegated-review-run-provenance replaces it. Identity is declared; pose-dist attestations are unsigned. No sealed attestation is claimed.",
+      "findings": [
+        {
+          "id": "B13-F1",
+          "severity": "medium",
+          "file": "pose-mcp/internal/pose/journal_integrity.go",
+          "line": 109,
+          "related_locations": [
+            "pose-mcp/internal/pose/review_bundle.go:1849",
+            "pose-mcp/internal/pose/closeout_plan.go:313"
+          ],
+          "requirements": [
+            "R1",
+            "R3",
+            "R5",
+            "R9"
+          ],
+          "scenario": "Case-sensitive duplicate-key tracking and case-insensitive Go struct decoding disagree. schema_version:999 followed by SCHEMA_VERSION:1 and seq:999 followed by SEQ:1 both yield a valid revision-1 journal. A checkpoint with completed:[context,seal],COMPLETED:[] reads valid and resume executes evidence instead of checkpoint-progress-mismatch.",
+          "expected": "Reject aliases binding the same schema field before deriving a view or running any step.",
+          "evidence": [
+            "extra-probes.json",
+            "checkpoint-alias.json"
+          ],
+          "action": "Enforce schema-aware exact field names or reject duplicate effective field bindings in both readers, including nested struct fields; add adversarial regressions."
+        },
+        {
+          "id": "B13-F2",
+          "severity": "medium",
+          "file": "pose-mcp/internal/pose/journal_integrity.go",
+          "line": 95,
+          "related_locations": [
+            "pose-mcp/internal/pose/action_request.go:591"
+          ],
+          "requirements": [
+            "R1",
+            "R2",
+            "R9"
+          ],
+          "scenario": "Append a terminated {\"schema_version\":1,\"seq\":2,\"type\":\"not-an-event\"} after an intact opening. show and list succeed, revision becomes 2 and the fold silently ignores the event, presenting the previous state as a valid view.",
+          "expected": "A schema-1 event outside the supported event vocabulary must produce an ActionJournalError, preserving its location and refusing append.",
+          "evidence": [
+            "extra-probes.json"
+          ],
+          "action": "Validate the event discriminator against the supported schema before appending it to parsed events; test both domain and consumers. This permissiveness pre-exists B13 but remains in the parser this spec qualifies."
+        },
+        {
+          "id": "B13-F3",
+          "severity": "medium",
+          "file": "pose-mcp/internal/cli/start.go",
+          "line": 55,
+          "related_locations": [
+            "pose-mcp/internal/cli/start.go:68",
+            "pose-mcp/internal/cli/start.go:83"
+          ],
+          "requirements": [
+            "R9"
+          ],
+          "scenario": "In a draft synthetic fixture, start spec:work --recover-lock \"\" --apply --digest <preview digest> --json exits 0 and changes the spec to in-progress. Empty recovery alone exits 0 as a preview. Flag presence is inferred from recoverLock != \"\", so the requested recovery mode disappears.",
+          "expected": "Exit 2 before domain calls for an empty recovery digest and for any combination of recovery and apply/status/cancel.",
+          "evidence": [
+            "start-empty.json"
+          ],
+          "action": "Track recovery flag presence separately from its argument; reject empty values and test conflicting modes with empty arguments in both orders."
+        },
+        {
+          "id": "B13-F4",
+          "severity": "low",
+          "file": "pose-mcp/internal/pose/recovery_integrity_test.go",
+          "line": 51,
+          "related_locations": [],
+          "requirements": [
+            "R1"
+          ],
+          "scenario": "Removing the maxActionJournalLine check through a Go overlay leaves TestAJournalIsReadWholeOrNotAtAll passing. The oversized fixture is whitespace, independently invalid as an empty JSON line, so the test does not prove the byte limit.",
+          "expected": "The line-limit regression fails when the production size guard is removed.",
+          "evidence": [
+            "mutations/journal-line-limit.log",
+            "boundaries.json"
+          ],
+          "action": "Use an otherwise valid event padded to exactly the limit and one byte beyond it and assert the limit-specific refusal. Current production boundary independently passed; this is a test gap."
+        }
+      ],
+      "commands": [
+        {
+          "id": "build",
+          "command": "go -C pose-mcp build -o ../pose-review ./cmd/pose",
+          "exit_code": 0
+        },
+        {
+          "id": "vet",
+          "command": "go vet ./...",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/vet.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "id": "test",
+          "command": "go test ./... -count=1",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/test.log",
+          "sha256": "bfb62b5c79649a9a146c34c35e106e2d6081aece758945721159c1911843418e"
+        },
+        {
+          "id": "race",
+          "command": "go test -race ./internal/pose ./internal/cli ./internal/mcpserver -count=1",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/race.log",
+          "sha256": "513e213fd8d536ef0ccffbd4ed0127ce05093e9f3caf692e0a905e4dedbea9c3"
+        },
+        {
+          "id": "windows",
+          "command": "GOOS=windows go build ./...",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/windows.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "id": "darwin",
+          "command": "GOOS=darwin go build ./...",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/darwin.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "id": "probes",
+          "command": "python3 -I .pose/results/b13-front09-probes.py --binary ../pose-review --output /tmp/b13-independent/probes.json",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/probes.json",
+          "sha256": "88ecdefda39b5c80a2a18bdba23e7126b96adb034d2864fc6aafae19ff624d1d"
+        },
+        {
+          "id": "tech-debt",
+          "command": "../pose-review assess tech-debt",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/tech-debt.log",
+          "sha256": "84d9b0da3f49dbfe79a93777b7c9db82ac638302683eae9cd3d53898f9782af0"
+        },
+        {
+          "id": "integrate",
+          "command": "../pose-review assess integrate",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/integrate.log",
+          "sha256": "841f6a342c3aa784491e384ec587b66a74fa8490ae418264987e3f5f62d28421"
+        },
+        {
+          "id": "recurrence",
+          "command": "../pose-review recurrence-check --tolerant --window-days 14",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/recurrence.log",
+          "sha256": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7"
+        },
+        {
+          "id": "artifact",
+          "command": "../pose-review artifact-check --spec pose-journal-checkpoint-and-lock-recovery --json",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/artifact.json",
+          "sha256": "bd60014c9ff2ff612f210a7959321446e9b23315f1646094df2a65a1e805043a"
+        },
+        {
+          "id": "validate",
+          "command": "../pose-review validate --strict --json-out .pose/results/delivery-validation.json",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/validate.log",
+          "sha256": "7ec654449a96fdb40d51db497c0d459c94d8baf4523abbfb732e37e10168720c"
+        },
+        {
+          "id": "verify",
+          "command": "../pose-review review verify spec:pose-journal-checkpoint-and-lock-recovery",
+          "exit_code": 1,
+          "output": "/tmp/b13-independent/verify.log",
+          "sha256": "3c78835e843d9f058033e21cbb315fcf64f13bda2e9e56fafc3929c37df66d07"
+        },
+        {
+          "id": "lint",
+          "command": "../pose-review lint-spec pose-journal-checkpoint-and-lock-recovery --strict",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/lint.log",
+          "sha256": "dafa7a85073db11640f9efd0ec431cc7f67ecbe1ad0b89f38fca2246f425ca4d"
+        },
+        {
+          "id": "check",
+          "command": "../pose-review check --strict",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/check.log",
+          "sha256": "70b7006b53b2b925c61b67d9912eb9f1ee78fbb3858aeac7916f333cbde6a97e"
+        },
+        {
+          "id": "index",
+          "command": "../pose-review index",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/index.log",
+          "sha256": "ce3089189985be758494f9757fd5e9ddd87c799f512085126265937c3da2620a"
+        },
+        {
+          "id": "bundle-prepare",
+          "command": "../pose-review review bundle spec:pose-journal-checkpoint-and-lock-recovery --json",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/bundle.json",
+          "sha256": "3ac6dd7261ce645b7e26e9f684482906901abc1fef74ce2964bff25630cfe11f"
+        },
+        {
+          "id": "surface",
+          "command": "../pose-review surface-check --spec pose-journal-checkpoint-and-lock-recovery --strict --json",
+          "exit_code": 0,
+          "output": "/tmp/b13-independent/surface.json",
+          "sha256": "23e8b4feab123f97d813d6f72c5893942d67f91bde167edbcc38eb147e14c51d"
+        },
+        {
+          "id": "verify-final",
+          "command": "../pose-review review verify spec:pose-journal-checkpoint-and-lock-recovery",
+          "exit_code": 1,
+          "output": "/tmp/b13-independent/verify-final.log",
+          "sha256": "3c78835e843d9f058033e21cbb315fcf64f13bda2e9e56fafc3929c37df66d07"
+        }
+      ],
+      "evidence": {
+        "extra-probes.json": {
+          "path": "/tmp/b13-independent/extra-probes.json",
+          "sha256": "30ea3e9bb08b2cb79dcfc280903a38831e40e09ff4011386fe0978e352efe8c2"
+        },
+        "checkpoint-alias.json": {
+          "path": "/tmp/b13-independent/checkpoint-alias.json",
+          "sha256": "fe0e0766c12fbb6746ef2d06ce303d1238fc0085f644fcb7fa5473a016c4aae5"
+        },
+        "start-empty.json": {
+          "path": "/tmp/b13-independent/start-empty.json",
+          "sha256": "feac7c6735c464677675060d8416aece280cc7e46e17c36c3242bede91f2fdc1"
+        },
+        "boundaries.json": {
+          "path": "/tmp/b13-independent/boundaries.json",
+          "sha256": "cee52d106858fb293f3a3e7810c296df1831fccc795fbe9521964112328ab611"
+        },
+        "lock-races.json": {
+          "path": "/tmp/b13-independent/lock-races.json",
+          "sha256": "544e123124b31649f08259a73d8acfb7c1f078d84b9c18c63dbca3aee9461da5"
+        },
+        "probe-comparison.json": {
+          "path": "/tmp/b13-independent/probe-comparison.json",
+          "sha256": "3d3e0126cbd6b6c853d5eaadfbe7ca3538030cd05458379186b29dfab87cb58a"
+        },
+        "mutations/summary.json": {
+          "path": "/tmp/b13-independent/mutations/summary.json",
+          "sha256": "e8e0e44de7745c383487ea4180573481884f5e5b843688162d5e147daae5aca5"
+        },
+        "mutations/summary-more.json": {
+          "path": "/tmp/b13-independent/mutations/summary-more.json",
+          "sha256": "db74a972e5cce74212cab82d672bd1f70bcbb91288e5763830dc75082014c7b4"
+        },
+        "mutations.py": {
+          "path": "/tmp/b13-independent/mutations.py",
+          "sha256": "72a3f668dba11ee1c473bd600702847b94bc731e4b306d440f8381d50730a78a"
+        },
+        "mutations-more.py": {
+          "path": "/tmp/b13-independent/mutations-more.py",
+          "sha256": "3ea870afdb8e3f94ab12e710ab6c1d0b0d3dc06d95c83762e4c48e81b3a6ffa2"
+        },
+        "extra_probes.py": {
+          "path": "/tmp/b13-independent/extra_probes.py",
+          "sha256": "9c28bf6acdc5a2e7b38df1e23356b9dceb8eaa6e2432a76ab3a3bd8451eabb4d"
+        },
+        "checkpoint_alias.py": {
+          "path": "/tmp/b13-independent/checkpoint_alias.py",
+          "sha256": "27310de1df665671027afb42f4105b5a1965390ae3c9c9c782f3dfdd44416f83"
+        },
+        "start-empty.py": {
+          "path": "/tmp/b13-independent/start-empty.py",
+          "sha256": "19e37767c1dc2cc91382c318b7a5e5a1ef91e49a218805f0b0372801a823c39e"
+        },
+        "boundaries.py": {
+          "path": "/tmp/b13-independent/boundaries.py",
+          "sha256": "283e22314981294ffec5397488e667533f49e92f5334dc171b40d5018384b379"
+        },
+        "lock-races.py": {
+          "path": "/tmp/b13-independent/lock-races.py",
+          "sha256": "4cedd36c07572d40e90369ced5d64735d098fc47b8bd7b91ea0936c574cd0f20"
+        },
+        "real-journals.json": {
+          "path": "/tmp/b13-independent/real-journals.json",
+          "sha256": "318ad32a7ea08bdb788f9a7cb72442d2c487013e560b716e22f79fc66a260336"
+        }
+      },
+      "facts": {
+        "strict_validation": {
+          "executed": 135,
+          "passed": 135,
+          "failed": 0,
+          "errored": 0,
+          "skipped": 0
+        },
+        "probes": "All P01-P17 outcomes, causes, checkpoint and lock states match published after results; P06/P11/P12 preserved after excluding volatile IDs, paths, times, hashes and fixture commit revisions.",
+        "real_journals_read": 9,
+        "mutations": {
+          "total": 26,
+          "assertion_failures": 25,
+          "survived": [
+            "journal-line-limit"
+          ],
+          "test_functions_covered": 18,
+          "method": "Go -overlay changes production source only at build time; branch production and test files never edited. Targeted adverse mutations, not claims that all positive controls fail on the old engine."
+        },
+        "lock_races": "20 rounds: two recoveries plus acquisition; exactly one recovery succeeded, retry finished started; four concurrent idempotent applies did not lose the record.",
+        "unavailable": "chmod 000 checkpoint -> unavailable; both apply/resume blocked before steps; file preserved.",
+        "line_boundary": "Otherwise valid JSON padded to 1 MiB accepted; 1 MiB + 1 refused.",
+        "readers": "LoadActionRequest and appendActionEvent use parseActionJournal; no alternate production journal decoder found.",
+        "tech_debt": "0 markers, 0 uncovered",
+        "integrations": "Existing medium unobserved HTTP /mcp consumer warning; no B13-specific contract gap established.",
+        "recurrence": "0 flagged keys",
+        "limits": "Linux same-machine liveness, cooperating writers, no qualified power-loss durability; no B10/B14/B15/B35 expansion.",
+        "D1_D2_ADR": "Direction justified: authority is repository state, not checkpoint; identity and OS exclusion govern recovery, not age. Non-authoritative checkpoint rename without fsync is consistent with R4 within declared process-crash boundary; no power-loss claim. F1/F2/F3 prevent approval of the implemented contract.",
+        "compatibility": "Minor classification justified for new refusals, optional fields and recover-lock mode. Checked local scripts, skills, workflows, docs, tests and CI; no production empty-lock consumer found. External Harne8 sources are outside this clone and were not independently read.",
+        "surface": {
+          "exit_code": 0,
+          "delivery": {
+            "spec": "pose-journal-checkpoint-and-lock-recovery",
+            "ref": "capability:journal-checkpoint-and-lock-recovery",
+            "kind": "capability",
+            "id": "journal-checkpoint-and-lock-recovery",
+            "module": "pose-mcp",
+            "profile": "composed-capability",
+            "entrypoint": "pose-mcp/internal/pose/closeout_plan.go"
+          },
+          "findings": [],
+          "raw_output_bytes": 22469431
+        }
+      },
+      "native_closeout": {
+        "bundle": "prepared only: rvb-7ff8f2d1ead3f41f",
+        "attestation": null,
+        "verify": "ready-to-seal; fresh=false; approved=false; exit 1",
+        "close": "not run: blocking findings, per instruction",
+        "lint_spec_strict": "exit 0 while spec remains in-progress; not functional evidence",
+        "check_strict": "exit 0 with 29 warnings",
+        "commit": null,
+        "push": "not performed; approval-only closeout sequence not entered"
+      },
+      "binary_sha256": "8954cbd94459da008c52e9cac640792b4be1d619597ed2e902b1b7094be799ae",
+      "prepared_plan": {
+        "bundle_id": "rvb-7ff8f2d1ead3f41f",
+        "bundle_digest": "sha256:7ff8f2d1ead3f41f5c5ea09cc8be3d2bcf48d4bc5e076ed6c3668f78146bc971",
+        "state": "prepared",
+        "plan_digest": "sha256:332464cfd3594e2eb900968742755fc2a299ec85c353454823915caffb196850",
+        "subject_patch_digest": "sha256:f7e5875f4c1b3b09ab2d08aa817c0fc8a1cbc493a30e641f02721dd5a5de85f4",
+        "subject_tree_digest": "sha256:32146ea39934a584c6eeb7f9456e986f0ed90858b0023c6abd3dd2806476686a",
+        "sealed": false
+      },
+      "plan_tool_dispositions": [
+        {
+          "id": "artifact-check",
+          "component": "",
+          "disposition": "executed",
+          "rationale": "See executed command and raw-output hash. Artifact-check ran JSON inspection without strict; no claim of satisfying an approval-only strict tool obligation. Validate global run includes pose-mcp."
+        },
+        {
+          "id": "assess-design",
+          "component": "",
+          "disposition": "not-used",
+          "rationale": "Recommended tool not used: direct ADR and full diff review plus compiled tests answer this rejected scope; no completion assessment claimed."
+        },
+        {
+          "id": "assess-discover",
+          "component": "pose-mcp",
+          "disposition": "not-used",
+          "rationale": "Recommended tool not used: direct ADR and full diff review plus compiled tests answer this rejected scope; no completion assessment claimed."
+        },
+        {
+          "id": "assess-integrate",
+          "component": "",
+          "disposition": "executed",
+          "rationale": "See executed command and raw-output hash. Artifact-check ran JSON inspection without strict; no claim of satisfying an approval-only strict tool obligation. Validate global run includes pose-mcp."
+        },
+        {
+          "id": "assess-tech-debt",
+          "component": "",
+          "disposition": "executed",
+          "rationale": "See executed command and raw-output hash. Artifact-check ran JSON inspection without strict; no claim of satisfying an approval-only strict tool obligation. Validate global run includes pose-mcp."
+        },
+        {
+          "id": "closeout-check",
+          "component": "",
+          "disposition": "deferred",
+          "rationale": "Review rejected; no completion gate or attestation attempted."
+        },
+        {
+          "id": "review-check",
+          "component": "",
+          "disposition": "deferred",
+          "rationale": "Review rejected; no completion gate or attestation attempted."
+        },
+        {
+          "id": "suggest-review",
+          "component": "pose-mcp",
+          "disposition": "executed",
+          "rationale": "See executed command and raw-output hash. Artifact-check ran JSON inspection without strict; no claim of satisfying an approval-only strict tool obligation. Validate global run includes pose-mcp."
+        },
+        {
+          "id": "surface-check",
+          "component": "",
+          "disposition": "executed",
+          "rationale": "See executed command and raw-output hash. Artifact-check ran JSON inspection without strict; no claim of satisfying an approval-only strict tool obligation. Validate global run includes pose-mcp."
+        },
+        {
+          "id": "validate",
+          "component": "",
+          "disposition": "executed",
+          "rationale": "See executed command and raw-output hash. Artifact-check ran JSON inspection without strict; no claim of satisfying an approval-only strict tool obligation. Validate global run includes pose-mcp."
+        },
+        {
+          "id": "validate",
+          "component": "pose-mcp",
+          "disposition": "executed",
+          "rationale": "See executed command and raw-output hash. Artifact-check ran JSON inspection without strict; no claim of satisfying an approval-only strict tool obligation. Validate global run includes pose-mcp."
+        }
+      ],
+      "report_sha256": "b719d95d47e4184c2ec4a64fca151a15c11f2e7ed9bb1a6521894fbc20846420"
+    },
+    {
+      "reviewed_head": "8e8b13074e1484aef364806a9bed232fde947fca",
+      "reviewer": "agent:independent-gpt-6.1-sol-review",
+      "decision": "approved",
+      "first_round_findings": {
+        "B13-F1": "resolved",
+        "B13-F2": "resolved",
+        "B13-F3": "resolved",
+        "B13-F4": "resolved"
+      },
+      "findings": [],
+      "mutation_summary": {
+        "total": 31,
+        "assertion_failures": 31,
+        "test_functions": 18,
+        "method": "Production-only Go overlays; 26 repeated first-round properties, four isolated remediation reversions and one isolated nested-key folding reversion. No tracked production or test edit."
+      },
+      "checks": [
+        {
+          "id": "vet",
+          "command": "go vet ./...",
+          "exit_code": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "id": "test",
+          "command": "go test ./... -count=1",
+          "exit_code": 0,
+          "sha256": "f1c059559423f8ed79195d550bb196d925d548c8f40795fb611444952810e6d3"
+        },
+        {
+          "id": "race",
+          "command": "go test -race ./internal/pose ./internal/cli ./internal/mcpserver -count=1",
+          "exit_code": 0,
+          "sha256": "283ae0e9deedb6ad16af89934130dd82ca634cc8925a3b4c16d3de3f7f68e53a"
+        },
+        {
+          "id": "windows",
+          "command": "GOOS=windows go build ./...",
+          "exit_code": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "id": "darwin",
+          "command": "GOOS=darwin go build ./...",
+          "exit_code": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "evidence": {
+        "checks.json": {
+          "path": "/tmp/b13-round2/checks.json",
+          "sha256": "1f85211b2ec064e7c558dbb3966012193944c5f0481d7d73f8ce7a3d07f7b483"
+        },
+        "probes.json": {
+          "path": "/tmp/b13-round2/probes.json",
+          "sha256": "6261c6e0651cfec9fe558fde0c0ae5769aaa09ffe43289332f4484eb61dfa98a"
+        },
+        "probe-comparison.json": {
+          "path": "/tmp/b13-round2/probe-comparison.json",
+          "sha256": "3d3e0126cbd6b6c853d5eaadfbe7ca3538030cd05458379186b29dfab87cb58a"
+        },
+        "extra-probes.json": {
+          "path": "/tmp/b13-round2/extra-probes.json",
+          "sha256": "30c598990351258fd111a659e34ca33a7e17c713aee3ab154907a858c745b86f"
+        },
+        "checkpoint-alias.json": {
+          "path": "/tmp/b13-round2/checkpoint-alias.json",
+          "sha256": "c0399a1c380137a8b0dfb42bfe47b9abe2406efdef67cb07caf9d4e26370cd7f"
+        },
+        "start-empty.json": {
+          "path": "/tmp/b13-round2/start-empty.json",
+          "sha256": "7cb7ac1c2b0e29d9761e83d3d585f227590019b88111095c08dba19016cb798c"
+        },
+        "boundaries.json": {
+          "path": "/tmp/b13-round2/boundaries.json",
+          "sha256": "339746883d2efae80a7f613770a78fef20a365606d672f2ef1d32972fd6f3f48"
+        },
+        "lock-races.json": {
+          "path": "/tmp/b13-round2/lock-races.json",
+          "sha256": "2e3313defe56fa0800090c2d22ac9223d3421221405a2ddab7d40d7f84365c70"
+        },
+        "real-journals.json": {
+          "path": "/tmp/b13-round2/real-journals.json",
+          "sha256": "318ad32a7ea08bdb788f9a7cb72442d2c487013e560b716e22f79fc66a260336"
+        },
+        "mutations/summary.json": {
+          "path": "/tmp/b13-round2/mutations/summary.json",
+          "sha256": "27605a16fd8e92c39b449597a594e130b0c1be70c41222da3459651e8f2b9400"
+        },
+        "mutations/summary-more.json": {
+          "path": "/tmp/b13-round2/mutations/summary-more.json",
+          "sha256": "0d43e4a12ba4ada4fbcf5a5bccab3fe2d3dc746ed372aebef3f271f2d2755916"
+        },
+        "mutations/summary-remediation.json": {
+          "path": "/tmp/b13-round2/mutations/summary-remediation.json",
+          "sha256": "f2514496a18c881a294b7b41cdc971fc722dd3dce42348595e21bd7d0013fb58"
+        },
+        "journal-readers.log": {
+          "path": "/tmp/b13-round2/journal-readers.log",
+          "sha256": "38bcc9407259f731c9602c2e3fc28d9089f0f051ca4b035dcefb690e2380a8a8"
+        },
+        "consumer-full.log": {
+          "path": "/tmp/b13-round2/consumer-full.log",
+          "sha256": "c656ddbe89e60f3d184beb2166ef437ff120dea8f7226b471d0f303f63049e97"
+        },
+        "remediation-probes.json": {
+          "path": "/tmp/b13-round2/remediation-probes.json",
+          "sha256": "cd848983bfdb3d3c17ef4b98bc37ef0ded9a39671a64bfd1d1e8228b2e006cbf"
+        },
+        "checkpoint-write-probe.json": {
+          "path": "/tmp/b13-round2/checkpoint-write-probe.json",
+          "sha256": "a1f6fed59f1a761ffac905305c6b484f0af2b814d4143ab892da133aef87089d"
+        },
+        "semantic-preservation.json": {
+          "path": "/tmp/b13-round2/semantic-preservation.json",
+          "sha256": "1a0297d497cd3b665b8a71be494245200976f0a6c10ea7915135d0c728c0d2ee"
+        },
+        "discovery-restoration.json": {
+          "path": "/tmp/b13-round2/discovery-restoration.json",
+          "sha256": "73985ac36ba8a5fa9badb446bf7f2f4afc1853b63bf73d252879cb5f8500a425"
+        },
+        "mutations/summary-nested.json": {
+          "path": "/tmp/b13-round2/mutations/summary-nested.json",
+          "sha256": "987ea1e29f37854f1fa3baad19790b4e272906dc969203dbbfb181dfd179b6b8"
+        },
+        "validation-anonymous.json": {
+          "path": "/tmp/b13-round2/validation-anonymous.json",
+          "sha256": "3fc12a956ca8fe7e2addc9f33b09ab5af3e19fb86c22b68b7d9cb87d3079e8b1"
+        },
+        "design-current.log": {
+          "path": "/tmp/b13-round2/design-current.log",
+          "sha256": "d5e497c0fa95b50e2c553877192d22bfe613b9dbca34f480074e21eb28d0118e"
+        },
+        "bundle-prepare.json": {
+          "path": "/tmp/b13-round2/bundle-prepare.json",
+          "sha256": "d740896e732e26caf468ffc22e32b14c3fb4496fbc4c507ef2f889d172831e98"
+        },
+        "implementation.diff": {
+          "path": "/tmp/b13-round2/implementation.diff",
+          "sha256": "8b9e62c086bd2fecdbd04a084cc49c651971f65036246b87b7f6677fa8d60c84"
+        }
+      },
+      "facts": {
+        "probes": "P01-P17 and P06/P11/P12 controls match published after outcomes/causes/states, excluding volatile fixture values.",
+        "real_journals": 9,
+        "lock_races": "20 rounds; exactly one of two recoveries succeeds; concurrent apply, retry and four idempotent acquisitions preserve started record.",
+        "checkpoint": "Five states, unavailable blocks both apply/resume before steps with bytes preserved; alias is corrupt; canonical unreflected seal conflicts; current digest replaces only through apply.",
+        "journal": "Whole-line and whole-file reading, exact diagnostic bytes/hash, escaped controls and exact limit independently repeated; all production journal reads use common parser.",
+        "limits": "Same-machine Linux liveness; cooperating writers; no power-loss durability. D1/D2 and nonauthoritative checkpoint rename remain consistent with R4. No B10/B14/B15/B35 expansion. External Harne8 source not read under clone-only constraint.",
+        "compatibility": "Minor refusals and optional fields; exit codes preserved. Local scripts/workflows/skills/CI and shared strict decoder audited; refused-event audit semantics explicitly belong to B10.",
+        "strict_validation": {
+          "head": "8e8b13074e1484aef364806a9bed232fde947fca",
+          "global": {
+            "executed": 135,
+            "passed": 135,
+            "failed": 0,
+            "optional_failed": 0,
+            "errored": 0,
+            "skipped": 0
+          },
+          "module": {
+            "executed": 132,
+            "passed": 132,
+            "failed": 0
+          },
+          "anonymous_attempt": "Global 134/135 and module 131/132; only install-and-upgrade-journeys release listing HTTP 403 failed. Authenticated full retries passed; GH_TOKEN scoped to each command, not printed."
+        },
+        "artifact_check": {
+          "exit_code": 0,
+          "claims": 34,
+          "observed": 34,
+          "scoped_findings": [],
+          "repository_warnings": 615,
+          "sha256": "f710547a8680a05da5755f5b1ae50d89ac3e5f6cfe04354ea34410f3121a8253"
+        },
+        "surface_check": {
+          "exit_code": 0,
+          "deliveries": [
+            {
+              "spec": "pose-journal-checkpoint-and-lock-recovery",
+              "ref": "capability:journal-checkpoint-and-lock-recovery",
+              "kind": "capability",
+              "id": "journal-checkpoint-and-lock-recovery",
+              "module": "pose-mcp",
+              "profile": "composed-capability",
+              "entrypoint": "pose-mcp/internal/pose/closeout_plan.go"
+            }
+          ],
+          "findings": [],
+          "output_bytes": 22469535,
+          "sha256": "3fb2b422dd5531561de6ac1a1e428b383327fd5483e31790fe9507822e0898ce"
+        }
+      },
+      "commands": [
+        {
+          "id": "validate-module-invalid-path",
+          "args": [
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp",
+            "--json-out",
+            "/tmp/b13-round2/module-validation.json"
+          ],
+          "exit_code": 2,
+          "output": "/tmp/b13-round2/validate-module-invalid-path.log",
+          "sha256": "e44c4f011ffc4ffb6ab9c848c794209b4e6d00f51f81ff0912eaf44cbe136782"
+        },
+        {
+          "id": "discover",
+          "args": [
+            "assess",
+            "discover",
+            "--if-stale",
+            "--component",
+            "pose-mcp"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/discover.log",
+          "sha256": "6763ede948af05e666e4f2b340823bded868d488d1e2fcc6ee5838389592d98e"
+        },
+        {
+          "id": "validate-module-anonymous",
+          "args": [
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "exit_code": 1,
+          "output": "/tmp/b13-round2/validate-module-anonymous.log",
+          "sha256": "5cf7df5508e96a7a68dab280ebad945df5b30e7099c3bafa3b14a1b3aefd8654"
+        },
+        {
+          "id": "validate-anonymous",
+          "args": [
+            "validate",
+            "--strict",
+            "--json-out",
+            ".pose/results/delivery-validation.json"
+          ],
+          "exit_code": 1,
+          "output": "/tmp/b13-round2/validate-anonymous.log",
+          "sha256": "97d35453f5bb066f97e2eea268d0e87968fd01bdcb41e6ac259861d366239746",
+          "reason": "134/135 pass; install journey GitHub release listing HTTP 403; authenticated retry authorized by user"
+        },
+        {
+          "id": "validate-auth",
+          "args": [
+            "validate",
+            "--strict",
+            "--json-out",
+            ".pose/results/delivery-validation.json"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/validate-auth.log",
+          "sha256": "d13c7d7b3d56100357aaaa6278afb4ba0a37619508bfc9f7fefa158ca0de269e"
+        },
+        {
+          "id": "seal-before-index",
+          "args": [
+            "review",
+            "bundle",
+            "spec:pose-journal-checkpoint-and-lock-recovery",
+            "--seal",
+            "--json"
+          ],
+          "exit_code": 1,
+          "output": "/tmp/b13-round2/seal-before-index.log",
+          "sha256": "c9e3f5f58561f630b0a65efa2c726b13dc33aad492a12fddc20121353d7762f1",
+          "reason": "Index still running; no sealed file produced. Retry waits for completed index attribution."
+        },
+        {
+          "id": "validate-module-auth",
+          "args": [
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/validate-module-auth.log",
+          "sha256": "accd563e300aa3a419a572aba3e087c0aa61e443657ede7471df8ccde0e38809"
+        },
+        {
+          "id": "index",
+          "args": [
+            "index"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/index.log",
+          "sha256": "ce3089189985be758494f9757fd5e9ddd87c799f512085126265937c3da2620a"
+        },
+        {
+          "id": "seal",
+          "args": [
+            "review",
+            "bundle",
+            "spec:pose-journal-checkpoint-and-lock-recovery",
+            "--seal",
+            "--json"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/seal.log",
+          "sha256": "09dcc2fccec7c12fc3adee481e5c6e98661971376f5cd7f9b02e2e9bf0d58a16"
+        },
+        {
+          "id": "auto-preview",
+          "args": [
+            "review",
+            "auto-attest",
+            "spec:pose-journal-checkpoint-and-lock-recovery",
+            "--reviewer",
+            "agent:independent-gpt-6.1-sol-review"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/auto-preview.log",
+          "sha256": "b63b5d8da31947ce857f5999787d558dd32950ab5ac4a34735ea40f6df8a50c2"
+        },
+        {
+          "id": "design-current",
+          "args": [
+            "assess",
+            "design",
+            "--spec",
+            "pose-journal-checkpoint-and-lock-recovery",
+            "--json"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/design-current.log",
+          "sha256": "d5e497c0fa95b50e2c553877192d22bfe613b9dbca34f480074e21eb28d0118e"
+        },
+        {
+          "id": "integrate",
+          "args": [
+            "assess",
+            "integrate"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/integrate.log",
+          "sha256": "841f6a342c3aa784491e384ec587b66a74fa8490ae418264987e3f5f62d28421"
+        },
+        {
+          "id": "tech-debt",
+          "args": [
+            "assess",
+            "tech-debt"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/tech-debt.log",
+          "sha256": "84d9b0da3f49dbfe79a93777b7c9db82ac638302683eae9cd3d53898f9782af0"
+        },
+        {
+          "id": "suggest",
+          "args": [
+            "suggest",
+            "review",
+            "--path",
+            "pose-mcp"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/suggest.log",
+          "sha256": "eb90980a7ead71b07dc4d355944863683fcfd3bb0ebcf2ba5eead2536606b184"
+        },
+        {
+          "id": "artifact",
+          "args": [
+            "artifact-check",
+            "--spec",
+            "pose-journal-checkpoint-and-lock-recovery",
+            "--strict",
+            "--json"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/artifact.log",
+          "sha256": "f710547a8680a05da5755f5b1ae50d89ac3e5f6cfe04354ea34410f3121a8253"
+        },
+        {
+          "id": "surface",
+          "args": [
+            "surface-check",
+            "--spec",
+            "pose-journal-checkpoint-and-lock-recovery",
+            "--strict",
+            "--json"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/surface.log",
+          "sha256": "3fb2b422dd5531561de6ac1a1e428b383327fd5483e31790fe9507822e0898ce"
+        },
+        {
+          "id": "attest-preview",
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/attest-preview.log",
+          "sha256": "4e0eb81436902420f5d5ee8b419becd325d9b40bac2b1cbba60fb178abb28c63",
+          "args_file": "/tmp/b13-round2/attest-args.json",
+          "args_sha256": "03ae0cf16e229f79160f8bf5e2b6be28016fe06a84964444f79bbd14aca47874",
+          "decision": "approved",
+          "criteria_count": 15,
+          "tools_count": 11
+        },
+        {
+          "id": "attest-apply",
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/attest-apply.log",
+          "sha256": "5cdfba4846e2621c24c8abf272f713f883b5ebf503a79eeb742a20c50268e46a",
+          "args_file": "/tmp/b13-round2/attest-args.json",
+          "args_sha256": "03ae0cf16e229f79160f8bf5e2b6be28016fe06a84964444f79bbd14aca47874",
+          "decision": "approved",
+          "criteria_count": 15,
+          "tools_count": 11
+        },
+        {
+          "id": "verify-admission",
+          "args": [
+            "review",
+            "verify",
+            "spec:pose-journal-checkpoint-and-lock-recovery",
+            "--json"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/verify-admission.log",
+          "sha256": "0f402f2976eb6a9795b2541be3d5f5377bbeaf6f283f504f088eb65c1f50a69c"
+        },
+        {
+          "id": "review-check",
+          "args": [
+            "review-check",
+            "spec:pose-journal-checkpoint-and-lock-recovery",
+            "--json"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/review-check.log",
+          "sha256": "9ab3bef7062bf75210fb64d19da4b605d87dc40c5b108f45ffabf4f62fc9598e"
+        },
+        {
+          "id": "closeout-check",
+          "args": [
+            "closeout-check",
+            "spec:pose-journal-checkpoint-and-lock-recovery",
+            "--json"
+          ],
+          "exit_code": 1,
+          "output": "/tmp/b13-round2/closeout-check.log",
+          "sha256": "06309bfa56bf9d8d387559281814f1affc570cd2f57a32be619692106a6e1c41"
+        },
+        {
+          "id": "close",
+          "args": [
+            "close",
+            "spec:pose-journal-checkpoint-and-lock-recovery"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/close.log",
+          "sha256": "83042bb262ec8122575ed4350a089da5f06c73af7e966fb1459f72cb745299ce"
+        },
+        {
+          "id": "lint-after-close",
+          "args": [
+            "lint-spec",
+            "pose-journal-checkpoint-and-lock-recovery",
+            "--strict"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/lint-after-close.log",
+          "sha256": "e04fd9a4329ace7d47e9962fafd8aa135cc3cebf9b23929884c2a8e305d591d2"
+        },
+        {
+          "id": "discover-closeout",
+          "args": [
+            "assess",
+            "discover",
+            "--if-stale",
+            "--update-state"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/discover-closeout.log",
+          "sha256": "b2547360034826e496ed5a3d1bb9d1c19bbb338f373fc9113335e488e7280a19"
+        },
+        {
+          "id": "lint-final",
+          "args": [
+            "lint-spec",
+            "pose-journal-checkpoint-and-lock-recovery",
+            "--strict"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/lint-final.log",
+          "sha256": "e04fd9a4329ace7d47e9962fafd8aa135cc3cebf9b23929884c2a8e305d591d2"
+        },
+        {
+          "id": "check-after-close",
+          "args": [
+            "check",
+            "--strict"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/check-after-close.log",
+          "sha256": "03215aefcc512c1ae615e4f27f3345567a04c685e2df88976b9b08be3a57ecda"
+        },
+        {
+          "id": "index-final",
+          "args": [
+            "index"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/index-final.log",
+          "sha256": "ce3089189985be758494f9757fd5e9ddd87c799f512085126265937c3da2620a"
+        },
+        {
+          "id": "verify-final",
+          "args": [
+            "review",
+            "verify",
+            "spec:pose-journal-checkpoint-and-lock-recovery",
+            "--json"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/verify-final.log",
+          "sha256": "5e2abb86775d9e3c1a6208bb1e274597377d8f1ac17c09ece38c5ec423871f1d"
+        },
+        {
+          "id": "closeout-check-final",
+          "args": [
+            "closeout-check",
+            "spec:pose-journal-checkpoint-and-lock-recovery",
+            "--json"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/closeout-check-final.log",
+          "sha256": "8cb75d3c03b2ef37ba2bdaffb7026a7ae8fc5f5463f95e82bd63001a8ca1b09e"
+        },
+        {
+          "id": "review-check-final",
+          "args": [
+            "review-check",
+            "spec:pose-journal-checkpoint-and-lock-recovery",
+            "--json"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/review-check-final.log",
+          "sha256": "158b716688bff6937aad2f4566841f65d5ad1a0d73c7b291e264b0c05e08217e"
+        },
+        {
+          "id": "lint-terminal",
+          "args": [
+            "lint-spec",
+            "pose-journal-checkpoint-and-lock-recovery",
+            "--strict"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/lint-terminal.log",
+          "sha256": "e04fd9a4329ace7d47e9962fafd8aa135cc3cebf9b23929884c2a8e305d591d2"
+        },
+        {
+          "id": "check-final",
+          "args": [
+            "check",
+            "--strict"
+          ],
+          "exit_code": 0,
+          "output": "/tmp/b13-round2/check-final.log",
+          "sha256": "03215aefcc512c1ae615e4f27f3345567a04c685e2df88976b9b08be3a57ecda"
+        }
+      ],
+      "binary_sha256": "4e9248284058aacf52a79697c45ed1293170219554b6acbf84bdc893d204babc",
+      "native_closeout": {
+        "bundle": "rvb-bbed7a49533bf1e3",
+        "bundle_digest": "sha256:bbed7a49533bf1e34f8df34d4a9a5253f981c83599dc2fe837dde3b8536d7838",
+        "plan_digest": "sha256:332464cfd3594e2eb900968742755fc2a299ec85c353454823915caffb196850",
+        "attestation": "rva-dfa2006f7d36184d",
+        "admission_verification": {
+          "state": "ready-to-close",
+          "fresh": true,
+          "approved": true,
+          "blockers": null
+        },
+        "final_verification": {
+          "state": "closed",
+          "fresh": true,
+          "approved": true,
+          "blockers": null
+        },
+        "close_exit_code": 0,
+        "lint_spec_strict_exit_code": 0,
+        "check_strict_exit_code": 0,
+        "closeout_check_exit_code": 0,
+        "discovery_outputs": "Executed assess discover --if-stale --update-state; outputs restored to exact pre-discovery snapshot and excluded from commit.",
+        "commit": "Stored by the closeout commit carrying this file; see its POSE-Spec trailer.",
+        "push": "Publication is outside the sealed subject; the final response records the actual push result and remote commit after publication."
+      },
+      "report_sha256": "84cf21bc8b5edce7f58ddbd1f9b5d8de22b6c64a7284e3ebe61dc209d82cc84b"
+    }
+  ],
+  "native_closeout": {
+    "bundle": "rvb-bbed7a49533bf1e3",
+    "bundle_digest": "sha256:bbed7a49533bf1e34f8df34d4a9a5253f981c83599dc2fe837dde3b8536d7838",
+    "plan_digest": "sha256:332464cfd3594e2eb900968742755fc2a299ec85c353454823915caffb196850",
+    "attestation": "rva-dfa2006f7d36184d",
+    "admission_verification": {
+      "state": "ready-to-close",
+      "fresh": true,
+      "approved": true,
+      "blockers": null
+    },
+    "final_verification": {
+      "state": "closed",
+      "fresh": true,
+      "approved": true,
+      "blockers": null
+    },
+    "close_exit_code": 0,
+    "lint_spec_strict_exit_code": 0,
+    "check_strict_exit_code": 0,
+    "closeout_check_exit_code": 0,
+    "discovery_outputs": "Executed assess discover --if-stale --update-state; outputs restored to exact pre-discovery snapshot and excluded from commit.",
+    "commit": "Stored by the closeout commit carrying this file; see its POSE-Spec trailer.",
+    "push": "Publication is outside the sealed subject; the final response records the actual push result and remote commit after publication."
+  }
+}

@@ -1,8 +1,8 @@
 ---
 slug: pose-journal-checkpoint-and-lock-recovery
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-16
 depends_on: pose-cli-mcp-operation-results, pose-recoverable-closeout-plan, pose-abm-atomic-start
 priority: 1
 components: pose-mcp
@@ -134,7 +134,7 @@ em Linux e na mesma máquina; outras plataformas reportam `owner-unknown`.
 - [x] Trava do start com dono, classificação por identidade, recuperação verificada e status em CLI/MCP.
 - [x] V1–V8 nos consumidores domínio, CLI e MCP, com race detector; probes P01–P17 antes e depois (controles inalterados); 29 mutações reprovando; validação estrita do módulo.
 - [x] Remediar a primeira revisão independente: chaves que diferem só na caixa contam como duplicadas no journal e no checkpoint; tipo de evento desconhecido é corrupção; `--recover-lock` vazio é recusado pelo parser; o teste de linha grande usa um evento válido, sensível só ao limite.
-- [ ] Revisão por ator diferente, closeout nativo e PR.
+- [x] Revisão por ator diferente e closeout nativo no PR #187; merge permanece com o maintainer.
 
 ## 5. Decisions
 
@@ -171,24 +171,23 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Testes de domínio, CLI e MCP executados, com vet, suíte completa, race e builds Windows/Darwin; 31 mutações independentes detectadas por asserção. A validação estrita e os gates nativos estão registrados no parecer das duas rodadas.
 
 ### Requirement trace
 
-Trace planejado; vincular os casos aos produtores reais na implementação.
-Não declarar requisitos funcionais satisfeitos pelo lint.
+Produtores executados nesta revisão independente; lint valida a estrutura, não
+substitui estes testes e probes. Evidência compacta das duas rodadas em
+[review](../results/b13-independent-review.json).
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1 |
-| R2 | V1 |
-| R3 | V2 |
-| R4 | V3 |
-| R5 | V4 |
-| R6 | V5 |
-| R7 | V6 |
-| R8 | V7 |
-| R9 | V1–V8 |
+- R1 [satisfied] test:TestAJournalIsReadWholeOrNotAtAll test:TestAJournalKeepsTextWithEscapedControls — probes P01/P03/P04/P05/P06/P14 e limites exatos; mutações de schema, sequência, duplicatas, folding, tipo e tamanho detectadas.
+- R2 [satisfied] test:TestAnInterruptedTailIsProposedNeverRepaired test:TestAJournalThatDoesNotReadIsLocatedInBothRenderers test:TestMCPLocatesAJournalThatDoesNotRead — diagnósticos byte/hash exatos e arquivo preservado.
+- R3 [satisfied] test:TestACheckpointSaysWhatItIs test:TestACheckpointThatDoesNotReadStopsTheApplyBeforeAnyStep — probe unavailable por chmod 000 e aliases corrupt sem passos.
+- R4 [satisfied] test:TestACheckpointIsReplacedWholeAndItsRemovalIsReported check:cli-mcp-operation-results-integration — escrita por rename e falhas observáveis em unconfirmed, checkpoint não autoritativo sem garantia de power loss conforme ADR.
+- R5 [satisfied] test:TestACheckpointIsProgressNeverAReceipt check:quickstart-real-lifecycle-integration — conflito sem replay e substituição somente por apply com digest atual, replanejamento do repositório.
+- R6 [satisfied] test:TestAStartLockIsJudgedByItsOwnersIdentity test:TestALockWithoutAReadableOwnerIsUnknown — identidade host/máquina/boot/namespace/PID/início e idade irrelevante.
+- R7 [satisfied] test:TestOnlyAProvenDeadLockIsRecoveredAndOnlyTheOneInspected test:TestConcurrentRecoveriesRemoveTheDeadLockOnce test:TestAReleaseRemovesOnlyItsOwnLock — 20 corridas adicionais com aquisição concorrente.
+- R8 [satisfied] test:TestARecoveredLockLeavesTheInterruptedStartToResume check:abm-atomic-start-integration — intenção/baseline preservadas, sem presumir owner após restart nem implementar daemon.
+- R9 [satisfied] test:TestAJournalThatDoesNotReadIsLocatedInBothRenderers test:TestTheStartCommandReportsAndRecoversOnlyADeadLock test:TestADeadStartLockIsRecoveredByItsDigestInBothRenderers test:TestMCPLocatesAJournalThatDoesNotRead test:TestMCPStartStatusShowsAHeldLock check:journal-checkpoint-and-lock-recovery-integration — probes P01–P17 e controles preservados.
 
 Consultar também [consistência/recovery](../reports/2026-10-12-pose-front-09-consistency-recovery.md) e [performance](../reports/2026-10-12-pose-front-08-resident-performance.md).
 
@@ -196,14 +195,37 @@ Consultar também [consistência/recovery](../reports/2026-10-12-pose-front-09-c
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 4. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+B13 entregue com journal integral e diagnóstico tipado sem reparo automático,
+checkpoint com cinco estados e retomada por efeitos observados, e trava de start
+com owner verificável e recuperação explícita de dono morto sob exclusão mútua.
+CLI e MCP qualificados sem mudar policy, capabilities ou adoção. D1/D2 e o ADR
+foram julgados na revisão independente Codex/OpenAI, frente ao implementador
+Claude/Anthropic, por `agent:independent-gpt-6.1-sol-review`, autorizado pelo
+maintainer. Identidade e separação declaradas; atestações não assinadas.
+
+### Review and delivery evidence
+
+O [parecer, Second round](../reports/2026-10-16-pose-b13-journal-checkpoint-lock-recovery-review.md)
+e a [evidência compacta das duas rodadas](../results/b13-independent-review.json)
+preservam F1–F4 e suas contraprovas. Validação estrita global 135/135 e módulo
+132/132 em 8e8b1307; vet, suíte completa, race, builds Windows/Darwin e 31
+mutações independentes detectadas por asserção. P01–P17, controles e jornada
+quickstart preservados. Bundle `rvb-bbed7a49533bf1e3`, atestação `rva-dfa2006f7d36184d` e closeout nativo
+identificados no parecer; lint e check qualificam estrutura, não requisitos
+funcionais.
 
 ### Residual risks
 
-Liveness pode ser impossível de provar em host remoto, boot desconhecido ou filesystem diferente; manter owner-unknown e caminho de reconciliação. Receipt não deve confiar apenas no checkpoint editável. Garantias de Sync e coordenação precisam de contrato por classe de artefato/plataforma, sem prometer proteção contra editor não cooperante.
+Prova de liveness limita-se a Linux e à mesma máquina com identidade disponível;
+contexto insuficiente permanece owner-unknown. Writers devem cooperar com os
+protocolos de exclusão. Checkpoint não autoritativo usa rename sem sync e não
+promete durabilidade contra power loss. Fontes externas do Harne8 não foram
+inspecionadas nesta revisão limitada a este clone. Os limites e a separação de
+B10/B14/B15/B35 permanecem os do ADR; nenhum novo risco foi aceito por finding.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Não surgiu follow-up residual desta revisão. O trabalho fora do escopo continua
+no programa já governado, sem criar, encerrar, duplicar ou dispositionar outra
+spec por inferência. Aguardar merge de #187 pelo maintainer e reavaliar a
+readiness nativa sem escolher automaticamente nova implementação.
