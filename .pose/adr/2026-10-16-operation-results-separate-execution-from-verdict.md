@@ -92,9 +92,17 @@ Routes:
   operational failure as an `OperationResult` with outcome `failed` and a
   typed cause on stdout, plus the human line on stderr; the exit stays 1.
 - An effect is confirmed by observing it: the evidence step confirms
-  `results-written` only when the results path holds a JSON document written
-  by this run, because `validate` exits 1 both for a failing check and for a
-  results file it could not write.
+  `results-written` only when this run's `validate` output reports writing
+  the results path (`json: <path>`, printed after its own write succeeded)
+  and the path holds a JSON document, because `validate` exits 1 both for a
+  failing check and for a results file it could not write. An earlier
+  document at the path, however recent, confirms nothing.
+- A `pose start --apply` that fails after the domain published its baseline
+  reads the start record back: the recorded phase is a confirmed effect, the
+  spec transition is `unconfirmed`, and the result is resumable with the same
+  digest. A record for another plan is a `conflict` this call did not write.
+- `pose close <scope>` without a plan mode has no JSON result: `--json` there
+  is refused with exit 2 and the help no longer advertises it.
 - Parsers of `close`, `start`, `specs` and `continuous-closeout` refuse,
   with exit 2 and before any read that could widen the result: two different
   modes, a flag the mode does not take, an unknown flag, a missing value, an
@@ -103,8 +111,10 @@ Routes:
   bounded (100000 days) so the window cannot overflow. `specs facts` takes one
   slug and `--json` in any position. MCP `pose_list_specs` decodes its
   arguments strictly and refuses the same values, an unknown argument, an
-  explicit `0` for `recent` or `limit`, an empty `since` and a `sort` other
-  than `date`; omitted values keep the unfiltered, unpaginated listing.
+  explicit `0` for `recent` or `limit`, an explicit `null` for any filter, an
+  empty `since` and a `sort` other than `date` or `slug` (the two orders its
+  catalog advertises); omitted values keep the unfiltered, unpaginated
+  listing.
 - A gate subprocess is classified by its context first: a deadline or a
   cancellation returns `*GateExecutionError` (cause `deadline-exceeded` or
   `canceled`, the command, the partial output and a cleanup note), which MCP

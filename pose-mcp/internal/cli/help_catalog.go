@@ -466,7 +466,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "close",
 		SummaryEN:       "Apply review-gated lifecycle closeout to a spec or milestone",
 		SummaryPtBR:     "Aplica fechamento governado com portão de review em spec ou marco",
-		Usage:           "pose close <scope|xref> [--expect-context <digest>] [--json] | pose close spec:<slug> --plan [--json] | --apply|--resume [--reviewer agent:<id>] [--digest <plan digest>] [--skip-evidence] [--json]",
+		Usage:           "pose close <scope|xref> [--expect-context <digest>] | pose close spec:<slug> --plan [--json] | --apply|--resume [--reviewer agent:<id>] [--digest <plan digest>] [--skip-evidence] [--json]",
 		DescriptionEN:   "Transitions a completed specification (or milestone) after verifying review and delivery gates. Cross-project close requires an explicit project binding and fresh context digest.",
 		DescriptionPtBR: "Transiciona uma spec (ou marco) para status: done após verificar se atestações de review, rastreio de requisitos e garantias de entrega foram cumpridos.",
 		Flags: []FlagHelp{

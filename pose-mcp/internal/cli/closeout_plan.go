@@ -103,20 +103,26 @@ func cmdClosePlan(root string, args []string, stdout, stderr io.Writer) int {
 	return closePlanExitCode(result)
 }
 
-// observePublishedResults confirms that validate published its results: a
-// regular file at the results path, written during this step, holding a JSON
-// document.
-func observePublishedResults(root, resultsPath string, since time.Time) error {
+// observePublishedResults confirms that this validate run published its
+// results. validate prints "json: <path>" only after its own write returned
+// without error, so that line in this run's output is the fact bound to the
+// run; an older file at the path, however recent, is not. The file must also
+// be a regular file holding a JSON document.
+func observePublishedResults(root, resultsPath, runOutput string) error {
 	target := filepath.Join(root, filepath.FromSlash(resultsPath))
+	reported := false
+	for _, line := range strings.Split(runOutput, "\n") {
+		if strings.TrimSpace(line) == "json: "+target {
+			reported = true
+			break
+		}
+	}
+	if !reported {
+		return fmt.Errorf("this run did not report writing %s", resultsPath)
+	}
 	info, err := os.Stat(target)
-	if err != nil {
-		return fmt.Errorf("no results were published at %s", resultsPath)
-	}
-	if !info.Mode().IsRegular() {
+	if err != nil || !info.Mode().IsRegular() {
 		return fmt.Errorf("%s is not a results file", resultsPath)
-	}
-	if info.ModTime().Before(since.Add(-time.Second)) {
-		return fmt.Errorf("%s was not written by this run", resultsPath)
 	}
 	raw, err := os.ReadFile(target)
 	if err != nil || !json.Valid(raw) {
@@ -280,7 +286,6 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 				if policyErr != nil {
 					return fail(posemodel.CloseoutStepEvidence, "policy-unavailable", policyErr, false)
 				}
-				published := time.Now()
 				code := cmdValidate(root, []string{"--tolerant", "--json-out", policy.ResultsPath}, &buffer, &buffer)
 				if code > 1 {
 					return fail(posemodel.CloseoutStepEvidence, "validate-error", fmt.Errorf("validate exited %d: %s", code, lastLine(buffer.String())), true)
@@ -288,7 +293,7 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 				// Exit 1 is both a failing check, whose results are published,
 				// and a results file validate could not write. The effect is
 				// confirmed only by observing the published document (R1/R6).
-				if err := observePublishedResults(root, policy.ResultsPath, published); err != nil {
+				if err := observePublishedResults(root, policy.ResultsPath, buffer.String()); err != nil {
 					return fail(posemodel.CloseoutStepEvidence, "results-not-published", fmt.Errorf("validate exited %d and %v: %s", code, err, lastLine(buffer.String())), true)
 				}
 				record(posemodel.CloseoutStepEvidence, nil)

@@ -125,6 +125,7 @@ domínio em processo do CLI fica fora: o processo do CLI termina pelo sinal.
 - [x] Journal de uso com waiting e duração desconhecida.
 - [x] V1–V8 nos consumidores CLI, domínio e MCP; probes P03/P06/P07/P08 antes e depois (controles inalterados); validação estrita do módulo 131/131 em aa9e9a17.
 - [x] Remediar F1–F4 da primeira revisão independente: efeito de evidência confirmado só pela observação do resultado publicado; falhas operacionais das rotas JSON como um documento; `pose_list_specs` estrito em argumentos, zeros explícitos e since vazio; `specs facts` estrito.
+- [x] Remediar a segunda revisão independente: F1 confirmado pela saída de escrita desta execução do validate; F3 `null` explícito e `sort: "slug"` anunciado (F7); F5 resultado parcial de start com baseline publicada e retomada; F6 `--json` recusado no close sem modo de plano.
 - [ ] Revisão por ator diferente, closeout nativo e PR.
 
 ## 5. Decisions

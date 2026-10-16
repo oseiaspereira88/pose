@@ -1008,6 +1008,18 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := decoder.Decode(&a); err != nil {
 			return nil, fmt.Errorf("pose_list_specs: invalid arguments: %v", err)
 		}
+		// An explicit null is a value, not an omission: decoding would turn
+		// it into "no filter" and widen the listing.
+		var present map[string]json.RawMessage
+		_ = json.Unmarshal(args, &present)
+		for key, raw := range present {
+			if key != "project_id" && strings.TrimSpace(string(raw)) == "null" {
+				return nil, fmt.Errorf("pose_list_specs: %s must not be null; omit it instead", key)
+			}
+		}
+		if _, given := present["sort"]; given && a.Sort != "date" && a.Sort != "slug" {
+			return nil, fmt.Errorf("pose_list_specs: sort must be \"date\" or \"slug\"")
+		}
 		var sinceDate time.Time
 		if a.Since != nil {
 			parsed, parseErr := pose.ParseSinceDate(*a.Since)
@@ -1029,9 +1041,6 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			}
 			limit = *a.Limit
 		}
-		if a.Sort != "" && a.Sort != "date" {
-			return nil, fmt.Errorf("pose_list_specs: sort must be \"date\" when given")
-		}
 		specs, err := store.ListSpecs(a.Status, a.Components)
 		if err != nil {
 			return nil, err
@@ -1050,6 +1059,9 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 				}
 			}
 			specs = filtered
+		}
+		if a.Sort == "slug" && recent == 0 {
+			sort.Slice(specs, func(i, j int) bool { return specs[i].Slug < specs[j].Slug })
 		}
 		if a.Sort == "date" || recent > 0 {
 			sort.Slice(specs, func(i, j int) bool {

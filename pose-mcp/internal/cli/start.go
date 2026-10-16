@@ -129,8 +129,17 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		record, err := store.ApplyStart(plan, digest, nil)
 		if err != nil {
+			result := startApplyFailure(store, slug, digest, record, err)
 			if jsonOutput {
-				return writeOperationFailure(stdout, stderr, "start.apply", "spec:"+slug, "apply-refused", "pose start: "+err.Error())
+				r.Failure("pose start: " + err.Error())
+				_ = writeJSON(stdout, result)
+				return 1
+			}
+			for _, effect := range result.Effects {
+				r.Field("start."+effect.Effect, effect.Ref)
+			}
+			if result.NextAction != "" {
+				r.Field("start.next_action", result.NextAction)
 			}
 			r.Failure("pose start: " + err.Error())
 			return 1
@@ -165,4 +174,38 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		r.Field("start.digest", plan.Digest)
 		return 0
 	}
+}
+
+// startApplyFailure is the result of an apply that returned an error. The
+// domain may have published the baseline before it failed, so the record on
+// disk is read back: a baseline recorded for this plan is a confirmed,
+// resumable state, and the spec transition is left unconfirmed (spec
+// pose-cli-mcp-operation-results R6).
+func startApplyFailure(store posemodel.Store, slug, digest string, returned posemodel.StartRecord, err error) posemodel.OperationResult {
+	result := posemodel.NewOperationResult("start.apply", "spec:"+slug)
+	// The domain's refusals are "start: <code>"; anything else is an
+	// operational error of the apply.
+	cause := "apply-failed"
+	if code := strings.TrimPrefix(err.Error(), "start: "); code != err.Error() && !strings.ContainsAny(code, " :") {
+		cause = code
+	}
+	persisted, ok, readErr := store.GetStartRecord(slug)
+	switch {
+	case readErr == nil && ok && persisted.PlanDigest == digest && persisted.Phase != "":
+		result.Fail(posemodel.OutcomeFailed, "transition", cause, err.Error())
+		result.Effects = append(result.Effects, posemodel.OperationEffect{Step: "baseline", Effect: persisted.Phase, Ref: ".pose/starts/" + slug + ".json"})
+		if persisted.Phase != "started" {
+			result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "transition", Reason: "the spec transition may have been written before the failure; the start record reconciles it on the next apply"})
+		}
+		result.Resumable = true
+		result.NextAction = "fix the cause, then repeat `pose start spec:" + slug + " --apply --digest " + digest + "`; the recorded baseline is reused"
+		result.Data = persisted
+	case returned.Phase != "":
+		// A record for another plan: nothing was written by this call.
+		result.Fail(posemodel.OutcomeConflict, "", cause, err.Error())
+		result.Data = returned
+	default:
+		result.Fail(posemodel.OutcomeFailed, "", cause, err.Error())
+	}
+	return result
 }

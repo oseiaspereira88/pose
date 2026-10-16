@@ -309,6 +309,10 @@ func cliCloseoutState(root, ref string) (posemodel.CloseoutState, error) {
 }
 
 func parseScopeCheckArgs(command string, args []string, stderr io.Writer) (string, bool, bool) {
+	jsonFlag := " [--json]"
+	if command == "close" {
+		jsonFlag = ""
+	}
 	jsonOutput := false
 	ref := ""
 	for _, arg := range args {
@@ -317,14 +321,14 @@ func parseScopeCheckArgs(command string, args []string, stderr io.Writer) (strin
 			jsonOutput = true
 		default:
 			if strings.HasPrefix(arg, "-") || ref != "" {
-				fmt.Fprintf(stderr, "Usage: pose %s <spec:slug|milestone:roadmap/id|roadmap:slug> [--json]\n", command)
+				fmt.Fprintf(stderr, "Usage: pose %s <spec:slug|milestone:roadmap/id|roadmap:slug>%s\n", command, jsonFlag)
 				return "", false, false
 			}
 			ref = arg
 		}
 	}
 	if ref == "" {
-		fmt.Fprintf(stderr, "Usage: pose %s <spec:slug|milestone:roadmap/id|roadmap:slug> [--json]\n", command)
+		fmt.Fprintf(stderr, "Usage: pose %s <spec:slug|milestone:roadmap/id|roadmap:slug>%s\n", command, jsonFlag)
 		return "", false, false
 	}
 	return ref, jsonOutput, true
@@ -1573,8 +1577,15 @@ func cmdClose(root string, args []string, stdout, stderr io.Writer) int {
 		i++
 		expectedContext = args[i]
 	}
-	ref, _, ok := parseScopeCheckArgs("close", remaining, stderr)
+	ref, jsonFlag, ok := parseScopeCheckArgs("close", remaining, stderr)
 	if !ok {
+		return 2
+	}
+	// The guarded transition has no JSON result; the flag is refused before
+	// anything is read instead of being dropped (spec
+	// pose-cli-mcp-operation-results R3).
+	if jsonFlag {
+		render(io.Discard, stderr).Failure("pose close: --json is taken only by --plan, --apply and --resume; use `pose closeout-check " + ref + " --json` to read the state")
 		return 2
 	}
 	taskRef := ref

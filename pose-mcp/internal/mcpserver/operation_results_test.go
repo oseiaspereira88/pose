@@ -47,7 +47,7 @@ func TestAGateToolStoppedByItsDeadlineIsAnInconclusiveError(t *testing.T) {
 
 func TestListSpecsRefusesFiltersItWouldOtherwiseDrop(t *testing.T) {
 	ts := newTestServer(t, "")
-	for _, args := range []string{`{"since":"nonsense"}`, `{"since":"-3d"}`, `{"since":""}`, `{"since":"999999999999999999d"}`, `{"recent":-1}`, `{"recent":0}`, `{"limit":-1}`, `{"limit":0}`, `{"sttaus":"done"}`, `{"sort":"name"}`} {
+	for _, args := range []string{`{"since":"nonsense"}`, `{"since":"-3d"}`, `{"since":""}`, `{"since":"999999999999999999d"}`, `{"recent":-1}`, `{"recent":0}`, `{"limit":-1}`, `{"limit":0}`, `{"sttaus":"done"}`, `{"sort":"name"}`, `{"sort":""}`, `{"sort":null}`, `{"recent":null}`, `{"limit":null}`, `{"since":null}`, `{"status":null}`} {
 		_, out := post(t, ts, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_list_specs","arguments":`+args+`}}`)
 		if out.Result["isError"] != true {
 			t.Fatalf("%s listed specs instead of refusing: %+v", args, out.Result)
@@ -62,5 +62,15 @@ func TestListSpecsRefusesFiltersItWouldOtherwiseDrop(t *testing.T) {
 	structured, _ := out.Result["structuredContent"].(map[string]any)
 	if out.Result["isError"] == true || structured == nil || structured["total"] != float64(1) {
 		t.Fatalf("a valid filter stopped working: %+v", out.Result)
+	}
+}
+
+func TestListSpecsKeepsTheAdvertisedSlugOrder(t *testing.T) {
+	ts := newTestServer(t, "")
+	_, out := post(t, ts, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_list_specs","arguments":{"sort":"slug"}}}`)
+	structured, _ := out.Result["structuredContent"].(map[string]any)
+	specs, _ := structured["specs"].([]any)
+	if out.Result["isError"] == true || len(specs) != 2 || specs[0].(map[string]any)["slug"] != "alpha" || specs[1].(map[string]any)["slug"] != "beta" {
+		t.Fatalf("the advertised slug order was refused or not applied: %+v", out.Result)
 	}
 }

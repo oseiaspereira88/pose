@@ -149,6 +149,7 @@ func TestCloseAndStartRefuseAmbiguousModesWithoutWriting(t *testing.T) {
 		{"close", "spec:bundle", "--plan", "--reviewer", "agent:r"},
 		{"close", "spec:bundle", "--plan", "--digest", "sha256:x"},
 		{"close", "spec:bundle", "--apply", "--digest", "--json"},
+		{"close", "spec:bundle", "--json"},
 	} {
 		if code, out := runPose(t, root, args...); code != 2 {
 			t.Fatalf("%v was not refused: %d %s", args, code, out)
@@ -377,5 +378,69 @@ func TestSpecFactsRefusesUnknownFlagsWhereverJSONIs(t *testing.T) {
 	codeB, _ := runPoseJSON(t, root, &after, "specs", "facts", "bundle", "--json")
 	if codeA != 0 || codeB != 0 {
 		t.Fatalf("--json position changed the channel: %d %d", codeA, codeB)
+	}
+}
+
+func TestARecentResultThatThisRunCouldNotRewriteIsNotConfirmed(t *testing.T) {
+	root := publicationFailureFixture(t)
+	target := filepath.Join(root, ".pose/results/blocked.json")
+	if err := os.Remove(target); err != nil {
+		t.Fatal(err)
+	}
+	// A valid, recent document from an earlier run that this run cannot
+	// overwrite (second-round F1).
+	if err := os.WriteFile(target, []byte(`{"schema_version":1,"earlier":true}`+"\n"), 0o444); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(target, 0o644) })
+	var result closeApplyJSON
+	code, _ := runPoseJSON(t, root, &result, "close", "spec:alpha", "--apply", "--reviewer", "agent:reviewer", "--json")
+	if code != 1 || result.Error == nil || result.Error.Cause != "results-not-published" || result.Step != posemodel.CloseoutStepEvidence {
+		t.Fatalf("an earlier document was taken as this run's results: code=%d %+v", code, result.OperationResult)
+	}
+	if strings.Contains(strings.Join(effectNames(result.OperationResult), ","), "results-written") {
+		t.Fatalf("results-written was confirmed: %+v", result.Effects)
+	}
+}
+
+func TestResultsThisRunPublishedAreConfirmed(t *testing.T) {
+	root := publicationFailureFixture(t)
+	if err := os.Remove(filepath.Join(root, ".pose/results/blocked.json")); err != nil {
+		t.Fatal(err)
+	}
+	var result closeApplyJSON
+	runPoseJSON(t, root, &result, "close", "spec:alpha", "--apply", "--reviewer", "agent:reviewer", "--json")
+	if len(result.StepsRun) == 0 || result.StepsRun[0].ID != posemodel.CloseoutStepEvidence || result.StepsRun[0].Result != "done" || !strings.Contains(strings.Join(effectNames(result.OperationResult), ","), "results-written") {
+		t.Fatalf("a published result was not confirmed: %+v", result.OperationResult)
+	}
+}
+
+func TestAStartThatFailsAfterRecordingItsBaselineSaysSoAndResumes(t *testing.T) {
+	root := startCLIFixture(t, true)
+	out, _, _ := runCLI(t, root, "start", "spec:work", "--json")
+	var plan posemodel.StartPlan
+	if err := json.Unmarshal([]byte(out), &plan); err != nil {
+		t.Fatal(err)
+	}
+	// The baseline can be written; the spec transition cannot (second-round F5).
+	specs := filepath.Join(root, ".pose", "specs")
+	if err := os.Chmod(specs, 0o555); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(specs, 0o755) })
+	var result posemodel.OperationResult
+	code, _ := runPoseJSON(t, root, &result, "start", "spec:work", "--apply", "--digest", plan.Digest, "--json")
+	if code != 1 || result.Outcome != posemodel.OutcomeFailed || !result.Resumable || !strings.Contains(result.NextAction, plan.Digest) {
+		t.Fatalf("a partial start is not resumable: code=%d %+v", code, result)
+	}
+	if len(result.Effects) != 1 || result.Effects[0].Effect != "baseline-recorded" || len(result.Unconfirmed) != 1 || result.Unconfirmed[0].Step != "transition" {
+		t.Fatalf("the published baseline or the unconfirmed transition is missing: %+v", result)
+	}
+	if err := os.Chmod(specs, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	var record posemodel.StartRecord
+	if code, errOut := runPoseJSON(t, root, &record, "start", "spec:work", "--apply", "--digest", plan.Digest, "--json"); code != 0 || record.Phase != "started" {
+		t.Fatalf("the advertised retry did not complete the start: %d %+v %s", code, record, errOut)
 	}
 }

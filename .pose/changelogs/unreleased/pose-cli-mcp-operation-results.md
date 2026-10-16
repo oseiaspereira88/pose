@@ -26,8 +26,11 @@ modes and `--plan` with `--digest`, `--reviewer` or `--skip-evidence`;
 outside `--apply` and `--cancel --json`. A repeated `pose start --apply
 --json` returns the start record as JSON instead of text. `pose specs facts`
 refuses unknown arguments and reads `--json` in any position; `pose_list_specs`
-also refuses unknown arguments, an explicit `0` for `recent` or `limit` and an
-empty `since`. With `--json`, a failure of `start`, `close --plan`, `specs` or
+also refuses unknown arguments, an explicit `0` for `recent` or `limit`, an
+explicit `null` and an empty `since`, and keeps the advertised `sort: "slug"`.
+`pose close <scope> --json` (no plan mode) is refused instead of ignored. A
+`pose start --apply` that fails after recording its baseline reports it as a
+confirmed effect and says the same apply resumes it. With `--json`, a failure of `start`, `close --plan`, `specs` or
 `specs facts` is one JSON operation result instead of an empty stdout.
 
 An MCP gate (`pose_check`, `pose_lint_spec`, `pose_skills_check`) stopped by
