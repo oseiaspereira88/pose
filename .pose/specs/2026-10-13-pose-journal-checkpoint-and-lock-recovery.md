@@ -1,6 +1,6 @@
 ---
 slug: pose-journal-checkpoint-and-lock-recovery
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-cli-mcp-operation-results, pose-recoverable-closeout-plan, pose-abm-atomic-start
@@ -49,23 +49,50 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-4-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
+Paths reconciliados na main b8c33dad antes do start. A escrita original
+pertence ao lote documental 4; este delta implementa somente B13. Os leitores e
+escritores afetados são o journal de action requests (`parseActionJournal`,
+`LoadActionRequest`, `appendActionEvent`), o checkpoint do plano de closeout
+(`InspectCloseoutCheckpoint`, escrita e limpeza) e a trava por spec do start
+(`lockStart`, `RecoverStartLock`). O consumidor CLI é `action show|list`,
+`close --plan|--apply|--resume` e `start --apply|--status|--cancel|--recover-lock`;
+o MCP é `pose_action_requests` e `pose_start_status`. Não há rota MCP de close
+(declarado no B12).
 
-- created: .pose/specs/2026-10-13-pose-journal-checkpoint-and-lock-recovery.md
+- modified: .pose/specs/2026-10-13-pose-journal-checkpoint-and-lock-recovery.md
 - created: .pose/starts/pose-journal-checkpoint-and-lock-recovery.json
 - created: .pose/changelogs/unreleased/pose-journal-checkpoint-and-lock-recovery.md
+- created: .pose/adr/2026-10-16-recovery-reads-evidence-not-presence.md
+- created: pose-mcp/internal/pose/journal_integrity.go
+- created: pose-mcp/internal/pose/start_lock.go
+- created: pose-mcp/internal/pose/start_lock_linux.go
+- created: pose-mcp/internal/pose/start_lock_other.go
 - modified: pose-mcp/internal/pose/action_request.go
 - modified: pose-mcp/internal/pose/closeout_plan.go
 - modified: pose-mcp/internal/pose/start.go
+- modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/cli/closeout_plan.go
+- modified: pose-mcp/internal/cli/start.go
+- modified: pose-mcp/internal/cli/action.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/mcpserver/server.go
 - created: pose-mcp/internal/pose/recovery_integrity_test.go
+- created: pose-mcp/internal/pose/recovery_lock_linux_test.go
 - created: pose-mcp/internal/cli/recovery_integrity_test.go
+- created: pose-mcp/internal/cli/recovery_lock_linux_test.go
 - created: pose-mcp/internal/mcpserver/recovery_integrity_test.go
 - modified: .pose/indexes/validation-matrix.json
+- modified: .gitignore
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: .pose/results/b13-front09-probes.py
+- created: .pose/results/b13-front09-probes.json
+- created: .pose/results/b13-implementation-validation.json
+- modified: .pose/results/pose-implementation-plan.json
+- modified: .pose/roadmaps/pose-consolidation-program.md
+- modified: .pose/roadmaps/pose-state-consistency-and-recovery.md
 
 ### Delivery targets
 
@@ -73,12 +100,39 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 
 ### Approach and execution gates
 
-Reutilizar parser estrito, atomic-start e resultados de B12; mapear readers/writers/locks pertinentes e registrar protocolo antes do código. Definir receipt/fase suficiente para o closeout atual e recovery por pre/postimages, sem transação universal. Não generalizar para geração atômica de índices (B15), publisher/CAS (B14), supersession específica de requests (B10) ou daemon (B35). Qualificar o contrato de fallback atual e deixar integração com runtime futuro no lote correspondente.
+Contrato no ADR `2026-10-16-recovery-reads-evidence-not-presence`. O journal
+é lido por inteiro: cada linha termina em newline e traz exatamente um objeto
+JSON, sem campo duplicado ou desconhecido, com o schema suportado e a próxima
+sequência; caracteres de controle escapados continuam válidos. O primeiro
+trecho que não lê vira `*ActionJournalError` com linha, offset, tamanho e
+SHA-256, `interrupted-tail` (última linha sem terminador, com proposta de
+truncamento para revisão humana) ou `corrupt`; o motor nunca trunca e recusa
+append sobre ele. O checkpoint é `absent`, `valid`, `corrupt`, `unsupported`
+ou `unavailable`; é progresso, não artefato autoritativo, então é trocado por
+temporário exclusivo e rename, sem sync; a remoção ao fim é verificada. Apply
+sobre checkpoint que não lê é `blocked` antes de qualquer passo; passo de efeito
+registrado e não refletido pelo repositório é `conflict` até `--apply --digest`
+do plano atual. A trava do start é publicada com o dono (link de temporário
+exclusivo) e classificada como `owner-active`, `owner-unknown` ou `owner-dead`
+pela identidade (host, digests de máquina e boot, namespace, PID e início do
+processo), nunca pela idade; `--recover-lock <owner digest>` remove só a trava
+morta inspecionada, sob flock do diretório, sem tocar start record nem spec.
+Compatibilidade: recusas novas e campos opcionais; classificado como minor.
 
-Antes de executar, aceitar o escopo de implementação, avaliar readiness nativa,
-executar assessment freshness no componente, completar o plano de artefatos,
-registrar produtores de evidência na matriz e criar a baseline por start.
-Não contornar dependência não terminal apenas porque o código parece presente.
+B13 não generaliza para geração atômica de índices (B15), publisher/CAS entre
+writers (B14), supersession de requests (B10) ou daemon (B35). Prova de vida só
+em Linux e na mesma máquina; outras plataformas reportam `owner-unknown`.
+
+## 4. Tasks
+
+- [x] Context, readiness, assessment freshness e mapa de leitores, escritores e travas contra a main b8c33dad.
+- [x] ADR do contrato antes do código estrutural.
+- [x] Native start com R1–R9/D1–D2 preservados.
+- [x] Journal estrito com diagnóstico tipado e proposta de reparo sem reparo automático; CLI e MCP.
+- [x] Checkpoint com estados, escrita por rename, remoção verificada, bloqueio e conflito de progresso.
+- [x] Trava do start com dono, classificação por identidade, recuperação verificada e status em CLI/MCP.
+- [x] V1–V8 nos consumidores domínio, CLI e MCP, com race detector; probes P01–P17 antes e depois (controles inalterados); 29 mutações reprovando; validação estrita do módulo.
+- [ ] Revisão por ator diferente, closeout nativo e PR.
 
 ## 5. Decisions
 

@@ -1,7 +1,6 @@
 package pose
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -517,6 +516,10 @@ func (s Store) LoadActionRequest(id string) (ActionRequestView, error) {
 	}
 	events, err := parseActionJournal(raw)
 	if err != nil {
+		var invalid *ActionJournalError
+		if errors.As(err, &invalid) {
+			invalid.Request, invalid.Path = id, filepath.ToSlash(filepath.Join(actionDir, id+".jsonl"))
+		}
 		return ActionRequestView{}, fmt.Errorf("pose: action request %s: %w", id, err)
 	}
 	if len(events) == 0 || events[0].Type != ActionEventOpened || events[0].Request == nil || events[0].Request.ID != id {
@@ -577,29 +580,6 @@ func (s Store) verifyActionAnswers(events []ActionEvent) error {
 		}
 	}
 	return nil
-}
-
-func parseActionJournal(raw []byte) ([]ActionEvent, error) {
-	var events []ActionEvent
-	scanner := bufio.NewScanner(bytes.NewReader(raw))
-	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
-	for line := 1; scanner.Scan(); line++ {
-		text := strings.TrimSpace(scanner.Text())
-		if text == "" {
-			continue
-		}
-		var event ActionEvent
-		decoder := json.NewDecoder(strings.NewReader(text))
-		decoder.DisallowUnknownFields()
-		if err := decoder.Decode(&event); err != nil {
-			return nil, fmt.Errorf("line %d: %w", line, err)
-		}
-		if event.Seq != len(events)+1 {
-			return nil, fmt.Errorf("line %d: sequence %d breaks the journal order", line, event.Seq)
-		}
-		events = append(events, event)
-	}
-	return events, scanner.Err()
 }
 
 // deriveActionView folds the journal. Answered is not satisfied: a declined

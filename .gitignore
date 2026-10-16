@@ -24,3 +24,6 @@ pose-rule-kubernetes.sigstore.json
 
 # Runtime lock of spec-transfer; never an authority record.
 .pose/transfers/.authority-transfer.lock
+# Runtime locks of atomic start; they name the call that holds them.
+.pose/starts/.*.lock
+.pose/starts/.lock-*.tmp

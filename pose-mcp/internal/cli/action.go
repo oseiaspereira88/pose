@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -185,8 +186,7 @@ func cmdActionList(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	views, err := posemodel.Store{Root: root}.ListActionRequests()
 	if err != nil {
-		render(stdout, stderr).Failure("pose action list: " + err.Error())
-		return 1
+		return actionReadFailure(stdout, stderr, "action.list", "pose action list", jsonOutput, err)
 	}
 	if present {
 		// Grouped for one conversation (spec pose-action-request-presentation):
@@ -240,8 +240,7 @@ func cmdActionShow(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	view, err := posemodel.Store{Root: root}.LoadActionRequest(args[0])
 	if err != nil {
-		render(stdout, stderr).Failure("pose action show: " + err.Error())
-		return 1
+		return actionReadFailure(stdout, stderr, "action.show", "pose action show", len(args) > 1 && args[1] == "--json", err)
 	}
 	if len(args) > 1 && args[1] == "--json" {
 		return writeJSON(stdout, view)
@@ -309,4 +308,34 @@ func renderActionView(out interface{ Field(string, string) }, v posemodel.Action
 	for _, limitation := range v.Limitations {
 		out.Field("action.limitation", limitation)
 	}
+}
+
+// actionReadFailure reports a request that could not be read. A journal that
+// does not read is located — line, byte offset, length and hash — with its
+// supported next step, in both renderers (spec
+// pose-journal-checkpoint-and-lock-recovery R2/R9).
+func actionReadFailure(stdout, stderr io.Writer, operation, command string, jsonOutput bool, err error) int {
+	var journal *posemodel.ActionJournalError
+	if !errors.As(err, &journal) {
+		if jsonOutput {
+			return writeOperationFailure(stdout, stderr, operation, "", "read-failed", command+": "+err.Error())
+		}
+		render(stdout, stderr).Failure(command + ": " + err.Error())
+		return 1
+	}
+	next := posemodel.ActionJournalNextAction(journal)
+	if jsonOutput {
+		result := posemodel.NewOperationResult(operation, journal.Request)
+		result.Fail(posemodel.OutcomeFailed, "read", "action-journal-invalid", err.Error())
+		result.Data, result.NextAction = journal, next
+		render(io.Discard, stderr).Failure(command + ": " + err.Error())
+		_ = writeJSON(stdout, result)
+		return 1
+	}
+	out := render(stdout, stderr)
+	out.Field("action.journal", journal.Kind+" "+journal.Path)
+	out.Field("action.journal.at", fmt.Sprintf("line %d, bytes %d+%d, sha256 %s, after %d complete event(s)", journal.Line, journal.Offset, journal.Length, journal.SHA256, journal.ValidEvents))
+	out.Field("action.journal.next_action", next)
+	out.Failure(command + ": " + err.Error())
+	return 1
 }

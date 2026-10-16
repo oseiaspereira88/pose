@@ -80,12 +80,24 @@ func cmdClosePlan(root string, args []string, stdout, stderr io.Writer) int {
 			out.Failure("pose close: " + err.Error())
 			return 1
 		}
+		read := store.InspectCloseoutCheckpoint(ref)
+		if read.State != posemodel.CheckpointAbsent {
+			plan.Checkpoint = &read
+		}
 		if jsonOutput {
 			return writeJSON(stdout, plan)
 		}
 		renderCloseoutPlan(out, plan)
-		if checkpoint, ok := store.ReadCloseoutCheckpoint(ref); ok {
-			out.Field("closeout_plan.interrupted", fmt.Sprintf("an apply started %s completed %s; --resume continues", checkpoint.StartedAt, strings.Join(checkpoint.Completed, ",")))
+		switch read.State {
+		case posemodel.CheckpointAbsent:
+		case posemodel.CheckpointValid:
+			out.Field("closeout_plan.interrupted", fmt.Sprintf("an apply started %s completed %s; --resume continues", read.Checkpoint.StartedAt, strings.Join(read.Checkpoint.Completed, ",")))
+			if lost := checkpointNotReflected(*read.Checkpoint, plan); len(lost) > 0 {
+				out.Field("closeout_plan.checkpoint", "the checkpoint records "+strings.Join(lost, ",")+" as completed and the repository does not reflect them; --resume refuses, `--apply --digest "+plan.Digest+"` applies this plan as a new run")
+			}
+		default:
+			out.Field("closeout_plan.checkpoint", read.State+" "+read.Path+": "+read.Reason)
+			out.Field("closeout_plan.checkpoint_next_action", checkpointNextAction(read))
 		}
 		return 0
 	}
@@ -175,6 +187,40 @@ type closeApplyData struct {
 	BundleID      string                  `json:"bundle_id,omitempty"`
 	EvidenceRefs  []string                `json:"evidence_refs,omitempty"`
 	AttestCommand string                  `json:"attest_command,omitempty"`
+	// ReplacedCheckpoint is the checkpoint of an earlier run whose recorded
+	// progress the repository no longer reflects, replaced by this run
+	// because the caller applied the plan it reviewed.
+	ReplacedCheckpoint *posemodel.CloseoutCheckpoint `json:"replaced_checkpoint,omitempty"`
+}
+
+// closeoutEffectSteps are the steps whose completion is an effect in the
+// repository; the others are checks the plan re-evaluates.
+var closeoutEffectSteps = map[string]bool{
+	posemodel.CloseoutStepEvidence: true, posemodel.CloseoutStepIndex: true, posemodel.CloseoutStepSeal: true,
+	posemodel.CloseoutStepMechanical: true, posemodel.CloseoutStepTransition: true,
+}
+
+// checkpointNotReflected lists the steps a checkpoint records as completed
+// whose effect the current plan does not see done. Re-running them would
+// replay a step on the word of an editable file (R5).
+func checkpointNotReflected(cp posemodel.CloseoutCheckpoint, plan posemodel.CloseoutPlan) []string {
+	done := map[string]bool{}
+	for _, st := range plan.Steps {
+		done[st.ID] = st.State == posemodel.CloseoutStateDone
+	}
+	var lost []string
+	for _, id := range cp.Completed {
+		if closeoutEffectSteps[id] && !done[id] {
+			lost = append(lost, id)
+		}
+	}
+	return lost
+}
+
+// checkpointNextAction is the supported next step for a checkpoint that does
+// not read: it is inspected and removed by a person, never by the engine.
+func checkpointNextAction(read posemodel.CloseoutCheckpointRead) string {
+	return "inspect " + read.Path + "; the plan is computed from the repository and does not depend on it, so once it is understood remove it and run the plan again"
 }
 
 // closePlanExitCode keeps the documented exit codes: 0 when the call
@@ -225,9 +271,31 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 		result.NextAction = "review the new plan with `pose close " + ref + " --plan`"
 		return result
 	}
-	checkpoint, resumed := store.ReadCloseoutCheckpoint(ref)
-	if !resumed {
-		checkpoint = posemodel.CloseoutCheckpoint{SchemaVersion: 1, Scope: ref, StartedAt: time.Now().UTC().Format(time.RFC3339), PlanDigest: plan.Digest}
+	// The checkpoint is progress, never authority: a checkpoint that does
+	// not read stops the call before anything runs, and one that records
+	// effects the repository does not reflect is a conflict, unless the
+	// caller applies the plan it reviewed as a new run (spec
+	// pose-journal-checkpoint-and-lock-recovery R3/R5).
+	read := store.InspectCloseoutCheckpoint(ref)
+	fresh := posemodel.CloseoutCheckpoint{SchemaVersion: posemodel.CloseoutCheckpointSchemaVersion, Scope: ref, StartedAt: time.Now().UTC().Format(time.RFC3339), PlanDigest: plan.Digest}
+	checkpoint := fresh
+	switch read.State {
+	case posemodel.CheckpointAbsent:
+	case posemodel.CheckpointValid:
+		checkpoint = *read.Checkpoint
+		if lost := checkpointNotReflected(checkpoint, plan); len(lost) > 0 {
+			if mode != "apply" || digest == "" {
+				result.Fail(posemodel.OutcomeConflict, "", "checkpoint-progress-mismatch", fmt.Sprintf("the apply started %s recorded %s as completed and the repository does not reflect them", checkpoint.StartedAt, strings.Join(lost, ",")))
+				result.NextAction = "inspect " + read.Path + " and `pose close " + ref + " --plan`; `pose close " + ref + " --apply --digest " + plan.Digest + "` applies the current plan as a new run"
+				return result
+			}
+			data.ReplacedCheckpoint = read.Checkpoint
+			checkpoint = fresh
+		}
+	default:
+		result.Fail(posemodel.OutcomeBlocked, "", "checkpoint-"+read.State, read.Path+" is "+read.State+": "+read.Reason)
+		result.NextAction = checkpointNextAction(read)
+		return result
 	}
 	record := func(stepID string, stepErr error) {
 		if stepErr != nil {
@@ -377,7 +445,9 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 		result.Resumable = true
 		return result
 	}
-	store.ClearCloseoutCheckpoint(ref)
+	if err := store.ClearCloseoutCheckpoint(ref); err != nil {
+		result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "checkpoint", Reason: "the checkpoint of the finished run was not removed: " + err.Error() + "; remove it, since the run it records is over"})
+	}
 	if !ran {
 		// Nothing ran: the stored state already says done. That is not a
 		// fresh verification of the gates (R4).
@@ -423,6 +493,11 @@ func renderClosePlanResult(out *cliout.Renderer, result posemodel.OperationResul
 	case posemodel.OutcomeBlocked:
 		if data != nil && data.Plan != nil {
 			renderCloseoutPlan(out, *data.Plan)
+		}
+		if result.Step == "" {
+			out.Field("closeout_plan.next_action", result.NextAction)
+			out.Failure("pose close: " + message)
+			break
 		}
 		out.Failure("pose close: step " + result.Step + " is blocked: " + message)
 	case posemodel.OutcomeConflict:

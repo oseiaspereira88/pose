@@ -1135,6 +1135,11 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if path == ".pose/transfers/.authority-transfer.lock" {
 		return "derived-evidence", false
 	}
+	// A start lock is runtime state too: it names the call that holds it,
+	// never what was started (spec pose-journal-checkpoint-and-lock-recovery).
+	if strings.HasPrefix(path, ".pose/starts/.") && strings.HasSuffix(path, ".lock") {
+		return "derived-evidence", false
+	}
 	// .pose/transfers/ holds transfer and reconciliation plans, receipts,
 	// archived sources and redirects: the record of who owns a spec.
 	// .pose/actions/ holds action request journals: decisions, approvals and
@@ -1798,10 +1803,20 @@ func strictJSONFile(path string, target any) error {
 }
 
 func rejectDuplicateJSONKeysAndControls(raw []byte) error {
+	return rejectDuplicateJSONKeys(raw, true)
+}
+
+// rejectDuplicateJSONKeys refuses a JSON document with a duplicate object
+// field or trailing content; with controls it also refuses control
+// characters in strings and keys.
+func rejectDuplicateJSONKeys(raw []byte, controls bool) error {
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.UseNumber()
 	var walk func() error
 	checkText := func(value string) error {
+		if !controls {
+			return nil
+		}
 		for _, r := range value {
 			if r < 0x20 || r == 0x7f {
 				return fmt.Errorf("JSON string contains a control character")
