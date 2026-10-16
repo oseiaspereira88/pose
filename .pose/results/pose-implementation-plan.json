@@ -11,7 +11,7 @@
   },
   "authorization": {
     "scope": "Retomada explícita de implementação em 2026-10-14; lotes pequenos, PR por spec, aguardar merge; sem adoção de policy, publicação ou migração implícita.",
-    "current_implementation_unit": "B02",
+    "current_implementation_unit": "B12",
     "future_batch_implementation_authorized": true,
     "next_batch_requires_previous_merge": true
   },
@@ -1240,14 +1240,19 @@
           "materialized": true,
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-cli-mcp-operation-results.md",
-          "status": "draft",
-          "sha256": "1febdb1324520fc718b895c647e357b5133ce275c784bdae8d016878e48db6d4"
+          "status": "in-progress",
+          "sha256": "8d87062e89289c8300665237061c5eac69055578cdcd7c7484f6d580a65ef037"
         }
       ],
       "implementation_observations": [
         {
           "scope": "Spec escrita em draft no lote documental 4; nenhuma implementação funcional neste lote.",
           "unit_complete": false
+        },
+        {
+          "scope": "Start nativo após merge de #185. Resultado de operação tipado no domínio (OperationResult) para close apply/resume e continuous status; parsers estritos de close/start/specs/pose_list_specs; gate MCP interrompido classificado como inconclusivo; journal com waiting e duração desconhecida. Probes P03/P06/P07/P08 e validação estrita do módulo executados; different-actor review e closeout nativo pendentes.",
+          "unit_complete": false,
+          "native_closeout_pending": true
         }
       ],
       "delivery_complete": false,

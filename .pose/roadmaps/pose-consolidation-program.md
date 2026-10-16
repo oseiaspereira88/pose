@@ -450,3 +450,14 @@ e os snapshots b02-domain-preflight-* registram os gates. A matriz agora marca
 B02 delivery_complete=true. O programa/roadmap continua ativo: aguardar merge
 de #183 pelo maintainer e depois reavaliar DAG/readiness nativa, sem escolher
 uma nova implementação, policy, capability ou adoção neste closeout.
+
+B12 (`pose-cli-mcp-operation-results`) foi iniciado nativamente em 2026-10-16
+após o merge de #185: `close --apply|--resume` e `continuous-closeout status`
+emitem um resultado de operação tipado (um JSON por chamada, waiting,
+already-satisfied, conflict e failed distintos, efeitos confirmados e
+unconfirmed), os parsers de close/start/specs/pose_list_specs recusam modos e
+valores inválidos antes de ler, e o gate MCP interrompido por prazo ou
+cancelamento é inconclusivo, não reprovado. Probes P03/P06/P07/P08 deixam de
+reproduzir com os controles inalterados; validação estrita do módulo 131/131. A
+spec permanece in-progress até revisão different-actor e closeout nativo;
+delivery_complete permanece false.

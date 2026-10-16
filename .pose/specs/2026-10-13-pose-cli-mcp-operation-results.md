@@ -82,6 +82,11 @@ e os documentos de `start` mantêm o formato. O consumidor MCP é exercitado por
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: .pose/results/b12-front07-probes.json
+- created: .pose/results/b12-implementation-validation.json
+- modified: .pose/results/pose-implementation-plan.json
+- modified: .pose/roadmaps/pose-consolidation-program.md
+- modified: .pose/roadmaps/pose-state-consistency-and-recovery.md
 
 ### Delivery targets
 
@@ -118,7 +123,7 @@ domínio em processo do CLI fica fora: o processo do CLI termina pelo sinal.
 - [x] OperationResult no domínio; close apply/resume e continuous status sobre ele; parsers estritos de close, start, specs e pose_list_specs.
 - [x] Gate subprocess classificado pelo contexto antes do exit status; MCP com erro inconclusivo tipado.
 - [x] Journal de uso com waiting e duração desconhecida.
-- [ ] V1–V8 nos consumidores CLI, domínio e MCP; probes P03/P06/P07/P08 antes e depois; validação estrita do módulo.
+- [x] V1–V8 nos consumidores CLI, domínio e MCP; probes P03/P06/P07/P08 antes e depois (controles inalterados); validação estrita do módulo 131/131 em aa9e9a17.
 - [ ] Revisão por ator diferente, closeout nativo e PR.
 
 ## 5. Decisions
