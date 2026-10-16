@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-dfa2006f7d36184d",
+  "bundle_id": "rvb-bbed7a49533bf1e3",
+  "bundle_digest": "sha256:bbed7a49533bf1e34f8df34d4a9a5253f981c83599dc2fe837dde3b8536d7838",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Linux same-machine liveness is established only with host, application-specific machine and boot digests, namespace and process start. Missing context remains unknown. Cooperating writers and process-crash scope are explicit; no power-loss or daemon guarantee is inferred."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Directory flock serializes recoveries and each rechecks owner digest and liveness. Exclusive publication prevents acquisition before removal. Race tests and 20 additional two-recovery/acquisition rounds preserve the new lock and start record; release removes only its own bytes."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "The sealed B13 producer traverses Store, CLI and MCP. Whole journal reads and blocked checkpoints propagate typed failures; action_journal_invalid and optional start-status lock fields agree across consumers. Existing quickstart lifecycle remains executable."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Schema, sequence, trailing values, blank lines, unterminated tails, oversize events, duplicate effective keys including nested aliases, and unknown event types are refused. Empty recover-lock and conflicting modes exit 2 before domain effects. Counterfactual regressions fail without the guards."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "The current integration producer exercises both CLI renderers and MCP action requests/start status through the shared domain readers. Local scripts, skills, workflows, docs and CI consumers were searched; nine actual journals and the full quickstart remain valid. External Harne8 sources were outside authorized clone scope."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Invalid journals locate exact line, byte offset, length, SHA-256 and valid-event prefix without deriving a partial view. Five checkpoint states and three owner states remain distinct. Independent denied-write probe preserves confirmed results/index effects and records checkpoint uncertainty separately."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "New strict refusals and recover-lock are minor changes, documented in ADR and changelog. Existing success documents and exit codes remain; checkpoint, replaced_checkpoint and lock fields are optional. Legacy empty locks remain unknown and require operator inspection."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Full Go tests, vet, race, cross-platform builds, 31 assertion-killed production-only overlays, P01-P17 comparisons, exact line boundaries, unavailable checkpoints and lock races support the reviewed behavior. F1-F4 are resolved; full-surface second-round review found no new blocker."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-bc42444e6cb8cd67",
+      "rationale": "D1 follows from the fact that editable progress does not prove repository effects: journal reads fail closed and checkpoints never authorize skipped steps. D2 follows from persistent sentinels surviving process death: identity and OS exclusion govern recovery, never age. The ADR bounds nonauthoritative rename durability honestly.",
+      "mappings": [
+        {
+          "delta": "SD-68d92dc5",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR makes journal and checkpoint evidence fail closed for D1 basis R1-R5; its start-owner protocol follows D2 basis R6-R8. No age-based recovery or new authority is introduced."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Root, Portuguese and scaffold manuals, help, ADR and changelog describe the implemented flags and limits consistently. Functional qualification is linked to actual tests and probes; lint is not evidence for R1-R9. The report preserves the rejected first round and the second-round remediation."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Both renderers expose location, owner digest and supported next action. No journal repair or unreadable checkpoint deletion is automatic. Unreflected progress conflicts until apply names the current plan. Dead-lock recovery preserves spec and start record, and quickstart apply/wait/attest/resume passes."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "R1-R9 and V1-V8 are covered by the sealed integration producer plus independent mutation, fault and concurrency probes. R4 distinguishes nonauthoritative checkpoint durability from repository effects. R8 preserves interrupted start intention without claiming a future runtime was implemented."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "The 34 declared artifact paths and four attributed commits implement B13 only, with no policy, capability or adoption changes. agent:independent- is the engine-required declaration until pose-delegated-review-run-provenance replaces it. This maintainer-authorized Codex/OpenAI execution is another vendor than implementer Claude/Anthropic. Identity is declared and pose-dist attestations are unsigned."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "No raw machine or boot ID is recorded or published. Strict shared readers reject ambiguous effective fields before views and gates. Recovery requires inspected bytes and a proven-dead owner; live and unknown owners stay protected. Synthetic probes expose no credentials and no authority boundary was weakened."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-bc42444e6cb8cd67",
+      "rationale": "The change uses one journal parser, a strict checkpoint inspector and a bounded start-owner protocol. A universal publisher, automatic repair or daemon would add authority and coordination beyond B13. B10/B14/B15/B35 remain separate; no speculative extensibility was added."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict: all 34 declared paths reconcile with the 34 observed paths, without scoped findings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-bc42444e6cb8cd67",
+      "rationale": "Executed on the current sealed implementation: 29 of 29 files observed, ADR material delta mapped to D1 and D2."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed if-stale for pose-mcp, using committed content, engine and matrix binding; generated discovery output is excluded from the commit."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Executed provider/consumer assessment and exercised the changed CLI/MCP contracts independently. Existing unobserved HTTP warnings are not B13 findings."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed marker scan: zero TODO, FIXME, panic or stub markers and zero uncovered debt."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only tool needs this approving attestation; execute immediately after apply before guarded close."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only tool needs this approving attestation; execute immediately after apply before guarded close."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed for pose-mcp and applied backend-go, security, documentation, delivery-evidence and relevant knowledge guidance."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Executed strict against capability:journal-checkpoint-and-lock-recovery with current composed integration evidence and no scoped findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Executed global strict 135/135 and explicit pose-mcp strict 132/132 on 8e8b1307. Authenticated retries resolved GitHub release-listing 403; no policy or producer was weakened."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Executed global strict 135/135 and explicit pose-mcp strict 132/132 on 8e8b1307. Authenticated retries resolved GitHub release-listing 403; no policy or producer was weakened."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-16T19:55:11Z",
+  "path": ".pose/review-attestations/rva-dfa2006f7d36184d.json"
+}

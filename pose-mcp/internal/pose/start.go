@@ -78,6 +78,9 @@ type StartStatus struct {
 	// already in progress before atomic start was adopted.
 	Notes           []string `json:"notes,omitempty"`
 	CapabilityAdopt bool     `json:"capability_adopted"`
+	// Lock is the start lock another call holds, with its owner's state
+	// (spec pose-journal-checkpoint-and-lock-recovery R9).
+	Lock *StartLockError `json:"lock,omitempty"`
 }
 
 // StartFailureHook is called after each phase apply reaches: tests return an
@@ -205,7 +208,7 @@ func (s Store) ApplyStart(plan StartPlan, expectedDigest string, failAfter Start
 	if ValidateSlug(plan.Spec) != nil {
 		return StartRecord{}, startError("invalid-spec")
 	}
-	unlock, err := lockStart(s.Root, plan.Spec)
+	unlock, err := lockStart(s.Root, plan.Spec, "start.apply")
 	if err != nil {
 		return StartRecord{}, err
 	}
@@ -268,7 +271,7 @@ func (s Store) ResumeStart(slug, digest string, failAfter StartFailureHook) (Sta
 	if err != nil {
 		return StartRecord{}, err
 	}
-	unlock, err := lockStart(s.Root, slug)
+	unlock, err := lockStart(s.Root, slug, "start.resume")
 	if err != nil {
 		return StartRecord{}, err
 	}
@@ -392,7 +395,7 @@ func (s Store) CancelStart(slug string) error {
 	if ValidateSlug(slug) != nil {
 		return startError("invalid-spec")
 	}
-	unlock, err := lockStart(s.Root, slug)
+	unlock, err := lockStart(s.Root, slug, "start.cancel")
 	if err != nil {
 		return err
 	}
@@ -434,6 +437,11 @@ func (s Store) GetStartStatus(slug string) (StartStatus, error) {
 		return status, err
 	}
 	status.CapabilityAdopt = adopted
+	if lock, err := s.StartLockState(slug); err != nil {
+		status.Reconciliation = append(status.Reconciliation, "start lock is unreadable: "+err.Error())
+	} else {
+		status.Lock = lock
+	}
 	current := ProjectContractNodes(slug, spec.Body)
 	record, exists, err := readStartRecord(startRecordPath(s.Root, slug))
 	if err != nil {
@@ -546,23 +554,4 @@ func writeStartRecord(path string, record StartRecord, exclusive bool) error {
 		return err
 	}
 	return os.Rename(tmp, path)
-}
-
-// lockStart takes an exclusive per-spec lock. A lock left by a crashed run is
-// reported, not broken: the operator decides after checking no run is live.
-func lockStart(root, slug string) (func(), error) {
-	dir := filepath.Join(root, ".pose", "starts")
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return nil, err
-	}
-	path := filepath.Join(dir, "."+slug+".lock")
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
-	if err != nil {
-		if errors.Is(err, os.ErrExist) {
-			return nil, startError("start-in-progress (remove " + filepath.ToSlash(filepath.Join(".pose", "starts", "."+slug+".lock")) + " only after confirming no start is running)")
-		}
-		return nil, err
-	}
-	f.Close()
-	return func() { os.Remove(path) }, nil
 }

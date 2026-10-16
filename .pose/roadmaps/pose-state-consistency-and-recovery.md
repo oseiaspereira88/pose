@@ -128,3 +128,18 @@ atestações e gates atuais. A matriz registra B12 delivery_complete=true;
 o programa continua ativo e este roadmap conserva status draft. Aguardar merge de #186 pelo
 maintainer e reavaliar DAG/readiness nativa, sem selecionar nova implementação,
 policy, capability ou adoção neste closeout.
+
+B13 (`pose-journal-checkpoint-and-lock-recovery`) atingiu closeout nativo em
+2026-10-16 no PR #187. Journal integral, checkpoint por efeitos observados e
+recovery de trava por dono morto foram qualificados por revisão different-actor
+Codex/OpenAI frente a Claude/Anthropic: F1–F4 resolvidos, 31 contraprovas por
+asserção, P01–P17 com controles preservados, vet, suíte completa, race, builds
+Windows/Darwin e jornada quickstart. Validação de implementação no head
+8e8b1307: global strict 135/135 e módulo 132/132. Identidade e separação
+declaradas, sem assinatura ou confirmação humana das conclusões.
+O [parecer, Second round](../reports/2026-10-16-pose-b13-journal-checkpoint-lock-recovery-review.md)
+e a [evidência](../results/b13-independent-review.json) identificam o bundle
+`rvb-bbed7a49533bf1e3`, a atestação `rva-dfa2006f7d36184d` e os gates nativos. A matriz registra B13
+delivery_complete=true; o programa continua ativo e este roadmap conserva seu
+status. Aguardar merge de #187 pelo maintainer e reavaliar DAG/readiness nativa,
+sem selecionar implementação, policy, capability ou adoção neste closeout.

@@ -631,7 +631,16 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 		var ambiguousProj pose.ProjectAmbiguousError
 		var approvalRefusal *pose.ReviewApprovalRefusal
 		var inconclusive *pose.GateExecutionError
+		var journal *pose.ActionJournalError
 		switch {
+		case errors.As(err, &journal):
+			// A journal that does not read is reported where it breaks, never
+			// read around (spec pose-journal-checkpoint-and-lock-recovery R9).
+			return result(req.ID, map[string]any{
+				"content":           []map[string]any{{"type": "text", "text": err.Error()}},
+				"structuredContent": map[string]any{"error_code": "action_journal_invalid", "journal": journal, "next_action": pose.ActionJournalNextAction(journal)},
+				"isError":           true,
+			})
 		case errors.As(err, &inconclusive):
 			// A gate subprocess stopped by its deadline or a cancellation has
 			// no verdict (spec pose-cli-mcp-operation-results R5): it is an

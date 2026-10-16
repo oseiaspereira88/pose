@@ -5,6 +5,7 @@ package cli
 // capability and the digest of the reviewed preview.
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -15,7 +16,7 @@ import (
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
-const startUsage = "Usage: pose start spec:<slug> [--json] | --apply --digest <sha256> [--json] | --status [--json] | --cancel"
+const startUsage = "Usage: pose start spec:<slug> [--json] | --apply --digest <sha256> [--json] | --status [--json] | --cancel | --recover-lock <owner digest> [--json]"
 
 func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 	r := render(stdout, stderr)
@@ -33,7 +34,7 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 	if posemodel.ValidateSlug(slug) != nil {
 		return usage("invalid spec slug")
 	}
-	apply, status, cancel, jsonOutput, digest := false, false, false, false, ""
+	apply, status, cancel, jsonOutput, digest, recoverLock, recovering := false, false, false, false, "", "", false
 	for i := 1; i < len(args); i++ {
 		switch args[i] {
 		case "--apply":
@@ -50,6 +51,12 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 			}
 			i++
 			digest = args[i]
+		case "--recover-lock":
+			if i+1 >= len(args) || args[i+1] == "" || strings.HasPrefix(args[i+1], "-") {
+				return usage("--recover-lock needs the owner digest `pose start spec:<slug> --status` shows")
+			}
+			i++
+			recoverLock, recovering = args[i], true
 		default:
 			return usage("unknown option: " + args[i])
 		}
@@ -58,14 +65,14 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 	// or a flag the mode does not take is refused, never resolved by
 	// priority or order (spec pose-cli-mcp-operation-results R3).
 	modes := 0
-	for _, on := range []bool{apply, status, cancel} {
+	for _, on := range []bool{apply, status, cancel, recovering} {
 		if on {
 			modes++
 		}
 	}
 	switch {
 	case modes > 1:
-		return usage("--apply, --status and --cancel are exclusive modes")
+		return usage("--apply, --status, --cancel and --recover-lock are exclusive modes")
 	case digest != "" && !apply:
 		return usage("--digest is taken only by --apply")
 	case cancel && jsonOutput:
@@ -73,8 +80,14 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	store := cliGovernedStore(root)
 	switch {
+	case recovering:
+		return renderStartLockRecovery(r, stdout, jsonOutput, slug, recoverLock, store)
 	case cancel:
 		if err := store.CancelStart(slug); err != nil {
+			var lockErr *posemodel.StartLockError
+			if errors.As(err, &lockErr) {
+				renderStartLock(r, slug, lockErr)
+			}
 			r.Failure("pose start: " + err.Error())
 			return 1
 		}
@@ -103,6 +116,9 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		r.Field("start.obligations", strings.Join(st.Obligations, ","))
 		for _, item := range st.Reconciliation {
 			r.Field("start.reconcile", item)
+		}
+		if st.Lock != nil {
+			renderStartLock(r, slug, st.Lock)
 		}
 		return 0
 	case apply:
@@ -205,7 +221,9 @@ func renderStartApplyFailure(r *cliout.Renderer, stdout io.Writer, jsonOutput bo
 	for _, uncertain := range result.Unconfirmed {
 		r.Field("start.unconfirmed."+uncertain.Step, uncertain.Reason)
 	}
-	if result.NextAction != "" {
+	if lock, ok := result.Data.(*posemodel.StartLockError); ok {
+		renderStartLock(r, strings.TrimPrefix(result.Scope, "spec:"), lock)
+	} else if result.NextAction != "" {
 		r.Field("start.next_action", result.NextAction)
 	}
 	r.Failure("pose start: " + err.Error())
@@ -246,6 +264,18 @@ func startRecordFile(store posemodel.Store, slug string) string {
 // published by an earlier call.
 func startApplyFailure(store posemodel.Store, specPath, slug, digest string, attempt *startAttempt, returned posemodel.StartRecord, err error) posemodel.OperationResult {
 	result := posemodel.NewOperationResult("start.apply", "spec:"+slug)
+	var lockErr *posemodel.StartLockError
+	if errors.As(err, &lockErr) {
+		// Another call holds the start lock: nothing ran in this one.
+		outcome := posemodel.OutcomeBlocked
+		if lockErr.State == posemodel.LockOwnerDead {
+			result.Resumable = true
+		}
+		result.Fail(outcome, "lock", lockErr.Code, lockErr.Path+": "+lockErr.Reason)
+		result.Data = lockErr
+		result.NextAction = startLockNextAction(slug, lockErr)
+		return result
+	}
 	// The domain's refusals are "start: <code>"; anything else is an
 	// operational error of the apply.
 	cause := "apply-failed"
@@ -344,4 +374,76 @@ func startStepsRun(prior, recovery string, reached []string) []posemodel.Operati
 		steps = append(steps, posemodel.OperationStep{ID: "transition", Result: "failed"})
 	}
 	return steps
+}
+
+// startLockNextAction is the supported next step for a start lock another
+// call holds: wait for a running owner, check an unknown one by hand, and
+// remove a dead one only by naming the lock that was inspected (spec
+// pose-journal-checkpoint-and-lock-recovery R6/R7/R9).
+func startLockNextAction(slug string, lock *posemodel.StartLockError) string {
+	switch lock.State {
+	case posemodel.LockOwnerActive:
+		return "another start is running; wait for it to finish, then repeat this command"
+	case posemodel.LockOwnerDead:
+		return "the lock's owner is not running; `pose start spec:" + slug + " --recover-lock " + lock.OwnerDigest + "` removes this lock, then repeat this command"
+	default:
+		return "the lock's owner cannot be checked from here; confirm no start is running, then remove " + lock.Path + " by hand and repeat this command"
+	}
+}
+
+func renderStartLock(r *cliout.Renderer, slug string, lock *posemodel.StartLockError) {
+	r.Field("start.lock", lock.State+" "+lock.Path+": "+lock.Reason)
+	if lock.OwnerDigest != "" {
+		r.Field("start.lock.owner_digest", lock.OwnerDigest)
+	}
+	r.Field("start.lock.next_action", startLockNextAction(slug, lock))
+}
+
+// renderStartLockRecovery removes a start lock whose owner is proven dead,
+// naming the lock the caller inspected.
+func renderStartLockRecovery(r *cliout.Renderer, stdout io.Writer, jsonOutput bool, slug, ownerDigest string, store posemodel.Store) int {
+	result := posemodel.NewOperationResult("start.recover-lock", "spec:"+slug)
+	lock, err := store.RecoverStartLock(slug, ownerDigest)
+	if lock != nil {
+		result.Data = lock
+	}
+	if err == nil {
+		result.Outcome = posemodel.OutcomeCompleted
+		result.StepsRun = append(result.StepsRun, posemodel.OperationStep{ID: "recover-lock", Result: "done"})
+		result.Effects = append(result.Effects, posemodel.OperationEffect{Step: "recover-lock", Effect: "lock-removed", Ref: lock.Path})
+		result.NextAction = "repeat the start command that found the lock; the start record and the spec were not touched"
+	} else {
+		code := strings.TrimPrefix(err.Error(), "start: ")
+		switch code {
+		case "start-lock-changed":
+			result.Fail(posemodel.OutcomeConflict, "recover-lock", code, "the lock changed since its owner digest was read")
+			result.NextAction = "`pose start spec:" + slug + " --status` shows the lock as it is now"
+		case "start-lock-owner-not-dead", "start-lock-absent":
+			result.Fail(posemodel.OutcomeBlocked, "recover-lock", code, err.Error())
+			if lock != nil {
+				result.NextAction = startLockNextAction(slug, lock)
+			}
+		default:
+			result.Fail(posemodel.OutcomeFailed, "recover-lock", "recovery-failed", err.Error())
+		}
+	}
+	if jsonOutput {
+		if writeJSON(stdout, result) != 0 {
+			return 1
+		}
+	} else {
+		if err == nil {
+			r.Field("start.lock_recovered", lock.Path+" ("+lock.Reason+")")
+			r.Field("start.next_action", result.NextAction)
+		} else {
+			if lock != nil {
+				renderStartLock(r, slug, lock)
+			}
+			r.Failure("pose start: " + err.Error())
+		}
+	}
+	if err != nil {
+		return 1
+	}
+	return 0
 }

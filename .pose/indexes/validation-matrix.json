@@ -2049,6 +2049,22 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "journal-checkpoint-and-lock-recovery-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "AJournal|AnInterruptedTail|ACheckpoint|AStartLockIsJudged|ALockWithoutA|OnlyAProvenDeadLock|ConcurrentRecoveries|AReleaseRemovesOnly|ARecoveredLock|TheStartCommandReports|ADeadStartLock|MCPLocates|MCPStartStatusShows|ABMAtomicStartConcurrent",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

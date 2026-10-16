@@ -22,6 +22,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 )
 
 const ReviewBundleSchemaVersion = 1
@@ -1135,6 +1136,11 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if path == ".pose/transfers/.authority-transfer.lock" {
 		return "derived-evidence", false
 	}
+	// A start lock is runtime state too: it names the call that holds it,
+	// never what was started (spec pose-journal-checkpoint-and-lock-recovery).
+	if strings.HasPrefix(path, ".pose/starts/.") && strings.HasSuffix(path, ".lock") {
+		return "derived-evidence", false
+	}
 	// .pose/transfers/ holds transfer and reconciliation plans, receipts,
 	// archived sources and redirects: the record of who owns a spec.
 	// .pose/actions/ holds action request journals: decisions, approvals and
@@ -1798,10 +1804,22 @@ func strictJSONFile(path string, target any) error {
 }
 
 func rejectDuplicateJSONKeysAndControls(raw []byte) error {
+	return rejectDuplicateJSONKeys(raw, true, false)
+}
+
+// rejectDuplicateJSONKeys refuses a JSON document with a duplicate object
+// field or trailing content; with controls it also refuses control
+// characters in strings and keys. With fold, two keys that differ only in
+// case are duplicates too, because encoding/json matches a field
+// case-insensitively and the later one would silently replace the first.
+func rejectDuplicateJSONKeys(raw []byte, controls, fold bool) error {
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.UseNumber()
 	var walk func() error
 	checkText := func(value string) error {
+		if !controls {
+			return nil
+		}
 		for _, r := range value {
 			if r < 0x20 || r == 0x7f {
 				return fmt.Errorf("JSON string contains a control character")
@@ -1831,10 +1849,14 @@ func rejectDuplicateJSONKeysAndControls(raw []byte) error {
 					if err := checkText(key); err != nil {
 						return err
 					}
-					if seen[key] {
+					name := key
+					if fold {
+						name = foldJSONKey(key)
+					}
+					if seen[name] {
 						return fmt.Errorf("duplicate JSON field %q", key)
 					}
-					seen[key] = true
+					seen[name] = true
 					if err := walk(); err != nil {
 						return err
 					}
@@ -3474,4 +3496,20 @@ func sameFederatedManifest(a, b *FederatedRoadmapManifest) bool {
 	left, errA := json.Marshal(a)
 	right, errB := json.Marshal(b)
 	return errA == nil && errB == nil && bytes.Equal(left, right)
+}
+
+// foldJSONKey maps a key to one representative of its case-folding class,
+// the classes encoding/json treats as the same field.
+func foldJSONKey(key string) string {
+	var b strings.Builder
+	for _, r := range key {
+		least := r
+		for f := unicode.SimpleFold(r); f != r; f = unicode.SimpleFold(f) {
+			if f < least {
+				least = f
+			}
+		}
+		b.WriteRune(least)
+	}
+	return b.String()
 }

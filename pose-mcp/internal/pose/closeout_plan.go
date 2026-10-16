@@ -30,6 +30,9 @@ type CloseoutPlan struct {
 	Pending       []ReviewAttestationPendency `json:"pending,omitempty"`
 	Blockers      []string                    `json:"blockers,omitempty"`
 	Terminal      bool                        `json:"terminal"`
+	// Checkpoint is how the checkpoint of an earlier apply reads, set by the
+	// adapter that shows the plan; it is outside the digest.
+	Checkpoint *CloseoutCheckpointRead `json:"checkpoint,omitempty"`
 }
 
 // CloseoutPlanInputs bind a plan to the state it was computed from.
@@ -190,7 +193,7 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 }
 
 func closeoutPlanDigest(plan CloseoutPlan) string {
-	plan.Digest = ""
+	plan.Digest, plan.Checkpoint = "", nil
 	digest, _ := digestJSON(plan)
 	return digest
 }
@@ -244,35 +247,151 @@ func closeoutCheckpointPath(root, ref string) string {
 	return filepath.Join(root, filepath.FromSlash(closeoutCheckpointDir), strings.ReplaceAll(ref, ":", "-")+".json")
 }
 
-// ReadCloseoutCheckpoint returns the checkpoint of an interrupted apply.
-func (s Store) ReadCloseoutCheckpoint(ref string) (CloseoutCheckpoint, bool) {
-	raw, err := os.ReadFile(closeoutCheckpointPath(s.Root, ref))
-	if err != nil {
-		return CloseoutCheckpoint{}, false
-	}
-	var cp CloseoutCheckpoint
-	if json.Unmarshal(raw, &cp) != nil {
-		return CloseoutCheckpoint{}, false
-	}
-	return cp, true
+// States of a closeout checkpoint (spec pose-journal-checkpoint-and-lock-recovery R3).
+const (
+	CheckpointAbsent      = "absent"      // no apply was interrupted
+	CheckpointValid       = "valid"       // reads, supported, of this scope
+	CheckpointCorrupt     = "corrupt"     // does not read as a checkpoint of this scope
+	CheckpointUnsupported = "unsupported" // another schema version
+	CheckpointUnavailable = "unavailable" // could not be read
+)
+
+// CloseoutCheckpointRead is how a checkpoint reads. Only a valid one is
+// progress; the others are never taken as absent, because an apply started
+// over them would hide what the earlier run left.
+type CloseoutCheckpointRead struct {
+	State      string              `json:"state"`
+	Path       string              `json:"path"`
+	Reason     string              `json:"reason,omitempty"`
+	Checkpoint *CloseoutCheckpoint `json:"recorded,omitempty"`
 }
 
-// WriteCloseoutCheckpoint persists progress; ClearCloseoutCheckpoint removes
-// it when the closeout completes.
+// maxCloseoutCheckpointBytes bounds a checkpoint.
+const maxCloseoutCheckpointBytes = 1 << 20
+
+// InspectCloseoutCheckpoint reads the checkpoint of an interrupted apply and
+// says whether it is absent, valid, corrupt, unsupported or unavailable. A
+// valid checkpoint names this scope, a plan digest, a start time and only
+// known steps, each once. It is a record of progress, not a receipt: the plan
+// is computed from the repository, and a completed step the repository does
+// not reflect is a conflict for the adapter to report (R5).
+func (s Store) InspectCloseoutCheckpoint(ref string) CloseoutCheckpointRead {
+	path := closeoutCheckpointPath(s.Root, ref)
+	read := CloseoutCheckpointRead{Path: filepath.ToSlash(filepath.Join(closeoutCheckpointDir, filepath.Base(path)))}
+	fail := func(state, reason string) CloseoutCheckpointRead {
+		read.State, read.Reason = state, reason
+		return read
+	}
+	info, err := os.Lstat(path)
+	if os.IsNotExist(err) {
+		read.State = CheckpointAbsent
+		return read
+	}
+	if err != nil {
+		return fail(CheckpointUnavailable, err.Error())
+	}
+	if !info.Mode().IsRegular() {
+		return fail(CheckpointCorrupt, "not a regular file")
+	}
+	if info.Size() > maxCloseoutCheckpointBytes {
+		return fail(CheckpointCorrupt, fmt.Sprintf("larger than %d bytes", maxCloseoutCheckpointBytes))
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return fail(CheckpointUnavailable, err.Error())
+	}
+	var version struct {
+		SchemaVersion int `json:"schema_version"`
+	}
+	if err := json.Unmarshal(raw, &version); err != nil {
+		return fail(CheckpointCorrupt, err.Error())
+	}
+	if version.SchemaVersion != CloseoutCheckpointSchemaVersion {
+		return fail(CheckpointUnsupported, fmt.Sprintf("schema_version %d is not supported", version.SchemaVersion))
+	}
+	var cp CloseoutCheckpoint
+	if err := rejectDuplicateJSONKeys(raw, false, true); err != nil {
+		return fail(CheckpointCorrupt, err.Error())
+	}
+	if err := strictJSONBytes(raw, &cp); err != nil {
+		return fail(CheckpointCorrupt, err.Error())
+	}
+	if cp.Scope != ref {
+		return fail(CheckpointCorrupt, fmt.Sprintf("it records scope %q", cp.Scope))
+	}
+	if cp.PlanDigest == "" {
+		return fail(CheckpointCorrupt, "it records no plan digest")
+	}
+	if _, err := time.Parse(time.RFC3339, cp.StartedAt); err != nil {
+		return fail(CheckpointCorrupt, "started_at is not an RFC 3339 time")
+	}
+	seen := map[string]bool{}
+	for _, id := range cp.Completed {
+		if !closeoutStepIDs[id] || seen[id] {
+			return fail(CheckpointCorrupt, fmt.Sprintf("completed step %q is unknown or repeated", id))
+		}
+		seen[id] = true
+	}
+	read.State, read.Checkpoint = CheckpointValid, &cp
+	return read
+}
+
+// CloseoutCheckpointSchemaVersion is the schema of CloseoutCheckpoint.
+const CloseoutCheckpointSchemaVersion = 1
+
+var closeoutStepIDs = map[string]bool{
+	CloseoutStepContext: true, CloseoutStepTrace: true, CloseoutStepEvidence: true, CloseoutStepIndex: true,
+	CloseoutStepSeal: true, CloseoutStepMechanical: true, CloseoutStepJudgment: true, CloseoutStepVerify: true,
+	CloseoutStepTransition: true,
+}
+
+// WriteCloseoutCheckpoint replaces the checkpoint through an exclusive
+// temporary file and a rename, so a reader sees the previous checkpoint or
+// this one, never part of either. It is not synced: the checkpoint is a
+// record of progress the plan does not depend on, not an authoritative
+// artifact, so a crash may lose the last update but never presents a torn
+// one (R4).
 func (s Store) WriteCloseoutCheckpoint(cp CloseoutCheckpoint) error {
-	if _, err := ensureReviewArtifactDir(s.Root, closeoutCheckpointDir, true); err != nil {
+	dir, err := ensureReviewArtifactDir(s.Root, closeoutCheckpointDir, true)
+	if err != nil {
 		return err
 	}
 	raw, err := json.MarshalIndent(cp, "", "  ")
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(closeoutCheckpointPath(s.Root, cp.Scope), append(raw, '\n'), 0o644)
+	tmp, err := os.CreateTemp(dir, ".checkpoint-*.tmp")
+	if err != nil {
+		return err
+	}
+	if _, err := tmp.Write(append(raw, '\n')); err != nil {
+		tmp.Close()
+		os.Remove(tmp.Name())
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		os.Remove(tmp.Name())
+		return err
+	}
+	if err := os.Rename(tmp.Name(), closeoutCheckpointPath(s.Root, cp.Scope)); err != nil {
+		os.Remove(tmp.Name())
+		return err
+	}
+	return nil
 }
 
-func (s Store) ClearCloseoutCheckpoint(ref string) {
-	_ = os.Remove(closeoutCheckpointPath(s.Root, ref))
-	_ = os.Remove(filepath.Join(s.Root, filepath.FromSlash(closeoutCheckpointDir)))
+// ClearCloseoutCheckpoint removes the checkpoint when the closeout completes
+// and reports a removal that failed, so a stale checkpoint is never left
+// behind silently. The directory is removed only when it is empty.
+func (s Store) ClearCloseoutCheckpoint(ref string) error {
+	if err := os.Remove(closeoutCheckpointPath(s.Root, ref)); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	dir := filepath.Join(s.Root, filepath.FromSlash(closeoutCheckpointDir))
+	if entries, err := os.ReadDir(dir); err == nil && len(entries) == 0 {
+		_ = os.Remove(dir)
+	}
+	return nil
 }
 
 // RequirementTraceCloseoutBlockers is the requirement-trace gate lint applies
