@@ -113,15 +113,10 @@ func (d PolicyDocs) Write(root string, store Store) error {
 	return nil
 }
 
+// writePolicyFile publishes an adoption's policy file whole through its own
+// staging file (spec pose-writer-coordination-and-atomic-publication R1).
 func writePolicyFile(path string, raw []byte) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		return err
-	}
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, raw, 0o644); err != nil {
-		return err
-	}
-	return os.Rename(tmp, path)
+	return PublishFile(path, raw, 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAny})
 }
 
 // CatalogEntry is one adoptable capability.

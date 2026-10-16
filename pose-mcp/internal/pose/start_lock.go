@@ -136,6 +136,17 @@ func publishStartLock(dir, path string, raw []byte) error {
 	return err
 }
 
+// LockSpecLifecycle takes the per-spec lifecycle lock that start, close and
+// transfer share (spec pose-writer-coordination-and-atomic-publication R3).
+// It never waits: a lock another call holds is a *StartLockError with its
+// owner's state, so no two lifecycle writers interleave and none deadlocks.
+func LockSpecLifecycle(root, slug, operation string) (func(), error) {
+	if ValidateSlug(slug) != nil {
+		return nil, startError("invalid-spec")
+	}
+	return lockStart(root, slug, operation)
+}
+
 // inspectStartLock classifies a start lock that exists.
 func inspectStartLock(root, slug string) *StartLockError {
 	path := startLockPath(root, slug)

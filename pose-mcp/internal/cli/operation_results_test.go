@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -483,19 +484,14 @@ func TestAStartThatFailsAfterMovingTheSpecResumesWithTheAdvertisedCommand(t *tes
 		t.Fatal(err)
 	}
 	// The spec moves; the final record write fails (third-round F8).
-	blocker := filepath.Join(root, ".pose", "starts", "work.json.tmp")
-	if err := os.MkdirAll(blocker, 0o755); err != nil {
-		t.Fatal(err)
-	}
+	release := failStartRecordPublication(t, root)
 	var result posemodel.OperationResult
 	code, _ := runPoseJSON(t, root, &result, "start", "spec:work", "--apply", "--digest", plan.Digest, "--json")
 	spec, _ := os.ReadFile(filepath.Join(root, ".pose", "specs", "2026-09-27-work.md"))
 	if code != 1 || !result.Resumable || !strings.Contains(string(spec), "status: in-progress") {
 		t.Fatalf("the fixture did not stop after moving the spec: code=%d %+v\n%s", code, result, spec)
 	}
-	if err := os.Remove(blocker); err != nil {
-		t.Fatal(err)
-	}
+	release()
 	var record posemodel.StartRecord
 	if code, errOut := runPoseJSON(t, root, &record, "start", "spec:work", "--apply", "--digest", plan.Digest, "--json"); code != 0 || record.Phase != "started" {
 		t.Fatalf("the advertised command did not resume: %d %+v %s", code, record, errOut)
@@ -548,10 +544,7 @@ func TestAResumeThatFailsAgainKeepsItsReceiptForPeople(t *testing.T) {
 	if err := json.Unmarshal([]byte(out), &plan); err != nil {
 		t.Fatal(err)
 	}
-	blocker := filepath.Join(root, ".pose", "starts", "work.json.tmp")
-	if err := os.MkdirAll(blocker, 0o755); err != nil {
-		t.Fatal(err)
-	}
+	failStartRecordPublication(t, root)
 	if code, _ := runPose(t, root, "start", "spec:work", "--apply", "--digest", plan.Digest); code != 1 {
 		t.Fatal("the first apply did not fail")
 	}
@@ -642,9 +635,7 @@ func publishedStartFixture(t *testing.T) (string, string) {
 	if code, _ := runPoseJSON(t, root, &plan, "start", "spec:work", "--json"); code != 0 {
 		t.Fatal("preview")
 	}
-	if err := os.MkdirAll(filepath.Join(root, ".pose", "starts", "work.json.tmp"), 0o755); err != nil {
-		t.Fatal(err)
-	}
+	failStartRecordPublication(t, root)
 	return root, plan.Digest
 }
 
@@ -743,31 +734,49 @@ func runPoseUnderFileSizeLimit(t *testing.T, root string, args ...string) (int, 
 	return code, out.String()
 }
 
-func TestAStartBaselineWriteCutShortIsReportedForInspection(t *testing.T) {
+func TestAStartBaselineWriteCutShortPublishesNothing(t *testing.T) {
 	root := startCLIFixture(t, true)
 	var plan posemodel.StartPlan
 	if code, _ := runPoseJSON(t, root, &plan, "start", "spec:work", "--json"); code != 0 {
 		t.Fatal("preview")
 	}
 	code, out := runPoseUnderFileSizeLimit(t, root, "start", "spec:work", "--apply", "--digest", plan.Digest, "--json")
-	record := filepath.Join(root, ".pose", "starts", "work.json")
-	partial, readErr := os.ReadFile(record)
-	if code != 1 || readErr != nil || json.Valid(partial) {
-		t.Fatalf("bad fixture: the baseline write was not cut short: %d %v %q\n%s", code, readErr, partial, out)
-	}
 	var first posemodel.OperationResult
-	if err := json.Unmarshal([]byte(out), &first); err != nil {
-		t.Fatalf("not one JSON document: %v\n%s", err, out)
+	if err := json.Unmarshal([]byte(out), &first); err != nil || code != 1 {
+		t.Fatalf("not one failed JSON document: %d %v\n%s", code, err, out)
 	}
-	if first.Step != "baseline" || stepsOf(first) != "baseline=failed" || len(first.Effects) != 0 || first.Resumable ||
-		len(first.Unconfirmed) != 1 || first.Unconfirmed[0].Step != "baseline" || !strings.Contains(first.NextAction, ".pose/starts/work.json") {
-		t.Fatalf("the cut-short baseline is missing from the receipt: %+v", first)
+	// The baseline is staged and published whole: a write cut short leaves
+	// no record and no staging file (spec
+	// pose-writer-coordination-and-atomic-publication R1).
+	entries, _ := os.ReadDir(filepath.Join(root, ".pose", "starts"))
+	if len(entries) != 0 || stepsOf(first) != "baseline=failed" || len(first.Effects) != 0 || len(first.Unconfirmed) != 0 {
+		t.Fatalf("a write cut short published something: %v %+v", entries, first)
 	}
-	// A retry reads the partial record, runs nothing and keeps the guidance;
-	// the partial bytes are left for inspection.
+	if code, out := runPose(t, root, "start", "spec:work", "--apply", "--digest", plan.Digest); code != 0 || !strings.Contains(out, "start.phase=started") {
+		t.Fatalf("the retry: %d %s", code, out)
+	}
+}
+
+// A record that does not read — left by an engine that wrote it in place, or
+// damaged — is reported for inspection and kept byte for byte (seventh-round
+// F13 of B12).
+func TestAnUnreadableStartRecordIsReportedForInspection(t *testing.T) {
+	root := startCLIFixture(t, true)
+	var plan posemodel.StartPlan
+	if code, _ := runPoseJSON(t, root, &plan, "start", "spec:work", "--json"); code != 0 {
+		t.Fatal("preview")
+	}
+	record := filepath.Join(root, ".pose", "starts", "work.json")
+	partial := []byte(`{"schema_version":1,"spec":"work","plan_digest":"` + plan.Digest[:20])
+	if err := os.MkdirAll(filepath.Dir(record), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(record, partial, 0o644); err != nil {
+		t.Fatal(err)
+	}
 	var retry posemodel.OperationResult
 	if code, _ := runPoseJSON(t, root, &retry, "start", "spec:work", "--apply", "--digest", plan.Digest, "--json"); code != 1 {
-		t.Fatal("the retry did not fail")
+		t.Fatal("the apply did not fail")
 	}
 	if stepsOf(retry) != "" || len(retry.Unconfirmed) != 0 || retry.Resumable || !strings.Contains(retry.NextAction, "inspect it") {
 		t.Fatalf("the retry: %+v", retry)
@@ -783,4 +792,23 @@ func TestAStartBaselineWriteCutShortIsReportedForInspection(t *testing.T) {
 	if !strings.Contains(string(spec), "status: draft") {
 		t.Fatal("the spec moved")
 	}
+}
+
+// failStartRecordPublication fails every publication of the start record of
+// spec:work after the baseline exists, as a write that fails at the rename
+// would; release ends it. It replaces planting a directory on the record's
+// temporary path, which no longer exists: each publication stages in its own
+// file (spec pose-writer-coordination-and-atomic-publication R1).
+func failStartRecordPublication(t *testing.T, root string) (release func()) {
+	t.Helper()
+	target := filepath.Join(root, ".pose", "starts", "work.json")
+	posemodel.PublishFault = func(path string) error {
+		if _, err := os.Stat(target); err == nil && strings.HasSuffix(path, filepath.Join(".pose", "starts", "work.json")) {
+			return fmt.Errorf("publish %s: injected failure", path)
+		}
+		return nil
+	}
+	release = func() { posemodel.PublishFault = nil }
+	t.Cleanup(release)
+	return release
 }

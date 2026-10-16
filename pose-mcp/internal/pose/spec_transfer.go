@@ -1878,6 +1878,14 @@ func advanceSpecTransfer(resolver ArtifactResolver, plan SpecTransferPlan, autho
 		return status, err
 	}
 	defer locks()
+	// A transfer moves a spec between lifecycles: it holds the same
+	// per-spec lock start and close take, in the source and the destination
+	// (spec pose-writer-coordination-and-atomic-publication R3).
+	specLocks, err := lockTransferSpecs(stores, plan)
+	if err != nil {
+		return status, err
+	}
+	defer specLocks()
 	if err := validateSpecTransferPlanRoots(plan, stores); err != nil {
 		return status, err
 	}

@@ -209,6 +209,10 @@ func verifyActionSignature(policy ActionPolicy, r ActionRequest, res ActionResol
 // does not model (a `_comment`) so editing a role or a key loses nothing.
 type ActionPolicyDocument struct {
 	raw map[string]json.RawMessage
+	// read is the expectation of the bytes this document was loaded from:
+	// Write publishes only over them (spec
+	// pose-writer-coordination-and-atomic-publication R2).
+	read PublishExpectation
 	ActionPolicy
 }
 
@@ -223,11 +227,14 @@ func LoadActionPolicyDocument(root string) (ActionPolicyDocument, error) {
 	if err != nil {
 		return ActionPolicyDocument{}, err
 	}
-	doc := ActionPolicyDocument{raw: map[string]json.RawMessage{}, ActionPolicy: policy}
+	doc := ActionPolicyDocument{raw: map[string]json.RawMessage{}, ActionPolicy: policy, read: PublishExpectation{Mode: ExpectAbsent}}
 	if raw, err := os.ReadFile(actionPolicyPath(root)); err == nil {
 		if err := json.Unmarshal(raw, &doc.raw); err != nil {
 			return ActionPolicyDocument{}, err
 		}
+		doc.read = ExpectBytes(raw, true)
+	} else if !os.IsNotExist(err) {
+		return ActionPolicyDocument{}, err
 	}
 	if doc.Keys == nil {
 		doc.Keys = map[string][]PrincipalKey{}
@@ -320,14 +327,7 @@ func (d ActionPolicyDocument) Write(root string) error {
 	if err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Dir(actionPolicyPath(root)), 0o755); err != nil {
-		return err
-	}
-	tmp := actionPolicyPath(root) + ".tmp"
-	if err := os.WriteFile(tmp, append(out, '\n'), 0o644); err != nil {
-		return err
-	}
-	if err := os.Rename(tmp, actionPolicyPath(root)); err != nil {
+	if err := PublishFile(actionPolicyPath(root), append(out, '\n'), 0o644, PublishAuthoritative, d.read); err != nil {
 		return err
 	}
 	if _, err := LoadActionPolicy(root); err != nil {

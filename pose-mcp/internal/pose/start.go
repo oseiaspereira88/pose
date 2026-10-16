@@ -83,6 +83,14 @@ type StartStatus struct {
 	Lock *StartLockError `json:"lock,omitempty"`
 }
 
+// StartBaselineWriteError is a baseline that could not be published. The
+// baseline is published whole or not at all, so nothing was recorded (spec
+// pose-writer-coordination-and-atomic-publication R1/R6).
+type StartBaselineWriteError struct{ Err error }
+
+func (e *StartBaselineWriteError) Error() string { return e.Err.Error() }
+func (e *StartBaselineWriteError) Unwrap() error { return e.Err }
+
 // StartFailureHook is called after each phase apply reaches: tests return an
 // error to interrupt it, and adapters observe which phases the call reached.
 type StartFailureHook func(phase string) error
@@ -243,7 +251,7 @@ func (s Store) ApplyStart(plan StartPlan, expectedDigest string, failAfter Start
 			SpecDigestBefore: plan.SpecDigest, SpecDigestAfter: digestHex([]byte(after)), Baseline: plan.Baseline,
 			Phase: "baseline-recorded", RecordedAt: time.Now().UTC().Format(time.RFC3339)}
 		if err := writeStartRecord(recordPath, record, true); err != nil {
-			return StartRecord{}, err
+			return StartRecord{}, &StartBaselineWriteError{Err: err}
 		}
 	}
 	return finishStart(recordPath, specPath, plan.Spec, record, failAfter)
@@ -532,26 +540,16 @@ func writeStartRecord(path string, record StartRecord, exclusive bool) error {
 	}
 	raw = append(raw, '\n')
 	if exclusive {
-		f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
-		if err != nil {
-			if errors.Is(err, os.ErrExist) {
-				return startError("start-record-exists")
-			}
-			return err
+		// The baseline is immutable: it is published whole or not at all, and
+		// never over another record (spec
+		// pose-writer-coordination-and-atomic-publication R1/R2).
+		err := PublishFile(path, raw, 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent})
+		if errors.Is(err, ErrPublishConflict) {
+			return startError("start-record-exists")
 		}
-		if _, err := f.Write(raw); err != nil {
-			f.Close()
-			return err
-		}
-		if err := f.Sync(); err != nil {
-			f.Close()
-			return err
-		}
-		return f.Close()
-	}
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, raw, 0o644); err != nil {
 		return err
 	}
-	return os.Rename(tmp, path)
+	// The update runs under the spec's lifecycle lock; the record is an
+	// authoritative artifact, published whole and synced.
+	return PublishFile(path, raw, 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAny})
 }

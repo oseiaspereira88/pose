@@ -1,6 +1,6 @@
 ---
 slug: pose-writer-coordination-and-atomic-publication
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-cli-mcp-operation-results, pose-journal-checkpoint-and-lock-recovery, pose-spec-authority-transfer, pose-abm-atomic-start
@@ -48,38 +48,83 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-7-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
+Paths reconciliados na main 1bb5111e antes do start. A escrita original
+pertence ao lote documental 7; este delta implementa somente B14. Os writers
+afetados são o helper `writeAtomic` (índices, state, relatórios, manuais,
+installs), o start record, a policy de ações, os arquivos de policy de adoção,
+o state refresh e seu histórico e a transição do close; a coordenação é a
+trava de ciclo de vida da spec, compartilhada por start, close e transfer. O
+MCP não tem rota que escreva ciclo de vida (start, close, transfer e state
+refresh são CLI); sua paridade está nos leitores dessas publicações, já
+cobertos por B12/B13, por isso não há teste novo em `internal/mcpserver`.
 
-- created: .pose/specs/2026-10-13-pose-writer-coordination-and-atomic-publication.md
+- modified: .pose/specs/2026-10-13-pose-writer-coordination-and-atomic-publication.md
 - created: .pose/starts/pose-writer-coordination-and-atomic-publication.json
 - created: .pose/changelogs/unreleased/pose-writer-coordination-and-atomic-publication.md
+- created: .pose/adr/2026-10-16-writers-publish-through-one-exclusive-cas-publisher.md
+- created: pose-mcp/internal/pose/writer_publication.go
+- created: pose-mcp/internal/pose/writer_publication_test.go
+- modified: pose-mcp/internal/pose/start.go
+- modified: pose-mcp/internal/pose/start_lock.go
+- modified: pose-mcp/internal/pose/spec_transfer.go
+- modified: pose-mcp/internal/pose/spec_transfer_locks.go
+- modified: pose-mcp/internal/pose/principal_keys.go
+- modified: pose-mcp/internal/pose/capability_catalog.go
 - modified: pose-mcp/internal/cli/maintenance.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/cli/state_refresh.go
-- modified: pose-mcp/internal/pose/start.go
-- modified: pose-mcp/internal/pose/spec_transfer.go
-- created: pose-mcp/internal/pose/writer_publication.go
-- created: pose-mcp/internal/pose/writer_publication_test.go
+- modified: pose-mcp/internal/cli/state.go
+- modified: pose-mcp/internal/cli/start.go
+- modified: pose-mcp/internal/cli/operation_results_test.go
 - created: pose-mcp/internal/cli/writer_publication_test.go
-- created: pose-mcp/internal/mcpserver/writer_publication_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: .pose/results/b14-front09-probes.py
+- created: .pose/results/b14-front09-probes.json
+- created: .pose/results/b14-implementation-validation.json
+- modified: .pose/results/pose-implementation-plan.json
+- modified: .pose/roadmaps/pose-consolidation-program.md
+- modified: .pose/roadmaps/pose-state-consistency-and-recovery.md
 
 ### Delivery targets
 
-- capability:writer-coordination-and-atomic-publication module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/spec_transfer.go
+- capability:writer-coordination-and-atomic-publication module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/writer_publication.go
 
 ### Approach and execution gates
 
-Definir protocolo de writer e compatibilidade em ADR antes do código. Reutilizar locks/receipts/recovery de B13 e outcomes de B12, com recurso/ordem explícitos e revalidação sob coordenação. Inventariar os writers/helpers concretos e completar paths antes de start. Não generalizar para transação distribuída absoluta; B15 consome o publisher para conjunto de índices e B41 continua release recovery.
+Contrato no ADR `2026-10-16-writers-publish-through-one-exclusive-cas-publisher`.
+`PublishFile` encena os bytes num temporário que só a chamada cria e remove só
+esse arquivo em falha; publica com `ExpectAny` (derivados), `ExpectDigest`
+(read-modify-write de mutável, conflito tipado se o arquivo mudou) ou
+`ExpectAbsent` (imutável por hard link; retry de mesmos bytes converge). A
+classe `authoritative` sincroniza arquivo e diretório; `derived` publica
+inteiro sem sync. `writeAtomic`, start record, policies, state e transição do
+close passam a usá-lo. A trava por spec do B13 é a trava de ciclo de vida,
+tomada por start, cancel, close e transfer (origem e destino, depois das
+travas de root, em ordem canônica) sem espera, portanto sem deadlock. O close
+publica só sobre o digest que os gates julgaram. O state refresh publica com CAS
+sobre o state lido e devolve resultado parcial quando o histórico falha; um
+append nunca é colado a uma cauda torn. Compatibilidade: recusas novas
+(`publish-conflict`, `concurrent-lifecycle-writer`, close sob trava),
+classificadas como minor.
 
-Antes de executar, aceitar o escopo de implementação, avaliar readiness nativa,
-executar assessment freshness no componente, completar o plano de artefatos,
-registrar produtores de evidência na matriz e criar a baseline por start.
-Não contornar dependência não terminal apenas porque o código parece presente.
+B14 não cria geração atômica de conjunto de índices (B15), recovery de release
+(B41) nem transação entre roots; writers não cooperantes ainda podem vencer a
+janela entre a verificação e o rename, limite declarado.
+
+## 4. Tasks
+
+- [x] Context, readiness, assessment freshness e inventário de writers, temporários fixos e travas contra a main 1bb5111e.
+- [x] ADR do protocolo de writer antes do código estrutural.
+- [x] Native start com R1–R8/D1 preservados.
+- [x] Publisher comum com staging exclusivo, precondições e classes; writers migrados.
+- [x] Trava de ciclo de vida compartilhada por start, close e transfer; close vinculado ao digest julgado.
+- [x] State refresh com CAS, resultado parcial e histórico sem colagem em cauda torn.
+- [x] V1–V7 no domínio e na CLI com race detector; probes P01–P04 antes e depois (controle inalterado); 12 mutações reprovando; validação estrita do módulo.
+- [ ] Revisão por ator diferente, closeout nativo e PR.
 
 ## 5. Decisions
 

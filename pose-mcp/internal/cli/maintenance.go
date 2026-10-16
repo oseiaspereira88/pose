@@ -895,15 +895,12 @@ func HookMain(name string, stdout, stderr io.Writer) int {
 	return 2
 }
 
+// writeAtomic publishes a derived artifact whole through a staging file only
+// this call uses (spec pose-writer-coordination-and-atomic-publication R1);
+// two writers never share a temporary file. It is last-writer-wins: writers
+// of mutable records use pose.PublishFile with an expectation instead.
 func writeAtomic(path string, data []byte, perm os.FileMode) error {
-	if e := os.MkdirAll(filepath.Dir(path), 0o755); e != nil {
-		return e
-	}
-	tmp := filepath.Join(filepath.Dir(path), "."+filepath.Base(path)+".tmp")
-	if e := os.WriteFile(tmp, data, perm); e != nil {
-		return e
-	}
-	return os.Rename(tmp, path)
+	return posemodel.PublishFile(path, data, perm, posemodel.PublishDerived, posemodel.PublishExpectation{Mode: posemodel.ExpectAny})
 }
 
 func cmdReleaseNotes(root string, args []string, stdout, stderr io.Writer) int {
