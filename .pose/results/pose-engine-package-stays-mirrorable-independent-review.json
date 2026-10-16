@@ -1,0 +1,127 @@
+{
+  "spec": "pose-engine-package-stays-mirrorable",
+  "subject_commit": "4dcf70b671c0568c31d4f37ce5192f37936a977f",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "implementer": "agent:claude-opus-5-5",
+  "identity_assurance": "declared; unsigned; cognitive independence not mechanically observable",
+  "provenance": "Codex/OpenAI execution distinct from Claude/Anthropic implementation session 296d1fcb-e989-40ae-9362-cf3514db8b26. agent:independent- is an engine-required declaration until pose-delegated-review-run-provenance replaces it. Maintainer authorized.",
+  "checks": [
+    {
+      "command": "go -C pose-mcp build -o ../pose-review ./cmd/pose",
+      "outcome": "pass",
+      "note": "Built in pose-dist then moved binary to ../pose-review for requested invocation path."
+    },
+    {
+      "command": "go test ./internal/pose -run ^TestProductionFilesImportNoSiblingInternalPackage$ -count=1",
+      "outcome": "expected-fail",
+      "note": "Temporarily restored only assessment_freshness.go from origin/main. Guard named forbidden internal/version import; exit 1. Restored exact original bytes in finally."
+    },
+    {
+      "command": "go test ./internal/pose -run ^TestProductionFilesImportNoSiblingInternalPackage$ -count=1",
+      "outcome": "pass",
+      "note": "Current implementation; git diff --exit-code -- pose-mcp confirms restoration."
+    },
+    {
+      "command": "go vet ./... && go test ./... -count=1",
+      "module": "pose-mcp",
+      "outcome": "pass"
+    },
+    {
+      "command": "go build ./... && go vet ./... && go test ./...",
+      "module": "cirepro/harness",
+      "outcome": "pass",
+      "note": "Read-only rehearsal against preexisting synchronized mirror; no sync, commit or push performed there."
+    },
+    {
+      "command": "python3 ../scripts/check-pose-mirror-parity.py --self-test",
+      "module": "cirepro/harness",
+      "outcome": "pass",
+      "note": "6/6 drift cases; upstream tests pass with 98 files overlaid; mirror matches 4dcf70b671c0568c31d4f37ce5192f37936a977f."
+    },
+    {
+      "command": "pose assess tech-debt",
+      "outcome": "pass",
+      "note": "0 markers, 0 uncovered debt."
+    },
+    {
+      "command": "pose assess integrate",
+      "outcome": "completed",
+      "note": "64 observed contracts, 1 observed provider/consumer pair, 63 unobserved-consumer diagnostics. No contract schema or endpoint changed by this diff."
+    },
+    {
+      "command": "pose recurrence-check --tolerant --window-days 14",
+      "outcome": "pass",
+      "note": "0 flagged keys; 1 resolved cluster."
+    },
+    {
+      "command": "git diff origin/main..HEAD --check and bounded secret-pattern scan of production diff",
+      "outcome": "pass",
+      "note": "No dependency changes. Dedicated gitleaks and govulncheck binaries unavailable; no vulnerability-scan claim made."
+    }
+  ],
+  "entrypoint_audit": "Only production cmd/pose/main.go imports cli before main, covering Main and HookMain. cli imports bootstrap, which imports mcpserver. Both init functions set pose.EngineVersion to version.Version before runtime Store construction. Binding writer CurrentAssessmentBinding uses that variable; discovery persists its result. Other cli init functions only register hooks.",
+  "decision_D1": "Proportionate for R1/R2: removes the sole sibling internal import without rewriting mirrored source or adding vendored packages. Current binary entrypoints retain version.Version. External embedders must set their own engine identity; unknown-to-unknown bindings do not distinguish engine revisions. That bounded fallback does not guarantee stale assessments on every embedding run.",
+  "rules_applied": {
+    "change_type": "bugfix",
+    "workflow": ".pose/workflows/review.md",
+    "rules": [
+      ".pose/rules/backend-go.md",
+      ".pose/rules/security.md",
+      ".pose/rules/documentation-style.md",
+      ".pose/rules/delivery-evidence.md"
+    ],
+    "not_applicable": "Frontend, infrastructure and knowledge rules: no such artifacts changed. No concurrency introduced, so no additional full race suite required."
+  },
+  "findings_medium_or_higher": [],
+  "recorded_at": "2026-10-16T05:33:29.395810+00:00",
+  "native_review": {
+    "bundle_id": "rvb-e9c5e6e54616df45",
+    "bundle_digest": "sha256:e9c5e6e54616df4587581d2af05522b887b1dd3eedd548b0cbad9076f4503797",
+    "plan_digest": "sha256:ec7e8902ce3154108b35c3bbd82224be0caf9912d68e8a56be65bb368545ab10",
+    "attestation_id": "rva-bdd5a9d2b672d719",
+    "decision": "approved",
+    "review_verify": {
+      "fresh": true,
+      "approved": true,
+      "state": "ready-to-close"
+    },
+    "close": "passed; status done; completed_at 2026-10-16",
+    "lint_spec_strict": "passed",
+    "first_check_strict": "passed with 29 repository-wide warnings",
+    "surface_check": {
+      "targets": 1,
+      "results": 133,
+      "findings": 0
+    },
+    "full_validation": {
+      "executed": 133,
+      "passed": 133
+    },
+    "module_validation": {
+      "executed": 130,
+      "passed": 130
+    },
+    "closeout_check_before_close": "expected nonterminal: lifecycle not yet done; review approved",
+    "discover_update_state": "executed successfully; generated outputs restored to pre-command bytes per explicit instruction",
+    "capability_hook_output": "native close marked one mechanism stale; that capability-file edit was restored per explicit prohibition on capability changes; native history retained",
+    "final_review_verify": {
+      "state": "closed",
+      "fresh": true,
+      "approved": true
+    },
+    "final_review_check": "passed; fresh=true; approved=true",
+    "final_closeout_check": {
+      "lifecycle_done": true,
+      "review_approved": true,
+      "terminal": true
+    },
+    "final_lint_spec_strict": "passed after task and Final Report update",
+    "final_check_strict": "passed after final index, with 29 repository-wide warnings",
+    "native_gate_outputs": {
+      "review_verify": "review_verify.scope=spec:pose-engine-package-stays-mirrorable\nreview_verify.state=closed\nreview_verify.fresh=true\nreview_verify.approved=true\nreview_verify.next_action=scope is closed with a fresh bundle attestation\nreview_verify.assurance=agent:independent-gpt-6.1-sol-review \u2014 declared identity; assurance declared; separation required different-actor, declared declared-independent-agent, verified not-verified; cognitive independence not-observable; historical claim not-established at legacy-editable-attested-at; current operation not-evaluated; historical authorization not-established; attribution prepared by agent:independent-gpt-6.1-sol-review, concluded by agent:independent-gpt-6.1-sol-review, no confirmation recorded, applied by agent:independent-gpt-6.1-sol-review\n[WARN] metadata-incomplete review component pose-mcp missing:owner\n[WARN] unmapped review component path:.pose/specs/2026-10-16-pose-engine-package-stays-mirrorable.md\n[WARN] unmapped review component path:.pose/starts/pose-engine-package-stays-mirrorable.json\n",
+      "review_check": "review.scope=spec:pose-engine-package-stays-mirrorable\nreview.required=true\nreview.profile=spec-closeout@1\nreview.digest=sha256:e9c5e6e54616df4587581d2af05522b887b1dd3eedd548b0cbad9076f4503797\nreview.fresh=true\nreview.approved=true\nreview.assurance=agent:independent-gpt-6.1-sol-review \u2014 declared identity; assurance declared; separation required different-actor, declared declared-independent-agent, verified not-verified; cognitive independence not-observable; historical claim not-established at legacy-editable-attested-at; current operation not-evaluated; historical authorization not-established; attribution prepared by agent:independent-gpt-6.1-sol-review, concluded by agent:independent-gpt-6.1-sol-review, no confirmation recorded, applied by agent:independent-gpt-6.1-sol-review\n[WARN] metadata-incomplete review component pose-mcp missing:owner\n[WARN] unmapped review component path:.pose/specs/2026-10-16-pose-engine-package-stays-mirrorable.md\n[WARN] unmapped review component path:.pose/starts/pose-engine-package-stays-mirrorable.json\n",
+      "closeout_check": "closeout.scope=spec:pose-engine-package-stays-mirrorable\ncloseout.digest=sha256:e9c5e6e54616df4587581d2af05522b887b1dd3eedd548b0cbad9076f4503797\ncloseout.lifecycle_done=true\ncloseout.review_approved=true\ncloseout.terminal=true\ncloseout.next_action=none\ncloseout.review_assurance=agent:independent-gpt-6.1-sol-review \u2014 declared identity; assurance declared; separation required different-actor, declared declared-independent-agent, verified not-verified; cognitive independence not-observable; historical claim not-established at legacy-editable-attested-at; current operation not-evaluated; historical authorization not-established; attribution prepared by agent:independent-gpt-6.1-sol-review, concluded by agent:independent-gpt-6.1-sol-review, no confirmation recorded, applied by agent:independent-gpt-6.1-sol-review\n",
+      "lint_spec_strict": "---\nspec.path=/tmp/claude-1000/-home-go-IdeaProjects-harne8/296d1fcb-e989-40ae-9362-cf3514db8b26/scratchpad/pdver/pose-dist/.pose/specs/2026-10-16-pose-engine-package-stays-mirrorable.md\nspec.status=done\nspec.sections.total=7\nspec.sections.filled=7\nspec.sections.skeleton=0\nspec.sections.empty=0\nspec.required.missing=0\nspec.followups.total=0\nspec.followups.open=0\nspec.lifecycle.failures=0\nspec.requirements.ids=3\nspec.requirements.duplicate_failures=0\nspec.trace.present=true\nspec.trace.entries=3\nspec.trace.missing=0\nspec.trace.failures=0\nspec.amendments.events=0\nspec.amendments.failures=0\n\nlint.specs.checked=1\nlint.specs.failed=0\nResultado: SUCESSO\n"
+    }
+  }
+}

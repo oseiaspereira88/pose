@@ -5,9 +5,15 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-
-	"github.com/harne8/pose-mcp/internal/version"
 )
+
+// EngineVersion is the running engine's version, recorded in assessment
+// bindings. The binary sets it from internal/version at startup (packages cli
+// and mcpserver); this package does not import internal/version, so a copy of
+// its production files compiles outside this module, as the Harne8 Harness
+// vendors it (spec pose-engine-package-stays-mirrorable). An embedder that does
+// not set it records "unknown" and reads every stored binding as another engine.
+var EngineVersion = "unknown"
 
 // AssessmentBinding is what a component assessment was computed from (spec
 // pose-adaptive-assessment-freshness). An assessment is reused only while
@@ -40,7 +46,7 @@ const (
 // is never fresh.
 func (s Store) CurrentAssessmentBinding(relPath string) (AssessmentBinding, bool) {
 	clean := filepath.ToSlash(filepath.Clean(relPath))
-	binding := AssessmentBinding{EngineVersion: version.Version, MatrixDigest: "absent"}
+	binding := AssessmentBinding{EngineVersion: EngineVersion, MatrixDigest: "absent"}
 	if raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "validation-matrix.json")); err == nil {
 		binding.MatrixDigest = digestBytes(raw)
 	}

@@ -124,6 +124,10 @@ const (
 // `pose version` and the release metadata for the same build.
 var serverVersion = version.Version
 
+// The engine package records the version in assessment bindings without
+// importing internal/version (spec pose-engine-package-stays-mirrorable).
+func init() { pose.EngineVersion = version.Version }
+
 // Server dispatches MCP requests against a POSE store resolved per project_id
 // (pose-mcp-multi-project). With a single root it behaves as before.
 type Server struct {

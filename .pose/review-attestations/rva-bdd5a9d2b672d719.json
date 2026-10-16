@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-bdd5a9d2b672d719",
+  "bundle_id": "rvb-e9c5e6e54616df45",
+  "bundle_digest": "sha256:e9c5e6e54616df4587581d2af05522b887b1dd3eedd548b0cbad9076f4503797",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-4cfb48b77e8042b4",
+      "rationale": "R1 is verified by the failing pre-fix guard and passing restored guard; R2 by the cli test and audit of cmd/pose, cli, bootstrap and mcpserver initialization; R3 by the real pre-synced Harness build, vet, suite and parity self-test. Embedders using unknown do not distinguish revisions from each other; that is outside the binary version guarantee."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Version writes occur during package initialization before main and before runtime Store binding calls. No concurrent mutation or new goroutine is introduced; the complete module suite and vet passed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/assessment-freshness-integration",
+      "rationale": "Assessment binding fields and version.Version for the shipped binary are preserved. No REST, MCP, file or event schema changes occur; the assessment freshness integration and full suite pass."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Only the version source changes in CurrentAssessmentBinding. Git failure, dirty-tree, absent matrix and stale-reason paths retain their existing behavior and pass the module tests."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/assessment-freshness-integration",
+      "rationale": "The engine no longer imports its sibling internal/version. Existing CLI and MCP initialization supply the same binary identity. Independently built and vetted the synchronized Harne8 Harness, passed its tests and parity self-test including 98 overlaid upstream test files."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/assessment-freshness-integration",
+      "rationale": "Freshness states and engine-changed reasons remain unchanged for the binary; no new logs, sensitive values or error suppression are introduced."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/assessment-freshness-integration",
+      "rationale": "CLI and MCP retain version.Version in bindings through initialization; JSON shape and output contracts are unchanged. Copying production files builds in Harness without import rewriting. The explicit unknown fallback is limited to external embedders."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Independently reverted only assessment_freshness.go to origin/main: the guard failed on the forbidden internal/version import with exit 1. Restored original bytes and observed pass. go vet and go test ./... -count=1 pass; production and tests remain unmodified."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-4cfb48b77e8042b4",
+      "rationale": "D1 directly addresses R1 and R2: remove the one sibling import and inject binary identity at startup, preserving the byte-for-byte consumer contract. The actual sole cmd/pose entrypoint imports cli; bootstrap imports mcpserver. Both initializers run before runtime bindings. The declared falsifier was explicitly searched and not observed."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-4cfb48b77e8042b4",
+      "rationale": "The spec records the package boundary, binary version guarantee, mirror rehearsal and D1 trade-off. Read the startup comments against actual init order. The unknown fallback must be understood as a shared identity for unset embedders, not proof that every stored binding is stale; the independent review and final residual-risk report state this limit."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/assessment-freshness-integration",
+      "rationale": "Existing engine-changed diagnostics and binding schema remain intact. The guard identifies the offending filename and import. No migration or new runtime dependency is required; embedders can set EngineVersion at startup."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 has a demonstrated negative control and positive guard. R2 has TestBinaryRecordsItsVersionInAssessmentBindings plus production entrypoint audit. R3 passed independently in the prepared cirepro Harness and parity self-test. Full native validation is 133/133 pass at the reviewed HEAD."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-4cfb48b77e8042b4",
+      "rationale": "Bugfix scope matches all seven declared artifact paths and observed Git attribution. Rules applied: backend-go for initialization and tests, security for identity and secrets, documentation-style for spec, delivery-evidence and delivery-surface for capability composition. Frontend, infrastructure and knowledge rules are inapplicable. Reviewer is a maintainer-authorized Codex/OpenAI execution distinct from implementer Claude/Anthropic session 296d1fcb-e989-40ae-9362-cf3514db8b26 agent:claude-opus-5-5. The agent:independent- prefix is an engine-required declaration until pose-delegated-review-run-provenance replaces it. Identity is declared and attestations here are unsigned; cognitive independence is not mechanically proven."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No dependency, authentication, authorization, network or policy change. Reviewed the diff for secret exposure and ran a bounded secret-pattern scan with no matches. No dynamic input is added; Go internal boundaries are restored for mirror consumers. Dedicated gitleaks and govulncheck binaries are unavailable and no scanner success is claimed."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-4cfb48b77e8042b4",
+      "rationale": "D1 is smaller for the stated consumer contract than mirroring another internal package and rewriting imports. No generalized provider interface or extra dependency is introduced. Unknown-to-unknown revision ambiguity is a documented external-embedder consequence. A binary binding that records unknown would invalidate D1; auditing the current production entrypoint and tests found none."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed strict artifact-check for this spec; all seven claims match the attributed 4dcf70b6 change set. Repository-wide legacy orphan warnings do not represent drift in this spec."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-4cfb48b77e8042b4",
+      "rationale": "Executed design assessment on the indexed sealed subject; inspected detector coverage and no material structural deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed discover --if-stale --component pose-mcp; component refreshed with zero debt markers. Discarded generated discovery outputs per maintainer instruction, without changing production."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/assessment-freshness-integration",
+      "rationale": "Executed integration assessment: 64 observed contracts and 63 unobserved-consumer diagnostics. Inspected changed surface and real mirror consumer; no endpoint or schema is added or changed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed technical-debt assessment: zero markers and zero uncovered items."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Review-complete precondition: execute after this attestation is applied, before guarded close."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Review-complete precondition: execute after this attestation is applied, before guarded close."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed suggest review --path pose-mcp; read workflow and applicable Go, security, documentation and delivery rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/assessment-freshness-integration",
+      "rationale": "Executed strict surface-check for the declared composed capability and inspected its production composition and current structured integration evidence."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed full validate --strict into policy results_path: 133 executed and 133 passed, with no errors or skips, at the sealed HEAD."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed validate --strict --module pose-mcp into a separate result file; all selected required checks passed. Sealed full validation independently covers the same module and HEAD."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/assessment-freshness-integration",
+    "structure:design-4cfb48b77e8042b4",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-gpt-6.1-sol-review",
+    "concluded_by": "agent:independent-gpt-6.1-sol-review",
+    "applied_by": "agent:independent-gpt-6.1-sol-review"
+  },
+  "attested_at": "2026-10-16T06:57:53Z",
+  "path": ".pose/review-attestations/rva-bdd5a9d2b672d719.json"
+}
