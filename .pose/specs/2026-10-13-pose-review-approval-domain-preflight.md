@@ -76,6 +76,10 @@ afirmar a recusa ou a semear histórico explicitamente.
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/results/pose-implementation-plan.json
+- modified: .pose/roadmaps/pose-consolidation-program.md
+- modified: .pose/roadmaps/record-truthfulness.md
+- created: .pose/results/b02-implementation-validation.json
 
 ### Delivery targets
 
@@ -145,13 +149,15 @@ Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de seg
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
 Targeted domain/CLI/MCP regressions and the full module suite ran. Native
-`pose validate --strict --module pose-mcp` passed 130/130 (318.7s) on ecd9dea2,
-recorded in `.pose/results/b02-implementation-validation.json`, run as a
+`pose validate --strict --module pose-mcp` passed 130/130 and the global
+`pose validate --strict` passed 133/133, recorded in
+`.pose/results/b02-implementation-validation.json` and
+`.pose/results/delivery-validation.json` on the final metadata head, run as a
 non-root user with `ssh-keygen` installed and the proxy CA bundle readable (the
 container's root user defeats the `chmod`-based state-hook checks, and the
 install journey downloads the published release). `pose artifact-check --spec
-pose-review-approval-domain-preflight --strict` passed with 22 claims and 22
-observed paths. No traversal, memoization or concurrency changed, so no race run
+pose-review-approval-domain-preflight --strict` passed with every declared path observed
+(26 claims, 26 observed). No traversal, memoization or concurrency changed, so no race run
 was required.
 
 ### Requirement trace
