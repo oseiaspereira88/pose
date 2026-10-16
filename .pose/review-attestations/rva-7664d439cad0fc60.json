@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-7664d439cad0fc60",
+  "bundle_id": "rvb-b93df07e17076c01",
+  "bundle_digest": "sha256:b93df07e17076c01846c3ab92cefe128f96100298ec943bf0bbbc31655fa7f53",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Published 7.4.1 and clean 268486b2 engine both pass strict check with 29 existing warnings and read 7.4.1-dev. No CLI, MCP, schema or policy contract changes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Independently restored only the main manifest baseline, ran native dry-run and apply twice: exactly one announced file, 7.1.0 to 7.4.1-dev, POSE.md skipped, final worktree manifest identical to PR. Full matrix passes 133 of 133."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-85e0aa3994e57c05",
+      "rationale": "Rules applied during review: documentation-update/refactor scope, review workflow, documentation-style for precise spec and precedent, delivery-evidence for current checks, security for diff and authority, knowledge-governance for prior context. No language domain applies because no source changes. D1 describes manual batch adoption, not automation or a published release."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Native update reports unresolved scaffold placeholder and skips POSE.md. Repeated application is idempotent. Strict checks remove only the stale-instance warning; the 29 existing warnings remain visible. No deployment or telemetry change."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "R1 verified against go version -m clean revision 268486b2bc473efee740cb513d4578755e607e9b and manifest 7.4.1-dev. R2 verified by baseline replay, two applies and unchanged tracked content. R3 verified with both native and published strict checks."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-85e0aa3994e57c05",
+      "rationale": "Three claimed paths match three observed paths in e08138c7. D1 is appropriate for this engine repository during consolidation: clean known main build and reviewed native dry-run, with published adoption retained at releases. The stamp does not prove future batches or binary provenance by itself. Reviewer agent:independent-gpt-6.1-sol-review was authorized by the maintainer. The agent:independent- prefix is a declaration required by the engine until spec pose-delegated-review-run-provenance replaces it. This is a separate Codex/OpenAI execution from implementer Claude/Anthropic session 296d1fcb-e989-40ae-9362-cf3514db8b26, agent:claude-opus-5-5. Declared identity, no signature and no human confirmation; pose-dist attestations are unsigned."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-85e0aa3994e57c05",
+      "rationale": "Inspected the entire diff for secrets and authority changes: only generic spec/start metadata and engine_version stamp. No dependencies, credentials, executable source, permissions, policy or capabilities changed. No new governance gate to bypass; integration assessment is inapplicable because no inter-module contract changed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict reconciliation: 3 claims and 3 observed paths, one attributed commit; repository orphan warnings are outside this spec."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-85e0aa3994e57c05",
+      "rationale": "Executed after indexing: observed one implementation entry, manifest, with no structural deltas."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed assessment: zero markers and uncovered items. Recurrence check over 14 days has zero flagged keys."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Executed full strict matrix into configured results_path at e08138c7: 133 passed of 133, zero failures, errors or skips. Component is empty as sealed plan specifies."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires this attestation; execute immediately after apply."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires this attestation; execute immediately after apply before native close."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/install-and-upgrade-journeys-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-16T04:40:59Z",
+  "path": ".pose/review-attestations/rva-7664d439cad0fc60.json"
+}
