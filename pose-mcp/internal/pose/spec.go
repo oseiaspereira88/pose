@@ -276,14 +276,14 @@ func ParseSinceDate(val string) (time.Time, error) {
 	if strings.HasSuffix(val, "d") {
 		daysStr := strings.TrimSuffix(val, "d")
 		days, err := strconv.Atoi(daysStr)
-		if err == nil {
+		if err == nil && days >= 0 {
 			return time.Now().UTC().AddDate(0, 0, -days), nil
 		}
 	}
 	if t, err := time.Parse("2006-01-02", val); err == nil {
 		return t, nil
 	}
-	return time.Time{}, fmt.Errorf("invalid since format %q", val)
+	return time.Time{}, fmt.Errorf("invalid since format %q (want YYYY-MM-DD or <days>d)", val)
 }
 
 // splitStatusFilter parses a status filter into its wanted values (see

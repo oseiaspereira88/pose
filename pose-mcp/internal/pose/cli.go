@@ -15,6 +15,13 @@ import (
 
 const cliTimeout = 30 * time.Second
 
+// cliWaitDelay bounds how long a stopped subprocess may hold its output pipes
+// open (a child it started can keep them); past it Wait returns.
+const cliWaitDelay = 2 * time.Second
+
+// cliCleanupNote is the cleanup limit an inconclusive result discloses.
+const cliCleanupNote = "the pose process was killed; a process it started may outlive it, and its partial output is incomplete"
+
 // Suggest wraps `pose suggest <type> [--domain d] [--path p] --json`. The
 // CLI stays the deterministic source of truth for the canonical trail
 // (workflow + skill + rules + validation) — ADR-003: adapter, not fork.
@@ -144,9 +151,13 @@ func (s Store) runCLI(ctx context.Context, args []string) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, executable, args...)
 	cmd.Dir = s.Root
 	cmd.Env = append(os.Environ(), "POSE_USAGE_SUPPRESS_CLI=1")
+	cmd.WaitDelay = cliWaitDelay
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
 	if err := cmd.Run(); err != nil {
+		if cause := executionCause(ctx); cause != "" {
+			return nil, &GateExecutionError{Command: "pose " + strings.Join(args, " "), Cause: cause, PartialOutput: strings.TrimSpace(stdout.String() + stderr.String()), Cleanup: cliCleanupNote}
+		}
 		msg := strings.TrimSpace(stderr.String())
 		if msg == "" {
 			msg = strings.TrimSpace(stdout.String())
@@ -161,7 +172,11 @@ func (s Store) runCLI(ctx context.Context, args []string) ([]byte, error) {
 
 // runCLIExit executes a gate command capturing stdout+stderr together; a
 // non-zero exit is returned as a verdict, not an error. Errors are reserved
-// for execution failures (native executable missing, timeout).
+// for execution failures (native executable missing, timeout). The context
+// is read before the exit status: a process killed because its deadline
+// passed or its caller cancelled also ends with an *exec.ExitError, and that
+// is an inconclusive execution, never a failed gate (spec
+// pose-cli-mcp-operation-results R5).
 func (s Store) runCLIExit(ctx context.Context, args []string) ([]byte, int, error) {
 	executable, err := s.nativeExecutablePath()
 	if err != nil {
@@ -173,9 +188,13 @@ func (s Store) runCLIExit(ctx context.Context, args []string) ([]byte, int, erro
 	cmd := exec.CommandContext(ctx, executable, args...)
 	cmd.Dir = s.Root
 	cmd.Env = append(os.Environ(), "POSE_USAGE_SUPPRESS_CLI=1")
+	cmd.WaitDelay = cliWaitDelay
 	var combined bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &combined, &combined
 	if err := cmd.Run(); err != nil {
+		if cause := executionCause(ctx); cause != "" {
+			return nil, -1, &GateExecutionError{Command: "pose " + strings.Join(args, " "), Cause: cause, PartialOutput: strings.TrimSpace(combined.String()), Cleanup: cliCleanupNote}
+		}
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
 			return combined.Bytes(), exitErr.ExitCode(), nil

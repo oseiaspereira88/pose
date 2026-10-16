@@ -2033,6 +2033,22 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "cli-mcp-operation-results-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "./internal/usage",
+            "-run",
+            "Inconclusive|StillAVerdict|OperationResultStarts|CloseApplyJSON|CloseAndStartRefuse|SpecsRefuses|ContinuousCloseoutStatusJSON|UsageCountsAWaiting|UsageCountsWaitingAndSkips|ListSpecsRefuses|ClosePlan|InterruptedCloseout|StalePlanDigest|ABMAtomicStartCLI",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

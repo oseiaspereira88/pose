@@ -15,6 +15,9 @@ import (
 )
 
 type commandUsageResult struct {
+	// ExecutionOutcome, when set, is the execution the command reported
+	// (e.g. waiting) and replaces the one derived from its exit code.
+	ExecutionOutcome   string
 	SemanticOutcome    string
 	Findings           []usagepkg.Finding
 	FindingCount       int
@@ -82,6 +85,9 @@ func mainWithUsage(args []string, stdout, stderr io.Writer) int {
 	} else if code != 0 && !isGateCommand(tool) {
 		execution = "failed"
 	}
+	if result.ExecutionOutcome != "" && code != 2 {
+		execution = result.ExecutionOutcome
+	}
 	scopeArgs := original[1:]
 	observation := usagepkg.Observation{
 		At: time.Now().UTC(), Tool: tool, Surface: "cli",
@@ -95,7 +101,10 @@ func mainWithUsage(args []string, stdout, stderr io.Writer) int {
 	_ = usagepkg.Record(root, observation)
 	for _, signal := range compactUsageSignals(result.Signals) {
 		observation.Tool = "review.signal." + signal
+		// A derived signal has no interval of its own; recording 0 ms would
+		// average a time nobody measured (spec pose-cli-mcp-operation-results R8).
 		observation.DurationMS = 0
+		observation.DurationUnknown = true
 		observation.Findings = nil
 		observation.FindingCount = 0
 		observation.FindingsBySeverity = nil
@@ -276,14 +285,19 @@ func cmdUsage(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stdout, "unavailable: %s\n", report.Reason)
 	} else {
 		tw := tabwriter.NewWriter(stdout, 0, 4, 2, ' ', 0)
-		fmt.Fprintln(tw, "TOOL\tSURFACE\tCALLS\tPASS\tFAIL\tEXEC ERR\tFINDINGS\tERROR F\tWARN F\tUNIQUE\tNEW\tRESOLVED\tREOPENED\tP95 MS")
+		fmt.Fprintln(tw, "TOOL\tSURFACE\tCALLS\tPASS\tFAIL\tEXEC ERR\tWAITING\tFINDINGS\tERROR F\tWARN F\tUNIQUE\tNEW\tRESOLVED\tREOPENED\tP95 MS")
 		for _, row := range report.Rows {
 			executionErrors := row.Failed + row.Invalid + row.Denied + row.Errors
-			fmt.Fprintf(tw, "%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%.2f\n",
-				row.Tool, row.Surface, row.Calls, row.Pass, row.Fail, executionErrors,
+			// No measured interval is shown as unknown, never as 0 ms.
+			p95 := "-"
+			if row.DurationSamples > 0 {
+				p95 = strconv.FormatFloat(row.P95DurationMS, 'f', 2, 64)
+			}
+			fmt.Fprintf(tw, "%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\n",
+				row.Tool, row.Surface, row.Calls, row.Pass, row.Fail, executionErrors, row.Waiting,
 				row.FindingsObserved, row.FindingsBySeverity["error"], row.FindingsBySeverity["warning"],
 				row.UniqueFindings, row.NewFindings,
-				row.ResolvedFindings, row.ReopenedFindings, row.P95DurationMS)
+				row.ResolvedFindings, row.ReopenedFindings, p95)
 		}
 		_ = tw.Flush()
 	}

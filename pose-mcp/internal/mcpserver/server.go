@@ -630,7 +630,22 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 		var unknownProj pose.ProjectUnknownError
 		var ambiguousProj pose.ProjectAmbiguousError
 		var approvalRefusal *pose.ReviewApprovalRefusal
+		var inconclusive *pose.GateExecutionError
 		switch {
+		case errors.As(err, &inconclusive):
+			// A gate subprocess stopped by its deadline or a cancellation has
+			// no verdict (spec pose-cli-mcp-operation-results R5): it is an
+			// execution error, never passed=false.
+			return result(req.ID, map[string]any{
+				"content": []map[string]any{{"type": "text", "text": err.Error()}},
+				"structuredContent": map[string]any{
+					"error_code": "execution_inconclusive", "outcome": pose.OutcomeInconclusive,
+					"cause": inconclusive.Cause, "command": inconclusive.Command,
+					"partial_output": inconclusive.PartialOutput, "partial_output_complete": false,
+					"cleanup": inconclusive.Cleanup,
+				},
+				"isError": true,
+			})
 		case errors.As(err, &unknownProj):
 			available, truncated := s.authorizedProjectIDs(ctx, policyInput)
 			structured := map[string]any{
@@ -986,26 +1001,41 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_list_specs: invalid arguments")
 		}
+		// An invalid filter is refused before the listing, never dropped:
+		// dropping it would return every spec as if it matched (spec
+		// pose-cli-mcp-operation-results R3).
+		var sinceDate time.Time
+		if a.Since != "" {
+			parsed, parseErr := pose.ParseSinceDate(a.Since)
+			if parseErr != nil {
+				return nil, fmt.Errorf("pose_list_specs: %w", parseErr)
+			}
+			sinceDate = parsed
+		}
+		if a.Recent < 0 {
+			return nil, fmt.Errorf("pose_list_specs: recent must be a positive number")
+		}
+		if a.Limit < 0 {
+			return nil, fmt.Errorf("pose_list_specs: limit must be a positive number")
+		}
 		specs, err := store.ListSpecs(a.Status, a.Components)
 		if err != nil {
 			return nil, err
 		}
 		if a.Since != "" {
-			if sinceDate, parseErr := pose.ParseSinceDate(a.Since); parseErr == nil {
-				filtered := []pose.Spec{}
-				for _, sp := range specs {
-					dateStr := sp.CreatedAt
-					if dateStr == "" {
-						dateStr = sp.CompletedAt
-					}
-					if dateStr != "" {
-						if t, err := time.Parse("2006-01-02", dateStr); err == nil && !t.Before(sinceDate) {
-							filtered = append(filtered, sp)
-						}
+			filtered := []pose.Spec{}
+			for _, sp := range specs {
+				dateStr := sp.CreatedAt
+				if dateStr == "" {
+					dateStr = sp.CompletedAt
+				}
+				if dateStr != "" {
+					if t, err := time.Parse("2006-01-02", dateStr); err == nil && !t.Before(sinceDate) {
+						filtered = append(filtered, sp)
 					}
 				}
-				specs = filtered
 			}
+			specs = filtered
 		}
 		if a.Sort == "date" || a.Recent > 0 {
 			sort.Slice(specs, func(i, j int) bool {

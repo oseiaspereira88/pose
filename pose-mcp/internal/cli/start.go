@@ -12,7 +12,7 @@ import (
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
-const startUsage = "Usage: pose start spec:<slug> [--json] | --apply --digest <sha256> | --status [--json] | --cancel"
+const startUsage = "Usage: pose start spec:<slug> [--json] | --apply --digest <sha256> [--json] | --status [--json] | --cancel"
 
 func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 	r := render(stdout, stderr)
@@ -42,7 +42,7 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		case "--json":
 			jsonOutput = true
 		case "--digest":
-			if i+1 >= len(args) {
+			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "-") {
 				return usage("--digest needs a value")
 			}
 			i++
@@ -50,6 +50,23 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		default:
 			return usage("unknown option: " + args[i])
 		}
+	}
+	// Modes are exclusive and each flag belongs to one of them: a second mode
+	// or a flag the mode does not take is refused, never resolved by
+	// priority or order (spec pose-cli-mcp-operation-results R3).
+	modes := 0
+	for _, on := range []bool{apply, status, cancel} {
+		if on {
+			modes++
+		}
+	}
+	switch {
+	case modes > 1:
+		return usage("--apply, --status and --cancel are exclusive modes")
+	case digest != "" && !apply:
+		return usage("--digest is taken only by --apply")
+	case cancel && jsonOutput:
+		return usage("--cancel has no JSON output")
 	}
 	store := cliGovernedStore(root)
 	switch {
@@ -95,6 +112,10 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		// previews the same plan, because the spec has not moved yet.
 		if plan.Digest != digest {
 			if record, ok, err := store.GetStartRecord(slug); err == nil && ok && record.PlanDigest == digest && record.Phase == "started" {
+				if jsonOutput {
+					return writeJSON(stdout, record)
+				}
+				r.Field("start.result", "already-started")
 				r.Field("start.phase", record.Phase)
 				r.Field("start.baseline", record.Baseline.Digest)
 				return 0

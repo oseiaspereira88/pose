@@ -185,3 +185,32 @@ func TestUsageStorageResolutionStaysOutsideWorktree(t *testing.T) {
 		t.Fatalf("fallback storage = %q, want under %q", dir, cache)
 	}
 }
+
+// Spec pose-cli-mcp-operation-results R8: waiting is not a failure, and an
+// interval nobody measured is not a zero-length call.
+func TestUsageCountsWaitingAndSkipsUnmeasuredDurations(t *testing.T) {
+	_, now := usageFixture(t)
+	for _, observation := range []Observation{
+		{At: now.Add(-3 * time.Hour), Tool: "close", Surface: "cli", DurationMS: 40, ExecutionOutcome: "waiting", SemanticOutcome: "unknown"},
+		{At: now.Add(-2 * time.Hour), Tool: "close", Surface: "cli", DurationMS: 0, DurationUnknown: true, ExecutionOutcome: "completed", SemanticOutcome: "unknown"},
+		{At: now.Add(-1 * time.Hour), Tool: "signal", Surface: "cli", DurationMS: 0, DurationUnknown: true, ExecutionOutcome: "completed", SemanticOutcome: "unknown"},
+	} {
+		if err := Record("/ignored", observation); err != nil {
+			t.Fatal(err)
+		}
+	}
+	report, err := Aggregate("/ignored", Query{SinceDays: 0, Now: now})
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows := map[string]Row{}
+	for _, row := range report.Rows {
+		rows[row.Tool] = row
+	}
+	if close := rows["close"]; close.Calls != 2 || close.Waiting != 1 || close.Failed != 0 || close.DurationSamples != 1 || close.AverageDurationMS != 40 {
+		t.Fatalf("close row: %+v", close)
+	}
+	if signal := rows["signal"]; signal.DurationSamples != 0 || signal.AverageDurationMS != 0 {
+		t.Fatalf("an unmeasured interval was aggregated: %+v", signal)
+	}
+}

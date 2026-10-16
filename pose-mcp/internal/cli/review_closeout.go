@@ -1763,6 +1763,43 @@ type continuousCloseoutSelection struct {
 	Status        string `json:"status"`
 }
 
+// continuousStatusData is the payload of `continuous-closeout status`.
+type continuousStatusData struct {
+	Active   bool `json:"active"`
+	Terminal bool `json:"terminal"`
+}
+
+// continuousCloseoutStatus reads the persisted selection and its closeout
+// state into one result for both renderers.
+func continuousCloseoutStatus(root, path string) posemodel.OperationResult {
+	result := posemodel.NewOperationResult("continuous-closeout.status", "")
+	data := &continuousStatusData{}
+	result.Data = data
+	raw, err := os.ReadFile(path)
+	if os.IsNotExist(err) {
+		result.Outcome = posemodel.OutcomeCompleted
+		return result
+	}
+	if err != nil {
+		result.Fail(posemodel.OutcomeFailed, "", "selection-unreadable", err.Error())
+		return result
+	}
+	var selection continuousCloseoutSelection
+	if err := json.Unmarshal(raw, &selection); err != nil || selection.SchemaVersion != 1 || selection.Status != "active" {
+		result.Fail(posemodel.OutcomeFailed, "", "selection-invalid", "invalid persisted selection")
+		return result
+	}
+	result.Scope = selection.Scope
+	state, err := cliCloseoutState(root, selection.Scope)
+	if err != nil {
+		result.Fail(posemodel.OutcomeFailed, "", "closeout-state-unavailable", err.Error())
+		return result
+	}
+	data.Active, data.Terminal = true, state.Terminal
+	result.Outcome, result.NextAction = posemodel.OutcomeCompleted, state.NextAction
+	return result
+}
+
 func cmdContinuousCloseout(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
 		args = []string{"status"}
@@ -1807,27 +1844,32 @@ func cmdContinuousCloseout(root string, args []string, stdout, stderr io.Writer)
 		fmt.Fprintf(stdout, "Continuous closeout started: %s\n", ref)
 		return 0
 	case "status":
-		raw, err := os.ReadFile(path)
-		if os.IsNotExist(err) {
+		// status takes only --json (spec pose-cli-mcp-operation-results R3):
+		// any other argument is refused rather than ignored.
+		jsonOutput := false
+		for _, arg := range args[1:] {
+			if arg != "--json" {
+				fmt.Fprintln(stderr, "Usage: pose continuous-closeout status [--json]")
+				return 2
+			}
+			jsonOutput = true
+		}
+		result := continuousCloseoutStatus(root, path)
+		data, _ := result.Data.(*continuousStatusData)
+		if jsonOutput {
+			if writeJSON(stdout, result) != 0 {
+				return 1
+			}
+		} else if result.Outcome != posemodel.OutcomeCompleted {
+			fmt.Fprintln(stderr, "pose continuous-closeout: "+result.Error.Message)
+		} else if !data.Active {
 			fmt.Fprintln(stdout, "continuous.active=false")
-			return 0
+		} else {
+			fmt.Fprintf(stdout, "continuous.active=true\ncontinuous.scope=%s\ncontinuous.terminal=%t\ncontinuous.next_action=%s\n", result.Scope, data.Terminal, result.NextAction)
 		}
-		if err != nil {
-			fmt.Fprintf(stderr, "pose continuous-closeout: %v\n", err)
-			return 1
-		}
-		var selection continuousCloseoutSelection
-		if err := json.Unmarshal(raw, &selection); err != nil || selection.SchemaVersion != 1 || selection.Status != "active" {
-			fmt.Fprintln(stderr, "pose continuous-closeout: invalid persisted selection")
-			return 1
-		}
-		state, err := cliCloseoutState(root, selection.Scope)
-		if err != nil {
-			fmt.Fprintf(stderr, "pose continuous-closeout: %v\n", err)
-			return 1
-		}
-		fmt.Fprintf(stdout, "continuous.active=true\ncontinuous.scope=%s\ncontinuous.terminal=%t\ncontinuous.next_action=%s\n", selection.Scope, state.Terminal, state.NextAction)
-		if !state.Terminal {
+		// The exit keeps its documented meaning: 1 while an active scope is
+		// not terminal. The query itself completed; readiness is in the data.
+		if result.Outcome != posemodel.OutcomeCompleted || data.Active && !data.Terminal {
 			return 1
 		}
 		return 0

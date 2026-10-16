@@ -24,37 +24,59 @@ func cmdSpecs(root string, args []string, stdout, stderr io.Writer) int {
 	sinceFilter := ""
 	jsonOutput := false
 
+	// Every argument is either understood or refused before the listing: an
+	// ignored flag or value would return every spec as if it matched (spec
+	// pose-cli-mcp-operation-results R3).
+	const specsUsage = "Usage: pose specs [--status <s,...>] [--components|--component <c,...>] [--since <YYYY-MM-DD|<days>d>] [--recent [n]] [--json]"
+	refuse := func(reason string) int {
+		render(io.Discard, stderr).Failure("pose specs: " + reason)
+		return usageError(stderr, specsUsage)
+	}
+	value := func(i int) (string, bool) {
+		if i+1 >= len(args) || strings.HasPrefix(args[i+1], "-") {
+			return "", false
+		}
+		return args[i+1], true
+	}
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--json":
 			jsonOutput = true
-		case "--status":
-			if i+1 < len(args) {
-				statusFilter = args[i+1]
-				i++
+		case "--status", "--components", "--component", "--since":
+			v, ok := value(i)
+			if !ok {
+				return refuse(args[i] + " needs a value")
 			}
-		case "--components", "--component":
-			if i+1 < len(args) {
-				componentsFilter = args[i+1]
-				i++
-			}
-		case "--recent":
-			if i+1 < len(args) {
-				if n, err := strconv.Atoi(args[i+1]); err == nil && n > 0 {
-					recentLimit = n
+			switch args[i] {
+			case "--status":
+				statusFilter = v
+			case "--since":
+				if _, err := parseSinceDate(v); err != nil {
+					return refuse(err.Error())
 				}
-				i++
-			} else {
-				recentLimit = 10 // default recent limit
+				sinceFilter = v
+			default:
+				componentsFilter = v
 			}
-		case "--since":
-			if i+1 < len(args) {
-				sinceFilter = args[i+1]
-				i++
+			i++
+		case "--recent":
+			// A bare --recent keeps its documented default of 10.
+			v, ok := value(i)
+			if !ok {
+				recentLimit = 10
+				break
 			}
+			n, err := strconv.Atoi(v)
+			if err != nil || n <= 0 {
+				return refuse("--recent needs a positive number, got " + strconv.Quote(v))
+			}
+			recentLimit = n
+			i++
 		case "-h", "--help":
 			dispatchCommandHelp("specs", nil, stdout, locale)
 			return 0
+		default:
+			return refuse("unknown argument " + strconv.Quote(args[i]))
 		}
 	}
 
@@ -67,8 +89,7 @@ func cmdSpecs(root string, args []string, stdout, stderr io.Writer) int {
 
 	// Filter by --since if requested
 	if sinceFilter != "" {
-		sinceDate, parseErr := parseSinceDate(sinceFilter)
-		if parseErr == nil {
+		if sinceDate, parseErr := parseSinceDate(sinceFilter); parseErr == nil {
 			filtered := []pose.Spec{}
 			for _, sp := range specs {
 				dateStr := sp.CreatedAt
@@ -149,18 +170,7 @@ func cmdSpecs(root string, args []string, stdout, stderr io.Writer) int {
 }
 
 func parseSinceDate(val string) (time.Time, error) {
-	val = strings.TrimSpace(val)
-	if strings.HasSuffix(val, "d") {
-		daysStr := strings.TrimSuffix(val, "d")
-		days, err := strconv.Atoi(daysStr)
-		if err == nil {
-			return time.Now().UTC().AddDate(0, 0, -days), nil
-		}
-	}
-	if t, err := time.Parse("2006-01-02", val); err == nil {
-		return t, nil
-	}
-	return time.Time{}, fmt.Errorf("invalid since format %q", val)
+	return pose.ParseSinceDate(val)
 }
 
 // cmdSpecFacts prints the factual part of a spec's report, derived from the

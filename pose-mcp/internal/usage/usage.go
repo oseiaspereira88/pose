@@ -32,6 +32,9 @@ var (
 	validExecutionOutcome = map[string]bool{
 		"completed": true, "failed": true, "invalid": true,
 		"denied": true, "error": true,
+		// waiting: the operation stopped on another actor (spec
+		// pose-cli-mcp-operation-results R8); it is not a failure.
+		"waiting": true,
 	}
 	validSemanticOutcome = map[string]bool{
 		"pass": true, "fail": true, "partial": true,
@@ -49,10 +52,13 @@ type Finding struct {
 // Observation is the in-memory contract used by CLI and MCP adapters. Scope
 // and Finding.ID are HMAC'd with the project-local salt before persistence.
 type Observation struct {
-	At                 time.Time
-	Tool               string
-	Surface            string
-	DurationMS         float64
+	At         time.Time
+	Tool       string
+	Surface    string
+	DurationMS float64
+	// DurationUnknown marks an observation whose interval was not measured;
+	// its DurationMS is never aggregated as a time.
+	DurationUnknown    bool
 	ExecutionOutcome   string
 	SemanticOutcome    string
 	Findings           []Finding
@@ -71,6 +77,7 @@ type Event struct {
 	Tool                string         `json:"tool"`
 	Surface             string         `json:"surface"`
 	DurationMS          float64        `json:"duration_ms"`
+	DurationUnknown     bool           `json:"duration_unknown,omitempty"`
 	ExecutionOutcome    string         `json:"execution_outcome"`
 	SemanticOutcome     string         `json:"semantic_outcome"`
 	FindingCount        int            `json:"finding_count"`
@@ -97,6 +104,7 @@ type Row struct {
 	Invalid            int            `json:"invalid"`
 	Denied             int            `json:"denied"`
 	Errors             int            `json:"errors"`
+	Waiting            int            `json:"waiting"`
 	Pass               int            `json:"pass"`
 	Fail               int            `json:"fail"`
 	Partial            int            `json:"partial"`
@@ -112,6 +120,9 @@ type Row struct {
 	AverageDurationMS  float64        `json:"average_duration_ms"`
 	P50DurationMS      float64        `json:"p50_duration_ms"`
 	P95DurationMS      float64        `json:"p95_duration_ms"`
+	// DurationSamples is how many calls the duration statistics read; 0 means
+	// no interval was measured, not a zero-length call.
+	DurationSamples    int `json:"duration_samples"`
 	durations          []float64
 	uniqueFingerprints map[string]bool
 }
@@ -188,6 +199,7 @@ func Record(root string, observation Observation) error {
 	event := Event{
 		SchemaVersion: SchemaVersion, EventID: randomID(), OccurredAt: at.Format(time.RFC3339Nano),
 		Tool: observation.Tool, Surface: observation.Surface, DurationMS: observation.DurationMS,
+		DurationUnknown:  observation.DurationUnknown,
 		ExecutionOutcome: observation.ExecutionOutcome, SemanticOutcome: observation.SemanticOutcome,
 		FindingCount: findingCount, FindingsBySeverity: bySeverity, FindingFingerprints: fingerprints,
 		FindingSetComplete: observation.FindingSetComplete,
@@ -305,7 +317,9 @@ func Aggregate(root string, query Query) (Report, error) {
 		for severity, count := range event.FindingsBySeverity {
 			row.FindingsBySeverity[severity] += count
 		}
-		row.durations = append(row.durations, event.DurationMS)
+		if !event.DurationUnknown {
+			row.durations = append(row.durations, event.DurationMS)
+		}
 	}
 	for _, row := range rows {
 		row.UniqueFindings = len(row.uniqueFingerprints)
@@ -633,6 +647,8 @@ func incrementExecution(row *Row, outcome string) {
 		row.Denied++
 	case "error":
 		row.Errors++
+	case "waiting":
+		row.Waiting++
 	}
 }
 
@@ -660,6 +676,7 @@ func deleteTransient(row *Row) {
 	for _, duration := range row.durations {
 		total += duration
 	}
+	row.DurationSamples = len(row.durations)
 	row.AverageDurationMS = total / float64(len(row.durations))
 	row.P50DurationMS = percentile(row.durations, 0.50)
 	row.P95DurationMS = percentile(row.durations, 0.95)
