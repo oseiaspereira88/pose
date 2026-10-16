@@ -1,8 +1,8 @@
 ---
 slug: pose-engine-package-stays-mirrorable
-status: in-progress
+status: done
 created_at: 2026-10-16
-completed_at:
+completed_at: 2026-10-16
 depends_on:
 priority: 1
 components: pose-mcp
@@ -58,7 +58,7 @@ The binary must keep recording its own version in assessment bindings, so stored
 
 - [x] Guard test first: it fails on `assessment_freshness.go` importing `internal/version`.
 - [x] Move the version behind `EngineVersion`, set by cli and mcpserver.
-- [ ] Prove a Harne8 mirror sync builds and passes; strict validation, review and closeout.
+- [x] Prove a Harne8 mirror sync builds and passes; strict validation, review and closeout.
 
 ## 5. Decisions
 
@@ -90,10 +90,22 @@ Prove the guard fails on the defect, then the full module suite, then a real Har
 
 ### Delivered scope
 
-Pending review.
+Kept production files of `internal/pose` free of sibling internal imports, guarded that boundary, and preserved `version.Version` in binary assessment bindings through CLI and MCP startup initialization. D1 is proportionate: it preserves the consumer's byte-for-byte mirror contract without import rewriting or an additional mirrored package. No CLI, MCP or binding schema changed.
+
+Independent reviewer `agent:independent-gpt-6.1-sol-review` approved bundle `rvb-e9c5e6e54616df45` in attestation `rva-bdd5a9d2b672d719`. This was a maintainer-authorized Codex/OpenAI execution distinct from Claude/Anthropic implementation session `296d1fcb-e989-40ae-9362-cf3514db8b26` (`agent:claude-opus-5-5`). The `agent:independent-` prefix is an engine-required declaration until `pose-delegated-review-run-provenance` replaces it; identity is declared and these attestations are unsigned.
+
+On 2026-10-16, the reviewer independently demonstrated the guard failing with only `assessment_freshness.go` reverted to `origin/main`, restored the exact implementation bytes, and observed the guard passing. `go vet ./...` and `go test ./... -count=1` passed in `pose-mcp`. Auditing `cmd/pose`, CLI hooks, bootstrap and MCP startup found no binary binding path outside version initialization.
+
+The prepared Harne8 `cirepro` mirror at engine commit `4dcf70b6` passed Harness build, vet and tests. Its parity self-test passed all six drift cases, overlaid 98 upstream test files successfully and confirmed mirror parity. That clone was not edited, committed or pushed by this review.
+
+Native full validation passed 133/133 checks, and explicit module validation passed 130/130, without failures, errors or skips. Strict `surface-check` reported one composed capability and zero findings. `review verify` reported fresh and approved; guarded `close`, strict spec lint and strict structure check passed. Evidence is recorded in `.pose/results/delivery-validation.json`, `.pose/results/pose-engine-package-stays-mirrorable-module-validation.json` and `.pose/results/pose-engine-package-stays-mirrorable-independent-review.json`, plus the sealed bundle and attestation. Discovery with `--update-state` was executed; its generated output was excluded as directed by the maintainer.
 
 ### Residual risks
 
-Embedders outside the binary must set `EngineVersion` to get matching bindings.
+External embedders must set `EngineVersion` to distinguish engine revisions. An unset embedder records `unknown`; two such bindings can match despite an engine revision change. The current binary initializes its version before runtime binding calls, so this limitation does not weaken R2.
+
+The review identity and vendor separation are declared, without signed provenance. The repository-wide strict check retains 29 warnings, including legacy changelog and capability-assessment age diagnostics. No policy, capability assessment, adoption setting, production code or test was changed by the reviewer. Dedicated vulnerability and secret-scanner binaries were unavailable; the changed diff was inspected and a bounded secret-pattern scan found no matches.
 
 ### Follow-ups
+
+This closeout creates no follow-up work. The Harne8 archive-script adjustment remains outside this delivery and is reserved for its own spec, as directed by the maintainer.
