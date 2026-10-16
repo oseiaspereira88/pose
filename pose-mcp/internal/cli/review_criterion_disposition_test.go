@@ -22,7 +22,7 @@ func dispositionPlan() posemodel.ReviewPlan {
 // reviewer should not have fewer options than the automated path.
 func TestAttestRecordsNotApplicableWithARationale(t *testing.T) {
 	criteria, err := reviewCriterionDispositions(dispositionPlan(), []string{"unit:api/go/test"},
-		[]string{"frontend-accessibility|not-applicable||the change has no user-visible surface"}, nil)
+		[]string{"frontend-accessibility|not-applicable||the change has no user-visible surface"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,40 +43,45 @@ func TestAttestRecordsNotApplicableWithARationale(t *testing.T) {
 	}
 }
 
-func TestAttestRejectsDispositionsItCannotStandBehind(t *testing.T) {
-	for _, tc := range []struct{ name, arg, want string }{
-		{"no rationale", "frontend-accessibility|not-applicable||", "needs a rationale"},
-		{"unknown disposition", "correctness|probably-fine||", "invalid disposition"},
-		{"criterion not in the plan", "invented|not-applicable||why", "does not match a required criterion"},
-		{"optional criterion", "optional-one|not-applicable||why", "does not match a required criterion"},
-		{"duplicate", "correctness|passed|unit:api/go/test|", "duplicate"},
-		{"malformed", "correctness", "must be ID|disposition|evidence|rationale"},
-		{"finding with nothing filed", "correctness|finding||", "must name the recorded finding"},
-		{"finding naming one that is not recorded", "correctness|finding|f-nope|", "does not record"},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			raw := []string{tc.arg}
-			if tc.name == "duplicate" {
-				raw = append(raw, tc.arg)
-			}
-			_, err := reviewCriterionDispositions(dispositionPlan(), []string{"unit:api/go/test"}, raw, nil)
-			if err == nil || !strings.Contains(err.Error(), tc.want) {
-				t.Fatalf("err = %v, want one mentioning %q", err, tc.want)
-			}
-		})
+// The builder decodes; it does not judge. A malformed flag is still the
+// command's to refuse, because nothing can be built from it.
+func TestAttestRefusesOnlyMalformedCriterionFlags(t *testing.T) {
+	for _, arg := range []string{"correctness", "correctness|passed", "Not A Slug|passed||", "correctness|passed|a|b|c"} {
+		if _, err := reviewCriterionDispositions(dispositionPlan(), []string{"unit:api/go/test"}, []string{arg}); err == nil || !strings.Contains(err.Error(), "must be ID|disposition|evidence|rationale") {
+			t.Fatalf("%q: err = %v", arg, err)
+		}
 	}
 }
 
-// `finding` says a criterion did not clear and a problem was recorded. Nothing
-// downstream ties the two together — validateBundleAttestation checks the
-// disposition, then only rejects findings that exist and are open — so a
-// criterion marked `finding` with none filed reported a clean closeout for a
-// criterion the reviewer explicitly did not pass. --criterion is what made that
-// reachable by hand.
+// Every answer the reviewer gave reaches the domain as given — an unknown
+// criterion, a duplicate, an invalid disposition, a finding nobody recorded —
+// so the domain writer, not this builder, names what is wrong (spec
+// pose-review-approval-domain-preflight R7). The verdicts themselves are
+// exercised through the command in TestReviewDomainPreflightCLISemanticRefusalsComeFromTheDomain.
+func TestAttestPassesEveryAnswerToTheDomain(t *testing.T) {
+	criteria, err := reviewCriterionDispositions(dispositionPlan(), []string{"unit:api/go/test"}, []string{
+		"correctness|finding|f-nope|",
+		"correctness|passed|unit:api/go/test|",
+		"invented|probably-fine||",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := []string{}
+	for _, c := range criteria {
+		got = append(got, c.ID+"|"+c.Disposition+"|"+c.Evidence)
+	}
+	want := []string{"correctness|finding|f-nope", "correctness|passed|unit:api/go/test", "frontend-accessibility|passed|unit:api/go/test", "invented|probably-fine|"}
+	if strings.Join(got, ",") != strings.Join(want, ",") {
+		t.Fatalf("criteria = %v, want %v", got, want)
+	}
+}
+
+// A finding criterion names the finding the attestation records; the builder
+// keeps both, and the domain ties them together.
 func TestAttestTiesAFindingCriterionToARecordedFinding(t *testing.T) {
-	filed := []posemodel.ReviewFinding{{ID: "f-1", Severity: "medium", Disposition: "resolved"}}
 	criteria, err := reviewCriterionDispositions(dispositionPlan(), []string{"unit:api/go/test"},
-		[]string{"correctness|finding|f-1|the race is filed and fixed"}, filed)
+		[]string{"correctness|finding|f-1|the race is filed and fixed"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,9 +89,5 @@ func TestAttestTiesAFindingCriterionToARecordedFinding(t *testing.T) {
 		if c.ID == "correctness" && (c.Disposition != "finding" || c.Evidence != "f-1") {
 			t.Errorf("criterion = %+v", c)
 		}
-	}
-	if _, err := reviewCriterionDispositions(dispositionPlan(), []string{"unit:api/go/test"},
-		[]string{"correctness|finding|f-1|"}, nil); err == nil {
-		t.Error("a finding criterion was accepted with no finding recorded")
 	}
 }

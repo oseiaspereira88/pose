@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -226,6 +227,235 @@ func TestReviewDomainPreflightCLIRefusesASupersededBundle(t *testing.T) {
 	if after := reviewArtifactFiles(t, root); !reflect.DeepEqual(after, before) {
 		t.Fatalf("the refusal changed review artifacts:\n%v\n%v", before, after)
 	}
+}
+
+// cliBuiltAttestation is the attestation `pose review attest` builds from args:
+// the same decoders, so a test can hand the Store exactly what the command
+// would have written.
+func cliBuiltAttestation(t *testing.T, bundle posemodel.ReviewBundle, decision string, evidence, criteria, tools, findings []string) posemodel.ReviewAttestation {
+	t.Helper()
+	plan := posemodel.ReviewPlan{Criteria: bundle.Payload.Plan.Criteria, Tools: bundle.Payload.Plan.Tools, Structure: bundle.Payload.Plan.Structure}
+	decodedTools, err := decodeReviewToolDispositions(plan, tools)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decodedFindings, err := parseCLIReviewFindings(findings)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decodedCriteria, err := reviewCriterionDispositions(plan, evidence, criteria)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return posemodel.ReviewAttestation{BundleID: bundle.BundleID, BundleDigest: bundle.BundleDigest, Reviewer: "agent:reviewer", Decision: decision,
+		Criteria: decodedCriteria, Tools: decodedTools, EvidenceRefs: evidence, Findings: decodedFindings}
+}
+
+func cliAttestArgs(bundleID, decision string, evidence, criteria, tools, findings []string, apply bool) []string {
+	args := []string{"attest", bundleID, "--reviewer", "agent:reviewer", "--decision", decision}
+	for _, value := range evidence {
+		args = append(args, "--evidence", value)
+	}
+	for _, value := range criteria {
+		args = append(args, "--criterion", value)
+	}
+	for _, value := range tools {
+		args = append(args, "--tool", value)
+	}
+	for _, value := range findings {
+		args = append(args, "--finding", value)
+	}
+	if apply {
+		args = append(args, "--apply")
+	}
+	return args
+}
+
+func refusalBlockers(output string) []string {
+	lines := []string{}
+	for _, line := range strings.Split(output, "\n") {
+		if strings.HasPrefix(strings.TrimSpace(line), "- ") {
+			lines = append(lines, strings.TrimPrefix(strings.TrimSpace(line), "- "))
+		}
+	}
+	return lines
+}
+
+// F1 of the first independent review, R7: every semantic defect the command
+// used to refuse in its own flag parser — with its own message, exit 2, one
+// defect at a time — now reaches the domain writer, and the command reports
+// the domain's typed refusal: the same blockers the Store returns for the
+// attestation the command builds, all of them at once, nothing written.
+func TestReviewDomainPreflightCLISemanticRefusalsComeFromTheDomain(t *testing.T) {
+	validTools := []string{"artifact-check|-|passed|check:artifact|", "validate|pose-mcp|passed|validation:module|"}
+	for _, tc := range []struct {
+		name            string
+		criteria, tools []string
+		findings        []string
+		want            []string
+	}{
+		{name: "finding naming one that is not recorded", criteria: []string{"correctness|finding|f-nope|"}, tools: validTools,
+			want: []string{"criterion correctness names finding f-nope, which this attestation does not record"}},
+		{name: "finding naming none", criteria: []string{"correctness|finding||"}, tools: validTools,
+			want: []string{"criterion correctness is disposed as a finding and names none"}},
+		{name: "not-applicable without a reason", criteria: []string{"correctness|not-applicable||"}, tools: validTools,
+			want: []string{"criterion correctness lacks not-applicable rationale"}},
+		{name: "unknown disposition", criteria: []string{"correctness|probably-fine||"}, tools: validTools,
+			want: []string{"criterion correctness has invalid disposition"}},
+		{name: "criterion not in the plan", criteria: []string{"invented|passed|unit:x|"}, tools: validTools,
+			want: []string{"unknown criterion invented"}},
+		{name: "duplicate criterion", criteria: []string{"correctness|passed|unit:x|", "correctness|passed|unit:x|"}, tools: validTools,
+			want: []string{"duplicate criterion correctness"}},
+		{name: "tool not in the plan", tools: append([]string{"invented-tool|-|passed|check:x|"}, validTools...),
+			want: []string{"unknown review tool disposition invented-tool"}},
+		{name: "required tool omitted", tools: validTools[:1],
+			want: []string{"missing required review tool disposition validate (component pose-mcp)"}},
+		{name: "several defects at once", criteria: []string{"correctness|finding|f-nope|", "invented|passed|unit:x|"}, tools: validTools[:1],
+			want: []string{"names finding f-nope", "unknown criterion invented", "missing required review tool disposition validate"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := reviewBundleCLIFixture(t)
+			bundle, evidence := sealCLIBundle(t, root)
+			att := cliBuiltAttestation(t, bundle, "approved", []string{evidence}, tc.criteria, tc.tools, tc.findings)
+			before := reviewArtifactFiles(t, root)
+
+			_, err := (posemodel.Store{Root: root}).RecordReviewAttestation(att, time.Now())
+			var refusal *posemodel.ReviewApprovalRefusal
+			if !errors.As(err, &refusal) {
+				t.Fatalf("Store: want a typed refusal, got %v", err)
+			}
+			for _, want := range tc.want {
+				if !containsText(refusal.Blockers, want) {
+					t.Fatalf("Store blockers %v lack %q", refusal.Blockers, want)
+				}
+			}
+			for _, apply := range []bool{false, true} {
+				var out, errOut bytes.Buffer
+				code := cmdReview(root, cliAttestArgs(bundle.BundleID, "approved", []string{evidence}, tc.criteria, tc.tools, tc.findings, apply), &out, &errOut)
+				output := out.String() + errOut.String()
+				if code != 1 || !strings.Contains(output, "nothing was written") {
+					t.Fatalf("CLI apply=%t: code=%d, want the domain refusal (exit 1): %s", apply, code, output)
+				}
+				if got := refusalBlockers(output); !reflect.DeepEqual(got, refusal.Blockers) {
+					t.Fatalf("CLI apply=%t blockers diverged from the Store:\n%v\n%v", apply, got, refusal.Blockers)
+				}
+			}
+			if after := reviewArtifactFiles(t, root); !reflect.DeepEqual(after, before) {
+				t.Fatalf("a refused approval wrote review artifacts:\n%v\n%v", before, after)
+			}
+		})
+	}
+}
+
+// F1, signed import: the attestation with several defects, signed by a
+// trusted issuer, is refused by the import with the very blockers the CLI and
+// the Store report.
+func TestReviewDomainPreflightSignedImportAgreesOnSeveralDefects(t *testing.T) {
+	root, private, public := preflightIssuerFixture(t)
+	bundle, evidence := sealCLIBundle(t, root)
+	criteria := []string{"correctness|finding|f-nope|", "invented|passed|unit:x|"}
+	tools := []string{"artifact-check|-|passed|check:artifact|"}
+	store := posemodel.Store{Root: root}
+	now := time.Now()
+	att := cliBuiltAttestation(t, bundle, "approved", []string{evidence}, criteria, tools, nil)
+	domain := store.PreflightReviewAttestation(att, now)
+	for _, want := range []string{"names finding f-nope", "unknown criterion invented", "missing required review tool disposition validate"} {
+		if !containsText(domain, want) {
+			t.Fatalf("fixture: domain blockers %v lack %q", domain, want)
+		}
+	}
+	completed, canonical, err := store.SignableReviewAttestation(att, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	envelope := posemodel.ReviewAttestationEnvelope{SchemaVersion: 1, Issuer: "fixture", Subject: bundle.BundleID, Algorithm: "ed25519",
+		PublicKey: base64.StdEncoding.EncodeToString(public), Signature: base64.StdEncoding.EncodeToString(ed25519.Sign(private, canonical)), Attestation: completed}
+	raw, _ := json.Marshal(envelope)
+	if err := os.WriteFile(filepath.Join(root, "envelope.json"), raw, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	before := reviewArtifactFiles(t, root)
+	var out, errOut bytes.Buffer
+	code := cmdReview(root, cliAttestArgs(bundle.BundleID, "approved", []string{evidence}, criteria, tools, nil, true), &out, &errOut)
+	if got := refusalBlockers(out.String() + errOut.String()); code != 1 || !reflect.DeepEqual(got, domain) {
+		t.Fatalf("CLI code=%d diverged from the domain:\n%v\n%v", code, got, domain)
+	}
+	for _, importArgs := range [][]string{{"attest", "--envelope", "envelope.json"}, {"attest", "--envelope", "envelope.json", "--apply"}} {
+		out.Reset()
+		errOut.Reset()
+		code := cmdReview(root, importArgs, &out, &errOut)
+		if got := refusalBlockers(out.String() + errOut.String()); code != 1 || !reflect.DeepEqual(got, domain) {
+			t.Fatalf("signed import %v code=%d diverged from the domain:\n%v\n%v", importArgs, code, got, domain)
+		}
+	}
+	if after := reviewArtifactFiles(t, root); !reflect.DeepEqual(after, before) {
+		t.Fatalf("a refused approval wrote review artifacts:\n%v\n%v", before, after)
+	}
+}
+
+// F1, R4: a legitimate negative that omits the approval's judgment criteria
+// and required tools is recorded by the CLI, the Store and a signed import
+// alike; the approval bar is not the negative's. The same omissions on an
+// approval are refused by the domain, through the command.
+func TestReviewDomainPreflightNegativesOweNoApprovalAnswers(t *testing.T) {
+	t.Run("judgment criterion omitted", func(t *testing.T) {
+		root := judgmentReviewCLIFixture(t)
+		var out, errOut bytes.Buffer
+		code := cmdReview(root, []string{"attest", "spec:alpha", "--reviewer", "agent:reviewer", "--decision", "approved", "--evidence", "integration:val-alpha", "--apply"}, &out, &errOut)
+		if output := out.String() + errOut.String(); code != 1 || !containsText(refusalBlockers(output), "missing criterion correctness") {
+			t.Fatalf("an approval without its judgment was not refused by the domain: code=%d %s", code, output)
+		}
+		for _, decision := range []string{"changes-requested", "rejected"} {
+			out.Reset()
+			errOut.Reset()
+			if code := cmdReview(root, []string{"attest", "spec:alpha", "--reviewer", "agent:reviewer", "--decision", decision, "--evidence", "integration:val-alpha", "--apply"}, &out, &errOut); code != 0 {
+				t.Fatalf("%s without the approval judgment was refused: code=%d %s %s", decision, code, out.String(), errOut.String())
+			}
+		}
+		atts, err := (posemodel.Store{Root: root}).ListReviewAttestations("")
+		if err != nil || len(atts) != 2 {
+			t.Fatalf("want the two negatives recorded: %d %v", len(atts), err)
+		}
+	})
+	t.Run("required tools omitted", func(t *testing.T) {
+		// The CLI.
+		root := reviewBundleCLIFixture(t)
+		bundle, evidence := sealCLIBundle(t, root)
+		var out, errOut bytes.Buffer
+		if code := cmdReview(root, cliAttestArgs(bundle.BundleID, "changes-requested", []string{evidence}, []string{"correctness|finding|f1|"}, nil, []string{"f1|high|open|fix it|-"}, true), &out, &errOut); code != 0 {
+			t.Fatalf("CLI refused a negative without tools: code=%d %s %s", code, out.String(), errOut.String())
+		}
+		// The Store, with what the command builds.
+		root = reviewBundleCLIFixture(t)
+		bundle, evidence = sealCLIBundle(t, root)
+		att := cliBuiltAttestation(t, bundle, "rejected", []string{evidence}, []string{"correctness|finding|f1|"}, nil, []string{"f1|high|open|fix it|-"})
+		if _, err := (posemodel.Store{Root: root}).RecordReviewAttestation(att, time.Now()); err != nil {
+			t.Fatalf("Store refused a negative without tools: %v", err)
+		}
+		// A signed import of the same negative.
+		root, private, public := preflightIssuerFixture(t)
+		bundle, evidence = sealCLIBundle(t, root)
+		store := posemodel.Store{Root: root}
+		att = cliBuiltAttestation(t, bundle, "changes-requested", []string{evidence}, []string{"correctness|finding|f1|"}, nil, []string{"f1|high|open|fix it|-"})
+		completed, canonical, err := store.SignableReviewAttestation(att, time.Now())
+		if err != nil {
+			t.Fatal(err)
+		}
+		envelope := posemodel.ReviewAttestationEnvelope{SchemaVersion: 1, Issuer: "fixture", Subject: bundle.BundleID, Algorithm: "ed25519",
+			PublicKey: base64.StdEncoding.EncodeToString(public), Signature: base64.StdEncoding.EncodeToString(ed25519.Sign(private, canonical)), Attestation: completed}
+		raw, _ := json.Marshal(envelope)
+		if err := os.WriteFile(filepath.Join(root, "envelope.json"), raw, 0o600); err != nil {
+			t.Fatal(err)
+		}
+		out.Reset()
+		errOut.Reset()
+		if code := cmdReview(root, []string{"attest", "--envelope", "envelope.json", "--apply"}, &out, &errOut); code != 0 {
+			t.Fatalf("signed import refused a negative without tools: code=%d %s %s", code, out.String(), errOut.String())
+		}
+		if got := onlyAttestation(t, root); got.Decision != "changes-requested" {
+			t.Fatalf("recorded %q", got.Decision)
+		}
+	})
 }
 
 func containsText(values []string, want string) bool {

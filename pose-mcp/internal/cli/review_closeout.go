@@ -770,7 +770,9 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	plan := posemodel.ReviewPlan{Criteria: bundle.Payload.Plan.Criteria, Tools: bundle.Payload.Plan.Tools, Structure: bundle.Payload.Plan.Structure}
-	tools, err := reviewToolDispositions(plan, rawTools, true)
+	// The flags are decoded here; their admissibility is judged once, by the
+	// domain writer every channel shares (spec pose-review-approval-domain-preflight R7).
+	tools, err := decodeReviewToolDispositions(plan, rawTools)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
 		return 2
@@ -781,7 +783,7 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	sort.Strings(evidence)
-	criteria, err := reviewCriterionDispositions(plan, evidence, rawCriteria, parsedFindings)
+	criteria, err := reviewCriterionDispositions(plan, evidence, rawCriteria)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
 		return 2
@@ -1285,84 +1287,60 @@ func renderReviewAttempt(id, scope, digest string, plan posemodel.ReviewPlan, pr
 // on evidence that does not support it, or to leave the closeout blocked.
 // `auto-attest` gained the ability to record `not-applicable` with a rationale;
 // a human reviewer should not have fewer options than the automated path.
-func reviewCriterionDispositions(plan posemodel.ReviewPlan, evidence, raw []string, findings []posemodel.ReviewFinding) ([]posemodel.ReviewCriterion, error) {
-	recordedFindings := map[string]bool{}
-	for _, finding := range findings {
-		recordedFindings[finding.ID] = true
-	}
-	planned := map[string]posemodel.ReviewPlanCriterion{}
-	for _, criterion := range plan.Criteria {
-		planned[criterion.ID] = criterion
-	}
-	overrides := map[string]posemodel.ReviewCriterion{}
+//
+// It decodes the flags and nothing more. Whether an answer is admissible — a
+// criterion the plan does not require, a duplicate, an unknown disposition, a
+// not-applicable without a reason, a finding the attestation does not record,
+// a judgment left unanswered — is the domain writer's verdict, so this command
+// reports the same blockers as Store, signed import and MCP, all of them at
+// once, and does not hold a negative decision to the approval bar (spec
+// pose-review-approval-domain-preflight R4, R7).
+func reviewCriterionDispositions(plan posemodel.ReviewPlan, evidence, raw []string) ([]posemodel.ReviewCriterion, error) {
+	overrides := map[string][]posemodel.ReviewCriterion{}
+	order := []string{}
 	for _, value := range raw {
 		parts := strings.Split(value, "|")
 		if len(parts) < 3 || len(parts) > 4 || posemodel.ValidateSlug(parts[0]) != nil {
 			return nil, fmt.Errorf("criterion must be ID|disposition|evidence|rationale")
 		}
-		criterion, ok := planned[parts[0]]
-		if !ok || !criterion.Required {
-			return nil, fmt.Errorf("criterion disposition does not match a required criterion in the effective plan: %s", parts[0])
-		}
-		if _, seen := overrides[parts[0]]; seen {
-			return nil, fmt.Errorf("duplicate criterion disposition: %s", parts[0])
-		}
 		disposition := posemodel.ReviewCriterion{ID: parts[0], Disposition: parts[1], Evidence: parts[2]}
 		if len(parts) == 4 {
 			disposition.Rationale = parts[3]
 		}
-		switch disposition.Disposition {
-		case "passed", "not-applicable", "finding":
-		default:
-			return nil, fmt.Errorf("criterion %s has invalid disposition %q: expected passed, not-applicable or finding", disposition.ID, disposition.Disposition)
+		if _, seen := overrides[disposition.ID]; !seen {
+			order = append(order, disposition.ID)
 		}
-		// Sealing rejects this too, but saying it here names the flag the
-		// reviewer has to change rather than the artifact they cannot see.
-		if disposition.Disposition == "not-applicable" && disposition.Rationale == "" {
-			return nil, fmt.Errorf("criterion %s is not-applicable and needs a rationale: ID|not-applicable||<why>", disposition.ID)
-		}
-		// `finding` says a criterion did not clear and a problem was recorded.
-		// Nothing downstream ties the two together: validateBundleAttestation
-		// checks the disposition and then only rejects findings that exist and
-		// are open, so a criterion marked `finding` with none filed reports a
-		// clean closeout for a criterion the reviewer explicitly did not pass.
-		// The evidence slot names the finding, which is the reference the
-		// disposition is claiming.
-		if disposition.Disposition == "finding" {
-			if disposition.Evidence == "" {
-				return nil, fmt.Errorf("criterion %s is a finding and must name the recorded finding: ID|finding|<finding-id>|<note>", disposition.ID)
-			}
-			if !recordedFindings[disposition.Evidence] {
-				return nil, fmt.Errorf("criterion %s names finding %q, which this attestation does not record; add it with --finding", disposition.ID, disposition.Evidence)
-			}
-		}
-		overrides[parts[0]] = disposition
+		overrides[disposition.ID] = append(overrides[disposition.ID], disposition)
 	}
-	criteria := make([]posemodel.ReviewCriterion, 0, len(plan.Criteria))
-	unanswered := []string{}
+	criteria := make([]posemodel.ReviewCriterion, 0, len(plan.Criteria)+len(raw))
+	placed := map[string]bool{}
 	for _, criterion := range plan.Criteria {
 		if !criterion.Required {
 			continue
 		}
-		if override, ok := overrides[criterion.ID]; ok {
-			criteria = append(criteria, override)
+		if answers, ok := overrides[criterion.ID]; ok {
+			criteria = append(criteria, answers...)
+			placed[criterion.ID] = true
 			continue
 		}
 		// Defaulting to `passed` was this command's other half of the same
 		// problem auto-attest had: a criterion the reviewer never mentioned
 		// came out approved, citing whichever supplied reference matched. For a
 		// criterion a check answers that is a defensible shortcut. For one only
-		// a reviewer can answer it states a conclusion nobody reached, so the
-		// command asks instead of assuming (spec pose-abm-review-soundness).
+		// a reviewer can answer it states a conclusion nobody reached, so it
+		// stays unanswered and the domain names it missing for an approval
+		// (spec pose-abm-review-soundness).
 		if posemodel.ReviewCriterionKind(criterion) == posemodel.ReviewCriterionKindJudgment {
-			unanswered = append(unanswered, criterion.ID)
 			continue
 		}
 		criteria = append(criteria, posemodel.ReviewCriterion{ID: criterion.ID, Disposition: "passed", Evidence: reviewCriterionEvidence(criterion, evidence)})
 	}
-	if len(unanswered) > 0 {
-		sort.Strings(unanswered)
-		return nil, fmt.Errorf("these criteria need an explicit judgment and have none: %s; record each with --criterion ID|passed|<evidence>|<conclusion>, or not-applicable with a reason, or finding naming a recorded finding", strings.Join(unanswered, ", "))
+	// An answer to a criterion the plan does not require is kept, so the domain
+	// names it rather than the command silently dropping it.
+	for _, id := range order {
+		if !placed[id] {
+			criteria = append(criteria, overrides[id]...)
+		}
 	}
 	return criteria, nil
 }
@@ -1380,19 +1358,9 @@ func reviewToolDispositions(plan posemodel.ReviewPlan, raw []string, componentAw
 	}
 	provided := map[string]posemodel.ReviewToolDisposition{}
 	for _, value := range raw {
-		parts := strings.Split(value, "|")
-		if len(parts) < 4 || len(parts) > 5 || posemodel.ValidateSlug(parts[0]) != nil {
-			return nil, fmt.Errorf("tool must be ID|component|disposition|evidence|rationale")
-		}
-		component := parts[1]
-		if component == "-" {
-			component = ""
-		} else if decoded, err := url.QueryUnescape(component); err == nil {
-			component = decoded
-		}
-		disposition := posemodel.ReviewToolDisposition{ID: parts[0], Component: component, Disposition: parts[2], Evidence: parts[3]}
-		if len(parts) == 5 {
-			disposition.Rationale = parts[4]
+		disposition, err := parseCLIReviewToolDisposition(value)
+		if err != nil {
+			return nil, err
 		}
 		key := cliReviewToolKey(disposition.ID, disposition.Component)
 		tool, ok := planned[key]
@@ -1426,6 +1394,56 @@ func reviewToolDispositions(plan posemodel.ReviewPlan, raw []string, componentAw
 		return nil, fmt.Errorf("required review tool %s needs --tool evidence", cliReviewToolLabel(tool.ID, tool.Component))
 	}
 	return result, nil
+}
+
+// decodeReviewToolDispositions is the attestation's counterpart of
+// reviewToolDispositions, which the legacy `review record` path keeps because
+// no domain writer judges what it writes. It decodes the flags, keeps every
+// one in order — unknown and duplicate included, so the domain can name them
+// — and fills only the defaults that state no conclusion: a post-review gate
+// deferred, a recommended tool not used. A required tool left out stays out,
+// and the domain writer names it for an approval (spec
+// pose-review-approval-domain-preflight R4, R7).
+func decodeReviewToolDispositions(plan posemodel.ReviewPlan, raw []string) ([]posemodel.ReviewToolDisposition, error) {
+	result := make([]posemodel.ReviewToolDisposition, 0, len(plan.Tools)+len(raw))
+	provided := map[string]bool{}
+	for _, value := range raw {
+		disposition, err := parseCLIReviewToolDisposition(value)
+		if err != nil {
+			return nil, err
+		}
+		provided[cliReviewToolKey(disposition.ID, disposition.Component)] = true
+		result = append(result, disposition)
+	}
+	for _, tool := range plan.Tools {
+		if provided[cliReviewToolKey(tool.ID, tool.Component)] {
+			continue
+		}
+		if cliReviewToolHasPrecondition(tool, "review-complete") {
+			result = append(result, posemodel.ReviewToolDisposition{ID: tool.ID, Component: tool.Component, Disposition: "deferred", Rationale: "post-review gate"})
+		} else if tool.Requiredness == "recommended" {
+			result = append(result, posemodel.ReviewToolDisposition{ID: tool.ID, Component: tool.Component, Disposition: "not-used", Rationale: "not used during review"})
+		}
+	}
+	return result, nil
+}
+
+func parseCLIReviewToolDisposition(value string) (posemodel.ReviewToolDisposition, error) {
+	parts := strings.Split(value, "|")
+	if len(parts) < 4 || len(parts) > 5 || posemodel.ValidateSlug(parts[0]) != nil {
+		return posemodel.ReviewToolDisposition{}, fmt.Errorf("tool must be ID|component|disposition|evidence|rationale")
+	}
+	component := parts[1]
+	if component == "-" {
+		component = ""
+	} else if decoded, err := url.QueryUnescape(component); err == nil {
+		component = decoded
+	}
+	disposition := posemodel.ReviewToolDisposition{ID: parts[0], Component: component, Disposition: parts[2], Evidence: parts[3]}
+	if len(parts) == 5 {
+		disposition.Rationale = parts[4]
+	}
+	return disposition, nil
 }
 
 func validateCLIReviewToolDisposition(tool posemodel.ReviewPlanTool, disposition posemodel.ReviewToolDisposition) error {

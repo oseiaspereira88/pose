@@ -80,6 +80,9 @@ afirmar a recusa ou a semear histórico explicitamente.
 - modified: .pose/roadmaps/pose-consolidation-program.md
 - modified: .pose/roadmaps/record-truthfulness.md
 - created: .pose/results/b02-implementation-validation.json
+- modified: pose-mcp/internal/cli/review_closeout_test.go
+- modified: pose-mcp/internal/cli/review_criterion_disposition_test.go
+- created: .pose/reports/2026-10-16-pose-b02-domain-preflight-review.md
 
 ### Delivery targets
 
@@ -116,6 +119,7 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Move the approval preflight into the shared domain writer with a typed refusal.
 - [x] Converge CLI (attest, sign, envelope import, auto-attest) and MCP on the domain result.
 - [x] Exercise V1–V7 in domain, CLI, signed import and MCP HTTP consumer; adapt fixtures that persisted invalid approvals.
+- [x] Remediate F1 of the first independent review: the ordinary CLI decodes criterion and tool flags only and reports the domain's refusal.
 - [ ] Strict module validation, artifact/surface evidence and separate different-actor review.
 - [ ] Native closeout, reconcile matrix/roadmaps and PR with final-head CI/Security.
 
@@ -165,10 +169,10 @@ was required.
 - R1 [satisfied] test:TestReviewDomainPreflightKeepsEverySemanticBlocker; test:TestReviewDomainPreflightRefusesReservationsWithInvalidRisk
 - R2 [satisfied] test:TestReviewDomainPreflightRefusesTheSameApprovalOnEveryChannel; test:TestReviewDomainPreflightCLIImportAndMCPAgreeWithTheDomain
 - R3 [satisfied] test:TestReviewDomainPreflightLeavesHistoryAlone; test:TestABMReviewSoundnessOrphanFindingRefusedByStore
-- R4 [satisfied] test:TestReviewDomainPreflightRecordsNegativesButKeepsChannelProof; test:TestReviewDomainPreflightCLIRecordsANegative
+- R4 [satisfied] test:TestReviewDomainPreflightRecordsNegativesButKeepsChannelProof; test:TestReviewDomainPreflightCLIRecordsANegative; test:TestReviewDomainPreflightNegativesOweNoApprovalAnswers
 - R5 [satisfied] test:TestReviewDomainPreflightValidApprovalAndRetryKeepIdentity; test:TestReviewDomainPreflightRefusesStaleOrSupersededBundles; test:TestReviewDomainPreflightCLIRefusesASupersededBundle
 - R6 [satisfied] test:TestReviewDomainPreflightSignatureIsNotApproval; test:TestReviewAssuranceKeepsIdentitySeparateFromApproval
-- R7 [satisfied] test:TestReviewDomainPreflightCLIImportAndMCPAgreeWithTheDomain; test:TestReviewDomainPreflightRefusesTheSameApprovalOnEveryChannel
+- R7 [satisfied] test:TestReviewDomainPreflightCLIImportAndMCPAgreeWithTheDomain; test:TestReviewDomainPreflightRefusesTheSameApprovalOnEveryChannel; test:TestReviewDomainPreflightCLISemanticRefusalsComeFromTheDomain; test:TestReviewDomainPreflightSignedImportAgreesOnSeveralDefects
 
 Regressions passed (Go 1.26.0): `go test ./internal/pose ./internal/cli
 ./internal/mcpserver -run 'ReviewDomainPreflight|ABMReviewAuthority|ABMReviewSoundness|ABMGolden|ReviewAssurance|LegacyLedger|NativeAndExternal|NativeAuthority|SignedPreview|AnAgentConfirmation|CompletedReviewRetention|AuthorityProject|ReviewAttestationEnvelope|ReviewAttest' -count=1`.
@@ -176,6 +180,28 @@ Full `go test ./... -count=1` passes as a non-root user; as root, three
 `internal/cli` state-hook tests fail identically on main 1aec323a because
 `chmod 0500` does not block root writes. `go vet ./...` clean.
 This trace records functional regressions, not formal closeout.
+
+First independent review (2026-10-16, `agent:independent-gpt-6.1-sol-review`,
+[report](../reports/2026-10-16-pose-b02-domain-preflight-review.md)) requested
+changes on F1 (medium): `pose review attest` still refused criterion and tool
+answers in its own flag parser (exit 2, its own message, one defect at a time)
+before the domain writer, and demanded approval judgments and required tools
+from a negative decision. Remediation: `reviewCriterionDispositions` and the new
+`decodeReviewToolDispositions` decode syntax only and keep every answer —
+unknown and duplicate included — for the domain to judge; only defaults that
+state no conclusion are filled (a mechanical criterion passed on a supplied ref,
+a post-review gate deferred, a recommended tool not used), and an unanswered
+judgment or omitted required tool stays out, so the domain names it for an
+approval and a negative does not owe it. The legacy `pose review record` path,
+which no domain writer judges, keeps its own validation through
+`reviewToolDispositions`. New regressions drive orphan and nameless findings,
+reasonless not-applicable, invalid disposition, unknown/duplicate criterion,
+unknown and omitted required tool, and several defects at once through the
+command, comparing its blockers with the Store's typed refusal for the
+attestation the command builds, plus the signed import; and record
+changes-requested/rejected without the approval judgment or required tools
+through the CLI, the Store and a signed import. The parser unit tests now assert
+decoding only. `go vet ./...` and `go test ./... -count=1` pass.
 
 ## 7. Final Report
 
@@ -187,7 +213,7 @@ native closeout are not promoted from code or merge.
 
 ### Residual risks
 
-Este delta recusa gravações antes aceitas que o verify já reprovava (classificado como minor). Cada aprovação agora prepara o bundle atual para conferir que não está stale, com custo proporcional a `pose review bundle`. O caminho legado de `pose review record` sem review bundles grava attempts `.pose/reviews` e não passa por este writer; está fora do escopo de B02. Não apaga nem reescreve registros históricos inválidos; inventário/coverage são B06. Auditoria de refusal só pode ser alegada se existir mecanismo explicitamente especificado e autorizado.
+Este delta recusa gravações antes aceitas que o verify já reprovava (classificado como minor). Defeitos semânticos em `--criterion`/`--tool` do `pose review attest` passam a sair com a recusa tipada do domínio (exit 1, todos os blockers) em vez do erro próprio do parser (exit 2). Para uma ferramenta apenas recomendada, `not-used` sem justificativa ou `deferred` fora de gate pós-review agora chegam ao domínio, que os trata como aviso, não blocker, como já fazia para Store/import/MCP. Os `--mapping` mantêm a checagem de endereçamento do CLI (o critério precisa responder por estrutura), porque o domínio ignora mapeamentos de outros critérios. Cada aprovação agora prepara o bundle atual para conferir que não está stale, com custo proporcional a `pose review bundle`. O caminho legado de `pose review record` sem review bundles grava attempts `.pose/reviews` e não passa por este writer; está fora do escopo de B02. Não apaga nem reescreve registros históricos inválidos; inventário/coverage são B06. Auditoria de refusal só pode ser alegada se existir mecanismo explicitamente especificado e autorizado.
 
 ### Follow-ups
 
