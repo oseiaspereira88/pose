@@ -447,7 +447,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "start",
 		SummaryEN:       "Preview or apply the atomic start of a draft spec",
 		SummaryPtBR:     "Visualiza ou aplica o início atômico de uma spec draft",
-		Usage:           "pose start spec:<slug> [--json] | --apply --digest <sha256> | --status [--json] | --cancel",
+		Usage:           "pose start spec:<slug> [--json] | --apply --digest <sha256> [--json] | --status [--json] | --cancel",
 		DescriptionEN:   "Preview is read-only: readiness, dependencies, declared review obligations and the R/A/D baseline in a digest-bound plan. --apply records that baseline and moves the spec from draft to in-progress under a per-spec lock; it needs atomic_start_version in the review policy and is idempotent and resumable. --status classifies nodes as recorded before managed execution, introduced during it, or legacy-unbaselined. A start records observable precedence, never when anything was decided.",
 		DescriptionPtBR: "Preview é somente leitura: readiness, dependências, obrigações de review declaradas e a baseline R/A/D num plano vinculado a digest. --apply grava essa baseline e move a spec de draft para in-progress com lock por spec; exige atomic_start_version na policy de review e é idempotente e retomável. --status classifica os nós como registrados antes da execução gerenciada, introduzidos durante ela ou legacy-unbaselined. Um start registra precedência observável, nunca quando algo foi decidido.",
 		Flags: []FlagHelp{
@@ -466,7 +466,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "close",
 		SummaryEN:       "Apply review-gated lifecycle closeout to a spec or milestone",
 		SummaryPtBR:     "Aplica fechamento governado com portão de review em spec ou marco",
-		Usage:           "pose close <scope|xref> [--expect-context <digest>] [--json] | pose close spec:<slug> --plan|--apply|--resume [--reviewer agent:<id>] [--digest <plan digest>]",
+		Usage:           "pose close <scope|xref> [--expect-context <digest>] | pose close spec:<slug> --plan [--json] | --apply|--resume [--reviewer agent:<id>] [--digest <plan digest>] [--skip-evidence] [--json]",
 		DescriptionEN:   "Transitions a completed specification (or milestone) after verifying review and delivery gates. Cross-project close requires an explicit project binding and fresh context digest.",
 		DescriptionPtBR: "Transiciona uma spec (ou marco) para status: done após verificar se atestações de review, rastreio de requisitos e garantias de entrega foram cumpridos.",
 		Flags: []FlagHelp{

@@ -114,3 +114,17 @@ Qualificar tokens, compatibilidade, empates, mutação e paridade entre consumid
 - Preservar identidade de worktree, histórico e compatibilidade; não alegar sandbox pelo check antes/depois.
 - Consumir evidência real de corrida/crash/retry quando o delta correspondente existir.
 - Não encerrar este roadmap pelo aceite isolado de parte dos sete members ou por resolução de suas refs.
+
+B12 (`pose-cli-mcp-operation-results`) atingiu closeout nativo em
+2026-10-16 no PR #186. O resultado tipado, os parsers estritos, o erro MCP
+inconclusivo e o journal foram qualificados por revisão different-actor
+Codex/OpenAI frente a Claude/Anthropic: F1–F13 fechados, 26 contraprovas,
+15 probes com controles preservados, vet, suíte completa, race e quickstart.
+Validação de implementação no head 16151559: global strict 134/134 e módulo
+131/131. Identidade e separação declaradas, sem assinatura ou confirmação humana.
+O [parecer, Eighth round](../reports/2026-10-16-pose-b12-operation-results-review.md)
+e a [evidência](../results/b12-independent-review.json) identificam os selos,
+atestações e gates atuais. A matriz registra B12 delivery_complete=true;
+o programa continua ativo e este roadmap conserva status draft. Aguardar merge de #186 pelo
+maintainer e reavaliar DAG/readiness nativa, sem selecionar nova implementação,
+policy, capability ou adoção neste closeout.

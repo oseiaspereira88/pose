@@ -1,8 +1,8 @@
 ---
 slug: pose-cli-mcp-operation-results
-status: draft
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-16
 depends_on: pose-recoverable-closeout-plan
 priority: 1
 components: pose-mcp
@@ -49,35 +49,90 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-4-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
+Paths reconciliados na main 1a278aff antes do start. A escrita original
+pertence ao lote documental 4; este delta implementa somente B12. As rotas
+afetadas são `close --apply|--resume`, `continuous-closeout status`, os
+parsers de `close`, `start` e `specs`, o adapter de subprocesso dos gates MCP
+(`runCLIExit`/`runCLI`), `pose_list_specs` e o journal de uso. `--plan --json`
+e os documentos de `start` mantêm o formato. O consumidor MCP é exercitado por
+`callToolCtx` com prazo controlado e pelo transporte HTTP JSON-RPC.
 
-- created: .pose/specs/2026-10-13-pose-cli-mcp-operation-results.md
+- modified: .pose/specs/2026-10-13-pose-cli-mcp-operation-results.md
 - created: .pose/starts/pose-cli-mcp-operation-results.json
 - created: .pose/changelogs/unreleased/pose-cli-mcp-operation-results.md
-- modified: pose-mcp/internal/cli/closeout_plan.go
-- modified: pose-mcp/internal/cli/start.go
+- created: .pose/adr/2026-10-16-operation-results-separate-execution-from-verdict.md
 - created: pose-mcp/internal/pose/operation_result.go
 - created: pose-mcp/internal/pose/operation_result_test.go
+- modified: pose-mcp/internal/pose/cli.go
+- modified: pose-mcp/internal/pose/spec.go
+- modified: pose-mcp/internal/pose/start.go
+- modified: pose-mcp/internal/cli/closeout_plan.go
+- modified: pose-mcp/internal/cli/start.go
+- modified: pose-mcp/internal/cli/specs_cmd.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/usage.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
 - created: pose-mcp/internal/cli/operation_results_test.go
+- modified: pose-mcp/internal/mcpserver/server.go
 - created: pose-mcp/internal/mcpserver/operation_results_test.go
+- modified: pose-mcp/internal/usage/usage.go
+- modified: pose-mcp/internal/usage/usage_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: .pose/results/b12-front07-probes.json
+- created: .pose/results/b12-implementation-validation.json
+- modified: .pose/results/pose-implementation-plan.json
+- modified: .pose/roadmaps/pose-consolidation-program.md
+- modified: .pose/roadmaps/pose-state-consistency-and-recovery.md
 
 ### Delivery targets
 
-- capability:cli-mcp-operation-results module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/closeout_plan.go
+- capability:cli-mcp-operation-results module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/operation_result.go
 
 ### Approach and execution gates
 
-Mapear rotas/parsers e adapter subprocess no source atual e reconciliar seus paths antes de start. Definir schema, classificação e compatibilidade em ADR prospectivo antes do código estrutural. Reutilizar diagnostics e closeout plan; propagar context em vez de traduzir timeout em verdict. Manter result rendering e exit mapping nos adapters, com efeitos observados pelo domínio. B12 é raiz; B13 consumirá o resultado para recovery, sem implementar publisher CAS geral (B14) ou daemon (B35).
+Contrato no ADR `2026-10-16-operation-results-separate-execution-from-verdict`.
+`internal/pose.OperationResult` (schema 1) carrega operation, scope, outcome,
+step, steps_run, pending, next_action, effects confirmados, unconfirmed,
+resumable, error tipado e data. Outcomes disjuntos: completed,
+already-satisfied, waiting, blocked, conflict, failed, inconclusive. Rendering
+e exit mapping ficam nos adapters; os exit codes documentados (0, 1, 2, 3) não
+mudam. `close --apply|--resume` monta o resultado num laço sem escrita em
+stdout e renderiza humano ou JSON a partir dele; um efeito só é confirmado
+depois que o replanejamento o reflete, e um passo que falhou depois de poder
+ter escrito vai para `unconfirmed`. `runCLIExit`/`runCLI` consultam o contexto
+antes do `*exec.ExitError` e devolvem `*GateExecutionError` com causa, saída
+parcial e limite de cleanup, com `WaitDelay` para não segurar a chamada; o MCP
+o mapeia para `error_code: execution_inconclusive`. Parsers recusam com exit 2
+antes de ler. O journal ganha `waiting`, `duration_unknown` e
+`duration_samples`. Compatibilidade: recusas mais estritas e JSON novo onde
+havia texto; classificado como minor, não patch (D2).
 
-Antes de executar, aceitar o escopo de implementação, avaliar readiness nativa,
-executar assessment freshness no componente, completar o plano de artefatos,
-registrar produtores de evidência na matriz e criar a baseline por start.
-Não contornar dependência não terminal apenas porque o código parece presente.
+B12 é raiz; B13 consumirá o resultado para recovery, sem implementar publisher
+CAS geral (B14) ou daemon (B35). Propagação de contexto dentro de chamadas de
+domínio em processo do CLI fica fora: o processo do CLI termina pelo sinal.
+
+## 4. Tasks
+
+- [x] Context, readiness, assessment freshness e reconciliação de rotas e paths contra a main 1a278aff.
+- [x] ADR prospectivo de schema, classificação e compatibilidade antes do código estrutural.
+- [x] Native start com R1–R9/D1 preservados.
+- [x] OperationResult no domínio; close apply/resume e continuous status sobre ele; parsers estritos de close, start, specs e pose_list_specs.
+- [x] Gate subprocess classificado pelo contexto antes do exit status; MCP com erro inconclusivo tipado.
+- [x] Journal de uso com waiting e duração desconhecida.
+- [x] V1–V8 nos consumidores CLI, domínio e MCP; probes P03/P06/P07/P08 antes e depois (controles inalterados); validação estrita do módulo 131/131 em aa9e9a17.
+- [x] Remediar F1–F4 da primeira revisão independente: efeito de evidência confirmado só pela observação do resultado publicado; falhas operacionais das rotas JSON como um documento; `pose_list_specs` estrito em argumentos, zeros explícitos e since vazio; `specs facts` estrito.
+- [x] Remediar a segunda revisão independente: F1 confirmado pela saída de escrita desta execução do validate; F3 `null` explícito e `sort: "slug"` anunciado (F7); F5 resultado parcial de start com baseline publicada e retomada; F6 `--json` recusado no close sem modo de plano.
+- [x] Remediar a terceira revisão independente: F1 confirmado pelo arquivo (bytes diferentes do snapshot anterior e `generated_at` desta execução), não pelo texto; F8 retomada do start a partir do registro (`ResumeStart`) depois que a spec mudou, sem prometer retomada em conflito CAS.
+- [x] Remediar a quarta revisão independente: F9 a retomada só conclui uma transição já publicada e uma spec que não mudou volta ao plano atual e às restrições governadas; F10 a saída humana de uma retomada que falha mantém efeitos, passos não confirmados e próxima ação.
+- [x] Remediar a quinta revisão independente: F11 `StartRecovery` classifica o que o digest registrado ainda pode fazer; baseline ultrapassada pelo repositório e spec alterada sob o start viram conflito com orientação de cancel e novo preview, e só a transição publicada ou o plano inalterado são retomáveis.
+- [x] Remediar a sexta revisão independente: F12 a falha do start lista como efeito confirmado a transição publicada (spec `in-progress`, com o path) e `steps_run` registra só os passos desta chamada (baseline, transição, registro), separando a retomada dos efeitos herdados, nos dois renderers.
+- [x] Remediar a sétima revisão independente: F13 um registro de start ilegível (escrita da baseline interrompida) aparece no recibo com o passo `baseline` falho e não confirmado e a orientação de inspecionar e remover o registro antes de novo preview; a retomada mantém a orientação e preserva os bytes.
+- [x] Revisão por ator diferente, closeout nativo e PR #186; merge permanece com o maintainer.
 
 ## 5. Decisions
 
@@ -85,6 +140,12 @@ Não contornar dependência não terminal apenas porque o código parece present
 - Basis: R1, R2, R4, R5, R6, R7
 - Decision: Separar outcome operacional, verdict, coverage e efeitos no resultado comum.
 - Rationale: Espera, timeout e falha após publicação não são o mesmo fato nem permitem o mesmo retry.
+
+### Decision D2
+- Basis: R2, R3, R7
+- Decision: Manter os documentos JSON que já têm contrato (`--plan --json`, plano e registro de `start`, `GateResult`) e introduzir o resultado comum só onde a chamada não tinha JSON ou imprimia texto no lugar do JSON que aceitava.
+- Rationale: Trocar todos os JSON por um envelope quebraria consumidores sem acrescentar fato; o timeout vira erro tipado, não um campo novo em `GateResult`, para que nenhum consumidor leia `passed=false` como veredito.
+- Consequences: Recusas mais estritas mudam a semântica pública de invocações antes toleradas; classificado como minor.
 
 ## 6. Validation
 
@@ -109,24 +170,24 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Testes de execução e contraprovas independentes estão registrados no parecer de 2026-10-16, Eighth round, e na evidência `b12-independent-review.json`.
 
 ### Requirement trace
 
-Trace planejado; vincular os casos aos produtores reais na implementação.
-Não declarar requisitos funcionais satisfeitos pelo lint.
+- R1 [satisfied] test:TestOperationResultStartsWithRangeableLists; test:TestCloseApplyJSONSeparatesCompletionFromAlreadySatisfied; test:TestContinuousCloseoutStatusJSONSeparatesQueryFromReadiness; test:TestAGateToolStoppedByItsDeadlineIsAnInconclusiveError
+- R2 [satisfied] test:TestCloseApplyJSONReportsWaitingWithPendingAndNextAction; test:TestJSONRoutesReportOperationalFailuresAsOneDocument; test:TestAResumeThatFailsAgainKeepsItsReceiptForPeople; test:TestAStartBaselineWriteCutShortIsReportedForInspection
+- R3 [satisfied] test:TestCloseAndStartRefuseAmbiguousModesWithoutWriting; test:TestSpecsRefusesInvalidFiltersAndKeepsAliases; test:TestSpecFactsRefusesUnknownFlagsWhereverJSONIs; test:TestListSpecsRefusesFiltersItWouldOtherwiseDrop
+- R4 [satisfied] test:TestCloseApplyJSONReportsWaitingWithPendingAndNextAction; test:TestCloseApplyJSONSeparatesCompletionFromAlreadySatisfied; test:TestContinuousCloseoutStatusJSONSeparatesQueryFromReadiness
+- R5 [satisfied] test:TestAGateKilledByItsDeadlineIsInconclusiveNotFailed; test:TestACancelledGateIsInconclusive; test:TestAJSONQueryKilledByItsDeadlineIsInconclusive; test:TestAGateThatExitsNonZeroInTimeIsStillAVerdict; test:TestAGateToolStoppedByItsDeadlineIsAnInconclusiveError
+- R6 [satisfied] test:TestEvidenceThatValidateCouldNotPublishIsNotAConfirmedEffect; test:TestACheckThatPrintsTheWriteReceiptDoesNotConfirmIt; test:TestAStartThatFailsAfterMovingTheSpecResumesWithTheAdvertisedCommand; test:TestARetriedStartDoesNotOutliveARequestThatNowRestrictsIt; test:TestAStaleStartBaselineIsNotAdvertisedAsResumable; test:TestAStartReceiptNamesThePublishedTransitionAndOnlyItsOwnSteps; test:TestAStartWhoseTransitionFailsClaimsNoSpecEffect; test:TestAStartBaselineWriteCutShortIsReportedForInspection
+- R7 [satisfied] test:TestCloseAndStartRefuseAmbiguousModesWithoutWriting; test:TestListSpecsRefusesFiltersItWouldOtherwiseDrop; test:TestListSpecsKeepsTheAdvertisedSlugOrder; test:TestAGateToolStoppedByItsDeadlineIsAnInconclusiveError; command:tests/quickstart/first-governed-loop.sh
+- R8 [satisfied] test:TestUsageCountsAWaitingCloseAsWaitingNotFailed; test:TestUsageCountsWaitingAndSkipsUnmeasuredDurations; report:.pose/results/b12-independent-review.json#eighth_round.mcp
+- R9 [satisfied] command:.pose/results/2026-10-12-pose-front-07-ux-probes.py; report:.pose/results/b12-independent-review.json#eighth_round; report:.pose/reports/2026-10-16-pose-b12-operation-results-review.md
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1, V4–V6 |
-| R2 | V1 |
-| R3 | V2, V3 |
-| R4 | V4, V8 |
-| R5 | V5 |
-| R6 | V6 |
-| R7 | V1–V3, V7 |
-| R8 | V7 |
-| R9 | V1–V8 |
+Produtores funcionais executados nesta revisão: suíte Go completa, vet, race nos
+quatro pacotes tocados, quickstart, probes CLI/MCP e 26 contraprovas temporárias.
+A evidência preserva cada rodada e os resultados anteriores. Lint não é produtor
+funcional; o limite de contexto em processo e de cleanup consta no ADR.
 
 Consultar também [consistência/recovery](../reports/2026-10-12-pose-front-09-consistency-recovery.md) e [performance](../reports/2026-10-12-pose-front-08-resident-performance.md).
 
@@ -134,14 +195,33 @@ Consultar também [consistência/recovery](../reports/2026-10-12-pose-front-09-c
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 4. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+Entregue B12: OperationResult schema 1 e renderers de close apply/resume e
+continuous status; parsing estrito de close/start/specs e pose_list_specs;
+erros de subprocesso inconclusivos no domínio/MCP; waiting e duração desconhecida
+no journal. Os documentos legados foram preservados conforme D2 e o ADR.
+F1–F13 foram reexaminados e fechados por execução diferente Codex/OpenAI,
+`agent:independent-gpt-6.1-sol-review`, frente ao implementador Claude/Anthropic.
+Identidade e separação declaradas, atestações não assinadas.
+
+Validação independente: global strict 134/134 e módulo strict 131/131;
+go vet, suíte completa, race nos quatro pacotes, quickstart, 15 probes e
+26 contraprovas de produção. Bundle `rvb-6bd4b19097039e81`, atestação
+`rva-87212ea94b920fde`; review verify fresh/approved e close nativo em
+2026-10-16. O [parecer, Eighth round](../reports/2026-10-16-pose-b12-operation-results-review.md)
+e a [evidência de todas as rodadas](../results/b12-independent-review.json)
+registram os resultados, ferramentas e eventuais renovações do selo.
 
 ### Residual risks
 
-Schema, exit mapping e modes são contratos públicos. Enumerar rotas afetadas para evitar envelope de sucesso que esconda falha de transporte/execução. Context cancellation não prova ausência de efeito; o domínio precisa informar o que confirmou. Sem instrumentação suficiente, duração/efeito permanece unknown.
+O envelope não torna a operação atômica. Filhos podem sobreviver ao subprocesso
+cancelado e o CLI não propaga contexto em processo; ambos os limites estão
+no ADR. Recusas mais estritas e a semântica pública são minor; leitores antigos
+do journal recusam waiting. Nenhuma rota MCP de close foi criada. Esses limites
+não são findings dispensados nem afirmação de rollback, coverage ou autorização.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Não há finding residual aberto desta revisão. As unidades B13/B14/B35 e as
+demais obrigações já existentes continuam no programa, sem criação, cobertura,
+duplicação ou encerramento automático. O programa continua ativo; este aceite não encerra seus roadmaps. O merge de
+#186 pertence ao maintainer.

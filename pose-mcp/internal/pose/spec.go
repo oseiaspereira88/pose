@@ -271,19 +271,24 @@ func splitCommaFilter(value string) []string {
 }
 
 // ParseSinceDate parses a relative duration (e.g. "14d", "30d") or ISO date ("2006-01-02").
+// maxSinceDays bounds a "<days>d" window (about 270 years).
+const maxSinceDays = 100000
+
 func ParseSinceDate(val string) (time.Time, error) {
 	val = strings.TrimSpace(val)
 	if strings.HasSuffix(val, "d") {
 		daysStr := strings.TrimSuffix(val, "d")
+		// A day count is bounded so the date arithmetic cannot overflow
+		// into an empty window.
 		days, err := strconv.Atoi(daysStr)
-		if err == nil {
+		if err == nil && days >= 0 && days <= maxSinceDays {
 			return time.Now().UTC().AddDate(0, 0, -days), nil
 		}
 	}
 	if t, err := time.Parse("2006-01-02", val); err == nil {
 		return t, nil
 	}
-	return time.Time{}, fmt.Errorf("invalid since format %q", val)
+	return time.Time{}, fmt.Errorf("invalid since format %q (want YYYY-MM-DD or <days>d)", val)
 }
 
 // splitStatusFilter parses a status filter into its wanted values (see

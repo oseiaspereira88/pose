@@ -80,7 +80,8 @@ type StartStatus struct {
 	CapabilityAdopt bool     `json:"capability_adopted"`
 }
 
-// StartFailureHook lets tests interrupt apply after a phase.
+// StartFailureHook is called after each phase apply reaches: tests return an
+// error to interrupt it, and adapters observe which phases the call reached.
 type StartFailureHook func(phase string) error
 
 func startError(code string) error { return fmt.Errorf("start: %s", code) }
@@ -242,6 +243,111 @@ func (s Store) ApplyStart(plan StartPlan, expectedDigest string, failAfter Start
 			return StartRecord{}, err
 		}
 	}
+	return finishStart(recordPath, specPath, plan.Spec, record, failAfter)
+}
+
+// ResumeStart finishes an apply that recorded its baseline for digest and
+// already moved the spec, then stopped before the record said started. Once
+// the spec moved, a fresh preview has another digest, so the persisted record
+// — not a new plan — names what to finish (spec
+// pose-cli-mcp-operation-results R6). It refuses with
+// transition-not-published when the spec has not moved. failAfter observes
+// the phases it reaches, as in ApplyStart.
+func (s Store) ResumeStart(slug, digest string, failAfter StartFailureHook) (StartRecord, error) {
+	adopted, err := s.AtomicStartAdopted()
+	if err != nil {
+		return StartRecord{}, err
+	}
+	if !adopted {
+		return StartRecord{}, startError("atomic-start-capability-not-adopted")
+	}
+	if ValidateSlug(slug) != nil {
+		return StartRecord{}, startError("invalid-spec")
+	}
+	current, err := s.PreviewStart(slug)
+	if err != nil {
+		return StartRecord{}, err
+	}
+	unlock, err := lockStart(s.Root, slug)
+	if err != nil {
+		return StartRecord{}, err
+	}
+	defer unlock()
+	recordPath := startRecordPath(s.Root, slug)
+	record, exists, err := readStartRecord(recordPath)
+	if err != nil {
+		return StartRecord{}, err
+	}
+	if !exists || digest == "" || record.PlanDigest != digest {
+		return record, startError("plan-digest-mismatch")
+	}
+	if record.Phase == "started" {
+		return record, nil
+	}
+	// Only a transition that was already published is recovered here. A
+	// spec still in its recorded "before" state has published nothing: its
+	// start is judged again by the current plan, with today's readiness and
+	// governed restrictions, never authorized by the persisted baseline.
+	specPath := filepath.Join(s.Root, filepath.FromSlash(current.SpecPath))
+	raw, err := os.ReadFile(specPath)
+	if err != nil {
+		return record, err
+	}
+	switch digestHex(raw) {
+	case record.SpecDigestAfter:
+		return finishStart(recordPath, specPath, slug, record, failAfter)
+	case record.SpecDigestBefore:
+		return record, startError("transition-not-published")
+	default:
+		return record, startError("compare-and-swap-conflict")
+	}
+}
+
+// Recovery states of a start that recorded its baseline and did not finish.
+const (
+	StartRecoveryStarted   = "started"              // nothing to recover
+	StartRecoveryPublished = "transition-published" // the spec moved; the same digest finishes it
+	StartRecoveryRetry     = "retry"                // nothing published and the plan is unchanged; the same digest applies it
+	StartRecoveryStale     = "stale-baseline"       // nothing published, but the repository moved on: the digest can never apply
+	StartRecoveryConflict  = "spec-conflict"        // the spec is in neither recorded state
+	StartRecoveryNone      = ""                     // no record for this digest
+)
+
+// StartRecovery classifies what a start recorded for digest can still do,
+// so a failure never promises a retry that cannot finish (spec
+// pose-cli-mcp-operation-results R6).
+func (s Store) StartRecovery(slug, digest string) (string, error) {
+	record, ok, err := s.GetStartRecord(slug)
+	if err != nil || !ok || record.PlanDigest != digest {
+		return StartRecoveryNone, err
+	}
+	if record.Phase == "started" {
+		return StartRecoveryStarted, nil
+	}
+	current, err := s.PreviewStart(slug)
+	if err != nil {
+		return StartRecoveryNone, err
+	}
+	raw, err := os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(current.SpecPath)))
+	if err != nil {
+		return StartRecoveryNone, err
+	}
+	switch digestHex(raw) {
+	case record.SpecDigestAfter:
+		return StartRecoveryPublished, nil
+	case record.SpecDigestBefore:
+		if current.Digest == digest {
+			return StartRecoveryRetry, nil
+		}
+		return StartRecoveryStale, nil
+	default:
+		return StartRecoveryConflict, nil
+	}
+}
+
+// finishStart moves the spec to in-progress, reconciling a transition an
+// earlier run already wrote, and records the start as started.
+func finishStart(recordPath, specPath, slug string, record StartRecord, failAfter StartFailureHook) (StartRecord, error) {
 	if record.Phase == "started" {
 		return record, nil
 	}
@@ -256,7 +362,7 @@ func (s Store) ApplyStart(plan StartPlan, expectedDigest string, failAfter Start
 	}
 	switch digestHex(raw) {
 	case record.SpecDigestBefore:
-		after := []byte(setSpecLifecycle(string(raw), plan.Spec, "in-progress"))
+		after := []byte(setSpecLifecycle(string(raw), slug, "in-progress"))
 		if digestHex(after) != record.SpecDigestAfter {
 			return record, startError("plan-digest-mismatch")
 		}

@@ -24,42 +24,67 @@ func cmdSpecs(root string, args []string, stdout, stderr io.Writer) int {
 	sinceFilter := ""
 	jsonOutput := false
 
+	// Every argument is either understood or refused before the listing: an
+	// ignored flag or value would return every spec as if it matched (spec
+	// pose-cli-mcp-operation-results R3).
+	const specsUsage = "Usage: pose specs [--status <s,...>] [--components|--component <c,...>] [--since <YYYY-MM-DD|<days>d>] [--recent [n]] [--json]"
+	refuse := func(reason string) int {
+		render(io.Discard, stderr).Failure("pose specs: " + reason)
+		return usageError(stderr, specsUsage)
+	}
+	value := func(i int) (string, bool) {
+		if i+1 >= len(args) || strings.HasPrefix(args[i+1], "-") {
+			return "", false
+		}
+		return args[i+1], true
+	}
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--json":
 			jsonOutput = true
-		case "--status":
-			if i+1 < len(args) {
-				statusFilter = args[i+1]
-				i++
+		case "--status", "--components", "--component", "--since":
+			v, ok := value(i)
+			if !ok {
+				return refuse(args[i] + " needs a value")
 			}
-		case "--components", "--component":
-			if i+1 < len(args) {
-				componentsFilter = args[i+1]
-				i++
-			}
-		case "--recent":
-			if i+1 < len(args) {
-				if n, err := strconv.Atoi(args[i+1]); err == nil && n > 0 {
-					recentLimit = n
+			switch args[i] {
+			case "--status":
+				statusFilter = v
+			case "--since":
+				if _, err := parseSinceDate(v); err != nil {
+					return refuse(err.Error())
 				}
-				i++
-			} else {
-				recentLimit = 10 // default recent limit
+				sinceFilter = v
+			default:
+				componentsFilter = v
 			}
-		case "--since":
-			if i+1 < len(args) {
-				sinceFilter = args[i+1]
-				i++
+			i++
+		case "--recent":
+			// A bare --recent keeps its documented default of 10.
+			v, ok := value(i)
+			if !ok {
+				recentLimit = 10
+				break
 			}
+			n, err := strconv.Atoi(v)
+			if err != nil || n <= 0 {
+				return refuse("--recent needs a positive number, got " + strconv.Quote(v))
+			}
+			recentLimit = n
+			i++
 		case "-h", "--help":
 			dispatchCommandHelp("specs", nil, stdout, locale)
 			return 0
+		default:
+			return refuse("unknown argument " + strconv.Quote(args[i]))
 		}
 	}
 
 	store := pose.Store{Root: root}
 	specs, err := store.ListSpecs(statusFilter, componentsFilter)
+	if err != nil && jsonOutput {
+		return writeOperationFailure(stdout, stderr, "specs.list", "", "listing-failed", "pose specs: "+err.Error())
+	}
 	if err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "pose specs: %v\n", "pose specs: %v\n"), err)
 		return 1
@@ -67,8 +92,7 @@ func cmdSpecs(root string, args []string, stdout, stderr io.Writer) int {
 
 	// Filter by --since if requested
 	if sinceFilter != "" {
-		sinceDate, parseErr := parseSinceDate(sinceFilter)
-		if parseErr == nil {
+		if sinceDate, parseErr := parseSinceDate(sinceFilter); parseErr == nil {
 			filtered := []pose.Spec{}
 			for _, sp := range specs {
 				dateStr := sp.CreatedAt
@@ -149,32 +173,39 @@ func cmdSpecs(root string, args []string, stdout, stderr io.Writer) int {
 }
 
 func parseSinceDate(val string) (time.Time, error) {
-	val = strings.TrimSpace(val)
-	if strings.HasSuffix(val, "d") {
-		daysStr := strings.TrimSuffix(val, "d")
-		days, err := strconv.Atoi(daysStr)
-		if err == nil {
-			return time.Now().UTC().AddDate(0, 0, -days), nil
-		}
-	}
-	if t, err := time.Parse("2006-01-02", val); err == nil {
-		return t, nil
-	}
-	return time.Time{}, fmt.Errorf("invalid since format %q", val)
+	return pose.ParseSinceDate(val)
 }
 
 // cmdSpecFacts prints the factual part of a spec's report, derived from the
 // delivery index (spec pose-progressive-spec-surface).
 func cmdSpecFacts(root string, args []string, stdout, stderr io.Writer) int {
-	if len(args) == 0 {
-		return usageError(stderr, "Usage: pose specs facts <slug> [--json]")
+	// One slug and an optional --json in any position; anything else is
+	// refused before the facts are derived (spec pose-cli-mcp-operation-results R3).
+	const factsUsage = "Usage: pose specs facts <slug> [--json]"
+	slug, jsonOutput := "", false
+	for _, arg := range args {
+		switch {
+		case arg == "--json":
+			jsonOutput = true
+		case strings.HasPrefix(arg, "-") || slug != "":
+			render(io.Discard, stderr).Failure("pose specs facts: unknown argument " + strconv.Quote(arg))
+			return usageError(stderr, factsUsage)
+		default:
+			slug = arg
+		}
 	}
-	facts, err := pose.Store{Root: root}.DeriveSpecFacts(args[0])
+	if slug == "" {
+		return usageError(stderr, factsUsage)
+	}
+	facts, err := pose.Store{Root: root}.DeriveSpecFacts(slug)
 	if err != nil {
+		if jsonOutput {
+			return writeOperationFailure(stdout, stderr, "specs.facts", slug, "facts-unavailable", "pose specs facts: "+err.Error())
+		}
 		render(stdout, stderr).Failure("pose specs facts: " + err.Error())
 		return 1
 	}
-	if len(args) > 1 && args[1] == "--json" {
+	if jsonOutput {
 		return writeJSON(stdout, facts)
 	}
 	out := render(stdout, stderr)

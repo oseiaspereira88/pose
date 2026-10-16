@@ -450,3 +450,17 @@ e os snapshots b02-domain-preflight-* registram os gates. A matriz agora marca
 B02 delivery_complete=true. O programa/roadmap continua ativo: aguardar merge
 de #183 pelo maintainer e depois reavaliar DAG/readiness nativa, sem escolher
 uma nova implementação, policy, capability ou adoção neste closeout.
+
+B12 (`pose-cli-mcp-operation-results`) atingiu closeout nativo em
+2026-10-16 no PR #186. O resultado tipado, os parsers estritos, o erro MCP
+inconclusivo e o journal foram qualificados por revisão different-actor
+Codex/OpenAI frente a Claude/Anthropic: F1–F13 fechados, 26 contraprovas,
+15 probes com controles preservados, vet, suíte completa, race e quickstart.
+Validação de implementação no head 16151559: global strict 134/134 e módulo
+131/131. Identidade e separação declaradas, sem assinatura ou confirmação humana.
+O [parecer, Eighth round](../reports/2026-10-16-pose-b12-operation-results-review.md)
+e a [evidência](../results/b12-independent-review.json) identificam os selos,
+atestações e gates atuais. A matriz registra B12 delivery_complete=true;
+o programa e este roadmap continuam ativos. Aguardar merge de #186 pelo
+maintainer e reavaliar DAG/readiness nativa, sem selecionar nova implementação,
+policy, capability ou adoção neste closeout.

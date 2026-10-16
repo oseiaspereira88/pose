@@ -11,7 +11,7 @@
   },
   "authorization": {
     "scope": "Retomada explícita de implementação em 2026-10-14; lotes pequenos, PR por spec, aguardar merge; sem adoção de policy, publicação ou migração implícita.",
-    "current_implementation_unit": "B02",
+    "current_implementation_unit": "B12",
     "future_batch_implementation_authorized": true,
     "next_batch_requires_previous_merge": true
   },
@@ -1240,17 +1240,43 @@
           "materialized": true,
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-cli-mcp-operation-results.md",
-          "status": "draft",
-          "sha256": "1febdb1324520fc718b895c647e357b5133ce275c784bdae8d016878e48db6d4"
+          "status": "done",
+          "sha256": "055e5aad213bf926cf8b3fec3de8993372140706604b8ce3c9ab102af6fe13e6"
         }
       ],
       "implementation_observations": [
         {
           "scope": "Spec escrita em draft no lote documental 4; nenhuma implementação funcional neste lote.",
           "unit_complete": false
+        },
+        {
+          "scope": "Start nativo após merge de #185. Resultado de operação tipado no domínio (OperationResult) para close apply/resume e continuous status; parsers estritos de close/start/specs/pose_list_specs; gate MCP interrompido classificado como inconclusivo; journal com waiting e duração desconhecida. Probes P03/P06/P07/P08 e validação estrita do módulo executados; different-actor review e closeout nativo pendentes.",
+          "unit_complete": false,
+          "native_closeout_pending": true
+        },
+        {
+          "at": "2026-10-16",
+          "pull_requests": [
+            186
+          ],
+          "scope": "Eighth independent Codex/OpenAI round closed F1-F13 and reviewed all operation-result routes and consumers. Strict implementation validation global 134/134 and pose-mcp 131/131 at 16151559, 26 assertion-killed mutations, full Go/vet/race and quickstart. Native different-actor review approved and close applied. Identity/separation declared and unsigned. Roadmap closeout summaries were reconciled after the guarded transition. Native completed-review retention reports fresh and approved; the sealed implementation proof and the final retained verification are distinguished in the report. Await maintainer merge and reassess readiness without choosing another implementation.",
+          "unit_complete": true,
+          "native_closeout_pending": false,
+          "review_report_path": ".pose/reports/2026-10-16-pose-b12-operation-results-review.md",
+          "admission_review_bundle": "rvb-6bd4b19097039e81",
+          "admission_attestation": "rva-87212ea94b920fde",
+          "native_validation": {
+            "mode": "strict",
+            "head": "1615155905283a5ae7ff41b0a7e32ae5198ac6c7",
+            "executed": 134,
+            "passed": 134,
+            "failed": 0,
+            "component_executed": 131,
+            "component_passed": 131
+          }
         }
       ],
-      "delivery_complete": false,
+      "delivery_complete": true,
       "native_spec_dependencies": [
         "pose-recoverable-closeout-plan"
       ],
@@ -5125,16 +5151,16 @@
   ],
   "implementation_reconciliation": {
     "at": "2026-10-16",
-    "main_revision": "1aec323a",
-    "selected_unit": "B02",
-    "selected_spec": "pose-review-approval-domain-preflight",
-    "basis": "B01 and B04 remain natively done. PR183 completes B02 with independent review, fresh approval and native closeout after F1-F4 remediation. Await maintainer merge, then reassess the native program DAG/readiness; no next implementation selected.",
-    "unit_delivery_complete_count": 3,
+    "main_revision": "1a278aff360ac165863930f6e8514eac03794ef0",
+    "selected_unit": "B12",
+    "selected_spec": "pose-cli-mcp-operation-results",
+    "basis": "PR186 completes B12 with independent eighth-round review, F1-F13 closed, strict validation and native terminal closeout. Program remains active; await maintainer merge and reassess native DAG/readiness without selecting implementation.",
+    "unit_delivery_complete_count": 4,
     "administrative_closeouts": "Authoring closeouts remain separate and pending; materialization is not functional delivery.",
     "previous_complementary_pull_request": 181,
     "previous_complementary_merged": true,
-    "awaiting_merge_pull_request": 183,
+    "awaiting_merge_pull_request": 186,
     "native_closeout_pending": false,
-    "next_step": "Maintainer merge of PR183; then reassess native DAG/readiness without automatically choosing a new implementation."
+    "next_step": "Maintainer merge of PR186; then reassess native DAG/readiness without automatically choosing a new implementation."
   }
 }
