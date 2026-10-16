@@ -1479,14 +1479,20 @@
           "materialized": true,
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-writer-coordination-and-atomic-publication.md",
-          "status": "draft",
-          "sha256": "71ac16efb10c9275de8ba46b9baccdb0d613777f76f115b4fdac4485417be7a7"
+          "status": "in-progress",
+          "sha256": "d626d7f85fa88531f5432cf8a83b13f3f5acdb6fe0429825f7faa4f02bb4df6b"
         }
       ],
       "implementation_observations": [
         {
           "scope": "Spec prospectiva escrita em draft no lote documental 7; nenhuma execução da unidade neste lote.",
           "unit_complete": false
+        },
+        {
+          "at": "2026-10-16",
+          "scope": "Start nativo após merge de #187. Publisher comum (PublishFile) com staging exclusivo, ExpectAny/ExpectDigest/ExpectAbsent e classes authoritative/derived; writeAtomic, start record, policies, state e transição do close migrados; trava de ciclo de vida da spec compartilhada por start, close e transfer; close vinculado ao digest julgado; state refresh com CAS, resultado parcial e histórico sem colagem em cauda torn. Probes P01–P04 antes e depois com controle inalterado, 12 mutações reprovando e validação estrita do módulo 133/133 em e7b259c5; different-actor review e closeout nativo pendentes.",
+          "unit_complete": false,
+          "native_closeout_pending": true
         }
       ],
       "delivery_complete": false,
@@ -5178,16 +5184,16 @@
   ],
   "implementation_reconciliation": {
     "at": "2026-10-16",
-    "main_revision": "b8c33dadf7e71ee3a742ab15ed37b577bf659367",
-    "selected_unit": "B13",
-    "selected_spec": "pose-journal-checkpoint-and-lock-recovery",
-    "basis": "PR187 completes B13 after independent second-round review, F1-F4 remediation, strict validation and native terminal closeout. Program remains active; await maintainer merge and reassess native DAG/readiness without selecting implementation.",
+    "main_revision": "1bb5111efb56521de81092dc4588c9bad83377b0",
+    "selected_unit": "B14",
+    "selected_spec": "pose-writer-coordination-and-atomic-publication",
+    "basis": "PR187 merged B13 (1bb5111e). The maintainer authorized B14, which depended on B12 and B13. Native start, implementation, probes and strict module validation done; different-actor review and native closeout pending.",
     "unit_delivery_complete_count": 5,
     "administrative_closeouts": "Authoring closeouts remain separate and pending; materialization is not functional delivery.",
-    "previous_complementary_pull_request": 186,
+    "previous_complementary_pull_request": 187,
     "previous_complementary_merged": true,
-    "native_closeout_pending": false,
-    "next_step": "Maintainer merge of PR187; then reassess native DAG/readiness without automatically choosing a new implementation.",
+    "native_closeout_pending": true,
+    "next_step": "Different-actor review of B14, native closeout, then maintainer merge.",
     "awaiting_merge_pull_request": 187
   }
 }

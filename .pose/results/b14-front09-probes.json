@@ -1,0 +1,134 @@
+{
+  "spec": "pose-writer-coordination-and-atomic-publication",
+  "driver": ".pose/results/b14-front09-probes.py",
+  "note": "Synthetic fixtures; the host name is redacted. Before: engine at 1bb5111e (merge of PR #187). After: engine at e7b259c5. The coordination of close, start and transfer needs an approved review to reach the transition and is qualified by the Go regressions, not by these probes.",
+  "before": {
+    "binary_sha256": "8a7f014ef71ea2b31c7122d7d66af6dd77984d91e043c425c57cf51b16e0a368",
+    "probes": {
+      "P01_index_with_foreign_staging": {
+        "index": {
+          "args": [
+            "index"
+          ],
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "Error: pose index: writing services.json: open <tmp>/staging/.pose/indexes/.services.json.tmp: is a directory\n"
+        },
+        "foreign_staging_kept": true,
+        "services_published": false
+      },
+      "P02_refresh_history_fails": {
+        "init": {
+          "args": [
+            "state",
+            "init"
+          ],
+          "exit_code": 0,
+          "stdout": "Project state initialized: <tmp>/history-fails/.pose/state/project-state.md\n",
+          "stderr": ""
+        },
+        "refresh": {
+          "args": [
+            "state",
+            "refresh"
+          ],
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "Error: open <tmp>/history-fails/.pose/state/history.jsonl: is a directory\n"
+        },
+        "state_changed": true,
+        "last_log_result": "failed"
+      },
+      "P03_history_torn_tail": {
+        "refresh": {
+          "args": [
+            "state",
+            "refresh"
+          ],
+          "exit_code": 0,
+          "stdout": "Project state refreshed: <tmp>/history-torn/.pose/state/project-state.md\n",
+          "stderr": ""
+        },
+        "torn_bytes_on_own_line": false,
+        "parseable_entries": 1,
+        "line_count": 2
+      },
+      "P04_control_index": {
+        "index": {
+          "args": [
+            "index"
+          ],
+          "exit_code": 0,
+          "stdout": "POSE indexes updated at <tmp>/index-free/.pose/indexes\n",
+          "stderr": ""
+        },
+        "services_published": true
+      }
+    }
+  },
+  "after": {
+    "binary_sha256": "ec8eb56768df42c72de0dab80ab80a53360fef092b28d68959f07c4fd6fb5d71",
+    "probes": {
+      "P01_index_with_foreign_staging": {
+        "index": {
+          "args": [
+            "index"
+          ],
+          "exit_code": 0,
+          "stdout": "POSE indexes updated at <tmp>/staging/.pose/indexes\n",
+          "stderr": ""
+        },
+        "foreign_staging_kept": true,
+        "services_published": true
+      },
+      "P02_refresh_history_fails": {
+        "init": {
+          "args": [
+            "state",
+            "init"
+          ],
+          "exit_code": 0,
+          "stdout": "Project state initialized: <tmp>/history-fails/.pose/state/project-state.md\n",
+          "stderr": ""
+        },
+        "refresh": {
+          "args": [
+            "state",
+            "refresh"
+          ],
+          "exit_code": 1,
+          "stdout": "state.published=<tmp>/history-fails/.pose/state/project-state.md\n",
+          "stderr": "Error: project state published (<tmp>/history-fails/.pose/state/project-state.md) but its history entry was not appended: open <tmp>/history-fails/.pose/state/history.jsonl: is a directory; the next `pose state refresh` appends a new entry\n"
+        },
+        "state_changed": true,
+        "last_log_result": "partial"
+      },
+      "P03_history_torn_tail": {
+        "refresh": {
+          "args": [
+            "state",
+            "refresh"
+          ],
+          "exit_code": 0,
+          "stdout": "Project state refreshed: <tmp>/history-torn/.pose/state/project-state.md\n",
+          "stderr": ""
+        },
+        "torn_bytes_on_own_line": true,
+        "parseable_entries": 2,
+        "line_count": 3
+      },
+      "P04_control_index": {
+        "index": {
+          "args": [
+            "index"
+          ],
+          "exit_code": 0,
+          "stdout": "POSE indexes updated at <tmp>/index-free/.pose/indexes\n",
+          "stderr": ""
+        },
+        "services_published": true
+      }
+    }
+  },
+  "control_unchanged": true
+}

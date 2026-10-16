@@ -143,3 +143,15 @@ e a [evidência](../results/b13-independent-review.json) identificam o bundle
 delivery_complete=true; o programa continua ativo e este roadmap conserva seu
 status. Aguardar merge de #187 pelo maintainer e reavaliar DAG/readiness nativa,
 sem selecionar implementação, policy, capability ou adoção neste closeout.
+
+B14 (`pose-writer-coordination-and-atomic-publication`) foi iniciado
+nativamente em 2026-10-16 após o merge de #187: todo writer publica por um
+publisher comum com staging exclusivo e precondição explícita (último
+escritor, CAS sobre o que foi lido ou criação só onde nada existe), com sync de
+arquivo e diretório para artefatos autoritativos; start, close e transfer
+compartilham a trava de ciclo de vida da spec; o close publica só sobre o que
+seus gates julgaram; o state refresh preserva edição curada concorrente e
+informa publicação parcial quando o histórico falha. Probes P01–P04 com
+controle inalterado; validação estrita do módulo 133/133. A spec permanece
+in-progress até revisão different-actor e closeout nativo; delivery_complete
+permanece false.
