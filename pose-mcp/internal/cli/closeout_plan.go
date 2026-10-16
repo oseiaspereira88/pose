@@ -2,8 +2,11 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -69,6 +72,9 @@ func cmdClosePlan(root string, args []string, stdout, stderr io.Writer) int {
 	out := render(stdout, stderr)
 	if mode == "plan" {
 		plan, err := store.PlanCloseout(ref)
+		if err != nil && jsonOutput {
+			return writeOperationFailure(stdout, stderr, "close.plan", ref, "plan-unavailable", "pose close: "+err.Error())
+		}
 		if err != nil {
 			out.Failure("pose close: " + err.Error())
 			return 1
@@ -95,6 +101,42 @@ func cmdClosePlan(root string, args []string, stdout, stderr io.Writer) int {
 		renderClosePlanResult(out, result)
 	}
 	return closePlanExitCode(result)
+}
+
+// observePublishedResults confirms that validate published its results: a
+// regular file at the results path, written during this step, holding a JSON
+// document.
+func observePublishedResults(root, resultsPath string, since time.Time) error {
+	target := filepath.Join(root, filepath.FromSlash(resultsPath))
+	info, err := os.Stat(target)
+	if err != nil {
+		return fmt.Errorf("no results were published at %s", resultsPath)
+	}
+	if !info.Mode().IsRegular() {
+		return fmt.Errorf("%s is not a results file", resultsPath)
+	}
+	if info.ModTime().Before(since.Add(-time.Second)) {
+		return fmt.Errorf("%s was not written by this run", resultsPath)
+	}
+	raw, err := os.ReadFile(target)
+	if err != nil || !json.Valid(raw) {
+		return fmt.Errorf("%s does not hold a JSON document", resultsPath)
+	}
+	return nil
+}
+
+// writeOperationFailure is the failure of a route that supports --json and
+// keeps its legacy success document: stdout carries one operation result
+// with the typed cause, and stderr the human line (spec
+// pose-cli-mcp-operation-results R2).
+func writeOperationFailure(stdout, stderr io.Writer, operation, scope, cause, message string) int {
+	result := posemodel.NewOperationResult(operation, scope)
+	result.Fail(posemodel.OutcomeFailed, "", cause, message)
+	render(io.Discard, stderr).Failure(message)
+	if writeJSON(stdout, result) != 0 {
+		return 1
+	}
+	return 1
 }
 
 // closeApplyData is the payload of a close apply/resume result: the plan as
@@ -238,8 +280,16 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 				if policyErr != nil {
 					return fail(posemodel.CloseoutStepEvidence, "policy-unavailable", policyErr, false)
 				}
-				if code := cmdValidate(root, []string{"--tolerant", "--json-out", policy.ResultsPath}, &buffer, &buffer); code > 1 {
-					return fail(posemodel.CloseoutStepEvidence, "validate-error", fmt.Errorf("validate exited %d", code), true)
+				published := time.Now()
+				code := cmdValidate(root, []string{"--tolerant", "--json-out", policy.ResultsPath}, &buffer, &buffer)
+				if code > 1 {
+					return fail(posemodel.CloseoutStepEvidence, "validate-error", fmt.Errorf("validate exited %d: %s", code, lastLine(buffer.String())), true)
+				}
+				// Exit 1 is both a failing check, whose results are published,
+				// and a results file validate could not write. The effect is
+				// confirmed only by observing the published document (R1/R6).
+				if err := observePublishedResults(root, policy.ResultsPath, published); err != nil {
+					return fail(posemodel.CloseoutStepEvidence, "results-not-published", fmt.Errorf("validate exited %d and %v: %s", code, err, lastLine(buffer.String())), true)
 				}
 				record(posemodel.CloseoutStepEvidence, nil)
 				confirm(posemodel.CloseoutStepEvidence, policy.ResultsPath)

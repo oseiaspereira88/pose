@@ -82,6 +82,9 @@ func cmdSpecs(root string, args []string, stdout, stderr io.Writer) int {
 
 	store := pose.Store{Root: root}
 	specs, err := store.ListSpecs(statusFilter, componentsFilter)
+	if err != nil && jsonOutput {
+		return writeOperationFailure(stdout, stderr, "specs.list", "", "listing-failed", "pose specs: "+err.Error())
+	}
 	if err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "pose specs: %v\n", "pose specs: %v\n"), err)
 		return 1
@@ -176,15 +179,33 @@ func parseSinceDate(val string) (time.Time, error) {
 // cmdSpecFacts prints the factual part of a spec's report, derived from the
 // delivery index (spec pose-progressive-spec-surface).
 func cmdSpecFacts(root string, args []string, stdout, stderr io.Writer) int {
-	if len(args) == 0 {
-		return usageError(stderr, "Usage: pose specs facts <slug> [--json]")
+	// One slug and an optional --json in any position; anything else is
+	// refused before the facts are derived (spec pose-cli-mcp-operation-results R3).
+	const factsUsage = "Usage: pose specs facts <slug> [--json]"
+	slug, jsonOutput := "", false
+	for _, arg := range args {
+		switch {
+		case arg == "--json":
+			jsonOutput = true
+		case strings.HasPrefix(arg, "-") || slug != "":
+			render(io.Discard, stderr).Failure("pose specs facts: unknown argument " + strconv.Quote(arg))
+			return usageError(stderr, factsUsage)
+		default:
+			slug = arg
+		}
 	}
-	facts, err := pose.Store{Root: root}.DeriveSpecFacts(args[0])
+	if slug == "" {
+		return usageError(stderr, factsUsage)
+	}
+	facts, err := pose.Store{Root: root}.DeriveSpecFacts(slug)
 	if err != nil {
+		if jsonOutput {
+			return writeOperationFailure(stdout, stderr, "specs.facts", slug, "facts-unavailable", "pose specs facts: "+err.Error())
+		}
 		render(stdout, stderr).Failure("pose specs facts: " + err.Error())
 		return 1
 	}
-	if len(args) > 1 && args[1] == "--json" {
+	if jsonOutput {
 		return writeJSON(stdout, facts)
 	}
 	out := render(stdout, stderr)

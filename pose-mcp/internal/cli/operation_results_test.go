@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -196,6 +197,8 @@ func TestSpecsRefusesInvalidFiltersAndKeepsAliases(t *testing.T) {
 		{"specs", "--sttaus", "done", "--json"},
 		{"specs", "--since", "nonsense", "--json"},
 		{"specs", "--since", "-3d", "--json"},
+		{"specs", "--since", "999999999999999999d", "--json"},
+		{"specs", "--since", "", "--json"},
 		{"specs", "--recent", "nonsense", "--json"},
 		{"specs", "--recent", "0", "--json"},
 		{"specs", "--status", "--json"},
@@ -269,5 +272,110 @@ func TestUsageCountsAWaitingCloseAsWaitingNotFailed(t *testing.T) {
 	}
 	if len(report.Rows) != 1 || report.Rows[0].Waiting != 1 || report.Rows[0].Failed != 0 {
 		t.Fatalf("a waiting stop was not counted as waiting: %+v", report.Rows)
+	}
+}
+
+// publicationFailureFixture is an in-progress spec whose closeout evidence
+// step runs validate into a results path that cannot be written (a
+// directory sits there), from the independent review's F1 reproduction.
+func publicationFailureFixture(t *testing.T) string {
+	t.Helper()
+	root := t.TempDir()
+	files := map[string]string{
+		".pose/project.json":                       `{"schema_version":1,"project_id":"proj.publication"}`,
+		".pose/policy/review.json":                 `{"schema_version":2,"enabled":true,"adopted_at":"2026-08-13","profiles":{"spec":"spec-closeout@2"},"review_bundles":true,"review_bundles_adopted_at":"2026-08-13","component_aware":true,"component_aware_adopted_at":"2026-08-13"}`,
+		".pose/review-profiles/spec-closeout.json": `{"schema_version":2,"id":"spec-closeout","version":2,"scope":"spec","criteria":[{"id":"correctness","description":"tested","evidence_classes":["unit"]}]}`,
+		".pose/indexes/validation-matrix.json":     `{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"test","program":"true","args":[],"severity":"required","evidenceClass":"unit"}]}}}`,
+		".pose/policy/delivery.json":               `{"schema_version":1,"results_path":".pose/results/blocked.json"}`,
+		"svc/go.mod":                               "module example.invalid/svc\n\ngo 1.22\n",
+		".pose/specs/alpha.md":                     "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-10-01\ncompleted_at: 2026-10-02\ncomponents: \n---\n\n# Spec: alpha\n\n## 1. Intent\nFix one behavior.\n\n## 2. Requirements\n- R1: Preserve the behavior.\n\n## 6. Validation\n### Requirement trace\n- R1 [waived: synthetic fixture] explicit fixture exception\n",
+	}
+	for path, body := range files {
+		writeCloseoutCLIFile(t, root, path, body)
+	}
+	if err := os.MkdirAll(filepath.Join(root, ".pose/results/blocked.json"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for _, args := range [][]string{{"init", "-q"}, {"add", "-A"}, {"-c", "user.name=Probe", "-c", "user.email=probe@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", "fixture"}} {
+		if out, err := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput(); err != nil {
+			t.Fatalf("git %v: %v %s", args, err, out)
+		}
+	}
+	t.Setenv("POSE_PROJECT_ROOTS", "")
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "")
+	return root
+}
+
+func TestEvidenceThatValidateCouldNotPublishIsNotAConfirmedEffect(t *testing.T) {
+	root := publicationFailureFixture(t)
+	var plan posemodel.CloseoutPlan
+	if code, errOut := runPoseJSON(t, root, &plan, "close", "spec:alpha", "--plan", "--json"); code != 0 {
+		t.Fatalf("plan: %d %s", code, errOut)
+	}
+	if next, ok := plan.NextCloseoutStep(); !ok || next.ID != posemodel.CloseoutStepEvidence {
+		t.Fatalf("the fixture does not start at the evidence step: %+v", plan.Steps)
+	}
+	var result closeApplyJSON
+	code, _ := runPoseJSON(t, root, &result, "close", "spec:alpha", "--apply", "--reviewer", "agent:reviewer", "--json")
+	if code != 1 || result.Outcome != posemodel.OutcomeFailed || result.Step != posemodel.CloseoutStepEvidence || result.Error == nil || result.Error.Cause != "results-not-published" {
+		t.Fatalf("an unpublished result was not the failure: code=%d %+v", code, result.OperationResult)
+	}
+	if strings.Contains(strings.Join(effectNames(result.OperationResult), ","), "results-written") {
+		t.Fatalf("results-written was confirmed for a directory: %+v", result.Effects)
+	}
+	if len(result.Unconfirmed) == 0 || result.Unconfirmed[0].Step != posemodel.CloseoutStepEvidence {
+		t.Fatalf("the evidence step is not left unconfirmed: %+v", result.Unconfirmed)
+	}
+}
+
+func TestJSONRoutesReportOperationalFailuresAsOneDocument(t *testing.T) {
+	root := reviewBundleCLIFixture(t)
+	start := startCLIFixture(t, true)
+	for _, c := range []struct {
+		root      string
+		args      []string
+		operation string
+	}{
+		{start, []string{"start", "spec:missing", "--json"}, "start.preview"},
+		{start, []string{"start", "spec:missing", "--status", "--json"}, "start.status"},
+		{start, []string{"start", "spec:missing", "--apply", "--digest", "bad", "--json"}, "start.apply"},
+		{root, []string{"close", "spec:missing", "--plan", "--json"}, "close.plan"},
+		{root, []string{"specs", "facts", "missing", "--json"}, "specs.facts"},
+	} {
+		var result posemodel.OperationResult
+		code, _ := runPoseJSON(t, c.root, &result, c.args...)
+		if code != 1 || result.Operation != c.operation || result.Outcome != posemodel.OutcomeFailed || result.Error == nil || result.Error.Cause == "" {
+			t.Fatalf("%v: failure is not one typed document: %d %+v", c.args, code, result)
+		}
+	}
+	// A specs directory that cannot be read fails the listing as JSON too.
+	broken := t.TempDir()
+	writeCloseoutCLIFile(t, broken, ".pose/specs", "not a directory")
+	var result posemodel.OperationResult
+	if code, _ := runPoseJSON(t, broken, &result, "specs", "--json"); code != 1 || result.Operation != "specs.list" || result.Error == nil {
+		t.Fatalf("listing failure: %d %+v", code, result)
+	}
+}
+
+func TestSpecFactsRefusesUnknownFlagsWhereverJSONIs(t *testing.T) {
+	root := reviewBundleCLIFixture(t)
+	for _, args := range [][]string{
+		{"specs", "facts", "bundle", "--bogus", "--json"},
+		{"specs", "facts", "bundle", "--json", "--bogus"},
+		{"specs", "facts", "bundle", "extra"},
+		{"specs", "facts"},
+	} {
+		var out, errB bytes.Buffer
+		code := 0
+		inDir(t, root, func() { code = Main(args, &out, &errB) })
+		if code != 2 || out.Len() != 0 {
+			t.Fatalf("%v was not refused: %d %s", args, code, out.String())
+		}
+	}
+	var before, after posemodel.SpecFacts
+	codeA, _ := runPoseJSON(t, root, &before, "specs", "facts", "--json", "bundle")
+	codeB, _ := runPoseJSON(t, root, &after, "specs", "facts", "bundle", "--json")
+	if codeA != 0 || codeB != 0 {
+		t.Fatalf("--json position changed the channel: %d %d", codeA, codeB)
 	}
 }

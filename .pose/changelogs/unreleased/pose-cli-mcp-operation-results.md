@@ -24,7 +24,11 @@ non-positive `--recent` with exit 2 instead of listing every spec, and MCP
 modes and `--plan` with `--digest`, `--reviewer` or `--skip-evidence`;
 `pose start` refuses two of `--apply`, `--status` and `--cancel`, `--digest`
 outside `--apply` and `--cancel --json`. A repeated `pose start --apply
---json` returns the start record as JSON instead of text.
+--json` returns the start record as JSON instead of text. `pose specs facts`
+refuses unknown arguments and reads `--json` in any position; `pose_list_specs`
+also refuses unknown arguments, an explicit `0` for `recent` or `limit` and an
+empty `since`. With `--json`, a failure of `start`, `close --plan`, `specs` or
+`specs facts` is one JSON operation result instead of an empty stdout.
 
 An MCP gate (`pose_check`, `pose_lint_spec`, `pose_skills_check`) stopped by
 its deadline or a cancellation now returns an error result with

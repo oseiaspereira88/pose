@@ -989,40 +989,54 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		return map[string]any{"slug": spec.Slug, "status": spec.Status, "events": events, "unacknowledged": pending,
 			"contract_nodes": pose.ProjectContractNodes(spec.Slug, spec.Body), "capability_adopted": adopted}, nil
 	case "pose_list_specs":
+		// Arguments are decoded strictly and every value is validated before
+		// the listing, as the CLI does: an unknown argument, an explicit zero
+		// or an empty since would otherwise widen the result (spec
+		// pose-cli-mcp-operation-results R3/R7).
 		var a struct {
-			Status     string `json:"status"`
-			Components string `json:"components"`
-			Cursor     string `json:"cursor"`
-			Limit      int    `json:"limit"`
-			Recent     int    `json:"recent"`
-			Sort       string `json:"sort"`
-			Since      string `json:"since"`
+			Status     string  `json:"status"`
+			Components string  `json:"components"`
+			Cursor     string  `json:"cursor"`
+			Limit      *int    `json:"limit"`
+			Recent     *int    `json:"recent"`
+			Sort       string  `json:"sort"`
+			Since      *string `json:"since"`
+			ProjectID  string  `json:"project_id"`
 		}
-		if err := json.Unmarshal(args, &a); err != nil {
-			return nil, fmt.Errorf("pose_list_specs: invalid arguments")
+		decoder := json.NewDecoder(bytes.NewReader(args))
+		decoder.DisallowUnknownFields()
+		if err := decoder.Decode(&a); err != nil {
+			return nil, fmt.Errorf("pose_list_specs: invalid arguments: %v", err)
 		}
-		// An invalid filter is refused before the listing, never dropped:
-		// dropping it would return every spec as if it matched (spec
-		// pose-cli-mcp-operation-results R3).
 		var sinceDate time.Time
-		if a.Since != "" {
-			parsed, parseErr := pose.ParseSinceDate(a.Since)
+		if a.Since != nil {
+			parsed, parseErr := pose.ParseSinceDate(*a.Since)
 			if parseErr != nil {
 				return nil, fmt.Errorf("pose_list_specs: %w", parseErr)
 			}
 			sinceDate = parsed
 		}
-		if a.Recent < 0 {
-			return nil, fmt.Errorf("pose_list_specs: recent must be a positive number")
+		recent, limit := 0, 0
+		if a.Recent != nil {
+			if *a.Recent <= 0 {
+				return nil, fmt.Errorf("pose_list_specs: recent must be a positive number")
+			}
+			recent = *a.Recent
 		}
-		if a.Limit < 0 {
-			return nil, fmt.Errorf("pose_list_specs: limit must be a positive number")
+		if a.Limit != nil {
+			if *a.Limit <= 0 {
+				return nil, fmt.Errorf("pose_list_specs: limit must be a positive number")
+			}
+			limit = *a.Limit
+		}
+		if a.Sort != "" && a.Sort != "date" {
+			return nil, fmt.Errorf("pose_list_specs: sort must be \"date\" when given")
 		}
 		specs, err := store.ListSpecs(a.Status, a.Components)
 		if err != nil {
 			return nil, err
 		}
-		if a.Since != "" {
+		if a.Since != nil {
 			filtered := []pose.Spec{}
 			for _, sp := range specs {
 				dateStr := sp.CreatedAt
@@ -1037,7 +1051,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			}
 			specs = filtered
 		}
-		if a.Sort == "date" || a.Recent > 0 {
+		if a.Sort == "date" || recent > 0 {
 			sort.Slice(specs, func(i, j int) bool {
 				if specs[i].CreatedAt != specs[j].CreatedAt {
 					return specs[i].CreatedAt > specs[j].CreatedAt
@@ -1045,14 +1059,14 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 				return specs[i].Slug < specs[j].Slug
 			})
 		}
-		if a.Recent > 0 && a.Recent < len(specs) {
-			specs = specs[:a.Recent]
+		if recent > 0 && recent < len(specs) {
+			specs = specs[:recent]
 		}
 		after, err := decodePageCursor(a.Cursor)
 		if err != nil {
 			return nil, fmt.Errorf("pose_list_specs: %w", err)
 		}
-		page, next := paginatePage(specs, after, a.Limit)
+		page, next := paginatePage(specs, after, limit)
 		result := map[string]any{"specs": page, "count": len(page), "total": len(specs), "next_cursor": next}
 		if notice := listNotice(len(specs), `narrow with "status" (comma-separated, e.g. "draft,in-progress"), "components" (comma-separated, matches any tag), or page with "limit"/"cursor"`); notice != "" {
 			result["notice"] = notice

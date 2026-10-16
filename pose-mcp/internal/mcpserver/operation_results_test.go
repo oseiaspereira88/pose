@@ -47,11 +47,16 @@ func TestAGateToolStoppedByItsDeadlineIsAnInconclusiveError(t *testing.T) {
 
 func TestListSpecsRefusesFiltersItWouldOtherwiseDrop(t *testing.T) {
 	ts := newTestServer(t, "")
-	for _, args := range []string{`{"since":"nonsense"}`, `{"since":"-3d"}`, `{"recent":-1}`, `{"limit":-1}`} {
+	for _, args := range []string{`{"since":"nonsense"}`, `{"since":"-3d"}`, `{"since":""}`, `{"since":"999999999999999999d"}`, `{"recent":-1}`, `{"recent":0}`, `{"limit":-1}`, `{"limit":0}`, `{"sttaus":"done"}`, `{"sort":"name"}`} {
 		_, out := post(t, ts, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_list_specs","arguments":`+args+`}}`)
 		if out.Result["isError"] != true {
 			t.Fatalf("%s listed specs instead of refusing: %+v", args, out.Result)
 		}
+	}
+	// Omitted values keep the unfiltered, unpaginated listing.
+	_, all := post(t, ts, `{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"pose_list_specs","arguments":{}}}`)
+	if structured, _ := all.Result["structuredContent"].(map[string]any); all.Result["isError"] == true || structured["total"] != float64(2) {
+		t.Fatalf("the unfiltered listing changed: %+v", all.Result)
 	}
 	_, out := post(t, ts, `{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"pose_list_specs","arguments":{"since":"2026-06-02","recent":5}}}`)
 	structured, _ := out.Result["structuredContent"].(map[string]any)

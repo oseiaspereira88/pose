@@ -87,12 +87,24 @@ Routes:
   `data` holds `active`, `scope` and `terminal`.
 - `pose start` keeps the plan, status and record documents; its modes become
   exclusive and a repeated `--apply` returns the record as JSON with `--json`.
+- A route that supports `--json` and keeps its legacy success document
+  (`start` in every mode, `close --plan`, `specs`, `specs facts`) reports an
+  operational failure as an `OperationResult` with outcome `failed` and a
+  typed cause on stdout, plus the human line on stderr; the exit stays 1.
+- An effect is confirmed by observing it: the evidence step confirms
+  `results-written` only when the results path holds a JSON document written
+  by this run, because `validate` exits 1 both for a failing check and for a
+  results file it could not write.
 - Parsers of `close`, `start`, `specs` and `continuous-closeout` refuse,
   with exit 2 and before any read that could widen the result: two different
   modes, a flag the mode does not take, an unknown flag, a missing value, an
   unparseable date, a negative day count and a non-positive number. Documented
-  aliases (`--component`, a bare `--recent`) keep working. MCP
-  `pose_list_specs` refuses the same values.
+  aliases (`--component`, a bare `--recent`) keep working; a day count is
+  bounded (100000 days) so the window cannot overflow. `specs facts` takes one
+  slug and `--json` in any position. MCP `pose_list_specs` decodes its
+  arguments strictly and refuses the same values, an unknown argument, an
+  explicit `0` for `recent` or `limit`, an empty `since` and a `sort` other
+  than `date`; omitted values keep the unfiltered, unpaginated listing.
 - A gate subprocess is classified by its context first: a deadline or a
   cancellation returns `*GateExecutionError` (cause `deadline-exceeded` or
   `canceled`, the command, the partial output and a cleanup note), which MCP

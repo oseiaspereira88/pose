@@ -79,6 +79,9 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	case status:
 		st, err := store.GetStartStatus(slug)
+		if err != nil && jsonOutput {
+			return writeOperationFailure(stdout, stderr, "start.status", "spec:"+slug, "status-unavailable", "pose start: "+err.Error())
+		}
 		if err != nil {
 			r.Failure("pose start: " + err.Error())
 			return 1
@@ -105,6 +108,9 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		plan, err := store.PreviewStart(slug)
 		if err != nil {
+			if jsonOutput {
+				return writeOperationFailure(stdout, stderr, "start.apply", "spec:"+slug, "preview-unavailable", "pose start: "+err.Error())
+			}
 			r.Failure("pose start: " + err.Error())
 			return 1
 		}
@@ -123,6 +129,9 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		record, err := store.ApplyStart(plan, digest, nil)
 		if err != nil {
+			if jsonOutput {
+				return writeOperationFailure(stdout, stderr, "start.apply", "spec:"+slug, "apply-refused", "pose start: "+err.Error())
+			}
 			r.Failure("pose start: " + err.Error())
 			return 1
 		}
@@ -135,6 +144,9 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 	default:
 		plan, err := store.PreviewStart(slug)
 		if err != nil {
+			if jsonOutput {
+				return writeOperationFailure(stdout, stderr, "start.preview", "spec:"+slug, "preview-unavailable", "pose start: "+err.Error())
+			}
 			r.Failure("pose start: " + err.Error())
 			return 1
 		}
