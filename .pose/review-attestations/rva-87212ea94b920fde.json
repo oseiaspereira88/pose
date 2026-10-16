@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-87212ea94b920fde",
+  "bundle_id": "rvb-6bd4b19097039e81",
+  "bundle_digest": "sha256:6bd4b19097039e8131e7bcdb77b4c554cda17eae85692b9be9340f7379cbe7b0",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "No A node is asserted as fact. Tests and probes verify the declared subprocess scope; the ADR explicitly excludes in-process CLI context propagation, nonexistent MCP close writes and whole-child-tree cleanup. An empty effect list never proves rollback. No unresolved assumption is silently promoted to approval."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Deadline, cancellation, pipe WaitDelay and resumable start phases pass the integration suite. The independent race run passes cli, pose, mcpserver and usage. Recovery rechecks current start restrictions and classifies stale or changed baselines without authorizing a new transition from a record."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "The sealed integration producer exercises CLI JSON and MCP JSON-RPC error contracts, strict list filters and the advertised slug order. Legacy plan, start and GateResult success documents remain, while stricter refusals and human no-op semantics are explicitly classified minor in D2 and the ADR."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Ambiguous modes and invalid dates, numbers, unknown or null filters are refused before an operation. Supported JSON operational failures carry one typed document. F13 exposes the failed baseline write and inspection action without deleting the partial bytes."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "The registered integration check traverses CLI, Store, MCP and usage. Independent real stdio timeout and usage probes and the full quickstart agree with the contracts; integrate diagnostics do not substitute for these consumer executions."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Waiting is counted separately from failure. The MCP deadline carries execution_inconclusive without passed, partial output and cleanup limits; journal errors=1 unknown=1 fail=0 in the independent probe. Unmeasured durations are excluded and duration_samples identifies the actual denominator."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "D2 preserves CloseoutPlan, start records/status/plans and in-time GateResult, exit codes 0/1/2/3 and documented specs aliases. Consumer search and the complete quickstart pass. New strict refusals and already-satisfied semantics are disclosed for a minor release; older journal readers reject waiting as declared by the ADR."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "All new behavior is covered by the sealed integration producer. The independent whole-module tests and 26 assertion-killed production mutations cover timeout/cancellation, parsers, publication, no-op, recovery and F13; no production or test edit remains from review."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-746501d132333054",
+      "rationale": "D1 separates execution, verdict, coverage and publication because killed gates and partial writes cannot establish domain failure or rollback. The ADR chooses scoped envelopes plus typed execution errors, while D2 preserves existing documents. SD-cb1a381d is mapped to D1 and its R1/R2/R4/R5/R6/R7 basis.",
+      "mappings": [
+        {
+          "delta": "SD-cb1a381d",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR separates execution and confirmed publication from verdict and coverage to satisfy D1 basis R1/R2/R4/R5/R6/R7. D2 preserves existing JSON contracts; neither decision asserts transaction-wide atomicity."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Root and locale/scaffold POSE docs, help, ADR and changelog describe actual flags, single JSON output, stricter parsing, typed MCP inconclusive errors and journal behavior. The executed quickstart preserves its closeout_plan consumers. Requirement trace names real functional producers rather than lint."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Waiting retains pending IDs and a supported attest/resume command. Failed publication keeps confirmed effects and unconfirmed steps; stale start directs cancel/new preview, and F13 directs inspection/removal only when no start is live. Both renderers retain the same facts and no-op directs a fresh closeout-check."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "R1-R9 are exercised by this sealed integration producer and traced individually to real tests/probes in Validation. Independent fault probes cover V1-V8, with F9-F13 counterfactual regressions and prior controls retained. Passing execution or lint is not treated as a domain judgment."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "The 31 attributed paths implement only B12 and its declared compatibility decisions. No policy, capability or adoption changes occurred. agent:independent- is an engine-required declaration until pose-delegated-review-run-provenance replaces it; this is another-vendor Codex/OpenAI execution versus implementer Claude/Anthropic. Identity/separation are declared and attestations unsigned; maintainer authorization is not a human confirmation of these conclusions."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Strict parsers reject unknown or null inputs and invalid ranges before widening data. Start keeps slug/path and per-spec lock boundaries, and F13 preserves bytes for inspection instead of deleting evidence. No secrets, new authority grants or weakened governance policies enter this delta; output probes use synthetic data."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-746501d132333054",
+      "rationale": "A universal envelope would break established JSON consumers and local message patches would leave outcome semantics duplicated. The selected domain type, adapters and typed subprocess error are the smallest sufficient design for R1-R9. General CAS/recovery runtime and absent MCP close tools stay in B13/B14/B35; a future consumer requiring those guarantees must extend the contract rather than infer them."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict: 31 claims reconcile with 31 observed paths and no scoped errors."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-746501d132333054",
+      "rationale": "Executed on the sealed current implementation; 27 files observed, ADR material delta mapped to D1."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed if-stale for pose-mcp with committed tree, engine and matrix binding."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Executed contract diagnostic and independently exercised the changed MCP/CLI consumers."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed marker scan with zero TODO/FIXME/panic/stub markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only gate requires this approving attestation; execute immediately after apply before the guarded close."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only gate requires this approving attestation; execute immediately after apply before the guarded close."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed for pose-mcp and applied backend-go, security and documentation rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Executed strict against the capability target and current structured integration evidence."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Executed global strict 134/134 at 16151559; no failures, errors or skips."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Executed explicit pose-mcp strict 131/131 at 16151559 with a separate result file."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "structure:design-746501d132333054"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-16T17:48:32Z",
+  "path": ".pose/review-attestations/rva-87212ea94b920fde.json"
+}

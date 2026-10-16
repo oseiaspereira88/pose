@@ -1,8 +1,8 @@
 ---
 slug: pose-cli-mcp-operation-results
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-16
 depends_on: pose-recoverable-closeout-plan
 priority: 1
 components: pose-mcp
@@ -132,7 +132,7 @@ domínio em processo do CLI fica fora: o processo do CLI termina pelo sinal.
 - [x] Remediar a quinta revisão independente: F11 `StartRecovery` classifica o que o digest registrado ainda pode fazer; baseline ultrapassada pelo repositório e spec alterada sob o start viram conflito com orientação de cancel e novo preview, e só a transição publicada ou o plano inalterado são retomáveis.
 - [x] Remediar a sexta revisão independente: F12 a falha do start lista como efeito confirmado a transição publicada (spec `in-progress`, com o path) e `steps_run` registra só os passos desta chamada (baseline, transição, registro), separando a retomada dos efeitos herdados, nos dois renderers.
 - [x] Remediar a sétima revisão independente: F13 um registro de start ilegível (escrita da baseline interrompida) aparece no recibo com o passo `baseline` falho e não confirmado e a orientação de inspecionar e remover o registro antes de novo preview; a retomada mantém a orientação e preserva os bytes.
-- [ ] Revisão por ator diferente, closeout nativo e PR.
+- [x] Revisão por ator diferente, closeout nativo e PR #186; merge permanece com o maintainer.
 
 ## 5. Decisions
 
@@ -170,24 +170,24 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Testes de execução e contraprovas independentes estão registrados no parecer de 2026-10-16, Eighth round, e na evidência `b12-independent-review.json`.
 
 ### Requirement trace
 
-Trace planejado; vincular os casos aos produtores reais na implementação.
-Não declarar requisitos funcionais satisfeitos pelo lint.
+- R1 [satisfied] test:TestOperationResultStartsWithRangeableLists; test:TestCloseApplyJSONSeparatesCompletionFromAlreadySatisfied; test:TestContinuousCloseoutStatusJSONSeparatesQueryFromReadiness; test:TestAGateToolStoppedByItsDeadlineIsAnInconclusiveError
+- R2 [satisfied] test:TestCloseApplyJSONReportsWaitingWithPendingAndNextAction; test:TestJSONRoutesReportOperationalFailuresAsOneDocument; test:TestAResumeThatFailsAgainKeepsItsReceiptForPeople; test:TestAStartBaselineWriteCutShortIsReportedForInspection
+- R3 [satisfied] test:TestCloseAndStartRefuseAmbiguousModesWithoutWriting; test:TestSpecsRefusesInvalidFiltersAndKeepsAliases; test:TestSpecFactsRefusesUnknownFlagsWhereverJSONIs; test:TestListSpecsRefusesFiltersItWouldOtherwiseDrop
+- R4 [satisfied] test:TestCloseApplyJSONReportsWaitingWithPendingAndNextAction; test:TestCloseApplyJSONSeparatesCompletionFromAlreadySatisfied; test:TestContinuousCloseoutStatusJSONSeparatesQueryFromReadiness
+- R5 [satisfied] test:TestAGateKilledByItsDeadlineIsInconclusiveNotFailed; test:TestACancelledGateIsInconclusive; test:TestAJSONQueryKilledByItsDeadlineIsInconclusive; test:TestAGateThatExitsNonZeroInTimeIsStillAVerdict; test:TestAGateToolStoppedByItsDeadlineIsAnInconclusiveError
+- R6 [satisfied] test:TestEvidenceThatValidateCouldNotPublishIsNotAConfirmedEffect; test:TestACheckThatPrintsTheWriteReceiptDoesNotConfirmIt; test:TestAStartThatFailsAfterMovingTheSpecResumesWithTheAdvertisedCommand; test:TestARetriedStartDoesNotOutliveARequestThatNowRestrictsIt; test:TestAStaleStartBaselineIsNotAdvertisedAsResumable; test:TestAStartReceiptNamesThePublishedTransitionAndOnlyItsOwnSteps; test:TestAStartWhoseTransitionFailsClaimsNoSpecEffect; test:TestAStartBaselineWriteCutShortIsReportedForInspection
+- R7 [satisfied] test:TestCloseAndStartRefuseAmbiguousModesWithoutWriting; test:TestListSpecsRefusesFiltersItWouldOtherwiseDrop; test:TestListSpecsKeepsTheAdvertisedSlugOrder; test:TestAGateToolStoppedByItsDeadlineIsAnInconclusiveError; command:tests/quickstart/first-governed-loop.sh
+- R8 [satisfied] test:TestUsageCountsAWaitingCloseAsWaitingNotFailed; test:TestUsageCountsWaitingAndSkipsUnmeasuredDurations; report:.pose/results/b12-independent-review.json#eighth_round.mcp
+- R9 [satisfied] command:.pose/results/2026-10-12-pose-front-07-ux-probes.py; report:.pose/results/b12-independent-review.json#eighth_round; report:.pose/reports/2026-10-16-pose-b12-operation-results-review.md
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1, V4–V6 |
-| R2 | V1 |
-| R3 | V2, V3 |
-| R4 | V4, V8 |
-| R5 | V5 |
-| R6 | V6 |
-| R7 | V1–V3, V7 |
-| R8 | V7 |
-| R9 | V1–V8 |
+Produtores funcionais executados nesta revisão: suíte Go completa, vet, race nos
+quatro pacotes tocados, quickstart, probes CLI/MCP e 26 contraprovas temporárias.
+A evidência preserva cada rodada e os resultados anteriores. Lint não é produtor
+funcional; o limite de contexto em processo e de cleanup consta no ADR.
 
 Consultar também [consistência/recovery](../reports/2026-10-12-pose-front-09-consistency-recovery.md) e [performance](../reports/2026-10-12-pose-front-08-resident-performance.md).
 
@@ -195,14 +195,33 @@ Consultar também [consistência/recovery](../reports/2026-10-12-pose-front-09-c
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 4. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+Entregue B12: OperationResult schema 1 e renderers de close apply/resume e
+continuous status; parsing estrito de close/start/specs e pose_list_specs;
+erros de subprocesso inconclusivos no domínio/MCP; waiting e duração desconhecida
+no journal. Os documentos legados foram preservados conforme D2 e o ADR.
+F1–F13 foram reexaminados e fechados por execução diferente Codex/OpenAI,
+`agent:independent-gpt-6.1-sol-review`, frente ao implementador Claude/Anthropic.
+Identidade e separação declaradas, atestações não assinadas.
+
+Validação independente: global strict 134/134 e módulo strict 131/131;
+go vet, suíte completa, race nos quatro pacotes, quickstart, 15 probes e
+26 contraprovas de produção. Bundle `rvb-6bd4b19097039e81`, atestação
+`rva-87212ea94b920fde`; review verify fresh/approved e close nativo em
+2026-10-16. O [parecer, Eighth round](../reports/2026-10-16-pose-b12-operation-results-review.md)
+e a [evidência de todas as rodadas](../results/b12-independent-review.json)
+registram os resultados, ferramentas e eventuais renovações do selo.
 
 ### Residual risks
 
-Schema, exit mapping e modes são contratos públicos. Enumerar rotas afetadas para evitar envelope de sucesso que esconda falha de transporte/execução. Context cancellation não prova ausência de efeito; o domínio precisa informar o que confirmou. Sem instrumentação suficiente, duração/efeito permanece unknown.
+O envelope não torna a operação atômica. Filhos podem sobreviver ao subprocesso
+cancelado e o CLI não propaga contexto em processo; ambos os limites estão
+no ADR. Recusas mais estritas e a semântica pública são minor; leitores antigos
+do journal recusam waiting. Nenhuma rota MCP de close foi criada. Esses limites
+não são findings dispensados nem afirmação de rollback, coverage ou autorização.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Não há finding residual aberto desta revisão. As unidades B13/B14/B35 e as
+demais obrigações já existentes continuam no programa, sem criação, cobertura,
+duplicação ou encerramento automático. O programa continua ativo; este aceite não encerra seus roadmaps. O merge de
+#186 pertence ao maintainer.
