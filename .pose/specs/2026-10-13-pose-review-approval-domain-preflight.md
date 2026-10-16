@@ -82,6 +82,7 @@ afirmar a recusa ou a semear histórico explicitamente.
 - created: .pose/results/b02-implementation-validation.json
 - modified: pose-mcp/internal/cli/review_closeout_test.go
 - modified: pose-mcp/internal/cli/review_criterion_disposition_test.go
+- modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
 - created: .pose/reports/2026-10-16-pose-b02-domain-preflight-review.md
 
 ### Delivery targets
@@ -120,6 +121,7 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Converge CLI (attest, sign, envelope import, auto-attest) and MCP on the domain result.
 - [x] Exercise V1–V7 in domain, CLI, signed import and MCP HTTP consumer; adapt fixtures that persisted invalid approvals.
 - [x] Remediate F1 of the first independent review: the ordinary CLI decodes criterion and tool flags only and reports the domain's refusal.
+- [x] Remediate F2 of the second independent review: an explicitly named superseded bundle is judged by the domain, not refused by the CLI.
 - [ ] Strict module validation, artifact/surface evidence and separate different-actor review.
 - [ ] Native closeout, reconcile matrix/roadmaps and PR with final-head CI/Security.
 
@@ -169,10 +171,10 @@ was required.
 - R1 [satisfied] test:TestReviewDomainPreflightKeepsEverySemanticBlocker; test:TestReviewDomainPreflightRefusesReservationsWithInvalidRisk
 - R2 [satisfied] test:TestReviewDomainPreflightRefusesTheSameApprovalOnEveryChannel; test:TestReviewDomainPreflightCLIImportAndMCPAgreeWithTheDomain
 - R3 [satisfied] test:TestReviewDomainPreflightLeavesHistoryAlone; test:TestABMReviewSoundnessOrphanFindingRefusedByStore
-- R4 [satisfied] test:TestReviewDomainPreflightRecordsNegativesButKeepsChannelProof; test:TestReviewDomainPreflightCLIRecordsANegative; test:TestReviewDomainPreflightNegativesOweNoApprovalAnswers
+- R4 [satisfied] test:TestReviewDomainPreflightRecordsNegativesButKeepsChannelProof; test:TestReviewDomainPreflightCLIRecordsANegative; test:TestReviewDomainPreflightNegativesOweNoApprovalAnswers; test:TestReviewDomainPreflightCLISupersededBundleIsTheDomainsToJudge
 - R5 [satisfied] test:TestReviewDomainPreflightValidApprovalAndRetryKeepIdentity; test:TestReviewDomainPreflightRefusesStaleOrSupersededBundles; test:TestReviewDomainPreflightCLIRefusesASupersededBundle
 - R6 [satisfied] test:TestReviewDomainPreflightSignatureIsNotApproval; test:TestReviewAssuranceKeepsIdentitySeparateFromApproval
-- R7 [satisfied] test:TestReviewDomainPreflightCLIImportAndMCPAgreeWithTheDomain; test:TestReviewDomainPreflightRefusesTheSameApprovalOnEveryChannel; test:TestReviewDomainPreflightCLISemanticRefusalsComeFromTheDomain; test:TestReviewDomainPreflightSignedImportAgreesOnSeveralDefects
+- R7 [satisfied] test:TestReviewDomainPreflightCLIImportAndMCPAgreeWithTheDomain; test:TestReviewDomainPreflightRefusesTheSameApprovalOnEveryChannel; test:TestReviewDomainPreflightCLISemanticRefusalsComeFromTheDomain; test:TestReviewDomainPreflightSignedImportAgreesOnSeveralDefects; test:TestReviewDomainPreflightCLISupersededBundleIsTheDomainsToJudge
 
 Regressions passed (Go 1.26.0): `go test ./internal/pose ./internal/cli
 ./internal/mcpserver -run 'ReviewDomainPreflight|ABMReviewAuthority|ABMReviewSoundness|ABMGolden|ReviewAssurance|LegacyLedger|NativeAndExternal|NativeAuthority|SignedPreview|AnAgentConfirmation|CompletedReviewRetention|AuthorityProject|ReviewAttestationEnvelope|ReviewAttest' -count=1`.
@@ -202,6 +204,22 @@ attestation the command builds, plus the signed import; and record
 changes-requested/rejected without the approval judgment or required tools
 through the CLI, the Store and a signed import. The parser unit tests now assert
 decoding only. `go vet ./...` and `go test ./... -count=1` pass.
+
+Second independent review (2026-10-16, same reviewer, same report) accepted F1
+and requested changes on F2 (medium): for an explicit `rvb-…` target the
+command resolved the scope's current bundle and refused on its own when the ids
+differed, so an approval of a superseded bundle lost the domain's other
+blockers and a legitimate `rejected` about it was refused where the Store
+records it. Remediation: `resolveReviewAttestBundle` attests the bundle as
+named (a scope ref still means its current sealed bundle) and leaves
+supersession to the domain writer, which reports it among every blocker for an
+approval and records a negative. `TestReviewDomainPreflightCLISupersededBundleIsTheDomainsToJudge`
+compares the command's preview and write with the Store's typed refusal (both
+superseded and a missing required tool) and records `rejected` through the
+command and the Store; it fails against the previous `review_closeout.go`
+(`382708de`) and passes now. The direct-print ratchet baseline for
+`review_closeout.go` drops from 124 to 122. `go vet ./...` and
+`go test ./... -count=1` pass.
 
 ## 7. Final Report
 

@@ -458,6 +458,60 @@ func TestReviewDomainPreflightNegativesOweNoApprovalAnswers(t *testing.T) {
 	})
 }
 
+// F2 of the second independent review, R4/R5/R7: an explicitly named bundle
+// that a newer seal superseded is the domain's to judge. The approval gets the
+// Store's typed refusal with every blocker — superseded among them, not instead
+// of them — and a legitimate negative about that bundle is recorded by the
+// command exactly as the Store records it.
+func TestReviewDomainPreflightCLISupersededBundleIsTheDomainsToJudge(t *testing.T) {
+	supersede := func(t *testing.T) (string, posemodel.ReviewBundle, string) {
+		t.Helper()
+		root := reviewBundleCLIFixture(t)
+		old, evidence := sealCLIBundle(t, root)
+		writeCloseoutCLIFile(t, root, ".pose/indexes/validation-matrix.json", `{"defaults":{"mode":"strict"},"moduleOverrides":{"pose-mcp":{"checks":[{"name":"another-check","program":"true","severity":"required","evidenceClass":"unit"}]}}}`)
+		if current, _ := sealCLIBundle(t, root); current.BundleID == old.BundleID {
+			t.Fatal("fixture: the inputs did not change the bundle")
+		}
+		return root, old, evidence
+	}
+	tools := []string{"artifact-check|-|passed|check:artifact|"} // validate omitted: a second blocker
+	criteria := []string{"correctness|finding|f1|"}
+	findings := []string{"f1|high|open|fix it|-"}
+
+	root, old, evidence := supersede(t)
+	att := cliBuiltAttestation(t, old, "approved", []string{evidence}, nil, tools, nil)
+	_, err := (posemodel.Store{Root: root}).RecordReviewAttestation(att, time.Now())
+	var refusal *posemodel.ReviewApprovalRefusal
+	if !errors.As(err, &refusal) || !containsText(refusal.Blockers, "is superseded by") || !containsText(refusal.Blockers, "missing required review tool disposition validate") {
+		t.Fatalf("fixture: the Store does not refuse with both blockers: %v", err)
+	}
+	before := reviewArtifactFiles(t, root)
+	for _, apply := range []bool{false, true} {
+		var out, errOut bytes.Buffer
+		code := cmdReview(root, cliAttestArgs(old.BundleID, "approved", []string{evidence}, nil, tools, nil, apply), &out, &errOut)
+		if got := refusalBlockers(out.String() + errOut.String()); code != 1 || !reflect.DeepEqual(got, refusal.Blockers) {
+			t.Fatalf("CLI apply=%t code=%d diverged from the Store:\n%v\n%v", apply, code, got, refusal.Blockers)
+		}
+	}
+	if after := reviewArtifactFiles(t, root); !reflect.DeepEqual(after, before) {
+		t.Fatalf("a refused approval wrote review artifacts:\n%v\n%v", before, after)
+	}
+
+	// The negative, through the command and through the Store.
+	var out, errOut bytes.Buffer
+	if code := cmdReview(root, cliAttestArgs(old.BundleID, "rejected", []string{evidence}, criteria, nil, findings, true), &out, &errOut); code != 0 {
+		t.Fatalf("CLI refused a negative about a superseded bundle: code=%d %s %s", code, out.String(), errOut.String())
+	}
+	if got := onlyAttestation(t, root); got.Decision != "rejected" || got.BundleID != old.BundleID {
+		t.Fatalf("recorded %q for %s", got.Decision, got.BundleID)
+	}
+	root, old, evidence = supersede(t)
+	att = cliBuiltAttestation(t, old, "rejected", []string{evidence}, criteria, nil, findings)
+	if _, err := (posemodel.Store{Root: root}).RecordReviewAttestation(att, time.Now()); err != nil {
+		t.Fatalf("Store refused the same negative: %v", err)
+	}
+}
+
 func containsText(values []string, want string) bool {
 	for _, value := range values {
 		if strings.Contains(value, want) {

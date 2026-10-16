@@ -629,6 +629,39 @@ func resolveReviewBundleScope(store posemodel.Store, target string) (string, err
 	return bundle.Payload.Scope.Ref, nil
 }
 
+// resolveReviewAttestBundle names the bundle an attestation is about. A scope
+// ref means its current sealed bundle; an explicit bundle id or path means
+// that bundle, as named. Whether a named bundle is still the current subject
+// is not decided here: the domain writer refuses the approval of a superseded
+// or stale bundle among its other blockers, and records a legitimate negative
+// about it, exactly as it does for the Store and a signed import (spec
+// pose-review-approval-domain-preflight R4, R5, R7).
+func resolveReviewAttestBundle(store posemodel.Store, target string) (*posemodel.ReviewBundle, error) {
+	if _, err := posemodel.ParseScopeRef(target); err == nil {
+		bundle, err := store.CurrentReviewBundle(target)
+		if err != nil {
+			return nil, err
+		}
+		if bundle == nil {
+			return nil, fmt.Errorf("scope has no current sealed bundle")
+		}
+		return bundle, nil
+	}
+	id := target
+	if strings.HasSuffix(target, ".json") {
+		clean := filepath.Clean(filepath.FromSlash(target))
+		if filepath.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, ".."+string(os.PathSeparator)) {
+			return nil, fmt.Errorf("bundle path escapes project root")
+		}
+		id = strings.TrimSuffix(filepath.Base(clean), ".json")
+	}
+	bundle, err := store.LoadReviewBundle(id)
+	if err != nil {
+		return nil, err
+	}
+	return &bundle, nil
+}
+
 func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) >= 2 && args[0] == "--envelope" {
 		apply := false
@@ -748,21 +781,9 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	store := cliGovernedStore(root)
-	ref, err := resolveReviewBundleScope(store, target)
+	bundle, err := resolveReviewAttestBundle(store, target)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
-		return 1
-	}
-	bundle, err := store.CurrentReviewBundle(ref)
-	if err != nil || bundle == nil {
-		if err == nil {
-			err = fmt.Errorf("scope has no current sealed bundle")
-		}
-		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
-		return 1
-	}
-	if strings.HasPrefix(target, "rvb-") && target != bundle.BundleID {
-		fmt.Fprintln(stderr, "pose review attest: bundle is superseded by current semantic inputs")
 		return 1
 	}
 	if expectedPlanDigest != "" && expectedPlanDigest != bundle.Payload.Plan.PlanDigest {

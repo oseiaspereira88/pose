@@ -20,3 +20,8 @@ or omitted required tool) now returns the domain's refusal with every blocker
 at once (exit 1) instead of the first parser error (exit 2), and a
 `changes-requested` or `rejected` decision no longer needs the approval's
 judgment criteria or required tools.
+
+An explicit bundle id given to `pose review attest` is now attested as named:
+the approval of a superseded bundle is refused by the domain with every other
+blocker, and a negative decision about it is recorded, as the Store and a
+signed import already did.
