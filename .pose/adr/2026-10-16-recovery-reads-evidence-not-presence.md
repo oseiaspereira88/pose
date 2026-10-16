@@ -47,8 +47,10 @@ Option 3 is chosen.
 
 **Journals** (`internal/pose/journal_integrity.go`). Every byte is read:
 each line ends with a newline and holds exactly one JSON object, with no
-duplicate field, unknown field or trailing value, the supported schema and
-the next sequence number; a line is at most 1 MiB. Escaped control
+duplicate field — two keys that differ only in case are duplicates, because
+`encoding/json` matches fields case-insensitively and the later one would win
+— no unknown field or trailing value, a known event type, the supported
+schema and the next sequence number; a line is at most 1 MiB. Escaped control
 characters are text and stay valid — journals in use carry them. The first
 bytes that do not read are an `*ActionJournalError` (`ErrActionJournalInvalid`)
 naming the request, path, line, byte offset, length and SHA-256 of those
@@ -63,7 +65,8 @@ and the next step.
 
 **Checkpoints** (`internal/pose/closeout_plan.go`). A checkpoint is
 `absent`, `valid`, `corrupt`, `unsupported` or `unavailable`; it is valid only
-when it reads strictly, has schema 1, names this scope, a plan digest, an RFC
+when it reads strictly (keys that differ only in case are duplicates, as in
+journals), has schema 1, names this scope, a plan digest, an RFC
 3339 start and known steps, each once. The checkpoint is a record of
 progress, not an authoritative artifact — the plan is computed from the
 repository — so it is replaced through an exclusive temporary file and a

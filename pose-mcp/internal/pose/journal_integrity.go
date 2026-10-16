@@ -26,6 +26,13 @@ const (
 	JournalCorrupt = "corrupt"
 )
 
+// actionEventTypes are the events a journal may hold; any other type would be
+// read and then ignored by the view, so it is corrupt.
+var actionEventTypes = map[string]bool{
+	ActionEventOpened: true, ActionEventAnswered: true, ActionEventRefused: true, ActionEventCancelled: true,
+	ActionEventWaived: true, ActionEventSuperseded: true, ActionEventInvalidated: true,
+}
+
 // maxActionJournalLine bounds one event; a longer line is corrupt.
 const maxActionJournalLine = 1 << 20
 
@@ -89,6 +96,9 @@ func parseActionJournal(raw []byte) ([]ActionEvent, error) {
 		if event.SchemaVersion != ActionRequestSchemaVersion {
 			return nil, invalid(JournalCorrupt, fmt.Sprintf("schema_version %d is not supported", event.SchemaVersion))
 		}
+		if !actionEventTypes[event.Type] {
+			return nil, invalid(JournalCorrupt, fmt.Sprintf("event type %q is unknown", event.Type))
+		}
 		if event.Seq != len(events)+1 {
 			return nil, invalid(JournalCorrupt, fmt.Sprintf("sequence %d breaks the journal order", event.Seq))
 		}
@@ -106,7 +116,7 @@ func decodeActionEvent(text []byte) (ActionEvent, error) {
 	}
 	// Escaped control characters are valid text in an answer or a reason;
 	// a duplicate field is not, because only one of its values would count.
-	if err := rejectDuplicateJSONKeys(text, false); err != nil {
+	if err := rejectDuplicateJSONKeys(text, false, true); err != nil {
 		return event, err
 	}
 	decoder := json.NewDecoder(bytes.NewReader(text))

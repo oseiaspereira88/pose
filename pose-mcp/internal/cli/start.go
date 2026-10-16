@@ -34,7 +34,7 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 	if posemodel.ValidateSlug(slug) != nil {
 		return usage("invalid spec slug")
 	}
-	apply, status, cancel, jsonOutput, digest, recoverLock := false, false, false, false, "", ""
+	apply, status, cancel, jsonOutput, digest, recoverLock, recovering := false, false, false, false, "", "", false
 	for i := 1; i < len(args); i++ {
 		switch args[i] {
 		case "--apply":
@@ -52,11 +52,11 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 			i++
 			digest = args[i]
 		case "--recover-lock":
-			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "-") {
+			if i+1 >= len(args) || args[i+1] == "" || strings.HasPrefix(args[i+1], "-") {
 				return usage("--recover-lock needs the owner digest `pose start spec:<slug> --status` shows")
 			}
 			i++
-			recoverLock = args[i]
+			recoverLock, recovering = args[i], true
 		default:
 			return usage("unknown option: " + args[i])
 		}
@@ -65,7 +65,7 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 	// or a flag the mode does not take is refused, never resolved by
 	// priority or order (spec pose-cli-mcp-operation-results R3).
 	modes := 0
-	for _, on := range []bool{apply, status, cancel, recoverLock != ""} {
+	for _, on := range []bool{apply, status, cancel, recovering} {
 		if on {
 			modes++
 		}
@@ -80,7 +80,7 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	store := cliGovernedStore(root)
 	switch {
-	case recoverLock != "":
+	case recovering:
 		return renderStartLockRecovery(r, stdout, jsonOutput, slug, recoverLock, store)
 	case cancel:
 		if err := store.CancelStart(slug); err != nil {

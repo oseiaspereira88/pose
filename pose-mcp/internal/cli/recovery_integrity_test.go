@@ -163,7 +163,7 @@ func TestTheStartCommandReportsAndRecoversOnlyADeadLock(t *testing.T) {
 	if code != 0 || !strings.Contains(human, "start.lock=owner-unknown .pose/starts/.work.lock") || !strings.Contains(human, "start.lock.owner_digest=") {
 		t.Fatalf("status hid the lock: %d %s", code, human)
 	}
-	for _, args := range [][]string{{"--recover-lock"}, {"--recover-lock", "x", "--apply"}, {"--recover-lock", "x", "--status"}} {
+	for _, args := range [][]string{{"--recover-lock"}, {"--recover-lock", ""}, {"--recover-lock", "", "--apply", "--digest", plan.Digest}, {"--recover-lock", "x", "--apply"}, {"--recover-lock", "x", "--status"}} {
 		if code, _ := runPose(t, root, append([]string{"start", "spec:work"}, args...)...); code != 2 {
 			t.Fatalf("%v: exit %d", args, code)
 		}

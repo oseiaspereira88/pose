@@ -102,8 +102,9 @@ o MCP é `pose_action_requests` e `pose_start_status`. Não há rota MCP de clos
 
 Contrato no ADR `2026-10-16-recovery-reads-evidence-not-presence`. O journal
 é lido por inteiro: cada linha termina em newline e traz exatamente um objeto
-JSON, sem campo duplicado ou desconhecido, com o schema suportado e a próxima
-sequência; caracteres de controle escapados continuam válidos. O primeiro
+JSON, sem campo duplicado (chaves que diferem só na caixa contam como
+duplicadas) ou desconhecido, com tipo de evento conhecido, o schema suportado
+e a próxima sequência; caracteres de controle escapados continuam válidos. O primeiro
 trecho que não lê vira `*ActionJournalError` com linha, offset, tamanho e
 SHA-256, `interrupted-tail` (última linha sem terminador, com proposta de
 truncamento para revisão humana) ou `corrupt`; o motor nunca trunca e recusa
@@ -132,6 +133,7 @@ em Linux e na mesma máquina; outras plataformas reportam `owner-unknown`.
 - [x] Checkpoint com estados, escrita por rename, remoção verificada, bloqueio e conflito de progresso.
 - [x] Trava do start com dono, classificação por identidade, recuperação verificada e status em CLI/MCP.
 - [x] V1–V8 nos consumidores domínio, CLI e MCP, com race detector; probes P01–P17 antes e depois (controles inalterados); 29 mutações reprovando; validação estrita do módulo.
+- [x] Remediar a primeira revisão independente: chaves que diferem só na caixa contam como duplicadas no journal e no checkpoint; tipo de evento desconhecido é corrupção; `--recover-lock` vazio é recusado pelo parser; o teste de linha grande usa um evento válido, sensível só ao limite.
 - [ ] Revisão por ator diferente, closeout nativo e PR.
 
 ## 5. Decisions

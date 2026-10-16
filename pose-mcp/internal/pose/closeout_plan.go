@@ -310,7 +310,7 @@ func (s Store) InspectCloseoutCheckpoint(ref string) CloseoutCheckpointRead {
 		return fail(CheckpointUnsupported, fmt.Sprintf("schema_version %d is not supported", version.SchemaVersion))
 	}
 	var cp CloseoutCheckpoint
-	if err := rejectDuplicateJSONKeys(raw, false); err != nil {
+	if err := rejectDuplicateJSONKeys(raw, false, true); err != nil {
 		return fail(CheckpointCorrupt, err.Error())
 	}
 	if err := strictJSONBytes(raw, &cp); err != nil {

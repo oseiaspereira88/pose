@@ -48,7 +48,10 @@ func TestAJournalIsReadWholeOrNotAtAll(t *testing.T) {
 		"sequence gap":               {append(append([]byte{}, opening...), bytes.Replace(opening, []byte(`"seq":1,`), []byte(`"seq":3,`), 1)...), JournalCorrupt, 2, len(opening)},
 		"unterminated unparseable":   {append(append([]byte{}, opening...), []byte(`{"schema_version":1,"seq":2,`)...), JournalInterruptedTail, 2, len(opening)},
 		"unterminated but parseable": {append(append([]byte{}, opening...), bytes.Replace(first, []byte(`"seq":1,`), []byte(`"seq":2,`), 1)...), JournalInterruptedTail, 2, len(opening)},
-		"oversized line":             {append(append([]byte{}, opening...), append(bytes.Repeat([]byte(" "), maxActionJournalLine+1), '\n')...), JournalCorrupt, 2, len(opening)},
+		"oversized line":             {append(append([]byte{}, opening...), append(oversizedEvent(), '\n')...), JournalCorrupt, 2, len(opening)},
+		"field in another case":      {append(bytes.Replace(first, []byte(`"seq":1,`), []byte(`"seq":1,"SEQ":1,`), 1), '\n'), JournalCorrupt, 1, 0},
+		"nested field in other case": {append(bytes.Replace(first, []byte(`"question":`), []byte(`"QUESTION":"forged","question":`), 1), '\n'), JournalCorrupt, 1, 0},
+		"unknown event type":         {append(append([]byte{}, opening...), append(bytes.Replace(bytes.Replace(first, []byte(`"seq":1,`), []byte(`"seq":2,`), 1), []byte(`"type":"opened"`), []byte(`"type":"approved"`), 1), '\n')...), JournalCorrupt, 2, len(opening)},
 	} {
 		events, err := parseActionJournal(c.journal)
 		var invalid *ActionJournalError
@@ -67,6 +70,12 @@ func TestAJournalIsReadWholeOrNotAtAll(t *testing.T) {
 			t.Fatalf("%s: a repair is proposed only for an interrupted tail: %+v", name, invalid)
 		}
 	}
+}
+
+// oversizedEvent is a valid event longer than a journal line may be, so only
+// the size bound refuses it.
+func oversizedEvent() []byte {
+	return []byte(`{"schema_version":1,"seq":2,"type":"cancelled","at":"2026-10-16T00:00:00Z","actor":"human:maintainer","reason":"` + strings.Repeat("x", maxActionJournalLine) + `"}`)
 }
 
 // Escaped control characters are text; the journals already in use read.
@@ -132,6 +141,7 @@ func TestACheckpointSaysWhatItIs(t *testing.T) {
 		"no digest":     {strings.Replace(valid, `"sha256:x"`, `""`, 1), CheckpointCorrupt},
 		"bad time":      {strings.Replace(valid, `2026-10-12T12:00:00Z`, `yesterday`, 1), CheckpointCorrupt},
 		"trailing":      {valid + `{}`, CheckpointCorrupt},
+		"case alias":    {strings.Replace(valid, `"completed"`, `"COMPLETED":[],"completed"`, 1), CheckpointCorrupt},
 	} {
 		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 			t.Fatal(err)

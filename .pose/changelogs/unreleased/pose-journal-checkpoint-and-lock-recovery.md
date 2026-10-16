@@ -5,7 +5,8 @@ breaking: false
 ---
 
 Action-request journals are read whole. A line with a second JSON value, a
-duplicate field, an unsupported `schema_version`, a sequence gap, an empty line
+duplicate field (also two keys differing only in case), an unknown event
+type, an unsupported `schema_version`, a sequence gap, an empty line
 or no line terminator used to be read as if it were not there, or made the
 request unreadable without saying where; it is now an `action-journal-invalid`
 error naming the line, byte offset, length and SHA-256 of the bytes, and
