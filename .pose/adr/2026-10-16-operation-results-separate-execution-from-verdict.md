@@ -121,7 +121,12 @@ Routes:
   reaching (`StartFailureHook`, observed without interrupting): a retry that
   finds the baseline and the transition already published runs only
   `record`, so an effect whose step is absent from `steps_run` was published
-  by an earlier call.
+  by an earlier call. A start record file that exists but does not read as
+  a record (an exclusive baseline write cut short leaves part of it) is no
+  confirmed baseline: the call that created it reports `baseline` failed and
+  unconfirmed, and it and any later call give a next action to inspect the
+  record and remove it once no start is running, then preview again. The
+  adapter never deletes it, and the result is not resumable.
 - `pose close <scope>` without a plan mode has no JSON result: `--json` there
   is refused with exit 2 and the help no longer advertises it.
 - Parsers of `close`, `start`, `specs` and `continuous-closeout` refuse,

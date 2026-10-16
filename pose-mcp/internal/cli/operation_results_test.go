@@ -702,3 +702,85 @@ func TestAStartWhoseTransitionFailsClaimsNoSpecEffect(t *testing.T) {
 		t.Fatalf("a failed transition: %q %+v", got, result.Effects)
 	}
 }
+
+// TestStartUnderAFileSizeLimitHelper is not a test: the short-write test
+// re-runs the test binary under a file size limit and this runs the CLI in
+// that process, so only it is limited.
+func TestStartUnderAFileSizeLimitHelper(t *testing.T) {
+	raw := os.Getenv("POSE_TEST_FSIZE_HELPER")
+	if raw == "" {
+		t.Skip("helper process only")
+	}
+	var call struct {
+		Dir  string
+		Args []string
+	}
+	if err := json.Unmarshal([]byte(raw), &call); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(call.Dir); err != nil {
+		t.Fatal(err)
+	}
+	os.Exit(Main(call.Args, os.Stdout, os.Stderr))
+}
+
+// runPoseUnderFileSizeLimit runs the CLI in a child limited to 512-byte
+// files, so the first write past that limit is short and returns EFBIG.
+func runPoseUnderFileSizeLimit(t *testing.T, root string, args ...string) (int, string) {
+	t.Helper()
+	call, _ := json.Marshal(map[string]any{"Dir": root, "Args": args})
+	cmd := exec.Command("sh", "-c", `ulimit -f 1 && exec "$@"`, "sh", os.Args[0], "-test.run=^TestStartUnderAFileSizeLimitHelper$")
+	cmd.Env = append(os.Environ(), "POSE_TEST_FSIZE_HELPER="+string(call))
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	code := 0
+	if exit, ok := err.(*exec.ExitError); ok {
+		code = exit.ExitCode()
+	} else if err != nil {
+		t.Fatal(err)
+	}
+	return code, out.String()
+}
+
+func TestAStartBaselineWriteCutShortIsReportedForInspection(t *testing.T) {
+	root := startCLIFixture(t, true)
+	var plan posemodel.StartPlan
+	if code, _ := runPoseJSON(t, root, &plan, "start", "spec:work", "--json"); code != 0 {
+		t.Fatal("preview")
+	}
+	code, out := runPoseUnderFileSizeLimit(t, root, "start", "spec:work", "--apply", "--digest", plan.Digest, "--json")
+	record := filepath.Join(root, ".pose", "starts", "work.json")
+	partial, readErr := os.ReadFile(record)
+	if code != 1 || readErr != nil || json.Valid(partial) {
+		t.Fatalf("bad fixture: the baseline write was not cut short: %d %v %q\n%s", code, readErr, partial, out)
+	}
+	var first posemodel.OperationResult
+	if err := json.Unmarshal([]byte(out), &first); err != nil {
+		t.Fatalf("not one JSON document: %v\n%s", err, out)
+	}
+	if first.Step != "baseline" || stepsOf(first) != "baseline=failed" || len(first.Effects) != 0 || first.Resumable ||
+		len(first.Unconfirmed) != 1 || first.Unconfirmed[0].Step != "baseline" || !strings.Contains(first.NextAction, ".pose/starts/work.json") {
+		t.Fatalf("the cut-short baseline is missing from the receipt: %+v", first)
+	}
+	// A retry reads the partial record, runs nothing and keeps the guidance;
+	// the partial bytes are left for inspection.
+	var retry posemodel.OperationResult
+	if code, _ := runPoseJSON(t, root, &retry, "start", "spec:work", "--apply", "--digest", plan.Digest, "--json"); code != 1 {
+		t.Fatal("the retry did not fail")
+	}
+	if stepsOf(retry) != "" || len(retry.Unconfirmed) != 0 || retry.Resumable || !strings.Contains(retry.NextAction, "inspect it") {
+		t.Fatalf("the retry: %+v", retry)
+	}
+	code, human := runPose(t, root, "start", "spec:work", "--apply", "--digest", plan.Digest)
+	if code != 1 || !strings.Contains(human, "start.next_action=.pose/starts/work.json is not a valid start record") {
+		t.Fatalf("the human retry: %d %s", code, human)
+	}
+	if after, _ := os.ReadFile(record); !bytes.Equal(after, partial) {
+		t.Fatal("the partial record was changed")
+	}
+	spec, _ := os.ReadFile(filepath.Join(root, ".pose", "specs", "2026-09-27-work.md"))
+	if !strings.Contains(string(spec), "status: draft") {
+		t.Fatal("the spec moved")
+	}
+}

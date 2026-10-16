@@ -37,7 +37,10 @@ baseline the repository has moved past, or a spec changed under the start, is
 reported as a conflict to cancel and preview again, not as resumable. A failed
 apply lists the spec moved to `in-progress` as a confirmed effect once it is
 published, and `steps_run` names only the steps that call ran, so a retry does
-not claim the baseline or the transition an earlier call published. With `--json`, a failure of `start`, `close --plan`, `specs` or
+not claim the baseline or the transition an earlier call published. A baseline
+write cut short leaves a start record that does not read; the apply reports
+its `baseline` step as failed and unconfirmed, and it and any retry say to
+inspect and remove that record before a new preview. With `--json`, a failure of `start`, `close --plan`, `specs` or
 `specs facts` is one JSON operation result instead of an empty stdout.
 
 An MCP gate (`pose_check`, `pose_lint_spec`, `pose_skills_check`) stopped by

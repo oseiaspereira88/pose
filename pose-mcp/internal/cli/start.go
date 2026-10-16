@@ -7,6 +7,8 @@ package cli
 import (
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
@@ -123,9 +125,8 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 			// moved, nothing was published and the current plan judges the
 			// start below.
 			if record, ok, err := store.GetStartRecord(slug); err == nil && ok && record.PlanDigest == digest && record.Phase == "baseline-recorded" {
-				prior, _ := store.StartRecovery(slug, digest)
-				var reached []string
-				resumed, err := store.ResumeStart(slug, digest, observeStartPhases(&reached))
+				attempt := beginStartAttempt(store, slug, digest)
+				resumed, err := store.ResumeStart(slug, digest, attempt.observe)
 				switch {
 				case err == nil:
 					if jsonOutput {
@@ -136,7 +137,7 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 					r.Field("start.baseline", resumed.Baseline.Digest)
 					return 0
 				case err.Error() != "start: transition-not-published":
-					return renderStartApplyFailure(r, stdout, jsonOutput, startApplyFailure(store, plan.SpecPath, slug, digest, prior, reached, resumed, err), err)
+					return renderStartApplyFailure(r, stdout, jsonOutput, startApplyFailure(store, plan.SpecPath, slug, digest, attempt, resumed, err), err)
 				}
 			}
 			if record, ok, err := store.GetStartRecord(slug); err == nil && ok && record.PlanDigest == digest && record.Phase == "started" {
@@ -149,11 +150,10 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 				return 0
 			}
 		}
-		prior, _ := store.StartRecovery(slug, digest)
-		var reached []string
-		record, err := store.ApplyStart(plan, digest, observeStartPhases(&reached))
+		attempt := beginStartAttempt(store, slug, digest)
+		record, err := store.ApplyStart(plan, digest, attempt.observe)
 		if err != nil {
-			return renderStartApplyFailure(r, stdout, jsonOutput, startApplyFailure(store, plan.SpecPath, slug, digest, prior, reached, record, err), err)
+			return renderStartApplyFailure(r, stdout, jsonOutput, startApplyFailure(store, plan.SpecPath, slug, digest, attempt, record, err), err)
 		}
 		if jsonOutput {
 			return writeJSON(stdout, record)
@@ -212,13 +212,28 @@ func renderStartApplyFailure(r *cliout.Renderer, stdout io.Writer, jsonOutput bo
 	return 1
 }
 
-// observeStartPhases records the phases an apply or a resume reached,
-// without interrupting it.
-func observeStartPhases(reached *[]string) posemodel.StartFailureHook {
-	return func(phase string) error {
-		*reached = append(*reached, phase)
-		return nil
-	}
+// startAttempt is what an apply or a resume found before it ran — the
+// recovery state of its digest and whether a start record file existed — and
+// the phases it reached, observed without interrupting it.
+type startAttempt struct {
+	prior         string
+	recordExisted bool
+	reached       []string
+}
+
+func beginStartAttempt(store posemodel.Store, slug, digest string) *startAttempt {
+	prior, _ := store.StartRecovery(slug, digest)
+	_, err := os.Lstat(startRecordFile(store, slug))
+	return &startAttempt{prior: prior, recordExisted: err == nil}
+}
+
+func (a *startAttempt) observe(phase string) error {
+	a.reached = append(a.reached, phase)
+	return nil
+}
+
+func startRecordFile(store posemodel.Store, slug string) string {
+	return filepath.Join(store.Root, ".pose", "starts", slug+".json")
 }
 
 // startApplyFailure is the result of an apply that returned an error. The
@@ -229,7 +244,7 @@ func observeStartPhases(reached *[]string) posemodel.StartFailureHook {
 // what this call executed, from the recovery state before the call (prior)
 // and the phases it reached; an effect whose step is not in steps_run was
 // published by an earlier call.
-func startApplyFailure(store posemodel.Store, specPath, slug, digest, prior string, reached []string, returned posemodel.StartRecord, err error) posemodel.OperationResult {
+func startApplyFailure(store posemodel.Store, specPath, slug, digest string, attempt *startAttempt, returned posemodel.StartRecord, err error) posemodel.OperationResult {
 	result := posemodel.NewOperationResult("start.apply", "spec:"+slug)
 	// The domain's refusals are "start: <code>"; anything else is an
 	// operational error of the apply.
@@ -239,9 +254,25 @@ func startApplyFailure(store posemodel.Store, specPath, slug, digest, prior stri
 	}
 	retry := "`pose start spec:" + slug + " --apply --digest " + digest + "`"
 	reconcile := "`pose start spec:" + slug + " --status` shows the record; `pose start spec:" + slug + " --cancel`, a new preview and its digest start again"
+	persisted, _, readErr := store.GetStartRecord(slug)
+	if _, statErr := os.Lstat(startRecordFile(store, slug)); readErr != nil && statErr == nil {
+		// A record file that does not read as a start record: an exclusive
+		// baseline write this call began and did not finish (a short write
+		// leaves part of it), or one an earlier call left. It is no
+		// confirmed baseline, and no step can repair it automatically.
+		recordRef := ".pose/starts/" + slug + ".json"
+		if attempt.recordExisted {
+			result.Fail(posemodel.OutcomeFailed, "", cause, err.Error())
+		} else {
+			result.Fail(posemodel.OutcomeFailed, "baseline", cause, err.Error())
+			result.StepsRun = append(result.StepsRun, posemodel.OperationStep{ID: "baseline", Result: "failed"})
+			result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "baseline", Reason: "the start record " + recordRef + " was created but does not hold a complete record; the write may be partial"})
+		}
+		result.NextAction = recordRef + " is not a valid start record and the spec was not moved from it; inspect it, remove it once no start is running, then a new `pose start spec:" + slug + "` preview and its digest start again"
+		return result
+	}
 	recovery, _ := store.StartRecovery(slug, digest)
-	persisted, _, _ := store.GetStartRecord(slug)
-	result.StepsRun = startStepsRun(prior, recovery, reached)
+	result.StepsRun = startStepsRun(attempt.prior, recovery, attempt.reached)
 	recorded := func() {
 		result.Effects = append(result.Effects, posemodel.OperationEffect{Step: "baseline", Effect: persisted.Phase, Ref: ".pose/starts/" + slug + ".json"})
 		result.Data = persisted
