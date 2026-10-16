@@ -557,7 +557,69 @@ func TestAResumeThatFailsAgainKeepsItsReceiptForPeople(t *testing.T) {
 	}
 	// The obstacle stays: the resume fails again (fourth-round F10).
 	code, human := runPose(t, root, "start", "spec:work", "--apply", "--digest", plan.Digest)
-	if code != 1 || !strings.Contains(human, "start.baseline-recorded=") || !strings.Contains(human, "start.unconfirmed.transition=") || !strings.Contains(human, "start.next_action=") {
+	if code != 1 || !strings.Contains(human, "start.baseline-recorded=") || !strings.Contains(human, "start.unconfirmed.record=") || !strings.Contains(human, "start.next_action=") {
 		t.Fatalf("the human resume failure lost its receipt: %d %s", code, human)
+	}
+}
+
+// staleBaselineFixture records a baseline whose transition failed before
+// publishing, then lets change move the repository on (fifth-round F11).
+func staleBaselineFixture(t *testing.T, change func(root string)) (string, string) {
+	t.Helper()
+	root := startCLIFixture(t, true)
+	out, _, _ := runCLI(t, root, "start", "spec:work", "--json")
+	var plan posemodel.StartPlan
+	if err := json.Unmarshal([]byte(out), &plan); err != nil {
+		t.Fatal(err)
+	}
+	specs := filepath.Join(root, ".pose", "specs")
+	if err := os.Chmod(specs, 0o555); err != nil {
+		t.Fatal(err)
+	}
+	if code, _ := runPose(t, root, "start", "spec:work", "--apply", "--digest", plan.Digest); code != 1 {
+		t.Fatal("the transition did not fail")
+	}
+	if err := os.Chmod(specs, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	change(root)
+	return root, plan.Digest
+}
+
+func TestAStaleStartBaselineIsNotAdvertisedAsResumable(t *testing.T) {
+	for name, c := range map[string]struct {
+		change func(root string)
+		cause  string
+	}{
+		"head moved": {func(root string) {
+			if out, err := exec.Command("git", "-C", root, "-c", "user.name=Probe", "-c", "user.email=probe@example.invalid", "-c", "commit.gpgsign=false", "commit", "-q", "--allow-empty", "-m", "advance").CombinedOutput(); err != nil {
+				t.Fatalf("%v %s", err, out)
+			}
+		}, "stale-start-baseline"},
+		"spec changed": {func(root string) {
+			path := filepath.Join(root, ".pose", "specs", "2026-09-27-work.md")
+			raw, _ := os.ReadFile(path)
+			mustWrite(t, path, strings.Replace(string(raw), "Record the baseline.", "Record the baseline twice.", 1))
+		}, "compare-and-swap-conflict"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			root, digest := staleBaselineFixture(t, c.change)
+			var result posemodel.OperationResult
+			code, _ := runPoseJSON(t, root, &result, "start", "spec:work", "--apply", "--digest", digest, "--json")
+			if code != 1 || result.Outcome != posemodel.OutcomeConflict || result.Error == nil || result.Error.Cause != c.cause || result.Resumable {
+				t.Fatalf("a stale baseline was advertised as resumable: %d %+v", code, result)
+			}
+			if strings.Contains(result.NextAction, "--digest "+digest) || !strings.Contains(result.NextAction, "--cancel") {
+				t.Fatalf("the next action repeats a digest that cannot apply: %q", result.NextAction)
+			}
+			_, human := runPose(t, root, "start", "spec:work", "--apply", "--digest", digest)
+			if !strings.Contains(human, "start.next_action=") || !strings.Contains(human, "--cancel") || strings.Contains(human, "repeat `pose start") {
+				t.Fatalf("the human receipt diverged: %s", human)
+			}
+			spec, _ := os.ReadFile(filepath.Join(root, ".pose", "specs", "2026-09-27-work.md"))
+			if !strings.Contains(string(spec), "status: draft") {
+				t.Fatalf("a stale baseline started the spec:\n%s", spec)
+			}
+		})
 	}
 }

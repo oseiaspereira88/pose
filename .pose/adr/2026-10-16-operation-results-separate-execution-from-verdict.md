@@ -105,10 +105,15 @@ Routes:
   the spec already moved, so a published transition is finished although its
   fresh preview has another digest; a spec that has not moved published
   nothing and is judged again by the current plan, with today's readiness
-  and governed restrictions — a persisted baseline never authorizes a start. A
-  spec changed under the start (`compare-and-swap-conflict`) is not
-  resumable, and a record for another plan is a `conflict` this call did not
-  write.
+  and governed restrictions — a persisted baseline never authorizes a start.
+  `Store.StartRecovery` classifies what the recorded digest can still do, and
+  only two states are resumable with it: the transition was published
+  (`record` unconfirmed) or nothing was published and the plan is unchanged
+  (`transition` unconfirmed). A repository that moved on after an unpublished
+  baseline (`stale-start-baseline`), a spec changed under the start
+  (`compare-and-swap-conflict`) and a record for another plan are
+  `conflict`s, not resumable, and point to `--status`, then `--cancel` and a
+  new preview.
 - `pose close <scope>` without a plan mode has no JSON result: `--json` there
   is refused with exit 2 and the help no longer advertises it.
 - Parsers of `close`, `start`, `specs` and `continuous-closeout` refuse,

@@ -32,7 +32,9 @@ explicit `null` and an empty `since`, and keeps the advertised `sort: "slug"`.
 `pose start --apply` that fails after recording its baseline reports it as a
 confirmed effect and says the same apply resumes it; repeating it now finishes
 from its record a transition that was already published, while a spec that
-has not moved is judged again by the current plan and its restrictions. With `--json`, a failure of `start`, `close --plan`, `specs` or
+has not moved is judged again by the current plan and its restrictions. A
+baseline the repository has moved past, or a spec changed under the start, is
+reported as a conflict to cancel and preview again, not as resumable. With `--json`, a failure of `start`, `close --plan`, `specs` or
 `specs facts` is one JSON operation result instead of an empty stdout.
 
 An MCP gate (`pose_check`, `pose_lint_spec`, `pose_skills_check`) stopped by

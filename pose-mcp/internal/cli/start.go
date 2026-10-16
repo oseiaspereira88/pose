@@ -218,27 +218,45 @@ func startApplyFailure(store posemodel.Store, slug, digest string, returned pose
 	if code := strings.TrimPrefix(err.Error(), "start: "); code != err.Error() && !strings.ContainsAny(code, " :") {
 		cause = code
 	}
-	persisted, ok, readErr := store.GetStartRecord(slug)
-	switch {
-	case readErr == nil && ok && persisted.PlanDigest == digest && persisted.Phase != "":
-		result.Fail(posemodel.OutcomeFailed, "transition", cause, err.Error())
+	retry := "`pose start spec:" + slug + " --apply --digest " + digest + "`"
+	reconcile := "`pose start spec:" + slug + " --status` shows the record; `pose start spec:" + slug + " --cancel`, a new preview and its digest start again"
+	recovery, _ := store.StartRecovery(slug, digest)
+	persisted, _, _ := store.GetStartRecord(slug)
+	recorded := func() {
 		result.Effects = append(result.Effects, posemodel.OperationEffect{Step: "baseline", Effect: persisted.Phase, Ref: ".pose/starts/" + slug + ".json"})
-		if persisted.Phase != "started" {
-			result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "transition", Reason: "the spec transition may have been written before the failure; the start record reconciles it on the next apply"})
-		}
-		if cause == "compare-and-swap-conflict" {
-			// The spec changed under the start: repeating it cannot finish.
-			result.NextAction = "the spec no longer matches the recorded baseline; reconcile it with `pose start spec:" + slug + " --status`, or `pose start spec:" + slug + " --cancel` and preview again"
+		result.Data = persisted
+	}
+	switch recovery {
+	case posemodel.StartRecoveryPublished:
+		result.Fail(posemodel.OutcomeFailed, "record", cause, err.Error())
+		recorded()
+		result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "record", Reason: "the spec moved but the start record does not say started yet"})
+		result.Resumable = true
+		result.NextAction = "fix the cause, then repeat " + retry + "; it finishes from the start record"
+	case posemodel.StartRecoveryRetry:
+		result.Fail(posemodel.OutcomeFailed, "transition", cause, err.Error())
+		recorded()
+		result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "transition", Reason: "the spec transition did not complete; the plan still matches the repository"})
+		result.Resumable = true
+		result.NextAction = "fix the cause, then repeat " + retry + "; the recorded baseline is reused"
+	case posemodel.StartRecoveryStale:
+		// Nothing was published and the repository moved on: the recorded
+		// digest can never apply again.
+		result.Fail(posemodel.OutcomeConflict, "transition", "stale-start-baseline", err.Error())
+		recorded()
+		result.NextAction = "the recorded baseline no longer matches the repository and its digest cannot apply; " + reconcile
+	case posemodel.StartRecoveryConflict:
+		result.Fail(posemodel.OutcomeConflict, "transition", "compare-and-swap-conflict", err.Error())
+		recorded()
+		result.NextAction = "the spec changed after the baseline was recorded; " + reconcile
+	default:
+		if returned.Phase != "" {
+			// A record for another plan: nothing was written by this call.
+			result.Fail(posemodel.OutcomeConflict, "", cause, err.Error())
+			result.Data = returned
+			result.NextAction = "the spec was started with another plan; " + reconcile
 			break
 		}
-		result.Resumable = true
-		result.NextAction = "fix the cause, then repeat `pose start spec:" + slug + " --apply --digest " + digest + "`; the recorded baseline is reused and an already moved spec is reconciled"
-		result.Data = persisted
-	case returned.Phase != "":
-		// A record for another plan: nothing was written by this call.
-		result.Fail(posemodel.OutcomeConflict, "", cause, err.Error())
-		result.Data = returned
-	default:
 		result.Fail(posemodel.OutcomeFailed, "", cause, err.Error())
 	}
 	return result

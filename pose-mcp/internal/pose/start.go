@@ -291,10 +291,56 @@ func (s Store) ResumeStart(slug, digest string) (StartRecord, error) {
 	if err != nil {
 		return record, err
 	}
-	if digestHex(raw) != record.SpecDigestAfter {
+	switch digestHex(raw) {
+	case record.SpecDigestAfter:
+		return finishStart(recordPath, specPath, slug, record, nil)
+	case record.SpecDigestBefore:
 		return record, startError("transition-not-published")
+	default:
+		return record, startError("compare-and-swap-conflict")
 	}
-	return finishStart(recordPath, specPath, slug, record, nil)
+}
+
+// Recovery states of a start that recorded its baseline and did not finish.
+const (
+	StartRecoveryStarted   = "started"              // nothing to recover
+	StartRecoveryPublished = "transition-published" // the spec moved; the same digest finishes it
+	StartRecoveryRetry     = "retry"                // nothing published and the plan is unchanged; the same digest applies it
+	StartRecoveryStale     = "stale-baseline"       // nothing published, but the repository moved on: the digest can never apply
+	StartRecoveryConflict  = "spec-conflict"        // the spec is in neither recorded state
+	StartRecoveryNone      = ""                     // no record for this digest
+)
+
+// StartRecovery classifies what a start recorded for digest can still do,
+// so a failure never promises a retry that cannot finish (spec
+// pose-cli-mcp-operation-results R6).
+func (s Store) StartRecovery(slug, digest string) (string, error) {
+	record, ok, err := s.GetStartRecord(slug)
+	if err != nil || !ok || record.PlanDigest != digest {
+		return StartRecoveryNone, err
+	}
+	if record.Phase == "started" {
+		return StartRecoveryStarted, nil
+	}
+	current, err := s.PreviewStart(slug)
+	if err != nil {
+		return StartRecoveryNone, err
+	}
+	raw, err := os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(current.SpecPath)))
+	if err != nil {
+		return StartRecoveryNone, err
+	}
+	switch digestHex(raw) {
+	case record.SpecDigestAfter:
+		return StartRecoveryPublished, nil
+	case record.SpecDigestBefore:
+		if current.Digest == digest {
+			return StartRecoveryRetry, nil
+		}
+		return StartRecoveryStale, nil
+	default:
+		return StartRecoveryConflict, nil
+	}
 }
 
 // finishStart moves the spec to in-progress, reconciling a transition an
