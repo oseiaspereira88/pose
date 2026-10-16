@@ -464,3 +464,15 @@ atestações e gates atuais. A matriz registra B12 delivery_complete=true;
 o programa e este roadmap continuam ativos. Aguardar merge de #186 pelo
 maintainer e reavaliar DAG/readiness nativa, sem selecionar nova implementação,
 policy, capability ou adoção neste closeout.
+
+B13 (`pose-journal-checkpoint-and-lock-recovery`) foi iniciado nativamente em
+2026-10-16 após o merge de #186: o journal de action requests é lido por
+inteiro e o primeiro trecho que não lê é localizado (linha, offset, tamanho,
+SHA-256) como cauda interrompida ou corrupção, sem reparo automático; o
+checkpoint de closeout distingue absent, valid, corrupt, unsupported e
+unavailable, bloqueia o apply antes de qualquer passo quando não lê e trata
+progresso não refletido como conflito; a trava do start registra o dono e só
+uma trava de dono comprovadamente morto é removida, por `--recover-lock`.
+Probes P01–P17 com controles inalterados; validação estrita do módulo 132/132.
+A spec permanece in-progress até revisão different-actor e closeout nativo;
+delivery_complete permanece false.

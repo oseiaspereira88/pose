@@ -1363,14 +1363,20 @@
           "materialized": true,
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-journal-checkpoint-and-lock-recovery.md",
-          "status": "draft",
-          "sha256": "172850e27e9a6d7367ad2f0a36079e57f5e2800f32a25058472c1a446a660216"
+          "status": "in-progress",
+          "sha256": "aeb559e99d17e9b89970e09034c59c86e26ea6224b1c47e300ec83e1a7dc0065"
         }
       ],
       "implementation_observations": [
         {
           "scope": "Spec escrita em draft no lote documental 4; nenhuma implementação funcional neste lote.",
           "unit_complete": false
+        },
+        {
+          "at": "2026-10-16",
+          "scope": "Start nativo após merge de #186. Journal de action requests lido por inteiro com ActionJournalError tipado (interrupted-tail com proposta de truncamento, corrupt) em CLI e MCP; checkpoint de closeout com estados absent/valid/corrupt/unsupported/unavailable, escrita por rename, remoção verificada, bloqueio antes de qualquer passo e conflito de progresso não refletido; trava do start com dono, classificação owner-active/owner-unknown/owner-dead e --recover-lock verificado. Probes P01–P17 antes e depois com controles inalterados, 29 mutações reprovando e validação estrita do módulo 132/132 em 99f5041c; different-actor review e closeout nativo pendentes.",
+          "unit_complete": false,
+          "native_closeout_pending": true
         }
       ],
       "delivery_complete": false,
@@ -5151,16 +5157,15 @@
   ],
   "implementation_reconciliation": {
     "at": "2026-10-16",
-    "main_revision": "1a278aff360ac165863930f6e8514eac03794ef0",
-    "selected_unit": "B12",
-    "selected_spec": "pose-cli-mcp-operation-results",
-    "basis": "PR186 completes B12 with independent eighth-round review, F1-F13 closed, strict validation and native terminal closeout. Program remains active; await maintainer merge and reassess native DAG/readiness without selecting implementation.",
+    "main_revision": "b8c33dadf7e71ee3a742ab15ed37b577bf659367",
+    "selected_unit": "B13",
+    "selected_spec": "pose-journal-checkpoint-and-lock-recovery",
+    "basis": "PR186 merged B12 (b8c33dad). The maintainer authorized continuing with the next pose-dist unit; B13 depended only on B12 and opens B14. Native start, implementation, probes and strict module validation done; different-actor review and native closeout pending.",
     "unit_delivery_complete_count": 4,
     "administrative_closeouts": "Authoring closeouts remain separate and pending; materialization is not functional delivery.",
-    "previous_complementary_pull_request": 181,
+    "previous_complementary_pull_request": 186,
     "previous_complementary_merged": true,
-    "awaiting_merge_pull_request": 186,
-    "native_closeout_pending": false,
-    "next_step": "Maintainer merge of PR186; then reassess native DAG/readiness without automatically choosing a new implementation."
+    "native_closeout_pending": true,
+    "next_step": "Different-actor review of B13, native closeout, then maintainer merge."
   }
 }
