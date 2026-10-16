@@ -9,12 +9,17 @@ import (
 	"path/filepath"
 	"strings"
 
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/version"
 )
 
 // Version mirrors the authoritative release version. The release pipeline
 // stamps internal/version via -ldflags (spec pose-version-contract).
 var Version = version.Version
+
+// The engine package records the version in assessment bindings without
+// importing internal/version (spec pose-engine-package-stays-mirrorable).
+func init() { posemodel.EngineVersion = version.Version }
 
 // Main is the entrypoint used by cmd/pose. It returns the process exit code.
 func Main(args []string, stdout, stderr io.Writer) int {
