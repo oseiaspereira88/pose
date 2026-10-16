@@ -30,7 +30,8 @@ also refuses unknown arguments, an explicit `0` for `recent` or `limit`, an
 explicit `null` and an empty `since`, and keeps the advertised `sort: "slug"`.
 `pose close <scope> --json` (no plan mode) is refused instead of ignored. A
 `pose start --apply` that fails after recording its baseline reports it as a
-confirmed effect and says the same apply resumes it. With `--json`, a failure of `start`, `close --plan`, `specs` or
+confirmed effect and says the same apply resumes it; repeating it now finishes
+the start from its record even after the spec already moved. With `--json`, a failure of `start`, `close --plan`, `specs` or
 `specs facts` is one JSON operation result instead of an empty stdout.
 
 An MCP gate (`pose_check`, `pose_lint_spec`, `pose_skills_check`) stopped by

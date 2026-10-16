@@ -117,6 +117,28 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		// Repeating a completed start is a no-op. An interrupted one still
 		// previews the same plan, because the spec has not moved yet.
 		if plan.Digest != digest {
+			// An apply that recorded its baseline for this digest and stopped
+			// after moving the spec is finished from its record.
+			if record, ok, err := store.GetStartRecord(slug); err == nil && ok && record.PlanDigest == digest && record.Phase == "baseline-recorded" {
+				resumed, err := store.ResumeStart(slug, digest)
+				if err != nil {
+					result := startApplyFailure(store, slug, digest, resumed, err)
+					if jsonOutput {
+						r.Failure("pose start: " + err.Error())
+						_ = writeJSON(stdout, result)
+						return 1
+					}
+					r.Failure("pose start: " + err.Error())
+					return 1
+				}
+				if jsonOutput {
+					return writeJSON(stdout, resumed)
+				}
+				r.Field("start.result", "resumed")
+				r.Field("start.phase", resumed.Phase)
+				r.Field("start.baseline", resumed.Baseline.Digest)
+				return 0
+			}
 			if record, ok, err := store.GetStartRecord(slug); err == nil && ok && record.PlanDigest == digest && record.Phase == "started" {
 				if jsonOutput {
 					return writeJSON(stdout, record)
@@ -197,8 +219,13 @@ func startApplyFailure(store posemodel.Store, slug, digest string, returned pose
 		if persisted.Phase != "started" {
 			result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "transition", Reason: "the spec transition may have been written before the failure; the start record reconciles it on the next apply"})
 		}
+		if cause == "compare-and-swap-conflict" {
+			// The spec changed under the start: repeating it cannot finish.
+			result.NextAction = "the spec no longer matches the recorded baseline; reconcile it with `pose start spec:" + slug + " --status`, or `pose start spec:" + slug + " --cancel` and preview again"
+			break
+		}
 		result.Resumable = true
-		result.NextAction = "fix the cause, then repeat `pose start spec:" + slug + " --apply --digest " + digest + "`; the recorded baseline is reused"
+		result.NextAction = "fix the cause, then repeat `pose start spec:" + slug + " --apply --digest " + digest + "`; the recorded baseline is reused and an already moved spec is reconciled"
 		result.Data = persisted
 	case returned.Phase != "":
 		// A record for another plan: nothing was written by this call.

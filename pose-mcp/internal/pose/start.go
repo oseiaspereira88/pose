@@ -242,6 +242,47 @@ func (s Store) ApplyStart(plan StartPlan, expectedDigest string, failAfter Start
 			return StartRecord{}, err
 		}
 	}
+	return finishStart(recordPath, specPath, plan.Spec, record, failAfter)
+}
+
+// ResumeStart finishes an apply that recorded its baseline for digest and
+// stopped before the record said started. Once the spec moved, a fresh
+// preview has another digest, so the persisted record — not a new plan —
+// names what to finish (spec pose-cli-mcp-operation-results R6).
+func (s Store) ResumeStart(slug, digest string) (StartRecord, error) {
+	adopted, err := s.AtomicStartAdopted()
+	if err != nil {
+		return StartRecord{}, err
+	}
+	if !adopted {
+		return StartRecord{}, startError("atomic-start-capability-not-adopted")
+	}
+	if ValidateSlug(slug) != nil {
+		return StartRecord{}, startError("invalid-spec")
+	}
+	current, err := s.PreviewStart(slug)
+	if err != nil {
+		return StartRecord{}, err
+	}
+	unlock, err := lockStart(s.Root, slug)
+	if err != nil {
+		return StartRecord{}, err
+	}
+	defer unlock()
+	recordPath := startRecordPath(s.Root, slug)
+	record, exists, err := readStartRecord(recordPath)
+	if err != nil {
+		return StartRecord{}, err
+	}
+	if !exists || digest == "" || record.PlanDigest != digest {
+		return record, startError("plan-digest-mismatch")
+	}
+	return finishStart(recordPath, filepath.Join(s.Root, filepath.FromSlash(current.SpecPath)), slug, record, nil)
+}
+
+// finishStart moves the spec to in-progress, reconciling a transition an
+// earlier run already wrote, and records the start as started.
+func finishStart(recordPath, specPath, slug string, record StartRecord, failAfter StartFailureHook) (StartRecord, error) {
 	if record.Phase == "started" {
 		return record, nil
 	}
@@ -256,7 +297,7 @@ func (s Store) ApplyStart(plan StartPlan, expectedDigest string, failAfter Start
 	}
 	switch digestHex(raw) {
 	case record.SpecDigestBefore:
-		after := []byte(setSpecLifecycle(string(raw), plan.Spec, "in-progress"))
+		after := []byte(setSpecLifecycle(string(raw), slug, "in-progress"))
 		if digestHex(after) != record.SpecDigestAfter {
 			return record, startError("plan-digest-mismatch")
 		}

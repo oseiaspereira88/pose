@@ -91,16 +91,21 @@ Routes:
   (`start` in every mode, `close --plan`, `specs`, `specs facts`) reports an
   operational failure as an `OperationResult` with outcome `failed` and a
   typed cause on stdout, plus the human line on stderr; the exit stays 1.
-- An effect is confirmed by observing it: the evidence step confirms
-  `results-written` only when this run's `validate` output reports writing
-  the results path (`json: <path>`, printed after its own write succeeded)
-  and the path holds a JSON document, because `validate` exits 1 both for a
-  failing check and for a results file it could not write. An earlier
-  document at the path, however recent, confirms nothing.
+- An effect is confirmed by observing the artifact, never the run's text
+  (a failing check's output is replayed in it and can say anything): the
+  evidence step confirms `results-written` only when the results path is a
+  regular file holding a JSON document whose bytes differ from those it held
+  before the run and whose `generated_at` is not older than the run. A write
+  that failed leaves the earlier bytes and confirms nothing. `validate` exits
+  1 both for a failing check and for a results file it could not write.
 - A `pose start --apply` that fails after the domain published its baseline
   reads the start record back: the recorded phase is a confirmed effect, the
   spec transition is `unconfirmed`, and the result is resumable with the same
-  digest. A record for another plan is a `conflict` this call did not write.
+  digest. Repeating it resumes from the record (`Store.ResumeStart`), also
+  after the spec already moved and its fresh preview has another digest. A
+  spec changed under the start (`compare-and-swap-conflict`) is not
+  resumable, and a record for another plan is a `conflict` this call did not
+  write.
 - `pose close <scope>` without a plan mode has no JSON result: `--json` there
   is refused with exit 2 and the help no longer advertises it.
 - Parsers of `close`, `start`, `specs` and `continuous-closeout` refuse,

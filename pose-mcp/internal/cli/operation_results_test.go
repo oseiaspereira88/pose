@@ -444,3 +444,63 @@ func TestAStartThatFailsAfterRecordingItsBaselineSaysSoAndResumes(t *testing.T) 
 		t.Fatalf("the advertised retry did not complete the start: %d %+v %s", code, record, errOut)
 	}
 }
+
+func TestACheckThatPrintsTheWriteReceiptDoesNotConfirmIt(t *testing.T) {
+	root := publicationFailureFixture(t)
+	target := filepath.Join(root, ".pose/results/blocked.json")
+	if err := os.Remove(target); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(target, []byte(`{"schema_version":1,"generated_at":"2026-10-16T00:00:00Z"}`+"\n"), 0o444); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(target, 0o644) })
+	// A failing check whose output is exactly the line validate prints after
+	// its own write (third-round F1): text is not a receipt.
+	writeCloseoutCLIFile(t, root, ".pose/indexes/validation-matrix.json", `{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"test","program":"sh","args":["-c","printf 'json: %s\\n' \"$1\"; exit 1","probe","`+target+`"],"severity":"required","evidenceClass":"unit"}]}}}`)
+	for _, args := range [][]string{{"add", "-A"}, {"-c", "user.name=Probe", "-c", "user.email=probe@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", "printing check"}} {
+		if out, err := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput(); err != nil {
+			t.Fatalf("git %v: %v %s", args, err, out)
+		}
+	}
+	before, _ := os.ReadFile(target)
+	var result closeApplyJSON
+	code, _ := runPoseJSON(t, root, &result, "close", "spec:alpha", "--apply", "--reviewer", "agent:reviewer", "--json")
+	after, _ := os.ReadFile(target)
+	if !bytes.Equal(before, after) {
+		t.Fatal("the fixture did not keep the earlier bytes")
+	}
+	if code != 1 || result.Error == nil || result.Error.Cause != "results-not-published" || strings.Contains(strings.Join(effectNames(result.OperationResult), ","), "results-written") {
+		t.Fatalf("a printed receipt confirmed an unpublished result: code=%d %+v", code, result.OperationResult)
+	}
+}
+
+func TestAStartThatFailsAfterMovingTheSpecResumesWithTheAdvertisedCommand(t *testing.T) {
+	root := startCLIFixture(t, true)
+	out, _, _ := runCLI(t, root, "start", "spec:work", "--json")
+	var plan posemodel.StartPlan
+	if err := json.Unmarshal([]byte(out), &plan); err != nil {
+		t.Fatal(err)
+	}
+	// The spec moves; the final record write fails (third-round F8).
+	blocker := filepath.Join(root, ".pose", "starts", "work.json.tmp")
+	if err := os.MkdirAll(blocker, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	var result posemodel.OperationResult
+	code, _ := runPoseJSON(t, root, &result, "start", "spec:work", "--apply", "--digest", plan.Digest, "--json")
+	spec, _ := os.ReadFile(filepath.Join(root, ".pose", "specs", "2026-09-27-work.md"))
+	if code != 1 || !result.Resumable || !strings.Contains(string(spec), "status: in-progress") {
+		t.Fatalf("the fixture did not stop after moving the spec: code=%d %+v\n%s", code, result, spec)
+	}
+	if err := os.Remove(blocker); err != nil {
+		t.Fatal(err)
+	}
+	var record posemodel.StartRecord
+	if code, errOut := runPoseJSON(t, root, &record, "start", "spec:work", "--apply", "--digest", plan.Digest, "--json"); code != 0 || record.Phase != "started" {
+		t.Fatalf("the advertised command did not resume: %d %+v %s", code, record, errOut)
+	}
+	if code, out := runPose(t, root, "start", "spec:work", "--apply", "--digest", plan.Digest); code != 0 || !strings.Contains(out, "start.result=already-started") {
+		t.Fatalf("a finished start is not a no-op: %d %s", code, out)
+	}
+}
