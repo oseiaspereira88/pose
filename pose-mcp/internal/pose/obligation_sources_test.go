@@ -107,7 +107,7 @@ func TestAttentionSourceOverdueFindingsAreOwed(t *testing.T) {
 	}
 	record("rvw-old", "2026-09-01T00:00:00Z", "- stale-risk [accepted-risk] severity:low action:a owner:@old rationale:r review_by:2026-09-02\n")
 	record("rvw-new", "2026-10-01T00:00:00Z", "- due-risk [accepted-risk] severity:low action:a owner:@team rationale:r review_by:2026-10-05\n- later-risk [accepted-risk] severity:low action:a owner:@team rationale:r review_by:2026-12-01\n")
-	items := validSourceObligations(t)(Store{Root: root}.findingObligations("proj.test", time.Date(2026, 10, 9, 0, 0, 0, 0, time.UTC)))
+	items := validSourceObligations(t)(Store{Root: root}.findingObligations("proj.test", time.Date(2026, 10, 9, 0, 0, 0, 0, time.UTC), nil))
 	if len(items) != 1 || !strings.HasSuffix(items[0].Source.Detail, "/due-risk") || items[0].Recipient.Principal != "@team" {
 		t.Fatalf("finding obligations = %+v", items)
 	}

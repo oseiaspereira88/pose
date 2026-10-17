@@ -18,6 +18,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -1924,19 +1925,40 @@ func (s Store) LoadReviewBundle(id string) (ReviewBundle, error) {
 }
 
 func (s Store) ListReviewBundles(scope string) ([]ReviewBundle, error) {
+	read, err := s.ReadReviewBundles(scope)
+	return read.Bundles, err
+}
+
+// ReviewBundlesRead is the sealed bundles a read found and the records it could not
+// read (spec pose-source-coverage-integrity). A bundle that is lost is not absent.
+type ReviewBundlesRead struct {
+	Bundles  []ReviewBundle
+	Coverage SourceCoverage
+}
+
+var (
+	bundleScopeSniffRE       = regexp.MustCompile(`"scope"\s*:\s*\{[^{}]*?"ref"\s*:\s*"([^"]+)"`)
+	attestationBundleSniffRE = regexp.MustCompile(`"bundle_id"\s*:\s*"(rvb-[0-9a-f]+)"`)
+)
+
+// ReadReviewBundles lists sealed bundles and reports the records it could not read. A
+// record that does not parse is attributed to the scope its readable prefix names; one
+// that names none is unattributed, and may be a bundle of any scope.
+func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
+	coverage := SourceCoverage{Losses: []SourceLoss{}}
 	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-bundles")), false)
 	if os.IsNotExist(err) {
-		return []ReviewBundle{}, nil
+		return ReviewBundlesRead{Bundles: []ReviewBundle{}, Coverage: coverage}, nil
 	}
 	if err != nil {
-		return nil, err
+		return ReviewBundlesRead{}, err
 	}
 	entries, err := os.ReadDir(dir)
 	if os.IsNotExist(err) {
-		return []ReviewBundle{}, nil
+		return ReviewBundlesRead{Bundles: []ReviewBundle{}, Coverage: coverage}, nil
 	}
 	if err != nil {
-		return nil, err
+		return ReviewBundlesRead{}, err
 	}
 	bundles := []ReviewBundle{}
 	for _, entry := range entries {
@@ -1944,15 +1966,11 @@ func (s Store) ListReviewBundles(scope string) ([]ReviewBundle, error) {
 			continue
 		}
 		id := strings.TrimSuffix(entry.Name(), ".json")
-		if scope != "" && s.specs != nil {
-			// One operation reads each bundle's scope once (spec
-			// pose-attention-within-a-second).
-			if s.specs.bundleScope(dir, entry.Name()) != scope {
-				continue
-			}
-		} else if scope != "" {
+		rel := filepath.ToSlash(filepath.Join(".pose", "review-bundles", entry.Name()))
+		if scope != "" {
 			raw, err := os.ReadFile(filepath.Join(dir, entry.Name()))
 			if err != nil {
+				coverage.Add(SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossReadError, Detail: err.Error()})
 				continue
 			}
 			var header struct {
@@ -1962,15 +1980,32 @@ func (s Store) ListReviewBundles(scope string) ([]ReviewBundle, error) {
 					} `json:"scope"`
 				} `json:"payload"`
 			}
-			if err := json.Unmarshal(raw, &header); err != nil || header.Payload.Scope.Ref != scope {
+			if err := json.Unmarshal(raw, &header); err != nil {
+				loss := SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: "the record is not valid JSON"}
+				if m := bundleScopeSniffRE.FindSubmatch(raw); m != nil {
+					loss.Scope, loss.AttributedBy = string(m[1]), "header"
+				}
+				coverage.Add(loss)
+				continue
+			}
+			if header.Payload.Scope.Ref != scope {
 				continue
 			}
 		}
 		bundle, loadErr := s.LoadReviewBundle(id)
 		if loadErr != nil {
 			if scope != "" {
-				return nil, loadErr
+				return ReviewBundlesRead{}, loadErr
 			}
+			loss := SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: loadErr.Error()}
+			if raw, readErr := os.ReadFile(filepath.Join(dir, entry.Name())); readErr == nil {
+				if m := bundleScopeSniffRE.FindSubmatch(raw); m != nil {
+					loss.Scope, loss.AttributedBy = string(m[1]), "header"
+				}
+			} else {
+				loss.Kind, loss.Detail = LossReadError, readErr.Error()
+			}
+			coverage.Add(loss)
 			continue
 		}
 		if scope == "" || bundle.Payload.Scope.Ref == scope {
@@ -1983,7 +2018,8 @@ func (s Store) ListReviewBundles(scope string) ([]ReviewBundle, error) {
 		}
 		return bundles[i].SealedAt < bundles[j].SealedAt
 	})
-	return bundles, nil
+	coverage.Normalize()
+	return ReviewBundlesRead{Bundles: bundles, Coverage: coverage}, nil
 }
 
 func (s Store) CurrentReviewBundle(scope string) (*ReviewBundle, error) {
@@ -2574,19 +2610,38 @@ func (s Store) LoadReviewAttestation(id string) (ReviewAttestation, error) {
 }
 
 func (s Store) ListReviewAttestations(bundleID string) ([]ReviewAttestation, error) {
+	read, err := s.ReadReviewAttestations(bundleID)
+	return read.Attestations, err
+}
+
+// ReviewAttestationsRead is the attestations a read found and the records it could not
+// read. An attestation that is lost may be the later one, a rejection among them: the
+// last attestation read is the current one only if nothing that concerns the bundle
+// was lost.
+type ReviewAttestationsRead struct {
+	Attestations []ReviewAttestation
+	Coverage     SourceCoverage
+}
+
+// ReadReviewAttestations lists attestations and reports the records it could not read,
+// attributed to the bundle their readable prefix names. With a bundle, a record that
+// names another bundle is not a loss for this one; one that names none is, because it may
+// be a rejection of this bundle.
+func (s Store) ReadReviewAttestations(bundleID string) (ReviewAttestationsRead, error) {
+	coverage := SourceCoverage{Losses: []SourceLoss{}}
 	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), false)
 	if os.IsNotExist(err) {
-		return []ReviewAttestation{}, nil
+		return ReviewAttestationsRead{Attestations: []ReviewAttestation{}, Coverage: coverage}, nil
 	}
 	if err != nil {
-		return nil, err
+		return ReviewAttestationsRead{}, err
 	}
 	entries, err := os.ReadDir(dir)
 	if os.IsNotExist(err) {
-		return []ReviewAttestation{}, nil
+		return ReviewAttestationsRead{Attestations: []ReviewAttestation{}, Coverage: coverage}, nil
 	}
 	if err != nil {
-		return nil, err
+		return ReviewAttestationsRead{}, err
 	}
 	result := []ReviewAttestation{}
 	for _, entry := range entries {
@@ -2594,23 +2649,42 @@ func (s Store) ListReviewAttestations(bundleID string) ([]ReviewAttestation, err
 			continue
 		}
 		id := strings.TrimSuffix(entry.Name(), ".json")
+		rel := filepath.ToSlash(filepath.Join(".pose", "review-attestations", entry.Name()))
 		if bundleID != "" {
 			raw, err := os.ReadFile(filepath.Join(dir, entry.Name()))
 			if err != nil {
+				coverage.Add(SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossReadError, Detail: err.Error()})
 				continue
 			}
 			var header struct {
 				BundleID string `json:"bundle_id"`
 			}
-			if err := json.Unmarshal(raw, &header); err != nil || header.BundleID != bundleID {
+			if err := json.Unmarshal(raw, &header); err != nil {
+				loss := SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossParseError, Detail: "the record is not valid JSON"}
+				if m := attestationBundleSniffRE.FindSubmatch(raw); m != nil {
+					loss.Scope, loss.AttributedBy = string(m[1]), "header"
+				}
+				coverage.Add(loss)
+				continue
+			}
+			if header.BundleID != bundleID {
 				continue
 			}
 		}
 		att, loadErr := s.LoadReviewAttestation(id)
 		if loadErr != nil {
 			if bundleID != "" {
-				return nil, loadErr
+				return ReviewAttestationsRead{}, loadErr
 			}
+			loss := SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossParseError, Detail: loadErr.Error()}
+			if raw, readErr := os.ReadFile(filepath.Join(dir, entry.Name())); readErr == nil {
+				if m := attestationBundleSniffRE.FindSubmatch(raw); m != nil {
+					loss.Scope, loss.AttributedBy = string(m[1]), "header"
+				}
+			} else {
+				loss.Kind, loss.Detail = LossReadError, readErr.Error()
+			}
+			coverage.Add(loss)
 			continue
 		}
 		if bundleID == "" || att.BundleID == bundleID {
@@ -2623,7 +2697,8 @@ func (s Store) ListReviewAttestations(bundleID string) ([]ReviewAttestation, err
 		}
 		return result[i].AttestedAt < result[j].AttestedAt
 	})
-	return result, nil
+	coverage.Normalize()
+	return ReviewAttestationsRead{Attestations: result, Coverage: coverage}, nil
 }
 
 func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error) {
@@ -2646,10 +2721,11 @@ func (s Store) verifyReviewBundle(scope string) (ReviewBundleVerification, error
 		return ReviewBundleVerification{}, scopeErr
 	}
 
-	bundles, err := s.ListReviewBundles(scope)
+	bundlesRead, err := s.ReadReviewBundles(scope)
 	if err != nil {
 		return ReviewBundleVerification{}, err
 	}
+	bundles := bundlesRead.Bundles
 
 	if (policy.SchemaVersion < ReviewPolicySchemaVersion || !policy.ReviewBundles) && len(bundles) == 0 {
 		eval, evalErr := s.ReviewCheck(scope)
@@ -2694,6 +2770,11 @@ func (s Store) verifyReviewBundle(scope string) (ReviewBundleVerification, error
 		return ReviewBundleVerification{}, err
 	}
 	verification := ReviewBundleVerification{Scope: scope, State: "needs-validation", Fresh: false, Approved: false, Warnings: append([]string{}, prepared.Warnings...), Blockers: append([]string{}, prepared.Blockers...)}
+	if bundleLosses := bundlesRead.Coverage.LossesFor(scope); len(bundleLosses) > 0 {
+		// A sealed bundle that could not be read may belong to this scope: the history
+		// below is the readable part of it.
+		verification.Warnings = append(verification.Warnings, "sealed bundle history is incomplete: "+(SourceCoverage{Losses: bundleLosses}).Describe("")+"; a record that could not be read may belong to this scope")
+	}
 	if len(prepared.Blockers) == 0 {
 		verification.State = "ready-to-seal"
 	}
@@ -2741,12 +2822,21 @@ func (s Store) verifyReviewBundle(scope string) (ReviewBundleVerification, error
 	verification.Warnings = uniqueSorted(append(verification.Warnings, staleEvidenceWarnings(current.Payload.Subject, current.Payload.Evidence)...))
 	verification.Fresh = true
 	verification.State = "ready-for-review"
-	attestations, err := s.ListReviewAttestations(current.BundleID)
+	attestationsRead, err := s.ReadReviewAttestations(current.BundleID)
 	if err != nil {
 		return verification, err
 	}
+	attestations := attestationsRead.Attestations
+	// A record that could not be read may be a later attestation, a rejection among
+	// them: an earlier approval is not taken as the current one while that is open.
+	// A record that names another bundle, or another scope, does not concern this one.
+	attestationHistory := attestationsRead.Coverage.LossesFor(current.BundleID)
 	if len(attestations) == 0 {
-		verification.Blockers = append(verification.Blockers, "sealed review bundle has no attestation")
+		if len(attestationHistory) > 0 {
+			verification.Blockers = append(verification.Blockers, "no readable attestation exists for bundle "+current.BundleID+", and the attestation history is incomplete: "+(SourceCoverage{Losses: attestationHistory}).Describe(""))
+		} else {
+			verification.Blockers = append(verification.Blockers, "sealed review bundle has no attestation")
+		}
 		verification.NextAction = "review and attest bundle " + current.BundleID
 		verification.Blockers = uniqueSorted(verification.Blockers)
 		return verification, nil
@@ -2754,6 +2844,10 @@ func (s Store) verifyReviewBundle(scope string) (ReviewBundleVerification, error
 	att := attestations[len(attestations)-1]
 	verification.Attestation = &att
 	verification.Blockers = append(verification.Blockers, s.validateBundleAttestation(*current, att)...)
+	if len(attestationHistory) > 0 {
+		verification.Blockers = append(verification.Blockers, "attestation history for bundle "+current.BundleID+" is incomplete, so the latest readable attestation is not known to be the current one: "+(SourceCoverage{Losses: attestationHistory}).Describe("")+"; restore or remove the unreadable record")
+	}
+
 	if len(verification.Blockers) == 0 {
 		verification.Approved = true
 		scopeRef, scopeErr := ParseScopeRef(scope)

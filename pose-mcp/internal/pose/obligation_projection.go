@@ -82,6 +82,10 @@ const (
 	CoverageStateStale       = "stale"
 	CoverageStateUnavailable = "unavailable"
 	CoverageStateUnsupported = "unsupported"
+	// CoverageStateIncomplete: the producer ran and returned what it read, but
+	// something it should have read was lost (an unreadable file, a record refused by
+	// validation). Its list is not the whole of what is owed.
+	CoverageStateIncomplete = "incomplete"
 )
 
 // Producers the projection integrates, and the ones it does not yet. The
@@ -158,14 +162,18 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 		{"start", func() ([]Obligation, error) {
 			return s.startObligationItems(project, specs, report.producerState["start"])
 		}},
-		{"followups", func() ([]Obligation, error) { return s.followupObligations(project, specs, q.Scope) }},
+		{"followups", func() ([]Obligation, error) {
+			return s.followupObligations(project, specs, q.Scope, report.producerState["followups"])
+		}},
 		{"assessments", func() ([]Obligation, error) { return s.assessmentObligations(project, specs), nil }},
 		{"premises", func() ([]Obligation, error) { return s.premiseObligations(project, specs) }},
 		{"falsifiers", func() ([]Obligation, error) { return s.falsifierObligations(project, specs) }},
 		{"docs-review", func() ([]Obligation, error) { return s.docsReviewObligations(project) }},
 		{"capability-trigger", func() ([]Obligation, error) { return s.capabilityTriggerObligations(project) }},
 		{"release", func() ([]Obligation, error) { return s.releaseQueueObligations(project) }},
-		{"findings", func() ([]Obligation, error) { return s.findingObligations(project, time.Now()) }},
+		{"findings", func() ([]Obligation, error) {
+			return s.findingObligations(project, time.Now(), report.producerState["findings"])
+		}},
 		{"action-requests", func() ([]Obligation, error) {
 			if actionRequestObligationSource == nil {
 				cov := report.producerState["action-requests"]
@@ -202,6 +210,11 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 	for _, o := range all {
 		if err := ValidateObligation(o); err != nil {
 			report.Limitations = append(report.Limitations, "dropped an invalid projected obligation: "+err.Error())
+			// A dropped element is a loss of its producer: the set it returned is not the
+			// set it found, so the read is not complete and the producer says why.
+			if cov := report.producerState[o.Source.Producer]; cov != nil {
+				markCoverageIncomplete(cov, "dropped an invalid projected obligation: "+err.Error())
+			}
 			continue
 		}
 		if !q.matches(o) {
@@ -535,20 +548,33 @@ func (s Store) startObligationItems(project string, specs []Spec, coverage *Cove
 
 // followupObligations projects open follow-ups as residual debt: advisory,
 // never a delivery gate by default. Done specs keep their debt visible.
-func (s Store) followupObligations(project string, specs []Spec, scope string) ([]Obligation, error) {
+func (s Store) followupObligations(project string, specs []Spec, scope string, coverage *Coverage) ([]Obligation, error) {
 	inScope := map[string]bool{}
 	for _, sp := range specs {
 		inScope[sp.Slug] = true
 	}
 	candidates := map[string]FollowupCandidate{}
-	if list, err := s.FollowupCandidates(""); err == nil {
-		for _, c := range list {
+	if result, err := s.ReadFollowupCandidates(""); err == nil {
+		for _, c := range result.Candidates {
 			candidates[fmt.Sprintf("%s#%d", c.Spec, c.Ordinal)] = c
 		}
 	}
+	read := ReadSpecFollowups(s.Root)
+	// A spec this read could not open may hold follow-ups: an answer about its scope,
+	// or about the whole project, does not claim there are none. A loss attributed to
+	// another spec does not touch an answer about this one.
+	losses := []SourceLoss{}
+	for _, loss := range read.Coverage.Losses {
+		if scope == "" || loss.Scope == "" || inScope[loss.Scope] {
+			losses = append(losses, loss)
+		}
+	}
+	if len(losses) > 0 && coverage != nil {
+		markCoverageIncomplete(coverage, (SourceCoverage{Losses: losses}).Describe(""))
+	}
 	var out []Obligation
-	for _, item := range ParseSpecFollowups(s.Root) {
-		if item.RawDisposition != "open" {
+	for _, item := range read.Items {
+		if !item.Unresolved() {
 			continue
 		}
 		if scope != "" && !inScope[item.Spec] {
@@ -558,6 +584,11 @@ func (s Store) followupObligations(project string, specs []Spec, scope string) (
 		o := newObligation(project, "followups", node, "followup-ownership", normalizeObligationText(item.Text))
 		o.Category = ObligationResidualDebt
 		o.ReasonCode = "followup-open"
+		if item.RawDisposition == "" {
+			// The legacy format: a bullet with no [disposition] still owes one, and the
+			// backlog counts it. It is projected the same way, with its own reason.
+			o.ReasonCode = "followup-undisposed"
+		}
 		o.Condition = "the follow-up receives a disposition in its spec"
 		o.Effects = []ObligationEffect{{Phase: PhaseExecution, Mode: EffectAdvisory}}
 		o.Waiting = WaitingNone
@@ -574,6 +605,22 @@ func (s Store) followupObligations(project string, specs []Spec, scope string) (
 		out = append(out, o)
 	}
 	return out, nil
+}
+
+// markCoverageIncomplete records that a producer lost part of what it should have read.
+// A producer that failed outright (unavailable) or is not supported keeps that state.
+func markCoverageIncomplete(cov *Coverage, detail string) {
+	if cov.State == CoverageStateCurrent {
+		cov.State = CoverageStateIncomplete
+	}
+	if cov.State != CoverageStateIncomplete {
+		return
+	}
+	if cov.Detail == "" {
+		cov.Detail = detail
+	} else if !strings.Contains(cov.Detail, detail) {
+		cov.Detail += "; " + detail
+	}
 }
 
 // normalizeObligationText makes a follow-up's identity survive rewrapping.

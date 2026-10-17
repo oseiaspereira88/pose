@@ -1829,7 +1829,11 @@ func summarizeMCPUsage(out any) mcpUsageSummary {
 			}
 		}
 		if len(findings) > 0 {
-			return mcpUsageSummary{Semantic: "partial", Findings: findings, FindingCount: len(findings), Complete: true}
+			return mcpUsageSummary{Semantic: "partial", Findings: findings, FindingCount: len(findings), Complete: value.Complete}
+		}
+		if !value.Complete {
+			// Nothing found in what was read is not a pass for the files that were not.
+			return mcpUsageSummary{Semantic: "partial", Complete: false}
 		}
 		return mcpUsageSummary{Semantic: "pass", Complete: true}
 	case *pose.ComponentDiscoveryState:

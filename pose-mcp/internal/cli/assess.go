@@ -858,6 +858,15 @@ func assessTechDebt(root string, args []string, stdout, stderr io.Writer, locale
 	fmt.Fprintf(stdout, "  - Recommendations: %d Follow-ups, %d Specs, %d Roadmaps\n\n",
 		report.Summary.RecommendedFollowups, report.Summary.RecommendedSpecs, report.Summary.RecommendedRoadmaps)
 
+	scope := render(stdout, stderr)
+	if report.Complete {
+		scope.Field("techdebt.scan", fmt.Sprintf("%d source file(s) scanned, none unreadable", report.ScannedFiles))
+	} else {
+		scope.Field("techdebt.scan", fmt.Sprintf("INCOMPLETE — %d source file(s) scanned; %s; zero markers does not prove the unread files have none", report.ScannedFiles, report.Coverage.Describe("")))
+	}
+	for _, exclusion := range report.Coverage.Exclusions {
+		scope.Field("techdebt.excluded", fmt.Sprintf("%s: %d file(s) — %s", exclusion.Pattern, exclusion.Count, exclusion.Reason))
+	}
 	fmt.Fprintf(stdout, "Artifacts written to .pose/assessments/technical-debt.md and .pose/state/technical-debt.json\n")
 	return 0
 }

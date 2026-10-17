@@ -1,6 +1,6 @@
 ---
 slug: pose-source-coverage-integrity
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-obligation-projection, pose-debt-marker-lexical-precision

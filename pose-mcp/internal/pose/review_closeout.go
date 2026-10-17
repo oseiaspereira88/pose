@@ -868,13 +868,58 @@ func fieldValue(rest, key string) string {
 }
 
 func (s Store) ListReviewAttempts(scope string) ([]ReviewAttempt, error) {
+	read, err := s.ReadReviewAttempts(scope)
+	return read.Attempts, err
+}
+
+// ReviewAttemptsRead is the review attempts a read found, in order, and the records it
+// could not read (spec pose-source-coverage-integrity). The attempts are a sequence
+// that is known only as far as the records were readable: a record lost to a read
+// error may be a later attempt, so the last attempt read is not the last attempt made
+// unless HistoryUncertainAfter says nothing could be later.
+type ReviewAttemptsRead struct {
+	Attempts []ReviewAttempt
+	Coverage SourceCoverage
+}
+
+var reviewAttemptFileTimeRE = regexp.MustCompile(`^rvw-(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z-`)
+
+// reviewAttemptFileTime is when an attempt file's name says it was recorded.
+func reviewAttemptFileTime(name string) string {
+	m := reviewAttemptFileTimeRE.FindStringSubmatch(name)
+	if m == nil {
+		return ""
+	}
+	return fmt.Sprintf("%s-%s-%sT%s:%s:%sZ", m[1], m[2], m[3], m[4], m[5], m[6])
+}
+
+// HistoryUncertainAfter lists the losses that can concern scope and may be later than
+// at (the ReviewedAt of the attempt a consumer selected): those whose name does not
+// say they are earlier. A record that is provably older cannot supersede it.
+func (r ReviewAttemptsRead) HistoryUncertainAfter(scope, at string) []SourceLoss {
+	out := []SourceLoss{}
+	for _, loss := range r.Coverage.LossesFor(scope) {
+		if loss.At != "" && at != "" && loss.At <= at {
+			continue
+		}
+		out = append(out, loss)
+	}
+	return out
+}
+
+// ReadReviewAttempts lists review attempts and reports the records it could not read.
+// With a scope, an attempt file whose header cannot be read is a loss that could
+// concern any scope; a file whose header names the scope and does not parse is
+// an error, as before, because it is certainly part of this history.
+func (s Store) ReadReviewAttempts(scope string) (ReviewAttemptsRead, error) {
+	coverage := SourceCoverage{Losses: []SourceLoss{}}
 	dir := filepath.Join(s.Root, ".pose", "reviews")
 	entries, err := os.ReadDir(dir)
 	if os.IsNotExist(err) {
-		return []ReviewAttempt{}, nil
+		return ReviewAttemptsRead{Attempts: []ReviewAttempt{}, Coverage: coverage}, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("pose: reading reviews: %w", err)
+		return ReviewAttemptsRead{}, fmt.Errorf("pose: reading reviews: %w", err)
 	}
 	attempts := []ReviewAttempt{}
 	for _, entry := range entries {
@@ -882,21 +927,41 @@ func (s Store) ListReviewAttempts(scope string) ([]ReviewAttempt, error) {
 			continue
 		}
 		path := filepath.Join(dir, entry.Name())
+		rel := filepath.ToSlash(filepath.Join(".pose", "reviews", entry.Name()))
+		at := reviewAttemptFileTime(entry.Name())
 		if scope != "" {
 			raw, readErr := os.ReadFile(path)
 			if readErr != nil {
+				coverage.Add(SourceLoss{Producer: "review-attempts", Artifact: rel, Kind: LossReadError, Detail: readErr.Error(), At: at})
 				continue
 			}
 			fm, _ := SplitFrontmatter(string(raw))
 			if fm["scope"] != scope {
+				if fm["scope"] == "" {
+					// No readable scope: it may be an attempt of this one.
+					coverage.Add(SourceLoss{Producer: "review-attempts", Artifact: rel, Kind: LossParseError, Detail: "the record names no scope", At: at})
+				}
 				continue
 			}
 		}
 		a, err := parseReviewAttempt(path)
 		if err != nil {
 			if scope != "" {
-				return nil, err
+				return ReviewAttemptsRead{}, err
 			}
+			loss := SourceLoss{Producer: "review-attempts", Artifact: rel, Kind: LossParseError, Detail: err.Error(), At: at}
+			if strings.Contains(err.Error(), "unsupported schema_version") {
+				// A format this engine does not read, as opposed to a corrupt record.
+				loss.Kind = LossUnsupported
+			}
+			if raw, readErr := os.ReadFile(path); readErr == nil {
+				if fm, _ := SplitFrontmatter(string(raw)); fm["scope"] != "" {
+					loss.Scope, loss.AttributedBy = fm["scope"], "header"
+				}
+			} else {
+				loss.Kind, loss.Detail = LossReadError, readErr.Error()
+			}
+			coverage.Add(loss)
 			continue
 		}
 		if scope == "" || a.Scope == scope {
@@ -909,7 +974,8 @@ func (s Store) ListReviewAttempts(scope string) ([]ReviewAttempt, error) {
 		}
 		return attempts[i].ReviewedAt < attempts[j].ReviewedAt
 	})
-	return attempts, nil
+	coverage.Normalize()
+	return ReviewAttemptsRead{Attempts: attempts, Coverage: coverage}, nil
 }
 
 func digestJSON(value any) (string, error) {
@@ -1233,16 +1299,32 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 		effectiveTools = append(effectiveTools, plan.Tools...)
 		independence = plan.Independence
 	}
-	attempts, err := s.ListReviewAttempts(ref)
+	attemptsRead, err := s.ReadReviewAttempts(ref)
 	if err != nil {
 		return eval, err
 	}
+	attempts := attemptsRead.Attempts
 	if len(attempts) == 0 {
+		if lost := attemptsRead.HistoryUncertainAfter(ref, ""); len(lost) > 0 {
+			// Records that could not be read may be attempts: absence is not proven.
+			eval.Blockers = append(eval.Blockers, "no readable review attempt exists for "+ref+", and the review history is incomplete: "+(SourceCoverage{Losses: lost}).Describe(""))
+			return eval, nil
+		}
 		eval.Blockers = append(eval.Blockers, "no review attempt exists for "+ref)
 		return eval, nil
 	}
 	current := attempts[len(attempts)-1]
 	eval.Current = &current
+	// An attempt that could not be read may be a later one, a rejection among them:
+	// the latest readable attempt is not taken as the current one until the history is
+	// readable. A record whose name shows it is older than the current attempt cannot
+	// have superseded it and is only disclosed.
+	if lost := attemptsRead.HistoryUncertainAfter(ref, current.ReviewedAt); len(lost) > 0 {
+		eval.Blockers = append(eval.Blockers, "review history for "+ref+" is incomplete, so the latest readable attempt is not known to be the current one: "+(SourceCoverage{Losses: lost}).Describe("")+"; restore or remove the unreadable record")
+	}
+	if older := len(attemptsRead.Coverage.LossesFor(ref)) - len(attemptsRead.HistoryUncertainAfter(ref, current.ReviewedAt)); older > 0 {
+		eval.Warnings = append(eval.Warnings, fmt.Sprintf("%d unreadable review record(s) predate the current attempt and cannot have superseded it", older))
+	}
 	legacyPlanExempt := s.componentAwareLegacyAttemptExempt(scope, policy, current)
 	// Reconciling a profile's evidence classes changes the effective plan, and a
 	// completed scope's attempt is compared against the plan as it is today. So

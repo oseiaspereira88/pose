@@ -166,6 +166,16 @@ func componentForRelativeFile(relFile string, roots []string) string {
 }
 
 func (s Store) assessmentFiles() ([]assessmentFile, error) {
+	files, _, err := s.assessmentFilesRead()
+	return files, err
+}
+
+// assessmentFilesRead is assessmentFiles and what the scan did not see: a directory it
+// could not walk or a file it could not read is a loss, and the files it leaves out
+// on purpose (over the size limit, binary, generated) are exclusions that say how
+// many were left out. A consumer that reports "no markers" says it for this slice.
+func (s Store) assessmentFilesRead() ([]assessmentFile, SourceCoverage, error) {
+	coverage := SourceCoverage{Losses: []SourceLoss{}}
 	roots := s.FindComponentDirectories()
 	sort.SliceStable(roots, func(i, j int) bool { return len(roots[i]) > len(roots[j]) })
 
@@ -173,18 +183,26 @@ func (s Store) assessmentFiles() ([]assessmentFile, error) {
 	var files []assessmentFile
 	rootAbs, err := filepath.Abs(s.Root)
 	if err != nil {
-		return nil, err
+		return nil, coverage, err
 	}
 	rootReal, err := filepath.EvalSymlinks(rootAbs)
 	if err != nil {
-		return nil, err
+		return nil, coverage, err
 	}
 	_, absRoot, err := s.resolveComponentDir(".")
 	if err != nil {
-		return nil, err
+		return nil, coverage, err
+	}
+	lost := func(path, kind, detail string) {
+		rel, relErr := filepath.Rel(rootReal, path)
+		if relErr != nil {
+			rel = path
+		}
+		coverage.Add(SourceLoss{Producer: "assessment-scan", Artifact: filepath.ToSlash(rel), Kind: kind, Detail: detail})
 	}
 	err = filepath.WalkDir(absRoot, func(path string, entry os.DirEntry, walkErr error) error {
 		if walkErr != nil {
+			lost(path, LossScanIncomplete, "not scanned: "+walkErr.Error())
 			return nil
 		}
 		if entry.IsDir() {
@@ -201,7 +219,16 @@ func (s Store) assessmentFiles() ([]assessmentFile, error) {
 			return nil
 		}
 		info, err := entry.Info()
-		if err != nil || !info.Mode().IsRegular() || info.Size() > maxAssessmentFileSize {
+		if err != nil {
+			lost(path, LossReadError, "not scanned: "+err.Error())
+			return nil
+		}
+		if !info.Mode().IsRegular() {
+			return nil
+		}
+		if info.Size() > maxAssessmentFileSize {
+			rel, _ := filepath.Rel(rootReal, path)
+			coverage.addExclusion("assessment-scan", "over-size-limit", fmt.Sprintf("files larger than %d bytes are not scanned", maxAssessmentFileSize), filepath.ToSlash(rel))
 			return nil
 		}
 		rel, err := filepath.Rel(rootReal, path)
@@ -213,10 +240,16 @@ func (s Store) assessmentFiles() ([]assessmentFile, error) {
 			return nil
 		}
 		raw, err := os.ReadFile(path)
-		if err != nil || strings.IndexByte(string(raw), 0) >= 0 {
+		if err != nil {
+			lost(path, LossReadError, "not scanned: "+err.Error())
+			return nil
+		}
+		if strings.IndexByte(string(raw), 0) >= 0 {
+			coverage.addExclusion("assessment-scan", "binary-content", "files with a NUL byte are not text and are not scanned", rel)
 			return nil
 		}
 		if hasGeneratedAssessmentHeader(raw) {
+			coverage.addExclusion("assessment-scan", "generated-header", "files that declare themselves generated are not scanned", rel)
 			return nil
 		}
 		seen[rel] = true
@@ -227,8 +260,9 @@ func (s Store) assessmentFiles() ([]assessmentFile, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, coverage, err
 	}
 	sort.Slice(files, func(i, j int) bool { return files[i].RelPath < files[j].RelPath })
-	return files, nil
+	coverage.Normalize()
+	return files, coverage, nil
 }

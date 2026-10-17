@@ -1211,7 +1211,16 @@ func cmdReviewRecord(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "pose review record: expected plan digest %s, current is %s\n", expectedPlanDigest, plan.PlanDigest)
 		return 1
 	}
-	attempts, err := store.ListReviewAttempts(ref)
+	attemptsRead, err := store.ReadReviewAttempts(ref)
+	attempts := attemptsRead.Attempts
+	lastAt := ""
+	if len(attempts) > 0 {
+		lastAt = attempts[len(attempts)-1].ReviewedAt
+	}
+	if lost := attemptsRead.HistoryUncertainAfter(ref, lastAt); err == nil && len(lost) > 0 {
+		// The attempt this one supersedes would be chosen from a history with a hole.
+		err = fmt.Errorf("the review history for %s is incomplete (%s); restore or remove the unreadable record before recording", ref, (posemodel.SourceCoverage{Losses: lost}).Describe(""))
+	}
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review record: %v\n", err)
 		return 1

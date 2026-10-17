@@ -172,10 +172,15 @@ func (s Store) releaseQueueObligations(project string) ([]Obligation, error) {
 // follow-up has passed its review date. Open findings of a current review are
 // the review producer's; free-form investigation notes carry no state to
 // project.
-func (s Store) findingObligations(project string, now time.Time) ([]Obligation, error) {
-	attempts, err := s.ListReviewAttempts("")
+func (s Store) findingObligations(project string, now time.Time, coverage *Coverage) ([]Obligation, error) {
+	read, err := s.ReadReviewAttempts("")
 	if err != nil {
 		return nil, err
+	}
+	attempts := read.Attempts
+	if !read.Coverage.Complete() && coverage != nil {
+		// A review record that could not be read may hold a finding that is due.
+		markCoverageIncomplete(coverage, read.Coverage.Describe(""))
 	}
 	latest := map[string]ReviewAttempt{}
 	for _, attempt := range attempts {

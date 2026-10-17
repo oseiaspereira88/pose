@@ -2082,6 +2082,21 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "source-coverage-integrity-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "SourceCoverage|UnreadableSpec|UnresolvedFollowups|FollowupProducerIsIncomplete|DroppedObligation|VeryLongLine|TechDebtCoverage|TechDebtReportSays|UnreadableNewerAttempt|UnreadableOlderAttempt|NoReadableAttempt|AnotherScopeDoesNotConcern|UnscopedUnreadable|UnreadableAttestation|UnreadableBundle|FindingsProducerIsIncomplete|BacklogAndTheProjectState|SpecItCouldNotRead|FailOverdueRefuses|AssessTechDebtStates|ReviewCheckCarries|FollowupParity",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "index-generation-integrity-integration",
           "program": "go",
           "args": [

@@ -77,9 +77,32 @@ func ParseFollowupMeta(text string) (stripped, owner, crit, review, by, metaErr 
 	return stripped, owner, crit, review, by, ""
 }
 
+// SpecFollowupRead is what reading the follow-ups of every spec found: the items,
+// and what the read could not see (spec pose-source-coverage-integrity). An empty
+// Items with losses is not "nothing is owed".
+type SpecFollowupRead struct {
+	Items    []SpecFollowup
+	Coverage SourceCoverage
+}
+
+// Unresolved reports a follow-up that still owes a disposition: an explicit [open], or
+// a bullet with no disposition at all (the legacy format). One definition, so the
+// backlog, the candidates and the obligation projection count the same set.
+func (f SpecFollowup) Unresolved() bool {
+	return f.RawDisposition == "" || f.RawDisposition == "open"
+}
+
 // ParseSpecFollowups reads every spec's Final Report follow-ups, flat and
-// folder layouts alike, in path order.
+// folder layouts alike, in path order. It drops what it cannot read; callers that
+// must not mistake that for "nothing is owed" use ReadSpecFollowups.
 func ParseSpecFollowups(root string) []SpecFollowup {
+	return ReadSpecFollowups(root).Items
+}
+
+// ReadSpecFollowups reads every spec's Final Report follow-ups, flat and folder
+// layouts alike, in path order, and reports each spec it could not read, attributed to
+// the spec its path names.
+func ReadSpecFollowups(root string) SpecFollowupRead {
 	paths, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*", "spec.md"))
 	flatPaths, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*.md"))
 	for _, p := range flatPaths {
@@ -89,9 +112,18 @@ func ParseSpecFollowups(root string) []SpecFollowup {
 	}
 	sort.Strings(paths)
 	entries := []SpecFollowup{}
+	coverage := SourceCoverage{Losses: []SourceLoss{}}
+	if _, err := os.ReadDir(filepath.Join(root, ".pose", "specs")); err != nil && !os.IsNotExist(err) {
+		coverage.Add(SourceLoss{Producer: "followups", Artifact: ".pose/specs", Kind: LossReadError, Detail: err.Error()})
+	}
 	for _, path := range paths {
 		raw, err := os.ReadFile(path)
 		if err != nil {
+			rel, relErr := filepath.Rel(root, path)
+			if relErr != nil {
+				rel = path
+			}
+			coverage.Add(SourceLoss{Producer: "followups", Artifact: filepath.ToSlash(rel), Scope: specSlugFromPath(path), AttributedBy: "path", Kind: LossReadError, Detail: err.Error()})
 			continue
 		}
 		body := followupHTMLCommentRE.ReplaceAllString(string(raw), "")
@@ -161,7 +193,8 @@ func ParseSpecFollowups(root string) []SpecFollowup {
 		}
 		flush()
 	}
-	return entries
+	coverage.Normalize()
+	return SpecFollowupRead{Items: entries, Coverage: coverage}
 }
 
 func followupFrontmatterStatus(text string) string {
