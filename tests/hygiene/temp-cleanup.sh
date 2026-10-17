@@ -39,10 +39,12 @@ import re, sys
 
 DOCKER = re.compile(r'if \[ -n "\$\w+" \]; then docker rm -f "\$\w+" >/dev/null; fi;?')
 
-def heredoc_delimiter(line):
+def heredoc_delimiter(line, arith=0):
     """The delimiter of a heredoc started on this line, found outside quotes,
     comments and arithmetic (but inside `$( ... )`, which is code even within
     double quotes); None if the line starts none."""
+    if re.match(r"\s*let\b", line):
+        return None
     i, n = 0, len(line)
     q = None
     subs = []  # quote state to restore when each open `$(` closes
@@ -78,7 +80,7 @@ def heredoc_delimiter(line):
             i += 3
             continue
         elif line.startswith("<<", i):
-            if line[:i].count("((") > line[:i].count("))"):
+            if arith + line[:i].count("((") - line[:i].count("))") > 0:
                 i += 2
                 continue
             m = re.match(r"<<(-?)\s*(?:'([^']+)'|\"([^\"]+)\"|([A-Za-z_][\w.-]*))", line[i:])
@@ -89,7 +91,7 @@ def heredoc_delimiter(line):
 
 def code_lines(path):
     """Lines with comments and heredoc bodies blanked."""
-    out, end = [], None
+    out, end, arith = [], None, 0
     for l in open(path).read().split("\n"):
         if end is not None:
             word, strip = end
@@ -101,7 +103,8 @@ def code_lines(path):
             out.append("")
             continue
         out.append(l)
-        end = heredoc_delimiter(l)
+        end = heredoc_delimiter(l, arith)
+        arith = max(0, arith + l.count("((") - l.count("))"))
     return out
 
 def masked(l):
@@ -220,14 +223,23 @@ def check(path):
                     p.append("the EXIT trap sits in a loop, function, group or case arm")
                 if assigned:
                     first_alloc = min(i for _, i in assigned)
-                    names = {v for v, _ in assigned}
+                    defined = {v for v, _ in assigned}
+                    alloc_lines = {i for _, i in assigned}
                     for j in range(first_alloc, t):
-                        s = masked(lines[j])
-                        if not s or j in {i for _, i in assigned}:
+                        raw = lines[j].strip()
+                        if not raw or j in alloc_lines:
                             continue
-                        if re.fullmatch(r"\w+=\"\$\{?\w+\}?(/[\w./-]*)?\"", s) or re.fullmatch(r"\w+=\"\"", s) or re.fullmatch(r"(function\s+)?\w+\s*(\(\))?\s*\{[^\n}]*\}", s):
+                        lit = re.fullmatch(r"(\w+)=\"([^\"$`\\]*)\"", raw)
+                        if lit:
+                            defined.add(lit.group(1))
                             continue
-                        p.append(f"line {j + 1} runs between the allocation and the EXIT trap, so a failure there leaks the directory: put the trap right after the allocations")
+                        ref = re.fullmatch(r"(\w+)=\"\$\{?(\w+)\}?(/[\w./-]*)?\"", raw)
+                        if ref and ref.group(2) in defined:
+                            defined.add(ref.group(1))
+                            continue
+                        if re.fullmatch(r"(function\s+)?\w+\s*(\(\))?\s*\{[^\n}$`]*(\$\{?\w+\}?[^\n}$`]*)*\}", raw):
+                            continue
+                        p.append(f"line {j + 1} runs between the allocation and the EXIT trap, or reads a variable that is not yet set, so a failure there leaks the directory: put the trap right after the allocations")
                 for v, i in assigned:
                     if stacks[i] != stacks[t]:
                         p.append(f"the EXIT trap is not in the same branch as the mktemp of ${v}")
@@ -253,6 +265,8 @@ def check(path):
                 for v, _ in assigned:
                     if v not in removed:
                         p.append(f"the EXIT trap does not remove ${v}")
+                for v in removed - {v for v, _ in assigned}:
+                    p.append(f"the EXIT trap expands ${v}, which holds no mktemp result and can be unset")
     return p
 
 for path in sys.argv[1:]:
@@ -339,6 +353,12 @@ mkfix for-rebinds 'w="$(mktemp -d)"' 'for w in a b; do :; done' "trap 'rm -rf \"
 mkfix array-element-rebinds 'w="$(mktemp -d)"' 'w[0]=' "trap 'rm -rf \"\$w\"' EXIT"
 mkfix rm-function-noop 'rm() { return 0; }' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
 mkfix read-clears-root "$SRC" 'pose_test_tmp_init' 'read POSE_TEST_TMP < /dev/null' 'w="$(mktemp -d)"'
+mkfix failing-substitution-before-trap 'w="$(mktemp -d)"' 'x="$(false)"' "trap 'rm -rf \"\$w\"' EXIT"
+mkfix unset-variable-before-trap 'set -u' 'w="$(mktemp -d)"' 'x="$MISSING"' "trap 'rm -rf \"\$w\"' EXIT"
+mkfix unset-variable-in-trap 'set -u' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\" \"\$MISSING\"' EXIT"
+mkfix multiline-shift 'bit=1' 'x=$((' '  1 << bit' '))' 'w="$(mktemp -d)"'
+mkfix multiline-shift-quoted 'bit=1' 'x="$((' '  1 << bit' '))"' 'w="$(mktemp -d)"'
+mkfix let-shift 'let x=1<<2' 'w="$(mktemp -d)"'
 negatives=0
 for f in "$fixtures"/*.sh; do
   negatives=$((negatives + 1))
