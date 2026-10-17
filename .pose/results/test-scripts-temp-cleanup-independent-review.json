@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "round": 8,
+  "round": 9,
   "spec": "pose-test-scripts-remove-their-temp-files",
   "pr": 192,
-  "head": "091869f922987655b1ef126fde63acb55137e945",
+  "head": "f98d0056fe399a51230d7df7719d78a7afb4d6f1",
   "decision": "changes-requested",
   "reviewer": "agent:independent-gpt-6.1-sol-review",
   "identity_assurance": "declared; unsigned",
   "judgments": {
     "scope": "Maintainer-authorized Codex/OpenAI execution, different vendor from the Claude/Anthropic implementer. The agent:independent- prefix is an engine-required declaration until pose-delegated-review-run-provenance replaces it, not authenticated execution provenance. pose-dist attestations are unsigned. Individual implementer-session identity is maintainer-supplied, not independently authenticated.",
-    "D1": "The owned TMPDIR root is proportionate; helper/hygiene pass the independent mutable-state permission/failure/signal matrix and the demo build-failure correction remains effective. Five unsafe contexts are still admitted by the regression guard, beyond the declared eval/sourced-file boundary. SIGKILL remains an unavoidable trap limitation requiring disclosure at closeout; Final Report is Pending.",
-    "scan_scope": "All tracked *.sh currently lie in tests/, scripts/, examples/ or install.sh; Git pathspecs include descendants. Helper/hygiene are statically exempted and dynamically checked. The three real-script assertions and source/init/cd behavior are preserved; demo allocation/trap placement preserves its assertions."
+    "D1": "One owned TMPDIR root remains proportionate and avoids the multi-allocation cleanup gap when adopted before later allocations. Helper/hygiene pass the independent mutable-state permission/failure/signal matrix. The demo still leaks if its second mktemp fails, and the guard approves that unsafe form. SIGKILL remains an unavoidable trap limitation to disclose at closeout; Final Report is Pending.",
+    "scan_scope": "All tracked *.sh currently lie in tests/, scripts/, examples/ or install.sh; Git pathspecs include descendants. Helper/hygiene are statically exempted and dynamically checked. Assertions/source/init/cd handling are preserved. The demo is explicitly within this spec and its artifact claims."
   },
   "previous_findings": {
-    "F1": "resolved and revalidated in its original restricted-file permission scope",
-    "F2": "open: all 54 prior external synthetic leaks are rejected, but five further accepted executable cases leak",
+    "F1": "resolved and revalidated in the original restricted-file permission scope",
+    "F2": "open: all 59 earlier external synthetic leaks are rejected, but four further accepted scenarios leak",
     "F3": "resolved, including missing-handler negative control",
     "F4": "resolved, documentation names pose_test_tmp_remove",
     "F5": "resolved, exact setup markers and expected exits revalidated",
@@ -26,28 +26,38 @@
       "severity": "medium",
       "status": "open",
       "file": "tests/hygiene/temp-cleanup.sh",
-      "line": 226,
+      "line": 239,
       "related_lines": [
-        46,
-        47,
-        232,
-        237
+        183,
+        221,
+        235
       ],
-      "requirement": "R3",
-      "scenario": "The defined set is seeded with every allocated variable, including future assignments, so copy=\"$b\" before b is allocated is accepted and aborts under set -u before cleanup registration. Readonly state is not checked: a literal gap assignment, the mktemp target, or helper TMPDIR can be readonly and cause an accepted script to leak. The let shortcut ignores a real heredoc redirection and mistakes its helper source/init data for executed code. All five accepted executable cases leave TMPDIR nonempty and pass ShellCheck --severity=warning; tracked-script substitutions of the forward-reference and let-heredoc cases both pass the complete gate.",
+      "additional_locations": [
+        {
+          "file": "examples/demo/record.sh",
+          "lines": [
+            34,
+            35,
+            36
+          ]
+        }
+      ],
+      "requirement": "R3; R1 also fails on the current tracked demo when its second allocation fails",
+      "scenario": "The accepted multi-root form installs cleanup only after all mktemp commands succeed. If the second allocation fails, the first root survives. This reproduces with a second invalid mktemp template and with the unchanged tracked demo using fault injection that lets the first mktemp execute natively and fails only the second. Both exit 1 and leave TMPDIR nonempty, while the scan approves them. The readonly predicate also examines only the first option word, so declare -x -r is accepted in a literal gap assignment and before helper initialization with readonly TMPDIR; both leak. All four accepted cases use CI-warning-clean source. Two tracked-script substitutions pass the complete gate.",
       "cases": [
-        "forward-allocated-variable",
-        "readonly-literal-gap",
-        "readonly-allocation-target",
-        "readonly-helper-TMPDIR",
-        "let-with-real-heredoc"
+        "second-allocation-fails",
+        "declare-multiple-flags-readonly-gap",
+        "declare-multiple-flags-readonly-helper",
+        "demo-second-mktemp-failure"
       ],
-      "action": "Track definite initialization in source/execution order, not from the complete future allocation list. Reject or safely handle unsupported readonly state before creating roots or permitting assignments. Parse real heredoc redirections on let lines rather than skipping the command wholesale. Require all five negative cases and both complete-gate controls to fail.",
+      "action": "Make cleanup active before later allocations can fail, rather than treating adjacent multiple allocations as protected. Reject or safely handle this own-trap form, and cover failure of allocation N in the demo and positive multi-root case. Parse all declaration option words when rejecting readonly state. Require the four cases and both complete-gate controls to be rejected or clean up.",
       "evidence": [
         "scan-probes.json",
+        "demo-second-mktemp-failure.log",
+        "fault-bin/mktemp",
         "control-probes.json",
-        "full-gate-forward-allocated-variable.log",
-        "full-gate-let-with-real-heredoc.log",
+        "full-gate-second-allocation-fails.log",
+        "full-gate-declare-multiple-flags-readonly-helper.log",
         "scan-probes.py"
       ]
     }
@@ -72,15 +82,15 @@
       "exit_code": 0,
       "version": "0.11.0",
       "severity": "warning",
-      "scope": "CI glob set"
+      "scope": "CI glob set, including unchanged demo source"
     },
     "adversarial_shellcheck": {
-      "all_exit_codes": 0,
-      "cases": 5
+      "synthetic_cases": 3,
+      "all_exit_codes": 0
     },
     "hygiene": {
       "exit_code": 0,
-      "negative_fixtures": 73,
+      "negative_fixtures": 78,
       "positive_fixtures": 5,
       "tracked_copy_controls": [
         "rebound",
@@ -97,31 +107,31 @@
         "name": "quickstart",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 2.72
+        "seconds": 3.75
       },
       {
         "name": "migration",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 1.41
+        "seconds": 2.59
       },
       {
         "name": "journey",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 5.51
+        "seconds": 6.43
       },
       {
         "name": "demo",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 1.76
+        "seconds": 2.38
       },
       {
         "name": "quickstart-binary",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 1.03
+        "seconds": 1.38
       }
     ],
     "demo_build_failure": {
@@ -129,6 +139,18 @@
       "run_exit": 1,
       "leftovers": [],
       "environment_failure": "GOTOOLCHAIN=invalid"
+    },
+    "demo_second_allocation_failure": {
+      "name": "demo-second-mktemp-failure",
+      "tracked_path": "examples/demo/record.sh",
+      "scan_exit": 0,
+      "accepted": true,
+      "run_exit": 1,
+      "leftovers": [
+        "tmp.WZ7D9uKs3s"
+      ],
+      "mktemp_calls": 2,
+      "fault_injection": "second mktemp exits 1; first delegates to native mktemp; no source mutation"
     },
     "additional_controls": [
       {
@@ -139,7 +161,7 @@
         "name": "old-quickstart",
         "exit_code": 0,
         "leftovers": [
-          "tmp.irN3fsuKvH"
+          "tmp.llUOA0Mscq"
         ],
         "nonempty_check_exit": 1
       },
@@ -196,27 +218,25 @@
     ],
     "full_gate_leak_controls": [
       {
-        "name": "full-gate-forward-allocated-variable",
+        "name": "full-gate-second-allocation-fails",
         "exit_code": 0,
         "tracked_path": "tests/import/migration-guides.sh"
       },
       {
-        "name": "full-gate-let-with-real-heredoc",
+        "name": "full-gate-declare-multiple-flags-readonly-helper",
         "exit_code": 0,
         "tracked_path": "tests/import/migration-guides.sh"
       }
     ],
     "static_adversarial": {
-      "accepted_leaking_cases": 5,
+      "accepted_leaking_synthetic_cases": 3,
+      "accepted_leaking_tracked_demo": 1,
       "all_left_nonempty": true,
-      "run_exit_counts": {
-        "0": 1,
-        "1": 4
-      },
-      "correct_controls_accepted": 3,
-      "correct_controls_left_empty": true,
-      "prior_synthetic_leaks_rejected": 54,
-      "excluded_probe": "integer-literal-gap leaves no residue and is not a finding"
+      "all_run_exit_codes": 1,
+      "happy_path_controls_accepted": 3,
+      "happy_path_controls_left_empty": true,
+      "prior_synthetic_leaks_rejected": 59,
+      "excluded_probe": "typeset-multiple-flags-readonly-target is rejected by the mutation rule and is not an accepted-leak finding"
     },
     "artifact_check": {
       "exit_code": 0,
@@ -246,13 +266,13 @@
     },
     "bundle_prepare": {
       "exit_code": 0,
-      "id": "rvb-e929e1645b47e9d5",
+      "id": "rvb-177ef5134d45caa8",
       "state": "prepared",
       "sealed": false
     },
     "integration": "CI, local verifier and required matrix check invoke the exercised hygiene command. No MCP/REST/Protobuf/Kafka contract changed; assess integrate is not applicable."
   },
-  "evidence_quality": "Real scripts and module tests finished before tracked-file mutations. Mutations ran sequentially and were restored byte-for-byte. All deliberate leaks were observed then removed.",
+  "evidence_quality": "Real scripts and module tests completed before tracked-file mutations. Mutations ran sequentially and were restored byte-for-byte. Demo fault injection changes only its child PATH: first mktemp delegates to the native command, second exits 1, and the counter proves exactly two calls; demo source is unchanged. All intentional leaks were observed then removed.",
   "closeout": {
     "sealed_bundle_id": null,
     "attestation_id": null,
@@ -263,60 +283,60 @@
     "strict_delivery_validation": "not run; approval closeout not entered",
     "commit_pushed": null
   },
-  "raw_evidence_directory": "/tmp/pose-temp-independent-r8",
+  "raw_evidence_directory": "/tmp/pose-temp-independent-r9",
   "raw_evidence_sha256": {
-    "context.json": "96d7a5d8a4a6f60920cee6a188f808b5e91c09b00044600ed046d77db2fdeed5",
+    "context.json": "e6e4d1c875e959fbe9dde4d7e5870371a1519d7281d0ee239ac32bd14a2e0e3f",
     "suggest-pose-mcp.log": "eb90980a7ead71b07dc4d355944863683fcfd3bb0ebcf2ba5eead2536606b184",
     "suggest-tests.log": "d5e614a2f3bc7eb2bce8cbde968dd286577e6f7ec676ec0b7b851e9cfd10e106",
     "suggest-scripts.log": "a9e8e207e8d8a2b4ec34ad2ddb8e8e04ed29df04e340fdf1cd18118e9980ee17",
     "suggest-examples.log": "e508f2937b328e9d5ab3151fe51a18bf0d8b29d6febdc3f02e597b59d6531dff",
     "tech-debt.log": "84d9b0da3f49dbfe79a93777b7c9db82ac638302683eae9cd3d53898f9782af0",
     "recurrence.log": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7",
-    "artifact.json": "2dfdb0591fa9ef203ec3859e84ee33bdc7525ef305adfae6cb9a1b416d18fc5c",
+    "artifact.json": "1ddf1f935105995d3433ec4072ff808e6ba5e0aeb643d7ca75d84e23b834a9dd",
     "artifact.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "artifact-summary.json": "3210009fa6142ed3390f41ac4547eff2deec10e34c9f22d46f23ea1a02356b40",
-    "bundle-explain.log": "164e59bfa8a2aa828d495c2e3bc9caf1601afa6a9a9eddb10b86b29c9b231220",
-    "full-diff.log": "e605d4498a98c7970778fa44f4473ff4168e252e78dc7ffc3de199f42794a66b",
-    "round8-diff.log": "b84c1b7f960653d2f61f0fcde02d18b103b81a5b5ad00a990bda4e5d6629c5c4",
+    "bundle-explain.log": "528b5e262188b3bd90a91725681faff3f5b5745ee462b50038e7134a3b99fabb",
+    "full-diff.log": "df12538b7b55aec0d8c62495758383a13e864bd0b44ab3c7481598941d178f6a",
+    "round9-diff.log": "b4bb25837e417870e14542ebdf829735592b461952afa3dcce2cca8965219e45",
     "vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "test.log": "648d081dc0e628e117d363ddc33313b640b4d88582be822672a3b722547bf297",
-    "hygiene.log": "feee9858359f320f4381ebc29c8e5829209327f41cd981765ba74b3954237c66",
+    "test.log": "629c6f74d10fbccb50c991fff4e356e18fc7fb61b0825a154ac3791359ece2aa",
+    "hygiene.log": "4260e775273baea7536e9c449070730f56b9fb9aa32dfac1641c1593c077476d",
     "shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "local-ci-gate.log": "cc00f84c9532ae72263f72941ad58a7f1e4b85638f84ea3d5d7b391bb69f970e",
-    "real-results.json": "0aaf9d1d4bd0c17db7017eff303ca32dfc49378778fee511bf56ca3d7d2a42f2",
-    "remaining-probes.json": "3ff4d078da7e0f95d8710d499d04a662c54865dcabd69de442a1234237b11aa4",
-    "scan-probes.json": "f3946c56163ad8cf7ec42d7dcccc21be2d676e90c044a8f8b7be37c5ee1c1ed6",
-    "previous-corpus.json": "2de02d14fa80fbc5540037fd89ee2e775773676d63e7c91996af443ac61baecc",
-    "control-probes.json": "031273e2a9fa1c45c7e22c455d86dfcb57c9b2eb12410808b67c22f2da0600f0",
+    "local-ci-gate.log": "f46fcbd4e5ddf1b7b2648f43babb7d93a4b9a5eb04da74b2e241364d8cb540b2",
+    "real-results.json": "be0b4d4cf99f8d7d196b4f5f8c6b4b7bc8a6723e36805153b77b8877a7b711e8",
+    "remaining-probes.json": "6c3b70ed5bd98a35751d2f3b4f3e1fa3f34907ac1d689a79b343eb46fd5f8084",
+    "scan-probes.json": "ba551a6a4e19503f048c05a3e620f21746fec4fbe1a813647e17175c27b2cb7f",
+    "previous-corpus.json": "2832487b2492110aa38bd9c93ccb1b0fd62bb26cc6c2cffb7577a2d78ac7cd9f",
+    "control-probes.json": "2e752d335ff817248ea59efeccf41c0d4c7e7b552f40071791c353731ccb7caf",
     "demo-build-failure.log": "81ea061796f9d49ad6fead3fd3b35102552ec9ccdc1d61f64dfaf6ae770cab86",
-    "full-gate-forward-allocated-variable.log": "feee9858359f320f4381ebc29c8e5829209327f41cd981765ba74b3954237c66",
-    "full-gate-let-with-real-heredoc.log": "feee9858359f320f4381ebc29c8e5829209327f41cd981765ba74b3954237c66",
-    "gate-TERM.log": "c600cbeab9a390f26d618abaf5bc3d68f5983ade31153813e3d9b2169149c683",
-    "gate-INT.log": "c600cbeab9a390f26d618abaf5bc3d68f5983ade31153813e3d9b2169149c683",
-    "gate-old-permissions.log": "0fc64e20bd4a278a2270482326cdc98121acda1b10aa6b47d2d51843bf305f26",
-    "gate-without-INT.log": "124e0506d4d4231b6d25f1462e0aae8df14d5e3b08749dee857d8c729d80b296",
+    "demo-second-mktemp-failure.log": "67b68af3fa7e5f2552042afeb53a8cf618eb1f5de888bb517ef1df64dd81c8c5",
+    "fault-bin/mktemp": "227b9c9024bacd4eb9bf886f691a56810621f25f07ff7c9dfa51ec9238799a09",
+    "full-gate-second-allocation-fails.log": "4260e775273baea7536e9c449070730f56b9fb9aa32dfac1641c1593c077476d",
+    "full-gate-declare-multiple-flags-readonly-helper.log": "4260e775273baea7536e9c449070730f56b9fb9aa32dfac1641c1593c077476d",
+    "gate-TERM.log": "ad71f34f5cc8ac679e656eb46a44960519782c39a7f53c684655ce11e8654edd",
+    "gate-INT.log": "ad71f34f5cc8ac679e656eb46a44960519782c39a7f53c684655ce11e8654edd",
+    "gate-old-permissions.log": "8ac282e90f8a3eb8aff73451a7105e4a2e6ed60e044ec7ca88422748788428fb",
+    "gate-without-INT.log": "2affe31e56350cb43bce13d27828c6c29c00ba053b49f8d8e6f9f782db2d038e",
     "old-static.log": "5ef4a2a5c5122b73dd2a688b5c0ac72349ed9d1a60e6d62597258035cdaef11a",
     "old-quickstart.log": "15d3a9c84f1f82b876f0f3f11e3b49cbda3eac1dcc60cb696f0b675690e3bed2",
     "journey-options.log": "6d24d3a882d7244082e532892f74bb324982cacac310f89e737beec330f090ca",
-    "scan-probes.py": "e2640c91a2c362d41b227e58638183232a44e83b64740da0e92782ab676ea85d",
-    "control-probes.py": "33bd934d13b3e727813124900b26034a5f7567c2f6fe8f8d314ae0248cdb9db9",
-    "remaining-probes.py": "1c087e71d193427ea1ab2653a4b3700ec2b32b7acd9becdb3b502f21804ac6d3",
-    "run-real.py": "08c5bbbab055b8631c48dc424966a8836ab53fcff92bd1a73663269dc39745f5",
+    "scan-probes.py": "81f376b26798028358f3a0e0d23784e7a2fe32af2e0be003dd5c780f92eb2ef9",
+    "control-probes.py": "40fa4a111620eff43ab2862e70a62ddacf2fd4daa786ba01d37cffbbd428c7fe",
+    "remaining-probes.py": "9063c693732ddc5d6d57a4e07625746adb0b2c8ba137f4689c3c91ee07d7015c",
+    "run-real.py": "d158427dd2f387dcdd6f1b63ffcde0af6b1139709d3214f8e668f6111354a8d4",
     "term-at-control.bash": "7f58f18e84b39d5c9dbe1984b42dacfea0aa6e12ea177f4045cac5c0dea198a3",
     "int-at-control.bash": "ac210ee2eb6ddac19b82b2696565bcbe56e0a790678c8bfbf51cf4dfdc76cece",
-    "forward-allocated-variable-shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "readonly-literal-gap-shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "readonly-allocation-target-shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "readonly-helper-TMPDIR-shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "let-with-real-heredoc-shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    "second-allocation-fails-shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "declare-multiple-flags-readonly-gap-shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "declare-multiple-flags-readonly-helper-shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   "prior_review": {
-    "head": "f46f04ca",
-    "round": 7,
+    "head": "091869f9",
+    "round": 8,
     "decision": "changes-requested",
     "findings": [
       "F2"
     ],
-    "committed_record": "091869f9:.pose/results/test-scripts-temp-cleanup-independent-review.json"
+    "committed_record": "f98d0056:.pose/results/test-scripts-temp-cleanup-independent-review.json"
   }
 }

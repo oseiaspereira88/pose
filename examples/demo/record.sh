@@ -32,8 +32,9 @@ done
 
 export POSE_LOCALE=en
 BUILD_WORK="$(mktemp -d)"
-WORK="$(mktemp -d)"
-trap 'rm -rf "$WORK" "$BUILD_WORK"' EXIT
+trap 'rm -rf "$BUILD_WORK"' EXIT
+WORK="$BUILD_WORK/demo"
+mkdir "$WORK"
 BIN="$BUILD_WORK/pose"
 go -C pose-mcp build -o "$BIN" ./cmd/pose >/dev/null
 

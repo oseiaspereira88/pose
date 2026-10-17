@@ -180,7 +180,7 @@ def check(path):
         p.append("redefines rm, trap, chmod or find, which the cleanup relies on")
     def mutated(v):
         return bool(re.search(r"\bfor\s+" + v + r"\b|\b(?:select|getopts)\b[^\n]*\b" + v + r"\b|\bread\b[^\n]*\b" + v + r"\b|(?<![\w$])" + v + r"\[|\b(?:printf\s+-v|mapfile|readarray)\b[^\n]*\b" + v + r"\b|\(\(\s*" + v + r"\b", text))
-    if re.search(r"\breadonly\b|\b(declare|typeset|local|export)\s+-[a-zA-Z]*r", text):
+    if re.search(r"\breadonly\b|\b(declare|typeset|local|export)\b[^\n;|&]*\s-[a-zA-Z]*r", text):
         p.append("makes a variable readonly, which can make the allocation or the helper fail")
     for v in ("TMPDIR", "POSE_TEST_TMP"):
         if mutated(v):
@@ -213,6 +213,8 @@ def check(path):
                 p.append(f"line {i + 1}: mktemp sits in a loop, function, group or case arm, where it can run more than once")
             else:
                 assigned.append((m.group(1), i))
+        if len(assigned) > 1:
+            p.append("more than one mktemp: a later one can fail before the trap exists and leak the earlier directory; allocate one root and derive the other paths from it")
         for v, i in assigned:
             n = len(re.findall(r"(?<![\w$])" + v + r"\+?=", text))
             n += len(re.findall(r"\b(?:local|declare|typeset)\b[^\n]*\b" + v + r"\b(?!=)", text))
@@ -374,18 +376,21 @@ mkfix readonly-literal 'set -e' 'w="x"' 'readonly w' 'w="$(mktemp -d)"' "trap 'r
 mkfix readonly-target 'readonly w=x' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
 mkfix readonly-tmpdir 'readonly TMPDIR=/var/tmp' "$SRC" 'pose_test_tmp_init' 'w="$(mktemp -d)"'
 mkfix let-heredoc "$SRC" 'let x <<EOF' 'pose_test_tmp_init' 'EOF' 'w="$(mktemp -d)"'
+mkfix two-roots 'a="$(mktemp -d)"' 'b="$(mktemp -d)"' "trap 'rm -rf \"\$a\" \"\$b\"' EXIT"
+mkfix declare-x-r 'declare -x -r w=x' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
+mkfix declare-x-r-tmpdir 'declare -x -r TMPDIR=/var/tmp' "$SRC" 'pose_test_tmp_init' 'w="$(mktemp -d)"'
 negatives=0
 for f in "$fixtures"/*.sh; do
   negatives=$((negatives + 1))
   [ -n "$(scan "$f")" ] || fail "the scan accepted $(basename "$f"), which leaks"
 done
 mkfix good-trap 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix good-two-roots 'a="$(mktemp -d)"' 'b="$(mktemp -d)"' "trap 'rm -rf \"\$a\" \"\$b\"' EXIT"
+mkfix good-derived-path 'a="$(mktemp -d)"' "trap 'rm -rf \"\$a\"' EXIT" 'b="$a/work"' 'mkdir "$b"'
 mkfix good-function 'w="$(mktemp -d)"' 'cleanup() { rm -rf "$w"; }' 'trap cleanup EXIT'
 mkfix good-init "$SRC" 'pose_test_tmp_init' 'w="$(mktemp -d)"'
 mkfix good-init-own-trap "$SRC" 'pose_test_tmp_init' "trap 'pose_test_tmp_remove' EXIT" 'w="$(mktemp -d)"'
 positives=0
-for f in good-trap good-two-roots good-function good-init good-init-own-trap; do
+for f in good-trap good-derived-path good-function good-init good-init-own-trap; do
   positives=$((positives + 1))
   [ -z "$(scan "$fixtures/$f.sh")" ] || fail "the scan rejected $f: $(scan "$fixtures/$f.sh")"
 done
