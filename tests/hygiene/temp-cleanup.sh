@@ -3,9 +3,8 @@
 # pose-test-scripts-remove-their-temp-files).
 #
 # Three things are checked:
-#   1. every script that calls mktemp either has an EXIT trap that removes what
-#      it created or initializes tests/lib/tempdir.sh before its first mktemp,
-#      and the scan is shown rejecting the shapes that only look like cleanup;
+#   1. every script that calls mktemp uses the helper in its plain form or is
+#      pinned by hash after a reviewer read its own EXIT trap;
 #   2. the helper removes its directory when the script succeeds, fails an
 #      assertion, errors under `set -e`, or is stopped by INT or TERM;
 #   3. the quickstart script, which builds its own binary, run with a TMPDIR of
@@ -24,446 +23,79 @@ trap 'chmod -R u+rwx "$SANDBOX" 2>/dev/null || true; rm -rf "$SANDBOX"' EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-# 1. Static: no script creates a temporary file it never removes. Shell cannot
-# be proven to clean up by reading it, so the scan accepts only two plain forms
-# and rejects everything else, including text that merely looks like cleanup:
-#   - the helper: tests/lib/tempdir.sh sourced and `pose_test_tmp_init` called
-#     as a top-level command before the first mktemp, with no later EXIT trap
-#     that drops the helper's, and no redefinition of its functions;
-#   - an own trap: every mktemp is assigned to a variable, exactly one
-#     `trap '...' EXIT` (or a one-line function it names) exists, and it
-#     removes each of those variables whole with `rm -rf "$var"`.
-# A line that follows a top-level exit or return is unreachable and not counted.
-scan() { python3 -I - "$@" <<'PY'
-import re, sys
-
-DOCKER = re.compile(r'if \[ -n "\$\w+" \]; then docker rm -f "\$\w+" >/dev/null; fi;?')
-
-def logical_lines(path):
-    """The script as logical lines: quotes, `$( )`, backticks, arithmetic and
-    backslash continuations that span physical lines are joined, comments and
-    heredoc bodies are dropped. Raises ValueError for what it cannot follow."""
-    raw = open(path).read().split("\n")
-    out, cur, stack, i = [], [], [], 0
-    pending = []  # heredocs started on the current physical line
-    while i < len(raw):
-        l = raw[i]
-        i += 1
-        j, n, cont = 0, len(l), False
-        while j < n:
-            c = l[j]
-            top = stack[-1][0] if stack else None
-            if top == "sq":
-                cur.append(c)
-                if c == "'":
-                    stack.pop()
-                j += 1
-                continue
-            if top == "arith":
-                cur.append(c)
-                if c == "(":
-                    stack[-1][1] += 1
-                elif c == ")":
-                    stack[-1][1] -= 1
-                    if stack[-1][1] == 0:
-                        stack.pop()
-                j += 1
-                continue
-            if c == "\\":
-                if j + 1 >= n:
-                    cont = True
-                    j += 1
-                else:
-                    cur.append(l[j:j + 2])
-                    j += 2
-                continue
-            if l.startswith("$((", j) or (top != "dq" and l.startswith("((", j) and (not cur or "".join(cur).strip() == "" or "".join(cur).rstrip()[-1:] in ";&|(")):
-                k = 3 if l.startswith("$((", j) else 2
-                cur.append(l[j:j + k])
-                stack.append(["arith", 2])
-                j += k
-                continue
-            if top == "dq":
-                if c == '"':
-                    stack.pop()
-                    cur.append(c)
-                elif l.startswith("$(", j):
-                    stack.append(["sub", 1])
-                    cur.append("$(")
-                    j += 2
-                    continue
-                elif c == "`":
-                    stack.append(["bt", 0])
-                    cur.append(c)
-                else:
-                    cur.append(c)
-                j += 1
-                continue
-            # code context: none, sub or bt
-            if c == "'":
-                stack.append(["sq", 0])
-            elif c == '"':
-                stack.append(["dq", 0])
-            elif c == "`":
-                if top == "bt":
-                    stack.pop()
-                else:
-                    stack.append(["bt", 0])
-            elif l.startswith("$(", j):
-                stack.append(["sub", 1])
-                cur.append("$(")
-                j += 2
-                continue
-            elif c == "(" and top == "sub":
-                stack[-1][1] += 1
-            elif c == ")" and top == "sub":
-                stack[-1][1] -= 1
-                if stack[-1][1] == 0:
-                    stack.pop()
-            elif c == "#" and (j == 0 or l[j - 1] in " \t;&|("):
-                break
-            elif l.startswith("<<<", j):
-                cur.append("<<<")
-                j += 3
-                continue
-            elif l.startswith("<<", j):
-                if re.match(r"\s*let\b", "".join(cur)):
-                    raise ValueError("a `let` line with << cannot be told from a heredoc")
-                m = re.match(r"<<(-?)\s*(?:'([^']+)'|\"([^\"]+)\"|([A-Za-z_][\w.-]*))", l[j:])
-                if m:
-                    pending.append((m.group(2) or m.group(3) or m.group(4), bool(m.group(1))))
-            cur.append(c)
-            j += 1
-        if cont:
-            cur.append(" ")
-        for word, strip in pending:
-            while i < len(raw):
-                body = raw[i]
-                i += 1
-                if (body.lstrip("\t") if strip else body) == word:
-                    break
-        pending = []
-        if stack or cont:
-            cur.append(" ")
-            continue
-        out.append("".join(cur))
-        cur = []
-    if stack or cur:
-        raise ValueError("a quote, substitution or continuation is left open (unsupported)")
-    return out
-
-def masked(l):
-    return re.sub(r"'[^']*'|\"(?:[^\"\\]|\\.)*\"", '""', l.strip())
-
-def block_stacks(lines):
-    """For each line, the stack of enclosing blocks as (kind, id) pairs, or None
-    when the nesting cannot be followed. `else`/`elif` start a new branch."""
-    stack, stacks, nid = [], [], 0
-    for l in lines:
-        s = masked(l)
-        stacks.append(list(stack))
-        if re.match(r"(elif|else)\b", s):
-            if not stack or stack[-1][0] != "if":
-                return None
-            nid += 1
-            stack[-1] = ("if", nid)
-        if re.match(r"if\b", s):
-            nid += 1; stack.append(("if", nid))
-        elif re.match(r"(for|while|until|select)\b", s):
-            nid += 1; stack.append(("loop", nid))
-        elif re.match(r"case\b", s):
-            nid += 1; stack.append(("case", nid))
-        elif re.match(r"(function\s+\w+\s*(\(\))?|\w+\s*\(\))\s*\{\s*$", s):
-            nid += 1; stack.append(("fn", nid))
-        elif re.match(r"\{\s*$", s):
-            nid += 1; stack.append(("group", nid))
-        elif re.match(r"\(\s*$", s):
-            nid += 1; stack.append(("sub", nid))
-        for _ in re.findall(r"(?:^|[;\s])(?:fi|done|esac)\s*(?:$|[;&|)])", s):
-            if not stack or stack[-1][0] not in ("if", "loop", "case"):
-                return None
-            stack.pop()
-        if re.match(r"\}", s) and stack and stack[-1][0] in ("fn", "group"):
-            stack.pop()
-        elif re.match(r"\)", s) and stack and stack[-1][0] == "sub":
-            stack.pop()
-    return stacks if not stack else None
-
-def check(path):
-    p = []
-    try:
-        lines = logical_lines(path)
-    except ValueError as e:
-        return [str(e)]
-    if not any(re.search(r"\bmktemp\b", l) for l in lines):
-        return p
-    stacks = block_stacks(lines)
-    if stacks is None:
-        return ["block nesting cannot be followed (unsupported); simplify it or use the helper"]
-    full = "\n".join(lines)
-    if re.search(r"(?m)^\s*(function\s+)?(rm|trap|chmod|find|exit|return|mktemp|set|cd|source|printf|echo|test|\[)\s*(\(\))?\s*\{", full):
-        p.append("redefines a command the cleanup or the scan relies on")
-    if re.search(r"\bset\s+(-[a-zA-Z]*n[a-zA-Z]*\b|[-+]o\s+noexec)", full):
-        p.append("set -n disables execution")
-    # Only a top-level exit/return ends the script: the lines after it never run.
-    for i, l in enumerate(lines):
-        if not stacks[i] and re.match(r"exit(\s|$)", masked(l)):
-            lines, stacks = lines[: i + 1], stacks[: i + 1]
-            break
-    text = "\n".join(lines)
-    mk = [i for i, l in enumerate(lines) if re.search(r"\bmktemp\b", l)]
-    if not mk:
-        return p
-    if re.search(r"\b(builtin|unset|alias|enable|exec)\b|\bcommand\s+trap\b", text):
-        p.append("uses builtin/unset/alias/enable/exec/command trap, which can hide or drop cleanup")
-    if re.search(r"(?<![\w$])(TMPDIR|POSE_TEST_TMP)\+?=", text) or re.search(r"\b(export\s+-n|declare\s+\+x)\b", text):
-        p.append("assigns TMPDIR or POSE_TEST_TMP")
-    if re.search(r"(?m)^\s*(function\s+)?pose_test_tmp_\w+\s*(\(\))?\s*\{", text):
-        p.append("defines a pose_test_tmp_* function")
-    for i in mk:
-        for args in re.findall(r"\bmktemp\b([^)\n]*)", lines[i]):
-            if "/" in args or re.search(r"(^|\s)(-p|--tmpdir|--suffix)\b", args):
-                p.append(f"line {i + 1}: mktemp with a path/tmpdir option escapes the owned directory")
-    def mutated(v):
-        return bool(re.search(r"\bfor\s+" + v + r"\b|\b(?:select|getopts)\b[^\n]*\b" + v + r"\b|\bread\b[^\n]*\b" + v + r"\b|(?<![\w$])" + v + r"\[|\b(?:printf\s+-v|mapfile|readarray)\b[^\n]*\b" + v + r"\b|\(\(\s*" + v + r"\b", text))
-    if re.search(r"\breadonly\b|\b(declare|typeset|local|export)\b[^\n;|&]*\s-[a-zA-Z]*r", text):
-        p.append("makes a variable readonly, which can make the allocation or the helper fail")
-    for v in ("TMPDIR", "POSE_TEST_TMP"):
-        if mutated(v):
-            p.append(f"changes {v} through for/read/select/array/printf -v")
-    trap_lines = [i for i, l in enumerate(lines) if re.search(r"\btrap\b", l)]
-    inits = [i for i, l in enumerate(lines) if re.fullmatch(r"\s*pose_test_tmp_init\s*", l)]
-    if inits:
-        init = inits[0]
-        if len(inits) != 1:
-            p.append("calls pose_test_tmp_init more than once")
-        src = [i for i, l in enumerate(lines) if re.match(r"(source|\.)\s+.*tempdir\.sh\"?\s*$", l.strip())]
-        if len(src) != 1 or src[0] > init or stacks[src[0]]:
-            p.append("tempdir.sh must be sourced once, at top level, before pose_test_tmp_init")
-        if stacks[init]:
-            p.append("pose_test_tmp_init must run at top level, not inside a block")
-        if mk[0] < init:
-            p.append(f"mktemp (line {mk[0] + 1}) comes before pose_test_tmp_init")
-        for i in trap_lines:
-            if i > init and (not re.fullmatch(r"""\s*trap\s+'pose_test_tmp_remove'\s+EXIT\s*""", lines[i]) or stacks[i]):
-                p.append(f"line {i + 1}: after the helper the only trap allowed is a top-level `trap 'pose_test_tmp_remove' EXIT`")
-    else:
-        def only_if(i):
-            return all(k == "if" for k, _ in stacks[i])
-        assigned = []
-        for i in mk:
-            m = re.fullmatch(r"\s*(?:local\s+)?(\w+)=\"?\$\(mktemp\b[^()]*\)\"?\s*", lines[i])
-            if not m:
-                p.append(f"line {i + 1}: mktemp is not assigned whole to a variable")
-            elif not only_if(i):
-                p.append(f"line {i + 1}: mktemp sits in a loop, function, group or case arm, where it can run more than once")
-            else:
-                assigned.append((m.group(1), i))
-        if re.search(r"\bchmod\s+(-\w+\s+)*(?:[0-7]{3,4}\b|[ugoa]*-[rwxXst]+|[ugoa]*=)", text):
-            p.append("chmod can make a directory the trap's rm cannot remove; use the helper, which restores access")
-        if len(assigned) > 1:
-            p.append("more than one mktemp: a later one can fail before the trap exists and leak the earlier directory; allocate one root and derive the other paths from it")
-        for v, i in assigned:
-            n = len(re.findall(r"(?<![\w$])" + v + r"\+?=", text))
-            n += len(re.findall(r"\b(?:local|declare|typeset)\b[^\n]*\b" + v + r"\b(?!=)", text))
-            if n != 1 or mutated(v):
-                p.append(f"${v} is assigned, read into or changed more than once, so the directory it held can be lost")
-        if len(trap_lines) != 1 or not re.search(r"\bEXIT\b", lines[trap_lines[0]]):
-            p.append(f"expected exactly one trap, on EXIT; found {len(trap_lines)} trap lines")
-        else:
-            t = trap_lines[0]
-            m = re.fullmatch(r"""\s*trap\s+(?:'([^']*)'|(\w+))\s+EXIT\s*""", lines[t])
-            if not m:
-                p.append("the EXIT trap is not `trap '<command>' EXIT` or `trap <function> EXIT`")
-            else:
-                if not only_if(t):
-                    p.append("the EXIT trap sits in a loop, function, group or case arm")
-                if assigned:
-                    first_alloc = min(i for _, i in assigned)
-                    defined = set()
-                    alloc_at = {i: v for v, i in assigned}
-                    for j in range(first_alloc, t):
-                        raw = lines[j].strip()
-                        if not raw:
-                            continue
-                        if j in alloc_at:
-                            defined.add(alloc_at[j])
-                            continue
-                        lit = re.fullmatch(r"(\w+)=\"([^\"$`\\]*)\"", raw)
-                        if lit:
-                            defined.add(lit.group(1))
-                            continue
-                        ref = re.fullmatch(r"(\w+)=\"\$\{?(\w+)\}?(/[\w./-]*)?\"", raw)
-                        if ref and ref.group(2) in defined:
-                            defined.add(ref.group(1))
-                            continue
-                        if re.fullmatch(r"(function\s+)?\w+\s*(\(\))?\s*\{[^\n}$`]*(\$\{?\w+\}?[^\n}$`]*)*\}", raw):
-                            continue
-                        p.append(f"line {j + 1} runs between the allocation and the EXIT trap, or reads a variable that is not yet set, so a failure there leaks the directory: put the trap right after the allocations")
-                for v, i in assigned:
-                    if stacks[i] != stacks[t]:
-                        p.append(f"the EXIT trap is not in the same branch as the mktemp of ${v}")
-                body = m.group(1)
-                if body is None:
-                    name = m.group(2)
-                    defs = [i for i, l in enumerate(lines) if re.match(r"[ \t]*(?:function\s+)?" + name + r"\s*(?:\(\))?\s*\{", l)]
-                    one = [re.fullmatch(r"[ \t]*(?:function\s+)?" + name + r"\s*(?:\(\))?\s*\{([^\n}]*)\}\s*", lines[i]) for i in defs]
-                    split_def = re.search(r"(?m)^\s*" + name + r"\s*\(\)\s*$|^\s*function\s+" + name + r"\s*$", text)
-                    if len(defs) != 1 or not one[0] or stacks[defs[0]] or split_def:
-                        p.append(f"{name} must be defined once, on one line, at top level")
-                        body = ""
-                    else:
-                        body = one[0].group(1)
-                body = DOCKER.sub("", body)
-                removed = set()
-                for st in (x.strip() for x in body.split(";") if x.strip()):
-                    r = re.fullmatch(r"rm\s+-rf?\s+((?:\"\$\{?\w+\}?\"\s*)+)", st)
-                    if not r:
-                        p.append(f"the EXIT trap runs `{st}`, which is not `rm -rf \"$var\"`")
-                    else:
-                        removed |= set(re.findall(r"\$\{?(\w+)\}?", r.group(1)))
-                for v, _ in assigned:
-                    if v not in removed:
-                        p.append(f"the EXIT trap does not remove ${v}")
-                for v in removed - {v for v, _ in assigned}:
-                    p.append(f"the EXIT trap expands ${v}, which holds no mktemp result and can be unset")
-    return p
-
-for path in sys.argv[1:]:
-    for line in check(path):
-        print(f"{path}: {line}")
-PY
-}
+# 1. Static: no script is added or changed that creates a temporary file it
+# never removes. Shell cannot be proven to clean up by reading it, so this is
+# a regression guard with two explicit rules, not an analysis of arbitrary shell:
+#   - a script that calls mktemp and is not pinned must use the helper in the
+#     plain form: tests/lib/tempdir.sh sourced on its own line, then
+#     `pose_test_tmp_init` on its own line, both before the first mktemp;
+#   - the scripts that clean up with an EXIT trap of their own are pinned by the
+#     SHA-256 of the whole file in tests/hygiene/temp-cleanup.pins. A change to
+#     one fails here until a reviewer has re-read its allocation and trap and
+#     runs `bash tests/hygiene/temp-cleanup.sh --repin`.
+PINS="tests/hygiene/temp-cleanup.pins"
 mapfile -t scripts < <(git ls-files 'tests/*.sh' 'scripts/*.sh' 'examples/*.sh' 'install.sh' | sort | grep -v -e '^tests/lib/tempdir.sh$' -e '^tests/hygiene/temp-cleanup.sh$')
-checked=0
-for script in "${scripts[@]}"; do grep -q mktemp "$script" && checked=$((checked + 1)); done
-[ "$checked" -gt 0 ] || fail "no script with mktemp was found: the scan itself is broken"
-found="$(scan "${scripts[@]}")" || fail "the scan crashed"
-[ -z "$found" ] || fail "$found"
-ok "static: $checked scripts that call mktemp remove what they create"
+mktemp_scripts=()
+for script in "${scripts[@]}"; do grep -q mktemp "$script" && mktemp_scripts+=("$script"); done
+[ "${#mktemp_scripts[@]}" -gt 0 ] || fail "no script with mktemp was found: the scan itself is broken"
 
-# The scan must be able to fail: each of these leaks and must be reported.
+# The helper form, read from the lines of a script: <path> -> 0 when plain.
+uses_helper() {
+  awk '
+    /^[[:space:]]*#/ { next }
+    /^(source|\.)[[:space:]]+.*tempdir\.sh"?[[:space:]]*$/ { if (!src) src = NR; next }
+    /^pose_test_tmp_init[[:space:]]*$/ { if (!init && src) init = NR; next }
+    /mktemp/ { if (!mk) mk = NR }
+    END { exit !(src && init && (!mk || mk > init)) }
+  ' "$1"
+}
+pin_of() { awk -v f="$2" '$2 == f { print $1 }' "$1"; }
+digest() { sha256sum "$1" | cut -d' ' -f1; }
+
+if [ "${1:-}" = "--repin" ]; then
+  : > "$PINS"
+  for script in "${mktemp_scripts[@]}"; do
+    uses_helper "$script" || printf '%s  %s\n' "$(digest "$script")" "$script" >> "$PINS"
+  done
+  echo "re-pinned $(wc -l < "$PINS") scripts in $PINS"; exit 0
+fi
+
+problems=""
+for script in "${mktemp_scripts[@]}"; do
+  pin="$(pin_of "$PINS" "$script")"
+  if [ -n "$pin" ]; then
+    [ "$pin" = "$(digest "$script")" ] || problems="$problems$script changed since it was pinned: re-read its mktemp and EXIT trap, then run bash tests/hygiene/temp-cleanup.sh --repin"$'\n'
+  elif ! uses_helper "$script"; then
+    problems="$problems$script calls mktemp without the helper: source tests/lib/tempdir.sh and call pose_test_tmp_init before the first mktemp"$'\n'
+  fi
+done
+while read -r _ pinned; do
+  printf '%s\n' "${mktemp_scripts[@]}" | grep -qx "$pinned" || problems="$problems$pinned is pinned but no longer calls mktemp"$'\n'
+done < "$PINS"
+[ -z "$problems" ] || fail "$problems"
+ok "static: ${#mktemp_scripts[@]} scripts that call mktemp use the helper or are pinned"
+
+# The rules must be able to fail.
 fixtures="$SANDBOX/fixtures"; mkdir -p "$fixtures"
 mkfix() { printf '%s\n' "${@:2}" > "$fixtures/$1.sh"; }
 SRC='source tests/lib/tempdir.sh'
-mkfix empty-trap 'w="$(mktemp -d)"' "trap '' EXIT"
-mkfix commented-trap 'w="$(mktemp -d)"' "# trap 'rm -rf \"\$w\"' EXIT"
-mkfix wrong-signal 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' INT"
-mkfix foreign-path 'w="$(mktemp -d)"' "trap 'rm -rf /var/cache/x' EXIT"
-mkfix commented-init 'w="$(mktemp -d)"' '# pose_test_tmp_init'
-mkfix init-after 'w="$(mktemp -d)"' "$SRC" 'pose_test_tmp_init'
-mkfix empty-function 'w="$(mktemp -d)"' 'cleanup() { :; }' 'trap cleanup EXIT'
-mkfix one-of-two-roots 'a="$(mktemp -d)"' 'b="$(mktemp -d)"' "trap 'rm -rf \"\$a\"' EXIT"
-mkfix extra-unassigned 'w="$(mktemp -d)"' 'mktemp -d >/dev/null' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix root-plus-file 'w="$(mktemp -d)/file"' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix child-only 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w/child\"' EXIT"
-mkfix echo-only 'w="$(mktemp -d)"' "trap 'echo rm -rf \"\$w\"' EXIT"
-mkfix comment-in-body 'w="$(mktemp -d)"' "trap ': # rm -rf \"\$w\"' EXIT"
-mkfix escaped-variable 'w="$(mktemp -d)"' "trap 'rm -rf \\\$w' EXIT"
-mkfix overwritten-trap 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT" "trap ':' EXIT"
-mkfix unreachable-trap 'w="$(mktemp -d)"' 'exit 0' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix noop-init 'w="$(mktemp -d)"' "$SRC" 'pose_test_tmp_init() { :; }' 'pose_test_tmp_init'
-mkfix unreachable-init "$SRC" 'w="$(mktemp -d)"' 'exit 0' 'pose_test_tmp_init'
-mkfix init-without-source 'pose_test_tmp_init' 'w="$(mktemp -d)"'
-mkfix overwritten-helper-trap "$SRC" 'pose_test_tmp_init' "trap 'echo bye' EXIT" 'w="$(mktemp -d)"'
-mkfix var-reuse 'w="$(mktemp -d)"' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix var-cleared 'w="$(mktemp -d)"' 'w=""' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix trap-in-if-false 'w="$(mktemp -d)"' 'if false; then' "  trap 'rm -rf \"\$w\"' EXIT" 'fi'
-mkfix exit-in-trap 'w="$(mktemp -d)"' "trap 'exit 0; rm -rf \"\$w\"' EXIT"
-mkfix return-in-function 'w="$(mktemp -d)"' 'cleanup() { return 0; rm -rf "$w"; }' 'trap cleanup EXIT'
-mkfix redefined-function 'w="$(mktemp -d)"' 'cleanup() { rm -rf "$w"; }' 'cleanup() { :; }' 'trap cleanup EXIT'
-mkfix builtin-trap 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT" "builtin trap : EXIT"
-mkfix builtin-trap-over-helper "$SRC" 'pose_test_tmp_init' "builtin trap : EXIT" 'w="$(mktemp -d)"'
-mkfix init-in-if-false "$SRC" 'if false; then' '  pose_test_tmp_init' 'fi' 'w="$(mktemp -d)"'
-mkfix echo-remove-name "$SRC" 'pose_test_tmp_init' "trap 'echo pose_test_tmp_remove' EXIT" 'w="$(mktemp -d)"'
-mkfix redefine-remove-no-parens "$SRC" 'pose_test_tmp_init' 'function pose_test_tmp_remove { :; }' 'w="$(mktemp -d)"'
-mkfix heredoc-init 'cat <<EOF' "$SRC" 'pose_test_tmp_init' 'EOF' 'w="$(mktemp -d)"'
-mkfix heredoc-trap 'w="$(mktemp -d)"' 'cat <<EOF' "trap 'rm -rf \"\$w\"' EXIT" 'EOF'
-mkfix unset-tmpdir-after-init "$SRC" 'pose_test_tmp_init' 'unset TMPDIR' 'w="$(mktemp -d)"'
-mkfix tmpdir-reassigned "$SRC" 'pose_test_tmp_init' 'TMPDIR=/var/tmp' 'w="$(mktemp -d)"'
-mkfix exit-in-skipped-branch 'if false; then' '  exit 0' 'fi' 'w="$(mktemp -d)"'
-mkfix alloc-then-trap-else 'if true; then' '  w="$(mktemp -d)"' 'else' "  trap 'rm -rf \"\$w\"' EXIT" 'fi'
-mkfix alloc-in-loop 'for i in 1 2; do' '  w="$(mktemp -d)"' "  trap 'rm -rf \"\$w\"' EXIT" 'done'
-mkfix alloc-in-function 'f() {' '  local w="$(mktemp -d)"' "  trap 'rm -rf \"\$w\"' EXIT" '}' 'f'
-mkfix function-called-twice 'f() {' '  w="$(mktemp -d)"' '}' 'f' 'f' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix cleanup-defined-in-skipped-branch 'w="$(mktemp -d)"' 'if false; then' '  cleanup() { rm -rf "$w"; }' 'fi' 'trap cleanup EXIT'
-mkfix alloc-and-trap-in-case-arms 'case "$1" in' '  a) w="$(mktemp -d)" ;;' "  b) trap 'rm -rf \"\$w\"' EXIT ;;" 'esac'
-mkfix false-before-remove "$SRC" 'pose_test_tmp_init' "trap 'false; pose_test_tmp_remove' EXIT" 'w="$(mktemp -d)"'
-mkfix cleared-helper-root "$SRC" 'pose_test_tmp_init' 'POSE_TEST_TMP=' 'w="$(mktemp -d)"'
-mkfix absolute-template "$SRC" 'pose_test_tmp_init' 'w="$(mktemp -d /var/tmp/x.XXXXXX)"'
-mkfix quoted-heredoc-marker 'echo "<<EOF"' 'w="$(mktemp -d)"'
-mkfix comment-heredoc-marker 'echo hi # <<EOF' 'w="$(mktemp -d)"'
-mkfix hyphen-heredoc-delimiter 'cat <<EOF-X' 'text' 'EOF-X' 'w="$(mktemp -d)"'
-mkfix alloc-in-while 'while true; do' '  w="$(mktemp -d)"' '  break' 'done' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix alloc-in-group '{' '  w="$(mktemp -d)"' '}' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix alloc-in-subshell '(' '  w="$(mktemp -d)"' ')' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix alloc-in-condition 'if w="$(mktemp -d)"; then :; fi' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix alloc-one-line-if 'if true; then w="$(mktemp -d)"; fi' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix alloc-and-chain 'w="$(mktemp -d)" && :' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix init-or-true "$SRC" 'pose_test_tmp_init || true' 'w="$(mktemp -d)"'
-mkfix extra-signal-trap 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT" "trap 'exit 1' INT"
-mkfix split-redefinition 'w="$(mktemp -d)"' 'cleanup() { rm -rf "$w"; }' 'trap cleanup EXIT' 'cleanup()' '{ :; }'
-mkfix false-before-trap 'set -euo pipefail' 'w="$(mktemp -d)"' 'false' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix assertion-before-trap 'w="$(mktemp -d)"' '[ 1 = 2 ] || exit 1' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix go-build-before-trap 'w="$(mktemp -d)"' 'go build ./...' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix shift-expansion 'bit=1' 'x=$((1 << bit))' 'w="$(mktemp -d)"'
-mkfix shift-quoted 'bit=1' 'x="$((1 << bit))"' 'w="$(mktemp -d)"'
-mkfix shift-command 'bit=1' '((x = 1 << bit))' 'w="$(mktemp -d)"'
-mkfix for-rebinds 'w="$(mktemp -d)"' 'for w in a b; do :; done' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix array-element-rebinds 'w="$(mktemp -d)"' 'w[0]=' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix rm-function-noop 'rm() { return 0; }' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix read-clears-root "$SRC" 'pose_test_tmp_init' 'read POSE_TEST_TMP < /dev/null' 'w="$(mktemp -d)"'
-mkfix failing-substitution-before-trap 'w="$(mktemp -d)"' 'x="$(false)"' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix unset-variable-before-trap 'set -u' 'w="$(mktemp -d)"' 'x="$MISSING"' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix unset-variable-in-trap 'set -u' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\" \"\$MISSING\"' EXIT"
-mkfix multiline-shift 'bit=1' 'x=$((' '  1 << bit' '))' 'w="$(mktemp -d)"'
-mkfix multiline-shift-quoted 'bit=1' 'x="$((' '  1 << bit' '))"' 'w="$(mktemp -d)"'
-mkfix let-shift 'let x=1<<2' 'w="$(mktemp -d)"'
-mkfix future-variable-before-trap 'set -u' 'a="$(mktemp -d)"' 'x="$b/a"' 'b="$(mktemp -d)"' "trap 'rm -rf \"\$a\" \"\$b\"' EXIT"
-mkfix readonly-literal 'set -e' 'w="x"' 'readonly w' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix readonly-target 'readonly w=x' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix readonly-tmpdir 'readonly TMPDIR=/var/tmp' "$SRC" 'pose_test_tmp_init' 'w="$(mktemp -d)"'
-mkfix let-heredoc "$SRC" 'let x <<EOF' 'pose_test_tmp_init' 'EOF' 'w="$(mktemp -d)"'
-mkfix two-roots 'a="$(mktemp -d)"' 'b="$(mktemp -d)"' "trap 'rm -rf \"\$a\" \"\$b\"' EXIT"
-mkfix declare-x-r 'declare -x -r w=x' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix declare-x-r-tmpdir 'declare -x -r TMPDIR=/var/tmp' "$SRC" 'pose_test_tmp_init' 'w="$(mktemp -d)"'
-mkfix subst-exit 'set -euo pipefail' 'printf "%s\n" "$(' 'exit' ')"' 'w="$(mktemp -d)"'
-mkfix backtick-return 'x=`' 'return' '`' 'w="$(mktemp -d)"'
-mkfix continued-exit 'printf "%s\n" \' 'exit' 'w="$(mktemp -d)"'
-mkfix exit-function 'exit() { :; }' 'exit' 'w="$(mktemp -d)"'
-mkfix return-function 'return() { :; }' 'w="$(mktemp -d)"'
-mkfix bare-return 'return' 'w="$(mktemp -d)"'
-mkfix multiline-sq "printf '%s\\n' '" '<< END' "'" 'w="$(mktemp -d)"'
-mkfix multiline-dq 'printf "%s\n" "' '<< END' '"' 'w="$(mktemp -d)"'
-mkfix set-n 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT" 'set -n'
-mkfix chmod-after-trap 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT" 'mkdir "$w/a"' 'chmod 0000 "$w/a"'
+mkfix good "$SRC" 'pose_test_tmp_init' 'w="$(mktemp -d)"'
+uses_helper "$fixtures/good.sh" || fail "the helper form was rejected"
 negatives=0
-for f in "$fixtures"/*.sh; do
-  negatives=$((negatives + 1))
-  [ -n "$(scan "$f")" ] || fail "the scan accepted $(basename "$f"), which leaks"
-done
-mkfix good-trap 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
-mkfix good-derived-path 'a="$(mktemp -d)"' "trap 'rm -rf \"\$a\"' EXIT" 'b="$a/work"' 'mkdir "$b"'
-mkfix good-function 'w="$(mktemp -d)"' 'cleanup() { rm -rf "$w"; }' 'trap cleanup EXIT'
-mkfix good-init "$SRC" 'pose_test_tmp_init' 'w="$(mktemp -d)"'
-mkfix good-init-own-trap "$SRC" 'pose_test_tmp_init' "trap 'pose_test_tmp_remove' EXIT" 'w="$(mktemp -d)"'
-positives=0
-for f in good-trap good-derived-path good-function good-init good-init-own-trap; do
-  positives=$((positives + 1))
-  [ -z "$(scan "$fixtures/$f.sh")" ] || fail "the scan rejected $f: $(scan "$fixtures/$f.sh")"
-done
-# The same holds for a real script: a tracked copy whose mktemp line is repeated,
-# or run in a loop, is rejected.
-sed '/^work="\$(mktemp -d)"$/p' tests/release/compat.sh > "$fixtures/compat-rebound.sh.txt"
-sed 's/^work="\$(mktemp -d)"$/for _i in 1 2; do work="$(mktemp -d)"; done/' tests/release/compat.sh > "$fixtures/compat-looped.sh.txt"
-sed '/^BUILD_WORK="\$(mktemp -d)"$/a false' examples/demo/record.sh > "$fixtures/record-fallible.sh.txt"
-for f in compat-rebound compat-looped; do
-  cmp -s tests/release/compat.sh "$fixtures/$f.sh.txt" && fail "control: $f equals the original"
-  [ -n "$(scan "$fixtures/$f.sh.txt")" ] || fail "the scan accepted a tracked script changed to leak ($f)"
-done
-cmp -s examples/demo/record.sh "$fixtures/record-fallible.sh.txt" && fail "control: record-fallible equals the original"
-[ -n "$(scan "$fixtures/record-fallible.sh.txt")" ] || fail "the scan accepted a tracked script with a fallible command before its trap"
-ok "static: the scan rejects $negatives leaking shapes and accepts $positives correct ones"
+reject() { negatives=$((negatives + 1)); ! uses_helper "$fixtures/$1.sh" || fail "the helper form accepted $1, which does not initialize the helper first"; }
+mkfix no-helper 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"; reject no-helper
+mkfix init-after "$SRC" 'w="$(mktemp -d)"' 'pose_test_tmp_init'; reject init-after
+mkfix init-without-source 'pose_test_tmp_init' 'w="$(mktemp -d)"'; reject init-without-source
+mkfix commented-init "$SRC" '# pose_test_tmp_init' 'w="$(mktemp -d)"'; reject commented-init
+mkfix indented-init "$SRC" '  pose_test_tmp_init' 'w="$(mktemp -d)"'; reject indented-init
+mkfix init-or-true "$SRC" 'pose_test_tmp_init || true' 'w="$(mktemp -d)"'; reject init-or-true
+# A pinned script that changes no longer matches its pin, and a new script is not pinned.
+first_pinned="$(awk 'NR == 1 { print $2 }' "$PINS")"
+[ -n "$first_pinned" ] || fail "no script is pinned"
+cp "$first_pinned" "$fixtures/pinned-copy.sh"; printf '# changed\n' >> "$fixtures/pinned-copy.sh"
+[ "$(digest "$fixtures/pinned-copy.sh")" != "$(pin_of "$PINS" "$first_pinned")" ] || fail "a changed pinned script still matches its pin"
+negatives=$((negatives + 1))
+ok "static: the helper form rejects $negatives shapes and a changed pinned script no longer matches its pin"
 
 # 2. The helper cleans up on every way a script can end. Each case must reach
 # the end of its setup (a marker file proves it), or a setup error would pass
