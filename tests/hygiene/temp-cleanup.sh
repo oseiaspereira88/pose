@@ -44,6 +44,8 @@ def heredoc_delimiter(line, arith=0):
     comments and arithmetic (but inside `$( ... )`, which is code even within
     double quotes); None if the line starts none."""
     if re.match(r"\s*let\b", line):
+        if "<<" in line:
+            raise ValueError("a `let` line with << cannot be told from a heredoc")
         return None
     i, n = 0, len(line)
     q = None
@@ -146,7 +148,10 @@ def block_stacks(lines):
 
 def check(path):
     p = []
-    lines = code_lines(path)
+    try:
+        lines = code_lines(path)
+    except ValueError as e:
+        return [str(e)]
     if not any(re.search(r"\bmktemp\b", l) for l in lines):
         return p
     stacks = block_stacks(lines)
@@ -175,6 +180,8 @@ def check(path):
         p.append("redefines rm, trap, chmod or find, which the cleanup relies on")
     def mutated(v):
         return bool(re.search(r"\bfor\s+" + v + r"\b|\b(?:select|getopts)\b[^\n]*\b" + v + r"\b|\bread\b[^\n]*\b" + v + r"\b|(?<![\w$])" + v + r"\[|\b(?:printf\s+-v|mapfile|readarray)\b[^\n]*\b" + v + r"\b|\(\(\s*" + v + r"\b", text))
+    if re.search(r"\breadonly\b|\b(declare|typeset|local|export)\s+-[a-zA-Z]*r", text):
+        p.append("makes a variable readonly, which can make the allocation or the helper fail")
     for v in ("TMPDIR", "POSE_TEST_TMP"):
         if mutated(v):
             p.append(f"changes {v} through for/read/select/array/printf -v")
@@ -223,11 +230,14 @@ def check(path):
                     p.append("the EXIT trap sits in a loop, function, group or case arm")
                 if assigned:
                     first_alloc = min(i for _, i in assigned)
-                    defined = {v for v, _ in assigned}
-                    alloc_lines = {i for _, i in assigned}
+                    defined = set()
+                    alloc_at = {i: v for v, i in assigned}
                     for j in range(first_alloc, t):
                         raw = lines[j].strip()
-                        if not raw or j in alloc_lines:
+                        if not raw:
+                            continue
+                        if j in alloc_at:
+                            defined.add(alloc_at[j])
                             continue
                         lit = re.fullmatch(r"(\w+)=\"([^\"$`\\]*)\"", raw)
                         if lit:
@@ -359,6 +369,11 @@ mkfix unset-variable-in-trap 'set -u' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\" \
 mkfix multiline-shift 'bit=1' 'x=$((' '  1 << bit' '))' 'w="$(mktemp -d)"'
 mkfix multiline-shift-quoted 'bit=1' 'x="$((' '  1 << bit' '))"' 'w="$(mktemp -d)"'
 mkfix let-shift 'let x=1<<2' 'w="$(mktemp -d)"'
+mkfix future-variable-before-trap 'set -u' 'a="$(mktemp -d)"' 'x="$b/a"' 'b="$(mktemp -d)"' "trap 'rm -rf \"\$a\" \"\$b\"' EXIT"
+mkfix readonly-literal 'set -e' 'w="x"' 'readonly w' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
+mkfix readonly-target 'readonly w=x' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
+mkfix readonly-tmpdir 'readonly TMPDIR=/var/tmp' "$SRC" 'pose_test_tmp_init' 'w="$(mktemp -d)"'
+mkfix let-heredoc "$SRC" 'let x <<EOF' 'pose_test_tmp_init' 'EOF' 'w="$(mktemp -d)"'
 negatives=0
 for f in "$fixtures"/*.sh; do
   negatives=$((negatives + 1))
