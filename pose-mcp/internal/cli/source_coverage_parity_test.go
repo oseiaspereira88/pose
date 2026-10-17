@@ -172,3 +172,39 @@ func TestReviewCheckCarriesTheHistoryDiagnosticInJSONAndText(t *testing.T) {
 		t.Fatalf("code=%d\n%s", code, combined)
 	}
 }
+
+// R3: review record does not pick the attempt it supersedes from a history with a hole.
+func TestReviewRecordRefusesToSupersedeFromAHistoryWithAHole(t *testing.T) {
+	root := closeoutCLIFixture(t)
+	args := []string{"spec:alpha", "--reviewer", "agent:review-pass", "--decision", "approved", "--evidence", "check:unit", "--apply"}
+	var out, errOut bytes.Buffer
+	if code := cmdReviewRecord(root, args, &out, &errOut); code != 0 {
+		t.Fatalf("the first attempt: %s", errOut.String())
+	}
+	// A record that cannot be read, dated after the first attempt.
+	hole := filepath.Join(root, ".pose", "reviews", "rvw-"+time.Now().UTC().Add(time.Hour).Format("20060102T150405Z")+"-ffff9999.md")
+	if err := os.Symlink("absent-target.md", hole); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	before, _ := os.ReadDir(filepath.Join(root, ".pose", "reviews"))
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewRecord(root, args, &out, &errOut); code == 0 || !strings.Contains(errOut.String(), "review history for spec:alpha is incomplete") {
+		t.Fatalf("code=%d err=%s", code, errOut.String())
+	}
+	after, _ := os.ReadDir(filepath.Join(root, ".pose", "reviews"))
+	if len(after) != len(before) {
+		t.Fatal("a refused record wrote a review")
+	}
+	// Removing the unreadable record restores the ability to record. An attempt's id
+	// is made from the second it was recorded in, so the second one waits for the next.
+	if err := os.Remove(hole); err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(1100 * time.Millisecond)
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewRecord(root, args, &out, &errOut); code != 0 {
+		t.Fatalf("after removing the record: %s", errOut.String())
+	}
+}
