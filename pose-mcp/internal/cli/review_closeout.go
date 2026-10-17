@@ -1659,6 +1659,10 @@ func scopeRefForArtifact(ref posemodel.ArtifactRef) string {
 
 func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Writer) int {
 	store := cliGovernedStore(root)
+	// The gates below judge the artifact as it is now; the transition is
+	// published only over those same bytes (spec
+	// pose-writer-coordination-and-atomic-publication R4).
+	judged := closeTargetDigest(root, store, ref)
 	state, err := cliCloseoutState(root, ref)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose close: %v\n", err)
@@ -1753,13 +1757,44 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 		}
 		path = filepath.Join(root, ".pose", "roadmaps", scope.Slug+".md")
 	}
+	if closeGatesJudged != nil {
+		closeGatesJudged()
+	}
+	// Start, close and transfer of a spec share its lifecycle lock (R3).
+	if scope.Kind == "spec" {
+		unlock, err := posemodel.LockSpecLifecycle(root, scope.Slug, "close.transition")
+		if err != nil {
+			var held *posemodel.StartLockError
+			if errors.As(err, &held) {
+				renderStartLock(render(stdout, stderr), scope.Slug, held)
+			}
+			render(io.Discard, stderr).Failure("pose close: " + err.Error())
+			return 1
+		}
+		defer unlock()
+	}
+	// The authorization is judged again inside the protected region: a
+	// review that stopped being approved, or an action request that now
+	// restricts closeout, while the gates ran does not govern this
+	// publication (spec pose-writer-coordination-and-atomic-publication R4).
+	if current, err := cliCloseoutState(root, ref); err != nil {
+		render(io.Discard, stderr).Failure("pose close: " + err.Error())
+		return 1
+	} else if !current.Review.Approved || hasActionRequestPending(current.Diagnostics) {
+		render(io.Discard, stderr).Failure("pose close: the closeout authorization changed while its gates ran; next action: " + current.NextAction)
+		return 1
+	}
 	if guard != nil {
 		if err := guard(); err != nil {
 			render(io.Discard, stderr).Failure("pose close: " + err.Error())
 			return 1
 		}
 	}
-	if err := applyLifecycleDone(path, scope.Kind == "spec"); err != nil {
+	if err := applyLifecycleDone(path, scope.Kind == "spec", judged); err != nil {
+		if errors.Is(err, posemodel.ErrPublishConflict) {
+			render(io.Discard, stderr).Failure("pose close: " + err.Error() + "; the gates judged other bytes, so run `pose close " + ref + "` again to judge the current ones")
+			return 1
+		}
 		fmt.Fprintf(stderr, "pose close: %v\n", err)
 		return 1
 	}
@@ -1925,7 +1960,11 @@ func hasOpenChild(children []posemodel.CloseoutState) bool {
 	return false
 }
 
-func applyLifecycleDone(path string, spec bool) error {
+// applyLifecycleDone marks the artifact done. It is published only over the
+// bytes with digest judged, the ones the gates read, so an edit made while the
+// gates ran is a conflict, never overwritten (spec
+// pose-writer-coordination-and-atomic-publication R2/R4).
+func applyLifecycleDone(path string, spec bool, judged string) error {
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return err
@@ -1938,24 +1977,38 @@ func applyLifecycleDone(path string, spec bool) error {
 	if spec {
 		text = replaceFrontmatterValue(text, "completed_at", time.Now().UTC().Format("2006-01-02"))
 	}
-	tmp, err := os.CreateTemp(filepath.Dir(path), ".pose-close-*")
+	expect := posemodel.ExpectBytes(raw, true)
+	if judged != "" {
+		expect.Digest = judged
+	}
+	return posemodel.PublishFile(path, []byte(text), 0o644, posemodel.PublishAuthoritative, expect)
+}
+
+// closeTargetDigest is the SHA-256 of the spec or roadmap a close judges, or
+// "" when it cannot be resolved here (the gates report why).
+func closeTargetDigest(root string, store posemodel.Store, ref string) string {
+	scope, err := posemodel.ParseScopeRef(ref)
 	if err != nil {
-		return err
+		return ""
 	}
-	tmpPath := tmp.Name()
-	defer os.Remove(tmpPath)
-	if _, err := tmp.WriteString(text); err != nil {
-		_ = tmp.Close()
-		return err
+	path := ""
+	switch scope.Kind {
+	case "spec":
+		sp, err := store.GetSpec(scope.Slug)
+		if err != nil {
+			return ""
+		}
+		path = sp.Path
+	case "roadmap":
+		path = filepath.Join(root, ".pose", "roadmaps", scope.Slug+".md")
+	default:
+		return ""
 	}
-	if err := tmp.Chmod(0o644); err != nil {
-		_ = tmp.Close()
-		return err
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return ""
 	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	return os.Rename(tmpPath, path)
+	return posemodel.ExpectBytes(raw, true).Digest
 }
 
 func replaceFrontmatterValue(content, key, value string) string {
@@ -1978,3 +2031,19 @@ func replaceFrontmatterValue(content, key, value string) string {
 	}
 	return strings.Join(lines, "\n") + tail
 }
+
+// hasActionRequestPending reports a governed action request that restricts
+// the closeout.
+func hasActionRequestPending(diagnostics []posemodel.Diagnostic) bool {
+	for _, d := range diagnostics {
+		if d.Code == "action-request-pending" {
+			return true
+		}
+	}
+	return false
+}
+
+// closeGatesJudged, when set, runs after the close gates judged the scope and
+// before the protected region. Only tests set it, to change the repository
+// at that point.
+var closeGatesJudged func()

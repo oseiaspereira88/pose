@@ -11,6 +11,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
@@ -92,6 +93,10 @@ func cmdStateInit(root string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	if _, err := runRefresh(root, refreshOptions{Trigger: "manual"}, false); err != nil {
+		var partial *stateRefreshPartialError
+		if errors.As(err, &partial) {
+			render(stdout, stderr).Field("state.published", store.StatePath())
+		}
 		fmt.Fprintf(stderr, "Error: %v\n", err)
 		return 1
 	}
@@ -126,6 +131,10 @@ func cmdStateRefresh(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	if _, err := runRefresh(root, refreshOptions{Trigger: "manual"}, true); err != nil {
+		var partial *stateRefreshPartialError
+		if errors.As(err, &partial) {
+			render(stdout, stderr).Field("state.published", store.StatePath())
+		}
 		fmt.Fprintf(stderr, "Error: %v\n", err)
 		return 1
 	}
@@ -184,6 +193,9 @@ func cmdStateValidateWith(root string, flags outputFlags, stdout, stderr io.Writ
 	}
 	for _, issue := range brokenPointers {
 		gate.r.Finding(cliout.Finding{State: cliout.StateError, Code: "broken-pointer", Message: issue})
+	}
+	if last, ok := lastStateRefresh(root); ok && last.Result == "partial" {
+		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "history-not-appended", Message: "the last refresh published the state but not its history entry: " + last.Error, Remediation: "run `pose state refresh`"})
 	}
 	if state.RefreshPending != "" {
 		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "refresh-pending", Message: fmt.Sprintf("a %q-triggered refresh failed and has not been retried yet", state.RefreshPending), Remediation: "run `pose state refresh`"})
@@ -284,11 +296,25 @@ func appendStateHistory(path string, entry stateHistoryEntry) error {
 	if err != nil {
 		return err
 	}
-	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0o644)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
+	// An append that was cut short leaves a last line with no terminator.
+	// The new entry starts on its own line, so it is never glued to those
+	// bytes; the torn bytes stay as they were, an unreadable line the reader
+	// skips, and no entry is made up for them (spec
+	// pose-writer-coordination-and-atomic-publication R7).
+	if info, err := f.Stat(); err == nil && info.Size() > 0 {
+		last := make([]byte, 1)
+		if _, err := f.ReadAt(last, info.Size()-1); err != nil {
+			return err
+		}
+		if last[0] != '\n' {
+			line = append([]byte{'\n'}, line...)
+		}
+	}
 	_, err = f.Write(append(line, '\n'))
 	return err
 }
@@ -337,4 +363,19 @@ func valueOrDash(v string) string {
 		return "-"
 	}
 	return v
+}
+
+// lastStateRefresh is the last refresh-log entry of the state-refresh
+// consumer.
+func lastStateRefresh(root string) (refreshLogEntry, bool) {
+	entries, err := readRefreshLog(stateRefreshLogPath(root))
+	if err != nil {
+		return refreshLogEntry{}, false
+	}
+	for i := len(entries) - 1; i >= 0; i-- {
+		if entries[i].Consumer == "state-refresh" {
+			return entries[i], true
+		}
+	}
+	return refreshLogEntry{}, false
 }

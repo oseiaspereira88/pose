@@ -2044,7 +2044,7 @@
             "./internal/mcpserver",
             "./internal/usage",
             "-run",
-            "Inconclusive|StillAVerdict|OperationResultStarts|CloseApplyJSON|CloseAndStartRefuse|SpecsRefuses|ContinuousCloseoutStatusJSON|UsageCountsAWaiting|UsageCountsWaitingAndSkips|ListSpecsRefuses|EvidenceThatValidate|ARecentResult|ACheckThatPrints|ResultsThisRun|AStartThatFails|ARetriedStart|AResumeThatFails|AStaleStart|AStartReceipt|AStartWhoseTransition|AStartBaselineWriteCut|JSONRoutesReport|SpecFactsRefuses|ClosePlan|InterruptedCloseout|StalePlanDigest|ABMAtomicStartCLI",
+            "Inconclusive|StillAVerdict|OperationResultStarts|CloseApplyJSON|CloseAndStartRefuse|SpecsRefuses|ContinuousCloseoutStatusJSON|UsageCountsAWaiting|UsageCountsWaitingAndSkips|ListSpecsRefuses|EvidenceThatValidate|ARecentResult|ACheckThatPrints|ResultsThisRun|AStartThatFails|ARetriedStart|AResumeThatFails|AStaleStart|AStartReceipt|AStartWhoseTransition|AStartBaselineWriteCut|AnUnreadableStartRecord|JSONRoutesReport|SpecFactsRefuses|ClosePlan|InterruptedCloseout|StalePlanDigest|ABMAtomicStartCLI",
             "-count=1"
           ],
           "severity": "required",
@@ -2061,6 +2061,21 @@
             "./internal/mcpserver",
             "-run",
             "AJournal|AnInterruptedTail|ACheckpoint|AStartLockIsJudged|ALockWithoutA|OnlyAProvenDeadLock|ConcurrentRecoveries|AReleaseRemovesOnly|ARecoveredLock|TheStartCommandReports|ADeadStartLock|MCPLocates|MCPStartStatusShows|ABMAtomicStartConcurrent",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "writer-coordination-and-atomic-publication-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "ConcurrentPublishers|PublicationsKeep|AFailedPublication|ATransferWaits|StartRefusesWhile|TheActionPolicyIsWritten|ACloseNever|ACloseWaits|ACloseIsBound|ARefreshThatPublished|ARefreshNever|AHistoryEntry|SpecTransferConcurrentApply|AuthoritativePublicationsSync|AnUnsyncedPublication|AnImmutablePublicationWorks|StagingFilesAre|AdoptionPolicies|AHookRefresh|EveryStateWriter|ACloseRevalidates|TheBackfillNever",
             "-count=1"
           ],
           "severity": "required",

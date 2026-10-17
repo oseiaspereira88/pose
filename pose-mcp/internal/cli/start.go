@@ -303,6 +303,16 @@ func startApplyFailure(store posemodel.Store, specPath, slug, digest string, att
 	}
 	recovery, _ := store.StartRecovery(slug, digest)
 	result.StepsRun = startStepsRun(attempt.prior, recovery, attempt.reached)
+	var baselineErr *posemodel.StartBaselineWriteError
+	if errors.As(err, &baselineErr) {
+		// The baseline is published whole or not at all: an attempt that
+		// failed left no record (spec
+		// pose-writer-coordination-and-atomic-publication R1).
+		result.StepsRun = append(result.StepsRun, posemodel.OperationStep{ID: "baseline", Result: "failed"})
+		result.Fail(posemodel.OutcomeFailed, "baseline", cause, err.Error())
+		result.NextAction = "nothing was recorded; fix the cause, then repeat " + retry
+		return result
+	}
 	recorded := func() {
 		result.Effects = append(result.Effects, posemodel.OperationEffect{Step: "baseline", Effect: persisted.Phase, Ref: ".pose/starts/" + slug + ".json"})
 		result.Data = persisted
@@ -353,9 +363,6 @@ func startApplyFailure(store posemodel.Store, specPath, slug, digest string, att
 // call that finished it returned no error.
 func startStepsRun(prior, recovery string, reached []string) []posemodel.OperationStep {
 	steps := []posemodel.OperationStep{}
-	if prior == posemodel.StartRecoveryNone && recovery != posemodel.StartRecoveryNone {
-		steps = append(steps, posemodel.OperationStep{ID: "baseline", Result: "done"})
-	}
 	reachedPhase := func(phase string) bool {
 		for _, p := range reached {
 			if p == phase {
@@ -363,6 +370,9 @@ func startStepsRun(prior, recovery string, reached []string) []posemodel.Operati
 			}
 		}
 		return false
+	}
+	if prior == posemodel.StartRecoveryNone && recovery != posemodel.StartRecoveryNone {
+		steps = append(steps, posemodel.OperationStep{ID: "baseline", Result: "done"})
 	}
 	switch {
 	case reachedPhase("transitioned"):
@@ -383,7 +393,11 @@ func startStepsRun(prior, recovery string, reached []string) []posemodel.Operati
 func startLockNextAction(slug string, lock *posemodel.StartLockError) string {
 	switch lock.State {
 	case posemodel.LockOwnerActive:
-		return "another start is running; wait for it to finish, then repeat this command"
+		operation := "a lifecycle call"
+		if lock.Owner != nil && lock.Owner.Operation != "" {
+			operation = lock.Owner.Operation
+		}
+		return operation + " is running on this spec; wait for it to finish, then repeat this command"
 	case posemodel.LockOwnerDead:
 		return "the lock's owner is not running; `pose start spec:" + slug + " --recover-lock " + lock.OwnerDigest + "` removes this lock, then repeat this command"
 	default:

@@ -33,7 +33,7 @@ type refreshLogEntry struct {
 	// for the sister consumer's. Empty on entries written before this field
 	// existed; readers must not assume it is always populated.
 	Consumer        string   `json:"consumer,omitempty"`
-	Result          string   `json:"result"` // ok | failed | skipped
+	Result          string   `json:"result"` // ok | failed | skipped | partial
 	DurationMS      int64    `json:"duration_ms"`
 	ChangedSections []string `json:"changed_sections,omitempty"`
 	Error           string   `json:"error,omitempty"`
@@ -70,7 +70,8 @@ func recentlyProcessed(root, key string, window int) bool {
 		start = len(entries) - window
 	}
 	for _, e := range entries[start:] {
-		if e.DedupKey == key && e.Result != "failed" {
+		// A failed or partial refresh owes an effect: the same event runs again.
+		if e.DedupKey == key && e.Result != "failed" && e.Result != "partial" {
 			return true
 		}
 	}
@@ -165,11 +166,16 @@ func runRefresh(root string, opts refreshOptions, mustExist bool) (*refreshLogEn
 	existingDerived := map[string]struct {
 		body, status string
 	}{}
+	// The bytes read are the preimage of the publication: an edit of a
+	// curated section made while the refresh renders is a conflict, never
+	// overwritten (spec pose-writer-coordination-and-atomic-publication R2/R7).
+	var preimage []byte
 	if exists {
 		raw, err := os.ReadFile(store.StatePath())
 		if err != nil {
 			return failedRefresh(root, opts, key, started, err)
 		}
+		preimage = raw
 		fm, body := pose.SplitFrontmatter(string(raw))
 		state, perr := pose.ParseProjectState(fm, body)
 		if state == nil {
@@ -247,13 +253,21 @@ func runRefresh(root string, opts refreshOptions, mustExist bool) (*refreshLogEn
 		}
 	}
 
-	if err := writeAtomic(store.StatePath(), []byte(out.String()), 0o644); err != nil {
+	if err := pose.PublishFile(store.StatePath(), []byte(out.String()), 0o644, pose.PublishAuthoritative, pose.ExpectBytes(preimage, exists)); err != nil {
 		return failedRefresh(root, opts, key, started, err)
 	}
+	// The state is published; the audit entry is a second effect. Its
+	// failure is reported as such, never as a refresh that did nothing
+	// (R6/R7).
 	if err := appendStateHistory(store.StateHistoryPath(), stateHistoryEntry{
 		GeneratedAt: now.Format(time.RFC3339), BaselineCommit: baseline, Sections: historySections,
 	}); err != nil {
-		return failedRefresh(root, opts, key, started, err)
+		partial := &stateRefreshPartialError{State: store.StatePath(), Err: err}
+		entry := refreshLogEntry{At: started.UTC().Format(time.RFC3339), Trigger: opts.Trigger, Target: opts.Target,
+			DedupKey: key, Consumer: "state-refresh", Result: "partial", DurationMS: time.Since(started).Milliseconds(),
+			ChangedSections: changed, Error: partial.Error(), Directed: opts.Directed != nil}
+		_ = appendRefreshLog(root, entry)
+		return &entry, partial
 	}
 
 	entry := refreshLogEntry{At: started.UTC().Format(time.RFC3339), Trigger: opts.Trigger, Target: opts.Target,
@@ -271,3 +285,17 @@ func failedRefresh(root string, opts refreshOptions, key string, started time.Ti
 	_ = appendRefreshLog(root, entry)
 	return &entry, cause
 }
+
+// stateRefreshPartialError is a refresh that published the state and then
+// could not append its history entry. The state is current; the next refresh
+// appends its own entry, and none is fabricated for this one.
+type stateRefreshPartialError struct {
+	State string
+	Err   error
+}
+
+func (e *stateRefreshPartialError) Error() string {
+	return "project state published (" + e.State + ") but its history entry was not appended: " + e.Err.Error() + "; the next `pose state refresh` appends a new entry"
+}
+
+func (e *stateRefreshPartialError) Unwrap() error { return e.Err }

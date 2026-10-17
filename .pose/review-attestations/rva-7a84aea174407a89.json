@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-7a84aea174407a89",
+  "bundle_id": "rvb-b3ff5896947dc94f",
+  "bundle_digest": "sha256:b3ff5896947dc94f23d5b2411f040da219aa0aee7dde6a0a0674785059ca81f9",
+  "reviewer": "agent:independent-claude-opus-5-5-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Verified facts: exclusive staging, digest CAS, create-if-absent, shared non-waiting lifecycle lock, authorization revalidated inside the lock and partial state results, each killed by a versioned mutation (25 of 25) and rerun independently. Assumptions kept explicit: cooperating writers, power loss unqualified, Windows rename journaled without directory sync, hard links optional with an in-place fallback. Accepted low risks R2-F1 to R2-F4 are recorded as findings. Independence is by execution only: same vendor and model as the implementer (Claude Opus 5.5 by Anthropic) in a separate session without its context; agent:independent- is the declaration the engine requires until pose-delegated-review-run-provenance replaces it; identity declared and unsigned."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Concurrent publishers never share staging; ExpectDigest refuses a lost update; ExpectAbsent never overwrites and a same-bytes retry converges. Start cancel close transfer and artifact-backfill share one per-spec lock taken after root locks in canonical order without waiting, so no deadlock. Race detector passed on internal/pose and internal/cli."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Existing success outputs and exit codes are kept; new refusals publish-conflict, concurrent-lifecycle-writer, spec-lifecycle-in-progress and history-not-appended are additive and classified minor in ADR and changelog. MCP has no lifecycle writer route; its readers are unchanged and covered by B12 and B13 suites."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Conflicts are typed PublishConflictError with expected and found digests and nothing published; a failed directory sync is a typed PublishDurabilityError. Residual: the state refresh and close receipts do not yet consume that type, accepted as low finding r2-f1."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "writeAtomic callers, start record, action and adoption policies, state refresh, pending marker, assess architecture writer, backfill and close transition all route through PublishFile; global strict 136 of 136 and module strict 133 of 133 at 00f743c3."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Refusals name path, expected and found digest, the lock owner operation and the next action; a partial refresh is recorded in the refresh log as partial and pose state reports history-not-appended. No secrets or sensitive data are logged."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Additive refusals are minor and documented. The immutable fallback keeps start working without hard links. No script, skill, workflow, CI step or doc depends on fixed temporaries, on overwriting a changed file or on a lock-free close; only historical B12 reproduction notes mention fixed temporaries."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Every round-1 response F1 to F11 was verified in code and by rerunning its regression and its mutation. Probes P01 to P04 reproduce the committed after state. Experiments E7 and E8 found only the low durability-receipt gap recorded as r2-f1."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-c08eaf6f0fb2e08e",
+      "rationale": "The lost updates and misreports came from fixed shared temporaries, read-modify-write without precondition and per-command lock namespaces. One publisher with explicit precondition and class plus the existing per-spec lock as lifecycle lock removes each cause, which D1 states. The ADR and the validation matrix are the two structural deltas, both mapped to D1.",
+      "mappings": [
+        {
+          "delta": "SD-5fa419d3",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR records the publisher protocol and lifecycle lock D1 decides for R1 to R4, R6 and R7."
+        },
+        {
+          "delta": "SD-ed7413c4",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The validation matrix registers the B14 regressions that qualify D1, including the second-round ones."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "POSE.md, pt-BR and scaffold copies, changelog and ADR describe close under lock, revalidation, partial refresh and history-not-appended. Residual inaccuracies in the ADR limits list and the state class sentence are accepted as low finding r2-f2."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "A lock held by close, transfer or backfill reads as spec-lifecycle-in-progress with its operation and a next action; a publish-conflict tells the operator to rerun close to judge the current bytes; orphan staging is git-ignored under .pose and skipped by the closeout context check."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "R1 V1 V6 staging and cleanup tests; R2 V2 precondition, policy, backfill and state-writer tests; R3 V3 lifecycle-lock tests; R4 V4 close bound to judged digest and revalidation; R5 V6 sync hook tests; R6 R7 V5 partial refresh, hook refresh and torn tail tests; R8 V7 race, mutations, probes and B12 B13 suites."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "The 37 declared artifact paths equal the 37 observed over 4 attributed commits; no policy, capability or adoption was changed. agent:independent- is the engine-required declaration until spec pose-delegated-review-run-provenance replaces it. This is a different-actor review by execution only, same vendor and model as the implementer (Claude Opus 5.5 by Anthropic) in a separate session without its context, not a cross-vendor or cognitive independence; the Codex reviewer was replaced by maintainer decision for lack of usage quota. Identity declared; pose-dist attestations are unsigned."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Staging is created exclusively next to the target and only the operation's own file is removed; no path escape or permission widening; locks are never broken by age; no secrets in code, evidence or logs; the validation token was passed only in the environment and does not appear in outputs."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "A transaction across files and roots is not available without a daemon; per-writer fixes would repeat the defect. One small publisher and reuse of the B13 lock is the smallest sufficient design. It is invalidated if a non-cooperating writer must be excluded, which the ADR declares as a limit, or if index generations need atomicity, which is B15."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict: 37 declared paths reconcile with 37 observed over 4 commits; repository-wide orphan warnings are not B14 findings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-c08eaf6f0fb2e08e",
+      "rationale": "Executed on the sealed subject: 30 of 30 files observed; the ADR and validation-matrix deltas are mapped to D1."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed if-stale for pose-mcp: refreshed because component content and matrix changed; generated discovery output is restored and not committed."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Executed provider and consumer assessment; B14 changes no inter-component contract and its CLI consumers were exercised directly."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed marker scan: zero TODO, FIXME, panic or stub markers and zero uncovered debt."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only tool needs this approving attestation; executed right after apply and before the guarded close."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only tool needs this approving attestation; executed right after apply and before the guarded close."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed for pose-mcp and applied the review workflow, security and documentation rules and backend-go guidance."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Executed strict against capability:writer-coordination-and-atomic-publication: 1 target, 136 results, 0 findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Executed global strict 136 of 136 at 00f743c3 after an authenticated retry of the GitHub release listing that failed with anonymous 403; nothing weakened."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Executed explicit pose-mcp strict 133 of 133 at 00f743c3."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration"
+  ],
+  "findings": [
+    {
+      "id": "r2-f1",
+      "severity": "low",
+      "evidence": ".pose/reports/2026-10-16-pose-b14-writer-coordination-review.md",
+      "action": "Follow-up: consume ErrPublishUnsynced in the state refresh and close receipts so a published but unsynced effect is reported as such",
+      "disposition": "accepted-risk",
+      "owner": "maintainer",
+      "rationale": "A directory fsync failure after the rename makes the state refresh log failed and mark refresh_pending on a current state, and close report transition-refused over a spec already done; the messages say published and close --resume converges; trigger is rare filesystem error",
+      "review_by": "2026-11-16"
+    },
+    {
+      "id": "r2-f2",
+      "severity": "low",
+      "evidence": ".pose/reports/2026-10-16-pose-b14-writer-coordination-review.md",
+      "action": "Follow-up: correct the ADR limits list and the state class sentence and declare stack_seed review.json and contribution writers",
+      "disposition": "accepted-risk",
+      "owner": "maintainer",
+      "rationale": "ADR says project.json and capability assessment stage through writeAtomic but they use os.WriteFile in place; stack_seed rewrites review.json with ExpectAny; contribution status edits are not listed; install or assessment time single-operator writers",
+      "review_by": "2026-11-16"
+    },
+    {
+      "id": "r2-f3",
+      "severity": "low",
+      "evidence": ".pose/reports/2026-10-16-pose-b14-writer-coordination-review.md",
+      "action": "Follow-up: add regressions for the closeout staging skip, action-request revalidation, pending-marker fallback, lifecycle next action, state class and exclusive-create sync",
+      "disposition": "accepted-risk",
+      "owner": "maintainer",
+      "rationale": "Six round-2 mutations survive; the behaviours were verified by reading and experiment but are not pinned by tests",
+      "review_by": "2026-11-16"
+    },
+    {
+      "id": "r2-f4",
+      "severity": "low",
+      "evidence": ".pose/reports/2026-10-16-pose-b14-writer-coordination-review.md",
+      "action": "Follow-up: limit the immutable fallback to link-unsupported errors and remove a record the exclusive write itself cut short",
+      "disposition": "accepted-risk",
+      "owner": "maintainer",
+      "rationale": "Any non-EEXIST link error falls back to an in-place write; a write error leaves a partial immutable record that later retries refuse as existing; declared as a limit and rare",
+      "review_by": "2026-11-16"
+    }
+  ],
+  "attested_at": "2026-10-17T01:19:51Z",
+  "path": ".pose/review-attestations/rva-7a84aea174407a89.json"
+}

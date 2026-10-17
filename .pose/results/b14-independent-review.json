@@ -1,0 +1,424 @@
+{
+ "schema_version": 1,
+ "spec": "pose-writer-coordination-and-atomic-publication",
+ "unit": "B14",
+ "pr": 188,
+ "branch": "impl/pose-b14-writer-coordination",
+ "reviewer": "agent:independent-claude-opus-5-5-review",
+ "implementer": "agent:claude-opus-5-5 (session 296d1fcb-e989-40ae-9362-cf3514db8b26)",
+ "independence": "Different-actor review by execution only: same vendor and model as the implementer (Claude Opus 5.5, Anthropic), separate session without the implementer's context. Not a cross-vendor review; the Codex reviewer was replaced by maintainer decision because it had no usage quota. The agent:independent- prefix is a declaration the engine requires until spec pose-delegated-review-run-provenance replaces it. Identity declared; attestations are not signed in pose-dist.",
+ "final_decision": "approved (round 2)",
+ "rounds": {
+  "1": {
+   "head": "07e9eb5a1c55f37c5c1bd311c74d1f018f489a50",
+   "decision": "changes-requested",
+   "sealed": false,
+   "attested": false,
+   "closed": false,
+   "binary": {
+    "build": "go -C pose-mcp build -o ../pose-review ./cmd/pose",
+    "sha256": "af5ca0454a57e1b0dc0d277994c422a515d7a5f25d791abe67aad743763237b1"
+   },
+   "checks": {
+    "go_vet": {
+     "exit": 0,
+     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "go_test_all": {
+     "exit": 0,
+     "packages_ok": 10,
+     "sha256": "22bbb372946d81f4e78c0db4263b1b07314d1b882bb87f71a3d97c7ffb0f57dc"
+    },
+    "go_test_race_pose_cli": {
+     "exit": 0,
+     "sha256": "e92804efd09a54b6770e83181e8742b45d7d530afeb48d0075bcbc6fb5a9b5dc"
+    },
+    "goos_windows_build": {
+     "exit": 0
+    },
+    "goos_darwin_build": {
+     "exit": 0
+    }
+   },
+   "probes": {
+    "command": "python3 -I .pose/results/b14-front09-probes.py --binary ../pose-review",
+    "exit": 0,
+    "matches_committed_after": true,
+    "sha256": "b24f89d38a1829b24b4cdf6340a647560429b6a7f32cc4f1107bd9440380e69f",
+    "facts": {
+     "P01_index_exit": 0,
+     "P01_foreign_staging_kept": true,
+     "P02_last_log_result": "partial",
+     "P02_stdout_state_published": true,
+     "P03_torn_bytes_on_own_line": true,
+     "P04_control_exit": 0
+    }
+   },
+   "mutations": {
+    "copy": "git archive HEAD outside the repository",
+    "sha256": "d10bbb59b4c5259d9f4d0d016e8a5fe96b42d5f66c5174152c9cf69b3793ec87",
+    "killed": {
+     "M01 fixed staging": "TestConcurrentPublishersNeverShareStaging",
+     "M02 no digest check": "5 tests",
+     "M03 absent by rename": "TestPublicationsKeepTheirPreconditions",
+     "M04 absent retry conflicts": "TestPublicationsKeepTheirPreconditions",
+     "M07 transfer without spec locks": "TestATransferWaitsForNoLifecycleWriterOfItsSpecs",
+     "M08 close without lock": "TestACloseWaitsForNoOtherLifecycleWriter",
+     "M09 close not bound to judged": "TestACloseIsBoundToTheBytesItsGatesJudged",
+     "M10 state ExpectAny": "TestARefreshNeverOverwritesACuratedEditMadeWhileItRendered",
+     "M11 history failure plain": "TestARefreshThatPublishedTheStateSaysSoWhenItsHistoryFails",
+     "M12 torn tail glued": "TestAHistoryEntryIsNeverGluedToATornTail",
+     "M13 action policy ExpectAny": "TestTheActionPolicyIsWrittenOnlyOverWhatWasRead",
+     "M14 baseline in place": "TestAStartBaselineWriteCutShortPublishesNothing",
+     "M15 cleanup all tmp": "TestAFailedPublicationCleansOnlyItsOwnStaging",
+     "M16 transfer locks only source": "TestATransferWaitsForNoLifecycleWriterOfItsSpecs",
+     "M17 PublishFault ignored": "3 B12/B13 start tests (fixture no longer stops)"
+    },
+    "survived": {
+     "M05 no file sync (authoritative)": "full pose, cli, mcpserver suites; failures equal to the unmutated baseline (16 environmental doc tests)",
+     "M06 no directory sync": "same"
+    },
+    "sync_sha256": "2b958f12d8d230fc090c8acf11a7b02e08f5f6986ee708bdb4fb0d114f055e4b"
+   },
+   "experiments": {
+    "cli_sha256": "ac6e1cda9de915ff2c1e1f9c380ed7e698937bb4913f9574b38dee4fedaa5cc7",
+    "pose_sha256": "6eb9b6d8f85cd526b89fe73f55d22b3e635e09c8a904727faa140a8ca36c74e3",
+    "E1_hook_refresh_partial": "consumer returned nil; state published; refresh_pending marked; refresh log partial",
+    "E4_close_stale_authorization": "review approved before the gates, not approved inside the protected region (current semantic inputs not represented by a sealed bundle); close exit 0 and spec done",
+    "E6_partial_transfer_start": "destination staged as blocked after prepared; start refused spec-not-ready; no dual authority"
+   },
+   "findings": [
+    {
+     "id": "F1",
+     "severity": "medium",
+     "file": "pose-mcp/internal/cli/state_hooks.go",
+     "line": 124,
+     "requirements": [
+      "R6",
+      "R7"
+     ],
+     "summary": "Hook-triggered refresh turns a partial result (state published, history not appended) into success: non-strict consumer marks refresh_pending on the just-published state and returns nil."
+    },
+    {
+     "id": "F2",
+     "severity": "medium",
+     "file": "pose-mcp/internal/cli/assess.go",
+     "line": 758,
+     "requirements": [
+      "R2",
+      "R7"
+     ],
+     "summary": "Other writers of project-state.md still read-modify-write in place without precondition (assess Arquitetura update; markRefreshPending at state_hooks.go:176), so a curated edit can be lost and readers can see a torn state; not declared as a limit."
+    },
+    {
+     "id": "F3",
+     "severity": "medium",
+     "file": "pose-mcp/internal/cli/review_closeout.go",
+     "line": 1689,
+     "requirements": [
+      "R4"
+     ],
+     "summary": "Close checks review approval before the gates and does not revalidate it inside the lifecycle lock; only the spec digest is bound, so a stale authorization governs the publication (E4)."
+    },
+    {
+     "id": "F4",
+     "severity": "low",
+     "file": "pose-mcp/internal/cli/artifact_integrity.go",
+     "line": 616,
+     "requirements": [
+      "R2",
+      "R3",
+      "R5"
+     ],
+     "summary": "Mutable or authoritative writers outside the inventory still publish ExpectAny/derived or with os.WriteFile: artifact-backfill rewrites specs without CAS, sync or lifecycle lock; start record update and adoption policies use ExpectAny contrary to the ExpectAny-only-for-derived rule; validation matrix seeding, managed manuals merge, project file, capability assessment, extension lock. Undeclared."
+    },
+    {
+     "id": "F5",
+     "severity": "low",
+     "file": "pose-mcp/internal/pose/writer_publication.go",
+     "line": 155,
+     "requirements": [
+      "R6"
+     ],
+     "summary": "A directory sync failure after the rename is returned as a plain error: callers report a failure with no effect although the file is published."
+    },
+    {
+     "id": "F6",
+     "severity": "low",
+     "file": "pose-mcp/internal/pose/writer_publication.go",
+     "line": 105,
+     "requirements": [
+      "R5",
+      "R8"
+     ],
+     "summary": "File and directory sync of the authoritative class are not qualified by any test (M05, M06 survive)."
+    },
+    {
+     "id": "F7",
+     "severity": "low",
+     "file": "pose-mcp/internal/cli/state_refresh.go",
+     "line": 255,
+     "requirements": [
+      "R5",
+      "R7"
+     ],
+     "summary": "State is classified derived (no sync) though its curated sections cannot be recomputed, contradicting the ADR definition of derived."
+    },
+    {
+     "id": "F8",
+     "severity": "low",
+     "file": "pose-mcp/internal/pose/start.go",
+     "line": 546,
+     "requirements": [
+      "R8"
+     ],
+     "summary": "Baseline now requires hard links (ExpectAbsent) with no O_EXCL fallback, unlike the B13 lock; start stops working on filesystems without hard links and this is not in the compatibility classification."
+    },
+    {
+     "id": "F9",
+     "severity": "low",
+     "file": "pose-mcp/internal/pose/start_lock.go",
+     "line": 172,
+     "requirements": [
+      "R3"
+     ],
+     "summary": "Lock held by close or transfer is reported as start-in-progress and the next action says confirm no start is running."
+    },
+    {
+     "id": "F10",
+     "severity": "low",
+     "file": "pose-mcp/internal/pose/writer_publication.go",
+     "line": 89,
+     "requirements": [
+      "R1"
+     ],
+     "summary": "Orphan staging files from a crash are random-named, not ignored and never swept; under .pose/specs or .pose/starts they block the closeout context step until removed by hand."
+    },
+    {
+     "id": "F11",
+     "severity": "low",
+     "file": ".pose/specs/2026-10-13-pose-writer-coordination-and-atomic-publication.md",
+     "line": 132,
+     "requirements": [
+      "R8"
+     ],
+     "summary": "Task claims 12 failing mutations but no mutation record exists in the repository."
+    }
+   ]
+  },
+  "2": {
+   "head": "00f743c35d583d57946a32305913d1a0fa640a27",
+   "responds_to": "7999f50d4959391ac041c2677b73d3c329c56fcf",
+   "decision": "approved",
+   "sealed": true,
+   "attested": true,
+   "closed": true,
+   "binary": {
+    "build": "go -C pose-mcp build -o ../pose-review ./cmd/pose (lands at the clone root)",
+    "sha256": "f25fb0314e837777778a94537c37398d4f47dcd7cfafd0c756540ab63b51e915"
+   },
+   "checks": {
+    "go_vet": {
+     "exit": 0,
+     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "go_test_all": {
+     "exit": 0,
+     "packages_ok": 11,
+     "sha256": "c22a9ccb4e2407ef6a0d40cd51c1d9c0dfe495116c9e40c3057bcae881744a2b"
+    },
+    "go_test_race_pose_cli": {
+     "exit": 0,
+     "sha256": "4ce07434273e6b2eb5d344175f1252fe9dd91a8443e6b73c37e097dd010fc4f4"
+    },
+    "goos_windows_build": {
+     "exit": 0
+    },
+    "goos_darwin_build": {
+     "exit": 0
+    }
+   },
+   "probes": {
+    "exit": 0,
+    "matches_committed_after": true,
+    "sha256": "87e64b2c4e67a66343bd146787b05ba51c28ea1f690c8509bc98fde1b002ac71"
+   },
+   "validation": {
+    "global_strict": {
+     "exit": 0,
+     "executed": 136,
+     "passed": 136,
+     "note": "first attempt failed only the install journey on an anonymous GitHub API 403; rerun with GH_TOKEN exported for that command only; token absent from outputs",
+     "sha256": "0bd0f3275be54282022ed8d52834b019aabcc0e809bf152b68a4b332fe2a3a69"
+    },
+    "module_strict_pose_mcp": {
+     "exit": 0,
+     "executed": 133,
+     "passed": 133,
+     "sha256": "288eccdfd7cd2d41366e5dd7d0bf1e1fb290f51f0a00ad6a2b47de6791e72aac"
+    }
+   },
+   "tools": {
+    "artifact_check": {
+     "exit": 0,
+     "claims": 37,
+     "observed": 37,
+     "commits": 4,
+     "repository_orphan_warnings": 617,
+     "sha256": "748fde85410f4a5ecdca5bd44669c590c01f4d9ec5824dd33e734f38ac0d231c"
+    },
+    "surface_check": {
+     "exit": 0,
+     "targets": 1,
+     "results": 136,
+     "findings": 0,
+     "sha256": "dea7da78aec4b1848c20d5f49832ed9ee7f20536cc65dd7e91dbe7ea8891bf89"
+    },
+    "assess_design": {
+     "exit": 0,
+     "evidence": "design-c08eaf6f0fb2e08e",
+     "files": "30/30",
+     "deltas": [
+      "SD-5fa419d3 ADR",
+      "SD-ed7413c4 validation-matrix"
+     ],
+     "sha256": "f8cb29541c62fec354438dab7593e521c3301216a717759b99648c0e1fbc97a5"
+    },
+    "assess_integrate": {
+     "exit": 0,
+     "sha256": "841f6a342c3aa784491e384ec587b66a74fa8490ae418264987e3f5f62d28421"
+    },
+    "assess_tech_debt": {
+     "exit": 0,
+     "markers": 0,
+     "sha256": "84d9b0da3f49dbfe79a93777b7c9db82ac638302683eae9cd3d53898f9782af0"
+    },
+    "assess_discover_pose_mcp": {
+     "exit": 0,
+     "freshness": "refreshed",
+     "committed": false,
+     "sha256": "8647e63badc329655de731c7fb66e8fd27237e0226d25cd06292aabb59ccc4aa"
+    },
+    "suggest_review": {
+     "exit": 0,
+     "sha256": "eb90980a7ead71b07dc4d355944863683fcfd3bb0ebcf2ba5eead2536606b184"
+    }
+   },
+   "mutations": {
+    "copy": "git archive HEAD outside the repository; copy baseline failure: TestEveryGateOnTheMachineChannelPrintsOneDocument (environmental, no .git)",
+    "versioned_driver": {
+     "killed": 25,
+     "total": 25,
+     "matches_committed": true,
+     "sha256": "c714901c9ce4f5b7e81fa94c95d2ebf8c7bd9dbcca2ef33205de4a67220c68ef"
+    },
+    "independent": {
+     "sha256": "1096a59d523b57cc25ebb58be28281db2d8657bf40433889b98dd7896904aa48",
+     "killed": {
+      "X1 partial deduplicated": "TestAHookRefreshThatPublishedTheStateDoesNotClaimItIsPending",
+      "X3 backfill without lock": "TestTheBackfillNeverOverwritesAConcurrentSpecEdit",
+      "X5 exclusive retry conflicts": "TestAnImmutablePublicationWorksWithoutHardLinks",
+      "X10 history-not-appended code changed": "TestAHookRefreshThatPublishedTheStateDoesNotClaimItIsPending"
+     },
+     "survived": [
+      "X2 state class derived",
+      "X4 closeout counts orphan staging",
+      "X6 revalidation ignores action requests",
+      "X7 pending-marker fallback without byte check",
+      "X8 next action names only start",
+      "X9 exclusive create without sync"
+     ]
+    }
+   },
+   "experiments": {
+    "E7_unsynced_state_refresh": "dir sync fails after rename: state published, history not appended, refresh log failed, refresh_pending marked on a current state, consumer says it could not mark; CLI exit 1 with a message saying published",
+    "E8_unsynced_close": "spec done but close --apply receipt failed/transition-refused; close --resume already-satisfied carrying the prior error"
+   },
+   "round1_responses": {
+    "F1": "resolved",
+    "F2": "resolved",
+    "F3": "resolved",
+    "F4": "resolved in scope, declared outside (wording in r2-f2)",
+    "F5": "partial (r2-f1)",
+    "F6": "resolved",
+    "F7": "resolved in code (untested, ADR wording)",
+    "F8": "resolved (scope in r2-f4)",
+    "F9": "resolved",
+    "F10": "resolved",
+    "F11": "resolved"
+   },
+   "round1_regressions": "none",
+   "closeout": {
+    "bundle": "rvb-b3ff5896947dc94f",
+    "attestation": "rva-7a84aea174407a89",
+    "review_verify": "ready-to-close, fresh, approved",
+    "review_check_exit": 0,
+    "close": "Closed (completed_at 2026-10-17, engine UTC date)",
+    "closeout_check": "terminal",
+    "lint_spec_strict": "1/1",
+    "check_strict": "SUCCESS with pre-existing warnings",
+    "sha256": {
+     "attest": "be809b4f737c14a6af758c9213706904ca38aa4175ec8c53f094299b119582ea",
+     "verify": "cd5d343a8b0a62f0cb563c2071fa78ac7a6f7088d48b35ed0248deea7c02a70e",
+     "close": "809a2cf4576bd48dd853943d22b3ccd1af71ad5506e94ccb85cd5e301f437660",
+     "lint": "9ecef88808a5aca9450201b967617a924c37201c8bc5ce7df350fe632cc810e5",
+     "check": "749a14e9b926213abd0e13865b91f28a7f6b5279f18882c43ba562e25079ddc4",
+     "closeout_check": "b061f11327bcf84da63fa983ef2007344072532e9fa6df97f92a660db67ff3ce"
+    }
+   },
+   "findings": [
+    {
+     "id": "r2-f1",
+     "severity": "low",
+     "disposition": "accepted-risk",
+     "file": "pose-mcp/internal/cli/state_refresh.go",
+     "line": 256,
+     "requirements": [
+      "R6",
+      "R7"
+     ],
+     "summary": "ErrPublishUnsynced is not consumed by the state refresh or close receipts: an unsynced but published effect is recorded as failed/transition-refused (E7, E8)."
+    },
+    {
+     "id": "r2-f2",
+     "severity": "low",
+     "disposition": "accepted-risk",
+     "file": ".pose/adr/2026-10-16-writers-publish-through-one-exclusive-cas-publisher.md",
+     "line": 0,
+     "requirements": [
+      "R2",
+      "R5"
+     ],
+     "summary": "ADR limits misdescribe unmoved writers (project.json and capability assessment use os.WriteFile in place; stack_seed rewrites review.json with ExpectAny; contribution status edits unlisted) and still call the state derived."
+    },
+    {
+     "id": "r2-f3",
+     "severity": "low",
+     "disposition": "accepted-risk",
+     "file": "pose-mcp/internal/cli/writer_publication_test.go",
+     "line": 0,
+     "requirements": [
+      "R8"
+     ],
+     "summary": "Six round-2 behaviours are not pinned by tests (X2, X4, X6, X7, X8, X9 survive)."
+    },
+    {
+     "id": "r2-f4",
+     "severity": "low",
+     "disposition": "accepted-risk",
+     "file": "pose-mcp/internal/pose/writer_publication.go",
+     "line": 153,
+     "requirements": [
+      "R1",
+      "R2"
+     ],
+     "summary": "Immutable fallback triggers on any non-EEXIST link error and does not remove a record its own failed write cut short; later retries refuse as existing."
+    }
+   ],
+   "accepted_risk": {
+    "owner": "maintainer",
+    "review_by": "2026-11-16"
+   }
+  }
+ }
+}

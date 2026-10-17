@@ -1,0 +1,131 @@
+{
+  "mutations": [
+    {
+      "mutation": "staging fixo",
+      "tests": "TestConcurrentPublishers",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "CAS ignorado",
+      "tests": "TestPublicationsKeep|TestTheActionPolicy",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "imutável sobrescrito",
+      "tests": "TestPublicationsKeep",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "staging próprio não limpo",
+      "tests": "TestAFailedPublication|TestPublicationsKeep",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "transfer sem trava de spec",
+      "tests": "TestATransferWaits",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "close sem trava",
+      "tests": "TestACloseWaits",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "close sem digest julgado",
+      "tests": "TestACloseNever|TestACloseIsBound",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "state sem CAS",
+      "tests": "TestARefreshNever",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "history como falha genérica",
+      "tests": "TestARefreshThatPublished",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "history colado",
+      "tests": "TestAHistoryEntry",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "policy sem CAS",
+      "tests": "TestTheActionPolicy",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "start ignora trava de close",
+      "tests": "TestStartRefusesWhile",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "hook parcial marca pendente",
+      "tests": "TestAHookRefresh",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "validate não avisa parcial",
+      "tests": "TestAHookRefresh",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "pendente sem CAS",
+      "tests": "TestEveryStateWriter",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "assess sem CAS",
+      "tests": "TestEveryStateWriter",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "close sem revalidar autorização",
+      "tests": "TestACloseRevalidates",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "durabilidade como erro comum",
+      "tests": "TestAnUnsynced",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "sem sync de arquivo",
+      "tests": "TestAuthoritativePublicationsSync",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "sem sync de diretório",
+      "tests": "TestAuthoritativePublicationsSync",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "imutável sem fallback",
+      "tests": "TestAnImmutablePublicationWorks",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "trava sempre start-in-progress",
+      "tests": "TestACloseWaits",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "staging órfão bloqueia closeout",
+      "tests": "TestStagingFiles",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "backfill sem CAS",
+      "tests": "TestTheBackfill",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "policies de adoção sem CAS",
+      "tests": "TestAdoptionPolicies",
+      "verdict": "killed"
+    }
+  ],
+  "killed": 25,
+  "total": 25
+}

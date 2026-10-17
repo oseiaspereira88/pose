@@ -27,3 +27,6 @@ pose-rule-kubernetes.sigstore.json
 # Runtime locks of atomic start; they name the call that holds them.
 .pose/starts/.*.lock
 .pose/starts/.lock-*.tmp
+# Staging files a crashed publication can leave (".<name>.<digits>.tmp");
+# they never hold published content.
+.pose/**/.*.[0-9]*.tmp

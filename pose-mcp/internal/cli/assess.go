@@ -755,7 +755,10 @@ func updateProjectStateArchitecture(root string, current []*pose.ComponentDiscov
 		return fmt.Errorf("project-state.md Arquitetura section is malformed")
 	}
 	updated := archRegex.ReplaceAllString(content, section+"$1")
-	return os.WriteFile(statePath, []byte(updated), 0o644)
+	// Published over the state read above: a curated edit made while the
+	// section was rendered is a conflict, never lost (spec
+	// pose-writer-coordination-and-atomic-publication R2/R7).
+	return pose.PublishFile(statePath, []byte(updated), 0o644, pose.PublishAuthoritative, pose.ExpectBytes(raw, true))
 }
 
 func assessIntegrate(root string, args []string, stdout, stderr io.Writer, locale cliLocale) int {
