@@ -6,7 +6,7 @@ image="${QUICKSTART_IMAGE:-golang:1.26.9-bookworm}"
 output="${1:-$root/.pose/reports/2026-10-02-clean-quickstart.json}"
 work="$(mktemp -d)"
 container=""
-trap 'if [ -n "$container" ]; then docker rm -f "$container" >/dev/null; fi; rm -rf "$work"' EXIT
+trap 'if [ -n "$container" ]; then docker rm -f "$container" >/dev/null || true; fi; rm -rf "$work"' EXIT
 docker pull "$image" >/dev/null
 image_id="$(docker image inspect "$image" --format '{{.Id}}')"
 container="$(docker create \
@@ -24,7 +24,7 @@ import datetime,json,os,pathlib,subprocess,time
 commands=[
  ["bash","-c","curl -fsSLO https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh && bash install.sh"],
  ["/root/.local/bin/pose","doctor"],
- ["bash","/measure-loop.sh","--binary","/root/.local/bin/pose"],
+ ["bash","/measure/quickstart/first-governed-loop.sh","--binary","/root/.local/bin/pose"],
 ]
 rows=[]
 for command in commands:
@@ -37,8 +37,13 @@ pathlib.Path("/evidence/result.json").write_text(json.dumps(record,indent=2)+"\n
 print("PASS:",version,record["total_seconds"],"seconds (automated command path)")
 PY
   ')"
-# Copy only the harness; no host bind mounts or source checkout are needed.
-docker cp "$root/tests/quickstart/first-governed-loop.sh" "$container:/measure-loop.sh"
+# Copy only the harness and the helper it sources (spec
+# pose-test-scripts-remove-their-temp-files); no host bind mounts or source
+# checkout are needed.
+mkdir -p "$work/stage/quickstart" "$work/stage/lib"
+cp "$root/tests/quickstart/first-governed-loop.sh" "$work/stage/quickstart/"
+cp "$root/tests/lib/tempdir.sh" "$work/stage/lib/"
+docker cp "$work/stage" "$container:/measure"
 docker start -a "$container"
 docker cp "$container:/evidence/result.json" "$work/result.json"
 cp "$work/result.json" "$output"

@@ -52,6 +52,7 @@ Cleaning temporary directories that other tools leave (Go caches, editors), or c
 - modified: tests/journeys/install-and-upgrade.sh
 - modified: tests/import/migration-guides.sh
 - modified: examples/demo/record.sh
+- modified: tests/quickstart/measure-clean-environment.sh
 - modified: .github/workflows/ci.yml
 - modified: scripts/verify.sh
 - modified: .pose/indexes/validation-matrix.json
@@ -94,7 +95,7 @@ Show the check failing on the defect, then the three real scripts, then the modu
 
 ### Deterministic checks
 
-`bash tests/hygiene/temp-cleanup.sh` fails on the previous `migration-guides.sh` (`creates temporary files with mktemp and never removes them`). The previous quickstart script, run with its own `TMPDIR`, left a `tmp.*` directory behind; the new one leaves it empty. The three scripts passed with their own `TMPDIR` and left it empty. The review found a fourth leak in `examples/demo/record.sh`, which ran `go build` between its first `mktemp` and its trap; it now allocates one root, installs the trap and derives its working directory from that root, and a failing build (`GOTOOLCHAIN=invalid`) leaves the `TMPDIR` empty.
+`bash tests/hygiene/temp-cleanup.sh` fails on the previous `migration-guides.sh` (`creates temporary files with mktemp and never removes them`). The previous quickstart script, run with its own `TMPDIR`, left a `tmp.*` directory behind; the new one leaves it empty. The three scripts passed with their own `TMPDIR` and left it empty. The review found a fourth leak in `examples/demo/record.sh`, which ran `go build` between its first `mktemp` and its trap; it now allocates one root, installs the trap and derives its working directory from that root, and a failing build (`GOTOOLCHAIN=invalid`) leaves the `TMPDIR` empty. `tests/quickstart/measure-clean-environment.sh` copies the quickstart script into a container, so it now copies `tests/lib/tempdir.sh` beside it (the script sources it by relative path), and its trap no longer lets a failing `docker rm` skip the removal of its own directory; a run with a real container passes, and one with a `docker` that fails on `rm` leaves nothing.
 
 ### Requirement trace
 
