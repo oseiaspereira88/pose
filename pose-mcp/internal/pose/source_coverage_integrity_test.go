@@ -432,3 +432,57 @@ func TestSourceCoverageScoping(t *testing.T) {
 		t.Fatal("slug from path")
 	}
 }
+
+// T2-05, the case that matters: a bundle is approved, and a later rejection cannot be
+// read. The approval is not taken as the current attestation.
+func TestAnUnreadableLaterRejectionDoesNotLeaveTheEarlierApprovalStanding(t *testing.T) {
+	store, bundle, _ := retentionFixture(t)
+	before, err := store.VerifyReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !before.Approved {
+		t.Fatalf("baseline: the bundle is not approved: %v", before.Blockers)
+	}
+	// The rejection was truncated: its readable prefix still names the bundle.
+	writeCoverageFile(t, store.Root, ".pose/review-attestations/rva-00000000000000dd.json", `{"schema_version":1,"attestation_id":"rva-00000000000000dd","bundle_id":"`+bundle.BundleID+`","decision":"rejec`)
+	after, err := store.VerifyReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	joined := strings.Join(after.Blockers, " ")
+	if after.Approved || !strings.Contains(joined, "attestation history for bundle "+bundle.BundleID+" is incomplete") {
+		t.Fatalf("a truncated later record let the earlier approval stand: approved=%v blockers=%v", after.Approved, after.Blockers)
+	}
+	if after.Attestation == nil {
+		t.Fatal("the readable attestation is still reported, it is just not taken as current")
+	}
+	// A truncated record that names another bundle does not touch this one.
+	_ = os.Remove(filepath.Join(store.Root, ".pose/review-attestations/rva-00000000000000dd.json"))
+	writeCoverageFile(t, store.Root, ".pose/review-attestations/rva-00000000000000ee.json", `{"schema_version":1,"bundle_id":"rvb-0123456789abcdef","decision":"rejec`)
+	other, err := store.VerifyReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !other.Approved {
+		t.Fatalf("a record of another bundle blocked this approval: %v", other.Blockers)
+	}
+	// A truncated record that names nothing may be a rejection of any bundle.
+	_ = os.Remove(filepath.Join(store.Root, ".pose/review-attestations/rva-00000000000000ee.json"))
+	writeCoverageFile(t, store.Root, ".pose/review-attestations/rva-00000000000000ff.json", `{"schema_ver`)
+	anon, err := store.VerifyReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if anon.Approved {
+		t.Fatal("an unreadable record that names no bundle may be a rejection of this one")
+	}
+	// An attestation that cannot be read at all (not even opened) is a loss too.
+	_ = os.Remove(filepath.Join(store.Root, ".pose/review-attestations/rva-00000000000000ff.json"))
+	if err := os.Symlink("absent-target.json", filepath.Join(store.Root, ".pose/review-attestations/rva-0000000000000011.json")); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	if lost, err := store.ReadReviewAttestations(bundle.BundleID); err != nil || lost.Coverage.Complete() {
+		t.Fatalf("an attestation that could not be opened is not a loss: err=%v coverage=%+v", err, lost.Coverage)
+	}
+}

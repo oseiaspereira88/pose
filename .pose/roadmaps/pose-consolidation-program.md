@@ -549,3 +549,14 @@ de release foi reproduzido na main 18e4342b. Spec
 O programa permanece ativo. Aguardar merge pelo maintainer de #193 e reavaliar
 DAG/readiness nativa; este closeout não seleciona outra implementação. Os limites
 Git/read view global B34/B35 e recuperação de release B41 permanecem declarados.
+
+B06 (`pose-source-coverage-integrity`) foi iniciado nativamente em 2026-10-17 após
+o merge de #193: toda leitura que descartava em silêncio o que não conseguia ler
+(spec de follow-ups, obrigação refutada pela validação, arquivo do scan de marcadores,
+registro de review) passa a devolver uma cobertura com as perdas (produtor, artefato,
+tipo e escopo) e as exclusões declaradas; o Complete deixa de significar "a lista veio
+vazia" e passa a significar cobertura do recorte pedido. Backlog, candidatos, estado
+do projeto e Attention contam o mesmo conjunto não resolvido, e um registro de review
+ilegível que pode ser posterior não deixa a aprovação anterior valer. Probes com
+controle inalterado. A spec permanece in-progress até revisão different-actor e
+closeout nativo; delivery_complete permanece false.

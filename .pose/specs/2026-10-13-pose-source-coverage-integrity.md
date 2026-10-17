@@ -100,6 +100,18 @@ executar assessment freshness no componente, completar o plano de artefatos,
 registrar produtores de evidência na matriz e criar a baseline por start.
 Não contornar dependência não terminal apenas porque o código parece presente.
 
+## 4. Tasks
+
+- [x] Context, readiness e assessment freshness; inventário dos leitores que descartam em silêncio (follow-ups, obrigações, scan de marcadores, histórico de reviews) contra a main 0b2a726f.
+- [x] ADR do contrato de cobertura (perdas, exclusões, atribuição por escopo) antes do código estrutural.
+- [x] Native start com R1–R9/D1 preservados.
+- [x] Camada de cobertura (`SourceCoverage`) e leitura de follow-ups com perdas; um só conjunto não resolvido no backlog, nos candidatos, no estado do projeto e no Attention; `--fail-overdue` recusa leitura incompleta.
+- [x] Produtores de obrigação: estado `incomplete`; obrigação descartada por validação, spec ilegível e registro de review ilegível tornam o produtor incompleto, com recorte por escopo.
+- [x] Scan de marcadores sem limite de linha, com escopo (arquivos varridos, perdas, exclusões) no JSON, no Markdown e na CLI.
+- [x] Histórico de reviews: tentativas, bundles e atestações ilegíveis atribuídos por nome/cabeçalho; bloqueio quando podem ser posteriores, aviso quando comprovadamente anteriores; `review record` recusa histórico com buraco.
+- [x] V1–V6 no domínio, na CLI e no MCP; probes antes e depois (controle inalterado); mutações em `.pose/results/b06-mutations.json`.
+- [ ] Validação estrita, revisão por ator diferente e closeout nativo.
+
 ## 5. Decisions
 
 ### Decision D1
@@ -125,28 +137,28 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 
 ### Deterministic checks
 
-Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
-usar race detector para travessia/memoização ou concorrência quando houver mudança
-nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Executados na entrega: `go vet ./...`, suíte completa do módulo, `go test -race` em
+`internal/pose`, `internal/cli` e `internal/mcpserver`, builds Windows/Darwin, o check
+`source-coverage-integrity-integration` da matriz e as mutações versionadas. Probes
+antes (main 0b2a726f) e depois em
+[b06-front05-probes.json](../results/b06-front05-probes.json). A validação estrita e o
+closeout nativo são registrados em `b06-implementation-validation.json`.
 
 ### Requirement trace
 
-O trace abaixo é planejado; vincular os casos aos produtores reais durante a
-implementação. Não declarar requisitos funcionais satisfeitos pelo lint.
+Produtores executados; o lint valida a estrutura e não substitui estes testes, probes e
+mutações. Decisão e limites em
+[ADR 2026-10-17](../adr/2026-10-17-a-source-that-lost-something-is-incomplete-for-what-depends-on-it.md).
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1–V3, V5 |
-| R2 | V1–V5 |
-| R3 | V2 |
-| R4 | V3 |
-| R5 | V1, V6 |
-| R6 | V4 |
-| R7 | V5 |
-| R8 | V1–V3, V6 |
-| R9 | V1, V5, V6 |
-
+- R1 [satisfied] test:TestAnUnreadableSpecIsALossAttributedToItsPath test:TestAnUnscopedUnreadableAttemptIsAttributedByItsHeaderWhenItHasOne test:TestTechDebtCoverageNamesWhatItDidNotScan test:TestSourceCoverageScoping — perda por produtor, artefato, tipo (leitura, parse, formato não suportado, scan incompleto) e escopo, com o detalhe sem bytes; exclusões declaradas separadas de perdas.
+- R2 [satisfied] test:TestTheFollowupProducerIsIncompleteWhenASpecCannotBeRead test:TestFollowupsReportsASpecItCouldNotRead test:TestFindingsProducerIsIncompleteWhenAReviewRecordCannotBeRead test:TestFollowupParityAcrossCLIMCPAndAttention — Complete é cobertura do recorte pedido; zero com perda não é zero pendências (probes D01).
+- R3 [satisfied] test:TestAnUnreadableNewerAttemptBlocksTheEarlierApproval test:TestAnUnreadableLaterRejectionDoesNotLeaveTheEarlierApprovalStanding test:TestWithNoReadableAttemptAnUnreadableOneIsNotAbsence test:TestReviewRecordRefusesToSupersedeFromAHistoryWithAHole — a aprovação anterior não é selecionada em silêncio; a ordem conhecida é preservada e nenhuma decisão desconhecida é reconstruída (limite: journals de requests são da B13).
+- R4 [satisfied] test:TestAnUnreadableOlderAttemptOnlyWarns test:TestAReviewRecordThatNamesAnotherScopeDoesNotConcernThisOne test:TestAnUnreadableAttestationIsNotSkippedByVerification test:TestAnUnreadableBundleIsDisclosedAndNotSkipped — a falha restringe só a conclusão que depende dela; atribuição por caminho ou cabeçalho legível, e incerteza declarada quando não há.
+- R5 [satisfied] test:TestUnresolvedFollowupsAreOneSetAcrossReaders test:TestTheBacklogAndTheProjectStateCountTheSameUnresolvedFollowups test:TestFollowupParityAcrossCLIMCPAndAttention — mesmo conjunto e diagnósticos na CLI, no MCP e no Attention para o mesmo snapshot; probe P01 antes (2/1/1) e depois (2/2/2).
+- R6 [satisfied] test:TestADroppedObligationMakesItsProducerIncomplete — o descarte por ValidateObligation marca a cobertura do produtor e o Complete do report.
+- R7 [satisfied] test:TestAMarkerAfterAVeryLongLineIsFound test:TestTechDebtCoverageNamesWhatItDidNotScan test:TestTheTechDebtReportSaysWhatItCovered test:TestAssessTechDebtStatesItsScopeAndFindsAMarkerAfterALongLine — o TODO além do buffer é encontrado; arquivo ilegível torna o scan incompleto; exclusões declaram o recorte (probe P04).
+- R8 [satisfied] test:TestFollowupsReportsASpecItCouldNotRead test:TestAssessTechDebtStatesItsScopeAndFindsAMarkerAfterALongLine test:TestReviewCheckCarriesTheHistoryDiagnosticInJSONAndText test:TestFollowupParityAcrossCLIMCPAndAttention — diagnósticos de domínio em JSON e em texto; fontes legíveis e legado compatível continuam úteis sem blocker global por dados de outro escopo.
+- R9 [satisfied] check:source-coverage-integrity-integration — probes P01/P04 e controle inalterado em `b06-front05-probes.json`; todas as mutações versionadas mortas; leitura read-only, sem correção de arquivo nem disposition automática.
 
 Consultar [estado atual](../reports/2026-10-11-pose-front-01-current-state.md) e [residual](../reports/2026-10-12-pose-front-05-residual-work.md).
 
@@ -154,14 +166,37 @@ Consultar [estado atual](../reports/2026-10-11-pose-front-01-current-state.md) e
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 2. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+B06 entregue com uma cobertura que viaja com o resultado de cada leitura: o que a leitura
+não pôde ver (por produtor, artefato, tipo e escopo, atribuído pelo caminho ou por um
+cabeçalho legível) e o que ela deixa de fora de propósito. Follow-ups: um spec ilegível é
+perda, não backlog menor; backlog, candidatos, estado do projeto e Attention contam o mesmo
+conjunto não resolvido; `--fail-overdue` recusa uma leitura incompleta. Obrigações: o estado
+`incomplete` de produtor cobre obrigação descartada por validação, spec e registro de review
+ilegíveis, com recorte por escopo. Marcadores de dívida: o scan não tem limite de linha e
+declara arquivos varridos, perdidos e excluídos. Histórico de reviews: tentativa ou
+atestação ilegível que pode ser posterior não deixa a aprovação anterior valer; a que é
+comprovadamente anterior apenas avisa; `review record` recusa um histórico com buraco. Sem
+mudança de policy, capability ou adoção; sem cache nem daemon.
+
+### Review and delivery evidence
+
+Probes antes (0b2a726f) e depois em [b06-front05-probes.json](../results/b06-front05-probes.json);
+mutações em [b06-mutations.json](../results/b06-mutations.json); validação estrita em
+`b06-implementation-validation.json`. A revisão por ator diferente e o closeout nativo são
+registrados pelo revisor.
 
 ### Residual risks
 
-Mudança de assinatura do parser e schema Complete exige compatibilidade deliberada. Sem associação confiável de artefato ilegível não é possível localizar com precisão fictícia a falha. Journals/recovery B13 e parsing comum CLI/MCP B12 poderão ampliar integridade; B06 permanece uma raiz que qualifica perdas nas fontes existentes.
+A atribuição por caminho ou cabeçalho é um melhor esforço e declara como foi obtida; um
+registro sem nenhuma das duas é tratado como possivelmente do escopo. Um bundle selado
+ilegível é divulgado, não bloqueia, porque a verificação é vinculada ao bundle que casa com as
+entradas atuais. Um repositório com um registro de review ilegível mais novo que a aprovação
+passa a ficar bloqueado até o registro ser restaurado ou removido (classificado como minor).
+Journals de action requests são da B13; o ledger legado de reviews mantém a leitura própria
+dele. Registros de outras fontes (por exemplo o histórico de docs-review) continuam fora desta
+unidade.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Nenhum item encerrado nesta entrega além de B06. B22–B23 reutilizam a cobertura para
+inventário e metadata de resíduo; B34 pode construir sobre ela a invalidação de read views.

@@ -695,7 +695,7 @@
           "materialized": true,
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-source-coverage-integrity.md",
-          "status": "draft",
+          "status": "in-progress",
           "sha256": "8031a7ea71682c6a1b641a6ad20e443be2217da8d1e2c67d0a18eefe8a0c146e"
         }
       ],
@@ -703,6 +703,12 @@
         {
           "scope": "Spec escrita em draft no lote documental 2; nenhuma implementação funcional neste lote.",
           "unit_complete": false
+        },
+        {
+          "at": "2026-10-17",
+          "scope": "Start nativo após o merge de #193 (main 0b2a726f). Uma cobertura (SourceCoverage) viaja com o resultado de cada leitura: perdas por produtor, artefato, tipo e escopo (atribuído por caminho ou cabeçalho legível) e exclusões declaradas. Follow-ups: spec ilegível é perda, um só conjunto não resolvido em backlog, candidatos, estado do projeto e Attention, --fail-overdue recusa leitura incompleta; obrigações: estado de produtor incomplete (descarte por validação, spec e registro de review ilegíveis); marcadores de dívida: scan sem limite de linha com escopo declarado; histórico de reviews: tentativa/atestação/bundle ilegível atribuído e bloqueando só quando pode ser posterior. Probes antes e depois com controle inalterado; revisão por ator diferente e closeout nativo pendentes.",
+          "unit_complete": false,
+          "native_closeout_pending": true
         }
       ],
       "delivery_complete": false,
@@ -5232,16 +5238,15 @@
   ],
   "implementation_reconciliation": {
     "at": "2026-10-17",
-    "main_revision": "18e4342bf0382d2e87e2bb3e4028bddfd159ec69",
-    "selected_unit": "B15",
-    "selected_spec": "pose-index-generation-integrity",
-    "basis": "PR193 completes B15 after three independent review rounds, causal remediation of F01-F16, strict validation and native terminal closeout. Codex/OpenAI reviewed Claude/Anthropic implementation; declared identity and unsigned attestations. Program remains active; await maintainer merge and reassess DAG/readiness without selecting implementation.",
+    "main_revision": "0b2a726f6167da32cfefda267b8372ec504a4b14",
+    "selected_unit": "B06",
+    "selected_spec": "pose-source-coverage-integrity",
+    "basis": "PR193 merged B15 (0b2a726f). The maintainer authorized continuing the implementation sequence. Native start, implementation, probes, mutations and strict validation done for B06; different-actor review and native closeout pending.",
     "unit_delivery_complete_count": 7,
     "administrative_closeouts": "Authoring closeouts remain separate and pending; materialization is not functional delivery.",
-    "previous_complementary_pull_request": 192,
+    "previous_complementary_pull_request": 193,
     "previous_complementary_merged": true,
-    "native_closeout_pending": false,
-    "next_step": "Maintainer merge of PR193; then reassess native DAG/readiness without automatically choosing a new implementation.",
-    "awaiting_merge_pull_request": 193
+    "native_closeout_pending": true,
+    "next_step": "Different-actor review of B06, native closeout, then maintainer merge."
   }
 }
