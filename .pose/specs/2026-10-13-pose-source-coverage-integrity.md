@@ -49,25 +49,43 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-2-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
+Paths reconciliados na main 0b2a726f antes do start. A escrita original pertence
+ao lote documental 2; este delta implementa somente B06. As fontes afetadas são o
+parser de follow-ups (CLI `pose followups`, MCP `pose_get_followups` — que executa
+a CLI —, candidatos e Attention), o descarte de obrigações inválidas no report, o
+scan de marcadores de dívida técnica e a leitura do histórico de reviews
+(tentativas, bundles e atestações), com seus consumidores de closeout.
 
-- created: .pose/specs/2026-10-13-pose-source-coverage-integrity.md
+- modified: .pose/specs/2026-10-13-pose-source-coverage-integrity.md
 - created: .pose/starts/pose-source-coverage-integrity.json
 - created: .pose/changelogs/unreleased/pose-source-coverage-integrity.md
+- created: .pose/adr/2026-10-17-a-source-that-lost-something-is-incomplete-for-what-depends-on-it.md
+- created: pose-mcp/internal/pose/source_coverage.go
+- created: pose-mcp/internal/pose/source_coverage_integrity_test.go
+- created: pose-mcp/internal/cli/source_coverage_parity_test.go
+- created: pose-mcp/internal/mcpserver/source_coverage_parity_test.go
 - modified: pose-mcp/internal/pose/followups_parse.go
+- modified: pose-mcp/internal/pose/followup_candidates.go
 - modified: pose-mcp/internal/pose/obligation_projection.go
 - modified: pose-mcp/internal/pose/obligation_sources.go
 - modified: pose-mcp/internal/pose/techdebt.go
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_closeout.go
-- created: pose-mcp/internal/pose/source_coverage_integrity_test.go
-- created: pose-mcp/internal/cli/source_coverage_parity_test.go
-- created: pose-mcp/internal/mcpserver/source_coverage_parity_test.go
+- modified: pose-mcp/internal/cli/followups.go
+- modified: pose-mcp/internal/cli/assess.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: .pose/results/b06-front05-probes.py
+- created: .pose/results/b06-front05-probes.json
+- created: .pose/results/b06-implementation-validation.json
+- created: .pose/results/b06-mutations.py
+- created: .pose/results/b06-mutations.json
+- modified: .pose/results/pose-implementation-plan.json
+- modified: .pose/roadmaps/pose-consolidation-program.md
+- modified: .pose/roadmaps/pose-state-consistency-and-recovery.md
 
 ### Delivery targets
 
