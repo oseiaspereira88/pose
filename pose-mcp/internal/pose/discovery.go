@@ -743,10 +743,6 @@ func (s Store) GenerateConsolidatedAssessment(states []*ComponentDiscoveryState)
 | # | Componente Slug | Caminho do Módulo | Linguagens | LOC Produção | LOC Testes | Arquivos | TODOs | Completude | Status |
 |---|---|---|---|---|---|---|---|---|---|
 `, project, now, commit, len(states), totalProd, totalTests, totalProd+totalTests, totalFiles, platformCompleteness*100, totalTODOs, totalFIXMEs, totalPanics, totalStubs, openSpecsCount, gapsCount)
-	if len(incomplete) > 0 {
-		sort.Strings(incomplete)
-		md += fmt.Sprintf("\n> **Varredura incompleta**: %d componente(s) tiveram arquivos que não puderam ser lidos (%s). As contagens acima são pisos observados, não totais; a completude e as dívidas não estão certificadas para eles.\n", len(incomplete), strings.Join(incomplete, ", "))
-	}
 
 	for i, st := range states {
 		langs := strings.Join(st.Metrics.Languages, ", ")
@@ -757,6 +753,10 @@ func (s Store) GenerateConsolidatedAssessment(states []*ComponentDiscoveryState)
 			i+1, st.ComponentSlug, st.Path, langs, st.Metrics.LOCProduction, st.Metrics.LOCTests, st.Metrics.TotalFiles, st.TechnicalDebt.TODOs, st.CompletenessScore*100, st.Status)
 	}
 
+	if len(incomplete) > 0 {
+		sort.Strings(incomplete)
+		md += fmt.Sprintf("\n> **Varredura incompleta**: %d componente(s) tiveram arquivos que não puderam ser lidos (%s). As contagens acima são pisos observados, não totais; a completude e as dívidas não estão certificadas para eles.\n", len(incomplete), strings.Join(incomplete, ", "))
+	}
 	md += "\n---\n\n## 3. Topologia Observada\n\n"
 	if len(states) == 0 {
 		md += "Nenhum componente com manifesto ou metadado POSE foi observado.\n"

@@ -753,7 +753,11 @@ func updateProjectStateArchitecture(root string, current []*pose.ComponentDiscov
 	if debtRaw, readErr := os.ReadFile(filepath.Join(root, ".pose", "state", "technical-debt.json")); readErr == nil {
 		var report pose.TechDebtReportState
 		if json.Unmarshal(debtRaw, &report) == nil {
-			lines = append(lines, fmt.Sprintf("- divida_tecnica: total=%d coberta=%d descoberta=%d", report.Summary.TotalMarkers, report.Summary.CoveredCount, report.Summary.UncoveredCount))
+			debtLine := fmt.Sprintf("- divida_tecnica: total=%d coberta=%d descoberta=%d", report.Summary.TotalMarkers, report.Summary.CoveredCount, report.Summary.UncoveredCount)
+			if !report.Complete && len(report.Coverage.Losses) > 0 {
+				debtLine += " (piso: relatório de dívida incompleto — " + report.Coverage.Describe("") + "; não certificado)"
+			}
+			lines = append(lines, debtLine)
 		}
 	}
 	lines = append(lines, "- ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/")

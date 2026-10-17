@@ -430,6 +430,8 @@ type CloseoutState struct {
 	NextStep *Diagnostic `json:"next_step,omitempty"`
 }
 
+var reviewItemStartRE = regexp.MustCompile(`^-\s+[A-Za-z0-9._-]+\s+\[`)
+
 var reviewLineRE = regexp.MustCompile(`^-\s+([A-Za-z0-9._-]+)\s+\[([^]]+)\](?:\s+(.*))?$`)
 
 func (s Store) loadReviewPolicy() (ReviewPolicy, []byte, error) {
@@ -821,6 +823,11 @@ func parseReviewAttempt(path string) (ReviewAttempt, error) {
 		}
 		match := reviewLineRE.FindStringSubmatch(line)
 		if len(match) == 0 {
+			if section != "" && reviewItemStartRE.MatchString(line) {
+				// An item that starts like one and does not parse is a record cut short,
+				// not an item that is not there.
+				return a, fmt.Errorf("pose: review %s has a truncated %s line %q", a.ReviewID, section, line)
+			}
 			continue
 		}
 		id, disposition, rest := match[1], strings.ToLower(match[2]), strings.TrimSpace(match[3])
@@ -905,13 +912,43 @@ func reviewAttemptFileTime(name string) string {
 // earlier, or equal and its id sorts before; the same second proves nothing.
 func (r ReviewAttemptsRead) HistoryUncertainAfter(scope, at, id string) []SourceLoss {
 	out := []SourceLoss{}
+	selected, selectedOK := reviewInstant(at)
 	for _, loss := range r.Coverage.LossesFor(scope) {
-		if loss.At != "" && at != "" && (loss.At < at || (loss.At == at && loss.ID != "" && id != "" && loss.ID < id)) {
-			continue
+		// Instants, not strings: "2026-08-02T12:00:00+09:00" is earlier than a record
+		// named 20260802T090000Z, and text order says the opposite.
+		if lossInstant, ok := reviewInstant(loss.At); ok && selectedOK {
+			if lossInstant.Before(selected) || (lossInstant.Equal(selected) && loss.ID != "" && id != "" && loss.ID < id) {
+				continue
+			}
 		}
 		out = append(out, loss)
 	}
 	return out
+}
+
+// reviewInstant parses a review timestamp: RFC3339 with any offset or fraction.
+func reviewInstant(value string) (time.Time, bool) {
+	if value == "" {
+		return time.Time{}, false
+	}
+	t, err := time.Parse(time.RFC3339Nano, value)
+	if err != nil {
+		return time.Time{}, false
+	}
+	return t.UTC(), true
+}
+
+// reviewInstantLess orders attempts by instant, then by id; an unparseable time sorts by text.
+func reviewInstantLess(aAt, aID, bAt, bID string) bool {
+	a, aok := reviewInstant(aAt)
+	b, bok := reviewInstant(bAt)
+	if aok && bok && !a.Equal(b) {
+		return a.Before(b)
+	}
+	if !(aok && bok) && aAt != bAt {
+		return aAt < bAt
+	}
+	return aID < bID
 }
 
 // ReadReviewAttempts lists review attempts and reports the records it could not read.
@@ -923,6 +960,11 @@ func (s Store) ReadReviewAttempts(scope string) (ReviewAttemptsRead, error) {
 	dir := filepath.Join(s.Root, ".pose", "reviews")
 	entries, err := os.ReadDir(dir)
 	if os.IsNotExist(err) {
+		if _, lerr := os.Lstat(dir); lerr == nil {
+			// A link to nowhere reads as "does not exist": the history is there and lost.
+			coverage.Add(SourceLoss{Producer: "review-attempts", Artifact: ".pose/reviews", Kind: LossReadError, Detail: err.Error()})
+			coverage.Normalize()
+		}
 		return ReviewAttemptsRead{Attempts: []ReviewAttempt{}, Coverage: coverage}, nil
 	}
 	if err != nil {
@@ -994,10 +1036,7 @@ func (s Store) ReadReviewAttempts(scope string) (ReviewAttemptsRead, error) {
 		}
 	}
 	sort.Slice(attempts, func(i, j int) bool {
-		if attempts[i].ReviewedAt == attempts[j].ReviewedAt {
-			return attempts[i].ReviewID < attempts[j].ReviewID
-		}
-		return attempts[i].ReviewedAt < attempts[j].ReviewedAt
+		return reviewInstantLess(attempts[i].ReviewedAt, attempts[i].ReviewID, attempts[j].ReviewedAt, attempts[j].ReviewID)
 	})
 	coverage.Normalize()
 	return ReviewAttemptsRead{Attempts: attempts, Coverage: coverage}, nil
@@ -2091,6 +2130,12 @@ func (s Store) retainedCompletedReviewWithHistory(scope ScopeRef, ref string, po
 		return nil, nil, []SourceLoss{{Producer: "review-bundles", Artifact: ".pose/reviews", Kind: LossReadError, Detail: err.Error()}}
 	}
 	bundles := bundlesRead.Bundles
+	// A bundle of this scope that could not be read may hold a review made after any
+	// approval below it: nothing is retained over it. (The bundle of the current inputs
+	// is verified separately and does not come through here.)
+	if lost := bundlesRead.Coverage.LossesFor(ref); len(lost) > 0 {
+		return nil, nil, lost
+	}
 	for i := len(bundles) - 1; i >= 0; i-- {
 		read, attErr := s.ReadReviewAttestations(bundles[i].BundleID)
 		attestations := read.Attestations

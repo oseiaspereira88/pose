@@ -64,6 +64,7 @@ scan de marcadores de dívida técnica e a leitura do histórico de reviews
 - created: pose-mcp/internal/pose/source_coverage_integrity_test.go
 - created: pose-mcp/internal/pose/source_coverage_review_test.go
 - created: pose-mcp/internal/pose/source_coverage_round2_test.go
+- created: pose-mcp/internal/pose/source_coverage_round3_test.go
 - created: pose-mcp/internal/cli/source_coverage_parity_test.go
 - created: pose-mcp/internal/mcpserver/source_coverage_parity_test.go
 - modified: pose-mcp/internal/pose/followups_parse.go
@@ -215,6 +216,13 @@ declarada; reconciliação de dívida declara roadmap e project state ilegíveis
 ledger ilegível é perda; o leitor global de reviews valida decisão, `reviewed_at` e fechamento
 do cabeçalho; o plano de ledger recusa histórico de atestações incompleto; diagnósticos do
 parser chegam ao backlog e ao Attention humanos.
+
+A terceira revisão (10 achados) levou a: nomes de cabeçalho comparados sem distinção de
+caixa, como o decoder; bundle posterior perdido bloqueia a retenção; ordenação e classificação
+de perdas por instante (offsets e frações), não por texto; linha estruturada de review cortada
+é perda; link de pasta de spec e raiz de reviews ou roadmaps que não resolvem são perdas;
+ausência só é ausência quando demonstrada; o project state mantém a incompletude do relatório
+de dívida; o roadmap herda a perda dos seus milestones; o aviso não corta a tabela.
 
 ### Review and delivery evidence
 

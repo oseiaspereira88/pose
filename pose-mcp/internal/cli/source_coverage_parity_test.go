@@ -285,3 +285,18 @@ func TestHumanOutputsCarryTheParserDiagnostics(t *testing.T) {
 		t.Fatalf("attention line lost the limitations: %s", line)
 	}
 }
+
+// R3-F08: the derived state does not publish a debt total over an incomplete report.
+func TestTheProjectStateKeepsTheDebtReportsIncompleteness(t *testing.T) {
+	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, ".pose/state/project-state.md", "# State\n\n## Arquitetura\n<!-- state:derived hash:000000000000 status:active -->\n\nold\n")
+	writeCloseoutCLIFile(t, root, ".pose/state/technical-debt.json", `{"schema_version":1,"summary":{},"complete":false,"coverage":{"losses":[{"producer":"assessment-scan","artifact":"svc/locked.go","kind":"read-error"}]}}`)
+	state := &posemodel.ComponentDiscoveryState{ComponentSlug: "svc", Status: "verified", CompletenessScore: 1}
+	if err := updateProjectStateArchitecture(root, []*posemodel.ComponentDiscoveryState{state}); err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := os.ReadFile(filepath.Join(root, ".pose/state/project-state.md"))
+	if !strings.Contains(string(raw), "relatório de dívida incompleto") {
+		t.Fatalf("project state published a debt total over an incomplete report:\n%s", raw)
+	}
+}

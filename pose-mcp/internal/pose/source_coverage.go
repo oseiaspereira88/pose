@@ -199,7 +199,7 @@ func sniffJSONString(raw []byte, path ...string) (value string, found, ambiguous
 			return false
 		}
 		for i, f := range stack {
-			if !f.object || f.key != path[i] {
+			if !f.object || !strings.EqualFold(f.key, path[i]) {
 				return false
 			}
 		}
@@ -207,7 +207,7 @@ func sniffJSONString(raw []byte, path ...string) (value string, found, ambiguous
 	}
 	ancestorsOK := func(n int) bool {
 		for i := 0; i < n; i++ {
-			if !stack[i].object || stack[i].key != path[i] {
+			if !stack[i].object || !strings.EqualFold(stack[i].key, path[i]) {
 				return false
 			}
 		}
@@ -241,7 +241,7 @@ func sniffJSONString(raw []byte, path ...string) (value string, found, ambiguous
 				// ambiguous as soon as the name is read, whatever follows it (a null, a
 				// number, a string cut short): the decoder of the whole record would
 				// keep the last one, so the first proves nothing.
-				if n-1 < len(path) && t == path[n-1] && ancestorsOK(n-1) {
+				if n-1 < len(path) && strings.EqualFold(t, path[n-1]) && ancestorsOK(n-1) {
 					seen[n-1]++
 					if seen[n-1] > 1 {
 						return "", false, true

@@ -263,12 +263,13 @@ func (s Store) debtCoverageDocumentsRead() ([]debtCoverageDocument, []SourceLoss
 				f.Close()
 			}
 		}
-	} else if !errors.Is(dirErr, os.ErrNotExist) {
+	} else if _, lerr := os.Lstat(filepath.Join(s.Root, ".pose", "roadmaps")); !errors.Is(dirErr, os.ErrNotExist) || lerr == nil {
 		lose(".pose/roadmaps", LossReadError, dirErr.Error())
 	}
 	statePath := filepath.Join(s.Root, ".pose", "state", "project-state.md")
 	if state, err := s.ProjectState(context.Background(), "Follow-ups"); err != nil {
-		if _, lerr := os.Lstat(statePath); lerr == nil {
+		if _, lerr := os.Lstat(statePath); lerr == nil || !errors.Is(lerr, os.ErrNotExist) {
+			// Present, or not provably absent (an unreadable parent says nothing).
 			lose(".pose/state/project-state.md", LossReadError, err.Error())
 		}
 	} else if err == nil {

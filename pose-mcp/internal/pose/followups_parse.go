@@ -192,6 +192,12 @@ func ReadSpecFollowups(root string) SpecFollowupRead {
 				// A folder this process cannot list may hold a spec: absence is not proven.
 				lose(path, slug, LossReadError, listErr.Error())
 			}
+		case e.Type()&os.ModeSymlink != 0 && !strings.HasSuffix(e.Name(), ".md"):
+			// A link that stood for a spec folder and no longer resolves: it is neither
+			// a directory nor a flat spec, and it is not absent.
+			if _, statErr := os.Stat(path); statErr != nil {
+				lose(path, specSlugFromPath(path+"/spec.md"), LossReadError, statErr.Error())
+			}
 		case strings.HasSuffix(e.Name(), ".md") && !strings.EqualFold(e.Name(), "README.md"):
 			slug := specSlugFromPath(path)
 			raw, readErr := os.ReadFile(path)

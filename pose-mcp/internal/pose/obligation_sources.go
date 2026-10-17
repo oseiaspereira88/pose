@@ -184,6 +184,10 @@ func (s Store) findingObligations(project string, now time.Time, coverage *Cover
 	lost := []SourceLoss{}
 	for _, loss := range read.Coverage.Losses {
 		concerns := scope == "" || loss.Scope == "" || loss.Scope == scope
+		if roadmap, ok := strings.CutPrefix(scope, "roadmap:"); ok {
+			// A roadmap is reviewed with the milestones it contains.
+			concerns = concerns || strings.HasPrefix(loss.Scope, "milestone:"+roadmap+"/")
+		}
 		if rest, ok := strings.CutPrefix(scope, "milestone:"); ok {
 			// A milestone is reviewed with its roadmap.
 			if roadmap, _, found := strings.Cut(rest, "/"); found {
@@ -202,7 +206,7 @@ func (s Store) findingObligations(project string, now time.Time, coverage *Cover
 	}
 	latest := map[string]ReviewAttempt{}
 	for _, attempt := range attempts {
-		if old, ok := latest[attempt.Scope]; !ok || attempt.ReviewedAt > old.ReviewedAt {
+		if old, ok := latest[attempt.Scope]; !ok || reviewInstantLess(old.ReviewedAt, old.ReviewID, attempt.ReviewedAt, attempt.ReviewID) {
 			latest[attempt.Scope] = attempt
 		}
 	}
