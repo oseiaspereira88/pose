@@ -10,6 +10,7 @@ import argparse, json, pathlib, shutil, subprocess, tempfile
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output', required=True)
+parser.add_argument('--only', default='', help='run only the mutations whose name contains this text')
 args = parser.parse_args()
 root = pathlib.Path('.').resolve()
 G = "pose-mcp/internal/pose/index_generation.go"
@@ -49,7 +50,7 @@ M = [
  ("descritor sem CAS", [(G, "	expect := ExpectBytes(prevRaw, prevExists)", "	expect := PublishExpectation{Mode: ExpectAny}\n	_ = prevRaw")], "./internal/pose", "TestIndexGenerationConcurrentPublishersCommit"),
  ("descritor distribuído pelo update", [("pose-mcp/internal/scaffold/distpolicy/distpolicy.go", "	if parts[1] == \"indexes\" && len(parts) == 3 && parts[2] == \"generation.json\" {\n		return false\n	}", "")], "./internal/scaffold/distpolicy", "TestIndexGenerationDescriptorIsNever"),
  ("publicação sem trava", [(G, "	unlock, err := lockIndexGeneration(s.Root, \"index.publish\")\n	if err != nil {\n		return IndexGenerationReceipt{}, err\n	}\n	defer unlock()", "")], "./internal/pose", "TestIndexGenerationPublishersNeverAccept"),
- ("trava de dono desconhecido quebrada", [(G, "		if busy.State != string(LockOwnerDead) || attempt > 0 {", "		if busy.State == string(LockOwnerActive) || attempt > 0 {"), (G, "	if again.State != string(LockOwnerDead) || again.Owner == nil || seen.Owner == nil || *again.Owner != *seen.Owner {", "	if false {")], "./internal/pose", "TestIndexGenerationLockIsNeverBroken"),
+ ("trava de dono desconhecido quebrada", [(G, "		if busy.State != string(LockOwnerDead) || attempt > 0 {", "		if busy.State == string(LockOwnerActive) || attempt > 0 {"), (G, "	if again.State != string(LockOwnerDead) || again.Owner == nil || seen.Owner == nil || *again.Owner != *seen.Owner {", "	if false && again.State == \"\" && seen != nil {")], "./internal/pose", "TestIndexGenerationLockIsNeverBroken"),
  ("trava de dono morto não recuperada", [(G, "		if busy.State != string(LockOwnerDead) || attempt > 0 {", "		if true {")], "./internal/pose", "TestIndexGenerationLockOfADeadOwner"),
  ("ReplaceIndex sem trava", [(G, "	unlock, err := lockIndexGeneration(s.Root, \"index.replace\")\n	if err != nil {\n		return IndexGenerationReceipt{}, err\n	}\n	defer unlock()", "")], "./internal/pose", "TestIndexGenerationReplaceIndexNeverReverts"),
  ("sem marcador de primeira publicação", [(G, "	if !prevExists {\n		if err := PublishFile(filepath.Join(indexDir(s.Root), indexPendingName)", "	if false {\n		if err := PublishFile(filepath.Join(indexDir(s.Root), indexPendingName)")], "./internal/pose", "TestIndexGenerationInterruptedFirstPublication"),
@@ -67,6 +68,8 @@ M = [
 ]
 results = []
 for name, edits, pkgs, run in M:
+    if args.only and args.only not in name:
+        continue
     with tempfile.TemporaryDirectory(prefix="b15-mut-") as tmp:
         repo = pathlib.Path(tmp) / "repo"
         shutil.copytree(root, repo, ignore=shutil.ignore_patterns(".git", "node_modules", "*.test"))
