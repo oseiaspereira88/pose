@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -660,29 +661,296 @@ func TestIndexGenerationRepublishingRepairsADivergedLegacyName(t *testing.T) {
 	}
 }
 
-// Two publishers that read the same descriptor: the second to commit is refused,
-// and the generation that is current is the first one's, whole.
+// A writer that does not take the generation lock still cannot be overwritten
+// by a commit that was computed from an older descriptor.
 func TestIndexGenerationConcurrentPublishersCommitOverWhatTheyRead(t *testing.T) {
 	s := newIndexStore(t)
 	publishTag(t, s, "base")
+	rivalDesc, err := NewIndexGenerationDescriptor(outputsFor("rival"), map[string]string{"specs": "sha256:rival"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	rivalBytes, _ := rivalDesc.bytes()
+	rivalOutputs := outputsFor("rival")
+	for _, f := range rivalDesc.Files {
+		if err := PublishFile(filepath.Join(indexGenerationDir(s.Root, rivalDesc.GenerationID), f.Name), rivalOutputs[f.Name], 0o644, PublishDerived, PublishExpectation{Mode: ExpectAbsent}); err != nil {
+			t.Fatal(err)
+		}
+	}
 	defer func() { IndexPublishFault = nil }()
-	nested := false
 	IndexPublishFault = func(phase string) error {
-		if phase == "before-commit" && !nested {
-			nested = true
-			// Another `pose index` commits between this one's read and its commit.
-			if _, err := s.PublishIndexGeneration(outputsFor("rival"), map[string]string{"specs": "sha256:rival"}); err != nil {
-				t.Errorf("the rival publication: %v", err)
+		if phase == "before-commit" {
+			// A writer outside the lock commits between this one's read and its commit.
+			prevRaw, _ := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", indexDescriptorName))
+			if err := PublishFile(filepath.Join(s.Root, ".pose", "indexes", indexDescriptorName), rivalBytes, 0o644, PublishAuthoritative, ExpectBytes(prevRaw, true)); err != nil {
+				t.Errorf("the rival commit: %v", err)
 			}
 		}
 		return nil
 	}
-	_, err := s.PublishIndexGeneration(outputsFor("mine"), map[string]string{"specs": "sha256:mine"})
+	_, err = s.PublishIndexGeneration(outputsFor("mine"), map[string]string{"specs": "sha256:mine"})
 	IndexPublishFault = nil
 	if !errors.Is(err, ErrPublishConflict) {
 		t.Fatalf("a commit over a descriptor that changed was accepted: %v", err)
 	}
-	assertWholeSet(t, s.ReadIndexGeneration(), "rival")
+	if got := s.ReadIndexGeneration().Descriptor.GenerationID; got != rivalDesc.GenerationID {
+		t.Fatalf("the current generation is %s, want the rival's %s", got, rivalDesc.GenerationID)
+	}
+}
+
+// F01: publishers that race for the lock never both accept the same predecessor.
+func TestIndexGenerationPublishersNeverAcceptTheSamePredecessor(t *testing.T) {
+	s := newIndexStore(t)
+	publishTag(t, s, "base")
+	for round := 0; round < 20; round++ {
+		var wg sync.WaitGroup
+		var mu sync.Mutex
+		var done []IndexGenerationReceipt
+		var busy int
+		for w := 0; w < 4; w++ {
+			wg.Add(1)
+			go func(w int) {
+				defer wg.Done()
+				receipt, err := s.PublishIndexGeneration(outputsFor(fmt.Sprintf("r%dw%d", round, w)), map[string]string{"specs": fmt.Sprintf("sha256:r%dw%d", round, w)})
+				mu.Lock()
+				defer mu.Unlock()
+				switch {
+				case err == nil:
+					done = append(done, receipt)
+				case errors.Is(err, ErrIndexGenerationBusy):
+					busy++
+				default:
+					t.Errorf("unexpected error: %v", err)
+				}
+			}(w)
+		}
+		wg.Wait()
+		if len(done) == 0 {
+			t.Fatalf("round %d: nobody published", round)
+		}
+		seen := map[string]bool{}
+		for _, r := range done {
+			if seen[r.Previous] {
+				t.Fatalf("round %d: two publications accepted predecessor %s", round, r.Previous)
+			}
+			seen[r.Previous] = true
+		}
+		if view := s.ReadIndexGeneration(); view.Status != IndexGenerationCurrent {
+			t.Fatalf("round %d: %s %s", round, view.Status, view.Reason)
+		}
+	}
+}
+
+func TestIndexGenerationLockIsNeverBrokenWhileItsOwnerMayBeAlive(t *testing.T) {
+	s := newIndexStore(t)
+	unlock, err := lockIndexGeneration(s.Root, "test.hold")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var busy *IndexGenerationBusyError
+	if _, err := s.PublishIndexGeneration(outputsFor("a"), nil); !errors.As(err, &busy) || busy.State != string(LockOwnerActive) {
+		t.Fatalf("a live owner's lock was not reported busy: %v", err)
+	}
+	unlock()
+	// An owner this engine cannot read is not proven dead and is not broken.
+	if err := os.WriteFile(indexLockPath(s.Root), []byte("not an owner\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.PublishIndexGeneration(outputsFor("a"), nil); !errors.Is(err, ErrIndexGenerationBusy) {
+		t.Fatalf("an unreadable lock was broken: %v", err)
+	}
+	if _, err := os.Stat(indexLockPath(s.Root)); err != nil {
+		t.Fatal("the unreadable lock was removed")
+	}
+}
+
+func TestIndexGenerationLockOfADeadOwnerIsRecovered(t *testing.T) {
+	s := newIndexStore(t)
+	child := exec.Command(os.Args[0], "-test.run=NONE")
+	if err := child.Run(); err != nil {
+		t.Fatal(err)
+	}
+	owner := currentStartLockOwner(s.Root, "indexes", "index.publish")
+	owner.PID = child.ProcessState.Pid()
+	raw, _ := json.Marshal(owner)
+	if err := os.WriteFile(indexLockPath(s.Root), append(raw, '\n'), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if view := inspectIndexLock(s.Root); view.State != string(LockOwnerDead) {
+		t.Skipf("the platform cannot prove a process dead (%s): %s", view.State, view.Reason)
+	}
+	publishTag(t, s, "after-the-crash")
+	assertWholeSet(t, s.ReadIndexGeneration(), "after-the-crash")
+	if _, err := os.Stat(indexLockPath(s.Root)); err == nil {
+		t.Fatal("the lock outlived the publication")
+	}
+}
+
+// F02: a replacement is committed over the descriptor it was built from; a rival
+// cannot publish between the read and the commit, and nothing is reverted.
+func TestIndexGenerationReplaceIndexNeverRevertsAConcurrentGeneration(t *testing.T) {
+	s := newIndexStore(t)
+	publishTag(t, s, "a")
+	defer func() { IndexPublishFault = nil }()
+	var rivalErr error
+	IndexPublishFault = func(phase string) error {
+		if phase == "replace-after-read" {
+			_, rivalErr = s.PublishIndexGeneration(outputsFor("b"), map[string]string{"specs": "sha256:b"})
+		}
+		return nil
+	}
+	if _, err := s.ReplaceIndex("delivery-integrity.json", []byte("{\"generation_tag\":\"a\",\"file\":\"replaced\"}\n")); err != nil {
+		t.Fatal(err)
+	}
+	IndexPublishFault = nil
+	if !errors.Is(rivalErr, ErrIndexGenerationBusy) {
+		t.Fatalf("a rival published while a replacement was being built: %v", rivalErr)
+	}
+	view := s.ReadIndexGeneration()
+	if view.Status != IndexGenerationCurrent || tagOf(t, view.Files["repo-map.json"]) != "a" {
+		t.Fatalf("view %s: the replacement lost or mixed files", view.Status)
+	}
+}
+
+// F03: one generation for the whole operation.
+func TestIndexGenerationPinnedStoreReadsOneGenerationEvenIfAnotherCommits(t *testing.T) {
+	s := newIndexStore(t)
+	publishTag(t, s, "a")
+	pinned := s.PinIndexes()
+	publishTag(t, s, "b")
+	for _, name := range []string{"repo-map.json", "delivery-integrity.json"} {
+		raw, status, err := pinned.ReadIndex(name)
+		if err != nil || status != IndexGenerationCurrent || tagOf(t, raw) != "a" {
+			t.Fatalf("pinned %s = %q %s %v, want the pinned generation a", name, raw, status, err)
+		}
+		fresh, _, _ := s.ReadIndex(name)
+		if tagOf(t, fresh) != "b" {
+			t.Fatalf("an unpinned store did not see the new generation")
+		}
+	}
+}
+
+func TestIndexGenerationAReviewPlanReadsTheSetOnce(t *testing.T) {
+	_, store := componentReviewFixture(t)
+	outputs := outputsFor("plan")
+	outputs["repo-map.json"] = []byte("{\"packages\":[]}\n")
+	outputs["delivery-integrity.json"] = []byte("{\"reverse\":{}}\n")
+	if _, err := store.PublishIndexGeneration(outputs, nil); err != nil {
+		t.Fatal(err)
+	}
+	reads := 0
+	defer func() { IndexReadFault = nil }()
+	IndexReadFault = func(string) { reads++ }
+	if _, err := store.ReviewPlan("spec:backend"); err != nil {
+		t.Fatal(err)
+	}
+	if reads != 1 {
+		t.Fatalf("a review plan fixed the generation %d times, want once: its files may come from two generations", reads)
+	}
+}
+
+// F04: a first publication that did not commit is not a set.
+func TestIndexGenerationInterruptedFirstPublicationReadsAsUnavailable(t *testing.T) {
+	s := newIndexStore(t)
+	for _, name := range IndexGenerationFiles {
+		_ = os.WriteFile(filepath.Join(s.Root, ".pose", "indexes", name), outputsFor("legacy")[name], 0o644)
+	}
+	defer func() { IndexPublishFault = nil }()
+	IndexPublishFault = func(phase string) error {
+		if phase == "after-legacy-file:services.json" {
+			return errors.New("stopped")
+		}
+		return nil
+	}
+	if _, err := s.PublishIndexGeneration(outputsFor("new"), map[string]string{"specs": "sha256:new"}); err == nil {
+		t.Fatal("a stopped first publication was reported as published")
+	}
+	IndexPublishFault = nil
+	if _, status, err := s.ReadIndex("repo-map.json"); status != IndexGenerationUnavailable || !errors.Is(err, ErrIndexGenerationUnavailable) {
+		t.Fatalf("a mixture of two runs was served: %s %v", status, err)
+	}
+	if view := s.ReadIndexGeneration(); view.Status != IndexGenerationUnavailable {
+		t.Fatalf("view = %s", view.Status)
+	}
+	if _, err := s.GetDeliveryIntegrity(""); !errors.Is(err, ErrIndexGenerationUnavailable) {
+		t.Fatalf("the delivery graph consumed the mixture: %v", err)
+	}
+	// The retry commits and clears the marker.
+	publishTag(t, s, "new")
+	assertWholeSet(t, s.ReadIndexGeneration(), "new")
+	if indexPending(s.Root) {
+		t.Fatal("the pending marker outlived the commit")
+	}
+}
+
+// F06: retention protects the generation the descriptor names now.
+func TestIndexGenerationRetentionProtectsTheDescriptorsGenerationNotJustItsArgument(t *testing.T) {
+	old := indexGenerationGrace
+	indexGenerationGrace = 0
+	defer func() { indexGenerationGrace = old }()
+	s := newIndexStore(t)
+	a := publishTag(t, s, "a")
+	b := publishTag(t, s, "b")
+	base := filepath.Join(s.Root, ".pose", "indexes", indexGenerationsDir)
+	for i := 1; i <= 4; i++ {
+		_ = os.MkdirAll(filepath.Join(base, fmt.Sprintf("gen-000000000000000%d", i)), 0o755)
+	}
+	ancient := time.Now().Add(-72 * time.Hour)
+	_ = os.Chtimes(filepath.Join(base, b.GenerationID), ancient, ancient)
+	// A late retention step of the older publication.
+	if err := s.pruneIndexGenerations(a.GenerationID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(base, b.GenerationID)); err != nil {
+		t.Fatalf("a late retention removed the live generation: %v", err)
+	}
+	assertWholeSet(t, s.ReadIndexGeneration(), "b")
+}
+
+// F07: a link at the generations directory is never followed.
+func TestIndexGenerationRetentionNeverFollowsALinkedGenerationsDirectory(t *testing.T) {
+	old := indexGenerationGrace
+	indexGenerationGrace = 0
+	defer func() { indexGenerationGrace = old }()
+	s := newIndexStore(t)
+	outside := t.TempDir()
+	victims := []string{}
+	for i := 1; i <= 5; i++ {
+		d := filepath.Join(outside, fmt.Sprintf("gen-000000000000000%d", i))
+		_ = os.MkdirAll(d, 0o755)
+		_ = os.WriteFile(filepath.Join(d, "data"), []byte("x"), 0o644)
+		past := time.Now().Add(-time.Duration(i) * 24 * time.Hour)
+		_ = os.Chtimes(d, past, past)
+		victims = append(victims, d)
+	}
+	if err := os.Symlink(outside, filepath.Join(s.Root, ".pose", "indexes", indexGenerationsDir)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.PublishIndexGeneration(outputsFor("a"), nil); err == nil {
+		t.Fatal("a generation was published through a linked generations directory")
+	}
+	if err := s.pruneIndexGenerations("gen-ffffffffffffffff"); err == nil {
+		t.Fatal("retention accepted a linked generations directory")
+	}
+	for _, d := range victims {
+		if _, err := os.Stat(filepath.Join(d, "data")); err != nil {
+			t.Fatalf("retention removed %s outside the project", d)
+		}
+	}
+}
+
+// F08: nothing after the one JSON value.
+func TestIndexGenerationDescriptorWithTrailingBytesIsUnavailable(t *testing.T) {
+	for _, tail := range []string{"]", "}", " x", "\n{}", ",", "\x00"} {
+		s := newIndexStore(t)
+		publishTag(t, s, "a")
+		path := filepath.Join(s.Root, ".pose", "indexes", indexDescriptorName)
+		raw, _ := os.ReadFile(path)
+		_ = os.WriteFile(path, append(raw, []byte(tail)...), 0o644)
+		if view := s.ReadIndexGeneration(); view.Status != IndexGenerationUnavailable {
+			t.Fatalf("tail %q: a descriptor with data after its value read as %s", tail, view.Status)
+		}
+	}
 }
 
 // A generation that is replaced and pruned while a reader reads it: the reader

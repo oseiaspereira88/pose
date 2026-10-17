@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
@@ -211,5 +212,87 @@ func TestIndexVerifyReportsAHandEditedIndexWhileTheGenerationIsWhole(t *testing.
 	// ... and the verifier names the file.
 	if code, _, errOut := runIndex(t, root, "--verify"); code == 0 || !strings.Contains(errOut, "services.json") || !strings.Contains(errOut, "differ from it") {
 		t.Fatalf("verify of a diverged set: code=%d err=%s", code, errOut)
+	}
+}
+
+// F09: a commit whose durability is unconfirmed is a commit.
+func TestIndexAnUnsyncedCommitSaysTheNewGenerationIsCurrent(t *testing.T) {
+	root, _, _ := artifactGitFixture(t)
+	if code, _, errOut := runIndex(t, root); code != 0 {
+		t.Fatalf("index: %d %s", code, errOut)
+	}
+	previous := posemodel.Store{Root: root}.ReadIndexGeneration().Descriptor.GenerationID
+	writeCloseoutCLIFile(t, root, ".pose/specs/moves-the-graph.md", "---\nslug: moves-the-graph\nstatus: draft\ncreated_at: 2026-10-17\n---\n# Spec\n")
+	defer func() { posemodel.PublishSyncHook = nil }()
+	posemodel.PublishSyncHook = func(kind, path string) error {
+		if kind == "dir" && filepath.Base(path) == "generation.json" {
+			return errors.New("directory sync refused")
+		}
+		return nil
+	}
+	code, out, errOut := runIndex(t, root, "--json")
+	posemodel.PublishSyncHook = nil
+	current := posemodel.Store{Root: root}.ReadIndexGeneration().Descriptor.GenerationID
+	if code == 0 || current == previous {
+		t.Fatalf("code=%d current=%s previous=%s: the descriptor was renamed, so the new generation is current", code, current, previous)
+	}
+	if strings.Contains(errOut, "previous generation stays") || !strings.Contains(errOut, "committed but not confirmed durable") || !strings.Contains(errOut, current) {
+		t.Fatalf("the failure does not say what happened: %s", errOut)
+	}
+	if !strings.Contains(out, current) {
+		t.Fatalf("the machine document does not name the effective generation:\n%s", out)
+	}
+}
+
+func TestIndexWithAnotherPublicationRunningWritesNothingAndSaysSo(t *testing.T) {
+	root, _, _ := artifactGitFixture(t)
+	if code, _, errOut := runIndex(t, root); code != 0 {
+		t.Fatalf("index: %d %s", code, errOut)
+	}
+	before := string(indexBytes(t, root, "generation.json"))
+	owner := posemodel.CurrentStartLockOwner(root, "indexes", "index.publish")
+	raw, _ := json.Marshal(owner)
+	if err := os.WriteFile(filepath.Join(root, ".pose", "indexes", ".generation.lock"), append(raw, '\n'), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	writeCloseoutCLIFile(t, root, ".pose/specs/waits-for-nobody.md", "---\nslug: waits-for-nobody\nstatus: draft\ncreated_at: 2026-10-17\n---\n# Spec\n")
+	code, _, errOut := runIndex(t, root)
+	if code == 0 || !strings.Contains(errOut, "another index publication holds") || !strings.Contains(errOut, "nothing was written") {
+		t.Fatalf("code=%d err=%s", code, errOut)
+	}
+	if string(indexBytes(t, root, "generation.json")) != before {
+		t.Fatal("a refused publication changed the descriptor")
+	}
+}
+
+// F10: the refresh reports a retention failure.
+func TestRefreshDeliveryIndexReportsAFailedRetention(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root removes read-only directories")
+	}
+	root, _, _ := artifactGitFixture(t)
+	if code, _, errOut := runIndex(t, root); code != 0 {
+		t.Fatalf("index: %d %s", code, errOut)
+	}
+	base := filepath.Join(root, ".pose", "indexes", "generations")
+	for i := 1; i <= 4; i++ {
+		d := filepath.Join(base, "gen-00000000000000"+strings.Repeat("0", 1)+string(rune('0'+i)))
+		locked := filepath.Join(d, "locked")
+		if err := os.MkdirAll(locked, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		_ = os.WriteFile(filepath.Join(locked, "f"), []byte("x"), 0o644)
+		_ = os.Chmod(locked, 0o500)
+		past := time.Now().Add(-48 * time.Hour)
+		_ = os.Chtimes(d, past, past)
+		defer func(p string) { _ = os.Chmod(p, 0o755) }(locked)
+	}
+	var errOut bytes.Buffer
+	refreshDeliveryIndex(root, []byte("{\"schema_version\":1,\"x\":2}\n"), &errOut)
+	if !strings.Contains(errOut.String(), "retention of old index generations failed") {
+		t.Fatalf("a failed retention was dropped: %q", errOut.String())
+	}
+	if view := (posemodel.Store{Root: root}).ReadIndexGeneration(); view.Status != posemodel.IndexGenerationCurrent {
+		t.Fatalf("the refresh did not publish: %s %s", view.Status, view.Reason)
 	}
 }

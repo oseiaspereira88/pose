@@ -55,6 +55,9 @@ type Store struct {
 	// specs, when set, is the spec listing of one operation, read once
 	// (spec pose-attention-within-a-second). Nil outside such an operation.
 	specs *specSnapshot
+	// indexPin, when set, is the one index generation an operation reads from
+	// (spec pose-index-generation-integrity); see PinIndexes.
+	indexPin *IndexGenerationView
 }
 
 // specSnapshot holds one read of the specs directory. GetSpec lists every

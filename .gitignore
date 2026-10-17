@@ -25,6 +25,11 @@ pose-rule-kubernetes.sigstore.json
 # Immutable copies of past index generations (retention keeps a few); the
 # descriptor .pose/indexes/generation.json is the committed record.
 .pose/indexes/generations/
+# Runtime of an index publication: its lock, the pending marker of a first
+# generation and the lock staging.
+.pose/indexes/.generation.lock
+.pose/indexes/.generation-pending
+.pose/indexes/.lock-*.tmp
 
 # Runtime lock of spec-transfer; never an authority record.
 .pose/transfers/.authority-transfer.lock

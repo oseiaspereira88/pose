@@ -56,9 +56,22 @@ files and inputs, so the same inputs name the same generation and a retry conver
 on it. The descriptor carries no time. Git history is read by the delivery graph and
 is not pinned: a commit would change the id on every commit; limits are declared.
 
-**Publication** (`Store.PublishIndexGeneration`), in three phases, each file through
-the B14 publisher:
+**Publication** (`Store.PublishIndexGeneration`). It holds the **generation lock**
+(`.pose/indexes/.generation.lock`, owner recorded as in B13) from the read of the
+current descriptor to the end of retention: two publishers never accept the same
+predecessor, and a retention step never runs against a generation another publisher
+has since made live. The lock never waits and is never broken by age: a lock another
+call holds is `ErrIndexGenerationBusy` with the owner's state and nothing is written;
+only a lock whose owner is proven dead (same host, process gone) is removed, under an
+exclusive lock of the indexes directory, because the publication it guarded is
+idempotent and its outputs are derived. The commit remains a compare-and-swap over
+the bytes read, so a writer that ignores the lock is still refused. The phases, each
+file through the B14 publisher:
 
+0. when there is no descriptor yet, a **pending marker** (`.generation-pending`) is
+   written before any legacy name changes and removed after the commit: a first
+   publication that stopped halfway leaves legacy files that may mix two runs, and
+   readers report that repository as `unavailable`, not `legacy-unversioned`;
 1. the files are written under `.pose/indexes/generations/<id>/`, each with
    `ExpectAbsent` (immutable; the same bytes converge) and read back against the
    descriptor;
@@ -68,7 +81,9 @@ the B14 publisher:
    authoritative: synced). This is the commit.
 
 A failure before step 3 leaves the previous descriptor, and so the previous
-generation, in force; the receipt says which phase failed and `pose index` says the
+generation, in force; a failure of step 3 whose cause is the unconfirmed durability of
+the directory (`ErrPublishUnsynced`) is a **committed** generation: the receipt says
+so (`Committed`) and the CLI reports the new generation as current, not the old one; the receipt says which phase failed and `pose index` says the
 previous generation stays. A failure of retention after step 3 is a warning in the
 receipt and never a failed publication. The same set published twice writes
 nothing (`unchanged`).
@@ -92,6 +107,15 @@ the end and starts over, at most three times, if it changed. The result is one o
 `StaleInputs` compares the bindings with the inputs as they are now; a changed
 input makes the set stale, not unavailable.
 
+**One generation per operation.** `Store.PinIndexes` reads the set once and returns a
+store whose index reads all come from it. The review plan pins at its entry, so the
+component map and the observed paths come from the same generation even if a
+publication commits meanwhile; an operation that reads one index needs no pin.
+
+**Replacement.** `Store.ReplaceIndex` reads the current generation under the same lock
+and commits the new one over that descriptor, so a generation another call published in
+between is never silently reverted.
+
 **Consumers.** `GetDeliveryIntegrity` (and with it spec facts, the MCP
 `pose_delivery_integrity` tool, the obligation projection and the closeout), the
 review plan's component map and observed paths, the obligation snapshot's index
@@ -109,10 +133,12 @@ set that does not verify is not built upon, and the refresh says so on stderr.
 (`Diverged`: a file edited by hand, or a publication that has not committed) and its
 inputs hold; each other state is named.
 
-**Retention.** The current generation and the newest others, up to three, stay;
+**Retention.** The generation the descriptor names when retention runs, and the one the
+call published, are live; the newest others, up to three, stay;
 nothing younger than ten minutes is removed, which protects a reader that is still
 copying a generation it fixed; only directories named `gen-<16 hex>` directly under
-`generations/` that are not links are removed. `generations/` is git-ignored; the
+`generations/` that are not links are removed, and a `generations/` that is itself a
+link is refused for publication and retention alike. `generations/` is git-ignored; the
 descriptor is committed with the indexes.
 
 **Distribution.** `generation.json` and `generations/` are never synced by `pose

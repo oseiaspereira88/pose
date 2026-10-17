@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "spec": "pose-index-generation-integrity",
+  "date": "2026-10-17",
+  "decision": "changes-requested",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "implementer": "agent:claude-sonnet-5-5",
+  "implementer_session": "296d1fcb-e989-40ae-9362-cf3514db8b26",
+  "head": "299fa696e20c3fbc996d4cf022a7d29b6ebc9060",
+  "base": "18e4342b",
+  "pr": 193,
+  "scope_judgment": "O prefixo agent:independent- é uma declaração exigida pelo motor até pose-delegated-review-run-provenance substituí-lo. Execução Codex/OpenAI de outro vendor em relação a Claude/Anthropic. Identidade declarada; atestações do pose-dist não são assinadas. Nenhum selo/atestação aplicado nesta revisão.",
+  "external_evidence_directory": "/home/go/.cache/b15-independent-review",
+  "outputs_manifest_sha256": "03e0cad75501cf19a89f361740d5a806c04ac7f0d0201c775f8a67b3cb89e506",
+  "binary_sha256": "dd28bf8298cc0d0443e1ab43b1306b1352ef121d1eee8dd115bc842ba23e67f6",
+  "facts": {
+    "validation": {
+      "executed": 138,
+      "passed": 138,
+      "failed": 0,
+      "optional_failed": 0,
+      "errored": 0,
+      "skipped": 0
+    },
+    "validation_outcome": "pass",
+    "validation_json_sha256": "0f31b024d19cf65c0353a34d07b50d6add59f5108612dea09e69bce4b2cdf279",
+    "original_mutations": {
+      "killed": 33,
+      "total": 33,
+      "json_sha256": "49a3f6f7c7712b5ebd61c82322bc143a641b0c0586a9679c410502a172c66d85"
+    },
+    "new_tests": 30,
+    "counterfactual_map": {
+      "file": "test-counterfactual-map.json",
+      "sha256": "8a2ab86eabed09362331097b2d6b9e0943a291b3c82d3afb7cc21b2d9560467d",
+      "mapped_original_mutations": 29,
+      "additional_targeted_assertion": 1,
+      "limitation": "Some failures are publication-setup failures; ReaderThatFixedAGenerationKeepsItsBytes tests already-copied bytes, not in-flight retention. Failure counts are not complete property coverage."
+    },
+    "probes": "P01/P02/P03 functional results match recorded after; probe-comparison.json in external manifest.",
+    "journey": "Fresh install, onboarding, 6.2.0 upgrade and signed adoption request passed with compiled review binary. Anonymous API attempt failed 403; final direct run used --previous 6.2.0 selected with authenticated gh API. GH_TOKEN used only command-scoped validate, never logged.",
+    "compatibility": "minor after fixes; manual edits of generated legacy indexes shadowed by immutable copies as documented; external Harne8/check-pose-mirror-parity implementation unavailable in this clone, not certified.",
+    "scope_limit": "Bindings intentionally cover five declared governed inputs; global dependency completeness/Git snapshot deferred to B34/B35. Single ReadIndex verifies requested bytes, not an entire multi-read operation.",
+    "source_mutations": "Only disposable copies modified for probes. One extra scheduling hook at ReplaceIndex line 488, saved as disposable-copy-scheduling-hook.patch. No production/test/policy/capability/adoption edits in checkout."
+  },
+  "commands": [
+    {
+      "id": "Go-vet",
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": "Go-vet.log"
+    },
+    {
+      "id": "Go-tests",
+      "exit_code": 0,
+      "output_sha256": "b9187bfc35ec8e2af50e7e87e85da6f9cbf92a65e127d010575e68618101eeb0",
+      "output": "Go-tests.log"
+    },
+    {
+      "id": "Go-race",
+      "exit_code": 0,
+      "output_sha256": "bc1c1d9ec4587d37a2fb6b6d01d04f2c604c8cfbef6b4daff0d7c6bc471f098f",
+      "output": "Go-race.log"
+    },
+    {
+      "id": "Windows-build",
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": "Windows-build.log"
+    },
+    {
+      "id": "Darwin-build",
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": "Darwin-build.log"
+    },
+    {
+      "id": "mutations",
+      "exit_code": 0,
+      "output_sha256": "911e29e234dbad0e7f96c1944b4341cec03d644eb47cd70cc62ca4c919ffe62e",
+      "output": "mutations.log"
+    },
+    {
+      "id": "probes",
+      "exit_code": 0,
+      "output_sha256": "304dd9a9df142c9bc238a892892e961dfff445030b87ca164061b6c513945743",
+      "output": "probes.log"
+    },
+    {
+      "id": "artifact-check",
+      "exit_code": 0,
+      "output_sha256": "9c98cbebef237c8ed702099ffee9db43e9806a3e2f845556963b1eb3f1466a3d",
+      "output": "artifact-check.log"
+    },
+    {
+      "id": "surface-check",
+      "exit_code": 0,
+      "output_sha256": "4a6ef38fdeccbb07165efce091ac765f1dd273b27bbe1f5b2c268e4e694ef71c",
+      "output": "surface-check.log"
+    },
+    {
+      "id": "lint-spec",
+      "exit_code": 0,
+      "output_sha256": "df2ff3543d51698c15dc70373342831d0cbef991a24862bbb9e21af7804ed4be",
+      "output": "lint-spec.log"
+    },
+    {
+      "id": "check",
+      "exit_code": 0,
+      "output_sha256": "bcf0b6b3be87ba89783dc44081ca9fc478cd2549371b929cc7a666be875d2cbd",
+      "output": "check.log"
+    },
+    {
+      "id": "review-verify",
+      "exit_code": 1,
+      "output_sha256": "2094029eb89caeecc5af4cb3f26cca8d7255654c85555f1517c8908318a1df23",
+      "output": "review-verify.log"
+    },
+    {
+      "id": "tech-debt",
+      "exit_code": 0,
+      "output_sha256": "9a4b73676f8ea88e8315cb119365b811709afc70d9d4cf892d3cf32816558f72",
+      "output": "tech-debt.log"
+    },
+    {
+      "id": "integrate",
+      "exit_code": 0,
+      "output_sha256": "1f190b9ad4ec8ebf4998342fb39c8855eb753e4fe775d7d63cc7db62272b3167",
+      "output": "integrate.log"
+    },
+    {
+      "id": "assess-discover",
+      "exit_code": 0,
+      "output_sha256": "ad03aa7bcafbb717c9c62f6e9d1ea24beeb9fdcae63de2bd8fcbc72e8ace4f1d",
+      "output": "assess-discover.log"
+    },
+    {
+      "id": "assess-design",
+      "exit_code": 0,
+      "output_sha256": "d94f80dc98452005f627c4879f2af87baf335f91ac1eaaf61d0c4d20cd7c5d99",
+      "output": "assess-design.log"
+    },
+    {
+      "id": "suggest-review",
+      "exit_code": 0,
+      "output_sha256": "2d278d7b6fd59e249c50b6f1dcb7476a6ac522f6e62c1127430e5ca960691d83",
+      "output": "suggest-review.log"
+    },
+    {
+      "id": "recurrence",
+      "exit_code": 0,
+      "output_sha256": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7",
+      "output": "recurrence.log"
+    },
+    {
+      "id": "validate",
+      "exit_code": 0,
+      "output_sha256": "117d69332a191b7b97a2ddd9c5714da9e1cb265c5bf9ef05a23ef4d480f6b825",
+      "output": "validate.log"
+    },
+    {
+      "id": "journey-final",
+      "exit_code": 0,
+      "output_sha256": "6d24d3a882d7244082e532892f74bb324982cacac310f89e737beec330f090ca",
+      "output": "journey-final.log"
+    },
+    {
+      "id": "custom-probes",
+      "exit_code": 0,
+      "output_sha256": "398a8a2a8ad5d0eab8681108238f6ed2171142663afe7bbd33ed2724df8d2350",
+      "output": "custom-probes-all.log"
+    },
+    {
+      "id": "mutations-detailed",
+      "exit_code": 0,
+      "output_sha256": "911e29e234dbad0e7f96c1944b4341cec03d644eb47cd70cc62ca4c919ffe62e",
+      "output": "mutations-detailed.log"
+    },
+    {
+      "id": "extra-counterfactual",
+      "exit_code": 1,
+      "output_sha256": "31cb18d8ed4bc5619923b14acac8c0784fc28ffb0439f6eaa24291f49c9031d2",
+      "output": "extra-counterfactual.log"
+    }
+  ],
+  "findings": [
+    {
+      "id": "B15-F01",
+      "severity": "high",
+      "file": "pose-mcp/internal/pose/index_generation.go",
+      "line": 460,
+      "requirements": [
+        "R2",
+        "R4",
+        "R8"
+      ],
+      "scenario": "Dois PublishIndexGeneration leem o mesmo descritor e chegam juntos ao commit. Ambos retornam sucesso para IDs diferentes e ambos declaram o mesmo predecessor. PublishFile faz read/compare e rename separados; B15 não toma a trava por recurso que o contrato B14 exige para coordenar esses passos.",
+      "evidence": "TestB15IndependentDescriptorCASIsNotExclusive; barreira no PublishFault existente, antes dos dois CAS; dupla aceitação observada na tentativa 0 da execução final.",
+      "action": "Coordenar leitura do predecessor, validação e commit de geração; provar que escritores concorrentes não podem ambos aceitar o mesmo predecessor. O teste atual só intercala um rival que termina antes do CAS, sem exercitar a janela compare/rename."
+    },
+    {
+      "id": "B15-F02",
+      "severity": "high",
+      "file": "pose-mcp/internal/pose/index_generation.go",
+      "line": 488,
+      "requirements": [
+        "R4",
+        "R6"
+      ],
+      "scenario": "ReplaceIndex lê A; outro index publica B antes de ele chamar PublishIndexGeneration. Este relê B como predecessor, mas recebe seis arquivos e bindings copiados de A: publica com sucesso a substituição e reverte silenciosamente os demais índices de B para A. Atinge refresh de artifact-check e bootstrap de review bundle.",
+      "evidence": "TestB15IndependentReplaceIndexLosesConcurrentGeneration; um hook de agendamento acrescentado SOMENTE na cópia descartável, imediatamente antes da chamada da linha 488, permite B terminar nesse intervalo.",
+      "action": "Vincular o commit da substituição ao descritor que forneceu os arquivos; recusar ou reconstruir a substituição quando esse descritor mudar."
+    },
+    {
+      "id": "B15-F03",
+      "severity": "high",
+      "file": "pose-mcp/internal/pose/review_plan.go",
+      "line": 691,
+      "requirements": [
+        "R3",
+        "R6",
+        "R8"
+      ],
+      "scenario": "Uma única resolveReviewPlanContext lê repo-map de A na linha 387/559, uma publicação troca para B, e loadObservedReviewPaths lê delivery-integrity de B na linha 453/691. Cada ReadIndex verifica seu próprio descritor, mas a operação não fixa uma geração. Probe retorna owner antigo/criticality low junto com observed:work:svc/new.go exclusivo de B, sem warning nem blocker.",
+      "evidence": "TestB15IndependentReviewPlanMixesGenerations; IndexReadFault existente publica B na segunda leitura; nenhuma alteração de código de produção necessária ao probe.",
+      "action": "Compartilhar a mesma view de geração entre os leitores da operação, ou conferir e repetir a operação inteira quando o descritor mudar. Isto é coerência dos sete índices dentro de uma operação B15, não a read view global futura B34/B35."
+    },
+    {
+      "id": "B15-F04",
+      "severity": "high",
+      "file": "pose-mcp/internal/pose/index_generation.go",
+      "line": 449,
+      "requirements": [
+        "R2",
+        "R5",
+        "R8"
+      ],
+      "scenario": "Na primeira migração de uma instância legacy, não existe generation.json. A publicação troca repo-map e services, depois falha/crasha. O descritor continua ausente e ReadIndex devolve repo-map novo e delivery-integrity antigo como legacy-unversioned, sem erro. GetDeliveryIntegrity descarta o status na linha 438 e os consumers continuam usando a mistura. A mesma janela existe enquanto a primeira publicação ainda está em curso.",
+      "evidence": "TestB15IndependentLegacyFirstFailureMixes; sete arquivos legacy antigos e falha em after-legacy-file:services.json, por hook existente; repo=new e delivery=old retornados sem erro.",
+      "action": "Tornar a transição legacy para generation-aware recuperável e distinguível antes de alterar nomes legados: preservar um conjunto anterior verificável ou marcar explicitamente a indisponibilidade. Manter a compatibilidade de instâncias realmente não migradas."
+    },
+    {
+      "id": "B15-F05",
+      "severity": "medium",
+      "file": "pose-mcp/internal/pose/index_generation.go",
+      "line": 422,
+      "requirements": [
+        "R4",
+        "R6"
+      ],
+      "scenario": "O predecessor lido é A, que já tem nome legado divergente. Durante ReadIndexGeneration, B é publicado e a releitura retorna B íntegro. O fast path compara o ID desejado apenas com prev=A e usa status/Diverged de B, retornando Unchanged=true para A sem reparar a divergência inicial nem publicar A. Nenhum instante da chamada tinha A com nomes legados íntegros.",
+      "evidence": "TestB15IndependentUnchangedCanNameAnotherGeneration; arquivo legado editado antes da chamada e IndexReadFault existente publicando B; receipt nomeia A/Unchanged enquanto o descritor corrente nomeia B.",
+      "action": "Exigir que a view usada pelo fast path corresponda ao mesmo descritor/predecessor e à geração pretendida; tratar troca concorrente como conflito/retry coerente."
+    },
+    {
+      "id": "B15-F06",
+      "severity": "medium",
+      "file": "pose-mcp/internal/pose/index_generation.go",
+      "line": 530,
+      "requirements": [
+        "R4",
+        "R7",
+        "R8"
+      ],
+      "scenario": "A publica e para antes de sua retenção; B publica depois. Quando A retoma, pruneIndexGenerations protege o argumento A, sem ler a geração viva B. Se B já passou da carência e há dois diretórios mais novos (inclusive staging de outros publishers), A remove a cópia imutável da geração que o descritor ainda nomeia. O fallback legado mascara a perda até uma publicação posterior modificar esses nomes.",
+      "evidence": "TestB15IndependentCleanupRemovesRivalsLiveGeneration; rival publicado no PublishSyncHook de diretório; os.Chtimes simula a suspensão além da carência, como os testes de retenção da branch; contagem e carência padrão preservadas.",
+      "action": "Coordenar retenção com publicadores e proteger o descritor efetivamente vivo no momento da remoção; cobrir a retomada de um cleanup antigo depois de outro commit."
+    },
+    {
+      "id": "B15-F07",
+      "severity": "high",
+      "file": "pose-mcp/internal/pose/index_generation.go",
+      "line": 517,
+      "requirements": [
+        "R7"
+      ],
+      "scenario": "O Lstat protege links filhos, mas os.ReadDir(base) segue um symlink no próprio generations/. Apontando generations para um diretório externo com quatro gen-<16 hex> antigos e dados, prune remove recursivamente dois desses diretórios externos. O reconhecimento de nome e o Lstat do filho não confinam a operação ao diretório real do projeto.",
+      "evidence": "TestB15IndependentCleanupFollowsBaseSymlink; quatro diretórios externos sintéticos, dois removidos; nenhuma alteração de código de produção no probe.",
+      "action": "Recusar ancestral/base symlink e confinar a enumeração/remoção à árvore de gerações pertencente ao projeto; testar o link na base, além dos links filhos já cobertos."
+    },
+    {
+      "id": "B15-F08",
+      "severity": "medium",
+      "file": "pose-mcp/internal/pose/index_generation.go",
+      "line": 273,
+      "requirements": [
+        "R1",
+        "R3",
+        "R8"
+      ],
+      "scenario": "Acrescentar ] após um descritor válido produz JSON inválido, mas dec.More retorna false para um delimitador de fechamento e o descritor é aceito como current. O parser não exige EOF após o valor e a classe corrupt deixa de produzir unavailable.",
+      "evidence": "TestB15IndependentDescriptorAcceptsTrailingCloseBracket; append de um único byte ] a generation.json; ReadIndexGeneration retorna current.",
+      "action": "Exigir EOF real depois de exatamente um valor JSON e cobrir delimitadores soltos e outros tails inválidos."
+    },
+    {
+      "id": "B15-F09",
+      "severity": "medium",
+      "file": "pose-mcp/internal/cli/index.go",
+      "line": 159,
+      "requirements": [
+        "R4",
+        "R6",
+        "R8"
+      ],
+      "scenario": "Quando o sync do diretório falha depois do rename do descritor, PublishFile retorna ErrPublishUnsynced com efeito já publicado. A CLI devolve publish-unsynced, mas acrescenta incondicionalmente que a geração anterior continua em vigor; também sai antes de registrar os campos de geração do receipt. O probe mostra o novo descritor corrente enquanto stderr afirma o anterior.",
+      "evidence": "TestB15IndependentUnsyncedCommitClaimsPreviousStillCurrent; PublishSyncHook existente falha somente no dir sync de generation.json após uma primeira geração válida.",
+      "action": "Distinguir falha sem commit de efeito publicado com durabilidade não confirmada e expor a geração efetiva no resultado; não prometer rollback para ErrPublishUnsynced."
+    },
+    {
+      "id": "B15-F10",
+      "severity": "low",
+      "file": "pose-mcp/internal/cli/index.go",
+      "line": 339,
+      "requirements": [
+        "R4",
+        "R6"
+      ],
+      "scenario": "refreshDeliveryIndex descarta o receipt inteiro de ReplaceIndex. Se a publicação termina mas a retenção não consegue remover uma geração antiga, CleanupError é perdido e nada é emitido em stderr, diferentemente do caminho pose index. Atinge artifact-check e bootstrap do bundle.",
+      "evidence": "TestB15IndependentRefreshDropsCleanupWarning; diretório antigo com descendente sem permissão de unlink, publicação concluída, arquivo protegido remanescente e stderr vazio.",
+      "action": "Propagar CleanupError como warning sem converter a publicação efetiva em falha."
+    }
+  ],
+  "native_flow": {
+    "bundle_id": "rvb-c3e35a09032444eb",
+    "bundle_digest": "sha256:c3e35a09032444ebc119e4d64863691b856f52d04be3922315fc1ceeac89a248",
+    "plan_digest": "sha256:1405f6e3840bfb5df903994d732efc8d6bb73402ffbc35b108903b36abcf1ce9",
+    "bundle_state": "prepared; NOT sealed",
+    "attestation_id": null,
+    "review_verify": {
+      "exit_code": 1,
+      "state": "ready-to-seal",
+      "fresh": false,
+      "approved": false
+    },
+    "close": "not executed: high/medium findings",
+    "lint_spec_strict": "pass",
+    "check_strict": "pass",
+    "surface_check_strict": "pass",
+    "completion_tools": "review-check/closeout-check deferred; no approved review",
+    "module_validate": "pose-mcp included in global strict 138 checks; standalone module run not repeated after negative decision",
+    "commit_pushed": null
+  },
+  "spec_status": "in-progress",
+  "spec_sha256": "e326be02795e6cff7f45307048513d12e5f138f5f9f94b7bb185f8fd31d2d4e2",
+  "report_sha256": "15484bdbcd53d195cc6994ec40ee66ee886664a325348212b4124c6ba4fa900d",
+  "report": ".pose/reports/2026-10-17-pose-b15-index-generation-review.md"
+}

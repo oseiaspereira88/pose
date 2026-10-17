@@ -156,6 +156,15 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	// descriptor is committed after every file.
 	receipt, e := store.PublishIndexGeneration(encoded, posepkg.IndexInputBindings(root))
 	if e != nil {
+		switch {
+		case receipt.Committed:
+			// The descriptor was renamed into place: the new generation is the
+			// current one, and what could not be confirmed is its durability.
+			out.RecordField("index_generation", receipt.GenerationID)
+			return fail(indexPublishCode(e), fmt.Sprintf("generation %s was committed but not confirmed durable: %v; run `pose index --verify`", receipt.GenerationID, e))
+		case errors.Is(e, posepkg.ErrIndexGenerationBusy):
+			return fail(indexPublishCode(e), fmt.Sprintf("%v; nothing was written, run `pose index` again when it finishes", e))
+		}
 		return fail(indexPublishCode(e), fmt.Sprintf("publishing the index generation: %v (the previous generation stays in force; run `pose index` again)", e))
 	}
 	out.RecordField("index_generation", receipt.GenerationID)
@@ -300,6 +309,8 @@ func indexPublishCode(err error) string {
 		return "publish-conflict"
 	case errors.Is(err, posepkg.ErrPublishUnsynced):
 		return "publish-unsynced"
+	case errors.Is(err, posepkg.ErrIndexGenerationBusy):
+		return "index-generation-busy"
 	}
 	return "write"
 }
@@ -336,9 +347,12 @@ func verifyIndexGeneration(root string, gate *gateOutput, out *cliout.Renderer, 
 // generation and the file is written as it always was. A set that cannot be
 // verified is not written over: the failure is said, not hidden.
 func refreshDeliveryIndex(root string, data []byte, stderr io.Writer) {
-	_, err := posepkg.Store{Root: root}.ReplaceIndex("delivery-integrity.json", data)
+	receipt, err := posepkg.Store{Root: root}.ReplaceIndex("delivery-integrity.json", data)
 	switch {
 	case err == nil:
+		if receipt.CleanupError != nil {
+			render(io.Discard, stderr).Failure("pose: retention of old index generations failed: " + receipt.CleanupError.Error())
+		}
 	case errors.Is(err, posepkg.ErrIndexGenerationLegacy):
 		_ = os.MkdirAll(filepath.Join(root, ".pose", "indexes"), 0o755)
 		_ = os.WriteFile(filepath.Join(root, ".pose", "indexes", "delivery-integrity.json"), data, 0o644)

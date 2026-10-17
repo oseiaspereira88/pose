@@ -24,7 +24,11 @@ that has not run `pose index` since this release keeps working and is reported
 generation's copy exists, and makes the set unavailable in a clone without it;
 `pose index --verify` names the file.
 
-`pose index --verify` reads without writing and exits 1 unless the set is
+Publishers take a generation lock in the indexes directory: a second `pose index`
+is refused with `index-generation-busy` and writes nothing, a lock whose holder is
+proven dead is recovered, and the first publication of a repository is marked pending
+so one that did not commit reads as unavailable and not as a mixture. A review plan
+reads one generation for everything it takes from the indexes. `pose index --verify` reads without writing and exits 1 unless the set is
 current, the index files are those of the generation, and the specs, roadmaps,
 policy, module metadata and validation matrix it was computed from still hold. `pose artifact-check` and `pose review bundle`
 refresh `delivery-integrity.json` inside a new generation instead of editing the

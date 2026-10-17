@@ -352,7 +352,7 @@ func TestNeutralDoRPolicyShipsTheGateOff(t *testing.T) {
 }
 
 func TestIndexGenerationDescriptorIsNeverSyncedNorSeeded(t *testing.T) {
-	for _, rel := range []string{".pose/indexes/generation.json", ".pose/indexes/generations/gen-0123456789abcdef/repo-map.json"} {
+	for _, rel := range []string{".pose/indexes/generation.json", ".pose/indexes/generations/gen-0123456789abcdef/repo-map.json", ".pose/indexes/.generation.lock", ".pose/indexes/.generation-pending", ".pose/indexes/.lock-123.tmp"} {
 		if IsIncluded(rel) {
 			t.Errorf("IsIncluded(%q) = true: a descriptor or a past generation is the instance's own and must not be synced", rel)
 		}
