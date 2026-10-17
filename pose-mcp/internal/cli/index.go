@@ -347,15 +347,15 @@ func verifyIndexGeneration(root string, gate *gateOutput, out *cliout.Renderer, 
 // generation and the file is written as it always was. A set that cannot be
 // verified is not written over: the failure is said, not hidden.
 func refreshDeliveryIndex(root string, data []byte, stderr io.Writer) {
-	receipt, err := posepkg.Store{Root: root}.ReplaceIndex("delivery-integrity.json", data)
+	_ = os.MkdirAll(filepath.Join(root, ".pose", "indexes"), 0o755)
+	receipt, _, err := posepkg.Store{Root: root}.ReplaceIndexOrLegacy("delivery-integrity.json", data)
 	switch {
 	case err == nil:
 		if receipt.CleanupError != nil {
 			render(io.Discard, stderr).Failure("pose: retention of old index generations failed: " + receipt.CleanupError.Error())
 		}
-	case errors.Is(err, posepkg.ErrIndexGenerationLegacy):
-		_ = os.MkdirAll(filepath.Join(root, ".pose", "indexes"), 0o755)
-		_ = os.WriteFile(filepath.Join(root, ".pose", "indexes", "delivery-integrity.json"), data, 0o644)
+	case receipt.Committed:
+		render(io.Discard, stderr).Failure("pose: the delivery index was published as generation " + receipt.GenerationID + ", but its durability could not be confirmed: " + err.Error() + "; run `pose index --verify`")
 	default:
 		render(io.Discard, stderr).Failure("pose: the delivery index was not refreshed: " + err.Error() + "; run `pose index`")
 	}

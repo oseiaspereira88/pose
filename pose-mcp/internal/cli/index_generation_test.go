@@ -296,3 +296,29 @@ func TestRefreshDeliveryIndexReportsAFailedRetention(t *testing.T) {
 		t.Fatalf("the refresh did not publish: %s %s", view.Status, view.Reason)
 	}
 }
+
+// F13: the refresh names the generation it committed.
+func TestRefreshDeliveryIndexNamesACommittedGenerationWhoseDurabilityIsUnconfirmed(t *testing.T) {
+	root, _, _ := artifactGitFixture(t)
+	if code, _, errOut := runIndex(t, root); code != 0 {
+		t.Fatalf("index: %d %s", code, errOut)
+	}
+	previous := posemodel.Store{Root: root}.ReadIndexGeneration().Descriptor.GenerationID
+	defer func() { posemodel.PublishSyncHook = nil }()
+	posemodel.PublishSyncHook = func(kind, path string) error {
+		if kind == "dir" && filepath.Base(path) == "generation.json" {
+			return errors.New("directory sync refused")
+		}
+		return nil
+	}
+	var errOut bytes.Buffer
+	refreshDeliveryIndex(root, []byte("{\"schema_version\":1,\"y\":3}\n"), &errOut)
+	posemodel.PublishSyncHook = nil
+	current := posemodel.Store{Root: root}.ReadIndexGeneration().Descriptor.GenerationID
+	if current == previous {
+		t.Fatal("the descriptor did not move")
+	}
+	if strings.Contains(errOut.String(), "not refreshed") || !strings.Contains(errOut.String(), current) || !strings.Contains(errOut.String(), "durability could not be confirmed") {
+		t.Fatalf("the refresh denied or hid its committed effect: %q", errOut.String())
+	}
+}

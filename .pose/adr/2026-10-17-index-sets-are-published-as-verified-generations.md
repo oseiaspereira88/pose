@@ -108,13 +108,21 @@ the end and starts over, at most three times, if it changed. The result is one o
 input makes the set stale, not unavailable.
 
 **One generation per operation.** `Store.PinIndexes` reads the set once and returns a
-store whose index reads all come from it. The review plan pins at its entry, so the
-component map and the observed paths come from the same generation even if a
-publication commits meanwhile; an operation that reads one index needs no pin.
+store whose index reads all come from it. The review plan, the review bundle (its plan and
+its evidence), the closeout check and the start obligations pin at their entry
+(a pin already taken is reused, never retaken), so what they combine comes from the
+same generation even if a publication commits meanwhile; an operation that reads one
+index needs no pin. A pin taken while the repository has no descriptor keeps no bytes:
+if a first publication starts (pending marker or descriptor) it reads as
+`unavailable`, and an unpinned legacy read is checked again after the file is read.
 
 **Replacement.** `Store.ReplaceIndex` reads the current generation under the same lock
-and commits the new one over that descriptor, so a generation another call published in
-between is never silently reverted.
+and commits the new one over the exact bytes of that descriptor: the publication is
+refused before anything is written, and the commit is a compare-and-swap over them, if
+a writer that ignores the lock published in between, so a generation is never silently
+reverted. `Store.ReplaceIndexOrLegacy` takes the lock for callers that, before the first
+generation, write the file themselves (the delivery refresh): the decision that the
+repository is legacy and the write happen under the same lock.
 
 **Consumers.** `GetDeliveryIntegrity` (and with it spec facts, the MCP
 `pose_delivery_integrity` tool, the obligation projection and the closeout), the

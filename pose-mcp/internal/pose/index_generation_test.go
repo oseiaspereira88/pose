@@ -981,3 +981,108 @@ func TestIndexGenerationReaderStartsOverWhenTheDescriptorMovesUnderIt(t *testing
 		})
 	}
 }
+
+// F11: a pin taken before the first publication does not hide it.
+func TestIndexGenerationALegacyPinDoesNotReadThroughAFirstPublicationThatStarted(t *testing.T) {
+	s := newIndexStore(t)
+	for _, name := range IndexGenerationFiles {
+		_ = os.WriteFile(filepath.Join(s.Root, ".pose", "indexes", name), outputsFor("legacy")[name], 0o644)
+	}
+	pinned := s.PinIndexes()
+	if _, status, err := pinned.ReadIndex("repo-map.json"); err != nil || status != IndexGenerationLegacy {
+		t.Fatalf("a legacy pin before any publication: %s %v", status, err)
+	}
+	defer func() { IndexPublishFault = nil }()
+	IndexPublishFault = func(phase string) error {
+		if phase == "after-legacy-file:services.json" {
+			return errors.New("stopped")
+		}
+		return nil
+	}
+	_, _ = s.PublishIndexGeneration(outputsFor("new"), map[string]string{"specs": "sha256:new"})
+	IndexPublishFault = nil
+	if _, status, err := pinned.ReadIndex("delivery-integrity.json"); status != IndexGenerationUnavailable || !errors.Is(err, ErrIndexGenerationUnavailable) {
+		t.Fatalf("a pin read through an interrupted first publication: %s %v", status, err)
+	}
+}
+
+// F12: a replacement is committed over the exact descriptor it was built from,
+// even when a writer outside the lock publishes in between.
+func TestIndexGenerationReplaceIndexIsRefusedWhenAnUnlockedWriterPublishedMeanwhile(t *testing.T) {
+	s := newIndexStore(t)
+	publishTag(t, s, "a")
+	defer func() { IndexPublishFault = nil }()
+	rivalOutputs := outputsFor("b")
+	rivalDesc, _ := NewIndexGenerationDescriptor(rivalOutputs, map[string]string{"specs": "sha256:b"})
+	IndexPublishFault = func(phase string) error {
+		if phase == "replace-after-read" {
+			IndexPublishFault = nil
+			// Another writer that does not take the lock publishes a whole set.
+			if _, err := s.publishGenerationLocked(rivalDesc, rivalOutputs, nil); err != nil {
+				t.Errorf("the rival: %v", err)
+			}
+		}
+		return nil
+	}
+	_, err := s.ReplaceIndex("delivery-integrity.json", []byte("{\"generation_tag\":\"a\",\"file\":\"replaced\"}\n"))
+	if !errors.Is(err, ErrPublishConflict) {
+		t.Fatalf("a replacement built from the old set was accepted over the rival's: %v", err)
+	}
+	view := s.ReadIndexGeneration()
+	assertWholeSet(t, view, "b")
+	if len(view.Diverged) != 0 {
+		t.Fatalf("the refused replacement left the rival's legacy names rewritten: %v", view.Diverged)
+	}
+}
+
+// F14: the legacy write happens under the lock that decided it was legacy.
+func TestIndexGenerationALegacyReplacementCannotRaceAFirstPublication(t *testing.T) {
+	s := newIndexStore(t)
+	for _, name := range IndexGenerationFiles {
+		_ = os.WriteFile(filepath.Join(s.Root, ".pose", "indexes", name), outputsFor("legacy")[name], 0o644)
+	}
+	defer func() { IndexPublishFault = nil }()
+	var rivalErr error
+	IndexPublishFault = func(phase string) error {
+		if phase == "replace-legacy-before-write" {
+			_, rivalErr = s.PublishIndexGeneration(outputsFor("first"), map[string]string{"specs": "sha256:first"})
+		}
+		return nil
+	}
+	_, legacy, err := s.ReplaceIndexOrLegacy("delivery-integrity.json", []byte("{\"generation_tag\":\"legacy\",\"file\":\"mine\"}\n"))
+	IndexPublishFault = nil
+	if err != nil || !legacy {
+		t.Fatalf("legacy replacement: legacy=%v err=%v", legacy, err)
+	}
+	if !errors.Is(rivalErr, ErrIndexGenerationBusy) {
+		t.Fatalf("a first publication ran between the legacy decision and its write: %v", rivalErr)
+	}
+	// Now that the lock is free, the first publication goes through and is whole.
+	publishTag(t, s, "first")
+	assertWholeSet(t, s.ReadIndexGeneration(), "first")
+}
+
+// F15: a bundle reads the plan and the evidence from one generation.
+func TestIndexGenerationABundleFixesOneGenerationForPlanAndEvidence(t *testing.T) {
+	_, store := reviewBundleFixture(t)
+	outputs := outputsFor("bundle")
+	outputs["repo-map.json"] = []byte("{\"packages\":[]}\n")
+	graph := DeliveryIntegrityGraph{SchemaVersion: DeliveryIntegritySchemaVersion}
+	raw, err := graph.IndexJSON()
+	if err != nil {
+		t.Fatal(err)
+	}
+	outputs["delivery-integrity.json"] = append(raw, '\n')
+	if _, err := store.PublishIndexGeneration(outputs, nil); err != nil {
+		t.Fatal(err)
+	}
+	reads := 0
+	defer func() { IndexReadFault = nil }()
+	IndexReadFault = func(string) { reads++ }
+	if _, err := store.PrepareReviewBundle("spec:backend"); err != nil {
+		t.Fatal(err)
+	}
+	if reads != 1 {
+		t.Fatalf("a bundle fixed the generation %d times, want once: its plan and its evidence may come from two generations", reads)
+	}
+}

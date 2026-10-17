@@ -72,6 +72,10 @@ mesmo `Store`; seu teste cobre a ferramenta `pose_delivery_integrity`.
 - modified: pose-mcp/internal/cli/suggest.go
 - modified: pose-mcp/internal/cli/progressive_review_test.go
 - modified: pose-mcp/internal/pose/delivery_integrity.go
+- modified: pose-mcp/internal/pose/spec.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/pose/start.go
 - modified: pose-mcp/internal/pose/review_plan.go
 - modified: pose-mcp/internal/pose/obligation_projection.go
 - modified: pose-mcp/internal/scaffold/distpolicy/distpolicy.go

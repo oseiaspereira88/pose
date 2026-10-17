@@ -196,8 +196,11 @@ var reviewPreconditionCatalog = map[string]bool{
 // ReviewPlan resolves the immutable, read-only plan that governs a review.
 // It never executes a recommendation or writes project state.
 func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
-	// One generation for everything the plan reads from the indexes.
-	s = s.PinIndexes()
+	// One generation for everything the plan reads from the indexes, unless the
+	// operation that asks for the plan already fixed one.
+	if s.indexPin == nil {
+		s = s.PinIndexes()
+	}
 	scope, err := ParseScopeRef(ref)
 	if err != nil {
 		return ReviewPlan{}, err

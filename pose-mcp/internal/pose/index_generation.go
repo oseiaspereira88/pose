@@ -130,6 +130,9 @@ type IndexGenerationView struct {
 	Reason     string
 	Descriptor IndexGenerationDescriptor
 	Files      map[string][]byte
+	// DescriptorBytes are the exact bytes of the descriptor this view was built
+	// from; a replacement commits over them, not over whatever it reads later.
+	DescriptorBytes []byte
 	// Diverged lists the legacy names (.pose/indexes/<file>) whose bytes are not
 	// those of the generation although the generation is whole: the file was
 	// edited by hand, or a publication is running and has not committed yet.
@@ -372,7 +375,7 @@ func (s Store) ReadIndexGeneration() IndexGenerationView {
 			if problem != "" {
 				return IndexGenerationView{Status: IndexGenerationUnavailable, Reason: problem, Descriptor: desc}
 			}
-			return IndexGenerationView{Status: IndexGenerationCurrent, Descriptor: desc, Files: files, Diverged: diverged}
+			return IndexGenerationView{Status: IndexGenerationCurrent, Descriptor: desc, Files: files, Diverged: diverged, DescriptorBytes: raw}
 		}
 	}
 	return IndexGenerationView{Status: IndexGenerationUnavailable, Reason: "the generation descriptor kept changing while it was read"}
@@ -399,7 +402,16 @@ func (s Store) ReadIndex(name string) ([]byte, IndexGenerationStatus, error) {
 		case IndexGenerationUnavailable:
 			return nil, IndexGenerationUnavailable, fmt.Errorf("pose: %w: %s", ErrIndexGenerationUnavailable, pin.Reason)
 		}
+		// A pin taken while the repository had no descriptor does not keep the
+		// bytes: if a first publication has started since, the files may mix two
+		// runs, and the operation is told so instead of reading them.
+		if indexPending(s.Root) || indexDescriptorExists(s.Root) {
+			return nil, IndexGenerationUnavailable, fmt.Errorf("pose: %w: the indexes were published as a set while this operation was reading them; run it again", ErrIndexGenerationUnavailable)
+		}
 		raw, readErr := os.ReadFile(filepath.Join(indexDir(s.Root), name))
+		if indexPending(s.Root) || indexDescriptorExists(s.Root) {
+			return nil, IndexGenerationUnavailable, fmt.Errorf("pose: %w: the indexes were published as a set while %s was read; run the operation again", ErrIndexGenerationUnavailable, name)
+		}
 		return raw, IndexGenerationLegacy, readErr
 	}
 	for attempt := 0; attempt < indexReadAttempts; attempt++ {
@@ -412,6 +424,12 @@ func (s Store) ReadIndex(name string) ([]byte, IndexGenerationStatus, error) {
 				return nil, IndexGenerationUnavailable, fmt.Errorf("pose: %w: a first index generation was being published and did not commit; run `pose index`", ErrIndexGenerationUnavailable)
 			}
 			raw, readErr := os.ReadFile(filepath.Join(indexDir(s.Root), name))
+			// The repository may have moved to a first publication (pending marker or
+			// descriptor) while the file was read: the bytes then may belong to a run
+			// that is not the one before it, so start again and judge the new state.
+			if indexPending(s.Root) || indexDescriptorExists(s.Root) {
+				continue
+			}
 			return raw, IndexGenerationLegacy, readErr
 		}
 		f, _ := desc.file(name)
@@ -464,10 +482,14 @@ func (s Store) PublishIndexGeneration(outputs map[string][]byte, inputs map[stri
 		return IndexGenerationReceipt{}, err
 	}
 	defer unlock()
-	return s.publishGenerationLocked(desc, outputs)
+	return s.publishGenerationLocked(desc, outputs, nil)
 }
 
-func (s Store) publishGenerationLocked(desc IndexGenerationDescriptor, outputs map[string][]byte) (IndexGenerationReceipt, error) {
+// publishGenerationLocked publishes under the generation lock. basedOn, when set,
+// is the exact descriptor the outputs were built from (a replacement): the
+// publication is refused before anything is written, and the commit is a
+// compare-and-swap over those bytes, if the descriptor is anything else now.
+func (s Store) publishGenerationLocked(desc IndexGenerationDescriptor, outputs map[string][]byte, basedOn []byte) (IndexGenerationReceipt, error) {
 	descBytes, err := desc.bytes()
 	if err != nil {
 		return IndexGenerationReceipt{}, err
@@ -480,6 +502,12 @@ func (s Store) publishGenerationLocked(desc IndexGenerationDescriptor, outputs m
 	// A descriptor that cannot be read is replaced like any other record the
 	// engine owns, over the bytes that were found.
 	expect := ExpectBytes(prevRaw, prevExists)
+	if basedOn != nil {
+		if !prevExists || !bytes.Equal(prevRaw, basedOn) {
+			return receipt, &PublishConflictError{Path: filepath.ToSlash(filepath.Join(".pose", "indexes", indexDescriptorName)), Expected: digestHex(basedOn), Found: digestHex(prevRaw)}
+		}
+		expect = ExpectBytes(basedOn, true)
+	}
 
 	if prevExists && prevErr == nil && prev.GenerationID == desc.GenerationID {
 		// Judged on one view of the descriptor this call read, under the lock.
@@ -559,10 +587,14 @@ func (s Store) ReplaceIndex(name string, data []byte) (IndexGenerationReceipt, e
 	}
 	defer unlock()
 	view := s.ReadIndexGeneration()
-	switch view.Status {
-	case IndexGenerationLegacy:
+	if view.Status == IndexGenerationLegacy {
 		return IndexGenerationReceipt{}, ErrIndexGenerationLegacy
-	case IndexGenerationUnavailable:
+	}
+	return s.replaceUnderLock(view, name, data)
+}
+
+func (s Store) replaceUnderLock(view IndexGenerationView, name string, data []byte) (IndexGenerationReceipt, error) {
+	if view.Status == IndexGenerationUnavailable {
 		return IndexGenerationReceipt{}, fmt.Errorf("pose: %w: %s", ErrIndexGenerationUnavailable, view.Reason)
 	}
 	if _, ok := view.Files[name]; !ok {
@@ -580,7 +612,31 @@ func (s Store) ReplaceIndex(name string, data []byte) (IndexGenerationReceipt, e
 	if err != nil {
 		return IndexGenerationReceipt{}, err
 	}
-	return s.publishGenerationLocked(desc, outputs)
+	return s.publishGenerationLocked(desc, outputs, view.DescriptorBytes)
+}
+
+// ReplaceIndexOrLegacy is ReplaceIndex for a caller that, before any generation
+// exists, writes the file itself: the decision and that write happen under the same
+// lock, so a generation published meanwhile is never overwritten by the old way.
+// legacy reports that the file was written without a generation.
+func (s Store) ReplaceIndexOrLegacy(name string, data []byte) (receipt IndexGenerationReceipt, legacy bool, err error) {
+	unlock, err := lockIndexGeneration(s.Root, "index.replace")
+	if err != nil {
+		return IndexGenerationReceipt{}, false, err
+	}
+	defer unlock()
+	view := s.ReadIndexGeneration()
+	if view.Status == IndexGenerationLegacy {
+		if err := indexFault("replace-legacy-before-write"); err != nil {
+			return IndexGenerationReceipt{}, true, err
+		}
+		if err := PublishFile(filepath.Join(indexDir(s.Root), name), data, 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny}); err != nil {
+			return IndexGenerationReceipt{}, true, err
+		}
+		return IndexGenerationReceipt{}, true, nil
+	}
+	receipt, err = s.replaceUnderLock(view, name, data)
+	return receipt, false, err
 }
 
 // PinIndexes returns a Store whose index reads all come from the one generation
@@ -591,6 +647,11 @@ func (s Store) PinIndexes() Store {
 	view := s.ReadIndexGeneration()
 	s.indexPin = &view
 	return s
+}
+
+func indexDescriptorExists(root string) bool {
+	_, err := os.Lstat(filepath.Join(indexDir(root), indexDescriptorName))
+	return err == nil
 }
 
 func indexPending(root string) bool {

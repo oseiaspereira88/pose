@@ -462,6 +462,10 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 // sealed the acceptance of its whole roadmap. It exists only so those sealed
 // bundles keep their semantics; new bundles never use it.
 func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (ReviewBundle, error) {
+	// One index generation for the plan and for the evidence read after it.
+	if s.indexPin == nil {
+		s = s.PinIndexes()
+	}
 	scope, err := ParseScopeRef(ref)
 	if err != nil {
 		return ReviewBundle{}, err

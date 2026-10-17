@@ -1075,6 +1075,9 @@ func (s Store) attachEvaluationAssurance(eval *ReviewEvaluation) {
 }
 
 func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
+	if s.indexPin == nil {
+		s = s.PinIndexes()
+	}
 	scope, err := ParseScopeRef(ref)
 	if err != nil {
 		return ReviewEvaluation{}, err
