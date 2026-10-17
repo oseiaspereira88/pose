@@ -496,13 +496,13 @@ chmod -R u+rwx "$SANDBOX/permission-control"
 # A relative caller TMPDIR keeps its meaning after the script changes directory.
 relative_case() { # <helper>; prints what is left in the relative TMPDIR
   local base="$SANDBOX/relative"; mkdir -p "$base/tmp"
-  (cd "$base" && TMPDIR=tmp bash -c ". '$1'; pose_test_tmp_init; cd /; mktemp -d >/dev/null" >/dev/null 2>&1 || true)
+  (cd "$base" && CDPATH=. TMPDIR=tmp bash -c ". '$1'; pose_test_tmp_init; cd /; mktemp -d >/dev/null" >/dev/null 2>&1 || true)
   ls -A "$base/tmp" | tr '\n' ' '
   chmod -R u+rwx "$base"; rm -rf "$base"
 }
 left="$(relative_case "$HELPER")"
 [ -z "$left" ] || fail "helper (relative TMPDIR): left behind: $left"
-sed 's|POSE_TEST_TMP="$(cd "$(mktemp -d)" \&\& pwd -P)"|POSE_TEST_TMP="$(mktemp -d)"|' "$HELPER" > "$SANDBOX/tempdir-relative-old.sh"
+sed 's|POSE_TEST_TMP="$(CDPATH="" cd -- "$(mktemp -d)" \&\& pwd -P)"|POSE_TEST_TMP="$(mktemp -d)"|' "$HELPER" > "$SANDBOX/tempdir-relative-old.sh"
 cmp -s "$SANDBOX/tempdir-relative-old.sh" "$HELPER" && fail "control: the relative-path regression is identical to the helper"
 [ -n "$(relative_case "$SANDBOX/tempdir-relative-old.sh")" ] || fail "control: the helper without the absolute path cleaned a relative TMPDIR, so the case proves nothing"
 for sig in TERM INT; do

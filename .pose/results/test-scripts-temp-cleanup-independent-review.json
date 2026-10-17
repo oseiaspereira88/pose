@@ -1,25 +1,26 @@
 {
   "schema_version": 1,
-  "round": 10,
+  "round": 11,
   "spec": "pose-test-scripts-remove-their-temp-files",
   "pr": 192,
-  "head": "e5d86dfb47a150335a2a64e06c7af6dae6fa7796",
+  "head": "70a330c5670c6aaa2077d524d7ca227b64088f24",
   "decision": "changes-requested",
   "reviewer": "agent:independent-gpt-6.1-sol-review",
   "identity_assurance": "declared; unsigned",
   "judgments": {
-    "scope": "Maintainer-authorized Codex/OpenAI execution reviewing Claude/Anthropic implementation, a different vendor. The agent:independent- prefix is an engine-required declaration until pose-delegated-review-run-provenance replaces it. Identity is declared and pose-dist attestations are unsigned; individual implementer/session identity is supplied by the maintainer, not independently authenticated.",
-    "D1": "A single owned TMPDIR root is proportionate and now protects the demo allocation sequence. The helper must keep a stable absolute root across cd (F7). Go, curl and git operations with absolute TMPDIR passed; no assertion change was found.",
-    "residual_risks": "SIGKILL demonstrably leaves the root and cannot be trapped. Eval and sourced-file opacity are declared scanner limits. F2 uses ordinary visible shell constructs rather than either declared exclusion. Final Report remains Pending; these observed defects are not accepted risks.",
-    "scan_scope": "All 24 tracked *.sh paths are under tests/, scripts/, examples/ or install.sh, including descendants. Helper and hygiene are exempted statically and exercised dynamically."
+    "scope": "Maintainer-authorized Codex/OpenAI execution reviewing Claude/Anthropic implementation, a different vendor. The agent:independent- prefix is an engine-required declaration until pose-delegated-review-run-provenance replaces it. Identity is declared and pose-dist attestations are unsigned. Individual implementer/session identity is supplied by the maintainer, not independently authenticated.",
+    "D1": "A single owned TMPDIR remains proportionate and covers child Go work, curl and git fixtures without changing assertions. The absolute-root correction still captures CDPATH output (F7); static admission of unsupported syntax or path-variable attributes remains F2.",
+    "residual_risks": "SIGKILL demonstrably leaves the root and cannot be trapped. Eval and sourced-file opacity are already declared scanner limits. The new cases use visible shell syntax, options and attributes instead of either exclusion. Final Report is still Pending; these findings are not accepted risks.",
+    "scan_scope": "All 24 tracked *.sh paths are under tests/, scripts/, examples/ or install.sh; Git pathspecs include descendants. Helper and hygiene are statically exempted and dynamically checked."
   },
   "previous_findings": {
-    "F1": "resolved for the reviewed restricted-descendant cases",
-    "F2": "open with eleven further accepted leaking cases; all 63 earlier external leaking synthetic cases now rejected",
-    "F3": "resolved: default dispositions, delivered INT 130 and TERM 143, missing-INT negative control fails",
+    "F1": "resolved for original restricted-descendant cases",
+    "F2": "open: round-10 eleven cases and 67 earlier external corpus entries are rejected, but twenty further accepted programs leak",
+    "F3": "resolved: default signal dispositions, INT 130, TERM 143 and missing-INT negative control",
     "F4": "resolved: helper documentation names pose_test_tmp_remove",
-    "F5": "resolved: exact shipped setup reaches markers, exits 0/1/1/1, negative old-permissions mutation fails",
-    "F6": "resolved: hygiene INT 130 and TERM 143 and negative failures leave TMPDIR empty"
+    "F5": "resolved: shipped setup markers reached, exits 0/1/1/1 and old-chmod negative fails",
+    "F6": "resolved: hygiene signal and failure controls leave TMPDIR empty",
+    "F7": "partial correction: default relative TMPDIR passes; exported CDPATH=. still causes leaks"
   },
   "findings": [
     {
@@ -27,92 +28,172 @@
       "severity": "medium",
       "status": "open",
       "file": "tests/hygiene/temp-cleanup.sh",
-      "line": 162,
+      "line": 138,
       "related_lines": [
-        51,
-        94,
-        155,
-        167,
-        272
+        132,
+        140,
+        146,
+        198,
+        206,
+        210,
+        219,
+        229,
+        235,
+        262
       ],
       "requirements": [
         "R3"
       ],
-      "scenario": "The scanner approves eleven independently executed leaking scripts. It cuts at a physical line starting exit/return even inside command substitution, after line continuation, or in a function declaration, and assumes a top-level return exits a script without errexit. Quote state resets per line, so << END inside a multiline string starts a fictitious heredoc and hides later allocations. An otherwise accepted own trap can be disabled by set -n, or fail on a 0000 descendant. All eleven pass the complete gate when substituted into a tracked path; ten also pass CI-warning ShellCheck.",
+      "scenario": "Twenty accepted scripts leak during independent execution and all twenty pass the complete hygiene gate as tracked-path substitutions. Lexing inserts spaces into word continuations, does not follow &&/||/pipeline continuations and mishandles several valid heredoc forms. Failed exit commands are treated as unconditional termination. typeset +x TMPDIR, stacked noexec flags, quoted/-- chmod modes and integer/uppercase variable attributes also bypass the protections. Seventeen cases pass CI-warning ShellCheck; the other three demonstrate scan gaps with a separate CI diagnostic.",
       "cases": [
         {
-          "name": "exit-function-noop",
+          "name": "mktemp-word-continuation",
           "script_exit": 0,
-          "left_nonempty": true,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
           "shellcheck_exit": 0
         },
         {
-          "name": "return-function-noop",
+          "name": "mktemp-word-escape",
           "script_exit": 0,
-          "left_nonempty": true,
-          "shellcheck_exit": 0
-        },
-        {
-          "name": "bare-return-without-errexit",
-          "script_exit": 0,
-          "left_nonempty": true,
-          "shellcheck_exit": 0
-        },
-        {
-          "name": "exit-as-continued-argument",
-          "script_exit": 0,
-          "left_nonempty": true,
-          "shellcheck_exit": 0
-        },
-        {
-          "name": "return-as-continued-argument",
-          "script_exit": 0,
-          "left_nonempty": true,
-          "shellcheck_exit": 0
-        },
-        {
-          "name": "multiline-single-quoted-heredoc-text",
-          "script_exit": 0,
-          "left_nonempty": true,
-          "shellcheck_exit": 0
-        },
-        {
-          "name": "multiline-double-quoted-heredoc-text",
-          "script_exit": 0,
-          "left_nonempty": true,
-          "shellcheck_exit": 0
-        },
-        {
-          "name": "multiline-backtick-return",
-          "script_exit": 0,
-          "left_nonempty": true,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
           "shellcheck_exit": 1
         },
         {
-          "name": "command-substitution-exit",
+          "name": "helper-trap-word-continuation",
           "script_exit": 0,
-          "left_nonempty": true,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
           "shellcheck_exit": 0
         },
         {
-          "name": "own-trap-noexec",
+          "name": "helper-init-after-and",
           "script_exit": 0,
-          "left_nonempty": true,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
           "shellcheck_exit": 0
         },
         {
-          "name": "own-trap-rm-readonly-child",
+          "name": "helper-init-after-or",
+          "script_exit": 0,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "helper-init-in-pipeline",
+          "script_exit": 0,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "helper-unexport-typeset",
+          "script_exit": 0,
+          "caller_TMPDIR_nonempty": false,
+          "escaped_directory_survives": true,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "own-trap-stacked-noexec",
+          "script_exit": 0,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "own-trap-quoted-chmod",
           "script_exit": 1,
-          "left_nonempty": true,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "own-trap-chmod-end-options",
+          "script_exit": 1,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "helper-trap-hidden-before-heredoc-body",
+          "script_exit": 0,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "escaped-heredoc-delimiter",
+          "script_exit": 0,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "numeric-heredoc-delimiter",
+          "script_exit": 0,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "concatenated-heredoc-delimiter",
+          "script_exit": 0,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 1
+        },
+        {
+          "name": "exit-redirection-fails",
+          "script_exit": 0,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "exit-too-many-arguments",
+          "script_exit": 0,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 1
+        },
+        {
+          "name": "integer-helper-root",
+          "script_exit": 0,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "integer-helper-tmpdir",
+          "script_exit": 0,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "uppercase-helper-root",
+          "script_exit": 1,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "integer-unset-gap",
+          "script_exit": 1,
+          "caller_TMPDIR_nonempty": true,
+          "escaped_directory_survives": false,
           "shellcheck_exit": 0
         }
       ],
-      "action": "Fail closed when lexical/execution context is unsupported; do not discard reachable code based on a physical-line prefix or treat multiline string text as a heredoc. Reject or protect noexec and permission-changing own-trap forms. Cover every listed case and the complete tracked-path gate.",
+      "action": "Normalize shell tokens and execution context consistently, or fail closed on unsupported continuations, operators, heredoc words and variable attributes. Do not discard code after an exit command that can fail without exiting. Enforce exported mutable path variables and inspect complete set/chmod options. Require every listed tracked-path control to fail or demonstrably clean up.",
       "evidence": [
-        "extra-probes.json",
-        "extra-probes.py",
-        "full-extra.json",
-        "full-extra.py"
+        "new-probes.py",
+        "new-probes.json",
+        "full-new.py",
+        "full-new-additions.py",
+        "full-new.json"
       ]
     },
     {
@@ -120,47 +201,76 @@
       "severity": "medium",
       "status": "open",
       "file": "tests/lib/tempdir.sh",
-      "line": 13,
+      "line": 15,
       "related_lines": [
-        17,
-        28,
-        29
+        19,
+        30,
+        31
       ],
       "requirements": [
         "R1",
         "R2",
         "caller TMPDIR constraint"
       ],
-      "scenario": "With a valid relative caller TMPDIR=tmp, mktemp returns tmp/tmp.<suffix>. The helper exports that relative path and keeps it as its cleanup target. After cd, both further allocations and cleanup resolve it from the wrong directory. All three current scripts invoked from another directory exit 1 and leave their helper root in the original caller TMPDIR; the helper alone followed by cd / exits 0 and also leaks.",
+      "scenario": "The relative-TMPDIR correction works with CDPATH unset. With exported CDPATH=. and TMPDIR=tmp, cd prints the absolute destination and pwd -P prints it again; POSE_TEST_TMP captures two newline-separated paths. The exported TMPDIR and cleanup target are invalid. All three current real scripts exit 1 and leave the allocated root; the helper followed by cd / exits 0 and also leaves it.",
       "cases": [
         {
           "name": "quickstart",
-          "exit_code": 1,
-          "left_nonempty": true
+          "CDPATH": null,
+          "exit_code": 0,
+          "caller_TMPDIR_nonempty": false
         },
         {
           "name": "migration",
-          "exit_code": 1,
-          "left_nonempty": true
+          "CDPATH": null,
+          "exit_code": 0,
+          "caller_TMPDIR_nonempty": false
         },
         {
           "name": "journey",
-          "exit_code": 1,
-          "left_nonempty": true
+          "CDPATH": null,
+          "exit_code": 0,
+          "caller_TMPDIR_nonempty": false
         },
         {
           "name": "helper",
+          "CDPATH": null,
           "exit_code": 0,
-          "left_nonempty": true
+          "caller_TMPDIR_nonempty": false
+        },
+        {
+          "name": "quickstart",
+          "CDPATH": ".",
+          "exit_code": 1,
+          "caller_TMPDIR_nonempty": true
+        },
+        {
+          "name": "migration",
+          "CDPATH": ".",
+          "exit_code": 1,
+          "caller_TMPDIR_nonempty": true
+        },
+        {
+          "name": "journey",
+          "CDPATH": ".",
+          "exit_code": 1,
+          "caller_TMPDIR_nonempty": true
+        },
+        {
+          "name": "helper",
+          "CDPATH": ".",
+          "exit_code": 0,
+          "caller_TMPDIR_nonempty": true
         }
       ],
-      "action": "Resolve the owned temporary root to a stable absolute path before exporting TMPDIR or registering cleanup. Verify helper success/failure after cd and all three scripts from another directory with a relative caller TMPDIR.",
+      "action": "Make absolute-path resolution independent of caller CDPATH and ensure the capture contains exactly one path. Revalidate the helper and all three real scripts with relative TMPDIR, exported CDPATH and directory changes.",
       "evidence": [
+        "relative-probes.py",
         "relative-tmpdir.json",
-        "relative-quickstart.log",
-        "relative-migration.log",
-        "relative-journey.log",
-        "relative-helper.log"
+        "relative-CDPATH-dot-helper.log",
+        "relative-CDPATH-dot-quickstart.log",
+        "relative-CDPATH-dot-migration.log",
+        "relative-CDPATH-dot-journey.log"
       ]
     }
   ],
@@ -168,7 +278,7 @@
     "branch_cli_build": {
       "exit_code": 0,
       "command": "go -C pose-mcp build -o ../pose-review ./cmd/pose",
-      "note": "Moved Go -C output to ../pose-review; used the branch binary throughout."
+      "note": "Moved Go -C output to ../pose-review and used that branch CLI throughout."
     },
     "context": {
       "exit_code": 0,
@@ -188,7 +298,7 @@
     },
     "hygiene": {
       "exit_code": 0,
-      "negative_fixtures": 81,
+      "negative_fixtures": 91,
       "positive_fixtures": 5,
       "tracked_copy_controls": 3
     },
@@ -200,33 +310,39 @@
         "name": "quickstart",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 3.65
+        "seconds": 3.38
       },
       {
         "name": "migration",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 1.91
+        "seconds": 2.25
       },
       {
         "name": "journey",
-        "exit_code": 0,
+        "exit_code": 1,
         "leftovers": [],
-        "seconds": 6.17
+        "seconds": 2.65
       },
       {
         "name": "demo",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 1.9
+        "seconds": 1.96
       },
       {
         "name": "quickstart-binary",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 1.28
+        "seconds": 1.27
       }
     ],
+    "install_retry": {
+      "exit_code": 0,
+      "leftovers": [],
+      "GH_TOKEN": "provided only to this retry command; never logged"
+    },
+    "install_initial_failure": "Anonymous published-release listing returned HTTP 403; caller TMPDIR was empty. Retry supplied GH_TOKEN only to the command and passed. No token was printed.",
     "additional_controls": [
       {
         "name": "old-static",
@@ -236,7 +352,7 @@
         "name": "old-quickstart",
         "exit_code": 0,
         "leftovers": [
-          "tmp.25BuTcLUF8"
+          "tmp.QO6uifz3NZ"
         ],
         "nonempty_check_exit": 1
       },
@@ -264,15 +380,10 @@
         "environment_failure": "GOTOOLCHAIN=invalid"
       }
     ],
-    "prior_external_leaks": {
-      "rejected": 63,
-      "total": 63
-    },
-    "round9_counterexamples": {
-      "all_four_synthetic_shapes_rejected": true,
-      "both_complete_gate_controls_exit": 1,
-      "demo_second_mktemp_no_longer_reached": true,
-      "demo_mktemp_calls": 1
+    "prior_external_corpus": {
+      "rejected": 67,
+      "total": 67,
+      "round10_cases_rejected": 11
     },
     "helper_controls": {
       "nested_permission_failure_cases": 12,
@@ -325,17 +436,22 @@
       }
     ],
     "full_gate_leak_controls": {
-      "cases": 11,
+      "cases": 20,
       "all_gate_exit_codes": 0,
       "all_gate_TMPDIRs_empty": true,
       "tracked_path": "tests/import/migration-guides.sh",
-      "evidence": "full-extra.json"
+      "evidence": "full-new.json"
     },
     "adversarial_shellcheck": {
-      "passed": 10,
-      "total_leaks": 11,
-      "warning_case": "multiline-backtick-return uses legacy backticks; other ten are warning-clean"
+      "passed": 17,
+      "total_leaks": 20,
+      "CI_diagnostic_cases": [
+        "mktemp-word-escape",
+        "concatenated-heredoc-delimiter",
+        "exit-too-many-arguments"
+      ]
     },
+    "excluded_probe": "integer-literal-gap (division by zero) cleans up, so it is not a finding; integer-unset-gap actually leaks. Two positive controls clean up.",
     "artifact_check": {
       "exit_code": 0,
       "claims": 12,
@@ -364,94 +480,117 @@
     },
     "bundle_preview": {
       "exit_code": 0,
-      "id": "rvb-12ec261992810661",
+      "id": "rvb-10c5f3bce2e1ed87",
       "sealed": false,
       "state": "prepared"
     },
-    "integration": "CI, scripts/verify.sh and required matrix check test-scripts-remove-their-temp-files-integration invoke hygiene. No inter-module API/MCP contract changed; assess integrate not applicable."
+    "integration": "CI, scripts/verify.sh and required matrix check test-scripts-remove-their-temp-files-integration invoke hygiene. No API/MCP/REST/event contract changed; assess integrate not applicable."
   },
-  "evidence_quality": "Real scripts, Go suite and baseline gates completed before tracked-file mutations. Mutations were sequential and restored byte-for-byte. Full-gate controls scan substituted migration scripts; their actual leaks are proven by separate execution. Every intentional leak was removed after observation. One preview overlapped a mutation and was discarded; a second used a restored stale index and was discarded. The final preview used refreshed artifact data with clean implementation paths. Native generated side effects were retained externally and restored.",
+  "evidence_quality": "Baseline real scripts, Go suite and gates completed before tracked mutations. Mutations ran sequentially and were restored byte-for-byte; the authenticated install retry ran between completed mutation batches on restored source. Complete-gate controls prove admission of substituted scripts, whose actual leaks are separately executed and observed. Escaped TMPDIR content was observed outside the owned/caller roots and removed, as were all intentional leftovers. Native assessment/index effects were saved externally and restored. No implementation corrections were made.",
   "closeout": {
     "sealed_bundle_id": null,
     "attestation_id": null,
     "review_verify": "not run; medium findings",
+    "review_check": "not run; medium findings",
     "close": "not run; medium findings",
     "lint_spec_strict": "not run; conditional approval closeout not entered",
     "check_strict": "not run; conditional approval closeout not entered",
     "strict_delivery_validation": "not run; conditional approval closeout not entered",
     "commit_pushed": null
   },
-  "raw_evidence_directory": "/tmp/pose-temp-independent-r10",
+  "raw_evidence_directory": "/tmp/pose-temp-independent-r11",
   "raw_evidence_sha256": {
-    "context.log": "a79c77d81d079a430d59445b2999158cbf2e2780a79a0f222e6016f03bec301d",
-    "tech-debt.log": "84d9b0da3f49dbfe79a93777b7c9db82ac638302683eae9cd3d53898f9782af0",
-    "recurrence.log": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7",
-    "artifact.log": "a6349d0799fe6927fc282c3f2a8703904e94045175b63e37c221ae8e7f9f9b0d",
-    "artifact-summary.json": "3210009fa6142ed3390f41ac4547eff2deec10e34c9f22d46f23ea1a02356b40",
-    "bundle-explain.log": "9e771ed53ec534ab6c2dbfee8c98b82af214046b17da11f9ab014a56b7fe0c38",
-    "bundle-during-mutation.log": "0a5932f3c4483b14f17f26cba79b608d5b1529e4382bb7492861acf9cf9fec8f",
-    "bundle-before-index-refresh.log": "756677efd31f3e9ea88c2c0e4b2c68370471aa3a7695be28cf007471b2e0e7c4",
-    "full-diff.log": "9ba3c56afafe02b4aafdde231d74145d667ebb01964bc8c7f9d96f00fc552105",
-    "round10-diff.log": "90c19fa196c0052266e429462e2aa8dc9f0fab6942fe927ae7fb6dba25624156",
-    "go-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "go-test.log": "9970c8d9bf1907dee409d78f7253e5566dffa544121bce3a4d2bbf0ebe4430c9",
-    "hygiene.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
-    "shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "local-ci-gate.log": "644c29361e6b48da5c0d3184a7e0ebb0179faa3b2e6d32dd4986b6e59f73dd24",
-    "real-results.json": "83f9df46c63ed395bfdd8f6806270fb6af495ee60aad2796dd639813b0d76fea",
-    "remaining-probes.json": "2bd7935afe4af723840a00987873c3bd74790c6269b44bc4b1c152b3f5b7a82f",
-    "scan-probes.json": "cf4ef0596550f26942b6de1018a2624dbc428057e925ef6a97bf6628a539b2c8",
-    "previous-corpus.json": "2ffaa404999dc21f00637806e85b4935953788774cedd71e5735d1554349156f",
-    "control-probes.json": "d76541722742c8d56aff89880635aa1b62c67422a4700c9a9475b8924d6e9bbf",
-    "extra-probes.json": "1238b383c4adba578b5c2e8dd31afc9ea7cbc232330568a84494684a9b30ea10",
-    "full-extra.json": "918b7b6836da1081bf53a2c2e7de1e8b3ca564d07b0fe7635585d88abdf4dd49",
-    "relative-tmpdir.json": "8e3bbe7df37683ad82b1af969a01e89c6da310ec84609b433783aef983379b78",
-    "demo-build-failure.log": "81ea061796f9d49ad6fead3fd3b35102552ec9ccdc1d61f64dfaf6ae770cab86",
-    "demo-second-mktemp-failure.log": "e26c6c88e2452979bd77d9a69fd961759f64d54274e8bc7ceb55fd808f814884",
-    "fault-bin/mktemp": "227b9c9024bacd4eb9bf886f691a56810621f25f07ff7c9dfa51ec9238799a09",
-    "scan-probes.py": "e378b849758914c17f225b19cd5adfbbb8cf2852bd99b8509c4b14652eb8f330",
-    "extra-probes.py": "6d2eac79fb4ca21f23a73d553319cbc50e1c6de2544c84629c4f15ff7b24b2e2",
-    "full-extra.py": "311c75a7e9ac7b1aea415c5c688bc4ad80ec24dbf8ce48d0f8080a88c9a1b8c2",
-    "control-probes.py": "05ce064bb344081b4435afe0ed5a3bdfd5c352d337a5f60b9f3f5262b88f6930",
-    "remaining-probes.py": "98820661b58d6aa948538ef580796c5c3ff9bae1c546b7b1c120d61da54dbbb6",
-    "run-real.py": "d24987230dd5220deb300a6ed0945c7d790beb48b621bf415e377f606b47fe5c",
-    "governance.log": "0ffb2e326b3eb92b14e2ff8a8121c8b951ed29a14754a7ff8a84e6cd77a9f1a9",
-    "tracked-shell-paths.log": "f75ee1dc341cc5641008eee8fbea4fed3b55e53f0b28838d02217eb3b3756b64",
+    "context.log": "e2f842f32f13019b809512e4bb132e950186b90c8a5ba882057039ec101e9919",
     "suggest-pose-mcp.log": "eb90980a7ead71b07dc4d355944863683fcfd3bb0ebcf2ba5eead2536606b184",
     "suggest-tests.log": "d5e614a2f3bc7eb2bce8cbde968dd286577e6f7ec676ec0b7b851e9cfd10e106",
     "suggest-scripts.log": "a9e8e207e8d8a2b4ec34ad2ddb8e8e04ed29df04e340fdf1cd18118e9980ee17",
     "suggest-examples.log": "e508f2937b328e9d5ab3151fe51a18bf0d8b29d6febdc3f02e597b59d6531dff",
-    "relative-helper.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "relative-quickstart.log": "b76ce2841b8e4d9f4604625c60b24f710bb5a00a6ab9038d1fbebcdcf6c21bd4",
-    "relative-migration.log": "8bff727f59cc8dbc309e8314688044785f6c2d48d67d0a87c2a0a57f35ba6067",
-    "relative-journey.log": "733e1a1c83b6c62745c0119734af5fa1735683ef3b5cebd91cfb8734d5884dd7",
-    "exit-function-noop.log": "0d4cf402611ec0dad6d099054c9738514c36c4b113d0ea7540646bb37b553c84",
-    "return-function-noop.log": "b29669ad5dd58987404ca9af2c228ddd98dadc1c4b09d57aaed2e237d31b8153",
-    "bare-return-without-errexit.log": "574164310b926251861f4dbf042cbe0ceefa0d640efa8ff551f73398db3a2ad4",
-    "exit-as-continued-argument.log": "538eb277b9cc14235fcdde01be1fc3402e282be7286a41735f697a0b58e43d10",
-    "return-as-continued-argument.log": "33501181425ff04b0394ce22d54c4fb671a458c5d675abd9f3c79d2436e567a4",
-    "multiline-single-quoted-heredoc-text.log": "bd654f5433afdac0acd36de8fe6aef5f1ca7e5ea61e2d2893e5aa9b2c4175bbb",
-    "multiline-double-quoted-heredoc-text.log": "5b186ced0633584873f277d2e6a8ee5408e932ef052a87cbb6c139a342d33f9e",
-    "multiline-backtick-return.log": "a8ef175fcd4913025d27e428f5a819b4ea5c8efce918c1af74e41aeabe3abbc5",
-    "command-substitution-exit.log": "f341e4f1210f76859dd0015d33f33497e1aad70ec7458797bdbdd676af717049",
-    "own-trap-noexec.log": "96825020922dc5dbbdf18e7a9cc84bfa3f1a639d63472c6285c4ac98025921e7",
-    "own-trap-rm-readonly-child.log": "b523395780fc0a499b61180fecc5cfa4ddae5143a38b968159310f54cc44a9eb",
-    "full-gate-exit-function-noop.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
-    "full-gate-return-function-noop.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
-    "full-gate-bare-return-without-errexit.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
-    "full-gate-exit-as-continued-argument.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
-    "full-gate-return-as-continued-argument.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
-    "full-gate-multiline-single-quoted-heredoc-text.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
-    "full-gate-multiline-double-quoted-heredoc-text.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
-    "full-gate-multiline-backtick-return.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
-    "full-gate-command-substitution-exit.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
-    "full-gate-own-trap-noexec.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
-    "full-gate-own-trap-rm-readonly-child.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad"
+    "tech-debt.log": "84d9b0da3f49dbfe79a93777b7c9db82ac638302683eae9cd3d53898f9782af0",
+    "recurrence.log": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7",
+    "artifact.log": "cc406c778b5b88dce4d36ca66ca5f931fd034831d9c16b41363b41301fe2995d",
+    "artifact-summary.json": "c938f5706d788ed8fd3e0e1b477940e64547792a8e6d3e664c336748f667d34a",
+    "bundle-explain.log": "812fc2b7ad3618b5923adb4682c4d82ca8e9ab1369c7bc5b944d0626a8b87e95",
+    "full-diff.log": "eba714571143b97939977e059b31ffb7675ff7a7bd1bf593b2313e7f7cdb4c80",
+    "round11-diff.log": "01821bb957b8dfb2b0b7c103985cb9d0e1aa888038830424cf8a3bfdb38d252c",
+    "go-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "go-test.log": "3c24793df84c05aa88a848c585ae891869827e8deb9f004f4e0822b714a1bba2",
+    "hygiene.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local-ci-gate.log": "3977f6864ee09b98bc6fb31e94d475dd209854cd42505b512b7331978f88decd",
+    "real-results.json": "8107983ca8e0a50512aae5301a25649c97f90d10e784267fe62dfa58ab42d50c",
+    "journey.log": "5cfde0fd25193ce13784877c5417d6ad77e226e62fc1c013ce2b01cf1786a824",
+    "journey-retry.log": "6d24d3a882d7244082e532892f74bb324982cacac310f89e737beec330f090ca",
+    "journey-retry.json": "d97b58e44d103b88baaee8552aba41dbda51aa71262868677503912f75e17dcc",
+    "remaining-probes.json": "4999ab88e7faaa0a18b9d3d3823351fca9e92b3329cfdb65517eed127be2e7ec",
+    "scan-probes.json": "f98a7b78c7451693e33fa3de1485e03bf88eeef0e93e50dc5aa0f1f6de8f8b0a",
+    "previous-corpus.json": "b516a41a7782963794b69168af14cf35f62a24741dbb1a9c30973e0e2cbca2a2",
+    "extra-probes.json": "fc9481fb8efaf2745f84571845edafe0b90afb87f997c01510c36e3f9c130179",
+    "new-probes.json": "d71491400512ccce352131da58edf7552597744b22b7e3708782c89cfb28c711",
+    "control-probes.json": "651c6400bb360fe3df00a9480f04ad25afd97ed2a9179b26dbdf8fdc7c020a66",
+    "full-new.json": "557b60299cf3c665e44686a58d506418e4b2805ce4aefbc78d395104b400acae",
+    "relative-tmpdir.json": "16aff4b1311ef80cd616300ad89cc91bad0cdcf511e99043ba56de16dcb64329",
+    "scan-probes.py": "0dd8fea28c6b05b86273071343706b7ed0e1fd4d87cab53b994d0562d2024dab",
+    "extra-probes.py": "74c3f8ba486448d9f97ff4a08a21c569a566f2d45a19821e6825f4aebd322999",
+    "new-probes.py": "921493600ad988688a65bf3f087c8755710dab3624ec3ae8f6a560c927c0010b",
+    "full-new.py": "1be8ade0fd022a8c0fa96157bb85425c92abc1c8cbcc90248bd32564b1486758",
+    "full-new-additions.py": "e05b9bba19396784cfbab262ac2c29c00b7631bc4d3ac9862e80f126af4fc04c",
+    "relative-probes.py": "94bf8859fde24badcf9972168d955f5d9671c8297ddac67eb392036e3d65d292",
+    "journey-retry.py": "89636175c2d2d437805e39984b53cab2d951edcd3aec49054dadaf02a446e235",
+    "control-probes.py": "122b36bc0825bd0a808c421ec7874328fcba7a446151d94aa28fc20946065749",
+    "remaining-probes.py": "7a1067709971809a98feced1fe080423769dd1d41ac0183c459017a361298f77",
+    "run-real.py": "ee511b4b6b9a2a6980d663a30726db3073a9ef7d66d6ef3c730f3bc6b8c984f2",
+    "governance.log": "d4c42ea020fa63440a7ecca280552ab2678a9441f29dd3f3a71f21f5cbe41723",
+    "tracked-shell-paths.log": "f75ee1dc341cc5641008eee8fbea4fed3b55e53f0b28838d02217eb3b3756b64",
+    "commit-messages.log": "fe9b7636fc2c20ee17f90a998046f09ac261f38b7af9f1acc127d982f5f448ca",
+    "mktemp-word-continuation.log": "8ddba9cdbc617ae8d4dd3fa917fc3ba1b9741ec570a134fdfe450bbdf02fae41",
+    "mktemp-word-escape.log": "660ebd01ddec8cd7efb4b0f20bd81ed66a5222bf9f6d300212dee59080cb69f1",
+    "helper-trap-word-continuation.log": "4afa934325dd2ed5cd1026127fcde7072cc61e0aabe7403d60bfdf2f28a2d4d8",
+    "helper-init-after-and.log": "a790a45d9d915a255ec59bc1d8cd07ed12575afc6446a721f09c2f8530955429",
+    "helper-init-after-or.log": "6a6372bad73723f733df20bd38c8eef54b9cc22055b95bb2d8f2cc72b9ccdc0d",
+    "helper-init-in-pipeline.log": "21dc0a4b6899e096ebf039528701bbcc8a15c58a6db1a0a8e6967c3b62670b5e",
+    "helper-unexport-typeset.log": "9a1c810e89372cadffb6437ce7daee2113e5647ba99ddce40dcb16abc49a16b7",
+    "own-trap-stacked-noexec.log": "dd7ae3b5e0afe67fe441e22370e0110718dbb53e222c257d9c461bd404047a8b",
+    "own-trap-quoted-chmod.log": "50b2cbec6b4399d0e2ada0e02ae04e3466e161f1797cd4d3e589d73a1e4d2ed0",
+    "own-trap-chmod-end-options.log": "7c0f1b2b351d4c0939712f30a3655fe929137264e99d02e672062dd8e4d3d9ec",
+    "helper-trap-hidden-before-heredoc-body.log": "f88b4b31ef41e03f6eb95daa82ad85e8cc9ebade5cd01f25bcdb6ed9c9dfca09",
+    "escaped-heredoc-delimiter.log": "6680f86c7ea03cca6c6a1a802f1b0b9f446d8c848b4a3546bd6a008eafdcd509",
+    "numeric-heredoc-delimiter.log": "06e8dda1c49f6d4e8b02fd092b8558f0ea5e3f9b6914337c07d38788c2bcb758",
+    "concatenated-heredoc-delimiter.log": "023ad4b2fa96cb172f31a0a2d4be8d2bde3bc951e0ad18d35fb89e537cd1b75c",
+    "exit-redirection-fails.log": "b4138c943aeb363a3de06aa27fe62f6beba368abdca041537e0c5bae91d6537d",
+    "exit-too-many-arguments.log": "7842f84fdba32990e207747654a322a3370aacd2dd4c1bc038f853c31533232f",
+    "integer-helper-root.log": "f2841658e631a4432391975a5efe0da83df15b9b5a6720fa33ad66aad5ffab1d",
+    "integer-helper-tmpdir.log": "34e1e738290166de52d89fbd0f2ed2f6d28cd16da6ec8139b41383385d16b66a",
+    "uppercase-helper-root.log": "cd0e6a5faec4d5e759357b4e56c2fc6bebdfed9dbb491bc468b76416edc919b5",
+    "integer-unset-gap.log": "61072368c3381a6adebe462bb8fc13d574ab822ad6e634965c2553bbf92bea13",
+    "full-gate-mktemp-word-continuation.log": "9d6cfb25d54fb07645cc5da876a69c87d137e2d1c0e0d9ea13cb4906831d9ebb",
+    "full-gate-mktemp-word-escape.log": "9d6cfb25d54fb07645cc5da876a69c87d137e2d1c0e0d9ea13cb4906831d9ebb",
+    "full-gate-helper-trap-word-continuation.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-helper-init-after-and.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-helper-init-after-or.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-helper-init-in-pipeline.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-helper-unexport-typeset.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-own-trap-stacked-noexec.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-own-trap-quoted-chmod.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-own-trap-chmod-end-options.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-helper-trap-hidden-before-heredoc-body.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-escaped-heredoc-delimiter.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-numeric-heredoc-delimiter.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-concatenated-heredoc-delimiter.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-exit-redirection-fails.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-exit-too-many-arguments.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-integer-helper-root.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-integer-helper-tmpdir.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-uppercase-helper-root.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "full-gate-integer-unset-gap.log": "f2c9a2fbaaf5fc72eae597f3f8e2a651c79ec17bb1094e94fc8c2b244e627139",
+    "relative-CDPATH-dot-helper.log": "3fae4781e3b5218ab0bbe657883cd4f3cf2f2b46a2b382d271b9eea0d47acd87",
+    "relative-CDPATH-dot-quickstart.log": "dfb8bf82d84df24318acfb499780a25a5466e4b2ac08eb220590013ae39d7042",
+    "relative-CDPATH-dot-migration.log": "e09671a921aa8bd013593f9a97a1576d6011744ff404d97a756b249cdd26cc53",
+    "relative-CDPATH-dot-journey.log": "46b53d383cfc7355da6b2a5cd8b95e9c4ba66fc36edbfaab9ce517dd4968468f"
   },
   "prior_review": {
-    "round": 9,
-    "head": "f98d0056",
+    "round": 10,
+    "head": "e5d86dfb",
     "decision": "changes-requested",
-    "committed_record": "e5d86dfb:.pose/results/test-scripts-temp-cleanup-independent-review.json"
+    "committed_record": "70a330c5:.pose/results/test-scripts-temp-cleanup-independent-review.json"
   }
 }
