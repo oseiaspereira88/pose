@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-17T01:24:09Z
-baseline_commit: 00f743c35d583d57946a32305913d1a0fa640a27
+generated_at: 2026-10-17T11:19:02Z
+baseline_commit: 534653c6eed826a2b17d655904c8581a62ba215e
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:a64c87c8de39 -->
+<!-- state:derived hash:c3525cd94bb4 -->
 
-- specs: total=440 draft=36 in-progress=18 blocked=0 done=385 superseded=0 abandoned=1
+- specs: total=441 draft=36 in-progress=18 blocked=0 done=386 superseded=0 abandoned=1
 - roadmaps: total=22 active=3 done=11
 - últimos closeouts:
+  - spec:pose-test-scripts-remove-their-temp-files (2026-10-17)
   - spec:pose-writer-coordination-and-atomic-publication (2026-10-17)
-  - spec:pose-cli-mcp-operation-results (2026-10-16)
+  - spec:pose-review-approval-domain-preflight (2026-10-16)
   - spec:pose-engine-package-stays-mirrorable (2026-10-16)
   - spec:pose-dist-instance-follows-engine (2026-10-16)
-  - spec:pose-review-approval-domain-preflight (2026-10-16)
-  - ... e mais 380 (ver `pose_list_specs status:done`)
+  - ... e mais 381 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:64a54410138b -->
@@ -75,16 +75,16 @@ capacidade.
 - knowledge: total=11 ativo=11 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:bf9d8e458807 -->
+<!-- state:derived hash:b8422423fab7 -->
 
 - último registro: task=validate-native outcome=fail (2026-10-13T04:23:26Z)
 - últimos 30 dias: total=99 outcome_ok=75 outcome_outro=24
-- reports revisados (.md): total=206
+- reports revisados (.md): total=207
+  - report:2026-10-17-pose-test-scripts-temp-cleanup-review.md
   - report:2026-10-16-pose-b14-writer-coordination-review.md
   - report:pose-abm-capability-adoption.md
   - report:pose-agency-readiness-pilot.md
   - report:pose-v6-2-0-autonomous-work.md
-  - report:pose-v7-legacy-cleanup-plan.md
 
 ## Arquitetura
 <!-- state:derived hash:1a6ee06cee0b status:active -->

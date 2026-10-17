@@ -163,3 +163,18 @@ e a [evidência](../results/b14-independent-review.json) identificam o bundle
 delivery_complete=true; o programa continua ativo e este roadmap conserva seu
 status. Aguardar merge de #188 pelo maintainer e reavaliar DAG/readiness nativa,
 sem selecionar implementação, policy, capability ou adoção neste closeout.
+
+A correção transversal `pose-test-scripts-remove-their-temp-files`, fora de
+B01–B44, atingiu closeout nativo em 2026-10-17 no PR #192. A revisão independente
+Codex/OpenAI frente à implementação Claude/Anthropic aprovou a rodada 13:
+F8/F9 corrigidos e reproduzidos, R3 reduzido por decisão do maintainer a forma
+simples do helper ou pin SHA-256 revisado, e limites de shell/SIGKILL declarados.
+Validação no head 534653c6: global strict 137/137 e módulo 134/134; medição Docker
+real com pose 7.4.1 passou em 12,486 s sem resíduos no TMPDIR. Identidade e
+separação declaradas, sem assinatura.
+O [parecer](../reports/2026-10-17-pose-test-scripts-temp-cleanup-review.md) e a
+[evidência](../results/test-scripts-temp-cleanup-independent-review.json)
+registram o bundle `rvb-6167567bf3fa6ac4`, a atestação
+`rva-5358c584e2a8bd4f`, os produtores e gates nativos. Esta entrega não cria
+B-unit nem altera o plano de implementação; o programa e este roadmap conservam
+seu status. Aguardar merge de #192 pelo maintainer.

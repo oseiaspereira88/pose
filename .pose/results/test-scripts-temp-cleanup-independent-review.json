@@ -1,93 +1,35 @@
 {
   "schema_version": 1,
-  "round": 12,
+  "round": 13,
   "spec": "pose-test-scripts-remove-their-temp-files",
   "pr": 192,
-  "head": "971288c7003f4cb6e657388285176a6dbe56994f",
-  "decision": "changes-requested",
+  "head": "534653c6eed826a2b17d655904c8581a62ba215e",
+  "decision": "approved",
   "reviewer": "agent:independent-gpt-6.1-sol-review",
   "identity_assurance": "declared; unsigned",
   "judgments": {
-    "scope": "Maintainer-authorized Codex/OpenAI execution reviewing Claude/Anthropic implementation, a different vendor. The agent:independent- prefix is an engine-required declaration until pose-delegated-review-run-provenance replaces it. Identity is declared and pose-dist attestations are unsigned. Individual implementer/session identity is maintainer-supplied, not independently authenticated.",
-    "R3_rescope": "Evaluated the maintainer-authorized new requirement, not arbitrary-shell cleanup analysis. Plain helper-form omission/order checks and whole-file pin changes/staleness work. No attempt to reopen old shell-parser counterexamples: unusual syntax defeating the helper is now an explicit review-dependent limit. Re-pinning is an explicit reviewer action; checksums do not authenticate who reviewed a script. F9 is a concrete unsafe own trap found during the human review that the new pin contract requires.",
-    "D1": "One owned absolute TMPDIR captures ordinary child Go/curl/git temporary work; permission/failure/signal/CDPATH cases pass. The new sourced dependency was not delivered through the existing script-copy producer (F8).",
-    "residual_risks": "SIGKILL independently leaves a root and cannot be trapped. The new static rule deliberately reads lines, not shell; exotic helper sabotage remains a declared new-script review responsibility. Final Report is Pending. F8/F9 are findings, not accepted residual risks.",
-    "scan_scope": "All 24 tracked *.sh paths are within tests/, scripts/, examples/ or install.sh, including descendants. Helper and hygiene are exempted statically and checked dynamically. Ten own-trap files are pinned and all hashes match."
+    "scope": "Maintainer-authorized Codex/OpenAI execution reviewing Claude/Anthropic implementation, a different vendor. agent:independent- is the engine-required declaration until pose-delegated-review-run-provenance replaces it. Identity and separation are declared; pose-dist attestations are unsigned. Individual implementer/session identity is maintainer-supplied, not independently authenticated. No human adoption of conclusions is claimed.",
+    "R3": "The maintainer-authorized R3 is an omission/order and whole-file-pin regression guard. It deliberately does not analyze arbitrary shell; previously accepted unusual-helper sabotage cases are outside the revised claim. All ten pins match and were read. New script review and explicit repin review remain necessary.",
+    "D1": "One absolute owned TMPDIR contains ordinary child temporary work and centralizes lifecycle cleanup. Chmod restores owner access before removal. CDPATH is neutralized. The real container now receives both quickstart and helper, and a failed Docker removal does not skip host cleanup. This is proportionate to per-allocation traps without an arbitrary-shell parser.",
+    "limits": "SIGKILL and machine/power loss cannot execute shell traps. Persistent caches and tools ignoring TMPDIR are outside scope. Pins detect changed bytes, not review authorship. These are declared boundaries, not open findings."
   },
   "previous_findings": {
-    "F1": "resolved in original restricted-descendant scope",
-    "F2": "retired under maintainer-authorized R3 rescope; revised mechanical contract passes; no claim that old arbitrary-shell counterexamples now clean up",
-    "F3": "resolved: delivered INT/TERM produce 130/143; missing-INT mutation fails",
-    "F4": "resolved: composition documentation names pose_test_tmp_remove",
-    "F5": "resolved: exact setup markers and old-permissions negative control",
-    "F6": "resolved: hygiene signals and failure paths leave TMPDIR empty",
-    "F7": "resolved: relative TMPDIR with CDPATH unset or exported as . passes for helper and all three real scripts"
+    "F1": "resolved: restricted descendants",
+    "F2": "retired by maintainer-authorized R3 rescope, not claimed solved as arbitrary-shell analysis",
+    "F3": "resolved: delivered signals and exact statuses",
+    "F4": "resolved: helper composition name",
+    "F5": "resolved: setup markers and negative permission control",
+    "F6": "resolved: hygiene gate cleanup on signal/failure",
+    "F7": "resolved: absolute path and CDPATH",
+    "F8": "resolved: actual Docker measurement executes staged quickstart/helper",
+    "F9": "resolved: new script cleans up under injected Docker rm failure; old script leaks"
   },
-  "findings": [
-    {
-      "id": "F8",
-      "severity": "medium",
-      "status": "open",
-      "file": "tests/quickstart/first-governed-loop.sh",
-      "line": 18,
-      "additional_locations": [
-        {
-          "file": "tests/quickstart/measure-clean-environment.sh",
-          "line": 41
-        }
-      ],
-      "requirements": [
-        "R2 integration",
-        "Intent constraint: preserve script behavior and assertions"
-      ],
-      "scenario": "The existing measurement producer copies only first-governed-loop.sh to /measure-loop.sh, then invokes it with --binary inside a clean container. The new source of ../lib/tempdir.sh has no corresponding copied helper and fails before the binary branch or assertions. Recreating the unchanged producer script-only layout yields exit 1 with the missing-helper diagnostic; the origin/main script in the same layout, using the same branch CLI, exits 0. No Docker or network is required to reproduce this missing file.",
-      "action": "Deliver the helper alongside the copied script at the expected location, or revise that producer to preserve the quickstart dependency contract. Exercise the existing measurement invocation and re-review/re-pin the changed producer.",
-      "evidence": [
-        "measurement-probes.py",
-        "measurement-probes.json",
-        "script-only-current.log",
-        "script-only-original.log",
-        "consumer-search.log"
-      ]
-    },
-    {
-      "id": "F9",
-      "severity": "medium",
-      "status": "open",
-      "file": "tests/quickstart/measure-clean-environment.sh",
-      "line": 9,
-      "additional_locations": [
-        {
-          "file": "tests/hygiene/temp-cleanup.pins",
-          "line": 7
-        }
-      ],
-      "requirements": [
-        "R1 failure-path cleanup",
-        "R3 human review of own-trap pin"
-      ],
-      "scenario": "The newly pinned legacy script runs docker rm under set -e before rm -rf \"$work\" in its EXIT trap. If Docker cleanup fails, Bash aborts the trap and never removes the host temporary directory. Running the unchanged full script with a local Docker fault injector (start returns 7, rm returns 9) exits 9 and leaves its root. A paired control with the same start failure but rm success exits 7 and leaves TMPDIR empty. No Docker daemon, real container or network is used. This is a pre-existing trap defect exposed by review of the newly adopted pin, rather than a shell-parser bypass.",
-      "action": "Ensure host-directory cleanup runs even when container removal fails, preserving appropriate failure reporting. Add that cleanup-failure control and re-review/re-pin the corrected script.",
-      "evidence": [
-        "measurement-probes.py",
-        "measurement-probes.json",
-        "docker-stub/docker",
-        "measurement-rm-0.log",
-        "measurement-rm-9.log",
-        "measurement-rm-0-calls.log",
-        "measurement-rm-9-calls.log"
-      ]
-    }
-  ],
+  "findings": [],
   "checks": {
     "branch_cli_build": {
       "exit_code": 0,
       "command": "go -C pose-mcp build -o ../pose-review ./cmd/pose",
-      "note": "Moved Go -C output to ../pose-review and used that branch CLI throughout."
-    },
-    "context": {
-      "exit_code": 0,
-      "authority": "same-project-authority"
+      "note": "Moved Go -C output to ../pose-review and used the branch CLI throughout."
     },
     "go_vet": {
       "exit_code": 0
@@ -101,85 +43,77 @@
       "severity": "warning",
       "scope": "CI glob set"
     },
+    "local_verify_covers_ci": {
+      "exit_code": 0
+    },
     "hygiene": {
       "exit_code": 0,
-      "built_in_negative_controls": 7,
-      "pin_entries": 10
+      "required_matrix_producer": "test-scripts-remove-their-temp-files-integration"
     },
-    "local_verify_covers_current_ci_gates": {
-      "exit_code": 0
+    "global_strict_validation": {
+      "outcome": "pass",
+      "counts": {
+        "executed": 137,
+        "passed": 137,
+        "failed": 0,
+        "optional_failed": 0,
+        "errored": 0,
+        "skipped": 0
+      },
+      "git_head": "534653c6eed826a2b17d655904c8581a62ba215e",
+      "failed": []
+    },
+    "module_strict_validation": {
+      "exit_code": 0,
+      "passed": 134,
+      "executed": 134
     },
     "real_scripts": [
       {
         "name": "quickstart",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 3.28
+        "seconds": 4.01
       },
       {
         "name": "migration",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 1.76
+        "seconds": 2.12
       },
       {
         "name": "journey",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 6.0
+        "seconds": 6.02
       },
       {
         "name": "demo",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 2.12
+        "seconds": 2.19
       },
       {
         "name": "quickstart-binary",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 1.31
+        "seconds": 1.54
       }
     ],
     "relative_TMPDIR": {
       "cases": 8,
-      "all_exit_codes": 0,
+      "all_passed": true,
       "all_left_empty": true,
       "CDPATH_values": [
         "unset",
         "."
-      ],
-      "producers": [
-        "helper",
-        "quickstart",
-        "migration",
-        "journey"
       ]
     },
-    "additional_controls": [
-      {
-        "name": "old-static",
-        "exit_code": 1
-      },
-      {
-        "name": "old-quickstart",
-        "exit_code": 0,
-        "leftovers": [
-          "tmp.1UU5ZOTE4V"
-        ],
-        "nonempty_check_exit": 1
-      },
-      {
-        "name": "journey-binary-previous-from-other-directory",
-        "exit_code": 0,
-        "leftovers": []
-      }
-    ],
-    "helper_controls": {
-      "nested_permission_failure_cases": 12,
+    "helper": {
+      "permission_failure_cases": 12,
       "all_left_empty": true,
-      "shipped_setup_cases": 4,
-      "all_setup_markers_reached": true,
+      "shipped_cases": 4,
+      "setup_markers_reached": true,
       "shipped_exits": [
         0,
         1,
@@ -191,7 +125,7 @@
       "SIGKILL_exit": -9,
       "SIGKILL_left_nonempty": true
     },
-    "hygiene_controls": [
+    "hygiene_negative_and_signal_controls": [
       {
         "name": "gate-TERM",
         "exit_code": 143,
@@ -215,160 +149,52 @@
         "leftovers": []
       }
     ],
-    "R3_gate_controls": [
+    "original_scripts": [
       {
-        "name": "no-helper",
-        "exit_code": 1,
-        "leftovers": []
+        "name": "old-static",
+        "exit_code": 1
       },
       {
-        "name": "init-after",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "commented-init",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "indented-init",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "conditional-init",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "source-after-init",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "source-missing",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "good-helper",
+        "name": "old-quickstart",
         "exit_code": 0,
-        "leftovers": []
+        "leftovers": [
+          "tmp.fe0AGQIfK5"
+        ],
+        "nonempty_check_exit": 1
       },
       {
-        "name": "pin-changed-examples_demo_record.sh",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "pin-changed-install.sh",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "pin-changed-scripts_verify.sh",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "pin-changed-tests_e2e_review-bundle_run.sh",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "pin-changed-tests_install_run.sh",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "pin-changed-tests_pre-commit-hooks.sh",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "pin-changed-tests_quickstart_measure-clean-environment.sh",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "pin-changed-tests_release_compat.sh",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "pin-changed-tests_release_independent-verify.sh",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "pin-changed-tests_release_verify-negative.sh",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "pin-no-longer-mentions-mktemp",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "pin-deleted-file",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "obsolete-pin-entry",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "before-repin",
-        "exit_code": 1,
-        "leftovers": []
-      },
-      {
-        "name": "repin",
-        "exit_code": 0,
-        "leftovers": [],
-        "changed_pin_matches": true
-      },
-      {
-        "name": "after-repin",
+        "name": "journey-binary-previous-from-other-directory",
         "exit_code": 0,
         "leftovers": []
       }
     ],
-    "pin_audit": {
-      "entries": 10,
-      "all_sha256_match": true,
-      "paths": [
-        "examples/demo/record.sh",
-        "install.sh",
-        "scripts/verify.sh",
-        "tests/e2e/review-bundle/run.sh",
-        "tests/install/run.sh",
-        "tests/pre-commit-hooks.sh",
-        "tests/quickstart/measure-clean-environment.sh",
-        "tests/release/compat.sh",
-        "tests/release/independent-verify.sh",
-        "tests/release/verify-negative.sh"
-      ]
+    "R3_controls": {
+      "total": 24,
+      "rejected": 21,
+      "passed_controls": [
+        "good-helper",
+        "repin",
+        "after-repin"
+      ],
+      "all_gate_TMPDIRs_empty": true,
+      "ten_changed_pins_rejected": true,
+      "obsolete_pins_rejected": true,
+      "temporary_tracking_and_repins_restored": true
     },
-    "measurement": [
+    "real_Docker_measurement": {
+      "exit_code": 0,
+      "version": "pose 7.4.1",
+      "total_seconds": 12.486,
+      "steps_exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "leftovers": []
+    },
+    "Docker_cleanup_controls": [
       {
-        "name": "script-only-current",
-        "exit_code": 1,
-        "leftovers": [],
-        "helper_copied": false
-      },
-      {
-        "name": "script-only-original",
-        "exit_code": 0,
-        "leftovers": [],
-        "helper_copied": false
-      },
-      {
-        "name": "measurement-rm-0",
+        "name": "measurement-HEAD-rm-0",
         "exit_code": 7,
         "leftovers": [],
         "injected_start_exit": 7,
@@ -377,17 +203,33 @@
           "pull golang:1.26.9-bookworm",
           "image inspect",
           "create -e",
-          "cp /home/go/.cache/pose-work/cleanup/pose-dist/tests/quickstart/first-governed-loop.sh",
+          "cp /tmp/pose-temp-independent-r13/tmp-measurement-HEAD-rm-0/tmp.ZL9fgJHynG/stage",
           "start -a",
           "rm -f"
         ],
         "real_Docker_or_network_used": false
       },
       {
-        "name": "measurement-rm-9",
+        "name": "measurement-HEAD-rm-9",
+        "exit_code": 7,
+        "leftovers": [],
+        "injected_start_exit": 7,
+        "injected_rm_exit": 9,
+        "docker_calls": [
+          "pull golang:1.26.9-bookworm",
+          "image inspect",
+          "create -e",
+          "cp /tmp/pose-temp-independent-r13/tmp-measurement-HEAD-rm-9/tmp.F8XkmgxNoN/stage",
+          "start -a",
+          "rm -f"
+        ],
+        "real_Docker_or_network_used": false
+      },
+      {
+        "name": "measurement-971288c7-rm-9",
         "exit_code": 9,
         "leftovers": [
-          "tmp.RoyUaWUBjB"
+          "tmp.fmkBv9j5ge"
         ],
         "injected_start_exit": 7,
         "injected_rm_exit": 9,
@@ -402,10 +244,13 @@
         "real_Docker_or_network_used": false
       }
     ],
+    "demo_build_failure": {
+      "exit_code": 1,
+      "leftovers": []
+    },
     "artifact_check": {
-      "exit_code": 0,
-      "claims": 13,
-      "observed": 15,
+      "claims": 14,
+      "observed": 16,
       "missing": [],
       "extra": [
         [
@@ -417,7 +262,27 @@
           ".pose/results/test-scripts-temp-cleanup-independent-review.json"
         ]
       ],
-      "spec_findings": []
+      "scoped_findings": []
+    },
+    "surface_check": {
+      "exit_code": 0,
+      "findings": 0,
+      "delivery": "capability:test-scripts-remove-their-temp-files",
+      "entrypoint": "tests/lib/tempdir.sh"
+    },
+    "design": {
+      "exit_code": 0,
+      "observed_files": 12,
+      "subject_files": 12,
+      "delta": "one non-material validation-check",
+      "formal_mapping_required": false
+    },
+    "integrate": {
+      "exit_code": 0,
+      "contracts": 64,
+      "unobserved_consumer_observations": 63,
+      "same_observations_as_HEAD": true,
+      "scope": "No API/MCP contract changed; shell boundaries independently exercised."
     },
     "tech_debt": {
       "exit_code": 0,
@@ -428,74 +293,258 @@
       "exit_code": 0,
       "flagged_keys": 0
     },
-    "bundle_preview": {
+    "discover": {
       "exit_code": 0,
-      "id": "rvb-9127025bf1318349",
-      "sealed": false,
-      "state": "prepared"
+      "registered_components": [
+        "docs-site",
+        "mcp-enforce",
+        "pose-mcp"
+      ],
+      "all_generated_changes_restored": true,
+      "generated_paths": 9
     },
-    "integration": "CI, scripts/verify.sh and required matrix check test-scripts-remove-their-temp-files-integration invoke hygiene. No inter-module API/MCP contract changed; assess integrate not applicable."
+    "native_command_exit_codes": {
+      "index-initial": 0,
+      "bundle-seal": 0,
+      "surface-check": 0,
+      "artifact-check": 0,
+      "assess-design": 0,
+      "assess-integrate": 0,
+      "assess-tech-debt": 0,
+      "validate-module": 0,
+      "auto-attest-preview": 0,
+      "attest-preview": 0,
+      "attest-apply": 0,
+      "review-verify-initial": 0,
+      "review-check": 0,
+      "close": 0,
+      "closeout-check": 0,
+      "lint-spec": 0,
+      "lint-spec-final": 0,
+      "check-initial": 0,
+      "index-final": 0,
+      "review-verify-final": 0,
+      "check-final": 0
+    },
+    "strict_check_warnings": 29
   },
-  "evidence_quality": "Real scripts, Go suite and baseline gates completed before tracked-file mutations. Each mutation ran sequentially and was restored byte-for-byte, including pins and the temporary intent-to-add file. Script-only regression executes copied current/original files with the same native binary; Docker failure controls execute the unchanged full measurement script with only Docker calls stubbed. All intentional leftovers were observed then removed. No code correction or persistent re-pin was made. Native generated assessment/index side effects were retained externally and restored.",
+  "review_bundle": {
+    "id": "rvb-6167567bf3fa6ac4",
+    "digest": "sha256:6167567bf3fa6ac4a095ea0490af9097a793c6111f1ec947dc78b7c3aef6b171",
+    "state": "sealed",
+    "plan_digest": "sha256:cdaf914770996c5c915bcc74f3ca3d4dba663ec652be30a2ae14001c674303b7",
+    "criteria": 16,
+    "tools": 20
+  },
+  "attestation": {
+    "id": "rva-5358c584e2a8bd4f",
+    "path": ".pose/review-attestations/rva-5358c584e2a8bd4f.json",
+    "sha256": "d8f23614b2461acc35555e1050f16064ba401ec85d99862638f8700b80b0d1e9",
+    "decision": "approved",
+    "criteria_all_passed": true,
+    "tools": [
+      {
+        "id": "artifact-check",
+        "component": "",
+        "disposition": "passed"
+      },
+      {
+        "id": "assess-design",
+        "component": "",
+        "disposition": "passed"
+      },
+      {
+        "id": "assess-discover",
+        "component": "examples",
+        "disposition": "not-used"
+      },
+      {
+        "id": "assess-discover",
+        "component": "pose-mcp",
+        "disposition": "passed"
+      },
+      {
+        "id": "assess-discover",
+        "component": "scripts",
+        "disposition": "not-used"
+      },
+      {
+        "id": "assess-discover",
+        "component": "tests",
+        "disposition": "not-used"
+      },
+      {
+        "id": "assess-integrate",
+        "component": "",
+        "disposition": "passed"
+      },
+      {
+        "id": "assess-tech-debt",
+        "component": "",
+        "disposition": "passed"
+      },
+      {
+        "id": "closeout-check",
+        "component": "",
+        "disposition": "deferred"
+      },
+      {
+        "id": "review-check",
+        "component": "",
+        "disposition": "deferred"
+      },
+      {
+        "id": "suggest-review",
+        "component": "examples",
+        "disposition": "passed"
+      },
+      {
+        "id": "suggest-review",
+        "component": "pose-mcp",
+        "disposition": "passed"
+      },
+      {
+        "id": "suggest-review",
+        "component": "scripts",
+        "disposition": "passed"
+      },
+      {
+        "id": "suggest-review",
+        "component": "tests",
+        "disposition": "passed"
+      },
+      {
+        "id": "surface-check",
+        "component": "",
+        "disposition": "passed"
+      },
+      {
+        "id": "validate",
+        "component": "",
+        "disposition": "passed"
+      },
+      {
+        "id": "validate",
+        "component": "examples",
+        "disposition": "not-used"
+      },
+      {
+        "id": "validate",
+        "component": "pose-mcp",
+        "disposition": "passed"
+      },
+      {
+        "id": "validate",
+        "component": "scripts",
+        "disposition": "not-used"
+      },
+      {
+        "id": "validate",
+        "component": "tests",
+        "disposition": "not-used"
+      }
+    ],
+    "completion_tools": "Deferred in immutable attestation, then actually executed after guarded lifecycle transition."
+  },
   "closeout": {
-    "sealed_bundle_id": null,
-    "attestation_id": null,
-    "review_verify": "not run; medium findings",
-    "review_check": "not run; medium findings",
-    "close": "not run; medium findings",
-    "lint_spec_strict": "not run; conditional approval closeout not entered",
-    "check_strict": "not run; conditional approval closeout not entered",
-    "strict_delivery_validation": "not run; conditional approval closeout not entered",
+    "spec": {
+      "spec": "pose-test-scripts-remove-their-temp-files",
+      "status": "done",
+      "completed_at": "2026-10-17",
+      "sha256": "281588b5299d0bb6f05bb23317c1085a9fe5eab6fab7a538672250de197927a0",
+      "implementation_plan_member": false
+    },
+    "review_verify": {
+      "state": "closed",
+      "approved": true,
+      "fresh": true
+    },
+    "close_exit": 0,
+    "lint_spec_strict_exit": 0,
+    "check_strict_exit": 0,
+    "final_index_verify_check_complete": true,
+    "implementation_plan_member": false,
+    "implementation_plan_file_unchanged": true,
+    "roadmaps_updated": [
+      "pose-consolidation-program",
+      "pose-state-consistency-and-recovery"
+    ],
     "commit_pushed": null
   },
-  "raw_evidence_directory": "/tmp/pose-temp-independent-r12",
+  "invocation_diagnostics": [
+    {
+      "command": "module validate with external JSON output path",
+      "exit_code": 2,
+      "resolution": "CLI requires typed output inside project. Repeated without an extra result file, preserving sealed global evidence; 134/134 pass."
+    },
+    {
+      "command": "auto-attest with --json",
+      "exit_code": 2,
+      "resolution": "Unsupported optional flag removed; plain preview reports eight pending judgments."
+    },
+    {
+      "command": "attest with unrequired structural mapping",
+      "exit_code": 2,
+      "resolution": "Read native mapping contract: validation-check delta is non-material and plan has no mapping owner. Removed the unsupported extra flag; all 16 criterion judgments retained and preview/apply passed."
+    },
+    {
+      "command": "closeout-check before lifecycle transition",
+      "exit_code": 1,
+      "resolution": "Diagnostic explicitly required guarded lifecycle transition. Executed native close, then closeout-check passed. No gate or policy was bypassed."
+    }
+  ],
+  "evidence_quality": "Baseline real scripts, Go suite and gates completed before tracked mutations. Every mutation, temporary intent-to-add and repin was restored. Actual Docker measurement succeeded; controlled old/new Docker failures independently establish F9. Intentional leaks were removed. Discover output was snapshotted externally and restored byte-for-byte; no such output is committed. All native outputs remain outside this repository and are hashed; native bundle/attestation/index/state/results are retained as required.",
+  "raw_evidence_directory": "/tmp/pose-temp-independent-r13",
   "raw_evidence_sha256": {
-    "context.log": "6846e2f9ea4a4d0d21ad8b8c8fc9fcb93b518e9a5f04301e2e5daff8a3656224",
-    "suggest-pose-mcp.log": "eb90980a7ead71b07dc4d355944863683fcfd3bb0ebcf2ba5eead2536606b184",
-    "suggest-tests.log": "d5e614a2f3bc7eb2bce8cbde968dd286577e6f7ec676ec0b7b851e9cfd10e106",
-    "suggest-scripts.log": "a9e8e207e8d8a2b4ec34ad2ddb8e8e04ed29df04e340fdf1cd18118e9980ee17",
-    "suggest-examples.log": "e508f2937b328e9d5ab3151fe51a18bf0d8b29d6febdc3f02e597b59d6531dff",
-    "tech-debt.log": "84d9b0da3f49dbfe79a93777b7c9db82ac638302683eae9cd3d53898f9782af0",
-    "recurrence.log": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7",
-    "artifact.log": "6aaf883e1aa044ce31aaf43bba0c2eee5237cb56d15c59de0bf1c803d6a81a91",
-    "artifact-summary.json": "6db2a97ffdc127af9f77ac4f264f8df4c0656a78ae2b03a6f51f1d265e07e160",
-    "bundle-explain.log": "4b79a41ec2184975d3fcac5d9a50ebbd5f527f2937c22f8b2a24baf841b4c572",
-    "full-diff.log": "0ea40e6847d955a109176e0aa7cae19d4ea79d57c9d2f64598be75fe7cae8fc4",
-    "go-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "go-test.log": "15470003eed25535a4f0a5d1826b30e44712da13c76495f34b9953cf056d6bca",
-    "hygiene.log": "e45205429a76199ed8d7a8d4aad73f41771caf4ab74899eef5f6eeefb8a4ace0",
-    "shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "local-ci-gate.log": "3977f6864ee09b98bc6fb31e94d475dd209854cd42505b512b7331978f88decd",
-    "real-results.json": "53c54cedff3196b0cda957ac765fa8785250efc40fff819760d6befc7cdee71f",
-    "relative-tmpdir.json": "ed81b919720c7a8f0d11775b7ad6213807688a01e5799b8a7967e8222d2d54b2",
-    "remaining-probes.json": "5affd88299ae0d7854294d59a65bcad734d2a7571768c5ec3b461199e792a36c",
-    "control-probes.json": "bca5e5467870619e5e71087235ddbdf7ea72a3d47067690b1cd7f55074a0dcdb",
+    "validate-strict.log": "9e0441ef4653e3f8ed144d83f64b16fbcc7d7a2cb1cca3e2fda2d2c9a0e72a89",
+    "validation-summary.json": "8f0a7b369b81d341aff0fef140f461a41c18f828e5344957632325cd261d6067",
+    "validate-module.log": "b42094f55ccf3f2cacc062e09f2aa41e6da5d91161524b8b646cc89a6323f9f1",
+    "bundle-seal.log": "6f91cbf451dd57cbd9f063f50fccda3b7180d60e92487705432c61c848685b74",
+    "sealed-plan.json": "4126e7baab4ada165da01d4026d4cfe288dfc18c061699d4b2240113dc89f283",
+    "auto-attest-preview.log": "a5c7c4f7647c0bf18a4e0a78be1fb5cf289c463d3758d9aae1c549dae4a104f3",
+    "surface-check.log": "f8f2e7bca2c0966f3fb22669283d721a0a8fb00ca43a5e897fd2d78c8f9d2331",
+    "artifact-check.log": "d2c48cf0af1a02d221cffa779ea9e79a9f414aee0a400716f584b27cebf3d898",
+    "artifact-summary.json": "4e4f974a412821caeaf0835a033d6a76ea271124744d7ad38bdcf55774de447a",
+    "assess-design.log": "329546b70b72975ac3541bfe1e8fbda27e3a7694bc56ea19cdce6dd11c5db597",
+    "assess-integrate.log": "841f6a342c3aa784491e384ec587b66a74fa8490ae418264987e3f5f62d28421",
+    "assess-tech-debt.log": "84d9b0da3f49dbfe79a93777b7c9db82ac638302683eae9cd3d53898f9782af0",
+    "discover-preserved.log": "6a6d9aa6a5255e3135b2af3804f22c28af66b7c5935743db1f00c0cd93df0385",
+    "discover-preserved.json": "e7b96f38353c42220709b7ec14eacb15b67c707b3fc6c25331bdee3260880d08",
+    "attest-preview.log": "55aba1d2480d148dd7973c61496dabc81aff684ba221a746f02f25edd7706c79",
+    "attest-apply.log": "ac32a25045a390250b7f0dad55dcf8cc4c47cc54f4abc23b0ee7e64aded207d4",
+    "review-verify-initial.log": "fda44d88d01a4b2f1729b1bb8231e9391240b5f7a34873a53a67b58bf0979717",
+    "review-check.log": "ced5c5ef1f4fd428339197c16224de93cbc2258f87e29742c5e8f6fcc76be787",
+    "close.log": "310510b1d80ca8906423632a762f7d6c5212ea3f12ca362f4ddae59ec2c26284",
+    "closeout-check.log": "79511a61ced4163dc3644e0449ebebb3726d28cc5c8ff54e9946033b84805fdb",
+    "lint-spec-final.log": "af9fa6fd7b6da9dade492b77e681c1bc4bb36ec2f80743560ab81467bd11d96b",
+    "check-initial.log": "d9625c6cfc633f922b0c75f8d1a53d6ee9e8104f30decd75c088c5aa91799e8b",
     "gate-probes.json": "cb1b62694b183527716f8d342efac096c9aae056bb90170557016db96c5312ce",
-    "pin-audit.json": "e50321427de6226552bc2780fd22356982d490cd26b0b8ffb225fafce338fb33",
-    "pinned-script-review.log": "993505f7ead75fc291f1734684c56ec28bb11233579f19667ab14246b5c73b93",
-    "consumer-search.log": "48846234ec8fb5c700756bdb8c9fa330f725ff38ca390e53b7b755997a1adea6",
-    "measurement-probes.json": "eefd55052d56986694e15075af8e43e6ed591f9d5ad420e3a439ecf138dadfda",
-    "measurement-probes.py": "9dd7c7ecfa7d3059ffde6eeca701eb98669b1e2b68c78ee2c5e3bd937e5b7e0a",
-    "gate-probes.py": "6f41071a7d6338a72409c47c3e8ba90a56f3d38cc8288fee9d32eef307c64a86",
-    "control-probes.py": "958ddffb64c9af6671d3291249a06555a9c3160b5b2f3ce85fa42a1f5c3b1764",
-    "remaining-probes.py": "197d680dd79e36e561488857ed6aa577b32a01a38fa6e997ce886d614bae73ab",
-    "relative-probes.py": "7e0fb8a5ffb05d4e0789557f23598683d6ccc2151b7de944b272ec2aaf4766b8",
-    "run-real.py": "bd02af5227712c71c1c5bd2bc95186875e456625e9cf66d382c7b32b53e8a453",
-    "script-only-current.log": "ac29a3d0ccd444425949c3a9b37e54e8166fc4cb1a3df09a19bd9ec94020eda5",
-    "script-only-original.log": "15d3a9c84f1f82b876f0f3f11e3b49cbda3eac1dcc60cb696f0b675690e3bed2",
-    "measurement-rm-0.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "measurement-rm-9.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "measurement-rm-0-calls.log": "fb6f3a70e49434afe3c90ce06206abee2368a951b8e627e7e2469a5e403a2aa8",
-    "measurement-rm-9-calls.log": "fb6f3a70e49434afe3c90ce06206abee2368a951b8e627e7e2469a5e403a2aa8",
-    "docker-stub/docker": "bc295bf5a1ccaccadcaac8e20cdcd3f9fdf8d00826fe3de4e3fc641f5e64e00f",
-    "governance.log": "8d39b26f296679ced09502551525f95e23403146b618ffae124ce100962cec28",
-    "commit-messages.log": "3906382c4d1659349b6d1a11c005b4c9f4a7d858c5d0a8a4b87f296ea4ec2a36",
-    "tracked-shell-paths.log": "f75ee1dc341cc5641008eee8fbea4fed3b55e53f0b28838d02217eb3b3756b64"
+    "control-probes.json": "23d1cf09a1361023c529ff7c46d1a14f0bff1b4b69a1121f872668b63275a9be",
+    "remaining-probes.json": "7e0fbdb174d5589bde96d484b40069a75de61fa07a080968a9d010f0ef7e84b3",
+    "relative-tmpdir.json": "ed81b919720c7a8f0d11775b7ad6213807688a01e5799b8a7967e8222d2d54b2",
+    "real-results.json": "5f0201b5217b0823e50488cb5f045cb049dd180565a9ed1de01a2ac4beb7ee39",
+    "measurement-probes.json": "eb91803b0ecc160036c7eca8afabab4684cc5c53ded5d58e7a9fff308fb98150",
+    "real-measurement-result.json": "6c992dcc7c1b07a2f4acbd11ed11ae7121f0cbf8933885c11c56664d9306df28",
+    "real-measurement-output.json": "e6387c05d4e8c000dcb117df32f3f7b4bdf5b67b509ef65a8eb12dbd114fc21c",
+    "go-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "go-test.log": "369b719944c60098f71d9c288436ce444c8fea25b32a1880f593b82e096e9e80",
+    "shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "hygiene.log": "e45205429a76199ed8d7a8d4aad73f41771caf4ab74899eef5f6eeefb8a4ace0",
+    "local-ci-gate.log": "f46fcbd4e5ddf1b7b2648f43babb7d93a4b9a5eb04da74b2e241364d8cb540b2",
+    "demo-build-failure.json": "91bc39d9bce590c9e528782cacbd5b359fd28d538ebe4e9c7f81f07286a08407",
+    "raw-manifest.json": "1bb0a4104bc03fe808dee85736afe8dd6780470654c7faa7025cfd5df756fca5",
+    "index-final.log": "e490d193ea94786d73f59c4745264ecfc3e720a6c07a50d35092152ad7e43a5d",
+    "review-verify-final.log": "def1d549cbfca44c82e8c1abca53af4d1951f86b52b9f8d1538af356129791bd",
+    "check-final.log": "d9625c6cfc633f922b0c75f8d1a53d6ee9e8104f30decd75c088c5aa91799e8b"
   },
   "prior_review": {
-    "round": 11,
-    "head": "70a330c5",
+    "round": 12,
+    "head": "971288c7",
     "decision": "changes-requested",
-    "committed_record": "971288c7:.pose/results/test-scripts-temp-cleanup-independent-review.json"
+    "findings": [
+      "F8",
+      "F9"
+    ],
+    "committed_record": "534653c6:.pose/results/test-scripts-temp-cleanup-independent-review.json"
   }
 }

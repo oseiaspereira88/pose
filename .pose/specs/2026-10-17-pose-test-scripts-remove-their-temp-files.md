@@ -1,6 +1,6 @@
 ---
 slug: pose-test-scripts-remove-their-temp-files
-status: in-progress
+status: done
 created_at: 2026-10-17
 depends_on:
 priority: 2
@@ -9,6 +9,7 @@ task_type: bugfix
 surface: minimal
 changelog: none
 delivers: capability:test-scripts-remove-their-temp-files
+completed_at: 2026-10-17
 ---
 
 # Spec: Test scripts remove the temporary files they create
@@ -75,7 +76,7 @@ What the static rules do not claim: they read lines, not shell. A new script tha
 - [x] Reproduce: 275 `/tmp/tmp.*` directories, 7 GB, from three scripts without a trap.
 - [x] Helper, three scripts, hygiene check; the check fails on the previous scripts and the quickstart leaves a directory without the helper.
 - [x] Run the three scripts with their own `TMPDIR`.
-- [ ] Strict validation, different-actor review and closeout.
+- [x] Strict validation, different-actor review and closeout.
 
 ## 5. Decisions
 
@@ -95,24 +96,38 @@ Show the check failing on the defect, then the three real scripts, then the modu
 
 ### Deterministic checks
 
-`bash tests/hygiene/temp-cleanup.sh` fails on the previous `migration-guides.sh` (`creates temporary files with mktemp and never removes them`). The previous quickstart script, run with its own `TMPDIR`, left a `tmp.*` directory behind; the new one leaves it empty. The three scripts passed with their own `TMPDIR` and left it empty. The review found a fourth leak in `examples/demo/record.sh`, which ran `go build` between its first `mktemp` and its trap; it now allocates one root, installs the trap and derives its working directory from that root, and a failing build (`GOTOOLCHAIN=invalid`) leaves the `TMPDIR` empty. `tests/quickstart/measure-clean-environment.sh` copies the quickstart script into a container, so it now copies `tests/lib/tempdir.sh` beside it (the script sources it by relative path), and its trap no longer lets a failing `docker rm` skip the removal of its own directory; a run with a real container passes, and one with a `docker` that fails on `rm` leaves nothing.
+Independent review round 13 on `534653c6` passed global strict validation (137/137), explicit `pose-mcp` strict validation (134/134), `go vet ./...`, `go test ./... -count=1`, ShellCheck at warning severity, and `TestLocalVerifyCoversCurrentCIGates`. The registered `test-scripts-remove-their-temp-files-integration` producer executes `tests/hygiene/temp-cleanup.sh`.
+
+Independent helper probes reached setup markers, removed restricted 0500/0400/0000 descendants, and cleaned up on success, assertion failure, set-e error, unset variable, INT (130) and TERM (143). Old-permissions and missing-signal-handler controls make the gate fail. The three real scripts leave their caller TMPDIR empty with absolute paths, relative paths, CDPATH unset or exported as dot, and the reviewed binary/previous options.
+
+The revised R3 gate rejects original scripts, seven invalid helper forms in a newly tracked script, changes to each of the ten pinned files, deleted/no-longer-allocating pinned scripts and a nonexistent pin. A valid helper form and an explicitly reviewed re-pin pass. All review mutations were restored. The original quickstart without the helper leaves a directory, proving the empty-TMPDIR check can fail.
+
+The demo succeeds and cleans up after a failed build. The actual clean-environment Docker measurement executes the installed pose 7.4.1 and staged quickstart/helper successfully (12.486 seconds for the measured command path), leaving its host TMPDIR empty. A Docker removal failure no longer skips host cleanup; the previous measurement script leaks under the same injected failure. Compact results and hashes of full external outputs are recorded in [independent review evidence](../results/test-scripts-temp-cleanup-independent-review.json).
 
 ### Requirement trace
 
-- R1 [satisfied] check:test — `tests/hygiene/temp-cleanup.sh` helper cases (success, assertion, error, unset variable, TERM, INT)
-- R2 [satisfied] check:test — the three scripts run with their own `TMPDIR` and leave it empty; `tests/hygiene/temp-cleanup.sh` runs the quickstart
-- R3 [satisfied] check:test — `tests/hygiene/temp-cleanup.sh` static rules (helper form or hash pin), shown failing against the previous scripts and for a changed pinned script
+The named producers establish behavior; strict lint checks structure and does not establish requirement satisfaction.
+
+- R1 [satisfied] check:test-scripts-remove-their-temp-files-integration — `tests/hygiene/temp-cleanup.sh` dynamically exercises the helper; independent permission/failure/signal/CDPATH probes and the old/new Docker-cleanup control extend its negative evidence.
+- R2 [satisfied] check:quickstart-real-lifecycle-integration check:install-and-upgrade-journeys-integration — real producers `tests/quickstart/first-governed-loop.sh`, `tests/import/migration-guides.sh` and `tests/journeys/install-and-upgrade.sh` were also run independently with their own TMPDIR. All leave it empty, including binary/previous/cwd and relative-TMPDIR variants; the measurement producer proves the staged helper dependency.
+- R3 [satisfied] check:test-scripts-remove-their-temp-files-integration — the helper-form/pin gate plus independent tracked-script and pin mutations reject the omission/change/staleness cases, and original scripts fail. This is the maintainer-authorized revised R3, not an arbitrary-shell cleanup proof.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Pending.
+The helper owns an absolute temporary root, exports TMPDIR and removes restricted descendants on the exits and signals required by R1. The three scripts adopt it without changing their assertions. CI, local verification and the validation matrix execute the hygiene gate. The revised R3 enforces the plain helper form or a reviewed whole-file SHA-256 pin; the demo uses one root, and the clean-environment producer stages the helper and survives Docker cleanup failure.
+
+Maintainer-authorized independent review by `agent:independent-gpt-6.1-sol-review` (Codex/OpenAI, a different vendor from the Claude/Anthropic implementer) approved round 13. Identity and separation are declared; pose-dist attestations are unsigned. Bundle `rvb-6167567bf3fa6ac4` and attestation `rva-5358c584e2a8bd4f` bind the review. Native review verification, guarded close, strict spec lint and strict check passed. See the [review report](../reports/2026-10-17-pose-test-scripts-temp-cleanup-review.md) and [compact evidence](../results/test-scripts-temp-cleanup-independent-review.json).
+
+This hygiene delivery is outside B01–B44; no implementation-plan unit is created. The two program roadmaps record its closeout while retaining their existing lifecycle and maintainer merge authority for PR #192.
 
 ### Residual risks
 
-Pending.
+SIGKILL and machine/power loss cannot execute a shell trap and may leave a root; the independently exercised cleanup guarantee covers the exits and signals in R1. Persistent Go caches and tools that ignore TMPDIR remain outside the stated cleanup scope.
+
+R3 deliberately reads lines rather than analyzing arbitrary shell. Unusual syntax or later helper sabotage can pass the plain-form rule; each new script and re-pin requires reviewer inspection. A pin detects whole-file changes and does not authenticate who reviewed them. The `agent:independent-` prefix remains an engine-required declaration until `pose-delegated-review-run-provenance` replaces it, rather than signed session provenance.
 
 ### Follow-ups
 
-Pending.
+No outstanding corrective follow-up remains for this delivery. New scripts and changed pins continue through the review obligations of R3.
