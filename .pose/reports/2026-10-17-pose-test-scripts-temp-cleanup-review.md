@@ -1,87 +1,110 @@
-# Independent review, round 9: test-script temporary cleanup
+# Independent review, round 10: test-script temporary cleanup
 
-Decision: **changes requested**. PR #192, branch `impl/pose-test-temp-cleanup`, reviewed at `f98d0056fe399a51230d7df7719d78a7afb4d6f1`. Exhaustive sweep completed before deciding: F2 remains a medium finding, with four accepted leaking scenarios spanning two mechanisms. One occurs in the unchanged current demo. No persistent implementation correction, seal, attestation, closeout, commit or push was performed.
+Decision: **changes requested**. PR #192, branch `impl/pose-test-temp-cleanup`, reviewed at `e5d86dfb47a150335a2a64e06c7af6dae6fa7796`. Exhaustive sweep completed: two medium findings, F2 and F7. No implementation fix, seal, attestation, closeout, commit or push was performed.
 
 ## Scope and identity judgment
 
-Reviewer: `agent:independent-gpt-6.1-sol-review`, authorized by the maintainer. This is a Codex/OpenAI execution reviewing Claude/Anthropic work, a different vendor. The `agent:independent-` prefix is a declaration required by the engine until `pose-delegated-review-run-provenance` replaces it. Identity is declared; pose-dist attestations are unsigned. Individual implementer/session identity is maintainer-supplied and not independently authenticated; the prefix does not establish signed execution provenance.
+Reviewer: `agent:independent-gpt-6.1-sol-review`, maintainer authorized. This is Codex/OpenAI reviewing a Claude/Anthropic implementation, a different vendor. The `agent:independent-` prefix is an engine-required declaration until `pose-delegated-review-run-provenance` replaces it. Identity is declared; pose-dist attestations are unsigned. Individual implementer/session identity is maintainer-supplied, not independently authenticated.
 
-Reviewed the full branch diff, correction diff, spec, POSE review/closeout instructions, skills and applicable rules. Built and used the requested branch CLI. Requirements and Technical Plan were not edited by this reviewer. Previous-round records remain in commit f98d0056; these owned artifacts now report round 9.
+Reviewed the full branch diff, current correction, spec, AGENTS.md, POSE review/closeout instructions, applicable rules and pose-review/pose-spec-closeout skills. Built and used the requested branch CLI. No Requirements or Technical Plan edits were made. These reviewer-owned artifacts replace the round-9 account retained in commit e5d86dfb.
 
 ## Complete findings
 
-### F2 — Medium: later allocation failure is unprotected; readonly option lists are only partly inspected
+### F2 — Medium: the guard still approves visible plain-shell programs that leak
 
-Locations: `tests/hygiene/temp-cleanup.sh:239` (skipping allocation lines before trap registration), `:183` (readonly predicate), and `examples/demo/record.sh:34–36`. Contracts: **R3**, and **R1** for the current demo's failure path.
+Locations: `tests/hygiene/temp-cleanup.sh:162` (physical-line exit/return cutoff), `:51` and `:94` (quote/substitution state reset per line), `:155` and `:167` (accepting files after allocations are hidden), `:272` (own-trap shape without checking disabling state). Requirement: **R3**.
 
-All 59 previous external synthetic leak cases are now rejected. The built-in 78 negative fixtures, 5 positives and three tracked-copy mutation controls pass. Four further accepted scenarios still leave their dedicated TMPDIR nonempty.
+All 63 previously reproduced external synthetic leaks are now rejected. The shipped 81 negative fixtures, 5 positives and 3 tracked-copy controls pass. Eleven further programs are accepted by the exact scanner and independently leave a root in their own TMPDIR. Substituting each into tracked tests/import/migration-guides.sh also makes the **complete hygiene gate return 0**. The gate's own TMPDIR is empty; these full-gate controls prove admission, while separate executions prove the substituted scripts leak.
 
-**1. Adjacent allocations can fail before cleanup is registered.** The accepted two-root shape installs its only trap after both mktemp commands succeed. Failure of the second command leaves the first root, even without another command in the gap:
+**Reachable code is discarded at an exit/return text line.** The block tracker does not track command substitutions or line continuations, and the cutoff also matches function declarations. For example, this CI-warning-clean script returns 0, allocates a directory and never removes it, but the scanner discards everything after the exit line:
 
 ```bash
 set -euo pipefail
-a="$(mktemp -d)"
-b="$(mktemp -d x)"
-trap 'rm -rf "$a" "$b"' EXIT
+printf '%s\n' "$(
+exit
+)"
+w="$(mktemp -d)"
+: "$w"
 ```
 
-The second template is invalid, so this concrete fixture exits 1 and leaves a. The exact scanner approves it, and substituting it into the tracked migration-guides path makes the **complete hygiene gate return 0**. This is an allocation-failure path, rather than hidden eval/source behavior.
+The exit ends only the substitution. The same false cutoff occurs with printf followed by a backslash-newline and an argument exit or return; with exit()/return() function declarations; and with a bare top-level return in a script without errexit, where return reports an error and execution continues. A legacy-backtick substitution reproduces the same context loss.
 
-The same flaw exists in the **current tracked demo**, which performs BUILD_WORK=mktemp, WORK=mktemp, then installs the trap. Controlled fault injection delegates its first call to the native mktemp and returns exit 1 only on the second. The unchanged demo exits 1 and leaves BUILD_WORK. The counter confirms exactly two calls, no demo source is changed, and the scanner approves the actual file. This models an ordinary allocation error; no signal race or arbitrary-shell trick is needed. The previous go-build error is cleaned up because it occurs after registration, but failure during the allocation sequence remains uncovered.
+**A multiline string starts a fictitious heredoc.** The lexer forgets that the previous line opened a quote, treats the following << END as code, then blanks the real allocation through EOF. This also returns 0, leaks, passes ShellCheck warning severity and passes the complete gate:
 
-The existing two-root positive fixture therefore demonstrates happy-path cleanup only. Cleanup must already protect earlier roots when a subsequent allocation fails.
+```bash
+set -euo pipefail
+printf '%s\n' '
+<< END
+'
+w="$(mktemp -d)"
+: "$w"
+```
 
-**2. Readonly detection only checks the first declaration option word.** `declare -x -r label="old"` and `declare -x -r TMPDIR` are valid declarations, but the predicate expects r in the first option token after declare. Both pass. The first makes an accepted literal assignment in the unprotected gap fail; the second makes helper initialization allocate its root and then abort when assigning readonly TMPDIR before registering traps. Both return 1 and leave residues. The readonly option itself is present visibly in the inspected text.
+Both single and double quotes reproduce it. No eval or sourced file hides code in these cases; multiline quoting, continuation and substitution are direct shell syntax. If unsupported, the guard must reject the script rather than silently approve it as containing no allocation.
 
-All finding scenarios:
+**An accepted own trap need not run successfully.** A single allocation followed immediately by the approved rm trap still leaks when a subsequent set -n disables execution, including the EXIT handler. A second ordinary case creates a/b/f and chmods a to 0000 after installing the trap: rm -rf returns 1 and leaves the root. Both pass warning-level ShellCheck and the full gate. The latter is the same restricted-directory failure class the helper deliberately handles, now admitted by the alternative cleanup form.
 
-| Accepted scenario | Exit | Observed result |
+Every accepted leaking case (all have nonempty caller TMPDIR and complete-gate exit 0):
+
+| Case | Script exit | ShellCheck warning exit |
 | --- | --- | --- |
-| Second allocation has an invalid template | 1 | First root remains |
-| Current demo: only its second mktemp fails | 1 | BUILD_WORK remains |
-| declare -x -r label followed by literal assignment before trap | 1 | Root remains |
-| declare -x -r TMPDIR before helper initialization | 1 | Helper root remains |
+| `exit-function-noop` | 0 | 0 |
+| `return-function-noop` | 0 | 0 |
+| `bare-return-without-errexit` | 0 | 0 |
+| `exit-as-continued-argument` | 0 | 0 |
+| `return-as-continued-argument` | 0 | 0 |
+| `multiline-single-quoted-heredoc-text` | 0 | 0 |
+| `multiline-double-quoted-heredoc-text` | 0 | 0 |
+| `multiline-backtick-return` | 0 | 1 |
+| `command-substitution-exit` | 0 | 0 |
+| `own-trap-noexec` | 0 | 0 |
+| `own-trap-rm-readonly-child` | 1 | 0 |
 
-The readonly-helper fixture also makes the **complete hygiene gate return 0** when placed temporarily in the tracked migration path. All three synthetic leaks pass ShellCheck at CI warning severity; the unchanged demo passes the normal CI glob check. A typeset readonly-target probe is rejected by the variable-mutation rule and is excluded from accepted-leak findings. Three ordinary successful controls clean up on their normal runs; that does not establish protection against later allocation failure.
+Expected action: fail closed for unsupported lexical/execution contexts; preserve quote/continuation/substitution context before treating a line as heredoc or top-level termination. Reject or protect noexec and permission-changing own-trap forms. Cover the complete list through both the exact scan and tracked-path gate, or clean them up demonstrably. An arbitrary-shell proof is unnecessary: the admitted visible cases must not be mistaken for the two supported forms.
 
-Expected action: make cleanup active before subsequent allocations can fail, or reject the unsafe own-trap shape until protected; validate allocation-N failure in the demo and multi-root fixture. Parse all declaration option tokens when enforcing the readonly prohibition. Require both complete-gate counterexamples to fail or produce verified empty-directory cleanup.
+### F7 — Medium: a relative caller TMPDIR loses its meaning after cd
 
-## Previous findings and requirements
+Locations: `tests/lib/tempdir.sh:13`, `:17`, `:28–29`; integration callers initialize before changing directory at tests/quickstart/first-governed-loop.sh:19, tests/import/migration-guides.sh:17 and tests/journeys/install-and-upgrade.sh:16. Requirements: **R1**, **R2**, and the constraint preserving caller TMPDIR behavior.
 
-F1, F3, F4, F5 and F6 remain resolved in their reviewed scope. Twelve helper cases cover nested 0500, 0400 and 0000 entries across success, assertion, set-e and unset-variable exits; all leave TMPDIR empty. The exact shipped body reaches its setup marker and returns 0/1/1/1. Helper INT/TERM return 130/143 and clean up; removing INT handling makes the gate fail and clean up. Composition instructions name pose_test_tmp_remove.
+Start in a directory containing tmp, set TMPDIR=tmp and call the helper. GNU mktemp accepts that valid relative directory and returns tmp/tmp.<suffix>. The helper keeps that relative value as POSE_TEST_TMP and exports it as TMPDIR. After cd, allocations and removal resolve it relative to the new directory. chmod errors are suppressed and rm -rf succeeds against a nonexistent wrong path, leaving the actual root.
 
-The hygiene command returns INT 130 and TERM 143 at the former permission-control failure point and leaves no sandbox. The old-chmod mutation fails with exit 1 and also cleans up. DEBUG hooks select only signal timing. These checks use mutable helper state; F2 identifies the unsupported readonly contexts still admitted by the guard.
+Independent helper reproduction: source the current helper, pose_test_tmp_init, cd /, true. Exit is 0 and the original caller tmp contains the root. All three current real scripts, invoked by absolute script path from a different directory with TMPDIR=tmp, exit 1 on their next mktemp and leave the new helper root behind. Install was given an absolute --binary and --previous 6.2.0; the failure precedes network use. There is no signal, readonly mutation or hidden source trick. Absolute TMPDIR runs pass, explaining why the shipped cases miss this.
 
-The demo passes normal --verify and its GOTOOLCHAIN=invalid build error returns 1 with an empty TMPDIR. Its second-allocation failure, however, independently falsifies R1. R2 passes for the three real scripts with their own TMPDIR roots; migration and install run from another directory, quickstart additionally passes there with an absolute --binary, and install passes with --binary and --previous 6.2.0. GitHub works anonymously; no token was needed. All real-script and module-suite runs completed before mutations.
+Expected action: stabilize the allocated root as an absolute path before exporting it or using it for cleanup. Prove cleanup across cd and each actual script with relative caller TMPDIR, including failure exits.
 
-R3 remains unsatisfied (F2). Restoring the three scripts from origin/main makes the scan fail; the old quickstart returns 0 but leaves a directory, failing the nonempty-directory condition. The no-helper control works. These prove rejection of the original defect while the new cases establish the remaining gap.
+## Corrections and requirement judgment
 
-The full diff preserves assertions and source/init/cd/argument behavior of the three real scripts and assertions of the demo. TMPDIR captures ordinary Go work directories and allocated curl/git fixtures, with no reliance on retaining the caller's original value. All tracked *.sh currently fall under tests/, scripts/, examples/ or install.sh, with descendants included by Git pathspecs. Helper/hygiene are statically exempt and dynamically checked.
+The round-9 corrections work: the unchanged demo makes one mktemp call; fault injection on a hypothetical second call is never reached, --verify returns 0 and TMPDIR is empty. GOTOOLCHAIN=invalid returns 1 with empty TMPDIR. Four previous synthetic forms, including stacked readonly flags and the second-allocation failure, are rejected; both prior complete-gate controls now return 1. Assertions remain unchanged.
 
-D1 remains proportionate: a single helper-owned root registered before subsequent allocations avoids this multi-root cleanup gap. SIGKILL independently leaves its root, an unavoidable trap limitation requiring disclosure before closeout; Final Report remains Pending. F2 is an observed defect, not accepted residual risk.
+F1, F3, F4, F5 and F6 remain resolved in their reviewed scope. Twelve independent helper permission/failure scenarios and the exact shipped setup (marker reached, exits 0/1/1/1) clean up with absolute TMPDIR. INT/TERM return 130/143 with default signal dispositions and empty TMPDIR. Removing the INT handler or reverting chmod makes the gate fail, and the gate still cleans up. Its own INT/TERM controls also return 130/143 with no residue. Documentation correctly names pose_test_tmp_remove.
 
-## Checks and compact evidence
+R1 and R2 pass their absolute-TMPDIR matrices but fail F7. R3 remains unsatisfied by F2. Restoring the three origin/main scripts makes the static check fail; the old quickstart exits 0 and leaves a directory, failing the empty-TMPDIR condition. The no-helper control leaves a directory as expected.
 
-Branch CLI build, go vet ./..., go test ./... -count=1, ShellCheck 0.11.0 --severity=warning over the CI glob set, hygiene and TestLocalVerifyCoversCurrentCIGates pass. CI, scripts/verify.sh and required matrix check test-scripts-remove-their-temp-files-integration invoke the exercised hygiene command. The synthetic counterexamples separately pass the warning check.
+D1 is proportionate: one owned TMPDIR captures child temporary work, and the demo now follows a single-root sequence. It still needs a stable absolute path. Ordinary Go build/test, curl and git usage has no dependency on retaining the caller's original TMPDIR value. SIGKILL independently exits -9 and leaves a root, an unavoidable trap limit that must be disclosed at closeout; Final Report remains Pending. Eval/source opacity is already declared; it does not account for F2's visible syntax and state changes. Findings are not accepted residual risks.
 
-Artifact-check exits 0: all twelve declared claims are observed. Fourteen observed paths include the two prior review artifacts, with no native finding naming this spec. Implementation commits carry POSE-Spec attribution. Tech-debt assessment finds zero markers/uncovered items; recurrence-check flags zero keys. No MCP/REST/Protobuf/Kafka contract changed; assess integrate is not applicable.
+All 24 tracked *.sh files fall under the declared scan paths; Git pathspecs include descendants. Helper/hygiene are statically exempt and dynamically tested. No assertion or public API/MCP contract changed. Source/init precede allocations and cd, but the relative-path consequence is F7.
 
-Compact evidence: [test-scripts-temp-cleanup-independent-review.json](../results/test-scripts-temp-cleanup-independent-review.json). Full outputs and executable probes remain outside the repository at /tmp/pose-temp-independent-r9; the manifest stores exit codes, facts, every finding scenario and SHA-256 hashes, including the mktemp fault-injection shim. Mutations ran sequentially and were restored byte-for-byte. All intentional leaks, including the rejected negative-control leak, were observed then removed. Native assessment/index side effects were copied outside the repository and restored to their initial tracked state.
+## Checks and evidence
+
+Branch CLI build, go vet ./..., go test ./... -count=1, ShellCheck 0.11.0 --severity=warning over CI globs, the hygiene gate and TestLocalVerifyCoversCurrentCIGates pass. The three real scripts with absolute caller TMPDIR pass and leave it empty; migration and install run from another directory, quickstart additionally passes there with --binary, and install with --binary/--previous 6.2.0. No token was needed or exposed.
+
+CI, scripts/verify.sh and required matrix check test-scripts-remove-their-temp-files-integration invoke the exercised gate. Artifact-check exits 0 with 12 claims observed among 14 paths, the two extras being review artifacts, and no finding for this spec. Tech-debt finds zero markers/uncovered items; recurrence flags zero keys. No inter-module contract change requires assess integrate.
+
+Compact evidence: [test-scripts-temp-cleanup-independent-review.json](../results/test-scripts-temp-cleanup-independent-review.json). Full command outputs and executable probes are outside the repository in /tmp/pose-temp-independent-r10; the manifest records exit codes, spec facts, all findings and SHA-256 hashes. No raw repository-wide tool output is embedded.
+
+All baseline scripts and module tests finished before tracked mutations; mutations were sequential and restored byte-for-byte. Intentional leaks were removed. A preview accidentally run during a mutation was rejected and discarded; a later preview against the restored old index was also rejected. The retained final preview follows artifact regeneration on restored implementation paths. Native generated assessment/index files were copied externally and restored. Only the two review-owned files remain modified.
 
 ## Native closeout disposition
 
-Prepared preview: `rvb-177ef5134d45caa8`, unsealed. No sealed bundle or attestation was created. Review verify, close, lint-spec --strict, check --strict and strict delivery validation were not run because the medium finding prevents entering the conditional approval closeout. Tasks, trace, plan and roadmaps remain unchanged. No commit, push or upstream contribution was made.
+Bundle preview: `rvb-12ec261992810661`, prepared and unsealed. No attestation. Strict delivery validation, review verify, review-check, close, lint-spec --strict and check --strict were not run because the medium findings prevent the conditional approval closeout. No lifecycle, tasks, trace, roadmaps or implementation-plan edit, commit, push or upstream contribution was made.
 
 ## Rules applied during review
 
-- Type: bugfix with CI/validation integration; .pose/workflows/review.md and pose-review/pose-spec-closeout skills.
-- Security: temporary paths, permissions, signals, token handling and evidence integrity.
-- Documentation style: spec, cleanup instructions and report accuracy.
-- Backend Go: selected by the effective plan; branch build, vet and full tests exercised, with no Go-source change.
-- Delivery evidence: distinguish successful commands from requirement satisfaction.
-- Knowledge governance: consulted; no accepted residual risk or handoff.
-- Frontend, infrastructure and inter-service contract rules: not applicable.
+- Bugfix review: POSE workflow and pose-review/pose-spec-closeout skills, controlled scope and explicit dispositions.
+- Security: temporary paths, permissions, signals, tokens and evidence integrity.
+- Backend Go: branch build, vet and full tests, with no Go-source change.
+- Documentation style and delivery evidence: distinguish green execution from requirement satisfaction.
+- Knowledge governance: searched prior knowledge; no accepted residual risk or handoff.
+- Inter-service, frontend and infrastructure contracts: not applicable. Surface/completion tools remain deferred because approval is blocked.
 
-## Next action
-
-Resolve F2, including the current demo's allocation-failure path, and make both complete-gate controls reject or safely clean the demonstrated cases before another independent review or any seal/closeout.
+Resolve F2 and F7 before sealing or closing this spec. No production or test correction was made by the reviewer.

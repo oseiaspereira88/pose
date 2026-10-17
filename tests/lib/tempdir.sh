@@ -10,7 +10,9 @@
 # from it, so the directory is still removed.
 
 pose_test_tmp_init() {
-  POSE_TEST_TMP="$(mktemp -d)"
+  # Absolute, so a relative caller TMPDIR keeps its meaning after the script
+  # changes directory.
+  POSE_TEST_TMP="$(cd "$(mktemp -d)" && pwd -P)"
   export POSE_TEST_TMP
   # Everything below, including `go build` and `go test`, creates its
   # temporary files here.

@@ -1,24 +1,25 @@
 {
   "schema_version": 1,
-  "round": 9,
+  "round": 10,
   "spec": "pose-test-scripts-remove-their-temp-files",
   "pr": 192,
-  "head": "f98d0056fe399a51230d7df7719d78a7afb4d6f1",
+  "head": "e5d86dfb47a150335a2a64e06c7af6dae6fa7796",
   "decision": "changes-requested",
   "reviewer": "agent:independent-gpt-6.1-sol-review",
   "identity_assurance": "declared; unsigned",
   "judgments": {
-    "scope": "Maintainer-authorized Codex/OpenAI execution, different vendor from the Claude/Anthropic implementer. The agent:independent- prefix is an engine-required declaration until pose-delegated-review-run-provenance replaces it, not authenticated execution provenance. pose-dist attestations are unsigned. Individual implementer-session identity is maintainer-supplied, not independently authenticated.",
-    "D1": "One owned TMPDIR root remains proportionate and avoids the multi-allocation cleanup gap when adopted before later allocations. Helper/hygiene pass the independent mutable-state permission/failure/signal matrix. The demo still leaks if its second mktemp fails, and the guard approves that unsafe form. SIGKILL remains an unavoidable trap limitation to disclose at closeout; Final Report is Pending.",
-    "scan_scope": "All tracked *.sh currently lie in tests/, scripts/, examples/ or install.sh; Git pathspecs include descendants. Helper/hygiene are statically exempted and dynamically checked. Assertions/source/init/cd handling are preserved. The demo is explicitly within this spec and its artifact claims."
+    "scope": "Maintainer-authorized Codex/OpenAI execution reviewing Claude/Anthropic implementation, a different vendor. The agent:independent- prefix is an engine-required declaration until pose-delegated-review-run-provenance replaces it. Identity is declared and pose-dist attestations are unsigned; individual implementer/session identity is supplied by the maintainer, not independently authenticated.",
+    "D1": "A single owned TMPDIR root is proportionate and now protects the demo allocation sequence. The helper must keep a stable absolute root across cd (F7). Go, curl and git operations with absolute TMPDIR passed; no assertion change was found.",
+    "residual_risks": "SIGKILL demonstrably leaves the root and cannot be trapped. Eval and sourced-file opacity are declared scanner limits. F2 uses ordinary visible shell constructs rather than either declared exclusion. Final Report remains Pending; these observed defects are not accepted risks.",
+    "scan_scope": "All 24 tracked *.sh paths are under tests/, scripts/, examples/ or install.sh, including descendants. Helper and hygiene are exempted statically and exercised dynamically."
   },
   "previous_findings": {
-    "F1": "resolved and revalidated in the original restricted-file permission scope",
-    "F2": "open: all 59 earlier external synthetic leaks are rejected, but four further accepted scenarios leak",
-    "F3": "resolved, including missing-handler negative control",
-    "F4": "resolved, documentation names pose_test_tmp_remove",
-    "F5": "resolved, exact setup markers and expected exits revalidated",
-    "F6": "resolved, gate INT 130 and TERM 143 leave caller TMPDIR empty; negative failure controls also clean up"
+    "F1": "resolved for the reviewed restricted-descendant cases",
+    "F2": "open with eleven further accepted leaking cases; all 63 earlier external leaking synthetic cases now rejected",
+    "F3": "resolved: default dispositions, delivered INT 130 and TERM 143, missing-INT negative control fails",
+    "F4": "resolved: helper documentation names pose_test_tmp_remove",
+    "F5": "resolved: exact shipped setup reaches markers, exits 0/1/1/1, negative old-permissions mutation fails",
+    "F6": "resolved: hygiene INT 130 and TERM 143 and negative failures leave TMPDIR empty"
   },
   "findings": [
     {
@@ -26,39 +27,140 @@
       "severity": "medium",
       "status": "open",
       "file": "tests/hygiene/temp-cleanup.sh",
-      "line": 239,
+      "line": 162,
       "related_lines": [
-        183,
-        221,
-        235
+        51,
+        94,
+        155,
+        167,
+        272
       ],
-      "additional_locations": [
+      "requirements": [
+        "R3"
+      ],
+      "scenario": "The scanner approves eleven independently executed leaking scripts. It cuts at a physical line starting exit/return even inside command substitution, after line continuation, or in a function declaration, and assumes a top-level return exits a script without errexit. Quote state resets per line, so << END inside a multiline string starts a fictitious heredoc and hides later allocations. An otherwise accepted own trap can be disabled by set -n, or fail on a 0000 descendant. All eleven pass the complete gate when substituted into a tracked path; ten also pass CI-warning ShellCheck.",
+      "cases": [
         {
-          "file": "examples/demo/record.sh",
-          "lines": [
-            34,
-            35,
-            36
-          ]
+          "name": "exit-function-noop",
+          "script_exit": 0,
+          "left_nonempty": true,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "return-function-noop",
+          "script_exit": 0,
+          "left_nonempty": true,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "bare-return-without-errexit",
+          "script_exit": 0,
+          "left_nonempty": true,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "exit-as-continued-argument",
+          "script_exit": 0,
+          "left_nonempty": true,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "return-as-continued-argument",
+          "script_exit": 0,
+          "left_nonempty": true,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "multiline-single-quoted-heredoc-text",
+          "script_exit": 0,
+          "left_nonempty": true,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "multiline-double-quoted-heredoc-text",
+          "script_exit": 0,
+          "left_nonempty": true,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "multiline-backtick-return",
+          "script_exit": 0,
+          "left_nonempty": true,
+          "shellcheck_exit": 1
+        },
+        {
+          "name": "command-substitution-exit",
+          "script_exit": 0,
+          "left_nonempty": true,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "own-trap-noexec",
+          "script_exit": 0,
+          "left_nonempty": true,
+          "shellcheck_exit": 0
+        },
+        {
+          "name": "own-trap-rm-readonly-child",
+          "script_exit": 1,
+          "left_nonempty": true,
+          "shellcheck_exit": 0
         }
       ],
-      "requirement": "R3; R1 also fails on the current tracked demo when its second allocation fails",
-      "scenario": "The accepted multi-root form installs cleanup only after all mktemp commands succeed. If the second allocation fails, the first root survives. This reproduces with a second invalid mktemp template and with the unchanged tracked demo using fault injection that lets the first mktemp execute natively and fails only the second. Both exit 1 and leave TMPDIR nonempty, while the scan approves them. The readonly predicate also examines only the first option word, so declare -x -r is accepted in a literal gap assignment and before helper initialization with readonly TMPDIR; both leak. All four accepted cases use CI-warning-clean source. Two tracked-script substitutions pass the complete gate.",
-      "cases": [
-        "second-allocation-fails",
-        "declare-multiple-flags-readonly-gap",
-        "declare-multiple-flags-readonly-helper",
-        "demo-second-mktemp-failure"
-      ],
-      "action": "Make cleanup active before later allocations can fail, rather than treating adjacent multiple allocations as protected. Reject or safely handle this own-trap form, and cover failure of allocation N in the demo and positive multi-root case. Parse all declaration option words when rejecting readonly state. Require the four cases and both complete-gate controls to be rejected or clean up.",
+      "action": "Fail closed when lexical/execution context is unsupported; do not discard reachable code based on a physical-line prefix or treat multiline string text as a heredoc. Reject or protect noexec and permission-changing own-trap forms. Cover every listed case and the complete tracked-path gate.",
       "evidence": [
-        "scan-probes.json",
-        "demo-second-mktemp-failure.log",
-        "fault-bin/mktemp",
-        "control-probes.json",
-        "full-gate-second-allocation-fails.log",
-        "full-gate-declare-multiple-flags-readonly-helper.log",
-        "scan-probes.py"
+        "extra-probes.json",
+        "extra-probes.py",
+        "full-extra.json",
+        "full-extra.py"
+      ]
+    },
+    {
+      "id": "F7",
+      "severity": "medium",
+      "status": "open",
+      "file": "tests/lib/tempdir.sh",
+      "line": 13,
+      "related_lines": [
+        17,
+        28,
+        29
+      ],
+      "requirements": [
+        "R1",
+        "R2",
+        "caller TMPDIR constraint"
+      ],
+      "scenario": "With a valid relative caller TMPDIR=tmp, mktemp returns tmp/tmp.<suffix>. The helper exports that relative path and keeps it as its cleanup target. After cd, both further allocations and cleanup resolve it from the wrong directory. All three current scripts invoked from another directory exit 1 and leave their helper root in the original caller TMPDIR; the helper alone followed by cd / exits 0 and also leaks.",
+      "cases": [
+        {
+          "name": "quickstart",
+          "exit_code": 1,
+          "left_nonempty": true
+        },
+        {
+          "name": "migration",
+          "exit_code": 1,
+          "left_nonempty": true
+        },
+        {
+          "name": "journey",
+          "exit_code": 1,
+          "left_nonempty": true
+        },
+        {
+          "name": "helper",
+          "exit_code": 0,
+          "left_nonempty": true
+        }
+      ],
+      "action": "Resolve the owned temporary root to a stable absolute path before exporting TMPDIR or registering cleanup. Verify helper success/failure after cd and all three scripts from another directory with a relative caller TMPDIR.",
+      "evidence": [
+        "relative-tmpdir.json",
+        "relative-quickstart.log",
+        "relative-migration.log",
+        "relative-journey.log",
+        "relative-helper.log"
       ]
     }
   ],
@@ -66,7 +168,7 @@
     "branch_cli_build": {
       "exit_code": 0,
       "command": "go -C pose-mcp build -o ../pose-review ./cmd/pose",
-      "note": "Moved Go -C output to ../pose-review and used that branch binary throughout."
+      "note": "Moved Go -C output to ../pose-review; used the branch binary throughout."
     },
     "context": {
       "exit_code": 0,
@@ -82,24 +184,15 @@
       "exit_code": 0,
       "version": "0.11.0",
       "severity": "warning",
-      "scope": "CI glob set, including unchanged demo source"
-    },
-    "adversarial_shellcheck": {
-      "synthetic_cases": 3,
-      "all_exit_codes": 0
+      "scope": "CI glob set"
     },
     "hygiene": {
       "exit_code": 0,
-      "negative_fixtures": 78,
+      "negative_fixtures": 81,
       "positive_fixtures": 5,
-      "tracked_copy_controls": [
-        "rebound",
-        "looped",
-        "fallible-gap"
-      ],
-      "semantic_gap": "F2"
+      "tracked_copy_controls": 3
     },
-    "local_verify_covers_ci": {
+    "local_verify_covers_current_ci_gates": {
       "exit_code": 0
     },
     "real_scripts": [
@@ -107,51 +200,33 @@
         "name": "quickstart",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 3.75
+        "seconds": 3.65
       },
       {
         "name": "migration",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 2.59
+        "seconds": 1.91
       },
       {
         "name": "journey",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 6.43
+        "seconds": 6.17
       },
       {
         "name": "demo",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 2.38
+        "seconds": 1.9
       },
       {
         "name": "quickstart-binary",
         "exit_code": 0,
         "leftovers": [],
-        "seconds": 1.38
+        "seconds": 1.28
       }
     ],
-    "demo_build_failure": {
-      "name": "demo-build-failure",
-      "run_exit": 1,
-      "leftovers": [],
-      "environment_failure": "GOTOOLCHAIN=invalid"
-    },
-    "demo_second_allocation_failure": {
-      "name": "demo-second-mktemp-failure",
-      "tracked_path": "examples/demo/record.sh",
-      "scan_exit": 0,
-      "accepted": true,
-      "run_exit": 1,
-      "leftovers": [
-        "tmp.WZ7D9uKs3s"
-      ],
-      "mktemp_calls": 2,
-      "fault_injection": "second mktemp exits 1; first delegates to native mktemp; no source mutation"
-    },
     "additional_controls": [
       {
         "name": "old-static",
@@ -161,7 +236,7 @@
         "name": "old-quickstart",
         "exit_code": 0,
         "leftovers": [
-          "tmp.llUOA0Mscq"
+          "tmp.25BuTcLUF8"
         ],
         "nonempty_check_exit": 1
       },
@@ -171,28 +246,51 @@
         "leftovers": []
       }
     ],
-    "independent_helper": {
-      "nested_permission_scenarios": 12,
-      "all_left_empty": true,
-      "success_exit": 0,
-      "assertion_set_e_unset_exit": 1,
-      "INT_exit": 130,
-      "TERM_exit": 143,
-      "SIGKILL_exit": -9,
-      "SIGKILL_left_nonempty": true
+    "demo_failure_controls": [
+      {
+        "name": "demo-second-mktemp-failure",
+        "tracked_path": "examples/demo/record.sh",
+        "scan_exit": 0,
+        "accepted": true,
+        "run_exit": 0,
+        "leftovers": [],
+        "mktemp_calls": 1,
+        "fault_injection": "second mktemp exits 1; first delegates to native mktemp; no source mutation"
+      },
+      {
+        "name": "demo-build-failure",
+        "run_exit": 1,
+        "leftovers": [],
+        "environment_failure": "GOTOOLCHAIN=invalid"
+      }
+    ],
+    "prior_external_leaks": {
+      "rejected": 63,
+      "total": 63
     },
-    "shipped_setup": {
-      "cases": 4,
-      "all_reach_marker": true,
-      "exits": [
+    "round9_counterexamples": {
+      "all_four_synthetic_shapes_rejected": true,
+      "both_complete_gate_controls_exit": 1,
+      "demo_second_mktemp_no_longer_reached": true,
+      "demo_mktemp_calls": 1
+    },
+    "helper_controls": {
+      "nested_permission_failure_cases": 12,
+      "all_left_empty": true,
+      "shipped_setup_cases": 4,
+      "all_setup_markers_reached": true,
+      "shipped_exits": [
         0,
         1,
         1,
         1
       ],
-      "all_left_empty": true
+      "INT_exit": 130,
+      "TERM_exit": 143,
+      "SIGKILL_exit": -9,
+      "SIGKILL_left_nonempty": true
     },
-    "hygiene_signal_and_failure_controls": [
+    "hygiene_controls": [
       {
         "name": "gate-TERM",
         "exit_code": 143,
@@ -214,29 +312,29 @@
         "name": "gate-without-INT",
         "exit_code": 1,
         "leftovers": []
-      }
-    ],
-    "full_gate_leak_controls": [
+      },
       {
         "name": "full-gate-second-allocation-fails",
-        "exit_code": 0,
+        "exit_code": 1,
         "tracked_path": "tests/import/migration-guides.sh"
       },
       {
         "name": "full-gate-declare-multiple-flags-readonly-helper",
-        "exit_code": 0,
+        "exit_code": 1,
         "tracked_path": "tests/import/migration-guides.sh"
       }
     ],
-    "static_adversarial": {
-      "accepted_leaking_synthetic_cases": 3,
-      "accepted_leaking_tracked_demo": 1,
-      "all_left_nonempty": true,
-      "all_run_exit_codes": 1,
-      "happy_path_controls_accepted": 3,
-      "happy_path_controls_left_empty": true,
-      "prior_synthetic_leaks_rejected": 59,
-      "excluded_probe": "typeset-multiple-flags-readonly-target is rejected by the mutation rule and is not an accepted-leak finding"
+    "full_gate_leak_controls": {
+      "cases": 11,
+      "all_gate_exit_codes": 0,
+      "all_gate_TMPDIRs_empty": true,
+      "tracked_path": "tests/import/migration-guides.sh",
+      "evidence": "full-extra.json"
+    },
+    "adversarial_shellcheck": {
+      "passed": 10,
+      "total_leaks": 11,
+      "warning_case": "multiline-backtick-return uses legacy backticks; other ten are warning-clean"
     },
     "artifact_check": {
       "exit_code": 0,
@@ -264,79 +362,96 @@
       "exit_code": 0,
       "flagged_keys": 0
     },
-    "bundle_prepare": {
+    "bundle_preview": {
       "exit_code": 0,
-      "id": "rvb-177ef5134d45caa8",
-      "state": "prepared",
-      "sealed": false
+      "id": "rvb-12ec261992810661",
+      "sealed": false,
+      "state": "prepared"
     },
-    "integration": "CI, local verifier and required matrix check invoke the exercised hygiene command. No MCP/REST/Protobuf/Kafka contract changed; assess integrate is not applicable."
+    "integration": "CI, scripts/verify.sh and required matrix check test-scripts-remove-their-temp-files-integration invoke hygiene. No inter-module API/MCP contract changed; assess integrate not applicable."
   },
-  "evidence_quality": "Real scripts and module tests completed before tracked-file mutations. Mutations ran sequentially and were restored byte-for-byte. Demo fault injection changes only its child PATH: first mktemp delegates to the native command, second exits 1, and the counter proves exactly two calls; demo source is unchanged. All intentional leaks were observed then removed.",
+  "evidence_quality": "Real scripts, Go suite and baseline gates completed before tracked-file mutations. Mutations were sequential and restored byte-for-byte. Full-gate controls scan substituted migration scripts; their actual leaks are proven by separate execution. Every intentional leak was removed after observation. One preview overlapped a mutation and was discarded; a second used a restored stale index and was discarded. The final preview used refreshed artifact data with clean implementation paths. Native generated side effects were retained externally and restored.",
   "closeout": {
     "sealed_bundle_id": null,
     "attestation_id": null,
-    "review_verify": "not run; medium finding",
-    "close": "not run; medium finding",
-    "lint_spec_strict": "not run; approval closeout not entered",
-    "check_strict": "not run; approval closeout not entered",
-    "strict_delivery_validation": "not run; approval closeout not entered",
+    "review_verify": "not run; medium findings",
+    "close": "not run; medium findings",
+    "lint_spec_strict": "not run; conditional approval closeout not entered",
+    "check_strict": "not run; conditional approval closeout not entered",
+    "strict_delivery_validation": "not run; conditional approval closeout not entered",
     "commit_pushed": null
   },
-  "raw_evidence_directory": "/tmp/pose-temp-independent-r9",
+  "raw_evidence_directory": "/tmp/pose-temp-independent-r10",
   "raw_evidence_sha256": {
-    "context.json": "e6e4d1c875e959fbe9dde4d7e5870371a1519d7281d0ee239ac32bd14a2e0e3f",
+    "context.log": "a79c77d81d079a430d59445b2999158cbf2e2780a79a0f222e6016f03bec301d",
+    "tech-debt.log": "84d9b0da3f49dbfe79a93777b7c9db82ac638302683eae9cd3d53898f9782af0",
+    "recurrence.log": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7",
+    "artifact.log": "a6349d0799fe6927fc282c3f2a8703904e94045175b63e37c221ae8e7f9f9b0d",
+    "artifact-summary.json": "3210009fa6142ed3390f41ac4547eff2deec10e34c9f22d46f23ea1a02356b40",
+    "bundle-explain.log": "9e771ed53ec534ab6c2dbfee8c98b82af214046b17da11f9ab014a56b7fe0c38",
+    "bundle-during-mutation.log": "0a5932f3c4483b14f17f26cba79b608d5b1529e4382bb7492861acf9cf9fec8f",
+    "bundle-before-index-refresh.log": "756677efd31f3e9ea88c2c0e4b2c68370471aa3a7695be28cf007471b2e0e7c4",
+    "full-diff.log": "9ba3c56afafe02b4aafdde231d74145d667ebb01964bc8c7f9d96f00fc552105",
+    "round10-diff.log": "90c19fa196c0052266e429462e2aa8dc9f0fab6942fe927ae7fb6dba25624156",
+    "go-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "go-test.log": "9970c8d9bf1907dee409d78f7253e5566dffa544121bce3a4d2bbf0ebe4430c9",
+    "hygiene.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
+    "shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local-ci-gate.log": "644c29361e6b48da5c0d3184a7e0ebb0179faa3b2e6d32dd4986b6e59f73dd24",
+    "real-results.json": "83f9df46c63ed395bfdd8f6806270fb6af495ee60aad2796dd639813b0d76fea",
+    "remaining-probes.json": "2bd7935afe4af723840a00987873c3bd74790c6269b44bc4b1c152b3f5b7a82f",
+    "scan-probes.json": "cf4ef0596550f26942b6de1018a2624dbc428057e925ef6a97bf6628a539b2c8",
+    "previous-corpus.json": "2ffaa404999dc21f00637806e85b4935953788774cedd71e5735d1554349156f",
+    "control-probes.json": "d76541722742c8d56aff89880635aa1b62c67422a4700c9a9475b8924d6e9bbf",
+    "extra-probes.json": "1238b383c4adba578b5c2e8dd31afc9ea7cbc232330568a84494684a9b30ea10",
+    "full-extra.json": "918b7b6836da1081bf53a2c2e7de1e8b3ca564d07b0fe7635585d88abdf4dd49",
+    "relative-tmpdir.json": "8e3bbe7df37683ad82b1af969a01e89c6da310ec84609b433783aef983379b78",
+    "demo-build-failure.log": "81ea061796f9d49ad6fead3fd3b35102552ec9ccdc1d61f64dfaf6ae770cab86",
+    "demo-second-mktemp-failure.log": "e26c6c88e2452979bd77d9a69fd961759f64d54274e8bc7ceb55fd808f814884",
+    "fault-bin/mktemp": "227b9c9024bacd4eb9bf886f691a56810621f25f07ff7c9dfa51ec9238799a09",
+    "scan-probes.py": "e378b849758914c17f225b19cd5adfbbb8cf2852bd99b8509c4b14652eb8f330",
+    "extra-probes.py": "6d2eac79fb4ca21f23a73d553319cbc50e1c6de2544c84629c4f15ff7b24b2e2",
+    "full-extra.py": "311c75a7e9ac7b1aea415c5c688bc4ad80ec24dbf8ce48d0f8080a88c9a1b8c2",
+    "control-probes.py": "05ce064bb344081b4435afe0ed5a3bdfd5c352d337a5f60b9f3f5262b88f6930",
+    "remaining-probes.py": "98820661b58d6aa948538ef580796c5c3ff9bae1c546b7b1c120d61da54dbbb6",
+    "run-real.py": "d24987230dd5220deb300a6ed0945c7d790beb48b621bf415e377f606b47fe5c",
+    "governance.log": "0ffb2e326b3eb92b14e2ff8a8121c8b951ed29a14754a7ff8a84e6cd77a9f1a9",
+    "tracked-shell-paths.log": "f75ee1dc341cc5641008eee8fbea4fed3b55e53f0b28838d02217eb3b3756b64",
     "suggest-pose-mcp.log": "eb90980a7ead71b07dc4d355944863683fcfd3bb0ebcf2ba5eead2536606b184",
     "suggest-tests.log": "d5e614a2f3bc7eb2bce8cbde968dd286577e6f7ec676ec0b7b851e9cfd10e106",
     "suggest-scripts.log": "a9e8e207e8d8a2b4ec34ad2ddb8e8e04ed29df04e340fdf1cd18118e9980ee17",
     "suggest-examples.log": "e508f2937b328e9d5ab3151fe51a18bf0d8b29d6febdc3f02e597b59d6531dff",
-    "tech-debt.log": "84d9b0da3f49dbfe79a93777b7c9db82ac638302683eae9cd3d53898f9782af0",
-    "recurrence.log": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7",
-    "artifact.json": "1ddf1f935105995d3433ec4072ff808e6ba5e0aeb643d7ca75d84e23b834a9dd",
-    "artifact.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "artifact-summary.json": "3210009fa6142ed3390f41ac4547eff2deec10e34c9f22d46f23ea1a02356b40",
-    "bundle-explain.log": "528b5e262188b3bd90a91725681faff3f5b5745ee462b50038e7134a3b99fabb",
-    "full-diff.log": "df12538b7b55aec0d8c62495758383a13e864bd0b44ab3c7481598941d178f6a",
-    "round9-diff.log": "b4bb25837e417870e14542ebdf829735592b461952afa3dcce2cca8965219e45",
-    "vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "test.log": "629c6f74d10fbccb50c991fff4e356e18fc7fb61b0825a154ac3791359ece2aa",
-    "hygiene.log": "4260e775273baea7536e9c449070730f56b9fb9aa32dfac1641c1593c077476d",
-    "shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "local-ci-gate.log": "f46fcbd4e5ddf1b7b2648f43babb7d93a4b9a5eb04da74b2e241364d8cb540b2",
-    "real-results.json": "be0b4d4cf99f8d7d196b4f5f8c6b4b7bc8a6723e36805153b77b8877a7b711e8",
-    "remaining-probes.json": "6c3b70ed5bd98a35751d2f3b4f3e1fa3f34907ac1d689a79b343eb46fd5f8084",
-    "scan-probes.json": "ba551a6a4e19503f048c05a3e620f21746fec4fbe1a813647e17175c27b2cb7f",
-    "previous-corpus.json": "2832487b2492110aa38bd9c93ccb1b0fd62bb26cc6c2cffb7577a2d78ac7cd9f",
-    "control-probes.json": "2e752d335ff817248ea59efeccf41c0d4c7e7b552f40071791c353731ccb7caf",
-    "demo-build-failure.log": "81ea061796f9d49ad6fead3fd3b35102552ec9ccdc1d61f64dfaf6ae770cab86",
-    "demo-second-mktemp-failure.log": "67b68af3fa7e5f2552042afeb53a8cf618eb1f5de888bb517ef1df64dd81c8c5",
-    "fault-bin/mktemp": "227b9c9024bacd4eb9bf886f691a56810621f25f07ff7c9dfa51ec9238799a09",
-    "full-gate-second-allocation-fails.log": "4260e775273baea7536e9c449070730f56b9fb9aa32dfac1641c1593c077476d",
-    "full-gate-declare-multiple-flags-readonly-helper.log": "4260e775273baea7536e9c449070730f56b9fb9aa32dfac1641c1593c077476d",
-    "gate-TERM.log": "ad71f34f5cc8ac679e656eb46a44960519782c39a7f53c684655ce11e8654edd",
-    "gate-INT.log": "ad71f34f5cc8ac679e656eb46a44960519782c39a7f53c684655ce11e8654edd",
-    "gate-old-permissions.log": "8ac282e90f8a3eb8aff73451a7105e4a2e6ed60e044ec7ca88422748788428fb",
-    "gate-without-INT.log": "2affe31e56350cb43bce13d27828c6c29c00ba053b49f8d8e6f9f782db2d038e",
-    "old-static.log": "5ef4a2a5c5122b73dd2a688b5c0ac72349ed9d1a60e6d62597258035cdaef11a",
-    "old-quickstart.log": "15d3a9c84f1f82b876f0f3f11e3b49cbda3eac1dcc60cb696f0b675690e3bed2",
-    "journey-options.log": "6d24d3a882d7244082e532892f74bb324982cacac310f89e737beec330f090ca",
-    "scan-probes.py": "81f376b26798028358f3a0e0d23784e7a2fe32af2e0be003dd5c780f92eb2ef9",
-    "control-probes.py": "40fa4a111620eff43ab2862e70a62ddacf2fd4daa786ba01d37cffbbd428c7fe",
-    "remaining-probes.py": "9063c693732ddc5d6d57a4e07625746adb0b2c8ba137f4689c3c91ee07d7015c",
-    "run-real.py": "d158427dd2f387dcdd6f1b63ffcde0af6b1139709d3214f8e668f6111354a8d4",
-    "term-at-control.bash": "7f58f18e84b39d5c9dbe1984b42dacfea0aa6e12ea177f4045cac5c0dea198a3",
-    "int-at-control.bash": "ac210ee2eb6ddac19b82b2696565bcbe56e0a790678c8bfbf51cf4dfdc76cece",
-    "second-allocation-fails-shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "declare-multiple-flags-readonly-gap-shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "declare-multiple-flags-readonly-helper-shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    "relative-helper.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "relative-quickstart.log": "b76ce2841b8e4d9f4604625c60b24f710bb5a00a6ab9038d1fbebcdcf6c21bd4",
+    "relative-migration.log": "8bff727f59cc8dbc309e8314688044785f6c2d48d67d0a87c2a0a57f35ba6067",
+    "relative-journey.log": "733e1a1c83b6c62745c0119734af5fa1735683ef3b5cebd91cfb8734d5884dd7",
+    "exit-function-noop.log": "0d4cf402611ec0dad6d099054c9738514c36c4b113d0ea7540646bb37b553c84",
+    "return-function-noop.log": "b29669ad5dd58987404ca9af2c228ddd98dadc1c4b09d57aaed2e237d31b8153",
+    "bare-return-without-errexit.log": "574164310b926251861f4dbf042cbe0ceefa0d640efa8ff551f73398db3a2ad4",
+    "exit-as-continued-argument.log": "538eb277b9cc14235fcdde01be1fc3402e282be7286a41735f697a0b58e43d10",
+    "return-as-continued-argument.log": "33501181425ff04b0394ce22d54c4fb671a458c5d675abd9f3c79d2436e567a4",
+    "multiline-single-quoted-heredoc-text.log": "bd654f5433afdac0acd36de8fe6aef5f1ca7e5ea61e2d2893e5aa9b2c4175bbb",
+    "multiline-double-quoted-heredoc-text.log": "5b186ced0633584873f277d2e6a8ee5408e932ef052a87cbb6c139a342d33f9e",
+    "multiline-backtick-return.log": "a8ef175fcd4913025d27e428f5a819b4ea5c8efce918c1af74e41aeabe3abbc5",
+    "command-substitution-exit.log": "f341e4f1210f76859dd0015d33f33497e1aad70ec7458797bdbdd676af717049",
+    "own-trap-noexec.log": "96825020922dc5dbbdf18e7a9cc84bfa3f1a639d63472c6285c4ac98025921e7",
+    "own-trap-rm-readonly-child.log": "b523395780fc0a499b61180fecc5cfa4ddae5143a38b968159310f54cc44a9eb",
+    "full-gate-exit-function-noop.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
+    "full-gate-return-function-noop.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
+    "full-gate-bare-return-without-errexit.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
+    "full-gate-exit-as-continued-argument.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
+    "full-gate-return-as-continued-argument.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
+    "full-gate-multiline-single-quoted-heredoc-text.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
+    "full-gate-multiline-double-quoted-heredoc-text.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
+    "full-gate-multiline-backtick-return.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
+    "full-gate-command-substitution-exit.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
+    "full-gate-own-trap-noexec.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad",
+    "full-gate-own-trap-rm-readonly-child.log": "28b637db8786637e29a487e6babad80c7d531bf8595ef47debb6c30f3db339ad"
   },
   "prior_review": {
-    "head": "091869f9",
-    "round": 8,
+    "round": 9,
+    "head": "f98d0056",
     "decision": "changes-requested",
-    "findings": [
-      "F2"
-    ],
-    "committed_record": "f98d0056:.pose/results/test-scripts-temp-cleanup-independent-review.json"
+    "committed_record": "e5d86dfb:.pose/results/test-scripts-temp-cleanup-independent-review.json"
   }
 }

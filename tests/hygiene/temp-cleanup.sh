@@ -39,74 +39,117 @@ import re, sys
 
 DOCKER = re.compile(r'if \[ -n "\$\w+" \]; then docker rm -f "\$\w+" >/dev/null; fi;?')
 
-def heredoc_delimiter(line, arith=0):
-    """The delimiter of a heredoc started on this line, found outside quotes,
-    comments and arithmetic (but inside `$( ... )`, which is code even within
-    double quotes); None if the line starts none."""
-    if re.match(r"\s*let\b", line):
-        if "<<" in line:
-            raise ValueError("a `let` line with << cannot be told from a heredoc")
-        return None
-    i, n = 0, len(line)
-    q = None
-    subs = []  # quote state to restore when each open `$(` closes
-    depth = 0
-    while i < n:
-        c = line[i]
-        if q:
-            if c == "\\" and q == '"':
-                i += 2
-                continue
-            if q == '"' and line.startswith("$(", i):
-                subs.append(q)
-                q = None
-                depth = 1
-                i += 2
-                continue
-            if c == q:
-                q = None
-        elif c == "\\":
-            i += 2
-            continue
-        elif c in "'\"":
-            q = c
-        elif c == "(" and subs:
-            depth += 1
-        elif c == ")" and subs:
-            depth -= 1
-            if depth == 0:
-                q = subs.pop()
-        elif c == "#" and (i == 0 or line[i - 1] in " \t;&|("):
-            return None
-        elif line.startswith("<<<", i):
-            i += 3
-            continue
-        elif line.startswith("<<", i):
-            if arith + line[:i].count("((") - line[:i].count("))") > 0:
-                i += 2
-                continue
-            m = re.match(r"<<(-?)\s*(?:'([^']+)'|\"([^\"]+)\"|([A-Za-z_][\w.-]*))", line[i:])
-            if m:
-                return (m.group(2) or m.group(3) or m.group(4), bool(m.group(1)))
+def logical_lines(path):
+    """The script as logical lines: quotes, `$( )`, backticks, arithmetic and
+    backslash continuations that span physical lines are joined, comments and
+    heredoc bodies are dropped. Raises ValueError for what it cannot follow."""
+    raw = open(path).read().split("\n")
+    out, cur, stack, i = [], [], [], 0
+    pending = []  # heredocs started on the current physical line
+    while i < len(raw):
+        l = raw[i]
         i += 1
-    return None
-
-def code_lines(path):
-    """Lines with comments and heredoc bodies blanked."""
-    out, end, arith = [], None, 0
-    for l in open(path).read().split("\n"):
-        if end is not None:
-            word, strip = end
-            out.append("")
-            if (l.lstrip("\t") if strip else l) == word:
-                end = None
+        j, n, cont = 0, len(l), False
+        while j < n:
+            c = l[j]
+            top = stack[-1][0] if stack else None
+            if top == "sq":
+                cur.append(c)
+                if c == "'":
+                    stack.pop()
+                j += 1
+                continue
+            if top == "arith":
+                cur.append(c)
+                if c == "(":
+                    stack[-1][1] += 1
+                elif c == ")":
+                    stack[-1][1] -= 1
+                    if stack[-1][1] == 0:
+                        stack.pop()
+                j += 1
+                continue
+            if c == "\\":
+                if j + 1 >= n:
+                    cont = True
+                    j += 1
+                else:
+                    cur.append(l[j:j + 2])
+                    j += 2
+                continue
+            if l.startswith("$((", j) or (top != "dq" and l.startswith("((", j) and (not cur or "".join(cur).strip() == "" or "".join(cur).rstrip()[-1:] in ";&|(")):
+                k = 3 if l.startswith("$((", j) else 2
+                cur.append(l[j:j + k])
+                stack.append(["arith", 2])
+                j += k
+                continue
+            if top == "dq":
+                if c == '"':
+                    stack.pop()
+                    cur.append(c)
+                elif l.startswith("$(", j):
+                    stack.append(["sub", 1])
+                    cur.append("$(")
+                    j += 2
+                    continue
+                elif c == "`":
+                    stack.append(["bt", 0])
+                    cur.append(c)
+                else:
+                    cur.append(c)
+                j += 1
+                continue
+            # code context: none, sub or bt
+            if c == "'":
+                stack.append(["sq", 0])
+            elif c == '"':
+                stack.append(["dq", 0])
+            elif c == "`":
+                if top == "bt":
+                    stack.pop()
+                else:
+                    stack.append(["bt", 0])
+            elif l.startswith("$(", j):
+                stack.append(["sub", 1])
+                cur.append("$(")
+                j += 2
+                continue
+            elif c == "(" and top == "sub":
+                stack[-1][1] += 1
+            elif c == ")" and top == "sub":
+                stack[-1][1] -= 1
+                if stack[-1][1] == 0:
+                    stack.pop()
+            elif c == "#" and (j == 0 or l[j - 1] in " \t;&|("):
+                break
+            elif l.startswith("<<<", j):
+                cur.append("<<<")
+                j += 3
+                continue
+            elif l.startswith("<<", j):
+                if re.match(r"\s*let\b", "".join(cur)):
+                    raise ValueError("a `let` line with << cannot be told from a heredoc")
+                m = re.match(r"<<(-?)\s*(?:'([^']+)'|\"([^\"]+)\"|([A-Za-z_][\w.-]*))", l[j:])
+                if m:
+                    pending.append((m.group(2) or m.group(3) or m.group(4), bool(m.group(1))))
+            cur.append(c)
+            j += 1
+        if cont:
+            cur.append(" ")
+        for word, strip in pending:
+            while i < len(raw):
+                body = raw[i]
+                i += 1
+                if (body.lstrip("\t") if strip else body) == word:
+                    break
+        pending = []
+        if stack or cont:
+            cur.append(" ")
             continue
-        if l.lstrip().startswith("#"):
-            out.append("")
-            continue
-        out.append(l)
-        end = heredoc_delimiter(l, arith)
-        arith = max(0, arith + l.count("((") - l.count("))"))
+        out.append("".join(cur))
+        cur = []
+    if stack or cur:
+        raise ValueError("a quote, substitution or continuation is left open (unsupported)")
     return out
 
 def masked(l):
@@ -149,7 +192,7 @@ def block_stacks(lines):
 def check(path):
     p = []
     try:
-        lines = code_lines(path)
+        lines = logical_lines(path)
     except ValueError as e:
         return [str(e)]
     if not any(re.search(r"\bmktemp\b", l) for l in lines):
@@ -157,9 +200,14 @@ def check(path):
     stacks = block_stacks(lines)
     if stacks is None:
         return ["block nesting cannot be followed (unsupported); simplify it or use the helper"]
+    full = "\n".join(lines)
+    if re.search(r"(?m)^\s*(function\s+)?(rm|trap|chmod|find|exit|return|mktemp|set|cd|source|printf|echo|test|\[)\s*(\(\))?\s*\{", full):
+        p.append("redefines a command the cleanup or the scan relies on")
+    if re.search(r"\bset\s+(-[a-zA-Z]*n[a-zA-Z]*\b|[-+]o\s+noexec)", full):
+        p.append("set -n disables execution")
     # Only a top-level exit/return ends the script: the lines after it never run.
     for i, l in enumerate(lines):
-        if not stacks[i] and re.match(r"(exit|return)\b", masked(l)):
+        if not stacks[i] and re.match(r"exit(\s|$)", masked(l)):
             lines, stacks = lines[: i + 1], stacks[: i + 1]
             break
     text = "\n".join(lines)
@@ -176,8 +224,6 @@ def check(path):
         for args in re.findall(r"\bmktemp\b([^)\n]*)", lines[i]):
             if "/" in args or re.search(r"(^|\s)(-p|--tmpdir|--suffix)\b", args):
                 p.append(f"line {i + 1}: mktemp with a path/tmpdir option escapes the owned directory")
-    if re.search(r"(?m)^\s*(function\s+)?(rm|trap|chmod|find)\s*(\(\))?\s*\{", text):
-        p.append("redefines rm, trap, chmod or find, which the cleanup relies on")
     def mutated(v):
         return bool(re.search(r"\bfor\s+" + v + r"\b|\b(?:select|getopts)\b[^\n]*\b" + v + r"\b|\bread\b[^\n]*\b" + v + r"\b|(?<![\w$])" + v + r"\[|\b(?:printf\s+-v|mapfile|readarray)\b[^\n]*\b" + v + r"\b|\(\(\s*" + v + r"\b", text))
     if re.search(r"\breadonly\b|\b(declare|typeset|local|export)\b[^\n;|&]*\s-[a-zA-Z]*r", text):
@@ -213,6 +259,8 @@ def check(path):
                 p.append(f"line {i + 1}: mktemp sits in a loop, function, group or case arm, where it can run more than once")
             else:
                 assigned.append((m.group(1), i))
+        if re.search(r"\bchmod\s+(-\w+\s+)*(?:[0-7]{3,4}\b|[ugoa]*-[rwxXst]+|[ugoa]*=)", text):
+            p.append("chmod can make a directory the trap's rm cannot remove; use the helper, which restores access")
         if len(assigned) > 1:
             p.append("more than one mktemp: a later one can fail before the trap exists and leak the earlier directory; allocate one root and derive the other paths from it")
         for v, i in assigned:
@@ -379,6 +427,16 @@ mkfix let-heredoc "$SRC" 'let x <<EOF' 'pose_test_tmp_init' 'EOF' 'w="$(mktemp -
 mkfix two-roots 'a="$(mktemp -d)"' 'b="$(mktemp -d)"' "trap 'rm -rf \"\$a\" \"\$b\"' EXIT"
 mkfix declare-x-r 'declare -x -r w=x' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
 mkfix declare-x-r-tmpdir 'declare -x -r TMPDIR=/var/tmp' "$SRC" 'pose_test_tmp_init' 'w="$(mktemp -d)"'
+mkfix subst-exit 'set -euo pipefail' 'printf "%s\n" "$(' 'exit' ')"' 'w="$(mktemp -d)"'
+mkfix backtick-return 'x=`' 'return' '`' 'w="$(mktemp -d)"'
+mkfix continued-exit 'printf "%s\n" \' 'exit' 'w="$(mktemp -d)"'
+mkfix exit-function 'exit() { :; }' 'exit' 'w="$(mktemp -d)"'
+mkfix return-function 'return() { :; }' 'w="$(mktemp -d)"'
+mkfix bare-return 'return' 'w="$(mktemp -d)"'
+mkfix multiline-sq "printf '%s\\n' '" '<< END' "'" 'w="$(mktemp -d)"'
+mkfix multiline-dq 'printf "%s\n" "' '<< END' '"' 'w="$(mktemp -d)"'
+mkfix set-n 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT" 'set -n'
+mkfix chmod-after-trap 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT" 'mkdir "$w/a"' 'chmod 0000 "$w/a"'
 negatives=0
 for f in "$fixtures"/*.sh; do
   negatives=$((negatives + 1))
@@ -435,6 +493,18 @@ left="$(run_helper permission-control "set -e; $files")"
 HELPER="$ROOT/tests/lib/tempdir.sh"
 case "$left" in ''|setup-not-reached) fail "control: the previous helper cleaned up (or setup failed: '$left'), so the permission cases prove nothing" ;; esac
 chmod -R u+rwx "$SANDBOX/permission-control"
+# A relative caller TMPDIR keeps its meaning after the script changes directory.
+relative_case() { # <helper>; prints what is left in the relative TMPDIR
+  local base="$SANDBOX/relative"; mkdir -p "$base/tmp"
+  (cd "$base" && TMPDIR=tmp bash -c ". '$1'; pose_test_tmp_init; cd /; mktemp -d >/dev/null" >/dev/null 2>&1 || true)
+  ls -A "$base/tmp" | tr '\n' ' '
+  chmod -R u+rwx "$base"; rm -rf "$base"
+}
+left="$(relative_case "$HELPER")"
+[ -z "$left" ] || fail "helper (relative TMPDIR): left behind: $left"
+sed 's|POSE_TEST_TMP="$(cd "$(mktemp -d)" \&\& pwd -P)"|POSE_TEST_TMP="$(mktemp -d)"|' "$HELPER" > "$SANDBOX/tempdir-relative-old.sh"
+cmp -s "$SANDBOX/tempdir-relative-old.sh" "$HELPER" && fail "control: the relative-path regression is identical to the helper"
+[ -n "$(relative_case "$SANDBOX/tempdir-relative-old.sh")" ] || fail "control: the helper without the absolute path cleaned a relative TMPDIR, so the case proves nothing"
 for sig in TERM INT; do
   dir="$(outer "signal-$sig")"
   # A background job of a non-interactive shell starts with INT ignored, and an
