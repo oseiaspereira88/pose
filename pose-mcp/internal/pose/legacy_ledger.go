@@ -81,12 +81,17 @@ func (s Store) ledgerProject() string {
 
 // UnsignedAttestations lists recorded attestations without an envelope.
 func (s Store) UnsignedAttestations() ([]ReviewAttestation, error) {
-	all, err := s.ListReviewAttestations("")
+	read, err := s.ReadReviewAttestations("")
 	if err != nil {
 		return nil, err
 	}
+	// The set of unsigned attestations is what a ledger declares and what adopting
+	// signatures re-judges: a set read with a hole in it is not that set.
+	if !read.Coverage.Complete() {
+		return nil, fmt.Errorf("pose: the attestation history cannot be read completely, so the unsigned attestations are not known: %s", read.Coverage.Describe(""))
+	}
 	out := []ReviewAttestation{}
-	for _, att := range all {
+	for _, att := range read.Attestations {
 		if att.Envelope == nil {
 			out = append(out, att)
 		}
@@ -275,7 +280,12 @@ func (s Store) trustedLegacyEntriesRead() (map[string]string, SourceCoverage, er
 // LegacyLedgerCoverage says which legacy ledgers could not be read or verified. It
 // changes nothing about trust: they are not trusted either way.
 func (s Store) LegacyLedgerCoverage() SourceCoverage {
-	_, coverage, _ := s.trustedLegacyEntriesRead()
+	_, coverage, err := s.trustedLegacyEntriesRead()
+	if err != nil {
+		// The whole directory could not be used: that is the loss, not an empty one.
+		coverage.Add(SourceLoss{Producer: "legacy-ledger", Artifact: legacyLedgerDir, Kind: LossReadError, Detail: err.Error()})
+		coverage.Normalize()
+	}
 	return coverage
 }
 
@@ -346,7 +356,10 @@ func localAttestationIssuers(root string, docs PolicyDocs) []IssuerKeySummary {
 // planner's, which receives --issuer.
 func signedHistoryBlocker(root string, docs PolicyDocs, issuer string, checkAmbiguity bool) string {
 	uncovered, err := (Store{Root: root}).UncoveredUnsignedAttestations()
-	if err != nil || uncovered == 0 {
+	if err != nil {
+		return "the attestation history cannot be inspected, so the unsigned attestations adopting would seal are not known: " + err.Error()
+	}
+	if uncovered == 0 {
 		return ""
 	}
 	if issuer != "" {

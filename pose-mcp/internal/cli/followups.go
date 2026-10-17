@@ -225,6 +225,12 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 			}
 		}
 		fmt.Fprintf(stdout, "- %s %s (%s)\n    %s\n", entry.Spec, tag, meta, entry.Text)
+		if entry.MetaErr != "" {
+			render(stdout, stderr).Field("followups.meta_error."+entry.Spec, entry.MetaErr)
+		}
+		if entry.DispositionErr != "" {
+			render(stdout, stderr).Field("followups.disposition_error."+entry.Spec, entry.DispositionErr)
+		}
 	}
 	if failOverdue && len(overdueEntries) > 0 {
 		fmt.Fprintf(stdout, "\nResultado: FALHA (%d follow-up(s) com review vencido)\n", len(overdueEntries))

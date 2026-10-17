@@ -654,6 +654,9 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 	for _, res := range results {
 		fmt.Fprintf(stdout, "  - %-30s LOC: %d (prod) / %d (test) | Debt TODOs: %d, FIXMEs: %d\n",
 			res.ComponentSlug, res.Metrics.LOCProduction, res.Metrics.LOCTests, res.TechnicalDebt.TODOs, res.TechnicalDebt.FIXMEs)
+		if res.ScanIncomplete() {
+			render(stdout, stderr).Field("assess.scan."+res.ComponentSlug, "incomplete: "+res.Coverage.Describe("")+"; the counts above are a floor")
+		}
 		if decision, ok := decisions[res.ComponentSlug]; ok {
 			render(stdout, stderr).Field("assess.freshness."+res.ComponentSlug, decision)
 		}
@@ -677,7 +680,7 @@ func updateProjectStateArchitecture(root string, current []*pose.ComponentDiscov
 	var todos, fixmes, panics, stubs int
 	var completeness float64
 	languages := make(map[string]bool)
-	components := 0
+	components, partial, unreadable := 0, 0, 0
 	if current == nil {
 		entries, _ := os.ReadDir(filepath.Join(root, ".pose", "state", "components"))
 		for _, entry := range entries {
@@ -686,11 +689,14 @@ func updateProjectStateArchitecture(root string, current []*pose.ComponentDiscov
 			}
 			componentRaw, readErr := os.ReadFile(filepath.Join(root, ".pose", "state", "components", entry.Name()))
 			if readErr != nil {
+				unreadable++
 				continue
 			}
 			var state pose.ComponentDiscoveryState
 			if json.Unmarshal(componentRaw, &state) == nil && state.ComponentSlug != "" {
 				current = append(current, &state)
+			} else {
+				unreadable++
 			}
 		}
 	}
@@ -699,6 +705,9 @@ func updateProjectStateArchitecture(root string, current []*pose.ComponentDiscov
 			continue
 		}
 		components++
+		if state.ScanIncomplete() {
+			partial++
+		}
 		totalProd += state.Metrics.LOCProduction
 		totalTests += state.Metrics.LOCTests
 		todos += state.TechnicalDebt.TODOs
@@ -725,8 +734,12 @@ func updateProjectStateArchitecture(root string, current []*pose.ComponentDiscov
 	if components > 0 {
 		average = completeness / float64(components) * 100
 	}
+	componentsLine := fmt.Sprintf("- componentes: total=%d verificados=%d completude=%.1f%%", components, verified, average)
+	if partial > 0 || unreadable > 0 {
+		componentsLine += fmt.Sprintf(" (piso: %d com varredura incompleta, %d estados ilegíveis; não certificado)", partial, unreadable)
+	}
 	lines := []string{
-		fmt.Sprintf("- componentes: total=%d verificados=%d completude=%.1f%%", components, verified, average),
+		componentsLine,
 		fmt.Sprintf("- linhas_de_codigo: producao=%d testes=%d total=%d", totalProd, totalTests, totalProd+totalTests),
 		"- linguagens: " + strings.Join(orderedLanguages, ", "),
 		fmt.Sprintf("- saude_de_codigo: TODOs=%d FIXMEs=%d panics=%d stubs=%d", todos, fixmes, panics, stubs),

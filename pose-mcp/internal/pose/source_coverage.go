@@ -193,12 +193,21 @@ func sniffJSONString(raw []byte, path ...string) (value string, found, ambiguous
 	}
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	var stack []frame
+	seen := make([]int, len(path))
 	at := func() bool {
 		if len(stack) != len(path) {
 			return false
 		}
 		for i, f := range stack {
 			if !f.object || f.key != path[i] {
+				return false
+			}
+		}
+		return true
+	}
+	ancestorsOK := func(n int) bool {
+		for i := 0; i < n; i++ {
+			if !stack[i].object || stack[i].key != path[i] {
 				return false
 			}
 		}
@@ -228,6 +237,16 @@ func sniffJSONString(raw []byte, path ...string) (value string, found, ambiguous
 		case string:
 			if n := len(stack); n > 0 && stack[n-1].object && stack[n-1].expectKey {
 				stack[n-1].key, stack[n-1].expectKey = t, false
+				// A name on the path seen twice at its own level makes the record
+				// ambiguous as soon as the name is read, whatever follows it (a null, a
+				// number, a string cut short): the decoder of the whole record would
+				// keep the last one, so the first proves nothing.
+				if n-1 < len(path) && t == path[n-1] && ancestorsOK(n-1) {
+					seen[n-1]++
+					if seen[n-1] > 1 {
+						return "", false, true
+					}
+				}
 				continue
 			}
 			// A string value. The path names the keys of the objects above it, and the

@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 // Spec pose-source-coverage-integrity: the follow-up backlog, the project state and the
@@ -248,5 +250,38 @@ func TestFollowupsReportsAnUnknownDispositionAsUnresolved(t *testing.T) {
 	item := doc["items"].([]any)[0].(map[string]any)
 	if !strings.Contains(item["disposition_error"].(string), "unknown disposition") {
 		t.Fatalf("item = %v", item)
+	}
+}
+
+// R2-F06: the project state records a floor, not a certified completeness.
+func TestTheProjectStateDoesNotCertifyAnIncompleteScan(t *testing.T) {
+	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, ".pose/state/project-state.md", "# State\n\n## Arquitetura\n<!-- state:derived hash:000000000000 status:active -->\n\nold\n")
+	state := &posemodel.ComponentDiscoveryState{ComponentSlug: "svc", Status: "in_progress", CompletenessScore: 1,
+		Coverage: posemodel.SourceCoverage{Losses: []posemodel.SourceLoss{{Producer: "component-discovery", Artifact: "svc/a.go", Kind: posemodel.LossReadError, Detail: "denied"}}}}
+	if err := updateProjectStateArchitecture(root, []*posemodel.ComponentDiscoveryState{state}); err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := os.ReadFile(filepath.Join(root, ".pose/state/project-state.md"))
+	if !strings.Contains(string(raw), "não certificado") {
+		t.Fatalf("project state certified a lost scan:\n%s", raw)
+	}
+}
+
+// R2-F08: the human outputs carry the diagnostics the JSON carries.
+func TestHumanOutputsCarryTheParserDiagnostics(t *testing.T) {
+	root := newGitRepo(t)
+	writeCloseoutCLIFile(t, root, ".pose/specs/2026-10-01-diag.md", "---\nslug: diag\nstatus: done\ncreated_at: 2026-10-01\n---\n\n## 7. Final Report\n\n### Follow-ups\n\n- [open] Bad crit (owner:@core crit:urgent review:2099-01-01)\n- [opne] Typo (owner:@core crit:low review:2099-01-01)\n")
+	var out, errOut bytes.Buffer
+	cmdFollowups(root, nil, &out, &errOut)
+	text := out.String() + errOut.String()
+	for _, want := range []string{"unknown disposition", "crit"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("the backlog output lacks %q:\n%s", want, text)
+		}
+	}
+	line := attentionLine(posemodel.Obligation{Message: "m", Observation: posemodel.ObligationObservation{Limitations: []string{"unknown disposition 'opne'"}}})
+	if !strings.Contains(line, "unknown disposition 'opne'") {
+		t.Fatalf("attention line lost the limitations: %s", line)
 	}
 }

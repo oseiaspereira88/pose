@@ -213,10 +213,10 @@ func (s Store) assessmentFilesRead() ([]assessmentFile, SourceCoverage, error) {
 			return nil
 		}
 		if entry.Type()&os.ModeSymlink != 0 {
-			if isAssessmentTextExt(strings.ToLower(filepath.Ext(entry.Name()))) {
-				rel, _ := filepath.Rel(rootReal, path)
-				coverage.addExclusion("assessment-scan", "symlink", "links are not followed, so their targets are scanned only where they live", filepath.ToSlash(rel))
-			}
+			// Every link is declared, whatever it points at or is called: a linked module
+			// or directory is code this scan does not read.
+			rel, _ := filepath.Rel(rootReal, path)
+			coverage.addExclusion("assessment-scan", "symlink", "links are not followed, so their targets are scanned only where they live", filepath.ToSlash(rel))
 			return nil
 		}
 		ext := strings.ToLower(filepath.Ext(entry.Name()))

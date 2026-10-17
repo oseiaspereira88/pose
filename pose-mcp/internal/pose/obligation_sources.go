@@ -183,7 +183,13 @@ func (s Store) findingObligations(project string, now time.Time, coverage *Cover
 	// attributed to it or to nothing; a record that names another scope is not its loss.
 	lost := []SourceLoss{}
 	for _, loss := range read.Coverage.Losses {
-		concerns := scope == "" || loss.Scope == ""
+		concerns := scope == "" || loss.Scope == "" || loss.Scope == scope
+		if rest, ok := strings.CutPrefix(scope, "milestone:"); ok {
+			// A milestone is reviewed with its roadmap.
+			if roadmap, _, found := strings.Cut(rest, "/"); found {
+				concerns = concerns || loss.Scope == "roadmap:"+roadmap
+			}
+		}
 		for _, sp := range specs {
 			concerns = concerns || loss.Scope == "spec:"+sp.Slug
 		}

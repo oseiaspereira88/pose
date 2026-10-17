@@ -63,6 +63,7 @@ scan de marcadores de dívida técnica e a leitura do histórico de reviews
 - created: pose-mcp/internal/pose/source_coverage.go
 - created: pose-mcp/internal/pose/source_coverage_integrity_test.go
 - created: pose-mcp/internal/pose/source_coverage_review_test.go
+- created: pose-mcp/internal/pose/source_coverage_round2_test.go
 - created: pose-mcp/internal/cli/source_coverage_parity_test.go
 - created: pose-mcp/internal/mcpserver/source_coverage_parity_test.go
 - modified: pose-mcp/internal/pose/followups_parse.go
@@ -203,6 +204,17 @@ ilegível e layout split legado entram na leitura de follow-ups; cabeçalho trun
 disposição desconhecida é não resolvida; a reconciliação de dívida, o rework de governança,
 o inventário legado, a governança efetiva e os ledgers legados passam a declarar o que não
 leram; o produtor de uma obrigação inválida é o slot que a devolveu.
+
+A segunda revisão (12 achados) levou a: erro do loader de atestação nunca é pulado na
+retenção; nome de cabeçalho repetido em JSON válido é perda, não "outro bundle", e o sniff
+marca a ambiguidade ao ler o nome repetido, qualquer que seja o valor; entrada presente e
+não resolvível (link quebrado, seção split, raiz de specs) é spec perdida, não ausência; a
+perda atribuída ao próprio milestone ou roadmap consultado conta; consolidado, project state e
+saída humana de discover declaram scan incompleto como piso; todo symlink é exclusão
+declarada; reconciliação de dívida declara roadmap e project state ilegíveis; diretório de
+ledger ilegível é perda; o leitor global de reviews valida decisão, `reviewed_at` e fechamento
+do cabeçalho; o plano de ledger recusa histórico de atestações incompleto; diagnósticos do
+parser chegam ao backlog e ao Attention humanos.
 
 ### Review and delivery evidence
 

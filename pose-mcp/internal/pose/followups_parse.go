@@ -128,7 +128,9 @@ func ReadSpecFollowups(root string) SpecFollowupRead {
 	}
 	dirEntries, err := os.ReadDir(specsDir)
 	if err != nil {
-		if !os.IsNotExist(err) {
+		// Absent is only absent when nothing is there: a link to nowhere reads as
+		// "does not exist" and is a lost directory.
+		if _, lerr := os.Lstat(specsDir); !os.IsNotExist(err) || lerr == nil {
 			coverage.Add(SourceLoss{Producer: "followups", Artifact: ".pose/specs", Kind: LossReadError, Detail: err.Error()})
 		}
 		coverage.Normalize()
@@ -144,23 +146,49 @@ func ReadSpecFollowups(root string) SpecFollowupRead {
 		switch {
 		case e.IsDir() || (e.Type()&os.ModeSymlink != 0 && isDirectory(path)):
 			slug := specSlugFromPath(path + "/spec.md")
-			if _, statErr := os.Stat(filepath.Join(path, "spec.md")); statErr == nil {
-				raw, readErr := os.ReadFile(filepath.Join(path, "spec.md"))
+			specPath := filepath.Join(path, "spec.md")
+			// Presence is decided by Lstat: an entry that is there but cannot be resolved
+			// (a dangling link) is a spec that was lost, not one that does not exist.
+			if _, lerr := os.Lstat(specPath); lerr == nil {
+				raw, readErr := os.ReadFile(specPath)
 				if readErr != nil {
-					lose(filepath.Join(path, "spec.md"), slug, LossReadError, readErr.Error())
+					lose(specPath, slug, LossReadError, readErr.Error())
 					continue
 				}
-				sources = append(sources, source{path: filepath.Join(path, "spec.md"), slug: slug, text: string(raw), ok: true})
-			} else if files := splitSpecFiles(path); len(files) > 0 {
-				// The legacy split layout the spec listing reads: the Final Report lives in
-				// one of the section files, and the folder is the spec.
+				sources = append(sources, source{path: specPath, slug: slug, text: string(raw), ok: true})
+				continue
+			} else if !os.IsNotExist(lerr) {
+				lose(specPath, slug, LossReadError, lerr.Error())
+				continue
+			}
+			// The legacy split layout the spec listing reads: the Final Report lives in
+			// one of the section files, and the folder is the spec.
+			var files []string
+			broken := false
+			for _, name := range splitSpecSectionFiles {
+				section := filepath.Join(path, name)
+				if _, lerr := os.Lstat(section); lerr != nil {
+					if !os.IsNotExist(lerr) {
+						lose(section, slug, LossReadError, lerr.Error())
+						broken = true
+					}
+					continue
+				}
+				if fi, serr := os.Stat(section); serr != nil {
+					lose(section, slug, LossReadError, serr.Error())
+					broken = true
+				} else if !fi.IsDir() {
+					files = append(files, section)
+				}
+			}
+			if len(files) > 0 {
 				body, readErr := readSplitSpecBody(files)
 				if readErr != nil {
 					lose(path, slug, LossReadError, readErr.Error())
 					continue
 				}
 				sources = append(sources, source{path: path, slug: slug, text: body, status: splitSpecStatus(files), ok: true})
-			} else if _, listErr := os.ReadDir(path); listErr != nil {
+			} else if _, listErr := os.ReadDir(path); listErr != nil && !broken {
 				// A folder this process cannot list may hold a spec: absence is not proven.
 				lose(path, slug, LossReadError, listErr.Error())
 			}

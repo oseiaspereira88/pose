@@ -1989,6 +1989,10 @@ func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 				coverage.Add(attributeLoss(SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: "the record is not valid JSON"}, raw, "payload", "scope", "ref"))
 				continue
 			}
+			if _, _, ambiguous := sniffJSONString(raw, "payload", "scope", "ref"); ambiguous {
+				coverage.Add(SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossInvalid, Detail: "the record names its scope more than once"})
+				continue
+			}
 			if header.Payload.Scope.Ref == "" {
 				// Valid JSON that names no scope identifies nothing: it is not another
 				// scope's bundle, it is a record whose owner is unknown.
@@ -2666,6 +2670,12 @@ func (s Store) ReadReviewAttestations(bundleID string) (ReviewAttestationsRead, 
 			}
 			if err := json.Unmarshal(raw, &header); err != nil {
 				coverage.Add(attributeLoss(SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossParseError, Detail: "the record is not valid JSON"}, raw, "bundle_id"))
+				continue
+			}
+			if _, _, ambiguous := sniffJSONString(raw, "bundle_id"); ambiguous {
+				// A repeated name is valid JSON whose decoder keeps the last one: which
+				// bundle the record belongs to is not settled, so it is not another's.
+				coverage.Add(SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossInvalid, Detail: "the record names its bundle more than once"})
 				continue
 			}
 			if header.BundleID == "" {

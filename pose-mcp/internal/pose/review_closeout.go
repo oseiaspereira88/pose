@@ -964,6 +964,13 @@ func (s Store) ReadReviewAttempts(scope string) (ReviewAttemptsRead, error) {
 			if len(missing) > 0 {
 				sort.Strings(missing)
 				err = fmt.Errorf("pose: review record lacks %s", strings.Join(missing, ", "))
+			} else if !knownReviewDecisions[a.Decision] {
+				err = fmt.Errorf("pose: review record has an unknown decision %q", a.Decision)
+			} else if _, timeErr := time.Parse(time.RFC3339, a.ReviewedAt); timeErr != nil {
+				// The history is selected and ordered by this field.
+				err = fmt.Errorf("pose: review record has reviewed_at %q, which is not RFC3339", a.ReviewedAt)
+			} else if raw, readErr := os.ReadFile(path); readErr == nil && !frontmatterClosed(string(raw)) {
+				err = fmt.Errorf("pose: review record header is not closed")
 			}
 		}
 		if err != nil {
@@ -995,6 +1002,9 @@ func (s Store) ReadReviewAttempts(scope string) (ReviewAttemptsRead, error) {
 	coverage.Normalize()
 	return ReviewAttemptsRead{Attempts: attempts, Coverage: coverage}, nil
 }
+
+// knownReviewDecisions are the decisions a review record can carry.
+var knownReviewDecisions = map[string]bool{"approved": true, "approved-with-reservations": true, "changes-requested": true, "rejected": true}
 
 func digestJSON(value any) (string, error) {
 	raw, err := json.Marshal(value)
@@ -2076,15 +2086,18 @@ func (s Store) retainedCompletedReview(scope ScopeRef, ref string, policy Review
 // made after it (spec pose-source-coverage-integrity), so the lost records are returned
 // for the caller to report and no approval is.
 func (s Store) retainedCompletedReviewWithHistory(scope ScopeRef, ref string, policy ReviewPolicy) (*ReviewBundle, *ReviewAttestation, []SourceLoss) {
-	bundles, err := s.ListReviewBundles(ref)
+	bundlesRead, err := s.ReadReviewBundles(ref)
 	if err != nil {
-		return nil, nil, nil
+		return nil, nil, []SourceLoss{{Producer: "review-bundles", Artifact: ".pose/reviews", Kind: LossReadError, Detail: err.Error()}}
 	}
+	bundles := bundlesRead.Bundles
 	for i := len(bundles) - 1; i >= 0; i-- {
 		read, attErr := s.ReadReviewAttestations(bundles[i].BundleID)
 		attestations := read.Attestations
 		if attErr != nil {
-			continue
+			// A bundle whose attestations cannot be loaded may hold a rejection made
+			// after any approval below it: no approval is retained over it.
+			return nil, nil, []SourceLoss{{Producer: "review-attestations", Artifact: bundles[i].BundleID, Scope: ref, AttributedBy: "bundle", Kind: LossInvalid, Detail: attErr.Error()}}
 		}
 		if lost := read.Coverage.LossesFor(bundles[i].BundleID); len(lost) > 0 {
 			return nil, nil, lost

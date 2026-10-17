@@ -383,9 +383,7 @@ func (s Store) DiscoverComponent(relPath string) (*ComponentDiscoveryState, erro
 			return nil
 		}
 		if entry.Type()&os.ModeSymlink != 0 {
-			if isDebtSourceExt(strings.ToLower(filepath.Ext(path))) {
-				coverage.addExclusion("component-discovery", "symlink", "links are not followed", relOf(path))
-			}
+			coverage.addExclusion("component-discovery", "symlink", "links are not followed", relOf(path))
 			return nil
 		}
 
@@ -643,6 +641,10 @@ O componente **%s** reside no caminho `+"`%s`"+` do projeto **%s**.
 	return os.WriteFile(file, []byte(md), 0o644)
 }
 
+// ScanIncomplete reports a component whose scan lost files. A state stored before the
+// scan recorded its coverage has no losses and is not reported as incomplete.
+func (c ComponentDiscoveryState) ScanIncomplete() bool { return len(c.Coverage.Losses) > 0 }
+
 // LoadComponentState reads ComponentDiscoveryState JSON from .pose/state/components/<slug>.json
 func (s Store) LoadComponentState(slug string) (*ComponentDiscoveryState, error) {
 	canonical := slugifyAssessmentPath(slug)
@@ -671,8 +673,12 @@ func (s Store) GenerateConsolidatedAssessment(states []*ComponentDiscoveryState)
 	var totalProd, totalTests, totalFiles int
 	var totalTODOs, totalFIXMEs, totalPanics, totalStubs int
 	var sumCompleteness float64
+	var incomplete []string
 
 	for _, st := range states {
+		if st.ScanIncomplete() {
+			incomplete = append(incomplete, st.ComponentSlug)
+		}
 		totalProd += st.Metrics.LOCProduction
 		totalTests += st.Metrics.LOCTests
 		totalFiles += st.Metrics.TotalFiles
@@ -737,6 +743,10 @@ func (s Store) GenerateConsolidatedAssessment(states []*ComponentDiscoveryState)
 | # | Componente Slug | Caminho do Módulo | Linguagens | LOC Produção | LOC Testes | Arquivos | TODOs | Completude | Status |
 |---|---|---|---|---|---|---|---|---|---|
 `, project, now, commit, len(states), totalProd, totalTests, totalProd+totalTests, totalFiles, platformCompleteness*100, totalTODOs, totalFIXMEs, totalPanics, totalStubs, openSpecsCount, gapsCount)
+	if len(incomplete) > 0 {
+		sort.Strings(incomplete)
+		md += fmt.Sprintf("\n> **Varredura incompleta**: %d componente(s) tiveram arquivos que não puderam ser lidos (%s). As contagens acima são pisos observados, não totais; a completude e as dívidas não estão certificadas para eles.\n", len(incomplete), strings.Join(incomplete, ", "))
+	}
 
 	for i, st := range states {
 		langs := strings.Join(st.Metrics.Languages, ", ")

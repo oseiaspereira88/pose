@@ -246,7 +246,32 @@ func (s Store) debtCoverageDocumentsRead() ([]debtCoverageDocument, []SourceLoss
 	} else if !errors.Is(err, os.ErrNotExist) {
 		lose(".pose/roadmaps", LossReadError, err.Error())
 	}
-	if state, err := s.ProjectState(context.Background(), "Follow-ups"); err == nil {
+	// Roadmaps the listing cannot see are still backlog: a link to nowhere or a file
+	// that cannot be opened is listed by the directory and absent from ListRoadmaps.
+	if entries, dirErr := os.ReadDir(filepath.Join(s.Root, ".pose", "roadmaps")); dirErr == nil {
+		for _, entry := range entries {
+			name := entry.Name()
+			if entry.IsDir() || !strings.HasSuffix(name, ".md") || strings.EqualFold(name, "README.md") {
+				continue
+			}
+			full := filepath.Join(s.Root, ".pose", "roadmaps", name)
+			if _, statErr := os.Stat(full); statErr != nil {
+				lose(".pose/roadmaps/"+name, LossReadError, statErr.Error())
+			} else if f, openErr := os.Open(full); openErr != nil {
+				lose(".pose/roadmaps/"+name, LossReadError, openErr.Error())
+			} else {
+				f.Close()
+			}
+		}
+	} else if !errors.Is(dirErr, os.ErrNotExist) {
+		lose(".pose/roadmaps", LossReadError, dirErr.Error())
+	}
+	statePath := filepath.Join(s.Root, ".pose", "state", "project-state.md")
+	if state, err := s.ProjectState(context.Background(), "Follow-ups"); err != nil {
+		if _, lerr := os.Lstat(statePath); lerr == nil {
+			lose(".pose/state/project-state.md", LossReadError, err.Error())
+		}
+	} else if err == nil {
 		for _, section := range state.Sections {
 			if section.Name == "Follow-ups" {
 				documents = append(documents, debtCoverageDocument{

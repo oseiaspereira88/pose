@@ -147,7 +147,11 @@ func attentionLine(o pose.Obligation) string {
 	if len(o.Targets) > 0 {
 		target = o.Targets[0].String()
 	}
-	return fmt.Sprintf("[%s %s] %s — needs %s; restricts %s; target %s; satisfied when %s", o.Category, o.ReasonCode, o.Message, who, strings.Join(phases, ","), target, o.Condition)
+	line := fmt.Sprintf("[%s %s] %s — needs %s; restricts %s; target %s; satisfied when %s", o.Category, o.ReasonCode, o.Message, who, strings.Join(phases, ","), target, o.Condition)
+	if len(o.Observation.Limitations) > 0 {
+		line += "; limits: " + strings.Join(o.Observation.Limitations, "; ")
+	}
+	return line
 }
 
 func shortRev(value string) string {
