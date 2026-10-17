@@ -3,6 +3,7 @@ package pose
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -646,9 +647,13 @@ func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 	}
 	snap.PolicyDigest = directoryDigest(filepath.Join(s.Root, ".pose", "policy"))
 	snap.ContractDigest = projectContractDigest(s.Root)
-	if raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "delivery-integrity.json")); err == nil {
+	if raw, _, err := s.ReadIndex("delivery-integrity.json"); err == nil {
 		sum := sha256.Sum256(raw)
 		snap.IndexDigest = "sha256:" + hex.EncodeToString(sum[:])
+	} else if errors.Is(err, ErrIndexGenerationUnavailable) {
+		// Bound as such: the answer no longer claims the index it was given.
+		snap.IndexDigest = "unavailable"
+		snap.Limitations = append(snap.Limitations, "the index set is unavailable: "+err.Error())
 	}
 	snap.Digest = snapshotDigest(snap)
 	return snap

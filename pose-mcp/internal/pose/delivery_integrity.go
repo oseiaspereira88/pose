@@ -1,6 +1,7 @@
 package pose
 
 import (
+	"errors"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -434,8 +435,10 @@ func BuildDeliveryIntegrityWithReleases(specs []Spec, claims []ArtifactClaim, ch
 }
 
 func (s Store) GetDeliveryIntegrity(path string) (DeliveryIntegrityGraph, error) {
-	indexPath := filepath.Join(s.Root, ".pose", "indexes", "delivery-integrity.json")
-	raw, err := os.ReadFile(indexPath)
+	raw, _, err := s.ReadIndex("delivery-integrity.json")
+	if errors.Is(err, ErrIndexGenerationUnavailable) {
+		return DeliveryIntegrityGraph{}, err
+	}
 	if err != nil {
 		return DeliveryIntegrityGraph{}, fmt.Errorf("pose: delivery-integrity index not found; run `pose index`")
 	}

@@ -350,3 +350,14 @@ func TestNeutralDoRPolicyShipsTheGateOff(t *testing.T) {
 		t.Fatal("the neutral DoR lost its task types")
 	}
 }
+
+func TestIndexGenerationDescriptorIsNeverSyncedNorSeeded(t *testing.T) {
+	for _, rel := range []string{".pose/indexes/generation.json", ".pose/indexes/generations/gen-0123456789abcdef/repo-map.json"} {
+		if IsIncluded(rel) {
+			t.Errorf("IsIncluded(%q) = true: a descriptor or a past generation is the instance's own and must not be synced", rel)
+		}
+	}
+	if _, seeded := NeutralIndexTemplates()[".pose/indexes/generation.json"]; seeded {
+		t.Error("generation.json must not be seeded: it would describe files it does not")
+	}
+}

@@ -2,6 +2,7 @@ package pose
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -555,7 +556,11 @@ func (s Store) loadReviewRepoEntries() ([]reviewRepoEntry, error) {
 	seen := map[string]bool{}
 
 	// 1. Try .pose/indexes/repo-map.json if present
-	if raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "repo-map.json")); err == nil {
+	raw, _, mapErr := s.ReadIndex("repo-map.json")
+	if errors.Is(mapErr, ErrIndexGenerationUnavailable) {
+		return nil, fmt.Errorf("review component map is unavailable: %w", mapErr)
+	}
+	if mapErr == nil {
 		var repo struct {
 			Apps     []reviewRepoEntry `json:"apps"`
 			Services []reviewRepoEntry `json:"services"`
@@ -683,7 +688,13 @@ func (s Store) loadReviewRepoEntries() ([]reviewRepoEntry, error) {
 }
 
 func (s Store) loadObservedReviewPaths(specs []string, entries []reviewRepoEntry, add func(reviewRepoEntry, string), unmapped map[string]bool, context *reviewPlanContext) {
-	raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "delivery-integrity.json"))
+	raw, _, err := s.ReadIndex("delivery-integrity.json")
+	if errors.Is(err, ErrIndexGenerationUnavailable) {
+		// An unavailable set is not an empty one: say that observed paths could
+		// not be read instead of reporting a plan built without them as whole.
+		context.Warnings = append(context.Warnings, "observed paths were not used: "+err.Error())
+		return
+	}
 	if err != nil {
 		return
 	}

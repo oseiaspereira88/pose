@@ -1,6 +1,6 @@
 ---
 slug: pose-index-generation-integrity
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-writer-coordination-and-atomic-publication, pose-delivery-integrity-index-compaction
@@ -103,6 +103,17 @@ Antes de executar, aceitar o escopo de implementação, avaliar readiness nativa
 executar assessment freshness no componente, completar o plano de artefatos,
 registrar produtores de evidência na matriz e criar a baseline por start.
 Não contornar dependência não terminal apenas porque o código parece presente.
+
+## 4. Tasks
+
+- [x] Context, readiness e assessment freshness; inventário dos sete outputs, dos leitores e dos dois escritores diretos de `delivery-integrity.json` contra a main 18e4342b.
+- [x] ADR do descritor de geração, da compatibilidade e da retenção antes do código estrutural.
+- [x] Native start com R1–R8/D1 preservados.
+- [x] Geração: descritor com digests e bindings, cópias imutáveis, publicação em três fases pelo publisher da B14, leitura que fixa e confere o conjunto, `ReplaceIndex` e retenção limitada.
+- [x] `pose index` publica a geração; `pose index --verify`; refresh do artifact-check e bootstrap do review bundle substituem o arquivo dentro de uma nova geração.
+- [x] Leitores migrados: grafo de entrega (CLI e MCP), mapa de componentes e caminhos observados do review plan, digest do índice no snapshot de obrigações e `pose suggest`; `generation.json` e `generations/` fora do sync e do seed.
+- [x] V1–V6 no domínio, na CLI e no MCP com race detector; probes P01–P03 antes e depois (controle inalterado); mutações em `.pose/results/b15-mutations.json`.
+- [ ] Validação estrita do módulo, revisão por ator diferente e closeout nativo.
 
 ## 5. Decisions
 

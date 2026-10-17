@@ -22,6 +22,10 @@ pose-rule-kubernetes.sigstore.json
 # de v1.7.1 a v1.7.10 (spec pose-release-security-gate-integrity).
 .harne8-agent-sync.json
 
+# Immutable copies of past index generations (retention keeps a few); the
+# descriptor .pose/indexes/generation.json is the committed record.
+.pose/indexes/generations/
+
 # Runtime lock of spec-transfer; never an authority record.
 .pose/transfers/.authority-transfer.lock
 # Runtime locks of atomic start; they name the call that holds them.
