@@ -6,8 +6,8 @@
 # on success, on a failed assertion (`exit 1`), on an error under `set -e` and
 # on INT or TERM. It must run before the script's first `mktemp`.
 #
-# A script that needs a trap of its own composes it with `pose_test_tmp_on_exit`
-# so the directory is still removed.
+# A script that needs an EXIT trap of its own must call `pose_test_tmp_remove`
+# from it, so the directory is still removed.
 
 pose_test_tmp_init() {
   POSE_TEST_TMP="$(mktemp -d)"
@@ -22,7 +22,9 @@ pose_test_tmp_init() {
 
 pose_test_tmp_remove() {
   [ -n "${POSE_TEST_TMP:-}" ] || return 0
-  # Directories a Go test left read-only would defeat rm -rf.
-  chmod -R u+w "$POSE_TEST_TMP" 2>/dev/null || true
+  # Directories a Go test left read-only (0500, 0400, 0000) would defeat rm -rf:
+  # restore owner access before removing (chmod visits a directory before
+  # reading it, so a 0000 directory can still be entered).
+  chmod -R u+rwx "$POSE_TEST_TMP" 2>/dev/null || true
   rm -rf "$POSE_TEST_TMP"
 }

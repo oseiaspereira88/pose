@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "spec": "pose-test-scripts-remove-their-temp-files",
+  "pr": 192,
+  "head": "fbe46f0e8d49c80a9b62d8cc0f01c741530e5455",
+  "decision": "changes-requested",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "identity_assurance": "declared; unsigned",
+  "judgments": {
+    "scope": "Maintainer-authorized independent Codex/OpenAI execution, different vendor from the Claude/Anthropic implementer. The agent:independent- prefix is an engine-required declaration until pose-delegated-review-run-provenance replaces it; it is not authenticated execution provenance. Attestations in pose-dist are unsigned. Maintainer supplied Claude Opus 5.5 session 296d1fcb-e989-40ae-9362-cf3514db8b26; implementation commit trailers instead name Claude Sonnet 5.5 and a claude.ai session URL. Individual implementer session identity has not been independently authenticated.",
+    "D1": "A per-script TMPDIR root is a cohesive solution and covers nested Go and fixture outputs without changing assertions. Current permission handling and enforcement still fail adversarial cases. SIGKILL leaves the root, as any trap-based solution must; the spec Final Report is Pending and does not yet disclose that boundary. Future non-helper scripts are not safely enforced by this scan.",
+    "scope_scan": "All tracked *.sh currently lie within tests/, scripts/, examples/ or install.sh. Git pathspecs include nested descendants. No currently tracked shell script escapes the declared R3 scope. No production code, policy, capability or adoption changes were made."
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "file": "tests/lib/tempdir.sh",
+      "line": 26,
+      "requirement": "R1",
+      "scenario": "Create a nested directory containing a file, then chmod 0400 or 0000 that directory before normal exit. chmod -R u+w does not restore directory traversal. rm fails with Permission denied, exit is 1 and TMPDIR remains nonempty. Mode 0500 is cleaned successfully.",
+      "action": "Restore the directory permissions needed for traversal and removal, including nested inaccessible directories, and cover these permission cases."
+    },
+    {
+      "id": "F2",
+      "severity": "medium",
+      "file": "tests/hygiene/temp-cleanup.sh",
+      "line": 28,
+      "related_lines": [
+        29,
+        33
+      ],
+      "requirement": "R3",
+      "scenario": "The exact static scanner returns 0 for an already tracked script containing mktemp plus each of: cleanup() { :; }; trap cleanup EXIT, a commented rm trap, a TERM trap with EXIT in a comment, an EXIT trap deleting an unrelated path, or only a comment ending in pose_test_tmp_init. None guarantees removal of its temporary directory.",
+      "action": "Make acceptance establish an executable cleanup mechanism covering the temporary paths. Add negative cases for comments, no-op cleanup, wrong signals and fake initialization; do not describe lexical presence as proof of removal."
+    },
+    {
+      "id": "F3",
+      "severity": "medium",
+      "file": "tests/hygiene/temp-cleanup.sh",
+      "line": 54,
+      "related_lines": [
+        58,
+        59,
+        61
+      ],
+      "requirement": "R1 validation; R3 meaningful gate",
+      "scenario": "The asynchronous bash launch inherits SIGINT ignored. Reproducing the exact launch prints trap -- '' SIGINT; the process remains alive after INT, waits for its sleep, exits 0 and leaves TMPDIR empty. The hygiene gate reports INT covered even though cleanup occurred on ordinary completion. Its wait status is discarded.",
+      "action": "Launch the INT probe with SIGINT enabled, assert signal-specific termination and prompt completion, and ensure a missing INT handler causes the probe to fail."
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "file": "tests/lib/tempdir.sh",
+      "line": 9,
+      "requirement": "D1 trap composition documentation",
+      "scenario": "The helper tells future callers to compose a custom trap with pose_test_tmp_on_exit, but defines only pose_test_tmp_remove. Following the instruction invokes a nonexistent function after replacing the helper EXIT trap and can leave the directory.",
+      "action": "Name the actual cleanup function in the composition instructions and show a valid composition."
+    }
+  ],
+  "checks": {
+    "build_branch_cli": {
+      "exit_code": 0,
+      "command": "go -C pose-mcp build -o ../pose-review ./cmd/pose",
+      "note": "Go resolves -o after -C; moved the produced root/pose-review to ../pose-review and used that executable for every POSE command."
+    },
+    "go_vet": {
+      "exit_code": 0
+    },
+    "go_test_all_count_1": {
+      "exit_code": 0
+    },
+    "hygiene": {
+      "exit_code": 0,
+      "note": "Includes leaky control and normal permission 0500 fixtures; false INT coverage is F3."
+    },
+    "shellcheck_severity_warning": {
+      "exit_code": 0,
+      "version": "0.11.0",
+      "scope": "Exact CI file glob set"
+    },
+    "local_verify_covers_ci": {
+      "exit_code": 0
+    },
+    "real_scripts": [
+      {
+        "name": "quickstart",
+        "exit_code": 0,
+        "leftovers": [],
+        "seconds": 5.32
+      },
+      {
+        "name": "migration",
+        "exit_code": 0,
+        "leftovers": [],
+        "seconds": 3.11
+      },
+      {
+        "name": "journey",
+        "exit_code": 0,
+        "leftovers": [],
+        "seconds": 8.5
+      },
+      {
+        "name": "quickstart-binary",
+        "exit_code": 0,
+        "leftovers": [],
+        "seconds": 1.92
+      }
+    ],
+    "journey_binary_previous_from_other_directory": {
+      "exit_code": 0,
+      "leftovers": []
+    },
+    "helper_cases": [
+      {
+        "name": "success",
+        "exit_code": 0,
+        "leftovers": []
+      },
+      {
+        "name": "assertion",
+        "exit_code": 1,
+        "leftovers": []
+      },
+      {
+        "name": "set-e",
+        "exit_code": 1,
+        "leftovers": []
+      },
+      {
+        "name": "unset",
+        "exit_code": 1,
+        "leftovers": []
+      }
+    ],
+    "adversarial": [
+      {
+        "name": "old-static",
+        "exit_code": 1,
+        "seconds": 0.03
+      },
+      {
+        "name": "old-quickstart",
+        "exit_code": 0,
+        "seconds": 4.02,
+        "leftovers": [
+          "tmp.KM7ob0JN6E"
+        ]
+      },
+      {
+        "name": "direct-INT",
+        "exit_code": 130,
+        "seconds": 0.0,
+        "leftovers": []
+      },
+      {
+        "name": "direct-TERM",
+        "exit_code": 143,
+        "seconds": 0.0,
+        "leftovers": []
+      },
+      {
+        "name": "direct-KILL",
+        "exit_code": -9,
+        "seconds": 0.0,
+        "leftovers": [
+          "tmp.gFyd8QdLD4"
+        ]
+      },
+      {
+        "name": "noop-cleanup",
+        "exit_code": 0,
+        "seconds": 0.08
+      },
+      {
+        "name": "comment-trap",
+        "exit_code": 0,
+        "seconds": 0.06
+      },
+      {
+        "name": "wrong-signal",
+        "exit_code": 0,
+        "seconds": 0.07
+      },
+      {
+        "name": "fake-init",
+        "exit_code": 0,
+        "seconds": 0.06
+      },
+      {
+        "name": "unrelated-delete",
+        "exit_code": 0,
+        "seconds": 0.07
+      }
+    ],
+    "extra_adversarial": [
+      {
+        "name": "readonly-500",
+        "exit_code": 0,
+        "leftovers": []
+      },
+      {
+        "name": "readonly-400",
+        "exit_code": 1,
+        "leftovers": [
+          "tmp.wmj1gsCw6T",
+          "tmp.wmj1gsCw6T/tmp.siY90koYHr",
+          "tmp.wmj1gsCw6T/tmp.siY90koYHr/sub",
+          "tmp.wmj1gsCw6T/tmp.siY90koYHr/sub/f"
+        ]
+      },
+      {
+        "name": "readonly-000",
+        "exit_code": 1,
+        "leftovers": [
+          "tmp.FJkjmiBBJr",
+          "tmp.FJkjmiBBJr/tmp.Ire6751uZp",
+          "tmp.FJkjmiBBJr/tmp.Ire6751uZp/sub"
+        ]
+      },
+      {
+        "name": "exact-async-INT",
+        "exit_code": 0,
+        "seconds": 4.01,
+        "leftovers": []
+      }
+    ],
+    "artifact_check": {
+      "exit_code": 0,
+      "spec_claims": 11,
+      "spec_observed": 11,
+      "missing": [],
+      "extra": [],
+      "spec_findings": []
+    },
+    "tech_debt": {
+      "exit_code": 0,
+      "markers": 0,
+      "uncovered": 0
+    },
+    "recurrence": {
+      "exit_code": 0,
+      "flagged_keys": 0
+    },
+    "bundle_prepare": {
+      "exit_code": 0,
+      "id": "rvb-b182ef8a8e275fc2",
+      "state": "prepared",
+      "sealed": false
+    },
+    "integration": "CI step, scripts/verify.sh and required integration matrix entry all invoke tests/hygiene/temp-cleanup.sh; the command ran successfully. MCP/REST/Protobuf/Kafka contracts are unchanged, so assess integrate is not applicable."
+  },
+  "closeout": {
+    "bundle_id": null,
+    "attestation_id": null,
+    "review_verify": "not run; no sealed bundle or attestation",
+    "close": "not run; medium findings",
+    "lint_spec_strict": "not run; approval closeout not entered",
+    "check_strict": "not run; approval closeout not entered",
+    "strict_delivery_validation": "not run; approval condition not met",
+    "commit_pushed": null
+  },
+  "raw_evidence_directory": "/tmp/pose-temp-independent",
+  "raw_evidence_sha256": {
+    "context.json": "617f73ff3643f8745a925154dbc8a6ec52df623975d3aa53c663bbc29409fcb5",
+    "bundle-explain.log": "a4e35c3ec8ff1ad82f2a780d142eb46436917dac9ef91b693b3ecdb3928bffd6",
+    "bundle-explain-fresh.log": "5047b4128f6367521562d7c210b5d093c491c03264f31c4d8e973a2de073bef6",
+    "suggest.log": "eb90980a7ead71b07dc4d355944863683fcfd3bb0ebcf2ba5eead2536606b184",
+    "tech-debt.log": "84d9b0da3f49dbfe79a93777b7c9db82ac638302683eae9cd3d53898f9782af0",
+    "recurrence.log": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7",
+    "artifact.json": "39fd39e40eebae250b6af29bdcf82a2453849131efeeceb997cf2557e4fa1dcd",
+    "artifact.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "full-diff.log": "bf2015261bffd7b13428dc4e6ec91ee786215954f0a943d18af047798103e64c",
+    "vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "test.log": "047cefdb422d06bafaa87da576f5e47ad8cef18cc8cabd7d2683961cd96f2bc2",
+    "hygiene.log": "e0fe6af37526773774cacb02b52dc0bca04849ce5618f917d2c3575ca376b564",
+    "shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local-ci-gate.log": "644c29361e6b48da5c0d3184a7e0ebb0179faa3b2e6d32dd4986b6e59f73dd24",
+    "quickstart.log": "15d3a9c84f1f82b876f0f3f11e3b49cbda3eac1dcc60cb696f0b675690e3bed2",
+    "migration.log": "5d15b80271c89e511eb038db8284a7eb30be984c9564d71e09570cec9d22451a",
+    "journey.log": "6d24d3a882d7244082e532892f74bb324982cacac310f89e737beec330f090ca",
+    "quickstart-binary.log": "15d3a9c84f1f82b876f0f3f11e3b49cbda3eac1dcc60cb696f0b675690e3bed2",
+    "journey-options.log": "6d24d3a882d7244082e532892f74bb324982cacac310f89e737beec330f090ca",
+    "old-static.log": "c6e2248b895f6bda8659d7a3806b5831ccecdd54630a7bff22e9a92b8fffbd2d",
+    "old-quickstart.log": "15d3a9c84f1f82b876f0f3f11e3b49cbda3eac1dcc60cb696f0b675690e3bed2",
+    "noop-cleanup.log": "12ca7b4a7f858478edf12da2f158ead2f95553004895807ad92880194077cf58",
+    "comment-trap.log": "12ca7b4a7f858478edf12da2f158ead2f95553004895807ad92880194077cf58",
+    "wrong-signal.log": "12ca7b4a7f858478edf12da2f158ead2f95553004895807ad92880194077cf58",
+    "fake-init.log": "12ca7b4a7f858478edf12da2f158ead2f95553004895807ad92880194077cf58",
+    "unrelated-delete.log": "12ca7b4a7f858478edf12da2f158ead2f95553004895807ad92880194077cf58",
+    "real-results.json": "fee28a36e6dd05e9f5f2790ab90303eabf680402da42c3e2765c35d09fd489d1",
+    "journey-options.json": "95eabc983697c638d2fb45728d224f40a8c50cbf6f5e0ebfe3610f652bdd0273",
+    "probes.json": "496b2dfa2bec3a636d541bf19f558781a128cadf79cdbdd4eab8f24df18cae8a",
+    "helper-cases.json": "8cee795569959e6f8ba18252e2fc36b4d5058d089e65917d9d68c9c9c4f8a1d0",
+    "extra-probes.json": "87f12c39965581e671b73b861ecf3a3759ed4881ce9402a16e937d0089855f96",
+    "ignored-int.log": "d19a5a15f539a0bda4d1ed24dfe4a1470087a5f3403b2599627a4e159774bb5c",
+    "readonly-400.log": "8d1011d71d0fe24853580237f51466088d5a56dcc32f9b71e856d7820f9af520",
+    "readonly-000.log": "bcdc685d3d095774f24dd6f140d31ac01abd0510388a4f47919f791a3096c472",
+    "probes.py": "c19dd91a43065a9d05002042eb27fa75cbf030457d7bf4bfa09a4aa016445c00",
+    "static-probes.py": "4159060bc4e73416da4e2bf8bdcc4c6e95c8609868f2f65370ce59bd3b82481b",
+    "extra-probes.py": "77c245b9f9b53d56c9fa722a2401763afc908c96ddda9d977cf699bddcc68ee6"
+  }
+}

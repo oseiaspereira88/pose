@@ -61,9 +61,9 @@ Cleaning temporary directories that other tools leave (Go caches, editors), or c
 
 ### Approach
 
-`tests/lib/tempdir.sh` is sourced by a script before its first `mktemp`. `pose_test_tmp_init` creates one directory, exports it as `TMPDIR` so every later `mktemp`, `go build` and `go test` of the script lands inside it, and installs an EXIT trap that removes it (restoring write permission first, for read-only Go test fixtures) plus INT and TERM traps that exit so the EXIT trap runs. The three scripts source it; the trailing `rm -rf` of the quickstart script goes, as the trap covers it.
+`tests/lib/tempdir.sh` is sourced by a script before its first `mktemp`. `pose_test_tmp_init` creates one directory, exports it as `TMPDIR` so every later `mktemp`, `go build` and `go test` of the script lands inside it, and installs an EXIT trap that removes it (restoring write permission first, for read-only Go test fixtures) plus INT and TERM traps that exit so the EXIT trap runs. Removal first restores owner access to everything under the directory (`chmod -R u+rwx`), so read-only and `0000` entries do not defeat it. The three scripts source it; the trailing `rm -rf` of the quickstart script goes, as the trap covers it.
 
-`tests/hygiene/temp-cleanup.sh` checks, statically, that every tracked script calling `mktemp` either initializes the helper before its first `mktemp` or has an EXIT trap that removes; dynamically, that the helper leaves a sandbox `TMPDIR` empty after success, a failed assertion, an error under `set -e`, an unset variable, TERM and INT; that a script without the helper does leave its directory (so the checks can fail); and that the quickstart script, run with a sandbox `TMPDIR`, leaves it empty. It runs in CI and as a required integration check of the matrix.
+`tests/hygiene/temp-cleanup.sh` checks, statically and on code only (comments dropped), that every tracked script calling `mktemp` either initializes the helper as a command before its first `mktemp` or has an EXIT trap (or a function it names) that removes a variable the script assigned from `mktemp`, and that this scan rejects an empty trap, a commented trap or init, a trap on another signal, the removal of another path, an init after `mktemp` and an empty cleanup function; dynamically, that the helper leaves a sandbox `TMPDIR` empty after success, a failed assertion, an error under `set -e`, an unset variable, TERM and INT (delivered to a probe started with default signal dispositions, whose exit status 130 or 143 proves the signal ended it), including read-only and `0000` entries; that a script without the helper does leave its directory (so the checks can fail); and that the quickstart script, run with a sandbox `TMPDIR`, leaves it empty. It runs in CI and as a required integration check of the matrix.
 
 ## 4. Tasks
 
@@ -79,7 +79,7 @@ Cleaning temporary directories that other tools leave (Go caches, editors), or c
 - Minimal option: a trap per script that removes the directories that script created
 - Selected option: one helper that makes `TMPDIR` a single directory removed on exit
 - Rationale: the leak came from each script tracking its own `mktemp` results by hand (and, in one, only on the success path); redirecting `TMPDIR` also cleans what `go build`, `go test` and nested scripts create, and a new `mktemp` added later is covered without edits
-- Consequences: a script that sets its own EXIT trap must remove `POSE_TEST_TMP` too; the static check flags a script that calls `mktemp` before the helper
+- Consequences: a script that sets its own EXIT trap must call `pose_test_tmp_remove`; the static check flags a script that calls `mktemp` before the helper
 - Falsifier: a script of the three that leaves anything in a `TMPDIR` of its own, or a way to end that leaves the directory
 
 ## 6. Validation
