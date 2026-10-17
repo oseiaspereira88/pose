@@ -48,22 +48,48 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-7-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
+Paths reconciliados na main 18e4342b antes do start. A escrita original pertence ao
+lote documental 7; este delta implementa somente B15. Os sete outputs de `pose index`
+passam a ser uma geração identificada por um descritor (`.pose/indexes/generation.json`)
+publicado por último; os leitores (`GetDeliveryIntegrity`, plano de review, projeção de
+obrigações, `pose suggest`) leem pelo mesmo contrato e os dois escritores diretos de
+`delivery-integrity.json` (refresh do artifact-check e bootstrap do review bundle)
+passam a substituir o arquivo dentro de uma nova geração. O MCP lê o conjunto pelo
+mesmo `Store`; seu teste cobre a ferramenta `pose_delivery_integrity`.
 
-- created: .pose/specs/2026-10-13-pose-index-generation-integrity.md
+- modified: .pose/specs/2026-10-13-pose-index-generation-integrity.md
 - created: .pose/starts/pose-index-generation-integrity.json
 - created: .pose/changelogs/unreleased/pose-index-generation-integrity.md
-- modified: pose-mcp/internal/cli/index.go
-- modified: pose-mcp/internal/pose/delivery_integrity_cache.go
+- created: .pose/adr/2026-10-17-index-sets-are-published-as-verified-generations.md
 - created: pose-mcp/internal/pose/index_generation.go
 - created: pose-mcp/internal/pose/index_generation_test.go
 - created: pose-mcp/internal/cli/index_generation_test.go
 - created: pose-mcp/internal/mcpserver/index_generation_test.go
+- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/suggest.go
+- modified: pose-mcp/internal/cli/progressive_review_test.go
+- modified: pose-mcp/internal/pose/delivery_integrity.go
+- modified: pose-mcp/internal/pose/review_plan.go
+- modified: pose-mcp/internal/pose/obligation_projection.go
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy.go
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go
+- modified: .gitignore
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: .pose/results/b15-front09-probes.py
+- created: .pose/results/b15-front09-probes.json
+- created: .pose/results/b15-implementation-validation.json
+- created: .pose/results/b15-mutations.py
+- created: .pose/results/b15-mutations.json
+- modified: .pose/results/pose-implementation-plan.json
+- modified: .pose/roadmaps/pose-consolidation-program.md
+- modified: .pose/roadmaps/pose-state-consistency-and-recovery.md
 
 ### Delivery targets
 
