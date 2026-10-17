@@ -1,8 +1,8 @@
 ---
 slug: pose-writer-coordination-and-atomic-publication
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-17
 depends_on: pose-cli-mcp-operation-results, pose-journal-checkpoint-and-lock-recovery, pose-spec-authority-transfer, pose-abm-atomic-start
 priority: 1
 components: pose-mcp
@@ -132,7 +132,7 @@ janela entre a verificação e o rename, limite declarado.
 - [x] State refresh com CAS, resultado parcial e histórico sem colagem em cauda torn.
 - [x] V1–V7 no domínio e na CLI com race detector; probes P01–P04 antes e depois (controle inalterado); mutações registradas em `.pose/results/b14-mutations.json`; validação estrita do módulo.
 - [x] Remediar a primeira revisão independente: hook de refresh parcial sem marcar pendente e reportado por `pose state` (F1); demais writers do state, backfill de specs e policies de adoção com CAS (F2, F4); autorização do close revalidada dentro da trava (F3); erro tipado de publicação sem durabilidade confirmada (F5); sync observado por teste (F6); state autoritativo (F7); imutável sem hard link (F8); código de trava fiel à operação (F9); staging órfão ignorado (F10); driver e resultado das mutações versionados, 25/25 (F11).
-- [ ] Revisão por ator diferente, closeout nativo e PR.
+- [x] Revisão por ator diferente (duas rodadas), closeout nativo e PR #188.
 
 ## 5. Decisions
 
@@ -163,36 +163,74 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Executados na entrega e de novo na revisão independente: `go vet`, suíte completa,
+`go test -race` em `internal/pose` e `internal/cli`, builds Windows/Darwin,
+validação estrita global 136/136 e do módulo 133/133 em `00f743c3`,
+artifact-check 37/37 e surface-check sem findings.
 
 ### Requirement trace
 
-Trace planejado; vincular os casos aos produtores reais na execução.
-Não declarar requisitos satisfeitos pelo lint.
+Produtores executados nesta revisão independente; o lint valida a estrutura e
+não substitui estes testes, probes e mutações. Evidência compacta das duas
+rodadas em [review](../results/b14-independent-review.json).
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1,V6 |
-| R2 | V2 |
-| R3 | V3 |
-| R4 | V4 |
-| R5 | V6 |
-| R6 | V5,V7 |
-| R7 | V5 |
-| R8 | V1–V7 |
+- R1 [satisfied] test:TestConcurrentPublishersNeverShareStaging test:TestAFailedPublicationCleansOnlyItsOwnStaging test:TestStagingFilesAreRecognized — probe P01 com staging alheio preservado; mutações de staging fixo e de limpeza ampla detectadas.
+- R2 [satisfied] test:TestPublicationsKeepTheirPreconditions test:TestTheActionPolicyIsWrittenOnlyOverWhatWasRead test:TestAdoptionPoliciesAreWrittenOnlyOverWhatWasRead test:TestEveryStateWriterKeepsACuratedEdit test:TestTheBackfillNeverOverwritesAConcurrentSpecEdit test:TestAnImmutablePublicationWorksWithoutHardLinks — conflito tipado, retry de mesmos bytes convergente e imutável nunca sobrescrito.
+- R3 [satisfied] test:TestATransferWaitsForNoLifecycleWriterOfItsSpecs test:TestStartRefusesWhileAnotherLifecycleWriterHoldsItsSpec test:TestACloseWaitsForNoOtherLifecycleWriter check:writer-coordination-and-atomic-publication-integration — trava de ciclo de vida sem espera, ordem canônica e sem dupla autoridade em transferência parcial.
+- R4 [satisfied] test:TestACloseNeverPublishesOverAnEditMadeWhileItsGatesRan test:TestACloseIsBoundToTheBytesItsGatesJudged test:TestACloseRevalidatesItsAuthorizationInsideTheLock — writer não cooperante na janela entre verificação e rename é limite declarado no ADR.
+- R5 [satisfied] test:TestAuthoritativePublicationsSyncFileAndDirectory test:TestAnUnsyncedPublicationSaysItTookEffect — classes authoritative e derived; Windows sem sync de diretório e power loss não qualificado, declarados.
+- R6 [satisfied] test:TestARefreshThatPublishedTheStateSaysSoWhenItsHistoryFails test:TestAHookRefreshThatPublishedTheStateDoesNotClaimItIsPending test:TestAnUnsyncedPublicationSaysItTookEffect — probe P02; o receipt de refresh e close ainda não consome a falha de durabilidade tipada (risco baixo aceito r2-f1).
+- R7 [satisfied] test:TestARefreshNeverOverwritesACuratedEditMadeWhileItRendered test:TestAHistoryEntryIsNeverGluedToATornTail test:TestEveryStateWriterKeepsACuratedEdit — probe P03; curated preservada e histórico sem entrada fabricada.
+- R8 [satisfied] check:writer-coordination-and-atomic-publication-integration check:abm-atomic-start-integration check:journal-checkpoint-and-lock-recovery-integration — race detector, 25/25 mutações versionadas e contraprovas independentes, P01–P04 com controle inalterado; a paridade MCP está nos leitores, sem rota MCP de escrita de ciclo de vida.
+
+Consultar também [consistência/recovery](../reports/2026-10-12-pose-front-09-consistency-recovery.md).
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 7. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+B14 entregue com um publisher único (`PublishFile`) de staging exclusivo,
+precondição explícita (`ExpectAny`, `ExpectDigest`, `ExpectAbsent`) e classes
+de durabilidade; writers de índices, start record, policies, state, histórico,
+backfill de specs e transição do close migrados; a trava por spec do B13 passou
+a trava de ciclo de vida de start, cancel, close, transfer e backfill; o close
+publica só sobre os bytes julgados e julga de novo a autorização dentro da
+trava; o state refresh devolve resultado parcial quando o histórico falha. Sem
+mudança de policy, capability ou adoção. D1 e o ADR foram julgados por
+`agent:independent-claude-opus-5-5-review`, autorizado pelo maintainer, numa
+revisão de ator diferente apenas por execução: mesmo vendor e mesmo modelo do
+implementador (Claude Opus 5.5, Anthropic), em sessão separada e sem o contexto
+da sessão implementadora; não é revisão de outro vendor. Identidade declarada;
+atestações não assinadas.
+
+### Review and delivery evidence
+
+O [parecer, com First e Second round](../reports/2026-10-16-pose-b14-writer-coordination-review.md)
+e a [evidência compacta das duas rodadas](../results/b14-independent-review.json)
+preservam F1–F11 da primeira rodada, a verificação de cada resposta e os
+findings baixos da segunda. Validação estrita global 136/136 e módulo 133/133
+em `00f743c3`; vet, suíte completa, race, builds Windows/Darwin, 25/25
+mutações versionadas reproduzidas e contraprovas independentes; P01–P04 iguais
+ao registro. Bundle `rvb-b3ff5896947dc94f` e atestação `rva-7a84aea174407a89`;
+lint e check qualificam estrutura, não requisitos funcionais.
 
 ### Residual risks
 
-Coordenação cooperante não controla editor/Git externo. Preimage/postimage e identidade de recurso precisam de contrato suficiente para reconhecer conflito; desconhecido permanece unknown. Não prometer atomicidade multi-root ou durabilidade de cache como garantia autoritativa.
+Writers não cooperantes ainda podem vencer a janela entre verificação e rename;
+não há atomicidade entre arquivos ou roots; power loss não é qualificado e o
+Windows não sincroniza diretório. Quatro riscos baixos foram aceitos por
+finding na atestação, com dono e data de revisão: o receipt de state refresh e
+close não consome a falha de durabilidade tipada (r2-f1); a lista de limites do
+ADR descreve mal alguns writers não migrados (r2-f2); seis comportamentos da
+segunda rodada não têm regressão própria (r2-f3); e o fallback de imutável sem
+hard link aceita qualquer erro de link e não remove um registro que ele mesmo
+cortou (r2-f4). Fontes externas do Harne8 não foram inspecionadas.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Os quatro riscos aceitos pedem uma correção pequena e mais regressões, para o
+maintainer priorizar até a data de revisão registrada, sem criar nem encerrar
+outra spec por inferência. Os writers declarados fora do escopo continuam com
+B15, B34, B35 e B41 no programa governado. Aguardar o merge de #188 pelo
+maintainer e reavaliar a readiness nativa sem escolher automaticamente nova
+implementação.

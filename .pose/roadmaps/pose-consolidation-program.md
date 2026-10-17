@@ -480,14 +480,22 @@ delivery_complete=true; o programa continua ativo e este roadmap conserva seu
 status. Aguardar merge de #187 pelo maintainer e reavaliar DAG/readiness nativa,
 sem selecionar implementação, policy, capability ou adoção neste closeout.
 
-B14 (`pose-writer-coordination-and-atomic-publication`) foi iniciado
-nativamente em 2026-10-16 após o merge de #187: todo writer publica por um
-publisher comum com staging exclusivo e precondição explícita (último
-escritor, CAS sobre o que foi lido ou criação só onde nada existe), com sync de
-arquivo e diretório para artefatos autoritativos; start, close e transfer
-compartilham a trava de ciclo de vida da spec; o close publica só sobre o que
-seus gates julgaram; o state refresh preserva edição curada concorrente e
-informa publicação parcial quando o histórico falha. Probes P01–P04 com
-controle inalterado; validação estrita do módulo 133/133. A spec permanece
-in-progress até revisão different-actor e closeout nativo; delivery_complete
-permanece false.
+B14 (`pose-writer-coordination-and-atomic-publication`) atingiu closeout
+nativo em 2026-10-16 no PR #188. Publisher comum com staging exclusivo e
+precondição explícita, trava de ciclo de vida compartilhada por start, cancel,
+close, transfer e backfill, close vinculado aos bytes julgados e à autorização
+revalidada dentro da trava, e state refresh com resultado parcial foram
+qualificados em duas rodadas de revisão de ator diferente apenas por execução:
+mesmo vendor e modelo do implementador (Claude Opus 5.5, Anthropic), em sessão
+separada, não revisão de outro vendor. F1–F11 resolvidos ou declarados, 25/25
+mutações versionadas reproduzidas e contraprovas independentes, P01–P04 iguais
+ao registro, vet, suíte completa, race e builds Windows/Darwin. Validação no
+head 00f743c3: global strict 136/136 e módulo 133/133. Quatro riscos baixos
+foram aceitos por finding, com dono e data de revisão. Identidade declarada,
+sem assinatura.
+O [parecer, Second round](../reports/2026-10-16-pose-b14-writer-coordination-review.md)
+e a [evidência](../results/b14-independent-review.json) identificam o bundle
+`rvb-b3ff5896947dc94f`, a atestação `rva-7a84aea174407a89` e os gates nativos. A matriz registra B14
+delivery_complete=true; o programa continua ativo e este roadmap conserva seu
+status. Aguardar merge de #188 pelo maintainer e reavaliar DAG/readiness nativa,
+sem selecionar implementação, policy, capability ou adoção neste closeout.

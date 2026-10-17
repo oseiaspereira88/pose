@@ -175,6 +175,14 @@
       "body": "Authenticate the signed review proof and exact bundle binding before disclosing verified identity, separation or human confirmation. Share the proof check with review gates while preserving declared legacy records and valid identity evidence when semantic criteria prevent approval.",
       "path": "pose-review-disclosure-requires-proof.md",
       "digest": "sha256:45aed9aeb29c9cd0bd5c00b660520a6afbec4311de1e05b1de92f3ceeb7665c6"
+    },
+    {
+      "spec": "pose-writer-coordination-and-atomic-publication",
+      "category": "changed",
+      "breaking": false,
+      "body": "Writers no longer share a staging file. Indexes, state, reports, manuals and\ninstalls were staged at a fixed `.\u003cname\u003e.tmp`, so two writers could publish\neach other's bytes, and another writer's staging there stopped `pose index`;\nevery publication now stages in a file only it uses and removes only that\nfile on failure. The start record, the action policy and adoption policy\nfiles left their fixed `\u003cpath\u003e.tmp` too.\n\nMutable records are published only over the bytes their writer read:\n`pose state refresh` refuses with `publish-conflict` instead of overwriting a\ncurated section edited while it rendered, the action policy refuses instead\nof overwriting a concurrent edit, and `pose close` publishes the transition\nonly over the bytes its gates judged. Immutable records (the start baseline)\nare never overwritten, and a baseline write cut short publishes nothing.\n\nStart, close and transfer of a spec share its lifecycle lock: a close while a\nstart or a transfer holds the spec is refused with the lock's owner, and a\ntransfer of a spec another lifecycle call holds is refused as\n`concurrent-lifecycle-writer`.\n\nA `pose state refresh` that published the state and could not append its\nhistory now says so (`state.published=`, refresh log `result: partial`)\ninstead of reporting a plain failure, and a history entry is never glued to a\ntorn last line. A hook-triggered refresh in best-effort mode no longer marks\n`refresh_pending` when only its history failed; `pose state` reports it as\n`history-not-appended`. The other writers of the state, the artifact backfill\nand the adoption policies also publish only over what they read, and the\nclose judges its authorization again inside the lock. A lock held by a close\nor a transfer is reported as `spec-lifecycle-in-progress` with its operation.",
+      "path": "pose-writer-coordination-and-atomic-publication.md",
+      "digest": "sha256:31209235a85f88cbe2bcd95a45ac7bfec55b4193b01cc8cba00e34b34de388af"
     }
   ],
   "releases": [
