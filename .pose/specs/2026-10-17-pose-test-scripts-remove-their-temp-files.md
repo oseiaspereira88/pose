@@ -51,6 +51,7 @@ Cleaning temporary directories that other tools leave (Go caches, editors), or c
 - modified: tests/journeys/install-and-upgrade.sh
 - modified: tests/import/migration-guides.sh
 - modified: .github/workflows/ci.yml
+- modified: scripts/verify.sh
 - modified: .pose/indexes/validation-matrix.json
 - created: .pose/results/test-scripts-temp-cleanup-validation.json
 
