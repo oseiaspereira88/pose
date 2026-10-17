@@ -1,6 +1,6 @@
 # Capability assessment
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** historical POSE v1.4.3 assessment
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 7.x (historical assessment baseline)
 
 **Catalog clarification (2026-10-16):** the counts and scores below describe
 the historical assessment baseline, not the current release. POSE v7.4.1
