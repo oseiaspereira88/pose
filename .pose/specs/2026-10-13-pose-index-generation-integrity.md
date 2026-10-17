@@ -144,8 +144,8 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Executados na entrega: `go vet ./...`, suíte completa do módulo, `go test -race`
 em `internal/pose`, `internal/cli` e `internal/mcpserver`, builds Windows/Darwin,
 o check `index-generation-integrity-integration` da matriz (race) e as
-mutações versionadas (33/33 mortas, em cópia do repositório). Probes P01–P03
-antes (main 18e4342b) e depois (78c53b1c) em
+mutações versionadas (49/49 mortas, em cópia do repositório). Probes P01–P03
+antes (main 18e4342b) e depois (6424523d) em
 [b15-front09-probes.json](../results/b15-front09-probes.json). A validação
 estrita e o closeout nativo são registrados em `b15-implementation-validation.json`.
 
@@ -156,13 +156,13 @@ probes e mutações. Decisões e limites em
 [ADR 2026-10-17](../adr/2026-10-17-index-sets-are-published-as-verified-generations.md).
 
 - R1 [satisfied] test:TestIndexGenerationPublishesAndReadsOneIdentifiedSet test:TestIndexGenerationUnverifiableSetsAreUnavailableWithAReason test:TestIndexGenerationDivergentInputBindingIsStaleNotUnavailable — descritor com schema, lista fixa de sete arquivos, SHA-256 de cada um, id igual ao digest do conteúdo e bindings de entrada; nenhum arquivo isolado certifica o conjunto.
-- R2 [satisfied] test:TestIndexGenerationBlockedOutputNeverLeavesAMixedCurrentSet test:TestIndexGenerationRetryAfterAStopAtEveryPhaseConverges test:TestIndexGenerationConcurrentPublishersCommitOverWhatTheyRead test:TestIndexGenerationCommitSyncsTheDescriptorAndItsDirectory test:TestIndexWithABlockedOutputKeepsThePreviousGenerationInForce — três fases pelo publisher da B14; falha antes do commit mantém a geração anterior; probe P01 com output bloqueado.
-- R3 [satisfied] test:TestIndexGenerationConcurrentReadersNeverSeeAMixture test:TestIndexGenerationReaderStartsOverWhenTheDescriptorMovesUnderIt test:TestIndexGenerationUnverifiableSetsAreUnavailableWithAReason test:TestIndexGenerationReadersRefuseAnUnavailableSet — leitor fixa a geração, confere cada arquivo, relê o descritor e recomeça; conjunto que não confere é unavailable com motivo, nunca vazio nem misto.
-- R4 [satisfied] test:TestIndexGenerationRetryAfterAStopAtEveryPhaseConverges test:TestIndexGenerationStopAtTheDescriptorKeepsTheOldRecordWhole test:TestIndexGenerationFailedCleanupIsNotAFailedPublication test:TestIndexGenerationRefusesToOverwriteACopyOfItsOwnIdentity — parada em cada fase, mesma intenção converge uma vez, falha de retenção não é falha de publicação; commit usa o publisher (sync, CAS) da B14; o resultado da CLI nomeia a causa (`publish-conflict`, `publish-unsynced`).
+- R2 [satisfied] test:TestIndexGenerationBlockedOutputNeverLeavesAMixedCurrentSet test:TestIndexGenerationRetryAfterAStopAtEveryPhaseConverges test:TestIndexGenerationConcurrentPublishersCommitOverWhatTheyRead test:TestIndexGenerationCommitSyncsTheDescriptorAndItsDirectory test:TestIndexWithABlockedOutputKeepsThePreviousGenerationInForce test:TestIndexGenerationPublishersNeverAcceptTheSamePredecessor test:TestIndexGenerationLockIsNeverBrokenWhileItsOwnerMayBeAlive test:TestIndexGenerationLockOfADeadOwnerIsRecovered test:TestIndexWithAnotherPublicationRunningWritesNothingAndSaysSo — três fases pelo publisher da B14; falha antes do commit mantém a geração anterior; probe P01 com output bloqueado.
+- R3 [satisfied] test:TestIndexGenerationConcurrentReadersNeverSeeAMixture test:TestIndexGenerationReaderStartsOverWhenTheDescriptorMovesUnderIt test:TestIndexGenerationUnverifiableSetsAreUnavailableWithAReason test:TestIndexGenerationReadersRefuseAnUnavailableSet test:TestIndexGenerationPinnedStoreReadsOneGenerationEvenIfAnotherCommits test:TestIndexGenerationAReviewPlanReadsTheSetOnce test:TestIndexGenerationInterruptedFirstPublicationReadsAsUnavailable test:TestIndexGenerationDescriptorWithTrailingBytesIsUnavailable — leitor fixa a geração, confere cada arquivo, relê o descritor e recomeça; conjunto que não confere é unavailable com motivo, nunca vazio nem misto.
+- R4 [satisfied] test:TestIndexGenerationRetryAfterAStopAtEveryPhaseConverges test:TestIndexGenerationStopAtTheDescriptorKeepsTheOldRecordWhole test:TestIndexGenerationFailedCleanupIsNotAFailedPublication test:TestIndexGenerationRefusesToOverwriteACopyOfItsOwnIdentity test:TestIndexGenerationReplaceIndexNeverRevertsAConcurrentGeneration test:TestIndexAnUnsyncedCommitSaysTheNewGenerationIsCurrent — parada em cada fase, mesma intenção converge uma vez, falha de retenção não é falha de publicação; commit usa o publisher (sync, CAS) da B14; o resultado da CLI nomeia a causa (`publish-conflict`, `publish-unsynced`).
 - R5 [satisfied] test:TestIndexGenerationLegacyFilesAreReadAsBeforeWithoutAClaim test:TestIndexGenerationCompactDeliveryIndexReadsThroughTheGeneration test:TestIndexPublishesOneIdentifiedGenerationAndRepeatsIt test:TestIndexGenerationDescriptorIsNeverSyncedNorSeeded — repositório sem descritor lido como antes (`legacy-unversioned`); schema de compaction preservado; mesmos inputs, mesmos bytes e mesma geração; `generation.json` e `generations/` fora do sync e do seed.
 - R6 [satisfied] test:TestDeliveryIntegrityToolReadsAPublishedGenerationAndRefusesAMixedOne test:TestIndexGenerationReadersRefuseAnUnavailableSet test:TestSuggestDoesNotInferADomainFromAnUnavailableComponentMap test:TestIndexVerifyNamesEveryStateAndPassesOnlyForACurrentSet test:TestRefreshDeliveryIndexKeepsTheDescriptorTruthful — CLI, MCP e leitores internos usam o mesmo contrato; `--verify` informa current, stale, diverged, legacy e unavailable; HEAD e mtime não certificam nada (limite declarado no ADR: Git não é fixado).
-- R7 [satisfied] test:TestIndexGenerationRetentionIsBoundedAndSparesTheLiveGeneration test:TestIndexGenerationRetentionNeverRemovesTheLiveGenerationNorForeignEntries test:TestIndexGenerationReaderThatFixedAGenerationKeepsItsBytes — a geração viva, as mais novas que a carência e o que não é geração (ou é link) são preservados; limites de plataforma e de retenção por contagem e idade declarados no ADR.
-- R8 [satisfied] check:index-generation-integrity-integration — V1–V6 no domínio, na CLI e no MCP com race detector; 33/33 mutações mortas; probes P01–P03 antes e depois com controle inalterado; sem daemon nem read view global.
+- R7 [satisfied] test:TestIndexGenerationRetentionIsBoundedAndSparesTheLiveGeneration test:TestIndexGenerationRetentionNeverRemovesTheLiveGenerationNorForeignEntries test:TestIndexGenerationReaderThatFixedAGenerationKeepsItsBytes test:TestIndexGenerationRetentionProtectsTheDescriptorsGenerationNotJustItsArgument test:TestIndexGenerationRetentionNeverFollowsALinkedGenerationsDirectory test:TestRefreshDeliveryIndexReportsAFailedRetention — a geração viva, as mais novas que a carência e o que não é geração (ou é link) são preservados; limites de plataforma e de retenção por contagem e idade declarados no ADR.
+- R8 [satisfied] check:index-generation-integrity-integration — V1–V6 no domínio, na CLI e no MCP com race detector; 49/49 mutações mortas; probes P01–P03 antes e depois com controle inalterado; sem daemon nem read view global.
 
 Consultar também [consistência/recovery](../reports/2026-10-12-pose-front-09-consistency-recovery.md).
 
@@ -186,8 +186,8 @@ mudança de policy, capability ou adoção; sem daemon.
 
 ### Review and delivery evidence
 
-Probes P01–P03 antes (18e4342b) e depois (78c53b1c) em
-[b15-front09-probes.json](../results/b15-front09-probes.json); 33 mutações
+Probes P01–P03 antes (18e4342b) e depois (6424523d) em
+[b15-front09-probes.json](../results/b15-front09-probes.json); 49 mutações
 mortas, em cópia do repositório, em [b15-mutations.json](../results/b15-mutations.json);
 validação estrita registrada em `b15-implementation-validation.json`. A revisão
 por ator diferente e o closeout nativo são registrados pelo revisor.

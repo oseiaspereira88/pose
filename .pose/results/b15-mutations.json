@@ -164,8 +164,88 @@
       "mutation": "descritor distribuído pelo update",
       "tests": "TestIndexGenerationDescriptorIsNever",
       "verdict": "killed"
+    },
+    {
+      "mutation": "publicação sem trava",
+      "tests": "TestIndexGenerationPublishersNeverAccept",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "trava de dono desconhecido quebrada",
+      "tests": "TestIndexGenerationLockIsNeverBroken",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "trava de dono morto não recuperada",
+      "tests": "TestIndexGenerationLockOfADeadOwner",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "ReplaceIndex sem trava",
+      "tests": "TestIndexGenerationReplaceIndexNeverReverts",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "sem marcador de primeira publicação",
+      "tests": "TestIndexGenerationInterruptedFirstPublication",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "leitor ignora o marcador",
+      "tests": "TestIndexGenerationInterruptedFirstPublication",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "plano sem geração fixada",
+      "tests": "TestIndexGenerationAReviewPlanReadsTheSetOnce",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "ReadIndex ignora a geração fixada",
+      "tests": "TestIndexGenerationPinnedStore",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "retenção não lê o descritor vivo",
+      "tests": "TestIndexGenerationRetentionProtectsTheDescriptors",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "retenção segue link na base",
+      "tests": "TestIndexGenerationRetentionNeverFollowsALinked",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "publicação escreve por link na base",
+      "tests": "TestIndexGenerationRetentionNeverFollowsALinked",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "descritor com bytes depois do valor",
+      "tests": "TestIndexGenerationDescriptorWithTrailingBytes",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "CLI promete a geração anterior após commit",
+      "tests": "TestIndexAnUnsyncedCommit",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "CLI sem aviso de trava",
+      "tests": "TestIndexWithAnotherPublication",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "refresh descarta a retenção",
+      "tests": "TestRefreshDeliveryIndexReportsAFailedRetention",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "arquivos ocultos distribuídos pelo update",
+      "tests": "TestIndexGenerationDescriptorIsNever",
+      "verdict": "killed"
     }
   ],
-  "killed": 33,
-  "total": 33
+  "killed": 49,
+  "total": 49
 }

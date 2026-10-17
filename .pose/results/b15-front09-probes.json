@@ -1,7 +1,7 @@
 {
   "spec": "pose-index-generation-integrity",
   "driver": ".pose/results/b15-front09-probes.py",
-  "note": "Synthetic fixtures; the host name is redacted. Before: engine at 18e4342b (merge of PR #192). After: engine at 78c53b1c. P01 replaces packages.json by a directory after a first good index and a change that moves several outputs, five times. Before: the outputs are written in map order and some of them move while the blocked one fails, so the repository holds a mixture that every reader accepts, and nothing records which set is in force (--verify does not exist). After: the descriptor does not move in any run (the previous generation stays in force), pose index --verify fails and names the cause, and the legacy names that were published before the failure are reported as diverged, not read. P02 edits an index by hand: after, verify names the file and a new pose index repairs it. P03 is the control with nothing in the way: unchanged outcome plus a current generation.",
+  "note": "Synthetic fixtures; the host name is redacted. Before: engine at 18e4342b (merge of PR #192). After: engine at 6424523d. P01 replaces packages.json by a directory after a first good index and a change that moves several outputs, five times. Before: the outputs are written in map order and some of them move while the blocked one fails, so the repository holds a mixture that every reader accepts, and nothing records which set is in force (--verify does not exist). After: the descriptor does not move in any run (the previous generation stays in force), pose index --verify fails and names the cause, and the legacy names that were published before the failure are reported as diverged, not read. P02 edits an index by hand: after, verify names the file and a new pose index repairs it. P03 is the control with nothing in the way: unchanged outcome plus a current generation.",
   "before": {
     "binary_sha256": "9c4742d8590e2d23d3c1626c5e5391e78beb5c2d4ea24d0a00d5e9d4caa9cd2a",
     "probes": {
@@ -129,14 +129,14 @@
     }
   },
   "after": {
-    "binary_sha256": "0325530645670db13df282514c06c0e6bd7e8085b2652a7d26cc313a11350df3",
+    "binary_sha256": "b0a629b3cf1ce0e42d92a67896e13c99e68f0ddb5c13f4d8abaf52f689ffa544",
     "probes": {
       "P01_blocked_output": {
         "runs": [
           {
             "first_index_exit": 0,
             "blocked_exit": 1,
-            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-0/.pose/indexes/.packages.json.2478169849.tmp <tmp>/blocked-0/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
+            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-0/.pose/indexes/.packages.json.3987371194.tmp <tmp>/blocked-0/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
             "outputs_changed_besides_the_blocked": [
               "repo-map.json"
             ],
@@ -147,7 +147,7 @@
           {
             "first_index_exit": 0,
             "blocked_exit": 1,
-            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-1/.pose/indexes/.packages.json.1884223346.tmp <tmp>/blocked-1/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
+            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-1/.pose/indexes/.packages.json.3113813951.tmp <tmp>/blocked-1/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
             "outputs_changed_besides_the_blocked": [
               "repo-map.json"
             ],
@@ -158,7 +158,7 @@
           {
             "first_index_exit": 0,
             "blocked_exit": 1,
-            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-2/.pose/indexes/.packages.json.798556453.tmp <tmp>/blocked-2/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
+            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-2/.pose/indexes/.packages.json.3176895414.tmp <tmp>/blocked-2/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
             "outputs_changed_besides_the_blocked": [
               "repo-map.json"
             ],
@@ -169,7 +169,7 @@
           {
             "first_index_exit": 0,
             "blocked_exit": 1,
-            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-3/.pose/indexes/.packages.json.1018089519.tmp <tmp>/blocked-3/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
+            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-3/.pose/indexes/.packages.json.136373980.tmp <tmp>/blocked-3/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
             "outputs_changed_besides_the_blocked": [
               "repo-map.json"
             ],
@@ -180,7 +180,7 @@
           {
             "first_index_exit": 0,
             "blocked_exit": 1,
-            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-4/.pose/indexes/.packages.json.3917871267.tmp <tmp>/blocked-4/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
+            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-4/.pose/indexes/.packages.json.776518618.tmp <tmp>/blocked-4/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
             "outputs_changed_besides_the_blocked": [
               "repo-map.json"
             ],
