@@ -78,6 +78,9 @@ def heredoc_delimiter(line):
             i += 3
             continue
         elif line.startswith("<<", i):
+            if line[:i].count("((") > line[:i].count("))"):
+                i += 2
+                continue
             m = re.match(r"<<(-?)\s*(?:'([^']+)'|\"([^\"]+)\"|([A-Za-z_][\w.-]*))", line[i:])
             if m:
                 return (m.group(2) or m.group(3) or m.group(4), bool(m.group(1)))
@@ -165,6 +168,13 @@ def check(path):
         for args in re.findall(r"\bmktemp\b([^)\n]*)", lines[i]):
             if "/" in args or re.search(r"(^|\s)(-p|--tmpdir|--suffix)\b", args):
                 p.append(f"line {i + 1}: mktemp with a path/tmpdir option escapes the owned directory")
+    if re.search(r"(?m)^\s*(function\s+)?(rm|trap|chmod|find)\s*(\(\))?\s*\{", text):
+        p.append("redefines rm, trap, chmod or find, which the cleanup relies on")
+    def mutated(v):
+        return bool(re.search(r"\bfor\s+" + v + r"\b|\b(?:select|getopts)\b[^\n]*\b" + v + r"\b|\bread\b[^\n]*\b" + v + r"\b|(?<![\w$])" + v + r"\[|\b(?:printf\s+-v|mapfile|readarray)\b[^\n]*\b" + v + r"\b|\(\(\s*" + v + r"\b", text))
+    for v in ("TMPDIR", "POSE_TEST_TMP"):
+        if mutated(v):
+            p.append(f"changes {v} through for/read/select/array/printf -v")
     trap_lines = [i for i, l in enumerate(lines) if re.search(r"\btrap\b", l)]
     inits = [i for i, l in enumerate(lines) if re.fullmatch(r"\s*pose_test_tmp_init\s*", l)]
     if inits:
@@ -195,8 +205,8 @@ def check(path):
                 assigned.append((m.group(1), i))
         for v, i in assigned:
             n = len(re.findall(r"(?<![\w$])" + v + r"\+?=", text))
-            n += len(re.findall(r"\b(?:read|local|declare|typeset|printf\s+-v|mapfile)\b[^\n]*\b" + v + r"\b(?!=)", text))
-            if n != 1 or re.search(r"\(\(\s*" + v + r"\b", text):
+            n += len(re.findall(r"\b(?:local|declare|typeset)\b[^\n]*\b" + v + r"\b(?!=)", text))
+            if n != 1 or mutated(v):
                 p.append(f"${v} is assigned, read into or changed more than once, so the directory it held can be lost")
         if len(trap_lines) != 1 or not re.search(r"\bEXIT\b", lines[trap_lines[0]]):
             p.append(f"expected exactly one trap, on EXIT; found {len(trap_lines)} trap lines")
@@ -208,6 +218,16 @@ def check(path):
             else:
                 if not only_if(t):
                     p.append("the EXIT trap sits in a loop, function, group or case arm")
+                if assigned:
+                    first_alloc = min(i for _, i in assigned)
+                    names = {v for v, _ in assigned}
+                    for j in range(first_alloc, t):
+                        s = masked(lines[j])
+                        if not s or j in {i for _, i in assigned}:
+                            continue
+                        if re.fullmatch(r"\w+=\"\$\{?\w+\}?(/[\w./-]*)?\"", s) or re.fullmatch(r"\w+=\"\"", s) or re.fullmatch(r"(function\s+)?\w+\s*(\(\))?\s*\{[^\n}]*\}", s):
+                            continue
+                        p.append(f"line {j + 1} runs between the allocation and the EXIT trap, so a failure there leaks the directory: put the trap right after the allocations")
                 for v, i in assigned:
                     if stacks[i] != stacks[t]:
                         p.append(f"the EXIT trap is not in the same branch as the mktemp of ${v}")
@@ -309,6 +329,16 @@ mkfix alloc-and-chain 'w="$(mktemp -d)" && :' "trap 'rm -rf \"\$w\"' EXIT"
 mkfix init-or-true "$SRC" 'pose_test_tmp_init || true' 'w="$(mktemp -d)"'
 mkfix extra-signal-trap 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT" "trap 'exit 1' INT"
 mkfix split-redefinition 'w="$(mktemp -d)"' 'cleanup() { rm -rf "$w"; }' 'trap cleanup EXIT' 'cleanup()' '{ :; }'
+mkfix false-before-trap 'set -euo pipefail' 'w="$(mktemp -d)"' 'false' "trap 'rm -rf \"\$w\"' EXIT"
+mkfix assertion-before-trap 'w="$(mktemp -d)"' '[ 1 = 2 ] || exit 1' "trap 'rm -rf \"\$w\"' EXIT"
+mkfix go-build-before-trap 'w="$(mktemp -d)"' 'go build ./...' "trap 'rm -rf \"\$w\"' EXIT"
+mkfix shift-expansion 'bit=1' 'x=$((1 << bit))' 'w="$(mktemp -d)"'
+mkfix shift-quoted 'bit=1' 'x="$((1 << bit))"' 'w="$(mktemp -d)"'
+mkfix shift-command 'bit=1' '((x = 1 << bit))' 'w="$(mktemp -d)"'
+mkfix for-rebinds 'w="$(mktemp -d)"' 'for w in a b; do :; done' "trap 'rm -rf \"\$w\"' EXIT"
+mkfix array-element-rebinds 'w="$(mktemp -d)"' 'w[0]=' "trap 'rm -rf \"\$w\"' EXIT"
+mkfix rm-function-noop 'rm() { return 0; }' 'w="$(mktemp -d)"' "trap 'rm -rf \"\$w\"' EXIT"
+mkfix read-clears-root "$SRC" 'pose_test_tmp_init' 'read POSE_TEST_TMP < /dev/null' 'w="$(mktemp -d)"'
 negatives=0
 for f in "$fixtures"/*.sh; do
   negatives=$((negatives + 1))
@@ -328,10 +358,13 @@ done
 # or run in a loop, is rejected.
 sed '/^work="\$(mktemp -d)"$/p' tests/release/compat.sh > "$fixtures/compat-rebound.sh.txt"
 sed 's/^work="\$(mktemp -d)"$/for _i in 1 2; do work="$(mktemp -d)"; done/' tests/release/compat.sh > "$fixtures/compat-looped.sh.txt"
+sed '/^BUILD_WORK="\$(mktemp -d)"$/a false' examples/demo/record.sh > "$fixtures/record-fallible.sh.txt"
 for f in compat-rebound compat-looped; do
   cmp -s tests/release/compat.sh "$fixtures/$f.sh.txt" && fail "control: $f equals the original"
   [ -n "$(scan "$fixtures/$f.sh.txt")" ] || fail "the scan accepted a tracked script changed to leak ($f)"
 done
+cmp -s examples/demo/record.sh "$fixtures/record-fallible.sh.txt" && fail "control: record-fallible equals the original"
+[ -n "$(scan "$fixtures/record-fallible.sh.txt")" ] || fail "the scan accepted a tracked script with a fallible command before its trap"
 ok "static: the scan rejects $negatives leaking shapes and accepts $positives correct ones"
 
 # 2. The helper cleans up on every way a script can end. Each case must reach
