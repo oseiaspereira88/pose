@@ -43,6 +43,11 @@ jobs:
             tests/*.sh \
             tests/*/*.sh \
             examples/demo/*.sh
+      # The scripts below build binaries and fixtures under TMPDIR; this keeps
+      # each of them removing what it creates (spec
+      # pose-test-scripts-remove-their-temp-files).
+      - name: Test scripts remove their temporary files (spec pose-test-scripts-remove-their-temp-files)
+        run: bash tests/hygiene/temp-cleanup.sh
       - name: Installer E2E
         run: bash tests/install/run.sh
       - name: Artifact-identity gate rejects what it must (spec pose-release-signing R3)

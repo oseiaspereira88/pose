@@ -12,6 +12,12 @@
 
 set -euo pipefail
 
+# Every temporary file of this script lives under one directory removed on
+# exit (spec pose-test-scripts-remove-their-temp-files).
+# shellcheck source=../lib/tempdir.sh
+. "$(dirname "$0")/../lib/tempdir.sh"
+pose_test_tmp_init
+
 if [ "${1:-}" = "--binary" ]; then
   BIN="${2:?--binary requires the native binary path}"
   ROOT="$PWD"
@@ -161,5 +167,4 @@ grep -q "^status: done" "$SPEC" || fail "the spec is not done"
 ok "chapter 5: the exit gate refuses an untraced R1, the review uses the printed command, close lands"
 
 cd "$ROOT"
-rm -rf "$WORK" "$KEYS"
 printf '\n\033[32mThe documented quickstart behaves as the page describes.\033[0m\n'
