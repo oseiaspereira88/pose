@@ -535,6 +535,16 @@ capability for the `maintainer` role; nothing is adopted until an answer exists,
 and `pose adopt --request <act-id> --apply` (or `pose setup`) applies it,
 recording the request and the answer's reason.
 
+### Delegated review
+
+`pose review brief <bundle-id|scope>` prepares a deterministic brief for a
+review, adjudication or smoke run (`--kind review|adjudication|smoke`).
+`pose review dispatch <bundle-id|scope> --via <adapter>` previews delegation;
+`--apply` launches the configured adapter in an isolated worktree. Configure
+the adapter before dispatching. The returned review remains subject to the
+bundle's criteria, identity requirements and verification gates; dispatch
+does not itself approve or close the spec.
+
 ### Signed action answers
 
 A project can verify who answered an action request without any external

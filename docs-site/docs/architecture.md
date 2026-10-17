@@ -373,7 +373,7 @@ full POSE governance surface — specs, readiness, roadmaps, changelogs,
 follow-ups, structural gates, task routing, workflows, rules, skills,
 knowledge, reports, insights and safe validation orchestration — frozen by a
 golden catalog fixture with an explicit risk class per tool. The catalog
-contains 47 POSE tools plus 3 optional Conductor reporters. Optional
+contains 58 POSE tools plus 3 optional Conductor reporters. Optional
 `pose_validate_submit` and `conductor_run_*` tools report external runs or
 submit to a Harness only when the corresponding Harne8 endpoints are
 configured.

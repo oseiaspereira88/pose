@@ -1,6 +1,12 @@
 # Capability assessment
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 7.x (current stable)
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** historical POSE v1.4.3 assessment
+
+**Catalog clarification (2026-10-16):** the counts and scores below describe
+the historical assessment baseline, not the current release. POSE v7.4.1
+ships 61 MCP tools (58 POSE tools and 3 optional Conductor reporters).
+See the [current MCP reference](mcp.md) for the supported catalog; this
+clarification does not re-score the historical assessment.
 
 **Assessment date:** 2026-08-17
 **Scope:** POSE open-source distribution  
