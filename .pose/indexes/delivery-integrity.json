@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:5caf439581c2d48b0f86e334f1350a38fedcfe89a6dba15f31ab34019e631f88",
-  "provenance_digest": "sha256:706df991c6fb05bec6df214f25afbf8c1fe3c1a0a9b04eb80927c097eda82e5a",
+  "input_digest": "sha256:0635e26d5679df983a51c906d77f9ff38e30efd235680008a7910881974653e7",
+  "provenance_digest": "sha256:6522eee33b8293f9b0c991949c18200ed686d37fb510e85ade902974eb7f1939",
   "implied_edges": [
     "changes"
   ],
@@ -30360,6 +30360,14 @@
       }
     },
     {
+      "id": "change-set:cs-4be18b047329",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:2b93fd8609a633ece5591faa5283c65ede781f07dea74945a941f34310500bc0",
+        "selector": "trailers:pose-index-generation-integrity"
+      }
+    },
+    {
       "id": "change-set:cs-4c98f383d898",
       "type": "change-set",
       "attributes": {
@@ -30437,14 +30445,6 @@
       "attributes": {
         "diff_digest": "sha256:e378a0f966fa70c88a19167a830ff30079c7d567b16e80aef897c064ba3d06e6",
         "selector": "range:e3cc340..d92deaa"
-      }
-    },
-    {
-      "id": "change-set:cs-51aa55e9a200",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:8f56013090cf809461a5d1c43713fbf65c36d657de81f74a83be2b7e7c53c66f",
-        "selector": "trailers:pose-index-generation-integrity"
       }
     },
     {
@@ -84825,7 +84825,7 @@
     },
     {
       "from": "spec:pose-index-generation-integrity",
-      "to": "change-set:cs-51aa55e9a200",
+      "to": "change-set:cs-4be18b047329",
       "type": "observed-by"
     },
     {
@@ -145870,6 +145870,211 @@
       "diff_digest": "sha256:feb342413c7df4da5906d943809a247e81994d4621c228695a9d5ff7a3b6ae63"
     },
     {
+      "id": "cs-4be18b047329",
+      "spec": "pose-index-generation-integrity",
+      "selector": "trailers:pose-index-generation-integrity",
+      "base": "2aba3dfb78ded6c7a522bf1bb5e77abd3b294b95^",
+      "head": "df82fdfcf3a73d02c66135b178d2204abad6f33e",
+      "resolved_base": "18e4342bf0382d2e87e2bb3e4028bddfd159ec69",
+      "resolved_head": "df82fdfcf3a73d02c66135b178d2204abad6f33e",
+      "commits": [
+        "2aba3dfb78ded6c7a522bf1bb5e77abd3b294b95",
+        "57dc91a9adb93ab5431b9e6b934e17804b8c5cd9",
+        "78c53b1ca2c0c4236c00f292c60f4d07d41b75c1",
+        "b1a59f222344da22d8c5360a35044921b1706402",
+        "6fbb4d5deda7fb21034260370dd2dd636831f991",
+        "11f78057c3eea5a20df0864857df9cc0e75a7af3",
+        "df82fdfcf3a73d02c66135b178d2204abad6f33e"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-10-17-index-sets-are-published-as-verified-generations.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-index-generation-integrity.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b15-front09-probes.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b15-front09-probes.py"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b15-implementation-validation.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b15-mutations.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b15-mutations.py"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-index-generation-integrity.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/index_generation_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/mcpserver/index_generation_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/index_generation.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/index_generation_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".gitignore"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/README.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/consolidated.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/docs-site.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/mcp-enforce.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/pose-mcp.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/pose-implementation-plan.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/roadmaps/pose-consolidation-program.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/roadmaps/pose-state-consistency-and-recovery.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-10-13-pose-index-generation-integrity.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/docs-site.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/mcp-enforce.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/pose-mcp.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/artifact_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/help_catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/index.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/progressive_review_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/suggest.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delivery_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/obligation_projection.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_plan.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go"
+        }
+      ],
+      "diff_digest": "sha256:2b93fd8609a633ece5591faa5283c65ede781f07dea74945a941f34310500bc0"
+    },
+    {
       "id": "cs-4c98f383d898",
       "spec": "pose-review-bundle-seals-planned-component-evidence",
       "selector": "trailers:pose-review-bundle-seals-planned-component-evidence",
@@ -147045,210 +147250,6 @@
         }
       ],
       "diff_digest": "sha256:e378a0f966fa70c88a19167a830ff30079c7d567b16e80aef897c064ba3d06e6"
-    },
-    {
-      "id": "cs-51aa55e9a200",
-      "spec": "pose-index-generation-integrity",
-      "selector": "trailers:pose-index-generation-integrity",
-      "base": "2aba3dfb78ded6c7a522bf1bb5e77abd3b294b95^",
-      "head": "11f78057c3eea5a20df0864857df9cc0e75a7af3",
-      "resolved_base": "18e4342bf0382d2e87e2bb3e4028bddfd159ec69",
-      "resolved_head": "11f78057c3eea5a20df0864857df9cc0e75a7af3",
-      "commits": [
-        "2aba3dfb78ded6c7a522bf1bb5e77abd3b294b95",
-        "57dc91a9adb93ab5431b9e6b934e17804b8c5cd9",
-        "78c53b1ca2c0c4236c00f292c60f4d07d41b75c1",
-        "b1a59f222344da22d8c5360a35044921b1706402",
-        "6fbb4d5deda7fb21034260370dd2dd636831f991",
-        "11f78057c3eea5a20df0864857df9cc0e75a7af3"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/adr/2026-10-17-index-sets-are-published-as-verified-generations.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-index-generation-integrity.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b15-front09-probes.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b15-front09-probes.py"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b15-implementation-validation.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b15-mutations.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b15-mutations.py"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-index-generation-integrity.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/index_generation_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/mcpserver/index_generation_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/index_generation.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/index_generation_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".gitignore"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/README.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/consolidated.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/docs-site.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/mcp-enforce.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/pose-mcp.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/roadmaps.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/pose-implementation-plan.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/roadmaps/pose-consolidation-program.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/roadmaps/pose-state-consistency-and-recovery.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/specs/2026-10-13-pose-index-generation-integrity.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/components/docs-site.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/components/mcp-enforce.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/components/pose-mcp.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/artifact_integrity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/help_catalog.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/index.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/progressive_review_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_closeout.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/suggest.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/delivery_integrity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/obligation_projection.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_plan.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go"
-        }
-      ],
-      "diff_digest": "sha256:8f56013090cf809461a5d1c43713fbf65c36d657de81f74a83be2b7e7c53c66f"
     },
     {
       "id": "cs-52335c30cc79",
