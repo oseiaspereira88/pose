@@ -178,3 +178,16 @@ registram o bundle `rvb-6167567bf3fa6ac4`, a atestação
 `rva-5358c584e2a8bd4f`, os produtores e gates nativos. Esta entrega não cria
 B-unit nem altera o plano de implementação; o programa e este roadmap conservam
 seu status. Aguardar merge de #192 pelo maintainer.
+
+B15 (`pose-index-generation-integrity`) foi iniciado nativamente em 2026-10-17
+após o merge de #192: os sete arquivos de `pose index` são uma geração
+identificada (bytes imutáveis por geração, nomes legados publicados dos mesmos
+bytes e um descritor com o SHA-256 de cada arquivo e os digests dos inputs,
+publicado por último pelo publisher da B14); uma falha antes do commit mantém a
+geração anterior e o retry converge para a mesma identidade. Leitores da CLI e
+do MCP conferem o conjunto: o que não confere é `unavailable` com motivo, nunca
+um resultado vazio ou misto, e um repositório sem descritor continua legível
+como `legacy-unversioned`. `pose index --verify` lê sem gravar. Probes P01–P03
+com controle inalterado; 33/33 mutações mortas. A spec permanece in-progress
+até revisão different-actor e closeout nativo; delivery_complete permanece
+false.

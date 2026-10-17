@@ -1,0 +1,171 @@
+{
+  "mutations": [
+    {
+      "mutation": "commit antes dos nomes legados",
+      "tests": "TestIndexGenerationRetryAfterAStopAtEveryPhase|TestIndexGenerationBlockedOutput",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "leitor não confere o digest do arquivo",
+      "tests": "TestIndexGenerationUnverifiable|TestIndexGenerationBlockedOutput",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "id não confere com o conteúdo",
+      "tests": "TestIndexGenerationUnverifiable",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "schema desconhecido aceito",
+      "tests": "TestIndexGenerationUnverifiable",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "campo desconhecido aceito",
+      "tests": "TestIndexGenerationUnverifiable",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "conjunto incompleto aceito",
+      "tests": "TestIndexGenerationUnverifiable",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "legado lido como corrente",
+      "tests": "TestIndexGenerationBlockedOutput|TestIndexGenerationCompactDelivery|TestIndexGenerationReaders",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "sem descritor lido como conjunto",
+      "tests": "TestIndexGenerationLegacy",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "bindings de entrada ignorados",
+      "tests": "TestIndexGenerationDivergentInput",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "mesma intenção reescreve",
+      "tests": "TestIndexGenerationPublishesAndReads",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "nome legado divergente ignorado no reenvio",
+      "tests": "TestIndexGenerationRepublishingRepairs",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "divergência não informada",
+      "tests": "TestIndexGenerationNamesTheLegacyNames",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "cópia imutável sobrescrita",
+      "tests": "TestIndexGenerationRefusesToOverwrite",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "sem releitura do descritor",
+      "tests": "TestIndexGenerationReaderStartsOver",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "ReadIndex sem releitura do descritor",
+      "tests": "TestIndexGenerationReaderStartsOver",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "retenção remove a geração corrente",
+      "tests": "TestIndexGenerationRetention",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "retenção ignora a carência",
+      "tests": "TestIndexGenerationRetention",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "retenção sem limite",
+      "tests": "TestIndexGenerationRetention",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "retenção remove o que não é geração",
+      "tests": "TestIndexGenerationRetention",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "falha de retenção vira falha de publicação",
+      "tests": "TestIndexGenerationFailedCleanup",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "ReplaceIndex sobre conjunto inválido",
+      "tests": "TestIndexGenerationReplaceIndex",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "pose index escreve arquivo a arquivo",
+      "tests": "TestIndexPublishes|TestIndexWithABlocked|TestIndexJSONReports",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "--verify aceita conjunto velho",
+      "tests": "TestIndexVerifyNames",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "--verify ignora divergência",
+      "tests": "TestIndexVerifyReportsAHandEdited",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "refresh escreve o arquivo sozinho",
+      "tests": "TestRefreshDeliveryIndex",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "grafo de entrega lido sem conferir",
+      "tests": "TestIndexGenerationCompactDelivery|ReadsAPublishedGeneration",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "mapa de componentes lido sem conferir",
+      "tests": "TestIndexGenerationReadersRefuse",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "snapshot de obrigações liga índice inválido",
+      "tests": "TestIndexGenerationReadersRefuse",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "plano sem aviso de caminhos observados",
+      "tests": "TestIndexGenerationReadersRefuse",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "suggest usa mapa inválido",
+      "tests": "TestSuggestDoesNotInfer",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "descritor sincronizado como derivado",
+      "tests": "TestIndexGenerationCommitSyncs",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "descritor sem CAS",
+      "tests": "TestIndexGenerationConcurrentPublishersCommit",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "descritor distribuído pelo update",
+      "tests": "TestIndexGenerationDescriptorIsNever",
+      "verdict": "killed"
+    }
+  ],
+  "killed": 33,
+  "total": 33
+}

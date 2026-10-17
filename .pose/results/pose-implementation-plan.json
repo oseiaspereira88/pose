@@ -1581,14 +1581,20 @@
           "materialized": true,
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-index-generation-integrity.md",
-          "status": "draft",
-          "sha256": "bf11db8544bf07e4ad87b639e5dc9c5e96195006874884d8831e1f9516f5cfa3"
+          "status": "in-progress",
+          "sha256": "e326be02795e6cff7f45307048513d12e5f138f5f9f94b7bb185f8fd31d2d4e2"
         }
       ],
       "implementation_observations": [
         {
           "scope": "Spec prospectiva escrita em draft no lote documental 7; nenhuma execução da unidade neste lote.",
           "unit_complete": false
+        },
+        {
+          "at": "2026-10-17",
+          "scope": "Start nativo após o merge de #192 (main 18e4342b). Os sete outputs de pose index são uma geração: bytes imutáveis em .pose/indexes/generations/<id>/, nomes legados publicados dos mesmos bytes e descritor generation.json (SHA-256 por arquivo e bindings de entrada) publicado por último pelo publisher da B14; falha antes do commit mantém a geração anterior e o retry converge. Leitores (grafo de entrega na CLI e no MCP, mapa de componentes e caminhos observados do review plan, digest do índice no snapshot de obrigações, pose suggest) conferem o conjunto: unavailable com motivo, nunca vazio ou misto; sem descritor é legacy-unversioned. pose index --verify; os dois escritores diretos de delivery-integrity.json substituem o arquivo dentro de uma nova geração; retenção limitada. Probes P01–P03 antes e depois com controle inalterado, 33/33 mutações mortas e validação estrita global 138/138; revisão por ator diferente e closeout nativo pendentes.",
+          "unit_complete": false,
+          "native_closeout_pending": true
         }
       ],
       "delivery_complete": false,
@@ -5204,17 +5210,16 @@
     }
   ],
   "implementation_reconciliation": {
-    "at": "2026-10-16",
-    "main_revision": "1bb5111efb56521de81092dc4588c9bad83377b0",
-    "selected_unit": "B14",
-    "selected_spec": "pose-writer-coordination-and-atomic-publication",
-    "basis": "PR188 completes B14 after two different-actor review rounds, F1-F11 remediation, strict validation and native terminal closeout. Program remains active; await maintainer merge and reassess native DAG/readiness without selecting implementation.",
+    "at": "2026-10-17",
+    "main_revision": "18e4342bf0382d2e87e2bb3e4028bddfd159ec69",
+    "selected_unit": "B15",
+    "selected_spec": "pose-index-generation-integrity",
+    "basis": "PR192 merged (18e4342b). The maintainer authorized continuing the implementation sequence after B14. Native start, implementation, probes, 33/33 mutations and strict validation (138/138) done for B15; different-actor review and native closeout pending.",
     "unit_delivery_complete_count": 6,
     "administrative_closeouts": "Authoring closeouts remain separate and pending; materialization is not functional delivery.",
-    "previous_complementary_pull_request": 187,
+    "previous_complementary_pull_request": 192,
     "previous_complementary_merged": true,
-    "native_closeout_pending": false,
-    "next_step": "Maintainer merge of PR188; then reassess native DAG/readiness without automatically choosing a new implementation.",
-    "awaiting_merge_pull_request": 188
+    "native_closeout_pending": true,
+    "next_step": "Different-actor review of B15, native closeout, then maintainer merge."
   }
 }
