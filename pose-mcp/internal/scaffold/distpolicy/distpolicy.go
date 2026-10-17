@@ -203,6 +203,23 @@ func IsIncluded(rel string) bool {
 	if parts[1] == "indexes" && len(parts) == 3 && slices.Contains(SelfReferentialIndexFiles, parts[2]) {
 		return false
 	}
+	// generation.json is the commit record of the seven computed files (spec
+	// pose-index-generation-integrity): it names their digests, so it belongs to
+	// the instance that computed them and is written by its own `pose index`. It is
+	// never synced and never seeded: a descriptor next to files it does not
+	// describe would make a valid set unavailable.
+	if parts[1] == "indexes" && len(parts) == 3 && parts[2] == "generation.json" {
+		return false
+	}
+	// Hidden files of the indexes directory are runtime state of a publication
+	// (the generation lock, the pending marker, lock staging), never content.
+	if parts[1] == "indexes" && len(parts) == 3 && strings.HasPrefix(parts[2], ".") {
+		return false
+	}
+	// The immutable copies of past index generations are local runtime state.
+	if parts[1] == "indexes" && len(parts) == 3 && strings.HasPrefix(parts[2], "generations/") {
+		return false
+	}
 	if parts[1] == "rules" && len(parts) == 3 && slices.Contains(ExtensionOnlyRuleFiles, parts[2]) {
 		return false
 	}

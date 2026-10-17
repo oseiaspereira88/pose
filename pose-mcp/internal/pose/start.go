@@ -180,6 +180,9 @@ func (s Store) PreviewStart(slug string) (StartPlan, error) {
 // It needs no future structural delta; once a subject exists the same call
 // recomputes them from what is observed.
 func (s Store) startObligations(slug string) []string {
+	if s.indexPin == nil {
+		s = s.PinIndexes()
+	}
 	plan, err := s.ReviewPlan("spec:" + slug)
 	if err != nil {
 		return []string{}

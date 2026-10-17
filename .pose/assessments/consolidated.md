@@ -1,21 +1,21 @@
-# Project Assessment: pose
+# Project Assessment: pose-dist
 
 > **Gerado por**: POSE Discovery Engine (`pose assess discover`)
-> **Data de Avaliação**: 2026-10-15T22:26:46Z
-> **Baseline Commit**: ea53653b7f0a
+> **Data de Avaliação**: 2026-10-17T15:20:06Z
+> **Baseline Commit**: 2aba3dfb78de
 
 ---
 
 ## 1. Resumo Executivo do Projeto
 
-- **Total de Componentes Auditados**: 4
-- **Linhas de Código de Produção**: 71156
-- **Linhas de Código de Testes**: 56339
-- **Total Geral de Linhas de Código**: 127495
-- **Total de Arquivos Auditados**: 567
+- **Total de Componentes Auditados**: 3
+- **Linhas de Código de Produção**: 73079
+- **Linhas de Código de Testes**: 59844
+- **Total Geral de Linhas de Código**: 132923
+- **Total de Arquivos Auditados**: 583
 - **Completude Dinâmica da Plataforma**: 0.0%
 - **Dívidas Técnicas em Aberto**: 0 TODOs | 0 FIXMEs | 0 Panics | 0 Stubs
-- **Especificações (Specs) em Aberto**: 58
+- **Especificações (Specs) em Aberto**: 54
 - **Gaps de Integração Identificados**: 63
 
 ---
@@ -26,8 +26,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 01 | `docs-site` | `docs-site` | `n/a` | 0 | 0 | 0 | 0 | 100% | `verified` |
 | 02 | `mcp-enforce` | `mcp-enforce` | `go` | 870 | 1029 | 17 | 0 | 100% | `verified` |
-| 03 | `pose-mcp` | `pose-mcp` | `go` | 69909 | 55310 | 545 | 0 | 100% | `verified` |
-| 04 | `scripts` | `scripts` | `python, shell` | 377 | 0 | 5 | 0 | 100% | `verified` |
+| 03 | `pose-mcp` | `pose-mcp` | `go` | 72209 | 58815 | 566 | 0 | 100% | `verified` |
 
 ---
 
@@ -36,4 +35,3 @@
 - `docs-site`: caminho `docs-site`; linguagens n/a; status `verified`.
 - `mcp-enforce`: caminho `mcp-enforce`; linguagens go; status `verified`.
 - `pose-mcp`: caminho `pose-mcp`; linguagens go; status `verified`.
-- `scripts`: caminho `scripts`; linguagens python, shell; status `verified`.

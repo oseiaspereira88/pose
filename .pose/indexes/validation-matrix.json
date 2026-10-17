@@ -2082,6 +2082,23 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "index-generation-integrity-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "./internal/scaffold/distpolicy",
+            "-run",
+            "IndexGeneration|TestIndexPublishes|TestIndexJSONReports|TestIndexVerify|TestIndexWithABlocked|TestRefreshDeliveryIndex|ReadsAPublishedGeneration|DoesNotInferADomain|TestIndexAnUnsyncedCommit|TestIndexWithAnotherPublication",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "test-scripts-remove-their-temp-files-integration",
           "program": "bash",
           "args": [

@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-17T11:19:02Z
-baseline_commit: 534653c6eed826a2b17d655904c8581a62ba215e
+generated_at: 2026-10-17T18:05:57Z
+baseline_commit: ff50b4eba9f1df07e0ca3f49b88162647b65c78d
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:c3525cd94bb4 -->
+<!-- state:derived hash:09c6e0b38880 -->
 
-- specs: total=441 draft=36 in-progress=18 blocked=0 done=386 superseded=0 abandoned=1
+- specs: total=441 draft=35 in-progress=18 blocked=0 done=387 superseded=0 abandoned=1
 - roadmaps: total=22 active=3 done=11
 - últimos closeouts:
-  - spec:pose-test-scripts-remove-their-temp-files (2026-10-17)
+  - spec:pose-index-generation-integrity (2026-10-17)
   - spec:pose-writer-coordination-and-atomic-publication (2026-10-17)
-  - spec:pose-review-approval-domain-preflight (2026-10-16)
+  - spec:pose-test-scripts-remove-their-temp-files (2026-10-17)
   - spec:pose-engine-package-stays-mirrorable (2026-10-16)
-  - spec:pose-dist-instance-follows-engine (2026-10-16)
-  - ... e mais 381 (ver `pose_list_specs status:done`)
+  - spec:pose-cli-mcp-operation-results (2026-10-16)
+  - ... e mais 382 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:64a54410138b -->
@@ -75,16 +75,16 @@ capacidade.
 - knowledge: total=11 ativo=11 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:b8422423fab7 -->
+<!-- state:derived hash:b27e59b52021 -->
 
 - último registro: task=validate-native outcome=fail (2026-10-13T04:23:26Z)
 - últimos 30 dias: total=99 outcome_ok=75 outcome_outro=24
-- reports revisados (.md): total=207
-  - report:2026-10-17-pose-test-scripts-temp-cleanup-review.md
-  - report:2026-10-16-pose-b14-writer-coordination-review.md
+- reports revisados (.md): total=208
+  - report:2026-10-17-pose-b15-index-generation-review.md
   - report:pose-abm-capability-adoption.md
   - report:pose-agency-readiness-pilot.md
   - report:pose-v6-2-0-autonomous-work.md
+  - report:pose-v7-legacy-cleanup-plan.md
 
 ## Arquitetura
 <!-- state:derived hash:1a6ee06cee0b status:active -->

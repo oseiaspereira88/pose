@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
@@ -29,8 +30,9 @@ type indexedModule struct {
 
 func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	rest, flags, flagErr := splitOutputFlags(args)
-	if flagErr != "" || len(rest) > 0 {
-		return usageError(stderr, "Usage: pose index [--json] [--json-out <path>] [--quiet] [--color auto|always|never]")
+	verify := len(rest) == 1 && rest[0] == "--verify"
+	if flagErr != "" || (len(rest) > 0 && !verify) {
+		return usageError(stderr, "Usage: pose index [--verify] [--json] [--json-out <path>] [--quiet] [--color auto|always|never]")
 	}
 	gate := newGateOutput("index", flags, stdout, stderr)
 	gate.root = root
@@ -45,6 +47,9 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		render(stdout, stderr).Failure("pose index: " + message)
 		return 1
+	}
+	if verify {
+		return verifyIndexGeneration(root, gate, out, fail)
 	}
 	modules, manifests, dockers, charts, readmes := scanModules(root)
 	metadataDefaults, metadata := loadModuleMetadata(root)
@@ -132,6 +137,7 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	outputs := map[string]any{"repo-map.json": repo, "services.json": services, "packages.json": packages, "spec-graph.json": map[string]any{"schemaVersion": 1, "specs": specMap, "edges": edges}, "roadmaps.json": map[string]any{"schemaVersion": 1, "roadmaps": roadmapMap}, "delivery-integrity.json": deliveryGraph, "releases.json": releaseStatus}
 	dir := filepath.Join(root, ".pose", "indexes")
+	encoded := map[string][]byte{}
 	for name, value := range outputs {
 		var b []byte
 		var e error
@@ -143,10 +149,31 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 		if e != nil {
 			return fail("encode", fmt.Sprintf("encoding %s: %v", name, e))
 		}
-		b = append(b, '\n')
-		if e = writeAtomic(filepath.Join(dir, name), b, 0o644); e != nil {
-			return fail("write", fmt.Sprintf("writing %s: %v", name, e))
+		encoded[name] = append(b, '\n')
+	}
+	// The seven files are published as one generation (spec
+	// pose-index-generation-integrity): the set becomes current only when the
+	// descriptor is committed after every file.
+	receipt, e := store.PublishIndexGeneration(encoded, posepkg.IndexInputBindings(root))
+	if e != nil {
+		switch {
+		case receipt.Committed:
+			// The descriptor was renamed into place: the new generation is the
+			// current one, and what could not be confirmed is its durability.
+			out.RecordField("index_generation", receipt.GenerationID)
+			return fail(indexPublishCode(e), fmt.Sprintf("generation %s was committed but not confirmed durable: %v; run `pose index --verify`", receipt.GenerationID, e))
+		case errors.Is(e, posepkg.ErrIndexGenerationBusy):
+			return fail(indexPublishCode(e), fmt.Sprintf("%v; nothing was written, run `pose index` again when it finishes", e))
 		}
+		return fail(indexPublishCode(e), fmt.Sprintf("publishing the index generation: %v (the previous generation stays in force; run `pose index` again)", e))
+	}
+	out.RecordField("index_generation", receipt.GenerationID)
+	if receipt.Previous != "" {
+		out.RecordField("index_generation_previous", receipt.Previous)
+	}
+	if receipt.CleanupError != nil {
+		// The generation is committed; only the retention step failed.
+		out.Finding(cliout.Finding{State: cliout.StateWarning, Code: "index-generation-cleanup", Message: "retention of old index generations failed: " + receipt.CleanupError.Error()})
 	}
 	out.RecordField("indexes_dir", dir)
 	out.RecordCount("specs", len(specMap))
@@ -272,4 +299,64 @@ func loadModuleMetadata(root string) (map[string]string, map[string]map[string]s
 		payload.Modules = map[string]map[string]string{}
 	}
 	return payload.Defaults, payload.Modules
+}
+
+// indexPublishCode names the failure of a generation publication for the
+// machine-readable document.
+func indexPublishCode(err error) string {
+	switch {
+	case errors.Is(err, posepkg.ErrPublishConflict):
+		return "publish-conflict"
+	case errors.Is(err, posepkg.ErrPublishUnsynced):
+		return "publish-unsynced"
+	case errors.Is(err, posepkg.ErrIndexGenerationBusy):
+		return "index-generation-busy"
+	}
+	return "write"
+}
+
+// verifyIndexGeneration reads the published set without writing anything. It
+// passes only for a current generation whose bindings still hold; every other
+// state is named, never reported as a complete set.
+func verifyIndexGeneration(root string, gate *gateOutput, out *cliout.Renderer, fail func(code, message string) int) int {
+	view := posepkg.Store{Root: root}.ReadIndexGeneration()
+	out.RecordField("index_generation_status", string(view.Status))
+	switch view.Status {
+	case posepkg.IndexGenerationLegacy:
+		return fail("index-generation-legacy", view.Reason+"; run `pose index`")
+	case posepkg.IndexGenerationUnavailable:
+		return fail("index-generation-unavailable", "the index set is unavailable: "+view.Reason+"; run `pose index`")
+	}
+	out.RecordField("index_generation", view.Descriptor.GenerationID)
+	if len(view.Diverged) > 0 {
+		out.RecordField("index_generation_diverged", strings.Join(view.Diverged, ","))
+		return fail("index-generation-diverged", "generation "+view.Descriptor.GenerationID+" is whole, but "+strings.Join(view.Diverged, ", ")+" under .pose/indexes differ from it (edited by hand, or a publication is running); run `pose index`")
+	}
+	stale := view.StaleInputs(func(name string) (string, bool) { return posepkg.IndexInputBinding(root, name) })
+	if len(stale) > 0 {
+		out.RecordField("index_generation_stale_inputs", strings.Join(stale, ","))
+		return fail("index-generation-stale", "generation "+view.Descriptor.GenerationID+" was computed from other inputs ("+strings.Join(stale, ", ")+" changed); run `pose index`")
+	}
+	gate.Verdict(cliout.StatePass, "index generation "+view.Descriptor.GenerationID+" is current", "index generation current")
+	return 0
+}
+
+// refreshDeliveryIndex publishes a recomputed delivery graph. When the indexes were
+// published as a generation it replaces that file in a new generation, so the
+// descriptor keeps describing the set; before the first `pose index` there is no
+// generation and the file is written as it always was. A set that cannot be
+// verified is not written over: the failure is said, not hidden.
+func refreshDeliveryIndex(root string, data []byte, stderr io.Writer) {
+	_ = os.MkdirAll(filepath.Join(root, ".pose", "indexes"), 0o755)
+	receipt, _, err := posepkg.Store{Root: root}.ReplaceIndexOrLegacy("delivery-integrity.json", data)
+	switch {
+	case err == nil:
+		if receipt.CleanupError != nil {
+			render(io.Discard, stderr).Failure("pose: retention of old index generations failed: " + receipt.CleanupError.Error())
+		}
+	case receipt.Committed:
+		render(io.Discard, stderr).Failure("pose: the delivery index was published as generation " + receipt.GenerationID + ", but its durability could not be confirmed: " + err.Error() + "; run `pose index --verify`")
+	default:
+		render(io.Discard, stderr).Failure("pose: the delivery index was not refreshed: " + err.Error() + "; run `pose index`")
+	}
 }

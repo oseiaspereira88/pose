@@ -1581,17 +1581,44 @@
           "materialized": true,
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-index-generation-integrity.md",
-          "status": "draft",
-          "sha256": "bf11db8544bf07e4ad87b639e5dc9c5e96195006874884d8831e1f9516f5cfa3"
+          "status": "done",
+          "sha256": "72d68a3625684254900c17af666bb9ffe267e73f3772f352e4fa048f6cea9ecc"
         }
       ],
       "implementation_observations": [
         {
           "scope": "Spec prospectiva escrita em draft no lote documental 7; nenhuma execução da unidade neste lote.",
           "unit_complete": false
+        },
+        {
+          "at": "2026-10-17",
+          "scope": "Start nativo após o merge de #192 (main 18e4342b). Os sete outputs de pose index são uma geração: bytes imutáveis em .pose/indexes/generations/<id>/, nomes legados publicados dos mesmos bytes e descritor generation.json (SHA-256 por arquivo e bindings de entrada) publicado por último pelo publisher da B14; falha antes do commit mantém a geração anterior e o retry converge. Leitores (grafo de entrega na CLI e no MCP, mapa de componentes e caminhos observados do review plan, digest do índice no snapshot de obrigações, pose suggest) conferem o conjunto: unavailable com motivo, nunca vazio ou misto; sem descritor é legacy-unversioned. pose index --verify; os dois escritores diretos de delivery-integrity.json substituem o arquivo dentro de uma nova geração; retenção limitada. Probes P01–P03 antes e depois com controle inalterado, 54/54 mutações mortas e validação estrita global 138/138; revisão por ator diferente e closeout nativo pendentes. A primeira revisão independente (10 findings: commit sem exclusão, ReplaceIndex que reverte, plano de review com duas gerações, primeira migração interrompida, retenção que segue link ou remove a geração viva, descritor com bytes após o valor, commit sem sync reportado como não confirmado, aviso de retenção perdido) foi corrigida com trava de geração, geração fixada por operação e marcador de primeira publicação. A segunda revisão (F11–F16) levou a: pin legado que não atravessa a primeira publicação, substituição vinculada aos bytes exatos do descritor lido, escrita legada do refresh sob a trava, pin de geração também no bundle, no closeout check e nas obrigações do start, e artefatos declarados.",
+          "unit_complete": false,
+          "native_closeout_pending": true
+        },
+        {
+          "at": "2026-10-17",
+          "pull_requests": [
+            193
+          ],
+          "scope": "Third independent review by Codex/OpenAI, different vendor from Claude/Anthropic. F01-F16 verified resolved at their causal paths; no new findings. Strict global 138/138 and explicit pose-mcp 135/135 at ff50b4eb; full suite, vet, race, Windows/Darwin builds, install/upgrade journey, 54/54 mutations, all 48 new-test counterfactuals and six independent probes passed. Scoped surface-check passed after canonical evidence regeneration; unrelated global release action-mismatch reproduced on main. Sealed approval and guarded native closeout completed. Declared identity, unsigned attestation. Await maintainer merge of PR193 and readiness reassessment without selecting another implementation.",
+          "unit_complete": true,
+          "native_closeout_pending": false,
+          "review_report_path": ".pose/reports/2026-10-17-pose-b15-index-generation-review.md",
+          "admission_review_bundle": "rvb-68d1469c0679927b",
+          "admission_attestation": "rva-ce3732f9185f01c8",
+          "native_validation": {
+            "mode": "strict",
+            "head": "ff50b4eba9f1df07e0ca3f49b88162647b65c78d",
+            "executed": 138,
+            "passed": 138,
+            "failed": 0,
+            "component_executed": 135,
+            "component_passed": 135
+          }
         }
       ],
-      "delivery_complete": false,
+      "delivery_complete": true,
       "native_spec_dependencies": [
         "pose-writer-coordination-and-atomic-publication",
         "pose-delivery-integrity-index-compaction"
@@ -5204,17 +5231,17 @@
     }
   ],
   "implementation_reconciliation": {
-    "at": "2026-10-16",
-    "main_revision": "1bb5111efb56521de81092dc4588c9bad83377b0",
-    "selected_unit": "B14",
-    "selected_spec": "pose-writer-coordination-and-atomic-publication",
-    "basis": "PR188 completes B14 after two different-actor review rounds, F1-F11 remediation, strict validation and native terminal closeout. Program remains active; await maintainer merge and reassess native DAG/readiness without selecting implementation.",
-    "unit_delivery_complete_count": 6,
+    "at": "2026-10-17",
+    "main_revision": "18e4342bf0382d2e87e2bb3e4028bddfd159ec69",
+    "selected_unit": "B15",
+    "selected_spec": "pose-index-generation-integrity",
+    "basis": "PR193 completes B15 after three independent review rounds, causal remediation of F01-F16, strict validation and native terminal closeout. Codex/OpenAI reviewed Claude/Anthropic implementation; declared identity and unsigned attestations. Program remains active; await maintainer merge and reassess DAG/readiness without selecting implementation.",
+    "unit_delivery_complete_count": 7,
     "administrative_closeouts": "Authoring closeouts remain separate and pending; materialization is not functional delivery.",
-    "previous_complementary_pull_request": 187,
+    "previous_complementary_pull_request": 192,
     "previous_complementary_merged": true,
     "native_closeout_pending": false,
-    "next_step": "Maintainer merge of PR188; then reassess native DAG/readiness without automatically choosing a new implementation.",
-    "awaiting_merge_pull_request": 188
+    "next_step": "Maintainer merge of PR193; then reassess native DAG/readiness without automatically choosing a new implementation.",
+    "awaiting_merge_pull_request": 193
   }
 }

@@ -178,3 +178,38 @@ registram o bundle `rvb-6167567bf3fa6ac4`, a atestação
 `rva-5358c584e2a8bd4f`, os produtores e gates nativos. Esta entrega não cria
 B-unit nem altera o plano de implementação; o programa e este roadmap conservam
 seu status. Aguardar merge de #192 pelo maintainer.
+
+B15 (`pose-index-generation-integrity`) foi iniciado nativamente em 2026-10-17
+após o merge de #192: os sete arquivos de `pose index` são uma geração
+identificada (bytes imutáveis por geração, nomes legados publicados dos mesmos
+bytes e um descritor com o SHA-256 de cada arquivo e os digests dos inputs,
+publicado por último pelo publisher da B14); uma falha antes do commit mantém a
+geração anterior e o retry converge para a mesma identidade. Leitores da CLI e
+do MCP conferem o conjunto: o que não confere é `unavailable` com motivo, nunca
+um resultado vazio ou misto, e um repositório sem descritor continua legível
+como `legacy-unversioned`. `pose index --verify` lê sem gravar. Probes P01–P03
+com controle inalterado; 54/54 mutações mortas. Nesse registro de implementação a spec ainda estava in-progress,
+com delivery_complete false; a revisão e o closeout são registrados abaixo.
+
+### B15 — closeout independente (2026-10-17)
+
+PR #193 conclui B15 após três rodadas de revisão: F01–F16 resolvidos na causa e
+nenhum finding novo em ff50b4eb. Revisor `agent:independent-gpt-6.1-sol-review`,
+Codex/OpenAI, outro vendor em relação ao implementador Claude/Anthropic; identidade
+declarada e atestação não assinada. Validação estrita global 138/138 e explícita
+do módulo 135/135; vet, suíte completa, race, builds Windows/Darwin, jornada de
+install/upgrade, 54/54 mutações e contrafactuais dos 48 testes novos verificados.
+Probes P01–P03 reproduzidos e seis probes independentes das correções finais passaram.
+
+Bundle `rvb-68d1469c0679927b`, atestação `rva-ce3732f9185f01c8`; review verify fresh/approved,
+review-check, closeout-check, close nativo, lint-spec e check estritos aprovados.
+Surface-check da B15 aprovado com evidência atual; action-mismatch de outra spec
+de release foi reproduzido na main 18e4342b. Spec
+`pose-index-generation-integrity` done e B15 `delivery_complete: true` no
+[plano](../results/pose-implementation-plan.json). Parecer e evidência em
+[review B15](../reports/2026-10-17-pose-b15-index-generation-review.md) e
+[resultado compacto](../results/b15-independent-review.json).
+
+O programa permanece ativo. Aguardar merge pelo maintainer de #193 e reavaliar
+DAG/readiness nativa; este closeout não seleciona outra implementação. Os limites
+Git/read view global B34/B35 e recuperação de release B41 permanecem declarados.

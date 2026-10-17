@@ -2,6 +2,7 @@ package pose
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -195,6 +196,11 @@ var reviewPreconditionCatalog = map[string]bool{
 // ReviewPlan resolves the immutable, read-only plan that governs a review.
 // It never executes a recommendation or writes project state.
 func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
+	// One generation for everything the plan reads from the indexes, unless the
+	// operation that asks for the plan already fixed one.
+	if s.indexPin == nil {
+		s = s.PinIndexes()
+	}
 	scope, err := ParseScopeRef(ref)
 	if err != nil {
 		return ReviewPlan{}, err
@@ -378,6 +384,11 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 }
 
 func (s Store) resolveReviewPlanContext(scope ScopeRef) (reviewPlanContext, error) {
+	// One generation for the whole plan: the component map and the observed
+	// paths are read from the same set, even if a publication commits meanwhile.
+	if s.indexPin == nil {
+		s = s.PinIndexes()
+	}
 	context := reviewPlanContext{Components: []ReviewPlanComponent{}, DeliveryKinds: []string{}, ArtifactPaths: []string{}, SpecSlugs: []string{}}
 	specs, err := s.reviewScopeSpecs(scope)
 	if err != nil {
@@ -555,7 +566,11 @@ func (s Store) loadReviewRepoEntries() ([]reviewRepoEntry, error) {
 	seen := map[string]bool{}
 
 	// 1. Try .pose/indexes/repo-map.json if present
-	if raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "repo-map.json")); err == nil {
+	raw, _, mapErr := s.ReadIndex("repo-map.json")
+	if errors.Is(mapErr, ErrIndexGenerationUnavailable) {
+		return nil, fmt.Errorf("review component map is unavailable: %w", mapErr)
+	}
+	if mapErr == nil {
 		var repo struct {
 			Apps     []reviewRepoEntry `json:"apps"`
 			Services []reviewRepoEntry `json:"services"`
@@ -683,7 +698,13 @@ func (s Store) loadReviewRepoEntries() ([]reviewRepoEntry, error) {
 }
 
 func (s Store) loadObservedReviewPaths(specs []string, entries []reviewRepoEntry, add func(reviewRepoEntry, string), unmapped map[string]bool, context *reviewPlanContext) {
-	raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "delivery-integrity.json"))
+	raw, _, err := s.ReadIndex("delivery-integrity.json")
+	if errors.Is(err, ErrIndexGenerationUnavailable) {
+		// An unavailable set is not an empty one: say that observed paths could
+		// not be read instead of reporting a plan built without them as whole.
+		context.Warnings = append(context.Warnings, "observed paths were not used: "+err.Error())
+		return
+	}
 	if err != nil {
 		return
 	}

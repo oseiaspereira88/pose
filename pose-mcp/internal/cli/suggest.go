@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	posepkg "github.com/harne8/pose-mcp/internal/pose"
 )
 
 type taskMap struct {
@@ -139,7 +141,7 @@ func inferSuggestDomain(root, pathHint string) (string, string) {
 			return "k8s", "hint-path"
 		}
 	}
-	raw, e := os.ReadFile(filepath.Join(root, ".pose", "indexes", "repo-map.json"))
+	raw, _, e := posepkg.Store{Root: root}.ReadIndex("repo-map.json")
 	if e != nil {
 		return "", "undefined"
 	}

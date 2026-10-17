@@ -1,0 +1,416 @@
+{
+  "schema_version": 1,
+  "round": 3,
+  "spec": "pose-index-generation-integrity",
+  "date": "2026-10-17",
+  "decision": "approved",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "implementer": "agent:claude-sonnet-5-5",
+  "implementer_session": "296d1fcb-e989-40ae-9362-cf3514db8b26",
+  "head": "ff50b4eba9f1df07e0ca3f49b88162647b65c78d",
+  "base": "18e4342b",
+  "pr": 193,
+  "scope_judgment": "agent:independent- is the declaration required by the engine until pose-delegated-review-run-provenance replaces it. This execution is Codex/OpenAI, a different vendor from implementer Claude/Anthropic. Declared identity; unsigned pose-dist attestations. No subagents.",
+  "previous_rounds": {
+    "round1": {
+      "decision": "changes-requested",
+      "head": "299fa696e20c3fbc996d4cf022a7d29b6ebc9060",
+      "record_present_at_reviewed_commit": true,
+      "evidence_sha256": "76c4579e419c18b0cd7f22e72ec8a35d940270fbec6ed09e2a4634882ec635af",
+      "report_sha256": "15484bdbcd53d195cc6994ec40ee66ee886664a325348212b4124c6ba4fa900d",
+      "closed_in_cooperative_protocol": [
+        "F01",
+        "F05",
+        "F06",
+        "F07",
+        "F08",
+        "F10"
+      ],
+      "partial": {
+        "F02": [
+          "F12"
+        ],
+        "F03": [
+          "F11",
+          "F15"
+        ],
+        "F04": [
+          "F11",
+          "F14"
+        ],
+        "F09": [
+          "F13"
+        ]
+      }
+    },
+    "round2": {
+      "head": "d1e1347061508aeb1336b3ec8acaba00e2cf0812",
+      "decision": "changes-requested",
+      "evidence_sha256": "9a7e6a1a939a13f3d10ffee64718181409bba958b2494915aec66344226959bb",
+      "report_sha256": "f0358486750ac4adefcddcfceba57f98d9184b2b604f12bdc348b91ee503abbd"
+    },
+    "resolved_findings": [
+      "B15-F01",
+      "B15-F02",
+      "B15-F03",
+      "B15-F04",
+      "B15-F05",
+      "B15-F06",
+      "B15-F07",
+      "B15-F08",
+      "B15-F09",
+      "B15-F10",
+      "B15-F11",
+      "B15-F12",
+      "B15-F13",
+      "B15-F14",
+      "B15-F15",
+      "B15-F16"
+    ]
+  },
+  "external_evidence_directory": "/home/go/.cache/b15-independent-review-r3",
+  "outputs_manifest_sha256": "fb4a6dfc357a65af8dd995e0f6a8dde7f938abf61807d1e307bd9d41ed98abf6",
+  "binary_sha256": "9b09e34c15f2ffcd0cb45f96ca3ececd0321948ef32507770f17a3aa4baa9ad5",
+  "facts": {
+    "validation": {
+      "executed": 138,
+      "passed": 138,
+      "failed": 0,
+      "optional_failed": 0,
+      "errored": 0,
+      "skipped": 0
+    },
+    "validation_outcome": "pass",
+    "validation_json_sha256": "26ae2b0724138d3eed43b40ad6b7318ecb18d47a48f97bc56b46647e6106dcab",
+    "module_validation": {
+      "executed": 135,
+      "passed": 135,
+      "exit_code": 0
+    },
+    "original_mutations": {
+      "killed": 54,
+      "total": 54,
+      "sha256": "03954e257efbfe91ba69f20f41e82dde4556badab2ab56a94a9571fd1b6f7538"
+    },
+    "test_counterfactuals": {
+      "new_tests": 48,
+      "mapped_original_mutations": 47,
+      "additional_targeted_assertion": 1,
+      "map_sha256": "8c8e008178d6b77e4a96734b15a9f3f1fbcbd5bbf942df7f3f67d6ee301d47c7",
+      "limitation": "Some mutants fail setup rather than the named property; counts do not prove all schedules. ReaderThatFixedAGenerationKeepsItsBytes owns already-copied bytes."
+    },
+    "probes": {
+      "matches_versioned_after": true,
+      "normalization": "publisher random staging filename suffix only",
+      "preserved_previous_descriptors": 5
+    },
+    "independent_positive_probes": {
+      "passed": 6,
+      "scope": "F11-F15 transition, exact predecessor, bundle pin, post-read legacy, committed refresh, first-publication lock",
+      "sha256": "9b886fccd52559eb2a2d87250fffa19740bb3c7828eb1f18cbc763d733c05891"
+    },
+    "artifact_reconciliation": {
+      "claims": 37,
+      "observed": 52,
+      "attributed_commits": 17,
+      "exit_code": 0
+    },
+    "surface": {
+      "scoped_exit_code": 0,
+      "targets": 1,
+      "results": 138,
+      "findings": 0,
+      "main_18e4342b_exit": 1,
+      "preexisting": "action-mismatch of three release_sufficiency_test.go for pose-release-shared-sufficiency-contract; global warnings also present",
+      "before_regeneration": "B15 stale-evidence and unconsumed-capability; both cleared by canonical strict validation"
+    },
+    "compatibility": "minor; shadowed generated manual edits, clone fallback and external legacy-reader limits documented; install/onboarding and upgrade from 6.2.0 passed; unavailable external Harne8 code not certified",
+    "residual_limits": "No daemon/global Git read view, direct external legacy readers may mix, count+age retention rather than process reader registry or hard disk quota, Linux recovery exercised while Windows/Darwin only built, arbitrary power loss and hostile noncooperating writers not qualified beyond inherited B14 limits.",
+    "source_mutations": "No production/test/policy/capability/adoption edits in checkout. Mutants and two extra scheduling hooks confined to disposable copies. Discovery update-state byproducts archived externally and restored, never committed."
+  },
+  "commands": [
+    {
+      "id": "Darwin-build",
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": "Darwin-build.log"
+    },
+    {
+      "id": "Go-race",
+      "exit_code": 0,
+      "output_sha256": "415ee95082667caf7af941df2a0c21ae88c88b6447d53b0396390d005787e785",
+      "output": "Go-race.log"
+    },
+    {
+      "id": "Go-tests",
+      "exit_code": 0,
+      "output_sha256": "02c2d922c3e5a48f56ae338b8ae3db7794946809559fc1747f51544ddac598f7",
+      "output": "Go-tests.log"
+    },
+    {
+      "id": "Go-vet",
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": "Go-vet.log"
+    },
+    {
+      "id": "Windows-build",
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": "Windows-build.log"
+    },
+    {
+      "id": "assess-design-sealed",
+      "exit_code": 0,
+      "output_sha256": "a91bd2740dc9c7431829a3dda116566db469ca94aad47895493613e882132d72",
+      "output": "assess-design-sealed.log"
+    },
+    {
+      "id": "assess-design",
+      "exit_code": 0,
+      "output_sha256": "388141483e2959b7169f0d26fe0aa9e051d69dac84d46b22777c0ccbc7cf1161",
+      "output": "assess-design.log"
+    },
+    {
+      "id": "assess-discover",
+      "exit_code": 0,
+      "output_sha256": "b52e785c0f884a707bccc366c4b478c2834ea712aeb2df2434571fbf642e7f49",
+      "output": "assess-discover.log"
+    },
+    {
+      "id": "attest-apply",
+      "exit_code": 0,
+      "output_sha256": "11b102b1335301c5a86a11585e77e58b298b6bdcd4aff1a7d6a810275e35da40",
+      "output": "attest-apply.log"
+    },
+    {
+      "id": "auto-attest-preview",
+      "exit_code": 0,
+      "output_sha256": "eb690414882c66051d5344ff9a7e62a6f178638abbc1aa1e72352031e1d69e69",
+      "output": "auto-attest-preview.log"
+    },
+    {
+      "id": "bundle-seal",
+      "exit_code": 0,
+      "output_sha256": "8695ceba49854176fb227d818dcaa4dd2644999a42f9f072dbbfb24149aed864",
+      "output": "bundle-seal.log"
+    },
+    {
+      "id": "check-final",
+      "exit_code": 0,
+      "output_sha256": "70054987968cc6ac068e182d825e02c5a4089b3af1be27e74bd5a1840bce7dff",
+      "output": "check-final.log"
+    },
+    {
+      "id": "check-preedit",
+      "exit_code": 0,
+      "output_sha256": "70054987968cc6ac068e182d825e02c5a4089b3af1be27e74bd5a1840bce7dff",
+      "output": "check-preedit.log"
+    },
+    {
+      "id": "close",
+      "exit_code": 0,
+      "output_sha256": "ad84db3afbb8d664faf8ca680269b9ad847eae78b6dec99363b80a188430a5f2",
+      "output": "close.log"
+    },
+    {
+      "id": "closeout-check-preclose",
+      "exit_code": 1,
+      "output_sha256": "0a8a774ad1453f845b6f2d2e4f2518cf135264447bff815da56069dbd2b4c8dd",
+      "output": "closeout-check-preclose.log"
+    },
+    {
+      "id": "closeout-check",
+      "exit_code": 0,
+      "output_sha256": "bffe5c4929b83809df0e8fb165015ecae6add5dc1cc6ed2cf6f5bc31cd0e405f",
+      "output": "closeout-check.log"
+    },
+    {
+      "id": "discover-closeout",
+      "exit_code": 0,
+      "output_sha256": "432d04fd22ade05620d13368bf0a5494afd73104c0153cda6f9774e0df19a655",
+      "output": "discover-closeout.log"
+    },
+    {
+      "id": "index-final",
+      "exit_code": 0,
+      "output_sha256": "a31487862ff1b484a688d483f6151fdd4589352a24df11d2c54986f1ad541835",
+      "output": "index-final.log"
+    },
+    {
+      "id": "index-verify-final",
+      "exit_code": 0,
+      "output_sha256": "1228f881b37a01b52dad0ecec9e0eb691011d1ebfe782d57aa8398dcbddb7990",
+      "output": "index-verify-final.log"
+    },
+    {
+      "id": "integrate",
+      "exit_code": 0,
+      "output_sha256": "6a7787aa327c622ca2771a1e1b5b23d249cdce99327e753c85b04ba8328cf56a",
+      "output": "integrate.log"
+    },
+    {
+      "id": "lint-spec-final",
+      "exit_code": 0,
+      "output_sha256": "f84ded72588cc6117fee2516a4081cfd50daf066ebccb2a737f4c87095a8b6f4",
+      "output": "lint-spec-final.log"
+    },
+    {
+      "id": "lint-spec",
+      "exit_code": 0,
+      "output_sha256": "f84ded72588cc6117fee2516a4081cfd50daf066ebccb2a737f4c87095a8b6f4",
+      "output": "lint-spec.log"
+    },
+    {
+      "id": "mutations",
+      "exit_code": 0,
+      "output_sha256": "b40a8c3eb92b0f9631cca1274dd2ce1a91b92329d7581721dfdd642ce5b8d080",
+      "output": "mutations.log"
+    },
+    {
+      "id": "probes",
+      "exit_code": 0,
+      "output_sha256": "9ff705da59c8ee717b788c0bf3b004418b2c078c510f9a4baeab1cc1640763a7",
+      "output": "probes.log"
+    },
+    {
+      "id": "recurrence",
+      "exit_code": 0,
+      "output_sha256": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7",
+      "output": "recurrence.log"
+    },
+    {
+      "id": "review-check-preclose",
+      "exit_code": 0,
+      "output_sha256": "9d4c3568846bb9543961e4c434bc3e5f68e9a244939e8dc842e6b41887359f95",
+      "output": "review-check-preclose.log"
+    },
+    {
+      "id": "review-verify-final",
+      "exit_code": 0,
+      "output_sha256": "a89356a70a984f5ef80161b531b2a60bb0e3a020b6f71de0a88895449cde5b32",
+      "output": "review-verify-final.log"
+    },
+    {
+      "id": "review-verify-preclose",
+      "exit_code": 0,
+      "output_sha256": "49e8550ce6b1092f2a4339130cab4d8a2961520466472b8aefb7d4d801070353",
+      "output": "review-verify-preclose.log"
+    },
+    {
+      "id": "suggest-review",
+      "exit_code": 0,
+      "output_sha256": "2d278d7b6fd59e249c50b6f1dcb7476a6ac522f6e62c1127430e5ca960691d83",
+      "output": "suggest-review.log"
+    },
+    {
+      "id": "tech-debt",
+      "exit_code": 0,
+      "output_sha256": "1992b17943022568210e07e69df74864dd68992c04cf760180fb73a45eff37bf",
+      "output": "tech-debt.log"
+    },
+    {
+      "id": "validate",
+      "exit_code": 0,
+      "output_sha256": "60be781857ec5aa95d47fe27f65ed0d55cb783b29381b13cc33a4653cbf728a8",
+      "output": "validate.log"
+    },
+    {
+      "id": "validate-module",
+      "exit_code": 0,
+      "output_sha256": "f90834109d95da35317d677c76a9e47db6a5faa49f75ee3f9d3a86f666b7ac79",
+      "output": "validate-module.log"
+    },
+    {
+      "id": "surface-check",
+      "exit_code": 0,
+      "output_sha256": "9048325d8a828d6b715a77d863c78a77fcdf8ae3482dfe049d118aa6a057430a",
+      "output": "surface-check.log"
+    },
+    {
+      "id": "surface-main-baseline",
+      "exit_code": 1,
+      "output_sha256": "ce7a069902b0edc21d297c3b49f0d907e8204cdd334c5e8b74f46b87e25a016e",
+      "output": "surface-main-baseline.log"
+    },
+    {
+      "id": "surface-before",
+      "exit_code": 1,
+      "output_sha256": "f6f381eeae2438cee5b146d684747474853c394d4575ebd7c08f4073a35d92f4",
+      "output": "surface-before.log"
+    },
+    {
+      "id": "artifact-check",
+      "exit_code": 0,
+      "output_sha256": "b959a998978412710b87207a1e8da4ba169be439b3c7be3a6a340868d5516987",
+      "output": "artifact-check.log"
+    },
+    {
+      "id": "journey",
+      "exit_code": 0,
+      "output_sha256": "6d24d3a882d7244082e532892f74bb324982cacac310f89e737beec330f090ca",
+      "output": "journey.log"
+    },
+    {
+      "id": "custom-probes-final",
+      "exit_code": 0,
+      "output_sha256": "9b886fccd52559eb2a2d87250fffa19740bb3c7828eb1f18cbc763d733c05891",
+      "output": "custom-probes-final.log"
+    },
+    {
+      "id": "extra-counterfactual",
+      "exit_code": 1,
+      "output_sha256": "688087dfca1f41befa15e8cc4772cbc32f6c2a9d1b13155bfe2ff050d3f031d9",
+      "output": "extra-counterfactual.log"
+    },
+    {
+      "id": "followups",
+      "exit_code": 0,
+      "output_sha256": "6195ca16ab3a76e56dc0f8d17af9ca250d1dda7d8a32cd6c2b5d4df206ca838d",
+      "output": "followups.log"
+    },
+    {
+      "id": "mutations-detailed",
+      "exit_code": 0,
+      "output_sha256": "b40a8c3eb92b0f9631cca1274dd2ce1a91b92329d7581721dfdd642ce5b8d080",
+      "output": "mutations-detailed.log"
+    },
+    {
+      "id": "attest-preview",
+      "exit_code": 0,
+      "output_sha256": "d6550b37904adaf649519ea3a84f7c094896d67e04dc5b0f5120fae33b507cd1",
+      "output": "attest-preview.json"
+    }
+  ],
+  "findings": [],
+  "native_flow": {
+    "bundle_id": "rvb-68d1469c0679927b",
+    "attestation_id": "rva-ce3732f9185f01c8",
+    "bundle_digest": "sha256:68d1469c0679927b040adb743d039e86ad0e8297236194419694193e543d4b57",
+    "plan_digest": "sha256:9668b168b34560575933d73cb6256845c755ff9a0b14591f47da13911eb01eb1",
+    "bundle_state": "sealed",
+    "review_verify_preclose": {
+      "exit_code": 0,
+      "state": "ready-to-close",
+      "fresh": true,
+      "approved": true
+    },
+    "review_check": 0,
+    "closeout_check": 0,
+    "close": 0,
+    "lint_spec_strict": 0,
+    "check_strict": 0,
+    "review_verify_final": {
+      "exit_code": 0,
+      "state": "closed",
+      "fresh": true,
+      "approved": true
+    },
+    "completion_tools": "deferred in attestation; review-check executed after apply, closeout-check confirmed terminal after guarded close",
+    "commit_pushed": "carrier commit, hash reported in final response to avoid self-reference"
+  },
+  "spec_status": "done",
+  "spec_sha256": "72d68a3625684254900c17af666bb9ffe267e73f3772f352e4fa048f6cea9ecc",
+  "report": ".pose/reports/2026-10-17-pose-b15-index-generation-review.md",
+  "report_sha256": "f99a685fe9fc38bbf5ef6f8dae98210d059a4c6c08cf88430315c0c572fbb44f"
+}

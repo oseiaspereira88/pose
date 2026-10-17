@@ -1,0 +1,266 @@
+{
+  "spec": "pose-index-generation-integrity",
+  "driver": ".pose/results/b15-front09-probes.py",
+  "note": "Synthetic fixtures; the host name is redacted. Before: engine at 18e4342b (merge of PR #192). After: engine at 8ff3ad3f. P01 replaces packages.json by a directory after a first good index and a change that moves several outputs, five times. Before: the outputs are written in map order and some of them move while the blocked one fails, so the repository holds a mixture that every reader accepts, and nothing records which set is in force (--verify does not exist). After: the descriptor does not move in any run (the previous generation stays in force), pose index --verify fails and names the cause, and the legacy names that were published before the failure are reported as diverged, not read. P02 edits an index by hand: after, verify names the file and a new pose index repairs it. P03 is the control with nothing in the way: unchanged outcome plus a current generation.",
+  "before": {
+    "binary_sha256": "9c4742d8590e2d23d3c1626c5e5391e78beb5c2d4ea24d0a00d5e9d4caa9cd2a",
+    "probes": {
+      "P01_blocked_output": {
+        "runs": [
+          {
+            "first_index_exit": 0,
+            "blocked_exit": 1,
+            "blocked_stderr": "Error: pose index: writing packages.json: rename <tmp>/blocked-0/.pose/indexes/.packages.json.2397493643.tmp <tmp>/blocked-0/.pose/indexes/packages.json: file exists\n",
+            "outputs_changed_besides_the_blocked": [
+              "delivery-integrity.json",
+              "repo-map.json",
+              "spec-graph.json"
+            ],
+            "descriptor_unchanged": false,
+            "verify_exit": 2,
+            "verify_stderr": "Usage: pose index [--json] [--json-out <path>] [--quiet] [--color auto|always|never]\n"
+          },
+          {
+            "first_index_exit": 0,
+            "blocked_exit": 1,
+            "blocked_stderr": "Error: pose index: writing packages.json: rename <tmp>/blocked-1/.pose/indexes/.packages.json.872930479.tmp <tmp>/blocked-1/.pose/indexes/packages.json: file exists\n",
+            "outputs_changed_besides_the_blocked": [
+              "repo-map.json"
+            ],
+            "descriptor_unchanged": false,
+            "verify_exit": 2,
+            "verify_stderr": "Usage: pose index [--json] [--json-out <path>] [--quiet] [--color auto|always|never]\n"
+          },
+          {
+            "first_index_exit": 0,
+            "blocked_exit": 1,
+            "blocked_stderr": "Error: pose index: writing packages.json: rename <tmp>/blocked-2/.pose/indexes/.packages.json.1036656604.tmp <tmp>/blocked-2/.pose/indexes/packages.json: file exists\n",
+            "outputs_changed_besides_the_blocked": [
+              "delivery-integrity.json",
+              "repo-map.json"
+            ],
+            "descriptor_unchanged": false,
+            "verify_exit": 2,
+            "verify_stderr": "Usage: pose index [--json] [--json-out <path>] [--quiet] [--color auto|always|never]\n"
+          },
+          {
+            "first_index_exit": 0,
+            "blocked_exit": 1,
+            "blocked_stderr": "Error: pose index: writing packages.json: rename <tmp>/blocked-3/.pose/indexes/.packages.json.494348626.tmp <tmp>/blocked-3/.pose/indexes/packages.json: file exists\n",
+            "outputs_changed_besides_the_blocked": [
+              "repo-map.json"
+            ],
+            "descriptor_unchanged": false,
+            "verify_exit": 2,
+            "verify_stderr": "Usage: pose index [--json] [--json-out <path>] [--quiet] [--color auto|always|never]\n"
+          },
+          {
+            "first_index_exit": 0,
+            "blocked_exit": 1,
+            "blocked_stderr": "Error: pose index: writing packages.json: rename <tmp>/blocked-4/.pose/indexes/.packages.json.114114754.tmp <tmp>/blocked-4/.pose/indexes/packages.json: file exists\n",
+            "outputs_changed_besides_the_blocked": [
+              "delivery-integrity.json",
+              "repo-map.json"
+            ],
+            "descriptor_unchanged": false,
+            "verify_exit": 2,
+            "verify_stderr": "Usage: pose index [--json] [--json-out <path>] [--quiet] [--color auto|always|never]\n"
+          }
+        ],
+        "runs_with_some_but_not_all_outputs_updated": 5,
+        "runs_with_the_previous_generation_still_in_force": 0
+      },
+      "P02_hand_edited_index": {
+        "verify": {
+          "args": [
+            "index",
+            "--verify"
+          ],
+          "exit_code": 2,
+          "stdout": "",
+          "stderr": "Usage: pose index [--json] [--json-out <path>] [--quiet] [--color auto|always|never]\n"
+        },
+        "reindex": {
+          "args": [
+            "index"
+          ],
+          "exit_code": 0,
+          "stdout": "POSE indexes updated at <tmp>/hand-edited/.pose/indexes\n",
+          "stderr": ""
+        },
+        "verify_after": {
+          "args": [
+            "index",
+            "--verify"
+          ],
+          "exit_code": 2,
+          "stdout": "",
+          "stderr": "Usage: pose index [--json] [--json-out <path>] [--quiet] [--color auto|always|never]\n"
+        }
+      },
+      "P03_control_index": {
+        "index": {
+          "args": [
+            "index"
+          ],
+          "exit_code": 0,
+          "stdout": "POSE indexes updated at <tmp>/free/.pose/indexes\n",
+          "stderr": ""
+        },
+        "again": {
+          "args": [
+            "index"
+          ],
+          "exit_code": 0,
+          "stdout": "POSE indexes updated at <tmp>/free/.pose/indexes\n",
+          "stderr": ""
+        },
+        "verify": {
+          "args": [
+            "index",
+            "--verify"
+          ],
+          "exit_code": 2,
+          "stdout": "",
+          "stderr": "Usage: pose index [--json] [--json-out <path>] [--quiet] [--color auto|always|never]\n"
+        },
+        "descriptor_present": false
+      }
+    }
+  },
+  "after": {
+    "binary_sha256": "b202e3b95e8b7be0f882c22d58312266d72de800b689fb951400c7c24077f77b",
+    "probes": {
+      "P01_blocked_output": {
+        "runs": [
+          {
+            "first_index_exit": 0,
+            "blocked_exit": 1,
+            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-0/.pose/indexes/.packages.json.1387383935.tmp <tmp>/blocked-0/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
+            "outputs_changed_besides_the_blocked": [
+              "repo-map.json"
+            ],
+            "descriptor_unchanged": true,
+            "verify_exit": 1,
+            "verify_stderr": "Error: pose index: generation gen-141528273b4cfa37 is whole, but repo-map.json, packages.json under .pose/indexes differ from it (edited by hand, or a publication is running); run `pose index`\n"
+          },
+          {
+            "first_index_exit": 0,
+            "blocked_exit": 1,
+            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-1/.pose/indexes/.packages.json.370696157.tmp <tmp>/blocked-1/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
+            "outputs_changed_besides_the_blocked": [
+              "repo-map.json"
+            ],
+            "descriptor_unchanged": true,
+            "verify_exit": 1,
+            "verify_stderr": "Error: pose index: generation gen-141528273b4cfa37 is whole, but repo-map.json, packages.json under .pose/indexes differ from it (edited by hand, or a publication is running); run `pose index`\n"
+          },
+          {
+            "first_index_exit": 0,
+            "blocked_exit": 1,
+            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-2/.pose/indexes/.packages.json.568344552.tmp <tmp>/blocked-2/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
+            "outputs_changed_besides_the_blocked": [
+              "repo-map.json"
+            ],
+            "descriptor_unchanged": true,
+            "verify_exit": 1,
+            "verify_stderr": "Error: pose index: generation gen-141528273b4cfa37 is whole, but repo-map.json, packages.json under .pose/indexes differ from it (edited by hand, or a publication is running); run `pose index`\n"
+          },
+          {
+            "first_index_exit": 0,
+            "blocked_exit": 1,
+            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-3/.pose/indexes/.packages.json.3685258579.tmp <tmp>/blocked-3/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
+            "outputs_changed_besides_the_blocked": [
+              "repo-map.json"
+            ],
+            "descriptor_unchanged": true,
+            "verify_exit": 1,
+            "verify_stderr": "Error: pose index: generation gen-141528273b4cfa37 is whole, but repo-map.json, packages.json under .pose/indexes differ from it (edited by hand, or a publication is running); run `pose index`\n"
+          },
+          {
+            "first_index_exit": 0,
+            "blocked_exit": 1,
+            "blocked_stderr": "Error: pose index: publishing the index generation: pose: publishing packages.json: rename <tmp>/blocked-4/.pose/indexes/.packages.json.3660422234.tmp <tmp>/blocked-4/.pose/indexes/packages.json: file exists (the previous generation stays in force; run `pose index` again)\n",
+            "outputs_changed_besides_the_blocked": [
+              "repo-map.json"
+            ],
+            "descriptor_unchanged": true,
+            "verify_exit": 1,
+            "verify_stderr": "Error: pose index: generation gen-141528273b4cfa37 is whole, but repo-map.json, packages.json under .pose/indexes differ from it (edited by hand, or a publication is running); run `pose index`\n"
+          }
+        ],
+        "runs_with_some_but_not_all_outputs_updated": 5,
+        "runs_with_the_previous_generation_still_in_force": 5
+      },
+      "P02_hand_edited_index": {
+        "verify": {
+          "args": [
+            "index",
+            "--verify"
+          ],
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "Error: pose index: generation gen-141528273b4cfa37 is whole, but repo-map.json under .pose/indexes differ from it (edited by hand, or a publication is running); run `pose index`\n"
+        },
+        "reindex": {
+          "args": [
+            "index"
+          ],
+          "exit_code": 0,
+          "stdout": "POSE indexes updated at <tmp>/hand-edited/.pose/indexes\n",
+          "stderr": ""
+        },
+        "verify_after": {
+          "args": [
+            "index",
+            "--verify"
+          ],
+          "exit_code": 0,
+          "stdout": "index generation gen-141528273b4cfa37 is current\n",
+          "stderr": ""
+        }
+      },
+      "P03_control_index": {
+        "index": {
+          "args": [
+            "index"
+          ],
+          "exit_code": 0,
+          "stdout": "POSE indexes updated at <tmp>/free/.pose/indexes\n",
+          "stderr": ""
+        },
+        "again": {
+          "args": [
+            "index"
+          ],
+          "exit_code": 0,
+          "stdout": "POSE indexes updated at <tmp>/free/.pose/indexes\n",
+          "stderr": ""
+        },
+        "verify": {
+          "args": [
+            "index",
+            "--verify"
+          ],
+          "exit_code": 0,
+          "stdout": "index generation gen-141528273b4cfa37 is current\n",
+          "stderr": ""
+        },
+        "descriptor_present": true
+      }
+    }
+  },
+  "control_unchanged": true,
+  "summary": {
+    "before_runs_with_some_but_not_all_outputs_updated": 5,
+    "after_runs_with_the_previous_generation_still_in_force": 5,
+    "after_runs": 5,
+    "after_verify_exit_codes": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  }
+}

@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -47,7 +48,7 @@ func TestABMProgressiveReviewInstallAndCLIPlan(t *testing.T) {
 		t.Fatal(err)
 	}
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", string(raw))
-	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", `{"packages":[{"name":"api","path":"api","language":"go","criticality":"critical","metadataStatus":{"source":"declared"}}]}`)
+	writeIndexFixture(t, root, "repo-map.json", `{"packages":[{"name":"api","path":"api","language":"go","criticality":"critical","metadataStatus":{"source":"declared"}}]}`)
 	writeCloseoutCLIFile(t, root, ".pose/specs/progressive.md", "---\nslug: progressive\nstatus: in-progress\ncreated_at: 2026-09-19\ncomponents: api\ndelivers: governance:authority\n---\n# Spec\n\n### Delivery targets\n- governance:authority module:api profile:backend-go entrypoint:api/AGENTS.md\n")
 	out.Reset()
 	errOut.Reset()
@@ -117,11 +118,11 @@ func TestABMProgressiveReviewCLIShowsBandAndDeclaredForecast(t *testing.T) {
 		t.Fatal(err)
 	}
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", string(raw))
-	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json",
+	writeIndexFixture(t, root, "repo-map.json",
 		`{"packages":[{"name":"api","path":"api","language":"go","criticality":"medium","metadataStatus":{"source":"declared"}},`+
 			`{"name":"web","path":"web","language":"go","criticality":"critical","metadataStatus":{"source":"declared"}}]}`)
 	writeCloseoutCLIFile(t, root, ".pose/specs/progressive.md", "---\nslug: progressive\nstatus: in-progress\ncreated_at: 2026-09-19\ncomponents: api\ndelivers: contract:api\n---\n# Spec\n\n### Delivery targets\n- contract:api module:api profile:backend-go entrypoint:api/server.go\n")
-	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", `{"reverse":{"web/handler.go":["progressive"]}}`)
+	writeIndexFixture(t, root, "delivery-integrity.json", `{"reverse":{"web/handler.go":["progressive"]}}`)
 
 	out.Reset()
 	errOut.Reset()
@@ -153,5 +154,21 @@ func TestABMProgressiveReviewCLIShowsBandAndDeclaredForecast(t *testing.T) {
 		if !strings.Contains(explain, want) {
 			t.Fatalf("explain output hid %q:\n%s", want, explain)
 		}
+	}
+}
+
+// writeIndexFixture replaces one index the way the engine does once the indexes
+// are published as a generation: through a new generation, so the descriptor still
+// describes the set. A hand-written file next to a descriptor is not read while the
+// generation's copy exists, so the fixture would silently not apply.
+func writeIndexFixture(t *testing.T, root, name, content string) {
+	t.Helper()
+	_, err := posemodel.Store{Root: root}.ReplaceIndex(name, []byte(content))
+	if errors.Is(err, posemodel.ErrIndexGenerationLegacy) {
+		writeCloseoutCLIFile(t, root, ".pose/indexes/"+name, content)
+		return
+	}
+	if err != nil {
+		t.Fatalf("replacing %s: %v", name, err)
 	}
 }

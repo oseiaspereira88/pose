@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-ce3732f9185f01c8",
+  "bundle_id": "rvb-68d1469c0679927b",
+  "bundle_digest": "sha256:68d1469c0679927b040adb743d039e86ad0e8297236194419694193e543d4b57",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Observed: complete digest-bound generations, pinned readers, exact predecessor CAS, nonwaiting lock and explicit partial durability outcomes. Mutation and fault evidence qualify process failures, not arbitrary power loss. Git and global read views remain B34/B35; retention is count and age, not a reader registry."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "The generation lock covers predecessor read through retention for publish and replacement, including legacy fallback. It never waits or breaks by age, and recovers only a provably dead owner under directory flock. The replacement CAS uses the exact view bytes even against an unlocked writer; pins are reused across bundle, plan, closeout and start. Race tests and independent scheduled probes passed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "CLI and MCP readers share ReadIndex; direct refresh writers share ReplaceIndexOrLegacy. Descriptor identity covers all seven digests and input bindings. Missing, incompatible and mismatched data are unavailable, while stale bindings and divergent legacy bytes remain distinct. No MCP protocol schema changed."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Strict descriptor parsing requires EOF and known fields. Missing and corrupt sets fail with typed unavailable errors. Busy and conflict name the refusal; committed but unsynced receipts identify the effective generation. Retention errors are warnings after commit, including the delivery refresh path."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "All repository functional consumers of the seven indexes were inventoried, including CLI, MCP, check, state, report, release and review. Generation APIs cover them. Strict global and explicit module validation, install and upgrade journey, integration assessment and external consumer boundary inspection completed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Read-only index verify distinguishes current, legacy, unavailable, stale bindings and divergent legacy names. Publication refusals retain causes, and the refresh reports both cleanup warnings and a committed generation whose durability is unconfirmed. Independent injected sync failure verified the actual message and descriptor."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Classified minor: immutable bytes shadow manual generated-index edits and verify names them; a clone without generations validates legacy files. Legacy unversioned fixtures still work until publication starts. Install and update seed placeholders then run index, never sync descriptor, generation copies or hidden runtime files. Upgrade from 6.2.0 passed strict check. External Harne8 code is unavailable and not certified."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "F01-F16 are resolved in their causal paths. All 54 versioned mutants were independently killed, P01-P03 matched, and six independent probes covered transition, exact predecessor, pinned bundle, post-read legacy transition, committed refresh and competing first publication. Full tests, vet, race and both cross builds passed."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-c0de113db6e4dc0d",
+      "rationale": "D1 replaces per-file completion with the descriptor commit of verified immutable copies, coordinating writers through the generation lock and pinning readers at operation boundaries. This removes CONS-05 mixed-generation causes while preserving explicit legacy migration. The material ADR delta implements D1; the registered integration matrix qualifies it.",
+      "mappings": [
+        {
+          "delta": "SD-7d3d8212",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR records D1 and the validation matrix registers the executable generation integration producer that qualifies it."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Reviewed ADR, changelog, requirement trace, POSE.md EN and pt-BR and both distribution mirrors. Mirrors agree on the new contract. Manual edits, clone fallback, locking, pending first publication, pinned operations and durability limits are described; instance-only Contributor Mode explains the root EN difference."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Interrupted publication retains the previous descriptor or pending-unavailable at first publication. Same intention retries converge, dead-owner recovery is conservative, and cleanup is restricted to direct gen-hex directories with current generation and grace protection. Linked generations bases are refused. No daemon or repair that guesses authority was introduced."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "R1 descriptor identity and bindings; R2 staging, phases and CAS; R3 generation pins and refusal of legacy transition; R4 phase retries and effective commit receipts; R5 migration, compaction and install upgrade; R6 shared CLI MCP readers and verify; R7 safe bounded retention and lock; R8 domain CLI MCP race corpus, 54 mutations and probes. Each has executable producers, not lint-only satisfaction."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Reviewed 18e4342b through ff50b4eb and all correction deltas, with artifact-check strict passing the reconciled production paths. No production, tests, policy, capabilities or adoption changed by this review. The agent:independent- prefix is a declaration required by the engine until pose-delegated-review-run-provenance replaces it. This execution is Codex/OpenAI, a different vendor from implementer Claude/Anthropic. Identity declared; pose-dist attestations are unsigned."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Retention rejects linked base or child directories and confines removals to direct gen-16hex entries. Descriptor digests, exact predecessor and strict JSON prevent accidental substitution. Owner proof refuses unknown and live owners without age takeover. No new remote input or secrets are introduced; arbitrary hostile filesystem writers remain outside this cooperative contract."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "An immutable derived set plus last authoritative descriptor, one existing-style owner lock and operation pins solve the seven-file publication defect without daemon or global Git snapshot. Direct external legacy readers retain their declared visibility limit. A pin owns copied bytes, so retention need not invent a cross-process reader registry."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict: all declared production paths reconcile; global orphan warnings are outside this spec."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-c0de113db6e4dc0d",
+      "rationale": "Executed bounded structural assessment; the material ADR delta is mapped to D1."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed if-stale for pose-mcp. Discovery byproducts archived outside the repository and restored before sealing."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Executed provider consumer assessment and directly exercised CLI and MCP generation readers."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed marker assessment with no uncovered TODO FIXME panic or stub debt."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion requires the approving attestation; execution follows apply and precedes close."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion requires the approving attestation; execution follows apply and precedes close."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed component-specific workflow and rules discovery and applied the applicable review rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Executed strict for this spec after canonical provenance regeneration; composed capability integration passes. Unrelated global errors reproduced at main baseline are outside this scoped tool."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Executed actual strict global and explicit pose-mcp validation; canonical global results regenerated before sealing."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Executed actual strict global and explicit pose-mcp validation; canonical global results regenerated before sealing."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/index-generation-integrity-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-gpt-6.1-sol-review",
+    "concluded_by": "agent:independent-gpt-6.1-sol-review",
+    "applied_by": "agent:independent-gpt-6.1-sol-review"
+  },
+  "attested_at": "2026-10-17T18:04:36Z",
+  "path": ".pose/review-attestations/rva-ce3732f9185f01c8.json"
+}

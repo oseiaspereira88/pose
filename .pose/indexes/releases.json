@@ -153,6 +153,14 @@
       "digest": "sha256:aad9235c2b97213efa318b5ec8196b1b59a9add20d55c750e84c4a6fed66882b"
     },
     {
+      "spec": "pose-index-generation-integrity",
+      "category": "changed",
+      "breaking": false,
+      "body": "`pose index` now publishes its seven files as one generation. The files are\nwritten under `.pose/indexes/generations/\u003cid\u003e/`, the existing names are\npublished from the same bytes, and a descriptor,\n`.pose/indexes/generation.json`, naming each file's SHA-256 and the inputs\nthe set was computed from is published last: that is the commit. A write that\nfails in the middle (an output that cannot be staged, a crash) leaves the\nprevious generation in force and a retry converges on the same identity; before,\nthe files written so far were new and the rest old, and every reader accepted\nthe mixture.\n\nReaders check the set against the descriptor. A delivery graph, a review plan's\ncomponent map, the obligation snapshot's index digest and `pose suggest` read a\npublished set; a file that is missing, replaced, from another generation or\nunder a descriptor that cannot be read makes the set `unavailable`, with the\nreason, in the CLI and over MCP, never an empty or mixed result. A repository\nthat has not run `pose index` since this release keeps working and is reported\n`legacy-unversioned`. A generated index edited by hand has no effect while the\ngeneration's copy exists, and makes the set unavailable in a clone without it;\n`pose index --verify` names the file.\n\nPublishers take a generation lock in the indexes directory: a second `pose index`\nis refused with `index-generation-busy` and writes nothing, a lock whose holder is\nproven dead is recovered, and the first publication of a repository is marked pending\nso one that did not commit reads as unavailable and not as a mixture. A review plan,\na review bundle, the closeout check and the start obligations read one generation\nfor everything they take from the indexes. `pose index --verify` reads without writing and exits 1 unless the set is\ncurrent, the index files are those of the generation, and the specs, roadmaps,\npolicy, module metadata and validation matrix it was computed from still hold. `pose artifact-check` and `pose review bundle`\nrefresh `delivery-integrity.json` inside a new generation instead of editing the\nfile alone. Old generations are kept up to three and never removed within ten\nminutes; a retention failure is a warning. `generation.json` and `generations/`\nare not synced by `pose update`.",
+      "path": "pose-index-generation-integrity.md",
+      "digest": "sha256:d96838729f6eda25bd41d74934b0fbf0a9a66efeec9253da6efc8d32d7a3a0ee"
+    },
+    {
       "spec": "pose-journal-checkpoint-and-lock-recovery",
       "category": "changed",
       "breaking": false,
