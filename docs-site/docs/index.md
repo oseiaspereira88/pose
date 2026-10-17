@@ -38,7 +38,7 @@ those changes are ready, valid, reachable and complete.
 
 - **CLI:** scaffold, assess, validate, report, close and maintain from one native
   Go binary, offline by design.
-- **MCP:** 47 POSE governance tools plus 3 optional Conductor run reporters.
+- **MCP:** 58 POSE governance tools plus 3 optional Conductor run reporters.
   The catalog is versioned and frozen against a golden fixture; project scope,
   policy and safe validation orchestration are explicit.
 - **CI:** GitHub Action, pre-commit hooks and the same validation matrix promote
