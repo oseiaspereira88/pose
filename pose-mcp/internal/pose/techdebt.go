@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -193,7 +194,20 @@ func activeAssessmentStatus(status string) bool {
 }
 
 func (s Store) debtCoverageDocuments() []debtCoverageDocument {
+	documents, _ := s.debtCoverageDocumentsRead()
+	return documents
+}
+
+// debtCoverageDocumentsRead is debtCoverageDocuments and the backlog documents it could
+// not read. A marker is reported "uncovered" when no document names it; a document that
+// could not be read may have named it, so the classification is only as complete as this
+// read (spec pose-source-coverage-integrity).
+func (s Store) debtCoverageDocumentsRead() ([]debtCoverageDocument, []SourceLoss) {
 	var documents []debtCoverageDocument
+	var losses []SourceLoss
+	lose := func(artifact, kind, detail string) {
+		losses = append(losses, SourceLoss{Producer: "techdebt-reconciliation", Artifact: artifact, Kind: kind, Detail: detail})
+	}
 	if specs, err := s.ListSpecs("", ""); err == nil {
 		for _, item := range specs {
 			if !activeAssessmentStatus(item.Status) {
@@ -204,8 +218,16 @@ func (s Store) debtCoverageDocuments() []debtCoverageDocument {
 				documents = append(documents, debtCoverageDocument{
 					Coverage: "covered_by_spec", Ref: "spec:" + item.Slug, Text: strings.ToLower(spec.Body),
 				})
+			} else {
+				lose("spec:"+item.Slug, LossReadError, err.Error())
 			}
 		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		lose(".pose/specs", LossReadError, err.Error())
+	}
+	// Specs the listing cannot see at all (a file it could not read) are still backlog.
+	for _, loss := range ReadSpecFollowups(s.Root).Coverage.Losses {
+		lose(loss.Artifact, loss.Kind, loss.Detail)
 	}
 	if roadmaps, err := s.ListRoadmaps(); err == nil {
 		for _, item := range roadmaps {
@@ -217,8 +239,12 @@ func (s Store) debtCoverageDocuments() []debtCoverageDocument {
 				documents = append(documents, debtCoverageDocument{
 					Coverage: "covered_by_roadmap", Ref: "roadmap:" + item.Slug, Text: strings.ToLower(roadmap.Body),
 				})
+			} else {
+				lose("roadmap:"+item.Slug, LossReadError, err.Error())
 			}
 		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		lose(".pose/roadmaps", LossReadError, err.Error())
 	}
 	if state, err := s.ProjectState(context.Background(), "Follow-ups"); err == nil {
 		for _, section := range state.Sections {
@@ -230,7 +256,7 @@ func (s Store) debtCoverageDocuments() []debtCoverageDocument {
 		}
 	}
 	sort.Slice(documents, func(i, j int) bool { return documents[i].Ref < documents[j].Ref })
-	return documents
+	return documents, losses
 }
 
 // documentCoversDebt reports whether a backlog document actually addresses this
@@ -311,7 +337,11 @@ func (s Store) AnalyzeTechDebt() (*TechDebtReportState, error) {
 		items = append(items, scanAssessmentFileForDebt(file)...)
 	}
 	coverage.Normalize()
-	documents := s.debtCoverageDocuments()
+	documents, documentLosses := s.debtCoverageDocumentsRead()
+	for _, loss := range documentLosses {
+		coverage.Add(loss)
+	}
+	coverage.Normalize()
 	componentCounts := make(map[string]int)
 	componentFiles := make(map[string]map[string]bool)
 	for _, item := range items {

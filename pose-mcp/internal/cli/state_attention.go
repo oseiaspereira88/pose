@@ -72,6 +72,12 @@ func cmdStateAttention(root string, args []string, stdout, stderr io.Writer) int
 			limits = append(limits, "snapshot=incoherent")
 		}
 		out.Field("attention.coverage", "INCOMPLETE — "+strings.Join(limits, ", ")+"; an empty group below does not mean nothing is owed there")
+		// Where to look: what each producer could not read, by name.
+		for _, c := range attention.Coverage {
+			if c.State != pose.CoverageStateCurrent && c.Detail != "" {
+				out.Field("attention.coverage."+c.Producer, c.State+" — "+c.Detail)
+			}
+		}
 	} else {
 		out.Field("attention.coverage", "complete")
 	}

@@ -28,6 +28,9 @@ type followup struct {
 	Review      string `json:"review,omitempty"`
 	By          string `json:"by,omitempty"`
 	MetaErr     string `json:"meta_error,omitempty"`
+	// DispositionErr: the bullet carries a [disposition] this engine does not know. It is
+	// read as unresolved (it is not a resolution) and says why.
+	DispositionErr string `json:"disposition_error,omitempty"`
 }
 
 type nearDuplicateMember struct {
@@ -118,6 +121,12 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	if candidatesOnly {
+		if failOverdue {
+			// The gate belongs to the backlog; ignoring it here would let a caller believe
+			// the candidates were checked against it.
+			render(stdout, stderr).Failure(cliText(locale, "Error: --fail-overdue applies to the backlog, not to --candidates.", "Erro: --fail-overdue vale para o backlog, não para --candidates."))
+			return 2
+		}
 		return cmdFollowupCandidates(root, jsonOut, threshold, stdout, stderr)
 	}
 	allEntries, coverage := collectFollowupsRead(root)
@@ -245,7 +254,7 @@ func collectFollowups(root string) []followup {
 // followupUnresolved is the one definition of "still owes a disposition" the backlog,
 // the candidates, the project state and the obligation projection share.
 func followupUnresolved(f followup) bool {
-	return f.RawDisposition == "" || f.RawDisposition == "open"
+	return posemodel.FollowupUnresolved(f.RawDisposition)
 }
 
 // collectFollowupsRead is collectFollowups and what the read of the specs could not see.
@@ -259,7 +268,7 @@ func collectFollowupsRead(root string) ([]followup, posemodel.SourceCoverage) {
 		entries = append(entries, followup{
 			Spec: item.Spec, SpecStatus: item.SpecStatus,
 			RawDisposition: item.RawDisposition, Target: item.Target, Text: item.Text,
-			Owner: item.Owner, Criticality: item.Criticality, Review: item.Review, By: item.By, MetaErr: item.MetaErr,
+			Owner: item.Owner, Criticality: item.Criticality, Review: item.Review, By: item.By, MetaErr: item.MetaErr, DispositionErr: item.DispositionErr,
 		})
 	}
 	entries = append(entries, collectCapabilityStaleFollowups(root)...)

@@ -25,6 +25,9 @@ type SpecFollowup struct {
 	Review         string
 	By             string
 	MetaErr        string
+	// DispositionErr is set when the bullet carries a [disposition] this engine does not
+	// know: it is read as unresolved, with this diagnostic.
+	DispositionErr string
 }
 
 var (
@@ -85,58 +88,111 @@ type SpecFollowupRead struct {
 	Coverage SourceCoverage
 }
 
-// Unresolved reports a follow-up that still owes a disposition: an explicit [open], or
-// a bullet with no disposition at all (the legacy format). One definition, so the
-// backlog, the candidates and the obligation projection count the same set.
-func (f SpecFollowup) Unresolved() bool {
-	return f.RawDisposition == "" || f.RawDisposition == "open"
+// KnownFollowupDispositions are the dispositions a follow-up can carry. One that is not
+// here is not a resolution: it is a typo, and the follow-up still owes one.
+var KnownFollowupDispositions = map[string]bool{"open": true, "spawned": true, "covered": true, "duplicate": true, "done": true, "wont-do": true}
+
+// FollowupUnresolved is the one definition of "still owes a disposition": none at all (the
+// legacy format), an explicit open, or one this engine does not know.
+func FollowupUnresolved(disposition string) bool {
+	return disposition == "" || disposition == "open" || !KnownFollowupDispositions[disposition]
 }
 
-// ParseSpecFollowups reads every spec's Final Report follow-ups, flat and
-// folder layouts alike, in path order. It drops what it cannot read; callers that
+// Unresolved reports a follow-up that still owes a disposition. One definition, so the
+// backlog, the candidates and the obligation projection count the same set.
+func (f SpecFollowup) Unresolved() bool { return FollowupUnresolved(f.RawDisposition) }
+
+// ParseSpecFollowups reads every spec's Final Report follow-ups, flat, folder and
+// split layouts alike, in path order. It drops what it cannot read; callers that
 // must not mistake that for "nothing is owed" use ReadSpecFollowups.
 func ParseSpecFollowups(root string) []SpecFollowup {
 	return ReadSpecFollowups(root).Items
 }
 
-// ReadSpecFollowups reads every spec's Final Report follow-ups, flat and folder
-// layouts alike, in path order, and reports each spec it could not read, attributed to
-// the spec its path names.
+// ReadSpecFollowups reads every spec's Final Report follow-ups, in the flat, folder and
+// legacy split layouts the spec listing reads, in path order, and reports each spec it
+// could not read or interpret, attributed to the spec its path names.
 func ReadSpecFollowups(root string) SpecFollowupRead {
-	paths, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*", "spec.md"))
-	flatPaths, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*.md"))
-	for _, p := range flatPaths {
-		if !strings.EqualFold(filepath.Base(p), "README.md") {
-			paths = append(paths, p)
-		}
-	}
-	sort.Strings(paths)
-	entries := []SpecFollowup{}
 	coverage := SourceCoverage{Losses: []SourceLoss{}}
-	if _, err := os.ReadDir(filepath.Join(root, ".pose", "specs")); err != nil && !os.IsNotExist(err) {
-		coverage.Add(SourceLoss{Producer: "followups", Artifact: ".pose/specs", Kind: LossReadError, Detail: err.Error()})
-	}
-	for _, path := range paths {
-		raw, err := os.ReadFile(path)
+	entries := []SpecFollowup{}
+	specsDir := filepath.Join(root, ".pose", "specs")
+	rel := func(path string) string {
+		r, err := filepath.Rel(root, path)
 		if err != nil {
-			rel, relErr := filepath.Rel(root, path)
-			if relErr != nil {
-				rel = path
-			}
-			coverage.Add(SourceLoss{Producer: "followups", Artifact: filepath.ToSlash(rel), Scope: specSlugFromPath(path), AttributedBy: "path", Kind: LossReadError, Detail: err.Error()})
-			continue
+			return path
 		}
-		body := followupHTMLCommentRE.ReplaceAllString(string(raw), "")
-		fm, _ := SplitFrontmatter(string(raw))
+		return filepath.ToSlash(r)
+	}
+	lose := func(path, slug, kind, detail string) {
+		coverage.Add(SourceLoss{Producer: "followups", Artifact: rel(path), Scope: slug, AttributedBy: "path", Kind: kind, Detail: detail})
+	}
+	dirEntries, err := os.ReadDir(specsDir)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			coverage.Add(SourceLoss{Producer: "followups", Artifact: ".pose/specs", Kind: LossReadError, Detail: err.Error()})
+		}
+		coverage.Normalize()
+		return SpecFollowupRead{Items: entries, Coverage: coverage}
+	}
+	type source struct {
+		path, slug, text, status string
+		ok                       bool
+	}
+	var sources []source
+	for _, e := range dirEntries {
+		path := filepath.Join(specsDir, e.Name())
+		switch {
+		case e.IsDir() || (e.Type()&os.ModeSymlink != 0 && isDirectory(path)):
+			slug := specSlugFromPath(path + "/spec.md")
+			if _, statErr := os.Stat(filepath.Join(path, "spec.md")); statErr == nil {
+				raw, readErr := os.ReadFile(filepath.Join(path, "spec.md"))
+				if readErr != nil {
+					lose(filepath.Join(path, "spec.md"), slug, LossReadError, readErr.Error())
+					continue
+				}
+				sources = append(sources, source{path: filepath.Join(path, "spec.md"), slug: slug, text: string(raw), ok: true})
+			} else if files := splitSpecFiles(path); len(files) > 0 {
+				// The legacy split layout the spec listing reads: the Final Report lives in
+				// one of the section files, and the folder is the spec.
+				body, readErr := readSplitSpecBody(files)
+				if readErr != nil {
+					lose(path, slug, LossReadError, readErr.Error())
+					continue
+				}
+				sources = append(sources, source{path: path, slug: slug, text: body, status: splitSpecStatus(files), ok: true})
+			} else if _, listErr := os.ReadDir(path); listErr != nil {
+				// A folder this process cannot list may hold a spec: absence is not proven.
+				lose(path, slug, LossReadError, listErr.Error())
+			}
+		case strings.HasSuffix(e.Name(), ".md") && !strings.EqualFold(e.Name(), "README.md"):
+			slug := specSlugFromPath(path)
+			raw, readErr := os.ReadFile(path)
+			if readErr != nil {
+				lose(path, slug, LossReadError, readErr.Error())
+				continue
+			}
+			sources = append(sources, source{path: path, slug: slug, text: string(raw), ok: true})
+		}
+	}
+	sort.SliceStable(sources, func(i, j int) bool { return sources[i].path < sources[j].path })
+	for _, src := range sources {
+		text := src.text
+		if first, _, _ := strings.Cut(text, "\n"); strings.TrimSpace(first) == "---" && !frontmatterClosed(text) {
+			// The header never ends, so the status and the slug are unknown and the body
+			// is not where the spec says it is.
+			lose(src.path, src.slug, LossParseError, "the frontmatter is not closed")
+		}
+		body := followupHTMLCommentRE.ReplaceAllString(text, "")
+		fm, _ := SplitFrontmatter(text)
 		specSlug := strings.TrimSpace(fm["slug"])
 		if specSlug == "" {
-			if filepath.Base(path) == "spec.md" {
-				specSlug = filepath.Base(filepath.Dir(path))
-			} else {
-				specSlug = strings.TrimSuffix(filepath.Base(path), ".md")
-			}
+			specSlug = src.slug
 		}
-		status := followupFrontmatterStatus(body)
+		status := src.status
+		if status == "" {
+			status = followupFrontmatterStatus(body)
+		}
+		path := src.path
 		inFinal, inFollowups := false, false
 		ordinal := 0
 		// A follow-up may wrap across lines: everything until the next bullet,
@@ -154,10 +210,14 @@ func ReadSpecFollowups(root string) SpecFollowupRead {
 			stripped, owner, crit, review, by, metaErr := ParseFollowupMeta(text)
 			if stripped != "" {
 				ordinal++
+				dispositionErr := ""
+				if disposition != "" && !KnownFollowupDispositions[disposition] {
+					dispositionErr = "unknown disposition '" + disposition + "' (use open|spawned|covered|duplicate|done|wont-do); it is not a resolution"
+				}
 				entries = append(entries, SpecFollowup{
 					Spec: specSlug, SpecStatus: status, Path: path, Ordinal: ordinal,
 					RawDisposition: disposition, Target: target, Text: stripped,
-					Owner: owner, Criticality: crit, Review: review, By: by, MetaErr: metaErr,
+					Owner: owner, Criticality: crit, Review: review, By: by, MetaErr: metaErr, DispositionErr: dispositionErr,
 				})
 			}
 			pending = ""
@@ -195,6 +255,24 @@ func ReadSpecFollowups(root string) SpecFollowupRead {
 	}
 	coverage.Normalize()
 	return SpecFollowupRead{Items: entries, Coverage: coverage}
+}
+
+func isDirectory(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
+}
+
+// frontmatterClosed reports that a text that opens a header closes it.
+func frontmatterClosed(text string) bool {
+	_, rest, _ := strings.Cut(text, "\n")
+	for rest != "" {
+		line, tail, _ := strings.Cut(rest, "\n")
+		if strings.TrimSpace(line) == "---" {
+			return true
+		}
+		rest = tail
+	}
+	return false
 }
 
 func followupFrontmatterStatus(text string) string {

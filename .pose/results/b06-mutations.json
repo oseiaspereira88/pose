@@ -179,8 +179,153 @@
       "mutation": "Attention não projeta sem disposição",
       "tests": "TestFollowupParityAcrossCLIMCPAndAttention|TestUnresolvedFollowupsAreOneSet",
       "verdict": "killed"
+    },
+    {
+      "mutation": "aprovação retida sobre rejeição ilegível",
+      "tests": "TestAClosedScopeDoesNotRetain",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "retenção sem bloqueio no review-check",
+      "tests": "TestAClosedScopeDoesNotRetain",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "sniff ignora o caminho estrutural",
+      "tests": "TestSniffingAttributesOnlyTheStructuralPath|TestADecoyInATruncatedRecord",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "sniff aceita chave duplicada",
+      "tests": "TestSniffingAttributesOnlyTheStructuralPath",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "JSON sem cabeçalho tratado como outro bundle",
+      "tests": "TestValidJSONWithoutAHeader",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "bundle sem escopo tratado como outro escopo",
+      "tests": "TestValidJSONWithoutAHeader",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "mesmo segundo é anterior",
+      "tests": "TestAnUnreadableAttemptOfTheSameSecond",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "tentativa antiga malformada falha a leitura",
+      "tests": "TestAnOldMalformedAttemptOfTheScopeOnlyWarns",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "registro sem campos obrigatórios aceito",
+      "tests": "TestARecordWithoutItsRequiredFields",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "findings sem recorte de escopo",
+      "tests": "TestAFindingsLossInAnotherScope",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "discovery com limite de linha",
+      "tests": "TestComponentDiscoveryFindsAMarker",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "discovery verified apesar da perda",
+      "tests": "TestComponentDiscoveryFindsAMarker",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "discovery ignora arquivo ilegível",
+      "tests": "TestComponentDiscoveryFindsAMarker",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "diretório pulado sem exclusão",
+      "tests": "TestSkippedDirectoriesAndLinks",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "symlink sem exclusão",
+      "tests": "TestSkippedDirectoriesAndLinks",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "pasta de spec ilegível some",
+      "tests": "TestAnUnlistableSpecFolder",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "layout split perdido",
+      "tests": "TestTheLegacySplitLayout",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "frontmatter truncado certificado",
+      "tests": "TestATruncatedHeaderIsALoss",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "disposição desconhecida resolve",
+      "tests": "TestATruncatedHeaderIsALoss|TestAttentionCarriesTheFollowup",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "Attention sem diagnóstico de metadata",
+      "tests": "TestAttentionCarriesTheFollowup",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "Attention humano sem detalhe",
+      "tests": "TestAttentionTextNamesTheUnreadArtifact",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "candidatos ignoram --fail-overdue",
+      "tests": "TestCandidatesRefuseTheOverdueGate",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "classificação de dívida sem perda de backlog",
+      "tests": "TestTheDebtClassificationSaysWhen",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "rework sem cobertura",
+      "tests": "TestGovernanceConsumersDisclose",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "inventário sem cobertura",
+      "tests": "TestGovernanceConsumersDisclose",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "governança efetiva sem histórico incompleto",
+      "tests": "TestGovernanceConsumersDisclose",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "ledger ilegível como ausência",
+      "tests": "TestAnUnreadableLegacyLedger",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "ledger de versão desconhecida como ausência",
+      "tests": "TestAnUnreadableLegacyLedger",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "produtor vazio escapa da cobertura",
+      "tests": "TestAnInvalidElementWithoutAProducer",
+      "verdict": "killed"
     }
   ],
-  "killed": 36,
-  "total": 36
+  "killed": 65,
+  "total": 65
 }

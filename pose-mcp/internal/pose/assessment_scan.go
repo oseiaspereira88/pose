@@ -207,11 +207,16 @@ func (s Store) assessmentFilesRead() ([]assessmentFile, SourceCoverage, error) {
 		}
 		if entry.IsDir() {
 			if path != absRoot && shouldSkipAssessmentDir(entry.Name()) {
+				coverage.addExclusion("assessment-scan", "skipped-directory", "directories that hold dependencies, build output or tool state are not scanned", entry.Name())
 				return filepath.SkipDir
 			}
 			return nil
 		}
 		if entry.Type()&os.ModeSymlink != 0 {
+			if isAssessmentTextExt(strings.ToLower(filepath.Ext(entry.Name()))) {
+				rel, _ := filepath.Rel(rootReal, path)
+				coverage.addExclusion("assessment-scan", "symlink", "links are not followed, so their targets are scanned only where they live", filepath.ToSlash(rel))
+			}
 			return nil
 		}
 		ext := strings.ToLower(filepath.Ext(entry.Name()))

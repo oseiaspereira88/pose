@@ -147,6 +147,11 @@ type GovernanceReworkReport struct {
 	BundleSupersessions map[string]int `json:"bundle_supersessions_by_cause"`
 	AttestationRework   map[string]int `json:"attestation_rework_by_cause"`
 	Limitations         []string       `json:"limitations"`
+	// Complete is false when sealed bundles or attestations could not be read: the
+	// counts above are what was read, not the whole history (spec
+	// pose-source-coverage-integrity).
+	Complete bool           `json:"complete"`
+	Coverage SourceCoverage `json:"coverage"`
 }
 
 // GovernanceRework reads sealed bundles and their attestations.
@@ -156,10 +161,11 @@ func (s Store) GovernanceRework() (GovernanceReworkReport, error) {
 			"many review operations are not a sign of bad governance; a superseded bundle often means a gate found something",
 			"an earlier attestation is checked against today's policy; a cause the records do not show stays unknown",
 		}}
-	bundles, err := s.ListReviewBundles("")
+	bundlesRead, err := s.ReadReviewBundles("")
 	if err != nil {
 		return report, err
 	}
+	bundles := bundlesRead.Bundles
 	byScope := map[string][]ReviewBundle{}
 	for _, b := range bundles {
 		if b.State != "sealed" {
@@ -169,9 +175,17 @@ func (s Store) GovernanceRework() (GovernanceReworkReport, error) {
 	}
 	// One read of every attestation, grouped by bundle: listing per bundle
 	// rereads the whole directory each time.
-	all, err := s.ListReviewAttestations("")
+	attestationsRead, err := s.ReadReviewAttestations("")
 	if err != nil {
 		return report, err
+	}
+	all := attestationsRead.Attestations
+	report.Coverage.Merge(bundlesRead.Coverage)
+	report.Coverage.Merge(attestationsRead.Coverage)
+	report.Coverage.Normalize()
+	report.Complete = report.Coverage.Complete()
+	if !report.Complete {
+		report.Limitations = append(report.Limitations, "the history is incomplete: "+report.Coverage.Describe("")+"; the counts are those of the records that could be read")
 	}
 	byBundle := map[string][]ReviewAttestation{}
 	for _, att := range all {

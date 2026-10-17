@@ -112,6 +112,11 @@ refuses to choose the attempt it supersedes from a history with a hole.
   the bundle that matches the current inputs. The tolerant sniff of a truncated record reads
   names, not decisions: nothing is reconstructed from bytes that were not read.
 
+- **Consumers that state a history.** The governance rework report, the legacy inventory,
+  effective governance and the legacy ledger reader disclose what they could not read; an
+  unusable ledger is a loss, not absence. The tech-debt classification includes the backlog
+  documents it could not read.
+
 ## Falsifier
 
 This decision is wrong if a reader can return an empty or shorter result for a source it

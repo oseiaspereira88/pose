@@ -332,8 +332,12 @@ func TestAnUnscopedUnreadableAttemptIsAttributedByItsHeaderWhenItHasOne(t *testi
 	if !read.Coverage.CompleteFor("spec:other") {
 		t.Fatal("a loss attributed to spec:alpha widened another scope")
 	}
-	if _, err := store.ReadReviewAttempts("spec:alpha"); err == nil {
-		t.Fatal("a record that names the scope and does not parse must still fail the scoped read")
+	scoped, err := store.ReadReviewAttempts("spec:alpha")
+	if err != nil || len(scoped.Coverage.Losses) != 1 || scoped.Coverage.Losses[0].Scope != "spec:alpha" {
+		t.Fatalf("a record that names the scope and does not parse is a loss of that scope: err=%v coverage=%+v", err, scoped.Coverage)
+	}
+	if _, err := store.ListReviewAttempts("spec:alpha"); err == nil {
+		t.Fatal("the reader that returns no coverage must not return a history with a hole as whole")
 	}
 }
 

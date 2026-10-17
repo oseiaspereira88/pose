@@ -20,6 +20,10 @@ OS = "pose-mcp/internal/pose/obligation_sources.go"
 TD = "pose-mcp/internal/pose/techdebt.go"
 AS = "pose-mcp/internal/pose/assessment_scan.go"
 SC = "pose-mcp/internal/pose/source_coverage.go"
+DS = "pose-mcp/internal/pose/discovery.go"
+LL = "pose-mcp/internal/pose/legacy_ledger.go"
+GW = "pose-mcp/internal/pose/governance_waits.go"
+CA = "pose-mcp/internal/cli/state_attention.go"
 RC = "pose-mcp/internal/pose/review_closeout.go"
 RB = "pose-mcp/internal/pose/review_bundle.go"
 CF = "pose-mcp/internal/cli/followups.go"
@@ -27,13 +31,13 @@ CS = "pose-mcp/internal/cli/state_providers.go"
 CR = "pose-mcp/internal/cli/review_closeout.go"
 
 M = [
- ("spec ilegível ignorado", [(FP, 'coverage.Add(SourceLoss{Producer: "followups", Artifact: filepath.ToSlash(rel), Scope: specSlugFromPath(path), AttributedBy: "path", Kind: LossReadError, Detail: err.Error()})', '_ = rel')], "./internal/pose", "TestAnUnreadableSpecIsALoss|TestTheFollowupProducerIsIncomplete"),
- ("não resolvido só o [open]", [(FP, 'return f.RawDisposition == "" || f.RawDisposition == "open"', 'return f.RawDisposition == "open"')], "./internal/pose", "TestUnresolvedFollowupsAreOneSet"),
+ ("spec ilegível ignorado", [(FP, 'raw, readErr := os.ReadFile(path)\n\t\t\tif readErr != nil {\n\t\t\t\tlose(path, slug, LossReadError, readErr.Error())\n\t\t\t\tcontinue', 'raw, readErr := os.ReadFile(path)\n\t\t\tif readErr != nil {\n\t\t\t\t_ = slug\n\t\t\t\tcontinue')], "./internal/pose", "TestAnUnreadableSpecIsALoss|TestTheFollowupProducerIsIncomplete"),
+ ("não resolvido só o [open]", [(FP, 'return disposition == "" || disposition == "open" || !KnownFollowupDispositions[disposition]', 'return disposition == "open"')], "./internal/pose", "TestUnresolvedFollowupsAreOneSet"),
  ("perda de outro escopo alarga este", [(SC, 'if loss.Scope == "" || loss.Scope == scope {', 'if true {')], "./internal/pose", "TestSourceCoverageScoping|TestAReviewRecordThatNamesAnotherScope"),
  ("perda sem escopo ignorada", [(SC, 'if loss.Scope == "" || loss.Scope == scope {', 'if loss.Scope == scope {')], "./internal/pose", "TestSourceCoverageScoping"),
  ("produtor de follow-ups sem cobertura", [(OP, 'if len(losses) > 0 && coverage != nil {', 'if false && len(losses) > 0 && coverage != nil {')], "./internal/pose", "TestTheFollowupProducerIsIncomplete"),
  ("produtor de follow-ups sem recorte", [(OP, 'if scope == "" || loss.Scope == "" || inScope[loss.Scope] {', 'if true {')], "./internal/pose", "TestTheFollowupProducerIsIncomplete"),
- ("obrigação descartada sem cobertura", [(OP, 'if cov := report.producerState[o.Source.Producer]; cov != nil {', 'if cov := report.producerState[o.Source.Producer]; cov != nil && false {')], "./internal/pose", "TestADroppedObligation"),
+ ("obrigação descartada sem cobertura", [(OP, 'if cov := report.producerState[slot]; cov != nil {', 'if cov := report.producerState[slot]; cov != nil && false {')], "./internal/pose", "TestADroppedObligation"),
  ("sem disposição sem razão própria", [(OP, 'o.ReasonCode = "followup-undisposed"', 'o.ReasonCode = "followup-open"')], "./internal/pose", "TestUnresolvedFollowupsAreOneSet"),
  ("candidatos só do [open]", [(FC, 'if !item.Unresolved() {', 'if item.RawDisposition != "open" {')], "./internal/pose", "TestUnresolvedFollowupsAreOneSet"),
  ("scan com limite de linha", [(TD, 'line = strings.TrimSuffix(line, "\\r")', 'if len(line) > 65536 {\n\t\t\tbreak\n\t\t}\n\t\tline = strings.TrimSuffix(line, "\\r")')], "./internal/pose", "TestAMarkerAfterAVeryLongLineIsFound"),
@@ -41,19 +45,19 @@ M = [
  ("arquivo ilegível sem perda", [(AS, 'raw, err := os.ReadFile(path)\n\t\tif err != nil {\n\t\t\tlost(path, LossReadError, "not scanned: "+err.Error())\n\t\t\treturn nil\n\t\t}', 'raw, err := os.ReadFile(path)\n\t\tif err != nil {\n\t\t\treturn nil\n\t\t}')], "./internal/pose", "TestTechDebtCoverageNamesWhatItDidNotScan"),
  ("scan completo apesar da perda", [(TD, 'ScannedFiles: scanned, Complete: coverage.Complete(), Coverage: coverage,', 'ScannedFiles: scanned, Complete: true, Coverage: coverage,')], "./internal/pose", "TestTechDebtCoverageNamesWhatItDidNotScan"),
  ("relatório sem escopo do scan", [(TD, 'techDebtScopeMarkdown(report))', '"")')], "./internal/pose", "TestTheTechDebtReportSaysWhatItCovered"),
- ("tentativa ilegível ignorada", [(RC, 'coverage.Add(SourceLoss{Producer: "review-attempts", Artifact: rel, Kind: LossReadError, Detail: readErr.Error(), At: at})', '_ = rel')], "./internal/pose", "TestAnUnreadableNewerAttemptBlocks|TestWithNoReadableAttempt"),
- ("registro mais novo tratado como antigo", [(RC, 'if loss.At != "" && at != "" && loss.At <= at {', 'if loss.At != "" && at != "" && loss.At >= at {')], "./internal/pose", "TestAnUnreadableNewerAttemptBlocks|TestAnUnreadableOlderAttemptOnlyWarns"),
- ("registro mais antigo bloqueia", [(RC, 'if loss.At != "" && at != "" && loss.At <= at {', 'if false {')], "./internal/pose", "TestAnUnreadableOlderAttemptOnlyWarns"),
- ("histórico incompleto não bloqueia", [(RC, 'if lost := attemptsRead.HistoryUncertainAfter(ref, current.ReviewedAt); len(lost) > 0 {', 'if lost := attemptsRead.HistoryUncertainAfter(ref, current.ReviewedAt); false && len(lost) > 0 {')], "./internal/pose", "TestAnUnreadableNewerAttemptBlocks"),
- ("sem tentativa legível vira ausência", [(RC, 'if lost := attemptsRead.HistoryUncertainAfter(ref, ""); len(lost) > 0 {', 'if lost := attemptsRead.HistoryUncertainAfter(ref, ""); false && len(lost) > 0 {')], "./internal/pose", "TestWithNoReadableAttempt"),
+ ("tentativa ilegível ignorada", [(RC, 'coverage.Add(SourceLoss{Producer: "review-attempts", Artifact: rel, Kind: LossReadError, Detail: readErr.Error(), At: at, ID: strings.TrimSuffix(entry.Name(), ".md")})', '_ = rel')], "./internal/pose", "TestAnUnreadableNewerAttemptBlocks|TestWithNoReadableAttempt"),
+ ("registro mais novo tratado como antigo", [(RC, '(loss.At < at ||', '(loss.At > at ||')], "./internal/pose", "TestAnUnreadableNewerAttemptBlocks|TestAnUnreadableOlderAttemptOnlyWarns"),
+ ("registro mais antigo bloqueia", [(RC, 'if loss.At != "" && at != "" && (loss.At < at || (loss.At == at && loss.ID != "" && id != "" && loss.ID < id)) {', 'if false {')], "./internal/pose", "TestAnUnreadableOlderAttemptOnlyWarns"),
+ ("histórico incompleto não bloqueia", [(RC, 'if lost := attemptsRead.HistoryUncertainAfter(ref, current.ReviewedAt, current.ReviewID); len(lost) > 0 {', 'if lost := attemptsRead.HistoryUncertainAfter(ref, current.ReviewedAt, current.ReviewID); false && len(lost) > 0 {')], "./internal/pose", "TestAnUnreadableNewerAttemptBlocks"),
+ ("sem tentativa legível vira ausência", [(RC, 'if lost := attemptsRead.HistoryUncertainAfter(ref, "", ""); len(lost) > 0 {', 'if lost := attemptsRead.HistoryUncertainAfter(ref, "", ""); false && len(lost) > 0 {')], "./internal/pose", "TestWithNoReadableAttempt"),
  ("registro de outro escopo é perda", [(RC, 'if fm["scope"] != scope {\n\t\t\t\tif fm["scope"] == "" {', 'if fm["scope"] == scope || true {\n\t\t\t\tif true {')], "./internal/pose", "TestAReviewRecordThatNamesAnotherScope"),
  ("atribuição por cabeçalho removida", [(RC, 'loss.Scope, loss.AttributedBy = fm["scope"], "header"', '_ = fm')], "./internal/pose", "TestAnUnscopedUnreadableAttemptIsAttributed"),
  ("formato não suportado como corrupção", [(RC, 'loss.Kind = LossUnsupported', '_ = loss')], "./internal/pose", "TestAnUnscopedUnreadableAttemptIsAttributed"),
- ("atestação ilegível sem atribuição", [(RB, 'loss := SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossParseError, Detail: "the record is not valid JSON"}\n\t\t\t\tif m := attestationBundleSniffRE.FindSubmatch(raw); m != nil {', 'loss := SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossParseError, Detail: "the record is not valid JSON"}\n\t\t\t\tif m := attestationBundleSniffRE.FindSubmatch(raw); m != nil && false {')], "./internal/pose", "TestAnUnreadableAttestationIsNotSkipped|TestAnUnreadableLaterRejection"),
+ ("atestação ilegível sem atribuição", [(RB, 'found && !ambiguous && value != ""', 'false && found && !ambiguous && value != ""')], "./internal/pose", "TestAnUnreadableAttestationIsNotSkipped|TestAnUnreadableLaterRejection"),
  ("histórico de atestações sem bloqueio", [(RB, 'if len(attestationHistory) > 0 {\n\t\tverification.Blockers = append(verification.Blockers, "attestation history for bundle "', 'if false {\n\t\tverification.Blockers = append(verification.Blockers, "attestation history for bundle "')], "./internal/pose", "TestAnUnreadableLaterRejection"),
  ("atestação ilegível some", [(RB, 'coverage.Add(SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossReadError, Detail: err.Error()})', '_ = rel')], "./internal/pose", "TestAnUnreadableLaterRejection"),
  ("bundle ilegível sem aviso", [(RB, 'if bundleLosses := bundlesRead.Coverage.LossesFor(scope); len(bundleLosses) > 0 {', 'if bundleLosses := bundlesRead.Coverage.LossesFor(scope); false && len(bundleLosses) > 0 {')], "./internal/pose", "TestAnUnreadableBundleIsDisclosed"),
- ("produtor de findings sem cobertura", [(OS, 'markCoverageIncomplete(coverage, read.Coverage.Describe(""))', '_ = coverage')], "./internal/pose", "TestFindingsProducerIsIncomplete"),
+ ("produtor de findings sem cobertura", [(OS, 'if len(lost) > 0 && coverage != nil {', 'if false && len(lost) > 0 && coverage != nil {')], "./internal/pose", "TestFindingsProducerIsIncomplete"),
  ("--fail-overdue certifica leitura incompleta", [(CF, 'if failOverdue && (len(overdueEntries) > 0 || !coverage.Complete()) {', 'if failOverdue && len(overdueEntries) > 0 {'), (CF, 'if failOverdue && !coverage.Complete() {', 'if false {')], "./internal/cli", "TestFailOverdueRefusesToCertify"),
  ("cabeçalho humano sem cobertura", [(CF, 'if !coverage.Complete() {\n\t\t// What the read could not see is part of the result', 'if false {\n\t\t// What the read could not see is part of the result')], "./internal/cli", "TestFollowupsReportsASpecItCouldNotRead"),
  ("estado do projeto só conta [open]", [(CS, 'if !followupUnresolved(f) {', 'if f.RawDisposition != "open" {')], "./internal/cli", "TestTheBacklogAndTheProjectState"),
@@ -61,8 +65,38 @@ M = [
  ("candidatos afirmam cobertura completa", [(CF, '"coverage_complete": result.Coverage.Complete(), "coverage": result.Coverage', '"coverage_complete": true, "coverage": result.Coverage')], "./internal/cli", "TestFollowupsReportsASpecItCouldNotRead"),
  ("backlog JSON afirma cobertura completa", [(CF, '"coverage_complete": coverage.Complete(), "coverage": coverage,', '"coverage_complete": true, "coverage": coverage,')], "./internal/cli", "TestFollowupsReportsASpecItCouldNotRead|TestFollowupParity"),
  ("CLI do tech-debt sem escopo", [("pose-mcp/internal/cli/assess.go", 'scope.Field("techdebt.scan", fmt.Sprintf("%d source file(s) scanned, none unreadable", report.ScannedFiles))', '_ = scope')], "./internal/cli", "TestAssessTechDebtStatesItsScope"),
- ("review record escolhe de histórico com buraco", [(CR, 'if lost := attemptsRead.HistoryUncertainAfter(ref, lastAt); err == nil && len(lost) > 0 {', 'if lost := attemptsRead.HistoryUncertainAfter(ref, lastAt); false && err == nil && len(lost) > 0 {')], "./internal/cli", "TestReviewRecordRefusesToSupersede"),
+ ("review record escolhe de histórico com buraco", [(CR, 'if lost := attemptsRead.HistoryUncertainAfter(ref, lastAt, lastID); err == nil && len(lost) > 0 {', 'if lost := attemptsRead.HistoryUncertainAfter(ref, lastAt, lastID); false && err == nil && len(lost) > 0 {')], "./internal/cli", "TestReviewRecordRefusesToSupersede"),
  ("Attention não projeta sem disposição", [(OP, 'if !item.Unresolved() {\n\t\t\tcontinue\n\t\t}\n\t\tif scope != "" && !inScope[item.Spec] {', 'if item.RawDisposition != "open" {\n\t\t\tcontinue\n\t\t}\n\t\tif scope != "" && !inScope[item.Spec] {')], "./internal/mcpserver ./internal/pose", "TestFollowupParityAcrossCLIMCPAndAttention|TestUnresolvedFollowupsAreOneSet"),
+
+ ("aprovação retida sobre rejeição ilegível", [(RC, 'if lost := read.Coverage.LossesFor(bundles[i].BundleID); len(lost) > 0 {\n\t\t\treturn nil, nil, lost\n\t\t}', 'if lost := read.Coverage.LossesFor(bundles[i].BundleID); len(lost) > 0 && false {\n\t\t\treturn nil, nil, lost\n\t\t}')], "./internal/pose", "TestAClosedScopeDoesNotRetain"),
+ ("retenção sem bloqueio no review-check", [(RC, 'if len(retainLost) > 0 {\n\t\t\t\teval.Blockers = append(eval.Blockers, "the approval of "', 'if false {\n\t\t\t\teval.Blockers = append(eval.Blockers, "the approval of "')], "./internal/pose", "TestAClosedScopeDoesNotRetain"),
+ ("sniff ignora o caminho estrutural", [(SC, 'if !f.object || f.key != path[i] {', 'if !f.object || (f.key != path[i] && false) {')], "./internal/pose", "TestSniffingAttributesOnlyTheStructuralPath|TestADecoyInATruncatedRecord"),
+ ("sniff aceita chave duplicada", [(SC, 'if found {\n\t\t\t\t\treturn "", false, true\n\t\t\t\t}', 'if found {\n\t\t\t\t\tcontinue\n\t\t\t\t}')], "./internal/pose", "TestSniffingAttributesOnlyTheStructuralPath"),
+ ("JSON sem cabeçalho tratado como outro bundle", [(RB, 'if header.BundleID == "" {', 'if false {')], "./internal/pose", "TestValidJSONWithoutAHeader"),
+ ("bundle sem escopo tratado como outro escopo", [(RB, 'if header.Payload.Scope.Ref == "" {', 'if false {')], "./internal/pose", "TestValidJSONWithoutAHeader"),
+ ("mesmo segundo é anterior", [(RC, 'if loss.At != "" && at != "" && (loss.At < at || (loss.At == at && loss.ID != "" && id != "" && loss.ID < id)) {', 'if loss.At != "" && at != "" && loss.At <= at {')], "./internal/pose", "TestAnUnreadableAttemptOfTheSameSecond"),
+ ("tentativa antiga malformada falha a leitura", [(RC, 'loss := SourceLoss{Producer: "review-attempts", Artifact: rel, Kind: LossParseError, Detail: err.Error(), At: at, ID: strings.TrimSuffix(entry.Name(), ".md")}', 'if scope != "" {\n\t\t\t\treturn ReviewAttemptsRead{}, err\n\t\t\t}\n\t\t\tloss := SourceLoss{Producer: "review-attempts", Artifact: rel, Kind: LossParseError, Detail: err.Error(), At: at, ID: strings.TrimSuffix(entry.Name(), ".md")}')], "./internal/pose", "TestAnOldMalformedAttemptOfTheScopeOnlyWarns"),
+ ("registro sem campos obrigatórios aceito", [(RC, 'if strings.TrimSpace(value) == "" {\n\t\t\t\t\tmissing = append(missing, name)', 'if strings.TrimSpace(value) == "" && false {\n\t\t\t\t\tmissing = append(missing, name)')], "./internal/pose", "TestARecordWithoutItsRequiredFields"),
+ ("findings sem recorte de escopo", [(OS, 'concerns := scope == "" || loss.Scope == ""', 'concerns := true')], "./internal/pose", "TestAFindingsLossInAnotherScope"),
+ ("discovery com limite de linha", [(DS, 'line := strings.TrimSpace(rawLine)', 'if len(rawLine) > 65536 {\n\t\t\tbreak\n\t\t}\n\t\tline := strings.TrimSpace(rawLine)')], "./internal/pose", "TestComponentDiscoveryFindsAMarker"),
+ ("discovery verified apesar da perda", [(DS, 'if score >= 0.95 && state.ScanComplete {', 'if score >= 0.95 {')], "./internal/pose", "TestComponentDiscoveryFindsAMarker"),
+ ("discovery ignora arquivo ilegível", [(DS, 'coverage.Add(SourceLoss{Producer: "component-discovery", Artifact: relOf(path), Kind: LossReadError, Detail: "not scanned: " + inspectErr.Error()})', '_ = relOf')], "./internal/pose", "TestComponentDiscoveryFindsAMarker"),
+ ("diretório pulado sem exclusão", [(AS, 'coverage.addExclusion("assessment-scan", "skipped-directory", "directories that hold dependencies, build output or tool state are not scanned", entry.Name())', '_ = entry')], "./internal/pose", "TestSkippedDirectoriesAndLinks"),
+ ("symlink sem exclusão", [(AS, 'coverage.addExclusion("assessment-scan", "symlink", "links are not followed, so their targets are scanned only where they live", filepath.ToSlash(rel))', '_ = rel')], "./internal/pose", "TestSkippedDirectoriesAndLinks"),
+ ("pasta de spec ilegível some", [(FP, '} else if _, listErr := os.ReadDir(path); listErr != nil {', '} else if _, listErr := os.ReadDir(path); listErr != nil && false {')], "./internal/pose", "TestAnUnlistableSpecFolder"),
+ ("layout split perdido", [(FP, '} else if files := splitSpecFiles(path); len(files) > 0 {', '} else if files := splitSpecFiles(path); len(files) > 0 && false {')], "./internal/pose", "TestTheLegacySplitLayout"),
+ ("frontmatter truncado certificado", [(FP, 'lose(src.path, src.slug, LossParseError, "the frontmatter is not closed")', '_ = src')], "./internal/pose", "TestATruncatedHeaderIsALoss"),
+ ("disposição desconhecida resolve", [(FP, 'return disposition == "" || disposition == "open" || !KnownFollowupDispositions[disposition]', 'return disposition == "" || disposition == "open"')], "./internal/pose", "TestATruncatedHeaderIsALoss|TestAttentionCarriesTheFollowup"),
+ ("Attention sem diagnóstico de metadata", [(OP, 'o.Observation.Limitations = append(o.Observation.Limitations, "ownership metadata is malformed: "+item.MetaErr)', '_ = item')], "./internal/pose", "TestAttentionCarriesTheFollowup"),
+ ("Attention humano sem detalhe", [(CA, 'if c.State != pose.CoverageStateCurrent && c.Detail != "" {', 'if false {')], "./internal/cli", "TestAttentionTextNamesTheUnreadArtifact"),
+ ("candidatos ignoram --fail-overdue", [(CF, 'if failOverdue {\n\t\t\t// The gate belongs to the backlog', 'if false {\n\t\t\t// The gate belongs to the backlog')], "./internal/cli", "TestCandidatesRefuseTheOverdueGate"),
+ ("classificação de dívida sem perda de backlog", [(TD, '	for _, loss := range documentLosses {\n		coverage.Add(loss)\n	}', '	_ = documentLosses')], "./internal/pose", "TestTheDebtClassificationSaysWhen"),
+ ("rework sem cobertura", [(GW, 'report.Complete = report.Coverage.Complete()', 'report.Complete = true')], "./internal/pose", "TestGovernanceConsumersDisclose"),
+ ("inventário sem cobertura", [("pose-mcp/internal/pose/legacy_inventory.go", 'inv.Complete = inv.Coverage.Complete()', 'inv.Complete = true')], "./internal/pose", "TestGovernanceConsumersDisclose"),
+ ("governança efetiva sem histórico incompleto", [("pose-mcp/internal/pose/effective_governance.go", 'ctx.HistoryIncomplete = bundlesRead.Coverage.Describe(scope)', '_ = bundlesRead')], "./internal/pose", "TestGovernanceConsumersDisclose"),
+ ("ledger ilegível como ausência", [(LL, 'lose(LossParseError, "the ledger is not valid JSON")\n\t\t\tcontinue', 'continue')], "./internal/pose", "TestAnUnreadableLegacyLedger"),
+ ("ledger de versão desconhecida como ausência", [(LL, 'lose(LossUnsupported, "not a legacy attestations ledger of a version this engine reads")\n\t\t\tcontinue', 'continue')], "./internal/pose", "TestAnUnreadableLegacyLedger"),
+ ("produtor vazio escapa da cobertura", [(OP, 'slot := o.producerSlot\n\t\t\tif slot == "" {\n\t\t\t\tslot = o.Source.Producer\n\t\t\t}', 'slot := o.Source.Producer')], "./internal/pose", "TestAnInvalidElementWithoutAProducer"),
 ]
 results = []
 for name, edits, pkgs, run in M:

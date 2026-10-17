@@ -18,7 +18,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -1936,10 +1935,16 @@ type ReviewBundlesRead struct {
 	Coverage SourceCoverage
 }
 
-var (
-	bundleScopeSniffRE       = regexp.MustCompile(`"scope"\s*:\s*\{[^{}]*?"ref"\s*:\s*"([^"]+)"`)
-	attestationBundleSniffRE = regexp.MustCompile(`"bundle_id"\s*:\s*"(rvb-[0-9a-f]+)"`)
-)
+// attributeLoss names, from the readable prefix of a record that could not be read
+// whole, the scope or bundle it belongs to: the string at one structural path, once.
+// A prefix that never reaches it, reaches it twice or crosses an array attributes
+// nothing, and the loss then concerns any scope.
+func attributeLoss(loss SourceLoss, raw []byte, path ...string) SourceLoss {
+	if value, found, ambiguous := sniffJSONString(raw, path...); found && !ambiguous && value != "" {
+		loss.Scope, loss.AttributedBy = value, "header"
+	}
+	return loss
+}
 
 // ReadReviewBundles lists sealed bundles and reports the records it could not read. A
 // record that does not parse is attributed to the scope its readable prefix names; one
@@ -1981,11 +1986,13 @@ func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 				} `json:"payload"`
 			}
 			if err := json.Unmarshal(raw, &header); err != nil {
-				loss := SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: "the record is not valid JSON"}
-				if m := bundleScopeSniffRE.FindSubmatch(raw); m != nil {
-					loss.Scope, loss.AttributedBy = string(m[1]), "header"
-				}
-				coverage.Add(loss)
+				coverage.Add(attributeLoss(SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: "the record is not valid JSON"}, raw, "payload", "scope", "ref"))
+				continue
+			}
+			if header.Payload.Scope.Ref == "" {
+				// Valid JSON that names no scope identifies nothing: it is not another
+				// scope's bundle, it is a record whose owner is unknown.
+				coverage.Add(SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: "the record names no scope"})
 				continue
 			}
 			if header.Payload.Scope.Ref != scope {
@@ -1999,9 +2006,7 @@ func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 			}
 			loss := SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: loadErr.Error()}
 			if raw, readErr := os.ReadFile(filepath.Join(dir, entry.Name())); readErr == nil {
-				if m := bundleScopeSniffRE.FindSubmatch(raw); m != nil {
-					loss.Scope, loss.AttributedBy = string(m[1]), "header"
-				}
+				loss = attributeLoss(loss, raw, "payload", "scope", "ref")
 			} else {
 				loss.Kind, loss.Detail = LossReadError, readErr.Error()
 			}
@@ -2660,11 +2665,12 @@ func (s Store) ReadReviewAttestations(bundleID string) (ReviewAttestationsRead, 
 				BundleID string `json:"bundle_id"`
 			}
 			if err := json.Unmarshal(raw, &header); err != nil {
-				loss := SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossParseError, Detail: "the record is not valid JSON"}
-				if m := attestationBundleSniffRE.FindSubmatch(raw); m != nil {
-					loss.Scope, loss.AttributedBy = string(m[1]), "header"
-				}
-				coverage.Add(loss)
+				coverage.Add(attributeLoss(SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossParseError, Detail: "the record is not valid JSON"}, raw, "bundle_id"))
+				continue
+			}
+			if header.BundleID == "" {
+				// Valid JSON that names no bundle is not another bundle's attestation.
+				coverage.Add(SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossParseError, Detail: "the record names no bundle"})
 				continue
 			}
 			if header.BundleID != bundleID {
@@ -2678,9 +2684,7 @@ func (s Store) ReadReviewAttestations(bundleID string) (ReviewAttestationsRead, 
 			}
 			loss := SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossParseError, Detail: loadErr.Error()}
 			if raw, readErr := os.ReadFile(filepath.Join(dir, entry.Name())); readErr == nil {
-				if m := attestationBundleSniffRE.FindSubmatch(raw); m != nil {
-					loss.Scope, loss.AttributedBy = string(m[1]), "header"
-				}
+				loss = attributeLoss(loss, raw, "bundle_id")
 			} else {
 				loss.Kind, loss.Detail = LossReadError, readErr.Error()
 			}
@@ -2800,7 +2804,11 @@ func (s Store) verifyReviewBundle(scope string) (ReviewBundleVerification, error
 				// Only routine drift is retained. A changed federated manifest —
 				// revoked trust, a moved or unauthorized source — bears on the
 				// review's authority, so it stales a closed scope as it always did.
-				if bundle, att := s.retainedCompletedReview(scopeRef, scope, policy); bundle != nil && sameFederatedManifest(bundle.Payload.FederatedManifest, prepared.Payload.FederatedManifest) {
+				bundle, att, retainLost := s.retainedCompletedReviewWithHistory(scopeRef, scope, policy)
+				if len(retainLost) > 0 {
+					verification.Blockers = append(verification.Blockers, "the approval cannot be retained: the attestation history of its bundle is incomplete, so the latest readable attestation is not known to be the current one: "+(SourceCoverage{Losses: retainLost}).Describe("")+"; restore or remove the unreadable record")
+				}
+				if bundle != nil && sameFederatedManifest(bundle.Payload.FederatedManifest, prepared.Payload.FederatedManifest) {
 					verification.Bundle, verification.Attestation = bundle, att
 					verification.Warnings = append(verification.Warnings, staleEvidenceWarnings(bundle.Payload.Subject, bundle.Payload.Evidence)...)
 					verification.Fresh, verification.Approved = true, true
@@ -3124,6 +3132,10 @@ func (s Store) verifyStoredReviewAttestationSignature(att ReviewAttestation) err
 		// trusted legacy ledger (spec pose-signed-legacy-attestation-ledger).
 		if s.legacyLedgerCovers(att) {
 			return nil
+		}
+		if coverage := s.LegacyLedgerCoverage(); !coverage.Complete() {
+			// Not trusted, and not for want of a ledger: one could not be used.
+			return fmt.Errorf("signed attestation proof is required by review policy; a legacy ledger that may cover it could not be used: %s", coverage.Describe(""))
 		}
 		return fmt.Errorf("signed attestation proof is required by review policy")
 	}

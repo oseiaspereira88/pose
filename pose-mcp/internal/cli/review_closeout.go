@@ -1213,11 +1213,11 @@ func cmdReviewRecord(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	attemptsRead, err := store.ReadReviewAttempts(ref)
 	attempts := attemptsRead.Attempts
-	lastAt := ""
+	lastAt, lastID := "", ""
 	if len(attempts) > 0 {
-		lastAt = attempts[len(attempts)-1].ReviewedAt
+		lastAt, lastID = attempts[len(attempts)-1].ReviewedAt, attempts[len(attempts)-1].ReviewID
 	}
-	if lost := attemptsRead.HistoryUncertainAfter(ref, lastAt); err == nil && len(lost) > 0 {
+	if lost := attemptsRead.HistoryUncertainAfter(ref, lastAt, lastID); err == nil && len(lost) > 0 {
 		// The attempt this one supersedes would be chosen from a history with a hole.
 		err = fmt.Errorf("the review history for %s is incomplete (%s); restore or remove the unreadable record before recording", ref, (posemodel.SourceCoverage{Losses: lost}).Describe(""))
 	}

@@ -62,6 +62,7 @@ scan de marcadores de dívida técnica e a leitura do histórico de reviews
 - created: .pose/adr/2026-10-17-a-source-that-lost-something-is-incomplete-for-what-depends-on-it.md
 - created: pose-mcp/internal/pose/source_coverage.go
 - created: pose-mcp/internal/pose/source_coverage_integrity_test.go
+- created: pose-mcp/internal/pose/source_coverage_review_test.go
 - created: pose-mcp/internal/cli/source_coverage_parity_test.go
 - created: pose-mcp/internal/mcpserver/source_coverage_parity_test.go
 - modified: pose-mcp/internal/pose/followups_parse.go
@@ -76,6 +77,14 @@ scan de marcadores de dívida técnica e a leitura do histórico de reviews
 - modified: pose-mcp/internal/cli/state_providers.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/pose/assessment_scan.go
+- modified: pose-mcp/internal/pose/obligation.go
+- modified: pose-mcp/internal/pose/legacy_ledger.go
+- modified: pose-mcp/internal/pose/legacy_inventory.go
+- modified: pose-mcp/internal/pose/governance_waits.go
+- modified: pose-mcp/internal/pose/effective_governance.go
+- modified: pose-mcp/internal/pose/discovery.go
+- modified: pose-mcp/internal/cli/state_attention.go
+- modified: pose-mcp/internal/cli/lintspec.go
 - modified: pose-mcp/internal/pose/obligation_sources_test.go
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: .pose/indexes/validation-matrix.json
@@ -183,6 +192,17 @@ declara arquivos varridos, perdidos e excluídos. Histórico de reviews: tentati
 atestação ilegível que pode ser posterior não deixa a aprovação anterior valer; a que é
 comprovadamente anterior apenas avisa; `review record` recusa um histórico com buraco. Sem
 mudança de policy, capability ou adoção; sem cache nem daemon.
+
+A primeira revisão independente (19 achados) levou a: aprovação retida não vale sobre
+registro de atestação ilegível que pode ser posterior; atribuição só pelo caminho estrutural
+do JSON (chave duplicada é ambígua, isca aninhada não conta); JSON válido sem cabeçalho é
+perda de dono desconhecido; registros do mesmo segundo só são "provadamente anteriores" pela
+ordem do identificador; tentativa antiga malformada do escopo avisa em vez de falhar a
+leitura; o scan de discovery lê o arquivo inteiro e declara perdas e exclusões; pasta de spec
+ilegível e layout split legado entram na leitura de follow-ups; cabeçalho truncado é perda e
+disposição desconhecida é não resolvida; a reconciliação de dívida, o rework de governança,
+o inventário legado, a governança efetiva e os ledgers legados passam a declarar o que não
+leram; o produtor de uma obrigação inválida é o slot que a devolveu.
 
 ### Review and delivery evidence
 

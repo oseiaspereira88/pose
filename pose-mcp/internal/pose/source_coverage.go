@@ -1,6 +1,8 @@
 package pose
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"sort"
@@ -50,6 +52,9 @@ type SourceLoss struct {
 	// reader can tell a record older than the one it selected from one that may have
 	// superseded it. Empty when nothing can be said.
 	At string `json:"at,omitempty"`
+	// ID is the record's name without its extension, the key records of the same
+	// instant are ordered by.
+	ID string `json:"id,omitempty"`
 }
 
 // SourceExclusion is a part of a source that a read leaves out on purpose. A read
@@ -172,4 +177,71 @@ func specSlugFromPath(path string) string {
 		return specFileDatePrefixRE.ReplaceAllString(parts[len(parts)-2], "")
 	}
 	return specFileDatePrefixRE.ReplaceAllString(strings.TrimSuffix(base, ".md"), "")
+}
+
+// sniffJSONString reads the readable prefix of a JSON record that may be truncated and
+// returns the string at path (object keys from the top level), if the prefix has it
+// exactly once. found is false when the prefix never reaches it and ambiguous is true
+// when it appears more than once or the path crosses an array: a prefix that does not
+// settle the answer attributes nothing. A key elsewhere in the record (a nested
+// "bundle_id" in some metadata) is not at the path and proves nothing.
+func sniffJSONString(raw []byte, path ...string) (value string, found, ambiguous bool) {
+	type frame struct {
+		object    bool
+		key       string
+		expectKey bool
+	}
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	var stack []frame
+	at := func() bool {
+		if len(stack) != len(path) {
+			return false
+		}
+		for i, f := range stack {
+			if !f.object || f.key != path[i] {
+				return false
+			}
+		}
+		return true
+	}
+	valueDone := func() {
+		if n := len(stack); n > 0 && stack[n-1].object {
+			stack[n-1].expectKey = true
+		}
+	}
+	for {
+		tok, err := dec.Token()
+		if err != nil {
+			break
+		}
+		switch t := tok.(type) {
+		case json.Delim:
+			switch t {
+			case '{':
+				stack = append(stack, frame{object: true, expectKey: true})
+			case '[':
+				stack = append(stack, frame{})
+			default:
+				stack = stack[:len(stack)-1]
+				valueDone()
+			}
+		case string:
+			if n := len(stack); n > 0 && stack[n-1].object && stack[n-1].expectKey {
+				stack[n-1].key, stack[n-1].expectKey = t, false
+				continue
+			}
+			// A string value. The path names the keys of the objects above it, and the
+			// last key is the one this value belongs to.
+			if len(stack) == len(path) && at() {
+				if found {
+					return "", false, true
+				}
+				value, found = t, true
+			}
+			valueDone()
+		default:
+			valueDone()
+		}
+	}
+	return value, found, false
 }

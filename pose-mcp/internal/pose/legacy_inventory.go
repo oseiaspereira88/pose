@@ -16,14 +16,18 @@ import (
 // no breaking change, and old records keep their meaning, signature and
 // auditability — sealed bundles and attestations are never rewritten.
 type LegacyInventory struct {
-	SchemaVersion int                 `json:"schema_version"`
-	Revision      string              `json:"revision,omitempty"`
-	Classes       []LegacyClass       `json:"classes"`
-	Risks         []string            `json:"risks"`
-	Writes        []string            `json:"writes"`
-	Limitations   []string            `json:"limitations"`
-	Counts        map[string]int      `json:"counts"`
-	Details       map[string][]string `json:"details,omitempty"`
+	SchemaVersion int           `json:"schema_version"`
+	Revision      string        `json:"revision,omitempty"`
+	Classes       []LegacyClass `json:"classes"`
+	Risks         []string      `json:"risks"`
+	Writes        []string      `json:"writes"`
+	Limitations   []string      `json:"limitations"`
+	// Complete is false when sealed bundles, attestations or legacy ledgers could not be
+	// read: the counts are those of what was read (spec pose-source-coverage-integrity).
+	Complete bool                `json:"complete"`
+	Coverage SourceCoverage      `json:"coverage"`
+	Counts   map[string]int      `json:"counts"`
+	Details  map[string][]string `json:"details,omitempty"`
 }
 
 // LegacyClass is one family of legacy representation.
@@ -117,10 +121,11 @@ func (s Store) InventoryLegacy() (LegacyInventory, error) {
 	}
 
 	// Sealed bundles and attestations: never rewritten.
-	bundles, err := s.ListReviewBundles("")
+	bundlesRead, err := s.ReadReviewBundles("")
 	if err != nil {
 		return inv, err
 	}
+	bundles := bundlesRead.Bundles
 	sealed, withoutContracts := 0, 0
 	for _, b := range bundles {
 		if b.State != "sealed" {
@@ -133,9 +138,18 @@ func (s Store) InventoryLegacy() (LegacyInventory, error) {
 	}
 	add("sealed-bundles", sealed, LegacyKeep, "never removed: a sealed bundle is the subject of a signed or recorded judgment")
 	add("sealed-bundles-without-governing-contracts", withoutContracts, LegacyKeep, "read under the contracts their seal date implies; never re-sealed")
-	attestations, err := s.ListReviewAttestations("")
+	attestationsRead, err := s.ReadReviewAttestations("")
 	if err != nil {
 		return inv, err
+	}
+	attestations := attestationsRead.Attestations
+	inv.Coverage.Merge(bundlesRead.Coverage)
+	inv.Coverage.Merge(attestationsRead.Coverage)
+	inv.Coverage.Merge(s.LegacyLedgerCoverage())
+	inv.Coverage.Normalize()
+	inv.Complete = inv.Coverage.Complete()
+	if !inv.Complete {
+		inv.Limitations = append(inv.Limitations, "the inventory is incomplete: "+inv.Coverage.Describe("")+"; the counts are those of the records that could be read")
 	}
 	supplements, _ := s.ListReviewAttributionSupplements("")
 	supplemented := map[string]bool{}

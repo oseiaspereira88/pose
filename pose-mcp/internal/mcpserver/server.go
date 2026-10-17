@@ -1839,9 +1839,13 @@ func summarizeMCPUsage(out any) mcpUsageSummary {
 	case *pose.ComponentDiscoveryState:
 		count := value.TechnicalDebt.TODOs + value.TechnicalDebt.FIXMEs + value.TechnicalDebt.Panics + value.TechnicalDebt.Stubs
 		if count > 0 {
-			return mcpUsageSummary{Semantic: "partial", FindingCount: count, FindingsBySeverity: map[string]int{"warning": count}}
+			return mcpUsageSummary{Semantic: "partial", FindingCount: count, FindingsBySeverity: map[string]int{"warning": count}, Complete: value.ScanComplete}
 		}
-		return mcpUsageSummary{Semantic: "pass"}
+		if !value.ScanComplete {
+			// No marker in what was read is not a pass for the files that could not be.
+			return mcpUsageSummary{Semantic: "partial", Complete: false}
+		}
+		return mcpUsageSummary{Semantic: "pass", Complete: true}
 	case map[string]any:
 		if docs, ok := value["result"].(pose.DocsCheckResult); ok {
 			findings := make([]usagepkg.Finding, 0, len(docs.Issues))

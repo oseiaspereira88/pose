@@ -172,15 +172,27 @@ func (s Store) releaseQueueObligations(project string) ([]Obligation, error) {
 // follow-up has passed its review date. Open findings of a current review are
 // the review producer's; free-form investigation notes carry no state to
 // project.
-func (s Store) findingObligations(project string, now time.Time, coverage *Coverage) ([]Obligation, error) {
+func (s Store) findingObligations(project string, now time.Time, coverage *Coverage, scope string, specs []Spec) ([]Obligation, error) {
 	read, err := s.ReadReviewAttempts("")
 	if err != nil {
 		return nil, err
 	}
 	attempts := read.Attempts
-	if !read.Coverage.Complete() && coverage != nil {
-		// A review record that could not be read may hold a finding that is due.
-		markCoverageIncomplete(coverage, read.Coverage.Describe(""))
+	// A review record that could not be read may hold a finding that is due. A query
+	// about one spec is incomplete only for the losses that can concern it: those
+	// attributed to it or to nothing; a record that names another scope is not its loss.
+	lost := []SourceLoss{}
+	for _, loss := range read.Coverage.Losses {
+		concerns := scope == "" || loss.Scope == ""
+		for _, sp := range specs {
+			concerns = concerns || loss.Scope == "spec:"+sp.Slug
+		}
+		if concerns {
+			lost = append(lost, loss)
+		}
+	}
+	if len(lost) > 0 && coverage != nil {
+		markCoverageIncomplete(coverage, (SourceCoverage{Losses: lost}).Describe(""))
 	}
 	latest := map[string]ReviewAttempt{}
 	for _, attempt := range attempts {

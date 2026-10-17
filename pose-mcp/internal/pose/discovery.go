@@ -1,7 +1,6 @@
 package pose
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -123,6 +122,12 @@ type ComponentDiscoveryState struct {
 	// Binding is what this assessment was computed from (spec
 	// pose-adaptive-assessment-freshness); absent on older records.
 	Binding *AssessmentBinding `json:"binding,omitempty"`
+	// ScanComplete and Coverage say what the walk over the component did not see (spec
+	// pose-source-coverage-integrity): an unreadable file or directory is a loss and makes
+	// the debt counts above a lower bound, not a measurement; the files left out on purpose
+	// are exclusions. Absent on older records.
+	ScanComplete bool           `json:"scan_complete"`
+	Coverage     SourceCoverage `json:"coverage"`
 }
 
 // AssessmentsDir returns the path to .pose/assessments
@@ -357,17 +362,30 @@ func (s Store) DiscoverComponent(relPath string) (*ComponentDiscoveryState, erro
 
 	langMap := make(map[string]bool)
 
+	coverage := SourceCoverage{Losses: []SourceLoss{}}
+	relOf := func(path string) string {
+		rel, relErr := filepath.Rel(s.Root, path)
+		if relErr != nil {
+			return path
+		}
+		return filepath.ToSlash(rel)
+	}
 	_ = filepath.WalkDir(absPath, func(path string, entry os.DirEntry, walkErr error) error {
 		if walkErr != nil {
+			coverage.Add(SourceLoss{Producer: "component-discovery", Artifact: relOf(path), Kind: LossScanIncomplete, Detail: "not scanned: " + walkErr.Error()})
 			return nil
 		}
 		if entry.IsDir() {
 			if path != absPath && shouldSkipAssessmentDir(entry.Name()) {
+				coverage.addExclusion("component-discovery", "skipped-directory", "directories that hold dependencies, build output or tool state are not scanned", entry.Name())
 				return filepath.SkipDir
 			}
 			return nil
 		}
 		if entry.Type()&os.ModeSymlink != 0 {
+			if isDebtSourceExt(strings.ToLower(filepath.Ext(path))) {
+				coverage.addExclusion("component-discovery", "symlink", "links are not followed", relOf(path))
+			}
 			return nil
 		}
 
@@ -376,12 +394,25 @@ func (s Store) DiscoverComponent(relPath string) (*ComponentDiscoveryState, erro
 			return nil
 		}
 		info, err := entry.Info()
-		if err != nil || !info.Mode().IsRegular() || info.Size() > maxAssessmentFileSize {
+		if err != nil {
+			coverage.Add(SourceLoss{Producer: "component-discovery", Artifact: relOf(path), Kind: LossReadError, Detail: "not scanned: " + err.Error()})
+			return nil
+		}
+		if !info.Mode().IsRegular() {
+			return nil
+		}
+		if info.Size() > maxAssessmentFileSize {
+			coverage.addExclusion("component-discovery", "over-size-limit", fmt.Sprintf("files larger than %d bytes are not scanned", maxAssessmentFileSize), relOf(path))
 			return nil
 		}
 		name := strings.ToLower(entry.Name())
-		loc, isTest, generated, debt := inspectCodeFile(path)
+		loc, isTest, generated, debt, inspectErr := inspectCodeFile(path)
+		if inspectErr != nil {
+			coverage.Add(SourceLoss{Producer: "component-discovery", Artifact: relOf(path), Kind: LossReadError, Detail: "not scanned: " + inspectErr.Error()})
+			return nil
+		}
 		if generated {
+			coverage.addExclusion("component-discovery", "generated-or-binary", "generated and binary files are not scanned", relOf(path))
 			return nil
 		}
 
@@ -431,6 +462,8 @@ func (s Store) DiscoverComponent(relPath string) (*ComponentDiscoveryState, erro
 		return nil
 	})
 	state.Metadata = s.componentMetadata(cleanPath)
+	coverage.Normalize()
+	state.Coverage, state.ScanComplete = coverage, coverage.Complete()
 
 	for l := range langMap {
 		state.Metrics.Languages = append(state.Metrics.Languages, l)
@@ -449,7 +482,7 @@ func (s Store) DiscoverComponent(relPath string) (*ComponentDiscoveryState, erro
 	}
 	state.CompletenessScore = score
 
-	if score >= 0.95 {
+	if score >= 0.95 && state.ScanComplete {
 		state.Status = "verified"
 	} else if score >= 0.75 {
 		state.Status = "in_progress"
@@ -500,20 +533,23 @@ func (s Store) resolveGitCommit() string {
 	return res
 }
 
-func inspectCodeFile(path string) (loc int, isTest, generated bool, debt TechnicalDebtMetrics) {
+// inspectCodeFile counts lines and debt markers of one file. It reads the file once and
+// splits it into lines itself: a bufio.Scanner stops at a line longer than its token and
+// reports it only through Err, which the counts then hid. A file that cannot be read is
+// an error, not a file with zero markers.
+func inspectCodeFile(path string) (loc int, isTest, generated bool, debt TechnicalDebtMetrics, err error) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		return 0, false, false, debt
+		return 0, false, false, debt, err
 	}
 	if strings.IndexByte(string(raw), 0) >= 0 || hasGeneratedAssessmentHeader(raw) {
-		return 0, false, true, debt
+		return 0, false, true, debt, nil
 	}
 	isTest = isIntegrationTestFile(filepath.ToSlash(path))
 
-	scanner := bufio.NewScanner(strings.NewReader(string(raw)))
 	lex := debtLexState{rust: strings.EqualFold(filepath.Ext(path), ".rs")}
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
+	for _, rawLine := range strings.Split(string(raw), "\n") {
+		line := strings.TrimSpace(rawLine)
 		if line == "" {
 			continue
 		}
@@ -535,7 +571,7 @@ func inspectCodeFile(path string) (loc int, isTest, generated bool, debt Technic
 			}
 		}
 	}
-	return loc, isTest, false, debt
+	return loc, isTest, false, debt, nil
 }
 
 // SaveComponentState writes ComponentDiscoveryState JSON to .pose/state/components/<slug>.json
@@ -602,6 +638,7 @@ O componente **%s** reside no caminho `+"`%s`"+` do projeto **%s**.
 - **Stubs**: %d
 `, state.ComponentSlug, state.Path, state.Path, state.DiscoveredAt, state.BaselineCommit, state.Metrics.LOCProduction, state.Metrics.LOCTests, state.Metrics.TotalFiles, langs, state.TechnicalDebt.TODOs, state.TechnicalDebt.FIXMEs, state.TechnicalDebt.Panics, state.TechnicalDebt.Stubs, state.ComponentSlug, state.Path, s.projectLabel(), state.Status, state.CompletenessScore*100, state.TechnicalDebt.TODOs, state.TechnicalDebt.FIXMEs, state.TechnicalDebt.Panics, state.TechnicalDebt.Stubs)
 
+	md += componentScanScopeMarkdown(state)
 	file := filepath.Join(dir, filename)
 	return os.WriteFile(file, []byte(md), 0o644)
 }
@@ -767,4 +804,20 @@ func (s Store) GenerateAssessmentsIndex(states []*ComponentDiscoveryState) error
 
 	file := filepath.Join(dir, "README.md")
 	return os.WriteFile(file, []byte(md), 0o644)
+}
+
+// componentScanScopeMarkdown says what the walk over the component covered, so a clean
+// count is not read as a measurement of files it could not open.
+func componentScanScopeMarkdown(state *ComponentDiscoveryState) string {
+	var b strings.Builder
+	b.WriteString("\n---\n\n## Escopo do scan\n\n")
+	if state.ScanComplete {
+		b.WriteString("- Nenhum arquivo ou diretório do componente deixou de ser lido.\n")
+	} else {
+		fmt.Fprintf(&b, "- **INCOMPLETO** — %s. As contagens acima são um piso, não uma medida; o status não pode ser `verified`.\n", state.Coverage.Describe(""))
+	}
+	for _, e := range state.Coverage.Exclusions {
+		fmt.Fprintf(&b, "- Excluídos (%s): %d — %s\n", e.Pattern, e.Count, e.Reason)
+	}
+	return b.String()
 }

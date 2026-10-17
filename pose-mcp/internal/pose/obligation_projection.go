@@ -172,7 +172,7 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 		{"capability-trigger", func() ([]Obligation, error) { return s.capabilityTriggerObligations(project) }},
 		{"release", func() ([]Obligation, error) { return s.releaseQueueObligations(project) }},
 		{"findings", func() ([]Obligation, error) {
-			return s.findingObligations(project, time.Now(), report.producerState["findings"])
+			return s.findingObligations(project, time.Now(), report.producerState["findings"], q.Scope, specs)
 		}},
 		{"action-requests", func() ([]Obligation, error) {
 			if actionRequestObligationSource == nil {
@@ -203,7 +203,13 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 			cov.State, cov.Detail = CoverageStateUnavailable, results[i].err.Error()
 			continue
 		}
-		all = append(all, results[i].items...)
+		for _, o := range results[i].items {
+			// Where the element came from is known by the slot that produced it, not by
+			// a field the producer filled in: an element refused because that field is
+			// empty must still be a loss of its producer.
+			o.producerSlot = producer.name
+			all = append(all, o)
+		}
 	}
 
 	all = correlateObligations(all)
@@ -212,7 +218,11 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 			report.Limitations = append(report.Limitations, "dropped an invalid projected obligation: "+err.Error())
 			// A dropped element is a loss of its producer: the set it returned is not the
 			// set it found, so the read is not complete and the producer says why.
-			if cov := report.producerState[o.Source.Producer]; cov != nil {
+			slot := o.producerSlot
+			if slot == "" {
+				slot = o.Source.Producer
+			}
+			if cov := report.producerState[slot]; cov != nil {
 				markCoverageIncomplete(cov, "dropped an invalid projected obligation: "+err.Error())
 			}
 			continue
@@ -588,11 +598,21 @@ func (s Store) followupObligations(project string, specs []Spec, scope string, c
 			// The legacy format: a bullet with no [disposition] still owes one, and the
 			// backlog counts it. It is projected the same way, with its own reason.
 			o.ReasonCode = "followup-undisposed"
+		} else if item.DispositionErr != "" {
+			o.ReasonCode = "followup-invalid-disposition"
 		}
 		o.Condition = "the follow-up receives a disposition in its spec"
 		o.Effects = []ObligationEffect{{Phase: PhaseExecution, Mode: EffectAdvisory}}
 		o.Waiting = WaitingNone
 		o.Observation.Limitations = []string{"follow-ups carry no stable identifier; this identity is the normalized text, so rewording the bullet yields a new id"}
+		// What the parser could not make of the bullet travels with it: the backlog shows
+		// the same diagnostics, and neither rewrites the spec.
+		if item.MetaErr != "" {
+			o.Observation.Limitations = append(o.Observation.Limitations, "ownership metadata is malformed: "+item.MetaErr)
+		}
+		if item.DispositionErr != "" {
+			o.Observation.Limitations = append(o.Observation.Limitations, item.DispositionErr)
+		}
 		if item.Owner != "" && item.Owner != "unowned" {
 			o.Recipient = ObligationActor{Principal: item.Owner}
 		}

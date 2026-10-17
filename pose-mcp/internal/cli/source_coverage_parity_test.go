@@ -208,3 +208,45 @@ func TestReviewRecordRefusesToSupersedeFromAHistoryWithAHole(t *testing.T) {
 		t.Fatalf("after removing the record: %s", errOut.String())
 	}
 }
+
+// F13: the human Attention output names the artifact behind an incomplete producer.
+func TestAttentionTextNamesTheUnreadArtifact(t *testing.T) {
+	root := p01Fixture(t)
+	if err := os.Symlink("absent-target.md", filepath.Join(root, ".pose", "specs", "2026-10-11-unreadable.md")); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	var out, errOut bytes.Buffer
+	cmdStateAttention(root, nil, &out, &errOut)
+	text := out.String() + errOut.String()
+	for _, want := range []string{"followups=incomplete", "attention.coverage.followups", ".pose/specs/2026-10-11-unreadable.md"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("the human output lacks %q:\n%s", want, text)
+		}
+	}
+}
+
+// F14: the overdue gate is not silently ignored by --candidates.
+func TestCandidatesRefuseTheOverdueGateInsteadOfIgnoringIt(t *testing.T) {
+	root := p01Fixture(t)
+	var out, errOut bytes.Buffer
+	if code := cmdFollowups(root, []string{"--candidates", "--fail-overdue", "--json"}, &out, &errOut); code != 2 {
+		t.Fatalf("code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	if !strings.Contains(out.String()+errOut.String(), "--fail-overdue applies to the backlog") {
+		t.Fatalf("no explanation:\n%s%s", out.String(), errOut.String())
+	}
+}
+
+// F11/F12: the backlog carries the diagnostic of a disposition it does not know.
+func TestFollowupsReportsAnUnknownDispositionAsUnresolved(t *testing.T) {
+	root := newGitRepo(t)
+	writeCloseoutCLIFile(t, root, ".pose/specs/2026-10-01-typo.md", "---\nslug: typo\nstatus: done\ncreated_at: 2026-10-01\n---\n\n## 7. Final Report\n\n### Follow-ups\n\n- [opne] Mistyped (owner:@core crit:low review:2099-01-01)\n")
+	doc := followupsJSON(t, root)
+	if doc["open"].(float64) != 1 {
+		t.Fatalf("a mistyped disposition disappeared from the backlog: open=%v", doc["open"])
+	}
+	item := doc["items"].([]any)[0].(map[string]any)
+	if !strings.Contains(item["disposition_error"].(string), "unknown disposition") {
+		t.Fatalf("item = %v", item)
+	}
+}
