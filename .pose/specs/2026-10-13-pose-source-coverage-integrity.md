@@ -73,6 +73,11 @@ scan de marcadores de dívida técnica e a leitura do histórico de reviews
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/cli/followups.go
 - modified: pose-mcp/internal/cli/assess.go
+- modified: pose-mcp/internal/cli/state_providers.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/pose/assessment_scan.go
+- modified: pose-mcp/internal/pose/obligation_sources_test.go
+- modified: pose-mcp/internal/mcpserver/server.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
@@ -110,7 +115,8 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Scan de marcadores sem limite de linha, com escopo (arquivos varridos, perdas, exclusões) no JSON, no Markdown e na CLI.
 - [x] Histórico de reviews: tentativas, bundles e atestações ilegíveis atribuídos por nome/cabeçalho; bloqueio quando podem ser posteriores, aviso quando comprovadamente anteriores; `review record` recusa histórico com buraco.
 - [x] V1–V6 no domínio, na CLI e no MCP; probes antes e depois (controle inalterado); mutações em `.pose/results/b06-mutations.json`.
-- [ ] Validação estrita, revisão por ator diferente e closeout nativo.
+- [x] Validação estrita global e do módulo.
+- [ ] Revisão por ator diferente e closeout nativo.
 
 ## 5. Decisions
 

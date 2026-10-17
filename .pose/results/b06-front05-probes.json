@@ -1,0 +1,125 @@
+{
+  "spec": "pose-source-coverage-integrity",
+  "driver": ".pose/results/b06-front05-probes.py",
+  "note": "Synthetic fixtures; the host name is redacted. Before: engine at 0b2a726f (merge of PR #193). After: engine at 180c8d82. D01: one readable follow-up and one spec that is a dangling link - before, pose followups exits 0 with one item and no sign of the lost spec; after, coverage_complete is false and the loss is named, and Attention marks its followups producer incomplete. P01: an unmarked overdue bullet and an explicit [open] - before, the backlog counted 2, the candidates 1 and Attention 1; after, all three count 2 (Attention projects the unmarked one as followup-undisposed). P04: a TODO after a 70 000-character comment line - before, zero markers and no sign of loss; after, the marker is found and the report states its scope. P05 is the control with everything readable: unchanged.",
+  "before": {
+    "binary_sha256": "ed857ba3731fe2bc3e269d353b8dcf880a04e30b26711327980158c7233d6a41",
+    "probes": {
+      "D01_unreadable_spec": {
+        "run": {
+          "args": [
+            "followups",
+            "--all",
+            "--json"
+          ],
+          "exit_code": 0,
+          "stdout": "{\"items\":[{\"spec\":\"visible\",\"spec_status\":\"done\",\"raw_disposition\":\"open\",\"target\":\"\",\"text\":\"Visible repair\",\"owner\":\"@core\",\"criticality\":\"low\",\"review\":\"2099-01-01\"}],\"near_duplicate_candidates\":[],\"open\":1,\"overdue\":0,\"similarity_threshold\":60,\"specs\":1,\"total\":1,\"unowned\":0}\n",
+          "stderr": ""
+        },
+        "open": 1,
+        "says_coverage": false,
+        "coverage_complete": null
+      },
+      "P01_two_unresolved": {
+        "backlog_open": 2,
+        "candidates": 1,
+        "attention_followups": 1,
+        "attention_reasons": [
+          "followup-open"
+        ]
+      },
+      "D01_attention": {
+        "followups_coverage": [
+          {
+            "producer": "followups",
+            "state": "current"
+          }
+        ],
+        "complete": false
+      },
+      "P04_long_line": {
+        "exit_code": 0,
+        "total_markers": 0,
+        "says_scope": false,
+        "complete": null
+      },
+      "P05_control": {
+        "open": 1,
+        "markers": 1
+      }
+    }
+  },
+  "after": {
+    "binary_sha256": "becf1b9c08bcf78a3fca3f629f31a03f77384bb5ca78b7b338ef09ca11fed695",
+    "probes": {
+      "D01_unreadable_spec": {
+        "run": {
+          "args": [
+            "followups",
+            "--all",
+            "--json"
+          ],
+          "exit_code": 0,
+          "stdout": "{\"coverage\":{\"losses\":[{\"producer\":\"followups\",\"artifact\":\".pose/specs/2026-10-11-unreadable.md\",\"scope\":\"unreadable\",\"attributed_by\":\"path\",\"kind\":\"read-error\",\"detail\":\"open <tmp>/unreadable-spec/.pose/specs/2026-10-11-unreadable.md: no such file or directory\"}]},\"coverage_complete\":false,\"items\":[{\"spec\":\"visible\",\"spec_status\":\"done\",\"raw_disposition\":\"open\",\"target\":\"\",\"text\":\"Visible repair\",\"owner\":\"@core\",\"criticality\":\"low\",\"review\":\"2099-01-01\"}],\"near_duplicate_candidates\":[],\"open\":1,\"overdue\":0,\"similarity_threshold\":60,\"specs\":1,\"total\":1,\"unowned\":0}\n",
+          "stderr": ""
+        },
+        "open": 1,
+        "says_coverage": true,
+        "coverage_complete": false
+      },
+      "P01_two_unresolved": {
+        "backlog_open": 2,
+        "candidates": 2,
+        "attention_followups": 2,
+        "attention_reasons": [
+          "followup-open",
+          "followup-undisposed"
+        ]
+      },
+      "D01_attention": {
+        "followups_coverage": [
+          {
+            "producer": "followups",
+            "state": "incomplete",
+            "detail": "1 source(s) could not be read: read-error .pose/specs/2026-10-11-unreadable.md"
+          }
+        ],
+        "complete": false
+      },
+      "P04_long_line": {
+        "exit_code": 0,
+        "total_markers": 1,
+        "says_scope": true,
+        "complete": true
+      },
+      "P05_control": {
+        "open": 1,
+        "markers": 1
+      }
+    }
+  },
+  "control_unchanged": true,
+  "summary": {
+    "D01_before": {
+      "open": 1,
+      "says_coverage": false
+    },
+    "D01_after": {
+      "open": 1,
+      "coverage_complete": false,
+      "attention_followups_state": "incomplete"
+    },
+    "P01_before": {
+      "backlog": 2,
+      "candidates": 1,
+      "attention": 1
+    },
+    "P01_after": {
+      "backlog": 2,
+      "candidates": 2,
+      "attention": 2
+    },
+    "P04_before_markers": 0,
+    "P04_after_markers": 1
+  }
+}
