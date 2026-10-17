@@ -1582,7 +1582,7 @@
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-index-generation-integrity.md",
           "status": "in-progress",
-          "sha256": "49763cbacc7e66d76e08d73836527990b7d138f5ec91f6146f0a92c11c5df70f"
+          "sha256": "a49f22f6b8d6d1df464e161cf1b34c2a36acc86e8ef95e1227f8df0b1fe67fd1"
         }
       ],
       "implementation_observations": [
@@ -1592,7 +1592,7 @@
         },
         {
           "at": "2026-10-17",
-          "scope": "Start nativo após o merge de #192 (main 18e4342b). Os sete outputs de pose index são uma geração: bytes imutáveis em .pose/indexes/generations/<id>/, nomes legados publicados dos mesmos bytes e descritor generation.json (SHA-256 por arquivo e bindings de entrada) publicado por último pelo publisher da B14; falha antes do commit mantém a geração anterior e o retry converge. Leitores (grafo de entrega na CLI e no MCP, mapa de componentes e caminhos observados do review plan, digest do índice no snapshot de obrigações, pose suggest) conferem o conjunto: unavailable com motivo, nunca vazio ou misto; sem descritor é legacy-unversioned. pose index --verify; os dois escritores diretos de delivery-integrity.json substituem o arquivo dentro de uma nova geração; retenção limitada. Probes P01–P03 antes e depois com controle inalterado, 49/49 mutações mortas e validação estrita global 138/138; revisão por ator diferente e closeout nativo pendentes. A primeira revisão independente (10 findings: commit sem exclusão, ReplaceIndex que reverte, plano de review com duas gerações, primeira migração interrompida, retenção que segue link ou remove a geração viva, descritor com bytes após o valor, commit sem sync reportado como não confirmado, aviso de retenção perdido) foi corrigida com trava de geração, geração fixada por operação e marcador de primeira publicação.",
+          "scope": "Start nativo após o merge de #192 (main 18e4342b). Os sete outputs de pose index são uma geração: bytes imutáveis em .pose/indexes/generations/<id>/, nomes legados publicados dos mesmos bytes e descritor generation.json (SHA-256 por arquivo e bindings de entrada) publicado por último pelo publisher da B14; falha antes do commit mantém a geração anterior e o retry converge. Leitores (grafo de entrega na CLI e no MCP, mapa de componentes e caminhos observados do review plan, digest do índice no snapshot de obrigações, pose suggest) conferem o conjunto: unavailable com motivo, nunca vazio ou misto; sem descritor é legacy-unversioned. pose index --verify; os dois escritores diretos de delivery-integrity.json substituem o arquivo dentro de uma nova geração; retenção limitada. Probes P01–P03 antes e depois com controle inalterado, 54/54 mutações mortas e validação estrita global 138/138; revisão por ator diferente e closeout nativo pendentes. A primeira revisão independente (10 findings: commit sem exclusão, ReplaceIndex que reverte, plano de review com duas gerações, primeira migração interrompida, retenção que segue link ou remove a geração viva, descritor com bytes após o valor, commit sem sync reportado como não confirmado, aviso de retenção perdido) foi corrigida com trava de geração, geração fixada por operação e marcador de primeira publicação. A segunda revisão (F11–F16) levou a: pin legado que não atravessa a primeira publicação, substituição vinculada aos bytes exatos do descritor lido, escrita legada do refresh sob a trava, pin de geração também no bundle, no closeout check e nas obrigações do start, e artefatos declarados.",
           "unit_complete": false,
           "native_closeout_pending": true
         }
@@ -5214,7 +5214,7 @@
     "main_revision": "18e4342bf0382d2e87e2bb3e4028bddfd159ec69",
     "selected_unit": "B15",
     "selected_spec": "pose-index-generation-integrity",
-    "basis": "PR192 merged (18e4342b). The maintainer authorized continuing the implementation sequence after B14. Native start, implementation, probes, 49/49 mutations and strict validation (138/138) done for B15; different-actor review and native closeout pending.",
+    "basis": "PR192 merged (18e4342b). The maintainer authorized continuing the implementation sequence after B14. Native start, implementation, probes, 54/54 mutations and strict validation (138/138) done for B15; different-actor review and native closeout pending.",
     "unit_delivery_complete_count": 6,
     "administrative_closeouts": "Authoring closeouts remain separate and pending; materialization is not functional delivery.",
     "previous_complementary_pull_request": 192,

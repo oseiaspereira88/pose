@@ -148,8 +148,8 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Executados na entrega: `go vet ./...`, suíte completa do módulo, `go test -race`
 em `internal/pose`, `internal/cli` e `internal/mcpserver`, builds Windows/Darwin,
 o check `index-generation-integrity-integration` da matriz (race) e as
-mutações versionadas (49/49 mortas, em cópia do repositório). Probes P01–P03
-antes (main 18e4342b) e depois (6424523d) em
+mutações versionadas (54/54 mortas, em cópia do repositório). Probes P01–P03
+antes (main 18e4342b) e depois (8ff3ad3f) em
 [b15-front09-probes.json](../results/b15-front09-probes.json). A validação
 estrita e o closeout nativo são registrados em `b15-implementation-validation.json`.
 
@@ -166,7 +166,7 @@ probes e mutações. Decisões e limites em
 - R5 [satisfied] test:TestIndexGenerationLegacyFilesAreReadAsBeforeWithoutAClaim test:TestIndexGenerationCompactDeliveryIndexReadsThroughTheGeneration test:TestIndexPublishesOneIdentifiedGenerationAndRepeatsIt test:TestIndexGenerationDescriptorIsNeverSyncedNorSeeded — repositório sem descritor lido como antes (`legacy-unversioned`); schema de compaction preservado; mesmos inputs, mesmos bytes e mesma geração; `generation.json` e `generations/` fora do sync e do seed.
 - R6 [satisfied] test:TestDeliveryIntegrityToolReadsAPublishedGenerationAndRefusesAMixedOne test:TestIndexGenerationReadersRefuseAnUnavailableSet test:TestSuggestDoesNotInferADomainFromAnUnavailableComponentMap test:TestIndexVerifyNamesEveryStateAndPassesOnlyForACurrentSet test:TestRefreshDeliveryIndexKeepsTheDescriptorTruthful — CLI, MCP e leitores internos usam o mesmo contrato; `--verify` informa current, stale, diverged, legacy e unavailable; HEAD e mtime não certificam nada (limite declarado no ADR: Git não é fixado).
 - R7 [satisfied] test:TestIndexGenerationRetentionIsBoundedAndSparesTheLiveGeneration test:TestIndexGenerationRetentionNeverRemovesTheLiveGenerationNorForeignEntries test:TestIndexGenerationReaderThatFixedAGenerationKeepsItsBytes test:TestIndexGenerationRetentionProtectsTheDescriptorsGenerationNotJustItsArgument test:TestIndexGenerationRetentionNeverFollowsALinkedGenerationsDirectory test:TestRefreshDeliveryIndexReportsAFailedRetention — a geração viva, as mais novas que a carência e o que não é geração (ou é link) são preservados; limites de plataforma e de retenção por contagem e idade declarados no ADR.
-- R8 [satisfied] check:index-generation-integrity-integration — V1–V6 no domínio, na CLI e no MCP com race detector; 49/49 mutações mortas; probes P01–P03 antes e depois com controle inalterado; sem daemon nem read view global.
+- R8 [satisfied] check:index-generation-integrity-integration — V1–V6 no domínio, na CLI e no MCP com race detector; 54/54 mutações mortas; probes P01–P03 antes e depois com controle inalterado; sem daemon nem read view global.
 
 Consultar também [consistência/recovery](../reports/2026-10-12-pose-front-09-consistency-recovery.md).
 
@@ -190,8 +190,8 @@ mudança de policy, capability ou adoção; sem daemon.
 
 ### Review and delivery evidence
 
-Probes P01–P03 antes (18e4342b) e depois (6424523d) em
-[b15-front09-probes.json](../results/b15-front09-probes.json); 49 mutações
+Probes P01–P03 antes (18e4342b) e depois (8ff3ad3f) em
+[b15-front09-probes.json](../results/b15-front09-probes.json); 54 mutações
 mortas, em cópia do repositório, em [b15-mutations.json](../results/b15-mutations.json);
 validação estrita registrada em `b15-implementation-validation.json`. A revisão
 por ator diferente e o closeout nativo são registrados pelo revisor.

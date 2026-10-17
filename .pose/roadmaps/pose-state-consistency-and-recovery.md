@@ -188,6 +188,6 @@ geração anterior e o retry converge para a mesma identidade. Leitores da CLI e
 do MCP conferem o conjunto: o que não confere é `unavailable` com motivo, nunca
 um resultado vazio ou misto, e um repositório sem descritor continua legível
 como `legacy-unversioned`. `pose index --verify` lê sem gravar. Probes P01–P03
-com controle inalterado; 49/49 mutações mortas. A spec permanece in-progress
+com controle inalterado; 54/54 mutações mortas. A spec permanece in-progress
 até revisão different-actor e closeout nativo; delivery_complete permanece
 false.
