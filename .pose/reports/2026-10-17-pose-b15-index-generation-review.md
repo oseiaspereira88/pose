@@ -1,142 +1,114 @@
-# Review independente — B15 — rodada 2
+# Review independente — B15 — rodada 3
 
-Data: 2026-10-17. **Decisão: changes-requested.** Reexaminado o HEAD `d1e1347061508aeb1336b3ec8acaba00e2cf0812`, PR #193, branch `impl/pose-b15-index-generation`. Há **6 findings ativos: 3 high e 3 medium**, detalhados juntos abaixo. Nenhum código foi corrigido, nenhum selo/atestação/close aplicado e nenhum commit/push feito nesta rodada.
+Data: 2026-10-17. **Decisão: approved.** HEAD revisado `ff50b4eba9f1df07e0ca3f49b88162647b65c78d`, PR #193, branch `impl/pose-b15-index-generation`. F01–F16 tratados na causa; nenhum finding novo. Closeout nativo aplicado. Merge permanece com o maintainer.
 
 ## Escopo, autoridade e método
 
-Revisor: `agent:independent-gpt-6.1-sol-review`, autorizado pelo maintainer. Implementador informado: `agent:claude-sonnet-5-5`, sessão `296d1fcb-e989-40ae-9362-cf3514db8b26`. Julgamento `scope` / `assumption-integrity`: o prefixo `agent:independent-` é uma declaração exigida pelo motor até a spec `pose-delegated-review-run-provenance` substituí-lo. Esta execução usa Codex/OpenAI, outro vendor em relação ao implementador Claude/Anthropic. Identidade declarada; no pose-dist as atestações não são assinadas.
+Revisor autorizado: `agent:independent-gpt-6.1-sol-review`. Implementador informado: `agent:claude-sonnet-5-5`, sessão `296d1fcb-e989-40ae-9362-cf3514db8b26`. O prefixo `agent:independent-` é uma declaração exigida pelo motor até `pose-delegated-review-run-provenance` substituí-lo. Esta execução é Codex/OpenAI, outro vendor em relação ao implementador Claude/Anthropic. Identidade declarada; no pose-dist as atestações não são assinadas. Nenhum subagente usado.
 
-A rodada 1 está preservada no histórico Git e em cópias externas do relatório/JSON presentes no commit revisado; seus hashes são registrados na evidência compacta. Esta rodada revê todo o diff `18e4342b..d1e13470`, com atenção adicional ao delta desde `299fa696`, à trava, marcador, pin, escritores diretos, retenção e resultados com efeito parcial. A CLI foi compilada desta branch por `go -C pose-mcp build -o ../pose-review ./cmd/pose` e o resultado movido da raiz para `../pose-review`, usado nos comandos. Não foram exportados POSE_PROJECT_ROOT, POSE_PROJECT_ROOTS ou POSE_DEFAULT_PROJECT_ID. Nenhum subagente foi usado.
-
-Foram relidos/consultados AGENTS.md, POSE.md nas seções de review/closeout, workflow review, skills pose-review/pose-spec-closeout, spec R1–R8/V1–V6/D1, ADR B15, ADR B14, CONS-05 da frente 09 e knowledge pertinente. A árvore começou limpa. Só este relatório e o JSON compacto serão atualizados; efeitos derivados de assess/artifact-check ficam arquivados externamente e são revertidos. Requirements, Technical Plan, testes, produção, policy, capabilities, adoção, plano B15 e roadmaps não foram alterados.
+Review do diff integral `18e4342b..ff50b4eb`, incluindo os deltas corretivos das duas rodadas anteriores. Leitura de AGENTS.md, POSE.md (review/closeout), workflow review, skills pose-review/pose-spec-closeout, R1–R8/V1–V6/D1, ADR B15, ADR B14, CONS-05 e knowledge pertinente. Rodadas 1 e 2 preservadas no histórico e referenciadas por hash na evidência compacta. A CLI desta branch foi compilada pelo comando solicitado e usada como `../pose-review`; nenhum seletor POSE_PROJECT_ROOT/ROOTS/DEFAULT_PROJECT_ID exportado. A árvore começou limpa. Nenhum código de produção, teste, policy, capability ou adoção alterado pelo revisor.
 
 ## Rules applied during review
 
-- Change type: bugfix com contrato de arquivos, concorrência e documentação.
-- Workflow consulted: `.pose/workflows/review.md`; skills `.agents/skills/pose-review/SKILL.md` e `.agents/skills/pose-spec-closeout/SKILL.md`.
-- `.pose/rules/backend-go.md`: propriedade da trava, commit, concorrência, leitores e efeitos parciais.
-- `.pose/rules/security.md`: confinamento de retenção e integridade dos arquivos; nenhum segredo foi incorporado.
-- `.pose/rules/documentation-style.md`: ADR, trace e quatro manuais root/dist EN/pt-BR.
-- `.pose/rules/delivery-evidence.md`: testes verdes não substituem contraexemplos nem a reconciliação de artefatos.
-- `.pose/rules/knowledge-governance.md`: decisões anteriores consultadas; nenhum risco bloqueador aceito nem handoff de aprovação criado.
-- Regras de frontend, Kubernetes e stacks não alteradas: não aplicáveis.
+- Change type: bugfix de integridade/concorrência, com contrato de arquivos e documentação.
+- Workflow: `.pose/workflows/review.md`; skills `.agents/skills/pose-review/SKILL.md` e `.agents/skills/pose-spec-closeout/SKILL.md`.
+- `.pose/rules/backend-go.md`: protocolo de publicação, concorrência, propriedade da trava, recuperação e efeitos parciais.
+- `.pose/rules/security.md`: confinamento da retenção, digests, symlinks e ausência de segredos.
+- `.pose/rules/documentation-style.md`: spec, ADR e quatro manuais root/dist EN/pt-BR.
+- `.pose/rules/delivery-evidence.md`: evidência executada, provenance atual e reconciliação de artefatos.
+- `.pose/rules/knowledge-governance.md`: preservação das rodadas anteriores e limites já documentados, sem criar backlog ou aceitar defeito bloqueador.
+- Frontend, Kubernetes e demais stacks: não aplicáveis ao delta.
 
-## Disposição dos findings da rodada 1
+## Findings e reconciliação causal
 
-| Finding | Disposição nesta rodada |
+Nenhum finding novo nesta rodada. F01–F16 encerrados no protocolo e escopo declarados; nenhum risco de severidade média ou maior foi aceito para obter aprovação.
+
+| Findings anteriores | Correção reavaliada e evidência |
 |---|---|
-| F01 | Fechado para publishers cooperantes: aquisição exclusiva cobre predecessor, commit e retenção; contenção é Busy, sem espera. |
-| F02 | Parcial: writers cooperantes são excluídos, mas a substituição ainda não commita sobre o descritor da view que leu; F12. |
-| F03 | Parcial: o plano sobre geração current usa um pin, mas legacy e preparação do bundle ainda misturam; F11/F15. |
-| F04 | Parcial: Store fresco recusa pending, mas um pin legacy e o fallback do escritor escapam à transição; F11/F14. |
-| F05 | Fechado no caminho cooperante: fast path usa ID da própria view sob trava. |
-| F06 | Fechado no caminho cooperante: retenção serializada e proteção do descritor vivo além do argumento. |
-| F07 | Fechado: publicação e retenção recusam symlink na base generations, além dos links filhos. |
-| F08 | Fechado: parser exige EOF após um único valor JSON; tails inválidos são recusados. |
-| F09 | Parcial: cmdIndex informa Committed, mas refreshDeliveryIndex ainda nega o efeito publicado; F13. |
-| F10 | Fechado: refresh torna CleanupError observável sem converter commit em falha. |
+| F01, F05, F06 | Trava exclusiva do predecessor até retenção, fast path com a própria view, contenção sem espera; testes de publishers concorrentes, geração viva e recuperação de dono morto. |
+| F02, F12 | `DescriptorBytes` conserva os bytes exatos da view; `basedOn` recusa antes das escritas e vincula o CAS final. Probe independente publica B válido fora da trava após leitura de A e obtém conflito sem reversão de B. |
+| F03, F11, F15 | Pin na entrada do bundle, review-check e start; plano respeita pin recebido. Pin legacy recusa marcador/descritor e leitura legacy é revalidada após ler. Probes independentes cobrem transição legacy interrompida e concluída, janela pós-leitura e bundle com publicação entre plano e evidência. |
+| F04, F14 | Pending antes de mudar qualquer nome legado na primeira publicação; `ReplaceIndexOrLegacy` mantém decisão e escrita sob a mesma trava. Probe de refresh versus primeira publicação obtém Busy e o retry fica current sem Diverged. |
+| F07 | Publicação/retenção recusam `generations/` como link; filhos precisam ser diretórios diretos `gen-<16 hex>`, sem links; testes de entradas alheias e symlinks. |
+| F08 | Decoder exige EOF após o único valor; teste e mutação de trailing bytes. |
+| F09, F13 | Receipt.Committed é consumido pela CLI e refresh inclusive na via de erro; probe de sync após rename confirma geração efetiva nomeada, sem alegar ausência de efeito. |
+| F10 | Falha de retenção é warning no refresh e não desfaz o commit; regressão e mutação específicas. |
+| F16 | Quatro arquivos do pin declarados nos Artifacts; `artifact-check --strict` passa. Não houve redução artificial de range ou bypass de atribuição. |
 
-## Todos os findings ativos
+## Protocolo, leitores e escritores
 
-### B15-F11 — high — pose-mcp/internal/pose/index_generation.go:402
+O ID é derivado dos digests/tamanhos dos sete outputs e dos cinco bindings declarados, sem timestamp. Publicação usa cópias imutáveis `ExpectAbsent`, verifica leitura de volta, publica nomes legados `ExpectAny` e por último o descritor autoritativo sobre os bytes lidos. Antes do commit, o leitor conserva A pelas cópias; sem elas, uma divergência é unavailable. Na primeira publicação o marcador impede que mistura pareça legacy. Depois do commit, o leitor valida B; uma mudança de descritor durante a leitura causa nova tentativa limitada. O pin mantém os bytes já copiados durante a operação. Retry da mesma intenção converge; nomes legados divergentes são reparados, e Unchanged só ocorre com bytes correntes também nos legados.
 
-PinIndexes tomado enquanto o repositório é legacy guarda apenas o status, não os arquivos. ReadIndex do pin legacy lê nomes vivos e ignora o marcador e o descritor. Uma primeira publicação interrompida depois de services deixa esse pin ler arquivos de A e B sem erro, embora um Store fresco retorne unavailable. Um review context real resultou em owner/criticality de B e observed paths de A sem warning/blocker.
+No caminho com hard link, a trava registra dono antes de tornar-se visível, nunca espera nem toma posse por idade; dono desconhecido ou possivelmente vivo é recusado. Recuperação revalida o mesmo dono morto sob flock do diretório; liberação só remove os bytes da própria posse. Publish/Replace e fallback legacy partilham essa exclusão. O CAS B14 continua obrigatório contra escritores que ignorem a trava, com os limites herdados de compare/rename e filesystem declarados, sem alegar transação contra um escritor hostil arbitrário.
 
-Requisitos/gates afetados: R3, R5, R6, R8.
+Busca dos sete nomes e `.pose/indexes` incluiu Go, scripts, workflows, skills, docs-site e CI. Leitores funcionais do motor usam ReadIndex ou um Store pinado. `doctor` usa existência para saúde de instalação; medições/arquivamento de scripts e CI não dão verdict de coerência do conjunto. Não foi encontrado consumidor funcional interno omitido que produza mistura. Código externo de Harne8/check-pose-mirror-parity não está neste clone e não foi certificado. O limite de leitores externos que abrem nomes legados diretamente é explícito.
 
-Evidência: TestR2LegacyPinBypassesPendingMarker e TestR2LegacyReviewContextMixesDespitePending, usando apenas hooks existentes na cópia; nenhum hook novo de produção.
+Refresh e bootstrap de review bundle preservam modo legacy sob trava, recusam unavailable e substituem current como nova geração. Install/update sincronizam conteúdo distribuído e placeholders antes de `cmdIndex`; descritor, cópias e arquivos ocultos de runtime nunca são semeados/sincronizados. Fixtures atuais usam substituição de geração quando apropriado. A jornada independente de instalação/onboarding e upgrade de 6.2.0 passou, inclusive check estrito da instância atualizada. Compatibilidade **minor**: índices gerados editados à mão ficam sombreados pela cópia imutável e verify os aponta; clone sem cópias verifica os legados e recusa divergência. Manuais EN/pt-BR root/dist concordam; a seção Contributor Mode é propriedade da instância EN.
 
-Ação esperada: Fixar uma view legacy consistente ou detectar a transição para pending/descriptor e recusar/repetir a operação inteira. Não permitir que o pin legacy contorne a proteção do primeiro commit. Revalidar também a janela do leitor legacy sem pin entre a checagem do marcador e a leitura do arquivo.
+## Qualificação e limites
 
-### B15-F12 — high — pose-mcp/internal/pose/index_generation.go:583
+Vet, suíte completa sem cache de testes, race em pose/cli/mcpserver, builds Windows/Darwin e jornada real passaram. As 54 mutações versionadas foram reexecutadas em cópias e mortas. Um segundo passe registrou os testes individuais que falham; a cobertura de contrafactuais e sua limitação estão no mapa externo. Alguns mutants provocam falha no setup, portanto a contagem não prova todos os escalonamentos. Um contrafactual adicional de remoção destrutiva do descritor fez falhar a asserção de preservação do registro anterior. Seis probes independentes das causas F11–F15 passaram. Dois hooks de agendamento adicionais existiram somente na cópia descartável; fontes e patches foram arquivados externamente.
 
-ReplaceIndex lê a view A na linha 561, mas publishGenerationLocked relê o predecessor na linha 475. Um writer que não toma a trava pode publicar B e terminar entre essas leituras. A substituição aceita B como predecessor e publica seis arquivos/bindings antigos de A com sucesso, revertendo B. O CAS não está vinculado ao descritor que forneceu os arquivos, contrariando a correção declarada e o ADR. Não é a janela compare/rename residual da B14: B termina antes da nova leitura do helper.
+P01–P03 reproduzem o `after` versionado, normalizado apenas o sufixo aleatório de staging; cinco de cinco descritores anteriores preservados no output bloqueado. Integração da matriz testa V1–V6 com race. `artifact-check` reconcilia 37 claims, 52 observações e 17 commits atribuídos antes do closeout; warnings globais de órfãos não são bloqueadores da B15. O gate não é satisfeito só pela presença do descritor: corrupção, tails JSON, alteração de identidade, falta de arquivo, pending e transição legacy têm casos adversariais e mutações que derrubam a aceitação formal vazia.
 
-Requisitos/gates afetados: R2, R4, R6.
+D1 e ADR são adequados aos requisitos neste escopo: há commit de um conjunto validado e indisponibilidade explícita quando não pode ser lido. Não prometem atomicidade dos sete nomes legados, snapshot Git/source global, reader registry entre processos ou durabilidade arbitrária de power loss. Retenção combina contagem e carência, podendo manter mais que três gerações recentes. Depois de kill pós-commit, um pending residual pode ficar inerte com descritor válido; não passa a certificar mistura. Recuperação de dono morto foi exercitada em Linux; cross builds não qualificam recuperação real nas outras plataformas. B34/B35 e B41 continuam suas responsabilidades já declaradas, sem nova transferência silenciosa de backlog.
 
-Evidência: TestR2ReplaceIndexDoesNotCASTheViewItRead; replace-after-read existente publica um conjunto B completo e um descritor válido pelo publisher B14, sem tomar a trava; receipt.Previous=B e arquivos não substituídos=A.
+A falha global de surface-check foi reproduzida em worktree da main `18e4342b`: action-mismatch dos três `release_sufficiency_test.go` da spec `pose-release-shared-sufficiency-contract`, além dos warnings globais. A B15 inicialmente tinha evidence stale e unconsumed-capability com os resultados antigos; o validate canônico regenerou a provenance antes do selo. A aprovação exige o surface-check **da spec B15** verde, como o plano requer; não houve waiver de blocker desse escopo.
 
-Ação esperada: Transmitir/verificar no commit os bytes exatos do descritor da view usada na substituição. Se mudarem, recusar ou reconstruir a operação, mesmo quando o writer externo ignora a trava.
+## Plano selado e closeout nativo
 
-### B15-F13 — medium — pose-mcp/internal/cli/index.go:360
+Bundle `rvb-68d1469c0679927b`, digest
+`sha256:68d1469c0679927b040adb743d039e86ad0e8297236194419694193e543d4b57`;
+plano `sha256:9668b168b34560575933d73cb6256845c755ff9a0b14591f47da13911eb01eb1`.
+Atestação `rva-ce3732f9185f01c8`. O plano tem 15 critérios (7 mecânicos e
+8 julgamentos), 11 entradas de ferramentas e um delta material, ADR
+`SD-7d3d8212`, mapeado a D1. O assessment também observa o check da matriz,
+que não é material no plano selado.
 
-A CLI index agora usa Receipt.Committed, mas refreshDeliveryIndex ainda ignora esse campo quando err != nil. Se o dir sync do descritor falha após rename, a nova geração já está corrente, mas o refresh informa que o índice não foi atualizado. Afeta o refresh de artifact-check e o bootstrap de review bundle e preserva a afirmação de ausência de efeito que F09 pretendia eliminar.
+| Ferramenta do plano | Execução/disposição |
+|---|---|
+| artifact-check | strict, exit 0 |
+| assess-design | subject selado, exit 0 |
+| assess-discover / pose-mcp | if-stale, exit 0; byproducts externos/restaurados |
+| assess-integrate | exit 0; providers/consumers inspecionados |
+| assess-tech-debt | exit 0; sem dívida descoberta não coberta |
+| suggest-review / pose-mcp | exit 0; regras aplicadas acima |
+| validate / componente vazio | strict canônico 138/138, exit 0 |
+| validate / pose-mcp | strict explícito 135/135, exit 0 |
+| surface-check | strict da spec, 1 alvo, 138 resultados, 0 findings, exit 0 |
+| review-check | deferred na atestação; executado após apply, fresh/approved, exit 0 |
+| closeout-check | deferred na atestação; terminal após close, exit 0 |
 
-Requisitos/gates afetados: R4, R6, R8.
+Auto-attest foi somente preview e listou oito julgamentos pendentes; cada um foi
+respondido explicitamente com conclusão específica desta spec e evidência selada.
+A primeira prévia manual recusou o mapeamento não material da matriz; o plano
+foi relido e apenas o delta material ADR foi mapeado. Não houve alteração de
+policy nem contorno de blocker. Prévia explícita final e apply saíram com 0.
+Attribution preparada/concluída/aplicada pelo revisor declarado; nenhuma
+confirmação humana ou assinatura criptográfica foi inventada.
 
-Evidência: TestR2RefreshDeniesItsCommittedEffect; PublishSyncHook existente falha somente no sync de diretório de generation.json. Geração corrente muda, mas stderr contém the delivery index was not refreshed.
+Review verify pré-close: ready-to-close, fresh=true, approved=true, exit 0.
+Close nativo exit 0; spec done/completed_at 2026-10-17. Closeout-check pré-close
+apontou apenas lifecycle ainda não done; depois confirmou terminal=true e
+review_approved=true. Lint-spec e check estritos pós-close passaram. Warnings de
+metadata owner ausente e paths documentais não mapeados permanecem visíveis, sem
+elevar assurance declarada a independência criptograficamente verificada.
 
-Ação esperada: Usar o receipt também na via de erro do refresh e distinguir publicado com durabilidade não confirmada de falha sem efeito, nomeando a geração efetiva.
+Tasks, Requirement trace com produtores reais e Final Report foram reconciliados;
+Requirements e Technical Plan permaneceram byte a byte iguais. B15 delivery_complete
+foi registrado no plano e nos dois roadmaps, sem encerrar o programa nem selecionar
+nova implementação. O discovery obrigatório --update-state foi executado com seus
+efeitos arquivados e restaurados; esses resultados não integram o commit.
 
-### B15-F14 — medium — pose-mcp/internal/cli/index.go:358
+O registro compacto [b15-independent-review.json](../results/b15-independent-review.json)
+contém exits, fatos e hashes; saídas completas, scripts e patches estão fora do
+repositório em `/home/go/.cache/b15-independent-review-r3`. Temporários grandes
+foram removidos. A verificação final após index/documentação é registrada ali;
+o hash do commit transportador e o resultado do push são entregues na resposta final.
 
-ReplaceIndex encontra legacy, devolve ErrIndexGenerationLegacy e solta a trava; o fallback os.WriteFile ocorre fora dela. Nesse intervalo um index cooperante pode adquirir a mesma trava e publicar uma geração completa. O refresh então sobrescreve o delivery legado com o grafo anterior e ambos os comandos têm sucesso, deixando Diverged=delivery-integrity.json. Um clone sem cópias imutáveis não consegue consumir o conjunto descrito. A trava nova não coordena esse escritor direto durante a migração.
+## Follow-ups
 
-Requisitos/gates afetados: R2, R5, R6, R8.
-
-Evidência: TestR2LegacyRefreshEscapesGenerationLock; um único hook de agendamento inserido apenas na cópia antes do fallback legacy executa cmdIndex completo, depois libera a escrita antiga. O refresh não emite erro e a geração fica divergente.
-
-Ação esperada: Coordenar a decisão e a escrita legacy na mesma região protegida, reavaliando o modo caso uma geração tenha sido publicada. Cobrir artifact-check/review bundle disputando a primeira publicação com index.
-
-### B15-F15 — high — pose-mcp/internal/pose/review_bundle.go:487
-
-O pin está limitado à cópia local de Store dentro de ReviewPlan. prepareReviewBundle usa o Store original: guarda o plano A da linha 469 e lê delivery-integrity novamente na linha 487. Uma publicação cooperante de B nesse intervalo produz bundle com component owner @old de A e resultado de integração check-only-in-b de B, sem blockers. Fixar só o plano não fixa os sete índices consumidos pela operação de preparação do bundle.
-
-Requisitos/gates afetados: R3, R6, R8.
-
-Evidência: TestR2BundleCombinesPlanAWithEvidenceB; fixture de bundle já usada pelo projeto e IndexReadFault existente; B é publicado na segunda leitura, sem qualquer hook novo. Bundle preparado mistura plano A e evidência B com zero blockers.
-
-Ação esperada: Fixar a geração na fronteira da operação de bundle e compartilhá-la em todos os seus leitores, fazendo ReviewPlan respeitar um pin recebido. Isto não exige fixar Git, policies ou uma read view global B34/B35.
-
-### B15-F16 — medium — pose-mcp/internal/pose/spec.go:58
-
-A rodada adiciona indexPin ao Store em spec.go, mas esse caminho não foi declarado nos Artifacts da spec. O artifact-check nativo resolve corretamente 14 commits, 33 claims e 49 observações e falha com error undeclared pose-mcp/internal/pose/spec.go. Há um blocker obrigatório de reconciliação de escopo apesar dos 138 checks de validate passarem.
-
-Requisitos/gates afetados: AGENTS.md: mandatory artifacts and applicable checks, review criterion scope, native artifact-check --strict.
-
-Evidência: ../pose-review artifact-check --spec pose-index-generation-integrity --strict, exit 1; artifact-check.log. Os 14 commits carregam o slug, portanto não é um falso negativo do parser de trailers.
-
-Ação esperada: Reconciliar o artefato de produção pelo mecanismo de plano/amendment aplicável e reexecutar artifact-check. O revisor não altera o Technical Plan nem reduz o change set para ocultar o caminho.
-
-## Trava, recuperação, publicação e leitores
-
-A aquisição usa publishStartLock: arquivo temporário exclusivo com owner preenchido antes do hard link para .generation.lock, fallback O_EXCL onde links não funcionam. A trava existente não é rompida por idade; owner active/unknown produz Busy. Um owner provadamente morto é revalidado sob flock não bloqueante do diretório de índices antes da remoção. Disputa pela recuperação termina em Busy; a nova aquisição continua exclusiva. A liberação confere os bytes do próprio owner antes de remover o arquivo. Não há espera nem inversão de ordem com a trava de lifecycle de specs: a geração é uma região local de escrita; os testes concorrentes e os probes de kill real qualificam isso no Linux.
-
-Os probes adicionais mataram processos reais em after-legacy-file:services.json, before-commit e após o rename do descritor (antes do dir sync), aguardaram a saída e repetiram a mesma intenção. A trava morta foi recuperada, o descritor convergiu e a trava foi liberada. Após kill pós-commit, o marker pode permanecer no fast path Unchanged; com descritor válido ele é inerte e não altera current. Isso foi registrado como resíduo de crash, sem inventar uma certificação de power loss ou exigir pin interprocesso. Fora do Linux o motor não prova owner morto automaticamente; os builds Windows/Darwin qualificam compilação, não recuperação de processo nessas plataformas.
-
-O ID continua sendo o digest da lista fixa de sete arquivos e bindings. As fases continuam ExpectAbsent para cópias imutáveis, ExpectAny para nomes legados, CAS authoritative do descritor por último. A trava impede duas aceitações concorrentes do predecessor por escritores cooperantes e protege a retenção. O CAS B14 ainda tem sua janela documentada entre compare e rename para um escritor externo; não se promete excluí-la. F12 ocorre antes dessa janela: a view A é esquecida quando o helper relê B. O ADR deve ser lido com esse limite, não como garantia de que qualquer writer que ignore a trava será recusado em todo schedule.
-
-A preferência imutável, leitura de clones sem generations, status Diverged, Unchanged, schema/EOF e compaction continuam qualificados nos testes. O marcador torna unavailable uma primeira publicação interrompida para leitores frescos. Um pin current mantém os bytes daquela geração. F11 mostra que um pin legacy não mantém bytes nem revalida a transição; F15 mostra que a preparação do bundle não compartilha o pin do plano. São operações sobre os mesmos sete índices B15, não uma exigência de snapshot global Git/policy ou do daemon B34/B35.
-
-A busca integral por .pose/indexes, joins e os sete nomes inclui doctor, check, state, report, release, MCP, scripts, workflows, skills, docs-site e CI. Não foi encontrado outro leitor funcional que contorne ReadIndex. O escritor direto do fallback legacy permanece, conforme F14. Os consumidores de Store podem, contudo, compor leituras de gerações distintas: F15 mostra por que uma busca textual por ReadIndex não basta. doctor usa existência para diagnóstico de instalação, não para certificar a geração. scripts/bench-governance.sh mede bytes e restaura índices; CI arquiva projeções e docs-site descreve os caches. Nenhum deles foi tratado como prova de coerência. A implementação de check-pose-mirror-parity/Harne8 não está neste clone; não foi executada nem certificada.
-
-Scaffold não sincroniza/semeia generation.json, generations ou arquivos ocultos de runtime. O install/update continua semeando placeholders e chamando index, qualificado pela jornada real. Os quatro manuais root/dist EN/pt-BR documentam preferência imutável, edição manual e clone sem cópias. A classificação de compatibilidade continua minor, condicionada às correções: índices são projeções geradas; editar o legado não muda o motor enquanto a cópia existe, e --verify acusa a diferença. O fallback concorrente F14 é um defeito dessa migração, não uma limitação aceitável de leitores externos.
-
-D1 e o desenho de descritor mais cópias e trava são proporcionais. Não é necessário daemon nem transação entre todos os arquivos para corrigir os contraexemplos. Continuam honestos os limites declarados de Git não fixado, cinco bindings governados (sem completude global de dependências), leitores externos dos nomes legados, carência/contagem sem registro de readers e power loss além do fsync. Esses limites não autorizam misturar índices dentro de um plano/bundle nem trocar o predecessor da view de uma substituição.
-
-## Validação e força da evidência
-
-- go vet ./..., go test ./... -count=1, go test -race em internal/pose/internal/cli/internal/mcpserver e builds GOOS windows/darwin: exit 0.
-- Driver original de mutações reexecutado: **49/49 killed**, sem build-error/survived. A segunda execução ampliou a seleção aos quatro pacotes focados e preservou saídas JSON individuais.
-- Mapa de contrafactuais: 43 testes novos passam no código revisado; 42 falham sob pelo menos uma das 49 mutações. O teste de preservação do descritor restante falha na asserção com uma mutação adicional de cleanup destrutivo. Algumas falhas de mutantes são falhas de setup (segundo CAS), e o controle de bytes já copiados não prova retenção de reader em andamento; esses limites estão no mapa externo. Nenhuma contagem foi usada como prova de cobertura de todos os interleavings.
-- Probes P01–P03: mesmos exits/estados funcionais do after versionado; cinco descritores anteriores preservados nos cinco bloqueios, divergência/repair manual e controle corrente equivalentes. Paths temporários e stdout incidental não foram usados para igualdade byte a byte.
-- Jornada direta com a CLI revisada: instalação, onboarding, upgrade de 6.2.0 e resposta assinada à adoção passaram; a release anterior foi escolhida pela mesma regra usando gh API autenticada. A validação usou GH_TOKEN somente no próprio comando, sem imprimir o token.
-- Validate nativo --strict: **138/138 pass**, zero failed/errored/skipped. Resumo derivado por jq de JSON integral externo. B15 integration executou com race.
-- Artifact-check --strict: **exit 1**, 33 claims / 49 observações / 14 commits; erro undeclared spec.go. Os 14 commits carregam POSE-Spec pelo scanner do motor, confirmado sem usar o parser Git de trailers.
-- Surface-check --strict com os 138 resultados desta rodada: **exit 1**, um alvo, um finding undeclared spec.go. É o mesmo blocker F16, não uma segunda contagem.
-- Lint-spec --strict e check --strict: exit 0 (check mantém warnings globais). Review verify: exit 1, ready-to-seal, fresh=false, approved=false.
-- Assess tech-debt, integrate, discover --if-stale, design, suggest review e recurrence-check foram executados e suas saídas/hashes preservados. Assessment genérico de consumers não observados não foi convertido em finding B15. Não foi feito assess discover --update-state de closeout.
-
-Os testes/probes independentes foram executados em cópia descartável. F11/F12/F13/F15 usam hooks já existentes; F14 usa um único hook adicional de agendamento antes da escrita legacy, somente na cópia. PASS nesses probes significa que o defeito foi reproduzido. Fontes, patch do hook, resultados integrais, diff, mapa de testes e manifesto SHA-256 ficam em /home/go/.cache/b15-independent-review-r2. As cópias e temporários grandes são removidos; nenhum conteúdo de saída integral é copiado para o JSON do repositório.
-
-## Julgamentos R1–R8 e V1–V6
-
-R1 está definido e o parser foi corrigido. R2/R4 ainda falham na vinculação da substituição e na fronteira do fallback (F12/F14), e o resultado pós-commit do refresh é incorreto (F13). R3/R5/R6 não estão demonstrados pelas leituras legacy e pela composição do bundle (F11/F15). R7 ficou qualificado no protocolo cooperante e na base sem links, respeitados os limites de plataforma/retenção declarados. R8 continua incompleto contra os schedules novos apesar da suíte verde. V1/V3/V5 precisam abranger leitor já pinado e escritor fallback na primeira geração; V2 precisa abranger bundle inteiro e substituição sob writer externo antes do CAS; V3 precisa resultado correto do refresh pós-commit. V4 EOF e V6 recuperação/retencão ganharam evidência relevante. A reconciliação de artefatos ainda bloqueia a entrega (F16).
-
-Julgamentos de correctness, requirements, backend-concurrency/integration, operability, compatibility e scope não podem ser aprovados com esses contraexemplos. O menor modo de passar só em forma seria citar 138/138 e 49/49 sem mapear os schedules e sem executar artifact-check/surface-check. Esses dois gates recusaram F16; os probes desta revisão detectaram o que a suíte não cobria. Não se alegou que o corpus adversarial de governança demonstrava propriedades de geração que ele não testa.
-
-## Fluxo nativo e próximos passos
-
-Bundle apenas preparado: `rvb-3d4fac8e420a843c`; digest `sha256:3d4fac8e420a843c70f21d57321feea0e69a82ff0ac0f75b8434624a36759bd8`; plan digest `sha256:1405f6e3840bfb5df903994d732efc8d6bb73402ffbc35b108903b36abcf1ce9`. Nenhum selo nem atestação aplicada. Review-check/closeout-check são ferramentas de completion e ficam diferidas; close não foi executado. Validate do componente é coberto pela execução global; não houve repetição isolada de --module depois da decisão negativa.
-
-A spec permanece in-progress e não foi alterada nesta rodada. Task de revisão/closeout, Requirement trace, Final Report da spec, plano B15 e roadmaps não foram marcados completos. HEAD permanece d1e1347061508aeb1336b3ec8acaba00e2cf0812; nenhum commit foi enviado. O implementador deve corrigir os seis findings, acrescentar regressões dos cenários específicos e reconciliar spec.go pelo fluxo aplicável. Só depois cabe nova revisão independente e closeout nativo. Nenhum risco bloqueador foi aceito; nenhuma contribuição/issue/PR/comentário externo foi criado.
+Não há finding ativo nem novo follow-up a transferir. Permanecem os limites já
+declarados para B34/B35 e B41; nenhuma disposição spawned, covered ou duplicate
+foi escrita. Aguardar merge de #193 pelo maintainer e reavaliar readiness nativa
+sem escolher automaticamente outra implementação.

@@ -1,8 +1,8 @@
 ---
 slug: pose-index-generation-integrity
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-17
 depends_on: pose-writer-coordination-and-atomic-publication, pose-delivery-integrity-index-compaction
 priority: 1
 components: pose-mcp
@@ -118,7 +118,7 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Leitores migrados: grafo de entrega (CLI e MCP), mapa de componentes e caminhos observados do review plan, digest do índice no snapshot de obrigações e `pose suggest`; `generation.json` e `generations/` fora do sync e do seed.
 - [x] V1–V6 no domínio, na CLI e no MCP com race detector; probes P01–P03 antes e depois (controle inalterado); mutações em `.pose/results/b15-mutations.json`.
 - [x] Validação estrita global e do módulo.
-- [ ] Revisão por ator diferente e closeout nativo.
+- [x] Revisão por ator diferente (Codex/OpenAI), três rodadas; closeout nativo com bundle selado e atestação aprovada.
 
 ## 5. Decisions
 
@@ -150,8 +150,10 @@ em `internal/pose`, `internal/cli` e `internal/mcpserver`, builds Windows/Darwin
 o check `index-generation-integrity-integration` da matriz (race) e as
 mutações versionadas (54/54 mortas, em cópia do repositório). Probes P01–P03
 antes (main 18e4342b) e depois (8ff3ad3f) em
-[b15-front09-probes.json](../results/b15-front09-probes.json). A validação
-estrita e o closeout nativo são registrados em `b15-implementation-validation.json`.
+[b15-front09-probes.json](../results/b15-front09-probes.json), reproduzidos
+independentemente em ff50b4eb. A implementação está registrada em
+`b15-implementation-validation.json`; a validação estrita independente e o
+closeout estão em [b15-independent-review.json](../results/b15-independent-review.json).
 
 ### Requirement trace
 
@@ -160,13 +162,13 @@ probes e mutações. Decisões e limites em
 [ADR 2026-10-17](../adr/2026-10-17-index-sets-are-published-as-verified-generations.md).
 
 - R1 [satisfied] test:TestIndexGenerationPublishesAndReadsOneIdentifiedSet test:TestIndexGenerationUnverifiableSetsAreUnavailableWithAReason test:TestIndexGenerationDivergentInputBindingIsStaleNotUnavailable — descritor com schema, lista fixa de sete arquivos, SHA-256 de cada um, id igual ao digest do conteúdo e bindings de entrada; nenhum arquivo isolado certifica o conjunto.
-- R2 [satisfied] test:TestIndexGenerationBlockedOutputNeverLeavesAMixedCurrentSet test:TestIndexGenerationRetryAfterAStopAtEveryPhaseConverges test:TestIndexGenerationConcurrentPublishersCommitOverWhatTheyRead test:TestIndexGenerationCommitSyncsTheDescriptorAndItsDirectory test:TestIndexWithABlockedOutputKeepsThePreviousGenerationInForce test:TestIndexGenerationPublishersNeverAcceptTheSamePredecessor test:TestIndexGenerationLockIsNeverBrokenWhileItsOwnerMayBeAlive test:TestIndexGenerationLockOfADeadOwnerIsRecovered test:TestIndexWithAnotherPublicationRunningWritesNothingAndSaysSo — três fases pelo publisher da B14; falha antes do commit mantém a geração anterior; probe P01 com output bloqueado.
-- R3 [satisfied] test:TestIndexGenerationConcurrentReadersNeverSeeAMixture test:TestIndexGenerationReaderStartsOverWhenTheDescriptorMovesUnderIt test:TestIndexGenerationUnverifiableSetsAreUnavailableWithAReason test:TestIndexGenerationReadersRefuseAnUnavailableSet test:TestIndexGenerationPinnedStoreReadsOneGenerationEvenIfAnotherCommits test:TestIndexGenerationAReviewPlanReadsTheSetOnce test:TestIndexGenerationInterruptedFirstPublicationReadsAsUnavailable test:TestIndexGenerationDescriptorWithTrailingBytesIsUnavailable — leitor fixa a geração, confere cada arquivo, relê o descritor e recomeça; conjunto que não confere é unavailable com motivo, nunca vazio nem misto.
-- R4 [satisfied] test:TestIndexGenerationRetryAfterAStopAtEveryPhaseConverges test:TestIndexGenerationStopAtTheDescriptorKeepsTheOldRecordWhole test:TestIndexGenerationFailedCleanupIsNotAFailedPublication test:TestIndexGenerationRefusesToOverwriteACopyOfItsOwnIdentity test:TestIndexGenerationReplaceIndexNeverRevertsAConcurrentGeneration test:TestIndexAnUnsyncedCommitSaysTheNewGenerationIsCurrent — parada em cada fase, mesma intenção converge uma vez, falha de retenção não é falha de publicação; commit usa o publisher (sync, CAS) da B14; o resultado da CLI nomeia a causa (`publish-conflict`, `publish-unsynced`).
-- R5 [satisfied] test:TestIndexGenerationLegacyFilesAreReadAsBeforeWithoutAClaim test:TestIndexGenerationCompactDeliveryIndexReadsThroughTheGeneration test:TestIndexPublishesOneIdentifiedGenerationAndRepeatsIt test:TestIndexGenerationDescriptorIsNeverSyncedNorSeeded — repositório sem descritor lido como antes (`legacy-unversioned`); schema de compaction preservado; mesmos inputs, mesmos bytes e mesma geração; `generation.json` e `generations/` fora do sync e do seed.
-- R6 [satisfied] test:TestDeliveryIntegrityToolReadsAPublishedGenerationAndRefusesAMixedOne test:TestIndexGenerationReadersRefuseAnUnavailableSet test:TestSuggestDoesNotInferADomainFromAnUnavailableComponentMap test:TestIndexVerifyNamesEveryStateAndPassesOnlyForACurrentSet test:TestRefreshDeliveryIndexKeepsTheDescriptorTruthful — CLI, MCP e leitores internos usam o mesmo contrato; `--verify` informa current, stale, diverged, legacy e unavailable; HEAD e mtime não certificam nada (limite declarado no ADR: Git não é fixado).
+- R2 [satisfied] test:TestIndexGenerationReplaceIndexIsRefusedWhenAnUnlockedWriterPublishedMeanwhile test:TestIndexGenerationBlockedOutputNeverLeavesAMixedCurrentSet test:TestIndexGenerationRetryAfterAStopAtEveryPhaseConverges test:TestIndexGenerationConcurrentPublishersCommitOverWhatTheyRead test:TestIndexGenerationCommitSyncsTheDescriptorAndItsDirectory test:TestIndexWithABlockedOutputKeepsThePreviousGenerationInForce test:TestIndexGenerationPublishersNeverAcceptTheSamePredecessor test:TestIndexGenerationLockIsNeverBrokenWhileItsOwnerMayBeAlive test:TestIndexGenerationLockOfADeadOwnerIsRecovered test:TestIndexWithAnotherPublicationRunningWritesNothingAndSaysSo — três fases pelo publisher da B14; falha antes do commit mantém a geração anterior; probe P01 com output bloqueado.
+- R3 [satisfied] test:TestIndexGenerationALegacyPinDoesNotReadThroughAFirstPublicationThatStarted test:TestIndexGenerationABundleFixesOneGenerationForPlanAndEvidence test:TestIndexGenerationConcurrentReadersNeverSeeAMixture test:TestIndexGenerationReaderStartsOverWhenTheDescriptorMovesUnderIt test:TestIndexGenerationUnverifiableSetsAreUnavailableWithAReason test:TestIndexGenerationReadersRefuseAnUnavailableSet test:TestIndexGenerationPinnedStoreReadsOneGenerationEvenIfAnotherCommits test:TestIndexGenerationAReviewPlanReadsTheSetOnce test:TestIndexGenerationInterruptedFirstPublicationReadsAsUnavailable test:TestIndexGenerationDescriptorWithTrailingBytesIsUnavailable — leitor fixa a geração, confere cada arquivo, relê o descritor e recomeça; conjunto que não confere é unavailable com motivo, nunca vazio nem misto.
+- R4 [satisfied] test:TestRefreshDeliveryIndexNamesACommittedGenerationWhoseDurabilityIsUnconfirmed test:TestIndexGenerationRetryAfterAStopAtEveryPhaseConverges test:TestIndexGenerationStopAtTheDescriptorKeepsTheOldRecordWhole test:TestIndexGenerationFailedCleanupIsNotAFailedPublication test:TestIndexGenerationRefusesToOverwriteACopyOfItsOwnIdentity test:TestIndexGenerationReplaceIndexNeverRevertsAConcurrentGeneration test:TestIndexAnUnsyncedCommitSaysTheNewGenerationIsCurrent — parada em cada fase, mesma intenção converge uma vez, falha de retenção não é falha de publicação; commit usa o publisher (sync, CAS) da B14; o resultado da CLI nomeia a causa (`publish-conflict`, `publish-unsynced`).
+- R5 [satisfied] test:TestIndexGenerationALegacyReplacementCannotRaceAFirstPublication test:TestIndexGenerationLegacyFilesAreReadAsBeforeWithoutAClaim test:TestIndexGenerationCompactDeliveryIndexReadsThroughTheGeneration test:TestIndexPublishesOneIdentifiedGenerationAndRepeatsIt test:TestIndexGenerationDescriptorIsNeverSyncedNorSeeded — repositório sem descritor nem marcador lido como antes (`legacy-unversioned`); schema de compaction preservado; mesmos inputs, mesmos bytes e mesma geração; `generation.json` e `generations/` fora do sync e do seed.
+- R6 [satisfied] test:TestIndexGenerationABundleFixesOneGenerationForPlanAndEvidence test:TestDeliveryIntegrityToolReadsAPublishedGenerationAndRefusesAMixedOne test:TestIndexGenerationReadersRefuseAnUnavailableSet test:TestSuggestDoesNotInferADomainFromAnUnavailableComponentMap test:TestIndexVerifyNamesEveryStateAndPassesOnlyForACurrentSet test:TestRefreshDeliveryIndexKeepsTheDescriptorTruthful — CLI, MCP e leitores internos usam o mesmo contrato; `--verify` informa current, stale, diverged, legacy e unavailable; HEAD e mtime não certificam nada (limite declarado no ADR: Git não é fixado).
 - R7 [satisfied] test:TestIndexGenerationRetentionIsBoundedAndSparesTheLiveGeneration test:TestIndexGenerationRetentionNeverRemovesTheLiveGenerationNorForeignEntries test:TestIndexGenerationReaderThatFixedAGenerationKeepsItsBytes test:TestIndexGenerationRetentionProtectsTheDescriptorsGenerationNotJustItsArgument test:TestIndexGenerationRetentionNeverFollowsALinkedGenerationsDirectory test:TestRefreshDeliveryIndexReportsAFailedRetention — a geração viva, as mais novas que a carência e o que não é geração (ou é link) são preservados; limites de plataforma e de retenção por contagem e idade declarados no ADR.
-- R8 [satisfied] check:index-generation-integrity-integration — V1–V6 no domínio, na CLI e no MCP com race detector; 54/54 mutações mortas; probes P01–P03 antes e depois com controle inalterado; sem daemon nem read view global.
+- R8 [satisfied] test:TestIndexGenerationALegacyPinDoesNotReadThroughAFirstPublicationThatStarted test:TestIndexGenerationReplaceIndexIsRefusedWhenAnUnlockedWriterPublishedMeanwhile test:TestIndexGenerationALegacyReplacementCannotRaceAFirstPublication test:TestIndexGenerationABundleFixesOneGenerationForPlanAndEvidence test:TestRefreshDeliveryIndexNamesACommittedGenerationWhoseDurabilityIsUnconfirmed check:index-generation-integrity-integration — V1–V6 no domínio, na CLI e no MCP com race detector; 54/54 mutações mortas; probes P01–P03 antes e depois com controle inalterado; sem daemon nem read view global.
 
 Consultar também [consistência/recovery](../reports/2026-10-12-pose-front-09-consistency-recovery.md).
 
@@ -182,7 +184,9 @@ Uma falha antes do commit mantém a geração anterior em vigor e o retry conver
 para a mesma identidade. Os leitores — grafo de entrega na CLI e no MCP, mapa de
 componentes e caminhos observados do review plan, digest do índice no snapshot
 de obrigações e `pose suggest` — fixam e conferem o conjunto: o que não confere é
-`unavailable` com motivo; sem descritor é `legacy-unversioned` e lê como antes.
+`unavailable` com motivo; sem descritor nem marcador é `legacy-unversioned`.
+Primeira publicação marcada e não confirmada é `unavailable`; pin legacy recusa
+a transição, e o bundle/plano/closeout/start reutilizam o mesmo pin da operação.
 O refresh do artifact-check e o bootstrap do review bundle substituem
 `delivery-integrity.json` dentro de uma nova geração. `pose index --verify` lê
 sem gravar. A retenção é limitada e poupa a geração viva e as recentes. Sem
@@ -190,11 +194,26 @@ mudança de policy, capability ou adoção; sem daemon.
 
 ### Review and delivery evidence
 
-Probes P01–P03 antes (18e4342b) e depois (8ff3ad3f) em
-[b15-front09-probes.json](../results/b15-front09-probes.json); 54 mutações
-mortas, em cópia do repositório, em [b15-mutations.json](../results/b15-mutations.json);
-validação estrita registrada em `b15-implementation-validation.json`. A revisão
-por ator diferente e o closeout nativo são registrados pelo revisor.
+Revisão independente por `agent:independent-gpt-6.1-sol-review`, Codex/OpenAI,
+outro vendor em relação ao implementador Claude/Anthropic; identidade declarada,
+atestações não assinadas. Três rodadas, F01–F16 tratados na causa e nenhum finding
+novo na rodada 3 sobre `ff50b4eb`. [Parecer](../reports/2026-10-17-pose-b15-index-generation-review.md)
+e [evidência compacta](../results/b15-independent-review.json), com hashes das
+saídas integrais arquivadas fora do repositório.
+
+Validação canônica estrita 138/138 e explícita de pose-mcp 135/135; vet, suíte
+completa, race em pose/cli/mcpserver, builds Windows/Darwin e install/upgrade de
+6.2.0 passaram. Probes P01–P03 reproduzem o registro versionado, 54/54 mutações
+mortas; 48 testes novos com contrafactuais registrados (47 nas mutações e um
+contrafactual adicional), além de seis probes independentes das correções finais.
+Esses produtores e a integração `index-generation-integrity-integration`
+sustentam R1–R8/V1–V6; lint apenas verifica estrutura.
+
+Bundle selado `rvb-68d1469c0679927b`, atestação `rva-ce3732f9185f01c8`;
+review verify fresh/approved antes do close, review-check e closeout-check aprovados,
+close nativo aplicado, lint-spec e check estritos aprovados. Surface-check estrito
+da B15 passou com evidência regenerada; erros globais da outra spec de release
+foram reproduzidos na main 18e4342b e não foram dispensados neste escopo.
 
 ### Residual risks
 

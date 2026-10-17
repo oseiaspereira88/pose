@@ -1,50 +1,76 @@
 {
   "schema_version": 1,
-  "round": 2,
+  "round": 3,
   "spec": "pose-index-generation-integrity",
   "date": "2026-10-17",
-  "decision": "changes-requested",
+  "decision": "approved",
   "reviewer": "agent:independent-gpt-6.1-sol-review",
   "implementer": "agent:claude-sonnet-5-5",
   "implementer_session": "296d1fcb-e989-40ae-9362-cf3514db8b26",
-  "head": "d1e1347061508aeb1336b3ec8acaba00e2cf0812",
+  "head": "ff50b4eba9f1df07e0ca3f49b88162647b65c78d",
   "base": "18e4342b",
   "pr": 193,
-  "scope_judgment": "O prefixo agent:independent- é uma declaração exigida pelo motor até pose-delegated-review-run-provenance substituí-lo. Esta é uma execução Codex/OpenAI, outro vendor em relação a Claude/Anthropic. Identidade declarada; atestações no pose-dist não são assinadas. Nenhum selo nem atestação aplicado nesta rodada.",
-  "previous_round": {
-    "decision": "changes-requested",
-    "head": "299fa696e20c3fbc996d4cf022a7d29b6ebc9060",
-    "record_present_at_reviewed_commit": true,
-    "evidence_sha256": "76c4579e419c18b0cd7f22e72ec8a35d940270fbec6ed09e2a4634882ec635af",
-    "report_sha256": "15484bdbcd53d195cc6994ec40ee66ee886664a325348212b4124c6ba4fa900d",
-    "closed_in_cooperative_protocol": [
-      "F01",
-      "F05",
-      "F06",
-      "F07",
-      "F08",
-      "F10"
-    ],
-    "partial": {
-      "F02": [
-        "F12"
+  "scope_judgment": "agent:independent- is the declaration required by the engine until pose-delegated-review-run-provenance replaces it. This execution is Codex/OpenAI, a different vendor from implementer Claude/Anthropic. Declared identity; unsigned pose-dist attestations. No subagents.",
+  "previous_rounds": {
+    "round1": {
+      "decision": "changes-requested",
+      "head": "299fa696e20c3fbc996d4cf022a7d29b6ebc9060",
+      "record_present_at_reviewed_commit": true,
+      "evidence_sha256": "76c4579e419c18b0cd7f22e72ec8a35d940270fbec6ed09e2a4634882ec635af",
+      "report_sha256": "15484bdbcd53d195cc6994ec40ee66ee886664a325348212b4124c6ba4fa900d",
+      "closed_in_cooperative_protocol": [
+        "F01",
+        "F05",
+        "F06",
+        "F07",
+        "F08",
+        "F10"
       ],
-      "F03": [
-        "F11",
-        "F15"
-      ],
-      "F04": [
-        "F11",
-        "F14"
-      ],
-      "F09": [
-        "F13"
-      ]
-    }
+      "partial": {
+        "F02": [
+          "F12"
+        ],
+        "F03": [
+          "F11",
+          "F15"
+        ],
+        "F04": [
+          "F11",
+          "F14"
+        ],
+        "F09": [
+          "F13"
+        ]
+      }
+    },
+    "round2": {
+      "head": "d1e1347061508aeb1336b3ec8acaba00e2cf0812",
+      "decision": "changes-requested",
+      "evidence_sha256": "9a7e6a1a939a13f3d10ffee64718181409bba958b2494915aec66344226959bb",
+      "report_sha256": "f0358486750ac4adefcddcfceba57f98d9184b2b604f12bdc348b91ee503abbd"
+    },
+    "resolved_findings": [
+      "B15-F01",
+      "B15-F02",
+      "B15-F03",
+      "B15-F04",
+      "B15-F05",
+      "B15-F06",
+      "B15-F07",
+      "B15-F08",
+      "B15-F09",
+      "B15-F10",
+      "B15-F11",
+      "B15-F12",
+      "B15-F13",
+      "B15-F14",
+      "B15-F15",
+      "B15-F16"
+    ]
   },
-  "external_evidence_directory": "/home/go/.cache/b15-independent-review-r2",
-  "outputs_manifest_sha256": "9ddeb1ca3fd3d279c6bb91d7ab69fa6c17821b1d197860e4cd59401ad7fc75e7",
-  "binary_sha256": "3fe641434d1a64f865425024914b6aa2138932b799e52c53add1c2c30cdc650a",
+  "external_evidence_directory": "/home/go/.cache/b15-independent-review-r3",
+  "outputs_manifest_sha256": "fb4a6dfc357a65af8dd995e0f6a8dde7f938abf61807d1e307bd9d41ed98abf6",
+  "binary_sha256": "9b09e34c15f2ffcd0cb45f96ca3ececd0321948ef32507770f17a3aa4baa9ad5",
   "facts": {
     "validation": {
       "executed": 138,
@@ -55,325 +81,336 @@
       "skipped": 0
     },
     "validation_outcome": "pass",
-    "validation_json_sha256": "c9b4335beb572f7b46967f6c17092a18f452a965712faa2c0c0ebdc4e9c60257",
+    "validation_json_sha256": "26ae2b0724138d3eed43b40ad6b7318ecb18d47a48f97bc56b46647e6106dcab",
+    "module_validation": {
+      "executed": 135,
+      "passed": 135,
+      "exit_code": 0
+    },
     "original_mutations": {
-      "killed": 49,
-      "total": 49,
-      "sha256": "a2b8b208480d8be5b734d2a65e8d5d9ec4855627faf943faf33a9ef1f692a86c"
+      "killed": 54,
+      "total": 54,
+      "sha256": "03954e257efbfe91ba69f20f41e82dde4556badab2ab56a94a9571fd1b6f7538"
     },
     "test_counterfactuals": {
-      "new_tests": 43,
-      "mapped_original_mutations": 42,
+      "new_tests": 48,
+      "mapped_original_mutations": 47,
       "additional_targeted_assertion": 1,
-      "map_sha256": "4ef4edc4db7cade44f4450ec29e5bd87a00808e3c87d9042ef0c0b65b4b29f18",
-      "limitation": "Some mutant failures are setup failures rather than the property named by the test; failure counts do not prove complete schedule coverage. ReaderThatFixedAGenerationKeepsItsBytes holds already-copied bytes."
+      "map_sha256": "8c8e008178d6b77e4a96734b15a9f3f1fbcbd5bbf942df7f3f67d6ee301d47c7",
+      "limitation": "Some mutants fail setup rather than the named property; counts do not prove all schedules. ReaderThatFixedAGenerationKeepsItsBytes owns already-copied bytes."
     },
-    "probes": "P01-P03 exits and statuses match versioned after; 5/5 previous descriptors preserved. Comparison in external manifest.",
-    "positive_crash_qualification": "Actual child processes killed at after-legacy-file:services.json, before-commit and after descriptor rename; dead-owner recovery, same-intent convergence and lock release passed on Linux. After-commit retry can leave an inert pending marker while descriptor is valid. No power-loss qualification asserted.",
-    "journey": "Fresh install/onboarding and upgrade from 6.2.0 passed with the review binary; previous release selected with authenticated gh API using journey eligibility rule.",
+    "probes": {
+      "matches_versioned_after": true,
+      "normalization": "publisher random staging filename suffix only",
+      "preserved_previous_descriptors": 5
+    },
+    "independent_positive_probes": {
+      "passed": 6,
+      "scope": "F11-F15 transition, exact predecessor, bundle pin, post-read legacy, committed refresh, first-publication lock",
+      "sha256": "9b886fccd52559eb2a2d87250fffa19740bb3c7828eb1f18cbc763d733c05891"
+    },
     "artifact_reconciliation": {
-      "claims": 33,
-      "observed": 49,
-      "commits": 14,
-      "commits_with_spec_line": 14,
-      "error": "undeclared pose-mcp/internal/pose/spec.go",
-      "artifact_exit": 1,
-      "surface_exit": 1
+      "claims": 37,
+      "observed": 52,
+      "attributed_commits": 17,
+      "exit_code": 0
     },
-    "source_mutations": "No production/test/policy/capability/adoption edits in checkout. Existing fault hooks used in disposable copy, plus one scheduling hook before CLI legacy fallback, saved as legacy-fallback-scheduling-hook.patch. Mutations and extra counterfactual also confined to copies.",
-    "compatibility": "minor after fixes, generated legacy manual edits and clone behavior documented; external Harne8/check-pose-mirror-parity code unavailable in clone and not certified. B34/B35 global Git/source dependency snapshots remain outside this scope."
+    "surface": {
+      "scoped_exit_code": 0,
+      "targets": 1,
+      "results": 138,
+      "findings": 0,
+      "main_18e4342b_exit": 1,
+      "preexisting": "action-mismatch of three release_sufficiency_test.go for pose-release-shared-sufficiency-contract; global warnings also present",
+      "before_regeneration": "B15 stale-evidence and unconsumed-capability; both cleared by canonical strict validation"
+    },
+    "compatibility": "minor; shadowed generated manual edits, clone fallback and external legacy-reader limits documented; install/onboarding and upgrade from 6.2.0 passed; unavailable external Harne8 code not certified",
+    "residual_limits": "No daemon/global Git read view, direct external legacy readers may mix, count+age retention rather than process reader registry or hard disk quota, Linux recovery exercised while Windows/Darwin only built, arbitrary power loss and hostile noncooperating writers not qualified beyond inherited B14 limits.",
+    "source_mutations": "No production/test/policy/capability/adoption edits in checkout. Mutants and two extra scheduling hooks confined to disposable copies. Discovery update-state byproducts archived externally and restored, never committed."
   },
   "commands": [
     {
-      "id": "Go-vet",
-      "command": "go vet ./...",
-      "exit_code": 0,
-      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "output": "Go-vet.log"
-    },
-    {
-      "id": "Go-tests",
-      "command": "go test ./... -count=1",
-      "exit_code": 0,
-      "output_sha256": "b2abb7e1b9dea8a67a74dd59be79b180c02e991d69074bc6c512b1d8be71c197",
-      "output": "Go-tests.log"
-    },
-    {
-      "id": "Go-race",
-      "command": "go test -race ./internal/pose ./internal/cli ./internal/mcpserver -count=1",
-      "exit_code": 0,
-      "output_sha256": "bf62a25412d5a635ac5cced939b8a368577824b2d142d4f3d76d8447c31f28f5",
-      "output": "Go-race.log"
-    },
-    {
-      "id": "Windows-build",
-      "command": "GOOS=windows go build ./...",
-      "exit_code": 0,
-      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "output": "Windows-build.log"
-    },
-    {
       "id": "Darwin-build",
-      "command": "GOOS=darwin go build ./...",
       "exit_code": 0,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "output": "Darwin-build.log"
     },
     {
-      "id": "mutations",
-      "command": "python3 -I .pose/results/b15-mutations.py --output /home/go/.cache/b15-independent-review-r2/mutations.json",
+      "id": "Go-race",
       "exit_code": 0,
-      "output_sha256": "7c6d15c5c5b8184ff33fd3d48275fda29e2146d7632850e6591959afb0d5855c",
+      "output_sha256": "415ee95082667caf7af941df2a0c21ae88c88b6447d53b0396390d005787e785",
+      "output": "Go-race.log"
+    },
+    {
+      "id": "Go-tests",
+      "exit_code": 0,
+      "output_sha256": "02c2d922c3e5a48f56ae338b8ae3db7794946809559fc1747f51544ddac598f7",
+      "output": "Go-tests.log"
+    },
+    {
+      "id": "Go-vet",
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": "Go-vet.log"
+    },
+    {
+      "id": "Windows-build",
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": "Windows-build.log"
+    },
+    {
+      "id": "assess-design-sealed",
+      "exit_code": 0,
+      "output_sha256": "a91bd2740dc9c7431829a3dda116566db469ca94aad47895493613e882132d72",
+      "output": "assess-design-sealed.log"
+    },
+    {
+      "id": "assess-design",
+      "exit_code": 0,
+      "output_sha256": "388141483e2959b7169f0d26fe0aa9e051d69dac84d46b22777c0ccbc7cf1161",
+      "output": "assess-design.log"
+    },
+    {
+      "id": "assess-discover",
+      "exit_code": 0,
+      "output_sha256": "b52e785c0f884a707bccc366c4b478c2834ea712aeb2df2434571fbf642e7f49",
+      "output": "assess-discover.log"
+    },
+    {
+      "id": "attest-apply",
+      "exit_code": 0,
+      "output_sha256": "11b102b1335301c5a86a11585e77e58b298b6bdcd4aff1a7d6a810275e35da40",
+      "output": "attest-apply.log"
+    },
+    {
+      "id": "auto-attest-preview",
+      "exit_code": 0,
+      "output_sha256": "eb690414882c66051d5344ff9a7e62a6f178638abbc1aa1e72352031e1d69e69",
+      "output": "auto-attest-preview.log"
+    },
+    {
+      "id": "bundle-seal",
+      "exit_code": 0,
+      "output_sha256": "8695ceba49854176fb227d818dcaa4dd2644999a42f9f072dbbfb24149aed864",
+      "output": "bundle-seal.log"
+    },
+    {
+      "id": "check-final",
+      "exit_code": 0,
+      "output_sha256": "70054987968cc6ac068e182d825e02c5a4089b3af1be27e74bd5a1840bce7dff",
+      "output": "check-final.log"
+    },
+    {
+      "id": "check-preedit",
+      "exit_code": 0,
+      "output_sha256": "70054987968cc6ac068e182d825e02c5a4089b3af1be27e74bd5a1840bce7dff",
+      "output": "check-preedit.log"
+    },
+    {
+      "id": "close",
+      "exit_code": 0,
+      "output_sha256": "ad84db3afbb8d664faf8ca680269b9ad847eae78b6dec99363b80a188430a5f2",
+      "output": "close.log"
+    },
+    {
+      "id": "closeout-check-preclose",
+      "exit_code": 1,
+      "output_sha256": "0a8a774ad1453f845b6f2d2e4f2518cf135264447bff815da56069dbd2b4c8dd",
+      "output": "closeout-check-preclose.log"
+    },
+    {
+      "id": "closeout-check",
+      "exit_code": 0,
+      "output_sha256": "bffe5c4929b83809df0e8fb165015ecae6add5dc1cc6ed2cf6f5bc31cd0e405f",
+      "output": "closeout-check.log"
+    },
+    {
+      "id": "discover-closeout",
+      "exit_code": 0,
+      "output_sha256": "432d04fd22ade05620d13368bf0a5494afd73104c0153cda6f9774e0df19a655",
+      "output": "discover-closeout.log"
+    },
+    {
+      "id": "index-final",
+      "exit_code": 0,
+      "output_sha256": "a31487862ff1b484a688d483f6151fdd4589352a24df11d2c54986f1ad541835",
+      "output": "index-final.log"
+    },
+    {
+      "id": "index-verify-final",
+      "exit_code": 0,
+      "output_sha256": "1228f881b37a01b52dad0ecec9e0eb691011d1ebfe782d57aa8398dcbddb7990",
+      "output": "index-verify-final.log"
+    },
+    {
+      "id": "integrate",
+      "exit_code": 0,
+      "output_sha256": "6a7787aa327c622ca2771a1e1b5b23d249cdce99327e753c85b04ba8328cf56a",
+      "output": "integrate.log"
+    },
+    {
+      "id": "lint-spec-final",
+      "exit_code": 0,
+      "output_sha256": "f84ded72588cc6117fee2516a4081cfd50daf066ebccb2a737f4c87095a8b6f4",
+      "output": "lint-spec-final.log"
+    },
+    {
+      "id": "lint-spec",
+      "exit_code": 0,
+      "output_sha256": "f84ded72588cc6117fee2516a4081cfd50daf066ebccb2a737f4c87095a8b6f4",
+      "output": "lint-spec.log"
+    },
+    {
+      "id": "mutations",
+      "exit_code": 0,
+      "output_sha256": "b40a8c3eb92b0f9631cca1274dd2ce1a91b92329d7581721dfdd642ce5b8d080",
       "output": "mutations.log"
     },
     {
       "id": "probes",
-      "command": "python3 -I .pose/results/b15-front09-probes.py --binary ../pose-review --output /home/go/.cache/b15-independent-review-r2/probes.json",
       "exit_code": 0,
-      "output_sha256": "90ab434d38f81c3d5d4d6e5d7601a4c729bc6dd0de8feadf0a8279a5b4026325",
+      "output_sha256": "9ff705da59c8ee717b788c0bf3b004418b2c078c510f9a4baeab1cc1640763a7",
       "output": "probes.log"
     },
     {
-      "id": "tech-debt",
-      "command": "../pose-review assess tech-debt --json",
-      "exit_code": 0,
-      "output_sha256": "51c83342a96df50ba2f75c38d5a4f072e8afd521f4326e31e13298492ac5878c",
-      "output": "tech-debt.log"
-    },
-    {
-      "id": "integrate",
-      "command": "../pose-review assess integrate --json",
-      "exit_code": 0,
-      "output_sha256": "b855349eac84b78ddbc3d1c917a9fcf28ebda6b378597e67de9b511abcf50327",
-      "output": "integrate.log"
-    },
-    {
-      "id": "assess-discover",
-      "command": "../pose-review assess discover --if-stale --component pose-mcp",
-      "exit_code": 0,
-      "output_sha256": "32e651f504616a939937c26278d01a67c16d63f4d2d6db50a2d0dfefc5e57974",
-      "output": "assess-discover.log"
-    },
-    {
-      "id": "assess-design",
-      "command": "../pose-review assess design --spec pose-index-generation-integrity --json",
-      "exit_code": 0,
-      "output_sha256": "8072a223d28a368fb100940597cab38776b66059006aea96f3a9b183ffc843ed",
-      "output": "assess-design.log"
-    },
-    {
-      "id": "suggest-review",
-      "command": "../pose-review suggest review --path pose-mcp --json",
-      "exit_code": 0,
-      "output_sha256": "2d278d7b6fd59e249c50b6f1dcb7476a6ac522f6e62c1127430e5ca960691d83",
-      "output": "suggest-review.log"
-    },
-    {
       "id": "recurrence",
-      "command": "../pose-review recurrence-check --tolerant --window-days 14",
       "exit_code": 0,
       "output_sha256": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7",
       "output": "recurrence.log"
     },
     {
-      "id": "surface-check",
-      "command": "../pose-review surface-check --spec pose-index-generation-integrity --results .pose/results/b15-independent-r2-validation.full.json --strict",
-      "exit_code": 1,
-      "output_sha256": "97b77b10741c9ae9254fc0acc50d51c11d30d3ca28a816a1dfeab84dc16a0247",
-      "output": "surface-check.log"
+      "id": "review-check-preclose",
+      "exit_code": 0,
+      "output_sha256": "9d4c3568846bb9543961e4c434bc3e5f68e9a244939e8dc842e6b41887359f95",
+      "output": "review-check-preclose.log"
     },
     {
-      "id": "check",
-      "command": "../pose-review check --strict",
+      "id": "review-verify-final",
       "exit_code": 0,
-      "output_sha256": "b57dcf58413f2bc9b8eb5140d1f4b3147011fce8410173f06bb528c8f70fb336",
-      "output": "check.log"
+      "output_sha256": "a89356a70a984f5ef80161b531b2a60bb0e3a020b6f71de0a88895449cde5b32",
+      "output": "review-verify-final.log"
     },
     {
-      "id": "lint-spec",
-      "command": "../pose-review lint-spec pose-index-generation-integrity --strict",
+      "id": "review-verify-preclose",
       "exit_code": 0,
-      "output_sha256": "df2ff3543d51698c15dc70373342831d0cbef991a24862bbb9e21af7804ed4be",
-      "output": "lint-spec.log"
+      "output_sha256": "49e8550ce6b1092f2a4339130cab4d8a2961520466472b8aefb7d4d801070353",
+      "output": "review-verify-preclose.log"
+    },
+    {
+      "id": "suggest-review",
+      "exit_code": 0,
+      "output_sha256": "2d278d7b6fd59e249c50b6f1dcb7476a6ac522f6e62c1127430e5ca960691d83",
+      "output": "suggest-review.log"
+    },
+    {
+      "id": "tech-debt",
+      "exit_code": 0,
+      "output_sha256": "1992b17943022568210e07e69df74864dd68992c04cf760180fb73a45eff37bf",
+      "output": "tech-debt.log"
     },
     {
       "id": "validate",
-      "command": "../pose-review validate --strict --json-out .pose/results/b15-independent-r2-validation.full.json (GH_TOKEN restricted to this command; JSON moved outside repository)",
       "exit_code": 0,
-      "output_sha256": "8182c083a5fc07254ecddb5b47ab1318ab7c757af9e04b7c808e6eec0a143ffd",
+      "output_sha256": "60be781857ec5aa95d47fe27f65ed0d55cb783b29381b13cc33a4653cbf728a8",
       "output": "validate.log"
     },
     {
-      "id": "artifact-check",
-      "command": "../pose-review artifact-check --spec pose-index-generation-integrity --strict",
+      "id": "validate-module",
+      "exit_code": 0,
+      "output_sha256": "f90834109d95da35317d677c76a9e47db6a5faa49f75ee3f9d3a86f666b7ac79",
+      "output": "validate-module.log"
+    },
+    {
+      "id": "surface-check",
+      "exit_code": 0,
+      "output_sha256": "9048325d8a828d6b715a77d863c78a77fcdf8ae3482dfe049d118aa6a057430a",
+      "output": "surface-check.log"
+    },
+    {
+      "id": "surface-main-baseline",
       "exit_code": 1,
-      "output_sha256": "cb1cca05c05d5906df0fdf4fc2dc76e42ab6eababf476dffde14102bb1cebdde",
+      "output_sha256": "ce7a069902b0edc21d297c3b49f0d907e8204cdd334c5e8b74f46b87e25a016e",
+      "output": "surface-main-baseline.log"
+    },
+    {
+      "id": "surface-before",
+      "exit_code": 1,
+      "output_sha256": "f6f381eeae2438cee5b146d684747474853c394d4575ebd7c08f4073a35d92f4",
+      "output": "surface-before.log"
+    },
+    {
+      "id": "artifact-check",
+      "exit_code": 0,
+      "output_sha256": "b959a998978412710b87207a1e8da4ba169be439b3c7be3a6a340868d5516987",
       "output": "artifact-check.log"
     },
     {
       "id": "journey",
-      "command": "bash tests/journeys/install-and-upgrade.sh --binary /home/go/.cache/pose-work/b15/pose-review --previous 6.2.0",
       "exit_code": 0,
       "output_sha256": "6d24d3a882d7244082e532892f74bb324982cacac310f89e737beec330f090ca",
       "output": "journey.log"
     },
     {
-      "id": "custom-probes",
-      "command": "go test ./internal/pose ./internal/cli -run TestR2 -count=1 -v (disposable copy)",
+      "id": "custom-probes-final",
       "exit_code": 0,
-      "output_sha256": "a6021d36329aa0ae56093d31d5c62568e5b73e349079d7a9fdff64664f07a37b",
+      "output_sha256": "9b886fccd52559eb2a2d87250fffa19740bb3c7828eb1f18cbc763d733c05891",
       "output": "custom-probes-final.log"
     },
     {
       "id": "extra-counterfactual",
-      "command": "go test ./internal/pose -run ^TestIndexGenerationStopAtTheDescriptorKeepsTheOldRecordWhole$ -count=1 -v (mutated disposable copy)",
       "exit_code": 1,
-      "output_sha256": "e43bd56f8b68ac09e80ef2b51f99927088239dfd371d6477264a35c77ec8a94c",
+      "output_sha256": "688087dfca1f41befa15e8cc4772cbc32f6c2a9d1b13155bfe2ff050d3f031d9",
       "output": "extra-counterfactual.log"
     },
     {
-      "id": "review-verify",
-      "command": "../pose-review review verify spec:pose-index-generation-integrity",
-      "exit_code": 1,
-      "output_sha256": "2094029eb89caeecc5af4cb3f26cca8d7255654c85555f1517c8908318a1df23",
-      "output": "review-verify-final.log"
+      "id": "followups",
+      "exit_code": 0,
+      "output_sha256": "6195ca16ab3a76e56dc0f8d17af9ca250d1dda7d8a32cd6c2b5d4df206ca838d",
+      "output": "followups.log"
     },
     {
       "id": "mutations-detailed",
-      "command": "python3 -I mutations-detailed.py --output mutations-detailed.json (external instrumented driver, all 49 production mutants in copies)",
       "exit_code": 0,
-      "output_sha256": "7c6d15c5c5b8184ff33fd3d48275fda29e2146d7632850e6591959afb0d5855c",
+      "output_sha256": "b40a8c3eb92b0f9631cca1274dd2ce1a91b92329d7581721dfdd642ce5b8d080",
       "output": "mutations-detailed.log"
+    },
+    {
+      "id": "attest-preview",
+      "exit_code": 0,
+      "output_sha256": "d6550b37904adaf649519ea3a84f7c094896d67e04dc5b0f5120fae33b507cd1",
+      "output": "attest-preview.json"
     }
   ],
-  "findings": [
-    {
-      "id": "B15-F11",
-      "severity": "high",
-      "file": "pose-mcp/internal/pose/index_generation.go",
-      "line": 402,
-      "requirements": [
-        "R3",
-        "R5",
-        "R6",
-        "R8"
-      ],
-      "scenario": "PinIndexes tomado enquanto o repositório é legacy guarda apenas o status, não os arquivos. ReadIndex do pin legacy lê nomes vivos e ignora o marcador e o descritor. Uma primeira publicação interrompida depois de services deixa esse pin ler arquivos de A e B sem erro, embora um Store fresco retorne unavailable. Um review context real resultou em owner/criticality de B e observed paths de A sem warning/blocker.",
-      "evidence": "TestR2LegacyPinBypassesPendingMarker e TestR2LegacyReviewContextMixesDespitePending, usando apenas hooks existentes na cópia; nenhum hook novo de produção.",
-      "action": "Fixar uma view legacy consistente ou detectar a transição para pending/descriptor e recusar/repetir a operação inteira. Não permitir que o pin legacy contorne a proteção do primeiro commit. Revalidar também a janela do leitor legacy sem pin entre a checagem do marcador e a leitura do arquivo.",
-      "round1_relation": [
-        "F03",
-        "F04"
-      ]
-    },
-    {
-      "id": "B15-F12",
-      "severity": "high",
-      "file": "pose-mcp/internal/pose/index_generation.go",
-      "line": 583,
-      "requirements": [
-        "R2",
-        "R4",
-        "R6"
-      ],
-      "scenario": "ReplaceIndex lê a view A na linha 561, mas publishGenerationLocked relê o predecessor na linha 475. Um writer que não toma a trava pode publicar B e terminar entre essas leituras. A substituição aceita B como predecessor e publica seis arquivos/bindings antigos de A com sucesso, revertendo B. O CAS não está vinculado ao descritor que forneceu os arquivos, contrariando a correção declarada e o ADR. Não é a janela compare/rename residual da B14: B termina antes da nova leitura do helper.",
-      "evidence": "TestR2ReplaceIndexDoesNotCASTheViewItRead; replace-after-read existente publica um conjunto B completo e um descritor válido pelo publisher B14, sem tomar a trava; receipt.Previous=B e arquivos não substituídos=A.",
-      "action": "Transmitir/verificar no commit os bytes exatos do descritor da view usada na substituição. Se mudarem, recusar ou reconstruir a operação, mesmo quando o writer externo ignora a trava.",
-      "round1_relation": [
-        "F02"
-      ]
-    },
-    {
-      "id": "B15-F13",
-      "severity": "medium",
-      "file": "pose-mcp/internal/cli/index.go",
-      "line": 360,
-      "requirements": [
-        "R4",
-        "R6",
-        "R8"
-      ],
-      "scenario": "A CLI index agora usa Receipt.Committed, mas refreshDeliveryIndex ainda ignora esse campo quando err != nil. Se o dir sync do descritor falha após rename, a nova geração já está corrente, mas o refresh informa que o índice não foi atualizado. Afeta o refresh de artifact-check e o bootstrap de review bundle e preserva a afirmação de ausência de efeito que F09 pretendia eliminar.",
-      "evidence": "TestR2RefreshDeniesItsCommittedEffect; PublishSyncHook existente falha somente no sync de diretório de generation.json. Geração corrente muda, mas stderr contém the delivery index was not refreshed.",
-      "action": "Usar o receipt também na via de erro do refresh e distinguir publicado com durabilidade não confirmada de falha sem efeito, nomeando a geração efetiva.",
-      "round1_relation": [
-        "F09"
-      ]
-    },
-    {
-      "id": "B15-F14",
-      "severity": "medium",
-      "file": "pose-mcp/internal/cli/index.go",
-      "line": 358,
-      "requirements": [
-        "R2",
-        "R5",
-        "R6",
-        "R8"
-      ],
-      "scenario": "ReplaceIndex encontra legacy, devolve ErrIndexGenerationLegacy e solta a trava; o fallback os.WriteFile ocorre fora dela. Nesse intervalo um index cooperante pode adquirir a mesma trava e publicar uma geração completa. O refresh então sobrescreve o delivery legado com o grafo anterior e ambos os comandos têm sucesso, deixando Diverged=delivery-integrity.json. Um clone sem cópias imutáveis não consegue consumir o conjunto descrito. A trava nova não coordena esse escritor direto durante a migração.",
-      "evidence": "TestR2LegacyRefreshEscapesGenerationLock; um único hook de agendamento inserido apenas na cópia antes do fallback legacy executa cmdIndex completo, depois libera a escrita antiga. O refresh não emite erro e a geração fica divergente.",
-      "action": "Coordenar a decisão e a escrita legacy na mesma região protegida, reavaliando o modo caso uma geração tenha sido publicada. Cobrir artifact-check/review bundle disputando a primeira publicação com index.",
-      "round1_relation": [
-        "F04"
-      ]
-    },
-    {
-      "id": "B15-F15",
-      "severity": "high",
-      "file": "pose-mcp/internal/pose/review_bundle.go",
-      "line": 487,
-      "requirements": [
-        "R3",
-        "R6",
-        "R8"
-      ],
-      "scenario": "O pin está limitado à cópia local de Store dentro de ReviewPlan. prepareReviewBundle usa o Store original: guarda o plano A da linha 469 e lê delivery-integrity novamente na linha 487. Uma publicação cooperante de B nesse intervalo produz bundle com component owner @old de A e resultado de integração check-only-in-b de B, sem blockers. Fixar só o plano não fixa os sete índices consumidos pela operação de preparação do bundle.",
-      "evidence": "TestR2BundleCombinesPlanAWithEvidenceB; fixture de bundle já usada pelo projeto e IndexReadFault existente; B é publicado na segunda leitura, sem qualquer hook novo. Bundle preparado mistura plano A e evidência B com zero blockers.",
-      "action": "Fixar a geração na fronteira da operação de bundle e compartilhá-la em todos os seus leitores, fazendo ReviewPlan respeitar um pin recebido. Isto não exige fixar Git, policies ou uma read view global B34/B35.",
-      "round1_relation": [
-        "F03"
-      ]
-    },
-    {
-      "id": "B15-F16",
-      "severity": "medium",
-      "file": "pose-mcp/internal/pose/spec.go",
-      "line": 58,
-      "requirements": [
-        "AGENTS.md: mandatory artifacts and applicable checks",
-        "review criterion scope",
-        "native artifact-check --strict"
-      ],
-      "scenario": "A rodada adiciona indexPin ao Store em spec.go, mas esse caminho não foi declarado nos Artifacts da spec. O artifact-check nativo resolve corretamente 14 commits, 33 claims e 49 observações e falha com error undeclared pose-mcp/internal/pose/spec.go. Há um blocker obrigatório de reconciliação de escopo apesar dos 138 checks de validate passarem.",
-      "evidence": "../pose-review artifact-check --spec pose-index-generation-integrity --strict, exit 1; artifact-check.log. Os 14 commits carregam o slug, portanto não é um falso negativo do parser de trailers.",
-      "action": "Reconciliar o artefato de produção pelo mecanismo de plano/amendment aplicável e reexecutar artifact-check. O revisor não altera o Technical Plan nem reduz o change set para ocultar o caminho.",
-      "round1_relation": []
-    }
-  ],
+  "findings": [],
   "native_flow": {
-    "bundle_id": "rvb-3d4fac8e420a843c",
-    "bundle_digest": "sha256:3d4fac8e420a843c70f21d57321feea0e69a82ff0ac0f75b8434624a36759bd8",
-    "plan_digest": "sha256:1405f6e3840bfb5df903994d732efc8d6bb73402ffbc35b108903b36abcf1ce9",
-    "bundle_state": "prepared; NOT sealed",
-    "attestation_id": null,
-    "review_verify": {
-      "exit_code": 1,
-      "state": "ready-to-seal",
-      "fresh": false,
-      "approved": false
+    "bundle_id": "rvb-68d1469c0679927b",
+    "attestation_id": "rva-ce3732f9185f01c8",
+    "bundle_digest": "sha256:68d1469c0679927b040adb743d039e86ad0e8297236194419694193e543d4b57",
+    "plan_digest": "sha256:9668b168b34560575933d73cb6256845c755ff9a0b14591f47da13911eb01eb1",
+    "bundle_state": "sealed",
+    "review_verify_preclose": {
+      "exit_code": 0,
+      "state": "ready-to-close",
+      "fresh": true,
+      "approved": true
     },
-    "close": "not executed: high/medium findings and required artifact/surface gates failed",
-    "lint_spec_strict": "pass",
-    "check_strict": "pass with global warnings",
-    "artifact_check_strict": "fail undeclared spec.go",
-    "surface_check_strict": "fail undeclared spec.go",
-    "completion_tools": "review-check and closeout-check deferred, no approved review",
-    "module_validate": "pose-mcp included in global strict validation; no separate duplicate --module run after negative decision",
-    "commit_pushed": null
+    "review_check": 0,
+    "closeout_check": 0,
+    "close": 0,
+    "lint_spec_strict": 0,
+    "check_strict": 0,
+    "review_verify_final": {
+      "exit_code": 0,
+      "state": "closed",
+      "fresh": true,
+      "approved": true
+    },
+    "completion_tools": "deferred in attestation; review-check executed after apply, closeout-check confirmed terminal after guarded close",
+    "commit_pushed": "carrier commit, hash reported in final response to avoid self-reference"
   },
-  "spec_status": "in-progress",
-  "spec_sha256": "49763cbacc7e66d76e08d73836527990b7d138f5ec91f6146f0a92c11c5df70f",
+  "spec_status": "done",
+  "spec_sha256": "72d68a3625684254900c17af666bb9ffe267e73f3772f352e4fa048f6cea9ecc",
   "report": ".pose/reports/2026-10-17-pose-b15-index-generation-review.md",
-  "report_sha256": "f0358486750ac4adefcddcfceba57f98d9184b2b604f12bdc348b91ee503abbd"
+  "report_sha256": "f99a685fe9fc38bbf5ef6f8dae98210d059a4c6c08cf88430315c0c572fbb44f"
 }
