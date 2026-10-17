@@ -60,6 +60,7 @@ step "History gate"             "$BIN" history-check
 step "Public claims gate"       "$BIN" public-claims --strict
 
 step "Artifact-identity negative gate" bash tests/release/verify-negative.sh
+step "Test scripts remove their temporary files" bash tests/hygiene/temp-cleanup.sh
 step "Migration guides" bash tests/import/migration-guides.sh
 step "First governed loop" bash tests/quickstart/first-governed-loop.sh
 step "Install and upgrade journeys" bash tests/journeys/install-and-upgrade.sh

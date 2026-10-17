@@ -32,6 +32,9 @@ done
 
 export POSE_LOCALE=en
 BUILD_WORK="$(mktemp -d)"
+trap 'rm -rf "$BUILD_WORK"' EXIT
+WORK="$BUILD_WORK/demo"
+mkdir "$WORK"
 BIN="$BUILD_WORK/pose"
 go -C pose-mcp build -o "$BIN" ./cmd/pose >/dev/null
 
@@ -42,8 +45,6 @@ beat() { [ "$VERIFY" -eq 1 ] || sleep "${1:-1}"; }
 say()  { [ "$VERIFY" -eq 1 ] || printf '\n\033[1;36m%s\033[0m\n' "$1"; }
 run()  { [ "$VERIFY" -eq 1 ] || printf '\033[1m$ %s\033[0m\n' "$*"; }
 
-WORK="$(mktemp -d)"
-trap 'rm -rf "$WORK" "$BUILD_WORK"' EXIT
 cd "$WORK"
 git init -q
 git config user.email demo@example.com

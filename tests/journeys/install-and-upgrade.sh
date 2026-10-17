@@ -9,6 +9,12 @@
 
 set -euo pipefail
 
+# Every temporary file of this script lives under one directory removed on
+# exit (spec pose-test-scripts-remove-their-temp-files).
+# shellcheck source=../lib/tempdir.sh
+. "$(dirname "$0")/../lib/tempdir.sh"
+pose_test_tmp_init
+
 BIN="" PREVIOUS="${POSE_PREVIOUS_RELEASE:-}"
 while [ $# -gt 0 ]; do
   case "$1" in

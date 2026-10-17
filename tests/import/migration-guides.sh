@@ -10,6 +10,12 @@
 
 set -euo pipefail
 
+# Every temporary file of this script lives under one directory removed on
+# exit (spec pose-test-scripts-remove-their-temp-files).
+# shellcheck source=../lib/tempdir.sh
+. "$(dirname "$0")/../lib/tempdir.sh"
+pose_test_tmp_init
+
 cd "$(dirname "$0")/../.."
 ROOT="$PWD"
 FIXTURES="$ROOT/tests/import/fixtures"
