@@ -8,6 +8,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -532,6 +533,12 @@ func mergeWithPersistedComponentStates(store pose.Store, scanned []*pose.Compone
 	}
 	entries, err := os.ReadDir(store.ComponentStateDir())
 	if err != nil {
+		if !os.IsNotExist(err) {
+			// The persisted states are there and cannot be listed: say so in the
+			// consolidation instead of publishing the fresh components as the repository.
+			bySlug["(persisted-states)"] = unreadableComponentState("(persisted-states)", store.ComponentStateDir(), err)
+			return sortedComponentStates(bySlug)
+		}
 		return scanned
 	}
 	for _, entry := range entries {
@@ -544,10 +551,37 @@ func mergeWithPersistedComponentStates(store pose.Store, scanned []*pose.Compone
 		}
 		state, err := store.LoadComponentState(slug)
 		if err != nil || state == nil {
+			// A persisted state that cannot be read is a component the consolidation
+			// cannot describe, not one that is not there; no metrics are invented for it.
+			bySlug[slug] = unreadableComponentState(slug, filepath.Join(store.ComponentStateDir(), entry.Name()), err)
 			continue
 		}
 		bySlug[slug] = state
 	}
+	return sortedComponentStates(bySlug)
+}
+
+// unreadableComponentState stands for a persisted component state that could not be read: zero
+// metrics, a loss naming the file, and a status that says why.
+func unreadableComponentState(slug, path string, cause error) *pose.ComponentDiscoveryState {
+	// The kind of loss is the nature of the failure, and the detail is the engine's own
+	// words, never the content of the file.
+	kind, detail := pose.LossReadError, "the persisted state could not be read"
+	switch {
+	case errors.Is(cause, pose.ErrComponentStateParse):
+		kind, detail = pose.LossParseError, "the persisted state is not valid JSON"
+	case errors.Is(cause, pose.ErrComponentStateUnsupported):
+		kind, detail = pose.LossUnsupported, "the persisted state has a schema_version this engine does not read"
+	case errors.Is(cause, pose.ErrComponentStateInvalid):
+		kind, detail = pose.LossInvalid, "the persisted state names no component"
+	case cause != nil:
+		detail = cause.Error()
+	}
+	return &pose.ComponentDiscoveryState{ComponentSlug: slug, Path: slug, Status: "unreadable",
+		Coverage: pose.SourceCoverage{Losses: []pose.SourceLoss{{Producer: "component-state", Artifact: filepath.ToSlash(path), Kind: kind, Detail: detail}}}}
+}
+
+func sortedComponentStates(bySlug map[string]*pose.ComponentDiscoveryState) []*pose.ComponentDiscoveryState {
 	slugs := make([]string, 0, len(bySlug))
 	for slug := range bySlug {
 		slugs = append(slugs, slug)
@@ -638,7 +672,18 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 	}
 
 	if updateState {
-		if err := updateProjectStateArchitecture(root, results); err != nil {
+		// The state is built from what this run observed: a persisted record of a component
+		// that is no longer there is not part of it. What was recorded and cannot be read is
+		// carried as a loss, so the state does not read as a certified total.
+		stateInput := append([]*pose.ComponentDiscoveryState{}, results...)
+		if targetComp != "" {
+			for _, c := range consolidated {
+				if c.Status == "unreadable" {
+					stateInput = append(stateInput, c)
+				}
+			}
+		}
+		if err := updateProjectStateArchitecture(root, stateInput); err != nil {
 			fmt.Fprintf(stderr, "pose assess discover update-state: %v\n", err)
 			return 1
 		}
@@ -654,6 +699,9 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 	for _, res := range results {
 		fmt.Fprintf(stdout, "  - %-30s LOC: %d (prod) / %d (test) | Debt TODOs: %d, FIXMEs: %d\n",
 			res.ComponentSlug, res.Metrics.LOCProduction, res.Metrics.LOCTests, res.TechnicalDebt.TODOs, res.TechnicalDebt.FIXMEs)
+		if res.ScanIncomplete() {
+			render(stdout, stderr).Field("assess.scan."+res.ComponentSlug, "incomplete: "+res.Coverage.Describe("")+"; the counts above are a floor")
+		}
 		if decision, ok := decisions[res.ComponentSlug]; ok {
 			render(stdout, stderr).Field("assess.freshness."+res.ComponentSlug, decision)
 		}
@@ -677,21 +725,25 @@ func updateProjectStateArchitecture(root string, current []*pose.ComponentDiscov
 	var todos, fixmes, panics, stubs int
 	var completeness float64
 	languages := make(map[string]bool)
-	components := 0
+	components, partial, unreadable := 0, 0, 0
 	if current == nil {
-		entries, _ := os.ReadDir(filepath.Join(root, ".pose", "state", "components"))
+		entries, dirErr := os.ReadDir(filepath.Join(root, ".pose", "state", "components"))
+		if dirErr != nil && !os.IsNotExist(dirErr) {
+			unreadable++
+		}
 		for _, entry := range entries {
 			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") || entry.Name() == "..json" {
 				continue
 			}
-			componentRaw, readErr := os.ReadFile(filepath.Join(root, ".pose", "state", "components", entry.Name()))
-			if readErr != nil {
+			// The loader that validates a state is the one that reads it here too: a record
+			// of a format this engine does not read, or that names no component, is not a
+			// component with zero debt.
+			state, loadErr := (pose.Store{Root: root}).LoadComponentState(strings.TrimSuffix(entry.Name(), ".json"))
+			if loadErr != nil || state == nil {
+				unreadable++
 				continue
 			}
-			var state pose.ComponentDiscoveryState
-			if json.Unmarshal(componentRaw, &state) == nil && state.ComponentSlug != "" {
-				current = append(current, &state)
-			}
+			current = append(current, state)
 		}
 	}
 	for _, state := range current {
@@ -699,6 +751,9 @@ func updateProjectStateArchitecture(root string, current []*pose.ComponentDiscov
 			continue
 		}
 		components++
+		if state.ScanIncomplete() {
+			partial++
+		}
 		totalProd += state.Metrics.LOCProduction
 		totalTests += state.Metrics.LOCTests
 		todos += state.TechnicalDebt.TODOs
@@ -725,8 +780,12 @@ func updateProjectStateArchitecture(root string, current []*pose.ComponentDiscov
 	if components > 0 {
 		average = completeness / float64(components) * 100
 	}
+	componentsLine := fmt.Sprintf("- componentes: total=%d verificados=%d completude=%.1f%%", components, verified, average)
+	if partial > 0 || unreadable > 0 {
+		componentsLine += fmt.Sprintf(" (piso: %d com varredura incompleta, %d estados ilegíveis; não certificado)", partial, unreadable)
+	}
 	lines := []string{
-		fmt.Sprintf("- componentes: total=%d verificados=%d completude=%.1f%%", components, verified, average),
+		componentsLine,
 		fmt.Sprintf("- linhas_de_codigo: producao=%d testes=%d total=%d", totalProd, totalTests, totalProd+totalTests),
 		"- linguagens: " + strings.Join(orderedLanguages, ", "),
 		fmt.Sprintf("- saude_de_codigo: TODOs=%d FIXMEs=%d panics=%d stubs=%d", todos, fixmes, panics, stubs),
@@ -740,7 +799,11 @@ func updateProjectStateArchitecture(root string, current []*pose.ComponentDiscov
 	if debtRaw, readErr := os.ReadFile(filepath.Join(root, ".pose", "state", "technical-debt.json")); readErr == nil {
 		var report pose.TechDebtReportState
 		if json.Unmarshal(debtRaw, &report) == nil {
-			lines = append(lines, fmt.Sprintf("- divida_tecnica: total=%d coberta=%d descoberta=%d", report.Summary.TotalMarkers, report.Summary.CoveredCount, report.Summary.UncoveredCount))
+			debtLine := fmt.Sprintf("- divida_tecnica: total=%d coberta=%d descoberta=%d", report.Summary.TotalMarkers, report.Summary.CoveredCount, report.Summary.UncoveredCount)
+			if !report.Complete && len(report.Coverage.Losses) > 0 {
+				debtLine += " (piso: relatório de dívida incompleto — " + report.Coverage.Describe("") + "; não certificado)"
+			}
+			lines = append(lines, debtLine)
 		}
 	}
 	lines = append(lines, "- ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/")
@@ -858,6 +921,15 @@ func assessTechDebt(root string, args []string, stdout, stderr io.Writer, locale
 	fmt.Fprintf(stdout, "  - Recommendations: %d Follow-ups, %d Specs, %d Roadmaps\n\n",
 		report.Summary.RecommendedFollowups, report.Summary.RecommendedSpecs, report.Summary.RecommendedRoadmaps)
 
+	scope := render(stdout, stderr)
+	if report.Complete {
+		scope.Field("techdebt.scan", fmt.Sprintf("%d source file(s) scanned, none unreadable", report.ScannedFiles))
+	} else {
+		scope.Field("techdebt.scan", fmt.Sprintf("INCOMPLETE — %d source file(s) scanned; %s; zero markers does not prove the unread files have none", report.ScannedFiles, report.Coverage.Describe("")))
+	}
+	for _, exclusion := range report.Coverage.Exclusions {
+		scope.Field("techdebt.excluded", fmt.Sprintf("%s: %d file(s) — %s", exclusion.Pattern, exclusion.Count, exclusion.Reason))
+	}
 	fmt.Fprintf(stdout, "Artifacts written to .pose/assessments/technical-debt.md and .pose/state/technical-debt.json\n")
 	return 0
 }

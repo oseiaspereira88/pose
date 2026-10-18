@@ -213,3 +213,34 @@ de release foi reproduzido na main 18e4342b. Spec
 O programa permanece ativo. Aguardar merge pelo maintainer de #193 e reavaliar
 DAG/readiness nativa; este closeout não seleciona outra implementação. Os limites
 Git/read view global B34/B35 e recuperação de release B41 permanecem declarados.
+
+B06 (`pose-source-coverage-integrity`) foi iniciado nativamente em 2026-10-17 após
+o merge de #193: toda leitura que descartava em silêncio o que não conseguia ler
+(spec de follow-ups, obrigação refutada pela validação, arquivo do scan de marcadores,
+registro de review) passa a devolver uma cobertura com as perdas (produtor, artefato,
+tipo e escopo) e as exclusões declaradas; o Complete deixa de significar "a lista veio
+vazia" e passa a significar cobertura do recorte pedido. Backlog, candidatos, estado
+do projeto e Attention contam o mesmo conjunto não resolvido, e um registro de review
+ilegível que pode ser posterior não deixa a aprovação anterior valer. Probes com
+controle inalterado. Nesse registro de implementação, a spec ainda estava in-progress e delivery_complete
+false; o closeout independente está registrado abaixo.
+
+### B06 — closeout independente (2026-10-18)
+
+PR #194 conclui B06 após a oitava revisão independente no HEAD 67f25e79.
+Revisor `agent:independent-gpt-6.1-sol-review`, Codex/OpenAI, outro vendor em
+relação ao implementador Claude/Anthropic; identidade e separação declaradas,
+atestação sem envelope no pose-dist. Nenhuma policy foi alterada.
+
+Validação estrita global 139/139 e módulo 136/136; 115/115 mutações mortas por
+asserção, 83 testes selecionados com contrafactuais, vet, suíte completa, race,
+builds Windows/Darwin, probes front05 e jornada install/upgrade passaram.
+Bundle `rvb-d4e49da25f48b9ae`, atestação `rva-eb2a3da043e02b89`; review verify
+fresh/approved e close nativo aprovados. Spec done e B06 delivery_complete no
+[plano](../results/pose-implementation-plan.json).
+
+R6-F04 e R7-F04 permanecem open na spec, owner @core, low, revisão 2026-12-01;
+são limitações diagnósticas conservadoras, sem aprovação indevida demonstrada.
+Parecer em [review B06](../reports/2026-10-17-pose-b06-source-coverage-review.md)
+e [evidência compacta](../results/b06-independent-review.json). Aguardar merge
+pelo maintainer e reavaliar readiness; nenhuma próxima implementação selecionada.

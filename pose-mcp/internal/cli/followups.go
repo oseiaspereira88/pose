@@ -28,6 +28,9 @@ type followup struct {
 	Review      string `json:"review,omitempty"`
 	By          string `json:"by,omitempty"`
 	MetaErr     string `json:"meta_error,omitempty"`
+	// DispositionErr: the bullet carries a [disposition] this engine does not know. It is
+	// read as unresolved (it is not a resolution) and says why.
+	DispositionErr string `json:"disposition_error,omitempty"`
 }
 
 type nearDuplicateMember struct {
@@ -118,15 +121,21 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	if candidatesOnly {
+		if failOverdue {
+			// The gate belongs to the backlog; ignoring it here would let a caller believe
+			// the candidates were checked against it.
+			render(stdout, stderr).Failure(cliText(locale, "Error: --fail-overdue applies to the backlog, not to --candidates.", "Erro: --fail-overdue vale para o backlog, não para --candidates."))
+			return 2
+		}
 		return cmdFollowupCandidates(root, jsonOut, threshold, stdout, stderr)
 	}
-	allEntries := collectFollowups(root)
+	allEntries, coverage := collectFollowupsRead(root)
 	today := followupToday()
 	openEntries := make([]followup, 0, len(allEntries))
 	overdueEntries := make([]followup, 0)
 	unowned := 0
 	for _, entry := range allEntries {
-		if entry.RawDisposition == "" || entry.RawDisposition == "open" {
+		if followupUnresolved(entry) {
 			openEntries = append(openEntries, entry)
 			if entry.Owner == "unowned" {
 				unowned++
@@ -163,12 +172,15 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 			"overdue": len(overdueEntries), "unowned": unowned,
 			"similarity_threshold": threshold, "items": selected,
 			"near_duplicate_candidates": candidates,
+			// What the read could not see: an empty list with losses is not "nothing is
+			// owed" (spec pose-source-coverage-integrity).
+			"coverage_complete": coverage.Complete(), "coverage": coverage,
 		}
 		if err := json.NewEncoder(stdout).Encode(payload); err != nil {
 			fmt.Fprintf(stderr, cliText(locale, "Error: serializing follow-ups: %v\n", "Erro: serializar follow-ups: %v\n"), err)
 			return 1
 		}
-		if failOverdue && len(overdueEntries) > 0 {
+		if failOverdue && (len(overdueEntries) > 0 || !coverage.Complete()) {
 			return 1
 		}
 		return 0
@@ -180,7 +192,16 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 	if overdueOnly {
 		label = "overdue follow-ups"
 	}
-	fmt.Fprintf(stdout, "# POSE follow-ups — %s\n# total=%d open=%d overdue=%d unowned=%d specs=%d\n\n", label, len(allEntries), len(openEntries), len(overdueEntries), unowned, uniqueFollowupSpecs(allEntries))
+	header := fmt.Sprintf("# POSE follow-ups — %s\n# total=%d open=%d overdue=%d unowned=%d specs=%d\n", label, len(allEntries), len(openEntries), len(overdueEntries), unowned, uniqueFollowupSpecs(allEntries))
+	if !coverage.Complete() {
+		// What the read could not see is part of the result, not a footnote: the
+		// counts above are what could be read.
+		header += "# coverage=INCOMPLETE — " + coverage.Describe("") + "; the counts above are what could be read\n"
+		for _, loss := range coverage.Losses {
+			header += "#   unread " + loss.Kind + " " + loss.Artifact + "\n"
+		}
+	}
+	fmt.Fprint(stdout, header+"\n")
 	if len(selected) == 0 {
 		fmt.Fprintln(stdout, "(none)")
 	}
@@ -204,9 +225,19 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 			}
 		}
 		fmt.Fprintf(stdout, "- %s %s (%s)\n    %s\n", entry.Spec, tag, meta, entry.Text)
+		if entry.MetaErr != "" {
+			render(stdout, stderr).Field("followups.meta_error."+entry.Spec, entry.MetaErr)
+		}
+		if entry.DispositionErr != "" {
+			render(stdout, stderr).Field("followups.disposition_error."+entry.Spec, entry.DispositionErr)
+		}
 	}
 	if failOverdue && len(overdueEntries) > 0 {
 		fmt.Fprintf(stdout, "\nResultado: FALHA (%d follow-up(s) com review vencido)\n", len(overdueEntries))
+		return 1
+	}
+	if failOverdue && !coverage.Complete() {
+		render(stdout, stderr).Field("followups.result", "FALHA (cobertura incompleta: não é possível afirmar que nenhum review está vencido — "+coverage.Describe("")+")")
 		return 1
 	}
 	if len(candidates) > 0 {
@@ -222,20 +253,33 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 }
 
 func collectFollowups(root string) []followup {
+	entries, _ := collectFollowupsRead(root)
+	return entries
+}
+
+// followupUnresolved is the one definition of "still owes a disposition" the backlog,
+// the candidates, the project state and the obligation projection share.
+func followupUnresolved(f followup) bool {
+	return posemodel.FollowupUnresolved(f.RawDisposition)
+}
+
+// collectFollowupsRead is collectFollowups and what the read of the specs could not see.
+func collectFollowupsRead(root string) ([]followup, posemodel.SourceCoverage) {
 	// The spec-body parser is shared with the obligation projection (spec
 	// pose-obligation-projection), so the backlog and Attention cannot read
 	// the same bullet two ways.
 	entries := []followup{}
-	for _, item := range posemodel.ParseSpecFollowups(root) {
+	read := posemodel.ReadSpecFollowups(root)
+	for _, item := range read.Items {
 		entries = append(entries, followup{
 			Spec: item.Spec, SpecStatus: item.SpecStatus,
 			RawDisposition: item.RawDisposition, Target: item.Target, Text: item.Text,
-			Owner: item.Owner, Criticality: item.Criticality, Review: item.Review, By: item.By, MetaErr: item.MetaErr,
+			Owner: item.Owner, Criticality: item.Criticality, Review: item.Review, By: item.By, MetaErr: item.MetaErr, DispositionErr: item.DispositionErr,
 		})
 	}
 	entries = append(entries, collectCapabilityStaleFollowups(root)...)
 	entries = append(entries, collectDocsReviewFollowups(root)...)
-	return entries
+	return entries, read.Coverage
 }
 
 // followupToday returns today's UTC date (YYYY-MM-DD) for overdue math.
@@ -410,14 +454,15 @@ func uniqueFollowupSpecs(entries []followup) int {
 // follow-up names that now exists, a passed review date, or a lexical
 // near-duplicate. Nothing is dispositioned; the reason and its limits are shown.
 func cmdFollowupCandidates(root string, jsonOut bool, threshold int, stdout, stderr io.Writer) int {
-	candidates, err := posemodel.Store{Root: root}.FollowupCandidates(followupToday())
+	result, err := posemodel.Store{Root: root}.ReadFollowupCandidates(followupToday())
+	candidates := result.Candidates
 	if err != nil {
 		render(stdout, stderr).Failure("pose followups --candidates: " + err.Error())
 		return 1
 	}
 	duplicates := clusterFollowups(collectFollowups(root), float64(threshold)/100)
 	if jsonOut {
-		return writeJSON(stdout, map[string]any{"candidates": candidates, "possible_duplicates": duplicates, "limits": "candidates are prompts for judgment; no disposition was written"})
+		return writeJSON(stdout, map[string]any{"candidates": candidates, "possible_duplicates": duplicates, "limits": "candidates are prompts for judgment; no disposition was written", "coverage_complete": result.Coverage.Complete(), "coverage": result.Coverage})
 	}
 	out := render(stdout, stderr)
 	out.Field("followups.candidates", fmt.Sprintf("%d open follow-up(s) with a reconciliation reason; none was dispositioned", len(candidates)))
@@ -425,5 +470,8 @@ func cmdFollowupCandidates(root string, jsonOut bool, threshold int, stdout, std
 		out.Field(fmt.Sprintf("  %s#%d", c.Spec, c.Ordinal), strings.Join(c.Kinds, ",")+" — "+strings.Join(c.Evidence, "; ")+" — "+c.Text)
 	}
 	out.Field("followups.possible_duplicates", fmt.Sprintf("%d lexical cluster(s); similarity is not equivalence", len(duplicates)))
+	if !result.Coverage.Complete() {
+		out.Field("followups.coverage", "incomplete — "+result.Coverage.Describe("")+"; a candidate that depends on what was not read may be missing")
+	}
 	return 0
 }
