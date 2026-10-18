@@ -235,3 +235,13 @@ func TestAVersionSourceThatCannotBeRecomputedIsALimit(t *testing.T) {
 		t.Fatal("the limit is not disclosed in the JSON")
 	}
 }
+
+// An invalid manifest keeps the release producer unread: the status fails rather than reporting a
+// release it cannot trust, so a phase judged by it stays unknown, never clear.
+func TestAnInvalidManifestKeepsTheReleaseStatusUnread(t *testing.T) {
+	r := newReleaseRepo(t, "v1.0.0")
+	relWrite(t, r.root, ".pose/releases/v0.9.0/manifest.json", `{"version":"v0.9.0"}`)
+	if _, err := (Store{Root: r.root}).GetReleaseStatus(""); err == nil || !strings.Contains(err.Error(), "not valid") {
+		t.Fatalf("a manifest that is not valid was reported as a release: %v", err)
+	}
+}
