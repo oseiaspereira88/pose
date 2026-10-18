@@ -76,7 +76,7 @@ func TestAttentionSourceCapabilityTriggersAreOwed(t *testing.T) {
 func TestAttentionSourceReleaseQueueSkipsSupersededReleases(t *testing.T) {
 	root := t.TempDir()
 	for _, v := range []string{"v1.0.0", "v1.1.0", "v1.2.0"} {
-		writeSourceFixture(t, root, ".pose/releases/"+v+"/manifest.json", `{"version":"`+v+`"}`)
+		writeSourceFixture(t, root, ".pose/releases/"+v+"/manifest.json", releaseManifestFixture(v, nil))
 	}
 	writeSourceFixture(t, root, ".pose/releases/v1.1.0/events.jsonl", `{"version":"v1.1.0","state":"tagged"}
 {"version":"v1.1.0","state":"published","evidence_digest":"sha256:p"}
@@ -89,7 +89,7 @@ func TestAttentionSourceReleaseQueueSkipsSupersededReleases(t *testing.T) {
 		t.Fatalf("release queue = %+v", items)
 	}
 	// A later release that was tagged abandons the prepared one.
-	writeSourceFixture(t, root, ".pose/releases/v1.3.0/manifest.json", `{"version":"v1.3.0"}`)
+	writeSourceFixture(t, root, ".pose/releases/v1.3.0/manifest.json", releaseManifestFixture("v1.3.0", nil))
 	writeSourceFixture(t, root, ".pose/releases/v1.3.0/events.jsonl", `{"version":"v1.3.0","state":"tagged"}
 `)
 	items = validSourceObligations(t)(Store{Root: root}.releaseQueueObligations("proj.test"))

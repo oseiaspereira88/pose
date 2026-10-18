@@ -1,6 +1,6 @@
 ---
 slug: pose-release-manifest-tag-integrity
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-release-lifecycle-closure
@@ -53,18 +53,26 @@ somente esta spec é criada, sob a atribuição documental de
 `pose-consolidation-batch-6-authoring`. Reconciliar os paths exatos antes de start;
 não tratar a declaração de um teste futuro como teste existente ou executado.
 
-- created: .pose/specs/2026-10-13-pose-release-manifest-tag-integrity.md
+- modified: .pose/specs/2026-10-13-pose-release-manifest-tag-integrity.md
 - created: .pose/starts/pose-release-manifest-tag-integrity.json
 - created: .pose/changelogs/unreleased/pose-release-manifest-tag-integrity.md
+- created: pose-mcp/internal/pose/release_manifest_integrity.go
 - modified: pose-mcp/internal/pose/release_lifecycle.go
-- modified: pose-mcp/internal/pose/release_archive.go
-- modified: pose-mcp/internal/pose/release_version_source.go
-- modified: pose-mcp/internal/cli/release_manifests.go
+- modified: pose-mcp/internal/cli/release_lifecycle.go
 - created: pose-mcp/internal/pose/release_manifest_tag_integrity_test.go
+- created: pose-mcp/internal/pose/release_manifest_fixture_test.go
 - created: pose-mcp/internal/cli/release_manifest_tag_integrity_test.go
-- created: pose-mcp/internal/mcpserver/release_manifest_tag_integrity_test.go
+- modified: pose-mcp/internal/pose/obligation_sources_test.go
+- modified: pose-mcp/internal/pose/release_archive_test.go
+- modified: pose-mcp/internal/pose/review_release_archive_test.go
+- modified: pose-mcp/internal/cli/publicclaims_provenance_test.go
+- created: .pose/results/b38-mutations.py
+- created: .pose/results/b38-mutations.json
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
@@ -112,26 +120,22 @@ Testes de execução ainda não foram criados ou executados para este delta.
 
 ### Requirement trace
 
-Trace planejado; vincular casos aos produtores reais na execução.
-Não declarar requisitos satisfeitos pelo lint.
+- R1 [satisfied] check:release-manifest-tag-integrity-integration test:TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree
+- R2 [satisfied] check:release-manifest-tag-integrity-integration test:TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree
+- R3 [satisfied] check:release-manifest-tag-integrity-integration test:TestTheSnapshotIsVerifiedAgainstTheTaggedTreeNotTheWorktree test:TestAVersionSourceThatCannotBeRecomputedIsALimit
+- R4 [satisfied] check:release-manifest-tag-integrity-integration test:TestATagWithoutTheSnapshotInItsTreeIsRefusedWhateverTheWorktreeHolds test:TestLightweightAndAnnotatedTagsResolveToTheirCommit test:TestReleaseCheckReadsTheTagsOwnTree
+- R5 [satisfied] check:release-manifest-tag-integrity-integration test:TestACorrectCutStaysIntactAfterEvidenceAndTheNextCycle
+- R6 [satisfied] check:release-manifest-tag-integrity-integration test:TestACorrectCutStaysIntactAfterEvidenceAndTheNextCycle test:TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree
+- R7 [satisfied] check:release-manifest-tag-integrity-integration test:TestReleaseStatusReportsTheSnapshotOfTheTag test:TestReleaseCheckReadsTheTagsOwnTree
+- R8 [satisfied] check:release-manifest-tag-integrity-integration report:b38-mutations.json — adulteração de cada projeção e digest, schema, versão, caminhos, campo desconhecido, tag leve e anotada, tag sem snapshot e cut correto seguido de evidência e novo ciclo; as mutações de produção morrem por asserção
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1 |
-| R2 | V2 |
-| R3 | V2,V4 |
-| R4 | V3,V4 |
-| R5 | V5 |
-| R6 | V6,V7 |
-| R7 | V7 |
-| R8 | V1–V7 |
+A verificação é de leitura: o snapshot lê blobs do commit da tag e usa apenas um diretório temporário para reler a fonte de versão; não move tag, não reescreve manifest, notas nem archive.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 6. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+B38 entregue: o manifest passa por um contrato estrito (schema suportado, campos desconhecidos recusados, versão e caminhos limpos, projeções `specs`/`categories`/`breaking` e `release_input_digest` recompostas a partir dos fragments congelados); `release check` e `release status` verificam a tag pela sua própria árvore (tag leve ou anotada resolvida ao commit; manifest, notas, fragments congelados e fonte de versão lidos como blobs desse commit), recusam tag sem snapshot qualquer que seja o worktree, não tornam obsoleto um cut correto por commit, evidência ou ciclo posteriores, e reportam como limite a fonte de versão que não pode ser recomputada. Revisão independente e closeout pendentes.
 
 ### Residual risks
 

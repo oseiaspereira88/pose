@@ -1,0 +1,121 @@
+{
+  "mutations": [
+    {
+      "mutation": "campo desconhecido é aceito",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "conteúdo após o manifest é aceito",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "schema desconhecido é aceito",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "versão de outro diretório é aceita",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "projeção specs adulterada é aceita",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "projeção categories adulterada é aceita",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "projeção breaking adulterada é aceita",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "digest de entrada adulterado é aceito",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fragment duplicado é aceito",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "caminho de fragment fora do diretório é aceito",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fonte de versão com caminho fora do projeto é aceita",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "tag é lida do worktree",
+      "tests": "TestATagWithoutTheSnapshotInItsTree",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "tag anotada não é resolvida ao commit",
+      "tests": "TestLightweightAndAnnotatedTagsResolve",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "notas do worktree substituem as da tag",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "digest das notas não é comparado",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "digest de fragment não é comparado",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fragment extra na árvore da tag é aceito",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fonte de versão da tag não é relida",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fonte não recomputável vira falha",
+      "tests": "TestAVersionSourceThatCannotBeRecomputedIsALimit",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "commit posterior invalida o cut",
+      "tests": "TestACorrectCutStaysIntactAfterEvidenceAndTheNextCycle",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "status marca tagged sem snapshot",
+      "tests": "TestATagWithoutTheSnapshotInItsTree",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "check não verifica o snapshot da tag",
+      "tests": "TestReleaseCheckReadsTheTagsOwnTree",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "limites do snapshot não aparecem no JSON",
+      "tests": "TestReleaseCheckDisclosesTheVersionSources",
+      "verdict": "killed"
+    }
+  ],
+  "killed": 23,
+  "total": 23
+}

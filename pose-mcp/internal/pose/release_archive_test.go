@@ -172,12 +172,13 @@ func TestLoadArchivedFragmentsReadsWhatEachManifestAttests(t *testing.T) {
 		}
 	}
 	write(fragmentArchived, body)
-	manifest, _ := json.Marshal(ReleaseManifest{SchemaVersion: 1, Version: "v1.2.0", Specs: []string{"alpha"}, Fragments: []ReleaseFragment{
-		{Spec: "alpha", Path: "alpha.md", Digest: ReleaseDigest(body)},
-		{Spec: "escape", Path: "../../etc/passwd", Digest: "sha256:x"},
-	}})
-	write(".pose/releases/v1.2.0/manifest.json", string(manifest))
-	write(".pose/releases/not-a-version/manifest.json", string(manifest))
+	manifest := releaseManifestFixture("v1.2.0", []ReleaseFragment{{Spec: "alpha", Path: "alpha.md", Digest: ReleaseDigest(body)}})
+	write(".pose/releases/v1.2.0/manifest.json", manifest)
+	write(".pose/releases/not-a-version/manifest.json", manifest)
+	// A manifest that freezes a fragment outside its directory is not a manifest: it attests nothing.
+	escaping := releaseManifestFixture("v1.3.0", []ReleaseFragment{{Spec: "alpha", Path: "alpha.md", Digest: ReleaseDigest(body)}, {Spec: "escape", Path: "../../etc/passwd", Digest: ReleaseDigest("x")}})
+	write(".pose/releases/v1.3.0/manifest.json", escaping)
+	write(".pose/changelogs/v1.3.0/alpha.md", body)
 
 	got := LoadArchivedFragments(root)
 	if len(got) != 1 || !strings.HasPrefix(got[0].ManifestDigest, "sha256:") {

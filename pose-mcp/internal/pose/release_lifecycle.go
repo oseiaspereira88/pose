@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -86,6 +85,9 @@ type ReleaseProjection struct {
 	Manifest *ReleaseManifest `json:"manifest,omitempty"`
 	Events   []ReleaseEvent   `json:"events"`
 	Gaps     []string         `json:"gaps"`
+	// Snapshot is what the tree of the release's tag says, read from the tag and not from
+	// the working tree. It is absent while the release has no tag.
+	Snapshot *ReleaseSnapshot `json:"snapshot,omitempty"`
 }
 
 type ReleaseStatus struct {
@@ -241,15 +243,19 @@ func LoadReleaseManifest(root, version string) (*ReleaseManifest, error) {
 	if err := ValidateReleaseVersion(version); err != nil {
 		return nil, err
 	}
-	var manifest ReleaseManifest
 	raw, err := os.ReadFile(filepath.Join(root, ".pose", "releases", version, "manifest.json"))
 	if err != nil {
 		return nil, err
 	}
-	if err := json.Unmarshal(raw, &manifest); err != nil {
-		return nil, err
+	manifest, issues := ValidateReleaseManifestBytes(raw, version)
+	if len(issues) > 0 {
+		parts := make([]string, 0, len(issues))
+		for _, issue := range issues {
+			parts = append(parts, issue.String())
+		}
+		return nil, fmt.Errorf("pose: release manifest of %s is not valid: %s", version, strings.Join(parts, "; "))
 	}
-	return &manifest, nil
+	return manifest, nil
 }
 
 func LoadReleaseEvents(root, version string) ([]ReleaseEvent, error) {
@@ -338,10 +344,14 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 			return nil, err
 		}
 		projection := ProjectRelease(manifest, events)
-		if projection.State == "prepared" {
-			cmd := exec.Command("git", "rev-list", "-n", "1", entry.Name()+"^{}")
-			cmd.Dir = s.Root
-			if commit, err := cmd.Output(); err == nil && regexp.MustCompile(`^[0-9a-f]{40}$`).MatchString(strings.TrimSpace(string(commit))) {
+		if _, _, tagErr := ResolveReleaseTag(s.Root, entry.Name()); tagErr == nil {
+			snap, snapErr := ReadReleaseSnapshot(s.Root, entry.Name())
+			projection.Snapshot = &snap
+			switch {
+			case snapErr != nil:
+				// A tag whose tree holds no snapshot is not a tagged release, whatever the working tree holds.
+				projection.Gaps = append(projection.Gaps, "tag "+entry.Name()+" exists but its tree holds no release snapshot")
+			case projection.State == "prepared":
 				projection.State = "tagged"
 			}
 		}

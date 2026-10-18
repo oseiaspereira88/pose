@@ -32,11 +32,7 @@ func archiveReviewFragment(t *testing.T, root, version, spec string) {
 	manifest := ".pose/releases/" + version + "/manifest.json"
 	raw := []byte("reviewed release fragment\r\n")
 	writeReviewFixture(t, root, archive, string(raw))
-	data, err := json.Marshal(ReleaseManifest{SchemaVersion: 1, Version: version, Fragments: []ReleaseFragment{{Spec: spec, Path: "alpha.md", Digest: ReleaseDigest(string(raw))}}})
-	if err != nil {
-		t.Fatal(err)
-	}
-	writeReviewFixture(t, root, manifest, string(data))
+	writeReviewFixture(t, root, manifest, releaseManifestFixture(version, []ReleaseFragment{{Spec: spec, Path: "alpha.md", Digest: ReleaseDigest(string(raw))}}))
 	if err := os.Remove(filepath.Join(root, fragmentPending)); err != nil && !os.IsNotExist(err) {
 		t.Fatal(err)
 	}

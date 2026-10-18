@@ -408,7 +408,29 @@ func checkRelease(root, target string) ([]string, *posemodel.ReleaseManifest) {
 		projection := posemodel.ProjectRelease(manifest, events)
 		gaps = append(gaps, projection.Gaps...)
 	}
+	gaps = append(gaps, releaseTagSnapshotGaps(root, target)...)
 	return gaps, manifest
+}
+
+// releaseTagSnapshotGaps verifies, when the release has a tag, the snapshot the tag points at: the
+// manifest, the notes and the frozen fragments are read from the tagged tree, never from the working tree
+// (spec pose-release-manifest-tag-integrity). A release with no tag has no snapshot to verify.
+func releaseTagSnapshotGaps(root, target string) []string {
+	if _, _, err := posemodel.ResolveReleaseTag(root, target); err != nil {
+		return nil
+	}
+	snap, err := posemodel.ReadReleaseSnapshot(root, target)
+	if err != nil {
+		return []string{"tag " + target + " has no release snapshot in its tree: " + err.Error()}
+	}
+	gaps := []string{}
+	for _, issue := range snap.Issues {
+		gaps = append(gaps, "tag snapshot manifest "+issue.String())
+	}
+	for _, gap := range snap.Gaps {
+		gaps = append(gaps, "tag snapshot: "+gap)
+	}
+	return gaps
 }
 
 func cmdReleaseCheck(root string, args []string, stdout, stderr io.Writer) int {
@@ -431,8 +453,14 @@ func cmdReleaseCheck(root string, args []string, stdout, stderr io.Writer) int {
 	if tagged && manifest == nil {
 		gaps = append(gaps, "tag exists without prepared manifest")
 	}
+	var tagLimits []string
+	if tagged {
+		if snap, err := posemodel.ReadReleaseSnapshot(root, target); err == nil {
+			tagLimits = snap.Limits
+		}
+	}
 	if releaseFlag(args, "--json") {
-		raw, _ := json.MarshalIndent(map[string]any{"version": target, "valid": len(gaps) == 0, "tagged": tagged, "tag_commit": tagCommit, "gaps": gaps}, "", "  ")
+		raw, _ := json.MarshalIndent(map[string]any{"version": target, "valid": len(gaps) == 0, "tagged": tagged, "tag_commit": tagCommit, "gaps": gaps, "snapshot_limits": tagLimits}, "", "  ")
 		fmt.Fprintln(stdout, string(raw))
 	} else if len(gaps) == 0 {
 		fmt.Fprintf(stdout, "Release %s: valid prepared snapshot; tagged=%t.\n", target, tagged)
@@ -763,8 +791,18 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 		if policy.LegacyCutoff != "" && !versionLess(policy.LegacyCutoff, tag) {
 			continue
 		}
-		if _, err := posemodel.LoadReleaseManifest(checker.root, tag); err != nil {
-			checker.failOrWarn("release: governed tag " + tag + " has no manifest")
+		if snap, err := posemodel.ReadReleaseSnapshot(checker.root, tag); err != nil {
+			checker.failOrWarn("release: governed tag " + tag + " has no manifest in its tagged tree")
+		} else if !snap.Intact() {
+			checker.failOrWarn("release: governed tag " + tag + " has a snapshot that is not intact: " + strings.Join(append(issueStrings(snap.Issues), snap.Gaps...), "; "))
 		}
 	}
+}
+
+func issueStrings(issues []posemodel.ReleaseManifestIssue) []string {
+	out := make([]string, 0, len(issues))
+	for _, issue := range issues {
+		out = append(out, issue.String())
+	}
+	return out
 }

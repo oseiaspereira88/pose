@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 // Spec pose-public-claims-publication-provenance.
@@ -16,7 +18,7 @@ func writeReleaseRecord(t *testing.T, root, version string, events ...string) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	mustWrite(t, filepath.Join(dir, "manifest.json"), `{"schema_version":1,"version":"`+version+`","prepared_at":"2026-10-02T00:00:00Z","specs":[],"categories":{},"fragments":[],"breaking":false,"notes_digest":"","release_input_digest":"","policy_digest":"","version_evidence":{}}`)
+	mustWrite(t, filepath.Join(dir, "manifest.json"), string(posemodel.CanonicalJSON(posemodel.NewReleaseManifest(version, "", "2026-10-02T00:00:00Z", nil, posemodel.ReleasePolicy{}, posemodel.ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": version}))))
 	if len(events) > 0 {
 		lines := []string{}
 		for _, state := range events {
