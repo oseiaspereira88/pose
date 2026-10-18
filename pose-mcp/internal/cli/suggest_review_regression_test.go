@@ -19,7 +19,7 @@ func suggestWithTaskMap(t *testing.T, taskMap string) string {
 
 func TestSuggestRootModuleIsTheFallbackOfLeastSpecificity(t *testing.T) {
 	root := suggestFixture(t, true)
-	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", `{"services":[{"path":"","language":"go"},{"path":".","language":"go"},{"path":"web","language":"typescript"}]}`)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", `{"services":[{"path":"./","language":"go"},{"path":"web","language":"typescript"}]}`)
 	for _, hint := range []string{"main.go", "./main.go", "cmd/tool/main.go"} {
 		if doc := suggestJSON(t, root, "--path", hint); doc["domain_effective"] != "backend-go" {
 			t.Errorf("%s: the root module did not apply: %v", hint, doc["domain_effective"])

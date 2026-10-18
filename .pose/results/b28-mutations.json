@@ -59,8 +59,63 @@
       "mutation": "migrate não diz que dry-run não escreve",
       "tests": "TestMigrateSaysThereIsNoApplyWithoutPromisingOne",
       "verdict": "killed"
+    },
+    {
+      "mutation": "módulo raiz não se aplica",
+      "tests": "TestSuggestRootModuleIsTheFallback",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "caminho não normalizado",
+      "tests": "TestSuggestRootModuleIsTheFallback",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "kubernetes sem extensão conhecida",
+      "tests": "TestSuggestKubernetesRuleIsAnnounced",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "diretório é regra instalada",
+      "tests": "TestSuggestAnUnreadableRuleIsNot",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "go.mod diretório vale como módulo Go",
+      "tests": "TestSuggestAnUnreadableRuleIsNot",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "configuração malformada vira conjunto vazio",
+      "tests": "TestSuggestRefusesAMalformedRulesConfiguration",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "elemento que não é texto é descartado",
+      "tests": "TestSuggestRefusesAMalformedRulesConfiguration",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "rules_by_domain que não é objeto é aceito",
+      "tests": "TestSuggestRefusesAMalformedRulesConfiguration",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "identificador de regra não é validado",
+      "tests": "TestSuggestRefusesARuleIdentifierThatIsAPath",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "índice ilegível vira ausência de domínio",
+      "tests": "TestSuggestSaysWhyItHasNoDomainForAPath|TestSuggestDomainUsesMostSpecificModule",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "inventário ignora diretório ilegível",
+      "tests": "TestInventoryNeverSkipsWhatItCannotRead",
+      "verdict": "killed"
     }
   ],
-  "killed": 12,
-  "total": 12
+  "killed": 23,
+  "total": 23
 }
