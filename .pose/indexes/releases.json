@@ -185,6 +185,14 @@
       "digest": "sha256:45aed9aeb29c9cd0bd5c00b660520a6afbec4311de1e05b1de92f3ceeb7665c6"
     },
     {
+      "spec": "pose-source-coverage-integrity",
+      "category": "changed",
+      "breaking": false,
+      "body": "A read that could not see part of its source now says so instead of reporting less.\n`pose followups` (and the MCP tool `pose_get_followups`, which runs it) lists the specs it\ncould not read in `coverage` and prints them in the human output; a spec that cannot be\nopened no longer makes the backlog look shorter, and `--fail-overdue` fails instead of\ncertifying \"none overdue\" over an incomplete read. The backlog, the candidates, the project\nstate and Attention now count the same unresolved follow-ups: a bullet with no disposition\nis unresolved everywhere, and Attention projects it with the reason `followup-undisposed`.\n\nThe obligation report gains the producer state `incomplete`: an obligation refused by\nvalidation, a spec or review record that could not be read, now make the report incomplete\nfor the producer they belong to, not just add a line of text. A query about one spec is not\nmade incomplete by a loss in another.\n\n`pose assess tech-debt` finds a marker after a line longer than 64 KiB (the scan stopped at\nsuch a line and reported none) and reports what it scanned: files it could not read make the\nreport incomplete, and the files it leaves out on purpose (over the size limit, binary,\ngenerated) are counted by reason.\n\nA review record that cannot be read is no longer skipped. `pose review-check` and `pose review\nverify` do not take the latest readable attempt or attestation as the current one while an\nunreadable record that may be later (or whose bundle or scope it names) exists; one whose\nname shows it is older only warns, and unreadable sealed bundles are disclosed. `pose review\nrecord` refuses to choose the attempt it supersedes from a history with a hole.",
+      "path": "pose-source-coverage-integrity.md",
+      "digest": "sha256:fc9dffdb9b6594f1e25fc781521720e6c3495fbf05f98909afdff66048d4e2f1"
+    },
+    {
       "spec": "pose-spec-facts-evidence-binding",
       "category": "changed",
       "breaking": false,
