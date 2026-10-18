@@ -1,8 +1,8 @@
 ---
 slug: pose-source-coverage-integrity
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-18
 depends_on: pose-obligation-projection, pose-debt-marker-lexical-precision
 priority: 1
 components: pose-mcp
@@ -132,7 +132,7 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Histórico de reviews: tentativas, bundles e atestações ilegíveis atribuídos por nome/cabeçalho; bloqueio quando podem ser posteriores, aviso quando comprovadamente anteriores; `review record` recusa histórico com buraco.
 - [x] V1–V6 no domínio, na CLI e no MCP; probes antes e depois (controle inalterado); mutações em `.pose/results/b06-mutations.json`.
 - [x] Validação estrita global e do módulo.
-- [ ] Revisão por ator diferente e closeout nativo.
+- [x] Revisão por ator diferente e closeout nativo: agent:independent-gpt-6.1-sol-review; rvb-d4e49da25f48b9ae; rva-eb2a3da043e02b89.
 
 ## 5. Decisions
 
@@ -172,14 +172,14 @@ Produtores executados; o lint valida a estrutura e não substitui estes testes, 
 mutações. Decisão e limites em
 [ADR 2026-10-17](../adr/2026-10-17-a-source-that-lost-something-is-incomplete-for-what-depends-on-it.md).
 
-- R1 [satisfied] test:TestAnUnreadableSpecIsALossAttributedToItsPath test:TestAnUnscopedUnreadableAttemptIsAttributedByItsHeaderWhenItHasOne test:TestTechDebtCoverageNamesWhatItDidNotScan test:TestSourceCoverageScoping — perda por produtor, artefato, tipo (leitura, parse, formato não suportado, scan incompleto) e escopo, com o detalhe sem bytes; exclusões declaradas separadas de perdas.
-- R2 [satisfied] test:TestTheFollowupProducerIsIncompleteWhenASpecCannotBeRead test:TestFollowupsReportsASpecItCouldNotRead test:TestFindingsProducerIsIncompleteWhenAReviewRecordCannotBeRead test:TestFollowupParityAcrossCLIMCPAndAttention — Complete é cobertura do recorte pedido; zero com perda não é zero pendências (probes D01).
-- R3 [satisfied] test:TestAnUnreadableNewerAttemptBlocksTheEarlierApproval test:TestAnUnreadableLaterRejectionDoesNotLeaveTheEarlierApprovalStanding test:TestWithNoReadableAttemptAnUnreadableOneIsNotAbsence test:TestReviewRecordRefusesToSupersedeFromAHistoryWithAHole — a aprovação anterior não é selecionada em silêncio; a ordem conhecida é preservada e nenhuma decisão desconhecida é reconstruída (limite: journals de requests são da B13).
-- R4 [satisfied] test:TestAnUnreadableOlderAttemptOnlyWarns test:TestAReviewRecordThatNamesAnotherScopeDoesNotConcernThisOne test:TestAnUnreadableAttestationIsNotSkippedByVerification test:TestAnUnreadableBundleIsDisclosedAndNotSkipped — a falha restringe só a conclusão que depende dela; atribuição por caminho ou cabeçalho legível, e incerteza declarada quando não há.
-- R5 [satisfied] test:TestUnresolvedFollowupsAreOneSetAcrossReaders test:TestTheBacklogAndTheProjectStateCountTheSameUnresolvedFollowups test:TestFollowupParityAcrossCLIMCPAndAttention — mesmo conjunto e diagnósticos na CLI, no MCP e no Attention para o mesmo snapshot; probe P01 antes (2/1/1) e depois (2/2/2).
-- R6 [satisfied] test:TestADroppedObligationMakesItsProducerIncomplete — o descarte por ValidateObligation marca a cobertura do produtor e o Complete do report.
-- R7 [satisfied] test:TestAMarkerAfterAVeryLongLineIsFound test:TestTechDebtCoverageNamesWhatItDidNotScan test:TestTheTechDebtReportSaysWhatItCovered test:TestAssessTechDebtStatesItsScopeAndFindsAMarkerAfterALongLine — o TODO além do buffer é encontrado; arquivo ilegível torna o scan incompleto; exclusões declaram o recorte (probe P04).
-- R8 [satisfied] test:TestFollowupsReportsASpecItCouldNotRead test:TestAssessTechDebtStatesItsScopeAndFindsAMarkerAfterALongLine test:TestReviewCheckCarriesTheHistoryDiagnosticInJSONAndText test:TestFollowupParityAcrossCLIMCPAndAttention — diagnósticos de domínio em JSON e em texto; fontes legíveis e legado compatível continuam úteis sem blocker global por dados de outro escopo.
+- R1 [satisfied] test:TestAnUnreadableSpecIsALossAttributedToItsPath test:TestAnUnscopedUnreadableAttemptIsAttributedByItsHeaderWhenItHasOne test:TestTechDebtCoverageNamesWhatItDidNotScan test:TestSourceCoverageScoping — perda por produtor, artefato, tipo (leitura, parse, formato não suportado, scan incompleto) e escopo, com o detalhe sem bytes; exclusões declaradas separadas de perdas. Produtor executado: check:source-coverage-integrity-integration (domínio, CLI e MCP; reexecução independente).
+- R2 [satisfied] test:TestTheFollowupProducerIsIncompleteWhenASpecCannotBeRead test:TestFollowupsReportsASpecItCouldNotRead test:TestFindingsProducerIsIncompleteWhenAReviewRecordCannotBeRead test:TestFollowupParityAcrossCLIMCPAndAttention — Complete é cobertura do recorte pedido; zero com perda não é zero pendências (probes D01). Produtor executado: check:source-coverage-integrity-integration (domínio, CLI e MCP; reexecução independente).
+- R3 [satisfied] test:TestAnUnreadableNewerAttemptBlocksTheEarlierApproval test:TestAnUnreadableLaterRejectionDoesNotLeaveTheEarlierApprovalStanding test:TestWithNoReadableAttemptAnUnreadableOneIsNotAbsence test:TestReviewRecordRefusesToSupersedeFromAHistoryWithAHole — a aprovação anterior não é selecionada em silêncio; a ordem conhecida é preservada e nenhuma decisão desconhecida é reconstruída (limite: journals de requests são da B13). Produtor executado: check:source-coverage-integrity-integration (domínio, CLI e MCP; reexecução independente).
+- R4 [satisfied] test:TestAnUnreadableOlderAttemptOnlyWarns test:TestAReviewRecordThatNamesAnotherScopeDoesNotConcernThisOne test:TestAnUnreadableAttestationIsNotSkippedByVerification test:TestAnUnreadableBundleIsDisclosedAndNotSkipped — a falha restringe só a conclusão que depende dela; atribuição por caminho ou cabeçalho legível, e incerteza declarada quando não há. Produtor executado: check:source-coverage-integrity-integration (domínio, CLI e MCP; reexecução independente).
+- R5 [satisfied] test:TestUnresolvedFollowupsAreOneSetAcrossReaders test:TestTheBacklogAndTheProjectStateCountTheSameUnresolvedFollowups test:TestFollowupParityAcrossCLIMCPAndAttention — mesmo conjunto e diagnósticos na CLI, no MCP e no Attention para o mesmo snapshot; probe P01 antes (2/1/1) e depois (2/2/2). Produtor executado: check:source-coverage-integrity-integration (domínio, CLI e MCP; reexecução independente).
+- R6 [satisfied] test:TestADroppedObligationMakesItsProducerIncomplete — o descarte por ValidateObligation marca a cobertura do produtor e o Complete do report. Produtor executado: check:source-coverage-integrity-integration (domínio, CLI e MCP; reexecução independente).
+- R7 [satisfied] test:TestAMarkerAfterAVeryLongLineIsFound test:TestTechDebtCoverageNamesWhatItDidNotScan test:TestTheTechDebtReportSaysWhatItCovered test:TestAssessTechDebtStatesItsScopeAndFindsAMarkerAfterALongLine — o TODO além do buffer é encontrado; arquivo ilegível torna o scan incompleto; exclusões declaram o recorte (probe P04). Produtor executado: check:source-coverage-integrity-integration (domínio, CLI e MCP; reexecução independente).
+- R8 [satisfied] test:TestFollowupsReportsASpecItCouldNotRead test:TestAssessTechDebtStatesItsScopeAndFindsAMarkerAfterALongLine test:TestReviewCheckCarriesTheHistoryDiagnosticInJSONAndText test:TestFollowupParityAcrossCLIMCPAndAttention — diagnósticos de domínio em JSON e em texto; fontes legíveis e legado compatível continuam úteis sem blocker global por dados de outro escopo. Produtor executado: check:source-coverage-integrity-integration (domínio, CLI e MCP; reexecução independente).
 - R9 [satisfied] check:source-coverage-integrity-integration — probes P01/P04 e controle inalterado em `b06-front05-probes.json`; todas as mutações versionadas mortas; leitura read-only, sem correção de arquivo nem disposition automática.
 
 Consultar [estado atual](../reports/2026-10-11-pose-front-01-current-state.md) e [residual](../reports/2026-10-12-pose-front-05-residual-work.md).
@@ -256,15 +256,25 @@ continua sendo o observado, e acrescenta apenas os estados persistidos ilegívei
 
 Probes antes (0b2a726f) e depois em [b06-front05-probes.json](../results/b06-front05-probes.json);
 mutações em [b06-mutations.json](../results/b06-mutations.json); validação estrita em
-`b06-implementation-validation.json`. A revisão por ator diferente e o closeout nativo são
-registrados pelo revisor.
+`b06-implementation-validation.json`. A oitava revisão independente por `agent:independent-gpt-6.1-sol-review`, Codex/OpenAI,
+outro vendor em relação ao implementador Claude/Anthropic, aprovou a entrega no HEAD
+67f25e79. Identidade e separação declaradas; atestação sem envelope no pose-dist,
+conforme esclarecimento do maintainer. O prefixo `agent:independent-` é exigido pelo
+motor até `pose-delegated-review-run-provenance`. Bundle `rvb-d4e49da25f48b9ae`,
+atestação `rva-eb2a3da043e02b89`; review verify fresh/approved e close nativo aprovados.
+Validação independente global 139/139, módulo 136/136, 115/115 mutações mortas,
+83 testes selecionados com contrafactuais por asserção, vet, suíte completa, race,
+builds Windows/Darwin, probes e jornada install/upgrade passaram. Parecer em
+[review B06](../reports/2026-10-17-pose-b06-source-coverage-review.md) e
+[evidência compacta](../results/b06-independent-review.json).
 
 ### Residual risks
 
 A atribuição por caminho ou cabeçalho é um melhor esforço e declara como foi obtida; um
 registro sem nenhuma das duas é tratado como possivelmente do escopo. Um bundle selado
-ilegível é divulgado, não bloqueia, porque a verificação é vinculada ao bundle que casa com as
-entradas atuais. Um repositório com um registro de review ilegível mais novo que a aprovação
+ilegível é uma perda divulgada: quando pode ser posterior ou sua ordem não pode ser
+provada, impede reter uma aprovação anterior; perda comprovadamente antiga apenas avisa.
+A verificação permanece vinculada ao bundle que casa com as entradas atuais. Um repositório com um registro de review ilegível mais novo que a aprovação
 passa a ficar bloqueado até o registro ser restaurado ou removido (classificado como minor).
 Journals de action requests são da B13; o ledger legado de reviews mantém a leitura própria
 dele. Registros de outras fontes (por exemplo o histórico de docs-review) continuam fora desta

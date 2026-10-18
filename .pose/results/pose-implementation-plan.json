@@ -695,8 +695,8 @@
           "materialized": true,
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-source-coverage-integrity.md",
-          "status": "in-progress",
-          "sha256": "421f4529ed59422fdee550bf20f648ea2aa825c5cfb3bdca2b1b96f524ab865f"
+          "status": "done",
+          "sha256": "5b0a9d6fe72bd40712dfbb13e40494f492bfc19e020d1f67f40566001dde873b"
         }
       ],
       "implementation_observations": [
@@ -709,9 +709,30 @@
           "scope": "Start nativo após o merge de #193 (main 0b2a726f). Uma cobertura (SourceCoverage) viaja com o resultado de cada leitura: perdas por produtor, artefato, tipo e escopo (atribuído por caminho ou cabeçalho legível) e exclusões declaradas. Follow-ups: spec ilegível é perda, um só conjunto não resolvido em backlog, candidatos, estado do projeto e Attention, --fail-overdue recusa leitura incompleta; obrigações: estado de produtor incomplete (descarte por validação, spec e registro de review ilegíveis); marcadores de dívida: scan sem limite de linha com escopo declarado; histórico de reviews: tentativa/atestação/bundle ilegível atribuído e bloqueando só quando pode ser posterior. Probes antes e depois com controle inalterado, 36/36 mutações mortas e validação estrita global 138/138; revisão por ator diferente e closeout nativo pendentes.",
           "unit_complete": false,
           "native_closeout_pending": true
+        },
+        {
+          "at": "2026-10-18",
+          "pull_requests": [
+            194
+          ],
+          "scope": "Round 8 independent review by Codex/OpenAI, different vendor from Claude/Anthropic. Prior merge blockers verified fixed; no new code blockers. R6-F04 and R7-F04 remain open low diagnostic followups. Global strict 139/139 and pose-mcp 136/136 at 67f25e79; 115/115 assertion-killed mutations, 83 selected tests with red counterfactuals, probes, full suite, vet, race, Windows/Darwin builds and install/upgrade passed. Unsigned declared-identity attestation as authorized for pose-dist; no policy change. Fresh approved native review and guarded closeout completed. Await maintainer merge; no next implementation selected.",
+          "unit_complete": true,
+          "native_closeout_pending": false,
+          "review_report_path": ".pose/reports/2026-10-17-pose-b06-source-coverage-review.md",
+          "admission_review_bundle": "rvb-d4e49da25f48b9ae",
+          "admission_attestation": "rva-eb2a3da043e02b89",
+          "native_validation": {
+            "mode": "strict",
+            "head": "67f25e791eb5be71e4ef1c87a379a74b24f0570a",
+            "executed": 139,
+            "passed": 139,
+            "failed": 0,
+            "component_executed": 136,
+            "component_passed": 136
+          }
         }
       ],
-      "delivery_complete": false,
+      "delivery_complete": true,
       "native_spec_dependencies": [
         "pose-obligation-projection",
         "pose-debt-marker-lexical-precision"
@@ -5241,12 +5262,12 @@
     "main_revision": "0b2a726f6167da32cfefda267b8372ec504a4b14",
     "selected_unit": "B06",
     "selected_spec": "pose-source-coverage-integrity",
-    "basis": "PR193 merged B15 (0b2a726f). The maintainer authorized continuing the implementation sequence. Native start, implementation, probes, 36/36 mutations and strict validation (138/138) done for B06; different-actor review and native closeout pending.",
-    "unit_delivery_complete_count": 7,
+    "basis": "B06 independently reviewed at 67f25e79, native approved review and closeout complete; two low diagnostic followups remain open.",
+    "unit_delivery_complete_count": 8,
     "administrative_closeouts": "Authoring closeouts remain separate and pending; materialization is not functional delivery.",
     "previous_complementary_pull_request": 193,
     "previous_complementary_merged": true,
-    "native_closeout_pending": true,
-    "next_step": "Different-actor review of B06, native closeout, then maintainer merge."
+    "native_closeout_pending": false,
+    "next_step": "Await maintainer merge of PR194, then reassess native DAG/readiness; no next implementation selected."
   }
 }
