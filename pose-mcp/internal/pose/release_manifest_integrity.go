@@ -525,8 +525,12 @@ func ReadReleaseSnapshot(root, tag string) (ReleaseSnapshot, error) {
 		gap("canonical notes could not be read from the tagged tree: %v", err)
 	case ReleaseDigest(string(notes)) != manifest.NotesDigest:
 		gap("canonical notes digest differs from the manifest in the tagged tree")
-	case clErr == nil && string(notes) != RenderReleaseNotes(manifest.Version, manifest.Fragments, changelog):
-		gap("the canonical notes of the tagged tree are not the rendering of the fragments the manifest froze")
+	case clErr == nil:
+		if ok, limit := NotesAreTheRendering(string(notes), manifest.Version, manifest.Fragments, changelog); !ok {
+			gap("the canonical notes of the tagged tree are not the rendering of the fragments the manifest froze")
+		} else if limit != "" {
+			snap.Limits = append(snap.Limits, limit)
+		}
 	}
 	// Version evidence: the file of the tagged tree that holds the version, read the way the
 	// policy of the cut says to read it.
@@ -538,27 +542,15 @@ func ReadReleaseSnapshot(root, tag string) (ReleaseSnapshot, error) {
 	return snap, nil
 }
 
-// changelogPolicyAt reads the changelog policy the tagged tree held; a tree without one used the
-// default categories, as LoadChangelogPolicy does.
 func changelogPolicyAt(root, commit string) (ChangelogPolicy, error) {
-	policy := ChangelogPolicy{SchemaVersion: 1}
 	raw, err := gitBlobAt(root, commit, ".pose/policy/changelog.json")
 	switch {
 	case errors.Is(err, os.ErrNotExist):
+		return ChangelogPolicy{SchemaVersion: 1, Categories: DefaultChangelogCategories()}, nil
 	case err != nil:
-		return policy, err
-	default:
-		if uerr := json.Unmarshal(raw, &policy); uerr != nil {
-			return policy, fmt.Errorf("invalid changelog policy: %w", uerr)
-		}
+		return ChangelogPolicy{}, err
 	}
-	if policy.SchemaVersion != 1 {
-		return policy, fmt.Errorf("the changelog policy schema_version %d is not supported by this engine", policy.SchemaVersion)
-	}
-	if len(policy.Categories) == 0 {
-		policy.Categories = DefaultChangelogCategories()
-	}
-	return policy, nil
+	return ParseChangelogPolicy(raw)
 }
 
 // snapshotVersionEvidence re-verifies the version a manifest recorded against the file of the

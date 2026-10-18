@@ -112,14 +112,24 @@ func ReleaseDigest(value any) string {
 
 func LoadReleasePolicy(root string) (ReleasePolicy, error) {
 	var policy ReleasePolicy
-	raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "release.json"))
-	if err != nil && errors.Is(err, os.ErrNotExist) {
+	primary := filepath.Join(root, ".pose", "policy", "release.json")
+	absent, absentErr := ProvenAbsent(primary)
+	if absentErr != nil {
+		return policy, fmt.Errorf("release policy could not be read: %w", absentErr)
+	}
+	path := primary
+	if absent {
 		// The legacy place is read only when the current one is proven not to be there.
-		raw, err = os.ReadFile(filepath.Join(root, ".pose", "release-policy.json"))
-		if err != nil && errors.Is(err, os.ErrNotExist) {
+		path = filepath.Join(root, ".pose", "release-policy.json")
+		legacyAbsent, legacyErr := ProvenAbsent(path)
+		if legacyErr != nil {
+			return policy, fmt.Errorf("release policy could not be read: %w", legacyErr)
+		}
+		if legacyAbsent {
 			return policy, fmt.Errorf("release policy missing: create .pose/policy/release.json")
 		}
 	}
+	raw, err := os.ReadFile(path)
 	if err != nil {
 		return policy, fmt.Errorf("release policy could not be read: %w", err)
 	}
@@ -160,10 +170,12 @@ func ValidateReleasePolicy(policy ReleasePolicy) error {
 
 func LoadReleaseFragments(dir string, policy ChangelogPolicy) ([]ReleaseFragment, error) {
 	entries, err := os.ReadDir(dir)
-	if os.IsNotExist(err) {
-		return []ReleaseFragment{}, nil
-	}
 	if err != nil {
+		if absent, absentErr := ProvenAbsent(dir); absentErr == nil && absent {
+			return []ReleaseFragment{}, nil
+		} else if absentErr != nil {
+			return nil, absentErr
+		}
 		return nil, err
 	}
 	fragments := []ReleaseFragment{}
@@ -285,10 +297,12 @@ func LoadReleaseManifest(root, version string) (*ReleaseManifest, error) {
 func LoadReleaseEvents(root, version string) ([]ReleaseEvent, error) {
 	path := filepath.Join(root, ".pose", "releases", version, "events.jsonl")
 	raw, err := os.ReadFile(path)
-	if os.IsNotExist(err) {
-		return []ReleaseEvent{}, nil
-	}
 	if err != nil {
+		if absent, absentErr := ProvenAbsent(path); absentErr == nil && absent {
+			return []ReleaseEvent{}, nil
+		} else if absentErr != nil {
+			return nil, absentErr
+		}
 		return nil, err
 	}
 	events := []ReleaseEvent{}
@@ -373,10 +387,14 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 	base := filepath.Join(s.Root, ".pose", "releases")
 	entries, err := os.ReadDir(base)
 	if err != nil {
-		if _, lerr := os.Lstat(base); !errors.Is(err, os.ErrNotExist) || lerr == nil {
-			// A directory that cannot be listed (a file where it belongs, no access, a link to a
-			// place that was lost) is not a project with no releases.
-			return nil, fmt.Errorf("pose: the release directory could not be read: %w", err)
+		// A directory that cannot be listed (a file where it belongs, no access, a link to a
+		// place that was lost, a lost ancestor) is not a project with no releases: only a
+		// proven absence is.
+		if absent, absentErr := ProvenAbsent(base); absentErr != nil || !absent {
+			if absentErr == nil {
+				absentErr = err
+			}
+			return nil, fmt.Errorf("pose: the release directory could not be read: %w", absentErr)
 		}
 	}
 	inWorktree := map[string]bool{}
@@ -401,7 +419,8 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 		_, _, tagErr := ResolveReleaseTag(s.Root, entry.Name())
 		if tagErr != nil && errors.Is(tagErr, ErrReleaseTagMissing) {
 			// No tag yet: the cut is a candidate, and the files it froze must still be there.
-			projection.Gaps = append(projection.Gaps, ReleaseFilesGaps(s.Root, entry.Name(), manifest)...)
+			gaps, _ := ReleaseCandidateGaps(s.Root, entry.Name(), manifest)
+			projection.Gaps = append(projection.Gaps, gaps...)
 			if projection.State != "prepared" && projection.State != "failed" {
 				// The events say a tag exists; the repository says it does not.
 				projection.Gaps = append(projection.Gaps, "the events record "+projection.State+", and the tag "+entry.Name()+" does not exist")
@@ -642,9 +661,17 @@ func ReleaseFilesGaps(root, target string, manifest *ReleaseManifest) []string {
 			gaps = append(gaps, "fragment digest mismatch: "+f.Spec)
 		}
 	}
-	entries, derr := os.ReadDir(filepath.Join(root, ".pose", "changelogs", target))
+	archiveDir := filepath.Join(root, ".pose", "changelogs", target)
+	entries, derr := os.ReadDir(archiveDir)
+	if derr != nil {
+		if absent, absentErr := ProvenAbsent(archiveDir); absentErr == nil && absent {
+			derr = nil // a release with no fragments leaves no directory
+		} else if absentErr != nil {
+			derr = absentErr
+		}
+	}
 	switch {
-	case derr != nil && !errors.Is(derr, os.ErrNotExist):
+	case derr != nil:
 		gaps = append(gaps, "the archive of the working tree could not be listed: "+derr.Error())
 	default:
 		for _, entry := range entries {

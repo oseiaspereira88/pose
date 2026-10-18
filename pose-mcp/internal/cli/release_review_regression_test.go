@@ -204,3 +204,21 @@ func TestR4EventsThatNameATagThatIsNotThereAreAGap(t *testing.T) {
 		t.Fatalf("events naming a tag that does not exist were valid: %v", doc)
 	}
 }
+
+// R5-F04: a manifest that is a link to nowhere is not a place to write through.
+func TestR5PrepareDoesNotWriteThroughALostManifestLink(t *testing.T) {
+	root, target := preparedEngineReleaseWith(t, true)
+	path := filepath.Join(root, ".pose", "releases", target, "manifest.json")
+	os.Remove(path)
+	lostTarget := filepath.Join(root, "lost.json")
+	if err := os.Symlink(lostTarget, path); err != nil {
+		t.Skip("symlinks are not available")
+	}
+	var out, errOut bytes.Buffer
+	if code := cmdReleasePrepare(root, []string{"--version", target, "--apply"}, &out, &errOut); code == 0 || !strings.Contains(errOut.String(), "is not overwritten") {
+		t.Fatalf("prepare wrote through a lost link (%d): out=%s err=%s", code, out.String(), errOut.String())
+	}
+	if _, err := os.Stat(lostTarget); err == nil {
+		t.Fatal("the target of the link was created")
+	}
+}

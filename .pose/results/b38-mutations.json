@@ -161,11 +161,6 @@
       "verdict": "killed"
     },
     {
-      "mutation": "diretório de releases ilegível vira vazio",
-      "tests": "TestF06",
-      "verdict": "killed"
-    },
-    {
       "mutation": "arquivo no lugar do arquivo morto passa",
       "tests": "TestF06",
       "verdict": "killed"
@@ -276,11 +271,6 @@
       "verdict": "killed"
     },
     {
-      "mutation": "candidato que perdeu arquivos é sólido",
-      "tests": "TestR4APreparedStatusSeesTheFilesItLost",
-      "verdict": "killed"
-    },
-    {
       "mutation": "verified sem solidez deixa de dever",
       "tests": "TestR4AnUnsoundVerifiedReleaseStillOwes",
       "verdict": "killed"
@@ -291,23 +281,13 @@
       "verdict": "killed"
     },
     {
-      "mutation": "fallback de policy após erro de leitura",
-      "tests": "TestR4ALostReleaseDirectoryAndPolicyAreNotAbsence",
-      "verdict": "killed"
-    },
-    {
-      "mutation": "diretório de releases dangling é vazio",
-      "tests": "TestR4ALostReleaseDirectoryAndPolicyAreNotAbsence",
-      "verdict": "killed"
-    },
-    {
       "mutation": "cutoff inválido é aceito",
       "tests": "TestR4TheCutoffIsAVersionAndTheChangelogSchemaIsSupported",
       "verdict": "killed"
     },
     {
       "mutation": "schema futuro do changelog é aceito",
-      "tests": "TestR4TheCutoffIsAVersionAndTheChangelogSchemaIsSupported",
+      "tests": "TestR4TheCutoffIsAVersionAndTheChangelogSchemaIsSupported|TestR5ACandidateIsJudgedByOneFunction",
       "verdict": "killed"
     },
     {
@@ -324,8 +304,43 @@
       "mutation": "eventos de tag sem a tag são válidos",
       "tests": "TestR4EventsThatNameATagThatIsNotThere",
       "verdict": "killed"
+    },
+    {
+      "mutation": "status chama sólido o candidato que o check recusa",
+      "tests": "TestR5ACandidateIsJudgedByOneFunction",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "política primária perdida cai no legado",
+      "tests": "TestR5LostLinksAreNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "pending perdido é lista vazia",
+      "tests": "TestR5LostLinksAreNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "eventos perdidos são sem eventos",
+      "tests": "TestR5LostLinksAreNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "ancestral perdido do diretório de releases é vazio",
+      "tests": "TestR5LostLinksAreNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "seção de compatibilidade diferente é contradição",
+      "tests": "TestR5TheCompatibilitySectionIsNotAContradiction|TestEveryReleaseTagOfThisRepository",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "prepare escreve por link perdido",
+      "tests": "TestR5PrepareDoesNotWriteThroughALostManifestLink",
+      "verdict": "killed"
     }
   ],
-  "killed": 65,
-  "total": 65
+  "killed": 68,
+  "total": 68
 }

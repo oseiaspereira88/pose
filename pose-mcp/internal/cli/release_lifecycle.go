@@ -17,7 +17,6 @@ import (
 	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
-	"github.com/harne8/pose-mcp/internal/version"
 )
 
 var immutableCommitRE = regexp.MustCompile(`^[0-9a-f]{40}$`)
@@ -160,17 +159,7 @@ func releaseInputs(root, target string) (posemodel.ReleasePolicy, []posemodel.Re
 // compiled engine version. Elsewhere the engine's number belongs to another
 // project, so it is refused instead of silently accepted.
 func releaseVersionEvidence(root string, policy posemodel.ReleasePolicy) (map[string]string, error) {
-	if policy.VersionSource != nil {
-		value, err := posemodel.ReadReleaseVersionSource(root, *policy.VersionSource)
-		if err != nil {
-			return nil, err
-		}
-		return map[string]string{"source": filepath.ToSlash(filepath.Clean(policy.VersionSource.Path)), "kind": policy.VersionSource.Kind, "value": value}, nil
-	}
-	if !posemodel.ProjectHasEngineVersionFile(root) {
-		return nil, fmt.Errorf("release policy declares no version_source: the engine version is authoritative only inside the engine repository; set version_source in .pose/policy/release.json to the file that holds this project's version")
-	}
-	return map[string]string{"source": posemodel.EngineVersionFile, "value": "v" + version.ReleaseBase()}, nil
+	return posemodel.ReleaseVersionEvidence(root, policy)
 }
 
 // versionLess orders release versions by Semantic Versioning precedence: rc.2 is before rc.10
@@ -245,9 +234,9 @@ func cmdReleasePrepare(root string, args []string, stdout, stderr io.Writer) int
 		}
 		fmt.Fprintln(stderr, "pose release prepare: immutable candidate already exists with different inputs")
 		return 1
-	case !errors.Is(loadErr, os.ErrNotExist):
-		// A manifest that is there and cannot be read as one is a candidate someone must look at,
-		// not a place to write over.
+	case !errors.Is(loadErr, os.ErrNotExist) || manifestIsNotProvenAbsent(root, target):
+		// A manifest that is there and cannot be read as one (invalid, or a link whose target was
+		// lost) is a candidate someone must look at, not a place to write over.
 		render(io.Discard, stderr).Failure(fmt.Sprintf("pose release prepare: a manifest of %s exists and is not valid; it is not overwritten: %v", target, loadErr))
 		return 1
 	}
@@ -400,61 +389,9 @@ func checkRelease(root, target string) ([]string, *posemodel.ReleaseManifest) {
 	return gaps, manifest
 }
 
-// preparedReleaseGaps checks a cut that has no tag yet against the policy and the fragments of
-// the working tree.
+// preparedReleaseGaps judges a cut that has no tag yet; the domain does it, for the status as well.
 func preparedReleaseGaps(root, target string, manifest *posemodel.ReleaseManifest) []string {
-	gaps := []string{}
-	policy, err := posemodel.LoadReleasePolicy(root)
-	if err != nil {
-		gaps = append(gaps, err.Error())
-	} else if manifest.PolicyDigest != posemodel.ReleaseDigest(policy) {
-		gaps = append(gaps, "policy digest differs from prepared manifest")
-	}
-	archive, err := posemodel.LoadReleaseFragments(filepath.Join(root, ".pose", "changelogs", target), posemodel.LoadChangelogPolicy(root))
-	if err != nil {
-		gaps = append(gaps, err.Error())
-	}
-	notes, err := os.ReadFile(filepath.Join(root, ".pose", "changelogs", target+".md"))
-	if err != nil {
-		gaps = append(gaps, "canonical notes missing")
-	} else if posemodel.ReleaseDigest(string(notes)) != manifest.NotesDigest {
-		gaps = append(gaps, "canonical notes digest mismatch")
-	} else if string(notes) != posemodel.RenderReleaseNotes(manifest.Version, manifest.Fragments, posemodel.LoadChangelogPolicy(root)) {
-		gaps = append(gaps, "the canonical notes are not the rendering of the fragments the manifest froze")
-	}
-	if len(archive) != len(manifest.Fragments) {
-		gaps = append(gaps, "archived fragment count differs from manifest")
-	}
-	bySpec := map[string]string{}
-	for _, f := range archive {
-		bySpec[f.Spec] = f.Digest
-	}
-	for _, f := range manifest.Fragments {
-		if bySpec[f.Spec] != f.Digest {
-			gaps = append(gaps, "fragment digest mismatch: "+f.Spec)
-		}
-	}
-	if err == nil {
-		if policy, perr := posemodel.LoadReleasePolicy(root); perr == nil {
-			rebuilt := posemodel.NewReleaseManifest(manifest.Version, manifest.PreviousVersion, manifest.PreparedAt, archive, policy, posemodel.LoadChangelogPolicy(root), manifest.VersionEvidence)
-			if rebuilt.ReleaseInputDigest != manifest.ReleaseInputDigest {
-				gaps = append(gaps, "release input digest mismatch")
-			}
-		}
-	}
-	// The version file of the working tree is still what the cut was compared with.
-	if policy, perr := posemodel.LoadReleasePolicy(root); perr == nil {
-		if evidence, eerr := releaseVersionEvidence(root, policy); eerr != nil {
-			gaps = append(gaps, "version evidence could not be read: "+eerr.Error())
-		} else {
-			if evidence["value"] != manifest.Version || evidence["value"] != manifest.VersionEvidence["value"] {
-				gaps = append(gaps, "the project's version file says "+evidence["value"]+", the manifest recorded "+manifest.VersionEvidence["value"])
-			}
-			if evidence["source"] != manifest.VersionEvidence["source"] || evidence["kind"] != manifest.VersionEvidence["kind"] {
-				gaps = append(gaps, "the version evidence of the manifest names "+manifest.VersionEvidence["source"]+" ("+manifest.VersionEvidence["kind"]+"), the release policy names "+evidence["source"]+" ("+evidence["kind"]+")")
-			}
-		}
-	}
+	gaps, _ := posemodel.ReleaseCandidateGaps(root, target, manifest)
 	return gaps
 }
 
@@ -831,10 +768,14 @@ func cmdReleaseBackfill(root string, args []string, stdout, stderr io.Writer) in
 
 func appendReleasePolicyChecks(checker *nativeChecker) {
 	hasPolicy := false
-	if _, err := os.Stat(filepath.Join(checker.root, ".pose", "policy", "release.json")); err == nil {
-		hasPolicy = true
-	} else if _, err := os.Stat(filepath.Join(checker.root, ".pose", "release-policy.json")); err == nil {
-		hasPolicy = true
+	for _, rel := range []string{".pose/policy/release.json", ".pose/release-policy.json"} {
+		absent, absentErr := posemodel.ProvenAbsent(filepath.Join(checker.root, filepath.FromSlash(rel)))
+		if absentErr != nil {
+			// A policy that is there as a link whose target was lost is a policy that was lost.
+			checker.failOrWarn("release: " + absentErr.Error())
+			return
+		}
+		hasPolicy = hasPolicy || !absent
 	}
 	if !hasPolicy {
 		return
@@ -850,12 +791,19 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 	_ = policy
 	seen := map[string]string{}
 	base := filepath.Join(checker.root, ".pose", "changelogs")
-	if pending, err := posemodel.LoadReleaseFragments(filepath.Join(base, "unreleased"), posemodel.LoadChangelogPolicy(checker.root)); err == nil {
+	if pending, err := posemodel.LoadReleaseFragments(filepath.Join(base, "unreleased"), posemodel.LoadChangelogPolicy(checker.root)); err != nil {
+		checker.failOrWarn("release: the pending fragments could not be read: " + err.Error())
+	} else {
 		for _, fragment := range pending {
 			seen[fragment.Spec] = "unreleased"
 		}
 	}
-	entries, _ := os.ReadDir(base)
+	entries, readErr := os.ReadDir(base)
+	if readErr != nil {
+		if absent, absentErr := posemodel.ProvenAbsent(base); absentErr != nil || !absent {
+			checker.failOrWarn("release: the changelog directory could not be read: " + readErr.Error())
+		}
+	}
 	for _, entry := range entries {
 		if !entry.IsDir() || posemodel.ValidateReleaseVersion(entry.Name()) != nil {
 			continue
@@ -878,6 +826,19 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 	if listErr != nil && !gitUnavailableAt(checker.root) {
 		checker.failOrWarn("release: the release tags could not be listed: " + listErr.Error())
 	}
+	// The cut of every governed release in the working tree is judged the way `release check`
+	// judges it: a candidate against its inputs, a tagged one against the cut its tag holds.
+	if releases, relErr := os.ReadDir(filepath.Join(checker.root, ".pose", "releases")); relErr == nil {
+		for _, release := range releases {
+			if posemodel.ValidateReleaseVersion(release.Name()) != nil || (policy.LegacyCutoff != "" && !versionLess(policy.LegacyCutoff, release.Name())) {
+				continue
+			}
+			gaps, manifest := checkRelease(checker.root, release.Name())
+			if manifest == nil || len(gaps) > 0 {
+				checker.failOrWarn("release: " + release.Name() + " is not a sound cut: " + strings.Join(gaps, "; "))
+			}
+		}
+	}
 	scanner := bufio.NewScanner(strings.NewReader(string(raw)))
 	for scanner.Scan() {
 		tag := scanner.Text()
@@ -898,4 +859,11 @@ func issueStrings(issues []posemodel.ReleaseManifestIssue) []string {
 		out = append(out, issue.String())
 	}
 	return out
+}
+
+// manifestIsNotProvenAbsent reports that the manifest of target is not proven to be absent: it is
+// there, or something on the way to it could not be looked at.
+func manifestIsNotProvenAbsent(root, target string) bool {
+	absent, err := posemodel.ProvenAbsent(filepath.Join(root, ".pose", "releases", target, "manifest.json"))
+	return err != nil || !absent
 }

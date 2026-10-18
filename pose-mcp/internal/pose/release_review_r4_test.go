@@ -110,3 +110,81 @@ func TestR4TheCutoffIsAVersionAndTheChangelogSchemaIsSupported(t *testing.T) {
 		t.Fatalf("a changelog policy of a future schema was taken as complete proof: %+v", snap.Gaps)
 	}
 }
+
+// R5-F01: the status of a candidate is the judgment of the check.
+func TestR5ACandidateIsJudgedByOneFunction(t *testing.T) {
+	cases := map[string]func(r *releaseRepo, t *testing.T){
+		"arbitrary notes under a digest that follows": func(r *releaseRepo, t *testing.T) {
+			r.notes = "# arbitrary\n"
+			r.manifest.NotesDigest = ReleaseDigest(r.notes)
+			r.writeAll(t)
+		},
+		"another version in the version file": func(r *releaseRepo, t *testing.T) {
+			relWrite(t, r.root, "VERSION", "9.0.0\n")
+		},
+		"a release policy of a future schema": func(r *releaseRepo, t *testing.T) {
+			relWrite(t, r.root, ".pose/policy/release.json", `{"schema_version":999}`)
+		},
+		"a changelog policy that does not decode": func(r *releaseRepo, t *testing.T) {
+			relWrite(t, r.root, ".pose/policy/changelog.json", `{broken`)
+		},
+		"a changelog policy of a future schema": func(r *releaseRepo, t *testing.T) {
+			relWrite(t, r.root, ".pose/policy/changelog.json", `{"schema_version":999}`)
+		},
+	}
+	for name, edit := range cases {
+		r := newReleaseRepo(t, "v1.0.0")
+		edit(r, t)
+		status, err := (Store{Root: r.root}).GetReleaseStatus("v1.0.0")
+		if err != nil || len(status.Releases) != 1 || status.Releases[0].Sound() {
+			t.Errorf("%s: the status called sound a candidate the check refuses: %+v %v", name, status, err)
+		}
+	}
+}
+
+// R5-F03: a link whose target was lost is a loss in every ancestor.
+func TestR5LostLinksAreNotAbsence(t *testing.T) {
+	lost := func(t *testing.T, root, rel string) {
+		t.Helper()
+		p := filepath.Join(root, filepath.FromSlash(rel))
+		os.RemoveAll(p)
+		os.MkdirAll(filepath.Dir(p), 0o755)
+		if err := os.Symlink(filepath.Join(root, "lost-target"), p); err != nil {
+			t.Skip("symlinks are not available")
+		}
+	}
+	r := newReleaseRepo(t, "v1.0.0")
+	lost(t, r.root, ".pose/policy/release.json")
+	relWrite(t, r.root, ".pose/release-policy.json", `{"schema_version":1}`)
+	if _, err := LoadReleasePolicy(r.root); err == nil {
+		t.Error("a primary policy that is a lost link fell back to the legacy one")
+	}
+	e := newReleaseRepo(t, "v1.0.0")
+	lost(t, e.root, ".pose/changelogs/unreleased")
+	if _, err := LoadReleaseFragments(filepath.Join(e.root, ".pose", "changelogs", "unreleased"), ChangelogPolicy{}); err == nil {
+		t.Error("a pending directory that is a lost link read as an empty list")
+	}
+	d := newReleaseRepo(t, "v1.0.0")
+	lost(t, d.root, ".pose/releases/v1.0.0/events.jsonl")
+	if _, err := LoadReleaseEvents(d.root, "v1.0.0"); err == nil {
+		t.Error("an events file that is a lost link read as no events")
+	}
+	a := newReleaseRepo(t, "v1.0.0")
+	lost(t, a.root, ".pose/releases")
+	if _, err := (Store{Root: a.root}).GetReleaseStatus(""); err == nil {
+		t.Error("a release directory that is a lost link read as no releases")
+	}
+}
+
+// R5-F06: notes that differ from the rendering only in the compatibility section are a limit.
+func TestR5TheCompatibilitySectionIsNotAContradiction(t *testing.T) {
+	fragments := []ReleaseFragment{{Spec: "alpha", Category: "fixed", Body: "Fixes alpha."}}
+	rendered := RenderReleaseNotes("v1.0.0", fragments, ChangelogPolicy{})
+	older := strings.Replace(rendered, "# POSE v1.0.0\n\n", "# POSE v1.0.0\n\n## Compatibility\n\nThis release introduces a contract this engine no longer lists.\n\n", 1)
+	if ok, limit := NotesAreTheRendering(older, "v1.0.0", fragments, ChangelogPolicy{}); !ok || limit == "" {
+		t.Fatalf("a different compatibility section was a contradiction: ok=%v limit=%q", ok, limit)
+	}
+	if ok, _ := NotesAreTheRendering(strings.Replace(rendered, "Fixes alpha.", "Something else.", 1), "v1.0.0", fragments, ChangelogPolicy{}); ok {
+		t.Fatal("different fragment text passed as the rendering")
+	}
+}
