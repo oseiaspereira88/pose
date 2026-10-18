@@ -80,6 +80,8 @@ scan de marcadores de dívida técnica e a leitura do histórico de reviews
 - modified: pose-mcp/internal/cli/state_providers.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/pose/assessment_scan.go
+- modified: pose-mcp/internal/pose/governance_replay.go
+- modified: pose-mcp/internal/pose/governance_outcomes.go
 - modified: pose-mcp/internal/pose/obligation.go
 - modified: pose-mcp/internal/pose/legacy_ledger.go
 - modified: pose-mcp/internal/pose/legacy_inventory.go
