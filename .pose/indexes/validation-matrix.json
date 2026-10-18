@@ -2067,6 +2067,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "distributed-instructions-parity-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "DistributedInstructionsAskForDiscovery|EmbeddedMirrorsOfTheWorkflowsAndRules|SuggestResolvesDomainAliases|SuggestDoesNotTurnEveryBackend|SuggestSeparatesDeclaredFromInstalled|MigrateSaysThereIsNoApply|FreshInstallReceivesInstructions|MigrateDryRun|SuggestDomainUsesMostSpecific",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "writer-coordination-and-atomic-publication-integration",
           "program": "go",
           "args": [

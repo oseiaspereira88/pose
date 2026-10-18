@@ -67,7 +67,7 @@ func TestMigrateDryRunInventoriesLegacyWithoutWriting(t *testing.T) {
 	if after := treeListing(t, root); after != before {
 		t.Fatal("the dry-run changed the repository")
 	}
-	if code, out := runPose(t, root, "migrate", "v7", "--apply"); code != 2 || !strings.Contains(out, "only --dry-run") {
-		t.Fatalf("6.x accepted an apply: %d %s", code, out)
+	if code, out := runPose(t, root, "migrate", "v7", "--apply"); code != 2 || !strings.Contains(out, "no apply is available") {
+		t.Fatalf("an apply that does not exist was accepted: %d %s", code, out)
 	}
 }

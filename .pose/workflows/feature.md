@@ -15,7 +15,7 @@ Deliver a production feature with clear scope, incremental implementation, and d
 
 1. Resolve the selected project and task with `pose context --task <typed-or-qualified-artifact-ref> --json`; reuse its canonical authority and stop on ambiguity, unsupported metadata, stale binding or `transfer-in-progress`. Never infer an external task from a bare slug or checkout ancestry. For a new qualified authority, use `pose new-spec-qualified <slug> --task <xref> --expect-context <digest>`; older engines must reject this distinct verb before any write.
 2. Map affected modules and read relevant local instructions.
-3. Map impacted modules and run `pose assess discover [--component <dir>]` to inspect metrics, LOCs, and debts of the module before editing.
+3. Map impacted modules and run `pose assess discover --if-stale [--component <dir>]` to inspect metrics, LOCs, and debts of the module before editing.
 4. Search `.pose/knowledge/` for relevant handoffs, notes, and decision logs; cite each consulted artifact in the spec as `knowledge:<slug>`. That exact form is what `pose knowledge-usage` counts — prose naming a file is invisible to it, so an artifact everyone reads can still look unused and expire on TTL.
 5. Review or create the spec in its authority project. Keep requirements at the source spec and use qualified references for coordinator composition.
 6. Declare exact source-tree actions under `### Artifacts`; keep declaration separate from Git-observed evidence.
@@ -31,7 +31,7 @@ Deliver a production feature with clear scope, incremental implementation, and d
 16. Summarize the result, residual risks, and next steps.
 17. Run a separate review pass against the canonical authority. Use its local scope or qualified `xref:`; cross-project writes require an explicit `POSE_PROJECT_ROOTS` binding and the current `context_revision` as `--expect-context`.
 18. Require `pose review verify <spec-ref>` (bundle mode) and `pose closeout-check <spec-ref>` before applying `pose close <spec-ref> [--expect-context <digest>]`; remediation that changes semantic or source inputs creates a superseding bundle.
-19. Complete follow-up and changelog disposition (`pose followups --all` shows the cross-spec backlog and its collisions), run `pose assess discover --update-state` to recalculate platform completeness; then pass `pose lint-spec <slug> --strict`.
+19. Complete follow-up and changelog disposition (`pose followups --all` shows the cross-spec backlog and its collisions), run `pose assess discover --if-stale --update-state` to recalculate platform completeness; then pass `pose lint-spec <slug> --strict`.
 20. When Contributor Mode is active and scope reveals missing POSE stack rules or reusable engine capabilities, stage a contribution proposal via `pose contribute stage --type enhancement`.
 
 ## Required outputs

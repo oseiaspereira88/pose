@@ -1,6 +1,6 @@
 ---
 slug: pose-distributed-instructions-parity
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-adaptive-assessment-freshness, pose-v7-legacy-cleanup-plan
@@ -53,18 +53,29 @@ somente esta spec é criada, sob a atribuição documental de
 `pose-consolidation-batch-6-authoring`. Reconciliar os paths exatos antes de start;
 não tratar a declaração de um teste futuro como teste existente ou executado.
 
-- created: .pose/specs/2026-10-13-pose-distributed-instructions-parity.md
+- modified: .pose/specs/2026-10-13-pose-distributed-instructions-parity.md
 - created: .pose/starts/pose-distributed-instructions-parity.json
 - created: .pose/changelogs/unreleased/pose-distributed-instructions-parity.md
 - modified: .pose/workflows/feature.md
-- modified: .agents/skills/pose-feature/SKILL.md
-- modified: .agents/skills/pose-spec-closeout/SKILL.md
+- modified: .pose/rules/delivery-evidence.md
+- modified: locales/pt-BR/.pose/workflows/feature.md
+- modified: locales/pt-BR/.pose/rules/delivery-evidence.md
+- modified: pose-mcp/internal/scaffold/dist/.pose/workflows/feature.md
+- modified: pose-mcp/internal/scaffold/dist/.pose/rules/delivery-evidence.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-evidence.md
 - modified: pose-mcp/internal/cli/suggest.go
 - modified: pose-mcp/internal/cli/migrate_dryrun.go
+- modified: pose-mcp/internal/cli/migrate_dryrun_test.go
+- modified: pose-mcp/internal/cli/help_catalog.go
 - created: pose-mcp/internal/cli/distributed_instructions_parity_test.go
-- created: pose-mcp/internal/scaffold/distributed_instructions_parity_test.go
+- created: .pose/results/b28-mutations.py
+- created: .pose/results/b28-mutations.json
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
@@ -111,26 +122,22 @@ Testes de execução ainda não foram criados ou executados para este delta.
 
 ### Requirement trace
 
-Trace planejado; vincular casos aos produtores reais na execução.
-Não declarar requisitos satisfeitos pelo lint.
+- R1 [satisfied] check:distributed-instructions-parity-integration test:TestDistributedInstructionsAskForDiscoveryOnlyWhenStale test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale
+- R2 [satisfied] check:distributed-instructions-parity-integration test:TestDistributedInstructionsAskForDiscoveryOnlyWhenStale test:TestTheEmbeddedMirrorsOfTheWorkflowsAndRulesMatchTheSources test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale
+- R3 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestResolvesDomainAliasesThroughOneTaxonomy test:TestSuggestDoesNotTurnEveryBackendIntoGo test:TestSuggestDomainUsesMostSpecificModuleAndSafeFallback
+- R4 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestSeparatesDeclaredFromInstalledRules
+- R5 [satisfied] check:distributed-instructions-parity-integration test:TestMigrateSaysThereIsNoApplyWithoutPromisingOne test:TestMigrateDryRunInventoriesLegacyWithoutWriting
+- R6 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestSeparatesDeclaredFromInstalledRules test:TestSuggestResolvesDomainAliasesThroughOneTaxonomy
+- R7 [satisfied] check:distributed-instructions-parity-integration test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale test:TestSuggestSeparatesDeclaredFromInstalledRules
+- R8 [satisfied] check:distributed-instructions-parity-integration report:b28-mutations.json — as mutações de produção morrem por asserção; aliases, regra presente/ausente, jornada de install EN/pt-BR e a recusa do migrate são exercitados pelos comandos
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1,V2 |
-| R2 | V2 |
-| R3 | V3 |
-| R4 | V4 |
-| R5 | V5 |
-| R6 | V3–V6 |
-| R7 | V1,V2,V4 |
-| R8 | V1–V6 |
+O MCP `pose_suggest` executa o próprio `pose suggest --json` (`Store.Suggest` → `runCLI`), de modo que divulga a mesma disponibilidade que o JSON da CLI por construção.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 6. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+B28 entregue: workflow de feature e regra de delivery-evidence (EN, pt-BR e todos os espelhos embarcados) pedem `assess discover --if-stale`; `suggest` resolve domínios por uma taxonomia, divulga o alias, reporta domínio sem regras e separa regra instalada, `extension-needed` e indisponível sem anunciar arquivo inexistente nem instalar nada; um módulo `backend` só vira Go quando é Go; `migrate --apply` é recusado com o fato atual, sem prometer apply futuro. Revisão independente e closeout pendentes.
 
 ### Residual risks
 

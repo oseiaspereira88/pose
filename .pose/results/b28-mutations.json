@@ -1,0 +1,66 @@
+{
+  "mutations": [
+    {
+      "mutation": "workflow volta a pedir discovery incondicional",
+      "tests": "TestDistributedInstructionsAskForDiscoveryOnlyWhenStale",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "espelho embarcado volta a pedir discovery incondicional",
+      "tests": "TestDistributedInstructionsAskForDiscoveryOnlyWhenStale|TestAFreshInstallReceivesInstructions",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "espelho embarcado diverge da fonte",
+      "tests": "TestTheEmbeddedMirrorsOfTheWorkflowsAndRulesMatchTheSources",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "alias go não resolve",
+      "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "alias não é divulgado",
+      "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "domínio desconhecido não é reportado",
+      "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "todo backend vira Go",
+      "tests": "TestSuggestDoesNotTurnEveryBackendIntoGo",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "regra ausente é anunciada como instalada",
+      "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "regra de extensão não indica o comando",
+      "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "saída humana anuncia arquivo inexistente",
+      "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "migrate promete apply futuro",
+      "tests": "TestMigrateSaysThereIsNoApplyWithoutPromisingOne",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "migrate não diz que dry-run não escreve",
+      "tests": "TestMigrateSaysThereIsNoApplyWithoutPromisingOne",
+      "verdict": "killed"
+    }
+  ],
+  "killed": 12,
+  "total": 12
+}
