@@ -116,6 +116,10 @@ type ReviewRun struct {
 const (
 	ReviewRunCompleted = "completed"
 	ReviewRunFailed    = "failed"
+	// ReviewRunStale is a run that finished while the bundle, the policy or the inputs it
+	// was dispatched against no longer governed the scope: kept as history, not as the
+	// current fulfilment.
+	ReviewRunStale = "stale"
 )
 
 // ListReviewRuns returns the recorded runs for bundleID ("" for all).
@@ -158,6 +162,8 @@ type DispatchPlan struct {
 	Bundle       ReviewBundle
 	SealedCommit string
 	PriorRuns    int
+	// PolicyDigest is the digest of .pose/policy when the dispatch was planned.
+	PolicyDigest string
 }
 
 // PlanReviewDispatch resolves the bundle, brief and adapter without running.
@@ -200,7 +206,8 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string) (Dispatch
 			count++
 		}
 	}
-	return DispatchPlan{Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: count}, nil
+	return DispatchPlan{Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: count,
+		PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose", "policy"))}, nil
 }
 
 // ErrNoReviewerAdapter means the project configured no reviewer.
@@ -230,6 +237,13 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 		return ReviewRun{}, fmt.Errorf("pose: creating the review worktree: %v: %s", err, strings.TrimSpace(string(out)))
 	}
 	defer exec.Command("git", "-C", s.Root, "worktree", "remove", "--force", worktree).Run()
+	// The adapter reviews what was sealed: the materialized worktree is compared with the
+	// sealed commit before it is handed over (a checkout filter or a hook can change it).
+	if diverged, err := WorktreeDivergence(worktree, plan.SealedCommit, nil); err != nil {
+		return finish(ReviewRunFailed, "the sealed worktree could not be verified before the run: "+err.Error())
+	} else if len(diverged) > 0 {
+		return finish(ReviewRunFailed, "the sealed worktree does not hold the sealed content: "+strings.Join(diverged, " "))
+	}
 
 	outputFile := filepath.Join(tmp, "output.txt")
 	argv := make([]string, len(plan.Config.Command))
@@ -279,40 +293,52 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 	}
 	// A reviewer that changed the sealed content did not review it. The tools
 	// a plan requires regenerate derived state (assessments, indexes, results),
-	// which is not the content under review (found by the first real run).
-	if out, _ := exec.Command("git", "-C", worktree, "status", "--porcelain", "--untracked-files=all").Output(); len(bytes.TrimSpace(out)) > 0 {
-		changed := []string{}
-		for _, line := range strings.Split(strings.TrimRight(string(out), "\n"), "\n") {
-			if len(line) < 4 {
-				continue
-			}
-			// A rename touches both paths: moving sealed content into
-			// derived state still removed it (found in review).
-			for _, path := range strings.Split(strings.TrimSpace(line[3:]), " -> ") {
-				if path = strings.Trim(path, `"`); !derivedReviewPath(path) {
-					changed = append(changed, path)
-				}
-			}
-		}
-		if len(changed) > 0 {
-			return finish(ReviewRunFailed, "the run changed files in the sealed worktree: "+strings.Join(changed, " "))
-		}
+	// which is not the content under review (found by the first real run). The
+	// content is compared with the sealed commit's own tree, so a path Git was told to
+	// ignore, a link or a replaced type cannot hide a change, and a tree that cannot be
+	// read is not a tree that is unchanged (spec pose-git-and-dispatch-snapshot-integrity).
+	changed, divergeErr := WorktreeDivergence(worktree, plan.SealedCommit, IsDerivedRegeneration)
+	if divergeErr != nil {
+		return finish(ReviewRunFailed, "the sealed worktree could not be verified after the run: "+divergeErr.Error())
 	}
-	if head, _ := exec.Command("git", "-C", worktree, "rev-parse", "HEAD").Output(); strings.TrimSpace(string(head)) != plan.SealedCommit {
+	if len(changed) > 0 {
+		return finish(ReviewRunFailed, "the run changed files in the sealed worktree: "+strings.Join(changed, " "))
+	}
+	head, headErr := ReadGitHead(worktree)
+	if headErr != nil {
+		return finish(ReviewRunFailed, "the sealed worktree's HEAD could not be read after the run: "+headErr.Error())
+	}
+	if head != plan.SealedCommit {
 		return finish(ReviewRunFailed, "the run moved the worktree off the sealed commit")
+	}
+	// What was reviewed must still be what governs the scope: a bundle superseded or a
+	// policy changed while the run was going leaves the run as history, never as the
+	// current fulfilment.
+	if reason := s.dispatchNoLongerGoverns(plan); reason != "" {
+		return finish(ReviewRunStale, reason)
 	}
 	return finish(ReviewRunCompleted, "")
 }
 
-// derivedReviewPath reports whether path is state POSE regenerates from the
-// sealed content rather than part of it.
-func derivedReviewPath(path string) bool {
-	for _, prefix := range []string{".pose/assessments/", ".pose/state/", ".pose/indexes/", ".pose/results/", ".pose/review-bundles/", ".pose/review-runs/", ".pose/reports/history/"} {
-		if strings.HasPrefix(path, prefix) {
-			return true
-		}
+// dispatchNoLongerGoverns says why the bundle a dispatch was planned against no longer
+// governs its scope, or "" when it still does.
+func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
+	current, err := s.LoadReviewBundle(plan.Bundle.BundleID)
+	if err != nil {
+		return "stale: the bundle the run reviewed can no longer be read: " + err.Error()
 	}
-	return false
+	if current.BundleDigest != plan.Bundle.BundleDigest {
+		return "stale: the bundle the run reviewed changed while it ran"
+	}
+	if plan.PolicyDigest != "" && directoryDigest(filepath.Join(s.Root, ".pose", "policy")) != plan.PolicyDigest {
+		return "stale: the policy changed while the run was going"
+	}
+	if bundles, listErr := s.ListReviewBundles(plan.Brief.Scope); listErr != nil {
+		return "stale: the bundles of the scope could not be read: " + listErr.Error()
+	} else if n := len(bundles); n > 0 && bundles[n-1].BundleID != plan.Bundle.BundleID {
+		return "stale: the bundle was superseded by " + bundles[n-1].BundleID + " while the run was going"
+	}
+	return ""
 }
 
 func tail(s string, n int) string {

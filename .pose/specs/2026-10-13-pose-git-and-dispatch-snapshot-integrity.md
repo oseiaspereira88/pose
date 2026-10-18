@@ -1,6 +1,6 @@
 ---
 slug: pose-git-and-dispatch-snapshot-integrity
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-recoverable-closeout-plan, pose-delegated-review-dispatch
@@ -55,15 +55,23 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 
 - created: .pose/specs/2026-10-13-pose-git-and-dispatch-snapshot-integrity.md
 - created: .pose/starts/pose-git-and-dispatch-snapshot-integrity.json
+- created: .pose/adr/2026-10-18-git-state-that-cannot-be-read-is-unknown-and-a-worktree-is-judged-by-its-content.md
 - created: .pose/changelogs/unreleased/pose-git-and-dispatch-snapshot-integrity.md
 - modified: pose-mcp/internal/pose/closeout_plan.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
+- modified: pose-mcp/internal/pose/git_spawn_cache.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/obligation_projection.go
 - created: pose-mcp/internal/pose/git_snapshot_integrity.go
 - created: pose-mcp/internal/pose/git_snapshot_integrity_test.go
 - created: pose-mcp/internal/cli/git_snapshot_integrity_test.go
-- created: pose-mcp/internal/mcpserver/git_snapshot_integrity_test.go
+- created: .pose/results/b07-mutations.py
+- created: .pose/results/b07-mutations.json
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
@@ -107,24 +115,18 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Suítes `internal/pose` e `internal/cli`, `go vet`, `-race`, builds Windows e Darwin, `validate --strict` e o driver de mutações (`b07-mutations.py`) rodaram sobre a implementação; os resultados estão em `.pose/results/b07-mutations.json`.
 
 ### Requirement trace
 
-O trace abaixo é planejado; vincular os casos aos produtores reais durante a
-implementação. Não declarar requisitos funcionais satisfeitos pelo lint.
-
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1 |
-| R2 | V2, V3 |
-| R3 | V3 |
-| R4 | V4 |
-| R5 | V5 |
-| R6 | V6 |
-| R7 | V1, V7 |
-| R8 | V1–V7 |
-
+- R1 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestGitStateThatCannotBeReadIsUnknownNotClean test:TestAnUnreadableSnapshotIsNotClean test:TestAnUnreadableStatusIsNotACleanPath test:TestTheProjectionIsNotCoherentWhenStatusCannotBeRead
+- R2 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestAssumeUnchangedAndSkipWorktreeDoNotHideAnEdit test:TestDispatchJudgesTheContentNotWhatGitWasToldToIgnore test:TestTheWorktreeIsComparedWithTheSealedCommitBeforeTheRun
+- R3 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestWorktreeDivergenceReadsPathsAndTypesExactly
+- R4 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestDerivedRegenerationIsAListNotAPrefix test:TestDispatchJudgesTheContentNotWhatGitWasToldToIgnore
+- R5 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestADispatchStopsGoverningWhenItsBundleIsSuperseded test:TestARunWhosePolicyChangedWhileItRanIsStale
+- R6 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestAnUnrelatedCommitDuringTheRunDoesNotInvalidateIt
+- R7 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestGitStateThatCannotBeReadIsUnknownNotClean test:TestDispatchJudgesTheContentNotWhatGitWasToldToIgnore
+- R8 [satisfied] check:git-and-dispatch-snapshot-integrity-integration report:b07-mutations.json — mutações de produção mortas por asserção; controle íntegro em TestDispatchJudgesTheContentNotWhatGitWasToldToIgnore
 
 Consultar [delegação](../reports/2026-10-11-pose-front-03-delegated-review.md) e [consistência](../reports/2026-10-12-pose-front-09-consistency-recovery.md).
 
@@ -132,8 +134,11 @@ Consultar [delegação](../reports/2026-10-11-pose-front-03-delegated-review.md)
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 2. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+B07 entregue: estado do Git ilegível é desconhecido (nunca limpo) no plano de close, no snapshot
+governado, na checagem de path do bundle e no snapshot de obrigações; o dispatch compara o worktree
+de review com a árvore do commit selado antes e depois da execução, por conteúdo, links e tipos;
+regeneração derivada é lista de saídas por produtor, não prefixo; execução que termina depois de
+bundle superado ou policy alterada é registrada `stale`. Revisão independente e closeout pendentes.
 
 ### Residual risks
 

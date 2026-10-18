@@ -2,9 +2,9 @@ package pose
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -111,7 +111,15 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 		plan.Digest = closeoutPlanDigest(plan)
 		return plan, nil
 	}
-	if dirty := s.ungeneratedChanges(); len(dirty) > 0 {
+	dirty, gitErr := s.ungeneratedChanges()
+	if gitErr != nil {
+		// A status that could not be read is not a clean tree: nothing is sealed over it.
+		step(CloseoutStepContext, CloseoutStateBlocked, "the working tree could not be read ("+gitErr.Error()+"): evidence sealed now would not be known to describe a commit")
+		plan.Blockers = append(plan.Blockers, "git state is unknown; restore git access and plan again")
+		plan.Digest = closeoutPlanDigest(plan)
+		return plan, nil
+	}
+	if len(dirty) > 0 {
 		step(CloseoutStepContext, CloseoutStateBlocked, "uncommitted changes outside generated paths ("+strings.Join(dirty, ", ")+"): evidence sealed now would not describe a commit")
 		plan.Blockers = append(plan.Blockers, "commit or discard the working-tree changes before closing")
 		plan.Digest = closeoutPlanDigest(plan)
@@ -210,32 +218,40 @@ func (p CloseoutPlan) NextCloseoutStep() (CloseoutPlanStep, bool) {
 
 // ungeneratedChanges lists working-tree changes outside the paths the plan
 // itself writes.
-func (s Store) ungeneratedChanges() []string {
-	out, err := exec.Command("git", "-C", s.Root, "status", "--porcelain", "--untracked-files=all").Output()
+func (s Store) ungeneratedChanges() ([]string, error) {
+	entries, err := ReadGitStatus(s.Root)
+	if errors.Is(err, ErrGitUnavailable) {
+		// No repository: there are no working-tree changes to speak of, and nothing
+		// here claims the absence of a repository is a clean one.
+		return nil, nil
+	}
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	var dirty []string
-	for _, line := range strings.Split(strings.TrimRight(string(out), "\n"), "\n") {
-		if len(line) < 4 {
-			continue
-		}
-		path := strings.TrimSpace(line[3:])
-		// A staging file a crashed publication left is not a change of the
-		// repository (spec pose-writer-coordination-and-atomic-publication
-		// R1): it never holds published content.
-		if IsPublisherStaging(path) {
-			continue
-		}
-		generated := false
-		for _, prefix := range generatedCloseoutPaths {
-			generated = generated || strings.HasPrefix(path, prefix)
-		}
-		if !generated {
-			dirty = append(dirty, path)
+	for _, entry := range entries {
+		// Both sides of a rename are changes: moving content into a generated path
+		// still removed it from where it was.
+		for _, path := range []string{entry.Path, entry.OrigPath} {
+			if path == "" {
+				continue
+			}
+			// A staging file a crashed publication left is not a change of the
+			// repository (spec pose-writer-coordination-and-atomic-publication
+			// R1): it never holds published content.
+			if IsPublisherStaging(path) {
+				continue
+			}
+			generated := false
+			for _, prefix := range generatedCloseoutPaths {
+				generated = generated || strings.HasPrefix(path, prefix)
+			}
+			if !generated {
+				dirty = append(dirty, path)
+			}
 		}
 	}
-	return dirty
+	return dirty, nil
 }
 
 // CloseoutCheckpoint records how far an apply got, so an interrupted run is

@@ -1,0 +1,106 @@
+{
+  "mutations": [
+    {
+      "mutation": "status ilegível é tratado como limpo",
+      "tests": "TestGitStateThatCannotBeReadIsUnknownNotClean",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "repositório danificado é tratado como ausente",
+      "tests": "TestGitStateThatCannotBeReadIsUnknownNotClean",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "diretório sem repositório é tratado como desconhecido",
+      "tests": "TestGitStateThatCannotBeReadIsUnknownNotClean",
+      "verdict": "build-error"
+    },
+    {
+      "mutation": "conteúdo não é comparado",
+      "tests": "TestAssumeUnchangedAndSkipWorktree|TestWorktreeDivergenceReadsPaths",
+      "verdict": "build-error"
+    },
+    {
+      "mutation": "bit de execução ignorado",
+      "tests": "TestWorktreeDivergenceReadsPaths",
+      "verdict": "build-error"
+    },
+    {
+      "mutation": "link não é comparado",
+      "tests": "TestWorktreeDivergenceReadsPaths",
+      "verdict": "build-error"
+    },
+    {
+      "mutation": "arquivo removido não é divergência",
+      "tests": "TestWorktreeDivergenceReadsPaths",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "arquivo indexado fora do commit não é divergência",
+      "tests": "TestWorktreeDivergenceReadsPaths",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "rename perde o caminho de origem",
+      "tests": "TestWorktreeDivergenceReadsPaths",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "matriz de validação é regeneração",
+      "tests": "TestDerivedRegenerationIsAListNotAPrefix",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "prefixo autoriza arquivo rastreado",
+      "tests": "TestDerivedRegenerationIsAListNotAPrefix",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "política vira regeneração por prefixo",
+      "tests": "TestDerivedRegenerationIsAListNotAPrefix",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "run termina mesmo com divergência",
+      "tests": "TestDispatchJudgesTheContent",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "worktree não é verificado antes do run",
+      "tests": "TestTheWorktreeIsComparedWithTheSealedCommit",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "política alterada durante o run não é stale",
+      "tests": "TestARunWhosePolicyChangedWhileItRanIsStale",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "bundle superado não é stale",
+      "tests": "TestADispatchStopsGoverning",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "commit alheio invalida o run",
+      "tests": "TestAnUnrelatedCommitDuringTheRun",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "snapshot desconhecido é limpo",
+      "tests": "TestAnUnreadableSnapshotIsNotClean",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "status por path desconhecido é limpo",
+      "tests": "TestAnUnreadableStatusIsNotACleanPath",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "projeção declara coerência com status ilegível",
+      "tests": "TestTheProjectionIsNotCoherentWhenStatusCannotBeRead",
+      "verdict": "killed"
+    }
+  ],
+  "killed": 16,
+  "total": 20
+}

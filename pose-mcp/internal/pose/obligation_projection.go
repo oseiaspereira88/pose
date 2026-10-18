@@ -641,7 +641,13 @@ func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 		snap.Coherent = false
 		snap.Limitations = append(snap.Limitations, "no Git revision: the answer describes the working tree only")
 	}
-	if status, err := exec.Command("git", "-C", s.Root, "status", "--porcelain", "--untracked-files=no", "--", ".pose").Output(); err == nil && len(strings.TrimSpace(string(status))) > 0 {
+	status, statusErr := exec.Command("git", "-C", s.Root, "status", "--porcelain", "--untracked-files=no", "--", ".pose").Output()
+	if statusErr != nil && snap.SourceRevision != "unknown" {
+		// HEAD is readable and the status is not: the working tree is unknown, not clean.
+		snap.Coherent = false
+		snap.Limitations = append(snap.Limitations, "git status could not be read: whether governed files differ from the commit is unknown")
+	}
+	if statusErr == nil && len(strings.TrimSpace(string(status))) > 0 {
 		snap.WorktreeDirty = true
 		snap.Limitations = append(snap.Limitations, "governed files under .pose differ from "+shortRevision(snap.SourceRevision)+"; the answer describes the working tree, not the commit")
 	}
