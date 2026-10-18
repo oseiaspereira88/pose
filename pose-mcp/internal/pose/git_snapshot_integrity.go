@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -184,14 +185,19 @@ func IsDerivedRegeneration(p string, tracked bool) bool {
 	case strings.HasPrefix(p, ".pose/indexes/"):
 		rest := strings.TrimPrefix(p, ".pose/indexes/")
 		if gen, ok := strings.CutPrefix(rest, "generations/"); ok {
-			// generations/<id>/<file>.json: an immutable copy of a published index.
+			// generations/gen-<16 hex>/<index file>.json: an immutable copy of a published index.
 			parts := strings.Split(gen, "/")
-			return !tracked && len(parts) == 2 && parts[0] != "" && strings.HasSuffix(parts[1], ".json")
+			return !tracked && len(parts) == 2 && generationDirRE.MatchString(parts[0]) && derivedIndexFile(parts[1])
 		}
 		return derivedIndexFile(rest)
-	case strings.HasPrefix(p, ".pose/results/"), strings.HasPrefix(p, ".pose/review-bundles/"),
-		strings.HasPrefix(p, ".pose/review-runs/"), strings.HasPrefix(p, ".pose/reports/history/"):
-		return !tracked
+	case strings.HasPrefix(p, ".pose/results/"):
+		return !tracked && derivedRecordName(strings.TrimPrefix(p, ".pose/results/"), resultsRecordRE)
+	case strings.HasPrefix(p, ".pose/review-bundles/"):
+		return !tracked && derivedRecordName(strings.TrimPrefix(p, ".pose/review-bundles/"), bundleRecordRE)
+	case strings.HasPrefix(p, ".pose/review-runs/"):
+		return !tracked && derivedRecordName(strings.TrimPrefix(p, ".pose/review-runs/"), runRecordRE)
+	case strings.HasPrefix(p, ".pose/reports/history/"):
+		return !tracked && derivedRecordName(strings.TrimPrefix(p, ".pose/reports/history/"), historyRecordRE)
 	}
 	return false
 }
@@ -213,10 +219,20 @@ func WorktreeDivergence(worktree, commit string, allowed func(path string, track
 func WorktreeDivergenceFor(worktree, commit string, allowed func(path string, tracked bool) bool, gitlinkMatters func(path string) bool) ([]string, error) {
 	// Paths are the commit's, relative to the root of the repository: a directory inside
 	// the worktree is compared as the worktree it belongs to.
-	if out, err := gitCommand("-C", worktree, "rev-parse", "--show-toplevel").Output(); err == nil {
-		if top := strings.TrimSuffix(string(out), "\n"); top != "" {
-			worktree = top
+	out, topErr := gitCommand("-C", worktree, "rev-parse", "--show-toplevel").Output()
+	if topErr != nil {
+		// Whether this is a repository at all is answered by the reads below; a repository whose
+		// root cannot be determined is not one whose paths can be compared.
+		if hasGitMetadata(worktree) {
+			return nil, &GitUnknownError{Op: "rev-parse --show-toplevel", Cause: topErr.Error()}
 		}
+	} else if top := strings.TrimSuffix(string(out), "\n"); top != "" {
+		// What Git calls the root must be where it was asked from, or above it: a repository that
+		// redirects its working tree (core.worktree, a gitfile) answers for another materialization.
+		if !sameOrAbove(top, worktree) {
+			return nil, &GitUnknownError{Op: "rev-parse --show-toplevel", Cause: "the root " + top + " is not " + worktree + " or a directory above it"}
+		}
+		worktree = top
 	}
 	format := "sha1"
 	if out, err := gitCommand("-C", worktree, "rev-parse", "--show-object-format").Output(); err == nil && strings.TrimSpace(string(out)) == "sha256" {
@@ -246,7 +262,7 @@ func WorktreeDivergenceFor(worktree, commit string, allowed func(path string, tr
 		full := filepath.Join(worktree, filepath.FromSlash(name))
 		if kind == "commit" {
 			if gitlinkMatters == nil || gitlinkMatters(name) {
-				if !gitlinkMaterialized(full, object) {
+				if linkAbove(worktree, name, checkedDirs) || !gitlinkMaterialized(full, object) {
 					diverged = append(diverged, name)
 				}
 			}
@@ -394,4 +410,33 @@ func linkAbove(worktree, name string, checked map[string]bool) bool {
 		}
 	}
 	return false
+}
+
+// sameOrAbove reports that dir is top or inside it, comparing the directories as the file system
+// resolves them.
+func sameOrAbove(top, dir string) bool {
+	rt, err := filepath.EvalSymlinks(top)
+	if err != nil {
+		return false
+	}
+	rd, err := filepath.EvalSymlinks(dir)
+	if err != nil {
+		return false
+	}
+	rel, err := filepath.Rel(rt, rd)
+	return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
+}
+
+// The names the producers give the new records they write: a file under one of those directories
+// that is not named like a record of its producer is not one.
+var (
+	generationDirRE = regexp.MustCompile(`^gen-[0-9a-f]{16}$`)
+	resultsRecordRE = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]*\.json$`)
+	bundleRecordRE  = regexp.MustCompile(`^rvb-[0-9a-f]{16}\.json$`)
+	runRecordRE     = regexp.MustCompile(`^rrn-[0-9a-f]{16}\.(json|transcript)$`)
+	historyRecordRE = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]*\.jsonl$`)
+)
+
+func derivedRecordName(name string, re *regexp.Regexp) bool {
+	return !strings.Contains(name, "/") && re.MatchString(name)
 }

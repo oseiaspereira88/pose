@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"sort"
 	"strings"
@@ -142,6 +143,10 @@ func (s Store) ListReviewRuns(bundleID string) ([]ReviewRun, error) {
 // run: its loss is reported, not skipped.
 func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 	dir := filepath.Join(s.Root, filepath.FromSlash(reviewRunsDir))
+	// The storage is read where the writer writes it: a link in its place is another place.
+	if info, lerr := os.Lstat(dir); lerr == nil && info.Mode()&os.ModeSymlink != 0 {
+		return nil, nil, fmt.Errorf("pose: the review runs directory is a link, not the directory the runs are written to")
+	}
 	entries, err := os.ReadDir(dir)
 	if errors.Is(err, os.ErrNotExist) {
 		if _, lerr := os.Lstat(dir); lerr == nil {
@@ -170,6 +175,10 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 		var run ReviewRun
 		if json.Unmarshal(raw, &run) != nil || run.RunID == "" {
 			lost = append(lost, e.Name()+" (not a review run)")
+			continue
+		}
+		if verr := validateReviewRunRecord(e.Name(), run); verr != nil {
+			lost = append(lost, e.Name()+" ("+verr.Error()+")")
 			continue
 		}
 		if bundleID == "" || run.BundleID == bundleID {
@@ -238,9 +247,13 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string) (Dispatch
 		// could not tell a changed policy from an unchanged one.
 		return DispatchPlan{}, fmt.Errorf("pose: the policy could not be read whole (%s); a review dispatch needs a baseline to revalidate against", policyDigest)
 	}
-	prior, err := s.ListReviewRuns(bundle.BundleID)
+	prior, lostRuns, err := s.ReadReviewRuns(bundle.BundleID)
 	if err != nil {
 		return DispatchPlan{}, err
+	}
+	if len(lostRuns) > 0 {
+		// A record that cannot be read may be a run of this bundle: the budget cannot be counted.
+		return DispatchPlan{}, fmt.Errorf("pose: the runs of the bundle cannot be counted, because a record could not be read: %s", strings.Join(lostRuns, ", "))
 	}
 	count := 0
 	for _, run := range prior {
@@ -419,10 +432,26 @@ func (s Store) ReviewRunStillGoverns(run ReviewRun) string {
 	if len(lost) > 0 {
 		return "a run record could not be read and may supersede this run: " + strings.Join(lost, ", ")
 	}
-	for _, other := range runs {
+	var persisted *ReviewRun
+	for i, other := range runs {
 		if other.Supersedes == run.RunID {
 			return "the run was superseded by " + other.RunID
 		}
+		if other.RunID == run.RunID {
+			persisted = &runs[i]
+		}
+	}
+	// The copy in hand is not the run: the record is, and it must be there and say the same.
+	if persisted == nil {
+		return "the record of the run is not in the review runs"
+	}
+	a, b := *persisted, run
+	a.Path, a.SupersededBy, b.Path, b.SupersededBy = "", "", "", ""
+	if !reflect.DeepEqual(a, b) {
+		return "the record of the run differs from the copy that is being consulted"
+	}
+	if why := s.reviewRunTranscriptIntact(*persisted); why != "" {
+		return why
 	}
 	bundle, err := s.LoadReviewBundle(run.BundleID)
 	if err != nil {
@@ -501,11 +530,25 @@ func sourceMaterializationDiffers(root, commit string, entries []ReviewBundleSub
 		// No sealed commit, or no repository at all: nothing to compare with (a dispatch has both).
 		return ""
 	}
+	checkedDirs := map[string]bool{}
 	for _, entry := range entries {
-		if entry.Action == "removed" || entry.Class == "submodule" {
+		if entry.Class == "submodule" {
+			continue
+		}
+		// The absence the bundle sealed is part of what it reviewed: a removed path, and the old
+		// side of a rename, must still be absent, whatever Git was told to ignore.
+		for _, gone := range removedSides(entry) {
+			if _, err := os.Lstat(filepath.Join(root, filepath.FromSlash(gone))); err == nil {
+				return gone + " (the bundle sealed it as removed, and it is there)"
+			}
+		}
+		if entry.Action == "removed" {
 			continue
 		}
 		rel := reviewBundleEntryPath(entry)
+		if linkAbove(root, rel, checkedDirs) {
+			return rel + " (a directory above it is a link, or not a directory)"
+		}
 		out, err := gitCommand("-C", root, "ls-tree", "-z", commit, "--", rel).Output()
 		if err != nil {
 			return rel + " (its record in the sealed commit could not be read: " + err.Error() + ")"
@@ -581,6 +624,12 @@ func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
 	}
 	// The digest of a file is its bytes; the mode the commit recorded is part of what was
 	// sealed, and a status that is told to ignore modes cannot be the witness of it.
+	// The revision of the source must be readable: an unreadable HEAD is not a HEAD that did not move.
+	if hasGitMetadata(s.Root) {
+		if _, headErr := ReadGitHead(s.Root); headErr != nil && !errors.Is(headErr, ErrGitUnavailable) {
+			return "stale: the revision of the source could not be read: " + headErr.Error()
+		}
+	}
 	if mismatch := sourceMaterializationDiffers(s.Root, plan.SealedCommit, plan.Bundle.Payload.Subject.Entries); mismatch != "" {
 		return "stale: the source file " + mismatch + " differs from what the sealed commit records"
 	}
@@ -630,4 +679,77 @@ func writeNewFile(path string, raw []byte) error {
 		return err
 	}
 	return file.Close()
+}
+
+// validateReviewRunRecord holds a persisted run to the contract the writer follows: its schema, its
+// states, its instants, the name its identity gives it, and the identity itself, recomputed from the
+// content. A record that is partial, of another schema or edited after it was written is lost, not
+// read.
+func validateReviewRunRecord(name string, run ReviewRun) error {
+	if name != run.RunID+".json" {
+		return fmt.Errorf("the file is not named after the run it holds")
+	}
+	if run.SchemaVersion != 1 {
+		return fmt.Errorf("schema_version %d is not read by this engine", run.SchemaVersion)
+	}
+	switch run.Status {
+	case ReviewRunCompleted, ReviewRunFailed, ReviewRunStale:
+	default:
+		return fmt.Errorf("status %q is not a state of a run", run.Status)
+	}
+	if run.BundleID == "" || run.Scope == "" {
+		return fmt.Errorf("the bundle or scope is missing")
+	}
+	for _, at := range []string{run.StartedAt, run.EndedAt} {
+		if _, err := time.Parse(time.RFC3339Nano, at); err != nil {
+			return fmt.Errorf("an instant of the run is not RFC3339: %q", at)
+		}
+	}
+	if run.TranscriptPath != filepath.ToSlash(filepath.Join(reviewRunsDir, run.RunID+".transcript")) {
+		return fmt.Errorf("the transcript path is not the one the run is written with")
+	}
+	unsealed := run
+	unsealed.RunID, unsealed.TranscriptPath, unsealed.SupersededBy, unsealed.Path = "", "", "", ""
+	identity, _ := json.Marshal(unsealed)
+	sum := sha256.Sum256(identity)
+	if run.RunID != "rrn-"+hex.EncodeToString(sum[:])[:16] {
+		return fmt.Errorf("the identity of the run is not derived from its content")
+	}
+	return nil
+}
+
+// reviewRunTranscriptIntact reports why the transcript of a run cannot stand for it, or "".
+func (s Store) reviewRunTranscriptIntact(run ReviewRun) string {
+	full := filepath.Join(s.Root, filepath.FromSlash(run.TranscriptPath))
+	info, err := os.Lstat(full)
+	if err != nil {
+		return "the transcript of the run cannot be inspected: " + err.Error()
+	}
+	if !info.Mode().IsRegular() {
+		return "the transcript of the run is not a regular file"
+	}
+	raw, err := os.ReadFile(full)
+	if err != nil {
+		return "the transcript of the run cannot be read: " + err.Error()
+	}
+	sum := sha256.Sum256(raw)
+	if "sha256:"+hex.EncodeToString(sum[:]) != run.TranscriptDigest {
+		return "the transcript of the run is not the one its digest names"
+	}
+	return ""
+}
+
+// removedSides names the paths an entry says are gone: the path of a removal, the old path of a rename.
+func removedSides(entry ReviewBundleSubjectEntry) []string {
+	switch entry.Action {
+	case "removed":
+		if p := reviewBundleEntryPath(entry); p != "" {
+			return []string{p}
+		}
+	case "renamed":
+		if entry.OldPath != "" {
+			return []string{entry.OldPath}
+		}
+	}
+	return nil
 }

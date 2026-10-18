@@ -78,13 +78,13 @@ func TestB07R3PersistedRunIdentity(t *testing.T) {
 	}
 	raw = []byte(strings.Replace(string(raw), r.BundleDigest, "sha256:wrong", 1))
 	os.WriteFile(p, raw, 0644)
-	runs, e = s.ListReviewRuns("")
-	if e != nil || len(runs) != 1 {
-		t.Fatalf("%v %v", runs, e)
+	// A record edited after it was written is not read as a run: it is lost, and a copy of the run that
+	// it used to be does not govern while the loss stands.
+	runs, lost, e := s.ReadReviewRuns("")
+	if e != nil || len(runs) != 0 || len(lost) != 1 {
+		t.Fatalf("an edited record was read as a run: runs=%v lost=%v %v", runs, lost, e)
 	}
-	why := s.ReviewRunStillGoverns(runs[0])
-	t.Logf("persisted run wrong digest=%q governs=%q", runs[0].BundleDigest, why)
-	if why == "" {
-		t.Error("persisted wrong bundle digest governs")
+	if why := s.ReviewRunStillGoverns(r); why == "" {
+		t.Error("a run whose record was edited governs")
 	}
 }

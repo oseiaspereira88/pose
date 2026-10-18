@@ -141,8 +141,9 @@ func TestWorktreeDivergenceReadsPathsAndTypesExactly(t *testing.T) {
 func TestDerivedRegenerationIsAListNotAPrefix(t *testing.T) {
 	for p, tracked := range map[string]bool{
 		".pose/assessments/technical-debt.md": true, ".pose/state/technical-debt.json": true,
-		".pose/indexes/spec-graph.json": true, ".pose/indexes/generations/gen-1/spec-graph.json": false,
-		".pose/results/new-evidence.json": false, ".pose/review-bundles/rvb-1.json": false, ".pose/review-runs/rrn-1.json": false,
+		".pose/indexes/spec-graph.json": true, ".pose/indexes/generations/gen-0123456789abcdef/spec-graph.json": false,
+		".pose/results/new-evidence.json": false, ".pose/review-bundles/rvb-0123456789abcdef.json": false, ".pose/review-runs/rrn-0123456789abcdef.json": false,
+		".pose/reports/history/new-record.jsonl": false,
 	} {
 		if !IsDerivedRegeneration(p, tracked) {
 			t.Errorf("%s (tracked=%v) is a producer's output", p, tracked)
@@ -150,7 +151,8 @@ func TestDerivedRegenerationIsAListNotAPrefix(t *testing.T) {
 	}
 	for p, tracked := range map[string]bool{
 		".pose/indexes/validation-matrix.json": true, ".pose/indexes/notes.md": false, ".pose/policy/review.json": true,
-		".pose/results/sealed-evidence.json": true, ".pose/review-bundles/rvb-1.json": true, "pose-mcp/lib.go": true,
+		".pose/results/sealed-evidence.json": true, ".pose/review-bundles/rvb-0123456789abcdef.json": true, "pose-mcp/lib.go": true,
+		".pose/reports/history/sealed-record.jsonl": true, ".pose/review-runs/rrn-0123456789abcdef.transcript": true,
 		".pose/indexes/../policy/review.json": true, ".pose/indexes/sub/dir/x.json": false,
 	} {
 		if IsDerivedRegeneration(p, tracked) {
@@ -229,5 +231,18 @@ func TestTheProjectionIsNotCoherentWhenStatusCannotBeRead(t *testing.T) {
 	snap := (Store{Root: damagedIndexRepo(t)}).CurrentObligationSnapshot()
 	if snap.Coherent || !strings.Contains(strings.Join(snap.Limitations, " "), "git status could not be read") {
 		t.Fatalf("snapshot = %+v", snap)
+	}
+}
+
+// The environment of the process never redirects the repository a read is about.
+func TestGitReadsIgnoreTheVariablesThatRedirectARepository(t *testing.T) {
+	a := snapshotRepo(t, map[string]string{"a.txt": "a"})
+	b := snapshotRepo(t, map[string]string{"b.txt": "b"})
+	want := snapshotGit(t, a, "rev-parse", "HEAD")
+	t.Setenv("GIT_DIR", filepath.Join(b, ".git"))
+	t.Setenv("GIT_WORK_TREE", b)
+	got, err := ReadGitHead(a)
+	if err != nil || got != want {
+		t.Fatalf("a read about %s answered for the repository the environment names: %q %v", a, got, err)
 	}
 }
