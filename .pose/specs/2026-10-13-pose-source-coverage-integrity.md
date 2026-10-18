@@ -65,6 +65,7 @@ scan de marcadores de dívida técnica e a leitura do histórico de reviews
 - created: pose-mcp/internal/pose/source_coverage_review_test.go
 - created: pose-mcp/internal/pose/source_coverage_round2_test.go
 - created: pose-mcp/internal/pose/source_coverage_round3_test.go
+- created: pose-mcp/internal/pose/source_coverage_round4_test.go
 - created: pose-mcp/internal/cli/source_coverage_parity_test.go
 - created: pose-mcp/internal/mcpserver/source_coverage_parity_test.go
 - modified: pose-mcp/internal/pose/followups_parse.go
@@ -223,6 +224,12 @@ de perdas por instante (offsets e frações), não por texto; linha estruturada 
 é perda; link de pasta de spec e raiz de reviews ou roadmaps que não resolvem são perdas;
 ausência só é ausência quando demonstrada; o project state mantém a incompletude do relatório
 de dívida; o roadmap herda a perda dos seus milestones; o aviso não corta a tabela.
+
+A quarta revisão (6 achados) levou a: item estruturado de review cortado em qualquer ponto
+é perda (sem copiar a linha para o diagnóstico); atestações e bundles ordenados por instante;
+follow-up aberto sem descrição de spec concluída é perda; schema futuro de bundle ou atestação
+é "não suportado", não corrupção; estado de componente persistido ilegível permanece na
+consolidação como perda, sem métricas inventadas.
 
 ### Review and delivery evidence
 

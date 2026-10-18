@@ -430,8 +430,6 @@ type CloseoutState struct {
 	NextStep *Diagnostic `json:"next_step,omitempty"`
 }
 
-var reviewItemStartRE = regexp.MustCompile(`^-\s+[A-Za-z0-9._-]+\s+\[`)
-
 var reviewLineRE = regexp.MustCompile(`^-\s+([A-Za-z0-9._-]+)\s+\[([^]]+)\](?:\s+(.*))?$`)
 
 func (s Store) loadReviewPolicy() (ReviewPolicy, []byte, error) {
@@ -807,8 +805,10 @@ func parseReviewAttempt(path string) (ReviewAttempt, error) {
 		a.EvidenceRefs = splitListValue(refs)
 	}
 	section := ""
+	lineNo := 0
 	scanner := bufio.NewScanner(strings.NewReader(body))
 	for scanner.Scan() {
+		lineNo++
 		line := strings.TrimSpace(scanner.Text())
 		switch line {
 		case "## Criteria":
@@ -823,10 +823,11 @@ func parseReviewAttempt(path string) (ReviewAttempt, error) {
 		}
 		match := reviewLineRE.FindStringSubmatch(line)
 		if len(match) == 0 {
-			if section != "" && reviewItemStartRE.MatchString(line) {
-				// An item that starts like one and does not parse is a record cut short,
-				// not an item that is not there.
-				return a, fmt.Errorf("pose: review %s has a truncated %s line %q", a.ReviewID, section, line)
+			if section != "" && strings.HasPrefix(line, "-") {
+				// A list item of a structured section that does not parse is a record cut
+				// short, wherever it was cut, not an item that is not there. The line itself
+				// is not copied into the diagnostic.
+				return a, fmt.Errorf("pose: review %s has a malformed or truncated item in its %s section (line %d of the body)", a.ReviewID, section, lineNo)
 			}
 			continue
 		}

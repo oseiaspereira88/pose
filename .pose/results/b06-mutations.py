@@ -120,7 +120,7 @@ M = [
  ("R3 retenção ignora bundle posterior perdido", [(RC, 'if lost := bundlesRead.Coverage.LossesFor(ref); len(lost) > 0 {', 'if lost := bundlesRead.Coverage.LossesFor(ref); len(lost) > 0 && false {')], "./internal/pose", "TestALostLaterBundleBlocks"),
  ("R3 perda comparada como texto", [(RC, 'if lossInstant.Before(selected) ||', 'if loss.At < at ||')], "./internal/pose", "TestReviewTimesAreComparedAsInstants"),
  ("R3 ordenação por texto", [(RC, 'return reviewInstantLess(attempts[i].ReviewedAt, attempts[i].ReviewID, attempts[j].ReviewedAt, attempts[j].ReviewID)', 'return attempts[i].ReviewedAt < attempts[j].ReviewedAt')], "./internal/pose", "TestAttemptsAreReadInInstantOrder"),
- ("R3 linha truncada vira lista vazia", [(RC, 'if section != "" && reviewItemStartRE.MatchString(line) {', 'if false && section != "" && reviewItemStartRE.MatchString(line) {')], "./internal/pose", "TestATruncatedFindingLine"),
+ ("R3 linha truncada vira lista vazia", [(RC, 'if section != "" && strings.HasPrefix(line, "-") {', 'if false && section != "" && strings.HasPrefix(line, "-") {')], "./internal/pose", "TestATruncatedFindingLine"),
  ("R3 link de pasta de spec perdido some", [(FP, 'if _, statErr := os.Stat(path); statErr != nil {\n\t\t\t\tlose(path, specSlugFromPath(path+"/spec.md"), LossReadError, statErr.Error())\n\t\t\t}', '_ = path')], "./internal/pose", "TestADanglingSpecFolderLink"),
  ("R3 raiz de reviews quebrada é vazia", [(RC, 'if _, lerr := os.Lstat(dir); lerr == nil {', 'if _, lerr := os.Lstat(dir); lerr == nil && false {')], "./internal/pose", "TestADanglingReviewsRoot"),
  ("R3 raiz de roadmaps quebrada é ausência", [(TD, '!errors.Is(dirErr, os.ErrNotExist) || lerr == nil {', '!errors.Is(dirErr, os.ErrNotExist) || (lerr == nil && false) {')], "./internal/pose", "TestTheDebtClassificationDoesNotTakeALostRoot"),
@@ -128,6 +128,12 @@ M = [
  ("R3 project state publica dívida de relatório incompleto", [("pose-mcp/internal/cli/assess.go", 'if !report.Complete && len(report.Coverage.Losses) > 0 {', 'if false {')], "./internal/cli", "TestTheProjectStateKeepsTheDebt"),
  ("R3 roadmap não herda milestone", [(OS, 'concerns = concerns || strings.HasPrefix(loss.Scope, "milestone:"+roadmap+"/")', '_ = roadmap')], "./internal/pose", "TestARoadmapQueryInherits"),
  ("R3 aviso corta a tabela", [(DS, '	if len(incomplete) > 0 {\n		sort.Strings(incomplete)\n		md += fmt.Sprintf("\\n> **Varredura incompleta**', '	if len(incomplete) > 0 && false {\n		sort.Strings(incomplete)\n		md += fmt.Sprintf("\\n> **Varredura incompleta**')], "./internal/pose", "TestTheIncompleteScanWarning|TestTheConsolidatedAssessmentDeclares"),
+ ("R4 item cortado fora do colchete some", [(RC, 'if section != "" && strings.HasPrefix(line, "-") {', 'if section != "" && strings.HasPrefix(line, "-") && strings.Contains(line, "[") {')], "./internal/pose", "TestAnItemCutAnywhere"),
+ ("R4 diagnóstico copia a linha", [(RC, '"pose: review %s has a malformed or truncated item in its %s section (line %d of the body)", a.ReviewID, section, lineNo)', '"pose: review %s has a malformed or truncated item %q in its %s section (line %d of the body)", a.ReviewID, line, section, lineNo)')], "./internal/pose", "TestAnItemCutAnywhere"),
+ ("R4 atestações ordenadas por texto", [(RB, 'return reviewInstantLess(result[i].AttestedAt, result[i].AttestationID, result[j].AttestedAt, result[j].AttestationID)', 'return result[i].AttestedAt < result[j].AttestedAt')], "./internal/pose", "TestAttestationsAreOrderedByInstant"),
+ ("R4 follow-up open vazio some", [(FP, 'if stripped == "" && status == "done" {', 'if false {')], "./internal/pose", "TestAnEmptyOpenFollowup"),
+ ("R4 schema futuro como parse-error", [(RB, 'if futureSchema(raw) {\n\t\t\t\t\t// Well-formed JSON of a format this engine does not read.', 'if false {\n\t\t\t\t\t// Well-formed JSON of a format this engine does not read.')], "./internal/pose", "TestAFutureSchemaIsUnsupported"),
+ ("R4 estado de componente ilegível some", [("pose-mcp/internal/cli/assess.go", 'bySlug[slug] = unreadableComponentState(slug, filepath.Join(store.ComponentStateDir(), entry.Name()), err)\n\t\t\tcontinue', 'continue')], "./internal/cli", "TestAnUnreadablePersistedComponentState"),
 ]
 results = []
 for name, edits, pkgs, run in M:

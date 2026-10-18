@@ -2010,6 +2010,10 @@ func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 			}
 			loss := SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: loadErr.Error()}
 			if raw, readErr := os.ReadFile(filepath.Join(dir, entry.Name())); readErr == nil {
+				if futureSchema(raw) {
+					// Well-formed JSON of a format this engine does not read.
+					loss.Kind, loss.Detail = LossUnsupported, "the record has a schema_version this engine does not read"
+				}
 				loss = attributeLoss(loss, raw, "payload", "scope", "ref")
 			} else {
 				loss.Kind, loss.Detail = LossReadError, readErr.Error()
@@ -2022,10 +2026,7 @@ func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 		}
 	}
 	sort.Slice(bundles, func(i, j int) bool {
-		if bundles[i].SealedAt == bundles[j].SealedAt {
-			return bundles[i].BundleID < bundles[j].BundleID
-		}
-		return bundles[i].SealedAt < bundles[j].SealedAt
+		return reviewInstantLess(bundles[i].SealedAt, bundles[i].BundleID, bundles[j].SealedAt, bundles[j].BundleID)
 	})
 	coverage.Normalize()
 	return ReviewBundlesRead{Bundles: bundles, Coverage: coverage}, nil
@@ -2694,6 +2695,9 @@ func (s Store) ReadReviewAttestations(bundleID string) (ReviewAttestationsRead, 
 			}
 			loss := SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossParseError, Detail: loadErr.Error()}
 			if raw, readErr := os.ReadFile(filepath.Join(dir, entry.Name())); readErr == nil {
+				if futureSchema(raw) {
+					loss.Kind, loss.Detail = LossUnsupported, "the record has a schema_version this engine does not read"
+				}
 				loss = attributeLoss(loss, raw, "bundle_id")
 			} else {
 				loss.Kind, loss.Detail = LossReadError, readErr.Error()
@@ -2706,13 +2710,22 @@ func (s Store) ReadReviewAttestations(bundleID string) (ReviewAttestationsRead, 
 		}
 	}
 	sort.Slice(result, func(i, j int) bool {
-		if result[i].AttestedAt == result[j].AttestedAt {
-			return result[i].AttestationID < result[j].AttestationID
-		}
-		return result[i].AttestedAt < result[j].AttestedAt
+		// By instant: "04:02-08:00" is later than "12:01Z", whatever the text says.
+		return reviewInstantLess(result[i].AttestedAt, result[i].AttestationID, result[j].AttestedAt, result[j].AttestationID)
 	})
 	coverage.Normalize()
 	return ReviewAttestationsRead{Attestations: result, Coverage: coverage}, nil
+}
+
+// futureSchema reports well-formed JSON whose schema_version is one this engine does not read.
+func futureSchema(raw []byte) bool {
+	var header struct {
+		SchemaVersion int `json:"schema_version"`
+	}
+	if json.Unmarshal(raw, &header) != nil {
+		return false
+	}
+	return header.SchemaVersion > ReviewBundleSchemaVersion
 }
 
 func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error) {

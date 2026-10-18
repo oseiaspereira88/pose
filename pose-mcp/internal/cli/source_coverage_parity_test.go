@@ -300,3 +300,24 @@ func TestTheProjectStateKeepsTheDebtReportsIncompleteness(t *testing.T) {
 		t.Fatalf("project state published a debt total over an incomplete report:\n%s", raw)
 	}
 }
+
+// R4-F03: a persisted component state that cannot be read stays in the consolidation as a loss.
+func TestAnUnreadablePersistedComponentStateIsNotDropped(t *testing.T) {
+	root := t.TempDir()
+	store := posemodel.Store{Root: root}
+	writeCloseoutCLIFile(t, root, ".pose/state/components/other.json", `{"component_slug":"other","path":"oth`)
+	fresh := &posemodel.ComponentDiscoveryState{ComponentSlug: "fresh", Status: "verified", CompletenessScore: 1}
+	merged := mergeWithPersistedComponentStates(store, []*posemodel.ComponentDiscoveryState{fresh})
+	if len(merged) != 2 {
+		t.Fatalf("merged = %d, want the fresh component and the unreadable one", len(merged))
+	}
+	var lost *posemodel.ComponentDiscoveryState
+	for _, m := range merged {
+		if m.ComponentSlug == "other" {
+			lost = m
+		}
+	}
+	if lost == nil || !lost.ScanIncomplete() || lost.Status != "unreadable" || lost.Metrics.TotalFiles != 0 {
+		t.Fatalf("lost = %+v", lost)
+	}
+}

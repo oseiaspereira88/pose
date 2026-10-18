@@ -242,6 +242,13 @@ func ReadSpecFollowups(root string) SpecFollowupRead {
 				disposition, target, text = parsed[1], strings.TrimSpace(parsed[2]), strings.TrimSpace(parsed[3])
 			}
 			stripped, owner, crit, review, by, metaErr := ParseFollowupMeta(text)
+			if stripped == "" && status == "done" {
+				// A bullet that names a disposition and no follow-up, in a spec that claims to
+				// be finished, is an item cut short or emptied: it is reported, not dropped, and
+				// no description is invented for it. (The template's "- [open]" placeholder in
+				// a spec still being written is expected and says nothing.)
+				lose(path, specSlug, LossInvalid, "a follow-up bullet has no description")
+			}
 			if stripped != "" {
 				ordinal++
 				dispositionErr := ""

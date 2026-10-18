@@ -192,7 +192,9 @@ func (s Store) GovernanceRework() (GovernanceReworkReport, error) {
 		byBundle[att.BundleID] = append(byBundle[att.BundleID], att)
 	}
 	for id := range byBundle {
-		sort.SliceStable(byBundle[id], func(i, j int) bool { return byBundle[id][i].AttestedAt < byBundle[id][j].AttestedAt })
+		sort.SliceStable(byBundle[id], func(i, j int) bool {
+			return reviewInstantLess(byBundle[id][i].AttestedAt, byBundle[id][i].AttestationID, byBundle[id][j].AttestedAt, byBundle[id][j].AttestationID)
+		})
 	}
 	report.Scopes = len(byScope)
 	for _, list := range byScope {

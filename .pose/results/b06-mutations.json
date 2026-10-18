@@ -474,8 +474,38 @@
       "mutation": "R3 aviso corta a tabela",
       "tests": "TestTheIncompleteScanWarning|TestTheConsolidatedAssessmentDeclares",
       "verdict": "killed"
+    },
+    {
+      "mutation": "R4 item cortado fora do colchete some",
+      "tests": "TestAnItemCutAnywhere",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R4 diagnóstico copia a linha",
+      "tests": "TestAnItemCutAnywhere",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R4 atestações ordenadas por texto",
+      "tests": "TestAttestationsAreOrderedByInstant",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R4 follow-up open vazio some",
+      "tests": "TestAnEmptyOpenFollowup",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R4 schema futuro como parse-error",
+      "tests": "TestAFutureSchemaIsUnsupported",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R4 estado de componente ilegível some",
+      "tests": "TestAnUnreadablePersistedComponentState",
+      "verdict": "killed"
     }
   ],
-  "killed": 95,
-  "total": 95
+  "killed": 101,
+  "total": 101
 }

@@ -532,6 +532,12 @@ func mergeWithPersistedComponentStates(store pose.Store, scanned []*pose.Compone
 	}
 	entries, err := os.ReadDir(store.ComponentStateDir())
 	if err != nil {
+		if !os.IsNotExist(err) {
+			// The persisted states are there and cannot be listed: say so in the
+			// consolidation instead of publishing the fresh components as the repository.
+			bySlug["(persisted-states)"] = unreadableComponentState("(persisted-states)", store.ComponentStateDir(), err)
+			return sortedComponentStates(bySlug)
+		}
 		return scanned
 	}
 	for _, entry := range entries {
@@ -544,10 +550,28 @@ func mergeWithPersistedComponentStates(store pose.Store, scanned []*pose.Compone
 		}
 		state, err := store.LoadComponentState(slug)
 		if err != nil || state == nil {
+			// A persisted state that cannot be read is a component the consolidation
+			// cannot describe, not one that is not there; no metrics are invented for it.
+			bySlug[slug] = unreadableComponentState(slug, filepath.Join(store.ComponentStateDir(), entry.Name()), err)
 			continue
 		}
 		bySlug[slug] = state
 	}
+	return sortedComponentStates(bySlug)
+}
+
+// unreadableComponentState stands for a persisted component state that could not be read: zero
+// metrics, a loss naming the file, and a status that says why.
+func unreadableComponentState(slug, path string, cause error) *pose.ComponentDiscoveryState {
+	detail := "the persisted state could not be read"
+	if cause != nil {
+		detail = cause.Error()
+	}
+	return &pose.ComponentDiscoveryState{ComponentSlug: slug, Path: slug, Status: "unreadable",
+		Coverage: pose.SourceCoverage{Losses: []pose.SourceLoss{{Producer: "component-state", Artifact: filepath.ToSlash(path), Kind: pose.LossReadError, Detail: detail}}}}
+}
+
+func sortedComponentStates(bySlug map[string]*pose.ComponentDiscoveryState) []*pose.ComponentDiscoveryState {
 	slugs := make([]string, 0, len(bySlug))
 	for slug := range bySlug {
 		slugs = append(slugs, slug)
@@ -682,7 +706,10 @@ func updateProjectStateArchitecture(root string, current []*pose.ComponentDiscov
 	languages := make(map[string]bool)
 	components, partial, unreadable := 0, 0, 0
 	if current == nil {
-		entries, _ := os.ReadDir(filepath.Join(root, ".pose", "state", "components"))
+		entries, dirErr := os.ReadDir(filepath.Join(root, ".pose", "state", "components"))
+		if dirErr != nil && !os.IsNotExist(dirErr) {
+			unreadable++
+		}
 		for _, entry := range entries {
 			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") || entry.Name() == "..json" {
 				continue
