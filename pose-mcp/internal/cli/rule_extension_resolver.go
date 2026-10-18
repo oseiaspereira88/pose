@@ -12,6 +12,8 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -97,18 +99,19 @@ func hasPackageDependency(root, modulePath string, names ...string) bool {
 // ruleExtensionFile maps an extension ID to the rule file it installs
 // under .pose/rules/, for the doctor advisory's "already installed?" check.
 var ruleExtensionFile = map[string]string{
-	"pose-rule-backend-go":          "backend-go.md",
-	"pose-rule-backend-python":      "backend-python.md",
-	"pose-rule-backend-rust":        "backend-rust.md",
-	"pose-rule-backend-java":        "backend-java.md",
-	"pose-rule-backend-dotnet":      "backend-dotnet.md",
+	"pose-rule-backend-go":            "backend-go.md",
+	"pose-rule-backend-python":        "backend-python.md",
+	"pose-rule-backend-rust":          "backend-rust.md",
+	"pose-rule-backend-java":          "backend-java.md",
+	"pose-rule-backend-dotnet":        "backend-dotnet.md",
 	"pose-rule-serverless-cloudflare": "serverless-cloudflare.md",
-	"pose-rule-infra-terraform":     "infra-terraform.md",
-	"pose-rule-frontend-react":      "frontend-react.md",
-	"pose-rule-frontend-vue":        "frontend-vue.md",
-	"pose-rule-frontend-svelte":     "frontend-svelte.md",
-	"pose-rule-infra-docker":        "infra-docker.md",
-	"pose-rule-cicd-github-actions": "cicd-github-actions.md",
+	"pose-rule-infra-terraform":       "infra-terraform.md",
+	"pose-rule-frontend-react":        "frontend-react.md",
+	"pose-rule-frontend-vue":          "frontend-vue.md",
+	"pose-rule-frontend-svelte":       "frontend-svelte.md",
+	"pose-rule-infra-docker":          "infra-docker.md",
+	"pose-rule-cicd-github-actions":   "cicd-github-actions.md",
+	"pose-rule-kubernetes":            "kubernetes.md",
 }
 
 // ruleExtensionInstalled reports whether the extension's rule file is
@@ -117,6 +120,39 @@ var ruleExtensionFile = map[string]string{
 // extensions and still lives on disk untouched (deliverMachinery never
 // deletes a retired file). Either way, no advisory is needed.
 func ruleExtensionInstalled(root, ruleFile string) bool {
-	_, err := os.Stat(filepath.Join(root, ".pose", "rules", ruleFile))
-	return err == nil
+	state, _ := ruleFileState(root, ruleFile)
+	return state == ruleFileReadable
+}
+
+// State of a rule file: a rule is installed when a regular file can be read, absent when
+// there is none, and unreadable when something is there (or the directory cannot be
+// looked into) and cannot be read. Only the first two say anything about an extension.
+const (
+	ruleFileReadable   = "readable"
+	ruleFileAbsent     = "absent"
+	ruleFileUnreadable = "unreadable"
+)
+
+func ruleFileState(root, ruleFile string) (string, error) {
+	path := filepath.Join(root, ".pose", "rules", ruleFile)
+	info, err := os.Stat(path)
+	if errors.Is(err, os.ErrNotExist) {
+		// A missing parent that is itself unreadable is not a missing rule.
+		if _, derr := os.Stat(filepath.Join(root, ".pose", "rules")); derr != nil && !errors.Is(derr, os.ErrNotExist) {
+			return ruleFileUnreadable, derr
+		}
+		return ruleFileAbsent, nil
+	}
+	if err != nil {
+		return ruleFileUnreadable, err
+	}
+	if !info.Mode().IsRegular() {
+		return ruleFileUnreadable, fmt.Errorf("%s is not a regular file", path)
+	}
+	file, err := os.Open(path)
+	if err != nil {
+		return ruleFileUnreadable, err
+	}
+	file.Close()
+	return ruleFileReadable, nil
 }

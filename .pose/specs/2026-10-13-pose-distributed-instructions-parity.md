@@ -65,12 +65,19 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-evidence.md
 - modified: pose-mcp/internal/cli/suggest.go
+- modified: pose-mcp/internal/cli/rule_extension_resolver.go
+- modified: pose-mcp/internal/cli/live_helper_coverage_test.go
+- modified: pose-mcp/internal/cli/index_generation_test.go
+- created: pose-mcp/internal/cli/suggest_review_regression_test.go
 - modified: pose-mcp/internal/cli/migrate_dryrun.go
 - modified: pose-mcp/internal/cli/migrate_dryrun_test.go
 - modified: pose-mcp/internal/cli/help_catalog.go
 - created: pose-mcp/internal/cli/distributed_instructions_parity_test.go
 - created: .pose/results/b28-mutations.py
 - created: .pose/results/b28-mutations.json
+- created: .pose/reports/2026-10-18-pose-b28-d7ebc300-independent-review.md
+- created: .pose/reports/2026-10-18-pose-b28-independent-review.md
+- created: .pose/results/b28-d7ebc300-independent-review.json
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
@@ -122,10 +129,10 @@ Testes de execução ainda não foram criados ou executados para este delta.
 
 ### Requirement trace
 
-- R1 [satisfied] check:distributed-instructions-parity-integration test:TestDistributedInstructionsAskForDiscoveryOnlyWhenStale test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale
+- R1 [satisfied] check:distributed-instructions-parity-integration test:TestDistributedInstructionsAskForDiscoveryOnlyWhenStale test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale test:TestInventoryNeverSkipsWhatItCannotRead
 - R2 [satisfied] check:distributed-instructions-parity-integration test:TestDistributedInstructionsAskForDiscoveryOnlyWhenStale test:TestTheEmbeddedMirrorsOfTheWorkflowsAndRulesMatchTheSources test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale
-- R3 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestResolvesDomainAliasesThroughOneTaxonomy test:TestSuggestDoesNotTurnEveryBackendIntoGo test:TestSuggestDomainUsesMostSpecificModuleAndSafeFallback
-- R4 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestSeparatesDeclaredFromInstalledRules
+- R3 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestResolvesDomainAliasesThroughOneTaxonomy test:TestSuggestDoesNotTurnEveryBackendIntoGo test:TestSuggestDomainUsesMostSpecificModuleAndSafeFallback test:TestSuggestRootModuleIsTheFallbackOfLeastSpecificity test:TestSuggestSaysWhyItHasNoDomainForAPath
+- R4 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestSeparatesDeclaredFromInstalledRules test:TestSuggestKubernetesRuleIsAnnouncedWithItsExtension test:TestSuggestAnUnreadableRuleIsNotInstalledOrInstallable test:TestSuggestRefusesAMalformedRulesConfiguration test:TestSuggestRefusesARuleIdentifierThatIsAPath
 - R5 [satisfied] check:distributed-instructions-parity-integration test:TestMigrateSaysThereIsNoApplyWithoutPromisingOne test:TestMigrateDryRunInventoriesLegacyWithoutWriting
 - R6 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestSeparatesDeclaredFromInstalledRules test:TestSuggestResolvesDomainAliasesThroughOneTaxonomy
 - R7 [satisfied] check:distributed-instructions-parity-integration test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale test:TestSuggestSeparatesDeclaredFromInstalledRules
@@ -145,5 +152,16 @@ Instrução distribuída pode continuar divergente se o inventário excluir um l
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Primeira revisão independente (changes-requested): os nove bloqueantes foram tratados (módulo
+raiz, catálogo de extensões com Kubernetes, regra legível e regular, configuração de regras
+validada, identificadores de regra validados, índice ilegível distinto de ausência, inventário que
+falha em vez de pular, executor de mutações sem shell e que não conta erro como morte, índice
+republicado coerente). Os executores de mutação das unidades já entregues (b14, b15) repetem o
+shell interpolado e ficam como follow-up. Itens abertos, de baixo risco:
+
+- [open] Dizer o alias e a origem explícitos também na saída humana de `pose suggest`. (owner:@core crit:low review:2026-12-01)
+- [open] Aceitar na CLI MCP o alias de caixa (`Go`) que a CLI já aceita. (owner:@core crit:low review:2026-12-01)
+- [open] Remover a menção a "6.x" do texto do dry-run de `pose migrate`. (owner:@core crit:low review:2026-12-01)
+- [open] Trocar o shell interpolado e a heurística de duas substrings dos executores `b14-mutations.py` e `b15-mutations.py`. (owner:@core crit:low review:2026-12-01)
+
+As dependências e unidades restantes permanecem na matriz do programa, sem disposition automática.

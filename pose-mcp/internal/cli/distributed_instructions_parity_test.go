@@ -22,6 +22,22 @@ var instructionRoots = []string{
 	"pose-mcp/internal/scaffold/dist",
 }
 
+// instructionMarkdown lists the Markdown files under base. A directory or file that cannot
+// be read is a gap in the inventory, not an absence of instructions: it is an error.
+func instructionMarkdown(base string) ([]string, error) {
+	var files []string
+	err := filepath.WalkDir(base, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() && strings.HasSuffix(path, ".md") {
+			files = append(files, path)
+		}
+		return nil
+	})
+	return files, err
+}
+
 func distributedInstructionFiles(t *testing.T) (root string, files []string) {
 	t.Helper()
 	root, _ = filepath.Abs(filepath.Join("..", "..", ".."))
@@ -30,12 +46,14 @@ func distributedInstructionFiles(t *testing.T) (root string, files []string) {
 	}
 	for _, entry := range instructionRoots {
 		base := filepath.Join(root, filepath.FromSlash(entry))
-		_ = filepath.WalkDir(base, func(path string, d fs.DirEntry, err error) error {
-			if err == nil && !d.IsDir() && strings.HasSuffix(path, ".md") {
-				files = append(files, path)
-			}
-			return nil
-		})
+		if _, err := os.Stat(base); err != nil {
+			t.Fatalf("the instruction root %s cannot be read: %v", entry, err)
+		}
+		found, err := instructionMarkdown(base)
+		if err != nil {
+			t.Fatalf("the instruction inventory is incomplete: %v", err)
+		}
+		files = append(files, found...)
 	}
 	if len(files) < 20 {
 		t.Fatalf("the inventory found %d instruction files: the roots moved", len(files))
@@ -94,7 +112,8 @@ func suggestJSON(t *testing.T, root string, args ...string) map[string]any {
 	}
 	start := strings.Index(out, "{")
 	var doc map[string]any
-	if err := json.Unmarshal([]byte(out[start:]), &doc); err != nil {
+	// Diagnostics on stderr may follow the document: read the first value only.
+	if err := json.NewDecoder(strings.NewReader(out[start:])).Decode(&doc); err != nil {
 		t.Fatalf("%v: %s", err, out)
 	}
 	return doc
@@ -222,5 +241,23 @@ func TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale(t *te
 	})
 	if checked < 10 {
 		t.Fatalf("only %d installed instruction files were inspected", checked)
+	}
+}
+
+// An inventory that cannot read a directory is incomplete, and says so.
+func TestInventoryNeverSkipsWhatItCannotRead(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root reads every directory")
+	}
+	dir := t.TempDir()
+	locked := filepath.Join(dir, "locked")
+	if err := os.MkdirAll(locked, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	os.WriteFile(filepath.Join(locked, "x.md"), []byte("pose assess discover"), 0o644)
+	os.Chmod(locked, 0)
+	defer os.Chmod(locked, 0o755)
+	if files, err := instructionMarkdown(dir); err == nil {
+		t.Fatalf("an unreadable directory was skipped: %v", files)
 	}
 }

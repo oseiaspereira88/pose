@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -74,22 +75,27 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "pose suggest: unknown task type %q (available: %s)\n", task, strings.Join(keys, ", "))
 		return 2
 	}
-	source := "explicit"
+	rules, byDomain, cfgErr := suggestTaskRules(t)
+	if cfgErr != nil {
+		return usageError(stderr, fmt.Sprintf("pose suggest: invalid task-map entry %q: %v", task, cfgErr))
+	}
+	source, domainProblem := "explicit", ""
 	if domain == "" && pathHint != "" {
-		domain, source = inferSuggestDomain(root, pathHint)
+		domain, source, domainProblem = inferSuggestDomain(root, pathHint)
+		if domainProblem != "" {
+			_ = usageError(stderr, "pose suggest: "+domainProblem+"; the trail below has no domain rules")
+		}
 	}
 	domainInput := domain
 	domain, aliased := normalizeSuggestDomain(domain)
 	if aliased && source == "explicit" {
 		source = "alias"
 	}
-	rules := stringSlice(t["rules"])
-	byDomain, _ := t["rules_by_domain"].(map[string]any)
 	domainKnown := true
 	if domain != "" {
-		var known bool
-		if _, known = byDomain[domain]; known {
-			rules = append(rules, stringSlice(byDomain[domain])...)
+		extra, known := byDomain[domain]
+		if known {
+			rules = append(rules, extra...)
 		}
 		domainKnown = known
 	}
@@ -113,6 +119,14 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 		payload["rules_status"] = statuses
 		if pathHint != "" {
 			payload["path_input"] = pathHint
+			if domain == "" {
+				// No domain is a finding of its own: the index could not say, or it said none.
+				payload["domain_source"] = source
+				payload["domain_status"] = "no domain inferred"
+				if domainProblem != "" {
+					payload["domain_status"] = domainProblem
+				}
+			}
 		}
 		enc := json.NewEncoder(stdout)
 		enc.SetIndent("", "  ")
@@ -127,6 +141,9 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stdout, "- Path:      %s → domain: %s (%s)\n", pathHint, domain, source)
 	}
 	domainNote := ""
+	if domain == "" && domainProblem != "" {
+		domainNote = fmt.Sprintf("- Domain:    unknown (%s)\n", domainProblem)
+	}
 	if domain != "" && !domainKnown {
 		domainNote = fmt.Sprintf("- Domain:    %s has no rules declared in the task map\n", domain)
 	}
@@ -138,6 +155,8 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 			paths = append(paths, st.Path)
 		case ruleExtensionNeeded:
 			paths = append(paths, st.Rule+" (not installed: "+st.NextStep+")")
+		case ruleUnreadable:
+			paths = append(paths, st.Rule+" (unreadable: "+st.Detail+")")
 		default:
 			paths = append(paths, st.Rule+" (unavailable: declared in the task map, no rule file and no extension known)")
 		}
@@ -147,65 +166,135 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 }
 
 func stringSlice(value any) []string {
-	raw, ok := value.([]any)
-	if !ok {
-		if ss, ok := value.([]string); ok {
-			return ss
+	out, _ := strictStringSlice(value)
+	return out
+}
+
+// strictStringSlice reads a list of strings and refuses anything else: an element that is
+// not a string, or a value that is not a list, is a malformed configuration and not an
+// empty set of rules.
+func strictStringSlice(value any) ([]string, error) {
+	switch v := value.(type) {
+	case nil:
+		return nil, nil
+	case []string:
+		return v, nil
+	case []any:
+		out := make([]string, 0, len(v))
+		for i, item := range v {
+			s, ok := item.(string)
+			if !ok {
+				return nil, fmt.Errorf("element %d is %T, not a string", i, item)
+			}
+			out = append(out, s)
+		}
+		return out, nil
+	}
+	return nil, fmt.Errorf("expected a list of strings, got %T", value)
+}
+
+// suggestTaskRules reads the rules of one task-map entry: the base rules and the rules per
+// domain. Every identifier must be a rule name the rule reader accepts, so a path is never
+// announced as a rule.
+func suggestTaskRules(t map[string]any) ([]string, map[string][]string, error) {
+	rules, err := strictStringSlice(t["rules"])
+	if err != nil {
+		return nil, nil, fmt.Errorf("rules: %w", err)
+	}
+	byDomain := map[string][]string{}
+	if raw, present := t["rules_by_domain"]; present && raw != nil {
+		m, ok := raw.(map[string]any)
+		if !ok {
+			return nil, nil, fmt.Errorf("rules_by_domain: expected an object, got %T", raw)
+		}
+		for domain, value := range m {
+			list, lerr := strictStringSlice(value)
+			if lerr != nil {
+				return nil, nil, fmt.Errorf("rules_by_domain.%s: %w", domain, lerr)
+			}
+			byDomain[domain] = list
+		}
+	}
+	check := func(where string, list []string) error {
+		for _, rule := range list {
+			if verr := posepkg.ValidateName(rule); verr != nil {
+				return fmt.Errorf("%s: %w", where, verr)
+			}
 		}
 		return nil
 	}
-	out := make([]string, 0, len(raw))
-	for _, v := range raw {
-		if s, ok := v.(string); ok {
-			out = append(out, s)
+	if err := check("rules", rules); err != nil {
+		return nil, nil, err
+	}
+	for domain, list := range byDomain {
+		if err := check("rules_by_domain."+domain, list); err != nil {
+			return nil, nil, err
 		}
 	}
-	return out
+	return rules, byDomain, nil
 }
-func inferSuggestDomain(root, pathHint string) (string, string) {
-	norm := filepath.ToSlash(filepath.Clean(pathHint))
-	parts := strings.Split(norm, "/")
-	for _, p := range parts {
+
+// inferSuggestDomain says which domain a path belongs to, where that was read from and, when
+// the answer is "none", whether that is because nothing matched or because the index could not
+// be read: the third result is empty only when the index was read and simply had no match.
+func inferSuggestDomain(root, pathHint string) (domain, source, problem string) {
+	norm := normalizeModulePath(pathHint)
+	for _, p := range strings.Split(norm, "/") {
 		if p == "k8s" || p == "charts" || p == "helm" {
-			return "k8s", "hint-path"
+			return "k8s", "hint-path", ""
 		}
 	}
 	raw, _, e := posepkg.Store{Root: root}.ReadIndex("repo-map.json")
 	if e != nil {
-		return "", "undefined"
+		return "", "repo-map-unavailable", "the repo-map could not be read (" + e.Error() + ")"
 	}
 	var data map[string]any
-	if json.Unmarshal(raw, &data) != nil {
-		return "", "undefined"
+	if err := json.Unmarshal(raw, &data); err != nil {
+		return "", "repo-map-unavailable", "the repo-map is not valid JSON (" + err.Error() + ")"
 	}
-	best := 0
-	domain := ""
+	best := -1 // the root module (an empty path) matches everything, with the least specificity
 	for _, kind := range []string{"apps", "services", "packages"} {
 		items, _ := data[kind].([]any)
 		for _, rawItem := range items {
 			item, _ := rawItem.(map[string]any)
 			p, _ := item["path"].(string)
-			if p != "" && (norm == p || strings.HasPrefix(norm, p+"/")) && len(p) > best {
-				best = len(p)
-				domain, _ = item["domain"].(string)
-				if domain == "" || domain == "unknown" {
-					lang, _ := item["language"].(string)
-					domain = map[string]string{"go": "backend-go", "javascript": "frontend", "typescript": "frontend"}[lang]
+			p = normalizeModulePath(p)
+			if !(p == "" || norm == p || strings.HasPrefix(norm, p+"/")) || len(p) <= best {
+				continue
+			}
+			best = len(p)
+			domain, _ = item["domain"].(string)
+			if domain == "" || domain == "unknown" {
+				lang, _ := item["language"].(string)
+				domain = map[string]string{"go": "backend-go", "javascript": "frontend", "typescript": "frontend"}[lang]
+			}
+			// "backend" names no language: it is the Go domain only when the module is Go.
+			if domain == "backend" {
+				lang, _ := item["language"].(string)
+				goMod := false
+				if info, err := os.Stat(filepath.Join(root, filepath.FromSlash(p), "go.mod")); err == nil && info.Mode().IsRegular() {
+					goMod = true
 				}
-				// "backend" names no language: it is the Go domain only when the module is Go.
-				if domain == "backend" {
-					lang, _ := item["language"].(string)
-					if _, goMod := os.Stat(filepath.Join(root, filepath.FromSlash(p), "go.mod")); lang == "go" || strings.HasSuffix(norm, ".go") || goMod == nil {
-						domain = "backend-go"
-					}
+				if lang == "go" || strings.HasSuffix(norm, ".go") || goMod {
+					domain = "backend-go"
 				}
 			}
 		}
 	}
 	if domain != "" {
-		return domain, "repo-map"
+		return domain, "repo-map", ""
 	}
-	return "", "undefined"
+	return "", "repo-map-no-match", ""
+}
+
+// normalizeModulePath makes a module path and a path hint comparable: slash-separated,
+// cleaned, without a leading "./", and "" for the root.
+func normalizeModulePath(p string) string {
+	p = path.Clean(filepath.ToSlash(strings.TrimSpace(p)))
+	if p == "." || p == "/" {
+		return ""
+	}
+	return strings.TrimPrefix(p, "./")
 }
 
 // suggestDomainAliases is the one taxonomy of domain names `suggest` accepts, from an
@@ -233,6 +322,9 @@ const (
 	ruleInstalled       = "installed"
 	ruleExtensionNeeded = "extension-needed"
 	ruleUnavailable     = "unavailable"
+	// ruleUnreadable: something is at the rule's place, or the place cannot be looked into,
+	// and the rule cannot be read. Installing an extension is not the remedy.
+	ruleUnreadable = "unreadable"
 )
 
 // ruleStatus says whether a rule the trail names can be read here: declared is not
@@ -243,6 +335,7 @@ type ruleStatus struct {
 	Path         string `json:"path,omitempty"`
 	Extension    string `json:"extension,omitempty"`
 	NextStep     string `json:"next_step,omitempty"`
+	Detail       string `json:"detail,omitempty"`
 }
 
 func suggestRuleStatuses(root string, rules []string) []ruleStatus {
@@ -254,9 +347,12 @@ func suggestRuleStatuses(root string, rules []string) []ruleStatus {
 	for _, r := range rules {
 		file := r + ".md"
 		st := ruleStatus{Rule: r}
+		state, stateErr := ruleFileState(root, file)
 		switch {
-		case ruleExtensionInstalled(root, file):
+		case state == ruleFileReadable:
 			st.Availability, st.Path = ruleInstalled, ".pose/rules/"+file
+		case state == ruleFileUnreadable:
+			st.Availability, st.Detail = ruleUnreadable, stateErr.Error()
 		case byFile[file] != "":
 			st.Availability, st.Extension = ruleExtensionNeeded, byFile[file]
 			st.NextStep = "pose extension install " + byFile[file]

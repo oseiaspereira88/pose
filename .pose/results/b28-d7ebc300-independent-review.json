@@ -1,0 +1,1814 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-18",
+  "reviewed_head": "d7ebc3001168a2121d1f8dbd493a659d4d8e1f5f",
+  "base_merge_base": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+  "resolved_slug": "pose-distributed-instructions-parity",
+  "pr": 196,
+  "decision": "changes-requested",
+  "reviewer": {
+    "principal": "agent:independent-gpt-6.1-sol-review",
+    "execution": "Codex/OpenAI",
+    "implementer": "Claude/Anthropic",
+    "vendor_separation": "declared",
+    "identity_assurance": "declared",
+    "cognitive_independence": "not-observable",
+    "attestation_written": false,
+    "envelope": null
+  },
+  "findings": [
+    {
+      "id": "B1",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Módulo raiz perde regras de domínio",
+      "location": "pose-mcp/internal/cli/suggest.go:188",
+      "requirements": "R3/R6/R8",
+      "evidence": "Após install, update e index reais em EN e pt-BR, repo-map declara language=go com path vazio. suggest feature --path main.go sai 0 e omite backend-go. A condição p != vazio exclui o módulo raiz; path ponto e prefixos não normalizados também não casam.",
+      "action": "Normalizar ambos os caminhos; reconhecer raiz como fallback de menor especificidade; preservar fronteiras e módulo mais específico.",
+      "adjacent_consumers": "Predicado preexistente, não resolvido pelo escopo que promete inferência correta. Vizinhos: produtor scanModules converte ponto para vazio; review_plan também exclui raiz como componente e documenta a limitação. Controle svc-other não casa com svc; svc/web vence svc."
+    },
+    {
+      "id": "B2",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Kubernetes existente no catálogo é anunciado sem extensão conhecida",
+      "location": "pose-mcp/internal/cli/suggest.go:250",
+      "requirements": "R4/R6/R8",
+      "evidence": "Sem kubernetes.md, --domain kubernetes produz unavailable, sem next_step; humano afirma no extension known. extensions/pose-rule-kubernetes/extension.json existe e AGENTS documenta seu install.",
+      "action": "Reconciliar catálogo completo de arquivos/extensões, incluindo Kubernetes, sem instalação automática.",
+      "adjacent_consumers": "Novo consumidor inverte mapa do doctor incompleto. Conferidos todos os 12 pares existentes, manifests de extensions e resolução/install; nenhum segundo arquivo duplicado no mapa."
+    },
+    {
+      "id": "B3",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Stat não prova disponibilidade e confunde ausência com falha de acesso",
+      "location": "pose-mcp/internal/cli/suggest.go:258",
+      "requirements": "R3/R4/R6",
+      "evidence": "Diretório backend-go.md e arquivo 0000 são installed; GetRule não os lê. Diretório .pose/rules sem permissão transforma regra existente em extension-needed. Diretório svc/go.mod também converte backend Python em Go.",
+      "action": "Separar inexistência de erro de I/O; verificar arquivo regular e legibilidade; não oferecer instalação como remediação de perda de acesso. Aplicar a mesma disciplina ao sinal go.mod.",
+      "adjacent_consumers": "Helper compartilhado ruleExtensionInstalled já usava apenas Stat no doctor; nova chamada o amplia a todas as regras. Vizinhos GetRule/ListRules recusam diretórios; requireTaskRef também apenas Stat; novo sinal go.mod repete o problema."
+    },
+    {
+      "id": "B4",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Configuração de regras malformada é descartada com sucesso",
+      "location": "pose-mcp/internal/cli/suggest.go:86",
+      "requirements": "R4/R6/R8",
+      "evidence": "rules_by_domain.backend-go igual a string ou lista [17] resulta em domínio conhecido, exit 0, apenas regras base e nenhum diagnóstico; rules com elemento numérico é filtrado e task null também sai 0.",
+      "action": "Validar shape e tipos antes de montar a trilha; recusar configuração inválida com diagnóstico explícito, sem converter falha em conjunto vazio.",
+      "adjacent_consumers": "Coerção stringSlice preexistente herdada pelos novos statuses. Vizinhos checkTaskMap tipa rules base, mas não declara/valida rules_by_domain; Store.Suggest e MCP retransmitem o resultado."
+    },
+    {
+      "id": "B5",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Identidade de regra sem validação anuncia caminho recusado pelo consumidor",
+      "location": "pose-mcp/internal/cli/suggest.go:254",
+      "requirements": "R4/R6/R7",
+      "evidence": "Com rules=[../../outside] e outside.md na raiz, sai 0 com availability installed e path .pose/rules/../../outside.md; GetRule recusa o mesmo identificador por ValidateName.",
+      "action": "Validar identificadores de regras antes de resolver paths; preservar confinamento e a mesma identidade aceita por GetRule. Não tratar arquivo arbitrário como regra instalada.",
+      "adjacent_consumers": "Nova classificação installed reutiliza string bruta. Vizinhos Store.GetRule/GetWorkflow/GetSkill validam nome; checkTaskMap verifica confinamento no projeto para regras base, mas não identidade de regra nem rules_by_domain. Não houve leitura/exfiltração de conteúdo pela sonda."
+    },
+    {
+      "id": "B6",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Índice perdido ou inválido vira ausência silenciosa de domínio",
+      "location": "pose-mcp/internal/cli/suggest.go:173",
+      "requirements": "R3/R6/R7",
+      "evidence": "Mesmo path e task: mapa ausente, JSON malformado, geração inválida e mapa válido sem match retornam JSON idêntico, exit 0 e stderr vazio, sem domain_source/status. Um mapa inválido que continha módulo Go perde suas regras como se não houvesse módulo.",
+      "action": "Preservar source/estado e distinguir no-match de índice indisponível; propagar erro ou diagnóstico inconclusivo acionável antes de oferecer trilha parcial.",
+      "adjacent_consumers": "Fallback preexistente não resolve o contrato de diagnóstico da b28. Vizinhos ReadIndex preserva erro tipado e task-map inválido já falha; MCP herda o silêncio. InventoryLegacy também suprime alguns erros de policy/supplements: fora do delta semântico R5 e sem atribuir resolução a esta PR."
+    },
+    {
+      "id": "B7",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Inventário de instruções aprova varredura incompleta",
+      "location": "pose-mcp/internal/cli/distributed_instructions_parity_test.go:33",
+      "requirements": "R1/R2/R8",
+      "evidence": "Em cópia exata do HEAD, arquivo com pose assess discover sem if-stale sob subdiretório 0000 faz TestDistributedInstructionsAskForDiscoveryOnlyWhenStale passar; chmod 0700 faz o mesmo teste falhar na instrução.",
+      "action": "Falhar em erros de WalkDir/ReadFile e em raízes esperadas ausentes; não substituir cobertura por contagem mínima global. Manter exclusões explícitas quando necessárias.",
+      "adjacent_consumers": "Código novo. Vizinhos teste de install ignora erros tanto de walk quanto de leitura; AGENTS ausente causa Skip, e os limiares 20/10 não detectam perda parcial de inventário. Teste de igualdade dos quatro mirrors usa leitura fatal corretamente."
+    },
+    {
+      "id": "B8",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Executor de mutações registra falha de shell como mutação morta",
+      "location": ".pose/results/b28-mutations.py:48",
+      "requirements": "R8",
+      "evidence": "TMPDIR com espaços gera cd: too many arguments, exit 2 e nenhum go test executado; o script registra killed=1,total=1. Captura observacional de subprocess.run preservou execução real e comprovou o erro.",
+      "action": "Executar argv com cwd, sem shell interpolado; distinguir infraestrutura/build de falha da asserção esperada, preferindo go test -json e eventos do teste-alvo; não contar erro desconhecido como killed.",
+      "adjacent_consumers": "Código novo. Vizinhos b14-mutations.py e b15-mutations.py repetem shell=True e a mesma heurística de duas substrings. Executor nativo validate usa program+args+cwd e falha em exit não-zero. As 12 mutações em TMPDIR normal foram reexecutadas e morreram, mas esse resultado não cobre este controle adversarial."
+    },
+    {
+      "id": "B9",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Geração de índices commitada não corresponde ao delivery-integrity entregue",
+      "location": ".pose/indexes/generation.json:31",
+      "requirements": "R7; integridade dos artefatos/checks do closeout",
+      "evidence": "No HEAD d7ebc300, index --verify sai 1: o descritor gen-169e0f9ccb87666c declara sha256:06cbfa8a09c2d217412d2578fda41be4e235b17587408b93493e7a9a8222aec7 para delivery-integrity.json, cujo conteúdo commitado tem sha256:07487a7af61f7a4af06bae81d998660ddd73b3add76ecd3ecb1fa5334c053f4e. Artifact-check também diagnostica index-generation-unavailable e não atualiza o índice.",
+      "action": "Reconstruir e publicar o conjunto de índices de forma coerente, preservando o descritor junto dos arquivos; exigir index --verify em checkout limpo antes do closeout.",
+      "adjacent_consumers": "Comparados todos os sete arquivos do descritor em origin/main, a358ec23, cc590314, merge 6c25d6a5 e d7ebc300. Main, a358ec23 e cc590314 são coerentes. O merge deixou releases.json divergente; d7 corrigiu esse arquivo mas introduziu a divergência em delivery-integrity.json. Vizinhos ReadIndex e ReplaceIndexOrLegacy recusam o conjunto inconsistente; o problema está nos artefatos entregues, não é pedido para relaxar o leitor."
+    },
+    {
+      "id": "F1",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Saída humana não divulga alias/origem explícitos",
+      "location": "pose-mcp/internal/cli/suggest.go:125",
+      "requirements": "R3/R6",
+      "evidence": "--domain Go tem domain_input/domain_source no JSON, mas sem --path a saída humana não mostra domínio/alias; mostra as mesmas regras e disponibilidade.",
+      "action": "Mostrar domínio efetivo, input e source também em texto.",
+      "adjacent_consumers": "Sem relaxar regras ou aprovação: diferença de explicação; ownership owner:@core crit:low review:2026-12-01."
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "MCP recusa alias de caixa aceito pela CLI",
+      "location": "pose-mcp/internal/pose/cli.go:34",
+      "requirements": "R3/R6",
+      "evidence": "CLI --domain Go normaliza; Store.Suggest/pose_suggest rejeita Go por ValidateName antes de delegar. Chamada real do adaptador reproduziu o erro.",
+      "action": "Normalizar o alias aceito antes de validar, mantendo bloqueio de travessia; testar ambas as superfícies.",
+      "adjacent_consumers": "Recusa explícita e conservadora, sem produzir resultado indevidamente aprovado; aliases minúsculos funcionam. ownership owner:@core crit:low review:2026-12-01."
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Limitação do dry-run ainda fala em 6.x",
+      "location": "pose-mcp/internal/pose/legacy_inventory.go:49",
+      "requirements": "R5",
+      "evidence": "migrate v7 --dry-run --json em fixture retorna no apply exists in 6.x, enquanto help e recusa de --apply foram atualizados e motor é 7.4.1-dev.",
+      "action": "Alinhar limitations e comentários correntes ao fato sem versão: este motor não oferece apply.",
+      "adjacent_consumers": "O comando continua dry-run, writes vazio e apply recusado; texto não concede capacidade nem aprovação. ownership owner:@core crit:low review:2026-12-01."
+    }
+  ],
+  "checks": [
+    {
+      "command": "validate --strict --module mcp-enforce",
+      "exit": 0,
+      "log": "/tmp/b28-review-check-0.log",
+      "tail": "Result: SUCCESS\n[module] mcp-enforce (go, mode=strict)\n  -> build go build ./...\n  <- build pass 0.5s\n  -> test go test ./...\n  <- test pass 0.4s\n  -> vet go vet ./...\n  <- vet pass 0.1s\n3 step(s) · 3 pass · 1.0s\n"
+    },
+    {
+      "command": "artifact-check --spec pose-distributed-instructions-parity --strict",
+      "exit": 0,
+      "log": "/tmp/b28-review-check-1.log",
+      "tail": "acked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\nError: pose: the delivery index was not refreshed: pose: index-generation-unavailable: delivery-integrity.json does not match generation gen-169e0f9ccb87666c (descriptor sha256:06cbfa8a09c2d217412d2578fda41be4e235b17587408b93493e7a9a8222aec7, file sha256:07487a7af61f7a4af06bae81d998660ddd73b3add76ecd3ecb1fa5334c053f4e); run `pose index`\n"
+    },
+    {
+      "command": "skills-check --strict",
+      "exit": 0,
+      "log": "/tmp/b28-review-check-2.log",
+      "tail": "skills.checked=22\nskills.errors=0\nskills.warnings=0\nResult: SUCCESS\n"
+    },
+    {
+      "command": "check --strict",
+      "exit": 1,
+      "log": "/tmp/b28-review-check-3.log",
+      "tail": "abilities: assessment is 62 days old (policy: 30); consider reassessing\n⚠ warning capabilities: baseline_commit is 1538 commits behind HEAD (policy: 200); consider reassessing\nResult: FAILURE — POSE structure has 54 error(s).\n\n💡 [Contributor Mode ACTIVE] If this failure stems from a POSE engine defect, false-positive, or missing stack rule, stage a synthetic reproduction locally with:\n   pose contribute stage --type bug --title \"<brief-summary>\"\n"
+    },
+    {
+      "command": "lint-spec pose-distributed-instructions-parity --strict",
+      "exit": 0,
+      "log": "/tmp/b28-review-check-4.log",
+      "tail": "pec.sections.total=6\nspec.sections.filled=6\nspec.sections.skeleton=0\nspec.sections.empty=0\nspec.required.missing=0\nspec.followups.total=0\nspec.followups.open=0\nspec.lifecycle.failures=0\nspec.requirements.ids=8\nspec.requirements.duplicate_failures=0\nspec.trace.present=true\nspec.trace.entries=8\nspec.trace.missing=0\nspec.trace.failures=0\nspec.amendments.events=0\nspec.amendments.failures=0\n\nlint.specs.checked=1\nlint.specs.failed=0\nResultado: SUCESSO\n"
+    },
+    {
+      "command": "suggest review --path pose-mcp",
+      "exit": 0,
+      "log": "/tmp/b28-review-check-5.log",
+      "tail": "contratos, segurança, validação.\n- Path:      pose-mcp → domain: backend-go (repo-map)\n- Workflow:  .pose/workflows/review.md\n- Skill:     pose-review\n- Rules:     .pose/rules/security.md, .pose/rules/documentation-style.md, .pose/rules/backend-go.md\n- Spec:      false\n- ADR:       false\n- Knowledge: consume=true, produce=handoff (quando aceitar risco residual ou condicionar merge)\n- Validation: exigir evidência de pose validate do implementador\n"
+    },
+    {
+      "command": "assess design --spec pose-distributed-instructions-parity",
+      "exit": 0,
+      "log": "/tmp/b28-review-check-6.log",
+      "tail": "tegrity is unavailable: run pose index;\n    review component map is unavailable: pose: index-generation-unavailable:\n    delivery-integrity.json does not match generation gen-169e0f9ccb87666c\n    (descriptor\n    sha256:06cbfa8a09c2d217412d2578fda41be4e235b17587408b93493e7a9a8222aec7,\n    file\n    sha256:07487a7af61f7a4af06bae81d998660ddd73b3add76ecd3ecb1fa5334c053f4e)\n⚠ warning design-delta\n    subject contains no structurally assessable entries\n"
+    },
+    {
+      "command": "assess discover --if-stale --component pose-mcp",
+      "exit": 0,
+      "log": "/tmp/b28-review-check-7.log",
+      "tail": "Discovered 1 components:\n  - pose-mcp                       LOC: 74502 (prod) / 62506 (test) | Debt TODOs: 1, FIXMEs: 0\nassess.freshness.pose-mcp=refreshed (stale: component content changed (b854168a2e2f → 271cf31a461d); validation matrix changed)\n"
+    },
+    {
+      "command": "assess integrate",
+      "exit": 0,
+      "log": "/tmp/b28-review-check-8.log",
+      "tail": "TP /healthz (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-0338c2bf] No consumer observed for HTTP /mcp (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\nArtifacts written to .pose/assessments/integrations.md and .pose/state/integrations.json\n"
+    },
+    {
+      "command": "assess tech-debt",
+      "exit": 0,
+      "log": "/tmp/b28-review-check-9.log",
+      "tail": "2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown); zero markers does not prove the unread files have none\ntechdebt.excluded=generated-header: 1 file(s) — files that declare themselves generated are not scanned\ntechdebt.excluded=skipped-directory: 37 file(s) — directories that hold dependencies, build output or tool state are not scanned\nArtifacts written to .pose/assessments/technical-debt.md and .pose/state/technical-debt.json\n"
+    },
+    {
+      "command": "recurrence-check --tolerant --window-days 14",
+      "exit": 0,
+      "log": "/tmp/b28-review-check-10.log",
+      "tail": "recurrence.flapping_keys=0\nrecurrence.resolved_clusters=0\nrecurrence.window_days=14\nrecurrence.threshold=3\nrecurrence.records_scanned=393\nrecurrence.flagged_keys=0\n"
+    },
+    {
+      "command": "review bundle spec:pose-distributed-instructions-parity --explain",
+      "exit": 1,
+      "log": "/tmp/b28-review-check-11.log",
+      "tail": " review component path:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md\n[ERROR] delivery integrity is unavailable: run pose index\n[ERROR] review component map is unavailable: pose: index-generation-unavailable: delivery-integrity.json does not match generation gen-169e0f9ccb87666c (descriptor sha256:06cbfa8a09c2d217412d2578fda41be4e235b17587408b93493e7a9a8222aec7, file sha256:07487a7af61f7a4af06bae81d998660ddd73b3add76ecd3ecb1fa5334c053f4e)\n"
+    },
+    {
+      "command": "review-plan spec:pose-distributed-instructions-parity --json --explain",
+      "exit": 1,
+      "log": "/tmp/b28-review-check-12.log",
+      "tail": "is unavailable: pose: index-generation-unavailable: delivery-integrity.json does not match generation gen-169e0f9ccb87666c (descriptor sha256:06cbfa8a09c2d217412d2578fda41be4e235b17587408b93493e7a9a8222aec7, file sha256:07487a7af61f7a4af06bae81d998660ddd73b3add76ecd3ecb1fa5334c053f4e)\"\n  ],\n  \"explain\": [\n    \"base profile spec-closeout@1 selected by spec scope policy\",\n    \"engineering-judgment@1 selected: matched typed delivery selector\"\n  ]\n}\n"
+    },
+    {
+      "command": "index --verify",
+      "scope": "original clone",
+      "exit": 1,
+      "log": "/tmp/b28-current-original-index-verify.json"
+    },
+    {
+      "command": "surface-check --spec pose-distributed-instructions-parity --strict",
+      "scope": "original clone; previous results_path unchanged",
+      "exit": 1,
+      "log": "/tmp/b28-current-surface-original.log"
+    },
+    {
+      "command": "index",
+      "scope": "isolated copy only",
+      "exit": 0,
+      "log": "/tmp/b28-current-index-repair.log"
+    },
+    {
+      "command": "surface-check --spec pose-distributed-instructions-parity --strict",
+      "scope": "isolated rebuilt indexes with fresh results_path",
+      "exit": 0,
+      "results": 137,
+      "findings": 0,
+      "log": "/tmp/b28-current-surface-rebuilt.log"
+    },
+    {
+      "command": "check --strict",
+      "scope": "origin/main baseline",
+      "exit": 0,
+      "warnings": 29,
+      "log": "/tmp/b28-main-check.log"
+    },
+    {
+      "command": "check --strict",
+      "scope": "isolated b28 after index rebuild",
+      "exit": 0,
+      "warnings": 29,
+      "log": "/tmp/b28-current-check-rebuilt.log"
+    }
+  ],
+  "probes": {
+    "adapter": {
+      "GetRule_directory": "pose: rule \"backend-go\" not found",
+      "GetRule_traversal": "pose: invalid artifact name \"../../outside\"",
+      "MCP_Go": "pose_suggest: invalid domain: pose: invalid artifact name \"Go\""
+    },
+    "controls": [
+      {
+        "case": "unsupported-rule-explicit",
+        "exit": 0,
+        "result": {
+          "rules_status": [
+            {
+              "rule": "unsupported-custom",
+              "availability": "unavailable"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Workflow:  w\n- Skill:     s\n- Rules:     unsupported-custom (unavailable: declared in the task map, no rule file and no extension known)\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      },
+      {
+        "case": "nested-boundary-control",
+        "exit": 0,
+        "result": {
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Path:      svc-other/main.go → domain:  (undefined)\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      },
+      {
+        "case": "nested-specific-control",
+        "exit": 0,
+        "result": {
+          "domain_effective": "frontend",
+          "domain_source": "repo-map",
+          "rules_effective": [
+            "security",
+            "frontend-react"
+          ],
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            },
+            {
+              "rule": "frontend-react",
+              "availability": "extension-needed",
+              "extension": "pose-rule-frontend-react",
+              "next_step": "pose extension install pose-rule-frontend-react"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Path:      svc/web/a.ts → domain: frontend (repo-map)\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md, frontend-react (not installed: pose extension install pose-rule-frontend-react)\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      }
+    ],
+    "index-integrity": [
+      {
+        "ref": "origin/main",
+        "generation": "gen-b990dd75080705b4",
+        "files_compared": 7,
+        "mismatches": []
+      },
+      {
+        "ref": "a358ec23",
+        "generation": "gen-796a4585d3f4b8db",
+        "files_compared": 7,
+        "mismatches": []
+      },
+      {
+        "ref": "cc590314",
+        "generation": "gen-20e9129e82cb8a1e",
+        "files_compared": 7,
+        "mismatches": []
+      },
+      {
+        "ref": "6c25d6a5",
+        "generation": "gen-20e9129e82cb8a1e",
+        "files_compared": 7,
+        "mismatches": [
+          {
+            "file": "releases.json",
+            "expected": "sha256:61489d54e47b84b801992cd8a063a9d1a7267b64c27b77037a6bf6014f6e7fe9",
+            "actual": "sha256:90c2f76a3adf83c9768c4ab0181cb958073f8805665341344a1f30ad918ca2b0",
+            "match": false
+          }
+        ]
+      },
+      {
+        "ref": "d7ebc300",
+        "generation": "gen-169e0f9ccb87666c",
+        "files_compared": 7,
+        "mismatches": [
+          {
+            "file": "delivery-integrity.json",
+            "expected": "sha256:06cbfa8a09c2d217412d2578fda41be4e235b17587408b93493e7a9a8222aec7",
+            "actual": "sha256:07487a7af61f7a4af06bae81d998660ddd73b3add76ecd3ecb1fa5334c053f4e",
+            "match": false
+          }
+        ]
+      }
+    ],
+    "invalid-fields": [
+      {
+        "case": "bad-base-list",
+        "exit": 0,
+        "document": {
+          "domain_effective": "backend-go",
+          "domain_input": "go",
+          "domain_source": "alias",
+          "domain_status": "no rules declared for this domain in the task map",
+          "name": "feature",
+          "rules": [
+            "security",
+            17
+          ],
+          "rules_effective": [
+            "security"
+          ],
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            }
+          ]
+        }
+      },
+      {
+        "case": "bad-domain-list",
+        "exit": 0,
+        "document": {
+          "domain_effective": "backend-go",
+          "domain_input": "go",
+          "domain_source": "alias",
+          "name": "feature",
+          "rules": [
+            "security"
+          ],
+          "rules_by_domain": {
+            "backend-go": [
+              17
+            ]
+          },
+          "rules_effective": [
+            "security"
+          ],
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            }
+          ]
+        }
+      },
+      {
+        "case": "bad-domain-type",
+        "exit": 0,
+        "document": {
+          "domain_effective": "backend-go",
+          "domain_input": "go",
+          "domain_source": "alias",
+          "name": "feature",
+          "rules": [
+            "security"
+          ],
+          "rules_by_domain": {
+            "backend-go": "backend-go"
+          },
+          "rules_effective": [
+            "security"
+          ],
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            }
+          ]
+        }
+      },
+      {
+        "case": "null-task",
+        "exit": 0,
+        "document": {
+          "domain_effective": "backend-go",
+          "domain_input": "go",
+          "domain_source": "alias",
+          "domain_status": "no rules declared for this domain in the task map",
+          "name": "feature",
+          "rules_effective": null,
+          "rules_status": []
+        }
+      },
+      {
+        "case": "permission-loss",
+        "exit": 0,
+        "document": {
+          "domain_effective": "backend-go",
+          "domain_input": "go",
+          "domain_source": "alias",
+          "name": "feature",
+          "rules": [
+            "security"
+          ],
+          "rules_by_domain": {
+            "backend-go": [
+              "backend-go"
+            ]
+          },
+          "rules_effective": [
+            "security",
+            "backend-go"
+          ],
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "unavailable"
+            },
+            {
+              "rule": "backend-go",
+              "availability": "extension-needed",
+              "extension": "pose-rule-backend-go",
+              "next_step": "pose extension install pose-rule-backend-go"
+            }
+          ]
+        }
+      }
+    ],
+    "inventory": [
+      {
+        "mode": "0o0",
+        "exit": 0,
+        "output": "ok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.054s\n"
+      },
+      {
+        "mode": "0o700",
+        "exit": 1,
+        "output": "--- FAIL: TestDistributedInstructionsAskForDiscoveryOnlyWhenStale (0.02s)\n    distributed_instructions_parity_test.go:61: .pose/workflows/review-hidden/bad.md:1 asks for an unconditional discovery: `pose assess discover --update-state\nFAIL\nFAIL\tgithub.com/harne8/pose-mcp/internal/cli\t0.024s\nFAIL\n"
+      }
+    ],
+    "journeys": [
+      {
+        "locale": "en",
+        "install": {
+          "command": [
+            "install",
+            "/tmp/b28-journey-a28u87gm",
+            "--project-id",
+            "proj.fixture",
+            "--locale",
+            "en"
+          ],
+          "exit": 0,
+          "output_sha256": "02fa8edb64d73f674d4f069e33c347140e40e9710cac903a6fd8f26397ff455f"
+        },
+        "installed": {
+          "markdown_files": 36,
+          "unconditional_discovery": []
+        },
+        "update": {
+          "command": [
+            "update",
+            "--force",
+            "--no-self",
+            "--locale",
+            "en"
+          ],
+          "exit": 0,
+          "output_sha256": "9cdb4de4cc4f05e9e77cfe6cb78677ca66ec16709ab38239656959af60091fe6"
+        },
+        "after_update": {
+          "markdown_files": 36,
+          "unconditional_discovery": []
+        },
+        "index": {
+          "command": [
+            "index"
+          ],
+          "exit": 0,
+          "output_sha256": "ee0a3e805bf4bcb254ae627c21c208fe52ecf114362c09f541f24fbc8bbe2734"
+        },
+        "repo_map": {
+          "apps": [],
+          "packages": [
+            {
+              "name": "b28-journey-a28u87gm",
+              "path": "",
+              "language": "go",
+              "hasDockerfile": false,
+              "hasHelmChart": false,
+              "owner": "unknown",
+              "criticality": "medium",
+              "domain": "unknown",
+              "validationProfile": "baseline",
+              "metadata": {
+                "criticality": "medium",
+                "domain": "unknown",
+                "owner": "unknown",
+                "validationProfile": "baseline"
+              },
+              "metadataStatus": {
+                "isComplete": false,
+                "missingFields": [
+                  "criticality",
+                  "domain",
+                  "owner",
+                  "validationProfile"
+                ],
+                "source": "defaulted"
+              }
+            }
+          ],
+          "services": []
+        },
+        "root_suggest": {
+          "description": "Implementação de feature não-trivial com escopo afetando >=1 módulo.",
+          "knowledge_consume": true,
+          "knowledge_produce": "handoff (quando houver contexto reaproveitável)",
+          "name": "feature",
+          "path_input": "main.go",
+          "requires_adr": "se houver mudança arquitetural",
+          "requires_spec": true,
+          "rules": [
+            "security",
+            "documentation-style"
+          ],
+          "rules_by_domain": {
+            "backend-go": [
+              "backend-go"
+            ],
+            "frontend": [
+              "frontend-react"
+            ],
+            "k8s": [
+              "kubernetes"
+            ]
+          },
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            },
+            {
+              "rule": "documentation-style",
+              "availability": "installed",
+              "path": ".pose/rules/documentation-style.md"
+            }
+          ],
+          "skill": "pose-feature",
+          "validation": "pose validate --strict --module <path-afetado>",
+          "workflow": ".pose/workflows/feature.md"
+        }
+      },
+      {
+        "locale": "pt-BR",
+        "install": {
+          "command": [
+            "install",
+            "/tmp/b28-journey-2ol23qs5",
+            "--project-id",
+            "proj.fixture",
+            "--locale",
+            "pt-BR"
+          ],
+          "exit": 0,
+          "output_sha256": "8b8c71acc182bbcbb0e19e3e9eaa150c8624b1b7195ddffdda6ff7b4fcce5a67"
+        },
+        "installed": {
+          "markdown_files": 36,
+          "unconditional_discovery": []
+        },
+        "update": {
+          "command": [
+            "update",
+            "--force",
+            "--no-self",
+            "--locale",
+            "pt-BR"
+          ],
+          "exit": 0,
+          "output_sha256": "70915243ac071e6f2388e73dc975eae15ea810bee613dbb6a4548ec5f2941481"
+        },
+        "after_update": {
+          "markdown_files": 36,
+          "unconditional_discovery": []
+        },
+        "index": {
+          "command": [
+            "index"
+          ],
+          "exit": 0,
+          "output_sha256": "2a7bda57d1667dfe814542c0e9b8a2d86738f96c995a1694135b784c0627808d"
+        },
+        "repo_map": {
+          "apps": [],
+          "packages": [
+            {
+              "name": "b28-journey-2ol23qs5",
+              "path": "",
+              "language": "go",
+              "hasDockerfile": false,
+              "hasHelmChart": false,
+              "owner": "unknown",
+              "criticality": "medium",
+              "domain": "unknown",
+              "validationProfile": "baseline",
+              "metadata": {
+                "criticality": "medium",
+                "domain": "unknown",
+                "owner": "unknown",
+                "validationProfile": "baseline"
+              },
+              "metadataStatus": {
+                "isComplete": false,
+                "missingFields": [
+                  "criticality",
+                  "domain",
+                  "owner",
+                  "validationProfile"
+                ],
+                "source": "defaulted"
+              }
+            }
+          ],
+          "services": []
+        },
+        "root_suggest": {
+          "description": "Implementação de feature não-trivial com escopo afetando >=1 módulo.",
+          "knowledge_consume": true,
+          "knowledge_produce": "handoff (quando houver contexto reaproveitável)",
+          "name": "feature",
+          "path_input": "main.go",
+          "requires_adr": "se houver mudança arquitetural",
+          "requires_spec": true,
+          "rules": [
+            "security",
+            "documentation-style"
+          ],
+          "rules_by_domain": {
+            "backend-go": [
+              "backend-go"
+            ],
+            "frontend": [
+              "frontend-react"
+            ],
+            "k8s": [
+              "kubernetes"
+            ]
+          },
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            },
+            {
+              "rule": "documentation-style",
+              "availability": "installed",
+              "path": ".pose/rules/documentation-style.md"
+            }
+          ],
+          "skill": "pose-feature",
+          "validation": "pose validate --strict --module <path-afetado>",
+          "workflow": ".pose/workflows/feature.md"
+        }
+      }
+    ],
+    "map-loss": [
+      {
+        "state": "missing",
+        "exit": 0,
+        "stdout": {
+          "name": "feature",
+          "path_input": "svc/main.go",
+          "rules": [
+            "security"
+          ],
+          "rules_by_domain": {
+            "backend-go": [
+              "backend-go"
+            ]
+          },
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            }
+          ]
+        },
+        "stderr": ""
+      },
+      {
+        "state": "malformed",
+        "exit": 0,
+        "stdout": {
+          "name": "feature",
+          "path_input": "svc/main.go",
+          "rules": [
+            "security"
+          ],
+          "rules_by_domain": {
+            "backend-go": [
+              "backend-go"
+            ]
+          },
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            }
+          ]
+        },
+        "stderr": ""
+      },
+      {
+        "state": "valid-unmatched",
+        "exit": 0,
+        "stdout": {
+          "name": "feature",
+          "path_input": "svc/main.go",
+          "rules": [
+            "security"
+          ],
+          "rules_by_domain": {
+            "backend-go": [
+              "backend-go"
+            ]
+          },
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            }
+          ]
+        },
+        "stderr": ""
+      },
+      {
+        "state": "generation-invalid",
+        "exit": 0,
+        "stdout": {
+          "name": "feature",
+          "path_input": "svc/main.go",
+          "rules": [
+            "security"
+          ],
+          "rules_by_domain": {
+            "backend-go": [
+              "backend-go"
+            ]
+          },
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            }
+          ]
+        },
+        "stderr": ""
+      }
+    ],
+    "migrate": [
+      {
+        "args": [
+          "migrate",
+          "v7",
+          "--dry-run",
+          "--json"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "result": {
+          "writes": [],
+          "limitations": [
+            "a dry-run: nothing is written, and no apply exists in 6.x",
+            "counts describe this repository only; consumers' corpora must run their own dry-run before a removal is decided"
+          ],
+          "complete": true
+        }
+      },
+      {
+        "args": [
+          "migrate",
+          "v7",
+          "--dry-run"
+        ],
+        "exit": 0,
+        "stdout": "migrate.limitation=a dry-run: nothing is written, and no apply exists in 6.x\nmigrate.limitation=counts describe this repository only; consumers' corpora must run their own dry-run before a removal is decided",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "migrate",
+          "v7",
+          "--apply"
+        ],
+        "exit": 2,
+        "stdout": "",
+        "stderr": "Error: pose migrate: no apply is available in this engine; the only mode is `pose migrate v7 --dry-run`, which reads the repository, writes nothing and reports what a migration would convert, keep or refuse\n"
+      },
+      {
+        "args": [
+          "help",
+          "migrate"
+        ],
+        "exit": 0,
+        "stdout": "  Counts spec layouts, blocked specs, legacy and unknown review policy keys, sealed bundles, attestations by identity mode and attribution, and incomplete transfers, with the action and removal criterion of each class. Writes nothing; no apply is available in this engine, and none is promised.",
+        "stderr": ""
+      }
+    ],
+    "mutations": {
+      "mutations": [
+        {
+          "mutation": "workflow volta a pedir discovery incondicional",
+          "tests": "TestDistributedInstructionsAskForDiscoveryOnlyWhenStale",
+          "verdict": "killed"
+        },
+        {
+          "mutation": "espelho embarcado volta a pedir discovery incondicional",
+          "tests": "TestDistributedInstructionsAskForDiscoveryOnlyWhenStale|TestAFreshInstallReceivesInstructions",
+          "verdict": "killed"
+        },
+        {
+          "mutation": "espelho embarcado diverge da fonte",
+          "tests": "TestTheEmbeddedMirrorsOfTheWorkflowsAndRulesMatchTheSources",
+          "verdict": "killed"
+        },
+        {
+          "mutation": "alias go não resolve",
+          "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+          "verdict": "killed"
+        },
+        {
+          "mutation": "alias não é divulgado",
+          "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+          "verdict": "killed"
+        },
+        {
+          "mutation": "domínio desconhecido não é reportado",
+          "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+          "verdict": "killed"
+        },
+        {
+          "mutation": "todo backend vira Go",
+          "tests": "TestSuggestDoesNotTurnEveryBackendIntoGo",
+          "verdict": "killed"
+        },
+        {
+          "mutation": "regra ausente é anunciada como instalada",
+          "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+          "verdict": "killed"
+        },
+        {
+          "mutation": "regra de extensão não indica o comando",
+          "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+          "verdict": "killed"
+        },
+        {
+          "mutation": "saída humana anuncia arquivo inexistente",
+          "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+          "verdict": "killed"
+        },
+        {
+          "mutation": "migrate promete apply futuro",
+          "tests": "TestMigrateSaysThereIsNoApplyWithoutPromisingOne",
+          "verdict": "killed"
+        },
+        {
+          "mutation": "migrate não diz que dry-run não escreve",
+          "tests": "TestMigrateSaysThereIsNoApplyWithoutPromisingOne",
+          "verdict": "killed"
+        }
+      ],
+      "killed": 12,
+      "total": 12
+    },
+    "original-index-verify": {
+      "command": "pose index --verify",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Error: pose index: generation gen-169e0f9ccb87666c is whole, but delivery-integrity.json under .pose/indexes differ from it (edited by hand, or a publication is running); run `pose index`\n"
+    },
+    "policy-journey": [
+      {
+        "locale": "en",
+        "commands": [
+          {
+            "args": [
+              "install",
+              "/tmp/b28-policy-xjerdori",
+              "--project-id",
+              "proj.fixture",
+              "--locale",
+              "en"
+            ],
+            "exit": 0
+          },
+          {
+            "args": [
+              "update",
+              "--force",
+              "--no-self",
+              "--locale",
+              "en"
+            ],
+            "exit": 0
+          }
+        ],
+        "policy_unchanged": true,
+        "files_compared": 11,
+        "before_sha256": "5c24025e43265d7a06ec9e16f97dfd808198d65eae9ccbbbe95c2330dc71ccd6",
+        "after_sha256": "5c24025e43265d7a06ec9e16f97dfd808198d65eae9ccbbbe95c2330dc71ccd6"
+      },
+      {
+        "locale": "pt-BR",
+        "commands": [
+          {
+            "args": [
+              "install",
+              "/tmp/b28-policy-5arpio3q",
+              "--project-id",
+              "proj.fixture",
+              "--locale",
+              "pt-BR"
+            ],
+            "exit": 0
+          },
+          {
+            "args": [
+              "update",
+              "--force",
+              "--no-self",
+              "--locale",
+              "pt-BR"
+            ],
+            "exit": 0
+          }
+        ],
+        "policy_unchanged": true,
+        "files_compared": 11,
+        "before_sha256": "5c24025e43265d7a06ec9e16f97dfd808198d65eae9ccbbbe95c2330dc71ccd6",
+        "after_sha256": "5c24025e43265d7a06ec9e16f97dfd808198d65eae9ccbbbe95c2330dc71ccd6"
+      }
+    ],
+    "probes": {
+      "head": "d7ebc3001168a2121d1f8dbd493a659d4d8e1f5f",
+      "probes": [
+        {
+          "case": "kubernetes-extension-known-but-unavailable",
+          "exit": 0,
+          "result": {
+            "domain_effective": "k8s",
+            "domain_input": "kubernetes",
+            "domain_source": "alias",
+            "rules_effective": [
+              "security",
+              "kubernetes"
+            ],
+            "rules_status": [
+              {
+                "rule": "security",
+                "availability": "installed",
+                "path": ".pose/rules/security.md"
+              },
+              {
+                "rule": "kubernetes",
+                "availability": "unavailable"
+              }
+            ]
+          },
+          "human": "- Rules:     .pose/rules/security.md, kubernetes (unavailable: declared in the task map, no rule file and no extension known)"
+        },
+        {
+          "case": "directory-is-installed",
+          "exit": 0,
+          "result": {
+            "domain_effective": "backend-go",
+            "domain_input": "go",
+            "domain_source": "alias",
+            "rules_effective": [
+              "security",
+              "backend-go"
+            ],
+            "rules_status": [
+              {
+                "rule": "security",
+                "availability": "installed",
+                "path": ".pose/rules/security.md"
+              },
+              {
+                "rule": "backend-go",
+                "availability": "installed",
+                "path": ".pose/rules/backend-go.md"
+              }
+            ]
+          },
+          "human": "- Rules:     .pose/rules/security.md, .pose/rules/backend-go.md"
+        },
+        {
+          "case": "rule-name-traversal",
+          "exit": 0,
+          "result": {
+            "rules_status": [
+              {
+                "rule": "../../outside",
+                "availability": "installed",
+                "path": ".pose/rules/../../outside.md"
+              }
+            ]
+          },
+          "human": "- Rules:     .pose/rules/../../outside.md"
+        },
+        {
+          "case": "go-mod-directory-misroutes-python",
+          "exit": 0,
+          "result": {
+            "domain_effective": "backend-go",
+            "domain_source": "repo-map",
+            "rules_effective": [
+              "security",
+              "backend-go"
+            ],
+            "rules_status": [
+              {
+                "rule": "security",
+                "availability": "installed",
+                "path": ".pose/rules/security.md"
+              },
+              {
+                "rule": "backend-go",
+                "availability": "extension-needed",
+                "extension": "pose-rule-backend-go",
+                "next_step": "pose extension install pose-rule-backend-go"
+              }
+            ]
+          },
+          "human": "- Rules:     .pose/rules/security.md, backend-go (not installed: pose extension install pose-rule-backend-go)"
+        },
+        {
+          "case": "go-helper-misroutes-python",
+          "exit": 0,
+          "result": {
+            "domain_effective": "backend-go",
+            "domain_source": "repo-map",
+            "rules_effective": [
+              "security",
+              "backend-go"
+            ],
+            "rules_status": [
+              {
+                "rule": "security",
+                "availability": "installed",
+                "path": ".pose/rules/security.md"
+              },
+              {
+                "rule": "backend-go",
+                "availability": "extension-needed",
+                "extension": "pose-rule-backend-go",
+                "next_step": "pose extension install pose-rule-backend-go"
+              }
+            ]
+          },
+          "human": "- Rules:     .pose/rules/security.md, backend-go (not installed: pose extension install pose-rule-backend-go)"
+        },
+        {
+          "case": "path-normalization-dot",
+          "exit": 0,
+          "result": {
+            "rules_status": [
+              {
+                "rule": "security",
+                "availability": "installed",
+                "path": ".pose/rules/security.md"
+              }
+            ]
+          },
+          "human": "- Rules:     .pose/rules/security.md"
+        },
+        {
+          "case": "root-module-not-matched",
+          "exit": 0,
+          "result": {
+            "rules_status": [
+              {
+                "rule": "security",
+                "availability": "installed",
+                "path": ".pose/rules/security.md"
+              }
+            ]
+          },
+          "human": "- Rules:     .pose/rules/security.md"
+        },
+        {
+          "case": "alias-human-output",
+          "exit": 0,
+          "result": {
+            "domain_effective": "backend-go",
+            "domain_input": "Go",
+            "domain_source": "alias",
+            "rules_effective": [
+              "security",
+              "backend-go"
+            ],
+            "rules_status": [
+              {
+                "rule": "security",
+                "availability": "installed",
+                "path": ".pose/rules/security.md"
+              },
+              {
+                "rule": "backend-go",
+                "availability": "extension-needed",
+                "extension": "pose-rule-backend-go",
+                "next_step": "pose extension install pose-rule-backend-go"
+              }
+            ]
+          },
+          "human": "# POSE trail — feature\n\nfixture\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md, backend-go (not installed: pose extension install pose-rule-backend-go)\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+        },
+        {
+          "case": "domain-map-alias-key",
+          "exit": 0,
+          "result": {
+            "domain_effective": "frontend",
+            "domain_input": "react",
+            "domain_source": "alias",
+            "rules_effective": [
+              "security",
+              "frontend-react"
+            ],
+            "rules_status": [
+              {
+                "rule": "security",
+                "availability": "installed",
+                "path": ".pose/rules/security.md"
+              },
+              {
+                "rule": "frontend-react",
+                "availability": "extension-needed",
+                "extension": "pose-rule-frontend-react",
+                "next_step": "pose extension install pose-rule-frontend-react"
+              }
+            ]
+          },
+          "human": "- Rules:     .pose/rules/security.md, frontend-react (not installed: pose extension install pose-rule-frontend-react)"
+        }
+      ]
+    },
+    "secrets-scan": {
+      "command": "git diff origin/main...HEAD: added lines, offline secret-shaped regex scan",
+      "patterns": [
+        "-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",
+        "AKIA[0-9A-Z]{16}",
+        "gh[pousr]_[A-Za-z0-9]{30,}",
+        "github_pat_[A-Za-z0-9_]{30,}",
+        "(?i)(?:api_key|secret|password)\\s*[:=]\\s*[\\x22\\x27][A-Za-z0-9/+_=-]{20,}[\\x22\\x27]"
+      ],
+      "candidates": 0,
+      "scope": "changed added lines only; no online token validation"
+    },
+    "space-mutation": {
+      "mutations": [
+        {
+          "mutation": "alias go não resolve",
+          "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+          "verdict": "killed"
+        }
+      ],
+      "killed": 1,
+      "total": 1
+    },
+    "space-proof": [
+      {
+        "command": "cd /tmp/b28 mutation space current/b28-mut-bjpwfu6g/repo/pose-mcp && go test ./internal/cli -run 'TestSuggestResolvesDomainAliasesThroughOneTaxonomy' -count=1",
+        "exit": 2,
+        "stdout": "",
+        "stderr": "/bin/sh: line 1: cd: too many arguments\n"
+      }
+    ],
+    "unreadable-rule": {
+      "exit": 0,
+      "output": {
+        "name": "feature",
+        "rules": [
+          "backend-go"
+        ],
+        "rules_status": [
+          {
+            "rule": "backend-go",
+            "availability": "installed",
+            "path": ".pose/rules/backend-go.md"
+          }
+        ]
+      },
+      "read_control": "[Errno 13] Permission denied: '/tmp/tmp3ccyw12e/.pose/rules/backend-go.md'"
+    }
+  },
+  "full_output": [
+    {
+      "path": "/tmp/b28-current-index-repair.log",
+      "sha256": "9f5276dd0a209114030e7043c16bdbef63855e3e05459dbbdce68af96e536699",
+      "bytes": 67
+    },
+    {
+      "path": "/tmp/b28-review-check-0.log",
+      "sha256": "12d95086837df0757b83bbc1984c24ae1de4e8809e4067e7ea811c05b542ead9",
+      "bytes": 215
+    },
+    {
+      "path": "/tmp/b28-review-check-1.log",
+      "sha256": "3fb90b16c3fc0635f3837c744c53eac1fcd710547391ae6ce8a73f51ff40e5cd",
+      "bytes": 122441
+    },
+    {
+      "path": "/tmp/b28-review-check-10.log",
+      "sha256": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7",
+      "bytes": 164
+    },
+    {
+      "path": "/tmp/b28-review-check-11.log",
+      "sha256": "38b4f0d0d9159f3fa8682275f4560e7a2c0f1aea012bbb01af87c850768b68b9",
+      "bytes": 4754
+    },
+    {
+      "path": "/tmp/b28-review-check-12.log",
+      "sha256": "38635601b742fff0bfde3e6ea5f56ccb631cb9ea9cc43714f4796e868cf84b57",
+      "bytes": 11780
+    },
+    {
+      "path": "/tmp/b28-review-check-2.log",
+      "sha256": "953d43be6604574ab3e058080bc80c5ccbaec1edf0780d7b5e89b8928956359f",
+      "bytes": 68
+    },
+    {
+      "path": "/tmp/b28-review-check-3.log",
+      "sha256": "70e0f3129818dd1aa6765dbfb43cc950d50f5be6326627d276932a550f5efb59",
+      "bytes": 10695
+    },
+    {
+      "path": "/tmp/b28-review-check-4.log",
+      "sha256": "9174acce1d2f9219c753cc5905c6a6c684a0d4a091f20aca6fbdbafeba3ece28",
+      "bytes": 674
+    },
+    {
+      "path": "/tmp/b28-review-check-5.log",
+      "sha256": "fa0d60915bf8ed4b60717c4c2e66138eaf5f0e0cb3054b7b87f953871514a56b",
+      "bytes": 522
+    },
+    {
+      "path": "/tmp/b28-review-check-6.log",
+      "sha256": "4ecbdfb3e8449ff7f69bb868b50a7d36e4e4ae7a3dca3d9310ad9ee1a33dadeb",
+      "bytes": 1330
+    },
+    {
+      "path": "/tmp/b28-review-check-7.log",
+      "sha256": "509574cd4e5d9dbee10f82cc6bd4c5c3b64defb083f3e76a8289a9163d6d0941",
+      "bytes": 250
+    },
+    {
+      "path": "/tmp/b28-review-check-8.log",
+      "sha256": "841f6a342c3aa784491e384ec587b66a74fa8490ae418264987e3f5f62d28421",
+      "bytes": 14324
+    },
+    {
+      "path": "/tmp/b28-review-check-9.log",
+      "sha256": "9dc1a502a71a656c9e8851a8a62fa58769adeab1900a8787007270522fb36005",
+      "bytes": 839
+    },
+    {
+      "path": "/tmp/b28-review-d7ebc300-validation.log",
+      "sha256": "cf11a1384927d67a17b01a51f542d68e816e987773cb8535b1390a1064d46fab",
+      "bytes": 30378
+    },
+    {
+      "path": "/tmp/b28-main-check.log",
+      "sha256": "800f764f3e048fafc06704c6ef277522d267fc1179d7e6181b62519c442a1b30",
+      "bytes": 2832
+    },
+    {
+      "path": "/tmp/b28-main-debt.log",
+      "sha256": "9dc1a502a71a656c9e8851a8a62fa58769adeab1900a8787007270522fb36005",
+      "bytes": 839
+    },
+    {
+      "path": "/tmp/b28-main-index.log",
+      "sha256": "592d7698bd27e18f4b364e9bdc21d521ce5abee8b351dd5c8174978358af1a0e",
+      "bytes": 49
+    },
+    {
+      "path": "/tmp/b28-current-surface-original.log",
+      "sha256": "80c303675740de85ee68c00ceb07e012066051d3da6713d02b50f85bfaff09a0",
+      "bytes": 659
+    },
+    {
+      "path": "/tmp/b28-current-surface-rebuilt.log",
+      "sha256": "acb35ffd0397db5c51b6804e826623117f45afb16db11eea13e3e72993b018ca",
+      "bytes": 205
+    },
+    {
+      "path": "/tmp/b28-current-design-rebuilt.log",
+      "sha256": "9a1e42ff0ebfc043ae998d3d0dd4e7f9565df5df464f3b7ea578f741e59d9806",
+      "bytes": 1099
+    },
+    {
+      "path": "/tmp/b28-current-bundle-rebuilt.log",
+      "sha256": "8e9d3ef74f108c692d2833a23b2529d3cf044f6bfe60df4a9bc1010b85144e6e",
+      "bytes": 9198
+    },
+    {
+      "path": "/tmp/b28-current-check-rebuilt.log",
+      "sha256": "cde365d4e06ed15dcd8069b852aa90ebc7b7355b1c55050f15afefa692fae4fa",
+      "bytes": 2832
+    },
+    {
+      "path": "/tmp/b28-current-adapter.json",
+      "sha256": "a2094088b34ca72dc70d023a6c0b285fa2efcd2217190fe1d350203d18d944f0",
+      "bytes": 204
+    },
+    {
+      "path": "/tmp/b28-current-controls.json",
+      "sha256": "45629f1513007adf38d309714722bb8218bd88330750fd3a4b7361bc15f32dd4",
+      "bytes": 2070
+    },
+    {
+      "path": "/tmp/b28-current-index-integrity.json",
+      "sha256": "87019ab9eb25856d9eabc445d938dd6afed0ded20acc119f00b7f3f00b6e1ad4",
+      "bytes": 9637
+    },
+    {
+      "path": "/tmp/b28-current-invalid-fields.json",
+      "sha256": "9d1ad4651120299c6ec332ed1bb4676f7f6838ac7ebd8fcab21fd44fdf6dd648",
+      "bytes": 2736
+    },
+    {
+      "path": "/tmp/b28-current-inventory.json",
+      "sha256": "cc926a267bd0fb4f8e1fdd5d3a1b7c02c3dd3126bf0ce0b4ec226b875897f397",
+      "bytes": 483
+    },
+    {
+      "path": "/tmp/b28-current-journeys.json",
+      "sha256": "2f64c4d4c2223a29ec2473f83ce8d7401cd9659a359d42eca99b6131f512cc11",
+      "bytes": 10684
+    },
+    {
+      "path": "/tmp/b28-current-map-loss.json",
+      "sha256": "4bf07fb3ca64581b1580c0af1c719fd8fceb7b6c23f2a8b3c6554aafa4137bc1",
+      "bytes": 1828
+    },
+    {
+      "path": "/tmp/b28-current-migrate.json",
+      "sha256": "21a73e2bab375fe290432ac056e2f7caaa9dfe84bca9590eb58713c04648e399",
+      "bytes": 6620
+    },
+    {
+      "path": "/tmp/b28-current-mutations.json",
+      "sha256": "f2ea605691e5036430f5ca4e85acde9ef20eb776b30fa67713047e992528c5b4",
+      "bytes": 2075
+    },
+    {
+      "path": "/tmp/b28-current-original-index-verify.json",
+      "sha256": "2b6e80a5baa3f1d7c169b3eea8b9dab9a7b1263b92408df9ea7043c245ca0ad2",
+      "bytes": 272
+    },
+    {
+      "path": "/tmp/b28-current-policy-journey.json",
+      "sha256": "9d32d108f4c3e04b67e347de1607d235f9acfde8474abcd519cbf31df9c2b6ac",
+      "bytes": 5591
+    },
+    {
+      "path": "/tmp/b28-current-probes.json",
+      "sha256": "49bc6d5ef7e01cb3da544c4519bf5af40c523c0cc76e22d08f7fc687e3a6c881",
+      "bytes": 7561
+    },
+    {
+      "path": "/tmp/b28-current-secrets-scan.json",
+      "sha256": "990abac51f9724b6f43a0bbb95243231eb235c53c16013432924c2d7dce3739b",
+      "bytes": 446
+    },
+    {
+      "path": "/tmp/b28-current-space-mutation.json",
+      "sha256": "2ad0383fc2c86afb46844f9ad954e3923225f726a5d33f5430a3c1e747be18e3",
+      "bytes": 204
+    },
+    {
+      "path": "/tmp/b28-current-space-observed-result.json",
+      "sha256": "2ad0383fc2c86afb46844f9ad954e3923225f726a5d33f5430a3c1e747be18e3",
+      "bytes": 204
+    },
+    {
+      "path": "/tmp/b28-current-space-proof.json",
+      "sha256": "3c3e967a01012d1051cd289fdb8c29081fc2e51eecb7695156f93a9bafe7e364",
+      "bytes": 279
+    },
+    {
+      "path": "/tmp/b28-current-unreadable-rule.json",
+      "sha256": "7b93d318c8ba3dfb1a122a19ca9387487125d3111ea8dfb9a94c217df49f42f6",
+      "bytes": 349
+    }
+  ],
+  "effective_plan": {
+    "plan_digest": "sha256:1db968b88fc70497314af8d3fc3400f02a37fc61d85dbbae18259d1a0bde0222",
+    "independence": "same-actor-separate-execution",
+    "band": "elevated",
+    "blockers": [
+      "review component map is unavailable: pose: index-generation-unavailable: delivery-integrity.json does not match generation gen-169e0f9ccb87666c (descriptor sha256:06cbfa8a09c2d217412d2578fda41be4e235b17587408b93493e7a9a8222aec7, file sha256:07487a7af61f7a4af06bae81d998660ddd73b3add76ecd3ecb1fa5334c053f4e)"
+    ]
+  },
+  "operational": {
+    "sealed": false,
+    "attested": false,
+    "closed": false,
+    "committed": false,
+    "pushed": false,
+    "policy_changed": false,
+    "issuer_pin_added": false
+  },
+  "validation": {
+    "generated_at": "2026-10-18T10:45:49Z",
+    "mode": "strict",
+    "module_filter": "pose-mcp",
+    "git_head": "d7ebc3001168a2121d1f8dbd493a659d4d8e1f5f",
+    "matrix_sha256": "sha256:03128e18e7af189c7c4af926490fc639f6667efd67fc78c24d3f1ff92dedc754",
+    "outcome": "pass",
+    "counts": {
+      "executed": 137,
+      "passed": 137,
+      "failed": 0,
+      "optional_failed": 0,
+      "errored": 0,
+      "skipped": 0
+    }
+  },
+  "effective_plan_after_isolated_index_rebuild": {
+    "plan_digest": "sha256:4483bc4b7473f4cb3f1bc520ebbf74f7c3efd49ae41d8dcfdda836ee194ec207",
+    "independence": "different-actor",
+    "band": "critical",
+    "selected_profiles": [
+      {
+        "ref": "spec-closeout@1",
+        "category": "base",
+        "order": 0,
+        "source": ".pose/review-profiles/spec-closeout.json",
+        "rationale": "selected by terminal scope policy"
+      },
+      {
+        "ref": "backend-review@1",
+        "category": "language",
+        "order": 1,
+        "source": ".pose/review-profiles/backend-review.json",
+        "components": [
+          "pose-mcp"
+        ],
+        "rationale": "matched typed language selector"
+      },
+      {
+        "ref": "engineering-judgment@1",
+        "category": "delivery",
+        "order": 4,
+        "source": ".pose/review-profiles/engineering-judgment.json",
+        "components": [
+          "pose-mcp"
+        ],
+        "rationale": "matched typed delivery selector"
+      },
+      {
+        "ref": "high-criticality-review@1",
+        "category": "delivery",
+        "order": 4,
+        "source": ".pose/review-profiles/high-criticality-review.json",
+        "components": [
+          "pose-mcp"
+        ],
+        "rationale": "matched typed delivery selector"
+      },
+      {
+        "ref": "structural-materiality@1",
+        "category": "structure",
+        "order": 5,
+        "source": ".pose/review-profiles/structural-materiality.json",
+        "components": [
+          "pose-mcp"
+        ],
+        "rationale": "matched typed structure selector"
+      }
+    ],
+    "tools": [
+      {
+        "id": "suggest-review",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "suggest",
+          "review",
+          "--path",
+          "pose-mcp"
+        ],
+        "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+        "component": "pose-mcp",
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "assess-design",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "assess",
+          "design",
+          "--spec",
+          "pose-distributed-instructions-parity",
+          "--json"
+        ],
+        "rationale": "observe bounded structural deltas on the canonical review subject",
+        "evidence_classes": [
+          "structure"
+        ],
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "assess-discover",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "assess",
+          "discover",
+          "--component",
+          "pose-mcp"
+        ],
+        "rationale": "inspect component structure, language, size and visible debt",
+        "component": "pose-mcp",
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "assess-integrate",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "assess",
+          "integrate"
+        ],
+        "rationale": "inspect providers, consumers and inter-component contract gaps",
+        "evidence_classes": [
+          "integration"
+        ],
+        "criteria": [
+          "backend-contracts",
+          "backend-integration-impact"
+        ],
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "assess-tech-debt",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "assess",
+          "tech-debt"
+        ],
+        "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+        "criteria": [
+          "correctness"
+        ],
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "artifact-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "artifact-check",
+          "--spec",
+          "pose-distributed-instructions-parity",
+          "--strict"
+        ],
+        "rationale": "reconcile declared artifacts with Git-observed provenance",
+        "criteria": [
+          "requirements",
+          "scope"
+        ],
+        "preconditions": [
+          "artifacts-attributed"
+        ]
+      },
+      {
+        "id": "skills-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "skills-check",
+          "--strict"
+        ],
+        "rationale": "verify distributed skill and workflow conformance",
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "surface-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "surface-check",
+          "--spec",
+          "pose-distributed-instructions-parity",
+          "--strict"
+        ],
+        "rationale": "verify delivery composition, reachability and fresh evidence",
+        "evidence_classes": [
+          "integration",
+          "reachability"
+        ],
+        "preconditions": [
+          "delivery-target-declared"
+        ]
+      },
+      {
+        "id": "validate",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "validate",
+          "--strict"
+        ],
+        "rationale": "run the registered deterministic checks for the affected module",
+        "evidence_classes": [
+          "build",
+          "e2e",
+          "integration",
+          "unit"
+        ],
+        "criteria": [
+          "backend-concurrency",
+          "backend-input-errors",
+          "backend-observability",
+          "correctness",
+          "requirements"
+        ],
+        "preconditions": [
+          "delivery-target-declared"
+        ]
+      },
+      {
+        "id": "validate",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "validate",
+          "--strict",
+          "--module",
+          "pose-mcp"
+        ],
+        "rationale": "run the registered deterministic checks for the affected module",
+        "evidence_classes": [
+          "build",
+          "e2e",
+          "integration",
+          "unit"
+        ],
+        "component": "pose-mcp",
+        "preconditions": [
+          "delivery-target-declared"
+        ]
+      },
+      {
+        "id": "review-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "review-check",
+          "spec:pose-distributed-instructions-parity"
+        ],
+        "rationale": "verify exact review-plan coverage and freshness",
+        "preconditions": [
+          "review-complete"
+        ]
+      },
+      {
+        "id": "closeout-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "closeout-check",
+          "spec:pose-distributed-instructions-parity"
+        ],
+        "rationale": "verify remaining hierarchical closeout blockers",
+        "preconditions": [
+          "review-complete"
+        ]
+      }
+    ],
+    "criteria": [
+      "assumption-integrity",
+      "backend-concurrency",
+      "backend-contracts",
+      "backend-input-errors",
+      "backend-integration-impact",
+      "backend-observability",
+      "compatibility",
+      "correctness",
+      "design-causality",
+      "documentation",
+      "operability",
+      "requirements",
+      "scope",
+      "security",
+      "solution-proportionality"
+    ]
+  },
+  "prepared_bundle": {
+    "id": "rvb-debf49d6885d705e",
+    "digest": "sha256:debf49d6885d705e374f4f0e81a5075bbb7fb3c117cb0be0a7935c39aed3727d",
+    "state": "prepared-only; not sealed or persisted"
+  },
+  "baseline_comparison": {
+    "index_mismatch_new": true,
+    "original_b28_check_errors": 54,
+    "main_check_errors": 0,
+    "rebuilt_b28_check_errors": 0,
+    "tech_debt_incomplete_in_main_and_head": true
+  }
+}
