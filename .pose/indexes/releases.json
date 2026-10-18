@@ -145,6 +145,14 @@
       "digest": "sha256:dd7a67a589092097bb8a078ac16aee90f525bf8f8cabb531b15ca26d9dac30d2"
     },
     {
+      "spec": "pose-distributed-instructions-parity",
+      "category": "changed",
+      "breaking": false,
+      "body": "The instructions POSE distributes now describe the engine as it is. The feature workflow and\nthe delivery-evidence rule, in English and Portuguese and in every embedded mirror, ask for\n`pose assess discover --if-stale`, the way the skills and `AGENTS.md` already did, so a session\nor a closeout no longer rescans a component whose inputs did not change.\n\n`pose suggest` resolves domains through one taxonomy (`go`, `golang` and `backend-go` reach the\nsame rules; so do the React and Kubernetes spellings), tells you when it used an alias, and\nreports a domain the task map has no rules for instead of silently borrowing another domain's.\nA `backend` module found in the repository map is routed to the Go rules only when it is a Go\nmodule. Each rule it names carries its availability in `rules_status` and in the human output:\ninstalled (with its path), `extension-needed` (with the `pose extension install` command) or\nunavailable; it no longer announces a rule file that is not on disk, and it installs nothing.\n\n`pose migrate v7 --apply` is refused with the current fact (no apply is available in this\nengine; `--dry-run` writes nothing) and no longer promises a future 7.0 apply.",
+      "path": "pose-distributed-instructions-parity.md",
+      "digest": "sha256:dc57637ce52c2698fa4ebc494a2685eaf31e5a7882640514709906c5b266fd8c"
+    },
+    {
       "spec": "pose-historical-trust-and-review-reuse",
       "category": "security",
       "breaking": false,
