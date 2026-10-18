@@ -53,7 +53,7 @@ somente esta spec é criada, sob a atribuição documental de
 `pose-consolidation-batch-2-authoring`. Reconciliar os paths exatos antes de start;
 não tratar a declaração de um teste futuro como teste existente ou executado.
 
-- created: .pose/specs/2026-10-13-pose-git-and-dispatch-snapshot-integrity.md
+- modified: .pose/specs/2026-10-13-pose-git-and-dispatch-snapshot-integrity.md
 - created: .pose/starts/pose-git-and-dispatch-snapshot-integrity.json
 - created: .pose/adr/2026-10-18-git-state-that-cannot-be-read-is-unknown-and-a-worktree-is-judged-by-its-content.md
 - created: .pose/changelogs/unreleased/pose-git-and-dispatch-snapshot-integrity.md
