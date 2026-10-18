@@ -185,6 +185,14 @@
       "digest": "sha256:45aed9aeb29c9cd0bd5c00b660520a6afbec4311de1e05b1de92f3ceeb7665c6"
     },
     {
+      "spec": "pose-spec-facts-evidence-binding",
+      "category": "changed",
+      "breaking": false,
+      "body": "`pose specs facts` no longer presents every indexed validation result of a spec's module as\nthe spec's evidence. `checks` now lists the results the index ties to the spec by scope\nprovenance, with the basis and whether each ran against the head of the spec's change sets;\nthe rest of what the index holds appears under `candidates`, printed as `CANDIDATE, not evidence\nof this spec` with the reason (a declared module, or an empty `components`, is not\nprovenance). A result that ran against another head is kept and labelled, not dropped.\n\nThe facts also say how fresh the index is: `fresh`, `stale` (an input changed since it was\npublished), `unknown` (never published as a set) or `unavailable`, with a limitation that points\nto `pose index` when the answer cannot be established. Reading the facts rebuilds nothing and\nconcludes nothing.\n\nClassified minor: the `checks` field of the JSON narrows to associated results (candidates are\na new field); a consumer that copied `checks` as proof of execution now gets only what the index\nties to the spec.",
+      "path": "pose-spec-facts-evidence-binding.md",
+      "digest": "sha256:54fe2f4ba037c633ef2972e7f6343199322edce736940ec3f7c10f8bb0936cae"
+    },
+    {
       "spec": "pose-writer-coordination-and-atomic-publication",
       "category": "changed",
       "breaking": false,
