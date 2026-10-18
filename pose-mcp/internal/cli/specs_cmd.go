@@ -210,12 +210,21 @@ func cmdSpecFacts(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	out := render(stdout, stderr)
 	out.Field("facts.source", facts.Source)
+	freshness := facts.Freshness.Status
+	if facts.Freshness.Reason != "" {
+		freshness += " — " + facts.Freshness.Reason
+	}
+	out.Field("facts.freshness", freshness)
 	out.Field("facts.commits", fmt.Sprint(facts.Commits))
 	for _, p := range facts.Paths {
 		out.Field("facts.path", p.Action+": "+p.Path)
 	}
 	for _, c := range facts.Checks {
-		out.Field("facts.check", c.Module+" "+c.Check+" ("+c.EvidenceClass+") "+c.Outcome)
+		out.Field("facts.check", c.Module+" "+c.Check+" ("+c.EvidenceClass+") "+c.Outcome+" [associated by "+c.Basis+"; "+c.Binding.Head+"]")
+	}
+	for _, c := range facts.Candidates {
+		// Labelled so a copied line is never read as evidence that this spec ran the check.
+		out.Field("facts.candidate", c.Module+" "+c.Check+" ("+c.EvidenceClass+") "+c.Outcome+" [CANDIDATE, not evidence of this spec: "+strings.Join(c.Limits, "; ")+"]")
 	}
 	for _, l := range facts.Limitations {
 		out.Field("facts.limitation", l)

@@ -1,6 +1,6 @@
 ---
 slug: pose-spec-facts-evidence-binding
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-progressive-spec-surface
@@ -53,15 +53,20 @@ somente esta spec é criada, sob a atribuição documental de
 `pose-consolidation-batch-4-authoring`. Reconciliar os paths exatos antes de start;
 não tratar a declaração de um teste futuro como teste existente ou executado.
 
-- created: .pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md
+- modified: .pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md
 - created: .pose/starts/pose-spec-facts-evidence-binding.json
 - created: .pose/changelogs/unreleased/pose-spec-facts-evidence-binding.md
 - modified: pose-mcp/internal/pose/spec_facts.go
-- modified: pose-mcp/internal/pose/spec_facts_test.go
+- created: pose-mcp/internal/pose/spec_facts_binding_test.go
+- modified: pose-mcp/internal/cli/specs_cmd.go
 - created: pose-mcp/internal/cli/spec_facts_binding_test.go
-- created: pose-mcp/internal/mcpserver/spec_facts_binding_test.go
+- created: .pose/results/b30-mutations.py
+- created: .pose/results/b30-mutations.json
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
@@ -108,26 +113,22 @@ Testes de execução ainda não foram criados ou executados para este delta.
 
 ### Requirement trace
 
-Trace planejado; vincular os casos aos produtores reais na implementação.
-Não declarar requisitos funcionais satisfeitos pelo lint.
+- R1 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSeparateAssociatedEvidenceFromCandidates test:TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs
+- R2 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSeparateAssociatedEvidenceFromCandidates
+- R3 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSayHowFreshTheIndexIs
+- R4 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsKeepAResultOfAnotherHeadWithItsSource
+- R5 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsAreStableAndReadOnly
+- R6 [satisfied] check:spec-facts-evidence-binding-integration test:TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs
+- R7 [satisfied] check:spec-facts-evidence-binding-integration report:b30-mutations.json — resultados de outro módulo, componentes vazios, provenance ausente e índice stale/desconhecido/indisponível são exercitados; as mutações de produção morrem por asserção
+- R8 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsAreStableAndReadOnly test:TestFactsSayHowFreshTheIndexIs
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1, V2 |
-| R2 | V2 |
-| R3 | V3 |
-| R4 | V4 |
-| R5 | V5 |
-| R6 | V5 |
-| R7 | V1–V6 |
-| R8 | V6 |
+Os facts não são expostos por uma tool MCP própria: o consumidor é `pose specs facts` (texto e `--json`), que carrega a mesma estrutura.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 4. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+B30 entregue: `specs facts` separa `checks` (resultados ligados à spec por scope provenance, com base e comparação do head) de `candidates` (o que o índice guarda e nada liga à spec; módulo declarado ou `components` vazio não é provenance), informa a freshness do índice (`fresh`, `stale`, `unknown`, `unavailable`) com próximo passo, preserva resultado de outro head com sua fonte, e não gera intent, rationale, julgamento nem conclusão de requisito. Revisão independente e closeout pendentes.
 
 ### Residual risks
 
