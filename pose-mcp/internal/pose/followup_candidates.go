@@ -37,23 +37,44 @@ var (
 
 const followupCandidateLimits = "the engine matched names and dates only; whether the follow-up's intent is met needs a person's or an agent's judgment, and the disposition is written in the spec"
 
-// FollowupCandidates lists open follow-ups with a reconciliation reason.
+// FollowupCandidatesResult is the candidates and what the read could not see.
+type FollowupCandidatesResult struct {
+	Candidates []FollowupCandidate
+	Coverage   SourceCoverage
+}
+
+// FollowupCandidates lists unresolved follow-ups with a reconciliation reason. It
+// drops what could not be read; ReadFollowupCandidates reports it.
 func (s Store) FollowupCandidates(today string) ([]FollowupCandidate, error) {
+	result, err := s.ReadFollowupCandidates(today)
+	return result.Candidates, err
+}
+
+// ReadFollowupCandidates lists unresolved follow-ups with a reconciliation reason,
+// and the specs and test files it could not read: a candidate that depends on an
+// unread spec or test may be missing, and the answer says so.
+func (s Store) ReadFollowupCandidates(today string) (FollowupCandidatesResult, error) {
 	if today == "" {
 		today = time.Now().UTC().Format(time.DateOnly)
 	}
 	specs, err := s.ListSpecs("", "")
 	if err != nil {
-		return nil, err
+		return FollowupCandidatesResult{}, err
 	}
 	status := map[string]string{}
 	for _, sp := range specs {
 		status[sp.Slug] = sp.Status
 	}
-	tests := s.testNames()
+	tests, testLosses := s.testNamesRead()
+	read := ReadSpecFollowups(s.Root)
+	coverage := read.Coverage
+	for _, loss := range testLosses {
+		coverage.Add(loss)
+	}
+	coverage.Normalize()
 	var out []FollowupCandidate
-	for _, item := range ParseSpecFollowups(s.Root) {
-		if item.RawDisposition != "open" {
+	for _, item := range read.Items {
+		if !item.Unresolved() {
 			continue
 		}
 		candidate := FollowupCandidate{Spec: item.Spec, Ordinal: item.Ordinal, Text: item.Text, Limits: followupCandidateLimits}
@@ -84,16 +105,28 @@ func (s Store) FollowupCandidates(today string) ([]FollowupCandidate, error) {
 			out = append(out, candidate)
 		}
 	}
-	return out, nil
+	return FollowupCandidatesResult{Candidates: out, Coverage: coverage}, nil
 }
 
 // testNames collects Go test function names in the project, bounded to
 // *_test.go files outside vendored and hidden trees.
 func (s Store) testNames() map[string]bool {
+	names, _ := s.testNamesRead()
+	return names
+}
+
+// testNamesRead is testNames and the directories and test files it could not read.
+func (s Store) testNamesRead() (map[string]bool, []SourceLoss) {
 	names := map[string]bool{}
+	losses := []SourceLoss{}
 	declaration := regexp.MustCompile(`(?m)^func (Test[A-Z][A-Za-z0-9_]+)\(`)
 	_ = filepath.WalkDir(s.Root, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
+			rel, relErr := filepath.Rel(s.Root, path)
+			if relErr != nil {
+				rel = path
+			}
+			losses = append(losses, SourceLoss{Producer: "followups", Artifact: filepath.ToSlash(rel), Kind: LossScanIncomplete, Detail: "test names under it were not scanned: " + err.Error()})
 			return nil
 		}
 		if d.IsDir() {
@@ -108,6 +141,11 @@ func (s Store) testNames() map[string]bool {
 		}
 		raw, err := os.ReadFile(path)
 		if err != nil {
+			rel, relErr := filepath.Rel(s.Root, path)
+			if relErr != nil {
+				rel = path
+			}
+			losses = append(losses, SourceLoss{Producer: "followups", Artifact: filepath.ToSlash(rel), Kind: LossReadError, Detail: err.Error()})
 			return nil
 		}
 		for _, m := range declaration.FindAllStringSubmatch(string(raw), -1) {
@@ -115,7 +153,7 @@ func (s Store) testNames() map[string]bool {
 		}
 		return nil
 	})
-	return names
+	return names, losses
 }
 
 func appendCandidateKind(values []string, value string) []string {

@@ -103,13 +103,13 @@ func provideSpecsRoadmaps(store pose.Store) string {
 }
 
 func provideFollowups(root string) string {
-	entries := collectFollowups(root)
+	entries, coverage := collectFollowupsRead(root)
 	open := 0
 	byCrit := map[string]int{}
 	today := time.Now().UTC().Format("2006-01-02")
 	var overdue []followup
 	for _, f := range entries {
-		if f.RawDisposition != "open" {
+		if !followupUnresolved(f) {
 			continue
 		}
 		open++
@@ -127,6 +127,9 @@ func provideFollowups(root string) string {
 	lines = append(lines, fmt.Sprintf("- por criticidade: high=%d medium=%d low=%d sem-classificação=%d",
 		byCrit["high"], byCrit["medium"], byCrit["low"], unclassified))
 	lines = append(lines, fmt.Sprintf("- vencidos (review < hoje): %d", len(overdue)))
+	if !coverage.Complete() {
+		lines = append(lines, "- cobertura: INCOMPLETA — "+coverage.Describe("")+"; os números acima são o que pôde ser lido")
+	}
 
 	sort.Slice(overdue, func(i, j int) bool { return overdue[i].Review < overdue[j].Review })
 	limit := overdue

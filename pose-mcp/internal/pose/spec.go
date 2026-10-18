@@ -464,6 +464,34 @@ func SplitFrontmatter(content string) (map[string]string, string) {
 	return fm, "" // unterminated frontmatter: no body
 }
 
+// FrontmatterRepeats reports the keys among names that the frontmatter of content declares
+// more than once. SplitFrontmatter keeps the last, so a reader that selects by one of them
+// would otherwise read a record as the owner of its last line and ignore the first.
+func FrontmatterRepeats(content string, names ...string) []string {
+	first, rest, _ := strings.Cut(content, "\n")
+	if strings.TrimSpace(first) != "---" {
+		return nil
+	}
+	seen := map[string]int{}
+	for rest != "" {
+		line, tail, _ := strings.Cut(rest, "\n")
+		if strings.TrimSpace(line) == "---" {
+			break
+		}
+		if key, _, ok := strings.Cut(line, ":"); ok {
+			seen[strings.ToLower(strings.TrimSpace(key))]++
+		}
+		rest = tail
+	}
+	var out []string
+	for _, name := range names {
+		if seen[strings.ToLower(name)] > 1 {
+			out = append(out, name)
+		}
+	}
+	return out
+}
+
 func cleanValue(v string) string {
 	v = strings.TrimSpace(v)
 	if strings.HasPrefix(v, "#") {

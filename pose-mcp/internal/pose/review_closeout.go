@@ -797,6 +797,9 @@ func parseReviewAttempt(path string) (ReviewAttempt, error) {
 		return ReviewAttempt{}, err
 	}
 	fm, body := SplitFrontmatter(string(raw))
+	if repeated := FrontmatterRepeats(string(raw), "schema_version", "review_id", "scope", "scope_digest", "plan_digest", "profile", "reviewer", "decision", "reviewed_at", "supersedes", "evidence_refs"); len(repeated) > 0 {
+		return ReviewAttempt{}, fmt.Errorf("pose: review record declares %s more than once", strings.Join(repeated, ", "))
+	}
 	a := ReviewAttempt{SchemaVersion: ReviewSchemaVersion, ReviewID: fm["review_id"], Scope: fm["scope"], ScopeDigest: fm["scope_digest"], PlanDigest: fm["plan_digest"], Profile: fm["profile"], Reviewer: fm["reviewer"], Decision: fm["decision"], ReviewedAt: fm["reviewed_at"], Supersedes: fm["supersedes"], Path: path}
 	if v := fm["schema_version"]; v != "" && v != "1" {
 		return a, fmt.Errorf("pose: review %s has unsupported schema_version %s", a.ReviewID, v)
@@ -805,8 +808,10 @@ func parseReviewAttempt(path string) (ReviewAttempt, error) {
 		a.EvidenceRefs = splitListValue(refs)
 	}
 	section := ""
+	lineNo := 0
 	scanner := bufio.NewScanner(strings.NewReader(body))
 	for scanner.Scan() {
+		lineNo++
 		line := strings.TrimSpace(scanner.Text())
 		switch line {
 		case "## Criteria":
@@ -821,6 +826,12 @@ func parseReviewAttempt(path string) (ReviewAttempt, error) {
 		}
 		match := reviewLineRE.FindStringSubmatch(line)
 		if len(match) == 0 {
+			if section != "" && strings.HasPrefix(line, "-") {
+				// A list item of a structured section that does not parse is a record cut
+				// short, wherever it was cut, not an item that is not there. The line itself
+				// is not copied into the diagnostic.
+				return a, fmt.Errorf("pose: review %s has a malformed or truncated item in its %s section (line %d of the body)", a.ReviewID, section, lineNo)
+			}
 			continue
 		}
 		id, disposition, rest := match[1], strings.ToLower(match[2]), strings.TrimSpace(match[3])
@@ -868,13 +879,100 @@ func fieldValue(rest, key string) string {
 }
 
 func (s Store) ListReviewAttempts(scope string) ([]ReviewAttempt, error) {
+	read, err := s.ReadReviewAttempts(scope)
+	if err == nil && !read.Coverage.CompleteFor(scope) {
+		// This reader returns no coverage, so it does not return a history with a hole
+		// as if it were whole: callers that can use the coverage call ReadReviewAttempts.
+		return nil, fmt.Errorf("pose: the review history is incomplete: %s", read.Coverage.Describe(scope))
+	}
+	return read.Attempts, err
+}
+
+// ReviewAttemptsRead is the review attempts a read found, in order, and the records it
+// could not read (spec pose-source-coverage-integrity). The attempts are a sequence
+// that is known only as far as the records were readable: a record lost to a read
+// error may be a later attempt, so the last attempt read is not the last attempt made
+// unless HistoryUncertainAfter says nothing could be later.
+type ReviewAttemptsRead struct {
+	Attempts []ReviewAttempt
+	Coverage SourceCoverage
+}
+
+var reviewAttemptFileTimeRE = regexp.MustCompile(`^rvw-(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z-`)
+
+// reviewAttemptFileTime is when an attempt file's name says it was recorded.
+func reviewAttemptFileTime(name string) string {
+	m := reviewAttemptFileTimeRE.FindStringSubmatch(name)
+	if m == nil {
+		return ""
+	}
+	return fmt.Sprintf("%s-%s-%sT%s:%s:%sZ", m[1], m[2], m[3], m[4], m[5], m[6])
+}
+
+// HistoryUncertainAfter lists the losses that can concern scope and may be later than
+// the attempt a consumer selected (its ReviewedAt and ReviewID; both empty when none was
+// read): every one whose name does not prove it earlier. The order of attempts is
+// (ReviewedAt, ReviewID), so a record is provably older only if its instant is strictly
+// earlier, or equal and its id sorts before; the same second proves nothing.
+func (r ReviewAttemptsRead) HistoryUncertainAfter(scope, at, id string) []SourceLoss {
+	out := []SourceLoss{}
+	selected, selectedOK := reviewInstant(at)
+	for _, loss := range r.Coverage.LossesFor(scope) {
+		// Instants, not strings: "2026-08-02T12:00:00+09:00" is earlier than a record
+		// named 20260802T090000Z, and text order says the opposite.
+		if lossInstant, ok := reviewInstant(loss.At); ok && selectedOK {
+			if lossInstant.Before(selected) || (lossInstant.Equal(selected) && loss.ID != "" && id != "" && loss.ID < id) {
+				continue
+			}
+		}
+		out = append(out, loss)
+	}
+	return out
+}
+
+// reviewInstant parses a review timestamp: RFC3339 with any offset or fraction.
+func reviewInstant(value string) (time.Time, bool) {
+	if value == "" {
+		return time.Time{}, false
+	}
+	t, err := time.Parse(time.RFC3339Nano, value)
+	if err != nil {
+		return time.Time{}, false
+	}
+	return t.UTC(), true
+}
+
+// reviewInstantLess orders attempts by instant, then by id; an unparseable time sorts by text.
+func reviewInstantLess(aAt, aID, bAt, bID string) bool {
+	a, aok := reviewInstant(aAt)
+	b, bok := reviewInstant(bAt)
+	if aok && bok && !a.Equal(b) {
+		return a.Before(b)
+	}
+	if !(aok && bok) && aAt != bAt {
+		return aAt < bAt
+	}
+	return aID < bID
+}
+
+// ReadReviewAttempts lists review attempts and reports the records it could not read.
+// With a scope, an attempt file whose header cannot be read is a loss that could
+// concern any scope; a file whose header names the scope and does not parse is
+// an error, as before, because it is certainly part of this history.
+func (s Store) ReadReviewAttempts(scope string) (ReviewAttemptsRead, error) {
+	coverage := SourceCoverage{Losses: []SourceLoss{}}
 	dir := filepath.Join(s.Root, ".pose", "reviews")
 	entries, err := os.ReadDir(dir)
 	if os.IsNotExist(err) {
-		return []ReviewAttempt{}, nil
+		if _, lerr := os.Lstat(dir); lerr == nil {
+			// A link to nowhere reads as "does not exist": the history is there and lost.
+			coverage.Add(SourceLoss{Producer: "review-attempts", Artifact: ".pose/reviews", Kind: LossReadError, Detail: err.Error()})
+			coverage.Normalize()
+		}
+		return ReviewAttemptsRead{Attempts: []ReviewAttempt{}, Coverage: coverage}, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("pose: reading reviews: %w", err)
+		return ReviewAttemptsRead{}, fmt.Errorf("pose: reading reviews: %w", err)
 	}
 	attempts := []ReviewAttempt{}
 	for _, entry := range entries {
@@ -882,21 +980,66 @@ func (s Store) ListReviewAttempts(scope string) ([]ReviewAttempt, error) {
 			continue
 		}
 		path := filepath.Join(dir, entry.Name())
+		rel := filepath.ToSlash(filepath.Join(".pose", "reviews", entry.Name()))
+		at := reviewAttemptFileTime(entry.Name())
 		if scope != "" {
 			raw, readErr := os.ReadFile(path)
 			if readErr != nil {
+				coverage.Add(SourceLoss{Producer: "review-attempts", Artifact: rel, Kind: LossReadError, Detail: readErr.Error(), At: at, ID: strings.TrimSuffix(entry.Name(), ".md")})
 				continue
 			}
 			fm, _ := SplitFrontmatter(string(raw))
+			if repeated := FrontmatterRepeats(string(raw), "scope"); len(repeated) > 0 {
+				// Which scope a record belongs to is not settled by its last line.
+				coverage.Add(SourceLoss{Producer: "review-attempts", Artifact: rel, Kind: LossInvalid, Detail: "the record names its scope more than once", At: at, ID: strings.TrimSuffix(entry.Name(), ".md")})
+				continue
+			}
 			if fm["scope"] != scope {
+				if fm["scope"] == "" {
+					// No readable scope: it may be an attempt of this one.
+					coverage.Add(SourceLoss{Producer: "review-attempts", Artifact: rel, Kind: LossParseError, Detail: "the record names no scope", At: at, ID: strings.TrimSuffix(entry.Name(), ".md")})
+				}
 				continue
 			}
 		}
 		a, err := parseReviewAttempt(path)
-		if err != nil {
-			if scope != "" {
-				return nil, err
+		if err == nil {
+			// A record must carry what a consumer selects by: a truncated one that parses
+			// is not an attempt with empty fields, it is a record that was not fully read.
+			var missing []string
+			for name, value := range map[string]string{"review_id": a.ReviewID, "scope": a.Scope, "decision": a.Decision, "reviewed_at": a.ReviewedAt} {
+				if strings.TrimSpace(value) == "" {
+					missing = append(missing, name)
+				}
 			}
+			if len(missing) > 0 {
+				sort.Strings(missing)
+				err = fmt.Errorf("pose: review record lacks %s", strings.Join(missing, ", "))
+			} else if !knownReviewDecisions[a.Decision] {
+				err = fmt.Errorf("pose: review record has an unknown decision %q", a.Decision)
+			} else if _, timeErr := time.Parse(time.RFC3339, a.ReviewedAt); timeErr != nil {
+				// The history is selected and ordered by this field.
+				err = fmt.Errorf("pose: review record has reviewed_at %q, which is not RFC3339", a.ReviewedAt)
+			} else if raw, readErr := os.ReadFile(path); readErr == nil && !frontmatterClosed(string(raw)) {
+				err = fmt.Errorf("pose: review record header is not closed")
+			}
+		}
+		if err != nil {
+			loss := SourceLoss{Producer: "review-attempts", Artifact: rel, Kind: LossParseError, Detail: err.Error(), At: at, ID: strings.TrimSuffix(entry.Name(), ".md")}
+			if strings.Contains(err.Error(), "unsupported schema_version") {
+				// A format this engine does not read, as opposed to a corrupt record.
+				loss.Kind = LossUnsupported
+			}
+			if raw, readErr := os.ReadFile(path); readErr == nil {
+				if fm, _ := SplitFrontmatter(string(raw)); fm["scope"] != "" && len(FrontmatterRepeats(string(raw), "scope")) == 0 {
+					// A scope named twice belongs to neither line: the loss is unattributed and
+					// concerns every scope.
+					loss.Scope, loss.AttributedBy = fm["scope"], "header"
+				}
+			} else {
+				loss.Kind, loss.Detail = LossReadError, readErr.Error()
+			}
+			coverage.Add(loss)
 			continue
 		}
 		if scope == "" || a.Scope == scope {
@@ -904,13 +1047,14 @@ func (s Store) ListReviewAttempts(scope string) ([]ReviewAttempt, error) {
 		}
 	}
 	sort.Slice(attempts, func(i, j int) bool {
-		if attempts[i].ReviewedAt == attempts[j].ReviewedAt {
-			return attempts[i].ReviewID < attempts[j].ReviewID
-		}
-		return attempts[i].ReviewedAt < attempts[j].ReviewedAt
+		return reviewInstantLess(attempts[i].ReviewedAt, attempts[i].ReviewID, attempts[j].ReviewedAt, attempts[j].ReviewID)
 	})
-	return attempts, nil
+	coverage.Normalize()
+	return ReviewAttemptsRead{Attempts: attempts, Coverage: coverage}, nil
 }
+
+// knownReviewDecisions are the decisions a review record can carry.
+var knownReviewDecisions = map[string]bool{"approved": true, "approved-with-reservations": true, "changes-requested": true, "rejected": true}
 
 func digestJSON(value any) (string, error) {
 	raw, err := json.Marshal(value)
@@ -1137,7 +1281,11 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 			return eval, nil
 		}
 		if done {
-			if bundle, att := s.retainedCompletedReview(scope, ref, policy); bundle != nil {
+			bundle, att, retainLost := s.retainedCompletedReviewWithHistory(scope, ref, policy)
+			if len(retainLost) > 0 {
+				eval.Blockers = append(eval.Blockers, "the approval of "+ref+" cannot be retained: the attestation history of its bundle is incomplete, so the latest readable attestation is not known to be the current one: "+(SourceCoverage{Losses: retainLost}).Describe("")+"; restore or remove the unreadable record")
+			}
+			if bundle != nil {
 				eval.Fresh = true
 				eval.Approved = true
 				eval.BundleState = "closed"
@@ -1233,16 +1381,32 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 		effectiveTools = append(effectiveTools, plan.Tools...)
 		independence = plan.Independence
 	}
-	attempts, err := s.ListReviewAttempts(ref)
+	attemptsRead, err := s.ReadReviewAttempts(ref)
 	if err != nil {
 		return eval, err
 	}
+	attempts := attemptsRead.Attempts
 	if len(attempts) == 0 {
+		if lost := attemptsRead.HistoryUncertainAfter(ref, "", ""); len(lost) > 0 {
+			// Records that could not be read may be attempts: absence is not proven.
+			eval.Blockers = append(eval.Blockers, "no readable review attempt exists for "+ref+", and the review history is incomplete: "+(SourceCoverage{Losses: lost}).Describe(""))
+			return eval, nil
+		}
 		eval.Blockers = append(eval.Blockers, "no review attempt exists for "+ref)
 		return eval, nil
 	}
 	current := attempts[len(attempts)-1]
 	eval.Current = &current
+	// An attempt that could not be read may be a later one, a rejection among them:
+	// the latest readable attempt is not taken as the current one until the history is
+	// readable. A record whose name shows it is older than the current attempt cannot
+	// have superseded it and is only disclosed.
+	if lost := attemptsRead.HistoryUncertainAfter(ref, current.ReviewedAt, current.ReviewID); len(lost) > 0 {
+		eval.Blockers = append(eval.Blockers, "review history for "+ref+" is incomplete, so the latest readable attempt is not known to be the current one: "+(SourceCoverage{Losses: lost}).Describe("")+"; restore or remove the unreadable record")
+	}
+	if older := len(attemptsRead.Coverage.LossesFor(ref)) - len(attemptsRead.HistoryUncertainAfter(ref, current.ReviewedAt, current.ReviewID)); older > 0 {
+		eval.Warnings = append(eval.Warnings, fmt.Sprintf("%d unreadable review record(s) predate the current attempt and cannot have superseded it", older))
+	}
 	legacyPlanExempt := s.componentAwareLegacyAttemptExempt(scope, policy, current)
 	// Reconciling a profile's evidence classes changes the effective plan, and a
 	// completed scope's attempt is compared against the plan as it is today. So
@@ -1962,20 +2126,46 @@ const retainedCompletedReviewWarning = "completed scope retains its approved sea
 // what it needs is a superseding attestation, which an operator can record
 // when the work is next touched.
 func (s Store) retainedCompletedReview(scope ScopeRef, ref string, policy ReviewPolicy) (*ReviewBundle, *ReviewAttestation) {
-	bundles, err := s.ListReviewBundles(ref)
+	bundle, att, _ := s.retainedCompletedReviewWithHistory(scope, ref, policy)
+	return bundle, att
+}
+
+// retainedCompletedReviewWithHistory is retainedCompletedReview and the attestation
+// records of the bundle it would retain that could not be read. An approval is not
+// retained over a history with a hole: the record that was lost may be a rejection
+// made after it (spec pose-source-coverage-integrity), so the lost records are returned
+// for the caller to report and no approval is.
+func (s Store) retainedCompletedReviewWithHistory(scope ScopeRef, ref string, policy ReviewPolicy) (*ReviewBundle, *ReviewAttestation, []SourceLoss) {
+	bundlesRead, err := s.ReadReviewBundles(ref)
 	if err != nil {
-		return nil, nil
+		return nil, nil, []SourceLoss{{Producer: "review-bundles", Artifact: ".pose/reviews", Kind: LossReadError, Detail: err.Error()}}
+	}
+	bundles := bundlesRead.Bundles
+	// A bundle of this scope that could not be read may hold a review made after any
+	// approval below it: nothing is retained over it. (The bundle of the current inputs
+	// is verified separately and does not come through here.)
+	if lost := bundlesRead.Coverage.LossesFor(ref); len(lost) > 0 {
+		return nil, nil, lost
 	}
 	for i := len(bundles) - 1; i >= 0; i-- {
-		attestations, attErr := s.ListReviewAttestations(bundles[i].BundleID)
-		if attErr != nil || len(attestations) == 0 {
+		read, attErr := s.ReadReviewAttestations(bundles[i].BundleID)
+		attestations := read.Attestations
+		if attErr != nil {
+			// A bundle whose attestations cannot be loaded may hold a rejection made
+			// after any approval below it: no approval is retained over it.
+			return nil, nil, []SourceLoss{{Producer: "review-attestations", Artifact: bundles[i].BundleID, Scope: ref, AttributedBy: "bundle", Kind: LossInvalid, Detail: attErr.Error()}}
+		}
+		if lost := read.Coverage.LossesFor(bundles[i].BundleID); len(lost) > 0 {
+			return nil, nil, lost
+		}
+		if len(attestations) == 0 {
 			continue
 		}
 		att := attestations[len(attestations)-1]
 		waiveEvidence := s.bundleContractExempt(scope, policy, bundles[i], "evidence-vocabulary", att.AttestedAt)
 		if len(s.validateBundleAttestationWith(bundles[i], att, waiveEvidence)) == 0 {
 			bundle := bundles[i]
-			return &bundle, &att
+			return &bundle, &att, nil
 		}
 		// A later review that rejected the work or requested changes is not
 		// overridden by an older approval. A later approval that no longer
@@ -1983,10 +2173,10 @@ func (s Store) retainedCompletedReview(scope ScopeRef, ref string, policy Review
 		// is not a verdict against the work, so an older standing approval
 		// still counts, as it always did.
 		if att.Decision == "rejected" || att.Decision == "changes-requested" {
-			return nil, nil
+			return nil, nil, nil
 		}
 	}
-	return nil, nil
+	return nil, nil, nil
 }
 
 // latestNegativeReview returns the newest attested bundle of a scope when its

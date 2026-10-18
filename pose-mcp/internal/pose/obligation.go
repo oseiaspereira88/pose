@@ -22,9 +22,12 @@ type Obligation struct {
 	SchemaVersion int `json:"schema_version"`
 	// ID depends on the logical identity of the source, never on message
 	// text, list order or query time.
-	ID           string                `json:"id"`
-	Project      string                `json:"project_id"`
-	Source       ObligationSource      `json:"source"`
+	ID      string           `json:"id"`
+	Project string           `json:"project_id"`
+	Source  ObligationSource `json:"source"`
+	// producerSlot is the producer whose run returned this element, set by the
+	// projection (not by the producer, not serialized).
+	producerSlot string
 	Category     string                `json:"category"`
 	ReasonCode   string                `json:"reason_code"`
 	Condition    string                `json:"condition"`
