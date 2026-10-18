@@ -66,6 +66,7 @@ scan de marcadores de dívida técnica e a leitura do histórico de reviews
 - created: pose-mcp/internal/pose/source_coverage_round2_test.go
 - created: pose-mcp/internal/pose/source_coverage_round3_test.go
 - created: pose-mcp/internal/pose/source_coverage_round4_test.go
+- created: pose-mcp/internal/pose/source_coverage_round5_test.go
 - created: pose-mcp/internal/cli/source_coverage_parity_test.go
 - created: pose-mcp/internal/mcpserver/source_coverage_parity_test.go
 - modified: pose-mcp/internal/pose/followups_parse.go
@@ -232,6 +233,12 @@ A quarta revisão (6 achados) levou a: item estruturado de review cortado em qua
 follow-up aberto sem descrição de spec concluída é perda; schema futuro de bundle ou atestação
 é "não suportado", não corrupção; estado de componente persistido ilegível permanece na
 consolidação como perda, sem métricas inventadas.
+
+A quinta revisão (5 achados) levou a: bundle e atestação sem instante válido não carregam
+(perda, nunca o mais antigo); follow-up anotado que perdeu o texto é perda em qualquer status,
+e só o placeholder `- [open]` puro de spec não concluída é tolerado; estado de componente
+persistido `null`, sem identidade ou de schema futuro não é componente e vira perda do tipo
+da sua falha (parse, inválido, não suportado); replay e rework ordenam bundles por instante.
 
 ### Review and delivery evidence
 

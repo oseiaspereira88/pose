@@ -8,6 +8,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -563,12 +564,21 @@ func mergeWithPersistedComponentStates(store pose.Store, scanned []*pose.Compone
 // unreadableComponentState stands for a persisted component state that could not be read: zero
 // metrics, a loss naming the file, and a status that says why.
 func unreadableComponentState(slug, path string, cause error) *pose.ComponentDiscoveryState {
-	detail := "the persisted state could not be read"
-	if cause != nil {
+	// The kind of loss is the nature of the failure, and the detail is the engine's own
+	// words, never the content of the file.
+	kind, detail := pose.LossReadError, "the persisted state could not be read"
+	switch {
+	case errors.Is(cause, pose.ErrComponentStateParse):
+		kind, detail = pose.LossParseError, "the persisted state is not valid JSON"
+	case errors.Is(cause, pose.ErrComponentStateUnsupported):
+		kind, detail = pose.LossUnsupported, "the persisted state has a schema_version this engine does not read"
+	case errors.Is(cause, pose.ErrComponentStateInvalid):
+		kind, detail = pose.LossInvalid, "the persisted state names no component"
+	case cause != nil:
 		detail = cause.Error()
 	}
 	return &pose.ComponentDiscoveryState{ComponentSlug: slug, Path: slug, Status: "unreadable",
-		Coverage: pose.SourceCoverage{Losses: []pose.SourceLoss{{Producer: "component-state", Artifact: filepath.ToSlash(path), Kind: pose.LossReadError, Detail: detail}}}}
+		Coverage: pose.SourceCoverage{Losses: []pose.SourceLoss{{Producer: "component-state", Artifact: filepath.ToSlash(path), Kind: kind, Detail: detail}}}}
 }
 
 func sortedComponentStates(bySlug map[string]*pose.ComponentDiscoveryState) []*pose.ComponentDiscoveryState {

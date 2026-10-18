@@ -1919,6 +1919,11 @@ func (s Store) LoadReviewBundle(id string) (ReviewBundle, error) {
 	if err != nil || digest != bundle.BundleDigest || id != "rvb-"+strings.TrimPrefix(digest, "sha256:")[:16] {
 		return ReviewBundle{}, fmt.Errorf("pose: review bundle %s digest mismatch", id)
 	}
+	// The order of bundles is by the instant they were sealed: a bundle without a valid one
+	// has no known place in the history, and is not read as the oldest.
+	if _, ok := reviewInstant(bundle.SealedAt); !ok {
+		return ReviewBundle{}, fmt.Errorf("pose: review bundle %s has no valid sealed_at", id)
+	}
 	bundle.Path = filepath.ToSlash(filepath.Join(".pose", "review-bundles", id+".json"))
 	return bundle, nil
 }
@@ -2614,6 +2619,9 @@ func (s Store) LoadReviewAttestation(id string) (ReviewAttestation, error) {
 	}
 	if reviewAttestationID(att) != id {
 		return ReviewAttestation{}, fmt.Errorf("pose: review attestation %s content digest mismatch", id)
+	}
+	if _, ok := reviewInstant(att.AttestedAt); !ok {
+		return ReviewAttestation{}, fmt.Errorf("pose: review attestation %s has no valid attested_at", id)
 	}
 	att.Path = filepath.ToSlash(filepath.Join(".pose", "review-attestations", id+".json"))
 	return att, nil

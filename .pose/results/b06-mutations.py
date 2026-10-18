@@ -131,9 +131,17 @@ M = [
  ("R4 item cortado fora do colchete some", [(RC, 'if section != "" && strings.HasPrefix(line, "-") {', 'if section != "" && strings.HasPrefix(line, "-") && strings.Contains(line, "[") {')], "./internal/pose", "TestAnItemCutAnywhere"),
  ("R4 diagnóstico copia a linha", [(RC, '"pose: review %s has a malformed or truncated item in its %s section (line %d of the body)", a.ReviewID, section, lineNo)', '"pose: review %s has a malformed or truncated item %q in its %s section (line %d of the body)", a.ReviewID, line, section, lineNo)')], "./internal/pose", "TestAnItemCutAnywhere"),
  ("R4 atestações ordenadas por texto", [(RB, 'return reviewInstantLess(result[i].AttestedAt, result[i].AttestationID, result[j].AttestedAt, result[j].AttestationID)', 'return result[i].AttestedAt < result[j].AttestedAt')], "./internal/pose", "TestAttestationsAreOrderedByInstant"),
- ("R4 follow-up open vazio some", [(FP, 'if stripped == "" && status == "done" {', 'if false {')], "./internal/pose", "TestAnEmptyOpenFollowup"),
+ ("R4 follow-up open vazio some", [(FP, 'if stripped == "" && !(strings.TrimSpace(pending) == "[open]" && status != "done") {', 'if false {')], "./internal/pose", "TestAnEmptyOpenFollowup"),
  ("R4 schema futuro como parse-error", [(RB, 'if futureSchema(raw) {\n\t\t\t\t\t// Well-formed JSON of a format this engine does not read.', 'if false {\n\t\t\t\t\t// Well-formed JSON of a format this engine does not read.')], "./internal/pose", "TestAFutureSchemaIsUnsupported"),
  ("R4 estado de componente ilegível some", [("pose-mcp/internal/cli/assess.go", 'bySlug[slug] = unreadableComponentState(slug, filepath.Join(store.ComponentStateDir(), entry.Name()), err)\n\t\t\tcontinue', 'continue')], "./internal/cli", "TestAnUnreadablePersistedComponentState"),
+ ("R5 bundle sem sealed_at é aceito", [(RB, 'if _, ok := reviewInstant(bundle.SealedAt); !ok {', 'if _, ok := reviewInstant(bundle.SealedAt); !ok && false {')], "./internal/pose", "TestABundleWithoutASealedInstant"),
+ ("R5 follow-up anotado sem texto some", [(FP, 'if stripped == "" && !(strings.TrimSpace(pending) == "[open]" && status != "done") {', 'if stripped == "" && status == "done" {')], "./internal/pose", "TestAnAnnotatedFollowupThatLost"),
+ ("R5 placeholder de draft vira perda", [(FP, 'if stripped == "" && !(strings.TrimSpace(pending) == "[open]" && status != "done") {', 'if stripped == "" {')], "./internal/pose", "TestAnAnnotatedFollowupThatLost|TestAnEmptyOpenFollowup"),
+ ("R5 estado null é componente", [(DS, 'if state.ComponentSlug == "" {', 'if false {')], "./internal/pose", "TestAPersistedComponentStateIsValidated"),
+ ("R5 estado de schema futuro é lido", [(DS, 'if state.SchemaVersion > 1 {', 'if false {')], "./internal/pose", "TestAPersistedComponentStateIsValidated"),
+ ("R5 replay ordena bundles por texto", [("pose-mcp/internal/pose/governance_replay.go", 'reviewInstantLess(old.SealedAt, old.BundleID, bundle.SealedAt, bundle.BundleID)', 'bundle.SealedAt > old.SealedAt')], "./internal/pose", "TestNoConsumerOrdersTheBundleHistoryByText"),
+ ("R5 rework ordena bundles por texto", [("pose-mcp/internal/pose/governance_waits.go", 'return reviewInstantLess(list[i].SealedAt, list[i].BundleID, list[j].SealedAt, list[j].BundleID)', 'return list[i].SealedAt < list[j].SealedAt')], "./internal/pose", "TestNoConsumerOrdersTheBundleHistoryByText"),
+ ("R5 tipo de perda do estado é sempre read-error", [("pose-mcp/internal/cli/assess.go", 'case errors.Is(cause, pose.ErrComponentStateParse):', 'case false:')], "./internal/cli", "TestThePersistedStateLossKeepsTheKind"),
 ]
 results = []
 for name, edits, pkgs, run in M:

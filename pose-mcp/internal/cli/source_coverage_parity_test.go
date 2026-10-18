@@ -321,3 +321,23 @@ func TestAnUnreadablePersistedComponentStateIsNotDropped(t *testing.T) {
 		t.Fatalf("lost = %+v", lost)
 	}
 }
+
+// R5-F05: a persisted component state that cannot be used is a loss of the kind of its failure.
+func TestThePersistedStateLossKeepsTheKindOfItsFailure(t *testing.T) {
+	root := t.TempDir()
+	store := posemodel.Store{Root: root}
+	for name, c := range map[string]struct{ body, kind string }{
+		"truncated": {`{"component_slug":"oth`, posemodel.LossParseError},
+		"null":      {`null`, posemodel.LossInvalid},
+		"future":    {`{"schema_version":99,"component_slug":"other"}`, posemodel.LossUnsupported},
+	} {
+		writeCloseoutCLIFile(t, root, ".pose/state/components/other.json", c.body)
+		merged := mergeWithPersistedComponentStates(store, nil)
+		if len(merged) != 1 || len(merged[0].Coverage.Losses) != 1 || merged[0].Coverage.Losses[0].Kind != c.kind {
+			t.Errorf("%s: %+v", name, merged)
+		}
+		if strings.Contains(merged[0].Coverage.Losses[0].Detail, "oth") && c.kind == posemodel.LossParseError {
+			t.Errorf("%s: the detail copied the content: %q", name, merged[0].Coverage.Losses[0].Detail)
+		}
+	}
+}

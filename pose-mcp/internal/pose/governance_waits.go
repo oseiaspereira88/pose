@@ -198,7 +198,9 @@ func (s Store) GovernanceRework() (GovernanceReworkReport, error) {
 	}
 	report.Scopes = len(byScope)
 	for _, list := range byScope {
-		sort.Slice(list, func(i, j int) bool { return list[i].SealedAt < list[j].SealedAt })
+		sort.Slice(list, func(i, j int) bool {
+			return reviewInstantLess(list[i].SealedAt, list[i].BundleID, list[j].SealedAt, list[j].BundleID)
+		})
 		report.Bundles += len(list)
 		for i := 1; i < len(list); i++ {
 			delta := ReviewBundleDiff(list[i-1], list[i])

@@ -127,7 +127,7 @@ func (s Store) GovernanceReplay(limit int) (GovernanceReplayReport, error) {
 				}
 				bundles[id] = bundle
 				old, ok := latest[bundle.Payload.Scope.Ref]
-				if !ok || bundle.SealedAt > old.SealedAt || bundle.SealedAt == old.SealedAt && bundle.BundleID > old.BundleID {
+				if !ok || reviewInstantLess(old.SealedAt, old.BundleID, bundle.SealedAt, bundle.BundleID) {
 					latest[bundle.Payload.Scope.Ref] = bundle
 				}
 				continue

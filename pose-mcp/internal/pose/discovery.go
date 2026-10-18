@@ -2,6 +2,7 @@ package pose
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -645,6 +646,15 @@ O componente **%s** reside no caminho `+"`%s`"+` do projeto **%s**.
 // scan recorded its coverage has no losses and is not reported as incomplete.
 func (c ComponentDiscoveryState) ScanIncomplete() bool { return len(c.Coverage.Losses) > 0 }
 
+// Why a persisted component state could not be used, so a consumer can tell a file it could
+// not open from one that is not JSON, one of a format it does not read and one that names
+// no component.
+var (
+	ErrComponentStateParse       = errors.New("pose: the component state is not valid JSON")
+	ErrComponentStateUnsupported = errors.New("pose: the component state has a schema_version this engine does not read")
+	ErrComponentStateInvalid     = errors.New("pose: the component state is not a valid record")
+)
+
 // LoadComponentState reads ComponentDiscoveryState JSON from .pose/state/components/<slug>.json
 func (s Store) LoadComponentState(slug string) (*ComponentDiscoveryState, error) {
 	canonical := slugifyAssessmentPath(slug)
@@ -658,7 +668,14 @@ func (s Store) LoadComponentState(slug string) (*ComponentDiscoveryState, error)
 	}
 	var state ComponentDiscoveryState
 	if err := json.Unmarshal(data, &state); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrComponentStateParse, err)
+	}
+	if state.SchemaVersion > 1 {
+		return nil, fmt.Errorf("%w: schema_version %d", ErrComponentStateUnsupported, state.SchemaVersion)
+	}
+	if state.ComponentSlug == "" {
+		// "null" and a record with no identity decode to a zero state: not a component.
+		return nil, fmt.Errorf("%w: the record names no component", ErrComponentStateInvalid)
 	}
 	return &state, nil
 }

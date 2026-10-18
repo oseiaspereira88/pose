@@ -504,8 +504,48 @@
       "mutation": "R4 estado de componente ilegível some",
       "tests": "TestAnUnreadablePersistedComponentState",
       "verdict": "killed"
+    },
+    {
+      "mutation": "R5 bundle sem sealed_at é aceito",
+      "tests": "TestABundleWithoutASealedInstant",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R5 follow-up anotado sem texto some",
+      "tests": "TestAnAnnotatedFollowupThatLost",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R5 placeholder de draft vira perda",
+      "tests": "TestAnAnnotatedFollowupThatLost|TestAnEmptyOpenFollowup",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R5 estado null é componente",
+      "tests": "TestAPersistedComponentStateIsValidated",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R5 estado de schema futuro é lido",
+      "tests": "TestAPersistedComponentStateIsValidated",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R5 replay ordena bundles por texto",
+      "tests": "TestNoConsumerOrdersTheBundleHistoryByText",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R5 rework ordena bundles por texto",
+      "tests": "TestNoConsumerOrdersTheBundleHistoryByText",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R5 tipo de perda do estado é sempre read-error",
+      "tests": "TestThePersistedStateLossKeepsTheKind",
+      "verdict": "killed"
     }
   ],
-  "killed": 101,
-  "total": 101
+  "killed": 109,
+  "total": 109
 }
