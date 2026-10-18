@@ -254,3 +254,89 @@ func TestSuggestDoesNotLetATaskOverwriteWhatItDerivesOrNameWhatIsNotThere(t *tes
 		}
 	}
 }
+
+// Fourth review: unreadable references, keys that fold to the same field, the file go.mod points
+// at, and the operational fields of a task.
+func TestSuggestSaysAReferenceThatCannotBeReadIsNotAvailable(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root reads every file")
+	}
+	root := suggestWithTaskMap(t, `{"tasks":{"feature":{"rules":["security"],"workflow":".pose/workflows/feature.md","skill":"pose-feature"}}}`)
+	writeCloseoutCLIFile(t, root, ".pose/workflows/feature.md", "# feature\n")
+	writeCloseoutCLIFile(t, root, ".agents/skills/pose-feature/SKILL.md", "# skill\n")
+	doc := suggestJSON(t, root, "--domain", "go")
+	for _, raw := range doc["references_status"].([]any) {
+		if st, _ := raw.(map[string]any); st["availability"] != "available" {
+			t.Fatalf("the control reference is not available: %v", st)
+		}
+	}
+	for _, rel := range []string{".pose/workflows/feature.md", ".agents/skills/pose-feature/SKILL.md"} {
+		os.Chmod(filepath.Join(root, rel), 0)
+		defer os.Chmod(filepath.Join(root, rel), 0o644)
+	}
+	doc = suggestJSON(t, root, "--domain", "go")
+	for _, raw := range doc["references_status"].([]any) {
+		if st, _ := raw.(map[string]any); st["availability"] != "unreadable" {
+			t.Errorf("a reference that cannot be opened is announced as %v: %v", st["availability"], st["field"])
+		}
+	}
+}
+
+func TestSuggestRefusesKeysThatFoldToTheTasksField(t *testing.T) {
+	for _, key := range []string{"Tasks", "TASKS", "TaSkS", "taſks"} {
+		for _, exactFirst := range []bool{true, false} {
+			exact := `"tasks":{"feature":{"rules":["security"]}}`
+			folded := `"` + key + `":{"feature":{"rules":[]}}`
+			doc := "{" + folded + "," + exact + "}"
+			if exactFirst {
+				doc = "{" + exact + "," + folded + "}"
+			}
+			root := suggestWithTaskMap(t, doc)
+			if code, out := runPose(t, root, "suggest", "feature"); code == 0 || !strings.Contains(out, "ambiguous") {
+				t.Errorf("%s (exact first %v): the order of the document decided the rules (%d): %s", key, exactFirst, code, out)
+			}
+		}
+	}
+}
+
+func TestSuggestDoesNotFollowGoModOutOfTheProject(t *testing.T) {
+	outside := t.TempDir()
+	writeCloseoutCLIFile(t, outside, "go.mod", "module outside\n")
+	root := suggestFixture(t, true)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", `{"services":[{"path":"svc","domain":"backend","language":"python"}]}`)
+	os.MkdirAll(filepath.Join(root, "svc"), 0o755)
+	if err := os.Symlink(filepath.Join(outside, "go.mod"), filepath.Join(root, "svc", "go.mod")); err != nil {
+		t.Skip("symlinks are not available")
+	}
+	if doc := suggestJSON(t, root, "--path", "svc/app.py"); doc["domain_effective"] == "backend-go" {
+		t.Errorf("a go.mod that is a link out of the project made a backend Go: %v", doc["domain_effective"])
+	}
+	// An internal go.mod still counts.
+	inner := suggestFixture(t, true)
+	writeCloseoutCLIFile(t, inner, ".pose/indexes/repo-map.json", `{"services":[{"path":"svc","domain":"backend","language":"python"}]}`)
+	writeCloseoutCLIFile(t, inner, "svc/go.mod", "module inner\n")
+	if doc := suggestJSON(t, inner, "--path", "svc/app.py"); doc["domain_effective"] != "backend-go" {
+		t.Errorf("a go.mod inside the project must still count: %v", doc["domain_effective"])
+	}
+}
+
+func TestSuggestRefusesOperationalFieldsOfAnImpossibleType(t *testing.T) {
+	for name, field := range map[string]string{
+		"requires_spec list":  `"requires_spec":[]`,
+		"requires_adr object": `"requires_adr":{}`,
+		"validation boolean":  `"validation":false`,
+		"consume number":      `"knowledge_consume":17`,
+		"description null":    `"description":null`,
+		"produce list":        `"knowledge_produce":["a"]`,
+		"validation number":   `"validation":3`,
+	} {
+		root := suggestWithTaskMap(t, `{"tasks":{"feature":{"rules":["security"],`+field+`}}}`)
+		if code, out := runPose(t, root, "suggest", "feature"); code == 0 {
+			t.Errorf("%s: accepted: %s", name, out)
+		}
+	}
+	root := suggestWithTaskMap(t, `{"tasks":{"feature":{"rules":["security"],"description":"d","validation":"run the checks","requires_spec":true,"requires_adr":"when structural","knowledge_consume":false,"knowledge_produce":"yes"}}}`)
+	if code, out := runPose(t, root, "suggest", "feature"); code != 0 {
+		t.Errorf("the supported types were refused (%d): %s", code, out)
+	}
+}

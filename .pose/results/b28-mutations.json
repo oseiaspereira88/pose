@@ -196,11 +196,6 @@
       "verdict": "killed"
     },
     {
-      "mutation": "go.mod de fora do projeto vale",
-      "tests": "TestSuggestComparesPathsAsWritten",
-      "verdict": "killed"
-    },
-    {
       "mutation": "campo derivado é sobrescrito pela task",
       "tests": "TestSuggestDoesNotLetATaskOverwrite",
       "verdict": "killed"
@@ -214,8 +209,33 @@
       "mutation": "referência inexistente é anunciada como disponível",
       "tests": "TestSuggestDoesNotLetATaskOverwrite",
       "verdict": "killed"
+    },
+    {
+      "mutation": "referência ilegível é anunciada como disponível",
+      "tests": "TestSuggestSaysAReferenceThatCannotBeRead",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "chave que dobra para tasks escolhe pela ordem",
+      "tests": "TestSuggestRefusesKeysThatFoldToTheTasksField",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "go.mod apontando para fora vale",
+      "tests": "TestSuggestDoesNotFollowGoModOutOfTheProject",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "campo operacional de tipo impossível",
+      "tests": "TestSuggestRefusesOperationalFieldsOfAnImpossibleType",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "booleano onde só se admite texto",
+      "tests": "TestSuggestRefusesOperationalFieldsOfAnImpossibleType",
+      "verdict": "killed"
     }
   ],
-  "killed": 43,
-  "total": 43
+  "killed": 47,
+  "total": 47
 }

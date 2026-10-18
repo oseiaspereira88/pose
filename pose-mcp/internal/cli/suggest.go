@@ -51,14 +51,23 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	var tm taskMap
-	if json.Unmarshal(raw, &tm) == nil && tm.Tasks != nil {
-		if dupErr := posepkg.RejectDuplicateJSONKeys(raw); dupErr != nil {
-			return usageError(stderr, fmt.Sprintf("pose suggest: invalid task-map: %v", dupErr))
+	var document map[string]json.RawMessage
+	if json.Unmarshal(raw, &document) != nil || document == nil {
+		return usageError(stderr, "pose suggest: invalid task-map")
+	}
+	// The decoder of a struct matches a field in any case (and by Unicode folding), so two keys
+	// that differ only in case would be one field and the later would win: the exact key is
+	// selected here and any other that folds to it is refused.
+	for key := range document {
+		if key != "tasks" && strings.EqualFold(key, "tasks") {
+			return usageError(stderr, fmt.Sprintf("pose suggest: invalid task-map: the key %q is ambiguous with \"tasks\"", key))
 		}
 	}
-	if json.Unmarshal(raw, &tm) != nil || tm.Tasks == nil {
-		fmt.Fprintln(stderr, "pose suggest: invalid task-map")
-		return 2
+	if dupErr := posepkg.RejectDuplicateJSONKeys(raw); dupErr != nil {
+		return usageError(stderr, fmt.Sprintf("pose suggest: invalid task-map: %v", dupErr))
+	}
+	if tasks, present := document["tasks"]; !present || json.Unmarshal(tasks, &tm.Tasks) != nil || tm.Tasks == nil {
+		return usageError(stderr, "pose suggest: invalid task-map")
 	}
 	keys := make([]string, 0, len(tm.Tasks))
 	for k := range tm.Tasks {
@@ -347,7 +356,7 @@ func inferSuggestDomain(root, pathHint string) (domain, source, problem string) 
 		// "backend" names no language: it is the Go domain only when the module is Go.
 		if domain == "backend" {
 			goMod := false
-			if info, err := os.Stat(filepath.Join(root, filepath.FromSlash(p), "go.mod")); err == nil && info.Mode().IsRegular() && insideProject(root, filepath.Join(root, filepath.FromSlash(p))) {
+			if info, err := os.Stat(filepath.Join(root, filepath.FromSlash(p), "go.mod")); err == nil && info.Mode().IsRegular() && insideProject(root, filepath.Join(root, filepath.FromSlash(p))) && insideProject(root, filepath.Join(root, filepath.FromSlash(p), "go.mod")) {
 				goMod = true
 			}
 			if m.language == "go" || strings.HasSuffix(norm, ".go") || goMod {
@@ -476,6 +485,27 @@ func suggestTaskReferences(root string, t map[string]any) ([]referenceStatus, er
 			return nil, fmt.Errorf("%s is derived by the command and cannot be declared by the task", reserved)
 		}
 	}
+	// The operational fields the trail prints, with the types the distributed task-map uses: a
+	// field that is declared and has another type (or is null) is a configuration that was lost.
+	for field, allowed := range map[string]string{
+		"description": "s", "validation": "s", "requires_spec": "bs", "requires_adr": "bs",
+		"knowledge_consume": "bs", "knowledge_produce": "bs",
+	} {
+		value, present := t[field]
+		if !present {
+			continue
+		}
+		switch value.(type) {
+		case string:
+			// Every operational field admits text.
+		case bool:
+			if !strings.Contains(allowed, "b") {
+				return nil, fmt.Errorf("%s: expected %s, got a boolean", field, suggestFieldWant(allowed))
+			}
+		default:
+			return nil, fmt.Errorf("%s: expected %s, got %T", field, suggestFieldWant(allowed), value)
+		}
+	}
 	out := []referenceStatus{}
 	for _, field := range []string{"workflow", "skill"} {
 		raw, present := t[field]
@@ -510,6 +540,13 @@ func suggestTaskReferences(root string, t map[string]any) ([]referenceStatus, er
 			status.Availability, status.Detail = "unreadable", err.Error()
 		case !info.Mode().IsRegular():
 			status.Availability, status.Detail = "unreadable", rel+" is not a regular file"
+		default:
+			// Present and regular is not readable: the file is opened, as the reader of it will.
+			if file, oerr := os.Open(filepath.Join(root, filepath.FromSlash(rel))); oerr != nil {
+				status.Availability, status.Detail = "unreadable", oerr.Error()
+			} else {
+				file.Close()
+			}
 		}
 		out = append(out, status)
 	}
@@ -523,4 +560,11 @@ func referenceNote(references []referenceStatus, field string) string {
 		}
 	}
 	return ""
+}
+
+func suggestFieldWant(allowed string) string {
+	if allowed == "s" {
+		return "a string"
+	}
+	return "a boolean or a string"
 }
