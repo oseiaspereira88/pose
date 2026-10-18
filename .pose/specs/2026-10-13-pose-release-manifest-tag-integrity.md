@@ -59,6 +59,7 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - created: pose-mcp/internal/pose/release_manifest_integrity.go
 - modified: pose-mcp/internal/pose/release_lifecycle.go
 - modified: pose-mcp/internal/cli/release_lifecycle.go
+- modified: pose-mcp/internal/cli/cli.go
 - created: pose-mcp/internal/pose/release_manifest_tag_integrity_test.go
 - created: pose-mcp/internal/pose/release_manifest_fixture_test.go
 - created: pose-mcp/internal/cli/release_manifest_tag_integrity_test.go
