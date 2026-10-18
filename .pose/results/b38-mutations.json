@@ -6,11 +6,6 @@
       "verdict": "killed"
     },
     {
-      "mutation": "conteúdo após o manifest é aceito",
-      "tests": "TestAManifestIsValidOnlyIf",
-      "verdict": "killed"
-    },
-    {
       "mutation": "schema desconhecido é aceito",
       "tests": "TestAManifestIsValidOnlyIf",
       "verdict": "killed"
@@ -67,27 +62,27 @@
     },
     {
       "mutation": "notas do worktree substituem as da tag",
-      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02",
       "verdict": "killed"
     },
     {
       "mutation": "digest das notas não é comparado",
-      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02",
       "verdict": "killed"
     },
     {
       "mutation": "digest de fragment não é comparado",
-      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02",
       "verdict": "killed"
     },
     {
       "mutation": "fragment extra na árvore da tag é aceito",
-      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02",
       "verdict": "killed"
     },
     {
       "mutation": "fonte de versão da tag não é relida",
-      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02",
       "verdict": "killed"
     },
     {
@@ -114,8 +109,113 @@
       "mutation": "limites do snapshot não aparecem no JSON",
       "tests": "TestReleaseCheckDisclosesTheVersionSources",
       "verdict": "killed"
+    },
+    {
+      "mutation": "chave repetida é aceita",
+      "tests": "TestF01",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "campo obrigatório ausente é aceito",
+      "tests": "TestF01",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "campo null é aceito",
+      "tests": "TestF01",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "categoria do manifest não é recomposta do blob",
+      "tests": "TestF02",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "corpo do manifest não é recomposto do blob",
+      "tests": "TestF02",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "dois specs no mesmo arquivo passam",
+      "tests": "TestF02",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "digest de policy não é vinculado à policy da tag",
+      "tests": "TestF03",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "árvore sem policy passa",
+      "tests": "TestF03",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "evidência de outra versão passa",
+      "tests": "TestF04",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fonte de versão ausente da árvore passa",
+      "tests": "TestF04",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "status avança uma release de snapshot quebrado",
+      "tests": "TestF05",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "diretório de releases ilegível vira vazio",
+      "tests": "TestF06",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "arquivo no lugar do arquivo morto passa",
+      "tests": "TestF06",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "release apagada da árvore some do registro",
+      "tests": "TestF06",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "rc.2 depois de rc.10",
+      "tests": "TestF10",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "versão final antes do release candidate",
+      "tests": "TestF10",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "previous mais novo que a release passa",
+      "tests": "TestF10",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "branch homônimo vale como tag",
+      "tests": "TestF07",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "policy de hoje invalida o corte da tag",
+      "tests": "TestF08",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "worktree com outro corte passa",
+      "tests": "TestF09",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "record aceita tag de árvore quebrada",
+      "tests": "TestF05",
+      "verdict": "killed"
     }
   ],
-  "killed": 23,
-  "total": 23
+  "killed": 43,
+  "total": 43
 }

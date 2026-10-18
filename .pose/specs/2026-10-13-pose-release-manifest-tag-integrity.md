@@ -62,6 +62,12 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - created: pose-mcp/internal/pose/release_manifest_tag_integrity_test.go
 - created: pose-mcp/internal/pose/release_manifest_fixture_test.go
 - created: pose-mcp/internal/cli/release_manifest_tag_integrity_test.go
+- created: pose-mcp/internal/pose/release_review_regression_test.go
+- created: pose-mcp/internal/cli/release_review_regression_test.go
+- modified: pose-mcp/internal/pose/obligation_sources.go
+- modified: pose-mcp/internal/cli/publicclaims.go
+- created: .pose/reports/2026-10-18-b38-independent-review.md
+- created: .pose/results/b38-independent-review.json
 - modified: pose-mcp/internal/pose/obligation_sources_test.go
 - modified: pose-mcp/internal/pose/release_archive_test.go
 - modified: pose-mcp/internal/pose/review_release_archive_test.go
@@ -120,13 +126,13 @@ Testes de execução ainda não foram criados ou executados para este delta.
 
 ### Requirement trace
 
-- R1 [satisfied] check:release-manifest-tag-integrity-integration test:TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree
-- R2 [satisfied] check:release-manifest-tag-integrity-integration test:TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree
-- R3 [satisfied] check:release-manifest-tag-integrity-integration test:TestTheSnapshotIsVerifiedAgainstTheTaggedTreeNotTheWorktree test:TestAVersionSourceThatCannotBeRecomputedIsALimit
-- R4 [satisfied] check:release-manifest-tag-integrity-integration test:TestATagWithoutTheSnapshotInItsTreeIsRefusedWhateverTheWorktreeHolds test:TestLightweightAndAnnotatedTagsResolveToTheirCommit test:TestReleaseCheckReadsTheTagsOwnTree
-- R5 [satisfied] check:release-manifest-tag-integrity-integration test:TestACorrectCutStaysIntactAfterEvidenceAndTheNextCycle
-- R6 [satisfied] check:release-manifest-tag-integrity-integration test:TestACorrectCutStaysIntactAfterEvidenceAndTheNextCycle test:TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree
-- R7 [satisfied] check:release-manifest-tag-integrity-integration test:TestReleaseStatusReportsTheSnapshotOfTheTag test:TestReleaseCheckReadsTheTagsOwnTree
+- R1 [satisfied] check:release-manifest-tag-integrity-integration test:TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree test:TestF01ManifestIsStrictJSON test:TestF04VersionEvidenceMustBeTheReleaseAndItsSourceMustBeThere test:TestF10VersionPrecedenceIsSemanticAndPreviousIsOlder
+- R2 [satisfied] check:release-manifest-tag-integrity-integration test:TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree test:TestF02ProjectionsAreRecomposedFromTheFragmentBlobs
+- R3 [satisfied] check:release-manifest-tag-integrity-integration test:TestTheSnapshotIsVerifiedAgainstTheTaggedTreeNotTheWorktree test:TestAVersionSourceThatCannotBeRecomputedIsALimit test:TestF03PolicyDigestFollowsThePolicyOfTheTag test:TestF06AbsenceIsNotALoss
+- R4 [satisfied] check:release-manifest-tag-integrity-integration test:TestATagWithoutTheSnapshotInItsTreeIsRefusedWhateverTheWorktreeHolds test:TestLightweightAndAnnotatedTagsResolveToTheirCommit test:TestReleaseCheckReadsTheTagsOwnTree test:TestF07ABranchWithTheNameOfATagIsNotATag test:TestF05RecordRefusesATagWhoseTreeIsNotIntact
+- R5 [satisfied] check:release-manifest-tag-integrity-integration test:TestACorrectCutStaysIntactAfterEvidenceAndTheNextCycle test:TestF09TheWorkingTreeMustBeTheCutOfTheTag
+- R6 [satisfied] check:release-manifest-tag-integrity-integration test:TestACorrectCutStaysIntactAfterEvidenceAndTheNextCycle test:TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree test:TestF08ALaterPolicyDoesNotInvalidateATaggedCut
+- R7 [satisfied] check:release-manifest-tag-integrity-integration test:TestReleaseStatusReportsTheSnapshotOfTheTag test:TestReleaseCheckReadsTheTagsOwnTree test:TestF05StatusDoesNotTrustASnapshotThatIsNotIntact
 - R8 [satisfied] check:release-manifest-tag-integrity-integration report:b38-mutations.json — adulteração de cada projeção e digest, schema, versão, caminhos, campo desconhecido, tag leve e anotada, tag sem snapshot e cut correto seguido de evidência e novo ciclo; as mutações de produção morrem por asserção
 
 A verificação é de leitura: o snapshot lê blobs do commit da tag e usa apenas um diretório temporário para reler a fonte de versão; não move tag, não reescreve manifest, notas nem archive.
@@ -143,5 +149,17 @@ Schema estrito precisa de política deliberada para versões legacy e extensões
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Primeira revisão independente (changes-requested, dez bloqueantes) tratada: o manifest é lido como
+um único documento JSON de nomes exatos, campos obrigatórios e sem chave repetida; os campos que
+ele repete são recompostos dos blobs de fragment e da policy da árvore da tag; a evidência de
+versão tem de ser a versão da release e sua fonte tem de estar na árvore; o status e os
+consumidores só tratam como sólida (`Sound`) uma release cujo snapshot é íntegro, e uma release
+cuja pasta sumiu do worktree continua no registro pela tag; ausência, falha de leitura e perda de
+inventário são respostas distintas; a tag é só `refs/tags`; uma release com tag é julgada sob a
+policy do seu corte e o worktree tem de ser o mesmo corte da tag; a precedência de versões é a do
+SemVer 2.0 em todos os consumidores, e `previous_version` tem de ser mais antigo. Duas guardas não têm mutante próprio porque ele seria equivalente: o fim do documento (um objeto ou colchete depois do manifest já é recusado pela leitura de chaves repetidas e caracteres de controle) e a solidez por snapshot não íntegro (um snapshot não íntegro sempre deixa gaps na projeção, que a tornam não sólida por si). Item aberto,
+de baixo risco:
+
+- [open] Reconciliar o texto de authoring da spec com a implementação e a validação efetivamente executadas, mantendo separado o closeout pendente. (owner:@core crit:low review:2026-12-01)
+
+As dependências e unidades restantes permanecem na matriz do programa, sem disposição automática.

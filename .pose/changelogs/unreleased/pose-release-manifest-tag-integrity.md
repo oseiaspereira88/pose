@@ -19,3 +19,11 @@ and `check --json` the version sources it could not recompute (`snapshot_limits`
 
 Stricter, classified minor: a manifest that was only loosely valid is refused, and a governed tag
 needs its manifest in the tagged tree.
+
+The manifest is also read as exactly one JSON document with the schema's exact field names, every
+required field and no repeated key, and its repeated fields are recomposed from the fragment blobs
+and the release policy of the tagged tree. Release versions are ordered by Semantic Versioning
+precedence (`v1.0.0-rc.2` before `v1.0.0-rc.10` before `v1.0.0`), a manifest's `previous_version`
+must be older than its release, and a release whose tag does not hold an intact snapshot is no
+longer treated as tagged, published or verified by `release status`, the obligation queue, the
+public-claims gate or `release open-next`.

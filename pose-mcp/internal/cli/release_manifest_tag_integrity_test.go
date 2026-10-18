@@ -27,8 +27,9 @@ func cliReleaseRepoKind(t *testing.T, kind string) string {
 	}
 	body := "---\nspec: alpha\ncategory: fixed\nbreaking: false\n---\n\nFixes alpha.\n"
 	fragments := []posemodel.ReleaseFragment{{Spec: "alpha", Category: "fixed", Path: "alpha.md", Body: "Fixes alpha.", Digest: posemodel.ReleaseDigest(body)}}
-	manifest := posemodel.NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", fragments, posemodel.ReleasePolicy{}, posemodel.ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": kind, "value": "v1.0.0"})
+	manifest := posemodel.NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", fragments, posemodel.ReleasePolicy{SchemaVersion: 1}, posemodel.ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": kind, "value": "v1.0.0"})
 	git("init", "-q")
+	writeCloseoutCLIFile(t, root, ".pose/policy/release.json", `{"schema_version":1,"adopted_at":"","tag_pattern":"","allow_empty":false,"legacy_cutoff":"","provider":"","repository":"","require_verification":false}`)
 	writeCloseoutCLIFile(t, root, "VERSION", "1.0.0\n")
 	writeCloseoutCLIFile(t, root, ".pose/changelogs/v1.0.0/alpha.md", body)
 	writeCloseoutCLIFile(t, root, ".pose/changelogs/v1.0.0.md", posemodel.RenderReleaseNotes("v1.0.0", fragments, posemodel.ChangelogPolicy{}))

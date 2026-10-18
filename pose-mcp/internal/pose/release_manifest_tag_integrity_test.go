@@ -48,7 +48,7 @@ func newReleaseRepo(t *testing.T, version string) *releaseRepo {
 	r := &releaseRepo{root: t.TempDir(), version: version}
 	r.body = "---\nspec: alpha\ncategory: fixed\nbreaking: false\n---\n\nFixes alpha.\n"
 	fragments := []ReleaseFragment{{Spec: "alpha", Category: "fixed", Path: "alpha.md", Body: "Fixes alpha.", Digest: ReleaseDigest(r.body)}}
-	r.manifest = NewReleaseManifest(version, "", "2026-10-02T00:00:00Z", fragments, ReleasePolicy{}, ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": version})
+	r.manifest = NewReleaseManifest(version, "", "2026-10-02T00:00:00Z", fragments, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": version})
 	r.notes = RenderReleaseNotes(version, fragments, ChangelogPolicy{})
 	relGit(t, r.root, "init", "-q")
 	r.writeAll(t)
@@ -59,10 +59,31 @@ func newReleaseRepo(t *testing.T, version string) *releaseRepo {
 
 func (r *releaseRepo) writeAll(t *testing.T) {
 	t.Helper()
+	relWrite(t, r.root, ".pose/policy/release.json", `{"schema_version":1,"adopted_at":"","tag_pattern":"","allow_empty":false,"legacy_cutoff":"","provider":"","repository":"","require_verification":false}`)
 	relWrite(t, r.root, "VERSION", strings.TrimPrefix(r.version, "v")+"\n")
 	relWrite(t, r.root, ".pose/changelogs/"+r.version+"/alpha.md", r.body)
 	relWrite(t, r.root, ".pose/changelogs/"+r.version+".md", r.notes)
 	relWrite(t, r.root, ".pose/releases/"+r.version+"/manifest.json", string(CanonicalJSON(r.manifest)))
+}
+
+// addVersion prepares another release in the same repository.
+func (r *releaseRepo) addVersion(t *testing.T, version string) *releaseRepo {
+	t.Helper()
+	o := &releaseRepo{root: r.root, version: version}
+	o.body = r.body
+	fragments := []ReleaseFragment{{Spec: "alpha", Category: "fixed", Path: "alpha.md", Body: "Fixes alpha.", Digest: ReleaseDigest(o.body)}}
+	o.manifest = NewReleaseManifest(version, "", "2026-10-02T00:00:00Z", fragments, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": version})
+	o.notes = RenderReleaseNotes(version, fragments, ChangelogPolicy{})
+	o.writeAll(t)
+	relGit(t, o.root, "add", "-A")
+	relGit(t, o.root, "commit", "-q", "-m", "prepare "+version)
+	return o
+}
+
+// headCommit is the commit that prepared version (the one whose message says so).
+func (r *releaseRepo) headCommit(t *testing.T, version string) string {
+	t.Helper()
+	return relGit(t, r.root, "log", "-1", "--format=%H", "--grep", "prepare "+version)
 }
 
 func (r *releaseRepo) commit(t *testing.T, msg string) {
@@ -109,7 +130,7 @@ func TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree(t *testing.T) {
 			m.Specs = append(m.Specs, "alpha")
 			m.Categories["fixed"] = 2
 		}), "fragments[1].spec"},
-		"unknown field":   {[]byte(strings.Replace(string(good), `"version": "v1.0.0"`, `"version": "v1.0.0", "invented": true`, 1)), "manifest"},
+		"unknown field":   {[]byte(strings.Replace(string(good), `"version": "v1.0.0"`, `"version": "v1.0.0", "invented": true`, 1)), "invented"},
 		"not a manifest":  {[]byte(`{"version":"v1.0.0"}`), "schema_version"},
 		"trailing object": {append(append([]byte{}, good...), []byte(`{"x":1}`)...), "manifest"},
 	}
@@ -222,8 +243,9 @@ func TestACorrectCutStaysIntactAfterEvidenceAndTheNextCycle(t *testing.T) {
 // R3: a source that cannot be re-verified is a limit, not a failure and not a pass.
 func TestAVersionSourceThatCannotBeRecomputedIsALimit(t *testing.T) {
 	r := newReleaseRepo(t, "v1.0.0")
-	r.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", r.manifest.Fragments, ReleasePolicy{}, ChangelogPolicy{}, map[string]string{"source": "package.json", "kind": "json", "value": "v1.0.0"})
+	r.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", r.manifest.Fragments, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, map[string]string{"source": "package.json", "kind": "json", "value": "v1.0.0"})
 	relWrite(t, r.root, ".pose/releases/v1.0.0/manifest.json", string(CanonicalJSON(r.manifest)))
+	relWrite(t, r.root, "package.json", `{"version":"v1.0.0"}`)
 	r.commit(t, "json version source")
 	relGit(t, r.root, "tag", "v1.0.0")
 	snap, err := ReadReleaseSnapshot(r.root, "v1.0.0")

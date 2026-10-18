@@ -4,17 +4,19 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 )
 
-var releaseVersionRE = regexp.MustCompile(`^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$`)
+// A release version is a Semantic Versioning 2.0 version with a leading v and no build
+// metadata: numeric prerelease identifiers carry no leading zero and none is empty.
+var releaseVersionRE = regexp.MustCompile(`^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?$`)
 
 type ReleasePolicy struct {
 	SchemaVersion int    `json:"schema_version"`
@@ -318,6 +320,23 @@ func ProjectRelease(manifest *ReleaseManifest, events []ReleaseEvent) ReleasePro
 	return p
 }
 
+// Sound reports a release whose record can be relied on as evidence: no gap in its events or in
+// what the tag holds, and, once it has a tag, a snapshot that is intact. A state an event
+// claimed on top of a snapshot that is not intact is a claim, not evidence.
+func (p ReleaseProjection) Sound() bool {
+	if len(p.Gaps) > 0 {
+		return false
+	}
+	if p.Snapshot != nil && !p.Snapshot.Intact() {
+		return false
+	}
+	switch p.State {
+	case "tagged", "published", "verified", "yanked":
+		return p.Snapshot != nil
+	}
+	return true
+}
+
 func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 	if version != "" {
 		if err := ValidateReleaseVersion(version); err != nil {
@@ -330,11 +349,18 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 	}
 	status := &ReleaseStatus{Pending: pending, Releases: []ReleaseProjection{}}
 	base := filepath.Join(s.Root, ".pose", "releases")
-	entries, _ := os.ReadDir(base)
+	entries, err := os.ReadDir(base)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		// A directory that cannot be listed (a file where it belongs, no access) is not a
+		// project with no releases.
+		return nil, fmt.Errorf("pose: the release directory could not be read: %w", err)
+	}
+	inWorktree := map[string]bool{}
 	for _, entry := range entries {
 		if !entry.IsDir() || ValidateReleaseVersion(entry.Name()) != nil || version != "" && entry.Name() != version {
 			continue
 		}
+		inWorktree[entry.Name()] = true
 		manifest, err := LoadReleaseManifest(s.Root, entry.Name())
 		if err != nil {
 			return nil, err
@@ -350,12 +376,54 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 			switch {
 			case snapErr != nil:
 				// A tag whose tree holds no snapshot is not a tagged release, whatever the working tree holds.
-				projection.Gaps = append(projection.Gaps, "tag "+entry.Name()+" exists but its tree holds no release snapshot")
-			case projection.State == "prepared":
-				projection.State = "tagged"
+				projection.Gaps = append(projection.Gaps, "tag "+entry.Name()+" exists but its tree holds no release snapshot: "+snapErr.Error())
+			default:
+				for _, issue := range snap.Issues {
+					projection.Gaps = append(projection.Gaps, "tag snapshot manifest "+issue.String())
+				}
+				for _, gap := range snap.Gaps {
+					projection.Gaps = append(projection.Gaps, "tag snapshot: "+gap)
+				}
+				if snap.ManifestDigest != "" {
+					if raw, rerr := os.ReadFile(filepath.Join(base, entry.Name(), "manifest.json")); rerr == nil && ReleaseDigest(string(raw)) != snap.ManifestDigest {
+						projection.Gaps = append(projection.Gaps, "the working tree's manifest is not the manifest of the tag")
+					}
+				}
+				if projection.State == "prepared" && snap.Intact() {
+					projection.State = "tagged"
+				}
 			}
+		} else if !errors.Is(tagErr, ErrReleaseTagMissing) {
+			projection.Gaps = append(projection.Gaps, "the tag of "+entry.Name()+" could not be resolved: "+tagErr.Error())
 		}
 		status.Releases = append(status.Releases, projection)
+	}
+	// A release whose directory is gone from the working tree is still a release if its tag holds
+	// the snapshot: removing the files does not remove the release from the record.
+	tags, tagsErr := gitOutput(s.Root, "tag", "--list", "v*")
+	if tagsErr == nil {
+		for _, tag := range strings.Fields(tags) {
+			if ValidateReleaseVersion(tag) != nil || inWorktree[tag] || version != "" && tag != version {
+				continue
+			}
+			snap, snapErr := ReadReleaseSnapshot(s.Root, tag)
+			if snapErr != nil || snap.Manifest == nil {
+				continue
+			}
+			projection := ProjectRelease(snap.Manifest, []ReleaseEvent{})
+			projection.Snapshot = &snap
+			projection.Gaps = append(projection.Gaps, "the release directory is missing from the working tree; the release is read from its tag")
+			for _, issue := range snap.Issues {
+				projection.Gaps = append(projection.Gaps, "tag snapshot manifest "+issue.String())
+			}
+			for _, gap := range snap.Gaps {
+				projection.Gaps = append(projection.Gaps, "tag snapshot: "+gap)
+			}
+			if snap.Intact() {
+				projection.State = "tagged"
+			}
+			status.Releases = append(status.Releases, projection)
+		}
 	}
 	sort.Slice(status.Releases, func(i, j int) bool {
 		return compareReleaseVersions(status.Releases[i].Version, status.Releases[j].Version) > 0
@@ -363,25 +431,85 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 	return status, nil
 }
 
-func compareReleaseVersions(a, b string) int {
-	parse := func(v string) [3]int {
-		m := releaseVersionRE.FindStringSubmatch(v)
-		var n [3]int
-		if len(m) > 3 {
-			for i := 0; i < 3; i++ {
-				n[i], _ = strconv.Atoi(m[i+1])
+// compareReleaseVersions orders two release versions by Semantic Versioning precedence.
+func compareReleaseVersions(a, b string) int { return CompareReleasePrecedence(a, b) }
+
+// CompareReleasePrecedence orders two release versions by Semantic Versioning 2.0
+// precedence: the core numbers first, then a version with a prerelease before the same core
+// without one, then the prerelease identifiers one by one (numbers as numbers and before
+// words, words as text, a shorter list before a longer one that starts with it). A text that is
+// not a release version sorts by its text after every version that is, so the order is total.
+func CompareReleasePrecedence(a, b string) int {
+	ma, mb := releaseVersionRE.FindStringSubmatch(a), releaseVersionRE.FindStringSubmatch(b)
+	switch {
+	case ma == nil && mb == nil:
+		return strings.Compare(a, b)
+	case ma == nil:
+		return 1
+	case mb == nil:
+		return -1
+	}
+	for i := 1; i <= 3; i++ {
+		if c := compareNumericString(ma[i], mb[i]); c != 0 {
+			return c
+		}
+	}
+	pa, pb := ma[4], mb[4]
+	switch {
+	case pa == "" && pb == "":
+		return 0
+	case pa == "":
+		return 1
+	case pb == "":
+		return -1
+	}
+	ia, ib := strings.Split(pa, "."), strings.Split(pb, ".")
+	for i := 0; i < len(ia) && i < len(ib); i++ {
+		x, y := ia[i], ib[i]
+		xn, yn := isNumericIdentifier(x), isNumericIdentifier(y)
+		switch {
+		case xn && yn:
+			if c := compareNumericString(x, y); c != 0 {
+				return c
+			}
+		case xn:
+			return -1
+		case yn:
+			return 1
+		default:
+			if c := strings.Compare(x, y); c != 0 {
+				return c
 			}
 		}
-		return n
 	}
-	x, y := parse(a), parse(b)
-	for i := 0; i < 3; i++ {
-		if x[i] < y[i] {
+	switch {
+	case len(ia) < len(ib):
+		return -1
+	case len(ia) > len(ib):
+		return 1
+	}
+	return 0
+}
+
+func isNumericIdentifier(s string) bool {
+	if s == "" {
+		return false
+	}
+	for _, r := range s {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// compareNumericString compares two decimal strings without leading zeros as numbers, however long.
+func compareNumericString(a, b string) int {
+	if len(a) != len(b) {
+		if len(a) < len(b) {
 			return -1
 		}
-		if x[i] > y[i] {
-			return 1
-		}
+		return 1
 	}
 	return strings.Compare(a, b)
 }
@@ -390,6 +518,10 @@ func NewReleaseManifest(version, previous, preparedAt string, fragments []Releas
 	specs := []string{}
 	categories := map[string]int{}
 	breaking := false
+	if fragments == nil {
+		// An empty release freezes an empty list, never null.
+		fragments = []ReleaseFragment{}
+	}
 	for _, f := range fragments {
 		specs = append(specs, f.Spec)
 		categories[f.Category]++

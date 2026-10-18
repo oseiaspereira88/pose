@@ -123,10 +123,10 @@ func (s Store) releaseQueueObligations(project string) ([]Obligation, error) {
 	}
 	newestVerified, newestProgressed := "", ""
 	for _, release := range status.Releases {
-		if release.State == "verified" && (newestVerified == "" || compareReleaseVersions(release.Version, newestVerified) > 0) {
+		if release.State == "verified" && release.Sound() && (newestVerified == "" || compareReleaseVersions(release.Version, newestVerified) > 0) {
 			newestVerified = release.Version
 		}
-		if release.State != "prepared" && release.State != "failed" && (newestProgressed == "" || compareReleaseVersions(release.Version, newestProgressed) > 0) {
+		if release.State != "prepared" && release.State != "failed" && release.Sound() && (newestProgressed == "" || compareReleaseVersions(release.Version, newestProgressed) > 0) {
 			newestProgressed = release.Version
 		}
 	}

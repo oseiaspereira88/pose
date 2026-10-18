@@ -3,6 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -18,13 +19,31 @@ func writeReleaseRecord(t *testing.T, root, version string, events ...string) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	mustWrite(t, filepath.Join(dir, "manifest.json"), string(posemodel.CanonicalJSON(posemodel.NewReleaseManifest(version, "", "2026-10-02T00:00:00Z", nil, posemodel.ReleasePolicy{}, posemodel.ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": version}))))
+	mustWrite(t, filepath.Join(dir, "manifest.json"), string(posemodel.CanonicalJSON(posemodel.NewReleaseManifest(version, "", "2026-10-02T00:00:00Z", []posemodel.ReleaseFragment{}, posemodel.ReleasePolicy{SchemaVersion: 1}, posemodel.ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": version}))))
 	if len(events) > 0 {
 		lines := []string{}
 		for _, state := range events {
 			lines = append(lines, `{"schema_version":1,"version":"`+version+`","state":"`+state+`","recorded_at":"2026-10-02T00:00:00Z","evidence":{"schema_version":1,"provider":"github","repository":"o/r","version":"`+version+`","tag":"`+version+`","commit":"c","published_at":"2026-10-02T00:00:00Z","url":"u"},"evidence_digest":"sha256:x"}`)
 		}
 		mustWrite(t, filepath.Join(dir, "events.jsonl"), strings.Join(lines, "\n")+"\n")
+		// Once a release is tagged, the tag's tree holds its snapshot: that is what makes the
+		// events evidence and not a claim.
+		mustWrite(t, filepath.Join(root, ".pose", "changelogs", version+".md"), posemodel.RenderReleaseNotes(version, []posemodel.ReleaseFragment{}, posemodel.ChangelogPolicy{}))
+		mustWrite(t, filepath.Join(root, ".pose", "policy", "release.json"), `{"schema_version":1,"adopted_at":"","tag_pattern":"","allow_empty":false,"legacy_cutoff":"","provider":"","repository":"","require_verification":false}`)
+		mustWrite(t, filepath.Join(root, "VERSION"), version+"\n")
+		git := func(args ...string) {
+			t.Helper()
+			cmd := exec.Command("git", append([]string{"-C", root, "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", "-c", "tag.gpgsign=false"}, args...)...)
+			if out, err := cmd.CombinedOutput(); err != nil {
+				t.Fatalf("git %v: %v %s", args, err, out)
+			}
+		}
+		if _, err := os.Stat(filepath.Join(root, ".git")); err != nil {
+			git("init", "-q")
+		}
+		git("add", "-A")
+		git("commit", "-q", "-m", "tag "+version)
+		git("tag", version)
 	}
 }
 

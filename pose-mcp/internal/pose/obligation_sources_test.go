@@ -72,12 +72,14 @@ func TestAttentionSourceCapabilityTriggersAreOwed(t *testing.T) {
 	}
 }
 
-// Only releases newer than the newest verified one are in flight.
+// Only releases newer than the newest verified one are in flight. A release counts as tagged,
+// published or verified only with a tag whose tree holds its intact snapshot.
 func TestAttentionSourceReleaseQueueSkipsSupersededReleases(t *testing.T) {
-	root := t.TempDir()
-	for _, v := range []string{"v1.0.0", "v1.1.0", "v1.2.0"} {
-		writeSourceFixture(t, root, ".pose/releases/"+v+"/manifest.json", releaseManifestFixture(v, nil))
-	}
+	r := newReleaseRepo(t, "v1.1.0")
+	relGit(t, r.root, "tag", "v1.1.0")
+	r.addVersion(t, "v1.0.0")
+	r.addVersion(t, "v1.2.0")
+	root := r.root
 	writeSourceFixture(t, root, ".pose/releases/v1.1.0/events.jsonl", `{"version":"v1.1.0","state":"tagged"}
 {"version":"v1.1.0","state":"published","evidence_digest":"sha256:p"}
 {"version":"v1.1.0","state":"verified","evidence":{"publication_digest":"sha256:p"}}
@@ -88,8 +90,15 @@ func TestAttentionSourceReleaseQueueSkipsSupersededReleases(t *testing.T) {
 	if len(items) != 1 || items[0].Source.Detail != "v1.2.0" || items[0].ReasonCode != "release-prepared" {
 		t.Fatalf("release queue = %+v", items)
 	}
+	// A verified release whose tag does not hold an intact snapshot does not retire the older ones.
+	relGit(t, root, "tag", "-d", "v1.1.0")
+	if items := validSourceObligations(t)(Store{Root: root}.releaseQueueObligations("proj.test")); len(items) < 2 {
+		t.Fatalf("a verified claim without a tag retired the queue: %+v", items)
+	}
+	relGit(t, root, "tag", "v1.1.0", r.headCommit(t, "v1.1.0"))
 	// A later release that was tagged abandons the prepared one.
-	writeSourceFixture(t, root, ".pose/releases/v1.3.0/manifest.json", releaseManifestFixture("v1.3.0", nil))
+	r.addVersion(t, "v1.3.0")
+	relGit(t, root, "tag", "v1.3.0")
 	writeSourceFixture(t, root, ".pose/releases/v1.3.0/events.jsonl", `{"version":"v1.3.0","state":"tagged"}
 `)
 	items = validSourceObligations(t)(Store{Root: root}.releaseQueueObligations("proj.test"))

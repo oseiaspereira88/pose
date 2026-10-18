@@ -20,8 +20,7 @@ P = "./internal/pose"
 C = "./internal/cli"
 
 M = [
- ("campo desconhecido é aceito", [(RM, 'decoder.DisallowUnknownFields()', '')], P, "TestAManifestIsValidOnlyIf"),
- ("conteúdo após o manifest é aceito", [(RM, 'if decoder.More() {', 'if false && decoder.More() {')], P, "TestAManifestIsValidOnlyIf"),
+ ("campo desconhecido é aceito", [(RM, 'if !releaseManifestFields[name] {', 'if false && !releaseManifestFields[name] {')], P, "TestAManifestIsValidOnlyIf"),
  ("schema desconhecido é aceito", [(RM, 'if manifest.SchemaVersion != ReleaseManifestSchemaVersion {\n\t\tadd("schema_version"', 'if manifest.SchemaVersion != ReleaseManifestSchemaVersion && false {\n\t\tadd("schema_version"')], P, "TestAManifestIsValidOnlyIf"),
  ("versão de outro diretório é aceita", [(RM, '} else if version != "" && manifest.Version != version {', '} else if false {')], P, "TestAManifestIsValidOnlyIf"),
  ("projeção specs adulterada é aceita", [(RM, 'if !equalStrings(manifest.Specs, specs) {', 'if false && !equalStrings(manifest.Specs, specs) {')], P, "TestAManifestIsValidOnlyIf"),
@@ -33,17 +32,62 @@ M = [
  ("fonte de versão com caminho fora do projeto é aceita", [(RM, 'if filepath.IsAbs(source) || strings.Contains(source, "\\\\") || path.Clean(source) != source || strings.HasPrefix(source, "../") {', 'if (filepath.IsAbs(source) || strings.Contains(source, "\\\\") || path.Clean(source) != source || strings.HasPrefix(source, "../")) && false {')], P, "TestAManifestIsValidOnlyIf"),
  ("tag é lida do worktree", [(RM, 'raw, err := gitBlobAt(root, commit, manifestPath)', 'raw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(manifestPath)))')], P, "TestATagWithoutTheSnapshotInItsTree"),
  ("tag anotada não é resolvida ao commit", [(RM, '"refs/tags/"+tag+"^{commit}"', '"refs/tags/"+tag')], P, "TestLightweightAndAnnotatedTagsResolve"),
- ("notas do worktree substituem as da tag", [(RM, 'notes, err := gitBlobAt(root, commit, ".pose/changelogs/"+tag+".md")', 'notes, err := os.ReadFile(filepath.Join(root, ".pose", "changelogs", tag+".md"))')], P, "TestTheSnapshotIsVerifiedAgainstTheTaggedTree"),
- ("digest das notas não é comparado", [(RM, 'case ReleaseDigest(string(notes)) != manifest.NotesDigest:', 'case false && ReleaseDigest(string(notes)) != manifest.NotesDigest:')], P, "TestTheSnapshotIsVerifiedAgainstTheTaggedTree"),
- ("digest de fragment não é comparado", [(RM, 'case ReleaseDigest(string(blob)) != f.Digest:', 'case false && ReleaseDigest(string(blob)) != f.Digest:')], P, "TestTheSnapshotIsVerifiedAgainstTheTaggedTree"),
- ("fragment extra na árvore da tag é aceito", [(RM, 'if !frozen[name] {', 'if false && !frozen[name] {')], P, "TestTheSnapshotIsVerifiedAgainstTheTaggedTree"),
- ("fonte de versão da tag não é relida", [(RM, 'if got != value {', 'if false && got != value {')], P, "TestTheSnapshotIsVerifiedAgainstTheTaggedTree"),
- ("fonte não recomputável vira falha", [(RM, 'return "", "the version evidence is not re-verifiable from the manifest alone (kind " + fmt.Sprintf("%q", kind) + ")"', 'return "the version evidence is not re-verifiable", ""')], P, "TestAVersionSourceThatCannotBeRecomputedIsALimit"),
+ ("notas do worktree substituem as da tag", [(RM, 'notes, err := gitBlobAt(root, commit, ".pose/changelogs/"+tag+".md")', 'notes, err := os.ReadFile(filepath.Join(root, ".pose", "changelogs", tag+".md"))')], P, "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02"),
+ ("digest das notas não é comparado", [(RM, 'case ReleaseDigest(string(notes)) != manifest.NotesDigest:', 'case false && ReleaseDigest(string(notes)) != manifest.NotesDigest:')], P, "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02"),
+ ("digest de fragment não é comparado", [(RM, 'case ReleaseDigest(string(blob)) != f.Digest:', 'case false && ReleaseDigest(string(blob)) != f.Digest:')], P, "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02"),
+ ("fragment extra na árvore da tag é aceito", [(RM, 'if _, ok := frozen[name]; !ok {', 'if _, ok := frozen[name]; false && !ok {')], P, "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02"),
+ ("fonte de versão da tag não é relida", [(RM, 'if got != value {', 'if false && got != value {')], P, "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02"),
+ ("fonte não recomputável vira falha", [(RM, 'return "", "the version evidence is a JSON source whose key the manifest does not retain: its file exists in the tagged tree and its value was not re-read"', 'return "the version evidence is a JSON source", ""')], P, "TestAVersionSourceThatCannotBeRecomputedIsALimit"),
  ("commit posterior invalida o cut", [(RM, 'commit, annotated, err := ResolveReleaseTag(root, tag)\n\tif err != nil {\n\t\treturn ReleaseSnapshot{Tag: tag}, err\n\t}', 'commit, annotated, err := ResolveReleaseTag(root, tag)\n\tif err != nil {\n\t\treturn ReleaseSnapshot{Tag: tag}, err\n\t}\n\tif head, herr := gitOutput(root, "rev-parse", "HEAD"); herr == nil && strings.TrimSpace(head) != commit {\n\t\treturn ReleaseSnapshot{Tag: tag, Commit: commit}, ErrReleaseSnapshotMissing\n\t}')], P, "TestACorrectCutStaysIntactAfterEvidenceAndTheNextCycle"),
  ("status marca tagged sem snapshot", [(RL, 'case snapErr != nil:', 'case snapErr != nil && false:')], P, "TestATagWithoutTheSnapshotInItsTree"),
- ("check não verifica o snapshot da tag", [(CL, 'gaps = append(gaps, releaseTagSnapshotGaps(root, target)...)', '')], C, "TestReleaseCheckReadsTheTagsOwnTree"),
+ ("check não verifica o snapshot da tag", [(CL, 'tagGaps, tagged := releaseTagState(root, target)', '_, tagged := releaseTagState(root, target)\n\ttagGaps := []string{}')], C, "TestReleaseCheckReadsTheTagsOwnTree"),
  ("limites do snapshot não aparecem no JSON", [(CL, '"gaps": gaps, "snapshot_limits": tagLimits}', '"gaps": gaps, "snapshot_limits": len(tagLimits) * 0}')], C, "TestReleaseCheckDisclosesTheVersionSources"),
+ ("chave repetida é aceita", [(RM, 'if err := rejectDuplicateJSONKeysAndControls(raw); err != nil {', 'if err := rejectDuplicateJSONKeysAndControls(raw); false && err != nil {')], P, "TestF01"),
+ ("campo obrigatório ausente é aceito", [(RM, 'if _, ok := fields[name]; !ok && name != "previous_version" {', 'if _, ok := fields[name]; false && !ok && name != "previous_version" {')], P, "TestF01"),
+ ("campo null é aceito", [(RM, '} else if string(bytes.TrimSpace(value)) == "null" {', '} else if false && string(bytes.TrimSpace(value)) == "null" {')], P, "TestF01"),
+ ("categoria do manifest não é recomposta do blob", [(RM, 'case strings.TrimSpace(fm["category"]) == "" || strings.TrimSpace(fm["category"]) != f.Category:', 'case false:')], P, "TestF02"),
+ ("corpo do manifest não é recomposto do blob", [(RM, 'case body != f.Body:', 'case false:')], P, "TestF02"),
+ ("dois specs no mesmo arquivo passam", [(RM, 'if other, dup := frozen[f.Path]; dup {', 'if other, dup := frozen[f.Path]; false && dup {')], P, "TestF02"),
+ ("digest de policy não é vinculado à policy da tag", [(RM, 'case ReleaseDigest(policy) != manifest.PolicyDigest:', 'case false:')], P, "TestF03"),
+ ("árvore sem policy passa", [(RM, 'case errors.Is(perr, os.ErrNotExist):\n\t\tgap("the tagged tree holds no release policy', 'case errors.Is(perr, os.ErrNotExist) && false:\n\t\tgap("the tagged tree holds no release policy')], P, "TestF03"),
+ ("evidência de outra versão passa", [(RM, 'case manifest.Version != "" && evidence["value"] != manifest.Version:', 'case false:')], P, "TestF04"),
+ ("fonte de versão ausente da árvore passa", [(RM, 'return "version source " + source + " is missing from the tagged tree", ""', 'return "", ""')], P, "TestF04"),
+ ("status avança uma release de snapshot quebrado", [(RL, 'if projection.State == "prepared" && snap.Intact() {', 'if projection.State == "prepared" {')], P, "TestF05"),
+ ("diretório de releases ilegível vira vazio", [(RL, 'return nil, fmt.Errorf("pose: the release directory could not be read: %w", err)', 'entries = nil')], P, "TestF06"),
+ ("arquivo no lugar do arquivo morto passa", [(RM, 'return nil, true, fmt.Errorf("pose: %s of the tagged tree is a %s, not a directory", dir, strings.TrimSpace(kind))', 'return nil, false, nil')], P, "TestF06"),
+ ("release apagada da árvore some do registro", [(RL, 'if tagsErr == nil {', 'if false && tagsErr == nil {')], P, "TestF06"),
+ ("rc.2 depois de rc.10", [(RL, 'case xn && yn:', 'case false:')], P, "TestF10"),
+ ("versão final antes do release candidate", [(RL, 'case pa == "":\n\t\treturn 1', 'case pa == "":\n\t\treturn -1')], P, "TestF10"),
+ ("previous mais novo que a release passa", [(RM, 'CompareReleasePrecedence(manifest.PreviousVersion, manifest.Version) >= 0', 'CompareReleasePrecedence(manifest.PreviousVersion, manifest.Version) >= 0 && false')], P, "TestF10"),
+ ("branch homônimo vale como tag", [(CL, 'commit, _, err := posemodel.ResolveReleaseTag(root, target)\n', 'out, err := exec.Command("git", "-C", root, "rev-parse", "--verify", target+"^{commit}").Output()\n\tcommit := strings.TrimSpace(string(out))\n')], C, "TestF07"),
+ ("policy de hoje invalida o corte da tag", [(CL, '\tif tagged {\n\t\t// A tagged release is judged', '\tif tagged && false {\n\t\t// A tagged release is judged')], C, "TestF08"),
+ ("worktree com outro corte passa", [(CL, '} else if posemodel.ReleaseDigest(string(rawManifest)) != snap.ManifestDigest {', '} else if false && posemodel.ReleaseDigest(string(rawManifest)) != snap.ManifestDigest {')], C, "TestF09"),
+ ("record aceita tag de árvore quebrada", [(CL, 'if gaps, _ := releaseTagState(root, target); len(gaps) > 0 {', 'if gaps, _ := releaseTagState(root, target); false && len(gaps) > 0 {')], C, "TestF05"),
 ]
+
+def classify(r, run):
+    """killed only when a test of the targeted pattern failed on an assertion; a build,
+    a setup or a tool failure is an error, never a kill."""
+    import re
+    pattern = re.compile(run)
+    failed, build_failed = False, False
+    for line in (r.stdout or '').splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if event.get('Action') == 'fail' and event.get('Test') and pattern.search(event['Test']):
+            failed = True
+        if event.get('Action') == 'output' and ('[build failed]' in event.get('Output', '') or '[setup failed]' in event.get('Output', '')):
+            build_failed = True
+        if event.get('Action') == 'fail' and not event.get('Test') and event.get('Package') is None:
+            build_failed = True
+    if r.returncode == 0:
+        return 'survived'
+    if build_failed or not failed:
+        return 'error'
+    return 'killed'
+
 
 results = []
 for name, edits, pkgs, run in M:
@@ -58,10 +102,10 @@ for name, edits, pkgs, run in M:
             cur = p.read_text()
             assert cur.count(old) == 1, (name, f, cur.count(old))
             p.write_text(cur.replace(old, new))
-        r = subprocess.run(f"cd {work} && go test {pkgs} -run '{run}' -count=1", shell=True, capture_output=True, text=True, timeout=900)
-        out = r.stdout + r.stderr
-        build_error = 'build failed' in out or 'setup failed' in out
-        verdict = 'killed' if r.returncode and not build_error else ('build-error' if build_error else 'survived')
+        r = subprocess.run(['go', 'test', *pkgs.split(), '-run', run, '-count=1', '-json'], cwd=work, capture_output=True, text=True, timeout=900)
+        verdict = classify(r, run)
         results.append({'mutation': name, 'tests': run, 'verdict': verdict})
         print(verdict, name, flush=True)
+import sys
 pathlib.Path(args.output).write_text(json.dumps({'mutations': results, 'killed': sum(r['verdict'] == 'killed' for r in results), 'total': len(results)}, indent=2, ensure_ascii=False) + '\n')
+sys.exit(0 if all(r['verdict'] == 'killed' for r in results) else 1)

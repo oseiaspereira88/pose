@@ -4,6 +4,9 @@ package pose
 // follows from the fragments, so it is valid under the contract of
 // pose-release-manifest-tag-integrity.
 func releaseManifestFixture(version string, fragments []ReleaseFragment) string {
+	if fragments == nil {
+		fragments = []ReleaseFragment{}
+	}
 	for i := range fragments {
 		if fragments[i].Category == "" {
 			fragments[i].Category = "fixed"
