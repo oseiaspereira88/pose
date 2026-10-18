@@ -2050,7 +2050,14 @@ func (s Store) orderTiedBundlesNegativeLast(bundles []ReviewBundle) {
 		if end-start > 1 {
 			negative := map[string]bool{}
 			for _, bundle := range bundles[start:end] {
-				if read, err := s.ReadReviewAttestations(bundle.BundleID); err == nil && len(read.Attestations) > 0 {
+				read, err := s.ReadReviewAttestations(bundle.BundleID)
+				if err != nil || len(read.Coverage.LossesFor(bundle.BundleID)) > 0 {
+					// A history that cannot be read may hold a rejection: it is placed where a
+					// rejection would be, so that nothing is retained over it.
+					negative[bundle.BundleID] = true
+					continue
+				}
+				if len(read.Attestations) > 0 {
 					decision := read.Attestations[len(read.Attestations)-1].Decision
 					negative[bundle.BundleID] = decision == "rejected" || decision == "changes-requested"
 				}

@@ -749,6 +749,11 @@ func (s Store) ObligationSnapshotChanges(snap ObligationSnapshot) []string {
 	now := s.CurrentObligationSnapshot()
 	var changed []string
 	// A state that could not be read is not a state that did not change.
+	// A baseline that was not read whole is not one to compare with: a later, coherent read is
+	// a different answer, not a confirmation.
+	if !snap.Coherent {
+		changed = append(changed, "baseline")
+	}
 	if !now.Coherent {
 		changed = append(changed, "coherence")
 	}

@@ -130,27 +130,46 @@ const (
 	ReviewRunStale = "stale"
 )
 
-// ListReviewRuns returns the recorded runs for bundleID ("" for all).
+// ListReviewRuns returns the recorded runs for bundleID ("" for all). A record that cannot be
+// read is not listed; ReadReviewRuns says which.
 func (s Store) ListReviewRuns(bundleID string) ([]ReviewRun, error) {
+	runs, _, err := s.ReadReviewRuns(bundleID)
+	return runs, err
+}
+
+// ReadReviewRuns is ListReviewRuns and the names of the records it could not read. A record
+// that is unreadable, is not a regular file or does not parse may be the one that supersedes a
+// run: its loss is reported, not skipped.
+func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 	dir := filepath.Join(s.Root, filepath.FromSlash(reviewRunsDir))
 	entries, err := os.ReadDir(dir)
 	if errors.Is(err, os.ErrNotExist) {
-		return []ReviewRun{}, nil
+		if _, lerr := os.Lstat(dir); lerr == nil {
+			return nil, nil, fmt.Errorf("pose: the review runs directory is a link whose target cannot be read")
+		}
+		return []ReviewRun{}, nil, nil
 	}
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	out := []ReviewRun{}
+	var lost []string
 	for _, e := range entries {
-		if !e.Type().IsRegular() || !strings.HasSuffix(e.Name(), ".json") {
+		if !strings.HasSuffix(e.Name(), ".json") {
+			continue
+		}
+		if !e.Type().IsRegular() {
+			lost = append(lost, e.Name()+" (not a regular file)")
 			continue
 		}
 		raw, err := os.ReadFile(filepath.Join(dir, e.Name()))
 		if err != nil {
+			lost = append(lost, e.Name()+" ("+err.Error()+")")
 			continue
 		}
 		var run ReviewRun
 		if json.Unmarshal(raw, &run) != nil || run.RunID == "" {
+			lost = append(lost, e.Name()+" (not a review run)")
 			continue
 		}
 		if bundleID == "" || run.BundleID == bundleID {
@@ -168,7 +187,7 @@ func (s Store) ListReviewRuns(bundleID string) ([]ReviewRun, error) {
 	for i := range out {
 		out[i].SupersededBy = superseded[out[i].RunID]
 	}
-	return out, nil
+	return out, lost, nil
 }
 
 // DispatchPlan is what a dispatch will do.
@@ -393,9 +412,12 @@ func (s Store) ReviewRunStillGoverns(run ReviewRun) string {
 	if run.Status != ReviewRunCompleted {
 		return "the run is " + run.Status + ", not completed"
 	}
-	runs, err := s.ListReviewRuns(run.BundleID)
+	runs, lost, err := s.ReadReviewRuns("")
 	if err != nil {
 		return "the runs of the bundle could not be read: " + err.Error()
+	}
+	if len(lost) > 0 {
+		return "a run record could not be read and may supersede this run: " + strings.Join(lost, ", ")
 	}
 	for _, other := range runs {
 		if other.Supersedes == run.RunID {
@@ -405,6 +427,10 @@ func (s Store) ReviewRunStillGoverns(run ReviewRun) string {
 	bundle, err := s.LoadReviewBundle(run.BundleID)
 	if err != nil {
 		return "the bundle of the run can no longer be read: " + err.Error()
+	}
+	// The record says what it reviewed; what it says must be what the bundle is.
+	if run.BundleDigest != bundle.BundleDigest || run.Scope != bundle.Payload.Scope.Ref || run.SealedCommit != bundle.Payload.Subject.Head {
+		return "the run record does not describe the bundle it names (bundle digest, scope or sealed commit differ)"
 	}
 	return s.dispatchNoLongerGoverns(DispatchPlan{Bundle: bundle, Brief: ReviewBrief{Scope: run.Scope}, SealedCommit: run.SealedCommit,
 		PolicyDigest: run.PolicyDigest})
@@ -466,10 +492,13 @@ func checkoutBlockers(blockers []string) []string {
 	return out
 }
 
-// sourceModesDiffer names the first subject file of the source whose executable bit is not the
-// one the sealed commit records, or "". Windows keeps no executable bit and is not compared.
-func sourceModesDiffer(root, commit string, entries []ReviewBundleSubjectEntry) string {
-	if runtime.GOOS == "windows" {
+// sourceMaterializationDiffers names the first subject file of the source whose type, target or
+// executable bit is not the one the sealed commit records, or a file whose record in the commit
+// could not be read, or "". A file that is not in the sealed commit is left to the digest
+// comparison. Windows keeps no executable bit, which is not compared there.
+func sourceMaterializationDiffers(root, commit string, entries []ReviewBundleSubjectEntry) string {
+	if commit == "" || !hasGitMetadata(root) {
+		// No sealed commit, or no repository at all: nothing to compare with (a dispatch has both).
 		return ""
 	}
 	for _, entry := range entries {
@@ -477,17 +506,33 @@ func sourceModesDiffer(root, commit string, entries []ReviewBundleSubjectEntry) 
 			continue
 		}
 		rel := reviewBundleEntryPath(entry)
-		out, err := gitCommand("-C", root, "ls-tree", commit, "--", rel).Output()
-		fields := strings.Fields(string(out))
-		if err != nil || len(fields) < 1 {
-			continue // not in the sealed commit: the digest comparison speaks for it
+		out, err := gitCommand("-C", root, "ls-tree", "-z", commit, "--", rel).Output()
+		if err != nil {
+			return rel + " (its record in the sealed commit could not be read: " + err.Error() + ")"
 		}
+		meta, _, ok := strings.Cut(strings.TrimSuffix(string(out), "\x00"), "\t")
+		fields := strings.Fields(meta)
+		if !ok || len(fields) < 3 {
+			continue // not in the sealed commit
+		}
+		mode, object := fields[0], fields[2]
 		info, lerr := os.Lstat(filepath.Join(root, filepath.FromSlash(rel)))
-		if lerr != nil || !info.Mode().IsRegular() {
-			continue
+		if lerr != nil {
+			return rel + " (it cannot be inspected: " + lerr.Error() + ")"
 		}
-		if (info.Mode().Perm()&0o111 != 0) != (fields[0] == "100755") {
-			return rel
+		switch mode {
+		case "120000":
+			target, rerr := os.Readlink(filepath.Join(root, filepath.FromSlash(rel)))
+			if info.Mode()&os.ModeSymlink == 0 || rerr != nil || gitBlobID("sha1", []byte(target)) != object && gitBlobID("sha256", []byte(target)) != object {
+				return rel + " (it is not the link the sealed commit records)"
+			}
+		default:
+			if !info.Mode().IsRegular() {
+				return rel + " (it is not a regular file, and the sealed commit records one)"
+			}
+			if runtime.GOOS != "windows" && (info.Mode().Perm()&0o111 != 0) != (mode == "100755") {
+				return rel + " (its executable bit differs)"
+			}
 		}
 	}
 	return ""
@@ -536,8 +581,8 @@ func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
 	}
 	// The digest of a file is its bytes; the mode the commit recorded is part of what was
 	// sealed, and a status that is told to ignore modes cannot be the witness of it.
-	if mismatch := sourceModesDiffer(s.Root, plan.SealedCommit, plan.Bundle.Payload.Subject.Entries); mismatch != "" {
-		return "stale: the mode of " + mismatch + " differs from the sealed commit's"
+	if mismatch := sourceMaterializationDiffers(s.Root, plan.SealedCommit, plan.Bundle.Payload.Subject.Entries); mismatch != "" {
+		return "stale: the source file " + mismatch + " differs from what the sealed commit records"
 	}
 	return ""
 }

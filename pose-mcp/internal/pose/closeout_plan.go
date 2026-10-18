@@ -122,7 +122,7 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 		plan.Digest = closeoutPlanDigest(plan)
 		return plan, nil
 	}
-	dirty, gitErr := s.ungeneratedChanges()
+	dirty, gitErr := s.ungeneratedChanges(ref)
 	if gitErr != nil {
 		// A status that could not be read is not a clean tree: nothing is sealed over it.
 		step(CloseoutStepContext, CloseoutStateBlocked, "the working tree could not be read ("+gitErr.Error()+"): evidence sealed now would not be known to describe a commit")
@@ -229,7 +229,7 @@ func (p CloseoutPlan) NextCloseoutStep() (CloseoutPlanStep, bool) {
 
 // ungeneratedChanges lists working-tree changes outside the paths the plan
 // itself writes.
-func (s Store) ungeneratedChanges() ([]string, error) {
+func (s Store) ungeneratedChanges(scope string) ([]string, error) {
 	entries, err := ReadGitStatus(s.Root)
 	if errors.Is(err, ErrGitUnavailable) {
 		// No repository: there are no working-tree changes to speak of, and nothing
@@ -256,7 +256,7 @@ func (s Store) ungeneratedChanges() ([]string, error) {
 		if IsPublisherStaging(path) {
 			continue
 		}
-		if !closeoutGenerated(s.Root, path, entry.XY) {
+		if !closeoutGenerated(s.Root, scope, path, entry.XY) {
 			dirty = append(dirty, path)
 		}
 	}
@@ -267,7 +267,7 @@ func (s Store) ungeneratedChanges() ([]string, error) {
 // closeout steps write: the exact files each producer writes, judged like a review run's
 // regeneration (IsDerivedRegeneration), plus the plan's own checkpoint and sealed
 // evidence. A modified validation matrix or sealed result is a change of the repository.
-func closeoutGenerated(root, path, xy string) bool {
+func closeoutGenerated(root, scope, path, xy string) bool {
 	if strings.Contains(xy, "D") {
 		return false
 	}
@@ -277,9 +277,9 @@ func closeoutGenerated(root, path, xy string) bool {
 		return false
 	}
 	tracked := xy != "??"
-	if rest, ok := strings.CutPrefix(path, closeoutCheckpointDir+"/"); ok {
-		// The checkpoint of a scope: one JSON file directly in the directory.
-		return rest != "" && !strings.Contains(rest, "/") && strings.HasSuffix(rest, ".json")
+	if strings.HasPrefix(path, closeoutCheckpointDir+"/") {
+		// The checkpoint of this scope: the one file the plan writes for it, and no other.
+		return scope != "" && path == closeoutCheckpointDir+"/"+strings.ReplaceAll(scope, ":", "-")+".json"
 	}
 	if strings.HasPrefix(path, ".pose/review-attestations/") {
 		return !tracked

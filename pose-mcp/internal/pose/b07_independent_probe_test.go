@@ -13,7 +13,7 @@ func TestB07IndependentCloseoutPrefix(t *testing.T) {
 	for _, p := range []string{".pose/indexes/validation-matrix.json", ".pose/results/sealed.json"} {
 		os.WriteFile(filepath.Join(root, p), []byte("changed"), 0644)
 	}
-	dirty, err := (Store{Root: root}).ungeneratedChanges()
+	dirty, err := (Store{Root: root}).ungeneratedChanges("spec:alpha")
 	t.Logf("dirty=%v err=%v", dirty, err)
 	if len(dirty) == 0 && err == nil {
 		t.Error("close context accepts changed matrix and sealed evidence")
@@ -239,12 +239,12 @@ func TestB07ACloseoutCheckpointIsOneJSONFileOfTheScope(t *testing.T) {
 		}
 	}
 	write(".pose/closeout-plans/spec-alpha.json")
-	if dirty, err := (Store{Root: root}).ungeneratedChanges(); err != nil || len(dirty) != 0 {
+	if dirty, err := (Store{Root: root}).ungeneratedChanges("spec:alpha"); err != nil || len(dirty) != 0 {
 		t.Fatalf("the checkpoint of a scope is generated: %v %v", dirty, err)
 	}
 	write(".pose/closeout-plans/notes.txt")
 	write(".pose/closeout-plans/sub/deep.json")
-	dirty, err := (Store{Root: root}).ungeneratedChanges()
+	dirty, err := (Store{Root: root}).ungeneratedChanges("spec:alpha")
 	if err != nil || len(dirty) != 2 {
 		t.Fatalf("an arbitrary file under the checkpoint directory was taken as regeneration: %v %v", dirty, err)
 	}

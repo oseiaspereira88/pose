@@ -52,7 +52,7 @@ func TestGitStateThatCannotBeReadIsUnknownNotClean(t *testing.T) {
 	if _, err := ReadGitStatus(root); !errors.Is(err, ErrGitUnknown) {
 		t.Fatalf("a damaged index read as a status: %v", err)
 	}
-	if _, dirtyErr := (Store{Root: root}).ungeneratedChanges(); !errors.Is(dirtyErr, ErrGitUnknown) {
+	if _, dirtyErr := (Store{Root: root}).ungeneratedChanges("spec:alpha"); !errors.Is(dirtyErr, ErrGitUnknown) {
 		t.Fatalf("closeout would take a damaged repository for clean: %v", dirtyErr)
 	}
 	if err := os.WriteFile(filepath.Join(root, ".git", "HEAD"), []byte("garbage"), 0o644); err != nil {
@@ -65,7 +65,7 @@ func TestGitStateThatCannotBeReadIsUnknownNotClean(t *testing.T) {
 	if _, err := ReadGitStatus(plain); !errors.Is(err, ErrGitUnavailable) || errors.Is(err, ErrGitUnknown) {
 		t.Fatalf("a directory with no repository is unavailable, not unknown: %v", err)
 	}
-	if dirty, err := (Store{Root: plain}).ungeneratedChanges(); err != nil || len(dirty) != 0 {
+	if dirty, err := (Store{Root: plain}).ungeneratedChanges("spec:alpha"); err != nil || len(dirty) != 0 {
 		t.Fatalf("no repository, no changes: %v %v", dirty, err)
 	}
 }

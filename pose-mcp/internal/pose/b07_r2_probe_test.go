@@ -48,7 +48,7 @@ func TestB07R2CloseoutType(t *testing.T) {
 		p := filepath.Join(root, name)
 		os.Remove(p)
 		os.Symlink(filepath.Join(t.TempDir(), "outside"), p)
-		d, e := (Store{Root: root}).ungeneratedChanges()
+		d, e := (Store{Root: root}).ungeneratedChanges("spec:alpha")
 		t.Logf("path=%s dirty=%v err=%v", name, d, e)
 		if e == nil && len(d) == 0 {
 			t.Errorf("closeout accepts type replacement %s", name)

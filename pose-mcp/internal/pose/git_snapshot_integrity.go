@@ -214,7 +214,7 @@ func WorktreeDivergenceFor(worktree, commit string, allowed func(path string, tr
 	// Paths are the commit's, relative to the root of the repository: a directory inside
 	// the worktree is compared as the worktree it belongs to.
 	if out, err := gitCommand("-C", worktree, "rev-parse", "--show-toplevel").Output(); err == nil {
-		if top := strings.TrimSpace(string(out)); top != "" {
+		if top := strings.TrimSuffix(string(out), "\n"); top != "" {
 			worktree = top
 		}
 	}
@@ -231,6 +231,7 @@ func WorktreeDivergenceFor(worktree, commit string, allowed func(path string, tr
 	}
 	var diverged []string
 	seen := map[string]bool{}
+	checkedDirs := map[string]bool{}
 	for _, record := range strings.Split(string(tree), "\x00") {
 		if record == "" {
 			continue
@@ -253,6 +254,12 @@ func WorktreeDivergenceFor(worktree, commit string, allowed func(path string, tr
 		}
 		info, lerr := os.Lstat(full)
 		if lerr != nil {
+			diverged = append(diverged, name)
+			continue
+		}
+		// A directory above the file that is a link leads out of the worktree, whatever Git
+		// was told to ignore: the leaf would be read from somewhere else.
+		if linkAbove(worktree, name, checkedDirs) {
 			diverged = append(diverged, name)
 			continue
 		}
@@ -365,4 +372,26 @@ func gitCommand(args ...string) *exec.Cmd {
 	}
 	cmd.Env = env
 	return cmd
+}
+
+// linkAbove reports that a directory between the worktree and the file is not a real directory.
+// Directories already examined are remembered in checked (true: a link was found there).
+func linkAbove(worktree, name string, checked map[string]bool) bool {
+	parts := strings.Split(name, "/")
+	dir := ""
+	for _, part := range parts[:len(parts)-1] {
+		dir = path.Join(dir, part)
+		if bad, seen := checked[dir]; seen {
+			if bad {
+				return true
+			}
+			continue
+		}
+		info, err := os.Lstat(filepath.Join(worktree, filepath.FromSlash(dir)))
+		checked[dir] = err != nil || info.Mode()&os.ModeSymlink != 0 || !info.IsDir()
+		if checked[dir] {
+			return true
+		}
+	}
+	return false
 }
