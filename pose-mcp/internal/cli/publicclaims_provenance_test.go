@@ -19,7 +19,7 @@ func writeReleaseRecord(t *testing.T, root, version string, events ...string) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	mustWrite(t, filepath.Join(dir, "manifest.json"), string(posemodel.CanonicalJSON(posemodel.NewReleaseManifest(version, "", "2026-10-02T00:00:00Z", []posemodel.ReleaseFragment{}, posemodel.ReleasePolicy{SchemaVersion: 1}, posemodel.ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": version}))))
+	mustWrite(t, filepath.Join(dir, "manifest.json"), string(posemodel.CanonicalJSON(posemodel.NewReleaseManifest(version, "", "2026-10-02T00:00:00Z", []posemodel.ReleaseFragment{}, posemodel.ReleasePolicy{SchemaVersion: 1, VersionSource: &posemodel.ReleaseVersionSource{Path: "VERSION", Kind: "text"}}, posemodel.ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": version}))))
 	if len(events) > 0 {
 		lines := []string{}
 		for _, state := range events {
@@ -29,7 +29,7 @@ func writeReleaseRecord(t *testing.T, root, version string, events ...string) {
 		// Once a release is tagged, the tag's tree holds its snapshot: that is what makes the
 		// events evidence and not a claim.
 		mustWrite(t, filepath.Join(root, ".pose", "changelogs", version+".md"), posemodel.RenderReleaseNotes(version, []posemodel.ReleaseFragment{}, posemodel.ChangelogPolicy{}))
-		mustWrite(t, filepath.Join(root, ".pose", "policy", "release.json"), `{"schema_version":1,"adopted_at":"","tag_pattern":"","allow_empty":false,"legacy_cutoff":"","provider":"","repository":"","require_verification":false}`)
+		mustWrite(t, filepath.Join(root, ".pose", "policy", "release.json"), `{"schema_version":1,"adopted_at":"","tag_pattern":"","allow_empty":false,"legacy_cutoff":"","provider":"","repository":"","require_verification":false,"version_source":{"path":"VERSION","kind":"text"}}`)
 		mustWrite(t, filepath.Join(root, "VERSION"), version+"\n")
 		git := func(args ...string) {
 			t.Helper()

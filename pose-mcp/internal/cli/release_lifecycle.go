@@ -236,12 +236,19 @@ func cmdReleasePrepare(root string, args []string, stdout, stderr io.Writer) int
 		return 1
 	}
 	manifest := posemodel.NewReleaseManifest(target, previous, time.Now().UTC().Format(time.RFC3339), fragments, policy, posemodel.LoadChangelogPolicy(root), evidence)
-	if existing, err := posemodel.LoadReleaseManifest(root, target); err == nil {
+	existing, loadErr := posemodel.LoadReleaseManifest(root, target)
+	switch {
+	case loadErr == nil:
 		if existing.ReleaseInputDigest == manifest.ReleaseInputDigest {
 			fmt.Fprintf(stdout, "Release %s already prepared (idempotent).\n", target)
 			return 0
 		}
 		fmt.Fprintln(stderr, "pose release prepare: immutable candidate already exists with different inputs")
+		return 1
+	case !errors.Is(loadErr, os.ErrNotExist):
+		// A manifest that is there and cannot be read as one is a candidate someone must look at,
+		// not a place to write over.
+		render(io.Discard, stderr).Failure(fmt.Sprintf("pose release prepare: a manifest of %s exists and is not valid; it is not overwritten: %v", target, loadErr))
 		return 1
 	}
 	// Governed effects (spec pose-governed-effect-enforcement): under the
@@ -432,56 +439,26 @@ func preparedReleaseGaps(root, target string, manifest *posemodel.ReleaseManifes
 	if policy, perr := posemodel.LoadReleasePolicy(root); perr == nil {
 		if evidence, eerr := releaseVersionEvidence(root, policy); eerr != nil {
 			gaps = append(gaps, "version evidence could not be read: "+eerr.Error())
-		} else if evidence["value"] != manifest.Version || evidence["value"] != manifest.VersionEvidence["value"] {
-			gaps = append(gaps, "the project's version file says "+evidence["value"]+", the manifest recorded "+manifest.VersionEvidence["value"])
+		} else {
+			if evidence["value"] != manifest.Version || evidence["value"] != manifest.VersionEvidence["value"] {
+				gaps = append(gaps, "the project's version file says "+evidence["value"]+", the manifest recorded "+manifest.VersionEvidence["value"])
+			}
+			if evidence["source"] != manifest.VersionEvidence["source"] || evidence["kind"] != manifest.VersionEvidence["kind"] {
+				gaps = append(gaps, "the version evidence of the manifest names "+manifest.VersionEvidence["source"]+" ("+manifest.VersionEvidence["kind"]+"), the release policy names "+evidence["source"]+" ("+evidence["kind"]+")")
+			}
 		}
 	}
 	return gaps
 }
 
 // taggedReleaseWorktreeGaps binds the working tree's copy of a tagged release to the cut the tag
-// holds: the manifest, the notes and every archived fragment are byte-for-byte what the tag's
-// snapshot froze. The tag's commit itself is not compared with HEAD.
+// holds (the domain checks it; the status uses the same function).
 func taggedReleaseWorktreeGaps(root, target string, manifest *posemodel.ReleaseManifest) []string {
-	gaps := []string{}
 	snap, err := posemodel.ReadReleaseSnapshot(root, target)
-	if err != nil || snap.Manifest == nil {
-		return gaps // reported by releaseTagState
+	if err != nil {
+		return nil // reported by releaseTagState
 	}
-	if rawManifest, rerr := os.ReadFile(filepath.Join(root, ".pose", "releases", target, "manifest.json")); rerr != nil {
-		gaps = append(gaps, "the manifest of the working tree could not be read: "+rerr.Error())
-	} else if posemodel.ReleaseDigest(string(rawManifest)) != snap.ManifestDigest {
-		gaps = append(gaps, "the working tree's manifest is not the manifest of the tag")
-	}
-	notes, nerr := os.ReadFile(filepath.Join(root, ".pose", "changelogs", target+".md"))
-	if nerr != nil {
-		gaps = append(gaps, "canonical notes missing")
-	} else if posemodel.ReleaseDigest(string(notes)) != manifest.NotesDigest {
-		gaps = append(gaps, "canonical notes digest mismatch")
-	}
-	frozen := map[string]bool{}
-	for _, f := range manifest.Fragments {
-		frozen[f.Path] = true
-		raw, rerr := os.ReadFile(filepath.Join(root, ".pose", "changelogs", target, f.Path))
-		switch {
-		case rerr != nil:
-			gaps = append(gaps, "fragment "+f.Spec+" could not be read from the working tree: "+rerr.Error())
-		case posemodel.ReleaseDigest(string(raw)) != f.Digest:
-			gaps = append(gaps, "fragment digest mismatch: "+f.Spec)
-		}
-	}
-	entries, derr := os.ReadDir(filepath.Join(root, ".pose", "changelogs", target))
-	switch {
-	case derr != nil && !errors.Is(derr, os.ErrNotExist):
-		gaps = append(gaps, "the archive of the working tree could not be listed: "+derr.Error())
-	default:
-		for _, entry := range entries {
-			if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".md") && entry.Name() != "README.md" && !frozen[entry.Name()] {
-				gaps = append(gaps, "the working tree archives fragment "+entry.Name()+" that the manifest does not freeze")
-			}
-		}
-	}
-	return gaps
+	return posemodel.TaggedReleaseWorktreeGaps(root, target, manifest, snap)
 }
 
 // releaseTagState says whether target is a tag, and what is wrong with the snapshot it holds. A
@@ -497,8 +474,12 @@ func releaseTagState(root, target string) (gaps []string, tagged bool) {
 }
 
 func gitUnavailableAt(root string) bool {
-	// Not a repository at all: there are no tags to list, which is not a failure to list them.
-	return exec.Command("git", "-C", root, "rev-parse", "--git-dir").Run() != nil
+	// Not a repository at all: there are no tags to list, which is not a failure to list them. Any
+	// other failure of git is a failure.
+	cmd := exec.Command("git", "-C", root, "rev-parse", "--git-dir")
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	return cmd.Run() != nil && strings.Contains(stderr.String(), "not a git repository")
 }
 
 // releaseTagSnapshotGaps verifies, when the release has a tag, the snapshot the tag points at: the
@@ -553,6 +534,9 @@ func cmdReleaseCheck(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stdout, string(raw))
 	} else if len(gaps) == 0 {
 		fmt.Fprintf(stdout, "Release %s: valid prepared snapshot; tagged=%t.\n", target, tagged)
+		for _, limit := range tagLimits {
+			render(stdout, stderr).Field("release.not_reverified", limit)
+		}
 	} else {
 		for _, gap := range gaps {
 			fmt.Fprintln(stderr, "release:", gap)

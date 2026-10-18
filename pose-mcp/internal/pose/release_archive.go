@@ -78,12 +78,19 @@ func LoadArchivedFragments(root string) []ArchivedFragment {
 			}
 			at := ".pose/changelogs/" + entry.Name() + "/" + fragment.Path
 			raw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(at)))
+			// The digest proves the bytes; the spec they say they belong to must be the one the
+			// manifest attributes them to, or a manifest could hand one spec's fragment to another.
+			named := false
+			if err == nil {
+				fm, _ := SplitFrontmatter(string(raw))
+				named = strings.TrimSpace(fm["spec"]) == fragment.Spec
+			}
 			archived = append(archived, ArchivedFragment{
 				Version:        entry.Name(),
 				Spec:           fragment.Spec,
 				Pending:        pendingFragmentDir + fragment.Path,
 				Archived:       at,
-				Intact:         err == nil && ReleaseDigest(string(raw)) == fragment.Digest,
+				Intact:         err == nil && named && ReleaseDigest(string(raw)) == fragment.Digest,
 				Manifest:       manifestPath,
 				ManifestDigest: "sha256:" + hex.EncodeToString(manifestSum[:]),
 			})

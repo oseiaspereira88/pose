@@ -1,13 +1,16 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
+	"github.com/harne8/pose-mcp/internal/version"
 )
 
 // Regression tests for the independent review of pose-release-manifest-tag-integrity.
@@ -44,7 +47,7 @@ func TestF07ABranchWithTheNameOfATagIsNotATag(t *testing.T) {
 func TestF08ALaterPolicyDoesNotInvalidateATaggedCut(t *testing.T) {
 	root := cliReleaseRepo(t)
 	relGitCLI(t, root, "tag", "v1.0.0")
-	writeCloseoutCLIFile(t, root, ".pose/policy/release.json", `{"schema_version":1,"adopted_at":"","tag_pattern":"","allow_empty":true,"legacy_cutoff":"","provider":"","repository":"","require_verification":false}`)
+	writeCloseoutCLIFile(t, root, ".pose/policy/release.json", `{"schema_version":1,"adopted_at":"","tag_pattern":"","allow_empty":true,"legacy_cutoff":"","provider":"","repository":"","require_verification":false,"version_source":{"path":"VERSION","kind":"text"}}`)
 	relGitCLI(t, root, "add", "-A")
 	relGitCLI(t, root, "commit", "-q", "-m", "later policy")
 	doc := checkDoc(t, root)
@@ -59,7 +62,7 @@ func TestF09TheWorkingTreeMustBeTheCutOfTheTag(t *testing.T) {
 	relGitCLI(t, root, "tag", "v1.0.0")
 	body := "---\nspec: alpha\ncategory: added\nbreaking: false\n---\n\nSomething else.\n"
 	fragments := []posemodel.ReleaseFragment{{Spec: "alpha", Category: "added", Path: "alpha.md", Body: "Something else.", Digest: posemodel.ReleaseDigest(body)}}
-	other := posemodel.NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", fragments, posemodel.ReleasePolicy{SchemaVersion: 1}, posemodel.ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": "v1.0.0"})
+	other := posemodel.NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", fragments, posemodel.ReleasePolicy{SchemaVersion: 1, VersionSource: &posemodel.ReleaseVersionSource{Path: "VERSION", Kind: "text"}}, posemodel.ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": "v1.0.0"})
 	writeCloseoutCLIFile(t, root, ".pose/changelogs/v1.0.0/alpha.md", body)
 	writeCloseoutCLIFile(t, root, ".pose/changelogs/v1.0.0.md", posemodel.RenderReleaseNotes("v1.0.0", fragments, posemodel.ChangelogPolicy{}))
 	writeCloseoutCLIFile(t, root, ".pose/releases/v1.0.0/manifest.json", string(posemodel.CanonicalJSON(other)))
@@ -104,4 +107,68 @@ func gitOut(t *testing.T, root string, args ...string) string {
 		t.Fatal(err)
 	}
 	return string(out)
+}
+
+func preparedEngineRelease(t *testing.T) (root, target string) { return preparedEngineReleaseWith(t, false) }
+
+// preparedEngineReleaseWith prepares a release of the engine repository; empty prepares one with no
+// fragment, which the policy then allows.
+func preparedEngineReleaseWith(t *testing.T, empty bool) (root, target string) {
+	t.Helper()
+	root = t.TempDir()
+	target = "v" + version.ReleaseBase()
+	allow := "false"
+	if empty {
+		allow = "true"
+	}
+	writeReleaseFixture(t, root, ".pose/release-policy.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo","allow_empty":`+allow+`}`)
+	markAsEngineRepository(t, root)
+	if !empty {
+		writeReleaseFixture(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: done\n---\n")
+		writeReleaseFixture(t, root, ".pose/changelogs/unreleased/alpha.md", "---\nspec: alpha\ncategory: added\nbreaking: false\n---\n\nAdds alpha.\n")
+	}
+	var out, errOut bytes.Buffer
+	if code := cmdReleasePrepare(root, []string{"--version", target, "--apply"}, &out, &errOut); code != 0 {
+		t.Fatalf("prepare=%d %s", code, errOut.String())
+	}
+	return root, target
+}
+
+// R2-F08: a manifest that is there and is not valid is not written over.
+func TestR2PrepareDoesNotOverwriteAManifestItCannotRead(t *testing.T) {
+	root, target := preparedEngineReleaseWith(t, true)
+	path := filepath.Join(root, ".pose", "releases", target, "manifest.json")
+	raw, _ := os.ReadFile(path)
+	broken := strings.Replace(string(raw), `"breaking": false,
+  "notes_digest"`, `"notes_digest"`, 1)
+	if broken == string(raw) {
+		t.Fatal("the case does not change the manifest")
+	}
+	os.WriteFile(path, []byte(broken), 0o644)
+	var out, errOut bytes.Buffer
+	if code := cmdReleasePrepare(root, []string{"--version", target, "--apply"}, &out, &errOut); code == 0 || !strings.Contains(errOut.String(), "is not overwritten") {
+		t.Fatalf("prepare did not refuse an invalid manifest by name (%d): out=%s err=%s", code, out.String(), errOut.String())
+	}
+	if after, _ := os.ReadFile(path); string(after) != broken {
+		t.Fatal("the invalid manifest was overwritten")
+	}
+}
+
+// R2-F04: the evidence of a candidate names the source and the kind of the policy of today.
+func TestR2PreparedEvidenceNamesTheSourceOfThePolicy(t *testing.T) {
+	root, target := preparedEngineRelease(t)
+	path := filepath.Join(root, ".pose", "releases", target, "manifest.json")
+	raw, _ := os.ReadFile(path)
+	var manifest posemodel.ReleaseManifest
+	if err := json.Unmarshal(raw, &manifest); err != nil {
+		t.Fatal(err)
+	}
+	evidence := map[string]string{"source": "missing.txt", "value": manifest.VersionEvidence["value"]}
+	policy, _ := posemodel.LoadReleasePolicy(root)
+	forged := posemodel.NewReleaseManifest(target, manifest.PreviousVersion, manifest.PreparedAt, manifest.Fragments, policy, posemodel.LoadChangelogPolicy(root), evidence)
+	os.WriteFile(path, posemodel.CanonicalJSON(forged), 0o644)
+	gaps, _ := checkRelease(root, target)
+	if !strings.Contains(strings.Join(gaps, ";"), "version evidence of the manifest names") {
+		t.Fatalf("a source the policy does not name passed: %v", gaps)
+	}
 }

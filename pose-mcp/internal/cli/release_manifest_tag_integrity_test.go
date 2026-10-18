@@ -13,7 +13,23 @@ import (
 
 // Spec pose-release-manifest-tag-integrity: `release check` and `release status` read the tag's own tree.
 
+// cliFixturePolicy is the release policy of the fixture: the version is read from VERSION as text, or,
+// for the kind "engine", the policy names no source and the engine's own version file is the evidence.
+func cliFixturePolicy(kind string) posemodel.ReleasePolicy {
+	if kind == "engine" {
+		return posemodel.ReleasePolicy{SchemaVersion: 1}
+	}
+	return posemodel.ReleasePolicy{SchemaVersion: 1, VersionSource: &posemodel.ReleaseVersionSource{Path: "VERSION", Kind: "text"}}
+}
+
 func cliReleaseRepo(t *testing.T) string { return cliReleaseRepoKind(t, "text") }
+
+func evidenceFor(kind string) map[string]string {
+	if kind == "engine" {
+		return map[string]string{"source": posemodel.EngineVersionFile, "value": "v1.0.0"}
+	}
+	return map[string]string{"source": "VERSION", "kind": kind, "value": "v1.0.0"}
+}
 
 func cliReleaseRepoKind(t *testing.T, kind string) string {
 	t.Helper()
@@ -27,9 +43,14 @@ func cliReleaseRepoKind(t *testing.T, kind string) string {
 	}
 	body := "---\nspec: alpha\ncategory: fixed\nbreaking: false\n---\n\nFixes alpha.\n"
 	fragments := []posemodel.ReleaseFragment{{Spec: "alpha", Category: "fixed", Path: "alpha.md", Body: "Fixes alpha.", Digest: posemodel.ReleaseDigest(body)}}
-	manifest := posemodel.NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", fragments, posemodel.ReleasePolicy{SchemaVersion: 1}, posemodel.ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": kind, "value": "v1.0.0"})
+	manifest := posemodel.NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", fragments, cliFixturePolicy(kind), posemodel.ChangelogPolicy{}, evidenceFor(kind))
 	git("init", "-q")
-	writeCloseoutCLIFile(t, root, ".pose/policy/release.json", `{"schema_version":1,"adopted_at":"","tag_pattern":"","allow_empty":false,"legacy_cutoff":"","provider":"","repository":"","require_verification":false}`)
+	policyJSON := `{"schema_version":1,"adopted_at":"","tag_pattern":"","allow_empty":false,"legacy_cutoff":"","provider":"","repository":"","require_verification":false,"version_source":{"path":"VERSION","kind":"text"}}`
+	if kind == "engine" {
+		policyJSON = `{"schema_version":1,"adopted_at":"","tag_pattern":"","allow_empty":false,"legacy_cutoff":"","provider":"","repository":"","require_verification":false}`
+		writeCloseoutCLIFile(t, root, posemodel.EngineVersionFile, "package version\n\nconst Version = \"1.0.0\"\n")
+	}
+	writeCloseoutCLIFile(t, root, ".pose/policy/release.json", policyJSON)
 	writeCloseoutCLIFile(t, root, "VERSION", "1.0.0\n")
 	writeCloseoutCLIFile(t, root, ".pose/changelogs/v1.0.0/alpha.md", body)
 	writeCloseoutCLIFile(t, root, ".pose/changelogs/v1.0.0.md", posemodel.RenderReleaseNotes("v1.0.0", fragments, posemodel.ChangelogPolicy{}))
@@ -121,7 +142,7 @@ func TestReleaseStatusReportsTheSnapshotOfTheTag(t *testing.T) {
 
 // A version source the manifest cannot recompute is disclosed as a limit in the JSON, not as a failure.
 func TestReleaseCheckDisclosesTheVersionSourcesItCouldNotRecompute(t *testing.T) {
-	root := cliReleaseRepoKind(t, "json")
+	root := cliReleaseRepoKind(t, "engine")
 	if out, err := exec.Command("git", "-C", root, "tag", "v1.0.0").CombinedOutput(); err != nil {
 		t.Fatalf("%v %s", err, out)
 	}

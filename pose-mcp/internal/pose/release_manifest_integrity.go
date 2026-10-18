@@ -38,6 +38,11 @@ var releaseManifestFields = map[string]bool{
 	"policy_digest": true, "version_evidence": true,
 }
 
+// releaseFragmentFields are the exact names of a frozen fragment.
+var releaseFragmentFields = map[string]bool{
+	"spec": true, "category": true, "breaking": true, "refs": true, "body": true, "path": true, "digest": true,
+}
+
 var releaseDigestRE = regexp.MustCompile(`^sha256:[0-9a-f]{64}$`)
 
 // ValidateReleaseManifestBytes decodes raw as the manifest of version and checks what can be
@@ -74,6 +79,35 @@ func ValidateReleaseManifestBytes(raw []byte, version string) (*ReleaseManifest,
 	for name := range releaseManifestFields {
 		if _, ok := fields[name]; !ok && name != "previous_version" {
 			add(name, "is required and absent")
+		}
+	}
+	if len(issues) > 0 {
+		return nil, issues
+	}
+	// The objects inside are held to the same contract as the root: exact names, every
+	// required field, no null (refs is the one optional field).
+	var rawFragments []map[string]json.RawMessage
+	if err := json.Unmarshal(fields["fragments"], &rawFragments); err != nil {
+		add("fragments", "is not a list of objects")
+		return nil, issues
+	}
+	for i, obj := range rawFragments {
+		if obj == nil {
+			add(fmt.Sprintf("fragments[%d]", i), "is null")
+			continue
+		}
+		for name, value := range obj {
+			switch {
+			case !releaseFragmentFields[name]:
+				add(fmt.Sprintf("fragments[%d].%s", i, name), "is not a field of a frozen fragment (field names are exact)")
+			case string(bytes.TrimSpace(value)) == "null":
+				add(fmt.Sprintf("fragments[%d].%s", i, name), "is null")
+			}
+		}
+		for name := range releaseFragmentFields {
+			if _, ok := obj[name]; !ok && name != "refs" {
+				add(fmt.Sprintf("fragments[%d].%s", i, name), "is required and absent")
+			}
 		}
 	}
 	if len(issues) > 0 {
@@ -231,19 +265,35 @@ func (s ReleaseSnapshot) Intact() bool {
 	return s.Manifest != nil && len(s.Issues) == 0 && len(s.Gaps) == 0
 }
 
+// ErrReleaseTagNotCommit means a tag exists and does not lead to a commit.
+var ErrReleaseTagNotCommit = errors.New("pose: the release tag does not point at a commit")
+
 // ResolveReleaseTag peels a tag to the commit it names: a lightweight tag is that commit, an
-// annotated one is the object it points at. A name that is not a tag is not resolved.
+// annotated one is the object it points at. A name that is not a tag is not resolved. Three
+// answers are kept apart: the tag is not there (ErrReleaseTagMissing), it is there and is not a
+// commit (ErrReleaseTagNotCommit), and Git could not answer (any other error, which is neither).
 func ResolveReleaseTag(root, tag string) (commit string, annotated bool, err error) {
 	if ValidateReleaseVersion(tag) != nil {
 		return "", false, fmt.Errorf("pose: %q is not a release tag", tag)
 	}
+	if _, verr := gitOutput(root, "rev-parse", "--verify", "--quiet", "refs/tags/"+tag); verr != nil {
+		if gitNotARepository(root) {
+			// No repository: there is no tag, which is a different thing from a tag Git could not read.
+			return "", false, fmt.Errorf("%w: %s (not a git repository)", ErrReleaseTagMissing, tag)
+		}
+		var exit *exec.ExitError
+		if errors.As(verr, &exit) && exit.ExitCode() == 1 {
+			return "", false, fmt.Errorf("%w: %s", ErrReleaseTagMissing, tag)
+		}
+		return "", false, fmt.Errorf("pose: the tag %s could not be resolved: %w", tag, verr)
+	}
 	kind, err := gitOutput(root, "cat-file", "-t", "refs/tags/"+tag)
 	if err != nil {
-		return "", false, fmt.Errorf("%w: %s", ErrReleaseTagMissing, tag)
+		return "", false, fmt.Errorf("pose: the tag %s could not be inspected: %w", tag, err)
 	}
 	out, err := gitOutput(root, "rev-parse", "--verify", "refs/tags/"+tag+"^{commit}")
 	if err != nil {
-		return "", false, fmt.Errorf("%w: %s does not point at a commit", ErrReleaseTagMissing, tag)
+		return "", false, fmt.Errorf("%w: %s", ErrReleaseTagNotCommit, tag)
 	}
 	return strings.TrimSpace(out), strings.TrimSpace(kind) == "tag", nil
 }
@@ -254,7 +304,7 @@ func gitOutput(root string, args ...string) (string, error) {
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("pose: git %s: %s", args[0], strings.TrimSpace(stderr.String()+" "+err.Error()))
+		return "", &gitCommandError{Op: args[0], Stderr: strings.TrimSpace(stderr.String()), Err: err}
 	}
 	return string(out), nil
 }
@@ -352,15 +402,27 @@ func ReadReleaseSnapshot(root, tag string) (ReleaseSnapshot, error) {
 		return snap, nil
 	}
 	gap := func(format string, args ...any) { snap.Gaps = append(snap.Gaps, fmt.Sprintf(format, args...)) }
-	// Notes.
-	notes, err := gitBlobAt(root, commit, ".pose/changelogs/"+tag+".md")
+	// The policies the cut was made under: the release policy and the changelog policy of the tagged
+	// tree, held to their own contracts. A policy of today is never applied to a cut of yesterday.
+	policy, policyPath, perr := releasePolicyAt(root, commit)
+	policyKnown := false
 	switch {
-	case errors.Is(err, os.ErrNotExist):
-		gap("canonical notes are missing from the tagged tree")
-	case err != nil:
-		gap("canonical notes could not be read from the tagged tree: %v", err)
-	case ReleaseDigest(string(notes)) != manifest.NotesDigest:
-		gap("canonical notes digest differs from the manifest in the tagged tree")
+	case errors.Is(perr, os.ErrNotExist):
+		gap("the tagged tree holds no release policy, so the manifest's policy digest cannot be tied to the policy of the cut")
+	case perr != nil:
+		gap("the release policy of the tagged tree (%s) could not be read: %v", policyPath, perr)
+	default:
+		if verr := ValidateReleasePolicy(policy); verr != nil {
+			gap("the release policy of the tagged tree (%s) does not satisfy its contract: %v", policyPath, verr)
+		} else if ReleaseDigest(policy) != manifest.PolicyDigest {
+			gap("the manifest's policy digest is not the digest of the release policy of the tagged tree (%s)", policyPath)
+		} else {
+			policyKnown = true
+		}
+	}
+	changelog, clErr := changelogPolicyAt(root, commit)
+	if clErr != nil {
+		gap("the changelog policy of the tagged tree could not be read: %v", clErr)
 	}
 	// Frozen fragments: each is a blob of the tagged tree, with the identity, category,
 	// breaking flag, references and body the manifest repeats, at a path nothing else uses.
@@ -375,6 +437,9 @@ func ReadReleaseSnapshot(root, tag string) (ReleaseSnapshot, error) {
 			gap("fragment spec %s is frozen more than once", f.Spec)
 		}
 		specs[f.Spec] = true
+		if clErr == nil && !changelog.ValidCategories()[f.Category] {
+			gap("fragment %s has category %q, which the changelog policy of the tagged tree does not accept", f.Spec, f.Category)
+		}
 		blob, ferr := gitBlobAt(root, commit, ".pose/changelogs/"+tag+"/"+f.Path)
 		switch {
 		case errors.Is(ferr, os.ErrNotExist):
@@ -418,25 +483,22 @@ func ReadReleaseSnapshot(root, tag string) (ReleaseSnapshot, error) {
 			}
 		}
 	}
-	// The policy the cut was made under.
-	policy, policyPath, perr := releasePolicyAt(root, commit)
+	// Notes: the blob is the rendering of the frozen fragments under the changelog policy of the
+	// cut, not whatever text its digest was recomputed for.
+	notes, err := gitBlobAt(root, commit, ".pose/changelogs/"+tag+".md")
 	switch {
-	case errors.Is(perr, os.ErrNotExist):
-		gap("the tagged tree holds no release policy, so the manifest's policy digest cannot be tied to the policy of the cut")
-	case perr != nil:
-		gap("the release policy of the tagged tree (%s) could not be read: %v", policyPath, perr)
-	case ReleaseDigest(policy) != manifest.PolicyDigest:
-		gap("the manifest's policy digest is not the digest of the release policy of the tagged tree (%s)", policyPath)
-	default:
-		// Version evidence follows the policy of the cut when it names a source.
-		if policy.VersionSource != nil {
-			if filepath.ToSlash(filepath.Clean(policy.VersionSource.Path)) != manifest.VersionEvidence["source"] || policy.VersionSource.Kind != manifest.VersionEvidence["kind"] {
-				gap("the version evidence names a source or kind other than the version_source of the release policy of the tagged tree")
-			}
-		}
+	case errors.Is(err, os.ErrNotExist):
+		gap("canonical notes are missing from the tagged tree")
+	case err != nil:
+		gap("canonical notes could not be read from the tagged tree: %v", err)
+	case ReleaseDigest(string(notes)) != manifest.NotesDigest:
+		gap("canonical notes digest differs from the manifest in the tagged tree")
+	case clErr == nil && string(notes) != RenderReleaseNotes(manifest.Version, manifest.Fragments, changelog):
+		gap("the canonical notes of the tagged tree are not the rendering of the fragments the manifest froze")
 	}
-	// Version evidence: the file of the tagged tree that holds the version.
-	if g, limit := snapshotVersionEvidence(root, commit, manifest); g != "" {
+	// Version evidence: the file of the tagged tree that holds the version, read the way the
+	// policy of the cut says to read it.
+	if g, limit := snapshotVersionEvidence(root, commit, manifest, policy, policyKnown); g != "" {
 		snap.Gaps = append(snap.Gaps, g)
 	} else if limit != "" {
 		snap.Limits = append(snap.Limits, limit)
@@ -444,15 +506,45 @@ func ReadReleaseSnapshot(root, tag string) (ReleaseSnapshot, error) {
 	return snap, nil
 }
 
+// changelogPolicyAt reads the changelog policy the tagged tree held; a tree without one used the
+// default categories, as LoadChangelogPolicy does.
+func changelogPolicyAt(root, commit string) (ChangelogPolicy, error) {
+	policy := ChangelogPolicy{SchemaVersion: 1}
+	raw, err := gitBlobAt(root, commit, ".pose/policy/changelog.json")
+	switch {
+	case errors.Is(err, os.ErrNotExist):
+	case err != nil:
+		return policy, err
+	default:
+		if uerr := json.Unmarshal(raw, &policy); uerr != nil {
+			return policy, fmt.Errorf("invalid changelog policy: %w", uerr)
+		}
+	}
+	if len(policy.Categories) == 0 {
+		policy.Categories = DefaultChangelogCategories()
+	}
+	return policy, nil
+}
+
 // snapshotVersionEvidence re-verifies the version a manifest recorded against the file of the
-// tagged tree that holds it. The file must be there and be readable whatever its kind; only a
-// text source can be recomputed from the evidence the manifest carries (a JSON source also needs
-// the key it was read from, which the manifest does not retain), and that limit is reported
-// as such, not guessed.
-func snapshotVersionEvidence(root, commit string, manifest *ReleaseManifest) (gap, limit string) {
+// tagged tree that holds it, read the way the release policy of that tree says to read it. The
+// evidence must name the source and the kind the policy names (or the engine's own version file
+// when the policy names none); the file must be there; a text or JSON source is read and must say
+// the version of the release. What cannot be recomputed is a limit, and only that.
+func snapshotVersionEvidence(root, commit string, manifest *ReleaseManifest, policy ReleasePolicy, policyKnown bool) (gap, limit string) {
 	source, kind, value := manifest.VersionEvidence["source"], manifest.VersionEvidence["kind"], manifest.VersionEvidence["value"]
 	if source == "" {
 		return "the manifest records no version source", ""
+	}
+	if !policyKnown {
+		return "", "the version evidence was not tied to the release policy of the cut, which could not be verified"
+	}
+	if policy.VersionSource != nil {
+		if filepath.ToSlash(filepath.Clean(policy.VersionSource.Path)) != source || policy.VersionSource.Kind != kind {
+			return "the version evidence names a source or kind other than the version_source of the release policy of the tagged tree", ""
+		}
+	} else if source != EngineVersionFile || kind != "" {
+		return "the release policy of the tagged tree declares no version_source, and the version evidence names a source other than the engine's own version file", ""
 	}
 	raw, err := gitBlobAt(root, commit, source)
 	if errors.Is(err, os.ErrNotExist) {
@@ -461,16 +553,9 @@ func snapshotVersionEvidence(root, commit string, manifest *ReleaseManifest) (ga
 	if err != nil {
 		return "version source " + source + " could not be read from the tagged tree: " + err.Error(), ""
 	}
-	switch kind {
-	case ReleaseVersionSourceText:
-	case ReleaseVersionSourceJSON:
-		return "", "the version evidence is a JSON source whose key the manifest does not retain: its file exists in the tagged tree and its value was not re-read"
-	case "":
-		// The engine's own version file is a Go source that holds the number in code: it was
-		// found in the tagged tree, and its value is not re-read from the manifest alone.
+	if policy.VersionSource == nil {
+		// The engine's own version file is a Go source that holds the number in code.
 		return "", "the version evidence is the engine's own version file: it exists in the tagged tree and its value was not re-read"
-	default:
-		return "", "the version evidence has a kind (" + fmt.Sprintf("%q", kind) + ") this engine does not re-verify"
 	}
 	tmp, err := os.MkdirTemp("", "pose-release-snapshot-*")
 	if err != nil {
@@ -484,12 +569,25 @@ func snapshotVersionEvidence(root, commit string, manifest *ReleaseManifest) (ga
 	if err := os.WriteFile(target, raw, 0o644); err != nil {
 		return "", "the version source could not be re-read: " + err.Error()
 	}
-	got, err := ReadReleaseVersionSource(tmp, ReleaseVersionSource{Path: source, Kind: kind})
+	got, err := ReadReleaseVersionSource(tmp, *policy.VersionSource)
 	if err != nil {
 		return "version source " + source + " in the tagged tree is not readable: " + err.Error(), ""
 	}
-	if got != value {
-		return fmt.Sprintf("the tagged tree's version source says %s, the manifest recorded %s", got, value), ""
+	if got != value || got != manifest.Version {
+		return fmt.Sprintf("the tagged tree's version source says %s, the manifest recorded %s for %s", got, value, manifest.Version), ""
 	}
 	return "", ""
 }
+
+// gitCommandError keeps the exit status of a failed git command, so a caller can tell "there is
+// no such thing" (an exit status Git documents) from "Git could not answer".
+type gitCommandError struct {
+	Op     string
+	Stderr string
+	Err    error
+}
+
+func (e *gitCommandError) Error() string {
+	return "pose: git " + e.Op + ": " + strings.TrimSpace(e.Stderr+" "+e.Err.Error())
+}
+func (e *gitCommandError) Unwrap() error { return e.Err }

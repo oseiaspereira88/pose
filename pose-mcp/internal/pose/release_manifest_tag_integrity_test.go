@@ -41,6 +41,12 @@ func relWrite(t *testing.T, root, rel, body string) {
 	}
 }
 
+// fixtureReleasePolicy is the release policy of the fixture releases: the version is read from the
+// VERSION file as text.
+func fixtureReleasePolicy() ReleasePolicy {
+	return ReleasePolicy{SchemaVersion: 1, VersionSource: &ReleaseVersionSource{Path: "VERSION", Kind: ReleaseVersionSourceText}}
+}
+
 // newReleaseRepo prepares a release the way `pose release prepare` leaves it: manifest, notes, the
 // frozen fragment and the version source, committed.
 func newReleaseRepo(t *testing.T, version string) *releaseRepo {
@@ -48,7 +54,7 @@ func newReleaseRepo(t *testing.T, version string) *releaseRepo {
 	r := &releaseRepo{root: t.TempDir(), version: version}
 	r.body = "---\nspec: alpha\ncategory: fixed\nbreaking: false\n---\n\nFixes alpha.\n"
 	fragments := []ReleaseFragment{{Spec: "alpha", Category: "fixed", Path: "alpha.md", Body: "Fixes alpha.", Digest: ReleaseDigest(r.body)}}
-	r.manifest = NewReleaseManifest(version, "", "2026-10-02T00:00:00Z", fragments, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": version})
+	r.manifest = NewReleaseManifest(version, "", "2026-10-02T00:00:00Z", fragments, fixtureReleasePolicy(), ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": version})
 	r.notes = RenderReleaseNotes(version, fragments, ChangelogPolicy{})
 	relGit(t, r.root, "init", "-q")
 	r.writeAll(t)
@@ -59,7 +65,7 @@ func newReleaseRepo(t *testing.T, version string) *releaseRepo {
 
 func (r *releaseRepo) writeAll(t *testing.T) {
 	t.Helper()
-	relWrite(t, r.root, ".pose/policy/release.json", `{"schema_version":1,"adopted_at":"","tag_pattern":"","allow_empty":false,"legacy_cutoff":"","provider":"","repository":"","require_verification":false}`)
+	relWrite(t, r.root, ".pose/policy/release.json", `{"schema_version":1,"adopted_at":"","tag_pattern":"","allow_empty":false,"legacy_cutoff":"","provider":"","repository":"","require_verification":false,"version_source":{"path":"VERSION","kind":"text"}}`)
 	relWrite(t, r.root, "VERSION", strings.TrimPrefix(r.version, "v")+"\n")
 	relWrite(t, r.root, ".pose/changelogs/"+r.version+"/alpha.md", r.body)
 	relWrite(t, r.root, ".pose/changelogs/"+r.version+".md", r.notes)
@@ -72,7 +78,7 @@ func (r *releaseRepo) addVersion(t *testing.T, version string) *releaseRepo {
 	o := &releaseRepo{root: r.root, version: version}
 	o.body = r.body
 	fragments := []ReleaseFragment{{Spec: "alpha", Category: "fixed", Path: "alpha.md", Body: "Fixes alpha.", Digest: ReleaseDigest(o.body)}}
-	o.manifest = NewReleaseManifest(version, "", "2026-10-02T00:00:00Z", fragments, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": version})
+	o.manifest = NewReleaseManifest(version, "", "2026-10-02T00:00:00Z", fragments, fixtureReleasePolicy(), ChangelogPolicy{}, map[string]string{"source": "VERSION", "kind": "text", "value": version})
 	o.notes = RenderReleaseNotes(version, fragments, ChangelogPolicy{})
 	o.writeAll(t)
 	relGit(t, o.root, "add", "-A")
@@ -243,10 +249,12 @@ func TestACorrectCutStaysIntactAfterEvidenceAndTheNextCycle(t *testing.T) {
 // R3: a source that cannot be re-verified is a limit, not a failure and not a pass.
 func TestAVersionSourceThatCannotBeRecomputedIsALimit(t *testing.T) {
 	r := newReleaseRepo(t, "v1.0.0")
-	r.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", r.manifest.Fragments, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, map[string]string{"source": "package.json", "kind": "json", "value": "v1.0.0"})
+	// A policy that names no version_source: the engine's own version file is the evidence.
+	relWrite(t, r.root, ".pose/policy/release.json", `{"schema_version":1,"adopted_at":"","tag_pattern":"","allow_empty":false,"legacy_cutoff":"","provider":"","repository":"","require_verification":false}`)
+	r.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", r.manifest.Fragments, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, map[string]string{"source": EngineVersionFile, "value": "v1.0.0"})
 	relWrite(t, r.root, ".pose/releases/v1.0.0/manifest.json", string(CanonicalJSON(r.manifest)))
-	relWrite(t, r.root, "package.json", `{"version":"v1.0.0"}`)
-	r.commit(t, "json version source")
+	relWrite(t, r.root, EngineVersionFile, "package version\n\nconst Version = \"1.0.0\"\n")
+	r.commit(t, "engine version file")
 	relGit(t, r.root, "tag", "v1.0.0")
 	snap, err := ReadReleaseSnapshot(r.root, "v1.0.0")
 	if err != nil || !snap.Intact() || len(snap.Limits) == 0 {

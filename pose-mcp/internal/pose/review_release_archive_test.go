@@ -11,7 +11,7 @@ import (
 func reviewArchiveFixture(t *testing.T) (string, Store, DeliveryIntegrityGraph, ReviewBundleSubject) {
 	t.Helper()
 	root, store := reviewBundleFixture(t)
-	writeReviewFixture(t, root, fragmentPending, "reviewed release fragment\r\n")
+	writeReviewFixture(t, root, fragmentPending, "---\nspec: backend\ncategory: fixed\n---\n\nreviewed release fragment\r\n")
 	designDeltaGit(t, root, "init", "-q")
 	designDeltaGit(t, root, "config", "user.name", "Fixture")
 	designDeltaGit(t, root, "config", "user.email", "fixture@example.invalid")
@@ -30,7 +30,7 @@ func archiveReviewFragment(t *testing.T, root, version, spec string) {
 	t.Helper()
 	archive := ".pose/changelogs/" + version + "/alpha.md"
 	manifest := ".pose/releases/" + version + "/manifest.json"
-	raw := []byte("reviewed release fragment\r\n")
+	raw := []byte("---\nspec: backend\ncategory: fixed\n---\n\nreviewed release fragment\r\n")
 	writeReviewFixture(t, root, archive, string(raw))
 	writeReviewFixture(t, root, manifest, releaseManifestFixture(version, []ReleaseFragment{{Spec: spec, Path: "alpha.md", Digest: ReleaseDigest(string(raw))}}))
 	if err := os.Remove(filepath.Join(root, fragmentPending)); err != nil && !os.IsNotExist(err) {
@@ -62,7 +62,7 @@ func TestReviewReleaseArchiveRejectsUnattestedContent(t *testing.T) {
 			writeReviewFixture(t, root, fragmentManifest, string(raw))
 		},
 		"wrong spec": func(t *testing.T, root string) {
-			raw, _ := json.Marshal(ReleaseManifest{SchemaVersion: 1, Version: "v1.2.0", Fragments: []ReleaseFragment{{Spec: "other", Path: "alpha.md", Digest: ReleaseDigest("reviewed release fragment\r\n")}}})
+			raw, _ := json.Marshal(ReleaseManifest{SchemaVersion: 1, Version: "v1.2.0", Fragments: []ReleaseFragment{{Spec: "other", Path: "alpha.md", Digest: ReleaseDigest("---\nspec: backend\ncategory: fixed\n---\n\nreviewed release fragment\r\n")}}})
 			writeReviewFixture(t, root, fragmentManifest, string(raw))
 			designDeltaGit(t, root, "add", ".")
 			designDeltaGit(t, root, "commit", "-qm", "Wrong owner")
@@ -79,7 +79,7 @@ func TestReviewReleaseArchiveRejectsUnattestedContent(t *testing.T) {
 		"duplicate release": func(t *testing.T, root string) { archiveReviewFragment(t, root, "v1.3.0", "backend") },
 		"archive escapes root": func(t *testing.T, root string) {
 			outside := filepath.Join(t.TempDir(), "fragment.md")
-			if err := os.WriteFile(outside, []byte("reviewed release fragment\r\n"), 0600); err != nil {
+			if err := os.WriteFile(outside, []byte("---\nspec: backend\ncategory: fixed\n---\n\nreviewed release fragment\r\n"), 0600); err != nil {
 				t.Fatal(err)
 			}
 			if err := os.Remove(filepath.Join(root, fragmentArchived)); err != nil {
@@ -118,7 +118,7 @@ func TestReviewReleaseArchiveCoattributedFragment(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			root, store := reviewBundleFixture(t)
 			if name != "unrelated shared commit" {
-				writeReviewFixture(t, root, fragmentPending, "reviewed release fragment\r\n")
+				writeReviewFixture(t, root, fragmentPending, "---\nspec: backend\ncategory: fixed\n---\n\nreviewed release fragment\r\n")
 			}
 			designDeltaGit(t, root, "init", "-q")
 			designDeltaGit(t, root, "config", "user.name", "Fixture")
@@ -130,7 +130,7 @@ func TestReviewReleaseArchiveCoattributedFragment(t *testing.T) {
 			owner := ChangeSet{ID: "cs-backend", Spec: "backend", Commits: []string{commit}, Paths: []ObservedPath{{Action: "created", Path: fragmentPending}}}
 			switch name {
 			case "unrelated shared commit":
-				writeReviewFixture(t, root, fragmentPending, "reviewed release fragment\r\n")
+				writeReviewFixture(t, root, fragmentPending, "---\nspec: backend\ncategory: fixed\n---\n\nreviewed release fragment\r\n")
 				designDeltaGit(t, root, "add", ".")
 				designDeltaGit(t, root, "commit", "-qm", "Consumer fragment")
 				consumer.Commits = append(consumer.Commits, designDeltaGit(t, root, "rev-parse", "HEAD"))

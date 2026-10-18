@@ -70,7 +70,7 @@ func TestF02ProjectionsAreRecomposedFromTheFragmentBlobs(t *testing.T) {
 		r := newReleaseRepo(t, "v1.0.0")
 		altered := append([]ReleaseFragment(nil), r.manifest.Fragments...)
 		edit(&altered[0])
-		r.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", altered, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, r.manifest.VersionEvidence)
+		r.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", altered, fixtureReleasePolicy(), ChangelogPolicy{}, r.manifest.VersionEvidence)
 		r.notes = RenderReleaseNotes("v1.0.0", altered, ChangelogPolicy{})
 		r.writeAll(t)
 		if snap := snapshotOf(t, tagged(t, r)); snap.Intact() || !hasText(snap.Gaps, name) && !hasText(snap.Gaps, "references") && !hasText(snap.Gaps, "breaking") {
@@ -86,7 +86,7 @@ func TestF02ProjectionsAreRecomposedFromTheFragmentBlobs(t *testing.T) {
 	d := newReleaseRepo(t, "v1.0.0")
 	twice := []ReleaseFragment{d.manifest.Fragments[0], d.manifest.Fragments[0]}
 	twice[1].Spec = "beta"
-	d.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", twice, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, d.manifest.VersionEvidence)
+	d.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", twice, fixtureReleasePolicy(), ChangelogPolicy{}, d.manifest.VersionEvidence)
 	d.writeAll(t)
 	if snap := snapshotOf(t, tagged(t, d)); !hasText(snap.Gaps, "share the file") {
 		t.Fatalf("two specs on one file passed: %+v", snap.Gaps)
@@ -96,7 +96,7 @@ func TestF02ProjectionsAreRecomposedFromTheFragmentBlobs(t *testing.T) {
 // F03: the policy digest is tied to the policy of the cut.
 func TestF03PolicyDigestFollowsThePolicyOfTheTag(t *testing.T) {
 	r := newReleaseRepo(t, "v1.0.0")
-	r.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", r.manifest.Fragments, ReleasePolicy{SchemaVersion: 1, AllowEmpty: true}, ChangelogPolicy{}, r.manifest.VersionEvidence)
+	r.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", r.manifest.Fragments, func() ReleasePolicy { p := fixtureReleasePolicy(); p.AllowEmpty = true; return p }(), ChangelogPolicy{}, r.manifest.VersionEvidence)
 	r.writeAll(t)
 	if snap := snapshotOf(t, tagged(t, r)); !hasText(snap.Gaps, "policy digest") {
 		t.Fatalf("a policy digest of another policy passed: %+v", snap)
@@ -118,14 +118,16 @@ func TestF04VersionEvidenceMustBeTheReleaseAndItsSourceMustBeThere(t *testing.T)
 		"no source":       {"kind": "text", "value": "v1.0.0"},
 		"extra key":       {"source": "VERSION", "kind": "text", "value": "v1.0.0", "x": "y"},
 	} {
-		m := NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", r.manifest.Fragments, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, evidence)
+		m := NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", r.manifest.Fragments, fixtureReleasePolicy(), ChangelogPolicy{}, evidence)
 		if _, issues := ValidateReleaseManifestBytes(CanonicalJSON(m), "v1.0.0"); len(issues) == 0 {
 			t.Errorf("%s: accepted", name)
 		}
 	}
 	j := newReleaseRepo(t, "v1.0.0")
-	j.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", j.manifest.Fragments, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, map[string]string{"source": "gone.json", "kind": "json", "value": "v1.0.0"})
+	jsonPolicy := ReleasePolicy{SchemaVersion: 1, VersionSource: &ReleaseVersionSource{Path: "gone.json", Kind: ReleaseVersionSourceJSON, Key: "version"}}
+	j.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", j.manifest.Fragments, jsonPolicy, ChangelogPolicy{}, map[string]string{"source": "gone.json", "kind": "json", "value": "v1.0.0"})
 	j.writeAll(t)
+	relWrite(t, j.root, ".pose/policy/release.json", string(CanonicalJSON(jsonPolicy)))
 	if snap := snapshotOf(t, tagged(t, j)); !hasText(snap.Gaps, "missing from the tagged tree") {
 		t.Fatalf("a version source that is not in the tree passed: %+v", snap)
 	}
@@ -152,7 +154,7 @@ func TestF06AbsenceIsNotALoss(t *testing.T) {
 	r := newReleaseRepo(t, "v1.0.0")
 	relGit(t, r.root, "rm", "-r", "-q", "-f", ".pose/changelogs/v1.0.0")
 	relWrite(t, r.root, ".pose/changelogs/v1.0.0", "a file where the archive belongs")
-	r.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", []ReleaseFragment{}, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, r.manifest.VersionEvidence)
+	r.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", []ReleaseFragment{}, fixtureReleasePolicy(), ChangelogPolicy{}, r.manifest.VersionEvidence)
 	r.notes = RenderReleaseNotes("v1.0.0", []ReleaseFragment{}, ChangelogPolicy{})
 	relWrite(t, r.root, ".pose/changelogs/v1.0.0.md", r.notes)
 	relWrite(t, r.root, ".pose/releases/v1.0.0/manifest.json", string(CanonicalJSON(r.manifest)))
@@ -162,7 +164,7 @@ func TestF06AbsenceIsNotALoss(t *testing.T) {
 	// A legitimately empty release leaves no archive directory: that is absence, not a loss.
 	e := newReleaseRepo(t, "v1.0.0")
 	relGit(t, e.root, "rm", "-r", "-q", "-f", ".pose/changelogs/v1.0.0")
-	e.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", []ReleaseFragment{}, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, e.manifest.VersionEvidence)
+	e.manifest = NewReleaseManifest("v1.0.0", "", "2026-10-02T00:00:00Z", []ReleaseFragment{}, fixtureReleasePolicy(), ChangelogPolicy{}, e.manifest.VersionEvidence)
 	e.notes = RenderReleaseNotes("v1.0.0", []ReleaseFragment{}, ChangelogPolicy{})
 	relWrite(t, e.root, ".pose/changelogs/v1.0.0.md", e.notes)
 	relWrite(t, e.root, ".pose/releases/v1.0.0/manifest.json", string(CanonicalJSON(e.manifest)))
@@ -199,7 +201,7 @@ func TestF10VersionPrecedenceIsSemanticAndPreviousIsOlder(t *testing.T) {
 		}
 	}
 	r := newReleaseRepo(t, "v1.0.0")
-	m := NewReleaseManifest("v1.0.0", "v9.9.9", "2026-10-02T00:00:00Z", r.manifest.Fragments, ReleasePolicy{SchemaVersion: 1}, ChangelogPolicy{}, r.manifest.VersionEvidence)
+	m := NewReleaseManifest("v1.0.0", "v9.9.9", "2026-10-02T00:00:00Z", r.manifest.Fragments, fixtureReleasePolicy(), ChangelogPolicy{}, r.manifest.VersionEvidence)
 	if _, issues := ValidateReleaseManifestBytes(CanonicalJSON(m), "v1.0.0"); len(issues) == 0 {
 		t.Fatal("a previous version newer than the release was accepted")
 	}

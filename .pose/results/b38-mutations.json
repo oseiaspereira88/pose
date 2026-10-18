@@ -67,7 +67,7 @@
     },
     {
       "mutation": "digest das notas não é comparado",
-      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02|TestR2Notes",
       "verdict": "killed"
     },
     {
@@ -77,11 +77,6 @@
     },
     {
       "mutation": "fragment extra na árvore da tag é aceito",
-      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02",
-      "verdict": "killed"
-    },
-    {
-      "mutation": "fonte de versão da tag não é relida",
       "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02",
       "verdict": "killed"
     },
@@ -176,11 +171,6 @@
       "verdict": "killed"
     },
     {
-      "mutation": "release apagada da árvore some do registro",
-      "tests": "TestF06",
-      "verdict": "killed"
-    },
-    {
       "mutation": "rc.2 depois de rc.10",
       "tests": "TestF10",
       "verdict": "killed"
@@ -214,8 +204,68 @@
       "mutation": "record aceita tag de árvore quebrada",
       "tests": "TestF05",
       "verdict": "killed"
+    },
+    {
+      "mutation": "fragment aninhado com null é aceito",
+      "tests": "TestR2NestedFragmentObjectsAreStrict",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fragment aninhado sem campo obrigatório é aceito",
+      "tests": "TestR2NestedFragmentObjectsAreStrict",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "testemunho de archival não confere a spec do blob",
+      "tests": "TestR2ArchivalWitnessIsTheSpecOfTheBlob",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "status não confere o worktree com o corte",
+      "tests": "TestR2StatusSeesTheFilesOfTheCutThatWereLost",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fonte JSON que diz outra versão passa",
+      "tests": "TestR2VersionEvidenceFollowsThePolicyOfTheCut",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "arquivo qualquer vale como versão do motor",
+      "tests": "TestR2VersionEvidenceFollowsThePolicyOfTheCut",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "policy do corte não é validada",
+      "tests": "TestR2PoliciesOfTheCutAreValidated",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "categoria fora da policy do corte passa",
+      "tests": "TestR2PoliciesOfTheCutAreValidated",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "notas arbitrárias passam",
+      "tests": "TestR2NotesAreTheRenderingOfTheFragments",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "listagem de tags que falha vira vazia",
+      "tests": "TestR2GitFailuresAreNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "prepare sobrescreve manifest inválido",
+      "tests": "TestR2PrepareDoesNotOverwrite",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "evidência do candidato sem a fonte da policy",
+      "tests": "TestR2PreparedEvidenceNamesTheSourceOfThePolicy",
+      "verdict": "killed"
     }
   ],
-  "killed": 43,
-  "total": 43
+  "killed": 53,
+  "total": 53
 }
