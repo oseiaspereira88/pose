@@ -81,6 +81,7 @@ scan de marcadores de dívida técnica e a leitura do histórico de reviews
 - modified: pose-mcp/internal/cli/state_providers.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/pose/assessment_scan.go
+- modified: pose-mcp/internal/pose/spec.go
 - modified: pose-mcp/internal/pose/governance_replay.go
 - modified: pose-mcp/internal/pose/governance_outcomes.go
 - modified: pose-mcp/internal/pose/obligation.go
@@ -240,6 +241,11 @@ e só o placeholder `- [open]` puro de spec não concluída é tolerado; estado 
 persistido `null`, sem identidade ou de schema futuro não é componente e vira perda do tipo
 da sua falha (parse, inválido, não suportado); replay e rework ordenam bundles por instante.
 
+A sexta revisão (3 bloqueantes, 1 follow-up) levou a: campo de cabeçalho de review repetido
+(`scope`, `review_id`, `decision`, `reviewed_at`) é perda, não registro de outro escopo; o
+project state lê estados de componente pelo loader que valida, e o `discover` de um componente
+publica o estado a partir da visão consolidada, com as perdas dos demais.
+
 ### Review and delivery evidence
 
 Probes antes (0b2a726f) e depois em [b06-front05-probes.json](../results/b06-front05-probes.json);
@@ -262,3 +268,5 @@ unidade.
 
 Nenhum item encerrado nesta entrega além de B06. B22–B23 reutilizam a cobertura para
 inventário e metadata de resíduo; B34 pode construir sobre ela a invalidação de read views.
+
+- [open] Raiz de estados de componentes que é link quebrado perde o diagnóstico em `updateProjectStateArchitecture` (o estado fica `unavailable` e o `discover` falha antes de publicar; sem aprovação indevida demonstrada, achado R6-F04 da revisão independente) (owner:@core crit:low review:2026-12-01)

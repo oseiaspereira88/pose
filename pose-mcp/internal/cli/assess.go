@@ -672,7 +672,13 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 	}
 
 	if updateState {
-		if err := updateProjectStateArchitecture(root, results); err != nil {
+		// The merged view: a component this run did not scan keeps what was recorded about it,
+		// including a state that could not be read.
+		stateInput := results
+		if targetComp != "" {
+			stateInput = consolidated
+		}
+		if err := updateProjectStateArchitecture(root, stateInput); err != nil {
 			fmt.Fprintf(stderr, "pose assess discover update-state: %v\n", err)
 			return 1
 		}
@@ -724,17 +730,15 @@ func updateProjectStateArchitecture(root string, current []*pose.ComponentDiscov
 			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") || entry.Name() == "..json" {
 				continue
 			}
-			componentRaw, readErr := os.ReadFile(filepath.Join(root, ".pose", "state", "components", entry.Name()))
-			if readErr != nil {
+			// The loader that validates a state is the one that reads it here too: a record
+			// of a format this engine does not read, or that names no component, is not a
+			// component with zero debt.
+			state, loadErr := (pose.Store{Root: root}).LoadComponentState(strings.TrimSuffix(entry.Name(), ".json"))
+			if loadErr != nil || state == nil {
 				unreadable++
 				continue
 			}
-			var state pose.ComponentDiscoveryState
-			if json.Unmarshal(componentRaw, &state) == nil && state.ComponentSlug != "" {
-				current = append(current, &state)
-			} else {
-				unreadable++
-			}
+			current = append(current, state)
 		}
 	}
 	for _, state := range current {

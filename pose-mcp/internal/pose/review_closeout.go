@@ -797,6 +797,9 @@ func parseReviewAttempt(path string) (ReviewAttempt, error) {
 		return ReviewAttempt{}, err
 	}
 	fm, body := SplitFrontmatter(string(raw))
+	if repeated := FrontmatterRepeats(string(raw), "review_id", "scope", "decision", "reviewed_at", "scope_digest", "plan_digest"); len(repeated) > 0 {
+		return ReviewAttempt{}, fmt.Errorf("pose: review record declares %s more than once", strings.Join(repeated, ", "))
+	}
 	a := ReviewAttempt{SchemaVersion: ReviewSchemaVersion, ReviewID: fm["review_id"], Scope: fm["scope"], ScopeDigest: fm["scope_digest"], PlanDigest: fm["plan_digest"], Profile: fm["profile"], Reviewer: fm["reviewer"], Decision: fm["decision"], ReviewedAt: fm["reviewed_at"], Supersedes: fm["supersedes"], Path: path}
 	if v := fm["schema_version"]; v != "" && v != "1" {
 		return a, fmt.Errorf("pose: review %s has unsupported schema_version %s", a.ReviewID, v)
@@ -986,6 +989,11 @@ func (s Store) ReadReviewAttempts(scope string) (ReviewAttemptsRead, error) {
 				continue
 			}
 			fm, _ := SplitFrontmatter(string(raw))
+			if repeated := FrontmatterRepeats(string(raw), "scope"); len(repeated) > 0 {
+				// Which scope a record belongs to is not settled by its last line.
+				coverage.Add(SourceLoss{Producer: "review-attempts", Artifact: rel, Kind: LossInvalid, Detail: "the record names its scope more than once", At: at, ID: strings.TrimSuffix(entry.Name(), ".md")})
+				continue
+			}
 			if fm["scope"] != scope {
 				if fm["scope"] == "" {
 					// No readable scope: it may be an attempt of this one.

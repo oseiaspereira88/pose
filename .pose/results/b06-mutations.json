@@ -544,8 +544,28 @@
       "mutation": "R5 tipo de perda do estado é sempre read-error",
       "tests": "TestThePersistedStateLossKeepsTheKind",
       "verdict": "killed"
+    },
+    {
+      "mutation": "R6 escopo repetido é de outro escopo",
+      "tests": "TestARecordThatNamesItsScopeTwice",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R6 leitura global aceita campo repetido",
+      "tests": "TestARecordThatNamesItsScopeTwice",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R6 project state lê componente sem validar",
+      "tests": "TestTheProjectStateReadsComponentsThroughTheValidatingLoader",
+      "verdict": "survived"
+    },
+    {
+      "mutation": "R6 discover publica estado só do que varreu",
+      "tests": "TestADiscoveryOfOneComponentKeeps",
+      "verdict": "killed"
     }
   ],
-  "killed": 109,
-  "total": 109
+  "killed": 112,
+  "total": 113
 }

@@ -117,3 +117,22 @@ func TestNoConsumerOrdersTheBundleHistoryByText(t *testing.T) {
 		}
 	}
 }
+
+// R6-F01: a record that names its scope twice is not the other scope's.
+func TestARecordThatNamesItsScopeTwiceIsALossNotAnotherScopes(t *testing.T) {
+	_, store := reviewFixture(t)
+	recordApprovedReview(t, store, "rvw-20260802T120000Z-aaaa1111", "spec:alpha", "spec-closeout@1", "requirements", "")
+	writeCoverageFile(t, store.Root, ".pose/reviews/rvw-20260803T090000Z-bbbb2222.md", "---\nschema_version: 1\nreview_id: rvw-20260803T090000Z-bbbb2222\nscope: spec:alpha\nscope: spec:other\ndecision: rejected\nreviewed_at: 2026-08-03T09:00:00Z\n---\n")
+	read, err := store.ReadReviewAttempts("spec:alpha")
+	if err != nil || read.Coverage.CompleteFor("spec:alpha") {
+		t.Fatalf("a repeated scope was filtered out as another scope's: %+v %v", read.Coverage, err)
+	}
+	eval, err := store.ReviewCheck("spec:alpha")
+	if err != nil || eval.Approved {
+		t.Fatalf("an earlier approval stood over a rejection whose scope is ambiguous: approved=%v err=%v", eval.Approved, err)
+	}
+	global, err := store.ReadReviewAttempts("")
+	if err != nil || global.Coverage.Complete() {
+		t.Fatalf("the global read accepted a record that names its scope twice: %+v", global.Coverage)
+	}
+}

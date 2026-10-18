@@ -341,3 +341,31 @@ func TestThePersistedStateLossKeepsTheKindOfItsFailure(t *testing.T) {
 		}
 	}
 }
+
+// R6-F02 and R6-F03: the derived state reads components the way the loader does, and a
+// discovery that scanned one component keeps what the others lost.
+func TestTheProjectStateReadsComponentsThroughTheValidatingLoader(t *testing.T) {
+	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, ".pose/state/project-state.md", "# State\n\n## Arquitetura\n<!-- state:derived hash:000000000000 status:active -->\n\nold\n")
+	writeCloseoutCLIFile(t, root, ".pose/state/components/future.json", `{"schema_version":99,"component_slug":"future","status":"verified","completeness_score":1}`)
+	if err := updateProjectStateArchitecture(root, nil); err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := os.ReadFile(filepath.Join(root, ".pose/state/project-state.md"))
+	if !strings.Contains(string(raw), "1 estados ilegíveis") || strings.Contains(string(raw), "verificados=1") {
+		t.Fatalf("a state of a future format was published as a verified component:\n%s", raw)
+	}
+}
+
+func TestADiscoveryOfOneComponentKeepsWhatTheOthersLostInTheProjectState(t *testing.T) {
+	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, ".pose/state/project-state.md", "# State\n\n## Arquitetura\n<!-- state:derived hash:000000000000 status:active -->\n\nold\n")
+	writeCloseoutCLIFile(t, root, ".pose/state/components/other.json", `{"component_slug":"oth`)
+	writeCloseoutCLIFile(t, root, "svc/main.go", "package svc\n")
+	var out, errOut bytes.Buffer
+	code := assessDiscover(root, []string{"--component", "svc", "--update-state"}, &out, &errOut, cliLocale("en"))
+	raw, _ := os.ReadFile(filepath.Join(root, ".pose/state/project-state.md"))
+	if code != 0 || !strings.Contains(string(raw), "não certificado") {
+		t.Fatalf("code=%d err=%s\n%s", code, errOut.String(), raw)
+	}
+}

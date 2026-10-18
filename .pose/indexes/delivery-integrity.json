@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:358908f9e72a8517f4b5722c759c19162163138ad0abbcb19deda464c049a9ba",
-  "provenance_digest": "sha256:476c7df89a6b26342a487b5cd1c30fcdaf904575fb64d5a8bef474229cb300fe",
+  "input_digest": "sha256:96dc5adefaad3d3c59885432375bda41289425e3c5d3401bfcc25b03c68dcecb",
+  "provenance_digest": "sha256:6e828588c59b3aef14ef9fc2f91e08400965117ccc46d47ea8ab13f5b0f6f9bf",
   "implied_edges": [
     "changes"
   ],
@@ -30197,14 +30197,6 @@
       }
     },
     {
-      "id": "change-set:cs-361cca89c3fb",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:52ce9b981e07338c51bac065c071b1a54282ebef7b41b347187ab7d02ea2dd42",
-        "selector": "trailers:pose-source-coverage-integrity"
-      }
-    },
-    {
       "id": "change-set:cs-368d273032f1",
       "type": "change-set",
       "attributes": {
@@ -30258,6 +30250,14 @@
       "attributes": {
         "diff_digest": "sha256:9823e2a42e1af20e3560c254a0d79f0401088d8beaae25d8d17da89d0d271ff4",
         "selector": "trailers:pose-release-compatibility-matrix"
+      }
+    },
+    {
+      "id": "change-set:cs-39d60ab64eb8",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:671087d6d35e4f73ab726f00477dc26bfd3095f9944ffd8b6947c77df3df7b9a",
+        "selector": "trailers:pose-source-coverage-integrity"
       }
     },
     {
@@ -63097,6 +63097,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/pose/source_coverage_round5_test.go",
+      "to": "delivery:capability:source-coverage-integrity",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/pose/spec.go",
       "to": "delivery:capability:attention-within-a-second",
       "type": "implemented-by"
@@ -94603,6 +94608,11 @@
     },
     {
       "from": "spec:pose-source-coverage-integrity",
+      "to": "artifact:pose-mcp/internal/pose/spec.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-source-coverage-integrity",
       "to": "artifact:pose-mcp/internal/pose/techdebt.go",
       "type": "declares"
     },
@@ -94623,7 +94633,7 @@
     },
     {
       "from": "spec:pose-source-coverage-integrity",
-      "to": "change-set:cs-361cca89c3fb",
+      "to": "change-set:cs-39d60ab64eb8",
       "type": "observed-by"
     },
     {
@@ -119793,6 +119803,11 @@
     {
       "spec": "pose-source-coverage-integrity",
       "action": "modified",
+      "path": "pose-mcp/internal/pose/spec.go"
+    },
+    {
+      "spec": "pose-source-coverage-integrity",
+      "action": "modified",
       "path": "pose-mcp/internal/pose/techdebt.go"
     },
     {
@@ -140610,280 +140625,6 @@
       "diff_digest": "sha256:c93e2bef81f214ffc557431cb67a07e94c557f8c82a20419b8c1c754ab29e223"
     },
     {
-      "id": "cs-361cca89c3fb",
-      "spec": "pose-source-coverage-integrity",
-      "selector": "trailers:pose-source-coverage-integrity",
-      "base": "3106eafa02b34a10d624df4d9076783323685814^",
-      "head": "3f084198e885c65f8b6f815012d12e8c29c29a84",
-      "resolved_base": "0b2a726f6167da32cfefda267b8372ec504a4b14",
-      "resolved_head": "3f084198e885c65f8b6f815012d12e8c29c29a84",
-      "commits": [
-        "3106eafa02b34a10d624df4d9076783323685814",
-        "0eac460e7325032231af1769f97b23514f4f902f",
-        "44a5c3354b74710fb87cc7289a6244b668775fab",
-        "1f0210d7dfcc76cafaa26991267d5a87da21f94f",
-        "180c8d825ba7d2535de0e6957e539b2d90dc87fb",
-        "7fc6c1f02cd94f4b9b5cfc5b73fb4206b05c51f8",
-        "b8a3005be9601ec7e7b8b63a838eb47fecc39b54",
-        "bfd948920c07be8592fb2626a84f775854192960",
-        "8d736327bfa89666111483ab9d2c08e760ebdc56",
-        "41f217bc0f4e818fd647529f10b41e31194059be",
-        "a94878e819ad3393383ec4f981eda55e0ebe6b57",
-        "3f084198e885c65f8b6f815012d12e8c29c29a84"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/adr/2026-10-17-a-source-that-lost-something-is-incomplete-for-what-depends-on-it.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-source-coverage-integrity.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b06-front05-probes.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b06-front05-probes.py"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b06-implementation-validation.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b06-mutations.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b06-mutations.py"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-source-coverage-integrity.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/source_coverage_parity_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/mcpserver/source_coverage_parity_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/source_coverage.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/source_coverage_integrity_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/source_coverage_review_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/source_coverage_round2_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/source_coverage_round3_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/source_coverage_round4_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/README.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/consolidated.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/docs-site.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/mcp-enforce.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/pose-mcp.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/roadmaps.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/pose-implementation-plan.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/roadmaps/pose-consolidation-program.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/roadmaps/pose-state-consistency-and-recovery.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/specs/2026-10-13-pose-source-coverage-integrity.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/components/docs-site.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/components/mcp-enforce.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/components/pose-mcp.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/assess.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/followups.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/lintspec.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_closeout.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/state_attention.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/state_providers.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/mcpserver/server.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/assessment_scan.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/discovery.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/effective_governance.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/followup_candidates.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/followups_parse.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_outcomes.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_replay.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_waits.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/legacy_inventory.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/legacy_ledger.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/obligation.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/obligation_projection.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/obligation_sources.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/obligation_sources_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_closeout.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/techdebt.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:52ce9b981e07338c51bac065c071b1a54282ebef7b41b347187ab7d02ea2dd42"
-    },
-    {
       "id": "cs-368d273032f1",
       "spec": "pose-governance-wait-rework-observability",
       "selector": "trailers:pose-governance-wait-rework-observability",
@@ -141896,6 +141637,285 @@
         }
       ],
       "diff_digest": "sha256:9823e2a42e1af20e3560c254a0d79f0401088d8beaae25d8d17da89d0d271ff4"
+    },
+    {
+      "id": "cs-39d60ab64eb8",
+      "spec": "pose-source-coverage-integrity",
+      "selector": "trailers:pose-source-coverage-integrity",
+      "base": "3106eafa02b34a10d624df4d9076783323685814^",
+      "head": "49aa23a0e80f2f694f1d2ac6cedff8f366ebcc01",
+      "resolved_base": "0b2a726f6167da32cfefda267b8372ec504a4b14",
+      "resolved_head": "49aa23a0e80f2f694f1d2ac6cedff8f366ebcc01",
+      "commits": [
+        "3106eafa02b34a10d624df4d9076783323685814",
+        "0eac460e7325032231af1769f97b23514f4f902f",
+        "44a5c3354b74710fb87cc7289a6244b668775fab",
+        "1f0210d7dfcc76cafaa26991267d5a87da21f94f",
+        "180c8d825ba7d2535de0e6957e539b2d90dc87fb",
+        "7fc6c1f02cd94f4b9b5cfc5b73fb4206b05c51f8",
+        "b8a3005be9601ec7e7b8b63a838eb47fecc39b54",
+        "bfd948920c07be8592fb2626a84f775854192960",
+        "8d736327bfa89666111483ab9d2c08e760ebdc56",
+        "41f217bc0f4e818fd647529f10b41e31194059be",
+        "a94878e819ad3393383ec4f981eda55e0ebe6b57",
+        "3f084198e885c65f8b6f815012d12e8c29c29a84",
+        "49aa23a0e80f2f694f1d2ac6cedff8f366ebcc01"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-10-17-a-source-that-lost-something-is-incomplete-for-what-depends-on-it.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-source-coverage-integrity.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b06-front05-probes.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b06-front05-probes.py"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b06-implementation-validation.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b06-mutations.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b06-mutations.py"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-source-coverage-integrity.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/source_coverage_parity_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/mcpserver/source_coverage_parity_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/source_coverage.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/source_coverage_integrity_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/source_coverage_review_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/source_coverage_round2_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/source_coverage_round3_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/source_coverage_round4_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/source_coverage_round5_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/README.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/consolidated.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/docs-site.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/mcp-enforce.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/pose-mcp.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/pose-implementation-plan.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/roadmaps/pose-consolidation-program.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/roadmaps/pose-state-consistency-and-recovery.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-10-13-pose-source-coverage-integrity.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/docs-site.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/mcp-enforce.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/pose-mcp.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/assess.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/followups.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/lintspec.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/state_attention.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/state_providers.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/server.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/assessment_scan.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/discovery.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/effective_governance.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/followup_candidates.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/followups_parse.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_outcomes.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_replay.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_waits.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/legacy_inventory.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/legacy_ledger.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/obligation.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/obligation_projection.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/obligation_sources.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/obligation_sources_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/techdebt.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:671087d6d35e4f73ab726f00477dc26bfd3095f9944ffd8b6947c77df3df7b9a"
     },
     {
       "id": "cs-3a15d93ea024",
@@ -199549,6 +199569,7 @@
       "pose-historical-trust-and-review-reuse",
       "pose-index-generation-integrity",
       "pose-qualified-artifact-resolution",
+      "pose-source-coverage-integrity",
       "pose-specs-ergonomics-and-discovery"
     ],
     "pose-mcp/internal/pose/spec_facts.go": [
@@ -201409,15 +201430,6 @@
       "remediation": "no Git change sets are attributed to spec pose-policy-scope-validation (ensure commits carry 'POSE-Spec: pose-policy-scope-validation' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-20268869fe0e",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-source-coverage-integrity",
-      "path": "pose-mcp/internal/pose/source_coverage_round5_test.go",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
       "id": "dif-2070de91852c",
       "code": "action-mismatch",
       "severity": "error",
@@ -201739,6 +201751,15 @@
       "path": ".pose/changelogs/unreleased/pose-action-waiver-and-supersession-authority.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-action-waiver-and-supersession-authority (ensure commits carry 'POSE-Spec: pose-action-waiver-and-supersession-authority' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-2fa05cb0e0e7",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-source-coverage-integrity",
+      "path": "pose-mcp/internal/pose/spec.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-2fd39cf54f18",
@@ -202605,15 +202626,6 @@
       "path": "pose-mcp/internal/cli/release_temporal_evidence_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-5500e9eb30c6",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-source-coverage-integrity",
-      "path": "pose-mcp/internal/pose/source_coverage_round5_test.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-5550285d55d9",
@@ -215764,6 +215776,7 @@
       "artifact:pose-mcp/internal/pose/source_coverage_round2_test.go",
       "artifact:pose-mcp/internal/pose/source_coverage_round3_test.go",
       "artifact:pose-mcp/internal/pose/source_coverage_round4_test.go",
+      "artifact:pose-mcp/internal/pose/source_coverage_round5_test.go",
       "artifact:.pose/indexes/validation-matrix.json",
       "artifact:.pose/results/pose-implementation-plan.json",
       "artifact:.pose/roadmaps/pose-consolidation-program.md",
