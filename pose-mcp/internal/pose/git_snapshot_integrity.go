@@ -94,7 +94,7 @@ func ReadGitStatus(root string, pathspecs ...string) ([]GitStatusEntry, error) {
 		args = append(args, "--")
 		args = append(args, pathspecs...)
 	}
-	cmd := exec.Command("git", args...)
+	cmd := gitCommand(args...)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	raw, err := cmd.Output()
@@ -125,7 +125,7 @@ func parseGitStatusZ(raw []byte) []GitStatusEntry {
 
 // ReadGitHead returns the commit HEAD names, or ErrGitUnknown.
 func ReadGitHead(root string) (string, error) {
-	cmd := exec.Command("git", "-C", root, "rev-parse", "--verify", "HEAD")
+	cmd := gitCommand("-C", root, "rev-parse", "--verify", "HEAD")
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
@@ -213,16 +213,16 @@ func WorktreeDivergence(worktree, commit string, allowed func(path string, track
 func WorktreeDivergenceFor(worktree, commit string, allowed func(path string, tracked bool) bool, gitlinkMatters func(path string) bool) ([]string, error) {
 	// Paths are the commit's, relative to the root of the repository: a directory inside
 	// the worktree is compared as the worktree it belongs to.
-	if out, err := exec.Command("git", "-C", worktree, "rev-parse", "--show-toplevel").Output(); err == nil {
+	if out, err := gitCommand("-C", worktree, "rev-parse", "--show-toplevel").Output(); err == nil {
 		if top := strings.TrimSpace(string(out)); top != "" {
 			worktree = top
 		}
 	}
 	format := "sha1"
-	if out, err := exec.Command("git", "-C", worktree, "rev-parse", "--show-object-format").Output(); err == nil && strings.TrimSpace(string(out)) == "sha256" {
+	if out, err := gitCommand("-C", worktree, "rev-parse", "--show-object-format").Output(); err == nil && strings.TrimSpace(string(out)) == "sha256" {
 		format = "sha256"
 	}
-	cmd := exec.Command("git", "-C", worktree, "ls-tree", "-r", "-z", "--full-tree", commit)
+	cmd := gitCommand("-C", worktree, "ls-tree", "-r", "-z", "--full-tree", commit)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	tree, err := cmd.Output()
@@ -288,7 +288,7 @@ func WorktreeDivergenceFor(worktree, commit string, allowed func(path string, tr
 	}
 	// Files that are not in the commit and that Git does not ignore, whether or not they
 	// were added to the index.
-	ucmd := exec.Command("git", "-C", worktree, "ls-files", "--cached", "--others", "--exclude-standard", "-z")
+	ucmd := gitCommand("-C", worktree, "ls-files", "--cached", "--others", "--exclude-standard", "-z")
 	var ustderr bytes.Buffer
 	ucmd.Stderr = &ustderr
 	others, err := ucmd.Output()
@@ -310,14 +310,24 @@ func WorktreeDivergenceFor(worktree, commit string, allowed func(path string, tr
 	return diverged, nil
 }
 
-// gitlinkMaterialized reports that dir is a repository whose HEAD is commit. A directory
-// without its own .git entry would answer with its parent's HEAD.
+// gitlinkMaterialized reports that dir is a real directory holding the submodule at commit:
+// a repository of its own (not a link to one, not a directory that would answer with its
+// parent's), at that HEAD, whose files are the files of that commit. The pin alone proves
+// only where the history is, not what the checkout reads.
 func gitlinkMaterialized(dir, commit string) bool {
-	if _, err := os.Lstat(filepath.Join(dir, ".git")); err != nil {
+	info, err := os.Lstat(dir)
+	if err != nil || !info.IsDir() {
 		return false
 	}
-	out, err := exec.Command("git", "-C", dir, "rev-parse", "--verify", "HEAD").Output()
-	return err == nil && strings.TrimSpace(string(out)) == commit
+	if g, gerr := os.Lstat(filepath.Join(dir, ".git")); gerr != nil || g.Mode()&os.ModeSymlink != 0 {
+		return false
+	}
+	out, err := gitCommand("-C", dir, "rev-parse", "--verify", "HEAD").Output()
+	if err != nil || strings.TrimSpace(string(out)) != commit {
+		return false
+	}
+	diverged, derr := WorktreeDivergenceFor(dir, commit, nil, nil)
+	return derr == nil && len(diverged) == 0
 }
 
 // gitBlobID is the object id Git gives a blob with this content.
@@ -331,4 +341,28 @@ func gitBlobID(format string, content []byte) string {
 	fmt.Fprintf(h, "blob %d\x00", len(content))
 	h.Write(content)
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+// gitRedirectingEnv are the variables that point Git at a repository, a worktree, an index or
+// an object store other than the directory it is run in.
+var gitRedirectingEnv = map[string]bool{
+	"GIT_DIR": true, "GIT_WORK_TREE": true, "GIT_INDEX_FILE": true, "GIT_OBJECT_DIRECTORY": true,
+	"GIT_ALTERNATE_OBJECT_DIRECTORIES": true, "GIT_COMMON_DIR": true, "GIT_NAMESPACE": true,
+	"GIT_CEILING_DIRECTORIES": true, "GIT_PREFIX": true, "GIT_QUARANTINE_PATH": true, "GIT_REPLACE_REF_BASE": true,
+}
+
+// gitCommand is a git subprocess that reads the repository of the directory it is given with
+// -C, whatever the environment of the process says: an inherited GIT_DIR or GIT_WORK_TREE would
+// answer for another materialization than the one that was asked about.
+func gitCommand(args ...string) *exec.Cmd {
+	cmd := exec.Command("git", args...)
+	env := make([]string, 0, len(os.Environ()))
+	for _, kv := range os.Environ() {
+		name, _, _ := strings.Cut(kv, "=")
+		if !gitRedirectingEnv[name] {
+			env = append(env, kv)
+		}
+	}
+	cmd.Env = env
+	return cmd
 }

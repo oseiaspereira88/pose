@@ -88,7 +88,8 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 		return CloseoutPlan{}, err
 	}
 	plan := CloseoutPlan{SchemaVersion: CloseoutPlanSchemaVersion, Scope: ref}
-	plan.Inputs = CloseoutPlanInputs{SpecDigest: digestHex(raw), Revision: gitHeadAtRoot(s.Root), PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose", "policy"))}
+	head, headErr := ReadGitHead(s.Root)
+	plan.Inputs = CloseoutPlanInputs{SpecDigest: digestHex(raw), Revision: head, PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose", "policy"))}
 	step := func(id, state, reason string) {
 		plan.Steps = append(plan.Steps, CloseoutPlanStep{ID: id, State: state, Reason: reason})
 	}
@@ -110,6 +111,14 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 	if plan.Inputs.PolicyDigest == directoryUnavailable {
 		step(CloseoutStepContext, CloseoutStateBlocked, "the policy could not be read whole: a closeout planned now would not know which policy governs it")
 		plan.Blockers = append(plan.Blockers, "restore read access to .pose/policy and plan again")
+		plan.Digest = closeoutPlanDigest(plan)
+		return plan, nil
+	}
+	if headErr != nil && !errors.Is(headErr, ErrGitUnavailable) {
+		// A repository whose HEAD cannot be read is not an export without Git: nothing is sealed
+		// over a revision nobody can name.
+		step(CloseoutStepContext, CloseoutStateBlocked, "the revision could not be read ("+headErr.Error()+"): evidence sealed now would not be known to describe a commit")
+		plan.Blockers = append(plan.Blockers, "git state is unknown; restore git access and plan again")
 		plan.Digest = closeoutPlanDigest(plan)
 		return plan, nil
 	}
@@ -247,7 +256,7 @@ func (s Store) ungeneratedChanges() ([]string, error) {
 		if IsPublisherStaging(path) {
 			continue
 		}
-		if !closeoutGenerated(path, entry.XY) {
+		if !closeoutGenerated(s.Root, path, entry.XY) {
 			dirty = append(dirty, path)
 		}
 	}
@@ -258,13 +267,19 @@ func (s Store) ungeneratedChanges() ([]string, error) {
 // closeout steps write: the exact files each producer writes, judged like a review run's
 // regeneration (IsDerivedRegeneration), plus the plan's own checkpoint and sealed
 // evidence. A modified validation matrix or sealed result is a change of the repository.
-func closeoutGenerated(path, xy string) bool {
+func closeoutGenerated(root, path, xy string) bool {
 	if strings.Contains(xy, "D") {
 		return false
 	}
+	// Something a producer writes is a file. A link, a directory or any other type in its
+	// place is not a regeneration, whatever its name.
+	if info, err := os.Lstat(filepath.Join(root, filepath.FromSlash(path))); err != nil || !info.Mode().IsRegular() {
+		return false
+	}
 	tracked := xy != "??"
-	if strings.HasPrefix(path, closeoutCheckpointDir+"/") {
-		return true
+	if rest, ok := strings.CutPrefix(path, closeoutCheckpointDir+"/"); ok {
+		// The checkpoint of a scope: one JSON file directly in the directory.
+		return rest != "" && !strings.Contains(rest, "/") && strings.HasSuffix(rest, ".json")
 	}
 	if strings.HasPrefix(path, ".pose/review-attestations/") {
 		return !tracked

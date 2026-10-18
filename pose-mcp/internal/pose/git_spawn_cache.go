@@ -2,7 +2,6 @@ package pose
 
 import (
 	"errors"
-	"os/exec"
 	"strings"
 	"sync"
 )
@@ -32,7 +31,7 @@ func commitChangedPaths(root, commit string) (map[string]bool, bool) {
 	if cached {
 		return paths, true
 	}
-	raw, err := exec.Command("git", "-C", root, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", commit).Output()
+	raw, err := gitCommand("-C", root, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", commit).Output()
 	if err != nil {
 		return nil, false
 	}

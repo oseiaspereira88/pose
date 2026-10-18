@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -90,26 +91,33 @@ func (s Store) LoadReviewersPolicy() (ReviewersPolicy, bool, error) {
 
 // ReviewRun is one recorded dispatch.
 type ReviewRun struct {
-	SchemaVersion    int    `json:"schema_version"`
-	RunID            string `json:"run_id"`
-	Scope            string `json:"scope"`
-	BundleID         string `json:"bundle_id"`
-	BundleDigest     string `json:"bundle_digest"`
-	SealedCommit     string `json:"sealed_commit"`
-	Kind             string `json:"kind"`
-	BriefDigest      string `json:"brief_digest"`
-	Adapter          string `json:"adapter"`
-	Vendor           string `json:"vendor"`
-	Model            string `json:"model"`
-	StartedAt        string `json:"started_at"`
-	EndedAt          string `json:"ended_at"`
-	ExitCode         int    `json:"exit_code"`
-	Status           string `json:"status"`
-	Failure          string `json:"failure,omitempty"`
+	SchemaVersion int    `json:"schema_version"`
+	RunID         string `json:"run_id"`
+	Scope         string `json:"scope"`
+	BundleID      string `json:"bundle_id"`
+	BundleDigest  string `json:"bundle_digest"`
+	SealedCommit  string `json:"sealed_commit"`
+	Kind          string `json:"kind"`
+	BriefDigest   string `json:"brief_digest"`
+	Adapter       string `json:"adapter"`
+	Vendor        string `json:"vendor"`
+	Model         string `json:"model"`
+	StartedAt     string `json:"started_at"`
+	EndedAt       string `json:"ended_at"`
+	ExitCode      int    `json:"exit_code"`
+	Status        string `json:"status"`
+	Failure       string `json:"failure,omitempty"`
+	// PolicyDigest is the digest of the policy the run was dispatched under.
+	PolicyDigest     string `json:"policy_digest,omitempty"`
 	TranscriptDigest string `json:"transcript_digest"`
 	TranscriptPath   string `json:"transcript_path"`
 	Output           string `json:"output"`
-	Path             string `json:"-"`
+	// Supersedes names the completed record that a later check found no longer governed its
+	// scope: publication cannot be made atomic with the check, so a record published and then
+	// found stale is answered by a stale record that supersedes it, and listings mark it.
+	Supersedes   string `json:"supersedes,omitempty"`
+	SupersededBy string `json:"superseded_by,omitempty"`
+	Path         string `json:"-"`
 }
 
 // Review run states.
@@ -151,6 +159,15 @@ func (s Store) ListReviewRuns(bundleID string) ([]ReviewRun, error) {
 		}
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].StartedAt < out[j].StartedAt })
+	superseded := map[string]string{}
+	for _, run := range out {
+		if run.Supersedes != "" {
+			superseded[run.Supersedes] = run.RunID
+		}
+	}
+	for i := range out {
+		out[i].SupersededBy = superseded[out[i].RunID]
+	}
 	return out, nil
 }
 
@@ -193,7 +210,7 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string) (Dispatch
 		return DispatchPlan{}, fmt.Errorf("pose: no reviewer adapter %q; configured: %s", adapter, strings.Join(names, ", "))
 	}
 	commit := bundle.Payload.Subject.Head
-	if commit == "" || exec.Command("git", "-C", s.Root, "cat-file", "-e", commit+"^{commit}").Run() != nil {
+	if commit == "" || gitCommand("-C", s.Root, "cat-file", "-e", commit+"^{commit}").Run() != nil {
 		return DispatchPlan{}, fmt.Errorf("pose: the bundle's sealed commit %q is not in this repository", commit)
 	}
 	policyDigest := directoryDigest(filepath.Join(s.Root, ".pose", "policy"))
@@ -223,7 +240,7 @@ var ErrNoReviewerAdapter = errors.New("pose: no reviewer adapter is configured i
 func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (ReviewRun, error) {
 	run := ReviewRun{SchemaVersion: 1, Scope: plan.Brief.Scope, BundleID: plan.Bundle.BundleID, BundleDigest: plan.Bundle.BundleDigest,
 		SealedCommit: plan.SealedCommit, Kind: plan.Brief.Kind, BriefDigest: plan.Brief.Digest, Adapter: plan.Adapter,
-		Vendor: plan.Config.Vendor, Model: plan.Config.Model, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1}
+		Vendor: plan.Config.Vendor, Model: plan.Config.Model, PolicyDigest: plan.PolicyDigest, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1}
 	transcript := []byte{}
 	finish := func(status, failure string) (ReviewRun, error) {
 		run.Status, run.Failure = status, failure
@@ -239,10 +256,10 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 	}
 	defer os.RemoveAll(tmp)
 	worktree := filepath.Join(tmp, "worktree")
-	if out, err := exec.Command("git", "-C", s.Root, "worktree", "add", "--detach", worktree, plan.SealedCommit).CombinedOutput(); err != nil {
+	if out, err := gitCommand("-C", s.Root, "worktree", "add", "--detach", worktree, plan.SealedCommit).CombinedOutput(); err != nil {
 		return ReviewRun{}, fmt.Errorf("pose: creating the review worktree: %v: %s", err, strings.TrimSpace(string(out)))
 	}
-	defer exec.Command("git", "-C", s.Root, "worktree", "remove", "--force", worktree).Run()
+	defer gitCommand("-C", s.Root, "worktree", "remove", "--force", worktree).Run()
 	// The adapter reviews what was sealed: the materialized worktree is compared with the
 	// sealed commit before it is handed over (a checkout filter or a hook can change it).
 	submodules := map[string]bool{}
@@ -266,7 +283,9 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 	checkout.indexPin = nil
 	if prepared, perr := checkout.PrepareReviewBundle(plan.Brief.Scope); perr != nil {
 		return finish(ReviewRunFailed, "the inputs the bundle sealed could not be checked in the sealed worktree: "+perr.Error())
-	} else if differing := sealedInputsThatDiffer(plan.Bundle, prepared); len(differing) > 0 {
+	} else if blockers := checkoutBlockers(prepared.Blockers); len(blockers) > 0 {
+		return finish(ReviewRunFailed, "the sealed worktree cannot be prepared for review without blockers: "+strings.Join(blockers, "; "))
+	} else if differing := sealedInputsThatDiffer(plan.Bundle, prepared, worktree); len(differing) > 0 {
 		return finish(ReviewRunFailed, "the sealed worktree does not hold the inputs the bundle sealed: "+strings.Join(differing, " "))
 	}
 
@@ -328,7 +347,7 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 	// content is compared with the sealed commit's own tree, so a path Git was told to
 	// ignore, a link or a replaced type cannot hide a change, and a tree that cannot be
 	// read is not a tree that is unchanged (spec pose-git-and-dispatch-snapshot-integrity).
-	changed, divergeErr := WorktreeDivergence(worktree, plan.SealedCommit, IsDerivedRegeneration)
+	changed, divergeErr := WorktreeDivergenceFor(worktree, plan.SealedCommit, IsDerivedRegeneration, func(p string) bool { return submodules[p] })
 	if divergeErr != nil {
 		return finish(ReviewRunFailed, "the sealed worktree could not be verified after the run: "+divergeErr.Error())
 	}
@@ -348,14 +367,54 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 	if reason := s.dispatchNoLongerGoverns(plan); reason != "" {
 		return finish(ReviewRunStale, reason)
 	}
-	return finish(ReviewRunCompleted, "")
+	published, err := finish(ReviewRunCompleted, "")
+	if err != nil {
+		return published, err
+	}
+	// Between the last check and the record there is a window no ordering closes. What can be
+	// done is to look again once the record exists and answer it with a stale one that
+	// supersedes it, so a record that the repository outran is never the last word; and a
+	// consumer of the record re-checks at its own point of consumption (ReviewRunStillGoverns).
+	if reason := s.dispatchNoLongerGoverns(plan); reason != "" {
+		late := published
+		late.RunID, late.Path, late.TranscriptDigest, late.TranscriptPath = "", "", "", ""
+		late.Status, late.Failure, late.Supersedes = ReviewRunStale, reason, published.RunID
+		late.EndedAt = now().UTC().Format(time.RFC3339Nano)
+		return s.recordReviewRun(late, transcript)
+	}
+	return published, nil
+}
+
+// ReviewRunStillGoverns says why a recorded run is no longer the fulfilment of its scope, or ""
+// when it still is: it was not completed, a later record supersedes it, or the bundle, the
+// policy or the inputs it reviewed are not the ones the repository has now. Whatever consumes a
+// run asks this at the moment it consumes it.
+func (s Store) ReviewRunStillGoverns(run ReviewRun) string {
+	if run.Status != ReviewRunCompleted {
+		return "the run is " + run.Status + ", not completed"
+	}
+	runs, err := s.ListReviewRuns(run.BundleID)
+	if err != nil {
+		return "the runs of the bundle could not be read: " + err.Error()
+	}
+	for _, other := range runs {
+		if other.Supersedes == run.RunID {
+			return "the run was superseded by " + other.RunID
+		}
+	}
+	bundle, err := s.LoadReviewBundle(run.BundleID)
+	if err != nil {
+		return "the bundle of the run can no longer be read: " + err.Error()
+	}
+	return s.dispatchNoLongerGoverns(DispatchPlan{Bundle: bundle, Brief: ReviewBrief{Scope: run.Scope}, SealedCommit: run.SealedCommit,
+		PolicyDigest: run.PolicyDigest})
 }
 
 // sealedInputsThatDiffer lists the inputs the bundle sealed that a preparation made from
 // another checkout reads differently: the sections of the scope (the requirements and
 // the rest of the spec) and the configuration, profiles and rules the plan consumed.
 // Generated state (evidence, indexes) is not compared: it is not carried by a commit.
-func sealedInputsThatDiffer(sealed, other ReviewBundle) []string {
+func sealedInputsThatDiffer(sealed, other ReviewBundle, checkout string) []string {
 	key := func(kind, p string) string { return kind + " " + p }
 	collect := func(b ReviewBundle) map[string]string {
 		out := map[string]string{}
@@ -377,8 +436,61 @@ func sealedInputsThatDiffer(sealed, other ReviewBundle) []string {
 			differing = append(differing, k)
 		}
 	}
+	// The implementation the bundle sealed: each file of its subject, as the checkout holds it.
+	for _, entry := range sealed.Payload.Subject.Entries {
+		if entry.Digest == "" || entry.Action == "removed" || entry.Class == "submodule" {
+			continue
+		}
+		rel := reviewBundleEntryPath(entry)
+		if strings.HasPrefix(filepath.ToSlash(rel), pendingFragmentDir) {
+			continue // archived since: the ledger, not the path, holds it
+		}
+		raw, err := os.ReadFile(filepath.Join(checkout, filepath.FromSlash(rel)))
+		if err != nil || digestBytes(bytes.ReplaceAll(raw, []byte("\r\n"), []byte("\n"))) != entry.Digest {
+			differing = append(differing, "subject "+rel)
+		}
+	}
 	sort.Strings(differing)
 	return differing
+}
+
+// checkoutBlockers are the blockers of a preparation made from a checkout that matter there.
+// A checkout carries no generated state, so the missing delivery index is not one.
+func checkoutBlockers(blockers []string) []string {
+	var out []string
+	for _, blocker := range blockers {
+		if !strings.Contains(blocker, "delivery integrity is unavailable") {
+			out = append(out, blocker)
+		}
+	}
+	return out
+}
+
+// sourceModesDiffer names the first subject file of the source whose executable bit is not the
+// one the sealed commit records, or "". Windows keeps no executable bit and is not compared.
+func sourceModesDiffer(root, commit string, entries []ReviewBundleSubjectEntry) string {
+	if runtime.GOOS == "windows" {
+		return ""
+	}
+	for _, entry := range entries {
+		if entry.Action == "removed" || entry.Class == "submodule" {
+			continue
+		}
+		rel := reviewBundleEntryPath(entry)
+		out, err := gitCommand("-C", root, "ls-tree", commit, "--", rel).Output()
+		fields := strings.Fields(string(out))
+		if err != nil || len(fields) < 1 {
+			continue // not in the sealed commit: the digest comparison speaks for it
+		}
+		info, lerr := os.Lstat(filepath.Join(root, filepath.FromSlash(rel)))
+		if lerr != nil || !info.Mode().IsRegular() {
+			continue
+		}
+		if (info.Mode().Perm()&0o111 != 0) != (fields[0] == "100755") {
+			return rel
+		}
+	}
+	return ""
 }
 
 // dispatchNoLongerGoverns says why the bundle a dispatch was planned against no longer
@@ -416,6 +528,16 @@ func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
 	}
 	if prepared.BundleDigest != plan.Bundle.BundleDigest {
 		return "stale: the bundle was superseded or its inputs changed while the run was going (the scope now prepares " + prepared.BundleDigest + ")"
+	}
+	// An equal digest is not an eligible preparation: a preparation that carries blockers
+	// (an unreadable Git status among them) did not read what it says it read.
+	if len(prepared.Blockers) > 0 {
+		return "stale: the scope cannot be prepared for review without blockers: " + strings.Join(prepared.Blockers, "; ")
+	}
+	// The digest of a file is its bytes; the mode the commit recorded is part of what was
+	// sealed, and a status that is told to ignore modes cannot be the witness of it.
+	if mismatch := sourceModesDiffer(s.Root, plan.SealedCommit, plan.Bundle.Payload.Subject.Entries); mismatch != "" {
+		return "stale: the mode of " + mismatch + " differs from the sealed commit's"
 	}
 	return ""
 }

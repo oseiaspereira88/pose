@@ -179,11 +179,11 @@ func TestB07IndependentLostSupersedingBundle(t *testing.T) {
 		t.Fatal(e)
 	}
 	os.WriteFile(filepath.Join(store.Root, filepath.FromSlash(next.Path)), []byte("{"), 0644)
-	plan := DispatchPlan{Bundle: bundle, Brief: ReviewBrief{Scope: "spec:backend"}}
+	plan := DispatchPlan{Bundle: bundle, Brief: ReviewBrief{Scope: "spec:backend"}, PolicyDigest: directoryDigest(filepath.Join(store.Root, ".pose/policy"))}
 	reason := store.dispatchNoLongerGoverns(plan)
 	t.Logf("lost newer bundle=%s reason=%q", next.BundleID, reason)
-	if reason == "" {
-		t.Error("lost superseding bundle read as absent")
+	if !strings.Contains(reason, "could not be read") {
+		t.Errorf("lost superseding bundle read as absent: %q", reason)
 	}
 }
 
@@ -225,5 +225,27 @@ func TestB07ALinkInAPolicyDirectoryIsNotReadWhole(t *testing.T) {
 	os.Symlink(filepath.Join(dir, "a.json"), filepath.Join(dir, "b.json"))
 	if got := directoryDigest(dir); got != directoryUnavailable {
 		t.Fatalf("a link is not a file that was read, got %q", got)
+	}
+}
+
+// The closeout writes the checkpoint of a scope: one JSON file directly in its directory.
+func TestB07ACloseoutCheckpointIsOneJSONFileOfTheScope(t *testing.T) {
+	root := snapshotRepo(t, map[string]string{"a.txt": "a"})
+	write := func(rel string) {
+		p := filepath.Join(root, filepath.FromSlash(rel))
+		os.MkdirAll(filepath.Dir(p), 0o755)
+		if err := os.WriteFile(p, []byte("{}"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write(".pose/closeout-plans/spec-alpha.json")
+	if dirty, err := (Store{Root: root}).ungeneratedChanges(); err != nil || len(dirty) != 0 {
+		t.Fatalf("the checkpoint of a scope is generated: %v %v", dirty, err)
+	}
+	write(".pose/closeout-plans/notes.txt")
+	write(".pose/closeout-plans/sub/deep.json")
+	dirty, err := (Store{Root: root}).ungeneratedChanges()
+	if err != nil || len(dirty) != 2 {
+		t.Fatalf("an arbitrary file under the checkpoint directory was taken as regeneration: %v %v", dirty, err)
 	}
 }

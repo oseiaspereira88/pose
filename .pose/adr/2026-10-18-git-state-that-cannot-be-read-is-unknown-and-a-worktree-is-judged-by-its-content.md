@@ -53,7 +53,9 @@ fulfilment. A commit that touches none of the sealed inputs does not invalidate 
 - Limits: the comparison reads the worktree once after the run, and the run is tied to the
   bundle by the digest of what the scope prepares to now, read before the reviewer starts and
   again after it ends. A change that happens and is undone between two reads is not seen, the
-  window between the last read and the record stays open, and the adapter is not isolated
+  window between the last read and the record is answered, not closed: the run is looked at
+  again once its record exists, a record found stale is superseded by a stale one, and whatever
+  consumes a run asks `ReviewRunStillGoverns` at its own moment of consumption; the adapter is not isolated
   (that is the adapter-containment contract). Generated state (evidence, indexes) is not
   carried by a commit, so only the sections of the scope and the consumed configuration,
   profiles and rules are compared between the bundle and the checkout.

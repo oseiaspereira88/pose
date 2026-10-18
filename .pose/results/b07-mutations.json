@@ -159,8 +159,88 @@
       "mutation": "erro de leitura vira edição",
       "tests": "TestB07IndependentReadErrorDiagnostic",
       "verdict": "killed"
+    },
+    {
+      "mutation": "subject do checkout não é comparado com o selado",
+      "tests": "TestB07R2SealedSubjectNotCheckout",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "blockers da preparação da origem são ignorados",
+      "tests": "TestB07R2UnreadableSourceStatus",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "conteúdo do submódulo não é comparado",
+      "tests": "TestB07R2DirtyGitlink",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "submódulo por link vale como diretório",
+      "tests": "TestB07R2DirtyGitlink",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "ambiente redireciona a verificação",
+      "tests": "TestB07R2OtherWorktreeEnvironment",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "bundles empatados: aprovação fica por último",
+      "tests": "TestB07R2NegativeAcrossBundles",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "digest da policy sem enquadramento",
+      "tests": "TestB07R2PolicyDigestFraming|TestB07R2PolicyChangeWithEqualDigest",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "closeout aceita link como regeneração",
+      "tests": "TestB07R2CloseoutType|TestB07ACloseoutCheckpoint",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "closeout aceita checkpoint arbitrário",
+      "tests": "TestB07R2CloseoutType|TestB07ACloseoutCheckpoint",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "HEAD ilegível não bloqueia o plano",
+      "tests": "TestB07R2CloseoutUnknownHead",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "modo executável da origem não é comparado",
+      "tests": "TestB07R2SourceMode",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "incoerência persistente não é mudança",
+      "tests": "TestB07R2PersistentUnknown",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "limpo para sujo não é mudança",
+      "tests": "TestB07R2SnapshotCleanToDirty",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "registro publicado e depois obsoleto não é substituído",
+      "tests": "TestB07R2PublishWindow",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "bundle ilegível é lido como ausente",
+      "tests": "TestB07IndependentLostSupersedingBundle",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "post-check examina gitlinks alheios",
+      "tests": "TestB07ASubmoduleTheBundleDoesNotName",
+      "verdict": "killed"
     }
   ],
-  "killed": 32,
-  "total": 32
+  "killed": 48,
+  "total": 48
 }

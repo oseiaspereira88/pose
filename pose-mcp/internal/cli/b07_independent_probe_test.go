@@ -90,3 +90,17 @@ func TestB07ARunDoesNotStartOnInputsThatAlreadyMoved(t *testing.T) {
 		t.Fatal("the reviewer was started")
 	}
 }
+
+// L01 of the second review: a submodule the bundle does not name is examined neither before nor
+// after the run.
+func TestB07ASubmoduleTheBundleDoesNotNameIsLeftAloneBeforeAndAfterTheRun(t *testing.T) {
+	root := dispatchInstanceWith(t, func(root string, git func(args ...string) string) {
+		// An unrelated pin whose repository this checkout never materializes.
+		git("update-index", "--add", "--cacheinfo", "160000,1111111111111111111111111111111111111111,vendor/other")
+	})
+	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; echo decision: approved"}, Vendor: "test", Model: "probe", Timeout: "30s"}})
+	code, out := dispatchOnce(t, root, "probe")
+	if !strings.Contains(out, "review_dispatch.status=completed") {
+		t.Fatalf("a submodule that is not part of the bundle refused the run (%d): %s", code, out)
+	}
+}

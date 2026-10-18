@@ -14,7 +14,11 @@ import (
 
 // dispatchInstance is a git repository with a sealed bundle whose sealed
 // commit exists, as dispatch needs.
-func dispatchInstance(t *testing.T) string {
+func dispatchInstance(t *testing.T) string { return dispatchInstanceWith(t, nil) }
+
+// dispatchInstanceWith is dispatchInstance with a hook that runs after the files are written and
+// before the commit that is sealed.
+func dispatchInstanceWith(t *testing.T, beforeCommit func(root string, git func(args ...string) string)) string {
 	t.Helper()
 	root := t.TempDir()
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":2,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"},"review_bundles":true,"review_bundles_adopted_at":"2026-08-14"}`)
@@ -32,6 +36,9 @@ func dispatchInstance(t *testing.T) string {
 	}
 	git("init", "-q")
 	git("add", "-A")
+	if beforeCommit != nil {
+		beforeCommit(root, git)
+	}
 	git("commit", "-q", "-m", "alpha")
 	head := git("rev-parse", "HEAD")
 	graph := posemodel.DeliveryIntegrityGraph{

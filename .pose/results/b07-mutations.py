@@ -43,7 +43,7 @@ M = [
  ("status por path desconhecido é limpo", [(RB, 'return true, " (git status unknown: " + err.Error() + ")"', 'return false, ""')], P, "TestAnUnreadableStatusIsNotACleanPath"),
  ("projeção declara coerência com status ilegível", [(OP, 'snap.Coherent = false\n\t\tsnap.Limitations = append(snap.Limitations, "git status could not be read', '_ = snap\n\t\tsnap.Limitations = append(snap.Limitations, "git status could not be read')], P, "TestTheProjectionIsNotCoherentWhenStatusCannotBeRead"),
  ("inputs do bundle não são comparados com os de hoje", [(RD, 'if prepared.BundleDigest != plan.Bundle.BundleDigest {\n\t\treturn "stale: the bundle was superseded', 'if false {\n\t\treturn "stale: the bundle was superseded')], P + " " + C, "TestB07IndependentSameSecondSupersession|TestB07IndependentSourceChangedDuringRun|TestADispatchStopsGoverning"),
- ("checkout do commit não é comparado com os inputs selados", [(RD, '} else if differing := sealedInputsThatDiffer(plan.Bundle, prepared); len(differing) > 0 {', '} else if differing := sealedInputsThatDiffer(plan.Bundle, prepared); false && len(differing) > 0 {')], C, "TestB07IndependentBundleInputsNotCommit"),
+ ("checkout do commit não é comparado com os inputs selados", [(RD, '} else if differing := sealedInputsThatDiffer(plan.Bundle, prepared, worktree); len(differing) > 0 {', '} else if differing := sealedInputsThatDiffer(plan.Bundle, prepared, worktree); false && len(differing) > 0 {')], C, "TestB07IndependentBundleInputsNotCommit"),
  ("run inicia sem rever a pertinência", [(RD, 'return finish(ReviewRunFailed, "the run was not started: "+reason)', 'reason = ""')], C, "TestB07ARunDoesNotStart"),
  ("policy alterada durante o run não é stale", [(RD, 'now != plan.PolicyDigest {', 'false {')], C, "TestARunWhosePolicyChangedWhileItRanIsStale"),
  ("backslash vira separador", [(GS, 'if p == "" || path.Clean(p) != p {', 'p = strings.ReplaceAll(p, "\\\\", "/")\n\tif p == "" || path.Clean(p) != p {')], P, "TestB07BackslashIsA"),
@@ -53,10 +53,49 @@ M = [
  ("closeout aceita matriz e resultado selado", [(CP, 'return IsDerivedRegeneration(path, tracked)\n}', 'return strings.HasPrefix(path, ".pose/indexes/") || strings.HasPrefix(path, ".pose/results/") || IsDerivedRegeneration(path, tracked)\n}')], P, "TestB07IndependentCloseoutPrefix"),
  ("rejeição no mesmo instante perde para a aprovação", [(RC, 'if aApproves != bApproves {\n\t\t\treturn aApproves\n\t\t}', '_, _ = aApproves, bApproves')], P, "TestB07IndependentNegativeSameSecond"),
  ("link na policy é ignorado", [(OP, 'return errors.New("not a regular file: " + p)', 'return nil')], P, "TestB07ALinkInAPolicyDirectory"),
- ("perda de coerência não é mudança", [(OP, 'if snap.Coherent && !now.Coherent {', 'if false {')], P, "TestB07IndependentSnapshotRevalidation"),
+ ("perda de coerência não é mudança", [(OP, 'if !now.Coherent {', 'if false {')], P, "TestB07IndependentSnapshotRevalidation"),
  ("subdiretório é comparado como raiz", [(GS, 'worktree = top', '_ = top')], P, "TestB07IndependentSubdirectory"),
  ("erro de leitura vira edição", [(GS, 'return nil, &GitUnknownError{Op: "read " + name, Cause: rerr.Error()}', 'diverged = append(diverged, name)\n\t\t\t\tcontinue')], P, "TestB07IndependentReadErrorDiagnostic"),
+ ("subject do checkout não é comparado com o selado", [(RD, 'err != nil || digestBytes(bytes.ReplaceAll(raw, []byte("\\r\\n"), []byte("\\n"))) != entry.Digest', 'err != nil || false && digestBytes(bytes.ReplaceAll(raw, []byte("\\r\\n"), []byte("\\n"))) != entry.Digest')], C, "TestB07R2SealedSubjectNotCheckout"),
+ ("blockers da preparação da origem são ignorados", [(RD, 'if len(prepared.Blockers) > 0 {\n\t\treturn "stale: the scope cannot be prepared', 'if false && len(prepared.Blockers) > 0 {\n\t\treturn "stale: the scope cannot be prepared')], C, "TestB07R2UnreadableSourceStatus"),
+ ("conteúdo do submódulo não é comparado", [(GS, 'return derr == nil && len(diverged) == 0', '_, _ = diverged, derr\n\treturn true')], P, "TestB07R2DirtyGitlink"),
+ ("submódulo por link vale como diretório", [(GS, 'info, err := os.Lstat(dir)\n\tif err != nil || !info.IsDir() {', 'info, err := os.Stat(dir)\n\tif err != nil || !info.IsDir() {')], P, "TestB07R2DirtyGitlink"),
+ ("ambiente redireciona a verificação", [(GS, 'if !gitRedirectingEnv[name] {', 'if true || !gitRedirectingEnv[name] {')], P, "TestB07R2OtherWorktreeEnvironment"),
+ ("bundles empatados: aprovação fica por último", [(RB, 'sort.SliceStable(group, func(i, j int) bool { return !negative[group[i].BundleID] && negative[group[j].BundleID] })', 'sort.SliceStable(group, func(i, j int) bool { return negative[group[i].BundleID] && !negative[group[j].BundleID] })')], P, "TestB07R2NegativeAcrossBundles"),
+ ("digest da policy sem enquadramento", [(OP, 'fmt.Fprintf(h, "%d:%s%d:", len(name), name, len(raw))\n\t\th.Write(raw)', 'h.Write([]byte(name))\n\t\th.Write([]byte{0})\n\t\th.Write(raw)\n\t\th.Write([]byte{0})')], P, "TestB07R2PolicyDigestFraming|TestB07R2PolicyChangeWithEqualDigest"),
+ ("closeout aceita link como regeneração", [(CP, 'err != nil || !info.Mode().IsRegular() {\n\t\treturn false', '(err != nil || !info.Mode().IsRegular()) && false {\n\t\treturn false')], P, "TestB07R2CloseoutType|TestB07ACloseoutCheckpoint"),
+ ("closeout aceita checkpoint arbitrário", [(CP, 'return rest != "" && !strings.Contains(rest, "/") && strings.HasSuffix(rest, ".json")', 'return rest != "" || true')], P, "TestB07R2CloseoutType|TestB07ACloseoutCheckpoint"),
+ ("HEAD ilegível não bloqueia o plano", [(CP, 'if headErr != nil && !errors.Is(headErr, ErrGitUnavailable) {', 'if false && headErr != nil && !errors.Is(headErr, ErrGitUnavailable) {')], P, "TestB07R2CloseoutUnknownHead"),
+ ("modo executável da origem não é comparado", [(RD, 'if (info.Mode().Perm()&0o111 != 0) != (fields[0] == "100755") {', 'if false {')], C, "TestB07R2SourceMode"),
+ ("incoerência persistente não é mudança", [(OP, '\tif !now.Coherent {\n\t\tchanged', '\tif snap.Coherent && !now.Coherent {\n\t\tchanged')], P, "TestB07R2PersistentUnknown"),
+ ("limpo para sujo não é mudança", [(OP, 'if now.WorktreeDirty != snap.WorktreeDirty {', 'if false {')], P, "TestB07R2SnapshotCleanToDirty"),
+ ("registro publicado e depois obsoleto não é substituído", [(RD, 'reason != "" {\n\t\tlate := published', 'reason != "" && false {\n\t\tlate := published')], C, "TestB07R2PublishWindow"), ("bundle ilegível é lido como ausente", [(RD, 'if !read.Coverage.CompleteFor(plan.Brief.Scope) {', 'if false && !read.Coverage.CompleteFor(plan.Brief.Scope) {')], P, "TestB07IndependentLostSupersedingBundle"),
+ ("post-check examina gitlinks alheios", [(RD, 'changed, divergeErr := WorktreeDivergenceFor(worktree, plan.SealedCommit, IsDerivedRegeneration, func(p string) bool { return submodules[p] })', 'changed, divergeErr := WorktreeDivergence(worktree, plan.SealedCommit, IsDerivedRegeneration)')], C, "TestB07ASubmoduleTheBundleDoesNotName"),
 ]
+def classify(r, run):
+    """killed only when a test of the targeted pattern failed on an assertion; a build,
+    a setup or a tool failure is an error, never a kill."""
+    import re
+    pattern = re.compile(run)
+    failed, build_failed = False, False
+    for line in (r.stdout or '').splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if event.get('Action') == 'fail' and event.get('Test') and pattern.search(event['Test']):
+            failed = True
+        if event.get('Action') == 'output' and ('[build failed]' in event.get('Output', '') or '[setup failed]' in event.get('Output', '')):
+            build_failed = True
+        if event.get('Action') == 'fail' and not event.get('Test') and event.get('Package') is None:
+            build_failed = True
+    if r.returncode == 0:
+        return 'survived'
+    if build_failed or not failed:
+        return 'error'
+    return 'killed'
+
+
 results = []
 for name, edits, pkgs, run in M:
     if args.only and args.only not in name:
@@ -70,10 +109,8 @@ for name, edits, pkgs, run in M:
             cur = p.read_text()
             assert cur.count(old) == 1, (name, f, cur.count(old))
             p.write_text(cur.replace(old, new))
-        r = subprocess.run(f"cd {work} && go test {pkgs} -run '{run}' -count=1", shell=True, capture_output=True, text=True, timeout=900)
-        out = r.stdout + r.stderr
-        build_error = 'build failed' in out or 'setup failed' in out
-        verdict = 'killed' if r.returncode and not build_error else ('build-error' if build_error else 'survived')
+        r = subprocess.run(['go', 'test', *pkgs.split(), '-run', run, '-count=1', '-json'], cwd=work, capture_output=True, text=True, timeout=900)
+        verdict = classify(r, run)
         results.append({'mutation': name, 'tests': run, 'verdict': verdict})
         print(verdict, name, flush=True)
 import sys

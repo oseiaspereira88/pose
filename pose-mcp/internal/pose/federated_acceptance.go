@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -219,16 +218,16 @@ func committedFederatedInputs(root string, paths []string) (map[string]string, e
 		if readErr != nil || closeErr != nil || len(working) > maxFederatedGovernanceInputBytes {
 			return nil, fmt.Errorf("pose: invalid-federated-governance-input")
 		}
-		top, err := exec.Command("git", "-C", root, "rev-parse", "--show-toplevel").Output()
+		top, err := gitCommand("-C", root, "rev-parse", "--show-toplevel").Output()
 		if err != nil || !sameProjectRoot(root, strings.TrimSpace(string(top))) {
 			return nil, fmt.Errorf("pose: federated-project-revision-unavailable")
 		}
-		revision, err := exec.Command("git", "-C", root, "rev-parse", "--verify", "HEAD").Output()
+		revision, err := gitCommand("-C", root, "rev-parse", "--verify", "HEAD").Output()
 		if err != nil {
 			return nil, fmt.Errorf("pose: federated-project-revision-unavailable")
 		}
 		object := strings.TrimSpace(string(revision)) + ":" + filepath.ToSlash(rel)
-		blobSize, err := exec.Command("git", "-C", root, "cat-file", "-s", object).Output()
+		blobSize, err := gitCommand("-C", root, "cat-file", "-s", object).Output()
 		if err != nil {
 			return nil, fmt.Errorf("pose: federated-project-revision-unavailable")
 		}
@@ -236,7 +235,7 @@ func committedFederatedInputs(root string, paths []string) (map[string]string, e
 		if _, err := fmt.Sscan(strings.TrimSpace(string(blobSize)), &committedSize); err != nil || committedSize < 0 || committedSize > maxFederatedGovernanceInputBytes {
 			return nil, fmt.Errorf("pose: invalid-federated-governance-input")
 		}
-		head, err := exec.Command("git", "-C", root, "show", object).Output()
+		head, err := gitCommand("-C", root, "show", object).Output()
 		if err != nil || !bytes.Equal(working, head) {
 			return nil, fmt.Errorf("pose: federated-governance-input-not-committed")
 		}
@@ -533,7 +532,7 @@ func federatedArtifactLastChange(source Store, identity ArtifactRef) string {
 	if err := ValidateArtifactPath(source.Root, rel, false); err != nil {
 		return ""
 	}
-	out, err := exec.Command("git", "-C", source.Root, "log", "-1", "--format=%H", "--", rel).Output()
+	out, err := gitCommand("-C", source.Root, "log", "-1", "--format=%H", "--", rel).Output()
 	if err != nil {
 		return ""
 	}
@@ -601,7 +600,7 @@ func verifyFederatedArtifactAtRevision(source Store, identity ArtifactRef, resol
 	if err := ValidateArtifactPath(source.Root, rel, false); err != nil {
 		return fmt.Errorf("unavailable-artifact")
 	}
-	committed, err := exec.Command("git", "-C", source.Root, "show", resolved.Revision+":"+rel).Output()
+	committed, err := gitCommand("-C", source.Root, "show", resolved.Revision+":"+rel).Output()
 	if err != nil {
 		return fmt.Errorf("source-revision-unavailable")
 	}
@@ -613,11 +612,11 @@ func verifyFederatedArtifactAtRevision(source Store, identity ArtifactRef, resol
 }
 
 func federatedGitlinkMatches(parent, child Store, revision string) bool {
-	top, err := exec.Command("git", "-C", child.Root, "rev-parse", "--show-toplevel").Output()
+	top, err := gitCommand("-C", child.Root, "rev-parse", "--show-toplevel").Output()
 	if err != nil || !sameProjectRoot(child.Root, strings.TrimSpace(string(top))) {
 		return true // sibling checkouts have no consumer gitlink to compare.
 	}
-	parentTop, err := exec.Command("git", "-C", parent.Root, "rev-parse", "--show-toplevel").Output()
+	parentTop, err := gitCommand("-C", parent.Root, "rev-parse", "--show-toplevel").Output()
 	if err != nil || !sameProjectRoot(parent.Root, strings.TrimSpace(string(parentTop))) {
 		return true
 	}
@@ -630,7 +629,7 @@ func federatedGitlinkMatches(parent, child Store, revision string) bool {
 	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
 		return true // sibling project, explicitly selected in Roots.
 	}
-	listing, err := exec.Command("git", "-C", parent.Root, "ls-tree", "HEAD", "--", filepath.ToSlash(rel)).Output()
+	listing, err := gitCommand("-C", parent.Root, "ls-tree", "HEAD", "--", filepath.ToSlash(rel)).Output()
 	if err != nil {
 		return false
 	}
@@ -720,8 +719,8 @@ func federatedSourceEvidenceEligibility(root, pinnedHead, subjectHead string) fu
 		if allowed, ok := ancestry[evidence.GitHead]; ok {
 			return allowed
 		}
-		allowed := exec.Command("git", "-C", root, "merge-base", "--is-ancestor", subjectHead, evidence.GitHead).Run() == nil &&
-			exec.Command("git", "-C", root, "merge-base", "--is-ancestor", evidence.GitHead, pinnedHead).Run() == nil
+		allowed := gitCommand("-C", root, "merge-base", "--is-ancestor", subjectHead, evidence.GitHead).Run() == nil &&
+			gitCommand("-C", root, "merge-base", "--is-ancestor", evidence.GitHead, pinnedHead).Run() == nil
 		ancestry[evidence.GitHead] = allowed
 		return allowed
 	}
@@ -801,10 +800,10 @@ func federatedOwnershipConflicts(projectRoots map[string]Store, resolver Artifac
 }
 
 func gitHeadAtRoot(root string) string {
-	if top, err := exec.Command("git", "-C", root, "rev-parse", "--show-toplevel").Output(); err != nil || !sameProjectRoot(root, strings.TrimSpace(string(top))) {
+	if top, err := gitCommand("-C", root, "rev-parse", "--show-toplevel").Output(); err != nil || !sameProjectRoot(root, strings.TrimSpace(string(top))) {
 		return ""
 	}
-	if head, err := exec.Command("git", "-C", root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
+	if head, err := gitCommand("-C", root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
 		return strings.TrimSpace(string(head))
 	}
 	return ""

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"sort"
@@ -701,14 +700,14 @@ func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 		snap.Limitations = append(snap.Limitations, "project identity fell back to the directory name; declare it in .pose/project.json")
 	}
 	snap.Project = project
-	if head, err := exec.Command("git", "-C", s.Root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
+	if head, err := gitCommand("-C", s.Root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
 		snap.SourceRevision = strings.TrimSpace(string(head))
 	} else {
 		snap.SourceRevision = "unknown"
 		snap.Coherent = false
 		snap.Limitations = append(snap.Limitations, "no Git revision: the answer describes the working tree only")
 	}
-	status, statusErr := exec.Command("git", "-C", s.Root, "status", "--porcelain", "--untracked-files=no", "--", ".pose").Output()
+	status, statusErr := gitCommand("-C", s.Root, "status", "--porcelain", "--untracked-files=no", "--", ".pose").Output()
 	if statusErr != nil && snap.SourceRevision != "unknown" {
 		// HEAD is readable and the status is not: the working tree is unknown, not clean.
 		snap.Coherent = false
@@ -750,9 +749,10 @@ func (s Store) ObligationSnapshotChanges(snap ObligationSnapshot) []string {
 	now := s.CurrentObligationSnapshot()
 	var changed []string
 	// A state that could not be read is not a state that did not change.
-	if snap.Coherent && !now.Coherent {
+	if !now.Coherent {
 		changed = append(changed, "coherence")
 	}
+
 	if now.Project != snap.Project {
 		changed = append(changed, "project")
 	}
@@ -770,6 +770,10 @@ func (s Store) ObligationSnapshotChanges(snap ObligationSnapshot) []string {
 	}
 	if now.IndexDigest != snap.IndexDigest {
 		changed = append(changed, "delivery-index")
+	}
+	// A clean tree that became dirty (or the reverse) is a change of what the answer describes.
+	if now.WorktreeDirty != snap.WorktreeDirty {
+		changed = append(changed, "worktree")
 	}
 	return changed
 }
@@ -825,10 +829,9 @@ func directoryDigest(dir string) string {
 		if err != nil {
 			return directoryUnavailable
 		}
-		h.Write([]byte(name))
-		h.Write([]byte{0})
+		// Length-prefixed: a name and a content cannot be read as other names and contents.
+		fmt.Fprintf(h, "%d:%s%d:", len(name), name, len(raw))
 		h.Write(raw)
-		h.Write([]byte{0})
 	}
 	return "sha256:" + hex.EncodeToString(h.Sum(nil))
 }
