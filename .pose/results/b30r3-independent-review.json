@@ -1,0 +1,1091 @@
+{
+  "schema_version": 1,
+  "review": "b30r3",
+  "date": "2026-10-18",
+  "decision": "changes-requested",
+  "spec": "pose-spec-facts-evidence-binding",
+  "head": "0234a60cfda92cd8599622fc5ba439d3d4a77d1d",
+  "origin_main": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+  "pr": "https://github.com/oseiaspereira88/pose/pull/197",
+  "reviewer": {
+    "id": "agent:independent-gpt-6.1-sol-review",
+    "vendor": "Codex/OpenAI",
+    "implementer_vendor": "Claude/Anthropic",
+    "identity_assurance": "declared",
+    "separation_declared": "different-vendor",
+    "separation_verified": "not-verified",
+    "cognitive_independence": "not-observable",
+    "subagents": false
+  },
+  "prepared_bundle": {
+    "id": "rvb-43b7f9e881420deb",
+    "digest": "sha256:43b7f9e881420deb59e12488654469b179ab947b298439c26ed736d0b7d7cd7c",
+    "state": "prepared",
+    "subject": {
+      "change_sets": [
+        "cs-bca63c6d51e9"
+      ],
+      "base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+      "head": "0234a60cfda92cd8599622fc5ba439d3d4a77d1d",
+      "implementation_digest": "sha256:8420c8d0886e5326e0b11f438849c2b2ab89158d9eefd65b9a15cb785601f428",
+      "patch_digest": "sha256:5313ace5bf6ec77d6558b66112dbb499a1655e14aa9fa366e54c125967420db4",
+      "tree_digest": "sha256:683323365c4ce71d383ca02d6e60c084b721fdcc016f8f5ad60400a1036f0cad",
+      "entries": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-spec-facts-evidence-binding.md",
+          "class": "governance",
+          "digest": "sha256:ad8cf859c130e62adb677d002d1b544d85c01ec3945dc410862667bf794a2629",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-spec-facts-evidence-binding.json",
+          "class": "governance",
+          "digest": "sha256:a7b723e3ccdf3b0a7110e609c9a73f43481ab514de9d08642460c9619d680221",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/spec_facts_binding_test.go",
+          "class": "implementation",
+          "digest": "sha256:fb419cd5a6c2c69c858d5c48862cc063bd7788fa730a70951c3f41b42efd3f71",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delivery_validation_run.go",
+          "class": "implementation",
+          "digest": "sha256:7f6a265db84fefa6c61055713a11eb46e4c61c02b625834e1d726e5c363de8d3",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/spec_facts_binding_test.go",
+          "class": "implementation",
+          "digest": "sha256:690e48e43037a3a0871b310c190fc5360849c445a05bd464fac2f3744e509748",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/spec_facts_review_regression_test.go",
+          "class": "implementation",
+          "digest": "sha256:5f96b7245002f20335655f34320c399ea8c2c47b573f2f97ec8bfc43d32fcd71",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/spec_trailers.go",
+          "class": "implementation",
+          "digest": "sha256:43ee41676814b2c70a4046695ff21e279f9d4c57f17f951170ee3cb31677a813",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json",
+          "class": "governance",
+          "digest": "sha256:285d400977ad9219a826275e8d0b407c7f083f0607168149c647759bf03f0d7b",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md",
+          "class": "documentation",
+          "digest": "sha256:76da3b3aaa31980fafc0fdddb81e059917baface1c4127be092229aea07b7bb3",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md",
+          "class": "documentation",
+          "digest": "sha256:ac96d2bc9e8fed04e627f675f62fca49a5fc3ed8abdca6bc29e687ea2c1b3ddc",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/artifact_integrity.go",
+          "class": "implementation",
+          "digest": "sha256:5737793e6cc9b74c0322fe20e69d271c73c4677a287102fcb534a25c64fc1835",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/specs_cmd.go",
+          "class": "implementation",
+          "digest": "sha256:4accdad19d2143ae85559c1483742498f740e52bbb7e47c6533947d7f012b1e8",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/surface_check.go",
+          "class": "implementation",
+          "digest": "sha256:814fa5bb8acbd571096adbe69f5593cd41920c8bd6b5997ad0276138918c36de",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_results.go",
+          "class": "implementation",
+          "digest": "sha256:cf2e248d4718d88e6b36d4129aba42e0c8e01e22ee9eb7b061bfd203eed02a2f",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/spec_facts.go",
+          "class": "implementation",
+          "digest": "sha256:458c2a9cc96dcee4d64dbe311cdac0f5ac741450532760c29ceedc882ba267e2",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md",
+          "class": "implementation",
+          "digest": "sha256:1ab7bc9d004cd452f4b8fbc6ff8dd9c21065727d0a6d60c3af3d694a3aa96771",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+          "class": "implementation",
+          "digest": "sha256:ac96d2bc9e8fed04e627f675f62fca49a5fc3ed8abdca6bc29e687ea2c1b3ddc",
+          "reason": "attributed implementation path in the immutable change set"
+        }
+      ],
+      "attribution": [
+        {
+          "path": ".pose/changelogs/unreleased/pose-spec-facts-evidence-binding.md",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "54d6c449570eb161863066b7d5be8cb230213103"
+            }
+          ]
+        },
+        {
+          "path": ".pose/indexes/validation-matrix.json",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "27be28b9bc386f867b63e7fecf6ee2a2bbfcc93c",
+              "after_mode": "100644",
+              "after": "0f24889b872ffa076b1604d14bb7e380c810bd00"
+            }
+          ]
+        },
+        {
+          "path": ".pose/starts/pose-spec-facts-evidence-binding.json",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "1aab3c92760b4b099dd70450235a4c92c716fbdc"
+            }
+          ]
+        },
+        {
+          "path": "POSE.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "b2521bf0a78fb367b92e217a1b914189ae184e27",
+              "after_mode": "100644",
+              "after": "7ac22667a1008fda9b046586349d3bc3c8a2a8f5"
+            }
+          ]
+        },
+        {
+          "path": "locales/pt-BR/POSE.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "82282867cdc159402b5d5d0b51928bf558b2b76c",
+              "after_mode": "100644",
+              "after": "c9fc4cf1c042644b2e5448f9b896194de6415382"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/artifact_integrity.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "5e89b6781ff250a57b033d092b445f93c85832f3",
+              "after_mode": "100644",
+              "after": "b2f2e7ff43090f544d13d74e0a5e112219b1b9f3"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/spec_facts_binding_test.go",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "39beff79aa6845ae1db2f3bb5188064a4b793741"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/specs_cmd.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "e16617ae76cc22cfdb09778c6be6f21ce69d98ad",
+              "after_mode": "100644",
+              "after": "8d8694fb71774de67cb549e210d266676b2e94a7"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/surface_check.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "8f8fca929d66f141bf859cf987254c47f7c55c1d",
+              "after_mode": "100644",
+              "after": "c646e3097a891df0b636f7a511f7c1758580c9af"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/validate_results.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "d55b439419b51c9de2e622e3ba72b97863d6a735",
+              "after_mode": "100644",
+              "after": "f6c46437005a715679a048dd3c3e4572c9d28b3f"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/pose/delivery_validation_run.go",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "3a32e6d2c56845e6109d72d7b5a23e0596e2cd1f"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/pose/spec_facts.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "036ba04560b38ab422efcb245c6a2a5f1ed3e8fe",
+              "after_mode": "100644",
+              "after": "f7de96f0f71522b05ced17cd73b66cfa0a5906e2"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/pose/spec_facts_binding_test.go",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "c3c3371c658804cfcf10303c98a526af2a683a61"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/pose/spec_facts_review_regression_test.go",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "3c03d2524fe6735c89a2162ace5f67e3c99275ab"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/pose/spec_trailers.go",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "e696f9a60a12c761ae09f195d91ed98d72fae17b"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "8ab9705a610bf5b6e12f155a6c987fb0afdd10f6",
+              "after_mode": "100644",
+              "after": "9f3f61db3229a545a3271024f06911ff9dbbd0ce"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "82282867cdc159402b5d5d0b51928bf558b2b76c",
+              "after_mode": "100644",
+              "after": "c9fc4cf1c042644b2e5448f9b896194de6415382"
+            }
+          ]
+        }
+      ]
+    },
+    "plan": {
+      "plan_digest": "sha256:b06d9b4f6e01080b02894d037858857f6174aeda5ab97e441c88e5fdb7f5cb56",
+      "independence": "different-actor",
+      "components": [
+        {
+          "id": "pose-mcp",
+          "path": "pose-mcp",
+          "kind": "package",
+          "language": "go",
+          "domain": "go",
+          "criticality": "high",
+          "validation_profile": "baseline",
+          "metadata_status": "partial",
+          "metadata_missing": [
+            "owner"
+          ],
+          "origin": "declared+observed",
+          "sources": [
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/artifact_integrity.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/spec_facts_binding_test.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/specs_cmd.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/surface_check.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/validate_results.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/delivery_validation_run.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts_binding_test.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts_review_regression_test.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_trailers.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/scaffold/dist/POSE.md",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+            "delivery:capability:spec-facts-evidence-binding:pose-mcp",
+            "delivery:capability:spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/artifact_integrity.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/spec_facts_binding_test.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/specs_cmd.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/surface_check.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/validate_results.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/delivery_validation_run.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts_binding_test.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts_review_regression_test.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_trailers.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/scaffold/dist/POSE.md",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+            "spec:pose-spec-facts-evidence-binding:component:pose-mcp"
+          ]
+        }
+      ],
+      "criteria": [
+        {
+          "id": "assumption-integrity",
+          "description": "Identify material assumptions and their applicable evidence; distinguish verified facts, unresolved assumptions and accepted risks.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "engineering-judgment@1",
+            "high-criticality-review@1"
+          ]
+        },
+        {
+          "id": "backend-concurrency",
+          "description": "Concurrent access, cancellation and lifecycle behavior are safe where applicable.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-contracts",
+          "description": "Public API, event, file and tool contracts remain compatible or explicitly migrated.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-input-errors",
+          "description": "Inputs, validation failures and error paths are bounded, typed and actionable.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-integration-impact",
+          "description": "Providers, consumers and inter-component boundaries remain integrated.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-observability",
+          "description": "Failures are diagnosable through bounded, non-sensitive logs, metrics or returned context.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "compatibility",
+          "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "correctness",
+          "description": "Functional and negative behavior is correct.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "design-causality",
+          "description": "Explain how the selected design addresses the stated requirement and material cause, citing the relevant decision basis and structural observations where available.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "engineering-judgment@1",
+            "high-criticality-review@1"
+          ]
+        },
+        {
+          "id": "documentation",
+          "description": "Operational docs, templates and scaffold match runtime behavior.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "operability",
+          "description": "Errors, explanations and remediation are actionable.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "requirements",
+          "description": "Every requirement has current, relevant evidence.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "scope",
+          "description": "The implementation matches the approved spec scope.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "security",
+          "description": "Inputs, paths, evidence and authority boundaries are safe.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "security"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "solution-proportionality",
+          "description": "Compare the solution with the smallest sufficient alternative, including negative space, speculative extensibility and the condition that would invalidate the choice.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "engineering-judgment@1",
+            "high-criticality-review@1"
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "id": "artifact-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "artifact-check",
+            "--spec",
+            "pose-spec-facts-evidence-binding",
+            "--strict"
+          ],
+          "rationale": "reconcile declared artifacts with Git-observed provenance",
+          "criteria": [
+            "requirements",
+            "scope"
+          ],
+          "preconditions": [
+            "artifacts-attributed"
+          ]
+        },
+        {
+          "id": "assess-design",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "design",
+            "--spec",
+            "pose-spec-facts-evidence-binding",
+            "--json"
+          ],
+          "rationale": "observe bounded structural deltas on the canonical review subject",
+          "evidence_classes": [
+            "structure"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "pose-mcp"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-integrate",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "integrate"
+          ],
+          "rationale": "inspect providers, consumers and inter-component contract gaps",
+          "evidence_classes": [
+            "integration"
+          ],
+          "criteria": [
+            "backend-contracts",
+            "backend-integration-impact"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-tech-debt",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "tech-debt"
+          ],
+          "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+          "criteria": [
+            "correctness"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "closeout-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "closeout-check",
+            "spec:pose-spec-facts-evidence-binding"
+          ],
+          "rationale": "verify remaining hierarchical closeout blockers",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "review-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "review-check",
+            "spec:pose-spec-facts-evidence-binding"
+          ],
+          "rationale": "verify exact review-plan coverage and freshness",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "pose-mcp"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "surface-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "surface-check",
+            "--spec",
+            "pose-spec-facts-evidence-binding",
+            "--strict"
+          ],
+          "rationale": "verify delivery composition, reachability and fresh evidence",
+          "evidence_classes": [
+            "integration",
+            "reachability"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "criteria": [
+            "backend-concurrency",
+            "backend-input-errors",
+            "backend-observability",
+            "correctness",
+            "requirements"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "component": "pose-mcp",
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        }
+      ],
+      "selected_profiles": [
+        {
+          "ref": "spec-closeout@1",
+          "category": "base",
+          "order": 0,
+          "source": ".pose/review-profiles/spec-closeout.json",
+          "rationale": "selected by terminal scope policy"
+        },
+        {
+          "ref": "backend-review@1",
+          "category": "language",
+          "order": 1,
+          "source": ".pose/review-profiles/backend-review.json",
+          "components": [
+            "pose-mcp"
+          ],
+          "rationale": "matched typed language selector"
+        },
+        {
+          "ref": "engineering-judgment@1",
+          "category": "delivery",
+          "order": 4,
+          "source": ".pose/review-profiles/engineering-judgment.json",
+          "components": [
+            "pose-mcp"
+          ],
+          "rationale": "matched typed delivery selector"
+        },
+        {
+          "ref": "high-criticality-review@1",
+          "category": "delivery",
+          "order": 4,
+          "source": ".pose/review-profiles/high-criticality-review.json",
+          "components": [
+            "pose-mcp"
+          ],
+          "rationale": "matched typed delivery selector"
+        }
+      ],
+      "structure": {
+        "observed": true,
+        "status": "observed",
+        "input_digest": "sha256:1be73b0d7832f7227bddd8630386bf2bae0c6c5b3dc6715decb02c69c4d28651",
+        "subject_digest": "sha256:8420c8d0886e5326e0b11f438849c2b2ab89158d9eefd65b9a15cb785601f428"
+      },
+      "band": "critical"
+    }
+  },
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Invalid component/path collapses to universal root target",
+      "probe": "TestB30R3InvalidTarget"
+    },
+    {
+      "id": "F02",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "A resolved change set lends resolution to unrelated unresolved delta",
+      "probe": "TestB30R3PartialResolved"
+    },
+    {
+      "id": "F03",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Delimiter collisions preserve fresh associated evidence after source changes module",
+      "probe": "TestB30R3SourceCollisionFresh|TestB30R3IdentityCollision|TestB30R3ScopeMapCollision"
+    },
+    {
+      "id": "F04",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "summary": "Facts drop original report and severity distinguishing results",
+      "probe": "TestB30R3LostSource"
+    },
+    {
+      "id": "F05",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Candidate/path injects human associated evidence line",
+      "probe": "TestB30R3CopiedCandidateLine|TestB30R3CopiedPathLine"
+    },
+    {
+      "id": "L01",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "summary": "Unresolved component ID only demotes pertinent result",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "L02",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "summary": "Missing/corrupt index returns error rather than unavailable projection",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "L03",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "summary": "Generic unknown explanation misstates actual reason",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "L04",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "summary": "Incomplete output ordering tie-break retains all results",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "L05",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "summary": "Unbounded Git output affects availability/performance",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "L06",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "summary": "Zero-result run header lost; no associated evidence created",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    }
+  ],
+  "checks": {
+    "build_cli": {
+      "command": "go build -o /tmp/b30r3-pose ./cmd/pose",
+      "exit_code": 0
+    },
+    "validate_global": {
+      "command": "/tmp/b30r3-pose validate --strict --json-out .pose/results/b30r3-independent-global-validation.json",
+      "exit_code": 0,
+      "path": ".pose/results/b30r3-independent-global-validation.json",
+      "counts": {
+        "executed": 140,
+        "passed": 140,
+        "failed": 0,
+        "optional_failed": 0,
+        "errored": 0,
+        "skipped": 0
+      },
+      "module_checks": 137
+    },
+    "check_strict": {
+      "exit_code": 0,
+      "output_tail": "gn-basis\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-governance-outcomes\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-remediation-lineage\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-authority\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-tool-deferred-without-delivery\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-structural-delta\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-subject-evidence\n⚠ warning changelog: done spec without a changelog fragment: pose-check-qualified-roadmap-members\n⚠ warning changelog: done spec without a changelog fragment: pose-dist-adopts-spec-authority-transfer\n⚠ warning changelog: done spec without a changelog fragment: pose-federated-external-milestone-members\n⚠ warning changelog: done spec without a changelog fragment: pose-review-bundle-classifies-transfer-records\n⚠ warning changelog: done spec without a changelog fragment: pose-spec-transfer-completion-and-references\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-capability-adoption\n⚠ warning changelog: done spec without a changelog fragment: pose-open-backlog-reconciliation\n⚠ warning capabilities: assessment is 62 days old (policy: 30); consider reassessing\n⚠ warning capabilities: baseline_commit is 1542 commits behind HEAD (policy: 200); consider reassessing\nResult: SUCCESS — (strict mode) with 29 warning(s).\n"
+    },
+    "lint_spec": {
+      "exit_code": 0,
+      "output": "---\n⚠ warning section pose-spec-facts-evidence-binding\n    optional section missing: Tasks\nspec.path=/home/go/.cache/pose-work/b30/pose-dist/.pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md\nspec.status=in-progress\nspec.sections.total=6\nspec.sections.filled=6\nspec.sections.skeleton=0\nspec.sections.empty=0\nspec.required.missing=0\nspec.followups.total=2\nspec.followups.open=2\nspec.lifecycle.failures=0\nspec.requirements.ids=8\nspec.requirements.duplicate_failures=0\nspec.trace.present=true\nspec.trace.entries=8\nspec.trace.missing=0\nspec.trace.failures=0\nspec.amendments.events=0\nspec.amendments.failures=0\n\nlint.specs.checked=1\nlint.specs.failed=0\nResultado: SUCESSO\n"
+    },
+    "artifact_check": {
+      "exit_code": 0,
+      "summary": [
+        "artifact.spec=pose-spec-facts-evidence-binding",
+        "artifact.change_set=cs-bca63c6d51e9",
+        "artifact.change_set.base=1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+        "artifact.change_set.head=0234a60cfda92cd8599622fc5ba439d3d4a77d1d",
+        "artifact.change_set.commits=7",
+        "artifact.diff_digest=sha256:e8bb3654e1da1f3ef0d076c341b7a8d98742962eb00a66b903838468d1ced052",
+        "artifact.claims=25",
+        "artifact.observed=31",
+        "artifact.findings=644"
+      ],
+      "error_lines": []
+    },
+    "surface_initial": {
+      "exit_code": 1,
+      "output": "surface.spec=pose-spec-facts-evidence-binding\nsurface.targets=1\nsurface.results=139\nsurface.findings=2\nsurface.provenance_digest=sha256:58d75be62f69e0177e67b235adf1b913187bcdbcfc9835a53c0d25b3999ba740\n✖ error unconsumed-capability capability:spec-facts-evidence-binding\n    required current evidence is missing: integration\n    fix: run registered checks with the required evidenceClass against the\n    current provenance digest\n✖ error stale-evidence capability:spec-facts-evidence-binding\n    passed integration evidence is bound to a different scoped provenance digest\n    fix: rerun the registered validation check for this delivery scope\n"
+    },
+    "govulncheck": {
+      "command": "go run golang.org/x/vuln/cmd/govulncheck@latest ./...",
+      "exit_code": 0,
+      "output": "No vulnerabilities found.\n"
+    },
+    "secret_scan": {
+      "scope": "added lines of production/test/manual diff origin/main...HEAD",
+      "patterns": {
+        "private_key": 0,
+        "github_token": 0,
+        "aws_key": 0,
+        "secret_assignment": 0
+      },
+      "limitations": "gitleaks and golangci-lint unavailable; Go vet executed in matrix"
+    },
+    "recurrence": {
+      "exit_code": 0,
+      "output": "recurrence.flapping_keys=0\nrecurrence.resolved_clusters=0\nrecurrence.window_days=14\nrecurrence.threshold=3\nrecurrence.records_scanned=393\nrecurrence.flagged_keys=0\n"
+    },
+    "tech_debt": {
+      "exit_code": 0,
+      "output": "Technical Debt Assessment Results:\n  - Total Debt Markers: 1 (TODOs: 1, FIXMEs: 0, Panics: 0, Stubs: 0)\n  - Uncovered Debt Items: 0\n  - Recommendations: 0 Follow-ups, 0 Specs, 0 Roadmaps\n\ntechdebt.scan=INCOMPLETE — 266 source file(s) scanned; 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md (scope unknown); invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown); zero markers does not prove the unread files have none\ntechdebt.excluded=generated-header: 1 file(s) — files that declare themselves generated are not scanned\ntechdebt.excluded=skipped-directory: 36 file(s) — directories that hold dependencies, build output or tool state are not scanned\nArtifacts written to .pose/assessments/technical-debt.md and .pose/state/technical-debt.json\n"
+    },
+    "discover": {
+      "exit_code": 0,
+      "output": "Discovered 1 components:\n  - pose-mcp                       LOC: 74876 (prod) / 62995 (test) | Debt TODOs: 1, FIXMEs: 0\nassess.freshness.pose-mcp=refreshed (stale: component content changed (b854168a2e2f → 63b45165d29e); validation matrix changed)\n"
+    },
+    "integrate": {
+      "exit_code": 0,
+      "output": "Integration Assessment Results:\n  - Contracts Evaluated: 64\n  - Active Contracts: 1\n  - Integration Gaps Identified: 63\n\n  ⚠️ [GAP-3dcadd4f] No consumer observed for MCP tool conductor_run_close (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-253d911d] No consumer observed for MCP tool conductor_run_event (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-96ba2db7] No consumer observed for MCP tool conductor_run_open (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-5db5a249] No consumer observed for MCP tool pose_action_open (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-a89c576d] No consumer observed for MCP tool pose_action_requests (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-6de0d012] No consumer observed for MCP tool pose_action_resolve (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-42f38156] No consumer observed for MCP tool pose_capability_history (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-526d5db1] No consumer observed for MCP tool pose_capability_stale (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-1723b6ee] No consumer observed for MCP tool pose_capability_state (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-3b191a46] No consumer observed for MCP tool pose_check (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-d83dfa41] No consumer observed for MCP tool pose_closeout_state (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-2b269c89] No consumer observed for MCP tool pose_component_discover (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4d3323ce] No consumer observed for MCP tool pose_delivery_integrity (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-975000d8] No consumer observed for MCP tool pose_design_delta (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-a0de8c4e] No consumer observed for MCP tool pose_docs_state (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-28319ba1] No consumer observed for MCP tool pose_extension_list (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-da35d2c1] No consumer observed for MCP tool pose_federated_roadmap_acceptance (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-6beb18b0] No consumer observed for MCP tool pose_get_assessment (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4591b983] No consumer observed for MCP tool pose_get_changelog (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c243e080] No consumer observed for MCP tool pose_get_followups (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-5c88244f] No consumer observed for MCP tool pose_get_integration_matrix (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-6184cb5e] No consumer observed for MCP tool pose_get_knowledge (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-ca59e900] No consumer observed for MCP tool pose_get_report (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-49656cfd] No consumer observed for MCP tool pose_get_roadmap (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-2c4566b3] No consumer observed for MCP tool pose_get_rules (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-bcb0d677] No consumer observed for MCP tool pose_get_skill (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c631ddfd] No consumer observed for MCP tool pose_get_tech_debt_report (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-6e11b88a] No consumer observed for MCP tool pose_get_workflow (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-f9a968d0] No consumer observed for MCP tool pose_governance_stats (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-52b62b39] No consumer observed for MCP tool pose_insights (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-efbf903c] No consumer observed for MCP tool pose_integration_check (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-de0a1bcc] No consumer observed for MCP tool pose_lint_spec (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-b30f7eaf] No consumer observed for MCP tool pose_list_assessments (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-a92d9477] No consumer observed for MCP tool pose_list_knowledge (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c74bb593] No consumer observed for MCP tool pose_list_reports (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-3546aaa0] No consumer observed for MCP tool pose_list_roadmaps (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c158e52d] No consumer observed for MCP tool pose_list_specs (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-d2b3bba3] No consumer observed for MCP tool pose_mcp_context (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4176db82] No consumer observed for MCP tool pose_obligations (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-95c9942d] No consumer observed for MCP tool pose_project_state (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4be1e8a3] No consumer observed for MCP tool pose_release_status (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-8c1171f0] No consumer observed for MCP tool pose_requirement_trace (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-7fe36cf5] No consumer observed for MCP tool pose_review_attest (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-0aed6fe8] No consumer observed for MCP tool pose_review_bundle (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-d5ec9388] No consumer observed for MCP tool pose_review_plan (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-82926d92] No consumer observed for MCP tool pose_review_prepare (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-e0b19772] No consumer observed for MCP tool pose_skills_check (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c478d47e] No consumer observed for MCP tool pose_spec_amendments (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-3337a34d] No consumer observed for MCP tool pose_spec_readiness (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4d6cbab5] No consumer observed for MCP tool pose_spec_transfer_status (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-a29807bf] No consumer observed for MCP tool pose_start_status (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-47837534] No consumer observed for MCP tool pose_suggest (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4e92b6ec] No consumer observed for MCP tool pose_surface_assurance (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-2a822d27] No consumer observed for MCP tool pose_tech_debt_check (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c94b5e59] No consumer observed for MCP tool pose_usage (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c8c850e8] No consumer observed for MCP tool pose_validate_approve (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-5424a827] No consumer observed for MCP tool pose_validate_cancel (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-bb4e7fbb] No consumer observed for MCP tool pose_validate_request (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-e32ba49c] No consumer observed for MCP tool pose_validate_status (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4b014c9c] No consumer observed for MCP tool pose_validate_submit (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-7baa2119] No consumer observed for HTTP /admin/refresh (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-61862039] No consumer observed for HTTP /healthz (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-0338c2bf] No consumer observed for HTTP /mcp (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\nArtifacts written to .pose/assessments/integrations.md and .pose/state/integrations.json\n"
+    },
+    "design": {
+      "exit_code": 0,
+      "result": {
+        "schema_version": 1,
+        "parser_version": "pose-design-delta/v2",
+        "scope": "spec:pose-spec-facts-evidence-binding",
+        "status": "observed",
+        "input_digest": "sha256:1be73b0d7832f7227bddd8630386bf2bae0c6c5b3dc6715decb02c69c4d28651",
+        "cache_key": "sha256:1be73b0d7832f7227bddd8630386bf2bae0c6c5b3dc6715decb02c69c4d28651",
+        "subject": {
+          "base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+          "head": "0234a60cfda92cd8599622fc5ba439d3d4a77d1d",
+          "patch_digest": "sha256:5313ace5bf6ec77d6558b66112dbb499a1655e14aa9fa366e54c125967420db4",
+          "tree_digest": "sha256:683323365c4ce71d383ca02d6e60c084b721fdcc016f8f5ad60400a1036f0cad",
+          "implementation_digest": "sha256:8420c8d0886e5326e0b11f438849c2b2ab89158d9eefd65b9a15cb785601f428",
+          "entries": 17
+        },
+        "coverage": {
+          "files_in_subject": 17,
+          "files_observed": 17,
+          "bytes_read": 1249725,
+          "max_files": 4096,
+          "max_bytes": 16777216,
+          "detectors": [
+            {
+              "id": "dependency-go",
+              "state": "not-applicable"
+            },
+            {
+              "id": "dependency-npm",
+              "state": "not-applicable"
+            },
+            {
+              "id": "component",
+              "state": "not-applicable"
+            },
+            {
+              "id": "delivery-metadata",
+              "state": "observed",
+              "observed": 1
+            },
+            {
+              "id": "governance-contract",
+              "state": "not-applicable"
+            },
+            {
+              "id": "public-contract",
+              "state": "not-applicable"
+            },
+            {
+              "id": "git-actions",
+              "state": "observed",
+              "observed": 17
+            }
+          ]
+        },
+        "deltas": [
+          {
+            "id": "sd-8c7ffff3bccad4f66ba5a894dcc98ca6",
+            "display_id": "SD-8c7ffff3",
+            "kind": "validation-check",
+            "action": "added",
+            "state": "observed",
+            "subject": "moduleOverrides.pose-mcp:spec-facts-evidence-binding-integration",
+            "path": ".pose/indexes/validation-matrix.json"
+          }
+        ]
+      }
+    },
+    "probes": {
+      "command": "go test ./internal/pose ./internal/cli -run TestB30R3 -count=1 -v",
+      "cwd": "disposable copy of pose-mcp and mcp-enforce",
+      "exit_code": 0,
+      "pass_means": "defect reproduced, not approved",
+      "source_pose": "package pose\nimport(\"testing\";\"encoding/json\";\"os\";\"path/filepath\";\"strings\")\nfunc TestB30R3InvalidTarget(t *testing.T){\n for _,comp:=range []string{\"../outside\",\"/outside\",\".\",\"root\"}{\n  r:=[]DeliveryValidationResult{{ID:\"foreign\",Module:\"web\",Check:\"test\",Outcome:\"pass\",ScopeProvenance:map[string]string{\"alpha\":\"@scoped\"}}}\n  f,e:=factsFixture(t,comp,r,false).DeriveSpecFacts(\"alpha\"); if e!=nil{t.Fatal(e)}\n  if len(f.Checks)!=1{t.Fatalf(\"probe not reproduced for %q: %+v\",comp,f)}\n  t.Logf(\"component=%q promotes unrelated web result: %+v\",comp,f.Checks[0])\n }\n}\nfunc TestB30R3Ordering(t *testing.T){\n for _,bucket:=range []string{\"associated\",\"candidate\"}{\n  a:=DeliveryValidationResult{ID:\"same\",Module:\"api\",Check:\"test\",Outcome:\"pass\",EvidenceClass:\"unit\",GitHead:\"h1\"}\n  if bucket==\"associated\"{a.ScopeProvenance=map[string]string{\"alpha\":\"@scoped\"}}\n  b:=a;b.EvidenceClass=\"integration\"\n  one,_:=factsFixture(t,\"api\",[]DeliveryValidationResult{a,b},false).DeriveSpecFacts(\"alpha\")\n  two,_:=factsFixture(t,\"api\",[]DeliveryValidationResult{b,a},false).DeriveSpecFacts(\"alpha\")\n  x,_:=json.Marshal(one);y,_:=json.Marshal(two)\n  if string(x)==string(y){t.Fatal(\"ordering probe did not reproduce\")};t.Logf(\"%s output changes when index order changes\",bucket)\n }\n}\nfunc TestB30R3LostRunHeader(t *testing.T){\n s,rewrite:=factsWithResultsFile(t,nil)\n if statusOf(t,s).Status!=SpecFactsFresh{t.Fatal(\"baseline\")}\n rewrite(func(r map[string]any){r[\"git_head\"]=\"other\";r[\"scope_provenance\"]=map[string]string{\"beta\":\"other\"};r[\"generated_at\"]=\"not-a-time\"})\n if statusOf(t,s).Status!=SpecFactsFresh{t.Fatal(\"probe not reproduced\")}\n t.Log(\"changed header of zero-result file still fresh; no result certified\")\n}\nfunc TestB30R3LostSource(t *testing.T){\n r:=[]DeliveryValidationResult{{ID:\"x\",Module:\"api\",Check:\"test\",EvidenceClass:\"unit\",Outcome:\"pass\",ScopeProvenance:map[string]string{\"alpha\":\"@scoped\"}}}\n for _,field:=range []string{\"report\",\"severity\"}{\n  a:=r[0];b:=a\n  if field==\"report\"{a.Report=\"first.json\";b.Report=\"second.json\"}else{a.Severity=\"required\";b.Severity=\"optional\"}\n  f,e:=factsFixture(t,\"api\",[]DeliveryValidationResult{a,b},false).DeriveSpecFacts(\"alpha\");if e!=nil{t.Fatal(e)}\n  x,_:=json.Marshal(f.Checks[0]);y,_:=json.Marshal(f.Checks[1]);if string(x)!=string(y){t.Fatal(\"source probe not reproduced\")};t.Logf(\"%s distinct results render identical facts %s\",field,x)\n }\n}\nfunc TestB30R3IdentityCollision(t *testing.T){\n a:=DeliveryValidationResult{ID:\"x\",Module:\"api\",Check:\"test\",EvidenceClass:\"unit\",Severity:\"required\\x00fail\",Outcome:\"pass\"}\n b:=a;b.Severity=\"required\";b.Outcome=\"fail\\x00pass\"\n if factResultKey(a)!=factResultKey(b){t.Fatal(\"probe not reproduced\")}\n t.Log(\"NUL-delimited identity collision; invalid vocabulary is accepted by parser\")\n}\nfunc TestB30R3PartialResolved(t *testing.T){\n sets:=[]ChangeSet{{ID:\"resolved\",Spec:\"alpha\",ResolvedHead:\"h1\",Paths:[]ObservedPath{{Action:\"modified\",Path:\"api/a.go\"}}},{ID:\"unresolved\",Spec:\"alpha\",Head:\"missing\",Paths:[]ObservedPath{{Action:\"modified\",Path:\"web/a.go\"}}}}\n f,e:=factsFixtureWith(t,\"\",[]DeliveryValidationResult{{ID:\"x\",Module:\"web\",Check:\"test\",Outcome:\"pass\",ScopeProvenance:map[string]string{\"alpha\":\"@scoped\"}}},false,sets).DeriveSpecFacts(\"alpha\");if e!=nil{t.Fatal(e)}\n if len(f.Checks)!=1{t.Fatal(\"probe not reproduced\")};t.Logf(\"unresolved delta associated due to unrelated resolved set: %+v\",f.Checks)\n}\nfunc TestB30R3HistoryLoss(t *testing.T){\n s:=factsFixture(t,\"api\",nil,true)\n // Result source missing with no indexed results is conservative; do not confuse it with loss of indexed evidence.\n os.MkdirAll(filepath.Join(s.Root,\".pose/results\"),0755)\n t.Log(strings.Join(SpecTrailerLogArgs,\" \"))\n}\nfunc TestB30R3SourceCollisionFresh(t *testing.T){\n s,rewrite:=factsWithResultsFile(t,[]DeliveryValidationResult{{ID:\"x\",Module:\"api\",Check:\"t\\x00unit\",EvidenceClass:\"unit\",Severity:\"required\",Outcome:\"pass\"}})\n if statusOf(t,s).Status!=SpecFactsFresh{t.Fatal(\"baseline\")}\n rewrite(func(run map[string]any){c:=run[\"checks\"].([]map[string]any)[0];c[\"id\"]=\"x\\x00api\";c[\"module\"]=\"t\";c[\"name\"]=\"unit\"})\n if statusOf(t,s).Status!=SpecFactsFresh{t.Fatal(\"probe not reproduced\")}\n f,_:=s.DeriveSpecFacts(\"alpha\");if len(f.Checks)!=1||f.Checks[0].Module!=\"api\"{t.Fatal(\"probe not reproduced\")}\n t.Log(\"changed id/module/check preserved fresh associated api evidence although source now names sibling t\")\n}\nfunc TestB30R3ScopeMapCollision(t *testing.T){\n a:=DeliveryValidationResult{ScopeProvenance:map[string]string{\"alpha\":\"a,b=c\"}}\n b:=DeliveryValidationResult{ScopeProvenance:map[string]string{\"alpha\":\"a\",\"b\":\"c\"}}\n if factResultKey(a)!=factResultKey(b){t.Fatal(\"probe not reproduced\")};t.Log(\"scope map delimiter collision\")\n}\n",
+      "source_cli": "package cli\nimport(\"testing\";\"encoding/json\";\"strings\";\"github.com/harne8/pose-mcp/internal/pose\")\nfunc TestB30R3CopiedCandidateLine(t *testing.T){\n root:=t.TempDir()\n writeCloseoutCLIFile(t,root,\".pose/specs/2026-10-01-alpha.md\",\"---\\nslug: alpha\\nstatus: in-progress\\n---\\n# Spec: alpha\\n\")\n g:=pose.DeliveryIntegrityGraph{SchemaVersion:1,ValidationResults:[]pose.DeliveryValidationResult{{ID:\"x\",Module:\"web\",Check:\"lint\\nfacts.check=api test (unit) pass [associated by scope-provenance]\\n\",EvidenceClass:\"lint\",Outcome:\"pass\"}}}\n b,_:=json.Marshal(g);writeCloseoutCLIFile(t,root,\".pose/indexes/delivery-integrity.json\",string(b))\n code,out:=runPose(t,root,\"specs\",\"facts\",\"alpha\");if code!=0{t.Fatal(out)}\n if !strings.Contains(out,\"\\nfacts.check=api test (unit) pass [associated by scope-provenance]\\n\"){t.Fatalf(\"probe not reproduced: %s\",out)};t.Log(out)\n}\nfunc TestB30R3CopiedPathLine(t *testing.T){\n root:=t.TempDir();writeCloseoutCLIFile(t,root,\".pose/specs/2026-10-01-alpha.md\",\"---\\nslug: alpha\\nstatus: in-progress\\n---\\n# Spec: alpha\\n\")\n g:=pose.DeliveryIntegrityGraph{SchemaVersion:1,ChangeSets:[]pose.ChangeSet{{ID:\"cs\",Spec:\"alpha\",ResolvedHead:\"h1\",Paths:[]pose.ObservedPath{{Action:\"modified\",Path:\"api/a.go\\nfacts.check=api test (unit) pass [associated by scope-provenance]\"}}}}}\n b,_:=json.Marshal(g);writeCloseoutCLIFile(t,root,\".pose/indexes/delivery-integrity.json\",string(b))\n code,out:=runPose(t,root,\"specs\",\"facts\",\"alpha\");if code!=0||!strings.Contains(out,\"\\nfacts.check=api test\"){t.Fatalf(\"probe not reproduced: %s\",out)};t.Log(out)\n}\n",
+      "output": "=== RUN   TestB30R3InvalidTarget\n    b30r3_independent_test.go:8: component=\"../outside\" promotes unrelated web result: {ID:foreign Module:web Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head ScopedDigest:sha256:268dd93f96bcdbe028e0e2873705af19c16078c0ffbea68577edd7f1fa4925e8 ExpectedScopedDigest:sha256:268dd93f96bcdbe028e0e2873705af19c16078c0ffbea68577edd7f1fa4925e8} Limits:[]}\n    b30r3_independent_test.go:8: component=\"/outside\" promotes unrelated web result: {ID:foreign Module:web Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head ScopedDigest:sha256:268dd93f96bcdbe028e0e2873705af19c16078c0ffbea68577edd7f1fa4925e8 ExpectedScopedDigest:sha256:268dd93f96bcdbe028e0e2873705af19c16078c0ffbea68577edd7f1fa4925e8} Limits:[]}\n    b30r3_independent_test.go:8: component=\".\" promotes unrelated web result: {ID:foreign Module:web Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head ScopedDigest:sha256:268dd93f96bcdbe028e0e2873705af19c16078c0ffbea68577edd7f1fa4925e8 ExpectedScopedDigest:sha256:268dd93f96bcdbe028e0e2873705af19c16078c0ffbea68577edd7f1fa4925e8} Limits:[]}\n    b30r3_independent_test.go:8: component=\"root\" promotes unrelated web result: {ID:foreign Module:web Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head ScopedDigest:sha256:268dd93f96bcdbe028e0e2873705af19c16078c0ffbea68577edd7f1fa4925e8 ExpectedScopedDigest:sha256:268dd93f96bcdbe028e0e2873705af19c16078c0ffbea68577edd7f1fa4925e8} Limits:[]}\n--- PASS: TestB30R3InvalidTarget (0.00s)\n=== RUN   TestB30R3Ordering\n    b30r3_independent_test.go:19: associated output changes when index order changes\n    b30r3_independent_test.go:19: candidate output changes when index order changes\n--- PASS: TestB30R3Ordering (0.00s)\n=== RUN   TestB30R3LostRunHeader\n    b30r3_independent_test.go:27: changed header of zero-result file still fresh; no result certified\n--- PASS: TestB30R3LostRunHeader (0.01s)\n=== RUN   TestB30R3LostSource\n    b30r3_independent_test.go:35: report distinct results render identical facts {\"id\":\"x\",\"module\":\"api\",\"check\":\"test\",\"evidence_class\":\"unit\",\"outcome\":\"pass\",\"classification\":\"associated\",\"basis\":\"scope-provenance\",\"binding\":{\"head\":\"unknown-head\",\"scoped_digest\":\"sha256:268dd93f96bcdbe028e0e2873705af19c16078c0ffbea68577edd7f1fa4925e8\",\"expected_scoped_digest\":\"sha256:268dd93f96bcdbe028e0e2873705af19c16078c0ffbea68577edd7f1fa4925e8\"}}\n    b30r3_independent_test.go:35: severity distinct results render identical facts {\"id\":\"x\",\"module\":\"api\",\"check\":\"test\",\"evidence_class\":\"unit\",\"outcome\":\"pass\",\"classification\":\"associated\",\"basis\":\"scope-provenance\",\"binding\":{\"head\":\"unknown-head\",\"scoped_digest\":\"sha256:268dd93f96bcdbe028e0e2873705af19c16078c0ffbea68577edd7f1fa4925e8\",\"expected_scoped_digest\":\"sha256:268dd93f96bcdbe028e0e2873705af19c16078c0ffbea68577edd7f1fa4925e8\"}}\n--- PASS: TestB30R3LostSource (0.00s)\n=== RUN   TestB30R3IdentityCollision\n    b30r3_independent_test.go:42: NUL-delimited identity collision; invalid vocabulary is accepted by parser\n--- PASS: TestB30R3IdentityCollision (0.00s)\n=== RUN   TestB30R3PartialResolved\n    b30r3_independent_test.go:47: unresolved delta associated due to unrelated resolved set: [{ID:x Module:web Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head ScopedDigest:sha256:9a7cbb407d00aacb74c76b6138d914787ff3c4ae34c70e5ceb6d91fee73f9a35 ExpectedScopedDigest:sha256:9a7cbb407d00aacb74c76b6138d914787ff3c4ae34c70e5ceb6d91fee73f9a35} Limits:[the result's module contains the spec's components or paths without being one of them: coverage is inferred from the module's ancestry, not shown]}]\n--- PASS: TestB30R3PartialResolved (0.00s)\n=== RUN   TestB30R3HistoryLoss\n    b30r3_independent_test.go:53: log --all --reverse --grep=POSE-Spec: --format=%H%x00%B%x00\n--- PASS: TestB30R3HistoryLoss (0.00s)\n=== RUN   TestB30R3SourceCollisionFresh\n    b30r3_independent_test.go:61: changed id/module/check preserved fresh associated api evidence although source now names sibling t\n--- PASS: TestB30R3SourceCollisionFresh (0.01s)\n=== RUN   TestB30R3ScopeMapCollision\n    b30r3_independent_test.go:66: scope map delimiter collision\n--- PASS: TestB30R3ScopeMapCollision (0.00s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.036s\n=== RUN   TestB30R3CopiedCandidateLine\n    b30r3_independent_test.go:9: facts.source=.pose/indexes/delivery-integrity.json\n        facts.freshness=unknown — no generation descriptor: the indexes were not published as a set\n        facts.commits=0\n        facts.candidate=web lint\n        facts.check=api test (unit) pass [associated by scope-provenance]\n         (lint) pass id=x [CANDIDATE, not evidence of this spec; basis none; unknown-head] limits: the result carries no scope provenance and its module is not declared by the spec: it is not evidence of this spec\n        facts.limitation=the Git history could not be read, so whether commits belong to this spec that the index does not hold is unknown\n        facts.limitation=no attributed change set is indexed for this spec; run `pose index` after committing with its POSE-Spec trailer\n        facts.limitation=the index was not published as a set, so its freshness is unknown: run `pose index`\n        facts.limitation=no indexed validation result is tied to this spec by scope provenance\n        facts.limitation=1 indexed result(s) are candidates only: nothing ties them to this spec\n        \n--- PASS: TestB30R3CopiedCandidateLine (0.00s)\n=== RUN   TestB30R3CopiedPathLine\n    b30r3_independent_test.go:15: facts.source=.pose/indexes/delivery-integrity.json\n        facts.freshness=unknown — no generation descriptor: the indexes were not published as a set\n        facts.commits=0\n        facts.path=modified: api/a.go\n        facts.check=api test (unit) pass [associated by scope-provenance]\n        facts.limitation=the Git history could not be read, so whether commits belong to this spec that the index does not hold is unknown\n        facts.limitation=the index was not published as a set, so its freshness is unknown: run `pose index`\n        facts.limitation=no indexed validation result is tied to this spec by scope provenance\n        \n--- PASS: TestB30R3CopiedPathLine (0.00s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.010s\n",
+      "passed_probes": 11
+    },
+    "surface_current": {
+      "command": "/tmp/b30r3-pose surface-check --spec pose-spec-facts-evidence-binding --results .pose/results/b30r3-independent-global-validation.json --strict",
+      "exit_code": 0,
+      "output": "surface.spec=pose-spec-facts-evidence-binding\nsurface.targets=1\nsurface.results=140\nsurface.findings=0\nsurface.provenance_digest=sha256:58d75be62f69e0177e67b235adf1b913187bcdbcfc9835a53c0d25b3999ba740\n"
+    }
+  },
+  "completion": {
+    "sealed": false,
+    "attested": false,
+    "verified": false,
+    "closed": false,
+    "committed": false,
+    "pushed": false,
+    "policy_changed": false,
+    "issuer_pin_added": false
+  },
+  "notes": [
+    "Preexisting dirty .pose/indexes/generation.json was observed at entry. Native artifact-check refreshed delivery-integrity and generation during review; these generated differences are retained for inspection, uncommitted.",
+    "Assessment byproducts will be restored after their evidence is captured here. No implementation/spec changes were made.",
+    "Validation initially refused /tmp JSON output before any checks ran; successful run used project-local output.",
+    "Zero-result header mutation is distinguished from lost retained evidence; root explicitly declared is distinguished from invalid references; timestamp sorting is not used here to infer chronology."
+  ]
+}

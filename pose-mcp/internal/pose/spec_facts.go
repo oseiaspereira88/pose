@@ -1,6 +1,7 @@
 package pose
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -39,7 +40,11 @@ const (
 
 // SpecFactCheck is one validation result the spec's evidence came from, or a candidate.
 type SpecFactCheck struct {
-	ID             string          `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
+	// Source is the results file the result was read from, and Severity says whether the check
+	// was required: two results that differ only in them are two results.
+	Source         string          `json:"source,omitempty"`
+	Severity       string          `json:"severity,omitempty"`
 	Module         string          `json:"module"`
 	Check          string          `json:"check"`
 	EvidenceClass  string          `json:"evidence_class"`
@@ -197,12 +202,33 @@ func (s Store) resultsFileDisagrees(graph DeliveryIntegrityGraph) string {
 // factResultKey is the identity of a result in every field the index keeps, the scope
 // provenance in a fixed order: two results with the same key are the same result.
 func factResultKey(r DeliveryValidationResult) string {
-	scopes := make([]string, 0, len(r.ScopeProvenance))
+	scopes := make([][2]string, 0, len(r.ScopeProvenance))
 	for slug, digest := range r.ScopeProvenance {
-		scopes = append(scopes, slug+"="+digest)
+		scopes = append(scopes, [2]string{slug, digest})
 	}
-	sort.Strings(scopes)
-	return strings.Join([]string{r.ID, r.Module, r.Check, r.EvidenceClass, r.Severity, r.Outcome, r.GitHead, r.GeneratedAt, r.ProvenanceDigest, r.Report, strings.Join(scopes, ",")}, "\x00")
+	sort.Slice(scopes, func(i, j int) bool {
+		if scopes[i][0] != scopes[j][0] {
+			return scopes[i][0] < scopes[j][0]
+		}
+		return scopes[i][1] < scopes[j][1]
+	})
+	// JSON is injective over the fields: no separator a field may hold can make two results one.
+	raw, _ := json.Marshal([]any{r.ID, r.Module, r.Check, r.EvidenceClass, r.Severity, r.Outcome, r.GitHead, r.GeneratedAt, r.ProvenanceDigest, r.Report, scopes})
+	return string(raw)
+}
+
+// componentDeclares reports that module is written, after normalization, as a declared component.
+func componentDeclares(components map[string]bool, module string) bool {
+	normalized, kind := factModuleKind(module)
+	if kind != "path" && kind != "root" {
+		return false
+	}
+	for c := range components {
+		if n, k := factModuleKind(c); (k == "path" || k == "root") && n == normalized {
+			return true
+		}
+	}
+	return false
 }
 
 // DeriveSpecFacts reads the delivery index. A spec with no attributed change
@@ -221,13 +247,18 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 	seen := map[string]bool{}
 	commits := map[string]bool{}
 	heads := map[string]bool{}
-	resolvedSets := 0
+	resolvedSets, unresolvedSets := 0, 0
 	for _, cs := range graph.ChangeSets {
 		if cs.Spec != slug {
 			continue
 		}
-		if cs.ResolvedHead != "" && len(cs.Paths) > 0 {
+		// A change set is resolved when Git gave it the head, the commits and the paths together. The
+		// predicate holds for all of the spec's change sets: one that is resolved says nothing about
+		// the delta another one stands for.
+		if cs.ResolvedHead != "" && len(cs.Paths) > 0 && len(cs.Commits) > 0 {
 			resolvedSets++
+		} else {
+			unresolvedSets++
 		}
 		if cs.ResolvedHead != "" {
 			heads[cs.ResolvedHead] = true
@@ -284,8 +315,8 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 	sort.Slice(facts.Paths, func(i, j int) bool { return pathKey(facts.Paths[i]) < pathKey(facts.Paths[j]) })
 	modules := map[string]bool{}
 	for _, c := range spec.Components {
-		if n := normalizeFactPath(c); n != "" || strings.TrimSpace(c) != "" {
-			modules[n] = true
+		if strings.TrimSpace(c) != "" {
+			modules[c] = true
 		}
 	}
 	expected := ScopedDeliveryProvenanceDigest(graph, slug)
@@ -305,12 +336,12 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 			continue
 		}
 		seenResult[identity] = true
-		fact := SpecFactCheck{ID: r.ID, Module: r.Module, Check: r.Check, EvidenceClass: r.EvidenceClass, Outcome: r.Outcome,
+		fact := SpecFactCheck{ID: r.ID, Source: r.Report, Severity: r.Severity, Module: r.Module, Check: r.Check, EvidenceClass: r.EvidenceClass, Outcome: r.Outcome,
 			Binding: SpecFactBinding{GitHead: r.GitHead, ProvenanceDigest: r.ProvenanceDigest, GeneratedAt: r.GeneratedAt, Head: bindingHead(r.GitHead, heads),
 				ScopedDigest: scopedValue, ExpectedScopedDigest: expected}}
 		covered, inferred := moduleCoversSpec(r.Module, modules, facts.Paths)
 		switch {
-		case scoped && scopedValue != "" && scopedValue == expected && covered && resolvedSets > 0:
+		case scoped && scopedValue != "" && scopedValue == expected && covered && resolvedSets > 0 && unresolvedSets == 0:
 			fact.Classification, fact.Basis = SpecFactAssociated, "scope-provenance"
 			if inferred {
 				fact.Limits = append(fact.Limits, "the result's module contains the spec's components or paths without being one of them: coverage is inferred from the module's ancestry, not shown")
@@ -321,6 +352,8 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 			fact.Classification, fact.Basis = SpecFactCandidate, "scope-provenance-unverified"
 			if resolvedSets == 0 {
 				fact.Limits = append(fact.Limits, "the spec has no resolved change set with paths: the scope provenance of the result is the digest of nothing and binds it to no delta")
+			} else if unresolvedSets > 0 {
+				fact.Limits = append(fact.Limits, "the spec has a change set that is not resolved: the scope provenance binds the result to a delta that is not fully observed")
 			} else if scopedValue == "" || scopedValue != expected {
 				fact.Limits = append(fact.Limits, "the scope provenance the result carries for this spec ("+emptyAs(scopedValue, "empty")+") is not the one its claims and change sets give today ("+emptyAs(expected, "none")+")")
 			}
@@ -334,7 +367,7 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 			// Nothing ties this result to the spec: a module that happens to be declared, or
 			// a result the index holds, does not show that the check covered its delta.
 			fact.Classification, fact.Basis = SpecFactCandidate, "none"
-			if modules[normalizeFactPath(r.Module)] {
+			if componentDeclares(modules, r.Module) {
 				fact.Basis = "components"
 				fact.Limits = append(fact.Limits, "the module is declared by the spec, but the result carries no scope provenance: it is not shown to cover this spec's delta")
 			} else {
@@ -460,13 +493,22 @@ func moduleCoversSpec(module string, components map[string]bool, paths []Observe
 		return false, false
 	}
 	targets := []string{}
+	// An absent or invalid reference is not the root: it covers nothing, and the root is only a
+	// reference written as the root.
+	add := func(reference string) {
+		if n, k := factModuleKind(reference); k == "path" {
+			targets = append(targets, n)
+		} else if k == "root" {
+			targets = append(targets, "")
+		}
+	}
 	for c := range components {
-		targets = append(targets, c)
+		add(c)
 	}
 	for _, p := range paths {
 		for _, candidate := range []string{p.Path, p.OldPath, p.NewPath} {
 			if candidate != "" {
-				targets = append(targets, normalizeFactPath(candidate))
+				add(candidate)
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:9c5ab55d49b9e5220f689bac67beb278a82b3c16fa02aaa50b58ccf21269601f",
-  "provenance_digest": "sha256:c8285a35d9353c4da51efdb7c82acd8a2ac34d0acb4d9e1955dc8fb06d191750",
+  "input_digest": "sha256:98b3b51d9d1e9b4ddc352082cc85370edd7b8c96e34c9bb28d6f72cf5742431d",
+  "provenance_digest": "sha256:58d75be62f69e0177e67b235adf1b913187bcdbcfc9835a53c0d25b3999ba740",
   "implied_edges": [
     "changes"
   ],
@@ -29663,14 +29663,6 @@
       }
     },
     {
-      "id": "change-set:cs-0207101fd21c",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:8ade3dd31917c6f3b0ae9fec5759376dbdd217725ef85af3e5dce450064b7106",
-        "selector": "trailers:pose-spec-facts-evidence-binding"
-      }
-    },
-    {
       "id": "change-set:cs-023044fc0e05",
       "type": "change-set",
       "attributes": {
@@ -32540,6 +32532,14 @@
       "attributes": {
         "diff_digest": "sha256:dde4124e87067545b1791f442e286dc8f8eb924e6180e771a4efdf8cadc876bf",
         "selector": "range:1f65cf7..HEAD"
+      }
+    },
+    {
+      "id": "change-set:cs-bca63c6d51e9",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:e8bb3654e1da1f3ef0d076c341b7a8d98742962eb00a66b903838468d1ced052",
+        "selector": "trailers:pose-spec-facts-evidence-binding"
       }
     },
     {
@@ -95514,7 +95514,7 @@
     },
     {
       "from": "spec:pose-spec-facts-evidence-binding",
-      "to": "change-set:cs-0207101fd21c",
+      "to": "change-set:cs-bca63c6d51e9",
       "type": "observed-by"
     },
     {
@@ -125089,150 +125089,6 @@
         }
       ],
       "diff_digest": "sha256:1c58b11f6b714dab78d326ac86f86baacb59974cdc772707d10c46e37060e545"
-    },
-    {
-      "id": "cs-0207101fd21c",
-      "spec": "pose-spec-facts-evidence-binding",
-      "selector": "trailers:pose-spec-facts-evidence-binding",
-      "base": "55ea138d96dd34d002588b26b88949ea2e8215d9^",
-      "head": "ee5db9896dca397ebc83325910fd2fed54d06d25",
-      "resolved_base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
-      "resolved_head": "ee5db9896dca397ebc83325910fd2fed54d06d25",
-      "commits": [
-        "55ea138d96dd34d002588b26b88949ea2e8215d9",
-        "03983a36a29fbea25db1215615fab9455de5df83",
-        "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3",
-        "1e026083d41312719ededd8138f9102136360a5d",
-        "a42ce4623bbbd5c9e256c10ee0c77697750bb4ce",
-        "ee5db9896dca397ebc83325910fd2fed54d06d25"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-spec-facts-evidence-binding.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/2026-10-18-pose-b30-independent-review.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/2026-10-18-pose-b30r2-independent-review.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b30-independent-global-validation.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b30-independent-review.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b30-mutations.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b30-mutations.py"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b30r2-independent-global-validation.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b30r2-independent-review.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-spec-facts-evidence-binding.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/spec_facts_binding_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/delivery_validation_run.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/spec_facts_binding_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/spec_facts_review_regression_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/spec_trailers.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/roadmaps.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/artifact_integrity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/specs_cmd.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/surface_check.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_results.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/spec_facts.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:8ade3dd31917c6f3b0ae9fec5759376dbdd217725ef85af3e5dce450064b7106"
     },
     {
       "id": "cs-023044fc0e05",
@@ -175872,6 +175728,151 @@
         }
       ],
       "diff_digest": "sha256:dde4124e87067545b1791f442e286dc8f8eb924e6180e771a4efdf8cadc876bf"
+    },
+    {
+      "id": "cs-bca63c6d51e9",
+      "spec": "pose-spec-facts-evidence-binding",
+      "selector": "trailers:pose-spec-facts-evidence-binding",
+      "base": "55ea138d96dd34d002588b26b88949ea2e8215d9^",
+      "head": "0234a60cfda92cd8599622fc5ba439d3d4a77d1d",
+      "resolved_base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+      "resolved_head": "0234a60cfda92cd8599622fc5ba439d3d4a77d1d",
+      "commits": [
+        "55ea138d96dd34d002588b26b88949ea2e8215d9",
+        "03983a36a29fbea25db1215615fab9455de5df83",
+        "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3",
+        "1e026083d41312719ededd8138f9102136360a5d",
+        "a42ce4623bbbd5c9e256c10ee0c77697750bb4ce",
+        "ee5db9896dca397ebc83325910fd2fed54d06d25",
+        "0234a60cfda92cd8599622fc5ba439d3d4a77d1d"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-spec-facts-evidence-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/2026-10-18-pose-b30-independent-review.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/2026-10-18-pose-b30r2-independent-review.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b30-independent-global-validation.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b30-independent-review.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b30-mutations.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b30-mutations.py"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b30r2-independent-global-validation.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b30r2-independent-review.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-spec-facts-evidence-binding.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/spec_facts_binding_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delivery_validation_run.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/spec_facts_binding_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/spec_facts_review_regression_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/spec_trailers.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/artifact_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/specs_cmd.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/surface_check.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_results.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/spec_facts.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:e8bb3654e1da1f3ef0d076c341b7a8d98742962eb00a66b903838468d1ced052"
     },
     {
       "id": "cs-bcc74da28bde",

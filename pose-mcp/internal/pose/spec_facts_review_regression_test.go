@@ -280,3 +280,76 @@ func factsHasText(list []string, text string) bool {
 	}
 	return false
 }
+
+// Third review, F01: a component or a path that is not a path inside the project covers nothing.
+func TestFactsAnInvalidComponentIsNotTheRoot(t *testing.T) {
+	scoped := map[string]string{"alpha": "@scoped"}
+	results := []DeliveryValidationResult{{ID: "web", Module: "web", Check: "t", Outcome: "pass", ScopeProvenance: scoped}}
+	for _, component := range []string{"../outside", "/outside"} {
+		facts, err := factsFixture(t, component, results, false).DeriveSpecFacts("alpha")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(facts.Checks) != 0 {
+			t.Errorf("component %q covered a module it does not name: %+v", component, facts.Checks)
+		}
+	}
+	sets := []ChangeSet{{ID: "cs", Spec: "alpha", Head: "h1", ResolvedHead: "h1", Commits: []string{"c"}, Paths: []ObservedPath{{Action: "modified", Path: "/outside/file.go"}, {Action: "modified", Path: "api/server.go"}}}}
+	facts, _ := factsFixtureWith(t, "", results, false, sets).DeriveSpecFacts("alpha")
+	if len(facts.Checks) != 0 {
+		t.Errorf("an invalid path of the index covered a module: %+v", facts.Checks)
+	}
+}
+
+// F02: every change set of the spec is resolved, or none binds.
+func TestFactsOneResolvedChangeSetDoesNotBindTheOthers(t *testing.T) {
+	sets := []ChangeSet{
+		{ID: "a", Spec: "alpha", Head: "h1", ResolvedHead: "h1", Commits: []string{"c"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}},
+		{ID: "b", Spec: "alpha", Head: "h2", Commits: []string{"d"}, Paths: []ObservedPath{{Action: "modified", Path: "web/app.go"}}},
+	}
+	results := []DeliveryValidationResult{{ID: "web", Module: "web", Check: "t", Outcome: "pass", ScopeProvenance: map[string]string{"alpha": "@scoped"}}}
+	facts, err := factsFixtureWith(t, "", results, false, sets).DeriveSpecFacts("alpha")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(facts.Checks) != 0 || len(facts.Candidates) != 1 || !factsHasText(facts.Candidates[0].Limits, "not resolved") {
+		t.Fatalf("a delta that is not resolved was bound by another one: %+v", facts)
+	}
+}
+
+// F03: a separator a field may hold cannot make two results one.
+func TestFactsResultsAreComparedStructurally(t *testing.T) {
+	a := DeliveryValidationResult{ID: "x", Module: "api", Check: "t\x00unit"}
+	b := DeliveryValidationResult{ID: "x\x00api", Module: "t", Check: "unit"}
+	if factResultKey(a) == factResultKey(b) {
+		t.Fatal("two different results have the same identity")
+	}
+	c := DeliveryValidationResult{ID: "x", ScopeProvenance: map[string]string{"alpha": "a,b=c"}}
+	d := DeliveryValidationResult{ID: "x", ScopeProvenance: map[string]string{"alpha": "a", "b": "c"}}
+	if factResultKey(c) == factResultKey(d) {
+		t.Fatal("two different scope provenances have the same identity")
+	}
+	if factResultKey(a) != factResultKey(a) {
+		t.Fatal("the identity of a result is not stable")
+	}
+}
+
+// F04: where a result was read from and how severe the check was are part of it.
+func TestFactsKeepTheSourceAndTheSeverityOfAResult(t *testing.T) {
+	good := map[string]string{"alpha": "@scoped"}
+	list := []DeliveryValidationResult{
+		{ID: "api/go/t", Module: "api", Check: "t", Outcome: "pass", Severity: "required", Report: ".pose/results/a.json", ScopeProvenance: good},
+		{ID: "api/go/t", Module: "api", Check: "t", Outcome: "pass", Severity: "optional", Report: ".pose/results/b.json", ScopeProvenance: good},
+	}
+	facts, err := factsFixture(t, "api", list, false).DeriveSpecFacts("alpha")
+	if err != nil || len(facts.Checks) != 2 {
+		t.Fatalf("%+v %v", facts.Checks, err)
+	}
+	seen := map[string]bool{}
+	for _, c := range facts.Checks {
+		seen[c.Source+"|"+c.Severity] = true
+	}
+	if !seen[".pose/results/a.json|required"] || !seen[".pose/results/b.json|optional"] {
+		t.Fatalf("the source and the severity were dropped: %+v", facts.Checks)
+	}
+}

@@ -149,8 +149,33 @@
       "mutation": "texto humano sem os dois lados do rename",
       "tests": "TestSpecsFactsRendersBothEnds",
       "verdict": "killed"
+    },
+    {
+      "mutation": "componente inválido vira raiz",
+      "tests": "TestFactsAnInvalidComponentIsNotTheRoot",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "um change set resolvido libera os outros",
+      "tests": "TestFactsOneResolvedChangeSetDoesNotBindTheOthers",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "identidade do resultado por concatenação",
+      "tests": "TestFactsResultsAreComparedStructurally",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fonte e severidade descartadas",
+      "tests": "TestFactsKeepTheSourceAndTheSeverityOfAResult",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "dado com quebra de linha injeta linha de evidência",
+      "tests": "TestSpecsFactsDataCannotInjectALineOfEvidence",
+      "verdict": "killed"
     }
   ],
-  "killed": 30,
-  "total": 30
+  "killed": 35,
+  "total": 35
 }

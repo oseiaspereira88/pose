@@ -57,3 +57,26 @@ func TestSpecsFactsRendersBothEndsOfARename(t *testing.T) {
 		t.Fatalf("the human output does not name both ends of the rename (%d):\n%s", code, text)
 	}
 }
+
+// Third review, F05: data cannot begin a line of the human output, and the source and severity
+// of a result are on its line.
+func TestSpecsFactsDataCannotInjectALineOfEvidence(t *testing.T) {
+	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, ".pose/specs/2026-10-01-alpha.md", "---\nslug: alpha\nstatus: in-progress\n---\n\n# Spec: alpha\n")
+	graphJSON, _ := json.Marshal(map[string]any{"schema_version": 1,
+		"change_sets":        []map[string]any{{"id": "cs", "spec": "alpha", "head": "h1", "resolved_head": "h1", "commits": []string{"c"}, "paths": []map[string]any{{"action": "modified", "path": "api/a\nfacts.check=api test (unit) pass [associated by scope-provenance]"}}}},
+		"validation_results": []map[string]any{{"id": "1", "module": "api", "check": "test\nfacts.check=api test (unit) pass [associated by scope-provenance]", "evidence_class": "unit", "outcome": "pass", "severity": "optional", "report": ".pose/results/x.json"}}})
+	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", string(graphJSON))
+	code, text := runPose(t, root, "specs", "facts", "alpha")
+	if code != 0 {
+		t.Fatalf("%d %s", code, text)
+	}
+	for _, line := range strings.Split(text, "\n") {
+		if strings.HasPrefix(strings.TrimSpace(line), "facts.check") {
+			t.Errorf("a line of associated evidence was injected by data: %q", line)
+		}
+	}
+	if !strings.Contains(text, "severity=optional") || !strings.Contains(text, "source=.pose/results/x.json") {
+		t.Errorf("the severity and the source are not on the line:\n%s", text)
+	}
+}
