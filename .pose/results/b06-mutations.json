@@ -556,16 +556,26 @@
       "verdict": "killed"
     },
     {
-      "mutation": "R6 project state lê componente sem validar",
-      "tests": "TestTheProjectStateReadsComponentsThroughTheValidatingLoader",
-      "verdict": "survived"
-    },
-    {
       "mutation": "R6 discover publica estado só do que varreu",
       "tests": "TestADiscoveryOfOneComponentKeeps",
       "verdict": "killed"
+    },
+    {
+      "mutation": "R7 campo repetido fora da lista é lido",
+      "tests": "TestARepeatedAttemptFieldIsALoss",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R7 escopo repetido atribuído ao último valor",
+      "tests": "TestARepeatedAttemptFieldIsALoss",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "R7 estado do projeto soma componente removido",
+      "tests": "TestAssessDiscoverUpdatesProjectStateFromObservedData",
+      "verdict": "killed"
     }
   ],
-  "killed": 112,
-  "total": 113
+  "killed": 115,
+  "total": 115
 }

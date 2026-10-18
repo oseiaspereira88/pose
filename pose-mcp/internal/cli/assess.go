@@ -672,11 +672,16 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 	}
 
 	if updateState {
-		// The merged view: a component this run did not scan keeps what was recorded about it,
-		// including a state that could not be read.
-		stateInput := results
+		// The state is built from what this run observed: a persisted record of a component
+		// that is no longer there is not part of it. What was recorded and cannot be read is
+		// carried as a loss, so the state does not read as a certified total.
+		stateInput := append([]*pose.ComponentDiscoveryState{}, results...)
 		if targetComp != "" {
-			stateInput = consolidated
+			for _, c := range consolidated {
+				if c.Status == "unreadable" {
+					stateInput = append(stateInput, c)
+				}
+			}
 		}
 		if err := updateProjectStateArchitecture(root, stateInput); err != nil {
 			fmt.Fprintf(stderr, "pose assess discover update-state: %v\n", err)

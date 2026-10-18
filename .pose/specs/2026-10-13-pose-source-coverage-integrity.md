@@ -246,6 +246,12 @@ A sexta revisão (3 bloqueantes, 1 follow-up) levou a: campo de cabeçalho de re
 project state lê estados de componente pelo loader que valida, e o `discover` de um componente
 publica o estado a partir da visão consolidada, com as perdas dos demais.
 
+A sétima revisão (3 bloqueantes, 2 follow-ups) levou a: todo campo de cabeçalho pelo qual a
+tentativa é lida (`schema_version`, `review_id`, `scope`, `scope_digest`, `plan_digest`,
+`profile`, `reviewer`, `decision`, `reviewed_at`, `supersedes`, `evidence_refs`) vale uma vez, e um
+escopo nomeado duas vezes é perda sem atribuição; o project state de um `discover` parcial
+continua sendo o observado, e acrescenta apenas os estados persistidos ilegíveis como perda.
+
 ### Review and delivery evidence
 
 Probes antes (0b2a726f) e depois em [b06-front05-probes.json](../results/b06-front05-probes.json);
@@ -270,3 +276,5 @@ Nenhum item encerrado nesta entrega além de B06. B22–B23 reutilizam a cobertu
 inventário e metadata de resíduo; B34 pode construir sobre ela a invalidação de read views.
 
 - [open] Raiz de estados de componentes que é link quebrado perde o diagnóstico em `updateProjectStateArchitecture` (o estado fica `unavailable` e o `discover` falha antes de publicar; sem aprovação indevida demonstrada, achado R6-F04 da revisão independente) (owner:@core crit:low review:2026-12-01)
+
+- [open] O diagnóstico de um estado de componente ilegível no `updateProjectStateArchitecture` perde o arquivo e o tipo da perda, embora o estado derivado continue conservador (achado R7-F04) (owner:@core crit:low review:2026-12-01)

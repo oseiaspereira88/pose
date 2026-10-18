@@ -136,3 +136,27 @@ func TestARecordThatNamesItsScopeTwiceIsALossNotAnotherScopes(t *testing.T) {
 		t.Fatalf("the global read accepted a record that names its scope twice: %+v", global.Coverage)
 	}
 }
+
+// R7-F01 and R7-F02: every field the attempt is read by, once; a scope named twice is nobody's.
+func TestARepeatedAttemptFieldIsALossUnattributedToAnyScope(t *testing.T) {
+	for _, field := range []string{"schema_version: 1", "reviewer: agent:a", "profile: spec-closeout@1", "supersedes: x", "evidence_refs: [a]"} {
+		_, store := reviewFixture(t)
+		_ = os.RemoveAll(filepath.Join(store.Root, ".pose/reviews"))
+		name := strings.SplitN(field, ":", 2)[0]
+		writeCoverageFile(t, store.Root, ".pose/reviews/rvw-20260803T090000Z-cccc3333.md", "---\nschema_version: 1\nreview_id: rvw-20260803T090000Z-cccc3333\nscope: spec:alpha\ndecision: approved\nreviewed_at: 2026-08-03T09:00:00Z\n"+field+"\n"+field+"\n---\n")
+		read, err := store.ReadReviewAttempts("")
+		if err != nil || len(read.Attempts) != 0 || read.Coverage.Complete() {
+			t.Errorf("%s: a repeated field was read: attempts=%d coverage=%+v", name, len(read.Attempts), read.Coverage)
+		}
+	}
+	_, store := reviewFixture(t)
+	_ = os.RemoveAll(filepath.Join(store.Root, ".pose/reviews"))
+	writeCoverageFile(t, store.Root, ".pose/reviews/rvw-20260803T090000Z-dddd4444.md", "---\nschema_version: 1\nreview_id: x\nscope: spec:alpha\nscope: spec:other\ndecision: approved\nreviewed_at: 2026-08-03T09:00:00Z\n---\n")
+	read, err := store.ReadReviewAttempts("")
+	if err != nil || len(read.Coverage.Losses) != 1 || read.Coverage.Losses[0].Scope != "" {
+		t.Fatalf("a scope named twice must not be attributed to either: %+v %v", read.Coverage, err)
+	}
+	if read.Coverage.CompleteFor("spec:alpha") || read.Coverage.CompleteFor("spec:other") {
+		t.Fatal("an unattributed loss concerns every scope")
+	}
+}

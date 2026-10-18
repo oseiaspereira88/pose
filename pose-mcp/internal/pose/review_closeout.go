@@ -797,7 +797,7 @@ func parseReviewAttempt(path string) (ReviewAttempt, error) {
 		return ReviewAttempt{}, err
 	}
 	fm, body := SplitFrontmatter(string(raw))
-	if repeated := FrontmatterRepeats(string(raw), "review_id", "scope", "decision", "reviewed_at", "scope_digest", "plan_digest"); len(repeated) > 0 {
+	if repeated := FrontmatterRepeats(string(raw), "schema_version", "review_id", "scope", "scope_digest", "plan_digest", "profile", "reviewer", "decision", "reviewed_at", "supersedes", "evidence_refs"); len(repeated) > 0 {
 		return ReviewAttempt{}, fmt.Errorf("pose: review record declares %s more than once", strings.Join(repeated, ", "))
 	}
 	a := ReviewAttempt{SchemaVersion: ReviewSchemaVersion, ReviewID: fm["review_id"], Scope: fm["scope"], ScopeDigest: fm["scope_digest"], PlanDigest: fm["plan_digest"], Profile: fm["profile"], Reviewer: fm["reviewer"], Decision: fm["decision"], ReviewedAt: fm["reviewed_at"], Supersedes: fm["supersedes"], Path: path}
@@ -1031,7 +1031,9 @@ func (s Store) ReadReviewAttempts(scope string) (ReviewAttemptsRead, error) {
 				loss.Kind = LossUnsupported
 			}
 			if raw, readErr := os.ReadFile(path); readErr == nil {
-				if fm, _ := SplitFrontmatter(string(raw)); fm["scope"] != "" {
+				if fm, _ := SplitFrontmatter(string(raw)); fm["scope"] != "" && len(FrontmatterRepeats(string(raw), "scope")) == 0 {
+					// A scope named twice belongs to neither line: the loss is unattributed and
+					// concerns every scope.
 					loss.Scope, loss.AttributedBy = fm["scope"], "header"
 				}
 			} else {
