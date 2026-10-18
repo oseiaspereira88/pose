@@ -69,6 +69,8 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - modified: pose-mcp/internal/cli/live_helper_coverage_test.go
 - modified: pose-mcp/internal/cli/index_generation_test.go
 - created: pose-mcp/internal/cli/suggest_review_regression_test.go
+- created: .pose/reports/2026-10-18-pose-b28r2-independent-review.md
+- created: .pose/results/b28r2-independent-review.json
 - modified: pose-mcp/internal/cli/migrate_dryrun.go
 - modified: pose-mcp/internal/cli/migrate_dryrun_test.go
 - modified: pose-mcp/internal/cli/help_catalog.go
@@ -129,7 +131,7 @@ Testes de execução ainda não foram criados ou executados para este delta.
 
 ### Requirement trace
 
-- R1 [satisfied] check:distributed-instructions-parity-integration test:TestDistributedInstructionsAskForDiscoveryOnlyWhenStale test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale test:TestInventoryNeverSkipsWhatItCannotRead
+- R1 [satisfied] check:distributed-instructions-parity-integration test:TestDistributedInstructionsAskForDiscoveryOnlyWhenStale test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale test:TestInventoryNeverSkipsWhatItCannotRead test:TestTheInstalledInventoryNeverSkipsWhatItCannotRead
 - R2 [satisfied] check:distributed-instructions-parity-integration test:TestDistributedInstructionsAskForDiscoveryOnlyWhenStale test:TestTheEmbeddedMirrorsOfTheWorkflowsAndRulesMatchTheSources test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale
 - R3 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestResolvesDomainAliasesThroughOneTaxonomy test:TestSuggestDoesNotTurnEveryBackendIntoGo test:TestSuggestDomainUsesMostSpecificModuleAndSafeFallback test:TestSuggestRootModuleIsTheFallbackOfLeastSpecificity test:TestSuggestSaysWhyItHasNoDomainForAPath
 - R4 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestSeparatesDeclaredFromInstalledRules test:TestSuggestKubernetesRuleIsAnnouncedWithItsExtension test:TestSuggestAnUnreadableRuleIsNotInstalledOrInstallable test:TestSuggestRefusesAMalformedRulesConfiguration test:TestSuggestRefusesARuleIdentifierThatIsAPath
@@ -157,7 +159,13 @@ raiz, catálogo de extensões com Kubernetes, regra legível e regular, configur
 validada, identificadores de regra validados, índice ilegível distinto de ausência, inventário que
 falha em vez de pular, executor de mutações sem shell e que não conta erro como morte, índice
 republicado coerente). Os executores de mutação das unidades já entregues (b14, b15) repetem o
-shell interpolado e ficam como follow-up. Itens abertos, de baixo risco:
+shell interpolado e ficam como follow-up. Segunda revisão (quatro bloqueantes) tratada: tarefa,
+listas e domínios `null` na configuração são recusados, o repo-map tem o formato validado antes
+de qualquer seleção (coleção, item, tipos, caminho dentro do projeto), links quebrados de regra ou
+do diretório de regras são perda e não ausência, e o inventário do produto instalado falha no que
+não consegue ler e exige AGENTS.md num checkout de distribuição. Itens abertos, de baixo risco:
+
+- [open] O doctor recomenda instalar uma extensão para uma regra ilegível. (owner:@core crit:low review:2026-12-01)
 
 - [open] Dizer o alias e a origem explícitos também na saída humana de `pose suggest`. (owner:@core crit:low review:2026-12-01)
 - [open] Aceitar na CLI MCP o alias de caixa (`Go`) que a CLI já aceita. (owner:@core crit:low review:2026-12-01)

@@ -71,6 +71,9 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 	t, ok := tm.Tasks[task]
+	if ok && t == nil {
+		return usageError(stderr, fmt.Sprintf("pose suggest: invalid task-map entry %q: the entry is null", task))
+	}
 	if !ok {
 		fmt.Fprintf(stderr, "pose suggest: unknown task type %q (available: %s)\n", task, strings.Join(keys, ", "))
 		return 2
@@ -197,17 +200,28 @@ func strictStringSlice(value any) ([]string, error) {
 // domain. Every identifier must be a rule name the rule reader accepts, so a path is never
 // announced as a rule.
 func suggestTaskRules(t map[string]any) ([]string, map[string][]string, error) {
+	// Absent is not null: a field the entry does not declare adds nothing, one declared as
+	// null is a configuration that was lost.
+	if raw, present := t["rules"]; present && raw == nil {
+		return nil, nil, fmt.Errorf("rules: is null")
+	}
 	rules, err := strictStringSlice(t["rules"])
 	if err != nil {
 		return nil, nil, fmt.Errorf("rules: %w", err)
 	}
 	byDomain := map[string][]string{}
-	if raw, present := t["rules_by_domain"]; present && raw != nil {
+	if raw, present := t["rules_by_domain"]; present {
+		if raw == nil {
+			return nil, nil, fmt.Errorf("rules_by_domain: is null")
+		}
 		m, ok := raw.(map[string]any)
 		if !ok {
 			return nil, nil, fmt.Errorf("rules_by_domain: expected an object, got %T", raw)
 		}
 		for domain, value := range m {
+			if value == nil {
+				return nil, nil, fmt.Errorf("rules_by_domain.%s: is null", domain)
+			}
 			list, lerr := strictStringSlice(value)
 			if lerr != nil {
 				return nil, nil, fmt.Errorf("rules_by_domain.%s: %w", domain, lerr)
@@ -252,32 +266,65 @@ func inferSuggestDomain(root, pathHint string) (domain, source, problem string) 
 	if err := json.Unmarshal(raw, &data); err != nil {
 		return "", "repo-map-unavailable", "the repo-map is not valid JSON (" + err.Error() + ")"
 	}
-	best := -1 // the root module (an empty path) matches everything, with the least specificity
+	// The shape of the document is checked before anything is selected from it: a collection
+	// that is not a list, an item that is not an object or a path that is not a relative
+	// string is a repo-map that cannot be read, not a repo-map without a match.
+	type module struct{ path, domain, language string }
+	var modules []module
 	for _, kind := range []string{"apps", "services", "packages"} {
-		items, _ := data[kind].([]any)
-		for _, rawItem := range items {
-			item, _ := rawItem.(map[string]any)
-			p, _ := item["path"].(string)
-			p = normalizeModulePath(p)
-			if !(p == "" || norm == p || strings.HasPrefix(norm, p+"/")) || len(p) <= best {
-				continue
+		value, present := data[kind]
+		if !present {
+			continue
+		}
+		items, ok := value.([]any)
+		if !ok {
+			return "", "repo-map-invalid", fmt.Sprintf("the repo-map's %s is %T, not a list", kind, value)
+		}
+		for i, rawItem := range items {
+			item, ok := rawItem.(map[string]any)
+			if !ok {
+				return "", "repo-map-invalid", fmt.Sprintf("the repo-map's %s[%d] is %T, not an object", kind, i, rawItem)
 			}
-			best = len(p)
-			domain, _ = item["domain"].(string)
-			if domain == "" || domain == "unknown" {
-				lang, _ := item["language"].(string)
-				domain = map[string]string{"go": "backend-go", "javascript": "frontend", "typescript": "frontend"}[lang]
+			var m module
+			for field, dst := range map[string]*string{"path": &m.path, "domain": &m.domain, "language": &m.language} {
+				v, present := item[field]
+				if !present {
+					continue
+				}
+				s, ok := v.(string)
+				if !ok {
+					return "", "repo-map-invalid", fmt.Sprintf("the repo-map's %s[%d].%s is %T, not a string", kind, i, field, v)
+				}
+				*dst = s
 			}
-			// "backend" names no language: it is the Go domain only when the module is Go.
-			if domain == "backend" {
-				lang, _ := item["language"].(string)
-				goMod := false
-				if info, err := os.Stat(filepath.Join(root, filepath.FromSlash(p), "go.mod")); err == nil && info.Mode().IsRegular() {
-					goMod = true
-				}
-				if lang == "go" || strings.HasSuffix(norm, ".go") || goMod {
-					domain = "backend-go"
-				}
+			if _, hasPath := item["path"]; !hasPath {
+				return "", "repo-map-invalid", fmt.Sprintf("the repo-map's %s[%d] has no path", kind, i)
+			}
+			if strings.HasPrefix(filepath.ToSlash(strings.TrimSpace(m.path)), "/") || filepath.IsAbs(m.path) || m.path == ".." || strings.HasPrefix(path.Clean(filepath.ToSlash(m.path)), "../") {
+				return "", "repo-map-invalid", fmt.Sprintf("the repo-map's %s[%d].path %q is not a path inside the project", kind, i, m.path)
+			}
+			modules = append(modules, m)
+		}
+	}
+	best := -1 // the root module (an empty path) matches everything, with the least specificity
+	for _, m := range modules {
+		p := normalizeModulePath(m.path)
+		if !(p == "" || norm == p || strings.HasPrefix(norm, p+"/")) || len(p) <= best {
+			continue
+		}
+		best = len(p)
+		domain = m.domain
+		if domain == "" || domain == "unknown" {
+			domain = map[string]string{"go": "backend-go", "javascript": "frontend", "typescript": "frontend"}[m.language]
+		}
+		// "backend" names no language: it is the Go domain only when the module is Go.
+		if domain == "backend" {
+			goMod := false
+			if info, err := os.Stat(filepath.Join(root, filepath.FromSlash(p), "go.mod")); err == nil && info.Mode().IsRegular() {
+				goMod = true
+			}
+			if m.language == "go" || strings.HasSuffix(norm, ".go") || goMod {
+				domain = "backend-go"
 			}
 		}
 	}

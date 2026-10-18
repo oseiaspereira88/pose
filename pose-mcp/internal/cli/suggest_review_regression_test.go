@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -102,5 +103,68 @@ func TestSuggestSaysWhyItHasNoDomainForAPath(t *testing.T) {
 	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", `{"services":[{"path":"other","language":"go"}]}`)
 	if doc := suggestJSON(t, root, "--path", "svc/app"); doc["domain_source"] != "repo-map-no-match" {
 		t.Errorf("a map without a match is a different answer: %v", doc)
+	}
+}
+
+func TestSuggestRefusesNullWhereAListOrAnEntryWasConfigured(t *testing.T) {
+	for name, taskMap := range map[string]string{
+		"task":        `{"tasks":{"feature":null}}`,
+		"rules":       `{"tasks":{"feature":{"rules":null}}}`,
+		"by-domain":   `{"tasks":{"feature":{"rules":["security"],"rules_by_domain":null}}}`,
+		"domain-list": `{"tasks":{"feature":{"rules":["security"],"rules_by_domain":{"backend-go":null}}}}`,
+	} {
+		root := suggestWithTaskMap(t, taskMap)
+		if code, out := runPose(t, root, "suggest", "feature", "--domain", "go"); code == 0 || !strings.Contains(out, "invalid task-map entry") {
+			t.Errorf("%s: a configuration that was lost was accepted: %d %s", name, code, out)
+		}
+	}
+	// An empty list and an absent field are legitimate.
+	root := suggestWithTaskMap(t, `{"tasks":{"feature":{"rules":[],"rules_by_domain":{"backend-go":[]}}}}`)
+	if code, out := runPose(t, root, "suggest", "feature", "--domain", "go"); code != 0 {
+		t.Errorf("an empty list is a configuration: %d %s", code, out)
+	}
+}
+
+func TestSuggestRefusesARepoMapWhoseShapeIsWrong(t *testing.T) {
+	for name, repoMap := range map[string]string{
+		"collection":  `{"services":"lost"}`,
+		"item":        `{"services":[3]}`,
+		"path type":   `{"services":[{"path":7,"domain":"backend-go"}]}`,
+		"domain type": `{"services":[{"path":"svc","domain":5}]}`,
+		"language":    `{"services":[{"path":"svc","language":true}]}`,
+		"no path":     `{"services":[{"domain":"backend-go"}]}`,
+		"absolute":    `{"services":[{"path":"/","domain":"backend-go"}]}`,
+		"outside":     `{"services":[{"path":"../x","domain":"backend-go"}]}`,
+	} {
+		root := suggestFixture(t, true)
+		writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", repoMap)
+		doc := suggestJSON(t, root, "--path", "svc/main.py")
+		if doc["domain_source"] != "repo-map-invalid" || doc["domain_effective"] != nil {
+			t.Errorf("%s: a repo-map of the wrong shape was read as a match or as no match: %v", name, doc["domain_source"])
+		}
+	}
+}
+
+func TestSuggestSaysWhenARuleOrTheRulesDirectoryIsABrokenLink(t *testing.T) {
+	root := suggestFixture(t, false)
+	if err := os.Symlink(filepath.Join(root, "gone.md"), filepath.Join(root, ".pose", "rules", "backend-go.md")); err != nil {
+		t.Skip("symlinks are not available")
+	}
+	doc := suggestJSON(t, root, "--domain", "go")
+	for _, raw := range doc["rules_status"].([]any) {
+		st, _ := raw.(map[string]any)
+		if st["rule"] == "backend-go" && (st["availability"] != "unreadable" || st["next_step"] != nil || !strings.Contains(fmt.Sprint(st["detail"]), "link")) {
+			t.Errorf("a broken link to a rule is not an absent rule, and is said to be a link: %v", st)
+		}
+	}
+	lost := suggestFixture(t, false)
+	os.RemoveAll(filepath.Join(lost, ".pose", "rules"))
+	os.Symlink(filepath.Join(lost, "gone"), filepath.Join(lost, ".pose", "rules"))
+	doc = suggestJSON(t, lost, "--domain", "go")
+	for _, raw := range doc["rules_status"].([]any) {
+		st, _ := raw.(map[string]any)
+		if st["availability"] != "unreadable" {
+			t.Errorf("a rules directory that is a broken link is not a project without rules: %v", st)
+		}
 	}
 }

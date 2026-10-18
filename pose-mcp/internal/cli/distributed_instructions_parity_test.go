@@ -30,6 +30,9 @@ func instructionMarkdown(base string) ([]string, error) {
 		if err != nil {
 			return err
 		}
+		if d.IsDir() && d.Name() == ".git" {
+			return fs.SkipDir
+		}
 		if !d.IsDir() && strings.HasSuffix(path, ".md") {
 			files = append(files, path)
 		}
@@ -42,7 +45,12 @@ func distributedInstructionFiles(t *testing.T) (root string, files []string) {
 	t.Helper()
 	root, _ = filepath.Abs(filepath.Join("..", "..", ".."))
 	if _, err := os.Stat(filepath.Join(root, "AGENTS.md")); err != nil {
-		t.Skip("the distributed instruction sources are not part of this tree")
+		// A tree that is not a distribution checkout has no sources to inventory; a checkout
+		// that lost its AGENTS.md is incomplete, which is a failure, not a skip.
+		if _, pose := os.Stat(filepath.Join(root, ".pose")); pose != nil {
+			t.Skip("the distributed instruction sources are not part of this tree")
+		}
+		t.Fatalf("the distribution checkout lost AGENTS.md: %v", err)
 	}
 	for _, entry := range instructionRoots {
 		base := filepath.Join(root, filepath.FromSlash(entry))
@@ -221,26 +229,61 @@ func TestMigrateSaysThereIsNoApplyWithoutPromisingOne(t *testing.T) {
 // unconditional discovery in any instruction the instance receives, in either locale.
 func TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale(t *testing.T) {
 	instance := freshInstall(t)
-	checked := 0
-	_ = filepath.WalkDir(instance, func(path string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".md") || strings.Contains(path, string(filepath.Separator)+".git"+string(filepath.Separator)) {
-			return nil
-		}
+	checked, findings, err := unconditionalDiscoveryIn(instance)
+	if err != nil {
+		t.Fatalf("the installed inventory is incomplete: %v", err)
+	}
+	for _, finding := range findings {
+		t.Error(finding)
+	}
+	if checked < 10 {
+		t.Fatalf("only %d installed instruction files were inspected", checked)
+	}
+}
+
+// unconditionalDiscoveryIn reads every Markdown file under dir and reports the instructions that
+// ask for a discovery that is not conditional on staleness. A file or directory that cannot be
+// read is an error: the inventory is then incomplete, and incomplete is not clean.
+func unconditionalDiscoveryIn(dir string) (checked int, findings []string, err error) {
+	files, err := instructionMarkdown(dir)
+	if err != nil {
+		return 0, nil, err
+	}
+	for _, path := range files {
 		raw, readErr := os.ReadFile(path)
 		if readErr != nil {
-			return nil
+			return checked, findings, readErr
 		}
 		checked++
 		for _, m := range discoverCommandRE.FindAllString(string(raw), -1) {
 			if !strings.Contains(m, "--if-stale") {
-				rel, _ := filepath.Rel(instance, path)
-				t.Errorf("%s: the installed instruction asks for an unconditional discovery: %s", rel, strings.TrimSpace(m))
+				rel, _ := filepath.Rel(dir, path)
+				findings = append(findings, rel+": the installed instruction asks for an unconditional discovery: "+strings.TrimSpace(m))
 			}
 		}
-		return nil
-	})
-	if checked < 10 {
-		t.Fatalf("only %d installed instruction files were inspected", checked)
+	}
+	return checked, findings, nil
+}
+
+// The installed inventory fails on what it cannot read, like the one of the sources.
+func TestTheInstalledInventoryNeverSkipsWhatItCannotRead(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root reads every directory")
+	}
+	dir := t.TempDir()
+	locked := filepath.Join(dir, ".pose", "workflows", "locked")
+	if err := os.MkdirAll(locked, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	os.WriteFile(filepath.Join(locked, "bad.md"), []byte("run `pose assess discover`"), 0o644)
+	os.Chmod(locked, 0)
+	defer os.Chmod(locked, 0o755)
+	if _, _, err := unconditionalDiscoveryIn(dir); err == nil {
+		t.Fatal("an unreadable directory of the installed instance was skipped")
+	}
+	os.Chmod(locked, 0o755)
+	if _, findings, err := unconditionalDiscoveryIn(dir); err != nil || len(findings) != 1 {
+		t.Fatalf("the control finds the instruction once readable: %v %v", findings, err)
 	}
 }
 

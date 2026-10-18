@@ -134,16 +134,32 @@ const (
 )
 
 func ruleFileState(root, ruleFile string) (string, error) {
-	path := filepath.Join(root, ".pose", "rules", ruleFile)
-	info, err := os.Stat(path)
-	if errors.Is(err, os.ErrNotExist) {
-		// A missing parent that is itself unreadable is not a missing rule.
-		if _, derr := os.Stat(filepath.Join(root, ".pose", "rules")); derr != nil && !errors.Is(derr, os.ErrNotExist) {
-			return ruleFileUnreadable, derr
+	rulesDir := filepath.Join(root, ".pose", "rules")
+	path := filepath.Join(rulesDir, ruleFile)
+	// The directory of the rules first: one that is there as an entry and cannot be looked into
+	// (a link to a place that was lost, no access) is a loss, not a project without rules.
+	if _, lerr := os.Lstat(rulesDir); lerr == nil {
+		if _, serr := os.Stat(rulesDir); serr != nil {
+			return ruleFileUnreadable, fmt.Errorf("the rules directory %s cannot be read: %w", rulesDir, serr)
 		}
+	} else if !errors.Is(lerr, os.ErrNotExist) {
+		return ruleFileUnreadable, lerr
+	} else {
 		return ruleFileAbsent, nil
 	}
+	linfo, lerr := os.Lstat(path)
+	if errors.Is(lerr, os.ErrNotExist) {
+		return ruleFileAbsent, nil
+	}
+	if lerr != nil {
+		return ruleFileUnreadable, lerr
+	}
+	info, err := os.Stat(path)
 	if err != nil {
+		if linfo.Mode()&os.ModeSymlink != 0 {
+			// The rule is there as a link whose target was lost: not an absent rule.
+			return ruleFileUnreadable, fmt.Errorf("%s is a link whose target cannot be read: %w", path, err)
+		}
 		return ruleFileUnreadable, err
 	}
 	if !info.Mode().IsRegular() {

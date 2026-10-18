@@ -114,8 +114,63 @@
       "mutation": "inventário ignora diretório ilegível",
       "tests": "TestInventoryNeverSkipsWhatItCannotRead",
       "verdict": "killed"
+    },
+    {
+      "mutation": "task null é aceita",
+      "tests": "TestSuggestRefusesNullWhere",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "rules null é aceito",
+      "tests": "TestSuggestRefusesNullWhere",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "lista de domínio null é aceita",
+      "tests": "TestSuggestRefusesNullWhere",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "coleção que não é lista vira sem match",
+      "tests": "TestSuggestRefusesARepoMapWhoseShapeIsWrong",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "item que não é objeto é descartado",
+      "tests": "TestSuggestRefusesARepoMapWhoseShapeIsWrong",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "campo com tipo errado é ignorado",
+      "tests": "TestSuggestRefusesARepoMapWhoseShapeIsWrong",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "módulo sem path vira raiz",
+      "tests": "TestSuggestRefusesARepoMapWhoseShapeIsWrong",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "path absoluto ou externo é aceito",
+      "tests": "TestSuggestRefusesARepoMapWhoseShapeIsWrong",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "link quebrado para regra vira ausência",
+      "tests": "TestSuggestSaysWhenARuleOrTheRulesDirectory",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "diretório de regras quebrado vira ausência",
+      "tests": "TestSuggestSaysWhenARuleOrTheRulesDirectory",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "inventário instalado ignora o que não lê",
+      "tests": "TestTheInstalledInventoryNeverSkipsWhatItCannotRead",
+      "verdict": "killed"
     }
   ],
-  "killed": 23,
-  "total": 23
+  "killed": 34,
+  "total": 34
 }
