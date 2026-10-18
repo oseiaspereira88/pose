@@ -1,14 +1,11 @@
 package pose
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 )
@@ -139,16 +136,33 @@ func degradeFreshness(f *SpecFactsFreshness, status, input, reason string) {
 	}
 }
 
-// resultsFileDisagrees reports why the validation results file the index was built from
-// no longer matches the results the index holds, or "" when it matches or there is none.
+// resultsFileDisagrees reports why the validation results file the index was built from no
+// longer matches the results the index holds, or "" when it matches or there is none. The file is
+// read the way the index read it (ParseDeliveryValidationRun) and compared result by result, in
+// every field the index keeps: a head, a scope provenance, a module or a class that moved is a
+// results file the facts no longer describe. A file that cannot be read, a contract this engine
+// does not read and a policy that cannot be loaded are not agreement.
 func (s Store) resultsFileDisagrees(graph DeliveryIntegrityGraph) string {
 	policy, err := LoadDeliveryPolicy(s.Root)
-	if err != nil || policy.ResultsPath == "" {
+	if err != nil {
+		return "the delivery policy could not be loaded, so the results file it names is unknown: " + err.Error()
+	}
+	held := []DeliveryValidationResult{}
+	for _, r := range graph.ValidationResults {
+		// A result with no report was not read from a results file (a fixture, an older index).
+		if r.Report != "" && (policy.ResultsPath == "" || r.Report == policy.ResultsPath) {
+			held = append(held, r)
+		}
+	}
+	if policy.ResultsPath == "" {
+		if len(held) > 0 {
+			return "the delivery policy names no results file, and the index holds results read from one"
+		}
 		return ""
 	}
 	raw, err := os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(policy.ResultsPath)))
 	if errors.Is(err, os.ErrNotExist) {
-		if len(graph.ValidationResults) > 0 {
+		if len(held) > 0 {
 			return policy.ResultsPath + " is gone, and the index holds results read from it"
 		}
 		return ""
@@ -156,58 +170,39 @@ func (s Store) resultsFileDisagrees(graph DeliveryIntegrityGraph) string {
 	if err != nil {
 		return policy.ResultsPath + " could not be read: " + err.Error()
 	}
-	var run struct {
-		GeneratedAt      string `json:"generated_at"`
-		GitHead          string `json:"git_head"`
-		ProvenanceDigest string `json:"provenance_digest"`
-		Checks           []struct {
-			ID            string `json:"id"`
-			Outcome       string `json:"outcome"`
-			EvidenceClass string `json:"evidence_class"`
-		} `json:"checks"`
+	now, perr := ParseDeliveryValidationRun(raw, policy.ResultsPath)
+	if perr != nil {
+		return policy.ResultsPath + " is not a validation result this engine reads"
 	}
-	if json.Unmarshal(raw, &run) != nil {
-		return policy.ResultsPath + " is not a readable validation result"
+	if len(now) != len(held) {
+		return fmt.Sprintf("%s holds %d result(s), the index holds %d read from it", policy.ResultsPath, len(now), len(held))
 	}
-	now := map[string]string{}
-	for _, c := range run.Checks {
-		if c.EvidenceClass != "" {
-			now[c.ID] = c.Outcome
+	keys := func(list []DeliveryValidationResult) []string {
+		out := make([]string, 0, len(list))
+		for _, r := range list {
+			out = append(out, factResultKey(r))
 		}
+		sort.Strings(out)
+		return out
 	}
-	held := map[string]DeliveryValidationResult{}
-	for _, r := range graph.ValidationResults {
-		held[r.ID] = r
-		if r.Report != policy.ResultsPath && r.Report != "" {
-			continue
-		}
-		if outcome, ok := now[r.ID]; !ok || outcome != r.Outcome || run.GeneratedAt != r.GeneratedAt || run.ProvenanceDigest != r.ProvenanceDigest {
+	a, b := keys(now), keys(held)
+	for i := range a {
+		if a[i] != b[i] {
 			return policy.ResultsPath + " was written again after the index read it"
-		}
-	}
-	for id := range now {
-		if _, ok := held[id]; !ok && len(graph.ValidationResults) > 0 {
-			return policy.ResultsPath + " holds results the index does not"
 		}
 	}
 	return ""
 }
 
-// unindexedTrailerCommits counts the commits that carry the spec's trailer and are not in
-// any change set of the index, or -1 when the history could not be read.
-func (s Store) unindexedTrailerCommits(slug string, indexed map[string]bool) int {
-	cmd := exec.Command("git", "-C", s.Root, "log", "--format=%H", "-E", "--grep=^POSE-Spec: "+regexp.QuoteMeta(slug)+"$")
-	out, err := cmd.Output()
-	if err != nil {
-		return -1
+// factResultKey is the identity of a result in every field the index keeps, the scope
+// provenance in a fixed order: two results with the same key are the same result.
+func factResultKey(r DeliveryValidationResult) string {
+	scopes := make([]string, 0, len(r.ScopeProvenance))
+	for slug, digest := range r.ScopeProvenance {
+		scopes = append(scopes, slug+"="+digest)
 	}
-	missing := 0
-	for _, h := range strings.Fields(string(out)) {
-		if !indexed[h] {
-			missing++
-		}
-	}
-	return missing
+	sort.Strings(scopes)
+	return strings.Join([]string{r.ID, r.Module, r.Check, r.EvidenceClass, r.Severity, r.Outcome, r.GitHead, r.GeneratedAt, r.ProvenanceDigest, r.Report, strings.Join(scopes, ",")}, "\x00")
 }
 
 // DeriveSpecFacts reads the delivery index. A spec with no attributed change
@@ -226,9 +221,13 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 	seen := map[string]bool{}
 	commits := map[string]bool{}
 	heads := map[string]bool{}
+	resolvedSets := 0
 	for _, cs := range graph.ChangeSets {
 		if cs.Spec != slug {
 			continue
+		}
+		if cs.ResolvedHead != "" && len(cs.Paths) > 0 {
+			resolvedSets++
 		}
 		if cs.ResolvedHead != "" {
 			heads[cs.ResolvedHead] = true
@@ -237,7 +236,8 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 			commits[c] = true
 		}
 		for _, p := range cs.Paths {
-			key := p.Action + "\x00" + p.Path
+			// A rename has no Path: its identity is both of its ends.
+			key := p.Action + "\x00" + p.Path + "\x00" + p.OldPath + "\x00" + p.NewPath
 			if !seen[key] {
 				seen[key] = true
 				facts.Paths = append(facts.Paths, p)
@@ -248,13 +248,23 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 	if reason := s.resultsFileDisagrees(graph); reason != "" {
 		degradeFreshness(&facts.Freshness, SpecFactsStale, "validation-results", reason)
 	}
+	// The history is an axis a generation does not bind. It is read the way the attribution of
+	// change sets reads it (every ref, the trailer lines of the body), and a history that cannot
+	// be read leaves the facts unknown rather than fresh.
 	if facts.Freshness.Status == SpecFactsFresh || facts.Freshness.Status == SpecFactsUnknown {
-		switch missing := s.unindexedTrailerCommits(slug, commits); {
+		trailers, terr := SpecTrailerCommits(s.Root, slug)
+		missing := 0
+		for _, c := range trailers {
+			if !commits[c] {
+				missing++
+			}
+		}
+		switch {
+		case terr != nil:
+			facts.Limitations = append(facts.Limitations, "the Git history could not be read, so whether commits belong to this spec that the index does not hold is unknown")
+			degradeFreshness(&facts.Freshness, SpecFactsUnknown, "", "the Git history could not be read")
 		case missing > 0:
 			degradeFreshness(&facts.Freshness, SpecFactsStale, "spec-commits", fmt.Sprintf("%d commit(s) carrying this spec's trailer are not in the index", missing))
-		case missing < 0 && gitHeadAtRoot(s.Root) != "":
-			facts.Limitations = append(facts.Limitations, "the Git history could not be read, so whether later commits belong to this spec is unknown")
-			degradeFreshness(&facts.Freshness, SpecFactsUnknown, "", "the Git history could not be read")
 		}
 	}
 	if len(facts.Paths) == 0 {
@@ -268,7 +278,10 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 	case SpecFactsUnavailable:
 		facts.Limitations = append(facts.Limitations, "the index is unavailable ("+facts.Freshness.Reason+"): run `pose index`")
 	}
-	sort.Slice(facts.Paths, func(i, j int) bool { return facts.Paths[i].Path < facts.Paths[j].Path })
+	pathKey := func(p ObservedPath) string {
+		return p.Path + "\x00" + p.OldPath + "\x00" + p.NewPath + "\x00" + p.Action
+	}
+	sort.Slice(facts.Paths, func(i, j int) bool { return pathKey(facts.Paths[i]) < pathKey(facts.Paths[j]) })
 	modules := map[string]bool{}
 	for _, c := range spec.Components {
 		if n := normalizeFactPath(c); n != "" || strings.TrimSpace(c) != "" {
@@ -287,7 +300,7 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 		}
 		// Distinct results are kept apart: the identity of a result is its own, not the
 		// module and the name of the check, which several stacks share.
-		identity := strings.Join([]string{r.ID, r.Module, r.Check, r.Outcome, r.GitHead, r.Report}, "\x00")
+		identity := factResultKey(r)
 		if seenResult[identity] {
 			continue
 		}
@@ -297,7 +310,7 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 				ScopedDigest: scopedValue, ExpectedScopedDigest: expected}}
 		covered, inferred := moduleCoversSpec(r.Module, modules, facts.Paths)
 		switch {
-		case scoped && scopedValue != "" && scopedValue == expected && covered:
+		case scoped && scopedValue != "" && scopedValue == expected && covered && resolvedSets > 0:
 			fact.Classification, fact.Basis = SpecFactAssociated, "scope-provenance"
 			if inferred {
 				fact.Limits = append(fact.Limits, "the result's module contains the spec's components or paths without being one of them: coverage is inferred from the module's ancestry, not shown")
@@ -306,11 +319,16 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 			// The index ties the result to the spec by name, but the tie does not hold: it
 			// is a digest of other claims, of nothing, or of a module that is not the spec's.
 			fact.Classification, fact.Basis = SpecFactCandidate, "scope-provenance-unverified"
-			if scopedValue == "" || scopedValue != expected {
+			if resolvedSets == 0 {
+				fact.Limits = append(fact.Limits, "the spec has no resolved change set with paths: the scope provenance of the result is the digest of nothing and binds it to no delta")
+			} else if scopedValue == "" || scopedValue != expected {
 				fact.Limits = append(fact.Limits, "the scope provenance the result carries for this spec ("+emptyAs(scopedValue, "empty")+") is not the one its claims and change sets give today ("+emptyAs(expected, "none")+")")
 			}
 			if !covered {
 				fact.Limits = append(fact.Limits, "the result's module ("+emptyAs(r.Module, "none")+") does not cover the spec's declared components or attributed paths")
+			}
+			if strings.TrimSpace(r.Module) == "" {
+				fact.Limits = append(fact.Limits, "the result names no module: an omitted module is not the root of the repository")
 			}
 		default:
 			// Nothing ties this result to the spec: a module that happens to be declared, or
@@ -393,14 +411,34 @@ func RequiredSpecSections(surface string) []string {
 	}
 }
 
-// normalizeFactPath makes a module or component comparable as a path: slash-separated,
-// cleaned, "" for the repository root.
-func normalizeFactPath(p string) string {
-	p = path.Clean(filepath.ToSlash(strings.TrimSpace(p)))
-	if p == "." || p == "/" || p == "root" {
-		return ""
+// factModuleKind says what a module or component reference is: unknown (absent), invalid (an
+// absolute path or one that leaves the project), the root of the repository (written as such) or
+// a path. An omitted module is not the root.
+func factModuleKind(p string) (normalized, kind string) {
+	trimmed := strings.TrimSpace(p)
+	if trimmed == "" {
+		return "", "unknown"
 	}
-	return strings.TrimPrefix(p, "./")
+	slashed := filepath.ToSlash(trimmed)
+	if strings.HasPrefix(slashed, "/") || filepath.IsAbs(trimmed) {
+		return "", "invalid"
+	}
+	cleaned := path.Clean(slashed)
+	if cleaned == ".." || strings.HasPrefix(cleaned, "../") {
+		return "", "invalid"
+	}
+	if cleaned == "." || cleaned == "root" {
+		return "", "root"
+	}
+	return strings.TrimPrefix(cleaned, "./"), "path"
+}
+
+// normalizeFactPath makes a module or a component comparable as a path: slash-separated,
+// cleaned, "" for the root. It does not make an unknown or invalid reference the root; callers
+// that need the difference ask factModuleKind.
+func normalizeFactPath(p string) string {
+	normalized, _ := factModuleKind(p)
+	return normalized
 }
 
 func emptyAs(value, word string) string {
@@ -412,25 +450,36 @@ func emptyAs(value, word string) string {
 
 // moduleCoversSpec says whether a result's module covers what the spec declares or changed:
 // the module is a declared component or an attributed path's module, or it is an ancestor of
-// one (inferred), or the repository root. A sibling, a descendant or a module that merely
-// shares a prefix does not cover it. A spec that declares nothing and changed nothing has
-// nothing a module could be shown to cover.
+// one (inferred), or it is the repository root written as such. A module that is absent or
+// invalid, a sibling, a descendant or a module that merely shares a prefix does not cover it. Both
+// ends of a rename are attributed: the path the change left and the one it reached. A spec that
+// declares nothing and changed nothing has nothing a module could be shown to cover.
 func moduleCoversSpec(module string, components map[string]bool, paths []ObservedPath) (covered, inferred bool) {
-	module = normalizeFactPath(module)
+	normalized, kind := factModuleKind(module)
+	if kind == "unknown" || kind == "invalid" {
+		return false, false
+	}
 	targets := []string{}
 	for c := range components {
 		targets = append(targets, c)
 	}
 	for _, p := range paths {
-		targets = append(targets, normalizeFactPath(firstObservedDeliveryPath(p)))
+		for _, candidate := range []string{p.Path, p.OldPath, p.NewPath} {
+			if candidate != "" {
+				targets = append(targets, normalizeFactPath(candidate))
+			}
+		}
+	}
+	if len(targets) == 0 {
+		return false, false
 	}
 	for _, target := range targets {
 		switch {
-		case module == target:
+		case kind == "root" || target == "":
 			return true, false
-		case module == "" || target == "":
+		case normalized == target:
 			return true, false
-		case strings.HasPrefix(target, module+"/"):
+		case strings.HasPrefix(target, normalized+"/"):
 			covered, inferred = true, true
 		}
 	}

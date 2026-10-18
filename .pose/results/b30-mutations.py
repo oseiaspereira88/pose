@@ -19,8 +19,8 @@ P = "./internal/pose"
 C = "./internal/cli"
 
 M = [
- ("módulo de outro spec vira associado por componente", [(SF, 'case scoped && scopedValue != "" && scopedValue == expected && covered:', 'case scoped || modules[normalizeFactPath(r.Module)]:')], P, "TestFactsSeparateAssociatedEvidenceFromCandidates"),
- ("sem componentes todo resultado é associado", [(SF, 'case scoped && scopedValue != "" && scopedValue == expected && covered:', 'case scoped || len(modules) == 0:')], P, "TestFactsSeparateAssociatedEvidenceFromCandidates"),
+ ("módulo de outro spec vira associado por componente", [(SF, 'case scoped && scopedValue != "" && scopedValue == expected && covered && resolvedSets > 0:', 'case scoped || modules[normalizeFactPath(r.Module)]:')], P, "TestFactsSeparateAssociatedEvidenceFromCandidates"),
+ ("sem componentes todo resultado é associado", [(SF, 'case scoped && scopedValue != "" && scopedValue == expected && covered && resolvedSets > 0:', 'case scoped || len(modules) == 0:')], P, "TestFactsSeparateAssociatedEvidenceFromCandidates"),
  ("candidato sem limite", [(SF, 'fact.Limits = append(fact.Limits, "the result carries no scope provenance and its module is not declared by the spec: it is not evidence of this spec")', '_ = fact')], P, "TestFactsSeparateAssociatedEvidenceFromCandidates"),
  ("módulo declarado sem provenance perde o limite", [(SF, 'fact.Limits = append(fact.Limits, "the module is declared by the spec, but the result carries no scope provenance: it is not shown to cover this spec\'s delta")', '_ = fact')], P, "TestFactsSeparateAssociatedEvidenceFromCandidates"),
  ("resultado de outro spec não é contado", [(SF, 'otherSpecs++\n\t\t\tcontinue', 'continue')], P, "TestFactsSeparateAssociatedEvidenceFromCandidates"),
@@ -32,14 +32,23 @@ M = [
  ("índice stale sem próximo passo", [(SF, 'run `pose index` before relying on these facts', 'ok')], P, "TestFactsSayHowFreshTheIndexIs"),
  ("saída humana imprime candidato como check", [(SC, 'out.Field("facts.candidate", factLine', 'out.Field("facts.check", factLine')], C, "TestSpecsFactsLabelsCandidates"),
  ("saída humana sem frescor", [(SC, 'out.Field("facts.freshness", freshness)', '_ = freshness')], C, "TestSpecsFactsLabelsCandidates"),
- ("chave presente vale como associação", [(SF, 'case scoped && scopedValue != "" && scopedValue == expected && covered:', 'case scoped && covered:')], P, "TestFactsAssociateOnlyAScopeProvenanceThatMatches"),
- ("módulo alheio é associado", [(SF, 'case scoped && scopedValue != "" && scopedValue == expected && covered:', 'case scoped && scopedValue != "" && scopedValue == expected:')], P, "TestFactsAssociateOnlyAModuleThatCovers"),
- ("resultados do mesmo módulo e check colapsam", [(SF, 'identity := strings.Join([]string{r.ID, r.Module, r.Check, r.Outcome, r.GitHead, r.Report}, "\\x00")', 'identity := r.Module + "|" + r.Check')], P, "TestFactsKeepEveryDistinctResult"),
+ ("chave presente vale como associação", [(SF, 'case scoped && scopedValue != "" && scopedValue == expected && covered && resolvedSets > 0:', 'case scoped && covered && resolvedSets > 0:')], P, "TestFactsAssociateOnlyAScopeProvenanceThatMatches"),
+ ("módulo alheio é associado", [(SF, 'case scoped && scopedValue != "" && scopedValue == expected && covered && resolvedSets > 0:', 'case scoped && scopedValue != "" && scopedValue == expected && resolvedSets > 0:')], P, "TestFactsAssociateOnlyAModuleThatCoversTheSpec"),
  ("geração sem bindings é fresh", [(SF, 'case len(unbound) > 0:', 'case len(unbound) > 0 && false:')], P, "TestFactsAGenerationThatBindsNothingIsUnknown"),
  ("arquivo de índice divergente é fresh", [(SF, 'case len(diverged) > 0:', 'case len(diverged) > 0 && false:')], P, "TestFactsAreFreshOnlyForWhatIsVerified"),
  ("arquivo de resultados trocado é fresh", [(SF, 'reason != "" {\n\t\tdegradeFreshness(&facts.Freshness, SpecFactsStale, "validation-results"', 'reason != "" && false {\n\t\tdegradeFreshness(&facts.Freshness, SpecFactsStale, "validation-results"')], P, "TestFactsAreFreshOnlyForWhatIsVerified"),
  ("commit do spec fora do índice é fresh", [(SF, 'case missing > 0:', 'case missing > 0 && false:')], P, "TestFactsSeeACommitOfTheSpec"),
  ("saída humana omite limites", [(SC, 'if len(c.Limits) > 0 {', 'if false {')], C, "TestSpecsFactsLabelsCandidates"),
+ ("git_head do arquivo de resultados não é comparado", [(SF, 'r.Outcome, r.GitHead, r.GeneratedAt, r.ProvenanceDigest, r.Report, strings.Join(scopes, ",")}, "\\x00")', 'r.Outcome, r.GeneratedAt, r.ProvenanceDigest, r.Report, strings.Join(scopes, ",")}, "\\x00")')], P, "TestFactsTheResultsFileIsComparedInEveryField"),
+ ("arquivo com mais resultados é aceito", [(SF, 'if len(now) != len(held) {', 'if false && len(now) != len(held) {')], P, "TestFactsTheResultsFileIsComparedInEveryField"),
+ ("digest do vazio vira associação", [(SF, '&& covered && resolvedSets > 0:', '&& covered:')], P, "TestFactsTheDigestOfNothingIsNotAnAssociation"),
+ ("módulo omitido vira raiz", [(SF, 'if kind == "unknown" || kind == "invalid" {\n\t\treturn false, false\n\t}', 'if false {\n\t\treturn false, false\n\t}')], P, "TestFactsAnOmittedModuleIsNotTheRoot"),
+ ("resultados colapsam pelo módulo e check", [(SF, 'identity := factResultKey(r)', 'identity := r.Module + "|" + r.Check')], P, "TestFactsKeepResultsThatDifferInAnyField"),
+ ("trailer só no HEAD", [("pose-mcp/internal/pose/spec_trailers.go", '"log", "--all", "--reverse"', '"log", "--reverse"')], P, "TestFactsReadTheHistoryLikeTheAttribution"),
+ ("histórico ilegível é fresh", [(SF, 'case terr != nil:\n\t\t\tfacts.Limitations', 'case terr != nil && false:\n\t\t\tfacts.Limitations')], P, "TestFactsReadTheHistoryLikeTheAttribution"),
+ ("rename colapsa em um caminho", [(SF, 'key := p.Action + "\\x00" + p.Path + "\\x00" + p.OldPath + "\\x00" + p.NewPath', 'key := p.Action + "\\x00" + p.Path')], P, "TestFactsARenameIsBothOfItsEnds"),
+ ("só o destino do rename conta", [(SF, 'for _, candidate := range []string{p.Path, p.OldPath, p.NewPath} {', 'for _, candidate := range []string{p.Path, p.NewPath} {')], P, "TestFactsARenameIsBothOfItsEnds"),
+ ("texto humano sem os dois lados do rename", [(SC, 'return p.OldPath + " → " + p.NewPath', 'return p.Path')], C, "TestSpecsFactsRendersBothEnds"),
 ]
 
 def classify(r, run):

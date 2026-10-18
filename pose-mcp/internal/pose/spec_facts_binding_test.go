@@ -14,6 +14,12 @@ import (
 
 func factsFixture(t *testing.T, components string, results []DeliveryValidationResult, publish bool) Store {
 	t.Helper()
+	return factsFixtureWith(t, components, results, publish, []ChangeSet{{ID: "cs-alpha", Spec: "alpha", Head: "h1", ResolvedHead: "h1", Commits: []string{"c1"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}}})
+}
+
+// factsFixtureWith is factsFixture with the change sets the index holds for the spec.
+func factsFixtureWith(t *testing.T, components string, results []DeliveryValidationResult, publish bool, changeSets []ChangeSet) Store {
+	t.Helper()
 	root := t.TempDir()
 	write := func(rel, body string) {
 		p := filepath.Join(root, filepath.FromSlash(rel))
@@ -30,7 +36,7 @@ func factsFixture(t *testing.T, components string, results []DeliveryValidationR
 	}
 	write(".pose/specs/2026-10-01-alpha.md", "---\nslug: alpha\nstatus: in-progress\n"+comp+"---\n\n# Spec: alpha\n")
 	graph := DeliveryIntegrityGraph{SchemaVersion: 1,
-		ChangeSets:        []ChangeSet{{ID: "cs-alpha", Spec: "alpha", Head: "h1", ResolvedHead: "h1", Commits: []string{"c1"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}}},
+		ChangeSets:        changeSets,
 		ValidationResults: results}
 	// "@scoped" stands for the scope provenance the spec's claims and change sets give.
 	scoped := ScopedDeliveryProvenanceDigest(graph, "alpha")
@@ -47,6 +53,13 @@ func factsFixture(t *testing.T, components string, results []DeliveryValidationR
 	}
 	store := Store{Root: root}
 	if publish {
+		// The history is an axis of freshness: a repository with a commit, as a project has.
+		for _, args := range [][]string{{"init", "-q"}, {"commit", "-q", "--allow-empty", "-m", "start"}} {
+			cmd := exec.Command("git", append([]string{"-C", root, "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false"}, args...)...)
+			if out, err := cmd.CombinedOutput(); err != nil {
+				t.Fatalf("git %v: %v %s", args, err, out)
+			}
+		}
 		outputs := map[string][]byte{}
 		for _, name := range IndexGenerationFiles {
 			outputs[name] = []byte("{}\n")
@@ -154,7 +167,14 @@ func TestFactsSayHowFreshTheIndexIs(t *testing.T) {
 		t.Fatalf("stale: %+v %v %v", facts.Freshness, err, facts.Limitations)
 	}
 	// Never published as a set.
-	facts, err = factsFixture(t, "", results, false).DeriveSpecFacts("alpha")
+	unpublished := factsFixture(t, "", results, false)
+	for _, args := range [][]string{{"init", "-q"}, {"commit", "-q", "--allow-empty", "-m", "start"}} {
+		cmd := exec.Command("git", append([]string{"-C", unpublished.Root, "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false"}, args...)...)
+		if out, gerr := cmd.CombinedOutput(); gerr != nil {
+			t.Fatalf("git %v: %v %s", args, gerr, out)
+		}
+	}
+	facts, err = unpublished.DeriveSpecFacts("alpha")
 	if err != nil || facts.Freshness.Status != SpecFactsUnknown || !strings.Contains(strings.Join(facts.Limitations, " "), "freshness is unknown") {
 		t.Fatalf("unknown: %+v %v", facts.Freshness, err)
 	}
@@ -363,7 +383,6 @@ func TestFactsSeeACommitOfTheSpecThatTheIndexDoesNotHold(t *testing.T) {
 			t.Fatalf("git %v: %v %s", args, err, out)
 		}
 	}
-	git("init", "-q")
 	os.WriteFile(filepath.Join(store.Root, ".gitignore"), []byte(".pose/\n"), 0o644)
 	git("add", ".gitignore")
 	git("commit", "-q", "-m", "later work", "-m", "POSE-Spec: alpha")

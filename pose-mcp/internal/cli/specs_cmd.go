@@ -220,7 +220,7 @@ func cmdSpecFacts(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	out.Field("facts.commits", fmt.Sprint(facts.Commits))
 	for _, p := range facts.Paths {
-		out.Field("facts.path", p.Action+": "+p.Path)
+		out.Field("facts.path", p.Action+": "+observedPathText(p))
 	}
 	for _, c := range facts.Checks {
 		out.Field("facts.check", factLine(c, "associated by "+c.Basis))
@@ -260,4 +260,12 @@ func factLine(c pose.SpecFactCheck, label string) string {
 		line += " limits: " + strings.Join(c.Limits, "; ")
 	}
 	return line
+}
+
+// observedPathText names a path of a change set; a rename names both of its ends.
+func observedPathText(p pose.ObservedPath) string {
+	if p.OldPath != "" || p.NewPath != "" {
+		return p.OldPath + " → " + p.NewPath
+	}
+	return p.Path
 }

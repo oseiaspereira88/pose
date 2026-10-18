@@ -60,6 +60,14 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - created: pose-mcp/internal/pose/spec_facts_binding_test.go
 - modified: pose-mcp/internal/cli/specs_cmd.go
 - created: pose-mcp/internal/cli/spec_facts_binding_test.go
+- created: pose-mcp/internal/pose/spec_facts_review_regression_test.go
+- created: pose-mcp/internal/pose/spec_trailers.go
+- created: pose-mcp/internal/pose/delivery_validation_run.go
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/surface_check.go
+- modified: pose-mcp/internal/cli/validate_results.go
+- created: .pose/reports/2026-10-18-pose-b30r2-independent-review.md
+- created: .pose/results/b30r2-independent-review.json
 - created: .pose/results/b30-mutations.py
 - created: .pose/results/b30-mutations.json
 - created: .pose/reports/2026-10-18-pose-b30-independent-review.md
@@ -116,12 +124,12 @@ Testes de execução ainda não foram criados ou executados para este delta.
 
 ### Requirement trace
 
-- R1 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSeparateAssociatedEvidenceFromCandidates test:TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs test:TestFactsAssociateOnlyAScopeProvenanceThatMatches test:TestFactsAssociateOnlyAModuleThatCoversTheSpec test:TestFactsKeepEveryDistinctResult
+- R1 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSeparateAssociatedEvidenceFromCandidates test:TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs test:TestFactsAssociateOnlyAScopeProvenanceThatMatches test:TestFactsAssociateOnlyAModuleThatCoversTheSpec test:TestFactsKeepEveryDistinctResult test:TestFactsTheDigestOfNothingIsNotAnAssociation test:TestFactsAnOmittedModuleIsNotTheRoot test:TestFactsKeepResultsThatDifferInAnyField test:TestFactsARenameIsBothOfItsEnds
 - R2 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSeparateAssociatedEvidenceFromCandidates test:TestFactsAssociateOnlyAScopeProvenanceThatMatches test:TestFactsAssociateOnlyAModuleThatCoversTheSpec
-- R3 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSayHowFreshTheIndexIs test:TestFactsAreFreshOnlyForWhatIsVerified test:TestFactsAGenerationThatBindsNothingIsUnknown test:TestFactsSeeACommitOfTheSpecThatTheIndexDoesNotHold
+- R3 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSayHowFreshTheIndexIs test:TestFactsAreFreshOnlyForWhatIsVerified test:TestFactsAGenerationThatBindsNothingIsUnknown test:TestFactsSeeACommitOfTheSpecThatTheIndexDoesNotHold test:TestFactsTheResultsFileIsComparedInEveryField test:TestFactsReadTheHistoryLikeTheAttribution
 - R4 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsKeepAResultOfAnotherHeadWithItsSource
 - R5 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsAreStableAndReadOnly
-- R6 [satisfied] check:spec-facts-evidence-binding-integration test:TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs
+- R6 [satisfied] check:spec-facts-evidence-binding-integration test:TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs test:TestSpecsFactsRendersBothEndsOfARename
 - R7 [satisfied] check:spec-facts-evidence-binding-integration report:b30-mutations.json test:TestFactsKeepEveryDistinctResult — resultados de outro módulo, componentes vazios, provenance ausente e índice stale/desconhecido/indisponível são exercitados; as mutações de produção morrem por asserção
 - R8 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsAreStableAndReadOnly test:TestFactsSayHowFreshTheIndexIs
 
@@ -144,7 +152,13 @@ o digest de escopo igual ao que as claims e change sets da spec dão hoje e um m
 componentes ou paths atribuídos; resultados distintos não colapsam; `fresh` só vale com todos os
 inputs da geração vinculados, arquivos de índice iguais aos publicados, arquivo de resultados
 coerente com o índice e sem commit da spec fora dele; o texto humano traz os mesmos limites e
-identidades do JSON. Itens abertos, de baixo risco:
+identidades do JSON. Segunda revisão (seis bloqueantes) tratada: o arquivo de resultados é lido como o índice o lê
+(`ParseDeliveryValidationRun`) e comparado resultado a resultado em todos os campos, um resultado novo
+sobre um índice vazio e uma policy ilegível não são concordância; o digest de um escopo sem change
+set resolvido não associa; um módulo omitido não é a raiz; resultados que diferem em qualquer campo
+são resultados distintos e a ordem do índice não escolhe; o histórico é lido como a atribuição o lê
+(todas as refs, linhas de trailer aparadas) e um histórico ilegível deixa os fatos `unknown`; e um
+rename vale pelos dois lados, no texto e na pertinência. A recusa de uma policy de entrega ilegível como concordância não tem mutante próprio: a pasta de policy é um input vinculado da geração e já a torna `stale` antes dessa guarda, de modo que um mutante dela seria equivalente. Itens abertos, de baixo risco:
 
 - [open] Normalizar referências de componente quando forem paths e distinguir ID de componente de path na explicação do candidato. (owner:@core crit:low review:2026-12-01)
 - [open] Projetar o frescor `unavailable` em vez de devolver erro quando o índice está ausente ou corrompido. (owner:@core crit:low review:2026-12-01)

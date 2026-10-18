@@ -46,3 +46,14 @@ func TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs(t *testing.T) {
 		t.Errorf("a candidate was printed as evidence:\n%s", text)
 	}
 }
+
+// F06 of the second review: the text names both ends of a rename, as the JSON does.
+func TestSpecsFactsRendersBothEndsOfARename(t *testing.T) {
+	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, ".pose/specs/2026-10-01-alpha.md", "---\nslug: alpha\nstatus: in-progress\n---\n\n# Spec: alpha\n")
+	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", `{"schema_version":1,"change_sets":[{"id":"cs","spec":"alpha","head":"h1","resolved_head":"h1","commits":["c"],"paths":[{"action":"renamed","old_path":"api/a.go","new_path":"web/a.go"}]}]}`)
+	code, text := runPose(t, root, "specs", "facts", "alpha")
+	if code != 0 || !strings.Contains(text, "api/a.go → web/a.go") {
+		t.Fatalf("the human output does not name both ends of the rename (%d):\n%s", code, text)
+	}
+}

@@ -13,10 +13,12 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 // validationResultSchema versions the JSON result contract.
-const validationResultSchema = 1
+const validationResultSchema = posemodel.DeliveryValidationResultSchema
 
 // checkOutcome vocabulary keeps POSE semantics distinguishable (R3):
 // "fail" = the tool ran and failed; "error" = infrastructure failure (the
