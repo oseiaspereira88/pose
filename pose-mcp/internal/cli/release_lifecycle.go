@@ -391,6 +391,11 @@ func checkRelease(root, target string) ([]string, *posemodel.ReleaseManifest) {
 	} else {
 		projection := posemodel.ProjectRelease(manifest, events)
 		gaps = append(gaps, projection.Gaps...)
+		// The events state that the tag exists from "tagged" on; a repository without it
+		// contradicts them, and the absence is not a candidate that was never tagged.
+		if !tagged && projection.State != "prepared" && projection.State != "failed" {
+			gaps = append(gaps, "the events record "+projection.State+", and the tag "+target+" does not exist")
+		}
 	}
 	return gaps, manifest
 }
@@ -414,6 +419,8 @@ func preparedReleaseGaps(root, target string, manifest *posemodel.ReleaseManifes
 		gaps = append(gaps, "canonical notes missing")
 	} else if posemodel.ReleaseDigest(string(notes)) != manifest.NotesDigest {
 		gaps = append(gaps, "canonical notes digest mismatch")
+	} else if string(notes) != posemodel.RenderReleaseNotes(manifest.Version, manifest.Fragments, posemodel.LoadChangelogPolicy(root)) {
+		gaps = append(gaps, "the canonical notes are not the rendering of the fragments the manifest froze")
 	}
 	if len(archive) != len(manifest.Fragments) {
 		gaps = append(gaps, "archived fragment count differs from manifest")
@@ -575,8 +582,8 @@ func cmdReleaseNotesSnapshot(root string, args []string, stdout, stderr io.Write
 		fmt.Fprintln(stderr, "pose release notes: immutable prepared snapshot not found")
 		return 1
 	}
-	_, manifest := checkRelease(root, target)
-	if manifest == nil || posemodel.ReleaseDigest(string(raw)) != manifest.NotesDigest {
+	gaps, manifest := checkRelease(root, target)
+	if manifest == nil || len(gaps) > 0 || posemodel.ReleaseDigest(string(raw)) != manifest.NotesDigest {
 		fmt.Fprintln(stderr, "pose release notes: stale or invalid snapshot")
 		return 1
 	}

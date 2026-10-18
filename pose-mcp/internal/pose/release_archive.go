@@ -18,6 +18,7 @@ package pose
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"os"
 	"path/filepath"
 	"sort"
@@ -69,6 +70,16 @@ func LoadArchivedFragments(root string) []ArchivedFragment {
 			continue
 		}
 		manifestSum := sha256.Sum256(manifestRaw)
+		// A release that has a tag is the cut the tag holds: a manifest of the working tree that is
+		// not that cut attests nothing.
+		boundToTag := true
+		if _, _, tagErr := ResolveReleaseTag(root, entry.Name()); tagErr == nil {
+			if snap, snapErr := ReadReleaseSnapshot(root, entry.Name()); snapErr != nil || ReleaseDigest(string(manifestRaw)) != snap.ManifestDigest {
+				boundToTag = false
+			}
+		} else if !errors.Is(tagErr, ErrReleaseTagMissing) {
+			boundToTag = false
+		}
 		for _, fragment := range manifest.Fragments {
 			if fragment.Spec == "" || fragment.Path == "" || strings.ContainsAny(fragment.Path, `/\`) {
 				continue
@@ -90,7 +101,7 @@ func LoadArchivedFragments(root string) []ArchivedFragment {
 				Spec:           fragment.Spec,
 				Pending:        pendingFragmentDir + fragment.Path,
 				Archived:       at,
-				Intact:         err == nil && named && ReleaseDigest(string(raw)) == fragment.Digest,
+				Intact:         boundToTag && err == nil && named && ReleaseDigest(string(raw)) == fragment.Digest,
 				Manifest:       manifestPath,
 				ManifestDigest: "sha256:" + hex.EncodeToString(manifestSum[:]),
 			})

@@ -14,6 +14,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode"
 )
 
 // Spec pose-release-manifest-tag-integrity: a release manifest is valid only if its shape and
@@ -55,7 +56,7 @@ func ValidateReleaseManifestBytes(raw []byte, version string) (*ReleaseManifest,
 	// One JSON document, no repeated key, the exact names of the schema, and every field the
 	// schema requires present: a struct decoder alone accepts a second object after the first,
 	// the last of two repeated keys, `VERSION` for `version` and an absent `breaking`.
-	if err := rejectDuplicateJSONKeysAndControls(raw); err != nil {
+	if err := rejectDuplicateJSONKeys(raw, false, true); err != nil {
 		add("manifest", "is not an unambiguous JSON document: "+err.Error())
 		return nil, issues
 	}
@@ -95,6 +96,13 @@ func ValidateReleaseManifestBytes(raw []byte, version string) (*ReleaseManifest,
 		if obj == nil {
 			add(fmt.Sprintf("fragments[%d]", i), "is null")
 			continue
+		}
+		// Free text (body, refs) may span lines; the names a fragment is addressed by may not.
+		for _, name := range []string{"spec", "category", "path", "digest"} {
+			var value string
+			if json.Unmarshal(obj[name], &value) == nil && strings.ContainsFunc(value, unicode.IsControl) {
+				add(fmt.Sprintf("fragments[%d].%s", i, name), "holds a control character")
+			}
 		}
 		for name, value := range obj {
 			switch {
@@ -309,35 +317,59 @@ func gitOutput(root string, args ...string) (string, error) {
 	return string(out), nil
 }
 
-// gitBlobAt reads one file of a commit's tree; a path that is not there is os.ErrNotExist.
-func gitBlobAt(root, commit, rel string) ([]byte, error) {
-	cmd := exec.Command("git", "-C", root, "cat-file", "blob", commit+":"+rel)
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	out, err := cmd.Output()
+// gitTreeEntry looks one path up in a commit's tree. found=false with a nil error is the tree
+// proving the path is not there; any failure to read the tree is an error, never absence.
+func gitTreeEntry(root, commit, rel string) (mode, kind, object string, found bool, err error) {
+	out, err := gitOutput(root, "ls-tree", "-z", commit, "--", rel)
 	if err != nil {
-		if strings.Contains(stderr.String(), "does not exist") || strings.Contains(stderr.String(), "exists on disk, but not in") || strings.Contains(stderr.String(), "Not a valid object name") {
-			return nil, os.ErrNotExist
-		}
-		return nil, fmt.Errorf("pose: git cat-file: %s", strings.TrimSpace(stderr.String()+" "+err.Error()))
+		return "", "", "", false, err
 	}
-	return out, nil
+	meta, name, ok := strings.Cut(strings.TrimSuffix(out, "\x00"), "\t")
+	fields := strings.Fields(meta)
+	if !ok || len(fields) != 3 || name != rel {
+		if strings.TrimSpace(out) == "" {
+			return "", "", "", false, nil
+		}
+		return "", "", "", false, fmt.Errorf("pose: the tree entry of %s could not be read", rel)
+	}
+	return fields[0], fields[1], fields[2], true, nil
 }
 
-// gitTreeNames lists the entries of one directory of a commit's tree. A directory that is not
-// in the tree is exists=false, which is not an error: a release with no fragments leaves no
-// directory, and Git cannot version an empty one. Anything else that goes wrong is an error, and
-// so is an entry that is not a directory.
-func gitTreeNames(root, commit, dir string) (names []string, exists bool, err error) {
-	kind, err := gitOutput(root, "cat-file", "-t", commit+":"+dir)
+// gitBlobAt reads one regular file of a commit's tree; a path the tree proves is not there is
+// os.ErrNotExist, and a link, a submodule or a directory in its place is an error: the bytes of a
+// link are not the content of a file.
+func gitBlobAt(root, commit, rel string) ([]byte, error) {
+	mode, kind, object, found, err := gitTreeEntry(root, commit, rel)
 	if err != nil {
-		if strings.Contains(err.Error(), "Not a valid object name") || strings.Contains(err.Error(), "does not exist") {
-			return nil, false, nil
-		}
+		return nil, err
+	}
+	if !found {
+		return nil, os.ErrNotExist
+	}
+	if kind != "blob" || (mode != "100644" && mode != "100755") {
+		return nil, fmt.Errorf("pose: %s of the tagged tree is not a regular file (mode %s)", rel, mode)
+	}
+	out, err := gitOutput(root, "cat-file", "blob", object)
+	if err != nil {
+		return nil, fmt.Errorf("pose: git cat-file %s: %w", rel, err)
+	}
+	return []byte(out), nil
+}
+
+// gitTreeNames lists the entries of one directory of a commit's tree. A directory the tree proves is
+// not there is exists=false, which is not an error: a release with no fragments leaves no
+// directory, and Git cannot version an empty one. A tree that cannot be read, and an entry that is
+// not a directory, are errors.
+func gitTreeNames(root, commit, dir string) (names []string, exists bool, err error) {
+	_, kind, _, found, err := gitTreeEntry(root, commit, dir)
+	if err != nil {
 		return nil, false, err
 	}
-	if strings.TrimSpace(kind) != "tree" {
-		return nil, true, fmt.Errorf("pose: %s of the tagged tree is a %s, not a directory", dir, strings.TrimSpace(kind))
+	if !found {
+		return nil, false, nil
+	}
+	if kind != "tree" {
+		return nil, true, fmt.Errorf("pose: %s of the tagged tree is a %s, not a directory", dir, kind)
 	}
 	out, err := gitOutput(root, "ls-tree", "--name-only", "-z", commit+":"+dir)
 	if err != nil {
@@ -519,6 +551,9 @@ func changelogPolicyAt(root, commit string) (ChangelogPolicy, error) {
 		if uerr := json.Unmarshal(raw, &policy); uerr != nil {
 			return policy, fmt.Errorf("invalid changelog policy: %w", uerr)
 		}
+	}
+	if policy.SchemaVersion != 1 {
+		return policy, fmt.Errorf("the changelog policy schema_version %d is not supported by this engine", policy.SchemaVersion)
 	}
 	if len(policy.Categories) == 0 {
 		policy.Categories = DefaultChangelogCategories()

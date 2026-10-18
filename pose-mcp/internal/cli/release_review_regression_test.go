@@ -172,3 +172,35 @@ func TestR2PreparedEvidenceNamesTheSourceOfThePolicy(t *testing.T) {
 		t.Fatalf("a source the policy does not name passed: %v", gaps)
 	}
 }
+
+// R4-F03: prepared notes are the rendering of the frozen fragments, and `release notes` respects it.
+func TestR4PreparedNotesAreTheRenderingAndTheReaderRefusesOtherwise(t *testing.T) {
+	root, target := preparedEngineRelease(t)
+	manifestPath := filepath.Join(root, ".pose", "releases", target, "manifest.json")
+	raw, _ := os.ReadFile(manifestPath)
+	var manifest posemodel.ReleaseManifest
+	if err := json.Unmarshal(raw, &manifest); err != nil {
+		t.Fatal(err)
+	}
+	other := "# Unrelated notes\n"
+	manifest.NotesDigest = posemodel.ReleaseDigest(other)
+	os.WriteFile(manifestPath, posemodel.CanonicalJSON(manifest), 0o644)
+	os.WriteFile(filepath.Join(root, ".pose", "changelogs", target+".md"), []byte(other), 0o644)
+	if gaps, _ := checkRelease(root, target); !strings.Contains(strings.Join(gaps, ";"), "not the rendering") {
+		t.Fatalf("notes that are not the rendering passed once their digest followed: %v", gaps)
+	}
+	var out, errOut bytes.Buffer
+	if code := cmdReleaseNotesSnapshot(root, []string{"--version", target}, &out, &errOut); code == 0 || out.Len() != 0 {
+		t.Fatalf("the reader printed notes the check refuses (%d): %s", code, out.String())
+	}
+}
+
+// R4-F05: events that say the release was tagged, in a repository without the tag.
+func TestR4EventsThatNameATagThatIsNotThereAreAGap(t *testing.T) {
+	root := cliReleaseRepo(t)
+	writeCloseoutCLIFile(t, root, ".pose/releases/v1.0.0/events.jsonl", `{"schema_version":1,"version":"v1.0.0","state":"tagged","recorded_at":"2026-10-02T00:00:00Z","evidence":{"schema_version":1,"provider":"github","repository":"o/r","version":"v1.0.0","tag":"v1.0.0","commit":"c"},"evidence_digest":"sha256:x"}`+"\n")
+	doc := checkDoc(t, root)
+	if doc["valid"] == true {
+		t.Fatalf("events naming a tag that does not exist were valid: %v", doc)
+	}
+}

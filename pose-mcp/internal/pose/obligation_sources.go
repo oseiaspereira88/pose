@@ -132,7 +132,7 @@ func (s Store) releaseQueueObligations(project string) ([]Obligation, error) {
 	}
 	out := []Obligation{}
 	for _, release := range status.Releases {
-		if release.State == "verified" || release.State == "yanked" {
+		if (release.State == "verified" && release.Sound()) || release.State == "yanked" {
 			continue
 		}
 		if newestVerified != "" && compareReleaseVersions(release.Version, newestVerified) <= 0 {
@@ -156,6 +156,9 @@ func (s Store) releaseQueueObligations(project string) ([]Obligation, error) {
 			o.Waiting = WaitingExternal
 		case "published":
 			o.Condition = "`pose release record --version " + release.Version + " --event verified --evidence <file>` binds verification to the publication"
+			o.Waiting = WaitingExecution
+		case "verified":
+			o.Condition = "the record of `" + release.Version + "` is made sound again (its tag, its snapshot or its files)"
 			o.Waiting = WaitingExecution
 		default:
 			o.Condition = "the failure of `" + release.Version + "` is recovered and the release published"

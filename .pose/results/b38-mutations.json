@@ -264,8 +264,68 @@
       "mutation": "evidência do candidato sem a fonte da policy",
       "tests": "TestR2PreparedEvidenceNamesTheSourceOfThePolicy",
       "verdict": "killed"
+    },
+    {
+      "mutation": "controle em texto livre recusa história real",
+      "tests": "TestR4MultilineBodyIsFrozenAndLoads|TestEveryHistoricalRelease",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "link no lugar do arquivo de versão",
+      "tests": "TestR4ALinkInPlaceOfTheVersionSource",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "candidato que perdeu arquivos é sólido",
+      "tests": "TestR4APreparedStatusSeesTheFilesItLost",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "verified sem solidez deixa de dever",
+      "tests": "TestR4AnUnsoundVerifiedReleaseStillOwes",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "archival não confere o corte da tag",
+      "tests": "TestR4ArchivalIsBoundToTheCutOfTheTag",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fallback de policy após erro de leitura",
+      "tests": "TestR4ALostReleaseDirectoryAndPolicyAreNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "diretório de releases dangling é vazio",
+      "tests": "TestR4ALostReleaseDirectoryAndPolicyAreNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "cutoff inválido é aceito",
+      "tests": "TestR4TheCutoffIsAVersionAndTheChangelogSchemaIsSupported",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "schema futuro do changelog é aceito",
+      "tests": "TestR4TheCutoffIsAVersionAndTheChangelogSchemaIsSupported",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "notas preparadas não são a renderização",
+      "tests": "TestR4PreparedNotesAreTheRendering",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "release notes ignora os gaps",
+      "tests": "TestR4PreparedNotesAreTheRendering",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "eventos de tag sem a tag são válidos",
+      "tests": "TestR4EventsThatNameATagThatIsNotThere",
+      "verdict": "killed"
     }
   ],
-  "killed": 53,
-  "total": 53
+  "killed": 65,
+  "total": 65
 }
