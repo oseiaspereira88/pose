@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -50,6 +51,11 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	var tm taskMap
+	if json.Unmarshal(raw, &tm) == nil && tm.Tasks != nil {
+		if dupErr := posepkg.RejectDuplicateJSONKeys(raw); dupErr != nil {
+			return usageError(stderr, fmt.Sprintf("pose suggest: invalid task-map: %v", dupErr))
+		}
+	}
 	if json.Unmarshal(raw, &tm) != nil || tm.Tasks == nil {
 		fmt.Fprintln(stderr, "pose suggest: invalid task-map")
 		return 2
@@ -81,6 +87,10 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 	rules, byDomain, cfgErr := suggestTaskRules(t)
 	if cfgErr != nil {
 		return usageError(stderr, fmt.Sprintf("pose suggest: invalid task-map entry %q: %v", task, cfgErr))
+	}
+	references, refErr := suggestTaskReferences(root, t)
+	if refErr != nil {
+		return usageError(stderr, fmt.Sprintf("pose suggest: invalid task-map entry %q: %v", task, refErr))
 	}
 	source, domainProblem := "explicit", ""
 	if domain == "" && pathHint != "" {
@@ -120,6 +130,7 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 			}
 		}
 		payload["rules_status"] = statuses
+		payload["references_status"] = references
 		if pathHint != "" {
 			payload["path_input"] = pathHint
 			if domain == "" {
@@ -150,7 +161,7 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 	if domain != "" && !domainKnown {
 		domainNote = fmt.Sprintf("- Domain:    %s has no rules declared in the task map\n", domain)
 	}
-	fmt.Fprintf(stdout, "%s- Workflow:  %v\n- Skill:     %v\n", domainNote, t["workflow"], t["skill"])
+	fmt.Fprintf(stdout, "%s- Workflow:  %v%s\n- Skill:     %v%s\n", domainNote, t["workflow"], referenceNote(references, "workflow"), t["skill"], referenceNote(references, "skill"))
 	paths := []string{}
 	for _, st := range statuses {
 		switch st.Availability {
@@ -266,6 +277,12 @@ func inferSuggestDomain(root, pathHint string) (domain, source, problem string) 
 	if err := json.Unmarshal(raw, &data); err != nil {
 		return "", "repo-map-unavailable", "the repo-map is not valid JSON (" + err.Error() + ")"
 	}
+	if err := posepkg.RejectDuplicateJSONKeys(raw); err != nil {
+		return "", "repo-map-invalid", "the repo-map repeats a key or holds a control character (" + err.Error() + ")"
+	}
+	if data == nil {
+		return "", "repo-map-invalid", "the repo-map is null, not an object"
+	}
 	// The shape of the document is checked before anything is selected from it: a collection
 	// that is not a list, an item that is not an object or a path that is not a relative
 	// string is a repo-map that cannot be read, not a repo-map without a match.
@@ -300,11 +317,21 @@ func inferSuggestDomain(root, pathHint string) (domain, source, problem string) 
 			if _, hasPath := item["path"]; !hasPath {
 				return "", "repo-map-invalid", fmt.Sprintf("the repo-map's %s[%d] has no path", kind, i)
 			}
-			if strings.HasPrefix(filepath.ToSlash(strings.TrimSpace(m.path)), "/") || filepath.IsAbs(m.path) || m.path == ".." || strings.HasPrefix(path.Clean(filepath.ToSlash(m.path)), "../") {
+			if strings.HasPrefix(filepath.ToSlash(m.path), "/") || filepath.IsAbs(m.path) || m.path == ".." || strings.HasPrefix(path.Clean(filepath.ToSlash(m.path)), "../") {
 				return "", "repo-map-invalid", fmt.Sprintf("the repo-map's %s[%d].path %q is not a path inside the project", kind, i, m.path)
 			}
 			modules = append(modules, m)
 		}
+	}
+	// Two entries for one canonical path must say the same thing: the order of the collections
+	// is not a way to choose between a Go module and one that is not.
+	seenModule := map[string]module{}
+	for _, m := range modules {
+		canonical := normalizeModulePath(m.path)
+		if prior, dup := seenModule[canonical]; dup && (prior.domain != m.domain || prior.language != m.language) {
+			return "", "repo-map-invalid", fmt.Sprintf("the repo-map declares the module %q twice with different domain or language", canonical)
+		}
+		seenModule[canonical] = m
 	}
 	best := -1 // the root module (an empty path) matches everything, with the least specificity
 	for _, m := range modules {
@@ -320,7 +347,7 @@ func inferSuggestDomain(root, pathHint string) (domain, source, problem string) 
 		// "backend" names no language: it is the Go domain only when the module is Go.
 		if domain == "backend" {
 			goMod := false
-			if info, err := os.Stat(filepath.Join(root, filepath.FromSlash(p), "go.mod")); err == nil && info.Mode().IsRegular() {
+			if info, err := os.Stat(filepath.Join(root, filepath.FromSlash(p), "go.mod")); err == nil && info.Mode().IsRegular() && insideProject(root, filepath.Join(root, filepath.FromSlash(p))) {
 				goMod = true
 			}
 			if m.language == "go" || strings.HasSuffix(norm, ".go") || goMod {
@@ -337,11 +364,27 @@ func inferSuggestDomain(root, pathHint string) (domain, source, problem string) 
 // normalizeModulePath makes a module path and a path hint comparable: slash-separated,
 // cleaned, without a leading "./", and "" for the root.
 func normalizeModulePath(p string) string {
-	p = path.Clean(filepath.ToSlash(strings.TrimSpace(p)))
+	// The path is compared as it is written: a name with a space in it is a different name, and
+	// the same representation validates and compares.
+	p = path.Clean(filepath.ToSlash(p))
 	if p == "." || p == "/" {
 		return ""
 	}
 	return strings.TrimPrefix(p, "./")
+}
+
+// insideProject reports that dir, with its links followed, is inside the project root.
+func insideProject(root, dir string) bool {
+	resolvedRoot, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		return false
+	}
+	resolved, err := filepath.EvalSymlinks(dir)
+	if err != nil {
+		return false
+	}
+	rel, err := filepath.Rel(resolvedRoot, resolved)
+	return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
 }
 
 // suggestDomainAliases is the one taxonomy of domain names `suggest` accepts, from an
@@ -409,4 +452,75 @@ func suggestRuleStatuses(root string, rules []string) []ruleStatus {
 		out = append(out, st)
 	}
 	return out
+}
+
+// Reserved: the fields suggest derives. A task cannot declare them, or its configuration would
+// overwrite what the command found.
+var suggestDerivedFields = []string{"name", "domain_effective", "domain_source", "domain_input", "domain_status", "rules_effective", "rules_status", "references_status", "path_input"}
+
+// referenceStatus says whether a workflow or a skill the task names can be read.
+type referenceStatus struct {
+	Field        string `json:"field"`
+	Ref          string `json:"ref"`
+	Availability string `json:"availability"`
+	Detail       string `json:"detail,omitempty"`
+}
+
+// suggestTaskReferences validates the workflow and the skill of a task: a string, a name that is
+// not a path, and a file that is there and can be read. An absent reference is a finding of its
+// own, not a reference to follow; a field of another type, or one that is derived, is a
+// configuration error.
+func suggestTaskReferences(root string, t map[string]any) ([]referenceStatus, error) {
+	for _, reserved := range suggestDerivedFields {
+		if _, present := t[reserved]; present {
+			return nil, fmt.Errorf("%s is derived by the command and cannot be declared by the task", reserved)
+		}
+	}
+	out := []referenceStatus{}
+	for _, field := range []string{"workflow", "skill"} {
+		raw, present := t[field]
+		if !present {
+			continue
+		}
+		ref, ok := raw.(string)
+		if !ok {
+			return nil, fmt.Errorf("%s: expected a string, got %T", field, raw)
+		}
+		if ref == "" {
+			continue
+		}
+		var rel string
+		if field == "workflow" {
+			if !confinedRelativePath(ref) || filepath.IsAbs(ref) {
+				return nil, fmt.Errorf("workflow: %q is not a path inside the project", ref)
+			}
+			rel = ref
+		} else {
+			if verr := posepkg.ValidateName(ref); verr != nil {
+				return nil, fmt.Errorf("skill: %w", verr)
+			}
+			rel = filepath.ToSlash(filepath.Join(".agents", "skills", ref, "SKILL.md"))
+		}
+		status := referenceStatus{Field: field, Ref: ref, Availability: "available"}
+		info, err := os.Stat(filepath.Join(root, filepath.FromSlash(rel)))
+		switch {
+		case errors.Is(err, os.ErrNotExist):
+			status.Availability, status.Detail = "unavailable", rel+" does not exist"
+		case err != nil:
+			status.Availability, status.Detail = "unreadable", err.Error()
+		case !info.Mode().IsRegular():
+			status.Availability, status.Detail = "unreadable", rel+" is not a regular file"
+		}
+		out = append(out, status)
+	}
+	return out, nil
+}
+
+func referenceNote(references []referenceStatus, field string) string {
+	for _, r := range references {
+		if r.Field == field && r.Availability != "available" {
+			return " (" + r.Availability + ": " + r.Detail + ")"
+		}
+	}
+	return ""
 }

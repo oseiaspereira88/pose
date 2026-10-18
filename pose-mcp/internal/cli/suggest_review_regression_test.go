@@ -168,3 +168,89 @@ func TestSuggestSaysWhenARuleOrTheRulesDirectoryIsABrokenLink(t *testing.T) {
 		}
 	}
 }
+
+// Third review: the root of the repo-map, repeated keys, one representation of a path, and the
+// fields of the task that the command derives.
+func TestSuggestRefusesARepoMapThatIsNullOrRepeatsAKey(t *testing.T) {
+	for name, repoMap := range map[string]string{
+		"null root":      `null`,
+		"repeated field": `{"services":[{"path":"svc","domain":"backend-go","domain":"unknown"}]}`,
+		"repeated list":  `{"services":[],"services":[{"path":"svc","domain":"backend-go"}]}`,
+		"conflict":       `{"services":[{"path":"svc","language":"go"},{"path":"./svc","domain":"backend","language":"python"}]}`,
+	} {
+		root := suggestFixture(t, true)
+		writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", repoMap)
+		doc := suggestJSON(t, root, "--path", "svc/main.py")
+		if doc["domain_source"] != "repo-map-invalid" || doc["domain_effective"] != nil {
+			t.Errorf("%s: read as %v", name, doc["domain_source"])
+		}
+	}
+	// The same module twice, said the same way, is one module.
+	root := suggestFixture(t, true)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", `{"services":[{"path":"svc","language":"go"}],"packages":[{"path":"./svc","language":"go"}]}`)
+	if doc := suggestJSON(t, root, "--path", "svc/main.go"); doc["domain_effective"] != "backend-go" {
+		t.Errorf("an equivalent repetition was refused: %v", doc["domain_source"])
+	}
+}
+
+func TestSuggestRefusesATaskMapThatRepeatsAKey(t *testing.T) {
+	root := suggestWithTaskMap(t, `{"tasks":{"feature":{"rules":["security"],"rules":[]}}}`)
+	if code, out := runPose(t, root, "suggest", "feature"); code == 0 || !strings.Contains(out, "invalid task-map") {
+		t.Fatalf("a task-map that repeats a key was read (%d): %s", code, out)
+	}
+}
+
+func TestSuggestComparesPathsAsWrittenAndDoesNotFollowALinkOutOfTheProject(t *testing.T) {
+	root := suggestFixture(t, true)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", `{"services":[{"path":"svc","language":"go"},{"path":" svc","domain":"backend","language":"python"}]}`)
+	if doc := suggestJSON(t, root, "--path", " svc/main.py"); doc["domain_effective"] != "backend" {
+		t.Errorf("a name with a leading space must be the module written with it, not the one without: %v (%v)", doc["domain_effective"], doc["domain_source"])
+	}
+	outside := t.TempDir()
+	writeCloseoutCLIFile(t, outside, "go.mod", "module outside\n")
+	linked := suggestFixture(t, true)
+	writeCloseoutCLIFile(t, linked, ".pose/indexes/repo-map.json", `{"services":[{"path":"svc","domain":"backend","language":"python"}]}`)
+	if err := os.Symlink(outside, filepath.Join(linked, "svc")); err != nil {
+		t.Skip("symlinks are not available")
+	}
+	if doc := suggestJSON(t, linked, "--path", "svc/app.py"); doc["domain_effective"] == "backend-go" {
+		t.Errorf("a go.mod outside the project made a backend Go: %v", doc["domain_effective"])
+	}
+}
+
+func TestSuggestDoesNotLetATaskOverwriteWhatItDerivesOrNameWhatIsNotThere(t *testing.T) {
+	for name, task := range map[string]string{
+		"derived name":   `"name":"other"`,
+		"derived domain": `"domain_effective":"backend-go"`,
+		"derived rules":  `"rules_effective":[]`,
+		"number":         `"workflow":17`,
+		"boolean":        `"skill":false`,
+	} {
+		root := suggestWithTaskMap(t, `{"tasks":{"feature":{"rules":["security"],`+task+`}}}`)
+		if code, out := runPose(t, root, "suggest", "feature"); code == 0 {
+			t.Errorf("%s: accepted: %s", name, out)
+		}
+	}
+	root := suggestWithTaskMap(t, `{"tasks":{"feature":{"rules":["security"],"workflow":".pose/workflows/feature.md","skill":"pose-feature"}}}`)
+	doc := suggestJSON(t, root, "--domain", "go")
+	statuses, _ := doc["references_status"].([]any)
+	if len(statuses) != 2 {
+		t.Fatalf("references_status = %v", doc["references_status"])
+	}
+	for _, raw := range statuses {
+		if st, _ := raw.(map[string]any); st["availability"] != "unavailable" {
+			t.Errorf("a reference that is not there is announced as available: %v", st)
+		}
+	}
+	code, out := runPose(t, root, "suggest", "feature", "--domain", "go")
+	if code != 0 || !strings.Contains(out, "unavailable") {
+		t.Errorf("the human output does not say the references are not there (%d): %s", code, out)
+	}
+	writeCloseoutCLIFile(t, root, ".pose/workflows/feature.md", "# feature\n")
+	doc = suggestJSON(t, root, "--domain", "go")
+	for _, raw := range doc["references_status"].([]any) {
+		if st, _ := raw.(map[string]any); st["field"] == "workflow" && st["availability"] != "available" {
+			t.Errorf("a workflow that is there: %v", st)
+		}
+	}
+}

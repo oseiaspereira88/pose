@@ -169,8 +169,53 @@
       "mutation": "inventário instalado ignora o que não lê",
       "tests": "TestTheInstalledInventoryNeverSkipsWhatItCannotRead",
       "verdict": "killed"
+    },
+    {
+      "mutation": "repo-map null é sem match",
+      "tests": "TestSuggestRefusesARepoMapThatIsNullOrRepeatsAKey",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "repo-map com chave repetida é lido",
+      "tests": "TestSuggestRefusesARepoMapThatIsNullOrRepeatsAKey",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "módulos conflitantes escolhem pela ordem",
+      "tests": "TestSuggestRefusesARepoMapThatIsNullOrRepeatsAKey",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "task-map com chave repetida é lido",
+      "tests": "TestSuggestRefusesATaskMapThatRepeatsAKey",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "espaços do caminho são aparados",
+      "tests": "TestSuggestComparesPathsAsWritten",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "go.mod de fora do projeto vale",
+      "tests": "TestSuggestComparesPathsAsWritten",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "campo derivado é sobrescrito pela task",
+      "tests": "TestSuggestDoesNotLetATaskOverwrite",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "workflow ou skill de outro tipo é aceito",
+      "tests": "TestSuggestDoesNotLetATaskOverwrite",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "referência inexistente é anunciada como disponível",
+      "tests": "TestSuggestDoesNotLetATaskOverwrite",
+      "verdict": "killed"
     }
   ],
-  "killed": 34,
-  "total": 34
+  "killed": 43,
+  "total": 43
 }

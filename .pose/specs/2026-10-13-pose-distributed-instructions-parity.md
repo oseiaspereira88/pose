@@ -70,6 +70,9 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - modified: pose-mcp/internal/cli/index_generation_test.go
 - created: pose-mcp/internal/cli/suggest_review_regression_test.go
 - created: .pose/reports/2026-10-18-pose-b28r2-independent-review.md
+- created: .pose/reports/2026-10-18-pose-b28r3-independent-review.md
+- created: .pose/results/b28r3-independent-review.json
+- created: pose-mcp/internal/pose/json_duplicate_keys.go
 - created: .pose/results/b28r2-independent-review.json
 - modified: pose-mcp/internal/cli/migrate_dryrun.go
 - modified: pose-mcp/internal/cli/migrate_dryrun_test.go
@@ -134,7 +137,7 @@ Testes de execução ainda não foram criados ou executados para este delta.
 - R1 [satisfied] check:distributed-instructions-parity-integration test:TestDistributedInstructionsAskForDiscoveryOnlyWhenStale test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale test:TestInventoryNeverSkipsWhatItCannotRead test:TestTheInstalledInventoryNeverSkipsWhatItCannotRead
 - R2 [satisfied] check:distributed-instructions-parity-integration test:TestDistributedInstructionsAskForDiscoveryOnlyWhenStale test:TestTheEmbeddedMirrorsOfTheWorkflowsAndRulesMatchTheSources test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale
 - R3 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestResolvesDomainAliasesThroughOneTaxonomy test:TestSuggestDoesNotTurnEveryBackendIntoGo test:TestSuggestDomainUsesMostSpecificModuleAndSafeFallback test:TestSuggestRootModuleIsTheFallbackOfLeastSpecificity test:TestSuggestSaysWhyItHasNoDomainForAPath
-- R4 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestSeparatesDeclaredFromInstalledRules test:TestSuggestKubernetesRuleIsAnnouncedWithItsExtension test:TestSuggestAnUnreadableRuleIsNotInstalledOrInstallable test:TestSuggestRefusesAMalformedRulesConfiguration test:TestSuggestRefusesARuleIdentifierThatIsAPath
+- R4 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestSeparatesDeclaredFromInstalledRules test:TestSuggestKubernetesRuleIsAnnouncedWithItsExtension test:TestSuggestAnUnreadableRuleIsNotInstalledOrInstallable test:TestSuggestRefusesAMalformedRulesConfiguration test:TestSuggestRefusesARepoMapThatIsNullOrRepeatsAKey test:TestSuggestRefusesATaskMapThatRepeatsAKey test:TestSuggestComparesPathsAsWrittenAndDoesNotFollowALinkOutOfTheProject test:TestSuggestDoesNotLetATaskOverwriteWhatItDerivesOrNameWhatIsNotThere test:TestSuggestRefusesARuleIdentifierThatIsAPath
 - R5 [satisfied] check:distributed-instructions-parity-integration test:TestMigrateSaysThereIsNoApplyWithoutPromisingOne test:TestMigrateDryRunInventoriesLegacyWithoutWriting
 - R6 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestSeparatesDeclaredFromInstalledRules test:TestSuggestResolvesDomainAliasesThroughOneTaxonomy
 - R7 [satisfied] check:distributed-instructions-parity-integration test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale test:TestSuggestSeparatesDeclaredFromInstalledRules
@@ -163,7 +166,7 @@ shell interpolado e ficam como follow-up. Segunda revisão (quatro bloqueantes) 
 listas e domínios `null` na configuração são recusados, o repo-map tem o formato validado antes
 de qualquer seleção (coleção, item, tipos, caminho dentro do projeto), links quebrados de regra ou
 do diretório de regras são perda e não ausência, e o inventário do produto instalado falha no que
-não consegue ler e exige AGENTS.md num checkout de distribuição. Itens abertos, de baixo risco:
+não consegue ler e exige AGENTS.md num checkout de distribuição. Terceira revisão (quatro grupos) tratada: o repo-map `null` é perda e não ausência; chaves repetidas no repo-map e no task-map são recusadas e dois módulos do mesmo caminho canônico que divergem não são resolvidos pela ordem; um caminho é validado e comparado do jeito que está escrito (espaços fazem parte do nome) e um `go.mod` fora do projeto não torna um backend Go; e a task não sobrescreve os campos que o comando deriva, tem workflow e skill validados e a ausência deles é divulgada. Itens abertos, de baixo risco:
 
 - [open] O doctor recomenda instalar uma extensão para uma regra ilegível. (owner:@core crit:low review:2026-12-01)
 
