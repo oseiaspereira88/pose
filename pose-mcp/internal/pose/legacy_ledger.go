@@ -81,12 +81,17 @@ func (s Store) ledgerProject() string {
 
 // UnsignedAttestations lists recorded attestations without an envelope.
 func (s Store) UnsignedAttestations() ([]ReviewAttestation, error) {
-	all, err := s.ListReviewAttestations("")
+	read, err := s.ReadReviewAttestations("")
 	if err != nil {
 		return nil, err
 	}
+	// The set of unsigned attestations is what a ledger declares and what adopting
+	// signatures re-judges: a set read with a hole in it is not that set.
+	if !read.Coverage.Complete() {
+		return nil, fmt.Errorf("pose: the attestation history cannot be read completely, so the unsigned attestations are not known: %s", read.Coverage.Describe(""))
+	}
 	out := []ReviewAttestation{}
-	for _, att := range all {
+	for _, att := range read.Attestations {
 		if att.Envelope == nil {
 			out = append(out, att)
 		}
@@ -182,46 +187,77 @@ func sameLedgerEntries(a, b []LegacyLedgerEntry) bool {
 // verifies under a pinned attestation issuer and whose project is this one,
 // keyed by attestation id. Ledgers that fail are skipped, never trusted.
 func (s Store) trustedLegacyEntries() (map[string]string, error) {
+	entries, _, err := s.trustedLegacyEntriesRead()
+	return entries, err
+}
+
+// trustedLegacyEntriesRead is trustedLegacyEntries and the ledgers it could not use for a
+// reason other than not being this project's or not being pinned: a file it could not
+// read, a ledger that does not parse, one of another version, one whose key or
+// signature does not verify. None of them is trusted, and none is mistaken for absence
+// either (spec pose-source-coverage-integrity R3): a ledger that was meant to cover an
+// attestation and cannot be read leaves that attestation uncovered for a reason the
+// operator can act on. A ledger of another project, or by an issuer this project does not
+// pin, is valid evidence that it does not apply, and is only counted.
+func (s Store) trustedLegacyEntriesRead() (map[string]string, SourceCoverage, error) {
 	entries := map[string]string{}
+	coverage := SourceCoverage{Losses: []SourceLoss{}}
 	if _, err := os.Lstat(filepath.Join(s.Root, filepath.FromSlash(legacyLedgerDir))); errors.Is(err, os.ErrNotExist) {
-		return entries, nil
+		return entries, coverage, nil
 	}
 	// A symlinked ledger directory is refused, so a ledger outside the
 	// project is never trusted.
 	dir, err := ensureReviewArtifactDir(s.Root, legacyLedgerDir, false)
 	if err != nil {
-		return nil, err
+		return nil, coverage, err
 	}
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, err
+		return nil, coverage, err
 	}
 	policy, _, err := s.loadReviewPolicy()
 	if err != nil {
-		return nil, err
+		return nil, coverage, err
 	}
 	project := s.ledgerProject()
 	for _, f := range files {
-		if f.IsDir() || !strings.HasSuffix(f.Name(), ".json") || !f.Type().IsRegular() {
+		if f.IsDir() || !strings.HasSuffix(f.Name(), ".json") {
+			continue
+		}
+		rel := filepath.ToSlash(filepath.Join(legacyLedgerDir, f.Name()))
+		lose := func(kind, detail string) {
+			coverage.Add(SourceLoss{Producer: "legacy-ledger", Artifact: rel, Kind: kind, Detail: detail})
+		}
+		if !f.Type().IsRegular() {
+			lose(LossUnsupported, "not a regular file")
 			continue
 		}
 		raw, err := os.ReadFile(filepath.Join(dir, f.Name()))
 		if err != nil {
+			lose(LossReadError, err.Error())
 			continue
 		}
 		var ledger LegacyLedger
-		if json.Unmarshal(raw, &ledger) != nil || ledger.SchemaVersion != LegacyLedgerSchemaVersion || ledger.Kind != "legacy-attestations" {
+		if err := json.Unmarshal(raw, &ledger); err != nil {
+			lose(LossParseError, "the ledger is not valid JSON")
+			continue
+		}
+		if ledger.SchemaVersion != LegacyLedgerSchemaVersion || ledger.Kind != "legacy-attestations" {
+			lose(LossUnsupported, "not a legacy attestations ledger of a version this engine reads")
 			continue
 		}
 		if ledger.Project != project {
+			coverage.addExclusion("legacy-ledger", "other-project", "ledgers bound to another project do not apply here", rel)
 			continue
 		}
 		public, err := base64.StdEncoding.DecodeString(ledger.PublicKey)
 		if err != nil || len(public) != ed25519.PublicKeySize {
+			lose(LossInvalid, "the ledger's public key is not a valid key")
 			continue
 		}
 		signature, err := base64.StdEncoding.DecodeString(ledger.Signature)
 		if err != nil || !ed25519.Verify(ed25519.PublicKey(public), ledger.signable(), signature) {
+			lose(LossInvalid, "the ledger's signature does not verify")
 			continue
 		}
 		pin := IssuerPin(ledger.Issuer, public)
@@ -230,13 +266,27 @@ func (s Store) trustedLegacyEntries() (map[string]string, error) {
 			trusted = trusted || candidate == pin
 		}
 		if !trusted {
+			coverage.addExclusion("legacy-ledger", "issuer-not-pinned", "ledgers by an issuer this project does not pin are not trusted", rel)
 			continue
 		}
 		for _, entry := range ledger.Entries {
 			entries[entry.AttestationID] = entry.ContentDigest
 		}
 	}
-	return entries, nil
+	coverage.Normalize()
+	return entries, coverage, nil
+}
+
+// LegacyLedgerCoverage says which legacy ledgers could not be read or verified. It
+// changes nothing about trust: they are not trusted either way.
+func (s Store) LegacyLedgerCoverage() SourceCoverage {
+	_, coverage, err := s.trustedLegacyEntriesRead()
+	if err != nil {
+		// The whole directory could not be used: that is the loss, not an empty one.
+		coverage.Add(SourceLoss{Producer: "legacy-ledger", Artifact: legacyLedgerDir, Kind: LossReadError, Detail: err.Error()})
+		coverage.Normalize()
+	}
+	return coverage
 }
 
 // legacyLedgerCovers reports whether a trusted ledger names att, unchanged.
@@ -306,7 +356,10 @@ func localAttestationIssuers(root string, docs PolicyDocs) []IssuerKeySummary {
 // planner's, which receives --issuer.
 func signedHistoryBlocker(root string, docs PolicyDocs, issuer string, checkAmbiguity bool) string {
 	uncovered, err := (Store{Root: root}).UncoveredUnsignedAttestations()
-	if err != nil || uncovered == 0 {
+	if err != nil {
+		return "the attestation history cannot be inspected, so the unsigned attestations adopting would seal are not known: " + err.Error()
+	}
+	if uncovered == 0 {
 		return ""
 	}
 	if issuer != "" {

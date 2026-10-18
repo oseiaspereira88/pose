@@ -1,0 +1,803 @@
+{
+  "schema_version": 1,
+  "round": 8,
+  "spec": "pose-source-coverage-integrity",
+  "head": "67f25e791eb5be71e4ef1c87a379a74b24f0570a",
+  "base": "0b2a726f",
+  "incremental_base": "a8d4003f",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "technical_decision": "approved",
+  "decision": "approved",
+  "classification_counts": {
+    "new_merge_blocking_code_findings": 0,
+    "acceptable_registered_followups": 2,
+    "operational_closeout_blockers": 0
+  },
+  "identity": {
+    "review_vendor": "Codex/OpenAI",
+    "implementation_vendor": "Claude/Anthropic",
+    "implementation_session": "296d1fcb-e989-40ae-9362-cf3514db8b26",
+    "assurance": "declared",
+    "prefix": "agent:independent- is an engine-required declaration pending pose-delegated-review-run-provenance",
+    "requested_issuer_if_approved": null,
+    "signed_attestation_recorded": false,
+    "attestation_form": "without envelope, explicitly authorized by maintainer for pose-dist"
+  },
+  "sealed_bundle": {
+    "id": "rvb-d4e49da25f48b9ae",
+    "digest": "sha256:d4e49da25f48b9aeb8556a64b5067f6ba1c028a272506e490a0bb31c01ba831b",
+    "plan_digest": "sha256:f6db4d3e39dbd3fca9afbadd1c49312998bcec9d1c303bab22c4cbdc8b783425",
+    "state": "sealed"
+  },
+  "attestation_id": "rva-eb2a3da043e02b89",
+  "review_verify": {
+    "state": "closed",
+    "fresh": true,
+    "approved": true,
+    "blockers": []
+  },
+  "close": {
+    "exit_code": 0,
+    "status": "done"
+  },
+  "lint_strict": 0,
+  "check_strict": {
+    "exit_code": 0,
+    "warnings": 29
+  },
+  "pushed_commit": "self: this closeout commit; concrete hash reported in final delivery and external publication.json",
+  "policy_modified": false,
+  "new_findings": [],
+  "registered_followups": [
+    {
+      "id": "R6-F04",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "scenario": "Dangling component-state root loses diagnostic; project state unavailable, discovery fails before publication.",
+      "requirements": [
+        "R1",
+        "R8"
+      ],
+      "owner": "@core",
+      "review": "2026-12-01"
+    },
+    {
+      "id": "R7-F04",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "file": "pose-mcp/internal/cli/assess.go",
+      "line": 732,
+      "scenario": "Unreadable component-state summary loses filename/kind; remains unavailable and uncertified.",
+      "requirements": [
+        "R1",
+        "R8"
+      ],
+      "owner": "@core",
+      "review": "2026-12-01"
+    }
+  ],
+  "prior_round7_adjudication": {
+    "R7-F01": "corrected: all 11 consumed fields checked for repeats",
+    "R7-F02": "corrected: global attribution rejects repeated scope",
+    "R7-F03": "corrected: observed metrics plus conservative unreadable losses; existing regression passes",
+    "R7-F04": "registered acceptable low followup",
+    "R7-F05": "resolved: equivalent mutant removed, real loader ablation independently assertion-red"
+  },
+  "prior_round6_adjudication": [
+    {
+      "id": "R6-F01",
+      "disposition": "fixed",
+      "evidence": "All 11 consumed fields checked; scope ambiguity conservatively unscoped globally and locally. R7-F01/F02 corrected; previous-controls and mutations pass."
+    },
+    {
+      "id": "R6-F02",
+      "disposition": "fixed-approval-risk; diagnostic follow-up",
+      "evidence": "public assess integrate uses loader and publishes unavailable/not-certified; R7-F04 diagnostic precision"
+    },
+    {
+      "id": "R6-F03",
+      "disposition": "fixed",
+      "evidence": "Scoped discover keeps unreadable losses without importing removed-component metrics; full suite and prior regression pass."
+    },
+    {
+      "id": "R6-F04",
+      "disposition": "acceptable-follow-up-recorded",
+      "evidence": "spec open owner:@core crit:low review:2026-12-01; unavailable and public discover save guard confirmed"
+    }
+  ],
+  "prior_round1_partial_adjudication": [
+    {
+      "id": "R1-F01",
+      "disposition": "fixed-controls",
+      "evidence": "retained unreadable/digest-invalid/lost-bundle/missing-time rejection controls"
+    },
+    {
+      "id": "R1-F02",
+      "disposition": "fixed-controls",
+      "evidence": "Structural/case-folded JSON and Markdown repeated headers, ancestors, truncated values and ambiguous attribution controls pass."
+    },
+    {
+      "id": "R1-F06",
+      "disposition": "fixed-controls",
+      "evidence": "scope requested, roadmap parent and child milestone coverage"
+    },
+    {
+      "id": "R1-F07",
+      "disposition": "fixed-controls; two accepted diagnostic followups",
+      "evidence": "Scan/component/consolidation and project-state controls pass; R6-F04/R7-F04 conservative diagnostic limitations registered."
+    },
+    {
+      "id": "R1-F08",
+      "disposition": "fixed-controls",
+      "evidence": "skipped directories and all symlink exclusions"
+    },
+    {
+      "id": "R1-F09",
+      "disposition": "fixed-controls",
+      "evidence": "spec root, spec.md and folder-link loss"
+    },
+    {
+      "id": "R1-F10",
+      "disposition": "fixed-controls",
+      "evidence": "split valid and unavailable principal/sections"
+    },
+    {
+      "id": "R1-F12",
+      "disposition": "fixed-controls",
+      "evidence": "MetaErr/DispositionErr JSON and human followups/Attention"
+    },
+    {
+      "id": "R1-F15",
+      "disposition": "fixed-controls",
+      "evidence": "backlog/roadmap/project-state classification source losses"
+    },
+    {
+      "id": "R1-F17",
+      "disposition": "fixed-controls",
+      "evidence": "ledger malformed/unsupported/root error and migration refusal"
+    },
+    {
+      "id": "R1-F19",
+      "disposition": "fixed-controls",
+      "evidence": "Required fields, enums, instants, header/body truncation and all 11 repeated authority fields controls pass."
+    }
+  ],
+  "requirement_validation_trace": {
+    "R1": {
+      "disposition": "passed-with-registered-low-diagnostic-followups",
+      "producer": "SourceCoverage typed loss/exclusions; review readers, spec parser, assessment scanner, component loader",
+      "locations": "source_coverage.go; review_closeout.go; assessment_scan.go; discovery.go",
+      "evidence": "Typed loss/legacy/unsupported/corrupt diagnostics tested; accepted R6-F04/R7-F04 diagnostic precision followups remain."
+    },
+    "R2": {
+      "disposition": "passed",
+      "producer": "SourceCoverage.CompleteFor/LossesFor and projected producer coverage",
+      "locations": "source_coverage.go; obligation_projection.go",
+      "evidence": "Dropped/invalid/unscoped losses refuse completeness; positive foreign-scope probe passes."
+    },
+    "R3": {
+      "disposition": "passed",
+      "producer": "ReviewCheck and verifyReviewBundle history selection",
+      "locations": "review_closeout.go; review_bundle.go",
+      "evidence": "Truncated/rejected/invalid-digest/lost-bundle/missing-time controls do not retain old approval; provably old loss warns."
+    },
+    "R4": {
+      "disposition": "passed",
+      "producer": "CompleteFor/LossesFor, path/header attribution and global readReviewAttempts",
+      "locations": "source_coverage.go; review_closeout.go",
+      "evidence": "Unique foreign ownership isolated; repeated scope remains unscoped; nested decoys do not escape."
+    },
+    "R5": {
+      "disposition": "passed",
+      "producer": "Followup parser and common unresolved projection into CLI/MCP/Attention",
+      "locations": "followups_parse.go; followup_candidates.go; obligation_sources.go",
+      "evidence": "Parity controls valid/open/legacy/invalid/empty/lost pass."
+    },
+    "R6": {
+      "disposition": "passed",
+      "producer": "ValidateObligation coverage on actual producerSlot after join",
+      "locations": "obligation_projection.go",
+      "evidence": "Dropped obligation test assertion-sensitive; concurrency race passes."
+    },
+    "R7": {
+      "disposition": "passed",
+      "producer": "assessmentFilesRead, scanAssessmentFileForDebt and discovery consolidation",
+      "locations": "assessment_scan.go; techdebt.go; discovery.go; cli/assess.go",
+      "evidence": "Long lines, CRLF/Rust/final line, unreadable/exclusions, observed project metrics all pass."
+    },
+    "R8": {
+      "disposition": "passed-with-registered-low-diagnostic-followups",
+      "producer": "CLI/MCP review/followup/state and Attention projections",
+      "locations": "review_closeout.go; obligation_sources.go; cli/state_attention.go; mcpserver/server.go",
+      "evidence": "JSON/human diagnostics preserved; foreign legacy positive controls pass; two conservative diagnostic followups accepted."
+    },
+    "R9": {
+      "disposition": "passed",
+      "producer": "Versioned front05 probes and read-only reader tests",
+      "locations": "b06-front05-probes.py; source_coverage_*test.go",
+      "evidence": "Probes P01/P04 and controls equal versioned snapshots/IDs; no source repair or automatic dispositions."
+    },
+    "V1": {
+      "disposition": "passed",
+      "producer": "CLI/MCP/Attention parity tests",
+      "locations": "source_coverage_parity_test.go",
+      "evidence": "Passed independently without skips."
+    },
+    "V2": {
+      "disposition": "passed",
+      "producer": "History negative controls",
+      "locations": "source_coverage_integrity_test.go; source_coverage_review_test.go",
+      "evidence": "Unreadable newer attempt, truncation, same-second uncertainty and digest rejection block retained approval."
+    },
+    "V3": {
+      "disposition": "passed",
+      "producer": "Coverage scoping and hostile attribution controls",
+      "locations": "source_coverage_round*_test.go",
+      "evidence": "Scope and ancestor ambiguity, duplicate names/fields, decoys and positive foreign-scope controls pass."
+    },
+    "V4": {
+      "disposition": "passed",
+      "producer": "Producer coverage validation regression",
+      "locations": "source_coverage_integrity_test.go",
+      "evidence": "Dropped obligation actual producer marked incomplete."
+    },
+    "V5": {
+      "disposition": "passed",
+      "producer": "Scanner fixtures and per-test sensitivity map",
+      "locations": "source_coverage_integrity_test.go; source_coverage_parity_test.go",
+      "evidence": "All 83 selected tests pass and have assertion-red ablation; 115 corpus mutants plus 5 supplements."
+    },
+    "V6": {
+      "disposition": "passed",
+      "producer": "Fresh independent full validation and portability",
+      "locations": "delivery-validation.json; external logs",
+      "evidence": "139/139 global, 136/136 module; vet/full suite/race/windows/darwin/journey pass."
+    },
+    "D1": {
+      "disposition": "passed",
+      "producer": "ADR loss-propagation principle and applied source coverage",
+      "locations": "2026-10-17-a-source-that-lost-something-is-incomplete-for-what-depends-on-it.md",
+      "evidence": "SD-b48e04cc mapped to D1; best-effort attribution and deferred history reconstruction honest; accepted conservative precision risks."
+    }
+  },
+  "facts": {
+    "selected_tests": 83,
+    "selected_test_skips": 0,
+    "assertion_killed_mutations": 115,
+    "unique_mutations": 115,
+    "supplemental_assertion_red_ablations": 5,
+    "global_validate": {
+      "passed": 139,
+      "total": 139,
+      "skipped": 0
+    },
+    "module_validate": {
+      "passed": 136,
+      "total": 136
+    },
+    "front05_probes": "equal to versioned probes excluding binary hash",
+    "mirrors": "pt-BR equal; EN local contributor section differs",
+    "design_causality": "SD-b48e04cc -> D1",
+    "discovery_outputs_restored": true,
+    "native_closeout_complete": true,
+    "post_edit_index_exit_code": 0,
+    "post_edit_verify_fresh": true,
+    "post_edit_verify_approved": true,
+    "followups_b06_open": 2,
+    "policy_unchanged": true,
+    "knowledge_check_strict_exit_code": 0
+  },
+  "commands": {
+    "artifact": {
+      "command": "../pose-review artifact-check --spec pose-source-coverage-integrity --strict --json",
+      "exit_code": 0,
+      "seconds": 190.2,
+      "sha256": "2a606c8ea133d2c885ad4c59166a8ff4397079abcbf947b8a5e8ba171a80cbe2"
+    },
+    "attest-finding-id-format-refusal": {
+      "command": "CLI preview, full structured argv in attestation-args.json",
+      "exit_code": 2,
+      "sha256": "29adfdaf95e02b775e3a6ee5b0d3a8476bc6d72f303c434855f46623aaa13ece"
+    },
+    "attest-signed-preview": {
+      "command": "CLI preview, full structured argv in attestation-args.json plus --sign harne8-agents",
+      "exit_code": 1,
+      "sha256": "9a520f0bbb1a635a925668c32017dfa2c01a2aa13537fcd8c8a0234419906e0c"
+    },
+    "attest-unsigned-preflight": {
+      "command": "CLI preview, full structured argv in attestation-args.json",
+      "exit_code": 0,
+      "sha256": "255ab019c93f08b64b205e81ab35ac76da464a176ee3747678873fb3ce2ca546"
+    },
+    "build": {
+      "command": "go -C pose-mcp build -o ../pose-review ./cmd/pose; use ../pose-review",
+      "exit_code": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "check-final": {
+      "command": "../pose-review check --strict",
+      "exit_code": 0,
+      "seconds": 184.3,
+      "sha256": "83857d4804950d60a0cd1ec28c29d37a0fc93e8a600df20da6704d6c9c315481"
+    },
+    "check": {
+      "command": "../pose-review check --strict",
+      "exit_code": 0,
+      "seconds": 310.4,
+      "sha256": "83857d4804950d60a0cd1ec28c29d37a0fc93e8a600df20da6704d6c9c315481"
+    },
+    "closeout-check": {
+      "command": "../pose-review closeout-check spec:pose-source-coverage-integrity --json",
+      "exit_code": 1,
+      "sha256": "d1e155e29265986ba57913253210b90d6821f804d6de29fd8a721c0dd3c338aa"
+    },
+    "darwin": {
+      "command": "GOOS=darwin go build ./...",
+      "exit_code": 0,
+      "seconds": 5.4,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "discover": {
+      "command": "../pose-review assess discover --component pose-mcp --json (generated assessment/state outputs restored after execution)",
+      "exit_code": 0,
+      "seconds": 0.6,
+      "sha256": "05bf515f9c844d9d5ee242e9eebfa841d4badd0562e101e82b7aaf9e5384ce88"
+    },
+    "integrate": {
+      "command": "../pose-review assess integrate --json",
+      "exit_code": 0,
+      "seconds": 0.7,
+      "sha256": "d260d12d60d96d53df06ac955322d5535f1ad7475b16637393482dd45e5eaae5"
+    },
+    "journey": {
+      "command": "bash tests/journeys/install-and-upgrade.sh --binary /home/go/.cache/pose-work/b06/pose-review",
+      "exit_code": 0,
+      "seconds": 7.5,
+      "sha256": "6d24d3a882d7244082e532892f74bb324982cacac310f89e737beec330f090ca"
+    },
+    "lint-final": {
+      "command": "../pose-review lint-spec pose-source-coverage-integrity --strict",
+      "exit_code": 0,
+      "sha256": "1019ec87f8190958606a8255c3602ec8e702c4249feddbb1f428c53781db2d8d"
+    },
+    "lint": {
+      "command": "../pose-review lint-spec pose-source-coverage-integrity --strict",
+      "exit_code": 0,
+      "seconds": 0.3,
+      "sha256": "1019ec87f8190958606a8255c3602ec8e702c4249feddbb1f428c53781db2d8d"
+    },
+    "mutations": {
+      "command": "python3 -I /home/go/.cache/b06-independent-review-r8/mutations-with-output.py --output /home/go/.cache/b06-independent-review-r8/mutations.json",
+      "exit_code": 0,
+      "seconds": 708.2,
+      "sha256": "12c8c8abd3dabcdcd02c721a4c16de4c6d90991e8f23bd595c2edfaa188abe38"
+    },
+    "probes": {
+      "command": "python3 -I .pose/results/b06-front05-probes.py --binary ../pose-review --output /home/go/.cache/b06-independent-review-r8/probes.json",
+      "exit_code": 0,
+      "seconds": 0.7,
+      "sha256": "5a131f4f3d3b57f367c85bacc582f4011a813a88b6f85d4ba7ae8c5142c26a93"
+    },
+    "race": {
+      "command": "go test -race ./internal/pose ./internal/cli ./internal/mcpserver -count=1",
+      "exit_code": 0,
+      "seconds": 192.2,
+      "sha256": "e3f8d83f5fe362dc173f04d42e26745c35115ab36a88264b3d7cbbbc2a72dcd1"
+    },
+    "recurrence": {
+      "command": "../pose-review recurrence-check --tolerant --window-days 14 --json",
+      "exit_code": 0,
+      "seconds": 0.0,
+      "sha256": "a2ebd1d88313b9bf83086725c0f3b60631d433904b6a11304bfe632f02bbb271"
+    },
+    "review-check-final": {
+      "command": "../pose-review review-check spec:pose-source-coverage-integrity --json",
+      "exit_code": 1,
+      "sha256": "83c55e9cb89e8889c1bd574f9df0748cdc2e0f99658460a841cc05aa7937dae9"
+    },
+    "review-verify": {
+      "command": "../pose-review review verify spec:pose-source-coverage-integrity --json",
+      "exit_code": 1,
+      "seconds": 0.8,
+      "sha256": "dcd78b8f5afe9fb1d74ea89abba715e8aff66835124295d010582644273eb1e1"
+    },
+    "suggest": {
+      "command": "../pose-review suggest review --path pose-mcp",
+      "exit_code": 0,
+      "seconds": 0.0,
+      "sha256": "eb90980a7ead71b07dc4d355944863683fcfd3bb0ebcf2ba5eead2536606b184"
+    },
+    "tech-debt": {
+      "command": "../pose-review assess tech-debt --json",
+      "exit_code": 0,
+      "seconds": 1.1,
+      "sha256": "d8a57f50c64d76b641a2546b44163cd6157e5aef51b890d4292e0b3a2f19a1f6"
+    },
+    "test": {
+      "command": "go test ./... -count=1",
+      "exit_code": 0,
+      "seconds": 137.1,
+      "sha256": "e24b8bfb107010d87f5c1e34cb268e11fa76d38a60edf54f360b1fe6413edf24"
+    },
+    "validate-module-output-path-refusal": {
+      "command": "../pose-review validate --strict --module pose-mcp --json-out /home/go/.cache/b06-independent-review-r8/module-validation.json",
+      "exit_code": 2,
+      "seconds": 0.0,
+      "sha256": "e44c4f011ffc4ffb6ab9c848c794209b4e6d00f51f81ff0912eaf44cbe136782"
+    },
+    "validate-module": {
+      "command": "../pose-review validate --strict --module pose-mcp --json-out .pose/results/b06-module-review.json (structured result archived outside after execution)",
+      "exit_code": 0,
+      "seconds": 275.0,
+      "sha256": "033aefb3af7bf766d8e5584355009bc3421383f300a5d252d542e2ade3e34599"
+    },
+    "validate": {
+      "command": "../pose-review validate --strict --json-out .pose/results/delivery-validation.json",
+      "exit_code": 0,
+      "seconds": 460.3,
+      "sha256": "885c6c2147896981a271174a334be418729884fcd1f35bea7a367e247f263ac9"
+    },
+    "verify-final": {
+      "command": "../pose-review review verify spec:pose-source-coverage-integrity --json",
+      "exit_code": 1,
+      "sha256": "111bec0b38fd40d911e8af4c1ec9f11ecb44ca11b3df5c9b5bb5d0202e6194fb"
+    },
+    "vet": {
+      "command": "go vet ./...",
+      "exit_code": 0,
+      "seconds": 0.4,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "windows": {
+      "command": "GOOS=windows go build ./...",
+      "exit_code": 0,
+      "seconds": 3.1,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "verify-after-report": {
+      "command": "../pose-review review verify spec:pose-source-coverage-integrity --json",
+      "exit_code": 1,
+      "sha256": "111bec0b38fd40d911e8af4c1ec9f11ecb44ca11b3df5c9b5bb5d0202e6194fb"
+    },
+    "final-status": {
+      "command": "git status --short",
+      "exit_code": 0,
+      "sha256": "408c124fe7081723bf29c6641bdbc0b87d763dac5bd6445b0f1a6557748236e6"
+    },
+    "final-diff-check": {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "final-policy-diff": {
+      "command": "git diff -- .pose/policy/review.json",
+      "exit_code": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "attest-resumed-preview": {
+      "exit_code": 0,
+      "sha256": "255ab019c93f08b64b205e81ab35ac76da464a176ee3747678873fb3ce2ca546"
+    },
+    "close-native": {
+      "command": [
+        "../pose-review",
+        "close",
+        "spec:pose-source-coverage-integrity"
+      ],
+      "exit_code": 0,
+      "sha256": "f5a017e165cefcbd717e0836d676f580630236322d029db07082bf7c39d96135"
+    },
+    "knowledge-final": {
+      "command": [
+        "../pose-review",
+        "knowledge-check",
+        "--strict"
+      ],
+      "exit_code": 0,
+      "sha256": "cf6f25b333237005dafe7f5c4fa85581287d544cd760f6084c0ae2e69b931044"
+    },
+    "review-check-attested": {
+      "command": [
+        "../pose-review",
+        "review-check",
+        "spec:pose-source-coverage-integrity"
+      ],
+      "exit_code": 0,
+      "sha256": "789be67e02656a04928e89a2d1a917ff6523ae811e8b62d33ec206ce27fbf12c"
+    },
+    "verify-attested": {
+      "command": [
+        "../pose-review",
+        "review",
+        "verify",
+        "spec:pose-source-coverage-integrity",
+        "--json"
+      ],
+      "exit_code": 0,
+      "sha256": "74b41ae5cd6654ab5a662c9985c8efb398b5fe27c10f5dd9752dff5f933fd9fc"
+    },
+    "discover-closeout": {
+      "command": [
+        "../pose-review",
+        "assess",
+        "discover",
+        "--if-stale",
+        "--update-state"
+      ],
+      "exit_code": 0,
+      "sha256": "436d6c0d668470300d929a4c159d82a9049fede198bdcf39461d284aca4161d3"
+    },
+    "followups-closeout": {
+      "command": [
+        "../pose-review",
+        "followups",
+        "--all",
+        "--json"
+      ],
+      "exit_code": 0,
+      "sha256": "19f17e9ddec6ce5c54c147cd0044e9bf1353d08c28cbf055f161be54bed4611b"
+    },
+    "attest-resumed-apply": {
+      "exit_code": 0,
+      "sha256": "d60241f9565cad0e4bac41132140b254163b9efcd98759a6f915943f44a4a83e"
+    },
+    "verify-resumed": {
+      "exit_code": 1,
+      "sha256": "111bec0b38fd40d911e8af4c1ec9f11ecb44ca11b3df5c9b5bb5d0202e6194fb"
+    },
+    "lint-closed": {
+      "command": [
+        "../pose-review",
+        "lint-spec",
+        "pose-source-coverage-integrity",
+        "--strict"
+      ],
+      "exit_code": 0,
+      "sha256": "caa03946405b4e7985b3095fd32c8c60d4bfacb80e2afde30b87133431e5c4b3"
+    },
+    "check-closed": {
+      "command": [
+        "../pose-review",
+        "check",
+        "--strict"
+      ],
+      "exit_code": 0,
+      "sha256": "83857d4804950d60a0cd1ec28c29d37a0fc93e8a600df20da6704d6c9c315481"
+    },
+    "closeout-check-closed": {
+      "command": [
+        "../pose-review",
+        "closeout-check",
+        "spec:pose-source-coverage-integrity",
+        "--json"
+      ],
+      "exit_code": 0,
+      "sha256": "bf1f01d58e28a0059daf950d68630eb0a53c26665f3fb38cba26b1feac8a069b"
+    },
+    "followups-open-closed": {
+      "command": [
+        "../pose-review",
+        "followups",
+        "--open",
+        "--json"
+      ],
+      "exit_code": 0,
+      "sha256": "3d48710aabf25dbb24c066476cbfbac583fced25365c9bc80865bee4b7626cd8"
+    },
+    "index-closed": {
+      "command": [
+        "../pose-review",
+        "index"
+      ],
+      "exit_code": 0,
+      "sha256": "152c7b238625c4771615ce3f6601dafe07af7a0b20759fb7273c481407219adb"
+    },
+    "verify-closed": {
+      "command": [
+        "../pose-review",
+        "review",
+        "verify",
+        "spec:pose-source-coverage-integrity",
+        "--json"
+      ],
+      "exit_code": 0,
+      "sha256": "9ad05e564997f486e3b323f21de7280ee166282714c70547edf4cbc8fdd7588b"
+    }
+  },
+  "proposed_dispositions": {
+    "recorded": true,
+    "criteria": 15,
+    "tools": 11,
+    "file": "/home/go/.cache/b06-independent-review-r8/attestation-args-resumed.json"
+  },
+  "output_directory": "/home/go/.cache/b06-independent-review-r8",
+  "review_report_sha256": "df5caf79cc91f6df056e32257f48912625e253e9fb17d7936d88540b51e058bc",
+  "limits": [
+    "Identity and vendor separation declared, not authenticated. Cognitive independence is not observable.",
+    "R6-F04 and R7-F04 remain open low diagnostic limitations in the spec.",
+    "No merge or next implementation selected."
+  ],
+  "requirement_validation_trace_provenance": "Current HEAD producers independently rechecked; observer review record only, does not mark the spec lifecycle complete.",
+  "output_hashes": {
+    "adr-read.txt": "c8fdafe8189b8be47935f8f3b1f4ea6e5bf817944cb8098e129084b8142be5b0",
+    "adversarial.log": "4af231207c10754de00ee03195b4dcc1df106ee1a66fe66fc2c92880b3a17c0c",
+    "artifact.log": "2a606c8ea133d2c885ad4c59166a8ff4397079abcbf947b8a5e8ba171a80cbe2",
+    "artifact.result.json": "6eadb4d0b20cff1df2253d48f9ac95d752ef435e093c9bf4174edee76ec842ba",
+    "attest-finding-id-format-refusal.log": "29adfdaf95e02b775e3a6ee5b0d3a8476bc6d72f303c434855f46623aaa13ece",
+    "attest-finding-id-format-refusal.result.json": "be64cdb856b7f6188e83b31e48a22c82510063032dfb3899cdfc55df351bc2e6",
+    "attest-signed-preview.log": "9a520f0bbb1a635a925668c32017dfa2c01a2aa13537fcd8c8a0234419906e0c",
+    "attest-signed-preview.result.json": "e95afa1cf905fe06cd84a46d0d9b03bbd9ccb6275b7f0beb23ee55275b80ecef",
+    "attest-unsigned-preflight.log": "255ab019c93f08b64b205e81ab35ac76da464a176ee3747678873fb3ce2ca546",
+    "attest-unsigned-preflight.result.json": "c3c49e667ef12b61b7ef7766f519a8a34a3e7bac3a3e83a613eb0e341dbc1e77",
+    "attestation-args.json": "7a661fdaa62731a1c04ff75df9efab5de14f4be939922006d65ff4a64e05914b",
+    "auto-attest.json": "a3503f05921089aebc63cf87695e82a678d675b26e087e640a963794fdcc1423",
+    "auto-attest.log": "0502a17a3c4fd7155f14b8c8334386a04ac19bd610c0c6dbc2579ad023b9db2d",
+    "build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build.result.json": "30cf6735f84f37690d7dda8f1ddcf6ffa1bab6e8946c4ce0052b3add488d5eb8",
+    "check-final.log": "83857d4804950d60a0cd1ec28c29d37a0fc93e8a600df20da6704d6c9c315481",
+    "check-final.result.json": "eb0b16235dd24ac0eff1f33cf4855c37b6f14985f38e297d93252859f15bbc69",
+    "check.log": "83857d4804950d60a0cd1ec28c29d37a0fc93e8a600df20da6704d6c9c315481",
+    "check.result.json": "cb554b6585de2bff409f8b37992ce91192691890cb6cec4ceac612937f135e6b",
+    "cli-b06_round3_probe_test.go": "d0e4f4e55b34065a88261993c03b91fc7941c9ba56a8f7306a1a76407f97e719",
+    "cli-b06_round4_probe_test.go": "2b60231e576cab2b04eba405622c41a2877e05bd97ade7e4beb6605d96cba2be",
+    "cli-b06_round5_probe_test.go": "75a64322f5ffdbfcb48d46d4d461132bf342b2723762060e037d0252606fb774",
+    "cli-b06_round6_probe_test.go": "b5933cf172674371806d1bb05629a31e34f4515dfc9ec08d3540b522164cf1a3",
+    "cli-b06_round7_probe_test.go": "560d1ee46f29655bc2de1502fd5eedb20bafa8efaea0a8e557868d35ce78f21d",
+    "closeout-check.log": "d1e155e29265986ba57913253210b90d6821f804d6de29fd8a721c0dd3c338aa",
+    "closeout-check.result.json": "67b6565ed70ee96afd5f352740935ef109ebdec60e0465068e998d6bd731fa5c",
+    "closeout-plan.json": "515cc2cbe18fe901f4f1c9049c2bcbf2cd43c86aa827cd8bcaa95461ed98ca73",
+    "consumer-callers.txt": "11b4a047be7ebba62a13f49729ce517cc259b652720381cc54cc930c866759af",
+    "context.json": "9e3b55174dce9e24e11d0005e6e582c080e0eaad049df413966c4e30bccc30e4",
+    "darwin.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "darwin.result.json": "1417b088157888a1c8794372cb38161a6c0b159e384d84930c9b7db02f5884ca",
+    "delivery-validation-before.json": "26ae2b0724138d3eed43b40ad6b7318ecb18d47a48f97bc56b46647e6106dcab",
+    "delivery-validation-existed.json": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "design.json": "cccbee8b5e50d0fa452247f00a0bd64836de5b58c81e2d5386a4f978d01f2093",
+    "discover.log": "05bf515f9c844d9d5ee242e9eebfa841d4badd0562e101e82b7aaf9e5384ce88",
+    "discover.result.json": "7d6bc681f4e5578622bd27892e763c8ca031f0ed2154f36096330eacaa8cbf1c",
+    "finalize-round8.py": "a68d5e1edcc332b8186ed858be59671caf11ee18a4f49ef456f4d6bd11dcb078",
+    "front01-sections.txt": "7ddd1195414c41e4301047ec12170502b52a8c0d3c04a2ee95df8675eada5092",
+    "front02-sections.txt": "3aa3631e808c7ea3ff619344d7927eb50a096213671db4edc7ff242c21e8d375",
+    "front05-sections.txt": "6b963518fb663c53061ffa560ca1760af72f19a19d508c48509725a3b55d4aac",
+    "full.diff": "e280ac9ce122d0081fc1762de0a16052c0a910b4dd5ddb0b9a9a0610e21d0363",
+    "index.log": "152c7b238625c4771615ce3f6601dafe07af7a0b20759fb7273c481407219adb",
+    "initial-status.log": "4ece3656ea957677a5f2194c5294631ddfa028e1215c1e6594a08259a17e40fa",
+    "inputs-sha256.json": "d222a55bb8a2fdb382dfd9ed45b914d7703b8e0f1860b868aea62b870bf029fa",
+    "integrate.log": "d260d12d60d96d53df06ac955322d5535f1ad7475b16637393482dd45e5eaae5",
+    "integrate.result.json": "709f96e76ccccd36b010cb0cc99e20d40deced0b416fa3e144f05ce64fa3f0ea",
+    "issuer-pin-preview.log": "074410fbbd49407a40179e70537032384033c988215d00d2b02f2502e6d8a58d",
+    "issuer-pin-proposed.diff": "7dddb3a7e058e0db59cfb9dd34ead294cbffa03d2edc55d340d8c3a096178f6e",
+    "issuers.json": "219aca412d857de138c95e7686cdbafc0ab28e747fae23f7eccded7abfb876d6",
+    "journey.log": "6d24d3a882d7244082e532892f74bb324982cacac310f89e737beec330f090ca",
+    "journey.result.json": "4cf6674fcf52d13d36b50e5e5d4ced238d7f484f065a9fd3bc0b6c934561b0b5",
+    "lint-final.log": "1019ec87f8190958606a8255c3602ec8e702c4249feddbb1f428c53781db2d8d",
+    "lint-final.result.json": "ea5055a44e40b7b4918b4d73c55d8257ada20a6fb2d9e0afa9fd85620544712d",
+    "lint.log": "1019ec87f8190958606a8255c3602ec8e702c4249feddbb1f428c53781db2d8d",
+    "lint.result.json": "49d0ebc6db1e8842dd2d2f78edff7314a6db13b5a789fd7af1a61d26f57ddb29",
+    "manual-sections.txt": "620fa53972fbd97b2ca4923f0a9f89c5d7db6b2d522898b488ea3ad12da3268c",
+    "module-validation.json": "26d9ab853f3c9d31b24d8777d551d643921c7fcaf0db840a233af53befb9ff82",
+    "mutation-details.jsonl": "519cbe33a677a4c4ab74fe44b5f0725fc0bbc889e1bc9c3b479f0da48bac2c72",
+    "mutations-with-output.py": "af6e877ce70a870ec6daefc980a0692468f95877c2c4cf430c4cc0f0bb1308ac",
+    "mutations.json": "dd4ce068f1fcb45831335062a6154edef45e81235d9a97623f7d002ba5fff3a7",
+    "mutations.log": "12c8c8abd3dabcdcd02c721a4c16de4c6d90991e8f23bd595c2edfaa188abe38",
+    "mutations.result.json": "e8b8ed208462859b971b4390f91963d02d3456b9f5155f4cd6f45fb8f2917702",
+    "native.py": "26c83e0d10bb1664adf8e6781dacea251c7a6058a4dafd0c6982b60d1682cba4",
+    "new-test-inventory.json": "8b63c007d3f694f236c0ba1d466ad396bd516745bd24cd6c8b3f8079c6750342",
+    "new-tests-cli.log": "7f17e5f352cdc29bbc5b83fa2a10b269a40806157872eb647200ae6f7fe23092",
+    "new-tests-mcpserver.log": "1e3b8f317b6579334accdfa1ee4656bca4cb639f6d72c4f1d8b19cfae23e7a8b",
+    "new-tests-pose.log": "3824d2ab6ed71ee006c60aa60c565d5e1f6950b01374ff36af704f4ad97cf15f",
+    "new-tests.json": "86f85139c5c64fca2a1e5b6ead3ac909546d5836929c5a6fbb94b1cd61cd8c4f",
+    "original-driver-control.json": "1743f5c23c229fea6ba9e90fdbbc94f560cd9704b475854462d28de4e2ef79e5",
+    "original-driver-control.log": "7d2a698e46e14dfdba7fa313909a7147a7a65530ceb8dc1afc2f4a675d1a2e32",
+    "plan.json": "7a2bb1923f766c6bbc325b60efa4fc9b47131d0047aac105410d5394071fbb04",
+    "pose-b06_round3_probe_test.go": "a7af5efa9e82cd34fe50a5e4731a6034ad96364a468fd295e608409f6801d78f",
+    "pose-b06_round4_probe_test.go": "f73d228a4ebe50a5a574d01f0802c40508855c65623d9d93685dce88bbfd9579",
+    "pose-b06_round5_probe_test.go": "37fcb065732efeeb53a426d26ef422751b03f4813f9acc82504dedceb9ce8110",
+    "pose-b06_round6_probe_test.go": "03331e6ac7e057907d31fae1b37e517d5b548a89fbd7b124e014b14d640c30ab",
+    "pose-b06_round7_probe_test.go": "2d72cae7294e3987e40d8140e4bb95d36cbf8794da5f70a2bc18ec033c355f4f",
+    "pose-b06_round8_probe_test.go": "54e6a0acb4b0e8ab8ed2b956a3c4da5ff0eba4d85e6c7f4e17298c34e81b1687",
+    "pose-mirrors.diff": "8b196f279b0c30967367bd924999f1e44f498ee1e07c1c3528b7332529fb8ecf",
+    "prepare-attestation.py": "0552a313c54b4980a1cd1675a03d522d997b28781e04fe220e25f9e68ed876f1",
+    "prepared.txt": "3da0407c96b721a2bd9f63878a324ed3f749ff812b65f8c9408822a71585ac63",
+    "previous-controls.log": "dc769a5cd0fe1e0c682a726266357c4a9c2d67151d41c0734fc2d5235e5d2e6f",
+    "probes.json": "3830fca3747a6a5812d8ded9e51d41cc3276f21eeaab5d44c93c49bebf8b1ef5",
+    "probes.log": "5a131f4f3d3b57f367c85bacc582f4011a813a88b6f85d4ba7ae8c5142c26a93",
+    "probes.result.json": "3df802daec2e57b0f574e21c44b4169af9243cd2593074cf35280aa7a09ac247",
+    "proposed-dispositions.json": "e1e58927c119ad6d56692abd50d804c4b4ba56c1516b20f83dbd07e107654f8c",
+    "race.log": "e3f8d83f5fe362dc173f04d42e26745c35115ab36a88264b3d7cbbbc2a72dcd1",
+    "race.result.json": "7bd08dff5dcef3022bbe67b70dc2243b0a7e99724339c05369a00ff8dbeae4d1",
+    "readers.txt": "9a35e0633b4f1c9cb8a35e823446f55e4f61532f6819b29f1c8458cd62227a85",
+    "recurrence.log": "a2ebd1d88313b9bf83086725c0f3b60631d433904b6a11304bfe632f02bbb271",
+    "recurrence.result.json": "a161204a4fb592c690be31559588ef5fa144c34b2b54ccb4b4c1b6ab29072a8d",
+    "review-check-final.log": "83c55e9cb89e8889c1bd574f9df0748cdc2e0f99658460a841cc05aa7937dae9",
+    "review-check-final.result.json": "5a99e5204e5aedc6c956f6c91ea47d9ef845937bb3d41071053cce75bf956fa8",
+    "review-verify.log": "dcd78b8f5afe9fb1d74ea89abba715e8aff66835124295d010582644273eb1e1",
+    "review-verify.result.json": "1295933a5fa05544324d5c508e826fbd49e15c51b11414574f655fdbc3383e69",
+    "round8.diff": "cd467def1ff699302a53a078935f5c21b183877072810fb91e69fb470b677a7a",
+    "rules-read.txt": "bfa8c8be45c7b6d54cf7ba227bee052e0e7f7cf7331d7ef56ec64cd2a533f70a",
+    "run.py": "34edbe5cf7185b1b227ca5c012e4319d31de8fbaf1982674b2125b0024892264",
+    "seal.log": "5ca2c0eb636e69f48c8c315a27576d3c446897b58c8f95fed3babfddb90ef795",
+    "sealed-bundle.json": "f62df2defeee57ef405bb3173744c048355bc4c56fdabcce5b99284ccd6caa2e",
+    "sealed-plan.json": "cde9c7a9482a6d612c1b8580c33bf4b78a3d1ee1c4e29298d79f73a0bcf46029",
+    "suggest.log": "eb90980a7ead71b07dc4d355944863683fcfd3bb0ebcf2ba5eead2536606b184",
+    "suggest.result.json": "417fbfbc2f96b1066b10e53a333567f41113a322cbdec0e6bcfd9efbdfde0c29",
+    "supplemental-decoy-attribution.log": "481af2143b679da2659b84269b3c4b1ab0afa971b03d34c131daf21e5ccdd426",
+    "supplemental-history-diagnostic-cli.log": "0c976fbeea201edf75087a64a372426cb7f7301996781dd658cf58914e93b918",
+    "supplemental-mutations.json": "735a8035840903d77e5f55482f7893879b30d98f0ad88c04387f7bd21d22746f",
+    "supplemental-project-state-loader.log": "429bda2e16a947ae0a3d104840490d4c82d8b82f305c5b07ed4911100a22c343",
+    "supplemental-unknown-disposition-cli.log": "cf382e1a2573a5b3d55ad542f044d37007ea59218cd688d7b623aa3250e4cf25",
+    "supplemental-unlistable-folder.log": "a53fe67c5e928bb05a90542443050559a434f673c883a9f3d8a4193cd4ba68e2",
+    "supplemental.py": "41e422522a0f2a8821ef31ec472aab78513ebfc87bcf9cd5467f816f1818c657",
+    "surface-check.log": "89d1a7f47b98c12b9d3ea1a969ae1f523dd5346fcc8231cc7e3ef89532a16ac4",
+    "tech-debt.log": "d8a57f50c64d76b641a2546b44163cd6157e5aef51b890d4292e0b3a2f19a1f6",
+    "tech-debt.result.json": "dc3746d1077ea70e6d5e636b0f577fdb3dff0bfd324610b17c89ebe228e71958",
+    "test-sensitivity.json": "82b45c0cad7e8756165ed920808f7b9f7d929c340979b93623b35745aa7aa118",
+    "test.log": "e24b8bfb107010d87f5c1e34cb268e11fa76d38a60edf54f360b1fe6413edf24",
+    "test.result.json": "070048c1a62bbbdf5e3caee84ffa6b7a5d6331a4fe27c2f7f42386f2257c01d2",
+    "tests.py": "c6edd0af59a9bcf06120c6101a2a9f1c47f8975d04659b0a9b9b986bdb3ee708",
+    "validate-module-output-path-refusal.log": "e44c4f011ffc4ffb6ab9c848c794209b4e6d00f51f81ff0912eaf44cbe136782",
+    "validate-module-output-path-refusal.result.json": "dc878d97d4c833cf7cad3f7ade1ddd8f74ed16967e8c669dc05594e01d648120",
+    "validate-module.log": "033aefb3af7bf766d8e5584355009bc3421383f300a5d252d542e2ade3e34599",
+    "validate-module.result.json": "1b377c8f899fe8489086a3aacd0def30337b705baefe4e02e294a0672921bbb1",
+    "validate.log": "885c6c2147896981a271174a334be418729884fcd1f35bea7a367e247f263ac9",
+    "validate.result.json": "1f9de2e6e5c4ebffddc503623b7e2210b4238b2622fb9d418c6228c24e56a2ee",
+    "validation-summary.json": "9c0b5ebb9cc36fd4f5088ab0775c172ce1c1f0e8c65b0b301972b742a2a90ff3",
+    "verify-final.log": "111bec0b38fd40d911e8af4c1ec9f11ecb44ca11b3df5c9b5bb5d0202e6194fb",
+    "verify-final.result.json": "6e19644484e0f0a4c115756d34f3cca568d95493f85da76fc663627d6f9d3565",
+    "vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "vet.result.json": "11d16d5d4443b2ee4143120decf3da01b67452b4a3d656d9be33258b5040bca3",
+    "windows.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "windows.result.json": "94650244cfaf25cf03842120feef6f56958db216b68f1dabf4aa26a453162365",
+    "verify-after-report.log": "111bec0b38fd40d911e8af4c1ec9f11ecb44ca11b3df5c9b5bb5d0202e6194fb",
+    "verify-after-report.result.json": "6e19644484e0f0a4c115756d34f3cca568d95493f85da76fc663627d6f9d3565",
+    "copy-source-integrity.json": "e191f387c963efe9733c156104e2bf9832d7bd64261c388737e0cb99d0cbdef5",
+    "cleanup.json": "54d14bf0acee7f1003dc33b4450a0a8463c0ad9b1c53ed93e986ce630f8ea27c",
+    "binary-cleanup.json": "596ac459c364fc812a9714b0477198ed1717e7c75b7ff88f5e340a782ec9cde8",
+    "final-status.log": "408c124fe7081723bf29c6641bdbc0b87d763dac5bd6445b0f1a6557748236e6",
+    "final-diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final-policy-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "discover-closeout.log": "436d6c0d668470300d929a4c159d82a9049fede198bdcf39461d284aca4161d3",
+    "close-native.log": "f5a017e165cefcbd717e0836d676f580630236322d029db07082bf7c39d96135",
+    "attest-resumed-preview.result.json": "e760739937815b0b74286e8d2062df33cc18cd418ecb13ba31feae3b988d599b",
+    "close-native.result.json": "2565a776a7566cffbd0f003aba44c0ec5362bd9daf3f2f4eb9b689eeab38812d",
+    "finish-closeout.py": "96a3e9e119ee6baa99677a2fde730b138d18ad847c212f3b751231f9562d7532",
+    "knowledge-final.result.json": "f1d7519bc53f9f918586651cfec5f30f1616946feaab779f28fc656e140c06e8",
+    "followups-closeout.log": "19f17e9ddec6ce5c54c147cd0044e9bf1353d08c28cbf055f161be54bed4611b",
+    "attest-resumed-preview.log": "255ab019c93f08b64b205e81ab35ac76da464a176ee3747678873fb3ce2ca546",
+    "attestation-args-resumed.json": "bbbb717e9f5a75dfc0cb7e6b9d13036fcc410e97d64c107570cf5e8d10e56467",
+    "discover-closeout-restoration.json": "ce9c874ccb4c75ae25527b62ba510d9cf332e4d9afb0614c66f58411731df374",
+    "review-check-attested.result.json": "91f7f3c3a8a6592d4c0853eb64ff7d1d907867ebe4dbace63313b91afc1c5b57",
+    "lint-closed.log": "caa03946405b4e7985b3095fd32c8c60d4bfacb80e2afde30b87133431e5c4b3",
+    "review-check-attested.log": "789be67e02656a04928e89a2d1a917ff6523ae811e8b62d33ec206ce27fbf12c",
+    "knowledge-final.log": "cf6f25b333237005dafe7f5c4fa85581287d544cd760f6084c0ae2e69b931044",
+    "verify-attested.result.json": "1aecb6e871944798c69d5e50ae5868e5f9876be8c24c12ea95eda7fe2bcd5cc7",
+    "discover-closeout.result.json": "4e5503adafde4804ab42498fae5218a3cf495ddfc40705b627d3651eacfbb693",
+    "followups-closeout.result.json": "6673019eaa03c4cc45aaddddca3dc391c4c963e76630d80bbcfcc6704b39c7a8",
+    "resume-native.py": "6c91990213b67f100291f84e7e15ed36104fa981d63a6e7b164080aa7ac03635",
+    "attest-resumed-apply.result.json": "ee036c5e3b2728377e8fdf6d7147b6a369700d3952c17778ff8a6eec3e3e14eb",
+    "verify-attested.log": "74b41ae5cd6654ab5a662c9985c8efb398b5fe27c10f5dd9752dff5f933fd9fc",
+    "verify-resumed.log": "111bec0b38fd40d911e8af4c1ec9f11ecb44ca11b3df5c9b5bb5d0202e6194fb",
+    "followups-b06-summary.json": "48989132396d97abd48f39fc57f35f1e84201718741a7dacf096966e0bd88595",
+    "verify-resumed.result.json": "4d7cc2e889a2ae16765b30d73e91eecff2b936ff4c9990084cf61889b1dc5674",
+    "lint-closed.result.json": "f0ae07d6016b88de7c80e62ff07c49600c4e714ce55e8f04985b1e8368c33a3d",
+    "attest-resumed-apply.log": "d60241f9565cad0e4bac41132140b254163b9efcd98759a6f915943f44a4a83e",
+    "binary-cleanup-resumed.json": "d721846b04d6685528636c6eedcf8de2f37f6c74e3861b83b5956db727f27f47",
+    "check-closed.log": "83857d4804950d60a0cd1ec28c29d37a0fc93e8a600df20da6704d6c9c315481",
+    "check-closed.result.json": "8e09cfc12d75ed20dbd300204c4ab6e7d1dfc8ebd7e78fe0f24b6df520e2be0b",
+    "closeout-check-closed.log": "bf1f01d58e28a0059daf950d68630eb0a53c26665f3fb38cba26b1feac8a069b",
+    "closeout-check-closed.result.json": "ff1e902292a4cfd70fe78e37e966c1d4e33ff329c366a0611e60c1f285ff5e2e",
+    "finalize-publish.py": "2efbd8034d6fc083f3ece04b47ed6a9f3ba2348a242c987b133aa7364d5ca9b7",
+    "followups-open-closed.log": "3d48710aabf25dbb24c066476cbfbac583fced25365c9bc80865bee4b7626cd8",
+    "followups-open-closed.result.json": "9afc961ae8146c9b5313bdb60b80ec3b225f5adc93b94a555de58a6a0e422573",
+    "index-closed.log": "152c7b238625c4771615ce3f6601dafe07af7a0b20759fb7273c481407219adb",
+    "index-closed.result.json": "354793d736e8e4ee8e2226420b4fbfc9d1f9ab9475a1ca7985b2ea4f943e1883",
+    "verify-closed.log": "9ad05e564997f486e3b323f21de7280ee166282714c70547edf4cbc8fdd7588b",
+    "verify-closed.result.json": "719c2a4dddea0c0bad243f8f8bd1d259d6696007b038ded261fb8b8599e21e0a"
+  },
+  "signing_instruction_correction": "Maintainer clarified harne8-agents signing applies only to Harne8 closeouts; pose-dist attestations are without envelope. No policy or pin changes.",
+  "closeout_check": {
+    "exit_code": 0,
+    "terminal": true,
+    "blockers": []
+  }
+}

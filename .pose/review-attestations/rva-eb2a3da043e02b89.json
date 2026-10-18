@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-eb2a3da043e02b89",
+  "bundle_id": "rvb-d4e49da25f48b9ae",
+  "bundle_digest": "sha256:d4e49da25f48b9aeb8556a64b5067f6ba1c028a272506e490a0bb31c01ba831b",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "Identidade declarada: agent:independent- é exigido pelo motor até pose-delegated-review-run-provenance. Execução Codex/OpenAI versus implementador Claude/Anthropic sessão 296d1fcb-e989-40ae-9362-cf3514db8b26. Atestação sem envelope no pose-dist; identidade e independência declaradas. Atribuição por prefixo é melhor esforço, sem reconstruir decisão indisponível."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "Produtores escrevem slots próprios e são agregados após join. Perda de validação usa producerSlot. Testes de projeção concorrente, suíte completa e race passaram no HEAD exato."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "CLI/MCP/Attention compartilham os conjuntos e a coverage. Campos aditivos e recusas mais estritas foram documentados como minor, com controles de legado e isolamento."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "Falhas de leitura, parse, inválido, formato futuro e scan são perdas tipadas. Campos repetidos e tempos inválidos são recusados, sem transformar conteúdo perdido em ausência."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "A integração da matriz exercita os leitores, projeção, comandos CLI e MCP no componente pose-mcp e preserva paridade de resultados e diagnósticos."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "Coverage, incomplete e escopo do scan chegam às saídas de domínio, JSON e humano. Os dois limites baixos de state têm perda conservadora e acompanhamento explícito."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "Classificação minor confirmada: JSON aditivo, novo estado incomplete, followup-undisposed e contagens, e --fail-overdue mais estrito. Legado, registros comprovadamente antigos e scope alheio permanecem úteis. A regressão de métricas removidas foi corrigida e a suíte completa passou. Consumidores externos ao clone não foram certificados."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "R1-R9 e V1-V6 foram rechecados: 83 funções verdes com ablação correspondente, 115 mutações mortas, probes P01/P04/controle, suíte completa e race verdes; nenhuma nova aprovação indevida foi encontrada."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-81e5e1183976b497",
+      "rationale": "D1 e o ADR ligam Complete às perdas do recorte. SourceCoverage viaja dos quatro leitores aos consumidores, ValidateObligation conserva o produtor real, o scan Content elimina a perda por linha longa e o histórico preserva ordem/ambiguidade. O ADR observado é o contrato que justifica essa composição.",
+      "mappings": [
+        {
+          "delta": "SD-b48e04cc",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "D1 base R1 R2 R4 R6 R7 justifica o contrato de coverage explicitado pelo ADR observado, evitando tanto falso zero quanto blocker global sem recorte."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "POSE root e dist descrevem coverage e consequências minor. pt-BR é idêntico; EN difere apenas pelo Contributor Mode local. Spec/ADR declaram os limites de prefixo, bundle exato, journals B13 e ledger legado. Os dois follow-ups baixos estão abertos com owner e data."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "Leituras incompletas conservam diagnósticos e bloqueiam conclusões dependentes; review instrui restaurar ou remover a fonte. Os dois casos baixos de resumo de state permanecem conservadores, sem aprovação indevida, e estão registrados com revisão em 2026-12-01."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "Os produtores reais da matriz sustentam os requisitos: source-coverage-integrity-integration e os testes de domínio/CLI/MCP, não lint. Reexecuções independentes incluem controles das rodadas 3-7, 115 mutações e 139/139 global, 136/136 pose-mcp."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "Implementação cobre follow-ups, validação de obrigações, markers e histórico formal de review com seus consumidores. A varredura inclui CLI/MCP/Attention e state. Journals B13, inventários B22-B25 e novos mecanismos de read views B34 permanecem fora. Nenhum autoajuste de disposição ou adoção foi introduzido."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "Sniff estrutural não toma decoys por scope, duplicatas dos onze campos são perdas e o global não atribui scope duplicado ao último valor. Digest inválido, perda recente e instante inválido não recuperam aprovação. Nenhum segredo ou corpo arbitrário de finding é copiado para os novos diagnósticos. O pose-dist registra atestação sem envelope e identidade declarada, sem mudar policy."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "Foi usada a menor composição suficiente: coverage tipada e adaptadores sobre os readers existentes. Falhar todo o read seria global demais; limitation textual não governa Complete. Não foram adicionados cache/daemon ou inventário de resíduo. A escolha seria inválida se perda pertinente certificasse ausência, cenário coberto por testes e ablações."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "execution:sha256:2a606c8ea133d2c885ad4c59166a8ff4397079abcbf947b8a5e8ba171a80cbe2",
+      "rationale": "Execução estrita reconciliou claims e commits atribuídos sem erro."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-81e5e1183976b497",
+      "rationale": "Execução observou o ADR material e a adição do check no subject exato."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "execution:sha256:05bf515f9c844d9d5ee242e9eebfa841d4badd0562e101e82b7aaf9e5384ce88",
+      "rationale": "Descoberta real de pose-mcp executada; outputs derivados restaurados e saída integral preservada fora."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Assessment real de provedores/consumidores executado; execução e integração selada conferidas."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "execution:sha256:d8a57f50c64d76b641a2546b44163cd6157e5aef51b890d4292e0b3a2f19a1f6",
+      "rationale": "Assessment real de markers e reconciliação executado com coverage e scope."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Gate de conclusão executado em leitura e pendente antes da atestação; será reexecutado após a atestação sem envelope autorizada pelo maintainer."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Gate de conclusão executado em leitura e pendente antes da atestação; será reexecutado após a atestação sem envelope autorizada pelo maintainer."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "execution:sha256:eb90980a7ead71b07dc4d355944863683fcfd3bb0ebcf2ba5eead2536606b184",
+      "rationale": "Trilha Go e regras aplicáveis resolvidas para pose-mcp."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Execução estrita do capability source-coverage-integrity passou, sem findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "Execução real strict: 139/139 global e 136/136 pose-mcp, sem skips."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/source-coverage-integrity-integration",
+      "rationale": "Execução real strict: 139/139 global e 136/136 pose-mcp, sem skips."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/source-coverage-integrity-integration",
+    "structure:design-81e5e1183976b497"
+  ],
+  "findings": [
+    {
+      "id": "b06-r6-f04",
+      "severity": "low",
+      "evidence": "execution:sha256:dc769a5cd0fe1e0c682a726266357c4a9c2d67151d41c0734fc2d5235e5d2e6f",
+      "action": "Diagnosticar raiz components dangling como perda sem certificar ausência.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "O caso permanece unavailable; discover falha antes de publicar e não há aprovação indevida.",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b06-r7-f04",
+      "severity": "low",
+      "evidence": "execution:sha256:dc769a5cd0fe1e0c682a726266357c4a9c2d67151d41c0734fc2d5235e5d2e6f",
+      "action": "Preservar arquivo e tipo da perda no resumo de estado derivado.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "O resumo mantém não certificado e não publica métrica de componente verificado sobre o formato recusado.",
+      "review_by": "2026-12-01"
+    }
+  ],
+  "attested_at": "2026-10-18T04:29:23Z",
+  "path": ".pose/review-attestations/rva-eb2a3da043e02b89.json"
+}
