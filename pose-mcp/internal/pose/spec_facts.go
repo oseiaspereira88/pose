@@ -98,6 +98,16 @@ type SpecFactsFreshness struct {
 // validation results and the Git history) are checked by the caller.
 func (s Store) specFactsFreshness() SpecFactsFreshness {
 	view := s.ReadIndexGeneration()
+	// The graph the facts are made from was read from one generation: the one this store is
+	// pinned to, if it is pinned. The judgment is about that generation, and a newer one is a
+	// finding of its own, not a reason to label the facts of an older one with the newer's identity.
+	if pinned := s.indexPin; pinned != nil && pinned.Status == IndexGenerationCurrent {
+		if view.Status == IndexGenerationCurrent && view.Descriptor.GenerationID != pinned.Descriptor.GenerationID {
+			return SpecFactsFreshness{Status: SpecFactsStale, Generation: pinned.Descriptor.GenerationID,
+				Reason: "generation " + view.Descriptor.GenerationID + " was published after the one these facts were read from"}
+		}
+		view = *pinned
+	}
 	switch view.Status {
 	case IndexGenerationUnavailable:
 		return SpecFactsFreshness{Status: SpecFactsUnavailable, Reason: view.Reason}
@@ -244,6 +254,13 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 	}
 	facts := SpecFacts{Spec: slug, Source: ".pose/indexes/delivery-integrity.json", Paths: []ObservedPath{}, Checks: []SpecFactCheck{}, Candidates: []SpecFactCheck{}}
 	facts.Freshness = s.specFactsFreshness()
+	// An unpinned store read the graph and then the generation: if another one was published in
+	// between, the two do not describe each other.
+	if s.indexPin == nil {
+		if again := s.ReadIndexGeneration(); again.Status == IndexGenerationCurrent && facts.Freshness.Generation != "" && again.Descriptor.GenerationID != facts.Freshness.Generation {
+			degradeFreshness(&facts.Freshness, SpecFactsStale, "generation", "the index was published again while the facts were read")
+		}
+	}
 	seen := map[string]bool{}
 	commits := map[string]bool{}
 	heads := map[string]bool{}
@@ -255,7 +272,7 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 		// A change set is resolved when Git gave it the head, the commits and the paths together. The
 		// predicate holds for all of the spec's change sets: one that is resolved says nothing about
 		// the delta another one stands for.
-		if cs.ResolvedHead != "" && len(cs.Paths) > 0 && len(cs.Commits) > 0 {
+		if changeSetIsResolved(cs) {
 			resolvedSets++
 		} else {
 			unresolvedSets++
@@ -284,18 +301,38 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 	// be read leaves the facts unknown rather than fresh.
 	if facts.Freshness.Status == SpecFactsFresh || facts.Freshness.Status == SpecFactsUnknown {
 		trailers, terr := SpecTrailerCommits(s.Root, slug)
-		missing := 0
+		missing, gone := 0, 0
+		current := map[string]bool{}
 		for _, c := range trailers {
+			current[c] = true
 			if !commits[c] {
 				missing++
 			}
 		}
+		// And the other way: a commit the index attributed by the trailer that no longer carries it
+		// (the branch was deleted, the history rewritten) is attribution the index no longer has.
+		for _, cs := range graph.ChangeSets {
+			if cs.Spec != slug || !strings.HasPrefix(cs.Selector, "trailers:") {
+				continue
+			}
+			for _, c := range cs.Commits {
+				if !current[c] {
+					gone++
+				}
+			}
+		}
+		explicit, explicitErr := hasExplicitAttribution(s.Root, slug)
 		switch {
 		case terr != nil:
 			facts.Limitations = append(facts.Limitations, "the Git history could not be read, so whether commits belong to this spec that the index does not hold is unknown")
 			degradeFreshness(&facts.Freshness, SpecFactsUnknown, "", "the Git history could not be read")
 		case missing > 0:
 			degradeFreshness(&facts.Freshness, SpecFactsStale, "spec-commits", fmt.Sprintf("%d commit(s) carrying this spec's trailer are not in the index", missing))
+		case gone > 0:
+			degradeFreshness(&facts.Freshness, SpecFactsStale, "spec-commits", fmt.Sprintf("%d commit(s) the index attributed to this spec by trailer no longer carry it", gone))
+		case explicitErr != nil || explicit:
+			facts.Limitations = append(facts.Limitations, "explicit attribution records (.pose/reports/history) name this spec or could not be read, and the generation does not bind them")
+			degradeFreshness(&facts.Freshness, SpecFactsUnknown, "", "explicit attribution records are not bound by the generation")
 		}
 	}
 	if len(facts.Paths) == 0 {
@@ -492,33 +529,36 @@ func moduleCoversSpec(module string, components map[string]bool, paths []Observe
 	if kind == "unknown" || kind == "invalid" {
 		return false, false
 	}
+	// Two kinds of target, read two ways. A component is a reference to a module: it may be written
+	// as the root and is normalized. A path is a file name Git reported, byte for byte: a file called
+	// "root" is a file, and a name with a space at its start is not the directory without it.
+	rootDeclared := false
 	targets := []string{}
-	// An absent or invalid reference is not the root: it covers nothing, and the root is only a
-	// reference written as the root.
-	add := func(reference string) {
-		if n, k := factModuleKind(reference); k == "path" {
+	for c := range components {
+		if n, k := factModuleKind(c); k == "path" {
 			targets = append(targets, n)
 		} else if k == "root" {
-			targets = append(targets, "")
+			rootDeclared = true
 		}
 	}
-	for c := range components {
-		add(c)
-	}
 	for _, p := range paths {
+		if !observedPathIsWellFormed(p) {
+			continue
+		}
 		for _, candidate := range []string{p.Path, p.OldPath, p.NewPath} {
-			if candidate != "" {
-				add(candidate)
+			if candidate != "" && !strings.HasPrefix(candidate, "/") && candidate != ".." && !strings.HasPrefix(candidate, "../") {
+				targets = append(targets, candidate)
 			}
 		}
 	}
-	if len(targets) == 0 {
+	if len(targets) == 0 && !rootDeclared {
 		return false, false
+	}
+	if rootDeclared || kind == "root" {
+		return true, false
 	}
 	for _, target := range targets {
 		switch {
-		case kind == "root" || target == "":
-			return true, false
 		case normalized == target:
 			return true, false
 		case strings.HasPrefix(target, normalized+"/"):
@@ -526,4 +566,66 @@ func moduleCoversSpec(module string, components map[string]bool, paths []Observe
 		}
 	}
 	return covered, inferred
+}
+
+// hasExplicitAttribution reports that the recorded change sets (.pose/reports/history) hold a
+// record of the spec, or that they could not be read. The generation binds neither them nor
+// their absence, so the facts of a spec they name cannot be called fresh by it.
+func hasExplicitAttribution(root, slug string) (bool, error) {
+	dir := filepath.Join(root, ".pose", "reports", "history")
+	entries, err := os.ReadDir(dir)
+	if errors.Is(err, os.ErrNotExist) {
+		if _, lerr := os.Lstat(dir); lerr == nil {
+			return true, err // a link to a place that was lost
+		}
+		return false, nil
+	}
+	if err != nil {
+		return true, err
+	}
+	for _, e := range entries {
+		if !strings.HasSuffix(e.Name(), ".jsonl") {
+			continue
+		}
+		raw, rerr := os.ReadFile(filepath.Join(dir, e.Name()))
+		if rerr != nil {
+			return true, rerr
+		}
+		if strings.Contains(string(raw), `"spec":"`+slug+`"`) || strings.Contains(string(raw), `"spec": "`+slug+`"`) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// changeSetIsResolved says that a change set carries what resolving it produces, together and in
+// shape: a base and a head, a diff digest, commits that are named, and paths that are one of the
+// four actions with the fields that action has. Anything less is not a delta observed, and binds
+// nothing.
+func changeSetIsResolved(cs ChangeSet) bool {
+	if cs.ResolvedBase == "" || cs.ResolvedHead == "" || cs.DiffDigest == "" || len(cs.Commits) == 0 || len(cs.Paths) == 0 {
+		return false
+	}
+	for _, c := range cs.Commits {
+		if c == "" {
+			return false
+		}
+	}
+	for _, p := range cs.Paths {
+		if !observedPathIsWellFormed(p) {
+			return false
+		}
+	}
+	return true
+}
+
+// observedPathIsWellFormed: created, modified and removed name a Path; renamed names both of its ends.
+func observedPathIsWellFormed(p ObservedPath) bool {
+	switch p.Action {
+	case "created", "modified", "removed":
+		return p.Path != "" && p.OldPath == "" && p.NewPath == ""
+	case "renamed":
+		return p.Path == "" && p.OldPath != "" && p.NewPath != ""
+	}
+	return false
 }

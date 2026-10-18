@@ -12,7 +12,7 @@ import (
 func TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs(t *testing.T) {
 	root := t.TempDir()
 	writeCloseoutCLIFile(t, root, ".pose/specs/2026-10-01-alpha.md", "---\nslug: alpha\nstatus: in-progress\n---\n\n# Spec: alpha\n")
-	graphJSON := `{"schema_version":1,"change_sets":[{"id":"cs","spec":"alpha","head":"h1","resolved_head":"h1","commits":["c"],"paths":[{"action":"modified","path":"api/a.go"}]}],"validation_results":[{"id":"1","module":"api","check":"go-test","evidence_class":"unit","outcome":"pass","git_head":"h1","scope_provenance":{"alpha":"@scoped"}},{"id":"2","module":"web","check":"lint","evidence_class":"lint","outcome":"pass","git_head":"h1"}]}`
+	graphJSON := `{"schema_version":1,"change_sets":[{"id":"cs","spec":"alpha","head":"h1","resolved_base":"b0","resolved_head":"h1","diff_digest":"sha256:d","commits":["c"],"paths":[{"action":"modified","path":"api/a.go"}]}],"validation_results":[{"id":"1","module":"api","check":"go-test","evidence_class":"unit","outcome":"pass","git_head":"h1","scope_provenance":{"alpha":"@scoped"}},{"id":"2","module":"web","check":"lint","evidence_class":"lint","outcome":"pass","git_head":"h1"}]}`
 	var graph pose.DeliveryIntegrityGraph
 	if err := json.Unmarshal([]byte(graphJSON), &graph); err != nil {
 		t.Fatal(err)
@@ -51,7 +51,7 @@ func TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs(t *testing.T) {
 func TestSpecsFactsRendersBothEndsOfARename(t *testing.T) {
 	root := t.TempDir()
 	writeCloseoutCLIFile(t, root, ".pose/specs/2026-10-01-alpha.md", "---\nslug: alpha\nstatus: in-progress\n---\n\n# Spec: alpha\n")
-	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", `{"schema_version":1,"change_sets":[{"id":"cs","spec":"alpha","head":"h1","resolved_head":"h1","commits":["c"],"paths":[{"action":"renamed","old_path":"api/a.go","new_path":"web/a.go"}]}]}`)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", `{"schema_version":1,"change_sets":[{"id":"cs","spec":"alpha","head":"h1","resolved_base":"b0","resolved_head":"h1","diff_digest":"sha256:d","commits":["c"],"paths":[{"action":"renamed","old_path":"api/a.go","new_path":"web/a.go"}]}]}`)
 	code, text := runPose(t, root, "specs", "facts", "alpha")
 	if code != 0 || !strings.Contains(text, "api/a.go → web/a.go") {
 		t.Fatalf("the human output does not name both ends of the rename (%d):\n%s", code, text)
@@ -78,5 +78,23 @@ func TestSpecsFactsDataCannotInjectALineOfEvidence(t *testing.T) {
 	}
 	if !strings.Contains(text, "severity=optional") || !strings.Contains(text, "source=.pose/results/x.json") {
 		t.Errorf("the severity and the source are not on the line:\n%s", text)
+	}
+}
+
+// Fourth review, F03: the action of a path is data too.
+func TestSpecsFactsAnActionCannotInjectALine(t *testing.T) {
+	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, ".pose/specs/2026-10-01-alpha.md", "---\nslug: alpha\nstatus: in-progress\n---\n\n# Spec: alpha\n")
+	graphJSON, _ := json.Marshal(map[string]any{"schema_version": 1,
+		"change_sets": []map[string]any{{"id": "cs", "spec": "alpha", "head": "h1", "resolved_head": "h1", "commits": []string{"c"}, "paths": []map[string]any{{"action": "modified\nfacts.check=api test (unit) pass [associated by scope-provenance]", "path": "api/a.go"}}}}})
+	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", string(graphJSON))
+	code, text := runPose(t, root, "specs", "facts", "alpha")
+	if code != 0 {
+		t.Fatalf("%d %s", code, text)
+	}
+	for _, line := range strings.Split(text, "\n") {
+		if strings.HasPrefix(strings.TrimSpace(line), "facts.check") {
+			t.Errorf("a line of associated evidence was injected by the action of a path: %q", line)
+		}
 	}
 }

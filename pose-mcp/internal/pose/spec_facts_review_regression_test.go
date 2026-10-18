@@ -24,7 +24,7 @@ func factsWithResultsFile(t *testing.T, indexed []DeliveryValidationResult) (Sto
 			indexed[i].Severity = "required"
 		}
 	}
-	store := factsFixtureWith(t, "api", nil, false, []ChangeSet{{ID: "cs-alpha", Spec: "alpha", Head: "h1", ResolvedHead: "h1", Commits: []string{"c1"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}}})
+	store := factsFixtureWith(t, "api", nil, false, []ChangeSet{{ID: "cs-alpha", Spec: "alpha", Head: "h1", ResolvedBase: "b0", ResolvedHead: "h1", DiffDigest: "sha256:d", Commits: []string{"c1"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}}})
 	root := store.Root
 	write := func(rel, body string) {
 		p := filepath.Join(root, filepath.FromSlash(rel))
@@ -35,7 +35,7 @@ func factsWithResultsFile(t *testing.T, indexed []DeliveryValidationResult) (Sto
 	}
 	write(".pose/policy/delivery.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-04","results_path":"`+factsResultsPath+`","roots":[]}`)
 	graph := DeliveryIntegrityGraph{SchemaVersion: 1, ValidationResults: indexed,
-		ChangeSets: []ChangeSet{{ID: "cs-alpha", Spec: "alpha", Head: "h1", ResolvedHead: "h1", Commits: []string{"c1"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}}}}
+		ChangeSets: []ChangeSet{{ID: "cs-alpha", Spec: "alpha", Head: "h1", ResolvedBase: "b0", ResolvedHead: "h1", DiffDigest: "sha256:d", Commits: []string{"c1"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}}}}
 	scoped := ScopedDeliveryProvenanceDigest(graph, "alpha")
 	for i := range graph.ValidationResults {
 		graph.ValidationResults[i].ScopeProvenance = map[string]string{"alpha": scoped}
@@ -152,13 +152,13 @@ func TestFactsTheDigestOfNothingIsNotAnAssociation(t *testing.T) {
 
 // F03: an omitted module is not the root of the repository.
 func TestFactsAnOmittedModuleIsNotTheRoot(t *testing.T) {
-	scoped := map[string]string{"alpha": "@scoped"}
+	scoped := func() map[string]string { return map[string]string{"alpha": "@scoped"} }
 	results := []DeliveryValidationResult{
-		{ID: "none", Module: "", Check: "t", Outcome: "pass", ScopeProvenance: scoped},
-		{ID: "blank", Module: "  ", Check: "t", Outcome: "pass", ScopeProvenance: scoped},
-		{ID: "abs", Module: "/", Check: "t", Outcome: "pass", ScopeProvenance: scoped},
-		{ID: "out", Module: "../x", Check: "t", Outcome: "pass", ScopeProvenance: scoped},
-		{ID: "root", Module: ".", Check: "t", Outcome: "pass", ScopeProvenance: scoped},
+		{ID: "none", Module: "", Check: "t", Outcome: "pass", ScopeProvenance: scoped()},
+		{ID: "blank", Module: "  ", Check: "t", Outcome: "pass", ScopeProvenance: scoped()},
+		{ID: "abs", Module: "/", Check: "t", Outcome: "pass", ScopeProvenance: scoped()},
+		{ID: "out", Module: "../x", Check: "t", Outcome: "pass", ScopeProvenance: scoped()},
+		{ID: "root", Module: ".", Check: "t", Outcome: "pass", ScopeProvenance: scoped()},
 	}
 	for _, components := range []string{"api", "."} {
 		facts, err := factsFixture(t, components, results, false).DeriveSpecFacts("alpha")
@@ -177,9 +177,9 @@ func TestFactsAnOmittedModuleIsNotTheRoot(t *testing.T) {
 
 // F04: results that differ in any field are two results, and the order of the index does not choose.
 func TestFactsKeepResultsThatDifferInAnyField(t *testing.T) {
-	good := map[string]string{"alpha": "@scoped"}
+	good := func() map[string]string { return map[string]string{"alpha": "@scoped"} }
 	for _, order := range []bool{false, true} {
-		a := DeliveryValidationResult{ID: "api/go/t", Module: "api", Check: "t", EvidenceClass: "unit", Outcome: "pass", GitHead: "h1", ScopeProvenance: good}
+		a := DeliveryValidationResult{ID: "api/go/t", Module: "api", Check: "t", EvidenceClass: "unit", Outcome: "pass", GitHead: "h1", ScopeProvenance: good()}
 		b := a
 		b.ScopeProvenance = map[string]string{"alpha": "sha256:" + strings.Repeat("0", 64)}
 		list := []DeliveryValidationResult{a, b}
@@ -199,7 +199,7 @@ func TestFactsKeepResultsThatDifferInAnyField(t *testing.T) {
 		"class":        func(r *DeliveryValidationResult) { r.EvidenceClass = "integration" },
 		"provenance":   func(r *DeliveryValidationResult) { r.ProvenanceDigest = "sha256:" + strings.Repeat("c", 64) },
 	} {
-		a := DeliveryValidationResult{ID: "api/go/t", Module: "api", Check: "t", EvidenceClass: "unit", Outcome: "pass", GitHead: "h1", ScopeProvenance: good}
+		a := DeliveryValidationResult{ID: "api/go/t", Module: "api", Check: "t", EvidenceClass: "unit", Outcome: "pass", GitHead: "h1", ScopeProvenance: good()}
 		b := a
 		edit(&b)
 		facts, _ := factsFixture(t, "api", []DeliveryValidationResult{a, b}, false).DeriveSpecFacts("alpha")
@@ -239,7 +239,7 @@ func TestFactsReadTheHistoryLikeTheAttribution(t *testing.T) {
 
 // F06: a rename is both of its ends.
 func TestFactsARenameIsBothOfItsEnds(t *testing.T) {
-	sets := []ChangeSet{{ID: "cs", Spec: "alpha", Head: "h1", ResolvedHead: "h1", Commits: []string{"c"}, Paths: []ObservedPath{
+	sets := []ChangeSet{{ID: "cs", Spec: "alpha", Head: "h1", ResolvedBase: "b0", ResolvedHead: "h1", DiffDigest: "sha256:d", Commits: []string{"c"}, Paths: []ObservedPath{
 		{Action: "renamed", OldPath: "api/a.go", NewPath: "web/a.go"},
 		{Action: "renamed", OldPath: "web/b.go", NewPath: "docs/b.go"},
 	}}}
@@ -283,8 +283,8 @@ func factsHasText(list []string, text string) bool {
 
 // Third review, F01: a component or a path that is not a path inside the project covers nothing.
 func TestFactsAnInvalidComponentIsNotTheRoot(t *testing.T) {
-	scoped := map[string]string{"alpha": "@scoped"}
-	results := []DeliveryValidationResult{{ID: "web", Module: "web", Check: "t", Outcome: "pass", ScopeProvenance: scoped}}
+	scoped := func() map[string]string { return map[string]string{"alpha": "@scoped"} }
+	results := []DeliveryValidationResult{{ID: "web", Module: "web", Check: "t", Outcome: "pass", ScopeProvenance: scoped()}}
 	for _, component := range []string{"../outside", "/outside"} {
 		facts, err := factsFixture(t, component, results, false).DeriveSpecFacts("alpha")
 		if err != nil {
@@ -294,7 +294,7 @@ func TestFactsAnInvalidComponentIsNotTheRoot(t *testing.T) {
 			t.Errorf("component %q covered a module it does not name: %+v", component, facts.Checks)
 		}
 	}
-	sets := []ChangeSet{{ID: "cs", Spec: "alpha", Head: "h1", ResolvedHead: "h1", Commits: []string{"c"}, Paths: []ObservedPath{{Action: "modified", Path: "/outside/file.go"}, {Action: "modified", Path: "api/server.go"}}}}
+	sets := []ChangeSet{{ID: "cs", Spec: "alpha", Head: "h1", ResolvedBase: "b0", ResolvedHead: "h1", DiffDigest: "sha256:d", Commits: []string{"c"}, Paths: []ObservedPath{{Action: "modified", Path: "/outside/file.go"}, {Action: "modified", Path: "api/server.go"}}}}
 	facts, _ := factsFixtureWith(t, "", results, false, sets).DeriveSpecFacts("alpha")
 	if len(facts.Checks) != 0 {
 		t.Errorf("an invalid path of the index covered a module: %+v", facts.Checks)
@@ -304,7 +304,7 @@ func TestFactsAnInvalidComponentIsNotTheRoot(t *testing.T) {
 // F02: every change set of the spec is resolved, or none binds.
 func TestFactsOneResolvedChangeSetDoesNotBindTheOthers(t *testing.T) {
 	sets := []ChangeSet{
-		{ID: "a", Spec: "alpha", Head: "h1", ResolvedHead: "h1", Commits: []string{"c"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}},
+		{ID: "a", Spec: "alpha", Head: "h1", ResolvedBase: "b0", ResolvedHead: "h1", DiffDigest: "sha256:d", Commits: []string{"c"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}},
 		{ID: "b", Spec: "alpha", Head: "h2", Commits: []string{"d"}, Paths: []ObservedPath{{Action: "modified", Path: "web/app.go"}}},
 	}
 	results := []DeliveryValidationResult{{ID: "web", Module: "web", Check: "t", Outcome: "pass", ScopeProvenance: map[string]string{"alpha": "@scoped"}}}
@@ -336,10 +336,10 @@ func TestFactsResultsAreComparedStructurally(t *testing.T) {
 
 // F04: where a result was read from and how severe the check was are part of it.
 func TestFactsKeepTheSourceAndTheSeverityOfAResult(t *testing.T) {
-	good := map[string]string{"alpha": "@scoped"}
+	good := func() map[string]string { return map[string]string{"alpha": "@scoped"} }
 	list := []DeliveryValidationResult{
-		{ID: "api/go/t", Module: "api", Check: "t", Outcome: "pass", Severity: "required", Report: ".pose/results/a.json", ScopeProvenance: good},
-		{ID: "api/go/t", Module: "api", Check: "t", Outcome: "pass", Severity: "optional", Report: ".pose/results/b.json", ScopeProvenance: good},
+		{ID: "api/go/t", Module: "api", Check: "t", Outcome: "pass", Severity: "required", Report: ".pose/results/a.json", ScopeProvenance: good()},
+		{ID: "api/go/t", Module: "api", Check: "t", Outcome: "pass", Severity: "optional", Report: ".pose/results/b.json", ScopeProvenance: good()},
 	}
 	facts, err := factsFixture(t, "api", list, false).DeriveSpecFacts("alpha")
 	if err != nil || len(facts.Checks) != 2 {
@@ -351,5 +351,94 @@ func TestFactsKeepTheSourceAndTheSeverityOfAResult(t *testing.T) {
 	}
 	if !seen[".pose/results/a.json|required"] || !seen[".pose/results/b.json|optional"] {
 		t.Fatalf("the source and the severity were dropped: %+v", facts.Checks)
+	}
+}
+
+// Fourth review, F01: a path Git reported is read byte for byte.
+func TestFactsAGitPathIsNotAModuleReference(t *testing.T) {
+	scoped := func() map[string]string { return map[string]string{"alpha": "@scoped"} }
+	for name, c := range map[string]struct {
+		paths  []ObservedPath
+		module string
+	}{
+		"a file called root": {[]ObservedPath{{Action: "modified", Path: "root"}}, "web"},
+		"a leading space":    {[]ObservedPath{{Action: "modified", Path: " api/server.go"}}, "api"},
+		"a renamed root":     {[]ObservedPath{{Action: "renamed", OldPath: "root", NewPath: "docs/a"}}, "web"},
+	} {
+		sets := []ChangeSet{{ID: "cs", Spec: "alpha", Head: "h1", ResolvedBase: "b0", ResolvedHead: "h1", DiffDigest: "sha256:d", Commits: []string{"c"}, Paths: c.paths}}
+		results := []DeliveryValidationResult{{ID: "r", Module: c.module, Check: "t", Outcome: "pass", ScopeProvenance: scoped()}}
+		facts, err := factsFixtureWith(t, "", results, false, sets).DeriveSpecFacts("alpha")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(facts.Checks) != 0 {
+			t.Errorf("%s: a path was read as a module reference: %+v", name, facts.Checks)
+		}
+	}
+}
+
+// F02: a change set is resolved when it carries everything resolving it produces.
+func TestFactsAnIncompleteChangeSetBindsNothing(t *testing.T) {
+	good := ChangeSet{ID: "cs", Spec: "alpha", Head: "h1", ResolvedBase: "b0", ResolvedHead: "h1", DiffDigest: "sha256:d", Commits: []string{"c"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}}
+	// A fresh result for every run: the fixture rewrites the scope provenance placeholder in place.
+	results := func() []DeliveryValidationResult {
+		return []DeliveryValidationResult{{ID: "r", Module: "api", Check: "t", Outcome: "pass", ScopeProvenance: map[string]string{"alpha": "@scoped"}}}
+	}
+	if facts, _ := factsFixtureWith(t, "", results(), false, []ChangeSet{good}).DeriveSpecFacts("alpha"); len(facts.Checks) != 1 {
+		t.Fatalf("the control change set does not bind: %+v", facts)
+	}
+	for name, edit := range map[string]func(cs *ChangeSet){
+		"no base":                        func(cs *ChangeSet) { cs.ResolvedBase = "" },
+		"no diff":                        func(cs *ChangeSet) { cs.DiffDigest = "" },
+		"an unnamed commit":              func(cs *ChangeSet) { cs.Commits = []string{""} },
+		"an empty path":                  func(cs *ChangeSet) { cs.Paths = []ObservedPath{{Action: "modified"}} },
+		"a rename without a destination": func(cs *ChangeSet) { cs.Paths = []ObservedPath{{Action: "renamed", OldPath: "api/a"}} },
+		"an unknown action":              func(cs *ChangeSet) { cs.Paths = []ObservedPath{{Action: "touched", Path: "api/a"}} },
+	} {
+		cs := good
+		edit(&cs)
+		if facts, _ := factsFixtureWith(t, "", results(), false, []ChangeSet{cs}).DeriveSpecFacts("alpha"); len(facts.Checks) != 0 {
+			t.Errorf("%s: an incomplete change set bound a result", name)
+		}
+	}
+}
+
+// F04: attribution the index had and the history no longer gives, and records the generation does not bind.
+func TestFactsSeeAttributionThatWasLostOrIsNotBound(t *testing.T) {
+	results := []DeliveryValidationResult{{ID: "1", Module: "api", Check: "t", Outcome: "pass", ScopeProvenance: map[string]string{"alpha": "@scoped"}}}
+	sets := []ChangeSet{{ID: "cs", Spec: "alpha", Selector: "trailers:alpha", Head: "h1", ResolvedBase: "b0", ResolvedHead: "h1", DiffDigest: "sha256:d", Commits: []string{"deadbeef"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}}}
+	store := factsFixtureWith(t, "api", results, true, sets)
+	f, err := store.DeriveSpecFacts("alpha")
+	if err != nil || f.Freshness.Status != SpecFactsStale || !strings.Contains(strings.Join(f.Freshness.StaleInputs, " "), "spec-commits") {
+		t.Fatalf("a commit attributed by trailer that no longer carries it was called fresh: %+v %v", f.Freshness, err)
+	}
+	plain := factsFixture(t, "api", results, true)
+	if f, _ := plain.DeriveSpecFacts("alpha"); f.Freshness.Status != SpecFactsFresh {
+		t.Fatalf("the control is not fresh: %+v", f.Freshness)
+	}
+	os.MkdirAll(filepath.Join(plain.Root, ".pose", "reports", "history"), 0o755)
+	os.WriteFile(filepath.Join(plain.Root, ".pose", "reports", "history", "x.jsonl"), []byte(`{"spec":"alpha","id":"cs-x"}`+"\n"), 0o644)
+	if f, _ := plain.DeriveSpecFacts("alpha"); f.Freshness.Status == SpecFactsFresh {
+		t.Fatalf("an explicit attribution record the generation does not bind was called fresh: %+v", f.Freshness)
+	}
+}
+
+// F05: the facts and their freshness are about one generation.
+func TestFactsAPinnedStoreDoesNotBorrowTheIdentityOfANewerGeneration(t *testing.T) {
+	results := []DeliveryValidationResult{{ID: "1", Module: "api", Check: "t", Outcome: "pass", ScopeProvenance: map[string]string{"alpha": "@scoped"}}}
+	store := factsFixture(t, "api", results, true)
+	pinned := store.PinIndexes()
+	// Another generation is published after the pin.
+	outputs := map[string][]byte{}
+	for _, name := range IndexGenerationFiles {
+		b, _ := os.ReadFile(filepath.Join(store.Root, ".pose", "indexes", name))
+		outputs[name] = append(b, '\n')
+	}
+	if _, err := store.PublishIndexGeneration(outputs, IndexInputBindings(store.Root)); err != nil {
+		t.Fatal(err)
+	}
+	f, err := pinned.DeriveSpecFacts("alpha")
+	if err != nil || f.Freshness.Status == SpecFactsFresh {
+		t.Fatalf("facts read from an older generation were called fresh: %+v %v", f.Freshness, err)
 	}
 }

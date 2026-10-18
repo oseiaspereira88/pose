@@ -221,7 +221,7 @@ func cmdSpecFacts(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	out.Field("facts.commits", fmt.Sprint(facts.Commits))
 	for _, p := range facts.Paths {
-		out.Field("facts.path", p.Action+": "+observedPathText(p))
+		out.Field("facts.path", safeText(p.Action)+": "+observedPathText(p))
 	}
 	for _, c := range facts.Checks {
 		out.Field("facts.check", factLine(c, "associated by "+c.Basis))

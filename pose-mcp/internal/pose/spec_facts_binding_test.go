@@ -14,7 +14,7 @@ import (
 
 func factsFixture(t *testing.T, components string, results []DeliveryValidationResult, publish bool) Store {
 	t.Helper()
-	return factsFixtureWith(t, components, results, publish, []ChangeSet{{ID: "cs-alpha", Spec: "alpha", Head: "h1", ResolvedHead: "h1", Commits: []string{"c1"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}}})
+	return factsFixtureWith(t, components, results, publish, []ChangeSet{{ID: "cs-alpha", Spec: "alpha", Head: "h1", ResolvedBase: "b0", ResolvedHead: "h1", DiffDigest: "sha256:d", Commits: []string{"c1"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}}})
 }
 
 // factsFixtureWith is factsFixture with the change sets the index holds for the spec.
@@ -266,14 +266,14 @@ func TestFactsAssociateOnlyAScopeProvenanceThatMatches(t *testing.T) {
 // F02: a result of a module the spec does not cover is not associated, however its
 // provenance reads: siblings, descendants, prefixes and aliases of paths.
 func TestFactsAssociateOnlyAModuleThatCoversTheSpec(t *testing.T) {
-	scoped := map[string]string{"alpha": "@scoped"}
+	scoped := func() map[string]string { return map[string]string{"alpha": "@scoped"} }
 	results := []DeliveryValidationResult{
-		{ID: "same", Module: "api", Check: "t", Outcome: "pass", ScopeProvenance: scoped},
-		{ID: "web", Module: "web", Check: "t", Outcome: "pass", ScopeProvenance: scoped},
-		{ID: "sub", Module: "api/sub", Check: "t", Outcome: "pass", ScopeProvenance: scoped},
-		{ID: "prefix", Module: "api2", Check: "t", Outcome: "pass", ScopeProvenance: scoped},
-		{ID: "alias", Module: "api/../web", Check: "t", Outcome: "pass", ScopeProvenance: scoped},
-		{ID: "root", Module: ".", Check: "t", Outcome: "pass", ScopeProvenance: scoped},
+		{ID: "same", Module: "api", Check: "t", Outcome: "pass", ScopeProvenance: scoped()},
+		{ID: "web", Module: "web", Check: "t", Outcome: "pass", ScopeProvenance: scoped()},
+		{ID: "sub", Module: "api/sub", Check: "t", Outcome: "pass", ScopeProvenance: scoped()},
+		{ID: "prefix", Module: "api2", Check: "t", Outcome: "pass", ScopeProvenance: scoped()},
+		{ID: "alias", Module: "api/../web", Check: "t", Outcome: "pass", ScopeProvenance: scoped()},
+		{ID: "root", Module: ".", Check: "t", Outcome: "pass", ScopeProvenance: scoped()},
 	}
 	facts, err := factsFixture(t, "api", results, false).DeriveSpecFacts("alpha")
 	if err != nil {
@@ -295,11 +295,11 @@ func TestFactsAssociateOnlyAModuleThatCoversTheSpec(t *testing.T) {
 
 // F04: two results that share a module and a check name are two results.
 func TestFactsKeepEveryDistinctResult(t *testing.T) {
-	scoped := map[string]string{"alpha": "@scoped"}
+	scoped := func() map[string]string { return map[string]string{"alpha": "@scoped"} }
 	for _, order := range [][]string{{"pass", "fail"}, {"fail", "pass"}} {
 		var results []DeliveryValidationResult
 		for i, outcome := range order {
-			results = append(results, DeliveryValidationResult{ID: "api/s" + string(rune('a'+i)) + "/t", Module: "api", Check: "t", Outcome: outcome, ScopeProvenance: scoped})
+			results = append(results, DeliveryValidationResult{ID: "api/s" + string(rune('a'+i)) + "/t", Module: "api", Check: "t", Outcome: outcome, ScopeProvenance: scoped()})
 		}
 		facts, err := factsFixture(t, "api", results, false).DeriveSpecFacts("alpha")
 		if err != nil {
