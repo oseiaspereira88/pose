@@ -215,19 +215,49 @@ func cmdSpecFacts(root string, args []string, stdout, stderr io.Writer) int {
 		freshness += " — " + facts.Freshness.Reason
 	}
 	out.Field("facts.freshness", freshness)
+	if facts.Freshness.Generation != "" {
+		out.Field("facts.generation", facts.Freshness.Generation)
+	}
 	out.Field("facts.commits", fmt.Sprint(facts.Commits))
 	for _, p := range facts.Paths {
 		out.Field("facts.path", p.Action+": "+p.Path)
 	}
 	for _, c := range facts.Checks {
-		out.Field("facts.check", c.Module+" "+c.Check+" ("+c.EvidenceClass+") "+c.Outcome+" [associated by "+c.Basis+"; "+c.Binding.Head+"]")
+		out.Field("facts.check", factLine(c, "associated by "+c.Basis))
 	}
 	for _, c := range facts.Candidates {
 		// Labelled so a copied line is never read as evidence that this spec ran the check.
-		out.Field("facts.candidate", c.Module+" "+c.Check+" ("+c.EvidenceClass+") "+c.Outcome+" [CANDIDATE, not evidence of this spec: "+strings.Join(c.Limits, "; ")+"]")
+		out.Field("facts.candidate", factLine(c, "CANDIDATE, not evidence of this spec; basis "+c.Basis))
 	}
 	for _, l := range facts.Limitations {
 		out.Field("facts.limitation", l)
 	}
 	return 0
+}
+
+// factLine is one result as a copyable line: what it is, what it is bound to and every limit
+// it carries, the same facts the JSON holds.
+func factLine(c pose.SpecFactCheck, label string) string {
+	line := c.Module + " " + c.Check + " (" + c.EvidenceClass + ") " + c.Outcome
+	if c.ID != "" {
+		line += " id=" + c.ID
+	}
+	line += " [" + label + "; " + c.Binding.Head
+	if c.Binding.GitHead != "" {
+		line += " git_head=" + c.Binding.GitHead
+	}
+	if c.Binding.GeneratedAt != "" {
+		line += " generated_at=" + c.Binding.GeneratedAt
+	}
+	if c.Binding.ProvenanceDigest != "" {
+		line += " provenance=" + c.Binding.ProvenanceDigest
+	}
+	if c.Binding.ScopedDigest != "" {
+		line += " scoped=" + c.Binding.ScopedDigest
+	}
+	line += "]"
+	if len(c.Limits) > 0 {
+		line += " limits: " + strings.Join(c.Limits, "; ")
+	}
+	return line
 }

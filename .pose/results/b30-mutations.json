@@ -64,8 +64,48 @@
       "mutation": "saída humana sem frescor",
       "tests": "TestSpecsFactsLabelsCandidates",
       "verdict": "killed"
+    },
+    {
+      "mutation": "chave presente vale como associação",
+      "tests": "TestFactsAssociateOnlyAScopeProvenanceThatMatches",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "módulo alheio é associado",
+      "tests": "TestFactsAssociateOnlyAModuleThatCovers",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "resultados do mesmo módulo e check colapsam",
+      "tests": "TestFactsKeepEveryDistinctResult",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "geração sem bindings é fresh",
+      "tests": "TestFactsAGenerationThatBindsNothingIsUnknown",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "arquivo de índice divergente é fresh",
+      "tests": "TestFactsAreFreshOnlyForWhatIsVerified",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "arquivo de resultados trocado é fresh",
+      "tests": "TestFactsAreFreshOnlyForWhatIsVerified",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "commit do spec fora do índice é fresh",
+      "tests": "TestFactsSeeACommitOfTheSpec",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "saída humana omite limites",
+      "tests": "TestSpecsFactsLabelsCandidates",
+      "verdict": "killed"
     }
   ],
-  "killed": 13,
-  "total": 13
+  "killed": 21,
+  "total": 21
 }

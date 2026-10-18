@@ -4,13 +4,20 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+
+	"github.com/harne8/pose-mcp/internal/pose"
 )
 
 // Spec pose-spec-facts-evidence-binding: the human text and the JSON carry one classification.
 func TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs(t *testing.T) {
 	root := t.TempDir()
 	writeCloseoutCLIFile(t, root, ".pose/specs/2026-10-01-alpha.md", "---\nslug: alpha\nstatus: in-progress\n---\n\n# Spec: alpha\n")
-	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", `{"schema_version":1,"change_sets":[{"id":"cs","spec":"alpha","head":"h1","resolved_head":"h1","commits":["c"],"paths":[{"action":"modified","path":"a.go"}]}],"validation_results":[{"id":"1","module":"api","check":"go-test","evidence_class":"unit","outcome":"pass","git_head":"h1","scope_provenance":{"alpha":"x"}},{"id":"2","module":"web","check":"lint","evidence_class":"lint","outcome":"pass","git_head":"h1"}]}`)
+	graphJSON := `{"schema_version":1,"change_sets":[{"id":"cs","spec":"alpha","head":"h1","resolved_head":"h1","commits":["c"],"paths":[{"action":"modified","path":"api/a.go"}]}],"validation_results":[{"id":"1","module":"api","check":"go-test","evidence_class":"unit","outcome":"pass","git_head":"h1","scope_provenance":{"alpha":"@scoped"}},{"id":"2","module":"web","check":"lint","evidence_class":"lint","outcome":"pass","git_head":"h1"}]}`
+	var graph pose.DeliveryIntegrityGraph
+	if err := json.Unmarshal([]byte(graphJSON), &graph); err != nil {
+		t.Fatal(err)
+	}
+	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", strings.ReplaceAll(graphJSON, "@scoped", pose.ScopedDeliveryProvenanceDigest(graph, "alpha")))
 	code, out := runPose(t, root, "specs", "facts", "alpha", "--json")
 	if code != 0 {
 		t.Fatalf("%d %s", code, out)
@@ -30,7 +37,7 @@ func TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("%d %s", code, text)
 	}
-	for _, want := range []string{"facts.freshness", "unknown", "associated by scope-provenance", "CANDIDATE, not evidence of this spec"} {
+	for _, want := range []string{"facts.freshness", "unknown", "associated by scope-provenance", "CANDIDATE, not evidence of this spec", "git_head=h1", "scoped=sha256:", "limits: "} {
 		if !strings.Contains(text, want) {
 			t.Errorf("the human output lacks %q:\n%s", want, text)
 		}

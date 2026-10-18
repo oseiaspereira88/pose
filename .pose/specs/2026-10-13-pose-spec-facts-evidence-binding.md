@@ -62,6 +62,9 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - created: pose-mcp/internal/cli/spec_facts_binding_test.go
 - created: .pose/results/b30-mutations.py
 - created: .pose/results/b30-mutations.json
+- created: .pose/reports/2026-10-18-pose-b30-independent-review.md
+- created: .pose/results/b30-independent-review.json
+- created: .pose/results/b30-independent-global-validation.json
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
@@ -113,13 +116,13 @@ Testes de execução ainda não foram criados ou executados para este delta.
 
 ### Requirement trace
 
-- R1 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSeparateAssociatedEvidenceFromCandidates test:TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs
-- R2 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSeparateAssociatedEvidenceFromCandidates
-- R3 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSayHowFreshTheIndexIs
+- R1 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSeparateAssociatedEvidenceFromCandidates test:TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs test:TestFactsAssociateOnlyAScopeProvenanceThatMatches test:TestFactsAssociateOnlyAModuleThatCoversTheSpec test:TestFactsKeepEveryDistinctResult
+- R2 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSeparateAssociatedEvidenceFromCandidates test:TestFactsAssociateOnlyAScopeProvenanceThatMatches test:TestFactsAssociateOnlyAModuleThatCoversTheSpec
+- R3 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSayHowFreshTheIndexIs test:TestFactsAreFreshOnlyForWhatIsVerified test:TestFactsAGenerationThatBindsNothingIsUnknown test:TestFactsSeeACommitOfTheSpecThatTheIndexDoesNotHold
 - R4 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsKeepAResultOfAnotherHeadWithItsSource
 - R5 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsAreStableAndReadOnly
 - R6 [satisfied] check:spec-facts-evidence-binding-integration test:TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs
-- R7 [satisfied] check:spec-facts-evidence-binding-integration report:b30-mutations.json — resultados de outro módulo, componentes vazios, provenance ausente e índice stale/desconhecido/indisponível são exercitados; as mutações de produção morrem por asserção
+- R7 [satisfied] check:spec-facts-evidence-binding-integration report:b30-mutations.json test:TestFactsKeepEveryDistinctResult — resultados de outro módulo, componentes vazios, provenance ausente e índice stale/desconhecido/indisponível são exercitados; as mutações de produção morrem por asserção
 - R8 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsAreStableAndReadOnly test:TestFactsSayHowFreshTheIndexIs
 
 Os facts não são expostos por uma tool MCP própria: o consumidor é `pose specs facts` (texto e `--json`), que carrega a mesma estrutura.
@@ -136,5 +139,14 @@ O index atual pode não carregar bindings suficientes para associação forte; d
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Primeira revisão independente (changes-requested, cinco bloqueantes) tratada: a associação exige
+o digest de escopo igual ao que as claims e change sets da spec dão hoje e um módulo que cobre os
+componentes ou paths atribuídos; resultados distintos não colapsam; `fresh` só vale com todos os
+inputs da geração vinculados, arquivos de índice iguais aos publicados, arquivo de resultados
+coerente com o índice e sem commit da spec fora dele; o texto humano traz os mesmos limites e
+identidades do JSON. Itens abertos, de baixo risco:
+
+- [open] Normalizar referências de componente quando forem paths e distinguir ID de componente de path na explicação do candidato. (owner:@core crit:low review:2026-12-01)
+- [open] Projetar o frescor `unavailable` em vez de devolver erro quando o índice está ausente ou corrompido. (owner:@core crit:low review:2026-12-01)
+
+As dependências e unidades restantes permanecem na matriz do programa, sem disposição automática.
