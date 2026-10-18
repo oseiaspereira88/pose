@@ -23,7 +23,7 @@ var (
 	optionalSections = []string{"Decisions"}
 	validStatus      = map[string]bool{"draft": true, "in-progress": true, "done": true, "blocked": true, "superseded": true, "abandoned": true}
 
-	validDispositions       = map[string]bool{"open": true, "spawned": true, "covered": true, "duplicate": true, "done": true, "wont-do": true}
+	validDispositions       = posepkg.KnownFollowupDispositions
 	dispositionNeedsTarget  = map[string]bool{"spawned": true, "covered": true, "duplicate": true, "wont-do": true}
 	dispositionSlugTargeted = map[string]bool{"spawned": true, "covered": true, "duplicate": true}
 

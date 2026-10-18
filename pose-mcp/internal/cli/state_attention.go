@@ -72,6 +72,12 @@ func cmdStateAttention(root string, args []string, stdout, stderr io.Writer) int
 			limits = append(limits, "snapshot=incoherent")
 		}
 		out.Field("attention.coverage", "INCOMPLETE — "+strings.Join(limits, ", ")+"; an empty group below does not mean nothing is owed there")
+		// Where to look: what each producer could not read, by name.
+		for _, c := range attention.Coverage {
+			if c.State != pose.CoverageStateCurrent && c.Detail != "" {
+				out.Field("attention.coverage."+c.Producer, c.State+" — "+c.Detail)
+			}
+		}
 	} else {
 		out.Field("attention.coverage", "complete")
 	}
@@ -141,7 +147,11 @@ func attentionLine(o pose.Obligation) string {
 	if len(o.Targets) > 0 {
 		target = o.Targets[0].String()
 	}
-	return fmt.Sprintf("[%s %s] %s — needs %s; restricts %s; target %s; satisfied when %s", o.Category, o.ReasonCode, o.Message, who, strings.Join(phases, ","), target, o.Condition)
+	line := fmt.Sprintf("[%s %s] %s — needs %s; restricts %s; target %s; satisfied when %s", o.Category, o.ReasonCode, o.Message, who, strings.Join(phases, ","), target, o.Condition)
+	if len(o.Observation.Limitations) > 0 {
+		line += "; limits: " + strings.Join(o.Observation.Limitations, "; ")
+	}
+	return line
 }
 
 func shortRev(value string) string {

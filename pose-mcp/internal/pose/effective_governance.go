@@ -52,6 +52,9 @@ type GovernanceScopeContext struct {
 	// sealed before they existed and is never held to them.
 	NotStamped        []string `json:"not_stamped,omitempty"`
 	IdentityAssurance string   `json:"identity_assurance,omitempty"`
+	// HistoryIncomplete names the sealed bundle records that could not be read and may
+	// belong to this scope: the bundle above is the latest that could be read.
+	HistoryIncomplete string `json:"history_incomplete,omitempty"`
 }
 
 const GovernanceProjectionSchemaVersion = 1
@@ -225,10 +228,12 @@ func (s Store) EffectiveGovernance(scope string) (GovernanceProjection, error) {
 	if scope != "" {
 		out.Scope = scope
 		ctx := &GovernanceScopeContext{}
-		bundles, listErr := s.ListReviewBundles(scope)
+		bundlesRead, listErr := s.ReadReviewBundles(scope)
 		if listErr != nil {
 			return out, listErr
 		}
+		bundles := bundlesRead.Bundles
+		ctx.HistoryIncomplete = bundlesRead.Coverage.Describe(scope)
 		if len(bundles) > 0 {
 			latest := bundles[len(bundles)-1]
 			ctx.BundleID, ctx.Sealed = latest.BundleID, latest.State == "sealed"

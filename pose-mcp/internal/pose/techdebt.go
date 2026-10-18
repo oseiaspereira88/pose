@@ -1,11 +1,11 @@
 package pose
 
 import (
-	"bufio"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -49,6 +49,14 @@ type TechDebtReportState struct {
 	BaselineCommit string          `json:"baseline_commit"`
 	Summary        TechDebtSummary `json:"summary"`
 	Items          []TechDebtItem  `json:"items"`
+	// Scope says what the scan covered (spec pose-source-coverage-integrity): the
+	// files it read, the ones it could not read (Coverage.Losses) and the ones it
+	// leaves out on purpose (Coverage.Exclusions). Zero markers with Complete false
+	// does not mean the project has none, and with exclusions it means none in the
+	// files that were scanned.
+	ScannedFiles int            `json:"scanned_files"`
+	Complete     bool           `json:"complete"`
+	Coverage     SourceCoverage `json:"coverage"`
 }
 
 type debtCoverageDocument struct {
@@ -186,7 +194,20 @@ func activeAssessmentStatus(status string) bool {
 }
 
 func (s Store) debtCoverageDocuments() []debtCoverageDocument {
+	documents, _ := s.debtCoverageDocumentsRead()
+	return documents
+}
+
+// debtCoverageDocumentsRead is debtCoverageDocuments and the backlog documents it could
+// not read. A marker is reported "uncovered" when no document names it; a document that
+// could not be read may have named it, so the classification is only as complete as this
+// read (spec pose-source-coverage-integrity).
+func (s Store) debtCoverageDocumentsRead() ([]debtCoverageDocument, []SourceLoss) {
 	var documents []debtCoverageDocument
+	var losses []SourceLoss
+	lose := func(artifact, kind, detail string) {
+		losses = append(losses, SourceLoss{Producer: "techdebt-reconciliation", Artifact: artifact, Kind: kind, Detail: detail})
+	}
 	if specs, err := s.ListSpecs("", ""); err == nil {
 		for _, item := range specs {
 			if !activeAssessmentStatus(item.Status) {
@@ -197,8 +218,16 @@ func (s Store) debtCoverageDocuments() []debtCoverageDocument {
 				documents = append(documents, debtCoverageDocument{
 					Coverage: "covered_by_spec", Ref: "spec:" + item.Slug, Text: strings.ToLower(spec.Body),
 				})
+			} else {
+				lose("spec:"+item.Slug, LossReadError, err.Error())
 			}
 		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		lose(".pose/specs", LossReadError, err.Error())
+	}
+	// Specs the listing cannot see at all (a file it could not read) are still backlog.
+	for _, loss := range ReadSpecFollowups(s.Root).Coverage.Losses {
+		lose(loss.Artifact, loss.Kind, loss.Detail)
 	}
 	if roadmaps, err := s.ListRoadmaps(); err == nil {
 		for _, item := range roadmaps {
@@ -210,10 +239,40 @@ func (s Store) debtCoverageDocuments() []debtCoverageDocument {
 				documents = append(documents, debtCoverageDocument{
 					Coverage: "covered_by_roadmap", Ref: "roadmap:" + item.Slug, Text: strings.ToLower(roadmap.Body),
 				})
+			} else {
+				lose("roadmap:"+item.Slug, LossReadError, err.Error())
 			}
 		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		lose(".pose/roadmaps", LossReadError, err.Error())
 	}
-	if state, err := s.ProjectState(context.Background(), "Follow-ups"); err == nil {
+	// Roadmaps the listing cannot see are still backlog: a link to nowhere or a file
+	// that cannot be opened is listed by the directory and absent from ListRoadmaps.
+	if entries, dirErr := os.ReadDir(filepath.Join(s.Root, ".pose", "roadmaps")); dirErr == nil {
+		for _, entry := range entries {
+			name := entry.Name()
+			if entry.IsDir() || !strings.HasSuffix(name, ".md") || strings.EqualFold(name, "README.md") {
+				continue
+			}
+			full := filepath.Join(s.Root, ".pose", "roadmaps", name)
+			if _, statErr := os.Stat(full); statErr != nil {
+				lose(".pose/roadmaps/"+name, LossReadError, statErr.Error())
+			} else if f, openErr := os.Open(full); openErr != nil {
+				lose(".pose/roadmaps/"+name, LossReadError, openErr.Error())
+			} else {
+				f.Close()
+			}
+		}
+	} else if _, lerr := os.Lstat(filepath.Join(s.Root, ".pose", "roadmaps")); !errors.Is(dirErr, os.ErrNotExist) || lerr == nil {
+		lose(".pose/roadmaps", LossReadError, dirErr.Error())
+	}
+	statePath := filepath.Join(s.Root, ".pose", "state", "project-state.md")
+	if state, err := s.ProjectState(context.Background(), "Follow-ups"); err != nil {
+		if _, lerr := os.Lstat(statePath); lerr == nil || !errors.Is(lerr, os.ErrNotExist) {
+			// Present, or not provably absent (an unreadable parent says nothing).
+			lose(".pose/state/project-state.md", LossReadError, err.Error())
+		}
+	} else if err == nil {
 		for _, section := range state.Sections {
 			if section.Name == "Follow-ups" {
 				documents = append(documents, debtCoverageDocument{
@@ -223,7 +282,7 @@ func (s Store) debtCoverageDocuments() []debtCoverageDocument {
 		}
 	}
 	sort.Slice(documents, func(i, j int) bool { return documents[i].Ref < documents[j].Ref })
-	return documents
+	return documents, losses
 }
 
 // documentCoversDebt reports whether a backlog document actually addresses this
@@ -264,20 +323,17 @@ func techDebtID(relPath, marker, snippet string) string {
 	return "DEBT-" + hex.EncodeToString(sum[:4])
 }
 
+// scanAssessmentFileForDebt scans the bytes the file scan already read, line by line.
+// It does not reopen the file and has no line limit: a bufio.Scanner stops at a
+// token longer than its buffer and reports it only through Err, which the scan
+// ignored, so a TODO after a 70 000-character line was lost without a word.
 func scanAssessmentFileForDebt(file assessmentFile) []TechDebtItem {
-	handle, err := os.Open(file.AbsPath)
-	if err != nil {
-		return nil
-	}
-	defer handle.Close()
-
 	var result []TechDebtItem
-	scanner := bufio.NewScanner(handle)
 	lex := debtLexState{rust: file.Ext == ".rs"}
 	lineNumber := 0
-	for scanner.Scan() {
+	for _, line := range strings.Split(file.Content, "\n") {
 		lineNumber++
-		line := scanner.Text()
+		line = strings.TrimSuffix(line, "\r")
 		trimmed := strings.TrimSpace(line)
 		for _, marker := range lex.markers(line) {
 			result = append(result, TechDebtItem{
@@ -293,18 +349,25 @@ func scanAssessmentFileForDebt(file assessmentFile) []TechDebtItem {
 
 // AnalyzeTechDebt scans project source once and reconciles markers with active POSE backlog evidence.
 func (s Store) AnalyzeTechDebt() (*TechDebtReportState, error) {
-	files, err := s.assessmentFiles()
+	files, coverage, err := s.assessmentFilesRead()
 	if err != nil {
 		return nil, err
 	}
 	items := []TechDebtItem{}
+	scanned := 0
 	for _, file := range files {
 		if !isDebtSourceExt(file.Ext) || isIntegrationTestFile(file.RelPath) {
 			continue
 		}
+		scanned++
 		items = append(items, scanAssessmentFileForDebt(file)...)
 	}
-	documents := s.debtCoverageDocuments()
+	coverage.Normalize()
+	documents, documentLosses := s.debtCoverageDocumentsRead()
+	for _, loss := range documentLosses {
+		coverage.Add(loss)
+	}
+	coverage.Normalize()
 	componentCounts := make(map[string]int)
 	componentFiles := make(map[string]map[string]bool)
 	for _, item := range items {
@@ -358,6 +421,7 @@ func (s Store) AnalyzeTechDebt() (*TechDebtReportState, error) {
 	return &TechDebtReportState{
 		SchemaVersion: 1, EvaluatedAt: time.Now().UTC().Format(time.RFC3339),
 		BaselineCommit: s.resolveGitCommit(), Summary: summary, Items: items,
+		ScannedFiles: scanned, Complete: coverage.Complete(), Coverage: coverage,
 	}, nil
 }
 
@@ -393,7 +457,7 @@ func (s Store) SaveTechDebtReport(report *TechDebtReportState) error {
 - **Cobertos por Backlog Ativo**: %d
 - **Não Cobertos**: %d
 - **Recomendações**: %d Follow-ups | %d Specs | %d Roadmaps
-
+%s
 ## 2. Ocorrências
 
 | ID | Marcador | Componente | Arquivo e Linha | Cobertura | Evidência | Recomendação |
@@ -401,7 +465,8 @@ func (s Store) SaveTechDebtReport(report *TechDebtReportState) error {
 `, s.projectLabel(), report.EvaluatedAt, report.BaselineCommit, report.Summary.TotalMarkers,
 		report.Summary.TODOs, report.Summary.FIXMEs, report.Summary.Hacks, report.Summary.Panics,
 		report.Summary.Stubs, report.Summary.CoveredCount, report.Summary.UncoveredCount,
-		report.Summary.RecommendedFollowups, report.Summary.RecommendedSpecs, report.Summary.RecommendedRoadmaps)
+		report.Summary.RecommendedFollowups, report.Summary.RecommendedSpecs, report.Summary.RecommendedRoadmaps,
+		techDebtScopeMarkdown(report))
 	limit := len(report.Items)
 	if limit > 100 {
 		limit = 100
@@ -421,4 +486,20 @@ func (s Store) SaveTechDebtReport(report *TechDebtReportState) error {
 		"- Estenda o roadmap quando a dívida atravessar vários arquivos e exigir coordenação sistêmica.\n" +
 		"- Não crie recomendação nova quando uma spec, roadmap ou follow-up ativo já cobrir a ocorrência.\n"
 	return os.WriteFile(s.TechDebtReportPath(), []byte(md), 0o644)
+}
+
+// techDebtScopeMarkdown says what the scan covered, so a report with no markers does not
+// read as a project with none.
+func techDebtScopeMarkdown(report *TechDebtReportState) string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "- **Escopo do scan**: %d arquivo(s) de código lidos", report.ScannedFiles)
+	if report.Complete {
+		b.WriteString("; nenhum arquivo ilegível\n")
+	} else {
+		fmt.Fprintf(&b, "; **INCOMPLETO** — %s. Zero marcadores não prova ausência de dívida nos arquivos não lidos.\n", report.Coverage.Describe(""))
+	}
+	for _, e := range report.Coverage.Exclusions {
+		fmt.Fprintf(&b, "- **Excluídos (%s)**: %d arquivo(s) — %s\n", e.Pattern, e.Count, e.Reason)
+	}
+	return b.String()
 }

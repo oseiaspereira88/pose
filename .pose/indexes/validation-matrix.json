@@ -2096,6 +2096,21 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "source-coverage-integrity-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "SourceCoverage|UnreadableSpec|UnresolvedFollowups|FollowupProducerIsIncomplete|DroppedObligation|VeryLongLine|TechDebtCoverage|TechDebtReportSays|UnreadableNewerAttempt|UnreadableOlderAttempt|NoReadableAttempt|AnotherScopeDoesNotConcern|UnscopedUnreadable|UnreadableAttestation|UnreadableBundle|FindingsProducerIsIncomplete|BacklogAndTheProjectState|SpecItCouldNotRead|FailOverdueRefuses|AssessTechDebtStates|ReviewCheckCarries|FollowupParity|UnreadableLaterRejection|ReviewRecordRefusesToSupersede|ClosedScopeDoesNotRetain|Sniffing|DecoyInATruncated|ValidJSONWithoutAHeader|UnreadableAttemptOfTheSameSecond|OldMalformedAttempt|RequiredFields|FindingsLossInAnother|ComponentDiscoveryFinds|SkippedDirectoriesAndLinks|UnlistableSpecFolder|LegacySplitLayout|TruncatedHeaderIsALoss|AttentionCarriesTheFollowup|DebtClassificationSays|GovernanceConsumersDisclose|UnreadableLegacyLedger|InvalidElementWithoutAProducer|AttentionTextNames|CandidatesRefuse|UnknownDispositionAsUnresolved|ARejectionThatFailsItsDigest|RepeatedHeaderName|SniffingSeesARepeated|UnresolvableSpecEntry|FindingsLossOfTheRequested|DirectorySymlinkIsADeclared|ARoadmapOrTheProjectState|UnreadableLedgerDirectory|InvalidValuesIsALoss|NotPlannedOverAnIncomplete|ConsolidatedAssessmentDeclares|ProjectStateDoesNotCertify|HumanOutputsCarry|CaseFoldedHeaderNames|LostLaterBundleBlocks|ComparedAsInstants|TruncatedFindingLine|DanglingSpecFolderLink|DanglingReviewsRoot|LostRootForAbsence|InheritsTheLossOfItsMilestone|DoesNotCutTheTable|KeepsTheDebtReports|AttemptsAreReadInInstantOrder|ItemCutAnywhere|AttestationsAreOrderedByInstant|EmptyOpenFollowup|FutureSchemaIsUnsupported|UnreadablePersistedComponentState|WithoutASealedInstant|AnnotatedFollowupThatLost|PersistedComponentStateIsValidated|NoConsumerOrdersTheBundle|KeepsTheKindOfItsFailure|NamesItsScopeTwice|ReadsComponentsThroughTheValidating|ADiscoveryOfOneComponentKeeps|RepeatedAttemptFieldIsALoss",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "index-generation-integrity-integration",
           "program": "go",
           "args": [
