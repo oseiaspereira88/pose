@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:d65ba68c34302d28f04baa7532e486671b94a5c7f02a6420acb3d54e104e2438",
-  "provenance_digest": "sha256:f4cf00bbf2e2268a1711686f0c0f2f0c89bf0cc5d3a09d8d715ece9a9a1dd14a",
+  "input_digest": "sha256:f56e82dc8de9edce5f6af02a401e0e5c2b1d4d0f97b08a04900b9bddf65f6fbe",
+  "provenance_digest": "sha256:f600c1f2489e73f61146d2bb79c01a956dfe81c91e0d70ea1a7617140c1be80a",
   "implied_edges": [
     "changes"
   ],
@@ -5621,6 +5621,13 @@
       }
     },
     {
+      "id": "artifact:.pose/reports/2026-10-18-pose-b28r3-independent-review.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/reports/2026-10-18-pose-b28r3-independent-review.md"
+      }
+    },
+    {
       "id": "artifact:.pose/reports/2026-10-18-pose-b30-independent-review.md",
       "type": "artifact",
       "attributes": {
@@ -6556,6 +6563,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/results/b28r2-independent-review.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/results/b28r3-independent-review.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/results/b28r3-independent-review.json"
       }
     },
     {
@@ -24549,6 +24563,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/pose/json_duplicate_keys.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/pose/json_duplicate_keys.go"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/pose/legacy_inventory.go",
       "type": "artifact",
       "attributes": {
@@ -30806,6 +30827,14 @@
       }
     },
     {
+      "id": "change-set:cs-42af83ae9673",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:cd36c0f697bce342ab5e1dc97fd7b8f9af15b04eaeba94453cfaa007988cadd2",
+        "selector": "trailers:pose-release-manifest-tag-integrity"
+      }
+    },
+    {
       "id": "change-set:cs-4344f871fac4",
       "type": "change-set",
       "attributes": {
@@ -31763,6 +31792,14 @@
       "attributes": {
         "diff_digest": "sha256:fc5ae63c26fc4ab8905d7f30223b4e352755d25e92f21ea49d3cf4aed5553bd3",
         "selector": "trailers:pose-adoption-stamp-stays-readable"
+      }
+    },
+    {
+      "id": "change-set:cs-8701016e1d97",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:448a12ad42c81d8b69bae9b7d1c1649b744d8d57e233d522d41c2c1de185bcb1",
+        "selector": "trailers:pose-distributed-instructions-parity"
       }
     },
     {
@@ -33350,14 +33387,6 @@
       }
     },
     {
-      "id": "change-set:cs-ea2c964303a1",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:a2abe018f77ca89406f4ef449b641a93a0edf2a5e0dfe8217c751560e1f49905",
-        "selector": "trailers:pose-distributed-instructions-parity"
-      }
-    },
-    {
       "id": "change-set:cs-eb09c7f880ab",
       "type": "change-set",
       "attributes": {
@@ -33371,14 +33400,6 @@
       "attributes": {
         "diff_digest": "sha256:d502975170b13de98da0b28eff15140ca184e1b2149c2db799a55e412aed2724",
         "selector": "trailers:pose-abm-structural-delta"
-      }
-    },
-    {
-      "id": "change-set:cs-ec0384746d6e",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:859d6605e71015adebcec06a3f0fbcfcfa8973e3fb0ac3f7a27515bc41063d1c",
-        "selector": "trailers:pose-release-manifest-tag-integrity"
       }
     },
     {
@@ -82453,7 +82474,7 @@
     },
     {
       "from": "spec:pose-distributed-instructions-parity",
-      "to": "change-set:cs-ea2c964303a1",
+      "to": "change-set:cs-8701016e1d97",
       "type": "observed-by"
     },
     {
@@ -91308,11 +91329,6 @@
     },
     {
       "from": "spec:pose-release-manifest-tag-integrity",
-      "to": "artifact:pose-mcp/internal/pose/release_lifecycle_test.go",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-release-manifest-tag-integrity",
       "to": "artifact:pose-mcp/internal/pose/release_manifest_fixture_test.go",
       "type": "declares"
     },
@@ -91338,11 +91354,6 @@
     },
     {
       "from": "spec:pose-release-manifest-tag-integrity",
-      "to": "artifact:pose-mcp/internal/pose/release_version_source_test.go",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-release-manifest-tag-integrity",
       "to": "artifact:pose-mcp/internal/pose/review_release_archive_test.go",
       "type": "declares"
     },
@@ -91363,7 +91374,7 @@
     },
     {
       "from": "spec:pose-release-manifest-tag-integrity",
-      "to": "change-set:cs-ec0384746d6e",
+      "to": "change-set:cs-42af83ae9673",
       "type": "observed-by"
     },
     {
@@ -117500,16 +117511,6 @@
       "spec": "pose-release-manifest-tag-integrity",
       "action": "modified",
       "path": "pose-mcp/internal/pose/release_lifecycle.go"
-    },
-    {
-      "spec": "pose-release-manifest-tag-integrity",
-      "action": "modified",
-      "path": "pose-mcp/internal/pose/release_lifecycle_test.go"
-    },
-    {
-      "spec": "pose-release-manifest-tag-integrity",
-      "action": "modified",
-      "path": "pose-mcp/internal/pose/release_version_source_test.go"
     },
     {
       "spec": "pose-release-manifest-tag-integrity",
@@ -145749,6 +145750,189 @@
       "diff_digest": "sha256:48ae3a83d3db1ec42bb878f0be3a63ff0733a2e78c0c1f5346d84f05659bceba"
     },
     {
+      "id": "cs-42af83ae9673",
+      "spec": "pose-release-manifest-tag-integrity",
+      "selector": "trailers:pose-release-manifest-tag-integrity",
+      "base": "d2c6a2ac3f8b54d9b3787a27aa87f9263afa950e^",
+      "head": "b20f870fced24387d3cdceda7d69d3daeecfdf05",
+      "resolved_base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+      "resolved_head": "b20f870fced24387d3cdceda7d69d3daeecfdf05",
+      "commits": [
+        "d2c6a2ac3f8b54d9b3787a27aa87f9263afa950e",
+        "2f4340038bcc727189fb198bea596bf312863a28",
+        "0b747b0280d3fcd4ad2012d13c258a64929a074d",
+        "fbc095939f87258d10724b0706372f5e78eff3a4",
+        "b58e1d8b836c6b53f3f633103093b8433a4a078b",
+        "6eb9d4fdf0949670c63d2d662fa005af8b8259af",
+        "c37cf39de59da51ac124dd70d0d6f11657cfb5d4",
+        "0882b371e7a27e8259b8623fb87e4b69c196a7cf",
+        "b20f870fced24387d3cdceda7d69d3daeecfdf05"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-release-manifest-tag-integrity.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/2026-10-18-b38-independent-review.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/2026-10-18-b38r2-independent-review.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b38-independent-review.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b38-independent-validation.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b38-mutations.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b38-mutations.py"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b38r2-global-validation.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b38r2-independent-review.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b38r2-independent-validation.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b38r2-mcp-enforce-validation.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b38r2-mutations.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-release-manifest-tag-integrity.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/release_manifest_tag_integrity_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/release_review_regression_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/release_manifest_fixture_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/release_manifest_integrity.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/release_manifest_tag_integrity_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/release_review_r2_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/release_review_regression_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-10-13-pose-release-manifest-tag-integrity.md"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/publicclaims.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/publicclaims_provenance_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/release_lifecycle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/obligation_sources.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/obligation_sources_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/release_archive.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/release_archive_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/release_lifecycle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_release_archive_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:cd36c0f697bce342ab5e1dc97fd7b8f9af15b04eaeba94453cfaa007988cadd2"
+    },
+    {
       "id": "cs-4344f871fac4",
       "spec": "pose-onboarding-context-extraction",
       "selector": "trailers:pose-onboarding-context-extraction",
@@ -161759,6 +161943,197 @@
         }
       ],
       "diff_digest": "sha256:fc5ae63c26fc4ab8905d7f30223b4e352755d25e92f21ea49d3cf4aed5553bd3"
+    },
+    {
+      "id": "cs-8701016e1d97",
+      "spec": "pose-distributed-instructions-parity",
+      "selector": "trailers:pose-distributed-instructions-parity",
+      "base": "a358ec23dd1e6e276e24674b1a150b3e545f5736^",
+      "head": "6d38fefabb96ea74dca4166d71fb2bda3068a543",
+      "resolved_base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+      "resolved_head": "6d38fefabb96ea74dca4166d71fb2bda3068a543",
+      "commits": [
+        "a358ec23dd1e6e276e24674b1a150b3e545f5736",
+        "cc590314f844db9074a3414d13df0a3ac6ae144f",
+        "d7ebc3001168a2121d1f8dbd493a659d4d8e1f5f",
+        "110abe66ccc184d978cdd55b18c9e7e8225d4226",
+        "bcb2db1d5174408a4bedef68994b3bf268c474a0",
+        "af7d17775c9a80e8bb1093e33b4e95bb1dedc5da",
+        "f22be495c10a5aaf1780bf42da967acde937f0ca",
+        "25a56910fc6e53c064ee2b5683e1b5ec5314534d",
+        "2ef1070375511caa060e853d4ef272923c5cc1f2",
+        "78d495b6c79c3c1d32377442931a153d3c897d2a",
+        "4deb172ebcdc30d0fc0810c91997355adb1cdc51",
+        "f0808cc998cab39a8935052ab95d32a0493c6430",
+        "6d38fefabb96ea74dca4166d71fb2bda3068a543"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-distributed-instructions-parity.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/2026-10-18-pose-b28-d7ebc300-independent-review.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/2026-10-18-pose-b28-independent-review.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/2026-10-18-pose-b28r2-independent-review.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/2026-10-18-pose-b28r3-independent-review.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b28-d7ebc300-independent-review.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b28-independent-review.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b28-mutations.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b28-mutations.py"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b28r2-independent-review.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/b28r3-independent-review.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-distributed-instructions-parity.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/distributed_instructions_parity_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/suggest_review_regression_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/json_duplicate_keys.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/rules/delivery-evidence.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-10-13-pose-distributed-instructions-parity.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/workflows/feature.md"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.pose/rules/delivery-evidence.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.pose/workflows/feature.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/help_catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/index_generation_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/live_helper_coverage_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/migrate_dryrun.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/migrate_dryrun_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/rule_extension_resolver.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/suggest.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/rules/delivery-evidence.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/workflows/feature.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-evidence.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:448a12ad42c81d8b69bae9b7d1c1649b744d8d57e233d522d41c2c1de185bcb1"
     },
     {
       "id": "cs-8706bd824c46",
@@ -188581,183 +188956,6 @@
       "diff_digest": "sha256:674d0dfac55179c1fccfb0bbe5ec9ca119896905fe023d557bcd571b6549df4f"
     },
     {
-      "id": "cs-ea2c964303a1",
-      "spec": "pose-distributed-instructions-parity",
-      "selector": "trailers:pose-distributed-instructions-parity",
-      "base": "a358ec23dd1e6e276e24674b1a150b3e545f5736^",
-      "head": "4deb172ebcdc30d0fc0810c91997355adb1cdc51",
-      "resolved_base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
-      "resolved_head": "4deb172ebcdc30d0fc0810c91997355adb1cdc51",
-      "commits": [
-        "a358ec23dd1e6e276e24674b1a150b3e545f5736",
-        "cc590314f844db9074a3414d13df0a3ac6ae144f",
-        "d7ebc3001168a2121d1f8dbd493a659d4d8e1f5f",
-        "110abe66ccc184d978cdd55b18c9e7e8225d4226",
-        "bcb2db1d5174408a4bedef68994b3bf268c474a0",
-        "af7d17775c9a80e8bb1093e33b4e95bb1dedc5da",
-        "f22be495c10a5aaf1780bf42da967acde937f0ca",
-        "25a56910fc6e53c064ee2b5683e1b5ec5314534d",
-        "2ef1070375511caa060e853d4ef272923c5cc1f2",
-        "78d495b6c79c3c1d32377442931a153d3c897d2a",
-        "4deb172ebcdc30d0fc0810c91997355adb1cdc51"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-distributed-instructions-parity.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/2026-10-18-pose-b28-d7ebc300-independent-review.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/2026-10-18-pose-b28-independent-review.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/2026-10-18-pose-b28r2-independent-review.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b28-d7ebc300-independent-review.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b28-independent-review.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b28-mutations.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b28-mutations.py"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b28r2-independent-review.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-distributed-instructions-parity.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/distributed_instructions_parity_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/suggest_review_regression_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/roadmaps.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/rules/delivery-evidence.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/specs/2026-10-13-pose-distributed-instructions-parity.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/workflows/feature.md"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/.pose/rules/delivery-evidence.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/.pose/workflows/feature.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/help_catalog.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/index_generation_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/live_helper_coverage_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/migrate_dryrun.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/migrate_dryrun_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/rule_extension_resolver.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/suggest.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/rules/delivery-evidence.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/workflows/feature.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-evidence.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:a2abe018f77ca89406f4ef449b641a93a0edf2a5e0dfe8217c751560e1f49905"
-    },
-    {
       "id": "cs-eb09c7f880ab",
       "spec": "pose-tool-dispositions-must-be-supported",
       "selector": "trailers:pose-tool-dispositions-must-be-supported",
@@ -189076,188 +189274,6 @@
         }
       ],
       "diff_digest": "sha256:d502975170b13de98da0b28eff15140ca184e1b2149c2db799a55e412aed2724"
-    },
-    {
-      "id": "cs-ec0384746d6e",
-      "spec": "pose-release-manifest-tag-integrity",
-      "selector": "trailers:pose-release-manifest-tag-integrity",
-      "base": "d2c6a2ac3f8b54d9b3787a27aa87f9263afa950e^",
-      "head": "0882b371e7a27e8259b8623fb87e4b69c196a7cf",
-      "resolved_base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
-      "resolved_head": "0882b371e7a27e8259b8623fb87e4b69c196a7cf",
-      "commits": [
-        "d2c6a2ac3f8b54d9b3787a27aa87f9263afa950e",
-        "2f4340038bcc727189fb198bea596bf312863a28",
-        "0b747b0280d3fcd4ad2012d13c258a64929a074d",
-        "fbc095939f87258d10724b0706372f5e78eff3a4",
-        "b58e1d8b836c6b53f3f633103093b8433a4a078b",
-        "6eb9d4fdf0949670c63d2d662fa005af8b8259af",
-        "c37cf39de59da51ac124dd70d0d6f11657cfb5d4",
-        "0882b371e7a27e8259b8623fb87e4b69c196a7cf"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-release-manifest-tag-integrity.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/2026-10-18-b38-independent-review.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/2026-10-18-b38r2-independent-review.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b38-independent-review.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b38-independent-validation.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b38-mutations.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b38-mutations.py"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b38r2-global-validation.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b38r2-independent-review.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b38r2-independent-validation.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b38r2-mcp-enforce-validation.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/b38r2-mutations.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-release-manifest-tag-integrity.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/release_manifest_tag_integrity_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/release_review_regression_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/release_manifest_fixture_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/release_manifest_integrity.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/release_manifest_tag_integrity_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/release_review_r2_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/release_review_regression_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/roadmaps.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/specs/2026-10-13-pose-release-manifest-tag-integrity.md"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/publicclaims.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/publicclaims_provenance_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/release_lifecycle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/obligation_sources.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/obligation_sources_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/release_archive.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/release_archive_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/release_lifecycle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_release_archive_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:859d6605e71015adebcec06a3f0fbcfcfa8973e3fb0ac3f7a27515bc41063d1c"
     },
     {
       "id": "cs-ec3f36e03dba",
@@ -200866,7 +200882,6 @@
     "pose-mcp/internal/pose/release_lifecycle_test.go": [
       "pose-changelog-and-dor-policy-types",
       "pose-release-lifecycle-closure",
-      "pose-release-manifest-tag-integrity",
       "pose-release-publication-evidence-replay",
       "pose-release-shared-sufficiency-contract"
     ],
@@ -200901,7 +200916,6 @@
       "pose-release-version-source"
     ],
     "pose-mcp/internal/pose/release_version_source_test.go": [
-      "pose-release-manifest-tag-integrity",
       "pose-release-version-source"
     ],
     "pose-mcp/internal/pose/remediation_lineage.go": [
@@ -202376,16 +202390,6 @@
       "remediation": "declare and reconcile exact artifacts before asserting delivery"
     },
     {
-      "id": "dif-037ac36cd5bd",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-distributed-instructions-parity",
-      "path": "pose-mcp/internal/cli/suggest_review_regression_test.go",
-      "change_set": "cs-ea2c964303a1",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-03e3efd4a687",
       "code": "orphan",
       "severity": "warning",
@@ -202640,6 +202644,16 @@
       "path": "surface:check-verdict-mode",
       "message": "evidence for reachability comes only from a module containing pose-mcp/internal/cli, so covering it is inferred rather than reported",
       "remediation": "register a check for pose-mcp/internal/cli, or accept that a run of the containing module is what this target is gated on"
+    },
+    {
+      "id": "dif-0d4aa719789f",
+      "code": "undeclared",
+      "severity": "error",
+      "spec": "pose-distributed-instructions-parity",
+      "path": "pose-mcp/internal/cli/migrate_dryrun_test.go",
+      "change_set": "cs-8701016e1d97",
+      "message": "Git observed a governed path not declared by the spec",
+      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-0de52106da56",
@@ -203150,15 +203164,6 @@
       "path": "pose-mcp/internal/pose/followup_candidates.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-218204a61858",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-release-manifest-tag-integrity",
-      "path": "pose-mcp/internal/pose/release_lifecycle_test.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-21a15e3270ff",
@@ -203902,6 +203907,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-454e8c604cc5",
+      "code": "undeclared",
+      "severity": "error",
+      "spec": "pose-distributed-instructions-parity",
+      "path": "pose-mcp/internal/pose/json_duplicate_keys.go",
+      "change_set": "cs-8701016e1d97",
+      "message": "Git observed a governed path not declared by the spec",
+      "remediation": "declare the exact action or narrow the attributed change set"
+    },
+    {
       "id": "dif-457a3d571813",
       "code": "action-mismatch",
       "severity": "error",
@@ -204529,16 +204544,6 @@
       "remediation": "no Git change sets are attributed to spec pose-bounded-isolated-graph-caches (ensure commits carry 'POSE-Spec: pose-bounded-isolated-graph-caches' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-5b6fa5c66946",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-distributed-instructions-parity",
-      "path": "pose-mcp/internal/cli/live_helper_coverage_test.go",
-      "change_set": "cs-ea2c964303a1",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-5c2dec682a39",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -204556,16 +204561,6 @@
       "path": "pose-mcp/internal/pose/action_presence_policy_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-proof-presence-channel-parity (ensure commits carry 'POSE-Spec: pose-proof-presence-channel-parity' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-5cea4857ee71",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-distributed-instructions-parity",
-      "path": "pose-mcp/internal/cli/index_generation_test.go",
-      "change_set": "cs-ea2c964303a1",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-5cf6ded4141a",
@@ -206246,6 +206241,16 @@
       "remediation": "correct the action or record the exact attributed revisions"
     },
     {
+      "id": "dif-96f2013340ed",
+      "code": "undeclared",
+      "severity": "error",
+      "spec": "pose-distributed-instructions-parity",
+      "path": "pose-mcp/internal/cli/live_helper_coverage_test.go",
+      "change_set": "cs-8701016e1d97",
+      "message": "Git observed a governed path not declared by the spec",
+      "remediation": "declare the exact action or narrow the attributed change set"
+    },
+    {
       "id": "dif-97159c79c756",
       "code": "orphan",
       "severity": "warning",
@@ -206585,15 +206590,6 @@
       "path": "capability:release-prepare-record-recovery",
       "message": "required current evidence is missing: integration",
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
-    },
-    {
-      "id": "dif-a42d854875e9",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-release-manifest-tag-integrity",
-      "path": "pose-mcp/internal/pose/release_version_source_test.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-a4c9cb78f7b2",
@@ -207185,6 +207181,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-b73699ef0cda",
+      "code": "undeclared",
+      "severity": "error",
+      "spec": "pose-distributed-instructions-parity",
+      "path": "pose-mcp/internal/cli/index_generation_test.go",
+      "change_set": "cs-8701016e1d97",
+      "message": "Git observed a governed path not declared by the spec",
+      "remediation": "declare the exact action or narrow the attributed change set"
+    },
+    {
       "id": "dif-b7a7849feec2",
       "code": "action-mismatch",
       "severity": "error",
@@ -207676,6 +207682,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-c903f369dd3a",
+      "code": "undeclared",
+      "severity": "error",
+      "spec": "pose-distributed-instructions-parity",
+      "path": "pose-mcp/internal/cli/help_catalog.go",
+      "change_set": "cs-8701016e1d97",
+      "message": "Git observed a governed path not declared by the spec",
+      "remediation": "declare the exact action or narrow the attributed change set"
+    },
+    {
       "id": "dif-c95f2ca1941c",
       "code": "existence",
       "severity": "error",
@@ -207820,6 +207836,16 @@
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-cc1d45223c9e",
+      "code": "undeclared",
+      "severity": "error",
+      "spec": "pose-distributed-instructions-parity",
+      "path": "pose-mcp/internal/cli/suggest_review_regression_test.go",
+      "change_set": "cs-8701016e1d97",
+      "message": "Git observed a governed path not declared by the spec",
+      "remediation": "declare the exact action or narrow the attributed change set"
+    },
+    {
       "id": "dif-ccc3119cb983",
       "code": "action-mismatch",
       "severity": "error",
@@ -207854,16 +207880,6 @@
       "path": "pose-mcp/internal/cli/semantic_suggest.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-cdca801d5169",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-distributed-instructions-parity",
-      "path": "pose-mcp/internal/cli/help_catalog.go",
-      "change_set": "cs-ea2c964303a1",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-cdf3f338ea59",
@@ -208154,16 +208170,6 @@
       "change_set": "pose-mcp/go/abm-atomic-start-integration",
       "message": "passed integration evidence is bound to a different scoped provenance digest",
       "remediation": "rerun the registered validation check for this delivery scope"
-    },
-    {
-      "id": "dif-d923d0272967",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-distributed-instructions-parity",
-      "path": "pose-mcp/internal/cli/rule_extension_resolver.go",
-      "change_set": "cs-ea2c964303a1",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-d9363fc1d874",
@@ -208991,16 +208997,6 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
-      "id": "dif-f3b3e27c4b6b",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-distributed-instructions-parity",
-      "path": "pose-mcp/internal/cli/migrate_dryrun_test.go",
-      "change_set": "cs-ea2c964303a1",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-f3cb12fb9a92",
       "code": "orphan",
       "severity": "warning",
@@ -209210,6 +209206,16 @@
       "path": "pose-mcp/internal/pose/capabilities.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-fa1a027923ed",
+      "code": "undeclared",
+      "severity": "error",
+      "spec": "pose-distributed-instructions-parity",
+      "path": "pose-mcp/internal/cli/rule_extension_resolver.go",
+      "change_set": "cs-8701016e1d97",
+      "message": "Git observed a governed path not declared by the spec",
+      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-fa72fd30c202",

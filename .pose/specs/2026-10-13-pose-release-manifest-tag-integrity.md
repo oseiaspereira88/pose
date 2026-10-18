@@ -67,8 +67,6 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - created: pose-mcp/internal/pose/release_review_r2_test.go
 - modified: pose-mcp/internal/pose/release_archive.go
 - modified: pose-mcp/internal/pose/review_release_archive_test.go
-- modified: pose-mcp/internal/pose/release_version_source_test.go
-- modified: pose-mcp/internal/pose/release_lifecycle_test.go
 - created: .pose/reports/2026-10-18-b38r2-independent-review.md
 - created: .pose/results/b38r2-independent-review.json
 - created: .pose/results/b38r2-independent-validation.json
