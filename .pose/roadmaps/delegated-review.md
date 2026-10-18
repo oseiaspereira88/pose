@@ -67,7 +67,7 @@ stays visible, and rerunning an unchanged bundle without a reason is
 refused.
 
 ## Milestone: adoption
-- after: trust, adapter-containment, spec:pose-review-approval-domain-preflight, fulfillment
+- after: trust, adapter-containment, spec:pose-review-approval-domain-preflight, fulfillment, continuity, completion-signal, round-protocol
 - target_start:
 - target_due:
 - specs: pose-delegated-review-capability
@@ -96,6 +96,39 @@ sob concorrência; reserva durável precede efeito externo; setup/crash ficam re
 retry não duplica execução. Corrupção/remoção não restaura orçamento ou aprovação,
 rejeição permanece visível e reason não a apaga. Qualificar integridade/inventário,
 limites de proteção contra writers externos e compatibilidade; escrita não entrega ledger.
+
+## Milestone: continuity
+- after: attempt-ledger
+- target_start:
+- target_due:
+- specs: pose-delegated-review-run-continuity
+
+**Exit gate:** uma execução delegada interrompida (limite de uso, timeout, processo
+perdido) é retomada como a mesma tentativa, sobre o mesmo commit selado e brief, e não
+como rerun; o rascunho parcial nunca vira review; a troca de vendor é sempre explícita
+e registrada. Origem: as rodadas de review da B06 (2026-10-17). Spec rascunho: sem
+implementação nem closeout nesta escrita.
+
+## Milestone: completion-signal
+- after: dispatch, attempt-ledger
+- target_start:
+- target_due:
+- specs: pose-delegated-review-completion-signal
+
+**Exit gate:** `pose review dispatch --detach` devolve o run de imediato e
+`pose review wait` bloqueia até o estado terminal, com código de saída que distingue
+aprovado, mudanças pedidas, falha, interrompido e travado; um host que acompanha
+processos é acordado pela saída. Não depende de notificação específica de host.
+
+## Milestone: round-protocol
+- after: brief, attempt-ledger
+- target_start:
+- target_due:
+- specs: pose-delegated-review-round-protocol
+
+**Exit gate:** a rodada N+1 recebe do ledger os findings da rodada N, o rascunho
+precisa contabilizar cada um e declarar a varredura, e `insights` mede a convergência
+das rodadas de um escopo.
 
 ## Continuação prospectiva — lote 10
 
