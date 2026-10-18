@@ -196,6 +196,12 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string) (Dispatch
 	if commit == "" || exec.Command("git", "-C", s.Root, "cat-file", "-e", commit+"^{commit}").Run() != nil {
 		return DispatchPlan{}, fmt.Errorf("pose: the bundle's sealed commit %q is not in this repository", commit)
 	}
+	policyDigest := directoryDigest(filepath.Join(s.Root, ".pose", "policy"))
+	if !directoryDigestKnown(policyDigest) {
+		// Nothing to compare the policy with later: a run planned without a baseline
+		// could not tell a changed policy from an unchanged one.
+		return DispatchPlan{}, fmt.Errorf("pose: the policy could not be read whole (%s); a review dispatch needs a baseline to revalidate against", policyDigest)
+	}
 	prior, err := s.ListReviewRuns(bundle.BundleID)
 	if err != nil {
 		return DispatchPlan{}, err
@@ -207,7 +213,7 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string) (Dispatch
 		}
 	}
 	return DispatchPlan{Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: count,
-		PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose", "policy"))}, nil
+		PolicyDigest: policyDigest}, nil
 }
 
 // ErrNoReviewerAdapter means the project configured no reviewer.
@@ -239,10 +245,35 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 	defer exec.Command("git", "-C", s.Root, "worktree", "remove", "--force", worktree).Run()
 	// The adapter reviews what was sealed: the materialized worktree is compared with the
 	// sealed commit before it is handed over (a checkout filter or a hook can change it).
-	if diverged, err := WorktreeDivergence(worktree, plan.SealedCommit, nil); err != nil {
+	submodules := map[string]bool{}
+	for _, entry := range plan.Bundle.Payload.Subject.Entries {
+		if entry.Class == "submodule" {
+			submodules[reviewBundleEntryPath(entry)] = true
+		}
+	}
+	if diverged, err := WorktreeDivergenceFor(worktree, plan.SealedCommit, nil, func(p string) bool { return submodules[p] }); err != nil {
 		return finish(ReviewRunFailed, "the sealed worktree could not be verified before the run: "+err.Error())
 	} else if len(diverged) > 0 {
 		return finish(ReviewRunFailed, "the sealed worktree does not hold the sealed content: "+strings.Join(diverged, " "))
+	}
+
+	// The checkout is the commit; the bundle is what was sealed. A bundle can hold
+	// inputs the commit does not (a requirement, a setting, a submodule pin that was
+	// only in the working tree when it was sealed): the reviewer would then read
+	// something else than the bundle says it reads.
+	checkout := s
+	checkout.Root = worktree
+	checkout.indexPin = nil
+	if prepared, perr := checkout.PrepareReviewBundle(plan.Brief.Scope); perr != nil {
+		return finish(ReviewRunFailed, "the inputs the bundle sealed could not be checked in the sealed worktree: "+perr.Error())
+	} else if differing := sealedInputsThatDiffer(plan.Bundle, prepared); len(differing) > 0 {
+		return finish(ReviewRunFailed, "the sealed worktree does not hold the inputs the bundle sealed: "+strings.Join(differing, " "))
+	}
+
+	// And the repository must still be what the bundle sealed before the reviewer is
+	// started: running against inputs that already moved reviews nothing current.
+	if reason := s.dispatchNoLongerGoverns(plan); reason != "" {
+		return finish(ReviewRunFailed, "the run was not started: "+reason)
 	}
 
 	outputFile := filepath.Join(tmp, "output.txt")
@@ -320,6 +351,36 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 	return finish(ReviewRunCompleted, "")
 }
 
+// sealedInputsThatDiffer lists the inputs the bundle sealed that a preparation made from
+// another checkout reads differently: the sections of the scope (the requirements and
+// the rest of the spec) and the configuration, profiles and rules the plan consumed.
+// Generated state (evidence, indexes) is not compared: it is not carried by a commit.
+func sealedInputsThatDiffer(sealed, other ReviewBundle) []string {
+	key := func(kind, p string) string { return kind + " " + p }
+	collect := func(b ReviewBundle) map[string]string {
+		out := map[string]string{}
+		for _, in := range b.Payload.Scope.Sections {
+			out[key(in.Kind, in.Path)] = in.Digest
+		}
+		for _, in := range b.Payload.ConsumedInputs {
+			switch in.Kind {
+			case "governed-config", "review-profile", "rule":
+				out[key(in.Kind, in.Path)] = in.Digest
+			}
+		}
+		return out
+	}
+	want, got := collect(sealed), collect(other)
+	var differing []string
+	for k, digest := range want {
+		if got[k] != digest {
+			differing = append(differing, k)
+		}
+	}
+	sort.Strings(differing)
+	return differing
+}
+
 // dispatchNoLongerGoverns says why the bundle a dispatch was planned against no longer
 // governs its scope, or "" when it still does.
 func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
@@ -330,13 +391,31 @@ func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
 	if current.BundleDigest != plan.Bundle.BundleDigest {
 		return "stale: the bundle the run reviewed changed while it ran"
 	}
-	if plan.PolicyDigest != "" && directoryDigest(filepath.Join(s.Root, ".pose", "policy")) != plan.PolicyDigest {
-		return "stale: the policy changed while the run was going"
+	// The baseline is a digest of a policy that was read whole, and the policy must still
+	// read whole and unchanged: a policy that cannot be read now is not an unchanged one.
+	if !directoryDigestKnown(plan.PolicyDigest) {
+		return "stale: the dispatch has no readable policy baseline (" + plan.PolicyDigest + ")"
 	}
-	if bundles, listErr := s.ListReviewBundles(plan.Brief.Scope); listErr != nil {
-		return "stale: the bundles of the scope could not be read: " + listErr.Error()
-	} else if n := len(bundles); n > 0 && bundles[n-1].BundleID != plan.Bundle.BundleID {
-		return "stale: the bundle was superseded by " + bundles[n-1].BundleID + " while the run was going"
+	if now := directoryDigest(filepath.Join(s.Root, ".pose", "policy")); now != plan.PolicyDigest {
+		return "stale: the policy changed or can no longer be read whole while the run was going (" + now + ")"
+	}
+	// Every sealed bundle of the scope must have been read: one that cannot be read may be
+	// the one that superseded this.
+	read, readErr := s.ReadReviewBundles(plan.Brief.Scope)
+	if readErr != nil {
+		return "stale: the bundles of the scope could not be read: " + readErr.Error()
+	}
+	if !read.Coverage.CompleteFor(plan.Brief.Scope) {
+		return "stale: a sealed bundle of the scope could not be read, so the run cannot be tied to the one that governs it"
+	}
+	// The bundle governs while the inputs it sealed are the ones the repository has now:
+	// the semantic digest of today's preparation, not the order of identifiers.
+	prepared, prepErr := s.PrepareReviewBundle(plan.Brief.Scope)
+	if prepErr != nil {
+		return "stale: the inputs of the scope could not be prepared again: " + prepErr.Error()
+	}
+	if prepared.BundleDigest != plan.Bundle.BundleDigest {
+		return "stale: the bundle was superseded or its inputs changed while the run was going (the scope now prepares " + prepared.BundleDigest + ")"
 	}
 	return ""
 }

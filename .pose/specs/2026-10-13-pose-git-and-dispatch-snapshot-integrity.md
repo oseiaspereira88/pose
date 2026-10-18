@@ -62,6 +62,16 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - modified: pose-mcp/internal/pose/git_spawn_cache.go
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/obligation_projection.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/pose/governance_waits.go
+- modified: pose-mcp/internal/pose/governance_replay.go
+- modified: pose-mcp/internal/pose/governance_outcomes.go
+- created: pose-mcp/internal/pose/b07_independent_probe_test.go
+- created: pose-mcp/internal/cli/b07_independent_probe_test.go
+- created: .pose/reports/2026-10-18-b07-independent-review.md
+- created: .pose/results/b07-independent-review.json
+- created: .pose/results/b07-independent-probes.py
+- created: .pose/results/b07-independent-probes.log
 - created: pose-mcp/internal/pose/git_snapshot_integrity.go
 - created: pose-mcp/internal/pose/git_snapshot_integrity_test.go
 - created: pose-mcp/internal/cli/git_snapshot_integrity_test.go
@@ -120,12 +130,12 @@ Suítes `internal/pose` e `internal/cli`, `go vet`, `-race`, builds Windows e Da
 ### Requirement trace
 
 - R1 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestGitStateThatCannotBeReadIsUnknownNotClean test:TestAnUnreadableSnapshotIsNotClean test:TestAnUnreadableStatusIsNotACleanPath test:TestTheProjectionIsNotCoherentWhenStatusCannotBeRead
-- R2 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestAssumeUnchangedAndSkipWorktreeDoNotHideAnEdit test:TestDispatchJudgesTheContentNotWhatGitWasToldToIgnore test:TestTheWorktreeIsComparedWithTheSealedCommitBeforeTheRun
-- R3 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestWorktreeDivergenceReadsPathsAndTypesExactly
-- R4 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestDerivedRegenerationIsAListNotAPrefix test:TestDispatchJudgesTheContentNotWhatGitWasToldToIgnore
-- R5 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestADispatchStopsGoverningWhenItsBundleIsSuperseded test:TestARunWhosePolicyChangedWhileItRanIsStale
+- R2 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestAssumeUnchangedAndSkipWorktreeDoNotHideAnEdit test:TestDispatchJudgesTheContentNotWhatGitWasToldToIgnore test:TestTheWorktreeIsComparedWithTheSealedCommitBeforeTheRun test:TestB07IndependentBundleInputsNotCommit test:TestB07IndependentGitlink test:TestB07IndependentSourceChangedDuringRun
+- R3 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestWorktreeDivergenceReadsPathsAndTypesExactly test:TestB07IndependentBackslashAlias test:TestB07IndependentSubdirectory test:TestB07IndependentReadErrorDiagnostic
+- R4 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestDerivedRegenerationIsAListNotAPrefix test:TestDispatchJudgesTheContentNotWhatGitWasToldToIgnore test:TestB07IndependentDerivedRules test:TestB07IndependentCloseoutPrefix
+- R5 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestADispatchStopsGoverningWhenItsBundleIsSuperseded test:TestARunWhosePolicyChangedWhileItRanIsStale test:TestB07IndependentSameSecondSupersession test:TestB07IndependentLostSupersedingBundle test:TestB07IndependentUnknownPolicyDigest test:TestB07IndependentPolicySymlink
 - R6 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestAnUnrelatedCommitDuringTheRunDoesNotInvalidateIt
-- R7 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestGitStateThatCannotBeReadIsUnknownNotClean test:TestDispatchJudgesTheContentNotWhatGitWasToldToIgnore
+- R7 [satisfied] check:git-and-dispatch-snapshot-integrity-integration test:TestGitStateThatCannotBeReadIsUnknownNotClean test:TestDispatchJudgesTheContentNotWhatGitWasToldToIgnore test:TestB07IndependentSnapshotRevalidation test:TestB07IndependentNegativeSameSecond
 - R8 [satisfied] check:git-and-dispatch-snapshot-integrity-integration report:b07-mutations.json — mutações de produção mortas por asserção; controle íntegro em TestDispatchJudgesTheContentNotWhatGitWasToldToIgnore
 
 Consultar [delegação](../reports/2026-10-11-pose-front-03-delegated-review.md) e [consistência](../reports/2026-10-12-pose-front-09-consistency-recovery.md).
@@ -138,7 +148,16 @@ B07 entregue: estado do Git ilegível é desconhecido (nunca limpo) no plano de 
 governado, na checagem de path do bundle e no snapshot de obrigações; o dispatch compara o worktree
 de review com a árvore do commit selado antes e depois da execução, por conteúdo, links e tipos;
 regeneração derivada é lista de saídas por produtor, não prefixo; execução que termina depois de
-bundle superado ou policy alterada é registrada `stale`. Revisão independente e closeout pendentes.
+bundle superado ou policy alterada é registrada `stale`. A primeira revisão independente (changes-requested, 10 bloqueantes e 4 follow-ups) foi tratada:
+pertinência por digest semântico do bundle (não por ordem de identificadores) antes e depois do
+run, inputs selados comparados com o checkout do commit, regeneração por lista exata de saídas
+(sem remoção, sem substituição por link, sem normalizar `\`), gitlinks pertinentes
+materializados, digest de policy que só vale quando lida inteira, perda de coerência na
+revalidação do snapshot, bundles ilegíveis tratados como perda, e empate de instante de
+atestação resolvido contra a aprovação. A guarda de cobertura de bundles ilegíveis
+(`TestB07IndependentLostSupersedingBundle`) é redundante com a comparação por digest quando o bundle
+perdido selou conteúdo diferente, e por isso não tem mutante próprio: um mutante dela seria
+equivalente. Segunda revisão e closeout pendentes.
 
 ### Residual risks
 

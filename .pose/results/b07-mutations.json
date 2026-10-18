@@ -13,22 +13,22 @@
     {
       "mutation": "diretório sem repositório é tratado como desconhecido",
       "tests": "TestGitStateThatCannotBeReadIsUnknownNotClean",
-      "verdict": "build-error"
+      "verdict": "killed"
     },
     {
       "mutation": "conteúdo não é comparado",
       "tests": "TestAssumeUnchangedAndSkipWorktree|TestWorktreeDivergenceReadsPaths",
-      "verdict": "build-error"
+      "verdict": "killed"
     },
     {
       "mutation": "bit de execução ignorado",
       "tests": "TestWorktreeDivergenceReadsPaths",
-      "verdict": "build-error"
+      "verdict": "killed"
     },
     {
       "mutation": "link não é comparado",
       "tests": "TestWorktreeDivergenceReadsPaths",
-      "verdict": "build-error"
+      "verdict": "killed"
     },
     {
       "mutation": "arquivo removido não é divergência",
@@ -71,16 +71,6 @@
       "verdict": "killed"
     },
     {
-      "mutation": "política alterada durante o run não é stale",
-      "tests": "TestARunWhosePolicyChangedWhileItRanIsStale",
-      "verdict": "killed"
-    },
-    {
-      "mutation": "bundle superado não é stale",
-      "tests": "TestADispatchStopsGoverning",
-      "verdict": "killed"
-    },
-    {
       "mutation": "commit alheio invalida o run",
       "tests": "TestAnUnrelatedCommitDuringTheRun",
       "verdict": "killed"
@@ -99,8 +89,78 @@
       "mutation": "projeção declara coerência com status ilegível",
       "tests": "TestTheProjectionIsNotCoherentWhenStatusCannotBeRead",
       "verdict": "killed"
+    },
+    {
+      "mutation": "inputs do bundle não são comparados com os de hoje",
+      "tests": "TestB07IndependentSameSecondSupersession|TestB07IndependentSourceChangedDuringRun|TestADispatchStopsGoverning",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "checkout do commit não é comparado com os inputs selados",
+      "tests": "TestB07IndependentBundleInputsNotCommit",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "run inicia sem rever a pertinência",
+      "tests": "TestB07ARunDoesNotStart",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "policy alterada durante o run não é stale",
+      "tests": "TestARunWhosePolicyChangedWhileItRanIsStale",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "backslash vira separador",
+      "tests": "TestB07BackslashIsA",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "state é regeneração por prefixo",
+      "tests": "TestB07IndependentDerivedRules",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "remoção de arquivo derivado é aceita",
+      "tests": "TestB07DerivedNamesAreExact",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "gitlink selado ausente é aceito",
+      "tests": "TestB07IndependentGitlink",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "closeout aceita matriz e resultado selado",
+      "tests": "TestB07IndependentCloseoutPrefix",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "rejeição no mesmo instante perde para a aprovação",
+      "tests": "TestB07IndependentNegativeSameSecond",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "link na policy é ignorado",
+      "tests": "TestB07ALinkInAPolicyDirectory",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "perda de coerência não é mudança",
+      "tests": "TestB07IndependentSnapshotRevalidation",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "subdiretório é comparado como raiz",
+      "tests": "TestB07IndependentSubdirectory",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "erro de leitura vira edição",
+      "tests": "TestB07IndependentReadErrorDiagnostic",
+      "verdict": "killed"
     }
   ],
-  "killed": 16,
-  "total": 20
+  "killed": 32,
+  "total": 32
 }

@@ -70,10 +70,6 @@ const (
 	CloseoutPlanSchemaVersion = 1
 )
 
-// generatedCloseoutPaths are written by the plan's own steps; a dirty one is
-// expected while closing and does not block the context step.
-var generatedCloseoutPaths = []string{".pose/indexes/", ".pose/results/", ".pose/state/", ".pose/review-bundles/", ".pose/review-attestations/", closeoutCheckpointDir + "/"}
-
 // PlanCloseout computes the plan for a spec scope.
 func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 	scope, err := ParseScopeRef(ref)
@@ -108,6 +104,12 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 	if spec.Status != "in-progress" {
 		step(CloseoutStepContext, CloseoutStateBlocked, "the spec is "+spec.Status+"; only an in-progress spec is closed")
 		plan.Blockers = append(plan.Blockers, "spec status is "+spec.Status)
+		plan.Digest = closeoutPlanDigest(plan)
+		return plan, nil
+	}
+	if plan.Inputs.PolicyDigest == directoryUnavailable {
+		step(CloseoutStepContext, CloseoutStateBlocked, "the policy could not be read whole: a closeout planned now would not know which policy governs it")
+		plan.Blockers = append(plan.Blockers, "restore read access to .pose/policy and plan again")
 		plan.Digest = closeoutPlanDigest(plan)
 		return plan, nil
 	}
@@ -230,28 +232,47 @@ func (s Store) ungeneratedChanges() ([]string, error) {
 	}
 	var dirty []string
 	for _, entry := range entries {
-		// Both sides of a rename are changes: moving content into a generated path
-		// still removed it from where it was.
-		for _, path := range []string{entry.Path, entry.OrigPath} {
-			if path == "" {
-				continue
-			}
-			// A staging file a crashed publication left is not a change of the
-			// repository (spec pose-writer-coordination-and-atomic-publication
-			// R1): it never holds published content.
-			if IsPublisherStaging(path) {
-				continue
-			}
-			generated := false
-			for _, prefix := range generatedCloseoutPaths {
-				generated = generated || strings.HasPrefix(path, prefix)
-			}
-			if !generated {
-				dirty = append(dirty, path)
-			}
+		// A removal, and the source side of a rename, are never a regeneration: the
+		// content left the place a sealed commit holds it.
+		if entry.OrigPath != "" && !IsPublisherStaging(entry.OrigPath) {
+			dirty = append(dirty, entry.OrigPath)
+		}
+		path := entry.Path
+		if path == "" {
+			continue
+		}
+		// A staging file a crashed publication left is not a change of the
+		// repository (spec pose-writer-coordination-and-atomic-publication
+		// R1): it never holds published content.
+		if IsPublisherStaging(path) {
+			continue
+		}
+		if !closeoutGenerated(path, entry.XY) {
+			dirty = append(dirty, path)
 		}
 	}
 	return dirty, nil
+}
+
+// closeoutGenerated reports that a change Git reports as xy at path is something the
+// closeout steps write: the exact files each producer writes, judged like a review run's
+// regeneration (IsDerivedRegeneration), plus the plan's own checkpoint and sealed
+// evidence. A modified validation matrix or sealed result is a change of the repository.
+func closeoutGenerated(path, xy string) bool {
+	if strings.Contains(xy, "D") {
+		return false
+	}
+	tracked := xy != "??"
+	if strings.HasPrefix(path, closeoutCheckpointDir+"/") {
+		return true
+	}
+	if strings.HasPrefix(path, ".pose/review-attestations/") {
+		return !tracked
+	}
+	if path == ".pose/results/delivery-validation.json" {
+		return true
+	}
+	return IsDerivedRegeneration(path, tracked)
 }
 
 // CloseoutCheckpoint records how far an apply got, so an interrupted run is

@@ -719,6 +719,10 @@ func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 		snap.Limitations = append(snap.Limitations, "governed files under .pose differ from "+shortRevision(snap.SourceRevision)+"; the answer describes the working tree, not the commit")
 	}
 	snap.PolicyDigest = directoryDigest(filepath.Join(s.Root, ".pose", "policy"))
+	if snap.PolicyDigest == directoryUnavailable {
+		snap.Coherent = false
+		snap.Limitations = append(snap.Limitations, "the policy could not be read whole: whether it changed is unknown")
+	}
 	snap.ContractDigest = projectContractDigest(s.Root)
 	if raw, _, err := s.ReadIndex("delivery-integrity.json"); err == nil {
 		sum := sha256.Sum256(raw)
@@ -733,7 +737,7 @@ func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 }
 
 func snapshotDigest(snap ObligationSnapshot) string {
-	digest, _ := digestJSON([]string{snap.Project, snap.SourceRevision, fmt.Sprint(snap.WorktreeDirty), snap.PolicyDigest, snap.ContractDigest, snap.AuthorityContextRevision, snap.IndexDigest})
+	digest, _ := digestJSON([]string{snap.Project, snap.SourceRevision, fmt.Sprint(snap.WorktreeDirty), fmt.Sprint(snap.Coherent), snap.PolicyDigest, snap.ContractDigest, snap.AuthorityContextRevision, snap.IndexDigest})
 	return digest
 }
 
@@ -745,13 +749,17 @@ func snapshotDigest(snap ObligationSnapshot) string {
 func (s Store) ObligationSnapshotChanges(snap ObligationSnapshot) []string {
 	now := s.CurrentObligationSnapshot()
 	var changed []string
+	// A state that could not be read is not a state that did not change.
+	if snap.Coherent && !now.Coherent {
+		changed = append(changed, "coherence")
+	}
 	if now.Project != snap.Project {
 		changed = append(changed, "project")
 	}
 	if now.SourceRevision != snap.SourceRevision {
 		changed = append(changed, "source-revision")
 	}
-	if now.PolicyDigest != snap.PolicyDigest {
+	if now.PolicyDigest != snap.PolicyDigest || now.PolicyDigest == directoryUnavailable {
 		changed = append(changed, "policy")
 	}
 	if now.ContractDigest != snap.ContractDigest {
@@ -773,25 +781,49 @@ func shortRevision(revision string) string {
 	return revision
 }
 
-// directoryDigest hashes the regular files of one directory, name and
-// content, in name order.
+// Digests of a directory that has none to give: "absent" is a directory that is not
+// there, "unavailable" one that could not be read whole. Neither is a hash, and the second
+// is never equal to anything: a loss of reading is not an equal reading.
+const (
+	directoryAbsent      = "absent"
+	directoryUnavailable = "unavailable"
+)
+
+// directoryDigest hashes the files below one directory, path and content, in path order.
+// A link, a special file or a file that cannot be read makes the whole digest
+// "unavailable": it would otherwise leave out exactly what it could not see.
 func directoryDigest(dir string) string {
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return "unavailable"
+	info, err := os.Lstat(dir)
+	if errors.Is(err, os.ErrNotExist) {
+		return directoryAbsent
 	}
-	h := sha256.New()
+	if err != nil || !info.IsDir() {
+		return directoryUnavailable
+	}
 	names := []string{}
-	for _, entry := range entries {
-		if entry.Type().IsRegular() {
-			names = append(names, entry.Name())
+	walkErr := filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
 		}
+		switch {
+		case p == dir || d.IsDir():
+			return nil
+		case d.Type().IsRegular():
+			rel, rerr := filepath.Rel(dir, p)
+			names = append(names, filepath.ToSlash(rel))
+			return rerr
+		}
+		return errors.New("not a regular file: " + p)
+	})
+	if walkErr != nil {
+		return directoryUnavailable
 	}
 	sort.Strings(names)
+	h := sha256.New()
 	for _, name := range names {
-		raw, err := os.ReadFile(filepath.Join(dir, name))
+		raw, err := os.ReadFile(filepath.Join(dir, filepath.FromSlash(name)))
 		if err != nil {
-			continue
+			return directoryUnavailable
 		}
 		h.Write([]byte(name))
 		h.Write([]byte{0})
@@ -800,3 +832,6 @@ func directoryDigest(dir string) string {
 	}
 	return "sha256:" + hex.EncodeToString(h.Sum(nil))
 }
+
+// directoryDigestKnown reports that digest is a hash of a directory that was read whole.
+func directoryDigestKnown(digest string) bool { return strings.HasPrefix(digest, "sha256:") }

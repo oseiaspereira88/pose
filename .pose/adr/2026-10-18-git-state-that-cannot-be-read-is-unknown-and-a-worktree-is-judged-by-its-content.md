@@ -50,9 +50,13 @@ fulfilment. A commit that touches none of the sealed inputs does not invalidate 
   to the validation matrix, now fails; the close plan blocks on an unreadable repository.
 - Compatibility: a directory with no repository, and every fixture without Git metadata,
   keep their behaviour.
-- Limits: the comparison reads the worktree once after the run. It does not protect the
-  window between that read and the record, and it does not isolate the adapter (that is the
-  adapter-containment contract). A reviewer that changes a file and restores it is not seen.
+- Limits: the comparison reads the worktree once after the run, and the run is tied to the
+  bundle by the digest of what the scope prepares to now, read before the reviewer starts and
+  again after it ends. A change that happens and is undone between two reads is not seen, the
+  window between the last read and the record stays open, and the adapter is not isolated
+  (that is the adapter-containment contract). Generated state (evidence, indexes) is not
+  carried by a commit, so only the sections of the scope and the consumed configuration,
+  profiles and rules are compared between the bundle and the checkout.
 
 ## Falsifier
 

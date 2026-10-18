@@ -2714,7 +2714,7 @@ func (s Store) ReadReviewAttestations(bundleID string) (ReviewAttestationsRead, 
 	}
 	sort.Slice(result, func(i, j int) bool {
 		// By instant: "04:02-08:00" is later than "12:01Z", whatever the text says.
-		return reviewInstantLess(result[i].AttestedAt, result[i].AttestationID, result[j].AttestedAt, result[j].AttestationID)
+		return attestationLess(result[i], result[j])
 	})
 	coverage.Normalize()
 	return ReviewAttestationsRead{Attestations: result, Coverage: coverage}, nil
