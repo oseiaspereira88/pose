@@ -194,5 +194,10 @@ de baixo risco:
 - [open] Usar o carregador estrito da policy de changelog nos fragments pendentes do checker e de `checkRelease`. (owner:@core crit:low review:2026-12-01)
 - [open] Harmonizar o julgamento de tags fora de SemVer entre o checker e o status em projetos adotados. (owner:@core crit:low review:2026-12-01)
 - [open] Validar pelo contrato estrito a policy da árvore da tag em `TagHoldsAdoptedReleasePolicy`, em vez de só ler `adopted_at`. (owner:@core crit:low review:2026-12-01)
+- [open] Tratar uma ref de tag corrompida (ref solta ou linha ruim em `packed-refs`) como erro, e não como tag inexistente. (owner:@core crit:low review:2026-12-01)
+- [open] Considerar um `GIT_DIR` perdido em `GitNotARepository`. (owner:@core crit:low review:2026-12-01)
+- [open] Não reprovar o `pose check` por uma tag SemVer que aponta para árvore ou blob. (owner:@core crit:low review:2026-12-01)
+- [open] Derivar de novo `previous_version` e informá-lo como limite. (owner:@core crit:low review:2026-12-01)
+- [open] Fazer `release check` não descartar `ForeignFragmentClaims` em silêncio quando o archive ou as specs não puderem ser lidos. (owner:@core crit:low review:2026-12-01)
 
 As dependências e unidades restantes permanecem na matriz do programa, sem disposição automática.

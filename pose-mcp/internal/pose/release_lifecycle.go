@@ -469,8 +469,10 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 		return nil, fmt.Errorf("pose: the release tags could not be listed: %w", tagsErr)
 	}
 	cutoff := ""
+	adopted := false
 	if policy, perr := LoadReleasePolicy(s.Root); perr == nil {
 		cutoff = policy.LegacyCutoff
+		adopted = policy.AdoptedAt != ""
 	}
 	for _, tag := range strings.Fields(tags) {
 		if ValidateReleaseVersion(tag) != nil || inWorktree[tag] || version != "" && tag != version {
@@ -480,6 +482,14 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 			continue // before the governed releases: not a release this record claims
 		}
 		snap, snapErr := ReadReleaseSnapshot(s.Root, tag)
+		if errors.Is(snapErr, ErrReleaseSnapshotMissing) && !adopted {
+			// A tag with no manifest is a release this record claims only for a project that adopted
+			// governed releases: the policy of today, or the one in the tag's own tree, says so. A
+			// policy that cannot be read is not "never adopted".
+			if held, heldErr := TagHoldsAdoptedReleasePolicy(s.Root, tag); heldErr == nil && !held {
+				continue
+			}
+		}
 		if snapErr != nil || snap.Manifest == nil {
 			cause := "no manifest"
 			if snapErr != nil {

@@ -105,6 +105,8 @@ M = [
  ("lista de tags truncada no buffer", [(CL, 'for _, tag := range strings.Fields(string(raw)) {\n\t\tif policy.LegacyCutoff', 'for _, tag := range strings.Fields(strings.SplitN(string(raw), "v0.", 2)[0]) {\n\t\tif policy.LegacyCutoff')], C, "TestR10ALongTagNameDoesNotStopTheTagLoop"),
  ("tag fora de SemVer impõe governança", [(CL, 'if posemodel.ValidateReleaseVersion(tag) != nil {\n\t\t\tcontinue // not a release tag', 'if false {\n\t\t\tcontinue // not a release tag')], C, "TestR10ATagThatIsNotAReleaseVersionDoesNotImposeGovernance"),
  ("gitdir perdido vira sem repositório", [("pose-mcp/internal/pose/release_lifecycle.go", 'if _, statErr := os.Lstat(filepath.Join(dir, ".git")); statErr == nil || !errors.Is(statErr, os.ErrNotExist) {', 'if false {')], C, "TestR10ALostGitdirIsNotNoRepository"),
+ ("status reivindica tag de projeto nunca adotado", [("pose-mcp/internal/pose/release_lifecycle.go", 'ErrReleaseSnapshotMissing) && !adopted {', 'ErrReleaseSnapshotMissing) && (false && !adopted) {')], P, "TestR11StatusDoesNotClaimTagsOfAProjectThatNeverAdopted"),
+ ("status descarta tag de projeto adotado com policy perdida", [("pose-mcp/internal/pose/release_lifecycle.go", 'heldErr == nil && !held {', 'heldErr == nil && (held || !held) {')], P, "TestR11StatusDoesNotClaimTagsOfAProjectThatNeverAdopted"),
  ("corte vivo é chamado superado", [("pose-mcp/internal/pose/release_candidate.go", 'CompareReleasePrecedence(evidence["value"], manifest.Version) > 0', 'CompareReleasePrecedence(evidence["value"], manifest.Version) != 0')], P, "TestR6ASupersededCandidate"),
 ]
 

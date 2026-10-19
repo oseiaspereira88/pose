@@ -214,3 +214,46 @@ func replaceLast(s, old, new string) string {
 	}
 	return s[:i] + new + s[i+len(old):]
 }
+
+// R11-F01: the status claims a tag with no manifest only for a project that adopted governed
+// releases; for one that never did it is not a release.
+func TestR11StatusDoesNotClaimTagsOfAProjectThatNeverAdopted(t *testing.T) {
+	repo := func(t *testing.T, policy string) string {
+		root := t.TempDir()
+		relGit(t, root, "init", "-q")
+		relWrite(t, root, "VERSION", "1.0.0\n")
+		if policy != "" {
+			relWrite(t, root, ".pose/policy/release.json", policy)
+		}
+		relGit(t, root, "add", ".")
+		relGit(t, root, "commit", "-q", "-m", "legacy")
+		relGit(t, root, "tag", "v1.0.0")
+		relGit(t, root, "tag", "v1.1.0")
+		return root
+	}
+	count := func(t *testing.T, root string) int {
+		status, err := (Store{Root: root}).GetReleaseStatus("")
+		if err != nil {
+			t.Fatal(err)
+		}
+		return len(status.Releases)
+	}
+	adopted := `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo","allow_empty":true,"version_source":{"path":"VERSION","kind":"text"}}`
+	notAdopted := `{"schema_version":1,"adopted_at":"","version_source":{"path":"VERSION","kind":"text"}}`
+	if n := count(t, repo(t, "")); n != 0 {
+		t.Fatalf("a project with no policy was given %d releases", n)
+	}
+	if n := count(t, repo(t, notAdopted)); n != 0 {
+		t.Fatalf("a project that did not adopt was given %d releases", n)
+	}
+	if n := count(t, repo(t, adopted)); n != 2 {
+		t.Fatalf("control: an adopted project lost its tags: %d", n)
+	}
+	lost := repo(t, adopted)
+	if err := os.Remove(filepath.Join(lost, ".pose", "policy", "release.json")); err != nil {
+		t.Fatal(err)
+	}
+	if n := count(t, lost); n != 2 {
+		t.Fatalf("a policy that disappeared made the project look unadopted: %d", n)
+	}
+}
