@@ -785,6 +785,11 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 		hasPolicy = hasPolicy || !absent
 	}
 	if !hasPolicy {
+		// A policy that is gone now is not a policy that never was: a cut in the working tree or
+		// a tag holding a manifest still witnesses a project that adopted governed releases.
+		if witness := governedReleaseWitness(checker.root); witness != "" {
+			checker.failOrWarn("release: the release policy is missing, and " + witness + " shows the project adopted governed releases")
+		}
 		return
 	}
 	policy, err := posemodel.LoadReleasePolicy(checker.root)
@@ -896,6 +901,29 @@ func issueStrings(issues []posemodel.ReleaseManifestIssue) []string {
 		out = append(out, issue.String())
 	}
 	return out
+}
+
+// governedReleaseWitness names what shows that governed releases existed, or "" when nothing does.
+func governedReleaseWitness(root string) string {
+	if entries, err := os.ReadDir(filepath.Join(root, ".pose", "releases")); err == nil {
+		for _, entry := range entries {
+			if posemodel.ValidateReleaseVersion(entry.Name()) == nil {
+				return "the cut " + entry.Name() + " in the working tree"
+			}
+		}
+	}
+	cmd := exec.Command("git", "tag", "--list", "v*")
+	cmd.Dir = root
+	raw, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+	for _, tag := range strings.Fields(string(raw)) {
+		if _, err := posemodel.ReadReleaseSnapshot(root, tag); err == nil {
+			return "the manifest in the tree of tag " + tag
+		}
+	}
+	return ""
 }
 
 // neverHadAnEvent reports that the journal of version is readable and empty: only then is a

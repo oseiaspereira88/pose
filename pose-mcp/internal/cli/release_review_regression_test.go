@@ -352,3 +352,44 @@ func TestR7SupersededDoesNotMaskALostTagOrAnUnreadableJournal(t *testing.T) {
 		}
 	})
 }
+
+// R8-F01: a release policy that disappeared does not switch the checker of governed releases off.
+func TestR8MissingAdoptedPolicyDoesNotDisableTheReleaseChecker(t *testing.T) {
+	dropPolicy := func(t *testing.T, root string) {
+		t.Helper()
+		for _, rel := range []string{".pose/policy/release.json", ".pose/release-policy.json"} {
+			if err := os.Remove(filepath.Join(root, filepath.FromSlash(rel))); err != nil && !os.IsNotExist(err) {
+				t.Fatal(err)
+			}
+		}
+	}
+	t.Run("cut in the working tree", func(t *testing.T) {
+		root := adoptedTaggedRelease(t)
+		releaseGit(t, root, "tag", "-d", "v1.0.0")
+		dropPolicy(t, root)
+		if checker, out := releaseCheckerFor(root); checker.errors == 0 || !strings.Contains(out.String(), "policy is missing") {
+			t.Fatalf("a lost policy switched the checker off: errors=%d %q", checker.errors, out.String())
+		}
+	})
+	t.Run("tag witness only", func(t *testing.T) {
+		root := adoptedTaggedRelease(t)
+		dropPolicy(t, root)
+		if err := os.RemoveAll(filepath.Join(root, ".pose", "releases")); err != nil {
+			t.Fatal(err)
+		}
+		if checker, out := releaseCheckerFor(root); checker.errors == 0 || !strings.Contains(out.String(), "policy is missing") {
+			t.Fatalf("a lost policy and inventory switched the checker off: errors=%d %q", checker.errors, out.String())
+		}
+	})
+	t.Run("a project that never adopted stays quiet", func(t *testing.T) {
+		root := t.TempDir()
+		releaseGit(t, root, "init", "-q")
+		writeReleaseFixture(t, root, "VERSION", "1.0.0\n")
+		releaseGit(t, root, "add", ".")
+		releaseGit(t, root, "commit", "-q", "-m", "legacy")
+		releaseGit(t, root, "tag", "v1.0.0")
+		if checker, out := releaseCheckerFor(root); checker.errors != 0 {
+			t.Fatalf("a project without governed releases was judged: %q", out.String())
+		}
+	})
+}

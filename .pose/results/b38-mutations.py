@@ -97,6 +97,7 @@ M = [
  ("corte superado reprova o gate", [(CL, '!tagged && neverHadAnEvent(checker.root, release.Name()) && posemodel.ReleaseCandidateSuperseded(checker.root, manifest)', 'false && !tagged && neverHadAnEvent(checker.root, release.Name()) && posemodel.ReleaseCandidateSuperseded(checker.root, manifest)')], C, "TestR6ASupersededPreparedCutIsAWarningAndALiveOneIsJudged"),
  ("tag sem diretório de release no worktree passa", [(CL, '} else if !judged[tag] {', '} else if false && !judged[tag] {')], C, "TestR7ATaggedReleaseWhoseDirectoryWasRemovedIsJudged"),
  ("superado mascara tag perdida e journal ilegível", [(CL, '!tagged && neverHadAnEvent(checker.root, release.Name()) && posemodel', '!tagged && posemodel')], C, "TestR7SupersededDoesNotMaskALostTagOrAnUnreadableJournal"),
+ ("policy perdida desliga o checker de releases", [(CL, 'if witness := governedReleaseWitness(checker.root); witness != "" {', 'if witness := governedReleaseWitness(checker.root); false && witness != "" {')], C, "TestR8MissingAdoptedPolicyDoesNotDisableTheReleaseChecker"),
  ("corte vivo é chamado superado", [("pose-mcp/internal/pose/release_candidate.go", 'CompareReleasePrecedence(evidence["value"], manifest.Version) > 0', 'CompareReleasePrecedence(evidence["value"], manifest.Version) != 0')], P, "TestR6ASupersededCandidate"),
 ]
 
