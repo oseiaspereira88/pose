@@ -393,3 +393,88 @@ func TestR8MissingAdoptedPolicyDoesNotDisableTheReleaseChecker(t *testing.T) {
 		}
 	})
 }
+
+// R9-F01: with the policy gone, a loss on the way to the witnesses is an error, not "never adopted".
+func TestR9LostWitnessesOfAdoptionAreNotNoAdoption(t *testing.T) {
+	policy := ".pose/policy/release.json"
+	t.Run("inventory replaced by a lost link", func(t *testing.T) {
+		root := adoptedTaggedRelease(t)
+		releaseGit(t, root, "tag", "-d", "v1.0.0")
+		_ = os.Remove(filepath.Join(root, filepath.FromSlash(policy)))
+		_ = os.RemoveAll(filepath.Join(root, ".pose", "releases"))
+		if err := os.Symlink(filepath.Join(root, "lost"), filepath.Join(root, ".pose", "releases")); err != nil {
+			t.Skip("symlinks are not available")
+		}
+		if checker, out := releaseCheckerFor(root); checker.errors == 0 {
+			t.Fatalf("a lost inventory without a policy passed: %q", out.String())
+		}
+	})
+	t.Run("inventory replaced by a file", func(t *testing.T) {
+		root := adoptedTaggedRelease(t)
+		releaseGit(t, root, "tag", "-d", "v1.0.0")
+		_ = os.Remove(filepath.Join(root, filepath.FromSlash(policy)))
+		_ = os.RemoveAll(filepath.Join(root, ".pose", "releases"))
+		writeReleaseFixture(t, root, ".pose/releases", "not a directory\n")
+		if checker, out := releaseCheckerFor(root); checker.errors == 0 {
+			t.Fatalf("an inventory that is a file passed: %q", out.String())
+		}
+	})
+	t.Run("tag without a manifest whose tree holds the adopted policy", func(t *testing.T) {
+		root := t.TempDir()
+		writeReleaseFixture(t, root, policy, `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo","allow_empty":true,"version_source":{"path":"VERSION","kind":"text"}}`)
+		writeReleaseFixture(t, root, "VERSION", "1.0.0\n")
+		releaseGit(t, root, "init", "-q")
+		releaseGit(t, root, "add", ".")
+		releaseGit(t, root, "commit", "-q", "-m", "release")
+		releaseGit(t, root, "tag", "v1.0.0")
+		if err := os.Remove(filepath.Join(root, filepath.FromSlash(policy))); err != nil {
+			t.Fatal(err)
+		}
+		if checker, out := releaseCheckerFor(root); checker.errors == 0 {
+			t.Fatalf("a tag that kept the adopted policy but lost its manifest passed: %q", out.String())
+		}
+	})
+	t.Run("tag whose manifest is a link", func(t *testing.T) {
+		root := t.TempDir()
+		writeReleaseFixture(t, root, "VERSION", "1.0.0\n")
+		if err := os.MkdirAll(filepath.Join(root, ".pose", "releases", "v1.0.0"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Symlink("../../../VERSION", filepath.Join(root, ".pose", "releases", "v1.0.0", "manifest.json")); err != nil {
+			t.Skip("symlinks are not available")
+		}
+		releaseGit(t, root, "init", "-q")
+		releaseGit(t, root, "add", ".")
+		releaseGit(t, root, "commit", "-q", "-m", "link manifest")
+		releaseGit(t, root, "tag", "v1.0.0")
+		if err := os.RemoveAll(filepath.Join(root, ".pose")); err != nil {
+			t.Fatal(err)
+		}
+		if checker, out := releaseCheckerFor(root); checker.errors == 0 {
+			t.Fatalf("a tag whose manifest could not be read passed without a policy: %q", out.String())
+		}
+	})
+	t.Run("a tag older than the adoption stays quiet", func(t *testing.T) {
+		root := t.TempDir()
+		writeReleaseFixture(t, root, "VERSION", "1.0.0\n")
+		releaseGit(t, root, "init", "-q")
+		releaseGit(t, root, "add", ".")
+		releaseGit(t, root, "commit", "-q", "-m", "legacy")
+		releaseGit(t, root, "tag", "v1.0.0")
+		if checker, out := releaseCheckerFor(root); checker.errors != 0 {
+			t.Fatalf("a legacy tag was judged: %q", out.String())
+		}
+	})
+}
+
+// R9-F02: a failure to re-read the version source is a gap, never an approval.
+func TestR9AVersionSourceThatCouldNotBeReReadIsNotApproved(t *testing.T) {
+	root := adoptedTaggedRelease(t)
+	if checker, out := releaseCheckerFor(root); checker.errors != 0 {
+		t.Fatalf("control: %q", out.String())
+	}
+	t.Setenv("TMPDIR", filepath.Join(t.TempDir(), "missing"))
+	if checker, out := releaseCheckerFor(root); checker.errors == 0 {
+		t.Fatalf("a version source that could not be re-read was approved: %q", out.String())
+	}
+}

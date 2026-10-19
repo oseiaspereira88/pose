@@ -97,7 +97,11 @@ M = [
  ("corte superado reprova o gate", [(CL, '!tagged && neverHadAnEvent(checker.root, release.Name()) && posemodel.ReleaseCandidateSuperseded(checker.root, manifest)', 'false && !tagged && neverHadAnEvent(checker.root, release.Name()) && posemodel.ReleaseCandidateSuperseded(checker.root, manifest)')], C, "TestR6ASupersededPreparedCutIsAWarningAndALiveOneIsJudged"),
  ("tag sem diretório de release no worktree passa", [(CL, '} else if !judged[tag] {', '} else if false && !judged[tag] {')], C, "TestR7ATaggedReleaseWhoseDirectoryWasRemovedIsJudged"),
  ("superado mascara tag perdida e journal ilegível", [(CL, '!tagged && neverHadAnEvent(checker.root, release.Name()) && posemodel', '!tagged && posemodel')], C, "TestR7SupersededDoesNotMaskALostTagOrAnUnreadableJournal"),
- ("policy perdida desliga o checker de releases", [(CL, 'if witness := governedReleaseWitness(checker.root); witness != "" {', 'if witness := governedReleaseWitness(checker.root); false && witness != "" {')], C, "TestR8MissingAdoptedPolicyDoesNotDisableTheReleaseChecker"),
+ ("policy perdida desliga o checker de releases", [(CL, '} else if witness != "" {', '} else if false && witness != "" {')], C, "TestR8MissingAdoptedPolicyDoesNotDisableTheReleaseChecker"),
+ ("inventário perdido sem policy vira não-adoção", [(CL, '} else if !absent {\n\t\t\treturn "", fmt.Errorf("the release inventory could not be read: %w", err)', '} else if !absent {\n\t\t\treturn "", nil')], C, "TestR9LostWitnessesOfAdoptionAreNotNoAdoption"),
+ ("tag sem manifest com policy adotada vira não-adoção", [(CL, 'if adopted {', 'if false && adopted {')], C, "TestR9LostWitnessesOfAdoptionAreNotNoAdoption"),
+ ("tag ilegível sem policy vira não-adoção", [(CL, 'return "", fmt.Errorf("tag %s could not be read: %w", tag, err)', 'return "", nil')], C, "TestR9LostWitnessesOfAdoptionAreNotNoAdoption"),
+ ("falha de TMPDIR vira limit aprovado", [("pose-mcp/internal/pose/release_manifest_integrity.go", 'return "the version source could not be re-read: " + err.Error(), ""\n\t}\n\tdefer os.RemoveAll(tmp)', 'return "", "the version source could not be re-read: " + err.Error()\n\t}\n\tdefer os.RemoveAll(tmp)')], C, "TestR9AVersionSourceThatCouldNotBeReReadIsNotApproved"),
  ("corte vivo é chamado superado", [("pose-mcp/internal/pose/release_candidate.go", 'CompareReleasePrecedence(evidence["value"], manifest.Version) > 0', 'CompareReleasePrecedence(evidence["value"], manifest.Version) != 0')], P, "TestR6ASupersededCandidate"),
 ]
 

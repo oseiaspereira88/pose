@@ -427,6 +427,23 @@ func releasePolicyAt(root, commit string) (ReleasePolicy, string, error) {
 	return ReleasePolicy{}, "", os.ErrNotExist
 }
 
+// TagHoldsAdoptedReleasePolicy reports that the tree of tag holds a release policy that adopted
+// governed releases. A tree that holds none is false; one whose policy cannot be read is an error.
+func TagHoldsAdoptedReleasePolicy(root, tag string) (bool, error) {
+	commit, _, err := ResolveReleaseTag(root, tag)
+	if err != nil {
+		return false, err
+	}
+	policy, _, err := releasePolicyAt(root, commit)
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return policy.AdoptedAt != "", nil
+}
+
 // ReadReleaseSnapshot reads the release from the tree its tag points at, never from the
 // working tree: manifest, notes and frozen fragments are blobs of the tagged commit. A tag whose
 // tree holds no manifest is refused whatever the working tree holds. The projections the
@@ -607,15 +624,15 @@ func snapshotVersionEvidence(root, commit string, manifest *ReleaseManifest, pol
 	}
 	tmp, err := os.MkdirTemp("", "pose-release-snapshot-*")
 	if err != nil {
-		return "", "the version source could not be re-read: " + err.Error()
+		return "the version source could not be re-read: " + err.Error(), ""
 	}
 	defer os.RemoveAll(tmp)
 	target := filepath.Join(tmp, filepath.FromSlash(source))
 	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
-		return "", "the version source could not be re-read: " + err.Error()
+		return "the version source could not be re-read: " + err.Error(), ""
 	}
 	if err := os.WriteFile(target, raw, 0o644); err != nil {
-		return "", "the version source could not be re-read: " + err.Error()
+		return "the version source could not be re-read: " + err.Error(), ""
 	}
 	got, err := ReadReleaseVersionSource(tmp, *policy.VersionSource)
 	if err != nil {

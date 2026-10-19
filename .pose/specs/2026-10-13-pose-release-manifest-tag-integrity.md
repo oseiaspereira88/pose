@@ -189,5 +189,6 @@ de baixo risco:
 - [open] Reconciliar o texto de authoring da spec com a implementação e a validação efetivamente executadas, mantendo separado o closeout pendente. (owner:@core crit:low review:2026-12-01)
 - [open] Explicitar o tratamento de links de worktree com bytes idênticos aos do snapshot da tag. (owner:@core crit:low review:2026-12-01)
 - [open] Fazer os smokes históricos recusarem leituras com erro e execuções com zero fixtures. (owner:@core crit:low review:2026-12-01)
+- [open] Distinguir um cut de uma prova de adoção em `governedReleaseWitness`: um manifest sob policy explicitamente não adotada não deve, sozinho, impor adoção depois que a policy opcional deixa de existir; preservar a recusa de perdas e leituras inconclusivas. (owner:@core crit:low review:2026-12-01)
 
 As dependências e unidades restantes permanecem na matriz do programa, sem disposição automática.

@@ -787,7 +787,9 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 	if !hasPolicy {
 		// A policy that is gone now is not a policy that never was: a cut in the working tree or
 		// a tag holding a manifest still witnesses a project that adopted governed releases.
-		if witness := governedReleaseWitness(checker.root); witness != "" {
+		if witness, err := governedReleaseWitness(checker.root); err != nil {
+			checker.failOrWarn("release: the release policy is missing and whether the project adopted governed releases could not be told: " + err.Error())
+		} else if witness != "" {
 			checker.failOrWarn("release: the release policy is missing, and " + witness + " shows the project adopted governed releases")
 		}
 		return
@@ -903,27 +905,53 @@ func issueStrings(issues []posemodel.ReleaseManifestIssue) []string {
 	return out
 }
 
-// governedReleaseWitness names what shows that governed releases existed, or "" when nothing does.
-func governedReleaseWitness(root string) string {
-	if entries, err := os.ReadDir(filepath.Join(root, ".pose", "releases")); err == nil {
-		for _, entry := range entries {
-			if posemodel.ValidateReleaseVersion(entry.Name()) == nil {
-				return "the cut " + entry.Name() + " in the working tree"
-			}
+// governedReleaseWitness names what shows that governed releases existed. "" with a nil error is
+// a project nothing of which says so; a loss, a Git failure or an unreadable tag is an error, never
+// that answer.
+func governedReleaseWitness(root string) (string, error) {
+	dir := filepath.Join(root, ".pose", "releases")
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if absent, absentErr := posemodel.ProvenAbsent(dir); absentErr != nil {
+			return "", fmt.Errorf("the release inventory could not be read: %w", absentErr)
+		} else if !absent {
+			return "", fmt.Errorf("the release inventory could not be read: %w", err)
 		}
+	}
+	for _, entry := range entries {
+		if posemodel.ValidateReleaseVersion(entry.Name()) == nil {
+			return "the cut " + entry.Name() + " in the working tree", nil
+		}
+	}
+	if gitUnavailableAt(root) {
+		return "", nil
 	}
 	cmd := exec.Command("git", "tag", "--list", "v*")
 	cmd.Dir = root
 	raw, err := cmd.Output()
 	if err != nil {
-		return ""
+		return "", fmt.Errorf("the release tags could not be listed: %w", err)
 	}
 	for _, tag := range strings.Fields(string(raw)) {
-		if _, err := posemodel.ReadReleaseSnapshot(root, tag); err == nil {
-			return "the manifest in the tree of tag " + tag
+		_, err := posemodel.ReadReleaseSnapshot(root, tag)
+		switch {
+		case err == nil:
+			return "the manifest in the tree of tag " + tag, nil
+		case errors.Is(err, posemodel.ErrReleaseSnapshotMissing):
+			// A tag without a manifest is either older than the adoption or a cut that lost it: the
+			// policy in its own tree tells which.
+			adopted, policyErr := posemodel.TagHoldsAdoptedReleasePolicy(root, tag)
+			if policyErr != nil {
+				return "", fmt.Errorf("the release policy in the tree of tag %s could not be read: %w", tag, policyErr)
+			}
+			if adopted {
+				return "the adopted release policy in the tree of tag " + tag, nil
+			}
+		default:
+			return "", fmt.Errorf("tag %s could not be read: %w", tag, err)
 		}
 	}
-	return ""
+	return "", nil
 }
 
 // neverHadAnEvent reports that the journal of version is readable and empty: only then is a
