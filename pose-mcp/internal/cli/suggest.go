@@ -220,6 +220,9 @@ func strictStringSlice(value any) ([]string, error) {
 // domain. Every identifier must be a rule name the rule reader accepts, so a path is never
 // announced as a rule.
 func suggestTaskRules(t map[string]any) ([]string, map[string][]string, error) {
+	if err := taskFieldSpellingError(t); err != nil {
+		return nil, nil, err
+	}
 	// Absent is not null: a field the entry does not declare adds nothing, one declared as
 	// null is a configuration that was lost.
 	if raw, present := t["rules"]; present && raw == nil {
@@ -567,4 +570,28 @@ func suggestFieldWant(allowed string) string {
 		return "a string"
 	}
 	return "a boolean or a string"
+}
+
+// taskOperationalFields are the names a task-map entry reads. They are exact: a spelling that
+// only differs in case (Rules, Workflow, Skill) is read by no consumer, so it is refused instead
+// of being taken as a field that was left out.
+var taskOperationalFields = []string{"rules", "rules_by_domain", "workflow", "skill", "description", "validation", "requires_spec", "requires_adr", "knowledge_consume", "knowledge_produce"}
+
+// taskFieldSpellingError refuses a key of the entry that equals, under case folding, a field it
+// reads or derives without being that field. The checker applies the same function.
+func taskFieldSpellingError(t map[string]any) error {
+	known := append(append([]string{}, taskOperationalFields...), suggestDerivedFields...)
+	keys := make([]string, 0, len(t))
+	for key := range t {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		for _, field := range known {
+			if key != field && strings.EqualFold(key, field) {
+				return fmt.Errorf("%q is not %q: field names are exact and no reader takes the other spelling", key, field)
+			}
+		}
+	}
+	return nil
 }

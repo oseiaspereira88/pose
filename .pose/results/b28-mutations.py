@@ -65,6 +65,8 @@ M = [
  ("go.mod apontando para fora vale", [(SG, 'insideProject(root, filepath.Join(root, filepath.FromSlash(p))) && insideProject(root, filepath.Join(root, filepath.FromSlash(p), "go.mod")) {', 'insideProject(root, filepath.Join(root, filepath.FromSlash(p))) {')], C, "TestSuggestDoesNotFollowGoModOutOfTheProject"),
  ("campo operacional de tipo impossível", [(SG, 'default:\n\t\t\treturn nil, fmt.Errorf("%s: expected %s, got %T", field, suggestFieldWant(allowed), value)', 'default:\n\t\t\tcontinue')], C, "TestSuggestRefusesOperationalFieldsOfAnImpossibleType"),
  ("booleano onde só se admite texto", [(SG, 'if !strings.Contains(allowed, "b") {', 'if false && !strings.Contains(allowed, "b") {')], C, "TestSuggestRefusesOperationalFieldsOfAnImpossibleType"),
+ ("suggest aceita grafia não canônica", [(SG, 'if key != field && strings.EqualFold(key, field) {', 'if false && key != field && strings.EqualFold(key, field) {')], C, "TestSuggestAndTheCheckerRefuseANonCanonicalSpellingOfAnOperationalField"),
+ ("checker não aplica a mesma função de grafia", [("pose-mcp/internal/cli/check.go", 'if err := taskFieldSpellingError(fields); err != nil {', '_ = fields\n\t\t\t\tif err := error(nil); err != nil {')], C, "TestSuggestAndTheCheckerRefuseANonCanonicalSpellingOfAnOperationalField"),
 ]
 
 def classify(r, run):

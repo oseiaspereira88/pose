@@ -65,6 +65,7 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-evidence.md
 - modified: pose-mcp/internal/cli/suggest.go
+- modified: pose-mcp/internal/cli/check.go
 - modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
 - modified: pose-mcp/internal/cli/rule_extension_resolver.go
 - modified: pose-mcp/internal/cli/live_helper_coverage_test.go
@@ -175,6 +176,12 @@ não consegue ler e exige AGENTS.md num checkout de distribuição. Terceira rev
 
 - [open] Dizer o alias e a origem explícitos também na saída humana de `pose suggest`. (owner:@core crit:low review:2026-12-01)
 - [open] Aceitar na CLI MCP o alias de caixa (`Go`) que a CLI já aceita. (owner:@core crit:low review:2026-12-01)
+- [open] Corrigir os executores de mutação das unidades b14/b15. (owner:@core crit:low review:2026-12-01)
+- [open] Documentar o estado `unreadable` das referências de `pose suggest`. (owner:@core crit:low review:2026-12-01)
+- [open] Classificar link quebrado de workflow/skill como perda e não como indisponibilidade. (owner:@core crit:low review:2026-12-01)
+- [open] Ampliar o filtro da integração B28 para os consumidores novos. (owner:@core crit:low review:2026-12-01)
+- [open] Diferenciar task-map ausente de ilegível na mensagem de `pose suggest`. (owner:@core crit:low review:2026-12-01)
+- [open] Não recusar prosa válida que contém newline JSON escapado. (owner:@core crit:low review:2026-12-01)
 - [open] Remover a menção a "6.x" do texto do dry-run de `pose migrate`. (owner:@core crit:low review:2026-12-01)
 - [open] Trocar o shell interpolado e a heurística de duas substrings dos executores `b14-mutations.py` e `b15-mutations.py`. (owner:@core crit:low review:2026-12-01)
 

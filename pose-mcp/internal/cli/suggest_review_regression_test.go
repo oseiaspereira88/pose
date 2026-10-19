@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -338,5 +339,27 @@ func TestSuggestRefusesOperationalFieldsOfAnImpossibleType(t *testing.T) {
 	root := suggestWithTaskMap(t, `{"tasks":{"feature":{"rules":["security"],"description":"d","validation":"run the checks","requires_spec":true,"requires_adr":"when structural","knowledge_consume":false,"knowledge_produce":"yes"}}}`)
 	if code, out := runPose(t, root, "suggest", "feature"); code != 0 {
 		t.Errorf("the supported types were refused (%d): %s", code, out)
+	}
+}
+
+// R6-B1: the checker and suggest read the same field names; a spelling only the checker knows
+// is refused by both instead of becoming a field that was left out.
+func TestSuggestAndTheCheckerRefuseANonCanonicalSpellingOfAnOperationalField(t *testing.T) {
+	for _, field := range []string{`"Rules":["security"]`, `"Workflow":".pose/workflows/feature.md"`, `"Skill":"pose-feature"`, `"Validation":"x"`, `"RULES_BY_DOMAIN":{}`, `"Domain_Effective":"x"`} {
+		taskMap := `{"tasks":{"feature":{"rules":["security"],` + field + `}}}`
+		root := suggestWithTaskMap(t, taskMap)
+		if code, out := runPose(t, root, "suggest", "feature"); code == 0 {
+			t.Errorf("suggest accepted %s: %s", field, out)
+		}
+		var out bytes.Buffer
+		checker := &nativeChecker{root: root, mode: "strict", locale: localeEN, stdout: &out}
+		checker.checkTaskMap()
+		if !strings.Contains(out.String(), "field names are exact") {
+			t.Errorf("the checker accepted %s: %q", field, out.String())
+		}
+	}
+	root := suggestWithTaskMap(t, `{"tasks":{"feature":{"rules":["security"],"description":"d"}}}`)
+	if code, out := runPose(t, root, "suggest", "feature"); code != 0 {
+		t.Errorf("the canonical spelling was refused (%d): %s", code, out)
 	}
 }

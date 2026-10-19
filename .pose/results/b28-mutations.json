@@ -234,8 +234,18 @@
       "mutation": "booleano onde só se admite texto",
       "tests": "TestSuggestRefusesOperationalFieldsOfAnImpossibleType",
       "verdict": "killed"
+    },
+    {
+      "mutation": "suggest aceita grafia não canônica",
+      "tests": "TestSuggestAndTheCheckerRefuseANonCanonicalSpellingOfAnOperationalField",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "checker não aplica a mesma função de grafia",
+      "tests": "TestSuggestAndTheCheckerRefuseANonCanonicalSpellingOfAnOperationalField",
+      "verdict": "killed"
     }
   ],
-  "killed": 47,
-  "total": 47
+  "killed": 49,
+  "total": 49
 }
