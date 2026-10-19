@@ -625,13 +625,30 @@ func NewReleaseEvent(version, state string, evidence ReleaseEvidence, now time.T
 	return ReleaseEvent{SchemaVersion: 1, Version: version, State: state, RecordedAt: now.UTC().Format(time.RFC3339), Evidence: evidence, EvidenceDigest: ReleaseDigest(evidence)}
 }
 
-// gitNotARepository reports that root is not inside a Git repository at all, which is the only
-// reason a failing git command says nothing about the releases there are.
-func gitNotARepository(root string) bool {
+// GitNotARepository reports that root is not inside a Git repository at all, which is the only
+// reason a failing git command says nothing about the releases there are. A `.git` that is there,
+// whose gitdir was lost, is a repository that could not be read: Git words both the same way.
+func GitNotARepository(root string) bool {
 	_, err := gitOutput(root, "rev-parse", "--git-dir")
 	var failure *gitCommandError
-	return errors.As(err, &failure) && strings.Contains(failure.Stderr, "not a git repository")
+	if !errors.As(err, &failure) || !strings.Contains(failure.Stderr, "not a git repository") {
+		return false
+	}
+	abs, absErr := filepath.Abs(root)
+	if absErr != nil {
+		return false
+	}
+	for dir := abs; ; dir = filepath.Dir(dir) {
+		if _, statErr := os.Lstat(filepath.Join(dir, ".git")); statErr == nil || !errors.Is(statErr, os.ErrNotExist) {
+			return false
+		}
+		if filepath.Dir(dir) == dir {
+			return true
+		}
+	}
 }
+
+func gitNotARepository(root string) bool { return GitNotARepository(root) }
 
 // TaggedReleaseWorktreeGaps binds the working tree's copy of a tagged release to the cut the tag
 // holds: the manifest, the notes and every archived fragment are byte for byte what the tag's

@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -426,11 +425,8 @@ func releaseTagState(root, target string) (gaps []string, tagged bool) {
 
 func gitUnavailableAt(root string) bool {
 	// Not a repository at all: there are no tags to list, which is not a failure to list them. Any
-	// other failure of git is a failure.
-	cmd := exec.Command("git", "-C", root, "rev-parse", "--git-dir")
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	return cmd.Run() != nil && strings.Contains(stderr.String(), "not a git repository")
+	// other failure of git, a repository whose gitdir was lost among them, is a failure.
+	return posemodel.GitNotARepository(root)
 }
 
 // releaseTagSnapshotGaps verifies, when the release has a tag, the snapshot the tag points at: the
@@ -877,9 +873,8 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 			checker.failOrWarn("release: " + release.Name() + " is not a sound cut: " + strings.Join(gaps, "; "))
 		}
 	}
-	scanner := bufio.NewScanner(strings.NewReader(string(raw)))
-	for scanner.Scan() {
-		tag := scanner.Text()
+	// A tag name has no whitespace, and a scanner would stop silently at a line past its buffer.
+	for _, tag := range strings.Fields(string(raw)) {
 		if policy.LegacyCutoff != "" && !versionLess(policy.LegacyCutoff, tag) {
 			continue
 		}
@@ -933,6 +928,9 @@ func governedReleaseWitness(root string) (string, error) {
 		return "", fmt.Errorf("the release tags could not be listed: %w", err)
 	}
 	for _, tag := range strings.Fields(string(raw)) {
+		if posemodel.ValidateReleaseVersion(tag) != nil {
+			continue // not a release tag: it witnesses nothing about governed releases
+		}
 		_, err := posemodel.ReadReleaseSnapshot(root, tag)
 		switch {
 		case err == nil:

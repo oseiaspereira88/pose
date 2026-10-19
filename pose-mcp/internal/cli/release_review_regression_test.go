@@ -478,3 +478,57 @@ func TestR9AVersionSourceThatCouldNotBeReReadIsNotApproved(t *testing.T) {
 		t.Fatalf("a version source that could not be re-read was approved: %q", out.String())
 	}
 }
+
+// R10-F01: a tag list past the buffer of a line scanner is judged to its end.
+func TestR10ALongTagNameDoesNotStopTheTagLoop(t *testing.T) {
+	root := t.TempDir()
+	writeReleaseFixture(t, root, ".pose/policy/release.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo","allow_empty":true,"version_source":{"path":"VERSION","kind":"text"}}`)
+	writeReleaseFixture(t, root, "VERSION", "1.0.0\n")
+	releaseGit(t, root, "init", "-q")
+	releaseGit(t, root, "add", ".")
+	releaseGit(t, root, "commit", "-q", "-m", "release")
+	releaseGit(t, root, "tag", "v1.0.0")
+	// v1.0.0 has no manifest: the loop has to reach it after the long tag.
+	if err := os.WriteFile(filepath.Join(root, ".git", "packed-refs"), []byte("# pack-refs with: peeled fully-peeled sorted\n"+strings.TrimSpace(gitOut(t, root, "rev-parse", "HEAD"))+" refs/tags/v0."+strings.Repeat("x", 70000)+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if checker, out := releaseCheckerFor(root); checker.errors == 0 {
+		t.Fatalf("a long tag name stopped the loop before v1.0.0: %q", out.String())
+	}
+}
+
+// R10-F02: without a policy, a tag that is not a release version says nothing about adoption.
+func TestR10ATagThatIsNotAReleaseVersionDoesNotImposeGovernance(t *testing.T) {
+	root := t.TempDir()
+	writeReleaseFixture(t, root, "VERSION", "1.0\n")
+	releaseGit(t, root, "init", "-q")
+	releaseGit(t, root, "add", ".")
+	releaseGit(t, root, "commit", "-q", "-m", "legacy")
+	releaseGit(t, root, "tag", "v1.0")
+	releaseGit(t, root, "tag", "vendor-drop")
+	if checker, out := releaseCheckerFor(root); checker.errors != 0 {
+		t.Fatalf("a project that never adopted was judged for a tag that is no release: %q", out.String())
+	}
+}
+
+// R10-F03: a repository whose gitdir was lost is a repository that could not be read.
+func TestR10ALostGitdirIsNotNoRepository(t *testing.T) {
+	root := adoptedTaggedRelease(t)
+	if err := os.RemoveAll(filepath.Join(root, ".pose", "releases")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.RemoveAll(filepath.Join(root, ".git")); err != nil {
+		t.Fatal(err)
+	}
+	writeReleaseFixture(t, root, ".git", "gitdir: "+filepath.Join(root, "gone")+"\n")
+	if gitUnavailableAt(root) {
+		t.Fatal("a lost gitdir was taken for no repository")
+	}
+	if checker, out := releaseCheckerFor(root); checker.errors == 0 {
+		t.Fatalf("a lost gitdir passed: %q", out.String())
+	}
+	bare := t.TempDir()
+	if !gitUnavailableAt(bare) {
+		t.Fatal("a directory with no repository was not recognised")
+	}
+}

@@ -190,5 +190,9 @@ de baixo risco:
 - [open] Explicitar o tratamento de links de worktree com bytes idênticos aos do snapshot da tag. (owner:@core crit:low review:2026-12-01)
 - [open] Fazer os smokes históricos recusarem leituras com erro e execuções com zero fixtures. (owner:@core crit:low review:2026-12-01)
 - [open] Distinguir um cut de uma prova de adoção em `governedReleaseWitness`: um manifest sob policy explicitamente não adotada não deve, sozinho, impor adoção depois que a policy opcional deixa de existir; preservar a recusa de perdas e leituras inconclusivas. (owner:@core crit:low review:2026-12-01)
+- [open] Fazer `releaseInputs` recusar entradas do inventário que não são diretório ao calcular a versão anterior, como o checker e o status. (owner:@core crit:low review:2026-12-01)
+- [open] Usar o carregador estrito da policy de changelog nos fragments pendentes do checker e de `checkRelease`. (owner:@core crit:low review:2026-12-01)
+- [open] Harmonizar o julgamento de tags fora de SemVer entre o checker e o status em projetos adotados. (owner:@core crit:low review:2026-12-01)
+- [open] Validar pelo contrato estrito a policy da árvore da tag em `TagHoldsAdoptedReleasePolicy`, em vez de só ler `adopted_at`. (owner:@core crit:low review:2026-12-01)
 
 As dependências e unidades restantes permanecem na matriz do programa, sem disposição automática.
