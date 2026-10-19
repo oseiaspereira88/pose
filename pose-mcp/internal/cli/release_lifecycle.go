@@ -851,14 +851,16 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 			checker.failOrWarn("release: the release inventory could not be read: " + absentErr.Error())
 		}
 	}
+	judged := map[string]bool{}
 	for _, release := range releases {
 		if posemodel.ValidateReleaseVersion(release.Name()) != nil || (policy.LegacyCutoff != "" && !versionLess(policy.LegacyCutoff, release.Name())) {
 			continue
 		}
+		judged[release.Name()] = true
 		gaps, manifest := checkRelease(checker.root, release.Name())
 		if manifest == nil || len(gaps) > 0 {
 			if manifest != nil {
-				if _, tagged := releaseTagState(checker.root, release.Name()); !tagged && posemodel.ReleaseCandidateSuperseded(checker.root, manifest) {
+				if _, tagged := releaseTagState(checker.root, release.Name()); !tagged && neverHadAnEvent(checker.root, release.Name()) && posemodel.ReleaseCandidateSuperseded(checker.root, manifest) {
 					// A prepared cut the project's version has passed can no longer be tagged: it
 					// is said, not failed, and its inputs are not judged against today's.
 					checker.issue(cliout.StateWarning, "release: "+release.Name()+" is a prepared cut that the project's version has passed; it cannot be tagged: "+strings.Join(gaps, "; "))
@@ -878,6 +880,12 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 			checker.failOrWarn("release: governed tag " + tag + " has no manifest in its tagged tree")
 		} else if !snap.Intact() {
 			checker.failOrWarn("release: governed tag " + tag + " has a snapshot that is not intact: " + strings.Join(append(issueStrings(snap.Issues), snap.Gaps...), "; "))
+		} else if !judged[tag] {
+			// The tag is the witness that the release exists: a working tree that lost its directory
+			// (or the whole inventory) is judged like one that kept it, not taken for "no releases".
+			if gaps, manifest := checkRelease(checker.root, tag); manifest == nil || len(gaps) > 0 {
+				checker.failOrWarn("release: governed tag " + tag + " is not a sound cut in the working tree: " + strings.Join(gaps, "; "))
+			}
 		}
 	}
 }
@@ -888,6 +896,13 @@ func issueStrings(issues []posemodel.ReleaseManifestIssue) []string {
 		out = append(out, issue.String())
 	}
 	return out
+}
+
+// neverHadAnEvent reports that the journal of version is readable and empty: only then is a
+// prepared cut shown never to have been tagged, published or verified.
+func neverHadAnEvent(root, version string) bool {
+	events, err := posemodel.LoadReleaseEvents(root, version)
+	return err == nil && len(events) == 0
 }
 
 // manifestIsNotProvenAbsent reports that the manifest of target is not proven to be absent: it is

@@ -288,3 +288,67 @@ func TestR6ASupersededPreparedCutIsAWarningAndALiveOneIsJudged(t *testing.T) {
 		t.Fatalf("a superseded cut was not said as a warning: errors=%d %q", checker.errors, text.String())
 	}
 }
+
+// adoptedTaggedRelease prepares v1.0.0 under an adopted policy and tags a commit holding the cut.
+func adoptedTaggedRelease(t *testing.T) string {
+	t.Helper()
+	root := t.TempDir()
+	writeReleaseFixture(t, root, ".pose/policy/release.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo","allow_empty":true,"version_source":{"path":"VERSION","kind":"text"}}`)
+	writeReleaseFixture(t, root, "VERSION", "1.0.0\n")
+	var out, errOut bytes.Buffer
+	if code := cmdReleasePrepare(root, []string{"--version", "v1.0.0", "--apply"}, &out, &errOut); code != 0 {
+		t.Fatalf("prepare=%d %s", code, errOut.String())
+	}
+	releaseGit(t, root, "init", "-q")
+	releaseGit(t, root, "add", ".")
+	releaseGit(t, root, "commit", "-q", "-m", "release v1.0.0")
+	releaseGit(t, root, "tag", "v1.0.0")
+	return root
+}
+
+// R7-F01: the tag witnesses a release whose directory the working tree lost.
+func TestR7ATaggedReleaseWhoseDirectoryWasRemovedIsJudged(t *testing.T) {
+	for name, remove := range map[string]string{"one release": "v1.0.0", "whole inventory": ""} {
+		t.Run(name, func(t *testing.T) {
+			root := adoptedTaggedRelease(t)
+			if checker, out := releaseCheckerFor(root); checker.errors != 0 {
+				t.Fatalf("control: an intact tagged release failed: %q", out.String())
+			}
+			if err := os.RemoveAll(filepath.Join(root, ".pose", "releases", remove)); err != nil {
+				t.Fatal(err)
+			}
+			if checker, out := releaseCheckerFor(root); checker.errors == 0 || !strings.Contains(out.String(), "not a sound cut in the working tree") {
+				t.Fatalf("a tagged release that lost its directory passed: errors=%d %q", checker.errors, out.String())
+			}
+		})
+	}
+}
+
+// R7-F02: a superseded cut is a warning only when it was never tagged and its journal is readable.
+func TestR7SupersededDoesNotMaskALostTagOrAnUnreadableJournal(t *testing.T) {
+	recorded := func(t *testing.T) string {
+		root := adoptedTaggedRelease(t)
+		head := strings.TrimSpace(gitOut(t, root, "rev-parse", "HEAD"))
+		writeReleaseFixture(t, root, "evidence.json", `{"schema_version":1,"provider":"github","repository":"owner/repo","version":"v1.0.0","tag":"v1.0.0","commit":"`+head+`"}`)
+		var out, errOut bytes.Buffer
+		if code := cmdReleaseRecord(root, []string{"--version", "v1.0.0", "--event", "tagged", "--evidence", "evidence.json"}, &out, &errOut); code != 0 {
+			t.Fatalf("record=%d %s", code, errOut.String())
+		}
+		releaseGit(t, root, "tag", "-d", "v1.0.0")
+		writeReleaseFixture(t, root, "VERSION", "2.0.0\n")
+		return root
+	}
+	t.Run("lost tag already recorded", func(t *testing.T) {
+		root := recorded(t)
+		if checker, out := releaseCheckerFor(root); checker.errors == 0 {
+			t.Fatalf("a recorded tag that vanished was called superseded: %q", out.String())
+		}
+	})
+	t.Run("unreadable journal", func(t *testing.T) {
+		root := recorded(t)
+		writeReleaseFixture(t, root, ".pose/releases/v1.0.0/events.jsonl", "{broken\n")
+		if checker, out := releaseCheckerFor(root); checker.errors == 0 {
+			t.Fatalf("an unreadable journal was called superseded: %q", out.String())
+		}
+	})
+}

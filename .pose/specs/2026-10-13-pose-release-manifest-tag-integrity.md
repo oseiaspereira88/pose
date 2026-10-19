@@ -187,5 +187,7 @@ de baixo risco:
 - [open] Ampliar o padrão do check de integração desta spec para os consumidores novos. (owner:@core crit:low review:2026-12-01)
 - [open] Usar o carregador estrito da policy de changelog em plan e prepare. (owner:@core crit:low review:2026-12-01)
 - [open] Reconciliar o texto de authoring da spec com a implementação e a validação efetivamente executadas, mantendo separado o closeout pendente. (owner:@core crit:low review:2026-12-01)
+- [open] Explicitar o tratamento de links de worktree com bytes idênticos aos do snapshot da tag. (owner:@core crit:low review:2026-12-01)
+- [open] Fazer os smokes históricos recusarem leituras com erro e execuções com zero fixtures. (owner:@core crit:low review:2026-12-01)
 
 As dependências e unidades restantes permanecem na matriz do programa, sem disposição automática.
