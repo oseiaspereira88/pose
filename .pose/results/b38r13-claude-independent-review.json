@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "review": "b38r13-claude-independent-review",
+  "spec": "pose-release-manifest-tag-integrity",
+  "pr": 198,
+  "head": "07e77f89",
+  "reviewer": {
+    "id": "agent:independent-claude-opus-5-5-review",
+    "vendor": "Claude/Anthropic",
+    "implementer_vendor": "Claude/Anthropic",
+    "vendor_separation": false,
+    "separation": "execution and context only; Codex unavailable (usage limit until 2026-10-24); declared, not authenticated",
+    "attestation": "rva-fc93233a05b7e708 (unsigned, no envelope)"
+  },
+  "decision": "approved",
+  "blocking": [],
+  "verified_fixed": ["R12-F01"],
+  "followups_low_new": [
+    {
+      "id": "R13-L20",
+      "summary": "with today's policy proven missing, GetReleaseStatus counts only a working-tree cut as adoption; governedReleaseWitness also counts the manifest in another tag's tree, so a governed tag without manifest drops out of status and obligations while pose check fails",
+      "location": "pose-mcp/internal/pose/release_lifecycle.go:480-486",
+      "probe": {
+        "fixture": "tag v1.0.0 with snapshot; tag v1.1.0 on an empty-tree commit; policy and .pose/releases deleted",
+        "rows": [
+          {"policy": "adopted (control)", "status_lists_v1.1.0": true, "obligations": 2},
+          {"policy": "deleted, no working-tree inventory", "status_lists_v1.1.0": false, "obligations": 1, "checker_witness": "the manifest in the tree of tag v1.0.0", "open_next_exit": 1}
+        ],
+        "output_sha256": "baf7c88427cd0d933ec41f162f84d3e79cbc9e90a787138766bdad2473b81972"
+      },
+      "why_not_blocking": "no gate approves: open-next needs a verified release, which needs working-tree events, which already make the project adopted; pose check fails on the witness",
+      "disposition": "[open] (owner:@core crit:low review:2026-12-01)"
+    }
+  ],
+  "followups_registered_unchanged": 19,
+  "followups_open_total": 20,
+  "checks": {
+    "go_vet": "ok",
+    "go_test_all": "ok",
+    "go_test_race_release": "ok",
+    "validate_strict_global": "140/140",
+    "validate_strict_pose_mcp": "137/137",
+    "pose_check_strict_head_binary": "SUCCESS, 30 preexisting warnings",
+    "artifact_check_strict": {"exit": 0, "claims": 47, "observed": 78},
+    "surface_check_strict": {"targets": 1, "results": 140, "findings": 0},
+    "tech_debt": {"markers": 1, "uncovered": 0, "scan": "incomplete for two unrelated 2026-08-15 specs"},
+    "recurrence_flagged_keys": 0,
+    "mutations_rerun": {"killed": 8, "total": 8}
+  },
+  "native": {
+    "plan_digest": "sha256:3a4c917e89236ce003abf862f3791cb86b7a29ee533c02a5968032e97bb28a1c",
+    "bundle": "rvb-7a5a4b8cac65cf0b",
+    "bundle_digest": "sha256:7a5a4b8cac65cf0b6e4dd71728bca5345023cd761ead30a1cef3b9433367a512",
+    "attestation": "rva-fc93233a05b7e708",
+    "review_verify": "fresh, approved",
+    "close": "closed",
+    "closeout_check": "terminal"
+  },
+  "side_effects": "technical-debt.md/json kept at HEAD content because the regenerated files embed a local absolute file:// path; no policy, issuer pin, production code, tests, tags or releases changed"
+}

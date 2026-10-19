@@ -3749,17 +3749,38 @@
           "materialized": true,
           "conditional": false,
           "path": ".pose/specs/2026-10-13-pose-release-manifest-tag-integrity.md",
-          "status": "draft",
-          "sha256": "9634f509871718127b7aae9ea4889b9e4988fc1028850e4e5b48a6637495170c"
+          "status": "done",
+          "sha256": "93f8004498ce3285e1dcf6a5501e43a5de42b5b8d40711b7aeabd63cdab3789a"
         }
       ],
       "implementation_observations": [
         {
           "scope": "Spec prospectiva escrita em draft no lote documental 6; nenhuma execução da unidade neste lote.",
           "unit_complete": false
+        },
+        {
+          "at": "2026-10-19",
+          "pull_requests": [
+            198
+          ],
+          "scope": "Round 13 independent review by agent:independent-claude-opus-5-5-review, Claude/Anthropic, the same vendor as the implementer: no vendor separation, only separate execution and context, because Codex is unavailable (usage limit until 2026-10-24). R12-F01 verified fixed at 07e77f89; no merge blocker. One new low followup (status adoption witness when today's policy is proven missing) joins the nineteen open low followups. Global strict 140/140 and pose-mcp 137/137 at 07e77f89; go vet, full go test and race on the release tests passed; 8 adoption/R11 mutants re-run and killed. Unsigned declared-identity attestation as authorized for pose-dist; no policy or issuer pin change. Fresh approved native review and guarded closeout completed. Await maintainer merge.",
+          "unit_complete": true,
+          "native_closeout_pending": false,
+          "review_report_path": ".pose/reports/2026-10-19-b38r13-claude-independent-review.md",
+          "admission_review_bundle": "rvb-7a5a4b8cac65cf0b",
+          "admission_attestation": "rva-fc93233a05b7e708",
+          "native_validation": {
+            "mode": "strict",
+            "head": "07e77f896a6511019e0fa5adb52920a810e01169",
+            "executed": 140,
+            "passed": 140,
+            "failed": 0,
+            "component_executed": 137,
+            "component_passed": 137
+          }
         }
       ],
-      "delivery_complete": false,
+      "delivery_complete": true,
       "native_spec_dependencies": [
         "pose-release-lifecycle-closure"
       ],

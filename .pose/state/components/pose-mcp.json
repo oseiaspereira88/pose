@@ -2,18 +2,18 @@
   "schema_version": 1,
   "component_slug": "pose-mcp",
   "path": "pose-mcp",
-  "discovered_at": "2026-10-17T20:16:15Z",
-  "baseline_commit": "3106eafa02b3",
+  "discovered_at": "2026-10-19T09:14:48Z",
+  "baseline_commit": "07e77f896a65",
   "metrics": {
-    "loc_production": 73187,
-    "loc_tests": 60253,
-    "total_files": 570,
+    "loc_production": 75796,
+    "loc_tests": 64024,
+    "total_files": 591,
     "languages": [
       "go"
     ]
   },
   "technical_debt": {
-    "todos": 0,
+    "todos": 1,
     "fixmes": 0,
     "panics": 0,
     "stubs": 0
@@ -24,10 +24,35 @@
     "validationProfile": "baseline"
   },
   "status": "verified",
-  "completeness_score": 1,
+  "completeness_score": 0.995,
   "binding": {
-    "content_tree": "b854168a2e2f87314f0c16a6ab68944b3a823642",
+    "content_tree": "65c8f91b89aa6cd51812176fc692b6b95244a4cd",
     "engine_version": "7.4.1-dev",
-    "matrix_digest": "sha256:b4333c03efc55a445c8fb58578af4a5946482d79866fc387111921dc20c3f38e"
+    "matrix_digest": "sha256:1fd3f2be3db4fcde2e25c36417eb91bae1d7a0167d63f80c6f4e08806df9abdb"
+  },
+  "scan_complete": true,
+  "coverage": {
+    "losses": [],
+    "exclusions": [
+      {
+        "producer": "component-discovery",
+        "pattern": "generated-or-binary",
+        "reason": "generated and binary files are not scanned",
+        "count": 1,
+        "examples": [
+          "pose-mcp/internal/pose/assessment_scan.go"
+        ]
+      },
+      {
+        "producer": "component-discovery",
+        "pattern": "skipped-directory",
+        "reason": "directories that hold dependencies, build output or tool state are not scanned",
+        "count": 2,
+        "examples": [
+          ".pose",
+          "dist"
+        ]
+      }
+    ]
   }
 }

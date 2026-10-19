@@ -1,8 +1,8 @@
 ---
 slug: pose-release-manifest-tag-integrity
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-19
 depends_on: pose-release-lifecycle-closure
 priority: 1
 components: pose-mcp
@@ -162,7 +162,7 @@ A verificação é de leitura: o snapshot lê blobs do commit da tag e usa apena
 
 ### Delivered scope
 
-B38 entregue: o manifest passa por um contrato estrito (schema suportado, campos desconhecidos recusados, versão e caminhos limpos, projeções `specs`/`categories`/`breaking` e `release_input_digest` recompostas a partir dos fragments congelados); `release check` e `release status` verificam a tag pela sua própria árvore (tag leve ou anotada resolvida ao commit; manifest, notas, fragments congelados e fonte de versão lidos como blobs desse commit), recusam tag sem snapshot qualquer que seja o worktree, não tornam obsoleto um cut correto por commit, evidência ou ciclo posteriores, e reportam como limite a fonte de versão que não pode ser recomputada. Revisão independente e closeout pendentes.
+B38 entregue: o manifest passa por um contrato estrito (schema suportado, campos desconhecidos recusados, versão e caminhos limpos, projeções `specs`/`categories`/`breaking` e `release_input_digest` recompostas a partir dos fragments congelados); `release check` e `release status` verificam a tag pela sua própria árvore (tag leve ou anotada resolvida ao commit; manifest, notas, fragments congelados e fonte de versão lidos como blobs desse commit), recusam tag sem snapshot qualquer que seja o worktree, não tornam obsoleto um cut correto por commit, evidência ou ciclo posteriores, e reportam como limite a fonte de versão que não pode ser recomputada. A décima terceira revisão independente (`agent:independent-claude-opus-5-5-review`, Claude/Anthropic, o mesmo vendor do implementador: sem separação de vendor, só de execução e de contexto, porque o Codex está indisponível até 2026-10-24) aprovou no HEAD `07e77f89` sem bloqueante, com atestação sem envelope; ver o [parecer](../reports/2026-10-19-b38r13-claude-independent-review.md).
 
 ### Residual risks
 
@@ -200,5 +200,6 @@ de baixo risco:
 - [open] Derivar de novo `previous_version` e informá-lo como limite. (owner:@core crit:low review:2026-12-01)
 - [open] Fazer `release check` não descartar `ForeignFragmentClaims` em silêncio quando o archive ou as specs não puderem ser lidos. (owner:@core crit:low review:2026-12-01)
 - [open] Evitar que o status leia o snapshot e a policy da árvore de cada tag de um projeto não adotado antes de descartá-la (cerca de 2,9 s com 300 tags). (owner:@core crit:low review:2026-12-01)
+- [open] Fazer o status usar a mesma testemunha de adoção do checker quando a policy de hoje foi apagada: hoje só um corte no worktree conta, e uma tag sem manifest cuja árvore não traz a adoção some do status e das obligations quando a adoção é provada só pelo manifest de outra tag (o `pose check` reprova, e `open-next` continua recusando). (owner:@core crit:low review:2026-12-01)
 
 As dependências e unidades restantes permanecem na matriz do programa, sem disposição automática.

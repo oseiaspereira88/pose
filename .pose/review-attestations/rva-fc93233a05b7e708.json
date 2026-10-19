@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-fc93233a05b7e708",
+  "bundle_id": "rvb-7a5a4b8cac65cf0b",
+  "bundle_digest": "sha256:7a5a4b8cac65cf0b6e4dd71728bca5345023cd761ead30a1cef3b9433367a512",
+  "reviewer": "agent:independent-claude-opus-5-5-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Reviewer Claude Opus 5.5 (Claude/Anthropic), the same vendor as the implementer: there is NO vendor separation, only separate execution and context, because Codex is unavailable (usage limit until 2026-10-24). Identity and separation are declared, not authenticated; pose-dist attestations are unsigned. Verified: R12-F01 fixed (unreadable policy of today counts as adopted; a proven-missing policy with a cut in the working tree counts as adopted). Residual assumption recorded as finding b38-r13-l20."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "No concurrency contract changed in the r12 fix; go test -race over the release, snapshot, archive and review regression tests passes at 07e77f89."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "CLI, JSON and MCP release status shapes unchanged; ErrReleasePolicyMissing wraps the same message text as before, so consumers that print the error see identical output."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Corrupt policy, lost policy link and deleted policy with a cut each keep the governed tag listed (TestR12LostPolicyOfTodayDoesNotMakeTheProjectLookUnadopted); five adoption mutants and three R11 mutants re-run independently were killed by assertion."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Consumers of GetReleaseStatus (release status, open-next, MCP pose_release_status, obligations, releases index, public-claims) inspected; open-next still refuses in every probed variant, and the checker witness stays the stricter gate."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Gaps name the tag and cause; policy read failures are reported by the checker with their cause; strict pose check SUCCESS with 30 pre-existing warnings."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Status lists more tags (conservative) only when today's policy is unreadable or proven gone with a witness; a readable policy that never adopted keeps the R11 behaviour. No public contract change."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Global strict validate 140/140 and pose-mcp 137/137 at 07e77f89, go vet and full go test pass, recorded mutations 90/90 killed."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-9cde0632871f0743",
+      "rationale": "D1 (recompose projections from the sealed cut and verify the snapshot in the tag tree) is what the release checker and status implement; the r12 fix addresses the material cause (adoption predicate reading a failed load as never adopted) for unreadable policies and for a deleted policy with a worktree cut."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "POSE.md, locales and scaffold copies stay in sync (scaffold/distpolicy tests pass); the spec Final Report is updated at closeout with the review, follow-ups and vendor non-separation."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "A lost or unreadable policy keeps tags visible with gaps and open-next refusing; the checker names the witness. Remaining divergence (status ignores the manifest-of-another-tag witness) only hides an advisory obligation while pose check fails; recorded as b38-r13-l20."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "R1-R8 trace to the registered integration check and named tests; R3/R7 regressions from R11/R12 covered and mutation-killed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "artifact-check --strict: 47 claims, 78 observed, exit 0; orphan warnings are repository-wide and pre-existing. The r12 fix touches only release_lifecycle.go, its regression test and the mutation corpus."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Read-only verification: no tag moved, no manifest, notes or archive rewritten; no secrets; no policy or issuer pin changed by the reviewer."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "The r12 fix is a small local predicate change with a sentinel error; unifying it with governedReleaseWitness is deferred as a low follow-up because no gate approves wrongly in the residual case."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact",
+      "rationale": "Executed artifact-check --spec pose-release-manifest-tag-integrity --strict: exit 0, 47 claims, 78 observed; orphan warnings pre-existing."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-9cde0632871f0743",
+      "rationale": "Executed assess design --spec pose-release-manifest-tag-integrity --json: observed, two structural deltas (validation-check added, changelog fragment renamed)."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "doc:.pose/assessments/pose-mcp.md",
+      "rationale": "Executed assess discover --if-stale --component pose-mcp: refreshed (component content and validation matrix changed)."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Executed assess integrate; provider-without-observed-consumer diagnostics are repository-wide and unrelated to this delta."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "doc:.pose/assessments/technical-debt.md",
+      "rationale": "Executed assess tech-debt: 1 marker, covered, 0 uncovered; scan INCOMPLETE only for two pre-existing unrelated specs (2026-08-15) it cannot parse. recurrence-check --tolerant --window-days 14: 0 flagged keys."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "doc:.pose/workflows/review.md",
+      "rationale": "Executed suggest review --path pose-mcp; applied the review workflow, security and documentation-style rules plus backend-go."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Executed surface-check --spec pose-release-manifest-tag-integrity --strict: 1 target, 140 results, 0 findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "pose validate --strict --json-out .pose/results/delivery-validation.json at 07e77f89: 140/140 pass."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "pose validate --strict --module pose-mcp at 07e77f89: 137/137 pass."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/release-manifest-tag-integrity-integration"
+  ],
+  "findings": [
+    {
+      "id": "b38-r13-l20",
+      "severity": "low",
+      "evidence": "execution:sha256:baf7c88427cd0d933ec41f162f84d3e79cbc9e90a787138766bdad2473b81972",
+      "action": "Make GetReleaseStatus use the same adoption witness as the checker (governedReleaseWitness) when today's policy is proven missing.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "With the policy and the release directory deleted, a tag without manifest whose tree lacks an adopted policy disappears from status and obligations when adoption is shown only by the manifest of another tag; pose check fails and release open-next still refuses, so nothing approves wrongly.",
+      "review_by": "2026-12-01"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-claude-opus-5-5-review",
+    "concluded_by": "agent:independent-claude-opus-5-5-review",
+    "applied_by": "agent:independent-claude-opus-5-5-review"
+  },
+  "attested_at": "2026-10-19T09:13:10Z",
+  "path": ".pose/review-attestations/rva-fc93233a05b7e708.json"
+}

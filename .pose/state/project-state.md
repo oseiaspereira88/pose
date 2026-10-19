@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-18T07:04:39Z
-baseline_commit: 67f25e791eb5be71e4ef1c87a379a74b24f0570a
+generated_at: 2026-10-19T09:14:29Z
+baseline_commit: 07e77f896a6511019e0fa5adb52920a810e01169
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:f82eeb25851c -->
+<!-- state:derived hash:c356bec295b9 -->
 
-- specs: total=441 draft=34 in-progress=18 blocked=0 done=388 superseded=0 abandoned=1
+- specs: total=444 draft=36 in-progress=18 blocked=0 done=389 superseded=0 abandoned=1
 - roadmaps: total=22 active=3 done=11
 - últimos closeouts:
+  - spec:pose-release-manifest-tag-integrity (2026-10-19)
   - spec:pose-source-coverage-integrity (2026-10-18)
-  - spec:pose-index-generation-integrity (2026-10-17)
   - spec:pose-test-scripts-remove-their-temp-files (2026-10-17)
   - spec:pose-writer-coordination-and-atomic-publication (2026-10-17)
-  - spec:pose-cli-mcp-operation-results (2026-10-16)
-  - ... e mais 383 (ver `pose_list_specs status:done`)
+  - spec:pose-index-generation-integrity (2026-10-17)
+  - ... e mais 384 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:67e91520df75 -->
+<!-- state:derived hash:7276048e8081 -->
 
-- abertos: 110
-- por criticidade: high=4 medium=22 low=65 sem-classificação=19
+- abertos: 130
+- por criticidade: high=4 medium=22 low=85 sem-classificação=19
 - vencidos (review < hoje): 16
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
@@ -76,26 +76,26 @@ capacidade.
 - knowledge: total=11 ativo=11 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:bc9a69c87636 -->
+<!-- state:derived hash:0db006a01008 -->
 
 - último registro: task=validate-native outcome=fail (2026-10-13T04:23:26Z)
-- últimos 30 dias: total=99 outcome_ok=75 outcome_outro=24
-- reports revisados (.md): total=209
-  - report:2026-10-17-pose-b06-source-coverage-review.md
-  - report:pose-abm-capability-adoption.md
-  - report:pose-agency-readiness-pilot.md
-  - report:pose-v6-2-0-autonomous-work.md
-  - report:pose-v7-legacy-cleanup-plan.md
+- últimos 30 dias: total=89 outcome_ok=66 outcome_outro=23
+- reports revisados (.md): total=220
+  - report:2026-10-19-b38r12-claude-independent-review.md
+  - report:2026-10-19-b38r11-claude-independent-review.md
+  - report:2026-10-19-b38r10-claude-independent-review.md
+  - report:2026-10-19-b38r9-independent-review.md
+  - report:2026-10-19-b38r8-independent-review.md
 
 ## Arquitetura
-<!-- state:derived hash:1a6ee06cee0b status:active -->
+<!-- state:derived hash:0411a11b4bbb status:active -->
 
-- componentes: total=3 verificados=3 completude=100.0%
-- linhas_de_codigo: producao=70779 testes=56339 total=127118
+- componentes: total=1 verificados=1 completude=99.5%
+- linhas_de_codigo: producao=75796 testes=64024 total=139820
 - linguagens: go
-- saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
+- saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63
-- divida_tecnica: total=0 coberta=0 descoberta=0
+- divida_tecnica: total=1 coberta=1 descoberta=0 (piso: relatório de dívida incompleto — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md (scope unknown); invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown); não certificado)
 - ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
 
 ## Docs
