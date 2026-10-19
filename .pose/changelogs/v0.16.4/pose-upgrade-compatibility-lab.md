@@ -1,5 +1,5 @@
 ---
-spec: pose-scaffold-backup-preservation
+spec: pose-upgrade-compatibility-lab
 category: fixed
 breaking: false
 refs:

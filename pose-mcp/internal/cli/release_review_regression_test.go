@@ -109,7 +109,9 @@ func gitOut(t *testing.T, root string, args ...string) string {
 	return string(out)
 }
 
-func preparedEngineRelease(t *testing.T) (root, target string) { return preparedEngineReleaseWith(t, false) }
+func preparedEngineRelease(t *testing.T) (root, target string) {
+	return preparedEngineReleaseWith(t, false)
+}
 
 // preparedEngineReleaseWith prepares a release of the engine repository; empty prepares one with no
 // fragment, which the policy then allows.
@@ -220,5 +222,69 @@ func TestR5PrepareDoesNotWriteThroughALostManifestLink(t *testing.T) {
 	}
 	if _, err := os.Stat(lostTarget); err == nil {
 		t.Fatal("the target of the link was created")
+	}
+}
+
+func releaseCheckerFor(root string) (*nativeChecker, *bytes.Buffer) {
+	out := &bytes.Buffer{}
+	checker := &nativeChecker{root: root, mode: "strict", locale: localeEN, stdout: out}
+	appendReleasePolicyChecks(checker)
+	return checker, out
+}
+
+// R6-F03: a release inventory that is lost is not "no releases", in the checker and in the plan.
+func TestR6ALostReleaseInventoryIsNotNoReleases(t *testing.T) {
+	root, target := preparedEngineReleaseWith(t, true)
+	if err := os.RemoveAll(filepath.Join(root, ".pose", "releases")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(filepath.Join(root, "lost"), filepath.Join(root, ".pose", "releases")); err != nil {
+		t.Skip("symlinks are not available")
+	}
+	if checker, out := releaseCheckerFor(root); checker.errors == 0 || !strings.Contains(out.String(), "release inventory") {
+		t.Fatalf("the checker called a lost inventory sound: errors=%d %q", checker.errors, out.String())
+	}
+	if _, _, previous, _, err := releaseInputs(root, target); err == nil {
+		t.Fatalf("the plan took a lost inventory for no earlier release (previous=%q)", previous)
+	}
+}
+
+// R6-F05: the categories of a cut are the ones its policy held, not the ones the project allows today.
+func TestR6ACategoryAllowedWhenTheCutWasMadeIsNotRevalidated(t *testing.T) {
+	root, target := preparedEngineReleaseWith(t, false)
+	releaseGit(t, root, "init", "-q")
+	releaseGit(t, root, "add", ".")
+	releaseGit(t, root, "commit", "-q", "-m", "release "+target)
+	releaseGit(t, root, "tag", target)
+	writeReleaseFixture(t, root, ".pose/policy/changelog.json", `{"schema_version":1,"categories":["fixed"]}`)
+	if _, out := releaseCheckerFor(root); strings.Contains(out.String(), "invalid `category") || strings.Contains(out.String(), "invalid category") {
+		t.Fatalf("the checker revalidated the categories of a cut under today's policy: %q", out.String())
+	}
+}
+
+// R6-F06: a prepared cut the project's version has passed is said, not failed; one that can still
+// happen is judged.
+func TestR6ASupersededPreparedCutIsAWarningAndALiveOneIsJudged(t *testing.T) {
+	root := t.TempDir()
+	writeReleaseFixture(t, root, ".pose/policy/release.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo","allow_empty":true,"version_source":{"path":"VERSION","kind":"text"}}`)
+	writeReleaseFixture(t, root, "VERSION", "1.0.0\n")
+	var out, errOut bytes.Buffer
+	if code := cmdReleasePrepare(root, []string{"--version", "v1.0.0", "--apply"}, &out, &errOut); code != 0 {
+		t.Fatalf("prepare=%d %s", code, errOut.String())
+	}
+	releaseGit(t, root, "init", "-q")
+	if checker, text := releaseCheckerFor(root); checker.errors != 0 {
+		t.Fatalf("a sound prepared cut failed: %q", text.String())
+	}
+	if err := os.Remove(filepath.Join(root, ".pose", "changelogs", "v1.0.0.md")); err != nil {
+		t.Fatal(err)
+	}
+	if checker, _ := releaseCheckerFor(root); checker.errors == 0 {
+		t.Fatal("a live prepared cut that lost its notes was not judged")
+	}
+	writeReleaseFixture(t, root, "VERSION", "2.0.0\n")
+	checker, text := releaseCheckerFor(root)
+	if checker.errors != 0 || !strings.Contains(text.String(), "has passed") {
+		t.Fatalf("a superseded cut was not said as a warning: errors=%d %q", checker.errors, text.String())
 	}
 }

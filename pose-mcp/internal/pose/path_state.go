@@ -14,7 +14,12 @@ import (
 // something on the way cannot be looked into: a link whose target was lost, a loop, a permission.
 // An empty result for a path that could not be looked at is a loss, not an absence.
 func ProvenAbsent(path string) (bool, error) {
-	clean := filepath.Clean(path)
+	clean, absErr := filepath.Abs(path)
+	if absErr != nil {
+		// A relative path is searched from the working directory it was written for; when that
+		// cannot be known, nothing is proven.
+		return false, fmt.Errorf("pose: %s could not be made absolute: %w", path, absErr)
+	}
 	volume := filepath.VolumeName(clean)
 	rest := strings.TrimPrefix(clean[len(volume):], string(filepath.Separator))
 	current := volume + string(filepath.Separator)

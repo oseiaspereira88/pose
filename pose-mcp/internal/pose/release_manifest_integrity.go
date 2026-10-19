@@ -327,10 +327,31 @@ func gitTreeEntry(root, commit, rel string) (mode, kind, object string, found bo
 	meta, name, ok := strings.Cut(strings.TrimSuffix(out, "\x00"), "\t")
 	fields := strings.Fields(meta)
 	if !ok || len(fields) != 3 || name != rel {
-		if strings.TrimSpace(out) == "" {
-			return "", "", "", false, nil
+		if strings.TrimSpace(out) != "" {
+			return "", "", "", false, fmt.Errorf("pose: the tree entry of %s could not be read", rel)
 		}
-		return "", "", "", false, fmt.Errorf("pose: the tree entry of %s could not be read", rel)
+		// Nothing at the path. That is absence only when every directory above it is a tree: a link,
+		// a file or a submodule in the place of an ancestor hides what is below it, and Git then
+		// answers with nothing for the whole path.
+		for dir := path.Dir(rel); dir != "." && dir != "/" && dir != ""; dir = path.Dir(dir) {
+			parentOut, perr := gitOutput(root, "ls-tree", "-z", commit, "--", dir)
+			if perr != nil {
+				return "", "", "", false, perr
+			}
+			parentMeta, parentName, parentOK := strings.Cut(strings.TrimSuffix(parentOut, "\x00"), "\t")
+			parentFields := strings.Fields(parentMeta)
+			if strings.TrimSpace(parentOut) == "" {
+				continue // this level is not there either: keep climbing to the first that is
+			}
+			if !parentOK || len(parentFields) != 3 || parentName != dir {
+				return "", "", "", false, fmt.Errorf("pose: the tree entry of %s could not be read", dir)
+			}
+			if parentFields[1] != "tree" {
+				return "", "", "", false, fmt.Errorf("pose: %s of the tagged tree is not a directory (mode %s), so %s cannot be proven absent", dir, parentFields[0], rel)
+			}
+			break
+		}
+		return "", "", "", false, nil
 	}
 	return fields[0], fields[1], fields[2], true, nil
 }

@@ -45,3 +45,24 @@ func TestEveryReleaseTagOfThisRepositoryIsIntactForThisEngine(t *testing.T) {
 		}
 	}
 }
+
+func TestEveryTaggedReleaseOfThisRepositoryMatchesItsWorktree(t *testing.T) {
+	root, _ := filepath.Abs("../../..")
+	out, err := gitOutput(root, "tag", "--list", "v*")
+	if err != nil || strings.TrimSpace(out) == "" {
+		t.Skip("this tree has no release tags to read")
+	}
+	for _, tag := range strings.Fields(out) {
+		manifest, loadErr := LoadReleaseManifest(root, tag)
+		if loadErr != nil {
+			continue // not a governed release of this tree
+		}
+		snap, snapErr := ReadReleaseSnapshot(root, tag)
+		if snapErr != nil || !snap.Intact() {
+			continue
+		}
+		if gaps := TaggedReleaseWorktreeGaps(root, tag, manifest, snap); len(gaps) > 0 {
+			t.Errorf("%s: the working tree is not the cut its tag holds: %v", tag, gaps)
+		}
+	}
+}

@@ -339,8 +339,48 @@
       "mutation": "prepare escreve por link perdido",
       "tests": "TestR5PrepareDoesNotWriteThroughALostManifestLink",
       "verdict": "killed"
+    },
+    {
+      "mutation": "bloco do registro identificado só pelo título",
+      "tests": "TestR6TheRegistryBlockIsToleratedAndAFragmentSectionWithTheSameHeadingIsNot",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "ancestral que não é árvore vira ausência",
+      "tests": "TestR6AnAncestorThatIsNotATreeIsNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "caminho relativo procurado a partir da raiz",
+      "tests": "TestR6ARelativePathIsSearchedFromTheWorkingDirectory",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "checker trata inventário perdido como vazio",
+      "tests": "TestR6ALostReleaseInventoryIsNotNoReleases",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "plano trata inventário perdido como sem releases",
+      "tests": "TestR6ALostReleaseInventoryIsNotNoReleases",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "checker revalida categoria do corte sob a policy de hoje",
+      "tests": "TestR6ACategoryAllowedWhenTheCutWasMadeIsNotRevalidated",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "corte superado reprova o gate",
+      "tests": "TestR6ASupersededPreparedCutIsAWarningAndALiveOneIsJudged",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "corte vivo é chamado superado",
+      "tests": "TestR6ASupersededCandidate",
+      "verdict": "killed"
     }
   ],
-  "killed": 68,
-  "total": 68
+  "killed": 76,
+  "total": 76
 }

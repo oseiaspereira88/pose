@@ -169,6 +169,17 @@ func ValidateReleasePolicy(policy ReleasePolicy) error {
 }
 
 func LoadReleaseFragments(dir string, policy ChangelogPolicy) ([]ReleaseFragment, error) {
+	return loadReleaseFragments(dir, policy, false)
+}
+
+// LoadArchivedFragmentIdentities reads the fragments of a release that was cut, for what they are
+// (a spec each, once) and not for the categories the project allows today: the categories of a cut
+// are the ones its own policy held, and a later change of the policy does not change the cut.
+func LoadArchivedFragmentIdentities(dir string) ([]ReleaseFragment, error) {
+	return loadReleaseFragments(dir, ChangelogPolicy{}, true)
+}
+
+func loadReleaseFragments(dir string, policy ChangelogPolicy, anyCategory bool) ([]ReleaseFragment, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		if absent, absentErr := ProvenAbsent(dir); absentErr == nil && absent {
@@ -202,7 +213,7 @@ func LoadReleaseFragments(dir string, policy ChangelogPolicy) ([]ReleaseFragment
 		if spec == "" {
 			problems = append(problems, "missing `spec:` in frontmatter")
 		}
-		if !policy.ValidCategories()[category] {
+		if !anyCategory && !policy.ValidCategories()[category] {
 			if category == "" {
 				problems = append(problems, "missing `category:` ("+policy.CategoryList()+")")
 			} else {

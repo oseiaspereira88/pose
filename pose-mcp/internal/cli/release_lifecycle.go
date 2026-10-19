@@ -16,6 +16,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
@@ -116,9 +117,15 @@ func releaseInputs(root, target string) (posemodel.ReleasePolicy, []posemodel.Re
 		}
 	}
 	previous := ""
-	entries, err := os.ReadDir(filepath.Join(root, ".pose", "releases"))
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return policy, nil, "", nil, fmt.Errorf("the release directory could not be read: %w", err)
+	releasesDir := filepath.Join(root, ".pose", "releases")
+	entries, err := os.ReadDir(releasesDir)
+	if err != nil {
+		// Only a directory proven not to be there is a project with no earlier release.
+		if absent, absentErr := posemodel.ProvenAbsent(releasesDir); absentErr != nil {
+			return policy, nil, "", nil, fmt.Errorf("the release directory could not be read: %w", absentErr)
+		} else if !absent {
+			return policy, nil, "", nil, fmt.Errorf("the release directory could not be read: %w", err)
+		}
 	}
 	for _, entry := range entries {
 		if entry.IsDir() && posemodel.ValidateReleaseVersion(entry.Name()) == nil && entry.Name() != target {
@@ -808,7 +815,12 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 		if !entry.IsDir() || posemodel.ValidateReleaseVersion(entry.Name()) != nil {
 			continue
 		}
-		fragments, err := posemodel.LoadReleaseFragments(filepath.Join(base, entry.Name()), posemodel.LoadChangelogPolicy(checker.root))
+		if policy.LegacyCutoff != "" && !versionLess(policy.LegacyCutoff, entry.Name()) {
+			// Releases at or before the cutoff predate the governance; the policy leaves them out,
+			// and a spec they name can legitimately be delivered again by a governed one.
+			continue
+		}
+		fragments, err := posemodel.LoadArchivedFragmentIdentities(filepath.Join(base, entry.Name()))
 		if err != nil {
 			checker.failOrWarn("release: " + err.Error())
 			continue
@@ -828,15 +840,32 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 	}
 	// The cut of every governed release in the working tree is judged the way `release check`
 	// judges it: a candidate against its inputs, a tagged one against the cut its tag holds.
-	if releases, relErr := os.ReadDir(filepath.Join(checker.root, ".pose", "releases")); relErr == nil {
-		for _, release := range releases {
-			if posemodel.ValidateReleaseVersion(release.Name()) != nil || (policy.LegacyCutoff != "" && !versionLess(policy.LegacyCutoff, release.Name())) {
-				continue
+	releasesDir := filepath.Join(checker.root, ".pose", "releases")
+	releases, relErr := os.ReadDir(releasesDir)
+	if relErr != nil {
+		// The inventory of the cuts is read, or its absence is proven; a lost one is not "no cuts".
+		if absent, absentErr := posemodel.ProvenAbsent(releasesDir); absentErr != nil || !absent {
+			if absentErr == nil {
+				absentErr = relErr
 			}
-			gaps, manifest := checkRelease(checker.root, release.Name())
-			if manifest == nil || len(gaps) > 0 {
-				checker.failOrWarn("release: " + release.Name() + " is not a sound cut: " + strings.Join(gaps, "; "))
+			checker.failOrWarn("release: the release inventory could not be read: " + absentErr.Error())
+		}
+	}
+	for _, release := range releases {
+		if posemodel.ValidateReleaseVersion(release.Name()) != nil || (policy.LegacyCutoff != "" && !versionLess(policy.LegacyCutoff, release.Name())) {
+			continue
+		}
+		gaps, manifest := checkRelease(checker.root, release.Name())
+		if manifest == nil || len(gaps) > 0 {
+			if manifest != nil {
+				if _, tagged := releaseTagState(checker.root, release.Name()); !tagged && posemodel.ReleaseCandidateSuperseded(checker.root, manifest) {
+					// A prepared cut the project's version has passed can no longer be tagged: it
+					// is said, not failed, and its inputs are not judged against today's.
+					checker.issue(cliout.StateWarning, "release: "+release.Name()+" is a prepared cut that the project's version has passed; it cannot be tagged: "+strings.Join(gaps, "; "))
+					continue
+				}
 			}
+			checker.failOrWarn("release: " + release.Name() + " is not a sound cut: " + strings.Join(gaps, "; "))
 		}
 	}
 	scanner := bufio.NewScanner(strings.NewReader(string(raw)))

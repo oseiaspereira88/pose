@@ -65,20 +65,25 @@ func ParseChangelogPolicy(raw []byte) (ChangelogPolicy, error) {
 	return policy, nil
 }
 
-// notesCompatibilitySection drops the "## Compatibility" section of release notes. That section is
-// derived from the contract registry of the engine that renders it, so an engine newer than the
-// one that cut a release renders it differently: it is not part of what the fragments freeze.
-func notesWithoutCompatibility(notes string) string {
-	const heading = "## Compatibility\n\n"
-	i := strings.Index(notes, heading)
-	if i < 0 {
+// registryCompatibilityHeading opens the one block the renderer derives from the contract registry
+// of the engine that renders: it is always the first block after the title, and it always begins
+// with this sentence. A fragment category that happens to be named "compatibility" renders bullets
+// under the same heading, so the heading alone does not identify the registry block.
+const registryCompatibilityHeading = "## Compatibility\n\nThis release introduces "
+
+// notesWithoutRegistryBlock drops the registry-derived compatibility block that follows the title
+// of release notes, and nothing else: an engine newer than the one that cut a release renders it
+// differently, and it is not part of what the fragments freeze. Every other byte, including a
+// fragment section with the same heading, stays.
+func notesWithoutRegistryBlock(notes string) string {
+	title, rest, ok := strings.Cut(notes, "\n\n")
+	if !ok || !strings.HasPrefix(rest, registryCompatibilityHeading) {
 		return notes
 	}
-	rest := notes[i+len(heading):]
-	if j := strings.Index(rest, "\n## "); j >= 0 {
-		return notes[:i] + rest[j+1:]
+	if end := strings.Index(rest, "\n## "); end >= 0 {
+		return title + "\n\n" + rest[end+1:]
 	}
-	return notes[:i]
+	return title + "\n\n"
 }
 
 // NotesAreTheRendering reports whether notes are the rendering of the fragments under the changelog
@@ -89,7 +94,7 @@ func NotesAreTheRendering(notes, version string, fragments []ReleaseFragment, po
 	if notes == rendered {
 		return true, ""
 	}
-	if notesWithoutCompatibility(notes) == notesWithoutCompatibility(rendered) {
+	if notesWithoutRegistryBlock(notes) == notesWithoutRegistryBlock(rendered) {
 		return true, "the compatibility section of the notes was not re-derived: it depends on the contract registry of the engine that cut the release"
 	}
 	return false, ""
@@ -159,4 +164,20 @@ func ReleaseCandidateGaps(root, target string, manifest *ReleaseManifest) (gaps,
 	}
 	gaps = append(gaps, ReleaseFilesGaps(root, target, manifest)...)
 	return gaps, limits
+}
+
+// ReleaseCandidateSuperseded says whether a cut that has no tag was passed by the project: the
+// project's version file names a version with greater precedence than the cut's. Such a cut cannot
+// be tagged any more (the version file is not the cut's version), so judging its inputs against
+// today's policy and fragments says nothing about a release that can still happen.
+func ReleaseCandidateSuperseded(root string, manifest *ReleaseManifest) bool {
+	policy, err := LoadReleasePolicy(root)
+	if err != nil {
+		return false
+	}
+	evidence, err := ReleaseVersionEvidence(root, policy)
+	if err != nil {
+		return false
+	}
+	return ValidateReleaseVersion(evidence["value"]) == nil && CompareReleasePrecedence(evidence["value"], manifest.Version) > 0
 }
