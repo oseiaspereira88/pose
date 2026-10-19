@@ -257,3 +257,50 @@ func TestR11StatusDoesNotClaimTagsOfAProjectThatNeverAdopted(t *testing.T) {
 		t.Fatalf("a policy that disappeared made the project look unadopted: %d", n)
 	}
 }
+
+// R12-F01: a policy of today that is corrupt, lost or gone does not make the project look unadopted.
+func TestR12LostPolicyOfTodayDoesNotMakeTheProjectLookUnadopted(t *testing.T) {
+	adopted := `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo","allow_empty":true,"version_source":{"path":"VERSION","kind":"text"}}`
+	// v1.0.0 is a prepared cut in the working tree; v1.1.0 is a tag whose tree holds no manifest
+	// and a policy that is not adopted, so only the policy of today can say the project adopted.
+	build := func(t *testing.T) string {
+		r := newReleaseRepo(t, "v1.0.0")
+		relGit(t, r.root, "tag", "v1.1.0")
+		relWrite(t, r.root, ".pose/policy/release.json", adopted)
+		return r.root
+	}
+	listed := func(root string) bool {
+		status, err := (Store{Root: root}).GetReleaseStatus("")
+		if err != nil {
+			return true // refusing is not hiding the tag
+		}
+		for _, r := range status.Releases {
+			if r.Version == "v1.1.0" {
+				return true
+			}
+		}
+		return false
+	}
+	policy := func(root string) string { return filepath.Join(root, ".pose", "policy", "release.json") }
+	if !listed(build(t)) {
+		t.Fatal("control: an adopted project lost its tag")
+	}
+	for name, spoil := range map[string]func(t *testing.T, root string){
+		"corrupt": func(t *testing.T, root string) { relWrite(t, root, ".pose/policy/release.json", "{broken") },
+		"lost link": func(t *testing.T, root string) {
+			_ = os.Remove(policy(root))
+			if err := os.Symlink(filepath.Join(root, "gone"), policy(root)); err != nil {
+				t.Skip("symlinks are not available")
+			}
+		},
+		"deleted with a cut in the working tree": func(t *testing.T, root string) { _ = os.Remove(policy(root)) },
+	} {
+		t.Run(name, func(t *testing.T) {
+			root := build(t)
+			spoil(t, root)
+			if !listed(root) {
+				t.Fatal("a policy of today that was lost hid the tag")
+			}
+		})
+	}
+}

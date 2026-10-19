@@ -110,6 +110,10 @@ func ReleaseDigest(value any) string {
 	return "sha256:" + hex.EncodeToString(sum[:])
 }
 
+// ErrReleasePolicyMissing marks a release policy proven not to be there, as opposed to one that
+// could not be read.
+var ErrReleasePolicyMissing = errors.New("release policy missing")
+
 func LoadReleasePolicy(root string) (ReleasePolicy, error) {
 	var policy ReleasePolicy
 	primary := filepath.Join(root, ".pose", "policy", "release.json")
@@ -126,7 +130,7 @@ func LoadReleasePolicy(root string) (ReleasePolicy, error) {
 			return policy, fmt.Errorf("release policy could not be read: %w", legacyErr)
 		}
 		if legacyAbsent {
-			return policy, fmt.Errorf("release policy missing: create .pose/policy/release.json")
+			return policy, fmt.Errorf("%w: create .pose/policy/release.json", ErrReleasePolicyMissing)
 		}
 	}
 	raw, err := os.ReadFile(path)
@@ -473,6 +477,16 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 	if policy, perr := LoadReleasePolicy(s.Root); perr == nil {
 		cutoff = policy.LegacyCutoff
 		adopted = policy.AdoptedAt != ""
+	} else if errors.Is(perr, ErrReleasePolicyMissing) {
+		// Proven gone: a cut in the working tree still says the project adopted governed releases.
+		for _, entry := range entries {
+			if ValidateReleaseVersion(entry.Name()) == nil {
+				adopted = true
+			}
+		}
+	} else {
+		// A policy that is there and cannot be read is not "never adopted".
+		adopted = true
 	}
 	for _, tag := range strings.Fields(tags) {
 		if ValidateReleaseVersion(tag) != nil || inWorktree[tag] || version != "" && tag != version {

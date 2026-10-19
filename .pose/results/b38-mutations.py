@@ -107,6 +107,8 @@ M = [
  ("gitdir perdido vira sem repositório", [("pose-mcp/internal/pose/release_lifecycle.go", 'if _, statErr := os.Lstat(filepath.Join(dir, ".git")); statErr == nil || !errors.Is(statErr, os.ErrNotExist) {', 'if false {')], C, "TestR10ALostGitdirIsNotNoRepository"),
  ("status reivindica tag de projeto nunca adotado", [("pose-mcp/internal/pose/release_lifecycle.go", 'ErrReleaseSnapshotMissing) && !adopted {', 'ErrReleaseSnapshotMissing) && (false && !adopted) {')], P, "TestR11StatusDoesNotClaimTagsOfAProjectThatNeverAdopted"),
  ("status descarta tag de projeto adotado com policy perdida", [("pose-mcp/internal/pose/release_lifecycle.go", 'heldErr == nil && !held {', 'heldErr == nil && (held || !held) {')], P, "TestR11StatusDoesNotClaimTagsOfAProjectThatNeverAdopted"),
+ ("policy ilegível de hoje vira não-adoção", [("pose-mcp/internal/pose/release_lifecycle.go", '\t\t// A policy that is there and cannot be read is not "never adopted".\n\t\tadopted = true', '\t\t// A policy that is there and cannot be read is not "never adopted".\n\t\tadopted = false')], P, "TestR12LostPolicyOfTodayDoesNotMakeTheProjectLookUnadopted"),
+ ("policy apagada com corte no worktree vira não-adoção", [("pose-mcp/internal/pose/release_lifecycle.go", '\t\t\tif ValidateReleaseVersion(entry.Name()) == nil {\n\t\t\t\tadopted = true', '\t\t\tif ValidateReleaseVersion(entry.Name()) == nil {\n\t\t\t\tadopted = false')], P, "TestR12LostPolicyOfTodayDoesNotMakeTheProjectLookUnadopted"),
  ("corte vivo é chamado superado", [("pose-mcp/internal/pose/release_candidate.go", 'CompareReleasePrecedence(evidence["value"], manifest.Version) > 0', 'CompareReleasePrecedence(evidence["value"], manifest.Version) != 0')], P, "TestR6ASupersededCandidate"),
 ]
 

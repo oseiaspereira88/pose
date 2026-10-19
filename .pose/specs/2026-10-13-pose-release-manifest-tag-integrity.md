@@ -199,5 +199,6 @@ de baixo risco:
 - [open] Não reprovar o `pose check` por uma tag SemVer que aponta para árvore ou blob. (owner:@core crit:low review:2026-12-01)
 - [open] Derivar de novo `previous_version` e informá-lo como limite. (owner:@core crit:low review:2026-12-01)
 - [open] Fazer `release check` não descartar `ForeignFragmentClaims` em silêncio quando o archive ou as specs não puderem ser lidos. (owner:@core crit:low review:2026-12-01)
+- [open] Evitar que o status leia o snapshot e a policy da árvore de cada tag de um projeto não adotado antes de descartá-la (cerca de 2,9 s com 300 tags). (owner:@core crit:low review:2026-12-01)
 
 As dependências e unidades restantes permanecem na matriz do programa, sem disposição automática.
