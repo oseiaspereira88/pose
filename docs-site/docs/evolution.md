@@ -1,6 +1,8 @@
 # Releases and development status
 
-**Doc type:** Explanation · **Reviewed:** 2026-10-20<br>
+**Doc type:** Explanation · **Applies to:** POSE 7.x and unreleased development
+
+**Reviewed:** 2026-10-20
 **Published baseline:** [POSE v7.4.1](https://github.com/oseiaspereira88/pose/releases/tag/v7.4.1), published 2026-10-10.
 
 Use this page to distinguish what you can install today, what is present on the

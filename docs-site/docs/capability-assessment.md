@@ -1,6 +1,6 @@
 # Capability assessment
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** historical assessment; see the versioned evidence below
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE (historical assessment; see versioned evidence below)
 
 !!! note "Historical assessment, reviewed 2026-10-20"
 

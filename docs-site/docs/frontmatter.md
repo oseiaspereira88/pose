@@ -123,9 +123,12 @@ refs: PR#123
 ---
 ```
 
-The body is 1–3 user-facing sentences. At release time,
-`pose release-notes` consolidates fragments into grouped release notes
-(breaking changes first).
+The body is 1–3 user-facing sentences. Preview the pending cut with
+`pose release plan --version vX.Y.Z`; `pose release prepare --version vX.Y.Z --apply`
+freezes the selected fragments, notes and manifest. Then
+`pose release notes --version vX.Y.Z` reads the immutable snapshot; it does not
+reconsolidate the current pending directory. `pose release-notes --version vX.Y.Z`
+is a supported compatibility alias. See [command compatibility](command-compatibility.md).
 
 ## Schema version (`.pose/schema-version`)
 

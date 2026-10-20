@@ -1,6 +1,6 @@
 # Product roadmaps
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** historical portfolio and current planning snapshot
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE (historical portfolio and current planning snapshot)
 
 ## Current program — reviewed 2026-10-20
 
