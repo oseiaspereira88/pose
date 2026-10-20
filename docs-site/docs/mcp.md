@@ -383,3 +383,24 @@ never weaken a required dependency to make an older binary pass.
 Resolution and readiness are read-only lifecycle observations. Federated review,
 pinned evidence acceptance, spec transfer and automatic agent routing are separate
 implementation scopes; this resolver does not declare those capabilities ready.
+
+
+## Development branch behavior
+
+**Unreleased; reviewed 2026-10-20.** The published catalog baseline above is
+v7.4.1. Pending changes strengthen shared readers and writers without treating
+the presence of a tool name as proof of the newer behavior:
+
+- `pose_closeout_state` accepts optional `include_plan: true` for the spec's
+  execution plan; this belongs to the Git/dispatch work still in progress.
+- Interrupted or cancelled gates report `execution_inconclusive` with cause and
+  partial output, rather than claiming a completed failing gate.
+- Shared readers disclose incomplete source coverage and authenticate persisted
+  proof before reporting verified identity or satisfied action obligations.
+- `pose_review_attest` shares domain approval preflight with CLI and Store;
+  invalid or stale approvals return `review_approval_refused` without creating records.
+- Published index generations give readers one coherent set; unavailable inputs
+  are disclosed instead of silently selecting a mixture.
+
+See [Releases and development](evolution.md) for the pending fragment/spec
+boundary. Keep CLI and MCP binaries compatible with the same adopted contracts.
