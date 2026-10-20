@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -113,22 +114,15 @@ func gitChangedPaths(root string) ([]string, error) {
 }
 
 func parseGitChangedPaths(out []byte) ([]string, error) {
-	var paths []string
-	for len(out) > 0 {
-		i := bytes.IndexByte(out, 0)
-		if i < 3 || out[2] != ' ' {
-			return nil, &GitSnapshotError{"status protocol", fmt.Errorf("malformed porcelain record")}
-		}
-		record := out[:i]
-		out = out[i+1:]
-		paths = append(paths, string(record[3:]))
-		if record[0] == 'R' || record[0] == 'C' || record[1] == 'R' || record[1] == 'C' {
-			i = bytes.IndexByte(out, 0)
-			if i <= 0 {
-				return nil, &GitSnapshotError{"status protocol", fmt.Errorf("missing rename source")}
-			}
-			paths = append(paths, string(out[:i]))
-			out = out[i+1:]
+	entries, err := parseGitStatusEntries(out)
+	if err != nil {
+		return nil, err
+	}
+	paths := []string{}
+	for _, entry := range entries {
+		paths = append(paths, entry.Path)
+		if entry.OrigPath != "" {
+			paths = append(paths, entry.OrigPath)
 		}
 	}
 	sort.Strings(paths)
@@ -272,4 +266,136 @@ func gitMaterializedChanges(root, commit string) ([]string, error) {
 	}
 	sort.Strings(changed)
 	return changed, nil
+}
+
+// These readers are shared by the bundle, obligation and execution snapshots.
+var ErrGitUnknown = errors.New("pose: git state is unknown")
+var ErrGitUnavailable = errors.New("pose: not a git repository")
+
+func (e *GitSnapshotError) Is(target error) bool { return target == ErrGitUnknown }
+
+func hasGitMetadata(root string) bool {
+	dir, err := filepath.Abs(root)
+	if err != nil {
+		return true
+	}
+	for {
+		_, err := os.Lstat(filepath.Join(dir, ".git"))
+		if err == nil || !errors.Is(err, os.ErrNotExist) {
+			return true
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return false
+		}
+		dir = parent
+	}
+}
+
+type GitStatusEntry struct{ XY, Path, OrigPath string }
+
+func parseGitStatusEntries(out []byte) ([]GitStatusEntry, error) {
+	var entries []GitStatusEntry
+	for len(out) > 0 {
+		i := bytes.IndexByte(out, 0)
+		if i <= 3 || out[2] != ' ' {
+			return nil, &GitSnapshotError{"status protocol", fmt.Errorf("malformed porcelain record")}
+		}
+		record := out[:i]
+		out = out[i+1:]
+		entry := GitStatusEntry{XY: string(record[:2]), Path: string(record[3:])}
+		if record[0] == 'R' || record[0] == 'C' || record[1] == 'R' || record[1] == 'C' {
+			i = bytes.IndexByte(out, 0)
+			if i <= 0 {
+				return nil, &GitSnapshotError{"status protocol", fmt.Errorf("missing rename source")}
+			}
+			entry.OrigPath = string(out[:i])
+			out = out[i+1:]
+		}
+		entries = append(entries, entry)
+	}
+	return entries, nil
+}
+
+func ReadGitStatus(root string, pathspecs ...string) ([]GitStatusEntry, error) {
+	args := []string{"status", "--porcelain=v1", "-z", "--untracked-files=all", "--ignore-submodules=none"}
+	if len(pathspecs) > 0 {
+		args = append(args, "--")
+		args = append(args, pathspecs...)
+	}
+	out, err := snapshotGit(root, args...)
+	if err != nil {
+		if !hasGitMetadata(root) {
+			return nil, fmt.Errorf("%w: %v", ErrGitUnavailable, err)
+		}
+		return nil, err
+	}
+	return parseGitStatusEntries(out)
+}
+
+func ReadGitHead(root string) (string, error) {
+	out, err := snapshotGit(root, "rev-parse", "--verify", "HEAD")
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(out)), nil
+}
+
+// IsDerivedRegeneration lists candidate native producer outputs. It grants no
+// authority to an adapter: dispatch passes no allowance to WorktreeDivergence.
+func IsDerivedRegeneration(path string, tracked bool) bool {
+	if filepath.ToSlash(filepath.Clean(path)) != path {
+		return false
+	}
+	if path == ".pose/assessments/technical-debt.md" || path == ".pose/state/technical-debt.json" {
+		return true
+	}
+	for _, name := range append(append([]string{}, IndexGenerationFiles...), indexDescriptorName) {
+		if path == ".pose/indexes/"+name {
+			return true
+		}
+	}
+	if !tracked && path == ".pose/results/delivery-validation.json" {
+		return true
+	}
+	return false
+}
+
+// WorktreeDivergence uses one content reader even for paths hidden from status.
+func WorktreeDivergence(root, commit string, allowed func(string, bool) bool) ([]string, error) {
+	changed, err := gitMaterializedChanges(root, commit)
+	if err != nil {
+		return nil, err
+	}
+	status, err := ReadGitStatus(root)
+	if err != nil {
+		return nil, err
+	}
+	for _, entry := range status {
+		changed = append(changed, entry.Path)
+		if entry.OrigPath != "" {
+			changed = append(changed, entry.OrigPath)
+		}
+	}
+	tracked := map[string]bool{}
+	if allowed != nil {
+		out, err := snapshotGit(root, "ls-tree", "-r", "-z", "--name-only", commit)
+		if err != nil {
+			return nil, err
+		}
+		for _, path := range bytes.Split(out, []byte{0}) {
+			tracked[string(path)] = true
+		}
+	}
+	seen := map[string]bool{}
+	result := []string{}
+	for _, path := range changed {
+		if seen[path] || (allowed != nil && allowed(path, tracked[path])) {
+			continue
+		}
+		seen[path] = true
+		result = append(result, path)
+	}
+	sort.Strings(result)
+	return result, nil
 }

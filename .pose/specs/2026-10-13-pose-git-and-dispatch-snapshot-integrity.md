@@ -26,7 +26,7 @@ e a [análise de confiança](../reports/2026-10-11-pose-front-02-trust-chain.md)
 
 ### Constraints
 
-Implementação autorizada pelo mantenedor em 2026-10-20. Preservar as
+Implementação retomada em 2026-10-20, reconciliada com o PR #195 original. Preservar as
 fundações done, contratos selados, evidências e autorizações já existentes.
 Não adotar policy/capability automaticamente. Classificar compatibilidade antes
 de iniciar: recusa mais estrita ou mudança de semântica pública não é patch por
@@ -85,6 +85,20 @@ constitui aprovação independente nem closeout.
 - created: .pose/reports/history/standard-b07-snapshot-integrity.jsonl
 - created: .pose/reports/2026-10-20-b07-implementation.md
 
+- created: .pose/adr/2026-10-18-git-state-that-cannot-be-read-is-unknown-and-a-worktree-is-judged-by-its-content.md
+- created: .pose/results/b07-mutations.py
+- created: .pose/results/b07-mutations.json
+- modified: pose-mcp/internal/pose/git_spawn_cache.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/obligation_projection.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/releases.json
+- modified: .pose/indexes/roadmaps.json
+- modified: .pose/indexes/spec-graph.json
+
 ### Delivery targets
 
 - capability:git-and-dispatch-snapshot-integrity module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/review_dispatch.go
@@ -137,7 +151,7 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 
 Plano de execução B07 (2026-10-20), antes de código. Compatibilidade: minor,
 pois a recusa de runs antes aceitos altera a semântica pública de certificação.
-Branch `impl/pose-b07-snapshot-integrity`; baseline pelo start nativo, ready=true.
+Baseline canônica: start nativo original do PR #195 em `1e0a313`, preservado integralmente. O start repetido em 2026-10-20 tinha os mesmos hashes R1–R8/D1, mas não substitui o registro anterior.
 Assessment `pose assess discover --if-stale --component pose-mcp` atualizado.
 Contexto consultado: knowledge:pose-b06-source-coverage-closeout.
 
@@ -176,7 +190,7 @@ Consultar [delegação](../reports/2026-10-11-pose-front-03-delegated-review.md)
 Implementação B07 na branch `impl/pose-b07-snapshot-integrity`, iniciada nativamente
 em 2026-10-20. Ver [relatório](../reports/2026-10-20-b07-implementation.md) e
 knowledge:pose-b07-implementation para os gates executados e a retomada.
-Status permanece in-progress: sem aprovação de review ou closeout.
+Status permanece in-progress: sem aprovação de review ou closeout. A retomada foi reconciliada com `origin/impl/pose-b07-git-snapshot-integrity` (PR #195), preservando o start original e as regressões anteriores; `stale` permanece distinto de falha do comando.
 
 ### Residual risks
 

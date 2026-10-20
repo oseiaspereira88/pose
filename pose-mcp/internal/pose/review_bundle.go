@@ -1054,25 +1054,20 @@ func reviewBundleGitlinks(root string, paths []string) map[string]string {
 }
 
 func reviewBundleWorkingTreeChange(root, path string) (bool, string) {
-	cmd := exec.Command("git", "-C", root, "status", "--porcelain=v1", "--untracked-files=all", "--", path)
-	out, err := cmd.Output()
-	if err != nil {
+	entries, err := ReadGitStatus(root, path)
+	if errors.Is(err, ErrGitUnavailable) {
 		// Unit fixtures and exported source trees may not have Git metadata. The
 		// immutable change-set gate remains authoritative there.
 		return false, ""
 	}
-	line := strings.TrimSpace(string(out))
-	if line == "" {
+	if err != nil {
+		// A status that could not be read does not say the path is unchanged.
+		return true, " (git status unknown: " + err.Error() + ")"
+	}
+	if len(entries) == 0 {
 		return false, ""
 	}
-	if newline := strings.IndexByte(line, '\n'); newline >= 0 {
-		line = line[:newline]
-	}
-	status := strings.TrimSpace(strings.TrimSuffix(line, path))
-	if status == "" {
-		return true, ""
-	}
-	return true, " (git status " + status + ")"
+	return true, statusDetail(strings.TrimSpace(entries[0].XY))
 }
 
 // ReviewSubjectPathClass is the review-subject class of a path outside any

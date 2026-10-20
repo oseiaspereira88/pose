@@ -118,6 +118,7 @@ type ReviewRun struct {
 const (
 	ReviewRunCompleted = "completed"
 	ReviewRunFailed    = "failed"
+	ReviewRunStale     = "stale"
 )
 
 // ListReviewRuns returns the recorded runs for bundleID ("" for all).
@@ -154,6 +155,7 @@ func (s Store) ListReviewRuns(bundleID string) ([]ReviewRun, error) {
 
 // DispatchPlan is what a dispatch will do.
 type DispatchPlan struct {
+	PolicyDigest   string
 	OriginWorktree string
 	Adapter        string
 	Config         ReviewerAdapter
@@ -207,7 +209,7 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string) (Dispatch
 	if err != nil {
 		return DispatchPlan{}, err
 	}
-	return DispatchPlan{OriginWorktree: origin, Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: count}, nil
+	return DispatchPlan{PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose", "policy")), OriginWorktree: origin, Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: count}, nil
 }
 
 // ErrNoReviewerAdapter means the project configured no reviewer.
@@ -322,8 +324,9 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 		return finish(ReviewRunFailed, err.Error())
 	}
 	if err := s.checkDispatchOrigin(plan); err != nil {
-		return finish(ReviewRunFailed, err.Error())
+		return finish(ReviewRunStale, "origin or policy changed: "+err.Error())
 	}
+
 	return finish(ReviewRunCompleted, "")
 }
 
@@ -337,15 +340,11 @@ func verifyDispatchWorktree(root, commit string) error {
 	if strings.TrimSpace(string(head)) != commit {
 		return fmt.Errorf("the run moved the worktree off the sealed commit")
 	}
-	paths, err := gitChangedPaths(root)
+	paths, err := WorktreeDivergence(root, commit, nil)
 	if err != nil {
 		return err
 	}
-	materialized, err := gitMaterializedChanges(root, commit)
-	if err != nil {
-		return err
-	}
-	paths = append(paths, materialized...)
+
 	if len(paths) > 0 {
 		return fmt.Errorf("the run changed files in the sealed worktree: %q", paths)
 	}
@@ -391,13 +390,10 @@ func (s Store) checkDispatchOrigin(plan DispatchPlan) error {
 	if err := verifyBundleMaterialization(s.Root, plan.Bundle); err != nil {
 		return err
 	}
-	bundle, err := s.CurrentReviewBundle(plan.Brief.Scope)
-	if err != nil {
-		return fmt.Errorf("dispatch origin unavailable: %w", err)
+	if reason := s.dispatchNoLongerGoverns(plan); reason != "" {
+		return fmt.Errorf("%s", reason)
 	}
-	if bundle == nil || bundle.BundleID != plan.Bundle.BundleID || bundle.BundleDigest != plan.Bundle.BundleDigest {
-		return fmt.Errorf("dispatch origin stale: sealed bundle changed or was superseded")
-	}
+
 	return nil
 }
 
@@ -581,4 +577,18 @@ func writeNewFile(path string, raw []byte) error {
 		return err
 	}
 	return file.Close()
+}
+
+func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
+	if directoryDigest(filepath.Join(s.Root, ".pose", "policy")) != plan.PolicyDigest {
+		return "dispatch policy changed"
+	}
+	bundle, err := s.CurrentReviewBundle(plan.Brief.Scope)
+	if err != nil {
+		return "dispatch origin unavailable: " + err.Error()
+	}
+	if bundle == nil || bundle.BundleID != plan.Bundle.BundleID || bundle.BundleDigest != plan.Bundle.BundleDigest {
+		return "dispatch origin stale: sealed bundle changed or was superseded"
+	}
+	return ""
 }
