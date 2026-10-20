@@ -31,19 +31,10 @@ Relatório e matriz em `../reports/2026-10-20-b07-implementation.md` e
 
 ## Next checks
 
-1. Revisar o diff e os limites do dispatch; não converter o run histórico em aprovação.
-2. Resolver por revisão própria a exceção `first-party-actions-tag-pinning`
-   (`.github/security-exceptions.json`), vencida em 2026-10-19. Não renovar a data
-   sem revisão nem enfraquecer o gate. Reexecutar matriz depois da correção.
-3. Conferir atribuição, surface evidence e freshness no sujeito final; obter review
-   e closeout nativos antes de marcar B07 delivery_complete ou atualizar o gitlink.
-   A implementação `703b831` reconcilia 31/31 paths no intervalo explícito
-   `8aa729a7..703b831`. O padrão por trailers inclui três fontes da história
-   anterior; não inventar claims de mudanças que esta execução não fez.
-   Surface-check também exige reexecutar evidência com scoped provenance atual.
-4. O binding de Harne8 ainda aponta para 8aa729a7. Não usar o wrapper de adoção
-   para escrever sobre esta branch de desenvolvimento; usar CLI compilada nela,
-   autoridade local explícita e contexto atualizado.
+1. Canonical worktree: /tmp/pose-b07-closeout-work, branch impl/pose-b07-git-snapshot-integrity. Merge a4c58e9 preserves the full PR195 history through 23643a2 and the original native start. Do not overwrite concurrent documentation changes in the shared checkout.
+2. The unused expired Actions waiver was removed separately in d957b4f. No pin or enforcement change. Reconciled full suite, 11/11 mutations and native 141/141 validation passed before the latest three review fixes; regenerate final evidence at the configured .pose/results/delivery-validation.json.
+3. Review R1 requested changes, now fixed: persisted runs require Git, closeout exceptions require regular materialization, history sorts instants with validated probes. Review R2 is a fresh separate same-vendor execution. The cross-vendor attempt hit its weekly limit; no cross-vendor approval is claimed.
+4. Finish artifact/surface checks, native sealed review and closeout before done or adoption. Default artifact attribution reconciled 82 claims with no errors. The Harne8 binding still points at 8aa729a7; do not update it merely because local tests pass.
 
 ## Risks
 

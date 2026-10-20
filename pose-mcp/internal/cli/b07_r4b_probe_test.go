@@ -10,6 +10,31 @@ import (
 	"testing"
 )
 
+func TestB07PersistedDispatchRequiresGit(t *testing.T) {
+	root := dispatchInstance(t)
+	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; echo reviewed"}, Vendor: "test", Model: "probe"}})
+	if code, out := dispatchOnce(t, root, "probe"); code != 0 {
+		t.Fatal(out)
+	}
+	s := posemodel.Store{Root: root}
+	runs, lost, err := s.ReadReviewRuns("")
+	if err != nil || len(lost) != 0 || len(runs) != 1 {
+		t.Fatalf("runs: %v %v %v", runs, lost, err)
+	}
+	if why := s.ReviewRunStillGoverns(runs[0]); why != "" {
+		t.Fatal(why)
+	}
+	if err := os.Rename(filepath.Join(root, ".git"), filepath.Join(t.TempDir(), "git-metadata")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(filepath.Join(root, "pose-mcp/lib.go"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if why := s.ReviewRunStillGoverns(runs[0]); why == "" {
+		t.Fatal("lost Git metadata certified current fulfillment")
+	}
+}
+
 func TestB07R4BSourceHeadUnknown(t *testing.T) {
 	root := dispatchInstance(t)
 	real, e := exec.LookPath("git")

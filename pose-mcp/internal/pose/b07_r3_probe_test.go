@@ -109,7 +109,7 @@ func TestB07R3RunFields(t *testing.T) {
 func TestB07R3LostSupersedingRun(t *testing.T) {
 	s, b, now := retentionFixture(t)
 	base := ReviewRun{SchemaVersion: 1, Status: ReviewRunCompleted, Scope: "spec:backend", BundleID: b.BundleID, BundleDigest: b.BundleDigest, SealedCommit: b.Payload.Subject.Head, PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose/policy")), StartedAt: now.Format(time.RFC3339Nano), EndedAt: now.Format(time.RFC3339Nano)}
-	run, e := s.recordReviewRun(base, nil)
+	run, e := recordB07FixtureRun(t, s, base, nil)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -121,7 +121,7 @@ func TestB07R3LostSupersedingRun(t *testing.T) {
 	late.Supersedes = run.RunID
 	late.Failure = "stale"
 	late.EndedAt = now.Add(time.Second).Format(time.RFC3339Nano)
-	sup, e := s.recordReviewRun(late, nil)
+	sup, e := recordB07FixtureRun(t, s, late, nil)
 	if e != nil {
 		t.Fatal(e)
 	}

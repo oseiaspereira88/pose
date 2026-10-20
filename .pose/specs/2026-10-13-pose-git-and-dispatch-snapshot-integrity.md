@@ -136,6 +136,18 @@ constitui aprovação independente nem closeout.
 - created: .pose/results/b07-independent-probes.py
 - created: .pose/results/b07-independent-probes.log
 
+- created: .pose/reports/2026-10-20-b07-reconciled-review-r1.md
+- created: .pose/reports/2026-10-20-b07-reconciled-review-r2.md
+- modified: .pose/results/delivery-validation.json
+
+- modified: .pose/assessments/docs-site.md
+- modified: .pose/assessments/mcp-enforce.md
+- modified: .pose/state/components/docs-site.json
+- modified: .pose/state/components/mcp-enforce.json
+- modified: .pose/state/project-state.md
+
+- created: .pose/reports/2026-10-20-b07-reconciled-review-r3.md
+
 ### Delivery targets
 
 - capability:git-and-dispatch-snapshot-integrity module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/review_dispatch.go

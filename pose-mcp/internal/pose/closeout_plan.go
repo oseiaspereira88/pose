@@ -242,6 +242,10 @@ func (s Store) ungeneratedChanges(slug, head string) ([]string, error) {
 			continue
 		}
 		generated := closeoutProducedPath(path, slug, policy.ResultsPath, trackedChanges[path])
+		if generated {
+			_, err := dispatchRegularInputPath(s.Root, path)
+			generated = err == nil
+		}
 		if generated && strings.HasPrefix(path, ".pose/indexes/generations/") {
 			view := s.ReadIndexGeneration()
 			generated = false

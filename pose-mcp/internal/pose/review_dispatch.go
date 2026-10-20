@@ -176,7 +176,14 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 			out = append(out, run)
 		}
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].StartedAt < out[j].StartedAt })
+	sort.Slice(out, func(i, j int) bool {
+		a, _ := time.Parse(time.RFC3339Nano, out[i].StartedAt)
+		b, _ := time.Parse(time.RFC3339Nano, out[j].StartedAt)
+		if !a.Equal(b) {
+			return a.Before(b)
+		}
+		return out[i].RunID < out[j].RunID
+	})
 	superseded := map[string]string{}
 	for _, run := range out {
 		if run.Supersedes != "" {
@@ -613,6 +620,9 @@ func tail(s string, n int) string {
 }
 
 func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, error) {
+	// Identity covers only persisted content, never fields derived by a reader
+	// or a previous write of a copied record.
+	run.RunID, run.Path, run.TranscriptPath, run.SupersededBy = "", "", "", ""
 	sum := sha256.Sum256(transcript)
 	run.TranscriptDigest = "sha256:" + hex.EncodeToString(sum[:])
 	identity, _ := json.Marshal(run)
@@ -735,6 +745,12 @@ func (s Store) ReviewRunStillGoverns(run ReviewRun) string {
 	if why := s.reviewRunTranscriptIntact(*persisted); why != "" {
 		return why
 	}
+	if _, err := dispatchWorktreeIdentity(s.Root); err != nil {
+		return "origin Git identity unknown: " + err.Error()
+	}
+	if _, err := ReadGitHead(s.Root); err != nil {
+		return "origin HEAD unknown: " + err.Error()
+	}
 	bundle, err := s.LoadReviewBundle(run.BundleID)
 	if err != nil {
 		return "the bundle of the run can no longer be read: " + err.Error()
@@ -742,6 +758,9 @@ func (s Store) ReviewRunStillGoverns(run ReviewRun) string {
 	// The record says what it reviewed; what it says must be what the bundle is.
 	if run.BundleDigest != bundle.BundleDigest || run.Scope != bundle.Payload.Scope.Ref || run.SealedCommit != bundle.Payload.Subject.Head {
 		return "the run record does not describe the bundle it names (bundle digest, scope or sealed commit differ)"
+	}
+	if err := verifyBundleMaterialization(s.Root, bundle); err != nil {
+		return "persisted review inputs no longer materialize: " + err.Error()
 	}
 	return s.dispatchNoLongerGoverns(DispatchPlan{Bundle: bundle, Brief: ReviewBrief{Scope: run.Scope}, SealedCommit: run.SealedCommit,
 		PolicyDigest: run.PolicyDigest})

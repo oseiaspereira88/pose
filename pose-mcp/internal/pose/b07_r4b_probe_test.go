@@ -12,7 +12,7 @@ import (
 func TestB07R4PartialSupersedingRun(t *testing.T) {
 	s, b, now := retentionFixture(t)
 	base := ReviewRun{SchemaVersion: 1, Status: ReviewRunCompleted, Scope: "spec:backend", BundleID: b.BundleID, BundleDigest: b.BundleDigest, SealedCommit: b.Payload.Subject.Head, PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose/policy")), StartedAt: now.Format(time.RFC3339Nano), EndedAt: now.Format(time.RFC3339Nano)}
-	run, e := s.recordReviewRun(base, nil)
+	run, e := recordB07FixtureRun(t, s, base, nil)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -23,7 +23,7 @@ func TestB07R4PartialSupersedingRun(t *testing.T) {
 	late.Status = ReviewRunStale
 	late.Supersedes = run.RunID
 	late.EndedAt = now.Add(time.Second).Format(time.RFC3339Nano)
-	sup, e := s.recordReviewRun(late, nil)
+	sup, e := recordB07FixtureRun(t, s, late, nil)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -42,7 +42,7 @@ func TestB07R4PartialSupersedingRun(t *testing.T) {
 func TestB07R4RunTranscript(t *testing.T) {
 	s, b, now := retentionFixture(t)
 	base := ReviewRun{SchemaVersion: 1, Status: ReviewRunCompleted, Scope: "spec:backend", BundleID: b.BundleID, BundleDigest: b.BundleDigest, SealedCommit: b.Payload.Subject.Head, PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose/policy")), StartedAt: now.Format(time.RFC3339Nano), EndedAt: now.Format(time.RFC3339Nano)}
-	run, e := s.recordReviewRun(base, []byte("rejected"))
+	run, e := recordB07FixtureRun(t, s, base, []byte("rejected"))
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -116,7 +116,7 @@ func r4bRun(t *testing.T) (Store, ReviewRun) {
 	t.Helper()
 	s, b, now := retentionFixture(t)
 	base := ReviewRun{SchemaVersion: 1, Status: ReviewRunCompleted, Scope: "spec:backend", BundleID: b.BundleID, BundleDigest: b.BundleDigest, SealedCommit: b.Payload.Subject.Head, PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose/policy")), StartedAt: now.Format(time.RFC3339Nano), EndedAt: now.Format(time.RFC3339Nano)}
-	r, e := s.recordReviewRun(base, []byte("original transcript"))
+	r, e := recordB07FixtureRun(t, s, base, []byte("original transcript"))
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -124,6 +124,84 @@ func r4bRun(t *testing.T) (Store, ReviewRun) {
 		t.Fatal("control: " + why)
 	}
 	return s, r
+}
+
+func TestB07PersistedConsumedInputLink(t *testing.T) {
+	s, run := r4bRun(t)
+	p := filepath.Join(s.Root, ".pose/review-profiles/spec-closeout.json")
+	raw, err := os.ReadFile(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	outside := filepath.Join(t.TempDir(), "profile.json")
+	if err := os.WriteFile(outside, raw, 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Remove(p); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(outside, p); err != nil {
+		t.Skip(err)
+	}
+	if why := s.ReviewRunStillGoverns(run); why == "" {
+		t.Fatal("same-byte consumed profile link remained eligible")
+	}
+}
+
+func TestB07PersistedRelevantSubmoduleHiddenEdit(t *testing.T) {
+	s, _, now := retentionFixture(t)
+	root := s.Root
+	snapshotTestGit(t, root, "init", "-q")
+	snapshotTestGit(t, root, "add", "-A")
+	snapshotTestGit(t, root, "commit", "-qm", "baseline")
+	child := snapshotRepo(t, map[string]string{"child.go": "package child\n"})
+	sub := filepath.Join(root, "api/module")
+	if err := os.Rename(child, sub); err != nil {
+		t.Fatal(err)
+	}
+	pin := snapshotTestGit(t, sub, "rev-parse", "HEAD")
+	snapshotTestGit(t, root, "update-index", "--add", "--cacheinfo", "160000,"+pin+",api/module")
+	snapshotTestGit(t, root, "commit", "-qm", "relevant module")
+	head := snapshotTestGit(t, root, "rev-parse", "HEAD")
+	p := filepath.Join(root, ".pose/indexes/delivery-integrity.json")
+	raw, err := os.ReadFile(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var graph DeliveryIntegrityGraph
+	if err := json.Unmarshal(raw, &graph); err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].Head, graph.ChangeSets[0].ResolvedHead = head, head
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths, ObservedPath{Action: "created", Path: "api/module"})
+	raw, err = json.Marshal(graph)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(p, raw, 0644); err != nil {
+		t.Fatal(err)
+	}
+	b, err := s.SealReviewBundle("spec:backend", now.Add(time.Second))
+	if err != nil {
+		t.Fatal(err)
+	}
+	run, err := s.recordReviewRun(ReviewRun{SchemaVersion: 1, Status: ReviewRunCompleted, Scope: "spec:backend", BundleID: b.BundleID, BundleDigest: b.BundleDigest, SealedCommit: b.Payload.Subject.Head, PolicyDigest: directoryDigest(filepath.Join(root, ".pose/policy")), StartedAt: now.Format(time.RFC3339Nano), EndedAt: now.Format(time.RFC3339Nano)}, []byte("reviewed module"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if why := s.ReviewRunStillGoverns(run); why != "" {
+		t.Fatal("intact control: " + why)
+	}
+	snapshotTestGit(t, sub, "update-index", "--assume-unchanged", "child.go")
+	if err := os.WriteFile(filepath.Join(sub, "child.go"), []byte("package changed\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if entries, err := ReadGitStatus(sub); err != nil || len(entries) != 0 {
+		t.Fatalf("hidden control: %v %v", entries, err)
+	}
+	if why := s.ReviewRunStillGoverns(run); why == "" {
+		t.Fatal("hidden relevant submodule edit remained eligible")
+	}
 }
 func TestB07R4BRunFields(t *testing.T) {
 	for _, field := range []string{"schema_version", "output", "status", "supersedes", "run_id", "transcript_digest", "transcript_path", "ended_at", "exit_code"} {
@@ -185,18 +263,21 @@ func TestB07R4BRunOrdering(t *testing.T) {
 	a.RunID = ""
 	a.StartedAt = "2026-10-18T00:00:00Z"
 	a.EndedAt = a.StartedAt
-	first, e := s.recordReviewRun(a, nil)
+	first, e := recordB07FixtureRun(t, s, a, nil)
 	if e != nil {
 		t.Fatal(e)
 	}
 	a.RunID = ""
 	a.StartedAt = "2026-10-18T00:00:00.1Z"
 	a.EndedAt = a.StartedAt
-	second, e := s.recordReviewRun(a, nil)
+	second, e := recordB07FixtureRun(t, s, a, nil)
 	if e != nil {
 		t.Fatal(e)
 	}
-	runs, _, _ := s.ReadReviewRuns("")
+	runs, lost, readErr := s.ReadReviewRuns("")
+	if readErr != nil || len(lost) != 0 {
+		t.Fatalf("history not read whole: %v %v", lost, readErr)
+	}
 	i, j := -1, -1
 	for k, r := range runs {
 		if r.RunID == first.RunID {
@@ -207,7 +288,7 @@ func TestB07R4BRunOrdering(t *testing.T) {
 		}
 	}
 	t.Logf("earlier index=%d later index=%d", i, j)
-	if i > j {
+	if i < 0 || j < 0 || i >= j {
 		t.Error("runs ordered by timestamp text rather than instant")
 	}
 }
@@ -258,4 +339,17 @@ func TestB07R4BOtherWorktreeConfig(t *testing.T) {
 	if e == nil && len(d) == 0 {
 		t.Error("dirty root certified with another configured worktree")
 	}
+}
+
+func recordB07FixtureRun(t *testing.T, s Store, run ReviewRun, transcript []byte) (ReviewRun, error) {
+	t.Helper()
+	if !hasGitMetadata(s.Root) {
+		snapshotTestGit(t, s.Root, "init", "-q")
+		snapshotTestGit(t, s.Root, "add", "-A")
+		snapshotTestGit(t, s.Root, "commit", "-qm", "fixture baseline")
+		if run.SealedCommit != "" {
+			snapshotTestGit(t, s.Root, "tag", run.SealedCommit)
+		}
+	}
+	return s.recordReviewRun(run, transcript)
 }

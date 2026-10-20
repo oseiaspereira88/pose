@@ -1,7 +1,7 @@
 # B07 — implementação para revisão
 
 Data: 2026-10-20. Spec: `pose-git-and-dispatch-snapshot-integrity`.
-Branch: `impl/pose-b07-snapshot-integrity`, sobre `8aa729a7`.
+Branch: `impl/pose-b07-git-snapshot-integrity`, reconciliada com PR #195.
 Estado: in-progress; sem aprovação, closeout, publicação ou adoção no Harne8.
 
 ## Comportamento
@@ -21,7 +21,7 @@ brief, adapter e inputs materializados antes de executar. O worktree descartáve
 precisa materializar os inputs selados, não somente o mesmo HEAD. Após o processo,
 compara disco inteiro, inclusive arquivos ignorados; reconfere HEAD, materialização,
 adapter e freshness da origem. Um commit documental independente é permitido;
-outra origem, adulteração ou supersession produz failed com transcript preservado.
+adulteração do checkout produz failed; mudança da origem ou supersession produz stale, com transcript preservado.
 
 Adapters não carregam autorização autenticada de produtor/output. Portanto
 stdout e `{output}` são seus destinos; não podem regenerar estado dentro do
@@ -54,49 +54,18 @@ matriz após a extensão MCP também detectou golden desatualizado, corrigido
 somente com a propriedade e descrição previstas no ADR. Esses resultados não
 são promovidos a passes retrospectivos; a history do relatório os conserva.
 
-## Gate pendente
+## Reconciliation and current gates
 
-O commit de implementação é `703b8318063f78fcf1d461410bc06d0ed456e7ab`.
-A reconciliação explícita `pose artifact-check --spec
-pose-git-and-dispatch-snapshot-integrity --from 8aa729a7 --to 703b831 --strict`
-passou: 31 claims e 31 paths observados, com avisos globais de orphans. O comando
-também atualizou nativamente delivery-integrity e seu descritor de geração.
+The canonical PR195 history through 23643a2 is preserved by merge a4c58e9, including four prior independent review reports and their probes. The original native start is retained. Shared checkout documentation was preserved; reconciliation runs in /tmp/pose-b07-closeout-work on impl/pose-b07-git-snapshot-integrity.
 
-O seletor padrão por trailers continua abrangendo a história anterior da spec:
-base `1e0a313`, três commits atribuídos e 46 paths observados. Ele reporta como
-undeclared `review_bundle.go`, `obligation_projection.go` e `git_spawn_cache.go`,
-que esta implementação não editou. Não foram acrescentadas declarações falsas
-para fazer esse intervalo passar. Reconciliar essa fronteira histórica ao preparar
-o sujeito canônico de review, preservando a distinção de atribuição registrada
-no AGENTS.md. Não tratar o passe do intervalo explícito como passe do padrão.
+The expired unused Actions waiver was retired separately in d957b4f under spec:pose-retire-unused-first-party-action-exception. Workflow pins and enforcement remain unchanged. The reconciled full suite and 11/11 production mutations passed; native strict validation subsequently passed 141/141 checks. Those results predate the three corrections requested in reconciled-review-r1 and will be regenerated for the final subject.
 
-`surface-check --spec pose-git-and-dispatch-snapshot-integrity --strict` ainda
-recusa o fechamento: a evidência antecede o commit e tem outro scoped provenance
-digest, além da fronteira de atribuição acima. Reexecutar os produtores registrados
-sobre o sujeito final após reconciliar a autoridade do change set. Os resultados
-anteriores continuam sendo execução real de testes, sem promover freshness.
+The first separate review requested changes for persisted dispatch Git loss, closeout output type/deletion exemptions and run ordering. These are corrected with actual-dispatch metadata-loss coverage, nine exact-name replacement scenarios and a nonvacuous history-order control. The final separate same-vendor review accepted the functional corrections on inspection with no remaining functional finding; the cross-vendor attempt hit its weekly limit. No human confirmation or cryptographic reviewer identity is claimed.
 
-O teste `TestWorkflowSecurityContract` recusa a exceção
-`first-party-actions-tag-pinning` em `.github/security-exceptions.json`, expirada
-em 2026-10-19. O arquivo e o teste não foram alterados por B07. Não houve
-renovação de data ou dispensa de segurança: revisar a exceção ou corrigir o
-pinning em escopo próprio, então reexecutar a matriz integral.
+Default artifact attribution now reconciles 82 claims without errors after preserving the complete history. Final native artifact/surface/validation checks, sealed review and closeout remain required. Historical reports and mutation results are retained as historical evidence, not current delivery proof.
 
-Revisão e admissão nativas ainda são devidas. Não marcar a B-unit como
-delivery_complete, não fechar a spec e não atualizar o gitlink consumidor com
-base apenas nestes testes. Conferir attribution e surface-check no sujeito
-commitado e na evidência fresca antes de concluir a review.
+## Limits
 
-## Limites
+Bounded observations do not provide adapter sandbox containment or detect every transient restored edit. Dispatch writes historical records and transcripts, not approval or attestation. Consumers revalidate persisted identity, transcript, supersession and semantic relevance. Outputs go to stdout or the external output placeholder; directory names grant no adapter write authority.
 
-As leituras são limitadas a 100000 entradas e 256 MiB; orçamento excedido é
-unavailable, nunca cobertura parcial certificada. Há custo de verificação de
-conteúdo além de `git status`; B32 conserva otimizações e benchmarks.
-
-Antes/depois não detecta toda escrita transitória, não cria sandbox e não
-coordena escritores Git externos. A única publicação do dispatch é história;
-ele não aplica attestation, approval ou fulfillment. Futuras operações governadas
-devem verificar os inputs/autorização atuais. B16/B18/B19 continuam responsáveis
-por ledger, containment e consumo governado, respectivamente.
-
-Retomada: [handoff B07](../knowledge/2026-10-20-handoff-pose-b07-implementation.md).
+The R2 remaining persisted-materialization finding is corrected by reusing verifyBundleMaterialization at consumption. Intact-control regressions cover same-byte consumed-profile symlinks and hidden relevant-submodule edits. Review R3 records the final declared judgment and its mechanical evidence limits.

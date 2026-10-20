@@ -88,14 +88,14 @@ capacidade.
   - report:pose-v7-legacy-cleanup-plan.md
 
 ## Arquitetura
-<!-- state:derived hash:1a6ee06cee0b status:active -->
+<!-- state:derived hash:6042ee63b736 status:active -->
 
-- componentes: total=3 verificados=3 completude=100.0%
-- linhas_de_codigo: producao=70779 testes=56339 total=127118
+- componentes: total=3 verificados=3 completude=99.8%
+- linhas_de_codigo: producao=76533 testes=65326 total=141859
 - linguagens: go
-- saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
+- saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63
-- divida_tecnica: total=0 coberta=0 descoberta=0
+- divida_tecnica: total=1 coberta=1 descoberta=0 (piso: relatório de dívida incompleto — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md (scope unknown); invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown); não certificado)
 - ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
 
 ## Docs

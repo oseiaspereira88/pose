@@ -289,6 +289,35 @@ func TestHiddenExecutableModeIsDivergence(t *testing.T) {
 	}
 }
 
+func TestB07CloseoutOutputsMustRemainRegular(t *testing.T) {
+	for _, name := range []string{".pose/indexes/repo-map.json", ".pose/results/custom.json", ".pose/closeout-plans/spec-alpha.json"} {
+		for _, replacement := range []string{"deleted", "symlink", "directory"} {
+			t.Run(name+"/"+replacement, func(t *testing.T) {
+				root := snapshotRepo(t, map[string]string{name: "{}", ".pose/policy/delivery.json": `{"schema_version":1,"enabled":true,"results_path":".pose/results/custom.json"}`})
+				head := snapshotTestGit(t, root, "rev-parse", "HEAD")
+				full := filepath.Join(root, filepath.FromSlash(name))
+				if err := os.Remove(full); err != nil {
+					t.Fatal(err)
+				}
+				if replacement == "symlink" {
+					if err := os.Symlink(filepath.Join(t.TempDir(), "outside"), full); err != nil {
+						t.Skip(err)
+					}
+				}
+				if replacement == "directory" {
+					if err := os.Mkdir(full, 0755); err != nil {
+						t.Fatal(err)
+					}
+				}
+				paths, err := (Store{Root: root}).ungeneratedChanges("alpha", head)
+				if err == nil && len(paths) == 0 {
+					t.Fatalf("%s output replacement certified clean", replacement)
+				}
+			})
+		}
+	}
+}
+
 // V3: paths are exact; a replaced type, a link, a deletion and an executable bit are divergences.
 func TestWorktreeDivergenceReadsPathsAndTypesExactly(t *testing.T) {
 	odd := "dir with space/\"quoted\" é.txt"

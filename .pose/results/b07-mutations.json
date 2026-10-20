@@ -54,8 +54,23 @@
       "mutation": "unknown obligation status is coherent",
       "tests": "TestTheProjectionIsNotCoherentWhenStatusCannotBeRead",
       "verdict": "killed"
+    },
+    {
+      "mutation": "persisted relevance skips materialized consumed inputs",
+      "tests": "TestB07PersistedConsumedInputLink|TestB07PersistedRelevantSubmoduleHiddenEdit",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "closeout exemption accepts deleted or replaced output",
+      "tests": "TestB07CloseoutOutputsMustRemainRegular",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "run history uses timestamp text",
+      "tests": "TestB07R4BRunOrdering",
+      "verdict": "killed"
     }
   ],
-  "killed": 11,
-  "total": 11
+  "killed": 14,
+  "total": 14
 }
