@@ -1,6 +1,31 @@
 # Product roadmaps
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 7.x (current stable)
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** historical portfolio and current planning snapshot
+
+## Current program — reviewed 2026-10-20
+
+Read [Releases and development](evolution.md) for published availability. Roadmap
+status describes a governed plan, not whether a capability is in a release.
+
+| Planning area | Canonical roadmap files | State at review |
+|---|---|---|
+| Consolidation and truthful records | `pose-consolidation-program.md`, `record-truthfulness.md` | `active` |
+| Community launch | `community-launch.md` | `active` |
+| Agency, epistemic lifecycle and review efficiency | `agency-readiness.md`, `epistemic-lifecycle.md`, `governance-efficiency.md` | `draft` |
+| Delegation and onboarding consolidation | `delegated-review.md`, `pose-v7-onboarding-and-consolidation.md` | `draft` |
+| Consistency, release recovery and optional runtime | `pose-state-consistency-and-recovery.md`, `pose-release-sufficiency-and-recovery.md`, `pose-shared-runtime.md` | `draft` |
+| Multi-project foundation | `pose-multirepo-foundation.md` | `done`; see its own closeout evidence |
+
+Inspect the [canonical roadmap directory](https://github.com/oseiaspereira88/pose/tree/main/.pose/roadmaps)
+and member specs for dependencies and gates. Several pending changelog entries
+formalize consolidation batches; they explicitly do not claim runtime, cache,
+IPC or pilot delivery. A draft roadmap can also include previously delivered
+members: its overall status is not a verdict on every individual feature.
+
+## Historical portfolio — 2026-08-17
+
+The ten completed roadmaps and counts below describe this original portfolio,
+not the whole repository as of today. Retain its wave dates as history.
 
 **Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-08-17):** all 10 roadmaps `done`
 **Canonical execution artifacts:** `.pose/roadmaps/*.md` and the specs under
@@ -20,7 +45,7 @@ validation and closeout gates with executed evidence, not a planning
 intention. The target windows and wave structure are kept below as the
 historical execution record and as the template for the next portfolio, not
 as an open plan. See the [capability assessment](capability-assessment.md)
-for the current, post-delivery state of each mechanism.
+for the dated post-delivery assessment of each mechanism.
 
 Four further specs sit outside roadmap membership, opened directly against
 delivered roadmap 10 outcomes after a real upgrade-path field audit against
@@ -37,8 +62,8 @@ memberships that make up the remainder of the 115 total.
     automatic usage analytics, the revised five-metric DORA contract and an
     exercised immutable release lifecycle. The v1.1.0 and v1.2.0 releases add
     component-aware review plans, convergent sealed review bundles with
-    separate attestations, and automated evidence attestation (`pose review auto-attest`). Current capability truth lives in the assessment,
-    not in these historical target windows.
+    separate attestations, and automated evidence attestation (`pose review auto-attest`). Use the evolution guide for current release availability; neither these
+    historical target windows nor the original assessment describes all later work.
 
 ## Prioritization model
 

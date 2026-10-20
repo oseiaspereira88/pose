@@ -5,6 +5,24 @@
 The `pose` CLI is a single native Go binary. Every command below executes
 without Bash or Python fallbacks and works offline.
 
+For daily work, start with [Operate an instance](operate.md) and
+[Review and trust](review-and-trust.md). The published baseline reviewed on
+2026-10-20 is v7.4.1; sections labelled development describe pending changes.
+
+## Setup, attention and authority
+
+| Command | Purpose |
+|---|---|
+| `pose setup [--json|--no-input]` | Inspect configuration; interactive setup offers confirmed steps |
+| `pose adopt --list` | List supported capabilities, prerequisites and recorded decisions |
+| `pose state --governance [--scope REF] [--json]` | Explain effective policy and legacy cutoffs |
+| `pose state --attention [--scope REF] [--actor ID] [--phase P] [--json]` | Project obligations, coverage, recipients and phase restrictions |
+| `pose action list --present` | Group open material requests for a conversation |
+| `pose action show ID --json` | Inspect a request, its journal and answer assurance |
+| `pose identity list` | Inspect registered principals and public signing keys |
+| `pose issuer list` | Inspect local issuers and trusted pins |
+| `pose context --project-id ID --task XREF --json` | Resolve canonical project authority before qualified writes |
+
 ## Scaffold
 
 | Command | Purpose |
@@ -16,6 +34,22 @@ without Bash or Python fallbacks and works offline.
 | `pose new-roadmap <slug>` | Create a governed roadmap in `.pose/roadmaps/` |
 | `pose new-adr "<title>"` | Create a dated ADR |
 | `pose new-knowledge <type> <slug>` | Create handoff/note/decision-log (`--owner`, `--ttl-days`, `--restricted`) |
+
+## Managed execution and contract changes
+
+| Command | Purpose |
+|---|---|
+| `pose start spec:<slug>` | Preview readiness, dependencies, obligations and the R/A/D baseline without writing |
+| `pose start spec:<slug> --apply --digest <digest>` | Apply the reviewed start under the adopted atomic-start contract |
+| `pose start spec:<slug> --status` | Inspect the recorded baseline and managed-execution state |
+| `pose amend <slug> --nodes --json` | Project versioned requirement, assumption and decision nodes |
+| `pose close spec:<slug> --plan` | Inspect ordered closeout steps and current blockers |
+| `pose close spec:<slug> --apply --reviewer <id>` | Execute closeout; stop where a judgment or authorization remains owed |
+| `pose close spec:<slug> --resume --reviewer <id>` | Resume a recoverable closeout from its checkpoint |
+
+Use digests from the current preview rather than reusing a stale plan. The
+baseline establishes observable ordering, not when a decision was actually
+made. See [instance operation](operate.md) and [review and trust](review-and-trust.md).
 
 ## Deterministic gates
 
@@ -545,6 +579,30 @@ the adapter before dispatching. The returned review remains subject to the
 bundle's criteria, identity requirements and verification gates; dispatch
 does not itself approve or close the spec.
 
+#### Development branch: dispatch snapshot integrity
+
+**Unreleased, in progress as of 2026-10-20.** The following describes pending
+snapshot hardening rather than the published v7.4.1 implementation.
+
+Dispatch verifies the sealed inputs in both the selected origin and the
+disposable worktree before starting. After the command exits, it checks the
+worktree's HEAD, materialized content (including ignored files), current bundle
+and adapter configuration again. An unavailable Git observation fails the run;
+`assume-unchanged` and `skip-worktree` do not authorize hidden edits. An unrelated
+documentation commit does not stale a bundle whose semantic inputs still match.
+
+Keep adapter output outside the worktree, using `{output}` or stdout. Adapters
+cannot authenticate a regeneration producer, so writing assessments, indexes,
+results or review artifacts inside the worktree fails the run. A directory name
+does not grant permission. Disk comparison reads at most 100,000 entries and
+256 MiB; exceeding either limit fails with an unavailable snapshot diagnostic.
+Retry after resolving the reported cause; every attempt rechecks preconditions.
+
+A completed run records observations at completion. It grants no current
+fulfillment or attestation authority and does not isolate an adapter from the
+host filesystem. If the origin becomes stale during execution, its transcript
+is retained as a failed historical run.
+
 ### Signed action answers
 
 A project can verify who answered an action request without any external
@@ -581,13 +639,16 @@ prints it.
 
 ```bash
 pose issuer init maintainer
-pose issuer pin maintainer --attestations --human-authority --apply
+pose issuer pin maintainer --attestations --apply
 pose adopt signed-attestations --apply
-pose review attest spec:my-spec --reviewer human:ada --decision approved \
+pose review attest spec:my-spec --reviewer agent:reviewer-a --decision approved \
   --evidence unit:pkg --sign maintainer \
   --authority --review-execution review-2 \
   --implementation-principal agent:impl --implementation-execution impl-1 --apply
 ```
+
+Grant `--human-authority` only to an issuer protected for that role; an account-local
+key readable by agents is not proof of a person's confirmation.
 
 `pin` adds `<name>#sha256:<public-key-digest>` to `trusted_attestation_issuers`
 and, with `--human-authority`, to `human_authority_issuers`, keeping every pin
@@ -617,3 +678,28 @@ and by which issuer.
 ### Retrospective ABM replay
 
 `pose stats replay --json` scans local historical attestations and the newest sealed subject of each spec without writing project artifacts. It compares frozen contracts with hypothetical explicit judgment and structural causality invariants. Counts retain invalid inputs, unknown structural coverage, unbaselined nodes and denominators. Use `--limit N` (1–20000) to bound work; incomplete reports cannot support an exhaustive adoption claim. A counterfactual does not revoke historical approvals, record a baseline or prove reviewer utility. Experimental judgments remain opt-in.
+
+
+## Development branch behavior
+
+**Unreleased; reviewed 2026-10-20.** Do not assume these changes are present in
+v7.4.1. Read [Releases and development](evolution.md) for source and status.
+
+- `close … --apply|--resume --json` emits a single operation result: `operation`,
+  `outcome`, steps run, confirmed effects, pending criteria, cause and next action.
+  A no-op reports `already-satisfied`; it does not claim it reverified closeout.
+- Invalid arguments to `specs`, `specs facts`, `start` and `close` are refused
+  instead of ignored. Failed operations on the machine channel retain typed
+  results; retries distinguish earlier effects from steps actually run now.
+- `index --verify` checks one published generation and its inputs without writing.
+  Missing, mixed or modified generation data is unavailable, not an empty graph.
+- Invalid action journals disclose their location and a recovery proposal;
+  the engine does not truncate them. Corrupt or mismatched closeout checkpoints
+  stop execution before steps. `start --recover-lock <owner-digest>` only recovers
+  an owner proven dead under the supported same-machine conditions.
+- Shared approval preflight refuses approving records that verification would
+  reject, including stale or superseded subjects, through every writer channel.
+  Negative review decisions remain recordable audit history.
+
+These are additive hardening and automation changes. They do not authorize an
+agent to repair journals, remove unknown locks or accept incomplete proof.

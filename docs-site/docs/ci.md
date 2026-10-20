@@ -12,7 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: oseiaspereira88/pose/pose-action@main   # pin to a release tag or commit SHA in production
+        with:
+          fetch-depth: 0
+      - uses: oseiaspereira88/pose/pose-action@v7.4.1   # pin to a release tag or immutable commit SHA
         with:
           mode: strict            # or tolerant
           lint-specs: "true"

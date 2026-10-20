@@ -1,12 +1,17 @@
 # Capability assessment
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 7.x (historical assessment baseline)
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** historical assessment; see the versioned evidence below
 
-**Catalog clarification (2026-10-16):** the counts and scores below describe
-the historical assessment baseline, not the current release. POSE v7.4.1
-ships 61 MCP tools (58 POSE tools and 3 optional Conductor reporters).
-See the [current MCP reference](mcp.md) for the supported catalog; this
-clarification does not re-score the historical assessment.
+!!! note "Historical assessment, reviewed 2026-10-20"
+
+    The scores and detailed findings below retain their dated evidence; this
+    editorial pass does not re-run or re-score the assessment. Use
+    [Releases and development](evolution.md) for changes through published
+    v7.4.1 and the pending changelog. Use [Review and trust](review-and-trust.md)
+    for native issuers, signed legacy adoption and delegated review, and
+    [Multiple projects](multiple-projects.md) for qualified authority and federation.
+    The current MCP reference documents 58 POSE tools plus 3 optional reporters;
+    older counts below belong to their historical baselines.
 
 **Assessment date:** 2026-08-17
 **Scope:** POSE open-source distribution  
@@ -44,7 +49,7 @@ practice while preserving POSE's boundary.
 !!! note "Since this narrative sync"
 
     The narrative below was synced against `v1.4.3`; the scores in the matrix
-    are current and match `.pose/capabilities/assessment.md`. Releases
+    belong to the assessment artifact `.pose/capabilities/assessment.md`. Releases
     `v1.5.0` through `v5.0.2` changed how several mechanisms work without
     changing a score:
 
@@ -62,13 +67,13 @@ practice while preserving POSE's boundary.
       that outlived `pose update`, and a stdio server that ignored SIGTERM, were
       both fixed; the score holds at 5.
 
-    The repository now carries 10 completed roadmaps and 139 completed specs.
+    At the 2026-09-11 narrative sync, the repository carried 10 completed roadmaps and 139 completed specs.
 
 Since the previous narrative sync (2026-08-14, against the v1.2.0 release
 contract), the repository shipped four consecutive real releases — v1.4.0
 through v1.4.3 — three of them (v1.4.1-v1.4.3) same-day follow-up fixes for
 defects an upgrade-path field audit found on seven real, independently-owned
-external repositories, not synthetic fixtures. The repository now carries 10
+external repositories, not synthetic fixtures. At the 2026-08-17 baseline, the repository carried 10
 completed roadmaps and 115 completed specs, including the component-aware
 and convergent-review increments delivered in v1.1.0/v1.2.0 and the four
 audit-driven fixes delivered this cycle: `pose-upgrade-path-audit-fixes`,
@@ -102,13 +107,13 @@ bug, discovery false positives (gitignored trees, duplicated root
 aliases), and a self-referential leak of pose-dist's own computed graph
 data into fresh instances.
 
-The remaining distance is concentrated in production-grade identity/secret
+At that assessment baseline, the remaining distance was concentrated in production-grade identity/secret
 management for shared MCP deployments, a populated third-party extension
 ecosystem, upstream WinGet publication/a Homebrew tap, and human adjudication
 of observed usage findings. These are stated boundaries or owned follow-ups,
 not capabilities silently presented as complete.
 
-| Mechanism                                   | Current | Target | Summary                                                                                                        |
+| Mechanism                                   | Baseline | Target | Summary                                                                                                        |
 |---------------------------------------------|--------:|-------:|----------------------------------------------------------------------------------------------------------------|
 | Install, upgrade and local-first runtime    |       5 |      5 | Verified multi-platform download and proven in-place upgrade; package-manager channel limits are explicit      |
 | Spec lifecycle and closeout                 |       5 |      5 | Requirement-to-check-to-commit trace and structured amendment history close the prior gap                      |

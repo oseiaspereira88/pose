@@ -21,6 +21,21 @@ It is not another coding agent and does not replace your language toolchain.
 Agents propose and execute changes; POSE defines the conditions under which
 those changes are ready, valid, reachable and complete.
 
+## Choose your next step
+
+| Your goal | Guide |
+|---|---|
+| Close a first governed delivery | [Quickstart](quickstart.md) |
+| Understand active policy and who is waiting | [Operate an instance](operate.md) |
+| Review with sealed evidence, signed identity or another agent | [Review and trust](review-and-trust.md) |
+| Coordinate authority across repositories | [Multiple projects](multiple-projects.md) |
+| Understand recent releases and pending changes | [Releases and development](evolution.md) |
+
+**Reviewed 2026-10-20:** the published baseline is **v7.4.1** (2026-10-10).
+Development-only changes and draft plans are labelled separately in the
+[evolution guide](evolution.md). Upgrade the engine and adopt optional
+capabilities as distinct decisions.
+
 ## What makes POSE different
 
 | Mechanism | What it changes |
