@@ -562,7 +562,7 @@ Retry after resolving the reported cause; every attempt rechecks preconditions.
 A completed run records observations at completion. It grants no current
 fulfillment or attestation authority and does not isolate an adapter from the
 host filesystem. If the origin becomes stale during execution, its transcript
-is retained as a failed historical run.
+is retained as a stale historical run and cannot fulfill the current review.
 
 ### Signed action answers
 

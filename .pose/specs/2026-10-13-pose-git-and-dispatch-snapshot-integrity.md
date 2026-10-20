@@ -73,6 +73,8 @@ constitui aprovação independente nem closeout.
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: .pose/assessments/integrations.md
 - modified: .pose/state/integrations.json
+- modified: .pose/assessments/technical-debt.md
+- modified: .pose/state/technical-debt.json
 - created: .pose/knowledge/2026-10-20-handoff-pose-b07-implementation.md
 - modified: .pose/assessments/README.md
 - modified: .pose/assessments/consolidated.md
@@ -165,7 +167,7 @@ Contexto consultado: knowledge:pose-b06-source-coverage-closeout.
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Os testes e comandos executados estão no [relatório de implementação](../reports/2026-10-20-b07-implementation.md). O gate global permanece vermelho pela exceção de segurança vencida, sem dispensa implícita.
+Os testes e comandos executados estão no [relatório de implementação](../reports/2026-10-20-b07-implementation.md). Em 2026-10-20 a suíte Go completa passou; 11/11 mutações de produção foram detectadas. A exceção vencida foi retirada em spec:pose-retire-unused-first-party-action-exception sem alterar pins ou enforcement. Gates nativos finais e revisão independente estão em execução.
 
 ### Requirement trace
 
@@ -187,8 +189,7 @@ Consultar [delegação](../reports/2026-10-11-pose-front-03-delegated-review.md)
 
 ### Delivered scope
 
-Implementação B07 na branch `impl/pose-b07-snapshot-integrity`, iniciada nativamente
-em 2026-10-20. Ver [relatório](../reports/2026-10-20-b07-implementation.md) e
+Implementação B07 reconciliada na branch `impl/pose-b07-git-snapshot-integrity`, preservando o início nativo original do PR #195. Ver [relatório](../reports/2026-10-20-b07-implementation.md) e
 knowledge:pose-b07-implementation para os gates executados e a retomada.
 Status permanece in-progress: sem aprovação de review ou closeout. A retomada foi reconciliada com `origin/impl/pose-b07-git-snapshot-integrity` (PR #195), preservando o start original e as regressões anteriores; `stale` permanece distinto de falha do comando.
 
@@ -198,7 +199,5 @@ Comparar antes/depois não equivale a sandbox nem elimina toda corrida. A implem
 
 ### Follow-ups
 
-Nenhum follow-up funcional foi encerrado ou adjudicado automaticamente. A exceção
-`first-party-actions-tag-pinning` vencida em 2026-10-19 bloqueia o gate integral;
-sua renovação exige revisão própria ou correção do pinning. Não houve alteração
-de policy, seleção de outra B-unit ou adoção de capability.
+- [done] Remover a exceção vencida sem uso em commit separado, governado por spec:pose-retire-unused-first-party-action-exception. Nenhum pin foi alterado.
+- [open] Concluir gates nativos e julgamento independente antes de declarar entrega. (owner:@pose-maintainers crit:high review:2026-10-21)

@@ -271,6 +271,24 @@ func TestAssumeUnchangedAndSkipWorktreeDoNotHideAnEdit(t *testing.T) {
 	}
 }
 
+func TestHiddenExecutableModeIsDivergence(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("executable mode is not available on Windows")
+	}
+	root := snapshotRepo(t, map[string]string{"run.sh": "echo\n"})
+	head := snapshotTestGit(t, root, "rev-parse", "HEAD")
+	snapshotTestGit(t, root, "update-index", "--assume-unchanged", "run.sh")
+	if err := os.Chmod(filepath.Join(root, "run.sh"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if entries, err := ReadGitStatus(root); err != nil || len(entries) != 0 {
+		t.Fatalf("the index hides the mode change: %v %v", entries, err)
+	}
+	if paths, err := WorktreeDivergence(root, head, nil); err != nil || !reflect.DeepEqual(paths, []string{"run.sh"}) {
+		t.Fatalf("hidden executable mode: %v %v", paths, err)
+	}
+}
+
 // V3: paths are exact; a replaced type, a link, a deletion and an executable bit are divergences.
 func TestWorktreeDivergenceReadsPathsAndTypesExactly(t *testing.T) {
 	odd := "dir with space/\"quoted\" é.txt"

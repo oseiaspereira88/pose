@@ -48,11 +48,14 @@ fulfilment. A commit that touches none of the sealed inputs does not invalidate 
 
 - **Stricter, classified minor.** A dispatch that passed over a hidden edit, or over a change
   to the validation matrix, now fails; the close plan blocks on an unreadable repository.
-- Compatibility: a directory with no repository, and every fixture without Git metadata,
-  keep their behaviour.
-- Limits: the comparison reads the worktree once after the run. It does not protect the
-  window between that read and the record, and it does not isolate the adapter (that is the
-  adapter-containment contract). A reviewer that changes a file and restores it is not seen.
+- Compatibility: read-only projections retain their exported-tree fallback. Execution
+  snapshots require readable Git metadata and cannot use that fallback.
+- Reconciled 2026-10-20: compare materialization before and after execution, including
+  ignored files in the disposable worktree; validate origin, policy and bundle again
+  before effects. Bound observations to 100,000 entries and 256 MiB. Adapter output
+  belongs outside the worktree; derived-directory names grant no write permission.
+- Limits: these observations do not isolate the adapter (the adapter-containment
+  contract), nor detect an edit restored between observations.
 
 ## Falsifier
 
