@@ -955,6 +955,23 @@ func reviewInstantLess(aAt, aID, bAt, bID string) bool {
 	return aID < bID
 }
 
+// attestationLess orders attestations by instant. Attestation times have a resolution of a
+// second, and the identifier is a hash, so two attestations of one instant have no
+// demonstrable order: the one that does not approve sorts last, which is the one a reader
+// takes as the current word. A later rejection is never hidden behind an earlier approval
+// by the luck of a hash.
+func attestationLess(a, b ReviewAttestation) bool {
+	ai, aok := reviewInstant(a.AttestedAt)
+	bi, bok := reviewInstant(b.AttestedAt)
+	if aok && bok && ai.Equal(bi) {
+		aApproves, bApproves := reviewDecisionApproves(a.Decision), reviewDecisionApproves(b.Decision)
+		if aApproves != bApproves {
+			return aApproves
+		}
+	}
+	return reviewInstantLess(a.AttestedAt, a.AttestationID, b.AttestedAt, b.AttestationID)
+}
+
 // ReadReviewAttempts lists review attempts and reports the records it could not read.
 // With a scope, an attempt file whose header cannot be read is a loss that could
 // concern any scope; a file whose header names the scope and does not parse is

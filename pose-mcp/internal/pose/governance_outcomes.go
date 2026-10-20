@@ -731,7 +731,7 @@ func readGovernanceAttestations(s Store) ([]ReviewAttestation, int, error) {
 		valid = append(valid, att)
 	}
 	sort.Slice(valid, func(i, j int) bool {
-		return reviewInstantLess(valid[i].AttestedAt, valid[i].AttestationID, valid[j].AttestedAt, valid[j].AttestationID)
+		return attestationLess(valid[i], valid[j])
 	})
 	return valid, invalid, nil
 }

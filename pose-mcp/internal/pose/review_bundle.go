@@ -16,7 +16,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -906,7 +905,7 @@ func rangeUnattributedOwners(root string, set ChangeSet) ([]string, int) {
 		attributed[commit] = true
 	}
 	var out bytes.Buffer
-	cmd := exec.Command("git", "-C", root, "log", "--no-color", "--format=%x01%H%n%B%x02", set.ResolvedBase+".."+set.ResolvedHead, "--")
+	cmd := gitCommand("-C", root, "log", "--no-color", "--format=%x01%H%n%B%x02", set.ResolvedBase+".."+set.ResolvedHead, "--")
 	cmd.Stdout = &limitedWriter{buf: &out, limit: reviewAttributionMaxBytes}
 	if cmd.Run() != nil {
 		return nil, 0
@@ -940,7 +939,7 @@ func rangeUnattributedOwners(root string, set ChangeSet) ([]string, int) {
 }
 
 func gitRevListCount(root, base, head string) (int, error) {
-	out, err := exec.Command("git", "-C", root, "rev-list", "--count", base+".."+head, "--").Output()
+	out, err := gitCommand("-C", root, "rev-list", "--count", base+".."+head, "--").Output()
 	if err != nil {
 		return 0, err
 	}
@@ -1032,7 +1031,7 @@ func reviewBundleGitlinks(root string, paths []string) map[string]string {
 		return links
 	}
 	args := append([]string{"-C", root, "ls-files", "--stage", "--"}, paths...)
-	out, err := exec.Command("git", args...).Output()
+	out, err := gitCommand(args...).Output()
 	if err != nil {
 		// Unit fixtures and exported source trees may not have Git metadata. A
 		// path that cannot be resolved keeps its shape-based class and fails
@@ -1320,7 +1319,7 @@ func (s Store) reviewBundleCommittedArchive(rel string) bool {
 	if dirty, _ := reviewBundleWorkingTreeChange(s.Root, rel); dirty {
 		return false
 	}
-	committed, err := exec.Command("git", "-C", s.Root, "show", "HEAD:"+rel).Output()
+	committed, err := gitCommand("-C", s.Root, "show", "HEAD:"+rel).Output()
 	if err != nil {
 		return false
 	}
@@ -2028,8 +2027,46 @@ func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 	sort.Slice(bundles, func(i, j int) bool {
 		return reviewInstantLess(bundles[i].SealedAt, bundles[i].BundleID, bundles[j].SealedAt, bundles[j].BundleID)
 	})
+	s.orderTiedBundlesNegativeLast(bundles)
 	coverage.Normalize()
 	return ReviewBundlesRead{Bundles: bundles, Coverage: coverage}, nil
+}
+
+// orderTiedBundlesNegativeLast settles bundles sealed in the same instant. Seal times have a
+// resolution of a second and the identifier is a hash, so which of them is newer cannot be told:
+// the one whose latest attestation rejects the work or requests changes is placed last, where a
+// reader takes the current word, so an approval of a sibling cannot be kept over it.
+func (s Store) orderTiedBundlesNegativeLast(bundles []ReviewBundle) {
+	for start := 0; start < len(bundles); {
+		end := start + 1
+		first, firstOK := reviewInstant(bundles[start].SealedAt)
+		for end < len(bundles) {
+			next, ok := reviewInstant(bundles[end].SealedAt)
+			if !firstOK || !ok || !first.Equal(next) {
+				break
+			}
+			end++
+		}
+		if end-start > 1 {
+			negative := map[string]bool{}
+			for _, bundle := range bundles[start:end] {
+				read, err := s.ReadReviewAttestations(bundle.BundleID)
+				if err != nil || len(read.Coverage.LossesFor(bundle.BundleID)) > 0 {
+					// A history that cannot be read may hold a rejection: it is placed where a
+					// rejection would be, so that nothing is retained over it.
+					negative[bundle.BundleID] = true
+					continue
+				}
+				if len(read.Attestations) > 0 {
+					decision := read.Attestations[len(read.Attestations)-1].Decision
+					negative[bundle.BundleID] = decision == "rejected" || decision == "changes-requested"
+				}
+			}
+			group := bundles[start:end]
+			sort.SliceStable(group, func(i, j int) bool { return !negative[group[i].BundleID] && negative[group[j].BundleID] })
+		}
+		start = end
+	}
 }
 
 func (s Store) CurrentReviewBundle(scope string) (*ReviewBundle, error) {
@@ -2714,7 +2751,7 @@ func (s Store) ReadReviewAttestations(bundleID string) (ReviewAttestationsRead, 
 	}
 	sort.Slice(result, func(i, j int) bool {
 		// By instant: "04:02-08:00" is later than "12:01Z", whatever the text says.
-		return reviewInstantLess(result[i].AttestedAt, result[i].AttestationID, result[j].AttestedAt, result[j].AttestationID)
+		return attestationLess(result[i], result[j])
 	})
 	coverage.Normalize()
 	return ReviewAttestationsRead{Attestations: result, Coverage: coverage}, nil

@@ -101,6 +101,41 @@ constitui aprovação independente nem closeout.
 - modified: .pose/indexes/roadmaps.json
 - modified: .pose/indexes/spec-graph.json
 
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/pose/governance_waits.go
+- modified: pose-mcp/internal/pose/governance_replay.go
+- modified: pose-mcp/internal/pose/governance_outcomes.go
+- created: pose-mcp/internal/pose/b07_independent_probe_test.go
+- created: pose-mcp/internal/pose/b07_r2_probe_test.go
+- created: pose-mcp/internal/cli/b07_r2_probe_test.go
+- created: pose-mcp/internal/pose/b07_r3_probe_test.go
+- created: pose-mcp/internal/cli/b07_r3_probe_test.go
+- created: pose-mcp/internal/pose/b07_r4b_probe_test.go
+- created: pose-mcp/internal/cli/b07_r4b_probe_test.go
+- created: .pose/reports/2026-10-18-b07r4b-independent-review.md
+- created: .pose/results/b07r4b-independent-review.json
+- created: .pose/results/b07r4b-independent-probes.py
+- created: .pose/results/b07r4b-independent-probes.log
+- created: .pose/results/b07r4b-mutations.json
+- created: .pose/results/b07r4b-validation.json
+- created: .pose/results/b07r4b-current-validation.json
+- created: .pose/reports/2026-10-18-b07r3-independent-review.md
+- created: .pose/results/b07r3-independent-review.json
+- created: .pose/results/b07r3-independent-probes.py
+- created: .pose/results/b07r3-independent-probes.log
+- created: .pose/results/b07r3-mutations.json
+- created: .pose/results/b07r3-validation.json
+- modified: pose-mcp/internal/pose/federated_acceptance.go
+- created: .pose/reports/2026-10-18-b07r2-independent-review.md
+- created: .pose/results/b07r2-independent-review.json
+- created: .pose/results/b07r2-independent-probes.py
+- created: .pose/results/b07r2-independent-probes.log
+- created: pose-mcp/internal/cli/b07_independent_probe_test.go
+- created: .pose/reports/2026-10-18-b07-independent-review.md
+- created: .pose/results/b07-independent-review.json
+- created: .pose/results/b07-independent-probes.py
+- created: .pose/results/b07-independent-probes.log
+
 ### Delivery targets
 
 - capability:git-and-dispatch-snapshot-integrity module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/review_dispatch.go

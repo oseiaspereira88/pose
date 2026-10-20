@@ -1,0 +1,781 @@
+{
+  "schema_version": 1,
+  "review": "b07r4b",
+  "date": "2026-10-18",
+  "decision": "changes-requested",
+  "merge_blocked": true,
+  "head": "9a4f17b46b2ec2d42e9679c277f6ac72c4a7f803",
+  "base": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+  "pr": {
+    "baseRefName": "main",
+    "headRefName": "impl/pose-b07-git-snapshot-integrity",
+    "headRefOid": "9a4f17b46b2ec2d42e9679c277f6ac72c4a7f803",
+    "number": 195,
+    "state": "OPEN",
+    "url": "https://github.com/oseiaspereira88/pose/pull/195"
+  },
+  "spec": "pose-git-and-dispatch-snapshot-integrity",
+  "reviewer": {
+    "identity": "agent:independent-gpt-6.1-sol-review",
+    "client": "Codex",
+    "vendor": "OpenAI",
+    "implementer": "Claude/Anthropic",
+    "separation": "different vendor; declared by task, not cryptographically verified",
+    "attestation_created": false,
+    "envelope_created": false
+  },
+  "context_revision": "c7ffa848508df62205c047536ed0aae965404fb74d99172070e78057cf06c6d9",
+  "prepared_bundle": {
+    "bundle_id": "rvb-cdce00fd44a30180",
+    "bundle_digest": "sha256:cdce00fd44a3018032ee7500a91412eed11dfdf72d00b1c4c8c9da94835e64ab",
+    "state": "prepared"
+  },
+  "subject": {
+    "base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+    "head": "9a4f17b46b2ec2d42e9679c277f6ac72c4a7f803",
+    "implementation_digest": "sha256:58cf41525bf4a8194f1c0e55f663d46de8183d90e6cb34b00aeb9cc1bd9c6dd0",
+    "patch_digest": "sha256:e6381e50de15a21b7d25aca2075351cc2da89254e17c45321252ab089a26690c",
+    "tree_digest": "sha256:e6532d7eff49c2c0ac0e57c6b8b53e864647b754edd8e80dcb40abad0e319c38"
+  },
+  "plan_digest": "sha256:8bd19d6563d7433f52b3ec3ea06e01bdd977424a0ac7f7b40b55373a0fe91c87",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "kind": "judgment",
+      "required": true
+    },
+    {
+      "id": "backend-concurrency",
+      "kind": "mechanical",
+      "required": true,
+      "evidence_classes": [
+        "e2e",
+        "integration",
+        "unit"
+      ]
+    },
+    {
+      "id": "backend-contracts",
+      "kind": "mechanical",
+      "required": true,
+      "evidence_classes": [
+        "e2e",
+        "integration"
+      ]
+    },
+    {
+      "id": "backend-input-errors",
+      "kind": "mechanical",
+      "required": true,
+      "evidence_classes": [
+        "e2e",
+        "integration",
+        "unit"
+      ]
+    },
+    {
+      "id": "backend-integration-impact",
+      "kind": "mechanical",
+      "required": true,
+      "evidence_classes": [
+        "integration"
+      ]
+    },
+    {
+      "id": "backend-observability",
+      "kind": "mechanical",
+      "required": true,
+      "evidence_classes": [
+        "integration",
+        "unit"
+      ]
+    },
+    {
+      "id": "compatibility",
+      "kind": "judgment",
+      "required": true
+    },
+    {
+      "id": "correctness",
+      "kind": "mechanical",
+      "required": true,
+      "evidence_classes": [
+        "build",
+        "e2e",
+        "integration",
+        "unit"
+      ]
+    },
+    {
+      "id": "design-causality",
+      "kind": "judgment",
+      "required": true
+    },
+    {
+      "id": "documentation",
+      "kind": "judgment",
+      "required": true
+    },
+    {
+      "id": "operability",
+      "kind": "judgment",
+      "required": true
+    },
+    {
+      "id": "requirements",
+      "kind": "mechanical",
+      "required": true,
+      "evidence_classes": [
+        "e2e",
+        "integration",
+        "unit"
+      ]
+    },
+    {
+      "id": "scope",
+      "kind": "judgment",
+      "required": true
+    },
+    {
+      "id": "security",
+      "kind": "judgment",
+      "required": true
+    },
+    {
+      "id": "solution-proportionality",
+      "kind": "judgment",
+      "required": true
+    }
+  ],
+  "components": [
+    {
+      "id": "pose-mcp",
+      "path": "pose-mcp",
+      "kind": "package",
+      "domain": "go",
+      "language": "go",
+      "criticality": "high",
+      "metadata_status": "partial",
+      "metadata_missing": [
+        "owner"
+      ]
+    }
+  ],
+  "plan_tools": [
+    {
+      "id": "artifact-check",
+      "requiredness": "required",
+      "args": [
+        "pose",
+        "artifact-check",
+        "--spec",
+        "pose-git-and-dispatch-snapshot-integrity",
+        "--strict"
+      ],
+      "rationale": "reconcile declared artifacts with Git-observed provenance",
+      "criteria": [
+        "requirements",
+        "scope"
+      ],
+      "preconditions": [
+        "artifacts-attributed"
+      ],
+      "disposition": "executed; see checks"
+    },
+    {
+      "id": "assess-design",
+      "requiredness": "recommended",
+      "args": [
+        "pose",
+        "assess",
+        "design",
+        "--spec",
+        "pose-git-and-dispatch-snapshot-integrity",
+        "--json"
+      ],
+      "rationale": "observe bounded structural deltas on the canonical review subject",
+      "evidence_classes": [
+        "structure"
+      ],
+      "preconditions": [
+        "scope-authorized"
+      ],
+      "disposition": "executed; see checks"
+    },
+    {
+      "id": "assess-discover",
+      "requiredness": "recommended",
+      "args": [
+        "pose",
+        "assess",
+        "discover",
+        "--component",
+        "pose-mcp"
+      ],
+      "rationale": "inspect component structure, language, size and visible debt",
+      "component": "pose-mcp",
+      "preconditions": [
+        "scope-authorized"
+      ],
+      "disposition": "executed; see checks"
+    },
+    {
+      "id": "assess-integrate",
+      "requiredness": "recommended",
+      "args": [
+        "pose",
+        "assess",
+        "integrate"
+      ],
+      "rationale": "inspect providers, consumers and inter-component contract gaps",
+      "evidence_classes": [
+        "integration"
+      ],
+      "criteria": [
+        "backend-contracts",
+        "backend-integration-impact"
+      ],
+      "preconditions": [
+        "scope-authorized"
+      ],
+      "disposition": "executed; see checks"
+    },
+    {
+      "id": "assess-tech-debt",
+      "requiredness": "recommended",
+      "args": [
+        "pose",
+        "assess",
+        "tech-debt"
+      ],
+      "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+      "criteria": [
+        "correctness"
+      ],
+      "preconditions": [
+        "scope-authorized"
+      ],
+      "disposition": "executed; see checks"
+    },
+    {
+      "id": "closeout-check",
+      "requiredness": "required",
+      "args": [
+        "pose",
+        "closeout-check",
+        "spec:pose-git-and-dispatch-snapshot-integrity"
+      ],
+      "rationale": "verify remaining hierarchical closeout blockers",
+      "preconditions": [
+        "review-complete"
+      ],
+      "disposition": "deferred: review-complete precondition not met; findings block attestation"
+    },
+    {
+      "id": "review-check",
+      "requiredness": "required",
+      "args": [
+        "pose",
+        "review-check",
+        "spec:pose-git-and-dispatch-snapshot-integrity"
+      ],
+      "rationale": "verify exact review-plan coverage and freshness",
+      "preconditions": [
+        "review-complete"
+      ],
+      "disposition": "deferred: review-complete precondition not met; findings block attestation"
+    },
+    {
+      "id": "suggest-review",
+      "requiredness": "recommended",
+      "args": [
+        "pose",
+        "suggest",
+        "review",
+        "--path",
+        "pose-mcp"
+      ],
+      "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+      "component": "pose-mcp",
+      "preconditions": [
+        "scope-authorized"
+      ],
+      "disposition": "executed; see checks"
+    },
+    {
+      "id": "surface-check",
+      "requiredness": "required",
+      "args": [
+        "pose",
+        "surface-check",
+        "--spec",
+        "pose-git-and-dispatch-snapshot-integrity",
+        "--strict"
+      ],
+      "rationale": "verify delivery composition, reachability and fresh evidence",
+      "evidence_classes": [
+        "integration",
+        "reachability"
+      ],
+      "preconditions": [
+        "delivery-target-declared"
+      ],
+      "disposition": "executed; see checks"
+    },
+    {
+      "id": "validate",
+      "requiredness": "required",
+      "args": [
+        "pose",
+        "validate",
+        "--strict"
+      ],
+      "rationale": "run the registered deterministic checks for the affected module",
+      "evidence_classes": [
+        "build",
+        "e2e",
+        "integration",
+        "unit"
+      ],
+      "criteria": [
+        "backend-concurrency",
+        "backend-input-errors",
+        "backend-observability",
+        "correctness",
+        "requirements"
+      ],
+      "preconditions": [
+        "delivery-target-declared"
+      ],
+      "disposition": "executed; see checks"
+    },
+    {
+      "id": "validate",
+      "requiredness": "required",
+      "args": [
+        "pose",
+        "validate",
+        "--strict",
+        "--module",
+        "pose-mcp"
+      ],
+      "rationale": "run the registered deterministic checks for the affected module",
+      "evidence_classes": [
+        "build",
+        "e2e",
+        "integration",
+        "unit"
+      ],
+      "component": "pose-mcp",
+      "preconditions": [
+        "delivery-target-declared"
+      ],
+      "disposition": "executed; see checks"
+    }
+  ],
+  "findings": [
+    {
+      "id": "B01",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "Identidade do worktree pode ser trocada por outro checkout limpo",
+      "location": "git_snapshot_integrity.go:216",
+      "probes": [
+        "TestB07R4BCheckoutIdentity",
+        "TestB07R4BOtherWorktreeConfig"
+      ]
+    },
+    {
+      "id": "B02",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "Falha do top-level pode certificar cópia limpa",
+      "location": "git_snapshot_integrity.go:216",
+      "probes": [
+        "TestB07R4BUnknownTopLevel"
+      ]
+    },
+    {
+      "id": "B03",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "HEAD desconhecido da origem não impede completed",
+      "location": "review_dispatch.go:543",
+      "probes": [
+        "TestB07R4BSourceHeadUnknown"
+      ]
+    },
+    {
+      "id": "B04",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "Ancestrais de origem e gitlink não são validados",
+      "location": "review_dispatch.go:519;git_snapshot_integrity.go:247",
+      "probes": [
+        "TestB07R4BSourceAncestor",
+        "TestB07R4DerivedGitlinkAncestor"
+      ]
+    },
+    {
+      "id": "B05",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "Ausência de subject removido não é revalidada",
+      "location": "review_dispatch.go:505",
+      "probes": [
+        "TestB07R4BSourceRemoved"
+      ]
+    },
+    {
+      "id": "B06",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "Regeneração arbitrária aceita sem produtor/inputs",
+      "location": "git_snapshot_integrity.go:170;closeout_plan.go:270",
+      "probes": [
+        "TestB07R4ArbitraryRegeneration"
+      ]
+    },
+    {
+      "id": "B07",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "Runs incompletos/alterados/ausentes mantêm certificação de vigência",
+      "location": "review_dispatch.go:143;review_dispatch.go:411",
+      "probes": [
+        "TestB07R4PartialSupersedingRun",
+        "TestB07R4BRunFields",
+        "TestB07R4BActualRunIdentity",
+        "TestB07R4BMissingRun",
+        "TestB07R4BRunRootLink"
+      ]
+    },
+    {
+      "id": "B08",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Transcript perdido ou adulterado mantém vigência",
+      "location": "review_dispatch.go:411",
+      "probes": [
+        "TestB07R4RunTranscript",
+        "TestB07R4BRunFields"
+      ]
+    },
+    {
+      "id": "B09",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Perda dos runs vira orçamento livre para novo dispatch",
+      "location": "review_dispatch.go:135;review_dispatch.go:241",
+      "probes": [
+        "TestB07R4BLostBudget"
+      ]
+    },
+    {
+      "id": "B10",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Evidência canônica de entrega stale",
+      "location": "delivery.json:5",
+      "probes": []
+    }
+  ],
+  "acceptable_followups": [
+    {
+      "id": "L01",
+      "severity": "low",
+      "classification": "acceptable follow-up; limited to no false approval variant",
+      "title": "Typed causes in already-refusing paths",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01",
+      "written_to_spec": false
+    },
+    {
+      "id": "L02",
+      "severity": "low",
+      "classification": "acceptable follow-up; limited to no false approval variant",
+      "title": "Run timestamp ordering for history only",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01",
+      "written_to_spec": false
+    },
+    {
+      "id": "L03",
+      "severity": "low",
+      "classification": "acceptable follow-up; limited to no false approval variant",
+      "title": "Tied bundle ordering in metrics/rework only",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01",
+      "written_to_spec": false
+    },
+    {
+      "id": "L04",
+      "severity": "low",
+      "classification": "acceptable follow-up; limited to no false approval variant",
+      "title": "Configured tracked results_path conservative refusal",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01",
+      "written_to_spec": false
+    },
+    {
+      "id": "L05",
+      "severity": "low",
+      "classification": "acceptable follow-up; limited to no false approval variant",
+      "title": "Quoted gitlinks conservatively refused",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01",
+      "written_to_spec": false
+    },
+    {
+      "id": "L06",
+      "severity": "low",
+      "classification": "acceptable follow-up; limited to no false approval variant",
+      "title": "Literal glob-metacharacter filenames conservatively refused",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01",
+      "written_to_spec": false
+    }
+  ],
+  "checks": [
+    {
+      "command": "/tmp/pose-b07r4b validate --strict --module pose-mcp --json-out .pose/results/b07r4b-current-validation.json",
+      "exit_code": 0,
+      "outcome": "pass",
+      "counts": {
+        "executed": 137,
+        "passed": 137,
+        "failed": 0,
+        "optional_failed": 0,
+        "errored": 0,
+        "skipped": 0
+      },
+      "git_head": "9a4f17b46b2ec2d42e9679c277f6ac72c4a7f803",
+      "matrix_sha256": "sha256:b983bd0a09d37956d4523017c214b8a66b3b4ba92aeec438b0d9b8e938389b2b",
+      "evidence": ".pose/results/b07r4b-current-validation.json",
+      "duration_seconds": 355.3
+    },
+    {
+      "command": "pose validate --strict --module pose-mcp --json-out .pose/results/b07r4b-validation.json",
+      "exit_code": 0,
+      "outcome": "pass",
+      "note": "Initial diagnostic orchestrator from origin/main; checks executed current source",
+      "evidence": ".pose/results/b07r4b-validation.json",
+      "duration_seconds": 535.6
+    },
+    {
+      "command": "go test -race ./internal/pose ./internal/cli -run B07|GitStateThatCannotBeRead|WorktreeDivergence|DispatchJudgesTheContent|ADispatchStopsGoverning -count=1",
+      "exit_code": 0,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t4.143s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t3.468s\n"
+    },
+    {
+      "command": "GOOS=windows GOARCH=amd64 go build ./...",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "command": "GOOS=darwin GOARCH=arm64 go build ./...",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "command": "go run golang.org/x/vuln/cmd/govulncheck@v1.4.0 ./...",
+      "exit_code": 0,
+      "output": "No vulnerabilities found.\n"
+    },
+    {
+      "command": "go run github.com/zricethezav/gitleaks/v8@v8.21.2 git --no-banner --redact --config ../.gitleaks.toml --log-opts=origin/main..HEAD ..",
+      "exit_code": 0,
+      "output": "2:57PM INF 9 commits scanned.\n2:57PM INF scan completed in 1.09s\n2:57PM INF no leaks found\n"
+    },
+    {
+      "command": "git diff origin/main...HEAD --check",
+      "exit_code": 0
+    },
+    {
+      "command": "/tmp/pose-b07r4b lint-spec pose-git-and-dispatch-snapshot-integrity --strict",
+      "exit_code": 0,
+      "summary": "PASS; optional Tasks section warning"
+    },
+    {
+      "command": "python3 -I .pose/results/b07-mutations.py --output .pose/results/b07r4b-mutations.json",
+      "exit_code": 0,
+      "summary": {
+        "killed": 46,
+        "total": 46
+      },
+      "evidence": ".pose/results/b07r4b-mutations.json"
+    },
+    {
+      "command": "python3 -I .pose/results/b07r4b-independent-probes.py",
+      "exit_code": 1,
+      "outcome": "guarantee assertions failed; reproduces B01-B09 and conservative L02",
+      "evidence": ".pose/results/b07r4b-independent-probes.log",
+      "failed_top_level_tests": [
+        "TestB07R4PartialSupersedingRun",
+        "TestB07R4RunTranscript",
+        "TestB07R4DerivedGitlinkAncestor",
+        "TestB07R4ArbitraryRegeneration",
+        "TestB07R4BRunFields",
+        "TestB07R4BRunRootLink",
+        "TestB07R4BRunOrdering",
+        "TestB07R4BUnknownTopLevel",
+        "TestB07R4BMissingRun",
+        "TestB07R4BOtherWorktreeConfig",
+        "TestB07R4BSourceHeadUnknown",
+        "TestB07R4BSourceAncestor",
+        "TestB07R4BSourceRemoved",
+        "TestB07R4BLostBudget",
+        "TestB07R4BCheckoutIdentity",
+        "TestB07R4BActualRunIdentity"
+      ]
+    },
+    {
+      "command": "/tmp/pose-b07r4b artifact-check --spec pose-git-and-dispatch-snapshot-integrity --strict",
+      "exit_code": 0,
+      "summary": "claims=45 observed=50 commits=9; 638 orphan warnings; no error findings",
+      "output": "artifact.spec=pose-git-and-dispatch-snapshot-integrity\nartifact.change_set=cs-609ceea0034e\nartifact.change_set.base=1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8\nartifact.change_set.head=9a4f17b46b2ec2d42e9679c277f6ac72c4a7f803\nartifact.change_set.commits=9\nartifact.diff_digest=sha256:e12653fed281d9d892b67ad939de705a7d4f6fe1af7bfdcbc076183f2722b353\nartifact.claims=45\nartifact.observed=50\nartifact.findings=638\n⚠ warning orphan pose-mcp/internal/cli/update_reports_delivered_state_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/in"
+    },
+    {
+      "command": "/tmp/pose-b07r4b surface-check --spec pose-git-and-dispatch-snapshot-integrity --strict",
+      "exit_code": 1,
+      "output": "surface.spec=pose-git-and-dispatch-snapshot-integrity\nsurface.targets=1\nsurface.results=139\nsurface.findings=2\nsurface.provenance_digest=sha256:1e1b12e560c11f64c794e2e55871a56197fcf3643b433634cab3c9df6c64fe4c\n✖ error stale-evidence capability:git-and-dispatch-snapshot-integrity\n    passed integration evidence is bound to a different scoped provenance digest\n    fix: rerun the registered validation check for this delivery scope\n✖ error unconsumed-capability capability:git-and-dispatch-snapshot-integrity\n    required current evidence is missing: integration\n    fix: run registered checks with the required evidenceClass against the\n    current provenance digest\n"
+    },
+    {
+      "command": "/tmp/pose-b07r4b check --strict",
+      "exit_code": 0,
+      "output": "ning changelog: done spec without a changelog fragment: pose-docs-canonical-route\n⚠ warning changelog: done spec without a changelog fragment: pose-first-governed-loop-quickstart\n⚠ warning changelog: done spec without a changelog fragment: pose-launch-proof-demo\n⚠ warning changelog: done spec without a changelog fragment: pose-public-claims-contract\n⚠ warning changelog: done spec without a changelog fragment: pose-readme-evaluation-path\n⚠ warning changelog: done spec without a changelog fragment: pose-release-recovery-verification\n⚠ warning changelog: done spec without a changelog fragment: pose-release-security-gate-integrity\n⚠ warning changelog: done spec without a changelog fragment: pose-sdd-migration-acquisition\n⚠ warning changelog: done spec without a changelog fragment: pose-code-cites-the-specs-that-delivered-it\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-authority-fixture-clock\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-design-basis\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-governance-outcomes\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-remediation-lineage\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-authority\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-tool-deferred-without-delivery\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-structural-delta\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-subject-evidence\n⚠ warning changelog: done spec without a changelog fragment: pose-check-qualified-roadmap-members\n⚠ warning changelog: done spec without a changelog fragment: pose-dist-adopts-spec-authority-transfer\n⚠ warning changelog: done spec without a changelog fragment: pose-federated-external-milestone-members\n⚠ warning changelog: done spec without a changelog fragment: pose-review-bundle-classifies-transfer-records\n⚠ warning changelog: done spec without a changelog fragment: pose-spec-transfer-completion-and-references\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-capability-adoption\n⚠ warning changelog: done spec without a changelog fragment: pose-open-backlog-reconciliation\n⚠ warning capabilities: assessment is 62 days old (policy: 30); consider reassessing\n⚠ warning capabilities: baseline_commit is 1544 commits behind HEAD (policy: 200); consider reassessing\nResult: SUCCESS — (strict mode) with 29 warning(s).\n"
+    },
+    {
+      "command": "/tmp/pose-b07r4b assess tech-debt",
+      "exit_code": 0,
+      "coverage": "incomplete",
+      "output": "Technical Debt Assessment Results:\n  - Total Debt Markers: 1 (TODOs: 1, FIXMEs: 0, Panics: 0, Stubs: 0)\n  - Uncovered Debt Items: 0\n  - Recommendations: 0 Follow-ups, 0 Specs, 0 Roadmaps\n\ntechdebt.scan=INCOMPLETE — 265 source file(s) scanned; 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md (scope unknown); invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown); zero markers does not prove the unread files have none\ntechdebt.excluded=generated-header: 1 file(s) — files that declare themselves generated are not scanned\ntechdebt.excluded=skipped-directory: 36 file(s) — directories that hold dependencies, build output or tool state are not scanned\nArtifacts written to .pose/assessments/technical-debt.md and .pose/state/technical-debt.json\n"
+    },
+    {
+      "command": "/tmp/pose-b07r4b assess integrate",
+      "exit_code": 0,
+      "summary": "heuristic preexisting unobserved-consumer gaps",
+      "output": "Integration Assessment Results:\n  - Contracts Evaluated: 64\n  - Active Contracts: 1\n  - Integration Gaps Identified: 63\n\n  ⚠️ [GAP-3dcadd4f] No consumer observed for MCP tool conductor_run_close (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-253d911d] No consumer observed for MCP tool conductor_run_event (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration "
+    },
+    {
+      "command": "/tmp/pose-b07r4b assess design --spec pose-git-and-dispatch-snapshot-integrity --json",
+      "exit_code": 0,
+      "output": {
+        "schema_version": 1,
+        "parser_version": "pose-design-delta/v2",
+        "scope": "spec:pose-git-and-dispatch-snapshot-integrity",
+        "status": "observed",
+        "input_digest": "sha256:5533366507cf092559fdbdfc752f2cdddda873f4edff26a1a0a6b076b2449874",
+        "cache_key": "sha256:5533366507cf092559fdbdfc752f2cdddda873f4edff26a1a0a6b076b2449874",
+        "subject": {
+          "base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+          "head": "9a4f17b46b2ec2d42e9679c277f6ac72c4a7f803",
+          "patch_digest": "sha256:e6381e50de15a21b7d25aca2075351cc2da89254e17c45321252ab089a26690c",
+          "tree_digest": "sha256:e6532d7eff49c2c0ac0e57c6b8b53e864647b754edd8e80dcb40abad0e319c38",
+          "implementation_digest": "sha256:58cf41525bf4a8194f1c0e55f663d46de8183d90e6cb34b00aeb9cc1bd9c6dd0",
+          "entries": 28
+        },
+        "coverage": {
+          "files_in_subject": 28,
+          "files_observed": 28,
+          "bytes_read": 2375542,
+          "max_files": 4096,
+          "max_bytes": 16777216,
+          "detectors": [
+            {
+              "id": "dependency-go",
+              "state": "not-applicable"
+            },
+            {
+              "id": "dependency-npm",
+              "state": "not-applicable"
+            },
+            {
+              "id": "component",
+              "state": "not-applicable"
+            },
+            {
+              "id": "delivery-metadata",
+              "state": "observed",
+              "observed": 1
+            },
+            {
+              "id": "governance-contract",
+              "state": "observed",
+              "observed": 1
+            },
+            {
+              "id": "public-contract",
+              "state": "not-applicable"
+            },
+            {
+              "id": "git-actions",
+              "state": "observed",
+              "observed": 28
+            }
+          ]
+        },
+        "deltas": [
+          {
+            "id": "sd-38cde822fc3f9ed3be74283979712966",
+            "display_id": "SD-38cde822",
+            "kind": "governance-contract",
+            "action": "added",
+            "state": "observed",
+            "subject": ".pose/adr/2026-10-18-git-state-that-cannot-be-read-is-unknown-and-a-worktree-is-judged-by-its-content.md",
+            "path": ".pose/adr/2026-10-18-git-state-that-cannot-be-read-is-unknown-and-a-worktree-is-judged-by-its-content.md",
+            "after_digest": "sha256:ac14bd4426d90934bf641b86d48910cdc60934d370935d04b377734dfd670c19"
+          },
+          {
+            "id": "sd-debc8bf1b86d79ac442af55171d09619",
+            "display_id": "SD-debc8bf1",
+            "kind": "validation-check",
+            "action": "added",
+            "state": "observed",
+            "subject": "moduleOverrides.pose-mcp:git-and-dispatch-snapshot-integrity-integration",
+            "path": ".pose/indexes/validation-matrix.json"
+          }
+        ]
+      }
+    },
+    {
+      "command": "/tmp/pose-b07r4b assess discover --if-stale --component pose-mcp",
+      "exit_code": 0,
+      "output": "Discovered 1 components:\n  - pose-mcp                       LOC: 75199 (prod) / 63487 (test) | Debt TODOs: 1, FIXMEs: 0\nassess.freshness.pose-mcp=reused (content, engine and matrix unchanged)\n"
+    },
+    {
+      "command": "/tmp/pose-b07r4b recurrence-check --tolerant --window-days 14",
+      "exit_code": 0,
+      "output": "recurrence.flapping_keys=0\nrecurrence.resolved_clusters=0\nrecurrence.window_days=14\nrecurrence.threshold=3\nrecurrence.records_scanned=393\nrecurrence.flagged_keys=0\n"
+    }
+  ],
+  "evidence_files": {
+    ".pose/results/b07r4b-independent-probes.py": "sha256:ec712a8733018ddd315212392b661b32be8c65563fc1cb2ba0c3dcb6fccdd0df",
+    ".pose/results/b07r4b-independent-probes.log": "sha256:9e85bc787aaa7da4d5933a59b8d434c577a943db676b8c1d9fc55b2f240e2fab",
+    ".pose/results/b07r4b-current-validation.json": "sha256:cb27565f8b7c6a1299b28355da50e02d39a5db4d1db375227be66d60501cce4c",
+    ".pose/results/b07r4b-mutations.json": "sha256:b0292ab544deef13f6ecf8fd298c2d7ccd3a4b2d21c0433a4caf6e52e5ecd9fc"
+  },
+  "effects": {
+    "sealed": false,
+    "attested": false,
+    "closed": false,
+    "committed": false,
+    "pushed": false,
+    "policy_changed": false,
+    "issuer_pin_added": false,
+    "production_source_changed": false,
+    "spec_changed": false,
+    "assessments_state_and_derived_indexes": "already dirty at entry; generated tools refreshed them"
+  },
+  "notes": [
+    "Full action, evidence and adjacent-consumer sweep for each finding in report .pose/reports/2026-10-18-b07r4b-independent-review.md",
+    "No upstream contribution staged or submitted.",
+    "Run completion/governance failures do not claim an actual attestation approval; run-to-attestation production consumer not found."
+  ]
+}

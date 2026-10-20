@@ -1,0 +1,236 @@
+{
+  "mutations": [
+    {
+      "mutation": "status ilegível é tratado como limpo",
+      "tests": "TestGitStateThatCannotBeReadIsUnknownNotClean",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "repositório danificado é tratado como ausente",
+      "tests": "TestGitStateThatCannotBeReadIsUnknownNotClean",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "diretório sem repositório é tratado como desconhecido",
+      "tests": "TestGitStateThatCannotBeReadIsUnknownNotClean",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "conteúdo não é comparado",
+      "tests": "TestAssumeUnchangedAndSkipWorktree|TestWorktreeDivergenceReadsPaths",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "bit de execução ignorado",
+      "tests": "TestWorktreeDivergenceReadsPaths",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "link não é comparado",
+      "tests": "TestWorktreeDivergenceReadsPaths",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "arquivo removido não é divergência",
+      "tests": "TestWorktreeDivergenceReadsPaths",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "arquivo indexado fora do commit não é divergência",
+      "tests": "TestWorktreeDivergenceReadsPaths",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "rename perde o caminho de origem",
+      "tests": "TestWorktreeDivergenceReadsPaths",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "matriz de validação é regeneração",
+      "tests": "TestDerivedRegenerationIsAListNotAPrefix",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "prefixo autoriza arquivo rastreado",
+      "tests": "TestDerivedRegenerationIsAListNotAPrefix",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "política vira regeneração por prefixo",
+      "tests": "TestDerivedRegenerationIsAListNotAPrefix",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "run termina mesmo com divergência",
+      "tests": "TestDispatchJudgesTheContent",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "worktree não é verificado antes do run",
+      "tests": "TestTheWorktreeIsComparedWithTheSealedCommit",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "commit alheio invalida o run",
+      "tests": "TestAnUnrelatedCommitDuringTheRun",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "snapshot desconhecido é limpo",
+      "tests": "TestAnUnreadableSnapshotIsNotClean",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "status por path desconhecido é limpo",
+      "tests": "TestAnUnreadableStatusIsNotACleanPath",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "projeção declara coerência com status ilegível",
+      "tests": "TestTheProjectionIsNotCoherentWhenStatusCannotBeRead",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "inputs do bundle não são comparados com os de hoje",
+      "tests": "TestB07IndependentSameSecondSupersession|TestB07IndependentSourceChangedDuringRun|TestADispatchStopsGoverning",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "checkout do commit não é comparado com os inputs selados",
+      "tests": "TestB07IndependentBundleInputsNotCommit",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "run inicia sem rever a pertinência",
+      "tests": "TestB07ARunDoesNotStart",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "policy alterada durante o run não é stale",
+      "tests": "TestARunWhosePolicyChangedWhileItRanIsStale",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "backslash vira separador",
+      "tests": "TestB07BackslashIsA",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "state é regeneração por prefixo",
+      "tests": "TestB07IndependentDerivedRules",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "remoção de arquivo derivado é aceita",
+      "tests": "TestB07DerivedNamesAreExact",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "gitlink selado ausente é aceito",
+      "tests": "TestB07IndependentGitlink",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "closeout aceita matriz e resultado selado",
+      "tests": "TestB07IndependentCloseoutPrefix",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "rejeição no mesmo instante perde para a aprovação",
+      "tests": "TestB07IndependentNegativeSameSecond",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "link na policy é ignorado",
+      "tests": "TestB07ALinkInAPolicyDirectory",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "perda de coerência não é mudança",
+      "tests": "TestB07IndependentSnapshotRevalidation",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "subdiretório é comparado como raiz",
+      "tests": "TestB07IndependentSubdirectory",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "erro de leitura vira edição",
+      "tests": "TestB07IndependentReadErrorDiagnostic",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "subject do checkout não é comparado com o selado",
+      "tests": "TestB07R2SealedSubjectNotCheckout",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "blockers da preparação da origem são ignorados",
+      "tests": "TestB07R2UnreadableSourceStatus",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "conteúdo do submódulo não é comparado",
+      "tests": "TestB07R2DirtyGitlink",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "submódulo por link vale como diretório",
+      "tests": "TestB07R2DirtyGitlink",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "ambiente redireciona a verificação",
+      "tests": "TestB07R2OtherWorktreeEnvironment",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "bundles empatados: aprovação fica por último",
+      "tests": "TestB07R2NegativeAcrossBundles",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "digest da policy sem enquadramento",
+      "tests": "TestB07R2PolicyDigestFraming|TestB07R2PolicyChangeWithEqualDigest",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "closeout aceita link como regeneração",
+      "tests": "TestB07R2CloseoutType|TestB07ACloseoutCheckpoint",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "HEAD ilegível não bloqueia o plano",
+      "tests": "TestB07R2CloseoutUnknownHead",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "modo executável da origem não é comparado",
+      "tests": "TestB07R2SourceMode",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "limpo para sujo não é mudança",
+      "tests": "TestB07R2SnapshotCleanToDirty",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "registro publicado e depois obsoleto não é substituído",
+      "tests": "TestB07R2PublishWindow",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "bundle ilegível é lido como ausente",
+      "tests": "TestB07IndependentLostSupersedingBundle",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "post-check examina gitlinks alheios",
+      "tests": "TestB07ASubmoduleTheBundleDoesNotName",
+      "verdict": "killed"
+    }
+  ],
+  "killed": 46,
+  "total": 46
+}

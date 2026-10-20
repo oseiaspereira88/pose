@@ -2,14 +2,17 @@ package pose
 
 import (
 	"bytes"
+	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"hash"
 	"io"
 	"io/fs"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"runtime"
 	"sort"
@@ -96,7 +99,7 @@ func (e *GitSnapshotError) Error() string {
 func (e *GitSnapshotError) Unwrap() error { return e.Cause }
 
 func snapshotGit(root string, args ...string) ([]byte, error) {
-	cmd := exec.Command("git", append([]string{"-C", root}, args...)...)
+	cmd := gitCommand(append([]string{"-C", root}, args...)...)
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, &GitSnapshotError{Operation: strings.Join(args, " "), Cause: err}
@@ -132,10 +135,16 @@ func parseGitChangedPaths(out []byte) ([]string, error) {
 // gitMaterializedChanges checks the committed tree against disk independently
 // of index flags. No refresh/update-index mutation is needed to see hidden edits.
 func gitMaterializedChanges(root, commit string) ([]string, error) {
+	return gitMaterializedChangesFor(root, commit, nil)
+}
+func gitMaterializedChangesFor(root, commit string, matters func(string) bool) ([]string, error) {
 	var err error
 	root, err = filepath.Abs(root)
 	if err != nil {
 		return nil, &GitSnapshotError{"root", err}
+	}
+	if _, err := dispatchWorktreeIdentity(root); err != nil {
+		return nil, err
 	}
 	out, err := snapshotGit(root, "ls-tree", "-r", "-z", commit)
 	if err != nil {
@@ -161,6 +170,9 @@ func gitMaterializedChanges(root, commit string) ([]string, error) {
 			return nil, &GitSnapshotError{"tree protocol", fmt.Errorf("invalid entry")}
 		}
 		path := string(record[i+1:])
+		if fields[0] == "160000" && matters != nil && !matters(path) {
+			continue
+		}
 		full := filepath.Join(root, filepath.FromSlash(path))
 		// Lstat every parent: a link in a parent must never read outside root.
 		unsafe := false
@@ -190,6 +202,9 @@ func gitMaterializedChanges(root, commit string) ([]string, error) {
 			if !info.IsDir() {
 				changed = append(changed, path)
 				continue
+			}
+			if _, err := dispatchWorktreeIdentity(full); err != nil {
+				return nil, err
 			}
 			head, e := snapshotGit(full, "rev-parse", "--verify", "HEAD")
 			if e != nil {
@@ -251,9 +266,9 @@ func gitMaterializedChanges(root, commit string) ([]string, error) {
 		if e != nil {
 			return nil, &GitSnapshotError{"read " + path, e}
 		}
-		cmd := exec.Command("git", "-C", root, "hash-object", "--stdin", "--path="+path)
+		cmd := gitCommand("-C", root, "hash-object", "--stdin", "--path="+path)
 		if fields[0] == "120000" {
-			cmd = exec.Command("git", "-C", root, "hash-object", "--stdin", "--no-filters")
+			cmd = gitCommand("-C", root, "hash-object", "--stdin", "--no-filters")
 		}
 		cmd.Stdin = bytes.NewReader(raw)
 		hash, e := cmd.Output()
@@ -347,7 +362,7 @@ func IsDerivedRegeneration(path string, tracked bool) bool {
 	if filepath.ToSlash(filepath.Clean(path)) != path {
 		return false
 	}
-	if path == ".pose/assessments/technical-debt.md" || path == ".pose/state/technical-debt.json" {
+	if path == ".pose/state/project-state.md" || path == ".pose/state/project-state.json" || path == ".pose/assessments/technical-debt.md" || path == ".pose/state/technical-debt.json" {
 		return true
 	}
 	for _, name := range append(append([]string{}, IndexGenerationFiles...), indexDescriptorName) {
@@ -363,7 +378,18 @@ func IsDerivedRegeneration(path string, tracked bool) bool {
 
 // WorktreeDivergence uses one content reader even for paths hidden from status.
 func WorktreeDivergence(root, commit string, allowed func(string, bool) bool) ([]string, error) {
-	changed, err := gitMaterializedChanges(root, commit)
+	return WorktreeDivergenceFor(root, commit, allowed, nil)
+}
+func WorktreeDivergenceFor(root, commit string, allowed func(string, bool) bool, matters func(string) bool) ([]string, error) {
+	top, err := snapshotGit(root, "rev-parse", "--show-toplevel")
+	if err != nil {
+		return nil, err
+	}
+	if !sameOrAbove(strings.TrimSpace(string(top)), root) {
+		return nil, fmt.Errorf("Git selected another worktree")
+	}
+	root = strings.TrimSpace(string(top))
+	changed, err := gitMaterializedChangesFor(root, commit, matters)
 	if err != nil {
 		return nil, err
 	}
@@ -390,7 +416,8 @@ func WorktreeDivergence(root, commit string, allowed func(string, bool) bool) ([
 	seen := map[string]bool{}
 	result := []string{}
 	for _, path := range changed {
-		if seen[path] || (allowed != nil && allowed(path, tracked[path])) {
+		_, regularErr := dispatchRegularInputPath(root, path)
+		if seen[path] || (allowed != nil && allowed(path, tracked[path]) && regularErr == nil) {
 			continue
 		}
 		seen[path] = true
@@ -399,3 +426,87 @@ func WorktreeDivergence(root, commit string, allowed func(string, bool) bool) ([
 	sort.Strings(result)
 	return result, nil
 }
+
+func gitCommand(args ...string) *exec.Cmd {
+	cmd := exec.Command("git", args...)
+	env := make([]string, 0, len(os.Environ()))
+	for _, kv := range os.Environ() {
+		name, _, _ := strings.Cut(kv, "=")
+		if !gitRedirectingEnv[name] {
+			env = append(env, kv)
+		}
+	}
+	cmd.Env = env
+	return cmd
+}
+
+func linkAbove(worktree, name string, checked map[string]bool) bool {
+	parts := strings.Split(name, "/")
+	dir := ""
+	for _, part := range parts[:len(parts)-1] {
+		dir = path.Join(dir, part)
+		if bad, seen := checked[dir]; seen {
+			if bad {
+				return true
+			}
+			continue
+		}
+		info, err := os.Lstat(filepath.Join(worktree, filepath.FromSlash(dir)))
+		checked[dir] = err != nil || info.Mode()&os.ModeSymlink != 0 || !info.IsDir()
+		if checked[dir] {
+			return true
+		}
+	}
+	return false
+}
+
+func sameOrAbove(top, dir string) bool {
+	rt, err := filepath.EvalSymlinks(top)
+	if err != nil {
+		return false
+	}
+	rd, err := filepath.EvalSymlinks(dir)
+	if err != nil {
+		return false
+	}
+	rel, err := filepath.Rel(rt, rd)
+	return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
+}
+
+func gitBlobID(format string, content []byte) string {
+	var h hash.Hash
+	if format == "sha256" {
+		h = sha256.New()
+	} else {
+		h = sha1.New()
+	}
+	fmt.Fprintf(h, "blob %d\x00", len(content))
+	h.Write(content)
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func gitlinkMaterialized(dir, commit string) bool {
+	info, err := os.Lstat(dir)
+	if err != nil || !info.IsDir() {
+		return false
+	}
+	if g, gerr := os.Lstat(filepath.Join(dir, ".git")); gerr != nil || g.Mode()&os.ModeSymlink != 0 {
+		return false
+	}
+	out, err := gitCommand("-C", dir, "rev-parse", "--verify", "HEAD").Output()
+	if err != nil || strings.TrimSpace(string(out)) != commit {
+		return false
+	}
+	diverged, derr := WorktreeDivergenceFor(dir, commit, nil, nil)
+	return derr == nil && len(diverged) == 0
+}
+
+var gitRedirectingEnv = map[string]bool{
+	"GIT_DIR": true, "GIT_WORK_TREE": true, "GIT_INDEX_FILE": true, "GIT_OBJECT_DIRECTORY": true,
+	"GIT_ALTERNATE_OBJECT_DIRECTORIES": true, "GIT_COMMON_DIR": true, "GIT_NAMESPACE": true,
+	"GIT_CEILING_DIRECTORIES": true, "GIT_PREFIX": true, "GIT_QUARANTINE_PATH": true, "GIT_REPLACE_REF_BASE": true,
+}
+
+// gitCommand is a git subprocess that reads the repository of the directory it is given with
+// -C, whatever the environment of the process says: an inherited GIT_DIR or GIT_WORK_TREE would
+// answer for another materialization than the one that was asked about.

@@ -1,0 +1,474 @@
+{
+  "schema_version": 1,
+  "kind": "independent-review-evidence",
+  "date": "2026-10-18",
+  "spec": "pose-git-and-dispatch-snapshot-integrity",
+  "decision": "changes-requested",
+  "head": "51f771a049a8c4042e0ed2444842f342668a26bc",
+  "base": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+  "pr": {
+    "baseRefName": "main",
+    "headRefName": "impl/pose-b07-git-snapshot-integrity",
+    "headRefOid": "51f771a049a8c4042e0ed2444842f342668a26bc",
+    "number": 195,
+    "state": "OPEN",
+    "url": "https://github.com/oseiaspereira88/pose/pull/195"
+  },
+  "reviewer": {
+    "id": "agent:independent-gpt-6.1-sol-review",
+    "product": "Codex",
+    "vendor": "OpenAI",
+    "implementer": "Claude/Anthropic",
+    "assurance": "declared",
+    "envelope": null,
+    "attestation_recorded": false
+  },
+  "context_revision": "8119540474d732bc98467967118e4a40f6a79c8400ffcca670827618afa7c212",
+  "plan_digest": "sha256:b94c1f031318c494b293c1c5751630587f1f250d641d49d5c2b4354e707693c3",
+  "prepared_bundle": {
+    "id": "rvb-b00e3a38ce1068d8",
+    "digest": "sha256:b00e3a38ce1068d807190605f58356cf71b97c6ffb1a4266e0d0e93ed938f9b8",
+    "sealed": false,
+    "state": "initial-preparation"
+  },
+  "findings": [
+    {
+      "id": "B01",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "O checkout não é comparado ao subject de implementação selado",
+      "tests": [
+        "TestB07R2SealedSubjectNotCheckout"
+      ]
+    },
+    {
+      "id": "B02",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "Os blockers da preparação são descartados na revalidação",
+      "tests": [
+        "TestB07R2UnreadableSourceStatus"
+      ]
+    },
+    {
+      "id": "B03",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "Gitlink materializado não prova conteúdo nem fronteira",
+      "tests": [
+        "TestB07R2DirtyGitlink"
+      ]
+    },
+    {
+      "id": "B04",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "O ambiente pode redirecionar a verificação a outro worktree",
+      "tests": [
+        "TestB07R2OtherWorktreeEnvironment"
+      ]
+    },
+    {
+      "id": "B05",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "Empate entre bundles ainda pode conservar aprovação sobre negativa",
+      "tests": [
+        "TestB07R2NegativeAcrossBundles",
+        "TestB07R2LegacyNegativeSameInstant"
+      ]
+    },
+    {
+      "id": "B06",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "O digest da policy tem serialização ambígua",
+      "tests": [
+        "TestB07R2PolicyDigestFraming",
+        "TestB07R2PolicyChangeWithEqualDigest"
+      ]
+    },
+    {
+      "id": "B07",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Closeout admite troca por link e checkpoint arbitrário como regeneração",
+      "tests": [
+        "TestB07R2CloseoutType"
+      ]
+    },
+    {
+      "id": "B08",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "A revalidação semântica da origem omite modo executável",
+      "tests": [
+        "TestB07R2SourceMode"
+      ]
+    },
+    {
+      "id": "B09",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "title": "A janela entre última leitura e publicação continua sem proteção",
+      "tests": [
+        "TestB07R2PublishWindow"
+      ]
+    },
+    {
+      "id": "B10",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Revalidação de snapshot ainda retorna vazio para estado inelegível ou mudado",
+      "tests": [
+        "TestB07R2PersistentUnknown",
+        "TestB07R2SnapshotCleanToDirty"
+      ]
+    },
+    {
+      "id": "B11",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "O plano de closeout não bloqueia HEAD desconhecido independentemente do status",
+      "tests": [
+        "TestB07R2CloseoutUnknownHead"
+      ]
+    },
+    {
+      "id": "B12",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Evidência canônica de entrega permanece stale",
+      "tests": []
+    },
+    {
+      "id": "B13",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Um check obrigatório da matriz não passou",
+      "tests": []
+    }
+  ],
+  "followups": [
+    {
+      "id": "L01",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "owner": "@core",
+      "review_by": "2026-12-01",
+      "description": "aplicar a mesma seleção de gitlinks pertinentes antes e depois do adapter. O pré-check usa WorktreeDivergenceFor com filtro; o pós-check usa WorktreeDivergence, que examina todos. Gitlink ausente e alheio ao subject passa antes e é recusado depois. `TestB07R2IrrelevantGitlink` registra pre=[] e post=[module]. A variante só produz recusa indevida. (owner:@core crit:low review:2026-12-01)"
+    },
+    {
+      "id": "L02",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "owner": "@core",
+      "review_by": "2026-12-01",
+      "description": "tornar `TestB07IndependentLostSupersedingBundle` específico para perda de cobertura. O DispatchPlan omite PolicyDigest; a guarda de baseline o recusa antes de ReadReviewBundles, então o teste não prova o ramo que seu nome/trace atribuem. Fornecer baseline válida e controle íntegro. A guarda de cobertura existe e a limitação de teste não foi tomada como prova de bypass; B02 foi reproduzido separadamente. (owner:@core crit:low review:2026-12-01)"
+    },
+    {
+      "id": "L03",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "owner": "@core",
+      "review_by": "2026-12-01",
+      "description": "preservar causa tipada também nos erros de Lstat, Readlink e verificação de gitlink. Só ReadFile regular foi corrigido para GitUnknownError; os demais viram divergência/false. Para essas falhas de leitura a variante é conservadora, com diagnóstico menos específico. Não abrange a aceitação indevida de conteúdo/link de B03. (owner:@core crit:low review:2026-12-01)"
+    }
+  ],
+  "checks": [
+    {
+      "command": "go build -o /tmp/pose-b07r2 ./cmd/pose",
+      "cwd": "pose-mcp",
+      "outcome": "pass",
+      "exit_code": 0
+    },
+    {
+      "command": "/tmp/pose-b07r2 validate --strict --module pose-mcp",
+      "outcome": "fail",
+      "exit_code": 1,
+      "total": 137,
+      "passed": 136,
+      "failed": 1,
+      "duration_seconds": 232.5,
+      "failure": "install-and-upgrade-journeys-integration: TestJourneysInstallAndUpgradeFromThePublishedRelease; curl HTTP 403 listing published releases",
+      "excerpt": "  <- quickstart-real-lifecycle-integration pass 3.6s\n  -> install-and-upgrade-journeys-integration go test ./internal/cli -run Journeys -count=1\n  <- install-and-upgrade-journeys-integration fail 4.0s exit=1\n      --- FAIL: TestJourneysInstallAndUpgradeFromThePublishedRelease (2.85s)\n          journeys_script_test.go:24: a journey diverged: exit status 1\n              \u001b[32m  ok\u001b[0m journey 1: fresh install — strict check, clean doctor, onboarding spec first, nothing to review\n              \u001b[32m  ok\u001b[0m journey 1b: the onboarding spec is started, driven by setup and closed through review\n              curl: (22) The requested URL returned error: 403\n              \u001b[31mFAIL:\u001b[0m listing the published releases\n      FAIL\n      FAIL\tgithub.com/harne8/pose-mcp/internal/cli\t2.867s\n      FAIL"
+    },
+    {
+      "command": "go test ./...",
+      "cwd": "pose-mcp",
+      "outcome": "pass",
+      "source": "required default check of strict validation"
+    },
+    {
+      "command": "go test -race ./internal/pose ./internal/cli",
+      "cwd": "pose-mcp",
+      "outcome": "pass",
+      "exit_code": 0,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t61.936s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t59.454s"
+    },
+    {
+      "command": "go vet ./...",
+      "cwd": "pose-mcp",
+      "outcome": "pass",
+      "exit_code": 0
+    },
+    {
+      "command": "GOOS=windows GOARCH=amd64 go build ./...",
+      "cwd": "pose-mcp",
+      "outcome": "pass",
+      "exit_code": 0
+    },
+    {
+      "command": "GOOS=darwin GOARCH=arm64 go build ./...",
+      "cwd": "pose-mcp",
+      "outcome": "pass",
+      "exit_code": 0
+    },
+    {
+      "command": "/tmp/pose-b07r2 check --strict",
+      "outcome": "pass",
+      "exit_code": 0,
+      "warnings": 29,
+      "output": "Result: SUCCESS — (strict mode) with 29 warning(s)."
+    },
+    {
+      "command": "/tmp/pose-b07r2 lint-spec pose-git-and-dispatch-snapshot-integrity --strict",
+      "outcome": "pass",
+      "exit_code": 0,
+      "warning": "optional section Tasks absent"
+    },
+    {
+      "command": "/tmp/pose-b07r2 artifact-check --spec pose-git-and-dispatch-snapshot-integrity --strict --json",
+      "outcome": "pass",
+      "scoped_claims": 29,
+      "scoped_findings": []
+    },
+    {
+      "command": "/tmp/pose-b07r2 surface-check --spec pose-git-and-dispatch-snapshot-integrity --strict --json",
+      "outcome": "fail",
+      "scoped_findings": [
+        {
+          "id": "dif-baa9495124df",
+          "code": "stale-evidence",
+          "severity": "error",
+          "spec": "pose-git-and-dispatch-snapshot-integrity",
+          "path": "capability:git-and-dispatch-snapshot-integrity",
+          "change_set": "pose-mcp/go/abm-atomic-start-integration",
+          "message": "passed integration evidence is bound to a different scoped provenance digest",
+          "remediation": "rerun the registered validation check for this delivery scope"
+        },
+        {
+          "id": "dif-e68b929bc267",
+          "code": "unconsumed-capability",
+          "severity": "error",
+          "spec": "pose-git-and-dispatch-snapshot-integrity",
+          "path": "capability:git-and-dispatch-snapshot-integrity",
+          "message": "required current evidence is missing: integration",
+          "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+        }
+      ]
+    },
+    {
+      "command": "python3 -I .pose/results/b07-mutations.py --output /tmp/b07r2-mutations.json",
+      "outcome": "pass",
+      "exit_code": 0,
+      "killed": 32,
+      "total": 32
+    },
+    {
+      "command": "python3 -I .pose/results/b07r2-independent-probes.py",
+      "outcome": "reproduced-regressions",
+      "exit_code": 1,
+      "tests": {
+        "TestB07R2DirtyGitlink": {
+          "outcome": "fail",
+          "duration_seconds": 0.03
+        },
+        "TestB07R2CloseoutType": {
+          "outcome": "fail",
+          "duration_seconds": 0.02
+        },
+        "TestB07R2PersistentUnknown": {
+          "outcome": "fail",
+          "duration_seconds": 0.01
+        },
+        "TestB07R2NegativeAcrossBundles": {
+          "outcome": "fail",
+          "duration_seconds": 0.02
+        },
+        "TestB07R2PolicyDigestFraming": {
+          "outcome": "fail",
+          "duration_seconds": 0.0
+        },
+        "TestB07R2IrrelevantGitlink": {
+          "outcome": "pass",
+          "duration_seconds": 0.02
+        },
+        "TestB07R2OtherWorktreeEnvironment": {
+          "outcome": "fail",
+          "duration_seconds": 0.01
+        },
+        "TestB07R2CloseoutUnknownHead": {
+          "outcome": "fail",
+          "duration_seconds": 0.01
+        },
+        "TestB07R2LegacyNegativeSameInstant": {
+          "outcome": "pass",
+          "duration_seconds": 0.0
+        },
+        "TestB07R2SnapshotCleanToDirty": {
+          "outcome": "fail",
+          "duration_seconds": 0.02
+        },
+        "TestB07R2UnreadableSourceStatus": {
+          "outcome": "fail",
+          "duration_seconds": 0.05
+        },
+        "TestB07R2PublishWindow": {
+          "outcome": "fail",
+          "duration_seconds": 0.04
+        },
+        "TestB07R2SourceMode": {
+          "outcome": "fail",
+          "duration_seconds": 0.05
+        },
+        "TestB07R2PolicyChangeWithEqualDigest": {
+          "outcome": "fail",
+          "duration_seconds": 0.04
+        },
+        "TestB07R2SealedSubjectNotCheckout": {
+          "outcome": "fail",
+          "duration_seconds": 0.06
+        }
+      },
+      "build_errors": 0
+    },
+    {
+      "command": "git diff --check origin/main...HEAD",
+      "outcome": "pass",
+      "exit_code": 0
+    },
+    {
+      "command": "changed-diff secret patterns and manual inspection",
+      "outcome": "no-matches",
+      "patterns": [
+        "private-key headers",
+        "GitHub PAT",
+        "AWS access key"
+      ],
+      "limitations": "gitleaks/govulncheck/golangci-lint unavailable; no dependency changes"
+    }
+  ],
+  "assessments": {
+    "debt": {
+      "output": [
+        "Technical Debt Assessment Results:",
+        "  - Total Debt Markers: 1 (TODOs: 1, FIXMEs: 0, Panics: 0, Stubs: 0)",
+        "  - Uncovered Debt Items: 0",
+        "  - Recommendations: 0 Follow-ups, 0 Specs, 0 Roadmaps",
+        "",
+        "techdebt.scan=INCOMPLETE — 265 source file(s) scanned; 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md (scope unknown); invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown); zero markers does not prove the unread files have none",
+        "techdebt.excluded=generated-header: 1 file(s) — files that declare themselves generated are not scanned",
+        "techdebt.excluded=skipped-directory: 36 file(s) — directories that hold dependencies, build output or tool state are not scanned",
+        "Artifacts written to .pose/assessments/technical-debt.md and .pose/state/technical-debt.json"
+      ]
+    },
+    "integrate": {
+      "output": [
+        "  ⚠️ [GAP-61862039] No consumer observed for HTTP /healthz (medium)",
+        "     Provider: pose-mcp | Consumer: unobserved",
+        "     A provider declaration was observed, but no repository consumer reference was found.",
+        "",
+        "  ⚠️ [GAP-0338c2bf] No consumer observed for HTTP /mcp (medium)",
+        "     Provider: pose-mcp | Consumer: unobserved",
+        "     A provider declaration was observed, but no repository consumer reference was found.",
+        "",
+        "Artifacts written to .pose/assessments/integrations.md and .pose/state/integrations.json"
+      ]
+    },
+    "discover": {
+      "output": [
+        "Discovered 1 components:",
+        "  - pose-mcp                       LOC: 74920 (prod) / 62906 (test) | Debt TODOs: 1, FIXMEs: 0",
+        "assess.freshness.pose-mcp=reused (content, engine and matrix unchanged)"
+      ]
+    },
+    "recurrence": {
+      "output": [
+        "recurrence.flapping_keys=0",
+        "recurrence.resolved_clusters=0",
+        "recurrence.window_days=14",
+        "recurrence.threshold=3",
+        "recurrence.records_scanned=393",
+        "recurrence.flagged_keys=0"
+      ]
+    },
+    "design": {
+      "status": "observed",
+      "coverage": {
+        "files_in_subject": 22,
+        "files_observed": 22,
+        "bytes_read": 2247777,
+        "max_files": 4096,
+        "max_bytes": 16777216,
+        "detectors": [
+          {
+            "id": "dependency-go",
+            "state": "not-applicable"
+          },
+          {
+            "id": "dependency-npm",
+            "state": "not-applicable"
+          },
+          {
+            "id": "component",
+            "state": "not-applicable"
+          },
+          {
+            "id": "delivery-metadata",
+            "state": "observed",
+            "observed": 1
+          },
+          {
+            "id": "governance-contract",
+            "state": "observed",
+            "observed": 1
+          },
+          {
+            "id": "public-contract",
+            "state": "not-applicable"
+          },
+          {
+            "id": "git-actions",
+            "state": "observed",
+            "observed": 22
+          }
+        ]
+      },
+      "input_digest": "sha256:75d359dfb9a495cb7bed5e3e67443ef83eab5a5dada03f936ade02f796ea8927"
+    }
+  },
+  "deferred": [
+    "review-check",
+    "closeout-check",
+    "seal",
+    "auto-attest",
+    "attest",
+    "review verify",
+    "close",
+    "assessment update-state at closure"
+  ],
+  "safety": {
+    "policy_changed": false,
+    "issuer_pin_added": false,
+    "spec_changed": false,
+    "committed": false,
+    "pushed": false,
+    "derived_assessment_index_changes_restored": true
+  },
+  "artifacts": {
+    ".pose/reports/2026-10-18-b07r2-independent-review.md": "sha256:a24587a51071cdc9f786125e99b8b126b247a1e511162af7d73bc677a79828fb",
+    ".pose/results/b07r2-independent-probes.py": "sha256:b1e73a5ee9e690679f2d301e313d83cd2bdf43b91476f4cd295f77b71f178c41",
+    ".pose/results/b07r2-independent-probes.log": "sha256:53b5f75d3fec8a980ca2de8e60815a5f7780f773b9c898e9341f7bbd233d8ed3"
+  }
+}
