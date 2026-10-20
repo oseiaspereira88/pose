@@ -68,6 +68,8 @@ constitui aprovação independente nem closeout.
 - modified: pose-mcp/internal/cli/review_dispatch_test.go
 - modified: pose-mcp/internal/cli/writer_publication_test.go
 - modified: .pose/indexes/validation-matrix.json
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/generation.json
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: .pose/assessments/integrations.md
 - modified: .pose/state/integrations.json

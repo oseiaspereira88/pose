@@ -37,6 +37,10 @@ Relatório e matriz em `../reports/2026-10-20-b07-implementation.md` e
    sem revisão nem enfraquecer o gate. Reexecutar matriz depois da correção.
 3. Conferir atribuição, surface evidence e freshness no sujeito final; obter review
    e closeout nativos antes de marcar B07 delivery_complete ou atualizar o gitlink.
+   A implementação `703b831` reconcilia 31/31 paths no intervalo explícito
+   `8aa729a7..703b831`. O padrão por trailers inclui três fontes da história
+   anterior; não inventar claims de mudanças que esta execução não fez.
+   Surface-check também exige reexecutar evidência com scoped provenance atual.
 4. O binding de Harne8 ainda aponta para 8aa729a7. Não usar o wrapper de adoção
    para escrever sobre esta branch de desenvolvimento; usar CLI compilada nela,
    autoridade local explícita e contexto atualizado.

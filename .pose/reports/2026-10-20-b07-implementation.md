@@ -56,6 +56,26 @@ são promovidos a passes retrospectivos; a history do relatório os conserva.
 
 ## Gate pendente
 
+O commit de implementação é `703b8318063f78fcf1d461410bc06d0ed456e7ab`.
+A reconciliação explícita `pose artifact-check --spec
+pose-git-and-dispatch-snapshot-integrity --from 8aa729a7 --to 703b831 --strict`
+passou: 31 claims e 31 paths observados, com avisos globais de orphans. O comando
+também atualizou nativamente delivery-integrity e seu descritor de geração.
+
+O seletor padrão por trailers continua abrangendo a história anterior da spec:
+base `1e0a313`, três commits atribuídos e 46 paths observados. Ele reporta como
+undeclared `review_bundle.go`, `obligation_projection.go` e `git_spawn_cache.go`,
+que esta implementação não editou. Não foram acrescentadas declarações falsas
+para fazer esse intervalo passar. Reconciliar essa fronteira histórica ao preparar
+o sujeito canônico de review, preservando a distinção de atribuição registrada
+no AGENTS.md. Não tratar o passe do intervalo explícito como passe do padrão.
+
+`surface-check --spec pose-git-and-dispatch-snapshot-integrity --strict` ainda
+recusa o fechamento: a evidência antecede o commit e tem outro scoped provenance
+digest, além da fronteira de atribuição acima. Reexecutar os produtores registrados
+sobre o sujeito final após reconciliar a autoridade do change set. Os resultados
+anteriores continuam sendo execução real de testes, sem promover freshness.
+
 O teste `TestWorkflowSecurityContract` recusa a exceção
 `first-party-actions-tag-pinning` em `.github/security-exceptions.json`, expirada
 em 2026-10-19. O arquivo e o teste não foram alterados por B07. Não houve
