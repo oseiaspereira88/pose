@@ -1418,7 +1418,8 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		return map[string]any{"preview": plan, "status": status}, nil
 	case "pose_closeout_state":
 		var a struct {
-			Scope string `json:"scope"`
+			Scope       string `json:"scope"`
+			IncludePlan bool   `json:"include_plan,omitempty"`
 		}
 		if err := json.Unmarshal(args, &a); err != nil || a.Scope == "" {
 			return nil, fmt.Errorf("pose_closeout_state: required argument %q missing", "scope")
@@ -1427,7 +1428,27 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if project == "" {
 			project = s.roots.Context().DefaultProjectID
 		}
-		return store.GetCloseoutStateWithFederatedAcceptance(a.Scope, project, s.federatedArtifactResolver(ctx))
+		// The optional execution plan uses the same fail-closed Git reader as
+		// the CLI. Do not return an apparently usable state after a failed read.
+		var plan *pose.CloseoutPlan
+		if a.IncludePlan {
+			resolved, err := store.PlanCloseout(a.Scope)
+			if err != nil {
+				return nil, fmt.Errorf("pose_closeout_state: %w", err)
+			}
+			plan = &resolved
+		}
+		state, err := store.GetCloseoutStateWithFederatedAcceptance(a.Scope, project, s.federatedArtifactResolver(ctx))
+		if err != nil {
+			return nil, err
+		}
+		if plan == nil {
+			return state, nil
+		}
+		return struct {
+			pose.CloseoutState
+			ExecutionPlan *pose.CloseoutPlan `json:"execution_plan"`
+		}{state, plan}, nil
 	case "pose_review_plan":
 		var a struct {
 			Scope string `json:"scope"`
@@ -2644,10 +2665,11 @@ func toolDefinitions() []map[string]any {
 			"name": "pose_closeout_state",
 			"description": "Read the evidence-backed hierarchical closeout projection for a typed " +
 				"spec, milestone or roadmap scope. Returns current or stale review state, child " +
-				"blockers, the smallest next governed action and terminal status.",
+				"blockers, the smallest next governed action and terminal status. For spec scopes, include_plan adds the CLI execution plan; unknown Git returns an error.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
+					"include_plan": map[string]any{"type": "boolean", "description": "Include the read-only closeout execution plan for a spec scope (default false)"},
 					"scope": map[string]any{
 						"type":        "string",
 						"description": "Typed scope: spec:<slug>, milestone:<roadmap>/<id>, or roadmap:<slug>",

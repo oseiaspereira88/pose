@@ -17,6 +17,7 @@ import (
 func dispatchInstance(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, ".gitignore", "scratch/\n")
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":2,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"},"review_bundles":true,"review_bundles_adopted_at":"2026-08-14"}`)
 	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
 	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-02\ncompleted_at:\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n\n## 6. Validation\n\n### Requirement trace\n- R1 [satisfied] test:TestFixture\n")
@@ -77,7 +78,7 @@ func TestReviewDispatchRunsAndRecordsAdapters(t *testing.T) {
 		"fail":   {Command: []string{"sh", "-c", "cat >/dev/null; exit 3"}, Vendor: "test", Model: "fail-1", Timeout: "30s"},
 		"slow":   {Command: []string{"sh", "-c", "cat >/dev/null; sleep 5"}, Vendor: "test", Model: "slow-1", Timeout: "300ms"},
 		"editor": {Command: []string{"sh", "-c", "cat >/dev/null; echo changed >> pose-mcp/lib.go"}, Vendor: "test", Model: "edit-1", Timeout: "30s"},
-		// Review tools regenerate derived state; that is not an edit.
+		// Directory names do not authenticate an evidence producer.
 		"tools": {Command: []string{"sh", "-c", "cat >/dev/null; mkdir -p .pose/assessments .pose/state && echo x > .pose/assessments/technical-debt.md && echo {} > .pose/state/technical-debt.json && echo decision: approved"}, Vendor: "test", Model: "tools-1", Timeout: "30s"},
 	})
 	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "ok"); code != 0 || !strings.Contains(out, "review_dispatch.apply=false") {
@@ -97,8 +98,8 @@ func TestReviewDispatchRunsAndRecordsAdapters(t *testing.T) {
 		t.Fatalf("the reviewer did not run at the sealed commit with the brief: %q", runs[0].Output)
 	}
 
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "tools", "--apply"); code != 0 || !strings.Contains(out, "review_dispatch.status=completed") {
-		t.Fatalf("a run that only regenerated derived state failed: %d %s", code, out)
+	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "tools", "--apply"); code == 0 || !strings.Contains(out, "review_dispatch.status=failed") {
+		t.Fatalf("an unauthenticated derived writer was accepted: %d %s", code, out)
 	}
 	for adapter, want := range map[string]string{"fail": "the reviewer command failed", "slow": "timeout", "editor": "changed files in the sealed worktree"} {
 		code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", adapter, "--apply")

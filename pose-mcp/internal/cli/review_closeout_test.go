@@ -241,6 +241,10 @@ Pending.
   "deliveries":[{"spec":"bundle","ref":"contract:bundle","kind":"contract","id":"bundle","module":"pose-mcp","profile":"api-contract","entrypoint":"pose-mcp/main.go"}],
   "validation_results":[{"id":"bundle-test","module":"pose-mcp","check":"test","evidence_class":"unit","severity":"required","outcome":"pass","provenance_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
 }`)
+	writeCloseoutCLIFile(t, root, "pose-mcp/z_fixture_test.go", "package main\nimport \"testing\"\nfunc TestFixture(t *testing.T) {}\n")
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "add", "-A")
+	artifactGit(t, root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", "fixture")
 	return root
 }
 
@@ -495,6 +499,7 @@ func TestReviewCriterionDispositionsRefuseJudgmentByOmission(t *testing.T) {
 
 func TestPoseCloseWithLiveGitTrailerNoReport(t *testing.T) {
 	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, "pose-mcp/z_fixture_test.go", "package main\nimport \"testing\"\nfunc TestFixture(t *testing.T) {}\n")
 	artifactGit(t, root, "init", "-q")
 	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
 	artifactGit(t, root, "config", "user.name", "POSE Tests")
@@ -535,6 +540,7 @@ func TestPoseCloseWithLiveGitTrailerNoReport(t *testing.T) {
 
 func TestUpdateMigratesReviewPolicySchemaV1ToV2(t *testing.T) {
 	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, "pose-mcp/z_fixture_test.go", "package main\nimport \"testing\"\nfunc TestFixture(t *testing.T) {}\n")
 	artifactGit(t, root, "init", "-q")
 	writeCloseoutCLIFile(t, root, ".pose/schema-version", "1\n")
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"}}`)
@@ -568,6 +574,7 @@ func TestUpdateMigratesReviewPolicySchemaV1ToV2(t *testing.T) {
 
 func TestReviewBundleSealAndCloseoutForDocOnlySpecWithNoDeliveryTargets(t *testing.T) {
 	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, "pose-mcp/z_fixture_test.go", "package main\nimport \"testing\"\nfunc TestFixture(t *testing.T) {}\n")
 	artifactGit(t, root, "init", "-q")
 	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
 	artifactGit(t, root, "config", "user.name", "POSE Tests")
@@ -687,6 +694,7 @@ Nenhum
 
 func TestReviewBundleSealSingleModuleRootFilesAndManifests(t *testing.T) {
 	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, "pose-mcp/z_fixture_test.go", "package main\nimport \"testing\"\nfunc TestFixture(t *testing.T) {}\n")
 	artifactGit(t, root, "init", "-q")
 	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
 	artifactGit(t, root, "config", "user.name", "POSE Tests")
@@ -810,6 +818,7 @@ Nenhum
 
 func TestReviewBundleSealSingleModuleSubdirectoryDeliveryTarget(t *testing.T) {
 	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, "pose-mcp/z_fixture_test.go", "package main\nimport \"testing\"\nfunc TestFixture(t *testing.T) {}\n")
 	artifactGit(t, root, "init", "-q")
 	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
 	artifactGit(t, root, "config", "user.name", "POSE Tests")
@@ -954,6 +963,7 @@ delivers: contract:my-contract
 
 func TestReviewVerifyScopeIsolationFromUnrelatedCorruptedBundle(t *testing.T) {
 	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, "pose-mcp/z_fixture_test.go", "package main\nimport \"testing\"\nfunc TestFixture(t *testing.T) {}\n")
 	artifactGit(t, root, "init", "-q")
 	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
 	artifactGit(t, root, "config", "user.name", "POSE Tests")

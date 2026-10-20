@@ -74,6 +74,7 @@ func TestTheClosePlanStopsAtJudgmentAndNeverAnswersIt(t *testing.T) {
   "schema_version":2,"id":"spec-closeout","version":2,"scope":"spec",
   "criteria":[{"id":"security","description":"Authority boundaries are safe."}]
 }`)
+	commitSnapshotFixture(t, root)
 	code, out := runPose(t, root, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer")
 	if code != 3 || !strings.Contains(out, "closeout_plan.pending.security=") || !strings.Contains(out, "waiting on a reviewer") {
 		t.Fatalf("the plan did not stop at the judgment: %d %s", code, out)

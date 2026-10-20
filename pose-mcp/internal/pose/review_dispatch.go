@@ -18,9 +18,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strings"
 	"time"
@@ -152,12 +154,13 @@ func (s Store) ListReviewRuns(bundleID string) ([]ReviewRun, error) {
 
 // DispatchPlan is what a dispatch will do.
 type DispatchPlan struct {
-	Adapter      string
-	Config       ReviewerAdapter
-	Brief        ReviewBrief
-	Bundle       ReviewBundle
-	SealedCommit string
-	PriorRuns    int
+	OriginWorktree string
+	Adapter        string
+	Config         ReviewerAdapter
+	Brief          ReviewBrief
+	Bundle         ReviewBundle
+	SealedCommit   string
+	PriorRuns      int
 }
 
 // PlanReviewDispatch resolves the bundle, brief and adapter without running.
@@ -200,7 +203,11 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string) (Dispatch
 			count++
 		}
 	}
-	return DispatchPlan{Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: count}, nil
+	origin, err := dispatchWorktreeIdentity(s.Root)
+	if err != nil {
+		return DispatchPlan{}, err
+	}
+	return DispatchPlan{OriginWorktree: origin, Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: count}, nil
 }
 
 // ErrNoReviewerAdapter means the project configured no reviewer.
@@ -217,6 +224,10 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 		run.EndedAt = now().UTC().Format(time.RFC3339Nano)
 		return s.recordReviewRun(run, transcript)
 	}
+	// Recompute semantic freshness at execution time, not just preview time.
+	if err := s.checkDispatchOrigin(plan); err != nil {
+		return finish(ReviewRunFailed, err.Error())
+	}
 	if plan.Config.MaxRunsPerBundle > 0 && plan.PriorRuns >= plan.Config.MaxRunsPerBundle {
 		return finish(ReviewRunFailed, fmt.Sprintf("budget exhausted: %d run(s) of %s on this bundle, at most %d", plan.PriorRuns, plan.Adapter, plan.Config.MaxRunsPerBundle))
 	}
@@ -230,6 +241,17 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 		return ReviewRun{}, fmt.Errorf("pose: creating the review worktree: %v: %s", err, strings.TrimSpace(string(out)))
 	}
 	defer exec.Command("git", "-C", s.Root, "worktree", "remove", "--force", worktree).Run()
+
+	if err := verifyDispatchWorktree(worktree, plan.SealedCommit); err != nil {
+		return finish(ReviewRunFailed, err.Error())
+	}
+	if err := verifyBundleMaterialization(worktree, plan.Bundle); err != nil {
+		return finish(ReviewRunFailed, err.Error())
+	}
+	diskBefore, err := dispatchDiskSnapshot(worktree)
+	if err != nil {
+		return finish(ReviewRunFailed, err.Error())
+	}
 
 	outputFile := filepath.Join(tmp, "output.txt")
 	argv := make([]string, len(plan.Config.Command))
@@ -277,42 +299,243 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 	case runErr != nil:
 		return finish(ReviewRunFailed, "the reviewer command failed: "+runErr.Error())
 	}
-	// A reviewer that changed the sealed content did not review it. The tools
-	// a plan requires regenerate derived state (assessments, indexes, results),
-	// which is not the content under review (found by the first real run).
-	if out, _ := exec.Command("git", "-C", worktree, "status", "--porcelain", "--untracked-files=all").Output(); len(bytes.TrimSpace(out)) > 0 {
-		changed := []string{}
-		for _, line := range strings.Split(strings.TrimRight(string(out), "\n"), "\n") {
-			if len(line) < 4 {
-				continue
-			}
-			// A rename touches both paths: moving sealed content into
-			// derived state still removed it (found in review).
-			for _, path := range strings.Split(strings.TrimSpace(line[3:]), " -> ") {
-				if path = strings.Trim(path, `"`); !derivedReviewPath(path) {
-					changed = append(changed, path)
-				}
-			}
-		}
-		if len(changed) > 0 {
-			return finish(ReviewRunFailed, "the run changed files in the sealed worktree: "+strings.Join(changed, " "))
-		}
+	diskAfter, err := dispatchDiskSnapshot(worktree)
+	if err != nil {
+		return finish(ReviewRunFailed, err.Error())
 	}
-	if head, _ := exec.Command("git", "-C", worktree, "rev-parse", "HEAD").Output(); strings.TrimSpace(string(head)) != plan.SealedCommit {
-		return finish(ReviewRunFailed, "the run moved the worktree off the sealed commit")
+	if !reflect.DeepEqual(diskBefore, diskAfter) {
+		changed := []string{}
+		for path, digest := range diskBefore {
+			if diskAfter[path] != digest {
+				changed = append(changed, path)
+			}
+		}
+		for path := range diskAfter {
+			if _, exists := diskBefore[path]; !exists {
+				changed = append(changed, path)
+			}
+		}
+		sort.Strings(changed)
+		return finish(ReviewRunFailed, fmt.Sprintf("the run changed files in the sealed worktree (including ignored materialization): %q", changed))
+	}
+	if err := verifyDispatchWorktree(worktree, plan.SealedCommit); err != nil {
+		return finish(ReviewRunFailed, err.Error())
+	}
+	if err := s.checkDispatchOrigin(plan); err != nil {
+		return finish(ReviewRunFailed, err.Error())
 	}
 	return finish(ReviewRunCompleted, "")
 }
 
-// derivedReviewPath reports whether path is state POSE regenerates from the
-// sealed content rather than part of it.
-func derivedReviewPath(path string) bool {
-	for _, prefix := range []string{".pose/assessments/", ".pose/state/", ".pose/indexes/", ".pose/results/", ".pose/review-bundles/", ".pose/review-runs/", ".pose/reports/history/"} {
-		if strings.HasPrefix(path, prefix) {
-			return true
+// The adapter has no authenticated producer/output declaration. Until such a
+// declaration exists, a directory name cannot authorize regenerated evidence.
+func verifyDispatchWorktree(root, commit string) error {
+	head, err := snapshotGit(root, "rev-parse", "--verify", "HEAD")
+	if err != nil {
+		return err
+	}
+	if strings.TrimSpace(string(head)) != commit {
+		return fmt.Errorf("the run moved the worktree off the sealed commit")
+	}
+	paths, err := gitChangedPaths(root)
+	if err != nil {
+		return err
+	}
+	materialized, err := gitMaterializedChanges(root, commit)
+	if err != nil {
+		return err
+	}
+	paths = append(paths, materialized...)
+	if len(paths) > 0 {
+		return fmt.Errorf("the run changed files in the sealed worktree: %q", paths)
+	}
+	return nil
+}
+
+func (s Store) checkDispatchOrigin(plan DispatchPlan) error {
+	origin, err := dispatchWorktreeIdentity(s.Root)
+	if err != nil {
+		return err
+	}
+	if plan.OriginWorktree == "" || origin != plan.OriginWorktree {
+		return fmt.Errorf("dispatch origin conflict: worktree identity changed")
+	}
+	if _, err := dispatchRegularInputPath(s.Root, ".pose/policy/reviewers.json"); err != nil {
+		return err
+	}
+	policy, found, err := s.LoadReviewersPolicy()
+	if err != nil {
+		return fmt.Errorf("dispatch adapter policy unavailable: %w", err)
+	}
+	if !found || !reflect.DeepEqual(policy.Adapters[plan.Adapter], plan.Config) {
+		return fmt.Errorf("dispatch origin stale: reviewer adapter policy changed")
+	}
+	if plan.SealedCommit != plan.Bundle.Payload.Subject.Head || plan.Brief.BundleID != plan.Bundle.BundleID || plan.Brief.BundleDigest != plan.Bundle.BundleDigest {
+		return fmt.Errorf("dispatch input conflict: plan does not identify its sealed bundle")
+	}
+	body, ok := strings.CutSuffix(plan.Brief.Text, "\n<!-- brief-digest: "+plan.Brief.Digest+" -->\n")
+	if !ok || digestBytes([]byte(body)) != plan.Brief.Digest {
+		return fmt.Errorf("dispatch input conflict: brief digest changed")
+	}
+	if _, err := snapshotGit(s.Root, "rev-parse", "--verify", "HEAD"); err != nil {
+		return err
+	}
+	if _, err := gitChangedPaths(s.Root); err != nil {
+		return err
+	}
+	digest, err := reviewBundlePayloadDigest(plan.Bundle.Payload)
+	if err != nil || digest != plan.Bundle.BundleDigest {
+		return fmt.Errorf("dispatch input conflict: bundle payload no longer matches its sealed digest")
+	}
+	// Inspect types and bytes before a freshness reader can follow an input.
+	if err := verifyBundleMaterialization(s.Root, plan.Bundle); err != nil {
+		return err
+	}
+	bundle, err := s.CurrentReviewBundle(plan.Brief.Scope)
+	if err != nil {
+		return fmt.Errorf("dispatch origin unavailable: %w", err)
+	}
+	if bundle == nil || bundle.BundleID != plan.Bundle.BundleID || bundle.BundleDigest != plan.Bundle.BundleDigest {
+		return fmt.Errorf("dispatch origin stale: sealed bundle changed or was superseded")
+	}
+	return nil
+}
+
+func dispatchWorktreeIdentity(root string) (string, error) {
+	top, err := snapshotGit(root, "rev-parse", "--show-toplevel")
+	if err != nil {
+		return "", err
+	}
+	abs, err := filepath.Abs(root)
+	if err != nil {
+		return "", err
+	}
+	abs, err = filepath.EvalSymlinks(abs)
+	if err != nil {
+		return "", err
+	}
+	topPath, err := filepath.EvalSymlinks(strings.TrimSpace(string(top)))
+	if err != nil || abs != topPath {
+		return "", fmt.Errorf("dispatch origin conflict: Git selected a different worktree")
+	}
+	dir, err := snapshotGit(root, "rev-parse", "--absolute-git-dir")
+	if err != nil {
+		return "", err
+	}
+	return string(top) + "\x00" + string(dir), nil
+}
+
+func verifyBundleMaterialization(root string, bundle ReviewBundle) error {
+	for _, entry := range bundle.Payload.Subject.Entries {
+		path := entry.Path
+		if entry.NewPath != "" {
+			path = entry.NewPath
+		}
+		if entry.Class == "submodule" {
+			full, err := dispatchInputPath(root, path)
+			if err != nil {
+				return err
+			}
+			if _, err := dispatchWorktreeIdentity(full); err != nil {
+				return err
+			}
+			head, err := snapshotGit(full, "rev-parse", "--verify", "HEAD")
+			if err != nil {
+				return err
+			}
+			if digestBytes([]byte(strings.TrimSpace(string(head)))) != entry.Digest {
+				return fmt.Errorf("dispatch input conflict: submodule %q moved", path)
+			}
+			if err := verifyDispatchWorktree(full, strings.TrimSpace(string(head))); err != nil {
+				return err
+			}
+			continue
+		}
+		if entry.Action == "removed" {
+			if _, err := os.Lstat(filepath.Join(root, filepath.FromSlash(path))); !errors.Is(err, os.ErrNotExist) {
+				return fmt.Errorf("dispatch input conflict: removed path %q exists or is unreadable", path)
+			}
+			continue
+		}
+		if err := verifyDispatchInput(root, path, entry.Digest, true); err != nil {
+			return err
 		}
 	}
-	return false
+	for _, input := range bundle.Payload.ConsumedInputs {
+		switch input.Kind {
+		case "governed-config", "review-profile", "rule":
+			if err := verifyDispatchInput(root, input.Path, input.Digest, false); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func dispatchInputPath(root, path string) (string, error) {
+	var err error
+	root, err = filepath.Abs(root)
+	if err != nil {
+		return "", &GitSnapshotError{"root", err}
+	}
+	if path == "" || filepath.IsAbs(path) || filepath.ToSlash(filepath.Clean(path)) != path || path == ".." || strings.HasPrefix(path, "../") {
+		return "", fmt.Errorf("dispatch input conflict: unsafe path %q", path)
+	}
+	full := filepath.Join(root, filepath.FromSlash(path))
+	for parent := full; parent != root; parent = filepath.Dir(parent) {
+		info, err := os.Lstat(parent)
+		if err != nil {
+			return "", &GitSnapshotError{"input " + path, err}
+		}
+		if info.Mode()&os.ModeSymlink != 0 {
+			return "", fmt.Errorf("dispatch input conflict: symlink %q", path)
+		}
+	}
+	return full, nil
+}
+
+func verifyDispatchInput(root, path, digest string, normalize bool) error {
+	full, err := dispatchRegularInputPath(root, path)
+	if err != nil {
+		return err
+	}
+	file, err := os.Open(full)
+	if err != nil {
+		return &GitSnapshotError{"input " + path, err}
+	}
+	raw, readErr := io.ReadAll(io.LimitReader(file, (256<<20)+1))
+	closeErr := file.Close()
+	if readErr != nil {
+		return &GitSnapshotError{"input " + path, readErr}
+	}
+	if closeErr != nil {
+		return &GitSnapshotError{"input " + path, closeErr}
+	}
+	if len(raw) > 256<<20 {
+		return &GitSnapshotError{"input " + path, fmt.Errorf("input exceeds 256 MiB")}
+	}
+	if normalize {
+		raw = bytes.ReplaceAll(raw, []byte("\r\n"), []byte("\n"))
+	}
+	if digest == "" || digestBytes(raw) != digest {
+		return fmt.Errorf("dispatch input conflict: sealed bytes changed for %q", path)
+	}
+	return nil
+}
+
+func dispatchRegularInputPath(root, path string) (string, error) {
+	full, err := dispatchInputPath(root, path)
+	if err != nil {
+		return "", err
+	}
+	info, err := os.Lstat(full)
+	if err != nil {
+		return "", &GitSnapshotError{"input " + path, err}
+	}
+	if !info.Mode().IsRegular() {
+		return "", fmt.Errorf("dispatch input conflict: %q is not a regular file", path)
+	}
+	return full, nil
 }
 
 func tail(s string, n int) string {

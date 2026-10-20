@@ -545,6 +545,25 @@ the adapter before dispatching. The returned review remains subject to the
 bundle's criteria, identity requirements and verification gates; dispatch
 does not itself approve or close the spec.
 
+Dispatch verifies the sealed inputs in both the selected origin and the
+disposable worktree before starting. After the command exits, it checks the
+worktree's HEAD, materialized content (including ignored files), current bundle
+and adapter configuration again. An unavailable Git observation fails the run;
+`assume-unchanged` and `skip-worktree` do not authorize hidden edits. An unrelated
+documentation commit does not stale a bundle whose semantic inputs still match.
+
+Keep adapter output outside the worktree, using `{output}` or stdout. Adapters
+cannot authenticate a regeneration producer, so writing assessments, indexes,
+results or review artifacts inside the worktree fails the run. A directory name
+does not grant permission. Disk comparison reads at most 100,000 entries and
+256 MiB; exceeding either limit fails with an unavailable snapshot diagnostic.
+Retry after resolving the reported cause; every attempt rechecks preconditions.
+
+A completed run records observations at completion. It grants no current
+fulfillment or attestation authority and does not isolate an adapter from the
+host filesystem. If the origin becomes stale during execution, its transcript
+is retained as a failed historical run.
+
 ### Signed action answers
 
 A project can verify who answered an action request without any external

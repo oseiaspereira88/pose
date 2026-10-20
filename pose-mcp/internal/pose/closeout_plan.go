@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -70,10 +69,6 @@ const (
 	CloseoutPlanSchemaVersion = 1
 )
 
-// generatedCloseoutPaths are written by the plan's own steps; a dirty one is
-// expected while closing and does not block the context step.
-var generatedCloseoutPaths = []string{".pose/indexes/", ".pose/results/", ".pose/state/", ".pose/review-bundles/", ".pose/review-attestations/", closeoutCheckpointDir + "/"}
-
 // PlanCloseout computes the plan for a spec scope.
 func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 	scope, err := ParseScopeRef(ref)
@@ -92,7 +87,11 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 		return CloseoutPlan{}, err
 	}
 	plan := CloseoutPlan{SchemaVersion: CloseoutPlanSchemaVersion, Scope: ref}
-	plan.Inputs = CloseoutPlanInputs{SpecDigest: digestHex(raw), Revision: gitHeadAtRoot(s.Root), PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose", "policy"))}
+	head, gitErr := snapshotGit(s.Root, "rev-parse", "--verify", "HEAD")
+	if gitErr != nil {
+		return CloseoutPlan{}, gitErr
+	}
+	plan.Inputs = CloseoutPlanInputs{SpecDigest: digestHex(raw), Revision: strings.TrimSpace(string(head)), PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose", "policy"))}
 	step := func(id, state, reason string) {
 		plan.Steps = append(plan.Steps, CloseoutPlanStep{ID: id, State: state, Reason: reason})
 	}
@@ -111,7 +110,11 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 		plan.Digest = closeoutPlanDigest(plan)
 		return plan, nil
 	}
-	if dirty := s.ungeneratedChanges(); len(dirty) > 0 {
+	dirty, gitErr := s.ungeneratedChanges(scope.Slug, plan.Inputs.Revision)
+	if gitErr != nil {
+		return CloseoutPlan{}, gitErr
+	}
+	if len(dirty) > 0 {
 		step(CloseoutStepContext, CloseoutStateBlocked, "uncommitted changes outside generated paths ("+strings.Join(dirty, ", ")+"): evidence sealed now would not describe a commit")
 		plan.Blockers = append(plan.Blockers, "commit or discard the working-tree changes before closing")
 		plan.Digest = closeoutPlanDigest(plan)
@@ -210,32 +213,113 @@ func (p CloseoutPlan) NextCloseoutStep() (CloseoutPlanStep, bool) {
 
 // ungeneratedChanges lists working-tree changes outside the paths the plan
 // itself writes.
-func (s Store) ungeneratedChanges() []string {
-	out, err := exec.Command("git", "-C", s.Root, "status", "--porcelain", "--untracked-files=all").Output()
+func (s Store) ungeneratedChanges(slug, head string) ([]string, error) {
+	paths, err := gitChangedPaths(s.Root)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	var dirty []string
-	for _, line := range strings.Split(strings.TrimRight(string(out), "\n"), "\n") {
-		if len(line) < 4 {
+	hidden, err := gitMaterializedChanges(s.Root, head)
+	if err != nil {
+		return nil, err
+	}
+	paths = append(paths, hidden...)
+	trackedChanges := map[string]bool{}
+	for _, path := range hidden {
+		trackedChanges[path] = true
+	}
+	policy, err := LoadDeliveryPolicy(s.Root)
+	if err != nil {
+		return nil, err
+	}
+	dirty := []string{}
+	seen := map[string]bool{}
+	for _, path := range paths {
+		// The lifecycle owner file is operational state of this exact spec.
+		if path == ".pose/starts/."+slug+".lock" {
 			continue
 		}
-		path := strings.TrimSpace(line[3:])
-		// A staging file a crashed publication left is not a change of the
-		// repository (spec pose-writer-coordination-and-atomic-publication
-		// R1): it never holds published content.
 		if IsPublisherStaging(path) {
 			continue
 		}
-		generated := false
-		for _, prefix := range generatedCloseoutPaths {
-			generated = generated || strings.HasPrefix(path, prefix)
+		generated := closeoutProducedPath(path, slug, policy.ResultsPath, trackedChanges[path])
+		if generated && strings.HasPrefix(path, ".pose/indexes/generations/") {
+			view := s.ReadIndexGeneration()
+			generated = false
+			if view.Status == IndexGenerationCurrent && strings.HasPrefix(path, ".pose/indexes/generations/"+view.Descriptor.GenerationID+"/") {
+				name := filepath.Base(path)
+				if file, found := view.Descriptor.file(name); found {
+					raw, readErr := os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(path)))
+					generated = readErr == nil && sha256Prefixed(raw) == file.SHA256
+				}
+			}
 		}
-		if !generated {
+		if !generated && !seen[path] {
 			dirty = append(dirty, path)
+			seen[path] = true
 		}
 	}
-	return dirty
+	observedHead, err := snapshotGit(s.Root, "rev-parse", "--verify", "HEAD")
+	if err != nil {
+		return nil, err
+	}
+	if strings.TrimSpace(string(observedHead)) != head {
+		return nil, &GitSnapshotError{"HEAD coherence", fmt.Errorf("HEAD changed during closeout observation; retry with the current inputs")}
+	}
+	return dirty, nil
+}
+
+// Each exception names the actual producer's output, never an entire tree.
+// Evidence and attestations already in HEAD are immutable even while closing.
+func closeoutProducedPath(path, slug, resultsPath string, trackedChange bool) bool {
+	if path == filepath.ToSlash(filepath.Join(closeoutCheckpointDir, "spec-"+slug+".json")) {
+		return true
+	}
+	if resultsPath != "" && path == resultsPath {
+		return true
+	}
+	for _, name := range append(append([]string{}, IndexGenerationFiles...), indexDescriptorName) {
+		if path == ".pose/indexes/"+name {
+			return true
+		}
+	}
+	parts := strings.Split(path, "/")
+	if len(parts) == 5 && parts[0] == ".pose" && parts[1] == "indexes" && parts[2] == indexGenerationsDir && strings.HasPrefix(parts[3], "gen-") {
+		id := strings.TrimPrefix(parts[3], "gen-")
+		valid := len(id) == 16
+		for _, c := range id {
+			valid = valid && strings.ContainsRune("0123456789abcdef", c)
+		}
+		if valid && !trackedChange {
+			for _, name := range IndexGenerationFiles {
+				if parts[4] == name {
+					return true
+				}
+			}
+		}
+	}
+	if trackedChange {
+		return false
+	}
+	for prefix, idPrefix := range map[string]string{".pose/review-bundles/": "rvb-", ".pose/review-attestations/": "rva-"} {
+		if !strings.HasPrefix(path, prefix) {
+			continue
+		}
+		name := strings.TrimPrefix(path, prefix)
+		if !strings.HasPrefix(name, idPrefix) || !strings.HasSuffix(name, ".json") {
+			return false
+		}
+		id := strings.TrimSuffix(strings.TrimPrefix(name, idPrefix), ".json")
+		if len(id) != 16 {
+			return false
+		}
+		for _, c := range id {
+			if !strings.ContainsRune("0123456789abcdef", c) {
+				return false
+			}
+		}
+		return true
+	}
+	return false
 }
 
 // CloseoutCheckpoint records how far an apply got, so an interrupted run is
