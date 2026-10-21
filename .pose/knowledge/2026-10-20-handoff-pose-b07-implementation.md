@@ -17,8 +17,7 @@ source_refs:
 
 ## Context
 
-B07 retomada após o merge de B06 (#194), baseline 8aa729a7. Implementação
-explicitamente autorizada pelo mantenedor; branch `impl/pose-b07-snapshot-integrity`.
+B07 retomada e reconciliada com a história completa do PR #195. Implementação explicitamente autorizada pelo mantenedor; branch canônica de trabalho `impl/pose-b07-git-snapshot-integrity`.
 last_reviewed_at: 2026-10-20.
 
 ## Current state
@@ -33,7 +32,7 @@ Relatório e matriz em `../reports/2026-10-20-b07-implementation.md` e
 
 1. Canonical worktree: /tmp/pose-b07-closeout-work, branch impl/pose-b07-git-snapshot-integrity. Merge a4c58e9 preserves the full PR195 history through 23643a2 and the original native start. Do not overwrite concurrent documentation changes in the shared checkout.
 2. The unused expired Actions waiver was removed separately in d957b4f. No pin or enforcement change. Reconciled full suite, 11/11 mutations and native 141/141 validation passed before the latest three review fixes; regenerate final evidence at the configured .pose/results/delivery-validation.json.
-3. Review R1 requested changes, now fixed: persisted runs require Git, closeout exceptions require regular materialization, history sorts instants with validated probes. Review R2 is a fresh separate same-vendor execution. The cross-vendor attempt hit its weekly limit; no cross-vendor approval is claimed.
+3. Review R1 requested changes, now fixed: persisted runs require Git, closeout exceptions require regular materialization, history sorts instants with validated probes. Review R2 found the remaining persisted-materialization gap; Review R3 accepted its correction with no remaining functional finding. The reports record the actual separate same-vendor execution identity. The cross-vendor attempt hit its weekly limit; no cross-vendor approval is claimed.
 4. Finish artifact/surface checks, native sealed review and closeout before done or adoption. Default artifact attribution reconciled 82 claims with no errors. The Harne8 binding still points at 8aa729a7; do not update it merely because local tests pass.
 
 ## Risks
@@ -42,11 +41,11 @@ Observações antes/depois não isolam o adapter nem impedem escrita transitóri
 Nenhum efeito governado é aplicado pelo dispatch; consumidores futuros precisam
 revalidar autorização. Adapters não autenticam produtores derivados: outputs devem
 ir para stdout ou `{output}`, fora do worktree. Limites: 100000 entradas/256 MiB.
-Sem review independente ou suporte a alegação de eficácia em produção.
+A revisão R3 é uma execução separada do mesmo fornecedor, com identidade declarada e sem confirmação humana ou prova criptográfica. Não há alegação de eficácia em produção.
 
 ## Next owner
 
-@pose-maintainers coordena revisão, gate de segurança e closeout.
+@pose-maintainers coordena a verificação dos registros nativos de closeout e eventual adoção; consulte o Final Report da spec para o resultado final.
 
 ## References
 
