@@ -1,0 +1,80 @@
+---
+slug: pose-ci-security-refresh
+status: in-progress
+created_at: 2026-10-21
+components: pose-mcp
+task_type: bugfix
+surface: minimal
+changelog: none
+---
+
+# Spec: Refresh the CI security baseline
+
+## 1. Intent
+
+### Goal
+Restore the security checks observed on PR 195 without weakening detection.
+
+### Constraints
+Keep action SHA pins, full-history scanning, and all vulnerability gates enabled.
+
+## 2. Requirements
+
+### Functional
+- R1: Every Go workflow shall use Go 1.26.10, correcting the standard-library GO-2026-6809 finding observed with Go 1.26.9.
+- R2: Secret scanning shall exempt only the exact historical B28 file-digest finding and continue rejecting other findings.
+
+## 3. Technical Plan
+
+### Affected areas
+CI run 39562619357 reproduced both failures. The vulnerability scanner identifies crypto/x509 in Go 1.26.9, fixed in 1.26.10. Gitleaks identifies a SHA-256 value for json_duplicate_keys.go in the B28 review file manifest, commit 11e05be1d054cefee35651d0f13fcbb66ff066e0, line 576. It is a source-file digest, not an authentication value. Pin an ignore fingerprint to that commit, path, rule and line. No related security knowledge artifact was found. Rollback reverts the patch and restores the two gate failures.
+
+### Artifacts
+- modified: .github/workflows/ci.yml
+- modified: .github/workflows/governance-audit.yml
+- modified: .github/workflows/package-channels.yml
+- modified: .github/workflows/release.yml
+- modified: .github/workflows/security.yml
+- modified: .github/workflows/verify-release.yml
+- modified: .gitleaksignore
+- created: .pose/specs/2026-10-21-pose-ci-security-refresh.md
+
+### API/contract changes
+None. Compiler patch and exact false-positive classification only.
+
+### Technical risks
+Go patch availability and upstream vulnerability database changes can independently affect CI. The fingerprint does not exempt a path or a whole commit.
+
+## 6. Validation
+
+### Strategy
+Run workflow security contracts, vulnerability scans for both Go modules under Go 1.26.10, and the exact CI gitleaks version over complete history. Validate the exception with a modified line fingerprint and a synthetic secret in the same file path, both of which must remain detectable. Existing scanning is the regression oracle; no implementation-mirroring unit test is needed.
+
+### Deterministic checks
+- Command: go test ./internal/version -run WorkflowSecurity -count=1
+- Expected: existing security contract passes.
+- Command: GOTOOLCHAIN=go1.26.10 go run golang.org/x/vuln/cmd/govulncheck@v1.4.0 ./...
+- Expected: no affected symbols in either module.
+- Command: go run github.com/zricethezav/gitleaks/v8@v8.21.2 git --no-banner --redact --config ../.gitleaks.toml ..
+- Expected: full history passes; negative controls remain detected.
+
+### Execution log
+- 2026-10-21: Reproduced the remote vulnerability finding and the single historical source-file digest match locally. Assessment reused unchanged pose-mcp content.
+- Go 1.26.10: govulncheck v1.4.0 returned no vulnerabilities in both pose-mcp and mcp-enforce. WorkflowSecurity tests passed.
+- Gitleaks v8.21.2: full history passed after the exact exception. Changing its line from 576 to 577 exposed the original finding; a synthetic token in the same report path was also detected. An initial control using an extra ignore file was inconclusive because the scanner also loads the repository ignore file; the repeated control mutated and restored that file directly.
+- git diff --check passed. Remote CI must be rerun for the final patch.
+
+### Requirement trace
+- R1 [satisfied] test:pose-mcp/internal/version/workflow_security_test.go <Go 1.26.10 vulnerability scans passed in both modules>
+- R2 [satisfied] <Full-history scan and both negative controls passed; exception is fingerprint scoped>
+
+## 7. Final Report
+
+### Delivered scope
+Updated the six Go workflows to 1.26.10 and added one exact historical fingerprint. Native closeout and remote checks remain pending.
+
+### Residual risks
+No credential finding is waived; new findings remain blocking.
+
+### Follow-ups
+- [open] Verify final remote checks and native closeout before merge. (owner:@pose-maintainers crit:medium review:2026-10-22)
