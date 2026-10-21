@@ -1,9 +1,9 @@
 ---
 schema_version: 1
-generated_at: 2026-10-18T07:04:39Z
-baseline_commit: 67f25e791eb5be71e4ef1c87a379a74b24f0570a
+generated_at: 2026-10-21T04:12:09Z
+baseline_commit: d6ce7bc83daec17e8f760580450d14472bb77148
 staleness_policy: max_age_days=7,max_commits=20
-refresh_pending: 
+refresh_pending: spec_closeout
 ---
 
 # Project State
@@ -27,36 +27,36 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:f82eeb25851c -->
+<!-- state:derived hash:b180a0ec03a6 -->
 
-- specs: total=441 draft=34 in-progress=18 blocked=0 done=388 superseded=0 abandoned=1
+- specs: total=445 draft=36 in-progress=18 blocked=0 done=390 superseded=0 abandoned=1
 - roadmaps: total=22 active=3 done=11
 - últimos closeouts:
+  - spec:pose-retire-unused-first-party-action-exception (2026-10-21)
+  - spec:pose-git-and-dispatch-snapshot-integrity (2026-10-21)
   - spec:pose-source-coverage-integrity (2026-10-18)
-  - spec:pose-index-generation-integrity (2026-10-17)
-  - spec:pose-test-scripts-remove-their-temp-files (2026-10-17)
   - spec:pose-writer-coordination-and-atomic-publication (2026-10-17)
-  - spec:pose-cli-mcp-operation-results (2026-10-16)
-  - ... e mais 383 (ver `pose_list_specs status:done`)
+  - spec:pose-index-generation-integrity (2026-10-17)
+  - ... e mais 385 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:67e91520df75 -->
+<!-- state:derived hash:3d5a4be62538 -->
 
 - abertos: 110
 - por criticidade: high=4 medium=22 low=65 sem-classificação=19
-- vencidos (review < hoje): 16
+- vencidos (review < hoje): 25
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
+  - spec:pose-review-root-binding-parity (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-release-signing-rejection (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-shellcheck-ci-gate (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-verifier-assets-variable-fix (owner:@pose-maintainers review:2026-10-02)
-  - spec:pose-review-root-binding-parity (owner:@pose-maintainers review:2026-10-02)
-  - spec:pose-federated-spec-dependency-acceptance (owner:@harne8-platform review:2026-10-03)
   - spec:pose-spec-transfer-reconcile-terminal (owner:@harne8-platform review:2026-10-03)
-  - spec:pose-package-channel-install-repair (owner:@pose-maintainers review:2026-10-08)
+  - spec:pose-federated-spec-dependency-acceptance (owner:@harne8-platform review:2026-10-03)
   - spec:pose-governance-gate-activation (owner:@pose-maintainers review:2026-10-08)
-  - ... e mais 6 vencidos (ver `pose followups --open`)
+  - spec:pose-package-channel-install-repair (owner:@pose-maintainers review:2026-10-08)
+  - ... e mais 15 vencidos (ver `pose followups --open`)
 
 ## Capabilities
 <!-- state:derived hash:e20a9224b717 -->
@@ -76,22 +76,22 @@ capacidade.
 - knowledge: total=11 ativo=11 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:bc9a69c87636 -->
+<!-- state:derived hash:d439b433c92f -->
 
-- último registro: task=validate-native outcome=fail (2026-10-13T04:23:26Z)
-- últimos 30 dias: total=99 outcome_ok=75 outcome_outro=24
-- reports revisados (.md): total=209
-  - report:2026-10-17-pose-b06-source-coverage-review.md
-  - report:pose-abm-capability-adoption.md
-  - report:pose-agency-readiness-pilot.md
-  - report:pose-v6-2-0-autonomous-work.md
-  - report:pose-v7-legacy-cleanup-plan.md
+- último registro: task=b07-snapshot-integrity outcome=pass (2026-10-21T04:10:38Z)
+- últimos 30 dias: total=81 outcome_ok=59 outcome_outro=22
+- reports revisados (.md): total=219
+  - report:2026-10-20-b07-implementation.md
+  - report:2026-10-21-standard-b07-snapshot-integrity.md
+  - report:2026-10-20-b07-reconciled-review-r3.md
+  - report:2026-10-20-b07-reconciled-review-r2.md
+  - report:2026-10-20-b07-reconciled-review-r1.md
 
 ## Arquitetura
-<!-- state:derived hash:6042ee63b736 status:active -->
+<!-- state:derived hash:aef8cae77f0d status:active -->
 
 - componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=76533 testes=65326 total=141859
+- linhas_de_codigo: producao=76536 testes=65402 total=141938
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63

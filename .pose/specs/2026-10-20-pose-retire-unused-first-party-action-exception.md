@@ -1,10 +1,12 @@
 ---
 slug: pose-retire-unused-first-party-action-exception
-status: in-progress
+status: done
 created_at: 2026-10-20
 components: pose-mcp
 task_type: bugfix
 surface: minimal
+changelog: none
+completed_at: 2026-10-21
 ---
 
 # Spec: Retire an unused expired Actions exception
@@ -49,6 +51,7 @@ Use the existing security contract as the regression check; run the complete mod
 - Expected: pass with no workflow or enforcement changes.
 
 ### Execution log
+- 2026-10-21: Workflow contract, full race suite, native strict matrix (141/141), separate declared review, native verify and guarded close passed.
 - 2026-10-20: Prior complete suite reproduced the expired first-party-actions-tag-pinning failure. No related security knowledge artifact was found.
 
 ### Requirement trace

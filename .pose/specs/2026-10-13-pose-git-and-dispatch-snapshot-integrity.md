@@ -1,8 +1,8 @@
 ---
 slug: pose-git-and-dispatch-snapshot-integrity
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-21
 depends_on: pose-recoverable-closeout-plan, pose-delegated-review-dispatch
 priority: 1
 components: pose-mcp
@@ -168,7 +168,7 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Vincular dispatch ao worktree, materialização e inputs semânticos.
 - [x] Restringir outputs derivados e expor plano opt-in no MCP.
 - [x] Cobrir regressões e atualizar catálogo e documentação.
-- [ ] Obter revisão e admissão de closeout com a matriz integral aprovada.
+- [x] Obter revisão e admissão de closeout com a matriz integral aprovada.
 
 ## 5. Decisions
 
@@ -214,7 +214,7 @@ Contexto consultado: knowledge:pose-b06-source-coverage-closeout.
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Os testes e comandos executados estão no [relatório de implementação](../reports/2026-10-20-b07-implementation.md). Em 2026-10-20 a suíte Go completa passou; 11/11 mutações de produção foram detectadas. A exceção vencida foi retirada em spec:pose-retire-unused-first-party-action-exception sem alterar pins ou enforcement. Gates nativos finais e revisão independente estão em execução.
+Os testes e comandos executados estão no [relatório de implementação](../reports/2026-10-20-b07-implementation.md). Em 2026-10-20 a suíte Go completa passou; 11/11 mutações de produção foram detectadas. A exceção vencida foi retirada em spec:pose-retire-unused-first-party-action-exception sem alterar pins ou enforcement. Revisão R3 e gates nativos de B07 aprovados em 2026-10-21. A evidência final foi regenerada sobre d6ce7bc no results_path canônico com temporários isolados em /var/tmp; observações anteriores continuam históricas.
 
 ### Requirement trace
 
@@ -227,7 +227,7 @@ Trace da implementação; satisfação funcional não encerra os gates de review
 - R5 [satisfied] test:TestReviewDispatchOriginMutationDuringRunIsHistoricalFailure
 - R6 [satisfied] test:TestReviewDispatchOriginIsSemanticAndBoundToWorktree
 - R7 [satisfied] test:TestGitSnapshotMCPPlanPreservesUnknownAndHiddenChanges test:TestGitSnapshotCloseoutFailsOnUnknownGitAndHiddenChanges
-- R8 [satisfied] test:TestReviewDispatchRunsAndRecordsAdapters test:TestReviewDispatchRejectsHiddenChangesAndArbitraryEvidence
+- R8 [satisfied] capability:git-and-dispatch-snapshot-integrity evidence:integration check:git-dispatch-snapshot-integrity-integration test:TestReviewDispatchRunsAndRecordsAdapters test:TestReviewDispatchRejectsHiddenChangesAndArbitraryEvidence
 
 
 Consultar [delegação](../reports/2026-10-11-pose-front-03-delegated-review.md) e [consistência](../reports/2026-10-12-pose-front-09-consistency-recovery.md).
@@ -238,13 +238,13 @@ Consultar [delegação](../reports/2026-10-11-pose-front-03-delegated-review.md)
 
 Implementação B07 reconciliada na branch `impl/pose-b07-git-snapshot-integrity`, preservando o início nativo original do PR #195. Ver [relatório](../reports/2026-10-20-b07-implementation.md) e
 knowledge:pose-b07-implementation para os gates executados e a retomada.
-Status permanece in-progress: sem aprovação de review ou closeout. A retomada foi reconciliada com `origin/impl/pose-b07-git-snapshot-integrity` (PR #195), preservando o start original e as regressões anteriores; `stale` permanece distinto de falha do comando.
+Fechada nativamente em 2026-10-21 após revisão R3, 141/141 checks, 14/14 mutações detectadas, suíte race e govulncheck aprovados. Bundle rvb-0ae879ef12b5b804; atestação rva-85befe078e2707ca, com identidade declarada e atribuição explícita, sem confirmação humana ou alegação de identidade verificada. A retomada foi reconciliada com `origin/impl/pose-b07-git-snapshot-integrity` (PR #195), preservando o start original e as regressões anteriores; `stale` permanece distinto de falha do comando.
 
 ### Residual risks
 
-Comparar antes/depois não equivale a sandbox nem elimina toda corrida. A implementação precisa definir o ponto de consumo protegido ou recusar o efeito sem garantia. B07 não implementa transações gerais, daemon ou run-to-attestation completo; esses deltas conservam seus lotes.
+O pose check --strict desta branch encontra cinco erros de atribuição documental da spec pose-canonical-positioning, fora de B07. A varredura tech-debt conserva cobertura incompleta por duas specs antigas inválidas; não se afirma ausência de dívida nas fontes perdidas. Comparar antes/depois não equivale a sandbox nem elimina corridas com escritores externos. O consumo de runs persistidos revalida registro, transcript, identidade Git e materialização pertinente; histórico não concede autoridade para efeitos. B07 não implementa transações gerais, daemon ou run-to-attestation completo; esses deltas conservam seus lotes.
 
 ### Follow-ups
 
 - [done] Remover a exceção vencida sem uso em commit separado, governado por spec:pose-retire-unused-first-party-action-exception. Nenhum pin foi alterado.
-- [open] Concluir gates nativos e julgamento independente antes de declarar entrega. (owner:@pose-maintainers crit:high review:2026-10-21)
+- [done] Concluir gates nativos e julgamento da execução separada R3; surface-check com zero findings e closeout-check terminal aprovados.
