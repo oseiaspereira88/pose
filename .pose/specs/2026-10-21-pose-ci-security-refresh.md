@@ -73,6 +73,7 @@ Run workflow security contracts, vulnerability scans for both Go modules under G
 - R3 regression first failed with the unclassified .gitleaksignore blocker, then passed after the exact-list fix, including nested/unknown rejection controls. /var/tmp isolated fixtures avoid unrelated external /tmp Git metadata.
 - Targeted ArtifactIdentityContract, WorkflowSecurity and complete docs-release-line registration tests passed after reconciliation.
 - Separate static review R2 approved the cumulative R1-R4 scope, with no actionable findings (report:.pose/reports/2026-10-21-ci-security-review-r2.md). This is a separate gpt-6.1-sol execution of the same vendor/model, with declared identity and correlated-model limits, no human confirmation and no cryptographic identity claim. It did not run tests or native gates.
+- Execution details and environmental retry limits: report:.pose/reports/2026-10-21-ci-security-execution.md.
 - Final native validation is recorded at the canonical policy results_path (.pose/results/delivery-validation.json); sealing must use a fresh passing result for the committed source. Integration assessment and tech-debt scan were rerun; pre-existing heuristic consumer gaps and incomplete legacy debt-spec coverage remain disclosed.
 
 ### Requirement trace
