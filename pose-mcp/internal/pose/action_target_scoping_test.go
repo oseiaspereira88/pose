@@ -341,3 +341,53 @@ func TestActionTargetEffectParsingRejectsMalformedOrAmbiguousInputs(t *testing.T
 		}
 	}
 }
+
+func TestActionTargetMalformedMembershipCannotEraseKnownRestrictions(t *testing.T) {
+	for _, members := range []string{"storage, ../bad", "../bad, storage", "storage, roadmap:other", "roadmap:other, storage"} {
+		t.Run(members, func(t *testing.T) {
+			s := actionFixture(t)
+			actionTargetRoadmap(t, s, "one", "storage")
+			adoptAgencyReadiness(t, s, ` ,"atomic_start_version":1`)
+			r := decisionRequest()
+			r.Origin = "roadmap:one"
+			r.Targets = []NodeRef{{Artifact: "self"}}
+			r.Effects = []ObligationEffect{{Phase: PhaseCloseout, Mode: EffectBlock}, {Phase: PhaseRelease, Mode: EffectBlock}}
+			if _, e := s.OpenActionRequest(r, time.Now()); e != nil {
+				t.Fatal(e)
+			}
+			actionTargetRoadmap(t, s, "one", members)
+			report, e := s.ProjectObligations(ObligationQuery{Scope: "spec:storage"})
+			if e != nil {
+				t.Fatal(e)
+			}
+			if coverageOf(report, "action-requests").State != CoverageStateIncomplete {
+				t.Fatal("malformed membership hidden")
+			}
+			state, e := s.GetCloseoutState("spec:storage")
+			if e != nil || !hasDiagnostic(state, "action-request-pending") {
+				t.Fatalf("known closeout restriction erased: %+v %v", state, e)
+			}
+			if got, e := s.ReleaseGovernedRefusal([]string{"storage"}); e != nil || len(got) != 1 {
+				t.Fatalf("known release restriction erased: %+v %v", got, e)
+			}
+		})
+	}
+}
+func TestActionTargetOtherArtifactChangeInvalidatesOnlyItsBoundAnswer(t *testing.T) {
+	s := actionFixture(t)
+	actionTargetSpec(t, s, "beta", "draft", "Original beta")
+	r := decisionRequest()
+	r.Subject = &ActionSubject{Node: NodeRef{Artifact: specNode(s.CurrentObligationSnapshot().Project, "beta").Artifact, Kind: "requirement", ID: "R4"}}
+	v, e := s.OpenActionRequest(r, time.Now())
+	if e != nil {
+		t.Fatal(e)
+	}
+	if _, e = s.ResolveActionRequest(answer(v, "human:maintainer", "preserve-v1", "other-artifact"), time.Now()); e != nil {
+		t.Fatal(e)
+	}
+	actionTargetSpec(t, s, "beta", "draft", "Changed beta")
+	after, e := s.LoadActionRequest(v.Request.ID)
+	if e != nil || after.State != ActionStateInvalidated {
+		t.Fatalf("cross-artifact answer survived change: %+v %v", after, e)
+	}
+}

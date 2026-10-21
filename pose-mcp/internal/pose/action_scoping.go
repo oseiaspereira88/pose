@@ -140,13 +140,15 @@ func (s Store) actionDestinations(project string, node NodeRef) ([]NodeRef, erro
 		for _, raw := range m.Specs {
 			member, e := ParseArtifactRef(raw)
 			if e != nil {
-				return nil, e
+				limitations = append(limitations, e.Error())
+				continue
 			}
 			if member.Project == "" {
 				member.Project = ref.Project
 			}
 			if member.Kind != "spec" {
-				return nil, fmt.Errorf("invalid action member %s", raw)
+				limitations = append(limitations, fmt.Sprintf("invalid action member %s", raw))
+				continue
 			}
 			n := NodeRef{Artifact: member.String()}
 			if _, _, _, e = s.actionMaterial(project, n); e != nil {
@@ -195,7 +197,7 @@ func (s Store) scopedActionObligations(project string, specs []Spec, global bool
 			if e != nil {
 				limits = append(limits, e.Error())
 				ref, parseErr := ParseArtifactRef(n.Artifact)
-				if parseErr == nil && ref.Project == project && (ref.Kind == "roadmap" || ref.Kind == "milestone") {
+				if parseErr == nil && (ref.Kind == "roadmap" || ref.Kind == "milestone") {
 					unknownMembership = true
 				}
 			}
