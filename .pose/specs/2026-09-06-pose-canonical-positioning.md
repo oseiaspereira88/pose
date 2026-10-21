@@ -100,8 +100,23 @@ README into a dual-framework setup will hit contradictions POSE cannot resolve.
 - modified: docs-site/docs/package-channels.md
 - modified: docs-site/docs/product-roadmaps.md
 - modified: docs-site/docs/quickstart.md
+- created: docs-site/docs/evolution.md
+- created: docs-site/docs/operate.md
+- created: docs-site/docs/review-and-trust.md
+- created: docs-site/docs/multiple-projects.md
+- created: docs-site/docs/command-compatibility.md
+- modified: docs-site/mkdocs.yml
+- modified: SECURITY.md
 
 Backfilled on 2026-09-29: `82726a3` (docs: keep the Diátaxis applicability line evergreen), `3ed4cc0` (docs: reposition POSE as a governed SDD framework) carries this spec's trailer and also changed the 11 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
+
+Editorial maintenance provenance, 2026-10-20: `aadfdcb` carries this spec's
+trailer and added the operation, review, multiple-project and evolution guides.
+Those paths were missing from the claims and made `pose check --strict` fail.
+The command-compatibility guide, navigation and release verification examples
+extend that maintenance. These claims record the later documentation changes;
+they do not redate the original delivery, re-score an assessment or reissue its
+historical approval.
 
 ### Delivery targets
 - governance:canonical-positioning module:. profile:release-governance entrypoint:README.md

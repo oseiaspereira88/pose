@@ -86,6 +86,23 @@ então governado sob o lifecycle do POSE.
 Agent-neutral não é o mesmo que neutro quanto a framework SDD. O POSE é neutro
 sobre quem executa; ele não é neutro sobre quem é dono do lifecycle.
 
+## O POSE atual
+
+Revisão editorial: **2026-10-20**. A última versão publicada é a
+[v7.4.1](https://github.com/oseiaspereira88/pose/releases/tag/v7.4.1), de 2026-10-10.
+A linha recente inclui configuração guiada, adoção explícita de capacidades,
+pendências por ator e fase, respostas assinadas, emissores locais para review
+e briefs derivados do bundle para revisão delegada.
+
+- [Operar a instância](docs-site/docs/operate.md): política efetiva e próximas ações.
+- [Review e confiança](docs-site/docs/review-and-trust.md): evidência, julgamento e identidade.
+- [Múltiplos projetos](docs-site/docs/multiple-projects.md): autoridade, federação e transferências.
+- [Evolução e desenvolvimento](docs-site/docs/evolution.md): releases, melhorias pendentes e planos.
+
+Os guias técnicos estão em inglês. Mudanças em `unreleased` não fazem parte da
+v7.4.1; fragmentos de planejamento não comprovam implementação. A atualização
+do binário não adota automaticamente todas as capacidades opcionais.
+
 ## Quickstart
 
 Caminho rápido para Linux e macOS (execute a partir do repositório Git que
@@ -240,7 +257,7 @@ versionado.
 | `.pose/knowledge/`    | Handoffs, notas e decision logs governados por TTL                                               |
 | `.pose/reports/`      | Evidência versionável e histórico JSONL append-only                                              |
 | `.pose/indexes/`      | Projeções de repositório, módulo, tarefa, spec-graph e roadmap                                   |
-| `pose serve-mcp`      | 47 ferramentas de governança POSE e 3 reporters opcionais do Conductor via stdio ou Streamable HTTP |
+| `pose serve-mcp`      | 58 ferramentas de governança POSE e 3 reporters opcionais do Conductor via stdio ou Streamable HTTP |
 | `mcp-enforce/`        | Identidade opcional por projeto/execução, decisões OPA e auditoria                               |
 | `pose-action/`        | Adaptador de GitHub Action para gates determinísticos                                            |
 
