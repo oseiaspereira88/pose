@@ -1,6 +1,7 @@
 ---
 spec: pose-action-target-and-node-scoping
 category: fixed
+breaking: true
 ---
 
 # Action request destination and material scoping

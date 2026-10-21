@@ -240,6 +240,15 @@ func TestActionTargetForeignSubjectUsesAuthorizedResolver(t *testing.T) {
 	if s.currentSubjectDigest(p) != p.Subject.Digest {
 		t.Fatal("foreign identity lost on recomputation")
 	}
+	r.Targets = []NodeRef{{Artifact: "xref:remote/spec:beta"}}
+	r.Effects = []ObligationEffect{{Phase: PhaseStart, Mode: EffectBlock, Scope: append([]NodeRef{}, r.Targets...)}}
+	if _, e := s.OpenActionRequest(r, time.Now()); e != nil {
+		t.Fatal(e)
+	}
+	if got, e := s.GovernedEffectRestrictions(PhaseStart, nil); e != nil || len(got) != 0 {
+		t.Fatalf("all local specs widened to foreign destination: %+v %v", got, e)
+	}
+
 	resolver.Authorize = func(string) bool { return false }
 	if _, e := s.PrepareActionRequest(r, time.Now()); e == nil {
 		t.Fatal("foreign authorization bypassed")

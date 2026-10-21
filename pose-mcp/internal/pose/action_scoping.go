@@ -102,14 +102,14 @@ func (s Store) actionMaterial(project string, node NodeRef) (Store, ArtifactRef,
 }
 
 // actionDestinations expands only the named artifact. Unknown membership never
-// becomes all local specs. Foreign destinations remain qualified observations;
-// this local operation does not infer authority over their members.
+// becomes all local specs. Foreign membership is read only through the supplied
+// authorized resolver; its members retain their own qualified identities.
 func (s Store) actionDestinations(project string, node NodeRef) ([]NodeRef, error) {
 	ref, err := ParseArtifactRef(node.Artifact)
 	if err != nil {
 		return nil, err
 	}
-	_, _, _, err = s.actionMaterial(project, node)
+	source, materialRef, _, err := s.actionMaterial(project, node)
 	if err != nil {
 		// A persisted restriction still names this local artifact even if its node
 		// disappeared. Keep that named restriction and disclose the missing material.
@@ -118,13 +118,14 @@ func (s Store) actionDestinations(project string, node NodeRef) ([]NodeRef, erro
 		}
 		return nil, err
 	}
-	if ref.Project != project || ref.Kind == "spec" {
+	ref = materialRef
+	if ref.Kind == "spec" {
 		return []NodeRef{node}, nil
 	}
 	if ref.Kind != "roadmap" && ref.Kind != "milestone" {
 		return nil, fmt.Errorf("unsupported action destination %s", node.Artifact)
 	}
-	rm, err := s.GetRoadmap(ref.Slug)
+	rm, err := source.GetRoadmap(ref.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +143,7 @@ func (s Store) actionDestinations(project string, node NodeRef) ([]NodeRef, erro
 				return nil, e
 			}
 			if member.Project == "" {
-				member.Project = project
+				member.Project = ref.Project
 			}
 			if member.Kind != "spec" {
 				return nil, fmt.Errorf("invalid action member %s", raw)

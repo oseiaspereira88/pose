@@ -83,6 +83,14 @@ Declarações prospectivas do delta B08; reconciliar com o change set antes do c
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
+- modified: .pose/assessments/integrations.md
+- modified: .pose/assessments/technical-debt.md
+- modified: .pose/state/integrations.json
+- modified: .pose/state/technical-debt.json
+- modified: .pose/results/delivery-validation.json
+- modified: .pose/reports/history/standard-validate-native.jsonl
+- created: .pose/reports/2026-10-21-standard-validate-native.md
+
 ### Delivery targets
 
 - capability:action-target-and-node-scoping module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/action_request.go
