@@ -5,6 +5,7 @@ created_at: 2026-10-21
 components: pose-mcp
 task_type: bugfix
 surface: minimal
+delivers: capability:sealed-review-security-metadata
 changelog: none
 ---
 
@@ -46,6 +47,9 @@ CI run 39562619357 reproduced both failures. The vulnerability scanner identifie
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 - created: .pose/specs/2026-10-21-pose-ci-security-refresh.md
 
+### Delivery targets
+- capability:sealed-review-security-metadata module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/review_bundle.go
+
 ### API/contract changes
 None. Compiler patch, exact false-positive classification, root security metadata inclusion and documentation contract reconciliation only. No transport or CLI change.
 
@@ -79,7 +83,7 @@ Run workflow security contracts, vulnerability scans for both Go modules under G
 ### Requirement trace
 - R1 [satisfied] test:pose-mcp/internal/version/workflow_security_test.go <Go 1.26.10 vulnerability scans passed in both modules>
 - R2 [satisfied] <Full-history scan and both negative controls passed; exception is fingerprint scoped>
-- R3 [satisfied] test:pose-mcp/internal/pose/review_bundle_test.go
+- R3 [satisfied] capability:sealed-review-security-metadata evidence:integration check:review-bundle-convergence test:pose-mcp/internal/pose/review_bundle_test.go
 - R4 [satisfied] test:pose-mcp/internal/version/contract_test.go test:pose-mcp/internal/cli/release_line_claims_test.go
 
 ## 7. Final Report
