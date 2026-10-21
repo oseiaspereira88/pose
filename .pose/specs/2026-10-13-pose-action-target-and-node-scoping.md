@@ -93,6 +93,9 @@ Declarações prospectivas do delta B08; reconciliar com o change set antes do c
 
 - created: .pose/reports/2026-10-21-b08-review-r1.md
 
+- created: .pose/reports/2026-10-21-b08-review-r2.md
+- created: .pose/reports/2026-10-21-b08-implementation.md
+
 ### Delivery targets
 
 - capability:action-target-and-node-scoping module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/action_request.go
