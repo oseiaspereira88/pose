@@ -23,11 +23,14 @@ Keep action SHA pins, full-history scanning, and all vulnerability gates enabled
 ### Functional
 - R1: Every Go workflow shall use Go 1.26.10, correcting the standard-library GO-2026-6809 finding observed with Go 1.26.9.
 - R2: Secret scanning shall exempt only the exact historical B28 file-digest finding and continue rejecting other findings.
+- R3: The review bundle shall seal the exact root .gitleaksignore bytes as governance and continue rejecting unknown or nested security metadata paths.
+
+- R4: Public documentation release-line claims shall be registered and signature instructions shall pin the exact release-workflow identity and issuer.
 
 ## 3. Technical Plan
 
 ### Affected areas
-CI run 39562619357 reproduced both failures. The vulnerability scanner identifies crypto/x509 in Go 1.26.9, fixed in 1.26.10. Gitleaks identifies a SHA-256 value for json_duplicate_keys.go in the B28 review file manifest, commit 11e05be1d054cefee35651d0f13fcbb66ff066e0, line 576. It is a source-file digest, not an authentication value. Pin an ignore fingerprint to that commit, path, rule and line. No related security knowledge artifact was found. Rollback reverts the patch and restores the two gate failures.
+CI run 39562619357 reproduced both failures. The vulnerability scanner identifies crypto/x509 in Go 1.26.9, fixed in 1.26.10. Gitleaks identifies a SHA-256 value for json_duplicate_keys.go in the B28 review file manifest, commit 11e05be1d054cefee35651d0f13fcbb66ff066e0, line 576. It is a source-file digest, not an authentication value. Pin an ignore fingerprint to that commit, path, rule and line. The native closeout preview additionally reproduces an unclassified-subject blocker for .gitleaksignore. Extend the existing exact root security-metadata list, with byte-sealing and negative classification regression coverage. No related security knowledge artifact was found. Rollback reverts the patch and restores the two gate failures.
 
 ### Artifacts
 - modified: .github/workflows/ci.yml
@@ -37,10 +40,14 @@ CI run 39562619357 reproduced both failures. The vulnerability scanner identifie
 - modified: .github/workflows/security.yml
 - modified: .github/workflows/verify-release.yml
 - modified: .gitleaksignore
+- modified: .pose/public/claims.json
+- modified: pose-mcp/internal/version/contract_test.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_bundle_test.go
 - created: .pose/specs/2026-10-21-pose-ci-security-refresh.md
 
 ### API/contract changes
-None. Compiler patch and exact false-positive classification only.
+None. Compiler patch, exact false-positive classification, root security metadata inclusion and documentation contract reconciliation only. No transport or CLI change.
 
 ### Technical risks
 Go patch availability and upstream vulnerability database changes can independently affect CI. The fingerprint does not exempt a path or a whole commit.
@@ -62,16 +69,20 @@ Run workflow security contracts, vulnerability scans for both Go modules under G
 - 2026-10-21: Reproduced the remote vulnerability finding and the single historical source-file digest match locally. Assessment reused unchanged pose-mcp content.
 - Go 1.26.10: govulncheck v1.4.0 returned no vulnerabilities in both pose-mcp and mcp-enforce. WorkflowSecurity tests passed.
 - Gitleaks v8.21.2: full history passed after the exact exception. Changing its line from 576 to 577 exposed the original finding; a synthetic token in the same report path was also detected. An initial control using an extra ignore file was inconclusive because the scanner also loads the repository ignore file; the repeated control mutated and restored that file directly.
-- git diff --check passed. Remote CI must be rerun for the final patch.
+- git diff --check passed. Remote CI at 1105883 passed both security scanners and workflow contracts; the documentation merge exposed the public-claims registration and exact-identity test inconsistencies, now corrected. A separate static review of 23a6290 approved its narrow scope (report:.pose/reports/2026-10-21-ci-security-review-r1.md); later changes require a new review.
+- R3 regression first failed with the unclassified .gitleaksignore blocker, then passed after the exact-list fix, including nested/unknown rejection controls. /var/tmp isolated fixtures avoid unrelated external /tmp Git metadata.
+- Targeted ArtifactIdentityContract, WorkflowSecurity and complete docs-release-line registration tests passed after reconciliation.
 
 ### Requirement trace
 - R1 [satisfied] test:pose-mcp/internal/version/workflow_security_test.go <Go 1.26.10 vulnerability scans passed in both modules>
 - R2 [satisfied] <Full-history scan and both negative controls passed; exception is fingerprint scoped>
+- R3 [satisfied] test:pose-mcp/internal/pose/review_bundle_test.go
+- R4 [satisfied] test:pose-mcp/internal/version/contract_test.go test:pose-mcp/internal/cli/release_line_claims_test.go
 
 ## 7. Final Report
 
 ### Delivered scope
-Updated the six Go workflows to 1.26.10 and added one exact historical fingerprint. Native closeout and remote checks remain pending.
+Updated six Go workflows to 1.26.10, added one exact historical fingerprint, classified its root metadata for sealed review, and reconciled documentation claim and signature-identity contracts. Native closeout and final remote checks remain pending.
 
 ### Residual risks
 No credential finding is waived; new findings remain blocking.
