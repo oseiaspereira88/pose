@@ -39,7 +39,12 @@ func TestACloseNeverPublishesOverAnEditMadeWhileItsGatesRan(t *testing.T) {
 		!strings.Contains(string(raw), "A concurrent edit.") || !strings.Contains(string(raw), "status: in-progress") {
 		t.Fatalf("the close published over a concurrent edit: edited=%v code=%d %+v\n%s", edited, code, result.OperationResult, raw)
 	}
-	if code, _ := runPoseJSON(t, root, &result, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer", "--json"); code != 0 {
+	commitSnapshotFixture(t, root)
+	current, err := (posemodel.Store{Root: root}).PlanCloseout("spec:bundle")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if code, _ := runPoseJSON(t, root, &result, "close", "spec:bundle", "--apply", "--digest", current.Digest, "--reviewer", "agent:closeout-reviewer", "--json"); code != 0 {
 		t.Fatalf("the close of the current bytes: %d %+v", code, result.OperationResult)
 	}
 }

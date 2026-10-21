@@ -1,0 +1,182 @@
+=== RUN   TestB07R4PartialSupersedingRun
+    b07r4b_review_test.go:9: partial record lost=[] governs=""
+    b07r4b_review_test.go:9: partial superseding record silently restores completed run
+--- FAIL: TestB07R4PartialSupersedingRun (0.08s)
+=== RUN   TestB07R4RunTranscript
+    b07r4b_review_test.go:14: missing transcript governs=""
+    b07r4b_review_test.go:14: lost transcript still governs
+--- FAIL: TestB07R4RunTranscript (0.05s)
+=== RUN   TestB07R4DerivedAncestor
+    b07r4b_review_test.go:18: untracked ancestor divergence=[.pose/results] err=<nil>
+--- PASS: TestB07R4DerivedAncestor (0.04s)
+=== RUN   TestB07R4DerivedGitlinkAncestor
+    b07r4b_review_test.go:23: gitlink ancestor divergence=[] err=<nil>
+    b07r4b_review_test.go:23: gitlink ancestor escapes worktree
+--- FAIL: TestB07R4DerivedGitlinkAncestor (0.19s)
+=== RUN   TestB07R4ArbitraryRegeneration
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/assessments/arbitrary.md
+    b07r4b_review_test.go:29: path=.pose/assessments/arbitrary.md divergence=[]/<nil> closeout=[]/<nil>
+    b07r4b_review_test.go:29: arbitrary output accepted without producer or input authorization
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/state/components/arbitrary.json
+    b07r4b_review_test.go:29: path=.pose/state/components/arbitrary.json divergence=[]/<nil> closeout=[]/<nil>
+    b07r4b_review_test.go:29: arbitrary output accepted without producer or input authorization
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/results/arbitrary.txt
+    b07r4b_review_test.go:29: path=.pose/results/arbitrary.txt divergence=[]/<nil> closeout=[]/<nil>
+    b07r4b_review_test.go:29: arbitrary output accepted without producer or input authorization
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/indexes/generations/not-a-generation/arbitrary.json
+    b07r4b_review_test.go:29: path=.pose/indexes/generations/not-a-generation/arbitrary.json divergence=[]/<nil> closeout=[]/<nil>
+    b07r4b_review_test.go:29: arbitrary output accepted without producer or input authorization
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/review-bundles/arbitrary.txt
+    b07r4b_review_test.go:29: path=.pose/review-bundles/arbitrary.txt divergence=[]/<nil> closeout=[]/<nil>
+    b07r4b_review_test.go:29: arbitrary output accepted without producer or input authorization
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/review-runs/arbitrary.txt
+    b07r4b_review_test.go:29: path=.pose/review-runs/arbitrary.txt divergence=[]/<nil> closeout=[]/<nil>
+    b07r4b_review_test.go:29: arbitrary output accepted without producer or input authorization
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/reports/history/arbitrary.txt
+    b07r4b_review_test.go:29: path=.pose/reports/history/arbitrary.txt divergence=[]/<nil> closeout=[]/<nil>
+    b07r4b_review_test.go:29: arbitrary output accepted without producer or input authorization
+--- FAIL: TestB07R4ArbitraryRegeneration (0.28s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/assessments/arbitrary.md (0.05s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/state/components/arbitrary.json (0.03s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/results/arbitrary.txt (0.03s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/indexes/generations/not-a-generation/arbitrary.json (0.02s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/review-bundles/arbitrary.txt (0.03s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/review-runs/arbitrary.txt (0.05s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/reports/history/arbitrary.txt (0.05s)
+=== RUN   TestB07R4BRunFields
+=== RUN   TestB07R4BRunFields/schema_version
+    b07r4b_review_test.go:33: field=schema_version lost=[] reason=""
+    b07r4b_review_test.go:33: invalid persisted run still governs
+=== RUN   TestB07R4BRunFields/output
+    b07r4b_review_test.go:33: field=output lost=[] reason=""
+    b07r4b_review_test.go:33: invalid persisted run still governs
+=== RUN   TestB07R4BRunFields/status
+    b07r4b_review_test.go:33: field=status lost=[] reason=""
+    b07r4b_review_test.go:33: invalid persisted run still governs
+=== RUN   TestB07R4BRunFields/supersedes
+    b07r4b_review_test.go:33: field=supersedes lost=[] reason=""
+    b07r4b_review_test.go:33: invalid persisted run still governs
+=== RUN   TestB07R4BRunFields/run_id
+    b07r4b_review_test.go:33: field=run_id lost=[] reason=""
+    b07r4b_review_test.go:33: invalid persisted run still governs
+=== RUN   TestB07R4BRunFields/transcript_digest
+    b07r4b_review_test.go:33: field=transcript_digest lost=[] reason=""
+    b07r4b_review_test.go:33: invalid persisted run still governs
+=== RUN   TestB07R4BRunFields/transcript_path
+    b07r4b_review_test.go:33: field=transcript_path lost=[] reason=""
+    b07r4b_review_test.go:33: invalid persisted run still governs
+=== RUN   TestB07R4BRunFields/ended_at
+    b07r4b_review_test.go:33: field=ended_at lost=[] reason=""
+    b07r4b_review_test.go:33: invalid persisted run still governs
+=== RUN   TestB07R4BRunFields/exit_code
+    b07r4b_review_test.go:33: field=exit_code lost=[] reason=""
+    b07r4b_review_test.go:33: invalid persisted run still governs
+--- FAIL: TestB07R4BRunFields (0.41s)
+    --- FAIL: TestB07R4BRunFields/schema_version (0.10s)
+    --- FAIL: TestB07R4BRunFields/output (0.07s)
+    --- FAIL: TestB07R4BRunFields/status (0.05s)
+    --- FAIL: TestB07R4BRunFields/supersedes (0.02s)
+    --- FAIL: TestB07R4BRunFields/run_id (0.06s)
+    --- FAIL: TestB07R4BRunFields/transcript_digest (0.03s)
+    --- FAIL: TestB07R4BRunFields/transcript_path (0.02s)
+    --- FAIL: TestB07R4BRunFields/ended_at (0.02s)
+    --- FAIL: TestB07R4BRunFields/exit_code (0.03s)
+=== RUN   TestB07R4BRunRootLink
+    b07r4b_review_test.go:34: linked runs root reason=""
+    b07r4b_review_test.go:34: linked run storage accepted
+--- FAIL: TestB07R4BRunRootLink (0.03s)
+=== RUN   TestB07R4BRunOrdering
+    b07r4b_review_test.go:35: earlier index=2 later index=1
+    b07r4b_review_test.go:35: runs ordered by timestamp text rather than instant
+--- FAIL: TestB07R4BRunOrdering (0.02s)
+=== RUN   TestB07R4BUnknownTopLevel
+    b07r4b_review_test.go:36: unknown root divergence=[] err=<nil>
+    b07r4b_review_test.go:36: unknown worktree root converted to clean copy
+--- FAIL: TestB07R4BUnknownTopLevel (0.03s)
+=== RUN   TestB07R4BMissingRun
+    b07r4b_review_test.go:37: missing current record reason=""
+    b07r4b_review_test.go:37: run without persisted record still governs
+--- FAIL: TestB07R4BMissingRun (0.03s)
+=== RUN   TestB07R4BOtherWorktreeConfig
+    b07r4b_review_test.go:38: redirected configured worktree divergence=[] err=<nil>
+    b07r4b_review_test.go:38: dirty root certified with another configured worktree
+--- FAIL: TestB07R4BOtherWorktreeConfig (0.02s)
+FAIL
+FAIL	github.com/harne8/pose-mcp/internal/pose	1.178s
+=== RUN   TestB07R4BSourceHeadUnknown
+    b07r4b_review_test.go:3: code=0 output=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-70d95157ea3f98a4
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:de26e3e5ab64fa40f371cd29e1e12b2515d1a714aabc255e91913fc4c4b9ab8c
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=2e91fa193f593564eca645c73f72ce115f173e7f
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-e249ddb82c603dee
+        review_dispatch.status=completed
+        review_dispatch.record=.pose/review-runs/rrn-e249ddb82c603dee.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+    b07r4b_review_test.go:3: source HEAD unknown accepted
+--- FAIL: TestB07R4BSourceHeadUnknown (0.16s)
+=== RUN   TestB07R4BSourceAncestor
+    b07r4b_review_test.go:4: code=0 output=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-70d95157ea3f98a4
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:de26e3e5ab64fa40f371cd29e1e12b2515d1a714aabc255e91913fc4c4b9ab8c
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=2e91fa193f593564eca645c73f72ce115f173e7f
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-0c101fb57e89dad0
+        review_dispatch.status=completed
+        review_dispatch.record=.pose/review-runs/rrn-0c101fb57e89dad0.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+    b07r4b_review_test.go:4: source ancestor symlink accepted
+--- FAIL: TestB07R4BSourceAncestor (0.27s)
+=== RUN   TestB07R4BSourceRemoved
+    b07r4b_review_test.go:5: code=0 output=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-ad9ba57d685b05f5
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:465fa4fe3c5220d22171cec95cf19329a92cdf197ff44c4978526cb05120a35a
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=ff095668e84b6b1b3a38e96e56bcdc39d30f1ebb
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-ca0f64f691008b16
+        review_dispatch.status=completed
+        review_dispatch.record=.pose/review-runs/rrn-ca0f64f691008b16.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+    b07r4b_review_test.go:5: removed subject restored in source still governs
+--- FAIL: TestB07R4BSourceRemoved (0.11s)
+=== RUN   TestB07R4BLostBudget
+    b07r4b_review_test.go:6: code=0 output=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-018e5cb99c70bf9a
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:0dad0834f94cb0a1e8267d7e3da45e46faf8ac1629b0c3fd563f7e3ef425cd96
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=ff095668e84b6b1b3a38e96e56bcdc39d30f1ebb
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-74b64cdafc2999dc
+        review_dispatch.status=completed
+        review_dispatch.record=.pose/review-runs/rrn-74b64cdafc2999dc.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+    b07r4b_review_test.go:6: lost prior run converted into available budget
+--- FAIL: TestB07R4BLostBudget (0.14s)
+=== RUN   TestB07R4BCheckoutIdentity
+    b07r4b_review_test.go:7: code=0 output=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-018e5cb99c70bf9a
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:0dad0834f94cb0a1e8267d7e3da45e46faf8ac1629b0c3fd563f7e3ef425cd96
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=ff095668e84b6b1b3a38e96e56bcdc39d30f1ebb
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-de265c1821d69722
+        review_dispatch.status=completed
+        review_dispatch.record=.pose/review-runs/rrn-de265c1821d69722.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+    b07r4b_review_test.go:7: changed checkout certified using another clean worktree
+--- FAIL: TestB07R4BCheckoutIdentity (0.13s)
+=== RUN   TestB07R4BActualRunIdentity
+    b07r4b_review_test.go:8: actual run after Output change reason=""
+    b07r4b_review_test.go:8: actual dispatch record with altered Output still governs
+--- FAIL: TestB07R4BActualRunIdentity (0.09s)
+FAIL
+FAIL	github.com/harne8/pose-mcp/internal/cli	0.913s
+FAIL

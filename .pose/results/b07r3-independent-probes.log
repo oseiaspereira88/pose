@@ -1,0 +1,102 @@
+=== RUN   TestB07R3AncestorSymlink
+    b07r3_review_test.go:7: ancestor symlink divergence=[src] err=<nil>
+--- PASS: TestB07R3AncestorSymlink (0.01s)
+=== RUN   TestB07R3CheckpointScope
+    b07r3_review_test.go:11: arbitrary checkpoint dirty=[] err=<nil>
+    b07r3_review_test.go:11: modified unrelated checkpoint accepted as generated
+--- FAIL: TestB07R3CheckpointScope (0.01s)
+=== RUN   TestB07R3TiedBundleLostAttestation
+    b07r3_review_test.go:19: loss={Losses:[] Exclusions:[]}
+    b07r3_review_test.go:20: lost rejection approved=true state=closed err=<nil>
+    b07r3_review_test.go:20: approval retained over lost tied sibling attestation
+--- FAIL: TestB07R3TiedBundleLostAttestation (0.04s)
+=== RUN   TestB07R3SnapshotRecoversUnknown
+    b07r3_review_test.go:24: before coherent=false now=true changes=[]
+    b07r3_review_test.go:24: unknown baseline revalidated as unchanged after recovery
+--- FAIL: TestB07R3SnapshotRecoversUnknown (0.02s)
+=== RUN   TestB07R3RunFields
+    b07r3_review_test.go:28: wrong digest and commit reason=""
+    b07r3_review_test.go:28: run with wrong digest and commit governs
+--- FAIL: TestB07R3RunFields (0.01s)
+=== RUN   TestB07R3LostSupersedingRun
+    b07r3_review_test.go:35: lost superseding run reason=""
+    b07r3_review_test.go:35: lost superseding run treated as absent
+--- FAIL: TestB07R3LostSupersedingRun (0.02s)
+=== RUN   TestB07R3ConfigRedirect
+    b07r3_review_test.go:40: config redirect divergence=[lib.go]/<nil> status=[{ M lib.go }]/<nil>
+--- PASS: TestB07R3ConfigRedirect (0.01s)
+=== RUN   TestB07R3QuotedGitlink
+    b07r3_review_test.go:43: quoted gitlink mapping=map["pose-mcp/module \303\251":3439a3d070241813dcb38d9110224506d3a467fb]
+--- PASS: TestB07R3QuotedGitlink (0.01s)
+=== RUN   TestB07R3CustomResultsPath
+    b07r3_review_test.go:46: custom producer output dirty=[.pose/results/custom.json] err=<nil>
+--- PASS: TestB07R3CustomResultsPath (0.01s)
+=== RUN   TestB07R3RootWhitespace
+    b07r3_review_test.go:51: trailing-space root divergence=[] err=<nil>
+    b07r3_review_test.go:51: root whitespace trimmed into another clean repository
+--- FAIL: TestB07R3RootWhitespace (0.02s)
+FAIL
+FAIL	github.com/harne8/pose-mcp/internal/pose	0.160s
+=== RUN   TestB07R3DispatchAncestorLink
+    b07r3_review_test.go:6: code=1 output=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-610a8bcb555d53b7
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:ff179218a9f2c131d2b9839ee7b4d8acb22d546856bf63a09e3b162ad59dac76
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=bf898223910a46933508338e3e93d0675f3ace43
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-fb4709203288eb6c
+        review_dispatch.status=failed
+        review_dispatch.failure=the run changed files in the sealed worktree: pose-mcp
+        review_dispatch.record=.pose/review-runs/rrn-fb4709203288eb6c.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+--- PASS: TestB07R3DispatchAncestorLink (0.05s)
+=== RUN   TestB07R3SourceModeUnknown
+    b07r3_review_test.go:12: code=0 output=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-610a8bcb555d53b7
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:ff179218a9f2c131d2b9839ee7b4d8acb22d546856bf63a09e3b162ad59dac76
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=bf898223910a46933508338e3e93d0675f3ace43
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-22e0f7c15ef2f5f5
+        review_dispatch.status=completed
+        review_dispatch.record=.pose/review-runs/rrn-22e0f7c15ef2f5f5.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+    b07r3_review_test.go:12: unreadable source mode accepted
+--- FAIL: TestB07R3SourceModeUnknown (0.07s)
+=== RUN   TestB07R3SourceType
+    b07r3_review_test.go:17: code=0 output=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-610a8bcb555d53b7
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:ff179218a9f2c131d2b9839ee7b4d8acb22d546856bf63a09e3b162ad59dac76
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=bf898223910a46933508338e3e93d0675f3ace43
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-5186b627503012bc
+        review_dispatch.status=completed
+        review_dispatch.record=.pose/review-runs/rrn-5186b627503012bc.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+    b07r3_review_test.go:17: source regular file replaced by symlink accepted
+--- FAIL: TestB07R3SourceType (0.05s)
+=== RUN   TestB07R3DispatchIgnoredAncestorLink
+    b07r3_review_test.go:22: code=0 output=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-610a8bcb555d53b7
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:ff179218a9f2c131d2b9839ee7b4d8acb22d546856bf63a09e3b162ad59dac76
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=bf898223910a46933508338e3e93d0675f3ace43
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-341ca7f798f8f44f
+        review_dispatch.status=completed
+        review_dispatch.record=.pose/review-runs/rrn-341ca7f798f8f44f.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+    b07r3_review_test.go:22: ignored ancestor link escapes worktree
+--- FAIL: TestB07R3DispatchIgnoredAncestorLink (0.06s)
+=== RUN   TestB07R3PersistedRunIdentity
+    b07r3_review_test.go:29: persisted run wrong digest="sha256:wrong" governs=""
+    b07r3_review_test.go:29: persisted wrong bundle digest governs
+--- FAIL: TestB07R3PersistedRunIdentity (0.06s)
+FAIL
+FAIL	github.com/harne8/pose-mcp/internal/cli	0.305s
+FAIL

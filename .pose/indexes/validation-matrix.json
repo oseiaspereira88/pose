@@ -2067,6 +2067,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "git-and-dispatch-snapshot-integrity-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "GitStateThatCannotBeRead|AssumeUnchangedAndSkipWorktree|WorktreeDivergenceReads|DerivedRegenerationIsAList|DispatchStopsGoverning|UnreadableSnapshotIsNotClean|UnreadableStatusIsNotACleanPath|ProjectionIsNotCoherentWhenStatus|DispatchJudgesTheContent|PolicyChangedWhileItRanIsStale|UnrelatedCommitDuringTheRun|ComparedWithTheSealedCommitBeforeTheRun",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "writer-coordination-and-atomic-publication-integration",
           "program": "go",
           "args": [
@@ -2118,6 +2132,21 @@
           "program": "bash",
           "args": [
             "../tests/hygiene/temp-cleanup.sh"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "git-dispatch-snapshot-integrity-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "TestGitSnapshot|TestReviewDispatch",
+            "-count=1"
           ],
           "severity": "required",
           "evidenceClass": "integration"

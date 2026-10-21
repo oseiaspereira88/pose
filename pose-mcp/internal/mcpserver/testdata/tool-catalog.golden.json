@@ -714,9 +714,13 @@
       "name": "pose_start_status"
     },
     {
-      "description": "Read the evidence-backed hierarchical closeout projection for a typed spec, milestone or roadmap scope. Returns current or stale review state, child blockers, the smallest next governed action and terminal status.",
+      "description": "Read the evidence-backed hierarchical closeout projection for a typed spec, milestone or roadmap scope. Returns current or stale review state, child blockers, the smallest next governed action and terminal status. For spec scopes, include_plan adds the CLI execution plan; unknown Git returns an error.",
       "inputSchema": {
         "properties": {
+          "include_plan": {
+            "description": "Include the read-only closeout execution plan for a spec scope (default false)",
+            "type": "boolean"
+          },
           "project_id": {
             "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
             "type": "string"

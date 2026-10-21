@@ -145,7 +145,7 @@ func (s Store) GovernanceReplay(limit int) (GovernanceReplayReport, error) {
 				report.Complete = false
 				continue
 			}
-			if old, ok := latestAtt[att.BundleID]; !ok || reviewInstantLess(old.AttestedAt, old.AttestationID, att.AttestedAt, att.AttestationID) {
+			if old, ok := latestAtt[att.BundleID]; !ok || attestationLess(old, att) {
 				latestAtt[att.BundleID] = att
 			}
 			if governed, _ := BundleGovernedBy(bundle, "explicit-judgment"); !governed {

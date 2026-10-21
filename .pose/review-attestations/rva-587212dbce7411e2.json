@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-587212dbce7411e2",
+  "bundle_id": "rvb-6f894aafcf55054b",
+  "bundle_digest": "sha256:6f894aafcf55054bf90bfaf3741e4f9fbc20467263f53c3fb81a33d9870ce0b2",
+  "reviewer": "agent:codex-security-review-r2-01a15ed2",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Fresh canonical validation of the committed source; collected by implementation, not executed by the separate static reviewer."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Fresh canonical validation of the committed source; collected by implementation, not executed by the separate static reviewer."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Fresh canonical validation of the committed source; collected by implementation, not executed by the separate static reviewer."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Fresh canonical validation of the committed source; collected by implementation, not executed by the separate static reviewer."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Fresh canonical validation of the committed source; collected by implementation, not executed by the separate static reviewer."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Separate R2 review accepted the additive exact root classification, preserved public interfaces and stricter exact release identity. Same-vendor/model declared execution, without human or cryptographic identity assurance. Judgment: report:.pose/reports/2026-10-21-ci-security-review-r2.md"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Fresh canonical validation of the committed source; collected by implementation, not executed by the separate static reviewer."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Separate R2 review checked current-only registration of the five pages and exact release workflow identity against SECURITY.md. Final native checks provide execution evidence separately. Judgment: report:.pose/reports/2026-10-21-ci-security-review-r2.md"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Separate R2 review confirmed unchanged triggers, job names, diagnostics, scanner reporting and failure behavior; toolchain availability remains external. Judgment: report:.pose/reports/2026-10-21-ci-security-review-r2.md"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Fresh canonical validation of the committed source; collected by implementation, not executed by the separate static reviewer."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-315d198f512cf074",
+      "rationale": "Separate R2 review accepted cumulative R1-R4 scope: Go patch, exact historical fingerprint, sealed scanner metadata and documentation contract reconciliation. Judgment: report:.pose/reports/2026-10-21-ci-security-review-r2.md"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Separate R2 review independently verified the historical digest and accepted exact fingerprint suppression, full-history scanning and exact release identity. Implementer executed full-history and negative-control scans; reviewer did not execute them. Judgment: report:.pose/reports/2026-10-21-ci-security-review-r2.md"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-10-21-ci-security-execution.md",
+      "rationale": "Native command executed by the implementation collector; artifact provenance and fresh validation are checked separately from static reviewer judgment."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:mcp-enforce/go/build",
+      "rationale": "Native command executed by the implementation collector; artifact provenance and fresh validation are checked separately from static reviewer judgment."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Native command executed by the implementation collector; artifact provenance and fresh validation are checked separately from static reviewer judgment."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    }
+  ],
+  "evidence_refs": [
+    "report:.pose/reports/2026-10-21-ci-security-execution.md",
+    "report:.pose/reports/2026-10-21-ci-security-review-r2.md"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:codex-security-refresh-implementation",
+    "concluded_by": "agent:codex-security-review-r2-01a15ed2",
+    "applied_by": "agent:codex-security-refresh-implementation"
+  },
+  "attested_at": "2026-10-21T15:04:45Z",
+  "path": ".pose/review-attestations/rva-587212dbce7411e2.json"
+}

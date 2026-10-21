@@ -59,6 +59,19 @@ blocked ⇄ in-progress   (operational condition, never an outcome)
   `Requirement trace` subsection; `pose followups --overdue` and the MCP
   tool `pose_requirement_trace` project both sides.
 
+## Supported, adopted and effective
+
+A capability can be shipped by the engine and still be inactive in an instance.
+`pose adopt --list` shows decisions; `pose state --governance` explains which
+contracts apply to a scope. Dated adoption can leave earlier work under its
+original boundary. Inspect both when upgrading; a version number alone is not
+proof of the policy a review enforces.
+
+Action requests persist material questions with a recipient and per-phase
+effects. Attention projects who owes what and where work waits, with source
+coverage. A recorded answer, an authorized answer and a verified human
+confirmation are distinct facts. See [Operate an instance](operate.md).
+
 ## Dependency graph and roadmaps
 
 Specs declare `depends_on` (typed refs: spec slug, `milestone:<roadmap>/<id>`,
