@@ -77,7 +77,7 @@ func TestToolsCall_CloseoutState_CarriesTheGovernedEffect(t *testing.T) {
 	write(".pose/specs/2026-10-04-storage.md", "---\nslug: storage\nstatus: in-progress\n---\n\n# Spec: storage\n\n- R4: x\n")
 	write(".pose/policy/review.json", `{"schema_version":2,"enabled":false,"profiles":{"spec":"spec-closeout@1"},"agency_readiness_version":1}`)
 	store := pose.Store{Root: root}
-	if _, err := store.OpenActionRequest(pose.ActionRequest{Origin: "spec:storage", Kind: pose.ActionApproval, Question: "Close?", RequestedBy: pose.ActionPrincipal{Principal: "agent:a"},
+	if _, err := store.OpenActionRequest(pose.ActionRequest{Origin: "spec:storage", Kind: pose.ActionApproval, Question: "Close?", Subject: &pose.ActionSubject{Node: pose.NodeRef{Artifact: "self"}}, RequestedBy: pose.ActionPrincipal{Principal: "agent:a"},
 		Targets: []pose.NodeRef{{Artifact: "self"}}, Effects: []pose.ObligationEffect{{Phase: pose.PhaseCloseout, Mode: pose.EffectBlock}}}, time.Now()); err != nil {
 		t.Fatal(err)
 	}

@@ -1,6 +1,6 @@
 ---
 slug: pose-action-target-and-node-scoping
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-phase-scoped-readiness, pose-governed-effect-enforcement
@@ -26,7 +26,7 @@ e a [análise de ações](../reports/2026-10-12-pose-front-04-actions-obligation
 
 ### Constraints
 
-Esta interação escreve a spec; não implementa o comportamento. Preservar as
+Implementar B08 em branch isolada após o merge de B07, conforme a continuação autorizada do programa. Preservar as
 fundações done, contratos selados, evidências e autorizações já existentes.
 Não adotar policy/capability automaticamente. Classificar compatibilidade antes
 de iniciar: recusa mais estrita ou mudança de semântica pública não é patch por
@@ -48,23 +48,40 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-3-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
+Declarações prospectivas do delta B08; reconciliar com o change set antes do closeout.
 
-- created: .pose/specs/2026-10-13-pose-action-target-and-node-scoping.md
+- modified: .pose/specs/2026-10-13-pose-action-target-and-node-scoping.md
+- created: .pose/adr/2026-10-21-action-effects-select-material-destinations-independently-of-origin.md
 - created: .pose/starts/pose-action-target-and-node-scoping.json
 - created: .pose/changelogs/unreleased/pose-action-target-and-node-scoping.md
 - modified: pose-mcp/internal/pose/action_request.go
-- modified: pose-mcp/internal/pose/obligation_sources.go
+- modified: pose-mcp/internal/pose/obligation_projection.go
 - modified: pose-mcp/internal/pose/readiness_phases.go
 - modified: pose-mcp/internal/pose/governed_effects.go
+- modified: pose-mcp/internal/pose/governed_effects_test.go
+- modified: pose-mcp/internal/pose/source_coverage_integrity_test.go
+- modified: pose-mcp/internal/pose/source_coverage_review_test.go
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- created: pose-mcp/internal/pose/action_scoping.go
 - created: pose-mcp/internal/pose/action_target_scoping_test.go
-- created: pose-mcp/internal/cli/action_target_scoping_test.go
-- created: pose-mcp/internal/mcpserver/action_target_scoping_test.go
+- modified: pose-mcp/internal/cli/action.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- created: pose-mcp/internal/cli/action_target_scoping_test.go
+- created: pose-mcp/internal/mcpserver/action_target_scoping_test.go
+
+- modified: pose-mcp/internal/cli/adversarial_corpus_gates_test.go
+- modified: pose-mcp/internal/cli/configuration_review_test.go
+- modified: pose-mcp/internal/mcpserver/obligations_test.go
+- modified: pose-mcp/internal/pose/spec_transfer_actions_test.go
+- modified: pose-mcp/internal/pose/action_resolution_test.go
+
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
@@ -79,9 +96,20 @@ executar assessment freshness no componente, completar o plano de artefatos,
 registrar produtores de evidência na matriz e criar a baseline por start.
 Não contornar dependência não terminal apenas porque o código parece presente.
 
+## 4. Tasks
+
+- [x] Resolver spec canônica, assessment freshness, ADR e start nativo.
+- [x] Reproduzir destino incorreto, subject incorreto e origem terminal oculta.
+- [x] Implementar seleção compartilhada, tuplas materiais e transportes estruturados.
+- [x] Validar regressões e concorrência; sincronizar documentação distribuída.
+- [ ] Executar matriz nativa, avaliações, revisão separada e reconciliação de artifacts.
+- [ ] Verificar surface, closeout e abrir PR B08.
+
 ## 5. Decisions
 
 ### Decision D1
+- ADR: [seleção material de efeitos](../adr/2026-10-21-action-effects-select-material-destinations-independently-of-origin.md)
+- Knowledge: knowledge:action-answer-proof-and-historical-time
 - Basis: R1, R2, R5, R7
 - Decision: Separar origem, destino de efeito e identidade material; resolver artifact/kind/ID completos.
 - Rationale: Origem da pergunta e nó mostrado não bastam para inferir escopo de bloqueio ou prova do subject.
@@ -93,44 +121,40 @@ Não contornar dependência não terminal apenas porque o código parece present
 Usar fixtures sintéticas e relógio controlado. Executar os casos abaixo no domínio
 e nos consumidores indicados, sem simular aprovação pela presença de um campo.
 
-| Caso planejado | Resultado esperado |
-|---|---|
-| V1 — Cross-target alpha/beta em todas as fases e gates | Só o destino/phase/mode declarados são restringidos; origem não bloqueada por inferência. |
-| V2 — Dois roadmaps disjuntos e mudança de membership | Somente membros/scopes pertinentes; desconhecido não vira seleção global. |
-| V3 — Request open/invalidated em origem terminal | Condição permanece visível e relevante até tratamento autorizado. |
-| V4 — R404, decision:R1 versus requirement:R1 e xref de outro artifact | Erro/unknown ou hash do tuple exato; nenhum fallback para origin/kind errado. |
-| V5 — Scope vazio, estruturado e strings phase:mode | Compatibilidade explícita e paridade CLI/MCP/domínio sem partial scope implícito. |
-| V6 — Subject obrigatório, foreign/ilegível, enforcement off e stale read | Coverage/limites claros; recomposição no write; sem adoção ou autorização por leitura antiga. |
+| Cenário obrigatório | Comando | Evidência esperada |
+|---|---|---|
+| V1 — destinos, todas as fases, gates e stale apply | `cd pose-mcp && go test ./internal/pose -run 'ActionTarget|Governed|AdoptedEffects|StartPreview' -count=1` | Somente destino/phase/mode pertinentes restringidos; write recompõe. |
+| V2 — roadmaps disjuntos, membership atual e indisponível | `cd pose-mcp && go test ./internal/pose -run ActionTarget -count=1` | Sem leakage; desconhecido declarado, nunca global arbitrário. |
+| V3 — origem terminal, open/invalidated | `cd pose-mcp && go test ./internal/pose -run ActionTarget -count=1` | Pendência relevante permanece projetada. |
+| V4 — tuplas exatas, R404, kind errado, xref/autoridade | `cd pose-mcp && go test ./internal/pose -run ActionTarget -count=1` | Erro/unknown explícito; hash somente do artifact/kind/ID corretos. |
+| V5 — transportes realistas, vazio/strings/objetos | `cd pose-mcp && go test ./internal/cli ./internal/mcpserver -run 'ActionTarget|ActionOpen|Catalog' -count=1` | CLI/MCP alcançam mesmo domínio; strings preservadas; inválidos recusados. |
+| V6 — subject obrigatório adotado, foreign/ilegível, enforcement off | `cd pose-mcp && go test ./internal/pose -run 'ActionTarget|WithoutAdoption|StaleDigest' -count=1` | Binding obrigatório quando aplicável; política off preservada; limites de cobertura. |
+| Suíte completa, vet/build/segurança e integração registrada | `pose validate --strict --module pose-mcp --report` | Todos os checks aplicáveis passam com resultados estruturados atuais. |
+| Concorrência do domínio e transportes | `cd pose-mcp && go test -race ./internal/pose ./internal/cli ./internal/mcpserver` | Sem data races nem regressões. |
+| Contrato, dívida e reconciliação | `pose assess integrate` / `pose assess tech-debt` / `pose check --strict` | Diagnósticos revisados; nenhuma dívida nova escondida. |
 
-### Deterministic checks
-
-Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
-usar race detector para travessia/memoização ou concorrência quando houver mudança
-nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Os comandos são obrigatórios; usar Go 1.26.10 e TMPDIR isolado quando necessário
+para não herdar metadados Git externos aos fixtures. Evidência funcional ainda
+pendente. Registrar falhas, flags e resultados reais na execução.
 
 ### Requirement trace
 
-Trace planejado; vincular os casos aos produtores reais na implementação.
-Não declarar requisitos funcionais satisfeitos pelo lint.
+Trace de implementação; a suíte de regressões e o race detector passaram em 2026-10-21. Gates nativos e revisão ainda pendentes.
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1, V5 |
-| R2 | V1 |
-| R3 | V2 |
-| R4 | V3 |
-| R5 | V4 |
-| R6 | V4, V6 |
-| R7 | V5 |
-| R8 | V6 |
+- R1 [satisfied] test:TestActionTargetCrossArtifactEffectsAndLegacyEmptyScope
+- R2 [satisfied] test:TestActionTargetActualGatesRecomposeCrossDestinationAtWrite test:TestActionTargetCrossArtifactEffectsAndLegacyEmptyScope
+- R3 [satisfied] test:TestActionTargetRoadmapMembershipIsCurrentAndNeverGlobal test:TestActionTargetMixedMembershipKeepsKnownLocalRestriction
+- R4 [satisfied] test:TestActionTargetTerminalOriginStillVisible test:TestActionTargetMaterialBindingAndAdoptionBoundary
+- R5 [satisfied] test:TestActionTargetSubjectUsesExactArtifactKindAndID test:TestActionTargetForeignSubjectUsesAuthorizedResolver
+- R6 [satisfied] test:TestActionTargetMaterialBindingAndAdoptionBoundary test:TestActionTargetMixedMembershipKeepsKnownLocalRestriction
+- R7 [satisfied] test:TestActionTargetCLIExposesStructuredScopeAndDomainSelection test:TestActionTargetMCPStructuredAndLegacyEffects
+- R8 [satisfied] test:TestActionTargetActualGatesRecomposeCrossDestinationAtWrite test:TestActionTargetMaterialBindingAndAdoptionBoundary test:TestWithoutAdoptionARequestRestrictsNoTransition
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 3. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+Implementação em andamento na branch `impl/pose-b08-action-target-and-node-scoping`. Regressões e race detector passaram; validação nativa completa, revisão, reconciliação de artifacts e closeout ainda pendentes.
 
 ### Residual risks
 

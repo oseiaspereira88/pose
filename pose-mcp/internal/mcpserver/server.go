@@ -1146,7 +1146,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			Options     map[string]string `json:"options"`
 			Recommend   string            `json:"recommend"`
 			Targets     []string          `json:"targets"`
-			Effects     []string          `json:"effects"`
+			Effects     []json.RawMessage `json:"effects"`
 			Subject     string            `json:"subject"`
 			Supersedes  string            `json:"supersedes"`
 			Apply       bool              `json:"apply"`
@@ -1181,11 +1181,11 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			r.Targets = append(r.Targets, target)
 		}
 		for _, raw := range a.Effects {
-			phase, mode, ok := strings.Cut(raw, ":")
-			if !ok {
-				return nil, fmt.Errorf("pose_action_open: effect %q must be <phase>:<block|advisory>", raw)
+			effect, err := pose.ParseActionEffect(raw)
+			if err != nil {
+				return nil, fmt.Errorf("pose_action_open: %w", err)
 			}
-			r.Effects = append(r.Effects, pose.ObligationEffect{Phase: phase, Mode: mode})
+			r.Effects = append(r.Effects, effect)
 		}
 		if a.Subject != "" {
 			if path, ok := strings.CutPrefix(a.Subject, "path:"); ok {
@@ -2473,11 +2473,14 @@ func toolDefinitions() []map[string]any {
 					"options":        map[string]any{"type": "object", "description": "Option id → its consequence; a decision needs at least two", "additionalProperties": map[string]any{"type": "string"}},
 					"recommend":      map[string]any{"type": "string", "description": "Optional recommended option id"},
 					"targets":        map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "description": "Restricted nodes: self, requirement:R4 inside the origin, or xref:..."},
-					"effects":        map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "description": "Per-phase effects, e.g. closeout:block or release:advisory"},
-					"subject":        map[string]any{"type": "string", "description": "Optional requirement:R4 or path:<file> whose change invalidates an answer"},
-					"supersedes":     map[string]any{"type": "string", "description": "Optional act-<id> this request replaces"},
-					"apply":          map[string]any{"type": "boolean", "description": "Record the request; without it the call is a preview"},
-					"project_id":     map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
+					"effects": map[string]any{"type": "array", "items": map[string]any{"oneOf": []any{
+						map[string]any{"type": "string"},
+						map[string]any{"type": "object", "properties": map[string]any{"phase": map[string]any{"type": "string"}, "mode": map[string]any{"type": "string"}, "scope": map[string]any{"type": "array", "items": map[string]any{"type": "string"}}}, "required": []string{"phase", "mode"}, "additionalProperties": false},
+					}}, "description": "phase:mode strings retain whole-source scope; objects add explicit qualified node scopes. Targets indicate relevance, not implicit blocking scope."},
+					"subject":    map[string]any{"type": "string", "description": "Optional requirement:R4 or path:<file> whose change invalidates an answer"},
+					"supersedes": map[string]any{"type": "string", "description": "Optional act-<id> this request replaces"},
+					"apply":      map[string]any{"type": "boolean", "description": "Record the request; without it the call is a preview"},
+					"project_id": map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
 				},
 				"required": []string{"origin", "kind", "question", "requested_by", "targets", "effects"},
 			},

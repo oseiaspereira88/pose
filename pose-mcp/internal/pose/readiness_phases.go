@@ -100,7 +100,15 @@ func PhasesFromReport(spec *Spec, report ObligationReport) SpecPhases {
 			var scope []NodeRef
 			for _, effect := range o.Effects {
 				if effect.Phase == phase && effect.Mode == EffectBlock {
-					scope = append(scope, effect.Scope...)
+					for _, node := range effect.Scope {
+						if node.Kind == "" && node.ID == "" {
+							ref, err := ParseArtifactRef(node.Artifact)
+							if err == nil && ref.Kind == "spec" && ref.Slug == spec.Slug && ref.Project == report.Snapshot.Project {
+								wholeSpec = true
+							}
+						}
+						scope = append(scope, node)
+					}
 				}
 			}
 			if len(scope) == 0 {

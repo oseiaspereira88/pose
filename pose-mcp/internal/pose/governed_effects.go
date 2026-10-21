@@ -45,7 +45,7 @@ func (s Store) GovernedEffectRestrictions(phase string, slugs []string) ([]Oblig
 		}
 	}
 	project := s.CurrentObligationSnapshot().Project
-	obligations, err := actionRequestObligationSource(s, project, specs)
+	obligations, err := actionRequestObligationSource(s, project, specs, len(slugs) == 0, nil)
 	if err != nil {
 		return nil, err
 	}

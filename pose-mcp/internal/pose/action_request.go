@@ -198,6 +198,9 @@ func (s Store) PrepareActionRequest(r ActionRequest, now time.Time) (ActionReque
 		if err != nil {
 			return fail("target %q: %v", target.String(), err)
 		}
+		if _, _, _, err := s.actionMaterial(r.Project, qualified); err != nil {
+			return fail("target: %v", err)
+		}
 		r.Targets[i] = qualified
 	}
 	if len(r.Effects) == 0 {
@@ -212,7 +215,19 @@ func (s Store) PrepareActionRequest(r ActionRequest, now time.Time) (ActionReque
 			if err != nil {
 				return fail("effect scope %q: %v", scope.String(), err)
 			}
+			if _, _, _, err := s.actionMaterial(r.Project, qualified); err != nil {
+				return fail("effect scope: %v", err)
+			}
 			r.Effects[i].Scope[j] = qualified
+		}
+	}
+	if r.Subject == nil && (r.Kind == ActionApproval || r.Kind == ActionAcceptance) {
+		adopted, err := s.AgencyReadinessAdopted()
+		if err != nil {
+			return fail("subject policy: %v", err)
+		}
+		if adopted {
+			return fail("material approval or acceptance requires a subject under adopted agency readiness")
 		}
 	}
 	if r.Subject != nil {
@@ -308,9 +323,11 @@ func (s Store) actionOriginExists(origin ArtifactRef) error {
 }
 
 // resolveActionSubject computes the current digest of the content a request
-// is about: a requirement/assumption/decision node of the origin spec, or a
-// project file.
+// is about: an exact qualified spec/node, or a project file.
 func (s Store) resolveActionSubject(origin ArtifactRef, subject ActionSubject) (ActionSubject, error) {
+	if subject.Path != "" && (subject.Node.Artifact != "" || subject.Node.Kind != "" || subject.Node.ID != "") {
+		return ActionSubject{}, errors.New("subject names either a path or a node, never both")
+	}
 	switch {
 	case subject.Path != "":
 		if err := ValidateArtifactPath(s.Root, subject.Path, false); err != nil {
@@ -321,28 +338,19 @@ func (s Store) resolveActionSubject(origin ArtifactRef, subject ActionSubject) (
 			return ActionSubject{}, err
 		}
 		subject.Digest = digestBytes(raw)
-	case subject.Node.ID != "":
-		if origin.Kind != "spec" {
-			return ActionSubject{}, errors.New("a node subject needs a spec origin")
-		}
+	case subject.Node.Artifact != "" || subject.Node.ID != "":
 		node, err := qualifyActionTarget(origin, subject.Node)
 		if err != nil {
 			return ActionSubject{}, err
 		}
-		spec, err := s.GetSpec(origin.Slug)
+		_, _, digest, err := s.actionMaterial(origin.Project, node)
 		if err != nil {
 			return ActionSubject{}, err
 		}
-		projection := ProjectContractNodes(spec.Slug, spec.Body)
-		found := false
-		for _, n := range projection.Nodes {
-			if n.ID == subject.Node.ID {
-				subject.Digest, found = n.Hash, true
-			}
+		if digest == "" {
+			return ActionSubject{}, errors.New("subject must name material spec content or a node")
 		}
-		if !found {
-			return ActionSubject{}, fmt.Errorf("node %s not found in spec %s", subject.Node.ID, origin.Slug)
-		}
+		subject.Digest = digest
 		subject.Node = node
 	default:
 		return ActionSubject{}, errors.New("a subject names a node or a path")
@@ -362,9 +370,6 @@ func (s Store) currentSubjectDigest(r ActionRequest) string {
 	}
 	probe := *r.Subject
 	probe.Digest = ""
-	if probe.Node.ID != "" {
-		probe.Node = NodeRef{Artifact: "self", Kind: probe.Node.Kind, ID: probe.Node.ID}
-	}
 	current, err := s.resolveActionSubject(origin, probe)
 	if err != nil {
 		return ""
@@ -612,6 +617,9 @@ func (s Store) deriveActionView(events []ActionEvent) ActionRequestView {
 	}
 	// An answer recorded for content that has since changed no longer
 	// satisfies the request.
+	if request.Subject == nil {
+		view.Limitations = append(view.Limitations, "request has no material subject; its answer provides no content-change detection")
+	}
 	if view.State == ActionStateAnswered && request.Subject != nil {
 		current := s.currentSubjectDigest(request)
 		switch {
@@ -672,35 +680,6 @@ func (s Store) ListActionRequests() ([]ActionRequestView, error) {
 		return out[i].Request.ID < out[j].Request.ID
 	})
 	return out, nil
-}
-
-func init() {
-	actionRequestObligationSource = func(s Store, project string, specs []Spec) ([]Obligation, error) {
-		views, err := s.ListActionRequests()
-		if err != nil {
-			return nil, err
-		}
-		inScope := map[string]bool{}
-		for _, sp := range specs {
-			inScope[QualifyNodeRef(project, ArtifactRef{Kind: "spec", Slug: sp.Slug}, "", "").Artifact] = true
-		}
-		var out []Obligation
-		for _, view := range views {
-			r := view.Request
-			if r.Project != project {
-				continue
-			}
-			origin, _ := ParseArtifactRef(r.Origin)
-			if origin.Kind == "spec" && !inScope[r.Origin] {
-				continue
-			}
-			if view.State == ActionStateSuperseded {
-				continue
-			}
-			out = append(out, actionObligation(project, view))
-		}
-		return out, nil
-	}
 }
 
 func actionObligation(project string, view ActionRequestView) Obligation {
