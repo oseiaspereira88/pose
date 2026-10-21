@@ -1,8 +1,8 @@
 # Integration Assessment: pose-b07-closeout-work
 
 > **Gerado por**: POSE Integration Engine (`pose assess integrate`)
-> **Data de Avaliação**: 2026-10-21T00:11:30Z
-> **Baseline Commit**: 0bf729fbd811
+> **Data de Avaliação**: 2026-10-21T14:18:06Z
+> **Baseline Commit**: 2d840a18f989
 
 ## 1. Resumo Executivo
 

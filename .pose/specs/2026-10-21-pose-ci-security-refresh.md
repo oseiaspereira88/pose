@@ -72,6 +72,8 @@ Run workflow security contracts, vulnerability scans for both Go modules under G
 - git diff --check passed. Remote CI at 1105883 passed both security scanners and workflow contracts; the documentation merge exposed the public-claims registration and exact-identity test inconsistencies, now corrected. A separate static review of 23a6290 approved its narrow scope (report:.pose/reports/2026-10-21-ci-security-review-r1.md); later changes require a new review.
 - R3 regression first failed with the unclassified .gitleaksignore blocker, then passed after the exact-list fix, including nested/unknown rejection controls. /var/tmp isolated fixtures avoid unrelated external /tmp Git metadata.
 - Targeted ArtifactIdentityContract, WorkflowSecurity and complete docs-release-line registration tests passed after reconciliation.
+- Separate static review R2 approved the cumulative R1-R4 scope, with no actionable findings (report:.pose/reports/2026-10-21-ci-security-review-r2.md). This is a separate gpt-6.1-sol execution of the same vendor/model, with declared identity and correlated-model limits, no human confirmation and no cryptographic identity claim. It did not run tests or native gates.
+- Final native validation is recorded at the canonical policy results_path (.pose/results/delivery-validation.json); sealing must use a fresh passing result for the committed source. Integration assessment and tech-debt scan were rerun; pre-existing heuristic consumer gaps and incomplete legacy debt-spec coverage remain disclosed.
 
 ### Requirement trace
 - R1 [satisfied] test:pose-mcp/internal/version/workflow_security_test.go <Go 1.26.10 vulnerability scans passed in both modules>
@@ -82,10 +84,10 @@ Run workflow security contracts, vulnerability scans for both Go modules under G
 ## 7. Final Report
 
 ### Delivered scope
-Updated six Go workflows to 1.26.10, added one exact historical fingerprint, classified its root metadata for sealed review, and reconciled documentation claim and signature-identity contracts. Native closeout and final remote checks remain pending.
+Updated six Go workflows to 1.26.10, added one exact historical fingerprint, classified its root metadata for sealed review, and reconciled documentation claim and signature-identity contracts. The native closeout records final validation separately from the static review. No adoption, merge or production-efficacy claim is made.
 
 ### Residual risks
 No credential finding is waived; new findings remain blocking.
 
 ### Follow-ups
-- [open] Verify final remote checks and native closeout before merge. (owner:@pose-maintainers crit:medium review:2026-10-22)
+- [open] Monitor the final remote CI result and merge decision; local closeout does not publish or adopt this engine revision. (owner:@pose-maintainers crit:medium review:2026-10-22)
