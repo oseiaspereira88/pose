@@ -1,12 +1,13 @@
 ---
 slug: pose-ci-security-refresh
-status: in-progress
+status: done
 created_at: 2026-10-21
 components: pose-mcp
 task_type: bugfix
 surface: minimal
 delivers: capability:sealed-review-security-metadata
 changelog: none
+completed_at: 2026-10-21
 ---
 
 # Spec: Refresh the CI security baseline

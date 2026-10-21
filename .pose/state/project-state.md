@@ -88,10 +88,10 @@ capacidade.
   - report:2026-10-20-b07-reconciled-review-r1.md
 
 ## Arquitetura
-<!-- state:derived hash:aef8cae77f0d status:active -->
+<!-- state:derived hash:f0c9c4b8a0dc status:active -->
 
 - componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=76536 testes=65402 total=141938
+- linhas_de_codigo: producao=76536 testes=65405 total=141941
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63
