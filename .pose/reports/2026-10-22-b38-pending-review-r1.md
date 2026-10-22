@@ -172,3 +172,76 @@ My actual executions were read-only source/Git inspection, hash recomputation, c
 Rules applied: bugfix review under `AGENTS.md`, `pose-review`, review workflow, backend Go, security, release integrity, documentation style, delivery evidence, and knowledge governance. Frontend/infrastructure rules were inapplicable.
 
 Actual role: OpenAI Codex execution `/root`, task-designated `gpt-6.1-sol`, separate same-vendor fallback. Runtime model/session identity and separation are declared, not independently authenticated. No human, cryptographic, cross-vendor, or proven cognitive-independence claim. No files, Git state, policies, attestations, lifecycle records, tags, releases, or external messages were written.
+
+# Fresh B30+B28+B38 composition adjudication — 2026-10-22
+
+Actual separate session 01a16474-5b64-7bd3-b8ad-dd4234ad0a97; log /home/go/.local/state/secondary-agent/20261022T133149-codex-2829427. Native source approval does not waive B28/B38 external CI merge gates.
+
+**APPROVED** for the current composition sealed as [rvb-762e97c953a6dce6](/tmp/pose-pending-b38/.pose/review-bundles/rvb-762e97c953a6dce6.json), at `b29e518c0cd7886558ea8f729394758fd6e14bc6`. No unresolved medium-or-higher composition finding identified. This is fresh semantic approval of this subject.
+
+**Merge remains conditional on B28’s required CI being green and B28 being merged.** The successful local journey using published `6.2.0` does not clear that external condition or constitute additional native evidence.
+
+I independently recomputed:
+
+| Identity | Verified value |
+|---|---|
+| Bundle | `sha256:762e97c953a6dce6f574e283e801023107175390f50a94ff8dcaf13920bbbac5` |
+| Patch | `sha256:51e803923337e8f5540dbaa087fda9f33a5ca18e6c5d8613ffc07aa74f41af13` |
+| Tree | `sha256:a818070e351f882b31630ce785736e346f72b426d3f32c903e9a3bc9b67b5024` |
+| Implementation | `sha256:18ebdebd4128a145ef65e2921ad46085a5fda212bc090018aa4d795e54b93b53` |
+
+The effective plan is `sha256:38a5bda841b0e33394c29a6b0910dcee72839b2d4260796394b8f800b86f03d8`. Current bundle explanation reproduces the sealed identity. All **32 subject files**, **52 attribution blobs**, and **141 collected evidence entries** verify; the remaining evidence entry is structural. Referenced on-disk policy, profile, rule, and matrix digests match.
+
+The merge has parents `0b42b906` and `74a20e4`; `origin/main` is `47d1cf04`. B28/B30 runtime files remain unchanged from `74a20e4`. I reviewed B38’s attributed source and current composition rather than treating its contaminated range as exclusively B38: **38 attributed commits, 139 range commits, 101 unrelated commits**.
+
+| ID | passed/notapplicable/finding | reason |
+|---|---|---|
+| assumption-integrity | passed | Proven absence remains distinct from unreadability and incomplete inventory. Historical approval, current native evidence, local journey evidence, and external CI conditions retain separate meanings. |
+| backend-concurrency | passed | Composition adds no concurrent state mechanism. External Git mutation between reads remains outside transactional guarantees; passing tests do not establish atomic snapshots. |
+| backend-contracts | passed | CLI/MCP entrypoints remain compatible; snapshot information is additive. B30 result/trailer readers retain their existing contracts. Stricter integrity refusal remains an explicitly classified behavior change. |
+| backend-input-errors | passed | Manifest schema, exact fields, duplicate keys, paths, tagged file modes, and uncertain Git results are checked before they can support integrity claims. |
+| backend-integration-impact | passed | Shared domain verification reaches status, CLI checking, public claims, obligations, and archival witnesses. B28/B30 registrations coexist with B38’s registered regression. |
+| backend-observability | passed | Contextual Git errors and field-local manifest issues preserve failure causes. Candidate/status presentation omissions remain owned lows. |
+| compatibility | passed | Tagged cuts use their historical policy and blobs; later evidence or cycles do not invalidate correct cuts. B28’s installed instructions and B30’s candidate/freshness distinctions remain intact. |
+| correctness | passed | Recomposition checks authoritative fragment content; tagged-tree reads defeat worktree substitution. Inventory failure prevents a broken newer tag from promoting an older verified release. |
+| design-causality | passed | Each added integrity boundary addresses the corresponding false-proof mechanism. The required structural mapping appears below. |
+| documentation | passed | Combined English, Portuguese, and scaffold manuals retain the B28/B30 behavior descriptions alongside B38 integrity guidance. Existing stale authoring prose remains disclosed and owned. |
+| operability | passed | Failure produces diagnostics without repairing tags or manufacturing evidence. Conservative refusal on Git stderr is explicit; local journey success does not conceal external CI failure. |
+| requirements | passed | R1–R8 remain supported by strict decoding, authoritative recomposition, tagged snapshots, semantic content binding, historical-policy handling, shared consumers, and current collected regressions. |
+| scope | passed | Composition preserves B38 integrity work and reviewed B28/B30 behavior. It introduces no B39 replay, B40 selection, B41 recovery, policy adoption, release mutation, or Harne8 change. |
+| security | passed | Git uses argument arrays; tagged paths require regular blobs and confined inputs. Uncertainty cannot strengthen release approval. No new dependency or secret material was observed; current external scanner execution is not claimed. |
+| solution-proportionality | passed | Existing readers and a shared inventory boundary address the defect without new storage, provider access, or speculative infrastructure. Narrower alternatives leave consumers inconsistent or depend on warning wording. |
+
+Every required material fact in `payload.plan.structure.material` is mapped below. The payload contains **one** such fact.
+
+| ID | single R or D basis | causal reason |
+|---|---|---|
+| SD-859c40ea | R8 | The attributed validation-matrix changes register manifest/tag qualification and extend its required integration pattern to the corrupt-ref and broken-newer-tag regressions. This makes the unsafe selection boundary executable during strict validation. |
+
+The shared JSON helper composes correctly: B28 exports the existing strict helper without altering its implementation or B38’s call. B28 selects duplicate/control rejection for operational configuration; B38 retains case-folded duplicate detection while allowing multiline fragment text and enforcing its own exact schema.
+
+B30’s shared result parser is used consistently by index ingestion and freshness comparison. Comparison includes every retained result field and sorted scope provenance. Its shared trailer parser follows POSE’s full-body `POSE-Spec:` convention, including noncontiguous trailer blocks. Pinned-generation handling, unresolved change sets, module coverage, and unbound explicit attribution continue to prevent stronger freshness or association claims than the inputs support.
+
+B38’s `ListReleaseTags` propagates successful-Git stderr as uncertainty through status, planning, structural checks, adoption witnessing, and backfill. Explicit resolution checks diagnostics before interpreting exit code 1 as absence. Consequently `open-next` cannot select the older verified release after losing a newer ref.
+
+The inspected before-fix logs show both the domain misclassification and actual positive CLI approval. The initial serialization error is a failed fixture setup, separate from the subsequent successful reproduction. Current domain and CLI tests preserve absence and older-release controls.
+
+A CLI-only correction would leave other consumers exposed. Matching particular English Git warnings would be brittle. Revisit the conservative approach if supported configurations routinely emit harmless stderr, inventory cost becomes unacceptable, or concurrent ref mutation requires atomic reads. A packed-ref corruption case that escapes both enumeration and explicit resolution would also disprove the assumed coverage.
+
+The cheapest superficial satisfaction would be recomputing digests around false content, presenting a valid worktree beside an invalid tag, or silently omitting the newer tag. Blob recomposition, tagged-tree regressions, and the two-release test address those shortcuts. The adversarial README still lacks a dedicated B38 case; executable coverage is present, but corpus registration is not claimed.
+
+The [spec’s follow-ups](/tmp/pose-pending-b38/.pose/specs/2026-10-13-pose-release-manifest-tag-integrity.md) retain **20 open lows**, owned by `@core`, review date **2026-12-01**. They cover null-kind handling, auxiliary filters, diagnostics, integration-pattern breadth, strict-loader parity, stale prose, worktree links, historical-smoke completeness, adoption witnesses, planning inventory entries, non-SemVer/tree/blob tags, lost `GIT_DIR`, `previous_version` derivation, auxiliary claim errors, and unadopted-project scan cost. Composition does not establish a new positive-approval path through them. The unsafe loose-ref variant is correctly marked **done** with actual domain/CLI tests; the dedicated **packed-refs regression remains open**.
+
+The complete [canonical results](/tmp/pose-pending-b38/.pose/results/delivery-validation.json) and collector log agree on **145/145 passed**, zero failures/errors/skips, at the requested HEAD, with B38 scoped provenance:
+
+`sha256:e93e63a10e93b8fe9c5bc90d25dfc02a495b562c4b6a84858b857977870f2e23`
+
+Completed surface output contains one target and zero findings. Artifact output contains 49 claims, 106 observed paths, and 668 orphan warnings, all warning severity. Discovery refreshed changed content/matrix. Integration assessment reports 63 heuristic unobserved-consumer gaps; debt assessment remains explicitly **INCOMPLETE** for two legacy specs, with zero uncovered scanned markers. Neither is a clean certification.
+
+Required validation, artifact, and surface tools were satisfied by inspected collector outputs. Recommended design, discovery, integration, and debt evidence was inspected; I executed `suggest review`. My own executions were read-only source/Git inspection, hash recomputation, context resolution, bundle explanation, `git diff --check`, recurrence checking, and `auto-attest` **without `--apply`**. Recurrence reports zero flagged keys. Auto-attest reports seven mechanical criteria and eight pending judgments, answered above. **I ran no Go tests or scanners.** Gitleaks and govulncheck were unavailable on PATH.
+
+Rules applied: bugfix/composition review under `AGENTS.md`, `pose-review`, review workflow, backend Go, security, release integrity, documentation style, delivery evidence, and knowledge governance. Frontend and infrastructure rules were inapplicable.
+
+Attestation recording, `review-check`, and closeout verification remain pending actual attribution. Historical `done` and `completed_at: 2026-10-19` remain unchanged; this review does not reclose or redate them.
+
+Role: separate task-designated Codex `gpt-6.1-sol`, same-vendor fallback while Claude usage is unavailable. Identity/separation are declared, without human, cryptographic, cross-vendor, or proven cognitive-independence claims. No files, Git state, policies, attestations, lifecycle records, releases, tags, or external messages were written.
