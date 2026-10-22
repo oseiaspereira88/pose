@@ -1,8 +1,8 @@
 ---
 slug: pose-action-target-and-node-scoping
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-22
 depends_on: pose-phase-scoped-readiness, pose-governed-effect-enforcement
 priority: 1
 components: pose-mcp
@@ -131,8 +131,8 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Reproduzir destino incorreto, subject incorreto e origem terminal oculta.
 - [x] Implementar seleção compartilhada, tuplas materiais e transportes estruturados.
 - [x] Validar regressões e concorrência; sincronizar documentação distribuída.
-- [ ] Executar matriz nativa, avaliações, revisão separada e reconciliação de artifacts.
-- [ ] Verificar surface, closeout e abrir PR B08.
+- [x] Executar matriz nativa, avaliações, revisão separada e reconciliação de artifacts.
+- [x] Verificar surface e aplicar closeout governado; preparar PR B08.
 
 ## 5. Decisions
 
@@ -163,12 +163,15 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 | Contrato, dívida e reconciliação | `pose assess integrate` / `pose assess tech-debt` / `pose check --strict` | Diagnósticos revisados; nenhuma dívida nova escondida. |
 
 Os comandos são obrigatórios; usar Go 1.26.10 e TMPDIR isolado quando necessário
-para não herdar metadados Git externos aos fixtures. Evidência funcional ainda
-pendente. Registrar falhas, flags e resultados reais na execução.
+para não herdar metadados Git externos aos fixtures. Evidência funcional e gates foram coletados em 2026-10-22: 142/142 checks globais,
+race detector no domínio/CLI/MCP aprovado, artifact-check sem erros, surface-check
+com uma capability e zero findings, e review verificado. Consulte o
+[relatório de execução](../reports/2026-10-21-b08-implementation.md) para flags,
+falhas iniciais, correções e limites reais.
 
 ### Requirement trace
 
-Trace de implementação; a suíte de regressões e o race detector passaram em 2026-10-21. Gates nativos e revisão ainda pendentes.
+Trace de implementação; regressões, race detector, 142 checks nativos, composição e revisão foram verificados em 2026-10-22.
 
 - R1 [satisfied] test:TestActionTargetCrossArtifactEffectsAndLegacyEmptyScope
 - R2 [satisfied] test:TestActionTargetActualGatesRecomposeCrossDestinationAtWrite test:TestActionTargetCrossArtifactEffectsAndLegacyEmptyScope
@@ -183,13 +186,29 @@ Trace de implementação; a suíte de regressões e o race detector passaram em 
 
 ### Delivered scope
 
-Implementação em andamento na branch `impl/pose-b08-action-target-and-node-scoping`. Regressões e race detector passaram; validação nativa completa, revisão, reconciliação de artifacts e closeout ainda pendentes.
+Implementado e verificado na branch `impl/pose-b08-action-target-and-node-scoping`:
+seleção de destino/fase compartilhada, membership atual com cobertura parcial,
+requests de origem terminal visíveis, identidade material exata, subjects exigidos
+em novas aprovações/aceitações sob adoção e efeitos estruturados em CLI/MCP.
+
+O [relatório de execução](../reports/2026-10-21-b08-implementation.md) registra a
+coleta global 142/142, race aprovado, artifact-check sem erros e surface com uma
+capability/zero findings. Bundle `rvb-50747fccf11f344f`, attestation
+`rva-259365f3e469f543`, adjudicação R3 real anexada ao
+[relatório de revisão](../reports/2026-10-21-b08-review-r2.md). O comando nativo
+`pose close spec:pose-action-target-and-node-scoping` aplicou o fechamento em
+2026-10-22. Fechamento local não é merge, release ou adoção em Harne8.
 
 ### Residual risks
 
-Corrigir selection pode revelar restrições antes omitidas e remover bloqueios indevidos. Decidir compatibilidade de scope vazio e membership antes do código; releitura de fontes é B06 e snapshot completo é B11. Não prometer independência material apenas porque um nó foi nomeado.
+A correção pode revelar restrições antes omitidas e remover bloqueios indevidos;
+o changelog registra breaking e exige revisão antes da publicação. Binding detecta
+mudanças no subject declarado, sem provar sua adequação semântica à decisão.
+Scope parcial não prova independência; B11 continua responsável pelo snapshot
+completo. Revisão foi uma execução separada do mesmo fornecedor, com identidade
+declarada, sem confirmação humana ou prova de independência cognitiva.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+- [open] Revisar o versionamento e a comunicação da mudança breaking antes de publicar ou adotar B08 em outra instância; este lote não publica release nem muda policy. (owner:@pose-maintainers crit:low review:2026-10-29)
+- [open] Acrescentar ao corpus adversarial um exemplo de subject existente mas semanticamente inadequado, preservando a distinção entre binding declarado e adequação da decisão humana; este lote não promete inferir essa adequação. (owner:@pose-maintainers crit:low review:2026-11-21)
