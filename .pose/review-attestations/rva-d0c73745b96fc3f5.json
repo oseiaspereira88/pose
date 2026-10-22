@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-d0c73745b96fc3f5",
+  "bundle_id": "rvb-caff3ed965d9226d",
+  "bundle_digest": "sha256:caff3ed965d9226dbf16f7353e1f00a3312b8874c2604c01ce10f1f9b7a7c864",
+  "reviewer": "agent:independent-codex-spec-facts-evidence-binding-01a16343",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-bd41cc67508e823a",
+      "rationale": "Association, currency and semantic adequacy remain distinct. Missing bindings and unbound history are disclosed; reuse and reviewer identity are not promoted into stronger assurance. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Pinning precedes graph access, existing pins are retained, and publication cannot lend a newer identity to older facts. Controlled interleaving and recorded race evidence support this. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Shared result parsing preserves schema-1 projection semantics. Shared trailer parsing retains existing attribution behavior. No MCP, REST or event contract is added. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Incomplete change sets, invalid paths, omitted modules and mismatched digests cannot establish association. Read and parsing failures lower confidence or return errors. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "CLI text/JSON consume the same facts structure; index loading uses the shared result parser. Final composition evidence connects the declared capability to its production entrypoint. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Facts expose source, severity, provenance, head comparison and limitations. Text escapes control characters, including actions, preventing physical evidence-line injection. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Existing fields remain; candidates, binding and freshness are additive. Narrowing `checks` is an intentional documented semantic correction, explicitly classified minor in the changelog. Consumers treating unscoped checks as proof must adapt. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Association requires matching scoped provenance, applicable module coverage and complete resolved foundations. Structural result identity preserves distinct outcomes and sources. The R1 fixes address their causes. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-bd41cc67508e823a",
+      "rationale": "D1 and the existing delivery-integrity/generation ADRs support explicit witnesses and conservative uncertainty. Pinning closes the temporal mismatch; semantic JSON decoding closes representation mismatch; literal path validation closes coverage confusion. Module coincidence or freshness alone cannot substitute for evidence. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "EN/pt-BR and embedded manuals describe candidate separation and read-only behavior. The spec retains historical decisions and all six low follow-ups. Generic freshness wording remains explicitly deferred. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Limitations give actionable remediation without rebuilding during reads or treating rebuild as semantic approval. Missing/corrupt indexes fail closed. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "R1–R2: association foundations; R3: freshness; R4: original-source reuse disclosure; R5: facts without judgment; R6: text/JSON parity; R7: negative regressions and controls; R8: read-only queries without mandatory rebuild. No unmet R1–R8 identified. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-bd41cc67508e823a",
+      "rationale": "Changes remain within facts projection, parsing reuse, rendering, regression coverage and documentation. The contaminated commit range is disclosed; attributed paths define the sealed subject. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Impossible paths cannot establish coverage; external text cannot inject evidence lines. No new dependency, credential, authority grant, policy adoption or automatic approval path appears. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-bd41cc67508e823a",
+      "rationale": "Reusing existing generation, graph and provenance contracts is sufficient. Rebuilding on each query or introducing a new snapshot framework would add unnecessary scope. This choice needs reconsideration if requirements demand atomic observation across Git, history and result-file mutations. Actual separate same-vendor session 01a16343-76a5-7340-95c5-edaf8747ad8c; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-10-22-b30-pending-closeout.md",
+      "rationale": "Native collector executed the required gate; actual separate reviewer inspected its output and approved the exact subject."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Native collector executed the required gate; actual separate reviewer inspected its output and approved the exact subject."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Native collector executed the required gate; actual separate reviewer inspected its output and approved the exact subject."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Native collector executed the required gate; actual separate reviewer inspected its output and approved the exact subject."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    }
+  ],
+  "evidence_refs": [
+    "report:.pose/reports/2026-10-22-b30-pending-closeout.md",
+    "report:.pose/reports/2026-10-22-b30-pending-review-r1.md"
+  ],
+  "findings": [
+    {
+      "id": "b30-l01",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b30-pending-review-r1.md",
+      "action": "Improve component ID/path candidate explanations",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Conservative candidates do not fabricate association; explicitly accepted by final separate reviewer, retained open in spec",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b30-l02",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b30-pending-review-r1.md",
+      "action": "Project structured unavailable while preserving current refusal",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Current missing or corrupt index fails closed; explicitly accepted by final separate reviewer, retained open in spec",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b30-l03",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b30-pending-review-r1.md",
+      "action": "Use observed cause in the generic unknown explanation",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Specific reason and status already remain conservative; explicitly accepted by final separate reviewer, retained open in spec",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b30-l04",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b30-pending-review-r1.md",
+      "action": "Complete structural result ordering tie-break",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "All distinct results remain retained and are not selected by tie order; explicitly accepted by final separate reviewer, retained open in spec",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b30-l05",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b30-pending-review-r1.md",
+      "action": "Bound output of the trailer-history query",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Local resource improvement, no truncation or fabricated evidence was accepted; explicitly accepted by final separate reviewer, retained open in spec",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b30-l06",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b30-pending-review-r1.md",
+      "action": "Retain empty-run identity or disclose projection-only freshness",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Zero classified checks establish no delivery or approval; explicitly accepted by final separate reviewer, retained open in spec",
+      "review_by": "2026-12-01"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:codex-pending-reconciliation",
+    "concluded_by": "agent:independent-codex-spec-facts-evidence-binding-01a16343",
+    "applied_by": "agent:codex-pending-reconciliation"
+  },
+  "attested_at": "2026-10-22T11:07:25Z",
+  "path": ".pose/review-attestations/rva-d0c73745b96fc3f5.json"
+}

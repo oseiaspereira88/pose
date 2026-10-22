@@ -1,0 +1,216 @@
+{
+  "mutations": [
+    {
+      "mutation": "módulo de outro spec vira associado por componente",
+      "tests": "TestFactsSeparateAssociatedEvidenceFromCandidates",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "sem componentes todo resultado é associado",
+      "tests": "TestFactsSeparateAssociatedEvidenceFromCandidates",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "candidato sem limite",
+      "tests": "TestFactsSeparateAssociatedEvidenceFromCandidates",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "módulo declarado sem provenance perde o limite",
+      "tests": "TestFactsSeparateAssociatedEvidenceFromCandidates",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "resultado de outro spec não é contado",
+      "tests": "TestFactsSeparateAssociatedEvidenceFromCandidates",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "head do resultado não é comparado",
+      "tests": "TestFactsKeepAResultOfAnotherHead",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "head desconhecido é tratado como igual",
+      "tests": "TestFactsKeepAResultOfAnotherHead",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "resultado de outro head perde a fonte",
+      "tests": "TestFactsKeepAResultOfAnotherHead",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "índice com input alterado é fresh",
+      "tests": "TestFactsSayHowFreshTheIndexIs",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "índice não publicado é fresh",
+      "tests": "TestFactsSayHowFreshTheIndexIs",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "índice stale sem próximo passo",
+      "tests": "TestFactsSayHowFreshTheIndexIs",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "saída humana imprime candidato como check",
+      "tests": "TestSpecsFactsLabelsCandidates",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "saída humana sem frescor",
+      "tests": "TestSpecsFactsLabelsCandidates",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "chave presente vale como associação",
+      "tests": "TestFactsAssociateOnlyAScopeProvenanceThatMatches",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "módulo alheio é associado",
+      "tests": "TestFactsAssociateOnlyAModuleThatCoversTheSpec",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "geração sem bindings é fresh",
+      "tests": "TestFactsAGenerationThatBindsNothingIsUnknown",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "arquivo de índice divergente é fresh",
+      "tests": "TestFactsAreFreshOnlyForWhatIsVerified",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "arquivo de resultados trocado é fresh",
+      "tests": "TestFactsAreFreshOnlyForWhatIsVerified",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "commit do spec fora do índice é fresh",
+      "tests": "TestFactsSeeACommitOfTheSpec",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "saída humana omite limites",
+      "tests": "TestSpecsFactsLabelsCandidates",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "git_head do arquivo de resultados não é comparado",
+      "tests": "TestFactsTheResultsFileIsComparedInEveryField",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "arquivo com mais resultados é aceito",
+      "tests": "TestFactsTheResultsFileIsComparedInEveryField",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "digest do vazio vira associação",
+      "tests": "TestFactsTheDigestOfNothingIsNotAnAssociation",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "módulo omitido vira raiz",
+      "tests": "TestFactsAnOmittedModuleIsNotTheRoot",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "resultados colapsam pelo módulo e check",
+      "tests": "TestFactsKeepResultsThatDifferInAnyField",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "trailer só no HEAD",
+      "tests": "TestFactsReadTheHistoryLikeTheAttribution",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "histórico ilegível é fresh",
+      "tests": "TestFactsReadTheHistoryLikeTheAttribution",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "rename colapsa em um caminho",
+      "tests": "TestFactsARenameIsBothOfItsEnds",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "só o destino do rename conta",
+      "tests": "TestFactsARenameIsBothOfItsEnds",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "texto humano sem os dois lados do rename",
+      "tests": "TestSpecsFactsRendersBothEnds",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "componente inválido vira raiz",
+      "tests": "TestFactsAnInvalidComponentIsNotTheRoot",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "um change set resolvido libera os outros",
+      "tests": "TestFactsOneResolvedChangeSetDoesNotBindTheOthers",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "identidade do resultado por concatenação",
+      "tests": "TestFactsResultsAreComparedStructurally",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fonte e severidade descartadas",
+      "tests": "TestFactsKeepTheSourceAndTheSeverityOfAResult",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "dado com quebra de linha injeta linha de evidência",
+      "tests": "TestSpecsFactsDataCannotInjectALineOfEvidence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "path do Git lido como referência de módulo",
+      "tests": "TestFactsAGitPathIsNotAModuleReference",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "change set incompleto liga resultado",
+      "tests": "TestFactsAnIncompleteChangeSetBindsNothing",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "action fora do vocabulário é bem formada",
+      "tests": "TestFactsAnIncompleteChangeSetBindsNothing",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "commit atribuído por trailer que sumiu",
+      "tests": "TestFactsSeeAttributionThatWasLostOrIsNotBound",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "registro explícito de atribuição não conta",
+      "tests": "TestFactsSeeAttributionThatWasLostOrIsNotBound",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "store fixado toma a identidade de outra geração",
+      "tests": "TestFactsAPinnedStoreDoesNotBorrow",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "action da linha humana sem escape",
+      "tests": "TestSpecsFactsAnActionCannotInjectALine",
+      "verdict": "killed"
+    }
+  ],
+  "killed": 42,
+  "total": 42
+}
