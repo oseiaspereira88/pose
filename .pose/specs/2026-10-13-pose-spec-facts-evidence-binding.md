@@ -1,8 +1,8 @@
 ---
 slug: pose-spec-facts-evidence-binding
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-22
 depends_on: pose-progressive-spec-surface
 priority: 1
 components: pose-mcp
@@ -145,7 +145,7 @@ Os facts não são expostos por uma tool MCP própria: o consumidor é `pose spe
 
 ### Delivered scope
 
-B30 implementado, com qualificação de integração/closeout ainda pendente: `specs facts` separa `checks` (resultados ligados à spec por scope provenance, com base e comparação do head) de `candidates` (o que o índice guarda e nada liga à spec; módulo declarado ou `components` vazio não é provenance), informa a freshness do índice (`fresh`, `stale`, `unknown`, `unavailable`) com próximo passo, preserva resultado de outro head com sua fonte, e não gera intent, rationale, julgamento nem conclusão de requisito. Revisão independente e closeout pendentes.
+B30 entregue e verificado: `specs facts` separa `checks` (resultados ligados à spec por scope provenance, com base e comparação do head) de `candidates` (o que o índice guarda e nada liga à spec; módulo declarado ou `components` vazio não é provenance), informa a freshness do índice (`fresh`, `stale`, `unknown`, `unavailable`) com próximo passo, preserva resultado de outro head com sua fonte, e não gera intent, rationale, julgamento nem conclusão de requisito. Revisão separada do bundle `rvb-caff3ed965d9226d` aprovada e fechamento nativo aplicado em 2026-10-22; validação strict 143/143 e seis follow-ups de baixo risco retidos com owner e data. Evidência: relatório `2026-10-22-b30-pending-closeout.md`.
 
 ### Residual risks
 
@@ -168,6 +168,11 @@ rename vale pelos dois lados, no texto e na pertinência. A recusa de uma policy
 
 - [open] Normalizar referências de componente quando forem paths e distinguir ID de componente de path na explicação do candidato. (owner:@core crit:low review:2026-12-01)
 - [open] Projetar o frescor `unavailable` em vez de devolver erro quando o índice está ausente ou corrompido. (owner:@core crit:low review:2026-12-01)
+
+- [open] L03 da revisão r4: substituir a explicação genérica de freshness unknown pela causa observada, preservando status e reason conservadores. (owner:@pose-maintainers crit:low review:2026-12-01)
+- [open] L04 da revisão r4: completar o desempate estrutural da ordenação de resultados sem alterar identidade, classificação ou retenção. (owner:@pose-maintainers crit:low review:2026-12-01)
+- [open] L05 da revisão r4: limitar a saída da consulta de trailers de facts e conservar unknown/erro ao exceder, sem truncar a atribuição silenciosamente. (owner:@pose-maintainers crit:low review:2026-12-01)
+- [open] L06 da revisão r4: conservar a identidade do run sem checks classificados ou explicitar que o frescor divulgado cobre a projeção de resultados, sem tratar zero checks como entrega comprovada. (owner:@pose-maintainers crit:low review:2026-12-01)
 
 As dependências e unidades restantes permanecem na matriz do programa, sem disposição automática.
 
