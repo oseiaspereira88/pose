@@ -1,8 +1,8 @@
-# Integration Assessment: pose-b08-work
+# Integration Assessment: pose-pending-b38
 
 > **Gerado por**: POSE Integration Engine (`pose assess integrate`)
-> **Data de Avaliação**: 2026-10-21T20:18:51Z
-> **Baseline Commit**: 7d73ae839c04
+> **Data de Avaliação**: 2026-10-22T06:11:19Z
+> **Baseline Commit**: 73c5b3611f09
 
 ## 1. Resumo Executivo
 

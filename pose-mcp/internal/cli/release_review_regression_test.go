@@ -561,6 +561,8 @@ func TestReleaseBrokenNewerTagCannotOpenAfterAnOlderVerifiedRelease(t *testing.T
 		t.Fatal(err)
 	}
 	policy["adopted_at"] = "2026-10-01"
+	policy["provider"] = "github"
+	policy["repository"] = "synthetic/repo"
 	writeCloseoutCLIFile(t, root, ".pose/policy/release.json", string(posemodel.CanonicalJSON(policy)))
 	if code, out := runPose(t, root, "release", "open-next", "--version", "v1.2.0"); code != 0 {
 		t.Fatalf("sound older control refused: %s", out)
