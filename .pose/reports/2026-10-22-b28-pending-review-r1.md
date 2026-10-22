@@ -145,3 +145,70 @@ Applied `pose-review`, the review workflow, backend-go, security, documentation-
 Reviewer identity: **OpenAI Codex, task-designated gpt-6.1-sol, separate same-vendor execution**, following the reported Claude weekly-limit fallback. Execution separation is declared; exact model routing, cryptographic identity, human confirmation, cross-vendor independence and cognitive independence are not independently established.
 
 No repository writes, Git changes, attestations, closeout, release, policy adoption, Harne8/shared-checkout changes or external messages were performed.
+
+
+# Fresh B30+B28 composition adjudication — 2026-10-22
+
+Actual separate session 01a16461-775e-7943-a5ce-061174f37bd8; log /home/go/.local/state/secondary-agent/20261022T131111-codex-2440455. This approves the new composed subject, not merely retained historical closure.
+
+**APPROVED** for the exact new sealed subject [rvb-e232a12e912dcde8](/tmp/pose-pending-b28/.pose/review-bundles/rvb-e232a12e912dcde8.json).
+
+This is a fresh semantic approval of the B28/B30 composition, independent of the retained historical approval.
+
+| Identity | Verified value |
+|---|---|
+| Bundle digest | `sha256:e232a12e912dcde8f3fe0999f140f80eae070e9231f7ac867e3ab62e5969c602` |
+| Source HEAD | `ad0f23c5636571a98e6e88ac663d7b72de25f280` |
+| Scoped provenance | `sha256:1a86ae37e8f13e97907f7acb03dc544561628d3260a4fd74bc84742b31f8fa4d` |
+| Plan digest | `sha256:17360b38b9526fdaf638b6aa4a5a02851630585b28885268659591be3f8a7db8` |
+
+I reproduced the bundle, implementation, patch and tree digests. All 27 subject files match their sealed byte digests. Fresh read-only bundle resolution returned the identical payload and digest without blockers.
+
+The attributed scope contains 21 commits and 69 observed paths, distinct from its 98-commit provenance range. I compared it with current `origin/main` (`47d1cf04`) and inspected `c31cf389..ad0f23c` as B30 integration—not as exclusively B28 work. B28 runtime code remains unchanged from `c31cf38`; imported B30 runtime code matches `11bfbbf`. Shared manuals combine both changes. The matrix preserves the complete parent check union without changing shared check definitions.
+
+| ID | passed/notapplicable/finding | Reason |
+|---|---|---|
+| assumption-integrity | passed | Exact bytes and current evidence agree. Incomplete debt coverage, heuristic integration gaps and declared identity remain explicit limitations. |
+| backend-concurrency | passed | B28 adds synchronous inspection without new shared mutable state or goroutines. Collector evidence includes full tests and targeted race checks. |
+| backend-contracts | passed | Canonical valid inputs remain supported; ambiguous spellings, duplicate keys and invalid types receive explicit refusals. B30 preserves shared result parsing and trailer interpretation. |
+| backend-input-errors | passed | Null/type validation, reserved fields, canonical-path conflicts and rule identifiers prevent silent loss of obligations. Checker and suggest share operational-field spelling enforcement. |
+| backend-integration-impact | passed | MCP delegates through `Store.Suggest` to CLI JSON. B30’s parser and attribution changes compose without replacing B28’s resolver. Both dedicated checks remain registered and pass. |
+| backend-observability | passed | Source/status/detail expose invalid maps, unmatched domains and unreadable resources. B30 distinguishes candidates from associated evidence and escapes control characters in human output. |
+| compatibility | passed | Status fields are additive; stricter configuration refusals address ambiguity. Existing MCP restrictions remain explicit. Migrate still refuses apply. |
+| correctness | passed | Root fallback, module specificity, aliases, availability and refusal paths remain coherent. Current strict evidence covers the operational-field regression. |
+| design-causality | passed | Shared normalization and availability inspection address divergent discovery; conditional instructions reuse existing freshness behavior. Every material structural fact is mapped below. |
+| documentation | passed | EN/pt-BR workflow/rule mirrors agree; Portuguese manuals match. Combined manuals retain both freshness/apply guidance and B30 evidence-binding limitations. |
+| operability | passed | Missing extensions receive concrete installation guidance; unreadable rules receive diagnostics. Discovery performs no automatic installation or adoption. |
+| requirements | passed | R1–R8 retain relevant source and current evidence: freshness, distributed installation, aliases, availability, migrate refusal, consumer behavior and negative cases. |
+| scope | passed | Full attributed scope is reconciled. B30 integration is separately identified; derived histories and historical reports do not substitute for current implementation approval. |
+| security | passed | Identifier checks, duplicate/exact-key refusals and resolved `go.mod` confinement preserve obligation integrity. No new dependency, authorization bypass or command interpolation identified; limited subject secret-pattern scan found no candidates. |
+| solution-proportionality | passed | Text-only changes would leave runtime misreporting; separate consumer resolvers would duplicate logic. Existing freshness, extension mappings and CLI delegation suffice without new installation machinery. |
+
+Required structural mappings—each uses one basis from B28:
+
+| ID | single R or D basis | Causal reason |
+|---|---|---|
+| `SD-813aeaa2` | R8 | The validation matrix registers executable behavior checks, retains B28’s spelling regression and adds the separately approved B30 check without dropping either parent’s coverage. |
+| `SD-bc5a864b` | R1 | The feature workflow invokes `discover --if-stale` at existing execution points, removing unconditional rescans while retaining invalidation when inputs change. |
+| `SD-f906fe94` | R1 | The delivery-evidence rule retains closeout state refresh while allowing unchanged component assessments to be reused. |
+
+The cheapest formal shortcut is correcting command text while leaving installed copies or runtime behavior divergent. Recursive source/installed inventories, mirror comparisons, install/upgrade checks and current functional regressions constrain that shortcut. The adversarial corpus includes `stale-assessment-reused`; unreadable-inventory tests additionally reject silently incomplete coverage.
+
+These conclusions would be disproved by a changed subject digest, dropped selector, installed-copy divergence, consumer departure from CLI delegation, ambiguous configuration being accepted, or current results losing their HEAD/scoped binding. Filesystem availability is an observation at inspection time, not a permanent guarantee.
+
+Current evidence and tool dispositions:
+
+- **Collector execution:** `/tmp/pose-b28-composed-validation.log` finishes **144/144, SUCCESS**. Canonical results name `ad0f23c`, match the matrix digest and B28 scoped provenance, and agree with all **140 collected sealed entries**, plus one structural entry.
+- **Completed collectors:** artifact and surface JSON files parse completely. Surface findings are empty; artifact warnings do not intersect the sealed subject. Index, discovery, debt and integration logs were inspected.
+- **Limits:** debt assessment remains **INCOMPLETE** for two invalid legacy sources. Integration discovery reports 63 heuristic unobserved-consumer gaps; it is not comprehensive certification.
+- **Executed by this reviewer:** read-only context/bundle resolution, Git comparisons, digest/evidence reconciliation, mirror inspection, limited secret-pattern scan, `index --verify` (**current**), `skills-check --strict` (**22, zero errors/warnings**) and recurrence-check (**408 records, zero flagged/flapping keys**). `git diff --check origin/main...HEAD` passed.
+- **Runtime probe limitation:** the installed `pose 7.4.1-dev` suggest command returned older output without B28 status fields. I did not treat that binary as proof of the reviewed runtime. Collector Go tests compile repository source; their `runPose` helper invokes `Main` directly.
+- **Deferred completion:** parent attribution of this actual decision, then native `review-check`/closeout verification. Neither spec needs another lifecycle transition.
+
+Rules applied during review: `pose-review`, review workflow, backend-go, security, documentation-style, delivery-evidence, knowledge-governance and recurrence guidance. Change type is mixed bugfix/documentation/regression coverage. Frontend and infrastructure runtime rules are inapplicable.
+
+No new blocking finding identified. Existing low follow-ups remain open with their recorded ownership and review dates. Historical approvals, reports and mutation runs remain historical.
+
+Reviewer: OpenAI Codex, task-designated `gpt-6.1-sol`, this separate same-vendor session under the reported Claude-limit fallback. No independently verified session identifier is available here. Identity and separation are declared; no human, cryptographic, cross-vendor or proven cognitive independence is claimed.
+
+No repository writes, Git mutations, policy changes, attestations, lifecycle changes or external messages were performed.

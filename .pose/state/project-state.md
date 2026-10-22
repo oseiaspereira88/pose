@@ -88,10 +88,10 @@ capacidade.
   - report:2026-10-21-ci-security-execution.md
 
 ## Arquitetura
-<!-- state:derived hash:b8e62a8bec3e status:active -->
+<!-- state:derived hash:0038e2dc935c status:active -->
 
 - componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=77253 testes=66602 total=143855
+- linhas_de_codigo: producao=77913 testes=67597 total=145510
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63
