@@ -14,7 +14,7 @@ Entregar uma feature em produção com escopo claro, implementação incremental
 ## Checklist de execução
 
 1. Resolver projeto e tarefa com `pose context --task <referência-tipificada-ou-qualificada> --json`; reutilizar a autoridade canônica e parar diante de ambiguidade, metadado não suportado, vínculo obsoleto ou `transfer-in-progress`. Não inferir tarefa externa por slug simples nem ancestralidade do checkout. Para criar autoridade qualificada, usar `pose new-spec-qualified <slug> --task <xref> --expect-context <digest>`; motores antigos precisam recusar esse verbo antes de qualquer escrita.
-2. Mapear módulos impactados e rodar `pose assess discover [--component <dir>]` para inspecionar métricas, LOCs e dívidas do módulo antes da edição.
+2. Mapear módulos impactados e rodar `pose assess discover --if-stale [--component <dir>]` para inspecionar métricas, LOCs e dívidas do módulo antes da edição.
 3. **Consultar `.pose/knowledge/`** por handoffs/notas/decision-logs relevantes ao escopo (busque pelo slug do módulo afetado e por temas correlatos). Cite cada artefato consultado na spec como `knowledge:<slug>`. É exatamente essa forma que `pose knowledge-usage` conta — prosa citando o arquivo é invisível para ele, então um artefato que todos leem pode parecer não usado e expirar no TTL.
 4. Revisar ou criar a spec no projeto de autoridade. Manter requisitos na spec de origem e usar referências qualificadas para compor o coordenador.
 5. Declarar ações exatas em `### Artifacts` e reconciliar com `pose artifact-check`.
@@ -29,7 +29,7 @@ Entregar uma feature em produção com escopo claro, implementação incremental
 14. Consolidar resultado final com riscos residuais e próximos passos.
 15. Rodar uma revisão separada contra a autoridade canônica. Para escopos externos, usar `xref:`; toda escrita entre projetos exige vínculo explícito em `POSE_PROJECT_ROOTS` e o `context_revision` atual via `--expect-context`.
 16. Exigir `pose review verify <referência-da-spec>` (modo bundle) e `pose closeout-check <referência-da-spec>` antes de aplicar `pose close <referência-da-spec> [--expect-context <digest>]`; remediação que muda entradas semânticas ou fontes exige novo bundle.
-17. **Fechar a spec** (skill `pose-spec-closeout`): definir `status: done` e `completed_at` no frontmatter; rodar `pose assess discover --update-state` para recalcular a completude da plataforma; dar disposição a cada follow-up (`pose followups --all` mostra o backlog cruzado e colisões); passar o gate `pose lint-spec <slug> --strict`.
+17. **Fechar a spec** (skill `pose-spec-closeout`): definir `status: done` e `completed_at` no frontmatter; rodar `pose assess discover --if-stale --update-state` para recalcular a completude da plataforma; dar disposição a cada follow-up (`pose followups --all` mostra o backlog cruzado e colisões); passar o gate `pose lint-spec <slug> --strict`.
 18. Se o Modo Contribuidor estiver ativo e o escopo revelar regras de stack ausentes ou capacidades reutilizáveis para o motor POSE, registre uma proposta de contribuição via `pose contribute stage --type enhancement`.
 
 ## Saídas obrigatórias

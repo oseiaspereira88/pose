@@ -1,0 +1,2014 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-18",
+  "reviewed_head": "cc590314f844db9074a3414d13df0a3ac6ae144f",
+  "base_merge_base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+  "requested_slug": "pose-cli-suggestion-and-dry-run-accuracy",
+  "resolved_slug": "pose-distributed-instructions-parity",
+  "pr": 196,
+  "decision": "changes-requested",
+  "reviewer": {
+    "principal": "agent:independent-gpt-6.1-sol-review",
+    "execution": "Codex/OpenAI",
+    "implementer": "Claude/Anthropic",
+    "vendor_separation": "declared",
+    "identity_assurance": "declared",
+    "cognitive_independence": "not-observable",
+    "attestation_written": false,
+    "envelope": null
+  },
+  "plan": {
+    "digest": "sha256:4483bc4b7473f4cb3f1bc520ebbf74f7c3efd49ae41d8dcfdda836ee194ec207",
+    "criteria": [
+      "assumption-integrity",
+      "backend-concurrency",
+      "backend-contracts",
+      "backend-input-errors",
+      "backend-integration-impact",
+      "backend-observability",
+      "compatibility",
+      "correctness",
+      "design-causality",
+      "documentation",
+      "operability",
+      "requirements",
+      "scope",
+      "security",
+      "solution-proportionality"
+    ],
+    "tools": [
+      {
+        "id": "suggest-review",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "suggest",
+          "review",
+          "--path",
+          "pose-mcp"
+        ],
+        "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+        "component": "pose-mcp",
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "assess-design",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "assess",
+          "design",
+          "--spec",
+          "pose-distributed-instructions-parity",
+          "--json"
+        ],
+        "rationale": "observe bounded structural deltas on the canonical review subject",
+        "evidence_classes": [
+          "structure"
+        ],
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "assess-discover",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "assess",
+          "discover",
+          "--component",
+          "pose-mcp"
+        ],
+        "rationale": "inspect component structure, language, size and visible debt",
+        "component": "pose-mcp",
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "assess-integrate",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "assess",
+          "integrate"
+        ],
+        "rationale": "inspect providers, consumers and inter-component contract gaps",
+        "evidence_classes": [
+          "integration"
+        ],
+        "criteria": [
+          "backend-contracts",
+          "backend-integration-impact"
+        ],
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "assess-tech-debt",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "assess",
+          "tech-debt"
+        ],
+        "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+        "criteria": [
+          "correctness"
+        ],
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "artifact-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "artifact-check",
+          "--spec",
+          "pose-distributed-instructions-parity",
+          "--strict"
+        ],
+        "rationale": "reconcile declared artifacts with Git-observed provenance",
+        "criteria": [
+          "requirements",
+          "scope"
+        ],
+        "preconditions": [
+          "artifacts-attributed"
+        ]
+      },
+      {
+        "id": "skills-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "skills-check",
+          "--strict"
+        ],
+        "rationale": "verify distributed skill and workflow conformance",
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "surface-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "surface-check",
+          "--spec",
+          "pose-distributed-instructions-parity",
+          "--strict"
+        ],
+        "rationale": "verify delivery composition, reachability and fresh evidence",
+        "evidence_classes": [
+          "integration",
+          "reachability"
+        ],
+        "preconditions": [
+          "delivery-target-declared"
+        ]
+      },
+      {
+        "id": "validate",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "validate",
+          "--strict"
+        ],
+        "rationale": "run the registered deterministic checks for the affected module",
+        "evidence_classes": [
+          "build",
+          "e2e",
+          "integration",
+          "unit"
+        ],
+        "criteria": [
+          "backend-concurrency",
+          "backend-input-errors",
+          "backend-observability",
+          "correctness",
+          "requirements"
+        ],
+        "preconditions": [
+          "delivery-target-declared"
+        ]
+      },
+      {
+        "id": "validate",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "validate",
+          "--strict",
+          "--module",
+          "pose-mcp"
+        ],
+        "rationale": "run the registered deterministic checks for the affected module",
+        "evidence_classes": [
+          "build",
+          "e2e",
+          "integration",
+          "unit"
+        ],
+        "component": "pose-mcp",
+        "preconditions": [
+          "delivery-target-declared"
+        ]
+      },
+      {
+        "id": "review-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "review-check",
+          "spec:pose-distributed-instructions-parity"
+        ],
+        "rationale": "verify exact review-plan coverage and freshness",
+        "preconditions": [
+          "review-complete"
+        ]
+      },
+      {
+        "id": "closeout-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "closeout-check",
+          "spec:pose-distributed-instructions-parity"
+        ],
+        "rationale": "verify remaining hierarchical closeout blockers",
+        "preconditions": [
+          "review-complete"
+        ]
+      }
+    ],
+    "band": "critical"
+  },
+  "prepared_bundle": {
+    "id": "rvb-dd3eb3e34d53cc45",
+    "digest": "sha256:dd3eb3e34d53cc455fafaf9f71b2fe7699ecf8d4239ac31a4d7cfa06cee8c7b7",
+    "state": "prepared-only-not-persisted-or-sealed"
+  },
+  "findings": [
+    {
+      "id": "B1",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Módulo raiz perde regras de domínio",
+      "location": "pose-mcp/internal/cli/suggest.go:188",
+      "requirements": "R3/R6/R8",
+      "evidence": "Após install, update e index reais em EN e pt-BR, repo-map declara language=go com path vazio. suggest feature --path main.go sai 0 e omite backend-go. A condição p != vazio exclui o módulo raiz; path ponto e prefixos não normalizados também não casam.",
+      "action": "Normalizar ambos os caminhos; reconhecer raiz como fallback de menor especificidade; preservar fronteiras e módulo mais específico.",
+      "adjacent_consumers": "Predicado preexistente, não resolvido pelo escopo que promete inferência correta. Vizinhos: produtor scanModules converte ponto para vazio; review_plan também exclui raiz como componente e documenta a limitação. Controle svc-other não casa com svc; svc/web vence svc."
+    },
+    {
+      "id": "B2",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Kubernetes existente no catálogo é anunciado sem extensão conhecida",
+      "location": "pose-mcp/internal/cli/suggest.go:250",
+      "requirements": "R4/R6/R8",
+      "evidence": "Sem kubernetes.md, --domain kubernetes produz unavailable, sem next_step; humano afirma no extension known. extensions/pose-rule-kubernetes/extension.json existe e AGENTS documenta seu install.",
+      "action": "Reconciliar catálogo completo de arquivos/extensões, incluindo Kubernetes, sem instalação automática.",
+      "adjacent_consumers": "Novo consumidor inverte mapa do doctor incompleto. Conferidos todos os 12 pares existentes, manifests de extensions e resolução/install; nenhum segundo arquivo duplicado no mapa."
+    },
+    {
+      "id": "B3",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Stat não prova disponibilidade e confunde ausência com falha de acesso",
+      "location": "pose-mcp/internal/cli/suggest.go:258",
+      "requirements": "R3/R4/R6",
+      "evidence": "Diretório backend-go.md e arquivo 0000 são installed; GetRule não os lê. Diretório .pose/rules sem permissão transforma regra existente em extension-needed. Diretório svc/go.mod também converte backend Python em Go.",
+      "action": "Separar inexistência de erro de I/O; verificar arquivo regular e legibilidade; não oferecer instalação como remediação de perda de acesso. Aplicar a mesma disciplina ao sinal go.mod.",
+      "adjacent_consumers": "Helper compartilhado ruleExtensionInstalled já usava apenas Stat no doctor; nova chamada o amplia a todas as regras. Vizinhos GetRule/ListRules recusam diretórios; requireTaskRef também apenas Stat; novo sinal go.mod repete o problema."
+    },
+    {
+      "id": "B4",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Configuração de regras malformada é descartada com sucesso",
+      "location": "pose-mcp/internal/cli/suggest.go:86",
+      "requirements": "R4/R6/R8",
+      "evidence": "rules_by_domain.backend-go igual a string ou lista [17] resulta em domínio conhecido, exit 0, apenas regras base e nenhum diagnóstico; rules com elemento numérico é filtrado e task null também sai 0.",
+      "action": "Validar shape e tipos antes de montar a trilha; recusar configuração inválida com diagnóstico explícito, sem converter falha em conjunto vazio.",
+      "adjacent_consumers": "Coerção stringSlice preexistente herdada pelos novos statuses. Vizinhos checkTaskMap tipa rules base, mas não declara/valida rules_by_domain; Store.Suggest e MCP retransmitem o resultado."
+    },
+    {
+      "id": "B5",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Identidade de regra sem validação anuncia caminho recusado pelo consumidor",
+      "location": "pose-mcp/internal/cli/suggest.go:254",
+      "requirements": "R4/R6/R7",
+      "evidence": "Com rules=[../../outside] e outside.md na raiz, sai 0 com availability installed e path .pose/rules/../../outside.md; GetRule recusa o mesmo identificador por ValidateName.",
+      "action": "Validar identificadores de regras antes de resolver paths; preservar confinamento e a mesma identidade aceita por GetRule. Não tratar arquivo arbitrário como regra instalada.",
+      "adjacent_consumers": "Nova classificação installed reutiliza string bruta. Vizinhos Store.GetRule/GetWorkflow/GetSkill validam nome; checkTaskMap verifica confinamento no projeto para regras base, mas não identidade de regra nem rules_by_domain. Não houve leitura/exfiltração de conteúdo pela sonda."
+    },
+    {
+      "id": "B6",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Índice perdido ou inválido vira ausência silenciosa de domínio",
+      "location": "pose-mcp/internal/cli/suggest.go:173",
+      "requirements": "R3/R6/R7",
+      "evidence": "Mesmo path e task: mapa ausente, JSON malformado, geração inválida e mapa válido sem match retornam JSON idêntico, exit 0 e stderr vazio, sem domain_source/status. Um mapa inválido que continha módulo Go perde suas regras como se não houvesse módulo.",
+      "action": "Preservar source/estado e distinguir no-match de índice indisponível; propagar erro ou diagnóstico inconclusivo acionável antes de oferecer trilha parcial.",
+      "adjacent_consumers": "Fallback preexistente não resolve o contrato de diagnóstico da b28. Vizinhos ReadIndex preserva erro tipado e task-map inválido já falha; MCP herda o silêncio. InventoryLegacy também suprime alguns erros de policy/supplements: fora do delta semântico R5 e sem atribuir resolução a esta PR."
+    },
+    {
+      "id": "B7",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Inventário de instruções aprova varredura incompleta",
+      "location": "pose-mcp/internal/cli/distributed_instructions_parity_test.go:33",
+      "requirements": "R1/R2/R8",
+      "evidence": "Em cópia exata do HEAD, arquivo com pose assess discover sem if-stale sob subdiretório 0000 faz TestDistributedInstructionsAskForDiscoveryOnlyWhenStale passar; chmod 0700 faz o mesmo teste falhar na instrução.",
+      "action": "Falhar em erros de WalkDir/ReadFile e em raízes esperadas ausentes; não substituir cobertura por contagem mínima global. Manter exclusões explícitas quando necessárias.",
+      "adjacent_consumers": "Código novo. Vizinhos teste de install ignora erros tanto de walk quanto de leitura; AGENTS ausente causa Skip, e os limiares 20/10 não detectam perda parcial de inventário. Teste de igualdade dos quatro mirrors usa leitura fatal corretamente."
+    },
+    {
+      "id": "B8",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "title": "Executor de mutações registra falha de shell como mutação morta",
+      "location": ".pose/results/b28-mutations.py:48",
+      "requirements": "R8",
+      "evidence": "TMPDIR com espaços gera cd: too many arguments, exit 2 e nenhum go test executado; o script registra killed=1,total=1. Captura observacional de subprocess.run preservou execução real e comprovou o erro.",
+      "action": "Executar argv com cwd, sem shell interpolado; distinguir infraestrutura/build de falha da asserção esperada, preferindo go test -json e eventos do teste-alvo; não contar erro desconhecido como killed.",
+      "adjacent_consumers": "Código novo. Vizinhos b14-mutations.py e b15-mutations.py repetem shell=True e a mesma heurística de duas substrings. Executor nativo validate usa program+args+cwd e falha em exit não-zero. As 12 mutações em TMPDIR normal foram reexecutadas e morreram, mas esse resultado não cobre este controle adversarial."
+    },
+    {
+      "id": "F1",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Saída humana não divulga alias/origem explícitos",
+      "location": "pose-mcp/internal/cli/suggest.go:125",
+      "requirements": "R3/R6",
+      "evidence": "--domain Go tem domain_input/domain_source no JSON, mas sem --path a saída humana não mostra domínio/alias; mostra as mesmas regras e disponibilidade.",
+      "action": "Mostrar domínio efetivo, input e source também em texto.",
+      "adjacent_consumers": "Sem relaxar regras ou aprovação: diferença de explicação; ownership owner:@core crit:low review:2026-12-01."
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "MCP recusa alias de caixa aceito pela CLI",
+      "location": "pose-mcp/internal/pose/cli.go:34",
+      "requirements": "R3/R6",
+      "evidence": "CLI --domain Go normaliza; Store.Suggest/pose_suggest rejeita Go por ValidateName antes de delegar. Chamada real do adaptador reproduziu o erro.",
+      "action": "Normalizar o alias aceito antes de validar, mantendo bloqueio de travessia; testar ambas as superfícies.",
+      "adjacent_consumers": "Recusa explícita e conservadora, sem produzir resultado indevidamente aprovado; aliases minúsculos funcionam. ownership owner:@core crit:low review:2026-12-01."
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Limitação do dry-run ainda fala em 6.x",
+      "location": "pose-mcp/internal/pose/legacy_inventory.go:49",
+      "requirements": "R5",
+      "evidence": "migrate v7 --dry-run --json em fixture retorna no apply exists in 6.x, enquanto help e recusa de --apply foram atualizados e motor é 7.4.1-dev.",
+      "action": "Alinhar limitations e comentários correntes ao fato sem versão: este motor não oferece apply.",
+      "adjacent_consumers": "O comando continua dry-run, writes vazio e apply recusado; texto não concede capacidade nem aprovação. ownership owner:@core crit:low review:2026-12-01."
+    }
+  ],
+  "validation": [
+    {
+      "generated_at": "2026-10-18T10:34:23Z",
+      "git_head": "cc590314f844db9074a3414d13df0a3ac6ae144f",
+      "matrix_sha256": "sha256:fd446a2b1c14225326c0fdfd5563c443880bd46cbc7eeee70aa8c813122eb953",
+      "provenance_digest": "sha256:6866a5620536569f8448e2baeffa452c710751bd9f152e74537fcea4e10e67eb",
+      "outcome": "pass",
+      "module_filter": "pose-mcp",
+      "counts": {
+        "executed": 136,
+        "passed": 136,
+        "failed": 0,
+        "optional_failed": 0,
+        "errored": 0,
+        "skipped": 0
+      },
+      "checks": [
+        {
+          "id": "pose-mcp/go/build",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/test",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/vet",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/release-review-archive-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/abm-retrospective-replay-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/abm-replay-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/review-soundness-residuals-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/governance-outcomes-v2-contract",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/abm-remediation-lineage-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/abm-contract-nodes-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/abm-atomic-start-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/abm-causality-closeout-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/abm-progressive-review-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/artifact-claim-boundary-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/check-verdict-mode-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/project-id-derivation-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/calendar-date-skew-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/test-git-isolation-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/release-needs-ci-contract",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/attention-snapshot-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/recurrence-flapping-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/attention-sources-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/check-git-spawns-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/range-ownership-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/locale-obligation-flags-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/trace-test-refs-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/red-signal-contract",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/completed-review-retention-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/review-subject-capabilities-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/public-claims-release-line-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/lint-spec-all-gate-contract",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/machine-channel-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/usage-adjudication-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/usage-adjudication-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/delivery-graph-reuse-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/parse-memo-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/parallel-gate-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/check-workers-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/review-policy-adoption-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/delivery-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/delivery-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/review-bundle-convergence",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/qualified-artifact-resolution-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/federated-roadmap-acceptance-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/federated-spec-acceptance-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/federated-roadmap-negative-gates",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/spec-authority-transfer-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/spec-authority-transfer-negative-gates",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/spec-authority-transfer-mcp-status",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/multi-repo-agent-context-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/multi-repo-agent-context-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/multi-repo-agent-negative-gates",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/multi-repo-agent-installed-journey",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/dependabot-runtime-repair-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/ci-release-obligations-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/cli-profile-parity-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/extension-target-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/release-version-source-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/delivery-integrity-index-compaction-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/release-version-source-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/clean-activation-recording-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/legacy-contract-cutoffs-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/legacy-contract-cutoffs-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/public-claims-provenance-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/public-claims-provenance-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/review-assurance-disclosure-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/review-assurance-disclosure-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/review-attribution-roles-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/review-attribution-roles-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/blocked-semantics-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/blocked-semantics-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/flat-spec-amendments-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/flat-spec-amendments-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/obligation-contract-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/effective-governance-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/effective-governance-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/adversarial-corpus",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/typed-diagnostics-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/typed-diagnostics-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/obligation-projection-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/state-attention-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/action-requests-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/action-resolution-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/action-resolution-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/phase-readiness-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/phase-readiness-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/governed-effects-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/governed-effects-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/transfer-actions-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/closeout-plan-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/closeout-plan-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/material-reuse-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/assessment-freshness-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/followup-candidates-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/followup-candidates-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/action-presentation-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/spec-surface-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/spec-surface-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/premise-validity-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/falsifier-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/migrate-dryrun-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/action-identity-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/adversarial-corpus-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/governance-waits-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/action-requests-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/governance-waits-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/migrate-dryrun-reachability",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/state-attention-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/atomic-start-cutoff-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/validation-check-materiality-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/causality-cutoff-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/attest-preflight-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/governed-capabilities-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/authority-project-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/qualified-followup-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/recurrence-cluster-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/project-identity-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/capability-catalog-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/init-is-install-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/fresh-install-health-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/signed-action-answers-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/mcp-review-attest-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/mcp-action-resolve-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/setup-command-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/onboarding-spec-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/configuration-review-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/quickstart-real-lifecycle-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/install-and-upgrade-journeys-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/historical-trust-reuse-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/review-approval-domain-preflight-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/cli-mcp-operation-results-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/distributed-instructions-parity-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/index-generation-integrity-integration",
+          "outcome": "pass"
+        },
+        {
+          "id": "pose-mcp/go/test-scripts-remove-their-temp-files-integration",
+          "outcome": "pass"
+        }
+      ]
+    },
+    {
+      "generated_at": "2026-10-18T10:37:38Z",
+      "git_head": "cc590314f844db9074a3414d13df0a3ac6ae144f",
+      "matrix_sha256": "sha256:fd446a2b1c14225326c0fdfd5563c443880bd46cbc7eeee70aa8c813122eb953",
+      "provenance_digest": "sha256:6866a5620536569f8448e2baeffa452c710751bd9f152e74537fcea4e10e67eb",
+      "outcome": "pass",
+      "module_filter": "mcp-enforce",
+      "counts": {
+        "executed": 3,
+        "passed": 3,
+        "failed": 0,
+        "optional_failed": 0,
+        "errored": 0,
+        "skipped": 0
+      },
+      "checks": [
+        {
+          "id": "mcp-enforce/go/build",
+          "outcome": "pass"
+        },
+        {
+          "id": "mcp-enforce/go/test",
+          "outcome": "pass"
+        },
+        {
+          "id": "mcp-enforce/go/vet",
+          "outcome": "pass"
+        }
+      ]
+    }
+  ],
+  "mutations_normal": {
+    "mutations": [
+      {
+        "mutation": "workflow volta a pedir discovery incondicional",
+        "tests": "TestDistributedInstructionsAskForDiscoveryOnlyWhenStale",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "espelho embarcado volta a pedir discovery incondicional",
+        "tests": "TestDistributedInstructionsAskForDiscoveryOnlyWhenStale|TestAFreshInstallReceivesInstructions",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "espelho embarcado diverge da fonte",
+        "tests": "TestTheEmbeddedMirrorsOfTheWorkflowsAndRulesMatchTheSources",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "alias go não resolve",
+        "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "alias não é divulgado",
+        "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "domínio desconhecido não é reportado",
+        "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "todo backend vira Go",
+        "tests": "TestSuggestDoesNotTurnEveryBackendIntoGo",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "regra ausente é anunciada como instalada",
+        "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "regra de extensão não indica o comando",
+        "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "saída humana anuncia arquivo inexistente",
+        "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "migrate promete apply futuro",
+        "tests": "TestMigrateSaysThereIsNoApplyWithoutPromisingOne",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "migrate não diz que dry-run não escreve",
+        "tests": "TestMigrateSaysThereIsNoApplyWithoutPromisingOne",
+        "verdict": "killed"
+      }
+    ],
+    "killed": 12,
+    "total": 12
+  },
+  "mutation_false_positive": {
+    "run": [
+      {
+        "command": "cd /tmp/b28 mutation space/b28-mut-ssu6_w2u/repo/pose-mcp && go test ./internal/cli -run 'TestSuggestResolvesDomainAliasesThroughOneTaxonomy' -count=1",
+        "exit": 2,
+        "stdout": "",
+        "stderr": "/bin/sh: line 1: cd: too many arguments\n"
+      }
+    ],
+    "reported": {
+      "mutations": [
+        {
+          "mutation": "alias go não resolve",
+          "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+          "verdict": "killed"
+        }
+      ],
+      "killed": 1,
+      "total": 1
+    }
+  },
+  "probes": {
+    "head": "cc590314",
+    "probes": [
+      {
+        "case": "kubernetes-extension-known-but-unavailable",
+        "exit": 0,
+        "result": {
+          "domain_effective": "k8s",
+          "domain_input": "kubernetes",
+          "domain_source": "alias",
+          "rules_effective": [
+            "security",
+            "kubernetes"
+          ],
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            },
+            {
+              "rule": "kubernetes",
+              "availability": "unavailable"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md, kubernetes (unavailable: declared in the task map, no rule file and no extension known)\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      },
+      {
+        "case": "directory-is-installed",
+        "exit": 0,
+        "result": {
+          "domain_effective": "backend-go",
+          "domain_input": "go",
+          "domain_source": "alias",
+          "rules_effective": [
+            "security",
+            "backend-go"
+          ],
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            },
+            {
+              "rule": "backend-go",
+              "availability": "installed",
+              "path": ".pose/rules/backend-go.md"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md, .pose/rules/backend-go.md\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      },
+      {
+        "case": "rule-name-traversal",
+        "exit": 0,
+        "result": {
+          "rules_status": [
+            {
+              "rule": "../../outside",
+              "availability": "installed",
+              "path": ".pose/rules/../../outside.md"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/../../outside.md\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      },
+      {
+        "case": "go-mod-directory-misroutes-python",
+        "exit": 0,
+        "result": {
+          "domain_effective": "backend-go",
+          "domain_source": "repo-map",
+          "rules_effective": [
+            "security",
+            "backend-go"
+          ],
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            },
+            {
+              "rule": "backend-go",
+              "availability": "extension-needed",
+              "extension": "pose-rule-backend-go",
+              "next_step": "pose extension install pose-rule-backend-go"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Path:      svc/app.py → domain: backend-go (repo-map)\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md, backend-go (not installed: pose extension install pose-rule-backend-go)\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      },
+      {
+        "case": "go-helper-misroutes-python",
+        "exit": 0,
+        "result": {
+          "domain_effective": "backend-go",
+          "domain_source": "repo-map",
+          "rules_effective": [
+            "security",
+            "backend-go"
+          ],
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            },
+            {
+              "rule": "backend-go",
+              "availability": "extension-needed",
+              "extension": "pose-rule-backend-go",
+              "next_step": "pose extension install pose-rule-backend-go"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Path:      svc/tool.go → domain: backend-go (repo-map)\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md, backend-go (not installed: pose extension install pose-rule-backend-go)\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      },
+      {
+        "case": "path-normalization-dot",
+        "exit": 0,
+        "result": {
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Path:      svc/app.go → domain:  (undefined)\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      },
+      {
+        "case": "root-module-not-matched",
+        "exit": 0,
+        "result": {
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Path:      main.go → domain:  (undefined)\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      },
+      {
+        "case": "alias-human-output",
+        "exit": 0,
+        "result": {
+          "domain_effective": "backend-go",
+          "domain_input": "Go",
+          "domain_source": "alias",
+          "rules_effective": [
+            "security",
+            "backend-go"
+          ],
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            },
+            {
+              "rule": "backend-go",
+              "availability": "extension-needed",
+              "extension": "pose-rule-backend-go",
+              "next_step": "pose extension install pose-rule-backend-go"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md, backend-go (not installed: pose extension install pose-rule-backend-go)\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      },
+      {
+        "case": "domain-map-alias-key",
+        "exit": 0,
+        "result": {
+          "domain_effective": "frontend",
+          "domain_input": "react",
+          "domain_source": "alias",
+          "rules_effective": [
+            "security",
+            "frontend-react"
+          ],
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            },
+            {
+              "rule": "frontend-react",
+              "availability": "extension-needed",
+              "extension": "pose-rule-frontend-react",
+              "next_step": "pose extension install pose-rule-frontend-react"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md, frontend-react (not installed: pose extension install pose-rule-frontend-react)\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      },
+      {
+        "case": "root-module-empty-path",
+        "exit": 0,
+        "result": {
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Path:      main.go → domain:  (undefined)\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      },
+      {
+        "case": "nested-boundary-control",
+        "exit": 0,
+        "result": {
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Path:      svc-other/main.go → domain:  (undefined)\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      },
+      {
+        "case": "nested-specific-control",
+        "exit": 0,
+        "result": {
+          "domain_effective": "frontend",
+          "domain_source": "repo-map",
+          "rules_effective": [
+            "security",
+            "frontend-react"
+          ],
+          "rules_status": [
+            {
+              "rule": "security",
+              "availability": "installed",
+              "path": ".pose/rules/security.md"
+            },
+            {
+              "rule": "frontend-react",
+              "availability": "extension-needed",
+              "extension": "pose-rule-frontend-react",
+              "next_step": "pose extension install pose-rule-frontend-react"
+            }
+          ]
+        },
+        "human": "# POSE trail — feature\n\nfixture\n- Path:      svc/web/a.ts → domain: frontend (repo-map)\n- Workflow:  w\n- Skill:     s\n- Rules:     .pose/rules/security.md, frontend-react (not installed: pose extension install pose-rule-frontend-react)\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n"
+      }
+    ]
+  },
+  "invalid_fields": [
+    {
+      "case": "bad-base-list",
+      "exit": 0,
+      "document": {
+        "domain_effective": "backend-go",
+        "domain_input": "go",
+        "domain_source": "alias",
+        "domain_status": "no rules declared for this domain in the task map",
+        "name": "feature",
+        "rules": [
+          "security",
+          17
+        ],
+        "rules_effective": [
+          "security"
+        ],
+        "rules_status": [
+          {
+            "rule": "security",
+            "availability": "installed",
+            "path": ".pose/rules/security.md"
+          }
+        ]
+      }
+    },
+    {
+      "case": "bad-domain-list",
+      "exit": 0,
+      "document": {
+        "domain_effective": "backend-go",
+        "domain_input": "go",
+        "domain_source": "alias",
+        "name": "feature",
+        "rules": [
+          "security"
+        ],
+        "rules_by_domain": {
+          "backend-go": [
+            17
+          ]
+        },
+        "rules_effective": [
+          "security"
+        ],
+        "rules_status": [
+          {
+            "rule": "security",
+            "availability": "installed",
+            "path": ".pose/rules/security.md"
+          }
+        ]
+      }
+    },
+    {
+      "case": "bad-domain-type",
+      "exit": 0,
+      "document": {
+        "domain_effective": "backend-go",
+        "domain_input": "go",
+        "domain_source": "alias",
+        "name": "feature",
+        "rules": [
+          "security"
+        ],
+        "rules_by_domain": {
+          "backend-go": "backend-go"
+        },
+        "rules_effective": [
+          "security"
+        ],
+        "rules_status": [
+          {
+            "rule": "security",
+            "availability": "installed",
+            "path": ".pose/rules/security.md"
+          }
+        ]
+      }
+    },
+    {
+      "case": "null-task",
+      "exit": 0,
+      "document": {
+        "domain_effective": "backend-go",
+        "domain_input": "go",
+        "domain_source": "alias",
+        "domain_status": "no rules declared for this domain in the task map",
+        "name": "feature",
+        "rules_effective": null,
+        "rules_status": []
+      }
+    },
+    {
+      "case": "permission-loss",
+      "exit": 0,
+      "document": {
+        "domain_effective": "backend-go",
+        "domain_input": "go",
+        "domain_source": "alias",
+        "name": "feature",
+        "rules": [
+          "security"
+        ],
+        "rules_by_domain": {
+          "backend-go": [
+            "backend-go"
+          ]
+        },
+        "rules_effective": [
+          "security",
+          "backend-go"
+        ],
+        "rules_status": [
+          {
+            "rule": "security",
+            "availability": "unavailable"
+          },
+          {
+            "rule": "backend-go",
+            "availability": "extension-needed",
+            "extension": "pose-rule-backend-go",
+            "next_step": "pose extension install pose-rule-backend-go"
+          }
+        ]
+      }
+    }
+  ],
+  "unreadable_rule": {
+    "exit": 0,
+    "readable": false,
+    "document": {
+      "name": "feature",
+      "rules": [
+        "backend-go"
+      ],
+      "rules_status": [
+        {
+          "rule": "backend-go",
+          "availability": "installed",
+          "path": ".pose/rules/backend-go.md"
+        }
+      ]
+    }
+  },
+  "index_loss": [
+    {
+      "state": "missing",
+      "exit": 0,
+      "stdout": {
+        "name": "feature",
+        "path_input": "svc/main.go",
+        "rules": [
+          "security"
+        ],
+        "rules_by_domain": {
+          "backend-go": [
+            "backend-go"
+          ]
+        },
+        "rules_status": [
+          {
+            "rule": "security",
+            "availability": "installed",
+            "path": ".pose/rules/security.md"
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "state": "malformed",
+      "exit": 0,
+      "stdout": {
+        "name": "feature",
+        "path_input": "svc/main.go",
+        "rules": [
+          "security"
+        ],
+        "rules_by_domain": {
+          "backend-go": [
+            "backend-go"
+          ]
+        },
+        "rules_status": [
+          {
+            "rule": "security",
+            "availability": "installed",
+            "path": ".pose/rules/security.md"
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "state": "valid-unmatched",
+      "exit": 0,
+      "stdout": {
+        "name": "feature",
+        "path_input": "svc/main.go",
+        "rules": [
+          "security"
+        ],
+        "rules_by_domain": {
+          "backend-go": [
+            "backend-go"
+          ]
+        },
+        "rules_status": [
+          {
+            "rule": "security",
+            "availability": "installed",
+            "path": ".pose/rules/security.md"
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "state": "generation-invalid",
+      "exit": 0,
+      "stdout": {
+        "name": "feature",
+        "path_input": "svc/main.go",
+        "rules": [
+          "security"
+        ],
+        "rules_by_domain": {
+          "backend-go": [
+            "backend-go"
+          ]
+        },
+        "rules_status": [
+          {
+            "rule": "security",
+            "availability": "installed",
+            "path": ".pose/rules/security.md"
+          }
+        ]
+      },
+      "stderr": ""
+    }
+  ],
+  "inventory_fail_open": [
+    {
+      "mode": "0o0",
+      "exit": 0,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.025s\n"
+    },
+    {
+      "mode": "0o700",
+      "exit": 1,
+      "output": "--- FAIL: TestDistributedInstructionsAskForDiscoveryOnlyWhenStale (0.02s)\n    distributed_instructions_parity_test.go:61: .pose/workflows/unreadable-review-probe/probe.md:1 asks for an unconditional discovery: `pose assess discover\nFAIL\nFAIL\tgithub.com/harne8/pose-mcp/internal/cli\t0.033s\nFAIL\n"
+    }
+  ],
+  "adapter_probes": {
+    "GetRule_directory": "pose: rule \"backend-go\" not found",
+    "GetRule_traversal": "pose: invalid artifact name \"../../outside\"",
+    "MCP_Go": "pose_suggest: invalid domain: pose: invalid artifact name \"Go\""
+  },
+  "migrate_probe": {
+    "exit": 0,
+    "limitations": [
+      "a dry-run: nothing is written, and no apply exists in 6.x",
+      "counts describe this repository only; consumers' corpora must run their own dry-run before a removal is decided"
+    ],
+    "writes": []
+  },
+  "journeys": [
+    {
+      "locale": "en",
+      "install": {
+        "command": [
+          "install",
+          "/tmp/b28-journey-zw2vo_px",
+          "--project-id",
+          "proj.fixture",
+          "--locale",
+          "en"
+        ],
+        "exit": 0,
+        "output_sha256": "55834d45c11cac036baee65fe2c13024c0dad124f251b48d3c181d62e6b3003a",
+        "tail": "-install] capability (adoption): causality-closeout from 2026-10-18 — `pose adopt causality-closeout --off --apply` turns it off\n[pose-install] capability (adoption): contract-nodes from 2026-10-18 — `pose adopt contract-nodes --off --apply` turns it off\n[pose-install] capability (adoption): definition-of-ready from 2026-10-18 — `pose adopt definition-of-ready --off --apply` turns it off\n[pose-install] onboarding spec: .pose/specs/2026-10-18-pose-onboarding.md — `pose setup` drives its steps\n[pose-install] vendored: .pose/LICENSE, .pose/NOTICE\n[pose-install] installed: AGENTS.md\n[pose-install] installed: POSE.md\n[pose-install] seeded: .mcp.json (server \"pose\")\n[pose-install] schema-version stamped: v1\n[pose-install] running native final gate\nResult: SUCCESS — valid POSE structure (strict mode).\n[pose-install] install complete — POSE is ready in /tmp/b28-journey-zw2vo_px\n[pose-install] next: `pose setup` — identity, the commit gate and capability decisions, one confirmed step at a time\n"
+      },
+      "installed": {
+        "markdown_files": 36,
+        "unconditional_discovery": []
+      },
+      "update": {
+        "command": [
+          "update",
+          "--force",
+          "--no-self",
+          "--locale",
+          "en"
+        ],
+        "exit": 0,
+        "output_sha256": "0793384c7b4bbdebb5dab4588a54d8beb4403c581fa6a88f5ad517262dc24253",
+        "tail": "[INFO] refreshing scaffolds, rules, workflows and MCP config...\n[pose-install] target:       /tmp/b28-journey-zw2vo_px\n[pose-install] project name: b28-journey-zw2vo_px\n[pose-install] project id:   proj.fixture\n[pose-install] machinery (merged): .pose/workflows\n[pose-install] machinery (merged): .pose/rules\n[pose-install] machinery (merged): .pose/templates\n[pose-install] machinery (merged): .agents/skills\n[pose-install] machinery: .claude/skills (symlinks)\n[pose-install] vendored: .pose/LICENSE, .pose/NOTICE\n[pose-install] installed: AGENTS.md\n[pose-install] installed: POSE.md\n[pose-install] kept existing: .mcp.json (custom configuration)\n[pose-install] running native final gate\nResult: SUCCESS — valid POSE structure (strict mode).\n[pose-install] install complete — POSE is ready in /tmp/b28-journey-zw2vo_px\nResult: SUCCESS — POSE updated to engine v7.4.1-dev (schema v1).\n"
+      },
+      "after_update": {
+        "markdown_files": 36,
+        "unconditional_discovery": []
+      },
+      "index": {
+        "command": [
+          "index"
+        ],
+        "exit": 0,
+        "output_sha256": "f75c24ec66902527f0a5a3f05e58b2f7ace7ff37a2f6f86513b82359e5e4ebcb",
+        "tail": "POSE indexes updated at /tmp/b28-journey-zw2vo_px/.pose/indexes\n"
+      },
+      "repo_map": {
+        "apps": [],
+        "dockerfiles": [],
+        "helmCharts": [],
+        "manifests": [
+          "go.mod"
+        ],
+        "moduleMetadata": {
+          "schemaVersion": 1,
+          "source": ".pose/indexes/module-metadata.json"
+        },
+        "packages": [
+          {
+            "name": "b28-journey-zw2vo_px",
+            "path": "",
+            "language": "go",
+            "hasDockerfile": false,
+            "hasHelmChart": false,
+            "owner": "unknown",
+            "criticality": "medium",
+            "domain": "unknown",
+            "validationProfile": "baseline",
+            "metadata": {
+              "criticality": "medium",
+              "domain": "unknown",
+              "owner": "unknown",
+              "validationProfile": "baseline"
+            },
+            "metadataStatus": {
+              "isComplete": false,
+              "missingFields": [
+                "criticality",
+                "domain",
+                "owner",
+                "validationProfile"
+              ],
+              "source": "defaulted"
+            }
+          }
+        ],
+        "readmes": [
+          ".agents/skills/README.md"
+        ],
+        "root": ".",
+        "services": []
+      },
+      "root_suggest": {
+        "description": "Implementação de feature não-trivial com escopo afetando >=1 módulo.",
+        "knowledge_consume": true,
+        "knowledge_produce": "handoff (quando houver contexto reaproveitável)",
+        "name": "feature",
+        "path_input": "main.go",
+        "requires_adr": "se houver mudança arquitetural",
+        "requires_spec": true,
+        "rules": [
+          "security",
+          "documentation-style"
+        ],
+        "rules_by_domain": {
+          "backend-go": [
+            "backend-go"
+          ],
+          "frontend": [
+            "frontend-react"
+          ],
+          "k8s": [
+            "kubernetes"
+          ]
+        },
+        "rules_status": [
+          {
+            "rule": "security",
+            "availability": "installed",
+            "path": ".pose/rules/security.md"
+          },
+          {
+            "rule": "documentation-style",
+            "availability": "installed",
+            "path": ".pose/rules/documentation-style.md"
+          }
+        ],
+        "skill": "pose-feature",
+        "validation": "pose validate --strict --module <path-afetado>",
+        "workflow": ".pose/workflows/feature.md"
+      }
+    },
+    {
+      "locale": "pt-BR",
+      "install": {
+        "command": [
+          "install",
+          "/tmp/b28-journey-5y24k609",
+          "--project-id",
+          "proj.fixture",
+          "--locale",
+          "pt-BR"
+        ],
+        "exit": 0,
+        "output_sha256": "f6e59a492358895084601dfaf9bf17cd27c684ecca6645580ee7307a2b1a1731",
+        "tail": "`pose adopt causality-closeout --off --apply` desliga\n[pose-install] capacidade (adoção): contract-nodes desde 2026-10-18 — `pose adopt contract-nodes --off --apply` desliga\n[pose-install] capacidade (adoção): definition-of-ready desde 2026-10-18 — `pose adopt definition-of-ready --off --apply` desliga\n[pose-install] spec de onboarding: .pose/specs/2026-10-18-pose-onboarding.md — `pose setup` conduz seus passos\n[pose-install] incorporados: .pose/LICENSE, .pose/NOTICE\n[pose-install] locale: pt-BR (docs/templates localizados)\n[pose-install] instalado: AGENTS.md\n[pose-install] instalado: POSE.md\n[pose-install] semente criada: .mcp.json (servidor \"pose\")\n[pose-install] schema-version gravado: v1\n[pose-install] executando gate final nativo\nResult: SUCCESS — estrutura POSE válida (modo strict).\n[pose-install] instalação concluída — POSE pronto em /tmp/b28-journey-5y24k609\n[pose-install] próximo: `pose setup` — identidade, gate de commit e decisões de capacidades, um passo confirmado por vez\n"
+      },
+      "installed": {
+        "markdown_files": 36,
+        "unconditional_discovery": []
+      },
+      "update": {
+        "command": [
+          "update",
+          "--force",
+          "--no-self",
+          "--locale",
+          "pt-BR"
+        ],
+        "exit": 0,
+        "output_sha256": "5fba49d7b4c08e76e729edae39e8beec8a796e71c38b0ed143b5b7d97490e01d",
+        "tail": "[INFO] atualizando scaffolds, regras, workflows e configuração MCP...\n[pose-install] alvo:         /tmp/b28-journey-5y24k609\n[pose-install] nome do projeto: b28-journey-5y24k609\n[pose-install] id do projeto:   proj.fixture\n[pose-install] maquinário (mesclado): .pose/workflows\n[pose-install] maquinário (mesclado): .pose/rules\n[pose-install] maquinário (mesclado): .pose/templates\n[pose-install] maquinário (mesclado): .agents/skills\n[pose-install] maquinário: .claude/skills (symlinks)\n[pose-install] incorporados: .pose/LICENSE, .pose/NOTICE\n[pose-install] locale: pt-BR (docs/templates localizados)\n[pose-install] instalado: AGENTS.md\n[pose-install] instalado: POSE.md\n[pose-install] mantido existente: .mcp.json (configuração customizada)\n[pose-install] executando gate final nativo\nResult: SUCCESS — estrutura POSE válida (modo strict).\n[pose-install] instalação concluída — POSE pronto em /tmp/b28-journey-5y24k609\nResultado: SUCESSO — POSE atualizado para engine v7.4.1-dev (schema v1).\n"
+      },
+      "after_update": {
+        "markdown_files": 36,
+        "unconditional_discovery": []
+      },
+      "index": {
+        "command": [
+          "index"
+        ],
+        "exit": 0,
+        "output_sha256": "39e5ddeb8edc7fe2a8f0a9cf6c930ad606ffbd5a2abe5bf955b74bfe50c22619",
+        "tail": "POSE indexes updated at /tmp/b28-journey-5y24k609/.pose/indexes\n"
+      },
+      "repo_map": {
+        "apps": [],
+        "dockerfiles": [],
+        "helmCharts": [],
+        "manifests": [
+          "go.mod"
+        ],
+        "moduleMetadata": {
+          "schemaVersion": 1,
+          "source": ".pose/indexes/module-metadata.json"
+        },
+        "packages": [
+          {
+            "name": "b28-journey-5y24k609",
+            "path": "",
+            "language": "go",
+            "hasDockerfile": false,
+            "hasHelmChart": false,
+            "owner": "unknown",
+            "criticality": "medium",
+            "domain": "unknown",
+            "validationProfile": "baseline",
+            "metadata": {
+              "criticality": "medium",
+              "domain": "unknown",
+              "owner": "unknown",
+              "validationProfile": "baseline"
+            },
+            "metadataStatus": {
+              "isComplete": false,
+              "missingFields": [
+                "criticality",
+                "domain",
+                "owner",
+                "validationProfile"
+              ],
+              "source": "defaulted"
+            }
+          }
+        ],
+        "readmes": [
+          ".agents/skills/README.md"
+        ],
+        "root": ".",
+        "services": []
+      },
+      "root_suggest": {
+        "description": "Implementação de feature não-trivial com escopo afetando >=1 módulo.",
+        "knowledge_consume": true,
+        "knowledge_produce": "handoff (quando houver contexto reaproveitável)",
+        "name": "feature",
+        "path_input": "main.go",
+        "requires_adr": "se houver mudança arquitetural",
+        "requires_spec": true,
+        "rules": [
+          "security",
+          "documentation-style"
+        ],
+        "rules_by_domain": {
+          "backend-go": [
+            "backend-go"
+          ],
+          "frontend": [
+            "frontend-react"
+          ],
+          "k8s": [
+            "kubernetes"
+          ]
+        },
+        "rules_status": [
+          {
+            "rule": "security",
+            "availability": "installed",
+            "path": ".pose/rules/security.md"
+          },
+          {
+            "rule": "documentation-style",
+            "availability": "installed",
+            "path": ".pose/rules/documentation-style.md"
+          }
+        ],
+        "skill": "pose-feature",
+        "validation": "pose validate --strict --module <path-afetado>",
+        "workflow": ".pose/workflows/feature.md"
+      }
+    }
+  ],
+  "external_logs": {
+    "/tmp/b28-surface.log": {
+      "sha256": "179aec517763ac710365e2eadddb5fd8e5615c09cd46618b4ad3d17d02f96343",
+      "bytes": 659
+    },
+    "/tmp/b28-enforce-validation.log": {
+      "sha256": "1c6686ff5d11efaec355ec74ff5a60e689c15b8c554c8dbb48ee59f4bac6a843",
+      "bytes": 283
+    },
+    "/tmp/b28-discover.log": {
+      "sha256": "b0e9bf22a22dfbb6c3fbdd74e385f2ed0f057bbe972a68d8205e86bf69a34f36",
+      "bytes": 250
+    },
+    "/tmp/b28-skills.log": {
+      "sha256": "953d43be6604574ab3e058080bc80c5ccbaec1edf0780d7b5e89b8928956359f",
+      "bytes": 68
+    },
+    "/tmp/b28-exact-design.log": {
+      "sha256": "bb1d0cdc3d7bb53faf7dfb8d50fbb02b319ea8c5c6c2c5adcb3785d890660f87",
+      "bytes": 1099
+    },
+    "/tmp/b28-exact-lint.log": {
+      "sha256": "c035b0d7b6938bd6a6280a92ea373e17c37da632a255faddce878f84d3aa1373",
+      "bytes": 665
+    },
+    "/tmp/b28-exact-design-direct.log": {
+      "sha256": "30996168b85382635073b82f0f2aef88bd1d3db34847e0e2591493dcfa0781c1",
+      "bytes": 1099
+    },
+    "/tmp/b28-exact-lint-direct.log": {
+      "sha256": "c035b0d7b6938bd6a6280a92ea373e17c37da632a255faddce878f84d3aa1373",
+      "bytes": 665
+    },
+    "/tmp/b28-exact-suggest.log": {
+      "sha256": "fa0d60915bf8ed4b60717c4c2e66138eaf5f0e0cb3054b7b87f953871514a56b",
+      "bytes": 522
+    },
+    "/tmp/b28-exact-recurrence.log": {
+      "sha256": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7",
+      "bytes": 164
+    },
+    "/tmp/b28-exact-integrate.log": {
+      "sha256": "841f6a342c3aa784491e384ec587b66a74fa8490ae418264987e3f5f62d28421",
+      "bytes": 14324
+    },
+    "/tmp/b28-exact-debt.log": {
+      "sha256": "84d9b0da3f49dbfe79a93777b7c9db82ac638302683eae9cd3d53898f9782af0",
+      "bytes": 281
+    },
+    "/tmp/b28-mutations.log": {
+      "sha256": "fcc299427fd51b626d30967cdfd0fc4f552b12f5ea021260f602a7160109444f",
+      "bytes": 525
+    },
+    "/tmp/b28-exact-check.log": {
+      "sha256": "b1af2a6708fa0b556d1de00eb915a6469cb4de78ba59b9eb5a59ead646213a60",
+      "bytes": 2832
+    },
+    "/tmp/b28-exact-artifact.log": {
+      "sha256": "8d0779853da0ba9b9aaa22606141300dd09c64f5aa6221c7626fc293e7036621",
+      "bytes": 120316
+    },
+    "/tmp/b28-plan.log": {
+      "sha256": "bdb1176d2cab5fd75707745b64b9434263c9230529b0ecb8b0632375062e3aa8",
+      "bytes": 8341
+    },
+    "/tmp/b28-targeted.log": {
+      "sha256": "474ade02e04189ab983b62b06d62aeb1e12c96a7e6a66fa4a783a1b2fd5f2400",
+      "bytes": 181
+    },
+    "/tmp/b28-exact-validation.log": {
+      "sha256": "bf17a1e357477615e3554a4602c01d0d5214fa718aecdb47e5652743891519b6",
+      "bytes": 28280
+    },
+    "/tmp/b28-surface-fresh.log": {
+      "sha256": "d1ec0889048588bb68b6e81da179e337a0c60c0e9e346f0295f3b22b82dff0db",
+      "bytes": 205
+    }
+  },
+  "constraints": {
+    "policy_changed": false,
+    "issuer_pin_added": false,
+    "sealed": false,
+    "attested": false,
+    "committed": false,
+    "pushed": false
+  },
+  "surface_check": {
+    "initial_exit": 1,
+    "initial_findings": [
+      "unconsumed-capability",
+      "stale-evidence"
+    ],
+    "fresh_exit": 0,
+    "fresh_findings": 0,
+    "fresh_results": 136,
+    "preparation": "Copied exact validated run into configured results_path only in isolated cc590314 checkout; original branch file left unchanged."
+  },
+  "binary": {
+    "path": "/tmp/b28-review-bin",
+    "sha256": "418179d4b68a13e923056c1d74c424e28ac6be7081dfd7423f583d7be2d65238",
+    "vcs_revision": "cc590314f844db9074a3414d13df0a3ac6ae144f"
+  },
+  "other_checks": {
+    "check_strict": {
+      "exit": 0,
+      "warnings": 29
+    },
+    "skills_check_strict": {
+      "exit": 0,
+      "checked": 22,
+      "warnings": 0,
+      "errors": 0
+    },
+    "lint_spec_strict": {
+      "exit": 0,
+      "failed": 0,
+      "warnings": [
+        "optional Tasks section absent"
+      ]
+    },
+    "artifact_check_strict": {
+      "exit": 0,
+      "claims": 23,
+      "observed": 28,
+      "warnings": 635,
+      "blocking_errors": 0
+    },
+    "targeted_go_tests": {
+      "exit": 0,
+      "packages": [
+        "internal/cli",
+        "internal/pose",
+        "internal/mcpserver"
+      ],
+      "note": "MCP package had no matching tests in this filter; real adapter probe executed separately."
+    },
+    "recurrence_check": {
+      "exit": 0,
+      "window_days": 14,
+      "records_scanned": 393,
+      "flagged": 0
+    },
+    "assess_design": {
+      "exit": 0,
+      "files_observed": 20,
+      "files_total": 20,
+      "deltas": 3
+    },
+    "assess_integrate": {
+      "exit": 0,
+      "contracts": 64,
+      "unobserved_consumers": 63
+    },
+    "assess_tech_debt": {
+      "exit": 0,
+      "markers": 0
+    },
+    "assess_discover": {
+      "exit": 0,
+      "component": "pose-mcp",
+      "freshness": "refreshed"
+    }
+  },
+  "workspace_head_at_finish": "d7ebc3001168a2121d1f8dbd493a659d4d8e1f5f"
+}

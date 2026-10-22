@@ -153,6 +153,14 @@
       "digest": "sha256:dd7a67a589092097bb8a078ac16aee90f525bf8f8cabb531b15ca26d9dac30d2"
     },
     {
+      "spec": "pose-distributed-instructions-parity",
+      "category": "changed",
+      "breaking": false,
+      "body": "The instructions POSE distributes now describe the engine as it is. The feature workflow and\nthe delivery-evidence rule, in English and Portuguese and in every embedded mirror, ask for\n`pose assess discover --if-stale`, the way the skills and `AGENTS.md` already did, so a session\nor a closeout no longer rescans a component whose inputs did not change.\n\n`pose suggest` resolves domains through one taxonomy (`go`, `golang` and `backend-go` reach the\nsame rules; so do the React and Kubernetes spellings), tells you when it used an alias, and\nreports a domain the task map has no rules for instead of silently borrowing another domain's.\nA `backend` module found in the repository map is routed to the Go rules only when it is a Go\nmodule. Each rule it names carries its availability in `rules_status` and in the human output:\ninstalled (with its path), `extension-needed` (with the `pose extension install` command) or\nunavailable; it no longer announces a rule file that is not on disk, and it installs nothing.\n\n`pose migrate v7 --apply` is refused with the current fact (no apply is available in this\nengine; `--dry-run` writes nothing) and no longer promises a future 7.0 apply.",
+      "path": "pose-distributed-instructions-parity.md",
+      "digest": "sha256:dc57637ce52c2698fa4ebc494a2685eaf31e5a7882640514709906c5b266fd8c"
+    },
+    {
       "spec": "pose-git-and-dispatch-snapshot-integrity",
       "category": "changed",
       "breaking": false,
@@ -215,6 +223,14 @@
       "body": "A read that could not see part of its source now says so instead of reporting less.\n`pose followups` (and the MCP tool `pose_get_followups`, which runs it) lists the specs it\ncould not read in `coverage` and prints them in the human output; a spec that cannot be\nopened no longer makes the backlog look shorter, and `--fail-overdue` fails instead of\ncertifying \"none overdue\" over an incomplete read. The backlog, the candidates, the project\nstate and Attention now count the same unresolved follow-ups: a bullet with no disposition\nis unresolved everywhere, and Attention projects it with the reason `followup-undisposed`.\n\nThe obligation report gains the producer state `incomplete`: an obligation refused by\nvalidation, a spec or review record that could not be read, now make the report incomplete\nfor the producer they belong to, not just add a line of text. A query about one spec is not\nmade incomplete by a loss in another.\n\n`pose assess tech-debt` finds a marker after a line longer than 64 KiB (the scan stopped at\nsuch a line and reported none) and reports what it scanned: files it could not read make the\nreport incomplete, and the files it leaves out on purpose (over the size limit, binary,\ngenerated) are counted by reason.\n\nA review record that cannot be read is no longer skipped. `pose review-check` and `pose review\nverify` do not take the latest readable attempt or attestation as the current one while an\nunreadable record that may be later (or whose bundle or scope it names) exists; one whose\nname shows it is older only warns, and unreadable sealed bundles are disclosed. `pose review\nrecord` refuses to choose the attempt it supersedes from a history with a hole.",
       "path": "pose-source-coverage-integrity.md",
       "digest": "sha256:fc9dffdb9b6594f1e25fc781521720e6c3495fbf05f98909afdff66048d4e2f1"
+    },
+    {
+      "spec": "pose-spec-facts-evidence-binding",
+      "category": "changed",
+      "breaking": false,
+      "body": "`pose specs facts` no longer presents every indexed validation result of a spec's module as\nthe spec's evidence. `checks` now lists the results the index ties to the spec by scope\nprovenance, with the basis and whether each ran against the head of the spec's change sets;\nthe rest of what the index holds appears under `candidates`, printed as `CANDIDATE, not evidence\nof this spec` with the reason (a declared module, or an empty `components`, is not\nprovenance). A result that ran against another head is kept and labelled, not dropped.\n\nThe facts also say how fresh the index is: `fresh`, `stale` (an input changed since it was\npublished), `unknown` (never published as a set) or `unavailable`, with a limitation that points\nto `pose index` when the answer cannot be established. Reading the facts rebuilds nothing and\nconcludes nothing.\n\nClassified minor: the `checks` field of the JSON narrows to associated results (candidates are\na new field); a consumer that copied `checks` as proof of execution now gets only what the index\nties to the spec.",
+      "path": "pose-spec-facts-evidence-binding.md",
+      "digest": "sha256:54fe2f4ba037c633ef2972e7f6343199322edce736940ec3f7c10f8bb0936cae"
     },
     {
       "spec": "pose-writer-coordination-and-atomic-publication",

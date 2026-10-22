@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -66,19 +65,7 @@ func loadDeliveryValidationResults(root, relative string) ([]posemodel.DeliveryV
 	if err != nil {
 		return nil, err
 	}
-	var run validationRunResult
-	if err := json.Unmarshal(raw, &run); err != nil || run.SchemaVersion != validationResultSchema {
-		return nil, fmt.Errorf("invalid structured validation result")
-	}
-	results := make([]posemodel.DeliveryValidationResult, 0, len(run.Checks))
-	for _, check := range run.Checks {
-		if check.EvidenceClass == "" {
-			continue
-		}
-		results = append(results, posemodel.DeliveryValidationResult{ID: check.ID, Module: check.Module, Check: check.Name, EvidenceClass: check.EvidenceClass, Severity: check.Severity, Outcome: check.Outcome, GitHead: run.GitHead, GeneratedAt: run.GeneratedAt, ProvenanceDigest: run.ProvenanceDigest, ScopeProvenance: run.ScopeProvenance, Report: relative})
-	}
-	sort.Slice(results, func(i, j int) bool { return results[i].ID < results[j].ID })
-	return results, nil
+	return posemodel.ParseDeliveryValidationRun(raw, relative)
 }
 
 func extendCurrentDeliveryGraph(root string, base posemodel.DeliveryIntegrityGraph) (posemodel.DeliveryIntegrityGraph, error) {

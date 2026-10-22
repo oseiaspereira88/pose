@@ -1,0 +1,1402 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-18T17:14:32.610293+00:00",
+  "repository": "oseiaspereira88/pose",
+  "pr": 197,
+  "head": "ce83fbd6979ea75111aa8004fa150e2c8b7aa62e",
+  "base_ref": "origin/main",
+  "base_oid": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+  "spec": "pose-spec-facts-evidence-binding",
+  "decision": "changes-requested",
+  "reviewer": {
+    "id": "agent:independent-gpt-6.1-sol-review",
+    "execution": "Codex/OpenAI",
+    "implementer": "Claude/Anthropic",
+    "identity_assurance": "declared",
+    "vendor_separation": "declared",
+    "envelope": null,
+    "subagents": false
+  },
+  "context": {
+    "schema_version": 1,
+    "selected_project_id": "proj.pose-dist",
+    "selected_revision": "ce83fbd6979ea75111aa8004fa150e2c8b7aa62e",
+    "task_ref": "xref:proj.pose-dist/spec:pose-spec-facts-evidence-binding",
+    "authority": {
+      "project_id": "proj.pose-dist",
+      "kind": "spec",
+      "slug": "pose-spec-facts-evidence-binding"
+    },
+    "coordinator_relation": "same-project-authority",
+    "task_resolution": {
+      "schema_version": 1,
+      "identity": {
+        "project_id": "proj.pose-dist",
+        "kind": "spec",
+        "slug": "pose-spec-facts-evidence-binding"
+      },
+      "resolved": true,
+      "resolution_state": "resolved",
+      "status": "in-progress",
+      "source_revision": "ce83fbd6979ea75111aa8004fa150e2c8b7aa62e",
+      "source_digest": "e63087a69751a5ecbf0a9cc5bf829fc3a9d3b49e193bbb1d42fa299eb36f970f",
+      "dependencies": [
+        {
+          "project_id": "proj.pose-dist",
+          "kind": "spec",
+          "slug": "pose-progressive-spec-surface"
+        }
+      ]
+    },
+    "authority_revision": "ce83fbd6979ea75111aa8004fa150e2c8b7aa62e",
+    "supported_contracts": [
+      "qualified-artifact-refs@1",
+      "spec-authority-transfer@1",
+      "federated-roadmap-acceptance@1"
+    ],
+    "context_revision": "7e0524fa492602ce370f8f53b72d0ec01f418ab7704bdf64e354eba3e09d1516"
+  },
+  "prepared_bundle": {
+    "state": "prepared",
+    "bundle_id": "rvb-3f6c2107c1c1b3c0",
+    "bundle_digest": "sha256:3f6c2107c1c1b3c029286f661e0d84d6e29d6be4df844b5d8abbb1ac2cc50900",
+    "subject": {
+      "head": "ce83fbd6979ea75111aa8004fa150e2c8b7aa62e",
+      "base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+      "implementation_digest": "sha256:05c685b3ec009bc9489b56c79a380e086e8e263efff9c2db23e2eb6e430d012c",
+      "patch_digest": "sha256:d8904ccd893a96ec104bd4378d5d81efeceb017a1c4a30991f04ef4b3b7dd211",
+      "tree_digest": "sha256:b3bc068bf027f34b0e31d0d6a1b3ba2a1da4c64ae89685754e41df8adcb20758"
+    },
+    "plan": {
+      "plan_digest": "sha256:b06d9b4f6e01080b02894d037858857f6174aeda5ab97e441c88e5fdb7f5cb56",
+      "independence": "different-actor",
+      "components": [
+        {
+          "id": "pose-mcp",
+          "path": "pose-mcp",
+          "kind": "package",
+          "language": "go",
+          "domain": "go",
+          "criticality": "high",
+          "validation_profile": "baseline",
+          "metadata_status": "partial",
+          "metadata_missing": [
+            "owner"
+          ],
+          "origin": "declared+observed",
+          "sources": [
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/artifact_integrity.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/spec_facts_binding_test.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/specs_cmd.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/surface_check.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/validate_results.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/delivery_validation_run.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts_binding_test.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts_review_regression_test.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_trailers.go",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/scaffold/dist/POSE.md",
+            "artifact:pose-spec-facts-evidence-binding:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+            "delivery:capability:spec-facts-evidence-binding:pose-mcp",
+            "delivery:capability:spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/artifact_integrity.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/spec_facts_binding_test.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/specs_cmd.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/surface_check.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/cli/validate_results.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/delivery_validation_run.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts_binding_test.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_facts_review_regression_test.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/pose/spec_trailers.go",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/scaffold/dist/POSE.md",
+            "observed:pose-spec-facts-evidence-binding:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+            "spec:pose-spec-facts-evidence-binding:component:pose-mcp"
+          ]
+        }
+      ],
+      "criteria": [
+        {
+          "id": "assumption-integrity",
+          "description": "Identify material assumptions and their applicable evidence; distinguish verified facts, unresolved assumptions and accepted risks.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "engineering-judgment@1",
+            "high-criticality-review@1"
+          ]
+        },
+        {
+          "id": "backend-concurrency",
+          "description": "Concurrent access, cancellation and lifecycle behavior are safe where applicable.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-contracts",
+          "description": "Public API, event, file and tool contracts remain compatible or explicitly migrated.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-input-errors",
+          "description": "Inputs, validation failures and error paths are bounded, typed and actionable.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-integration-impact",
+          "description": "Providers, consumers and inter-component boundaries remain integrated.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-observability",
+          "description": "Failures are diagnosable through bounded, non-sensitive logs, metrics or returned context.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "compatibility",
+          "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "correctness",
+          "description": "Functional and negative behavior is correct.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "design-causality",
+          "description": "Explain how the selected design addresses the stated requirement and material cause, citing the relevant decision basis and structural observations where available.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "engineering-judgment@1",
+            "high-criticality-review@1"
+          ]
+        },
+        {
+          "id": "documentation",
+          "description": "Operational docs, templates and scaffold match runtime behavior.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "operability",
+          "description": "Errors, explanations and remediation are actionable.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "requirements",
+          "description": "Every requirement has current, relevant evidence.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "scope",
+          "description": "The implementation matches the approved spec scope.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "security",
+          "description": "Inputs, paths, evidence and authority boundaries are safe.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "security"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "solution-proportionality",
+          "description": "Compare the solution with the smallest sufficient alternative, including negative space, speculative extensibility and the condition that would invalidate the choice.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "engineering-judgment@1",
+            "high-criticality-review@1"
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "id": "artifact-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "artifact-check",
+            "--spec",
+            "pose-spec-facts-evidence-binding",
+            "--strict"
+          ],
+          "rationale": "reconcile declared artifacts with Git-observed provenance",
+          "criteria": [
+            "requirements",
+            "scope"
+          ],
+          "preconditions": [
+            "artifacts-attributed"
+          ]
+        },
+        {
+          "id": "assess-design",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "design",
+            "--spec",
+            "pose-spec-facts-evidence-binding",
+            "--json"
+          ],
+          "rationale": "observe bounded structural deltas on the canonical review subject",
+          "evidence_classes": [
+            "structure"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "pose-mcp"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-integrate",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "integrate"
+          ],
+          "rationale": "inspect providers, consumers and inter-component contract gaps",
+          "evidence_classes": [
+            "integration"
+          ],
+          "criteria": [
+            "backend-contracts",
+            "backend-integration-impact"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-tech-debt",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "tech-debt"
+          ],
+          "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+          "criteria": [
+            "correctness"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "closeout-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "closeout-check",
+            "spec:pose-spec-facts-evidence-binding"
+          ],
+          "rationale": "verify remaining hierarchical closeout blockers",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "review-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "review-check",
+            "spec:pose-spec-facts-evidence-binding"
+          ],
+          "rationale": "verify exact review-plan coverage and freshness",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "pose-mcp"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "surface-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "surface-check",
+            "--spec",
+            "pose-spec-facts-evidence-binding",
+            "--strict"
+          ],
+          "rationale": "verify delivery composition, reachability and fresh evidence",
+          "evidence_classes": [
+            "integration",
+            "reachability"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "criteria": [
+            "backend-concurrency",
+            "backend-input-errors",
+            "backend-observability",
+            "correctness",
+            "requirements"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "component": "pose-mcp",
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        }
+      ],
+      "selected_profiles": [
+        {
+          "ref": "spec-closeout@1",
+          "category": "base",
+          "order": 0,
+          "source": ".pose/review-profiles/spec-closeout.json",
+          "rationale": "selected by terminal scope policy"
+        },
+        {
+          "ref": "backend-review@1",
+          "category": "language",
+          "order": 1,
+          "source": ".pose/review-profiles/backend-review.json",
+          "components": [
+            "pose-mcp"
+          ],
+          "rationale": "matched typed language selector"
+        },
+        {
+          "ref": "engineering-judgment@1",
+          "category": "delivery",
+          "order": 4,
+          "source": ".pose/review-profiles/engineering-judgment.json",
+          "components": [
+            "pose-mcp"
+          ],
+          "rationale": "matched typed delivery selector"
+        },
+        {
+          "ref": "high-criticality-review@1",
+          "category": "delivery",
+          "order": 4,
+          "source": ".pose/review-profiles/high-criticality-review.json",
+          "components": [
+            "pose-mcp"
+          ],
+          "rationale": "matched typed delivery selector"
+        }
+      ],
+      "structure": {
+        "observed": true,
+        "status": "observed",
+        "input_digest": "sha256:740e8f7c9989447d13700a6ea4a19803958a9013b88ece7c81d6215eee81992d",
+        "subject_digest": "sha256:05c685b3ec009bc9489b56c79a380e086e8e263efff9c2db23e2eb6e430d012c"
+      },
+      "band": "critical"
+    },
+    "warnings": [
+      "change set cs-bac684c15f01 attributes 9 commit(s) but its range spans 29; 20 commit(s) in base..head belong to other work; they carry trailers of pose-source-coverage-integrity; 3 carry no POSE-Spec trailer, so the range is provenance and the attributed paths are the subject",
+      "metadata-incomplete review component pose-mcp missing:owner",
+      "unmapped review component path:.pose/changelogs/unreleased/pose-spec-facts-evidence-binding.md",
+      "unmapped review component path:.pose/indexes/validation-matrix.json",
+      "unmapped review component path:.pose/reports/2026-10-18-pose-b30-independent-review.md",
+      "unmapped review component path:.pose/reports/2026-10-18-pose-b30r2-independent-review.md",
+      "unmapped review component path:.pose/reports/2026-10-18-pose-b30r3-independent-review.md",
+      "unmapped review component path:.pose/results/b30-independent-global-validation.json",
+      "unmapped review component path:.pose/results/b30-independent-review.json",
+      "unmapped review component path:.pose/results/b30-mutations.json",
+      "unmapped review component path:.pose/results/b30-mutations.py",
+      "unmapped review component path:.pose/results/b30r2-independent-review.json",
+      "unmapped review component path:.pose/results/b30r3-independent-review.json",
+      "unmapped review component path:.pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md",
+      "unmapped review component path:.pose/starts/pose-spec-facts-evidence-binding.json",
+      "unmapped review component path:POSE.md",
+      "unmapped review component path:locales/pt-BR/POSE.md"
+    ]
+  },
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Literal Git paths receive module alias/whitespace normalization and associate unrelated modules",
+      "requirements": [
+        "R1",
+        "R2",
+        "R7"
+      ],
+      "probes": "TestB30R4ProbePathIdentity|TestB30R4ProbeRealGitPaths"
+    },
+    {
+      "id": "F02",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Incomplete change-set fields/path shapes count as resolved, including an empty commit or empty path",
+      "requirements": [
+        "R1",
+        "R2",
+        "R7"
+      ],
+      "probes": "TestB30R4ProbeIncompleteSet|TestB30R4ProbeRecordedConsumer"
+    },
+    {
+      "id": "F03",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Unescaped, unvalidated ObservedPath.Action injects a human facts.check line when JSON checks is empty",
+      "requirements": [
+        "R5",
+        "R6",
+        "R7"
+      ],
+      "probes": "TestB30R4ProbeActionInjection"
+    },
+    {
+      "id": "F04",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Removed attributed commits and added/changed/lost report-history inputs do not lower freshness",
+      "requirements": [
+        "R2",
+        "R3",
+        "R7"
+      ],
+      "probes": "TestB30R4ProbeHistoryLoss|TestB30R4ProbeRecordedInput|TestB30R4ProbeRecordedConsumer"
+    },
+    {
+      "id": "F05",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Facts read from generation A are labelled fresh with generation B identity; B demotes that check",
+      "requirements": [
+        "R1",
+        "R3",
+        "R7"
+      ],
+      "probes": "TestB30R4ProbeGenerationIdentity"
+    },
+    {
+      "id": "L01",
+      "severity": "low",
+      "classification": "acceptable-follow-up-conservative-variant-only",
+      "summary": "Unresolved component ID conservatively remains candidate",
+      "ownership": "owner:@core crit:low review:2026-12-01",
+      "spec_written": false
+    },
+    {
+      "id": "L02",
+      "severity": "low",
+      "classification": "acceptable-follow-up-conservative-variant-only",
+      "summary": "Absent/corrupt index fails instead of projecting structured unavailable",
+      "ownership": "owner:@core crit:low review:2026-12-01",
+      "spec_written": false
+    },
+    {
+      "id": "L03",
+      "severity": "low",
+      "classification": "acceptable-follow-up-conservative-variant-only",
+      "summary": "Generic unknown explanation misstates publication absence",
+      "ownership": "owner:@core crit:low review:2026-12-01",
+      "spec_written": false
+    },
+    {
+      "id": "L04",
+      "severity": "low",
+      "classification": "acceptable-follow-up-conservative-variant-only",
+      "summary": "Partial presentation sort tie-break preserves all results but depends on input order",
+      "ownership": "owner:@core crit:low review:2026-12-01",
+      "spec_written": false
+    },
+    {
+      "id": "L05",
+      "severity": "low",
+      "classification": "acceptable-follow-up-conservative-variant-only",
+      "summary": "Unbounded local trailer-log memory/latency; no stress benchmark",
+      "ownership": "owner:@core crit:low review:2026-12-01",
+      "spec_written": false
+    },
+    {
+      "id": "L06",
+      "severity": "low",
+      "classification": "acceptable-follow-up-conservative-variant-only",
+      "summary": "Empty validation-run header identity disappears without producing any associated check",
+      "ownership": "owner:@core crit:low review:2026-12-01",
+      "spec_written": false
+    }
+  ],
+  "checks": [
+    {
+      "name": "check",
+      "args": [
+        "check",
+        "--strict",
+        "--json"
+      ],
+      "exit": 0,
+      "seconds": 166.4522602558136,
+      "result": {
+        "schema_version": 1,
+        "command": "check",
+        "outcome": "pass",
+        "verdict": "SUCCESS — (strict mode) with 29 warning(s).",
+        "findings": [
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-agy-smoke-test"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-canonical-positioning"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-community-contribution-surfaces"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-docs-canonical-route"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-first-governed-loop-quickstart"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-launch-proof-demo"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-public-claims-contract"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-readme-evaluation-path"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-release-recovery-verification"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-release-security-gate-integrity"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-sdd-migration-acquisition"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-code-cites-the-specs-that-delivered-it"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-abm-authority-fixture-clock"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-abm-design-basis"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-abm-governance-outcomes"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-abm-remediation-lineage"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-abm-review-authority"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-abm-review-tool-deferred-without-delivery"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-abm-structural-delta"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-abm-subject-evidence"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-check-qualified-roadmap-members"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-dist-adopts-spec-authority-transfer"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-federated-external-milestone-members"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-review-bundle-classifies-transfer-records"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-spec-transfer-completion-and-references"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-abm-capability-adoption"
+          },
+          {
+            "severity": "warning",
+            "message": "changelog: done spec without a changelog fragment: pose-open-backlog-reconciliation"
+          },
+          {
+            "severity": "warning",
+            "message": "capabilities: assessment is 62 days old (policy: 30); consider reassessing"
+          },
+          {
+            "severity": "warning",
+            "message": "capabilities: baseline_commit is 1544 commits behind HEAD (policy: 200); consider reassessing"
+          }
+        ],
+        "counts": {
+          "errors": 0,
+          "warnings": 29
+        }
+      }
+    },
+    {
+      "name": "lint",
+      "args": [
+        "lint-spec",
+        "pose-spec-facts-evidence-binding",
+        "--strict",
+        "--json"
+      ],
+      "exit": 0,
+      "seconds": 0.1183004379272461,
+      "result": {
+        "schema_version": 1,
+        "command": "lint-spec",
+        "outcome": "pass",
+        "verdict": "SUCCESS",
+        "findings": [
+          {
+            "severity": "warning",
+            "code": "section",
+            "path": "pose-spec-facts-evidence-binding",
+            "message": "optional section missing: Tasks"
+          }
+        ],
+        "fields": {
+          "mode": "strict",
+          "spec.amendments.events": "0",
+          "spec.amendments.failures": "0",
+          "spec.followups.open": "2",
+          "spec.followups.total": "2",
+          "spec.lifecycle.failures": "0",
+          "spec.path": "/home/go/.cache/pose-work/b30/pose-dist/.pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md",
+          "spec.required.missing": "0",
+          "spec.requirements.duplicate_failures": "0",
+          "spec.requirements.ids": "8",
+          "spec.sections.empty": "0",
+          "spec.sections.filled": "6",
+          "spec.sections.skeleton": "0",
+          "spec.sections.total": "6",
+          "spec.status": "in-progress",
+          "spec.trace.entries": "8",
+          "spec.trace.failures": "0",
+          "spec.trace.missing": "0",
+          "spec.trace.present": "true"
+        },
+        "counts": {
+          "specs_checked": 1,
+          "specs_failed": 0
+        }
+      }
+    },
+    {
+      "name": "artifact",
+      "args": [
+        "artifact-check",
+        "--spec",
+        "pose-spec-facts-evidence-binding",
+        "--strict",
+        "--json"
+      ],
+      "exit": 0,
+      "seconds": 59.71605587005615,
+      "result": {
+        "scope_claims": 27,
+        "scope_change_sets": [
+          {
+            "id": "cs-bac684c15f01",
+            "commits": [
+              "55ea138d96dd34d002588b26b88949ea2e8215d9",
+              "03983a36a29fbea25db1215615fab9455de5df83",
+              "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3",
+              "1e026083d41312719ededd8138f9102136360a5d",
+              "a42ce4623bbbd5c9e256c10ee0c77697750bb4ce",
+              "ee5db9896dca397ebc83325910fd2fed54d06d25",
+              "0234a60cfda92cd8599622fc5ba439d3d4a77d1d",
+              "de5144caef04ae47b294288bac92a0b497f95ad6",
+              "ce83fbd6979ea75111aa8004fa150e2c8b7aa62e"
+            ],
+            "paths": 34
+          }
+        ],
+        "findings_by_severity": {
+          "warning": 644
+        },
+        "scope_findings": []
+      }
+    },
+    {
+      "name": "discover",
+      "args": [
+        "assess",
+        "discover",
+        "--if-stale",
+        "--component",
+        "pose-mcp",
+        "--json"
+      ],
+      "exit": 0,
+      "seconds": 0.6009550094604492,
+      "result": [
+        {
+          "schema_version": 1,
+          "component_slug": "pose-mcp",
+          "path": "pose-mcp",
+          "discovered_at": "2026-10-18T17:08:44Z",
+          "baseline_commit": "ce83fbd6979e",
+          "metrics": {
+            "loc_production": 74939,
+            "loc_tests": 63086,
+            "total_files": 584,
+            "languages": [
+              "go"
+            ]
+          },
+          "technical_debt": {
+            "todos": 1,
+            "fixmes": 0,
+            "panics": 0,
+            "stubs": 0
+          },
+          "metadata": {
+            "criticality": "high",
+            "domain": "go",
+            "validationProfile": "baseline"
+          },
+          "status": "verified",
+          "completeness_score": 0.995,
+          "binding": {
+            "content_tree": "773efa500da5578df5ecc7adf6aeb09828903be8",
+            "engine_version": "7.4.1-dev",
+            "matrix_digest": "sha256:285d400977ad9219a826275e8d0b407c7f083f0607168149c647759bf03f0d7b"
+          },
+          "scan_complete": true,
+          "coverage": {
+            "losses": [],
+            "exclusions": [
+              {
+                "producer": "component-discovery",
+                "pattern": "generated-or-binary",
+                "reason": "generated and binary files are not scanned",
+                "count": 1,
+                "examples": [
+                  "pose-mcp/internal/pose/assessment_scan.go"
+                ]
+              },
+              {
+                "producer": "component-discovery",
+                "pattern": "skipped-directory",
+                "reason": "directories that hold dependencies, build output or tool state are not scanned",
+                "count": 2,
+                "examples": [
+                  ".pose",
+                  "dist"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "integrate",
+      "args": [
+        "assess",
+        "integrate",
+        "--json"
+      ],
+      "exit": 0,
+      "seconds": 0.43318915367126465,
+      "result": {
+        "schema_version": 1,
+        "baseline_commit": "ce83fbd6979e",
+        "summary": {
+          "total_integrations": 64,
+          "active_contracts": 1,
+          "identified_gaps": 63
+        }
+      }
+    },
+    {
+      "name": "debt",
+      "args": [
+        "assess",
+        "tech-debt",
+        "--json"
+      ],
+      "exit": 0,
+      "seconds": 0.5699367523193359,
+      "result": {
+        "schema_version": 1,
+        "evaluated_at": "2026-10-18T17:08:45Z",
+        "baseline_commit": "ce83fbd6979e",
+        "summary": {
+          "total_markers": 1,
+          "todos": 1,
+          "fixmes": 0,
+          "panics": 0,
+          "stubs": 0,
+          "covered_count": 1,
+          "uncovered_count": 0,
+          "recommended_followups": 0,
+          "recommended_specs": 0,
+          "recommended_roadmaps": 0
+        },
+        "items": [
+          {
+            "id": "DEBT-8dcc4523",
+            "marker": "TODO",
+            "file": "pose-mcp/internal/pose/techdebt.go",
+            "line": 329,
+            "snippet": "// ignored, so a TODO after a 70 000-character line was lost without a word.",
+            "component": "pose-mcp",
+            "coverage": "covered_by_spec",
+            "coverage_ref": "spec:pose-residual-material-coverage-and-identity",
+            "recommendation": "none",
+            "link": "file:///home/go/.cache/pose-work/b30/pose-dist/pose-mcp/internal/pose/techdebt.go#L329"
+          }
+        ],
+        "scanned_files": 266,
+        "complete": false,
+        "coverage": {
+          "losses": [
+            {
+              "producer": "techdebt-reconciliation",
+              "artifact": ".pose/specs/2026-08-15-pose-instance-engine-version-tracking.md",
+              "kind": "invalid",
+              "detail": "a follow-up bullet has no description"
+            },
+            {
+              "producer": "techdebt-reconciliation",
+              "artifact": ".pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md",
+              "kind": "invalid",
+              "detail": "a follow-up bullet has no description"
+            }
+          ],
+          "exclusions": [
+            {
+              "producer": "assessment-scan",
+              "pattern": "generated-header",
+              "reason": "files that declare themselves generated are not scanned",
+              "count": 1,
+              "examples": [
+                "pose-mcp/internal/pose/assessment_scan.go"
+              ]
+            },
+            {
+              "producer": "assessment-scan",
+              "pattern": "skipped-directory",
+              "reason": "directories that hold dependencies, build output or tool state are not scanned",
+              "count": 36,
+              "examples": [
+                ".agents",
+                ".claude",
+                ".docs-site-build"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "suggest",
+      "args": [
+        "suggest",
+        "review",
+        "--path",
+        "pose-mcp",
+        "--json"
+      ],
+      "exit": 0,
+      "seconds": 0.008678436279296875,
+      "result": {
+        "description": "Avaliação técnica de PR/diff: escopo, contratos, segurança, validação.",
+        "domain_effective": "go",
+        "domain_source": "repo-map",
+        "knowledge_consume": true,
+        "knowledge_produce": "handoff (quando aceitar risco residual ou condicionar merge)",
+        "name": "review",
+        "path_input": "pose-mcp",
+        "requires_adr": false,
+        "requires_spec": false,
+        "rules": [
+          "security",
+          "documentation-style"
+        ],
+        "rules_by_domain": {
+          "backend-go": [
+            "backend-go"
+          ],
+          "frontend": [
+            "frontend-react"
+          ],
+          "k8s": [
+            "kubernetes"
+          ]
+        },
+        "rules_effective": [
+          "security",
+          "documentation-style"
+        ],
+        "skill": "pose-review",
+        "validation": "exigir evidência de pose validate do implementador",
+        "workflow": ".pose/workflows/review.md"
+      }
+    },
+    {
+      "name": "design",
+      "args": [
+        "assess",
+        "design",
+        "--spec",
+        "pose-spec-facts-evidence-binding",
+        "--json"
+      ],
+      "exit": 0,
+      "seconds": 0.2954885959625244,
+      "result": {
+        "schema_version": 1,
+        "parser_version": "pose-design-delta/v2",
+        "scope": "spec:pose-spec-facts-evidence-binding",
+        "status": "observed",
+        "input_digest": "sha256:740e8f7c9989447d13700a6ea4a19803958a9013b88ece7c81d6215eee81992d",
+        "cache_key": "sha256:740e8f7c9989447d13700a6ea4a19803958a9013b88ece7c81d6215eee81992d",
+        "subject": {
+          "base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+          "head": "ce83fbd6979ea75111aa8004fa150e2c8b7aa62e",
+          "patch_digest": "sha256:d8904ccd893a96ec104bd4378d5d81efeceb017a1c4a30991f04ef4b3b7dd211",
+          "tree_digest": "sha256:b3bc068bf027f34b0e31d0d6a1b3ba2a1da4c64ae89685754e41df8adcb20758",
+          "implementation_digest": "sha256:05c685b3ec009bc9489b56c79a380e086e8e263efff9c2db23e2eb6e430d012c",
+          "entries": 17
+        },
+        "coverage": {
+          "files_in_subject": 17,
+          "files_observed": 17,
+          "bytes_read": 1257558,
+          "max_files": 4096,
+          "max_bytes": 16777216,
+          "detectors": [
+            {
+              "id": "dependency-go",
+              "state": "not-applicable"
+            },
+            {
+              "id": "dependency-npm",
+              "state": "not-applicable"
+            },
+            {
+              "id": "component",
+              "state": "not-applicable"
+            },
+            {
+              "id": "delivery-metadata",
+              "state": "observed",
+              "observed": 1
+            },
+            {
+              "id": "governance-contract",
+              "state": "not-applicable"
+            },
+            {
+              "id": "public-contract",
+              "state": "not-applicable"
+            },
+            {
+              "id": "git-actions",
+              "state": "observed",
+              "observed": 17
+            }
+          ]
+        },
+        "deltas": [
+          {
+            "id": "sd-8c7ffff3bccad4f66ba5a894dcc98ca6",
+            "display_id": "SD-8c7ffff3",
+            "kind": "validation-check",
+            "action": "added",
+            "state": "observed",
+            "subject": "moduleOverrides.pose-mcp:spec-facts-evidence-binding-integration",
+            "path": ".pose/indexes/validation-matrix.json"
+          }
+        ]
+      }
+    },
+    {
+      "name": "recurrence",
+      "args": [
+        "recurrence-check",
+        "--tolerant",
+        "--window-days",
+        "14",
+        "--json"
+      ],
+      "exit": 0,
+      "seconds": 0.009742259979248047,
+      "result": {
+        "schema_version": 1,
+        "command": "recurrence-check",
+        "outcome": "pass",
+        "verdict": "SUCCESS — no recurrent failure",
+        "findings": [],
+        "fields": {
+          "recurrence.flagged_keys": "0",
+          "recurrence.flapping_keys": "0",
+          "recurrence.records_scanned": "393",
+          "recurrence.resolved_clusters": "0",
+          "recurrence.threshold": "3",
+          "recurrence.window_days": "14"
+        }
+      }
+    },
+    {
+      "name": "followups",
+      "args": [
+        "followups",
+        "--all",
+        "--json"
+      ],
+      "exit": 0,
+      "seconds": 6.386293888092041,
+      "result": {
+        "coverage": {
+          "losses": [
+            {
+              "producer": "followups",
+              "artifact": ".pose/specs/2026-08-15-pose-instance-engine-version-tracking.md",
+              "scope": "pose-instance-engine-version-tracking",
+              "attributed_by": "path",
+              "kind": "invalid",
+              "detail": "a follow-up bullet has no description"
+            },
+            {
+              "producer": "followups",
+              "artifact": ".pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md",
+              "scope": "pose-knowledge-durable-reference-type",
+              "attributed_by": "path",
+              "kind": "invalid",
+              "detail": "a follow-up bullet has no description"
+            }
+          ]
+        },
+        "summary": {
+          "coverage_complete": false,
+          "items": 315,
+          "near_duplicate_candidates": 7,
+          "open": 112,
+          "overdue": 16,
+          "similarity_threshold": 60,
+          "specs": 213,
+          "total": 315,
+          "unowned": 42
+        }
+      }
+    },
+    {
+      "name": "surface-initial",
+      "command": "pose surface-check --spec pose-spec-facts-evidence-binding --strict --json",
+      "exit": 1,
+      "results": 139,
+      "findings": [
+        {
+          "id": "dif-626a77c4b1d7",
+          "code": "unconsumed-capability",
+          "severity": "error",
+          "spec": "pose-spec-facts-evidence-binding",
+          "path": "capability:spec-facts-evidence-binding",
+          "message": "required current evidence is missing: integration",
+          "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+        },
+        {
+          "id": "dif-e90c602309d3",
+          "code": "stale-evidence",
+          "severity": "error",
+          "spec": "pose-spec-facts-evidence-binding",
+          "path": "capability:spec-facts-evidence-binding",
+          "change_set": "pose-mcp/go/abm-atomic-start-integration",
+          "message": "passed integration evidence is bound to a different scoped provenance digest",
+          "remediation": "rerun the registered validation check for this delivery scope"
+        }
+      ]
+    },
+    {
+      "name": "surface-current",
+      "command": "pose surface-check --spec pose-spec-facts-evidence-binding --results .pose/results/b30r4-independent-global-validation.json --strict --json",
+      "exit": 0,
+      "results": 140,
+      "findings": []
+    },
+    {
+      "name": "global-validation",
+      "command": "/tmp/b30r4-pose validate --strict --json-out .pose/results/b30r4-independent-global-validation.json",
+      "exit": 0,
+      "seconds": 210.7,
+      "counts": {
+        "executed": 140,
+        "passed": 140,
+        "failed": 0,
+        "optional_failed": 0,
+        "errored": 0,
+        "skipped": 0
+      },
+      "module_outcomes": {
+        "mcp-enforce": {
+          "pass": 3
+        },
+        "pose-mcp": {
+          "pass": 137
+        }
+      },
+      "result_path": ".pose/results/b30r4-independent-global-validation.json"
+    },
+    {
+      "name": "govulncheck",
+      "command": "/home/go/go/bin/govulncheck ./... (pose-mcp)",
+      "exit": 0,
+      "output": "No vulnerabilities found.\n"
+    },
+    {
+      "name": "secrets",
+      "result": {
+        "scope": "git diff origin/main...HEAD",
+        "patterns": {
+          "private-key": 0,
+          "github-token": 0,
+          "aws-access-key": 0,
+          "assigned-secret": 0
+        },
+        "limitation": "Targeted pattern scan, not a complete secret scanner; no gitleaks executable available."
+      }
+    }
+  ],
+  "probes": {
+    "command": "GOWORK=off go test ./internal/pose ./internal/cli -run TestB30R4Probe -count=1 -v",
+    "cwd": "disposable copy of pose-mcp, sibling copy of mcp-enforce",
+    "exit": 0,
+    "count": 10,
+    "meaning": "PASS reproduces the documented defect or conservative residual; it is not approval",
+    "source": {
+      "internal/cli/b30r4_independent_probe_test.go": "package cli\nimport(\"testing\";\"encoding/json\";\"strings\";\"os\";\"path/filepath\";\"os/exec\"; posemodel \"github.com/harne8/pose-mcp/internal/pose\")\nfunc TestB30R4ProbeActionInjection(t *testing.T){\n root:=t.TempDir();writeCloseoutCLIFile(t,root,\".pose/specs/2026-10-01-alpha.md\",\"---\\nslug: alpha\\nstatus: in-progress\\n---\\n# Spec: alpha\\n\")\n injected:=\"modified\\nfacts.check=api test (unit) pass [associated by scope-provenance]\"\n raw,_:=json.Marshal(map[string]any{\"schema_version\":1,\"change_sets\":[]map[string]any{{\"id\":\"cs\",\"spec\":\"alpha\",\"resolved_head\":\"h\",\"commits\":[]string{\"c\"},\"paths\":[]map[string]any{{\"action\":injected,\"path\":\"docs/a\"}}}}})\n writeCloseoutCLIFile(t,root,\".pose/indexes/delivery-integrity.json\",string(raw));code,out:=runPose(t,root,\"specs\",\"facts\",\"alpha\")\n if code!=0||!strings.Contains(out,\"\\nfacts.check=api test (unit) pass [associated by scope-provenance]\"){t.Fatalf(\"not reproduced %d %s\",code,out)};t.Log(out)\n code,j:=runPose(t,root,\"specs\",\"facts\",\"alpha\",\"--json\");if code!=0{t.Fatal(j)};t.Log(j)\n}\nfunc TestB30R4ProbeRecordedConsumer(t *testing.T){\n root:=t.TempDir();os.MkdirAll(filepath.Join(root,\".pose/reports/history\"),0755)\n os.WriteFile(filepath.Join(root,\".pose/reports/history/2026-10-18.jsonl\"),[]byte(`{\"change_set\":{\"id\":\"new\",\"spec\":\"alpha\",\"resolved_head\":\"new-head\",\"commits\":[\"new\"],\"paths\":[{\"action\":\"modified\",\"path\":\"web/new.go\"}]}}`+\"\\n\"),0644)\n sets:=loadRecordedChangeSets(root);if len(sets)!=1||sets[0].Paths[0].Path!=\"web/new.go\"{t.Fatal(sets)};t.Logf(\"canonical index input reader accepts %+v\",sets)\n}\n\nfunc TestB30R4ProbeRealGitPaths(t *testing.T){\n for _,literal:=range []string{\"root\",\" api/server.go\"}{\n root:=t.TempDir()\n git:=func(args ...string) string {t.Helper();cmd:=exec.Command(\"git\",append([]string{\"-C\",root,\"-c\",\"user.name=t\",\"-c\",\"user.email=t@t\",\"-c\",\"commit.gpgsign=false\"},args...)...);b,e:=cmd.CombinedOutput();if e!=nil{t.Fatal(e,string(b))};return strings.TrimSpace(string(b))}\n git(\"init\",\"-q\");git(\"commit\",\"-q\",\"--allow-empty\",\"-m\",\"base\");base:=git(\"rev-parse\",\"HEAD\")\n os.MkdirAll(filepath.Dir(filepath.Join(root,literal)),0755);os.WriteFile(filepath.Join(root,literal),[]byte(\"content\"),0644);git(\"add\",\"--\",literal);git(\"commit\",\"-q\",\"-m\",\"delta\")\n set,e:=resolveGitChangeSet(root,\"alpha\",base,\"HEAD\");if e!=nil||len(set.Paths)!=1||set.Paths[0].Path!=literal{t.Fatal(e,set)}\n g:=posemodel.DeliveryIntegrityGraph{SchemaVersion:1,ChangeSets:[]posemodel.ChangeSet{set}}\n module:=\"web\";if strings.Contains(literal,\" api/\"){module=\"api\"}\n g.ValidationResults=[]posemodel.DeliveryValidationResult{{ID:\"x\",Module:module,Check:\"test\",EvidenceClass:\"unit\",Outcome:\"pass\",GitHead:set.ResolvedHead,ScopeProvenance:map[string]string{\"alpha\":posemodel.ScopedDeliveryProvenanceDigest(g,\"alpha\")}}}\n raw,_:=json.Marshal(g);writeCloseoutCLIFile(t,root,\".pose/specs/2026-10-01-alpha.md\",\"---\\nslug: alpha\\nstatus: in-progress\\n---\\n# Spec: alpha\\n\");writeCloseoutCLIFile(t,root,\".pose/indexes/delivery-integrity.json\",string(raw))\n f,e:=(posemodel.Store{Root:root}).DeriveSpecFacts(\"alpha\");if e!=nil||len(f.Checks)!=1{t.Fatalf(\"not reproduced %+v %v\",f,e)};t.Logf(\"actual Git delta %q incorrectly associates %q\",set.Paths[0].Path,f.Checks[0].Module)\n }\n}\n",
+      "internal/pose/b30r4_independent_probe_test.go": "package pose\nimport(\"testing\";\"encoding/json\";\"os\";\"path/filepath\";\"strings\";\"reflect\")\nfunc TestB30R4ProbePathIdentity(t *testing.T){\n for _,p:=range []ObservedPath{{Action:\"modified\",Path:\"root\"},{Action:\"modified\",Path:\" api/server.go\"},{Action:\"renamed\",OldPath:\"root\",NewPath:\"docs/root\"},{Action:\"renamed\",OldPath:\"docs/a\",NewPath:\" api/server.go\"}}{\n module:=\"web\"; if strings.Contains(p.Path+p.NewPath,\" api/\"){module=\"api\"}\n sets:=[]ChangeSet{{ID:\"cs\",Spec:\"alpha\",ResolvedBase:\"b\",ResolvedHead:\"h\",Commits:[]string{\"c\"},DiffDigest:\"sha256:\"+strings.Repeat(\"a\",64),Paths:[]ObservedPath{p}}}\n f,e:=factsFixtureWith(t,\"\",[]DeliveryValidationResult{{ID:\"x\",Module:module,Check:\"test\",Outcome:\"pass\",ScopeProvenance:map[string]string{\"alpha\":\"@scoped\"}}},false,sets).DeriveSpecFacts(\"alpha\")\n if e!=nil||len(f.Checks)!=1{t.Fatalf(\"not reproduced %v %+v\",e,f)}\n t.Logf(\"unrelated module %q associated with literal Git path %+v: %+v\",module,p,f.Checks)\n }\n}\nfunc TestB30R4ProbeIncompleteSet(t *testing.T){\n for _,cs:=range []ChangeSet{\n {ID:\"cs\",Spec:\"alpha\",ResolvedHead:\"h\",Commits:[]string{\"c\"},Paths:[]ObservedPath{{Action:\"modified\",Path:\"api/a\"}}},\n {ID:\"cs\",Spec:\"alpha\",ResolvedHead:\"h\",ResolvedBase:\"b\",Commits:[]string{\"\"},Paths:[]ObservedPath{{Action:\"modified\",Path:\"api/a\"}}},\n {ID:\"cs\",Spec:\"alpha\",ResolvedHead:\"h\",Commits:[]string{\"c\"},Paths:[]ObservedPath{{Action:\"renamed\",OldPath:\"api/a\"}}},\n {ID:\"cs\",Spec:\"alpha\",ResolvedHead:\"h\",Commits:[]string{\"c\"},Paths:[]ObservedPath{{Action:\"modified\"}}},\n }{\n f,e:=factsFixtureWith(t,\"api\",[]DeliveryValidationResult{{ID:\"x\",Module:\"api\",Check:\"test\",Outcome:\"pass\",ScopeProvenance:map[string]string{\"alpha\":\"@scoped\"}}},false,[]ChangeSet{cs}).DeriveSpecFacts(\"alpha\")\n if e!=nil||len(f.Checks)!=1{t.Fatalf(\"not reproduced %v %+v\",e,f)};t.Logf(\"incomplete set %+v associated %+v\",cs,f.Checks)\n }\n}\nfunc TestB30R4ProbeHistoryLoss(t *testing.T){\n s,_:=factsWithResultsFile(t,[]DeliveryValidationResult{{ID:\"x\",Module:\"api\",Check:\"test\",EvidenceClass:\"unit\",Outcome:\"pass\"}})\n factsGit(t,s.Root,\"checkout\",\"-q\",\"-b\",\"side\")\n os.MkdirAll(filepath.Join(s.Root,\"api\"),0755);os.WriteFile(filepath.Join(s.Root,\"api/server.go\"),[]byte(\"package api\\n\"),0644)\n factsGit(t,s.Root,\"add\",\"api/server.go\");factsGit(t,s.Root,\"commit\",\"-q\",\"-m\",\"side\",\"-m\",\"POSE-Spec: alpha\")\n // Read the actual side commit from the canonical history reader.\n commits,e:=SpecTrailerCommits(s.Root,\"alpha\");if e!=nil||len(commits)!=1{t.Fatal(e,commits)}\n graph,_:=s.GetDeliveryIntegrity(\"\");graph.ChangeSets[0].Commits=commits;graph.ChangeSets[0].ResolvedHead=commits[0];graph.ChangeSets[0].Selector=\"trailers:alpha\"\n graph.ValidationResults[0].GitHead=commits[0];graph.ValidationResults[0].ScopeProvenance=map[string]string{\"alpha\":ScopedDeliveryProvenanceDigest(graph,\"alpha\")}\n r:=graph.ValidationResults[0]\n run:=map[string]any{\"schema_version\":1,\"git_head\":r.GitHead,\"generated_at\":r.GeneratedAt,\"provenance_digest\":r.ProvenanceDigest,\"scope_provenance\":r.ScopeProvenance,\"checks\":[]map[string]any{{\"id\":r.ID,\"module\":r.Module,\"name\":r.Check,\"severity\":r.Severity,\"outcome\":r.Outcome,\"evidence_class\":r.EvidenceClass}}}\n raw,_:=json.Marshal(run);os.WriteFile(filepath.Join(s.Root,factsResultsPath),raw,0644)\n raw,_=json.Marshal(graph);outs:=map[string][]byte{};for _,n:=range IndexGenerationFiles{outs[n]=[]byte(\"{}\\n\")};outs[\"delivery-integrity.json\"]=raw\n if _,e:=s.PublishIndexGeneration(outs,IndexInputBindings(s.Root));e!=nil{t.Fatal(e)}\n before,_:=s.DeriveSpecFacts(\"alpha\");if before.Freshness.Status!=SpecFactsFresh{t.Fatal(before.Freshness)}\n factsGit(t,s.Root,\"checkout\",\"-q\",\"-\");factsGit(t,s.Root,\"branch\",\"-D\",\"side\")\n after,e:=s.DeriveSpecFacts(\"alpha\");if e!=nil||after.Freshness.Status!=SpecFactsFresh||len(after.Checks)!=1{t.Fatalf(\"not reproduced %+v %v\",after,e)}\n current,_:=SpecTrailerCommits(s.Root,\"alpha\");if len(current)!=0{t.Fatal(current)}\n t.Logf(\"lost attributed commit; still freshness=%+v associated=%+v\",after.Freshness,after.Checks)\n}\nfunc TestB30R4ProbeRecordedInput(t *testing.T){\n s,_:=factsWithResultsFile(t,[]DeliveryValidationResult{{ID:\"x\",Module:\"api\",Check:\"test\",EvidenceClass:\"unit\",Outcome:\"pass\"}})\n b,_:=s.DeriveSpecFacts(\"alpha\");os.MkdirAll(filepath.Join(s.Root,\".pose/reports/history\"),0755)\n os.WriteFile(filepath.Join(s.Root,\".pose/reports/history/2026-10-18.jsonl\"),[]byte(`{\"change_set\":{\"id\":\"new\",\"spec\":\"alpha\",\"resolved_base\":\"new-base\",\"resolved_head\":\"new-head\",\"commits\":[\"new\"],\"paths\":[{\"action\":\"modified\",\"path\":\"web/new.go\"}],\"diff_digest\":\"sha256:new\"}}`+\"\\n\"),0644)\n a,e:=s.DeriveSpecFacts(\"alpha\");if e!=nil||a.Freshness.Status!=SpecFactsFresh||!reflect.DeepEqual(b,a){t.Fatalf(\"not reproduced %+v %v\",a,e)}\n t.Log(\"a consumed report-history input appeared; facts remain byte-equivalent and fresh\")\n}\nfunc TestB30R4ProbeConservativeOrdering(t *testing.T){\n a:=DeliveryValidationResult{ID:\"x\",Module:\"api\",Check:\"test\",EvidenceClass:\"unit\",Outcome:\"pass\",Severity:\"required\",Report:\"a\",ScopeProvenance:map[string]string{\"alpha\":\"@scoped\"}};b:=a;b.Report=\"b\"\n f,_:=factsFixture(t,\"api\",[]DeliveryValidationResult{a,b},false).DeriveSpecFacts(\"alpha\");g,_:=factsFixture(t,\"api\",[]DeliveryValidationResult{b,a},false).DeriveSpecFacts(\"alpha\")\n if len(f.Checks)!=2||len(g.Checks)!=2||reflect.DeepEqual(f.Checks,g.Checks){t.Fatal(\"not reproduced\")};t.Log(\"order differs but both distinct results remain, no selection\")\n}\nfunc TestB30R4ProbeGenerationIdentity(t *testing.T){\n s,_:=factsWithResultsFile(t,[]DeliveryValidationResult{{ID:\"x\",Module:\"api\",Check:\"test\",EvidenceClass:\"unit\",Outcome:\"pass\"}})\n pinned:=s.PinIndexes();old:=pinned.indexPin.Descriptor.GenerationID\n graph,e:=s.GetDeliveryIntegrity(\"\");if e!=nil{t.Fatal(e)};graph.ChangeSets[0].Paths=[]ObservedPath{{Action:\"modified\",Path:\"web/new.go\"}}\n outputs:=map[string][]byte{};for _,n:=range IndexGenerationFiles{outputs[n]=[]byte(\"{}\\n\")};outputs[\"delivery-integrity.json\"],_=json.Marshal(graph)\n receipt,e:=s.PublishIndexGeneration(outputs,IndexInputBindings(s.Root));if e!=nil{t.Fatal(e)};if old==receipt.GenerationID{t.Fatal(\"same generation\")}\n f,e:=pinned.DeriveSpecFacts(\"alpha\");if e!=nil||f.Freshness.Status!=SpecFactsFresh||f.Freshness.Generation!=receipt.GenerationID||len(f.Checks)!=1||f.Paths[0].Path!=\"api/server.go\"{t.Fatalf(\"not reproduced %+v %v\",f,e)}\n current,e:=s.DeriveSpecFacts(\"alpha\");if e!=nil||len(current.Checks)!=0{t.Fatalf(\"control %+v %v\",current,e)}\n t.Logf(\"facts from %s name %s as fresh; old api still associated; current generation demotes it\",old,f.Freshness.Generation)\n}\n\nfunc TestB30R4ProbeEmptyRunIdentity(t *testing.T){\n s,rewrite:=factsWithResultsFile(t,nil);before:=statusOf(t,s)\n rewrite(func(run map[string]any){run[\"git_head\"]=\"different\";run[\"generated_at\"]=\"2026-11-01T00:00:00Z\";run[\"scope_provenance\"]=map[string]string{\"other\":\"different\"}})\n f,e:=s.DeriveSpecFacts(\"alpha\");if e!=nil||before.Status!=SpecFactsFresh||f.Freshness.Status!=SpecFactsFresh||len(f.Checks)!=0{t.Fatalf(\"not reproduced %+v %v\",f,e)};t.Log(\"empty run identity changed; freshness unchanged, no associated evidence (conservative follow-up)\")\n}\n"
+    },
+    "output": "=== RUN   TestB30R4ProbePathIdentity\n    b30r4_independent_probe_test.go:9: unrelated module \"web\" associated with literal Git path {Action:modified Path:root OldPath: NewPath:}: [{ID:x Source: Severity: Module:web Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head ScopedDigest:sha256:5862472a749176f30604d78d3516f6bf6d25bb593e1b0682b0234d3e6b839096 ExpectedScopedDigest:sha256:5862472a749176f30604d78d3516f6bf6d25bb593e1b0682b0234d3e6b839096} Limits:[]}]\n    b30r4_independent_probe_test.go:9: unrelated module \"api\" associated with literal Git path {Action:modified Path: api/server.go OldPath: NewPath:}: [{ID:x Source: Severity: Module:api Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head ScopedDigest:sha256:29dae6c83de85fdf3f9c3196c3410058894ebdd04dfc227d103fedc5f7b908bc ExpectedScopedDigest:sha256:29dae6c83de85fdf3f9c3196c3410058894ebdd04dfc227d103fedc5f7b908bc} Limits:[the result's module contains the spec's components or paths without being one of them: coverage is inferred from the module's ancestry, not shown]}]\n    b30r4_independent_probe_test.go:9: unrelated module \"web\" associated with literal Git path {Action:renamed Path: OldPath:root NewPath:docs/root}: [{ID:x Source: Severity: Module:web Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head ScopedDigest:sha256:51bca1dcfbf92ab01b307102c2dd2a1ceed7bdfd6e5d3f6c660300c8e62678db ExpectedScopedDigest:sha256:51bca1dcfbf92ab01b307102c2dd2a1ceed7bdfd6e5d3f6c660300c8e62678db} Limits:[]}]\n    b30r4_independent_probe_test.go:9: unrelated module \"api\" associated with literal Git path {Action:renamed Path: OldPath:docs/a NewPath: api/server.go}: [{ID:x Source: Severity: Module:api Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head ScopedDigest:sha256:02f11134be61fc9bdcdae7b6ad9a3f6dde10f83b1a26946421ff57077845eb63 ExpectedScopedDigest:sha256:02f11134be61fc9bdcdae7b6ad9a3f6dde10f83b1a26946421ff57077845eb63} Limits:[the result's module contains the spec's components or paths without being one of them: coverage is inferred from the module's ancestry, not shown]}]\n--- PASS: TestB30R4ProbePathIdentity (0.00s)\n=== RUN   TestB30R4ProbeIncompleteSet\n    b30r4_independent_probe_test.go:20: incomplete set {ID:cs Spec:alpha Selector: Base: Head: ResolvedBase: ResolvedHead:h Commits:[c] Paths:[{Action:modified Path:api/a OldPath: NewPath:}] DiffDigest:} associated [{ID:x Source: Severity: Module:api Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head ScopedDigest:sha256:4de38429d0e05197b1a6b18a7b578521de527260e4633c6798a0525ad4fd0d93 ExpectedScopedDigest:sha256:4de38429d0e05197b1a6b18a7b578521de527260e4633c6798a0525ad4fd0d93} Limits:[]}]\n    b30r4_independent_probe_test.go:20: incomplete set {ID:cs Spec:alpha Selector: Base: Head: ResolvedBase:b ResolvedHead:h Commits:[] Paths:[{Action:modified Path:api/a OldPath: NewPath:}] DiffDigest:} associated [{ID:x Source: Severity: Module:api Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head ScopedDigest:sha256:04b7c73a74b1bc6247d8753b697d7cf6fdfb4ae150db316a5e0e9f953955f181 ExpectedScopedDigest:sha256:04b7c73a74b1bc6247d8753b697d7cf6fdfb4ae150db316a5e0e9f953955f181} Limits:[]}]\n    b30r4_independent_probe_test.go:20: incomplete set {ID:cs Spec:alpha Selector: Base: Head: ResolvedBase: ResolvedHead:h Commits:[c] Paths:[{Action:renamed Path: OldPath:api/a NewPath:}] DiffDigest:} associated [{ID:x Source: Severity: Module:api Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head ScopedDigest:sha256:658a95956d64c3f07cb5385a1467f0cc19106c01d036bbcbd0c75cd68c3da2dd ExpectedScopedDigest:sha256:658a95956d64c3f07cb5385a1467f0cc19106c01d036bbcbd0c75cd68c3da2dd} Limits:[]}]\n    b30r4_independent_probe_test.go:20: incomplete set {ID:cs Spec:alpha Selector: Base: Head: ResolvedBase: ResolvedHead:h Commits:[c] Paths:[{Action:modified Path: OldPath: NewPath:}] DiffDigest:} associated [{ID:x Source: Severity: Module:api Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head ScopedDigest:sha256:eed4102182db588d084cbfa6463ecdd4c212812d49cf15345068dbe1d0cc9934 ExpectedScopedDigest:sha256:eed4102182db588d084cbfa6463ecdd4c212812d49cf15345068dbe1d0cc9934} Limits:[]}]\n--- PASS: TestB30R4ProbeIncompleteSet (0.00s)\n=== RUN   TestB30R4ProbeHistoryLoss\n    b30r4_independent_probe_test.go:41: lost attributed commit; still freshness={Status:fresh Reason: Generation:gen-1a1abdd009fae33c StaleInputs:[] Unbound:[] Diverged:[]} associated=[{ID:x Source:.pose/results/delivery-validation.json Severity:required Module:api Check:test EvidenceClass:unit Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead:ae25dec3dd4c8a217783baf21ca4a9ccb1a0fcd8 ProvenanceDigest:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa GeneratedAt:2026-10-18T00:00:00Z Head:same-head ScopedDigest:sha256:9dcca0b9cac539824bb6a5fbfafde46ebfff372f812c3f66aaa3b3505e0a8fbb ExpectedScopedDigest:sha256:9dcca0b9cac539824bb6a5fbfafde46ebfff372f812c3f66aaa3b3505e0a8fbb} Limits:[]}]\n--- PASS: TestB30R4ProbeHistoryLoss (0.01s)\n=== RUN   TestB30R4ProbeRecordedInput\n    b30r4_independent_probe_test.go:48: a consumed report-history input appeared; facts remain byte-equivalent and fresh\n--- PASS: TestB30R4ProbeRecordedInput (0.01s)\n=== RUN   TestB30R4ProbeConservativeOrdering\n    b30r4_independent_probe_test.go:53: order differs but both distinct results remain, no selection\n--- PASS: TestB30R4ProbeConservativeOrdering (0.00s)\n=== RUN   TestB30R4ProbeGenerationIdentity\n    b30r4_independent_probe_test.go:63: facts from gen-93b17c606d1f177f name gen-e14e8ccc83ad6b33 as fresh; old api still associated; current generation demotes it\n--- PASS: TestB30R4ProbeGenerationIdentity (0.01s)\n=== RUN   TestB30R4ProbeEmptyRunIdentity\n    b30r4_independent_probe_test.go:69: empty run identity changed; freshness unchanged, no associated evidence (conservative follow-up)\n--- PASS: TestB30R4ProbeEmptyRunIdentity (0.01s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.043s\n=== RUN   TestB30R4ProbeActionInjection\n    b30r4_independent_probe_test.go:8: facts.source=.pose/indexes/delivery-integrity.json\n        facts.freshness=unknown — no generation descriptor: the indexes were not published as a set\n        facts.commits=1\n        facts.path=modified\n        facts.check=api test (unit) pass [associated by scope-provenance]: docs/a\n        facts.limitation=the Git history could not be read, so whether commits belong to this spec that the index does not hold is unknown\n        facts.limitation=the index was not published as a set, so its freshness is unknown: run `pose index`\n        facts.limitation=no indexed validation result is tied to this spec by scope provenance\n        \n    b30r4_independent_probe_test.go:9: {\n          \"spec\": \"alpha\",\n          \"commits\": 1,\n          \"paths\": [\n            {\n              \"action\": \"modified\\nfacts.check=api test (unit) pass [associated by scope-provenance]\",\n              \"path\": \"docs/a\"\n            }\n          ],\n          \"checks\": [],\n          \"candidates\": [],\n          \"freshness\": {\n            \"status\": \"unknown\",\n            \"reason\": \"no generation descriptor: the indexes were not published as a set\"\n          },\n          \"source\": \".pose/indexes/delivery-integrity.json\",\n          \"limitations\": [\n            \"the Git history could not be read, so whether commits belong to this spec that the index does not hold is unknown\",\n            \"the index was not published as a set, so its freshness is unknown: run `pose index`\",\n            \"no indexed validation result is tied to this spec by scope provenance\"\n          ]\n        }\n        \n--- PASS: TestB30R4ProbeActionInjection (0.00s)\n=== RUN   TestB30R4ProbeRecordedConsumer\n    b30r4_independent_probe_test.go:14: canonical index input reader accepts [{ID:new Spec:alpha Selector: Base: Head: ResolvedBase: ResolvedHead:new-head Commits:[new] Paths:[{Action:modified Path:web/new.go OldPath: NewPath:}] DiffDigest:}]\n--- PASS: TestB30R4ProbeRecordedConsumer (0.00s)\n=== RUN   TestB30R4ProbeRealGitPaths\n    b30r4_independent_probe_test.go:28: actual Git delta \"root\" incorrectly associates \"web\"\n    b30r4_independent_probe_test.go:28: actual Git delta \" api/server.go\" incorrectly associates \"api\"\n--- PASS: TestB30R4ProbeRealGitPaths (0.02s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.032s\n"
+  },
+  "completion_tools": {
+    "seal": "deferred-blockers",
+    "auto-attest": "deferred-blockers",
+    "attest": "deferred-blockers",
+    "verify": "deferred-blockers",
+    "review-check": "deferred-blockers",
+    "closeout-check": "deferred-blockers",
+    "close": "deferred-blockers"
+  },
+  "scope_of_writes": {
+    "implementation_changed": false,
+    "policy_changed": false,
+    "issuer_pin_added": false,
+    "spec_changed": false,
+    "committed": false,
+    "pushed": false,
+    "restoration": "Tracked derivatives under assessments/state/indexes restored from pre-command snapshot, including preexisting generation.json modification.",
+    "restored_paths": [
+      ".pose/assessments/README.md",
+      ".pose/assessments/consolidated.md",
+      ".pose/assessments/integrations.md",
+      ".pose/assessments/pose-mcp.md",
+      ".pose/assessments/technical-debt.md",
+      ".pose/indexes/delivery-integrity.json",
+      ".pose/indexes/generation.json",
+      ".pose/state/components/pose-mcp.json",
+      ".pose/state/integrations.json",
+      ".pose/state/technical-debt.json"
+    ],
+    "generation_snapshot_sha256": "67b0f9a67263b81b73d8f4bbf609d0dc2c63dc7f73172d2d6d3357190656a7fc"
+  }
+}

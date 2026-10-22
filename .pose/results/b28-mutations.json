@@ -1,0 +1,251 @@
+{
+  "mutations": [
+    {
+      "mutation": "workflow volta a pedir discovery incondicional",
+      "tests": "TestDistributedInstructionsAskForDiscoveryOnlyWhenStale",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "espelho embarcado volta a pedir discovery incondicional",
+      "tests": "TestDistributedInstructionsAskForDiscoveryOnlyWhenStale|TestAFreshInstallReceivesInstructions",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "espelho embarcado diverge da fonte",
+      "tests": "TestTheEmbeddedMirrorsOfTheWorkflowsAndRulesMatchTheSources",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "alias go não resolve",
+      "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "alias não é divulgado",
+      "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "domínio desconhecido não é reportado",
+      "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "todo backend vira Go",
+      "tests": "TestSuggestDoesNotTurnEveryBackendIntoGo",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "regra ausente é anunciada como instalada",
+      "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "regra de extensão não indica o comando",
+      "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "saída humana anuncia arquivo inexistente",
+      "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "migrate promete apply futuro",
+      "tests": "TestMigrateSaysThereIsNoApplyWithoutPromisingOne",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "migrate não diz que dry-run não escreve",
+      "tests": "TestMigrateSaysThereIsNoApplyWithoutPromisingOne",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "módulo raiz não se aplica",
+      "tests": "TestSuggestRootModuleIsTheFallback",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "caminho não normalizado",
+      "tests": "TestSuggestRootModuleIsTheFallback",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "kubernetes sem extensão conhecida",
+      "tests": "TestSuggestKubernetesRuleIsAnnounced",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "diretório é regra instalada",
+      "tests": "TestSuggestAnUnreadableRuleIsNot",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "go.mod diretório vale como módulo Go",
+      "tests": "TestSuggestAnUnreadableRuleIsNot",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "configuração malformada vira conjunto vazio",
+      "tests": "TestSuggestRefusesAMalformedRulesConfiguration",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "elemento que não é texto é descartado",
+      "tests": "TestSuggestRefusesAMalformedRulesConfiguration",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "rules_by_domain que não é objeto é aceito",
+      "tests": "TestSuggestRefusesAMalformedRulesConfiguration",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "identificador de regra não é validado",
+      "tests": "TestSuggestRefusesARuleIdentifierThatIsAPath",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "índice ilegível vira ausência de domínio",
+      "tests": "TestSuggestSaysWhyItHasNoDomainForAPath|TestSuggestDomainUsesMostSpecificModule",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "inventário ignora diretório ilegível",
+      "tests": "TestInventoryNeverSkipsWhatItCannotRead",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "task null é aceita",
+      "tests": "TestSuggestRefusesNullWhere",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "rules null é aceito",
+      "tests": "TestSuggestRefusesNullWhere",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "lista de domínio null é aceita",
+      "tests": "TestSuggestRefusesNullWhere",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "coleção que não é lista vira sem match",
+      "tests": "TestSuggestRefusesARepoMapWhoseShapeIsWrong",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "item que não é objeto é descartado",
+      "tests": "TestSuggestRefusesARepoMapWhoseShapeIsWrong",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "campo com tipo errado é ignorado",
+      "tests": "TestSuggestRefusesARepoMapWhoseShapeIsWrong",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "módulo sem path vira raiz",
+      "tests": "TestSuggestRefusesARepoMapWhoseShapeIsWrong",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "path absoluto ou externo é aceito",
+      "tests": "TestSuggestRefusesARepoMapWhoseShapeIsWrong",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "link quebrado para regra vira ausência",
+      "tests": "TestSuggestSaysWhenARuleOrTheRulesDirectory",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "diretório de regras quebrado vira ausência",
+      "tests": "TestSuggestSaysWhenARuleOrTheRulesDirectory",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "inventário instalado ignora o que não lê",
+      "tests": "TestTheInstalledInventoryNeverSkipsWhatItCannotRead",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "repo-map null é sem match",
+      "tests": "TestSuggestRefusesARepoMapThatIsNullOrRepeatsAKey",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "repo-map com chave repetida é lido",
+      "tests": "TestSuggestRefusesARepoMapThatIsNullOrRepeatsAKey",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "módulos conflitantes escolhem pela ordem",
+      "tests": "TestSuggestRefusesARepoMapThatIsNullOrRepeatsAKey",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "task-map com chave repetida é lido",
+      "tests": "TestSuggestRefusesATaskMapThatRepeatsAKey",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "espaços do caminho são aparados",
+      "tests": "TestSuggestComparesPathsAsWritten",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "campo derivado é sobrescrito pela task",
+      "tests": "TestSuggestDoesNotLetATaskOverwrite",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "workflow ou skill de outro tipo é aceito",
+      "tests": "TestSuggestDoesNotLetATaskOverwrite",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "referência inexistente é anunciada como disponível",
+      "tests": "TestSuggestDoesNotLetATaskOverwrite",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "referência ilegível é anunciada como disponível",
+      "tests": "TestSuggestSaysAReferenceThatCannotBeRead",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "chave que dobra para tasks escolhe pela ordem",
+      "tests": "TestSuggestRefusesKeysThatFoldToTheTasksField",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "go.mod apontando para fora vale",
+      "tests": "TestSuggestDoesNotFollowGoModOutOfTheProject",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "campo operacional de tipo impossível",
+      "tests": "TestSuggestRefusesOperationalFieldsOfAnImpossibleType",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "booleano onde só se admite texto",
+      "tests": "TestSuggestRefusesOperationalFieldsOfAnImpossibleType",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "suggest aceita grafia não canônica",
+      "tests": "TestSuggestAndTheCheckerRefuseANonCanonicalSpellingOfAnOperationalField",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "checker não aplica a mesma função de grafia",
+      "tests": "TestSuggestAndTheCheckerRefuseANonCanonicalSpellingOfAnOperationalField",
+      "verdict": "killed"
+    }
+  ],
+  "killed": 49,
+  "total": 49
+}
