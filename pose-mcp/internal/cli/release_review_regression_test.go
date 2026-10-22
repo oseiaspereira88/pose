@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/version"
@@ -531,4 +532,55 @@ func TestR10ALostGitdirIsNotNoRepository(t *testing.T) {
 	if !gitUnavailableAt(bare) {
 		t.Fatal("a directory with no repository was not recognised")
 	}
+}
+
+func TestReleaseBrokenNewerTagCannotOpenAfterAnOlderVerifiedRelease(t *testing.T) {
+	root := cliReleaseRepo(t)
+	relGitCLI(t, root, "tag", "v1.0.0")
+	head := strings.TrimSpace(gitOut(t, root, "rev-parse", "HEAD"))
+	e := posemodel.ReleaseEvidence{SchemaVersion: 1, Provider: "github", Repository: "synthetic/repo", Version: "v1.0.0", Tag: "v1.0.0", Commit: head, PublishedAt: "2026-10-01T00:00:00Z", URL: "https://example.com/release", Assets: map[string]string{"asset.tar.gz": "sha256:" + strings.Repeat("a", 64)}}
+	var lines []string
+	for _, state := range []string{"tagged", "published", "verified"} {
+		event := posemodel.NewReleaseEvent("v1.0.0", state, e, time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC))
+		rawEvent, err := json.Marshal(event)
+		if err != nil {
+			t.Fatal(err)
+		}
+		lines = append(lines, string(rawEvent))
+		if state == "published" {
+			e.Publication = event.EvidenceDigest
+		}
+	}
+	writeCloseoutCLIFile(t, root, ".pose/releases/v1.0.0/events.jsonl", strings.Join(lines, "\n")+"\n")
+	raw, err := os.ReadFile(filepath.Join(root, ".pose/policy/release.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var policy map[string]any
+	if err := json.Unmarshal(raw, &policy); err != nil {
+		t.Fatal(err)
+	}
+	policy["adopted_at"] = "2026-10-01"
+	writeCloseoutCLIFile(t, root, ".pose/policy/release.json", string(posemodel.CanonicalJSON(policy)))
+	if code, out := runPose(t, root, "release", "open-next", "--version", "v1.2.0"); code != 0 {
+		t.Fatalf("sound older control refused: %s", out)
+	}
+	relGitCLI(t, root, "tag", "v1.1.0")
+	if code, out := runPose(t, root, "release", "open-next", "--version", "v1.2.0"); code == 0 {
+		t.Fatalf("known newer tag without manifest approved: %s", out)
+	}
+	writeCloseoutCLIFile(t, root, ".git/refs/tags/v1.1.0", "broken ref\n")
+	if code, out := runPose(t, root, "release", "open-next", "--version", "v1.2.0"); code == 0 {
+		t.Fatalf("lost newer tag promoted older verified release: %s", out)
+	}
+	if code, out := runPose(t, root, "release", "status", "--json"); code == 0 {
+		t.Fatalf("incomplete tag inventory became complete status: %s", out)
+	}
+	if checker, out := releaseCheckerFor(root); checker.errors == 0 || !strings.Contains(out.String(), "release tags could not be listed") {
+		t.Fatalf("structural checker lost inventory error: %s", out.String())
+	}
+	if code, out := runPose(t, root, "release", "backfill", "--from-git", "--json"); code == 0 {
+		t.Fatalf("backfill lost inventory error: %s", out)
+	}
+
 }

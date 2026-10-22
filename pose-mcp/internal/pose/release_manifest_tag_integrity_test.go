@@ -275,3 +275,14 @@ func TestAnInvalidManifestKeepsTheReleaseStatusUnread(t *testing.T) {
 		t.Fatalf("a manifest that is not valid was reported as a release: %v", err)
 	}
 }
+
+func TestReleaseCorruptTagIsNotProvenMissing(t *testing.T) {
+	r := newReleaseRepo(t, "v1.0.0")
+	if _, _, err := ResolveReleaseTag(r.root, "v1.1.0"); !errors.Is(err, ErrReleaseTagMissing) {
+		t.Fatalf("absent control: %v", err)
+	}
+	relWrite(t, r.root, ".git/refs/tags/v1.1.0", "broken ref\n")
+	if _, _, err := ResolveReleaseTag(r.root, "v1.1.0"); err == nil || errors.Is(err, ErrReleaseTagMissing) {
+		t.Fatalf("corrupt ref was absence: %v", err)
+	}
+}

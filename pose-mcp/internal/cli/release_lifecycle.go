@@ -133,9 +133,7 @@ func releaseInputs(root, target string) (posemodel.ReleasePolicy, []posemodel.Re
 			}
 		}
 	}
-	tags := exec.Command("git", "tag", "--list", "v*")
-	tags.Dir = root
-	raw, gitErr := tags.Output()
+	raw, gitErr := posemodel.ListReleaseTags(root)
 	switch {
 	case gitErr == nil:
 		for _, tag := range strings.Fields(string(raw)) {
@@ -716,9 +714,7 @@ func cmdReleaseBackfill(root string, args []string, stdout, stderr io.Writer) in
 	if !releaseFlag(args, "--from-git") {
 		return usageError(stderr, "pose release backfill: --from-git required")
 	}
-	cmd := exec.Command("git", "tag", "--list", "v*")
-	cmd.Dir = root
-	raw, err := cmd.Output()
+	raw, err := posemodel.ListReleaseTags(root)
 	if err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1
@@ -835,9 +831,7 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 			seen[fragment.Spec] = entry.Name()
 		}
 	}
-	cmd := exec.Command("git", "tag", "--list", "v*")
-	cmd.Dir = checker.root
-	raw, listErr := cmd.Output()
+	raw, listErr := posemodel.ListReleaseTags(checker.root)
 	if listErr != nil && !gitUnavailableAt(checker.root) {
 		checker.failOrWarn("release: the release tags could not be listed: " + listErr.Error())
 	}
@@ -921,9 +915,7 @@ func governedReleaseWitness(root string) (string, error) {
 	if gitUnavailableAt(root) {
 		return "", nil
 	}
-	cmd := exec.Command("git", "tag", "--list", "v*")
-	cmd.Dir = root
-	raw, err := cmd.Output()
+	raw, err := posemodel.ListReleaseTags(root)
 	if err != nil {
 		return "", fmt.Errorf("the release tags could not be listed: %w", err)
 	}

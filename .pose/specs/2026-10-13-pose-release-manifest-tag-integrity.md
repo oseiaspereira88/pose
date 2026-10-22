@@ -48,6 +48,9 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
+- created: .pose/reports/2026-10-22-b38-pending-review-r1.md
+- created: .pose/reports/2026-10-22-b38-pending-reconciliation.md
+
 Os paths abaixo são declarações prospectivas para a implementação. Neste lote
 somente esta spec é criada, sob a atribuição documental de
 `pose-consolidation-batch-6-authoring`. Reconciliar os paths exatos antes de start;
@@ -203,3 +206,7 @@ de baixo risco:
 - [open] Fazer o status usar a mesma testemunha de adoção do checker quando a policy de hoje foi apagada: hoje só um corte no worktree conta, e uma tag sem manifest cuja árvore não traz a adoção some do status e das obligations quando a adoção é provada só pelo manifest de outra tag (o `pose check` reprova, e `open-next` continua recusando). (owner:@core crit:low review:2026-12-01)
 
 As dependências e unidades restantes permanecem na matriz do programa, sem disposição automática.
+
+### Integration requalification — 2026-10-22
+
+Historical native done and R13 approval remain unchanged as historical events. A separate source review of the current main merge found a medium two-release selection variant of R11-L14: broken newer tag omitted with successful Git exit could promote an older verified release for open-next. It was reproduced before fixing; unknown/corrupt ref is not proven missing, and tag inventory diagnostics now propagate through shared status/plan/check/backfill consumers. Current strict collection and sealed integration review pending; no release is prepared/published, no tag/history is rewritten.

@@ -289,6 +289,10 @@ func ResolveReleaseTag(root, tag string) (commit string, annotated bool, err err
 			// No repository: there is no tag, which is a different thing from a tag Git could not read.
 			return "", false, fmt.Errorf("%w: %s (not a git repository)", ErrReleaseTagMissing, tag)
 		}
+		var commandErr *gitCommandError
+		if errors.As(verr, &commandErr) && commandErr.Stderr != "" {
+			return "", false, fmt.Errorf("pose: the tag %s could not be resolved: %w", tag, verr)
+		}
 		var exit *exec.ExitError
 		if errors.As(verr, &exit) && exit.ExitCode() == 1 {
 			return "", false, fmt.Errorf("%w: %s", ErrReleaseTagMissing, tag)
@@ -314,7 +318,16 @@ func gitOutput(root string, args ...string) (string, error) {
 	if err != nil {
 		return "", &gitCommandError{Op: args[0], Stderr: strings.TrimSpace(stderr.String()), Err: err}
 	}
+	if strings.TrimSpace(stderr.String()) != "" {
+		return "", &gitCommandError{Op: args[0], Stderr: strings.TrimSpace(stderr.String()), Err: errors.New("Git reported an incomplete or uncertain result")}
+	}
 	return string(out), nil
+}
+
+// ListReleaseTags preserves warnings about broken refs as incomplete inventory.
+// Git may omit a broken loose tag while returning success; absence cannot be inferred.
+func ListReleaseTags(root string) (string, error) {
+	return gitOutput(root, "tag", "--list", "v*")
 }
 
 // gitTreeEntry looks one path up in a commit's tree. found=false with a nil error is the tree

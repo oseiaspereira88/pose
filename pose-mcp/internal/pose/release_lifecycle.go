@@ -468,7 +468,7 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 	// A release whose directory is gone from the working tree is still a release if its tag holds
 	// the snapshot: removing the files does not remove the release from the record. A tag that
 	// holds none is reported, not dropped, and a listing that fails is not an empty one.
-	tags, tagsErr := gitOutput(s.Root, "tag", "--list", "v*")
+	tags, tagsErr := ListReleaseTags(s.Root)
 	if tagsErr != nil && !gitNotARepository(s.Root) {
 		return nil, fmt.Errorf("pose: the release tags could not be listed: %w", tagsErr)
 	}
