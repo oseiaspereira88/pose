@@ -18,7 +18,6 @@ package pose
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -49,8 +48,8 @@ const pendingFragmentDir = ".pose/changelogs/unreleased/"
 // LoadArchivedFragments reads every release manifest under root and returns
 // what each attests, sorted by archived path. A manifest that cannot be read
 // attests nothing; `pose release check` is where it is reported.
-func LoadArchivedFragments(root string) []ArchivedFragment {
-	entries, err := os.ReadDir(filepath.Join(root, ".pose", "releases"))
+func LoadArchivedFragmentsIn(files Files, root string) []ArchivedFragment {
+	entries, err := files.ReadDir(filepath.Join(root, ".pose", "releases"))
 	if err != nil {
 		return nil
 	}
@@ -59,12 +58,12 @@ func LoadArchivedFragments(root string) []ArchivedFragment {
 		if !entry.IsDir() || ValidateReleaseVersion(entry.Name()) != nil {
 			continue
 		}
-		manifest, err := LoadReleaseManifest(root, entry.Name())
+		manifest, err := LoadReleaseManifestIn(files, root, entry.Name())
 		if err != nil {
 			continue
 		}
 		manifestPath := ".pose/releases/" + entry.Name() + "/manifest.json"
-		manifestRaw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(manifestPath)))
+		manifestRaw, err := files.ReadFile(filepath.Join(root, filepath.FromSlash(manifestPath)))
 		if err != nil {
 			continue
 		}
@@ -77,7 +76,7 @@ func LoadArchivedFragments(root string) []ArchivedFragment {
 				continue
 			}
 			at := ".pose/changelogs/" + entry.Name() + "/" + fragment.Path
-			raw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(at)))
+			raw, err := files.ReadFile(filepath.Join(root, filepath.FromSlash(at)))
 			archived = append(archived, ArchivedFragment{
 				Version:        entry.Name(),
 				Spec:           fragment.Spec,
@@ -91,6 +90,12 @@ func LoadArchivedFragments(root string) []ArchivedFragment {
 	}
 	sort.Slice(archived, func(i, j int) bool { return archived[i].Archived < archived[j].Archived })
 	return archived
+}
+
+// LoadArchivedFragments reads and writes the filesystem directly; LoadArchivedFragmentsIn takes the
+// operation's files.
+func LoadArchivedFragments(root string) []ArchivedFragment {
+	return LoadArchivedFragmentsIn(NativeFiles(), root)
 }
 
 // archivalLedger answers, for one claim, whether a release attests the

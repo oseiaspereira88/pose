@@ -62,7 +62,12 @@ type Roots struct {
 	conflicts    map[string]bool
 	lastScan     time.Time
 	rescanWindow time.Duration
+	// fs is the filesystem of the operation the registry serves; the stores
+	// it hands out carry it.
+	fs Files
 }
+
+func (r *Roots) fsys() Files { return FilesOrNative(r.fs) }
 
 // RootsContext is the path-free runtime view exposed to MCP diagnostics. It
 // deliberately contains only logical identifiers and selection behavior; the
@@ -76,10 +81,16 @@ type RootsContext struct {
 }
 
 // NewRoots builds and primes the registry.
-func NewRoots(cfg RootsConfig) *Roots {
-	r := &Roots{cfg: cfg, rescanWindow: 2 * time.Second}
+func NewRootsIn(files Files, cfg RootsConfig) *Roots {
+	r := &Roots{cfg: cfg, rescanWindow: 2 * time.Second, fs: files}
 	r.rebuild()
 	return r
+}
+
+// NewRoots reads and writes the filesystem directly; NewRootsIn takes the
+// operation's files.
+func NewRoots(cfg RootsConfig) *Roots {
+	return NewRootsIn(NativeFiles(), cfg)
 }
 
 func (r *Roots) rebuild() {
@@ -88,9 +99,9 @@ func (r *Roots) rebuild() {
 	if r.cfg.DefaultProjectID != "" && r.cfg.DefaultRoot != "" {
 		m[r.cfg.DefaultProjectID] = r.cfg.DefaultRoot
 	}
-	if scan, err := ScanProjectsDir(r.cfg.ProjectsDir, r.cfg.ProjectIDPrefix); err == nil {
+	if scan, err := ScanProjectsDirIn(r.fsys(), r.cfg.ProjectsDir, r.cfg.ProjectIDPrefix); err == nil {
 		for k, v := range scan {
-			if previous, ok := m[k]; ok && !sameProjectRoot(previous, v) {
+			if previous, ok := m[k]; ok && !sameProjectRoot(r.fsys(), previous, v) {
 				conflicts[k] = true
 			}
 			m[k] = v
@@ -134,7 +145,7 @@ func (r *Roots) StoreFor(projectID string) (Store, error) {
 		if r.cfg.StrictSelection && r.registeredProjectCount() > 1 {
 			return Store{}, ProjectAmbiguousError{Reason: "multi-project-implicit"}
 		}
-		return Store{Root: r.cfg.DefaultRoot}, nil
+		return Store{Root: r.cfg.DefaultRoot, FS: r.fs}, nil
 	}
 	r.mu.RLock()
 	root, ok := r.byProject[projectID]
@@ -156,7 +167,7 @@ func (r *Roots) StoreFor(projectID string) (Store, error) {
 	if !ok {
 		return Store{}, ProjectUnknownError{ProjectID: projectID}
 	}
-	return Store{Root: root}, nil
+	return Store{Root: root, FS: r.fs}, nil
 }
 
 func (r *Roots) registeredProjectCount() int {
@@ -201,12 +212,12 @@ func (r *Roots) Context() RootsContext {
 // .pose/ directory, under the convention project_id = prefix + <dirname>. With an
 // empty prefix the dirname IS the project_id (the canonical onboarding convention:
 // clones land at HARNE8_PROJECTS_DIR/<project_id>).
-func ScanProjectsDir(base, projectIDPrefix string) (map[string]string, error) {
+func ScanProjectsDirIn(files Files, base, projectIDPrefix string) (map[string]string, error) {
 	out := map[string]string{}
 	if base == "" {
 		return out, nil
 	}
-	entries, err := os.ReadDir(base)
+	entries, err := files.ReadDir(base)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return out, nil
@@ -218,12 +229,18 @@ func ScanProjectsDir(base, projectIDPrefix string) (map[string]string, error) {
 			continue
 		}
 		root := filepath.Join(base, e.Name())
-		if fi, err := os.Stat(filepath.Join(root, ".pose")); err != nil || !fi.IsDir() {
+		if fi, err := files.Stat(filepath.Join(root, ".pose")); err != nil || !fi.IsDir() {
 			continue
 		}
 		out[projectIDPrefix+e.Name()] = root
 	}
 	return out, nil
+}
+
+// ScanProjectsDir reads and writes the filesystem directly; ScanProjectsDirIn takes the
+// operation's files.
+func ScanProjectsDir(base, projectIDPrefix string) (map[string]string, error) {
+	return ScanProjectsDirIn(NativeFiles(), base, projectIDPrefix)
 }
 
 // ParseRootsJSON parses an explicit {"project_id":"/abs/root"} map (env override).

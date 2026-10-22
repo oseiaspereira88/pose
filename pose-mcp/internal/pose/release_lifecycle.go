@@ -106,11 +106,11 @@ func ReleaseDigest(value any) string {
 	return "sha256:" + hex.EncodeToString(sum[:])
 }
 
-func LoadReleasePolicy(root string) (ReleasePolicy, error) {
+func LoadReleasePolicyIn(files Files, root string) (ReleasePolicy, error) {
 	var policy ReleasePolicy
-	raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "release.json"))
+	raw, err := files.ReadFile(filepath.Join(root, ".pose", "policy", "release.json"))
 	if err != nil {
-		raw, err = os.ReadFile(filepath.Join(root, ".pose", "release-policy.json"))
+		raw, err = files.ReadFile(filepath.Join(root, ".pose", "release-policy.json"))
 	}
 	if err != nil {
 		return policy, fmt.Errorf("release policy missing: create .pose/policy/release.json")
@@ -132,8 +132,14 @@ func LoadReleasePolicy(root string) (ReleasePolicy, error) {
 	return policy, nil
 }
 
-func LoadReleaseFragments(dir string, policy ChangelogPolicy) ([]ReleaseFragment, error) {
-	entries, err := os.ReadDir(dir)
+// LoadReleasePolicy reads and writes the filesystem directly; LoadReleasePolicyIn takes the
+// operation's files.
+func LoadReleasePolicy(root string) (ReleasePolicy, error) {
+	return LoadReleasePolicyIn(NativeFiles(), root)
+}
+
+func LoadReleaseFragmentsIn(files Files, dir string, policy ChangelogPolicy) ([]ReleaseFragment, error) {
+	entries, err := files.ReadDir(dir)
 	if os.IsNotExist(err) {
 		return []ReleaseFragment{}, nil
 	}
@@ -150,7 +156,7 @@ func LoadReleaseFragments(dir string, policy ChangelogPolicy) ([]ReleaseFragment
 			return nil, fmt.Errorf("release fragment %s must not be a symlink", entry.Name())
 		}
 		path := filepath.Join(dir, entry.Name())
-		raw, err := os.ReadFile(path)
+		raw, err := files.ReadFile(path)
 		if err != nil {
 			return nil, err
 		}
@@ -185,6 +191,12 @@ func LoadReleaseFragments(dir string, policy ChangelogPolicy) ([]ReleaseFragment
 	}
 	sort.Slice(fragments, func(i, j int) bool { return fragments[i].Spec < fragments[j].Spec })
 	return fragments, nil
+}
+
+// LoadReleaseFragments reads and writes the filesystem directly; LoadReleaseFragmentsIn takes the
+// operation's files.
+func LoadReleaseFragments(dir string, policy ChangelogPolicy) ([]ReleaseFragment, error) {
+	return LoadReleaseFragmentsIn(NativeFiles(), dir, policy)
 }
 
 func RenderReleaseNotes(version string, fragments []ReleaseFragment, policy ChangelogPolicy) string {
@@ -237,12 +249,12 @@ func RenderReleaseNotes(version string, fragments []ReleaseFragment, policy Chan
 	return b.String()
 }
 
-func LoadReleaseManifest(root, version string) (*ReleaseManifest, error) {
+func LoadReleaseManifestIn(files Files, root, version string) (*ReleaseManifest, error) {
 	if err := ValidateReleaseVersion(version); err != nil {
 		return nil, err
 	}
 	var manifest ReleaseManifest
-	raw, err := os.ReadFile(filepath.Join(root, ".pose", "releases", version, "manifest.json"))
+	raw, err := files.ReadFile(filepath.Join(root, ".pose", "releases", version, "manifest.json"))
 	if err != nil {
 		return nil, err
 	}
@@ -252,9 +264,15 @@ func LoadReleaseManifest(root, version string) (*ReleaseManifest, error) {
 	return &manifest, nil
 }
 
-func LoadReleaseEvents(root, version string) ([]ReleaseEvent, error) {
+// LoadReleaseManifest reads and writes the filesystem directly; LoadReleaseManifestIn takes the
+// operation's files.
+func LoadReleaseManifest(root, version string) (*ReleaseManifest, error) {
+	return LoadReleaseManifestIn(NativeFiles(), root, version)
+}
+
+func LoadReleaseEventsIn(files Files, root, version string) ([]ReleaseEvent, error) {
 	path := filepath.Join(root, ".pose", "releases", version, "events.jsonl")
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if os.IsNotExist(err) {
 		return []ReleaseEvent{}, nil
 	}
@@ -273,6 +291,12 @@ func LoadReleaseEvents(root, version string) ([]ReleaseEvent, error) {
 		events = append(events, event)
 	}
 	return events, nil
+}
+
+// LoadReleaseEvents reads and writes the filesystem directly; LoadReleaseEventsIn takes the
+// operation's files.
+func LoadReleaseEvents(root, version string) ([]ReleaseEvent, error) {
+	return LoadReleaseEventsIn(NativeFiles(), root, version)
 }
 
 func ProjectRelease(manifest *ReleaseManifest, events []ReleaseEvent) ReleaseProjection {
@@ -318,22 +342,22 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 			return nil, err
 		}
 	}
-	pending, err := LoadReleaseFragments(filepath.Join(s.Root, ".pose", "changelogs", "unreleased"), LoadChangelogPolicy(s.Root))
+	pending, err := LoadReleaseFragmentsIn(s.fsys(), filepath.Join(s.Root, ".pose", "changelogs", "unreleased"), LoadChangelogPolicyIn(s.fsys(), s.Root))
 	if err != nil {
 		return nil, err
 	}
 	status := &ReleaseStatus{Pending: pending, Releases: []ReleaseProjection{}}
 	base := filepath.Join(s.Root, ".pose", "releases")
-	entries, _ := os.ReadDir(base)
+	entries, _ := s.fsys().ReadDir(base)
 	for _, entry := range entries {
 		if !entry.IsDir() || ValidateReleaseVersion(entry.Name()) != nil || version != "" && entry.Name() != version {
 			continue
 		}
-		manifest, err := LoadReleaseManifest(s.Root, entry.Name())
+		manifest, err := LoadReleaseManifestIn(s.fsys(), s.Root, entry.Name())
 		if err != nil {
 			return nil, err
 		}
-		events, err := LoadReleaseEvents(s.Root, entry.Name())
+		events, err := LoadReleaseEventsIn(s.fsys(), s.Root, entry.Name())
 		if err != nil {
 			return nil, err
 		}

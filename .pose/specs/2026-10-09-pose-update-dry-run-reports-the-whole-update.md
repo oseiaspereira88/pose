@@ -41,6 +41,8 @@ The dry-run writes nothing, as today.
 
 ### Artifacts
 
+- created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.amendments.jsonl
+
 - created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.md
 - created: .pose/starts/pose-update-dry-run-reports-the-whole-update.json
 - created: pose-mcp/internal/cli/update_dryrun.go
@@ -51,6 +53,102 @@ The dry-run writes nothing, as today.
 - modified: pose-mcp/internal/cli/compat_test.go
 - modified: pose-mcp/internal/cli/upgrade_test.go
 - modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
+
+- created: .pose/adr/2026-10-22-update-preview-records-the-shared-execution-in-an-operation-scoped-view.md
+- created: .pose/reports/2026-10-22-b29-update-preview-design-review.md
+
+Replacement implementation (D2), declared before each production edit; the block above is the historical claim of the rejected copy:
+
+- created: pose-mcp/internal/cli/update_preview_test.go
+- modified: pose-mcp/internal/cli/adopt.go
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/assess.go
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/command_reference.go
+- modified: pose-mcp/internal/cli/configuration_review.go
+- modified: pose-mcp/internal/cli/contribute.go
+- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/cli/init.go
+- modified: pose-mcp/internal/cli/install.go
+- modified: pose-mcp/internal/cli/machinery.go
+- modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/cli/managed_docs.go
+- modified: pose-mcp/internal/cli/onboarding.go
+- modified: pose-mcp/internal/cli/onboarding_context.go
+- modified: pose-mcp/internal/cli/release_lifecycle.go
+- modified: pose-mcp/internal/cli/stack_seed.go
+- modified: pose-mcp/internal/cli/surface_check.go
+- modified: pose-mcp/internal/cli/update_dryrun.go
+- modified: pose-mcp/internal/cli/usage.go
+- modified: pose-mcp/internal/cli/validate.go
+- modified: pose-mcp/internal/cli/update_dryrun_test.go
+- created: pose-mcp/internal/pose/operation_files.go
+- created: pose-mcp/internal/pose/operation_files_test.go
+- created: pose-mcp/internal/pose/operation_files_access.go
+- created: pose-mcp/internal/pose/operation_files_access_other.go
+- created: pose-mcp/internal/pose/operation_git.go
+- modified: pose-mcp/internal/pose/action_request.go
+- modified: pose-mcp/internal/pose/action_resolution.go
+- modified: pose-mcp/internal/pose/action_scoping.go
+- modified: pose-mcp/internal/pose/agent_project_context.go
+- modified: pose-mcp/internal/pose/artifact_ref.go
+- modified: pose-mcp/internal/pose/assessment_scan.go
+- modified: pose-mcp/internal/pose/capabilities.go
+- modified: pose-mcp/internal/pose/capability_catalog.go
+- modified: pose-mcp/internal/pose/causality_closeout.go
+- modified: pose-mcp/internal/pose/changelog_policy.go
+- modified: pose-mcp/internal/pose/closeout_plan.go
+- modified: pose-mcp/internal/pose/contract_nodes.go
+- modified: pose-mcp/internal/pose/delivery_integrity.go
+- modified: pose-mcp/internal/pose/delivery_surface.go
+- modified: pose-mcp/internal/pose/design_basis.go
+- modified: pose-mcp/internal/pose/design_delta.go
+- modified: pose-mcp/internal/pose/discovery.go
+- modified: pose-mcp/internal/pose/docs.go
+- modified: pose-mcp/internal/pose/docs_review.go
+- modified: pose-mcp/internal/pose/dor_policy.go
+- modified: pose-mcp/internal/pose/effective_governance.go
+- modified: pose-mcp/internal/pose/falsifier_observation.go
+- modified: pose-mcp/internal/pose/federated_acceptance.go
+- modified: pose-mcp/internal/pose/followup_candidates.go
+- modified: pose-mcp/internal/pose/followups_parse.go
+- modified: pose-mcp/internal/pose/git_snapshot_integrity.go
+- modified: pose-mcp/internal/pose/git_spawn_cache.go
+- modified: pose-mcp/internal/pose/governance_outcomes.go
+- modified: pose-mcp/internal/pose/governance_replay.go
+- modified: pose-mcp/internal/pose/governed_effects.go
+- modified: pose-mcp/internal/pose/index_generation.go
+- modified: pose-mcp/internal/pose/knowledge.go
+- modified: pose-mcp/internal/pose/legacy_inventory.go
+- modified: pose-mcp/internal/pose/legacy_ledger.go
+- modified: pose-mcp/internal/pose/obligation_projection.go
+- modified: pose-mcp/internal/pose/obligation_sources.go
+- modified: pose-mcp/internal/pose/pointers.go
+- modified: pose-mcp/internal/pose/premise_validity.go
+- modified: pose-mcp/internal/pose/project_file.go
+- modified: pose-mcp/internal/pose/readiness.go
+- modified: pose-mcp/internal/pose/release_archive.go
+- modified: pose-mcp/internal/pose/release_claimed_fragments.go
+- modified: pose-mcp/internal/pose/release_lifecycle.go
+- modified: pose-mcp/internal/pose/remediation_lineage.go
+- modified: pose-mcp/internal/pose/review_assurance.go
+- modified: pose-mcp/internal/pose/review_attribution.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
+- modified: pose-mcp/internal/pose/review_path_attribution.go
+- modified: pose-mcp/internal/pose/review_plan.go
+- modified: pose-mcp/internal/pose/review_policy_baseline.go
+- modified: pose-mcp/internal/pose/review_reuse_provenance.go
+- modified: pose-mcp/internal/pose/review_structure.go
+- modified: pose-mcp/internal/pose/review_trust_time.go
+- modified: pose-mcp/internal/pose/roadmaps.go
+- modified: pose-mcp/internal/pose/roots.go
+- modified: pose-mcp/internal/pose/spec.go
+- modified: pose-mcp/internal/pose/spec_transfer.go
+- modified: pose-mcp/internal/pose/spec_transfer_locks.go
+- modified: pose-mcp/internal/pose/start.go
+- created: .pose/reports/2026-10-22-b29-update-preview-implementation.md
 
 ### Delivery targets
 
@@ -65,11 +163,33 @@ The dry-run writes nothing, as today.
 - Rationale: fidelity by construction; the test compares the dry-run's list with the real update's changes on the same fixture.
 - Consequences: an update step that reads source directories outside the copy (module discovery for absent seeds) sees none in the dry-run.
 
+### Decision D2
+- Date: 2026-10-22
+- Basis: R1, R2, R3
+- Context: The latest maintainer direction rejects shipping the copy implementation. D1 remains a historical strategy, not the design for this replacement.
+- Decision: Use the shared apply/preview execution context and in-memory operation-scoped view described in [the prospective ADR](../adr/2026-10-22-update-preview-records-the-shared-execution-in-an-operation-scoped-view.md). Preserve the current running-engine/no-self preview boundary and normal apply semantics; include force install, discovery, requests, index computation and final governance reads.
+- Rationale: One execution algorithm with projected reads eliminates reconstruction and second-planner drift. Partial preview cannot satisfy R1/R2.
+
 ## 6. Validation
 
 ### Strategy
 
 A fixture instance stamped 6.1.0: the dry-run output lists the merges, stamp and requests the real update then performs (compared line by line), and `doctor` warns before the update and not after. The test must fail on the current engine first.
+
+### Replacement test plan — recorded before production changes on 2026-10-22
+
+Risk: high (`pose-mcp` metadata). Original R1/R2 satisfied trace and old Delivered scope below describe the rejected implementation; they do not qualify the replacement. Preserve historical start/amendment records; record D2 as introduced during execution.
+
+| Required scenario | Deterministic command | Expected evidence |
+|---|---|---|
+| Operation view read-after-write, alias/link replacement, exclusive/atomic/direct-write distinction and failure injection | `go test ./internal/... -run 'UpdateOperation|UpdatePreview' -count=1` | No physical preview mutation, coherent staged reads, typed failures and exact net effects. Register exact final tests/check before collecting. |
+| Running-engine update parity, force/nonforce, EN/pt-BR, current/stale/schema migration, requests and policy/profile seeding | `go test ./internal/cli -run 'UpdateDryRun|UpdatePreview|Upgrade|Machinery|ConfigurationReview' -count=1` | Preview/apply share semantic events and per-request content, actual resulting state matches intended effects; no false no-op. |
+| Original discovery and adversarial filesystem/permission layouts | `go test ./internal/cli -run 'UpdateDryRun|UpdatePreview|Discovery' -count=1` | Existing symlink corpus, execute-only directory with named child, external/broken links, ignored/submodule/nested modules and unknown relevant reads exercised in unprivileged fixtures. |
+| End-to-end no-write audit and force projected gate | `go test ./internal/cli -run 'UpdatePreview.*(Subprocess|NoWrites|Force|Parity)' -count=1` | Actual command preview produces no filesystem effects, including external targets and transient staging/locks; projected final gate sees planned governance state. |
+| Existing engine contracts and production composition | `pose validate --strict --report --json-out .pose/results/delivery-validation.json` | All required matrix checks pass at the final source; current scoped provenance and registered integration reachability. |
+| Go API, races and platform builds | `go test ./...`; `go vet ./...`; `go test -race ./internal/pose ./internal/cli` | Existing production behavior preserved; no shared global preview state; existing cross-platform build checks retained. |
+
+No above replacement test is claimed executed yet. Expand exact artifact paths before touching production; register actual test selectors instead of accepting empty matches.
 
 ### Execution log
 

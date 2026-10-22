@@ -32,9 +32,9 @@ func defaultCapabilityPolicy() capabilityPolicy {
 	return capabilityPolicy{StaleAfterDays: 30, StaleAfterCommits: 200}
 }
 
-func loadCapabilityPolicy(root string) capabilityPolicy {
+func loadCapabilityPolicyIn(files pose.Files, root string) capabilityPolicy {
 	policy := defaultCapabilityPolicy()
-	raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "capabilities.json"))
+	raw, err := files.ReadFile(filepath.Join(root, ".pose", "policy", "capabilities.json"))
 	if err != nil {
 		return policy
 	}
@@ -48,6 +48,12 @@ func loadCapabilityPolicy(root string) capabilityPolicy {
 		}
 	}
 	return policy
+}
+
+// loadCapabilityPolicy reads and writes the filesystem directly; loadCapabilityPolicyIn takes the
+// operation's files.
+func loadCapabilityPolicy(root string) capabilityPolicy {
+	return loadCapabilityPolicyIn(pose.NativeFiles(), root)
 }
 
 func cmdAssess(root string, args []string, stdout, stderr io.Writer) int {
@@ -136,8 +142,8 @@ type assessReport struct {
 
 // runAssessValidation is the shared R6 validation: structure, evidence,
 // stable-id contract, staleness. It never writes.
-func runAssessValidation(root string) (*assessReport, error) {
-	store := pose.Store{Root: root}
+func runAssessValidationIn(files pose.Files, root string) (*assessReport, error) {
+	store := pose.Store{Root: root, FS: files}
 	assessment, err := store.LoadCapabilityAssessment()
 	if err != nil {
 		return nil, err
@@ -145,7 +151,7 @@ func runAssessValidation(root string) (*assessReport, error) {
 	report := &assessReport{Path: assessment.Path, Mechanisms: len(assessment.Mechanisms), AssessedAt: assessment.AssessedAt}
 	report.Errors = append(report.Errors, store.ValidateCapabilityEvidence(assessment)...)
 
-	history, err := pose.LoadCapabilityHistory(store.CapabilityHistoryPath())
+	history, err := pose.LoadCapabilityHistoryIn(files, store.CapabilityHistoryPath())
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +163,7 @@ func runAssessValidation(root string) (*assessReport, error) {
 		}
 	}
 
-	policy := loadCapabilityPolicy(root)
+	policy := loadCapabilityPolicyIn(files, root)
 	if assessed, err := time.Parse("2006-01-02", assessment.AssessedAt); err == nil {
 		report.AgeDays = int(time.Since(assessed).Hours() / 24)
 		if report.AgeDays > policy.StaleAfterDays {
@@ -177,6 +183,12 @@ func runAssessValidation(root string) (*assessReport, error) {
 		}
 	}
 	return report, nil
+}
+
+// runAssessValidation reads and writes the filesystem directly; runAssessValidationIn takes the
+// operation's files.
+func runAssessValidation(root string) (*assessReport, error) {
+	return runAssessValidationIn(pose.NativeFiles(), root)
 }
 
 func assessValidate(root string, asJSON bool, stdout, stderr io.Writer, locale cliLocale) int {

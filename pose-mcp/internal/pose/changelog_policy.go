@@ -2,7 +2,6 @@ package pose
 
 import (
 	"encoding/json"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -43,9 +42,9 @@ var changelogLabels = map[string]string{
 // LoadChangelogPolicy reads the policy, falling back to the defaults. A missing
 // or unreadable file is not an error here: every caller wants the categories,
 // and the gate that requires the file to exist is `pose check`.
-func LoadChangelogPolicy(root string) ChangelogPolicy {
+func LoadChangelogPolicyIn(files Files, root string) ChangelogPolicy {
 	policy := ChangelogPolicy{SchemaVersion: 1}
-	raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "changelog.json"))
+	raw, err := files.ReadFile(filepath.Join(root, ".pose", "policy", "changelog.json"))
 	if err == nil {
 		_ = json.Unmarshal(raw, &policy)
 	}
@@ -53,6 +52,12 @@ func LoadChangelogPolicy(root string) ChangelogPolicy {
 		policy.Categories = DefaultChangelogCategories()
 	}
 	return policy
+}
+
+// LoadChangelogPolicy reads and writes the filesystem directly; LoadChangelogPolicyIn takes the
+// operation's files.
+func LoadChangelogPolicy(root string) ChangelogPolicy {
+	return LoadChangelogPolicyIn(NativeFiles(), root)
 }
 
 // ValidCategories reports the set a fragment may declare.

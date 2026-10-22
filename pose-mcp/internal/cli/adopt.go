@@ -240,21 +240,21 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 // on for a new instance, dated today, in a review policy this install has just
 // created. It is never called for a policy that existed before the install,
 // and never by `pose update`: an instance already under way decides when.
-func adoptGovernedCapabilitiesAtInstall(target string, now time.Time, log func(english, portuguese string, a ...any)) {
-	docs, err := posemodel.LoadPolicyDocs(target)
+func adoptGovernedCapabilitiesAtInstallIn(files posemodel.Files, target string, now time.Time, log func(english, portuguese string, a ...any)) {
+	docs, err := posemodel.LoadPolicyDocsIn(files, target)
 	if err != nil {
 		return
 	}
 	date := now.UTC().Format(time.DateOnly)
 	// A new instance has reviewed this engine's catalog by adopting its
 	// defaults; only what a later engine introduces is new to it.
-	_ = posemodel.SetReviewedVersion(target, version.ReleaseBase())
+	_ = posemodel.SetReviewedVersionIn(files, target, version.ReleaseBase())
 	adopted := []string{}
 	for _, entry := range posemodel.CapabilityCatalog() {
 		if !entry.DefaultForNew || entry.Adopted(docs) {
 			continue
 		}
-		if posemodel.CatalogAdoptBlocker(target, docs, entry) != "" {
+		if posemodel.CatalogAdoptBlockerIn(files, target, docs, entry) != "" {
 			continue
 		}
 		if len(entry.Adopt(docs, date)) > 0 {
@@ -264,13 +264,19 @@ func adoptGovernedCapabilitiesAtInstall(target string, now time.Time, log func(e
 	if len(adopted) == 0 {
 		return
 	}
-	if err := docs.Write(target, posemodel.Store{Root: target}); err != nil {
+	if err := docs.Write(target, posemodel.Store{Root: target, FS: files}); err != nil {
 		log("warning: governed capabilities not adopted, the policy would be refused: %v", "aviso: capacidades governadas não adotadas, a política seria recusada: %v", err)
 		return
 	}
 	for _, id := range adopted {
 		log("capability (adoption): %s from %s — `pose adopt %s --off --apply` turns it off", "capacidade (adoção): %s desde %s — `pose adopt %s --off --apply` desliga", id, date, id)
 	}
+}
+
+// adoptGovernedCapabilitiesAtInstall reads and writes the filesystem directly; adoptGovernedCapabilitiesAtInstallIn takes the
+// operation's files.
+func adoptGovernedCapabilitiesAtInstall(target string, now time.Time, log func(english, portuguese string, a ...any)) {
+	adoptGovernedCapabilitiesAtInstallIn(posemodel.NativeFiles(), target, now, log)
 }
 
 func boolString(value bool) string {

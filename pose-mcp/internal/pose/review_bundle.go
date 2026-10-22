@@ -723,7 +723,7 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 			}
 		}
 	}
-	gitlinks := reviewBundleGitlinks(s.Root, uniqueSorted(candidatePaths))
+	gitlinks := reviewBundleGitlinksIn(s.fsys(), s.Root, uniqueSorted(candidatePaths))
 	// One status of the tree for the whole subject, taken on first need.
 	var status *workingTreeSnapshot
 	for _, set := range sets {
@@ -780,7 +780,7 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 				continue
 			}
 			if status == nil {
-				status = takeWorkingTreeSnapshot(s.Root)
+				status = takeWorkingTreeSnapshotIn(s.fsys(), s.Root)
 			}
 			if dirty, detail := status.change(path); dirty {
 				blockers = append(blockers, "review subject path "+path+" has working-tree-only content"+detail)
@@ -819,7 +819,7 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 	treeRaw, _ := json.Marshal(treeEntries)
 	subject.TreeDigest = digestBytes(treeRaw)
 	subject.ImplementationDigest = reviewImplementationDigest(subject)
-	subject.Attribution = reviewBundleAttribution(s.Root, sets, allowedSpecs, subject.Entries)
+	subject.Attribution = reviewBundleAttribution(s.fsys(), s.Root, sets, allowedSpecs, subject.Entries)
 	return subject, sortedBundleInputs(excluded), blockers, nil
 }
 
@@ -883,7 +883,7 @@ func (s Store) reviewBundleRangeObservations(ids []string, graph DeliveryIntegri
 				observation.State = "contaminated"
 				observation.RangeCommits = count
 				observation.UnattributedCommits = count - len(set.Commits)
-				observation.UnattributedSpecs, observation.UntrailedCommits = rangeUnattributedOwners(s.Root, set)
+				observation.UnattributedSpecs, observation.UntrailedCommits = rangeUnattributedOwners(s.fsys(), s.Root, set)
 				observation.Reason = "the range spans commits this change set does not attribute; its paths are attributed, its base..head is not"
 			default:
 				observation.State = "clean"
@@ -899,7 +899,7 @@ func (s Store) reviewBundleRangeObservations(ids []string, graph DeliveryIntegri
 // rangeUnattributedOwners reads the trailers of the commits set's range spans
 // but does not attribute. It reports nothing when Git cannot answer: the
 // counts above already say the range is contaminated.
-func rangeUnattributedOwners(root string, set ChangeSet) ([]string, int) {
+func rangeUnattributedOwners(files Files, root string, set ChangeSet) ([]string, int) {
 	attributed := map[string]bool{}
 	for _, commit := range set.Commits {
 		attributed[commit] = true
@@ -1025,7 +1025,7 @@ func (s Store) reviewBundleScopeSpecs(scope ScopeRef) (map[string]bool, error) {
 // and the commit id in place of a blob id, so that pointer is the only content a
 // submodule has to review. Resolved in one call over the candidate set rather
 // than one call per path, and bounded by the subject's own size.
-func reviewBundleGitlinks(root string, paths []string) map[string]string {
+func reviewBundleGitlinksIn(files Files, root string, paths []string) map[string]string {
 	links := map[string]string{}
 	if len(paths) == 0 {
 		return links
@@ -1052,8 +1052,13 @@ func reviewBundleGitlinks(root string, paths []string) map[string]string {
 	return links
 }
 
-func reviewBundleWorkingTreeChange(root, path string) (bool, string) {
-	entries, err := ReadGitStatus(root, path)
+// reviewBundleGitlinks reads the filesystem directly; reviewBundleGitlinksIn reads the operation's files.
+func reviewBundleGitlinks(root string, paths []string) map[string]string {
+	return reviewBundleGitlinksIn(NativeFiles(), root, paths)
+}
+
+func reviewBundleWorkingTreeChangeIn(files Files, root, path string) (bool, string) {
+	entries, err := ReadGitStatusIn(files, root, path)
 	if errors.Is(err, ErrGitUnavailable) {
 		// Unit fixtures and exported source trees may not have Git metadata. The
 		// immutable change-set gate remains authoritative there.
@@ -1067,6 +1072,11 @@ func reviewBundleWorkingTreeChange(root, path string) (bool, string) {
 		return false, ""
 	}
 	return true, statusDetail(strings.TrimSpace(entries[0].XY))
+}
+
+// reviewBundleWorkingTreeChange reads the filesystem directly; reviewBundleWorkingTreeChangeIn reads the operation's files.
+func reviewBundleWorkingTreeChange(root, path string) (bool, string) {
+	return reviewBundleWorkingTreeChangeIn(NativeFiles(), root, path)
 }
 
 // ReviewSubjectPathClass is the review-subject class of a path outside any
@@ -1222,16 +1232,16 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 }
 
 func (s Store) reviewBundleFileDigest(rel string, set ChangeSet, graph DeliveryIntegrityGraph) (string, error) {
-	if err := ValidateArtifactPath(s.Root, rel, false); err != nil {
+	if err := ValidateArtifactPathIn(s.fsys(), s.Root, rel, false); err != nil {
 		return "", fmt.Errorf("review subject path %s is invalid: %w", rel, err)
 	}
 	clean, _ := validateArtifactPathSyntax(rel)
-	raw, err := os.ReadFile(filepath.Join(s.Root, clean))
+	raw, err := s.fsys().ReadFile(filepath.Join(s.Root, clean))
 	if os.IsNotExist(err) && strings.HasPrefix(filepath.ToSlash(clean), pendingFragmentDir) {
 		// Archival changes the physical location, not the attributed subject
 		// path. The existing ledger supplies the owning spec and frozen bytes;
 		// both witnesses must also belong to the selected committed head.
-		ledger := newArchivalLedger(LoadArchivedFragments(s.Root), func(path string) bool {
+		ledger := newArchivalLedger(LoadArchivedFragmentsIn(s.fsys(), s.Root), func(path string) bool {
 			return s.reviewBundleCommittedArchive(path)
 		})
 		pending := filepath.ToSlash(clean)
@@ -1239,7 +1249,7 @@ func (s Store) reviewBundleFileDigest(rel string, set ChangeSet, graph DeliveryI
 		resolved := false
 		for _, owner := range s.reviewBundleFragmentOwners(set, graph, pending) {
 			if witness, note, ok := ledger.resolve(owner, pending, ""); ok {
-				raw, err = os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(witness.Archived)))
+				raw, err = s.fsys().ReadFile(filepath.Join(s.Root, filepath.FromSlash(witness.Archived)))
 				resolved = true
 				break
 			} else {
@@ -1308,7 +1318,7 @@ func (s Store) reviewBundleCommitChangedPath(commit, path string) bool {
 
 func (s Store) reviewBundleCommittedArchive(rel string) bool {
 	path := filepath.Join(s.Root, filepath.FromSlash(rel))
-	resolved, err := filepath.EvalSymlinks(path)
+	resolved, err := s.fsys().EvalSymlinks(path)
 	if err != nil {
 		return false
 	}
@@ -1316,14 +1326,14 @@ func (s Store) reviewBundleCommittedArchive(rel string) bool {
 	if err != nil || inside == ".." || strings.HasPrefix(inside, ".."+string(os.PathSeparator)) {
 		return false
 	}
-	if dirty, _ := reviewBundleWorkingTreeChange(s.Root, rel); dirty {
+	if dirty, _ := reviewBundleWorkingTreeChangeIn(s.fsys(), s.Root, rel); dirty {
 		return false
 	}
 	committed, err := gitCommand("-C", s.Root, "show", "HEAD:"+rel).Output()
 	if err != nil {
 		return false
 	}
-	raw, err := os.ReadFile(path)
+	raw, err := s.fsys().ReadFile(path)
 	return err == nil && bytes.Equal(raw, committed)
 }
 
@@ -1451,7 +1461,7 @@ func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph
 		result = append(result, ReviewBundleEvidence{ID: evidence.ID, Module: evidence.Module, Check: evidence.Check, EvidenceClass: evidence.EvidenceClass, Outcome: evidence.Outcome, GitHead: evidence.GitHead, ProvenanceDigest: evidence.ProvenanceDigest, Report: evidence.Report})
 	}
 	if scope.Kind == "spec" && subject.ImplementationDigest != "" {
-		if design, err := AssessDesignDelta(s.Root, subject, scope.String(), DesignDeltaOptions{}); err == nil && len(design.InputDigest) > len("sha256:")+16 {
+		if design, err := AssessDesignDeltaIn(s.fsys(), s.Root, subject, scope.String(), DesignDeltaOptions{}); err == nil && len(design.InputDigest) > len("sha256:")+16 {
 			id := "design-" + strings.TrimPrefix(design.InputDigest, "sha256:")[:16]
 			result = append(result, ReviewBundleEvidence{
 				ID: id, Check: "assess-design", EvidenceClass: "structure", Outcome: "pass",
@@ -1570,12 +1580,12 @@ func (s Store) reviewBundleConsumedInputs(plan ReviewPlan) []ReviewBundleInput {
 		{Kind: "schema", Path: "review-bundle@1", Digest: digestText("review-bundle-schema-v1\nreview-attestation-schema-v1\nreview-attestation-envelope-schema-v1"), Reason: "canonical bundle and attestation schema identity"},
 	}
 	for _, rel := range []string{".pose/policy/review.json", ".pose/indexes/validation-matrix.json"} {
-		if raw, err := os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(rel))); err == nil {
+		if raw, err := s.fsys().ReadFile(filepath.Join(s.Root, filepath.FromSlash(rel))); err == nil {
 			inputs = append(inputs, ReviewBundleInput{Kind: "governed-config", Path: rel, Digest: digestBytes(raw), Reason: "consumed review policy or validation contract"})
 		}
 	}
 	for _, profile := range plan.SelectedProfiles {
-		raw, err := os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(profile.Source)))
+		raw, err := s.fsys().ReadFile(filepath.Join(s.Root, filepath.FromSlash(profile.Source)))
 		if err == nil {
 			inputs = append(inputs, ReviewBundleInput{Kind: "review-profile", Path: profile.Source, Digest: digestBytes(raw), Reason: "selected by effective review plan"})
 		}
@@ -1588,7 +1598,7 @@ func (s Store) reviewBundleConsumedInputs(plan ReviewPlan) []ReviewBundleInput {
 	}
 	for rule := range rules {
 		rel := ".pose/rules/" + rule + ".md"
-		if raw, err := os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(rel))); err == nil {
+		if raw, err := s.fsys().ReadFile(filepath.Join(s.Root, filepath.FromSlash(rel))); err == nil {
 			inputs = append(inputs, ReviewBundleInput{Kind: "rule", Path: rel, Digest: digestBytes(raw), Reason: "selected by effective review criterion"})
 		}
 	}
@@ -1672,7 +1682,7 @@ func (s Store) reviewAttestationsDir() string {
 	return filepath.Join(s.Root, ".pose", "review-attestations")
 }
 
-func ensureReviewArtifactDir(root, rel string, create bool) (string, error) {
+func ensureReviewArtifactDirIn(files Files, root, rel string, create bool) (string, error) {
 	clean, err := validateArtifactPathSyntax(rel)
 	if err != nil {
 		return "", err
@@ -1680,12 +1690,12 @@ func ensureReviewArtifactDir(root, rel string, create bool) (string, error) {
 	current := root
 	for _, part := range strings.Split(filepath.Clean(clean), string(os.PathSeparator)) {
 		current = filepath.Join(current, part)
-		info, statErr := os.Lstat(current)
+		info, statErr := files.Lstat(current)
 		if os.IsNotExist(statErr) && create {
-			if mkdirErr := os.Mkdir(current, 0o755); mkdirErr != nil && !os.IsExist(mkdirErr) {
+			if mkdirErr := files.Mkdir(current, 0o755); mkdirErr != nil && !os.IsExist(mkdirErr) {
 				return "", mkdirErr
 			}
-			info, statErr = os.Lstat(current)
+			info, statErr = files.Lstat(current)
 		}
 		if statErr != nil {
 			return "", statErr
@@ -1701,6 +1711,11 @@ func ensureReviewArtifactDir(root, rel string, create bool) (string, error) {
 	return current, nil
 }
 
+// ensureReviewArtifactDir reads the filesystem directly; ensureReviewArtifactDirIn reads the operation's files.
+func ensureReviewArtifactDir(root, rel string, create bool) (string, error) {
+	return ensureReviewArtifactDirIn(NativeFiles(), root, rel, create)
+}
+
 // SealReviewBundle writes a prepared, unblocked bundle atomically. Replaying
 // the same payload is idempotent.
 func (s Store) SealReviewBundle(ref string, now time.Time) (ReviewBundle, error) {
@@ -1714,7 +1729,7 @@ func (s Store) SealReviewBundle(ref string, now time.Time) (ReviewBundle, error)
 	bundle.State = "sealed"
 	bundle.SealedAt = now.UTC().Truncate(time.Second).Format(time.RFC3339)
 	bundle.Path = filepath.ToSlash(filepath.Join(".pose", "review-bundles", bundle.BundleID+".json"))
-	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-bundles")), true)
+	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, filepath.ToSlash(filepath.Join(".pose", "review-bundles")), true)
 	if err != nil {
 		return ReviewBundle{}, err
 	}
@@ -1770,8 +1785,8 @@ func writeImmutableJSON(path string, raw []byte) error {
 	return os.Remove(tmpPath)
 }
 
-func strictJSONFile(path string, target any) error {
-	file, err := os.Open(path)
+func strictJSONFileIn(files Files, path string, target any) error {
+	file, err := files.Open(path)
 	if err != nil {
 		return err
 	}
@@ -1799,6 +1814,11 @@ func strictJSONFile(path string, target any) error {
 		return fmt.Errorf("trailing JSON content: %w", err)
 	}
 	return nil
+}
+
+// strictJSONFile reads the filesystem directly; strictJSONFileIn reads the operation's files.
+func strictJSONFile(path string, target any) error {
+	return strictJSONFileIn(NativeFiles(), path, target)
 }
 
 func rejectDuplicateJSONKeysAndControls(raw []byte) error {
@@ -1897,13 +1917,13 @@ func (s Store) LoadReviewBundle(id string) (ReviewBundle, error) {
 	if !strings.HasPrefix(id, "rvb-") || len(id) != 20 {
 		return ReviewBundle{}, fmt.Errorf("pose: invalid review bundle id %q", id)
 	}
-	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-bundles")), false)
+	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, filepath.ToSlash(filepath.Join(".pose", "review-bundles")), false)
 	if err != nil {
 		return ReviewBundle{}, err
 	}
 	path := filepath.Join(dir, id+".json")
 	var bundle ReviewBundle
-	if err := strictJSONFile(path, &bundle); err != nil {
+	if err := strictJSONFileIn(s.fsys(), path, &bundle); err != nil {
 		return ReviewBundle{}, fmt.Errorf("pose: reading review bundle %s: %w", id, err)
 	}
 	if bundle.SchemaVersion != ReviewBundleSchemaVersion || bundle.BundleID != id || bundle.State != "sealed" {
@@ -1950,14 +1970,14 @@ func attributeLoss(loss SourceLoss, raw []byte, path ...string) SourceLoss {
 // that names none is unattributed, and may be a bundle of any scope.
 func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 	coverage := SourceCoverage{Losses: []SourceLoss{}}
-	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-bundles")), false)
+	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, filepath.ToSlash(filepath.Join(".pose", "review-bundles")), false)
 	if os.IsNotExist(err) {
 		return ReviewBundlesRead{Bundles: []ReviewBundle{}, Coverage: coverage}, nil
 	}
 	if err != nil {
 		return ReviewBundlesRead{}, err
 	}
-	entries, err := os.ReadDir(dir)
+	entries, err := s.fsys().ReadDir(dir)
 	if os.IsNotExist(err) {
 		return ReviewBundlesRead{Bundles: []ReviewBundle{}, Coverage: coverage}, nil
 	}
@@ -1972,7 +1992,7 @@ func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 		id := strings.TrimSuffix(entry.Name(), ".json")
 		rel := filepath.ToSlash(filepath.Join(".pose", "review-bundles", entry.Name()))
 		if scope != "" {
-			raw, err := os.ReadFile(filepath.Join(dir, entry.Name()))
+			raw, err := s.fsys().ReadFile(filepath.Join(dir, entry.Name()))
 			if err != nil {
 				coverage.Add(SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossReadError, Detail: err.Error()})
 				continue
@@ -2008,7 +2028,7 @@ func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 				return ReviewBundlesRead{}, loadErr
 			}
 			loss := SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: loadErr.Error()}
-			if raw, readErr := os.ReadFile(filepath.Join(dir, entry.Name())); readErr == nil {
+			if raw, readErr := s.fsys().ReadFile(filepath.Join(dir, entry.Name())); readErr == nil {
 				if futureSchema(raw) {
 					// Well-formed JSON of a format this engine does not read.
 					loss.Kind, loss.Detail = LossUnsupported, "the record has a schema_version this engine does not read"
@@ -2396,7 +2416,7 @@ func (s Store) recordReviewAttestation(att ReviewAttestation, now time.Time, sig
 		return ReviewAttestation{}, &ReviewApprovalRefusal{BundleID: bundle.BundleID, Blockers: blockers}
 	}
 	att.Path = filepath.ToSlash(filepath.Join(".pose", "review-attestations", att.AttestationID+".json"))
-	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), true)
+	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), true)
 	if err != nil {
 		return ReviewAttestation{}, err
 	}
@@ -2622,12 +2642,12 @@ func (s Store) VerifyReviewAttestationEnvelope(envelope ReviewAttestationEnvelop
 }
 
 func (s Store) ImportReviewAttestationEnvelope(rel string, apply bool) (ReviewAttestation, error) {
-	if err := ValidateArtifactPath(s.Root, rel, false); err != nil {
+	if err := ValidateArtifactPathIn(s.fsys(), s.Root, rel, false); err != nil {
 		return ReviewAttestation{}, fmt.Errorf("pose: invalid attestation envelope path: %w", err)
 	}
 	clean, _ := validateArtifactPathSyntax(rel)
 	var envelope ReviewAttestationEnvelope
-	if err := strictJSONFile(filepath.Join(s.Root, clean), &envelope); err != nil {
+	if err := strictJSONFileIn(s.fsys(), filepath.Join(s.Root, clean), &envelope); err != nil {
 		return ReviewAttestation{}, fmt.Errorf("pose: reading review attestation envelope: %w", err)
 	}
 	return s.RecordReviewAttestationEnvelope(envelope, apply)
@@ -2638,12 +2658,12 @@ func (s Store) LoadReviewAttestation(id string) (ReviewAttestation, error) {
 		return ReviewAttestation{}, fmt.Errorf("pose: invalid review attestation id %q", id)
 	}
 	var att ReviewAttestation
-	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), false)
+	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), false)
 	if err != nil {
 		return ReviewAttestation{}, err
 	}
 	path := filepath.Join(dir, id+".json")
-	if err := strictJSONFile(path, &att); err != nil {
+	if err := strictJSONFileIn(s.fsys(), path, &att); err != nil {
 		return ReviewAttestation{}, fmt.Errorf("pose: reading review attestation %s: %w", id, err)
 	}
 	if att.SchemaVersion != ReviewBundleSchemaVersion || att.AttestationID != id {
@@ -2679,14 +2699,14 @@ type ReviewAttestationsRead struct {
 // be a rejection of this bundle.
 func (s Store) ReadReviewAttestations(bundleID string) (ReviewAttestationsRead, error) {
 	coverage := SourceCoverage{Losses: []SourceLoss{}}
-	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), false)
+	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), false)
 	if os.IsNotExist(err) {
 		return ReviewAttestationsRead{Attestations: []ReviewAttestation{}, Coverage: coverage}, nil
 	}
 	if err != nil {
 		return ReviewAttestationsRead{}, err
 	}
-	entries, err := os.ReadDir(dir)
+	entries, err := s.fsys().ReadDir(dir)
 	if os.IsNotExist(err) {
 		return ReviewAttestationsRead{Attestations: []ReviewAttestation{}, Coverage: coverage}, nil
 	}
@@ -2701,7 +2721,7 @@ func (s Store) ReadReviewAttestations(bundleID string) (ReviewAttestationsRead, 
 		id := strings.TrimSuffix(entry.Name(), ".json")
 		rel := filepath.ToSlash(filepath.Join(".pose", "review-attestations", entry.Name()))
 		if bundleID != "" {
-			raw, err := os.ReadFile(filepath.Join(dir, entry.Name()))
+			raw, err := s.fsys().ReadFile(filepath.Join(dir, entry.Name()))
 			if err != nil {
 				coverage.Add(SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossReadError, Detail: err.Error()})
 				continue
@@ -2734,7 +2754,7 @@ func (s Store) ReadReviewAttestations(bundleID string) (ReviewAttestationsRead, 
 				return ReviewAttestationsRead{}, loadErr
 			}
 			loss := SourceLoss{Producer: "review-attestations", Artifact: rel, Kind: LossParseError, Detail: loadErr.Error()}
-			if raw, readErr := os.ReadFile(filepath.Join(dir, entry.Name())); readErr == nil {
+			if raw, readErr := s.fsys().ReadFile(filepath.Join(dir, entry.Name())); readErr == nil {
 				if futureSchema(raw) {
 					loss.Kind, loss.Detail = LossUnsupported, "the record has a schema_version this engine does not read"
 				}
@@ -3135,7 +3155,7 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	if skipEvidenceSupport {
 		sealedEvidence = nil
 	}
-	toolWarnings, toolBlockers := evaluateReviewToolCoverage(s.Root, bundle.Payload.Plan.Tools, att.Tools, sealedEvidence, hasDeliveryTarget)
+	toolWarnings, toolBlockers := evaluateReviewToolCoverageIn(s.fsys(), s.Root, bundle.Payload.Plan.Tools, att.Tools, sealedEvidence, hasDeliveryTarget)
 	_ = toolWarnings
 	blockers = append(blockers, toolBlockers...)
 	blockers = append(blockers, reviewFindingDecisionBlockers(bundle, att)...)

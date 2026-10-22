@@ -75,13 +75,13 @@ type DocsManifest struct {
 func (s Store) DocsManifestPath() string { return filepath.Join(s.Root, ".pose", "docs.json") }
 
 func (s Store) HasDocsManifest() bool {
-	_, err := os.Stat(s.DocsManifestPath())
+	_, err := s.fsys().Stat(s.DocsManifestPath())
 	return err == nil
 }
 
 func (s Store) LoadDocsManifest() (*DocsManifest, error) {
 	path := s.DocsManifestPath()
-	raw, err := os.ReadFile(path)
+	raw, err := s.fsys().ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("pose: docs manifest not found at %s (run `pose docs-init`)", path)
 	}
@@ -219,12 +219,12 @@ func (s Store) CheckDocs(ctx context.Context, manifest *DocsManifest) DocsCheckR
 		declared[filepath.ToSlash(entry.Path)] = true
 		result.Totals.ByType[entry.DocType]++
 
-		if !localArtifactExists(s.Root, ".", entry.Path) {
+		if !localArtifactExists(s.fsys(), s.Root, ".", entry.Path) {
 			add("missing", entry.Path, fmt.Sprintf("declared doc %q not found under the project root", entry.Path))
 			continue
 		}
 		full := filepath.Join(s.Root, filepath.FromSlash(entry.Path))
-		raw, err := os.ReadFile(full)
+		raw, err := s.fsys().ReadFile(full)
 		if err != nil {
 			add("missing", entry.Path, fmt.Sprintf("declared doc %q could not be read: %v", entry.Path, err))
 			continue
@@ -236,7 +236,7 @@ func (s Store) CheckDocs(ctx context.Context, manifest *DocsManifest) DocsCheckR
 		}
 
 		for _, m := range docsLinkRE.FindAllStringSubmatch(string(raw), -1) {
-			if brokenRelativeLink(s.Root, entry.Path, m[1]) {
+			if brokenRelativeLink(s.fsys(), s.Root, entry.Path, m[1]) {
 				add("broken_link", entry.Path, fmt.Sprintf("relative link target %q does not resolve", m[1]))
 			}
 		}
@@ -266,7 +266,7 @@ func (s Store) CheckDocs(ctx context.Context, manifest *DocsManifest) DocsCheckR
 		}
 	}
 
-	if events, err := LoadDocsReviewEvents(s.DocsReviewPath()); err == nil {
+	if events, err := LoadDocsReviewEventsIn(s.fsys(), s.DocsReviewPath()); err == nil {
 		pending := PendingDocsReviews(events)
 		docs := make([]string, 0, len(pending))
 		for doc := range pending {
@@ -285,7 +285,7 @@ func (s Store) CheckDocs(ctx context.Context, manifest *DocsManifest) DocsCheckR
 // fail to resolve. External (http/https/mailto), anchor-only (#...) and
 // typed-pointer (spec:/adr:/...) targets are out of scope here — those are
 // either not locally checkable or already covered by docsTypedRefRE.
-func brokenRelativeLink(root, docPath, target string) bool {
+func brokenRelativeLink(files Files, root, docPath, target string) bool {
 	target = strings.SplitN(target, "#", 2)[0]
 	if target == "" {
 		return false
@@ -303,7 +303,7 @@ func brokenRelativeLink(root, docPath, target string) bool {
 	if err != nil || strings.HasPrefix(rel, "..") {
 		return true
 	}
-	return !localArtifactExists(root, ".", rel)
+	return !localArtifactExists(files, root, ".", rel)
 }
 
 // docStaleness resolves an entry's deadline (its own ReviewAfter, or
@@ -368,7 +368,7 @@ func (s Store) walkMarkdownFiles(dir string) []string {
 		return nil
 	}
 	var out []string
-	_ = filepath.WalkDir(base, func(path string, d os.DirEntry, err error) error {
+	_ = WalkDirIn(s.fsys(), base, func(path string, d os.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return nil
 		}

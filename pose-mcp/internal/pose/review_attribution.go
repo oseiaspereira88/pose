@@ -230,7 +230,7 @@ func (s Store) RecordReviewAttributionSupplement(sup ReviewAttributionSupplement
 		return ReviewAttributionSupplement{}, err
 	}
 	sup.SupplementID = "ras-" + strings.TrimPrefix(digest, "sha256:")[:16]
-	dir, err := ensureReviewArtifactDir(s.Root, reviewAttributionSupplementDir, true)
+	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, reviewAttributionSupplementDir, true)
 	if err != nil {
 		return ReviewAttributionSupplement{}, err
 	}
@@ -247,7 +247,7 @@ func (s Store) RecordReviewAttributionSupplement(sup ReviewAttributionSupplement
 // ListReviewAttributionSupplements returns the supplements of one
 // attestation, oldest first.
 func (s Store) ListReviewAttributionSupplements(attestationID string) ([]ReviewAttributionSupplement, error) {
-	entries, err := os.ReadDir(filepath.Join(s.Root, filepath.FromSlash(reviewAttributionSupplementDir)))
+	entries, err := s.fsys().ReadDir(filepath.Join(s.Root, filepath.FromSlash(reviewAttributionSupplementDir)))
 	if os.IsNotExist(err) {
 		return nil, nil
 	}
@@ -259,7 +259,7 @@ func (s Store) ListReviewAttributionSupplements(attestationID string) ([]ReviewA
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
 			continue
 		}
-		raw, readErr := os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(reviewAttributionSupplementDir), entry.Name()))
+		raw, readErr := s.fsys().ReadFile(filepath.Join(s.Root, filepath.FromSlash(reviewAttributionSupplementDir), entry.Name()))
 		if readErr != nil {
 			return nil, readErr
 		}

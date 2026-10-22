@@ -99,7 +99,7 @@ func confinedRelativePath(path string) bool {
 	return !filepath.IsAbs(clean) && clean != ".." && !strings.HasPrefix(clean, ".."+string(filepath.Separator))
 }
 
-func discoverValidationModules(root string) ([]validationModule, error) {
+func discoverValidationModulesIn(files posemodel.Files, root string) ([]validationModule, error) {
 	// testdata/fixture(s): see index.go's scanModules for why these are
 	// excluded (spec pose-upgrade-path-audit-fixes).
 	ignored := map[string]bool{".git": true, ".qwen": true, "node_modules": true, "vendor": true, ".venv": true, ".pnpm-store": true, "target": true, "dist": true, "build": true, ".next": true, "coverage": true, ".pose": true, "testdata": true, "fixture": true, "fixtures": true}
@@ -107,9 +107,9 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 	// deliberately excludes, e.g. a vendored tool) is never a governed
 	// deliverable module — see posemodel.GitIgnoredPaths (spec
 	// pose-discovery-gitignore-and-root-alias-fix).
-	gitIgnored := posemodel.GitIgnoredPaths(root)
+	gitIgnored := posemodel.GitIgnoredPathsIn(files, root)
 	byPath := map[string]string{}
-	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
+	err := posemodel.WalkDirIn(files, root, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -145,7 +145,7 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 	}
 	modules := make([]validationModule, 0, len(byPath))
 	for abs, stack := range byPath {
-		if stack == "java" && isAndroidModule(abs) {
+		if stack == "java" && isAndroidModuleIn(files, abs) {
 			// A Gradle module carrying an AndroidManifest.xml is an Android
 			// app/library, not a generic JVM backend module — conflating the
 			// two under "java" made every Android module's domain
@@ -164,21 +164,33 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 	return modules, nil
 }
 
+// discoverValidationModules reads and writes the filesystem directly; discoverValidationModulesIn takes the
+// operation's files.
+func discoverValidationModules(root string) ([]validationModule, error) {
+	return discoverValidationModulesIn(posemodel.NativeFiles(), root)
+}
+
 // isAndroidModule reports whether a Gradle module directory is an Android
 // app/library rather than a generic JVM module, by the one file every
 // Android module has and no other Gradle module does: AndroidManifest.xml,
 // at its conventional root-relative location or directly in the module
 // (some legacy layouts skip the src/main nesting).
-func isAndroidModule(moduleDir string) bool {
+func isAndroidModuleIn(files posemodel.Files, moduleDir string) bool {
 	for _, candidate := range []string{
 		filepath.Join(moduleDir, "src", "main", "AndroidManifest.xml"),
 		filepath.Join(moduleDir, "AndroidManifest.xml"),
 	} {
-		if _, err := os.Stat(candidate); err == nil {
+		if _, err := files.Stat(candidate); err == nil {
 			return true
 		}
 	}
 	return false
+}
+
+// isAndroidModule reads and writes the filesystem directly; isAndroidModuleIn takes the
+// operation's files.
+func isAndroidModule(moduleDir string) bool {
+	return isAndroidModuleIn(posemodel.NativeFiles(), moduleDir)
 }
 
 // validationSkipReason returns the deterministic selection reason when a

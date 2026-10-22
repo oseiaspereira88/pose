@@ -28,7 +28,7 @@ type indexedModule struct {
 	MetadataStatus    map[string]any    `json:"metadataStatus"`
 }
 
-func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
+func cmdIndexIn(files posepkg.Files, root string, args []string, stdout, stderr io.Writer) int {
 	rest, flags, flagErr := splitOutputFlags(args)
 	verify := len(rest) == 1 && rest[0] == "--verify"
 	if flagErr != "" || (len(rest) > 0 && !verify) {
@@ -49,10 +49,10 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	if verify {
-		return verifyIndexGeneration(root, gate, out, fail)
+		return verifyIndexGeneration(files, root, gate, out, fail)
 	}
-	modules, manifests, dockers, charts, readmes := scanModules(root)
-	metadataDefaults, metadata := loadModuleMetadata(root)
+	modules, manifests, dockers, charts, readmes := scanModulesIn(files, root)
+	metadataDefaults, metadata := loadModuleMetadataIn(files, root)
 	apps, services, packages := []indexedModule{}, []indexedModule{}, []indexedModule{}
 	for _, m := range modules {
 		decl := metadata[m.Path]
@@ -93,9 +93,9 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	repo := map[string]any{"root": ".", "apps": apps, "services": services, "packages": packages, "manifests": manifests, "dockerfiles": dockers, "helmCharts": charts, "readmes": readmes, "moduleMetadata": map[string]any{"schemaVersion": 1, "source": ".pose/indexes/module-metadata.json"}}
-	store := posepkg.Store{Root: root}
+	store := posepkg.Store{Root: root, FS: files}
 	specs, _ := store.ListSpecs("", "")
-	resolver, project, resolveErr := posepkg.EnvironmentArtifactResolver(root, "")
+	resolver, project, resolveErr := posepkg.EnvironmentArtifactResolverIn(files, root, "")
 	if resolveErr != nil {
 		return fail("invalid-project-configuration", "invalid-project-configuration: "+resolveErr.Error())
 	}
@@ -127,7 +127,7 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		roadmapMap[r.Slug] = map[string]any{"status": r.Status, "created_at": r.CreatedAt, "depends_on": r.DependsOn, "consumes": r.Consumes, "milestones": r.Milestones, "federated_acceptance": federated, "path": relativePath(root, r.Path)}
 	}
-	deliveryGraph, err := buildCurrentDeliveryGraph(root)
+	deliveryGraph, err := buildCurrentDeliveryGraphIn(files, root)
 	if err != nil {
 		return fail("delivery-integrity", fmt.Sprintf("delivery integrity: %v", err))
 	}
@@ -154,7 +154,7 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	// The seven files are published as one generation (spec
 	// pose-index-generation-integrity): the set becomes current only when the
 	// descriptor is committed after every file.
-	receipt, e := store.PublishIndexGeneration(encoded, posepkg.IndexInputBindings(root))
+	receipt, e := store.PublishIndexGeneration(encoded, posepkg.IndexInputBindingsIn(files, root))
 	if e != nil {
 		switch {
 		case receipt.Committed:
@@ -185,7 +185,13 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
-func scanModules(root string) ([]indexedModule, []string, []string, []string, []string) {
+// cmdIndex reads and writes the filesystem directly; cmdIndexIn takes the
+// operation's files.
+func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
+	return cmdIndexIn(posepkg.NativeFiles(), root, args, stdout, stderr)
+}
+
+func scanModulesIn(files posepkg.Files, root string) ([]indexedModule, []string, []string, []string, []string) {
 	// testdata/fixture(s) hold synthetic content by convention (testdata is
 	// the Go toolchain's own name for it), never a repository's real
 	// deliverable modules — a fixture go.mod under an adoption-kit example
@@ -196,10 +202,10 @@ func scanModules(root string) ([]indexedModule, []string, []string, []string, []
 	// See discoverValidationModules (validate.go) for why a gitignored
 	// subtree is excluded the same way (spec
 	// pose-discovery-gitignore-and-root-alias-fix).
-	gitIgnored := posepkg.GitIgnoredPaths(root)
+	gitIgnored := posepkg.GitIgnoredPathsIn(files, root)
 	byDir := map[string]string{}
 	manifests, dockers, charts, readmes := []string{}, []string{}, []string{}, []string{}
-	_ = filepath.WalkDir(root, func(path string, e os.DirEntry, err error) error {
+	_ = posepkg.WalkDirIn(files, root, func(path string, e os.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -255,7 +261,7 @@ func scanModules(root string) ([]indexedModule, []string, []string, []string, []
 			rel = ""
 		}
 		lang := byDir[d]
-		if lang == "java" && isAndroidModule(d) {
+		if lang == "java" && isAndroidModuleIn(files, d) {
 			lang = "android"
 		}
 		mods = append(mods, indexedModule{Name: filepath.Base(d), Path: filepath.ToSlash(rel), Language: lang, HasDockerfile: containsParent(dockers, rel), HasHelmChart: containsParent(charts, rel)})
@@ -264,6 +270,12 @@ func scanModules(root string) ([]indexedModule, []string, []string, []string, []
 		sort.Strings(s)
 	}
 	return mods, manifests, dockers, charts, readmes
+}
+
+// scanModules reads and writes the filesystem directly; scanModulesIn takes the
+// operation's files.
+func scanModules(root string) ([]indexedModule, []string, []string, []string, []string) {
+	return scanModulesIn(posepkg.NativeFiles(), root)
 }
 func containsParent(paths []string, parent string) bool {
 	for _, p := range paths {
@@ -280,8 +292,8 @@ func relativePath(root, path string) string {
 	}
 	return filepath.ToSlash(r)
 }
-func loadModuleMetadata(root string) (map[string]string, map[string]map[string]string) {
-	raw, e := os.ReadFile(filepath.Join(root, ".pose", "indexes", "module-metadata.json"))
+func loadModuleMetadataIn(files posepkg.Files, root string) (map[string]string, map[string]map[string]string) {
+	raw, e := files.ReadFile(filepath.Join(root, ".pose", "indexes", "module-metadata.json"))
 	if e != nil {
 		return map[string]string{}, map[string]map[string]string{}
 	}
@@ -301,6 +313,12 @@ func loadModuleMetadata(root string) (map[string]string, map[string]map[string]s
 	return payload.Defaults, payload.Modules
 }
 
+// loadModuleMetadata reads and writes the filesystem directly; loadModuleMetadataIn takes the
+// operation's files.
+func loadModuleMetadata(root string) (map[string]string, map[string]map[string]string) {
+	return loadModuleMetadataIn(posepkg.NativeFiles(), root)
+}
+
 // indexPublishCode names the failure of a generation publication for the
 // machine-readable document.
 func indexPublishCode(err error) string {
@@ -318,8 +336,8 @@ func indexPublishCode(err error) string {
 // verifyIndexGeneration reads the published set without writing anything. It
 // passes only for a current generation whose bindings still hold; every other
 // state is named, never reported as a complete set.
-func verifyIndexGeneration(root string, gate *gateOutput, out *cliout.Renderer, fail func(code, message string) int) int {
-	view := posepkg.Store{Root: root}.ReadIndexGeneration()
+func verifyIndexGeneration(files posepkg.Files, root string, gate *gateOutput, out *cliout.Renderer, fail func(code, message string) int) int {
+	view := posepkg.Store{Root: root, FS: files}.ReadIndexGeneration()
 	out.RecordField("index_generation_status", string(view.Status))
 	switch view.Status {
 	case posepkg.IndexGenerationLegacy:
@@ -332,7 +350,7 @@ func verifyIndexGeneration(root string, gate *gateOutput, out *cliout.Renderer, 
 		out.RecordField("index_generation_diverged", strings.Join(view.Diverged, ","))
 		return fail("index-generation-diverged", "generation "+view.Descriptor.GenerationID+" is whole, but "+strings.Join(view.Diverged, ", ")+" under .pose/indexes differ from it (edited by hand, or a publication is running); run `pose index`")
 	}
-	stale := view.StaleInputs(func(name string) (string, bool) { return posepkg.IndexInputBinding(root, name) })
+	stale := view.StaleInputs(func(name string) (string, bool) { return posepkg.IndexInputBindingIn(files, root, name) })
 	if len(stale) > 0 {
 		out.RecordField("index_generation_stale_inputs", strings.Join(stale, ","))
 		return fail("index-generation-stale", "generation "+view.Descriptor.GenerationID+" was computed from other inputs ("+strings.Join(stale, ", ")+" changed); run `pose index`")

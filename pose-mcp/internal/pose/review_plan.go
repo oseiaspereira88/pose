@@ -359,7 +359,7 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	for _, c := range plan.Criteria {
 		for _, rule := range c.Rules {
 			path := filepath.Join(s.Root, ".pose", "rules", rule+".md")
-			if _, statErr := os.Stat(path); statErr != nil {
+			if _, statErr := s.fsys().Stat(path); statErr != nil {
 				plan.Warnings = append(plan.Warnings, fmt.Sprintf("uninstalled review rule %q for criterion %s (install via extension)", rule, c.ID))
 			}
 		}
@@ -586,7 +586,7 @@ func (s Store) loadReviewRepoEntries() ([]reviewRepoEntry, error) {
 					continue
 				}
 				entry.Path = filepath.ToSlash(filepath.Clean(entry.Path))
-				if err := validateReviewPath(s.Root, entry.Path); err != nil {
+				if err := validateReviewPath(s.fsys(), s.Root, entry.Path); err != nil {
 					return nil, fmt.Errorf("review component map path %q is unsafe: %w", entry.Path, err)
 				}
 				if !seen[entry.Path] {
@@ -598,7 +598,7 @@ func (s Store) loadReviewRepoEntries() ([]reviewRepoEntry, error) {
 	}
 
 	// 2. Load from .pose/indexes/module-metadata.json if present
-	if raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "module-metadata.json")); err == nil {
+	if raw, err := s.fsys().ReadFile(filepath.Join(s.Root, ".pose", "indexes", "module-metadata.json")); err == nil {
 		var meta struct {
 			Modules map[string]struct {
 				Domain            string `json:"domain"`
@@ -613,7 +613,7 @@ func (s Store) loadReviewRepoEntries() ([]reviewRepoEntry, error) {
 				if cleanPath == "." || cleanPath == "" || strings.HasPrefix(cleanPath, ".tmp/") {
 					continue
 				}
-				if err := validateReviewPath(s.Root, cleanPath); err == nil && !seen[cleanPath] {
+				if err := validateReviewPath(s.fsys(), s.Root, cleanPath); err == nil && !seen[cleanPath] {
 					seen[cleanPath] = true
 					entries = append(entries, reviewRepoEntry{
 						Name:              filepath.Base(cleanPath),
@@ -630,9 +630,9 @@ func (s Store) loadReviewRepoEntries() ([]reviewRepoEntry, error) {
 	}
 
 	// 3. Load from .pose/state/components/*.json if present
-	if compFiles, err := filepath.Glob(filepath.Join(s.Root, ".pose", "state", "components", "*.json")); err == nil {
+	if compFiles, err := GlobIn(s.fsys(), filepath.Join(s.Root, ".pose", "state", "components", "*.json")); err == nil {
 		for _, compFile := range compFiles {
-			if raw, err := os.ReadFile(compFile); err == nil {
+			if raw, err := s.fsys().ReadFile(compFile); err == nil {
 				var comp struct {
 					ComponentSlug string `json:"component_slug"`
 					RootPath      string `json:"root_path"`
@@ -649,7 +649,7 @@ func (s Store) loadReviewRepoEntries() ([]reviewRepoEntry, error) {
 					}
 					cleanPath := filepath.ToSlash(filepath.Clean(path))
 					if cleanPath != "." && cleanPath != "" && !seen[cleanPath] {
-						if err := validateReviewPath(s.Root, cleanPath); err == nil {
+						if err := validateReviewPath(s.fsys(), s.Root, cleanPath); err == nil {
 							seen[cleanPath] = true
 							entries = append(entries, reviewRepoEntry{
 								Name:     slug,
@@ -665,7 +665,7 @@ func (s Store) loadReviewRepoEntries() ([]reviewRepoEntry, error) {
 	}
 
 	// 4. Auto-discover top-level component directories in project root if they exist
-	if dirEntries, err := os.ReadDir(s.Root); err == nil {
+	if dirEntries, err := s.fsys().ReadDir(s.Root); err == nil {
 		for _, de := range dirEntries {
 			if !de.IsDir() {
 				continue
@@ -676,7 +676,7 @@ func (s Store) loadReviewRepoEntries() ([]reviewRepoEntry, error) {
 			}
 			cleanPath := filepath.ToSlash(filepath.Clean(name))
 			if !seen[cleanPath] {
-				if err := validateReviewPath(s.Root, cleanPath); err == nil {
+				if err := validateReviewPath(s.fsys(), s.Root, cleanPath); err == nil {
 					seen[cleanPath] = true
 					entries = append(entries, reviewRepoEntry{
 						Name: name,
@@ -741,7 +741,7 @@ func matchExplicitReviewComponent(entries []reviewRepoEntry, value string) []rev
 
 func (s Store) mapReviewPath(entries []reviewRepoEntry, path, source string, add func(reviewRepoEntry, string), unmapped map[string]bool, context *reviewPlanContext) {
 	clean := filepath.ToSlash(filepath.Clean(path))
-	if err := validateReviewPath(s.Root, clean); err != nil {
+	if err := validateReviewPath(s.fsys(), s.Root, clean); err != nil {
 		context.Blockers = append(context.Blockers, "invalid review component path "+path+": "+err.Error())
 		return
 	}
@@ -1089,7 +1089,7 @@ func (s Store) annotateReviewToolProducerCoverage(tools []ReviewPlanTool, warnin
 // componentDeclaresNoChecks answers only for the explicit declaration. Anything
 // it cannot read is false, because the conservative answer is to keep asking.
 func (s Store) componentDeclaresNoChecks(component string) bool {
-	raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "validation-matrix.json"))
+	raw, err := s.fsys().ReadFile(filepath.Join(s.Root, ".pose", "indexes", "validation-matrix.json"))
 	if err != nil {
 		return false
 	}
@@ -1333,7 +1333,7 @@ func digestReviewPlan(plan ReviewPlan) (string, error) {
 	}{plan.SchemaVersion, plan.Scope, plan.ScopeDigest, plan.BaseProfile, plan.Independence, plan.PolicySchemaVersion, components, plan.SelectedProfiles, plan.Criteria, plan.Tools, plan.Warnings, plan.Blockers, plan.Explain, structure})
 }
 
-func validateReviewPath(root, value string) error {
+func validateReviewPath(files Files, root, value string) error {
 	clean, err := validateArtifactPathSyntax(value)
 	if err != nil {
 		return err
@@ -1342,19 +1342,19 @@ func validateReviewPath(root, value string) error {
 	if err != nil {
 		return err
 	}
-	rootReal, err := filepath.EvalSymlinks(rootAbs)
+	rootReal, err := files.EvalSymlinks(rootAbs)
 	if err != nil {
 		return err
 	}
 	candidate := filepath.Join(rootAbs, clean)
 	for current := candidate; current != rootAbs; current = filepath.Dir(current) {
-		if _, statErr := os.Lstat(current); statErr != nil {
+		if _, statErr := files.Lstat(current); statErr != nil {
 			if os.IsNotExist(statErr) {
 				continue
 			}
 			return statErr
 		}
-		real, evalErr := filepath.EvalSymlinks(current)
+		real, evalErr := files.EvalSymlinks(current)
 		if evalErr != nil {
 			return evalErr
 		}

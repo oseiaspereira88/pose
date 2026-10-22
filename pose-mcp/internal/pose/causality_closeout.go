@@ -90,7 +90,7 @@ func (s Store) reviewScopeBasis(scope ScopeRef) map[string]string {
 	}
 	basis := map[string]string{}
 	for _, spec := range specs {
-		basis[spec.Slug] = ProjectContractNodes(spec.Slug, spec.Body).Digest
+		basis[spec.Slug] = ProjectContractNodesIn(s.fsys(), spec.Slug, spec.Body).Digest
 	}
 	return basis
 }
@@ -104,7 +104,7 @@ func (s Store) reviewScopeNodeStates(scope ScopeRef) map[string]ContractNode {
 		return out
 	}
 	for _, spec := range specs {
-		for _, node := range ProjectContractNodes(spec.Slug, spec.Body).Nodes {
+		for _, node := range ProjectContractNodesIn(s.fsys(), spec.Slug, spec.Body).Nodes {
 			out[node.ID] = node
 		}
 	}

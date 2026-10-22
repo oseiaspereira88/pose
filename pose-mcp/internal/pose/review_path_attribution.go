@@ -61,7 +61,7 @@ type attributedChange struct {
 // commit did to the subject paths. It returns nil when Git cannot answer; the
 // structural assessment then compares Base and Head as before, and the range
 // observation already says whether that range is contaminated.
-func reviewBundleAttribution(root string, sets []ChangeSet, allowed map[string]bool, entries []ReviewBundleSubjectEntry) []ReviewBundlePathAttribution {
+func reviewBundleAttribution(files Files, root string, sets []ChangeSet, allowed map[string]bool, entries []ReviewBundleSubjectEntry) []ReviewBundlePathAttribution {
 	wanted := map[string]bool{}
 	for _, entry := range entries {
 		// A rename joins two paths; a commit-level view would have to follow it

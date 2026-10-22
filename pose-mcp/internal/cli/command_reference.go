@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -94,7 +93,7 @@ func CommandReferenceGaps(manual, help string) []string {
 // translation that lags is as unusable to an agent as a missing entry.
 func (checker *nativeChecker) checkCommandReference() {
 	manuals := []string{"POSE.md"}
-	if entries, err := os.ReadDir(filepath.Join(checker.root, "locales")); err == nil {
+	if entries, err := checker.fsys().ReadDir(filepath.Join(checker.root, "locales")); err == nil {
 		for _, entry := range entries {
 			if entry.IsDir() {
 				manuals = append(manuals, filepath.Join("locales", entry.Name(), "POSE.md"))
@@ -102,7 +101,7 @@ func (checker *nativeChecker) checkCommandReference() {
 		}
 	}
 	for _, manual := range manuals {
-		raw, err := os.ReadFile(filepath.Join(checker.root, manual))
+		raw, err := checker.fsys().ReadFile(filepath.Join(checker.root, manual))
 		if err != nil {
 			continue
 		}

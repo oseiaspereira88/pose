@@ -3,7 +3,6 @@ package pose
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -46,7 +45,7 @@ func newReviewReuseTraversal() *reviewReuseTraversal {
 
 func (s Store) reserveReuseArtifact(dir, id string) error {
 	path := filepath.Join(s.Root, ".pose", dir, id+".json")
-	info, err := os.Lstat(path)
+	info, err := s.fsys().Lstat(path)
 	if err != nil {
 		return fmt.Errorf("reuse source unavailable: %w", err)
 	}

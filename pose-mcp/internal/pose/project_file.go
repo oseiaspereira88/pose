@@ -29,8 +29,8 @@ func projectFilePath(root string) string {
 // ReadProjectFile returns the declared id. ok is false when the file is
 // absent; err is set when it exists and does not declare a valid id, which a
 // caller resolving an identity must treat as a failure, never as absence.
-func ReadProjectFile(root string) (string, bool, error) {
-	raw, err := os.ReadFile(projectFilePath(root))
+func ReadProjectFileIn(files Files, root string) (string, bool, error) {
+	raw, err := files.ReadFile(projectFilePath(root))
 	if errors.Is(err, os.ErrNotExist) {
 		return "", false, nil
 	}
@@ -50,14 +50,20 @@ func ReadProjectFile(root string) (string, bool, error) {
 	return doc.ProjectID, true, nil
 }
 
+// ReadProjectFile reads and writes the filesystem directly; ReadProjectFileIn takes the
+// operation's files.
+func ReadProjectFile(root string) (string, bool, error) {
+	return ReadProjectFileIn(NativeFiles(), root)
+}
+
 // WriteProjectFile declares id unless a file already exists, and reports
 // whether it wrote. A declared identity is never rewritten: other
 // repositories may already reference the project by it.
-func WriteProjectFile(root, id, name string) (bool, error) {
+func WriteProjectFileIn(files Files, root, id, name string) (bool, error) {
 	if ValidateSlug(id) != nil {
 		return false, fmt.Errorf("pose: %q is not a valid project id", id)
 	}
-	if _, err := os.Stat(projectFilePath(root)); err == nil {
+	if _, err := files.Stat(projectFilePath(root)); err == nil {
 		return false, nil
 	} else if !errors.Is(err, os.ErrNotExist) {
 		return false, err
@@ -66,11 +72,17 @@ func WriteProjectFile(root, id, name string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if err := os.MkdirAll(filepath.Dir(projectFilePath(root)), 0o755); err != nil {
+	if err := files.MkdirAll(filepath.Dir(projectFilePath(root)), 0o755); err != nil {
 		return false, err
 	}
-	if err := os.WriteFile(projectFilePath(root), append(raw, '\n'), 0o644); err != nil {
+	if err := files.WriteFile(projectFilePath(root), append(raw, '\n'), 0o644); err != nil {
 		return false, err
 	}
 	return true, nil
+}
+
+// WriteProjectFile reads and writes the filesystem directly; WriteProjectFileIn takes the
+// operation's files.
+func WriteProjectFile(root, id, name string) (bool, error) {
+	return WriteProjectFileIn(NativeFiles(), root, id, name)
 }

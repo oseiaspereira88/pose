@@ -332,20 +332,35 @@ func parseGitStatusEntries(out []byte) ([]GitStatusEntry, error) {
 	return entries, nil
 }
 
-func ReadGitStatus(root string, pathspecs ...string) ([]GitStatusEntry, error) {
+func ReadGitStatusIn(files Files, root string, pathspecs ...string) ([]GitStatusEntry, error) {
 	args := []string{"status", "--porcelain=v1", "-z", "--untracked-files=all", "--ignore-submodules=none"}
 	if len(pathspecs) > 0 {
 		args = append(args, "--")
 		args = append(args, pathspecs...)
 	}
-	out, err := snapshotGit(root, args...)
+	preview := FilesOrNative(files).Preview()
+	run := snapshotGit
+	if preview != nil {
+		run = previewGit
+	}
+	out, err := run(root, args...)
 	if err != nil {
 		if !hasGitMetadata(root) {
 			return nil, fmt.Errorf("%w: %v", ErrGitUnavailable, err)
 		}
 		return nil, err
 	}
-	return parseGitStatusEntries(out)
+	entries, err := parseGitStatusEntries(out)
+	if err != nil || preview == nil {
+		return entries, err
+	}
+	return projectGitStatus(preview, root, entries, pathspecs)
+}
+
+// ReadGitStatus reads and writes the filesystem directly; ReadGitStatusIn takes the
+// operation's files.
+func ReadGitStatus(root string, pathspecs ...string) ([]GitStatusEntry, error) {
+	return ReadGitStatusIn(NativeFiles(), root, pathspecs...)
 }
 
 func ReadGitHead(root string) (string, error) {

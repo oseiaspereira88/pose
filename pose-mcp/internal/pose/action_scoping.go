@@ -60,7 +60,7 @@ func (s Store) actionMaterial(project string, node NodeRef) (Store, ArtifactRef,
 		if s.FederatedResolver != nil {
 			resolver = *s.FederatedResolver
 		} else {
-			resolver, _, err = EnvironmentArtifactResolver(s.Root, "")
+			resolver, _, err = EnvironmentArtifactResolverIn(s.fsys(), s.Root, "")
 			if err != nil {
 				return Store{}, ref, "", err
 			}
@@ -93,7 +93,7 @@ func (s Store) actionMaterial(project string, node NodeRef) (Store, ArtifactRef,
 	if node.Kind == "" && node.ID == "" {
 		return source, ref, digestBytes([]byte(spec.Body)), nil
 	}
-	for _, n := range ProjectContractNodes(spec.Slug, spec.Body).Nodes {
+	for _, n := range ProjectContractNodesIn(s.fsys(), spec.Slug, spec.Body).Nodes {
 		if n.Kind == node.Kind && n.ID == node.ID {
 			return source, ref, n.Hash, nil
 		}

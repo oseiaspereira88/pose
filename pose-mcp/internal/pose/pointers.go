@@ -34,12 +34,12 @@ func (s Store) ResolvePointer(ref string) (ok bool, reason string) {
 		}
 		return true, ""
 	case "report":
-		if !localArtifactExists(s.Root, ".pose/reports", value) {
+		if !localArtifactExists(s.fsys(), s.Root, ".pose/reports", value) {
 			return false, fmt.Sprintf("report %q not found in .pose/reports", value)
 		}
 		return true, ""
 	case "adr":
-		if !localArtifactExists(s.Root, ".pose/adr", value) {
+		if !localArtifactExists(s.fsys(), s.Root, ".pose/adr", value) {
 			return false, fmt.Sprintf("adr %q not found in .pose/adr", value)
 		}
 		return true, ""
@@ -55,7 +55,7 @@ func (s Store) ResolvePointer(ref string) (ok bool, reason string) {
 		}
 		return false, fmt.Sprintf("knowledge %q not found in .pose/knowledge", value)
 	case "doc":
-		if !localArtifactExists(s.Root, ".", value) {
+		if !localArtifactExists(s.fsys(), s.Root, ".", value) {
 			return false, fmt.Sprintf("doc %q not found under the project root", value)
 		}
 		return true, ""

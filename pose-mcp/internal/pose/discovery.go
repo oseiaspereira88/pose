@@ -39,13 +39,22 @@ import (
 // Returns an empty (non-nil) set — never an error — when git is
 // unavailable or root is not a repository: discovery degrades to "nothing
 // is ignored," the behavior every caller already had before this existed.
-func GitIgnoredPaths(root string) map[string]bool {
+func GitIgnoredPathsIn(files Files, root string) map[string]bool {
 	ignored := map[string]bool{}
-	collectGitIgnoredPaths(root, "", ignored)
+	collectGitIgnoredPaths(files, root, "", ignored)
+	if preview := FilesOrNative(files).Preview(); preview != nil {
+		projectGitIgnored(preview, root, ignored)
+	}
 	return ignored
 }
 
-func collectGitIgnoredPaths(dir, prefix string, ignored map[string]bool) {
+// GitIgnoredPaths reads and writes the filesystem directly; GitIgnoredPathsIn takes the
+// operation's files.
+func GitIgnoredPaths(root string) map[string]bool {
+	return GitIgnoredPathsIn(NativeFiles(), root)
+}
+
+func collectGitIgnoredPaths(files Files, dir, prefix string, ignored map[string]bool) {
 	// -z: line output C-quotes a non-ASCII name and trimming a line strips a
 	// leading space that is part of the name; either way the path never
 	// matched the directory a walker visits.
@@ -64,20 +73,20 @@ func collectGitIgnoredPaths(dir, prefix string, ignored map[string]bool) {
 			}
 		}
 	}
-	for _, submodule := range gitSubmodulePaths(dir) {
+	for _, submodule := range gitSubmodulePaths(files, dir) {
 		path := filepath.Join(dir, filepath.FromSlash(submodule))
 		// An uninitialised submodule is an empty directory, and git run
 		// inside it resolves to the enclosing repository, which lists the
 		// same gitlink again: without this check the walk never ends.
-		if _, err := os.Stat(filepath.Join(path, ".git")); err != nil {
+		if _, err := files.Stat(filepath.Join(path, ".git")); err != nil {
 			continue
 		}
-		collectGitIgnoredPaths(path, prefix+submodule+"/", ignored)
+		collectGitIgnoredPaths(files, path, prefix+submodule+"/", ignored)
 	}
 }
 
 // gitSubmodulePaths lists the gitlinks (mode 160000) recorded in dir's index.
-func gitSubmodulePaths(dir string) []string {
+func gitSubmodulePaths(files Files, dir string) []string {
 	out, err := exec.Command("git", "-C", dir, "ls-files", "--stage", "-z").Output()
 	if err != nil {
 		return nil
@@ -217,7 +226,7 @@ func (s Store) FindComponentDirectories() []string {
 	}
 
 	// 2. Fallback: Auto-discover subdirectories containing project manifests
-	ignored := GitIgnoredPaths(s.Root)
+	ignored := GitIgnoredPathsIn(s.fsys(), s.Root)
 	_ = filepath.Walk(s.Root, func(path string, info os.FileInfo, err error) error {
 		if err != nil || !info.IsDir() {
 			return nil
@@ -405,7 +414,7 @@ func (s Store) DiscoverComponent(relPath string) (*ComponentDiscoveryState, erro
 			return nil
 		}
 		name := strings.ToLower(entry.Name())
-		loc, isTest, generated, debt, inspectErr := inspectCodeFile(path)
+		loc, isTest, generated, debt, inspectErr := inspectCodeFile(s.fsys(), path)
 		if inspectErr != nil {
 			coverage.Add(SourceLoss{Producer: "component-discovery", Artifact: relOf(path), Kind: LossReadError, Detail: "not scanned: " + inspectErr.Error()})
 			return nil
@@ -536,8 +545,8 @@ func (s Store) resolveGitCommit() string {
 // splits it into lines itself: a bufio.Scanner stops at a line longer than its token and
 // reports it only through Err, which the counts then hid. A file that cannot be read is
 // an error, not a file with zero markers.
-func inspectCodeFile(path string) (loc int, isTest, generated bool, debt TechnicalDebtMetrics, err error) {
-	raw, err := os.ReadFile(path)
+func inspectCodeFile(files Files, path string) (loc int, isTest, generated bool, debt TechnicalDebtMetrics, err error) {
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return 0, false, false, debt, err
 	}

@@ -39,7 +39,7 @@ func obligationNodeID(value string) string {
 
 // docsReviewObligations projects every doc with an open review mark.
 func (s Store) docsReviewObligations(project string) ([]Obligation, error) {
-	events, err := LoadDocsReviewEvents(s.DocsReviewPath())
+	events, err := LoadDocsReviewEventsIn(s.fsys(), s.DocsReviewPath())
 	if err != nil {
 		return nil, err
 	}

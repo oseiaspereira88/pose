@@ -76,7 +76,7 @@ func (s Store) dorApplies(createdAt string) bool {
 	if createdAt == "" {
 		return false
 	}
-	return LoadDoRPolicy(s.Root).AppliesTo(createdAt)
+	return LoadDoRPolicyIn(s.fsys(), s.Root).AppliesTo(createdAt)
 }
 
 // WaitingRef is one unsatisfied dependency of a spec, with the reason it does
@@ -128,7 +128,7 @@ var terminalStatuses = map[string]bool{
 // refs report an explicit reason and keep the spec not-ready (fail-closed —
 // the execution gate may downgrade per policy, never silently here).
 func (s Store) SpecReadiness(slug string) (*Readiness, error) {
-	resolver, project, err := EnvironmentArtifactResolver(s.Root, "")
+	resolver, project, err := EnvironmentArtifactResolverIn(s.fsys(), s.Root, "")
 	if err != nil {
 		return nil, err
 	}

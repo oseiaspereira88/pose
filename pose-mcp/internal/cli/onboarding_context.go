@@ -6,7 +6,7 @@ package cli
 // instead of leaving it for the operator to fill by hand.
 
 import (
-	"os"
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -30,9 +30,9 @@ var (
 // or generated. Returns "" when neither file exists or neither yields usable
 // prose (e.g. a README that is only badges/images), so callers can fall
 // back to the unfilled placeholder unchanged.
-func extractProjectContext(root string) string {
-	readme := excerptMarkdown(filepath.Join(root, "README.md"))
-	claude := excerptMarkdown(filepath.Join(root, "CLAUDE.md"))
+func extractProjectContextIn(files posemodel.Files, root string) string {
+	readme := excerptMarkdownIn(files, filepath.Join(root, "README.md"))
+	claude := excerptMarkdownIn(files, filepath.Join(root, "CLAUDE.md"))
 	switch {
 	case readme == "" && claude == "":
 		return ""
@@ -45,13 +45,19 @@ func extractProjectContext(root string) string {
 	}
 }
 
+// extractProjectContext reads and writes the filesystem directly; extractProjectContextIn takes the
+// operation's files.
+func extractProjectContext(root string) string {
+	return extractProjectContextIn(posemodel.NativeFiles(), root)
+}
+
 // excerptMarkdown extracts a Markdown file's first heading and the first
 // paragraph following it (or, absent a heading, the document's first
 // paragraph) as flowing plain text. Badge/image-only lines, HTML comments
 // and horizontal rules are skipped rather than excerpted. Returns "" when
 // the file is absent or has no usable prose.
-func excerptMarkdown(path string) string {
-	raw, err := os.ReadFile(path)
+func excerptMarkdownIn(files posemodel.Files, path string) string {
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return ""
 	}
@@ -113,6 +119,12 @@ func excerptMarkdown(path string) string {
 	}
 }
 
+// excerptMarkdown reads and writes the filesystem directly; excerptMarkdownIn takes the
+// operation's files.
+func excerptMarkdown(path string) string {
+	return excerptMarkdownIn(posemodel.NativeFiles(), path)
+}
+
 // truncateSummary caps s at max characters, cutting on a word boundary
 // rather than mid-word, and marks a cut with a trailing ellipsis so the
 // result never silently reads as complete when it isn't.
@@ -143,8 +155,8 @@ const projectContextPlaceholderPrefix = "{{PROJECT_NAME}}: "
 // replacement pass. A target with neither file, or with only boilerplate
 // (badges/images), returns content unchanged — a fresh non-brownfield
 // repository sees no behavior change.
-func injectExtractedProjectContext(content, target string) string {
-	summary := extractProjectContext(target)
+func injectExtractedProjectContextIn(files posemodel.Files, content, target string) string {
+	summary := extractProjectContextIn(files, target)
 	if summary == "" {
 		return content
 	}
@@ -156,4 +168,10 @@ func injectExtractedProjectContext(content, target string) string {
 		}
 	}
 	return content
+}
+
+// injectExtractedProjectContext reads and writes the filesystem directly; injectExtractedProjectContextIn takes the
+// operation's files.
+func injectExtractedProjectContext(content, target string) string {
+	return injectExtractedProjectContextIn(posemodel.NativeFiles(), content, target)
 }

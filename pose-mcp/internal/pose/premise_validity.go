@@ -45,7 +45,7 @@ var triggerPinRE = regexp.MustCompile(`^[0-9a-f]{8,64}$`)
 // trigger, and trivial assumptions must not receive one.
 var calendarTriggerKinds = map[string]bool{"date": true, "ttl": true, "expires": true, "expiry": true, "until": true}
 
-func parseDesignTriggers(value, root string) []DesignTrigger {
+func parseDesignTriggers(files Files, value, root string) []DesignTrigger {
 	var out []DesignTrigger
 	for _, part := range strings.FieldsFunc(value, func(r rune) bool { return r == ',' || r == ';' }) {
 		part = strings.TrimSpace(strings.Trim(strings.TrimSpace(part), "`"))
@@ -66,7 +66,7 @@ func parseDesignTriggers(value, root string) []DesignTrigger {
 			trigger.Pin = strings.ToLower(strings.TrimSpace(trigger.Value[at+1:]))
 			trigger.Value = strings.TrimSpace(trigger.Value[:at])
 		}
-		trigger.State, trigger.Current = triggerState(root, trigger)
+		trigger.State, trigger.Current = triggerState(files, root, trigger)
 		out = append(out, trigger)
 	}
 	return out
@@ -75,18 +75,18 @@ func parseDesignTriggers(value, root string) []DesignTrigger {
 // triggerState compares a local trigger's pinned digest with the content
 // now. Only repository files are compared offline; a provider or remote
 // contract is declared and stays unsupported in the core.
-func triggerState(root string, t DesignTrigger) (string, string) {
+func triggerState(files Files, root string, t DesignTrigger) (string, string) {
 	if calendarTriggerKinds[t.Kind] {
 		return TriggerUnsupported, ""
 	}
 	if !designLocalReference(t.Kind) || root == "" {
 		return TriggerUnsupported, ""
 	}
-	path := triggerPath(root, t)
+	path := triggerPath(files, root, t)
 	if path == "" {
 		return TriggerUnknown, ""
 	}
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return TriggerUnknown, ""
 	}
@@ -104,24 +104,24 @@ func triggerState(root string, t DesignTrigger) (string, string) {
 	return TriggerStale, current[:12]
 }
 
-func triggerPath(root string, t DesignTrigger) string {
+func triggerPath(files Files, root string, t DesignTrigger) string {
 	if filepath.IsAbs(t.Value) || strings.Contains(t.Value, "..") {
 		return ""
 	}
 	if t.Kind == "doc" {
 		return filepath.Join(root, filepath.FromSlash(t.Value))
 	}
-	if !designReferenceExists(root, t.Kind, t.Value) {
+	if !designReferenceExists(files, root, t.Kind, t.Value) {
 		return ""
 	}
 	dirs := map[string]string{"knowledge": "knowledge", "report": "reports", "adr": "adr", "snapshot": "results"}
 	base := filepath.Join(root, ".pose", dirs[t.Kind], filepath.FromSlash(t.Value))
 	for _, candidate := range []string{base, base + ".md", base + ".json"} {
-		if info, err := os.Stat(candidate); err == nil && !info.IsDir() {
+		if info, err := files.Stat(candidate); err == nil && !info.IsDir() {
 			return candidate
 		}
 	}
-	matches, _ := filepath.Glob(filepath.Join(root, ".pose", dirs[t.Kind], "*-"+t.Value+".md"))
+	matches, _ := GlobIn(files, filepath.Join(root, ".pose", dirs[t.Kind], "*-"+t.Value+".md"))
 	if len(matches) == 1 {
 		return matches[0]
 	}
@@ -169,7 +169,7 @@ func (s Store) premiseObligations(project string, specs []Spec) ([]Obligation, e
 		if err != nil {
 			return nil, err
 		}
-		basis := ValidateDesignBasis(string(raw), s.Root)
+		basis := ValidateDesignBasisIn(s.fsys(), string(raw), s.Root)
 		for _, a := range basis.Assumptions {
 			stale := a.StaleTriggerList()
 			if len(stale) == 0 {

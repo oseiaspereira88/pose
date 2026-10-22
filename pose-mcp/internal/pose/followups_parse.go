@@ -182,12 +182,12 @@ func ReadSpecFollowups(root string) SpecFollowupRead {
 				}
 			}
 			if len(files) > 0 {
-				body, readErr := readSplitSpecBody(files)
+				body, readErr := readSplitSpecBody(NativeFiles(), files)
 				if readErr != nil {
 					lose(path, slug, LossReadError, readErr.Error())
 					continue
 				}
-				sources = append(sources, source{path: path, slug: slug, text: body, status: splitSpecStatus(files), ok: true})
+				sources = append(sources, source{path: path, slug: slug, text: body, status: splitSpecStatus(NativeFiles(), files), ok: true})
 			} else if _, listErr := os.ReadDir(path); listErr != nil && !broken {
 				// A folder this process cannot list may hold a spec: absence is not proven.
 				lose(path, slug, LossReadError, listErr.Error())

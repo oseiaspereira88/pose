@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"io"
 	"os"
 	"path/filepath"
@@ -28,15 +29,15 @@ var instanceDirs = []string{
 
 // cmdInit creates the minimal POSE directory structure, idempotently —
 // native parity of pose-init.sh.
-func cmdInit(root string, stdout, stderr io.Writer) int {
+func cmdInitIn(files posemodel.Files, root string, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	created := 0
 	for _, rel := range instanceDirs {
 		dir := filepath.Join(root, filepath.FromSlash(rel))
-		if _, err := os.Stat(dir); err == nil {
+		if _, err := files.Stat(dir); err == nil {
 			continue
 		}
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		if err := files.MkdirAll(dir, 0o755); err != nil {
 			fmt.Fprintf(stderr, "[%s] %s %s: %v\n", cliText(locale, "ERROR", "ERRO"), cliText(locale, "creating", "criando"), rel, err)
 			return 1
 		}
@@ -49,6 +50,12 @@ func cmdInit(root string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stdout, cliText(locale, "[INFO] %d directory(ies) created. Run: pose check\n", "[INFO] %d diretório(s) criado(s). Execute: pose check\n"), created)
 	}
 	return 0
+}
+
+// cmdInit reads and writes the filesystem directly; cmdInitIn takes the
+// operation's files.
+func cmdInit(root string, stdout, stderr io.Writer) int {
+	return cmdInitIn(posemodel.NativeFiles(), root, stdout, stderr)
 }
 
 // cmdInitCommand is `pose init` (spec pose-init-is-install). Where no POSE

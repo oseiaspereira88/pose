@@ -233,13 +233,13 @@ func PreviewSpecTransfer(resolver ArtifactResolver, request SpecTransferRequest,
 
 	sourceStore := projectRoots[request.Source.Project]
 	destinationStore := projectRoots[request.Destination.Project]
-	if sameProjectRoot(sourceStore.Root, destinationStore.Root) {
+	if sameProjectRoot(NativeFiles(), sourceStore.Root, destinationStore.Root) {
 		return plan, specTransferError("source-and-destination-must-be-distinct-projects")
 	}
-	if err := requireSpecTransferCapability(sourceStore); err != nil {
+	if err := requireSpecTransferCapability(NativeFiles(), sourceStore); err != nil {
 		return plan, err
 	}
-	if err := requireSpecTransferCapability(destinationStore); err != nil {
+	if err := requireSpecTransferCapability(NativeFiles(), destinationStore); err != nil {
 		return plan, err
 	}
 	sourceSpec, err := sourceStore.GetSpec(request.Source.Slug)
@@ -256,13 +256,13 @@ func PreviewSpecTransfer(resolver ArtifactResolver, request SpecTransferRequest,
 	if err := validateTransferSpecIdentityPath(sourceStore, request.Source.Slug, sourcePath); err != nil {
 		return plan, err
 	}
-	if err := transferPathClean(sourceStore.Root, sourcePath); err != nil {
+	if err := transferPathClean(NativeFiles(), sourceStore.Root, sourcePath); err != nil {
 		return plan, err
 	}
 	if sourceRedirectPathExists(sourceStore.Root, request.Source.Slug) {
 		return plan, specTransferError("source-already-redirected")
 	}
-	if _, active := incompleteTransferFor(sourceStore.Root, request.Source); active {
+	if _, active := incompleteTransferFor(NativeFiles(), sourceStore.Root, request.Source); active {
 		return plan, specTransferError("transfer-in-progress")
 	}
 
@@ -298,10 +298,10 @@ func PreviewSpecTransfer(resolver ArtifactResolver, request SpecTransferRequest,
 		if err := validateTransferSpecIdentityPath(destinationStore, request.Destination.Slug, destinationPath); err != nil {
 			return plan, err
 		}
-		if err := transferPathClean(destinationStore.Root, destinationPath); err != nil {
+		if err := transferPathClean(NativeFiles(), destinationStore.Root, destinationPath); err != nil {
 			return plan, err
 		}
-		if _, active := incompleteTransferFor(destinationStore.Root, request.Destination); active {
+		if _, active := incompleteTransferFor(NativeFiles(), destinationStore.Root, request.Destination); active {
 			return plan, specTransferError("transfer-in-progress")
 		}
 	} else {
@@ -404,7 +404,7 @@ func PreviewSpecTransfer(resolver ArtifactResolver, request SpecTransferRequest,
 			continue
 		}
 		plan.ProjectRevisions = append(plan.ProjectRevisions, SpecTransferProjectRevision{ProjectID: projectID, Revision: revision})
-		if err := requireSpecTransferCapability(store); err != nil {
+		if err := requireSpecTransferCapability(NativeFiles(), store); err != nil {
 			plan.Blockers = append(plan.Blockers, "capability-not-adopted:"+projectID)
 		}
 	}
@@ -524,7 +524,7 @@ func validateRequirementMap(source, destination []string, mappings []SpecTransfe
 	return nil
 }
 
-func requireSpecTransferCapability(store Store) error {
+func requireSpecTransferCapability(files Files, store Store) error {
 	policy, err := store.GetReviewPolicy()
 	if err != nil {
 		return specTransferError("unsupported-policy")
@@ -539,7 +539,7 @@ func transferSpecFile(store Store, spec *Spec) (string, string, error) {
 	if spec == nil || spec.Path == "" {
 		return "", "", specTransferError("spec-path-unavailable")
 	}
-	if !artifactPathWithin(store.Root, spec.Path) {
+	if !artifactPathWithin(NativeFiles(), store.Root, spec.Path) {
 		return "", "", specTransferError("path-escape")
 	}
 	info, err := os.Lstat(spec.Path)
@@ -609,7 +609,7 @@ func transferSpecIdentityCandidates(store Store, slug string) ([]string, error) 
 	return candidates, nil
 }
 
-func transferPathClean(root, relative string) error {
+func transferPathClean(files Files, root, relative string) error {
 	if relative == "" || filepath.IsAbs(relative) || filepath.VolumeName(relative) != "" {
 		return specTransferError("path-escape")
 	}
@@ -617,14 +617,14 @@ func transferPathClean(root, relative string) error {
 	if clean == "." || clean == ".." || filepath.IsAbs(clean) || strings.HasPrefix(clean, ".."+string(filepath.Separator)) {
 		return specTransferError("path-escape")
 	}
-	base, err := filepath.EvalSymlinks(root)
+	base, err := files.EvalSymlinks(root)
 	if err != nil {
 		return specTransferError("path-escape")
 	}
 	current := base
 	for _, part := range strings.Split(clean, string(filepath.Separator)) {
 		current = filepath.Join(current, part)
-		info, err := os.Lstat(current)
+		info, err := files.Lstat(current)
 		if os.IsNotExist(err) {
 			continue
 		}
@@ -641,7 +641,7 @@ func transferPathClean(root, relative string) error {
 
 func transferGitRevision(root string) (string, error) {
 	top, err := exec.Command("git", "-C", root, "rev-parse", "--show-toplevel").Output()
-	if err != nil || !sameProjectRoot(root, strings.TrimSpace(string(top))) {
+	if err != nil || !sameProjectRoot(NativeFiles(), root, strings.TrimSpace(string(top))) {
 		return "", errors.New("not-a-project-root")
 	}
 	head, err := exec.Command("git", "-C", root, "rev-parse", "--verify", "HEAD").Output()
@@ -675,7 +675,7 @@ func discoverTransferImpacts(projects map[string]Store, source, destination Arti
 				blockers = append(blockers, "reference-unavailable:"+owner.String())
 				return nil
 			}
-			if info, err := os.Lstat(path); err != nil || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(projects[projectID].Root, path) {
+			if info, err := os.Lstat(path); err != nil || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(NativeFiles(), projects[projectID].Root, path) {
 				return specTransferError("path-escape")
 			}
 			impact = &SpecTransferImpact{ProjectID: projectID, Owner: owner, Path: filepath.ToSlash(rel), BeforeDigest: digestHex(before), To: destination.String()}
@@ -1138,7 +1138,7 @@ func VerifiedTransferStub(root, slug, raw string) (ArtifactRef, bool) {
 	if json.Unmarshal(content, &probe) != nil || probe.Source.Slug != slug {
 		return ArtifactRef{}, false
 	}
-	redirect, ok, err := readSpecTransferRedirect(Store{Root: root}, probe.Source)
+	redirect, ok, err := readSpecTransferRedirect(NativeFiles(), Store{Root: root}, probe.Source)
 	if err != nil || !ok || raw != renderTransferRedirectStub(redirect.Source, redirect.Destination) {
 		return ArtifactRef{}, false
 	}
@@ -1162,16 +1162,16 @@ func transferPlanFile(root, operationID string) string {
 	return filepath.Join(transferOperationDir(root, operationID), "plan.json")
 }
 
-func incompleteTransferFor(root string, identity ArtifactRef) (string, bool) {
+func incompleteTransferFor(files Files, root string, identity ArtifactRef) (string, bool) {
 	transfersDir := filepath.Join(root, ".pose", "transfers")
-	info, err := os.Lstat(transfersDir)
+	info, err := files.Lstat(transfersDir)
 	if os.IsNotExist(err) {
 		return "", false
 	}
-	if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(root, transfersDir) {
+	if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(files, root, transfersDir) {
 		return "transfer-state-invalid", true
 	}
-	entries, err := os.ReadDir(transfersDir)
+	entries, err := files.ReadDir(transfersDir)
 	if err != nil {
 		return "transfer-state-unavailable", true
 	}
@@ -1182,7 +1182,7 @@ func incompleteTransferFor(root string, identity ArtifactRef) (string, bool) {
 		if !entry.IsDir() || !specTransferIDRE.MatchString(entry.Name()) {
 			continue
 		}
-		plan, err := readSpecTransferPlan(transferPlanFile(root, entry.Name()))
+		plan, err := readSpecTransferPlan(files, transferPlanFile(root, entry.Name()))
 		if err != nil || plan.OperationID != entry.Name() {
 			return "transfer-state-invalid", true
 		}
@@ -1196,7 +1196,7 @@ func incompleteTransferFor(root string, identity ArtifactRef) (string, bool) {
 		if plan.Source != identity && plan.Destination != identity && !impacted {
 			continue
 		}
-		status, err := ReadSpecTransferStatus(Store{Root: root}, entry.Name(), identity.Project)
+		status, err := ReadSpecTransferStatusIn(files, Store{Root: root, FS: files}, entry.Name(), identity.Project)
 		if err == nil && status.Phase != "activated" {
 			return entry.Name(), true
 		}
@@ -1207,23 +1207,23 @@ func incompleteTransferFor(root string, identity ArtifactRef) (string, bool) {
 	return "", false
 }
 
-func readSpecTransferRedirect(store Store, identity ArtifactRef) (specTransferRedirect, bool, error) {
+func readSpecTransferRedirect(files Files, store Store, identity ArtifactRef) (specTransferRedirect, bool, error) {
 	path := sourceRedirectPath(store.Root, identity.Slug)
 	redirectRel, _ := filepath.Rel(store.Root, path)
-	if err := transferPathClean(store.Root, filepath.ToSlash(redirectRel)); err != nil {
+	if err := transferPathClean(files, store.Root, filepath.ToSlash(redirectRel)); err != nil {
 		return specTransferRedirect{}, false, specTransferError("invalid-spec-redirect")
 	}
-	info, err := os.Lstat(path)
+	info, err := files.Lstat(path)
 	if os.IsNotExist(err) {
 		return specTransferRedirect{}, false, nil
 	}
-	if err != nil || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(store.Root, path) {
+	if err != nil || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(files, store.Root, path) {
 		return specTransferRedirect{}, false, specTransferError("invalid-spec-redirect")
 	}
 	if info.Size() > 64<<10 {
 		return specTransferRedirect{}, false, specTransferError("redirect-too-large")
 	}
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return specTransferRedirect{}, false, err
 	}
@@ -1245,31 +1245,31 @@ func readSpecTransferRedirect(store Store, identity ArtifactRef) (specTransferRe
 	if redirect.SchemaVersion != expectedRedirect || !specTransferIDRE.MatchString(redirect.OperationID) || redirect.Source != identity || validateTransferIdentity(redirect.Destination) != nil || redirect.Destination.Project == identity.Project {
 		return redirect, false, specTransferError("invalid-spec-redirect")
 	}
-	if err := requireSpecTransferCapability(store); err != nil {
+	if err := requireSpecTransferCapability(files, store); err != nil {
 		return redirect, false, err
 	}
 	planRel := filepath.ToSlash(filepath.Join(".pose", "transfers", redirect.OperationID, "plan.json"))
-	if err := transferPathClean(store.Root, planRel); err != nil {
+	if err := transferPathClean(files, store.Root, planRel); err != nil {
 		return redirect, false, specTransferError("invalid-spec-redirect")
 	}
-	plan, err := readSpecTransferPlan(transferPlanFile(store.Root, redirect.OperationID))
+	plan, err := readSpecTransferPlan(files, transferPlanFile(store.Root, redirect.OperationID))
 	if err != nil || validateTransferPlan(plan) != nil || plan.Source != redirect.Source || plan.Destination != redirect.Destination || plan.Request.Mode != redirect.Mode || !bytes.Equal(planRedirectBytes(plan, redirect.OperationID), CanonicalJSON(redirect)) {
 		return redirect, false, specTransferError("invalid-spec-redirect")
 	}
-	status, err := ReadSpecTransferStatus(store, redirect.OperationID, identity.Project)
+	status, err := ReadSpecTransferStatusIn(files, store, redirect.OperationID, identity.Project)
 	if err != nil || status.Phase != "activated" {
 		return redirect, false, specTransferError("invalid-spec-redirect")
 	}
 	return redirect, true, nil
 }
 
-func readSpecTransferPlan(path string) (SpecTransferPlan, error) {
+func readSpecTransferPlan(files Files, path string) (SpecTransferPlan, error) {
 	var plan SpecTransferPlan
-	info, err := os.Lstat(path)
+	info, err := files.Lstat(path)
 	if err != nil || info.Mode()&os.ModeSymlink != 0 || !info.Mode().IsRegular() || info.Size() > 2<<20 {
 		return plan, specTransferError("invalid-plan")
 	}
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return plan, err
 	}
@@ -1371,16 +1371,16 @@ func writeTransferFile(path string, raw []byte, expectedCurrentDigest string) er
 	return os.Rename(name, path)
 }
 
-func ReadSpecTransferStatus(store Store, operationID, projectID string) (SpecTransferStatus, error) {
+func ReadSpecTransferStatusIn(files Files, store Store, operationID, projectID string) (SpecTransferStatus, error) {
 	status := SpecTransferStatus{SchemaVersion: SpecTransferSchemaVersion, OperationID: operationID, ProjectID: projectID}
 	if !specTransferIDRE.MatchString(operationID) {
 		return status, specTransferError("invalid-operation-id")
 	}
 	planRel := filepath.ToSlash(filepath.Join(".pose", "transfers", operationID, "plan.json"))
-	if err := transferPathClean(store.Root, planRel); err != nil {
+	if err := transferPathClean(files, store.Root, planRel); err != nil {
 		return status, specTransferError("operation-not-found")
 	}
-	plan, err := readSpecTransferPlan(transferPlanFile(store.Root, operationID))
+	plan, err := readSpecTransferPlan(files, transferPlanFile(store.Root, operationID))
 	if err != nil {
 		return status, specTransferError("operation-not-found")
 	}
@@ -1394,10 +1394,10 @@ func ReadSpecTransferStatus(store Store, operationID, projectID string) (SpecTra
 	status.Phase = "planned"
 	journal := filepath.Join(transferOperationDir(store.Root, operationID), "journal")
 	journalRel, _ := filepath.Rel(store.Root, journal)
-	if err := transferPathClean(store.Root, filepath.ToSlash(journalRel)); err != nil {
+	if err := transferPathClean(files, store.Root, filepath.ToSlash(journalRel)); err != nil {
 		return status, specTransferError("journal-unavailable")
 	}
-	entries, err := os.ReadDir(journal)
+	entries, err := files.ReadDir(journal)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return status, nil
@@ -1414,11 +1414,11 @@ func ReadSpecTransferStatus(store Store, operationID, projectID string) (SpecTra
 			continue
 		}
 		receiptPath := filepath.Join(journal, entry.Name())
-		info, err := os.Lstat(receiptPath)
+		info, err := files.Lstat(receiptPath)
 		if err != nil || info.Mode()&os.ModeSymlink != 0 || !info.Mode().IsRegular() || info.Size() > 256<<10 {
 			return status, specTransferError("journal-invalid")
 		}
-		raw, err := os.ReadFile(receiptPath)
+		raw, err := files.ReadFile(receiptPath)
 		if err != nil {
 			return status, specTransferError("journal-unavailable")
 		}
@@ -1438,6 +1438,12 @@ func ReadSpecTransferStatus(store Store, operationID, projectID string) (SpecTra
 		}
 	}
 	return status, nil
+}
+
+// ReadSpecTransferStatus reads and writes the filesystem directly; ReadSpecTransferStatusIn takes the
+// operation's files.
+func ReadSpecTransferStatus(store Store, operationID, projectID string) (SpecTransferStatus, error) {
+	return ReadSpecTransferStatusIn(NativeFiles(), store, operationID, projectID)
 }
 
 func specTransferSourceRetired(plan SpecTransferPlan, store Store) bool {
@@ -1487,10 +1493,10 @@ func ResumeSpecTransfer(resolver ArtifactResolver, projectID, operationID string
 		return SpecTransferStatus{}, specTransferError("unavailable-project")
 	}
 	planRel := filepath.ToSlash(filepath.Join(".pose", "transfers", operationID, "plan.json"))
-	if err := transferPathClean(selected.Root, planRel); err != nil {
+	if err := transferPathClean(NativeFiles(), selected.Root, planRel); err != nil {
 		return SpecTransferStatus{}, specTransferError("operation-not-found")
 	}
-	plan, err := readSpecTransferPlan(transferPlanFile(selected.Root, operationID))
+	plan, err := readSpecTransferPlan(NativeFiles(), transferPlanFile(selected.Root, operationID))
 	if err != nil {
 		return SpecTransferStatus{}, specTransferError("operation-not-found")
 	}
@@ -1506,14 +1512,14 @@ func ResumeSpecTransfer(resolver ArtifactResolver, projectID, operationID string
 			return SpecTransferStatus{}, specTransferError("unavailable-project")
 		}
 		otherRel := filepath.ToSlash(filepath.Join(".pose", "transfers", operationID, "plan.json"))
-		if err := transferPathClean(store.Root, otherRel); err != nil {
+		if err := transferPathClean(NativeFiles(), store.Root, otherRel); err != nil {
 			return SpecTransferStatus{}, specTransferError("operation-record-conflict")
 		}
 		otherPath := transferPlanFile(store.Root, operationID)
 		if _, err := os.Lstat(otherPath); os.IsNotExist(err) {
 			continue
 		}
-		other, err := readSpecTransferPlan(otherPath)
+		other, err := readSpecTransferPlan(NativeFiles(), otherPath)
 		if err != nil || other.Digest != plan.Digest {
 			return SpecTransferStatus{}, specTransferError("operation-record-conflict")
 		}
@@ -1707,7 +1713,7 @@ func transferImpactPathMatchesOwner(path string, owner ArtifactRef) bool {
 
 func validateSpecTransferPlanRoots(plan SpecTransferPlan, stores map[string]Store) error {
 	sourceStore, destinationStore := stores[plan.Source.Project], stores[plan.Destination.Project]
-	if sourceStore.Root == "" || destinationStore.Root == "" || sameProjectRoot(sourceStore.Root, destinationStore.Root) {
+	if sourceStore.Root == "" || destinationStore.Root == "" || sameProjectRoot(NativeFiles(), sourceStore.Root, destinationStore.Root) {
 		return specTransferError("invalid-plan")
 	}
 	source, err := sourceStore.GetSpec(plan.Source.Slug)
@@ -1744,7 +1750,7 @@ func validateSpecTransferPlanRoots(plan SpecTransferPlan, stores map[string]Stor
 	}
 	for _, impact := range plan.ImpactedReferences {
 		store := stores[impact.ProjectID]
-		if err := transferPathClean(store.Root, impact.Path); err != nil {
+		if err := transferPathClean(NativeFiles(), store.Root, impact.Path); err != nil {
 			return err
 		}
 		if impact.Owner.Kind == "spec" {
@@ -1792,12 +1798,12 @@ func validateTransferReferenceInventory(projects map[string]Store, plan SpecTran
 func ensureTransferOperationDir(root, operationID string) error {
 	base := filepath.Join(root, ".pose", "transfers")
 	info, err := os.Lstat(base)
-	if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(root, base) {
+	if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(NativeFiles(), root, base) {
 		return specTransferError("path-escape")
 	}
 	path := transferOperationDir(root, operationID)
 	if info, err := os.Lstat(path); err == nil {
-		if !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(root, path) {
+		if !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(NativeFiles(), root, path) {
 			return specTransferError("path-escape")
 		}
 		return nil
@@ -1813,7 +1819,7 @@ func ensureTransferJournalDir(root, operationID string) error {
 	}
 	path := filepath.Join(transferOperationDir(root, operationID), "journal")
 	if info, err := os.Lstat(path); err == nil {
-		if !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(root, path) {
+		if !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(NativeFiles(), root, path) {
 			return specTransferError("path-escape")
 		}
 		return nil
@@ -1843,12 +1849,12 @@ func advanceSpecTransfer(resolver ArtifactResolver, plan SpecTransferPlan, autho
 		if err != nil {
 			return status, specTransferError("unavailable-project")
 		}
-		if err := requireSpecTransferCapability(store); err != nil {
+		if err := requireSpecTransferCapability(NativeFiles(), store); err != nil {
 			return status, err
 		}
 		poseDir := filepath.Join(store.Root, ".pose")
 		info, err := os.Lstat(poseDir)
-		if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(store.Root, poseDir) {
+		if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(NativeFiles(), store.Root, poseDir) {
 			return status, specTransferError("path-escape")
 		}
 		stores[id] = store
@@ -1868,7 +1874,7 @@ func advanceSpecTransfer(resolver ArtifactResolver, plan SpecTransferPlan, autho
 		}
 		poseDir := filepath.Join(store.Root, ".pose")
 		info, err := os.Lstat(poseDir)
-		if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(store.Root, poseDir) {
+		if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(NativeFiles(), store.Root, poseDir) {
 			return status, specTransferError("unresolved-impact-blockers")
 		}
 		inventoryStores[id] = store
@@ -1917,7 +1923,7 @@ func advanceSpecTransfer(resolver ArtifactResolver, plan SpecTransferPlan, autho
 	for _, impact := range plan.ImpactedReferences {
 		store := stores[impact.ProjectID]
 		path := filepath.Join(store.Root, filepath.FromSlash(impact.Path))
-		if err := transferPathClean(store.Root, impact.Path); err != nil {
+		if err := transferPathClean(NativeFiles(), store.Root, impact.Path); err != nil {
 			return status, err
 		}
 		current, err := os.ReadFile(path)
@@ -1943,7 +1949,7 @@ func advanceSpecTransfer(resolver ArtifactResolver, plan SpecTransferPlan, autho
 	}
 	destinationStore := stores[plan.Destination.Project]
 	destinationPath := filepath.Join(destinationStore.Root, filepath.FromSlash(plan.DestinationPath))
-	if err := transferPathClean(destinationStore.Root, plan.DestinationPath); err != nil {
+	if err := transferPathClean(NativeFiles(), destinationStore.Root, plan.DestinationPath); err != nil {
 		return status, err
 	}
 	destinationCurrent, err := os.ReadFile(destinationPath)
@@ -2013,7 +2019,7 @@ func advanceSpecTransfer(resolver ArtifactResolver, plan SpecTransferPlan, autho
 	sourceStore := stores[plan.Source.Project]
 	sourcePath := filepath.Join(sourceStore.Root, filepath.FromSlash(plan.SourcePath))
 	archivePath := filepath.Join(transferOperationDir(sourceStore.Root, plan.OperationID), "source-spec.md")
-	if err := transferPathClean(sourceStore.Root, filepath.ToSlash(strings.TrimPrefix(archivePath, sourceStore.Root+string(filepath.Separator)))); err != nil {
+	if err := transferPathClean(NativeFiles(), sourceStore.Root, filepath.ToSlash(strings.TrimPrefix(archivePath, sourceStore.Root+string(filepath.Separator)))); err != nil {
 		return status, err
 	}
 	sourceCurrent, err := os.ReadFile(sourcePath)
@@ -2041,7 +2047,7 @@ func advanceSpecTransfer(resolver ArtifactResolver, plan SpecTransferPlan, autho
 	}
 	redirectPath := sourceRedirectPath(sourceStore.Root, plan.Source.Slug)
 	redirectRel, _ := filepath.Rel(sourceStore.Root, redirectPath)
-	if err := transferPathClean(sourceStore.Root, filepath.ToSlash(redirectRel)); err != nil {
+	if err := transferPathClean(NativeFiles(), sourceStore.Root, filepath.ToSlash(redirectRel)); err != nil {
 		return status, err
 	}
 	redirect := planRedirectBytes(plan, plan.OperationID)

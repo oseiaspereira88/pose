@@ -1,10 +1,10 @@
 package pose
 
 import (
-	"errors"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -96,9 +96,9 @@ type DeliveryIntegrityGraph struct {
 	Archivals []ArchivedFragment `json:"archivals,omitempty"`
 }
 
-func LoadArtifactPolicy(root string) (ArtifactPolicy, error) {
+func LoadArtifactPolicyIn(files Files, root string) (ArtifactPolicy, error) {
 	path := filepath.Join(root, ".pose", "policy", "artifacts.json")
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if os.IsNotExist(err) {
 		return ArtifactPolicy{}, nil
 	}
@@ -113,16 +113,22 @@ func LoadArtifactPolicy(root string) (ArtifactPolicy, error) {
 		return ArtifactPolicy{}, fmt.Errorf("pose: unsupported artifact policy schema %d", policy.SchemaVersion)
 	}
 	for _, path := range append(append([]string{}, policy.GovernedRoots...), policy.Exclusions...) {
-		if err := ValidateArtifactPath(root, path, true); err != nil {
+		if err := ValidateArtifactPathIn(files, root, path, true); err != nil {
 			return ArtifactPolicy{}, fmt.Errorf("pose: invalid artifact policy path %q: %w", path, err)
 		}
 	}
 	return policy, nil
 }
 
-func ValidateArtifactPath(root, value string, allowDirectory bool) error {
+// LoadArtifactPolicy reads and writes the filesystem directly; LoadArtifactPolicyIn takes the
+// operation's files.
+func LoadArtifactPolicy(root string) (ArtifactPolicy, error) {
+	return LoadArtifactPolicyIn(NativeFiles(), root)
+}
+
+func ValidateArtifactPathIn(files Files, root, value string, allowDirectory bool) error {
 	if allowDirectory && (value == "." || value == "") {
-		info, err := os.Stat(root)
+		info, err := files.Stat(root)
 		if err != nil || !info.IsDir() {
 			return fmt.Errorf("project root directory unavailable")
 		}
@@ -137,9 +143,9 @@ func ValidateArtifactPath(root, value string, allowDirectory bool) error {
 	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {
 		return fmt.Errorf("path escapes project root")
 	}
-	if info, err := os.Lstat(joined); err == nil {
+	if info, err := files.Lstat(joined); err == nil {
 		if info.Mode()&os.ModeSymlink != 0 {
-			target, err := filepath.EvalSymlinks(joined)
+			target, err := files.EvalSymlinks(joined)
 			if err != nil {
 				return fmt.Errorf("cannot resolve symlink")
 			}
@@ -153,6 +159,12 @@ func ValidateArtifactPath(root, value string, allowDirectory bool) error {
 		}
 	}
 	return nil
+}
+
+// ValidateArtifactPath reads and writes the filesystem directly; ValidateArtifactPathIn takes the
+// operation's files.
+func ValidateArtifactPath(root, value string, allowDirectory bool) error {
+	return ValidateArtifactPathIn(NativeFiles(), root, value, allowDirectory)
 }
 
 func validateArtifactPathSyntax(value string) (string, error) {
@@ -263,7 +275,7 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 // BuildDeliveryIntegrityWithReleases builds the graph with what the release
 // manifests attest (LoadArchivedFragments) as a witness for claims on changelog
 // fragments a release archived.
-func BuildDeliveryIntegrityWithReleases(specs []Spec, claims []ArtifactClaim, changeSets []ChangeSet, tracked []string, policy ArtifactPolicy, archived []ArchivedFragment) DeliveryIntegrityGraph {
+func BuildDeliveryIntegrityWithReleasesIn(files Files, specs []Spec, claims []ArtifactClaim, changeSets []ChangeSet, tracked []string, policy ArtifactPolicy, archived []ArchivedFragment) DeliveryIntegrityGraph {
 	graph := DeliveryIntegrityGraph{SchemaVersion: DeliveryIntegritySchemaVersion, Claims: append([]ArtifactClaim{}, claims...), ChangeSets: append([]ChangeSet{}, changeSets...), Reverse: map[string][]string{}, Nodes: []DeliveryIntegrityNode{}, Edges: []DeliveryIntegrityEdge{}, Findings: []DeliveryIntegrityFinding{}}
 	sort.Slice(graph.Claims, func(i, j int) bool { return claimKey(graph.Claims[i]) < claimKey(graph.Claims[j]) })
 	sort.Slice(graph.ChangeSets, func(i, j int) bool { return graph.ChangeSets[i].ID < graph.ChangeSets[j].ID })
@@ -434,6 +446,12 @@ func BuildDeliveryIntegrityWithReleases(specs []Spec, claims []ArtifactClaim, ch
 	return graph
 }
 
+// BuildDeliveryIntegrityWithReleases reads and writes the filesystem directly; BuildDeliveryIntegrityWithReleasesIn takes the
+// operation's files.
+func BuildDeliveryIntegrityWithReleases(specs []Spec, claims []ArtifactClaim, changeSets []ChangeSet, tracked []string, policy ArtifactPolicy, archived []ArchivedFragment) DeliveryIntegrityGraph {
+	return BuildDeliveryIntegrityWithReleasesIn(NativeFiles(), specs, claims, changeSets, tracked, policy, archived)
+}
+
 func (s Store) GetDeliveryIntegrity(path string) (DeliveryIntegrityGraph, error) {
 	raw, _, err := s.ReadIndex("delivery-integrity.json")
 	if errors.Is(err, ErrIndexGenerationUnavailable) {
@@ -447,7 +465,7 @@ func (s Store) GetDeliveryIntegrity(path string) (DeliveryIntegrityGraph, error)
 		return DeliveryIntegrityGraph{}, fmt.Errorf("pose: invalid delivery-integrity index")
 	}
 	if path != "" {
-		if err := ValidateArtifactPath(s.Root, path, false); err != nil {
+		if err := ValidateArtifactPathIn(s.fsys(), s.Root, path, false); err != nil {
 			return DeliveryIntegrityGraph{}, err
 		}
 		wanted := filepath.ToSlash(filepath.Clean(path))
@@ -572,4 +590,3 @@ func governedPath(path string, policy ArtifactPolicy) bool {
 	}
 	return false
 }
-

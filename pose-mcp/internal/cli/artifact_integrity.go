@@ -273,15 +273,15 @@ func observedSortKey(path posemodel.ObservedPath) string {
 	return path.Action + "\x00" + path.Path + "\x00" + path.OldPath + "\x00" + path.NewPath
 }
 
-func collectArtifactGraphInputs(root string) ([]posemodel.Spec, []posemodel.ArtifactClaim, []posemodel.ChangeSet, []string, posemodel.ArtifactPolicy, error) {
-	store := posemodel.Store{Root: root}
-	policy, err := posemodel.LoadArtifactPolicy(root)
+func collectArtifactGraphInputsIn(files posemodel.Files, root string) ([]posemodel.Spec, []posemodel.ArtifactClaim, []posemodel.ChangeSet, []string, posemodel.ArtifactPolicy, error) {
+	store := posemodel.Store{Root: root, FS: files}
+	policy, err := posemodel.LoadArtifactPolicyIn(files, root)
 	if err != nil {
 		return nil, nil, nil, nil, policy, err
 	}
 	specs, err := store.ListSpecs("", "")
 	if err != nil {
-		if _, statErr := os.Stat(filepath.Join(root, ".pose", "specs")); !os.IsNotExist(statErr) {
+		if _, statErr := files.Stat(filepath.Join(root, ".pose", "specs")); !os.IsNotExist(statErr) {
 			return nil, nil, nil, nil, policy, err
 		}
 		specs = []posemodel.Spec{}
@@ -303,7 +303,7 @@ func collectArtifactGraphInputs(root string) ([]posemodel.Spec, []posemodel.Arti
 		tracked = []string{}
 	}
 	changeSetsMap := map[string]posemodel.ChangeSet{}
-	for _, recorded := range loadRecordedChangeSets(root) {
+	for _, recorded := range loadRecordedChangeSetsIn(files, root) {
 		changeSetsMap[recorded.ID] = recorded
 	}
 	specTrailers, _ := allCommitsWithSpecTrailers(root)
@@ -322,6 +322,12 @@ func collectArtifactGraphInputs(root string) ([]posemodel.Spec, []posemodel.Arti
 	return specs, claims, changeSets, tracked, policy, nil
 }
 
+// collectArtifactGraphInputs reads and writes the filesystem directly; collectArtifactGraphInputsIn takes the
+// operation's files.
+func collectArtifactGraphInputs(root string) ([]posemodel.Spec, []posemodel.ArtifactClaim, []posemodel.ChangeSet, []string, posemodel.ArtifactPolicy, error) {
+	return collectArtifactGraphInputsIn(posemodel.NativeFiles(), root)
+}
+
 func gitTrackedPaths(root string) ([]string, error) {
 	trackedRaw, err := gitOutputBounded(root, 32*1024*1024, "ls-files", "-z", "--")
 	if err != nil {
@@ -336,11 +342,11 @@ func gitTrackedPaths(root string) ([]string, error) {
 	return tracked, nil
 }
 
-func loadRecordedChangeSets(root string) []posemodel.ChangeSet {
-	paths, _ := filepath.Glob(filepath.Join(root, ".pose", "reports", "history", "*.jsonl"))
+func loadRecordedChangeSetsIn(files posemodel.Files, root string) []posemodel.ChangeSet {
+	paths, _ := posemodel.GlobIn(files, filepath.Join(root, ".pose", "reports", "history", "*.jsonl"))
 	sets := map[string]posemodel.ChangeSet{}
 	for _, path := range paths {
-		file, err := os.Open(path)
+		file, err := files.Open(path)
 		if err != nil {
 			continue
 		}
@@ -361,12 +367,24 @@ func loadRecordedChangeSets(root string) []posemodel.ChangeSet {
 	return values
 }
 
-func buildCurrentDeliveryGraph(root string) (posemodel.DeliveryIntegrityGraph, error) {
-	specs, claims, sets, tracked, policy, err := collectArtifactGraphInputs(root)
+// loadRecordedChangeSets reads and writes the filesystem directly; loadRecordedChangeSetsIn takes the
+// operation's files.
+func loadRecordedChangeSets(root string) []posemodel.ChangeSet {
+	return loadRecordedChangeSetsIn(posemodel.NativeFiles(), root)
+}
+
+func buildCurrentDeliveryGraphIn(files posemodel.Files, root string) (posemodel.DeliveryIntegrityGraph, error) {
+	specs, claims, sets, tracked, policy, err := collectArtifactGraphInputsIn(files, root)
 	if err != nil {
 		return posemodel.DeliveryIntegrityGraph{}, err
 	}
-	return extendCurrentDeliveryGraph(root, posemodel.BuildDeliveryIntegrityWithReleases(specs, claims, sets, tracked, policy, posemodel.LoadArchivedFragments(root)))
+	return extendCurrentDeliveryGraphIn(files, root, posemodel.BuildDeliveryIntegrityWithReleasesIn(files, specs, claims, sets, tracked, policy, posemodel.LoadArchivedFragmentsIn(files, root)))
+}
+
+// buildCurrentDeliveryGraph reads and writes the filesystem directly; buildCurrentDeliveryGraphIn takes the
+// operation's files.
+func buildCurrentDeliveryGraph(root string) (posemodel.DeliveryIntegrityGraph, error) {
+	return buildCurrentDeliveryGraphIn(posemodel.NativeFiles(), root)
 }
 
 func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int {

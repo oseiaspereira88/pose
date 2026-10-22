@@ -2,7 +2,6 @@ package pose
 
 import (
 	"encoding/json"
-	"os"
 	"path/filepath"
 )
 
@@ -28,14 +27,20 @@ type DoRPolicy struct {
 
 // LoadDoRPolicy reads the policy. An absent file is an unadopted gate, which is
 // the same answer as an empty adoption date.
-func LoadDoRPolicy(root string) DoRPolicy {
+func LoadDoRPolicyIn(files Files, root string) DoRPolicy {
 	var policy DoRPolicy
-	raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "dor.json"))
+	raw, err := files.ReadFile(filepath.Join(root, ".pose", "policy", "dor.json"))
 	if err != nil {
 		return policy
 	}
 	_ = json.Unmarshal(raw, &policy)
 	return policy
+}
+
+// LoadDoRPolicy reads and writes the filesystem directly; LoadDoRPolicyIn takes the
+// operation's files.
+func LoadDoRPolicy(root string) DoRPolicy {
+	return LoadDoRPolicyIn(NativeFiles(), root)
 }
 
 // AppliesTo reports whether a spec created on the given date is held to the

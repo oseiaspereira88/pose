@@ -185,7 +185,7 @@ func (s Store) assessmentFilesRead() ([]assessmentFile, SourceCoverage, error) {
 	if err != nil {
 		return nil, coverage, err
 	}
-	rootReal, err := filepath.EvalSymlinks(rootAbs)
+	rootReal, err := s.fsys().EvalSymlinks(rootAbs)
 	if err != nil {
 		return nil, coverage, err
 	}
@@ -200,7 +200,7 @@ func (s Store) assessmentFilesRead() ([]assessmentFile, SourceCoverage, error) {
 		}
 		coverage.Add(SourceLoss{Producer: "assessment-scan", Artifact: filepath.ToSlash(rel), Kind: kind, Detail: detail})
 	}
-	err = filepath.WalkDir(absRoot, func(path string, entry os.DirEntry, walkErr error) error {
+	err = WalkDirIn(s.fsys(), absRoot, func(path string, entry os.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			lost(path, LossScanIncomplete, "not scanned: "+walkErr.Error())
 			return nil
@@ -244,7 +244,7 @@ func (s Store) assessmentFilesRead() ([]assessmentFile, SourceCoverage, error) {
 		if seen[rel] {
 			return nil
 		}
-		raw, err := os.ReadFile(path)
+		raw, err := s.fsys().ReadFile(path)
 		if err != nil {
 			lost(path, LossReadError, "not scanned: "+err.Error())
 			return nil

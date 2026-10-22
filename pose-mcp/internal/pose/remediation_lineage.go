@@ -156,12 +156,12 @@ func (s Store) ValidateRemediationLineage(spec Spec) error {
 // it reads any linked spec. Fail closed on nonregular/oversized files and bound
 // the scan. GetSpec remains the single layout and slug resolver.
 func (s Store) confineRemediationSpecs() error {
-	dir, err := ensureReviewArtifactDir(s.Root, ".pose/specs", false)
+	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, ".pose/specs", false)
 	if err != nil {
 		return lineageError("path", "spec registry is unavailable or unconfined")
 	}
 	entries := 0
-	return filepath.WalkDir(dir, func(_ string, entry fs.DirEntry, err error) error {
+	return WalkDirIn(s.fsys(), dir, func(_ string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return lineageError("path", "spec registry cannot be inspected")
 		}
@@ -233,11 +233,11 @@ func (s Store) confineRemediationReviewFile(rel, id string) error {
 	if ValidateSlug(id) != nil {
 		return lineageError("reference", "invalid review artifact ID")
 	}
-	dir, err := ensureReviewArtifactDir(s.Root, rel, false)
+	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, rel, false)
 	if err != nil {
 		return lineageError("orphan", "review artifact directory is missing or unconfined")
 	}
-	info, err := os.Lstat(filepath.Join(dir, id+".json"))
+	info, err := s.fsys().Lstat(filepath.Join(dir, id+".json"))
 	if err != nil {
 		return lineageError("orphan", "review artifact is unavailable")
 	}

@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-22T04:35:34Z
-baseline_commit: a14e5ad11a2ffd1a91cbee8a4df7a4b9529a9c28
+generated_at: 2026-10-22T12:06:35Z
+baseline_commit: 2d42b84e3a065bb30cf9e7882c19a4f2535453f7
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -65,15 +65,15 @@ capacidade.
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
-<!-- state:derived hash:6b7e7f699ecb -->
+<!-- state:derived hash:32d1c74baf01 -->
 
-- ADRs: total=69
-  - adr:2026-10-14-shared-domain-and-optional-worktree-runtime.md
-  - adr:2026-10-14-review-time-context-and-reuse-provenance.md
-  - adr:2026-10-14-release-temporal-evidence-and-attempt-lineage.md
-  - adr:2026-10-09-obligations-may-originate-on-the-project.md
-  - adr:2026-10-09-delegated-review-is-an-adapter.md
-- knowledge: total=11 ativo=11 expirado=0
+- ADRs: total=78
+  - adr:2026-10-22-update-preview-records-the-shared-execution-in-an-operation-scoped-view.md
+  - adr:2026-10-21-action-effects-select-material-destinations-independently-of-origin.md
+  - adr:2026-10-20-expose-the-closeout-execution-plan-as-an-opt-in-mcp-projection.md
+  - adr:2026-10-18-git-state-that-cannot-be-read-is-unknown-and-a-worktree-is-judged-by-its-content.md
+  - adr:2026-10-17-index-sets-are-published-as-verified-generations.md
+- knowledge: total=13 ativo=13 expirado=0
 
 ## Validação & Evidência
 <!-- state:derived hash:0f3a7bff15f2 -->

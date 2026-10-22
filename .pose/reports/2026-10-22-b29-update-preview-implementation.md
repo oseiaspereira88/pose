@@ -1,0 +1,7 @@
+# B29 replacement implementation — in progress, 2026-10-22
+
+Canonical spec: `pose-update-dry-run-reports-the-whole-update`. Original start, historical D1 and failed copy-based rounds are retained. Prospective accepted operation-scoped-view ADR and high-risk test plan preceded production edits; D2 was recorded natively as introduced during execution. The amendment author `@pose-maintainers` denotes governance ownership; it was recorded by automated lead Codex, not human confirmation or policy adoption.
+
+Initial delegated implementation: Claude Opus5.5, actual launcher session bcaaad50-95ff-4ee5-a658-3e6cbf4d2caf, logs `/home/go/.local/state/secondary-agent/20261022T091311-claude-2052150`. It stopped at session limit (reset14:10America/Recife), before a final implementation report. No passing test, completed scope or review is inferred from the partial run. Its uncommitted operation filesystem/view and explicit Store/CLI propagation are preserved as WIP, including prospective artifact declarations; 98 claims cover all changed production paths. No remote publication or shared-checkout changes.
+
+Primary will commit an explicitly unqualified checkpoint, integrate already merged B30 from main (47d1cf0), then hand the same pending implementation to separate Codex to continue. Re-run any interrupted command and validate behavior, not just compilation. This is not an attestation or closeout. Final source, tests, composition evidence and separate review remain pending.

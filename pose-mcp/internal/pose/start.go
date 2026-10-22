@@ -171,7 +171,7 @@ func (s Store) PreviewStart(slug string) (StartPlan, error) {
 	for _, criterion := range plan.Obligations {
 		plan.ObligationItems = append(plan.ObligationItems, NewDiagnostic("review-criterion-owed", "review criterion "+criterion+" is answered at closeout", "spec:"+slug+"#criterion:"+criterion))
 	}
-	plan.Baseline = ProjectContractNodes(slug, spec.Body)
+	plan.Baseline = ProjectContractNodesIn(s.fsys(), slug, spec.Body)
 	plan.Digest = startPlanDigest(plan)
 	return plan, nil
 }
@@ -453,7 +453,7 @@ func (s Store) GetStartStatus(slug string) (StartStatus, error) {
 	} else {
 		status.Lock = lock
 	}
-	current := ProjectContractNodes(slug, spec.Body)
+	current := ProjectContractNodesIn(s.fsys(), slug, spec.Body)
 	record, exists, err := readStartRecord(startRecordPath(s.Root, slug))
 	if err != nil {
 		status.Reconciliation = append(status.Reconciliation, "start record is unreadable: "+err.Error())

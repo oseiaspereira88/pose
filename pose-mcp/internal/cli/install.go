@@ -20,7 +20,7 @@ import (
 	"github.com/harne8/pose-mcp/internal/scaffold"
 )
 
-func cmdInstall(args []string, stdout, stderr io.Writer) int {
+func cmdInstallIn(files posemodel.Files, args []string, stdout, stderr io.Writer) int {
 	commandLocale := cliLocaleValue()
 	text := func(english, portuguese string) string { return cliText(commandLocale, english, portuguese) }
 	var target, projectName, projectID, locale string
@@ -91,7 +91,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	abs, err := filepath.Abs(target)
-	if err != nil || !isDir(abs) {
+	if err != nil || !isDirIn(files, abs) {
 		fmt.Fprintf(stderr, text("pose install: target directory does not exist: %s\n", "pose install: diretório alvo não existe: %s\n"), target)
 		return 1
 	}
@@ -117,8 +117,8 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		// repository was checked out or cloned under a different directory
 		// name than the one it was first installed with.
 		detectedName, detectedID := "", ""
-		if existing, err := os.ReadFile(filepath.Join(target, "AGENTS.md")); err == nil {
-			detectedName, detectedID = detectProjectIdentity(string(existing), target)
+		if existing, err := files.ReadFile(filepath.Join(target, "AGENTS.md")); err == nil {
+			detectedName, detectedID = detectProjectIdentityIn(files, string(existing), target)
 		}
 		if projectName == "" {
 			if detectedName != "" {
@@ -155,8 +155,8 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	// any) say so plainly instead of reading as something this install
 	// broke.
 	preExistingFailure := false
-	if _, err := os.Stat(filepath.Join(target, ".pose")); err == nil {
-		if cmdCheck(target, []string{"--strict"}, io.Discard, io.Discard) != 0 {
+	if _, err := files.Stat(filepath.Join(target, ".pose")); err == nil {
+		if cmdCheckWithLocaleIn(files, target, []string{"--strict"}, io.Discard, io.Discard, cliLocaleValue()) != 0 {
 			preExistingFailure = true
 			log("warning: target already fails `pose check --strict` before this run touches anything — pre-existing governance debt, not something this command is about to cause", "aviso: o alvo já falha em `pose check --strict` antes desta execução tocar em qualquer coisa — dívida de governança pré-existente, não algo que este comando está prestes a causar")
 		}
@@ -177,19 +177,19 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	// entirely to cmdInstall), would silently revert an already-localized
 	// project's machinery to English — github.com/oseiaspereira88/pose#18.
 	if !localeExplicit {
-		locale = machineryLocale(dist, target, locale, false)
+		locale = machineryLocaleIn(files, dist, target, locale, false)
 	}
 
 	// 1. Native machinery: this binary is the runtime. Delivery is shared with
 	// `pose upgrade` (spec pose-machinery-distribution-contract), which is why
 	// it lives in deliverMachinery rather than inline here.
-	if err := deliverMachinery(dist, target, locale, force, noBackup, stderr, log); err != nil {
+	if err := deliverMachineryIn(files, dist, target, locale, force, noBackup, stderr, log); err != nil {
 		fmt.Fprintf(stderr, text("pose install: merging machinery: %v\n", "pose install: mesclando maquinário: %v\n"), err)
 		return 1
 	}
 
 	// .claude/skills symlinks (embed cannot carry them).
-	if linked, err := recreateClaudeSkillSymlinks(target); err == nil {
+	if linked, err := recreateClaudeSkillSymlinksIn(files, target); err == nil {
 		if linked {
 			log("machinery: .claude/skills (symlinks)", "maquinário: .claude/skills (symlinks)")
 		} else {
@@ -212,25 +212,25 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	// pose-governed-capabilities-default-on-new-instances).
 	// The identity this install resolved is declared once, in a committed
 	// file every checkout reads (spec pose-project-identity-file).
-	if written, err := posemodel.WriteProjectFile(target, projectID, projectName); err == nil && written {
+	if written, err := posemodel.WriteProjectFileIn(files, target, projectID, projectName); err == nil && written {
 		log("project identity: %s → .pose/project.json", "identidade do projeto: %s → .pose/project.json", projectID)
 	}
-	_, reviewPolicyErr := os.Stat(filepath.Join(target, ".pose", "policy", "review.json"))
+	_, reviewPolicyErr := files.Stat(filepath.Join(target, ".pose", "policy", "review.json"))
 	newReviewPolicy := os.IsNotExist(reviewPolicyErr)
-	seedAbsentInstanceConfig(dist, target, log)
+	seedAbsentInstanceConfigIn(files, dist, target, log)
 	if newReviewPolicy {
-		adoptGovernedCapabilitiesAtInstall(target, time.Now(), log)
+		adoptGovernedCapabilitiesAtInstallIn(files, target, files.Now(), log)
 		// Adopting POSE is the new instance's first governed spec (spec
 		// pose-onboarding-spec); an install over an existing instance, and
 		// `pose update`, never create it.
-		if rel, written, err := scaffoldOnboardingSpec(target, locale, projectName, time.Now().UTC().Format(time.DateOnly)); err == nil && written {
+		if rel, written, err := scaffoldOnboardingSpecIn(files, target, locale, projectName, files.Now().UTC().Format(time.DateOnly)); err == nil && written {
 			log("onboarding spec: %s — `pose setup` drives its steps", "spec de onboarding: %s — `pose setup` conduz seus passos", rel)
 		}
 	}
 
 	// 3. Legal texts vendored under .pose/.
-	_ = copyFile(dist, "LICENSE", filepath.Join(target, ".pose", "LICENSE"), 0o644)
-	_ = copyFile(dist, "NOTICE", filepath.Join(target, ".pose", "NOTICE"), 0o644)
+	_ = copyFileIn(files, dist, "LICENSE", filepath.Join(target, ".pose", "LICENSE"), 0o644)
+	_ = copyFileIn(files, dist, "NOTICE", filepath.Join(target, ".pose", "NOTICE"), 0o644)
 	log("vendored: .pose/LICENSE, .pose/NOTICE", "incorporados: .pose/LICENSE, .pose/NOTICE")
 
 	// 4. Root docs with locale + placeholders. "" is auto-detection's own
@@ -269,7 +269,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			// token is substituted, so the injected summary still receives
 			// it (spec pose-onboarding-context-extraction). A target with
 			// neither file leaves raw unchanged.
-			raw = injectExtractedProjectContext(raw, target)
+			raw = injectExtractedProjectContextIn(files, raw, target)
 		}
 		content := replacer.Replace(raw)
 		canonical := content
@@ -278,7 +278,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		// canonical manual tags as instance-owned. Skipping (the pre-existing
 		// behavior) meant canonical manual content never reached an installed
 		// repository at all; --force still resets the file wholesale.
-		if existing, readErr := os.ReadFile(dst); readErr == nil && !force {
+		if existing, readErr := files.ReadFile(dst); readErr == nil && !force {
 			// A rerun that switches locale (`pose install <target> --locale
 			// pt-BR` over an English instance) hands the merge headings in a
 			// different language than what `existing` already has: matching
@@ -288,7 +288,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			// pose-upgrade-path-audit-fixes).
 			var merged string
 			var preserved, dropsContent bool
-			delivered := deliveredManual(target, doc)
+			delivered := deliveredManualIn(files, target, doc)
 			existingResolved := resolveDocLocale(dist, doc, string(existing), "", false)
 			targetResolved := strings.TrimSuffix(strings.TrimPrefix(docsPrefix, "locales/"), "/")
 			if targetResolved != existingResolved {
@@ -312,7 +312,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			content = merged
 			if string(existing) == content {
 				if delivered == nil {
-					_ = recordDeliveredManual(target, doc, canonical)
+					_ = recordDeliveredManualIn(files, target, doc, canonical)
 				}
 				log("unchanged: %s", "inalterado: %s", doc)
 				continue
@@ -321,7 +321,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			// heading of its own, so the refresh overwrites it. Keep a copy
 			// rather than lose it silently.
 			if dropsContent && !noBackup {
-				if err := os.WriteFile(dst+".pose-backup", existing, 0o644); err == nil {
+				if err := files.WriteFile(dst+".pose-backup", existing, 0o644); err == nil {
 					if delivered != nil {
 						fmt.Fprintf(stderr, "[pose-install] backed up customized: %s → %s.pose-backup\n", doc, doc)
 					} else {
@@ -329,11 +329,11 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 					}
 				}
 			}
-			if err := os.WriteFile(dst, []byte(content), 0o644); err != nil {
+			if err := files.WriteFile(dst, []byte(content), 0o644); err != nil {
 				fmt.Fprintf(stderr, "pose install: %v\n", err)
 				return 1
 			}
-			_ = recordDeliveredManual(target, doc, canonical)
+			_ = recordDeliveredManualIn(files, target, doc, canonical)
 			if preserved {
 				log("merged: %s (instance-owned sections preserved)", "mesclado: %s (seções da instância preservadas)", doc)
 			} else {
@@ -341,18 +341,18 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			}
 			continue
 		}
-		if err := os.WriteFile(dst, []byte(content), 0o644); err != nil {
+		if err := files.WriteFile(dst, []byte(content), 0o644); err != nil {
 			fmt.Fprintf(stderr, "pose install: %v\n", err)
 			return 1
 		}
-		_ = recordDeliveredManual(target, doc, canonical)
+		_ = recordDeliveredManualIn(files, target, doc, canonical)
 		log("installed: %s", "instalado: %s", doc)
 	}
 
 	// 5. MCP points directly at the native binary; no shell wrapper.
 	if !skipMCP {
 		mcpJSON := filepath.Join(target, ".mcp.json")
-		action, err := configureMCP(mcpJSON, target, projectID)
+		action, err := configureMCPIn(files, mcpJSON, target, projectID)
 		if err != nil {
 			fmt.Fprintf(stderr, "pose install: .mcp.json: %v\n", err)
 			return 1
@@ -371,11 +371,11 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 
 	// 6. Schema stamp + instance dirs + final gate.
 	svPath := filepath.Join(target, ".pose", "schema-version")
-	if _, err := os.Stat(svPath); err != nil {
-		_ = os.WriteFile(svPath, []byte(fmt.Sprintf("%d\n", nativeSchemaVersion)), 0o644)
+	if _, err := files.Stat(svPath); err != nil {
+		_ = files.WriteFile(svPath, []byte(fmt.Sprintf("%d\n", nativeSchemaVersion)), 0o644)
 		log("schema-version stamped: v%d", "schema-version gravado: v%d", nativeSchemaVersion)
 	}
-	if rc := cmdInit(target, io.Discard, stderr); rc != 0 {
+	if rc := cmdInitIn(files, target, io.Discard, stderr); rc != 0 {
 		return rc
 	}
 	// Everything above is already on disk. An index failure here is about the
@@ -384,7 +384,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	// and already knows whether it predates this run and that nothing is rolled
 	// back. Returning here said none of that (spec
 	// pose-update-reports-what-it-delivered).
-	indexFailed := cmdIndex(target, nil, io.Discard, stderr) != 0
+	indexFailed := cmdIndexIn(files, target, nil, io.Discard, stderr) != 0
 	if indexFailed {
 		log("index failed on instance state (above); machinery delivery is complete", "índice falhou no estado da instância (acima); a entrega da maquinaria está completa")
 	}
@@ -394,7 +394,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	// --locale en` reporting its own final gate in Portuguese because the
 	// shell happens to be pt-BR would read as if the flag had failed
 	// (spec pose-upgrade-path-audit-fixes).
-	if rc := cmdCheckWithLocale(target, []string{"--strict"}, stdout, stderr, commandLocale); rc != 0 {
+	if rc := cmdCheckWithLocaleIn(files, target, []string{"--strict"}, stdout, stderr, commandLocale); rc != 0 {
 		fmt.Fprintln(stderr, text("pose install: post-install gate failed (check --strict)", "pose install: gate pós-instalação falhou (check --strict)"))
 		if preExistingFailure {
 			fmt.Fprintln(stderr, text(
@@ -434,34 +434,46 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
+// cmdInstall reads and writes the filesystem directly; cmdInstallIn takes the
+// operation's files.
+func cmdInstall(args []string, stdout, stderr io.Writer) int {
+	return cmdInstallIn(posemodel.NativeFiles(), args, stdout, stderr)
+}
+
 // recreateClaudeSkillSymlinks (re)links .claude/skills/* to their
 // .agents/skills targets. Shared by cmdInstall and the doctor-guided
 // "skills.symlinks" fix (spec pose-doctor-guided-remediation) — confined to
 // .claude/skills and reversible (rerunning it is a no-op once healthy).
-func recreateClaudeSkillSymlinks(target string) (linked bool, err error) {
+func recreateClaudeSkillSymlinksIn(files posemodel.Files, target string) (linked bool, err error) {
 	claudeDir := filepath.Join(target, ".claude", "skills")
-	if err := os.MkdirAll(claudeDir, 0o755); err != nil {
+	if err := files.MkdirAll(claudeDir, 0o755); err != nil {
 		return false, err
 	}
 	linked = true
 	for name, dest := range scaffold.ClaudeSkillLinks {
 		link := filepath.Join(claudeDir, name)
-		_ = os.Remove(link)
-		if err := os.Symlink(dest, link); err != nil {
+		_ = files.Remove(link)
+		if err := files.Symlink(dest, link); err != nil {
 			linked = false
 		}
 	}
 	return linked, nil
 }
 
-func configureMCP(path, target, projectID string) (string, error) {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+// recreateClaudeSkillSymlinks reads and writes the filesystem directly; recreateClaudeSkillSymlinksIn takes the
+// operation's files.
+func recreateClaudeSkillSymlinks(target string) (linked bool, err error) {
+	return recreateClaudeSkillSymlinksIn(posemodel.NativeFiles(), target)
+}
+
+func configureMCPIn(files posemodel.Files, path, target, projectID string) (string, error) {
+	if _, err := files.Stat(path); os.IsNotExist(err) {
 		payload := map[string]any{"mcpServers": map[string]any{"pose": nativeMCPEntry(target, projectID, nil)}}
-		return "seeded", writeMCPJSON(path, payload)
+		return "seeded", writeMCPJSONIn(files, path, payload)
 	} else if err != nil {
 		return "", err
 	}
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
@@ -496,7 +508,13 @@ func configureMCP(path, target, projectID string) (string, error) {
 	if !changed {
 		return "preserved", nil
 	}
-	return "migrated", writeMCPJSON(path, payload)
+	return "migrated", writeMCPJSONIn(files, path, payload)
+}
+
+// configureMCP reads and writes the filesystem directly; configureMCPIn takes the
+// operation's files.
+func configureMCP(path, target, projectID string) (string, error) {
+	return configureMCPIn(posemodel.NativeFiles(), path, target, projectID)
 }
 
 func legacyMCPEntry(name string, entry map[string]any) bool {
@@ -530,20 +548,32 @@ func nativeMCPEntry(target, projectID string, existingEnv map[string]any) map[st
 	}
 }
 
-func writeMCPJSON(path string, payload map[string]any) error {
+func writeMCPJSONIn(files posemodel.Files, path string, payload map[string]any) error {
 	raw, err := json.MarshalIndent(payload, "", "  ")
 	if err != nil {
 		return err
 	}
-	return writeAtomic(path, append(raw, '\n'), 0o644)
+	return writeAtomicIn(files, path, append(raw, '\n'), 0o644)
 }
 
-func isDir(p string) bool {
-	fi, err := os.Stat(p)
+// writeMCPJSON reads and writes the filesystem directly; writeMCPJSONIn takes the
+// operation's files.
+func writeMCPJSON(path string, payload map[string]any) error {
+	return writeMCPJSONIn(posemodel.NativeFiles(), path, payload)
+}
+
+func isDirIn(files posemodel.Files, p string) bool {
+	fi, err := files.Stat(p)
 	return err == nil && fi.IsDir()
 }
 
-func copyTreeInto(src fs.FS, sourceRoot, destinationRoot string, noBackup bool, stderr io.Writer, target string) error {
+// isDir reads and writes the filesystem directly; isDirIn takes the
+// operation's files.
+func isDir(p string) bool {
+	return isDirIn(posemodel.NativeFiles(), p)
+}
+
+func copyTreeIntoIn(files posemodel.Files, src fs.FS, sourceRoot, destinationRoot string, noBackup bool, stderr io.Writer, target string) error {
 	return fs.WalkDir(src, sourceRoot, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -554,30 +584,36 @@ func copyTreeInto(src fs.FS, sourceRoot, destinationRoot string, noBackup bool, 
 		}
 		destination := filepath.Join(destinationRoot, rel)
 		if entry.IsDir() {
-			return os.MkdirAll(destination, 0o755)
+			return files.MkdirAll(destination, 0o755)
 		}
-		return copyFileWithBackup(src, path, destination, filePerm(path), noBackup, stderr, target)
+		return copyFileWithBackupIn(files, src, path, destination, filePerm(path), noBackup, stderr, target)
 	})
 }
 
-func copyFileWithBackup(src fs.FS, path, dst string, perm os.FileMode, noBackup bool, stderr io.Writer, target string) error {
+// copyTreeInto reads and writes the filesystem directly; copyTreeIntoIn takes the
+// operation's files.
+func copyTreeInto(src fs.FS, sourceRoot, destinationRoot string, noBackup bool, stderr io.Writer, target string) error {
+	return copyTreeIntoIn(posemodel.NativeFiles(), src, sourceRoot, destinationRoot, noBackup, stderr, target)
+}
+
+func copyFileWithBackupIn(files posemodel.Files, src fs.FS, path, dst string, perm os.FileMode, noBackup bool, stderr io.Writer, target string) error {
 	b, err := fs.ReadFile(src, path)
 	if err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+	if err := files.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
 		return err
 	}
 
-	if _, err := os.Stat(dst); err == nil {
-		existing, err := os.ReadFile(dst)
+	if _, err := files.Stat(dst); err == nil {
+		existing, err := files.ReadFile(dst)
 		if err == nil {
 			if bytes.Equal(existing, b) {
 				return nil
 			}
 			if !noBackup {
 				backupDst := dst + ".pose-backup"
-				if err := os.WriteFile(backupDst, existing, perm); err == nil {
+				if err := files.WriteFile(backupDst, existing, perm); err == nil {
 					relDst, _ := filepath.Rel(target, dst)
 					fmt.Fprintf(stderr, "[pose-install] backed up customized: %s → %s.pose-backup\n", relDst, relDst)
 				}
@@ -585,18 +621,30 @@ func copyFileWithBackup(src fs.FS, path, dst string, perm os.FileMode, noBackup 
 		}
 	}
 
-	return os.WriteFile(dst, b, perm)
+	return files.WriteFile(dst, b, perm)
 }
 
-func copyFile(src fs.FS, path, dst string, perm os.FileMode) error {
+// copyFileWithBackup reads and writes the filesystem directly; copyFileWithBackupIn takes the
+// operation's files.
+func copyFileWithBackup(src fs.FS, path, dst string, perm os.FileMode, noBackup bool, stderr io.Writer, target string) error {
+	return copyFileWithBackupIn(posemodel.NativeFiles(), src, path, dst, perm, noBackup, stderr, target)
+}
+
+func copyFileIn(files posemodel.Files, src fs.FS, path, dst string, perm os.FileMode) error {
 	b, err := fs.ReadFile(src, path)
 	if err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+	if err := files.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
 		return err
 	}
-	return os.WriteFile(dst, b, perm)
+	return files.WriteFile(dst, b, perm)
+}
+
+// copyFile reads and writes the filesystem directly; copyFileIn takes the
+// operation's files.
+func copyFile(src fs.FS, path, dst string, perm os.FileMode) error {
+	return copyFileIn(posemodel.NativeFiles(), src, path, dst, perm)
 }
 
 func filePerm(path string) os.FileMode {

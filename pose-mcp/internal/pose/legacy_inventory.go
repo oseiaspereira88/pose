@@ -181,7 +181,7 @@ func (s Store) InventoryLegacy() (LegacyInventory, error) {
 			// Status is per project: this repository is done with a transfer
 			// once its own side reached its terminal phase — activated as the
 			// destination, source-retired as the source.
-			plan, err := readSpecTransferPlan(transferPlanFile(s.Root, entry.Name()))
+			plan, err := readSpecTransferPlan(s.fsys(), transferPlanFile(s.Root, entry.Name()))
 			if err != nil {
 				interrupted++
 				inv.Details["interrupted-transfers"] = append(inv.Details["interrupted-transfers"], entry.Name()+" (plan unreadable)")
@@ -192,7 +192,7 @@ func (s Store) InventoryLegacy() (LegacyInventory, error) {
 			if plan.Source.Project == project && plan.Destination.Project != project {
 				terminal = "source-retired"
 			}
-			status, err := ReadSpecTransferStatus(s, entry.Name(), project)
+			status, err := ReadSpecTransferStatusIn(s.fsys(), s, entry.Name(), project)
 			if err != nil || status.Phase != terminal {
 				interrupted++
 				inv.Details["interrupted-transfers"] = append(inv.Details["interrupted-transfers"], entry.Name())

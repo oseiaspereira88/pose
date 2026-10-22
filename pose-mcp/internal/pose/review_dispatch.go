@@ -255,7 +255,7 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string) (Dispatch
 	if err != nil {
 		return DispatchPlan{}, err
 	}
-	return DispatchPlan{PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose", "policy")), OriginWorktree: origin, Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: count}, nil
+	return DispatchPlan{PolicyDigest: directoryDigestIn(s.fsys(), filepath.Join(s.Root, ".pose", "policy")), OriginWorktree: origin, Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: count}, nil
 }
 
 // ErrNoReviewerAdapter means the project configured no reviewer.
@@ -628,7 +628,7 @@ func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, err
 	identity, _ := json.Marshal(run)
 	idSum := sha256.Sum256(identity)
 	run.RunID = "rrn-" + hex.EncodeToString(idSum[:])[:16]
-	dir, err := ensureReviewArtifactDir(s.Root, reviewRunsDir, true)
+	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, reviewRunsDir, true)
 	if err != nil {
 		return ReviewRun{}, err
 	}
@@ -673,7 +673,7 @@ func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
 	if !directoryDigestKnown(plan.PolicyDigest) {
 		return "stale: the dispatch has no readable policy baseline (" + plan.PolicyDigest + ")"
 	}
-	if now := directoryDigest(filepath.Join(s.Root, ".pose", "policy")); now != plan.PolicyDigest {
+	if now := directoryDigestIn(s.fsys(), filepath.Join(s.Root, ".pose", "policy")); now != plan.PolicyDigest {
 		return "stale: the policy changed or can no longer be read whole while the run was going (" + now + ")"
 	}
 	// Every sealed bundle of the scope must have been read: one that cannot be read may be

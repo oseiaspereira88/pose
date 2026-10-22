@@ -713,9 +713,9 @@ func cmdReleaseBackfill(root string, args []string, stdout, stderr io.Writer) in
 
 func appendReleasePolicyChecks(checker *nativeChecker) {
 	hasPolicy := false
-	if _, err := os.Stat(filepath.Join(checker.root, ".pose", "policy", "release.json")); err == nil {
+	if _, err := checker.fsys().Stat(filepath.Join(checker.root, ".pose", "policy", "release.json")); err == nil {
 		hasPolicy = true
-	} else if _, err := os.Stat(filepath.Join(checker.root, ".pose", "release-policy.json")); err == nil {
+	} else if _, err := checker.fsys().Stat(filepath.Join(checker.root, ".pose", "release-policy.json")); err == nil {
 		hasPolicy = true
 	}
 	if !hasPolicy {
@@ -737,7 +737,7 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 			seen[fragment.Spec] = "unreleased"
 		}
 	}
-	entries, _ := os.ReadDir(base)
+	entries, _ := checker.fsys().ReadDir(base)
 	for _, entry := range entries {
 		if !entry.IsDir() || posemodel.ValidateReleaseVersion(entry.Name()) != nil {
 			continue
