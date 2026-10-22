@@ -120,9 +120,10 @@ func pendingSourceUsed(root, producer string) bool {
 	return true
 }
 
-// actionRequestObligationSource lets the ActionRequest domain register itself
-// without the projection importing its storage details.
-var actionRequestObligationSource func(s Store, project string, specs []Spec) ([]Obligation, error)
+// The producer seam also permits coverage fault injection in contract tests.
+var actionRequestObligationSource = func(s Store, project string, specs []Spec, global bool, coverage *Coverage) ([]Obligation, error) {
+	return s.scopedActionObligations(project, specs, global, coverage)
+}
 
 const ObligationReportSchemaVersion = 1
 
@@ -179,7 +180,7 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 				cov.State, cov.Detail = CoverageStateUnsupported, "action requests are not available in this engine"
 				return nil, nil
 			}
-			return actionRequestObligationSource(s, project, specs)
+			return actionRequestObligationSource(s, project, specs, q.Scope == "", report.producerState["action-requests"])
 		}},
 	}
 	results := make([]produced, len(producers))
@@ -312,15 +313,20 @@ func (s Store) obligationScopeSpecs(scope string) ([]Spec, error) {
 		if err != nil {
 			return nil, err
 		}
+		found := ref.Kind == "roadmap"
 		for _, milestone := range rm.Milestones {
 			if ref.Kind == "milestone" && milestone.ID != ref.Milestone {
 				continue
 			}
+			found = true
 			for _, member := range milestone.Specs {
 				if local, external := s.milestoneMember(member); !external {
 					members[local] = true
 				}
 			}
+		}
+		if !found {
+			return nil, fmt.Errorf("pose: milestone %q not found", ref.Milestone)
 		}
 	}
 	out := []Spec{}

@@ -392,9 +392,35 @@
             "type": "string"
           },
           "effects": {
-            "description": "Per-phase effects, e.g. closeout:block or release:advisory",
+            "description": "phase:mode strings retain whole-source scope; objects add explicit qualified node scopes. Targets indicate relevance, not implicit blocking scope.",
             "items": {
-              "type": "string"
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "mode": {
+                      "type": "string"
+                    },
+                    "phase": {
+                      "type": "string"
+                    },
+                    "scope": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "phase",
+                    "mode"
+                  ],
+                  "type": "object"
+                }
+              ]
             },
             "type": "array"
           },
