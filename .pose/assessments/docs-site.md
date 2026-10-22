@@ -1,7 +1,7 @@
 # Component Assessment: docs-site (`docs-site`)
 
 > **Mapeamento de Módulo POSE**: `docs-site`
-> **Data de Avaliação**: 2026-10-19T09:14:35Z | **Baseline Commit**: 07e77f896a65
+> **Data de Avaliação**: 2026-10-22T03:54:21Z | **Baseline Commit**: 88ab93b6df96
 > **Métricas**: 0 LOC Produção | 0 LOC Testes | 0 Arquivos Totais
 > **Linguagens**: n/a
 > **Saúde de Código**: 0 TODOs | 0 FIXMEs | 0 Panics | 0 Stubs
@@ -10,7 +10,7 @@
 
 ## 1. Visão Geral e Estrutura do Módulo
 
-O componente **docs-site** reside no caminho `docs-site` do projeto **pose-dist**.
+O componente **docs-site** reside no caminho `docs-site` do projeto **pose-b08-work**.
 
 - **Status de Verificação POSE**: `verified`
 - **Pontuação de Completude**: 100%

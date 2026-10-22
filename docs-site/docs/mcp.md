@@ -118,7 +118,7 @@ are logged and swallowed, bounded by the shutdown timeout.
 | `pose_obligations` | Everything still owed, projected read-only from readiness, closeout, review judgment, start reconciliation and open follow-ups: stable ids, qualified refs, reason codes, conditions, recipients and per-phase effects, with a snapshot and per-producer coverage (an empty list with incomplete coverage is not "nothing owed"); `attention` groups the ids for an actor. Same domain function as `pose state --attention` |
 | `pose_project_state` | Current project state in one call: curated + derived sections (specs/roadmaps, follow-ups, capabilities, decisions/knowledge, validation evidence, architecture), staleness and tamper detection, plus `effective_governance` computed live (optional `governance_scope`) |
 | `pose_start_status` | Read-only atomic start view: digest-bound start preview (readiness, dependencies, declared obligations, R/A/D baseline) and status (phase, node origins, reconciliation needs) |
-| `pose_closeout_state` | Hierarchical review state, child blockers, next governed action and terminal closeout for a typed scope |
+| `pose_closeout_state` | Hierarchical review state, child blockers, next governed action and terminal closeout for a typed scope; optional `include_plan: true` adds the CLI execution plan for a spec, preserving Git/input errors |
 | `pose_review_plan` | Deterministic component-aware review plan: mapping provenance, selected profiles, criteria, safe native-tool argv, evidence expectations, independence and blockers |
 | `pose_review_bundle` | Read-only sealed review subject and attestation state: semantic/patch/tree identity, freshness, supersession delta and next governed action |
 | `pose_review_prepare` | Read-only auto-attest preparation of a sealed bundle: a draft attestation answering what automation may answer from sealed evidence, and the judgment criteria still pending; writes nothing — record with `pose_review_attest` inside a trusted issuer's envelope |
@@ -383,3 +383,24 @@ never weaken a required dependency to make an older binary pass.
 Resolution and readiness are read-only lifecycle observations. Federated review,
 pinned evidence acceptance, spec transfer and automatic agent routing are separate
 implementation scopes; this resolver does not declare those capabilities ready.
+
+
+## Development branch behavior
+
+**Unreleased; reviewed 2026-10-20.** The published catalog baseline above is
+v7.4.1. Pending changes strengthen shared readers and writers without treating
+the presence of a tool name as proof of the newer behavior:
+
+- `pose_closeout_state` accepts optional `include_plan: true` for the spec's
+  execution plan; this belongs to the Git/dispatch work still in progress.
+- Interrupted or cancelled gates report `execution_inconclusive` with cause and
+  partial output, rather than claiming a completed failing gate.
+- Shared readers disclose incomplete source coverage and authenticate persisted
+  proof before reporting verified identity or satisfied action obligations.
+- `pose_review_attest` shares domain approval preflight with CLI and Store;
+  invalid or stale approvals return `review_approval_refused` without creating records.
+- Published index generations give readers one coherent set; unavailable inputs
+  are disclosed instead of silently selecting a mixture.
+
+See [Releases and development](evolution.md) for the pending fragment/spec
+boundary. Keep CLI and MCP binaries compatible with the same adopted contracts.

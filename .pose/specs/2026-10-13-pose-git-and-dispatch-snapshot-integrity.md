@@ -1,8 +1,8 @@
 ---
 slug: pose-git-and-dispatch-snapshot-integrity
-status: draft
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-21
 depends_on: pose-recoverable-closeout-plan, pose-delegated-review-dispatch
 priority: 1
 components: pose-mcp
@@ -26,7 +26,7 @@ e a [análise de confiança](../reports/2026-10-11-pose-front-02-trust-chain.md)
 
 ### Constraints
 
-Esta interação escreve a spec; não implementa o comportamento. Preservar as
+Implementação retomada em 2026-10-20, reconciliada com o PR #195 original. Preservar as
 fundações done, contratos selados, evidências e autorizações já existentes.
 Não adotar policy/capability automaticamente. Classificar compatibilidade antes
 de iniciar: recusa mais estrita ou mudança de semântica pública não é patch por
@@ -48,22 +48,105 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-2-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
+Artefatos reconciliados para a implementação B07. Evidência de validação não
+constitui aprovação independente nem closeout.
 
-- created: .pose/specs/2026-10-13-pose-git-and-dispatch-snapshot-integrity.md
+- modified: .pose/specs/2026-10-13-pose-git-and-dispatch-snapshot-integrity.md
 - created: .pose/starts/pose-git-and-dispatch-snapshot-integrity.json
 - created: .pose/changelogs/unreleased/pose-git-and-dispatch-snapshot-integrity.md
+- created: .pose/adr/2026-10-20-expose-the-closeout-execution-plan-as-an-opt-in-mcp-projection.md
 - modified: pose-mcp/internal/pose/closeout_plan.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
 - created: pose-mcp/internal/pose/git_snapshot_integrity.go
 - created: pose-mcp/internal/pose/git_snapshot_integrity_test.go
 - created: pose-mcp/internal/cli/git_snapshot_integrity_test.go
 - created: pose-mcp/internal/mcpserver/git_snapshot_integrity_test.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/cli/closeout_plan_test.go
+- modified: pose-mcp/internal/cli/operation_results_test.go
+- modified: pose-mcp/internal/cli/review_closeout_test.go
+- modified: pose-mcp/internal/cli/review_dispatch_test.go
+- modified: pose-mcp/internal/cli/writer_publication_test.go
 - modified: .pose/indexes/validation-matrix.json
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/generation.json
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- modified: .pose/assessments/integrations.md
+- modified: .pose/state/integrations.json
+- modified: .pose/assessments/technical-debt.md
+- modified: .pose/state/technical-debt.json
+- created: .pose/knowledge/2026-10-20-handoff-pose-b07-implementation.md
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/pose-mcp.md
+- modified: .pose/state/components/pose-mcp.json
+- modified: docs-site/docs/cli.md
+- modified: docs-site/docs/mcp.md
+- created: .pose/results/b07-validation.json
+- created: .pose/reports/2026-10-20-standard-b07-snapshot-integrity.md
+- created: .pose/reports/history/standard-b07-snapshot-integrity.jsonl
+- created: .pose/reports/2026-10-20-b07-implementation.md
+
+- created: .pose/adr/2026-10-18-git-state-that-cannot-be-read-is-unknown-and-a-worktree-is-judged-by-its-content.md
+- created: .pose/results/b07-mutations.py
+- created: .pose/results/b07-mutations.json
+- modified: pose-mcp/internal/pose/git_spawn_cache.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/obligation_projection.go
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/releases.json
+- modified: .pose/indexes/roadmaps.json
+- modified: .pose/indexes/spec-graph.json
+
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/pose/governance_waits.go
+- modified: pose-mcp/internal/pose/governance_replay.go
+- modified: pose-mcp/internal/pose/governance_outcomes.go
+- created: pose-mcp/internal/pose/b07_independent_probe_test.go
+- created: pose-mcp/internal/pose/b07_r2_probe_test.go
+- created: pose-mcp/internal/cli/b07_r2_probe_test.go
+- created: pose-mcp/internal/pose/b07_r3_probe_test.go
+- created: pose-mcp/internal/cli/b07_r3_probe_test.go
+- created: pose-mcp/internal/pose/b07_r4b_probe_test.go
+- created: pose-mcp/internal/cli/b07_r4b_probe_test.go
+- created: .pose/reports/2026-10-18-b07r4b-independent-review.md
+- created: .pose/results/b07r4b-independent-review.json
+- created: .pose/results/b07r4b-independent-probes.py
+- created: .pose/results/b07r4b-independent-probes.log
+- created: .pose/results/b07r4b-mutations.json
+- created: .pose/results/b07r4b-validation.json
+- created: .pose/results/b07r4b-current-validation.json
+- created: .pose/reports/2026-10-18-b07r3-independent-review.md
+- created: .pose/results/b07r3-independent-review.json
+- created: .pose/results/b07r3-independent-probes.py
+- created: .pose/results/b07r3-independent-probes.log
+- created: .pose/results/b07r3-mutations.json
+- created: .pose/results/b07r3-validation.json
+- modified: pose-mcp/internal/pose/federated_acceptance.go
+- created: .pose/reports/2026-10-18-b07r2-independent-review.md
+- created: .pose/results/b07r2-independent-review.json
+- created: .pose/results/b07r2-independent-probes.py
+- created: .pose/results/b07r2-independent-probes.log
+- created: pose-mcp/internal/cli/b07_independent_probe_test.go
+- created: .pose/reports/2026-10-18-b07-independent-review.md
+- created: .pose/results/b07-independent-review.json
+- created: .pose/results/b07-independent-probes.py
+- created: .pose/results/b07-independent-probes.log
+
+- created: .pose/reports/2026-10-20-b07-reconciled-review-r1.md
+- created: .pose/reports/2026-10-20-b07-reconciled-review-r2.md
+- modified: .pose/results/delivery-validation.json
+
+- modified: .pose/assessments/docs-site.md
+- modified: .pose/assessments/mcp-enforce.md
+- modified: .pose/state/components/docs-site.json
+- modified: .pose/state/components/mcp-enforce.json
+- modified: .pose/state/project-state.md
+
+- created: .pose/reports/2026-10-20-b07-reconciled-review-r3.md
 
 ### Delivery targets
 
@@ -78,7 +161,18 @@ executar assessment freshness no componente, completar o plano de artefatos,
 registrar produtores de evidência na matriz e criar a baseline por start.
 Não contornar dependência não terminal apenas porque o código parece presente.
 
+## 4. Tasks
+
+- [x] Resolver autoridade, readiness, assessment e baseline nativa.
+- [x] Implementar observação Git tipada e verificação independente do índice.
+- [x] Vincular dispatch ao worktree, materialização e inputs semânticos.
+- [x] Restringir outputs derivados e expor plano opt-in no MCP.
+- [x] Cobrir regressões e atualizar catálogo e documentação.
+- [x] Obter revisão e admissão de closeout com a matriz integral aprovada.
+
 ## 5. Decisions
+
+ADR adicional de paridade MCP: [opt-in execution plan](../adr/2026-10-20-expose-the-closeout-execution-plan-as-an-opt-in-mcp-projection.md).
 
 ### Decision D1
 - Basis: R1, R2, R4, R5, R6
@@ -104,26 +198,36 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 
 ### Deterministic checks
 
+Plano de execução B07 (2026-10-20), antes de código. Compatibilidade: minor,
+pois a recusa de runs antes aceitos altera a semântica pública de certificação.
+Baseline canônica: start nativo original do PR #195 em `1e0a313`, preservado integralmente. O start repetido em 2026-10-20 tinha os mesmos hashes R1–R8/D1, mas não substitui o registro anterior.
+Assessment `pose assess discover --if-stale --component pose-mcp` atualizado.
+Contexto consultado: knowledge:pose-b06-source-coverage-closeout.
+
+| Cenário obrigatório | Comando | Evidência esperada |
+|---|---|---|
+| Git desconhecido, paths e materialização escondida | `cd pose-mcp && go test ./internal/pose -run 'TestGitSnapshot'` | Erro tipado, ambos lados de rename e diferenças de bytes/tipo detectados. |
+| Dispatch íntegro/adulterado, origem e supersession | `cd pose-mcp && go test ./internal/cli -run TestReviewDispatch` | Controle completo, adulteração falha sem attestation. |
+| Contratos e concorrência | `cd pose-mcp && go test ./...` e `go test -race ./internal/pose ./internal/cli ./internal/mcpserver` | Suítes verdes. |
+| Gates de entrega | `pose validate --strict --module pose-mcp --report` | Resultado estruturado de integração e gates aplicáveis aprovados. |
+
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Os testes e comandos executados estão no [relatório de implementação](../reports/2026-10-20-b07-implementation.md). Em 2026-10-20 a suíte Go completa passou; 11/11 mutações de produção foram detectadas. A exceção vencida foi retirada em spec:pose-retire-unused-first-party-action-exception sem alterar pins ou enforcement. Revisão R3 e gates nativos de B07 aprovados em 2026-10-21. A evidência final foi regenerada sobre d6ce7bc no results_path canônico com temporários isolados em /var/tmp; observações anteriores continuam históricas.
 
 ### Requirement trace
 
-O trace abaixo é planejado; vincular os casos aos produtores reais durante a
-implementação. Não declarar requisitos funcionais satisfeitos pelo lint.
+Trace da implementação; satisfação funcional não encerra os gates de review e segurança.
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1 |
-| R2 | V2, V3 |
-| R3 | V3 |
-| R4 | V4 |
-| R5 | V5 |
-| R6 | V6 |
-| R7 | V1, V7 |
-| R8 | V1–V7 |
+- R1 [satisfied] test:TestGitSnapshotStatusFailurePreservesCause test:TestGitSnapshotUnavailableIsTyped
+- R2 [satisfied] test:TestGitSnapshotHiddenEditsAndTypes test:TestGitSnapshotSubmoduleHiddenEditIsNotClean
+- R3 [satisfied] test:TestGitSnapshotPathsUseNULIncludingRename test:TestGitSnapshotParentLinkIsNotFollowed
+- R4 [satisfied] test:TestGitSnapshotCloseoutOutputsHaveExactOwners test:TestGitSnapshotAuthorizedGenerationRequiresItsExactBytes test:TestReviewDispatchRejectsHiddenChangesAndArbitraryEvidence
+- R5 [satisfied] test:TestReviewDispatchOriginMutationDuringRunIsHistoricalFailure
+- R6 [satisfied] test:TestReviewDispatchOriginIsSemanticAndBoundToWorktree
+- R7 [satisfied] test:TestGitSnapshotMCPPlanPreservesUnknownAndHiddenChanges test:TestGitSnapshotCloseoutFailsOnUnknownGitAndHiddenChanges
+- R8 [satisfied] capability:git-and-dispatch-snapshot-integrity evidence:integration check:git-dispatch-snapshot-integrity-integration test:TestReviewDispatchRunsAndRecordsAdapters test:TestReviewDispatchRejectsHiddenChangesAndArbitraryEvidence
 
 
 Consultar [delegação](../reports/2026-10-11-pose-front-03-delegated-review.md) e [consistência](../reports/2026-10-12-pose-front-09-consistency-recovery.md).
@@ -132,14 +236,15 @@ Consultar [delegação](../reports/2026-10-11-pose-front-03-delegated-review.md)
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 2. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+Implementação B07 reconciliada na branch `impl/pose-b07-git-snapshot-integrity`, preservando o início nativo original do PR #195. Ver [relatório](../reports/2026-10-20-b07-implementation.md) e
+knowledge:pose-b07-implementation para os gates executados e a retomada.
+Fechada nativamente em 2026-10-21 após revisão R3, 141/141 checks, 14/14 mutações detectadas, suíte race e govulncheck aprovados. Bundle rvb-0ae879ef12b5b804; atestação rva-85befe078e2707ca, com identidade declarada e atribuição explícita, sem confirmação humana ou alegação de identidade verificada. A retomada foi reconciliada com `origin/impl/pose-b07-git-snapshot-integrity` (PR #195), preservando o start original e as regressões anteriores; `stale` permanece distinto de falha do comando.
 
 ### Residual risks
 
-Comparar antes/depois não equivale a sandbox nem elimina toda corrida. A implementação precisa definir o ponto de consumo protegido ou recusar o efeito sem garantia. B07 não implementa transações gerais, daemon ou run-to-attestation completo; esses deltas conservam seus lotes.
+O pose check --strict desta branch encontra cinco erros de atribuição documental da spec pose-canonical-positioning, fora de B07. A varredura tech-debt conserva cobertura incompleta por duas specs antigas inválidas; não se afirma ausência de dívida nas fontes perdidas. Comparar antes/depois não equivale a sandbox nem elimina corridas com escritores externos. O consumo de runs persistidos revalida registro, transcript, identidade Git e materialização pertinente; histórico não concede autoridade para efeitos. B07 não implementa transações gerais, daemon ou run-to-attestation completo; esses deltas conservam seus lotes.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+- [done] Remover a exceção vencida sem uso em commit separado, governado por spec:pose-retire-unused-first-party-action-exception. Nenhum pin foi alterado.
+- [done] Concluir gates nativos e julgamento da execução separada R3; surface-check com zero findings e closeout-check terminal aprovados.

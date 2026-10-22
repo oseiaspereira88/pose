@@ -1,0 +1,99 @@
+=== RUN   TestB07R2DirtyGitlink
+    b07r2_review_test.go:9: dirty gitlink diverged=[] err=<nil>
+    b07r2_review_test.go:9: materialized gitlink with changed content accepted
+    b07r2_review_test.go:11: linked gitlink diverged=[] err=<nil>
+    b07r2_review_test.go:11: gitlink symlink escaping worktree accepted
+--- FAIL: TestB07R2DirtyGitlink (0.03s)
+=== RUN   TestB07R2CloseoutType
+    b07r2_review_test.go:17: path=.pose/state/project-state.md dirty=[] err=<nil>
+    b07r2_review_test.go:17: closeout accepts type replacement .pose/state/project-state.md
+    b07r2_review_test.go:17: path=.pose/results/delivery-validation.json dirty=[] err=<nil>
+    b07r2_review_test.go:17: closeout accepts type replacement .pose/results/delivery-validation.json
+    b07r2_review_test.go:17: path=.pose/closeout-plans/arbitrary.json dirty=[] err=<nil>
+    b07r2_review_test.go:17: closeout accepts type replacement .pose/closeout-plans/arbitrary.json
+--- FAIL: TestB07R2CloseoutType (0.02s)
+=== RUN   TestB07R2PersistentUnknown
+    b07r2_review_test.go:22: coherent=false changes=[]
+    b07r2_review_test.go:22: persistent unknown returns empty revalidation
+--- FAIL: TestB07R2PersistentUnknown (0.01s)
+=== RUN   TestB07R2NegativeAcrossBundles
+    b07r2_review_test.go:31: old=rvb-cfe687f0132cd13b negativeBundle=rvb-865c99ddd5285d6e approved=true state=closed err=<nil>
+    b07r2_review_test.go:31: closed scope retains approval over negative bundle of same instant
+--- FAIL: TestB07R2NegativeAcrossBundles (0.02s)
+=== RUN   TestB07R2PolicyDigestFraming
+    b07r2_review_test.go:37: before=sha256:3fa0da4d61e26b4fe67fdfbf475338148899afa19eb92c59e641242341cd3f1b after=sha256:3fa0da4d61e26b4fe67fdfbf475338148899afa19eb92c59e641242341cd3f1b
+    b07r2_review_test.go:37: different policy files serialize to identical digest input
+--- FAIL: TestB07R2PolicyDigestFraming (0.00s)
+=== RUN   TestB07R2IrrelevantGitlink
+    b07r2_review_test.go:41: irrelevant gitlink pre=[]/<nil> post=[module]/<nil>
+--- PASS: TestB07R2IrrelevantGitlink (0.02s)
+=== RUN   TestB07R2OtherWorktreeEnvironment
+    b07r2_review_test.go:46: requested=/tmp/TestB07R2OtherWorktreeEnvironment3338822144/001 env-worktree=/tmp/TestB07R2OtherWorktreeEnvironment3338822144/002 divergence=[]/<nil> status=[]/<nil>
+    b07r2_review_test.go:47: changed worktree verified clean using another materialization from environment
+--- FAIL: TestB07R2OtherWorktreeEnvironment (0.01s)
+=== RUN   TestB07R2CloseoutUnknownHead
+    b07r2_review_test.go:54: revision="" steps=[{ID:context State:done Reason:} {ID:trace State:done Reason:} {ID:evidence State:pending Reason:the prepared bundle reports: } {ID:index State:pending Reason:change sets and evidence must be in the index before sealing} {ID:seal State:pending Reason:} {ID:mechanical-attestation State:pending Reason:} {ID:judgment State:pending Reason:known after sealing} {ID:verify State:pending Reason:} {ID:transition State:pending Reason:}] err=<nil>
+    b07r2_review_test.go:55: closeout context ready with unknown HEAD
+--- FAIL: TestB07R2CloseoutUnknownHead (0.01s)
+=== RUN   TestB07R2LegacyNegativeSameInstant
+    b07r2_review_test.go:60: approved=false selected=rvw-z err=<nil>
+--- PASS: TestB07R2LegacyNegativeSameInstant (0.00s)
+=== RUN   TestB07R2SnapshotCleanToDirty
+    b07r2_review_test.go:63: dirty before=false after=true changes=[]
+    b07r2_review_test.go:63: clean-to-dirty transition omitted from snapshot revalidation
+--- FAIL: TestB07R2SnapshotCleanToDirty (0.02s)
+FAIL
+FAIL	github.com/harne8/pose-mcp/internal/pose	0.130s
+=== RUN   TestB07R2UnreadableSourceStatus
+    b07r2_review_test.go:5: code=0 out=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-1ce08868d671154a
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:598d42a8f610125a3edf25ba73c0a7673e35c357136ae38e722bcc6df8faa80d
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=147ccd74409f354597ac975b39e6afae6fb5ac78
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-2cba782149931c86
+        review_dispatch.status=completed
+        review_dispatch.record=.pose/review-runs/rrn-2cba782149931c86.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+    b07r2_review_test.go:5: source Git status unknown but run completed
+--- FAIL: TestB07R2UnreadableSourceStatus (0.05s)
+=== RUN   TestB07R2PublishWindow
+    b07r2_review_test.go:11: status=completed calls=2 err=<nil>
+    b07r2_review_test.go:11: changed inputs at result publication retain completed effect
+--- FAIL: TestB07R2PublishWindow (0.04s)
+=== RUN   TestB07R2SourceMode
+    b07r2_review_test.go:15: code=0 out=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-1ce08868d671154a
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:598d42a8f610125a3edf25ba73c0a7673e35c357136ae38e722bcc6df8faa80d
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=147ccd74409f354597ac975b39e6afae6fb5ac78
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-5ca558bd7798083d
+        review_dispatch.status=completed
+        review_dispatch.record=.pose/review-runs/rrn-5ca558bd7798083d.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+    b07r2_review_test.go:15: source input mode changed but run completed
+--- FAIL: TestB07R2SourceMode (0.05s)
+=== RUN   TestB07R2PolicyChangeWithEqualDigest
+    b07r2_review_test.go:20: code=0 out=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-1ce08868d671154a
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:598d42a8f610125a3edf25ba73c0a7673e35c357136ae38e722bcc6df8faa80d
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=147ccd74409f354597ac975b39e6afae6fb5ac78
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-a9b23402abef89c8
+        review_dispatch.status=completed
+        review_dispatch.record=.pose/review-runs/rrn-a9b23402abef89c8.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+    b07r2_review_test.go:20: policy file set changed without stale because hash framing is ambiguous
+--- FAIL: TestB07R2PolicyChangeWithEqualDigest (0.04s)
+=== RUN   TestB07R2SealedSubjectNotCheckout
+    b07r2_review_test.go:29: code=0 status=completed adapterRead="package posemcp\ndecision: approved\n"
+    b07r2_review_test.go:30: bundle seals current implementation but adapter reads old committed implementation
+--- FAIL: TestB07R2SealedSubjectNotCheckout (0.06s)
+FAIL
+FAIL	github.com/harne8/pose-mcp/internal/cli	0.243s
+FAIL

@@ -30,6 +30,25 @@ supply-chain verification is required.
 
 ### Verified install
 
+Download the release archive for your OS and architecture from the
+[release assets](https://github.com/oseiaspereira88/pose/releases/latest), together
+with that release's `checksums.txt`. Verify its SHA-256 **before executing it**.
+For example, on Linux amd64:
+
+```bash
+V=7.4.1
+curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/pose_${V}_linux_amd64.tar.gz"
+curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/checksums.txt"
+sha256sum --check --ignore-missing checksums.txt
+tar -xzf "pose_${V}_linux_amd64.tar.gz" pose
+```
+
+Continue only if verification succeeds. Put the verified binary on `PATH`.
+On macOS, compute `shasum -a 256 <archive>` and compare it with the exact
+archive's line in `checksums.txt`; on Windows, use `Get-FileHash -Algorithm SHA256`.
+Select the corresponding `darwin` or `windows` release asset. Then install the
+repository contract:
+
 ```bash
 # with the native binary on PATH:
 pose install /path/to/your/repo
@@ -45,7 +64,7 @@ server, stamps the contract schema version and finishes with native `init`,
 `index` and `check --strict` — installation only reports success if the gate
 is green.
 
-The v1 release archive is accompanied by SHA-256 checksums, keyless Sigstore
+The published release archive is accompanied by SHA-256 checksums, keyless Sigstore
 signatures, a CycloneDX SBOM and SLSA provenance. Use the release's own
 `checksums.txt` before placing the binary on `PATH`; package-manager channel
 support and its current limits are documented in [Package channels](package-channels.md).
@@ -56,12 +75,17 @@ Useful flags:
 |---|---|
 | `--locale pt-BR` | Install docs and templates in Brazilian Portuguese |
 | `--force` | Overwrite an edited `AGENTS.md`/`POSE.md` on re-run |
-| `--skip-mcp` | Skip the MCP server entirely |
+| `--skip-mcp` | Skip creating the project MCP binding; the binary still includes the server |
 | `--allow-non-git` | Install into a non-git directory (not recommended) |
 
 Re-running the installer updates the machinery and **never touches your
 instance content** (specs, ADRs, knowledge, reports, roadmaps). Custom rules,
 workflows and templates you added are preserved.
+
+For Sigstore signature and provenance verification, follow the
+[release verification contract](https://github.com/oseiaspereira88/pose/blob/main/SECURITY.md#verifying-a-release).
+A checksum comparison establishes byte integrity; authenticating the signing
+workflow is a separate check.
 
 ## Detect your stacks
 

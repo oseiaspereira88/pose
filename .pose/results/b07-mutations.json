@@ -1,0 +1,76 @@
+{
+  "mutations": [
+    {
+      "mutation": "unreadable closeout status is clean",
+      "tests": "TestGitStateThatCannotBeReadIsUnknownNotClean",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "damaged repository is unavailable",
+      "tests": "TestGitStateThatCannotBeReadIsUnknownNotClean",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "hidden bytes are ignored",
+      "tests": "TestAssumeUnchangedAndSkipWorktreeDoNotHideAnEdit",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "executable mode is ignored",
+      "tests": "TestHiddenExecutableModeIsDivergence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "rename source is lost",
+      "tests": "TestWorktreeDivergenceReadsPathsAndTypesExactly",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "validation matrix is an allowed producer output",
+      "tests": "TestDerivedRegenerationIsAListNotAPrefix",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "parent links are accepted",
+      "tests": "TestGitSnapshotParentLinkIsNotFollowed",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "superseded bundle still governs",
+      "tests": "TestADispatchStopsGoverningWhenItsBundleIsSuperseded",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "unknown shared snapshot is clean",
+      "tests": "TestAnUnreadableSnapshotIsNotClean",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "unknown bundle path is clean",
+      "tests": "TestAnUnreadableStatusIsNotACleanPath",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "unknown obligation status is coherent",
+      "tests": "TestTheProjectionIsNotCoherentWhenStatusCannotBeRead",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "persisted relevance skips materialized consumed inputs",
+      "tests": "TestB07PersistedConsumedInputLink|TestB07PersistedRelevantSubmoduleHiddenEdit",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "closeout exemption accepts deleted or replaced output",
+      "tests": "TestB07CloseoutOutputsMustRemainRegular",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "run history uses timestamp text",
+      "tests": "TestB07R4BRunOrdering",
+      "verdict": "killed"
+    }
+  ],
+  "killed": 14,
+  "total": 14
+}

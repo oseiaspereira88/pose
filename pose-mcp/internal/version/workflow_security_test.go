@@ -5,8 +5,8 @@
 // A first-party action may fall back to a version tag only while the owned
 // `first-party-actions-tag-pinning` exception is live. No workflow relies on
 // that fallback since pose-dependency-digest-pinning; the branch is kept
-// because the exception has not expired and removing it would silently drop
-// the guard if an action is ever added back by tag.
+// to reject tag pins without a live waiver. The unused waiver was retired
+// after its expiry; the enforcement branch remains intact.
 package version_test
 
 import (

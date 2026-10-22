@@ -209,7 +209,7 @@ func TestAVerifiedClaimBoundToTheRequestIsAccepted(t *testing.T) {
 	res := answer(view, "human:maintainer", "preserve-v1", "k1")
 	res.Claim, res.Envelope = &claim, &envelope
 	after, err := s.ResolveActionRequest(res, time.Now())
-	if err != nil || after.Assurance != ReviewIdentityAssuranceVerified || after.Satisfaction != SatisfactionSatisfied || len(after.Limitations) != 0 {
+	if err != nil || after.Assurance != ReviewIdentityAssuranceVerified || after.Satisfaction != SatisfactionSatisfied || len(after.Limitations) != 1 || !strings.Contains(after.Limitations[0], "no material subject") {
 		t.Fatalf("a verified, bound claim: %+v %v", after, err)
 	}
 }

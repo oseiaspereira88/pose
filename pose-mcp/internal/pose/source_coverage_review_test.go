@@ -398,10 +398,10 @@ func TestAnUnreadableLegacyLedgerIsNotAbsence(t *testing.T) {
 // F18: an element whose producer field is empty is still a loss of the producer that returned it.
 func TestAnInvalidElementWithoutAProducerIsStillThatProducersLoss(t *testing.T) {
 	store := obligationFixture(t)
-	defer func(previous func(Store, string, []Spec) ([]Obligation, error)) {
+	defer func(previous func(Store, string, []Spec, bool, *Coverage) ([]Obligation, error)) {
 		actionRequestObligationSource = previous
 	}(actionRequestObligationSource)
-	actionRequestObligationSource = func(s Store, project string, specs []Spec) ([]Obligation, error) {
+	actionRequestObligationSource = func(s Store, project string, specs []Spec, _ bool, _ *Coverage) ([]Obligation, error) {
 		o := newObligation(project, "action-requests", specNode(project, "base"), "action-request", "x")
 		o.Source.Producer = ""
 		return []Obligation{o}, nil
