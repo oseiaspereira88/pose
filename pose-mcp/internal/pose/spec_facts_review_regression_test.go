@@ -24,7 +24,7 @@ func factsWithResultsFile(t *testing.T, indexed []DeliveryValidationResult) (Sto
 			indexed[i].Severity = "required"
 		}
 	}
-	store := factsFixtureWith(t, "api", nil, false, []ChangeSet{{ID: "cs-alpha", Spec: "alpha", Head: "h1", ResolvedBase: "b0", ResolvedHead: "h1", DiffDigest: "sha256:d", Commits: []string{"c1"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}}})
+	store := factsFixture(t, "api", nil, true)
 	root := store.Root
 	write := func(rel, body string) {
 		p := filepath.Join(root, filepath.FromSlash(rel))
@@ -34,8 +34,11 @@ func factsWithResultsFile(t *testing.T, indexed []DeliveryValidationResult) (Sto
 		}
 	}
 	write(".pose/policy/delivery.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-04","results_path":"`+factsResultsPath+`","roots":[]}`)
-	graph := DeliveryIntegrityGraph{SchemaVersion: 1, ValidationResults: indexed,
-		ChangeSets: []ChangeSet{{ID: "cs-alpha", Spec: "alpha", Head: "h1", ResolvedBase: "b0", ResolvedHead: "h1", DiffDigest: "sha256:d", Commits: []string{"c1"}, Paths: []ObservedPath{{Action: "modified", Path: "api/server.go"}}}}}
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ValidationResults = indexed
 	scoped := ScopedDeliveryProvenanceDigest(graph, "alpha")
 	for i := range graph.ValidationResults {
 		graph.ValidationResults[i].ScopeProvenance = map[string]string{"alpha": scoped}
@@ -55,12 +58,7 @@ func factsWithResultsFile(t *testing.T, indexed []DeliveryValidationResult) (Sto
 	}
 	rewrite(nil)
 	raw, _ := json.Marshal(graph)
-	for _, args := range [][]string{{"init", "-q"}, {"commit", "-q", "--allow-empty", "-m", "start"}} {
-		cmd := exec.Command("git", append([]string{"-C", root, "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false"}, args...)...)
-		if out, err := cmd.CombinedOutput(); err != nil {
-			t.Fatalf("git %v: %v %s", args, err, out)
-		}
-	}
+
 	outputs := map[string][]byte{}
 	for _, name := range IndexGenerationFiles {
 		outputs[name] = []byte("{}\n")
@@ -440,5 +438,83 @@ func TestFactsAPinnedStoreDoesNotBorrowTheIdentityOfANewerGeneration(t *testing.
 	f, err := pinned.DeriveSpecFacts("alpha")
 	if err != nil || f.Freshness.Status == SpecFactsFresh {
 		t.Fatalf("facts read from an older generation were called fresh: %+v %v", f.Freshness, err)
+	}
+}
+
+// The graph must be pinned before freshness reads, including for ordinary callers.
+func TestFactsPublicationBetweenGraphAndFreshnessCannotBorrowIdentity(t *testing.T) {
+	store := factsFixture(t, "api", nil, true)
+	original := store.ReadIndexGeneration()
+	outputs := map[string][]byte{}
+	for name, raw := range original.Files {
+		outputs[name] = append(append([]byte{}, raw...), '\n')
+	}
+	reads := 0
+	old := IndexReadFault
+	t.Cleanup(func() { IndexReadFault = old })
+	IndexReadFault = func(string) {
+		reads++
+		if reads == 2 {
+			IndexReadFault = nil
+			if _, err := store.PublishIndexGeneration(outputs, IndexInputBindings(store.Root)); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	facts, err := store.DeriveSpecFacts("alpha")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reads != 2 {
+		t.Fatalf("publication seam not reached: %d", reads)
+	}
+	if facts.Freshness.Status == SpecFactsFresh {
+		t.Fatalf("old graph borrowed fresh identity: %+v", facts.Freshness)
+	}
+	if facts.Freshness.Generation != original.Descriptor.GenerationID {
+		t.Fatalf("lost graph identity: %+v", facts.Freshness)
+	}
+}
+
+func TestFactsExplicitAttributionUsesJSONAndRetainsLoss(t *testing.T) {
+	for _, record := range []string{
+		`{"change_set":{"spec" : "alpha","id":"explicit"}}`,
+		`{"change_set":{"spec":"al\u0070ha","id":"explicit"}}`,
+	} {
+		store := factsFixture(t, "api", nil, true)
+		dir := filepath.Join(store.Root, ".pose", "reports", "history")
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "test.jsonl"), []byte(record+"\n"), 0644); err != nil {
+			t.Fatal(err)
+		}
+		f, err := store.DeriveSpecFacts("alpha")
+		if err != nil || f.Freshness.Status == SpecFactsFresh {
+			t.Fatalf("unbound JSON attribution was fresh: %s %+v %v", record, f.Freshness, err)
+		}
+	}
+	cs := ChangeSet{ID: "explicit", Spec: "alpha", Selector: "range", ResolvedBase: "b", ResolvedHead: "h", DiffDigest: "d", Commits: []string{"c"}, Paths: []ObservedPath{{Action: "modified", Path: "api/a.go"}}}
+	store := factsFixtureWith(t, "api", nil, true, []ChangeSet{cs})
+	f, err := store.DeriveSpecFacts("alpha")
+	if err != nil || f.Freshness.Status == SpecFactsFresh {
+		t.Fatalf("lost explicit attribution was fresh: %+v %v", f.Freshness, err)
+	}
+}
+
+func TestFactsImpossibleGitPathsBindNothing(t *testing.T) {
+	for _, name := range []string{"api/../../web/a.go", "api/./a.go", "api//a.go", "/api/a.go", "../api/a.go", "api/../web/a.go", "api/", "api/\x00a.go"} {
+		for _, rename := range []bool{false, true} {
+			p := ObservedPath{Action: "modified", Path: name}
+			if rename {
+				p = ObservedPath{Action: "renamed", OldPath: "api/ok.go", NewPath: name}
+			}
+			cs := ChangeSet{ID: "cs", Spec: "alpha", ResolvedBase: "b", ResolvedHead: "h", DiffDigest: "d", Commits: []string{"c"}, Paths: []ObservedPath{p}}
+			results := []DeliveryValidationResult{{ID: "r", Module: "api", Check: "t", Outcome: "pass", ScopeProvenance: map[string]string{"alpha": "@scoped"}}}
+			f, err := factsFixtureWith(t, "", results, false, []ChangeSet{cs}).DeriveSpecFacts("alpha")
+			if err != nil || len(f.Checks) != 0 {
+				t.Fatalf("impossible path %q rename=%v associated: %+v %v", name, rename, f.Checks, err)
+			}
+		}
 	}
 }

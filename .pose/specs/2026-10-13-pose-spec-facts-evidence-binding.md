@@ -56,6 +56,8 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - modified: .pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md
 - created: .pose/starts/pose-spec-facts-evidence-binding.json
 - created: .pose/changelogs/unreleased/pose-spec-facts-evidence-binding.md
+- created: .pose/reports/2026-10-22-b30-pending-review-r1.md
+- created: .pose/reports/2026-10-22-b30-pending-closeout.md
 - modified: pose-mcp/internal/pose/spec_facts.go
 - created: pose-mcp/internal/pose/spec_facts_binding_test.go
 - modified: pose-mcp/internal/cli/specs_cmd.go
@@ -143,7 +145,7 @@ Os facts não são expostos por uma tool MCP própria: o consumidor é `pose spe
 
 ### Delivered scope
 
-B30 entregue: `specs facts` separa `checks` (resultados ligados à spec por scope provenance, com base e comparação do head) de `candidates` (o que o índice guarda e nada liga à spec; módulo declarado ou `components` vazio não é provenance), informa a freshness do índice (`fresh`, `stale`, `unknown`, `unavailable`) com próximo passo, preserva resultado de outro head com sua fonte, e não gera intent, rationale, julgamento nem conclusão de requisito. Revisão independente e closeout pendentes.
+B30 implementado, com qualificação de integração/closeout ainda pendente: `specs facts` separa `checks` (resultados ligados à spec por scope provenance, com base e comparação do head) de `candidates` (o que o índice guarda e nada liga à spec; módulo declarado ou `components` vazio não é provenance), informa a freshness do índice (`fresh`, `stale`, `unknown`, `unavailable`) com próximo passo, preserva resultado de outro head com sua fonte, e não gera intent, rationale, julgamento nem conclusão de requisito. Revisão independente e closeout pendentes.
 
 ### Residual risks
 
@@ -168,3 +170,7 @@ rename vale pelos dois lados, no texto e na pertinência. A recusa de uma policy
 - [open] Projetar o frescor `unavailable` em vez de devolver erro quando o índice está ausente ou corrompido. (owner:@core crit:low review:2026-12-01)
 
 As dependências e unidades restantes permanecem na matriz do programa, sem disposição automática.
+
+### Requalification on 2026-10-22
+
+Main merged without rewriting historical reviews. Separate Codex execution found three high findings; all reproduced in `/tmp/pose-b30-new-regressions-before.log` before fixes. Pin the generation before reading its graph, decode history JSON records and conservatively disclose retained explicit attribution without a bound history source, validate literal canonical Git paths including rename endpoints. No new policy adoption or automatic semantic judgment. Existing source review history remains changes-requested until a fresh review approves the final sealed subject.

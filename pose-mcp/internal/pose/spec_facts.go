@@ -1,6 +1,8 @@
 package pose
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -101,6 +103,9 @@ func (s Store) specFactsFreshness() SpecFactsFreshness {
 	// The graph the facts are made from was read from one generation: the one this store is
 	// pinned to, if it is pinned. The judgment is about that generation, and a newer one is a
 	// finding of its own, not a reason to label the facts of an older one with the newer's identity.
+	if pinned := s.indexPin; pinned != nil && pinned.Status != IndexGenerationCurrent {
+		return SpecFactsFreshness{Status: SpecFactsUnknown, Reason: "the graph was read without a published generation: " + pinned.Reason}
+	}
 	if pinned := s.indexPin; pinned != nil && pinned.Status == IndexGenerationCurrent {
 		if view.Status == IndexGenerationCurrent && view.Descriptor.GenerationID != pinned.Descriptor.GenerationID {
 			return SpecFactsFreshness{Status: SpecFactsStale, Generation: pinned.Descriptor.GenerationID,
@@ -244,6 +249,9 @@ func componentDeclares(components map[string]bool, module string) bool {
 // DeriveSpecFacts reads the delivery index. A spec with no attributed change
 // set says so instead of reporting an empty delivery.
 func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
+	if s.indexPin == nil {
+		s = s.PinIndexes()
+	}
 	spec, err := s.GetSpec(slug)
 	if err != nil {
 		return SpecFacts{}, err
@@ -254,13 +262,6 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 	}
 	facts := SpecFacts{Spec: slug, Source: ".pose/indexes/delivery-integrity.json", Paths: []ObservedPath{}, Checks: []SpecFactCheck{}, Candidates: []SpecFactCheck{}}
 	facts.Freshness = s.specFactsFreshness()
-	// An unpinned store read the graph and then the generation: if another one was published in
-	// between, the two do not describe each other.
-	if s.indexPin == nil {
-		if again := s.ReadIndexGeneration(); again.Status == IndexGenerationCurrent && facts.Freshness.Generation != "" && again.Descriptor.GenerationID != facts.Freshness.Generation {
-			degradeFreshness(&facts.Freshness, SpecFactsStale, "generation", "the index was published again while the facts were read")
-		}
-	}
 	seen := map[string]bool{}
 	commits := map[string]bool{}
 	heads := map[string]bool{}
@@ -322,6 +323,11 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 			}
 		}
 		explicit, explicitErr := hasExplicitAttribution(s.Root, slug)
+		for _, cs := range graph.ChangeSets {
+			if cs.Spec == slug && !strings.HasPrefix(cs.Selector, "trailers:") {
+				explicit = true
+			}
+		}
 		switch {
 		case terr != nil:
 			facts.Limitations = append(facts.Limitations, "the Git history could not be read, so whether commits belong to this spec that the index does not hold is unknown")
@@ -591,8 +597,24 @@ func hasExplicitAttribution(root, slug string) (bool, error) {
 		if rerr != nil {
 			return true, rerr
 		}
-		if strings.Contains(string(raw), `"spec":"`+slug+`"`) || strings.Contains(string(raw), `"spec": "`+slug+`"`) {
-			return true, nil
+		scanner := bufio.NewScanner(bytes.NewReader(raw))
+		for scanner.Scan() {
+			if len(bytes.TrimSpace(scanner.Bytes())) == 0 {
+				continue
+			}
+			var record struct {
+				Spec      string     `json:"spec"`
+				ChangeSet *ChangeSet `json:"change_set"`
+			}
+			if err := json.Unmarshal(scanner.Bytes(), &record); err != nil {
+				return true, err
+			}
+			if record.Spec == slug || (record.ChangeSet != nil && record.ChangeSet.Spec == slug) {
+				return true, nil
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			return true, err
 		}
 	}
 	return false, nil
@@ -623,9 +645,23 @@ func changeSetIsResolved(cs ChangeSet) bool {
 func observedPathIsWellFormed(p ObservedPath) bool {
 	switch p.Action {
 	case "created", "modified", "removed":
-		return p.Path != "" && p.OldPath == "" && p.NewPath == ""
+		return observedGitPath(p.Path) && p.OldPath == "" && p.NewPath == ""
 	case "renamed":
-		return p.Path == "" && p.OldPath != "" && p.NewPath != ""
+		return p.Path == "" && observedGitPath(p.OldPath) && observedGitPath(p.NewPath)
 	}
 	return false
+}
+
+// A Git path is a literal canonical relative name. Do not normalize aliases or spaces;
+// removed paths and symlink entries need no current filesystem existence check.
+func observedGitPath(value string) bool {
+	if value == "" || strings.ContainsRune(value, 0) || strings.HasPrefix(value, "/") {
+		return false
+	}
+	for _, part := range strings.Split(value, "/") {
+		if part == "" || part == "." || part == ".." {
+			return false
+		}
+	}
+	return true
 }

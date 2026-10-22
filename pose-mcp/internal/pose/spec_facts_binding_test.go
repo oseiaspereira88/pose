@@ -54,10 +54,39 @@ func factsFixtureWith(t *testing.T, components string, results []DeliveryValidat
 	store := Store{Root: root}
 	if publish {
 		// The history is an axis of freshness: a repository with a commit, as a project has.
-		for _, args := range [][]string{{"init", "-q"}, {"commit", "-q", "--allow-empty", "-m", "start"}} {
+		message := "start"
+		for _, cs := range graph.ChangeSets {
+			if cs.ID == "cs-alpha" && cs.Selector == "" && len(cs.Commits) == 1 && cs.Commits[0] == "c1" {
+				message += "\n\nPOSE-Spec: alpha"
+				break
+			}
+		}
+		for _, args := range [][]string{{"init", "-q"}, {"commit", "-q", "--allow-empty", "-m", message}} {
 			cmd := exec.Command("git", append([]string{"-C", root, "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false"}, args...)...)
 			if out, err := cmd.CombinedOutput(); err != nil {
 				t.Fatalf("git %v: %v %s", args, err, out)
+			}
+		}
+		if message != "start" {
+			head, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output()
+			if err != nil {
+				t.Fatal(err)
+			}
+			for i, cs := range graph.ChangeSets {
+				if cs.ID == "cs-alpha" && cs.Selector == "" && len(cs.Commits) == 1 && cs.Commits[0] == "c1" {
+					graph.ChangeSets[i].Selector = "trailers:alpha"
+					graph.ChangeSets[i].Commits = []string{strings.TrimSpace(string(head))}
+				}
+			}
+			newScope := ScopedDeliveryProvenanceDigest(graph, "alpha")
+			for i := range graph.ValidationResults {
+				if graph.ValidationResults[i].ScopeProvenance["alpha"] == scoped {
+					graph.ValidationResults[i].ScopeProvenance["alpha"] = newScope
+				}
+			}
+			raw, err = json.Marshal(graph)
+			if err != nil {
+				t.Fatal(err)
 			}
 		}
 		outputs := map[string][]byte{}
