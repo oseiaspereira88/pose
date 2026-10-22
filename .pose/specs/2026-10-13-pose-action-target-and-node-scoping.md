@@ -96,6 +96,21 @@ Declarações prospectivas do delta B08; reconciliar com o change set antes do c
 - created: .pose/reports/2026-10-21-b08-review-r2.md
 - created: .pose/reports/2026-10-21-b08-implementation.md
 
+- modified: .pose/assessments/docs-site.md
+- modified: .pose/assessments/mcp-enforce.md
+- modified: .pose/assessments/pose-mcp.md
+- modified: .pose/state/components/docs-site.json
+- modified: .pose/state/components/mcp-enforce.json
+- modified: .pose/state/components/pose-mcp.json
+- modified: .pose/state/project-state.md
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/generation.json
+- modified: .pose/indexes/releases.json
+- modified: .pose/indexes/roadmaps.json
+- modified: .pose/indexes/spec-graph.json
+
+- created: .pose/reports/2026-10-22-b08-review-r3.md
+
 ### Delivery targets
 
 - capability:action-target-and-node-scoping module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/action_request.go
@@ -161,7 +176,7 @@ Trace de implementação; a suíte de regressões e o race detector passaram em 
 - R5 [satisfied] test:TestActionTargetSubjectUsesExactArtifactKindAndID test:TestActionTargetForeignSubjectUsesAuthorizedResolver
 - R6 [satisfied] test:TestActionTargetMaterialBindingAndAdoptionBoundary test:TestActionTargetMixedMembershipKeepsKnownLocalRestriction
 - R7 [satisfied] test:TestActionTargetCLIExposesStructuredScopeAndDomainSelection test:TestActionTargetMCPStructuredAndLegacyEffects
-- R8 [satisfied] test:TestActionTargetActualGatesRecomposeCrossDestinationAtWrite test:TestActionTargetMaterialBindingAndAdoptionBoundary test:TestWithoutAdoptionARequestRestrictsNoTransition
+- R8 [satisfied] capability:action-target-and-node-scoping evidence:integration check:action-target-scoping-integration test:TestActionTargetActualGatesRecomposeCrossDestinationAtWrite test:TestActionTargetMaterialBindingAndAdoptionBoundary test:TestWithoutAdoptionARequestRestrictsNoTransition
 
 ## 7. Final Report
 
