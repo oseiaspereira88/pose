@@ -9,6 +9,14 @@
       "digest": "sha256:744b9199a134b6dfebb0264afc2e22bdd7c0f2e9eae89e20fee2d49ffc60759b"
     },
     {
+      "spec": "pose-action-target-and-node-scoping",
+      "category": "fixed",
+      "breaking": true,
+      "body": "# Action request destination and material scoping\n\n- Select restrictions by explicit effect destination, phase and mode; retain the\n  documented whole-source default for empty scope and current roadmap membership.\n- Keep relevant open/invalidated requests visible after their origin is terminal.\n- Resolve subject and target nodes by the complete project/artifact/kind/ID tuple.\n- Accept structured effect scopes via CLI `--effect-json` and MCP effect objects;\n  preserve existing `phase:mode` strings and immutable journal schema/digests.\n- Require subjects on new approvals/acceptances under adopted agency readiness.\n  Existing unbound journals are not rewritten. Policy-off defaults are unchanged.\n\nCompatibility: this corrects previously omitted/excess restrictions for adopted\ninstances and tightens material-reference validation. Assess version/adoption at\nrelease; this implementation does not adopt policy or publish a release.",
+      "path": "pose-action-target-and-node-scoping.md",
+      "digest": "sha256:502897d6c530a821d3bc4b6848f7751b1496869412ec8587b932e1f22723daac"
+    },
+    {
       "spec": "pose-cli-mcp-operation-results",
       "category": "changed",
       "breaking": false,
@@ -143,6 +151,14 @@
       "body": "Formalize the consolidation planning bootstrap: map the 44 canonical units and 96 source candidates into bounded authoring batches, preserve existing specs and merged proof corrections, and keep future implementation, adoption and release qualification explicit.",
       "path": "pose-consolidation-program-bootstrap.md",
       "digest": "sha256:dd7a67a589092097bb8a078ac16aee90f525bf8f8cabb531b15ca26d9dac30d2"
+    },
+    {
+      "spec": "pose-git-and-dispatch-snapshot-integrity",
+      "category": "changed",
+      "breaking": false,
+      "body": "Closeout planning and delegated dispatch refuse unavailable Git observations and\nhidden edits; directory prefixes no longer authorize arbitrary derived writes.\nDispatch checks sealed inputs and origin freshness before and after execution,\nretaining stale runs as failed history. MCP `pose_closeout_state` accepts optional\n`include_plan: true` for the same spec execution plan as the CLI.",
+      "path": "pose-git-and-dispatch-snapshot-integrity.md",
+      "digest": "sha256:b8ce47ba0f610a537b377dd748d4d22f29f92f08b4693b777897c42111f4ce99"
     },
     {
       "spec": "pose-historical-trust-and-review-reuse",

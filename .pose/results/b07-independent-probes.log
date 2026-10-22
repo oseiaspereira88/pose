@@ -1,0 +1,54 @@
+=== RUN   TestB07IndependentCloseoutPrefix
+    b07_independent_probe_test.go:6: dirty=[] err=<nil>
+--- FAIL: TestB07IndependentCloseoutPrefix (0.01s)
+=== RUN   TestB07IndependentSubdirectory
+    b07_independent_probe_test.go:9: diverged=[a.txt dir/a.txt root.txt] err=<nil>
+--- FAIL: TestB07IndependentSubdirectory (0.01s)
+=== RUN   TestB07IndependentDerivedRules
+    b07_independent_probe_test.go:13: deleted tracked sealed path diverged=[] err=<nil>
+--- FAIL: TestB07IndependentDerivedRules (0.01s)
+=== RUN   TestB07IndependentSameSecondSupersession
+    b07_independent_probe_test.go:27: old=rvb-cfe687f0132cd13b new=rvb-c5eda8b4cc30f2b0 reason=""
+--- FAIL: TestB07IndependentSameSecondSupersession (0.03s)
+=== RUN   TestB07IndependentSnapshotRevalidation
+    b07_independent_probe_test.go:32: coherent before=true after=false changes=[] digestEqual=true
+--- FAIL: TestB07IndependentSnapshotRevalidation (0.02s)
+=== RUN   TestB07IndependentParentLink
+    b07_independent_probe_test.go:35: parent symlink diverged=[dir] err=<nil>
+--- PASS: TestB07IndependentParentLink (0.01s)
+=== RUN   TestB07IndependentGitlink
+    b07_independent_probe_test.go:38: absent sealed gitlink diverged=[] err=<nil>
+--- FAIL: TestB07IndependentGitlink (0.01s)
+=== RUN   TestB07IndependentBackslashAlias
+    b07_independent_probe_test.go:41: literal backslash name=".pose\\state\\source.go" diverged=[] err=<nil>
+--- FAIL: TestB07IndependentBackslashAlias (0.01s)
+=== RUN   TestB07IndependentNegativeSameSecond
+    b07_independent_probe_test.go:45: approved=rva-f8759c798e9f05e4 rejectedLater=rva-bd8433747da6ff33 selected=approved verificationApproved=true err=<nil>
+--- FAIL: TestB07IndependentNegativeSameSecond (0.01s)
+=== RUN   TestB07IndependentReadErrorDiagnostic
+    b07_independent_probe_test.go:49: unreadable input diverged=[a.txt] typedError=<nil>
+--- FAIL: TestB07IndependentReadErrorDiagnostic (0.01s)
+=== RUN   TestB07IndependentUnknownPolicyDigest
+    b07_independent_probe_test.go:52: policyDigest="unavailable" reason=""
+--- FAIL: TestB07IndependentUnknownPolicyDigest (0.01s)
+=== RUN   TestB07IndependentLostSupersedingBundle
+    b07_independent_probe_test.go:55: lost newer bundle=rvb-866f50d2d7cd7759 reason=""
+--- FAIL: TestB07IndependentLostSupersedingBundle (0.01s)
+=== RUN   TestB07IndependentSourceChangedDuringRun
+    b07_independent_probe_test.go:15: mutation=echo changed >> '<fixture>/pose-mcp/lib.go' code=0 output=review_dispatch.scope=spec:alpha
+        review_dispatch.status=completed
+    b07_independent_probe_test.go:15: mutation=sed -i s/works/changed/ '<fixture>/.pose/specs/alpha/spec.md' code=0 output=review_dispatch.scope=spec:alpha
+        review_dispatch.status=completed
+    b07_independent_probe_test.go:15: mutation=rm -rf '<fixture>/.git' code=1 output=review_dispatch.scope=spec:alpha
+        review_dispatch.status=failed
+--- FAIL: TestB07IndependentSourceChangedDuringRun (0.14s)
+=== RUN   TestB07IndependentPolicySymlink
+    b07_independent_probe_test.go:25: code=0 output=review_dispatch.scope=spec:alpha
+        review_dispatch.status=completed
+    b07_independent_probe_test.go:25: changed consumed policy symlink target ignored
+--- FAIL: TestB07IndependentPolicySymlink (0.06s)
+=== RUN   TestB07IndependentBundleInputsNotCommit
+    b07_independent_probe_test.go:33: code=0 out=review_dispatch.scope=spec:alpha
+        review_dispatch.status=completed
+    b07_independent_probe_test.go:34: reviewer consumed old commit requirements instead of sealed bundle inputs
+--- FAIL: TestB07IndependentBundleInputsNotCommit (0.07s)

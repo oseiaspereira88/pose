@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-259365f3e469f543",
+  "bundle_id": "rvb-50747fccf11f344f",
+  "bundle_digest": "sha256:50747fccf11f344fbb5f0066c434019aa15d16d9f249e9f512f8577f3942461c",
+  "reviewer": "agent:independent-codex-b08-r3-01a161dc",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-48d048c62c154fcf",
+      "rationale": "R3 independently found material identity, uncertain membership and evidence limitations explicit. Inspected collector results are distinguished from reviewer execution and declared binding from semantic adequacy. Actual R3 session 01a161dc-78bf-77a1-bcc2-2040337755a2, same-vendor declared separate execution; judgment: report:.pose/reports/2026-10-21-b08-review-r2.md"
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "Current sealed passing registered evidence, collected by implementation. R3 inspected collector evidence and supported this criterion; it did not execute these tests. Final race results are recorded separately in report:.pose/reports/2026-10-21-b08-implementation.md"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "Current sealed passing registered evidence, collected by implementation. R3 inspected collector evidence and supported this criterion; it did not execute these tests. Final race results are recorded separately in report:.pose/reports/2026-10-21-b08-implementation.md"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "Current sealed passing registered evidence, collected by implementation. R3 inspected collector evidence and supported this criterion; it did not execute these tests. Final race results are recorded separately in report:.pose/reports/2026-10-21-b08-implementation.md"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "Current sealed passing registered evidence, collected by implementation. R3 inspected collector evidence and supported this criterion; it did not execute these tests. Final race results are recorded separately in report:.pose/reports/2026-10-21-b08-implementation.md"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "Current sealed passing registered evidence, collected by implementation. R3 inspected collector evidence and supported this criterion; it did not execute these tests. Final race results are recorded separately in report:.pose/reports/2026-10-21-b08-implementation.md"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "R3 approved the prospective breaking classification: new adopted approvals and acceptances require subjects; immutable journals, digests, legacy effect strings and policy-off defaults are preserved. Release compatibility review remains an owned follow-up. Actual R3 session 01a161dc-78bf-77a1-bcc2-2040337755a2, same-vendor declared separate execution; judgment: report:.pose/reports/2026-10-21-b08-review-r2.md"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "Current sealed passing registered evidence, collected by implementation. R3 inspected collector evidence and supported this criterion; it did not execute these tests. Final race results are recorded separately in report:.pose/reports/2026-10-21-b08-implementation.md"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-48d048c62c154fcf",
+      "rationale": "R3 found shared destination selection corrects origin-based filtering, exact material resolution corrects wrong-artifact/kind binding, and retained partial expansion fixes the two actual R1 paths. Origin filtering cannot express cross-destination effects; replacing empty scope with targets changes the contract. Actual R3 session 01a161dc-78bf-77a1-bcc2-2040337755a2, same-vendor declared separate execution; judgment: report:.pose/reports/2026-10-21-b08-review-r2.md",
+      "mappings": [
+        {
+          "delta": "SD-ea11f15a",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "R3 reviewed the ADR and D1: distinct provenance/relevance/effect scope/material identity correct the demonstrated causes while preserving empty-source semantics and qualifying prospective subject requirements. The ADR makes these public compatibility choices explicit rather than changing a filter without a contract. Actual R3: report:.pose/reports/2026-10-21-b08-review-r2.md"
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "R3 checked that ADR, English/Portuguese manuals, embedded scaffold and changelog agree with runtime behavior; the native collector validated the golden catalog and distributed documentation. Actual R3 session 01a161dc-78bf-77a1-bcc2-2040337755a2, same-vendor declared separate execution; judgment: report:.pose/reports/2026-10-21-b08-review-r2.md"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "R3 found known restrictions remain actionable and unavailable membership or material reaches coverage and diagnostics. Unknown membership does not invent destinations or a global blocker. Actual R3 session 01a161dc-78bf-77a1-bcc2-2040337755a2, same-vendor declared separate execution; judgment: report:.pose/reports/2026-10-21-b08-review-r2.md"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "Current sealed passing registered evidence, collected by implementation. R3 inspected collector evidence and supported this criterion; it did not execute these tests. Final race results are recorded separately in report:.pose/reports/2026-10-21-b08-implementation.md"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-48d048c62c154fcf",
+      "rationale": "R3 confirmed changes remain within R1-R8, with no policy adoption, release publication or Harne8 gitlink change. B09 authority/waiver, B10 recovery and B11 snapshots remain outside this delta. Actual R3 session 01a161dc-78bf-77a1-bcc2-2040337755a2, same-vendor declared separate execution; judgment: report:.pose/reports/2026-10-21-b08-review-r2.md"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "R3 inspected authorization before foreign reads, rejection of ambiguous/missing material, unchanged signed-only MCP answers and current proof verification. It did not execute vulnerability or secret scanners; mechanical evidence is separately collected. Actual R3 session 01a161dc-78bf-77a1-bcc2-2040337755a2, same-vendor declared separate execution; judgment: report:.pose/reports/2026-10-21-b08-review-r2.md"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-48d048c62c154fcf",
+      "rationale": "R3 judged the shared selector and exact resolver the smallest cohesive correction. No extra policy engine, cache or snapshot mechanism is introduced. Reconsider if membership is historically frozen, gates need different destination semantics or semantic appropriateness becomes a required proof. Actual R3 session 01a161dc-78bf-77a1-bcc2-2040337755a2, same-vendor declared separate execution; judgment: report:.pose/reports/2026-10-21-b08-review-r2.md"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-10-21-b08-implementation.md",
+      "rationale": "Native command executed by the implementation collector against the current source; R3 independently inspected supplied evidence, not test execution."
+    },
+    {
+      "id": "history-check",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-10-21-b08-implementation.md",
+      "rationale": "Native command executed by the implementation collector against the current source; R3 independently inspected supplied evidence, not test execution."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "Native command executed by the implementation collector against the current source; R3 independently inspected supplied evidence, not test execution."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "Native command executed by the implementation collector against the current source; R3 independently inspected supplied evidence, not test execution."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-target-scoping-integration",
+      "rationale": "Native command executed by the implementation collector against the current source; R3 independently inspected supplied evidence, not test execution."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    }
+  ],
+  "evidence_refs": [
+    "report:.pose/reports/2026-10-21-b08-implementation.md",
+    "report:.pose/reports/2026-10-21-b08-review-r2.md"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:codex-b08-implementation",
+    "concluded_by": "agent:independent-codex-b08-r3-01a161dc",
+    "applied_by": "agent:codex-b08-implementation"
+  },
+  "attested_at": "2026-10-22T04:31:16Z",
+  "path": ".pose/review-attestations/rva-259365f3e469f543.json"
+}

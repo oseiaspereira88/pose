@@ -18,9 +18,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -109,6 +112,9 @@ type ReviewRun struct {
 	TranscriptDigest string `json:"transcript_digest"`
 	TranscriptPath   string `json:"transcript_path"`
 	Output           string `json:"output"`
+	PolicyDigest     string `json:"policy_digest,omitempty"`
+	Supersedes       string `json:"supersedes,omitempty"`
+	SupersededBy     string `json:"superseded_by,omitempty"`
 	Path             string `json:"-"`
 }
 
@@ -116,29 +122,53 @@ type ReviewRun struct {
 const (
 	ReviewRunCompleted = "completed"
 	ReviewRunFailed    = "failed"
+	ReviewRunStale     = "stale"
 )
 
 // ListReviewRuns returns the recorded runs for bundleID ("" for all).
 func (s Store) ListReviewRuns(bundleID string) ([]ReviewRun, error) {
+	runs, _, err := s.ReadReviewRuns(bundleID)
+	return runs, err
+}
+
+func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 	dir := filepath.Join(s.Root, filepath.FromSlash(reviewRunsDir))
+	// The storage is read where the writer writes it: a link in its place is another place.
+	if info, lerr := os.Lstat(dir); lerr == nil && info.Mode()&os.ModeSymlink != 0 {
+		return nil, nil, fmt.Errorf("pose: the review runs directory is a link, not the directory the runs are written to")
+	}
 	entries, err := os.ReadDir(dir)
 	if errors.Is(err, os.ErrNotExist) {
-		return []ReviewRun{}, nil
+		if _, lerr := os.Lstat(dir); lerr == nil {
+			return nil, nil, fmt.Errorf("pose: the review runs directory is a link whose target cannot be read")
+		}
+		return []ReviewRun{}, nil, nil
 	}
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	out := []ReviewRun{}
+	var lost []string
 	for _, e := range entries {
-		if !e.Type().IsRegular() || !strings.HasSuffix(e.Name(), ".json") {
+		if !strings.HasSuffix(e.Name(), ".json") {
+			continue
+		}
+		if !e.Type().IsRegular() {
+			lost = append(lost, e.Name()+" (not a regular file)")
 			continue
 		}
 		raw, err := os.ReadFile(filepath.Join(dir, e.Name()))
 		if err != nil {
+			lost = append(lost, e.Name()+" ("+err.Error()+")")
 			continue
 		}
 		var run ReviewRun
 		if json.Unmarshal(raw, &run) != nil || run.RunID == "" {
+			lost = append(lost, e.Name()+" (not a review run)")
+			continue
+		}
+		if verr := validateReviewRunRecord(e.Name(), run); verr != nil {
+			lost = append(lost, e.Name()+" ("+verr.Error()+")")
 			continue
 		}
 		if bundleID == "" || run.BundleID == bundleID {
@@ -146,18 +176,36 @@ func (s Store) ListReviewRuns(bundleID string) ([]ReviewRun, error) {
 			out = append(out, run)
 		}
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].StartedAt < out[j].StartedAt })
-	return out, nil
+	sort.Slice(out, func(i, j int) bool {
+		a, _ := time.Parse(time.RFC3339Nano, out[i].StartedAt)
+		b, _ := time.Parse(time.RFC3339Nano, out[j].StartedAt)
+		if !a.Equal(b) {
+			return a.Before(b)
+		}
+		return out[i].RunID < out[j].RunID
+	})
+	superseded := map[string]string{}
+	for _, run := range out {
+		if run.Supersedes != "" {
+			superseded[run.Supersedes] = run.RunID
+		}
+	}
+	for i := range out {
+		out[i].SupersededBy = superseded[out[i].RunID]
+	}
+	return out, lost, nil
 }
 
 // DispatchPlan is what a dispatch will do.
 type DispatchPlan struct {
-	Adapter      string
-	Config       ReviewerAdapter
-	Brief        ReviewBrief
-	Bundle       ReviewBundle
-	SealedCommit string
-	PriorRuns    int
+	PolicyDigest   string
+	OriginWorktree string
+	Adapter        string
+	Config         ReviewerAdapter
+	Brief          ReviewBrief
+	Bundle         ReviewBundle
+	SealedCommit   string
+	PriorRuns      int
 }
 
 // PlanReviewDispatch resolves the bundle, brief and adapter without running.
@@ -190,9 +238,12 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string) (Dispatch
 	if commit == "" || exec.Command("git", "-C", s.Root, "cat-file", "-e", commit+"^{commit}").Run() != nil {
 		return DispatchPlan{}, fmt.Errorf("pose: the bundle's sealed commit %q is not in this repository", commit)
 	}
-	prior, err := s.ListReviewRuns(bundle.BundleID)
+	prior, lost, err := s.ReadReviewRuns(bundle.BundleID)
 	if err != nil {
 		return DispatchPlan{}, err
+	}
+	if len(lost) > 0 {
+		return DispatchPlan{}, fmt.Errorf("review run coverage is unknown: %v", lost)
 	}
 	count := 0
 	for _, run := range prior {
@@ -200,7 +251,11 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string) (Dispatch
 			count++
 		}
 	}
-	return DispatchPlan{Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: count}, nil
+	origin, err := dispatchWorktreeIdentity(s.Root)
+	if err != nil {
+		return DispatchPlan{}, err
+	}
+	return DispatchPlan{PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose", "policy")), OriginWorktree: origin, Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: count}, nil
 }
 
 // ErrNoReviewerAdapter means the project configured no reviewer.
@@ -210,12 +265,16 @@ var ErrNoReviewerAdapter = errors.New("pose: no reviewer adapter is configured i
 func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (ReviewRun, error) {
 	run := ReviewRun{SchemaVersion: 1, Scope: plan.Brief.Scope, BundleID: plan.Bundle.BundleID, BundleDigest: plan.Bundle.BundleDigest,
 		SealedCommit: plan.SealedCommit, Kind: plan.Brief.Kind, BriefDigest: plan.Brief.Digest, Adapter: plan.Adapter,
-		Vendor: plan.Config.Vendor, Model: plan.Config.Model, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1}
+		Vendor: plan.Config.Vendor, Model: plan.Config.Model, PolicyDigest: plan.PolicyDigest, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1}
 	transcript := []byte{}
 	finish := func(status, failure string) (ReviewRun, error) {
 		run.Status, run.Failure = status, failure
 		run.EndedAt = now().UTC().Format(time.RFC3339Nano)
 		return s.recordReviewRun(run, transcript)
+	}
+	// Recompute semantic freshness at execution time, not just preview time.
+	if err := s.checkDispatchOrigin(plan); err != nil {
+		return finish(ReviewRunFailed, "the run was not started: "+err.Error())
 	}
 	if plan.Config.MaxRunsPerBundle > 0 && plan.PriorRuns >= plan.Config.MaxRunsPerBundle {
 		return finish(ReviewRunFailed, fmt.Sprintf("budget exhausted: %d run(s) of %s on this bundle, at most %d", plan.PriorRuns, plan.Adapter, plan.Config.MaxRunsPerBundle))
@@ -230,6 +289,32 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 		return ReviewRun{}, fmt.Errorf("pose: creating the review worktree: %v: %s", err, strings.TrimSpace(string(out)))
 	}
 	defer exec.Command("git", "-C", s.Root, "worktree", "remove", "--force", worktree).Run()
+
+	submodules := map[string]bool{}
+	for _, entry := range plan.Bundle.Payload.Subject.Entries {
+		if entry.Class == "submodule" {
+			submodules[reviewBundleEntryPath(entry)] = true
+		}
+	}
+	checkout := s
+	checkout.Root, checkout.indexPin = worktree, nil
+	if prepared, err := checkout.PrepareReviewBundle(plan.Brief.Scope); err != nil {
+		return finish(ReviewRunFailed, "sealed checkout inputs unavailable: "+err.Error())
+	} else if blockers := checkoutBlockers(prepared.Blockers); len(blockers) > 0 {
+		return finish(ReviewRunFailed, fmt.Sprintf("sealed checkout blocked: %v", blockers))
+	} else if differing := sealedInputsThatDiffer(plan.Bundle, prepared, worktree); len(differing) > 0 {
+		return finish(ReviewRunFailed, fmt.Sprintf("sealed checkout inputs differ: %v", differing))
+	}
+	if err := verifyDispatchWorktreeFor(worktree, plan.SealedCommit, submodules); err != nil {
+		return finish(ReviewRunFailed, err.Error())
+	}
+	if err := verifyBundleMaterialization(worktree, plan.Bundle); err != nil {
+		return finish(ReviewRunFailed, err.Error())
+	}
+	diskBefore, err := dispatchDiskSnapshot(worktree)
+	if err != nil {
+		return finish(ReviewRunFailed, err.Error())
+	}
 
 	outputFile := filepath.Join(tmp, "output.txt")
 	argv := make([]string, len(plan.Config.Command))
@@ -277,42 +362,254 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 	case runErr != nil:
 		return finish(ReviewRunFailed, "the reviewer command failed: "+runErr.Error())
 	}
-	// A reviewer that changed the sealed content did not review it. The tools
-	// a plan requires regenerate derived state (assessments, indexes, results),
-	// which is not the content under review (found by the first real run).
-	if out, _ := exec.Command("git", "-C", worktree, "status", "--porcelain", "--untracked-files=all").Output(); len(bytes.TrimSpace(out)) > 0 {
+	diskAfter, err := dispatchDiskSnapshot(worktree)
+	if err != nil {
+		return finish(ReviewRunFailed, err.Error())
+	}
+	if !reflect.DeepEqual(diskBefore, diskAfter) {
 		changed := []string{}
-		for _, line := range strings.Split(strings.TrimRight(string(out), "\n"), "\n") {
-			if len(line) < 4 {
-				continue
-			}
-			// A rename touches both paths: moving sealed content into
-			// derived state still removed it (found in review).
-			for _, path := range strings.Split(strings.TrimSpace(line[3:]), " -> ") {
-				if path = strings.Trim(path, `"`); !derivedReviewPath(path) {
-					changed = append(changed, path)
-				}
+		for path, digest := range diskBefore {
+			if diskAfter[path] != digest {
+				changed = append(changed, path)
 			}
 		}
-		if len(changed) > 0 {
-			return finish(ReviewRunFailed, "the run changed files in the sealed worktree: "+strings.Join(changed, " "))
+		for path := range diskAfter {
+			if _, exists := diskBefore[path]; !exists {
+				changed = append(changed, path)
+			}
 		}
+		sort.Strings(changed)
+		return finish(ReviewRunFailed, fmt.Sprintf("the run changed files in the sealed worktree (including ignored materialization): %q", changed))
 	}
-	if head, _ := exec.Command("git", "-C", worktree, "rev-parse", "HEAD").Output(); strings.TrimSpace(string(head)) != plan.SealedCommit {
-		return finish(ReviewRunFailed, "the run moved the worktree off the sealed commit")
+	if err := verifyDispatchWorktreeFor(worktree, plan.SealedCommit, submodules); err != nil {
+		return finish(ReviewRunFailed, err.Error())
 	}
-	return finish(ReviewRunCompleted, "")
+	if err := s.checkDispatchOrigin(plan); err != nil {
+		return finish(ReviewRunStale, "origin or policy changed: "+err.Error())
+	}
+
+	published, err := finish(ReviewRunCompleted, "")
+	if err != nil {
+		return published, err
+	}
+	if why := s.checkDispatchOrigin(plan); why != nil {
+		late := published
+		late.RunID, late.Path, late.TranscriptDigest, late.TranscriptPath = "", "", "", ""
+		late.Status, late.Failure, late.Supersedes = ReviewRunStale, why.Error(), published.RunID
+		late.EndedAt = now().UTC().Format(time.RFC3339Nano)
+		return s.recordReviewRun(late, transcript)
+	}
+	return published, nil
 }
 
-// derivedReviewPath reports whether path is state POSE regenerates from the
-// sealed content rather than part of it.
-func derivedReviewPath(path string) bool {
-	for _, prefix := range []string{".pose/assessments/", ".pose/state/", ".pose/indexes/", ".pose/results/", ".pose/review-bundles/", ".pose/review-runs/", ".pose/reports/history/"} {
-		if strings.HasPrefix(path, prefix) {
-			return true
+// The adapter has no authenticated producer/output declaration. Until such a
+// declaration exists, a directory name cannot authorize regenerated evidence.
+func verifyDispatchWorktree(root, commit string) error {
+	return verifyDispatchWorktreeFor(root, commit, nil)
+}
+func verifyDispatchWorktreeFor(root, commit string, submodules map[string]bool) error {
+	head, err := snapshotGit(root, "rev-parse", "--verify", "HEAD")
+	if err != nil {
+		return err
+	}
+	if strings.TrimSpace(string(head)) != commit {
+		return fmt.Errorf("the run moved the worktree off the sealed commit")
+	}
+	paths, err := WorktreeDivergenceFor(root, commit, nil, func(p string) bool { return submodules == nil || submodules[p] })
+	if err != nil {
+		return err
+	}
+
+	if len(paths) > 0 {
+		return fmt.Errorf("the run changed files in the sealed worktree: %q", paths)
+	}
+	return nil
+}
+
+func (s Store) checkDispatchOrigin(plan DispatchPlan) error {
+	origin, err := dispatchWorktreeIdentity(s.Root)
+	if err != nil {
+		return err
+	}
+	if plan.OriginWorktree == "" || origin != plan.OriginWorktree {
+		return fmt.Errorf("dispatch origin conflict: worktree identity changed")
+	}
+	if _, err := dispatchRegularInputPath(s.Root, ".pose/policy/reviewers.json"); err != nil {
+		return err
+	}
+	policy, found, err := s.LoadReviewersPolicy()
+	if err != nil {
+		return fmt.Errorf("dispatch adapter policy unavailable: %w", err)
+	}
+	if !found || !reflect.DeepEqual(policy.Adapters[plan.Adapter], plan.Config) {
+		return fmt.Errorf("dispatch origin stale: reviewer adapter policy changed")
+	}
+	if plan.SealedCommit != plan.Bundle.Payload.Subject.Head || plan.Brief.BundleID != plan.Bundle.BundleID || plan.Brief.BundleDigest != plan.Bundle.BundleDigest {
+		return fmt.Errorf("dispatch input conflict: plan does not identify its sealed bundle")
+	}
+	body, ok := strings.CutSuffix(plan.Brief.Text, "\n<!-- brief-digest: "+plan.Brief.Digest+" -->\n")
+	if !ok || digestBytes([]byte(body)) != plan.Brief.Digest {
+		return fmt.Errorf("dispatch input conflict: brief digest changed")
+	}
+	if _, err := snapshotGit(s.Root, "rev-parse", "--verify", "HEAD"); err != nil {
+		return err
+	}
+	if _, err := gitChangedPaths(s.Root); err != nil {
+		return err
+	}
+	digest, err := reviewBundlePayloadDigest(plan.Bundle.Payload)
+	if err != nil || digest != plan.Bundle.BundleDigest {
+		return fmt.Errorf("dispatch input conflict: bundle payload no longer matches its sealed digest")
+	}
+	// Inspect types and bytes before a freshness reader can follow an input.
+	if err := verifyBundleMaterialization(s.Root, plan.Bundle); err != nil {
+		return err
+	}
+	if mismatch := sourceMaterializationDiffers(s.Root, plan.SealedCommit, plan.Bundle.Payload.Subject.Entries); mismatch != "" {
+		return fmt.Errorf("source materialization differs: %s", mismatch)
+	}
+	if reason := s.dispatchNoLongerGoverns(plan); reason != "" {
+		return fmt.Errorf("%s", reason)
+	}
+
+	return nil
+}
+
+func dispatchWorktreeIdentity(root string) (string, error) {
+	top, err := snapshotGit(root, "rev-parse", "--show-toplevel")
+	if err != nil {
+		return "", err
+	}
+	abs, err := filepath.Abs(root)
+	if err != nil {
+		return "", err
+	}
+	abs, err = filepath.EvalSymlinks(abs)
+	if err != nil {
+		return "", err
+	}
+	topPath, err := filepath.EvalSymlinks(strings.TrimSpace(string(top)))
+	if err != nil || abs != topPath {
+		return "", fmt.Errorf("dispatch origin conflict: Git selected a different worktree")
+	}
+	dir, err := snapshotGit(root, "rev-parse", "--absolute-git-dir")
+	if err != nil {
+		return "", err
+	}
+	return string(top) + "\x00" + string(dir), nil
+}
+
+func verifyBundleMaterialization(root string, bundle ReviewBundle) error {
+	for _, entry := range bundle.Payload.Subject.Entries {
+		path := entry.Path
+		if entry.NewPath != "" {
+			path = entry.NewPath
+		}
+		if entry.Class == "submodule" {
+			full, err := dispatchInputPath(root, path)
+			if err != nil {
+				return err
+			}
+			if _, err := dispatchWorktreeIdentity(full); err != nil {
+				return err
+			}
+			head, err := snapshotGit(full, "rev-parse", "--verify", "HEAD")
+			if err != nil {
+				return err
+			}
+			if digestBytes([]byte(strings.TrimSpace(string(head)))) != entry.Digest {
+				return fmt.Errorf("dispatch input conflict: submodule %q moved", path)
+			}
+			if err := verifyDispatchWorktree(full, strings.TrimSpace(string(head))); err != nil {
+				return err
+			}
+			continue
+		}
+		if entry.Action == "removed" {
+			if _, err := os.Lstat(filepath.Join(root, filepath.FromSlash(path))); !errors.Is(err, os.ErrNotExist) {
+				return fmt.Errorf("dispatch input conflict: removed path %q exists or is unreadable", path)
+			}
+			continue
+		}
+		if err := verifyDispatchInput(root, path, entry.Digest, true); err != nil {
+			return err
 		}
 	}
-	return false
+	for _, input := range bundle.Payload.ConsumedInputs {
+		switch input.Kind {
+		case "governed-config", "review-profile", "rule":
+			if err := verifyDispatchInput(root, input.Path, input.Digest, false); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func dispatchInputPath(root, path string) (string, error) {
+	var err error
+	root, err = filepath.Abs(root)
+	if err != nil {
+		return "", &GitSnapshotError{"root", err}
+	}
+	if path == "" || filepath.IsAbs(path) || filepath.ToSlash(filepath.Clean(path)) != path || path == ".." || strings.HasPrefix(path, "../") {
+		return "", fmt.Errorf("dispatch input conflict: unsafe path %q", path)
+	}
+	full := filepath.Join(root, filepath.FromSlash(path))
+	for parent := full; parent != root; parent = filepath.Dir(parent) {
+		info, err := os.Lstat(parent)
+		if err != nil {
+			return "", &GitSnapshotError{"input " + path, err}
+		}
+		if info.Mode()&os.ModeSymlink != 0 {
+			return "", fmt.Errorf("dispatch input conflict: symlink %q", path)
+		}
+	}
+	return full, nil
+}
+
+func verifyDispatchInput(root, path, digest string, normalize bool) error {
+	full, err := dispatchRegularInputPath(root, path)
+	if err != nil {
+		return err
+	}
+	file, err := os.Open(full)
+	if err != nil {
+		return &GitSnapshotError{"input " + path, err}
+	}
+	raw, readErr := io.ReadAll(io.LimitReader(file, (256<<20)+1))
+	closeErr := file.Close()
+	if readErr != nil {
+		return &GitSnapshotError{"input " + path, readErr}
+	}
+	if closeErr != nil {
+		return &GitSnapshotError{"input " + path, closeErr}
+	}
+	if len(raw) > 256<<20 {
+		return &GitSnapshotError{"input " + path, fmt.Errorf("input exceeds 256 MiB")}
+	}
+	if normalize {
+		raw = bytes.ReplaceAll(raw, []byte("\r\n"), []byte("\n"))
+	}
+	if digest == "" || digestBytes(raw) != digest {
+		return fmt.Errorf("dispatch input conflict: sealed bytes changed for %q", path)
+	}
+	return nil
+}
+
+func dispatchRegularInputPath(root, path string) (string, error) {
+	full, err := dispatchInputPath(root, path)
+	if err != nil {
+		return "", err
+	}
+	info, err := os.Lstat(full)
+	if err != nil {
+		return "", &GitSnapshotError{"input " + path, err}
+	}
+	if !info.Mode().IsRegular() {
+		return "", fmt.Errorf("dispatch input conflict: %q is not a regular file", path)
+	}
+	return full, nil
 }
 
 func tail(s string, n int) string {
@@ -323,6 +620,9 @@ func tail(s string, n int) string {
 }
 
 func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, error) {
+	// Identity covers only persisted content, never fields derived by a reader
+	// or a previous write of a copied record.
+	run.RunID, run.Path, run.TranscriptPath, run.SupersededBy = "", "", "", ""
 	sum := sha256.Sum256(transcript)
 	run.TranscriptDigest = "sha256:" + hex.EncodeToString(sum[:])
 	identity, _ := json.Marshal(run)
@@ -358,4 +658,283 @@ func writeNewFile(path string, raw []byte) error {
 		return err
 	}
 	return file.Close()
+}
+
+func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
+	current, err := s.LoadReviewBundle(plan.Bundle.BundleID)
+	if err != nil {
+		return "stale: the bundle the run reviewed can no longer be read: " + err.Error()
+	}
+	if current.BundleDigest != plan.Bundle.BundleDigest {
+		return "stale: the bundle the run reviewed changed while it ran"
+	}
+	// The baseline is a digest of a policy that was read whole, and the policy must still
+	// read whole and unchanged: a policy that cannot be read now is not an unchanged one.
+	if !directoryDigestKnown(plan.PolicyDigest) {
+		return "stale: the dispatch has no readable policy baseline (" + plan.PolicyDigest + ")"
+	}
+	if now := directoryDigest(filepath.Join(s.Root, ".pose", "policy")); now != plan.PolicyDigest {
+		return "stale: the policy changed or can no longer be read whole while the run was going (" + now + ")"
+	}
+	// Every sealed bundle of the scope must have been read: one that cannot be read may be
+	// the one that superseded this.
+	read, readErr := s.ReadReviewBundles(plan.Brief.Scope)
+	if readErr != nil {
+		return "stale: the bundles of the scope could not be read: " + readErr.Error()
+	}
+	if !read.Coverage.CompleteFor(plan.Brief.Scope) {
+		return "stale: a sealed bundle of the scope could not be read, so the run cannot be tied to the one that governs it"
+	}
+	// The bundle governs while the inputs it sealed are the ones the repository has now:
+	// the semantic digest of today's preparation, not the order of identifiers.
+	prepared, prepErr := s.PrepareReviewBundle(plan.Brief.Scope)
+	if prepErr != nil {
+		return "stale: the inputs of the scope could not be prepared again: " + prepErr.Error()
+	}
+	if prepared.BundleDigest != plan.Bundle.BundleDigest {
+		return "stale: the bundle was superseded or its inputs changed while the run was going (the scope now prepares " + prepared.BundleDigest + ")"
+	}
+	// An equal digest is not an eligible preparation: a preparation that carries blockers
+	// (an unreadable Git status among them) did not read what it says it read.
+	if len(prepared.Blockers) > 0 {
+		return "stale: the scope cannot be prepared for review without blockers: " + strings.Join(prepared.Blockers, "; ")
+	}
+	// The digest of a file is its bytes; the mode the commit recorded is part of what was
+	// sealed, and a status that is told to ignore modes cannot be the witness of it.
+	// The revision of the source must be readable: an unreadable HEAD is not a HEAD that did not move.
+	if hasGitMetadata(s.Root) {
+		if _, headErr := ReadGitHead(s.Root); headErr != nil && !errors.Is(headErr, ErrGitUnavailable) {
+			return "stale: the revision of the source could not be read: " + headErr.Error()
+		}
+	}
+	if mismatch := sourceMaterializationDiffers(s.Root, plan.SealedCommit, plan.Bundle.Payload.Subject.Entries); mismatch != "" {
+		return "stale: the source file " + mismatch + " differs from what the sealed commit records"
+	}
+	return ""
+}
+
+func (s Store) ReviewRunStillGoverns(run ReviewRun) string {
+	if run.Status != ReviewRunCompleted {
+		return "the run is " + run.Status + ", not completed"
+	}
+	runs, lost, err := s.ReadReviewRuns("")
+	if err != nil {
+		return "the runs of the bundle could not be read: " + err.Error()
+	}
+	if len(lost) > 0 {
+		return "a run record could not be read and may supersede this run: " + strings.Join(lost, ", ")
+	}
+	var persisted *ReviewRun
+	for i, other := range runs {
+		if other.Supersedes == run.RunID {
+			return "the run was superseded by " + other.RunID
+		}
+		if other.RunID == run.RunID {
+			persisted = &runs[i]
+		}
+	}
+	// The copy in hand is not the run: the record is, and it must be there and say the same.
+	if persisted == nil {
+		return "the record of the run is not in the review runs"
+	}
+	a, b := *persisted, run
+	a.Path, a.SupersededBy, b.Path, b.SupersededBy = "", "", "", ""
+	if !reflect.DeepEqual(a, b) {
+		return "the record of the run differs from the copy that is being consulted"
+	}
+	if why := s.reviewRunTranscriptIntact(*persisted); why != "" {
+		return why
+	}
+	if _, err := dispatchWorktreeIdentity(s.Root); err != nil {
+		return "origin Git identity unknown: " + err.Error()
+	}
+	if _, err := ReadGitHead(s.Root); err != nil {
+		return "origin HEAD unknown: " + err.Error()
+	}
+	bundle, err := s.LoadReviewBundle(run.BundleID)
+	if err != nil {
+		return "the bundle of the run can no longer be read: " + err.Error()
+	}
+	// The record says what it reviewed; what it says must be what the bundle is.
+	if run.BundleDigest != bundle.BundleDigest || run.Scope != bundle.Payload.Scope.Ref || run.SealedCommit != bundle.Payload.Subject.Head {
+		return "the run record does not describe the bundle it names (bundle digest, scope or sealed commit differ)"
+	}
+	if err := verifyBundleMaterialization(s.Root, bundle); err != nil {
+		return "persisted review inputs no longer materialize: " + err.Error()
+	}
+	return s.dispatchNoLongerGoverns(DispatchPlan{Bundle: bundle, Brief: ReviewBrief{Scope: run.Scope}, SealedCommit: run.SealedCommit,
+		PolicyDigest: run.PolicyDigest})
+}
+
+func validateReviewRunRecord(name string, run ReviewRun) error {
+	if name != run.RunID+".json" {
+		return fmt.Errorf("the file is not named after the run it holds")
+	}
+	if run.SchemaVersion != 1 {
+		return fmt.Errorf("schema_version %d is not read by this engine", run.SchemaVersion)
+	}
+	switch run.Status {
+	case ReviewRunCompleted, ReviewRunFailed, ReviewRunStale:
+	default:
+		return fmt.Errorf("status %q is not a state of a run", run.Status)
+	}
+	if run.BundleID == "" || run.Scope == "" {
+		return fmt.Errorf("the bundle or scope is missing")
+	}
+	for _, at := range []string{run.StartedAt, run.EndedAt} {
+		if _, err := time.Parse(time.RFC3339Nano, at); err != nil {
+			return fmt.Errorf("an instant of the run is not RFC3339: %q", at)
+		}
+	}
+	if run.TranscriptPath != filepath.ToSlash(filepath.Join(reviewRunsDir, run.RunID+".transcript")) {
+		return fmt.Errorf("the transcript path is not the one the run is written with")
+	}
+	unsealed := run
+	unsealed.RunID, unsealed.TranscriptPath, unsealed.SupersededBy, unsealed.Path = "", "", "", ""
+	identity, _ := json.Marshal(unsealed)
+	sum := sha256.Sum256(identity)
+	if run.RunID != "rrn-"+hex.EncodeToString(sum[:])[:16] {
+		return fmt.Errorf("the identity of the run is not derived from its content")
+	}
+	return nil
+}
+
+func (s Store) reviewRunTranscriptIntact(run ReviewRun) string {
+	full := filepath.Join(s.Root, filepath.FromSlash(run.TranscriptPath))
+	info, err := os.Lstat(full)
+	if err != nil {
+		return "the transcript of the run cannot be inspected: " + err.Error()
+	}
+	if !info.Mode().IsRegular() {
+		return "the transcript of the run is not a regular file"
+	}
+	raw, err := os.ReadFile(full)
+	if err != nil {
+		return "the transcript of the run cannot be read: " + err.Error()
+	}
+	sum := sha256.Sum256(raw)
+	if "sha256:"+hex.EncodeToString(sum[:]) != run.TranscriptDigest {
+		return "the transcript of the run is not the one its digest names"
+	}
+	return ""
+}
+
+func removedSides(entry ReviewBundleSubjectEntry) []string {
+	switch entry.Action {
+	case "removed":
+		if p := reviewBundleEntryPath(entry); p != "" {
+			return []string{p}
+		}
+	case "renamed":
+		if entry.OldPath != "" {
+			return []string{entry.OldPath}
+		}
+	}
+	return nil
+}
+
+func sealedInputsThatDiffer(sealed, other ReviewBundle, checkout string) []string {
+	key := func(kind, p string) string { return kind + " " + p }
+	collect := func(b ReviewBundle) map[string]string {
+		out := map[string]string{}
+		for _, in := range b.Payload.Scope.Sections {
+			out[key(in.Kind, in.Path)] = in.Digest
+		}
+		for _, in := range b.Payload.ConsumedInputs {
+			switch in.Kind {
+			case "governed-config", "review-profile", "rule":
+				out[key(in.Kind, in.Path)] = in.Digest
+			}
+		}
+		return out
+	}
+	want, got := collect(sealed), collect(other)
+	var differing []string
+	for k, digest := range want {
+		if got[k] != digest {
+			differing = append(differing, k)
+		}
+	}
+	// The implementation the bundle sealed: each file of its subject, as the checkout holds it.
+	for _, entry := range sealed.Payload.Subject.Entries {
+		if entry.Digest == "" || entry.Action == "removed" || entry.Class == "submodule" {
+			continue
+		}
+		rel := reviewBundleEntryPath(entry)
+		if strings.HasPrefix(filepath.ToSlash(rel), pendingFragmentDir) {
+			continue // archived since: the ledger, not the path, holds it
+		}
+		raw, err := os.ReadFile(filepath.Join(checkout, filepath.FromSlash(rel)))
+		if err != nil || digestBytes(bytes.ReplaceAll(raw, []byte("\r\n"), []byte("\n"))) != entry.Digest {
+			differing = append(differing, "subject "+rel)
+		}
+	}
+	sort.Strings(differing)
+	return differing
+}
+
+func checkoutBlockers(blockers []string) []string {
+	var out []string
+	for _, blocker := range blockers {
+		if !strings.Contains(blocker, "delivery integrity is unavailable") {
+			out = append(out, blocker)
+		}
+	}
+	return out
+}
+
+func sourceMaterializationDiffers(root, commit string, entries []ReviewBundleSubjectEntry) string {
+	if commit == "" || !hasGitMetadata(root) {
+		// No sealed commit, or no repository at all: nothing to compare with (a dispatch has both).
+		return ""
+	}
+	checkedDirs := map[string]bool{}
+	for _, entry := range entries {
+		if entry.Class == "submodule" {
+			continue
+		}
+		// The absence the bundle sealed is part of what it reviewed: a removed path, and the old
+		// side of a rename, must still be absent, whatever Git was told to ignore.
+		for _, gone := range removedSides(entry) {
+			if _, err := os.Lstat(filepath.Join(root, filepath.FromSlash(gone))); err == nil {
+				return gone + " (the bundle sealed it as removed, and it is there)"
+			}
+		}
+		if entry.Action == "removed" {
+			continue
+		}
+		rel := reviewBundleEntryPath(entry)
+		if linkAbove(root, rel, checkedDirs) {
+			return rel + " (a directory above it is a link, or not a directory)"
+		}
+		out, err := gitCommand("-C", root, "ls-tree", "-z", commit, "--", rel).Output()
+		if err != nil {
+			return rel + " (its record in the sealed commit could not be read: " + err.Error() + ")"
+		}
+		meta, _, ok := strings.Cut(strings.TrimSuffix(string(out), "\x00"), "\t")
+		fields := strings.Fields(meta)
+		if !ok || len(fields) < 3 {
+			continue // not in the sealed commit
+		}
+		mode, object := fields[0], fields[2]
+		info, lerr := os.Lstat(filepath.Join(root, filepath.FromSlash(rel)))
+		if lerr != nil {
+			return rel + " (it cannot be inspected: " + lerr.Error() + ")"
+		}
+		switch mode {
+		case "120000":
+			target, rerr := os.Readlink(filepath.Join(root, filepath.FromSlash(rel)))
+			if info.Mode()&os.ModeSymlink == 0 || rerr != nil || gitBlobID("sha1", []byte(target)) != object && gitBlobID("sha256", []byte(target)) != object {
+				return rel + " (it is not the link the sealed commit records)"
+			}
+		default:
+			if !info.Mode().IsRegular() {
+				return rel + " (it is not a regular file, and the sealed commit records one)"
+			}
+			if runtime.GOOS != "windows" && (info.Mode().Perm()&0o111 != 0) != (mode == "100755") {
+				return rel + " (its executable bit differs)"
+			}
+		}
+	}
+	return ""
 }

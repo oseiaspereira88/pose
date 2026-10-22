@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "review": "b07r3",
+  "decision": "changes-requested",
+  "head": "75a20ba10b170e28ce494c8e7f649b9152a70566",
+  "base": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+  "scope": "spec:pose-git-and-dispatch-snapshot-integrity",
+  "reviewer": {
+    "principal": "agent:independent-gpt-6.1-sol-review",
+    "vendor": "OpenAI",
+    "runtime": "Codex",
+    "implementer_vendor": "Anthropic",
+    "implementer_runtime": "Claude",
+    "assurance": "declared",
+    "separation": "different-vendor-declared",
+    "signed": false
+  },
+  "prepared_bundle": {
+    "id": "rvb-627e097bd3f5e166",
+    "digest": "sha256:627e097bd3f5e1665bee653174f9c8eddff67013467cd267880bb2ce790bc370",
+    "state": "prepared",
+    "plan_digest": "sha256:4eca26fc3e66c59cde82304daf7e4aceffb06538658464bb28a5f3b73e528417"
+  },
+  "findings": [
+    {
+      "id": "B01",
+      "severity": "high",
+      "classification": "blocking",
+      "title": "Perda da atestação de bundle empatado restaura aprovação",
+      "location": "pose-mcp/internal/pose/review_bundle.go:2053",
+      "probe": "TestB07R3TiedBundleLostAttestation",
+      "requirements": "R5,R7"
+    },
+    {
+      "id": "B02",
+      "severity": "high",
+      "classification": "blocking",
+      "title": "Falha de ls-tree da origem é ignorada",
+      "location": "pose-mcp/internal/pose/review_dispatch.go:480",
+      "probe": "TestB07R3SourceModeUnknown",
+      "requirements": "R1,R5,R7"
+    },
+    {
+      "id": "B03",
+      "severity": "high",
+      "classification": "blocking",
+      "title": "Troca de arquivo da origem por symlink passa com bytes iguais",
+      "location": "pose-mcp/internal/pose/review_dispatch.go:485",
+      "probe": "TestB07R3SourceType",
+      "requirements": "R2,R3,R5"
+    },
+    {
+      "id": "B04",
+      "severity": "high",
+      "classification": "blocking",
+      "title": "Symlink em diretório ancestral escapa do worktree",
+      "location": "pose-mcp/internal/pose/git_snapshot_integrity.go:254",
+      "probe": "TestB07R3DispatchIgnoredAncestorLink",
+      "requirements": "R2,R3"
+    },
+    {
+      "id": "B05",
+      "severity": "medium",
+      "classification": "blocking",
+      "title": "Run stale perdido é tratado como inexistente",
+      "location": "pose-mcp/internal/pose/review_dispatch.go:148",
+      "probe": "TestB07R3LostSupersedingRun",
+      "requirements": "R5,R7"
+    },
+    {
+      "id": "B06",
+      "severity": "medium",
+      "classification": "blocking",
+      "title": "Vigência de run não valida a identidade persistida",
+      "location": "pose-mcp/internal/pose/review_dispatch.go:405",
+      "probe": "TestB07R3PersistedRunIdentity,TestB07R3RunFields",
+      "requirements": "R5,R6,R7"
+    },
+    {
+      "id": "B07",
+      "severity": "medium",
+      "classification": "blocking",
+      "title": "Checkpoint JSON alheio é considerado regeneração",
+      "location": "pose-mcp/internal/pose/closeout_plan.go:280",
+      "probe": "TestB07R3CheckpointScope",
+      "requirements": "R4"
+    },
+    {
+      "id": "B08",
+      "severity": "medium",
+      "classification": "blocking",
+      "title": "Snapshot unknown recuperado é revalidado como inalterado",
+      "location": "pose-mcp/internal/pose/obligation_projection.go:752",
+      "probe": "TestB07R3SnapshotRecoversUnknown",
+      "requirements": "R1,R7"
+    },
+    {
+      "id": "B09",
+      "severity": "medium",
+      "classification": "blocking",
+      "title": "TrimSpace troca raiz com espaço final por outro repositório",
+      "location": "pose-mcp/internal/pose/git_snapshot_integrity.go:217",
+      "probe": "TestB07R3RootWhitespace",
+      "requirements": "R3,R6"
+    },
+    {
+      "id": "B10",
+      "severity": "medium",
+      "classification": "blocking",
+      "title": "Evidência canônica da entrega permanece stale",
+      "location": ".pose/policy/delivery.json:5",
+      "probe": "surface-check --spec pose-git-and-dispatch-snapshot-integrity --strict",
+      "requirements": "delivery-gate"
+    }
+  ],
+  "followups": [
+    {
+      "id": "L01",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Causas de Lstat, Readlink e gitlink ainda viram divergência conservadora",
+      "owner": "@core",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "L02",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Histórico de runs ainda ordena StartedAt por texto",
+      "owner": "@core",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "L03",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Replay e rework reordenam bundles empatados por hash em métricas",
+      "owner": "@core",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "L04",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Closeout recusa results_path customizado rastreado",
+      "owner": "@core",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "L05",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Leitor de gitlinks interpreta nomes quoted de ls-files --stage sem -z",
+      "owner": "@core",
+      "review_by": "2026-12-01"
+    }
+  ],
+  "checks": {
+    "validate_strict": {
+      "passed": 137,
+      "total": 137,
+      "seconds": 350.3,
+      "evidence": "b07r3-validation.json"
+    },
+    "race": "pass internal/pose internal/cli",
+    "vet": "pass ./...",
+    "cross_builds": [
+      "windows/amd64 pass",
+      "darwin/arm64 pass"
+    ],
+    "check_strict": "pass with 29 warnings",
+    "lint_spec_strict": "pass; optional Tasks warning",
+    "artifact_check": "exit 0; 37 claims/42 observed range paths; 638 repository orphan warnings; no scope errors",
+    "surface_check": "fail stale-evidence, unconsumed-capability",
+    "mutations": {
+      "killed": 48,
+      "total": 48,
+      "evidence": "b07r3-mutations.json"
+    },
+    "independent_probes": {
+      "failed": 10,
+      "passed": 5,
+      "evidence": "b07r3-independent-probes.log",
+      "runner": "b07r3-independent-probes.py"
+    },
+    "secret_patterns": {
+      "private-key": 0,
+      "github-token": 0,
+      "aws-access-key": 0
+    },
+    "recurrence": {
+      "records": 393,
+      "flagged": 0
+    },
+    "assessments": {
+      "design": "26/26 observed",
+      "discover": "refreshed stale component and matrix",
+      "tech_debt": {
+        "markers": 1,
+        "uncovered": 0,
+        "coverage": "incomplete: two old invalid specs"
+      },
+      "integrate": "executed; heuristic gaps inspected"
+    }
+  },
+  "actions": {
+    "seal": false,
+    "attest": false,
+    "close": false,
+    "commit": false,
+    "push": false,
+    "policy_modified": false,
+    "issuer_pin_added": false
+  },
+  "tool_dispositions": {
+    "required_active": [
+      "artifact-check pass",
+      "surface-check fail",
+      "validate strict pass"
+    ],
+    "recommended_used": [
+      "assess-design",
+      "assess-discover --if-stale",
+      "assess-integrate",
+      "assess-tech-debt",
+      "suggest-review"
+    ],
+    "deferred_completion": [
+      "review-check",
+      "closeout-check"
+    ],
+    "not_executed_due_to_blockers": [
+      "seal",
+      "auto-attest",
+      "attest",
+      "review verify",
+      "close",
+      "discover --update-state"
+    ]
+  },
+  "proof_files": {
+    "b07r3-independent-probes.py": "sha256:0f681ae5def309cd0f0efb05e4a6a281fec9fcaca9be2e878ee9a851f6cc4137",
+    "b07r3-independent-probes.log": "sha256:d728d31e5bbd55972d52fe7802ed08023434a43e5924fcf234d95369a5ff57a9",
+    "b07r3-mutations.json": "sha256:8239df3c9f6134b310ee85e01204747ab6f2b148a16f43a67b7bb2e0bbce2640",
+    "b07r3-validation.json": "sha256:60d2aa429d7f87589f8133e49688119a3097cb7b3dcbf2f1c4ed81e70a2cea12"
+  },
+  "workspace_note": "generation.json was modified before review; left modified. Other review-generated tracked assessments/index/state restored."
+}

@@ -147,7 +147,7 @@ func TestConfigurationReviewAppliesOnlyAnsweredRequests(t *testing.T) {
 		t.Fatalf("re-applying: %d %s", code, out)
 	}
 	// A request that is not a configuration review is refused.
-	code, out := runPose(t, repo, append(append([]string{}, openArgsFor("spec:"+configurationReviewSlug(version.ReleaseBase()))...), "--apply", "--json")...)
+	code, out := runPose(t, repo, append(append([]string{}, openArgsFor("spec:"+configurationReviewSlug(version.ReleaseBase()))...), "--subject", "self", "--apply", "--json")...)
 	if code != 0 {
 		t.Fatalf("open: %s", out)
 	}

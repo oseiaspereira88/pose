@@ -5,6 +5,25 @@
 The `pose` CLI is a single native Go binary. Every command below executes
 without Bash or Python fallbacks and works offline.
 
+For daily work, start with [Operate an instance](operate.md) and
+[Review and trust](review-and-trust.md). Consult [command compatibility](command-compatibility.md)
+for deprecated spellings and supported aliases. The published baseline reviewed on
+2026-10-20 is v7.4.1; sections labelled development describe pending changes.
+
+## Setup, attention and authority
+
+| Command | Purpose |
+|---|---|
+| `pose setup [--json|--no-input]` | Inspect configuration; interactive setup offers confirmed steps |
+| `pose adopt --list` | List supported capabilities, prerequisites and recorded decisions |
+| `pose state --governance [--scope REF] [--json]` | Explain effective policy and legacy cutoffs |
+| `pose state --attention [--scope REF] [--actor ID] [--phase P] [--json]` | Project obligations, coverage, recipients and phase restrictions |
+| `pose action list --present` | Group open material requests for a conversation |
+| `pose action show ID --json` | Inspect a request, its journal and answer assurance |
+| `pose identity list` | Inspect registered principals and public signing keys |
+| `pose issuer list` | Inspect local issuers and trusted pins |
+| `pose context --project-id ID --task XREF --json` | Resolve canonical project authority before qualified writes |
+
 ## Scaffold
 
 | Command | Purpose |
@@ -16,6 +35,22 @@ without Bash or Python fallbacks and works offline.
 | `pose new-roadmap <slug>` | Create a governed roadmap in `.pose/roadmaps/` |
 | `pose new-adr "<title>"` | Create a dated ADR |
 | `pose new-knowledge <type> <slug>` | Create handoff/note/decision-log (`--owner`, `--ttl-days`, `--restricted`) |
+
+## Managed execution and contract changes
+
+| Command | Purpose |
+|---|---|
+| `pose start spec:<slug>` | Preview readiness, dependencies, obligations and the R/A/D baseline without writing |
+| `pose start spec:<slug> --apply --digest <digest>` | Apply the reviewed start under the adopted atomic-start contract |
+| `pose start spec:<slug> --status` | Inspect the recorded baseline and managed-execution state |
+| `pose amend <slug> --nodes --json` | Project versioned requirement, assumption and decision nodes |
+| `pose close spec:<slug> --plan` | Inspect ordered closeout steps and current blockers |
+| `pose close spec:<slug> --apply --reviewer <id>` | Execute closeout; stop where a judgment or authorization remains owed |
+| `pose close spec:<slug> --resume --reviewer <id>` | Resume a recoverable closeout from its checkpoint |
+
+Use digests from the current preview rather than reusing a stale plan. The
+baseline establishes observable ordering, not when a decision was actually
+made. See [instance operation](operate.md) and [review and trust](review-and-trust.md).
 
 ## Deterministic gates
 
@@ -121,7 +156,7 @@ as current, but named so a reviewer can tell carried-forward evidence apart.
 | `pose usage [--since-days N] [--tool NAME] [--surface cli\|mcp] [--json]` | Automatic local tool calls, outcomes, finding lifecycle and latency by CLI/MCP surface |
 | `pose usage adjudicate --tool NAME --finding ID --verdict valid\|wont-fix\|false-positive --reason TEXT --by ALIAS` | Append a reviewed finding verdict to `.pose/usage/verdicts.jsonl` |
 | `pose index` | Regenerate all indexes (repo-map, spec-graph, roadmaps…) |
-| `pose report --task "..." [--outcome pass\|fail\|partial\|skipped\|unknown] [--spec S] [--since ref] [--change-from A --change-to B] [--validate-output P] [--git-stage] [...]` | Versionable report + history JSONL; `pose report --help` lists all sixteen flags |
+| `pose report --task "..." [--outcome pass\|fail\|partial\|skipped\|unknown] [--spec S] [--since ref] [--change-from A --change-to B] [--validate-output P] [--git-stage] [...]` | Versionable report + history JSONL; `pose report --help` lists the supported flags |
 | `pose public-claims [--strict\|--tolerant] [--json]` | Check that every surface a project declares (site, README, docs) claims the current candidate version, and report separately whether that candidate was prepared and which version has retained publication evidence, from `.pose/public/claims.json` (opt-in; start from `.pose/templates/public-claims.json`) |
 
 `pose usage` needs no counters from agents. POSE records recognized terminal
@@ -400,8 +435,11 @@ dependencies, schema, skills, hooks and MCP configuration, it reports:
 `pose serve-mcp --stdio` exits on SIGTERM, and a server started before a
 `pose update` keeps running the CLI installed at the path it started from.
 
-Every gate is offline by design — no network calls, stdlib only. A gate
-observed doing network I/O is a reportable bug (see SECURITY.md).
+The native governance engine can evaluate local repository artifacts offline.
+`pose validate` executes the repository's declared tools: their network needs
+follow those tools and checks. Installation, self-update, configured reviewer
+commands and remote integrations also have their own execution requirements.
+The local engine does not require a hosted POSE service.
 
 ## Output: two channels, one contract
 
@@ -412,12 +450,13 @@ POSE prints for two readers and keeps them apart.
 | **Result** | the verdict, the findings, the data a command was asked for | stdout |
 | **Progress** | steps, module headers, usage, and the command's own failures | stderr |
 
-So `pose check --json \| jq` is always safe, and `pose check 2>/dev/null` never
-swallows a finding.
+For example, `pose check --json | jq` consumes the result channel. Keep stderr
+when diagnosing a failed invocation: progress and parser errors are not findings.
 
 | Flag / variable | Effect |
 |---|---|
-| `--json` | Print one JSON document — `schema_version`, `command`, `outcome`, `findings[]`, `counts` — instead of the human result. A finding's `severity` is the untranslated anchor (`error`, `warning`, …); the human line reads in the reader's language. |
+| `--json` | On commands supporting stdout JSON, print the command's result. In v7.4.1, `validate` is an exception: use `--json-out <path>`. Gates using the shared renderer carry `schema_version`, `command`, `outcome`, `findings[]` and `counts`; domain projections such as plans and stats have their own schemas. |
+| `--json-out <path>` | Write the JSON result to a confined project-relative path on commands supporting this flag, retaining the human report. Prefer it to the deprecated `validate --json <path>`. |
 | `--quiet` | Print the verdict alone. |
 | `--verbose` | `pose validate` only: stream each check's output as it runs instead of capturing it. |
 | `--color auto\|always\|never` | Force or suppress colour. |
@@ -506,6 +545,9 @@ archived fragment edited after the cut, or claimed by a spec the manifest does
 not name, stays a finding.
 ## Verified review authority
 
+For the daily procedure, use [Review and trust](review-and-trust.md). The
+sections below retain CLI-specific flags and record formats.
+
 Review independence and identity assurance are separate. With
 `identity_assurance: verified`, a reviewer prefix is only a declaration: the
 attestation must carry a trusted, signed authority claim bound to the sealed
@@ -515,25 +557,9 @@ the assurance mode sealed when they were created.
 
 ### Guided setup
 
-`pose setup` is the one place to see an instance's configuration and the next
-step: project identity, principals and keys, the pre-commit gate, capabilities
-in force, capabilities new since the last configuration review, what needs
-setup, and whether the configuration is committed. At a terminal it offers each
-open step and performs it only after an explicit yes; with `--json`,
-`--no-input` or no terminal it only reports, with the commands. A fresh install
-records its engine version as reviewed in `.pose/policy/adoption-decisions.json`
-(`reviewed_version`); an older instance sees every capability it has not
-decided. `pose install` ends with `pose setup` as the next step, `pose update`
-names the pending decisions instead of "Nothing to do", and `pose doctor`
-reports them as a `next` step. A deferral is asked again under a newer engine.
-
-`pose adopt --list` shows every capability in the catalog with its state;
-`pose adopt <capability> [--off | --decline --reason <why> | --defer --reason <why>] --apply`
-decides one. When `pose update` finds capabilities the project has not decided,
-it writes a configuration-review spec and opens one decision request per
-capability for the `maintainer` role; nothing is adopted until an answer exists,
-and `pose adopt --request <act-id> --apply` (or `pose setup`) applies it,
-recording the request and the answer's reason.
+Use [Operate an instance](operate.md#inspect-before-adopting) for setup,
+capability decisions and configuration-review requests. The command table at
+the start of this reference lists the read-only inspection forms.
 
 ### Delegated review
 
@@ -544,6 +570,30 @@ review, adjudication or smoke run (`--kind review|adjudication|smoke`).
 the adapter before dispatching. The returned review remains subject to the
 bundle's criteria, identity requirements and verification gates; dispatch
 does not itself approve or close the spec.
+
+#### Development branch: dispatch snapshot integrity
+
+**Unreleased, in progress as of 2026-10-20.** The following describes pending
+snapshot hardening rather than the published v7.4.1 implementation.
+
+Dispatch verifies the sealed inputs in both the selected origin and the
+disposable worktree before starting. After the command exits, it checks the
+worktree's HEAD, materialized content (including ignored files), current bundle
+and adapter configuration again. An unavailable Git observation fails the run;
+`assume-unchanged` and `skip-worktree` do not authorize hidden edits. An unrelated
+documentation commit does not stale a bundle whose semantic inputs still match.
+
+Keep adapter output outside the worktree, using `{output}` or stdout. Adapters
+cannot authenticate a regeneration producer, so writing assessments, indexes,
+results or review artifacts inside the worktree fails the run. A directory name
+does not grant permission. Disk comparison reads at most 100,000 entries and
+256 MiB; exceeding either limit fails with an unavailable snapshot diagnostic.
+Retry after resolving the reported cause; every attempt rechecks preconditions.
+
+A completed run records observations at completion. It grants no current
+fulfillment or attestation authority and does not isolate an adapter from the
+host filesystem. If the origin becomes stale during execution, its transcript
+is retained as a stale historical run and cannot fulfill the current review.
 
 ### Signed action answers
 
@@ -581,13 +631,16 @@ prints it.
 
 ```bash
 pose issuer init maintainer
-pose issuer pin maintainer --attestations --human-authority --apply
+pose issuer pin maintainer --attestations --apply
 pose adopt signed-attestations --apply
-pose review attest spec:my-spec --reviewer human:ada --decision approved \
+pose review attest spec:my-spec --reviewer agent:reviewer-a --decision approved \
   --evidence unit:pkg --sign maintainer \
   --authority --review-execution review-2 \
   --implementation-principal agent:impl --implementation-execution impl-1 --apply
 ```
+
+Grant `--human-authority` only to an issuer protected for that role; an account-local
+key readable by agents is not proof of a person's confirmation.
 
 `pin` adds `<name>#sha256:<public-key-digest>` to `trusted_attestation_issuers`
 and, with `--human-authority`, to `human_authority_issuers`, keeping every pin
@@ -617,3 +670,28 @@ and by which issuer.
 ### Retrospective ABM replay
 
 `pose stats replay --json` scans local historical attestations and the newest sealed subject of each spec without writing project artifacts. It compares frozen contracts with hypothetical explicit judgment and structural causality invariants. Counts retain invalid inputs, unknown structural coverage, unbaselined nodes and denominators. Use `--limit N` (1–20000) to bound work; incomplete reports cannot support an exhaustive adoption claim. A counterfactual does not revoke historical approvals, record a baseline or prove reviewer utility. Experimental judgments remain opt-in.
+
+
+## Development branch behavior
+
+**Unreleased; reviewed 2026-10-20.** Do not assume these changes are present in
+v7.4.1. Read [Releases and development](evolution.md) for source and status.
+
+- `close … --apply|--resume --json` emits a single operation result: `operation`,
+  `outcome`, steps run, confirmed effects, pending criteria, cause and next action.
+  A no-op reports `already-satisfied`; it does not claim it reverified closeout.
+- Invalid arguments to `specs`, `specs facts`, `start` and `close` are refused
+  instead of ignored. Failed operations on the machine channel retain typed
+  results; retries distinguish earlier effects from steps actually run now.
+- `index --verify` checks one published generation and its inputs without writing.
+  Missing, mixed or modified generation data is unavailable, not an empty graph.
+- Invalid action journals disclose their location and a recovery proposal;
+  the engine does not truncate them. Corrupt or mismatched closeout checkpoints
+  stop execution before steps. `start --recover-lock <owner-digest>` only recovers
+  an owner proven dead under the supported same-machine conditions.
+- Shared approval preflight refuses approving records that verification would
+  reject, including stale or superseded subjects, through every writer channel.
+  Negative review decisions remain recordable audit history.
+
+These are additive hardening and automation changes. They do not authorize an
+agent to repair journals, remove unknown locks or accept incomplete proof.

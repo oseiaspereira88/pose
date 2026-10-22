@@ -2,12 +2,11 @@
 
 **Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 7.x (current stable)
 
-**Status:** Reference-grade, offline-first engineering operating standard  
-**Updated:** 2026-09-11 for the `v5.0.2` release — mechanisms 2, 6, 7, 10, 11,
-14 and 16 checked against the code of that release. The others were last
-verified 2026-08-17 against `v1.4.3`, after four consecutive real releases
-closed an 11-defect upgrade-path field audit against independently-owned
-repositories.
+**Editorial review:** 2026-10-20, against the v7.4.1 release notes, pending
+changelog and current contracts. The foundation below retains the v1.4.3/v5.0.2
+mechanism descriptions; the recent architecture section records the additions
+and clearly separates development work. This is a mechanism map, not a renewed
+maturity score or deployment benchmark.
 
 POSE is a repository-local governance system for human and AI-assisted software
 delivery. It combines a versioned operating contract, a native deterministic
@@ -514,6 +513,44 @@ flowchart LR
     B --> A[attest: criteria, tools, findings]
     A --> C[review verify / closeout-check]
 ```
+
+## Recent architecture: authority, obligations and execution
+
+The 6.x–7.4.1 line adds four connected layers to the review and delivery core:
+
+- **Explicit adoption:** `setup` and the capability catalog distinguish what the
+  engine supports from what an instance configures and actually applies.
+  Dated contracts preserve their boundary for legacy work; configuration-review
+  requests record maintainer decisions after an update.
+- **Obligation projection:** domain producers feed `state --attention` and MCP
+  `pose_obligations`. Each obligation identifies source, actor and restricting
+  phase. Coverage is part of the answer; Attention itself is not the gate.
+- **Proof and attribution:** action journals bind answers to request content;
+  SSH signatures or trusted issuer claims can establish authority. Native
+  review issuers live outside the repository, and signed legacy ledgers preserve
+  historical attestations without rewriting them. Project and verifier audience
+  are separate bindings. Attribution distinguishes preparation, conclusion,
+  confirmation and application.
+- **Bounded delegation and federation:** a bundle-derived brief drives a configured
+  reviewer command at the sealed commit. Its run record is separate from approval.
+  Qualified references resolve project authority; federated acceptance binds
+  source evidence and trust while retaining the coordinator's own gates.
+
+Read [instance operation](operate.md), [review and trust](review-and-trust.md)
+and [multiple projects](multiple-projects.md) for the actionable paths.
+
+### Pending integrity work
+
+The unreleased branch adds coherent index generations, coordinated publication,
+checkpoint and journal recovery diagnostics, typed operation results and explicit
+incomplete-source coverage. It strengthens proof disclosure, historical trust,
+review reuse and shared approval preflight. Git/dispatch snapshot integrity is
+still in progress at this editorial snapshot. These changes are outside the
+published v7.4.1 baseline; see [development status](evolution.md).
+
+Consolidation plans for a shared runtime, IPC, deeper caches and integrated pilots
+are authored work, not an implemented architecture. No daemon or hosted service
+becomes a requirement for the local engine through those plans.
 
 ## Primary data flows
 

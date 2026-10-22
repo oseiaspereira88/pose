@@ -1,16 +1,16 @@
 # Component Assessment: pose-mcp (`pose-mcp`)
 
 > **Mapeamento de Módulo POSE**: `pose-mcp`
-> **Data de Avaliação**: 2026-10-17T20:16:15Z | **Baseline Commit**: 3106eafa02b3
-> **Métricas**: 73187 LOC Produção | 60253 LOC Testes | 570 Arquivos Totais
+> **Data de Avaliação**: 2026-10-22T03:54:21Z | **Baseline Commit**: 88ab93b6df96
+> **Métricas**: 75914 LOC Produção | 64941 LOC Testes | 595 Arquivos Totais
 > **Linguagens**: go
-> **Saúde de Código**: 0 TODOs | 0 FIXMEs | 0 Panics | 0 Stubs
+> **Saúde de Código**: 1 TODOs | 0 FIXMEs | 0 Panics | 0 Stubs
 
 ---
 
 ## 1. Visão Geral e Estrutura do Módulo
 
-O componente **pose-mcp** reside no caminho `pose-mcp` do projeto **pose-dist**.
+O componente **pose-mcp** reside no caminho `pose-mcp` do projeto **pose-b08-work**.
 
 - **Status de Verificação POSE**: `verified`
 - **Pontuação de Completude**: 100%
@@ -19,7 +19,15 @@ O componente **pose-mcp** reside no caminho `pose-mcp` do projeto **pose-dist**.
 
 ## 2. Matriz de Dívida Técnica & Riscos
 
-- **TODOs**: 0
+- **TODOs**: 1
 - **FIXMEs**: 0
 - **Panics**: 0
 - **Stubs**: 0
+
+---
+
+## Escopo do scan
+
+- Nenhum arquivo ou diretório do componente deixou de ser lido.
+- Excluídos (generated-or-binary): 1 — generated and binary files are not scanned
+- Excluídos (skipped-directory): 2 — directories that hold dependencies, build output or tool state are not scanned

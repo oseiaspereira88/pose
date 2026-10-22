@@ -11,9 +11,9 @@ import (
 func openSourceRequest(t *testing.T, sourceRoot string) ActionRequestView {
 	t.Helper()
 	view, err := Store{Root: sourceRoot}.OpenActionRequest(ActionRequest{
-		Origin: "spec:source-task", Kind: ActionApproval, Question: "Ship R1 as is?",
+		Origin: "spec:source-task", Kind: ActionApproval, Question: "Ship this artifact as is?",
 		RequestedBy: ActionPrincipal{Principal: "agent:impl"}, Recipient: ObligationActor{Role: "maintainer"},
-		Targets: []NodeRef{{Artifact: "self", Kind: "requirement", ID: "R1"}}, Effects: []ObligationEffect{{Phase: PhaseCloseout, Mode: EffectBlock}},
+		Targets: []NodeRef{{Artifact: "self"}}, Effects: []ObligationEffect{{Phase: PhaseCloseout, Mode: EffectBlock}},
 	}, time.Now())
 	if err != nil {
 		t.Fatal(err)
@@ -83,7 +83,7 @@ func TestTransferRefusesARequestOpenedAfterThePreview(t *testing.T) {
 	// Opened without a commit, so the source revision the plan pinned is
 	// unchanged and only the request inventory differs.
 	if _, err := (Store{Root: sourceRoot}).OpenActionRequest(ActionRequest{
-		Origin: "spec:source-task", Kind: ActionApproval, Question: "Ship R1 as is?",
+		Origin: "spec:source-task", Kind: ActionApproval, Question: "Ship this artifact as is?",
 		RequestedBy: ActionPrincipal{Principal: "agent:impl"}, Recipient: ObligationActor{Role: "maintainer"},
 		Targets: []NodeRef{{Artifact: "self"}}, Effects: []ObligationEffect{{Phase: PhaseCloseout, Mode: EffectBlock}},
 	}, time.Now()); err != nil {

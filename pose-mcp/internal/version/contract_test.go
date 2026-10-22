@@ -204,8 +204,7 @@ func TestArtifactIdentityContract(t *testing.T) {
 	for _, want := range []string{
 		"cosign verify-blob",
 		"--certificate-oidc-issuer https://token.actions.githubusercontent.com",
-		`--certificate-identity-regexp`,
-		"release\\.yml@refs/tags/v",
+		"--certificate-identity 'https://github.com/oseiaspereira88/pose/.github/workflows/release.yml@refs/tags/v" + version.ReleaseBase() + "'",
 	} {
 		if !strings.Contains(sm, want) {
 			t.Errorf("SECURITY.md missing %q (pinned verification instructions)", want)

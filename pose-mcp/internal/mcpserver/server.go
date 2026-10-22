@@ -1146,7 +1146,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			Options     map[string]string `json:"options"`
 			Recommend   string            `json:"recommend"`
 			Targets     []string          `json:"targets"`
-			Effects     []string          `json:"effects"`
+			Effects     []json.RawMessage `json:"effects"`
 			Subject     string            `json:"subject"`
 			Supersedes  string            `json:"supersedes"`
 			Apply       bool              `json:"apply"`
@@ -1181,11 +1181,11 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			r.Targets = append(r.Targets, target)
 		}
 		for _, raw := range a.Effects {
-			phase, mode, ok := strings.Cut(raw, ":")
-			if !ok {
-				return nil, fmt.Errorf("pose_action_open: effect %q must be <phase>:<block|advisory>", raw)
+			effect, err := pose.ParseActionEffect(raw)
+			if err != nil {
+				return nil, fmt.Errorf("pose_action_open: %w", err)
 			}
-			r.Effects = append(r.Effects, pose.ObligationEffect{Phase: phase, Mode: mode})
+			r.Effects = append(r.Effects, effect)
 		}
 		if a.Subject != "" {
 			if path, ok := strings.CutPrefix(a.Subject, "path:"); ok {
@@ -1418,7 +1418,8 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		return map[string]any{"preview": plan, "status": status}, nil
 	case "pose_closeout_state":
 		var a struct {
-			Scope string `json:"scope"`
+			Scope       string `json:"scope"`
+			IncludePlan bool   `json:"include_plan,omitempty"`
 		}
 		if err := json.Unmarshal(args, &a); err != nil || a.Scope == "" {
 			return nil, fmt.Errorf("pose_closeout_state: required argument %q missing", "scope")
@@ -1427,7 +1428,27 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if project == "" {
 			project = s.roots.Context().DefaultProjectID
 		}
-		return store.GetCloseoutStateWithFederatedAcceptance(a.Scope, project, s.federatedArtifactResolver(ctx))
+		// The optional execution plan uses the same fail-closed Git reader as
+		// the CLI. Do not return an apparently usable state after a failed read.
+		var plan *pose.CloseoutPlan
+		if a.IncludePlan {
+			resolved, err := store.PlanCloseout(a.Scope)
+			if err != nil {
+				return nil, fmt.Errorf("pose_closeout_state: %w", err)
+			}
+			plan = &resolved
+		}
+		state, err := store.GetCloseoutStateWithFederatedAcceptance(a.Scope, project, s.federatedArtifactResolver(ctx))
+		if err != nil {
+			return nil, err
+		}
+		if plan == nil {
+			return state, nil
+		}
+		return struct {
+			pose.CloseoutState
+			ExecutionPlan *pose.CloseoutPlan `json:"execution_plan"`
+		}{state, plan}, nil
 	case "pose_review_plan":
 		var a struct {
 			Scope string `json:"scope"`
@@ -2452,11 +2473,14 @@ func toolDefinitions() []map[string]any {
 					"options":        map[string]any{"type": "object", "description": "Option id → its consequence; a decision needs at least two", "additionalProperties": map[string]any{"type": "string"}},
 					"recommend":      map[string]any{"type": "string", "description": "Optional recommended option id"},
 					"targets":        map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "description": "Restricted nodes: self, requirement:R4 inside the origin, or xref:..."},
-					"effects":        map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "description": "Per-phase effects, e.g. closeout:block or release:advisory"},
-					"subject":        map[string]any{"type": "string", "description": "Optional requirement:R4 or path:<file> whose change invalidates an answer"},
-					"supersedes":     map[string]any{"type": "string", "description": "Optional act-<id> this request replaces"},
-					"apply":          map[string]any{"type": "boolean", "description": "Record the request; without it the call is a preview"},
-					"project_id":     map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
+					"effects": map[string]any{"type": "array", "items": map[string]any{"oneOf": []any{
+						map[string]any{"type": "string"},
+						map[string]any{"type": "object", "properties": map[string]any{"phase": map[string]any{"type": "string"}, "mode": map[string]any{"type": "string"}, "scope": map[string]any{"type": "array", "items": map[string]any{"type": "string"}}}, "required": []string{"phase", "mode"}, "additionalProperties": false},
+					}}, "description": "phase:mode strings retain whole-source scope; objects add explicit qualified node scopes. Targets indicate relevance, not implicit blocking scope."},
+					"subject":    map[string]any{"type": "string", "description": "Optional requirement:R4 or path:<file> whose change invalidates an answer"},
+					"supersedes": map[string]any{"type": "string", "description": "Optional act-<id> this request replaces"},
+					"apply":      map[string]any{"type": "boolean", "description": "Record the request; without it the call is a preview"},
+					"project_id": map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
 				},
 				"required": []string{"origin", "kind", "question", "requested_by", "targets", "effects"},
 			},
@@ -2644,10 +2668,11 @@ func toolDefinitions() []map[string]any {
 			"name": "pose_closeout_state",
 			"description": "Read the evidence-backed hierarchical closeout projection for a typed " +
 				"spec, milestone or roadmap scope. Returns current or stale review state, child " +
-				"blockers, the smallest next governed action and terminal status.",
+				"blockers, the smallest next governed action and terminal status. For spec scopes, include_plan adds the CLI execution plan; unknown Git returns an error.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
+					"include_plan": map[string]any{"type": "boolean", "description": "Include the read-only closeout execution plan for a spec scope (default false)"},
 					"scope": map[string]any{
 						"type":        "string",
 						"description": "Typed scope: spec:<slug>, milestone:<roadmap>/<id>, or roadmap:<slug>",

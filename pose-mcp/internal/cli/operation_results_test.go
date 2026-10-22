@@ -59,6 +59,7 @@ func TestCloseApplyJSONReportsWaitingWithPendingAndNextAction(t *testing.T) {
   "schema_version":2,"id":"spec-closeout","version":2,"scope":"spec",
   "criteria":[{"id":"security","description":"Authority boundaries are safe."}]
 }`)
+	commitSnapshotFixture(t, root)
 	var result closeApplyJSON
 	code, stderr := runPoseJSON(t, root, &result, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer", "--json")
 	if code != 3 || result.Outcome != posemodel.OutcomeWaiting || result.Operation != "close.apply" || result.Step == "" {
@@ -79,6 +80,7 @@ func TestCloseApplyJSONReportsWaitingWithPendingAndNextAction(t *testing.T) {
   "schema_version":2,"id":"spec-closeout","version":2,"scope":"spec",
   "criteria":[{"id":"security","description":"Authority boundaries are safe."}]
 }`)
+	commitSnapshotFixture(t, human)
 	code, out := runPose(t, human, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer")
 	if code != 3 || !strings.Contains(out, "closeout_plan.pending.security=") || !strings.Contains(out, "closeout_plan.attest=pose review attest") || !strings.Contains(out, "closeout_plan.step.seal=done") {
 		t.Fatalf("human rendering diverged: %d %s", code, out)
@@ -263,6 +265,7 @@ func TestUsageCountsAWaitingCloseAsWaitingNotFailed(t *testing.T) {
   "schema_version":2,"id":"spec-closeout","version":2,"scope":"spec",
   "criteria":[{"id":"security","description":"Authority boundaries are safe."}]
 }`)
+	commitSnapshotFixture(t, root)
 	t.Setenv("POSE_USAGE_DIR", t.TempDir())
 	t.Setenv("POSE_USAGE_DISABLED", "")
 	if code, out := runPose(t, root, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer"); code != 3 {

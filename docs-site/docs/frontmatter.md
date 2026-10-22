@@ -55,6 +55,26 @@ Rules enforced by `pose check` / `pose lint-spec`:
   into a separate `.pose/` per component. A cross-cutting spec lists every
   component it touches; a spec with no tag never matches a non-empty filter.
 
+## Design basis belongs in the spec body
+
+Recent contracts also read structured requirements, assumptions and decisions
+(R/A/D) from the Markdown body. They are not additional frontmatter keys.
+Under adopted contract nodes, their content, state and relations participate
+in amendment history; under adopted atomic start, their baseline is recorded
+before managed execution.
+
+- A material assumption can declare `Valid scope:` and pinned `Stale trigger:`
+  references. A changed pin creates an advisory `premise-stale` obligation.
+- A decision can declare `Expected effect:` and
+  `Falsifier check: check:<module>/<check>`. An observed failure creates an
+  advisory reconsideration candidate; it does not establish causation.
+- A decision can be `active` or `withdrawn`. Under causal closeout, a withdrawn
+  decision or invalidated assumption cannot justify an active structural mapping.
+
+Use the installed spec template and `pose amend <slug> --nodes --json` to
+inspect parsed nodes. Use [review and trust](review-and-trust.md) for mappings
+and [instance operation](operate.md) for effective adoption.
+
 ## Roadmap (`.pose/roadmaps/<slug>.md`)
 
 ```yaml
@@ -103,9 +123,12 @@ refs: PR#123
 ---
 ```
 
-The body is 1–3 user-facing sentences. At release time,
-`pose release-notes` consolidates fragments into grouped release notes
-(breaking changes first).
+The body is 1–3 user-facing sentences. Preview the pending cut with
+`pose release plan --version vX.Y.Z`; `pose release prepare --version vX.Y.Z --apply`
+freezes the selected fragments, notes and manifest. Then
+`pose release notes --version vX.Y.Z` reads the immutable snapshot; it does not
+reconsolidate the current pending directory. `pose release-notes --version vX.Y.Z`
+is a supported compatibility alias. See [command compatibility](command-compatibility.md).
 
 ## Schema version (`.pose/schema-version`)
 

@@ -83,6 +83,23 @@ POSE lifecycle.
 Agent-neutral is not the same as SDD-framework-neutral. POSE is neutral about
 who executes; it is not neutral about who owns the lifecycle.
 
+## POSE today
+
+Editorial review: **2026-10-20**. The latest published release is
+[v7.4.1](https://github.com/oseiaspereira88/pose/releases/tag/v7.4.1), dated 2026-10-10.
+The recent line adds guided setup, explicit capability adoption, obligations by
+actor and phase, signed action answers, local review issuers and bundle-derived
+delegated review briefs.
+
+- [Operate an instance](docs-site/docs/operate.md): effective policy and next actions.
+- [Review and trust](docs-site/docs/review-and-trust.md): evidence, judgment and identity.
+- [Multiple projects](docs-site/docs/multiple-projects.md): authority, federation and transfers.
+- [Releases and development](docs-site/docs/evolution.md): shipped changes, pending hardening and plans.
+
+`unreleased` changes are outside v7.4.1; planning fragments do not prove a
+functional delivery. Updating the binary and adopting optional capabilities
+are separate decisions.
+
 ## Quickstart
 
 Fast path for Linux and macOS (run it from the Git repository that should
@@ -242,7 +259,7 @@ POSE makes each of those concerns an explicit, versioned mechanism.
 | `.pose/knowledge/`  | TTL-governed handoffs, notes and decision logs                                                 |
 | `.pose/reports/`    | Versionable evidence and append-only JSONL history                                             |
 | `.pose/indexes/`    | Repository, module, task, spec-graph and roadmap projections                                   |
-| `pose serve-mcp`    | 47 POSE governance tools and 3 optional Conductor run reporters over stdio or Streamable HTTP  |
+| `pose serve-mcp`    | 58 POSE governance tools and 3 optional Conductor run reporters over stdio or Streamable HTTP  |
 | `mcp-enforce/`      | Optional project/run-scoped identity, OPA decisions and audit                                  |
 | `pose-action/`      | GitHub Action adapter for deterministic gates                                                  |
 
