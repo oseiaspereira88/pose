@@ -12,7 +12,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -20,6 +19,9 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 // staleInstance is an instance last updated by POSE 6.1.0, with a drifted
@@ -327,5 +329,406 @@ func TestUpdatePreviewNeedsNoTemporaryCopy(t *testing.T) {
 	}
 }
 
-var _ = bytes.NewBuffer
-var _ = errors.New
+// Fixed-time parity exercises the production execution entry, including the
+// install pre/post gates and generation publication, on the same original tree.
+func TestUpdatePreviewParityAcrossUpdateBranches(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		force   bool
+		locale  string
+		prepare func(*testing.T, string)
+	}{
+		{name: "plain-stale"},
+		{name: "force-stale", force: true},
+		{name: "plain-pt", locale: "pt-BR"},
+		{name: "force-pt", force: true, locale: "pt-BR"},
+		{name: "plain-current", prepare: func(t *testing.T, root string) { updateOnce(t, root) }},
+		{name: "force-current", force: true, prepare: func(t *testing.T, root string) { updateOnce(t, root) }},
+		{name: "automatic-portuguese", prepare: func(t *testing.T, root string) {
+			if code, out := runPose(t, root, "update", "--locale", "pt-BR", "--no-self"); code != 0 {
+				t.Fatalf("fixture: %s", out)
+			}
+		}},
+		{name: "explicit-english-switch", locale: "en", prepare: func(t *testing.T, root string) {
+			if code, out := runPose(t, root, "update", "--locale", "pt-BR", "--no-self"); code != 0 {
+				t.Fatalf("fixture: %s", out)
+			}
+		}},
+		{name: "answered-unapplied-and-open-requests", prepare: func(t *testing.T, root string) {
+			mustWrite(t, filepath.Join(root, ".pose/policy/actions.json"), `{"schema_version":1,"roles":{"maintainer":["human:ada"]},"identity_assurance":"declared"}`)
+			updateOnce(t, root)
+			requests, err := configurationReviewRequests(root)
+			if err != nil {
+				t.Fatal(err)
+			}
+			answerReview(t, root, requestFor(t, requests, "contract-nodes"), "adopt", "")
+		}},
+		{name: "v1-policy-and-profile-migrations", prepare: func(t *testing.T, root string) {
+			mustWrite(t, filepath.Join(root, ".pose/policy/review.json"), `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"}}`)
+			mustWrite(t, filepath.Join(root, ".pose/review-profiles/spec-closeout.json"), `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
+		}},
+		{name: "empty-adoption-and-curated-metadata", prepare: func(t *testing.T, root string) {
+			path := filepath.Join(root, ".pose/policy/review.json")
+			raw, err := os.ReadFile(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var doc map[string]any
+			if err := json.Unmarshal(raw, &doc); err != nil {
+				t.Fatal(err)
+			}
+			doc["adopted_at"] = ""
+			doc["contract_adoptions"] = map[string]any{posemodel.ReviewContracts()[0].ID: ""}
+			raw, _ = json.Marshal(doc)
+			mustWrite(t, path, string(raw))
+			mustWrite(t, filepath.Join(root, "go.mod"), "module root\n")
+			mustWrite(t, filepath.Join(root, ".pose/indexes/module-metadata.json"), `{"schemaVersion":1,"defaults":{"owner":"curated"},"modules":{"`+filepath.Base(root)+`":{"owner":"team","domain":"curated","custom":"keep"}}}`)
+		}},
+		{name: "schema-zero", prepare: func(t *testing.T, root string) { mustWrite(t, filepath.Join(root, ".pose/schema-version"), "0\n") }},
+		{name: "future-schema", prepare: func(t *testing.T, root string) { mustWrite(t, filepath.Join(root, ".pose/schema-version"), "999\n") }},
+		{name: "force-missing-policy-onboarding", force: true, prepare: func(t *testing.T, root string) {
+			if err := os.Remove(filepath.Join(root, ".pose/policy/review.json")); err != nil {
+				t.Fatal(err)
+			}
+			paths, _ := filepath.Glob(filepath.Join(root, ".pose/specs/*-pose-onboarding.md"))
+			for _, path := range paths {
+				if err := os.Remove(path); err != nil {
+					t.Fatal(err)
+				}
+			}
+		}},
+		{name: "missing-computed-index", prepare: func(t *testing.T, root string) {
+			if err := os.RemoveAll(filepath.Join(root, ".pose/indexes/generations")); err != nil {
+				t.Fatal(err)
+			}
+			for _, name := range append(append([]string{}, posemodel.IndexGenerationFiles...), "generation.json") {
+				_ = os.Remove(filepath.Join(root, ".pose/indexes", name))
+			}
+			mustWrite(t, filepath.Join(root, "services/billing/go.mod"), "module billing\n")
+		}},
+		{name: "final-gate-refusal", force: true, prepare: func(t *testing.T, root string) {
+			mustWrite(t, filepath.Join(root, ".pose/specs/2026-10-01-invalid.md"), "---\nslug: invalid\nstatus: broken\n---\n# Invalid\n")
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := staleInstance(t)
+			if tc.prepare != nil {
+				tc.prepare(t, root)
+			}
+			now := time.Date(2026, 10, 22, 12, 0, 0, 0, time.UTC)
+			u := instanceUpdate{root: root, force: tc.force, localeFlag: tc.locale, locale: localeEN}
+			if tc.locale == "pt-BR" {
+				u.locale = localePtBR
+			}
+			before := instanceState(t, root)
+			p := posemodel.NewPreviewFiles(now)
+			var predicted, applied bytes.Buffer
+			pc := u.apply(p, &predicted, &predicted)
+			sameEffects(t, "preview must not write", nil, appliedEffects(before, instanceState(t, root)))
+			if gaps := p.Gaps(); len(gaps) > 0 {
+				t.Fatalf("preview gaps: %v", gaps)
+			}
+			changes := []string{}
+			for _, c := range p.Changes(root) {
+				changes = append(changes, c.Verb+": "+c.Path)
+			}
+			sort.Strings(changes)
+
+			ac := u.apply(posemodel.NativeFilesAt(now), &applied, &applied)
+			if pc != ac {
+				t.Fatalf("preview %d, apply %d:\n%s\n---\n%s", pc, ac, &predicted, &applied)
+			}
+			if predicted.String() != applied.String() {
+				t.Fatalf("shared operation wording diverged:\n%s\n---\n%s", &predicted, &applied)
+			}
+			sameEffects(t, "effects", changes, appliedEffects(before, instanceState(t, root)))
+			// A matching path count is insufficient: compare every projected byte,
+			// mode and link target to the actual result, including requests and indexes.
+			for path := range instanceState(t, root) {
+				physical := filepath.Join(root, filepath.FromSlash(path))
+				want, err := os.Lstat(physical)
+				if err != nil {
+					t.Fatal(err)
+				}
+				got, err := p.Lstat(physical)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if got.Mode() != want.Mode() {
+					t.Errorf("%s: projected mode %v, actual %v", path, got.Mode(), want.Mode())
+				}
+				if want.Mode().IsRegular() {
+					a, e := os.ReadFile(physical)
+					if e != nil {
+						t.Fatal(e)
+					}
+					b, e := p.ReadFile(physical)
+					if e != nil {
+						t.Fatal(e)
+					}
+					if !bytes.Equal(a, b) {
+						t.Errorf("%s projected content differs", path)
+					}
+				}
+				if want.Mode()&fs.ModeSymlink != 0 {
+					a, _ := os.Readlink(physical)
+					b, _ := p.Readlink(physical)
+					if a != b {
+						t.Errorf("%s projected link %s, actual %s", path, b, a)
+					}
+				}
+			}
+		})
+	}
+}
+
+// Failed relevant reads and a refused configuration-review evaluation cannot
+// turn an otherwise current instance into a no-op verdict.
+func TestUpdatePreviewDoesNotCallLostEvaluationNoChange(t *testing.T) {
+	for _, kind := range []string{"malformed-review-policy", "malformed-review-profile", "malformed-module-metadata", "malformed-changelog-policy", "corrupt-git-index", "unreadable-review-policy", "unlistable-source"} {
+		t.Run(kind, func(t *testing.T) {
+			root := staleInstance(t)
+			if code, out := runPose(t, root, "update", "--no-self"); code != 0 {
+				t.Fatalf("fixture: %d %s", code, out)
+			}
+			policy := filepath.Join(root, ".pose/policy/review.json")
+			switch kind {
+			case "malformed-review-policy":
+				mustWrite(t, policy, "{broken")
+			case "malformed-review-profile":
+				mustWrite(t, filepath.Join(root, ".pose/review-profiles/spec-closeout.json"), "{broken")
+			case "malformed-module-metadata":
+				mustWrite(t, filepath.Join(root, ".pose/indexes/module-metadata.json"), "{broken")
+			case "malformed-changelog-policy":
+				mustWrite(t, filepath.Join(root, ".pose/policy/changelog.json"), "{broken")
+			case "corrupt-git-index":
+				mustWrite(t, filepath.Join(root, ".git/index"), "invalid-index")
+			case "unreadable-review-policy":
+				if err := os.Chmod(policy, 0); err != nil {
+					t.Fatal(err)
+				}
+				t.Cleanup(func() { _ = os.Chmod(policy, 0o644) })
+			case "unlistable-source":
+				dir := filepath.Join(root, "services/private")
+				mustWrite(t, filepath.Join(dir, "go.mod"), "module private\n")
+				if err := os.Chmod(dir, 0o100); err != nil {
+					t.Fatal(err)
+				}
+				t.Cleanup(func() { _ = os.Chmod(dir, 0o755) })
+			}
+			code, out := runPose(t, root, "update", "--dry-run")
+			if code == 0 || strings.Contains(out, "would change nothing") || !strings.Contains(out, "INCOMPLETE") {
+				t.Fatalf("lost %s evaluated as complete: %d %s", kind, code, out)
+			}
+		})
+	}
+}
+
+// Preserve the scanner's submodule-local ignore, Android and curated-root-alias
+// behavior while projecting the governance index that discovery updates.
+func TestUpdatePreviewDiscoversSubmodulesAndroidAndCuratedMetadata(t *testing.T) {
+	root := submoduleWithIgnoredCache(t)
+	var out bytes.Buffer
+	if code := cmdInstall([]string{root, "--skip-mcp"}, &out, &out); code != 0 {
+		t.Fatalf("install fixture: %d %s", code, &out)
+	}
+	mustWrite(t, filepath.Join(root, "go.mod"), "module example.com/root\n")
+	mustWrite(t, filepath.Join(root, "mod/new-tool/go.mod"), "module example.com/new\n")
+	mustWrite(t, filepath.Join(root, "apps/mobile/build.gradle.kts"), "plugins {}\n")
+	mustWrite(t, filepath.Join(root, "apps/mobile/src/main/AndroidManifest.xml"), "<manifest/>\n")
+	mustWrite(t, filepath.Join(root, ".pose/indexes/module-metadata.json"), `{"schemaVersion":1,"modules":{"`+filepath.Base(root)+`":{"owner":"curated","domain":"root","custom":"keep"}}}`)
+	now := time.Now()
+	u := instanceUpdate{root: root, force: true, locale: localeEN}
+	p := posemodel.NewPreviewFiles(now)
+	before := instanceState(t, root)
+	out.Reset()
+	if code := u.apply(p, &out, &out); code != 0 {
+		t.Fatalf("projected update: %d %s", code, &out)
+	}
+	sameEffects(t, "preview wrote", nil, appliedEffects(before, instanceState(t, root)))
+	if len(p.Gaps()) != 0 {
+		t.Fatalf("incomplete discovery: %v", p.Gaps())
+	}
+	path := filepath.Join(root, ".pose/indexes/module-metadata.json")
+	predicted, err := p.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var metadata struct {
+		Modules map[string]map[string]string `json:"modules"`
+	}
+	if err := json.Unmarshal(predicted, &metadata); err != nil {
+		t.Fatal(err)
+	}
+	if metadata.Modules["mod/new-tool"] == nil || metadata.Modules["mod/tool"] == nil || metadata.Modules["apps/mobile"]["domain"] != "android" {
+		t.Fatalf("lost real source modules: %s", predicted)
+	}
+	if metadata.Modules["mod/cache"] != nil || metadata.Modules["."] != nil || metadata.Modules[filepath.Base(root)]["custom"] != "keep" {
+		t.Fatalf("lost ignore/alias/curation: %s", predicted)
+	}
+	out.Reset()
+	if code := u.apply(posemodel.NativeFilesAt(now), &out, &out); code != 0 {
+		t.Fatalf("actual update: %d %s", code, &out)
+	}
+	actual, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(predicted, actual) {
+		t.Fatalf("discovery differs:\n%s\n---\n%s", predicted, actual)
+	}
+}
+
+// Inject the same provider failure at the shared operation boundary in both
+// modes. Compare partial delivery and diagnostics, including failures after an
+// index generation has files but before its descriptor commits.
+type updateFaultFiles struct {
+	posemodel.Files
+	op, match string
+	fired     bool
+}
+
+func (f *updateFaultFiles) deny(op, path string) error {
+	if !f.fired && f.op == op && strings.Contains(filepath.ToSlash(path), f.match) {
+		f.fired = true
+		return &fs.PathError{Op: op, Path: path, Err: fs.ErrPermission}
+	}
+	return nil
+}
+func (f *updateFaultFiles) WriteFile(path string, data []byte, perm fs.FileMode) error {
+	if e := f.deny("write", path); e != nil {
+		return e
+	}
+	return f.Files.WriteFile(path, data, perm)
+}
+func (f *updateFaultFiles) CreateExclusive(path string, data []byte, perm fs.FileMode, sync bool) error {
+	if e := f.deny("exclusive", path); e != nil {
+		return e
+	}
+	return f.Files.CreateExclusive(path, data, perm, sync)
+}
+func (f *updateFaultFiles) Publish(path string, data []byte, perm fs.FileMode, class string, expect posemodel.PublishExpectation) error {
+	if e := f.deny("publish", path); e != nil {
+		return e
+	}
+	return f.Files.Publish(path, data, perm, class, expect)
+}
+func (f *updateFaultFiles) RemoveAll(path string) error {
+	if e := f.deny("remove-all", path); e != nil {
+		return e
+	}
+	return f.Files.RemoveAll(path)
+}
+
+func TestUpdatePreviewPreservesPartialDeliveryAtFailureBoundaries(t *testing.T) {
+	for _, tc := range []struct {
+		name, op, match string
+		force           bool
+	}{
+		{"manual-backup", "write", "AGENTS.md.pose-backup", false},
+		{"manual-publish", "publish", "/AGENTS.md", false},
+		{"machinery-backup", "write", "templates/spec.md.pose-backup", false},
+		{"request-exclusive", "exclusive", "/actions/act-", false},
+		{"generation-file", "publish", "/indexes/generations/", true},
+		{"generation-commit", "publish", "/indexes/generation.json", true},
+		{"generation-retention", "remove-all", "/indexes/generations/", true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := staleInstance(t)
+			// An engine-owned section edit requires a manual backup and publication.
+			path := filepath.Join(root, "AGENTS.md")
+			raw, err := os.ReadFile(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			mustWrite(t, path, strings.Replace(string(raw), "## Verification", "local edit\n\n## Verification", 1))
+			if tc.name == "generation-retention" {
+				for _, id := range []string{"0000000000000001", "0000000000000002", "0000000000000003", "0000000000000004", "0000000000000005"} {
+					dir := filepath.Join(root, ".pose/indexes/generations/gen-"+id)
+					mustWrite(t, filepath.Join(dir, "sentinel"), "old\n")
+					old := time.Now().Add(-24 * time.Hour)
+					if err := os.Chtimes(dir, old, old); err != nil {
+						t.Fatal(err)
+					}
+				}
+			}
+			now := time.Now()
+			u := instanceUpdate{root: root, force: tc.force, locale: localeEN}
+			before := instanceState(t, root)
+			p := posemodel.NewPreviewFiles(now)
+			pf := &updateFaultFiles{Files: p, op: tc.op, match: tc.match}
+			var predicted, actual bytes.Buffer
+			pc := u.apply(pf, &predicted, &predicted)
+			sameEffects(t, "preview wrote", nil, appliedEffects(before, instanceState(t, root)))
+			changes := []string{}
+			for _, c := range p.Changes(root) {
+				changes = append(changes, c.Verb+": "+c.Path)
+			}
+			sort.Strings(changes)
+			af := &updateFaultFiles{Files: posemodel.NativeFilesAt(now), op: tc.op, match: tc.match}
+			ac := u.apply(af, &actual, &actual)
+			if !pf.fired || !af.fired {
+				t.Fatalf("failure boundary not reached: preview %v apply %v", pf.fired, af.fired)
+			}
+			if pc != ac || predicted.String() != actual.String() {
+				t.Fatalf("partial delivery differs: preview %d, apply %d\n%s\n---\n%s", pc, ac, &predicted, &actual)
+			}
+			sameEffects(t, "partial delivery", changes, appliedEffects(before, instanceState(t, root)))
+		})
+	}
+}
+
+// A tolerated link replacement failure is a known refusal, not evidence that
+// the operation successfully evaluated as a no-op. Native best-effort behavior
+// remains unchanged, and the preview explains the refusal without inventing a
+// fatal native outcome.
+func TestUpdatePreviewDistinguishesRefusedOperationsFromNoOp(t *testing.T) {
+	root := staleInstance(t)
+	for i := 0; i < 2; i++ {
+		if code, out := runPose(t, root, "update", "--no-self", "--force"); code != 0 {
+			t.Fatalf("fixture: %d %s", code, out)
+		}
+	}
+	dir := filepath.Join(root, ".claude/skills")
+	if err := os.Chmod(dir, 0o555); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(dir, 0o755) })
+	before := instanceState(t, root)
+	code, out := runPose(t, root, "update", "--dry-run", "--force")
+	sameEffects(t, "preview wrote", nil, appliedEffects(before, instanceState(t, root)))
+	if code == 0 || !strings.Contains(out, "operation(s) refused") || strings.Contains(out, "would change nothing") || strings.Contains(out, "would fail") {
+		t.Fatalf("refusal misreported: %d %s", code, out)
+	}
+	if code, out := runPose(t, root, "update", "--no-self", "--force"); code != 0 {
+		t.Fatalf("native best-effort behavior changed: %d %s", code, out)
+	}
+}
+
+// Suppression is local to the parsed preview invocation. A subsequent apply
+// still records ordinary usage; another preview changes neither that log nor
+// its salt/metadata, even when usage is enabled.
+func TestUpdatePreviewLeavesUsageRecordingForApply(t *testing.T) {
+	root := staleInstance(t)
+	usageDir := t.TempDir()
+	t.Setenv("POSE_USAGE_DIR", usageDir)
+	t.Setenv("POSE_USAGE_DISABLED", "")
+	t.Setenv("POSE_USAGE_SUPPRESS_CLI", "")
+	if code, out := runPose(t, root, "update", "--dry-run"); code != 0 {
+		t.Fatalf("preview: %d %s", code, out)
+	}
+	if entries, err := os.ReadDir(usageDir); err != nil || len(entries) != 0 {
+		t.Fatalf("preview recorded usage: %v %v", entries, err)
+	}
+	if code, out := runPose(t, root, "update", "--no-self"); code != 0 {
+		t.Fatalf("apply: %d %s", code, out)
+	}
+	before := instanceState(t, usageDir)
+	if len(before) == 0 {
+		t.Fatal("apply failed to record usage after preview")
+	}
+	if code, out := runPose(t, root, "update", "--dry-run"); code != 0 {
+		t.Fatalf("preview after apply: %d %s", code, out)
+	}
+	sameEffects(t, "preview changed usage storage", nil, appliedEffects(before, instanceState(t, usageDir)))
+}

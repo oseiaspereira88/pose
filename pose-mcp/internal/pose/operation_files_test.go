@@ -567,3 +567,26 @@ func TestUpdateOperationIsSafeForConcurrentReaders(t *testing.T) {
 		t.Fatalf("changes: %d", got)
 	}
 }
+
+// Atomic replacement cannot turn a directory entry into a regular file. The
+// preview must refuse at the same boundary, leaving its children visible.
+func TestUpdateOperationPublicationRefusesADirectory(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, "target")
+	writeOp(t, filepath.Join(path, "child"), "keep\n", 0o644)
+	p := NewPreviewFiles(time.Now())
+	previewErr := p.Publish(path, []byte("replacement"), 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny})
+	actualErr := NativeFiles().Publish(path, []byte("replacement"), 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny})
+	if actualErr == nil {
+		t.Fatal("fixture: native replacement accepted a directory")
+	}
+	if previewErr == nil {
+		t.Fatal("preview accepted a replacement native publication refuses")
+	}
+	if raw, err := p.ReadFile(filepath.Join(path, "child")); err != nil || string(raw) != "keep\n" {
+		t.Fatalf("refused publication hid child: %q %v", raw, err)
+	}
+	if changes := p.Changes(root); len(changes) != 0 {
+		t.Fatalf("refused publication changed: %v", changes)
+	}
+}

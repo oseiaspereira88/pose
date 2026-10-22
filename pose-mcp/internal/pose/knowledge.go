@@ -56,7 +56,7 @@ func (s Store) GetKnowledge(slug string) (*KnowledgeEntry, error) {
 	if err := ValidateSlug(slug); err != nil {
 		return nil, err
 	}
-	entries, err := os.ReadDir(s.knowledgeDir())
+	entries, err := s.fsys().ReadDir(s.knowledgeDir())
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, fmt.Errorf("pose: knowledge entry %q not found", slug)

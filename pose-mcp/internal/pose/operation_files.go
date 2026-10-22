@@ -274,6 +274,7 @@ type PreviewOperation struct {
 	Target    string `json:"target,omitempty"`
 	Class     string `json:"class,omitempty"`
 	Refused   string `json:"refused,omitempty"`
+	Cause     error  `json:"-"`
 	Unchanged bool   `json:"unchanged,omitempty"`
 }
 
@@ -784,6 +785,7 @@ func (p *PreviewFiles) stage(location string, node *previewNode) {
 func (p *PreviewFiles) record(op PreviewOperation, err error) error {
 	if err != nil {
 		op.Refused = err.Error()
+		op.Cause = err
 	}
 	p.ledger = append(p.ledger, op)
 	return err
@@ -911,6 +913,11 @@ func (p *PreviewFiles) Publish(name string, data []byte, perm fs.FileMode, class
 		if found != expect.Digest {
 			return p.record(op, &PublishConflictError{Path: name, Expected: expect.Digest, Found: found})
 		}
+	}
+	if existing, ok, err := p.lookup(location); err != nil {
+		return p.record(op, err)
+	} else if ok && existing.isDir() {
+		return p.record(op, pathError("rename", name, syscall.EISDIR))
 	}
 	p.stage(location, &previewNode{kind: previewFile, data: append([]byte{}, data...), perm: perm.Perm()})
 	return p.record(op, nil)

@@ -630,7 +630,7 @@ func (s Store) ReplaceIndexOrLegacy(name string, data []byte) (receipt IndexGene
 		if err := indexFault("replace-legacy-before-write"); err != nil {
 			return IndexGenerationReceipt{}, true, err
 		}
-		if err := PublishFile(filepath.Join(indexDir(s.Root), name), data, 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny}); err != nil {
+		if err := s.fsys().Publish(filepath.Join(indexDir(s.Root), name), data, 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny}); err != nil {
 			return IndexGenerationReceipt{}, true, err
 		}
 		return IndexGenerationReceipt{}, true, nil
@@ -833,7 +833,7 @@ func (s Store) pruneIndexGenerations(current string) error {
 	sort.Slice(others, func(i, j int) bool { return others[i].mod.After(others[j].mod) })
 	var firstErr error
 	for i, g := range others {
-		if i < indexGenerationKeep-1 || time.Since(g.mod) < indexGenerationGrace {
+		if i < indexGenerationKeep-1 || s.fsys().Now().Sub(g.mod) < indexGenerationGrace {
 			continue
 		}
 		if err := s.fsys().RemoveAll(filepath.Join(base, g.name)); err != nil && firstErr == nil {

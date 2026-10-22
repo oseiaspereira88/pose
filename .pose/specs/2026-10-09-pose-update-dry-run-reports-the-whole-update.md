@@ -41,8 +41,27 @@ The dry-run writes nothing, as today.
 
 ### Artifacts
 
-- created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.amendments.jsonl
+Historical D1 declarations (quoted for audit; the cumulative declarations below govern the whole spec):
 
+> - created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.amendments.jsonl
+
+> - created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.md
+> - created: .pose/starts/pose-update-dry-run-reports-the-whole-update.json
+> - created: pose-mcp/internal/cli/update_dryrun.go
+> - created: pose-mcp/internal/cli/update_dryrun_test.go
+> - modified: pose-mcp/internal/cli/maintenance.go
+> - modified: pose-mcp/internal/cli/check.go
+> - modified: pose-mcp/internal/cli/doctor.go
+> - modified: pose-mcp/internal/cli/compat_test.go
+> - modified: pose-mcp/internal/cli/upgrade_test.go
+> - modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
+
+> - created: .pose/adr/2026-10-22-update-preview-records-the-shared-execution-in-an-operation-scoped-view.md
+> - created: .pose/reports/2026-10-22-b29-update-preview-design-review.md
+
+Cumulative D1/D2 declarations, including replacement edits declared before implementation:
+
+- created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.amendments.jsonl
 - created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.md
 - created: .pose/starts/pose-update-dry-run-reports-the-whole-update.json
 - created: pose-mcp/internal/cli/update_dryrun.go
@@ -53,17 +72,12 @@ The dry-run writes nothing, as today.
 - modified: pose-mcp/internal/cli/compat_test.go
 - modified: pose-mcp/internal/cli/upgrade_test.go
 - modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
-
 - created: .pose/adr/2026-10-22-update-preview-records-the-shared-execution-in-an-operation-scoped-view.md
 - created: .pose/reports/2026-10-22-b29-update-preview-design-review.md
-
-Replacement implementation (D2), declared before each production edit; the block above is the historical claim of the rejected copy:
-
 - created: pose-mcp/internal/cli/update_preview_test.go
 - modified: pose-mcp/internal/cli/adopt.go
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/assess.go
-- modified: pose-mcp/internal/cli/check.go
 - modified: pose-mcp/internal/cli/command_reference.go
 - modified: pose-mcp/internal/cli/configuration_review.go
 - modified: pose-mcp/internal/cli/contribute.go
@@ -71,17 +85,14 @@ Replacement implementation (D2), declared before each production edit; the block
 - modified: pose-mcp/internal/cli/init.go
 - modified: pose-mcp/internal/cli/install.go
 - modified: pose-mcp/internal/cli/machinery.go
-- modified: pose-mcp/internal/cli/maintenance.go
 - modified: pose-mcp/internal/cli/managed_docs.go
 - modified: pose-mcp/internal/cli/onboarding.go
 - modified: pose-mcp/internal/cli/onboarding_context.go
 - modified: pose-mcp/internal/cli/release_lifecycle.go
 - modified: pose-mcp/internal/cli/stack_seed.go
 - modified: pose-mcp/internal/cli/surface_check.go
-- modified: pose-mcp/internal/cli/update_dryrun.go
 - modified: pose-mcp/internal/cli/usage.go
 - modified: pose-mcp/internal/cli/validate.go
-- modified: pose-mcp/internal/cli/update_dryrun_test.go
 - created: pose-mcp/internal/pose/operation_files.go
 - created: pose-mcp/internal/pose/operation_files_test.go
 - created: pose-mcp/internal/pose/operation_files_access.go
@@ -149,6 +160,12 @@ Replacement implementation (D2), declared before each production edit; the block
 - modified: pose-mcp/internal/pose/spec_transfer_locks.go
 - modified: pose-mcp/internal/pose/start.go
 - created: .pose/reports/2026-10-22-b29-update-preview-implementation.md
+- modified: pose-mcp/internal/pose/spec_facts.go
+- created: pose-mcp/internal/cli/update_tree_test.go
+- created: pose-mcp/internal/cli/update_preview_linux_test.go
+- created: pose-mcp/internal/pose/update_preview_facts_test.go
+- modified: .pose/indexes/validation-matrix.json
+- modified: pose-mcp/internal/cli/review_closeout_test.go
 
 ### Delivery targets
 
@@ -189,7 +206,7 @@ Risk: high (`pose-mcp` metadata). Original R1/R2 satisfied trace and old Deliver
 | Existing engine contracts and production composition | `pose validate --strict --report --json-out .pose/results/delivery-validation.json` | All required matrix checks pass at the final source; current scoped provenance and registered integration reachability. |
 | Go API, races and platform builds | `go test ./...`; `go vet ./...`; `go test -race ./internal/pose ./internal/cli` | Existing production behavior preserved; no shared global preview state; existing cross-platform build checks retained. |
 
-No above replacement test is claimed executed yet. Expand exact artifact paths before touching production; register actual test selectors instead of accepting empty matches.
+At the time this prospective plan was recorded, no replacement test above had executed. Current implementer results and exact selectors are recorded in [the implementation report](../reports/2026-10-22-b29-update-preview-implementation.md); the registered required check is `update-preview-integration`. Native global evidence, immutable attribution and independent final review remain with the parent.
 
 ### Execution log
 
@@ -221,11 +238,15 @@ No above replacement test is claimed executed yet. Expand exact artifact paths b
 
 ### Requirement trace
 
+Historical D1 trace, retained for audit. These old satisfaction claims do not qualify D2; use the replacement implementation report and the parent's eventual current evidence for that judgment.
+
 - R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy test:TestUpdateDryRunMeetsTheLinksTheUpdateMeets test:TestUpdateDryRunCopiesALinkedDirectoryOnce test:TestUpdateDryRunCopiesADirectoryAfterALinkIntoIt test:TestUpdateDryRunLinksADirectoryThatContainsTheLink test:TestUpdateDryRunNeverWritesThroughABrokenLink test:TestUpdateDryRunAgreesOnABrokenLinkIntoAnExistingDirectory test:TestUpdateDryRunKeepsABrokenTopLevelLink test:TestUpdateDryRunKeepsDirectoryPermissions test:TestUpdateDryRunToleratesUnreadableFiles
 - R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 - R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 
 ## 7. Final Report
+
+Historical D1 report below, retained unchanged for audit. It describes the rejected copier, not a current delivery claim. D2 remains `in-progress`; see the replacement implementation report for current source and validation evidence.
 
 ### Delivered scope
 

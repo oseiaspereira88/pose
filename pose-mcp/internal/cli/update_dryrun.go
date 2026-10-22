@@ -21,8 +21,10 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -66,8 +68,10 @@ func previewUpdate(u instanceUpdate, now time.Time, stdout, stderr io.Writer) in
 	if engineAfter := recordedEngineVersionIn(preview, u.root); engineAfter != engineBefore {
 		r.ContractLine(fmt.Sprintf("[DRY-RUN] %s %s -> %s", text("would stamp engine_version:", "carimbaria engine_version:"), orDash(engineBefore), engineAfter))
 	}
+	refused := 0
 	for _, op := range preview.Operations() {
-		if op.Refused != "" {
+		if op.Refused != "" && !errors.Is(op.Cause, fs.ErrNotExist) && !errors.Is(op.Cause, fs.ErrExist) {
+			refused++
 			r.ContractLine("[DRY-RUN] " + text("refused now, as the system reports it: ", "recusado agora, como o sistema informa: ") + op.Refused)
 		}
 	}
@@ -93,6 +97,9 @@ func previewUpdate(u instanceUpdate, now time.Time, stdout, stderr io.Writer) in
 	case code != 0:
 		r.ContractLine(text("Result: DRY-RUN — the update would fail; nothing was applied.", "Resultado: DRY-RUN — a atualização falharia; nada foi aplicado."))
 		return code
+	case len(changes) == 0 && refused > 0:
+		r.ContractLine(fmt.Sprintf(text("Result: DRY-RUN — %d operation(s) refused (above); no net change was staged; nothing was applied.", "Resultado: DRY-RUN — %d operação(ões) recusada(s) (acima); nenhuma mudança líquida foi planejada; nada foi aplicado."), refused))
+		return 1
 	case len(changes) == 0:
 		r.ContractLine(text("Result: DRY-RUN — the update would change nothing.", "Resultado: DRY-RUN — a atualização não mudaria nada."))
 		return 0
@@ -165,7 +172,7 @@ func (p *previewLines) emit(line string) {
 	if line == "" || strings.HasPrefix(line, "Result:") || strings.HasPrefix(line, "Resultado:") {
 		return
 	}
-	fmt.Fprintln(p.out, "[DRY-RUN] "+line)
+	render(p.out, io.Discard).ContractLine("[DRY-RUN] " + line)
 }
 
 func isActionRequestFile(path string) bool {

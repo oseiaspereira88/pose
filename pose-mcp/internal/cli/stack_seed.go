@@ -18,6 +18,7 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/fs"
 	"path/filepath"
@@ -125,7 +126,15 @@ func seedAbsentInstanceConfigIn(files posemodel.Files, dist fs.FS, target string
 	// `pose update`, which never did (spec
 	// pose-derived-index-self-referential-leak).
 	if seededComputedIndex {
-		_ = cmdIndexIn(files, target, nil, io.Discard, io.Discard)
+		if code := cmdIndexIn(files, target, nil, io.Discard, io.Discard); code != 0 {
+			issue := fmt.Sprintf("computed index seed failed (exit %d); run pose index for diagnostics", code)
+			if log != nil {
+				log("warning: %s", "aviso: %s", issue)
+			}
+			if p := files.Preview(); p != nil {
+				p.Incomplete(issue)
+			}
+		}
 	}
 }
 
@@ -150,14 +159,16 @@ func seedModuleMetadataFromDiscoveryIn(files posemodel.Files, target string, log
 		Defaults      map[string]string            `json:"defaults"`
 		Modules       map[string]map[string]string `json:"modules"`
 	}
-	if json.Unmarshal(raw, &doc) != nil {
-		return // don't fight a hand-edited or malformed file
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		updatePhaseFailure(files, log, "module metadata discovery", err)
+		return // preserve a malformed instance file, but do not claim it was evaluated
 	}
 	if doc.Modules == nil {
 		doc.Modules = map[string]map[string]string{}
 	}
 	discovered, err := discoverValidationModulesIn(files, target)
 	if err != nil {
+		updatePhaseFailure(files, log, "source module discovery", err)
 		return
 	}
 	// A pre-existing entry keyed by the project directory's own name (e.g.
@@ -235,7 +246,8 @@ func stampChangelogAdoptionIn(files posemodel.Files, target string, now time.Tim
 	// Through the raw document, so a key the engine does not model survives the
 	// write — the same reason stampContractAdoption does.
 	var doc map[string]any
-	if json.Unmarshal(raw, &doc) != nil {
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		updatePhaseFailure(files, log, "changelog adoption stamp", err)
 		return
 	}
 	if adopted, ok := doc["adopted_at"].(string); !ok || strings.TrimSpace(adopted) != "" {
@@ -378,7 +390,9 @@ func migrateInstanceReviewPolicyIn(files posemodel.Files, dist fs.FS, target str
 	policyPath := filepath.Join(target, ".pose", "policy", "review.json")
 	if raw, err := files.ReadFile(policyPath); err == nil {
 		var p map[string]any
-		if err := json.Unmarshal(raw, &p); err == nil {
+		if err := json.Unmarshal(raw, &p); err != nil {
+			updatePhaseFailure(files, log, "review policy migration", err)
+		} else {
 			v, _ := p["schema_version"].(float64)
 			if int(v) == 1 {
 				p["schema_version"] = 2
@@ -428,8 +442,11 @@ func migrateInstanceReviewPolicyIn(files posemodel.Files, dist fs.FS, target str
 				}
 
 				if updatedRaw, err := json.MarshalIndent(p, "", "  "); err == nil {
-					_ = writeAtomicIn(files, policyPath, append(updatedRaw, '\n'), 0o644)
-					if log != nil {
+					if err := writeAtomicIn(files, policyPath, append(updatedRaw, '\n'), 0o644); err != nil {
+						if log != nil {
+							log("warning: review policy migration: %v", "aviso: migração da política de review: %v", err)
+						}
+					} else if log != nil {
 						log("policy (migrated): .pose/policy/review.json (v1 -> v2)", "política (migrada): .pose/policy/review.json (v1 -> v2)")
 					}
 				}
@@ -446,7 +463,9 @@ func migrateInstanceReviewPolicyIn(files posemodel.Files, dist fs.FS, target str
 		profPath := filepath.Join(target, ".pose", "review-profiles", e.Name())
 		if raw, err := files.ReadFile(profPath); err == nil {
 			var prof map[string]any
-			if err := json.Unmarshal(raw, &prof); err == nil {
+			if err := json.Unmarshal(raw, &prof); err != nil {
+				updatePhaseFailure(files, log, "review profile migration ("+profPath+")", err)
+			} else {
 				sv, _ := prof["schema_version"].(float64)
 				if int(sv) == 1 {
 					distProfPath := ".pose/review-profiles/" + e.Name()
@@ -457,15 +476,21 @@ func migrateInstanceReviewPolicyIn(files posemodel.Files, dist fs.FS, target str
 					// forever, with the operator told it had succeeded (spec
 					// pose-shipped-review-profiles-are-schema-v2).
 					if distRaw, err := fs.ReadFile(dist, distProfPath); err == nil && shippedProfileIsCurrentSchema(distRaw) {
-						_ = writeAtomicIn(files, profPath, distRaw, 0o644)
-						if log != nil {
+						if err := writeAtomicIn(files, profPath, distRaw, 0o644); err != nil {
+							if log != nil {
+								log("warning: review profile migration: %v", "aviso: migração do perfil de review: %v", err)
+							}
+						} else if log != nil {
 							log("review-profile (migrated): %s (v1 -> v2)", "perfil de review (migrado): %s (v1 -> v2)", e.Name())
 						}
 					} else {
 						prof["schema_version"] = 2
 						if updatedRaw, err := json.MarshalIndent(prof, "", "  "); err == nil {
-							_ = writeAtomicIn(files, profPath, append(updatedRaw, '\n'), 0o644)
-							if log != nil {
+							if err := writeAtomicIn(files, profPath, append(updatedRaw, '\n'), 0o644); err != nil {
+								if log != nil {
+									log("warning: review profile migration: %v", "aviso: migração do perfil de review: %v", err)
+								}
+							} else if log != nil {
 								log("review-profile (migrated): %s (v1 -> v2)", "perfil de review (migrado): %s (v1 -> v2)", e.Name())
 							}
 						}

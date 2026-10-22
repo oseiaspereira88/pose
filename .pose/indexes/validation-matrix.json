@@ -2167,6 +2167,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "update-preview-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "./internal/pose",
+            "-run",
+            "^(TestUpdatePreview|TestUpdateDryRun|TestUpdateOperation|TestStaleInstanceEngine)",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "spec-facts-evidence-binding-integration",
           "program": "go",
           "args": [

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,6 +16,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"errors"
@@ -38,6 +40,7 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 		switch a {
 		case "--dry-run":
 			dry = true
+			suppressCommandUsage(stdout)
 			i++
 		case "--force", "-f":
 			force = true
@@ -118,6 +121,13 @@ func (u instanceUpdate) text(english, portuguese string) string {
 // apply runs the update through files; with a preview's files it writes
 // nothing.
 func (u instanceUpdate) apply(files posemodel.Files, stdout, stderr io.Writer) int {
+	reads := &updateReadView{Files: files, seen: map[string]bool{}}
+	files = reads
+	defer func() {
+		for _, issue := range reads.issues {
+			render(io.Discard, stderr).ContractLine("[WARN] update evaluation: " + issue)
+		}
+	}()
 	root, force, localeFlag, commandLocale, text := u.root, u.force, u.localeFlag, u.locale, u.text
 	if _, e := files.Stat(filepath.Join(root, ".git")); e != nil {
 		fmt.Fprintln(stderr, text("pose update: a git repository is required", "pose update: um repositório git é obrigatório"))
@@ -231,6 +241,9 @@ func (u instanceUpdate) apply(files posemodel.Files, stdout, stderr io.Writer) i
 	}
 	if rel, opened, err := scaffoldConfigurationReviewIn(files, root, version.ReleaseBase(), reviewLocale, files.Now()); err != nil {
 		render(stdout, stderr).ContractLine("[WARN] configuration review not written: " + err.Error())
+		if p := files.Preview(); p != nil {
+			p.Incomplete("configuration review: " + err.Error())
+		}
 	} else if len(opened) > 0 {
 		if policy, err := posemodel.LoadActionPolicyIn(files, root); err == nil && len(policy.Roles["maintainer"]) == 0 {
 			render(stdout, stderr).ContractLine("[WARN] " + text(
@@ -249,7 +262,13 @@ func (u instanceUpdate) apply(files posemodel.Files, stdout, stderr io.Writer) i
 	}
 	// An update names what it brings that this project has not decided, so a
 	// new capability is never left in limbo (spec pose-setup-command).
-	pending, _ := posemodel.CapabilitiesToReviewIn(files, root, version.ReleaseBase())
+	pending, pendingErr := posemodel.CapabilitiesToReviewIn(files, root, version.ReleaseBase())
+	if pendingErr != nil {
+		render(stdout, stderr).ContractLine("[WARN] capability decisions not evaluated: " + pendingErr.Error())
+		if p := files.Preview(); p != nil {
+			p.Incomplete("capability decisions: " + pendingErr.Error())
+		}
+	}
 	if len(pending) > 0 {
 		ids := make([]string, 0, len(pending))
 		for _, state := range pending {
@@ -260,7 +279,7 @@ func (u instanceUpdate) apply(files posemodel.Files, stdout, stderr io.Writer) i
 			strconv.Itoa(len(pending))+" decisão(ões) de capacidade pendente(s) desde a última revisão de configuração: "+strings.Join(ids, ", ")+" — `pose setup` mostra cada uma e pergunta"))
 	}
 	if current == nativeSchemaVersion && !force {
-		if len(pending) == 0 {
+		if len(pending) == 0 && pendingErr == nil {
 			fmt.Fprintf(stdout, text("[INFO] instance at schema v%d; manuals and machinery are current for engine %s.\n", "[INFO] instância no schema v%d; manuais e maquinário em dia para o motor %s.\n"), current, version.ReleaseBase())
 		}
 		return 0
@@ -268,6 +287,120 @@ func (u instanceUpdate) apply(files posemodel.Files, stdout, stderr io.Writer) i
 
 	fmt.Fprintf(stdout, text("Result: SUCCESS — POSE updated to engine v%s (schema v%d).\n", "Resultado: SUCESSO — POSE atualizado para engine v%s (schema v%d).\n"), version.Version, nativeSchemaVersion)
 	return 0
+}
+
+// updateReadView makes relevant read loss observable even in existing best-effort
+// helpers. Missing optional inputs remain normal; other read failures prevent a
+// complete preview. It carries the same explicit view through embedded methods.
+type updateReadView struct {
+	posemodel.Files
+	mu     sync.Mutex
+	seen   map[string]bool
+	issues []string
+}
+
+func (v *updateReadView) observed(op, path string, err error) {
+	if err == nil || errors.Is(err, fs.ErrNotExist) {
+		return
+	}
+	issue := op + " " + path + ": " + err.Error()
+	v.mu.Lock()
+	if !v.seen[issue] {
+		v.seen[issue] = true
+		v.issues = append(v.issues, issue)
+	}
+	v.mu.Unlock()
+	if p := v.Preview(); p != nil {
+		p.Incomplete(issue)
+	}
+}
+func (v *updateReadView) ReadFile(path string) ([]byte, error) {
+	b, e := v.Files.ReadFile(path)
+	v.observed("read", path, e)
+	return b, e
+}
+func (v *updateReadView) ReadDir(path string) ([]fs.DirEntry, error) {
+	b, e := v.Files.ReadDir(path)
+	v.observed("list", path, e)
+	return b, e
+}
+func (v *updateReadView) Open(path string) (fs.File, error) {
+	b, e := v.Files.Open(path)
+	v.observed("open", path, e)
+	return b, e
+}
+func (v *updateReadView) Stat(path string) (fs.FileInfo, error) {
+	b, e := v.Files.Stat(path)
+	v.observed("stat", path, e)
+	return b, e
+}
+func (v *updateReadView) Lstat(path string) (fs.FileInfo, error) {
+	b, e := v.Files.Lstat(path)
+	v.observed("lstat", path, e)
+	return b, e
+}
+func (v *updateReadView) Readlink(path string) (string, error) {
+	b, e := v.Files.Readlink(path)
+	v.observed("readlink", path, e)
+	return b, e
+}
+func (v *updateReadView) EvalSymlinks(path string) (string, error) {
+	b, e := v.Files.EvalSymlinks(path)
+	v.observed("resolve", path, e)
+	return b, e
+}
+
+// effectFailure exposes best-effort failures without turning update into a
+// transaction or changing which steps the native path continues to run.
+func (v *updateReadView) effectFailure(op, path string, err error) error {
+	if err == nil || errors.Is(err, fs.ErrNotExist) || errors.Is(err, fs.ErrExist) {
+		return err
+	}
+	issue := op + " " + path + ": " + err.Error()
+	v.mu.Lock()
+	if !v.seen[issue] {
+		v.seen[issue] = true
+		v.issues = append(v.issues, issue)
+	}
+	v.mu.Unlock()
+	return err
+}
+func (v *updateReadView) WriteFile(path string, data []byte, perm fs.FileMode) error {
+	return v.effectFailure("write", path, v.Files.WriteFile(path, data, perm))
+}
+func (v *updateReadView) CreateExclusive(path string, data []byte, perm fs.FileMode, sync bool) error {
+	return v.effectFailure("create-exclusive", path, v.Files.CreateExclusive(path, data, perm, sync))
+}
+func (v *updateReadView) Publish(path string, data []byte, perm fs.FileMode, class string, expect posemodel.PublishExpectation) error {
+	return v.effectFailure("publish", path, v.Files.Publish(path, data, perm, class, expect))
+}
+func (v *updateReadView) MkdirAll(path string, perm fs.FileMode) error {
+	return v.effectFailure("mkdir-all", path, v.Files.MkdirAll(path, perm))
+}
+func (v *updateReadView) Mkdir(path string, perm fs.FileMode) error {
+	return v.effectFailure("mkdir", path, v.Files.Mkdir(path, perm))
+}
+func (v *updateReadView) Remove(path string) error {
+	return v.effectFailure("remove", path, v.Files.Remove(path))
+}
+func (v *updateReadView) RemoveAll(path string) error {
+	return v.effectFailure("remove-all", path, v.Files.RemoveAll(path))
+}
+func (v *updateReadView) Symlink(target, path string) error {
+	return v.effectFailure("symlink", path, v.Files.Symlink(target, path))
+}
+
+// updatePhaseFailure records lost evaluation in existing best-effort phases.
+func updatePhaseFailure(files posemodel.Files, log func(string, string, ...any), phase string, err error) {
+	if err == nil {
+		return
+	}
+	if log != nil {
+		log("warning: %s: %v", "aviso: %s: %v", phase, err)
+	}
+	if p := files.Preview(); p != nil {
+		p.Incomplete(phase + ": " + err.Error())
+	}
 }
 
 // decisionRequestLine names one configuration-review request as the update

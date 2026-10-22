@@ -165,7 +165,7 @@ func runAssessValidationIn(files pose.Files, root string) (*assessReport, error)
 
 	policy := loadCapabilityPolicyIn(files, root)
 	if assessed, err := time.Parse("2006-01-02", assessment.AssessedAt); err == nil {
-		report.AgeDays = int(time.Since(assessed).Hours() / 24)
+		report.AgeDays = int(files.Now().Sub(assessed).Hours() / 24)
 		if report.AgeDays > policy.StaleAfterDays {
 			report.StaleByDays = true
 			report.Warnings = append(report.Warnings,

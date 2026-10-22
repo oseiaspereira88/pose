@@ -721,7 +721,7 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 	if !hasPolicy {
 		return
 	}
-	policy, err := posemodel.LoadReleasePolicy(checker.root)
+	policy, err := posemodel.LoadReleasePolicyIn(checker.fsys(), checker.root)
 	if err != nil {
 		checker.failOrWarn("release: " + err.Error())
 		return
@@ -732,7 +732,7 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 	_ = policy
 	seen := map[string]string{}
 	base := filepath.Join(checker.root, ".pose", "changelogs")
-	if pending, err := posemodel.LoadReleaseFragments(filepath.Join(base, "unreleased"), posemodel.LoadChangelogPolicy(checker.root)); err == nil {
+	if pending, err := posemodel.LoadReleaseFragmentsIn(checker.fsys(), filepath.Join(base, "unreleased"), posemodel.LoadChangelogPolicyIn(checker.fsys(), checker.root)); err == nil {
 		for _, fragment := range pending {
 			seen[fragment.Spec] = "unreleased"
 		}
@@ -742,7 +742,7 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 		if !entry.IsDir() || posemodel.ValidateReleaseVersion(entry.Name()) != nil {
 			continue
 		}
-		fragments, err := posemodel.LoadReleaseFragments(filepath.Join(base, entry.Name()), posemodel.LoadChangelogPolicy(checker.root))
+		fragments, err := posemodel.LoadReleaseFragmentsIn(checker.fsys(), filepath.Join(base, entry.Name()), posemodel.LoadChangelogPolicyIn(checker.fsys(), checker.root))
 		if err != nil {
 			checker.failOrWarn("release: " + err.Error())
 			continue
@@ -763,7 +763,7 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 		if policy.LegacyCutoff != "" && !versionLess(policy.LegacyCutoff, tag) {
 			continue
 		}
-		if _, err := posemodel.LoadReleaseManifest(checker.root, tag); err != nil {
+		if _, err := posemodel.LoadReleaseManifestIn(checker.fsys(), checker.root, tag); err != nil {
 			checker.failOrWarn("release: governed tag " + tag + " has no manifest")
 		}
 	}

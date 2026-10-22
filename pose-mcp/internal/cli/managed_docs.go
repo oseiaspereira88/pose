@@ -291,6 +291,9 @@ func refreshManagedDocsIn(files posemodel.Files, root, locale string, stdout io.
 		// hand the instance a manual reading "{{PROJECT_NAME}}". Leaving the
 		// file untouched is strictly better than degrading it.
 		if strings.Contains(merged, "{{") {
+			if p := files.Preview(); p != nil {
+				p.Incomplete("managed manual " + doc + ": unresolved scaffold placeholder")
+			}
 			fmt.Fprintf(stdout, cliText(localeText, "[WARN] skipped %s: unresolved scaffold placeholder\n", "[AVISO] %s ignorado: placeholder de scaffold não resolvido\n"), doc)
 			continue
 		}

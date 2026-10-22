@@ -196,7 +196,7 @@ var docsTypedRefRE = regexp.MustCompile(`\b(spec|adr|knowledge|doc|check|url|com
 func (s Store) CheckDocs(ctx context.Context, manifest *DocsManifest) DocsCheckResult {
 	result := DocsCheckResult{
 		SchemaVersion: DocsManifestSchema,
-		GeneratedAt:   time.Now().UTC().Format(time.RFC3339),
+		GeneratedAt:   s.fsys().Now().UTC().Format(time.RFC3339),
 		ManifestPath:  manifest.Path,
 		Totals:        DocsTotals{ByType: map[string]int{}, Declared: len(manifest.Entries)},
 	}
@@ -311,7 +311,7 @@ func brokenRelativeLink(files Files, root, docPath, target string) bool {
 // whether today is past it. A missing git history or an unset deadline is
 // "not stale" — never a false positive from absent data.
 func (s Store) docStaleness(ctx context.Context, entry DocsEntry, defaultDays int) (stale bool, reason string) {
-	today := time.Now().UTC().Format("2006-01-02")
+	today := s.fsys().Now().UTC().Format("2006-01-02")
 	if entry.ReviewAfter != "" {
 		if _, err := time.Parse("2006-01-02", entry.ReviewAfter); err != nil {
 			return false, ""
@@ -329,7 +329,7 @@ func (s Store) docStaleness(ctx context.Context, entry DocsEntry, defaultDays in
 		return false, ""
 	}
 	deadline := lastTouched.AddDate(0, 0, defaultDays)
-	if time.Now().UTC().After(deadline) {
+	if s.fsys().Now().UTC().After(deadline) {
 		return true, fmt.Sprintf("last touched %s, past the %d-day default review window", lastTouched.Format("2006-01-02"), defaultDays)
 	}
 	return false, ""

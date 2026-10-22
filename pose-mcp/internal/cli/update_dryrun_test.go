@@ -3,6 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/version"
 	"os"
 	"path/filepath"
 	"sort"
@@ -67,7 +68,7 @@ func TestUpdateDryRunListsWhatTheUpdateChanges(t *testing.T) {
 	for _, line := range strings.Split(out, "\n") {
 		for _, verb := range []string{"create", "modify", "remove"} {
 			if rest, ok := strings.CutPrefix(line, "[DRY-RUN] would "+verb+": "); ok {
-				predicted = append(predicted, verb+" "+rest)
+				predicted = append(predicted, actionID.ReplaceAllString(verb+" "+rest, "act-<id>"))
 			}
 		}
 		var opened int
@@ -145,7 +146,7 @@ func dryRunOutput(t *testing.T, repo string) string {
 	lines := []string{}
 	for _, line := range strings.Split(out, "\n") {
 		if strings.Contains(line, "would ") || strings.HasPrefix(line, "Result:") {
-			lines = append(lines, line)
+			lines = append(lines, actionID.ReplaceAllString(line, "act-<id>"))
 		}
 	}
 	return strings.Join(lines, "\n")
@@ -373,5 +374,32 @@ func TestUpdateDryRunToleratesUnreadableFiles(t *testing.T) {
 	realCode, realOut := runPose(t, repo, "update", "--no-self")
 	if dryCode != realCode || strings.Contains(dryOut, "preparing the dry-run copy") || strings.Contains(dryOut, "reading the dry-run copy") {
 		t.Fatalf("dry-run %d and update %d disagree:\n%s\n---\n%s", dryCode, realCode, dryOut, realOut)
+	}
+}
+
+// Retain the legacy numeric comparison contract (including its tolerant
+// malformed-part interpretation), and distinguish missing/unreadable stamps.
+func TestStaleInstanceEngineVersionContracts(t *testing.T) {
+	for _, tc := range []struct{ name, raw, want string }{
+		{"missing-version", `{}`, ""},
+		{"malformed-json", `{broken`, ""},
+		{"older", `{"engine_version":"6.1.0"}`, "6.1.0"},
+		{"v-prefix", `{"engine_version":"v1.2.3"}`, "v1.2.3"},
+		{"older-dev", `{"engine_version":"6.1.0-dev"}`, "6.1.0-dev"},
+		{"current", `{"engine_version":"` + version.ReleaseBase() + `"}`, ""},
+		{"current-dev", `{"engine_version":"` + version.ReleaseBase() + `-dev"}`, ""},
+		{"future", `{"engine_version":"999.0.0"}`, ""},
+		{"unreadable-part", `{"engine_version":"unreadable"}`, "unreadable"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := t.TempDir()
+			mustWrite(t, filepath.Join(root, ".pose/state/machinery-manifest.json"), tc.raw)
+			if got := staleInstanceEngine(root); got != tc.want {
+				t.Fatalf("got %q, want %q", got, tc.want)
+			}
+		})
+	}
+	if got := staleInstanceEngine(t.TempDir()); got != "" {
+		t.Fatalf("missing manifest: %s", got)
 	}
 }

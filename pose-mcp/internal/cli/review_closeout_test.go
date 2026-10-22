@@ -551,7 +551,7 @@ func TestUpdateMigratesReviewPolicySchemaV1ToV2(t *testing.T) {
 	if code := cmdUpdate(root, []string{"--dry-run", "--no-self"}, &out, &errOut); code != 0 {
 		t.Fatalf("update dry-run failed: code=%d err=%s", code, errOut.String())
 	}
-	if !strings.Contains(out.String(), "would migrate review policy") {
+	if !strings.Contains(out.String(), "[DRY-RUN] [INFO] policy (migrated): .pose/policy/review.json (v1 -> v2)") {
 		t.Fatalf("expected dry-run to announce review policy migration, got: %s", out.String())
 	}
 

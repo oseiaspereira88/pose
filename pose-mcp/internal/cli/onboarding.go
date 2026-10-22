@@ -310,15 +310,11 @@ func scaffoldOnboardingSpecIn(files posemodel.Files, target, locale, projectName
 	if err := files.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return "", false, err
 	}
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
+	err := files.CreateExclusive(path, []byte(body), 0o644, false)
 	if errors.Is(err, os.ErrExist) {
 		return rel, false, nil
 	}
 	if err != nil {
-		return "", false, err
-	}
-	defer file.Close()
-	if _, err := file.WriteString(body); err != nil {
 		return "", false, err
 	}
 	return rel, true, nil

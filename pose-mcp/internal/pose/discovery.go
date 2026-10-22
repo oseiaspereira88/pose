@@ -60,6 +60,9 @@ func collectGitIgnoredPaths(files Files, dir, prefix string, ignored map[string]
 	// matched the directory a walker visits.
 	out, err := exec.Command("git", "-C", dir, "ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "-z").Output()
 	if err != nil {
+		if p := FilesOrNative(files).Preview(); p != nil && hasGitMetadata(dir) {
+			p.Incomplete("source ignore discovery " + dir + ": " + err.Error())
+		}
 		return
 	}
 	for _, entry := range strings.Split(string(out), "\x00") {
@@ -89,6 +92,9 @@ func collectGitIgnoredPaths(files Files, dir, prefix string, ignored map[string]
 func gitSubmodulePaths(files Files, dir string) []string {
 	out, err := exec.Command("git", "-C", dir, "ls-files", "--stage", "-z").Output()
 	if err != nil {
+		if p := FilesOrNative(files).Preview(); p != nil && hasGitMetadata(dir) {
+			p.Incomplete("source submodule discovery " + dir + ": " + err.Error())
+		}
 		return nil
 	}
 	paths := []string{}
