@@ -1,0 +1,386 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-12c5fa4c987e9c0c",
+  "bundle_id": "rvb-ef842bee6b11a74f",
+  "bundle_digest": "sha256:ef842bee6b11a74f6f1c8111f35ee5de8d2c6d78b5c9ead2c9429b4f6353ce73",
+  "reviewer": "agent:independent-codex-release-manifest-tag-integrity-01a1637e",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-cfa73e0a5519418c",
+      "rationale": "Separates proven absence, unreadability, unsupported evidence, and accepted residual risks. Identity and scanner limitations remain explicit. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "No new concurrent state or synchronization mechanism; collected race checks pass. This does not establish atomic reads across concurrent external Git mutations. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Existing CLI/MCP entrypoints remain; snapshot diagnostics are additive, while stricter rejection is explicitly classified. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Strict manifest decoding, confined paths, regular tagged-file checks, and error propagation prevent malformed or uncertain inputs becoming proof. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Domain verification reaches CLI, MCP status, obligations, public claims, and archival consumers; relevant collected integration checks pass. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Field-local issues, snapshot gaps/limits, and contextual Git errors expose failures. Remaining candidate/human-output omissions are owned lows. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Historical cuts use their own tagged policies and content. Stricter refusal is classified minor; later legitimate evidence and cycles remain supported. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Source tracing and negative/control regressions address projection tampering, wrong tagged trees, lost inputs, and M1’s cross-release selection failure. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-cfa73e0a5519418c",
+      "rationale": "Recomposition and tagged-tree reads replace self-consistent claims with authoritative inputs; shared inventory failure prevents unsafe release selection. Structural mapping follows below. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "mappings": [
+        {
+          "delta": "SD-859c40ea",
+          "basis": "R8",
+          "disposition": "mapped",
+          "rationale": "Final reviewer R8/D1: validation matrix makes authoritative-input and tag-integrity qualification required integration evidence; actual session 01a1637e-df2e-7220-b8c0-8433c2e47625 in report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "English, Portuguese, and scaffold manuals describe runtime behavior. Stale authoring prose remains an explicitly owned editorial follow-up. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Failures identify the affected source or inventory without repairing tags or manufacturing evidence. Benign Git warnings can conservatively refuse operation. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "R1–R8 have relevant source and current collected verification, assessed individually below. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-cfa73e0a5519418c",
+      "rationale": "Preserves B38 manifest/tag integrity and prior completed scope; does not implement B39 replay, B40 selection, or B41 recovery. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "No shell interpolation or new dependencies; paths and tagged file modes are checked, uncertainty fails closed, and no new secret material was observed. Scanner limits remain disclosed. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-cfa73e0a5519418c",
+      "rationale": "Shared existing Git/domain readers are the smallest sufficient correction. No new storage, provider queries, mutation mechanism, or speculative abstraction was added. Actual separate same-vendor session 01a1637e-df2e-7220-b8c0-8433c2e47625; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-reconciliation.md",
+      "rationale": "Native collector executed the required gate; actual separate reviewer inspected its output and approved the exact subject."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Native collector executed the required gate; actual separate reviewer inspected its output and approved the exact subject."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Native collector executed the required gate; actual separate reviewer inspected its output and approved the exact subject."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-manifest-tag-integrity-integration",
+      "rationale": "Native collector executed the required gate; actual separate reviewer inspected its output and approved the exact subject."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    }
+  ],
+  "evidence_refs": [
+    "report:.pose/reports/2026-10-22-b38-pending-reconciliation.md",
+    "report:.pose/reports/2026-10-22-b38-pending-review-r1.md"
+  ],
+  "findings": [
+    {
+      "id": "b38-low-1",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Recusar `version_evidence.kind: null` no manifest.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-2",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Harmonizar os filtros de arquivos auxiliares entre o snapshot e o worktree.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-3",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Expor os limites e a integridade do candidato nos diagnósticos do status.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-4",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Ampliar o padrão do check de integração desta spec para os consumidores novos.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-5",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Usar o carregador estrito da policy de changelog em plan e prepare.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-6",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Reconciliar o texto de authoring da spec com a implementação e a validação efetivamente executadas, mantendo separado o closeout pendente.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-7",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Explicitar o tratamento de links de worktree com bytes idênticos aos do snapshot da tag.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-8",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Fazer os smokes históricos recusarem leituras com erro e execuções com zero fixtures.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-9",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Distinguir um cut de uma prova de adoção em `governedReleaseWitness`: um manifest sob policy explicitamente não adotada não deve, sozinho, impor adoção depois que a policy opcional deixa de existir; preservar a recusa de perdas e leituras inconclusivas.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-10",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Fazer `releaseInputs` recusar entradas do inventário que não são diretório ao calcular a versão anterior, como o checker e o status.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-11",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Usar o carregador estrito da policy de changelog nos fragments pendentes do checker e de `checkRelease`.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-12",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Harmonizar o julgamento de tags fora de SemVer entre o checker e o status em projetos adotados.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-13",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Validar pelo contrato estrito a policy da árvore da tag em `TagHoldsAdoptedReleasePolicy`, em vez de só ler `adopted_at`.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-14",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Qualificar com regressão dedicada a variante de linha ruim em `packed-refs`, preservando o contrato de erro já compartilhado pelo inventário e pela resolução explícita de tags.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-15",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Considerar um `GIT_DIR` perdido em `GitNotARepository`.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-16",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Não reprovar o `pose check` por uma tag SemVer que aponta para árvore ou blob.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-17",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Derivar de novo `previous_version` e informá-lo como limite.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-18",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Fazer `release check` não descartar `ForeignFragmentClaims` em silêncio quando o archive ou as specs não puderem ser lidos.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-19",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Evitar que o status leia o snapshot e a policy da árvore de cada tag de um projeto não adotado antes de descartá-la (cerca de 2,9 s com 300 tags).",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b38-low-20",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b38-pending-review-r1.md",
+      "action": "Fazer o status usar a mesma testemunha de adoção do checker quando a policy de hoje foi apagada: hoje só um corte no worktree conta, e uma tag sem manifest cuja árvore não traz a adoção some do status e das obligations quando a adoção é provada só pelo manifest de outra tag (o `pose check` reprova, e `open-next` continua recusando).",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:codex-pending-reconciliation",
+    "concluded_by": "agent:independent-codex-release-manifest-tag-integrity-01a1637e",
+    "applied_by": "agent:codex-pending-reconciliation"
+  },
+  "attested_at": "2026-10-22T12:34:27Z",
+  "path": ".pose/review-attestations/rva-12c5fa4c987e9c0c.json"
+}

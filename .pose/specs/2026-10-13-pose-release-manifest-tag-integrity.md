@@ -197,7 +197,8 @@ de baixo risco:
 - [open] Usar o carregador estrito da policy de changelog nos fragments pendentes do checker e de `checkRelease`. (owner:@core crit:low review:2026-12-01)
 - [open] Harmonizar o julgamento de tags fora de SemVer entre o checker e o status em projetos adotados. (owner:@core crit:low review:2026-12-01)
 - [open] Validar pelo contrato estrito a policy da árvore da tag em `TagHoldsAdoptedReleasePolicy`, em vez de só ler `adopted_at`. (owner:@core crit:low review:2026-12-01)
-- [open] Tratar uma ref de tag corrompida (ref solta ou linha ruim em `packed-refs`) como erro, e não como tag inexistente. (owner:@core crit:low review:2026-12-01)
+- [done] R11-L14/M1, variante insegura de ref solta: ref corrompida não é ausência e inventário incompleto não permite escolher uma release verificada mais antiga. Reproduzido e coberto em domínio e CLI em 2026-10-22; ver `TestReleaseCorruptTagIsNotProvenMissing` e `TestReleaseBrokenNewerTagCannotOpenAfterAnOlderVerifiedRelease`.
+- [open] Qualificar com regressão dedicada a variante de linha ruim em `packed-refs`, preservando o contrato de erro já compartilhado pelo inventário e pela resolução explícita de tags. (owner:@core crit:low review:2026-12-01)
 - [open] Considerar um `GIT_DIR` perdido em `GitNotARepository`. (owner:@core crit:low review:2026-12-01)
 - [open] Não reprovar o `pose check` por uma tag SemVer que aponta para árvore ou blob. (owner:@core crit:low review:2026-12-01)
 - [open] Derivar de novo `previous_version` e informá-lo como limite. (owner:@core crit:low review:2026-12-01)
@@ -209,4 +210,4 @@ As dependências e unidades restantes permanecem na matriz do programa, sem disp
 
 ### Integration requalification — 2026-10-22
 
-Historical native done and R13 approval remain unchanged as historical events. A separate source review of the current main merge found a medium two-release selection variant of R11-L14: broken newer tag omitted with successful Git exit could promote an older verified release for open-next. It was reproduced before fixing; unknown/corrupt ref is not proven missing, and tag inventory diagnostics now propagate through shared status/plan/check/backfill consumers. Current strict collection and sealed integration review pending; no release is prepared/published, no tag/history is rewritten.
+Historical native done and R13 approval remain unchanged as historical events. A separate source review of the current main merge found a medium two-release selection variant of R11-L14: broken newer tag omitted with successful Git exit could promote an older verified release for open-next. It was reproduced before fixing; unknown/corrupt ref is not proven missing, and tag inventory diagnostics now propagate through shared status/plan/check/backfill consumers. Current strict collection 143/143 and final separate sealed review of `rvb-ef842bee6b11a74f` approved; no release is prepared/published, no tag/history is rewritten.
