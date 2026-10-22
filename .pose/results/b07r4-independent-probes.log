@@ -1,0 +1,81 @@
+=== RUN   TestB07R4PartialSupersedingRun
+    b07r4_review_test.go:9: partial record lost=[] governs=""
+    b07r4_review_test.go:9: partial superseding record silently restores completed run
+--- FAIL: TestB07R4PartialSupersedingRun (0.02s)
+=== RUN   TestB07R4RunTranscript
+    b07r4_review_test.go:14: missing transcript governs=""
+    b07r4_review_test.go:14: lost transcript still governs
+--- FAIL: TestB07R4RunTranscript (0.02s)
+=== RUN   TestB07R4DerivedAncestor
+    b07r4_review_test.go:18: untracked ancestor divergence=[.pose/results] err=<nil>
+--- PASS: TestB07R4DerivedAncestor (0.01s)
+=== RUN   TestB07R4DerivedGitlinkAncestor
+    b07r4_review_test.go:23: gitlink ancestor divergence=[] err=<nil>
+    b07r4_review_test.go:23: gitlink ancestor escapes worktree
+--- FAIL: TestB07R4DerivedGitlinkAncestor (0.03s)
+=== RUN   TestB07R4ArbitraryRegeneration
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/assessments/arbitrary.md
+    b07r4_review_test.go:29: path=.pose/assessments/arbitrary.md divergence=[]/<nil> closeout=[]/<nil>
+    b07r4_review_test.go:29: arbitrary output accepted without producer or input authorization
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/state/components/arbitrary.json
+    b07r4_review_test.go:29: path=.pose/state/components/arbitrary.json divergence=[]/<nil> closeout=[]/<nil>
+    b07r4_review_test.go:29: arbitrary output accepted without producer or input authorization
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/results/arbitrary.txt
+    b07r4_review_test.go:29: path=.pose/results/arbitrary.txt divergence=[]/<nil> closeout=[]/<nil>
+    b07r4_review_test.go:29: arbitrary output accepted without producer or input authorization
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/indexes/generations/not-a-generation/arbitrary.json
+    b07r4_review_test.go:29: path=.pose/indexes/generations/not-a-generation/arbitrary.json divergence=[]/<nil> closeout=[]/<nil>
+    b07r4_review_test.go:29: arbitrary output accepted without producer or input authorization
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/review-bundles/arbitrary.txt
+    b07r4_review_test.go:29: path=.pose/review-bundles/arbitrary.txt divergence=[]/<nil> closeout=[]/<nil>
+    b07r4_review_test.go:29: arbitrary output accepted without producer or input authorization
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/review-runs/arbitrary.txt
+    b07r4_review_test.go:29: path=.pose/review-runs/arbitrary.txt divergence=[]/<nil> closeout=[]/<nil>
+    b07r4_review_test.go:29: arbitrary output accepted without producer or input authorization
+=== RUN   TestB07R4ArbitraryRegeneration/.pose/reports/history/arbitrary.txt
+    b07r4_review_test.go:29: path=.pose/reports/history/arbitrary.txt divergence=[]/<nil> closeout=[]/<nil>
+    b07r4_review_test.go:29: arbitrary output accepted without producer or input authorization
+--- FAIL: TestB07R4ArbitraryRegeneration (0.08s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/assessments/arbitrary.md (0.01s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/state/components/arbitrary.json (0.01s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/results/arbitrary.txt (0.01s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/indexes/generations/not-a-generation/arbitrary.json (0.01s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/review-bundles/arbitrary.txt (0.01s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/review-runs/arbitrary.txt (0.01s)
+    --- FAIL: TestB07R4ArbitraryRegeneration/.pose/reports/history/arbitrary.txt (0.01s)
+FAIL
+FAIL	github.com/harne8/pose-mcp/internal/pose	0.158s
+=== RUN   TestB07R4SourceAncestor
+    b07r4_review_test.go:6: code=0 output=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-530c67299ba79986
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:e61625ecc604f596c273dc24b7fae49294e5ac9d19828f02ca8d2d1ce566e43c
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=1a504c6a7156b735ebc323ff0f3065b7d480e563
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-bcaefd57bc09853c
+        review_dispatch.status=completed
+        review_dispatch.record=.pose/review-runs/rrn-bcaefd57bc09853c.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+    b07r4_review_test.go:6: source ancestor symlink accepted
+--- FAIL: TestB07R4SourceAncestor (0.07s)
+=== RUN   TestB07R4SourceHeadUnknown
+    b07r4_review_test.go:12: code=0 output=review_dispatch.scope=spec:alpha
+        review_dispatch.bundle=rvb-530c67299ba79986
+        review_dispatch.kind=review
+        review_dispatch.brief_digest=sha256:e61625ecc604f596c273dc24b7fae49294e5ac9d19828f02ca8d2d1ce566e43c
+        review_dispatch.adapter=probe (test probe)
+        review_dispatch.sealed_commit=1a504c6a7156b735ebc323ff0f3065b7d480e563
+        review_dispatch.prior_runs=0
+        review_dispatch.run=rrn-ce4830e4c62262b1
+        review_dispatch.status=completed
+        review_dispatch.record=.pose/review-runs/rrn-ce4830e4c62262b1.json
+        review_dispatch.attestation=not recorded: a run's conclusion is recorded only by the engine's verified step
+    b07r4_review_test.go:12: source HEAD unknown accepted
+--- FAIL: TestB07R4SourceHeadUnknown (0.08s)
+=== RUN   TestB07R4SourceLiteralPath
+    b07r4_review_test.go:17: conservative refusal of glob metacharacter in literal path
+--- PASS: TestB07R4SourceLiteralPath (0.02s)
+FAIL
+FAIL	github.com/harne8/pose-mcp/internal/cli	0.179s
+FAIL

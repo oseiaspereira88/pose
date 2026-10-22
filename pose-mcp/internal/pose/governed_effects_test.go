@@ -77,6 +77,7 @@ func TestADeclinedRequestKeepsRefusing(t *testing.T) {
 	adoptAgencyReadiness(t, s, "")
 	r := closeoutRequest()
 	r.Kind, r.Options, r.Recommend = ActionApproval, nil, ""
+	r.Subject = &ActionSubject{Node: NodeRef{Artifact: "self", Kind: "requirement", ID: "R4"}}
 	view, _ := s.OpenActionRequest(r, time.Now())
 	if _, err := s.ResolveActionRequest(answer(view, "human:maintainer", "decline", "k1"), time.Now()); err != nil {
 		t.Fatal(err)

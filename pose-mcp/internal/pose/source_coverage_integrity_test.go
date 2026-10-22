@@ -158,10 +158,10 @@ func TestTheFollowupProducerIsIncompleteWhenASpecCannotBeRead(t *testing.T) {
 // V4 / D13: a dropped obligation is a loss of its producer.
 func TestADroppedObligationMakesItsProducerIncomplete(t *testing.T) {
 	store := obligationFixture(t)
-	defer func(previous func(Store, string, []Spec) ([]Obligation, error)) {
+	defer func(previous func(Store, string, []Spec, bool, *Coverage) ([]Obligation, error)) {
 		actionRequestObligationSource = previous
 	}(actionRequestObligationSource)
-	actionRequestObligationSource = func(s Store, project string, specs []Spec) ([]Obligation, error) {
+	actionRequestObligationSource = func(s Store, project string, specs []Spec, _ bool, _ *Coverage) ([]Obligation, error) {
 		o := newObligation(project, "action-requests", specNode(project, "base"), "action-request", "x")
 		o.ReasonCode = "" // refused by validation
 		return []Obligation{o}, nil

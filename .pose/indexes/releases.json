@@ -9,6 +9,14 @@
       "digest": "sha256:744b9199a134b6dfebb0264afc2e22bdd7c0f2e9eae89e20fee2d49ffc60759b"
     },
     {
+      "spec": "pose-action-target-and-node-scoping",
+      "category": "fixed",
+      "breaking": true,
+      "body": "# Action request destination and material scoping\n\n- Select restrictions by explicit effect destination, phase and mode; retain the\n  documented whole-source default for empty scope and current roadmap membership.\n- Keep relevant open/invalidated requests visible after their origin is terminal.\n- Resolve subject and target nodes by the complete project/artifact/kind/ID tuple.\n- Accept structured effect scopes via CLI `--effect-json` and MCP effect objects;\n  preserve existing `phase:mode` strings and immutable journal schema/digests.\n- Require subjects on new approvals/acceptances under adopted agency readiness.\n  Existing unbound journals are not rewritten. Policy-off defaults are unchanged.\n\nCompatibility: this corrects previously omitted/excess restrictions for adopted\ninstances and tightens material-reference validation. Assess version/adoption at\nrelease; this implementation does not adopt policy or publish a release.",
+      "path": "pose-action-target-and-node-scoping.md",
+      "digest": "sha256:502897d6c530a821d3bc4b6848f7751b1496869412ec8587b932e1f22723daac"
+    },
+    {
       "spec": "pose-cli-mcp-operation-results",
       "category": "changed",
       "breaking": false,
@@ -145,12 +153,12 @@
       "digest": "sha256:dd7a67a589092097bb8a078ac16aee90f525bf8f8cabb531b15ca26d9dac30d2"
     },
     {
-      "spec": "pose-distributed-instructions-parity",
+      "spec": "pose-git-and-dispatch-snapshot-integrity",
       "category": "changed",
       "breaking": false,
-      "body": "The instructions POSE distributes now describe the engine as it is. The feature workflow and\nthe delivery-evidence rule, in English and Portuguese and in every embedded mirror, ask for\n`pose assess discover --if-stale`, the way the skills and `AGENTS.md` already did, so a session\nor a closeout no longer rescans a component whose inputs did not change.\n\n`pose suggest` resolves domains through one taxonomy (`go`, `golang` and `backend-go` reach the\nsame rules; so do the React and Kubernetes spellings), tells you when it used an alias, and\nreports a domain the task map has no rules for instead of silently borrowing another domain's.\nA `backend` module found in the repository map is routed to the Go rules only when it is a Go\nmodule. Each rule it names carries its availability in `rules_status` and in the human output:\ninstalled (with its path), `extension-needed` (with the `pose extension install` command) or\nunavailable; it no longer announces a rule file that is not on disk, and it installs nothing.\n\n`pose migrate v7 --apply` is refused with the current fact (no apply is available in this\nengine; `--dry-run` writes nothing) and no longer promises a future 7.0 apply.",
-      "path": "pose-distributed-instructions-parity.md",
-      "digest": "sha256:dc57637ce52c2698fa4ebc494a2685eaf31e5a7882640514709906c5b266fd8c"
+      "body": "Closeout planning and delegated dispatch refuse unavailable Git observations and\nhidden edits; directory prefixes no longer authorize arbitrary derived writes.\nDispatch checks sealed inputs and origin freshness before and after execution,\nretaining stale runs as failed history. MCP `pose_closeout_state` accepts optional\n`include_plan: true` for the same spec execution plan as the CLI.",
+      "path": "pose-git-and-dispatch-snapshot-integrity.md",
+      "digest": "sha256:b8ce47ba0f610a537b377dd748d4d22f29f92f08b4693b777897c42111f4ce99"
     },
     {
       "spec": "pose-historical-trust-and-review-reuse",

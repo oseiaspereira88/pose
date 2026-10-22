@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"sort"
@@ -121,9 +120,10 @@ func pendingSourceUsed(root, producer string) bool {
 	return true
 }
 
-// actionRequestObligationSource lets the ActionRequest domain register itself
-// without the projection importing its storage details.
-var actionRequestObligationSource func(s Store, project string, specs []Spec) ([]Obligation, error)
+// The producer seam also permits coverage fault injection in contract tests.
+var actionRequestObligationSource = func(s Store, project string, specs []Spec, global bool, coverage *Coverage) ([]Obligation, error) {
+	return s.scopedActionObligations(project, specs, global, coverage)
+}
 
 const ObligationReportSchemaVersion = 1
 
@@ -180,7 +180,7 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 				cov.State, cov.Detail = CoverageStateUnsupported, "action requests are not available in this engine"
 				return nil, nil
 			}
-			return actionRequestObligationSource(s, project, specs)
+			return actionRequestObligationSource(s, project, specs, q.Scope == "", report.producerState["action-requests"])
 		}},
 	}
 	results := make([]produced, len(producers))
@@ -313,15 +313,20 @@ func (s Store) obligationScopeSpecs(scope string) ([]Spec, error) {
 		if err != nil {
 			return nil, err
 		}
+		found := ref.Kind == "roadmap"
 		for _, milestone := range rm.Milestones {
 			if ref.Kind == "milestone" && milestone.ID != ref.Milestone {
 				continue
 			}
+			found = true
 			for _, member := range milestone.Specs {
 				if local, external := s.milestoneMember(member); !external {
 					members[local] = true
 				}
 			}
+		}
+		if !found {
+			return nil, fmt.Errorf("pose: milestone %q not found", ref.Milestone)
 		}
 	}
 	out := []Spec{}
@@ -701,18 +706,28 @@ func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 		snap.Limitations = append(snap.Limitations, "project identity fell back to the directory name; declare it in .pose/project.json")
 	}
 	snap.Project = project
-	if head, err := exec.Command("git", "-C", s.Root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
+	if head, err := gitCommand("-C", s.Root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
 		snap.SourceRevision = strings.TrimSpace(string(head))
 	} else {
 		snap.SourceRevision = "unknown"
 		snap.Coherent = false
 		snap.Limitations = append(snap.Limitations, "no Git revision: the answer describes the working tree only")
 	}
-	if status, err := exec.Command("git", "-C", s.Root, "status", "--porcelain", "--untracked-files=no", "--", ".pose").Output(); err == nil && len(strings.TrimSpace(string(status))) > 0 {
+	status, statusErr := gitCommand("-C", s.Root, "status", "--porcelain", "--untracked-files=no", "--", ".pose").Output()
+	if statusErr != nil && snap.SourceRevision != "unknown" {
+		// HEAD is readable and the status is not: the working tree is unknown, not clean.
+		snap.Coherent = false
+		snap.Limitations = append(snap.Limitations, "git status could not be read: whether governed files differ from the commit is unknown")
+	}
+	if statusErr == nil && len(strings.TrimSpace(string(status))) > 0 {
 		snap.WorktreeDirty = true
 		snap.Limitations = append(snap.Limitations, "governed files under .pose differ from "+shortRevision(snap.SourceRevision)+"; the answer describes the working tree, not the commit")
 	}
 	snap.PolicyDigest = directoryDigest(filepath.Join(s.Root, ".pose", "policy"))
+	if snap.PolicyDigest == directoryUnavailable {
+		snap.Coherent = false
+		snap.Limitations = append(snap.Limitations, "the policy could not be read whole: whether it changed is unknown")
+	}
 	snap.ContractDigest = projectContractDigest(s.Root)
 	if raw, _, err := s.ReadIndex("delivery-integrity.json"); err == nil {
 		sum := sha256.Sum256(raw)
@@ -727,7 +742,7 @@ func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 }
 
 func snapshotDigest(snap ObligationSnapshot) string {
-	digest, _ := digestJSON([]string{snap.Project, snap.SourceRevision, fmt.Sprint(snap.WorktreeDirty), snap.PolicyDigest, snap.ContractDigest, snap.AuthorityContextRevision, snap.IndexDigest})
+	digest, _ := digestJSON([]string{snap.Project, snap.SourceRevision, fmt.Sprint(snap.WorktreeDirty), fmt.Sprint(snap.Coherent), snap.PolicyDigest, snap.ContractDigest, snap.AuthorityContextRevision, snap.IndexDigest})
 	return digest
 }
 
@@ -739,13 +754,23 @@ func snapshotDigest(snap ObligationSnapshot) string {
 func (s Store) ObligationSnapshotChanges(snap ObligationSnapshot) []string {
 	now := s.CurrentObligationSnapshot()
 	var changed []string
+	// A state that could not be read is not a state that did not change.
+	// A baseline that was not read whole is not one to compare with: a later, coherent read is
+	// a different answer, not a confirmation.
+	if !snap.Coherent {
+		changed = append(changed, "baseline")
+	}
+	if !now.Coherent {
+		changed = append(changed, "coherence")
+	}
+
 	if now.Project != snap.Project {
 		changed = append(changed, "project")
 	}
 	if now.SourceRevision != snap.SourceRevision {
 		changed = append(changed, "source-revision")
 	}
-	if now.PolicyDigest != snap.PolicyDigest {
+	if now.PolicyDigest != snap.PolicyDigest || now.PolicyDigest == directoryUnavailable {
 		changed = append(changed, "policy")
 	}
 	if now.ContractDigest != snap.ContractDigest {
@@ -757,6 +782,10 @@ func (s Store) ObligationSnapshotChanges(snap ObligationSnapshot) []string {
 	if now.IndexDigest != snap.IndexDigest {
 		changed = append(changed, "delivery-index")
 	}
+	// A clean tree that became dirty (or the reverse) is a change of what the answer describes.
+	if now.WorktreeDirty != snap.WorktreeDirty {
+		changed = append(changed, "worktree")
+	}
 	return changed
 }
 
@@ -767,30 +796,56 @@ func shortRevision(revision string) string {
 	return revision
 }
 
-// directoryDigest hashes the regular files of one directory, name and
-// content, in name order.
+// Digests of a directory that has none to give: "absent" is a directory that is not
+// there, "unavailable" one that could not be read whole. Neither is a hash, and the second
+// is never equal to anything: a loss of reading is not an equal reading.
+const (
+	directoryAbsent      = "absent"
+	directoryUnavailable = "unavailable"
+)
+
+// directoryDigest hashes the files below one directory, path and content, in path order.
+// A link, a special file or a file that cannot be read makes the whole digest
+// "unavailable": it would otherwise leave out exactly what it could not see.
 func directoryDigest(dir string) string {
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return "unavailable"
+	info, err := os.Lstat(dir)
+	if errors.Is(err, os.ErrNotExist) {
+		return directoryAbsent
 	}
-	h := sha256.New()
+	if err != nil || !info.IsDir() {
+		return directoryUnavailable
+	}
 	names := []string{}
-	for _, entry := range entries {
-		if entry.Type().IsRegular() {
-			names = append(names, entry.Name())
+	walkErr := filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
 		}
+		switch {
+		case p == dir || d.IsDir():
+			return nil
+		case d.Type().IsRegular():
+			rel, rerr := filepath.Rel(dir, p)
+			names = append(names, filepath.ToSlash(rel))
+			return rerr
+		}
+		return errors.New("not a regular file: " + p)
+	})
+	if walkErr != nil {
+		return directoryUnavailable
 	}
 	sort.Strings(names)
+	h := sha256.New()
 	for _, name := range names {
-		raw, err := os.ReadFile(filepath.Join(dir, name))
+		raw, err := os.ReadFile(filepath.Join(dir, filepath.FromSlash(name)))
 		if err != nil {
-			continue
+			return directoryUnavailable
 		}
-		h.Write([]byte(name))
-		h.Write([]byte{0})
+		// Length-prefixed: a name and a content cannot be read as other names and contents.
+		fmt.Fprintf(h, "%d:%s%d:", len(name), name, len(raw))
 		h.Write(raw)
-		h.Write([]byte{0})
 	}
 	return "sha256:" + hex.EncodeToString(h.Sum(nil))
 }
+
+// directoryDigestKnown reports that digest is a hash of a directory that was read whole.
+func directoryDigestKnown(digest string) bool { return strings.HasPrefix(digest, "sha256:") }

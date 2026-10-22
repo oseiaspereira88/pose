@@ -1,18 +1,71 @@
 {
   "schema_version": 1,
-  "evaluated_at": "2026-10-17T17:46:13Z",
-  "baseline_commit": "ff50b4eba9f1",
+  "evaluated_at": "2026-10-21T20:18:52Z",
+  "baseline_commit": "7d73ae839c04",
   "summary": {
-    "total_markers": 0,
-    "todos": 0,
+    "total_markers": 1,
+    "todos": 1,
     "fixmes": 0,
     "panics": 0,
     "stubs": 0,
-    "covered_count": 0,
+    "covered_count": 1,
     "uncovered_count": 0,
     "recommended_followups": 0,
     "recommended_specs": 0,
     "recommended_roadmaps": 0
   },
-  "items": []
+  "items": [
+    {
+      "id": "DEBT-8dcc4523",
+      "marker": "TODO",
+      "file": "pose-mcp/internal/pose/techdebt.go",
+      "line": 329,
+      "snippet": "// ignored, so a TODO after a 70 000-character line was lost without a word.",
+      "component": "pose-mcp",
+      "coverage": "covered_by_spec",
+      "coverage_ref": "spec:pose-residual-material-coverage-and-identity",
+      "recommendation": "none",
+      "link": "file:///tmp/pose-b08-work/pose-mcp/internal/pose/techdebt.go#L329"
+    }
+  ],
+  "scanned_files": 266,
+  "complete": false,
+  "coverage": {
+    "losses": [
+      {
+        "producer": "techdebt-reconciliation",
+        "artifact": ".pose/specs/2026-08-15-pose-instance-engine-version-tracking.md",
+        "kind": "invalid",
+        "detail": "a follow-up bullet has no description"
+      },
+      {
+        "producer": "techdebt-reconciliation",
+        "artifact": ".pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md",
+        "kind": "invalid",
+        "detail": "a follow-up bullet has no description"
+      }
+    ],
+    "exclusions": [
+      {
+        "producer": "assessment-scan",
+        "pattern": "generated-header",
+        "reason": "files that declare themselves generated are not scanned",
+        "count": 1,
+        "examples": [
+          "pose-mcp/internal/pose/assessment_scan.go"
+        ]
+      },
+      {
+        "producer": "assessment-scan",
+        "pattern": "skipped-directory",
+        "reason": "directories that hold dependencies, build output or tool state are not scanned",
+        "count": 36,
+        "examples": [
+          ".agents",
+          ".claude",
+          ".docs-site-build"
+        ]
+      }
+    ]
+  }
 }

@@ -29,7 +29,7 @@ func init() {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if _, err := s.OpenActionRequest(posemodel.ActionRequest{Origin: "spec:storage", Kind: posemodel.ActionApproval, Question: "Start now?",
+			if _, err := s.OpenActionRequest(posemodel.ActionRequest{Origin: "spec:storage", Kind: posemodel.ActionApproval, Question: "Start now?", Subject: &posemodel.ActionSubject{Node: posemodel.NodeRef{Artifact: "self"}},
 				RequestedBy: posemodel.ActionPrincipal{Principal: "agent:a"}, Recipient: posemodel.ObligationActor{Role: "maintainer"},
 				Targets: []posemodel.NodeRef{{Artifact: "self"}}, Effects: []posemodel.ObligationEffect{{Phase: posemodel.PhaseStart, Mode: posemodel.EffectBlock}}}, time.Now()); err != nil {
 				t.Fatal(err)

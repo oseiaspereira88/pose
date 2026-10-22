@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -38,7 +39,7 @@ func cmdAction(root string, args []string, stdout, stderr io.Writer) int {
 func cmdActionOpen(root string, args []string, stdout, stderr io.Writer) int {
 	const usage = "Usage: pose action open --origin <spec:slug|milestone:r/id|roadmap:slug> --kind <decision|approval|input|external-operation|acceptance> --question <text> " +
 		"--requested-by <principal> [--execution <id>] [--recipient <principal> | --recipient-role <role>] [--option <id>=<consequence>]... [--recommend <id>] " +
-		"--target <kind:ID|self|xref:...>... --effect <phase>:<block|advisory>... [--context <text>] [--subject <kind:ID|path:file>] [--supersedes <act-id>] [--apply] [--json]"
+		"--target <kind:ID|self|xref:...>... --effect <phase>:<block|advisory>... [--effect-json <object>]... [--context <text>] [--subject <kind:ID|path:file>] [--supersedes <act-id>] [--apply] [--json]"
 	var r posemodel.ActionRequest
 	apply, jsonOutput := false, false
 	for i := 0; i < len(args); i++ {
@@ -87,12 +88,16 @@ func cmdActionOpen(root string, args []string, stdout, stderr io.Writer) int {
 				return usageError(stderr, "invalid --target "+value)
 			}
 			r.Targets = append(r.Targets, target)
-		case "--effect":
-			phase, mode, ok := strings.Cut(value, ":")
-			if !ok {
-				return usageError(stderr, "--effect takes <phase>:<block|advisory>")
+		case "--effect", "--effect-json":
+			raw := json.RawMessage(value)
+			if flag == "--effect" {
+				raw, _ = json.Marshal(value)
 			}
-			r.Effects = append(r.Effects, posemodel.ObligationEffect{Phase: phase, Mode: mode})
+			effect, err := posemodel.ParseActionEffect(raw)
+			if err != nil {
+				return usageError(stderr, "invalid effect: "+err.Error())
+			}
+			r.Effects = append(r.Effects, effect)
 		case "--subject":
 			if path, ok := strings.CutPrefix(value, "path:"); ok {
 				r.Subject = &posemodel.ActionSubject{Path: path}
@@ -282,6 +287,9 @@ func renderActionView(out interface{ Field(string, string) }, v posemodel.Action
 	}
 	for _, effect := range r.Effects {
 		out.Field("action.effect", effect.Phase+"/"+effect.Mode)
+		for _, scope := range effect.Scope {
+			out.Field("action.effect.scope", scope.String())
+		}
 	}
 	out.Field("action.request_digest", r.RequestDigest)
 	if v.State == posemodel.ActionStateAnswered {

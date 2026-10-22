@@ -1,7 +1,7 @@
 package pose
 
 import (
-	"os/exec"
+	"errors"
 	"strings"
 	"sync"
 )
@@ -31,7 +31,7 @@ func commitChangedPaths(root, commit string) (map[string]bool, bool) {
 	if cached {
 		return paths, true
 	}
-	raw, err := exec.Command("git", "-C", root, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", commit).Output()
+	raw, err := gitCommand("-C", root, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", commit).Output()
 	if err != nil {
 		return nil, false
 	}
@@ -56,28 +56,28 @@ func commitChangedPaths(root, commit string) (map[string]bool, bool) {
 type workingTreeSnapshot struct {
 	ok      bool
 	entries map[string]string
+	// unknown is why the status could not be read, when it could not and the directory is
+	// a repository: every path is then unknown, and an unknown path is not a clean one.
+	unknown string
 }
 
 func takeWorkingTreeSnapshot(root string) *workingTreeSnapshot {
 	snapshot := &workingTreeSnapshot{entries: map[string]string{}}
-	raw, err := exec.Command("git", "-C", root, "status", "--porcelain=v1", "-z", "--untracked-files=all").Output()
-	if err != nil {
+	entries, err := ReadGitStatus(root)
+	if errors.Is(err, ErrGitUnavailable) {
 		// Unit fixtures and exported source trees may not have Git metadata.
 		return snapshot
 	}
+	if err != nil {
+		snapshot.unknown = err.Error()
+		return snapshot
+	}
 	snapshot.ok = true
-	fields := strings.Split(string(raw), "\x00")
-	for i := 0; i < len(fields); i++ {
-		entry := fields[i]
-		if len(entry) < 4 {
-			continue
-		}
-		status, path := strings.TrimSpace(entry[:2]), entry[3:]
-		snapshot.entries[path] = status
-		// A rename or copy is followed by its source path.
-		if (entry[0] == 'R' || entry[0] == 'C') && i+1 < len(fields) {
-			i++
-			snapshot.entries[fields[i]] = status
+	for _, entry := range entries {
+		status := strings.TrimSpace(entry.XY)
+		snapshot.entries[entry.Path] = status
+		if entry.OrigPath != "" {
+			snapshot.entries[entry.OrigPath] = status
 		}
 	}
 	return snapshot
@@ -86,6 +86,9 @@ func takeWorkingTreeSnapshot(root string) *workingTreeSnapshot {
 // change answers what `git status -- path` would: whether path, or anything
 // under it, differs from HEAD, with the first status found.
 func (w *workingTreeSnapshot) change(path string) (bool, string) {
+	if w != nil && w.unknown != "" {
+		return true, " (git status unknown: " + w.unknown + ")"
+	}
 	if w == nil || !w.ok {
 		return false, ""
 	}
