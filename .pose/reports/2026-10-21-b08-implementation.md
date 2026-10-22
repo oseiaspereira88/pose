@@ -26,7 +26,7 @@ Changelog marks compatibility tightening as breaking, with release review deferr
   manual synchronization; fixtures and assertions were corrected without removing
   gate/proof tests, Portuguese documentation updated, and scaffold regenerated.
 - Race detector over internal/pose, internal/cli and internal/mcpserver passed on
-  the initial implementation. Final corrected-source execution is pending.
+  the initial implementation. Final corrected-source execution passed on 2026-10-22 (pose 64.960s, CLI 73.336s, MCP 5.486s).
 - Preliminary native validations each passed 139/139, first at 7d73ae8 and then
   c8f95e0. They precede final review corrections and are not final delivery evidence.
 - Final native validation, surface/review verification and closeout remain pending.
@@ -46,8 +46,10 @@ R1 was a separate Codex execution, task-designated gpt-6.1-sol, session
 requested two fixes: retain known members despite malformed entries; disclose
 unknown foreign membership even if relevance can no longer be established.
 Commit 71dae1b addresses both with regressions, plus other-artifact mutation and
-actual MCP unavailability/authorization loss. R2 is a fresh separate execution on
-that changed subject, pending. No human, cross-vendor or cognitive-independence
+actual MCP unavailability/authorization loss. R2 is a fresh separate execution on that changed subject, session
+01a160ad-bf20-7252-8478-3e90e85ac105. It confirmed both fixes and found no further
+source defect, with reservations about final gates and semantic adequacy of the
+selected subject; final adjudication will be appended to its actual report. No human, cross-vendor or cognitive-independence
 claim is made. Read-only reviewers cannot run Go fixtures requiring writes; supplied
 validation is attributed to the lead's actual collector, not reviewer execution.
 

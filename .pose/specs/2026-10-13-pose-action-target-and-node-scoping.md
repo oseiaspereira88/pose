@@ -109,7 +109,8 @@ Declarações prospectivas do delta B08; reconciliar com o change set antes do c
 - modified: .pose/indexes/roadmaps.json
 - modified: .pose/indexes/spec-graph.json
 
-- created: .pose/reports/2026-10-22-b08-review-r3.md
+
+- created: .pose/reports/2026-10-22-standard-validate-native.md
 
 ### Delivery targets
 

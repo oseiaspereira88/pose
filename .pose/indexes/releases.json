@@ -9,6 +9,14 @@
       "digest": "sha256:744b9199a134b6dfebb0264afc2e22bdd7c0f2e9eae89e20fee2d49ffc60759b"
     },
     {
+      "spec": "pose-action-target-and-node-scoping",
+      "category": "fixed",
+      "breaking": true,
+      "body": "# Action request destination and material scoping\n\n- Select restrictions by explicit effect destination, phase and mode; retain the\n  documented whole-source default for empty scope and current roadmap membership.\n- Keep relevant open/invalidated requests visible after their origin is terminal.\n- Resolve subject and target nodes by the complete project/artifact/kind/ID tuple.\n- Accept structured effect scopes via CLI `--effect-json` and MCP effect objects;\n  preserve existing `phase:mode` strings and immutable journal schema/digests.\n- Require subjects on new approvals/acceptances under adopted agency readiness.\n  Existing unbound journals are not rewritten. Policy-off defaults are unchanged.\n\nCompatibility: this corrects previously omitted/excess restrictions for adopted\ninstances and tightens material-reference validation. Assess version/adoption at\nrelease; this implementation does not adopt policy or publish a release.",
+      "path": "pose-action-target-and-node-scoping.md",
+      "digest": "sha256:502897d6c530a821d3bc4b6848f7751b1496869412ec8587b932e1f22723daac"
+    },
+    {
       "spec": "pose-cli-mcp-operation-results",
       "category": "changed",
       "breaking": false,
