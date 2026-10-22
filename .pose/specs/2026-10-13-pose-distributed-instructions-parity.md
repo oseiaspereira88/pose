@@ -1,8 +1,8 @@
 ---
 slug: pose-distributed-instructions-parity
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-22
 depends_on: pose-adaptive-assessment-freshness, pose-v7-legacy-cleanup-plan
 priority: 1
 components: pose-mcp
@@ -156,7 +156,7 @@ O MCP `pose_suggest` executa o próprio `pose suggest --json` (`Store.Suggest` �
 
 ### Delivered scope
 
-B28 entregue: workflow de feature e regra de delivery-evidence (EN, pt-BR e todos os espelhos embarcados) pedem `assess discover --if-stale`; `suggest` resolve domínios por uma taxonomia, divulga o alias, reporta domínio sem regras e separa regra instalada, `extension-needed` e indisponível sem anunciar arquivo inexistente nem instalar nada; um módulo `backend` só vira Go quando é Go; `migrate --apply` é recusado com o fato atual, sem prometer apply futuro. Revisão independente e closeout pendentes.
+B28 entregue: workflow de feature e regra de delivery-evidence (EN, pt-BR e todos os espelhos embarcados) pedem `assess discover --if-stale`; `suggest` resolve domínios por uma taxonomia, divulga o alias, reporta domínio sem regras e separa regra instalada, `extension-needed` e indisponível sem anunciar arquivo inexistente nem instalar nada; um módulo `backend` só vira Go quando é Go; `migrate --apply` é recusado com o fato atual, sem prometer apply futuro. Validação nativa strict 143/143 e revisão separada do bundle `rvb-8356317c26979162` aprovadas em 2026-10-22; evidências e transição governada estão no relatório `2026-10-22-b28-pending-closeout.md`.
 
 ### Residual risks
 
