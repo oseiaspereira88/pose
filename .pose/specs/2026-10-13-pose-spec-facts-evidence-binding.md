@@ -1,8 +1,8 @@
 ---
 slug: pose-spec-facts-evidence-binding
-status: draft
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-22
 depends_on: pose-progressive-spec-surface
 priority: 1
 components: pose-mcp
@@ -53,15 +53,37 @@ somente esta spec é criada, sob a atribuição documental de
 `pose-consolidation-batch-4-authoring`. Reconciliar os paths exatos antes de start;
 não tratar a declaração de um teste futuro como teste existente ou executado.
 
-- created: .pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md
+- modified: .pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md
 - created: .pose/starts/pose-spec-facts-evidence-binding.json
 - created: .pose/changelogs/unreleased/pose-spec-facts-evidence-binding.md
+- created: .pose/reports/2026-10-22-b30-pending-review-r1.md
+- created: .pose/reports/2026-10-22-b30-pending-closeout.md
 - modified: pose-mcp/internal/pose/spec_facts.go
-- modified: pose-mcp/internal/pose/spec_facts_test.go
+- created: pose-mcp/internal/pose/spec_facts_binding_test.go
+- modified: pose-mcp/internal/cli/specs_cmd.go
 - created: pose-mcp/internal/cli/spec_facts_binding_test.go
-- created: pose-mcp/internal/mcpserver/spec_facts_binding_test.go
+- created: pose-mcp/internal/pose/spec_facts_review_regression_test.go
+- created: pose-mcp/internal/pose/spec_trailers.go
+- created: pose-mcp/internal/pose/delivery_validation_run.go
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/surface_check.go
+- modified: pose-mcp/internal/cli/validate_results.go
+- created: .pose/reports/2026-10-18-pose-b30r2-independent-review.md
+- created: .pose/reports/2026-10-18-pose-b30r3-independent-review.md
+- created: .pose/reports/2026-10-18-pose-b30r4-independent-review.md
+- created: .pose/results/b30r4-independent-review.json
+- created: .pose/results/b30r2-independent-review.json
+- created: .pose/results/b30r3-independent-review.json
+- created: .pose/results/b30-mutations.py
+- created: .pose/results/b30-mutations.json
+- created: .pose/reports/2026-10-18-pose-b30-independent-review.md
+- created: .pose/results/b30-independent-review.json
+- created: .pose/results/b30-independent-global-validation.json
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
@@ -108,26 +130,22 @@ Testes de execução ainda não foram criados ou executados para este delta.
 
 ### Requirement trace
 
-Trace planejado; vincular os casos aos produtores reais na implementação.
-Não declarar requisitos funcionais satisfeitos pelo lint.
+- R1 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSeparateAssociatedEvidenceFromCandidates test:TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs test:TestFactsAssociateOnlyAScopeProvenanceThatMatches test:TestFactsAssociateOnlyAModuleThatCoversTheSpec test:TestFactsKeepEveryDistinctResult test:TestFactsTheDigestOfNothingIsNotAnAssociation test:TestFactsAnOmittedModuleIsNotTheRoot test:TestFactsKeepResultsThatDifferInAnyField test:TestFactsAnInvalidComponentIsNotTheRoot test:TestFactsOneResolvedChangeSetDoesNotBindTheOthers test:TestFactsResultsAreComparedStructurally test:TestFactsKeepTheSourceAndTheSeverityOfAResult test:TestFactsAGitPathIsNotAModuleReference test:TestFactsAnIncompleteChangeSetBindsNothing test:TestFactsSeeAttributionThatWasLostOrIsNotBound test:TestFactsAPinnedStoreDoesNotBorrowTheIdentityOfANewerGeneration test:TestFactsARenameIsBothOfItsEnds
+- R2 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSeparateAssociatedEvidenceFromCandidates test:TestFactsAssociateOnlyAScopeProvenanceThatMatches test:TestFactsAssociateOnlyAModuleThatCoversTheSpec
+- R3 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsSayHowFreshTheIndexIs test:TestFactsAreFreshOnlyForWhatIsVerified test:TestFactsAGenerationThatBindsNothingIsUnknown test:TestFactsSeeACommitOfTheSpecThatTheIndexDoesNotHold test:TestFactsTheResultsFileIsComparedInEveryField test:TestFactsReadTheHistoryLikeTheAttribution
+- R4 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsKeepAResultOfAnotherHeadWithItsSource
+- R5 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsAreStableAndReadOnly
+- R6 [satisfied] check:spec-facts-evidence-binding-integration test:TestSpecsFactsLabelsCandidatesAndFreshnessInBothOutputs test:TestSpecsFactsRendersBothEndsOfARename test:TestSpecsFactsDataCannotInjectALineOfEvidence test:TestSpecsFactsAnActionCannotInjectALine
+- R7 [satisfied] check:spec-facts-evidence-binding-integration report:b30-mutations.json test:TestFactsKeepEveryDistinctResult — resultados de outro módulo, componentes vazios, provenance ausente e índice stale/desconhecido/indisponível são exercitados; as mutações de produção morrem por asserção
+- R8 [satisfied] check:spec-facts-evidence-binding-integration test:TestFactsAreStableAndReadOnly test:TestFactsSayHowFreshTheIndexIs
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1, V2 |
-| R2 | V2 |
-| R3 | V3 |
-| R4 | V4 |
-| R5 | V5 |
-| R6 | V5 |
-| R7 | V1–V6 |
-| R8 | V6 |
+Os facts não são expostos por uma tool MCP própria: o consumidor é `pose specs facts` (texto e `--json`), que carrega a mesma estrutura.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 4. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+B30 entregue e verificado: `specs facts` separa `checks` (resultados ligados à spec por scope provenance, com base e comparação do head) de `candidates` (o que o índice guarda e nada liga à spec; módulo declarado ou `components` vazio não é provenance), informa a freshness do índice (`fresh`, `stale`, `unknown`, `unavailable`) com próximo passo, preserva resultado de outro head com sua fonte, e não gera intent, rationale, julgamento nem conclusão de requisito. Revisão separada do bundle `rvb-caff3ed965d9226d` aprovada e fechamento nativo aplicado em 2026-10-22; validação strict 143/143 e seis follow-ups de baixo risco retidos com owner e data. Evidência: relatório `2026-10-22-b30-pending-closeout.md`.
 
 ### Residual risks
 
@@ -135,5 +153,29 @@ O index atual pode não carregar bindings suficientes para associação forte; d
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Primeira revisão independente (changes-requested, cinco bloqueantes) tratada: a associação exige
+o digest de escopo igual ao que as claims e change sets da spec dão hoje e um módulo que cobre os
+componentes ou paths atribuídos; resultados distintos não colapsam; `fresh` só vale com todos os
+inputs da geração vinculados, arquivos de índice iguais aos publicados, arquivo de resultados
+coerente com o índice e sem commit da spec fora dele; o texto humano traz os mesmos limites e
+identidades do JSON. Segunda revisão (seis bloqueantes) tratada: o arquivo de resultados é lido como o índice o lê
+(`ParseDeliveryValidationRun`) e comparado resultado a resultado em todos os campos, um resultado novo
+sobre um índice vazio e uma policy ilegível não são concordância; o digest de um escopo sem change
+set resolvido não associa; um módulo omitido não é a raiz; resultados que diferem em qualquer campo
+são resultados distintos e a ordem do índice não escolhe; o histórico é lido como a atribuição o lê
+(todas as refs, linhas de trailer aparadas) e um histórico ilegível deixa os fatos `unknown`; e um
+rename vale pelos dois lados, no texto e na pertinência. A recusa de uma policy de entrega ilegível como concordância não tem mutante próprio: a pasta de policy é um input vinculado da geração e já a torna `stale` antes dessa guarda, de modo que um mutante dela seria equivalente. Terceira revisão (cinco bloqueantes) tratada: componente ou path inválido não vira a raiz e não cobre nada, a associação exige que todos os change sets da spec estejam resolvidos, a identidade de um resultado é estrutural (JSON) e não concatenada, a fonte e a severidade de cada resultado ficam na projeção e na linha, e um dado com quebra de linha não abre uma linha de evidência no texto. Quarta revisão (cinco bloqueantes) tratada: um path que o Git reportou é lido byte a byte (um arquivo `root` ou um nome com espaço não é referência de módulo); um change set só liga quando traz tudo que resolvê-lo produz, com ações do vocabulário; a action de um path vai escapada ao texto; a atribuição que o índice tinha por trailer e o histórico perdeu, e os registros explícitos que a geração não vincula, rebaixam o frescor; e os fatos de um store fixado pertencem à geração fixada. Itens abertos, de baixo risco:
+
+- [open] Normalizar referências de componente quando forem paths e distinguir ID de componente de path na explicação do candidato. (owner:@core crit:low review:2026-12-01)
+- [open] Projetar o frescor `unavailable` em vez de devolver erro quando o índice está ausente ou corrompido. (owner:@core crit:low review:2026-12-01)
+
+- [open] L03 da revisão r4: substituir a explicação genérica de freshness unknown pela causa observada, preservando status e reason conservadores. (owner:@pose-maintainers crit:low review:2026-12-01)
+- [open] L04 da revisão r4: completar o desempate estrutural da ordenação de resultados sem alterar identidade, classificação ou retenção. (owner:@pose-maintainers crit:low review:2026-12-01)
+- [open] L05 da revisão r4: limitar a saída da consulta de trailers de facts e conservar unknown/erro ao exceder, sem truncar a atribuição silenciosamente. (owner:@pose-maintainers crit:low review:2026-12-01)
+- [open] L06 da revisão r4: conservar a identidade do run sem checks classificados ou explicitar que o frescor divulgado cobre a projeção de resultados, sem tratar zero checks como entrega comprovada. (owner:@pose-maintainers crit:low review:2026-12-01)
+
+As dependências e unidades restantes permanecem na matriz do programa, sem disposição automática.
+
+### Requalification on 2026-10-22
+
+Main merged without rewriting historical reviews. Separate Codex execution found three high findings; all reproduced in `/tmp/pose-b30-new-regressions-before.log` before fixes. Pin the generation before reading its graph, decode history JSON records and conservatively disclose retained explicit attribution without a bound history source, validate literal canonical Git paths including rename endpoints. No new policy adoption or automatic semantic judgment. Existing source review history remains changes-requested until a fresh review approves the final sealed subject.

@@ -1,0 +1,1729 @@
+{
+  "schema_version": 1,
+  "review_scope": {
+    "repository": "oseiaspereira88/pose",
+    "pr": 197,
+    "spec": "pose-spec-facts-evidence-binding",
+    "head": "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3",
+    "base": "8aa729a76ab1c094690a0892263a86bf3bb7bb42"
+  },
+  "reviewer": {
+    "id": "agent:independent-gpt-6.1-sol-review",
+    "execution": "Codex/OpenAI",
+    "implementer": "Claude/Anthropic",
+    "vendor_separation": "declared",
+    "identity_assurance": "declared",
+    "subagents": 0
+  },
+  "decision": "changes-requested",
+  "sealed": false,
+  "attested": false,
+  "committed": false,
+  "prepared_bundle": {
+    "id": "rvb-868c6a4a182136ee",
+    "digest": "sha256:868c6a4a182136ee9349c7613a848b3bba01b474b54d1f6c7fdbcf89f2e3c2bd",
+    "plan_digest": "sha256:8dd54fa53ba40dfe1def845f2e012413f6d197e7a8957d71369b88b025b7b8b8",
+    "subject": {
+      "change_sets": [
+        "cs-2a03dde8d18e"
+      ],
+      "base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+      "head": "03983a36a29fbea25db1215615fab9455de5df83",
+      "implementation_digest": "sha256:4b42368c6553b656f9eb297f903adceb859c961ec2163e2604b99c3054399ed7",
+      "patch_digest": "sha256:c2b94985fdddd3371a41a155d6a02f98f5e2d93ae0fcbfd6e48a36342f3ee18f",
+      "tree_digest": "sha256:1d747e6528cdbfa628892d128a7cb309b00426803992bfa300085f51d2c342e7",
+      "attribution": [
+        {
+          "path": ".pose/changelogs/unreleased/pose-spec-facts-evidence-binding.md",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "54d6c449570eb161863066b7d5be8cb230213103"
+            }
+          ]
+        },
+        {
+          "path": ".pose/indexes/validation-matrix.json",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "27be28b9bc386f867b63e7fecf6ee2a2bbfcc93c",
+              "after_mode": "100644",
+              "after": "0f24889b872ffa076b1604d14bb7e380c810bd00"
+            }
+          ]
+        },
+        {
+          "path": ".pose/starts/pose-spec-facts-evidence-binding.json",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "1aab3c92760b4b099dd70450235a4c92c716fbdc"
+            }
+          ]
+        },
+        {
+          "path": "POSE.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "b2521bf0a78fb367b92e217a1b914189ae184e27",
+              "after_mode": "100644",
+              "after": "7ac22667a1008fda9b046586349d3bc3c8a2a8f5"
+            }
+          ]
+        },
+        {
+          "path": "locales/pt-BR/POSE.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "82282867cdc159402b5d5d0b51928bf558b2b76c",
+              "after_mode": "100644",
+              "after": "c9fc4cf1c042644b2e5448f9b896194de6415382"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/spec_facts_binding_test.go",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "54b9431589d4b3d8d251e1bf1de58a3cde450cd3"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/specs_cmd.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "e16617ae76cc22cfdb09778c6be6f21ce69d98ad",
+              "after_mode": "100644",
+              "after": "2ea43e91957eb04779b6bbf76868d5139d0b273b"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/pose/spec_facts.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "036ba04560b38ab422efcb245c6a2a5f1ed3e8fe",
+              "after_mode": "100644",
+              "after": "f4f165f8a38bea5bc85585eec6e9c7f86aeac054"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/pose/spec_facts_binding_test.go",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "99befe8ba6f7f5bb8dd41af3ee1bb4fa9d700d5d"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "8ab9705a610bf5b6e12f155a6c987fb0afdd10f6",
+              "after_mode": "100644",
+              "after": "9f3f61db3229a545a3271024f06911ff9dbbd0ce"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "82282867cdc159402b5d5d0b51928bf558b2b76c",
+              "after_mode": "100644",
+              "after": "c9fc4cf1c042644b2e5448f9b896194de6415382"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "probes": [
+    {
+      "package": "internal/pose",
+      "command": "go test ./internal/pose -run TestB30Independent -v -count=1",
+      "source": "package pose\n\nimport (\n \"encoding/json\"\n \"os\"\n \"os/exec\"\n \"path/filepath\"\n \"testing\"\n)\n\n// These probes assert the observed defect, not the desired implementation.\nfunc TestB30IndependentBindingProbes(t *testing.T) {\n for _, digest := range []string{\"\", \"sha256:wrong\", \"sha256:0000000000000000000000000000000000000000000000000000000000000000\"} {\n  r:=DeliveryValidationResult{ID:\"probe\",Module:\"api\",Check:\"test\",Outcome:\"pass\",GitHead:\"h1\",ScopeProvenance:map[string]string{\"alpha\":digest}}\n  s:=factsFixture(t,\"api\",[]DeliveryValidationResult{r},true)\n  f,e:=s.DeriveSpecFacts(\"alpha\"); if e!=nil {t.Fatal(e)}\n  if len(f.Checks)!=1 {t.Fatalf(\"unexpected behavior: %+v\",f)}\n  t.Logf(\"unvalidated scope digest %q: associated=%d limits=%v freshness=%s\",digest,len(f.Checks),f.Checks[0].Limits,f.Freshness.Status)\n }\n s:=factsFixture(t,\"api\",nil,true)\n g,e:=s.GetDeliveryIntegrity(\"\");if e!=nil {t.Fatal(e)}\n digest:=ScopedDeliveryProvenanceDigest(g,\"alpha\")\n for _, module:=range []string{\"web\",\"api/sub\",\"api2\",\"api/../web\"} {\n  g.ValidationResults=[]DeliveryValidationResult{{ID:\"foreign\",Module:module,Check:\"test\",Outcome:\"pass\",GitHead:\"h1\",ScopeProvenance:map[string]string{\"alpha\":digest,\"beta\":\"other\"}}}\n  outputs:=map[string][]byte{};for _,n:=range IndexGenerationFiles{outputs[n]=[]byte(\"{}\")};outputs[\"delivery-integrity.json\"],_=json.Marshal(g)\n  if _,e=s.PublishIndexGeneration(outputs,IndexInputBindings(s.Root));e!=nil {t.Fatal(e)}\n  f,e:=s.DeriveSpecFacts(\"alpha\");if e!=nil {t.Fatal(e)}\n  if len(f.Checks)!=1 {t.Fatal(\"behavior changed\")}\n  t.Logf(\"module=%s valid scoped digest: associated=%d, surface module coverage=%v, limits=%v\",module,len(f.Checks),moduleMatchesTarget(module,\"api\"),f.Checks[0].Limits)\n }\n}\nfunc TestB30IndependentLossProbes(t *testing.T){\n a:=DeliveryValidationResult{ID:\"candidate\",Module:\"api\",Check:\"test\",Outcome:\"pass\"}\n b:=DeliveryValidationResult{ID:\"associated\",Module:\"api\",Check:\"test\",Outcome:\"fail\",ScopeProvenance:map[string]string{\"alpha\":\"x\"}}\n for _, rows:=range [][]DeliveryValidationResult{{a,b},{b,a}} {\n  f,e:=factsFixture(t,\"api\",rows,false).DeriveSpecFacts(\"alpha\");if e!=nil{t.Fatal(e)}\n  t.Logf(\"first=%s -> checks=%+v candidates=%+v\",rows[0].ID,f.Checks,f.Candidates)\n  if len(f.Checks)+len(f.Candidates)!=1 {t.Fatal(\"behavior changed\")}\n }\n}\nfunc TestB30IndependentFreshnessProbes(t *testing.T){\n s:=factsFixture(t,\"api\",nil,true)\n for _,rel:=range []string{\".pose/results/delivery-validation.json\",\"api/server.go\"} {\n  p:=filepath.Join(s.Root,rel);os.MkdirAll(filepath.Dir(p),0755);if e:=os.WriteFile(p,[]byte(\"changed\"),0644);e!=nil{t.Fatal(e)}\n  f,e:=s.DeriveSpecFacts(\"alpha\");if e!=nil{t.Fatal(e)}\n  if f.Freshness.Status!=SpecFactsFresh{t.Fatal(\"behavior changed\")};t.Logf(\"changed %s: freshness=%s\",rel,f.Freshness.Status)\n }\n v:=s.ReadIndexGeneration()\n if _,e:=s.PublishIndexGeneration(v.Files,nil);e!=nil{t.Fatal(e)}\n f,e:=s.DeriveSpecFacts(\"alpha\");if e!=nil{t.Fatal(e)}\n t.Logf(\"generation with zero input bindings: freshness=%s\",f.Freshness.Status)\n if f.Freshness.Status!=SpecFactsFresh{t.Fatal(\"behavior changed\")}\n}\n\nfunc TestB30IndependentHiddenFailure(t *testing.T){\n rows:=[]DeliveryValidationResult{\n {ID:\"api/go/test\",Module:\"api\",Check:\"test\",Outcome:\"pass\",GitHead:\"h1\",ScopeProvenance:map[string]string{\"alpha\":\"x\"}},\n {ID:\"api/shell/test\",Module:\"api\",Check:\"test\",Outcome:\"fail\",GitHead:\"h1\",ScopeProvenance:map[string]string{\"alpha\":\"x\"}},\n }\n f,e:=factsFixture(t,\"api\",rows,true).DeriveSpecFacts(\"alpha\");if e!=nil{t.Fatal(e)}\n t.Logf(\"two associated results pass+fail -> checks=%+v\",f.Checks)\n if len(f.Checks)!=1||f.Checks[0].Outcome!=\"pass\"{t.Fatal(\"behavior changed\")}\n}\n\nfunc TestB30IndependentHistoryFreshness(t *testing.T){\n s:=factsFixture(t,\"api\",nil,false)\n git:=func(args ...string){ t.Helper(); c:=exec.Command(\"git\",args...);c.Dir=s.Root;if o,e:=c.CombinedOutput();e!=nil{t.Fatalf(\"%v %s\",e,o)}}\n git(\"init\",\"-q\");git(\"config\",\"user.name\",\"Review Fixture\");git(\"config\",\"user.email\",\"review@example.invalid\")\n os.MkdirAll(filepath.Join(s.Root,\"api\"),0755)\n os.WriteFile(filepath.Join(s.Root,\"api/server.go\"),[]byte(\"before\"),0644)\n git(\"add\",\".\");git(\"commit\",\"-qm\",\"fixture\")\n raw,e:=os.ReadFile(filepath.Join(s.Root,\".pose/indexes/delivery-integrity.json\"));if e!=nil{t.Fatal(e)}\n outputs:=map[string][]byte{};for _,n:=range IndexGenerationFiles{outputs[n]=[]byte(\"{}\")};outputs[\"delivery-integrity.json\"]=raw\n if _,e=s.PublishIndexGeneration(outputs,IndexInputBindings(s.Root));e!=nil{t.Fatal(e)}\n os.WriteFile(filepath.Join(s.Root,\"api/server.go\"),[]byte(\"after\"),0644)\n git(\"add\",\"api/server.go\");git(\"commit\",\"-qm\",\"new source change\\n\\nPOSE-Spec: alpha\")\n f,e:=s.DeriveSpecFacts(\"alpha\");if e!=nil{t.Fatal(e)}\n t.Logf(\"new attributed source commit after index -> freshness=%s commits=%d (old fixture count)\",f.Freshness.Status,f.Commits)\n if f.Freshness.Status!=SpecFactsFresh{t.Fatal(\"behavior changed\")}\n}\n\nfunc TestB30IndependentDivergenceFreshness(t *testing.T){\n s:=factsFixture(t,\"api\",nil,true)\n os.WriteFile(filepath.Join(s.Root,\".pose/indexes/delivery-integrity.json\"),[]byte(\"{}\"),0644)\n v:=s.ReadIndexGeneration();f,e:=s.DeriveSpecFacts(\"alpha\");if e!=nil{t.Fatal(e)}\n t.Logf(\"visible source diverged=%v -> freshness=%s, source=%s\",v.Diverged,f.Freshness.Status,f.Source)\n if f.Freshness.Status!=SpecFactsFresh||len(v.Diverged)==0{t.Fatal(\"behavior changed\")}\n}\n",
+      "output": "=== RUN   TestB30IndependentBindingProbes\n    b30_independent_review_test.go:18: unvalidated scope digest \"\": associated=1 limits=[] freshness=fresh\n    b30_independent_review_test.go:18: unvalidated scope digest \"sha256:wrong\": associated=1 limits=[] freshness=fresh\n    b30_independent_review_test.go:18: unvalidated scope digest \"sha256:0000000000000000000000000000000000000000000000000000000000000000\": associated=1 limits=[] freshness=fresh\n    b30_independent_review_test.go:29: module=web valid scoped digest: associated=1, surface module coverage=false, limits=[the module is not among the spec's declared components; the association rests on the result's scope provenance]\n    b30_independent_review_test.go:29: module=api/sub valid scoped digest: associated=1, surface module coverage=false, limits=[the module is not among the spec's declared components; the association rests on the result's scope provenance]\n    b30_independent_review_test.go:29: module=api2 valid scoped digest: associated=1, surface module coverage=false, limits=[the module is not among the spec's declared components; the association rests on the result's scope provenance]\n    b30_independent_review_test.go:29: module=api/../web valid scoped digest: associated=1, surface module coverage=false, limits=[the module is not among the spec's declared components; the association rests on the result's scope provenance]\n--- PASS: TestB30IndependentBindingProbes (0.01s)\n=== RUN   TestB30IndependentLossProbes\n    b30_independent_review_test.go:37: first=candidate -> checks=[] candidates=[{Module:api Check:test EvidenceClass: Outcome:pass Classification:candidate Basis:components Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head} Limits:[the module is declared by the spec, but the result carries no scope provenance: it is not shown to cover this spec's delta]}]\n    b30_independent_review_test.go:37: first=associated -> checks=[{Module:api Check:test EvidenceClass: Outcome:fail Classification:associated Basis:scope-provenance Binding:{GitHead: ProvenanceDigest: GeneratedAt: Head:unknown-head} Limits:[]}] candidates=[]\n--- PASS: TestB30IndependentLossProbes (0.00s)\n=== RUN   TestB30IndependentFreshnessProbes\n    b30_independent_review_test.go:46: changed .pose/results/delivery-validation.json: freshness=fresh\n    b30_independent_review_test.go:46: changed api/server.go: freshness=fresh\n    b30_independent_review_test.go:51: generation with zero input bindings: freshness=fresh\n--- PASS: TestB30IndependentFreshnessProbes (0.00s)\n=== RUN   TestB30IndependentHiddenFailure\n    b30_independent_review_test.go:61: two associated results pass+fail -> checks=[{Module:api Check:test EvidenceClass: Outcome:pass Classification:associated Basis:scope-provenance Binding:{GitHead:h1 ProvenanceDigest: GeneratedAt: Head:same-head} Limits:[]}]\n--- PASS: TestB30IndependentHiddenFailure (0.00s)\n=== RUN   TestB30IndependentHistoryFreshness\n    b30_independent_review_test.go:78: new attributed source commit after index -> freshness=fresh commits=1 (old fixture count)\n--- PASS: TestB30IndependentHistoryFreshness (0.01s)\n=== RUN   TestB30IndependentDivergenceFreshness\n    b30_independent_review_test.go:86: visible source diverged=[delivery-integrity.json] -> freshness=fresh, source=.pose/indexes/delivery-integrity.json\n--- PASS: TestB30IndependentDivergenceFreshness (0.00s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.034s\n"
+    },
+    {
+      "package": "internal/cli",
+      "command": "go test ./internal/cli -run TestB30Independent -v -count=1",
+      "source": "package cli\nimport(\"strings\";\"testing\")\nfunc TestB30IndependentTextParity(t *testing.T){\n root:=t.TempDir()\n writeCloseoutCLIFile(t,root,\".pose/specs/2026-10-01-alpha.md\",\"---\\nslug: alpha\\nstatus: in-progress\\ncomponents: api\\n---\\n# Spec: alpha\\n\")\n writeCloseoutCLIFile(t,root,\".pose/indexes/delivery-integrity.json\",`{\"schema_version\":1,\"change_sets\":[{\"id\":\"cs\",\"spec\":\"alpha\",\"resolved_head\":\"h1\",\"commits\":[\"c\"],\"paths\":[{\"action\":\"modified\",\"path\":\"api/a.go\"}]}],\"validation_results\":[{\"id\":\"1\",\"module\":\"web\",\"check\":\"test\",\"outcome\":\"pass\",\"git_head\":\"h0\",\"provenance_digest\":\"sha256:wrong\",\"generated_at\":\"2026-10-01T00:00:00Z\",\"scope_provenance\":{\"alpha\":\"x\"}}]}`)\n code,text:=runPose(t,root,\"specs\",\"facts\",\"alpha\");if code!=0{t.Fatal(text)}\n _,raw:=runPose(t,root,\"specs\",\"facts\",\"alpha\",\"--json\")\n t.Logf(\"TEXT:\\n%s\\nJSON:\\n%s\",text,raw)\n for _,fragment:=range []string{\"the module is not among\", \"whether it can be reused\", \"sha256:wrong\", \"h0\"}{\n  if !strings.Contains(raw,fragment)||strings.Contains(text,fragment){t.Fatalf(\"behavior changed for %q\",fragment)}\n }\n}\n",
+      "output": "=== RUN   TestB30IndependentTextParity\n    b30_independent_review_test.go:9: TEXT:\n        facts.source=.pose/indexes/delivery-integrity.json\n        facts.freshness=unknown — no generation descriptor: the indexes were not published as a set\n        facts.commits=1\n        facts.path=modified: api/a.go\n        facts.check=web test () pass [associated by scope-provenance; other-head]\n        facts.limitation=the index was not published as a set, so its freshness is unknown: run `pose index`\n        \n        JSON:\n        {\n          \"spec\": \"alpha\",\n          \"commits\": 1,\n          \"paths\": [\n            {\n              \"action\": \"modified\",\n              \"path\": \"api/a.go\"\n            }\n          ],\n          \"checks\": [\n            {\n              \"module\": \"web\",\n              \"check\": \"test\",\n              \"evidence_class\": \"\",\n              \"outcome\": \"pass\",\n              \"classification\": \"associated\",\n              \"basis\": \"scope-provenance\",\n              \"binding\": {\n                \"git_head\": \"h0\",\n                \"provenance_digest\": \"sha256:wrong\",\n                \"generated_at\": \"2026-10-01T00:00:00Z\",\n                \"head\": \"other-head\"\n              },\n              \"limits\": [\n                \"the module is not among the spec's declared components; the association rests on the result's scope provenance\",\n                \"the result ran against a head other than the spec's change sets; whether it can be reused is a judgment these facts do not make\"\n              ]\n            }\n          ],\n          \"candidates\": [],\n          \"freshness\": {\n            \"status\": \"unknown\",\n            \"reason\": \"no generation descriptor: the indexes were not published as a set\"\n          },\n          \"source\": \".pose/indexes/delivery-integrity.json\",\n          \"limitations\": [\n            \"the index was not published as a set, so its freshness is unknown: run `pose index`\"\n          ]\n        }\n--- PASS: TestB30IndependentTextParity (0.01s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.010s\n"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "high",
+      "disposition": "merge-blocking",
+      "location": "pose-mcp/internal/pose/spec_facts.go:146",
+      "summary": "scope_provenance key presence promotes empty/mismatched/unverifiable digest; scoped binding is not exposed"
+    },
+    {
+      "id": "F02",
+      "severity": "high",
+      "disposition": "merge-blocking",
+      "location": "pose-mcp/internal/pose/spec_facts.go:160",
+      "summary": "run-level scope provenance for all specs promotes foreign/uncovered module results"
+    },
+    {
+      "id": "F03",
+      "severity": "high",
+      "disposition": "merge-blocking",
+      "location": "pose-mcp/internal/pose/spec_facts.go:81",
+      "summary": "freshness is asserted with incomplete/zero input bindings and without checking changed result source or attributed Git history; divergence is not disclosed"
+    },
+    {
+      "id": "F04",
+      "severity": "high",
+      "disposition": "merge-blocking",
+      "location": "pose-mcp/internal/pose/spec_facts.go:152",
+      "summary": "module/check first-wins dedup loses legitimate results, IDs and failures; input order determines classification/outcome"
+    },
+    {
+      "id": "F05",
+      "severity": "medium",
+      "disposition": "merge-blocking",
+      "location": "pose-mcp/internal/cli/specs_cmd.go:223",
+      "summary": "human text omits associated limits and actual binding identity; candidate binding/basis and index generation also omitted"
+    },
+    {
+      "id": "L01",
+      "severity": "low",
+      "disposition": "acceptable-follow-up",
+      "location": "pose-mcp/internal/pose/spec_facts.go:139",
+      "summary": "exact component text comparison under-reports normalized/containing module relation for candidates",
+      "owner": "@core",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "L02",
+      "severity": "low",
+      "disposition": "acceptable-follow-up",
+      "location": "pose-mcp/internal/pose/spec_facts.go:100",
+      "summary": "unavailable index returns typed failure before freshness unavailable can be returned; safe refusal but incomplete status projection",
+      "owner": "@core",
+      "review_by": "2026-12-01"
+    }
+  ],
+  "checks": {
+    "module_validate": {
+      "outcome": "fail",
+      "counts": {
+        "executed": 137,
+        "passed": 136,
+        "failed": 1,
+        "optional_failed": 0,
+        "errored": 0,
+        "skipped": 0
+      },
+      "git_head": "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3",
+      "matrix_sha256": "sha256:285d400977ad9219a826275e8d0b407c7f083f0607168149c647759bf03f0d7b",
+      "provenance_digest": "sha256:fb0b9f0ccbcb43b7dfadada66dabcacd6931c008c42352612e1677f6e810de92",
+      "exit_code": 1,
+      "scope_provenance": "sha256:f802c46789728cea740069c4defd3fbc8e82173057e41de24e78762dd68470c4",
+      "raw_result_sha256": "bb828df53953d9995499870f555632423e72cad3bd0c1b52cfe1a11d47bfe0e5",
+      "failed_checks": [
+        {
+          "id": "pose-mcp/go/install-and-upgrade-journeys-integration",
+          "module": "pose-mcp",
+          "stack": "go",
+          "name": "install-and-upgrade-journeys-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "Journeys",
+            "-count=1"
+          ],
+          "env": {
+            "POSE_JOURNEYS": "1"
+          },
+          "severity": "required",
+          "evidence_class": "integration",
+          "outcome": "fail",
+          "exit_code": 1,
+          "duration_seconds": 3.063768837,
+          "output": "--- FAIL: TestJourneysInstallAndUpgradeFromThePublishedRelease (2.12s)\n    journeys_script_test.go:24: a journey diverged: exit status 1\n        \u001b[32m  ok\u001b[0m journey 1: fresh install — strict check, clean doctor, onboarding spec first, nothing to review\n        \u001b[32m  ok\u001b[0m journey 1b: the onboarding spec is started, driven by setup and closed through review\n        curl: (22) The requested URL returned error: 403\n        \u001b[31mFAIL:\u001b[0m listing the published releases\nFAIL\nFAIL\tgithub.com/harne8/pose-mcp/internal/cli\t2.130s\nFAIL\n"
+        }
+      ],
+      "command": "pose validate --strict --module pose-mcp --json-out .pose/results/b30-independent-validation.json",
+      "note": "installed engine orchestrated the same HEAD module matrix; global run uses binary built from this HEAD; redundant module raw result compacted into this record"
+    },
+    "global_validate": {
+      "outcome": "fail",
+      "counts": {
+        "executed": 140,
+        "passed": 139,
+        "failed": 1,
+        "optional_failed": 0,
+        "errored": 0,
+        "skipped": 0
+      },
+      "git_head": "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3",
+      "matrix_sha256": "sha256:285d400977ad9219a826275e8d0b407c7f083f0607168149c647759bf03f0d7b",
+      "provenance_digest": "sha256:fb0b9f0ccbcb43b7dfadada66dabcacd6931c008c42352612e1677f6e810de92",
+      "exit_code": 1,
+      "scope_provenance": "sha256:f802c46789728cea740069c4defd3fbc8e82173057e41de24e78762dd68470c4",
+      "raw_result_sha256": "b3a2e4a56bd1e32b2e2d01f78ea3573114305aa862a706d4d35b1f9787a37085",
+      "results": [
+        {
+          "id": "mcp-enforce/go/build",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.819204518
+        },
+        {
+          "id": "mcp-enforce/go/test",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.153421948
+        },
+        {
+          "id": "mcp-enforce/go/vet",
+          "outcome": "pass",
+          "severity": "optional",
+          "exit_code": null,
+          "duration_seconds": 0.18819258
+        },
+        {
+          "id": "pose-mcp/go/build",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.897595452
+        },
+        {
+          "id": "pose-mcp/go/test",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 21.51095065
+        },
+        {
+          "id": "pose-mcp/go/vet",
+          "outcome": "pass",
+          "severity": "optional",
+          "exit_code": null,
+          "duration_seconds": 0.31927318
+        },
+        {
+          "id": "pose-mcp/go/release-review-archive-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.879371092
+        },
+        {
+          "id": "pose-mcp/go/abm-retrospective-replay-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.395229304
+        },
+        {
+          "id": "pose-mcp/go/abm-replay-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.467781642
+        },
+        {
+          "id": "pose-mcp/go/review-soundness-residuals-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.436956519
+        },
+        {
+          "id": "pose-mcp/go/governance-outcomes-v2-contract",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.50528359
+        },
+        {
+          "id": "pose-mcp/go/abm-remediation-lineage-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.612503055
+        },
+        {
+          "id": "pose-mcp/go/abm-contract-nodes-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.792551879
+        },
+        {
+          "id": "pose-mcp/go/abm-atomic-start-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.58317708
+        },
+        {
+          "id": "pose-mcp/go/abm-causality-closeout-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.244726867
+        },
+        {
+          "id": "pose-mcp/go/abm-progressive-review-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.059163252
+        },
+        {
+          "id": "pose-mcp/go/artifact-claim-boundary-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 6.244484536
+        },
+        {
+          "id": "pose-mcp/go/check-verdict-mode-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.171032882
+        },
+        {
+          "id": "pose-mcp/go/project-id-derivation-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.320697015
+        },
+        {
+          "id": "pose-mcp/go/calendar-date-skew-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.451481828
+        },
+        {
+          "id": "pose-mcp/go/test-git-isolation-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.206852697
+        },
+        {
+          "id": "pose-mcp/go/release-needs-ci-contract",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.207601639
+        },
+        {
+          "id": "pose-mcp/go/attention-snapshot-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.346909243
+        },
+        {
+          "id": "pose-mcp/go/recurrence-flapping-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.339782416
+        },
+        {
+          "id": "pose-mcp/go/attention-sources-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.975835708
+        },
+        {
+          "id": "pose-mcp/go/check-git-spawns-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.494984966
+        },
+        {
+          "id": "pose-mcp/go/range-ownership-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.697071245
+        },
+        {
+          "id": "pose-mcp/go/locale-obligation-flags-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.539966775
+        },
+        {
+          "id": "pose-mcp/go/trace-test-refs-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.119526374
+        },
+        {
+          "id": "pose-mcp/go/red-signal-contract",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.64096938
+        },
+        {
+          "id": "pose-mcp/go/completed-review-retention-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 6.320269977
+        },
+        {
+          "id": "pose-mcp/go/review-subject-capabilities-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.420220222
+        },
+        {
+          "id": "pose-mcp/go/public-claims-release-line-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.57851729
+        },
+        {
+          "id": "pose-mcp/go/lint-spec-all-gate-contract",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.7475162929999999
+        },
+        {
+          "id": "pose-mcp/go/machine-channel-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.825702805
+        },
+        {
+          "id": "pose-mcp/go/usage-adjudication-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.7382686550000002
+        },
+        {
+          "id": "pose-mcp/go/usage-adjudication-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.318026492
+        },
+        {
+          "id": "pose-mcp/go/delivery-graph-reuse-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.206367978
+        },
+        {
+          "id": "pose-mcp/go/parse-memo-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.455228481
+        },
+        {
+          "id": "pose-mcp/go/parallel-gate-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.824648813
+        },
+        {
+          "id": "pose-mcp/go/check-workers-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.483320081
+        },
+        {
+          "id": "pose-mcp/go/review-policy-adoption-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.30475135
+        },
+        {
+          "id": "pose-mcp/go/delivery-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.043918704
+        },
+        {
+          "id": "pose-mcp/go/delivery-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.75382952
+        },
+        {
+          "id": "pose-mcp/go/review-bundle-convergence",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.135180512
+        },
+        {
+          "id": "pose-mcp/go/qualified-artifact-resolution-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.763623449
+        },
+        {
+          "id": "pose-mcp/go/federated-roadmap-acceptance-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 12.22213085
+        },
+        {
+          "id": "pose-mcp/go/federated-spec-acceptance-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.347131866
+        },
+        {
+          "id": "pose-mcp/go/federated-roadmap-negative-gates",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.131171356
+        },
+        {
+          "id": "pose-mcp/go/spec-authority-transfer-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.70977023
+        },
+        {
+          "id": "pose-mcp/go/spec-authority-transfer-negative-gates",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.117683783
+        },
+        {
+          "id": "pose-mcp/go/spec-authority-transfer-mcp-status",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.792840099
+        },
+        {
+          "id": "pose-mcp/go/multi-repo-agent-context-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.97879363
+        },
+        {
+          "id": "pose-mcp/go/multi-repo-agent-context-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.4763805899999998
+        },
+        {
+          "id": "pose-mcp/go/multi-repo-agent-negative-gates",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.113345412
+        },
+        {
+          "id": "pose-mcp/go/multi-repo-agent-installed-journey",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.240482761
+        },
+        {
+          "id": "pose-mcp/go/dependabot-runtime-repair-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.85045173
+        },
+        {
+          "id": "pose-mcp/go/ci-release-obligations-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.989141855
+        },
+        {
+          "id": "pose-mcp/go/cli-profile-parity-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.219991139
+        },
+        {
+          "id": "pose-mcp/go/extension-target-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.186621446
+        },
+        {
+          "id": "pose-mcp/go/release-version-source-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.301122225
+        },
+        {
+          "id": "pose-mcp/go/delivery-integrity-index-compaction-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.2184577380000001
+        },
+        {
+          "id": "pose-mcp/go/release-version-source-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.01981419
+        },
+        {
+          "id": "pose-mcp/go/clean-activation-recording-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.740191065
+        },
+        {
+          "id": "pose-mcp/go/legacy-contract-cutoffs-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.023446687
+        },
+        {
+          "id": "pose-mcp/go/legacy-contract-cutoffs-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.875410087
+        },
+        {
+          "id": "pose-mcp/go/public-claims-provenance-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.912145187
+        },
+        {
+          "id": "pose-mcp/go/public-claims-provenance-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.989126987
+        },
+        {
+          "id": "pose-mcp/go/review-assurance-disclosure-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.6473483249999998
+        },
+        {
+          "id": "pose-mcp/go/review-assurance-disclosure-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.443197099
+        },
+        {
+          "id": "pose-mcp/go/review-attribution-roles-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.355214394
+        },
+        {
+          "id": "pose-mcp/go/review-attribution-roles-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.085177354
+        },
+        {
+          "id": "pose-mcp/go/blocked-semantics-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.017124012
+        },
+        {
+          "id": "pose-mcp/go/blocked-semantics-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.922679774
+        },
+        {
+          "id": "pose-mcp/go/flat-spec-amendments-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.358284377
+        },
+        {
+          "id": "pose-mcp/go/flat-spec-amendments-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.010834466
+        },
+        {
+          "id": "pose-mcp/go/obligation-contract-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.368944379
+        },
+        {
+          "id": "pose-mcp/go/effective-governance-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.300771281
+        },
+        {
+          "id": "pose-mcp/go/effective-governance-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.195506286
+        },
+        {
+          "id": "pose-mcp/go/adversarial-corpus",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.197580293
+        },
+        {
+          "id": "pose-mcp/go/typed-diagnostics-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.955351533
+        },
+        {
+          "id": "pose-mcp/go/typed-diagnostics-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.216724814
+        },
+        {
+          "id": "pose-mcp/go/obligation-projection-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.45879287
+        },
+        {
+          "id": "pose-mcp/go/state-attention-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.4487250729999999
+        },
+        {
+          "id": "pose-mcp/go/action-requests-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.046553567
+        },
+        {
+          "id": "pose-mcp/go/action-resolution-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.080700311
+        },
+        {
+          "id": "pose-mcp/go/action-resolution-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.983055593
+        },
+        {
+          "id": "pose-mcp/go/phase-readiness-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.309423884
+        },
+        {
+          "id": "pose-mcp/go/phase-readiness-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.863058287
+        },
+        {
+          "id": "pose-mcp/go/governed-effects-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.2568891469999999
+        },
+        {
+          "id": "pose-mcp/go/governed-effects-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.940858201
+        },
+        {
+          "id": "pose-mcp/go/transfer-actions-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.524871395
+        },
+        {
+          "id": "pose-mcp/go/closeout-plan-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.028664505
+        },
+        {
+          "id": "pose-mcp/go/closeout-plan-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.965840303
+        },
+        {
+          "id": "pose-mcp/go/material-reuse-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.195307581
+        },
+        {
+          "id": "pose-mcp/go/assessment-freshness-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.24300723
+        },
+        {
+          "id": "pose-mcp/go/followup-candidates-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.134845037
+        },
+        {
+          "id": "pose-mcp/go/followup-candidates-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.956240359
+        },
+        {
+          "id": "pose-mcp/go/action-presentation-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.691958898
+        },
+        {
+          "id": "pose-mcp/go/spec-surface-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.823150797
+        },
+        {
+          "id": "pose-mcp/go/spec-surface-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.886110334
+        },
+        {
+          "id": "pose-mcp/go/premise-validity-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.291071547
+        },
+        {
+          "id": "pose-mcp/go/falsifier-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.252367339
+        },
+        {
+          "id": "pose-mcp/go/migrate-dryrun-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.784324259
+        },
+        {
+          "id": "pose-mcp/go/action-identity-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.730879914
+        },
+        {
+          "id": "pose-mcp/go/adversarial-corpus-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.737513347
+        },
+        {
+          "id": "pose-mcp/go/governance-waits-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.737773469
+        },
+        {
+          "id": "pose-mcp/go/action-requests-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.780828118
+        },
+        {
+          "id": "pose-mcp/go/governance-waits-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.583585095
+        },
+        {
+          "id": "pose-mcp/go/migrate-dryrun-reachability",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.604403026
+        },
+        {
+          "id": "pose-mcp/go/state-attention-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.5284128890000002
+        },
+        {
+          "id": "pose-mcp/go/atomic-start-cutoff-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.183292366
+        },
+        {
+          "id": "pose-mcp/go/validation-check-materiality-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.308430367
+        },
+        {
+          "id": "pose-mcp/go/causality-cutoff-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.214686645
+        },
+        {
+          "id": "pose-mcp/go/attest-preflight-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.702925741
+        },
+        {
+          "id": "pose-mcp/go/governed-capabilities-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.469611
+        },
+        {
+          "id": "pose-mcp/go/authority-project-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.326114211
+        },
+        {
+          "id": "pose-mcp/go/qualified-followup-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.721078941
+        },
+        {
+          "id": "pose-mcp/go/recurrence-cluster-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.798052766
+        },
+        {
+          "id": "pose-mcp/go/project-identity-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.847697407
+        },
+        {
+          "id": "pose-mcp/go/capability-catalog-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.886347291
+        },
+        {
+          "id": "pose-mcp/go/init-is-install-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.905089624
+        },
+        {
+          "id": "pose-mcp/go/fresh-install-health-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.173978874
+        },
+        {
+          "id": "pose-mcp/go/signed-action-answers-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.109188008
+        },
+        {
+          "id": "pose-mcp/go/mcp-review-attest-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.884515393
+        },
+        {
+          "id": "pose-mcp/go/mcp-action-resolve-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.955466166
+        },
+        {
+          "id": "pose-mcp/go/setup-command-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.338849874
+        },
+        {
+          "id": "pose-mcp/go/onboarding-spec-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.943922053
+        },
+        {
+          "id": "pose-mcp/go/configuration-review-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.863495149
+        },
+        {
+          "id": "pose-mcp/go/quickstart-real-lifecycle-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.487396043
+        },
+        {
+          "id": "pose-mcp/go/install-and-upgrade-journeys-integration",
+          "outcome": "fail",
+          "severity": "required",
+          "exit_code": 1,
+          "duration_seconds": 2.570795407
+        },
+        {
+          "id": "pose-mcp/go/historical-trust-reuse-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.194303743
+        },
+        {
+          "id": "pose-mcp/go/review-approval-domain-preflight-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 1.238682112
+        },
+        {
+          "id": "pose-mcp/go/cli-mcp-operation-results-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 7.090701399
+        },
+        {
+          "id": "pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.45760491
+        },
+        {
+          "id": "pose-mcp/go/spec-facts-evidence-binding-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 0.762396531
+        },
+        {
+          "id": "pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.6763246670000003
+        },
+        {
+          "id": "pose-mcp/go/source-coverage-integrity-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.160036329
+        },
+        {
+          "id": "pose-mcp/go/index-generation-integrity-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.827383912
+        },
+        {
+          "id": "pose-mcp/go/test-scripts-remove-their-temp-files-integration",
+          "outcome": "pass",
+          "severity": "required",
+          "exit_code": null,
+          "duration_seconds": 2.099991903
+        }
+      ],
+      "failed_checks": [
+        {
+          "id": "pose-mcp/go/install-and-upgrade-journeys-integration",
+          "module": "pose-mcp",
+          "stack": "go",
+          "name": "install-and-upgrade-journeys-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "Journeys",
+            "-count=1"
+          ],
+          "env": {
+            "POSE_JOURNEYS": "1"
+          },
+          "severity": "required",
+          "evidence_class": "integration",
+          "outcome": "fail",
+          "exit_code": 1,
+          "duration_seconds": 2.570795407,
+          "output": "--- FAIL: TestJourneysInstallAndUpgradeFromThePublishedRelease (1.68s)\n    journeys_script_test.go:24: a journey diverged: exit status 1\n        \u001b[32m  ok\u001b[0m journey 1: fresh install — strict check, clean doctor, onboarding spec first, nothing to review\n        \u001b[32m  ok\u001b[0m journey 1b: the onboarding spec is started, driven by setup and closed through review\n        curl: (22) The requested URL returned error: 403\n        \u001b[31mFAIL:\u001b[0m listing the published releases\nFAIL\nFAIL\tgithub.com/harne8/pose-mcp/internal/cli\t1.683s\nFAIL\n"
+        }
+      ],
+      "command": "/tmp/b30-pose validate --strict --json-out .pose/results/b30-independent-global-validation.json",
+      "results_path": ".pose/results/b30-independent-global-validation.json"
+    },
+    "journeys_authenticated_retry": {
+      "command": "POSE_JOURNEYS=1 go test ./internal/cli -run Journeys -count=1",
+      "authentication": "existing gh credential passed only to subprocess; no credential recorded",
+      "exit_code": 0,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/cli\t5.776s\n",
+      "interpretation": "targeted authenticated retry passes; original strict runs remain fail"
+    },
+    "check_strict": {
+      "exit_code": 0,
+      "output": "⚠ warning changelog: done spec without a changelog fragment: pose-agy-smoke-test\n⚠ warning changelog: done spec without a changelog fragment: pose-canonical-positioning\n⚠ warning changelog: done spec without a changelog fragment: pose-community-contribution-surfaces\n⚠ warning changelog: done spec without a changelog fragment: pose-docs-canonical-route\n⚠ warning changelog: done spec without a changelog fragment: pose-first-governed-loop-quickstart\n⚠ warning changelog: done spec without a changelog fragment: pose-launch-proof-demo\n⚠ warning changelog: done spec without a changelog fragment: pose-public-claims-contract\n⚠ warning changelog: done spec without a changelog fragment: pose-readme-evaluation-path\n⚠ warning changelog: done spec without a changelog fragment: pose-release-recovery-verification\n⚠ warning changelog: done spec without a changelog fragment: pose-release-security-gate-integrity\n⚠ warning changelog: done spec without a changelog fragment: pose-sdd-migration-acquisition\n⚠ warning changelog: done spec without a changelog fragment: pose-code-cites-the-specs-that-delivered-it\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-authority-fixture-clock\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-design-basis\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-governance-outcomes\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-remediation-lineage\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-authority\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-tool-deferred-without-delivery\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-structural-delta\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-subject-evidence\n⚠ warning changelog: done spec without a changelog fragment: pose-check-qualified-roadmap-members\n⚠ warning changelog: done spec without a changelog fragment: pose-dist-adopts-spec-authority-transfer\n⚠ warning changelog: done spec without a changelog fragment: pose-federated-external-milestone-members\n⚠ warning changelog: done spec without a changelog fragment: pose-review-bundle-classifies-transfer-records\n⚠ warning changelog: done spec without a changelog fragment: pose-spec-transfer-completion-and-references\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-capability-adoption\n⚠ warning changelog: done spec without a changelog fragment: pose-open-backlog-reconciliation\n⚠ warning capabilities: assessment is 62 days old (policy: 30); consider reassessing\n⚠ warning capabilities: baseline_commit is 1538 commits behind HEAD (policy: 200); consider reassessing\nResult: SUCCESS — (strict mode) with 29 warning(s).\n"
+    },
+    "lint_spec_strict": {
+      "exit_code": 0,
+      "output": "---\n⚠ warning section pose-spec-facts-evidence-binding\n    optional section missing: Tasks\nspec.path=/home/go/.cache/pose-work/b30/pose-dist/.pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md\nspec.status=in-progress\nspec.sections.total=6\nspec.sections.filled=6\nspec.sections.skeleton=0\nspec.sections.empty=0\nspec.required.missing=0\nspec.followups.total=0\nspec.followups.open=0\nspec.lifecycle.failures=0\nspec.requirements.ids=8\nspec.requirements.duplicate_failures=0\nspec.trace.present=true\nspec.trace.entries=8\nspec.trace.missing=0\nspec.trace.failures=0\nspec.amendments.events=0\nspec.amendments.failures=0\n\nlint.specs.checked=1\nlint.specs.failed=0\nResultado: SUCESSO\n"
+    },
+    "focused": {
+      "exit_code": 0,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.011s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.012s\n"
+    },
+    "govulncheck": {
+      "exit_code": 0,
+      "output": "go: downloading golang.org/x/vuln v1.9.0\ngo: downloading golang.org/x/sync v0.24.0\ngo: downloading golang.org/x/tools v0.52.0\ngo: downloading golang.org/x/mod v0.42.0\ngo: downloading golang.org/x/telemetry v0.0.0-20261010193011-f71dc92da45e\nNo vulnerabilities found.\n"
+    },
+    "artifact_check": {
+      "exit_code": 0,
+      "claims": 14,
+      "change_sets": [
+        {
+          "id": "cs-e8dc2972e2ad",
+          "spec": "pose-spec-facts-evidence-binding",
+          "selector": "trailers:pose-spec-facts-evidence-binding",
+          "base": "55ea138d96dd34d002588b26b88949ea2e8215d9^",
+          "head": "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3",
+          "resolved_base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+          "resolved_head": "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3",
+          "commits": [
+            "55ea138d96dd34d002588b26b88949ea2e8215d9",
+            "03983a36a29fbea25db1215615fab9455de5df83",
+            "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3"
+          ],
+          "paths": [
+            {
+              "action": "created",
+              "path": ".pose/changelogs/unreleased/pose-spec-facts-evidence-binding.md"
+            },
+            {
+              "action": "created",
+              "path": ".pose/results/b30-mutations.json"
+            },
+            {
+              "action": "created",
+              "path": ".pose/results/b30-mutations.py"
+            },
+            {
+              "action": "created",
+              "path": ".pose/starts/pose-spec-facts-evidence-binding.json"
+            },
+            {
+              "action": "created",
+              "path": "pose-mcp/internal/cli/spec_facts_binding_test.go"
+            },
+            {
+              "action": "created",
+              "path": "pose-mcp/internal/pose/spec_facts_binding_test.go"
+            },
+            {
+              "action": "modified",
+              "path": ".pose/indexes/delivery-integrity.json"
+            },
+            {
+              "action": "modified",
+              "path": ".pose/indexes/generation.json"
+            },
+            {
+              "action": "modified",
+              "path": ".pose/indexes/releases.json"
+            },
+            {
+              "action": "modified",
+              "path": ".pose/indexes/roadmaps.json"
+            },
+            {
+              "action": "modified",
+              "path": ".pose/indexes/spec-graph.json"
+            },
+            {
+              "action": "modified",
+              "path": ".pose/indexes/validation-matrix.json"
+            },
+            {
+              "action": "modified",
+              "path": ".pose/specs/2026-10-13-pose-spec-facts-evidence-binding.md"
+            },
+            {
+              "action": "modified",
+              "path": "POSE.md"
+            },
+            {
+              "action": "modified",
+              "path": "locales/pt-BR/POSE.md"
+            },
+            {
+              "action": "modified",
+              "path": "pose-mcp/internal/cli/specs_cmd.go"
+            },
+            {
+              "action": "modified",
+              "path": "pose-mcp/internal/pose/spec_facts.go"
+            },
+            {
+              "action": "modified",
+              "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+            },
+            {
+              "action": "modified",
+              "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+            }
+          ],
+          "diff_digest": "sha256:5bfc990eb5654a4060edcdab28d3bad15bd685267c5bce72b06a8f0918fcfa1a"
+        }
+      ],
+      "errors": []
+    },
+    "surface_initial": {
+      "exit_code": 1,
+      "scope_findings": [
+        {
+          "id": "dif-626a77c4b1d7",
+          "code": "unconsumed-capability",
+          "severity": "error",
+          "spec": "pose-spec-facts-evidence-binding",
+          "path": "capability:spec-facts-evidence-binding",
+          "message": "required current evidence is missing: integration",
+          "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+        },
+        {
+          "id": "dif-e90c602309d3",
+          "code": "stale-evidence",
+          "severity": "error",
+          "spec": "pose-spec-facts-evidence-binding",
+          "path": "capability:spec-facts-evidence-binding",
+          "change_set": "pose-mcp/go/abm-atomic-start-integration",
+          "message": "passed integration evidence is bound to a different scoped provenance digest",
+          "remediation": "rerun the registered validation check for this delivery scope"
+        }
+      ]
+    },
+    "binary": {
+      "path": "/tmp/b30-pose",
+      "sha256": "31dd99e65ed6b6f7e9799b23dafea146d46adf75988d4a43a4d6c7ca1f9ee989",
+      "built_from": "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3"
+    },
+    "surface_fresh": {
+      "command": "/tmp/b30-pose surface-check --spec pose-spec-facts-evidence-binding --results .pose/results/b30-independent-global-validation.json --strict --json",
+      "exit_code": 0,
+      "result_count": 140,
+      "scope_findings": [],
+      "provenance_digest": "sha256:9a447caa4d0d61b62c1b74a347c1c0d02ffa46f50937cf160bb2f42cce5fbb36",
+      "raw_output_sha256": "7a9ea7804cf991cceba31bb822c3a138831cc55ed599f6260e5fd253a2248c1b"
+    },
+    "strict_aggregate": "initial runs failed only the release-listing HTTP 403; failed required check passes on authenticated targeted retry; no fabricated all-green aggregate run"
+  },
+  "adversarial_corpus": {
+    "b30_case": "not present",
+    "cheap_shortcut": "supply alpha key with empty or unrelated value; module mismatch and pass-first duplicate evade attribution checks"
+  },
+  "notes": [
+    "Production sources, tests, policy, issuer pins, spec lifecycle and canonical delivery-validation.json are unchanged.",
+    "Probe tests assert observed defects in a disposable copy; PASS means the undesired behavior is reproduced, not requirement satisfaction."
+  ],
+  "context": {
+    "schema_version": 1,
+    "selected_project_id": "proj.pose-dist",
+    "selected_revision": "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3",
+    "task_ref": "xref:proj.pose-dist/spec:pose-spec-facts-evidence-binding",
+    "authority": {
+      "project_id": "proj.pose-dist",
+      "kind": "spec",
+      "slug": "pose-spec-facts-evidence-binding"
+    },
+    "coordinator_relation": "same-project-authority",
+    "task_resolution": {
+      "schema_version": 1,
+      "identity": {
+        "project_id": "proj.pose-dist",
+        "kind": "spec",
+        "slug": "pose-spec-facts-evidence-binding"
+      },
+      "resolved": true,
+      "resolution_state": "resolved",
+      "status": "in-progress",
+      "source_revision": "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3",
+      "source_digest": "2b6a7fcb5a99eb9aa69cea82a91f3be872d3d23c8e272639cd9cc623e4f4bf7e",
+      "dependencies": [
+        {
+          "project_id": "proj.pose-dist",
+          "kind": "spec",
+          "slug": "pose-progressive-spec-surface"
+        }
+      ]
+    },
+    "authority_revision": "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3",
+    "supported_contracts": [
+      "qualified-artifact-refs@1",
+      "spec-authority-transfer@1",
+      "federated-roadmap-acceptance@1"
+    ],
+    "context_revision": "fde20b0ae19b9e39636b9526f6ebc1e958b46921da6ed7a92aafb363a8849cdf"
+  },
+  "pull_request": {
+    "baseRefName": "main",
+    "headRefName": "impl/pose-b30-spec-facts-binding",
+    "headRefOid": "2dfad4bc60a44aedc213b3e3c42f47790ce88cc3",
+    "number": 197,
+    "state": "OPEN",
+    "title": "B30: spec facts bind evidence to the spec and reveal freshness"
+  },
+  "recurrence": {
+    "schema_version": 1,
+    "command": "recurrence-check",
+    "outcome": "pass",
+    "verdict": "SUCCESS — no recurrent failure",
+    "findings": [],
+    "fields": {
+      "recurrence.flagged_keys": "0",
+      "recurrence.flapping_keys": "0",
+      "recurrence.records_scanned": "393",
+      "recurrence.resolved_clusters": "0",
+      "recurrence.threshold": "3",
+      "recurrence.window_days": "14"
+    }
+  },
+  "secrets": {
+    "scope": "origin/main...2dfad4bc added lines",
+    "patterns": 4,
+    "potential_secrets": 0,
+    "limitation": "bounded local pattern scan; gitleaks is not installed"
+  },
+  "tool_dispositions": [
+    {
+      "id": "artifact-check",
+      "component": null,
+      "requiredness": "required",
+      "disposition": "executed"
+    },
+    {
+      "id": "assess-design",
+      "component": null,
+      "requiredness": "recommended",
+      "disposition": "executed"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "requiredness": "recommended",
+      "disposition": "executed"
+    },
+    {
+      "id": "assess-integrate",
+      "component": null,
+      "requiredness": "recommended",
+      "disposition": "executed"
+    },
+    {
+      "id": "assess-tech-debt",
+      "component": null,
+      "requiredness": "recommended",
+      "disposition": "executed"
+    },
+    {
+      "id": "closeout-check",
+      "component": null,
+      "requiredness": "required",
+      "disposition": "deferred-blocking-findings"
+    },
+    {
+      "id": "review-check",
+      "component": null,
+      "requiredness": "required",
+      "disposition": "deferred-blocking-findings"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "requiredness": "recommended",
+      "disposition": "executed"
+    },
+    {
+      "id": "surface-check",
+      "component": null,
+      "requiredness": "required",
+      "disposition": "executed"
+    },
+    {
+      "id": "validate",
+      "component": null,
+      "requiredness": "required",
+      "disposition": "executed"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "requiredness": "required",
+      "disposition": "executed"
+    }
+  ],
+  "tech_debt": {
+    "evaluated_at": "2026-10-18T10:59:53Z",
+    "baseline_commit": "2dfad4bc60a4",
+    "summary": {
+      "total_markers": 1,
+      "todos": 1,
+      "fixmes": 0,
+      "panics": 0,
+      "stubs": 0,
+      "covered_count": 1,
+      "uncovered_count": 0,
+      "recommended_followups": 0,
+      "recommended_specs": 0,
+      "recommended_roadmaps": 0
+    },
+    "complete": false,
+    "coverage": {
+      "losses": [
+        {
+          "producer": "techdebt-reconciliation",
+          "artifact": ".pose/specs/2026-08-15-pose-instance-engine-version-tracking.md",
+          "kind": "invalid",
+          "detail": "a follow-up bullet has no description"
+        },
+        {
+          "producer": "techdebt-reconciliation",
+          "artifact": ".pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md",
+          "kind": "invalid",
+          "detail": "a follow-up bullet has no description"
+        }
+      ],
+      "exclusions": [
+        {
+          "producer": "assessment-scan",
+          "pattern": "generated-header",
+          "reason": "files that declare themselves generated are not scanned",
+          "count": 1,
+          "examples": [
+            "pose-mcp/internal/pose/assessment_scan.go"
+          ]
+        },
+        {
+          "producer": "assessment-scan",
+          "pattern": "skipped-directory",
+          "reason": "directories that hold dependencies, build output or tool state are not scanned",
+          "count": 36,
+          "examples": [
+            ".agents",
+            ".claude",
+            ".docs-site-build"
+          ]
+        }
+      ]
+    }
+  },
+  "integrate": {
+    "evaluated_at": "2026-10-18T10:59:54Z",
+    "baseline_commit": "2dfad4bc60a4",
+    "summary": {
+      "total_integrations": 64,
+      "active_contracts": 1,
+      "identified_gaps": 63
+    }
+  },
+  "discover": [
+    {
+      "component": null,
+      "status": "verified",
+      "cached": null
+    }
+  ],
+  "design": {
+    "status": "observed",
+    "input_digest": "sha256:ca613cd1b6b8f00aa350697ac0a411fb7c249682aacd9638f41fab3429c0acf9",
+    "subject": {
+      "base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+      "head": "03983a36a29fbea25db1215615fab9455de5df83",
+      "patch_digest": "sha256:c2b94985fdddd3371a41a155d6a02f98f5e2d93ae0fcbfd6e48a36342f3ee18f",
+      "tree_digest": "sha256:1d747e6528cdbfa628892d128a7cb309b00426803992bfa300085f51d2c342e7",
+      "implementation_digest": "sha256:4b42368c6553b656f9eb297f903adceb859c961ec2163e2604b99c3054399ed7",
+      "entries": 11
+    },
+    "coverage": {
+      "files_in_subject": 11,
+      "files_observed": 11,
+      "bytes_read": 1113327,
+      "max_files": 4096,
+      "max_bytes": 16777216,
+      "detectors": [
+        {
+          "id": "dependency-go",
+          "state": "not-applicable"
+        },
+        {
+          "id": "dependency-npm",
+          "state": "not-applicable"
+        },
+        {
+          "id": "component",
+          "state": "not-applicable"
+        },
+        {
+          "id": "delivery-metadata",
+          "state": "observed",
+          "observed": 1
+        },
+        {
+          "id": "governance-contract",
+          "state": "not-applicable"
+        },
+        {
+          "id": "public-contract",
+          "state": "not-applicable"
+        },
+        {
+          "id": "git-actions",
+          "state": "observed",
+          "observed": 11
+        }
+      ]
+    }
+  },
+  "cleanup": {
+    "restored_generated_assessment_state_and_indexes": true,
+    "source_policy_spec_and_canonical_delivery_results_changed": false,
+    "retained": [
+      ".pose/reports/2026-10-18-pose-b30-independent-review.md",
+      ".pose/results/b30-independent-review.json",
+      ".pose/results/b30-independent-global-validation.json"
+    ]
+  }
+}

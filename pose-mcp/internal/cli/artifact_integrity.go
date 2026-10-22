@@ -148,24 +148,11 @@ func allCommitsWithSpecTrailers(root string) (map[string][]string, error) {
 	// A rolling commit limit changes historical attribution whenever an unrelated
 	// commit pushes a tagged commit out of the window. Filter in Git and scan the
 	// full matching history; the output bound still fails closed for huge inputs.
-	out, err := gitOutputBounded(root, 32*1024*1024, "log", "--all", "--reverse", "--grep=POSE-Spec:", "--format=%H%x00%B%x00")
+	out, err := gitOutputBounded(root, 32*1024*1024, posemodel.SpecTrailerLogArgs...)
 	if err != nil {
 		return nil, err
 	}
-	parts := bytes.Split(out, []byte{0})
-	specCommits := map[string][]string{}
-	for i := 0; i+1 < len(parts); i += 2 {
-		sha, body := strings.TrimSpace(string(parts[i])), string(parts[i+1])
-		for _, line := range strings.Split(body, "\n") {
-			line = strings.TrimSpace(line)
-			if strings.HasPrefix(line, "POSE-Spec:") {
-				spec := strings.TrimSpace(strings.TrimPrefix(line, "POSE-Spec:"))
-				if spec != "" {
-					specCommits[spec] = append(specCommits[spec], sha)
-				}
-			}
-		}
-	}
+	specCommits := posemodel.ParseSpecTrailerLog(out)
 	return specCommits, nil
 }
 

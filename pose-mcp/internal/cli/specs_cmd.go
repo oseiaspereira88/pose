@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/harne8/pose-mcp/internal/pose"
 )
@@ -210,15 +211,84 @@ func cmdSpecFacts(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	out := render(stdout, stderr)
 	out.Field("facts.source", facts.Source)
+	freshness := facts.Freshness.Status
+	if facts.Freshness.Reason != "" {
+		freshness += " — " + facts.Freshness.Reason
+	}
+	out.Field("facts.freshness", safeText(freshness))
+	if facts.Freshness.Generation != "" {
+		out.Field("facts.generation", facts.Freshness.Generation)
+	}
 	out.Field("facts.commits", fmt.Sprint(facts.Commits))
 	for _, p := range facts.Paths {
-		out.Field("facts.path", p.Action+": "+p.Path)
+		out.Field("facts.path", safeText(p.Action)+": "+observedPathText(p))
 	}
 	for _, c := range facts.Checks {
-		out.Field("facts.check", c.Module+" "+c.Check+" ("+c.EvidenceClass+") "+c.Outcome)
+		out.Field("facts.check", factLine(c, "associated by "+c.Basis))
+	}
+	for _, c := range facts.Candidates {
+		// Labelled so a copied line is never read as evidence that this spec ran the check.
+		out.Field("facts.candidate", factLine(c, "CANDIDATE, not evidence of this spec; basis "+c.Basis))
 	}
 	for _, l := range facts.Limitations {
-		out.Field("facts.limitation", l)
+		out.Field("facts.limitation", safeText(l))
 	}
 	return 0
+}
+
+// factLine is one result as a copyable line: what it is, what it is bound to and every limit
+// it carries, the same facts the JSON holds. Whatever a field holds, it stays on this line: a
+// control character is written as an escape, so data cannot start a line of its own.
+func factLine(c pose.SpecFactCheck, label string) string {
+	line := safeText(c.Module) + " " + safeText(c.Check) + " (" + safeText(c.EvidenceClass) + ") " + safeText(c.Outcome)
+	if c.ID != "" {
+		line += " id=" + safeText(c.ID)
+	}
+	if c.Severity != "" {
+		line += " severity=" + safeText(c.Severity)
+	}
+	if c.Source != "" {
+		line += " source=" + safeText(c.Source)
+	}
+	line += " [" + label + "; " + c.Binding.Head
+	if c.Binding.GitHead != "" {
+		line += " git_head=" + safeText(c.Binding.GitHead)
+	}
+	if c.Binding.GeneratedAt != "" {
+		line += " generated_at=" + safeText(c.Binding.GeneratedAt)
+	}
+	if c.Binding.ProvenanceDigest != "" {
+		line += " provenance=" + safeText(c.Binding.ProvenanceDigest)
+	}
+	if c.Binding.ScopedDigest != "" {
+		line += " scoped=" + safeText(c.Binding.ScopedDigest)
+	}
+	line += "]"
+	if len(c.Limits) > 0 {
+		limits := make([]string, 0, len(c.Limits))
+		for _, limit := range c.Limits {
+			limits = append(limits, safeText(limit))
+		}
+		line += " limits: " + strings.Join(limits, "; ")
+	}
+	return line
+}
+
+// safeText leaves text that holds no control character as it is and quotes the rest, so a name
+// with a newline in it cannot end a line of the output and begin another.
+func safeText(s string) string {
+	for _, r := range s {
+		if unicode.IsControl(r) {
+			return strconv.QuoteToASCII(s)
+		}
+	}
+	return s
+}
+
+// observedPathText names a path of a change set; a rename names both of its ends.
+func observedPathText(p pose.ObservedPath) string {
+	if p.OldPath != "" || p.NewPath != "" {
+		return safeText(p.OldPath) + " → " + safeText(p.NewPath)
+	}
+	return safeText(p.Path)
 }
