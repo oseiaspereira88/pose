@@ -170,4 +170,3 @@ Os follow-ups F1/F2/F3 são diferenças de explicação, recusa conservadora ou 
 Não foi staged contribuição upstream: o contrato de Contributor Mode exige consentimento do usuário para draft/issue. A recorrência adjacente B8 foi registrada sem criar contribuição. Nenhuma mudança de policy ou pin é necessária para remediar os achados.
 
 Corrigir B1–B9, repetir sondagens e checks em novo HEAD fixado e verificar os índices em checkout limpo. Só uma revisão posterior sem bloqueantes poderá selar, atestar sem envelope, verificar e fechar. Esta execução não produziu aprovação reutilizável.
-

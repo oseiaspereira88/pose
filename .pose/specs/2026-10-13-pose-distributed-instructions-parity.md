@@ -48,6 +48,9 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
+- created: .pose/reports/2026-10-22-b28-pending-review-r1.md
+- created: .pose/reports/2026-10-22-b28-pending-closeout.md
+
 Os paths abaixo são declarações prospectivas para a implementação. Neste lote
 somente esta spec é criada, sob a atribuição documental de
 `pose-consolidation-batch-6-authoring`. Reconciliar os paths exatos antes de start;
