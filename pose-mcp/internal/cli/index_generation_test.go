@@ -184,14 +184,14 @@ func TestSuggestDoesNotInferADomainFromAnUnavailableComponentMap(t *testing.T) {
 		t.Fatalf("index: %d %s", code, errOut)
 	}
 	writeIndexFixture(t, root, "repo-map.json", `{"packages":[{"name":"api","path":"api","language":"go"}]}`)
-	if domain, source := inferSuggestDomain(root, "api/server.go"); domain == "" || source == "undefined" {
+	if domain, source, _ := inferSuggestDomain(root, "api/server.go"); domain == "" || source == "undefined" {
 		t.Fatalf("a current map was not used: %q %q", domain, source)
 	}
 	if err := os.WriteFile(filepath.Join(root, ".pose", "indexes", "repo-map.json"), []byte(`{"packages":[{"name":"api","path":"api","language":"javascript"}]}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	_ = os.RemoveAll(filepath.Join(root, ".pose", "indexes", "generations"))
-	if domain, source := inferSuggestDomain(root, "api/server.go"); domain != "" || source != "undefined" {
+	if domain, source, problem := inferSuggestDomain(root, "api/server.go"); domain != "" || source != "repo-map-unavailable" || problem == "" {
 		t.Fatalf("a domain was inferred from a map that does not verify: %q %q", domain, source)
 	}
 }

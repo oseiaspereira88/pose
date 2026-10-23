@@ -603,6 +603,15 @@ func (checker *nativeChecker) checkTaskMap() {
 		checker.failOrWarn(checker.message("task-map.json: invalid schema: ", "task-map.json: schema inválido: ") + err.Error())
 		return
 	}
+	if tasks, ok := rawDocument["tasks"].(map[string]any); ok {
+		for name, entry := range tasks {
+			if fields, isObject := entry.(map[string]any); isObject {
+				if err := taskFieldSpellingError(fields); err != nil {
+					checker.failOrWarn("task-map.json: " + name + ": " + err.Error())
+				}
+			}
+		}
+	}
 	for name, task := range document.Tasks {
 		if task.Workflow != "" {
 			checker.requireTaskRef(name+".workflow", task.Workflow)

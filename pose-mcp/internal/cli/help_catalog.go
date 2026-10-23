@@ -788,8 +788,8 @@ var commandHelpCatalog = map[string]CommandHelp{
 		SummaryEN:       "Dry-run the legacy inventory a future major would convert, keep or refuse",
 		SummaryPtBR:     "Executa o dry-run do inventário de legado que uma futura major converteria, manteria ou recusaria",
 		Usage:           "pose migrate v7 --dry-run [--json]",
-		DescriptionEN:   "Counts spec layouts, blocked specs, legacy and unknown review policy keys, sealed bundles, attestations by identity mode and attribution, and incomplete transfers, with the action and removal criterion of each class. Writes nothing; 6.x has no apply.",
-		DescriptionPtBR: "Conta layouts de spec, specs blocked, chaves legadas e desconhecidas da política de review, bundles selados, atestações por modo de identidade e atribuição, e transferências incompletas, com a ação e o critério de remoção de cada classe. Não escreve nada; a 6.x não tem apply.",
+		DescriptionEN:   "Counts spec layouts, blocked specs, legacy and unknown review policy keys, sealed bundles, attestations by identity mode and attribution, and incomplete transfers, with the action and removal criterion of each class. Writes nothing; no apply is available in this engine, and none is promised.",
+		DescriptionPtBR: "Conta layouts de spec, specs blocked, chaves legadas e desconhecidas da política de review, bundles selados, atestações por modo de identidade e atribuição, e transferências incompletas, com a ação e o critério de remoção de cada classe. Não escreve nada; este motor não tem apply, e nenhum é prometido.",
 		Flags: []FlagHelp{
 			{"--dry-run", "Required: inventory only", "Obrigatório: apenas inventário"},
 			{"--json", "Output the inventory as JSON", "Emite o inventário em JSON"},

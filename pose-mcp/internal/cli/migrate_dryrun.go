@@ -10,7 +10,8 @@ import (
 
 // cmdMigrate is `pose migrate v7 --dry-run [--json]` (spec
 // pose-v7-legacy-cleanup-plan): the inventory a future major would convert,
-// keep or refuse, measured on this repository. There is no apply in 6.x.
+// keep or refuse, measured on this repository. No apply is implemented, and none is promised
+// here: a later apply would be announced when it exists.
 func cmdMigrate(root string, args []string, stdout, stderr io.Writer) int {
 	const usage = "Usage: pose migrate v7 --dry-run [--json]"
 	if len(args) == 0 || args[0] != "v7" {
@@ -24,7 +25,7 @@ func cmdMigrate(root string, args []string, stdout, stderr io.Writer) int {
 		case "--json":
 			jsonOutput = true
 		case "--apply":
-			render(stdout, stderr).Failure("pose migrate: 6.x applies no breaking change; only --dry-run exists, and a 7.0 apply will carry its own recovery and revision guard")
+			render(stdout, stderr).Failure("pose migrate: no apply is available in this engine; the only mode is `pose migrate v7 --dry-run`, which reads the repository, writes nothing and reports what a migration would convert, keep or refuse")
 			return 2
 		default:
 			return usageError(stderr, usage)

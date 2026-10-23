@@ -2167,6 +2167,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "distributed-instructions-parity-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "DistributedInstructionsAskForDiscovery|EmbeddedMirrorsOfTheWorkflowsAndRules|SuggestResolvesDomainAliases|SuggestDoesNotTurnEveryBackend|SuggestSeparatesDeclaredFromInstalled|MigrateSaysThereIsNoApply|FreshInstallReceivesInstructions|MigrateDryRun|SuggestDomainUsesMostSpecific|TestSuggestAndTheCheckerRefuseANonCanonicalSpellingOfAnOperationalField",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "spec-facts-evidence-binding-integration",
           "program": "go",
           "args": [

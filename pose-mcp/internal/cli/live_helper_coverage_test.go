@@ -65,19 +65,19 @@ func TestSuggestDomainUsesMostSpecificModuleAndSafeFallback(t *testing.T) {
 	for _, tc := range []struct{ path, domain, source string }{
 		{"service/main.go", "backend-go", "repo-map"},
 		{"service/web/main.ts", "frontend", "repo-map"},
-		{"service-other/main.go", "", "undefined"},
+		{"service-other/main.go", "", "repo-map-no-match"},
 		{"deploy/charts/app", "k8s", "hint-path"},
 	} {
-		domain, source := inferSuggestDomain(root, tc.path)
+		domain, source, _ := inferSuggestDomain(root, tc.path)
 		if domain != tc.domain || source != tc.source {
 			t.Errorf("%s: %s/%s", tc.path, domain, source)
 		}
 	}
 	writeArtifactTestFile(t, root, ".pose/indexes/repo-map.json", "{")
-	if domain, source := inferSuggestDomain(root, "service"); domain != "" || source != "undefined" {
+	if domain, source, problem := inferSuggestDomain(root, "service"); domain != "" || source != "repo-map-unavailable" || problem == "" {
 		t.Fatal("malformed index invented domain")
 	}
-	if domain, source := inferSuggestDomain(t.TempDir(), "service"); domain != "" || source != "undefined" {
+	if domain, source, problem := inferSuggestDomain(t.TempDir(), "service"); domain != "" || source != "repo-map-unavailable" || problem == "" {
 		t.Fatal("missing index invented domain")
 	}
 }
