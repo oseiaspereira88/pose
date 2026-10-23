@@ -58,7 +58,15 @@ type Store struct {
 	// indexPin, when set, is the one index generation an operation reads from
 	// (spec pose-index-generation-integrity); see PinIndexes.
 	indexPin *IndexGenerationView
+	// FS is the filesystem of the operation this store serves (spec
+	// pose-update-dry-run-reports-the-whole-update D2): nil reads and writes
+	// the disk, a preview reads its staged view. A store built from this one
+	// carries it on.
+	FS Files
 }
+
+// fsys is the store's filesystem.
+func (s Store) fsys() Files { return FilesOrNative(s.FS) }
 
 // specSnapshot holds one read of the specs directory. GetSpec lists every
 // spec to find one, and the obligation producers call it per spec, so a
@@ -149,10 +157,10 @@ func (s Store) GetSpec(slug string) (*Spec, error) {
 	if match == nil {
 		return nil, fmt.Errorf("pose: spec %q not found", slug)
 	}
-	if info, err := os.Stat(match.Path); err == nil && info.IsDir() {
-		return parseSplitSpec(match.Path, slug, splitSpecFiles(match.Path), true)
+	if info, err := s.fsys().Stat(match.Path); err == nil && info.IsDir() {
+		return parseSplitSpec(s.fsys(), match.Path, slug, splitSpecFiles(s.fsys(), match.Path), true)
 	}
-	return parseSpecFile(match.Path, slug, true)
+	return parseSpecFile(s.fsys(), match.Path, slug, true)
 }
 
 // ListSpecs returns the frontmatter of every spec (no body), sorted by slug.
@@ -193,17 +201,17 @@ func (s Store) ListSpecs(status, components string) ([]Spec, error) {
 func (s Store) listSpecs(status, components string) ([]Spec, error) {
 	wantedStatus := splitStatusFilter(status)
 	wantedComponents := splitCommaFilter(components)
-	entries, err := os.ReadDir(s.specsDir())
+	entries, err := s.fsys().ReadDir(s.specsDir())
 	if err != nil {
 		return nil, fmt.Errorf("pose: reading specs dir: %w", err)
 	}
 	specs := []Spec{}
-	if !artifactPathWithin(s.Root, s.specsDir()) {
+	if !artifactPathWithin(s.fsys(), s.Root, s.specsDir()) {
 		return nil, fmt.Errorf("pose: specs directory escapes project")
 	}
 	for _, e := range entries {
 		entryPath := filepath.Join(s.specsDir(), e.Name())
-		if e.Type()&os.ModeSymlink != 0 && !artifactPathWithin(s.Root, entryPath) {
+		if e.Type()&os.ModeSymlink != 0 && !artifactPathWithin(s.fsys(), s.Root, entryPath) {
 			continue
 		}
 		var sp *Spec
@@ -213,29 +221,29 @@ func (s Store) listSpecs(status, components string) ([]Spec, error) {
 			slug := specFilenameSlug(e.Name())
 			dir := filepath.Join(s.specsDir(), e.Name())
 			path := filepath.Join(dir, "spec.md")
-			if _, statErr := os.Stat(path); statErr == nil {
-				if info, err := os.Lstat(path); err != nil || (info.Mode()&os.ModeSymlink != 0 && !artifactPathWithin(s.Root, path)) {
+			if _, statErr := s.fsys().Stat(path); statErr == nil {
+				if info, err := s.fsys().Lstat(path); err != nil || (info.Mode()&os.ModeSymlink != 0 && !artifactPathWithin(s.fsys(), s.Root, path)) {
 					continue
 				}
-				sp, err = parseSpecFile(path, slug, false)
-			} else if files := splitSpecFiles(dir); len(files) > 0 {
+				sp, err = parseSpecFile(s.fsys(), path, slug, false)
+			} else if files := splitSpecFiles(s.fsys(), dir); len(files) > 0 {
 				safe := true
 				for _, file := range files {
-					if info, err := os.Lstat(file); err != nil || (info.Mode()&os.ModeSymlink != 0 && !artifactPathWithin(s.Root, file)) {
+					if info, err := s.fsys().Lstat(file); err != nil || (info.Mode()&os.ModeSymlink != 0 && !artifactPathWithin(s.fsys(), s.Root, file)) {
 						safe = false
 					}
 				}
 				if !safe {
 					continue
 				}
-				sp, err = parseSplitSpec(dir, slug, files, false)
+				sp, err = parseSplitSpec(s.fsys(), dir, slug, files, false)
 			} else {
 				continue // directory without a recognizable spec artifact
 			}
 		case strings.HasSuffix(e.Name(), ".md") && !strings.EqualFold(e.Name(), "README.md"):
 			slug := specFilenameSlug(strings.TrimSuffix(e.Name(), ".md"))
 			path := filepath.Join(s.specsDir(), e.Name())
-			sp, err = parseSpecFile(path, slug, false)
+			sp, err = parseSpecFile(s.fsys(), path, slug, false)
 		default:
 			continue
 		}
@@ -337,25 +345,25 @@ var splitSpecSectionFiles = []string{
 	"STATUS.md",
 }
 
-func splitSpecFiles(dir string) []string {
+func splitSpecFiles(fsys Files, dir string) []string {
 	var files []string
 	for _, name := range splitSpecSectionFiles {
 		path := filepath.Join(dir, name)
-		if fi, err := os.Stat(path); err == nil && !fi.IsDir() {
+		if fi, err := fsys.Stat(path); err == nil && !fi.IsDir() {
 			files = append(files, path)
 		}
 	}
 	return files
 }
 
-func parseSplitSpec(dir, slug string, files []string, includeBody bool) (*Spec, error) {
-	body, err := readSplitSpecBody(files)
+func parseSplitSpec(fsys Files, dir, slug string, files []string, includeBody bool) (*Spec, error) {
+	body, err := readSplitSpecBody(fsys, files)
 	if err != nil {
 		return nil, err
 	}
 	sp := &Spec{
 		Slug:   slug,
-		Status: splitSpecStatus(files),
+		Status: splitSpecStatus(fsys, files),
 		Title:  firstHeading(body),
 		Path:   dir,
 	}
@@ -365,10 +373,10 @@ func parseSplitSpec(dir, slug string, files []string, includeBody bool) (*Spec, 
 	return sp, nil
 }
 
-func readSplitSpecBody(files []string) (string, error) {
+func readSplitSpecBody(fsys Files, files []string) (string, error) {
 	sections := make([]string, 0, len(files))
 	for _, path := range files {
-		raw, err := os.ReadFile(path)
+		raw, err := fsys.ReadFile(path)
 		if err != nil {
 			return "", fmt.Errorf("pose: reading split spec section: %w", err)
 		}
@@ -380,12 +388,12 @@ func readSplitSpecBody(files []string) (string, error) {
 	return strings.Join(sections, "\n\n"), nil
 }
 
-func splitSpecStatus(files []string) string {
+func splitSpecStatus(fsys Files, files []string) string {
 	for _, path := range files {
 		if !strings.EqualFold(filepath.Base(path), "STATUS.md") {
 			continue
 		}
-		raw, err := os.ReadFile(path)
+		raw, err := fsys.ReadFile(path)
 		if err != nil {
 			return ""
 		}
@@ -399,8 +407,8 @@ func splitSpecStatus(files []string) string {
 	return ""
 }
 
-func parseSpecFile(path, slug string, includeBody bool) (*Spec, error) {
-	raw, err := os.ReadFile(path)
+func parseSpecFile(files Files, path, slug string, includeBody bool) (*Spec, error) {
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("pose: reading spec: %w", err)
 	}

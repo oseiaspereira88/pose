@@ -16,6 +16,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	posepkg "github.com/harne8/pose-mcp/internal/pose"
 )
 
 // ruleExtensionByStack maps a stack-detection domain (module-metadata.json's
@@ -133,13 +135,17 @@ const (
 	ruleFileUnreadable = "unreadable"
 )
 
-func ruleFileState(root, ruleFile string) (string, error) {
+func ruleFileState(root, ruleFile string, operationFiles ...posepkg.Files) (string, error) {
+	files := posepkg.NativeFiles()
+	if len(operationFiles) > 0 {
+		files = posepkg.FilesOrNative(operationFiles[0])
+	}
 	rulesDir := filepath.Join(root, ".pose", "rules")
 	path := filepath.Join(rulesDir, ruleFile)
 	// The directory of the rules first: one that is there as an entry and cannot be looked into
 	// (a link to a place that was lost, no access) is a loss, not a project without rules.
-	if _, lerr := os.Lstat(rulesDir); lerr == nil {
-		if _, serr := os.Stat(rulesDir); serr != nil {
+	if _, lerr := files.Lstat(rulesDir); lerr == nil {
+		if _, serr := files.Stat(rulesDir); serr != nil {
 			return ruleFileUnreadable, fmt.Errorf("the rules directory %s cannot be read: %w", rulesDir, serr)
 		}
 	} else if !errors.Is(lerr, os.ErrNotExist) {
@@ -147,14 +153,14 @@ func ruleFileState(root, ruleFile string) (string, error) {
 	} else {
 		return ruleFileAbsent, nil
 	}
-	linfo, lerr := os.Lstat(path)
+	linfo, lerr := files.Lstat(path)
 	if errors.Is(lerr, os.ErrNotExist) {
 		return ruleFileAbsent, nil
 	}
 	if lerr != nil {
 		return ruleFileUnreadable, lerr
 	}
-	info, err := os.Stat(path)
+	info, err := files.Stat(path)
 	if err != nil {
 		if linfo.Mode()&os.ModeSymlink != 0 {
 			// The rule is there as a link whose target was lost: not an absent rule.
@@ -165,7 +171,7 @@ func ruleFileState(root, ruleFile string) (string, error) {
 	if !info.Mode().IsRegular() {
 		return ruleFileUnreadable, fmt.Errorf("%s is not a regular file", path)
 	}
-	file, err := os.Open(path)
+	file, err := files.Open(path)
 	if err != nil {
 		return ruleFileUnreadable, err
 	}

@@ -14,8 +14,8 @@ import (
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
-func loadDeliveryProfiles(root string) (map[string]posemodel.DeliveryProfile, error) {
-	raw, err := os.ReadFile(filepath.Join(root, ".pose", "indexes", "validation-matrix.json"))
+func loadDeliveryProfilesIn(files posemodel.Files, root string) (map[string]posemodel.DeliveryProfile, error) {
+	raw, err := files.ReadFile(filepath.Join(root, ".pose", "indexes", "validation-matrix.json"))
 	if err != nil {
 		return nil, err
 	}
@@ -29,8 +29,14 @@ func loadDeliveryProfiles(root string) (map[string]posemodel.DeliveryProfile, er
 	return matrix.DeliveryProfiles, nil
 }
 
-func collectDeliveryTargets(root string, specs []posemodel.Spec, profiles map[string]posemodel.DeliveryProfile) ([]posemodel.Spec, []posemodel.DeliveryTarget, error) {
-	store := posemodel.Store{Root: root}
+// loadDeliveryProfiles reads and writes the filesystem directly; loadDeliveryProfilesIn takes the
+// operation's files.
+func loadDeliveryProfiles(root string) (map[string]posemodel.DeliveryProfile, error) {
+	return loadDeliveryProfilesIn(posemodel.NativeFiles(), root)
+}
+
+func collectDeliveryTargetsIn(files posemodel.Files, root string, specs []posemodel.Spec, profiles map[string]posemodel.DeliveryProfile) ([]posemodel.Spec, []posemodel.DeliveryTarget, error) {
+	store := posemodel.Store{Root: root, FS: files}
 	fullSpecs := make([]posemodel.Spec, 0, len(specs))
 	targets := []posemodel.DeliveryTarget{}
 	for _, summary := range specs {
@@ -42,7 +48,7 @@ func collectDeliveryTargets(root string, specs []posemodel.Spec, profiles map[st
 		if err != nil {
 			return nil, nil, fmt.Errorf("spec:%s: %w", summary.Slug, err)
 		}
-		if err := posemodel.ValidateDeliveryTargets(root, parsed, profiles); err != nil {
+		if err := posemodel.ValidateDeliveryTargetsIn(files, root, parsed, profiles); err != nil {
 			return nil, nil, fmt.Errorf("spec:%s: %w", summary.Slug, err)
 		}
 		fullSpecs = append(fullSpecs, *full)
@@ -51,14 +57,20 @@ func collectDeliveryTargets(root string, specs []posemodel.Spec, profiles map[st
 	return fullSpecs, targets, nil
 }
 
-func loadDeliveryValidationResults(root, relative string) ([]posemodel.DeliveryValidationResult, error) {
+// collectDeliveryTargets reads and writes the filesystem directly; collectDeliveryTargetsIn takes the
+// operation's files.
+func collectDeliveryTargets(root string, specs []posemodel.Spec, profiles map[string]posemodel.DeliveryProfile) ([]posemodel.Spec, []posemodel.DeliveryTarget, error) {
+	return collectDeliveryTargetsIn(posemodel.NativeFiles(), root, specs, profiles)
+}
+
+func loadDeliveryValidationResultsIn(files posemodel.Files, root, relative string) ([]posemodel.DeliveryValidationResult, error) {
 	if relative == "" {
 		return []posemodel.DeliveryValidationResult{}, nil
 	}
 	if !confinedRelativePath(relative) {
 		return nil, fmt.Errorf("validation result path must remain inside project")
 	}
-	raw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(relative)))
+	raw, err := files.ReadFile(filepath.Join(root, filepath.FromSlash(relative)))
 	if os.IsNotExist(err) {
 		return []posemodel.DeliveryValidationResult{}, nil
 	}
@@ -68,8 +80,14 @@ func loadDeliveryValidationResults(root, relative string) ([]posemodel.DeliveryV
 	return posemodel.ParseDeliveryValidationRun(raw, relative)
 }
 
-func extendCurrentDeliveryGraph(root string, base posemodel.DeliveryIntegrityGraph) (posemodel.DeliveryIntegrityGraph, error) {
-	policy, err := posemodel.LoadDeliveryPolicy(root)
+// loadDeliveryValidationResults reads and writes the filesystem directly; loadDeliveryValidationResultsIn takes the
+// operation's files.
+func loadDeliveryValidationResults(root, relative string) ([]posemodel.DeliveryValidationResult, error) {
+	return loadDeliveryValidationResultsIn(posemodel.NativeFiles(), root, relative)
+}
+
+func extendCurrentDeliveryGraphIn(files posemodel.Files, root string, base posemodel.DeliveryIntegrityGraph) (posemodel.DeliveryIntegrityGraph, error) {
+	policy, err := posemodel.LoadDeliveryPolicyIn(files, root)
 	if err != nil {
 		return base, err
 	}
@@ -83,14 +101,14 @@ func extendCurrentDeliveryGraph(root string, base posemodel.DeliveryIntegrityGra
 	// are no delivery targets, so a criterion naming one is unresolved — which
 	// the criteria loop already reports as `unknown delivery ref`, and which is
 	// the honest answer. `check:` and `manual-review:` refs need neither.
-	profiles, err := loadDeliveryProfiles(root)
+	profiles, err := loadDeliveryProfilesIn(files, root)
 	if err != nil {
 		if !errors.Is(err, fs.ErrNotExist) {
 			return base, err
 		}
 		profiles = map[string]posemodel.DeliveryProfile{}
 	}
-	store := posemodel.Store{Root: root}
+	store := posemodel.Store{Root: root, FS: files}
 	specs, err := store.ListSpecs("", "")
 	if err != nil {
 		// errors.Is, not os.IsNotExist: the store wraps the cause, and
@@ -101,11 +119,11 @@ func extendCurrentDeliveryGraph(root string, base posemodel.DeliveryIntegrityGra
 		}
 		specs = nil
 	}
-	fullSpecs, targets, err := collectDeliveryTargets(root, specs, profiles)
+	fullSpecs, targets, err := collectDeliveryTargetsIn(files, root, specs, profiles)
 	if err != nil {
 		return base, err
 	}
-	results, err := loadDeliveryValidationResults(root, policy.ResultsPath)
+	results, err := loadDeliveryValidationResultsIn(files, root, policy.ResultsPath)
 	if err != nil {
 		return base, err
 	}
@@ -122,6 +140,12 @@ func extendCurrentDeliveryGraph(root string, base posemodel.DeliveryIntegrityGra
 		roadmaps = append(roadmaps, *full)
 	}
 	return posemodel.BuildDeliverySurface(base, fullSpecs, targets, results, roadmaps, profiles, policy), nil
+}
+
+// extendCurrentDeliveryGraph reads and writes the filesystem directly; extendCurrentDeliveryGraphIn takes the
+// operation's files.
+func extendCurrentDeliveryGraph(root string, base posemodel.DeliveryIntegrityGraph) (posemodel.DeliveryIntegrityGraph, error) {
+	return extendCurrentDeliveryGraphIn(posemodel.NativeFiles(), root, base)
 }
 
 func cmdSurfaceCheck(root string, args []string, stdout, stderr io.Writer) int {

@@ -367,7 +367,7 @@ func (s Store) GovernanceOutcomes(query GovernanceOutcomesQuery) (*GovernanceOut
 	// projection is local by definition, and a federated store resolves every
 	// qualified dependency again per bundle, which made the MCP answer both
 	// far slower than the CLI's and able to differ from it.
-	verifier := Store{Root: s.Root}
+	verifier := Store{Root: s.Root, FS: s.FS}
 	for _, att := range atts {
 		at, ok := parseGovernanceTime(att.AttestedAt)
 		if !ok || at.After(now) || (!cutoff.IsZero() && at.Before(cutoff)) {

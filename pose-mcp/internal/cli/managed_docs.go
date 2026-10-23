@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -223,10 +222,10 @@ func sectionIsInstanceOwned(section docSection) bool {
 // `pose upgrade` calls it on every run — without it the upgrade path delivers
 // only the binary and the schema stamp, and no manual change ever reaches a
 // repository that is already installed.
-func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLocale) error {
+func refreshManagedDocsIn(files posemodel.Files, root, locale string, stdout io.Writer, localeText cliLocale) error {
 	dist := scaffold.Dist()
 	for _, doc := range []string{"AGENTS.md", "POSE.md"} {
-		existing, err := os.ReadFile(filepath.Join(root, doc))
+		existing, err := files.ReadFile(filepath.Join(root, doc))
 		if err != nil {
 			// Absent manual is `pose install`'s job, not the upgrade path's.
 			continue
@@ -252,8 +251,8 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 		}
 		// The instance already resolved the scaffold placeholders; reuse its
 		// own values so a refresh never reintroduces {{PROJECT_NAME}}.
-		content := restoreDocPlaceholders(string(canonical), string(existing), root)
-		delivered := deliveredManual(root, doc)
+		content := restoreDocPlaceholdersIn(files, string(canonical), string(existing), root)
+		delivered := deliveredManualIn(files, root, doc)
 
 		var merged string
 		var preserved, dropsContent bool
@@ -282,7 +281,7 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 			// what POSE would deliver, and the next release's merge needs it;
 			// an existing record stays, so a no-op update changes nothing.
 			if delivered == nil {
-				if err := recordDeliveredManual(root, doc, content); err != nil {
+				if err := recordDeliveredManualIn(files, root, doc, content); err != nil {
 					return err
 				}
 			}
@@ -292,6 +291,9 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 		// hand the instance a manual reading "{{PROJECT_NAME}}". Leaving the
 		// file untouched is strictly better than degrading it.
 		if strings.Contains(merged, "{{") {
+			if p := files.Preview(); p != nil {
+				p.Incomplete("managed manual " + doc + ": unresolved scaffold placeholder")
+			}
 			fmt.Fprintf(stdout, cliText(localeText, "[WARN] skipped %s: unresolved scaffold placeholder\n", "[AVISO] %s ignorado: placeholder de scaffold não resolvido\n"), doc)
 			continue
 		}
@@ -303,7 +305,7 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 		// pose-compat-gate-candidate-integrity, matching the warning `pose
 		// install`'s own merge path already gives for the same case).
 		if dropsContent {
-			if err := os.WriteFile(filepath.Join(root, doc)+".pose-backup", existing, 0o644); err != nil {
+			if err := files.WriteFile(filepath.Join(root, doc)+".pose-backup", existing, 0o644); err != nil {
 				return err
 			}
 			if delivered != nil {
@@ -312,10 +314,10 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 				fmt.Fprintf(stdout, cliText(localeText, "[WARN] backed up: %s -> %s.pose-backup (no record of what POSE delivered, so a local edit cannot be ruled out)\n", "[AVISO] backup: %s -> %s.pose-backup (sem registro do que o POSE entregou, não dá para descartar uma edição local)\n"), doc, doc)
 			}
 		}
-		if err := writeAtomic(filepath.Join(root, doc), []byte(merged), 0o644); err != nil {
+		if err := writeAtomicIn(files, filepath.Join(root, doc), []byte(merged), 0o644); err != nil {
 			return err
 		}
-		if err := recordDeliveredManual(root, doc, content); err != nil {
+		if err := recordDeliveredManualIn(files, root, doc, content); err != nil {
 			return err
 		}
 		if preserved {
@@ -325,6 +327,12 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 		}
 	}
 	return nil
+}
+
+// refreshManagedDocs reads and writes the filesystem directly; refreshManagedDocsIn takes the
+// operation's files.
+func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLocale) error {
+	return refreshManagedDocsIn(posemodel.NativeFiles(), root, locale, stdout, localeText)
 }
 
 // resolveDocLocale picks which shipped translation of doc the installed manual
@@ -385,8 +393,8 @@ func resolveDocLocale(dist fs.FS, doc, existing, preferred string, explicit bool
 // manual with the values the installed instance already carries, read back from
 // its own first line mentioning them. When they cannot be recovered the
 // placeholders are left untouched rather than guessed.
-func restoreDocPlaceholders(canonical, existing, root string) string {
-	name, id := detectProjectIdentity(existing, root)
+func restoreDocPlaceholdersIn(files posemodel.Files, canonical, existing, root string) string {
+	name, id := detectProjectIdentityIn(files, existing, root)
 	replacements := []string{}
 	if name != "" {
 		replacements = append(replacements, "{{PROJECT_NAME}}", name)
@@ -400,11 +408,17 @@ func restoreDocPlaceholders(canonical, existing, root string) string {
 	return strings.NewReplacer(replacements...).Replace(canonical)
 }
 
+// restoreDocPlaceholders reads and writes the filesystem directly; restoreDocPlaceholdersIn takes the
+// operation's files.
+func restoreDocPlaceholders(canonical, existing, root string) string {
+	return restoreDocPlaceholdersIn(posemodel.NativeFiles(), canonical, existing, root)
+}
+
 // detectProjectIdentity recovers the project name and id an installed manual
 // was rendered with. It reads the rendered manuals first — those carry the
 // values the instance actually chose — and falls back to `.mcp.json` and the
 // repository directory name, which is what `pose install` defaults to.
-func detectProjectIdentity(existing, root string) (name, id string) {
+func detectProjectIdentityIn(files posemodel.Files, existing, root string) (name, id string) {
 	namePrefixes := []struct{ prefix, suffix string }{
 		{"POSE is the operating standard for agent work in **", "**."},
 		{"POSE é o padrão operacional de trabalho com agentes em **", "**."},
@@ -430,7 +444,7 @@ func detectProjectIdentity(existing, root string) (name, id string) {
 			}
 		}
 	}
-	if raw, err := os.ReadFile(filepath.Join(root, ".mcp.json")); err == nil {
+	if raw, err := files.ReadFile(filepath.Join(root, ".mcp.json")); err == nil {
 		if _, rest, ok := strings.Cut(string(raw), "\"POSE_DEFAULT_PROJECT_ID\": \""); ok {
 			if value, _, ok := strings.Cut(rest, "\""); ok {
 				id = value
@@ -444,6 +458,12 @@ func detectProjectIdentity(existing, root string) (name, id string) {
 		id = posemodel.ProjectIDFor(name)
 	}
 	return name, id
+}
+
+// detectProjectIdentity reads and writes the filesystem directly; detectProjectIdentityIn takes the
+// operation's files.
+func detectProjectIdentity(existing, root string) (name, id string) {
+	return detectProjectIdentityIn(posemodel.NativeFiles(), existing, root)
 }
 
 // manualSectionDigests returns the digest of each section POSE itself writes
@@ -472,19 +492,31 @@ func manualSectionDigests(canonical string) map[string]string {
 // recordDeliveredManual stores what POSE wrote to doc from canonical — the
 // shipped manual with the instance's placeholders restored — so the next merge
 // can tell the instance's edits from text an older release wrote.
-func recordDeliveredManual(target, doc, canonical string) error {
-	m := readMachineryManifest(target)
+func recordDeliveredManualIn(files posemodel.Files, target, doc, canonical string) error {
+	m := readMachineryManifestIn(files, target)
 	if m.Manuals == nil {
 		m.Manuals = map[string]map[string]string{}
 	}
 	m.Manuals[doc] = manualSectionDigests(canonical)
-	return storeMachineryManifest(target, m)
+	return storeMachineryManifestIn(files, target, m)
+}
+
+// recordDeliveredManual reads and writes the filesystem directly; recordDeliveredManualIn takes the
+// operation's files.
+func recordDeliveredManual(target, doc, canonical string) error {
+	return recordDeliveredManualIn(posemodel.NativeFiles(), target, doc, canonical)
 }
 
 // deliveredManual returns the section digests recorded for doc, or nil when
 // POSE has no record of what it wrote there.
+func deliveredManualIn(files posemodel.Files, target, doc string) map[string]string {
+	return readMachineryManifestIn(files, target).Manuals[doc]
+}
+
+// deliveredManual reads and writes the filesystem directly; deliveredManualIn takes the
+// operation's files.
 func deliveredManual(target, doc string) map[string]string {
-	return readMachineryManifest(target).Manuals[doc]
+	return deliveredManualIn(posemodel.NativeFiles(), target, doc)
 }
 
 // manualDropsLocalEdits reports whether merged loses a line the instance wrote.

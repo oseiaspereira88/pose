@@ -43,7 +43,7 @@ func (s Store) GetRoadmap(slug string) (*Roadmap, error) {
 		return nil, fmt.Errorf("pose: invalid roadmap slug %q", slug)
 	}
 	path := filepath.Join(s.roadmapsDir(), slug+".md")
-	rm, err := parseRoadmapFile(path, slug, true)
+	rm, err := parseRoadmapFile(s.fsys(), path, slug, true)
 	if err != nil {
 		return nil, fmt.Errorf("pose: roadmap %q not found", slug)
 	}
@@ -52,7 +52,7 @@ func (s Store) GetRoadmap(slug string) (*Roadmap, error) {
 
 // ListRoadmaps returns every roadmap (no body), sorted by slug.
 func (s Store) ListRoadmaps() ([]Roadmap, error) {
-	entries, err := os.ReadDir(s.roadmapsDir())
+	entries, err := s.fsys().ReadDir(s.roadmapsDir())
 	if err != nil {
 		if os.IsNotExist(err) {
 			return []Roadmap{}, nil
@@ -65,7 +65,7 @@ func (s Store) ListRoadmaps() ([]Roadmap, error) {
 			continue
 		}
 		slug := strings.TrimSuffix(e.Name(), ".md")
-		rm, err := parseRoadmapFile(filepath.Join(s.roadmapsDir(), e.Name()), slug, false)
+		rm, err := parseRoadmapFile(s.fsys(), filepath.Join(s.roadmapsDir(), e.Name()), slug, false)
 		if err != nil {
 			continue // um artefato quebrado não derruba a listagem
 		}
@@ -75,8 +75,8 @@ func (s Store) ListRoadmaps() ([]Roadmap, error) {
 	return roadmaps, nil
 }
 
-func parseRoadmapFile(path, slug string, includeBody bool) (*Roadmap, error) {
-	raw, err := os.ReadFile(path)
+func parseRoadmapFile(files Files, path, slug string, includeBody bool) (*Roadmap, error) {
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

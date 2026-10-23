@@ -291,7 +291,7 @@ func TestR6ASupersededPreparedCutIsAWarningAndALiveOneIsJudged(t *testing.T) {
 }
 
 // adoptedTaggedRelease prepares v1.0.0 under an adopted policy and tags a commit holding the cut.
-func adoptedTaggedRelease(t *testing.T) string {
+func adoptedTaggedRelease(t *testing.T, beforeCommit ...func(string)) string {
 	t.Helper()
 	root := t.TempDir()
 	writeReleaseFixture(t, root, ".pose/policy/release.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo","allow_empty":true,"version_source":{"path":"VERSION","kind":"text"}}`)
@@ -299,6 +299,9 @@ func adoptedTaggedRelease(t *testing.T) string {
 	var out, errOut bytes.Buffer
 	if code := cmdReleasePrepare(root, []string{"--version", "v1.0.0", "--apply"}, &out, &errOut); code != 0 {
 		t.Fatalf("prepare=%d %s", code, errOut.String())
+	}
+	for _, prepare := range beforeCommit {
+		prepare(root)
 	}
 	releaseGit(t, root, "init", "-q")
 	releaseGit(t, root, "add", ".")
@@ -468,15 +471,37 @@ func TestR9LostWitnessesOfAdoptionAreNotNoAdoption(t *testing.T) {
 	})
 }
 
-// R9-F02: a failure to re-read the version source is a gap, never an approval.
+// R9-F02: a failure to re-read the committed version source is a gap,
+// never an approval. Snapshot validation parses immutable bytes in memory;
+// an unavailable host temp directory no longer prevents that read.
 func TestR9AVersionSourceThatCouldNotBeReReadIsNotApproved(t *testing.T) {
 	root := adoptedTaggedRelease(t)
-	if checker, out := releaseCheckerFor(root); checker.errors != 0 {
-		t.Fatalf("control: %q", out.String())
-	}
-	t.Setenv("TMPDIR", filepath.Join(t.TempDir(), "missing"))
-	if checker, out := releaseCheckerFor(root); checker.errors == 0 {
-		t.Fatalf("a version source that could not be re-read was approved: %q", out.String())
+	t.Run("in-memory valid source control", func(t *testing.T) {
+		t.Setenv("TMPDIR", filepath.Join(t.TempDir(), "missing"))
+		if checker, out := releaseCheckerFor(root); checker.errors != 0 {
+			t.Fatalf("in-memory valid source control: %q", out.String())
+		}
+	})
+	for _, source := range []string{"missing", "malformed", "oversized"} {
+		t.Run(source, func(t *testing.T) {
+			bad := adoptedTaggedRelease(t, func(root string) {
+				switch source {
+				case "missing":
+					if err := os.Remove(filepath.Join(root, "VERSION")); err != nil {
+						t.Fatal(err)
+					}
+				case "malformed":
+					writeReleaseFixture(t, root, "VERSION", "not a version\n")
+				case "oversized":
+					writeReleaseFixture(t, root, "VERSION", strings.Repeat("1", 8192))
+				}
+			})
+			// Current worktree bytes cannot repair the committed source.
+			writeReleaseFixture(t, bad, "VERSION", "1.0.0\n")
+			if checker, out := releaseCheckerFor(bad); checker.errors == 0 || !strings.Contains(out.String(), "version source") {
+				t.Fatalf("an unreadable committed version source was approved: %q", out.String())
+			}
+		})
 	}
 }
 

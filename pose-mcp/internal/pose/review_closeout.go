@@ -434,7 +434,7 @@ var reviewLineRE = regexp.MustCompile(`^-\s+([A-Za-z0-9._-]+)\s+\[([^]]+)\](?:\s
 
 func (s Store) loadReviewPolicy() (ReviewPolicy, []byte, error) {
 	path := filepath.Join(s.Root, ".pose", "policy", "review.json")
-	raw, err := os.ReadFile(path)
+	raw, err := s.fsys().ReadFile(path)
 	if os.IsNotExist(err) {
 		return ReviewPolicy{}, nil, nil
 	}
@@ -613,7 +613,7 @@ func (s Store) loadReviewProfile(ref string) (ReviewProfile, []byte, error) {
 		return ReviewProfile{}, nil, fmt.Errorf("pose: invalid review profile ref %q", ref)
 	}
 	path := filepath.Join(s.Root, ".pose", "review-profiles", parts[0]+".json")
-	raw, err := os.ReadFile(path)
+	raw, err := s.fsys().ReadFile(path)
 	if err != nil {
 		return ReviewProfile{}, nil, fmt.Errorf("pose: reading review profile %q: %w", ref, err)
 	}
@@ -738,7 +738,7 @@ func (s Store) validateReviewContractRefs(ref string, rules, evidenceClasses []s
 		if !slugPattern.MatchString(rule) {
 			return fmt.Errorf("pose: invalid review rule %q in %s", rule, ref)
 		}
-		if err := ValidateArtifactPath(s.Root, filepath.ToSlash(filepath.Join(".pose", "rules", rule+".md")), false); err != nil {
+		if err := ValidateArtifactPathIn(s.fsys(), s.Root, filepath.ToSlash(filepath.Join(".pose", "rules", rule+".md")), false); err != nil {
 			return fmt.Errorf("pose: unsafe review rule %q in %s: %w", rule, ref, err)
 		}
 	}
@@ -791,8 +791,8 @@ func (s Store) ReviewProfileForScope(ref string) (ReviewProfile, error) {
 	return profile, err
 }
 
-func parseReviewAttempt(path string) (ReviewAttempt, error) {
-	raw, err := os.ReadFile(path)
+func parseReviewAttempt(files Files, path string) (ReviewAttempt, error) {
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return ReviewAttempt{}, err
 	}
@@ -979,9 +979,9 @@ func attestationLess(a, b ReviewAttestation) bool {
 func (s Store) ReadReviewAttempts(scope string) (ReviewAttemptsRead, error) {
 	coverage := SourceCoverage{Losses: []SourceLoss{}}
 	dir := filepath.Join(s.Root, ".pose", "reviews")
-	entries, err := os.ReadDir(dir)
+	entries, err := s.fsys().ReadDir(dir)
 	if os.IsNotExist(err) {
-		if _, lerr := os.Lstat(dir); lerr == nil {
+		if _, lerr := s.fsys().Lstat(dir); lerr == nil {
 			// A link to nowhere reads as "does not exist": the history is there and lost.
 			coverage.Add(SourceLoss{Producer: "review-attempts", Artifact: ".pose/reviews", Kind: LossReadError, Detail: err.Error()})
 			coverage.Normalize()
@@ -1000,7 +1000,7 @@ func (s Store) ReadReviewAttempts(scope string) (ReviewAttemptsRead, error) {
 		rel := filepath.ToSlash(filepath.Join(".pose", "reviews", entry.Name()))
 		at := reviewAttemptFileTime(entry.Name())
 		if scope != "" {
-			raw, readErr := os.ReadFile(path)
+			raw, readErr := s.fsys().ReadFile(path)
 			if readErr != nil {
 				coverage.Add(SourceLoss{Producer: "review-attempts", Artifact: rel, Kind: LossReadError, Detail: readErr.Error(), At: at, ID: strings.TrimSuffix(entry.Name(), ".md")})
 				continue
@@ -1019,7 +1019,7 @@ func (s Store) ReadReviewAttempts(scope string) (ReviewAttemptsRead, error) {
 				continue
 			}
 		}
-		a, err := parseReviewAttempt(path)
+		a, err := parseReviewAttempt(s.fsys(), path)
 		if err == nil {
 			// A record must carry what a consumer selects by: a truncated one that parses
 			// is not an attempt with empty fields, it is a record that was not fully read.
@@ -1037,7 +1037,7 @@ func (s Store) ReadReviewAttempts(scope string) (ReviewAttemptsRead, error) {
 			} else if _, timeErr := time.Parse(time.RFC3339, a.ReviewedAt); timeErr != nil {
 				// The history is selected and ordered by this field.
 				err = fmt.Errorf("pose: review record has reviewed_at %q, which is not RFC3339", a.ReviewedAt)
-			} else if raw, readErr := os.ReadFile(path); readErr == nil && !frontmatterClosed(string(raw)) {
+			} else if raw, readErr := s.fsys().ReadFile(path); readErr == nil && !frontmatterClosed(string(raw)) {
 				err = fmt.Errorf("pose: review record header is not closed")
 			}
 		}
@@ -1047,7 +1047,7 @@ func (s Store) ReadReviewAttempts(scope string) (ReviewAttemptsRead, error) {
 				// A format this engine does not read, as opposed to a corrupt record.
 				loss.Kind = LossUnsupported
 			}
-			if raw, readErr := os.ReadFile(path); readErr == nil {
+			if raw, readErr := s.fsys().ReadFile(path); readErr == nil {
 				if fm, _ := SplitFrontmatter(string(raw)); fm["scope"] != "" && len(FrontmatterRepeats(string(raw), "scope")) == 0 {
 					// A scope named twice belongs to neither line: the loss is unattributed and
 					// concerns every scope.
@@ -1476,13 +1476,13 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 		eval.Blockers = append(eval.Blockers, "review profile does not match current policy")
 	}
 	for _, ref := range current.EvidenceRefs {
-		if err := validateReviewEvidenceRef(s.Root, ref); err != nil {
+		if err := validateReviewEvidenceRef(s.fsys(), s.Root, ref); err != nil {
 			eval.Blockers = append(eval.Blockers, err.Error())
 		}
 	}
 	if len(effectiveTools) > 0 {
 		toolWarnings, toolBlockers := // The legacy attempt path has no sealed bundle to check against.
-			evaluateReviewToolCoverage(s.Root, effectiveTools, current.Tools, nil, true)
+			evaluateReviewToolCoverageIn(s.fsys(), s.Root, effectiveTools, current.Tools, nil, true)
 		eval.Warnings = append(eval.Warnings, toolWarnings...)
 		eval.Blockers = append(eval.Blockers, toolBlockers...)
 	}
@@ -1522,7 +1522,7 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 			eval.Blockers = append(eval.Blockers, "unknown criterion "+criterion.ID)
 		}
 		if criterion.Evidence != "" {
-			if err := validateReviewEvidenceRef(s.Root, criterion.Evidence); err != nil {
+			if err := validateReviewEvidenceRef(s.fsys(), s.Root, criterion.Evidence); err != nil {
 				eval.Blockers = append(eval.Blockers, err.Error())
 			}
 		}
@@ -1607,7 +1607,7 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 // none, and requiring it to have passed there is requiring a fabricated
 // disposition — which is what auto-attest used to produce. Such a tool is
 // treated the way `review-complete` already is: deferrable, with a reason.
-func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, dispositions []ReviewToolDisposition, sealed map[string]ReviewBundleEvidence, scopeHasDeliveryTarget bool) ([]string, []string) {
+func evaluateReviewToolCoverageIn(files Files, root string, planTools []ReviewPlanTool, dispositions []ReviewToolDisposition, sealed map[string]ReviewBundleEvidence, scopeHasDeliveryTarget bool) ([]string, []string) {
 	warnings, blockers := []string{}, []string{}
 	planned := map[string]ReviewPlanTool{}
 	for _, tool := range planTools {
@@ -1628,7 +1628,7 @@ func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, disposi
 		}
 		observed[key] = disposition
 		if disposition.Evidence != "" {
-			if err := validateReviewEvidenceRef(root, disposition.Evidence); err != nil {
+			if err := validateReviewEvidenceRef(files, root, disposition.Evidence); err != nil {
 				blockers = append(blockers, err.Error())
 			}
 		}
@@ -1693,6 +1693,11 @@ func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, disposi
 		}
 	}
 	return uniqueSorted(warnings), uniqueSorted(blockers)
+}
+
+// evaluateReviewToolCoverage reads the filesystem directly; evaluateReviewToolCoverageIn reads the operation's files.
+func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, dispositions []ReviewToolDisposition, sealed map[string]ReviewBundleEvidence, scopeHasDeliveryTarget bool) ([]string, []string) {
+	return evaluateReviewToolCoverageIn(NativeFiles(), root, planTools, dispositions, sealed, scopeHasDeliveryTarget)
 }
 
 // reviewToolEvidenceBlocker reports why a tool disposition is not supported.
@@ -2307,7 +2312,7 @@ func (s Store) reviewRequiredForScope(scope ScopeRef, policy ReviewPolicy) (bool
 	return !created.Before(adoptedAt), nil
 }
 
-func validateReviewEvidenceRef(root, ref string) error {
+func validateReviewEvidenceRef(files Files, root, ref string) error {
 	parts := strings.SplitN(strings.TrimSpace(ref), ":", 2)
 	if len(parts) != 2 || !slugPattern.MatchString(parts[0]) || strings.TrimSpace(parts[1]) == "" {
 		return fmt.Errorf("invalid review evidence ref %q", ref)
@@ -2316,14 +2321,17 @@ func validateReviewEvidenceRef(root, ref string) error {
 		return nil
 	}
 	rel := filepath.Clean(filepath.FromSlash(parts[1]))
-	if filepath.IsAbs(rel) || rel == ".." || strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {
+	if !filepath.IsLocal(rel) {
 		return fmt.Errorf("review evidence path escapes project root: %q", ref)
 	}
 	if !strings.HasPrefix(filepath.ToSlash(rel), ".pose/reports/") {
 		rel = filepath.Join(".pose", "reports", rel)
 	}
 	path := filepath.Join(root, rel)
-	if _, err := os.Stat(path); err != nil {
+	if err := validateProjectPathIn(files, root, rel); err != nil {
+		return fmt.Errorf("review evidence path escapes project root: %q: %w", ref, err)
+	}
+	if _, err := files.Stat(path); err != nil {
 		return fmt.Errorf("review evidence does not resolve: %q", ref)
 	}
 	return nil

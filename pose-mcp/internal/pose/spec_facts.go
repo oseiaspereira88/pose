@@ -118,7 +118,7 @@ func (s Store) specFactsFreshness() SpecFactsFreshness {
 		return SpecFactsFreshness{Status: SpecFactsUnavailable, Reason: view.Reason}
 	case IndexGenerationCurrent:
 		generation := view.Descriptor.GenerationID
-		stale := view.StaleInputs(func(name string) (string, bool) { return IndexInputBinding(s.Root, name) })
+		stale := view.StaleInputs(func(name string) (string, bool) { return IndexInputBindingIn(s.fsys(), s.Root, name) })
 		unbound := []string{}
 		for _, name := range IndexInputNames {
 			if _, ok := view.Descriptor.Inputs[name]; !ok {
@@ -163,7 +163,7 @@ func degradeFreshness(f *SpecFactsFreshness, status, input, reason string) {
 // results file the facts no longer describe. A file that cannot be read, a contract this engine
 // does not read and a policy that cannot be loaded are not agreement.
 func (s Store) resultsFileDisagrees(graph DeliveryIntegrityGraph) string {
-	policy, err := LoadDeliveryPolicy(s.Root)
+	policy, err := LoadDeliveryPolicyIn(s.fsys(), s.Root)
 	if err != nil {
 		return "the delivery policy could not be loaded, so the results file it names is unknown: " + err.Error()
 	}
@@ -180,7 +180,7 @@ func (s Store) resultsFileDisagrees(graph DeliveryIntegrityGraph) string {
 		}
 		return ""
 	}
-	raw, err := os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(policy.ResultsPath)))
+	raw, err := s.fsys().ReadFile(filepath.Join(s.Root, filepath.FromSlash(policy.ResultsPath)))
 	if errors.Is(err, os.ErrNotExist) {
 		if len(held) > 0 {
 			return policy.ResultsPath + " is gone, and the index holds results read from it"
@@ -322,7 +322,7 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 				}
 			}
 		}
-		explicit, explicitErr := hasExplicitAttribution(s.Root, slug)
+		explicit, explicitErr := hasExplicitAttributionIn(s.fsys(), s.Root, slug)
 		for _, cs := range graph.ChangeSets {
 			if cs.Spec == slug && !strings.HasPrefix(cs.Selector, "trailers:") {
 				explicit = true
@@ -578,10 +578,14 @@ func moduleCoversSpec(module string, components map[string]bool, paths []Observe
 // record of the spec, or that they could not be read. The generation binds neither them nor
 // their absence, so the facts of a spec they name cannot be called fresh by it.
 func hasExplicitAttribution(root, slug string) (bool, error) {
+	return hasExplicitAttributionIn(NativeFiles(), root, slug)
+}
+
+func hasExplicitAttributionIn(files Files, root, slug string) (bool, error) {
 	dir := filepath.Join(root, ".pose", "reports", "history")
-	entries, err := os.ReadDir(dir)
+	entries, err := files.ReadDir(dir)
 	if errors.Is(err, os.ErrNotExist) {
-		if _, lerr := os.Lstat(dir); lerr == nil {
+		if _, lerr := files.Lstat(dir); lerr == nil {
 			return true, err // a link to a place that was lost
 		}
 		return false, nil
@@ -593,7 +597,7 @@ func hasExplicitAttribution(root, slug string) (bool, error) {
 		if !strings.HasSuffix(e.Name(), ".jsonl") {
 			continue
 		}
-		raw, rerr := os.ReadFile(filepath.Join(dir, e.Name()))
+		raw, rerr := files.ReadFile(filepath.Join(dir, e.Name()))
 		if rerr != nil {
 			return true, rerr
 		}

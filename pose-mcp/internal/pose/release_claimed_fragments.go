@@ -29,7 +29,7 @@ func (s Store) ForeignFragmentClaims(fragments []ReleaseFragment) ([]string, err
 	if err != nil {
 		return nil, err
 	}
-	policy, err := LoadArtifactPolicy(s.Root)
+	policy, err := LoadArtifactPolicyIn(s.fsys(), s.Root)
 	if err != nil {
 		return nil, err
 	}

@@ -91,7 +91,7 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 	if gitErr != nil {
 		return CloseoutPlan{}, gitErr
 	}
-	plan.Inputs = CloseoutPlanInputs{SpecDigest: digestHex(raw), Revision: strings.TrimSpace(string(head)), PolicyDigest: directoryDigest(filepath.Join(s.Root, ".pose", "policy"))}
+	plan.Inputs = CloseoutPlanInputs{SpecDigest: digestHex(raw), Revision: strings.TrimSpace(string(head)), PolicyDigest: directoryDigestIn(s.fsys(), filepath.Join(s.Root, ".pose", "policy"))}
 	step := func(id, state, reason string) {
 		plan.Steps = append(plan.Steps, CloseoutPlanStep{ID: id, State: state, Reason: reason})
 	}
@@ -227,7 +227,7 @@ func (s Store) ungeneratedChanges(slug, head string) ([]string, error) {
 	for _, path := range hidden {
 		trackedChanges[path] = true
 	}
-	policy, err := LoadDeliveryPolicy(s.Root)
+	policy, err := LoadDeliveryPolicyIn(s.fsys(), s.Root)
 	if err != nil {
 		return nil, err
 	}
@@ -446,7 +446,7 @@ var closeoutStepIDs = map[string]bool{
 // artifact, so a crash may lose the last update but never presents a torn
 // one (R4).
 func (s Store) WriteCloseoutCheckpoint(cp CloseoutCheckpoint) error {
-	dir, err := ensureReviewArtifactDir(s.Root, closeoutCheckpointDir, true)
+	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, closeoutCheckpointDir, true)
 	if err != nil {
 		return err
 	}

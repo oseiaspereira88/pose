@@ -26,7 +26,11 @@ var checkMilestoneRef = regexp.MustCompile(`^milestone:[a-z0-9][a-z0-9._-]*/[a-z
 var checkRoadmapRef = regexp.MustCompile(`^roadmap:[a-z0-9][a-z0-9._-]*$`)
 
 type nativeChecker struct {
-	root     string
+	root string
+	// files is the filesystem the gate reads: the disk, or the view of an
+	// update preview projecting the state the update leaves (spec
+	// pose-update-dry-run-reports-the-whole-update D2).
+	files    pose.Files
 	mode     string
 	locale   cliLocale
 	stdout   io.Writer
@@ -34,6 +38,8 @@ type nativeChecker struct {
 	errors   int
 	warnings int
 }
+
+func (checker *nativeChecker) fsys() pose.Files { return pose.FilesOrNative(checker.files) }
 
 func (checker *nativeChecker) message(english, portuguese string) string {
 	return cliText(checker.locale, english, portuguese)
@@ -82,7 +88,7 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	return cmdCheckWithLocale(root, args, stdout, stderr, cliLocaleValue())
 }
 
-func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, locale cliLocale) int {
+func cmdCheckWithLocaleIn(files pose.Files, root string, args []string, stdout, stderr io.Writer, locale cliLocale) int {
 	mode := "strict"
 	usage := cliText(locale, "Usage: pose check [--strict|--tolerant] [--json] [--json-out <path>] [--quiet] [--color auto|always|never]",
 		"Uso: pose check [--strict|--tolerant] [--json] [--json-out <path>] [--quiet] [--color auto|always|never]")
@@ -134,7 +140,7 @@ func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, lo
 	case jsonOut != "":
 		out.RecordTee("check")
 	}
-	checker := &nativeChecker{root: root, mode: mode, locale: locale, stdout: stdout, out: out}
+	checker := &nativeChecker{root: root, files: files, mode: mode, locale: locale, stdout: stdout, out: out}
 	checker.checkRequiredStructure()
 	checker.checkSchemaVersion()
 	checker.checkReferences()
@@ -148,7 +154,7 @@ func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, lo
 	appendReleasePolicyChecks(checker)
 	checker.checkReadyTransitions()
 	checker.checkCapabilities()
-	if stale := staleInstanceEngine(checker.root); stale != "" {
+	if stale := staleInstanceEngineIn(checker.fsys(), checker.root); stale != "" {
 		checker.issue(cliout.StateWarning, checker.message("instance: last updated by POSE "+stale+", older than this engine "+version.ReleaseBase()+"; run pose update", "instância: atualizada pela última vez pelo POSE "+stale+", mais antigo que este motor "+version.ReleaseBase()+"; rode pose update"))
 	}
 	checker.checkDocs()
@@ -169,7 +175,7 @@ func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, lo
 			Text: fmt.Sprintf(cliText(locale, "POSE structure has %d error(s).", "estrutura POSE com %d erro(s)."), checker.errors)})
 		if !asJSON && !quiet {
 			// --quiet is the verdict alone; a hint is not the verdict.
-			PrintContributorFailureHint(checker.root, stderr, locale)
+			PrintContributorFailureHintIn(files, checker.root, stderr, locale)
 		}
 		return 1
 	}
@@ -193,8 +199,14 @@ func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, lo
 	return 0
 }
 
+// cmdCheckWithLocale reads and writes the filesystem directly; cmdCheckWithLocaleIn takes the
+// operation's files.
+func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, locale cliLocale) int {
+	return cmdCheckWithLocaleIn(pose.NativeFiles(), root, args, stdout, stderr, locale)
+}
+
 func (checker *nativeChecker) checkDeliveryContracts() {
-	policy, err := pose.LoadDeliveryPolicy(checker.root)
+	policy, err := pose.LoadDeliveryPolicyIn(checker.fsys(), checker.root)
 	if err != nil {
 		checker.failOrWarn("delivery contract: " + err.Error())
 		return
@@ -202,21 +214,21 @@ func (checker *nativeChecker) checkDeliveryContracts() {
 	if !policy.Enabled {
 		return
 	}
-	store := pose.Store{Root: checker.root}
+	store := pose.Store{Root: checker.root, FS: checker.fsys()}
 	// Built once for the whole loop. It used to be rebuilt inside
 	// deliverySpecBlockers for every done spec, and the graph depends on the
 	// repository and not on the slug: on this repository that was 117 rebuilds at
 	// about five seconds each, 600 of the 635 seconds `check --strict` took. The
 	// reuse is only safe because focusSurfaceGraph no longer filters through the
 	// caller's backing array.
-	graph, graphErr := buildCurrentDeliveryGraph(checker.root)
+	graph, graphErr := buildCurrentDeliveryGraphIn(checker.fsys(), checker.root)
 	if graphErr != nil {
 		checker.failOrWarn("delivery contract: " + graphErr.Error())
 		return
 	}
 	slugs := []string{}
-	for _, path := range findSpecFiles(checker.root) {
-		fm := simpleFrontmatter(path)
+	for _, path := range findSpecFilesIn(checker.fsys(), checker.root) {
+		fm := simpleFrontmatterIn(checker.fsys(), path)
 		if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
 			continue
 		}
@@ -245,7 +257,7 @@ func (checker *nativeChecker) checkDeliveryContracts() {
 }
 
 func (checker *nativeChecker) checkArtifactContracts() {
-	policy, err := pose.LoadArtifactPolicy(checker.root)
+	policy, err := pose.LoadArtifactPolicyIn(checker.fsys(), checker.root)
 	if err != nil {
 		checker.failOrWarn("artifact contract: " + err.Error())
 		return
@@ -253,10 +265,10 @@ func (checker *nativeChecker) checkArtifactContracts() {
 	if !policy.Enabled {
 		return
 	}
-	store := pose.Store{Root: checker.root}
-	paths := findSpecFiles(checker.root)
+	store := pose.Store{Root: checker.root, FS: checker.fsys()}
+	paths := findSpecFilesIn(checker.fsys(), checker.root)
 	for _, path := range paths {
-		fm := simpleFrontmatter(path)
+		fm := simpleFrontmatterIn(checker.fsys(), path)
 		if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
 			continue
 		}
@@ -278,7 +290,7 @@ func (checker *nativeChecker) checkArtifactContracts() {
 
 func (checker *nativeChecker) checkReviewCloseout() {
 	policyPath := filepath.Join(checker.root, ".pose", "policy", "review.json")
-	raw, err := os.ReadFile(policyPath)
+	raw, err := checker.fsys().ReadFile(policyPath)
 	if os.IsNotExist(err) {
 		return
 	}
@@ -297,13 +309,13 @@ func (checker *nativeChecker) checkReviewCloseout() {
 	if !policy.Enabled {
 		return
 	}
-	store := pose.Store{Root: checker.root}
+	store := pose.Store{Root: checker.root, FS: checker.fsys()}
 	// The candidate list is resolved first and cheaply — one frontmatter read per
 	// spec — so the expensive part, one closeout state per candidate, is what runs
 	// in parallel, in the order this list already has.
 	slugs := []string{}
-	for _, path := range findSpecFiles(checker.root) {
-		fm := simpleFrontmatter(path)
+	for _, path := range findSpecFilesIn(checker.fsys(), checker.root) {
+		fm := simpleFrontmatterIn(checker.fsys(), path)
 		if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
 			continue
 		}
@@ -324,9 +336,9 @@ func (checker *nativeChecker) checkReviewCloseout() {
 		}
 		return nil
 	})
-	roadmapPaths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "roadmaps", "*.md"))
+	roadmapPaths, _ := pose.GlobIn(checker.fsys(), filepath.Join(checker.root, ".pose", "roadmaps", "*.md"))
 	for _, path := range roadmapPaths {
-		fm := simpleFrontmatter(path)
+		fm := simpleFrontmatterIn(checker.fsys(), path)
 		if fm["status"] != "done" || fm["created_at"] < policy.AdoptedAt {
 			continue
 		}
@@ -345,7 +357,7 @@ func (checker *nativeChecker) checkReviewCloseout() {
 func (checker *nativeChecker) checkRequiredStructure() {
 	required := []string{"AGENTS.md", "POSE.md", ".pose", ".pose/workflows", ".pose/templates", ".pose/rules", ".pose/workflows/feature.md", ".pose/workflows/review.md", ".pose/workflows/bugfix.md", ".pose/templates/spec.md"}
 	for _, rel := range required {
-		if _, err := os.Stat(filepath.Join(checker.root, filepath.FromSlash(rel))); err != nil {
+		if _, err := checker.fsys().Stat(filepath.Join(checker.root, filepath.FromSlash(rel))); err != nil {
 			checker.issue(cliout.StateError, checker.message("Required path missing: ", "Path obrigatório ausente: ")+filepath.Join(checker.root, filepath.FromSlash(rel)))
 		}
 	}
@@ -353,7 +365,7 @@ func (checker *nativeChecker) checkRequiredStructure() {
 
 func (checker *nativeChecker) checkSchemaVersion() {
 	path := filepath.Join(checker.root, ".pose", "schema-version")
-	content, err := os.ReadFile(path)
+	content, err := checker.fsys().ReadFile(path)
 	if err != nil {
 		checker.failOrWarn(checker.message("schema: instance has no .pose/schema-version — run 'pose update'", "schema: instância sem .pose/schema-version — rode 'pose update'"))
 		return
@@ -374,7 +386,7 @@ func (checker *nativeChecker) checkSchemaVersion() {
 func (checker *nativeChecker) checkReferences() {
 	for _, rel := range []string{"AGENTS.md", "POSE.md"} {
 		path := filepath.Join(checker.root, rel)
-		content, err := os.ReadFile(path)
+		content, err := checker.fsys().ReadFile(path)
 		if err != nil {
 			continue
 		}
@@ -390,12 +402,12 @@ func (checker *nativeChecker) checkReferences() {
 				continue
 			}
 			if isRuntimeReference(ref) {
-				if _, err := os.Stat(filepath.Join(checker.root, ".pose")); err != nil {
+				if _, err := checker.fsys().Stat(filepath.Join(checker.root, ".pose")); err != nil {
 					checker.failOrWarn(fmt.Sprintf(checker.message("Broken reference: %q (source: %s)", "Referência quebrada: %q (origem: %s)"), ref, rel))
 				}
 				continue
 			}
-			if _, err := os.Stat(filepath.Join(checker.root, filepath.FromSlash(ref))); err != nil {
+			if _, err := checker.fsys().Stat(filepath.Join(checker.root, filepath.FromSlash(ref))); err != nil {
 				checker.failOrWarn(fmt.Sprintf(checker.message("Broken reference: %q (source: %s)", "Referência quebrada: %q (origem: %s)"), ref, rel))
 			}
 		}
@@ -442,7 +454,7 @@ func isRuntimeReference(ref string) bool {
 
 func (checker *nativeChecker) checkValidationMatrix() {
 	path := filepath.Join(checker.root, ".pose", "indexes", "validation-matrix.json")
-	raw, err := os.ReadFile(path)
+	raw, err := checker.fsys().ReadFile(path)
 	if err != nil {
 		return
 	}
@@ -580,7 +592,7 @@ func (checker *nativeChecker) validateMatrixCheck(prefix string, check validatio
 
 func (checker *nativeChecker) checkTaskMap() {
 	path := filepath.Join(checker.root, ".pose", "indexes", "task-map.json")
-	raw, err := os.ReadFile(path)
+	raw, err := checker.fsys().ReadFile(path)
 	if err != nil {
 		return
 	}
@@ -630,7 +642,7 @@ func (checker *nativeChecker) requireTaskRef(field, rel string) {
 		checker.failOrWarn(fmt.Sprintf(checker.message("task-map.json: %s escapes the project root: %s", "task-map.json: %s escapa da raiz do projeto: %s"), field, rel))
 		return
 	}
-	if _, err := os.Stat(filepath.Join(checker.root, filepath.FromSlash(rel))); err != nil {
+	if _, err := checker.fsys().Stat(filepath.Join(checker.root, filepath.FromSlash(rel))); err != nil {
 		checker.failOrWarn(fmt.Sprintf(checker.message("task-map.json: %s does not exist: %s", "task-map.json: %s inexistente: %s"), field, rel))
 	}
 }
@@ -641,7 +653,7 @@ type checkSpec struct {
 }
 
 func (checker *nativeChecker) checkSpecs() {
-	canonical, _ := (pose.Store{Root: checker.root}).ListSpecs("", "")
+	canonical, _ := (pose.Store{Root: checker.root, FS: checker.fsys()}).ListSpecs("", "")
 	specs := map[string]checkSpec{}
 	validStatus := map[string]bool{"draft": true, "in-progress": true, "done": true, "blocked": true, "superseded": true, "abandoned": true}
 	for _, sp := range canonical {
@@ -652,8 +664,8 @@ func (checker *nativeChecker) checkSpecs() {
 		if sp.Priority != nil {
 			priority = *sp.Priority
 		}
-		if fi, err := os.Stat(sp.Path); err == nil && !fi.IsDir() {
-			fields := simpleFrontmatter(sp.Path)
+		if fi, err := checker.fsys().Stat(sp.Path); err == nil && !fi.IsDir() {
+			fields := simpleFrontmatterIn(checker.fsys(), sp.Path)
 			if value := fields["priority"]; value != "" {
 				if parsed, err := strconv.Atoi(value); err != nil || parsed < 0 {
 					checker.failOrWarn("spec deps: " + sp.Slug + ": invalid priority")
@@ -680,7 +692,7 @@ func (checker *nativeChecker) checkSpecs() {
 			}
 			switch {
 			case strings.HasPrefix(ref, "xref:"):
-				resolver, project, err := pose.EnvironmentArtifactResolver(checker.root, "")
+				resolver, project, err := pose.EnvironmentArtifactResolverIn(checker.fsys(), checker.root, "")
 				if err != nil {
 					checker.failOrWarn("spec deps: " + slug + ": invalid-project-configuration")
 					continue
@@ -752,13 +764,13 @@ type checkRoadmap struct {
 	milestones   []checkMilestone
 }
 
-func parseRoadmap(path string) checkRoadmap {
-	fields := simpleFrontmatter(path)
+func parseRoadmapIn(files pose.Files, path string) checkRoadmap {
+	fields := simpleFrontmatterIn(files, path)
 	roadmap := checkRoadmap{slug: fields["slug"], status: fields["status"], dependsOn: splitInlineList(fields["depends_on"])}
 	if roadmap.slug == "" {
 		roadmap.slug = strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
 	}
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return roadmap
 	}
@@ -796,10 +808,16 @@ func parseRoadmap(path string) checkRoadmap {
 	return roadmap
 }
 
+// parseRoadmap reads and writes the filesystem directly; parseRoadmapIn takes the
+// operation's files.
+func parseRoadmap(path string) checkRoadmap {
+	return parseRoadmapIn(pose.NativeFiles(), path)
+}
+
 // checkFederatedRoadmapRef validates a qualified roadmap member or `after`
 // entry through the authorized project graph, as spec depends_on does.
 func (checker *nativeChecker) checkFederatedRoadmapRef(roadmap, milestone, ref string) {
-	resolver, project, err := pose.EnvironmentArtifactResolver(checker.root, "")
+	resolver, project, err := pose.EnvironmentArtifactResolverIn(checker.fsys(), checker.root, "")
 	if err != nil {
 		checker.failOrWarn(fmt.Sprintf("spec deps: roadmap %s/%s: invalid-project-configuration", roadmap, milestone))
 		return
@@ -810,13 +828,13 @@ func (checker *nativeChecker) checkFederatedRoadmapRef(roadmap, milestone, ref s
 }
 
 func (checker *nativeChecker) checkRoadmaps(specs map[string]checkSpec) {
-	paths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "roadmaps", "*.md"))
+	paths, _ := pose.GlobIn(checker.fsys(), filepath.Join(checker.root, ".pose", "roadmaps", "*.md"))
 	roadmaps := map[string]checkRoadmap{}
 	for _, path := range paths {
 		if strings.EqualFold(filepath.Base(path), "README.md") {
 			continue
 		}
-		rm := parseRoadmap(path)
+		rm := parseRoadmapIn(checker.fsys(), path)
 		roadmaps[rm.slug] = rm
 	}
 	owners := map[string]string{}
@@ -939,43 +957,43 @@ func graphHasCycle(edges map[string][]string) bool {
 }
 
 func (checker *nativeChecker) checkChangelogs() {
-	paths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "changelogs", "unreleased", "*.md"))
+	paths, _ := pose.GlobIn(checker.fsys(), filepath.Join(checker.root, ".pose", "changelogs", "unreleased", "*.md"))
 	// The third copy of this list used to live here. It is one setting in one
 	// file now (spec pose-changelog-and-dor-policy-types).
-	changelogPolicy := pose.LoadChangelogPolicy(checker.root)
+	changelogPolicy := pose.LoadChangelogPolicyIn(checker.fsys(), checker.root)
 	valid := changelogPolicy.ValidCategories()
 	covered := map[string]bool{}
 	for _, path := range paths {
 		if strings.EqualFold(filepath.Base(path), "README.md") {
 			continue
 		}
-		fields := simpleFrontmatter(path)
+		fields := simpleFrontmatterIn(checker.fsys(), path)
 		slug := strings.TrimSuffix(filepath.Base(path), ".md")
 		if fields["spec"] != "" {
 			slug = fields["spec"]
 		}
 		covered[slug] = true
-		store := pose.Store{Root: checker.root}
+		store := pose.Store{Root: checker.root, FS: checker.fsys()}
 		if _, err := store.GetSpec(slug); err != nil {
 			checker.failOrWarn(fmt.Sprintf(checker.message("changelog: fragment %s points to a missing spec: %s", "changelog: fragment %s aponta para spec inexistente: %s"), filepath.Base(path), slug))
 		}
 		if !valid[fields["category"]] {
 			checker.failOrWarn(fmt.Sprintf(checker.message("changelog: fragment %s has an invalid category", "changelog: fragment %s tem category inválida"), filepath.Base(path)))
 		}
-		if strings.TrimSpace(stripHTMLComments(frontmatterBody(path))) == "" {
+		if strings.TrimSpace(stripHTMLComments(frontmatterBodyIn(checker.fsys(), path))) == "" {
 			checker.failOrWarn(fmt.Sprintf(checker.message("changelog: fragment %s has an empty body", "changelog: fragment %s tem corpo vazio"), filepath.Base(path)))
 		}
 	}
-	released, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "changelogs", "*.md"))
+	released, _ := pose.GlobIn(checker.fsys(), filepath.Join(checker.root, ".pose", "changelogs", "*.md"))
 	for _, path := range released {
-		raw, err := os.ReadFile(path)
+		raw, err := checker.fsys().ReadFile(path)
 		if err != nil {
 			continue
 		}
 		text := string(raw)
-		specPaths := findSpecFiles(checker.root)
+		specPaths := findSpecFilesIn(checker.fsys(), checker.root)
 		for _, specPath := range specPaths {
-			fm := simpleFrontmatter(specPath)
+			fm := simpleFrontmatterIn(checker.fsys(), specPath)
 			slug := fm["slug"]
 			if slug == "" {
 				slug = filepath.Base(filepath.Dir(specPath))
@@ -986,9 +1004,9 @@ func (checker *nativeChecker) checkChangelogs() {
 		}
 	}
 	policyPath := filepath.Join(checker.root, ".pose", "policy", "changelog.json")
-	policyRaw, err := os.ReadFile(policyPath)
+	policyRaw, err := checker.fsys().ReadFile(policyPath)
 	if err != nil {
-		if _, releaseErr := os.Stat(filepath.Join(checker.root, ".pose", "release-policy.json")); releaseErr == nil {
+		if _, releaseErr := checker.fsys().Stat(filepath.Join(checker.root, ".pose", "release-policy.json")); releaseErr == nil {
 			checker.failOrWarn("changelog: adopted repository is missing .pose/policy/changelog.json")
 		}
 		return
@@ -1007,9 +1025,9 @@ func (checker *nativeChecker) checkChangelogs() {
 	if strings.TrimSpace(policy.AdoptedAt) == "" {
 		return
 	}
-	specPaths := findSpecFiles(checker.root)
+	specPaths := findSpecFilesIn(checker.fsys(), checker.root)
 	for _, path := range specPaths {
-		fields := simpleFrontmatter(path)
+		fields := simpleFrontmatterIn(checker.fsys(), path)
 		slug := fields["slug"]
 		if slug == "" {
 			slug = filepath.Base(filepath.Dir(path))
@@ -1020,8 +1038,8 @@ func (checker *nativeChecker) checkChangelogs() {
 	}
 }
 
-func frontmatterBody(path string) string {
-	raw, err := os.ReadFile(path)
+func frontmatterBodyIn(files pose.Files, path string) string {
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return ""
 	}
@@ -1035,6 +1053,12 @@ func frontmatterBody(path string) string {
 		}
 	}
 	return string(raw)
+}
+
+// frontmatterBody reads and writes the filesystem directly; frontmatterBodyIn takes the
+// operation's files.
+func frontmatterBody(path string) string {
+	return frontmatterBodyIn(pose.NativeFiles(), path)
 }
 
 func stripHTMLComments(value string) string {
@@ -1063,7 +1087,7 @@ func (checker *nativeChecker) checkReadyTransitions() {
 	}
 	for rel := range changed {
 		path := filepath.Join(checker.root, filepath.FromSlash(rel))
-		if simpleFrontmatter(path)["status"] != "in-progress" {
+		if simpleFrontmatterIn(checker.fsys(), path)["status"] != "in-progress" {
 			continue
 		}
 		old, _ := exec.Command("git", "-C", checker.root, "show", "HEAD:"+rel).Output()
@@ -1071,8 +1095,8 @@ func (checker *nativeChecker) checkReadyTransitions() {
 		if oldStatus == "in-progress" {
 			continue
 		}
-		if !specReady(checker.root, path) {
-			slug := simpleFrontmatter(path)["slug"]
+		if !specReadyIn(checker.fsys(), checker.root, path) {
+			slug := simpleFrontmatterIn(checker.fsys(), path)["slug"]
 			if slug == "" {
 				slug = filepath.Base(filepath.Dir(path))
 			}
@@ -1081,8 +1105,8 @@ func (checker *nativeChecker) checkReadyTransitions() {
 	}
 }
 
-func specReady(root, path string) bool {
-	raw, err := os.ReadFile(path)
+func specReadyIn(files pose.Files, root, path string) bool {
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return false
 	}
@@ -1096,7 +1120,7 @@ func specReady(root, path string) bool {
 	// (spec pose-changelog-and-dor-policy-types). It used to be an anonymous
 	// struct here and another one in readiness.go, and between them neither
 	// described the policy.
-	policy := pose.LoadDoRPolicy(root)
+	policy := pose.LoadDoRPolicyIn(files, root)
 	if fields["task_type"] == "" && policy.DefaultTaskType != "" {
 		taskType = policy.DefaultTaskType
 	}
@@ -1125,6 +1149,12 @@ func specReady(root, path string) bool {
 		}
 	}
 	return true
+}
+
+// specReady reads and writes the filesystem directly; specReadyIn takes the
+// operation's files.
+func specReady(root, path string) bool {
+	return specReadyIn(pose.NativeFiles(), root, path)
 }
 
 func specSections(text string) map[string][]string {
@@ -1161,13 +1191,19 @@ func sectionFilled(lines []string) bool {
 	return false
 }
 
-func simpleFrontmatter(path string) map[string]string {
+func simpleFrontmatterIn(files pose.Files, path string) map[string]string {
 	fields := map[string]string{}
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return fields
 	}
 	return frontmatterFromText(string(raw))
+}
+
+// simpleFrontmatter reads and writes the filesystem directly; simpleFrontmatterIn takes the
+// operation's files.
+func simpleFrontmatter(path string) map[string]string {
+	return simpleFrontmatterIn(pose.NativeFiles(), path)
 }
 
 func frontmatterFromText(text string) map[string]string {
@@ -1209,11 +1245,11 @@ func splitInlineList(value string) []string {
 // not an issue; a present artifact must validate, and staleness surfaces as
 // warnings regardless of mode.
 func (checker *nativeChecker) checkCapabilities() {
-	store := pose.Store{Root: checker.root}
+	store := pose.Store{Root: checker.root, FS: checker.fsys()}
 	if !store.HasCapabilityAssessment() {
 		return
 	}
-	report, err := runAssessValidation(checker.root)
+	report, err := runAssessValidationIn(checker.fsys(), checker.root)
 	if err != nil {
 		checker.failOrWarn(checker.message("capabilities: ", "capabilities: ") + err.Error())
 		return
@@ -1232,7 +1268,7 @@ func (checker *nativeChecker) checkCapabilities() {
 // undeclared, stale) surface but never block strict mode by themselves —
 // the same warning/error split docs-check itself uses.
 func (checker *nativeChecker) checkDocs() {
-	store := pose.Store{Root: checker.root}
+	store := pose.Store{Root: checker.root, FS: checker.fsys()}
 	if !store.HasDocsManifest() {
 		return
 	}
@@ -1252,11 +1288,11 @@ func (checker *nativeChecker) checkDocs() {
 	}
 }
 
-func findSpecFiles(root string) []string {
+func findSpecFilesIn(files pose.Files, root string) []string {
 	var results []string
-	matches1, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*", "spec.md"))
+	matches1, _ := pose.GlobIn(files, filepath.Join(root, ".pose", "specs", "*", "spec.md"))
 	results = append(results, matches1...)
-	matches2, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*.md"))
+	matches2, _ := pose.GlobIn(files, filepath.Join(root, ".pose", "specs", "*.md"))
 	for _, m := range matches2 {
 		base := filepath.Base(m)
 		if !strings.EqualFold(base, "README.md") {
@@ -1264,4 +1300,10 @@ func findSpecFiles(root string) []string {
 		}
 	}
 	return results
+}
+
+// findSpecFiles reads and writes the filesystem directly; findSpecFilesIn takes the
+// operation's files.
+func findSpecFiles(root string) []string {
+	return findSpecFilesIn(pose.NativeFiles(), root)
 }

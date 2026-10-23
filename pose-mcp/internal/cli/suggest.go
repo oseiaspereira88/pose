@@ -19,6 +19,10 @@ type taskMap struct {
 }
 
 func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
+	return cmdSuggestIn(posepkg.NativeFiles(), root, args, stdout, stderr)
+}
+
+func cmdSuggestIn(files posepkg.Files, root string, args []string, stdout, stderr io.Writer) int {
 	task, domain, pathHint := "", "", ""
 	jsonOut := false
 	for i := 0; i < len(args); i++ {
@@ -45,7 +49,7 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 	if pathHint != "" && !confinedRelativePath(pathHint) {
 		return usageError(stderr, "pose suggest: --path must remain inside project")
 	}
-	raw, err := os.ReadFile(filepath.Join(root, ".pose", "indexes", "task-map.json"))
+	raw, err := files.ReadFile(filepath.Join(root, ".pose", "indexes", "task-map.json"))
 	if err != nil {
 		fmt.Fprintln(stderr, "pose suggest: task-map missing")
 		return 2
@@ -97,13 +101,13 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 	if cfgErr != nil {
 		return usageError(stderr, fmt.Sprintf("pose suggest: invalid task-map entry %q: %v", task, cfgErr))
 	}
-	references, refErr := suggestTaskReferences(root, t)
+	references, refErr := suggestTaskReferences(root, t, files)
 	if refErr != nil {
 		return usageError(stderr, fmt.Sprintf("pose suggest: invalid task-map entry %q: %v", task, refErr))
 	}
 	source, domainProblem := "explicit", ""
 	if domain == "" && pathHint != "" {
-		domain, source, domainProblem = inferSuggestDomain(root, pathHint)
+		domain, source, domainProblem = inferSuggestDomain(root, pathHint, files)
 		if domainProblem != "" {
 			_ = usageError(stderr, "pose suggest: "+domainProblem+"; the trail below has no domain rules")
 		}
@@ -121,7 +125,7 @@ func cmdSuggest(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		domainKnown = known
 	}
-	statuses := suggestRuleStatuses(root, rules)
+	statuses := suggestRuleStatuses(root, rules, files)
 	if jsonOut {
 		payload := map[string]any{"name": task}
 		for k, v := range t {
@@ -274,14 +278,19 @@ func suggestTaskRules(t map[string]any) ([]string, map[string][]string, error) {
 // inferSuggestDomain says which domain a path belongs to, where that was read from and, when
 // the answer is "none", whether that is because nothing matched or because the index could not
 // be read: the third result is empty only when the index was read and simply had no match.
-func inferSuggestDomain(root, pathHint string) (domain, source, problem string) {
+func inferSuggestDomain(root, pathHint string, operationFiles ...posepkg.Files) (domain, source, problem string) {
+	files := posepkg.NativeFiles()
+	if len(operationFiles) > 0 {
+		files = posepkg.FilesOrNative(operationFiles[0])
+	}
+
 	norm := normalizeModulePath(pathHint)
 	for _, p := range strings.Split(norm, "/") {
 		if p == "k8s" || p == "charts" || p == "helm" {
 			return "k8s", "hint-path", ""
 		}
 	}
-	raw, _, e := posepkg.Store{Root: root}.ReadIndex("repo-map.json")
+	raw, _, e := posepkg.Store{Root: root, FS: files}.ReadIndex("repo-map.json")
 	if e != nil {
 		return "", "repo-map-unavailable", "the repo-map could not be read (" + e.Error() + ")"
 	}
@@ -359,7 +368,7 @@ func inferSuggestDomain(root, pathHint string) (domain, source, problem string) 
 		// "backend" names no language: it is the Go domain only when the module is Go.
 		if domain == "backend" {
 			goMod := false
-			if info, err := os.Stat(filepath.Join(root, filepath.FromSlash(p), "go.mod")); err == nil && info.Mode().IsRegular() && insideProject(root, filepath.Join(root, filepath.FromSlash(p))) && insideProject(root, filepath.Join(root, filepath.FromSlash(p), "go.mod")) {
+			if info, err := files.Stat(filepath.Join(root, filepath.FromSlash(p), "go.mod")); err == nil && info.Mode().IsRegular() && insideProject(root, filepath.Join(root, filepath.FromSlash(p)), files) && insideProject(root, filepath.Join(root, filepath.FromSlash(p), "go.mod"), files) {
 				goMod = true
 			}
 			if m.language == "go" || strings.HasSuffix(norm, ".go") || goMod {
@@ -386,12 +395,17 @@ func normalizeModulePath(p string) string {
 }
 
 // insideProject reports that dir, with its links followed, is inside the project root.
-func insideProject(root, dir string) bool {
-	resolvedRoot, err := filepath.EvalSymlinks(root)
+func insideProject(root, dir string, operationFiles ...posepkg.Files) bool {
+	files := posepkg.NativeFiles()
+	if len(operationFiles) > 0 {
+		files = posepkg.FilesOrNative(operationFiles[0])
+	}
+
+	resolvedRoot, err := files.EvalSymlinks(root)
 	if err != nil {
 		return false
 	}
-	resolved, err := filepath.EvalSymlinks(dir)
+	resolved, err := files.EvalSymlinks(dir)
 	if err != nil {
 		return false
 	}
@@ -440,7 +454,12 @@ type ruleStatus struct {
 	Detail       string `json:"detail,omitempty"`
 }
 
-func suggestRuleStatuses(root string, rules []string) []ruleStatus {
+func suggestRuleStatuses(root string, rules []string, operationFiles ...posepkg.Files) []ruleStatus {
+	files := posepkg.NativeFiles()
+	if len(operationFiles) > 0 {
+		files = posepkg.FilesOrNative(operationFiles[0])
+	}
+
 	byFile := map[string]string{}
 	for id, file := range ruleExtensionFile {
 		byFile[file] = id
@@ -449,7 +468,7 @@ func suggestRuleStatuses(root string, rules []string) []ruleStatus {
 	for _, r := range rules {
 		file := r + ".md"
 		st := ruleStatus{Rule: r}
-		state, stateErr := ruleFileState(root, file)
+		state, stateErr := ruleFileState(root, file, files)
 		switch {
 		case state == ruleFileReadable:
 			st.Availability, st.Path = ruleInstalled, ".pose/rules/"+file
@@ -482,7 +501,12 @@ type referenceStatus struct {
 // not a path, and a file that is there and can be read. An absent reference is a finding of its
 // own, not a reference to follow; a field of another type, or one that is derived, is a
 // configuration error.
-func suggestTaskReferences(root string, t map[string]any) ([]referenceStatus, error) {
+func suggestTaskReferences(root string, t map[string]any, operationFiles ...posepkg.Files) ([]referenceStatus, error) {
+	files := posepkg.NativeFiles()
+	if len(operationFiles) > 0 {
+		files = posepkg.FilesOrNative(operationFiles[0])
+	}
+
 	for _, reserved := range suggestDerivedFields {
 		if _, present := t[reserved]; present {
 			return nil, fmt.Errorf("%s is derived by the command and cannot be declared by the task", reserved)
@@ -535,7 +559,7 @@ func suggestTaskReferences(root string, t map[string]any) ([]referenceStatus, er
 			rel = filepath.ToSlash(filepath.Join(".agents", "skills", ref, "SKILL.md"))
 		}
 		status := referenceStatus{Field: field, Ref: ref, Availability: "available"}
-		info, err := os.Stat(filepath.Join(root, filepath.FromSlash(rel)))
+		info, err := files.Stat(filepath.Join(root, filepath.FromSlash(rel)))
 		switch {
 		case errors.Is(err, os.ErrNotExist):
 			status.Availability, status.Detail = "unavailable", rel+" does not exist"
@@ -545,7 +569,7 @@ func suggestTaskReferences(root string, t map[string]any) ([]referenceStatus, er
 			status.Availability, status.Detail = "unreadable", rel+" is not a regular file"
 		default:
 			// Present and regular is not readable: the file is opened, as the reader of it will.
-			if file, oerr := os.Open(filepath.Join(root, filepath.FromSlash(rel))); oerr != nil {
+			if file, oerr := files.Open(filepath.Join(root, filepath.FromSlash(rel))); oerr != nil {
 				status.Availability, status.Detail = "unreadable", oerr.Error()
 			} else {
 				file.Close()

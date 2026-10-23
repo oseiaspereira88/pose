@@ -7,6 +7,7 @@ package cli
 
 import (
 	"errors"
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"os"
 	"path/filepath"
 	"strings"
@@ -292,8 +293,8 @@ Não iniciado. Próximo: ` + "`pose start spec:pose-onboarding`" + `, depois ` +
 
 // scaffoldOnboardingSpec writes the onboarding spec into a new instance. It
 // never overwrites one, under any date.
-func scaffoldOnboardingSpec(target, locale, projectName, date string) (string, bool, error) {
-	if existing := findOnboardingSpec(target); existing != "" {
+func scaffoldOnboardingSpecIn(files posemodel.Files, target, locale, projectName, date string) (string, bool, error) {
+	if existing := findOnboardingSpecIn(files, target); existing != "" {
 		return existing, false, nil
 	}
 	body := onboardingSpecEN
@@ -306,26 +307,28 @@ func scaffoldOnboardingSpec(target, locale, projectName, date string) (string, b
 	body = strings.NewReplacer("{{DATE}}", date, "{{PROJECT_NAME}}", projectName).Replace(body)
 	rel := filepath.ToSlash(filepath.Join(".pose", "specs", date+"-"+onboardingSlug+".md"))
 	path := filepath.Join(target, filepath.FromSlash(rel))
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	if err := files.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return "", false, err
 	}
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
+	err := files.CreateExclusive(path, []byte(body), 0o644, false)
 	if errors.Is(err, os.ErrExist) {
 		return rel, false, nil
 	}
 	if err != nil {
 		return "", false, err
 	}
-	defer file.Close()
-	if _, err := file.WriteString(body); err != nil {
-		return "", false, err
-	}
 	return rel, true, nil
 }
 
+// scaffoldOnboardingSpec reads and writes the filesystem directly; scaffoldOnboardingSpecIn takes the
+// operation's files.
+func scaffoldOnboardingSpec(target, locale, projectName, date string) (string, bool, error) {
+	return scaffoldOnboardingSpecIn(posemodel.NativeFiles(), target, locale, projectName, date)
+}
+
 // findOnboardingSpec returns the onboarding spec's project-relative path, or "".
-func findOnboardingSpec(root string) string {
-	matches, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*-"+onboardingSlug+".md"))
+func findOnboardingSpecIn(files posemodel.Files, root string) string {
+	matches, _ := posemodel.GlobIn(files, filepath.Join(root, ".pose", "specs", "*-"+onboardingSlug+".md"))
 	if len(matches) == 0 {
 		return ""
 	}
@@ -334,4 +337,10 @@ func findOnboardingSpec(root string) string {
 		return ""
 	}
 	return filepath.ToSlash(rel)
+}
+
+// findOnboardingSpec reads and writes the filesystem directly; findOnboardingSpecIn takes the
+// operation's files.
+func findOnboardingSpec(root string) string {
+	return findOnboardingSpecIn(posemodel.NativeFiles(), root)
 }

@@ -41,8 +41,8 @@ type DocsReviewEvent struct {
 
 // LoadDocsReviewEvents reads the append-only log. A missing file is not
 // an error (no marks yet) — same posture as capability history.jsonl.
-func LoadDocsReviewEvents(path string) ([]DocsReviewEvent, error) {
-	raw, err := os.ReadFile(path)
+func LoadDocsReviewEventsIn(files Files, path string) ([]DocsReviewEvent, error) {
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -66,6 +66,12 @@ func LoadDocsReviewEvents(path string) ([]DocsReviewEvent, error) {
 		events = append(events, ev)
 	}
 	return events, nil
+}
+
+// LoadDocsReviewEvents reads and writes the filesystem directly; LoadDocsReviewEventsIn takes the
+// operation's files.
+func LoadDocsReviewEvents(path string) ([]DocsReviewEvent, error) {
+	return LoadDocsReviewEventsIn(NativeFiles(), path)
 }
 
 // PendingDocsReviews replays events and returns, per doc, its currently

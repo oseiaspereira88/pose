@@ -73,7 +73,7 @@ func (s Store) ledgerProject() string {
 	if policy, _, err := s.loadReviewPolicy(); err == nil && policy.AuthorityProject != "" {
 		return policy.AuthorityProject
 	}
-	if id, ok, _ := ReadProjectFile(s.Root); ok {
+	if id, ok, _ := ReadProjectFileIn(s.fsys(), s.Root); ok {
 		return id
 	}
 	return ""
@@ -144,7 +144,7 @@ func (s Store) SealLegacyLedger(ledger LegacyLedger, key IssuerKey) (LegacyLedge
 		return LegacyLedger{}, fmt.Errorf("pose: the unsigned history changed since the ledger was planned; plan the adoption again")
 	}
 	ledger.Signature = base64.StdEncoding.EncodeToString(ed25519.Sign(key.private, ledger.signable()))
-	dir, err := ensureReviewArtifactDir(s.Root, legacyLedgerDir, true)
+	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, legacyLedgerDir, true)
 	if err != nil {
 		return LegacyLedger{}, err
 	}
@@ -202,16 +202,16 @@ func (s Store) trustedLegacyEntries() (map[string]string, error) {
 func (s Store) trustedLegacyEntriesRead() (map[string]string, SourceCoverage, error) {
 	entries := map[string]string{}
 	coverage := SourceCoverage{Losses: []SourceLoss{}}
-	if _, err := os.Lstat(filepath.Join(s.Root, filepath.FromSlash(legacyLedgerDir))); errors.Is(err, os.ErrNotExist) {
+	if _, err := s.fsys().Lstat(filepath.Join(s.Root, filepath.FromSlash(legacyLedgerDir))); errors.Is(err, os.ErrNotExist) {
 		return entries, coverage, nil
 	}
 	// A symlinked ledger directory is refused, so a ledger outside the
 	// project is never trusted.
-	dir, err := ensureReviewArtifactDir(s.Root, legacyLedgerDir, false)
+	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, legacyLedgerDir, false)
 	if err != nil {
 		return nil, coverage, err
 	}
-	files, err := os.ReadDir(dir)
+	files, err := s.fsys().ReadDir(dir)
 	if err != nil {
 		return nil, coverage, err
 	}
@@ -232,7 +232,7 @@ func (s Store) trustedLegacyEntriesRead() (map[string]string, SourceCoverage, er
 			lose(LossUnsupported, "not a regular file")
 			continue
 		}
-		raw, err := os.ReadFile(filepath.Join(dir, f.Name()))
+		raw, err := s.fsys().ReadFile(filepath.Join(dir, f.Name()))
 		if err != nil {
 			lose(LossReadError, err.Error())
 			continue
@@ -331,7 +331,7 @@ type AdoptionEffect struct {
 func (e AdoptionEffect) Apply() error { return e.apply() }
 
 // localAttestationIssuers are the current local keys pinned for attestations.
-func localAttestationIssuers(root string, docs PolicyDocs) []IssuerKeySummary {
+func localAttestationIssuers(files Files, root string, docs PolicyDocs) []IssuerKeySummary {
 	keys, err := ListIssuerKeys(root)
 	if err != nil {
 		return nil
@@ -354,8 +354,8 @@ func localAttestationIssuers(root string, docs PolicyDocs) []IssuerKeySummary {
 // With checkAmbiguity false (the catalog prerequisite, which knows no
 // --issuer) only a missing issuer blocks; the choice among several is the
 // planner's, which receives --issuer.
-func signedHistoryBlocker(root string, docs PolicyDocs, issuer string, checkAmbiguity bool) string {
-	uncovered, err := (Store{Root: root}).UncoveredUnsignedAttestations()
+func signedHistoryBlocker(files Files, root string, docs PolicyDocs, issuer string, checkAmbiguity bool) string {
+	uncovered, err := (Store{Root: root, FS: files}).UncoveredUnsignedAttestations()
 	if err != nil {
 		return "the attestation history cannot be inspected, so the unsigned attestations adopting would seal are not known: " + err.Error()
 	}
@@ -365,7 +365,7 @@ func signedHistoryBlocker(root string, docs PolicyDocs, issuer string, checkAmbi
 	if issuer != "" {
 		return ""
 	}
-	switch n := len(localAttestationIssuers(root, docs)); {
+	switch n := len(localAttestationIssuers(files, root, docs)); {
 	case n == 0:
 		return fmt.Sprintf("%d attestation(s) were recorded without a signature; adopting seals them into a ledger signed by a local issuer pinned for attestations, and none is on this machine — create one with pose issuer init <name> and pose issuer pin <name> --apply", uncovered)
 	case n > 1 && checkAmbiguity:
@@ -387,7 +387,7 @@ func PlanAdoptionEffects(root, capability, issuer string, now time.Time) ([]Adop
 	if err != nil {
 		return nil, err
 	}
-	if blocker := signedHistoryBlocker(root, docs, issuer, true); blocker != "" {
+	if blocker := signedHistoryBlocker(NativeFiles(), root, docs, issuer, true); blocker != "" {
 		return nil, fmt.Errorf("pose: %s", blocker)
 	}
 	store := Store{Root: root}
@@ -397,7 +397,7 @@ func PlanAdoptionEffects(root, capability, issuer string, now time.Time) ([]Adop
 	}
 	name := issuer
 	if name == "" {
-		name = localAttestationIssuers(root, docs)[0].Issuer
+		name = localAttestationIssuers(NativeFiles(), root, docs)[0].Issuer
 	}
 	key, err := LoadIssuerKey(root, name)
 	if err != nil {

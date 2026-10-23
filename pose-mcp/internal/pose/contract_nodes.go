@@ -73,13 +73,13 @@ func ContractNodeTransitionAllowed(kind, from, to string) bool {
 }
 
 // ProjectContractNodes builds the projection of one spec body.
-func ProjectContractNodes(slug, body string) ContractNodesProjection {
+func ProjectContractNodesIn(files Files, slug, body string) ContractNodesProjection {
 	namespace := "spec:" + slug
 	projection := ContractNodesProjection{SchemaVersion: ContractNodesSchemaVersion, Namespace: namespace, Nodes: []ContractNode{}}
 	for _, r := range ParseRequirementTrace(body).Requirements {
 		projection.Nodes = append(projection.Nodes, ContractNode{ID: r.ID, Kind: "requirement", Namespace: namespace, Hash: RequirementHash(r.Text), State: "active"})
 	}
-	basis := ParseDesignBasis(body)
+	basis := ParseDesignBasisIn(files, body)
 	states := map[string]string{}
 	for _, a := range basis.Assumptions {
 		affects := sortedCopy(a.Affects)
@@ -127,6 +127,12 @@ func ProjectContractNodes(slug, body string) ContractNodesProjection {
 	})
 	projection.Digest = contractNodesDigest(projection)
 	return projection
+}
+
+// ProjectContractNodes reads and writes the filesystem directly; ProjectContractNodesIn takes the
+// operation's files.
+func ProjectContractNodes(slug, body string) ContractNodesProjection {
+	return ProjectContractNodesIn(NativeFiles(), slug, body)
 }
 
 // contractNodesDigest covers identity, content, state and relations; line

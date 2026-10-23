@@ -71,7 +71,7 @@ func (s Store) falsifierObligations(project string, specs []Spec) ([]Obligation,
 		if !strings.Contains(string(raw), "alsifier check") && !strings.Contains(string(raw), "erificação do falsificador") {
 			continue
 		}
-		for _, d := range ParseDesignBasis(string(raw)).Decisions {
+		for _, d := range ParseDesignBasisIn(s.fsys(), string(raw)).Decisions {
 			if d.Status == "withdrawn" {
 				continue
 			}

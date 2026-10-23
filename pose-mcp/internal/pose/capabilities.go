@@ -108,7 +108,7 @@ func (s Store) CapabilityHistoryPath() string {
 
 // HasCapabilityAssessment reports whether the opt-in artifact exists.
 func (s Store) HasCapabilityAssessment() bool {
-	_, err := os.Stat(s.CapabilityAssessmentPath())
+	_, err := s.fsys().Stat(s.CapabilityAssessmentPath())
 	return err == nil
 }
 
@@ -118,7 +118,7 @@ var commitRefPattern = regexp.MustCompile(`^[0-9a-f]{7,40}$`)
 // LoadCapabilityAssessment reads and parses the artifact for this root.
 func (s Store) LoadCapabilityAssessment() (*CapabilityAssessment, error) {
 	path := s.CapabilityAssessmentPath()
-	raw, err := os.ReadFile(path)
+	raw, err := s.fsys().ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("pose: capability assessment not found at %s (run `pose assess init`)", path)
 	}
@@ -347,7 +347,7 @@ func (s Store) ValidateCapabilityEvidence(assessment *CapabilityAssessment) []st
 
 // localArtifactExists confines value under root/base and checks existence.
 // Traversal attempts resolve to false, never to an out-of-root read.
-func localArtifactExists(root, base, value string) bool {
+func localArtifactExists(files Files, root, base, value string) bool {
 	if strings.Contains(value, "..") || strings.HasPrefix(value, "/") {
 		return false
 	}
@@ -356,7 +356,7 @@ func localArtifactExists(root, base, value string) bool {
 	if !strings.HasPrefix(filepath.Clean(full)+string(filepath.Separator), cleanRoot) {
 		return false
 	}
-	_, err := os.Stat(full)
+	_, err := files.Stat(full)
 	return err == nil
 }
 
@@ -380,8 +380,8 @@ func (a *CapabilityAssessment) ScoresOf() map[string]CapabilityScore {
 // LoadCapabilityHistory reads the append-only snapshot log. A missing file is
 // an empty history, not an error. Entries with a schema newer than supported
 // fail loudly instead of being skipped.
-func LoadCapabilityHistory(path string) ([]CapabilitySnapshot, error) {
-	f, err := os.Open(path)
+func LoadCapabilityHistoryIn(files Files, path string) ([]CapabilitySnapshot, error) {
+	f, err := files.Open(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -412,6 +412,12 @@ func LoadCapabilityHistory(path string) ([]CapabilitySnapshot, error) {
 		return nil, err
 	}
 	return events, nil
+}
+
+// LoadCapabilityHistory reads and writes the filesystem directly; LoadCapabilityHistoryIn takes the
+// operation's files.
+func LoadCapabilityHistory(path string) ([]CapabilitySnapshot, error) {
+	return LoadCapabilityHistoryIn(NativeFiles(), path)
 }
 
 // EffectiveSnapshots filters superseded entries: a snapshot whose timestamp

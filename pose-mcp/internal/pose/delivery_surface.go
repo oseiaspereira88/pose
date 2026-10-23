@@ -91,9 +91,9 @@ type RoadmapCriterion struct {
 	Reasons []string `json:"reasons,omitempty"`
 }
 
-func LoadDeliveryPolicy(root string) (DeliveryPolicy, error) {
+func LoadDeliveryPolicyIn(files Files, root string) (DeliveryPolicy, error) {
 	path := filepath.Join(root, ".pose", "policy", "delivery.json")
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if os.IsNotExist(err) {
 		return DeliveryPolicy{}, nil
 	}
@@ -107,7 +107,7 @@ func LoadDeliveryPolicy(root string) (DeliveryPolicy, error) {
 	var metadata struct {
 		Modules map[string]map[string]string `json:"modules"`
 	}
-	if metadataRaw, readErr := os.ReadFile(filepath.Join(root, ".pose", "indexes", "module-metadata.json")); readErr == nil && json.Unmarshal(metadataRaw, &metadata) == nil {
+	if metadataRaw, readErr := files.ReadFile(filepath.Join(root, ".pose", "indexes", "module-metadata.json")); readErr == nil && json.Unmarshal(metadataRaw, &metadata) == nil {
 		for module, values := range metadata.Modules {
 			if values["deliveryRole"] == "" || values["entrypoints"] == "" {
 				continue
@@ -130,22 +130,28 @@ func LoadDeliveryPolicy(root string) (DeliveryPolicy, error) {
 	}
 	sort.Slice(policy.Roots, func(i, j int) bool { return policy.Roots[i].Path < policy.Roots[j].Path })
 	if policy.ResultsPath != "" {
-		if err := ValidateArtifactPath(root, policy.ResultsPath, true); err != nil {
+		if err := ValidateArtifactPathIn(files, root, policy.ResultsPath, true); err != nil {
 			return DeliveryPolicy{}, fmt.Errorf("pose: invalid delivery results path: %w", err)
 		}
 	}
 	for _, item := range policy.Roots {
-		if err := ValidateArtifactPath(root, item.Path, true); err != nil {
+		if err := ValidateArtifactPathIn(files, root, item.Path, true); err != nil {
 			return DeliveryPolicy{}, fmt.Errorf("pose: invalid delivery root %q: %w", item.Path, err)
 		}
 		if _, _, err := ParseDeliveryRef(item.Kind + ":root"); err != nil || item.Profile == "" {
 			return DeliveryPolicy{}, fmt.Errorf("pose: invalid delivery root kind/profile for %q", item.Path)
 		}
-		if err := ValidateArtifactPath(root, item.Entrypoint, false); err != nil {
+		if err := ValidateArtifactPathIn(files, root, item.Entrypoint, false); err != nil {
 			return DeliveryPolicy{}, fmt.Errorf("pose: invalid delivery entrypoint %q: %w", item.Entrypoint, err)
 		}
 	}
 	return policy, nil
+}
+
+// LoadDeliveryPolicy reads and writes the filesystem directly; LoadDeliveryPolicyIn takes the
+// operation's files.
+func LoadDeliveryPolicy(root string) (DeliveryPolicy, error) {
+	return LoadDeliveryPolicyIn(NativeFiles(), root)
 }
 
 func ParseDeliveryRef(value string) (kind, id string, err error) {
@@ -217,18 +223,18 @@ func ParseDeliveryTargets(spec Spec) ([]DeliveryTarget, bool, error) {
 	return targets, found, nil
 }
 
-func ValidateDeliveryTargets(root string, targets []DeliveryTarget, profiles map[string]DeliveryProfile) error {
+func ValidateDeliveryTargetsIn(files Files, root string, targets []DeliveryTarget, profiles map[string]DeliveryProfile) error {
 	for _, target := range targets {
-		if err := ValidateArtifactPath(root, target.Module, true); err != nil {
+		if err := ValidateArtifactPathIn(files, root, target.Module, true); err != nil {
 			return fmt.Errorf("%s module: %w", target.Ref, err)
 		}
-		if info, err := os.Stat(filepath.Join(root, filepath.FromSlash(target.Module))); err != nil || !info.IsDir() {
+		if info, err := files.Stat(filepath.Join(root, filepath.FromSlash(target.Module))); err != nil || !info.IsDir() {
 			return fmt.Errorf("%s module must resolve to an existing directory", target.Ref)
 		}
-		if err := ValidateArtifactPath(root, target.Entrypoint, false); err != nil {
+		if err := ValidateArtifactPathIn(files, root, target.Entrypoint, false); err != nil {
 			return fmt.Errorf("%s entrypoint: %w", target.Ref, err)
 		}
-		if info, err := os.Stat(filepath.Join(root, filepath.FromSlash(target.Entrypoint))); err != nil || info.IsDir() {
+		if info, err := files.Stat(filepath.Join(root, filepath.FromSlash(target.Entrypoint))); err != nil || info.IsDir() {
 			return fmt.Errorf("%s entrypoint must resolve to an existing file", target.Ref)
 		}
 		profile, ok := profiles[target.Profile]
@@ -237,6 +243,12 @@ func ValidateDeliveryTargets(root string, targets []DeliveryTarget, profiles map
 		}
 	}
 	return nil
+}
+
+// ValidateDeliveryTargets reads and writes the filesystem directly; ValidateDeliveryTargetsIn takes the
+// operation's files.
+func ValidateDeliveryTargets(root string, targets []DeliveryTarget, profiles map[string]DeliveryProfile) error {
+	return ValidateDeliveryTargetsIn(NativeFiles(), root, targets, profiles)
 }
 
 func ValidateDeliveryTrace(spec Spec, targets []DeliveryTarget, specStatuses map[string]string) []string {

@@ -290,8 +290,8 @@ func nilToEmpty(m map[string]string) map[string]string {
 }
 
 // readDescriptor reads the commit record. exists is false when there is none.
-func readIndexDescriptor(root string) (desc IndexGenerationDescriptor, raw []byte, exists bool, err error) {
-	raw, readErr := os.ReadFile(filepath.Join(indexDir(root), indexDescriptorName))
+func readIndexDescriptor(files Files, root string) (desc IndexGenerationDescriptor, raw []byte, exists bool, err error) {
+	raw, readErr := files.ReadFile(filepath.Join(indexDir(root), indexDescriptorName))
 	if errors.Is(readErr, os.ErrNotExist) {
 		return IndexGenerationDescriptor{}, nil, false, nil
 	}
@@ -316,10 +316,10 @@ func readIndexDescriptor(root string) (desc IndexGenerationDescriptor, raw []byt
 // its digest: the immutable copy when it exists and matches, the legacy name
 // when that matches. When neither matches it returns the bytes it found, so the
 // caller can say what differed, and ok false.
-func readGenerationFile(root, id, name, want string) (data []byte, ok bool, err error) {
+func readGenerationFile(files Files, root, id, name, want string) (data []byte, ok bool, err error) {
 	var lastErr error
 	for _, path := range []string{filepath.Join(indexGenerationDir(root, id), name), filepath.Join(indexDir(root), name)} {
-		raw, readErr := os.ReadFile(path)
+		raw, readErr := files.ReadFile(path)
 		if readErr != nil {
 			if lastErr == nil || !errors.Is(readErr, os.ErrNotExist) {
 				lastErr = readErr
@@ -339,12 +339,12 @@ func readGenerationFile(root, id, name, want string) (data []byte, ok bool, err 
 // descriptor is replaced while it reads, a bounded number of times.
 func (s Store) ReadIndexGeneration() IndexGenerationView {
 	for attempt := 0; attempt < indexReadAttempts; attempt++ {
-		desc, raw, exists, err := readIndexDescriptor(s.Root)
+		desc, raw, exists, err := readIndexDescriptor(s.fsys(), s.Root)
 		if err != nil {
 			return IndexGenerationView{Status: IndexGenerationUnavailable, Reason: err.Error()}
 		}
 		if !exists {
-			if indexPending(s.Root) {
+			if indexPendingIn(s.fsys(), s.Root) {
 				return IndexGenerationView{Status: IndexGenerationUnavailable, Reason: "a first index generation was being published and did not commit: the index files may mix two runs; run `pose index`"}
 			}
 			return IndexGenerationView{Status: IndexGenerationLegacy, Reason: "no generation descriptor: the indexes were not published as a set"}
@@ -356,7 +356,7 @@ func (s Store) ReadIndexGeneration() IndexGenerationView {
 		diverged := []string{}
 		var problem string
 		for _, f := range desc.Files {
-			data, matched, readErr := readGenerationFile(s.Root, desc.GenerationID, f.Name, f.SHA256)
+			data, matched, readErr := readGenerationFile(s.fsys(), s.Root, desc.GenerationID, f.Name, f.SHA256)
 			if readErr != nil {
 				problem = fmt.Sprintf("%s of generation %s cannot be read: %v", f.Name, desc.GenerationID, readErr)
 				break
@@ -366,11 +366,11 @@ func (s Store) ReadIndexGeneration() IndexGenerationView {
 				break
 			}
 			files[f.Name] = data
-			if legacy, legacyErr := os.ReadFile(filepath.Join(indexDir(s.Root), f.Name)); legacyErr != nil || sha256Prefixed(legacy) != f.SHA256 {
+			if legacy, legacyErr := s.fsys().ReadFile(filepath.Join(indexDir(s.Root), f.Name)); legacyErr != nil || sha256Prefixed(legacy) != f.SHA256 {
 				diverged = append(diverged, f.Name)
 			}
 		}
-		again, againRaw, _, againErr := readIndexDescriptor(s.Root)
+		again, againRaw, _, againErr := readIndexDescriptor(s.fsys(), s.Root)
 		if againErr == nil && again.GenerationID == desc.GenerationID && string(againRaw) == string(raw) {
 			if problem != "" {
 				return IndexGenerationView{Status: IndexGenerationUnavailable, Reason: problem, Descriptor: desc}
@@ -405,29 +405,29 @@ func (s Store) ReadIndex(name string) ([]byte, IndexGenerationStatus, error) {
 		// A pin taken while the repository had no descriptor does not keep the
 		// bytes: if a first publication has started since, the files may mix two
 		// runs, and the operation is told so instead of reading them.
-		if indexPending(s.Root) || indexDescriptorExists(s.Root) {
+		if indexPendingIn(s.fsys(), s.Root) || indexDescriptorExists(s.fsys(), s.Root) {
 			return nil, IndexGenerationUnavailable, fmt.Errorf("pose: %w: the indexes were published as a set while this operation was reading them; run it again", ErrIndexGenerationUnavailable)
 		}
-		raw, readErr := os.ReadFile(filepath.Join(indexDir(s.Root), name))
-		if indexPending(s.Root) || indexDescriptorExists(s.Root) {
+		raw, readErr := s.fsys().ReadFile(filepath.Join(indexDir(s.Root), name))
+		if indexPendingIn(s.fsys(), s.Root) || indexDescriptorExists(s.fsys(), s.Root) {
 			return nil, IndexGenerationUnavailable, fmt.Errorf("pose: %w: the indexes were published as a set while %s was read; run the operation again", ErrIndexGenerationUnavailable, name)
 		}
 		return raw, IndexGenerationLegacy, readErr
 	}
 	for attempt := 0; attempt < indexReadAttempts; attempt++ {
-		desc, descRaw, exists, err := readIndexDescriptor(s.Root)
+		desc, descRaw, exists, err := readIndexDescriptor(s.fsys(), s.Root)
 		if err != nil {
 			return nil, IndexGenerationUnavailable, fmt.Errorf("pose: %w: %s", ErrIndexGenerationUnavailable, err)
 		}
 		if !exists {
-			if indexPending(s.Root) {
+			if indexPendingIn(s.fsys(), s.Root) {
 				return nil, IndexGenerationUnavailable, fmt.Errorf("pose: %w: a first index generation was being published and did not commit; run `pose index`", ErrIndexGenerationUnavailable)
 			}
-			raw, readErr := os.ReadFile(filepath.Join(indexDir(s.Root), name))
+			raw, readErr := s.fsys().ReadFile(filepath.Join(indexDir(s.Root), name))
 			// The repository may have moved to a first publication (pending marker or
 			// descriptor) while the file was read: the bytes then may belong to a run
 			// that is not the one before it, so start again and judge the new state.
-			if indexPending(s.Root) || indexDescriptorExists(s.Root) {
+			if indexPendingIn(s.fsys(), s.Root) || indexDescriptorExists(s.fsys(), s.Root) {
 				continue
 			}
 			return raw, IndexGenerationLegacy, readErr
@@ -436,8 +436,8 @@ func (s Store) ReadIndex(name string) ([]byte, IndexGenerationStatus, error) {
 		if IndexReadFault != nil {
 			IndexReadFault("after-descriptor")
 		}
-		data, matched, readErr := readGenerationFile(s.Root, desc.GenerationID, name, f.SHA256)
-		again, againRaw, _, againErr := readIndexDescriptor(s.Root)
+		data, matched, readErr := readGenerationFile(s.fsys(), s.Root, desc.GenerationID, name, f.SHA256)
+		again, againRaw, _, againErr := readIndexDescriptor(s.fsys(), s.Root)
 		if againErr != nil || again.GenerationID != desc.GenerationID || string(againRaw) != string(descRaw) {
 			continue
 		}
@@ -477,7 +477,7 @@ func (s Store) PublishIndexGeneration(outputs map[string][]byte, inputs map[stri
 	if err != nil {
 		return IndexGenerationReceipt{}, err
 	}
-	unlock, err := lockIndexGeneration(s.Root, "index.publish")
+	unlock, err := s.lockIndexes("index.publish")
 	if err != nil {
 		return IndexGenerationReceipt{}, err
 	}
@@ -494,7 +494,7 @@ func (s Store) publishGenerationLocked(desc IndexGenerationDescriptor, outputs m
 	if err != nil {
 		return IndexGenerationReceipt{}, err
 	}
-	prev, prevRaw, prevExists, prevErr := readIndexDescriptor(s.Root)
+	prev, prevRaw, prevExists, prevErr := readIndexDescriptor(s.fsys(), s.Root)
 	receipt := IndexGenerationReceipt{GenerationID: desc.GenerationID}
 	if prevExists && prevErr == nil {
 		receipt.Previous = prev.GenerationID
@@ -522,16 +522,16 @@ func (s Store) publishGenerationLocked(desc IndexGenerationDescriptor, outputs m
 		return receipt, err
 	}
 	if !prevExists {
-		if err := PublishFile(filepath.Join(indexDir(s.Root), indexPendingName), []byte(desc.GenerationID+"\n"), 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny}); err != nil {
+		if err := s.fsys().Publish(filepath.Join(indexDir(s.Root), indexPendingName), []byte(desc.GenerationID+"\n"), 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny}); err != nil {
 			return receipt, fmt.Errorf("pose: marking the first index generation as pending: %w", err)
 		}
 	}
 	dir := indexGenerationDir(s.Root, desc.GenerationID)
-	if err := ensureOwnedGenerationsDir(s.Root); err != nil {
+	if err := ensureOwnedGenerationsDir(s.fsys(), s.Root); err != nil {
 		return receipt, err
 	}
 	for _, f := range desc.Files {
-		if err := PublishFile(filepath.Join(dir, f.Name), outputs[f.Name], 0o644, PublishDerived, PublishExpectation{Mode: ExpectAbsent}); err != nil {
+		if err := s.fsys().Publish(filepath.Join(dir, f.Name), outputs[f.Name], 0o644, PublishDerived, PublishExpectation{Mode: ExpectAbsent}); err != nil {
 			return receipt, fmt.Errorf("pose: publishing %s of generation %s: %w", f.Name, desc.GenerationID, err)
 		}
 		if err := indexFault("after-generation-file:" + f.Name); err != nil {
@@ -539,7 +539,7 @@ func (s Store) publishGenerationLocked(desc IndexGenerationDescriptor, outputs m
 		}
 	}
 	for _, f := range desc.Files {
-		back, err := os.ReadFile(filepath.Join(dir, f.Name))
+		back, err := s.fsys().ReadFile(filepath.Join(dir, f.Name))
 		if err != nil || sha256Prefixed(back) != f.SHA256 {
 			return receipt, fmt.Errorf("pose: %s of generation %s does not read back as published", f.Name, desc.GenerationID)
 		}
@@ -548,7 +548,7 @@ func (s Store) publishGenerationLocked(desc IndexGenerationDescriptor, outputs m
 		return receipt, err
 	}
 	for _, f := range desc.Files {
-		if err := PublishFile(filepath.Join(indexDir(s.Root), f.Name), outputs[f.Name], 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny}); err != nil {
+		if err := s.fsys().Publish(filepath.Join(indexDir(s.Root), f.Name), outputs[f.Name], 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny}); err != nil {
 			return receipt, fmt.Errorf("pose: publishing %s: %w", f.Name, err)
 		}
 		if err := indexFault("after-legacy-file:" + f.Name); err != nil {
@@ -558,7 +558,7 @@ func (s Store) publishGenerationLocked(desc IndexGenerationDescriptor, outputs m
 	if err := indexFault("before-commit"); err != nil {
 		return receipt, err
 	}
-	commitErr := PublishFile(filepath.Join(indexDir(s.Root), indexDescriptorName), descBytes, 0o644, PublishAuthoritative, expect)
+	commitErr := s.fsys().Publish(filepath.Join(indexDir(s.Root), indexDescriptorName), descBytes, 0o644, PublishAuthoritative, expect)
 	if commitErr != nil {
 		if errors.Is(commitErr, ErrPublishUnsynced) {
 			// The descriptor was renamed into place: the generation is committed,
@@ -568,7 +568,7 @@ func (s Store) publishGenerationLocked(desc IndexGenerationDescriptor, outputs m
 		return receipt, fmt.Errorf("pose: committing generation %s: %w", desc.GenerationID, commitErr)
 	}
 	receipt.Committed = true
-	_ = os.Remove(filepath.Join(indexDir(s.Root), indexPendingName))
+	_ = s.fsys().Remove(filepath.Join(indexDir(s.Root), indexPendingName))
 	receipt.CleanupError = s.pruneIndexGenerations(desc.GenerationID)
 	return receipt, nil
 }
@@ -581,7 +581,7 @@ func (s Store) publishGenerationLocked(desc IndexGenerationDescriptor, outputs m
 // When there is no generation yet it returns ErrIndexGenerationLegacy and writes
 // nothing, so the caller may keep writing the file as it did before sets existed.
 func (s Store) ReplaceIndex(name string, data []byte) (IndexGenerationReceipt, error) {
-	unlock, err := lockIndexGeneration(s.Root, "index.replace")
+	unlock, err := s.lockIndexes("index.replace")
 	if err != nil {
 		return IndexGenerationReceipt{}, err
 	}
@@ -620,7 +620,7 @@ func (s Store) replaceUnderLock(view IndexGenerationView, name string, data []by
 // lock, so a generation published meanwhile is never overwritten by the old way.
 // legacy reports that the file was written without a generation.
 func (s Store) ReplaceIndexOrLegacy(name string, data []byte) (receipt IndexGenerationReceipt, legacy bool, err error) {
-	unlock, err := lockIndexGeneration(s.Root, "index.replace")
+	unlock, err := s.lockIndexes("index.replace")
 	if err != nil {
 		return IndexGenerationReceipt{}, false, err
 	}
@@ -630,7 +630,7 @@ func (s Store) ReplaceIndexOrLegacy(name string, data []byte) (receipt IndexGene
 		if err := indexFault("replace-legacy-before-write"); err != nil {
 			return IndexGenerationReceipt{}, true, err
 		}
-		if err := PublishFile(filepath.Join(indexDir(s.Root), name), data, 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny}); err != nil {
+		if err := s.fsys().Publish(filepath.Join(indexDir(s.Root), name), data, 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny}); err != nil {
 			return IndexGenerationReceipt{}, true, err
 		}
 		return IndexGenerationReceipt{}, true, nil
@@ -649,21 +649,26 @@ func (s Store) PinIndexes() Store {
 	return s
 }
 
-func indexDescriptorExists(root string) bool {
-	_, err := os.Lstat(filepath.Join(indexDir(root), indexDescriptorName))
+func indexDescriptorExists(files Files, root string) bool {
+	_, err := files.Lstat(filepath.Join(indexDir(root), indexDescriptorName))
 	return err == nil
 }
 
-func indexPending(root string) bool {
-	_, err := os.Lstat(filepath.Join(indexDir(root), indexPendingName))
+func indexPendingIn(files Files, root string) bool {
+	_, err := files.Lstat(filepath.Join(indexDir(root), indexPendingName))
 	return err == nil
+}
+
+// indexPending reads the filesystem directly; indexPendingIn reads the operation's files.
+func indexPending(root string) bool {
+	return indexPendingIn(NativeFiles(), root)
 }
 
 // ensureOwnedGenerationsDir refuses a generations directory that is a link, so
 // neither publication nor retention acts outside the project's own tree.
-func ensureOwnedGenerationsDir(root string) error {
+func ensureOwnedGenerationsDir(files Files, root string) error {
 	base := filepath.Join(indexDir(root), indexGenerationsDir)
-	info, err := os.Lstat(base)
+	info, err := files.Lstat(base)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil
 	}
@@ -674,6 +679,22 @@ func ensureOwnedGenerationsDir(root string) error {
 		return fmt.Errorf("pose: %s is not a directory of this project (a link or a file); it is left alone", filepath.ToSlash(filepath.Join(".pose", "indexes", indexGenerationsDir)))
 	}
 	return nil
+}
+
+// lockIndexes takes the generation lock for the store's operation. A preview
+// takes none — it writes nothing a lock would guard — but observes it: a
+// publication another call holds now is the refusal the operation would get,
+// and a lock whose owner is proven dead is one it would recover.
+func (s Store) lockIndexes(operation string) (func(), error) {
+	if s.fsys().Preview() == nil {
+		return lockIndexGeneration(s.Root, operation)
+	}
+	if _, err := os.Lstat(indexLockPath(s.Root)); err == nil {
+		if busy := inspectIndexLock(s.Root); busy.State != string(LockOwnerDead) {
+			return nil, busy
+		}
+	}
+	return func() {}, nil
 }
 
 // lockIndexGeneration takes the exclusive generation lock, recording its owner.
@@ -777,11 +798,11 @@ func (v IndexGenerationView) StaleInputs(compute func(name string) (string, bool
 // generations directory, never follows a link, never removes the current
 // generation, and leaves anything younger than the grace period.
 func (s Store) pruneIndexGenerations(current string) error {
-	if err := ensureOwnedGenerationsDir(s.Root); err != nil {
+	if err := ensureOwnedGenerationsDir(s.fsys(), s.Root); err != nil {
 		return err
 	}
 	base := filepath.Join(indexDir(s.Root), indexGenerationsDir)
-	entries, err := os.ReadDir(base)
+	entries, err := s.fsys().ReadDir(base)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return nil
@@ -791,7 +812,7 @@ func (s Store) pruneIndexGenerations(current string) error {
 	// The generation the descriptor names now is live whatever this call was
 	// told: another publisher may have committed since.
 	live := map[string]bool{current: true}
-	if desc, _, exists, readErr := readIndexDescriptor(s.Root); readErr == nil && exists {
+	if desc, _, exists, readErr := readIndexDescriptor(s.fsys(), s.Root); readErr == nil && exists {
 		live[desc.GenerationID] = true
 	}
 	type generation struct {
@@ -803,7 +824,7 @@ func (s Store) pruneIndexGenerations(current string) error {
 		if !indexGenerationIDRE.MatchString(e.Name()) || live[e.Name()] {
 			continue
 		}
-		info, err := os.Lstat(filepath.Join(base, e.Name()))
+		info, err := s.fsys().Lstat(filepath.Join(base, e.Name()))
 		if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
 			continue
 		}
@@ -812,10 +833,10 @@ func (s Store) pruneIndexGenerations(current string) error {
 	sort.Slice(others, func(i, j int) bool { return others[i].mod.After(others[j].mod) })
 	var firstErr error
 	for i, g := range others {
-		if i < indexGenerationKeep-1 || time.Since(g.mod) < indexGenerationGrace {
+		if i < indexGenerationKeep-1 || s.fsys().Now().Sub(g.mod) < indexGenerationGrace {
 			continue
 		}
-		if err := os.RemoveAll(filepath.Join(base, g.name)); err != nil && firstErr == nil {
+		if err := s.fsys().RemoveAll(filepath.Join(base, g.name)); err != nil && firstErr == nil {
 			firstErr = err
 		}
 	}
@@ -831,43 +852,55 @@ var IndexInputNames = []string{"specs", "roadmaps", "policy", "module-metadata",
 // IndexInputBinding returns the current digest of one binding. A directory is
 // digested by the paths and bytes of the regular files under it, in path order;
 // a missing input has the digest of absence, so its appearance is a change.
-func IndexInputBinding(root, name string) (string, bool) {
+func IndexInputBindingIn(files Files, root, name string) (string, bool) {
 	switch name {
 	case "specs":
-		return treeDigest(root, ".pose/specs"), true
+		return treeDigest(files, root, ".pose/specs"), true
 	case "roadmaps":
-		return treeDigest(root, ".pose/roadmaps"), true
+		return treeDigest(files, root, ".pose/roadmaps"), true
 	case "policy":
-		return treeDigest(root, ".pose/policy"), true
+		return treeDigest(files, root, ".pose/policy"), true
 	case "module-metadata":
-		return fileDigest(root, ".pose/indexes/module-metadata.json"), true
+		return fileDigest(files, root, ".pose/indexes/module-metadata.json"), true
 	case "validation-matrix":
-		return fileDigest(root, ".pose/indexes/validation-matrix.json"), true
+		return fileDigest(files, root, ".pose/indexes/validation-matrix.json"), true
 	}
 	return "", false
 }
 
+// IndexInputBinding reads and writes the filesystem directly; IndexInputBindingIn takes the
+// operation's files.
+func IndexInputBinding(root, name string) (string, bool) {
+	return IndexInputBindingIn(NativeFiles(), root, name)
+}
+
 // IndexInputBindings returns every binding a generation carries.
-func IndexInputBindings(root string) map[string]string {
+func IndexInputBindingsIn(files Files, root string) map[string]string {
 	out := map[string]string{}
 	for _, name := range IndexInputNames {
-		out[name], _ = IndexInputBinding(root, name)
+		out[name], _ = IndexInputBindingIn(files, root, name)
 	}
 	return out
 }
 
-func fileDigest(root, rel string) string {
-	raw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+// IndexInputBindings reads and writes the filesystem directly; IndexInputBindingsIn takes the
+// operation's files.
+func IndexInputBindings(root string) map[string]string {
+	return IndexInputBindingsIn(NativeFiles(), root)
+}
+
+func fileDigest(files Files, root, rel string) string {
+	raw, err := files.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
 	if err != nil {
 		return "absent"
 	}
 	return sha256Prefixed(raw)
 }
 
-func treeDigest(root, rel string) string {
+func treeDigest(files Files, root, rel string) string {
 	base := filepath.Join(root, filepath.FromSlash(rel))
 	paths := []string{}
-	_ = filepath.WalkDir(base, func(path string, d os.DirEntry, err error) error {
+	_ = WalkDirIn(files, base, func(path string, d os.DirEntry, err error) error {
 		if err == nil && d.Type().IsRegular() && !IsPublisherStaging(path) {
 			paths = append(paths, path)
 		}
@@ -879,7 +912,7 @@ func treeDigest(root, rel string) string {
 	sort.Strings(paths)
 	h := sha256.New()
 	for _, path := range paths {
-		raw, err := os.ReadFile(path)
+		raw, err := files.ReadFile(path)
 		if err != nil {
 			continue
 		}

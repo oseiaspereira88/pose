@@ -34,13 +34,16 @@ type PolicyDocs struct {
 	// Write publishes only over them (spec
 	// pose-writer-coordination-and-atomic-publication R2).
 	reviewRead, dorRead PublishExpectation
+	// FS is the filesystem the documents were loaded from; a prerequisite
+	// that checks an installed file reads it there.
+	FS Files
 }
 
-func LoadPolicyDocs(root string) (PolicyDocs, error) {
-	docs := PolicyDocs{Root: root}
+func LoadPolicyDocsIn(files Files, root string) (PolicyDocs, error) {
+	docs := PolicyDocs{Root: root, FS: files}
 	reads := map[string]PublishExpectation{}
 	load := func(rel string) (map[string]any, []byte, error) {
-		raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", rel))
+		raw, err := files.ReadFile(filepath.Join(root, ".pose", "policy", rel))
 		if errors.Is(err, os.ErrNotExist) {
 			reads[rel] = PublishExpectation{Mode: ExpectAbsent}
 			return map[string]any{}, nil, nil
@@ -65,6 +68,12 @@ func LoadPolicyDocs(root string) (PolicyDocs, error) {
 	}
 	docs.reviewRead, docs.dorRead = reads["review.json"], reads["dor.json"]
 	return docs, nil
+}
+
+// LoadPolicyDocs reads and writes the filesystem directly; LoadPolicyDocsIn takes the
+// operation's files.
+func LoadPolicyDocs(root string) (PolicyDocs, error) {
+	return LoadPolicyDocsIn(NativeFiles(), root)
 }
 
 // Rendered returns the documents as they would be written, validated by the
@@ -109,12 +118,12 @@ func (d PolicyDocs) Write(root string, store Store) error {
 		return err
 	}
 	if reviewChanged {
-		if err := PublishFile(filepath.Join(root, ".pose", "policy", "review.json"), review, 0o644, PublishAuthoritative, d.reviewRead); err != nil {
+		if err := store.fsys().Publish(filepath.Join(root, ".pose", "policy", "review.json"), review, 0o644, PublishAuthoritative, d.reviewRead); err != nil {
 			return err
 		}
 	}
 	if dorChanged {
-		if err := PublishFile(filepath.Join(root, ".pose", "policy", "dor.json"), dor, 0o644, PublishAuthoritative, d.dorRead); err != nil {
+		if err := store.fsys().Publish(filepath.Join(root, ".pose", "policy", "dor.json"), dor, 0o644, PublishAuthoritative, d.dorRead); err != nil {
 			return err
 		}
 	}
@@ -123,8 +132,8 @@ func (d PolicyDocs) Write(root string, store Store) error {
 
 // writePolicyFile publishes an adoption's policy file whole through its own
 // staging file (spec pose-writer-coordination-and-atomic-publication R1).
-func writePolicyFile(path string, raw []byte) error {
-	return PublishFile(path, raw, 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAny})
+func writePolicyFile(files Files, path string, raw []byte) error {
+	return files.Publish(path, raw, 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAny})
 }
 
 // CatalogEntry is one adoptable capability.
@@ -160,8 +169,8 @@ func overlayEntry(name, introduced, effect string) CatalogEntry {
 	ref := name + "@1"
 	return CatalogEntry{
 		ID: "overlay:" + name, Summary: "review overlay " + ref, Effect: effect, IntroducedIn: introduced,
-		Prerequisite: func(root string, _ PolicyDocs) string {
-			if _, err := os.Stat(filepath.Join(root, ".pose", "review-profiles", name+".json")); err != nil {
+		Prerequisite: func(root string, docs PolicyDocs) string {
+			if _, err := FilesOrNative(docs.FS).Stat(filepath.Join(root, ".pose", "review-profiles", name+".json")); err != nil {
 				return "the review profile " + ref + " is not installed; run `pose update` to install the shipped profiles"
 			}
 			return ""
@@ -314,7 +323,7 @@ func catalogEntries() []CatalogEntry {
 				// Signing stays live for old bundles, so adopting seals the
 				// unsigned history with a local pinned issuer (spec
 				// pose-signed-legacy-attestation-ledger).
-				if blocker := signedHistoryBlocker(root, docs, "", false); blocker != "" {
+				if blocker := signedHistoryBlocker(FilesOrNative(docs.FS), root, docs, "", false); blocker != "" {
 					return blocker
 				}
 				return ""
@@ -337,7 +346,7 @@ func catalogEntries() []CatalogEntry {
 					return "authority_audience is not set: name the verifier installation claims are addressed to"
 				}
 				if project, _ := docs.Review["authority_project"].(string); project == "" {
-					if _, ok, err := ReadProjectFile(root); !ok || err != nil {
+					if _, ok, err := ReadProjectFileIn(FilesOrNative(docs.FS), root); !ok || err != nil {
 						return "no project identity: declare it in .pose/project.json so authority_project can name it"
 					}
 				}
@@ -348,7 +357,7 @@ func catalogEntries() []CatalogEntry {
 				// Verified assurance needs authority_project; the prerequisite
 				// accepts the declared identity for it, so adoption writes it.
 				if project, _ := docs.Review["authority_project"].(string); project == "" && docs.Root != "" {
-					if id, ok, err := ReadProjectFile(docs.Root); ok && err == nil {
+					if id, ok, err := ReadProjectFileIn(FilesOrNative(docs.FS), docs.Root); ok && err == nil {
 						docs.Review["authority_project"] = id
 						changes = append(changes, "set authority_project="+id+" (from .pose/project.json)")
 					}
@@ -422,7 +431,7 @@ func CatalogIDs() []string {
 }
 
 // CatalogAdoptBlocker names what must happen before entry can be adopted.
-func CatalogAdoptBlocker(root string, docs PolicyDocs, entry CatalogEntry) string {
+func CatalogAdoptBlockerIn(files Files, root string, docs PolicyDocs, entry CatalogEntry) string {
 	for _, required := range entry.Requires {
 		if dependency, ok := LookupCatalogEntry(required); ok && !dependency.Adopted(docs) {
 			return entry.ID + " requires " + required + "; run `pose adopt " + required + " --apply` first"
@@ -432,6 +441,12 @@ func CatalogAdoptBlocker(root string, docs PolicyDocs, entry CatalogEntry) strin
 		return entry.Prerequisite(root, docs)
 	}
 	return ""
+}
+
+// CatalogAdoptBlocker reads and writes the filesystem directly; CatalogAdoptBlockerIn takes the
+// operation's files.
+func CatalogAdoptBlocker(root string, docs PolicyDocs, entry CatalogEntry) string {
+	return CatalogAdoptBlockerIn(NativeFiles(), root, docs, entry)
 }
 
 // CatalogRetireBlocker names the adopted capability that depends on entry.
@@ -481,9 +496,9 @@ func adoptionDecisionsPath(root string) string {
 	return filepath.Join(root, ".pose", "policy", "adoption-decisions.json")
 }
 
-func ReadAdoptionDecisions(root string) (AdoptionDecisions, error) {
+func ReadAdoptionDecisionsIn(files Files, root string) (AdoptionDecisions, error) {
 	out := AdoptionDecisions{SchemaVersion: 1, Decisions: map[string]AdoptionDecision{}}
-	raw, err := os.ReadFile(adoptionDecisionsPath(root))
+	raw, err := files.ReadFile(adoptionDecisionsPath(root))
 	if errors.Is(err, os.ErrNotExist) {
 		return out, nil
 	}
@@ -502,12 +517,18 @@ func ReadAdoptionDecisions(root string) (AdoptionDecisions, error) {
 	return out, nil
 }
 
-func writeAdoptionDecisions(root string, doc AdoptionDecisions) error {
+// ReadAdoptionDecisions reads and writes the filesystem directly; ReadAdoptionDecisionsIn takes the
+// operation's files.
+func ReadAdoptionDecisions(root string) (AdoptionDecisions, error) {
+	return ReadAdoptionDecisionsIn(NativeFiles(), root)
+}
+
+func writeAdoptionDecisions(files Files, root string, doc AdoptionDecisions) error {
 	raw, err := json.MarshalIndent(doc, "", "  ")
 	if err != nil {
 		return err
 	}
-	return writePolicyFile(adoptionDecisionsPath(root), append(raw, '\n'))
+	return writePolicyFile(files, adoptionDecisionsPath(root), append(raw, '\n'))
 }
 
 // RecordAdoptionDecision records a decline or a deferral.
@@ -535,13 +556,13 @@ func RecordAdoptionDecisionFor(root, id string, decision AdoptionDecision) error
 		return err
 	}
 	doc.Decisions[id] = decision
-	return writeAdoptionDecisions(root, doc)
+	return writeAdoptionDecisions(NativeFiles(), root, doc)
 }
 
 // SetReviewedVersion records the engine release whose capabilities the
 // project has reviewed.
-func SetReviewedVersion(root, version string) error {
-	doc, err := ReadAdoptionDecisions(root)
+func SetReviewedVersionIn(files Files, root, version string) error {
+	doc, err := ReadAdoptionDecisionsIn(files, root)
 	if err != nil {
 		return err
 	}
@@ -549,7 +570,13 @@ func SetReviewedVersion(root, version string) error {
 		return nil
 	}
 	doc.ReviewedVersion = version
-	return writeAdoptionDecisions(root, doc)
+	return writeAdoptionDecisions(files, root, doc)
+}
+
+// SetReviewedVersion reads and writes the filesystem directly; SetReviewedVersionIn takes the
+// operation's files.
+func SetReviewedVersion(root, version string) error {
+	return SetReviewedVersionIn(NativeFiles(), root, version)
 }
 
 // CompareReleaseVersions orders two `MAJOR.MINOR.PATCH` versions (a suffix
@@ -587,12 +614,12 @@ func CompareReleaseVersions(a, b string) int {
 // reviewed version (every off, undecided one when none is recorded), and
 // deferrals taken under an older release. Capabilities that need setup are
 // not decisions yet and are not returned.
-func CapabilitiesToReview(root, engine string) ([]CapabilityState, error) {
-	states, err := CapabilityStates(root)
+func CapabilitiesToReviewIn(files Files, root, engine string) ([]CapabilityState, error) {
+	states, err := CapabilityStatesIn(files, root)
 	if err != nil {
 		return nil, err
 	}
-	decisions, err := ReadAdoptionDecisions(root)
+	decisions, err := ReadAdoptionDecisionsIn(files, root)
 	if err != nil {
 		return nil, err
 	}
@@ -612,6 +639,12 @@ func CapabilitiesToReview(root, engine string) ([]CapabilityState, error) {
 	return out, nil
 }
 
+// CapabilitiesToReview reads and writes the filesystem directly; CapabilitiesToReviewIn takes the
+// operation's files.
+func CapabilitiesToReview(root, engine string) ([]CapabilityState, error) {
+	return CapabilitiesToReviewIn(NativeFiles(), root, engine)
+}
+
 // ClearAdoptionDecision forgets a recorded decision, as adopting does.
 func ClearAdoptionDecision(root, id string) error {
 	doc, err := ReadAdoptionDecisions(root)
@@ -622,7 +655,7 @@ func ClearAdoptionDecision(root, id string) error {
 		return nil
 	}
 	delete(doc.Decisions, id)
-	return writeAdoptionDecisions(root, doc)
+	return writeAdoptionDecisions(NativeFiles(), root, doc)
 }
 
 // Capability states.
@@ -647,12 +680,12 @@ type CapabilityState struct {
 }
 
 // CapabilityStates reads every catalog entry's state in this instance.
-func CapabilityStates(root string) ([]CapabilityState, error) {
-	docs, err := LoadPolicyDocs(root)
+func CapabilityStatesIn(files Files, root string) ([]CapabilityState, error) {
+	docs, err := LoadPolicyDocsIn(files, root)
 	if err != nil {
 		return nil, err
 	}
-	decisions, err := ReadAdoptionDecisions(root)
+	decisions, err := ReadAdoptionDecisionsIn(files, root)
 	if err != nil {
 		return nil, err
 	}
@@ -671,10 +704,16 @@ func CapabilityStates(root string) ([]CapabilityState, error) {
 				state.State, state.Missing = CapabilityNeedsSetup, entry.Prerequisite(root, docs)
 			} else {
 				state.State = CapabilityOff
-				state.Missing = CatalogAdoptBlocker(root, docs, entry)
+				state.Missing = CatalogAdoptBlockerIn(files, root, docs, entry)
 			}
 		}
 		out = append(out, state)
 	}
 	return out, nil
+}
+
+// CapabilityStates reads and writes the filesystem directly; CapabilityStatesIn takes the
+// operation's files.
+func CapabilityStates(root string) ([]CapabilityState, error) {
+	return CapabilityStatesIn(NativeFiles(), root)
 }

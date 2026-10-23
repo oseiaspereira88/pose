@@ -120,7 +120,7 @@ func (s Store) testNamesRead() (map[string]bool, []SourceLoss) {
 	names := map[string]bool{}
 	losses := []SourceLoss{}
 	declaration := regexp.MustCompile(`(?m)^func (Test[A-Z][A-Za-z0-9_]+)\(`)
-	_ = filepath.WalkDir(s.Root, func(path string, d os.DirEntry, err error) error {
+	_ = WalkDirIn(s.fsys(), s.Root, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			rel, relErr := filepath.Rel(s.Root, path)
 			if relErr != nil {
@@ -139,7 +139,7 @@ func (s Store) testNamesRead() (map[string]bool, []SourceLoss) {
 		if !strings.HasSuffix(path, "_test.go") {
 			return nil
 		}
-		raw, err := os.ReadFile(path)
+		raw, err := s.fsys().ReadFile(path)
 		if err != nil {
 			rel, relErr := filepath.Rel(s.Root, path)
 			if relErr != nil {

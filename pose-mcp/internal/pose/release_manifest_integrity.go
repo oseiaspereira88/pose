@@ -635,19 +635,7 @@ func snapshotVersionEvidence(root, commit string, manifest *ReleaseManifest, pol
 		// The engine's own version file is a Go source that holds the number in code.
 		return "", "the version evidence is the engine's own version file: it exists in the tagged tree and its value was not re-read"
 	}
-	tmp, err := os.MkdirTemp("", "pose-release-snapshot-*")
-	if err != nil {
-		return "the version source could not be re-read: " + err.Error(), ""
-	}
-	defer os.RemoveAll(tmp)
-	target := filepath.Join(tmp, filepath.FromSlash(source))
-	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
-		return "the version source could not be re-read: " + err.Error(), ""
-	}
-	if err := os.WriteFile(target, raw, 0o644); err != nil {
-		return "the version source could not be re-read: " + err.Error(), ""
-	}
-	got, err := ReadReleaseVersionSource(tmp, *policy.VersionSource)
+	got, err := parseReleaseVersionSource(raw, *policy.VersionSource)
 	if err != nil {
 		return "version source " + source + " in the tagged tree is not readable: " + err.Error(), ""
 	}

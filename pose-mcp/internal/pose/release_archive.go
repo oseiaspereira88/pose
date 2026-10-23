@@ -19,7 +19,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -51,7 +50,11 @@ const pendingFragmentDir = ".pose/changelogs/unreleased/"
 // what each attests, sorted by archived path. A manifest that cannot be read
 // attests nothing; `pose release check` is where it is reported.
 func LoadArchivedFragments(root string) []ArchivedFragment {
-	entries, err := os.ReadDir(filepath.Join(root, ".pose", "releases"))
+	return LoadArchivedFragmentsIn(NativeFiles(), root)
+}
+
+func LoadArchivedFragmentsIn(files Files, root string) []ArchivedFragment {
+	entries, err := files.ReadDir(filepath.Join(root, ".pose", "releases"))
 	if err != nil {
 		return nil
 	}
@@ -60,12 +63,12 @@ func LoadArchivedFragments(root string) []ArchivedFragment {
 		if !entry.IsDir() || ValidateReleaseVersion(entry.Name()) != nil {
 			continue
 		}
-		manifest, err := LoadReleaseManifest(root, entry.Name())
+		manifest, err := LoadReleaseManifestIn(files, root, entry.Name())
 		if err != nil {
 			continue
 		}
 		manifestPath := ".pose/releases/" + entry.Name() + "/manifest.json"
-		manifestRaw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(manifestPath)))
+		manifestRaw, err := files.ReadFile(filepath.Join(root, filepath.FromSlash(manifestPath)))
 		if err != nil {
 			continue
 		}
@@ -88,7 +91,7 @@ func LoadArchivedFragments(root string) []ArchivedFragment {
 				continue
 			}
 			at := ".pose/changelogs/" + entry.Name() + "/" + fragment.Path
-			raw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(at)))
+			raw, err := files.ReadFile(filepath.Join(root, filepath.FromSlash(at)))
 			// The digest proves the bytes; the spec they say they belong to must be the one the
 			// manifest attributes them to, or a manifest could hand one spec's fragment to another.
 			named := false

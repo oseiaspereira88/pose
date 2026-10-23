@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,6 +16,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"errors"
@@ -38,6 +40,7 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 		switch a {
 		case "--dry-run":
 			dry = true
+			suppressCommandUsage(stdout)
 			i++
 		case "--force", "-f":
 			force = true
@@ -88,12 +91,50 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 
-	if _, e := os.Stat(filepath.Join(root, ".git")); e != nil {
+	run := instanceUpdate{root: root, force: force, localeFlag: localeFlag, locale: commandLocale}
+	// One instant for the whole invocation: every date the update writes — a
+	// policy stamp, a review spec, a request id — is the same whether it
+	// applies or previews (spec pose-update-dry-run-reports-the-whole-update D2).
+	now := time.Now()
+	if dry {
+		return previewUpdate(run, now, stdout, stderr)
+	}
+	return run.apply(posemodel.NativeFilesAt(now), stdout, stderr)
+}
+
+// instanceUpdate is one `pose update` of an instance by the running engine:
+// everything after the binary self-update. It applies through native files
+// and previews through a view, running the same steps either way, so a
+// preview cannot drift from what the update does (spec
+// pose-update-dry-run-reports-the-whole-update D2).
+type instanceUpdate struct {
+	root       string
+	force      bool
+	localeFlag string
+	locale     cliLocale
+}
+
+func (u instanceUpdate) text(english, portuguese string) string {
+	return cliText(u.locale, english, portuguese)
+}
+
+// apply runs the update through files; with a preview's files it writes
+// nothing.
+func (u instanceUpdate) apply(files posemodel.Files, stdout, stderr io.Writer) int {
+	reads := &updateReadView{Files: files, seen: map[string]bool{}}
+	files = reads
+	defer func() {
+		for _, issue := range reads.issues {
+			render(io.Discard, stderr).ContractLine("[WARN] update evaluation: " + issue)
+		}
+	}()
+	root, force, localeFlag, commandLocale, text := u.root, u.force, u.localeFlag, u.locale, u.text
+	if _, e := files.Stat(filepath.Join(root, ".git")); e != nil {
 		fmt.Fprintln(stderr, text("pose update: a git repository is required", "pose update: um repositório git é obrigatório"))
 		return 1
 	}
 	poseDir := filepath.Join(root, ".pose")
-	if fi, e := os.Lstat(poseDir); e != nil {
+	if fi, e := files.Lstat(poseDir); e != nil {
 		fmt.Fprintln(stderr, text("pose update: .pose not found", "pose update: .pose não encontrado"))
 		return 1
 	} else if fi.Mode()&os.ModeSymlink != 0 {
@@ -102,7 +143,7 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 	}
 
 	current := 0
-	if b, e := os.ReadFile(filepath.Join(poseDir, "schema-version")); e == nil {
+	if b, e := files.ReadFile(filepath.Join(poseDir, "schema-version")); e == nil {
 		current, e = strconv.Atoi(strings.TrimSpace(string(b)))
 		if e != nil {
 			fmt.Fprintln(stderr, text("pose update: invalid schema-version", "pose update: schema-version inválido"))
@@ -113,22 +154,10 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, text("pose update: instance v%d is newer than engine v%d; downgrade is unsupported\n", "pose update: instância v%d é mais recente que engine v%d; downgrade não é suportado\n"), current, nativeSchemaVersion)
 		return 1
 	}
-
-	if dry {
-		out := render(stdout, stderr)
-		if current < nativeSchemaVersion {
-			out.ContractLine(fmt.Sprintf(text("[INFO] schema update: v%d -> v%d", "[INFO] atualização de schema: v%d -> v%d"), current, nativeSchemaVersion))
-			out.ContractLine(text("[DRY-RUN] would apply: 001-baseline", "[DRY-RUN] aplicaria: 001-baseline"))
-		}
-		if raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "review.json")); err == nil {
-			var p map[string]any
-			if err := json.Unmarshal(raw, &p); err == nil {
-				if sv, _ := p["schema_version"].(float64); int(sv) == 1 {
-					out.ContractLine(text("[DRY-RUN] would migrate review policy: .pose/policy/review.json (schema v1 -> v2)", "[DRY-RUN] migraria política de review: .pose/policy/review.json (schema v1 -> v2)"))
-				}
-			}
-		}
-		return dryRunUpdate(root, args, stdout, stderr, text)
+	if current < nativeSchemaVersion {
+		// Said by the update itself, so a preview shows the migration in the
+		// update's words instead of describing it separately.
+		render(stdout, stderr).ContractLine(fmt.Sprintf(text("[INFO] schema update: v%d -> v%d (001-baseline)", "[INFO] atualização de schema: v%d -> v%d (001-baseline)"), current, nativeSchemaVersion))
 	}
 
 	// instanceDirs (init.go) is the same canonical directory contract
@@ -141,12 +170,12 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 	// reference right after a `Result: SUCCESS` update (spec
 	// pose-update-instance-directory-completeness).
 	for _, rel := range instanceDirs {
-		if e := ensureManagedDirSafe(root, rel); e != nil {
+		if e := ensureManagedDirSafeIn(files, root, rel); e != nil {
 			fmt.Fprintf(stderr, "pose update: %v\n", e)
 			return 1
 		}
 	}
-	if e := writeAtomic(filepath.Join(poseDir, "schema-version"), []byte(fmt.Sprintf("%d\n", nativeSchemaVersion)), 0o644); e != nil {
+	if e := writeAtomicIn(files, filepath.Join(poseDir, "schema-version"), []byte(fmt.Sprintf("%d\n", nativeSchemaVersion)), 0o644); e != nil {
 		fmt.Fprintln(stderr, e)
 		return 1
 	}
@@ -160,7 +189,7 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 		if docLocale == "" && commandLocale == localePtBR {
 			docLocale = "pt-BR"
 		}
-		if e := refreshManagedDocs(root, docLocale, stdout, commandLocale); e != nil {
+		if e := refreshManagedDocsIn(files, root, docLocale, stdout, commandLocale); e != nil {
 			fmt.Fprintf(stderr, text("pose update: refreshing managed docs: %v\n", "pose update: atualizando docs gerenciados: %v\n"), e)
 			return 1
 		}
@@ -172,7 +201,7 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stdout, "[INFO] "+text(english, portuguese)+"\n", a...)
 		}
 		dist := scaffold.Dist()
-		if e := deliverMachinery(dist, root, machineryLocale(dist, root, docLocale, docLocale != ""), false, false, stderr, machineryLog); e != nil {
+		if e := deliverMachineryIn(files, dist, root, machineryLocaleIn(files, dist, root, docLocale, docLocale != ""), false, false, stderr, machineryLog); e != nil {
 			fmt.Fprintf(stderr, text("pose update: delivering machinery: %v\n", "pose update: entregando maquinário: %v\n"), e)
 			return 1
 		}
@@ -183,7 +212,7 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 		// it left older instances with docs referencing subsystems nothing
 		// had actually seeded (spec
 		// pose-upgrade-path-audit-fixes).
-		seedAbsentInstanceConfig(dist, root, machineryLog)
+		seedAbsentInstanceConfigIn(files, dist, root, machineryLog)
 	}
 
 	if force {
@@ -194,7 +223,7 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 		} else if commandLocale == localePtBR {
 			installArgs = append(installArgs, "--locale", "pt-BR")
 		}
-		if code := cmdInstall(installArgs, stdout, stderr); code != 0 {
+		if code := cmdInstallIn(files, installArgs, stdout, stderr); code != 0 {
 			// Install has already said what it wrote and what failed; a failure
 			// here is usually the instance's state after delivery, not the
 			// refresh (spec pose-update-reports-what-it-delivered).
@@ -207,13 +236,16 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 	// configuration-review spec with one decision request per capability
 	// (spec pose-update-configuration-review); nothing is adopted here.
 	reviewLocale := ""
-	if machineryLocale(scaffold.Dist(), root, "", false) == "pt-BR" {
+	if machineryLocaleIn(files, scaffold.Dist(), root, "", false) == "pt-BR" {
 		reviewLocale = "pt-BR"
 	}
-	if rel, opened, err := scaffoldConfigurationReview(root, version.ReleaseBase(), reviewLocale, time.Now()); err != nil {
+	if rel, opened, err := scaffoldConfigurationReviewIn(files, root, version.ReleaseBase(), reviewLocale, files.Now()); err != nil {
 		render(stdout, stderr).ContractLine("[WARN] configuration review not written: " + err.Error())
+		if p := files.Preview(); p != nil {
+			p.Incomplete("configuration review: " + err.Error())
+		}
 	} else if len(opened) > 0 {
-		if policy, err := posemodel.LoadActionPolicy(root); err == nil && len(policy.Roles["maintainer"]) == 0 {
+		if policy, err := posemodel.LoadActionPolicyIn(files, root); err == nil && len(policy.Roles["maintainer"]) == 0 {
 			render(stdout, stderr).ContractLine("[WARN] " + text(
 				"nobody holds the maintainer role these requests are addressed to; name its holder with `pose setup` before answering them",
 				"ninguém tem o papel maintainer a que esses pedidos se dirigem; nomeie quem o tem com `pose setup` antes de respondê-los"))
@@ -221,10 +253,22 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 		render(stdout, stderr).ContractLine("[INFO] " + text(
 			"configuration review: "+rel+" — "+strconv.Itoa(len(opened))+" decision request(s) for the maintainer role; nothing is adopted until they are answered",
 			"revisão de configuração: "+rel+" — "+strconv.Itoa(len(opened))+" decision request(s) para o papel maintainer; nada é adotado até serem respondidos"))
+		// Each request by what it asks, of whom, and what it recommends: the
+		// line a preview shows for the request it would open (spec
+		// pose-update-dry-run-reports-the-whole-update R1).
+		for _, view := range opened {
+			render(stdout, stderr).ContractLine(decisionRequestLine(view, text))
+		}
 	}
 	// An update names what it brings that this project has not decided, so a
 	// new capability is never left in limbo (spec pose-setup-command).
-	pending, _ := posemodel.CapabilitiesToReview(root, version.ReleaseBase())
+	pending, pendingErr := posemodel.CapabilitiesToReviewIn(files, root, version.ReleaseBase())
+	if pendingErr != nil {
+		render(stdout, stderr).ContractLine("[WARN] capability decisions not evaluated: " + pendingErr.Error())
+		if p := files.Preview(); p != nil {
+			p.Incomplete("capability decisions: " + pendingErr.Error())
+		}
+	}
 	if len(pending) > 0 {
 		ids := make([]string, 0, len(pending))
 		for _, state := range pending {
@@ -235,7 +279,7 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 			strconv.Itoa(len(pending))+" decisão(ões) de capacidade pendente(s) desde a última revisão de configuração: "+strings.Join(ids, ", ")+" — `pose setup` mostra cada uma e pergunta"))
 	}
 	if current == nativeSchemaVersion && !force {
-		if len(pending) == 0 {
+		if len(pending) == 0 && pendingErr == nil {
 			fmt.Fprintf(stdout, text("[INFO] instance at schema v%d; manuals and machinery are current for engine %s.\n", "[INFO] instância no schema v%d; manuais e maquinário em dia para o motor %s.\n"), current, version.ReleaseBase())
 		}
 		return 0
@@ -243,6 +287,143 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 
 	fmt.Fprintf(stdout, text("Result: SUCCESS — POSE updated to engine v%s (schema v%d).\n", "Resultado: SUCESSO — POSE atualizado para engine v%s (schema v%d).\n"), version.Version, nativeSchemaVersion)
 	return 0
+}
+
+// updateReadView makes relevant read loss observable even in existing best-effort
+// helpers. Missing optional inputs remain normal; other read failures prevent a
+// complete preview. It carries the same explicit view through embedded methods.
+type updateReadView struct {
+	posemodel.Files
+	mu     sync.Mutex
+	seen   map[string]bool
+	issues []string
+}
+
+func (v *updateReadView) observed(op, path string, err error) {
+	if err == nil || errors.Is(err, fs.ErrNotExist) {
+		return
+	}
+	issue := op + " " + path + ": " + err.Error()
+	v.mu.Lock()
+	if !v.seen[issue] {
+		v.seen[issue] = true
+		v.issues = append(v.issues, issue)
+	}
+	v.mu.Unlock()
+	if p := v.Preview(); p != nil {
+		p.Incomplete(issue)
+	}
+}
+func (v *updateReadView) ReadFile(path string) ([]byte, error) {
+	b, e := v.Files.ReadFile(path)
+	v.observed("read", path, e)
+	return b, e
+}
+func (v *updateReadView) ReadDir(path string) ([]fs.DirEntry, error) {
+	b, e := v.Files.ReadDir(path)
+	v.observed("list", path, e)
+	return b, e
+}
+func (v *updateReadView) Open(path string) (fs.File, error) {
+	b, e := v.Files.Open(path)
+	v.observed("open", path, e)
+	return b, e
+}
+func (v *updateReadView) Stat(path string) (fs.FileInfo, error) {
+	b, e := v.Files.Stat(path)
+	v.observed("stat", path, e)
+	return b, e
+}
+func (v *updateReadView) Lstat(path string) (fs.FileInfo, error) {
+	b, e := v.Files.Lstat(path)
+	v.observed("lstat", path, e)
+	return b, e
+}
+func (v *updateReadView) Readlink(path string) (string, error) {
+	b, e := v.Files.Readlink(path)
+	v.observed("readlink", path, e)
+	return b, e
+}
+func (v *updateReadView) EvalSymlinks(path string) (string, error) {
+	b, e := v.Files.EvalSymlinks(path)
+	v.observed("resolve", path, e)
+	return b, e
+}
+
+// effectFailure exposes best-effort failures without turning update into a
+// transaction or changing which steps the native path continues to run.
+func (v *updateReadView) effectFailure(op, path string, err error) error {
+	if err == nil || errors.Is(err, fs.ErrNotExist) || errors.Is(err, fs.ErrExist) {
+		return err
+	}
+	issue := op + " " + path + ": " + err.Error()
+	v.mu.Lock()
+	if !v.seen[issue] {
+		v.seen[issue] = true
+		v.issues = append(v.issues, issue)
+	}
+	v.mu.Unlock()
+	return err
+}
+func (v *updateReadView) WriteFile(path string, data []byte, perm fs.FileMode) error {
+	return v.effectFailure("write", path, v.Files.WriteFile(path, data, perm))
+}
+func (v *updateReadView) CreateExclusive(path string, data []byte, perm fs.FileMode, sync bool) error {
+	return v.effectFailure("create-exclusive", path, v.Files.CreateExclusive(path, data, perm, sync))
+}
+func (v *updateReadView) Publish(path string, data []byte, perm fs.FileMode, class string, expect posemodel.PublishExpectation) error {
+	return v.effectFailure("publish", path, v.Files.Publish(path, data, perm, class, expect))
+}
+func (v *updateReadView) MkdirAll(path string, perm fs.FileMode) error {
+	return v.effectFailure("mkdir-all", path, v.Files.MkdirAll(path, perm))
+}
+func (v *updateReadView) Mkdir(path string, perm fs.FileMode) error {
+	return v.effectFailure("mkdir", path, v.Files.Mkdir(path, perm))
+}
+func (v *updateReadView) Remove(path string) error {
+	return v.effectFailure("remove", path, v.Files.Remove(path))
+}
+func (v *updateReadView) RemoveAll(path string) error {
+	return v.effectFailure("remove-all", path, v.Files.RemoveAll(path))
+}
+func (v *updateReadView) Symlink(target, path string) error {
+	return v.effectFailure("symlink", path, v.Files.Symlink(target, path))
+}
+
+// updatePhaseFailure records lost evaluation in existing best-effort phases.
+func updatePhaseFailure(files posemodel.Files, log func(string, string, ...any), phase string, err error) {
+	if err == nil {
+		return
+	}
+	if log != nil {
+		log("warning: %s: %v", "aviso: %s: %v", phase, err)
+	}
+	if p := files.Preview(); p != nil {
+		p.Incomplete(phase + ": " + err.Error())
+	}
+}
+
+// decisionRequestLine names one configuration-review request as the update
+// opens it: capability, the requirement it answers, what it asks, of whom and
+// what it recommends.
+func decisionRequestLine(view posemodel.ActionRequestView, text func(string, string) string) string {
+	r := view.Request
+	requirement := ""
+	for _, target := range r.Targets {
+		if target.Kind == "requirement" {
+			requirement = " " + target.ID
+		}
+	}
+	recipient := r.Recipient.Role
+	if recipient == "" {
+		recipient = r.Recipient.Principal
+	}
+	recommendation := text("no recommendation", "sem recomendação")
+	if r.Recommend != "" {
+		recommendation = text("recommends ", "recomenda ") + r.Recommend
+	}
+	return fmt.Sprintf(text("[INFO] decision request %s (capability %s, %s%s): %s — to role %s; %s", "[INFO] decision request %s (capacidade %s, %s%s): %s — para o papel %s; %s"),
+		r.ID, reviewCapability(r), r.Origin, requirement, r.Question, recipient, recommendation)
 }
 
 // Release endpoints, as variables so a test can build a binary pointed at a
@@ -462,21 +643,27 @@ func copyDiskFile(src, dst string, mode os.FileMode) error {
 // the target and every already-existing ancestor under root: if any of them
 // is a symlink, the upgrade refuses rather than silently writing through an
 // instance-controlled escape (spec pose-upgrade-compatibility-lab).
-func ensureManagedDirSafe(root, rel string) error {
+func ensureManagedDirSafeIn(files posemodel.Files, root, rel string) error {
 	full := filepath.Join(root, filepath.FromSlash(rel))
-	if fi, err := os.Lstat(full); err == nil {
+	if fi, err := files.Lstat(full); err == nil {
 		if fi.Mode()&os.ModeSymlink != 0 {
 			return fmt.Errorf("refusing to follow symlink at %s", rel)
 		}
 		return nil
 	}
 	for dir := filepath.Dir(full); len(dir) > len(root) && strings.HasPrefix(dir, root); dir = filepath.Dir(dir) {
-		if fi, err := os.Lstat(dir); err == nil && fi.Mode()&os.ModeSymlink != 0 {
+		if fi, err := files.Lstat(dir); err == nil && fi.Mode()&os.ModeSymlink != 0 {
 			relDir, _ := filepath.Rel(root, dir)
 			return fmt.Errorf("refusing to follow symlink at %s", filepath.ToSlash(relDir))
 		}
 	}
-	return os.MkdirAll(full, 0o755)
+	return files.MkdirAll(full, 0o755)
+}
+
+// ensureManagedDirSafe reads and writes the filesystem directly; ensureManagedDirSafeIn takes the
+// operation's files.
+func ensureManagedDirSafe(root, rel string) error {
+	return ensureManagedDirSafeIn(posemodel.NativeFiles(), root, rel)
 }
 
 func cmdKnowledgeHousekeeping(root string, args []string, stdout, stderr io.Writer) int {
@@ -756,8 +943,8 @@ func cmdKnowledgeCheck(root string, args []string, stdout, stderr io.Writer) int
 	return 0
 }
 
-func readFlatFrontmatter(path string) (map[string]string, error) {
-	b, e := os.ReadFile(path)
+func readFlatFrontmatterIn(files posemodel.Files, path string) (map[string]string, error) {
+	b, e := files.ReadFile(path)
 	if e != nil {
 		return nil, e
 	}
@@ -784,6 +971,12 @@ func readFlatFrontmatter(path string) (map[string]string, error) {
 		return nil, fmt.Errorf("frontmatter not closed")
 	}
 	return out, nil
+}
+
+// readFlatFrontmatter reads and writes the filesystem directly; readFlatFrontmatterIn takes the
+// operation's files.
+func readFlatFrontmatter(path string) (map[string]string, error) {
+	return readFlatFrontmatterIn(posemodel.NativeFiles(), path)
 }
 func oneOf(v string, values ...string) bool {
 	for _, x := range values {
@@ -900,7 +1093,12 @@ func HookMain(name string, stdout, stderr io.Writer) int {
 // two writers never share a temporary file. It is last-writer-wins: writers
 // of mutable records use pose.PublishFile with an expectation instead.
 func writeAtomic(path string, data []byte, perm os.FileMode) error {
-	return posemodel.PublishFile(path, data, perm, posemodel.PublishDerived, posemodel.PublishExpectation{Mode: posemodel.ExpectAny})
+	return writeAtomicIn(posemodel.NativeFiles(), path, data, perm)
+}
+
+// writeAtomicIn is writeAtomic through the operation's files.
+func writeAtomicIn(files posemodel.Files, path string, data []byte, perm os.FileMode) error {
+	return files.Publish(path, data, perm, posemodel.PublishDerived, posemodel.PublishExpectation{Mode: posemodel.ExpectAny})
 }
 
 func cmdReleaseNotes(root string, args []string, stdout, stderr io.Writer) int {

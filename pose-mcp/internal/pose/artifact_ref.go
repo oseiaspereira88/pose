@@ -98,7 +98,12 @@ type ArtifactResolver struct {
 	// listing per project for the operation (spec
 	// pose-attention-within-a-second).
 	snapshots *sync.Map
+	// FS is the filesystem of the operation the resolver serves; every store
+	// it opens carries it (spec pose-update-dry-run-reports-the-whole-update D2).
+	FS Files
 }
+
+func (r ArtifactResolver) fsys() Files { return FilesOrNative(r.FS) }
 
 // WithSpecSnapshots returns a resolver whose stores read each project's specs
 // once for the rest of the operation.
@@ -114,7 +119,7 @@ func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
 func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[string]bool, redirectDepth int) ArtifactResolution {
 	out := ArtifactResolution{SchemaVersion: 1}
 	ref, err := ParseArtifactRef(raw)
-	if err != nil {
+	if err != nil || !filepath.IsLocal(ref.Slug) {
 		out.State = "invalid-artifact-reference"
 		return out
 	}
@@ -144,21 +149,21 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 		}
 		return out
 	}
-	if info, err := os.Stat(filepath.Join(s.Root, ".pose")); err != nil || !info.IsDir() {
+	if info, err := r.fsys().Stat(filepath.Join(s.Root, ".pose")); err != nil || !info.IsDir() {
 		out.State = "unavailable-project"
 		return out
 	}
-	if operationID, pending := incompleteTransferFor(s.Root, ref); pending {
+	if operationID, pending := incompleteTransferFor(r.fsys(), s.Root, ref); pending {
 		out.State = "transfer-in-progress"
 		out.OperationID = operationID
 		return out
 	}
 	policyPath := filepath.Join(s.Root, ".pose", "policy", "review.json")
-	if _, err := os.Lstat(policyPath); err == nil && !artifactPathWithin(s.Root, policyPath) {
+	if _, err := r.fsys().Lstat(policyPath); err == nil && !artifactPathWithin(r.fsys(), s.Root, policyPath) {
 		out.State = "unsupported-artifact-contract"
 		return out
 	}
-	if raw, err := os.ReadFile(policyPath); err == nil {
+	if raw, err := r.fsys().ReadFile(policyPath); err == nil {
 		var policy struct {
 			SchemaVersion   int `json:"schema_version"`
 			RefsVersion     int `json:"qualified_artifact_refs_version"`
@@ -183,7 +188,7 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 	var deps []string
 	switch ref.Kind {
 	case "spec":
-		redirect, found, err := readSpecTransferRedirect(s, ref)
+		redirect, found, err := readSpecTransferRedirect(r.fsys(), s, ref)
 		if err != nil {
 			out.State = "invalid-spec-redirect"
 			return out
@@ -221,8 +226,8 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 			return out
 		}
 		out.Status, body, deps = sp.Status, sp.Body, sp.DependsOn
-		if info, err := os.Stat(sp.Path); err == nil && !info.IsDir() {
-			raw, err := os.ReadFile(sp.Path)
+		if info, err := r.fsys().Stat(sp.Path); err == nil && !info.IsDir() {
+			raw, err := r.fsys().ReadFile(sp.Path)
 			if err != nil {
 				out.State = "unavailable-artifact"
 				return out
@@ -230,12 +235,16 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 			body = string(raw)
 		}
 	case "roadmap", "milestone":
+		if err := validateProjectPathIn(r.fsys(), s.Root, filepath.Join(".pose", "roadmaps", ref.Slug+".md")); err != nil {
+			out.State = "unavailable-artifact"
+			return out
+		}
 		path := filepath.Join(s.roadmapsDir(), ref.Slug+".md")
-		if _, err := os.Lstat(path); os.IsNotExist(err) {
+		if _, err := r.fsys().Lstat(path); os.IsNotExist(err) {
 			out.State = "unknown-roadmap"
 			return out
 		}
-		if !artifactPathWithin(s.Root, path) {
+		if !artifactPathWithin(r.fsys(), s.Root, path) {
 			out.State = "unavailable-artifact"
 			return out
 		}
@@ -245,7 +254,7 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 			return out
 		}
 		out.Status, body = rm.Status, rm.Body
-		if raw, err := os.ReadFile(path); err == nil {
+		if raw, err := r.fsys().ReadFile(path); err == nil {
 			body = string(raw)
 		} else {
 			out.State = "unavailable-artifact"
@@ -329,7 +338,7 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 	out.Digest = hex.EncodeToString(digest[:])
 	// rev-parse can walk to an ancestor repository: require this root to be its
 	// own Git top level before reporting a revision for a registered project.
-	if top, err := exec.Command("git", "-C", s.Root, "rev-parse", "--show-toplevel").Output(); err == nil && sameProjectRoot(s.Root, strings.TrimSpace(string(top))) {
+	if top, err := exec.Command("git", "-C", s.Root, "rev-parse", "--show-toplevel").Output(); err == nil && sameProjectRoot(r.fsys(), s.Root, strings.TrimSpace(string(top))) {
 		if revision, err := exec.Command("git", "-C", s.Root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
 			out.Revision = strings.TrimSpace(string(revision))
 		}
@@ -380,9 +389,9 @@ func (r ArtifactResolver) ValidateGraph(project, raw string) string {
 	return visit(project, raw, 0)
 }
 
-func sameProjectRoot(a, b string) bool {
+func sameProjectRoot(files Files, a, b string) bool {
 	clean := func(p string) string {
-		if real, err := filepath.EvalSymlinks(p); err == nil {
+		if real, err := files.EvalSymlinks(p); err == nil {
 			p = real
 		}
 		abs, _ := filepath.Abs(p)
@@ -391,12 +400,12 @@ func sameProjectRoot(a, b string) bool {
 	return clean(a) == clean(b)
 }
 
-func artifactPathWithin(root, path string) bool {
-	base, err := filepath.EvalSymlinks(root)
+func artifactPathWithin(files Files, root, path string) bool {
+	base, err := files.EvalSymlinks(root)
 	if err != nil {
 		return false
 	}
-	real, err := filepath.EvalSymlinks(path)
+	real, err := files.EvalSymlinks(path)
 	if err != nil {
 		return false
 	}
@@ -434,18 +443,24 @@ func ProjectIDFor(name string) string {
 // names: the one `.pose/project.json` declares, else the directory name. A
 // malformed file falls back here, which only a reader may accept; a writer
 // uses ResolveDefaultProjectID or Store.WriteProjectID.
-func DefaultProjectID(root string) string {
-	if id, ok, err := ReadProjectFile(root); ok && err == nil {
+func DefaultProjectIDIn(files Files, root string) string {
+	if id, ok, err := ReadProjectFileIn(files, root); ok && err == nil {
 		return id
 	}
 	return ProjectIDFor(filepath.Base(filepath.Clean(root)))
 }
 
+// DefaultProjectID reads and writes the filesystem directly; DefaultProjectIDIn takes the
+// operation's files.
+func DefaultProjectID(root string) string {
+	return DefaultProjectIDIn(NativeFiles(), root)
+}
+
 // ResolveDefaultProjectID is DefaultProjectID for a caller about to act on
 // the identity: a malformed .pose/project.json is an error, never a fallback
 // to the directory name.
-func ResolveDefaultProjectID(root string) (string, error) {
-	if id, ok, err := ReadProjectFile(root); err != nil {
+func ResolveDefaultProjectIDIn(files Files, root string) (string, error) {
+	if id, ok, err := ReadProjectFileIn(files, root); err != nil {
 		return "", err
 	} else if ok {
 		return id, nil
@@ -453,17 +468,23 @@ func ResolveDefaultProjectID(root string) (string, error) {
 	return ProjectIDFor(filepath.Base(filepath.Clean(root))), nil
 }
 
+// ResolveDefaultProjectID reads and writes the filesystem directly; ResolveDefaultProjectIDIn takes the
+// operation's files.
+func ResolveDefaultProjectID(root string) (string, error) {
+	return ResolveDefaultProjectIDIn(NativeFiles(), root)
+}
+
 // WriteProjectID is the project a governance write is recorded under. Unlike
 // the snapshot, which reports a failed resolution as a limitation and goes on
 // reading, a write refuses: a conflicting binding or a malformed
 // .pose/project.json would attribute it to another project.
 func (s Store) WriteProjectID() (string, error) {
-	_, project, err := EnvironmentArtifactResolver(s.Root, "")
+	_, project, err := EnvironmentArtifactResolverIn(s.fsys(), s.Root, "")
 	if err != nil {
 		return "", fmt.Errorf("pose: project identity: %w", err)
 	}
 	if project == "" {
-		return ResolveDefaultProjectID(s.Root)
+		return ResolveDefaultProjectIDIn(s.fsys(), s.Root)
 	}
 	return project, nil
 }
@@ -472,8 +493,8 @@ func (s Store) WriteProjectID() (string, error) {
 // (.pose/project.json, POSE_DEFAULT_PROJECT_ID, or an explicit
 // POSE_PROJECT_ROOTS binding) rather than derived from the directory name,
 // which changes with the checkout.
-func ProjectIdentityDeclared(root string) bool {
-	if _, ok, err := ReadProjectFile(root); ok && err == nil {
+func ProjectIdentityDeclaredIn(files Files, root string) bool {
+	if _, ok, err := ReadProjectFileIn(files, root); ok && err == nil {
 		return true
 	}
 	if os.Getenv("POSE_DEFAULT_PROJECT_ID") != "" {
@@ -484,16 +505,22 @@ func ProjectIdentityDeclared(root string) bool {
 		return false
 	}
 	for _, path := range explicit {
-		if sameProjectRoot(root, path) {
+		if sameProjectRoot(files, root, path) {
 			return true
 		}
 	}
 	return false
 }
 
+// ProjectIdentityDeclared reads and writes the filesystem directly; ProjectIdentityDeclaredIn takes the
+// operation's files.
+func ProjectIdentityDeclared(root string) bool {
+	return ProjectIdentityDeclaredIn(NativeFiles(), root)
+}
+
 // EnvironmentArtifactResolver reuses the CLI's existing project configuration.
 // Merely placing a checkout inside another repository never registers it.
-func EnvironmentArtifactResolver(root, projectsDir string) (ArtifactResolver, string, error) {
+func EnvironmentArtifactResolverIn(files Files, root, projectsDir string) (ArtifactResolver, string, error) {
 	explicit, err := ParseRootsJSON(os.Getenv("POSE_PROJECT_ROOTS"))
 	if err != nil {
 		return ArtifactResolver{}, "", err
@@ -505,7 +532,7 @@ func EnvironmentArtifactResolver(root, projectsDir string) (ArtifactResolver, st
 		return ArtifactResolver{}, "", fmt.Errorf("invalid-project-id: POSE_DEFAULT_PROJECT_ID %q is not a valid project id; declare %q instead (in .mcp.json, `pose doctor --fix` rewrites it)", id, ProjectIDFor(strings.TrimPrefix(id, "proj.")))
 	}
 	for candidate, path := range explicit {
-		if !sameProjectRoot(root, path) {
+		if !sameProjectRoot(files, root, path) {
 			continue
 		}
 		if id != "" && id != candidate {
@@ -513,7 +540,7 @@ func EnvironmentArtifactResolver(root, projectsDir string) (ArtifactResolver, st
 		}
 		id = candidate
 	}
-	declared, hasFile, fileErr := ReadProjectFile(root)
+	declared, hasFile, fileErr := ReadProjectFileIn(files, root)
 	if fileErr != nil {
 		return ArtifactResolver{}, "", fileErr
 	}
@@ -521,7 +548,7 @@ func EnvironmentArtifactResolver(root, projectsDir string) (ArtifactResolver, st
 	case id == "" && hasFile:
 		id = declared
 	case id == "":
-		id = DefaultProjectID(root)
+		id = DefaultProjectIDIn(files, root)
 	case hasFile && id != declared:
 		// Two declarations of one project's identity that disagree: refuse,
 		// naming both, instead of letting the environment win silently.
@@ -530,12 +557,18 @@ func EnvironmentArtifactResolver(root, projectsDir string) (ArtifactResolver, st
 	if ValidateSlug(id) != nil {
 		return ArtifactResolver{}, "", fmt.Errorf("invalid-project-id: %q is not a valid project id", id)
 	}
-	if selected, ok := explicit[id]; ok && !sameProjectRoot(selected, root) {
+	if selected, ok := explicit[id]; ok && !sameProjectRoot(files, selected, root) {
 		return ArtifactResolver{}, "", fmt.Errorf("conflicting-project-binding")
 	}
 	if projectsDir == "" {
 		projectsDir = os.Getenv("HARNE8_PROJECTS_DIR")
 	}
-	roots := NewRoots(RootsConfig{DefaultRoot: root, DefaultProjectID: id, ProjectsDir: projectsDir, Explicit: explicit})
-	return ArtifactResolver{Roots: roots}, id, nil
+	roots := NewRootsIn(files, RootsConfig{DefaultRoot: root, DefaultProjectID: id, ProjectsDir: projectsDir, Explicit: explicit})
+	return ArtifactResolver{Roots: roots, FS: files}, id, nil
+}
+
+// EnvironmentArtifactResolver reads and writes the filesystem directly; EnvironmentArtifactResolverIn takes the
+// operation's files.
+func EnvironmentArtifactResolver(root, projectsDir string) (ArtifactResolver, string, error) {
+	return EnvironmentArtifactResolverIn(NativeFiles(), root, projectsDir)
 }

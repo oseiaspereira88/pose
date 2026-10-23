@@ -1,8 +1,8 @@
 # Component Assessment: pose-mcp (`pose-mcp`)
 
 > **Mapeamento de Módulo POSE**: `pose-mcp`
-> **Data de Avaliação**: 2026-10-22T16:17:27Z | **Baseline Commit**: b29e518c0cd7
-> **Métricas**: 78429 LOC Produção | 68360 LOC Testes | 615 Arquivos Totais
+> **Data de Avaliação**: 2026-10-23T18:02:14Z | **Baseline Commit**: 5bb89ddd56a0
+> **Métricas**: 80788 LOC Produção | 71096 LOC Testes | 628 Arquivos Totais
 > **Linguagens**: go
 > **Saúde de Código**: 1 TODOs | 0 FIXMEs | 0 Panics | 0 Stubs
 
@@ -10,7 +10,7 @@
 
 ## 1. Visão Geral e Estrutura do Módulo
 
-O componente **pose-mcp** reside no caminho `pose-mcp` do projeto **pose-pending-b38**.
+O componente **pose-mcp** reside no caminho `pose-mcp` do projeto **pose-pending-b29**.
 
 - **Status de Verificação POSE**: `verified`
 - **Pontuação de Completude**: 100%

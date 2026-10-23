@@ -189,7 +189,7 @@ func (s Store) EffectiveGovernance(scope string) (GovernanceProjection, error) {
 	capability("verified-identity", "review.identity_assurance", verified, strings.Join(kinds, ","), verifiedEffective, verifiedReasons,
 		pick(verified, "reviewer identity and separation for "+strings.Join(kinds, ", ")+" come from signed claims", "identity assurance is declared: reviewer identity is the string the reviewer writes and separation is not authenticated"))
 
-	dor := LoadDoRPolicy(s.Root)
+	dor := LoadDoRPolicyIn(s.fsys(), s.Root)
 	dorEntry := GovernanceEntry{ID: "definition-of-ready", Kind: GovernanceGate, Supported: true, Source: "dor.adopted_at", Value: dor.AdoptedAt,
 		Configured: dor.AdoptedAt != "", Applicable: dor.AdoptedAt != "", Effective: dor.AdoptedAt != ""}
 	if dor.AdoptedAt == "" {
@@ -200,7 +200,7 @@ func (s Store) EffectiveGovernance(scope string) (GovernanceProjection, error) {
 	}
 	out.Entries = append(out.Entries, dorEntry)
 
-	delivery, deliveryErr := LoadDeliveryPolicy(s.Root)
+	delivery, deliveryErr := LoadDeliveryPolicyIn(s.fsys(), s.Root)
 	deliveryEntry := GovernanceEntry{ID: "delivery-integrity", Kind: GovernanceGate, Supported: true, Source: "delivery.enabled"}
 	if deliveryErr == nil {
 		deliveryEntry.Configured = delivery.Enabled

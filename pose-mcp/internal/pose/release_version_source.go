@@ -64,6 +64,10 @@ func (s ReleaseVersionSource) Validate() error {
 // ConfinedProjectPath resolves a project-relative path and refuses absolute
 // paths and any path or symlink that leaves the project root.
 func ConfinedProjectPath(root, path string) (string, error) {
+	return ConfinedProjectPathIn(NativeFiles(), root, path)
+}
+
+func ConfinedProjectPathIn(files Files, root, path string) (string, error) {
 	if filepath.IsAbs(path) {
 		return "", fmt.Errorf("absolute path")
 	}
@@ -72,11 +76,11 @@ func ConfinedProjectPath(root, path string) (string, error) {
 	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
 		return "", fmt.Errorf("escape")
 	}
-	resolved, err := filepath.EvalSymlinks(full)
+	resolved, err := files.EvalSymlinks(full)
 	if err != nil {
 		return "", err
 	}
-	resolvedRoot, err := filepath.EvalSymlinks(root)
+	resolvedRoot, err := files.EvalSymlinks(root)
 	if err != nil {
 		resolvedRoot = root
 	}
@@ -91,10 +95,14 @@ func ConfinedProjectPath(root, path string) (string, error) {
 // performs one bounded read of a regular file inside the project, and shows
 // nothing from the file other than the version it validated.
 func ReadReleaseVersionSource(root string, source ReleaseVersionSource) (string, error) {
+	return ReadReleaseVersionSourceIn(NativeFiles(), root, source)
+}
+
+func ReadReleaseVersionSourceIn(files Files, root string, source ReleaseVersionSource) (string, error) {
 	if err := source.Validate(); err != nil {
 		return "", fmt.Errorf("release policy version_source: %w", err)
 	}
-	full, err := ConfinedProjectPath(root, source.Path)
+	full, err := ConfinedProjectPathIn(files, root, source.Path)
 	if err != nil {
 		// Resolution errors from the file system quote absolute paths; report
 		// only the cause.
@@ -111,7 +119,7 @@ func ReadReleaseVersionSource(root string, source ReleaseVersionSource) (string,
 	if source.Kind == ReleaseVersionSourceJSON {
 		limit = releaseVersionJSONLimit
 	}
-	file, err := os.Open(full)
+	file, err := files.Open(full)
 	if err != nil {
 		return "", fmt.Errorf("release policy version_source %q: cannot read file", source.Path)
 	}
@@ -123,6 +131,17 @@ func ReadReleaseVersionSource(root string, source ReleaseVersionSource) (string,
 	raw, err := io.ReadAll(io.LimitReader(file, limit+1))
 	if err != nil {
 		return "", fmt.Errorf("release policy version_source %q: cannot read file", source.Path)
+	}
+	return parseReleaseVersionSource(raw, source)
+}
+
+func parseReleaseVersionSource(raw []byte, source ReleaseVersionSource) (string, error) {
+	if err := source.Validate(); err != nil {
+		return "", fmt.Errorf("release policy version_source: %w", err)
+	}
+	limit := int64(releaseVersionTextLimit)
+	if source.Kind == ReleaseVersionSourceJSON {
+		limit = releaseVersionJSONLimit
 	}
 	if int64(len(raw)) > limit {
 		return "", fmt.Errorf("release policy version_source %q: file exceeds %d bytes", source.Path, limit)
@@ -157,6 +176,10 @@ func ReadReleaseVersionSource(root string, source ReleaseVersionSource) (string,
 // ProjectHasEngineVersionFile reports whether the project is the engine
 // repository, the only place where the compiled engine version is authoritative.
 func ProjectHasEngineVersionFile(root string) bool {
-	info, err := os.Stat(filepath.Join(root, filepath.FromSlash(EngineVersionFile)))
+	return ProjectHasEngineVersionFileIn(NativeFiles(), root)
+}
+
+func ProjectHasEngineVersionFileIn(files Files, root string) bool {
+	info, err := files.Stat(filepath.Join(root, filepath.FromSlash(EngineVersionFile)))
 	return err == nil && info.Mode().IsRegular()
 }

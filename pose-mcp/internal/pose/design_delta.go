@@ -132,6 +132,7 @@ type designDeltaDetectorState struct {
 
 type designDeltaCollector struct {
 	root       string
+	files      Files
 	options    DesignDeltaOptions
 	coverage   DesignDeltaCoverage
 	detectors  map[string]*designDeltaDetectorState
@@ -165,7 +166,7 @@ func defaultDesignDeltaDetectors() []string {
 // package manager. Subject entries are already canonicalized by review bundle
 // preparation, so the same implementation cannot be replaced by a working-tree
 // diff between preparation and review.
-func AssessDesignDelta(root string, subject ReviewBundleSubject, scope string, options DesignDeltaOptions) (DesignDeltaReport, error) {
+func AssessDesignDeltaIn(files Files, root string, subject ReviewBundleSubject, scope string, options DesignDeltaOptions) (DesignDeltaReport, error) {
 	options = options.normalized()
 	if strings.TrimSpace(root) == "" {
 		return DesignDeltaReport{}, fmt.Errorf("pose: design delta root is empty")
@@ -174,7 +175,7 @@ func AssessDesignDelta(root string, subject ReviewBundleSubject, scope string, o
 	if err != nil {
 		return DesignDeltaReport{}, fmt.Errorf("pose: design delta root: %w", err)
 	}
-	info, err := os.Stat(rootAbs)
+	info, err := files.Stat(rootAbs)
 	if err != nil || !info.IsDir() {
 		return DesignDeltaReport{}, fmt.Errorf("pose: design delta root is unavailable")
 	}
@@ -221,7 +222,8 @@ func AssessDesignDelta(root string, subject ReviewBundleSubject, scope string, o
 	}
 
 	collector := &designDeltaCollector{
-		root: rootAbs, options: options, coverage: report.Coverage,
+		files: files,
+		root:  rootAbs, options: options, coverage: report.Coverage,
 		detectors: map[string]*designDeltaDetectorState{}, deltaKeys: map[string]bool{},
 		displayIDs: map[string]string{}, bytesLeft: options.MaxBytes,
 	}
@@ -285,6 +287,12 @@ func AssessDesignDelta(root string, subject ReviewBundleSubject, scope string, o
 	}
 	storeDesignDelta(input, report)
 	return report, nil
+}
+
+// AssessDesignDelta reads and writes the filesystem directly; AssessDesignDeltaIn takes the
+// operation's files.
+func AssessDesignDelta(root string, subject ReviewBundleSubject, scope string, options DesignDeltaOptions) (DesignDeltaReport, error) {
+	return AssessDesignDeltaIn(NativeFiles(), root, subject, scope, options)
 }
 
 // designDeltaCache memoizes by input digest. Every hit and every store goes
@@ -677,8 +685,8 @@ func (c *designDeltaCollector) readGitFile(revision, path string) ([]byte, strin
 		return nil, "invalid"
 	}
 	joined := filepath.Join(c.root, filepath.FromSlash(path))
-	if info, err := os.Lstat(joined); err == nil && info.Mode()&os.ModeSymlink != 0 {
-		resolved, resolveErr := filepath.EvalSymlinks(joined)
+	if info, err := FilesOrNative(c.files).Lstat(joined); err == nil && info.Mode()&os.ModeSymlink != 0 {
+		resolved, resolveErr := FilesOrNative(c.files).EvalSymlinks(joined)
 		if resolveErr != nil {
 			return nil, "symlink"
 		}

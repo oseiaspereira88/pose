@@ -37,12 +37,12 @@ func lockSpecTransferRoots(stores map[string]Store) (func(), error) {
 	for _, root := range roots {
 		poseDir := filepath.Join(root, ".pose")
 		info, err := os.Lstat(poseDir)
-		if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(root, poseDir) {
+		if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(NativeFiles(), root, poseDir) {
 			cleanup()
 			return nil, specTransferError("path-escape")
 		}
 		transfersDir := filepath.Join(poseDir, "transfers")
-		if info, err := os.Lstat(transfersDir); err == nil && (info.Mode()&os.ModeSymlink != 0 || !info.IsDir() || !artifactPathWithin(root, transfersDir)) {
+		if info, err := os.Lstat(transfersDir); err == nil && (info.Mode()&os.ModeSymlink != 0 || !info.IsDir() || !artifactPathWithin(NativeFiles(), root, transfersDir)) {
 			cleanup()
 			return nil, specTransferError("path-escape")
 		}
@@ -56,7 +56,7 @@ func lockSpecTransferRoots(stores map[string]Store) (func(), error) {
 			cleanup()
 			return nil, specTransferError("lock-unavailable")
 		}
-		if info, err := os.Lstat(lockPath); err != nil || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(root, lockPath) {
+		if info, err := os.Lstat(lockPath); err != nil || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(NativeFiles(), root, lockPath) {
 			_ = file.Close()
 			cleanup()
 			return nil, specTransferError("path-escape")

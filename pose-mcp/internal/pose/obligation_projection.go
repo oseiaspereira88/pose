@@ -363,7 +363,7 @@ func newObligation(project, producer string, source NodeRef, rule, discriminator
 // readinessObligations projects unmet prerequisites. They restrict start and
 // execution of the whole spec: depends_on is a spec-level precondition.
 func (s Store) readinessObligations(project string, specs []Spec) ([]Obligation, error) {
-	resolver, _, err := EnvironmentArtifactResolver(s.Root, "")
+	resolver, _, err := EnvironmentArtifactResolverIn(s.fsys(), s.Root, "")
 	if err != nil {
 		return nil, err
 	}
@@ -684,22 +684,22 @@ func correlateObligations(items []Obligation) []Obligation {
 // CurrentObligationSnapshot binds an answer to the repository state it read.
 func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 	snap := ObligationSnapshot{GeneratedAt: time.Now().UTC().Format(time.RFC3339), Coherent: true}
-	resolver, project, err := EnvironmentArtifactResolver(s.Root, "")
+	resolver, project, err := EnvironmentArtifactResolverIn(s.fsys(), s.Root, "")
 	if err == nil && project != "" {
-		if ctx, ctxErr := ResolveAgentProjectContext(resolver, project, ""); ctxErr == nil {
+		if ctx, ctxErr := ResolveAgentProjectContextIn(s.fsys(), resolver, project, ""); ctxErr == nil {
 			snap.AuthorityContextRevision = ctx.ContextRevision
 		} else {
 			snap.Limitations = append(snap.Limitations, "authority context unavailable: "+ctxErr.Error())
 		}
 	}
 	if err != nil || project == "" {
-		project = DefaultProjectID(s.Root)
+		project = DefaultProjectIDIn(s.fsys(), s.Root)
 		reason := "project identity fell back to the directory name"
 		if err != nil {
 			reason += " (" + err.Error() + ")"
 		}
 		snap.Limitations = append(snap.Limitations, reason)
-	} else if !ProjectIdentityDeclared(s.Root) {
+	} else if !ProjectIdentityDeclaredIn(s.fsys(), s.Root) {
 		// The resolver derives the id from the directory name without an
 		// error; say so, because a checkout under another name reads (and
 		// records references under) another project.
@@ -723,12 +723,12 @@ func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 		snap.WorktreeDirty = true
 		snap.Limitations = append(snap.Limitations, "governed files under .pose differ from "+shortRevision(snap.SourceRevision)+"; the answer describes the working tree, not the commit")
 	}
-	snap.PolicyDigest = directoryDigest(filepath.Join(s.Root, ".pose", "policy"))
+	snap.PolicyDigest = directoryDigestIn(s.fsys(), filepath.Join(s.Root, ".pose", "policy"))
 	if snap.PolicyDigest == directoryUnavailable {
 		snap.Coherent = false
 		snap.Limitations = append(snap.Limitations, "the policy could not be read whole: whether it changed is unknown")
 	}
-	snap.ContractDigest = projectContractDigest(s.Root)
+	snap.ContractDigest = projectContractDigest(s.fsys(), s.Root)
 	if raw, _, err := s.ReadIndex("delivery-integrity.json"); err == nil {
 		sum := sha256.Sum256(raw)
 		snap.IndexDigest = "sha256:" + hex.EncodeToString(sum[:])
@@ -807,8 +807,8 @@ const (
 // directoryDigest hashes the files below one directory, path and content, in path order.
 // A link, a special file or a file that cannot be read makes the whole digest
 // "unavailable": it would otherwise leave out exactly what it could not see.
-func directoryDigest(dir string) string {
-	info, err := os.Lstat(dir)
+func directoryDigestIn(files Files, dir string) string {
+	info, err := files.Lstat(dir)
 	if errors.Is(err, os.ErrNotExist) {
 		return directoryAbsent
 	}
@@ -816,7 +816,7 @@ func directoryDigest(dir string) string {
 		return directoryUnavailable
 	}
 	names := []string{}
-	walkErr := filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
+	walkErr := WalkDirIn(files, dir, func(p string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -836,7 +836,7 @@ func directoryDigest(dir string) string {
 	sort.Strings(names)
 	h := sha256.New()
 	for _, name := range names {
-		raw, err := os.ReadFile(filepath.Join(dir, filepath.FromSlash(name)))
+		raw, err := files.ReadFile(filepath.Join(dir, filepath.FromSlash(name)))
 		if err != nil {
 			return directoryUnavailable
 		}
@@ -845,6 +845,11 @@ func directoryDigest(dir string) string {
 		h.Write(raw)
 	}
 	return "sha256:" + hex.EncodeToString(h.Sum(nil))
+}
+
+// directoryDigest reads the filesystem directly; directoryDigestIn reads the operation's files.
+func directoryDigest(dir string) string {
+	return directoryDigestIn(NativeFiles(), dir)
 }
 
 // directoryDigestKnown reports that digest is a hash of a directory that was read whole.

@@ -63,9 +63,9 @@ type ActionResolution struct {
 
 // LoadActionPolicy reads the policy; an absent file is the empty declared
 // policy, under which a role-addressed request has nobody to resolve it.
-func LoadActionPolicy(root string) (ActionPolicy, error) {
+func LoadActionPolicyIn(files Files, root string) (ActionPolicy, error) {
 	policy := ActionPolicy{SchemaVersion: 1, Roles: map[string][]string{}, IdentityAssurance: ReviewIdentityAssuranceDeclared}
-	raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "actions.json"))
+	raw, err := files.ReadFile(filepath.Join(root, ".pose", "policy", "actions.json"))
 	if os.IsNotExist(err) {
 		return policy, nil
 	}
@@ -91,6 +91,12 @@ func LoadActionPolicy(root string) (ActionPolicy, error) {
 		return policy, fmt.Errorf("pose: invalid .pose/policy/actions.json: %w", err)
 	}
 	return policy, nil
+}
+
+// LoadActionPolicy reads and writes the filesystem directly; LoadActionPolicyIn takes the
+// operation's files.
+func LoadActionPolicy(root string) (ActionPolicy, error) {
+	return LoadActionPolicyIn(NativeFiles(), root)
 }
 
 func (p ActionPolicy) holds(role, principal string) bool {
@@ -160,7 +166,7 @@ func (s Store) ResolveActionRequest(res ActionResolution, now time.Time) (Action
 	if res.RequestDigest != r.RequestDigest {
 		return ActionRequestView{}, fmt.Errorf("%w: the answer was given for %s; the request is now %s", ErrActionStaleDigest, res.RequestDigest, r.RequestDigest)
 	}
-	policy, err := LoadActionPolicy(s.Root)
+	policy, err := LoadActionPolicyIn(s.fsys(), s.Root)
 	if err != nil {
 		return ActionRequestView{}, err
 	}

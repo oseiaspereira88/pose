@@ -23,7 +23,7 @@ func (s Store) knowledgeDir() string { return filepath.Join(s.Root, ".pose", "kn
 // ListKnowledge returns all knowledge entries that are not sensitivity: restricted.
 // Body is omitted — use GetKnowledge to fetch the full entry.
 func (s Store) ListKnowledge() ([]KnowledgeEntry, error) {
-	entries, err := os.ReadDir(s.knowledgeDir())
+	entries, err := s.fsys().ReadDir(s.knowledgeDir())
 	if err != nil {
 		if os.IsNotExist(err) {
 			return []KnowledgeEntry{}, nil
@@ -37,7 +37,7 @@ func (s Store) ListKnowledge() ([]KnowledgeEntry, error) {
 			continue
 		}
 		path := filepath.Join(s.knowledgeDir(), e.Name())
-		ke, err := parseKnowledgeFile(path, false)
+		ke, err := parseKnowledgeFile(s.fsys(), path, false)
 		if err != nil {
 			continue // skip unparseable entries
 		}
@@ -56,7 +56,7 @@ func (s Store) GetKnowledge(slug string) (*KnowledgeEntry, error) {
 	if err := ValidateSlug(slug); err != nil {
 		return nil, err
 	}
-	entries, err := os.ReadDir(s.knowledgeDir())
+	entries, err := s.fsys().ReadDir(s.knowledgeDir())
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, fmt.Errorf("pose: knowledge entry %q not found", slug)
@@ -69,7 +69,7 @@ func (s Store) GetKnowledge(slug string) (*KnowledgeEntry, error) {
 			continue
 		}
 		path := filepath.Join(s.knowledgeDir(), e.Name())
-		ke, err := parseKnowledgeFile(path, true)
+		ke, err := parseKnowledgeFile(s.fsys(), path, true)
 		if err != nil {
 			continue
 		}
@@ -83,8 +83,8 @@ func (s Store) GetKnowledge(slug string) (*KnowledgeEntry, error) {
 	return nil, fmt.Errorf("pose: knowledge entry %q not found", slug)
 }
 
-func parseKnowledgeFile(path string, includeBody bool) (*KnowledgeEntry, error) {
-	raw, err := os.ReadFile(path)
+func parseKnowledgeFile(files Files, path string, includeBody bool) (*KnowledgeEntry, error) {
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("pose: reading knowledge entry: %w", err)
 	}

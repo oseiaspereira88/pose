@@ -330,10 +330,14 @@ func (s Store) resolveActionSubject(origin ArtifactRef, subject ActionSubject) (
 	}
 	switch {
 	case subject.Path != "":
-		if err := ValidateArtifactPath(s.Root, subject.Path, false); err != nil {
+		rel := filepath.Clean(filepath.FromSlash(subject.Path))
+		if !filepath.IsLocal(rel) {
+			return ActionSubject{}, errors.New("subject path escapes project root")
+		}
+		if err := ValidateArtifactPathIn(s.fsys(), s.Root, subject.Path, false); err != nil {
 			return ActionSubject{}, err
 		}
-		raw, err := os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(subject.Path)))
+		raw, err := s.fsys().ReadFile(filepath.Join(s.Root, rel))
 		if err != nil {
 			return ActionSubject{}, err
 		}
@@ -459,7 +463,17 @@ type ActionRequestView struct {
 }
 
 func actionJournalPath(root, id string) string {
+	if !filepath.IsLocal(id) {
+		return ""
+	}
 	return filepath.Join(root, filepath.FromSlash(actionDir), id+".jsonl")
+}
+
+func (s Store) checkActionJournal(id string) error {
+	if !filepath.IsLocal(id) || !strings.HasPrefix(id, "act-") || len(id) != 20 || ValidateSlug(id) != nil {
+		return fmt.Errorf("pose: invalid action request id %q", id)
+	}
+	return validateProjectPathIn(s.fsys(), s.Root, filepath.Join(filepath.FromSlash(actionDir), id+".jsonl"))
 }
 
 // OpenActionRequest persists a prepared request as the first journal event.
@@ -475,20 +489,17 @@ func (s Store) OpenActionRequest(r ActionRequest, now time.Time) (ActionRequestV
 		}
 		return ActionRequestView{}, fmt.Errorf("pose: action request identity collision for %s", prepared.ID)
 	}
-	if _, err := ensureReviewArtifactDir(s.Root, actionDir, true); err != nil {
+	if _, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, actionDir, true); err != nil {
 		return ActionRequestView{}, err
 	}
 	event := ActionEvent{SchemaVersion: ActionRequestSchemaVersion, Seq: 1, Type: ActionEventOpened, At: prepared.RequestedAt, Request: &prepared, Actor: prepared.RequestedBy.Principal, Execution: prepared.RequestedBy.Execution, RequestDigest: prepared.RequestDigest}
 	path := actionJournalPath(s.Root, prepared.ID)
-	file, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
+	line, err := json.Marshal(event)
 	if err != nil {
 		return ActionRequestView{}, err
 	}
-	if err := writeActionEvent(file, event); err != nil {
-		file.Close()
-		return ActionRequestView{}, err
-	}
-	if err := file.Close(); err != nil {
+	// Created exclusively and synced, as writeActionEvent syncs every event.
+	if err := s.fsys().CreateExclusive(path, append(line, '\n'), 0o644, true); err != nil {
 		return ActionRequestView{}, err
 	}
 	if prepared.Supersedes != "" {
@@ -512,10 +523,10 @@ func writeActionEvent(file *os.File, event ActionEvent) error {
 
 // LoadActionRequest reads one journal and derives the request's state.
 func (s Store) LoadActionRequest(id string) (ActionRequestView, error) {
-	if !strings.HasPrefix(id, "act-") || len(id) != 20 || ValidateSlug(id) != nil {
-		return ActionRequestView{}, fmt.Errorf("pose: invalid action request id %q", id)
+	if err := s.checkActionJournal(id); err != nil {
+		return ActionRequestView{}, err
 	}
-	raw, err := os.ReadFile(actionJournalPath(s.Root, id))
+	raw, err := s.fsys().ReadFile(actionJournalPath(s.Root, id))
 	if err != nil {
 		return ActionRequestView{}, err
 	}
@@ -655,7 +666,7 @@ func actionAnswerSatisfies(r ActionRequest, answer string) bool {
 // ListActionRequests reads every journal, oldest first. A journal that fails
 // to parse is returned as an error naming it, never skipped.
 func (s Store) ListActionRequests() ([]ActionRequestView, error) {
-	entries, err := os.ReadDir(filepath.Join(s.Root, filepath.FromSlash(actionDir)))
+	entries, err := s.fsys().ReadDir(filepath.Join(s.Root, filepath.FromSlash(actionDir)))
 	if os.IsNotExist(err) {
 		return []ActionRequestView{}, nil
 	}
@@ -733,6 +744,14 @@ var (
 // A retry with the same idempotency key and the same content is a no-op; the
 // same key with different content is refused.
 func (s Store) appendActionEvent(id string, event ActionEvent, expected int, now time.Time) (ActionRequestView, error) {
+	if err := s.checkActionJournal(id); err != nil {
+		return ActionRequestView{}, err
+	}
+	// The journal is appended under an exclusive lock on its open file, which
+	// a preview cannot take; no update appends to one.
+	if preview := s.fsys().Preview(); preview != nil {
+		return ActionRequestView{}, preview.Unsupported("appending an event to action request " + id)
+	}
 	path := actionJournalPath(s.Root, id)
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND, 0o644)
 	if err != nil {
@@ -744,7 +763,7 @@ func (s Store) appendActionEvent(id string, event ActionEvent, expected int, now
 		return ActionRequestView{}, fmt.Errorf("%w: another writer holds request %s", ErrActionRevisionConflict, id)
 	}
 	defer unlock()
-	raw, err := os.ReadFile(path)
+	raw, err := s.fsys().ReadFile(path)
 	if err != nil {
 		return ActionRequestView{}, err
 	}

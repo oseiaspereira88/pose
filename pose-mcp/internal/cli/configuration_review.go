@@ -42,8 +42,8 @@ type reviewRequest struct {
 }
 
 // configurationReviewRequests lists the engine's review requests.
-func configurationReviewRequests(root string) ([]reviewRequest, error) {
-	views, err := posemodel.Store{Root: root}.ListActionRequests()
+func configurationReviewRequestsIn(files posemodel.Files, root string) ([]reviewRequest, error) {
+	views, err := posemodel.Store{Root: root, FS: files}.ListActionRequests()
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +56,12 @@ func configurationReviewRequests(root string) ([]reviewRequest, error) {
 	return out, nil
 }
 
+// configurationReviewRequests reads and writes the filesystem directly; configurationReviewRequestsIn takes the
+// operation's files.
+func configurationReviewRequests(root string) ([]reviewRequest, error) {
+	return configurationReviewRequestsIn(posemodel.NativeFiles(), root)
+}
+
 func reviewCapability(r posemodel.ActionRequest) string {
 	if r.RequestedBy.Principal != reviewRequestedBy || !strings.HasPrefix(r.Context, reviewContextKey) {
 		return ""
@@ -66,8 +72,8 @@ func reviewCapability(r posemodel.ActionRequest) string {
 
 // reviewAnswerApplied reports whether the capability's state already reflects
 // an answered request.
-func reviewAnswerApplied(root string, req reviewRequest) bool {
-	states, err := posemodel.CapabilityStates(root)
+func reviewAnswerAppliedIn(files posemodel.Files, root string, req reviewRequest) bool {
+	states, err := posemodel.CapabilityStatesIn(files, root)
 	if err != nil {
 		return false
 	}
@@ -83,6 +89,12 @@ func reviewAnswerApplied(root string, req reviewRequest) bool {
 		}
 	}
 	return false
+}
+
+// reviewAnswerApplied reads and writes the filesystem directly; reviewAnswerAppliedIn takes the
+// operation's files.
+func reviewAnswerApplied(root string, req reviewRequest) bool {
+	return reviewAnswerAppliedIn(posemodel.NativeFiles(), root, req)
 }
 
 const reviewSpecEN = `---
@@ -277,15 +289,16 @@ Não iniciado.
 ### Follow-ups
 `
 
-// scaffoldConfigurationReview writes the review spec and opens a request
-// for each capability to review that has none. It returns the spec path and
-// the requests it opened; nothing is written when nothing is new.
-func scaffoldConfigurationReview(root, engine, locale string, now time.Time) (string, []string, error) {
-	pending, err := posemodel.CapabilitiesToReview(root, engine)
+// scaffoldConfigurationReviewIn writes the review spec and opens a request
+// for each capability to review that has none, through the update's files. It
+// returns the spec path and the requests it opened; nothing is written when
+// nothing is new.
+func scaffoldConfigurationReviewIn(files posemodel.Files, root, engine, locale string, now time.Time) (string, []posemodel.ActionRequestView, error) {
+	pending, err := posemodel.CapabilitiesToReviewIn(files, root, engine)
 	if err != nil {
 		return "", nil, err
 	}
-	existing, err := configurationReviewRequests(root)
+	existing, err := configurationReviewRequestsIn(files, root)
 	if err != nil {
 		return "", nil, err
 	}
@@ -296,7 +309,7 @@ func scaffoldConfigurationReview(root, engine, locale string, now time.Time) (st
 			asked[req.Capability] = true
 		case posemodel.ActionStateAnswered:
 			// Answered and not applied yet: setup applies it; do not ask twice.
-			if !reviewAnswerApplied(root, req) {
+			if !reviewAnswerAppliedIn(files, root, req) {
 				asked[req.Capability] = true
 			}
 		}
@@ -313,13 +326,13 @@ func scaffoldConfigurationReview(root, engine, locale string, now time.Time) (st
 	slug := configurationReviewSlug(engine)
 	date := now.UTC().Format(time.DateOnly)
 	rel := ""
-	if matches, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*-"+slug+".md")); len(matches) > 0 {
+	if matches, _ := posemodel.GlobIn(files, filepath.Join(root, ".pose", "specs", "*-"+slug+".md")); len(matches) > 0 {
 		// One review spec per engine version: a capability that became
 		// pending since is asked under the same spec, through a new request,
 		// only when the spec already names it.
 		r, _ := filepath.Rel(root, matches[0])
 		rel = filepath.ToSlash(r)
-		raw, err := os.ReadFile(matches[0])
+		raw, err := files.ReadFile(matches[0])
 		if err != nil {
 			return "", nil, err
 		}
@@ -355,25 +368,19 @@ func scaffoldConfigurationReview(root, engine, locale string, now time.Time) (st
 		body = strings.NewReplacer("{{SLUG}}", slug, "{{DATE}}", date, "{{ENGINE}}", engine, "{{REQUIREMENTS}}", strings.Join(requirements, "\n")).Replace(body)
 		rel = filepath.ToSlash(filepath.Join(".pose", "specs", date+"-"+slug+".md"))
 		path := filepath.Join(root, filepath.FromSlash(rel))
-		file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
-		if err != nil {
+		if err := files.CreateExclusive(path, []byte(body), 0o644, false); err != nil {
 			if errors.Is(err, os.ErrExist) {
 				return rel, nil, nil
 			}
 			return "", nil, err
 		}
-		_, werr := file.WriteString(body)
-		file.Close()
-		if werr != nil {
-			return "", nil, werr
-		}
 	}
-	raw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+	raw, err := files.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
 	if err != nil {
 		return "", nil, err
 	}
-	store := posemodel.Store{Root: root}
-	opened := []string{}
+	store := posemodel.Store{Root: root, FS: files}
+	opened := []posemodel.ActionRequestView{}
 	for _, state := range toAsk {
 		requirement := requirementNaming(string(raw), state.ID)
 		if requirement == "" {
@@ -403,7 +410,7 @@ func scaffoldConfigurationReview(root, engine, locale string, now time.Time) (st
 		if err != nil {
 			return rel, opened, err
 		}
-		opened = append(opened, view.Request.ID)
+		opened = append(opened, view)
 	}
 	return rel, opened, nil
 }

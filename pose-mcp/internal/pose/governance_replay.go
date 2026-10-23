@@ -86,7 +86,7 @@ func (s Store) GovernanceReplay(limit int) (GovernanceReplayReport, error) {
 	bytesLeft := int64(128 << 20)
 	for _, kind := range []string{"review-bundles", "review-attestations"} {
 		rel := ".pose/" + kind
-		dir, err := ensureReviewArtifactDir(s.Root, rel, false)
+		dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, rel, false)
 		if os.IsNotExist(err) {
 			continue
 		}
@@ -205,7 +205,7 @@ func (s Store) GovernanceReplay(limit int) (GovernanceReplayReport, error) {
 			continue
 		}
 		report.SpecsWithSubject++
-		delta, err := AssessDesignDelta(s.Root, bundle.Payload.Subject, bundle.Payload.Scope.Ref, DesignDeltaOptions{})
+		delta, err := AssessDesignDeltaIn(s.fsys(), s.Root, bundle.Payload.Subject, bundle.Payload.Scope.Ref, DesignDeltaOptions{})
 		if err != nil {
 			report.SpecsWithUnknownStructure++
 			continue

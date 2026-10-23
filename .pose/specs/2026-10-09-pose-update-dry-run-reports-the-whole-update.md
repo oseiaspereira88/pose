@@ -1,8 +1,8 @@
 ---
 slug: pose-update-dry-run-reports-the-whole-update
-status: in-progress
+status: done
 created_at: 2026-10-09
-completed_at:
+completed_at: 2026-10-23
 supersedes:
 depends_on:
 priority: 0
@@ -41,6 +41,40 @@ The dry-run writes nothing, as today.
 
 ### Artifacts
 
+Historical D1 declarations (quoted for audit; the cumulative declarations below govern the whole spec):
+
+> - created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.amendments.jsonl
+
+> - created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.md
+> - created: .pose/starts/pose-update-dry-run-reports-the-whole-update.json
+> - created: pose-mcp/internal/cli/update_dryrun.go
+> - created: pose-mcp/internal/cli/update_dryrun_test.go
+> - modified: pose-mcp/internal/cli/maintenance.go
+> - modified: pose-mcp/internal/cli/check.go
+> - modified: pose-mcp/internal/cli/doctor.go
+> - modified: pose-mcp/internal/cli/compat_test.go
+> - modified: pose-mcp/internal/cli/upgrade_test.go
+> - modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
+
+> - created: .pose/adr/2026-10-22-update-preview-records-the-shared-execution-in-an-operation-scoped-view.md
+> - created: .pose/reports/2026-10-22-b29-update-preview-design-review.md
+
+Cumulative D1/D2 declarations, including replacement edits declared before implementation:
+
+- created: pose-mcp/internal/pose/update_preview_confinement_test.go
+
+Security regression plan (PR #202 CodeQL follow-up, recorded before correction):
+reproduce ancestor/final symlink escapes for artifact claims, action subjects,
+journal loading/appending and report evidence; assert refusal before external
+content reads or writes using both native and projected files. Preserve confined
+internal links, linked roots, missing artifact claims and staged read-after-write.
+Reject non-local slugs/IDs at their construction boundaries; retain transfer and
+review directory guards before metadata inspection. Run focused Go tests, full
+strict validation, race tests and fresh CodeQL, then obtain a fresh sealed review.
+Rollback is the correction commit; no global restriction on operation files and
+no alert suppression is permitted. Check-then-open is not race-free confinement.
+
+- created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.amendments.jsonl
 - created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.md
 - created: .pose/starts/pose-update-dry-run-reports-the-whole-update.json
 - created: pose-mcp/internal/cli/update_dryrun.go
@@ -51,6 +85,112 @@ The dry-run writes nothing, as today.
 - modified: pose-mcp/internal/cli/compat_test.go
 - modified: pose-mcp/internal/cli/upgrade_test.go
 - modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
+- created: .pose/adr/2026-10-22-update-preview-records-the-shared-execution-in-an-operation-scoped-view.md
+- created: .pose/reports/2026-10-22-b29-update-preview-design-review.md
+- created: pose-mcp/internal/cli/update_preview_test.go
+- modified: pose-mcp/internal/cli/adopt.go
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/assess.go
+- modified: pose-mcp/internal/cli/command_reference.go
+- modified: pose-mcp/internal/cli/configuration_review.go
+- modified: pose-mcp/internal/cli/contribute.go
+- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/cli/init.go
+- modified: pose-mcp/internal/cli/install.go
+- modified: pose-mcp/internal/cli/machinery.go
+- modified: pose-mcp/internal/cli/managed_docs.go
+- modified: pose-mcp/internal/cli/onboarding.go
+- modified: pose-mcp/internal/cli/onboarding_context.go
+- modified: pose-mcp/internal/cli/release_lifecycle.go
+- modified: pose-mcp/internal/cli/stack_seed.go
+- modified: pose-mcp/internal/cli/surface_check.go
+- modified: pose-mcp/internal/cli/usage.go
+- modified: pose-mcp/internal/cli/validate.go
+- created: pose-mcp/internal/pose/operation_files.go
+- created: pose-mcp/internal/pose/operation_files_test.go
+- created: pose-mcp/internal/pose/operation_files_access.go
+- created: pose-mcp/internal/pose/operation_files_access_other.go
+- created: pose-mcp/internal/pose/operation_git.go
+- modified: pose-mcp/internal/pose/action_request.go
+- modified: pose-mcp/internal/pose/action_resolution.go
+- modified: pose-mcp/internal/pose/action_scoping.go
+- modified: pose-mcp/internal/pose/agent_project_context.go
+- modified: pose-mcp/internal/pose/artifact_ref.go
+- modified: pose-mcp/internal/pose/assessment_scan.go
+- modified: pose-mcp/internal/pose/capabilities.go
+- modified: pose-mcp/internal/pose/capability_catalog.go
+- modified: pose-mcp/internal/pose/causality_closeout.go
+- modified: pose-mcp/internal/pose/changelog_policy.go
+- modified: pose-mcp/internal/pose/closeout_plan.go
+- modified: pose-mcp/internal/pose/contract_nodes.go
+- modified: pose-mcp/internal/pose/delivery_integrity.go
+- modified: pose-mcp/internal/pose/delivery_surface.go
+- modified: pose-mcp/internal/pose/design_basis.go
+- modified: pose-mcp/internal/pose/design_delta.go
+- modified: pose-mcp/internal/pose/discovery.go
+- modified: pose-mcp/internal/pose/docs.go
+- modified: pose-mcp/internal/pose/docs_review.go
+- modified: pose-mcp/internal/pose/dor_policy.go
+- modified: pose-mcp/internal/pose/effective_governance.go
+- modified: pose-mcp/internal/pose/falsifier_observation.go
+- modified: pose-mcp/internal/pose/federated_acceptance.go
+- modified: pose-mcp/internal/pose/followup_candidates.go
+- modified: pose-mcp/internal/pose/followups_parse.go
+- modified: pose-mcp/internal/pose/git_snapshot_integrity.go
+- modified: pose-mcp/internal/pose/git_spawn_cache.go
+- modified: pose-mcp/internal/pose/governance_outcomes.go
+- modified: pose-mcp/internal/pose/governance_replay.go
+- modified: pose-mcp/internal/pose/index_generation.go
+- modified: pose-mcp/internal/pose/knowledge.go
+- modified: pose-mcp/internal/pose/legacy_inventory.go
+- modified: pose-mcp/internal/pose/legacy_ledger.go
+- modified: pose-mcp/internal/pose/obligation_projection.go
+- modified: pose-mcp/internal/pose/obligation_sources.go
+- modified: pose-mcp/internal/pose/pointers.go
+- modified: pose-mcp/internal/pose/premise_validity.go
+- modified: pose-mcp/internal/pose/project_file.go
+- modified: pose-mcp/internal/pose/readiness.go
+- modified: pose-mcp/internal/pose/release_archive.go
+- modified: pose-mcp/internal/pose/release_claimed_fragments.go
+- modified: pose-mcp/internal/pose/release_lifecycle.go
+- modified: pose-mcp/internal/pose/remediation_lineage.go
+- modified: pose-mcp/internal/pose/review_attribution.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
+- modified: pose-mcp/internal/pose/review_path_attribution.go
+- modified: pose-mcp/internal/pose/review_plan.go
+- modified: pose-mcp/internal/pose/review_reuse_provenance.go
+- modified: pose-mcp/internal/pose/review_structure.go
+- modified: pose-mcp/internal/pose/roadmaps.go
+- modified: pose-mcp/internal/pose/roots.go
+- modified: pose-mcp/internal/pose/spec.go
+- modified: pose-mcp/internal/pose/spec_transfer.go
+- modified: pose-mcp/internal/pose/spec_transfer_locks.go
+- modified: pose-mcp/internal/pose/start.go
+- created: .pose/reports/2026-10-22-b29-update-preview-implementation.md
+- modified: pose-mcp/internal/pose/spec_facts.go
+- created: pose-mcp/internal/cli/update_tree_test.go
+- created: pose-mcp/internal/cli/update_preview_linux_test.go
+- created: pose-mcp/internal/pose/update_preview_facts_test.go
+- modified: .pose/indexes/validation-matrix.json
+- modified: pose-mcp/internal/cli/review_closeout_test.go
+
+- modified: pose-mcp/internal/cli/rule_extension_resolver.go
+- modified: pose-mcp/internal/cli/suggest.go
+- modified: pose-mcp/internal/pose/path_state.go
+- modified: pose-mcp/internal/pose/release_candidate.go
+- modified: pose-mcp/internal/pose/release_manifest_integrity.go
+- modified: pose-mcp/internal/pose/release_version_source.go
+- created: pose-mcp/internal/cli/update_preview_composition_test.go
+- created: pose-mcp/internal/pose/update_preview_release_test.go
+
+- modified: pose-mcp/internal/cli/release_review_regression_test.go
+- created: .pose/changelogs/unreleased/pose-update-dry-run-reports-the-whole-update.md
+- created: .pose/reports/2026-10-23-b29-pending-review-r1.md
+- created: .pose/reports/2026-10-23-b29-pending-closeout.md
+
+- created: pose-mcp/internal/pose/operation_files_access_linux_test.go
 
 ### Delivery targets
 
@@ -60,16 +200,41 @@ The dry-run writes nothing, as today.
 
 ### Decision D1
 - Date: 2026-10-10
+- Status: withdrawn
+- Basis: R1, R2
 - Context: a dry-run that describes the update is a second implementation of it, and the first one drifted.
 - Decision: the dry-run runs the same `cmdUpdate`, without the binary self-update, on a disposable copy of `.pose`, `.agents`, `.claude`, `.codex`, `.github` and the top-level files, then reports the files it would create, modify or remove, the `engine_version` stamp, and the update's own output prefixed `[DRY-RUN]`.
 - Rationale: fidelity by construction; the test compares the dry-run's list with the real update's changes on the same fixture.
 - Consequences: an update step that reads source directories outside the copy (module discovery for absent seeds) sees none in the dry-run.
+
+### Decision D2
+- Date: 2026-10-22
+- Basis: R1, R2, R3
+- Context: The latest maintainer direction rejects shipping the copy implementation. D1 remains a historical strategy, not the design for this replacement.
+- Decision: Use the shared apply/preview execution context and in-memory operation-scoped view described in [the prospective ADR](../adr/2026-10-22-update-preview-records-the-shared-execution-in-an-operation-scoped-view.md). Preserve the current running-engine/no-self preview boundary and normal apply semantics; include force install, discovery, requests, index computation and final governance reads.
+- Rationale: One execution algorithm with projected reads eliminates reconstruction and second-planner drift. Partial preview cannot satisfy R1/R2.
 
 ## 6. Validation
 
 ### Strategy
 
 A fixture instance stamped 6.1.0: the dry-run output lists the merges, stamp and requests the real update then performs (compared line by line), and `doctor` warns before the update and not after. The test must fail on the current engine first.
+
+### Replacement test plan — recorded before production changes on 2026-10-22
+
+Risk: high (`pose-mcp` metadata). Original R1/R2 satisfied trace and old Delivered scope below describe the rejected implementation; they do not qualify the replacement. Preserve historical start/amendment records; record D2 as introduced during execution.
+
+| Required scenario | Deterministic command | Expected evidence |
+|---|---|---|
+| Operation view read-after-write, alias/link replacement, exclusive/atomic/direct-write distinction and failure injection | `go test ./internal/... -run 'UpdateOperation|UpdatePreview' -count=1` | No physical preview mutation, coherent staged reads, typed failures and exact net effects. Register exact final tests/check before collecting. |
+| Detectable provider and inherited-mode uncertainty | `go test ./internal/pose -run 'UpdateOperation' -count=1` | Virtual regular-file writes and default ACL inheritance never fabricate ordinary byte or mode semantics; unsupported knowledge persists INCOMPLETE. |
+| Running-engine update parity, force/nonforce, EN/pt-BR, current/stale/schema migration, requests and policy/profile seeding | `go test ./internal/cli -run 'UpdateDryRun|UpdatePreview|Upgrade|Machinery|ConfigurationReview' -count=1` | Preview/apply share semantic events and per-request content, actual resulting state matches intended effects; no false no-op. |
+| Original discovery and adversarial filesystem/permission layouts | `go test ./internal/cli -run 'UpdateDryRun|UpdatePreview|Discovery' -count=1` | Existing symlink corpus, execute-only directory with named child, external/broken links, ignored/submodule/nested modules and unknown relevant reads exercised in unprivileged fixtures. |
+| End-to-end no-write audit and force projected gate | `go test ./internal/cli -run 'UpdatePreview.*(Subprocess|NoWrites|Force|Parity)' -count=1` | Actual command preview produces no filesystem effects, including external targets and transient staging/locks; projected final gate sees planned governance state. |
+| Existing engine contracts and production composition | `pose validate --strict --report --json-out .pose/results/delivery-validation.json` | All required matrix checks pass at the final source; current scoped provenance and registered integration reachability. |
+| Go API, races and platform builds | `go test ./...`; `go vet ./...`; `go test -race ./internal/pose ./internal/cli` | Existing production behavior preserved; no shared global preview state; existing cross-platform build checks retained. |
+
+At the time this prospective plan was recorded, no replacement test above had executed. Current implementer results and exact selectors are recorded in [the implementation report](../reports/2026-10-22-b29-update-preview-implementation.md); the registered required check is `update-preview-integration`. Native global evidence, immutable attribution and independent final review remain with the parent.
 
 ### Execution log
 
@@ -99,15 +264,31 @@ A fixture instance stamped 6.1.0: the dry-run output lists the merges, stamp and
 
 2026-10-10, after the tenth independent review (a directory with mode 0100 can be read by name but not listed, so the copy came out empty): the maintainer decided that POSE 7.4.0 ships without this spec. Its changelog fragment is withdrawn from `.pose/changelogs/unreleased/`, so 7.4.0's notes do not announce the dry-run; the spec stays open and is redone for 7.5.0 with the approach of the open follow-up (the update recording what it would do instead of running on a copy). The copy-based dry-run already on main stays in the code until then.
 
+### Historical D1 requirement trace
+
+Historical D1 trace, retained for audit. These old satisfaction claims do not qualify D2; use the replacement implementation report and the parent's eventual current evidence for that judgment.
+
+> - R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy test:TestUpdateDryRunMeetsTheLinksTheUpdateMeets test:TestUpdateDryRunCopiesALinkedDirectoryOnce test:TestUpdateDryRunCopiesADirectoryAfterALinkIntoIt test:TestUpdateDryRunLinksADirectoryThatContainsTheLink test:TestUpdateDryRunNeverWritesThroughABrokenLink test:TestUpdateDryRunAgreesOnABrokenLinkIntoAnExistingDirectory test:TestUpdateDryRunKeepsABrokenTopLevelLink test:TestUpdateDryRunKeepsDirectoryPermissions test:TestUpdateDryRunToleratesUnreadableFiles
+> - R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
+> - R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
+
 ### Requirement trace
 
-- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy test:TestUpdateDryRunMeetsTheLinksTheUpdateMeets test:TestUpdateDryRunCopiesALinkedDirectoryOnce test:TestUpdateDryRunCopiesADirectoryAfterALinkIntoIt test:TestUpdateDryRunLinksADirectoryThatContainsTheLink test:TestUpdateDryRunNeverWritesThroughABrokenLink test:TestUpdateDryRunAgreesOnABrokenLinkIntoAnExistingDirectory test:TestUpdateDryRunKeepsABrokenTopLevelLink test:TestUpdateDryRunKeepsDirectoryPermissions test:TestUpdateDryRunToleratesUnreadableFiles
-- R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
-- R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
+The registered `update-preview-integration` check and fresh strict native collection pass146/146 at source `a7af88f`. Current review and governed lifecycle disposition are recorded in the closeout report.
+
+- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdatePreviewParityAcrossUpdateBranches test:TestUpdatePreviewNamesEachDecisionRequestAsTheUpdateDoes test:TestUpdatePreviewForceStagesInstructionsBeforeFinalGate test:TestUpdatePreviewHasNoPhysicalMutationEvents
+- R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdatePreviewDoesNotCallLostEvaluationNoChange test:TestUpdatePreviewDistinguishesRefusedOperationsFromNoOp test:TestUpdatePreviewSourceReviewFilesystemReachability test:TestUpdatePreviewUnreadableEmptySkillDirectoryIsIncomplete test:TestUpdatePreviewRetentionPartialRemovalIsIncomplete
+- R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestStaleInstanceEngineVersionContracts
 
 ## 7. Final Report
 
-### Delivered scope
+The historical D1 report below describes the rejected copier and remains audit history. The replacement qualification and linked closeout report carry current source, evidence, review and lifecycle disposition.
+
+### Replacement qualification — 2026-10-23
+
+D2 uses one shared update execution with an explicit operation-scoped in-memory view. Reads see staged files, original source discovery stays authoritative, and complete previews report file effects, engine stamps and individual request semantics. Unknown access, umask, inode alias, special-file or removal effects remain INCOMPLETE rather than successful no-ops. Native apply is unchanged. Fresh canonical strict validation passes146/146 at5bb89dd, with zero skips/errors; security boundary guards fix the six PR202 CodeQL findings and preserve intended local and projected paths; see [the closeout report](../reports/2026-10-23-b29-pending-closeout.md) and [implementation evidence](../reports/2026-10-22-b29-update-preview-implementation.md). Source review R1/R2/R3 rejections and fixes remain historical; actual current review and lifecycle disposition are recorded in the closeout report.
+
+### Historical D1 delivered scope
 
 `pose update --dry-run` runs the update on a disposable copy and lists what it would change and stamp; `doctor` and `check` warn while the instance was last updated by an older engine.
 
@@ -118,4 +299,4 @@ A fixture instance stamped 6.1.0: the dry-run output lists the merges, stamp and
 
 ### Follow-ups
 
-- [open] Symlink layouts the dry-run copy may still reproduce differently from the instance; a more robust approach is a copy-on-write overlay or a dry-run mode inside the update itself that records instead of writing (owner:@oseiaspereira88 crit:low review:2026-11-10)
+- [done] Replace the copier with operation-scoped projected execution recording the shared update. D2 implements this follow-up directly; operation, parity, original-discovery, permission and mutation regressions qualify the replacement. Historical copier defects remain documented above; unsupported knowledge is explicit INCOMPLETE.

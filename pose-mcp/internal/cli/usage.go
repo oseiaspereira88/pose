@@ -34,6 +34,9 @@ type usageFinding struct {
 type usageOutput struct {
 	io.Writer
 	result *commandUsageResult
+	// noRecord belongs to this invocation; write-free commands set it after
+	// their own option parser selects preview, rather than setting global flags.
+	noRecord bool
 }
 
 // UnwrapWriter exposes the stream underneath, so capability detection sees the
@@ -43,6 +46,12 @@ func (w *usageOutput) UnwrapWriter() io.Writer { return w.Writer }
 func (w *usageOutput) note(result commandUsageResult) {
 	copy := result
 	w.result = &copy
+}
+
+func suppressCommandUsage(stdout io.Writer) {
+	if output, ok := stdout.(*usageOutput); ok {
+		output.noRecord = true
+	}
 }
 
 func noteCommandUsage(stdout io.Writer, result commandUsageResult) {
@@ -72,7 +81,7 @@ func mainWithUsage(args []string, stdout, stderr io.Writer) int {
 	}
 	wrapped := &usageOutput{Writer: stdout}
 	code := mainCommand(args, wrapped, stderr)
-	if rootErr != nil || !shouldRecordCLIUsage(tool, code) {
+	if wrapped.noRecord || rootErr != nil || !shouldRecordCLIUsage(tool, code) {
 		return code
 	}
 	result := defaultCommandUsage(tool, code)

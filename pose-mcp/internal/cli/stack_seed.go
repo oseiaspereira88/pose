@@ -18,9 +18,9 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -56,19 +56,19 @@ var computedIndexFiles = map[string]bool{
 // ever seeded them, so it reported "Result: SUCCESS" and then failed its own
 // very next `pose check --strict` with broken references that `pose doctor`
 // did not catch (spec pose-upgrade-path-audit-fixes).
-func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
+func seedAbsentInstanceConfigIn(files posemodel.Files, dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
 	idxEntries, _ := fs.ReadDir(dist, ".pose/indexes")
-	_ = os.MkdirAll(filepath.Join(target, ".pose", "indexes"), 0o755)
+	_ = files.MkdirAll(filepath.Join(target, ".pose", "indexes"), 0o755)
 	seededComputedIndex := false
 	for _, e := range idxEntries {
 		if e.IsDir() || !strings.HasSuffix(e.Name(), ".json") {
 			continue
 		}
 		dst := filepath.Join(target, ".pose", "indexes", e.Name())
-		if _, err := os.Stat(dst); err == nil {
+		if _, err := files.Stat(dst); err == nil {
 			continue
 		}
-		if err := copyFile(dist, ".pose/indexes/"+e.Name(), dst, 0o644); err == nil {
+		if err := copyFileIn(files, dist, ".pose/indexes/"+e.Name(), dst, 0o644); err == nil {
 			log("index (seed): %s", "índice (semente): %s", e.Name())
 			if computedIndexFiles[e.Name()] {
 				seededComputedIndex = true
@@ -79,14 +79,14 @@ func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portu
 	// Discover this repository's actual modules and merge them into
 	// module-metadata.json (spec pose-stack-detection-consolidation) —
 	// additive only, never overwrites an existing entry.
-	seedModuleMetadataFromDiscovery(target, log)
+	seedModuleMetadataFromDiscoveryIn(files, target, log)
 
 	// An instance installed before .pose/project.json existed already
 	// declared its identity in .mcp.json or AGENTS.md; record that one, never
 	// the directory name, which is only a fallback (spec
 	// pose-project-identity-file).
-	if id, source := declaredProjectIdentity(target); id != "" {
-		if written, err := posemodel.WriteProjectFile(target, id, ""); err == nil && written {
+	if id, source := declaredProjectIdentityIn(files, target); id != "" {
+		if written, err := posemodel.WriteProjectFileIn(files, target, id, ""); err == nil && written {
 			log("project identity (seed): %s from %s → .pose/project.json", "identidade do projeto (semente): %s de %s → .pose/project.json", id, source)
 		}
 	}
@@ -97,25 +97,25 @@ func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portu
 	// bundles and the validation/delivery policies they consume.
 	for _, dir := range []string{".pose/policy", ".pose/review-profiles"} {
 		entries, _ := fs.ReadDir(dist, dir)
-		_ = os.MkdirAll(filepath.Join(target, filepath.FromSlash(dir)), 0o755)
+		_ = files.MkdirAll(filepath.Join(target, filepath.FromSlash(dir)), 0o755)
 		for _, e := range entries {
 			if e.IsDir() || !strings.HasSuffix(e.Name(), ".json") {
 				continue
 			}
 			dst := filepath.Join(target, filepath.FromSlash(dir), e.Name())
-			if _, err := os.Stat(dst); err == nil {
+			if _, err := files.Stat(dst); err == nil {
 				continue
 			}
-			if err := copyFile(dist, dir+"/"+e.Name(), dst, 0o644); err == nil {
+			if err := copyFileIn(files, dist, dir+"/"+e.Name(), dst, 0o644); err == nil {
 				log("config (seed): %s/%s", "configuração (semente): %s/%s", dir, e.Name())
 			}
 		}
 	}
 
 	// Migrate existing review policy / profiles from v1 to v2 if present
-	migrateInstanceReviewPolicy(dist, target, log)
-	stampContractAdoption(target, time.Now().UTC(), log)
-	stampChangelogAdoption(target, time.Now().UTC(), log)
+	migrateInstanceReviewPolicyIn(files, dist, target, log)
+	stampContractAdoptionIn(files, target, files.Now().UTC(), log)
+	stampChangelogAdoptionIn(files, target, files.Now().UTC(), log)
 
 	// The neutral placeholders just seeded above for repo-map.json,
 	// spec-graph.json, delivery-integrity.json etc. are honestly empty, not
@@ -126,17 +126,31 @@ func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portu
 	// `pose update`, which never did (spec
 	// pose-derived-index-self-referential-leak).
 	if seededComputedIndex {
-		_ = cmdIndex(target, nil, io.Discard, io.Discard)
+		if code := cmdIndexIn(files, target, nil, io.Discard, io.Discard); code != 0 {
+			issue := fmt.Sprintf("computed index seed failed (exit %d); run pose index for diagnostics", code)
+			if log != nil {
+				log("warning: %s", "aviso: %s", issue)
+			}
+			if p := files.Preview(); p != nil {
+				p.Incomplete(issue)
+			}
+		}
 	}
+}
+
+// seedAbsentInstanceConfig reads and writes the filesystem directly; seedAbsentInstanceConfigIn takes the
+// operation's files.
+func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
+	seedAbsentInstanceConfigIn(posemodel.NativeFiles(), dist, target, log)
 }
 
 // seedModuleMetadataFromDiscovery merges newly-discovered module paths into
 // target's module-metadata.json, leaving every existing entry (whether
 // hand-authored or seeded by an earlier install) untouched. Safe to call on
 // every install/update: additive only, per-entry, never destructive.
-func seedModuleMetadataFromDiscovery(target string, log func(english, portuguese string, a ...any)) {
+func seedModuleMetadataFromDiscoveryIn(files posemodel.Files, target string, log func(english, portuguese string, a ...any)) {
 	path := filepath.Join(target, ".pose", "indexes", "module-metadata.json")
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return // no module-metadata.json to merge into (e.g. --skip-mcp-only fixtures)
 	}
@@ -145,14 +159,16 @@ func seedModuleMetadataFromDiscovery(target string, log func(english, portuguese
 		Defaults      map[string]string            `json:"defaults"`
 		Modules       map[string]map[string]string `json:"modules"`
 	}
-	if json.Unmarshal(raw, &doc) != nil {
-		return // don't fight a hand-edited or malformed file
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		updatePhaseFailure(files, log, "module metadata discovery", err)
+		return // preserve a malformed instance file, but do not claim it was evaluated
 	}
 	if doc.Modules == nil {
 		doc.Modules = map[string]map[string]string{}
 	}
-	discovered, err := discoverValidationModules(target)
+	discovered, err := discoverValidationModulesIn(files, target)
 	if err != nil {
+		updatePhaseFailure(files, log, "source module discovery", err)
 		return
 	}
 	// A pre-existing entry keyed by the project directory's own name (e.g.
@@ -167,7 +183,7 @@ func seedModuleMetadataFromDiscovery(target string, log func(english, portuguese
 	// pose-discovery-gitignore-and-root-alias-fix).
 	rootAlreadyAliased := false
 	if rootAlias := filepath.Base(target); doc.Modules[rootAlias] != nil {
-		if _, err := os.Stat(filepath.Join(target, rootAlias)); err != nil {
+		if _, err := files.Stat(filepath.Join(target, rootAlias)); err != nil {
 			rootAlreadyAliased = true
 		}
 	}
@@ -196,11 +212,17 @@ func seedModuleMetadataFromDiscovery(target string, log func(english, portuguese
 		return
 	}
 	out = append(out, '\n')
-	if writeAtomic(path, out, 0o644) == nil && log != nil {
+	if writeAtomicIn(files, path, out, 0o644) == nil && log != nil {
 		for _, rel := range added {
 			log("module-metadata (discovered): %s", "module-metadata (descoberto): %s", rel)
 		}
 	}
+}
+
+// seedModuleMetadataFromDiscovery reads and writes the filesystem directly; seedModuleMetadataFromDiscoveryIn takes the
+// operation's files.
+func seedModuleMetadataFromDiscovery(target string, log func(english, portuguese string, a ...any)) {
+	seedModuleMetadataFromDiscoveryIn(posemodel.NativeFiles(), target, log)
 }
 
 // stampChangelogAdoption records the date this instance received the changelog
@@ -215,16 +237,17 @@ func seedModuleMetadataFromDiscovery(target string, log func(english, portuguese
 // Stamping is what the review contracts already do, and it is the only answer
 // that is true: the engine cannot know when a project adopted the contract, but
 // it can know when it first put the policy there.
-func stampChangelogAdoption(target string, now time.Time, log func(english, portuguese string, a ...any)) {
+func stampChangelogAdoptionIn(files posemodel.Files, target string, now time.Time, log func(english, portuguese string, a ...any)) {
 	path := filepath.Join(target, ".pose", "policy", "changelog.json")
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return
 	}
 	// Through the raw document, so a key the engine does not model survives the
 	// write — the same reason stampContractAdoption does.
 	var doc map[string]any
-	if json.Unmarshal(raw, &doc) != nil {
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		updatePhaseFailure(files, log, "changelog adoption stamp", err)
 		return
 	}
 	if adopted, ok := doc["adopted_at"].(string); !ok || strings.TrimSpace(adopted) != "" {
@@ -235,11 +258,17 @@ func stampChangelogAdoption(target string, now time.Time, log func(english, port
 	if err != nil {
 		return
 	}
-	if writeAtomic(path, append(updated, '\n'), 0o644) == nil && log != nil {
+	if writeAtomicIn(files, path, append(updated, '\n'), 0o644) == nil && log != nil {
 		log("policy (changelog adoption): adopted_at=%s — specs completed before today keep their exemption",
 			"política (adoção do changelog): adopted_at=%s — specs concluídas antes de hoje mantêm sua isenção",
 			now.Format(time.DateOnly))
 	}
+}
+
+// stampChangelogAdoption reads and writes the filesystem directly; stampChangelogAdoptionIn takes the
+// operation's files.
+func stampChangelogAdoption(target string, now time.Time, log func(english, portuguese string, a ...any)) {
+	stampChangelogAdoptionIn(posemodel.NativeFiles(), target, now, log)
 }
 
 // stampContractAdoption records, in an instance's own review policy, the date
@@ -258,9 +287,9 @@ func stampChangelogAdoption(target string, now time.Time, log func(english, port
 // POSE and receiving a contract was reviewed under the previous one. The stamp
 // is additive — a date the instance already recorded, in the map or in the
 // legacy field, is never touched, and neither is one deliberately cleared.
-func stampContractAdoption(target string, now time.Time, log func(english, portuguese string, a ...any)) {
+func stampContractAdoptionIn(files posemodel.Files, target string, now time.Time, log func(english, portuguese string, a ...any)) {
 	policyPath := filepath.Join(target, ".pose", "policy", "review.json")
-	raw, err := os.ReadFile(policyPath)
+	raw, err := files.ReadFile(policyPath)
 	if err != nil {
 		return
 	}
@@ -329,13 +358,19 @@ func stampContractAdoption(target string, now time.Time, log func(english, portu
 	if err != nil {
 		return
 	}
-	if writeAtomic(policyPath, append(updated, '\n'), 0o644) == nil && log != nil {
+	if writeAtomicIn(files, policyPath, append(updated, '\n'), 0o644) == nil && log != nil {
 		for _, id := range stamped {
 			log("policy (contract adoption): %s=%s — closeouts reviewed before today keep their approval",
 				"política (adoção de contrato): %s=%s — closeouts revisados antes de hoje mantêm sua aprovação",
 				id, now.Format(time.DateOnly))
 		}
 	}
+}
+
+// stampContractAdoption reads and writes the filesystem directly; stampContractAdoptionIn takes the
+// operation's files.
+func stampContractAdoption(target string, now time.Time, log func(english, portuguese string, a ...any)) {
+	stampContractAdoptionIn(posemodel.NativeFiles(), target, now, log)
 }
 
 // shippedProfileIsCurrentSchema reports whether the profile the distribution
@@ -351,11 +386,13 @@ func shippedProfileIsCurrentSchema(raw []byte) bool {
 
 // migrateInstanceReviewPolicy upgrades existing schema-v1 review policies and
 // review profiles to schema-v2 in an idempotent manner.
-func migrateInstanceReviewPolicy(dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
+func migrateInstanceReviewPolicyIn(files posemodel.Files, dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
 	policyPath := filepath.Join(target, ".pose", "policy", "review.json")
-	if raw, err := os.ReadFile(policyPath); err == nil {
+	if raw, err := files.ReadFile(policyPath); err == nil {
 		var p map[string]any
-		if err := json.Unmarshal(raw, &p); err == nil {
+		if err := json.Unmarshal(raw, &p); err != nil {
+			updatePhaseFailure(files, log, "review policy migration", err)
+		} else {
 			v, _ := p["schema_version"].(float64)
 			if int(v) == 1 {
 				p["schema_version"] = 2
@@ -405,8 +442,11 @@ func migrateInstanceReviewPolicy(dist fs.FS, target string, log func(english, po
 				}
 
 				if updatedRaw, err := json.MarshalIndent(p, "", "  "); err == nil {
-					_ = writeAtomic(policyPath, append(updatedRaw, '\n'), 0o644)
-					if log != nil {
+					if err := writeAtomicIn(files, policyPath, append(updatedRaw, '\n'), 0o644); err != nil {
+						if log != nil {
+							log("warning: review policy migration: %v", "aviso: migração da política de review: %v", err)
+						}
+					} else if log != nil {
 						log("policy (migrated): .pose/policy/review.json (v1 -> v2)", "política (migrada): .pose/policy/review.json (v1 -> v2)")
 					}
 				}
@@ -415,15 +455,17 @@ func migrateInstanceReviewPolicy(dist fs.FS, target string, log func(english, po
 	}
 
 	// Upgrade review-profiles in target if they are schema v1
-	profEntries, _ := os.ReadDir(filepath.Join(target, ".pose", "review-profiles"))
+	profEntries, _ := files.ReadDir(filepath.Join(target, ".pose", "review-profiles"))
 	for _, e := range profEntries {
 		if e.IsDir() || !strings.HasSuffix(e.Name(), ".json") {
 			continue
 		}
 		profPath := filepath.Join(target, ".pose", "review-profiles", e.Name())
-		if raw, err := os.ReadFile(profPath); err == nil {
+		if raw, err := files.ReadFile(profPath); err == nil {
 			var prof map[string]any
-			if err := json.Unmarshal(raw, &prof); err == nil {
+			if err := json.Unmarshal(raw, &prof); err != nil {
+				updatePhaseFailure(files, log, "review profile migration ("+profPath+")", err)
+			} else {
 				sv, _ := prof["schema_version"].(float64)
 				if int(sv) == 1 {
 					distProfPath := ".pose/review-profiles/" + e.Name()
@@ -434,15 +476,21 @@ func migrateInstanceReviewPolicy(dist fs.FS, target string, log func(english, po
 					// forever, with the operator told it had succeeded (spec
 					// pose-shipped-review-profiles-are-schema-v2).
 					if distRaw, err := fs.ReadFile(dist, distProfPath); err == nil && shippedProfileIsCurrentSchema(distRaw) {
-						_ = writeAtomic(profPath, distRaw, 0o644)
-						if log != nil {
+						if err := writeAtomicIn(files, profPath, distRaw, 0o644); err != nil {
+							if log != nil {
+								log("warning: review profile migration: %v", "aviso: migração do perfil de review: %v", err)
+							}
+						} else if log != nil {
 							log("review-profile (migrated): %s (v1 -> v2)", "perfil de review (migrado): %s (v1 -> v2)", e.Name())
 						}
 					} else {
 						prof["schema_version"] = 2
 						if updatedRaw, err := json.MarshalIndent(prof, "", "  "); err == nil {
-							_ = writeAtomic(profPath, append(updatedRaw, '\n'), 0o644)
-							if log != nil {
+							if err := writeAtomicIn(files, profPath, append(updatedRaw, '\n'), 0o644); err != nil {
+								if log != nil {
+									log("warning: review profile migration: %v", "aviso: migração do perfil de review: %v", err)
+								}
+							} else if log != nil {
 								log("review-profile (migrated): %s (v1 -> v2)", "perfil de review (migrado): %s (v1 -> v2)", e.Name())
 							}
 						}
@@ -453,14 +501,20 @@ func migrateInstanceReviewPolicy(dist fs.FS, target string, log func(english, po
 	}
 }
 
+// migrateInstanceReviewPolicy reads and writes the filesystem directly; migrateInstanceReviewPolicyIn takes the
+// operation's files.
+func migrateInstanceReviewPolicy(dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
+	migrateInstanceReviewPolicyIn(posemodel.NativeFiles(), dist, target, log)
+}
+
 // declaredProjectIdentity returns the project id an instance already declared,
 // and where: the MCP binding first, then the project name stamped in
 // AGENTS.md. It returns "" when neither declares one, so a directory name is
 // never promoted to a declaration.
-func declaredProjectIdentity(target string) (string, string) {
-	agents, agentsErr := os.ReadFile(filepath.Join(target, "AGENTS.md"))
-	name, id := detectProjectIdentity(string(agents), target)
-	if raw, err := os.ReadFile(filepath.Join(target, ".mcp.json")); err == nil && strings.Contains(string(raw), "\"POSE_DEFAULT_PROJECT_ID\": \""+id+"\"") && posemodel.ValidateSlug(id) == nil {
+func declaredProjectIdentityIn(files posemodel.Files, target string) (string, string) {
+	agents, agentsErr := files.ReadFile(filepath.Join(target, "AGENTS.md"))
+	name, id := detectProjectIdentityIn(files, string(agents), target)
+	if raw, err := files.ReadFile(filepath.Join(target, ".mcp.json")); err == nil && strings.Contains(string(raw), "\"POSE_DEFAULT_PROJECT_ID\": \""+id+"\"") && posemodel.ValidateSlug(id) == nil {
 		return id, ".mcp.json"
 	}
 	if agentsErr != nil {
@@ -477,4 +531,10 @@ func declaredProjectIdentity(target string) (string, string) {
 		return derived, "AGENTS.md"
 	}
 	return "", ""
+}
+
+// declaredProjectIdentity reads and writes the filesystem directly; declaredProjectIdentityIn takes the
+// operation's files.
+func declaredProjectIdentity(target string) (string, string) {
+	return declaredProjectIdentityIn(posemodel.NativeFiles(), target)
 }

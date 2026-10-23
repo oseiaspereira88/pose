@@ -10,7 +10,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -105,18 +104,30 @@ type designNode struct {
 
 // ParseDesignBasis parses the canonical Decisions section without resolving
 // repository paths. Use ValidateDesignBasis when a project root is available.
+func ParseDesignBasisIn(files Files, body string) DesignBasisReport {
+	return parseDesignBasis(files, body, "")
+}
+
+// ParseDesignBasis reads and writes the filesystem directly; ParseDesignBasisIn takes the
+// operation's files.
 func ParseDesignBasis(body string) DesignBasisReport {
-	return parseDesignBasis(body, "")
+	return ParseDesignBasisIn(NativeFiles(), body)
 }
 
 // ValidateDesignBasis parses and validates the material decision basis. root is
 // optional; when present it is used only to resolve local knowledge/report/ADR
 // references. No file outside root is ever read.
-func ValidateDesignBasis(body, root string) DesignBasisReport {
-	return parseDesignBasis(body, root)
+func ValidateDesignBasisIn(files Files, body, root string) DesignBasisReport {
+	return parseDesignBasis(files, body, root)
 }
 
-func parseDesignBasis(body, root string) DesignBasisReport {
+// ValidateDesignBasis reads and writes the filesystem directly; ValidateDesignBasisIn takes the
+// operation's files.
+func ValidateDesignBasis(body, root string) DesignBasisReport {
+	return ValidateDesignBasisIn(NativeFiles(), body, root)
+}
+
+func parseDesignBasis(files Files, body, root string) DesignBasisReport {
 	report := DesignBasisReport{
 		SchemaVersion: DesignBasisSchemaVersion,
 		ParserVersion: DesignBasisParserVersion,
@@ -133,7 +144,7 @@ func parseDesignBasis(body, root string) DesignBasisReport {
 	for _, node := range nodes {
 		switch node.kind {
 		case "assumption":
-			item := assumptionFromNode(node, root)
+			item := assumptionFromNode(files, node, root)
 			report.Assumptions = append(report.Assumptions, item)
 			if _, exists := assumptions[item.ID]; exists {
 				report.addDiagnostic("error", "duplicate-id", item.ID, item.Line,
@@ -309,7 +320,7 @@ func normalizeDesignKey(value string) string {
 	return value
 }
 
-func assumptionFromNode(node designNode, root string) DesignAssumption {
+func assumptionFromNode(files Files, node designNode, root string) DesignAssumption {
 	claim := firstDesignField(node.fields, "claim", "afirmacao")
 	status := firstDesignField(node.fields, "status", "estado")
 	evidence := firstDesignField(node.fields, "evidence", "evidencia")
@@ -319,11 +330,11 @@ func assumptionFromNode(node designNode, root string) DesignAssumption {
 		Claim:         claim,
 		Status:        strings.ToLower(strings.TrimSpace(status)),
 		Evidence:      evidence,
-		EvidenceRefs:  designReferences(evidence, root),
+		EvidenceRefs:  designReferences(files, evidence, root),
 		Scope:         scope,
 		Affects:       designIDList(firstDesignField(node.fields, "affects", "afeta", "impacta")),
 		ValidScope:    firstDesignField(node.fields, "validscope", "validityscope", "escopodevalidade"),
-		StaleTriggers: parseDesignTriggers(firstDesignField(node.fields, "staletrigger", "staletriggers", "gatilhodeobsolescencia", "gatilhosdeobsolescencia"), root),
+		StaleTriggers: parseDesignTriggers(files, firstDesignField(node.fields, "staletrigger", "staletriggers", "gatilhodeobsolescencia", "gatilhosdeobsolescencia"), root),
 		Line:          node.line,
 	}
 }
@@ -391,7 +402,7 @@ func designIDList(value string) []string {
 	return ids
 }
 
-func designReferences(value, root string) []DesignReference {
+func designReferences(files Files, value, root string) []DesignReference {
 	var refs []DesignReference
 	for _, part := range strings.FieldsFunc(value, func(r rune) bool { return r == ',' || r == ';' }) {
 		part = strings.TrimSpace(strings.Trim(part, "`"))
@@ -419,7 +430,7 @@ func designReferences(value, root string) []DesignReference {
 			continue
 		}
 		if root != "" && designLocalReference(kind) {
-			if designReferenceExists(root, kind, refValue) {
+			if designReferenceExists(files, root, kind, refValue) {
 				ref.Resolution = "resolved"
 			} else {
 				ref.Resolution = "unknown"
@@ -452,7 +463,7 @@ func designLocalReference(kind string) bool {
 	}
 }
 
-func designReferenceExists(root, kind, value string) bool {
+func designReferenceExists(files Files, root, kind, value string) bool {
 	if root == "" || filepath.IsAbs(value) || strings.Contains(value, "..") {
 		return false
 	}
@@ -472,15 +483,15 @@ func designReferenceExists(root, kind, value string) bool {
 	}
 	for _, candidate := range candidates {
 		if strings.Contains(candidate, "*") {
-			matches, _ := filepath.Glob(candidate)
+			matches, _ := GlobIn(files, candidate)
 			for _, match := range matches {
-				if info, err := os.Stat(match); err == nil && !info.IsDir() {
+				if info, err := files.Stat(match); err == nil && !info.IsDir() {
 					return true
 				}
 			}
 			continue
 		}
-		if info, err := os.Stat(candidate); err == nil && !info.IsDir() {
+		if info, err := files.Stat(candidate); err == nil && !info.IsDir() {
 			return true
 		}
 	}

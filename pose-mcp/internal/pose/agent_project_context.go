@@ -42,7 +42,7 @@ func SupportedProjectContextContracts() []string {
 // ResolveAgentProjectContext resolves a selected project and optional task
 // through the same bounded, authorization-aware resolver used by governed
 // artifact reads. It never returns a filesystem path or artifact body.
-func ResolveAgentProjectContext(resolver ArtifactResolver, selectedProjectID, taskRef string) (AgentProjectContext, error) {
+func ResolveAgentProjectContextIn(files Files, resolver ArtifactResolver, selectedProjectID, taskRef string) (AgentProjectContext, error) {
 	if selectedProjectID == "" || ValidateSlug(selectedProjectID) != nil {
 		return AgentProjectContext{}, fmt.Errorf("invalid-project-selection")
 	}
@@ -117,8 +117,8 @@ func ResolveAgentProjectContext(resolver ArtifactResolver, selectedProjectID, ta
 	}{
 		SelectedProjectID:      result.SelectedProjectID,
 		SelectedRevision:       result.SelectedRevision,
-		SelectedBindingDigest:  projectBindingDigest(selectedProjectID, selectedStore.Root),
-		SelectedContractDigest: projectContractDigest(selectedStore.Root),
+		SelectedBindingDigest:  projectBindingDigest(files, selectedProjectID, selectedStore.Root),
+		SelectedContractDigest: projectContractDigest(files, selectedStore.Root),
 		TaskRef:                result.TaskRef,
 		Authority:              result.Authority,
 		AuthorityRevision:      result.AuthorityRevision,
@@ -130,8 +130,8 @@ func ResolveAgentProjectContext(resolver ArtifactResolver, selectedProjectID, ta
 	}
 	if result.Authority != nil {
 		if authorityStore, storeErr := resolver.Roots.StoreFor(result.Authority.Project); storeErr == nil {
-			identity.AuthorityBindingDigest = projectBindingDigest(result.Authority.Project, authorityStore.Root)
-			identity.AuthorityContractDigest = projectContractDigest(authorityStore.Root)
+			identity.AuthorityBindingDigest = projectBindingDigest(files, result.Authority.Project, authorityStore.Root)
+			identity.AuthorityContractDigest = projectContractDigest(files, authorityStore.Root)
 		}
 	}
 	canonical, err := json.Marshal(identity)
@@ -143,6 +143,12 @@ func ResolveAgentProjectContext(resolver ArtifactResolver, selectedProjectID, ta
 	return result, nil
 }
 
+// ResolveAgentProjectContext reads and writes the filesystem directly; ResolveAgentProjectContextIn takes the
+// operation's files.
+func ResolveAgentProjectContext(resolver ArtifactResolver, selectedProjectID, taskRef string) (AgentProjectContext, error) {
+	return ResolveAgentProjectContextIn(NativeFiles(), resolver, selectedProjectID, taskRef)
+}
+
 func gitRevisionOrEmpty(root string) string {
 	revision, err := transferGitRevision(root)
 	if err != nil {
@@ -151,8 +157,8 @@ func gitRevisionOrEmpty(root string) string {
 	return revision
 }
 
-func projectBindingDigest(projectID, root string) string {
-	if resolved, err := filepath.EvalSymlinks(root); err == nil {
+func projectBindingDigest(files Files, projectID, root string) string {
+	if resolved, err := files.EvalSymlinks(root); err == nil {
 		root = resolved
 	}
 	if absolute, err := filepath.Abs(root); err == nil {
@@ -162,9 +168,9 @@ func projectBindingDigest(projectID, root string) string {
 	return hex.EncodeToString(digest[:])
 }
 
-func projectContractDigest(root string) string {
-	reviewDigest := projectReviewPolicyDigest(root)
-	_, federationDigest, federationErr := LoadFederatedRoadmapPolicy(root)
+func projectContractDigest(files Files, root string) string {
+	reviewDigest := projectReviewPolicyDigest(files, root)
+	_, federationDigest, federationErr := LoadFederatedRoadmapPolicyIn(files, root)
 	state := struct {
 		Review     string `json:"review"`
 		Federation string `json:"federation"`
@@ -183,13 +189,13 @@ func projectContractDigest(root string) string {
 	return hex.EncodeToString(digest[:])
 }
 
-func projectReviewPolicyDigest(root string) string {
+func projectReviewPolicyDigest(files Files, root string) string {
 	const policyPath = ".pose/policy/review.json"
-	if err := ValidateArtifactPath(root, policyPath, false); err != nil {
+	if err := ValidateArtifactPathIn(files, root, policyPath, false); err != nil {
 		return "review-contract-unavailable"
 	}
 	path := filepath.Join(root, filepath.FromSlash(policyPath))
-	info, err := os.Stat(path)
+	info, err := files.Stat(path)
 	if os.IsNotExist(err) {
 		digest := sha256.Sum256(nil)
 		return hex.EncodeToString(digest[:])
@@ -197,7 +203,7 @@ func projectReviewPolicyDigest(root string) string {
 	if err != nil || !info.Mode().IsRegular() || info.Size() > reviewBaselineMaxBytes {
 		return "review-contract-unavailable"
 	}
-	file, err := os.Open(path)
+	file, err := files.Open(path)
 	if err != nil {
 		return "review-contract-unavailable"
 	}

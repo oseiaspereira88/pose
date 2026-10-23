@@ -61,9 +61,9 @@ type workingTreeSnapshot struct {
 	unknown string
 }
 
-func takeWorkingTreeSnapshot(root string) *workingTreeSnapshot {
+func takeWorkingTreeSnapshotIn(files Files, root string) *workingTreeSnapshot {
 	snapshot := &workingTreeSnapshot{entries: map[string]string{}}
-	entries, err := ReadGitStatus(root)
+	entries, err := ReadGitStatusIn(files, root)
 	if errors.Is(err, ErrGitUnavailable) {
 		// Unit fixtures and exported source trees may not have Git metadata.
 		return snapshot
@@ -81,6 +81,11 @@ func takeWorkingTreeSnapshot(root string) *workingTreeSnapshot {
 		}
 	}
 	return snapshot
+}
+
+// takeWorkingTreeSnapshot reads the filesystem directly; takeWorkingTreeSnapshotIn reads the operation's files.
+func takeWorkingTreeSnapshot(root string) *workingTreeSnapshot {
+	return takeWorkingTreeSnapshotIn(NativeFiles(), root)
 }
 
 // change answers what `git status -- path` would: whether path, or anything

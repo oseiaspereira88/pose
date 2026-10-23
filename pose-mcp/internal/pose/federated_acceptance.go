@@ -94,7 +94,7 @@ type federatedQueuedRef struct {
 // FederatedProjectTrustFor computes the exact governance inputs a consumer
 // must accept for one source project. It is read-only: callers still have to
 // record the returned digests in their own policy.
-func FederatedProjectTrustFor(root, projectID string) (FederatedProjectTrust, error) {
+func FederatedProjectTrustForIn(files Files, root, projectID string) (FederatedProjectTrust, error) {
 	if ValidateSlug(projectID) != nil {
 		return FederatedProjectTrust{}, fmt.Errorf("pose: invalid federated project id")
 	}
@@ -104,24 +104,30 @@ func FederatedProjectTrustFor(root, projectID string) (FederatedProjectTrust, er
 	}
 	contractFiles := []string{".pose/schema-version", ".pose/indexes/validation-matrix.json"}
 	policyFiles := []string{".pose/policy/artifacts.json", ".pose/policy/delivery.json", ".pose/policy/review.json"}
-	contracts, err := committedFederatedInputs(root, contractFiles)
+	contracts, err := committedFederatedInputs(files, root, contractFiles)
 	if err != nil {
 		return FederatedProjectTrust{}, err
 	}
-	policies, err := committedFederatedInputs(root, policyFiles)
+	policies, err := committedFederatedInputs(files, root, policyFiles)
 	if err != nil {
 		return FederatedProjectTrust{}, err
 	}
 	return FederatedProjectTrust{ContractDigest: canonicalFederatedDigest(contracts), PolicyDigest: canonicalFederatedDigest(policies), Revision: revision}, nil
 }
 
-func LoadFederatedRoadmapPolicy(root string) (FederatedRoadmapPolicy, string, error) {
+// FederatedProjectTrustFor reads and writes the filesystem directly; FederatedProjectTrustForIn takes the
+// operation's files.
+func FederatedProjectTrustFor(root, projectID string) (FederatedProjectTrust, error) {
+	return FederatedProjectTrustForIn(NativeFiles(), root, projectID)
+}
+
+func LoadFederatedRoadmapPolicyIn(files Files, root string) (FederatedRoadmapPolicy, string, error) {
 	rel := ".pose/policy/federation.json"
-	if err := ValidateArtifactPath(root, rel, false); err != nil {
+	if err := ValidateArtifactPathIn(files, root, rel, false); err != nil {
 		return FederatedRoadmapPolicy{}, "", fmt.Errorf("pose: invalid-federation-policy-path")
 	}
 	path := filepath.Join(root, filepath.FromSlash(rel))
-	info, err := os.Stat(path)
+	info, err := files.Stat(path)
 	if os.IsNotExist(err) {
 		return FederatedRoadmapPolicy{}, "", nil
 	}
@@ -131,7 +137,7 @@ func LoadFederatedRoadmapPolicy(root string) (FederatedRoadmapPolicy, string, er
 	if !info.Mode().IsRegular() {
 		return FederatedRoadmapPolicy{}, "", fmt.Errorf("pose: federation-policy-unavailable")
 	}
-	file, err := os.Open(path)
+	file, err := files.Open(path)
 	if err != nil {
 		return FederatedRoadmapPolicy{}, "", fmt.Errorf("pose: federation-policy-unavailable")
 	}
@@ -158,6 +164,12 @@ func LoadFederatedRoadmapPolicy(root string) (FederatedRoadmapPolicy, string, er
 		}
 	}
 	return policy, digestBytes(raw), nil
+}
+
+// LoadFederatedRoadmapPolicy reads and writes the filesystem directly; LoadFederatedRoadmapPolicyIn takes the
+// operation's files.
+func LoadFederatedRoadmapPolicy(root string) (FederatedRoadmapPolicy, string, error) {
+	return LoadFederatedRoadmapPolicyIn(NativeFiles(), root)
 }
 
 func strictJSONBytes(raw []byte, target any) error {
@@ -192,24 +204,24 @@ func isGitRevision(value string) bool {
 	return err == nil
 }
 
-func committedFederatedInputs(root string, paths []string) (map[string]string, error) {
+func committedFederatedInputs(files Files, root string, paths []string) (map[string]string, error) {
 	inputs := make(map[string]string, len(paths))
 	for _, rel := range paths {
-		if err := ValidateArtifactPath(root, rel, false); err != nil {
+		if err := ValidateArtifactPathIn(files, root, rel, false); err != nil {
 			return nil, fmt.Errorf("pose: invalid-federated-governance-input")
 		}
 		absolute := filepath.Join(root, filepath.FromSlash(rel))
-		info, err := os.Stat(absolute)
+		info, err := files.Stat(absolute)
 		if err != nil {
 			return nil, fmt.Errorf("pose: missing-federated-governance-input")
 		}
 		if !info.Mode().IsRegular() || info.Size() > maxFederatedGovernanceInputBytes {
 			return nil, fmt.Errorf("pose: invalid-federated-governance-input")
 		}
-		if !artifactPathWithin(root, absolute) {
+		if !artifactPathWithin(files, root, absolute) {
 			return nil, fmt.Errorf("pose: invalid-federated-governance-input")
 		}
-		file, err := os.Open(absolute)
+		file, err := files.Open(absolute)
 		if err != nil {
 			return nil, fmt.Errorf("pose: missing-federated-governance-input")
 		}
@@ -219,7 +231,7 @@ func committedFederatedInputs(root string, paths []string) (map[string]string, e
 			return nil, fmt.Errorf("pose: invalid-federated-governance-input")
 		}
 		top, err := gitCommand("-C", root, "rev-parse", "--show-toplevel").Output()
-		if err != nil || !sameProjectRoot(root, strings.TrimSpace(string(top))) {
+		if err != nil || !sameProjectRoot(files, root, strings.TrimSpace(string(top))) {
 			return nil, fmt.Errorf("pose: federated-project-revision-unavailable")
 		}
 		revision, err := gitCommand("-C", root, "rev-parse", "--verify", "HEAD").Output()
@@ -311,26 +323,26 @@ func (s Store) FederatedSpecAcceptance(projectID, slug string, resolver Artifact
 	if resolver.Roots == nil {
 		// Fail closed without failing the command: a checkout with no roots
 		// can still read the spec but can never close it.
-		return federatedBlockedReport(s, coordinator, "project-roots-unavailable"), true, nil
+		return federatedBlockedReport(s.fsys(), s, coordinator, "project-roots-unavailable"), true, nil
 	}
 	report, err := s.federatedAcceptance(projectID, coordinator, edges, resolver)
 	return report, true, err
 }
 
-func federatedBlockedReport(s Store, coordinator ArtifactRef, blocker string) FederatedRoadmapAcceptanceReport {
-	manifest := FederatedRoadmapManifest{SchemaVersion: 1, Coordinator: coordinator, CoordinatorRevision: federatedArtifactLastChange(s, coordinator), Dependencies: []FederatedDependency{}, Blockers: []string{blocker}}
+func federatedBlockedReport(files Files, s Store, coordinator ArtifactRef, blocker string) FederatedRoadmapAcceptanceReport {
+	manifest := FederatedRoadmapManifest{SchemaVersion: 1, Coordinator: coordinator, CoordinatorRevision: federatedArtifactLastChange(files, s, coordinator), Dependencies: []FederatedDependency{}, Blockers: []string{blocker}}
 	manifest.Digest = canonicalFederatedDigest(manifest)
 	return FederatedRoadmapAcceptanceReport{Manifest: manifest, Blockers: []string{blocker}}
 }
 
 func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, edges []federatedRoadmapEdge, resolver ArtifactResolver) (FederatedRoadmapAcceptanceReport, error) {
-	policy, policyDigest, err := LoadFederatedRoadmapPolicy(s.Root)
+	policy, policyDigest, err := LoadFederatedRoadmapPolicyIn(s.fsys(), s.Root)
 	if err != nil {
 		return FederatedRoadmapAcceptanceReport{}, err
 	}
 	revision := gitHeadAtRoot(s.Root)
 	coordinatorRevision := revision
-	if stable := federatedArtifactLastChange(s, coordinator); stable != "" {
+	if stable := federatedArtifactLastChange(s.fsys(), s, coordinator); stable != "" {
 		coordinatorRevision = stable
 	}
 	report := FederatedRoadmapAcceptanceReport{Manifest: FederatedRoadmapManifest{
@@ -410,7 +422,7 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 		source.FederatedProjectID = identity.Project
 		source.FederatedResolver = &resolver
 		artifactValid := true
-		if err := verifyFederatedArtifactAtRevision(source, identity, resolved); err != nil {
+		if err := verifyFederatedArtifactAtRevision(s.fsys(), source, identity, resolved); err != nil {
 			artifactValid = false
 			entry.ResolutionState = err.Error()
 			report.Blockers = append(report.Blockers, key+":"+err.Error())
@@ -420,7 +432,7 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 		// sealed milestone or roadmap. External dependencies retain the explicit
 		// whole-repository pin checked below.
 		if identity.Project == projectID {
-			if stable := federatedArtifactLastChange(source, identity); stable != "" {
+			if stable := federatedArtifactLastChange(s.fsys(), source, identity); stable != "" {
 				entry.SourceRevision = stable
 			}
 		}
@@ -430,7 +442,7 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 			// recursively asking each side of a cycle for its review would never
 			// converge.
 			gitlinkValid := true
-			pin, pinErr := FederatedProjectTrustFor(source.Root, identity.Project)
+			pin, pinErr := FederatedProjectTrustForIn(s.fsys(), source.Root, identity.Project)
 			if pinErr != nil {
 				entry.ResolutionState = pinErr.Error()
 				report.Blockers = append(report.Blockers, key+":"+entry.ResolutionState)
@@ -454,7 +466,7 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 					if identity.Project == item.parent {
 						// This edge remains inside the selected source repository;
 						// its local artifacts inherit that repository's pin.
-					} else if parentStore, parentErr := resolver.Roots.StoreFor(item.parent); parentErr != nil || !federatedGitlinkMatches(parentStore, source, resolved.Revision) {
+					} else if parentStore, parentErr := resolver.Roots.StoreFor(item.parent); parentErr != nil || !federatedGitlinkMatchesIn(s.fsys(), parentStore, source, resolved.Revision) {
 						gitlinkValid = false
 						if parentErr != nil {
 							entry.ResolutionState = projectResolutionState(parentErr)
@@ -468,7 +480,7 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 			accepted, trusted := policy.TrustedProjects[identity.Project]
 			proofInputsReady := graphValid && statusDone && artifactValid && pinErr == nil && policy.Enabled && trusted && accepted == pin && gitlinkValid
 			if proofInputsReady {
-				bundleID, bundleDigest, subjectDigest, planDigest, contracts, evidence, proofBlockers := federatedSourceProof(source, identity, resolved.Revision)
+				bundleID, bundleDigest, subjectDigest, planDigest, contracts, evidence, proofBlockers := federatedSourceProof(s.fsys(), source, identity, resolved.Revision)
 				entry.ReviewBundleID, entry.ReviewBundleDigest = bundleID, bundleDigest
 				entry.ImplementationDigest, entry.PlanDigest = subjectDigest, planDigest
 				entry.GoverningContracts, entry.Evidence = contracts, evidence
@@ -492,7 +504,7 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 			report.Blockers = append(report.Blockers, "source-snapshot-changed-during-resolution:"+project)
 		}
 	}
-	report.Blockers = append(report.Blockers, federatedOwnershipConflicts(projectRoots, resolver)...)
+	report.Blockers = append(report.Blockers, federatedOwnershipConflicts(s.fsys(), projectRoots, resolver)...)
 	sort.Slice(report.Manifest.Dependencies, func(i, j int) bool {
 		left, right := report.Manifest.Dependencies[i], report.Manifest.Dependencies[j]
 		if left.Identity.String() != right.Identity.String() {
@@ -509,7 +521,7 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 	return report, nil
 }
 
-func federatedArtifactLastChange(source Store, identity ArtifactRef) string {
+func federatedArtifactLastChange(files Files, source Store, identity ArtifactRef) string {
 	var path string
 	if identity.Kind == "spec" {
 		sp, err := source.GetSpec(identity.Slug)
@@ -529,7 +541,7 @@ func federatedArtifactLastChange(source Store, identity ArtifactRef) string {
 		return ""
 	}
 	rel = filepath.ToSlash(rel)
-	if err := ValidateArtifactPath(source.Root, rel, false); err != nil {
+	if err := ValidateArtifactPathIn(files, source.Root, rel, false); err != nil {
 		return ""
 	}
 	out, err := gitCommand("-C", source.Root, "log", "-1", "--format=%H", "--", rel).Output()
@@ -574,7 +586,7 @@ func collectFederatedRoadmapEdges(project string, rm *Roadmap) []federatedRoadma
 	return edges
 }
 
-func verifyFederatedArtifactAtRevision(source Store, identity ArtifactRef, resolved ArtifactResolution) error {
+func verifyFederatedArtifactAtRevision(files Files, source Store, identity ArtifactRef, resolved ArtifactResolution) error {
 	if resolved.Revision == "" {
 		return fmt.Errorf("source-revision-unavailable")
 	}
@@ -597,7 +609,7 @@ func verifyFederatedArtifactAtRevision(source Store, identity ArtifactRef, resol
 		return fmt.Errorf("unavailable-artifact")
 	}
 	rel = filepath.ToSlash(rel)
-	if err := ValidateArtifactPath(source.Root, rel, false); err != nil {
+	if err := ValidateArtifactPathIn(files, source.Root, rel, false); err != nil {
 		return fmt.Errorf("unavailable-artifact")
 	}
 	committed, err := gitCommand("-C", source.Root, "show", resolved.Revision+":"+rel).Output()
@@ -611,17 +623,17 @@ func verifyFederatedArtifactAtRevision(source Store, identity ArtifactRef, resol
 	return nil
 }
 
-func federatedGitlinkMatches(parent, child Store, revision string) bool {
+func federatedGitlinkMatchesIn(files Files, parent, child Store, revision string) bool {
 	top, err := gitCommand("-C", child.Root, "rev-parse", "--show-toplevel").Output()
-	if err != nil || !sameProjectRoot(child.Root, strings.TrimSpace(string(top))) {
+	if err != nil || !sameProjectRoot(files, child.Root, strings.TrimSpace(string(top))) {
 		return true // sibling checkouts have no consumer gitlink to compare.
 	}
 	parentTop, err := gitCommand("-C", parent.Root, "rev-parse", "--show-toplevel").Output()
-	if err != nil || !sameProjectRoot(parent.Root, strings.TrimSpace(string(parentTop))) {
+	if err != nil || !sameProjectRoot(files, parent.Root, strings.TrimSpace(string(parentTop))) {
 		return true
 	}
-	parentReal, err1 := filepath.EvalSymlinks(parent.Root)
-	childReal, err2 := filepath.EvalSymlinks(child.Root)
+	parentReal, err1 := files.EvalSymlinks(parent.Root)
+	childReal, err2 := files.EvalSymlinks(child.Root)
 	if err1 != nil || err2 != nil {
 		return false
 	}
@@ -640,7 +652,12 @@ func federatedGitlinkMatches(parent, child Store, revision string) bool {
 	return fields[2] == revision
 }
 
-func federatedSourceProof(source Store, identity ArtifactRef, pinnedRevision string) (string, string, string, string, []string, []FederatedDependencyEvidence, []string) {
+// federatedGitlinkMatches reads the filesystem directly; federatedGitlinkMatchesIn reads the operation's files.
+func federatedGitlinkMatches(parent, child Store, revision string) bool {
+	return federatedGitlinkMatchesIn(NativeFiles(), parent, child, revision)
+}
+
+func federatedSourceProof(files Files, source Store, identity ArtifactRef, pinnedRevision string) (string, string, string, string, []string, []FederatedDependencyEvidence, []string) {
 	scope := localFederatedScope(identity)
 	state, err := source.GetCloseoutState(scope)
 	if err != nil || !state.Terminal {
@@ -661,7 +678,7 @@ func federatedSourceProof(source Store, identity ArtifactRef, pinnedRevision str
 		if err != nil || len(targets) == 0 {
 			return bundle.BundleID, bundle.BundleDigest, bundle.Payload.Subject.ImplementationDigest, bundle.Payload.Plan.PlanDigest, bundle.Payload.GoverningContracts, nil, []string{scope + ":source-delivery-target-missing"}
 		}
-		profiles, err := loadFederatedDeliveryProfiles(source.Root)
+		profiles, err := loadFederatedDeliveryProfiles(files, source.Root)
 		if err != nil {
 			return bundle.BundleID, bundle.BundleDigest, bundle.Payload.Subject.ImplementationDigest, bundle.Payload.Plan.PlanDigest, bundle.Payload.GoverningContracts, nil, []string{scope + ":source-delivery-profile-unavailable"}
 		}
@@ -693,10 +710,10 @@ func federatedSourceProof(source Store, identity ArtifactRef, pinnedRevision str
 				}
 			}
 		}
-		proof := federatedBundleEvidence(bundle, eligible)
+		proof := federatedBundleEvidence(files, bundle, eligible)
 		return bundle.BundleID, bundle.BundleDigest, bundle.Payload.Subject.ImplementationDigest, bundle.Payload.Plan.PlanDigest, bundle.Payload.GoverningContracts, proof, uniqueSorted(blockers)
 	}
-	return bundle.BundleID, bundle.BundleDigest, bundle.Payload.Subject.ImplementationDigest, bundle.Payload.Plan.PlanDigest, bundle.Payload.GoverningContracts, federatedBundleEvidence(bundle, eligible), nil
+	return bundle.BundleID, bundle.BundleDigest, bundle.Payload.Subject.ImplementationDigest, bundle.Payload.Plan.PlanDigest, bundle.Payload.GoverningContracts, federatedBundleEvidence(files, bundle, eligible), nil
 }
 
 // A fresh approved source bundle already checked provenance. A carried result
@@ -733,7 +750,7 @@ func localFederatedScope(identity ArtifactRef) string {
 	return identity.Kind + ":" + identity.Slug
 }
 
-func federatedBundleEvidence(bundle *ReviewBundle, eligible func(ReviewBundleEvidence) bool) []FederatedDependencyEvidence {
+func federatedBundleEvidence(files Files, bundle *ReviewBundle, eligible func(ReviewBundleEvidence) bool) []FederatedDependencyEvidence {
 	evidence := []FederatedDependencyEvidence{}
 	for _, item := range bundle.Payload.Evidence {
 		if eligible(item) {
@@ -749,8 +766,8 @@ func federatedBundleEvidence(bundle *ReviewBundle, eligible func(ReviewBundleEvi
 	return evidence
 }
 
-func loadFederatedDeliveryProfiles(root string) (map[string]DeliveryProfile, error) {
-	raw, err := os.ReadFile(filepath.Join(root, ".pose", "indexes", "validation-matrix.json"))
+func loadFederatedDeliveryProfiles(files Files, root string) (map[string]DeliveryProfile, error) {
+	raw, err := files.ReadFile(filepath.Join(root, ".pose", "indexes", "validation-matrix.json"))
 	if err != nil {
 		return nil, err
 	}
@@ -763,7 +780,7 @@ func loadFederatedDeliveryProfiles(root string) (map[string]DeliveryProfile, err
 	return matrix.DeliveryProfiles, nil
 }
 
-func federatedOwnershipConflicts(projectRoots map[string]Store, resolver ArtifactResolver) []string {
+func federatedOwnershipConflicts(files Files, projectRoots map[string]Store, resolver ArtifactResolver) []string {
 	owners := map[string]string{}
 	blockers := []string{}
 	for project, store := range projectRoots {
@@ -800,7 +817,7 @@ func federatedOwnershipConflicts(projectRoots map[string]Store, resolver Artifac
 }
 
 func gitHeadAtRoot(root string) string {
-	if top, err := gitCommand("-C", root, "rev-parse", "--show-toplevel").Output(); err != nil || !sameProjectRoot(root, strings.TrimSpace(string(top))) {
+	if top, err := gitCommand("-C", root, "rev-parse", "--show-toplevel").Output(); err != nil || !sameProjectRoot(NativeFiles(), root, strings.TrimSpace(string(top))) {
 		return ""
 	}
 	if head, err := gitCommand("-C", root, "rev-parse", "--verify", "HEAD").Output(); err == nil {

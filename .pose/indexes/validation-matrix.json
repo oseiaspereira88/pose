@@ -2167,6 +2167,34 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "update-preview-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "./internal/pose",
+            "-run",
+            "^(TestUpdatePreview|TestUpdateDryRun|TestUpdateOperation|TestStaleInstanceEngine)",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "spec-facts-evidence-binding-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "TestFacts|TestSpecsFacts|TestSpecFactsAreDerivedFromTheIndex",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "release-manifest-tag-integrity-integration",
           "program": "go",
           "args": [
@@ -2188,20 +2216,6 @@
             "./internal/cli",
             "-run",
             "DistributedInstructionsAskForDiscovery|EmbeddedMirrorsOfTheWorkflowsAndRules|SuggestResolvesDomainAliases|SuggestDoesNotTurnEveryBackend|SuggestSeparatesDeclaredFromInstalled|MigrateSaysThereIsNoApply|FreshInstallReceivesInstructions|MigrateDryRun|SuggestDomainUsesMostSpecific|TestSuggestAndTheCheckerRefuseANonCanonicalSpellingOfAnOperationalField",
-            "-count=1"
-          ],
-          "severity": "required",
-          "evidenceClass": "integration"
-        },
-        {
-          "name": "spec-facts-evidence-binding-integration",
-          "program": "go",
-          "args": [
-            "test",
-            "./internal/pose",
-            "./internal/cli",
-            "-run",
-            "TestFacts|TestSpecsFacts|TestSpecFactsAreDerivedFromTheIndex",
             "-count=1"
           ],
           "severity": "required",

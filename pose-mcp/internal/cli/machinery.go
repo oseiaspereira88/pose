@@ -26,6 +26,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"io"
 	"io/fs"
 	"os"
@@ -64,32 +65,44 @@ type machineryManifest struct {
 }
 
 // readMachineryManifest returns the manifest as stored, or an empty one.
-func readMachineryManifest(target string) machineryManifest {
+func readMachineryManifestIn(files posemodel.Files, target string) machineryManifest {
 	var m machineryManifest
-	raw, err := os.ReadFile(machineryManifestPath(target))
+	raw, err := files.ReadFile(machineryManifestPath(target))
 	if err != nil || json.Unmarshal(raw, &m) != nil {
 		return machineryManifest{}
 	}
 	return m
 }
 
-func storeMachineryManifest(target string, m machineryManifest) error {
+// readMachineryManifest reads and writes the filesystem directly; readMachineryManifestIn takes the
+// operation's files.
+func readMachineryManifest(target string) machineryManifest {
+	return readMachineryManifestIn(posemodel.NativeFiles(), target)
+}
+
+func storeMachineryManifestIn(files posemodel.Files, target string, m machineryManifest) error {
 	m.SchemaVersion = 1
 	raw, err := json.MarshalIndent(m, "", "  ")
 	if err != nil {
 		return err
 	}
 	path := machineryManifestPath(target)
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	if err := files.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
-	return writeAtomic(path, append(raw, '\n'), 0o644)
+	return writeAtomicIn(files, path, append(raw, '\n'), 0o644)
+}
+
+// storeMachineryManifest reads and writes the filesystem directly; storeMachineryManifestIn takes the
+// operation's files.
+func storeMachineryManifest(target string, m machineryManifest) error {
+	return storeMachineryManifestIn(posemodel.NativeFiles(), target, m)
 }
 
 // instanceEngineVersion reads the engine version this instance's machinery
 // was last delivered by, or "" when the manifest predates this field.
-func instanceEngineVersion(target string) string {
-	raw, err := os.ReadFile(machineryManifestPath(target))
+func instanceEngineVersionIn(files posemodel.Files, target string) string {
+	raw, err := files.ReadFile(machineryManifestPath(target))
 	if err != nil {
 		return ""
 	}
@@ -100,9 +113,15 @@ func instanceEngineVersion(target string) string {
 	return m.EngineVersion
 }
 
-func loadMachineryManifest(target string) map[string]bool {
+// instanceEngineVersion reads and writes the filesystem directly; instanceEngineVersionIn takes the
+// operation's files.
+func instanceEngineVersion(target string) string {
+	return instanceEngineVersionIn(posemodel.NativeFiles(), target)
+}
+
+func loadMachineryManifestIn(files posemodel.Files, target string) map[string]bool {
 	delivered := map[string]bool{}
-	raw, err := os.ReadFile(machineryManifestPath(target))
+	raw, err := files.ReadFile(machineryManifestPath(target))
 	if err != nil {
 		return delivered
 	}
@@ -116,10 +135,16 @@ func loadMachineryManifest(target string) map[string]bool {
 	return delivered
 }
 
+// loadMachineryManifest reads and writes the filesystem directly; loadMachineryManifestIn takes the
+// operation's files.
+func loadMachineryManifest(target string) map[string]bool {
+	return loadMachineryManifestIn(posemodel.NativeFiles(), target)
+}
+
 // loadMachineryDigests returns the digest recorded for each delivered path, or
 // an empty map for a manifest written before digests were recorded.
-func loadMachineryDigests(target string) map[string]string {
-	raw, err := os.ReadFile(machineryManifestPath(target))
+func loadMachineryDigestsIn(files posemodel.Files, target string) map[string]string {
+	raw, err := files.ReadFile(machineryManifestPath(target))
 	if err != nil {
 		return map[string]string{}
 	}
@@ -130,13 +155,25 @@ func loadMachineryDigests(target string) map[string]string {
 	return m.Digests
 }
 
-func saveMachineryManifest(target string, paths []string, digests map[string]string) error {
+// loadMachineryDigests reads and writes the filesystem directly; loadMachineryDigestsIn takes the
+// operation's files.
+func loadMachineryDigests(target string) map[string]string {
+	return loadMachineryDigestsIn(posemodel.NativeFiles(), target)
+}
+
+func saveMachineryManifestIn(files posemodel.Files, target string, paths []string, digests map[string]string) error {
 	sort.Strings(paths)
 	// The manual records are written by the manual merge, which runs before
 	// machinery delivery on the same update; keep them.
-	m := readMachineryManifest(target)
+	m := readMachineryManifestIn(files, target)
 	m.Paths, m.EngineVersion, m.Digests = paths, Version, digests
-	return storeMachineryManifest(target, m)
+	return storeMachineryManifestIn(files, target, m)
+}
+
+// saveMachineryManifest reads and writes the filesystem directly; saveMachineryManifestIn takes the
+// operation's files.
+func saveMachineryManifest(target string, paths []string, digests map[string]string) error {
+	return saveMachineryManifestIn(posemodel.NativeFiles(), target, paths, digests)
 }
 
 // deliverMachinery refreshes every engine-owned machinery tree into target.
@@ -151,9 +188,9 @@ func saveMachineryManifest(target string, paths []string, digests map[string]str
 // force ignores the deletion record, restoring the wholesale-reset meaning
 // `pose install --force` has always had. noBackup suppresses the .pose-backup
 // copy, matching the flag of the same name.
-func deliverMachinery(src fs.FS, target, locale string, force, noBackup bool, stderr io.Writer, log func(english, portuguese string, a ...any)) error {
-	deliveredBefore := loadMachineryManifest(target)
-	recordedDigest := loadMachineryDigests(target)
+func deliverMachineryIn(files posemodel.Files, src fs.FS, target, locale string, force, noBackup bool, stderr io.Writer, log func(english, portuguese string, a ...any)) error {
+	deliveredBefore := loadMachineryManifestIn(files, target)
+	recordedDigest := loadMachineryDigestsIn(files, target)
 	var deliveredNow []string
 	digestsNow := map[string]string{}
 
@@ -175,11 +212,11 @@ func deliverMachinery(src fs.FS, target, locale string, force, noBackup bool, st
 			// removed stays removed: re-creating it would undo a deliberate
 			// decision. --force is the escape hatch, unchanged.
 			if !force && deliveredBefore[path] {
-				if _, statErr := os.Stat(dst); os.IsNotExist(statErr) {
+				if _, statErr := files.Stat(dst); os.IsNotExist(statErr) {
 					return nil
 				}
 			}
-			digest, err := deliverMachineryFile(src, machinerySource(src, path, locale), dst, filePerm(path), recordedDigest[path], noBackup, stderr, target)
+			digest, err := deliverMachineryFileIn(files, src, machinerySource(src, path, locale), dst, filePerm(path), recordedDigest[path], noBackup, stderr, target)
 			if err != nil {
 				return err
 			}
@@ -194,7 +231,13 @@ func deliverMachinery(src fs.FS, target, locale string, force, noBackup bool, st
 		}
 	}
 
-	return saveMachineryManifest(target, deliveredNow, digestsNow)
+	return saveMachineryManifestIn(files, target, deliveredNow, digestsNow)
+}
+
+// deliverMachinery reads and writes the filesystem directly; deliverMachineryIn takes the
+// operation's files.
+func deliverMachinery(src fs.FS, target, locale string, force, noBackup bool, stderr io.Writer, log func(english, portuguese string, a ...any)) error {
+	return deliverMachineryIn(posemodel.NativeFiles(), src, target, locale, force, noBackup, stderr, log)
 }
 
 // deliverMachineryFile writes one machinery file and returns the digest of the
@@ -206,22 +249,22 @@ func deliverMachinery(src fs.FS, target, locale string, force, noBackup bool, st
 // the instance and is backed up as customized. With no recorded digest — a
 // manifest older than digests — a local edit cannot be ruled out, so it is
 // backed up, and the report says why rather than calling it customized.
-func deliverMachineryFile(src fs.FS, from, dst string, perm os.FileMode, recorded string, noBackup bool, stderr io.Writer, target string) (string, error) {
+func deliverMachineryFileIn(files posemodel.Files, src fs.FS, from, dst string, perm os.FileMode, recorded string, noBackup bool, stderr io.Writer, target string) (string, error) {
 	content, err := fs.ReadFile(src, from)
 	if err != nil {
 		return "", err
 	}
 	digest := contentDigest(content)
-	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+	if err := files.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
 		return "", err
 	}
-	if existing, err := os.ReadFile(dst); err == nil {
+	if existing, err := files.ReadFile(dst); err == nil {
 		if bytes.Equal(existing, content) {
 			return digest, nil
 		}
 		unedited := recorded != "" && contentDigest(existing) == recorded
 		if !unedited && !noBackup {
-			if err := os.WriteFile(dst+".pose-backup", existing, perm); err == nil {
+			if err := files.WriteFile(dst+".pose-backup", existing, perm); err == nil {
 				rel, _ := filepath.Rel(target, dst)
 				if recorded != "" {
 					fmt.Fprintf(stderr, "[pose-install] backed up customized: %s → %s.pose-backup (changed since POSE delivered it)\n", rel, rel)
@@ -231,10 +274,16 @@ func deliverMachineryFile(src fs.FS, from, dst string, perm os.FileMode, recorde
 			}
 		}
 	}
-	if err := os.WriteFile(dst, content, perm); err != nil {
+	if err := files.WriteFile(dst, content, perm); err != nil {
 		return "", err
 	}
 	return digest, nil
+}
+
+// deliverMachineryFile reads and writes the filesystem directly; deliverMachineryFileIn takes the
+// operation's files.
+func deliverMachineryFile(src fs.FS, from, dst string, perm os.FileMode, recorded string, noBackup bool, stderr io.Writer, target string) (string, error) {
+	return deliverMachineryFileIn(posemodel.NativeFiles(), src, from, dst, perm, recorded, noBackup, stderr, target)
 }
 
 func contentDigest(content []byte) string {
@@ -261,12 +310,18 @@ func machinerySource(src fs.FS, path, locale string) string {
 // explicit must be true only when localeFlag came from an operator-typed
 // --locale, never when it is merely the caller's zero-value default — see
 // resolveDocLocale.
-func machineryLocale(src fs.FS, root, localeFlag string, explicit bool) string {
-	existing, err := os.ReadFile(filepath.Join(root, "POSE.md"))
+func machineryLocaleIn(files posemodel.Files, src fs.FS, root, localeFlag string, explicit bool) string {
+	existing, err := files.ReadFile(filepath.Join(root, "POSE.md"))
 	if err != nil {
 		return localeFlag
 	}
 	return resolveDocLocale(src, "POSE.md", string(existing), localeFlag, explicit)
+}
+
+// machineryLocale reads and writes the filesystem directly; machineryLocaleIn takes the
+// operation's files.
+func machineryLocale(src fs.FS, root, localeFlag string, explicit bool) string {
+	return machineryLocaleIn(posemodel.NativeFiles(), src, root, localeFlag, explicit)
 }
 
 // localeSkillMirrors lists the locales/<tag>/.agents/skills trees present in an

@@ -124,7 +124,7 @@ func (s Store) resolveReviewStructure(scope ScopeRef, components []ReviewPlanCom
 		structure.Reason = strings.Join(blockers, "; ")
 		return structure
 	}
-	report, err := AssessDesignDelta(s.Root, subject, scope.String(), DesignDeltaOptions{})
+	report, err := AssessDesignDeltaIn(s.fsys(), s.Root, subject, scope.String(), DesignDeltaOptions{})
 	if err != nil {
 		structure.Reason = err.Error()
 		return structure
@@ -200,7 +200,7 @@ func (s Store) reviewDesignBasisNamespace(scope ScopeRef) reviewDesignBasisNames
 		for id := range constraints {
 			ns.Requirements[id], ns.Known[id], ns.Reaches[id] = true, true, true
 		}
-		report := ValidateDesignBasis(spec.Body, s.Root)
+		report := ValidateDesignBasisIn(s.fsys(), spec.Body, s.Root)
 		if !report.HasSection {
 			continue
 		}

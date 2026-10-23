@@ -3,7 +3,6 @@ package pose
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -19,14 +18,18 @@ var EngineReleaseBase = ""
 // ReleaseVersionEvidence selects the authoritative version a cut is compared with: the file the
 // policy declares, or, only inside the engine repository, the compiled engine version.
 func ReleaseVersionEvidence(root string, policy ReleasePolicy) (map[string]string, error) {
+	return ReleaseVersionEvidenceIn(NativeFiles(), root, policy)
+}
+
+func ReleaseVersionEvidenceIn(files Files, root string, policy ReleasePolicy) (map[string]string, error) {
 	if policy.VersionSource != nil {
-		value, err := ReadReleaseVersionSource(root, *policy.VersionSource)
+		value, err := ReadReleaseVersionSourceIn(files, root, *policy.VersionSource)
 		if err != nil {
 			return nil, err
 		}
 		return map[string]string{"source": filepath.ToSlash(filepath.Clean(policy.VersionSource.Path)), "kind": policy.VersionSource.Kind, "value": value}, nil
 	}
-	if !ProjectHasEngineVersionFile(root) {
+	if !ProjectHasEngineVersionFileIn(files, root) {
 		return nil, fmt.Errorf("release policy declares no version_source: the engine version is authoritative only inside the engine repository; set version_source in .pose/policy/release.json to the file that holds this project's version")
 	}
 	return map[string]string{"source": EngineVersionFile, "value": "v" + EngineReleaseBase}, nil
@@ -35,15 +38,19 @@ func ReleaseVersionEvidence(root string, policy ReleasePolicy) (map[string]strin
 // LoadChangelogPolicyStrict reads the changelog policy for a judgment: no file is the defaults, a
 // file that cannot be read or decoded, or of a schema this engine does not read, is an error.
 func LoadChangelogPolicyStrict(root string) (ChangelogPolicy, error) {
+	return LoadChangelogPolicyStrictIn(NativeFiles(), root)
+}
+
+func LoadChangelogPolicyStrictIn(files Files, root string) (ChangelogPolicy, error) {
 	path := filepath.Join(root, ".pose", "policy", "changelog.json")
-	absent, absentErr := ProvenAbsent(path)
+	absent, absentErr := ProvenAbsentIn(files, path)
 	if absentErr != nil {
 		return ChangelogPolicy{}, absentErr
 	}
 	if absent {
-		return LoadChangelogPolicy(root), nil
+		return LoadChangelogPolicyIn(files, root), nil
 	}
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return ChangelogPolicy{}, err
 	}
@@ -104,22 +111,26 @@ func NotesAreTheRendering(notes, version string, fragments []ReleaseFragment, po
 // under, the fragments, the notes as their rendering, the input digest, the changelog policy and
 // the version file, and the files it froze. Nothing here reads a tag.
 func ReleaseCandidateGaps(root, target string, manifest *ReleaseManifest) (gaps, limits []string) {
+	return ReleaseCandidateGapsIn(NativeFiles(), root, target, manifest)
+}
+
+func ReleaseCandidateGapsIn(files Files, root, target string, manifest *ReleaseManifest) (gaps, limits []string) {
 	gaps = []string{}
-	policy, perr := LoadReleasePolicy(root)
+	policy, perr := LoadReleasePolicyIn(files, root)
 	if perr != nil {
 		gaps = append(gaps, perr.Error())
 	} else if manifest.PolicyDigest != ReleaseDigest(policy) {
 		gaps = append(gaps, "policy digest differs from prepared manifest")
 	}
-	changelog, clErr := LoadChangelogPolicyStrict(root)
+	changelog, clErr := LoadChangelogPolicyStrictIn(files, root)
 	if clErr != nil {
 		gaps = append(gaps, "the changelog policy cannot be used: "+clErr.Error())
 	}
-	archive, aerr := LoadReleaseFragments(filepath.Join(root, ".pose", "changelogs", target), changelog)
+	archive, aerr := LoadReleaseFragmentsIn(files, filepath.Join(root, ".pose", "changelogs", target), changelog)
 	if aerr != nil {
 		gaps = append(gaps, aerr.Error())
 	}
-	notes, nerr := os.ReadFile(filepath.Join(root, ".pose", "changelogs", target+".md"))
+	notes, nerr := files.ReadFile(filepath.Join(root, ".pose", "changelogs", target+".md"))
 	switch {
 	case nerr != nil:
 		gaps = append(gaps, "canonical notes missing")
@@ -151,7 +162,7 @@ func ReleaseCandidateGaps(root, target string, manifest *ReleaseManifest) (gaps,
 		}
 	}
 	if perr == nil {
-		if evidence, eerr := ReleaseVersionEvidence(root, policy); eerr != nil {
+		if evidence, eerr := ReleaseVersionEvidenceIn(files, root, policy); eerr != nil {
 			gaps = append(gaps, "version evidence could not be read: "+eerr.Error())
 		} else {
 			if evidence["value"] != manifest.Version || evidence["value"] != manifest.VersionEvidence["value"] {
@@ -162,7 +173,7 @@ func ReleaseCandidateGaps(root, target string, manifest *ReleaseManifest) (gaps,
 			}
 		}
 	}
-	gaps = append(gaps, ReleaseFilesGaps(root, target, manifest)...)
+	gaps = append(gaps, ReleaseFilesGapsIn(files, root, target, manifest)...)
 	return gaps, limits
 }
 
@@ -171,11 +182,15 @@ func ReleaseCandidateGaps(root, target string, manifest *ReleaseManifest) (gaps,
 // be tagged any more (the version file is not the cut's version), so judging its inputs against
 // today's policy and fragments says nothing about a release that can still happen.
 func ReleaseCandidateSuperseded(root string, manifest *ReleaseManifest) bool {
-	policy, err := LoadReleasePolicy(root)
+	return ReleaseCandidateSupersededIn(NativeFiles(), root, manifest)
+}
+
+func ReleaseCandidateSupersededIn(files Files, root string, manifest *ReleaseManifest) bool {
+	policy, err := LoadReleasePolicyIn(files, root)
 	if err != nil {
 		return false
 	}
-	evidence, err := ReleaseVersionEvidence(root, policy)
+	evidence, err := ReleaseVersionEvidenceIn(files, root, policy)
 	if err != nil {
 		return false
 	}

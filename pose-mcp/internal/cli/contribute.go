@@ -41,9 +41,9 @@ type stagedContribution struct {
 	DismissReason string `json:"dismiss_reason,omitempty"`
 }
 
-func loadContributorState(root string) (*contributorState, error) {
+func loadContributorStateIn(files posepkg.Files, root string) (*contributorState, error) {
 	path := filepath.Join(root, filepath.FromSlash(contributorStateFile))
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return &contributorState{Active: false, Upstream: "https://github.com/oseiaspereira88/pose"}, nil
@@ -58,6 +58,12 @@ func loadContributorState(root string) (*contributorState, error) {
 		s.Upstream = "https://github.com/oseiaspereira88/pose"
 	}
 	return &s, nil
+}
+
+// loadContributorState reads and writes the filesystem directly; loadContributorStateIn takes the
+// operation's files.
+func loadContributorState(root string) (*contributorState, error) {
+	return loadContributorStateIn(posepkg.NativeFiles(), root)
 }
 
 func writeContributorState(root string, s *contributorState) error {
@@ -731,14 +737,20 @@ func removeDocSectionContent(content, marker string) string {
 }
 
 // IsContributorModeActive checks if contributor mode is enabled in the repository.
-func IsContributorModeActive(root string) bool {
-	state, err := loadContributorState(root)
+func IsContributorModeActiveIn(files posepkg.Files, root string) bool {
+	state, err := loadContributorStateIn(files, root)
 	return err == nil && state != nil && state.Active
 }
 
+// IsContributorModeActive reads and writes the filesystem directly; IsContributorModeActiveIn takes the
+// operation's files.
+func IsContributorModeActive(root string) bool {
+	return IsContributorModeActiveIn(posepkg.NativeFiles(), root)
+}
+
 // PrintContributorFailureHint emits an actionable hint when a check/lint/close failure occurs and contributor mode is active.
-func PrintContributorFailureHint(root string, w io.Writer, loc cliLocale) {
-	if !IsContributorModeActive(root) {
+func PrintContributorFailureHintIn(files posepkg.Files, root string, w io.Writer, loc cliLocale) {
+	if !IsContributorModeActiveIn(files, root) {
 		return
 	}
 	text := func(en, pt string) string { return cliText(loc, en, pt) }
@@ -747,6 +759,12 @@ func PrintContributorFailureHint(root string, w io.Writer, loc cliLocale) {
 			"💡 [Modo Contribuidor ATIVO] Se esta falha for causada por defeito no motor POSE, falso-positivo ou regra de stack ausente, registre uma reprodução sintética local com:"),
 		"pose contribute stage --type bug --title \"<brief-summary>\"",
 	)
+}
+
+// PrintContributorFailureHint reads and writes the filesystem directly; PrintContributorFailureHintIn takes the
+// operation's files.
+func PrintContributorFailureHint(root string, w io.Writer, loc cliLocale) {
+	PrintContributorFailureHintIn(posepkg.NativeFiles(), root, w, loc)
 }
 
 // PrintContributorDoctorHint emits an informational contributor mode status in pose doctor.
