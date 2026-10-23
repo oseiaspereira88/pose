@@ -1,8 +1,8 @@
 ---
 slug: pose-proof-presence-channel-parity
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-23
 depends_on: pose-historical-trust-and-review-reuse, pose-action-answers-reverify-on-read, pose-review-disclosure-requires-proof, pose-native-attestation-issuer, pose-signed-action-answers
 priority: 1
 components: pose-mcp
@@ -171,15 +171,28 @@ atualizada e a revisão final ainda são gates independentes de entrega.
 
 ### Delivered scope
 
-Escrita original em draft no lote 2, preservada como histórico. Implementação
-iniciada sob managed start em 2026-10-23 e em qualificação; validação estrita,
-revisão selada, closeout nativo e merge individual ainda pendentes.
+Fechamento funcional nativo em 2026-10-23 após147/147 checks estritos, revisão
+selada independente de execução Codex, atestação rva-eeaa489d1572aa48 e closeout
+terminal sem blockers. Fonte qualificada ae54756; bundle rvb-343f8deb0f9be466.
+Policy versionada, migração, admissão compartilhada e disclosure de presença
+foram verificados no domínio, CLI e MCP. Ver relatório
+[de implementação](../reports/2026-10-23-b03-implementation.md) e
+[parecer real](../reports/2026-10-23-b03-independent-review.md).
+A publicação na main remota depende ainda do commit final e CI do PR #203;
+fechamento funcional não é afirmação de merge, release ou adoção da instância.
 
 ### Residual risks
 
-A escolha universal versus SSH altera o compromisso R5 e pode exigir mudança de schema/compatibilidade. Não afirmar que um issuer hoje fornece presença física. Closeouts de B01 e B04 precedem execução de B03; B02 não é dependência técnica artificial.
+A migração de policies habilitadas é breaking e requer classificação major na
+release; a entrega não publica versão nem escolhe escopo para o operador.
+A prova autentica a asserção da chave registrada, não a origem do hardware ou
+quem o tocou. Fixtures SK são sintéticas, e builds multiplataforma não provam
+execução em hardware real. Requisitos históricos de presença continuam não
+registrados; as limitações B01/B04 são preservadas. Os relatórios explicitam
+cobertura incompleta de dívida legada e avisos do repositório.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Nenhum achado residual novo ou aceite de risco nesta spec. Unidades restantes e
+closeouts administrativos do programa permanecem separados; não são entregas
+funcionais de B03 nem justificam aguardar um lote para publicar esta spec.

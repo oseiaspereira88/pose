@@ -84,3 +84,73 @@ Otherwise, the reviewed source preserves the intended boundaries: every supplied
 Evidence chronology is qualified: the before-fix log reproduces the legacy bypasses and invalid-policy publication; the domain-regression failure concerns native-fixture directory permissions, corrected in current source. Later focused/composition and race logs pass. The earlier full-package run passes domain/MCP but fails CLI’s known-key fixture; current source corrects that fixture and the focused compatibility log passes. Full canonical validation remains pending.
 
 Applied the POSE review workflow and security, Go backend, documentation, knowledge, and delivery-evidence rules. Reviewed `c4f814b..4dc8277`, including prospective `06ebca5`, new tests, foundation contracts, and supplied logs. Native assessments, bundle/sealing, attestation, and test execution were deferred under your read-only instruction. No writes or child agents; existing modifications were left untouched. This is a source review, without delivery or CI-clean claims.
+
+## R3 current-source sealed adjudication — actual same-vendor execution
+
+**Decision: APPROVED**, conditional on all required final-head PR CI checks being green before merge.
+
+This is the actual judgment of this Codex/OpenAI review session. The requested target is `gpt-6.1-sol`; I cannot independently authenticate the runtime model designation or reviewer identity. This is same-vendor review, with no claim of human, cognitive, or cross-vendor independence. I performed read-only source and evidence inspection; no tests, native mutations, writes, child agents, attestation, or publication.
+
+The reviewed identities are:
+
+```text
+Bundle: rvb-343f8deb0f9be466
+Bundle digest: sha256:343f8deb0f9be4664b932a8e223a1b4fad226b594d9204e92a4117e7501cea29
+Plan: sha256:9f366d6323a3fc63a615c75ab98ace7a96781e05deec7f47fd64935fcde75d48
+Implementation: sha256:ddf8a7f55396b7004853d33bb981b994edbeb07669f760fe849ee51adf0cc406
+Patch: sha256:1c08ebb307d469c763cce6b3189239d42cc7f92ecee5e6fd611bceddff7a2a22
+Tree: sha256:4fd4b403ddda22e4f86b4529fe183d8de69d8a6e543f320be48c5912dde8d5fe
+Source: ae54756f7e8f41f661e40326e2a05821502e88f7
+Baseline: c4f814b82bd39223699f82979568fc973abcfcd0
+Change set: cs-9e6b04a9e595
+```
+
+I independently recomputed those five digests. All 25 subject entries match their hashes and committed source bytes; consumed file hashes and all four semantic-section hashes match. The managed-start baseline matches the sealed R1–R8/D1–D2 basis. All five foundation specs remain byte-identical to baseline.
+
+The 143 sealed canonical evidence records match the supplied structured results and source provenance; the additional design record binds the same implementation. Current strict validation passes **147/147**, with no skips or errors. The permanent three-package presence producer passes. Supplied final race and govulncheck logs pass. These are inspected collector results, not executions performed by this reviewer.
+
+| id | disposition | individual reason |
+|---|---|---|
+| assumption-integrity | passed | Disclosure distinguishes registered-key assertions from hardware provenance, issuer authority, historical authorization, and physical touch. Synthetic fixtures are correctly qualified. |
+| backend-concurrency | passed | Admission precedes append; existing locked revision, idempotency, and open-state checks remain intact. Refusal tests preserve journal bytes/state; supplied race results pass. |
+| backend-contracts | passed | Schema 2 explicitly selects scope; enabled legacy human writes require migration. Older engines reject schema 2, and breaking/major classification is recorded. |
+| backend-input-errors | passed | Shared decoding rejects invalid versions/scopes and folded schema-1 aliases. Proof failures, missing assertions, unsupported issuer presence, and migration have actionable diagnostics. |
+| backend-integration-impact | passed | CLI and MCP reach shared domain admission. The registered producer exercises all three packages, and surface evidence binds the current capability and source. |
+| backend-observability | passed | Returned diagnostics and presence observations expose scope and limitations without fabricating presence or recording a successful refusal. |
+| compatibility | passed | Prospective ADR explicitly reconciles foundation R5/D2. Historical verification is preserved; migration chooses no operator policy implicitly. |
+| correctness | passed | Inspected 112 admission combinations, mixed-proof binding controls, alias regressions, invalid-edit protection, historical tests, and current canonical results support the behavior. |
+| design-causality | passed | Explicit versioning resolves ambiguous channel enforcement; centralized admission closes emitter-dependent bypasses. The complete structural mapping appears below. |
+| documentation | passed | English/Portuguese root and scaffold presence documentation matches runtime semantics, migration, preview behavior, and assurance limitations. |
+| operability | passed | Previews disclose `not-evaluated`; migration is checked before CLI signing. Identity and doctor output provide explicit remediation. |
+| requirements | passed | R1–R8 have inspected relevant tests and current integration evidence; strict lint reports eight trace entries with none missing. |
+| scope | passed | The four attributed commits reconcile all 29 declarations with observed changes. No foundation rewrite, Harne8/gitlink change, policy adoption, or release is included. |
+| security | passed | Every supplied nonempty proof verifies before presence admission. Universal human admission requires registered SK user presence; issuer authority and UV alone cannot substitute. Folded aliases cannot override typed presence edits. |
+| solution-proportionality | passed | A versioned policy, shared admission function, and derived observation address the defect without inventing an issuer presence protocol or historical receipt. Any future issuer presence mechanism requires a new authenticated contract. |
+
+The sealed plan contains **one** material structural fact:
+
+| SD-id | Rn or Dn | causal reason |
+|---|---|---|
+| SD-0f985602 | D2 | The added prospective ADR defines schema-2 scope, explicit legacy migration, proof ordering, binding boundaries, and historical limits before implementation, providing the decision basis for the changed presence contract. |
+
+Tool dispositions below refer to inspected primary-collected evidence:
+
+| Tool | Requirement | Disposition |
+|---|---|---|
+| artifact-check | required | Passed reconciliation: 29 claims match observations; 693 warnings remain disclosed, with no scoped attribution error. |
+| surface-check | required | Passed: zero findings; current composed-capability evidence and production entrypoint inspected. |
+| validate — global | required | Passed: strict 147/147 on `ae54756`. |
+| validate — pose-mcp | required | Covered by the same global run’s module-wide test, build, vet, and registered integration results. |
+| review-check | required, completion-only | Deferred until the primary records this actual response in a fresh attestation. |
+| closeout-check | required, completion-only | Deferred until attestation and review verification complete. |
+| assess-design | recommended | Inspected sealed derived evidence and its single material fact; implementation binding matches. |
+| assess-discover | recommended | Inspected initial freshness reuse and current refresh after source/matrix changes. |
+| assess-integrate | recommended | Inspected; heuristic reports 64 contracts and 63 unobserved consumers, not proven integration failures. |
+| assess-tech-debt | recommended | Inspected; explicitly incomplete for two older invalid specs. No debt-free conclusion. |
+| suggest-review | recommended | Native rerun skipped under read-only instructions; selected backend overlay, installed workflow, and applicable rules inspected directly. |
+
+Applied rules: review workflow; security; Go backend; documentation style; delivery evidence; knowledge governance; base recurrence guidance. Frontend and infrastructure rules are inapplicable. Recurrence scanning was not rerun under the native-execution restriction; no current escalation-clear claim is made.
+
+**No new findings or accepted residual findings.** R2’s medium alias finding is corrected, including Unicode-fold aliases and canonical typed policy writes. R1 advice and R2 rejection remain historical records, not approval evidence.
+
+Assessment coverage limits, component-owner/unmapped-path warnings, synthetic SK limitations, and platform-build-versus-runtime limits remain disclosed. Completion-only review verification and closeout are still pending. This approval does not establish final-head CI completion, authorize policy adoption, or publish a release.

@@ -400,9 +400,17 @@
           "scope": "B03 managed start and versioned contract recorded before implementation. Source4dc8277 implements explicit presence scope, migration and domain/CLI/MCP regressions; current strict validation and fresh separate review remain pending. No policy adoption or release.",
           "unit_complete": false,
           "source_revision": "4dc8277a826a409e21f1978e425fdab5199a991f"
+        },
+        {
+          "scope": "B03 native functional closeout: current147/147, actual sealed separate Codex review all15criteria, attestation rva-eeaa489d1572aa48, terminal true no blockers. Explicit migration/scope and proof/disclosure qualified. Publication on remote main remains pending final metadata PR203 CI/merge; no release or instance policy adopted.",
+          "unit_complete": true,
+          "source_revision": "ae54756f7e8f41f661e40326e2a05821502e88f7",
+          "completed_at": "2026-10-23",
+          "bundle": "rvb-343f8deb0f9be466",
+          "pull_request": 203
         }
       ],
-      "delivery_complete": false,
+      "delivery_complete": true,
       "native_spec_dependencies": [
         "pose-historical-trust-and-review-reuse",
         "pose-action-answers-reverify-on-read",
@@ -5323,16 +5331,17 @@
     }
   ],
   "implementation_reconciliation": {
-    "at": "2026-10-17",
-    "main_revision": "0b2a726f6167da32cfefda267b8372ec504a4b14",
-    "selected_unit": "B06",
-    "selected_spec": "pose-source-coverage-integrity",
-    "basis": "B06 independently reviewed at 67f25e79, native approved review and closeout complete; two low diagnostic followups remain open.",
-    "unit_delivery_complete_count": 8,
-    "administrative_closeouts": "Authoring closeouts remain separate and pending; materialization is not functional delivery.",
-    "previous_complementary_pull_request": 193,
-    "previous_complementary_merged": true,
+    "at": "2026-10-23",
+    "baseline_main_revision": "c4f814b82bd39223699f82979568fc973abcfcd0",
+    "source_revision": "ae54756f7e8f41f661e40326e2a05821502e88f7",
+    "selected_unit": "B03",
+    "selected_spec": "pose-proof-presence-channel-parity",
+    "basis": "Native current evidence, actual independent review and terminal functional closeout passed; delivery_complete follows closure_policy and does not claim remote publication.",
+    "unit_delivery_complete_count": 10,
+    "administrative_closeouts": "Authoring closeouts remain separate; roadmap/program are not closed by this spec.",
     "native_closeout_pending": false,
-    "next_step": "Await maintainer merge of PR194, then reassess native DAG/readiness; no next implementation selected."
+    "pull_request": 203,
+    "remote_publication": "pending final-head CI, exact-head merge and postmerge verification",
+    "next_step": "Publish this individual spec after all final-head checks pass, verify postmerge CI; do not wait for other specs or adopt policy/release."
   }
 }

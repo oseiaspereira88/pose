@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-23T16:23:50Z
-baseline_commit: a7af88ff481088ba63f7a8aeeed572f55e6715a2
+generated_at: 2026-10-23T23:20:06Z
+baseline_commit: ae54756f7e8f41f661e40326e2a05821502e88f7
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:2d2429643178 -->
+<!-- state:derived hash:76e949009a64 -->
 
-- specs: total=446 draft=32 in-progress=17 blocked=0 done=396 superseded=0 abandoned=1
+- specs: total=446 draft=31 in-progress=17 blocked=0 done=397 superseded=0 abandoned=1
 - roadmaps: total=22 active=3 done=11
 - últimos closeouts:
+  - spec:pose-proof-presence-channel-parity (2026-10-23)
   - spec:pose-update-dry-run-reports-the-whole-update (2026-10-23)
-  - spec:pose-action-target-and-node-scoping (2026-10-22)
   - spec:pose-distributed-instructions-parity (2026-10-22)
   - spec:pose-spec-facts-evidence-binding (2026-10-22)
-  - spec:pose-git-and-dispatch-snapshot-integrity (2026-10-21)
-  - ... e mais 391 (ver `pose_list_specs status:done`)
+  - spec:pose-action-target-and-node-scoping (2026-10-22)
+  - ... e mais 392 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:6357eafaa9a8 -->
@@ -76,22 +76,22 @@ capacidade.
 - knowledge: total=13 ativo=13 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:753c269eb329 -->
+<!-- state:derived hash:8d7e3a64476c -->
 
-- último registro: task=validate-native outcome=pass (2026-10-23T12:55:39Z)
-- últimos 30 dias: total=102 outcome_ok=76 outcome_outro=26
-- reports revisados (.md): total=261
-  - report:2026-10-23-b29-pending-closeout.md
-  - report:2026-10-23-b29-pending-review-r1.md
+- último registro: task=validate-native outcome=pass (2026-10-23T22:56:53Z)
+- últimos 30 dias: total=108 outcome_ok=79 outcome_outro=29
+- reports revisados (.md): total=265
+  - report:2026-10-23-b03-implementation.md
+  - report:2026-10-23-b03-independent-review.md
   - report:2026-10-23-standard-validate-native.md
-  - report:2026-10-23-standard-b29-update-preview-source-qualification.md
-  - report:2026-10-22-b29-update-preview-implementation.md
+  - report:2026-10-23-b29-pending-review-r1.md
+  - report:2026-10-23-standard-b29-security-boundary-final-source-qualification.md
 
 ## Arquitetura
-<!-- state:derived hash:db20874c55f5 status:active -->
+<!-- state:derived hash:147d8d5fa392 status:active -->
 
 - componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=81658 testes=72125 total=153783
+- linhas_de_codigo: producao=81858 testes=72797 total=154655
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63
