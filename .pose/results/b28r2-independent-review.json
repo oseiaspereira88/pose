@@ -1,0 +1,2050 @@
+{
+  "schema_version": 1,
+  "review": "b28r2",
+  "date": "2026-10-18",
+  "repository": "oseiaspereira88/pose",
+  "pr": 196,
+  "head": "f22be495c10a5aaf1780bf42da967acde937f0ca",
+  "comparison": "origin/main...HEAD",
+  "spec": "pose-distributed-instructions-parity",
+  "reviewer": {
+    "id": "agent:independent-gpt-6.1-sol-review",
+    "tool": "Codex",
+    "vendor": "OpenAI",
+    "implementer_vendor": "Anthropic",
+    "implementer_tool": "Claude",
+    "identity_assurance": "declared",
+    "separation_assurance": "declared",
+    "envelope": null
+  },
+  "decision": "changes-requested",
+  "sealed": false,
+  "attested": false,
+  "committed": false,
+  "pushed": false,
+  "policy_changed": false,
+  "issuer_pin_added": false,
+  "bundle": {
+    "state": "prepared",
+    "id": "rvb-9e506118538fb200",
+    "digest": "sha256:9e506118538fb2009e461b9414f03260cb2998c326290abcb5427d6652f07535",
+    "plan_digest": "sha256:916f1610eaabb566f58c1c7b2ed9001d03784d563de0f7a2851cb35946bd3aae",
+    "patch_digest": "sha256:b5e9db60c5271b15ca9e6af493909eff46c0f529b60b00a5271e9fb8e52ca796",
+    "tree_digest": "sha256:47ff3a5bbf9681b434d4d7c0e50411ba4d5eb2bbea401c29c1cc6ac79ccdfa57"
+  },
+  "findings": [
+    {
+      "id": "B1",
+      "classification": "merge-blocker",
+      "severity": "medium",
+      "title": "Task/listas null produzem trilha vazia com sucesso",
+      "location": "suggest.go:73,176,199,205"
+    },
+    {
+      "id": "B2",
+      "classification": "merge-blocker",
+      "severity": "medium",
+      "title": "Repo-map sem schema validado perde regras ou inventa módulo raiz",
+      "location": "suggest.go:251-278"
+    },
+    {
+      "id": "B3",
+      "classification": "merge-blocker",
+      "severity": "medium",
+      "title": "Links quebrados de regra/raiz viram ausência e instalação sugerida",
+      "location": "rule_extension_resolver.go:136-145"
+    },
+    {
+      "id": "B4",
+      "classification": "merge-blocker",
+      "severity": "medium",
+      "title": "Inventário instalado ignora erros; perda de AGENTS faz skip",
+      "location": "distributed_instructions_parity_test.go:44,225-243"
+    },
+    {
+      "id": "F1",
+      "classification": "acceptable-follow-up",
+      "severity": "low",
+      "title": "Humano omite alias/source explícitos",
+      "location": "suggest.go:139",
+      "owner": "@core",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "F2",
+      "classification": "acceptable-follow-up",
+      "severity": "low",
+      "title": "MCP recusa alias Go conservadoramente",
+      "location": "internal/pose/cli.go:34",
+      "owner": "@core",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "F3",
+      "classification": "acceptable-follow-up",
+      "severity": "low",
+      "title": "Dry-run ainda fala em 6.x",
+      "location": "internal/pose/legacy_inventory.go:49",
+      "owner": "@core",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "F4",
+      "classification": "acceptable-follow-up",
+      "severity": "low",
+      "title": "Executores b14/b15 ainda usam shell/heurística fraca",
+      "location": "b14-mutations.py,b15-mutations.py",
+      "owner": "@core",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "F5",
+      "classification": "acceptable-follow-up",
+      "severity": "low",
+      "title": "Doctor recomenda instalação de regra ilegível",
+      "location": "doctor.go:564",
+      "owner": "@core",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "F6",
+      "classification": "acceptable-follow-up",
+      "severity": "low",
+      "title": "Linha vazia adicional no EOF do parecer anterior",
+      "location": "2026-10-18-pose-b28-d7ebc300-independent-review.md:173",
+      "owner": "@core",
+      "review_by": "2026-12-01"
+    }
+  ],
+  "validation": {
+    "schema_version": 1,
+    "generated_at": "2026-10-18T12:21:04Z",
+    "mode": "strict",
+    "git_head": "f22be495c10a5aaf1780bf42da967acde937f0ca",
+    "matrix_sha256": "sha256:03128e18e7af189c7c4af926490fc639f6667efd67fc78c24d3f1ff92dedc754",
+    "provenance_digest": "sha256:b5b0ccc52aa8875a87bb5488bb3b83439beedc6a8d1d336a451cdaa3d280df05",
+    "outcome": "pass",
+    "counts": {
+      "executed": 140,
+      "passed": 140,
+      "failed": 0,
+      "optional_failed": 0,
+      "errored": 0,
+      "skipped": 0
+    }
+  },
+  "validation_checks": [
+    {
+      "id": "mcp-enforce/go/build",
+      "module": "mcp-enforce",
+      "stack": "go",
+      "name": "build",
+      "severity": "required",
+      "evidence_class": "build",
+      "outcome": "pass"
+    },
+    {
+      "id": "mcp-enforce/go/test",
+      "module": "mcp-enforce",
+      "stack": "go",
+      "name": "test",
+      "severity": "required",
+      "evidence_class": "unit",
+      "outcome": "pass"
+    },
+    {
+      "id": "mcp-enforce/go/vet",
+      "module": "mcp-enforce",
+      "stack": "go",
+      "name": "vet",
+      "severity": "optional",
+      "evidence_class": "lint",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/build",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "build",
+      "severity": "required",
+      "evidence_class": "build",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/test",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "test",
+      "severity": "required",
+      "evidence_class": "unit",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/vet",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "vet",
+      "severity": "optional",
+      "evidence_class": "lint",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/release-review-archive-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "release-review-archive-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/abm-retrospective-replay-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "abm-retrospective-replay-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/abm-replay-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "abm-replay-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/review-soundness-residuals-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "review-soundness-residuals-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/governance-outcomes-v2-contract",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "governance-outcomes-v2-contract",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/abm-remediation-lineage-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "abm-remediation-lineage-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/abm-contract-nodes-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "abm-contract-nodes-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/abm-atomic-start-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "abm-atomic-start-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/abm-causality-closeout-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "abm-causality-closeout-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/abm-progressive-review-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "abm-progressive-review-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/artifact-claim-boundary-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "artifact-claim-boundary-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/check-verdict-mode-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "check-verdict-mode-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/project-id-derivation-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "project-id-derivation-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/calendar-date-skew-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "calendar-date-skew-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/test-git-isolation-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "test-git-isolation-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/release-needs-ci-contract",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "release-needs-ci-contract",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/attention-snapshot-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "attention-snapshot-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/recurrence-flapping-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "recurrence-flapping-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/attention-sources-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "attention-sources-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/check-git-spawns-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "check-git-spawns-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/range-ownership-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "range-ownership-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/locale-obligation-flags-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "locale-obligation-flags-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/trace-test-refs-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "trace-test-refs-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/red-signal-contract",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "red-signal-contract",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/completed-review-retention-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "completed-review-retention-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/review-subject-capabilities-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "review-subject-capabilities-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/public-claims-release-line-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "public-claims-release-line-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/lint-spec-all-gate-contract",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "lint-spec-all-gate-contract",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/machine-channel-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "machine-channel-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/usage-adjudication-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "usage-adjudication-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/usage-adjudication-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "usage-adjudication-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/delivery-graph-reuse-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "delivery-graph-reuse-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/parse-memo-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "parse-memo-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/parallel-gate-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "parallel-gate-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/check-workers-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "check-workers-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/review-policy-adoption-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "review-policy-adoption-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/delivery-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "delivery-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/delivery-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "delivery-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/review-bundle-convergence",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "review-bundle-convergence",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/qualified-artifact-resolution-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "qualified-artifact-resolution-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/federated-roadmap-acceptance-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "federated-roadmap-acceptance-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/federated-spec-acceptance-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "federated-spec-acceptance-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/federated-roadmap-negative-gates",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "federated-roadmap-negative-gates",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/spec-authority-transfer-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "spec-authority-transfer-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/spec-authority-transfer-negative-gates",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "spec-authority-transfer-negative-gates",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/spec-authority-transfer-mcp-status",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "spec-authority-transfer-mcp-status",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/multi-repo-agent-context-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "multi-repo-agent-context-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/multi-repo-agent-context-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "multi-repo-agent-context-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/multi-repo-agent-negative-gates",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "multi-repo-agent-negative-gates",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/multi-repo-agent-installed-journey",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "multi-repo-agent-installed-journey",
+      "severity": "required",
+      "evidence_class": "e2e",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/dependabot-runtime-repair-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "dependabot-runtime-repair-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/ci-release-obligations-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "ci-release-obligations-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/cli-profile-parity-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "cli-profile-parity-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/extension-target-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "extension-target-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/release-version-source-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "release-version-source-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/delivery-integrity-index-compaction-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "delivery-integrity-index-compaction-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/release-version-source-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "release-version-source-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/clean-activation-recording-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "clean-activation-recording-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/legacy-contract-cutoffs-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "legacy-contract-cutoffs-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/legacy-contract-cutoffs-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "legacy-contract-cutoffs-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/public-claims-provenance-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "public-claims-provenance-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/public-claims-provenance-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "public-claims-provenance-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/review-assurance-disclosure-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "review-assurance-disclosure-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/review-assurance-disclosure-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "review-assurance-disclosure-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/review-attribution-roles-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "review-attribution-roles-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/review-attribution-roles-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "review-attribution-roles-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/blocked-semantics-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "blocked-semantics-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/blocked-semantics-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "blocked-semantics-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/flat-spec-amendments-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "flat-spec-amendments-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/flat-spec-amendments-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "flat-spec-amendments-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/obligation-contract-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "obligation-contract-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/effective-governance-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "effective-governance-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/effective-governance-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "effective-governance-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/adversarial-corpus",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "adversarial-corpus",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/typed-diagnostics-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "typed-diagnostics-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/typed-diagnostics-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "typed-diagnostics-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/obligation-projection-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "obligation-projection-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/state-attention-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "state-attention-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/action-requests-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "action-requests-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/action-resolution-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "action-resolution-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/action-resolution-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "action-resolution-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/phase-readiness-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "phase-readiness-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/phase-readiness-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "phase-readiness-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/governed-effects-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "governed-effects-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/governed-effects-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "governed-effects-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/transfer-actions-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "transfer-actions-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/closeout-plan-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "closeout-plan-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/closeout-plan-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "closeout-plan-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/material-reuse-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "material-reuse-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/assessment-freshness-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "assessment-freshness-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/followup-candidates-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "followup-candidates-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/followup-candidates-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "followup-candidates-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/action-presentation-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "action-presentation-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/spec-surface-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "spec-surface-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/spec-surface-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "spec-surface-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/premise-validity-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "premise-validity-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/falsifier-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "falsifier-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/migrate-dryrun-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "migrate-dryrun-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/action-identity-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "action-identity-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/adversarial-corpus-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "adversarial-corpus-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/governance-waits-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "governance-waits-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/action-requests-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "action-requests-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/governance-waits-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "governance-waits-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/migrate-dryrun-reachability",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "migrate-dryrun-reachability",
+      "severity": "required",
+      "evidence_class": "reachability",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/state-attention-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "state-attention-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/atomic-start-cutoff-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "atomic-start-cutoff-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/validation-check-materiality-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "validation-check-materiality-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/causality-cutoff-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "causality-cutoff-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/attest-preflight-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "attest-preflight-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/governed-capabilities-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "governed-capabilities-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/authority-project-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "authority-project-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/qualified-followup-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "qualified-followup-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/recurrence-cluster-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "recurrence-cluster-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/project-identity-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "project-identity-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/capability-catalog-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "capability-catalog-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/init-is-install-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "init-is-install-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/fresh-install-health-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "fresh-install-health-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/signed-action-answers-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "signed-action-answers-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/mcp-review-attest-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "mcp-review-attest-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/mcp-action-resolve-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "mcp-action-resolve-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/setup-command-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "setup-command-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/onboarding-spec-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "onboarding-spec-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/configuration-review-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "configuration-review-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/quickstart-real-lifecycle-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "quickstart-real-lifecycle-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/install-and-upgrade-journeys-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "install-and-upgrade-journeys-integration",
+      "env": {
+        "POSE_JOURNEYS": "1"
+      },
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/historical-trust-reuse-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "historical-trust-reuse-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/review-approval-domain-preflight-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "review-approval-domain-preflight-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/cli-mcp-operation-results-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "cli-mcp-operation-results-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "journal-checkpoint-and-lock-recovery-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/distributed-instructions-parity-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "distributed-instructions-parity-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "writer-coordination-and-atomic-publication-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/source-coverage-integrity-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "source-coverage-integrity-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/index-generation-integrity-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "index-generation-integrity-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    },
+    {
+      "id": "pose-mcp/go/test-scripts-remove-their-temp-files-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "test-scripts-remove-their-temp-files-integration",
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass"
+    }
+  ],
+  "validation_log_tail": "pserver ./internal/scaffold/distpolicy -run IndexGeneration|TestIndexPublishes|TestIndexJSONReports|TestIndexVerify|TestIndexWithABlocked|TestRefreshDeliveryIndex|ReadsAPublishedGeneration|DoesNotInferADomain|TestIndexAnUnsyncedCommit|TestIndexWithAnotherPublication -count=1\n  <- index-generation-integrity-integration pass 3.4s\n  -> test-scripts-remove-their-temp-files-integration bash ../tests/hygiene/temp-cleanup.sh\n  <- test-scripts-remove-their-temp-files-integration pass 2.3s\n[module] scripts (contract, mode=strict)\n[module] tests (contract, mode=strict)\n140 step(s) · 140 pass · 283.3s\nResult: SUCCESS\njson: /home/go/.cache/pose-work/b28/pose-dist/.pose/results/b28r2-validation.tmp.json\n",
+  "validation_file_sha256": "2b7a38989f45f2bebcafbc046527bb6859c64b6a33701443f1246bdbc313e786",
+  "validation_scoped_provenance": "sha256:18d7b3f750c1ff7ea6d5bc23181a4c7896a711fd3edb222e2a845307ecaefe85",
+  "checks": [
+    {
+      "command": "pose context --task spec:pose-distributed-instructions-parity --json",
+      "exit_code": 0,
+      "stdout_tail": "on\": {\n    \"schema_version\": 1,\n    \"identity\": {\n      \"project_id\": \"proj.pose-dist\",\n      \"kind\": \"spec\",\n      \"slug\": \"pose-distributed-instructions-parity\"\n    },\n    \"resolved\": true,\n    \"resolution_state\": \"resolved\",\n    \"status\": \"in-progress\",\n    \"source_revision\": \"f22be495c10a5aaf1780bf42da967acde937f0ca\",\n    \"source_digest\": \"9ca8b1bed3fc08473d05ff6eee45a7589175a56388fa873e0c386ca101985110\",\n    \"dependencies\": [\n      {\n        \"project_id\": \"proj.pose-dist\",\n        \"kind\": \"spec\",\n        \"slug\": \"pose-adaptive-assessment-freshness\"\n      },\n      {\n        \"project_id\": \"proj.pose-dist\",\n        \"kind\": \"spec\",\n        \"slug\": \"pose-v7-legacy-cleanup-plan\"\n      }\n    ]\n  },\n  \"authority_revision\": \"f22be495c10a5aaf1780bf42da967acde937f0ca\",\n  \"supported_contracts\": [\n    \"qualified-artifact-refs@1\",\n    \"spec-authority-transfer@1\",\n    \"federated-roadmap-acceptance@1\"\n  ],\n  \"context_revision\": \"d38df1a87e6613374736eb7e5ba4054b663b23fbbea582f7408824f7a109f841\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": "pose review bundle spec:pose-distributed-instructions-parity --explain",
+      "exit_code": 0,
+      "stdout_tail": "ponent path:.pose/reports/2026-10-18-pose-b28-d7ebc300-independent-review.md\n[WARN] unmapped review component path:.pose/reports/2026-10-18-pose-b28-independent-review.md\n[WARN] unmapped review component path:.pose/results/b28-d7ebc300-independent-review.json\n[WARN] unmapped review component path:.pose/results/b28-mutations.json\n[WARN] unmapped review component path:.pose/results/b28-mutations.py\n[WARN] unmapped review component path:.pose/rules/delivery-evidence.md\n[WARN] unmapped review component path:.pose/specs/2026-10-13-pose-distributed-instructions-parity.md\n[WARN] unmapped review component path:.pose/starts/pose-distributed-instructions-parity.json\n[WARN] unmapped review component path:.pose/workflows/feature.md\n[WARN] unmapped review component path:POSE.md\n[WARN] unmapped review component path:locales/pt-BR/.pose/rules/delivery-evidence.md\n[WARN] unmapped review component path:locales/pt-BR/.pose/workflows/feature.md\n[WARN] unmapped review component path:locales/pt-BR/POSE.md\n",
+      "stderr": ""
+    },
+    {
+      "command": "pose review-plan spec:pose-distributed-instructions-parity --json",
+      "exit_code": 0,
+      "stdout_tail": "ts/b28-mutations.py\",\n    \"unmapped review component path:.pose/rules/delivery-evidence.md\",\n    \"unmapped review component path:.pose/specs/2026-10-13-pose-distributed-instructions-parity.md\",\n    \"unmapped review component path:.pose/starts/pose-distributed-instructions-parity.json\",\n    \"unmapped review component path:.pose/workflows/feature.md\",\n    \"unmapped review component path:POSE.md\",\n    \"unmapped review component path:locales/pt-BR/.pose/rules/delivery-evidence.md\",\n    \"unmapped review component path:locales/pt-BR/.pose/workflows/feature.md\",\n    \"unmapped review component path:locales/pt-BR/POSE.md\"\n  ],\n  \"explain\": [\n    \"base profile spec-closeout@1 selected by spec scope policy\",\n    \"backend-review@1 selected: matched typed language selector\",\n    \"engineering-judgment@1 selected: matched typed delivery selector\",\n    \"high-criticality-review@1 selected: matched typed delivery selector\",\n    \"structural-materiality@1 selected: matched typed structure selector\"\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": "pose assess tech-debt --json",
+      "exit_code": 0,
+      "stdout_tail": "tance-engine-version-tracking.md\",\n        \"kind\": \"invalid\",\n        \"detail\": \"a follow-up bullet has no description\"\n      },\n      {\n        \"producer\": \"techdebt-reconciliation\",\n        \"artifact\": \".pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md\",\n        \"kind\": \"invalid\",\n        \"detail\": \"a follow-up bullet has no description\"\n      }\n    ],\n    \"exclusions\": [\n      {\n        \"producer\": \"assessment-scan\",\n        \"pattern\": \"generated-header\",\n        \"reason\": \"files that declare themselves generated are not scanned\",\n        \"count\": 1,\n        \"examples\": [\n          \"pose-mcp/internal/pose/assessment_scan.go\"\n        ]\n      },\n      {\n        \"producer\": \"assessment-scan\",\n        \"pattern\": \"skipped-directory\",\n        \"reason\": \"directories that hold dependencies, build output or tool state are not scanned\",\n        \"count\": 36,\n        \"examples\": [\n          \".agents\",\n          \".claude\",\n          \".docs-site-build\"\n        ]\n      }\n    ]\n  }\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": "pose assess integrate --json",
+      "exit_code": 0,
+      "stdout_tail": "A provider declaration was observed, but no repository consumer reference was found.\"\n    },\n    {\n      \"gap_id\": \"GAP-7baa2119\",\n      \"title\": \"No consumer observed for HTTP /admin/refresh\",\n      \"severity\": \"medium\",\n      \"provider\": \"pose-mcp\",\n      \"consumer\": \"unobserved\",\n      \"description\": \"A provider declaration was observed, but no repository consumer reference was found.\"\n    },\n    {\n      \"gap_id\": \"GAP-61862039\",\n      \"title\": \"No consumer observed for HTTP /healthz\",\n      \"severity\": \"medium\",\n      \"provider\": \"pose-mcp\",\n      \"consumer\": \"unobserved\",\n      \"description\": \"A provider declaration was observed, but no repository consumer reference was found.\"\n    },\n    {\n      \"gap_id\": \"GAP-0338c2bf\",\n      \"title\": \"No consumer observed for HTTP /mcp\",\n      \"severity\": \"medium\",\n      \"provider\": \"pose-mcp\",\n      \"consumer\": \"unobserved\",\n      \"description\": \"A provider declaration was observed, but no repository consumer reference was found.\"\n    }\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": "pose assess design --spec pose-distributed-instructions-parity --json",
+      "exit_code": 0,
+      "stdout_tail": "ad4935af\",\"kind\":\"validation-check\",\"action\":\"added\",\"state\":\"observed\",\"subject\":\"moduleOverrides.pose-mcp:distributed-instructions-parity-integration\",\"path\":\".pose/indexes/validation-matrix.json\"},{\"id\":\"sd-f906fe94f1cc0a07213442e24a0f4e4a\",\"display_id\":\"SD-f906fe94\",\"kind\":\"governance-contract\",\"action\":\"changed\",\"state\":\"observed\",\"subject\":\".pose/rules/delivery-evidence.md\",\"path\":\".pose/rules/delivery-evidence.md\",\"before_digest\":\"sha256:197bd1ea1e06875ade4488794b3801557a96e42ede4f9afa6495f999e0461fc3\",\"after_digest\":\"sha256:ecc29e3120c5148dfe4c4f240ae5dcf948ca09f465eca94bc3bec6079f777e72\"},{\"id\":\"sd-bc5a864b31c8cc2592688a05ef2d526c\",\"display_id\":\"SD-bc5a864b\",\"kind\":\"governance-contract\",\"action\":\"changed\",\"state\":\"observed\",\"subject\":\".pose/workflows/feature.md\",\"path\":\".pose/workflows/feature.md\",\"before_digest\":\"sha256:b3d427211f95b1563e15c4e3cda4f36fa8ccb34abc717580eb442f323ec97388\",\"after_digest\":\"sha256:d59b126e7db6ed49dfc1ee3be92ce569b6b731c4bac5d0b16f164abf00294ffa\"}]}\n",
+      "stderr": ""
+    },
+    {
+      "command": "pose recurrence-check --tolerant --window-days 14 --json",
+      "exit_code": 0,
+      "stdout_tail": "{\n  \"schema_version\": 1,\n  \"command\": \"recurrence-check\",\n  \"outcome\": \"pass\",\n  \"verdict\": \"SUCCESS — no recurrent failure\",\n  \"findings\": [],\n  \"fields\": {\n    \"recurrence.flagged_keys\": \"0\",\n    \"recurrence.flapping_keys\": \"0\",\n    \"recurrence.records_scanned\": \"393\",\n    \"recurrence.resolved_clusters\": \"0\",\n    \"recurrence.threshold\": \"3\",\n    \"recurrence.window_days\": \"14\"\n  }\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": "pose check --strict",
+      "exit_code": 0,
+      "stdout_tail": "c without a changelog fragment: pose-abm-subject-evidence\n⚠ warning changelog: done spec without a changelog fragment: pose-check-qualified-roadmap-members\n⚠ warning changelog: done spec without a changelog fragment: pose-dist-adopts-spec-authority-transfer\n⚠ warning changelog: done spec without a changelog fragment: pose-federated-external-milestone-members\n⚠ warning changelog: done spec without a changelog fragment: pose-review-bundle-classifies-transfer-records\n⚠ warning changelog: done spec without a changelog fragment: pose-spec-transfer-completion-and-references\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-capability-adoption\n⚠ warning changelog: done spec without a changelog fragment: pose-open-backlog-reconciliation\n⚠ warning capabilities: assessment is 62 days old (policy: 30); consider reassessing\n⚠ warning capabilities: baseline_commit is 1542 commits behind HEAD (policy: 200); consider reassessing\nResult: SUCCESS — (strict mode) with 29 warning(s).\n",
+      "stderr": ""
+    },
+    {
+      "command": "pose skills-check --strict",
+      "exit_code": 0,
+      "stdout_tail": "skills.checked=22\nskills.errors=0\nskills.warnings=0\nResult: SUCCESS\n",
+      "stderr": ""
+    },
+    {
+      "command": "pose lint-spec pose-distributed-instructions-parity --strict",
+      "exit_code": 0,
+      "stdout_tail": "---\n⚠ warning section pose-distributed-instructions-parity\n    optional section missing: Tasks\nspec.path=/home/go/.cache/pose-work/b28/pose-dist/.pose/specs/2026-10-13-pose-distributed-instructions-parity.md\nspec.status=in-progress\nspec.sections.total=6\nspec.sections.filled=6\nspec.sections.skeleton=0\nspec.sections.empty=0\nspec.required.missing=0\nspec.followups.total=4\nspec.followups.open=4\nspec.lifecycle.failures=0\nspec.requirements.ids=8\nspec.requirements.duplicate_failures=0\nspec.trace.present=true\nspec.trace.entries=8\nspec.trace.missing=0\nspec.trace.failures=0\nspec.amendments.events=0\nspec.amendments.failures=0\n\nlint.specs.checked=1\nlint.specs.failed=0\nResultado: SUCESSO\n",
+      "stderr": ""
+    },
+    {
+      "command": "pose index --verify",
+      "exit_code": 1,
+      "stdout_tail": "",
+      "stderr": "Error: pose index: generation gen-526da7b1f5901881 is whole, but delivery-integrity.json under .pose/indexes differ from it (edited by hand, or a publication is running); run `pose index`\n"
+    }
+  ],
+  "targeted_tests": {
+    "exit_code": 0,
+    "output": "ok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.664s\n"
+  },
+  "artifact_check": {
+    "exit_code": 0,
+    "claims": 30,
+    "observed": 36,
+    "attributed_commits": [
+      "a358ec23dd1e6e276e24674b1a150b3e545f5736",
+      "cc590314f844db9074a3414d13df0a3ac6ae144f",
+      "d7ebc3001168a2121d1f8dbd493a659d4d8e1f5f",
+      "110abe66ccc184d978cdd55b18c9e7e8225d4226",
+      "bcb2db1d5174408a4bedef68994b3bf268c474a0",
+      "af7d17775c9a80e8bb1093e33b4e95bb1dedc5da",
+      "f22be495c10a5aaf1780bf42da967acde937f0ca"
+    ],
+    "global_findings": 641,
+    "scoped_findings": []
+  },
+  "committed_generation": [
+    {
+      "name": "repo-map.json",
+      "hash_matches": true,
+      "bytes_match": true
+    },
+    {
+      "name": "services.json",
+      "hash_matches": true,
+      "bytes_match": true
+    },
+    {
+      "name": "packages.json",
+      "hash_matches": true,
+      "bytes_match": true
+    },
+    {
+      "name": "spec-graph.json",
+      "hash_matches": true,
+      "bytes_match": true
+    },
+    {
+      "name": "roadmaps.json",
+      "hash_matches": true,
+      "bytes_match": true
+    },
+    {
+      "name": "delivery-integrity.json",
+      "hash_matches": true,
+      "bytes_match": true
+    },
+    {
+      "name": "releases.json",
+      "hash_matches": true,
+      "bytes_match": true
+    }
+  ],
+  "isolated_index_verify": {
+    "args": [
+      "index",
+      "--verify"
+    ],
+    "exit": 0,
+    "stdout": "index generation gen-333c4389547a4b43 is current\n",
+    "stderr": ""
+  },
+  "tech_debt": {
+    "exit_code": 0,
+    "summary": {
+      "total_markers": 1,
+      "todos": 1,
+      "fixmes": 0,
+      "panics": 0,
+      "stubs": 0,
+      "covered_count": 1,
+      "uncovered_count": 0,
+      "recommended_followups": 0,
+      "recommended_specs": 0,
+      "recommended_roadmaps": 0
+    },
+    "complete": false,
+    "coverage": {
+      "losses": [
+        {
+          "producer": "techdebt-reconciliation",
+          "artifact": ".pose/specs/2026-08-15-pose-instance-engine-version-tracking.md",
+          "kind": "invalid",
+          "detail": "a follow-up bullet has no description"
+        },
+        {
+          "producer": "techdebt-reconciliation",
+          "artifact": ".pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md",
+          "kind": "invalid",
+          "detail": "a follow-up bullet has no description"
+        }
+      ],
+      "exclusions": [
+        {
+          "producer": "assessment-scan",
+          "pattern": "generated-header",
+          "reason": "files that declare themselves generated are not scanned",
+          "count": 1,
+          "examples": [
+            "pose-mcp/internal/pose/assessment_scan.go"
+          ]
+        },
+        {
+          "producer": "assessment-scan",
+          "pattern": "skipped-directory",
+          "reason": "directories that hold dependencies, build output or tool state are not scanned",
+          "count": 36,
+          "examples": [
+            ".agents",
+            ".claude",
+            ".docs-site-build"
+          ]
+        }
+      ]
+    }
+  },
+  "integrate": {
+    "exit_code": 0,
+    "summary": {
+      "total_integrations": 64,
+      "active_contracts": 1,
+      "identified_gaps": 63
+    },
+    "interpretation": "unobserved static consumers are not demonstrated regressions"
+  },
+  "design": {
+    "exit_code": 0,
+    "status": "observed",
+    "coverage": {
+      "files_in_subject": 24,
+      "files_observed": 24,
+      "bytes_read": 1417644,
+      "max_files": 4096,
+      "max_bytes": 16777216,
+      "detectors": [
+        {
+          "id": "dependency-go",
+          "state": "not-applicable"
+        },
+        {
+          "id": "dependency-npm",
+          "state": "not-applicable"
+        },
+        {
+          "id": "component",
+          "state": "not-applicable"
+        },
+        {
+          "id": "delivery-metadata",
+          "state": "observed",
+          "observed": 1
+        },
+        {
+          "id": "governance-contract",
+          "state": "observed",
+          "observed": 2
+        },
+        {
+          "id": "public-contract",
+          "state": "not-applicable"
+        },
+        {
+          "id": "git-actions",
+          "state": "observed",
+          "observed": 24
+        }
+      ]
+    }
+  },
+  "journeys": [
+    {
+      "locale": "en",
+      "install_exit": 0,
+      "update_exit": 0,
+      "policy_unchanged": true,
+      "files": 36,
+      "unconditional": []
+    },
+    {
+      "locale": "pt-BR",
+      "install_exit": 0,
+      "update_exit": 0,
+      "policy_unchanged": true,
+      "files": 36,
+      "unconditional": []
+    }
+  ],
+  "probes": [
+    {
+      "case": "null-task",
+      "exit": 0,
+      "stdout": "{\n  \"domain_source\": \"repo-map-unavailable\",\n  \"domain_status\": \"the repo-map could not be read (open /tmp/tmpy3kkumgo/.pose/indexes/repo-map.json: no such file or directory)\",\n  \"name\": \"feature\",\n  \"path_input\": \"svc/main.py\",\n  \"rules_status\": []\n}\n",
+      "stderr": "pose suggest: the repo-map could not be read (open /tmp/tmpy3kkumgo/.pose/indexes/repo-map.json: no such file or directory); the trail below has no domain rules\n"
+    },
+    {
+      "case": "null-base",
+      "exit": 0,
+      "stdout": "{\n  \"domain_effective\": \"backend-go\",\n  \"domain_source\": \"repo-map\",\n  \"name\": \"feature\",\n  \"path_input\": \"svc/main.py\",\n  \"rules\": null,\n  \"rules_by_domain\": {\n    \"backend-go\": null\n  },\n  \"rules_effective\": null,\n  \"rules_status\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "case": "wrong-repo-collection",
+      "exit": 0,
+      "stdout": "{\n  \"domain_source\": \"repo-map-no-match\",\n  \"domain_status\": \"no domain inferred\",\n  \"name\": \"feature\",\n  \"path_input\": \"svc/main.py\",\n  \"rules\": [\n    \"security\"\n  ],\n  \"rules_by_domain\": {\n    \"backend-go\": [\n      \"backend-go\"\n    ]\n  },\n  \"rules_status\": [\n    {\n      \"rule\": \"security\",\n      \"availability\": \"installed\",\n      \"path\": \".pose/rules/security.md\"\n    }\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "case": "wrong-repo-element",
+      "exit": 0,
+      "stdout": "{\n  \"domain_effective\": \"backend-go\",\n  \"domain_source\": \"repo-map\",\n  \"name\": \"feature\",\n  \"path_input\": \"svc/main.py\",\n  \"rules\": [\n    \"security\"\n  ],\n  \"rules_by_domain\": {\n    \"backend-go\": [\n      \"backend-go\"\n    ]\n  },\n  \"rules_effective\": [\n    \"security\",\n    \"backend-go\"\n  ],\n  \"rules_status\": [\n    {\n      \"rule\": \"security\",\n      \"availability\": \"installed\",\n      \"path\": \".pose/rules/security.md\"\n    },\n    {\n      \"rule\": \"backend-go\",\n      \"availability\": \"extension-needed\",\n      \"extension\": \"pose-rule-backend-go\",\n      \"next_step\": \"pose extension install pose-rule-backend-go\"\n    }\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "case": "wrong-repo-path",
+      "exit": 0,
+      "stdout": "{\n  \"domain_effective\": \"backend-go\",\n  \"domain_source\": \"repo-map\",\n  \"name\": \"feature\",\n  \"path_input\": \"svc/main.py\",\n  \"rules\": [\n    \"security\"\n  ],\n  \"rules_by_domain\": {\n    \"backend-go\": [\n      \"backend-go\"\n    ]\n  },\n  \"rules_effective\": [\n    \"security\",\n    \"backend-go\"\n  ],\n  \"rules_status\": [\n    {\n      \"rule\": \"security\",\n      \"availability\": \"installed\",\n      \"path\": \".pose/rules/security.md\"\n    },\n    {\n      \"rule\": \"backend-go\",\n      \"availability\": \"extension-needed\",\n      \"extension\": \"pose-rule-backend-go\",\n      \"next_step\": \"pose extension install pose-rule-backend-go\"\n    }\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "case": "wrong-repo-domain",
+      "exit": 0,
+      "stdout": "{\n  \"domain_source\": \"repo-map-no-match\",\n  \"domain_status\": \"no domain inferred\",\n  \"name\": \"feature\",\n  \"path_input\": \"svc/main.py\",\n  \"rules\": [\n    \"security\"\n  ],\n  \"rules_by_domain\": {\n    \"backend-go\": [\n      \"backend-go\"\n    ]\n  },\n  \"rules_status\": [\n    {\n      \"rule\": \"security\",\n      \"availability\": \"installed\",\n      \"path\": \".pose/rules/security.md\"\n    }\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "case": "dangling-rule",
+      "exit": 0,
+      "stdout": "{\n  \"domain_effective\": \"backend-go\",\n  \"domain_source\": \"repo-map\",\n  \"name\": \"feature\",\n  \"path_input\": \"svc/main.py\",\n  \"rules\": [\n    \"security\"\n  ],\n  \"rules_by_domain\": {\n    \"backend-go\": [\n      \"backend-go\"\n    ]\n  },\n  \"rules_effective\": [\n    \"security\",\n    \"backend-go\"\n  ],\n  \"rules_status\": [\n    {\n      \"rule\": \"security\",\n      \"availability\": \"installed\",\n      \"path\": \".pose/rules/security.md\"\n    },\n    {\n      \"rule\": \"backend-go\",\n      \"availability\": \"extension-needed\",\n      \"extension\": \"pose-rule-backend-go\",\n      \"next_step\": \"pose extension install pose-rule-backend-go\"\n    }\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "case": "dangling-rules-root",
+      "exit": 0,
+      "stdout": "{\n  \"domain_effective\": \"backend-go\",\n  \"domain_source\": \"repo-map\",\n  \"name\": \"feature\",\n  \"path_input\": \"svc/main.py\",\n  \"rules\": [\n    \"security\"\n  ],\n  \"rules_by_domain\": {\n    \"backend-go\": [\n      \"backend-go\"\n    ]\n  },\n  \"rules_effective\": [\n    \"security\",\n    \"backend-go\"\n  ],\n  \"rules_status\": [\n    {\n      \"rule\": \"security\",\n      \"availability\": \"unavailable\"\n    },\n    {\n      \"rule\": \"backend-go\",\n      \"availability\": \"extension-needed\",\n      \"extension\": \"pose-rule-backend-go\",\n      \"next_step\": \"pose extension install pose-rule-backend-go\"\n    }\n  ]\n}\n",
+      "stderr": ""
+    }
+  ],
+  "installed_inventory_loss": {
+    "exit": 0,
+    "stdout": "=== RUN   TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale\n--- PASS: TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale (0.13s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.152s\n",
+    "stderr": "",
+    "probe": "chmod 000 installed workflow directory containing unconditional discovery; original inventory code unchanged"
+  },
+  "installed_inventory_readable_control": {
+    "exit": 1,
+    "stdout": "=== RUN   TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale\n    distributed_instructions_parity_test.go:242: .pose/workflows/unreadable-review-probe/bad.md: the installed instruction asks for an unconditional discovery: pose assess discover\n--- FAIL: TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale (0.10s)\nFAIL\nFAIL\tgithub.com/harne8/pose-mcp/internal/cli\t0.129s\nFAIL\n",
+    "stderr": ""
+  },
+  "sources_root_loss": {
+    "exit": 0,
+    "stdout": "=== RUN   TestDistributedInstructionsAskForDiscoveryOnlyWhenStale\n    distributed_instructions_parity_test.go:69: the distributed instruction sources are not part of this tree\n--- SKIP: TestDistributedInstructionsAskForDiscoveryOnlyWhenStale (0.00s)\n=== RUN   TestTheEmbeddedMirrorsOfTheWorkflowsAndRulesMatchTheSources\n    distributed_instructions_parity_test.go:88: the distributed instruction sources are not part of this tree\n--- SKIP: TestTheEmbeddedMirrorsOfTheWorkflowsAndRulesMatchTheSources (0.00s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.029s\n",
+    "stderr": ""
+  },
+  "doctor": {
+    "exit_code": 0,
+    "rule_finding": [
+      {
+        "check": "rules.stack-extension-available",
+        "level": "next",
+        "message": "1 module(s) match a rule extension not yet installed: svc (go) -> pose extension install pose-rule-backend-go",
+        "hint": "'pose extension install <id>' resolves it from the release catalog ('<path>' installs a local package) — see AGENTS.md's Domain rules section",
+        "evidence": "1 module(s) match a rule extension not yet installed: svc (go) -> pose extension install pose-rule-backend-go",
+        "remediation_class": "detectable"
+      }
+    ]
+  },
+  "adapter": {
+    "exit": 0,
+    "stdout": "=== RUN   TestB28R2ReviewAdapterProbe\n    b28r2_review_probe_test.go:7: pose_suggest: invalid domain: pose: invalid artifact name \"Go\"\n--- PASS: TestB28R2ReviewAdapterProbe (0.00s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.005s\n",
+    "stderr": ""
+  },
+  "followup_probes": [
+    {
+      "args": [
+        "suggest",
+        "feature",
+        "--domain",
+        "Go"
+      ],
+      "exit": 0,
+      "stdout": "# POSE trail — feature\n\n- Workflow:  <nil>\n- Skill:     <nil>\n- Rules:     \n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "suggest",
+        "feature",
+        "--domain",
+        "Go",
+        "--json"
+      ],
+      "exit": 0,
+      "stdout": "{\n  \"domain_effective\": \"backend-go\",\n  \"domain_input\": \"Go\",\n  \"domain_source\": \"alias\",\n  \"name\": \"feature\",\n  \"rules\": [],\n  \"rules_by_domain\": {\n    \"backend-go\": []\n  },\n  \"rules_effective\": [],\n  \"rules_status\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "migrate",
+        "v7",
+        "--dry-run",
+        "--json"
+      ],
+      "exit": 0,
+      "stdout": "{\n  \"schema_version\": 1,\n  \"classes\": [\n    {\n      \"id\": \"spec-layout-flat\",\n      \"count\": 0,\n      \"action\": \"none\",\n      \"removal_criterion\": \"current layout; nothing to retire\"\n    },\n    {\n      \"id\": \"spec-layout-folder\",\n      \"count\": 0,\n      \"action\": \"keep-read-only\",\n      \"removal_criterion\": \"folder specs stay readable; new specs are flat by default\"\n    },\n    {\n      \"id\": \"spec-layout-legacy-folder\",\n      \"count\": 0,\n      \"action\": \"convert\",\n      \"removal_criterion\": \"undated folders convert to a dated flat file when every reference resolves to the new path; zero remaining in consumers' dry-runs\"\n    },\n    {\n      \"id\": \"status-blocked\",\n      \"count\": 0,\n      \"action\": \"convert\",\n      \"removal_criterion\": \"blocked converts to in-progress plus an operational wait (action request or external wait); removable when no consumer dry-run reports a blocked spec and the adoption metrics v2 have shipped for one minor\"\n    },\n    {\n      \"id\": \"flat-spec-amendment-journals\",\n      \"count\": 0,\n      \"action\": \"none\",\n      \"removal_criterion\": \"current representation\"\n    },\n    {\n      \"id\": \"sealed-bundles\",\n      \"count\": 0,\n      \"action\": \"keep-read-only\",\n      \"removal_criterion\": \"never removed: a sealed bundle is the subject of a signed or recorded judgment\"\n    },\n    {\n      \"id\": \"sealed-bundles-without-governing-contracts\",\n      \"count\": 0,\n      \"action\": \"keep-read-only\",\n      \"removal_criterion\": \"read under the contracts their seal date implies; never re-sealed\"\n    },\n    {\n      \"id\": \"attestations-verified\",\n      \"count\": 0,\n      \"action\": \"keep-read-only\",\n      \"removal_criterion\": \"never removed\"\n    },\n    {\n      \"id\": \"attestations-declared\",\n      \"count\": 0,\n      \"action\": \"keep-read-only\",\n      \"removal_criterion\": \"declared identity stays disclosed as declared; a major may require verified identity for new attestations only\"\n    },\n    {\n      \"id\": \"attestations-legacy-undifferentiated\",\n      \"count\": 0,\n      \"action\": \"keep-read-only\",\n      \"removal_criterion\": \"rendered as legacy-undifferentiated; supplements may clarify roles without altering the signed record\"\n    },\n    {\n      \"id\": \"interrupted-transfers\",\n      \"count\": 0,\n      \"action\": \"refuse-until-resolved\",\n      \"removal_criterion\": \"a major's migration refuses to run while a transfer is incomplete; resume or roll it back first\"\n    }\n  ],\n  \"risks\": [],\n  \"writes\": [],\n  \"limitations\": [\n    \"a dry-run: nothing is written, and no apply exists in 6.x\",\n    \"counts describe this repository only; consumers' corpora must run their own dry-run before a removal is decided\"\n  ],\n  \"complete\": true,\n  \"coverage\": {\n    \"losses\": []\n  },\n  \"counts\": {\n    \"attestations-declared\": 0,\n    \"attestations-legacy-undifferentiated\": 0,\n    \"attestations-verified\": 0,\n    \"flat-spec-amendment-journals\": 0,\n    \"interrupted-transfers\": 0,\n    \"sealed-bundles\": 0,\n    \"sealed-bundles-without-governing-contracts\": 0,\n    \"spec-layout-flat\": 0,\n    \"spec-layout-folder\": 0,\n    \"spec-layout-legacy-folder\": 0,\n    \"status-blocked\": 0\n  }\n}\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "migrate",
+        "v7",
+        "--apply"
+      ],
+      "exit": 2,
+      "stdout": "",
+      "stderr": "Error: pose migrate: no apply is available in this engine; the only mode is `pose migrate v7 --dry-run`, which reads the repository, writes nothing and reports what a migration would convert, keep or refuse\n"
+    }
+  ],
+  "mutations": {
+    "mutations": [
+      {
+        "mutation": "workflow volta a pedir discovery incondicional",
+        "tests": "TestDistributedInstructionsAskForDiscoveryOnlyWhenStale",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "espelho embarcado volta a pedir discovery incondicional",
+        "tests": "TestDistributedInstructionsAskForDiscoveryOnlyWhenStale|TestAFreshInstallReceivesInstructions",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "espelho embarcado diverge da fonte",
+        "tests": "TestTheEmbeddedMirrorsOfTheWorkflowsAndRulesMatchTheSources",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "alias go não resolve",
+        "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "alias não é divulgado",
+        "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "domínio desconhecido não é reportado",
+        "tests": "TestSuggestResolvesDomainAliasesThroughOneTaxonomy",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "todo backend vira Go",
+        "tests": "TestSuggestDoesNotTurnEveryBackendIntoGo",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "regra ausente é anunciada como instalada",
+        "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "regra de extensão não indica o comando",
+        "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "saída humana anuncia arquivo inexistente",
+        "tests": "TestSuggestSeparatesDeclaredFromInstalledRules",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "migrate promete apply futuro",
+        "tests": "TestMigrateSaysThereIsNoApplyWithoutPromisingOne",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "migrate não diz que dry-run não escreve",
+        "tests": "TestMigrateSaysThereIsNoApplyWithoutPromisingOne",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "módulo raiz não se aplica",
+        "tests": "TestSuggestRootModuleIsTheFallback",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "caminho não normalizado",
+        "tests": "TestSuggestRootModuleIsTheFallback",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "kubernetes sem extensão conhecida",
+        "tests": "TestSuggestKubernetesRuleIsAnnounced",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "diretório é regra instalada",
+        "tests": "TestSuggestAnUnreadableRuleIsNot",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "go.mod diretório vale como módulo Go",
+        "tests": "TestSuggestAnUnreadableRuleIsNot",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "configuração malformada vira conjunto vazio",
+        "tests": "TestSuggestRefusesAMalformedRulesConfiguration",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "elemento que não é texto é descartado",
+        "tests": "TestSuggestRefusesAMalformedRulesConfiguration",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "rules_by_domain que não é objeto é aceito",
+        "tests": "TestSuggestRefusesAMalformedRulesConfiguration",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "identificador de regra não é validado",
+        "tests": "TestSuggestRefusesARuleIdentifierThatIsAPath",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "índice ilegível vira ausência de domínio",
+        "tests": "TestSuggestSaysWhyItHasNoDomainForAPath|TestSuggestDomainUsesMostSpecificModule",
+        "verdict": "killed"
+      },
+      {
+        "mutation": "inventário ignora diretório ilegível",
+        "tests": "TestInventoryNeverSkipsWhatItCannotRead",
+        "verdict": "killed"
+      }
+    ],
+    "killed": 23,
+    "total": 23
+  },
+  "mutation_classifier_controls": [
+    {
+      "case": "shell-error",
+      "classification": "error"
+    },
+    {
+      "case": "build-error",
+      "classification": "error"
+    },
+    {
+      "case": "target-fail",
+      "classification": "killed"
+    },
+    {
+      "case": "target-skip",
+      "classification": "survived"
+    }
+  ],
+  "security": {
+    "added_lines_scanned": 7264,
+    "secret_pattern_candidates": 0,
+    "tools": {
+      "govulncheck": false,
+      "gitleaks": false,
+      "golangci-lint": false
+    }
+  },
+  "preexisting_dirty_path": ".pose/indexes/generation.json",
+  "completion_tools": {
+    "review-check": "deferred: blockers, no attestation",
+    "closeout-check": "deferred: blockers, no attestation",
+    "review-verify": "deferred: blockers, no attestation",
+    "close": "not run: blockers"
+  },
+  "report": ".pose/reports/2026-10-18-pose-b28r2-independent-review.md",
+  "null_configuration_controls": [
+    {
+      "case": "task-null",
+      "task_map": {
+        "tasks": {
+          "feature": null
+        }
+      },
+      "args": [
+        "suggest",
+        "feature"
+      ],
+      "exit": 0,
+      "stdout": "# POSE trail — feature\n\n- Workflow:  <nil>\n- Skill:     <nil>\n- Rules:     \n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n",
+      "stderr": ""
+    },
+    {
+      "case": "task-null",
+      "task_map": {
+        "tasks": {
+          "feature": null
+        }
+      },
+      "args": [
+        "suggest",
+        "feature",
+        "--json"
+      ],
+      "exit": 0,
+      "stdout": "{\n  \"name\": \"feature\",\n  \"rules_status\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "case": "domain-map-null",
+      "task_map": {
+        "tasks": {
+          "feature": {
+            "rules": [
+              "security"
+            ],
+            "rules_by_domain": null
+          }
+        }
+      },
+      "args": [
+        "suggest",
+        "feature"
+      ],
+      "exit": 0,
+      "stdout": "# POSE trail — feature\n\n- Workflow:  <nil>\n- Skill:     <nil>\n- Rules:     security (unavailable: declared in the task map, no rule file and no extension known)\n- Spec:      <nil>\n- ADR:       <nil>\n- Knowledge: consume=<nil>, produce=<nil>\n- Validation: <nil>\n",
+      "stderr": ""
+    },
+    {
+      "case": "domain-map-null",
+      "task_map": {
+        "tasks": {
+          "feature": {
+            "rules": [
+              "security"
+            ],
+            "rules_by_domain": null
+          }
+        }
+      },
+      "args": [
+        "suggest",
+        "feature",
+        "--json"
+      ],
+      "exit": 0,
+      "stdout": "{\n  \"name\": \"feature\",\n  \"rules\": [\n    \"security\"\n  ],\n  \"rules_by_domain\": null,\n  \"rules_status\": [\n    {\n      \"rule\": \"security\",\n      \"availability\": \"unavailable\"\n    }\n  ]\n}\n",
+      "stderr": ""
+    }
+  ],
+  "surface_check": {
+    "command": "pose surface-check --spec pose-distributed-instructions-parity --results .pose/results/b28r2-validation.tmp.json --strict --json",
+    "exit_code": 0,
+    "findings": [],
+    "deliveries": [
+      {
+        "spec": "pose-distributed-instructions-parity",
+        "ref": "capability:distributed-instructions-parity",
+        "kind": "capability",
+        "id": "distributed-instructions-parity",
+        "module": "pose-mcp",
+        "profile": "composed-capability",
+        "entrypoint": "pose-mcp/internal/cli/suggest.go"
+      }
+    ],
+    "validation_results": 140,
+    "input_digest": "sha256:ff489544c057fbacda7d786155ef239abb402da3c41d1ee24f8ea9dc5c5392f0",
+    "provenance_digest": "sha256:b5b0ccc52aa8875a87bb5488bb3b83439beedc6a8d1d336a451cdaa3d280df05",
+    "raw_sha256": "84fe31fa6d00b197bb86e3b8c1001c0f0570396e5ace3ea983795f74f6334b9d"
+  },
+  "origin_main": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+  "diff_check": {
+    "command": "git diff --check origin/main...HEAD",
+    "exit_code": 2,
+    "diagnostic": ".pose/reports/2026-10-18-pose-b28-d7ebc300-independent-review.md:173: new blank line at EOF."
+  },
+  "validation_raw_note": "Full raw validation retained outside repository at /tmp/b28r2-review/validation.json; compact checks/provenance above. Temporary input was supplied explicitly to surface-check; delivery policy/results_path was not changed."
+}

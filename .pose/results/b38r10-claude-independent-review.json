@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "review": "b38r10-claude",
+  "date": "2026-10-19",
+  "spec": "pose-release-manifest-tag-integrity",
+  "pr": 198,
+  "head": "59be226d1e377c35887439e0d2159dc78cd23f2b",
+  "base": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+  "reviewer": {
+    "id": "agent:independent-claude-opus-5-5-review",
+    "model": "claude-opus-5-5",
+    "vendor": "Claude/Anthropic",
+    "implementer_vendor": "Claude/Anthropic",
+    "vendor_separation": false,
+    "separation": "execution and context only; Codex unavailable (usage limit until 2026-10-24)",
+    "identity_authenticated": false,
+    "attestation_emitted": false
+  },
+  "decision": "changes-requested",
+  "blocking": [
+    {
+      "id": "R10-F01",
+      "severity": "medium",
+      "location": "pose-mcp/internal/cli/release_lifecycle.go:880-900",
+      "summary": "checker bufio.Scanner without Err(): a tag line >=64KiB stops the enumeration and later governed tags are not judged",
+      "observed": {
+        "20": 1,
+        "65000": 1,
+        "65536": 0,
+        "70000": 0
+      },
+      "introduced_by_pr": false
+    },
+    {
+      "id": "R10-F02",
+      "severity": "medium",
+      "location": "pose-mcp/internal/cli/release_lifecycle.go:935-952",
+      "summary": "governedReleaseWitness errors on non-SemVer v* tags, failing strict pose check in projects that never adopted a release policy",
+      "observed": {
+        "v1.0": 1,
+        "vendor-drop": 1,
+        "v1.0.0 (control)": 0
+      },
+      "introduced_by_pr": true,
+      "commit": "36de909a"
+    },
+    {
+      "id": "R10-F03",
+      "severity": "medium",
+      "location": "pose-mcp/internal/cli/release_lifecycle.go:427-434; pose-mcp/internal/pose/release_lifecycle.go:630-634",
+      "summary": "a .git whose gitdir is lost is classified as 'not a git repository' (absence): checker silent, status reports no releases, archival trusts worktree",
+      "observed": {
+        "policy present": {
+          "with_git": 1,
+          "lost_gitdir": 0
+        },
+        "policy removed": {
+          "with_git": 1,
+          "lost_gitdir": 0
+        }
+      },
+      "introduced_by_pr": true
+    }
+  ],
+  "followups_low_new": [
+    "R10-L10 releaseInputs skips non-directory inventory entries when computing previous",
+    "R10-L11 lenient changelog policy for pending fragments in checker/checkRelease (with L05)",
+    "R10-L12 checker vs status tag filter divergence for non-SemVer v* tags (adopted projects)",
+    "R10-L13 TagHoldsAdoptedReleasePolicy derives adoption from adopted_at without strict policy validation"
+  ],
+  "followups_low_existing": "L01-L09 remain [open] with owner:@core crit:low review:2026-12-01; unchanged",
+  "r9_fixed": {
+    "R9-F01": true,
+    "R9-F02": true
+  },
+  "checks": {
+    "go_vet": "ok",
+    "go_test_all": "ok",
+    "go_test_race_release_subset": "ok",
+    "pose_validate_strict_module_pose_mcp": {
+      "steps": 137,
+      "pass": 137,
+      "result": "SUCCESS",
+      "file": ".pose/results/b38r10-claude-module-validation.json",
+      "matrix_sha256": "sha256:1fd3f2be3db4fcde2e25c36417eb91bae1d7a0167d63f80c6f4e08806df9abdb"
+    },
+    "pose_check_strict": "SUCCESS (30 pre-existing warnings)",
+    "artifact_check": {
+      "claims": 47,
+      "change_sets": 1
+    }
+  },
+  "probe": {
+    "isolation": "copy of pose-mcp and mcp-enforce under /tmp; versioned tree untouched",
+    "command": "go test ./internal/cli -run TestB38R10ClaudeProbe -count=1 -v",
+    "source": "package cli\n\nimport (\n\t\"os\"\n\t\"os/exec\"\n\t\"path/filepath\"\n\t\"strings\"\n\t\"testing\"\n)\n\nfunc probeLongTag(n int) string { return \"v1.0.0-\" + strings.Repeat(\"a\", n) }\n\nfunc probePack(t *testing.T, root, tag string) {\n\t// write a packed ref directly (filenames > 255 bytes are not possible as loose refs)\n\thead := strings.TrimSpace(releaseGitOut(t, root, \"rev-parse\", \"HEAD\"))\n\tf, err := os.OpenFile(filepath.Join(root, \".git\", \"packed-refs\"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)\n\tif err != nil {\n\t\tt.Fatal(err)\n\t}\n\tdefer f.Close()\n\tif _, err := f.WriteString(head + \" refs/tags/\" + tag + \"\\n\"); err != nil {\n\t\tt.Fatal(err)\n\t}\n}\n\nfunc TestB38R10ClaudeProbe_LongTagBeforeGovernedTag(t *testing.T) {\n\tfor _, n := range []int{20, 65000, 65536, 70000} {\n\t\troot := t.TempDir()\n\t\twriteReleaseFixture(t, root, \".pose/policy/release.json\", `{\"schema_version\":1,\"adopted_at\":\"2026-08-03\",\"provider\":\"github\",\"repository\":\"owner/repo\",\"allow_empty\":true,\"legacy_cutoff\":\"v0.1.0\",\"version_source\":{\"path\":\"VERSION\",\"kind\":\"text\"}}`)\n\t\twriteReleaseFixture(t, root, \"VERSION\", \"1.0.0\\n\")\n\t\treleaseGit(t, root, \"init\", \"-q\")\n\t\treleaseGit(t, root, \"add\", \".\")\n\t\treleaseGit(t, root, \"commit\", \"-q\", \"-m\", \"no manifest\")\n\t\tprobePack(t, root, \"v0.0.1-\"+strings.Repeat(\"a\", n)) // legacy, sorts before v1.0.0\n\t\treleaseGit(t, root, \"tag\", \"v1.0.0\")                   // governed, no manifest anywhere\n\t\tlisted := releaseGitOut(t, root, \"tag\", \"--list\", \"v*\")\n\t\tchecker, out := releaseCheckerFor(root)\n\t\tt.Logf(\"n=%d listed_lines=%d errors=%d out=%.200q\", n, strings.Count(listed, \"\\n\"), checker.errors, out.String())\n\t}\n}\n\nfunc TestB38R10ClaudeProbe_NonReleaseTagWithoutPolicy(t *testing.T) {\n\tfor _, tag := range []string{\"v1.0\", \"vendor-drop\", \"v1.0.0\"} {\n\t\troot := t.TempDir()\n\t\twriteReleaseFixture(t, root, \"README\", \"x\\n\")\n\t\treleaseGit(t, root, \"init\", \"-q\")\n\t\treleaseGit(t, root, \"add\", \".\")\n\t\treleaseGit(t, root, \"commit\", \"-q\", \"-m\", \"plain project\")\n\t\treleaseGit(t, root, \"tag\", tag)\n\t\tchecker, out := releaseCheckerFor(root)\n\t\tt.Logf(\"tag=%s errors=%d out=%q\", tag, checker.errors, out.String())\n\t}\n}\n\nfunc releaseGitOut(t *testing.T, root string, args ...string) string {\n\tt.Helper()\n\tcmd := exec.Command(\"git\", append([]string{\"-C\", root}, args...)...)\n\tcmd.Env = append(os.Environ(), \"GIT_AUTHOR_NAME=t\", \"GIT_AUTHOR_EMAIL=t@e\", \"GIT_COMMITTER_NAME=t\", \"GIT_COMMITTER_EMAIL=t@e\")\n\tout, err := cmd.Output()\n\tif err != nil {\n\t\tt.Fatalf(\"git %v: %v\", args, err)\n\t}\n\treturn string(out)\n}\n\nfunc TestB38R10ClaudeProbe_LostGitDir(t *testing.T) {\n\tfor _, dropPolicy := range []bool{false, true} {\n\t\troot := adoptedTaggedRelease(t)\n\t\tif c, out := releaseCheckerFor(root); c.errors != 0 {\n\t\t\tt.Fatalf(\"control %q\", out.String())\n\t\t}\n\t\t_ = os.RemoveAll(filepath.Join(root, \".pose\", \"releases\"))\n\t\tif dropPolicy {\n\t\t\t_ = os.Remove(filepath.Join(root, \".pose\", \"policy\", \"release.json\"))\n\t\t}\n\t\tc1, out1 := releaseCheckerFor(root)\n\t\t_ = os.Rename(filepath.Join(root, \".git\"), filepath.Join(root, \"moved-git\"))\n\t\t_ = os.WriteFile(filepath.Join(root, \".git\"), []byte(\"gitdir: \"+filepath.Join(root, \"lost-gitdir\")+\"\\n\"), 0o644)\n\t\tc2, out2 := releaseCheckerFor(root)\n\t\tt.Logf(\"dropPolicy=%v withGit errors=%d %.150q | lostGitDir errors=%d %.150q\", dropPolicy, c1.errors, out1.String(), c2.errors, out2.String())\n\t}\n}\n"
+  },
+  "not_done": [
+    "seal",
+    "bundle",
+    "attest",
+    "review verify",
+    "close",
+    "commit",
+    "push"
+  ]
+}

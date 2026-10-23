@@ -167,6 +167,20 @@ Cumulative D1/D2 declarations, including replacement edits declared before imple
 - modified: .pose/indexes/validation-matrix.json
 - modified: pose-mcp/internal/cli/review_closeout_test.go
 
+- modified: pose-mcp/internal/cli/rule_extension_resolver.go
+- modified: pose-mcp/internal/cli/suggest.go
+- modified: pose-mcp/internal/pose/path_state.go
+- modified: pose-mcp/internal/pose/release_candidate.go
+- modified: pose-mcp/internal/pose/release_manifest_integrity.go
+- modified: pose-mcp/internal/pose/release_version_source.go
+- created: pose-mcp/internal/cli/update_preview_composition_test.go
+- created: pose-mcp/internal/pose/update_preview_release_test.go
+
+- modified: pose-mcp/internal/cli/release_review_regression_test.go
+- created: .pose/changelogs/unreleased/pose-update-dry-run-reports-the-whole-update.md
+- created: .pose/reports/2026-10-23-b29-pending-review-r1.md
+- created: .pose/reports/2026-10-23-b29-pending-closeout.md
+
 ### Delivery targets
 
 - capability:update-dry-run-reports-the-whole-update module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go

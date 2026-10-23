@@ -39,7 +39,7 @@ módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X comple
 - `pose check --strict` (estrutura + enum de status das specs).
 - `pose validate --strict` no(s) módulo(s) que o documento afirma entregar.
 - `pose lint-spec` quando o documento for uma spec.
-- `pose assess discover --update-state` ao fechar specs para atualizar métricas de completude, dívida técnica e relatórios sob `.pose/assessments/` e `.pose/state/`.
+- `pose assess discover --if-stale --update-state` ao fechar specs para atualizar métricas de completude, dívida técnica e relatórios sob `.pose/assessments/` e `.pose/state/`.
 - `pose artifact-check --strict` para source-tree governada e `pose
   surface-check --strict` quando houver `delivers`.
 - `pose roadmap-check --strict` antes de um roadmap declarar conclusão.

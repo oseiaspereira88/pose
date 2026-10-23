@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "review": "b38r11",
+  "pr": "oseiaspereira88/pose#198",
+  "spec": "pose-release-manifest-tag-integrity",
+  "head": "13195669215461a9d269cd7396480d0bbcf85a66",
+  "base": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+  "date": "2026-10-19",
+  "reviewer": {
+    "id": "agent:independent-claude-opus-5-5-review",
+    "model": "claude-opus-5-5",
+    "vendor": "Claude/Anthropic",
+    "implementer_vendor": "Claude/Anthropic",
+    "vendor_separation": false,
+    "separation": "execution and context only; Codex unavailable (usage limit until 2026-10-24)",
+    "identity_authenticated": false
+  },
+  "decision": "changes-requested",
+  "previous_round": {
+    "R10-F01": "fixed (strings.Fields; TestR10ALongTagNameDoesNotStopTheTagLoop)",
+    "R10-F02": "fixed in governedReleaseWitness (ValidateReleaseVersion filter); neighbour in the status not covered, see R11-F01",
+    "R10-F03": "fixed (GitNotARepository proves .git absent on every ancestor; TestR10ALostGitdirIsNotNoRepository)"
+  },
+  "blocking": [
+    {
+      "id": "R11-F01",
+      "severity": "medium",
+      "title": "status lists every SemVer tag of a project that never adopted governed releases as a prepared release with a gap",
+      "location": "pose-mcp/internal/pose/release_lifecycle.go:464-505 (GetReleaseStatus tag loop)",
+      "consumers": ["pose release status", "MCP pose_release_status", "pose state --attention / MCP obligations (releaseQueueObligations)", "pose index (releases.json)", "pose public-claims (candidate_state)"],
+      "requirements": ["R7", "R6", "constraint: do not adopt policy automatically"],
+      "repro": {
+        "fixture": "pose install into a fresh repo (scaffolded release policy with adopted_at=\"\"), commit, tags v1.0.0 v1.1.0 v2.0.0",
+        "head": {"status_releases": 3, "release_obligations": 3, "releases_json": 3, "check": "SUCCESS"},
+        "origin_main": {"status_releases": 0, "release_obligations": 0, "releases_json": 0, "check": "SUCCESS"},
+        "with_303_tags": {"head_status_ms": 1650, "head_attention_ms": 1653, "head_release_obligations": 303, "main_status_ms": 6, "main_attention_ms": 11},
+        "go_probe": {"not_adopted": {"checker_errors": 0, "status": ["v1.0.0:prepared"]}, "adopted_control": {"checker_errors": 1, "status": ["v1.0.0:prepared"]}}
+      }
+    }
+  ],
+  "followups_low_new": [
+    {"id": "R11-L14", "title": "a broken tag ref (garbage loose ref, malformed packed-refs line) resolves as ErrReleaseTagMissing", "repro": "adoptedTaggedRelease + garbage refs/tags/v1.0.0: status prepared without gaps, checker errors=0; git prints 'ignoring broken ref' (loose) or nothing (packed)", "why_low": "needs corruption of Git's ref store; the state only goes down (no tag), an events journal that records tagged still fails"},
+    {"id": "R11-L15", "title": "GitNotARepository does not consider GIT_DIR", "repro": "GIT_DIR=<lost> and no .git on any ancestor: gitUnavailableAt=true, checker errors=0 with the inventory removed", "why_low": "the loss is in the process environment, not in the project; two losses needed"},
+    {"id": "R11-L16", "title": "governedReleaseWitness fails pose check on a SemVer tag that points at a tree or blob (e.g. v2.6.11-tree)", "repro": "no release policy, tag v2.6.11-tree -> HEAD^{tree}: 'whether the project adopted governed releases could not be told'", "why_low": "fail-closed, rare tag shape, and a project without the policy file already fails the scaffold reference check"},
+    {"id": "R11-L17", "title": "previous_version is validated but not re-derived nor disclosed as a limit", "why_low": "only a deliberate edit that also recomputes release_input_digest escapes; no state is raised"},
+    {"id": "R11-L18", "title": "release check drops ForeignFragmentClaims when the archive or the specs cannot be read (pre-existing)", "why_low": "the archive loss is a gap of checkRelease; pose check keeps the structural claim check"}
+  ],
+  "followups_low_registered": "L01-L13 stay [open] with ownership",
+  "checks": {
+    "go_vet": "ok",
+    "go_test_all": "ok",
+    "go_test_race_release": "ok",
+    "pose_validate_strict_module": "137/137 pass, SUCCESS (.pose/results/b38r11-claude-module-validation.json)",
+    "tech_debt_markers_in_diff": 0
+  },
+  "probes": "isolated copy under /tmp (git archive HEAD), probe file not versioned"
+}

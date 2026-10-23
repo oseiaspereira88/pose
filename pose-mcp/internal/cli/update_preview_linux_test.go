@@ -63,6 +63,36 @@ func TestUpdatePreviewHasNoPhysicalMutationEvents(t *testing.T) {
 					}
 				}
 			}
+
+			// Exercise B38 historical version-source validation inside the force
+			// final gate. Prepare and tag before watching; preview must read the
+			// committed snapshot without creating even transient temp files.
+			if force {
+				releaseRoot := cliReleaseRepo(t)
+				for _, rel := range []string{"VERSION", ".pose/policy/release.json", ".pose/changelogs/v1.0.0/alpha.md", ".pose/changelogs/v1.0.0.md", ".pose/releases/v1.0.0/manifest.json"} {
+					raw, err := os.ReadFile(filepath.Join(releaseRoot, filepath.FromSlash(rel)))
+					if err != nil {
+						t.Fatal(err)
+					}
+					mustWrite(t, filepath.Join(root, filepath.FromSlash(rel)), string(raw))
+				}
+				policy := filepath.Join(root, ".pose/policy/release.json")
+				raw, err := os.ReadFile(policy)
+				if err != nil {
+					t.Fatal(err)
+				}
+				// Adopted policy reaches release judgment. Keep the cut's original
+				// policy bytes in the tag, then adopt in today's worktree.
+				for _, args := range [][]string{{"add", "-A"}, {"-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", "commit", "-qm", "fixture release"}, {"-c", "tag.gpgsign=false", "tag", "v1.0.0"}} {
+					if out, err := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput(); err != nil {
+						t.Fatalf("git fixture: %v %s", err, out)
+					}
+				}
+				raw = []byte(strings.Replace(string(raw), `"adopted_at":""`, `"adopted_at":"2026-10-01"`, 1))
+				raw = []byte(strings.Replace(string(raw), `"provider":""`, `"provider":"github"`, 1))
+				raw = []byte(strings.Replace(string(raw), `"repository":""`, `"repository":"example/project"`, 1))
+				mustWrite(t, policy, string(raw))
+			}
 			fd, err := unix.InotifyInit1(unix.IN_NONBLOCK | unix.IN_CLOEXEC)
 			if err != nil {
 				t.Fatal(err)

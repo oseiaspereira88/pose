@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-bbbcd0748672b6b9",
+  "bundle_id": "rvb-8356317c26979162",
+  "bundle_digest": "sha256:8356317c269791627a2cf7e835858b75a904f99a4baf413c4fc4c692b7c49a85",
+  "reviewer": "agent:independent-codex-distributed-instructions-parity-01a16349",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-6fddcab7b09de52a",
+      "rationale": "Filesystem availability is observed through regular-file/readability checks; missing, unreadable and unknown remain distinguishable. Integration discovery and incomplete debt coverage are not treated as proof of absence. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "The delta adds synchronous parsing and filesystem inspection without shared mutable caches, goroutines or lifecycle changes. Current full-suite evidence supports regression safety. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Existing valid task-map inputs remain supported; ambiguous spellings, duplicate keys and invalid types receive explicit refusals. Availability fields describe declared versus readable resources. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Nulls, malformed collections, conflicting canonical module paths, reserved fields and invalid rule identifiers cannot silently remove obligations. Both checker and selected-task suggest enforce exact operational field spelling. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "MCP dispatch reaches `Store.Suggest`, which invokes CLI JSON. Availability resolution therefore has one implementation. Existing conservative MCP argument refusals remain explicit. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Returned source/status/detail distinguish unavailable indices, invalid configuration, unmatched domains and unreadable references. Remediation is actionable without introducing sensitive logging. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Valid canonical inputs retain support. Stricter rejection intentionally addresses ambiguous or malformed configuration; added status fields are additive. Apply remains unavailable, with corrected messaging. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Source handles root fallback, module specificity, aliases, availability and refusal paths coherently. Current full tests and dedicated integration evidence cover the latest spelling regression. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-6fddcab7b09de52a",
+      "rationale": "Shared taxonomy and availability inspection address divergent discovery; freshness instructions reuse the delivered engine; migrate states present capability. Structural mappings appear below. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md",
+      "mappings": [
+        {
+          "delta": "SD-813aeaa2",
+          "basis": "R8",
+          "disposition": "mapped",
+          "rationale": "Final reviewer: executable integration coverage includes operational-field regression, binding current consumer behavior to deterministic validation; actual session 01a16349-af4e-7c10-a93f-2ea7553bbb05 in report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+        },
+        {
+          "delta": "SD-bc5a864b",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "Final reviewer: D1 to R1/R2 uses delivered if-stale semantics at the prescribed execution point, removing unconditional rescan without replacing freshness; actual session 01a16349-af4e-7c10-a93f-2ea7553bbb05 in report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+        },
+        {
+          "delta": "SD-f906fe94",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "Final reviewer: R1/R7 preserves closeout refresh while permitting assessment reuse only when inputs are unchanged; actual session 01a16349-af4e-7c10-a93f-2ea7553bbb05 in report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "EN/pt-BR sources and scaffold instructions match runtime freshness and apply behavior. Historical documentation refinements remain explicitly owned follow-ups. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Missing extensions receive installation commands; unreadable rules receive diagnostic context rather than installation advice. Unknown domains remain visible. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "R1–R8 have relevant source behavior and current validation coverage, detailed below. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-6fddcab7b09de52a",
+      "rationale": "Changes address distributed instructions, suggest availability/taxonomy, migrate messaging and regression coverage. No incidental policy adoption or unrelated runtime expansion. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Identifier validation, duplicate-key refusal, exact-field checks and resolved `go.mod` confinement protect obligation integrity. No new command interpolation, authorization bypass or secret exposure identified. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-6fddcab7b09de52a",
+      "rationale": "Text-only correction would leave runtime misreporting; independent consumer resolvers would duplicate behavior. Existing freshness, extension mappings and CLI adapters are sufficient. No new scheduler, installer or speculative plugin framework is introduced. Reconsider if consumers stop delegating or taxonomy ownership changes. Actual separate same-vendor session 01a16349-af4e-7c10-a93f-2ea7553bbb05; inspected collector evidence is distinct from reviewer execution. Judgment: report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-10-22-b28-pending-closeout.md",
+      "rationale": "Native collector executed the required gate; actual separate reviewer inspected its output and approved the exact subject."
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-10-22-b28-pending-closeout.md",
+      "rationale": "Native collector executed the required gate; actual separate reviewer inspected its output and approved the exact subject."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Native collector executed the required gate; actual separate reviewer inspected its output and approved the exact subject."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Native collector executed the required gate; actual separate reviewer inspected its output and approved the exact subject."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Native collector executed the required gate; actual separate reviewer inspected its output and approved the exact subject."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    }
+  ],
+  "evidence_refs": [
+    "report:.pose/reports/2026-10-22-b28-pending-closeout.md",
+    "report:.pose/reports/2026-10-22-b28-pending-review-r1.md"
+  ],
+  "findings": [
+    {
+      "id": "b28-low-1",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b28-pending-review-r1.md",
+      "action": "O doctor recomenda instalar uma extensão para uma regra ilegível.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b28-low-2",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b28-pending-review-r1.md",
+      "action": "Dizer o alias e a origem explícitos também na saída humana de `pose suggest`.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b28-low-3",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b28-pending-review-r1.md",
+      "action": "Aceitar na CLI MCP o alias de caixa (`Go`) que a CLI já aceita.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b28-low-4",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b28-pending-review-r1.md",
+      "action": "Corrigir os executores de mutação das unidades b14/b15.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b28-low-5",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b28-pending-review-r1.md",
+      "action": "Documentar o estado `unreadable` das referências de `pose suggest`.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b28-low-6",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b28-pending-review-r1.md",
+      "action": "Classificar link quebrado de workflow/skill como perda e não como indisponibilidade.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b28-low-7",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b28-pending-review-r1.md",
+      "action": "Ampliar o filtro da integração B28 para os consumidores novos.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b28-low-8",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b28-pending-review-r1.md",
+      "action": "Diferenciar task-map ausente de ilegível na mensagem de `pose suggest`.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b28-low-9",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b28-pending-review-r1.md",
+      "action": "Não recusar prosa válida que contém newline JSON escapado.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b28-low-10",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b28-pending-review-r1.md",
+      "action": "Remover a menção a \"6.x\" do texto do dry-run de `pose migrate`.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "b28-low-11",
+      "severity": "low",
+      "evidence": "report:.pose/reports/2026-10-22-b28-pending-review-r1.md",
+      "action": "Trocar o shell interpolado e a heurística de duas substrings dos executores `b14-mutations.py` e `b15-mutations.py`.",
+      "disposition": "accepted-risk",
+      "owner": "@core",
+      "rationale": "Historical owned low followup explicitly retained by final separate reviewer, with no unmet mandatory requirement",
+      "review_by": "2026-12-01"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:codex-pending-reconciliation",
+    "concluded_by": "agent:independent-codex-distributed-instructions-parity-01a16349",
+    "applied_by": "agent:codex-pending-reconciliation"
+  },
+  "attested_at": "2026-10-22T11:11:05Z",
+  "path": ".pose/review-attestations/rva-bbbcd0748672b6b9.json"
+}

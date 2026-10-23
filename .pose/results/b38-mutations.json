@@ -1,0 +1,456 @@
+{
+  "mutations": [
+    {
+      "mutation": "campo desconhecido é aceito",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "schema desconhecido é aceito",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "versão de outro diretório é aceita",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "projeção specs adulterada é aceita",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "projeção categories adulterada é aceita",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "projeção breaking adulterada é aceita",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "digest de entrada adulterado é aceito",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fragment duplicado é aceito",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "caminho de fragment fora do diretório é aceito",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fonte de versão com caminho fora do projeto é aceita",
+      "tests": "TestAManifestIsValidOnlyIf",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "tag é lida do worktree",
+      "tests": "TestATagWithoutTheSnapshotInItsTree",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "tag anotada não é resolvida ao commit",
+      "tests": "TestLightweightAndAnnotatedTagsResolve",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "notas do worktree substituem as da tag",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "digest das notas não é comparado",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02|TestR2Notes",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "digest de fragment não é comparado",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fragment extra na árvore da tag é aceito",
+      "tests": "TestTheSnapshotIsVerifiedAgainstTheTaggedTree|TestF02",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fonte não recomputável vira falha",
+      "tests": "TestAVersionSourceThatCannotBeRecomputedIsALimit",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "commit posterior invalida o cut",
+      "tests": "TestACorrectCutStaysIntactAfterEvidenceAndTheNextCycle",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "status marca tagged sem snapshot",
+      "tests": "TestATagWithoutTheSnapshotInItsTree",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "check não verifica o snapshot da tag",
+      "tests": "TestReleaseCheckReadsTheTagsOwnTree",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "limites do snapshot não aparecem no JSON",
+      "tests": "TestReleaseCheckDisclosesTheVersionSources",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "chave repetida é aceita",
+      "tests": "TestF01",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "campo obrigatório ausente é aceito",
+      "tests": "TestF01",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "campo null é aceito",
+      "tests": "TestF01",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "categoria do manifest não é recomposta do blob",
+      "tests": "TestF02",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "corpo do manifest não é recomposto do blob",
+      "tests": "TestF02",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "dois specs no mesmo arquivo passam",
+      "tests": "TestF02",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "digest de policy não é vinculado à policy da tag",
+      "tests": "TestF03",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "árvore sem policy passa",
+      "tests": "TestF03",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "evidência de outra versão passa",
+      "tests": "TestF04",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fonte de versão ausente da árvore passa",
+      "tests": "TestF04",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "status avança uma release de snapshot quebrado",
+      "tests": "TestF05",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "arquivo no lugar do arquivo morto passa",
+      "tests": "TestF06",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "rc.2 depois de rc.10",
+      "tests": "TestF10",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "versão final antes do release candidate",
+      "tests": "TestF10",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "previous mais novo que a release passa",
+      "tests": "TestF10",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "branch homônimo vale como tag",
+      "tests": "TestF07",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "policy de hoje invalida o corte da tag",
+      "tests": "TestF08",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "worktree com outro corte passa",
+      "tests": "TestF09",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "record aceita tag de árvore quebrada",
+      "tests": "TestF05",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fragment aninhado com null é aceito",
+      "tests": "TestR2NestedFragmentObjectsAreStrict",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fragment aninhado sem campo obrigatório é aceito",
+      "tests": "TestR2NestedFragmentObjectsAreStrict",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "testemunho de archival não confere a spec do blob",
+      "tests": "TestR2ArchivalWitnessIsTheSpecOfTheBlob",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "status não confere o worktree com o corte",
+      "tests": "TestR2StatusSeesTheFilesOfTheCutThatWereLost",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "fonte JSON que diz outra versão passa",
+      "tests": "TestR2VersionEvidenceFollowsThePolicyOfTheCut",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "arquivo qualquer vale como versão do motor",
+      "tests": "TestR2VersionEvidenceFollowsThePolicyOfTheCut",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "policy do corte não é validada",
+      "tests": "TestR2PoliciesOfTheCutAreValidated",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "categoria fora da policy do corte passa",
+      "tests": "TestR2PoliciesOfTheCutAreValidated",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "notas arbitrárias passam",
+      "tests": "TestR2NotesAreTheRenderingOfTheFragments",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "listagem de tags que falha vira vazia",
+      "tests": "TestR2GitFailuresAreNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "prepare sobrescreve manifest inválido",
+      "tests": "TestR2PrepareDoesNotOverwrite",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "evidência do candidato sem a fonte da policy",
+      "tests": "TestR2PreparedEvidenceNamesTheSourceOfThePolicy",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "controle em texto livre recusa história real",
+      "tests": "TestR4MultilineBodyIsFrozenAndLoads|TestEveryHistoricalRelease",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "link no lugar do arquivo de versão",
+      "tests": "TestR4ALinkInPlaceOfTheVersionSource",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "verified sem solidez deixa de dever",
+      "tests": "TestR4AnUnsoundVerifiedReleaseStillOwes",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "archival não confere o corte da tag",
+      "tests": "TestR4ArchivalIsBoundToTheCutOfTheTag",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "cutoff inválido é aceito",
+      "tests": "TestR4TheCutoffIsAVersionAndTheChangelogSchemaIsSupported",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "schema futuro do changelog é aceito",
+      "tests": "TestR4TheCutoffIsAVersionAndTheChangelogSchemaIsSupported|TestR5ACandidateIsJudgedByOneFunction",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "notas preparadas não são a renderização",
+      "tests": "TestR4PreparedNotesAreTheRendering",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "release notes ignora os gaps",
+      "tests": "TestR4PreparedNotesAreTheRendering",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "eventos de tag sem a tag são válidos",
+      "tests": "TestR4EventsThatNameATagThatIsNotThere",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "status chama sólido o candidato que o check recusa",
+      "tests": "TestR5ACandidateIsJudgedByOneFunction",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "política primária perdida cai no legado",
+      "tests": "TestR5LostLinksAreNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "pending perdido é lista vazia",
+      "tests": "TestR5LostLinksAreNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "eventos perdidos são sem eventos",
+      "tests": "TestR5LostLinksAreNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "ancestral perdido do diretório de releases é vazio",
+      "tests": "TestR5LostLinksAreNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "seção de compatibilidade diferente é contradição",
+      "tests": "TestR5TheCompatibilitySectionIsNotAContradiction|TestEveryReleaseTagOfThisRepository",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "prepare escreve por link perdido",
+      "tests": "TestR5PrepareDoesNotWriteThroughALostManifestLink",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "bloco do registro identificado só pelo título",
+      "tests": "TestR6TheRegistryBlockIsToleratedAndAFragmentSectionWithTheSameHeadingIsNot",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "ancestral que não é árvore vira ausência",
+      "tests": "TestR6AnAncestorThatIsNotATreeIsNotAbsence",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "caminho relativo procurado a partir da raiz",
+      "tests": "TestR6ARelativePathIsSearchedFromTheWorkingDirectory",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "checker trata inventário perdido como vazio",
+      "tests": "TestR6ALostReleaseInventoryIsNotNoReleases",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "plano trata inventário perdido como sem releases",
+      "tests": "TestR6ALostReleaseInventoryIsNotNoReleases",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "checker revalida categoria do corte sob a policy de hoje",
+      "tests": "TestR6ACategoryAllowedWhenTheCutWasMadeIsNotRevalidated",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "corte superado reprova o gate",
+      "tests": "TestR6ASupersededPreparedCutIsAWarningAndALiveOneIsJudged",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "tag sem diretório de release no worktree passa",
+      "tests": "TestR7ATaggedReleaseWhoseDirectoryWasRemovedIsJudged",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "superado mascara tag perdida e journal ilegível",
+      "tests": "TestR7SupersededDoesNotMaskALostTagOrAnUnreadableJournal",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "policy perdida desliga o checker de releases",
+      "tests": "TestR8MissingAdoptedPolicyDoesNotDisableTheReleaseChecker",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "inventário perdido sem policy vira não-adoção",
+      "tests": "TestR9LostWitnessesOfAdoptionAreNotNoAdoption",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "tag sem manifest com policy adotada vira não-adoção",
+      "tests": "TestR9LostWitnessesOfAdoptionAreNotNoAdoption",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "tag ilegível sem policy vira não-adoção",
+      "tests": "TestR9LostWitnessesOfAdoptionAreNotNoAdoption",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "falha de TMPDIR vira limit aprovado",
+      "tests": "TestR9AVersionSourceThatCouldNotBeReReadIsNotApproved",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "lista de tags truncada no buffer",
+      "tests": "TestR10ALongTagNameDoesNotStopTheTagLoop",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "tag fora de SemVer impõe governança",
+      "tests": "TestR10ATagThatIsNotAReleaseVersionDoesNotImposeGovernance",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "gitdir perdido vira sem repositório",
+      "tests": "TestR10ALostGitdirIsNotNoRepository",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "status reivindica tag de projeto nunca adotado",
+      "tests": "TestR11StatusDoesNotClaimTagsOfAProjectThatNeverAdopted",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "status descarta tag de projeto adotado com policy perdida",
+      "tests": "TestR11StatusDoesNotClaimTagsOfAProjectThatNeverAdopted",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "policy ilegível de hoje vira não-adoção",
+      "tests": "TestR12LostPolicyOfTodayDoesNotMakeTheProjectLookUnadopted",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "policy apagada com corte no worktree vira não-adoção",
+      "tests": "TestR12LostPolicyOfTodayDoesNotMakeTheProjectLookUnadopted",
+      "verdict": "killed"
+    },
+    {
+      "mutation": "corte vivo é chamado superado",
+      "tests": "TestR6ASupersededCandidate",
+      "verdict": "killed"
+    }
+  ],
+  "killed": 90,
+  "total": 90
+}

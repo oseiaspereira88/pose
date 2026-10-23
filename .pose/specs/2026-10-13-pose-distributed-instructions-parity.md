@@ -1,8 +1,8 @@
 ---
 slug: pose-distributed-instructions-parity
-status: draft
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-22
 depends_on: pose-adaptive-assessment-freshness, pose-v7-legacy-cleanup-plan
 priority: 1
 components: pose-mcp
@@ -48,23 +48,53 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
+- created: .pose/reports/2026-10-22-b28-pending-review-r1.md
+- created: .pose/reports/2026-10-22-b28-pending-closeout.md
+
 Os paths abaixo são declarações prospectivas para a implementação. Neste lote
 somente esta spec é criada, sob a atribuição documental de
 `pose-consolidation-batch-6-authoring`. Reconciliar os paths exatos antes de start;
 não tratar a declaração de um teste futuro como teste existente ou executado.
 
-- created: .pose/specs/2026-10-13-pose-distributed-instructions-parity.md
+- modified: .pose/specs/2026-10-13-pose-distributed-instructions-parity.md
 - created: .pose/starts/pose-distributed-instructions-parity.json
 - created: .pose/changelogs/unreleased/pose-distributed-instructions-parity.md
 - modified: .pose/workflows/feature.md
-- modified: .agents/skills/pose-feature/SKILL.md
-- modified: .agents/skills/pose-spec-closeout/SKILL.md
+- modified: .pose/rules/delivery-evidence.md
+- modified: locales/pt-BR/.pose/workflows/feature.md
+- modified: locales/pt-BR/.pose/rules/delivery-evidence.md
+- modified: pose-mcp/internal/scaffold/dist/.pose/workflows/feature.md
+- modified: pose-mcp/internal/scaffold/dist/.pose/rules/delivery-evidence.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-evidence.md
 - modified: pose-mcp/internal/cli/suggest.go
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
+- modified: pose-mcp/internal/cli/rule_extension_resolver.go
+- modified: pose-mcp/internal/cli/live_helper_coverage_test.go
+- modified: pose-mcp/internal/cli/index_generation_test.go
+- created: pose-mcp/internal/cli/suggest_review_regression_test.go
+- created: .pose/reports/2026-10-18-pose-b28r2-independent-review.md
+- created: .pose/reports/2026-10-18-pose-b28r3-independent-review.md
+- created: .pose/reports/2026-10-18-pose-b28r4-independent-review.md
+- created: .pose/results/b28r4-independent-review.json
+- created: .pose/results/b28r3-independent-review.json
+- created: pose-mcp/internal/pose/json_duplicate_keys.go
+- created: .pose/results/b28r2-independent-review.json
 - modified: pose-mcp/internal/cli/migrate_dryrun.go
+- modified: pose-mcp/internal/cli/migrate_dryrun_test.go
+- modified: pose-mcp/internal/cli/help_catalog.go
 - created: pose-mcp/internal/cli/distributed_instructions_parity_test.go
-- created: pose-mcp/internal/scaffold/distributed_instructions_parity_test.go
+- created: .pose/results/b28-mutations.py
+- created: .pose/results/b28-mutations.json
+- created: .pose/reports/2026-10-18-pose-b28-d7ebc300-independent-review.md
+- created: .pose/reports/2026-10-18-pose-b28-independent-review.md
+- created: .pose/results/b28-d7ebc300-independent-review.json
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
@@ -111,26 +141,22 @@ Testes de execução ainda não foram criados ou executados para este delta.
 
 ### Requirement trace
 
-Trace planejado; vincular casos aos produtores reais na execução.
-Não declarar requisitos satisfeitos pelo lint.
+- R1 [satisfied] check:distributed-instructions-parity-integration test:TestDistributedInstructionsAskForDiscoveryOnlyWhenStale test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale test:TestInventoryNeverSkipsWhatItCannotRead test:TestTheInstalledInventoryNeverSkipsWhatItCannotRead
+- R2 [satisfied] check:distributed-instructions-parity-integration test:TestDistributedInstructionsAskForDiscoveryOnlyWhenStale test:TestTheEmbeddedMirrorsOfTheWorkflowsAndRulesMatchTheSources test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale
+- R3 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestResolvesDomainAliasesThroughOneTaxonomy test:TestSuggestDoesNotTurnEveryBackendIntoGo test:TestSuggestDomainUsesMostSpecificModuleAndSafeFallback test:TestSuggestRootModuleIsTheFallbackOfLeastSpecificity test:TestSuggestSaysWhyItHasNoDomainForAPath
+- R4 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestSeparatesDeclaredFromInstalledRules test:TestSuggestKubernetesRuleIsAnnouncedWithItsExtension test:TestSuggestAnUnreadableRuleIsNotInstalledOrInstallable test:TestSuggestRefusesAMalformedRulesConfiguration test:TestSuggestRefusesARepoMapThatIsNullOrRepeatsAKey test:TestSuggestRefusesATaskMapThatRepeatsAKey test:TestSuggestSaysAReferenceThatCannotBeReadIsNotAvailable test:TestSuggestRefusesKeysThatFoldToTheTasksField test:TestSuggestDoesNotFollowGoModOutOfTheProject test:TestSuggestRefusesOperationalFieldsOfAnImpossibleType test:TestSuggestComparesPathsAsWrittenAndDoesNotFollowALinkOutOfTheProject test:TestSuggestDoesNotLetATaskOverwriteWhatItDerivesOrNameWhatIsNotThere test:TestSuggestRefusesARuleIdentifierThatIsAPath
+- R5 [satisfied] check:distributed-instructions-parity-integration test:TestMigrateSaysThereIsNoApplyWithoutPromisingOne test:TestMigrateDryRunInventoriesLegacyWithoutWriting
+- R6 [satisfied] check:distributed-instructions-parity-integration test:TestSuggestSeparatesDeclaredFromInstalledRules test:TestSuggestResolvesDomainAliasesThroughOneTaxonomy
+- R7 [satisfied] check:distributed-instructions-parity-integration test:TestAFreshInstallReceivesInstructionsThatAskForDiscoveryOnlyWhenStale test:TestSuggestSeparatesDeclaredFromInstalledRules
+- R8 [satisfied] check:distributed-instructions-parity-integration report:b28-mutations.json — as mutações de produção morrem por asserção; aliases, regra presente/ausente, jornada de install EN/pt-BR e a recusa do migrate são exercitados pelos comandos
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1,V2 |
-| R2 | V2 |
-| R3 | V3 |
-| R4 | V4 |
-| R5 | V5 |
-| R6 | V3–V6 |
-| R7 | V1,V2,V4 |
-| R8 | V1–V6 |
+O MCP `pose_suggest` executa o próprio `pose suggest --json` (`Store.Suggest` → `runCLI`), de modo que divulga a mesma disponibilidade que o JSON da CLI por construção.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 6. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+B28 entregue: workflow de feature e regra de delivery-evidence (EN, pt-BR e todos os espelhos embarcados) pedem `assess discover --if-stale`; `suggest` resolve domínios por uma taxonomia, divulga o alias, reporta domínio sem regras e separa regra instalada, `extension-needed` e indisponível sem anunciar arquivo inexistente nem instalar nada; um módulo `backend` só vira Go quando é Go; `migrate --apply` é recusado com o fato atual, sem prometer apply futuro. Validação nativa strict 143/143 e revisão separada do bundle `rvb-8356317c26979162` aprovadas em 2026-10-22; evidências e transição governada estão no relatório `2026-10-22-b28-pending-closeout.md`.
 
 ### Residual risks
 
@@ -138,5 +164,28 @@ Instrução distribuída pode continuar divergente se o inventário excluir um l
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Primeira revisão independente (changes-requested): os nove bloqueantes foram tratados (módulo
+raiz, catálogo de extensões com Kubernetes, regra legível e regular, configuração de regras
+validada, identificadores de regra validados, índice ilegível distinto de ausência, inventário que
+falha em vez de pular, executor de mutações sem shell e que não conta erro como morte, índice
+republicado coerente). Os executores de mutação das unidades já entregues (b14, b15) repetem o
+shell interpolado e ficam como follow-up. Segunda revisão (quatro bloqueantes) tratada: tarefa,
+listas e domínios `null` na configuração são recusados, o repo-map tem o formato validado antes
+de qualquer seleção (coleção, item, tipos, caminho dentro do projeto), links quebrados de regra ou
+do diretório de regras são perda e não ausência, e o inventário do produto instalado falha no que
+não consegue ler e exige AGENTS.md num checkout de distribuição. Terceira revisão (quatro grupos) tratada: o repo-map `null` é perda e não ausência; chaves repetidas no repo-map e no task-map são recusadas e dois módulos do mesmo caminho canônico que divergem não são resolvidos pela ordem; um caminho é validado e comparado do jeito que está escrito (espaços fazem parte do nome) e um `go.mod` fora do projeto não torna um backend Go; e a task não sobrescreve os campos que o comando deriva, tem workflow e skill validados e a ausência deles é divulgada. Quarta revisão (quatro grupos) tratada: workflow e skill são abertos para leitura antes de serem anunciados como disponíveis; chaves que dobram para `tasks` (maiúsculas, Unicode) são recusadas em vez de decidir pela ordem do documento; o `go.mod` consultado é o arquivo resolvido dentro do projeto; e os campos operacionais da task (`description`, `validation`, `requires_*`, `knowledge_*`) só aceitam os tipos que o task-map distribuído usa. A checagem de que o diretório do módulo está dentro do projeto não tem mutante próprio: a checagem do arquivo `go.mod` resolvido a subsume, e um mutante dela seria equivalente. Itens abertos, de baixo risco:
+
+- [open] O doctor recomenda instalar uma extensão para uma regra ilegível. (owner:@core crit:low review:2026-12-01)
+
+- [open] Dizer o alias e a origem explícitos também na saída humana de `pose suggest`. (owner:@core crit:low review:2026-12-01)
+- [open] Aceitar na CLI MCP o alias de caixa (`Go`) que a CLI já aceita. (owner:@core crit:low review:2026-12-01)
+- [open] Corrigir os executores de mutação das unidades b14/b15. (owner:@core crit:low review:2026-12-01)
+- [open] Documentar o estado `unreadable` das referências de `pose suggest`. (owner:@core crit:low review:2026-12-01)
+- [open] Classificar link quebrado de workflow/skill como perda e não como indisponibilidade. (owner:@core crit:low review:2026-12-01)
+- [open] Ampliar o filtro da integração B28 para os consumidores novos. (owner:@core crit:low review:2026-12-01)
+- [open] Diferenciar task-map ausente de ilegível na mensagem de `pose suggest`. (owner:@core crit:low review:2026-12-01)
+- [open] Não recusar prosa válida que contém newline JSON escapado. (owner:@core crit:low review:2026-12-01)
+- [open] Remover a menção a "6.x" do texto do dry-run de `pose migrate`. (owner:@core crit:low review:2026-12-01)
+- [open] Trocar o shell interpolado e a heurística de duas substrings dos executores `b14-mutations.py` e `b15-mutations.py`. (owner:@core crit:low review:2026-12-01)
+
+As dependências e unidades restantes permanecem na matriz do programa, sem disposition automática.

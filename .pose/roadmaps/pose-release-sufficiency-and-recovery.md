@@ -90,3 +90,20 @@ sem dispensar compromisso por renomeação ou exigir concluir roadmap alheio.
 - Preservar contratos legacy, manifests congelados e tags; checker não corrige história.
 - Distinguir prepared/tagged/published/verified e coverage, sem inventar rollback ou receipt.
 - Decidir cuts/versões pela suficiência verificada, sem promessa de release por nome do roadmap.
+
+### B38 — closeout independente (2026-10-19)
+
+PR #198 conclui B38 após a décima terceira revisão independente no HEAD `07e77f89`.
+Revisor `agent:independent-claude-opus-5-5-review`, Claude/Anthropic, o mesmo vendor
+do implementador: não há separação de vendor, só de execução e de contexto, porque o
+Codex está indisponível (limite de uso até 2026-10-24). Identidade e separação são
+declaradas, e a atestação no pose-dist não tem envelope. Nenhuma policy foi alterada.
+
+Validação estrita global 140/140 e módulo 137/137. Bundle `rvb-7a5a4b8cac65cf0b`,
+atestação `rva-fc93233a05b7e708`. Review verify fresh/approved e close nativo aprovados.
+Spec done e B38 delivery_complete no [plano](../results/pose-implementation-plan.json).
+Os vinte follow-ups low permanecem `[open]` na spec (owner @core, revisão 2026-12-01).
+Nenhum deles permite aprovação indevida. Parecer em
+[review B38r13](../reports/2026-10-19-b38r13-claude-independent-review.md) e
+[evidência compacta](../results/b38r13-claude-independent-review.json). Aguardar o merge
+pelo maintainer. Os demais milestones deste roadmap continuam em draft.

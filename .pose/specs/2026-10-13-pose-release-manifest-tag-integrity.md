@@ -1,8 +1,8 @@
 ---
 slug: pose-release-manifest-tag-integrity
-status: draft
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-19
 depends_on: pose-release-lifecycle-closure
 priority: 1
 components: pose-mcp
@@ -48,23 +48,61 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
+- created: .pose/reports/2026-10-22-b38-pending-review-r1.md
+- created: .pose/reports/2026-10-22-b38-pending-reconciliation.md
+
 Os paths abaixo são declarações prospectivas para a implementação. Neste lote
 somente esta spec é criada, sob a atribuição documental de
 `pose-consolidation-batch-6-authoring`. Reconciliar os paths exatos antes de start;
 não tratar a declaração de um teste futuro como teste existente ou executado.
 
-- created: .pose/specs/2026-10-13-pose-release-manifest-tag-integrity.md
+- modified: .pose/specs/2026-10-13-pose-release-manifest-tag-integrity.md
 - created: .pose/starts/pose-release-manifest-tag-integrity.json
 - created: .pose/changelogs/unreleased/pose-release-manifest-tag-integrity.md
+- created: pose-mcp/internal/pose/release_manifest_integrity.go
 - modified: pose-mcp/internal/pose/release_lifecycle.go
-- modified: pose-mcp/internal/pose/release_archive.go
-- modified: pose-mcp/internal/pose/release_version_source.go
-- modified: pose-mcp/internal/cli/release_manifests.go
+- modified: pose-mcp/internal/cli/release_lifecycle.go
+- modified: pose-mcp/internal/cli/cli.go
 - created: pose-mcp/internal/pose/release_manifest_tag_integrity_test.go
+- created: pose-mcp/internal/pose/release_manifest_fixture_test.go
 - created: pose-mcp/internal/cli/release_manifest_tag_integrity_test.go
-- created: pose-mcp/internal/mcpserver/release_manifest_tag_integrity_test.go
+- created: pose-mcp/internal/pose/release_review_regression_test.go
+- created: pose-mcp/internal/cli/release_review_regression_test.go
+- created: pose-mcp/internal/pose/release_review_r2_test.go
+- created: pose-mcp/internal/pose/release_candidate.go
+- created: pose-mcp/internal/pose/path_state.go
+- created: .pose/reports/2026-10-18-b38r5-independent-review.md
+- created: .pose/results/b38r5-independent-review.json
+- created: pose-mcp/internal/pose/release_review_r6_test.go
+- created: .pose/reports/2026-10-18-b38r6-independent-review.md
+- created: .pose/results/b38r6-independent-review.json
+- modified: .pose/changelogs/v0.16.4.md
+- renamed: .pose/changelogs/v0.16.4/pose-scaffold-backup-preservation.md -> .pose/changelogs/v0.16.4/pose-upgrade-compatibility-lab.md
+- created: pose-mcp/internal/pose/release_review_r4_test.go
+- created: pose-mcp/internal/pose/release_history_test.go
+- created: .pose/reports/2026-10-18-b38r4-independent-review.md
+- created: .pose/results/b38r4-independent-review.json
+- modified: pose-mcp/internal/pose/release_archive.go
+- modified: pose-mcp/internal/pose/review_release_archive_test.go
+- created: .pose/reports/2026-10-18-b38r2-independent-review.md
+- created: .pose/results/b38r2-independent-review.json
+- created: .pose/results/b38r2-independent-validation.json
+- created: .pose/results/b38r2-global-validation.json
+- created: .pose/results/b38r2-mcp-enforce-validation.json
+- modified: pose-mcp/internal/pose/obligation_sources.go
+- modified: pose-mcp/internal/cli/publicclaims.go
+- created: .pose/reports/2026-10-18-b38-independent-review.md
+- created: .pose/results/b38-independent-review.json
+- modified: pose-mcp/internal/pose/obligation_sources_test.go
+- modified: pose-mcp/internal/pose/release_archive_test.go
+- modified: pose-mcp/internal/cli/publicclaims_provenance_test.go
+- created: .pose/results/b38-mutations.py
+- created: .pose/results/b38-mutations.json
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
@@ -112,26 +150,22 @@ Testes de execução ainda não foram criados ou executados para este delta.
 
 ### Requirement trace
 
-Trace planejado; vincular casos aos produtores reais na execução.
-Não declarar requisitos satisfeitos pelo lint.
+- R1 [satisfied] check:release-manifest-tag-integrity-integration test:TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree test:TestF01ManifestIsStrictJSON test:TestF04VersionEvidenceMustBeTheReleaseAndItsSourceMustBeThere test:TestF10VersionPrecedenceIsSemanticAndPreviousIsOlder test:TestR2NestedFragmentObjectsAreStrict test:TestR2VersionEvidenceFollowsThePolicyOfTheCut test:TestR2PrepareDoesNotOverwriteAManifestItCannotRead test:TestR4MultilineBodyIsFrozenAndLoads test:TestEveryHistoricalReleaseManifestOfThisRepositoryStillLoads
+- R2 [satisfied] check:release-manifest-tag-integrity-integration test:TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree test:TestF02ProjectionsAreRecomposedFromTheFragmentBlobs test:TestR2ArchivalWitnessIsTheSpecOfTheBlob test:TestR2NotesAreTheRenderingOfTheFragments test:TestR6TheRegistryBlockIsToleratedAndAFragmentSectionWithTheSameHeadingIsNot
+- R3 [satisfied] check:release-manifest-tag-integrity-integration test:TestTheSnapshotIsVerifiedAgainstTheTaggedTreeNotTheWorktree test:TestAVersionSourceThatCannotBeRecomputedIsALimit test:TestF03PolicyDigestFollowsThePolicyOfTheTag test:TestF06AbsenceIsNotALoss test:TestR2PoliciesOfTheCutAreValidated test:TestR2GitFailuresAreNotAbsence test:TestR2PreparedEvidenceNamesTheSourceOfThePolicy test:TestR4ALinkInPlaceOfTheVersionSourceIsNotItsContent test:TestR4ALostReleaseDirectoryAndPolicyAreNotAbsence test:TestR4TheCutoffIsAVersionAndTheChangelogSchemaIsSupported test:TestR5LostLinksAreNotAbsence test:TestEveryReleaseTagOfThisRepositoryIsIntactForThisEngine test:TestR5TheCompatibilitySectionIsNotAContradiction test:TestR6AnAncestorThatIsNotATreeIsNotAbsence test:TestR6ARelativePathIsSearchedFromTheWorkingDirectory test:TestR6ALostReleaseInventoryIsNotNoReleases test:TestEveryTaggedReleaseOfThisRepositoryMatchesItsWorktree
+- R4 [satisfied] check:release-manifest-tag-integrity-integration test:TestATagWithoutTheSnapshotInItsTreeIsRefusedWhateverTheWorktreeHolds test:TestLightweightAndAnnotatedTagsResolveToTheirCommit test:TestReleaseCheckReadsTheTagsOwnTree test:TestF07ABranchWithTheNameOfATagIsNotATag test:TestF05RecordRefusesATagWhoseTreeIsNotIntact
+- R5 [satisfied] check:release-manifest-tag-integrity-integration test:TestACorrectCutStaysIntactAfterEvidenceAndTheNextCycle test:TestF09TheWorkingTreeMustBeTheCutOfTheTag test:TestR4ArchivalIsBoundToTheCutOfTheTag
+- R6 [satisfied] check:release-manifest-tag-integrity-integration test:TestACorrectCutStaysIntactAfterEvidenceAndTheNextCycle test:TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree test:TestF08ALaterPolicyDoesNotInvalidateATaggedCut
+- R7 [satisfied] check:release-manifest-tag-integrity-integration test:TestReleaseStatusReportsTheSnapshotOfTheTag test:TestReleaseCheckReadsTheTagsOwnTree test:TestF05StatusDoesNotTrustASnapshotThatIsNotIntact test:TestR2StatusSeesTheFilesOfTheCutThatWereLost test:TestR4APreparedStatusSeesTheFilesItLost test:TestR4AnUnsoundVerifiedReleaseStillOwes test:TestR4PreparedNotesAreTheRenderingAndTheReaderRefusesOtherwise test:TestR4EventsThatNameATagThatIsNotThereAreAGap test:TestR5ACandidateIsJudgedByOneFunction test:TestR5PrepareDoesNotWriteThroughALostManifestLink test:TestR6ACategoryAllowedWhenTheCutWasMadeIsNotRevalidated test:TestR6ASupersededCandidate test:TestR6ASupersededPreparedCutIsAWarningAndALiveOneIsJudged
+- R8 [satisfied] check:release-manifest-tag-integrity-integration report:b38-mutations.json — adulteração de cada projeção e digest, schema, versão, caminhos, campo desconhecido, tag leve e anotada, tag sem snapshot e cut correto seguido de evidência e novo ciclo; as mutações de produção morrem por asserção
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1 |
-| R2 | V2 |
-| R3 | V2,V4 |
-| R4 | V3,V4 |
-| R5 | V5 |
-| R6 | V6,V7 |
-| R7 | V7 |
-| R8 | V1–V7 |
+A verificação é de leitura: o snapshot lê blobs do commit da tag e usa apenas um diretório temporário para reler a fonte de versão; não move tag, não reescreve manifest, notas nem archive.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 6. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+B38 entregue: o manifest passa por um contrato estrito (schema suportado, campos desconhecidos recusados, versão e caminhos limpos, projeções `specs`/`categories`/`breaking` e `release_input_digest` recompostas a partir dos fragments congelados); `release check` e `release status` verificam a tag pela sua própria árvore (tag leve ou anotada resolvida ao commit; manifest, notas, fragments congelados e fonte de versão lidos como blobs desse commit), recusam tag sem snapshot qualquer que seja o worktree, não tornam obsoleto um cut correto por commit, evidência ou ciclo posteriores, e reportam como limite a fonte de versão que não pode ser recomputada. A décima terceira revisão independente (`agent:independent-claude-opus-5-5-review`, Claude/Anthropic, o mesmo vendor do implementador: sem separação de vendor, só de execução e de contexto, porque o Codex está indisponível até 2026-10-24) aprovou no HEAD `07e77f89` sem bloqueante, com atestação sem envelope; ver o [parecer](../reports/2026-10-19-b38r13-claude-independent-review.md).
 
 ### Residual risks
 
@@ -139,5 +173,41 @@ Schema estrito precisa de política deliberada para versões legacy e extensões
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Primeira revisão independente (changes-requested, dez bloqueantes) tratada: o manifest é lido como
+um único documento JSON de nomes exatos, campos obrigatórios e sem chave repetida; os campos que
+ele repete são recompostos dos blobs de fragment e da policy da árvore da tag; a evidência de
+versão tem de ser a versão da release e sua fonte tem de estar na árvore; o status e os
+consumidores só tratam como sólida (`Sound`) uma release cujo snapshot é íntegro, e uma release
+cuja pasta sumiu do worktree continua no registro pela tag; ausência, falha de leitura e perda de
+inventário são respostas distintas; a tag é só `refs/tags`; uma release com tag é julgada sob a
+policy do seu corte e o worktree tem de ser o mesmo corte da tag; a precedência de versões é a do
+SemVer 2.0 em todos os consumidores, e `previous_version` tem de ser mais antigo. Segunda revisão (oito bloqueantes) tratada: os objetos aninhados do manifest seguem o contrato da raiz; o testemunho de archival confere a spec que o blob nomeia; o status confere o worktree com o corte como o check; a evidência de versão segue a policy do corte (JSON lido com a chave, arquivo do motor só pelo caminho exato) e o candidato confere fonte e tipo; falhas do Git e tags sem snapshot são lacunas e não ausência; as policies do corte (release e changelog) são validadas pelo próprio contrato; as notas são a renderização dos fragments congelados; e `prepare` não sobrescreve manifest existente que não lê. Quarta revisão (oito bloqueantes) tratada: o texto livre de um fragment pode ter várias linhas (o manifest que o produtor escreve é lido, e os 75 manifests históricos deste repositório carregam); um link ou submódulo na árvore da tag não é conteúdo de arquivo; um candidato sem tag também confere os arquivos que congelou; uma release `verified` que não é sólida continua devendo; o testemunho de archival só vale para o corte da tag; ausência é provada pela árvore e uma falha de leitura, de objeto, de raiz ou de policy não vira fallback; o cutoff é uma versão e o schema do changelog é conferido; e as notas preparadas são a renderização dos fragments congelados. Quinta revisão (seis bloqueantes) tratada: um candidato sem tag é julgado por uma função só (`ReleaseCandidateGaps`: política, política de changelog, notas como renderização, digest de entrada, versão e arquivos congelados) usada pelo check, pelo status e pelo checker estrutural, que também confere o corte de cada release governada; a ausência é provada olhando cada ancestral (`ProvenAbsent`), de modo que um link perdido em qualquer nível é perda e não fallback, lista vazia nem ausência de eventos; `prepare` não escreve através de um manifest que é um link perdido; a política de changelog inválida ou de schema futuro vale como lacuna do candidato; e a seção de compatibilidade das notas, que depende do registro de contratos do motor, é um limite e não uma contradição, de modo que as 81 tags históricas deste repositório continuam íntegras. Sexta revisão (seis bloqueantes) tratada: a exceção das notas vale só para o bloco que o registro de contratos deriva (o primeiro depois do título, que sempre abre com "This release introduces"), de modo que uma categoria de fragment chamada `compatibility` continua comparada byte a byte; na árvore da tag, um ancestral que é link, arquivo ou submódulo esconde o que está abaixo e vale como lacuna, e só uma árvore que prova a ausência é ausência; o inventário de releases perdido é erro no checker e no plano, e não "nenhuma release"; `ProvenAbsent` procura um caminho relativo a partir do diretório de trabalho; o checker não revalida as categorias de um corte sob a policy de hoje (os fragments arquivados são lidos pela identidade); e o gate estrutural fica verde na linha de base real: o worktree de `v0.16.4` volta a ser o corte que a sua tag guarda (a atribuição do fragment à spec `pose-upgrade-compatibility-lab`), e o corte preparado `v6.3.0`, que nunca recebeu tag e que a versão do projeto já ultrapassou, é dito como aviso (`ReleaseCandidateSuperseded`) em vez de reprovar, enquanto um corte vivo continua julgado. Duas guardas não têm mutante próprio porque ele seria equivalente: o fim do documento (um objeto ou colchete depois do manifest já é recusado pela leitura de chaves repetidas e caracteres de controle) e a solidez por snapshot não íntegro (um snapshot não íntegro sempre deixa gaps na projeção, que a tornam não sólida por si). Item aberto,
+de baixo risco:
+
+- [open] Recusar `version_evidence.kind: null` no manifest. (owner:@core crit:low review:2026-12-01)
+- [open] Harmonizar os filtros de arquivos auxiliares entre o snapshot e o worktree. (owner:@core crit:low review:2026-12-01)
+- [open] Expor os limites e a integridade do candidato nos diagnósticos do status. (owner:@core crit:low review:2026-12-01)
+- [open] Ampliar o padrão do check de integração desta spec para os consumidores novos. (owner:@core crit:low review:2026-12-01)
+- [open] Usar o carregador estrito da policy de changelog em plan e prepare. (owner:@core crit:low review:2026-12-01)
+- [open] Reconciliar o texto de authoring da spec com a implementação e a validação efetivamente executadas, mantendo separado o closeout pendente. (owner:@core crit:low review:2026-12-01)
+- [open] Explicitar o tratamento de links de worktree com bytes idênticos aos do snapshot da tag. (owner:@core crit:low review:2026-12-01)
+- [open] Fazer os smokes históricos recusarem leituras com erro e execuções com zero fixtures. (owner:@core crit:low review:2026-12-01)
+- [open] Distinguir um cut de uma prova de adoção em `governedReleaseWitness`: um manifest sob policy explicitamente não adotada não deve, sozinho, impor adoção depois que a policy opcional deixa de existir; preservar a recusa de perdas e leituras inconclusivas. (owner:@core crit:low review:2026-12-01)
+- [open] Fazer `releaseInputs` recusar entradas do inventário que não são diretório ao calcular a versão anterior, como o checker e o status. (owner:@core crit:low review:2026-12-01)
+- [open] Usar o carregador estrito da policy de changelog nos fragments pendentes do checker e de `checkRelease`. (owner:@core crit:low review:2026-12-01)
+- [open] Harmonizar o julgamento de tags fora de SemVer entre o checker e o status em projetos adotados. (owner:@core crit:low review:2026-12-01)
+- [open] Validar pelo contrato estrito a policy da árvore da tag em `TagHoldsAdoptedReleasePolicy`, em vez de só ler `adopted_at`. (owner:@core crit:low review:2026-12-01)
+- [done] R11-L14/M1, variante insegura de ref solta: ref corrompida não é ausência e inventário incompleto não permite escolher uma release verificada mais antiga. Reproduzido e coberto em domínio e CLI em 2026-10-22; ver `TestReleaseCorruptTagIsNotProvenMissing` e `TestReleaseBrokenNewerTagCannotOpenAfterAnOlderVerifiedRelease`.
+- [open] Qualificar com regressão dedicada a variante de linha ruim em `packed-refs`, preservando o contrato de erro já compartilhado pelo inventário e pela resolução explícita de tags. (owner:@core crit:low review:2026-12-01)
+- [open] Considerar um `GIT_DIR` perdido em `GitNotARepository`. (owner:@core crit:low review:2026-12-01)
+- [open] Não reprovar o `pose check` por uma tag SemVer que aponta para árvore ou blob. (owner:@core crit:low review:2026-12-01)
+- [open] Derivar de novo `previous_version` e informá-lo como limite. (owner:@core crit:low review:2026-12-01)
+- [open] Fazer `release check` não descartar `ForeignFragmentClaims` em silêncio quando o archive ou as specs não puderem ser lidos. (owner:@core crit:low review:2026-12-01)
+- [open] Evitar que o status leia o snapshot e a policy da árvore de cada tag de um projeto não adotado antes de descartá-la (cerca de 2,9 s com 300 tags). (owner:@core crit:low review:2026-12-01)
+- [open] Fazer o status usar a mesma testemunha de adoção do checker quando a policy de hoje foi apagada: hoje só um corte no worktree conta, e uma tag sem manifest cuja árvore não traz a adoção some do status e das obligations quando a adoção é provada só pelo manifest de outra tag (o `pose check` reprova, e `open-next` continua recusando). (owner:@core crit:low review:2026-12-01)
+
+As dependências e unidades restantes permanecem na matriz do programa, sem disposição automática.
+
+### Integration requalification — 2026-10-22
+
+Historical native done and R13 approval remain unchanged as historical events. A separate source review of the current main merge found a medium two-release selection variant of R11-L14: broken newer tag omitted with successful Git exit could promote an older verified release for open-next. It was reproduced before fixing; unknown/corrupt ref is not proven missing, and tag inventory diagnostics now propagate through shared status/plan/check/backfill consumers. Current strict collection 143/143 and final separate sealed review of `rvb-ef842bee6b11a74f` approved; no release is prepared/published, no tag/history is rewritten.

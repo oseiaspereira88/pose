@@ -18,6 +18,7 @@ package pose
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -48,6 +49,10 @@ const pendingFragmentDir = ".pose/changelogs/unreleased/"
 // LoadArchivedFragments reads every release manifest under root and returns
 // what each attests, sorted by archived path. A manifest that cannot be read
 // attests nothing; `pose release check` is where it is reported.
+func LoadArchivedFragments(root string) []ArchivedFragment {
+	return LoadArchivedFragmentsIn(NativeFiles(), root)
+}
+
 func LoadArchivedFragmentsIn(files Files, root string) []ArchivedFragment {
 	entries, err := files.ReadDir(filepath.Join(root, ".pose", "releases"))
 	if err != nil {
@@ -68,6 +73,16 @@ func LoadArchivedFragmentsIn(files Files, root string) []ArchivedFragment {
 			continue
 		}
 		manifestSum := sha256.Sum256(manifestRaw)
+		// A release that has a tag is the cut the tag holds: a manifest of the working tree that is
+		// not that cut attests nothing.
+		boundToTag := true
+		if _, _, tagErr := ResolveReleaseTag(root, entry.Name()); tagErr == nil {
+			if snap, snapErr := ReadReleaseSnapshot(root, entry.Name()); snapErr != nil || ReleaseDigest(string(manifestRaw)) != snap.ManifestDigest {
+				boundToTag = false
+			}
+		} else if !errors.Is(tagErr, ErrReleaseTagMissing) {
+			boundToTag = false
+		}
 		for _, fragment := range manifest.Fragments {
 			if fragment.Spec == "" || fragment.Path == "" || strings.ContainsAny(fragment.Path, `/\`) {
 				continue
@@ -77,12 +92,19 @@ func LoadArchivedFragmentsIn(files Files, root string) []ArchivedFragment {
 			}
 			at := ".pose/changelogs/" + entry.Name() + "/" + fragment.Path
 			raw, err := files.ReadFile(filepath.Join(root, filepath.FromSlash(at)))
+			// The digest proves the bytes; the spec they say they belong to must be the one the
+			// manifest attributes them to, or a manifest could hand one spec's fragment to another.
+			named := false
+			if err == nil {
+				fm, _ := SplitFrontmatter(string(raw))
+				named = strings.TrimSpace(fm["spec"]) == fragment.Spec
+			}
 			archived = append(archived, ArchivedFragment{
 				Version:        entry.Name(),
 				Spec:           fragment.Spec,
 				Pending:        pendingFragmentDir + fragment.Path,
 				Archived:       at,
-				Intact:         err == nil && ReleaseDigest(string(raw)) == fragment.Digest,
+				Intact:         boundToTag && err == nil && named && ReleaseDigest(string(raw)) == fragment.Digest,
 				Manifest:       manifestPath,
 				ManifestDigest: "sha256:" + hex.EncodeToString(manifestSum[:]),
 			})
@@ -90,12 +112,6 @@ func LoadArchivedFragmentsIn(files Files, root string) []ArchivedFragment {
 	}
 	sort.Slice(archived, func(i, j int) bool { return archived[i].Archived < archived[j].Archived })
 	return archived
-}
-
-// LoadArchivedFragments reads and writes the filesystem directly; LoadArchivedFragmentsIn takes the
-// operation's files.
-func LoadArchivedFragments(root string) []ArchivedFragment {
-	return LoadArchivedFragmentsIn(NativeFiles(), root)
 }
 
 // archivalLedger answers, for one claim, whether a release attests the

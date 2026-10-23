@@ -1,0 +1,841 @@
+{
+  "schema_version": 1,
+  "review": "b38r7",
+  "repository": "oseiaspereira88/pose",
+  "pr": 198,
+  "spec": "pose-release-manifest-tag-integrity",
+  "head": "22bb273aedf9fd29f9101cad439d856f565154f4",
+  "base": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+  "decision": "changes-requested",
+  "reviewer": {
+    "id": "agent:independent-gpt-6.1-sol-review",
+    "vendor": "Codex/OpenAI",
+    "implementer_vendor": "Claude/Anthropic",
+    "identity_assurance": "declared",
+    "separation": "different-actor; different-vendor; separate execution; no cryptographic or cognitive-independence claim"
+  },
+  "sealed": false,
+  "attested": false,
+  "committed": false,
+  "pushed": false,
+  "policy_changed": false,
+  "issuer_pin_added": false,
+  "prepared_bundle": {
+    "id": "rvb-e5f6ab570826c897",
+    "digest": "sha256:e5f6ab570826c8978eb33805eaaaeb3d9972e52e3a02b68339e94be6af677cab",
+    "state": "prepared",
+    "subject": {
+      "base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+      "head": "22bb273aedf9fd29f9101cad439d856f565154f4",
+      "implementation_digest": "sha256:67b9fb5e556767c08f66dec3c86fe9ce82b3e7cd1a0753de9638fa39c84e5650",
+      "patch_digest": "sha256:702e334015a48867694317e721918ae378a58c975acba138fd8eebba2b7a2b28",
+      "tree_digest": "sha256:07f63daf9f424cea49828dfdc90e3619c2ac33a23c522d24740be6ca62fb3f32"
+    },
+    "plan": {
+      "plan_digest": "sha256:3a4c917e89236ce003abf862f3791cb86b7a29ee533c02a5968032e97bb28a1c",
+      "independence": "different-actor",
+      "components": [
+        {
+          "id": "pose-mcp",
+          "path": "pose-mcp",
+          "kind": "package",
+          "language": "go",
+          "domain": "go",
+          "criticality": "high",
+          "validation_profile": "baseline",
+          "metadata_status": "partial",
+          "metadata_missing": [
+            "owner"
+          ],
+          "origin": "declared+observed",
+          "sources": [
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/cli/cli.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/cli/publicclaims.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/cli/publicclaims_provenance_test.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/cli/release_lifecycle.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/cli/release_manifest_tag_integrity_test.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/cli/release_review_regression_test.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/obligation_sources.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/obligation_sources_test.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/path_state.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_archive.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_archive_test.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_candidate.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_history_test.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_lifecycle.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_manifest_fixture_test.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_manifest_integrity.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_manifest_tag_integrity_test.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_review_r2_test.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_review_r4_test.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_review_r6_test.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_review_regression_test.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/review_release_archive_test.go",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/scaffold/dist/POSE.md",
+            "artifact:pose-release-manifest-tag-integrity:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+            "delivery:capability:release-manifest-tag-integrity:pose-mcp",
+            "delivery:capability:release-manifest-tag-integrity:pose-mcp/internal/pose/release_lifecycle.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/cli/cli.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/cli/publicclaims.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/cli/publicclaims_provenance_test.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/cli/release_lifecycle.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/cli/release_manifest_tag_integrity_test.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/cli/release_review_regression_test.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/obligation_sources.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/obligation_sources_test.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/path_state.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_archive.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_archive_test.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_candidate.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_history_test.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_lifecycle.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_manifest_fixture_test.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_manifest_integrity.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_manifest_tag_integrity_test.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_review_r2_test.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_review_r4_test.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_review_r6_test.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/release_review_regression_test.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/pose/review_release_archive_test.go",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/scaffold/dist/POSE.md",
+            "observed:pose-release-manifest-tag-integrity:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+            "spec:pose-release-manifest-tag-integrity:component:pose-mcp"
+          ]
+        }
+      ],
+      "criteria": [
+        {
+          "id": "assumption-integrity",
+          "description": "Identify material assumptions and their applicable evidence; distinguish verified facts, unresolved assumptions and accepted risks.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "engineering-judgment@1",
+            "high-criticality-review@1"
+          ]
+        },
+        {
+          "id": "backend-concurrency",
+          "description": "Concurrent access, cancellation and lifecycle behavior are safe where applicable.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-contracts",
+          "description": "Public API, event, file and tool contracts remain compatible or explicitly migrated.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-input-errors",
+          "description": "Inputs, validation failures and error paths are bounded, typed and actionable.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-integration-impact",
+          "description": "Providers, consumers and inter-component boundaries remain integrated.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-observability",
+          "description": "Failures are diagnosable through bounded, non-sensitive logs, metrics or returned context.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "compatibility",
+          "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "correctness",
+          "description": "Functional and negative behavior is correct.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "design-causality",
+          "description": "Explain how the selected design addresses the stated requirement and material cause, citing the relevant decision basis and structural observations where available.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "engineering-judgment@1",
+            "high-criticality-review@1"
+          ]
+        },
+        {
+          "id": "documentation",
+          "description": "Operational docs, templates and scaffold match runtime behavior.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "operability",
+          "description": "Errors, explanations and remediation are actionable.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "requirements",
+          "description": "Every requirement has current, relevant evidence.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "scope",
+          "description": "The implementation matches the approved spec scope.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "security",
+          "description": "Inputs, paths, evidence and authority boundaries are safe.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "security"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "solution-proportionality",
+          "description": "Compare the solution with the smallest sufficient alternative, including negative space, speculative extensibility and the condition that would invalidate the choice.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "engineering-judgment@1",
+            "high-criticality-review@1"
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "id": "artifact-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "artifact-check",
+            "--spec",
+            "pose-release-manifest-tag-integrity",
+            "--strict"
+          ],
+          "rationale": "reconcile declared artifacts with Git-observed provenance",
+          "criteria": [
+            "requirements",
+            "scope"
+          ],
+          "preconditions": [
+            "artifacts-attributed"
+          ]
+        },
+        {
+          "id": "assess-design",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "design",
+            "--spec",
+            "pose-release-manifest-tag-integrity",
+            "--json"
+          ],
+          "rationale": "observe bounded structural deltas on the canonical review subject",
+          "evidence_classes": [
+            "structure"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "pose-mcp"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-integrate",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "integrate"
+          ],
+          "rationale": "inspect providers, consumers and inter-component contract gaps",
+          "evidence_classes": [
+            "integration"
+          ],
+          "criteria": [
+            "backend-contracts",
+            "backend-integration-impact"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-tech-debt",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "tech-debt"
+          ],
+          "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+          "criteria": [
+            "correctness"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "closeout-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "closeout-check",
+            "spec:pose-release-manifest-tag-integrity"
+          ],
+          "rationale": "verify remaining hierarchical closeout blockers",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "review-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "review-check",
+            "spec:pose-release-manifest-tag-integrity"
+          ],
+          "rationale": "verify exact review-plan coverage and freshness",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "pose-mcp"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "surface-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "surface-check",
+            "--spec",
+            "pose-release-manifest-tag-integrity",
+            "--strict"
+          ],
+          "rationale": "verify delivery composition, reachability and fresh evidence",
+          "evidence_classes": [
+            "integration",
+            "reachability"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "criteria": [
+            "backend-concurrency",
+            "backend-input-errors",
+            "backend-observability",
+            "correctness",
+            "requirements"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "component": "pose-mcp",
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        }
+      ],
+      "selected_profiles": [
+        {
+          "ref": "spec-closeout@1",
+          "category": "base",
+          "order": 0,
+          "source": ".pose/review-profiles/spec-closeout.json",
+          "rationale": "selected by terminal scope policy"
+        },
+        {
+          "ref": "backend-review@1",
+          "category": "language",
+          "order": 1,
+          "source": ".pose/review-profiles/backend-review.json",
+          "components": [
+            "pose-mcp"
+          ],
+          "rationale": "matched typed language selector"
+        },
+        {
+          "ref": "engineering-judgment@1",
+          "category": "delivery",
+          "order": 4,
+          "source": ".pose/review-profiles/engineering-judgment.json",
+          "components": [
+            "pose-mcp"
+          ],
+          "rationale": "matched typed delivery selector"
+        },
+        {
+          "ref": "high-criticality-review@1",
+          "category": "delivery",
+          "order": 4,
+          "source": ".pose/review-profiles/high-criticality-review.json",
+          "components": [
+            "pose-mcp"
+          ],
+          "rationale": "matched typed delivery selector"
+        }
+      ],
+      "structure": {
+        "observed": true,
+        "status": "observed",
+        "input_digest": "sha256:f4c433a64cf025bef82981f0c655a1274d69897373c12c149130e6e0c652f860",
+        "subject_digest": "sha256:67b9fb5e556767c08f66dec3c86fe9ce82b3e7cd1a0753de9638fa39c84e5650"
+      },
+      "band": "critical"
+    }
+  },
+  "findings": [
+    {
+      "id": "R7-F01",
+      "severity": "high",
+      "classification": "merge-blocker",
+      "location": "pose-mcp/internal/cli/release_lifecycle.go:843-880",
+      "title": "Inventário removido de release tagged não é verificado pelo checker",
+      "requirements": [
+        "R3",
+        "R7",
+        "R8"
+      ],
+      "action": "Reconciliar a união de versões do inventário e das tags governadas; verificar também a cópia do worktree quando apenas a tag fornece a identidade. Preservar a distinção entre projeto sem releases e snapshot perdido.",
+      "probes": [
+        "TestB38R7MissingTaggedInventory/one-release",
+        "TestB38R7MissingTaggedInventory/all-releases"
+      ]
+    },
+    {
+      "id": "R7-F02",
+      "severity": "high",
+      "classification": "merge-blocker",
+      "location": "pose-mcp/internal/cli/release_lifecycle.go:859-865",
+      "title": "Exceção superseded rebaixa perda de tag registrada e journal ilegível",
+      "requirements": [
+        "R3",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "action": "Aplicar a exceção apenas ao candidato demonstravelmente nunca tagged, com journal legível e sem fatos que contradigam essa classificação; não rebaixar falhas de leitura nem perdas de evidência factual.",
+      "probes": [
+        "TestB38R7SupersededMissingClaimedTag"
+      ]
+    },
+    {
+      "id": "R7-L01",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Recusar version_evidence.kind:null",
+      "rationale": "A ausência de kind do engine é representada por string vazia; source/value e os digests continuam verificados. O probe aceita null, mas não demonstra payload material divergente aprovado.",
+      "location": "release_manifest_integrity.go:158",
+      "owner": "@core",
+      "review_by": "2026-12-01",
+      "disposition": "proposed-open"
+    },
+    {
+      "id": "R7-L02",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Harmonizar filtros de arquivos auxiliares",
+      "rationale": "README.md no archive é ignorado pelo candidato e recusado pelo snapshot da tag; é recusa excessiva, sem aprovar conteúdo de entrega alterado.",
+      "location": "release_lifecycle.go:692",
+      "owner": "@core",
+      "review_by": "2026-12-01",
+      "disposition": "proposed-open"
+    },
+    {
+      "id": "R7-L03",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Expor limits e integridade do candidato nos diagnósticos",
+      "rationale": "Status humano omite Snapshot.Limits e status/check descartam limits do candidato; publicclaims apresenta CandidateState bruto. As claims de publicação continuam exigindo Sound.",
+      "location": "release_lifecycle.go:432",
+      "owner": "@core",
+      "review_by": "2026-12-01",
+      "disposition": "proposed-open"
+    },
+    {
+      "id": "R7-L04",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Ampliar pattern do integration check",
+      "rationale": "O pattern específico não inclui as famílias F/R2/R4/R6 e consumidores novos; go test ./... já as executa.",
+      "location": "validation-matrix.json",
+      "owner": "@core",
+      "review_by": "2026-12-01",
+      "disposition": "proposed-open"
+    },
+    {
+      "id": "R7-L05",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Reconciliar authoring da spec",
+      "rationale": "A spec ainda diz que implementação/testes não existem; Final Report e trace descrevem a implementação. Corrigir editorialmente sem afirmar closeout.",
+      "location": "2026-10-13-pose-release-manifest-tag-integrity.md",
+      "owner": "@core",
+      "review_by": "2026-12-01",
+      "disposition": "proposed-open"
+    },
+    {
+      "id": "R7-L06",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Explicitar links de worktree com bytes idênticos",
+      "rationale": "FilesGaps e archival seguem links; loader recusa symlink e a tag exige arquivo regular. O probe mantém bytes/digests idênticos; não há aceitação de conteúdo divergente.",
+      "location": "release_lifecycle.go:650",
+      "owner": "@core",
+      "review_by": "2026-12-01",
+      "disposition": "proposed-open"
+    },
+    {
+      "id": "R7-L07",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Tornar smokes históricos explícitos sobre falhas e zero fixtures",
+      "rationale": "Os smokes podem ignorar erro de leitura/snapshot ou executar zero casos. A revisão contou o corpus real com erros classificados, e o checker de produção continua gate separado.",
+      "location": "release_history_test.go:12",
+      "owner": "@core",
+      "review_by": "2026-12-01",
+      "disposition": "proposed-open"
+    },
+    {
+      "id": "R7-L08",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Usar loader estrito de changelog no plan/prepare",
+      "rationale": "Prepare aceita JSON inválido/schema 999 e cria candidato que check/status/snapshot recusam; resulta em retrabalho local, sem falsa qualificação estrita.",
+      "location": "cli/release_lifecycle.go:109",
+      "owner": "@core",
+      "review_by": "2026-12-01",
+      "disposition": "proposed-open"
+    }
+  ],
+  "probe_run": {
+    "workdir": "temporary copy of HEAD pose-mcp and sibling mcp-enforce; real-history probe reads original root without mutation",
+    "sources": {
+      "internal/cli/b38r6_probe_test.go": "package cli\nimport(\"testing\";\"os\";\"path/filepath\";\"bytes\";\"strings\";posemodel \"github.com/harne8/pose-mcp/internal/pose\")\nfunc TestB38R6CheckerLostReleases(t *testing.T){\n for _,variant:=range []string{\"dangling\",\"file\"}{t.Run(variant,func(t *testing.T){\n root:=cliReleaseRepo(t)\n m,err:=posemodel.LoadReleaseManifest(root,\"v1.0.0\");if err!=nil{t.Fatal(err)}\n p:=cliFixturePolicy(\"text\");p.AdoptedAt=\"2026-10-01\";p.Provider=\"github\";p.Repository=\"o/r\"\n m.PolicyDigest=posemodel.ReleaseDigest(p)\n // checker needs adopted policy; the release inventory itself is what is lost.\n writeCloseoutCLIFile(t,root,\".pose/policy/release.json\",string(posemodel.CanonicalJSON(p)))\n os.RemoveAll(filepath.Join(root,\".pose/releases\"))\n if variant==\"dangling\"{if err:=os.Symlink(\"lost-releases\",filepath.Join(root,\".pose/releases\"));err!=nil{t.Fatal(err)}}else{writeCloseoutCLIFile(t,root,\".pose/releases\",\"not a directory\")}\n var out bytes.Buffer\n c:=&nativeChecker{root:root,mode:\"strict\",stdout:&out}\n appendReleasePolicyChecks(c);t.Logf(\"checker errors=%d output=%s\",c.errors,out.String())\n _,serr:=(posemodel.Store{Root:root}).GetReleaseStatus(\"\");t.Logf(\"status error=%v\",serr)\n if c.errors==0{t.Error(\"release checker accepted a lost release inventory\")}\n })}\n}\nfunc TestB38R6PrepareChangelogPolicy(t *testing.T){\n for _,raw:=range []string{`{\"schema_version\":999}`,`{broken`}{t.Run(raw,func(t *testing.T){\n root,target:=preparedEngineReleaseWith(t,true)\n os.RemoveAll(filepath.Join(root,\".pose/releases\",target));os.RemoveAll(filepath.Join(root,\".pose/changelogs\",target));os.Remove(filepath.Join(root,\".pose/changelogs\",target+\".md\"))\n writeCloseoutCLIFile(t,root,\".pose/policy/changelog.json\",raw)\n var out,errs bytes.Buffer\n code:=cmdReleasePrepare(root,[]string{\"--version\",target,\"--apply\"},&out,&errs)\n gaps,_:=checkRelease(root,target)\n t.Logf(\"prepare code=%d out=%s err=%s check gaps=%v\",code,out.String(),errs.String(),gaps)\n if code==0&&!strings.Contains(errs.String(),\"policy\"){t.Error(\"prepare writes a cut that its own checker rejects for policy\")}\n })}\n}\nfunc TestB38R6PlanLostInventory(t *testing.T){\n root,target:=preparedEngineReleaseWith(t,true)\n os.RemoveAll(filepath.Join(root,\".pose/releases\"));if err:=os.Symlink(\"lost-inventory\",filepath.Join(root,\".pose/releases\"));err!=nil{t.Fatal(err)}\n _,_,previous,_,err:=releaseInputs(root,target);t.Logf(\"previous=%q err=%v\",previous,err)\n if err==nil{t.Error(\"release plan interprets lost release inventory as no previous releases\")}\n}\nfunc TestB38R6CompatibilityConsumerParity(t *testing.T){\n root:=cliReleaseRepo(t)\n policy:=cliFixturePolicy(\"text\"); cp:=posemodel.ChangelogPolicy{SchemaVersion:1,Categories:[]string{\"compatibility\"}}\n body:=\"---\\nspec: alpha\\ncategory: compatibility\\nbreaking: false\\n---\\n\\nRequired content.\\n\"\n fs:=[]posemodel.ReleaseFragment{{Spec:\"alpha\",Category:\"compatibility\",Body:\"Required content.\",Path:\"alpha.md\",Digest:posemodel.ReleaseDigest(body)}}\n m:=posemodel.NewReleaseManifest(\"v1.0.0\",\"\",\"2026-10-02T00:00:00Z\",fs,policy,cp,evidenceFor(\"text\"))\n notes:=strings.Replace(posemodel.RenderReleaseNotes(\"v1.0.0\",fs,cp),\"Required content.\",\"False content.\",1);m.NotesDigest=posemodel.ReleaseDigest(notes)\n writeCloseoutCLIFile(t,root,\".pose/policy/changelog.json\",string(posemodel.CanonicalJSON(cp)))\n writeCloseoutCLIFile(t,root,\".pose/changelogs/v1.0.0/alpha.md\",body)\n writeCloseoutCLIFile(t,root,\".pose/changelogs/v1.0.0.md\",notes)\n writeCloseoutCLIFile(t,root,\".pose/releases/v1.0.0/manifest.json\",string(posemodel.CanonicalJSON(m)))\n relGitCLI(t,root,\"add\",\"-A\");relGitCLI(t,root,\"commit\",\"-qm\",\"custom category cut\");relGitCLI(t,root,\"tag\",\"v1.0.0\")\n gaps,_:=checkRelease(root,\"v1.0.0\");s,err:=(posemodel.Store{Root:root}).GetReleaseStatus(\"v1.0.0\")\n t.Logf(\"check gaps=%v status sound=%v err=%v\",gaps,s.Releases[0].Sound(),err)\n var out,errs bytes.Buffer\n code:=cmdReleaseNotesSnapshot(root,[]string{\"--version\",\"v1.0.0\"},&out,&errs);t.Logf(\"notes code=%d text=%s\",code,out.String())\n if len(gaps)==0||s.Releases[0].Sound()||code==0{t.Error(\"consumers accepted materially altered notes\")}\n}\nfunc TestB38R6HistoricalCategoryPolicy(t *testing.T){\n root:=cliReleaseRepo(t)\n p:=cliFixturePolicy(\"text\");p.AdoptedAt=\"2026-10-01\";p.Provider=\"github\";p.Repository=\"o/r\"\n m,_:=posemodel.LoadReleaseManifest(root,\"v1.0.0\")\n m2:=posemodel.NewReleaseManifest(m.Version,m.PreviousVersion,m.PreparedAt,m.Fragments,p,posemodel.ChangelogPolicy{},m.VersionEvidence)\n writeCloseoutCLIFile(t,root,\".pose/policy/release.json\",string(posemodel.CanonicalJSON(p)))\n writeCloseoutCLIFile(t,root,\".pose/releases/v1.0.0/manifest.json\",string(posemodel.CanonicalJSON(m2)))\n relGitCLI(t,root,\"add\",\"-A\");relGitCLI(t,root,\"commit\",\"-qm\",\"adopted cut\");relGitCLI(t,root,\"tag\",\"v1.0.0\")\n writeCloseoutCLIFile(t,root,\".pose/policy/changelog.json\",`{\"schema_version\":1,\"categories\":[\"added\"]}`)\n var out bytes.Buffer;c:=&nativeChecker{root:root,mode:\"strict\",stdout:&out};appendReleasePolicyChecks(c)\n gaps,_:=checkRelease(root,\"v1.0.0\");s,err:=(posemodel.Store{Root:root}).GetReleaseStatus(\"v1.0.0\")\n t.Logf(\"checker errors=%d out=%s check gaps=%v sound=%v err=%v\",c.errors,out.String(),gaps,s.Releases[0].Sound(),err)\n if c.errors!=0{t.Error(\"a later valid changelog policy invalidates a legitimate historical cut in the checker\")}\n}\nfunc TestB38R6LowHumanLimits(t *testing.T){\n root:=cliReleaseRepoKind(t,\"engine\");relGitCLI(t,root,\"tag\",\"v1.0.0\")\n var out,errs bytes.Buffer;code:=cmdReleaseStatus(root,nil,&out,&errs)\n t.Logf(\"status code=%d text=%s\",code,out.String())\n s,err:=(posemodel.Store{Root:root}).GetReleaseStatus(\"v1.0.0\");t.Logf(\"JSON snapshot limits=%v err=%v\",s.Releases[0].Snapshot.Limits,err)\n}\n",
+      "internal/cli/b38r7_probe_test.go": "package cli\nimport (\n \"testing\"\n \"os\"\n \"path/filepath\"\n \"strings\"\n posemodel \"github.com/harne8/pose-mcp/internal/pose\"\n)\nfunc TestB38R7MissingTaggedInventory(t *testing.T) {\n for _,what := range []string{\"one-release\", \"all-releases\"} {t.Run(what,func(t *testing.T){\n root:=cliReleaseRepo(t)\n relGitCLI(t,root,\"tag\",\"v1.0.0\")\n writeReleaseFixture(t,root,\".pose/policy/release.json\",`{\"schema_version\":1,\"adopted_at\":\"2026-08-03\",\"provider\":\"github\",\"repository\":\"owner/repo\",\"allow_empty\":true,\"version_source\":{\"path\":\"VERSION\",\"kind\":\"text\"}}`)\n if c,o:=releaseCheckerFor(root);c.errors!=0 {t.Fatalf(\"control: %s\",o.String())}\n path:=\".pose/releases/v1.0.0\";if what==\"all-releases\" {path=\".pose/releases\"}\n if e:=os.RemoveAll(filepath.Join(root,path));e!=nil {t.Fatal(e)}\n gaps,_:=checkRelease(root,\"v1.0.0\")\n s,e:=(posemodel.Store{Root:root}).GetReleaseStatus(\"v1.0.0\")\n c,o:=releaseCheckerFor(root)\n t.Logf(\"check gaps=%v status=%+v err=%v checker errors=%d output=%s\",gaps,s,e,c.errors,o.String())\n if c.errors==0 {t.Fatal(\"checker accepts a tagged release whose working-tree manifest was lost\")}\n })}\n}\nfunc TestB38R7SupersededMissingClaimedTag(t *testing.T) {\n root:=cliReleaseRepo(t)\n writeReleaseFixture(t,root,\".pose/policy/release.json\",`{\"schema_version\":1,\"adopted_at\":\"2026-08-03\",\"provider\":\"github\",\"repository\":\"owner/repo\",\"allow_empty\":true,\"version_source\":{\"path\":\"VERSION\",\"kind\":\"text\"}}`)\n m,e:=posemodel.LoadReleaseManifest(root,\"v1.0.0\");if e!=nil {t.Fatal(e)}\n pol,e:=posemodel.LoadReleasePolicy(root);if e!=nil {t.Fatal(e)}\n rebuilt:=posemodel.NewReleaseManifest(m.Version,m.PreviousVersion,m.PreparedAt,m.Fragments,pol,posemodel.ChangelogPolicy{},m.VersionEvidence)\n writeReleaseFixture(t,root,\".pose/releases/v1.0.0/manifest.json\",string(posemodel.CanonicalJSON(rebuilt)))\n relGitCLI(t,root,\"add\",\"-A\");relGitCLI(t,root,\"commit\",\"-qm\",\"adopt\");relGitCLI(t,root,\"tag\",\"v1.0.0\")\n head:=strings.TrimSpace(gitOut(t,root,\"rev-parse\",\"HEAD\"))\n writeCloseoutCLIFile(t,root,\"evidence.json\",`{\"schema_version\":1,\"provider\":\"github\",\"repository\":\"owner/repo\",\"version\":\"v1.0.0\",\"tag\":\"v1.0.0\",\"commit\":\"`+head+`\"}`)\n if code,out:=runPose(t,root,\"release\",\"record\",\"--version\",\"v1.0.0\",\"--event\",\"tagged\",\"--evidence\",\"evidence.json\");code!=0 {t.Fatal(out)}\n relGitCLI(t,root,\"tag\",\"-d\",\"v1.0.0\")\n writeReleaseFixture(t,root,\"VERSION\",\"2.0.0\\n\")\n gaps,_:=checkRelease(root,\"v1.0.0\")\n c,o:=releaseCheckerFor(root)\n t.Logf(\"check gaps=%v checker errors=%d output=%s\",gaps,c.errors,o.String())\n if c.errors==0 {t.Error(\"superseded exception hides a missing tag declared by events\")}\n status,serr:=(posemodel.Store{Root:root}).GetReleaseStatus(\"v1.0.0\")\n t.Logf(\"status=%+v err=%v sound=%v\",status,serr,serr==nil&&status.Releases[0].Sound())\n writeReleaseFixture(t,root,\".pose/releases/v1.0.0/events.jsonl\",\"{broken\")\n c,o=releaseCheckerFor(root)\n t.Logf(\"malformed journal checker errors=%d output=%s\",c.errors,o.String())\n if c.errors==0 {t.Error(\"superseded exception hides a journal that cannot be read\")}\n}\n",
+      "internal/pose/b38r6_probe_test.go": "package pose\nimport(\"testing\";\"os\";\"path/filepath\";\"strings\")\nfunc TestB38R6CompatibilityCategory(t *testing.T){\n r:=newReleaseRepo(t,\"v1.0.0\")\n cp:=ChangelogPolicy{SchemaVersion:1,Categories:[]string{\"compatibility\"}}\n r.body=\"---\\nspec: alpha\\ncategory: compatibility\\nbreaking: false\\n---\\n\\nRequired release content.\\n\"\n fs:=[]ReleaseFragment{{Spec:\"alpha\",Category:\"compatibility\",Path:\"alpha.md\",Body:\"Required release content.\",Digest:ReleaseDigest(r.body)}}\n r.manifest=NewReleaseManifest(r.version,\"\",\"2026-10-02T00:00:00Z\",fs,fixtureReleasePolicy(),cp,r.manifest.VersionEvidence)\n r.notes=RenderReleaseNotes(r.version,fs,cp)\n r.notes=strings.Replace(r.notes,\"Required release content.\",\"False replacement.\",1)\n r.manifest.NotesDigest=ReleaseDigest(r.notes);r.writeAll(t)\n relWrite(t,r.root,\".pose/policy/changelog.json\",string(CanonicalJSON(cp)))\n gaps,limits:=ReleaseCandidateGaps(r.root,r.version,&r.manifest)\n t.Logf(\"candidate gaps=%v limits=%v\",gaps,limits)\n snap:=snapshotOf(t,tagged(t,r));t.Logf(\"snapshot intact=%v gaps=%v limits=%v\",snap.Intact(),snap.Gaps,snap.Limits)\n if len(gaps)==0||snap.Intact(){t.Error(\"materially false notes accepted as compatibility-only difference\")}\n}\nfunc TestB38R6GitPolicyAncestor(t *testing.T){\n r:=newReleaseRepo(t,\"v1.0.0\")\n raw,err:=os.ReadFile(filepath.Join(r.root,\".pose/policy/release.json\"));if err!=nil{t.Fatal(err)}\n relWrite(t,r.root,\".pose/release-policy.json\",string(raw))\n os.RemoveAll(filepath.Join(r.root,\".pose/policy\"));if err:=os.Symlink(\"lost-policy\",filepath.Join(r.root,\".pose/policy\"));err!=nil{t.Fatal(err)}\n snap:=snapshotOf(t,tagged(t,r));t.Logf(\"snapshot intact=%v gaps=%v issues=%v\",snap.Intact(),snap.Gaps,snap.Issues)\n if snap.Intact(){t.Error(\"policy ancestor is a link, not absence; accepted legacy fallback and default changelog\")}\n}\nfunc TestB38R6RelativeAbsence(t *testing.T){\n root:=t.TempDir();t.Chdir(root)\n if err:=os.Symlink(\"lost\", \".pose\");err!=nil{t.Fatal(err)}\n absent,err:=ProvenAbsent(\".pose/releases\");t.Logf(\"absent=%v err=%v\",absent,err)\n status,serr:=(Store{Root:\".\"}).GetReleaseStatus(\"\");t.Logf(\"status=%+v err=%v\",status,serr)\n if absent&&err==nil||serr==nil{t.Error(\"relative root masks lost ancestor as absence\")}\n}\nfunc TestB38R6LowVariants(t *testing.T){\n t.Run(\"null kind\",func(t *testing.T){r:=newReleaseRepo(t,\"v1.0.0\");policy:=ReleasePolicy{SchemaVersion:1};r.manifest=NewReleaseManifest(r.version,\"\",\"2026-10-02T00:00:00Z\",r.manifest.Fragments,policy,ChangelogPolicy{},map[string]string{\"source\":EngineVersionFile,\"kind\":\"\",\"value\":r.version});raw:=strings.Replace(string(CanonicalJSON(r.manifest)),`\"kind\": \"\"`,`\"kind\": null`,1);_,issues:=ValidateReleaseManifestBytes([]byte(raw),r.version);t.Logf(\"null kind issues=%v\",issues)})\n t.Run(\"README archive\",func(t *testing.T){r:=newReleaseRepo(t,\"v1.0.0\");relWrite(t,r.root,\".pose/changelogs/v1.0.0/README.md\",\"Auxiliary text\\n\");g,l:=ReleaseCandidateGaps(r.root,r.version,&r.manifest);s:=snapshotOf(t,tagged(t,r));t.Logf(\"candidate gaps=%v limits=%v snapshot gaps=%v\",g,l,s.Gaps)})\n}\nfunc TestB38R6PolicyFileAncestor(t *testing.T){\n r:=newReleaseRepo(t,\"v1.0.0\");raw,_:=os.ReadFile(filepath.Join(r.root,\".pose/policy/release.json\"));relWrite(t,r.root,\".pose/release-policy.json\",string(raw));os.RemoveAll(filepath.Join(r.root,\".pose/policy\"));relWrite(t,r.root,\".pose/policy\",\"not a directory\");s:=snapshotOf(t,tagged(t,r));t.Logf(\"file ancestor intact=%v gaps=%v\",s.Intact(),s.Gaps);if s.Intact(){t.Error(\"policy ancestor blob is not absence\")}\n}\nfunc TestB38R6LowByteIdenticalLinks(t *testing.T){\n r:=tagged(t,newReleaseRepo(t,\"v1.0.0\"));relWrite(t,r.root,\"original-fragment.md\",r.body);p:=filepath.Join(r.root,\".pose/changelogs/v1.0.0/alpha.md\");os.Remove(p);if err:=os.Symlink(filepath.Join(r.root,\"original-fragment.md\"),p);err!=nil{t.Fatal(err)}\n s,err:=(Store{Root:r.root}).GetReleaseStatus(r.version);_,loaderr:=LoadReleaseFragments(filepath.Dir(p),ChangelogPolicy{});t.Logf(\"tagged sound=%v err=%v archive loader=%v\",s.Releases[0].Sound(),err,loaderr)\n}\nfunc TestB38R6HistoryInventory(t *testing.T){\n root:=os.Getenv(\"B38_REVIEW_ROOT\");if root==\"\"{t.Skip(\"explicit source repository not selected\")};raw,err:=gitOutput(root,\"tag\",\"--list\",\"v*\");if err!=nil{t.Fatal(err)}\n total,intact,missing,other:=0,0,0,0\n for _,tag:=range strings.Fields(raw){if ValidateReleaseVersion(tag)!=nil{continue};total++;s,e:=ReadReleaseSnapshot(root,tag);if e!=nil{if strings.Contains(e.Error(),ErrReleaseSnapshotMissing.Error()){missing++}else{other++;t.Errorf(\"%s: %v\",tag,e)};continue};if !s.Intact(){t.Errorf(\"%s: issues=%v gaps=%v\",tag,s.Issues,s.Gaps)}else{intact++}}\n t.Logf(\"tags=%d intact=%d missing_snapshot=%d other_errors=%d\",total,intact,missing,other)\n}\n",
+      "internal/pose/b38r7_probe_test.go": "package pose\nimport(\"testing\";\"os\";\"path/filepath\";\"strings\";\"errors\")\nfunc TestB38R7RealHistory(t *testing.T){\n root:=\"/home/go/.cache/pose-work/b38/pose-dist\"\n entries,e:=os.ReadDir(filepath.Join(root,\".pose/releases\"));if e!=nil {t.Fatal(e)}\n manifests:=0;for _,f:=range entries {if f.IsDir()&&ValidateReleaseVersion(f.Name())==nil {manifests++;if _,e:=LoadReleaseManifest(root,f.Name());e!=nil {t.Error(e)}}};if manifests==0 {t.Fatal(\"no manifests\")}\n raw,e:=gitOutput(root,\"tag\",\"--list\",\"v*\");if e!=nil {t.Fatal(e)}\n intact,missing:=0,0\n for _,tag:=range strings.Fields(raw){if ValidateReleaseVersion(tag)!=nil {continue};snap,e:=ReadReleaseSnapshot(root,tag);if errors.Is(e,ErrReleaseSnapshotMissing) {missing++;if CompareReleasePrecedence(tag,\"v0.15.0\")>0 {t.Errorf(\"governed tag missing snapshot: %s\",tag)};continue};if e!=nil {t.Errorf(\"%s: %v\",tag,e);continue};if !snap.Intact(){t.Errorf(\"%s issues=%v gaps=%v\",tag,snap.Issues,snap.Gaps)}else{intact++};m,e:=LoadReleaseManifest(root,tag);if e==nil{if g:=TaggedReleaseWorktreeGaps(root,tag,m,snap);len(g)>0{t.Errorf(\"%s: %v\",tag,g)}}}\n t.Logf(\"manifests=%d intact=%d legacy-missing=%d\",manifests,intact,missing)\n}\n"
+    },
+    "new_command": "go test ./internal/cli -run TestB38R7 -count=1 -v",
+    "history_command": "go test ./internal/pose -run TestB38R7RealHistory -count=1 -v",
+    "previous_probes": "replayed from committed b38r6 evidence against current HEAD; named output distinguishes negative assertions from registered checks",
+    "previous_command": "go test ./internal/pose ./internal/cli -run 'TestB38R6(Low|PrepareChangelogPolicy|Compatibility|GitPolicy|PolicyFile|Relative|CheckerLost|PlanLost|HistoricalCategory)' -count=1 -v"
+  },
+  "checks": {
+    "validation": {
+      "output": "[module] pose-mcp (go, mode=strict)\n  -> build go build ./...\n  <- build pass 2.9s\n  -> test go test ./...\n  <- test pass 145.5s\n  -> vet go vet ./...\n  <- vet pass 0.3s\n  -> release-review-archive-integration go test ./internal/pose -run ReviewReleaseArchive -count=1\n  <- release-review-archive-integration pass 0.7s\n  -> abm-retrospective-replay-integration go test ./internal/pose -run GovernanceReplay|ABMGolden -count=1\n  <- abm-retrospective-replay-integration pass 0.5s\n  -> abm-replay-reachability go test ./internal/cli -run GovernanceReplayCLIReachability -count=1\n  <- abm-replay-reachability pass 0.7s\n  -> review-soundness-residuals-integration go test ./internal/pose ./internal/cli ./internal/scaffold -run BundlePathWontFix|NegativeDecisionIsAudit|ReuseCannotLaunder|SignedRiskIsNotApproval|WontFixCannotApprove|DistributedReviewSoundness|ReviewAttestationEnvelope -count=1\n  <- review-soundness-residuals-integration pass 0.8s\n  -> governance-outcomes-v2-contract go test ./internal/pose ./internal/cli ./internal/mcpserver -run GovernanceOutcomes|GovernanceStats|RemediationProjection -count=1\n  <- governance-outcomes-v2-contract pass 0.8s\n  -> abm-remediation-lineage-integration go test ./internal/pose ./internal/cli -run RemediationLineage|RemediationProjection -count=1\n  <- abm-remediation-lineage-integration pass 1.1s\n  -> abm-contract-nodes-integration go test ./internal/pose ./internal/cli ./internal/mcpserver -run ABMContractNodes|ABMNodeTransitions|ABMNodeDigest|Ame\n[compactado; sha256 do log integral abaixo]\n\n  -> action-requests-integration go test ./internal/pose ./internal/cli ./internal/mcpserver -run TestActionRequest|TestActionOpen|TestOpenActionRequest|TestSupersededRequest|TestToolsCall_ActionOpen|TestCatalog|TestToolsList -count=1\n  <- action-requests-integration pass 0.9s\n  -> governance-waits-reachability go test ./internal/cli -run TestWaitsAloneDoesNotComputeOutcomes -count=1\n  <- governance-waits-reachability pass 0.7s\n  -> migrate-dryrun-reachability go test ./internal/cli -run TestMigrateDryRunInventoriesLegacyWithoutWriting -count=1\n  <- migrate-dryrun-reachability pass 0.8s\n  -> state-attention-integration go test ./internal/cli ./internal/mcpserver ./internal/pose -run Attention|TestToolsCall_Obligations|TestToolsList|TestCatalog -count=1\n  <- state-attention-integration pass 2.0s\n  -> atomic-start-cutoff-integration go test ./internal/pose -run AtomicStartCutoff|TestStart|PreviewStart|ApplyStart -count=1\n  <- atomic-start-cutoff-integration pass 0.2s\n  -> validation-check-materiality-integration go test ./internal/pose -run ValidationCheckMateriality -count=1\n  <- validation-check-materiality-integration pass 0.4s\n  -> causality-cutoff-integration go test ./internal/pose -run CausalityCutoff|ABMCausalityCloseout -count=1\n  <- causality-cutoff-integration pass 0.3s\n  -> attest-preflight-integration go test ./internal/cli -run AttestPreflight|ReviewRecordDelegatesToBundleAttestation|ReviewAttestationWontFixCannotApproveThroughCLI -count=1\n  <- attest-preflight-integration pass 0.9s\n  -> governed-capabilities-integration go test ./internal/pose ./internal/cli -run GovernedCapabilit|Adopt|DoctorWarnsWhenAgency|ABMProgressiveReview -count=1\n  <- governed-capabilities-integration pass 1.5s\n  -> authority-project-integration go test ./internal/pose -run AuthorityProject|ABMReviewAuthority|VerifiedClaim -count=1\n  <- authority-project-integration pass 0.4s\n  -> qualified-followup-integration go test ./internal/cli -run QualifiedFollowup -count=1\n  <- qualified-followup-integration pass 0.8s\n  -> recurrence-cluster-integration go test ./internal/cli -run Recurrence -count=1\n  <- recurrence-cluster-integration pass 0.8s\n  -> project-identity-integration go test ./internal/pose ./internal/cli -run ProjectFile -count=1\n  <- project-identity-integration pass 0.9s\n  -> capability-catalog-integration go test ./internal/pose ./internal/cli -run CapabilityCatalog|AdoptCatalog|GovernedCapabilit -count=1\n  <- capability-catalog-integration pass 1.0s\n  -> init-is-install-integration go test ./internal/cli -run InitIsInstall|InitOnAnInstalled|InitNative -count=1\n  <- init-is-install-integration pass 1.0s\n  -> fresh-install-health-integration go test ./internal/pose ./internal/cli -run FreshInstallHealth|ShippedStack|APhaseWithAnUnreadProducer|DoctorWarnsWhenAgencyReadinessHasNoPrincipal|DoctorFindingsHaveEvidence -count=1\n  <- fresh-install-health-integration pass 1.1s\n  -> signed-action-answers-integration go test ./internal/pose ./internal/cli -run SSHSig|PrincipalKey|SignedAnswer|Identity|DoctorReportsHumanRoles -count=1\n  <- signed-action-answers-integration pass 1.1s\n  -> mcp-review-attest-integration go test ./internal/mcpserver ./internal/pose -run ReviewAttest|ReviewPrepare|SignedPreview|EnvelopeOverOther|AgentConfirmation|PreviewBindsOnly -count=1\n  <- mcp-review-attest-integration pass 1.1s\n  -> mcp-action-resolve-integration go test ./internal/mcpserver -run ActionResolve|Catalog|ToolsList -count=1\n  <- mcp-action-resolve-integration pass 0.9s\n  -> setup-command-integration go test ./internal/cli -run Setup|CompatibilityUpgradeFromLegacyInstance -count=1\n  <- setup-command-integration pass 1.6s\n  -> onboarding-spec-integration go test ./internal/cli -run Onboarding -count=1\n  <- onboarding-spec-integration pass 1.0s\n  -> configuration-review-integration go test ./internal/cli -run ConfigurationReview|SetupAnswersAndAppliesAReviewRequest -count=1\n  <- configuration-review-integration pass 1.0s\n  -> quickstart-real-lifecycle-integration go test ./internal/cli -run CloseTraceGate|QuickstartScript|StackExtension -count=1\n  <- quickstart-real-lifecycle-integration pass 2.8s\n  -> install-and-upgrade-journeys-integration go test ./internal/cli -run Journeys -count=1\n  <- install-and-upgrade-journeys-integration pass 7.1s\n  -> historical-trust-reuse-integration go test ./internal/pose ./internal/cli ./internal/mcpserver -run ReviewTrustTime|ReviewReuseProvenance|ReviewTrustReuse|ActionRead|ActionClaim|ReviewAssurance|ReviewConsumersAgree|ABMReviewAuthority|NativeAuthorityClaim|NativeAndExternalIssuers|SignedPreview|AgentConfirmation -count=1\n  <- historical-trust-reuse-integration pass 1.4s\n  -> review-approval-domain-preflight-integration go test ./internal/pose ./internal/cli -run ReviewDomainPreflight|ABMReviewSoundness|ABMGolden|LegacyLedger|CompletedReviewRetention|AuthorityProject|ReviewAttestationEnvelopeTrustPolicy -count=1\n  <- review-approval-domain-preflight-integration pass 1.4s\n  -> cli-mcp-operation-results-integration go test ./internal/pose ./internal/cli ./internal/mcpserver ./internal/usage -run Inconclusive|StillAVerdict|OperationResultStarts|CloseApplyJSON|CloseAndStartRefuse|SpecsRefuses|ContinuousCloseoutStatusJSON|UsageCountsAWaiting|UsageCountsWaitingAndSkips|ListSpecsRefuses|EvidenceThatValidate|ARecentResult|ACheckThatPrints|ResultsThisRun|AStartThatFails|ARetriedStart|AResumeThatFails|AStaleStart|AStartReceipt|AStartWhoseTransition|AStartBaselineWriteCut|AnUnreadableStartRecord|JSONRoutesReport|SpecFactsRefuses|ClosePlan|InterruptedCloseout|StalePlanDigest|ABMAtomicStartCLI -count=1\n  <- cli-mcp-operation-results-integration pass 7.2s\n  -> journal-checkpoint-and-lock-recovery-integration go test -race ./internal/pose ./internal/cli ./internal/mcpserver -run AJournal|AnInterruptedTail|ACheckpoint|AStartLockIsJudged|ALockWithoutA|OnlyAProvenDeadLock|ConcurrentRecoveries|AReleaseRemovesOnly|ARecoveredLock|TheStartCommandReports|ADeadStartLock|MCPLocates|MCPStartStatusShows|ABMAtomicStartConcurrent -count=1\n  <- journal-checkpoint-and-lock-recovery-integration pass 2.7s\n  -> release-manifest-tag-integrity-integration go test ./internal/pose ./internal/cli -run AManifestIsValidOnlyIf|ATagWithoutTheSnapshotInItsTree|LightweightAndAnnotatedTagsResolve|TheSnapshotIsVerifiedAgainstTheTaggedTree|ACorrectCutStaysIntact|AVersionSourceThatCannotBe|ReleaseCheckReadsTheTags|ReleaseStatusReportsTheSnapshot|ReleaseCheckDisclosesTheVersionSources|AnInvalidManifestKeepsTheReleaseStatusUnread -count=1\n  <- release-manifest-tag-integrity-integration pass 1.2s\n  -> writer-coordination-and-atomic-publication-integration go test -race ./internal/pose ./internal/cli -run ConcurrentPublishers|PublicationsKeep|AFailedPublication|ATransferWaits|StartRefusesWhile|TheActionPolicyIsWritten|ACloseNever|ACloseWaits|ACloseIsBound|ARefreshThatPublished|ARefreshNever|AHistoryEntry|SpecTransferConcurrentApply|AuthoritativePublicationsSync|AnUnsyncedPublication|AnImmutablePublicationWorks|StagingFilesAre|AdoptionPolicies|AHookRefresh|EveryStateWriter|ACloseRevalidates|TheBackfillNever -count=1\n  <- writer-coordination-and-atomic-publication-integration pass 2.9s\n  -> source-coverage-integrity-integration go test ./internal/pose ./internal/cli ./internal/mcpserver -run SourceCoverage|UnreadableSpec|UnresolvedFollowups|FollowupProducerIsIncomplete|DroppedObligation|VeryLongLine|TechDebtCoverage|TechDebtReportSays|UnreadableNewerAttempt|UnreadableOlderAttempt|NoReadableAttempt|AnotherScopeDoesNotConcern|UnscopedUnreadable|UnreadableAttestation|UnreadableBundle|FindingsProducerIsIncomplete|BacklogAndTheProjectState|SpecItCouldNotRead|FailOverdueRefuses|AssessTechDebtStates|ReviewCheckCarries|FollowupParity|UnreadableLaterRejection|ReviewRecordRefusesToSupersede|ClosedScopeDoesNotRetain|Sniffing|DecoyInATruncated|ValidJSONWithoutAHeader|UnreadableAttemptOfTheSameSecond|OldMalformedAttempt|RequiredFields|FindingsLossInAnother|ComponentDiscoveryFinds|SkippedDirectoriesAndLinks|UnlistableSpecFolder|LegacySplitLayout|TruncatedHeaderIsALoss|AttentionCarriesTheFollowup|DebtClassificationSays|GovernanceConsumersDisclose|UnreadableLegacyLedger|InvalidElementWithoutAProducer|AttentionTextNames|CandidatesRefuse|UnknownDispositionAsUnresolved|ARejectionThatFailsItsDigest|RepeatedHeaderName|SniffingSeesARepeated|UnresolvableSpecEntry|FindingsLossOfTheRequested|DirectorySymlinkIsADeclared|ARoadmapOrTheProjectState|UnreadableLedgerDirectory|InvalidValuesIsALoss|NotPlannedOverAnIncomplete|ConsolidatedAssessmentDeclares|ProjectStateDoesNotCertify|HumanOutputsCarry|CaseFoldedHeaderNames|LostLaterBundleBlocks|ComparedAsInstants|TruncatedFindingLine|DanglingSpecFolderLink|DanglingReviewsRoot|LostRootForAbsence|InheritsTheLossOfItsMilestone|DoesNotCutTheTable|KeepsTheDebtReports|AttemptsAreReadInInstantOrder|ItemCutAnywhere|AttestationsAreOrderedByInstant|EmptyOpenFollowup|FutureSchemaIsUnsupported|UnreadablePersistedComponentState|WithoutASealedInstant|AnnotatedFollowupThatLost|PersistedComponentStateIsValidated|NoConsumerOrdersTheBundle|KeepsTheKindOfItsFailure|NamesItsScopeTwice|ReadsComponentsThroughTheValidating|ADiscoveryOfOneComponentKeeps|RepeatedAttemptFieldIsALoss -count=1\n  <- source-coverage-integrity-integration pass 2.3s\n  -> index-generation-integrity-integration go test -race ./internal/pose ./internal/cli ./internal/mcpserver ./internal/scaffold/distpolicy -run IndexGeneration|TestIndexPublishes|TestIndexJSONReports|TestIndexVerify|TestIndexWithABlocked|TestRefreshDeliveryIndex|ReadsAPublishedGeneration|DoesNotInferADomain|TestIndexAnUnsyncedCommit|TestIndexWithAnotherPublication -count=1\n  <- index-generation-integrity-integration pass 3.1s\n  -> test-scripts-remove-their-temp-files-integration bash ../tests/hygiene/temp-cleanup.sh\n  <- test-scripts-remove-their-temp-files-integration pass 2.1s\n137 step(s) · 137 pass · 305.3s\nResult: SUCCESS\njson: /home/go/.cache/pose-work/b38/pose-dist/.pose/results/b38r7-module-validation.json\n",
+      "full_log_sha256": "260ecf668750796ce6f82dd4003f68b81e410b49b5ae6c0e311695565025f152"
+    },
+    "global-validation": {
+      "output": "[module] docs-site (python, mode=strict)\n[module] examples (contract, mode=strict)\n[module] mcp-enforce (go, mode=strict)\n  -> build go build ./...\n  <- build pass 0.4s\n  -> test go test ./...\n  <- test pass 0.1s\n  -> vet go vet ./...\n  <- vet pass 0.1s\n[module] pose-mcp (go, mode=strict)\n  -> build go build ./...\n  <- build pass 1.3s\n  -> test go test ./...\n  <- test pass 79.1s\n  -> vet go vet ./...\n  <- vet pass 0.2s\n  -> release-review-archive-integration go test ./internal/pose -run ReviewReleaseArchive -count=1\n  <- release-review-archive-integration pass 0.7s\n  -> abm-retrospective-replay-integration go test ./internal/pose -run GovernanceReplay|ABMGolden -count=1\n  <- abm-retrospective-replay-integration pass 0.5s\n  -> abm-replay-reachability go test ./internal/cli -run GovernanceReplayCLIReachability -count=1\n  <- abm-replay-reachability pass 0.8s\n  -> review-soundness-residuals-integration go test ./internal/pose ./internal/cli ./internal/scaffold -run BundlePathWontFix|NegativeDecisionIsAudit|ReuseCannotLaunder|SignedRiskIsNotApproval|WontFixCannotApprove|DistributedReviewSoundness|ReviewAttestationEnvelope -count=1\n  <- review-soundness-residuals-integration pass 0.9s\n  -> governance-outcomes-v2-contract go test ./internal/pose ./internal/cli ./internal/mcpserver -run GovernanceOutcomes|GovernanceStats|RemediationProjection -count=1\n  <- governance-outcomes-v2-contract pass 1.0s\n  -> abm-remediation-lineage-integration go test ./internal/pose ./internal/cli -run Re\n[compactado; sha256 do log integral abaixo]\nnal/mcpserver -run TestActionRequest|TestActionOpen|TestOpenActionRequest|TestSupersededRequest|TestToolsCall_ActionOpen|TestCatalog|TestToolsList -count=1\n  <- action-requests-integration pass 0.8s\n  -> governance-waits-reachability go test ./internal/cli -run TestWaitsAloneDoesNotComputeOutcomes -count=1\n  <- governance-waits-reachability pass 0.8s\n  -> migrate-dryrun-reachability go test ./internal/cli -run TestMigrateDryRunInventoriesLegacyWithoutWriting -count=1\n  <- migrate-dryrun-reachability pass 0.8s\n  -> state-attention-integration go test ./internal/cli ./internal/mcpserver ./internal/pose -run Attention|TestToolsCall_Obligations|TestToolsList|TestCatalog -count=1\n  <- state-attention-integration pass 1.8s\n  -> atomic-start-cutoff-integration go test ./internal/pose -run AtomicStartCutoff|TestStart|PreviewStart|ApplyStart -count=1\n  <- atomic-start-cutoff-integration pass 0.2s\n  -> validation-check-materiality-integration go test ./internal/pose -run ValidationCheckMateriality -count=1\n  <- validation-check-materiality-integration pass 0.3s\n  -> causality-cutoff-integration go test ./internal/pose -run CausalityCutoff|ABMCausalityCloseout -count=1\n  <- causality-cutoff-integration pass 0.2s\n  -> attest-preflight-integration go test ./internal/cli -run AttestPreflight|ReviewRecordDelegatesToBundleAttestation|ReviewAttestationWontFixCannotApproveThroughCLI -count=1\n  <- attest-preflight-integration pass 0.8s\n  -> governed-capabilities-integration go test ./internal/pose ./internal/cli -run GovernedCapabilit|Adopt|DoctorWarnsWhenAgency|ABMProgressiveReview -count=1\n  <- governed-capabilities-integration pass 1.6s\n  -> authority-project-integration go test ./internal/pose -run AuthorityProject|ABMReviewAuthority|VerifiedClaim -count=1\n  <- authority-project-integration pass 0.4s\n  -> qualified-followup-integration go test ./internal/cli -run QualifiedFollowup -count=1\n  <- qualified-followup-integration pass 0.8s\n  -> recurrence-cluster-integration go test ./internal/cli -run Recurrence -count=1\n  <- recurrence-cluster-integration pass 0.8s\n  -> project-identity-integration go test ./internal/pose ./internal/cli -run ProjectFile -count=1\n  <- project-identity-integration pass 0.9s\n  -> capability-catalog-integration go test ./internal/pose ./internal/cli -run CapabilityCatalog|AdoptCatalog|GovernedCapabilit -count=1\n  <- capability-catalog-integration pass 0.9s\n  -> init-is-install-integration go test ./internal/cli -run InitIsInstall|InitOnAnInstalled|InitNative -count=1\n  <- init-is-install-integration pass 0.9s\n  -> fresh-install-health-integration go test ./internal/pose ./internal/cli -run FreshInstallHealth|ShippedStack|APhaseWithAnUnreadProducer|DoctorWarnsWhenAgencyReadinessHasNoPrincipal|DoctorFindingsHaveEvidence -count=1\n  <- fresh-install-health-integration pass 1.0s\n  -> signed-action-answers-integration go test ./internal/pose ./internal/cli -run SSHSig|PrincipalKey|SignedAnswer|Identity|DoctorReportsHumanRoles -count=1\n  <- signed-action-answers-integration pass 1.3s\n  -> mcp-review-attest-integration go test ./internal/mcpserver ./internal/pose -run ReviewAttest|ReviewPrepare|SignedPreview|EnvelopeOverOther|AgentConfirmation|PreviewBindsOnly -count=1\n  <- mcp-review-attest-integration pass 0.9s\n  -> mcp-action-resolve-integration go test ./internal/mcpserver -run ActionResolve|Catalog|ToolsList -count=1\n  <- mcp-action-resolve-integration pass 0.7s\n  -> setup-command-integration go test ./internal/cli -run Setup|CompatibilityUpgradeFromLegacyInstance -count=1\n  <- setup-command-integration pass 1.5s\n  -> onboarding-spec-integration go test ./internal/cli -run Onboarding -count=1\n  <- onboarding-spec-integration pass 0.9s\n  -> configuration-review-integration go test ./internal/cli -run ConfigurationReview|SetupAnswersAndAppliesAReviewRequest -count=1\n  <- configuration-review-integration pass 0.8s\n  -> quickstart-real-lifecycle-integration go test ./internal/cli -run CloseTraceGate|QuickstartScript|StackExtension -count=1\n  <- quickstart-real-lifecycle-integration pass 2.5s\n  -> install-and-upgrade-journeys-integration go test ./internal/cli -run Journeys -count=1\n  <- install-and-upgrade-journeys-integration pass 5.9s\n  -> historical-trust-reuse-integration go test ./internal/pose ./internal/cli ./internal/mcpserver -run ReviewTrustTime|ReviewReuseProvenance|ReviewTrustReuse|ActionRead|ActionClaim|ReviewAssurance|ReviewConsumersAgree|ABMReviewAuthority|NativeAuthorityClaim|NativeAndExternalIssuers|SignedPreview|AgentConfirmation -count=1\n  <- historical-trust-reuse-integration pass 1.5s\n  -> review-approval-domain-preflight-integration go test ./internal/pose ./internal/cli -run ReviewDomainPreflight|ABMReviewSoundness|ABMGolden|LegacyLedger|CompletedReviewRetention|AuthorityProject|ReviewAttestationEnvelopeTrustPolicy -count=1\n  <- review-approval-domain-preflight-integration pass 1.4s\n  -> cli-mcp-operation-results-integration go test ./internal/pose ./internal/cli ./internal/mcpserver ./internal/usage -run Inconclusive|StillAVerdict|OperationResultStarts|CloseApplyJSON|CloseAndStartRefuse|SpecsRefuses|ContinuousCloseoutStatusJSON|UsageCountsAWaiting|UsageCountsWaitingAndSkips|ListSpecsRefuses|EvidenceThatValidate|ARecentResult|ACheckThatPrints|ResultsThisRun|AStartThatFails|ARetriedStart|AResumeThatFails|AStaleStart|AStartReceipt|AStartWhoseTransition|AStartBaselineWriteCut|AnUnreadableStartRecord|JSONRoutesReport|SpecFactsRefuses|ClosePlan|InterruptedCloseout|StalePlanDigest|ABMAtomicStartCLI -count=1\n  <- cli-mcp-operation-results-integration pass 7.1s\n  -> journal-checkpoint-and-lock-recovery-integration go test -race ./internal/pose ./internal/cli ./internal/mcpserver -run AJournal|AnInterruptedTail|ACheckpoint|AStartLockIsJudged|ALockWithoutA|OnlyAProvenDeadLock|ConcurrentRecoveries|AReleaseRemovesOnly|ARecoveredLock|TheStartCommandReports|ADeadStartLock|MCPLocates|MCPStartStatusShows|ABMAtomicStartConcurrent -count=1\n  <- journal-checkpoint-and-lock-recovery-integration pass 2.4s\n  -> release-manifest-tag-integrity-integration go test ./internal/pose ./internal/cli -run AManifestIsValidOnlyIf|ATagWithoutTheSnapshotInItsTree|LightweightAndAnnotatedTagsResolve|TheSnapshotIsVerifiedAgainstTheTaggedTree|ACorrectCutStaysIntact|AVersionSourceThatCannotBe|ReleaseCheckReadsTheTags|ReleaseStatusReportsTheSnapshot|ReleaseCheckDisclosesTheVersionSources|AnInvalidManifestKeepsTheReleaseStatusUnread -count=1\n  <- release-manifest-tag-integrity-integration pass 1.0s\n  -> writer-coordination-and-atomic-publication-integration go test -race ./internal/pose ./internal/cli -run ConcurrentPublishers|PublicationsKeep|AFailedPublication|ATransferWaits|StartRefusesWhile|TheActionPolicyIsWritten|ACloseNever|ACloseWaits|ACloseIsBound|ARefreshThatPublished|ARefreshNever|AHistoryEntry|SpecTransferConcurrentApply|AuthoritativePublicationsSync|AnUnsyncedPublication|AnImmutablePublicationWorks|StagingFilesAre|AdoptionPolicies|AHookRefresh|EveryStateWriter|ACloseRevalidates|TheBackfillNever -count=1\n  <- writer-coordination-and-atomic-publication-integration pass 2.6s\n  -> source-coverage-integrity-integration go test ./internal/pose ./internal/cli ./internal/mcpserver -run SourceCoverage|UnreadableSpec|UnresolvedFollowups|FollowupProducerIsIncomplete|DroppedObligation|VeryLongLine|TechDebtCoverage|TechDebtReportSays|UnreadableNewerAttempt|UnreadableOlderAttempt|NoReadableAttempt|AnotherScopeDoesNotConcern|UnscopedUnreadable|UnreadableAttestation|UnreadableBundle|FindingsProducerIsIncomplete|BacklogAndTheProjectState|SpecItCouldNotRead|FailOverdueRefuses|AssessTechDebtStates|ReviewCheckCarries|FollowupParity|UnreadableLaterRejection|ReviewRecordRefusesToSupersede|ClosedScopeDoesNotRetain|Sniffing|DecoyInATruncated|ValidJSONWithoutAHeader|UnreadableAttemptOfTheSameSecond|OldMalformedAttempt|RequiredFields|FindingsLossInAnother|ComponentDiscoveryFinds|SkippedDirectoriesAndLinks|UnlistableSpecFolder|LegacySplitLayout|TruncatedHeaderIsALoss|AttentionCarriesTheFollowup|DebtClassificationSays|GovernanceConsumersDisclose|UnreadableLegacyLedger|InvalidElementWithoutAProducer|AttentionTextNames|CandidatesRefuse|UnknownDispositionAsUnresolved|ARejectionThatFailsItsDigest|RepeatedHeaderName|SniffingSeesARepeated|UnresolvableSpecEntry|FindingsLossOfTheRequested|DirectorySymlinkIsADeclared|ARoadmapOrTheProjectState|UnreadableLedgerDirectory|InvalidValuesIsALoss|NotPlannedOverAnIncomplete|ConsolidatedAssessmentDeclares|ProjectStateDoesNotCertify|HumanOutputsCarry|CaseFoldedHeaderNames|LostLaterBundleBlocks|ComparedAsInstants|TruncatedFindingLine|DanglingSpecFolderLink|DanglingReviewsRoot|LostRootForAbsence|InheritsTheLossOfItsMilestone|DoesNotCutTheTable|KeepsTheDebtReports|AttemptsAreReadInInstantOrder|ItemCutAnywhere|AttestationsAreOrderedByInstant|EmptyOpenFollowup|FutureSchemaIsUnsupported|UnreadablePersistedComponentState|WithoutASealedInstant|AnnotatedFollowupThatLost|PersistedComponentStateIsValidated|NoConsumerOrdersTheBundle|KeepsTheKindOfItsFailure|NamesItsScopeTwice|ReadsComponentsThroughTheValidating|ADiscoveryOfOneComponentKeeps|RepeatedAttemptFieldIsALoss -count=1\n  <- source-coverage-integrity-integration pass 2.2s\n  -> index-generation-integrity-integration go test -race ./internal/pose ./internal/cli ./internal/mcpserver ./internal/scaffold/distpolicy -run IndexGeneration|TestIndexPublishes|TestIndexJSONReports|TestIndexVerify|TestIndexWithABlocked|TestRefreshDeliveryIndex|ReadsAPublishedGeneration|DoesNotInferADomain|TestIndexAnUnsyncedCommit|TestIndexWithAnotherPublication -count=1\n  <- index-generation-integrity-integration pass 2.9s\n  -> test-scripts-remove-their-temp-files-integration bash ../tests/hygiene/temp-cleanup.sh\n  <- test-scripts-remove-their-temp-files-integration pass 2.1s\n[module] scripts (contract, mode=strict)\n[module] tests (contract, mode=strict)\n140 step(s) · 140 pass · 234.9s\nResult: SUCCESS\njson: /home/go/.cache/pose-work/b38/pose-dist/.pose/results/b38r7-global-validation.json\n",
+      "full_log_sha256": "13a32883fb70a87f5761198403a76356b1a377bb6b1039e4165f46196e00f00b"
+    },
+    "head-check": {
+      "output": "⚠ warning changelog: done spec without a changelog fragment: pose-agy-smoke-test\n⚠ warning changelog: done spec without a changelog fragment: pose-canonical-positioning\n⚠ warning changelog: done spec without a changelog fragment: pose-community-contribution-surfaces\n⚠ warning changelog: done spec without a changelog fragment: pose-docs-canonical-route\n⚠ warning changelog: done spec without a changelog fragment: pose-first-governed-loop-quickstart\n⚠ warning changelog: done spec without a changelog fragment: pose-launch-proof-demo\n⚠ warning changelog: done spec without a changelog fragment: pose-public-claims-contract\n⚠ warning changelog: done spec without a changelog fragment: pose-readme-evaluation-path\n⚠ warning changelog: done spec without a changelog fragment: pose-release-recovery-verification\n⚠ warning changelog: done spec without a changelog fragment: pose-release-security-gate-integrity\n⚠ warning changelog: done spec without a changelog fragment: pose-sdd-migration-acquisition\n⚠ warning changelog: done spec without a changelog fragment: pose-code-cites-the-specs-that-delivered-it\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-authority-fixture-clock\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-design-basis\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-governance-outcomes\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-remediation-lineage\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-authority\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-tool-deferred-without-delivery\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-structural-delta\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-subject-evidence\n⚠ warning changelog: done spec without a changelog fragment: pose-check-qualified-roadmap-members\n⚠ warning changelog: done spec without a changelog fragment: pose-dist-adopts-spec-authority-transfer\n⚠ warning changelog: done spec without a changelog fragment: pose-federated-external-milestone-members\n⚠ warning changelog: done spec without a changelog fragment: pose-review-bundle-classifies-transfer-records\n⚠ warning changelog: done spec without a changelog fragment: pose-spec-transfer-completion-and-references\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-capability-adoption\n⚠ warning changelog: done spec without a changelog fragment: pose-open-backlog-reconciliation\n⚠ warning release: v6.3.0 is a prepared cut that the project's version has passed; it cannot be tagged: the project's version file says v7.4.1, the manifest recorded v6.3.0\n⚠ warning capabilities: assessment is 63 days old (policy: 30); consider reassessing\n⚠ warning capabilities: baseline_commit is 1555 commits behind HEAD (policy: 200); consider reassessing\nResult: SUCCESS — (strict mode) with 30 warning(s).\n",
+      "full_log_sha256": "d3e018bdc4225befb6a1627da540d59a8210b87b39b79b4e56fd989a001f9d31"
+    },
+    "head-artifact": {
+      "output": "artifact.spec=pose-release-manifest-tag-integrity\nartifact.change_set=cs-c059e69ea87b\nartifact.change_set.base=1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8\nartifact.change_set.head=22bb273aedf9fd29f9101cad439d856f565154f4\nartifact.change_set.commits=19\nartifact.diff_digest=sha256:f4ef4125e0fa6cd6962d74fc00ac67f37ac89cb4e6f75df1c84a42d7174d10d9\nartifact.claims=47\nartifact.observed=58\nartifact.findings=639\n⚠ warning orphan pose-mcp/internal/cli/update_reports_delivered_state_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/state_hooks_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan .github/workflows/security.yml\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/mcpserver/obligations_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/doctor_retired_machinery_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/mcpserver/identity_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explic\n[compactado; sha256 do log integral abaixo]\nked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/knowledge_usage_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/contract_nodes.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/review_independence_wording_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/index.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/issuer_key_links_unix.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/portfolio_projection.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/release_claimed_fragments.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan docs-site/docs/assets/og-card.png\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/legacy_ledger_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/stack_catalog_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/artifact_ref_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/effective_governance_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/review_bundle_engine_dirs_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/docs_review_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/delivery_integrity_cache.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/update_dryrun.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/state_attention.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/spec_transfer_locks.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/state_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/validate_scope.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/dor_policy.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/source_coverage_parity_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/import_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/mcpserver/action_resolve_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/capability_stale_edit.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/mcpserver/operation_results_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/reuse_and_signing_gates_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/review_assurance_proof_cli_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/stack_manifest_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/validate_guardrails_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/docs_sync.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/spec_facts.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/techdebt.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan docs-site/docs/assets/demo.tape\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/capabilities.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/onboarding.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/validate_root_and_nodemodules_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/quickstart_script_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/doctor.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/help_catalog.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/review_reuse_provenance.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/review_plan.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/review_subject_capabilities_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/docs.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan .agents/skills/pose-release-closeout/SKILL.md\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/followups.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/state.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/assessment_agnostic_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/pose/sshsig.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/stacks_cmd.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/amend_flat_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/artifact_integrity_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n⚠ warning orphan pose-mcp/internal/cli/docs_sync_test.go\n    governed tracked path has no spec provenance claim\n    fix: backfill an explicit claim or add an exact reviewed exclusion\n",
+      "full_log_sha256": "a0b3453e7575b58f4be12a6ebdaad0321b172800fccba3a1be72a271069c0f98"
+    },
+    "design": {
+      "output": "Design delta (spec:pose-release-manifest-tag-integrity)\nstatus=observed\ninput_digest=sha256:f4c433a64cf025bef82981f0c655a1274d69897373c12c149130e6e0c652f860\nsubject.entries=31\nsubject.base=1e0a313ba1d8\nsubject.head=22bb273aedf9\ncoverage.files=31/31\ncoverage.bytes=1467759\ncoverage.detectors=7\ndetector.dependency-go=not-applicable observed=0 unknown=0 unsupported=0\ndetector.dependency-npm=not-applicable observed=0 unknown=0 unsupported=0\ndetector.component=not-applicable observed=0 unknown=0 unsupported=0\ndetector.delivery-metadata=observed observed=1 unknown=0 unsupported=0\ndetector.governance-contract=not-applicable observed=0 unknown=0 unsupported=0\ndetector.public-contract=not-applicable observed=0 unknown=0 unsupported=0\ndetector.git-actions=observed observed=31 unknown=0 unsupported=0\ndeltas.count=2\ndelta.SD-784aeee4=validation-check added observed moduleOverrides.pose-mcp:release-manifest-tag-integrity-integration\ndelta.SD-4145a07d=path renamed observed .pose/changelogs/v0.16.4/pose-upgrade-compatibility-lab.md\n",
+      "full_log_sha256": "5e7c2ed1216647aa77f7521a7d116d94834e892210376e697d2a4feaec0b63a2"
+    },
+    "discover": {
+      "output": "Discovered 1 components:\n  - pose-mcp                       LOC: 75674 (prod) / 63701 (test) | Debt TODOs: 1, FIXMEs: 0\nassess.freshness.pose-mcp=refreshed (stale: component content changed (b854168a2e2f → 006312d7db16); validation matrix changed)\n",
+      "full_log_sha256": "1efb7e9d27815278c3244fc5d4dd6dfeda2e7b60ebc87019019305cdfa0a8e85"
+    },
+    "surface": {
+      "output": "surface.spec=pose-release-manifest-tag-integrity\nsurface.targets=1\nsurface.results=139\nsurface.findings=2\nsurface.provenance_digest=sha256:f724fac12ef88d8b09630efb7184474d0c23511d23ea9d3160aaa1483a59abe2\n✖ error stale-evidence capability:release-manifest-tag-integrity\n    passed integration evidence is bound to a different scoped provenance digest\n    fix: rerun the registered validation check for this delivery scope\n✖ error unconsumed-capability capability:release-manifest-tag-integrity\n    required current evidence is missing: integration\n    fix: run registered checks with the required evidenceClass against the\n    current provenance digest\n",
+      "full_log_sha256": "635acd6484a5866982ec4b5970b432fb2a3937f6e187c5b8410c0579e777e610"
+    },
+    "lint": {
+      "output": "---\n⚠ warning section pose-release-manifest-tag-integrity\n    optional section missing: Tasks\nspec.path=/home/go/.cache/pose-work/b38/pose-dist/.pose/specs/2026-10-13-pose-release-manifest-tag-integrity.md\nspec.status=in-progress\nspec.sections.total=6\nspec.sections.filled=6\nspec.sections.skeleton=0\nspec.sections.empty=0\nspec.required.missing=0\nspec.followups.total=6\nspec.followups.open=6\nspec.lifecycle.failures=0\nspec.requirements.ids=8\nspec.requirements.duplicate_failures=0\nspec.trace.present=true\nspec.trace.entries=8\nspec.trace.missing=0\nspec.trace.failures=0\nspec.amendments.events=0\nspec.amendments.failures=0\n\nlint.specs.checked=1\nlint.specs.failed=0\nResultado: SUCESSO\n",
+      "full_log_sha256": "c267cf8c79d010de286a81da5ca3b376f4071c233ce2f0eb38df1b5fd8c7291f"
+    },
+    "followups": {
+      "output": "# POSE follow-ups — all follow-ups\n# total=319 open=116 overdue=16 unowned=42 specs=213\n# coverage=INCOMPLETE — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; the counts above are what could be read\n#   unread invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md\n#   unread invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md\n\n- pose-agent-skills-conformance [spawned: pose-machinery-distribution-contract] (owner:@pose-maintainers crit:low review:2026-11-20)\n    Extend skills-check to also scan the locales/*/.agents/skills mirror trees, not just the installed .agents/skills/.\n- pose-changed-scope-validation [open] (owner:@pose-maintainers crit:low review:2026-10-16 OVERDUE)\n    Seed dependsOn edges for this repository's real modules (pose-mcp, mcp-enforce) once cross-module coupling needs scoped validation.\n- pose-cyclonedx-sbom [done] (owner:@pose-maintainers crit:medium review:2026-08-14)\n    Inspect the first snapshot rehearsal's SBOMs: confirm syft resolves the replaced `mcp-enforce` module path and review detected licenses against NOTICE. Inspected the published v0.18.2 SBOMs: syft resolves the `mcp-enforce` replace path but not its version, and 26 of 27 components carry no license, so there is nothing to reconcile against NOTICE. Recorded as F5.\n- pose-cyclonedx-sbom [covered: pose-slsa-provenance] (owner:u\n[compactado; sha256 do log integral abaixo]\nuthority transfer with an open action request under the adopted capability\n- pose-fresh-install-doctor-is-clean [spawned: pose-attention-projects-every-source] (owner:@pose-maintainers crit:medium review:2026-11-15)\n    Project the four pending Attention sources (release queues, docs review pendencies, capability stale triggers, open findings outside attestations) so a project that uses them gets complete coverage.\n- pose-recurrence-check-resolved-clusters [spawned: pose-recurrence-flapping-signal] (owner:@pose-maintainers crit:medium review:2026-11-06)\n    Detect a task that alternates fail and pass many times in the window, as a separate non-blocking signal\n- pose-structural-facts-stay-in-their-commits [open] (owner:@pose-maintainers crit:low review:2026-11-08)\n    Evaluate an advisory, never a gate, for a commit carrying several `POSE-Spec:` trailers or a declared range that contains a release commit, once bundles sealed with attribution show how often shared facts occur\n- pose-attention-projects-every-source [open] (owner:@pose-maintainers crit:medium review:2026-10-23)\n    Record the publication and verification evidence of v7.0.0, which Attention now shows as tagged with no recorded publication; the next release supersedes it if it is never recorded\n- pose-check-spawns-fewer-git-processes [open] (owner:@pose-maintainers crit:low review:2026-12-09)\n    Batch the per-trailer-commit `show --binary` and `diff-tree` reads of indexing (1,517 each per run on pose-dist), now the largest remaining Git cost\n- pose-recurrence-flapping-signal [open] (owner:@pose-maintainers crit:medium review:2026-10-30)\n    Investigate why validate-native alternates in both repositories (11 transitions in 50 runs on pose-dist, 10 in 40 on Harne8); environment-dependent checks such as the release-listing journey and disk-bound builds are the first suspects\n- pose-update-dry-run-reports-the-whole-update [open] (owner:@oseiaspereira88 crit:low review:2026-11-10)\n    Symlink layouts the dry-run copy may still reproduce differently from the instance; a more robust approach is a copy-on-write overlay or a dry-run mode inside the update itself that records instead of writing\n- pose-v7-1-0-version-alignment [open] (owner:@pose-maintainers crit:medium review:2026-10-23)\n    Clean up the temporary directories journey and compatibility tests leave in /tmp when a run is interrupted: 200 were found on 2026-10-09, about 5 GB, and they filled the user quota twice\n- pose-action-answers-reverify-on-read [done] (owner:unowned)\n    B04's scoped historical trust and review-source reuse contract was closed natively and published by #178; it explicitly does not establish immutable historical authorization. Consume its spec/closeout evidence rather than infer delivery from the merge.\n- pose-release-manifest-tag-integrity [open] (owner:@core crit:low review:2026-12-01)\n    Recusar `version_evidence.kind: null` no manifest.\n- pose-release-manifest-tag-integrity [open] (owner:@core crit:low review:2026-12-01)\n    Harmonizar os filtros de arquivos auxiliares entre o snapshot e o worktree.\n- pose-release-manifest-tag-integrity [open] (owner:@core crit:low review:2026-12-01)\n    Expor os limites e a integridade do candidato nos diagnósticos do status.\n- pose-release-manifest-tag-integrity [open] (owner:@core crit:low review:2026-12-01)\n    Ampliar o padrão do check de integração desta spec para os consumidores novos.\n- pose-release-manifest-tag-integrity [open] (owner:@core crit:low review:2026-12-01)\n    Usar o carregador estrito da policy de changelog em plan e prepare.\n- pose-release-manifest-tag-integrity [open] (owner:@core crit:low review:2026-12-01)\n    Reconciliar o texto de authoring da spec com a implementação e a validação efetivamente executadas, mantendo separado o closeout pendente.\n- pose-review-disclosure-requires-proof [done] (owner:unowned)\n    B04 historical claim-time and reuse-source provenance were closed natively and published by #178. Current trust remains governed by live pins/grants; no historical authorization receipt is implied.\n- pose-source-coverage-integrity [open] (owner:@core crit:low review:2026-12-01)\n    Raiz de estados de componentes que é link quebrado perde o diagnóstico em `updateProjectStateArchitecture` (o estado fica `unavailable` e o `discover` falha antes de publicar; sem aprovação indevida demonstrada, achado R6-F04 da revisão independente)\n- pose-source-coverage-integrity [open] (owner:@core crit:low review:2026-12-01)\n    O diagnóstico de um estado de componente ilegível no `updateProjectStateArchitecture` perde o arquivo e o tipo da perda, embora o estado derivado continue conservador (achado R7-F04)\n\n## Near-duplicate candidates (7) — lexical similarity >= 60/100\n\n[1] specs: pose-public-install-contract, pose-release-compatibility-matrix\n    - (pose-public-install-contract [covered]) In-place upgrade verification across released versions.\n    - (pose-release-compatibility-matrix [covered]) Broaden upgrade coverage across OS/arch and released-version pairs.\n\n[2] specs: pose-ossf-security-baseline, pose-release-signing\n    - (pose-ossf-security-baseline [covered]) Build provenance attestation.\n    - (pose-release-signing [covered]) Build provenance attestation on top of signatures.\n\n[3] specs: pose-dora-five-metrics-v2, pose-usage-metrics\n    - (pose-dora-five-metrics-v2 [covered]) Add explicit human confirmation of usage findings as `valid`, `wont-fix` or `false-positive`; keep automatic observation counts separate from adjudicated outcomes.\n    - (pose-usage-metrics [spawned]) Add explicit human confirmation of observed findings as `valid`, `wont-fix` or `false-positive`, preserving automatic observation counts separately from adjudicated outcomes.\n\n[4] specs: pose-spec-format-migration-command, pose-specs-ergonomics-and-discovery\n    - (pose-spec-format-migration-command [done]) Spec format migration CLI command suite implemented and verified.\n    - (pose-specs-ergonomics-and-discovery [done]) Specs ergonomics, hybrid resolution, and discovery CLI/MCP implemented and verified.\n\n[5] specs: pose-contributor-mode-workflow-and-cli-hints, pose-covered-followup-anchor-verification, pose-delivery-target-root-module-evidence-matching, pose-lint-spec-flat-layout-followup-resolution, pose-new-spec-default-flat-format, pose-release-closeout-skill-policy-link, pose-review-bundle-component-discovery-and-governance-paths, pose-review-bundle-doc-only-specs, pose-review-bundle-root-manifests-classification, pose-review-bundle-scope-isolated-listing, pose-review-overlay-uninstalled-rules-graceful-degradation, pose-review-policy-v2-migration-and-verify-compat, pose-skills-harmonization\n    - (pose-contributor-mode-workflow-and-cli-hints [done]) All requirements delivered and verified.\n    - (pose-delivery-target-root-module-evidence-matching [done]) All requirements verified and delivered.\n    - (pose-lint-spec-flat-layout-followup-resolution [done]) All requirements verified and delivered.\n    - (pose-new-spec-default-flat-format [done]) All requirements delivered and verified.\n    - (pose-release-closeout-skill-policy-link [done]) All requirements delivered and verified.\n    - (pose-review-bundle-component-discovery-and-governance-paths [done]) All requirements delivered and verified.\n    - (pose-review-bundle-doc-only-specs [done]) All requirements verified and delivered.\n    - (pose-review-bundle-root-manifests-classification [done]) All requirements verified and delivered.\n    - (pose-review-bundle-scope-isolated-listing [done]) All requirements verified and delivered.\n    - (pose-review-overlay-uninstalled-rules-graceful-degradation [done]) All requirements delivered and verified.\n    - (pose-review-policy-v2-migration-and-verify-compat [done]) All requirements delivered and verified.\n    - (pose-skills-harmonization [done]) All requirements delivered and verified.\n    - (pose-covered-followup-anchor-verification [done]) All requirements verified and delivered.\n\n[6] specs: pose-bundle-findings-take-the-contract-the-legacy-path-had, pose-bundles-seal-the-contracts-that-govern-them, pose-contract-adoption-registry\n    - (pose-contract-adoption-registry [done]) Report a policy whose contract_adoptions and legacy field disagree about the same contract. Resolved, reconciled 2026-10-04 (spec pose-open-backlog-reconciliation): doctor check review.adoption-conflict; test TestDoctorReportsConflictingAdoptionDates.\n    - (pose-bundles-seal-the-contracts-that-govern-them [done]) Report how many sealed bundles carry no governing_contracts, so the dated rule has a removal signal instead of living forever by default. Resolved, reconciled 2026-10-04 (spec pose-open-backlog-reconciliation): doctor check review.legacy-bundles; test TestDoctorCountsLegacySealedBundleFields.\n    - (pose-bundle-findings-take-the-contract-the-legacy-path-had [done]) Report how many sealed bundles carry no `gates`, alongside the same count for `governing_contracts` — both are pre-field bundles reading by a fallback, and neither has a signal for when the fallback can go. Resolved, reconciled 2026-10-04 (spec pose-open-backlog-reconciliation): doctor check review.legacy-bundles; test TestDoctorCountsLegacySealedBundleFields.\n\n[7] specs: pose-federated-milestone-scoped-acceptance, pose-roadmap-gate-scopes-milestones-and-external-members\n    - (pose-federated-milestone-scoped-acceptance [done]) Pin this engine revision in Harne8, renew its consumer reviews and close `milestone:harne8-multirepo-consistency/adoption`. Resolved, reconciled 2026-10-04 (spec pose-open-backlog-reconciliation): Harne8 roadmap harne8-multirepo-consistency is status done.\n    - (pose-roadmap-gate-scopes-milestones-and-external-members [done]) Pin this engine revision in Harne8 and close `milestone:harne8-multirepo-consistency/adoption` through `pose close`. Resolved, reconciled 2026-10-04 (spec pose-open-backlog-reconciliation): Harne8 roadmap harne8-multirepo-consistency is status done.\n",
+      "full_log_sha256": "f139b179fba335ac7b9bc2fb5a7c7b7b025f017c99ce14c0c590b1d148003444"
+    },
+    "debt": {
+      "output": "Technical Debt Assessment Results:\n  - Total Debt Markers: 1 (TODOs: 1, FIXMEs: 0, Panics: 0, Stubs: 0)\n  - Uncovered Debt Items: 0\n  - Recommendations: 0 Follow-ups, 0 Specs, 0 Roadmaps\n\ntechdebt.scan=INCOMPLETE — 267 source file(s) scanned; 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md (scope unknown); invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown); zero markers does not prove the unread files have none\ntechdebt.excluded=generated-header: 1 file(s) — files that declare themselves generated are not scanned\ntechdebt.excluded=skipped-directory: 36 file(s) — directories that hold dependencies, build output or tool state are not scanned\nArtifacts written to .pose/assessments/technical-debt.md and .pose/state/technical-debt.json\n",
+      "full_log_sha256": "288ee84da0543f8b5e3745249b05eeedee857b0b4b60ef5a56e21f64826f6173"
+    },
+    "integrate": {
+      "output": "Integration Assessment Results:\n  - Contracts Evaluated: 64\n  - Active Contracts: 1\n  - Integration Gaps Identified: 63\n\n  ⚠️ [GAP-3dcadd4f] No consumer observed for MCP tool conductor_run_close (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-253d911d] No consumer observed for MCP tool conductor_run_event (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-96ba2db7] No consumer observed for MCP tool conductor_run_open (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-5db5a249] No consumer observed for MCP tool pose_action_open (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-a89c576d] No consumer observed for MCP tool pose_action_requests (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-6de0d012] No consumer observed for MCP tool pose_action_resolve (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-42f38156] No consumer observed for MCP tool pose_capability_history (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-526d5db1] No consumer observed for MCP tool pose_capability_stale (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-1723b6ee] No consumer observed for MCP tool pose_capability_state (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-3b191a46] No consumer observed for MCP tool pose_check (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-d83dfa41] No consumer observed for MCP tool pose_closeout_state (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-2b269c89] No consumer observed for MCP tool pose_component_discover (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4d3323ce] No consumer observed for MCP tool pose_delivery_integrity (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-975000d8] No consumer observed for MCP tool pose_design_delta (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-a0de8c4e] No consumer observed for MCP tool pose_docs_state (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-28319ba1] No consumer observed for MCP tool pose_extension_list (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-da35d2c1] No consumer observed for MCP tool pose_federated_roadmap_acceptance (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-6beb18b0] No consumer observed for MCP tool pose_get_assessment (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4591b983] No consumer observed for MCP tool pose_get_changelog (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c243e080] No consumer observed for MCP tool pose_get_followups (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-5c88244f] No consumer observed for MCP tool pose_get_integration_matrix (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-6184cb5e] No consumer observed for MCP tool pose_get_knowledge (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-ca59e900] No consumer observed for MCP tool pose_get_report (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-49656cfd] No consumer observed for MCP tool pose_get_roadmap (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-2c4566b3] No consumer observed for MCP tool pose_get_rules (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-bcb0d677] No consumer observed for MCP tool pose_get_skill (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c631ddfd] No consumer observed for MCP tool pose_get_tech_debt_report (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-6e11b88a] No consumer observed for MCP tool pose_get_workflow (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-f9a968d0] No consumer observed for MCP tool pose_governance_stats (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-52b62b39] No consumer observed for MCP tool pose_insights (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-efbf903c] No consumer observed for MCP tool pose_integration_check (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-de0a1bcc] No consumer observed for MCP tool pose_lint_spec (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-b30f7eaf] No consumer observed for MCP tool pose_list_assessments (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-a92d9477] No consumer observed for MCP tool pose_list_knowledge (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c74bb593] No consumer observed for MCP tool pose_list_reports (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-3546aaa0] No consumer observed for MCP tool pose_list_roadmaps (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c158e52d] No consumer observed for MCP tool pose_list_specs (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-d2b3bba3] No consumer observed for MCP tool pose_mcp_context (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4176db82] No consumer observed for MCP tool pose_obligations (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-95c9942d] No consumer observed for MCP tool pose_project_state (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4be1e8a3] No consumer observed for MCP tool pose_release_status (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-8c1171f0] No consumer observed for MCP tool pose_requirement_trace (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-7fe36cf5] No consumer observed for MCP tool pose_review_attest (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-0aed6fe8] No consumer observed for MCP tool pose_review_bundle (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-d5ec9388] No consumer observed for MCP tool pose_review_plan (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-82926d92] No consumer observed for MCP tool pose_review_prepare (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-e0b19772] No consumer observed for MCP tool pose_skills_check (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c478d47e] No consumer observed for MCP tool pose_spec_amendments (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-3337a34d] No consumer observed for MCP tool pose_spec_readiness (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4d6cbab5] No consumer observed for MCP tool pose_spec_transfer_status (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-a29807bf] No consumer observed for MCP tool pose_start_status (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-47837534] No consumer observed for MCP tool pose_suggest (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4e92b6ec] No consumer observed for MCP tool pose_surface_assurance (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-2a822d27] No consumer observed for MCP tool pose_tech_debt_check (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c94b5e59] No consumer observed for MCP tool pose_usage (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-c8c850e8] No consumer observed for MCP tool pose_validate_approve (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-5424a827] No consumer observed for MCP tool pose_validate_cancel (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-bb4e7fbb] No consumer observed for MCP tool pose_validate_request (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-e32ba49c] No consumer observed for MCP tool pose_validate_status (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-4b014c9c] No consumer observed for MCP tool pose_validate_submit (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-7baa2119] No consumer observed for HTTP /admin/refresh (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-61862039] No consumer observed for HTTP /healthz (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\n  ⚠️ [GAP-0338c2bf] No consumer observed for HTTP /mcp (medium)\n     Provider: pose-mcp | Consumer: unobserved\n     A provider declaration was observed, but no repository consumer reference was found.\n\nArtifacts written to .pose/assessments/integrations.md and .pose/state/integrations.json\n",
+      "full_log_sha256": "841f6a342c3aa784491e384ec587b66a74fa8490ae418264987e3f5f62d28421"
+    },
+    "recurrence": {
+      "output": "recurrence.flapping_keys=0\nrecurrence.resolved_clusters=0\nrecurrence.window_days=14\nrecurrence.threshold=3\nrecurrence.records_scanned=393\nrecurrence.flagged_keys=0\n",
+      "full_log_sha256": "1a73e736242ad2b09a2ecb009cae0d82ae64b5b9cd27001401834b3f4e905db7"
+    },
+    "vuln": {
+      "output": "No vulnerabilities found.\n",
+      "full_log_sha256": "3016e51e4eac0d421674d2128bbbdefb2924b4646e0c14a1ab034977ad73fae5"
+    },
+    "secrets": {
+      "output": "\u001b[90m11:10PM\u001b[0m \u001b[32mINF\u001b[0m 20 commits scanned.\n\u001b[90m11:10PM\u001b[0m \u001b[32mINF\u001b[0m scan completed in 1.54s\n\u001b[90m11:10PM\u001b[0m \u001b[32mINF\u001b[0m no leaks found\n",
+      "full_log_sha256": "db8b72efebf7029fc7e5d0f74c6e30fe7061fe66389bd8df81a76fde229d5990"
+    },
+    "history": {
+      "output": "=== RUN   TestB38R7RealHistory\n    b38r7_probe_test.go:10: manifests=75 intact=74 legacy-missing=7\n--- PASS: TestB38R7RealHistory (7.98s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t7.996s\n",
+      "full_log_sha256": "c9e71130f4fa26b5f2a769972c372a2b25dc895334bd5172995fbe95aca2d409"
+    },
+    "probes": {
+      "output": "=== RUN   TestB38R7MissingTaggedInventory\n=== RUN   TestB38R7MissingTaggedInventory/one-release\n    b38r7_probe_test.go:20: check gaps=[manifest missing or invalid: open /tmp/TestB38R7MissingTaggedInventoryone-release1312480153/001/.pose/releases/v1.0.0/manifest.json: no such file or directory] status=&{Pending:[] Releases:[{Version:v1.0.0 State:tagged Manifest:0x278e8889a0b0 Events:[] Gaps:[the release directory is missing from the working tree; the release is read from its tag] Snapshot:0x278e8897c090}]} err=<nil> checker errors=0 output=\n    b38r7_probe_test.go:21: checker accepts a tagged release whose working-tree manifest was lost\n=== RUN   TestB38R7MissingTaggedInventory/all-releases\n    b38r7_probe_test.go:20: check gaps=[manifest missing or invalid: open /tmp/TestB38R7MissingTaggedInventoryall-releases2337589246/001/.pose/releases/v1.0.0/manifest.json: no such file or directory] status=&{Pending:[] Releases:[{Version:v1.0.0 State:tagged Manifest:0x278e88c5c2c0 Events:[] Gaps:[the release directory is missing from the working tree; the release is read from its tag] Snapshot:0x278e8897c090}]} err=<nil> checker errors=0 output=\n    b38r7_probe_test.go:21: checker accepts a tagged release whose working-tree manifest was lost\n--- FAIL: TestB38R7MissingTaggedInventory (0.25s)\n    --- FAIL: TestB38R7MissingTaggedInventory/one-release (0.12s)\n    --- FAIL: TestB38R7MissingTaggedInventory/all-releases (0.13s)\n=== RUN   TestB38R7SupersededMissingClaimedTag\n    b38r7_probe_test.go:39: check gaps=[the project's version file says v2.0.0, the manifest recorded v1.0.0 the events record tagged, and the tag v1.0.0 does not exist] checker errors=0 output=⚠ warning release: v1.0.0 is a prepared cut that the project's version has passed; it cannot be tagged: the project's version file says v2.0.0, the manifest recorded v1.0.0; the events record tagged, and the tag v1.0.0 does not exist\n    b38r7_probe_test.go:40: superseded exception hides a missing tag declared by events\n    b38r7_probe_test.go:42: status=&{Pending:[] Releases:[{Version:v1.0.0 State:tagged Manifest:0x278e8890c790 Events:[{SchemaVersion:1 Version:v1.0.0 State:tagged RecordedAt:2026-10-19T02:12:47Z Evidence:{SchemaVersion:1 Provider:github Repository:owner/repo Version:v1.0.0 Tag:v1.0.0 Commit:29185b5265a13762ca60c2c53e851f6e8c78d4e9 PublishedAt: URL: WorkflowRun: Assets:map[] Publication:} EvidenceDigest:sha256:7944611c600dc7cba6015af18ff12aae20b8cbcb39d4bdaddf2a80062b8f1042}] Gaps:[the project's version file says v2.0.0, the manifest recorded v1.0.0 the events record tagged, and the tag v1.0.0 does not exist] Snapshot:<nil>}]} err=<nil> sound=false\n    b38r7_probe_test.go:45: malformed journal checker errors=0 output=⚠ warning release: v1.0.0 is a prepared cut that the project's version has passed; it cannot be tagged: the project's version file says v2.0.0, the manifest recorded v1.0.0; event line 1: invalid character 'b' looking for beginning of object key string\n    b38r7_probe_test.go:46: superseded exception hides a journal that cannot be read\n--- FAIL: TestB38R7SupersededMissingClaimedTag (0.08s)\nFAIL\nFAIL\tgithub.com/harne8/pose-mcp/internal/cli\t0.336s\nFAIL\n",
+      "full_log_sha256": "f9bf5380c48372da8354db4ab79427fb3ae0046e622e1a0d3680c15bd088fbdd"
+    },
+    "r6-recheck": {
+      "output": "=== RUN   TestB38R6CompatibilityCategory\n    b38r6_probe_test.go:14: candidate gaps=[the canonical notes are not the rendering of the fragments the manifest froze] limits=[]\n    b38r6_probe_test.go:15: snapshot intact=false gaps=[the canonical notes of the tagged tree are not the rendering of the fragments the manifest froze] limits=[]\n--- PASS: TestB38R6CompatibilityCategory (0.09s)\n=== RUN   TestB38R6GitPolicyAncestor\n    b38r6_probe_test.go:23: snapshot intact=false gaps=[the release policy of the tagged tree (.pose/policy/release.json) could not be read: pose: .pose/policy of the tagged tree is not a directory (mode 120000), so .pose/policy/release.json cannot be proven absent the changelog policy of the tagged tree could not be read: pose: .pose/policy of the tagged tree is not a directory (mode 120000), so .pose/policy/changelog.json cannot be proven absent] issues=[]\n--- PASS: TestB38R6GitPolicyAncestor (0.07s)\n=== RUN   TestB38R6RelativeAbsence\n    b38r6_probe_test.go:29: absent=false err=pose: /tmp/TestB38R6RelativeAbsence1457429190/001/.pose is a link whose target cannot be read: stat /tmp/TestB38R6RelativeAbsence1457429190/001/.pose: no such file or directory\n    b38r6_probe_test.go:30: status=<nil> err=pose: /tmp/TestB38R6RelativeAbsence1457429190/001/.pose is a link whose target cannot be read: stat /tmp/TestB38R6RelativeAbsence1457429190/001/.pose: no such file or directory\n--- PASS: TestB38R6RelativeAbsence (0.00s)\n=== RUN   TestB38R6LowVariants\n=== RUN   TestB38R6LowVariants/null_kind\n    b38r6_probe_test.go:34: null kind issues=[]\n=== RUN   TestB38R6LowVariants/README_archive\n    b38r6_probe_test.go:35: candidate gaps=[] limits=[] snapshot gaps=[the tagged tree holds fragment README.md that the manifest does not freeze]\n--- PASS: TestB38R6LowVariants (0.11s)\n    --- PASS: TestB38R6LowVariants/null_kind (0.02s)\n    --- PASS: TestB38R6LowVariants/README_archive (0.09s)\n=== RUN   TestB38R6PolicyFileAncestor\n    b38r6_probe_test.go:38: file ancestor intact=false gaps=[the release policy of the tagged tree (.pose/policy/release.json) could not be read: pose: .pose/policy of the tagged tree is not a directory (mode 100644), so .pose/policy/release.json cannot be proven absent the changelog policy of the tagged tree could not be read: pose: .pose/policy of the tagged tree is not a directory (mode 100644), so .pose/policy/changelog.json cannot be proven absent]\n--- PASS: TestB38R6PolicyFileAncestor (0.08s)\n=== RUN   TestB38R6LowByteIdenticalLinks\n    b38r6_probe_test.go:42: tagged sound=true err=<nil> archive loader=release fragment alpha.md must not be a symlink\n--- PASS: TestB38R6LowByteIdenticalLinks (0.10s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.460s\n=== RUN   TestB38R6CheckerLostReleases\n=== RUN   TestB38R6CheckerLostReleases/dangling\n    b38r6_probe_test.go:15: checker errors=1 output=✖ error release: the release inventory could not be read: pose: /tmp/TestB38R6CheckerLostReleasesdangling1047820243/001/.pose/releases is a link whose target cannot be read: stat /tmp/TestB38R6CheckerLostReleasesdangling1047820243/001/.pose/releases: no such file or directory\n    b38r6_probe_test.go:16: status error=pose: the release directory could not be read: pose: /tmp/TestB38R6CheckerLostReleasesdangling1047820243/001/.pose/releases is a link whose target cannot be read: stat /tmp/TestB38R6CheckerLostReleasesdangling1047820243/001/.pose/releases: no such file or directory\n=== RUN   TestB38R6CheckerLostReleases/file\n    b38r6_probe_test.go:15: checker errors=1 output=✖ error release: the release inventory could not be read: open /tmp/TestB38R6CheckerLostReleasesfile2903713432/001/.pose/releases: not a directory\n    b38r6_probe_test.go:16: status error=pose: the release directory could not be read: open /tmp/TestB38R6CheckerLostReleasesfile2903713432/001/.pose/releases: not a directory\n--- PASS: TestB38R6CheckerLostReleases (0.05s)\n    --- PASS: TestB38R6CheckerLostReleases/dangling (0.02s)\n    --- PASS: TestB38R6CheckerLostReleases/file (0.02s)\n=== RUN   TestB38R6PrepareChangelogPolicy\n=== RUN   TestB38R6PrepareChangelogPolicy/{\"schema_version\":999}\n    b38r6_probe_test.go:28: prepare code=0 out=Prepared v7.4.1: 0 fragments archived; notes and manifest frozen.\n         err= check gaps=[the changelog policy cannot be used: the changelog policy schema_version 999 is not supported by this engine]\n    b38r6_probe_test.go:29: prepare writes a cut that its own checker rejects for policy\n=== RUN   TestB38R6PrepareChangelogPolicy/{broken\n    b38r6_probe_test.go:28: prepare code=0 out=Prepared v7.4.1: 0 fragments archived; notes and manifest frozen.\n         err= check gaps=[the changelog policy cannot be used: invalid changelog policy: invalid character 'b' looking for beginning of object key string]\n    b38r6_probe_test.go:29: prepare writes a cut that its own checker rejects for policy\n--- FAIL: TestB38R6PrepareChangelogPolicy (0.05s)\n    --- FAIL: TestB38R6PrepareChangelogPolicy/{\"schema_version\":999} (0.03s)\n    --- FAIL: TestB38R6PrepareChangelogPolicy/{broken (0.02s)\n=== RUN   TestB38R6PlanLostInventory\n    b38r6_probe_test.go:35: previous=\"\" err=the release directory could not be read: pose: /tmp/TestB38R6PlanLostInventory675512276/001/.pose/releases is a link whose target cannot be read: stat /tmp/TestB38R6PlanLostInventory675512276/001/.pose/releases: no such file or directory\n--- PASS: TestB38R6PlanLostInventory (0.01s)\n=== RUN   TestB38R6CompatibilityConsumerParity\n    b38r6_probe_test.go:51: check gaps=[tag snapshot: the canonical notes of the tagged tree are not the rendering of the fragments the manifest froze] status sound=false err=<nil>\n    b38r6_probe_test.go:53: notes code=1 text=\n--- PASS: TestB38R6CompatibilityConsumerParity (0.35s)\n=== RUN   TestB38R6HistoricalCategoryPolicy\n    b38r6_probe_test.go:67: checker errors=0 out= check gaps=[] sound=true err=<nil>\n--- PASS: TestB38R6HistoricalCategoryPolicy (0.59s)\n=== RUN   TestB38R6LowHumanLimits\n    b38r6_probe_test.go:73: status code=0 text=Pending fragments: 0\n        v1.0.0\ttagged\n    b38r6_probe_test.go:74: JSON snapshot limits=[the version evidence is the engine's own version file: it exists in the tagged tree and its value was not re-read] err=<nil>\n--- PASS: TestB38R6LowHumanLimits (0.18s)\nFAIL\nFAIL\tgithub.com/harne8/pose-mcp/internal/cli\t1.235s\nFAIL\n",
+      "full_log_sha256": "2c8d60bb0caf7e4890c2fc5e5b85eb40bacaad2443b0bd1f5ed85c9f539f8e63"
+    },
+    "module-validation-structured": {
+      "path": ".pose/results/b38r7-module-validation.json",
+      "sha256": "06870491635df0c0824cf16ca9fa1a9aa314a6c751de49fd7deca3ad64deab15",
+      "outcome": "pass",
+      "counts": {
+        "executed": 137,
+        "passed": 137,
+        "failed": 0,
+        "optional_failed": 0,
+        "errored": 0,
+        "skipped": 0
+      },
+      "keys": [
+        "schema_version",
+        "generated_at",
+        "mode",
+        "module_filter",
+        "git_head",
+        "matrix_sha256",
+        "provenance_digest",
+        "scope_provenance",
+        "outcome",
+        "counts",
+        "checks"
+      ]
+    },
+    "global-validation-structured": {
+      "path": ".pose/results/b38r7-global-validation.json",
+      "sha256": "fb5ea00308f35f0fbd1187a3253bd81481c0850d991444d7aaabecd3b5990365",
+      "outcome": "pass",
+      "counts": {
+        "executed": 140,
+        "passed": 140,
+        "failed": 0,
+        "optional_failed": 0,
+        "errored": 0,
+        "skipped": 0
+      },
+      "keys": [
+        "schema_version",
+        "generated_at",
+        "mode",
+        "git_head",
+        "matrix_sha256",
+        "provenance_digest",
+        "scope_provenance",
+        "outcome",
+        "counts",
+        "checks"
+      ]
+    },
+    "statuses": {
+      "module-validation": "pass:137/137",
+      "global-validation": "pass:140/140",
+      "head-check": "success:30 warnings",
+      "head-artifact": "exit 0:639 warnings,0 errors",
+      "surface": "failure:stale-evidence,unconsumed-capability; prior configured results_path not regenerated for blocked closeout",
+      "lint": "pass",
+      "vuln": "pass",
+      "secrets": "pass:20 commits",
+      "history": "pass:75 manifests,74 intact snapshots,7 legacy missing",
+      "probes": "expected failure:2 blockers; see subcases",
+      "r6-recheck": "expected negative failure in PrepareChangelogPolicy only (low); other selected cases pass"
+    }
+  },
+  "workspace": {
+    "initial_dirty": [
+      ".pose/indexes/generation.json"
+    ],
+    "production_or_tests_edited": false,
+    "spec_edited": false,
+    "upstream_feedback_staged": false,
+    "restored_transient_paths": [
+      ".pose/assessments/README.md",
+      ".pose/assessments/consolidated.md",
+      ".pose/assessments/integrations.md",
+      ".pose/assessments/pose-mcp.md",
+      ".pose/assessments/technical-debt.md",
+      ".pose/indexes/delivery-integrity.json",
+      ".pose/state/components/pose-mcp.json",
+      ".pose/state/integrations.json",
+      ".pose/state/technical-debt.json"
+    ],
+    "preserved_initial_generation_sha256": "d37bdaea9d624e6868c84f14ec6b5c35ed1b3937d74156ec5890d4c7dadc0069"
+  }
+}

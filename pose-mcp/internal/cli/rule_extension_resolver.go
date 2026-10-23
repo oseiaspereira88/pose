@@ -12,8 +12,12 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
+
+	posepkg "github.com/harne8/pose-mcp/internal/pose"
 )
 
 // ruleExtensionByStack maps a stack-detection domain (module-metadata.json's
@@ -97,18 +101,19 @@ func hasPackageDependency(root, modulePath string, names ...string) bool {
 // ruleExtensionFile maps an extension ID to the rule file it installs
 // under .pose/rules/, for the doctor advisory's "already installed?" check.
 var ruleExtensionFile = map[string]string{
-	"pose-rule-backend-go":          "backend-go.md",
-	"pose-rule-backend-python":      "backend-python.md",
-	"pose-rule-backend-rust":        "backend-rust.md",
-	"pose-rule-backend-java":        "backend-java.md",
-	"pose-rule-backend-dotnet":      "backend-dotnet.md",
+	"pose-rule-backend-go":            "backend-go.md",
+	"pose-rule-backend-python":        "backend-python.md",
+	"pose-rule-backend-rust":          "backend-rust.md",
+	"pose-rule-backend-java":          "backend-java.md",
+	"pose-rule-backend-dotnet":        "backend-dotnet.md",
 	"pose-rule-serverless-cloudflare": "serverless-cloudflare.md",
-	"pose-rule-infra-terraform":     "infra-terraform.md",
-	"pose-rule-frontend-react":      "frontend-react.md",
-	"pose-rule-frontend-vue":        "frontend-vue.md",
-	"pose-rule-frontend-svelte":     "frontend-svelte.md",
-	"pose-rule-infra-docker":        "infra-docker.md",
-	"pose-rule-cicd-github-actions": "cicd-github-actions.md",
+	"pose-rule-infra-terraform":       "infra-terraform.md",
+	"pose-rule-frontend-react":        "frontend-react.md",
+	"pose-rule-frontend-vue":          "frontend-vue.md",
+	"pose-rule-frontend-svelte":       "frontend-svelte.md",
+	"pose-rule-infra-docker":          "infra-docker.md",
+	"pose-rule-cicd-github-actions":   "cicd-github-actions.md",
+	"pose-rule-kubernetes":            "kubernetes.md",
 }
 
 // ruleExtensionInstalled reports whether the extension's rule file is
@@ -117,6 +122,59 @@ var ruleExtensionFile = map[string]string{
 // extensions and still lives on disk untouched (deliverMachinery never
 // deletes a retired file). Either way, no advisory is needed.
 func ruleExtensionInstalled(root, ruleFile string) bool {
-	_, err := os.Stat(filepath.Join(root, ".pose", "rules", ruleFile))
-	return err == nil
+	state, _ := ruleFileState(root, ruleFile)
+	return state == ruleFileReadable
+}
+
+// State of a rule file: a rule is installed when a regular file can be read, absent when
+// there is none, and unreadable when something is there (or the directory cannot be
+// looked into) and cannot be read. Only the first two say anything about an extension.
+const (
+	ruleFileReadable   = "readable"
+	ruleFileAbsent     = "absent"
+	ruleFileUnreadable = "unreadable"
+)
+
+func ruleFileState(root, ruleFile string, operationFiles ...posepkg.Files) (string, error) {
+	files := posepkg.NativeFiles()
+	if len(operationFiles) > 0 {
+		files = posepkg.FilesOrNative(operationFiles[0])
+	}
+	rulesDir := filepath.Join(root, ".pose", "rules")
+	path := filepath.Join(rulesDir, ruleFile)
+	// The directory of the rules first: one that is there as an entry and cannot be looked into
+	// (a link to a place that was lost, no access) is a loss, not a project without rules.
+	if _, lerr := files.Lstat(rulesDir); lerr == nil {
+		if _, serr := files.Stat(rulesDir); serr != nil {
+			return ruleFileUnreadable, fmt.Errorf("the rules directory %s cannot be read: %w", rulesDir, serr)
+		}
+	} else if !errors.Is(lerr, os.ErrNotExist) {
+		return ruleFileUnreadable, lerr
+	} else {
+		return ruleFileAbsent, nil
+	}
+	linfo, lerr := files.Lstat(path)
+	if errors.Is(lerr, os.ErrNotExist) {
+		return ruleFileAbsent, nil
+	}
+	if lerr != nil {
+		return ruleFileUnreadable, lerr
+	}
+	info, err := files.Stat(path)
+	if err != nil {
+		if linfo.Mode()&os.ModeSymlink != 0 {
+			// The rule is there as a link whose target was lost: not an absent rule.
+			return ruleFileUnreadable, fmt.Errorf("%s is a link whose target cannot be read: %w", path, err)
+		}
+		return ruleFileUnreadable, err
+	}
+	if !info.Mode().IsRegular() {
+		return ruleFileUnreadable, fmt.Errorf("%s is not a regular file", path)
+	}
+	file, err := files.Open(path)
+	if err != nil {
+		return ruleFileUnreadable, err
+	}
+	file.Close()
+	return ruleFileReadable, nil
 }
