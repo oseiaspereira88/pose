@@ -15,3 +15,6 @@ The actual source review requested changes for three medium filesystem fidelity 
 The user subsequently explicitly authorized resuming separate Codex secondary reviews because Claude configuration cannot be resolved now. This supersedes the interim Claude-only preference; preserve actual same-vendor execution attribution.
 
 Pending: fresh native collection on corrected source, immutable artifact reconciliation, delivery surface gate, sealed final adjudication, native review verification and closure, dedicated PR and required CI. No release/tag publication, Harne8 adoption or shared-checkout/gitlink changes are authorized or performed by this qualification.
+
+
+R2 source review confirmed original findings fixed and requested two additional conservative-uncertainty corrections. Both reproduced and fixed with operation and real shared-update tests; see implementation report. The subsequent146-check collection on e7b768e was145/146 due externally rate-limited release listing, not a passing final run. Fresh final collection follows the R2 fix commit, using configured authenticated release access.

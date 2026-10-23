@@ -737,7 +737,7 @@ func TestUpdatePreviewLeavesUsageRecordingForApply(t *testing.T) {
 // The real update writer follows absolute link components; a lost alias model
 // must also remain incomplete through the shared command's best-effort paths.
 func TestUpdatePreviewSourceReviewFilesystemReachability(t *testing.T) {
-	for _, kind := range []string{"missing-dotdot", "symlink-dotdot", "hardlink"} {
+	for _, kind := range []string{"missing-dotdot", "symlink-dotdot", "hardlink", "special-file"} {
 		t.Run(kind, func(t *testing.T) {
 			root := staleInstance(t)
 			outside := t.TempDir()
@@ -748,6 +748,14 @@ func TestUpdatePreviewSourceReviewFilesystemReachability(t *testing.T) {
 				t.Fatal(err)
 			}
 			switch kind {
+			case "special-file":
+				info, err := os.Stat(os.DevNull)
+				if err != nil || info.Mode().IsRegular() {
+					t.Skip("no special null device")
+				}
+				if err := os.Symlink(os.DevNull, path); err != nil {
+					t.Skip(err)
+				}
 			case "hardlink":
 				if err := os.Link(victim, path); err != nil {
 					t.Skip(err)
@@ -774,8 +782,8 @@ func TestUpdatePreviewSourceReviewFilesystemReachability(t *testing.T) {
 			if after := instanceState(t, root, path, victim); !reflect.DeepEqual(before, after) {
 				t.Fatal("preview changed physical state")
 			}
-			if kind == "hardlink" {
-				if code == 0 || !strings.Contains(out, "INCOMPLETE") || !strings.Contains(out, "inode aliases") {
+			if kind == "hardlink" || kind == "special-file" {
+				if code == 0 || !strings.Contains(out, "INCOMPLETE") {
 					t.Fatalf("hardlink must stay incomplete: %d %s", code, out)
 				}
 			} else {

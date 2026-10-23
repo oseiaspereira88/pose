@@ -80,3 +80,74 @@ Inspected the supplied full-suite, focused and full affected-package race logs; 
 Native context/bundle preparation, assessments, recurrence collection, validation, sealing, attestation and closure were deferred under the explicit read-only source-review instruction. No new bundle or plan digest was produced. No contributions, edits, staging or commits were made.
 
 The concurrent native 146-check collection is outside this decision. **No final native result, sealed approval or spec closure is claimed.** Resolve the three blockers, add focused parity coverage, then perform fresh sealed adjudication.
+
+## Separate source review R2 — actual response
+
+**Source decision: changes requested.** All original R1 findings are addressed in source. Two additional reachable filesystem mismatches remain.
+
+Reviewed `fe765cf8aaaaff3ec93e91818e69e0781f92116a..e7b768e619a044780f66349985ca1f3d272478c6`, including the corrections after `7d9c07c`, canonical B29 spec, accepted ADR, implementation report and actual historical R1. This was a separate, read-only Codex execution; no child agents were used.
+
+**Concrete findings**
+
+1. **Medium — direct writes fabricate regular-file behavior for special files.**  
+   [operation_files.go:897](/tmp/pose-pending-b29/pose-mcp/internal/pose/operation_files.go:897)
+
+   Physical lookup classifies every entry other than a directory or symlink as `previewFile`. Direct overwrite checks permissions and link count, then stages ordinary bytes without checking whether the physical target is regular.
+
+   **Source-derived scenario:** on Linux, `.pose/rules/security.md` points to `/dev/null`. The reachable [machinery writer](/tmp/pose-pending-b29/pose-mcp/internal/cli/machinery.go:277) reads empty bytes and attempts delivery. With the usual writable, singly linked `/dev/null`, preview stages the shipped content, subsequent reads return it, and the effect report describes an external modification without recording a gap. Native direct writes discard those bytes; subsequent reads remain empty and the target remains a character device.
+
+   This concerns an observable file type, not future provider or disk uncertainty.
+
+   **Smallest fix:** before staging a direct overwrite of a physical entry, require `e.info.Mode().IsRegular()`. For unsupported special-file semantics, persist an `ErrPreviewUnsupported` gap and return INCOMPLETE. Preserve atomic replacement’s separate behavior. Add operation-level and shared-update reachability coverage.
+
+2. **Medium — inability to enumerate a directory is incorrectly treated as proof that removal would fail.**  
+   [operation_files.go:1068](/tmp/pose-pending-b29/pose-mcp/internal/pose/operation_files.go:1068)
+
+   `Remove` enumerates a directory to establish emptiness. When enumeration fails, it records the read error as the native removal refusal without recording incomplete evaluation. Native removal of an empty directory requires appropriate access to its parent, rather than read permission on the directory being removed.
+
+   **Source-derived scenario:** as an unprivileged user, replace `.claude/skills/pose-feature` with an empty directory of mode `000`, retaining a writable/searchable parent. During force update, [skill-link recreation](/tmp/pose-pending-b29/pose-mcp/internal/cli/install.go:455) removes that entry before creating its symlink. Native removal can succeed. Preview’s enumeration fails, leaves the directory present and makes symlink creation fail with existence. The internal enumeration bypasses `updateReadView`, so this path adds no evaluation gap and can finish with a complete change summary.
+
+   **Smallest fix:** when directory emptiness cannot safely be established, report unsupported evaluation with a persistent gap instead of asserting a native removal refusal. Add an unprivileged empty-unreadable-directory control through force update. Check the analogous `RemoveAll` preflight while making this correction.
+
+Neither finding was reproduced during this execution; both follow from the inspected source and reachable callers.
+
+**Disposition of every R1 item**
+
+| Historical item | Current disposition |
+|---|---|
+| Medium: absolute symlink targets cleaned before traversal | Addressed in source. Raw incoming and target components survive; preceding components are traversed before `..`. Regression coverage includes absent and symlink components, plus shared-update reachability. |
+| Medium: staged permission bypasses | Addressed in source. Read, open, enumeration, search and write paths use staged access checks. Missing effective-access knowledge persists an INCOMPLETE gap. Physical-origin access remains kernel-backed. |
+| Medium: direct hard-link alias loss | Addressed in source. Unknown or multiple physical link counts prevent optimistic direct overwrite. Atomic replacement severs the old identity independently. Operation and shared-update regressions cover this distinction. |
+| Low: guessed platform umask `022` | Addressed in source. Observation availability is explicit; unavailable knowledge makes affected creation incomplete. Explicit-mode atomic publication remains independent when its parent exists. |
+
+The additional trailing-separator correction also addresses the reported direct-path and literal-symlink-target cases in source. Its regression includes native refusal controls. I did not rerun those controls.
+
+**Composition and mutation assessment**
+
+The cumulative diff retains explicit invocation-local Files, captured time and the shared plain/force update algorithm. Discovery walks the original source tree. Projected governance reaches resolver-created Stores, configuration requests, generation computation and the force final gate. Request output retains capability, origin, question, addressed role and recommendation.
+
+B28 availability readers consume staged instructions. B30 retains generation pinning, latest-generation comparison, projected bindings, result provenance and explicit history reads. B38 retains immutable tagged authority, strict validation and fail-closed handling; tagged version decoding now consumes committed blob bytes in memory.
+
+I found no additional reachable physical preview mutator in the inspected paths. Native filesystem operations and publisher behavior remain separate from preview staging. This is source analysis, not a universal mutation-proof claim.
+
+**Rules applied during review**
+
+Change type: mixed bugfix, structural refactor and documentation. Applied root `AGENTS.md`, `POSE.md`, `pose-review` and the review workflow, with:
+
+- `backend-go.md`: interfaces, errors, synchronization and regression coverage.
+- `security.md`: filesystem targets, publication integrity and sensitive output.
+- `documentation-style.md`: canonical references and contract wording.
+- `delivery-evidence.md`: source approval versus verified delivery.
+- `knowledge-governance.md` and `_base-recurrence.md`: residual-risk handling and recurring filesystem-fidelity gaps.
+
+No deeper applicable AGENTS file was found. Knowledge search found no additional B29-specific entry. Frontend and infrastructure rules were not applicable.
+
+**Validation and limits**
+
+No tests, builds, native assessments or mutation audits were executed here. Reviewed regression code and reported results are distinguished from independently executed evidence. Earlier full-suite/race/vet/six-build/audit results precede the trailing-separator correction; pending native collection and current race/vulnerability results are not final review proof.
+
+The cumulative `git diff --check` reports three trailing-space Markdown hard breaks in historical R1. This is nonblocking and does not justify altering the preserved review.
+
+Context/bundle preparation, assessment writes, recurrence collection, sealing, attestation, handoff creation and closure remain deferred under the explicit source-only instruction; no new bundle or plan digest was produced. No edits, staging, commits, contributions or publication occurred.
+
+Future concurrency, disk/quota, ACL/security-policy and provider uncertainty remain disclosed limits. Platform builds establish compilation only. The two findings require conservative INCOMPLETE handling, not universal kernel emulation. No sealed approval or B29 closure is claimed.

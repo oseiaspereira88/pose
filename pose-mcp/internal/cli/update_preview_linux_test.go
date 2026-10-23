@@ -16,6 +16,33 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+func TestUpdatePreviewUnreadableEmptySkillDirectoryIsIncomplete(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("requires unprivileged permission control")
+	}
+	root := staleInstance(t)
+	path := filepath.Join(root, ".claude", "skills", "pose-feature")
+	if err := os.Remove(path); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(path, 0000); err != nil {
+		t.Fatal(err)
+	}
+	code, out := runPose(t, root, "update", "--dry-run", "--force")
+	if code == 0 || !strings.Contains(out, "INCOMPLETE") {
+		t.Fatalf("cannot prove removal: %d %s", code, out)
+	}
+	if info, err := os.Lstat(path); err != nil || !info.IsDir() {
+		t.Fatalf("preview changed entry: %v %v", info, err)
+	}
+	if code, out := runPose(t, root, "update", "--no-self", "--force"); code != 0 {
+		t.Fatalf("native control: %d %s", code, out)
+	}
+	if info, err := os.Lstat(path); err != nil || info.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("native removal/relink failed: %v %v", info, err)
+	}
+}
+
 // Observe filesystem mutation events, including transient publisher staging and
 // locks that final content snapshots miss. This is an inotify mutation audit,
 // not a syscall audit. Reads (including atime updates) are excluded.

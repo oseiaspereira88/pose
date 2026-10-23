@@ -217,3 +217,14 @@ Exact paths edited by this continuation (all uncommitted):
 - `pose-mcp/internal/pose/operation_files_test.go`
 - `pose-mcp/internal/pose/operation_files_access_linux_test.go` (new)
 - `pose-mcp/internal/cli/update_preview_test.go`
+
+
+## Parent R2 remediation — 2026-10-23
+
+Actual separate Codex source review R2 (run `/home/go/.local/state/secondary-agent/20261023T042723-codex-3928768`) confirmed all R1 items addressed and requested changes for special-file direct writes and unreadable-directory removal. Its unmodified response follows R1 in the review report. No rejected review is retroactively approved.
+
+New tests reproduced both before production edits (`/tmp/pose-b29-r2-before.log`): direct device writes staged regular bytes; the shared force-update device link returned complete; unprivileged empty mode-000 directories were removable natively with both Remove and RemoveAll, while the preview treated enumeration failure as native refusal without a gap. The shared force-update skill-directory fixture also lacked INCOMPLETE.
+
+Direct physical overwrite now requires a regular file; unsupported special-file effects persist a gap. Failure to observe directory emptiness or recursive contents persists an unsupported-evaluation gap instead of claiming removal must fail. Atomic replacement remains independent. Focused full update/operation/preview/stale-engine selectors pass (model0.058s, CLI6.290s), `/tmp/pose-b29-r2-after.log`. Tests include the real shared force-update caller, a native successful empty-directory removal/relink control, and subprocess permission controls as uid1000. No new production paths or dependencies were added. Native apply stays unchanged.
+
+Previous corrected-source native collection at e7b768e yielded145/146: only published-release journey failed with HTTP403. Direct response headers confirmed public GitHub quota60, remaining0. This is failed evidence, not waived success. Final collection uses existing configured gh authentication in child environment only; token bytes are never printed or written to artifacts. Earlier local govulncheck found no vulnerabilities and operation race passed2.097s. Six final e7b768e builds passed; these are preceding-source evidence after the R2 production edits.

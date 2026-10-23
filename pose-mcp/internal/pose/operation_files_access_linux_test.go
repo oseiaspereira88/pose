@@ -128,5 +128,28 @@ func TestUpdateOperationRestrictiveUmaskSubprocess(t *testing.T) {
 			t.Fatalf("physical search skipped: %v", pe)
 		}
 	})
+	for _, recursive := range []bool{false, true} {
+		t.Run(fmt.Sprintf("unreadable-empty-removal-%v", recursive), func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "empty")
+			if err := os.Mkdir(path, 0000); err != nil {
+				t.Fatal(err)
+			}
+			p := NewPreviewFiles(time.Now())
+			var pe, ne error
+			if recursive {
+				pe = p.RemoveAll(path)
+				ne = os.RemoveAll(path)
+			} else {
+				pe = p.Remove(path)
+				ne = os.Remove(path)
+			}
+			if ne != nil {
+				t.Fatalf("native empty-directory removal: %v", ne)
+			}
+			if !errors.Is(pe, ErrPreviewUnsupported) || len(p.Gaps()) == 0 {
+				t.Fatalf("unobserved emptiness must remain incomplete: %v %v", pe, p.Gaps())
+			}
+		})
+	}
 
 }

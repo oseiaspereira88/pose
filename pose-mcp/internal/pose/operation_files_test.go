@@ -17,6 +17,21 @@ import (
 	"time"
 )
 
+func TestUpdateOperationSpecialFileWriteIsIncomplete(t *testing.T) {
+	info, err := os.Stat(os.DevNull)
+	if err != nil || info.Mode().IsRegular() {
+		t.Skip("no special null device")
+	}
+	p := NewPreviewFiles(time.Now())
+	err = p.WriteFile(os.DevNull, []byte("discarded"), 0o644)
+	if !errors.Is(err, ErrPreviewUnsupported) || len(p.Gaps()) == 0 {
+		t.Fatalf("special-file write must stay incomplete: %v %v", err, p.Gaps())
+	}
+	if p.Staged(os.DevNull) {
+		t.Fatal("special device replaced in view")
+	}
+}
+
 func TestUpdateOperationTrailingSeparatorRequiresDirectory(t *testing.T) {
 	root := t.TempDir()
 	file := filepath.Join(root, "file")

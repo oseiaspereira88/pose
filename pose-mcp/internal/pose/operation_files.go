@@ -887,6 +887,9 @@ func (p *PreviewFiles) WriteFile(name string, data []byte, perm fs.FileMode) err
 	mode := perm.Perm() &^ p.umask
 	origin := ""
 	if ok {
+		if e.staged == nil && (e.info == nil || !e.info.Mode().IsRegular()) {
+			return p.record(op, p.unsupportedLocked("direct-write special-file effects unavailable: "+location))
+		}
 		if err := p.writableFile(location, e); err != nil {
 			return p.record(op, pathError("open", name, err))
 		}
@@ -1068,7 +1071,9 @@ func (p *PreviewFiles) Remove(name string) error {
 	if e.isDir() {
 		children, err := p.readDirLocked(location)
 		if err != nil {
-			return p.record(op, pathError("remove", name, err))
+			// Removal can succeed without read access to an empty directory.
+			// Failed enumeration cannot establish the native removal result.
+			return p.record(op, pathError("remove", name, p.unsupportedLocked("directory removal emptiness unavailable: "+location)))
 		}
 		if len(children) > 0 {
 			return p.record(op, pathError("remove", name, syscall.ENOTEMPTY))
@@ -1130,7 +1135,7 @@ func (p *PreviewFiles) RemoveAll(name string) error {
 func (p *PreviewFiles) removableTree(location string) error {
 	children, err := p.readDirLocked(location)
 	if err != nil {
-		return err
+		return p.unsupportedLocked("recursive removal contents unavailable: " + location)
 	}
 	if len(children) == 0 {
 		return nil
