@@ -118,6 +118,21 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 	}
 	out := render(stdout, stderr)
 	store := posemodel.Store{Root: root}
+	var presencePolicy posemodel.ActionPresencePolicyView
+	if res.Type == posemodel.ActionEventAnswered {
+		policy, err := posemodel.LoadActionPolicy(root)
+		if err != nil {
+			out.Failure("pose action " + verb + ": " + err.Error())
+			return 1
+		}
+		presencePolicy = policy.PresencePolicy()
+		if apply {
+			if err := policy.CheckPresenceMigration(res.Actor); err != nil {
+				out.Failure("pose action " + verb + ": " + err.Error())
+				return 1
+			}
+		}
+	}
 	if signKey != "" || signatureFile != "" {
 		if res.Type != posemodel.ActionEventAnswered || signKey != "" && signatureFile != "" {
 			return usageError(stderr, "--sign or --signature (one of them) proves an answer: use it with pose action resolve")
@@ -152,7 +167,17 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 			out.Failure("pose action " + verb + ": " + err.Error())
 			return 1
 		}
+		if res.Type == posemodel.ActionEventAnswered && jsonOutput {
+			return writeJSON(stdout, map[string]any{"preview": true, "request": view, "presence_policy": presencePolicy, "presence_evaluation": "not-evaluated", "apply": false})
+		}
 		out.Field("action.preview", "true")
+		if res.Type == posemodel.ActionEventAnswered {
+			out.Field("action.presence_policy.scope", presencePolicy.Scope)
+			out.Field("action.presence_policy.evaluation", presencePolicy.Evaluation)
+			if presencePolicy.MigrationRequired {
+				out.Field("action.presence_policy.migration", "required before a new human answer; explicitly choose schema 2 and scope")
+			}
+		}
 		renderActionView(out, view)
 		out.Field("action.apply", "false (rerun with --apply to record the "+verb+")")
 		return 0

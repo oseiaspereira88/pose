@@ -448,15 +448,16 @@ const (
 
 // ActionRequestView is a request with its derived state.
 type ActionRequestView struct {
-	Request      ActionRequest `json:"request"`
-	State        string        `json:"state"`
-	Answer       string        `json:"answer,omitempty"`
-	AnsweredBy   string        `json:"answered_by,omitempty"`
-	Assurance    string        `json:"assurance,omitempty"`
-	Satisfaction string        `json:"satisfaction"`
-	Revision     int           `json:"revision"`
-	Events       []ActionEvent `json:"events"`
-	Limitations  []string      `json:"limitations,omitempty"`
+	Request      ActionRequest              `json:"request"`
+	State        string                     `json:"state"`
+	Answer       string                     `json:"answer,omitempty"`
+	AnsweredBy   string                     `json:"answered_by,omitempty"`
+	Assurance    string                     `json:"assurance,omitempty"`
+	Presence     *ActionPresenceObservation `json:"presence,omitempty"`
+	Satisfaction string                     `json:"satisfaction"`
+	Revision     int                        `json:"revision"`
+	Events       []ActionEvent              `json:"events"`
+	Limitations  []string                   `json:"limitations,omitempty"`
 	// SubjectUnknown is true when the subject no longer resolves: the engine
 	// cannot tell whether the answer still applies, so it is not satisfied.
 	SubjectUnknown bool `json:"subject_unknown,omitempty"`
@@ -608,6 +609,7 @@ func (s Store) deriveActionView(events []ActionEvent) ActionRequestView {
 		switch event.Type {
 		case ActionEventAnswered:
 			view.State, view.Answer, view.AnsweredBy = ActionStateAnswered, event.Answer, event.Actor
+			view.Presence = observeActionPresence(request, event)
 			view.Assurance = ReviewIdentityAssuranceDeclared
 			if event.SSHSignature != nil || event.Claim != nil || event.Envelope != nil {
 				view.Assurance = ReviewIdentityAssuranceVerified

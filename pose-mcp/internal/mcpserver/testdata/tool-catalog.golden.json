@@ -496,7 +496,7 @@
       "name": "pose_action_open"
     },
     {
-      "description": "Record a principal's answer to an action request — only with the principal's proof: a signature by a key registered to it in .pose/policy/actions.json (`pose identity add`), or a trusted issuer's claim. Without apply it is a preview that returns the exact statement to sign and the ssh-keygen command; the principal signs it on their machine and the signature is passed back with apply: true. A call without a proof is refused under any identity assurance: a principal name written by an agent is a declaration, not a proof. Cancel, waive and invalidate stay on the CLI.",
+      "description": "Record a principal's answer to an action request — only with the principal's proof: a signature by a key registered to it in .pose/policy/actions.json (`pose identity add`), or a trusted issuer's claim. Without apply it is a preview that returns the exact statement to sign and the ssh-keygen command; the principal signs it on their machine and the signature is passed back with apply: true. A call without a proof is refused under any identity assurance: a principal name written by an agent is a declaration, not a proof. Human presence follows actions.json's explicit scope; an issuer claim alone proves no presence. A registered SK signature may accompany a claim; every supplied proof must verify. Cancel, waive and invalidate stay on the CLI.",
       "inputSchema": {
         "properties": {
           "actor": {
@@ -512,7 +512,7 @@
             "type": "boolean"
           },
           "claim": {
-            "description": "A trusted issuer's authority claim (with envelope), instead of a signature",
+            "description": "A trusted issuer's identity/authority claim (with envelope); proves no presence. May accompany an SK signature; both proofs must verify",
             "type": "object"
           },
           "envelope": {

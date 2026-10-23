@@ -30,9 +30,11 @@ type ActionPolicy struct {
 	// (spec pose-signed-action-answers). An answer signed by one of them is
 	// verified without any external issuer.
 	Keys map[string][]PrincipalKey `json:"keys,omitempty"`
-	// RequirePresence refuses a human answer whose signature does not assert
-	// that a person touched a security key.
+	// RequirePresence enforces the explicit schema-2 channel scope for human
+	// answers. Enabled schema-1 policy requires migration before new answers.
 	RequirePresence bool `json:"require_presence,omitempty"`
+	// PresenceScope is explicit in schema 2 when presence is required.
+	PresenceScope string `json:"presence_scope,omitempty"`
 }
 
 // ActionResolution is a requested write to a request's journal.
@@ -72,11 +74,29 @@ func LoadActionPolicyIn(files Files, root string) (ActionPolicy, error) {
 	if err != nil {
 		return policy, err
 	}
+	return decodeActionPolicy(raw)
+}
+
+func decodeActionPolicy(raw []byte) (ActionPolicy, error) {
+	policy := ActionPolicy{SchemaVersion: 1, Roles: map[string][]string{}, IdentityAssurance: ReviewIdentityAssuranceDeclared}
 	if err := json.Unmarshal(raw, &policy); err != nil {
 		return policy, fmt.Errorf("pose: invalid .pose/policy/actions.json: %w", err)
 	}
-	if policy.SchemaVersion != 1 {
+	if policy.SchemaVersion != 1 && policy.SchemaVersion != 2 {
 		return policy, fmt.Errorf("pose: unsupported action policy schema %d", policy.SchemaVersion)
+	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &fields); err != nil {
+		return policy, err
+	}
+	if _, exists := fields["presence_scope"]; policy.SchemaVersion == 1 && exists {
+		return policy, errors.New("pose: presence_scope requires action policy schema 2")
+	}
+	if policy.PresenceScope != "" && policy.PresenceScope != ActionPresenceUniversal && policy.PresenceScope != ActionPresenceSSHSIG {
+		return policy, fmt.Errorf("pose: unsupported action presence_scope %q; use universal or sshsig", policy.PresenceScope)
+	}
+	if policy.SchemaVersion == 2 && policy.RequirePresence && policy.PresenceScope == "" {
+		return policy, errors.New("pose: action policy schema 2 with require_presence needs explicit presence_scope universal or sshsig")
 	}
 	if policy.IdentityAssurance == "" {
 		policy.IdentityAssurance = ReviewIdentityAssuranceDeclared
@@ -212,6 +232,9 @@ func (s Store) ResolveActionRequest(res ActionResolution, now time.Time) (Action
 				return ActionRequestView{}, err
 			}
 			event.Assurance = ReviewIdentityAssuranceVerified
+		}
+		if err := admitActionPresence(policy, res.Actor, event.SSHSignature, res.Claim != nil || res.Envelope != nil); err != nil {
+			return ActionRequestView{}, err
 		}
 	case ActionEventCancelled, ActionEventWaived:
 		if event.Reason == "" {

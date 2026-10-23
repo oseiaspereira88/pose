@@ -294,6 +294,14 @@ func renderActionView(out interface{ Field(string, string) }, v posemodel.Action
 	out.Field("action.request_digest", r.RequestDigest)
 	if v.State == posemodel.ActionStateAnswered {
 		out.Field("action.answer", fmt.Sprintf("%s by %s (%s)", v.Answer, v.AnsweredBy, v.Assurance))
+		if v.Presence != nil {
+			out.Field("action.presence", v.Presence.State)
+			out.Field("action.presence.mechanism", v.Presence.Mechanism)
+			out.Field("action.presence.historical_requirement", v.Presence.HistoricalRequirement)
+			for _, limitation := range v.Presence.Limitations {
+				out.Field("action.presence.limitation", limitation)
+			}
+		}
 		// A signed answer is verified again from the journal alone, so the
 		// reader does not have to trust the recorded assurance label.
 		for i := len(v.Events) - 1; i >= 0; i-- {

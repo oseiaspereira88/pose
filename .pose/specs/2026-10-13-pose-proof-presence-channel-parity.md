@@ -59,12 +59,14 @@ Testes e evidências planejados abaixo ainda não foram executados.
 - created: .pose/changelogs/unreleased/pose-proof-presence-channel-parity.md
 - modified: pose-mcp/internal/pose/action_resolution.go
 - modified: pose-mcp/internal/pose/principal_keys.go
+- modified: pose-mcp/internal/pose/principal_keys_test.go
 - modified: pose-mcp/internal/pose/action_request.go
 - created: pose-mcp/internal/pose/action_presence.go
 - modified: pose-mcp/internal/cli/action.go
 - modified: pose-mcp/internal/cli/action_resolve.go
 - modified: pose-mcp/internal/cli/identity.go
 - modified: pose-mcp/internal/cli/doctor.go
+- modified: pose-mcp/internal/cli/doctor_policy_keys_test.go
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - created: pose-mcp/internal/pose/action_presence_policy_test.go

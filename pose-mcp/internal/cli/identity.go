@@ -78,7 +78,7 @@ func readPublicKeyArg(value string) (posemodel.SSHPublicKey, error) {
 
 func presenceText(key posemodel.SSHPublicKey) string {
 	if key.ProvesPresence() {
-		return "proves presence: every signature records whether the security key was touched"
+		return "supports verified presence assertions: signatures authenticate the key's user-present flag, not hardware provenance or who touched it"
 	}
 	return "does not prove presence: anyone holding the key file can sign; for a person, prefer a security key (ssh-keygen -t ed25519-sk)"
 }
@@ -139,6 +139,7 @@ func cmdIdentityAdd(root string, args []string, stdout, stderr io.Writer) int {
 	out.Field("identity.principal", principal)
 	out.Field("identity.key", key.Type+" "+key.Fingerprint()+strings.TrimRight(" "+key.Comment, " "))
 	out.Field("identity.presence", presenceText(key))
+	out.Field("identity.presence_scope", doc.PresencePolicy().Scope)
 	if !added {
 		out.Field("identity.key_state", "already registered to "+principal)
 	}
@@ -161,7 +162,11 @@ func cmdIdentityAdd(root string, args []string, stdout, stderr io.Writer) int {
 		out.Failure("pose identity add: " + err.Error())
 		return 1
 	}
-	out.Field("identity.next", "answers by "+principal+" are verified when signed: pose action resolve <act-id> ... --sign <private key>")
+	if doc.PresencePolicy().MigrationRequired && strings.HasPrefix(principal, "human:") {
+		out.Field("identity.next", "explicitly migrate presence policy before a new human answer; no scope was adopted by adding this key")
+	} else {
+		out.Field("identity.next", "answers by "+principal+" are verified when signed: pose action resolve <act-id> ... --sign <private key>")
+	}
 	return 0
 }
 
@@ -210,9 +215,13 @@ func cmdIdentityList(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	sort.Slice(views, func(i, j int) bool { return views[i].Principal < views[j].Principal })
 	if jsonOutput {
-		return writeJSON(stdout, map[string]any{"identity_assurance": policy.IdentityAssurance, "require_presence": policy.RequirePresence, "principals": views})
+		return writeJSON(stdout, map[string]any{"identity_assurance": policy.IdentityAssurance, "require_presence": policy.RequirePresence, "presence_policy": policy.PresencePolicy(), "principals": views})
 	}
 	out.Field("identity.assurance", policy.IdentityAssurance)
+	out.Field("identity.presence_scope", policy.PresencePolicy().Scope)
+	if policy.PresencePolicy().MigrationRequired {
+		out.Field("identity.presence_migration", "required before new human answers; choose schema 2 and presence_scope explicitly")
+	}
 	if len(views) == 0 {
 		out.Field("identity.principals", "none — `pose identity add --key <file.pub> --role maintainer --apply` registers you")
 	}
