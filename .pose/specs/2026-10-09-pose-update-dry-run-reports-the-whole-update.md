@@ -127,7 +127,6 @@ Cumulative D1/D2 declarations, including replacement edits declared before imple
 - modified: pose-mcp/internal/pose/git_spawn_cache.go
 - modified: pose-mcp/internal/pose/governance_outcomes.go
 - modified: pose-mcp/internal/pose/governance_replay.go
-- modified: pose-mcp/internal/pose/governed_effects.go
 - modified: pose-mcp/internal/pose/index_generation.go
 - modified: pose-mcp/internal/pose/knowledge.go
 - modified: pose-mcp/internal/pose/legacy_inventory.go
@@ -142,17 +141,14 @@ Cumulative D1/D2 declarations, including replacement edits declared before imple
 - modified: pose-mcp/internal/pose/release_claimed_fragments.go
 - modified: pose-mcp/internal/pose/release_lifecycle.go
 - modified: pose-mcp/internal/pose/remediation_lineage.go
-- modified: pose-mcp/internal/pose/review_assurance.go
 - modified: pose-mcp/internal/pose/review_attribution.go
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
 - modified: pose-mcp/internal/pose/review_path_attribution.go
 - modified: pose-mcp/internal/pose/review_plan.go
-- modified: pose-mcp/internal/pose/review_policy_baseline.go
 - modified: pose-mcp/internal/pose/review_reuse_provenance.go
 - modified: pose-mcp/internal/pose/review_structure.go
-- modified: pose-mcp/internal/pose/review_trust_time.go
 - modified: pose-mcp/internal/pose/roadmaps.go
 - modified: pose-mcp/internal/pose/roots.go
 - modified: pose-mcp/internal/pose/spec.go
@@ -256,15 +252,27 @@ At the time this prospective plan was recorded, no replacement test above had ex
 
 Historical D1 trace, retained for audit. These old satisfaction claims do not qualify D2; use the replacement implementation report and the parent's eventual current evidence for that judgment.
 
-- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy test:TestUpdateDryRunMeetsTheLinksTheUpdateMeets test:TestUpdateDryRunCopiesALinkedDirectoryOnce test:TestUpdateDryRunCopiesADirectoryAfterALinkIntoIt test:TestUpdateDryRunLinksADirectoryThatContainsTheLink test:TestUpdateDryRunNeverWritesThroughABrokenLink test:TestUpdateDryRunAgreesOnABrokenLinkIntoAnExistingDirectory test:TestUpdateDryRunKeepsABrokenTopLevelLink test:TestUpdateDryRunKeepsDirectoryPermissions test:TestUpdateDryRunToleratesUnreadableFiles
-- R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
-- R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
+> - R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges test:TestUpdateDryRunWithForceRunsOnTheCopy test:TestUpdateDryRunFollowsASymlinkedPolicy test:TestUpdateDryRunMeetsTheLinksTheUpdateMeets test:TestUpdateDryRunCopiesALinkedDirectoryOnce test:TestUpdateDryRunCopiesADirectoryAfterALinkIntoIt test:TestUpdateDryRunLinksADirectoryThatContainsTheLink test:TestUpdateDryRunNeverWritesThroughABrokenLink test:TestUpdateDryRunAgreesOnABrokenLinkIntoAnExistingDirectory test:TestUpdateDryRunKeepsABrokenTopLevelLink test:TestUpdateDryRunKeepsDirectoryPermissions test:TestUpdateDryRunToleratesUnreadableFiles
+> - R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
+> - R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
+
+### Current D2 requirement trace
+
+The registered `update-preview-integration` check and full native collection passed at source `3f03b36`; the later sticky-directory correction requires a fresh collection. Final independent approval and governed closure remain pending.
+
+- R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdatePreviewParityAcrossUpdateBranches test:TestUpdatePreviewNamesEachDecisionRequestAsTheUpdateDoes test:TestUpdatePreviewForceStagesInstructionsBeforeFinalGate test:TestUpdatePreviewHasNoPhysicalMutationEvents
+- R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdatePreviewDoesNotCallLostEvaluationNoChange test:TestUpdatePreviewDistinguishesRefusedOperationsFromNoOp test:TestUpdatePreviewSourceReviewFilesystemReachability test:TestUpdatePreviewUnreadableEmptySkillDirectoryIsIncomplete
+- R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestStaleInstanceEngineVersionContracts
 
 ## 7. Final Report
 
 Historical D1 report below, retained unchanged for audit. It describes the rejected copier, not a current delivery claim. D2 remains `in-progress`; see the replacement implementation report for current source and validation evidence.
 
-### Delivered scope
+### Replacement qualification — 2026-10-23
+
+D2 uses one shared update execution with an explicit operation-scoped in-memory view. Reads see staged files, original source discovery stays authoritative, and complete previews report file effects, engine stamps and individual request semantics. Unknown access, umask, inode alias, special-file or removal effects remain INCOMPLETE rather than successful no-ops. Native apply is unchanged. Fresh canonical strict validation passes146/146 at3f03b36, with zero skips/errors; see [the closeout report](../reports/2026-10-23-b29-pending-closeout.md) and [implementation evidence](../reports/2026-10-22-b29-update-preview-implementation.md). Source review R1/R2 rejections and fixes remain historical; final approval and closure are pending.
+
+### Historical D1 delivered scope
 
 `pose update --dry-run` runs the update on a disposable copy and lists what it would change and stamp; `doctor` and `check` warn while the instance was last updated by an older engine.
 
@@ -275,4 +283,4 @@ Historical D1 report below, retained unchanged for audit. It describes the rejec
 
 ### Follow-ups
 
-- [open] Symlink layouts the dry-run copy may still reproduce differently from the instance; a more robust approach is a copy-on-write overlay or a dry-run mode inside the update itself that records instead of writing (owner:@oseiaspereira88 crit:low review:2026-11-10)
+- [done] Replace the copier with operation-scoped projected execution recording the shared update. D2 implements this follow-up directly; operation, parity, original-discovery, permission and mutation regressions qualify the replacement. Historical copier defects remain documented above; unsupported knowledge is explicit INCOMPLETE.

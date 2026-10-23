@@ -16,6 +16,24 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+func TestUpdatePreviewStickySkillsReplacementIsIncomplete(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("requires unprivileged control")
+	}
+	root := staleInstance(t)
+	parent := filepath.Join(root, ".claude", "skills")
+	if err := os.Chmod(parent, os.ModeSticky|0o777); err != nil {
+		t.Fatal(err)
+	}
+	code, out := runPose(t, root, "update", "--dry-run", "--force")
+	if code == 0 || !strings.Contains(out, "INCOMPLETE") {
+		t.Fatalf("sticky replacement is unproven: %d %s", code, out)
+	}
+	if code, out := runPose(t, root, "update", "--no-self", "--force"); code != 0 {
+		t.Fatalf("owned native control: %d %s", code, out)
+	}
+}
+
 func TestUpdatePreviewUnreadableEmptySkillDirectoryIsIncomplete(t *testing.T) {
 	if os.Geteuid() == 0 {
 		t.Skip("requires unprivileged permission control")

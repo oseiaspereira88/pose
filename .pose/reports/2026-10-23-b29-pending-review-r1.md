@@ -151,3 +151,39 @@ The cumulative `git diff --check` reports three trailing-space Markdown hard bre
 Context/bundle preparation, assessment writes, recurrence collection, sealing, attestation, handoff creation and closure remain deferred under the explicit source-only instruction; no new bundle or plan digest was produced. No edits, staging, commits, contributions or publication occurred.
 
 Future concurrency, disk/quota, ACL/security-policy and provider uncertainty remain disclosed limits. Platform builds establish compilation only. The two findings require conservative INCOMPLETE handling, not universal kernel emulation. No sealed approval or B29 closure is claimed.
+
+## Separate source review R3 — actual response
+
+**Decision: CHANGES REQUESTED**
+
+Reviewer: Codex, task-designated `gpt-6.1-sol`, separate read-only execution. Same-vendor review; no cross-vendor, human, cryptographic or cognitively verified independence claimed.
+
+Reviewed source: `3f03b36a0bdcb2b457cc899712c3952642bc0550`, cumulative baseline `fe765cf8aaaaff3ec93e91818e69e0781f92116a`.
+
+**Medium blocker — sticky-directory restrictions are bypassed during projected removal.**
+
+At [operation_files.go:1082](/tmp/pose-pending-b29/pose-mcp/internal/pose/operation_files.go:1082), `Remove` authorizes removal using only `writableDir(parent)`. That reaches [operation_files.go:864](/tmp/pose-pending-b29/pose-mcp/internal/pose/operation_files.go:864), whose physical access check tests directory write/search permission. It does not evaluate sticky-bit restrictions on deleting someone else’s entry.
+
+Concrete reachable layout: run unprivileged with `.claude/skills` pointing to a readable, writable/searchable sticky directory owned by another user, containing that user’s `pose-feature` entry. During force update, [install.go:455](/tmp/pose-pending-b29/pose-mcp/internal/cli/install.go:455) removes the entry before recreating its link. Native removal fails under sticky-directory ownership rules. Preview passes the parent access check, stages removal and successfully stages the replacement symlink, without an INCOMPLETE gap. It consequently reports different effects and skill-link diagnostics.
+
+This is a source-derived existing-layout mismatch, not a reproduced test result or hypothetical future permission change.
+
+**Smallest fix:** before projecting removal or replacement of an existing physical entry, detect sticky-parent restrictions. Where effective ownership/privilege cannot safely establish the result, persist `ErrPreviewUnsupported` and INCOMPLETE. Apply the same preflight to `RemoveAll` and atomic replacement. Add operation and shared force-update controls with an unprivileged caller and foreign-owned sticky-directory entries. No universal kernel emulation is required.
+
+Historical findings inspected:
+
+| Item | Disposition |
+|---|---|
+| R1 absolute-target traversal | Addressed: raw components survive until traversal. |
+| R1 staged permissions | Addressed for the reported staged read/search/write cases; the distinct sticky-parent blocker remains. |
+| R1 hard-link overwrite | Addressed: unsupported inode aliases persist a gap; atomic replacement remains separate. |
+| R1 unavailable umask | Addressed: unavailable observation causes INCOMPLETE. |
+| Parent trailing separator | Addressed: direct paths and literal link targets retain directory traversal requirements. |
+| R2 special-device overwrite | Addressed: physical direct overwrite requires a regular file. |
+| R2 unreadable directory removal | Addressed: unknown emptiness and recursive enumeration persist gaps. |
+
+Applied root `AGENTS.md`, `POSE.md`, `pose-review`, the review workflow, and `backend-go`, security, documentation-style, delivery-evidence and knowledge-governance rules. The canonical spec and accepted D2 ADR require faithful shared execution or explicit incomplete evaluation; the blocker violates that requirement.
+
+Per your immediate-return instruction, this is a **source-only rejection**. The readiness file was absent at the last inspection. Actual sealed bundle/plan digests, the plan’s 15 criterion judgments, structural `SD` mappings, native-output reconciliation and final tool dispositions remain **pending**; I will not invent their IDs or approve an absent subject. Reported validation success does not resolve this uncovered layout.
+
+No writes, tests, native preparation commands, attestations, contributions or child agents were performed. Fresh sealed adjudication is required after correction, and current PR CI must be green before merge.

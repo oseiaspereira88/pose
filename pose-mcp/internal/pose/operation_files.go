@@ -864,6 +864,21 @@ func (p *PreviewFiles) writableDir(location string) error {
 	return p.access(location, true)
 }
 
+// Directory write/search access does not establish permission to replace an
+// entry under a sticky parent. Ownership and effective privilege are separate
+// facts; retain uncertainty instead of predicting removal or replacement.
+func (p *PreviewFiles) replacementAccess(location string) error {
+	parent := filepath.Dir(location)
+	e, ok, err := p.lookup(parent)
+	if err != nil {
+		return err
+	}
+	if ok && e.info != nil && e.info.Mode()&fs.ModeSticky != 0 {
+		return p.unsupportedLocked("sticky-directory replacement authority unavailable: " + location)
+	}
+	return nil
+}
+
 // writableFile checks that the operation may write into the file at location.
 func (p *PreviewFiles) writableFile(location string, e entry) error {
 	if e.staged != nil {
@@ -995,6 +1010,10 @@ func (p *PreviewFiles) Publish(name string, data []byte, perm fs.FileMode, class
 		return p.record(op, err)
 	} else if ok && existing.isDir() {
 		return p.record(op, pathError("rename", name, syscall.EISDIR))
+	} else if ok {
+		if err := p.replacementAccess(location); err != nil {
+			return p.record(op, err)
+		}
 	}
 	p.stage(location, &previewNode{kind: previewFile, data: append([]byte{}, data...), perm: perm.Perm()})
 	return p.record(op, nil)
@@ -1068,6 +1087,9 @@ func (p *PreviewFiles) Remove(name string) error {
 	if !ok {
 		return p.record(op, pathError("remove", name, fs.ErrNotExist))
 	}
+	if err := p.replacementAccess(location); err != nil {
+		return p.record(op, err)
+	}
 	if e.isDir() {
 		children, err := p.readDirLocked(location)
 		if err != nil {
@@ -1118,6 +1140,9 @@ func (p *PreviewFiles) RemoveAll(name string) error {
 	if !ok {
 		return p.record(op, nil)
 	}
+	if err := p.replacementAccess(location); err != nil {
+		return p.record(op, err)
+	}
 	if err := p.writableDir(filepath.Dir(location)); err != nil {
 		return p.record(op, pathError("unlinkat", name, err))
 	}
@@ -1144,6 +1169,9 @@ func (p *PreviewFiles) removableTree(location string) error {
 		return err
 	}
 	for _, child := range children {
+		if err := p.replacementAccess(filepath.Join(location, child.Name())); err != nil {
+			return err
+		}
 		if child.IsDir() {
 			if err := p.removableTree(filepath.Join(location, child.Name())); err != nil {
 				return err

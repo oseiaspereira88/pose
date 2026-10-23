@@ -17,6 +17,49 @@ import (
 	"time"
 )
 
+func TestUpdateOperationStickyReplacementIsIncomplete(t *testing.T) {
+	for _, op := range []string{"remove", "remove-all", "publish", "recursive-child"} {
+		t.Run(op, func(t *testing.T) {
+			root := t.TempDir()
+			parent := filepath.Join(root, "sticky")
+			if err := os.Mkdir(parent, 0o777); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Chmod(parent, fs.ModeSticky|0o777); err != nil {
+				t.Skip(err)
+			}
+			info, err := os.Stat(parent)
+			if err != nil || info.Mode()&fs.ModeSticky == 0 {
+				t.Skip("sticky directories unavailable")
+			}
+			path := filepath.Join(parent, "entry")
+			writeOp(t, path, "original", 0o666)
+			p := NewPreviewFiles(time.Now())
+			switch op {
+			case "remove":
+				err = p.Remove(path)
+			case "remove-all":
+				err = p.RemoveAll(path)
+			case "publish":
+				err = p.Publish(path, []byte("new"), 0o644, "test", PublishExpectation{})
+			case "recursive-child":
+				err = p.RemoveAll(parent)
+			}
+			if !errors.Is(err, ErrPreviewUnsupported) || len(p.Gaps()) == 0 {
+				t.Fatalf("sticky ownership must remain unproven: %v %v", err, p.Gaps())
+			}
+			if raw, err := os.ReadFile(path); err != nil || string(raw) != "original" {
+				t.Fatalf("preview mutation: %q %v", raw, err)
+			}
+			// Owned entries are removable natively. The preview deliberately
+			// remains conservative instead of guessing foreign-owner privilege.
+			if err := os.Remove(path); err != nil {
+				t.Fatalf("owned native control: %v", err)
+			}
+		})
+	}
+}
+
 func TestUpdateOperationSpecialFileWriteIsIncomplete(t *testing.T) {
 	info, err := os.Stat(os.DevNull)
 	if err != nil || info.Mode().IsRegular() {
