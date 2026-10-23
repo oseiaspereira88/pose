@@ -1016,47 +1016,57 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 			// pose-signed-action-answers).
 			if actions, actionsErr := posemodel.LoadActionPolicy(root); actionsErr != nil {
 				add("actions.keys", "error", "invalid .pose/policy/actions.json: "+actionsErr.Error(), text("fix the policy; `pose identity list` reads it the same way", "corrija a policy; `pose identity list` a lê do mesmo jeito"))
-			} else if actions.IdentityAssurance == posemodel.ReviewIdentityAssuranceVerified {
-				unproven, untouched := []string{}, []string{}
-				for _, principal := range actions.Principals() {
-					if !strings.HasPrefix(principal, "human:") || strings.HasSuffix(principal, "*") || len(actions.RolesOf(principal)) == 0 {
-						continue
-					}
-					keys := actions.KeysFor(principal)
-					if len(keys) == 0 {
-						if len(policy.HumanAuthorityIssuers) == 0 {
-							unproven = append(unproven, principal)
-						}
-						continue
-					}
-					present := false
-					for _, key := range keys {
-						present = present || key.ProvesPresence()
-					}
-					if !present {
-						untouched = append(untouched, principal)
-					}
+			} else {
+				presence := actions.PresencePolicy()
+				if presence.MigrationRequired {
+					add("actions.presence", "error", text("presence scope is legacy-sshsig-only; new human answers require migration", "o escopo de presença é legacy-sshsig-only; novas respostas humanas exigem migração"), text("explicitly set actions.json schema_version: 2 and presence_scope: universal or sshsig; no scope is selected automatically", "configure explicitamente schema_version: 2 e presence_scope: universal ou sshsig em actions.json; nenhum escopo é escolhido automaticamente"))
+				} else if actions.RequirePresence {
+					add("actions.presence", "ok", text("configured human presence scope: ", "escopo configurado de presença humana: ")+presence.Scope, text("issuer claims establish identity/authority, not presence; universal requires a registered SK user-present assertion", "claims de issuer estabelecem identidade/autoridade, não presença; universal exige asserção SK user-present registrada"))
 				}
-				switch {
-				case len(unproven) > 0:
-					add("actions.keys", "warn",
-						fmt.Sprintf(text("identity assurance is verified and %s can prove no answer: no registered key and no issuer authorised for humans",
-							"a garantia de identidade é verified e %s não consegue provar resposta: nenhuma chave registrada e nenhum emissor autorizado para humanos"), strings.Join(unproven, ", ")),
-						text("register a key: pose identity add <principal> --key <file.pub> --apply (a security key, ssh-keygen -t ed25519-sk, also proves presence)",
-							"registre uma chave: pose identity add <principal> --key <arquivo.pub> --apply (uma chave de segurança, ssh-keygen -t ed25519-sk, também prova presença)"))
-				case len(untouched) > 0 && actions.RequirePresence:
-					add("actions.keys", "error",
-						fmt.Sprintf(text("require_presence is set and %s holds only keys that cannot prove presence, so no answer of theirs is accepted",
-							"require_presence está ativo e %s só tem chaves que não provam presença, então nenhuma resposta é aceita"), strings.Join(untouched, ", ")),
-						text("register a security key (ssh-keygen -t ed25519-sk) with pose identity add", "registre uma chave de segurança (ssh-keygen -t ed25519-sk) com pose identity add"))
-				case len(untouched) > 0:
-					add("actions.keys", "warn",
-						fmt.Sprintf(text("%s signs with keys that cannot prove presence: whoever holds the key file can answer as them",
-							"%s assina com chaves que não provam presença: quem tiver o arquivo da chave responde por eles"), strings.Join(untouched, ", ")),
-						text("prefer a security key (ssh-keygen -t ed25519-sk); set require_presence in .pose/policy/actions.json to demand it",
-							"prefira uma chave de segurança (ssh-keygen -t ed25519-sk); ative require_presence em .pose/policy/actions.json para exigi-la"))
-				default:
-					add("actions.keys", "ok", text("every human role holder can prove an answer", "todo humano com papel consegue provar uma resposta"), "")
+				if actions.IdentityAssurance == posemodel.ReviewIdentityAssuranceVerified || actions.RequirePresence && actions.PresenceScope == posemodel.ActionPresenceUniversal {
+					unproven, untouched := []string{}, []string{}
+					for _, principal := range actions.Principals() {
+						if !strings.HasPrefix(principal, "human:") || strings.HasSuffix(principal, "*") || len(actions.RolesOf(principal)) == 0 {
+							continue
+						}
+						keys := actions.KeysFor(principal)
+						if len(keys) == 0 {
+							if actions.RequirePresence && (actions.PresenceScope == posemodel.ActionPresenceUniversal || presence.MigrationRequired) {
+								untouched = append(untouched, principal)
+							} else if len(policy.HumanAuthorityIssuers) == 0 {
+								unproven = append(unproven, principal)
+							}
+							continue
+						}
+						present := false
+						for _, key := range keys {
+							present = present || key.ProvesPresence()
+						}
+						if !present {
+							untouched = append(untouched, principal)
+						}
+					}
+					switch {
+					case len(unproven) > 0:
+						add("actions.keys", "warn",
+							fmt.Sprintf(text("identity assurance is verified and %s can prove no answer: no registered key and no issuer authorised for humans",
+								"a garantia de identidade é verified e %s não consegue provar resposta: nenhuma chave registrada e nenhum emissor autorizado para humanos"), strings.Join(unproven, ", ")),
+							text("register a key: pose identity add <principal> --key <file.pub> --apply (a security key, ssh-keygen -t ed25519-sk, also proves presence)",
+								"registre uma chave: pose identity add <principal> --key <arquivo.pub> --apply (uma chave de segurança, ssh-keygen -t ed25519-sk, também prova presença)"))
+					case len(untouched) > 0 && actions.RequirePresence && (actions.PresenceScope == posemodel.ActionPresenceUniversal || presence.MigrationRequired || len(policy.HumanAuthorityIssuers) == 0):
+						add("actions.keys", "error",
+							fmt.Sprintf(text("require_presence is set and %s lacks a registered key capable of the required presence assertion (or still needs legacy migration)",
+								"require_presence está ativo e %s não tem chave registrada capaz da asserção de presença exigida (ou ainda precisa migrar a policy legada)"), strings.Join(untouched, ", ")),
+							text("register a security key (ssh-keygen -t ed25519-sk) with pose identity add", "registre uma chave de segurança (ssh-keygen -t ed25519-sk) com pose identity add"))
+					case len(untouched) > 0:
+						add("actions.keys", "warn",
+							fmt.Sprintf(text("%s signs with keys that cannot prove presence: whoever holds the key file can answer as them",
+								"%s assina com chaves que não provam presença: quem tiver o arquivo da chave responde por eles"), strings.Join(untouched, ", ")),
+							text("prefer a security key (ssh-keygen -t ed25519-sk); set require_presence in .pose/policy/actions.json to demand it",
+								"prefira uma chave de segurança (ssh-keygen -t ed25519-sk); ative require_presence em .pose/policy/actions.json para exigi-la"))
+					default:
+						add("actions.keys", "ok", text("enumerated human role holders have a configured identity/presence path", "os humanos enumerados com papel têm um caminho configurado de identidade/presença"), "")
+					}
 				}
 			}
 			// Legacy attempts live in `.pose/reviews/*.md` — the directory

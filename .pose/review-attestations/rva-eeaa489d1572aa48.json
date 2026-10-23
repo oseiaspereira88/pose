@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-eeaa489d1572aa48",
+  "bundle_id": "rvb-343f8deb0f9be466",
+  "bundle_digest": "sha256:343f8deb0f9be4664b932a8e223a1b4fad226b594d9204e92a4117e7501cea29",
+  "reviewer": "agent:independent-codex-b03-01a16af6",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-0321c52c788f904d",
+      "rationale": "Disclosure distinguishes registered-key assertions from hardware provenance, issuer authority, historical authorization, and physical touch. Synthetic fixtures are correctly qualified. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "Admission precedes append; existing locked revision, idempotency, and open-state checks remain intact. Refusal tests preserve journal bytes/state; supplied race results pass. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "Schema 2 explicitly selects scope; enabled legacy human writes require migration. Older engines reject schema 2, and breaking/major classification is recorded. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "Shared decoding rejects invalid versions/scopes and folded schema-1 aliases. Proof failures, missing assertions, unsupported issuer presence, and migration have actionable diagnostics. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "CLI and MCP reach shared domain admission. The registered producer exercises all three packages, and surface evidence binds the current capability and source. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "Returned diagnostics and presence observations expose scope and limitations without fabricating presence or recording a successful refusal. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "Prospective ADR explicitly reconciles foundation R5/D2. Historical verification is preserved; migration chooses no operator policy implicitly. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "Inspected 112 admission combinations, mixed-proof binding controls, alias regressions, invalid-edit protection, historical tests, and current canonical results support the behavior. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-0321c52c788f904d",
+      "rationale": "Explicit versioning resolves ambiguous channel enforcement; centralized admission closes emitter-dependent bypasses. The complete structural mapping appears below. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md",
+      "mappings": [
+        {
+          "delta": "SD-0f985602",
+          "basis": "D2",
+          "disposition": "mapped",
+          "rationale": "The added prospective ADR defines schema-2 scope, explicit legacy migration, proof ordering, binding boundaries, and historical limits before implementation, providing the decision basis for the changed presence contract.; actual session 01a16af6-6730-7751-8e7c-3837b659e272; report:2026-10-23-b03-independent-review.md"
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "English/Portuguese root and scaffold presence documentation matches runtime semantics, migration, preview behavior, and assurance limitations. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "Previews disclose `not-evaluated`; migration is checked before CLI signing. Identity and doctor output provide explicit remediation. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "R1–R8 have inspected relevant tests and current integration evidence; strict lint reports eight trace entries with none missing. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-0321c52c788f904d",
+      "rationale": "The four attributed commits reconcile all 29 declarations with observed changes. No foundation rewrite, Harne8/gitlink change, policy adoption, or release is included. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "Every supplied nonempty proof verifies before presence admission. Universal human admission requires registered SK user presence; issuer authority and UV alone cannot substitute. Folded aliases cannot override typed presence edits. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-0321c52c788f904d",
+      "rationale": "A versioned policy, shared admission function, and derived observation address the defect without inventing an issuer presence protocol or historical receipt. Any future issuer presence mechanism requires a new authenticated contract. Actual separate same-vendor session 01a16af6-6730-7751-8e7c-3837b659e272; collector execution is distinct from reviewer inspection. report:2026-10-23-b03-independent-review.md"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "report:2026-10-23-b03-implementation.md",
+      "rationale": "Native collector gate passed; actual separate reviewer inspected output on this exact subject. Completion-only gates are deferred."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "Native collector gate passed; actual separate reviewer inspected output on this exact subject. Completion-only gates are deferred."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "Native collector gate passed; actual separate reviewer inspected output on this exact subject. Completion-only gates are deferred."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/proof-presence-channel-parity-integration",
+      "rationale": "Native collector gate passed; actual separate reviewer inspected output on this exact subject. Completion-only gates are deferred."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    }
+  ],
+  "evidence_refs": [
+    "report:2026-10-23-b03-implementation.md",
+    "report:2026-10-23-b03-independent-review.md"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:codex-b03-primary",
+    "concluded_by": "agent:independent-codex-b03-01a16af6",
+    "applied_by": "agent:codex-b03-primary"
+  },
+  "attested_at": "2026-10-23T23:08:59Z",
+  "path": ".pose/review-attestations/rva-eeaa489d1572aa48.json"
+}

@@ -198,9 +198,6 @@ func verifyActionSignature(policy ActionPolicy, r ActionRequest, res ActionResol
 		}
 		return nil, fail("the signing key " + check.Key.Fingerprint() + " is not registered to " + res.Actor + " in .pose/policy/actions.json (`pose identity add`)")
 	}
-	if policy.RequirePresence && strings.HasPrefix(res.Actor, "human:") && !check.UserPresent {
-		return nil, fail("require_presence is set and the signature asserts no user presence; sign with a security key (ed25519-sk) and touch it")
-	}
 	return &ActionSSHSignature{Namespace: ActionAnswerNamespace, Statement: string(statement.Canonical()), Signature: strings.TrimSpace(res.Signature) + "\n",
 		Key: check.Key.AuthorizedKey(), Fingerprint: check.Key.Fingerprint(), UserPresent: check.UserPresent, UserVerified: check.UserVerified}, nil
 }
@@ -307,8 +304,26 @@ func (d ActionPolicyDocument) Write(root string) error {
 		d.raw[key] = raw
 		return nil
 	}
-	if _, ok := d.raw["schema_version"]; !ok {
-		_ = set("schema_version", 1)
+	// The decoder accepts case-folded aliases. Remove all spellings of these
+	// typed security settings before writing their canonical values, otherwise
+	// a preserved alias could override an explicit scope or migration edit.
+	for key := range d.raw {
+		if strings.EqualFold(key, "schema_version") || strings.EqualFold(key, "require_presence") || strings.EqualFold(key, "presence_scope") {
+			delete(d.raw, key)
+		}
+	}
+	if err := set("schema_version", d.SchemaVersion); err != nil {
+		return err
+	}
+	if err := set("require_presence", d.RequirePresence); err != nil {
+		return err
+	}
+	if d.PresenceScope != "" {
+		if err := set("presence_scope", d.PresenceScope); err != nil {
+			return err
+		}
+	} else {
+		delete(d.raw, "presence_scope")
 	}
 	if _, ok := d.raw["identity_assurance"]; !ok {
 		_ = set("identity_assurance", d.IdentityAssurance)
@@ -326,6 +341,9 @@ func (d ActionPolicyDocument) Write(root string) error {
 	out, err := json.MarshalIndent(d.raw, "", "  ")
 	if err != nil {
 		return err
+	}
+	if _, err := decodeActionPolicy(out); err != nil {
+		return fmt.Errorf("invalid action policy edit: %w", err)
 	}
 	if err := PublishFile(actionPolicyPath(root), append(out, '\n'), 0o644, PublishAuthoritative, d.read); err != nil {
 		return err

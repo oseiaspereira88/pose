@@ -1241,13 +1241,19 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}
 		statement := pose.AnswerStatement(view.Request, a.Actor, a.Answer, a.IdempotencyKey, "")
 		if !a.Apply {
+			policy, err := pose.LoadActionPolicyIn(pose.FilesOrNative(store.FS), store.Root)
+			if err != nil {
+				return nil, err
+			}
 			return map[string]any{
-				"preview":           true,
-				"request":           view,
-				"statement":         string(statement.Canonical()),
-				"statement_command": fmt.Sprintf("pose action statement %s --actor %s --answer %s --idempotency-key %s", a.ID, shellQuote(a.Actor), shellQuote(a.Answer), shellQuote(a.IdempotencyKey)),
-				"sign_command":      "ssh-keygen -Y sign -f <private key registered to " + a.Actor + "> -n " + pose.ActionAnswerNamespace,
-				"apply":             "false (the principal signs the statement; call again with signature and apply: true)",
+				"preview":             true,
+				"request":             view,
+				"presence_policy":     policy.PresencePolicy(),
+				"presence_evaluation": "not-evaluated",
+				"statement":           string(statement.Canonical()),
+				"statement_command":   fmt.Sprintf("pose action statement %s --actor %s --answer %s --idempotency-key %s", a.ID, shellQuote(a.Actor), shellQuote(a.Answer), shellQuote(a.IdempotencyKey)),
+				"sign_command":        "ssh-keygen -Y sign -f <private key registered to " + a.Actor + "> -n " + pose.ActionAnswerNamespace,
+				"apply":               "false (the principal signs the statement; call again with signature and apply: true)",
 			}, nil
 		}
 		if strings.TrimSpace(a.Signature) == "" && (a.Claim == nil || a.Envelope == nil) {
@@ -2491,7 +2497,8 @@ func toolDefinitions() []map[string]any {
 				"registered to it in .pose/policy/actions.json (`pose identity add`), or a trusted issuer's claim. Without apply it is a " +
 				"preview that returns the exact statement to sign and the ssh-keygen command; the principal signs it on their machine " +
 				"and the signature is passed back with apply: true. A call without a proof is refused under any identity assurance: a " +
-				"principal name written by an agent is a declaration, not a proof. Cancel, waive and invalidate stay on the CLI.",
+				"principal name written by an agent is a declaration, not a proof. Human presence follows actions.json's explicit scope; " +
+				"an issuer claim alone proves no presence. A registered SK signature may accompany a claim; every supplied proof must verify. Cancel, waive and invalidate stay on the CLI.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
@@ -2505,7 +2512,7 @@ func toolDefinitions() []map[string]any {
 					"evidence":          map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "description": "Evidence references (an external operation reported done needs one)"},
 					"execution":         map[string]any{"type": "string", "description": "Optional id of the relaying execution"},
 					"signature":         map[string]any{"type": "string", "description": "Armored SSH signature (ssh-keygen -Y sign -n pose-action-answer) over the preview's statement"},
-					"claim":             map[string]any{"type": "object", "description": "A trusted issuer's authority claim (with envelope), instead of a signature"},
+					"claim":             map[string]any{"type": "object", "description": "A trusted issuer's identity/authority claim (with envelope); proves no presence. May accompany an SK signature; both proofs must verify"},
 					"envelope":          map[string]any{"type": "object", "description": "The claim's Ed25519 envelope"},
 					"apply":             map[string]any{"type": "boolean", "description": "Record the answer; without it the call is a preview"},
 					"project_id":        map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},

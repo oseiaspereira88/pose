@@ -138,6 +138,12 @@ func TestEveryWiredPolicyKeyListMatchesItsStruct(t *testing.T) {
 		for _, key := range check.known {
 			document[key] = nil
 		}
+		if check.file == "actions.json" {
+			// An explicit presence scope belongs to schema 2. This tests the
+			// known-key inventory with a valid versioned contract.
+			document["schema_version"] = 2
+			document["presence_scope"] = "universal"
+		}
 		encoded, err := json.Marshal(document)
 		if err != nil {
 			t.Fatal(err)

@@ -580,3 +580,23 @@ são limitações diagnósticas conservadoras, sem aprovação indevida demonstr
 Parecer em [review B06](../reports/2026-10-17-pose-b06-source-coverage-review.md)
 e [evidência compacta](../results/b06-independent-review.json). Aguardar merge
 pelo maintainer e reavaliar readiness; nenhuma próxima implementação selecionada.
+
+
+## B03 — execução individual iniciada em 2026-10-23
+
+Managed start de `pose-proof-presence-channel-parity` admitido após B01/B04.
+ADR prospectivo escolhe schema 2 e migração explícita; a implementação inicial
+4dc8277 inclui regressões de domínio/CLI/MCP. Naquela fase B03 permanecia delivery_complete=false; validação, revisão,
+closeout e publicação eram próximos passos, não resultados já obtidos. As fundações,
+policy da instância, release e gitlink Harne8 são preservados.
+
+
+## B03 — fechamento funcional nativo em 2026-10-23
+
+Spec `pose-proof-presence-channel-parity` done após147/147 e revisão real
+dos15critérios, bundle `rvb-343f8deb0f9be466`, atestação
+`rva-eeaa489d1572aa48`, terminal=true/sem blockers. A matriz marca B03
+delivery_complete=true conforme sua closure_policy funcional; publicação na main
+é uma etapa separada, pendente do head final e CI/merge do PR #203.
+Consultar os relatórios B03 de implementação/revisão. O programa continua ativo;
+nenhuma outra unidade, policy da instância ou release é adotada por esse registro.

@@ -135,7 +135,7 @@ func TestSignedAnswerRequirePresenceRefusesAnUntouchedKey(t *testing.T) {
 	plain := newSSHTestKey(t, false)
 	sk := newSSHTestKey(t, true)
 	s := actionFixture(t)
-	writeActionPolicy(t, s, keysPolicy("verified", map[string][]string{"human:maintainer": {plain.line(""), sk.line("")}}, map[string]any{"require_presence": true}))
+	writeActionPolicy(t, s, keysPolicy("verified", map[string][]string{"human:maintainer": {plain.line(""), sk.line("")}}, map[string]any{"schema_version": 2, "require_presence": true, "presence_scope": "universal"}))
 	view := openedDecision(t, s)
 	for name, res := range map[string]ActionResolution{
 		"plain key":              signedAnswer(view, plain, "human:maintainer", "preserve-v1", "k1", 0),
