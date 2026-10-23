@@ -1388,6 +1388,13 @@ func (p *PreviewFiles) netChange(location string, node *previewNode) string {
 		return "create"
 	case original.Mode()&fs.ModeSymlink != 0 || original.IsDir():
 		return "replace " + originalKind(original) + " with file"
+	case !original.Mode().IsRegular():
+		// Atomic replacement does not open the original device or FIFO.
+		return "replace " + originalKind(original) + " with file"
+	}
+	if !observedOrdinaryFileData(location) {
+		p.unsupportedLocked("original content comparison unavailable: " + location)
+		return "modify"
 	}
 	raw, err := os.ReadFile(location)
 	if err != nil || !bytes.Equal(raw, node.data) {
@@ -1405,6 +1412,8 @@ func originalKind(info fs.FileInfo) string {
 		return "link"
 	case info.IsDir():
 		return "directory"
+	case !info.Mode().IsRegular():
+		return "special file"
 	}
 	return "file"
 }

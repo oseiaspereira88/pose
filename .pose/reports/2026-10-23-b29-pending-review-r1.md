@@ -187,3 +187,45 @@ Applied root `AGENTS.md`, `POSE.md`, `pose-review`, the review workflow, and `ba
 Per your immediate-return instruction, this is a **source-only rejection**. The readiness file was absent at the last inspection. Actual sealed bundle/plan digests, the plan’s 15 criterion judgments, structural `SD` mappings, native-output reconciliation and final tool dispositions remain **pending**; I will not invent their IDs or approve an absent subject. Reported validation success does not resolve this uncovered layout.
 
 No writes, tests, native preparation commands, attestations, contributions or child agents were performed. Fresh sealed adjudication is required after correction, and current PR CI must be green before merge.
+
+## Separate source review R4 — actual response
+
+**Decision: CHANGES REQUESTED**
+
+Reviewer: Codex, task-designated `gpt-6.1-sol`, separate read-only R4 execution. Same-vendor review; no cross-vendor, human, cryptographic or cognitively verified independence claimed.
+
+Source: `24e3328d851f9714459ad27eee05c2f248304aa0`  
+Cumulative baseline: `fe765cf8aaaaff3ec93e91818e69e0781f92116a`
+
+**Medium blocker — net-change reporting bypasses the special-file read guard.**
+
+[operation_files.go:1392](/tmp/pose-pending-b29/pose-mcp/internal/pose/operation_files.go:1392) calls `os.ReadFile(location)` directly when comparing a staged regular file with its original entry. It excludes original directories and symlinks, but does not exclude FIFOs or devices.
+
+Concrete reachable scenario: an otherwise usable instance has a FIFO at `.pose/schema-version`, with no writer.
+
+1. The initial [schema read](/tmp/pose-pending-b29/pose-mcp/internal/cli/maintenance.go:146) correctly rejects the special file and records an INCOMPLETE gap.
+2. Execution continues with schema zero and [stages atomic replacement](/tmp/pose-pending-b29/pose-mcp/internal/cli/maintenance.go:178). `Publish` permits replacing this entry.
+3. [Preview rendering calls `Changes`](/tmp/pose-pending-b29/pose-mcp/internal/cli/update_dryrun.go:55), whose `netChange` opens the original FIFO and blocks before displaying the INCOMPLETE result. With a writer, this read can consume FIFO data.
+
+This is a source-derived reachable existing-layout defect, not an executed reproduction or a hypothetical later provider failure. The earlier special-read guard does not protect this reporting path.
+
+**Smallest fix:** detect an original nonregular entry before the raw comparison read. Describe its replacement without reading its contents, or retain explicit INCOMPLETE evaluation where classification is unsupported. Add operation-level `Publish → Changes` and shared-update FIFO regressions, with bounded subprocess execution proving reporting terminates without opening/consuming the FIFO. Keep native apply unchanged.
+
+Historical finding dispositions inspected in current source:
+
+| Item | Disposition |
+|---|---|
+| R1 absolute-target traversal | Addressed: raw components survive traversal. |
+| R1 staged permissions | Addressed: staged access checks preserve unsupported knowledge. |
+| R1 hard-link overwrite | Addressed: unknown/multiple inode aliases persist INCOMPLETE. |
+| R1 unavailable umask | Addressed: unavailable observation is explicit. |
+| Parent trailing separator | Addressed: direct paths and literal targets retain directory requirements. |
+| R2 special-device overwrite | Addressed in direct-write staging. The distinct reporting read bypass above remains. |
+| R2 unreadable directory removal | Addressed: unknown emptiness/enumeration persists INCOMPLETE. |
+| R3 sticky-directory authority | Addressed conservatively for removal, recursive children and atomic replacement. Owned-entry controls are not represented as foreign-owned reproductions. |
+
+Rules applied: actual root `AGENTS.md`, `pose-review` skill and review workflow; security, delivery-evidence, documentation-style and knowledge-governance requirements, together with the canonical B29 spec and accepted D2 ADR. The blocker violates the requirement to retain unsupported special-file knowledge without performing ordinary-content reads.
+
+Per the immediate-return instruction, this is a **source-only rejection**. The readiness file was absent at the last inspection. Actual sealed bundle/plan digests, the plan’s 15 criterion judgments, every structural SD mapping, payload provenance, artifact reconciliation, surface gate and plan-selected tool dispositions remain **pending**. No IDs or sealed judgments are inferred.
+
+HEAD remained `24e3328`; the production subtree had no worktree differences. No tests, native preparation commands, writes, staging, commits, contributions, attestations or child agents were performed. Reported 146/146 validation does not resolve this uncovered path. Fresh sealed adjudication is required after correction; current PR CI must also be green before merge.

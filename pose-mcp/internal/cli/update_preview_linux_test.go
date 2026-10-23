@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -12,9 +13,38 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"golang.org/x/sys/unix"
 )
+
+func TestUpdatePreviewSchemaFIFOReportingSubprocess(t *testing.T) {
+	if os.Getenv("POSE_B29_SCHEMA_FIFO_CHILD") != "1" {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		cmd := exec.CommandContext(ctx, os.Args[0], "-test.run=^TestUpdatePreviewSchemaFIFOReportingSubprocess$", "-test.v")
+		cmd.Env = append(os.Environ(), "POSE_B29_SCHEMA_FIFO_CHILD=1", "TMPDIR="+t.TempDir())
+		if out, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("schema FIFO child: %v (timeout=%v)\n%s", err, ctx.Err(), out)
+		}
+		return
+	}
+	root := staleInstance(t)
+	path := filepath.Join(root, ".pose", "schema-version")
+	if err := os.Remove(path); err != nil {
+		t.Fatal(err)
+	}
+	if err := unix.Mkfifo(path, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	code, out := runPose(t, root, "update", "--dry-run")
+	if code == 0 || !strings.Contains(out, "INCOMPLETE") {
+		t.Fatalf("special schema must stay incomplete: %d %s", code, out)
+	}
+	if info, err := os.Lstat(path); err != nil || info.Mode()&os.ModeNamedPipe == 0 {
+		t.Fatalf("physical schema changed: %v %v", info, err)
+	}
+}
 
 func TestUpdatePreviewStickySkillsReplacementIsIncomplete(t *testing.T) {
 	if os.Geteuid() == 0 {

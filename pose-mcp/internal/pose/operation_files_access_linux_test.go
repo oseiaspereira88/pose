@@ -3,6 +3,7 @@
 package pose
 
 import (
+	"context"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -13,6 +14,47 @@ import (
 	"testing"
 	"time"
 )
+
+func TestUpdateOperationSpecialReplacementReportingSubprocess(t *testing.T) {
+	if os.Getenv("POSE_B29_FIFO_REPORT_CHILD") != "1" {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		cmd := exec.CommandContext(ctx, os.Args[0], "-test.run=^TestUpdateOperationSpecialReplacementReportingSubprocess$", "-test.v")
+		cmd.Env = append(os.Environ(), "POSE_B29_FIFO_REPORT_CHILD=1", "TMPDIR="+t.TempDir())
+		if out, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("FIFO reporting child: %v (timeout=%v)\n%s", err, ctx.Err(), out)
+		}
+		return
+	}
+	root := t.TempDir()
+	path := filepath.Join(root, "entry")
+	if err := syscall.Mkfifo(path, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	fd, err := syscall.InotifyInit1(syscall.IN_NONBLOCK | syscall.IN_CLOEXEC)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer syscall.Close(fd)
+	if _, err := syscall.InotifyAddWatch(fd, path, syscall.IN_OPEN); err != nil {
+		t.Fatal(err)
+	}
+	p := NewPreviewFiles(time.Now())
+	if err := p.Publish(path, []byte("new"), 0o644, "test", PublishExpectation{}); err != nil {
+		t.Fatal(err)
+	}
+	changes := p.Changes(root)
+	if len(changes) != 1 || changes[0].Verb != "replace special file with file" {
+		t.Fatalf("replacement classification: %v", changes)
+	}
+	buffer := make([]byte, 512)
+	if n, err := syscall.Read(fd, buffer); n > 0 || !errors.Is(err, syscall.EAGAIN) {
+		t.Fatalf("FIFO opened during reporting: %d %v", n, err)
+	}
+	if info, err := os.Lstat(path); err != nil || info.Mode()&os.ModeNamedPipe == 0 {
+		t.Fatalf("physical FIFO changed: %v %v", info, err)
+	}
+}
 
 func TestUpdateOperationVirtualRegularFileSubprocess(t *testing.T) {
 	if os.Getenv("POSE_B29_VIRTUAL_CHILD") != "1" {

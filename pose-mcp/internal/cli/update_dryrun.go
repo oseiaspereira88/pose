@@ -115,6 +115,9 @@ var previewVerbsPtBR = map[string]string{
 	"replace link with file": "substituiria o link por arquivo", "replace file with link": "substituiria o arquivo por link",
 	"replace link with directory": "substituiria o link por diretório", "replace file with directory": "substituiria o arquivo por diretório",
 	"replace directory with file": "substituiria o diretório por arquivo", "replace directory with link": "substituiria o diretório por link",
+	"replace special file with file":      "substituiria o arquivo especial por arquivo",
+	"replace special file with link":      "substituiria o arquivo especial por link",
+	"replace special file with directory": "substituiria o arquivo especial por diretório",
 }
 
 // previewChangeLine names one net change. A change made through a link names
