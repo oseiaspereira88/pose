@@ -119,7 +119,7 @@ func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
 func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[string]bool, redirectDepth int) ArtifactResolution {
 	out := ArtifactResolution{SchemaVersion: 1}
 	ref, err := ParseArtifactRef(raw)
-	if err != nil {
+	if err != nil || !filepath.IsLocal(ref.Slug) {
 		out.State = "invalid-artifact-reference"
 		return out
 	}
@@ -235,6 +235,10 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 			body = string(raw)
 		}
 	case "roadmap", "milestone":
+		if err := validateProjectPathIn(r.fsys(), s.Root, filepath.Join(".pose", "roadmaps", ref.Slug+".md")); err != nil {
+			out.State = "unavailable-artifact"
+			return out
+		}
 		path := filepath.Join(s.roadmapsDir(), ref.Slug+".md")
 		if _, err := r.fsys().Lstat(path); os.IsNotExist(err) {
 			out.State = "unknown-roadmap"

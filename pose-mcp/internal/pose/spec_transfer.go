@@ -1146,6 +1146,9 @@ func VerifiedTransferStub(root, slug, raw string) (ArtifactRef, bool) {
 }
 
 func sourceRedirectPath(root, slug string) string {
+	if !filepath.IsLocal(slug) {
+		return ""
+	}
 	return filepath.Join(root, ".pose", "transfers", "redirects", slug+".json")
 }
 
@@ -1208,6 +1211,9 @@ func incompleteTransferFor(files Files, root string, identity ArtifactRef) (stri
 }
 
 func readSpecTransferRedirect(files Files, store Store, identity ArtifactRef) (specTransferRedirect, bool, error) {
+	if !filepath.IsLocal(identity.Slug) {
+		return specTransferRedirect{}, false, specTransferError("invalid-spec-redirect")
+	}
 	path := sourceRedirectPath(store.Root, identity.Slug)
 	redirectRel, _ := filepath.Rel(store.Root, path)
 	if err := transferPathClean(files, store.Root, filepath.ToSlash(redirectRel)); err != nil {

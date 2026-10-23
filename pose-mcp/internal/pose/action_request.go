@@ -330,10 +330,14 @@ func (s Store) resolveActionSubject(origin ArtifactRef, subject ActionSubject) (
 	}
 	switch {
 	case subject.Path != "":
+		rel := filepath.Clean(filepath.FromSlash(subject.Path))
+		if !filepath.IsLocal(rel) {
+			return ActionSubject{}, errors.New("subject path escapes project root")
+		}
 		if err := ValidateArtifactPathIn(s.fsys(), s.Root, subject.Path, false); err != nil {
 			return ActionSubject{}, err
 		}
-		raw, err := s.fsys().ReadFile(filepath.Join(s.Root, filepath.FromSlash(subject.Path)))
+		raw, err := s.fsys().ReadFile(filepath.Join(s.Root, rel))
 		if err != nil {
 			return ActionSubject{}, err
 		}
@@ -459,7 +463,17 @@ type ActionRequestView struct {
 }
 
 func actionJournalPath(root, id string) string {
+	if !filepath.IsLocal(id) {
+		return ""
+	}
 	return filepath.Join(root, filepath.FromSlash(actionDir), id+".jsonl")
+}
+
+func (s Store) checkActionJournal(id string) error {
+	if !filepath.IsLocal(id) || !strings.HasPrefix(id, "act-") || len(id) != 20 || ValidateSlug(id) != nil {
+		return fmt.Errorf("pose: invalid action request id %q", id)
+	}
+	return validateProjectPathIn(s.fsys(), s.Root, filepath.Join(filepath.FromSlash(actionDir), id+".jsonl"))
 }
 
 // OpenActionRequest persists a prepared request as the first journal event.
@@ -509,8 +523,8 @@ func writeActionEvent(file *os.File, event ActionEvent) error {
 
 // LoadActionRequest reads one journal and derives the request's state.
 func (s Store) LoadActionRequest(id string) (ActionRequestView, error) {
-	if !strings.HasPrefix(id, "act-") || len(id) != 20 || ValidateSlug(id) != nil {
-		return ActionRequestView{}, fmt.Errorf("pose: invalid action request id %q", id)
+	if err := s.checkActionJournal(id); err != nil {
+		return ActionRequestView{}, err
 	}
 	raw, err := s.fsys().ReadFile(actionJournalPath(s.Root, id))
 	if err != nil {
@@ -730,6 +744,9 @@ var (
 // A retry with the same idempotency key and the same content is a no-op; the
 // same key with different content is refused.
 func (s Store) appendActionEvent(id string, event ActionEvent, expected int, now time.Time) (ActionRequestView, error) {
+	if err := s.checkActionJournal(id); err != nil {
+		return ActionRequestView{}, err
+	}
 	// The journal is appended under an exclusive lock on its open file, which
 	// a preview cannot take; no update appends to one.
 	if preview := s.fsys().Preview(); preview != nil {

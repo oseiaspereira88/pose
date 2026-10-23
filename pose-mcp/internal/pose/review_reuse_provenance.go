@@ -44,6 +44,12 @@ func newReviewReuseTraversal() *reviewReuseTraversal {
 }
 
 func (s Store) reserveReuseArtifact(dir, id string) error {
+	if !filepath.IsLocal(id) || (dir != "review-attestations" && dir != "review-bundles") {
+		return fmt.Errorf("invalid reuse artifact path")
+	}
+	if _, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, filepath.Join(".pose", dir), false); err != nil {
+		return err
+	}
 	path := filepath.Join(s.Root, ".pose", dir, id+".json")
 	info, err := s.fsys().Lstat(path)
 	if err != nil {

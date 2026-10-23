@@ -138,25 +138,55 @@ func ValidateArtifactPathIn(files Files, root, value string, allowDirectory bool
 	if err != nil {
 		return err
 	}
+	if !filepath.IsLocal(clean) {
+		return fmt.Errorf("path escapes project root")
+	}
+	if err := validateProjectPathIn(files, root, clean); err != nil {
+		return err
+	}
 	joined := filepath.Join(root, clean)
 	rel, err := filepath.Rel(root, joined)
 	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {
 		return fmt.Errorf("path escapes project root")
 	}
-	if info, err := files.Lstat(joined); err == nil {
-		if info.Mode()&os.ModeSymlink != 0 {
-			target, err := files.EvalSymlinks(joined)
-			if err != nil {
-				return fmt.Errorf("cannot resolve symlink")
-			}
-			targetRel, err := filepath.Rel(root, target)
-			if err != nil || targetRel == ".." || strings.HasPrefix(targetRel, ".."+string(os.PathSeparator)) {
-				return fmt.Errorf("symlink escapes project root")
-			}
-		}
+	if info, err := files.Stat(joined); err == nil {
 		if info.IsDir() && !allowDirectory {
 			return fmt.Errorf("directories are not valid artifact claims")
 		}
+	}
+	return nil
+}
+
+// validateProjectPathIn checks each existing ancestor, including links, before
+// inspecting its children. Missing local claims remain valid. This is a
+// preflight check, not protection against concurrent filesystem replacement.
+func validateProjectPathIn(files Files, root, relative string) error {
+	if !filepath.IsLocal(relative) {
+		return fmt.Errorf("path escapes project root")
+	}
+	base, err := files.EvalSymlinks(root)
+	if err != nil {
+		return fmt.Errorf("cannot resolve project root: %w", err)
+	}
+	current := base
+	for _, part := range strings.Split(filepath.Clean(relative), string(os.PathSeparator)) {
+		current = filepath.Join(current, part)
+		_, err := files.Lstat(current)
+		if os.IsNotExist(err) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		resolved, err := files.EvalSymlinks(current)
+		if err != nil {
+			return fmt.Errorf("cannot resolve project path: %w", err)
+		}
+		rel, err := filepath.Rel(base, resolved)
+		if err != nil || !filepath.IsLocal(rel) {
+			return fmt.Errorf("symlink escapes project root")
+		}
+		current = resolved
 	}
 	return nil
 }
@@ -168,7 +198,7 @@ func ValidateArtifactPath(root, value string, allowDirectory bool) error {
 }
 
 func validateArtifactPathSyntax(value string) (string, error) {
-	if value == "" || filepath.IsAbs(value) || strings.ContainsAny(value, "*?[]{}") {
+	if !filepath.IsLocal(filepath.FromSlash(value)) || strings.ContainsAny(value, "*?[]{}") {
 		return "", fmt.Errorf("path must be an exact project-relative path")
 	}
 	clean := filepath.Clean(filepath.FromSlash(value))

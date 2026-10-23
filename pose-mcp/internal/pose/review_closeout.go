@@ -2321,13 +2321,16 @@ func validateReviewEvidenceRef(files Files, root, ref string) error {
 		return nil
 	}
 	rel := filepath.Clean(filepath.FromSlash(parts[1]))
-	if filepath.IsAbs(rel) || rel == ".." || strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {
+	if !filepath.IsLocal(rel) {
 		return fmt.Errorf("review evidence path escapes project root: %q", ref)
 	}
 	if !strings.HasPrefix(filepath.ToSlash(rel), ".pose/reports/") {
 		rel = filepath.Join(".pose", "reports", rel)
 	}
 	path := filepath.Join(root, rel)
+	if err := validateProjectPathIn(files, root, rel); err != nil {
+		return fmt.Errorf("review evidence path escapes project root: %q: %w", ref, err)
+	}
 	if _, err := files.Stat(path); err != nil {
 		return fmt.Errorf("review evidence does not resolve: %q", ref)
 	}

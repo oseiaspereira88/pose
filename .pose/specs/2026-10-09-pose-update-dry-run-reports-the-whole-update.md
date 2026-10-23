@@ -61,6 +61,19 @@ Historical D1 declarations (quoted for audit; the cumulative declarations below 
 
 Cumulative D1/D2 declarations, including replacement edits declared before implementation:
 
+- created: pose-mcp/internal/pose/update_preview_confinement_test.go
+
+Security regression plan (PR #202 CodeQL follow-up, recorded before correction):
+reproduce ancestor/final symlink escapes for artifact claims, action subjects,
+journal loading/appending and report evidence; assert refusal before external
+content reads or writes using both native and projected files. Preserve confined
+internal links, linked roots, missing artifact claims and staged read-after-write.
+Reject non-local slugs/IDs at their construction boundaries; retain transfer and
+review directory guards before metadata inspection. Run focused Go tests, full
+strict validation, race tests and fresh CodeQL, then obtain a fresh sealed review.
+Rollback is the correction commit; no global restriction on operation files and
+no alert suppression is permitted. Check-then-open is not race-free confinement.
+
 - created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.amendments.jsonl
 - created: .pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.md
 - created: .pose/starts/pose-update-dry-run-reports-the-whole-update.json
