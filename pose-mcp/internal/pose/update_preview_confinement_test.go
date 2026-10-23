@@ -10,7 +10,29 @@ import (
 
 type confinementRecordingFiles struct {
 	Files
-	reads int
+	reads    int
+	metadata []string
+}
+
+func (f *confinementRecordingFiles) Lstat(path string) (os.FileInfo, error) {
+	f.metadata = append(f.metadata, path)
+	return f.Files.Lstat(path)
+}
+
+func (f *confinementRecordingFiles) Stat(path string) (os.FileInfo, error) {
+	f.metadata = append(f.metadata, path)
+	return f.Files.Stat(path)
+}
+
+func (f *confinementRecordingFiles) forbidMetadata(t *testing.T, paths ...string) {
+	t.Helper()
+	for _, got := range f.metadata {
+		for _, path := range paths {
+			if got == path {
+				t.Errorf("inspected external metadata through %s", path)
+			}
+		}
+	}
 }
 
 func (f *confinementRecordingFiles) ReadFile(path string) ([]byte, error) {
@@ -53,15 +75,17 @@ func TestUpdatePreviewProjectConfinement(t *testing.T) {
 			if recording.reads != 0 {
 				t.Fatal("subject refusal read content")
 			}
+			recording.forbidMetadata(t, filepath.Join(root, "escape/secret"))
 			if err := files.MkdirAll(filepath.Join(root, ".pose/reports"), 0755); err != nil {
 				t.Fatal(err)
 			}
 			if err := os.Symlink(outside, filepath.Join(root, ".pose/reports/escape")); err != nil {
 				t.Fatal(err)
 			}
-			if err := validateReviewEvidenceRef(files, root, "report:escape/secret"); err == nil {
+			if err := validateReviewEvidenceRef(recording, root, "report:escape/secret"); err == nil {
 				t.Error("external evidence accepted")
 			}
+			recording.forbidMetadata(t, filepath.Join(root, ".pose/reports/escape/secret"))
 			if err := files.WriteFile(filepath.Join(root, ".pose/reports/local.md"), []byte("local"), 0644); err != nil {
 				t.Fatal(err)
 			}
@@ -126,9 +150,24 @@ func TestUpdatePreviewProjectConfinement(t *testing.T) {
 				t.Fatal(err)
 			}
 			s.reviewReuse = newReviewReuseTraversal()
+			if err := os.WriteFile(filepath.Join(outside, "rva-0123456789abcdef.json"), []byte("{}"), 0600); err != nil {
+				t.Fatal(err)
+			}
 			if err := s.reserveReuseArtifact("review-attestations", "rva-0123456789abcdef"); err == nil {
 				t.Error("linked reuse directory accepted")
 			}
+			recording.forbidMetadata(t, filepath.Join(root, ".pose/review-attestations/rva-0123456789abcdef.json"))
+			if err := os.WriteFile(filepath.Join(outside, "program.md"), []byte("---\nslug: program\nstatus: done\n---\n"), 0600); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Symlink(outside, filepath.Join(root, ".pose/roadmaps")); err != nil {
+				t.Fatal(err)
+			}
+			resolver := ArtifactResolver{Roots: NewRoots(RootsConfig{Explicit: map[string]string{"proj.fixture": root}}), FS: recording}
+			if got := resolver.Resolve("proj.fixture", "roadmap:program"); got.State != "unavailable-artifact" {
+				t.Fatalf("external roadmap: %+v", got)
+			}
+			recording.forbidMetadata(t, filepath.Join(root, ".pose/roadmaps/program.md"))
 		})
 	}
 }
