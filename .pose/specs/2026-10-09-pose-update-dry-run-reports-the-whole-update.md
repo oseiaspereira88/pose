@@ -1,8 +1,8 @@
 ---
 slug: pose-update-dry-run-reports-the-whole-update
-status: in-progress
+status: done
 created_at: 2026-10-09
-completed_at:
+completed_at: 2026-10-23
 supersedes:
 depends_on:
 priority: 0
@@ -187,6 +187,8 @@ Cumulative D1/D2 declarations, including replacement edits declared before imple
 
 ### Decision D1
 - Date: 2026-10-10
+- Status: withdrawn
+- Basis: R1, R2
 - Context: a dry-run that describes the update is a second implementation of it, and the first one drifted.
 - Decision: the dry-run runs the same `cmdUpdate`, without the binary self-update, on a disposable copy of `.pose`, `.agents`, `.claude`, `.codex`, `.github` and the top-level files, then reports the files it would create, modify or remove, the `engine_version` stamp, and the update's own output prefixed `[DRY-RUN]`.
 - Rationale: fidelity by construction; the test compares the dry-run's list with the real update's changes on the same fixture.
@@ -259,7 +261,7 @@ Historical D1 trace, retained for audit. These old satisfaction claims do not qu
 
 ### Requirement trace
 
-The registered `update-preview-integration` check and fresh strict native collection pass146/146 at source `3570008`. Current review and governed lifecycle disposition are recorded in the closeout report.
+The registered `update-preview-integration` check and fresh strict native collection pass146/146 at source `a7af88f`. Current review and governed lifecycle disposition are recorded in the closeout report.
 
 - R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdatePreviewParityAcrossUpdateBranches test:TestUpdatePreviewNamesEachDecisionRequestAsTheUpdateDoes test:TestUpdatePreviewForceStagesInstructionsBeforeFinalGate test:TestUpdatePreviewHasNoPhysicalMutationEvents
 - R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdatePreviewDoesNotCallLostEvaluationNoChange test:TestUpdatePreviewDistinguishesRefusedOperationsFromNoOp test:TestUpdatePreviewSourceReviewFilesystemReachability test:TestUpdatePreviewUnreadableEmptySkillDirectoryIsIncomplete test:TestUpdatePreviewRetentionPartialRemovalIsIncomplete
@@ -271,7 +273,7 @@ The historical D1 report below describes the rejected copier and remains audit h
 
 ### Replacement qualification — 2026-10-23
 
-D2 uses one shared update execution with an explicit operation-scoped in-memory view. Reads see staged files, original source discovery stays authoritative, and complete previews report file effects, engine stamps and individual request semantics. Unknown access, umask, inode alias, special-file or removal effects remain INCOMPLETE rather than successful no-ops. Native apply is unchanged. Fresh canonical strict validation passes146/146 at3570008, with zero skips/errors; see [the closeout report](../reports/2026-10-23-b29-pending-closeout.md) and [implementation evidence](../reports/2026-10-22-b29-update-preview-implementation.md). Source review R1/R2/R3 rejections and fixes remain historical; actual current review and lifecycle disposition are recorded in the closeout report.
+D2 uses one shared update execution with an explicit operation-scoped in-memory view. Reads see staged files, original source discovery stays authoritative, and complete previews report file effects, engine stamps and individual request semantics. Unknown access, umask, inode alias, special-file or removal effects remain INCOMPLETE rather than successful no-ops. Native apply is unchanged. Fresh canonical strict validation passes146/146 ata7af88f, with zero skips/errors; see [the closeout report](../reports/2026-10-23-b29-pending-closeout.md) and [implementation evidence](../reports/2026-10-22-b29-update-preview-implementation.md). Source review R1/R2/R3 rejections and fixes remain historical; actual current review and lifecycle disposition are recorded in the closeout report.
 
 ### Historical D1 delivered scope
 

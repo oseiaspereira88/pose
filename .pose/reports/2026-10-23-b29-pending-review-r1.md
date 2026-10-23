@@ -277,3 +277,270 @@ Rules applied: root `AGENTS.md`, `POSE.md`, `pose-review`, review workflow, `bac
 Implementation HEAD remained `3570008`; no production-source working-tree differences were observed. No tests, assessments, sealing, attestation, writes, child agents or publication were performed. Supplied validation claims were not independently executed here.
 
 Per the immediate-return instruction for medium source blockers, this is a **source-only rejection**. The readiness file was absent at last inspection. No actual sealed bundle or plan digest was available; I therefore provide no invented 15-row criterion table, SD mappings or plan-selected tool dispositions. Sealed adjudication, native-output verification, artifact reconciliation and surface-gate review remain pending. Any eventual approval must also require current PR CI green before merge.
+
+## Separate R6 source decision before readiness — actual response
+
+**Decision: APPROVED — source-only. Final sealed adjudication remains pending.**
+
+Reviewer: Codex, task-designated `gpt-6.1-sol`, separate read-only R6 session `01a168c9-5c9b-76f1-9449-ce5c3ab3544c`. Same-vendor execution; no cross-vendor, human, cryptographic or cognitively verified independence claimed.
+
+Reviewed source: `a7af88ff481088ba63f7a8aeeed572f55e6715a2`, cumulative baseline `fe765cf8aaaaff3ec93e91818e69e0781f92116a`, including the delta from `3570008dec67597a74e46079eb4d9e262255a596` and its reachable composition. HEAD remained unchanged, with no production worktree differences at the final check.
+
+The readiness wait limit was reached. `/tmp/pose-b29-sealed-a7af88f.json` remained absent at **2026-10-23 13:08:54 UTC**. Consequently, no sealed payload or sealed bundle/plan digest has been adjudicated. **Do not record this source-only decision as final sealed criterion approval.** The effective unsealed plan contains 15 required criteria; their final sealed judgments and structural mapping remain pending.
+
+**Source conclusion**
+
+No new medium-or-higher blocker was found. R5’s correction persists `INCOMPLETE` for recursive preflight failures and directory-parent refusals whose native partial effects are unmodeled. Those gaps survive tolerated retention errors and control the final verdict. Native removal remains unchanged.
+
+The cumulative implementation preserves invocation-local Files and clock, lazy projected reads, original-tree discovery, the force governance gate, individual request semantics, and the explicit running-engine/no-self boundary. B28 staged instruction availability, B30 pinned generation/facts/history behavior, and B38 immutable tagged authority remain coherent in the inspected composition. Preview publication avoids physical staging and locks; tagged version decoding consumes committed bytes in memory.
+
+**Historical dispositions**
+
+| Finding | Source disposition |
+|---|---|
+| R1 raw absolute symlink traversal | Addressed: components survive until traversal. |
+| R1 staged read/search/write permissions | Addressed: access checks retain unsupported knowledge. |
+| R1 hard-link direct overwrite | Addressed: unknown/multiple aliases persist `INCOMPLETE`; atomic replacement stays distinct. |
+| R1 unavailable umask | Addressed: unavailable observation is explicit. |
+| Parent trailing-separator correction | Addressed for direct paths and literal link targets. |
+| R2 special-file direct overwrite | Addressed: ordinary storage semantics must be established. |
+| R2 unreadable directory emptiness/enumeration | Addressed: uncertainty persists rather than asserting native refusal. |
+| R3 sticky-parent replacement authority | Addressed conservatively, including recursive children and atomic replacement. Owned controls are not foreign-owned reproductions. |
+| Provider/default-ACL/special-read corrections | Retained with explicit unsupported knowledge. |
+| R4 FIFO reporting hang | Addressed: nonregular original types are classified before content comparison; unknown provider comparison remains incomplete. |
+| R5 recursive partial deletion | Addressed, including nested-protection and read-only-parent cases. |
+
+The R5 before-fix log records both operation failures and the reachable retention failure; the after-fix focused log passes. These are inspected execution records, not reproductions executed by this reviewer. Historical copier reviews and prior rejected replacement reviews remain historical rejections, not approvals. No new finding or accepted-low-risk disposition is introduced.
+
+**Rules applied**
+
+Applied actual root `AGENTS.md`, `POSE.md`, `pose-review`, `.pose/workflows/review.md`, and backend-go, security, documentation-style, delivery-evidence, knowledge-governance and recurrence rules. Consulted the canonical spec, accepted D2 ADR, implementation report, complete R1–R5 history and current closeout. No deeper applicable AGENTS file or additional B29 knowledge artifact was found. Frontend and infrastructure rules were inapplicable.
+
+**Evidence and tool dispositions**
+
+| Tool/check | Disposition |
+|---|---|
+| Required strict validation, global and module | Inspected current canonical collection: **146/146 checks pass**, zero failed, errored or skipped checks, at `a7af88f`. Required `update-preview-integration` passes with nonempty selectors. |
+| Required artifact-check | Inspected current output: no error findings. Its 598 repository-wide orphan warnings remain disclosed. |
+| Required surface-check | Inspected current output: no findings; declared composed capability and production entrypoint are represented. |
+| Recommended suggest-review | Executed read-only and applied relevant rules. |
+| Recommended assess-design | Executed read-only. Actual plan requires material `SD-cb046cda`, the added D2 ADR; final sealed mapping is pending. |
+| Recommended assess-discover | Used supplied current refreshed component evidence. |
+| Recommended assess-integrate | Inspected supplied assessment; heuristic unobserved consumers remain, so this is not a clean integration certificate. |
+| Recommended assess-tech-debt | Inspected supplied **INCOMPLETE** assessment: two invalid legacy specs prevent a debt-free conclusion. |
+| Recurrence | Inspected supplied output: no threshold-flagged keys; flapping warning retained. |
+| Completion-only review-check/closeout-check | Deferred, together with attestation and closure. |
+
+Current native evidence identifies:
+
+- Global provenance: `sha256:e4148f97d261f9a363bbbb6c0624d5dddb01b1626ff96bc05489943bd646dbb7`
+- B29 scoped provenance: `sha256:4eaca93a30f971ff4e84605039f1da80541eb2f5e1bf84bf1812b09d656282c5`
+
+Current operation/update race output passes. Platform binaries were inspected; builds establish compilation, not macOS/Windows runtime parity. The inotify audit supplies fixture-specific filesystem-event evidence, not syscall or universal-layout proof.
+
+Artifact reconciliation uses the explicit native range ending at `aebe238` for merge-composed files and later spec-trailed commits for subsequent changes. The earlier 14 mismatches were resolved by explicit range observation and removal of four untouched planned claims, without changing attribution semantics.
+
+No dependencies changed. Earlier govulncheck reported none; no fresh scanner execution is fabricated here. Any eventual approval remains conditional on **current final PR CI green before merge**, including required vulnerability and secret checks.
+
+No child agents, edits, staging, commits, native write commands, contributions, publication, attestation or closeout were performed.
+
+## R6 final sealed adjudication — actual resumed response
+
+**Decision: APPROVED**
+
+This completes the pending sealed adjudication for `spec:pose-update-dry-run-reports-the-whole-update`. Approval is conditional on **current final PR CI green before merge**, including required vulnerability and secret checks. Those future checks are not claimed as passed.
+
+Reviewer: Codex, task-designated `gpt-6.1-sol`, same read-only R6 session `01a168c9-5c9b-76f1-9449-ce5c3ab3544c`. This is separate, same-vendor execution under declared identity assurance. No cross-vendor, human, cryptographic or cognitively verified independence is claimed. Automated governance ownership is not human confirmation.
+
+**Exact sealed subject**
+
+Inspected [the immutable bundle](/tmp/pose-pending-b29/.pose/review-bundles/rvb-c59b0c2cd1a61af8.json), sealed `2026-10-23T14:13:06Z`.
+
+| Binding | Exact value |
+|---|---|
+| Source HEAD | `a7af88ff481088ba63f7a8aeeed572f55e6715a2` |
+| Cumulative review baseline | `fe765cf8aaaaff3ec93e91818e69e0781f92116a` |
+| Bundle | `rvb-c59b0c2cd1a61af8` |
+| Bundle digest | `sha256:c59b0c2cd1a61af8374f50cab417628cc27abf076f733436da242b92f1a45558` |
+| Native sealed plan digest | `sha256:95afc73c3aaf27978723e46a762977b1a5856386bf7ac6c0abf09233e80c73d3` |
+| Implementation digest | `sha256:8c6fd86f873eebe3551bcae8274ce8d6223833605be88d26cf2a7e4d3ea1e746` |
+| Patch digest | `sha256:516190785c60b70c0522842362050d75cde6b2921c7f5d4fdce96683b19a18f3` |
+| Tree digest | `sha256:4cad4e209085fe4862dce0711276b3b5c09100ffe262cddc5c6fbcb05a4de639` |
+
+I recalculated the canonical payload, native bundle-plan contract, implementation and tree digests successfully. All **110 subject entries** match current file bytes. Current read-only native preparation resolves to the same bundle ID and digest without blockers. The source remains unchanged.
+
+The exact bundle-file SHA-256 is `c8e3824a438dad9596a2751cc9b72383af11b21e14c75ac7a1653eb0986616ba`.
+
+**Required criterion judgments**
+
+All **15 actual sealed criteria** are required and receive an explicit judgment below. Mechanical conclusions use the inspected sealed evidence; judgment conclusions reflect source and design assessment.
+
+| criterion-id | passed/finding/not-applicable | individual reason |
+|---|---|---|
+| assumption-integrity | passed | Observed filesystem facts are distinguished from unsupported permission, inheritance, provider and alias knowledge. Unsupported evaluation persists `INCOMPLETE`; future apply uncertainty is disclosed. |
+| backend-concurrency | passed | Files, captured time and preview state are invocation-local; staged access is synchronized. Sealed unit/integration evidence passes, with supplementary current affected race results passing. |
+| backend-contracts | passed | Shared execution preserves direct, exclusive and atomic publication distinctions and native apply behavior. Sealed update-preview and install/upgrade integration checks cover the affected file and CLI contracts. |
+| backend-input-errors | passed | Known refusals, unsupported evaluation and completed no-ops remain distinct. Negative operation/update cases, including recursive partial removal and special-file handling, pass in the registered integration evidence. |
+| backend-integration-impact | passed | Projected reads reach force governance, requests and indexes. Sealed distributed-instruction, spec-facts and release-manifest integrations qualify B28/B30/B38 composition; heuristic assessment limits remain disclosed. |
+| backend-observability | passed | Output identifies individual requests, affected paths, external-link relationships, refusals and evaluation gaps. Sealed tests cover actionable diagnostics and distinct final verdicts. |
+| compatibility | passed | Existing flags and native apply semantics remain. Preview explicitly describes the running-engine/no-self boundary and preserves individual request semantics. No unrelated CLI, MCP or authority contract is relaxed. |
+| correctness | passed | Current sealed unit, integration and build evidence passes. The cumulative source preserves lazy staged reads, original discovery, force checks and nonmutation boundaries; R1–R5 corrections remain present. |
+| design-causality | passed | D2 removes copier reconstruction and second-planner drift by sharing execution and projected reads. The required structural mapping below connects the ADR to R1/R2. |
+| documentation | passed | The accepted ADR, canonical spec and reports describe implemented boundaries and evidence limits, while retaining rejected copier and review history as historical. |
+| operability | passed | Operators receive explicit no-op, refusal, failure or incomplete outcomes, with relevant causes and the self-update boundary explained. Stale-instance warnings direct operators to `pose update`. |
+| requirements | passed | Registered `update-preview-integration` covers R1 effects/stamps/requests, R2 complete-no-op versus incomplete/refused behavior, and R3 stale-engine warning contracts. Evidence is current at the sealed source. |
+| scope | passed | Propagation through reachable readers/writers is necessary for D2’s whole-update contract. Artifact reconciliation covers that scope; no unrelated release, publication or adoption work is introduced. |
+| security | passed | Preview stages effects in memory, preserves path/authority checks and avoids physical publisher staging/locks. Current govulncheck reports no vulnerabilities; final PR security CI remains mandatory before merge. |
+| solution-proportionality | passed | Explicit Files propagation is broader than the rejected copier but necessary for coherent discovery and governance reads. Conservative unsupported outcomes avoid a general kernel emulator. New update phases introducing unmodeled effects require reassessment. |
+
+**Required material structural mapping**
+
+The sealed plan contains exactly **one** material fact requiring mapping.
+
+| SD-id | Rn or Dn | causal reason |
+|---|---|---|
+| SD-cb046cda | D2 | The added ADR requires one apply/preview execution algorithm with lazy original inputs and staged subsequent reads across force installation, discovery, requests, indexes and governance. This directly addresses R1’s omitted/drifting effects and R2’s false no-op/completeness problem while preserving native apply and explicit unsupported knowledge. |
+
+**Evidence and tool dispositions**
+
+The recollected canonical results name `a7af88ff481088ba63f7a8aeeed572f55e6715a2`: **146/146 checks pass**, with zero failed, optional-failed, errored or skipped checks. All sealed native evidence references match the canonical result IDs, classes, outcomes, source and provenance.
+
+- Global provenance: `sha256:a73f64c8b4ec25f5bff8fd686a9ec714d87375d8ef04f8464efeb719e93c2d7d`
+- B29 scoped provenance: `sha256:f4478c958054c41f9eeb57858b11b6f457028c50e97bdc821f910f0a7da44c6e`
+
+The registered `pose-mcp/go/update-preview-integration` executes existing nonempty selectors with `-count=1` and passes. Sealed full module test/build evidence and collected vet results also pass; some full-suite Go results use the Go cache.
+
+| Tool | Disposition |
+|---|---|
+| Required `validate`, global and `pose-mcp` | Satisfied by the inspected current canonical collection covering the module. No redundant suite rerun. |
+| Required `artifact-check` | Current aligned output: 114 claims, no errors; 598 repository-wide orphan warnings retained. |
+| Required `surface-check` | Current aligned output: no findings; composed capability reaches `pose-mcp/cmd/pose/main.go` with current validation evidence. |
+| Recommended `suggest-review` | Used read-only during this review; applicable rules applied. |
+| Recommended `assess-design` | Used read-only; sealed structural observation and implementation binding verified. |
+| Recommended `assess-discover` | Used supplied refreshed component evidence. |
+| Recommended `assess-integrate` | Inspected current assessment: 64 contracts evaluated, with 63 heuristic unobserved-consumer gaps. It is not a clean integration certificate. |
+| Recommended `assess-tech-debt` | Inspected current **INCOMPLETE** scan: one covered marker, zero uncovered markers, but two invalid legacy specs prevent a debt-free conclusion. |
+| Required completion-only `review-check`, `closeout-check` | Deferred until the parent records the actual judgments. |
+| Attestation, review verification and closure | Left to the parent; none performed here. |
+
+The mechanical auto-attest preview applies nothing and leaves eight judgment criteria pending. The explicit judgments above answer those criteria; no approval is inferred from that preview.
+
+Current govulncheck reports **“No vulnerabilities found.”** No dependencies changed. Current affected operation/update race results pass. Platform builds establish compilation, not macOS/Windows runtime parity. Inotify evidence covers filesystem events in exercised fixtures, including transient effects; it is not syscall tracing or universal-layout proof.
+
+**Historical findings and retained warnings**
+
+| Historical finding | Final disposition |
+|---|---|
+| R1 absolute symlink traversal | Resolved: preserve raw components until traversal. |
+| R1 staged permissions | Resolved: enforce staged access checks and retain unsupported knowledge. |
+| R1 hard-link overwrite | Resolved: unknown/multiple aliases prevent optimistic direct overwrite; atomic replacement remains distinct. |
+| R1 unavailable umask | Resolved: unavailable observation produces incomplete evaluation. |
+| Parent trailing-separator issue | Resolved for direct paths and literal symlink targets. |
+| R2 special-file direct writes | Resolved: require qualified ordinary-file semantics. |
+| R2 unreadable directory emptiness/enumeration | Resolved: unknown removal knowledge persists gaps. |
+| R3 sticky-parent replacement | Resolved conservatively, including recursive children and atomic replacement. Owned controls remain explicitly distinct from foreign-owned reproductions. |
+| Provider/default-ACL/special-read corrections | Retained with explicit unsupported outcomes. |
+| R4 FIFO reporting | Resolved: classify nonregular originals before content comparison; unknown provider comparison remains incomplete. |
+| R5 recursive partial deletion | Resolved for recursive preflight failures and directory-parent refusal paths. Unprivileged operation and force-retention controls demonstrate native partial effects. |
+
+No new finding or accepted-low-risk disposition is introduced. Rejected copier reviews and earlier R1–R5 rejections remain historical records.
+
+The native exact-SHA range `fe765cf…a7af88f` aligns the current subject header while preserving the older `aebe238` observation. The trailer range’s contamination warning remains: its attributed paths are the subject, not every intervening commit. Missing component owner metadata and unmapped governance-path warnings remain disclosed. The original artifact mismatches were resolved through explicit native observation and removal of untouched planned claims, without changing engine attribution semantics.
+
+Technical-debt incompleteness, integration heuristics, repository orphan warnings and recurrence flapping are not represented as newly discovered B29 defects or as clean scans.
+
+**Rules applied**
+
+Applied actual `AGENTS.md`, `POSE.md`, `pose-review` and review workflow, plus backend-go for interfaces/errors/concurrency; security for filesystem and authority boundaries; documentation-style for canonical contracts; delivery-evidence for current gates and provenance; knowledge-governance and recurrence rules for historical/residual reporting. Frontend and infrastructure rules were inapplicable.
+
+No source writes, native writes, staging, commits, child agents, contributions, attestation, closure or publication were performed.
+
+## Fresh reconciled governance review — actual response
+
+**Decision: APPROVED**
+
+Fresh governance adjudication for `spec:pose-update-dry-run-reports-the-whole-update`, conditional on **final-head PR CI green before merge**, including required security checks. Those future checks are not claimed as passed.
+
+Reviewer: Codex, task-designated `gpt-6.1-sol`, new separate read-only session `01a169a1-f9ba-74c2-b293-c25b0853559c`. Same-vendor review with declared identity assurance; no authenticated, cross-vendor, human or cognitively verified independence claimed.
+
+Inspected the [fresh sealed bundle](/tmp/pose-pending-b29/.pose/review-bundles/rvb-08bd807629520cd3.json), sealed `2026-10-23T16:40:55Z`.
+
+| Binding | Exact value |
+|---|---|
+| Bundle | `rvb-08bd807629520cd3` |
+| Bundle digest | `sha256:08bd807629520cd39457ecec0f2f4c7430c05966fe63ee18dc1a7efce6647de3` |
+| Native sealed plan digest | `sha256:95afc73c3aaf27978723e46a762977b1a5856386bf7ac6c0abf09233e80c73d3` |
+| Implementation digest | `sha256:8c6fd86f873eebe3551bcae8274ce8d6223833605be88d26cf2a7e4d3ea1e746` |
+| Patch digest | `sha256:516190785c60b70c0522842362050d75cde6b2921c7f5d4fdce96683b19a18f3` |
+| Tree digest | `sha256:4cad4e209085fe4862dce0711276b3b5c09100ffe262cddc5c6fbcb05a4de639` |
+| Source HEAD | `a7af88ff481088ba63f7a8aeeed572f55e6715a2` |
+| Cumulative review baseline | `fe765cf8aaaaff3ec93e91818e69e0781f92116a` |
+| Bundle-file SHA-256 | `73ae74b2c9f9666751ab79f01a2bcb059f5f293e3f7bf60c84bc4011c4b8b14b` |
+
+I recalculated the bundle, native plan-contract, implementation, patch and tree digests successfully. Native read-only preparation resolves the same bundle without blockers. All 110 subject entries match current bytes, including all 106 implementation entries. All 143 evidence references reconcile with the canonical collection or structural observation. The fresh payload differs from R6 only in semantic scope and contract-node basis.
+
+The governance reconciliation is acceptable:
+
+- The original start receipt is byte-identical to HEAD and the R6 subject: SHA-256 `1de1f409ee3031c8941fe5bc6e6f40f3047119a18ec06ee190f366c6b7ae5295`. Its `2026-10-10T03:59:06Z` record still contains R1–R3, D1 and D1’s original missing-basis diagnostic.
+- The first D2 amendment line is unchanged. Its original date, author and declared assurance remain historical.
+- Both appended events carry `2026-10-23T16:23:50Z`, author `@agent-codex` and `assurance: declared`. Their rationale explicitly disclaims pre-execution recording, new requirements and human confirmation.
+- The baseline acknowledges existing nodes. The transition records D1 from active/hash `060d57882685` to withdrawn/hash `fc51a644343d`, with retrospective relations R1/R2. D1’s original text and date remain intact.
+- R1–R3 text remains unchanged, with hashes `8e94285e0bd8`, `18774fda39bb` and `14d4fce633cd`. D2 remains active and unchanged at `489c4bd160ee`, reaching R1/R2/R3.
+- The reconstructed current node digest matches the seal: `sha256:2a287b7c93a1f19ce8adef186db44f22ea53a218d127bb9163088f9f5fd3ee16`.
+- Strict lint records three amendment events and zero failures. Native closure remains `done`, `completed_at: 2026-10-23`.
+
+A current baseline can satisfy ledger parsing without proving historical precedence. Here the immutable receipt, preserved diagnostic, explicit retrospective rationale and fresh judgments prevent that mechanical success from being represented as original human authorization. No new governance gate or implementation contract is introduced.
+
+The documented clean-start limitation of the recoverable plan does not negate the separately evidenced manual gates and native locked close. The records support actual R6 approval, native verification and native closure; no manual status edit or skip-evidence substitution is indicated.
+
+The retained closed approval is **not** the basis of this decision: its delta explicitly marks all 15 criteria changed. These are fresh judgments after verifying implementation identity and inspecting actual R6, R1–R5 history, implementation evidence and current governance.
+
+| id | passed/finding/not-applicable | individual reason |
+|---|---|---|
+| assumption-integrity | passed | Current reconciliation is explicitly retrospective and declared. Original diagnostics survive; unsupported filesystem knowledge remains INCOMPLETE. |
+| backend-concurrency | passed | Invocation-local Files, captured time and synchronized staging remain unchanged; current sealed tests and inspected race evidence qualify them. |
+| backend-contracts | passed | Direct, exclusive and atomic operations retain their distinctions. Governance reconciliation changes no CLI, API, MCP or native apply contract. |
+| backend-input-errors | passed | Refusal, unsupported evaluation and complete no-op remain distinct; current integration evidence includes special-file and partial-removal controls. |
+| backend-integration-impact | passed | Unchanged projected readers cover force governance, requests and indexes; B28/B30/B38 integration evidence remains applicable, with heuristic limits retained. |
+| backend-observability | passed | Request semantics, effects, refusals and evaluation gaps remain actionable. Reconciliation records actual timing, authorship and transition rationale. |
+| compatibility | passed | Existing flags, native apply and running-engine/no-self boundary remain intact; historical records stay addressable. |
+| correctness | passed | Unchanged source matches R6 exactly; current sealed checks pass, and the ledger transition agrees with canonical node state. |
+| design-causality | passed | Active D2 addresses copier drift through shared execution and projected reads; withdrawn D1 supplies no current structural authority. |
+| documentation | passed | Current spec and closeout distinguish historical rejection, actual closure and retrospective reconciliation. Original review responses remain historical. |
+| operability | passed | Preview outcomes and remediation remain explicit; the reconciliation preserves an auditable explanation of post-close work. |
+| requirements | passed | R1–R3 are unchanged and retain current registered integration evidence; no baseline event is treated as a new requirement. |
+| scope | passed | Changes are governance reconciliation and generated evidence/state; there are no source, dependency or validation-matrix changes since R6. |
+| security | passed | Authority assurance remains declared without fabricated confirmation; unchanged preview confinement has current evidence, and inspected govulncheck reports no vulnerabilities. |
+| solution-proportionality | passed | Appending reconciliation and withdrawing D1 is sufficient while preserving history. D2’s bounded operation view avoids unnecessary kernel emulation; new unmodeled update effects require reassessment. |
+
+The actual sealed plan contains one material structural fact:
+
+| SD-id | Rn or Dn | causal reason |
+|---|---|---|
+| SD-cb046cda | D2 | The added ADR requires shared apply/preview execution with original discovery and staged subsequent reads across installation, requests, indexes and governance. This addresses R1’s omitted effects and R2’s false completeness while preserving native apply and explicit unsupported outcomes. D2 remains active with a valid requirement basis. |
+
+Tool dispositions follow the actual sealed plan:
+
+| Tool | Disposition |
+|---|---|
+| Required `validate`, global and `pose-mcp` | Inspected canonical 146/146 passing collection at unchanged `a7af88f`; zero failures, optional failures, errors or skips. No redundant rerun. |
+| Required `artifact-check` | Inspected fresh reconciled output: 114 claims, zero errors; 598 repository orphan warnings retained. |
+| Required `surface-check` | Inspected fresh reconciled output: zero findings; composed capability reaches `pose-mcp/cmd/pose/main.go`. |
+| Recommended `suggest-review` | Executed read-only; relevant rules applied. |
+| Recommended `assess-design` | Executed read-only; observed identity and material fact match the seal. |
+| Recommended `assess-discover` | Inspected supplied post-close evidence, including reuse of unchanged `pose-mcp` assessment. |
+| Recommended `assess-integrate` | Inspected supplied assessment: 64 contracts, 63 heuristic unobserved-consumer gaps; no clean integration certification. |
+| Recommended `assess-tech-debt` | Inspected INCOMPLETE assessment: one covered marker, zero uncovered, two invalid legacy specs preventing complete coverage. |
+| Required completion-only `review-check`, `closeout-check` | Deferred for fresh attestation consumption; previous closure outputs do not certify this new adjudication. |
+| Context, bundle and plan preparation | Executed read-only; canonical authority resolves without ambiguity and current preparation matches the fresh seal. |
+| Lint/design-basis check | Inspected supplied strict lint and executed read-only design check: zero errors; optional section/design-field advisories retained. |
+| Recurrence | Inspected supplied evidence: zero threshold-flagged keys; flapping warning retained. |
+| Attestation, contribution, handoff writes and publication | Not performed under the explicit read-only scope. No new accepted-risk finding requires a new handoff. |
+
+Canonical evidence retains global provenance `sha256:a73f64c8b4ec25f5bff8fd686a9ec714d87375d8ef04f8464efeb719e93c2d7d` and B29 scoped provenance `sha256:f4478c958054c41f9eeb57858b11b6f457028c50e97bdc821f910f0a7da44c6e`. The immutable `fe765cf…a7af88f` range aligns the source while preserving the older `aebe238` record. Contaminated trailer-range, missing-owner and unmapped governance-path warnings remain disclosed.
+
+Actual R1–R5 corrections remain present, including traversal, permissions, aliases, special files, sticky parents, FIFO reporting and recursive partial retention. Inspected race results pass. Six-platform builds establish compilation; inotify establishes fixture-specific filesystem-event evidence. Neither proves universal kernel behavior or macOS/Windows runtime parity. Unsupported behavior remains explicitly INCOMPLETE.
+
+Applied root AGENTS, POSE, the review skill/workflow, backend-go, security, documentation-style, delivery-evidence, knowledge-governance and recurrence rules. Frontend and infrastructure rules are inapplicable.
+
+No new finding or accepted-low risk is introduced. No tests were independently executed here, and no writes, staging, commits, child agents, attestation, closure or publication were performed. **Final-head PR CI green remains mandatory before merge.**
