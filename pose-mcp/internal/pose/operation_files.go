@@ -609,6 +609,9 @@ func (p *PreviewFiles) readFileLocked(name string) ([]byte, error) {
 	if e.isDir() {
 		return nil, pathError("read", name, syscall.EISDIR)
 	}
+	if e.staged == nil && e.info != nil && !e.info.Mode().IsRegular() {
+		return nil, pathError("open", name, p.unsupportedLocked("special-file read semantics unavailable: "+location))
+	}
 	if e.staged != nil {
 		if err := p.stagedAccess(location, e.staged, 0o400); err != nil {
 			return nil, pathError("open", name, err)
@@ -633,6 +636,9 @@ func (p *PreviewFiles) Open(name string) (fs.File, error) {
 		return nil, pathError("open", name, fs.ErrNotExist)
 	}
 	if e.staged == nil {
+		if !e.isDir() && e.info != nil && !e.info.Mode().IsRegular() {
+			return nil, pathError("open", name, p.unsupportedLocked("special-file read semantics unavailable: "+location))
+		}
 		file, err := os.Open(location)
 		if err != nil {
 			return nil, pathError("open", name, err)
@@ -879,7 +885,20 @@ func (p *PreviewFiles) replacementAccess(location string) error {
 	return nil
 }
 
-// writableFile checks that the operation may write into the file at location.
+// creationModeAccess refuses to guess permissions inherited from a physical parent.
+func (p *PreviewFiles) creationModeAccess(location string) error {
+	parent := filepath.Dir(location)
+	e, ok, err := p.lookup(parent)
+	if err != nil {
+		return err
+	}
+	if ok && e.staged == nil && !observedCreationMode(parent) {
+		return p.unsupportedLocked("inherited creation mode unavailable: " + location)
+	}
+	return nil
+}
+
+// writableFile checks effective write access to the entry.
 func (p *PreviewFiles) writableFile(location string, e entry) error {
 	if e.staged != nil {
 		return p.stagedAccess(location, e.staged, 0o200)
@@ -908,6 +927,9 @@ func (p *PreviewFiles) WriteFile(name string, data []byte, perm fs.FileMode) err
 		if err := p.writableFile(location, e); err != nil {
 			return p.record(op, pathError("open", name, err))
 		}
+		if e.staged == nil && !observedOrdinaryFileData(location) {
+			return p.record(op, p.unsupportedLocked("direct-write provider semantics unavailable: "+location))
+		}
 		mode = p.permOf(location, e)
 		if e.staged != nil {
 			origin = e.staged.origin
@@ -923,6 +945,11 @@ func (p *PreviewFiles) WriteFile(name string, data []byte, perm fs.FileMode) err
 	}
 	if !ok && !p.umaskKnown {
 		return p.record(op, p.unsupportedLocked("creation umask unavailable: "+location))
+	}
+	if !ok {
+		if err := p.creationModeAccess(location); err != nil {
+			return p.record(op, err)
+		}
 	}
 	p.stage(location, &previewNode{kind: previewFile, data: append([]byte{}, data...), perm: mode, origin: origin})
 	return p.record(op, nil)
@@ -955,6 +982,9 @@ func (p *PreviewFiles) CreateExclusive(name string, data []byte, perm fs.FileMod
 	}
 	if !p.umaskKnown {
 		return p.record(op, p.unsupportedLocked("creation umask unavailable: "+location))
+	}
+	if err := p.creationModeAccess(location); err != nil {
+		return p.record(op, err)
 	}
 	p.stage(location, &previewNode{kind: previewFile, data: append([]byte{}, data...), perm: perm.Perm() &^ p.umask})
 	return p.record(op, nil)
@@ -1070,6 +1100,9 @@ func (p *PreviewFiles) mkdirLocked(name string, perm fs.FileMode) error {
 	}
 	if !p.umaskKnown {
 		return p.record(op, p.unsupportedLocked("creation umask unavailable: "+location))
+	}
+	if err := p.creationModeAccess(location); err != nil {
+		return p.record(op, err)
 	}
 	p.stage(location, &previewNode{kind: previewDir, perm: perm.Perm() &^ p.umask})
 	return p.record(op, nil)

@@ -22,6 +22,8 @@ Preview the running engine's instance update, equivalent in scope to `--no-self`
 
 Track an ordered semantic ledger separately from the final net filesystem difference. Count real content, directory, link, mode and request effects, without counting repeated writes as different files. Report known refusals and incomplete evaluation explicitly. Print no-change only when every applicable phase was evaluated and no effect remains. A preview describes intended operations under observed inputs; it cannot guarantee future write success under concurrent changes, ACL/security policy, quotas, mount/durability or provider failures. Such runtime uncertainty must not be presented as a proved failure or a fabricated successful application.
 
+Bound read-only knowledge explicitly: do not infer ordinary content semantics solely from regular-file mode on virtual providers, or creation modes solely from umask when a default ACL is inherited. Unsupported provider, inheritance, inode alias, sticky-directory authority and effective-permission observations persist incomplete evaluation. Native apply remains responsible for actual kernel execution; platform compilation alone establishes no runtime parity.
+
 Keep R3 warnings and existing flags compatible. Do not adopt policy, release, migrate projects, publish tags or change Harne8 adoption/gitlinks as part of this work.
 
 ## Alternatives and consequences

@@ -63,6 +63,33 @@ func physicalLinkCount(info os.FileInfo) (uint64, bool) {
 
 func stagedOwnerAccessKnown() bool { return true }
 
+// IsRegular also includes procfs attributes backed by kernel handlers.
+// Only observed ordinary storage providers support staging ordinary bytes.
+func observedOrdinaryFileData(path string) bool {
+	if runtime.GOOS != "linux" {
+		return false
+	}
+	var info unix.Statfs_t
+	if unix.Statfs(path, &info) != nil {
+		return false
+	}
+	// Linux magic values: ext, xfs, btrfs, tmpfs, overlay, nfs, f2fs, ramfs.
+	// Unknown and virtual providers remain unsupported.
+	switch uint64(info.Type) {
+	case 0xef53, 0x58465342, 0x9123683e, 0x01021994, 0x794c7630, 0x6969, 0xf2f52010, 0x858458f6:
+		return true
+	}
+	return false
+}
+
+func observedCreationMode(path string) bool {
+	if runtime.GOOS != "linux" {
+		return false
+	}
+	n, err := unix.Getxattr(path, "system.posix_acl_default", nil)
+	return (err == nil && n == 0) || errors.Is(err, unix.ENODATA) || errors.Is(err, unix.ENOTSUP)
+}
+
 func observedReadWriteAccess(path string, need os.FileMode) (bool, error) {
 	mode := uint32(0)
 	if need&0400 != 0 {

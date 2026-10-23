@@ -212,6 +212,7 @@ Risk: high (`pose-mcp` metadata). Original R1/R2 satisfied trace and old Deliver
 | Required scenario | Deterministic command | Expected evidence |
 |---|---|---|
 | Operation view read-after-write, alias/link replacement, exclusive/atomic/direct-write distinction and failure injection | `go test ./internal/... -run 'UpdateOperation|UpdatePreview' -count=1` | No physical preview mutation, coherent staged reads, typed failures and exact net effects. Register exact final tests/check before collecting. |
+| Detectable provider and inherited-mode uncertainty | `go test ./internal/pose -run 'UpdateOperation' -count=1` | Virtual regular-file writes and default ACL inheritance never fabricate ordinary byte or mode semantics; unsupported knowledge persists INCOMPLETE. |
 | Running-engine update parity, force/nonforce, EN/pt-BR, current/stale/schema migration, requests and policy/profile seeding | `go test ./internal/cli -run 'UpdateDryRun|UpdatePreview|Upgrade|Machinery|ConfigurationReview' -count=1` | Preview/apply share semantic events and per-request content, actual resulting state matches intended effects; no false no-op. |
 | Original discovery and adversarial filesystem/permission layouts | `go test ./internal/cli -run 'UpdateDryRun|UpdatePreview|Discovery' -count=1` | Existing symlink corpus, execute-only directory with named child, external/broken links, ignored/submodule/nested modules and unknown relevant reads exercised in unprivileged fixtures. |
 | End-to-end no-write audit and force projected gate | `go test ./internal/cli -run 'UpdatePreview.*(Subprocess|NoWrites|Force|Parity)' -count=1` | Actual command preview produces no filesystem effects, including external targets and transient staging/locks; projected final gate sees planned governance state. |
@@ -248,7 +249,7 @@ At the time this prospective plan was recorded, no replacement test above had ex
 
 2026-10-10, after the tenth independent review (a directory with mode 0100 can be read by name but not listed, so the copy came out empty): the maintainer decided that POSE 7.4.0 ships without this spec. Its changelog fragment is withdrawn from `.pose/changelogs/unreleased/`, so 7.4.0's notes do not announce the dry-run; the spec stays open and is redone for 7.5.0 with the approach of the open follow-up (the update recording what it would do instead of running on a copy). The copy-based dry-run already on main stays in the code until then.
 
-### Requirement trace
+### Historical D1 requirement trace
 
 Historical D1 trace, retained for audit. These old satisfaction claims do not qualify D2; use the replacement implementation report and the parent's eventual current evidence for that judgment.
 
@@ -256,9 +257,9 @@ Historical D1 trace, retained for audit. These old satisfaction claims do not qu
 > - R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 > - R3 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdateDryRunListsWhatTheUpdateChanges
 
-### Current D2 requirement trace
+### Requirement trace
 
-The registered `update-preview-integration` check and full native collection passed at source `3f03b36`; the later sticky-directory correction requires a fresh collection. Final independent approval and governed closure remain pending.
+The registered `update-preview-integration` check and fresh strict native collection pass146/146 at source `aebe238`. Current review and governed lifecycle disposition are recorded in the closeout report.
 
 - R1 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdatePreviewParityAcrossUpdateBranches test:TestUpdatePreviewNamesEachDecisionRequestAsTheUpdateDoes test:TestUpdatePreviewForceStagesInstructionsBeforeFinalGate test:TestUpdatePreviewHasNoPhysicalMutationEvents
 - R2 [satisfied] capability:update-dry-run-reports-the-whole-update evidence:integration test:TestUpdatePreviewDoesNotCallLostEvaluationNoChange test:TestUpdatePreviewDistinguishesRefusedOperationsFromNoOp test:TestUpdatePreviewSourceReviewFilesystemReachability test:TestUpdatePreviewUnreadableEmptySkillDirectoryIsIncomplete
@@ -266,11 +267,11 @@ The registered `update-preview-integration` check and full native collection pas
 
 ## 7. Final Report
 
-Historical D1 report below, retained unchanged for audit. It describes the rejected copier, not a current delivery claim. D2 remains `in-progress`; see the replacement implementation report for current source and validation evidence.
+The historical D1 report below describes the rejected copier and remains audit history. The replacement qualification and linked closeout report carry current source, evidence, review and lifecycle disposition.
 
 ### Replacement qualification — 2026-10-23
 
-D2 uses one shared update execution with an explicit operation-scoped in-memory view. Reads see staged files, original source discovery stays authoritative, and complete previews report file effects, engine stamps and individual request semantics. Unknown access, umask, inode alias, special-file or removal effects remain INCOMPLETE rather than successful no-ops. Native apply is unchanged. Fresh canonical strict validation passes146/146 at3f03b36, with zero skips/errors; see [the closeout report](../reports/2026-10-23-b29-pending-closeout.md) and [implementation evidence](../reports/2026-10-22-b29-update-preview-implementation.md). Source review R1/R2 rejections and fixes remain historical; final approval and closure are pending.
+D2 uses one shared update execution with an explicit operation-scoped in-memory view. Reads see staged files, original source discovery stays authoritative, and complete previews report file effects, engine stamps and individual request semantics. Unknown access, umask, inode alias, special-file or removal effects remain INCOMPLETE rather than successful no-ops. Native apply is unchanged. Fresh canonical strict validation passes146/146 ataebe238, with zero skips/errors; see [the closeout report](../reports/2026-10-23-b29-pending-closeout.md) and [implementation evidence](../reports/2026-10-22-b29-update-preview-implementation.md). Source review R1/R2/R3 rejections and fixes remain historical; actual current review and lifecycle disposition are recorded in the closeout report.
 
 ### Historical D1 delivered scope
 

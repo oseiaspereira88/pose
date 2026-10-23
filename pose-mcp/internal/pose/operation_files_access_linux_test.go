@@ -3,6 +3,7 @@
 package pose
 
 import (
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"os"
@@ -12,6 +13,36 @@ import (
 	"testing"
 	"time"
 )
+
+func TestUpdateOperationVirtualRegularFileSubprocess(t *testing.T) {
+	if os.Getenv("POSE_B29_VIRTUAL_CHILD") != "1" {
+		cmd := exec.Command(os.Args[0], "-test.run=^TestUpdateOperationVirtualRegularFileSubprocess$", "-test.v")
+		cmd.Env = append(os.Environ(), "POSE_B29_VIRTUAL_CHILD=1")
+		if out, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("virtual-file child: %v\n%s", err, out)
+		}
+		return
+	}
+	path := "/proc/self/comm"
+	info, err := os.Stat(path)
+	if err != nil || !info.Mode().IsRegular() {
+		t.Skip("proc comm unavailable")
+	}
+	p := NewPreviewFiles(time.Now())
+	data := []byte("a long value that the kernel will truncate")
+	pe := p.WriteFile(path, data, 0o644)
+	// This changes only the disposable test child's kernel task name.
+	if err := os.WriteFile(path, data, 0o644); err != nil {
+		t.Skipf("kernel control unavailable: %v", err)
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil || string(raw) == string(data) {
+		t.Fatalf("virtual-file control: %q %v", raw, err)
+	}
+	if !errors.Is(pe, ErrPreviewUnsupported) || len(p.Gaps()) == 0 {
+		t.Fatalf("virtual regular file fabricated ordinary bytes: %v %v; kernel %q", pe, p.Gaps(), raw)
+	}
+}
 
 // Only this disposable child changes its process-wide umask.
 func TestUpdateOperationRestrictiveUmaskSubprocess(t *testing.T) {
@@ -151,5 +182,36 @@ func TestUpdateOperationRestrictiveUmaskSubprocess(t *testing.T) {
 			}
 		})
 	}
+	t.Run("default-acl-creation", func(t *testing.T) {
+		parent := t.TempDir()
+		// Linux POSIX ACL xattr v2: owner read, group read, other none.
+		acl := make([]byte, 4+3*8)
+		binary.LittleEndian.PutUint32(acl, 2)
+		for n, tag := range []uint16{1, 4, 32} {
+			entry := acl[4+n*8:]
+			binary.LittleEndian.PutUint16(entry, tag)
+			if n != 2 {
+				binary.LittleEndian.PutUint16(entry[2:], 4)
+			}
+			binary.LittleEndian.PutUint32(entry[4:], ^uint32(0))
+		}
+		if err := syscall.Setxattr(parent, "system.posix_acl_default", acl, 0); err != nil {
+			t.Skipf("default ACL unavailable: %v", err)
+		}
+		path := filepath.Join(parent, "child")
+		p := NewPreviewFiles(time.Now())
+		pe := p.Mkdir(path, 0o755)
+		if err := os.Mkdir(path, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		defer os.Chmod(path, 0o700)
+		info, err := os.Stat(path)
+		if err != nil || info.Mode().Perm()&0o100 != 0 {
+			t.Fatalf("native inherited ACL control: %v %v", info, err)
+		}
+		if !errors.Is(pe, ErrPreviewUnsupported) || len(p.Gaps()) == 0 {
+			t.Fatalf("inherited mode guessed: %v %v", pe, p.Gaps())
+		}
+	})
 
 }

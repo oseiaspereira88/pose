@@ -75,6 +75,28 @@ func TestUpdateOperationSpecialFileWriteIsIncomplete(t *testing.T) {
 	}
 }
 
+func TestUpdateOperationSpecialFileReadsAreIncomplete(t *testing.T) {
+	info, err := os.Stat(os.DevNull)
+	if err != nil || info.Mode().IsRegular() {
+		t.Skip("no special null device")
+	}
+	for _, open := range []bool{false, true} {
+		p := NewPreviewFiles(time.Now())
+		if open {
+			file, e := p.Open(os.DevNull)
+			err = e
+			if file != nil {
+				file.Close()
+			}
+		} else {
+			_, err = p.ReadFile(os.DevNull)
+		}
+		if !errors.Is(err, ErrPreviewUnsupported) || len(p.Gaps()) == 0 {
+			t.Errorf("special read open=%v: %v %v", open, err, p.Gaps())
+		}
+	}
+}
+
 func TestUpdateOperationTrailingSeparatorRequiresDirectory(t *testing.T) {
 	root := t.TempDir()
 	file := filepath.Join(root, "file")
