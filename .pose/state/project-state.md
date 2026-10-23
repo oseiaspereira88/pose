@@ -88,10 +88,10 @@ capacidade.
   - report:2026-10-22-b29-update-preview-implementation.md
 
 ## Arquitetura
-<!-- state:derived hash:b2b3ee60d2ee status:active -->
+<!-- state:derived hash:db20874c55f5 status:active -->
 
 - componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=81594 testes=71944 total=153538
+- linhas_de_codigo: producao=81658 testes=72125 total=153783
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63

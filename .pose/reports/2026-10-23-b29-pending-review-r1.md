@@ -544,3 +544,149 @@ Actual R1–R5 corrections remain present, including traversal, permissions, ali
 Applied root AGENTS, POSE, the review skill/workflow, backend-go, security, documentation-style, delivery-evidence, knowledge-governance and recurrence rules. Frontend and infrastructure rules are inapplicable.
 
 No new finding or accepted-low risk is introduced. No tests were independently executed here, and no writes, staging, commits, child agents, attestation, closure or publication were performed. **Final-head PR CI green remains mandatory before merge.**
+
+## R8 CodeQL triage (actual separate same-vendor execution)
+
+**Changes requested: the findings combine real confinement gaps with analysis limitations.** Same-vendor Codex secondary triage only; no cross-vendor assurance or native approval is implied.
+
+Inspected clean HEAD `742653b5e077f40ca2f2cf061588d13e0e85cca9`; `pose-mcp` has no changes from source `a7af88f`. Applied AGENTS, POSE review/security/backend rules, canonical B29 spec and D2 ADR. SARIF records the supplied merge SHA and contains **23 paths across six high findings**. The merge commit itself is unavailable locally, so exact merge-tree equivalence remains unverified.
+
+The `Files` abstraction exposes shared sinks to CodeQL; confinement belongs at the callers that construct paths from untrusted project input. Existing validators remain necessary, but some do not establish resolved confinement.
+
+| Security boundary / exact function | SARIF sinks | Assessment |
+|---|---|---|
+| `action_request.go`: `resolveActionSubject` | 100, 411, 464, 621 | **High: real reachable read outside project.** `ValidateArtifactPathIn` resolves only when the final entry is a symlink. With `root/link → outside`, `subject.Path="link/file"` passes because the final entry is regular; `ReadFile` follows the ancestor link. MCP preparation reaches this without apply. It exposes an external-content digest rather than directly returning file bytes. |
+| `delivery_integrity.go`: `ValidateArtifactPathIn`, reached by `GetDeliveryIntegrity` | 103, 411, 464 | Same defective shared guard. This particular route performs metadata inspection/filtering, rather than reading arbitrary file content. |
+| `review_closeout.go`: `validateReviewEvidenceRef`, including tool-disposition evidence | 102, 411, 464 | **Medium: real evidence-confinement defect.** Lexical checks plus `Stat` accept final or ancestor links outside the project. An approving-attestation preflight reaches validation without persistence. Other evidence gates still apply; this alone does not prove approval bypass. |
+| `action_request.go`: `actionJournalPath`, `LoadActionRequest`, `appendActionEvent` | 100, 621 | Traced supersession input passes `LoadActionRequest`’s prefix/length/`ValidateSlug` checks before append, blocking lexical traversal. **Not arbitrary-path injection on that route.** However, journal reads/appends lack ancestor/final symlink confinement; a linked journal can redirect reads and potentially appends outside the project. |
+| `artifact_ref.go`: `ArtifactResolver.resolve`, roadmap/milestone branch | 100, 103, 411, 464, 621 | Parsed slugs exclude separators, colons and `..`; resolved `artifactPathWithin` precedes content reads. **Lexical injection is blocked.** The preliminary `Lstat` occurs before resolved confinement and can inspect external metadata through a linked directory. |
+| `spec_transfer.go`: `sourceRedirectPath`, `readSpecTransferRedirect`, `transferPathClean` | 100, 103, 621 | **Guarded on the traced route:** parsed slug; lexical containment; component-by-component symlink rejection before final inspection; resolved containment before reading. This supports an analysis-limitation classification for a stable filesystem. |
+| `review_reuse_provenance.go`: `loadReuseAttestation`, `reserveReuseArtifact` | 103 | Exact `rva-` plus hexadecimal ID validation blocks lexical injection. But the budget `Lstat` precedes review-directory validation, allowing external metadata inspection through an ancestor link. Later directory checks reject loading through that ancestor. |
+
+The smallest cohesive hardening is:
+
+1. **Fix `ValidateArtifactPathIn` centrally.** Add locality validation to its syntax path and resolve confinement regardless of the final entry’s type. Compare against the resolved project root. Preserve legitimate missing artifact claims by checking their existing ancestors; reject escapes and unresolved/dangling links.
+2. **In `resolveActionSubject`, construct the read path from the actual validated local variable.** Keep the existing artifact validator and type rules.
+3. **In `validateReviewEvidenceRef`, validate the report-relative variable before joining**, preserve shorthand and `.pose/reports/` forms, then enforce resolved project confinement through the supplied `Files` before `Stat`.
+4. **Centralize checked journal construction** for load/open/append: retain ID validation, add explicit locality, and enforce confinement before reads or native `OpenFile`. Keep exclusive publication, locking and preview refusal.
+5. **Add explicit locality guards to slug-based construction** in the resolver and redirect path helper, retaining all existing slug/transfer guards. In `transferPathClean`, guard and use the same relative variable that drives the walk.
+6. **Validate the reuse directory before its budget `Lstat`**, and explicitly guard the validated ID used in construction.
+
+CodeQL documents `filepath.IsLocal(path)` as a guard for that value. It is lexical only, so it complements resolved-path checks. Guard the variable actually used by `Join`; validating a discarded copy leaves the original flow intact. [CodeQL documentation](https://codeql.github.com/codeql-standard-libraries/go/semmle/go/security/TaintedPathCustomizations.qll/type.TaintedPathCustomizations%24TaintedPath%24IsLocalCheck.html), [Go documentation](https://pkg.go.dev/path/filepath#IsLocal).
+
+The primary’s regression matrix should cover:
+
+- Traversal, absolute paths, empty/dot inputs, malformed slugs/IDs, Windows drive-relative/rooted/UNC/device names on Windows.
+- Ancestor and final symlink escapes; dangling links; linked project roots; confined internal links where existing policy permits them.
+- Action-subject preparation, journal load/supersession/append, report evidence preflight, roadmap resolution, absent/valid redirects, delivery-integrity lookup and reuse-budget inspection.
+- Native and projected positives, including staged files/directories and read-after-write. Preserve authorized update discovery and external-link behavior in unrestricted `NativeFiles`/`PreviewFiles`.
+
+Use recording filesystem assertions to prove refusal occurs before outside content reads or appends. Then run affected regressions, applicable Go/POSE checks and fresh CodeQL, followed by fresh sealed review.
+
+No files were written, tests or assessments executed, artifacts sealed, or findings suppressed. Static inspection does not establish race-free confinement against concurrent filesystem replacement; check-then-open remains a limitation. I make no CI-clean or native-approval claim.
+
+## R9 source security correction (actual separate same-vendor execution)
+
+**APPROVED — source review only** of `69e0984e85ad4d1b618e52cd27384e2e6b5c6c36` versus `742653b`.
+
+No blocking source defect found. The correction addresses all **23 supplied SARIF routes across six high `go/path-injection` findings** with executable caller-side guards:
+
+| Boundary | Routes | Source assessment |
+|---|---:|---|
+| Action subject | 4 | Reads use the cleaned, explicitly local variable after resolved confinement. |
+| Action journal | 2 | Load and append validate ID and resolved path before reading/opening. |
+| Artifact claims | 3 | Existing ancestors are checked against the resolved root before child inspection. |
+| Report evidence | 5 | Locality and resolved confinement precede `Stat`. |
+| Roadmap resolver | 5 | Slug locality and confinement precede roadmap metadata inspection. |
+| Transfer redirects | 3 | New locality guards retain existing component-level link rejection and resolved containment. |
+| Reuse budget | 1 | Review-directory validation now precedes budget `Lstat`. |
+
+Missing local claims, confined internal aliases, linked roots and projected staged reads remain supported by the implementation. `NativeFiles` and `PreviewFiles` remain unrestricted, preserving update discovery and authorized external-link semantics. I found no public schema or CLI contract regression in this diff.
+
+Two **low-severity test-coverage findings** remain:
+
+- At [update_preview_confinement_test.go:125](/tmp/pose-pending-b29/pose-mcp/internal/pose/update_preview_confinement_test.go:125), the linked reuse-directory test creates no matching outside artifact. The previous implementation could also return an error because that file is absent. Populate the outside artifact and record metadata calls to prove rejection occurs **before** its `Lstat`.
+- The recorder at [update_preview_confinement_test.go:11](/tmp/pose-pending-b29/pose-mcp/internal/pose/update_preview_confinement_test.go:11) observes only `ReadFile`. Add metadata-order assertions for ancestor confinement, report evidence and roadmap resolution. Current tests meaningfully cover content-read refusal, but do not establish every claimed pre-inspection ordering guarantee.
+
+Rules applied: POSE review workflow, security, backend Go, documentation style and delivery evidence; canonical B29 spec, D2 ADR and prior triage consulted.
+
+Limits: this is stable-filesystem, check-then-open confinement, **not race-free protection** against concurrent replacement. Windows locality branches were inspected, not executed. The supplied log shows passes for `internal/pose`, `internal/cli` and `internal/mcpserver`; it does not establish full-check completion, fresh CodeQL clearance or CI cleanliness.
+
+No edits, staging, commits, publication, child agents or tests were performed. `git diff --check` passed and the worktree remained clean. Assessments, fresh validation, bundle digests, sealing and native attestation are deferred to the primary’s authorized follow-up. This same-vendor source approval provides no cross-vendor or sealed native assurance.
+
+## R10 final current-source sealed adjudication (actual same-vendor execution)
+
+**APPROVED**, conditional on **final-head PR CI green before merge**, including required security checks. Those final-head checks are not claimed as complete.
+
+Declared reviewer: Codex, task-designated `gpt-6.1-sol`, actual separate session `01a169ec-339c-7f21-9512-d27c0b0901a6`. This is same-vendor review with declared identity assurance.
+
+Reviewed `742653b..5bb89ddd` and the cumulative B29 delivery composition against its canonical spec, D2 ADR and actual review/implementation history. Historical approvals do not approve this changed source.
+
+| Binding | Exact value |
+|---|---|
+| [Sealed bundle](/tmp/pose-pending-b29/.pose/review-bundles/rvb-4100ee9981aeca3c.json) | `rvb-4100ee9981aeca3c` |
+| Bundle digest | `sha256:4100ee9981aeca3c55111a319edf6ca11ac02b05c647acbec98d4d8bb9c45981` |
+| Plan digest | `sha256:b0524ed00c6691689bb8b6353ae6dbcf258302a96c4e518d4a01edeeaacd2cdc` |
+| Implementation digest | `sha256:3fe4a520469d3b95f6a81efdd07919e76d6d26494e81b25db0e06c761dbc0f12` |
+| Patch digest | `sha256:a6d3fe2f69056460955597ab766f11982b72cee96aac1b2e836239816b13df94` |
+| Tree digest | `sha256:4ee849e88d84a009ca9cb1a470d49ea3f4e20d22368785909817e413cae4cfe6` |
+| Source | `5bb89ddd56a0aa4edcde5321aac7c2150f20f54e` |
+| Cumulative baseline | `fe765cf8aaaaff3ec93e91818e69e0781f92116a` |
+| Bundle-file SHA-256 | `0ee34963e7756e5b8707f9f08d34fc76bb6c1ae9c28b60ffad46a8e9e426d746` |
+
+All five digests recalculate correctly. All **111 subject entries**, including 107 implementation entries, match current bytes and the source commit. Current native preparation resolves the same bundle without blockers. All **143 evidence entries** reconcile with canonical validation or the bound structural observation.
+
+No new finding or accepted-risk disposition is introduced. Both earlier low coverage findings are resolved: the outside reuse artifact exists, and the recorder/assertions now establish the specified metadata ordering. Journal content-read refusal and unchanged outside contents remain covered.
+
+| id | passed/finding/not-applicable | reason |
+|---|---|---|
+| assumption-integrity | passed | Observed facts, unsupported filesystem knowledge and future execution uncertainty remain distinguished. Historical governance assurance remains explicitly declared. |
+| backend-concurrency | passed | Invocation-local state and synchronized staging remain intact. Current sealed integration evidence passes; supplied affected race results qualify unchanged production code. |
+| backend-contracts | passed | Direct, exclusive and atomic operations remain distinct. No public CLI, schema or MCP contract is changed. |
+| backend-input-errors | passed | Locality and resolved-ancestor checks precede protected operations; malformed inputs, refusals and incomplete evaluation remain actionable. |
+| backend-integration-impact | passed | Projected reads reach requests, indexes and force governance. Registered composition checks pass; heuristic assessment limitations remain disclosed. |
+| backend-observability | passed | Effects, individual requests, external-link relationships, refusals and evaluation gaps remain visible without exposing external content. |
+| compatibility | passed | Missing local claims, projected files, internal aliases and linked roots remain valid. Running-engine/no-self preview behavior is preserved. |
+| correctness | passed | Current canonical unit, build and integration evidence passes. Caller guards address the supplied routes while retaining prior filesystem corrections. |
+| design-causality | passed | D2 connects shared execution and projected reads to copier drift and false completeness; the structural mapping below is supported. |
+| documentation | passed | Spec, ADR and reports distinguish historical closure from current qualification. Original start and amendment bytes remain unchanged. |
+| operability | passed | Complete no-op, refusal, failure and INCOMPLETE outcomes remain distinct; stale-instance warnings identify remediation. |
+| requirements | passed | Current registered preview integration covers R1 effects/stamps/requests, R2 completeness/no-op distinctions and R3 warnings. |
+| scope | passed | Boundary hardening and regression improvements fit B29’s propagated filesystem scope; current artifact reconciliation covers the changes. |
+| security | passed | Subjects, claims, journals, reports, roadmap inspection and reuse budgets have appropriate caller guards. Transfer guards remain; no suppression or waiver was introduced. |
+| solution-proportionality | passed | Caller-side confinement fixes the exposed boundaries while preserving authorized external update paths. Conservative unsupported outcomes avoid general filesystem emulation. |
+
+The seal contains exactly one material structural fact:
+
+| SD-id | Rn or Dn | causalreason |
+|---|---|---|
+| SD-cb046cda | D2 | The ADR requires shared apply/preview execution with original discovery and staged subsequent reads across installation, requests, indexes and governance. This addresses omitted effects and false completeness under R1/R2 while preserving native apply semantics. |
+
+Canonical validation records **146/146 passed**, zero failures/errors/skips, in 279.4 seconds at the exact source. The registered preview selector includes the new confinement tests with `-count=1`; full-suite Go results include cached results.
+
+- Global provenance: `sha256:32778ab7c3711932480fabceb209e96d802af9531e9b09295fb0daef9505d0d2`
+- B29 scoped provenance: `sha256:dc38ec13c366f692ec90754009aa25b2a7fb57be7c7dfb1ab1c1d0bc2041f04b`
+
+| Tool | Disposition and limits |
+|---|---|
+| Required `validate`, global | Inspected current canonical 146/146 collection. |
+| Required `validate`, `pose-mcp` | Covered by that collection, including full module build/test/vet and registered integrations; no redundant suite run. |
+| Required `artifact-check` | Inspected: 115 claims, zero errors, 598 repository-wide orphan warnings. Exact-source range is recorded. |
+| Required `surface-check` | Inspected: zero findings; composed capability reaches `pose-mcp/cmd/pose/main.go` with current evidence. |
+| Required completion-only `review-check` | Deferred until primary records this actual response. Historical approval is insufficient. |
+| Required completion-only `closeout-check` | Deferred for fresh attestation consumption. |
+| Recommended `suggest-review` | Executed read-only; applicable rules applied. |
+| Recommended `assess-design` | Inspected sealed structural evidence and verified its implementation binding. |
+| Recommended `assess-discover` | Inspected refreshed `pose-mcp` assessment; unchanged components were reused. |
+| Recommended `assess-integrate` | Inspected: 64 contracts, 63 heuristic unobserved-consumer gaps. No clean integration certification. |
+| Recommended `assess-tech-debt` | Inspected INCOMPLETE scan: one covered marker, zero uncovered; two invalid legacy specs prevent complete coverage. |
+| Context, bundle and plan | Resolved read-only; canonical authority and current seal agree. |
+| Index and strict structure | Inspected current index verification and strict-check success with 30 warnings. |
+| Recurrence | Executed read-only: zero threshold-flagged keys; one flapping warning retained. |
+| Vulnerability/security evidence | Current supplied govulncheck reports no vulnerabilities. Recorded CodeQL pass belongs to `69e0984`; final-head CI remains required. |
+
+Applied root AGENTS, POSE review skill/workflow, backend-go, security, documentation-style, delivery-evidence, delivery-surface, knowledge-governance and recurrence rules. Frontend and infrastructure rules were inapplicable. Existing contaminated-range, missing-owner and unmapped-governance warnings remain disclosed.
+
+Confinement is a **stable-filesystem preflight**, not race-free protection against concurrent replacement. NativeFiles/PreviewFiles intentionally retain unrestricted authorized update semantics. Six-platform builds establish compilation; inotify evidence establishes fixture-specific filesystem events, not universal runtime parity.
+
+No tests, child agents, staging, commits, attestation or publication were performed here. One strict-lint invocation unexpectedly attempted a post-close state refresh; the read-only filesystem blocked it. Its analysis found zero spec failures, but its unsuccessful command is **not counted as a passing gate**. No filesystem write succeeded.
