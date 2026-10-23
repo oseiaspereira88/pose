@@ -1,5 +1,7 @@
 package cli
 
+// Spec pose-proof-presence-channel-parity: caller admission, proof and disclosure.
+
 import (
 	"bytes"
 	"crypto/ed25519"

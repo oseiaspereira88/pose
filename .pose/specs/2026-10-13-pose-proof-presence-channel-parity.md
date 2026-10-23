@@ -145,7 +145,7 @@ Plano obrigatório, registrado antes de implementar (módulo pose-mcp high):
 Na raiz executar `pose validate --strict --report --json-out .pose/results/delivery-validation.json`,
 `pose check --strict`, artifact/surface gates, assessments de integração/dívida,
 govulncheck e secret scan aplicável. Registrar novo produtor obrigatório
-action-presence-parity-integration nos três pacotes; nenhuma evidência externa
+proof-presence-channel-parity-integration nos três pacotes; nenhuma evidência externa
 ou teste sintético implica hardware real, adoção de policy ou entrega antes dos gates.
 
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
@@ -175,8 +175,9 @@ implementação. Não declarar requisitos funcionais satisfeitos pelo lint.
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 2. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+Escrita original em draft no lote 2, preservada como histórico. Implementação
+iniciada sob managed start em 2026-10-23 e em qualificação; validação estrita,
+revisão selada, closeout nativo e merge individual ainda pendentes.
 
 ### Residual risks
 

@@ -176,3 +176,12 @@ e os snapshots b02-domain-preflight-* registram os gates. A matriz agora marca
 B02 delivery_complete=true. O programa/roadmap continua ativo: aguardar merge
 de #183 pelo maintainer e depois reavaliar DAG/readiness nativa, sem escolher
 uma nova implementação, policy, capability ou adoção neste closeout.
+
+
+## B03 — execução individual iniciada em 2026-10-23
+
+Managed start de `pose-proof-presence-channel-parity` admitido após B01/B04.
+ADR prospectivo escolhe schema 2 e migração explícita; a implementação inicial
+4dc8277 inclui regressões de domínio/CLI/MCP. B03 permanece delivery_complete=false
+até validação estrita, parecer selado, closeout e merge próprios. As fundações,
+policy da instância, release e gitlink Harne8 são preservados.
