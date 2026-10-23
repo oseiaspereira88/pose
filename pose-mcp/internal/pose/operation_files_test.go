@@ -17,6 +17,31 @@ import (
 	"time"
 )
 
+func TestUpdateOperationTrailingSeparatorRequiresDirectory(t *testing.T) {
+	root := t.TempDir()
+	file := filepath.Join(root, "file")
+	if err := os.WriteFile(file, []byte("original"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(root, "link")
+	if err := os.Symlink(file+string(filepath.Separator), link); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	for _, name := range []string{link, file + string(filepath.Separator)} {
+		p := NewPreviewFiles(time.Now())
+		_, nativeErr := os.ReadFile(name)
+		_, previewErr := p.ReadFile(name)
+		if nativeErr == nil || previewErr == nil {
+			t.Errorf("read %q: native=%v preview=%v", name, nativeErr, previewErr)
+		}
+		nativeErr = os.WriteFile(name, []byte("changed"), 0o644)
+		previewErr = p.WriteFile(name, []byte("changed"), 0o644)
+		if nativeErr == nil || previewErr == nil {
+			t.Errorf("write %q: native=%v preview=%v", name, nativeErr, previewErr)
+		}
+	}
+}
+
 // operationFixture is a small tree with the layouts an update meets: a
 // directory reached through a link, a link to a file, a dangling link inside
 // the tree and one outside it, and a read-only file.
@@ -588,5 +613,138 @@ func TestUpdateOperationPublicationRefusesADirectory(t *testing.T) {
 	}
 	if changes := p.Changes(root); len(changes) != 0 {
 		t.Fatalf("refused publication changed: %v", changes)
+	}
+}
+
+func TestUpdateOperationAbsoluteLinkComponentTraversal(t *testing.T) {
+	for _, kind := range []string{"missing", "symlink"} {
+		t.Run(kind, func(t *testing.T) {
+			root, outside := t.TempDir(), t.TempDir()
+			writeOp(t, filepath.Join(root, "victim"), "local", 0600)
+			writeOp(t, filepath.Join(outside, "victim"), "external", 0600)
+			if err := os.Mkdir(filepath.Join(outside, "child"), 0700); err != nil {
+				t.Fatal(err)
+			}
+			if kind == "symlink" {
+				if err := os.Symlink(filepath.Join(outside, "child"), filepath.Join(root, "component")); err != nil {
+					t.Skip(err)
+				}
+			}
+			link := filepath.Join(root, "link")
+			if err := os.Symlink(root+"/component/../victim", link); err != nil {
+				t.Skip(err)
+			}
+			p := NewPreviewFiles(time.Now())
+			got, pe := p.ReadFile(link)
+			want, ne := os.ReadFile(link)
+			if (pe == nil) != (ne == nil) || string(got) != string(want) {
+				t.Errorf("read preview %q %v native %q %v", got, pe, want, ne)
+			}
+			pe = p.WriteFile(link, []byte("updated"), 0600)
+			ne = NativeFiles().WriteFile(link, []byte("updated"), 0600)
+			if (pe == nil) != (ne == nil) {
+				t.Errorf("write preview %v native %v", pe, ne)
+			}
+			local, _ := os.ReadFile(filepath.Join(root, "victim"))
+			if string(local) != "local" {
+				t.Fatal("native touched lexical victim")
+			}
+			if kind == "symlink" {
+				got, _ = p.ReadFile(filepath.Join(outside, "victim"))
+				if string(got) != "updated" {
+					t.Errorf("resolved alias = %q", got)
+				}
+			}
+		})
+	}
+}
+
+func TestUpdateOperationHardLinkDirectAndAtomic(t *testing.T) {
+	for _, atomic := range []bool{false, true} {
+		t.Run(fmt.Sprint(atomic), func(t *testing.T) {
+			root := t.TempDir()
+			path := filepath.Join(root, "file")
+			alias := filepath.Join(t.TempDir(), "alias")
+			writeOp(t, path, "before", 0600)
+			if err := os.Link(path, alias); err != nil {
+				t.Skip(err)
+			}
+			p := NewPreviewFiles(time.Now())
+			var err error
+			if atomic {
+				err = p.Publish(path, []byte("after"), 0600, "test", PublishExpectation{})
+			} else {
+				err = p.WriteFile(path, []byte("after"), 0600)
+			}
+			if atomic {
+				if err != nil || len(p.Gaps()) != 0 {
+					t.Fatalf("atomic: %v gaps %v", err, p.Gaps())
+				}
+			} else if !errors.Is(err, ErrPreviewUnsupported) || len(p.Gaps()) == 0 {
+				t.Errorf("direct overwrite must disclose alias gap: %v %v", err, p.Gaps())
+			}
+			unchanged, _ := os.ReadFile(alias)
+			if string(unchanged) != "before" {
+				t.Fatal("preview changed alias")
+			}
+			if atomic {
+				err = NativeFiles().Publish(path, []byte("after"), 0600, "test", PublishExpectation{})
+			} else {
+				err = NativeFiles().WriteFile(path, []byte("after"), 0600)
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, _ := os.ReadFile(alias)
+			want := "after"
+			if atomic {
+				want = "before"
+			}
+			if string(got) != want {
+				t.Fatalf("native alias %q want %q", got, want)
+			}
+			if atomic {
+				if err = p.WriteFile(path, []byte("again"), 0600); err != nil {
+					t.Fatal("atomic replacement must sever inode identity:", err)
+				}
+			}
+		})
+	}
+}
+
+func TestUpdateOperationUnknownUmaskIsIncomplete(t *testing.T) {
+	for _, op := range []string{"mkdir", "write", "exclusive", "publish"} {
+		t.Run(op, func(t *testing.T) {
+			root := t.TempDir()
+			p := NewPreviewFiles(time.Now())
+			p.umaskKnown = false
+			path := filepath.Join(root, "created")
+			var err error
+			switch op {
+			case "mkdir":
+				err = p.Mkdir(path, 0755)
+			case "write":
+				err = p.WriteFile(path, []byte("x"), 0600)
+			case "exclusive":
+				err = p.CreateExclusive(path, []byte("x"), 0600, false)
+			case "publish":
+				err = p.Publish(path, []byte("x"), 0600, "test", PublishExpectation{})
+			}
+			if op == "publish" {
+				if err != nil || len(p.Gaps()) != 0 {
+					t.Fatalf("explicit publication mode should not require umask: %v %v", err, p.Gaps())
+				}
+			} else {
+				if !errors.Is(err, ErrPreviewUnsupported) || len(p.Gaps()) == 0 {
+					t.Fatalf("unknown mode knowledge: %v %v", err, p.Gaps())
+				}
+				if p.Staged(path) {
+					t.Fatal("unknown creation staged optimistically")
+				}
+			}
+			if _, err := os.Lstat(path); !errors.Is(err, fs.ErrNotExist) {
+				t.Fatal("preview created physical entry:", err)
+			}
+		})
 	}
 }

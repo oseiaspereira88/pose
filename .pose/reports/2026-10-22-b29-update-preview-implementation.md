@@ -1,6 +1,6 @@
 # B29 replacement implementation — in-progress, 2026-10-22
 
-Current composition evidence is recorded in the B28/B30/B38 section below; earlier continuation results are historical baseline evidence.
+Current continuation evidence is recorded in “Source-review fixes — 2026-10-23” below. Earlier continuation/composition results and the native 146/146 run on `7d9c07c` are historical evidence after these edits.
 
 Canonical spec: `pose-update-dry-run-reports-the-whole-update`. Original start, historical D1 and failed copy-based rounds are retained. Prospective accepted operation-scoped-view ADR and high-risk test plan preceded production edits; D2 was recorded natively as introduced during execution. The amendment author `@pose-maintainers` denotes governance ownership; it was recorded by automated lead Codex, not human confirmation or policy adoption.
 
@@ -96,6 +96,10 @@ These paths differ from local merged checkpoint `e91a39f`; the preserved replace
 - `pose-mcp/internal/cli/update_dryrun_test.go`
 - `pose-mcp/internal/cli/update_preview_linux_test.go`
 - `pose-mcp/internal/cli/update_preview_test.go`
+
+## Parent adjacent-path regression — 2026-10-23
+
+After the separate implementation continuation completed, the primary added `TestUpdateOperationTrailingSeparatorRequiresDirectory` in the already declared operation tests. Before the fix, literal file paths and absolute symlink targets ending in a separator incorrectly allowed preview reads/writes while native operations refused them; `/tmp/pose-b29-trailing-before.log` records all four failures. Preserve the trailing directory requirement by appending a dot traversal component instead of dropping the separator in `splitComponents`. Focused update/operation/preview/stale-instance tests pass after the correction (model 0.044s, CLI 5.938s), log `/tmp/pose-b29-trailing-after.log`. Earlier full-suite/race/build results above remain explicitly results of the preceding source; fresh native final collection follows the consolidated source commit. No concurrency mechanism, dependencies or native apply operation changed.
 - `pose-mcp/internal/cli/update_tree_test.go`
 - `pose-mcp/internal/cli/usage.go`
 - `pose-mcp/internal/pose/discovery.go`
@@ -157,3 +161,59 @@ Run from `pose-mcp` as uid 1000 with `GOTOOLCHAIN=go1.26.10 TMPDIR=/var/tmp/pose
 - `git diff --check` — pass. Read-only `git rev-parse HEAD MERGE_HEAD` confirms the original merge heads above; no staging or Git mutation was performed.
 
 Keep the spec `in-progress`. Parent still owns source freeze, any pending-PR reconciliation, native global matrix evidence (expected named union 146), immutable artifact reconciliation, staging/merge commit and fresh separate final review. No independent approval, vendor/human identity proof or spec closure is claimed by this implementer report.
+
+
+## Source-review fixes — 2026-10-23
+
+Implementer: task-designated Codex gpt-6.1-sol, continuing committed source `7d9c07cc722318fba3789887f81aa0bb0b5e937a` in `/tmp/pose-pending-b29`. Read the canonical spec, accepted D2 ADR, prior implementation evidence and actual source review `.pose/reports/2026-10-23-b29-pending-review-r1.md`. Preserve that review and the historical rejection unchanged. This section records implementation evidence, not an independent approval or attestation. No agents or secondary reviews were launched. The parent owns source freeze and the next independent review, which the user requires to use Claude Opus. Keep the spec `in-progress`.
+
+The task prompt and canonical Validation section supplied the prospective regression plan. Declare the one new artifact, `operation_files_access_linux_test.go`, in the canonical spec before editing tests. Reuse the already declared operation-files production/tests and shared CLI test file. No new architectural contract or POSIX emulator is introduced; unsupported knowledge remains an explicit D2 gap.
+
+### Reproduction before production edits
+
+All logs below are under `/var/tmp/pose-b07-validation-0bf729f/`. Run Go commands from `pose-mcp`, as uid 1000, with `GOTOOLCHAIN=go1.26.10 TMPDIR=/var/tmp/pose-b07-validation-0bf729f GOFLAGS=-buildvcs=false`.
+
+- `go test ./internal/pose -run 'TestUpdateOperation(AbsoluteLinkComponentTraversal|RestrictiveUmaskSubprocess|HardLinkDirectAndAtomic)$' -count=1` failed on unchanged production. `b29-r1-before.log` records the initial result, including a harness error: the first restrictive umask persisted into the next subtest's fixture setup. Restore the previous mask at each subtest's end, exclusively inside the disposable child. Re-run before editing production; `b29-r1-before-fixed-harness.log` records all actual medium failures without the harness error: missing absolute-target component accepted, symlink-before-dot-dot selected the lexical victim, staged child write/stat/read succeeded under umask `0111` where native access failed, both exclusive-file reread APIs succeeded under `0400` where native access failed, and direct hard-link overwrite returned success with no gap.
+- `TestUpdateOperationHardLinkDirectAndAtomic` retains successful real apply controls: direct overwrite changes the external alias; atomic publication replaces one entry and leaves the alias unchanged. Preview itself changes neither physical entry. Its atomic branch passed even before the fix.
+- Adjacent component-walk scouting found physical directory search before dot-dot was also bypassed. Add an unprivileged `physical-search-before-dotdot` child subtest before correcting that path. `go test ./internal/pose -run '^TestUpdateOperationRestrictiveUmaskSubprocess$' -count=1` failed with `physical search skipped: <nil>` while native access returned permission denied; `b29-r1-before-physical-search.log` preserves this second reproduction. The earlier staged-permission subtests already passed at that point.
+
+### Corrections and exercised behavior
+
+- M1: preserve original absolute symlink target components when resetting the root; also preserve components of the incoming path. Traverse each component before interpreting dot-dot. Search checks cover staged directories and physical dot/dot-dot components; physical checks use effective-access kernel queries and disclose unsupported queries. `TestUpdateOperationAbsoluteLinkComponentTraversal` compares real reads/writes for absent components and symlink components, and confirms the resolved external location. `TestUpdatePreviewSourceReviewFilesystemReachability` reaches these layouts through the shared force update and confirms the lexical victim is untouched.
+- M2: use one staged permission gate for `ReadFile`, `Open`, `ReadDir`, directory search and subsequent writes. New staged entries belong to the effective creator; sufficient owner rights permit the modeled access. Missing owner rights do not prove denial under root, capabilities or inherited ACLs: conservatively return `ErrPreviewUnsupported` and persist an evaluation gap. Do not optimistically succeed or deny a privileged operation based only on owner bits. A direct overwrite retains its physical origin, so subsequent staged access uses the kernel's effective-access query on the original entry, preserving real ownership/ACL behavior. Existing native reads and physical write-access checks remain. Restrictive umask tests run in a real unprivileged disposable child; no production or parent-test process changes its umask.
+- M3: read link count from safe Unix inode metadata before direct overwrite. Multiply linked files, or unavailable link-count metadata, return unsupported and record a gap without staging a misleading single-path overwrite. Do not scan for aliases. Atomic publication remains independent and can sever the link relationship; a subsequent direct overwrite of its staged replacement does not inherit the old inode restriction. Shared force-update regression requires nonzero status, `INCOMPLETE` and the inode-alias diagnostic even through best-effort callers.
+- Low unknown umask: return both value and observation availability. Read Linux `/proc/self/status` only on Linux; remove the guessed `022` fallback. Missing safe knowledge on macOS/other platforms, or unavailable Linux status, makes needed direct/exclusive/directory creation evaluation unsupported with a persistent gap. `TestUpdateOperationUnknownUmaskIsIncomplete` injects unavailable knowledge and checks all three paths, no optimistic staged node and no physical creation. Atomic publication's explicit final chmod mode remains usable without umask knowledge when its parent already exists.
+
+### Executed final-source validation
+
+All commands in this table exited 0 with the environment above. No production or test edits followed these final runs. Report-only edits record the results.
+
+| Command (relative to `pose-mcp`) | Actual result and log under validation root |
+|---|---|
+| `go test ./internal/cli ./internal/pose -run 'TestUpdatePreviewSourceReviewFilesystemReachability\|TestUpdateOperation' -count=1` | Initial corrected regressions pass: CLI 0.225s, model 0.046s; `b29-r1-regressions.log`. This precedes the physical-search extension and does not replace final evidence. |
+| `go test ./internal/cli ./internal/pose -run '^(TestUpdatePreview\|TestUpdateDryRun\|TestUpdateOperation\|TestStaleInstanceEngine)' -count=1` | Final focused pass: CLI 6.283s, model 0.039s; `b29-r1-focused-final.log`. Includes every new regression, unknown-umask injection and shared-command reachability. |
+| `go test ./... -count=1` | All packages pass, CLI 58.805s, model 52.614s; `b29-r1-full-final.log`. |
+| `go vet ./...` | Pass, empty `b29-r1-vet-final.log`. |
+| `go test -race ./internal/cli ./internal/pose -count=1` | Both complete affected-package suites pass, CLI 92.095s, model 78.681s; `b29-r1-race-full-final.log`. No focused selector was used. |
+| `go test ./internal/cli -run '^TestUpdatePreviewHasNoPhysicalMutationEvents$' -count=1 -v` | Plain and force compiled-CLI previews pass with usage enabled; 2.483s; `b29-r1-inotify-final.log`. |
+| `CGO_ENABLED=0 GOOS=<os> GOARCH=<arch> go build -trimpath -o /var/tmp/pose-b07-validation-0bf729f/b29-r1-final-<os>-<arch>[.exe] ./cmd/pose` | All six pairs pass: linux/amd64, linux/arm64, darwin/amd64, darwin/arm64, windows/amd64, windows/arm64. Empty per-pair logs: `b29-r1-build-final-linux-amd64.log`, `b29-r1-build-final-linux-arm64.log`, `b29-r1-build-final-darwin-amd64.log`, `b29-r1-build-final-darwin-arm64.log`, `b29-r1-build-final-windows-amd64.log`, `b29-r1-build-final-windows-arm64.log`. |
+| `git diff --check` (repository root) | Pass after source/test edits and again after report edits. |
+
+The first full-suite/vet/full-race/audit/build batch (`b29-r1-full.log`, `b29-r1-vet.log`, `b29-r1-race-full.log`, `b29-r1-inotify.log`, `b29-r1-build-<os>-<arch>.log`) also passed. The subsequent physical-search production correction and its new regression justify the final batch above; do not use the earlier batch as final-source proof. `b29-r1-after-initial.log` records the first operation-model pass after the three original fixes. Two mistakenly launched Go commands from the repository root failed to find the module; they executed no tests and supply no validation evidence. The corrected module-directory invocations are the ones recorded here.
+
+### Limits and handoff
+
+This is deliberately conservative permission evaluation, not a full privilege/ACL simulator. A newly staged entry missing needed owner rights yields INCOMPLETE even when elevated privilege might make native apply succeed. Unsupported platforms do not invent link counts or access facts. macOS/Windows builds establish compilation only; they do not establish runtime parity. Creation requiring unavailable umask knowledge is explicitly incomplete. Existing future concurrency, ACL/security-policy, quota, durability and provider boundaries remain; direct hard-link inode alias emulation is unsupported rather than advertised as complete. No full-filesystem alias search, global preview switch, production umask mutation or physical preview scratch file was added. Native apply methods and publisher behavior were not changed.
+
+The inotify audit observes filesystem mutation events, including transient staging/locks, with usage enabled; it is not a syscall audit or proof over every possible layout. Scanners previously documented as unavailable were not fabricated. No dependencies changed. The pre-edit native 146/146 result on `7d9c07c` cannot qualify this edited source. No native global commands, index generation, sealing, closure, contribution creation, staging, commits, pushes, merges, releases or adoption were performed by this continuation. Pre-existing parent assessment/index/state/result/report changes were left alone.
+
+Exact paths edited by this continuation (all uncommitted):
+
+- `.pose/specs/2026-10-09-pose-update-dry-run-reports-the-whole-update.md`
+- `.pose/reports/2026-10-22-b29-update-preview-implementation.md`
+- `pose-mcp/internal/pose/operation_files.go`
+- `pose-mcp/internal/pose/operation_files_access.go`
+- `pose-mcp/internal/pose/operation_files_access_other.go`
+- `pose-mcp/internal/pose/operation_files_test.go`
+- `pose-mcp/internal/pose/operation_files_access_linux_test.go` (new)
+- `pose-mcp/internal/cli/update_preview_test.go`

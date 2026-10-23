@@ -15,6 +15,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -731,4 +732,62 @@ func TestUpdatePreviewLeavesUsageRecordingForApply(t *testing.T) {
 		t.Fatalf("preview after apply: %d %s", code, out)
 	}
 	sameEffects(t, "preview changed usage storage", nil, appliedEffects(before, instanceState(t, usageDir)))
+}
+
+// The real update writer follows absolute link components; a lost alias model
+// must also remain incomplete through the shared command's best-effort paths.
+func TestUpdatePreviewSourceReviewFilesystemReachability(t *testing.T) {
+	for _, kind := range []string{"missing-dotdot", "symlink-dotdot", "hardlink"} {
+		t.Run(kind, func(t *testing.T) {
+			root := staleInstance(t)
+			outside := t.TempDir()
+			path := filepath.Join(root, ".pose/rules/security.md")
+			victim := filepath.Join(outside, "victim")
+			mustWrite(t, victim, "external original\n")
+			if err := os.Remove(path); err != nil {
+				t.Fatal(err)
+			}
+			switch kind {
+			case "hardlink":
+				if err := os.Link(victim, path); err != nil {
+					t.Skip(err)
+				}
+			case "missing-dotdot":
+				if err := os.Symlink(outside+"/missing/../victim", path); err != nil {
+					t.Skip(err)
+				}
+			case "symlink-dotdot":
+				target := t.TempDir()
+				if err := os.Mkdir(filepath.Join(target, "child"), 0700); err != nil {
+					t.Fatal(err)
+				}
+				mustWrite(t, filepath.Join(target, "victim"), "resolved original\n")
+				if err := os.Symlink(filepath.Join(target, "child"), filepath.Join(outside, "component")); err != nil {
+					t.Skip(err)
+				}
+				if err := os.Symlink(outside+"/component/../victim", path); err != nil {
+					t.Skip(err)
+				}
+			}
+			before := instanceState(t, root, path, victim)
+			code, out := runPose(t, root, "update", "--dry-run", "--force")
+			if after := instanceState(t, root, path, victim); !reflect.DeepEqual(before, after) {
+				t.Fatal("preview changed physical state")
+			}
+			if kind == "hardlink" {
+				if code == 0 || !strings.Contains(out, "INCOMPLETE") || !strings.Contains(out, "inode aliases") {
+					t.Fatalf("hardlink must stay incomplete: %d %s", code, out)
+				}
+			} else {
+				applyCode, applyOut := runPose(t, root, "update", "--no-self", "--force")
+				if (code == 0) != (applyCode == 0) {
+					t.Fatalf("preview=%d %s\napply=%d %s", code, out, applyCode, applyOut)
+				}
+				raw, err := os.ReadFile(victim)
+				if err != nil || string(raw) != "external original\n" {
+					t.Fatalf("lexically cleaned victim changed: %q %v", raw, err)
+				}
+			}
+		})
+	}
 }

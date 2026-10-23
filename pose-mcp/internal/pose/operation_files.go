@@ -253,14 +253,15 @@ var ErrPreviewUnsupported = errors.New("preview-unsupported")
 // one it might refuse later (quota, a concurrent writer, a failing disk) is
 // not predicted.
 type PreviewFiles struct {
-	mu       sync.Mutex
-	nodes    map[string]*previewNode
-	children map[string]map[string]bool
-	physical map[string]physicalEntry
-	ledger   []PreviewOperation
-	gaps     []string
-	now      time.Time
-	umask    fs.FileMode
+	mu         sync.Mutex
+	nodes      map[string]*previewNode
+	children   map[string]map[string]bool
+	physical   map[string]physicalEntry
+	ledger     []PreviewOperation
+	gaps       []string
+	now        time.Time
+	umask      fs.FileMode
+	umaskKnown bool
 	// access answers whether the effective user may write to a physical path;
 	// observedWriteAccess unless a test injects a refusal.
 	access func(path string, dir bool) error
@@ -292,6 +293,8 @@ type previewNode struct {
 	data   []byte
 	perm   fs.FileMode
 	target string
+	// Physical identity survives direct overwrite, but not atomic replacement.
+	origin string
 }
 
 type physicalEntry struct {
@@ -301,13 +304,15 @@ type physicalEntry struct {
 
 // NewPreviewFiles returns an empty preview; now dates every staged entry.
 func NewPreviewFiles(now time.Time) *PreviewFiles {
+	mask, known := observedUmask()
 	return &PreviewFiles{
-		nodes:    map[string]*previewNode{},
-		children: map[string]map[string]bool{},
-		physical: map[string]physicalEntry{},
-		now:      now,
-		umask:    observedUmask(),
-		access:   observedWriteAccess,
+		nodes:      map[string]*previewNode{},
+		children:   map[string]map[string]bool{},
+		physical:   map[string]physicalEntry{},
+		now:        now,
+		umask:      mask,
+		umaskKnown: known,
+		access:     observedWriteAccess,
 	}
 }
 
@@ -467,14 +472,39 @@ const maxPreviewLinks = 40
 // missing; its location is then where it would be created — through a
 // dangling link, that is the link's target.
 func (p *PreviewFiles) resolve(name string, follow bool) (string, entry, bool, error) {
-	abs := absClean(name)
+	abs := name
+	if !filepath.IsAbs(abs) {
+		wd, err := os.Getwd()
+		if err != nil {
+			return "", entry{}, false, err
+		}
+		abs = wd + string(filepath.Separator) + name
+	}
 	volume := filepath.VolumeName(abs)
 	sep := string(filepath.Separator)
 	pending := splitComponents(strings.TrimPrefix(abs, volume))
 	current := volume + sep
 	links := 0
 	for i := 0; i < len(pending); i++ {
+		// Every component, including dot-dot, requires searching the
+		// directory reached by the preceding component.
+		if node := p.nodes[current]; node != nil && node.kind == previewDir {
+			if err := p.stagedAccess(current, node, 0o100); err != nil {
+				return current, entry{}, false, err
+			}
+		}
 		component := pending[i]
+		// Dot components still search the physical directory. Reducing
+		// locked/.. lexically would bypass the kernel's current refusal.
+		if (component == "." || component == "..") && p.nodes[current] == nil {
+			known, err := observedReadWriteAccess(current, 0o100)
+			if !known {
+				err = p.unsupportedLocked("physical directory search unavailable: " + current)
+			}
+			if err != nil {
+				return current, entry{}, false, err
+			}
+		}
 		last := i == len(pending)-1
 		switch component {
 		case "", ".":
@@ -515,7 +545,7 @@ func (p *PreviewFiles) resolve(name string, follow bool) (string, entry, bool, e
 			if filepath.IsAbs(target) {
 				volume = filepath.VolumeName(target)
 				current = volume + sep
-				rest = append(splitComponents(strings.TrimPrefix(filepath.Clean(target), volume)), pending[i+1:]...)
+				rest = append(splitComponents(strings.TrimPrefix(target, volume)), pending[i+1:]...)
 			}
 			if len(rest) == 0 {
 				rest = []string{"."}
@@ -537,10 +567,16 @@ func (p *PreviewFiles) resolve(name string, follow bool) (string, entry, bool, e
 
 func splitComponents(path string) []string {
 	parts := []string{}
-	for _, part := range strings.Split(filepath.ToSlash(path), "/") {
+	slashed := filepath.ToSlash(path)
+	for _, part := range strings.Split(slashed, "/") {
 		if part != "" {
 			parts = append(parts, part)
 		}
+	}
+	// A trailing separator requires traversing the preceding entry as a
+	// directory, including when the path came from a literal symlink target.
+	if strings.HasSuffix(slashed, "/") {
+		parts = append(parts, ".")
 	}
 	return parts
 }
@@ -574,6 +610,9 @@ func (p *PreviewFiles) readFileLocked(name string) ([]byte, error) {
 		return nil, pathError("read", name, syscall.EISDIR)
 	}
 	if e.staged != nil {
+		if err := p.stagedAccess(location, e.staged, 0o400); err != nil {
+			return nil, pathError("open", name, err)
+		}
 		return append([]byte{}, e.staged.data...), nil
 	}
 	raw, err := os.ReadFile(location)
@@ -599,6 +638,9 @@ func (p *PreviewFiles) Open(name string) (fs.File, error) {
 			return nil, pathError("open", name, err)
 		}
 		return file, nil
+	}
+	if err := p.stagedAccess(location, e.staged, 0o400); err != nil {
+		return nil, pathError("open", name, err)
 	}
 	if e.isDir() {
 		return nil, pathError("open", name, p.unsupportedLocked("opening a staged directory as a file"))
@@ -705,6 +747,11 @@ func (p *PreviewFiles) readDirLocked(name string) ([]fs.DirEntry, error) {
 	if !e.isDir() {
 		return nil, pathError("readdirent", name, syscall.ENOTDIR)
 	}
+	if e.staged != nil {
+		if err := p.stagedAccess(location, e.staged, 0o400); err != nil {
+			return nil, pathError("open", name, err)
+		}
+	}
 	byName := map[string]fs.DirEntry{}
 	if e.staged == nil {
 		// The original is listed as the operation would list it: a directory
@@ -791,14 +838,28 @@ func (p *PreviewFiles) record(op PreviewOperation, err error) error {
 	return err
 }
 
+// stagedAccess uses native access for preserved physical identities. New
+// entries belong to the effective user. Missing owner rights cannot establish
+// refusal: capabilities/root or inherited ACLs may grant access. Disclose that
+// limit instead of predicting success or denying a privileged operation.
+func (p *PreviewFiles) stagedAccess(location string, node *previewNode, need fs.FileMode) error {
+	if node.origin != "" {
+		if known, err := observedReadWriteAccess(node.origin, need); known {
+			return err
+		}
+		return p.unsupportedLocked("physical staged access unavailable: " + location)
+	}
+	if !stagedOwnerAccessKnown() || node.perm&need != need {
+		return p.unsupportedLocked("staged effective permission evaluation unavailable: " + location)
+	}
+	return nil
+}
+
 // writableDir checks that the operation may add, replace or remove an entry
 // in the directory at location.
 func (p *PreviewFiles) writableDir(location string) error {
 	if node, ok := p.nodes[location]; ok {
-		if node.kind == previewDir && node.perm&0o200 == 0 {
-			return syscall.EACCES
-		}
-		return nil
+		return p.stagedAccess(location, node, 0o300)
 	}
 	return p.access(location, true)
 }
@@ -806,10 +867,7 @@ func (p *PreviewFiles) writableDir(location string) error {
 // writableFile checks that the operation may write into the file at location.
 func (p *PreviewFiles) writableFile(location string, e entry) error {
 	if e.staged != nil {
-		if e.staged.perm&0o200 == 0 {
-			return syscall.EACCES
-		}
-		return nil
+		return p.stagedAccess(location, e.staged, 0o200)
 	}
 	return p.access(location, false)
 }
@@ -827,15 +885,28 @@ func (p *PreviewFiles) WriteFile(name string, data []byte, perm fs.FileMode) err
 		return p.record(op, pathError("open", name, syscall.EISDIR))
 	}
 	mode := perm.Perm() &^ p.umask
+	origin := ""
 	if ok {
 		if err := p.writableFile(location, e); err != nil {
 			return p.record(op, pathError("open", name, err))
 		}
 		mode = p.permOf(location, e)
+		if e.staged != nil {
+			origin = e.staged.origin
+		} else {
+			links, known := physicalLinkCount(e.info)
+			if !known || links > 1 {
+				return p.record(op, p.unsupportedLocked("direct overwrite inode aliases unknown or multiply linked: "+location))
+			}
+			origin = location
+		}
 	} else if err := p.writableDir(filepath.Dir(location)); err != nil {
 		return p.record(op, pathError("open", name, err))
 	}
-	p.stage(location, &previewNode{kind: previewFile, data: append([]byte{}, data...), perm: mode})
+	if !ok && !p.umaskKnown {
+		return p.record(op, p.unsupportedLocked("creation umask unavailable: "+location))
+	}
+	p.stage(location, &previewNode{kind: previewFile, data: append([]byte{}, data...), perm: mode, origin: origin})
 	return p.record(op, nil)
 }
 
@@ -863,6 +934,9 @@ func (p *PreviewFiles) CreateExclusive(name string, data []byte, perm fs.FileMod
 	}
 	if err := p.writableDir(filepath.Dir(location)); err != nil {
 		return p.record(op, pathError("open", name, err))
+	}
+	if !p.umaskKnown {
+		return p.record(op, p.unsupportedLocked("creation umask unavailable: "+location))
 	}
 	p.stage(location, &previewNode{kind: previewFile, data: append([]byte{}, data...), perm: perm.Perm() &^ p.umask})
 	return p.record(op, nil)
@@ -971,6 +1045,9 @@ func (p *PreviewFiles) mkdirLocked(name string, perm fs.FileMode) error {
 	}
 	if err := p.writableDir(filepath.Dir(location)); err != nil {
 		return p.record(op, pathError("mkdir", name, err))
+	}
+	if !p.umaskKnown {
+		return p.record(op, p.unsupportedLocked("creation umask unavailable: "+location))
 	}
 	p.stage(location, &previewNode{kind: previewDir, perm: perm.Perm() &^ p.umask})
 	return p.record(op, nil)

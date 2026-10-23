@@ -181,6 +181,8 @@ Cumulative D1/D2 declarations, including replacement edits declared before imple
 - created: .pose/reports/2026-10-23-b29-pending-review-r1.md
 - created: .pose/reports/2026-10-23-b29-pending-closeout.md
 
+- created: pose-mcp/internal/pose/operation_files_access_linux_test.go
+
 ### Delivery targets
 
 - capability:update-dry-run-reports-the-whole-update module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go

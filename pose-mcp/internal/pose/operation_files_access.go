@@ -5,8 +5,10 @@ package pose
 import (
 	"errors"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"golang.org/x/sys/unix"
 )
@@ -30,16 +32,51 @@ func observedWriteAccess(path string, dir bool) error {
 
 // observedUmask reads the process umask where the kernel reports it, without
 // setting it: umask(2) cannot be read without being changed, process-wide.
-func observedUmask() os.FileMode {
+func observedUmask() (os.FileMode, bool) {
+	if runtime.GOOS != "linux" {
+		return 0, false
+	}
 	raw, err := os.ReadFile("/proc/self/status")
 	if err == nil {
 		for _, line := range strings.Split(string(raw), "\n") {
 			if value, ok := strings.CutPrefix(line, "Umask:"); ok {
 				if mask, err := strconv.ParseUint(strings.TrimSpace(value), 8, 32); err == nil {
-					return os.FileMode(mask)
+					return os.FileMode(mask), true
 				}
 			}
 		}
 	}
-	return 0o022
+	return 0, false
+}
+
+// physicalLinkCount reads inode metadata without enumerating aliases.
+func physicalLinkCount(info os.FileInfo) (uint64, bool) {
+	if info == nil {
+		return 0, false
+	}
+	stat, ok := info.Sys().(*syscall.Stat_t)
+	if !ok {
+		return 0, false
+	}
+	return uint64(stat.Nlink), true
+}
+
+func stagedOwnerAccessKnown() bool { return true }
+
+func observedReadWriteAccess(path string, need os.FileMode) (bool, error) {
+	mode := uint32(0)
+	if need&0400 != 0 {
+		mode |= unix.R_OK
+	}
+	if need&0200 != 0 {
+		mode |= unix.W_OK
+	}
+	if need&0100 != 0 {
+		mode |= unix.X_OK
+	}
+	err := unix.Faccessat(unix.AT_FDCWD, path, mode, unix.AT_EACCESS)
+	if err == nil || errors.Is(err, unix.EACCES) || errors.Is(err, unix.EROFS) || errors.Is(err, unix.EPERM) {
+		return true, err
+	}
+	return false, err
 }

@@ -8,4 +8,7 @@ import "os"
 // predicted, and the write itself is what fails.
 func observedWriteAccess(path string, dir bool) error { return nil }
 
-func observedUmask() os.FileMode { return 0 }
+func observedUmask() (os.FileMode, bool)                                  { return 0, false }
+func physicalLinkCount(info os.FileInfo) (uint64, bool)                   { return 0, false }
+func stagedOwnerAccessKnown() bool                                        { return false }
+func observedReadWriteAccess(path string, need os.FileMode) (bool, error) { return false, nil }
