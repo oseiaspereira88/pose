@@ -18,6 +18,57 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+func TestUpdatePreviewRetentionPartialRemovalIsIncomplete(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("requires unprivileged native control")
+	}
+	root := staleInstance(t)
+	base := filepath.Join(root, ".pose", "indexes", "generations")
+	var oldest string
+	for n := 0; n < 5; n++ {
+		path := filepath.Join(base, fmt.Sprintf("gen-%016x", int64(0x1111111111111100)+int64(n)))
+		if err := os.MkdirAll(path, 0o700); err != nil {
+			t.Fatal(err)
+		}
+		if n == 0 {
+			oldest = path
+		}
+	}
+	ordinary := filepath.Join(oldest, "ordinary")
+	mustWrite(t, ordinary, "removable")
+	protected := filepath.Join(oldest, "protected")
+	if err := os.Mkdir(protected, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	keep := filepath.Join(protected, "keep")
+	mustWrite(t, keep, "retained")
+	if err := os.Chmod(protected, 0o555); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chmod(protected, 0o700)
+	for n := 0; n < 5; n++ {
+		path := filepath.Join(base, fmt.Sprintf("gen-%016x", int64(0x1111111111111100)+int64(n)))
+		old := time.Now().Add(-3*time.Hour + time.Duration(n)*time.Minute)
+		if err := os.Chtimes(path, old, old); err != nil {
+			t.Fatal(err)
+		}
+	}
+	code, out := runPose(t, root, "update", "--dry-run", "--force")
+	if code == 0 || !strings.Contains(out, "INCOMPLETE") {
+		t.Errorf("partial retention must remain incomplete: %d %s", code, out)
+	}
+	if _, err := os.Stat(ordinary); err != nil {
+		t.Fatal("preview deleted sibling:", err)
+	}
+	runPose(t, root, "update", "--no-self", "--force")
+	if _, err := os.Stat(ordinary); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("native retention did not partially delete sibling: %v", err)
+	}
+	if _, err := os.Stat(keep); err != nil {
+		t.Fatalf("native protected child: %v", err)
+	}
+}
+
 func TestUpdatePreviewSchemaFIFOReportingSubprocess(t *testing.T) {
 	if os.Getenv("POSE_B29_SCHEMA_FIFO_CHILD") != "1" {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

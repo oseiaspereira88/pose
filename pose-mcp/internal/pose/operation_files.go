@@ -1177,11 +1177,17 @@ func (p *PreviewFiles) RemoveAll(name string) error {
 		return p.record(op, err)
 	}
 	if err := p.writableDir(filepath.Dir(location)); err != nil {
+		if e.isDir() {
+			return p.record(op, pathError("unlinkat", name, p.unsupportedLocked("recursive removal partial effects unavailable: "+location)))
+		}
 		return p.record(op, pathError("unlinkat", name, err))
 	}
 	if e.isDir() {
 		if err := p.removableTree(location); err != nil {
-			return p.record(op, pathError("unlinkat", name, err))
+			// Native RemoveAll may already have deleted accessible siblings
+			// when a later descendant refuses. This preflight is not a model
+			// of those partial effects, even when the refusal itself is known.
+			return p.record(op, pathError("unlinkat", name, p.unsupportedLocked("recursive removal partial effects unavailable: "+location)))
 		}
 	}
 	p.removeLocked(location)

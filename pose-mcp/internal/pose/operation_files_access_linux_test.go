@@ -255,5 +255,50 @@ func TestUpdateOperationRestrictiveUmaskSubprocess(t *testing.T) {
 			t.Fatalf("inherited mode guessed: %v %v", pe, p.Gaps())
 		}
 	})
+	for _, kind := range []string{"nested", "parent"} {
+		t.Run("partial-recursive-removal-"+kind, func(t *testing.T) {
+			parent := t.TempDir()
+			root := filepath.Join(parent, "tree")
+			if err := os.Mkdir(root, 0o700); err != nil {
+				t.Fatal(err)
+			}
+			ordinary := filepath.Join(root, "ordinary")
+			writeOp(t, ordinary, "removable", 0o600)
+			var keep string
+			if kind == "nested" {
+				protected := filepath.Join(root, "protected")
+				if err := os.Mkdir(protected, 0o700); err != nil {
+					t.Fatal(err)
+				}
+				keep = filepath.Join(protected, "keep")
+				writeOp(t, keep, "retained", 0o600)
+				if err := os.Chmod(protected, 0o555); err != nil {
+					t.Fatal(err)
+				}
+				defer os.Chmod(protected, 0o700)
+			} else {
+				if err := os.Chmod(parent, 0o555); err != nil {
+					t.Fatal(err)
+				}
+				defer os.Chmod(parent, 0o700)
+			}
+			p := NewPreviewFiles(time.Now())
+			pe := p.RemoveAll(root)
+			if err := os.RemoveAll(root); err == nil {
+				t.Fatal("native control must fail partially")
+			}
+			if _, err := os.Stat(ordinary); !errors.Is(err, os.ErrNotExist) {
+				t.Fatalf("native sibling was not removed: %v", err)
+			}
+			if keep != "" {
+				if _, err := os.Stat(keep); err != nil {
+					t.Fatalf("protected native child: %v", err)
+				}
+			}
+			if !errors.Is(pe, ErrPreviewUnsupported) || len(p.Gaps()) == 0 {
+				t.Fatalf("partial effects were omitted without a gap: %v %v", pe, p.Gaps())
+			}
+		})
+	}
 
 }

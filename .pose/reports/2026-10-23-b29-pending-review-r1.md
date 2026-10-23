@@ -229,3 +229,51 @@ Rules applied: actual root `AGENTS.md`, `pose-review` skill and review workflow;
 Per the immediate-return instruction, this is a **source-only rejection**. The readiness file was absent at the last inspection. Actual sealed bundle/plan digests, the plan’s 15 criterion judgments, every structural SD mapping, payload provenance, artifact reconciliation, surface gate and plan-selected tool dispositions remain **pending**. No IDs or sealed judgments are inferred.
 
 HEAD remained `24e3328`; the production subtree had no worktree differences. No tests, native preparation commands, writes, staging, commits, contributions, attestations or child agents were performed. Reported 146/146 validation does not resolve this uncovered path. Fresh sealed adjudication is required after correction; current PR CI must also be green before merge.
+
+## Separate source review R5 — actual response
+
+**Decision: CHANGES REQUESTED**
+
+Reviewer: Codex, task-designated `gpt-6.1-sol`, separate read-only R5 execution in this conversation. Same-vendor review; no cross-vendor, human, cryptographic or cognitively verified independence claimed.
+
+Source: `3570008dec67597a74e46079eb4d9e262255a596`  
+Cumulative baseline: `fe765cf8aaaaff3ec93e91818e69e0781f92116a`
+
+**Medium — recursive removal preflight hides native partial deletion without marking INCOMPLETE.**
+
+[operation_files.go:1183](/tmp/pose-pending-b29/pose-mcp/internal/pose/operation_files.go:1183) preflights the entire tree before staging any removal. When a readable, nonempty nested directory lacks write permission, [operation_files.go:1201](/tmp/pose-pending-b29/pose-mcp/internal/pose/operation_files.go:1201) returns the access refusal without recording an evaluation gap.
+
+Concrete reachable scenario, running unprivileged:
+
+- An old index-generation directory qualifies for retention removal: beyond the two retained previous generations and older than ten minutes.
+- Its parent and the generation directory are writable/searchable.
+- It contains an ordinary removable file and a readable/searchable `0555` subdirectory containing another file.
+
+Native `RemoveAll` removes the ordinary file while failing to empty the protected subdirectory. Preview preflight returns the nested permission error and stages **no deletions**. The reachable caller is [index_generation.go:839](/tmp/pose-pending-b29/pose-mcp/internal/pose/index_generation.go:839), reached through force update’s index publication and retention.
+
+Because this error adds no gap, preview can report its other changes with a complete path-count verdict, omitting the native partial deletion. This violates R1 and D2’s explicit partial-effect reporting contract. It concerns existing permissions and contents, not hypothetical later concurrency, disk or provider failure.
+
+**Smallest fix:** persist INCOMPLETE when recursive preflight encounters a refusal whose native partial effects are not modeled. Exact recursive deletion emulation is unnecessary. Add an unprivileged operation regression and an actual force-update retention regression, with native controls demonstrating the removable sibling disappears while the protected child remains.
+
+This finding is source-derived; I did not execute a reproduction under the read-only constraint.
+
+Earlier finding dispositions:
+
+| Item | Disposition |
+|---|---|
+| R1 absolute symlink target traversal | Addressed: preserve components until traversal. |
+| R1 staged permissions | Addressed for the reported read/search/write cases; unsupported access persists gaps. |
+| R1 hard-link alias effects | Addressed: unknown/multiple links prevent optimistic direct overwrite. |
+| R1 unavailable umask | Addressed: unavailable observation remains INCOMPLETE. |
+| Parent trailing separator | Addressed for direct paths and literal link targets. |
+| R2 special-device overwrite | Addressed: physical direct writes require qualified regular storage. |
+| R2 unreadable directory removal/enumeration | Addressed: unknown emptiness/contents persist gaps. The distinct partial-removal defect above remains. |
+| R3 sticky-parent authority | Addressed conservatively for removal and replacement, including recursive children. |
+| Provider/default ACL/special-read gaps | Addressed with explicit unsupported knowledge. |
+| R4 FIFO reporting hang | Addressed: metadata classifies nonregular originals before content comparison; replacement verbs include pt-BR. |
+
+Rules applied: root `AGENTS.md`, `POSE.md`, `pose-review`, review workflow, `backend-go`, security, documentation-style, delivery-evidence, knowledge-governance and recurrence traceability. Change type: mixed bugfix, structural refactor and documentation. The canonical B29 spec, accepted ADR, implementation report, actual historical R1–R4 responses and current closeout report informed this review.
+
+Implementation HEAD remained `3570008`; no production-source working-tree differences were observed. No tests, assessments, sealing, attestation, writes, child agents or publication were performed. Supplied validation claims were not independently executed here.
+
+Per the immediate-return instruction for medium source blockers, this is a **source-only rejection**. The readiness file was absent at last inspection. No actual sealed bundle or plan digest was available; I therefore provide no invented 15-row criterion table, SD mappings or plan-selected tool dispositions. Sealed adjudication, native-output verification, artifact reconciliation and surface-gate review remain pending. Any eventual approval must also require current PR CI green before merge.
