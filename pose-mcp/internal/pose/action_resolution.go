@@ -89,8 +89,10 @@ func decodeActionPolicy(raw []byte) (ActionPolicy, error) {
 	if err := json.Unmarshal(raw, &fields); err != nil {
 		return policy, err
 	}
-	if _, exists := fields["presence_scope"]; policy.SchemaVersion == 1 && exists {
-		return policy, errors.New("pose: presence_scope requires action policy schema 2")
+	for key := range fields {
+		if policy.SchemaVersion == 1 && strings.EqualFold(key, "presence_scope") {
+			return policy, errors.New("pose: presence_scope requires action policy schema 2")
+		}
 	}
 	if policy.PresenceScope != "" && policy.PresenceScope != ActionPresenceUniversal && policy.PresenceScope != ActionPresenceSSHSIG {
 		return policy, fmt.Errorf("pose: unsupported action presence_scope %q; use universal or sshsig", policy.PresenceScope)

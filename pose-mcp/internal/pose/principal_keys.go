@@ -304,6 +304,14 @@ func (d ActionPolicyDocument) Write(root string) error {
 		d.raw[key] = raw
 		return nil
 	}
+	// The decoder accepts case-folded aliases. Remove all spellings of these
+	// typed security settings before writing their canonical values, otherwise
+	// a preserved alias could override an explicit scope or migration edit.
+	for key := range d.raw {
+		if strings.EqualFold(key, "schema_version") || strings.EqualFold(key, "require_presence") || strings.EqualFold(key, "presence_scope") {
+			delete(d.raw, key)
+		}
+	}
 	if err := set("schema_version", d.SchemaVersion); err != nil {
 		return err
 	}

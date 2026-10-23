@@ -341,6 +341,41 @@ func TestActionPresenceSchemaContract(t *testing.T) {
 	}
 }
 
+func TestActionPresenceScopeAliases(t *testing.T) {
+	for _, required := range []bool{false, true} {
+		for _, name := range []string{"PRESENCE_SCOPE", "Presence_Scope", "preſence_scope"} {
+			for _, value := range []any{nil, "", "universal"} {
+				t.Run(fmt.Sprintf("legacy/%t/%s/%v", required, name, value), func(t *testing.T) {
+					s := actionFixture(t)
+					writeActionPolicy(t, s, keysPolicy("declared", nil, map[string]any{"require_presence": required, name: value}))
+					if _, err := LoadActionPolicy(s.Root); err == nil {
+						t.Fatal("legacy scope alias accepted")
+					}
+				})
+			}
+		}
+	}
+	t.Run("editing aliases cannot override the selected scope", func(t *testing.T) {
+		s := actionFixture(t)
+		writeActionPolicy(t, s, map[string]any{"SCHEMA_VERSION": 2, "REQUIRE_PRESENCE": true, "preſence_scope": "sshsig", "roles": map[string][]string{}, "_comment": "keep"})
+		doc, err := LoadActionPolicyDocument(s.Root)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if doc.PresenceScope != "sshsig" {
+			t.Fatalf("test alias not read: %+v", doc.ActionPolicy)
+		}
+		doc.PresenceScope = "universal"
+		if err := doc.Write(s.Root); err != nil {
+			t.Fatal(err)
+		}
+		got, err := LoadActionPolicy(s.Root)
+		if err != nil || got.SchemaVersion != 2 || !got.RequirePresence || got.PresenceScope != "universal" {
+			t.Fatalf("raw alias overrode explicit typed edit: %+v %v", got, err)
+		}
+	})
+}
+
 func TestActionPresencePolicyEditingRefusesInvalidBeforePublication(t *testing.T) {
 	s := actionFixture(t)
 	path := filepath.Join(s.Root, ".pose/policy/actions.json")

@@ -60,3 +60,27 @@ Required regression pairs:
 Existing synthetic SK tests exercise signature semantics without hardware. They provide useful fixtures, but do not prove real device touch.
 
 Applied rules: POSE review workflow, security, Go backend, documentation style, and recurrence guidance. Assessments, validation, vulnerability/secret scans, bundle digests, and sealed review remain unexecuted under this read-only scope. No Harne8 adoption or release publication is implied.
+
+## R2 source review — actual separate same-vendor execution
+
+Run 20261023T193719-codex-3115813. Historical rejection preserved verbatim:
+
+**CHANGES REQUESTED — one medium source finding.**
+
+**Medium — schema-1 scope rejection misses case-insensitive aliases.** In [`decodeActionPolicy`](/tmp/pose-b03-work/pose-mcp/internal/pose/action_resolution.go:92), struct decoding accepts case-insensitive JSON names, but the subsequent map lookup checks only exact `presence_scope`.
+
+Source-derived reproducer:
+
+```json
+{"schema_version":1,"require_presence":true,"PRESENCE_SCOPE":"universal"}
+```
+
+The decoder accepts this and populates `PresenceScope`, violating the explicit contract that schema 1 must refuse the scope field. Older engines also accept this schema-1 document while ignoring the new setting. The current migration guard still blocks new human answers; this finding does **not** establish a current admission bypass.
+
+**Smallest fix:** detect scope-field presence using the decoder’s case-insensitive matching semantics, including empty/null values. Add regressions for uppercase/mixed-case spellings with presence enabled and disabled.
+
+Otherwise, the reviewed source preserves the intended boundaries: every supplied proof verifies before central presence admission, issuer authority does not establish presence, agents remain outside human-touch requirements, invalid rendered policies are checked before publication, and historical observations preserve B01/B04 limitations.
+
+Evidence chronology is qualified: the before-fix log reproduces the legacy bypasses and invalid-policy publication; the domain-regression failure concerns native-fixture directory permissions, corrected in current source. Later focused/composition and race logs pass. The earlier full-package run passes domain/MCP but fails CLI’s known-key fixture; current source corrects that fixture and the focused compatibility log passes. Full canonical validation remains pending.
+
+Applied the POSE review workflow and security, Go backend, documentation, knowledge, and delivery-evidence rules. Reviewed `c4f814b..4dc8277`, including prospective `06ebca5`, new tests, foundation contracts, and supplied logs. Native assessments, bundle/sealing, attestation, and test execution were deferred under your read-only instruction. No writes or child agents; existing modifications were left untouched. This is a source review, without delivery or CI-clean claims.

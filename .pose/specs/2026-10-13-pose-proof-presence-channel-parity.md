@@ -155,21 +155,17 @@ Testes de execução ainda não foram criados ou executados para este delta.
 
 ### Requirement trace
 
-O trace abaixo é planejado; vincular os casos aos produtores reais durante a
-implementação. Não declarar requisitos funcionais satisfeitos pelo lint.
+Trace executado pelos testes dirigidos registrados; a coleta canônica estrita
+atualizada e a revisão final ainda são gates independentes de entrega.
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V4 |
-| R2 | V2, V4, V5 |
-| R3 | V2, V3 |
-| R4 | V1 |
-| R5 | V2, V3 |
-| R6 | V1–V4 |
-| R7 | V5 |
-| R8 | V5 |
-
-
+- R1 [satisfied] test:TestActionPresenceSchemaContract; test:TestActionPresenceScopeAliases; test:TestActionPresencePolicyEditingRefusesInvalidBeforePublication
+- R2 [satisfied] test:TestActionPresenceAdmissionMatrix; test:TestActionPresenceLegacyRequiresMigration
+- R3 [satisfied] test:TestActionPresenceIssuerOriginAndMixedProofBindings; test:TestActionReadReverifiesSSHBindingsAndMetadata
+- R4 [satisfied] test:TestActionPresenceAdmissionMatrix; test:TestActionReadReverifiesSSHBindingsAndMetadata
+- R5 [satisfied] test:TestActionPresenceDiagnosticsAndInvalidMixedProof; test:TestActionPresenceIssuerOriginAndMixedProofBindings
+- R6 [satisfied] test:TestActionPresenceAdmissionMatrix; test:TestActionPresenceLegacyMigrationDoesNotRequireAgentTouch
+- R7 [satisfied] test:TestActionPresenceCLIIssuerAndHistoricalParity; test:TestActionPresenceMCPPreviewAndApplyParity; test:TestActionPresenceCLIPreviewAndMigrationBeforeSigner
+- R8 [satisfied] test:TestActionPresenceHistoricalDisclosureDoesNotAdoptCurrentPolicy; test:TestActionPresenceCLIIssuerAndHistoricalParity; test:TestActionReadReverifiesSSHBindingsAndMetadata
 
 ## 7. Final Report
 
