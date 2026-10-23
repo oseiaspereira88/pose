@@ -4,18 +4,19 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 )
 
-var releaseVersionRE = regexp.MustCompile(`^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$`)
+// A release version is a Semantic Versioning 2.0 version with a leading v and no build
+// metadata: numeric prerelease identifiers carry no leading zero and none is empty.
+var releaseVersionRE = regexp.MustCompile(`^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?$`)
 
 type ReleasePolicy struct {
 	SchemaVersion int    `json:"schema_version"`
@@ -86,6 +87,9 @@ type ReleaseProjection struct {
 	Manifest *ReleaseManifest `json:"manifest,omitempty"`
 	Events   []ReleaseEvent   `json:"events"`
 	Gaps     []string         `json:"gaps"`
+	// Snapshot is what the tree of the release's tag says, read from the tag and not from
+	// the working tree. It is absent while the release has no tag.
+	Snapshot *ReleaseSnapshot `json:"snapshot,omitempty"`
 }
 
 type ReleaseStatus struct {
@@ -106,14 +110,32 @@ func ReleaseDigest(value any) string {
 	return "sha256:" + hex.EncodeToString(sum[:])
 }
 
+// ErrReleasePolicyMissing marks a release policy proven not to be there, as opposed to one that
+// could not be read.
+var ErrReleasePolicyMissing = errors.New("release policy missing")
+
 func LoadReleasePolicy(root string) (ReleasePolicy, error) {
 	var policy ReleasePolicy
-	raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "release.json"))
-	if err != nil {
-		raw, err = os.ReadFile(filepath.Join(root, ".pose", "release-policy.json"))
+	primary := filepath.Join(root, ".pose", "policy", "release.json")
+	absent, absentErr := ProvenAbsent(primary)
+	if absentErr != nil {
+		return policy, fmt.Errorf("release policy could not be read: %w", absentErr)
 	}
+	path := primary
+	if absent {
+		// The legacy place is read only when the current one is proven not to be there.
+		path = filepath.Join(root, ".pose", "release-policy.json")
+		legacyAbsent, legacyErr := ProvenAbsent(path)
+		if legacyErr != nil {
+			return policy, fmt.Errorf("release policy could not be read: %w", legacyErr)
+		}
+		if legacyAbsent {
+			return policy, fmt.Errorf("%w: create .pose/policy/release.json", ErrReleasePolicyMissing)
+		}
+	}
+	raw, err := os.ReadFile(path)
 	if err != nil {
-		return policy, fmt.Errorf("release policy missing: create .pose/policy/release.json")
+		return policy, fmt.Errorf("release policy could not be read: %w", err)
 	}
 	if err := json.Unmarshal(raw, &policy); err != nil {
 		return policy, fmt.Errorf("invalid release policy: %w", err)
@@ -121,23 +143,54 @@ func LoadReleasePolicy(root string) (ReleasePolicy, error) {
 	if policy.SchemaVersion != 1 {
 		return policy, fmt.Errorf("invalid release policy: schema_version must be 1")
 	}
-	if policy.AdoptedAt != "" && (policy.Provider == "" || policy.Repository == "") {
-		return policy, fmt.Errorf("invalid release policy: provider and repository are required once adopted")
-	}
-	if policy.VersionSource != nil {
-		if err := policy.VersionSource.Validate(); err != nil {
-			return policy, fmt.Errorf("invalid release policy: version_source: %w", err)
-		}
+	if err := ValidateReleasePolicy(policy); err != nil {
+		return policy, err
 	}
 	return policy, nil
 }
 
-func LoadReleaseFragments(dir string, policy ChangelogPolicy) ([]ReleaseFragment, error) {
-	entries, err := os.ReadDir(dir)
-	if os.IsNotExist(err) {
-		return []ReleaseFragment{}, nil
+// ValidateReleasePolicy checks a release policy without touching the file system, so the policy
+// a cut was made under can be held to the contract it was written for.
+func ValidateReleasePolicy(policy ReleasePolicy) error {
+	if policy.SchemaVersion != 1 {
+		return fmt.Errorf("invalid release policy: schema_version must be 1")
 	}
+	if policy.AdoptedAt != "" && (policy.Provider == "" || policy.Repository == "") {
+		return fmt.Errorf("invalid release policy: provider and repository are required once adopted")
+	}
+	if policy.VersionSource != nil {
+		if err := policy.VersionSource.Validate(); err != nil {
+			return fmt.Errorf("invalid release policy: version_source: %w", err)
+		}
+	}
+	if policy.LegacyCutoff != "" {
+		// A cutoff that is not a version orders after every version: it would hide every tag.
+		if err := ValidateReleaseVersion(policy.LegacyCutoff); err != nil {
+			return fmt.Errorf("invalid release policy: legacy_cutoff: %w", err)
+		}
+	}
+	return nil
+}
+
+func LoadReleaseFragments(dir string, policy ChangelogPolicy) ([]ReleaseFragment, error) {
+	return loadReleaseFragments(dir, policy, false)
+}
+
+// LoadArchivedFragmentIdentities reads the fragments of a release that was cut, for what they are
+// (a spec each, once) and not for the categories the project allows today: the categories of a cut
+// are the ones its own policy held, and a later change of the policy does not change the cut.
+func LoadArchivedFragmentIdentities(dir string) ([]ReleaseFragment, error) {
+	return loadReleaseFragments(dir, ChangelogPolicy{}, true)
+}
+
+func loadReleaseFragments(dir string, policy ChangelogPolicy, anyCategory bool) ([]ReleaseFragment, error) {
+	entries, err := os.ReadDir(dir)
 	if err != nil {
+		if absent, absentErr := ProvenAbsent(dir); absentErr == nil && absent {
+			return []ReleaseFragment{}, nil
+		} else if absentErr != nil {
+			return nil, absentErr
+		}
 		return nil, err
 	}
 	fragments := []ReleaseFragment{}
@@ -164,7 +217,7 @@ func LoadReleaseFragments(dir string, policy ChangelogPolicy) ([]ReleaseFragment
 		if spec == "" {
 			problems = append(problems, "missing `spec:` in frontmatter")
 		}
-		if !policy.ValidCategories()[category] {
+		if !anyCategory && !policy.ValidCategories()[category] {
 			if category == "" {
 				problems = append(problems, "missing `category:` ("+policy.CategoryList()+")")
 			} else {
@@ -241,24 +294,30 @@ func LoadReleaseManifest(root, version string) (*ReleaseManifest, error) {
 	if err := ValidateReleaseVersion(version); err != nil {
 		return nil, err
 	}
-	var manifest ReleaseManifest
 	raw, err := os.ReadFile(filepath.Join(root, ".pose", "releases", version, "manifest.json"))
 	if err != nil {
 		return nil, err
 	}
-	if err := json.Unmarshal(raw, &manifest); err != nil {
-		return nil, err
+	manifest, issues := ValidateReleaseManifestBytes(raw, version)
+	if len(issues) > 0 {
+		parts := make([]string, 0, len(issues))
+		for _, issue := range issues {
+			parts = append(parts, issue.String())
+		}
+		return nil, fmt.Errorf("pose: release manifest of %s is not valid: %s", version, strings.Join(parts, "; "))
 	}
-	return &manifest, nil
+	return manifest, nil
 }
 
 func LoadReleaseEvents(root, version string) ([]ReleaseEvent, error) {
 	path := filepath.Join(root, ".pose", "releases", version, "events.jsonl")
 	raw, err := os.ReadFile(path)
-	if os.IsNotExist(err) {
-		return []ReleaseEvent{}, nil
-	}
 	if err != nil {
+		if absent, absentErr := ProvenAbsent(path); absentErr == nil && absent {
+			return []ReleaseEvent{}, nil
+		} else if absentErr != nil {
+			return nil, absentErr
+		}
 		return nil, err
 	}
 	events := []ReleaseEvent{}
@@ -312,6 +371,23 @@ func ProjectRelease(manifest *ReleaseManifest, events []ReleaseEvent) ReleasePro
 	return p
 }
 
+// Sound reports a release whose record can be relied on as evidence: no gap in its events or in
+// what the tag holds, and, once it has a tag, a snapshot that is intact. A state an event
+// claimed on top of a snapshot that is not intact is a claim, not evidence.
+func (p ReleaseProjection) Sound() bool {
+	if len(p.Gaps) > 0 {
+		return false
+	}
+	if p.Snapshot != nil && !p.Snapshot.Intact() {
+		return false
+	}
+	switch p.State {
+	case "tagged", "published", "verified", "yanked":
+		return p.Snapshot != nil
+	}
+	return true
+}
+
 func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 	if version != "" {
 		if err := ValidateReleaseVersion(version); err != nil {
@@ -324,11 +400,28 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 	}
 	status := &ReleaseStatus{Pending: pending, Releases: []ReleaseProjection{}}
 	base := filepath.Join(s.Root, ".pose", "releases")
-	entries, _ := os.ReadDir(base)
+	entries, err := os.ReadDir(base)
+	if err != nil {
+		// A directory that cannot be listed (a file where it belongs, no access, a link to a
+		// place that was lost, a lost ancestor) is not a project with no releases: only a
+		// proven absence is.
+		if absent, absentErr := ProvenAbsent(base); absentErr != nil || !absent {
+			if absentErr == nil {
+				absentErr = err
+			}
+			return nil, fmt.Errorf("pose: the release directory could not be read: %w", absentErr)
+		}
+	}
+	inWorktree := map[string]bool{}
 	for _, entry := range entries {
+		if ValidateReleaseVersion(entry.Name()) == nil && !entry.IsDir() && (version == "" || entry.Name() == version) {
+			// A release written as a file or a link is not a release this record can read.
+			return nil, fmt.Errorf("pose: the release %s is %s, not a directory", entry.Name(), entry.Type())
+		}
 		if !entry.IsDir() || ValidateReleaseVersion(entry.Name()) != nil || version != "" && entry.Name() != version {
 			continue
 		}
+		inWorktree[entry.Name()] = true
 		manifest, err := LoadReleaseManifest(s.Root, entry.Name())
 		if err != nil {
 			return nil, err
@@ -338,12 +431,99 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 			return nil, err
 		}
 		projection := ProjectRelease(manifest, events)
-		if projection.State == "prepared" {
-			cmd := exec.Command("git", "rev-list", "-n", "1", entry.Name()+"^{}")
-			cmd.Dir = s.Root
-			if commit, err := cmd.Output(); err == nil && regexp.MustCompile(`^[0-9a-f]{40}$`).MatchString(strings.TrimSpace(string(commit))) {
-				projection.State = "tagged"
+		_, _, tagErr := ResolveReleaseTag(s.Root, entry.Name())
+		if tagErr != nil && errors.Is(tagErr, ErrReleaseTagMissing) {
+			// No tag yet: the cut is a candidate, and the files it froze must still be there.
+			gaps, _ := ReleaseCandidateGaps(s.Root, entry.Name(), manifest)
+			projection.Gaps = append(projection.Gaps, gaps...)
+			if projection.State != "prepared" && projection.State != "failed" {
+				// The events say a tag exists; the repository says it does not.
+				projection.Gaps = append(projection.Gaps, "the events record "+projection.State+", and the tag "+entry.Name()+" does not exist")
 			}
+		}
+		if tagErr == nil {
+			snap, snapErr := ReadReleaseSnapshot(s.Root, entry.Name())
+			projection.Snapshot = &snap
+			switch {
+			case snapErr != nil:
+				// A tag whose tree holds no snapshot is not a tagged release, whatever the working tree holds.
+				projection.Gaps = append(projection.Gaps, "tag "+entry.Name()+" exists but its tree holds no release snapshot: "+snapErr.Error())
+			default:
+				for _, issue := range snap.Issues {
+					projection.Gaps = append(projection.Gaps, "tag snapshot manifest "+issue.String())
+				}
+				for _, gap := range snap.Gaps {
+					projection.Gaps = append(projection.Gaps, "tag snapshot: "+gap)
+				}
+				projection.Gaps = append(projection.Gaps, TaggedReleaseWorktreeGaps(s.Root, entry.Name(), manifest, snap)...)
+				if projection.State == "prepared" && snap.Intact() {
+					projection.State = "tagged"
+				}
+			}
+		} else if !errors.Is(tagErr, ErrReleaseTagMissing) {
+			projection.Gaps = append(projection.Gaps, "the tag of "+entry.Name()+" could not be resolved: "+tagErr.Error())
+		}
+		status.Releases = append(status.Releases, projection)
+	}
+	// A release whose directory is gone from the working tree is still a release if its tag holds
+	// the snapshot: removing the files does not remove the release from the record. A tag that
+	// holds none is reported, not dropped, and a listing that fails is not an empty one.
+	tags, tagsErr := ListReleaseTags(s.Root)
+	if tagsErr != nil && !gitNotARepository(s.Root) {
+		return nil, fmt.Errorf("pose: the release tags could not be listed: %w", tagsErr)
+	}
+	cutoff := ""
+	adopted := false
+	if policy, perr := LoadReleasePolicy(s.Root); perr == nil {
+		cutoff = policy.LegacyCutoff
+		adopted = policy.AdoptedAt != ""
+	} else if errors.Is(perr, ErrReleasePolicyMissing) {
+		// Proven gone: a cut in the working tree still says the project adopted governed releases.
+		for _, entry := range entries {
+			if ValidateReleaseVersion(entry.Name()) == nil {
+				adopted = true
+			}
+		}
+	} else {
+		// A policy that is there and cannot be read is not "never adopted".
+		adopted = true
+	}
+	for _, tag := range strings.Fields(tags) {
+		if ValidateReleaseVersion(tag) != nil || inWorktree[tag] || version != "" && tag != version {
+			continue
+		}
+		if cutoff != "" && CompareReleasePrecedence(cutoff, tag) >= 0 {
+			continue // before the governed releases: not a release this record claims
+		}
+		snap, snapErr := ReadReleaseSnapshot(s.Root, tag)
+		if errors.Is(snapErr, ErrReleaseSnapshotMissing) && !adopted {
+			// A tag with no manifest is a release this record claims only for a project that adopted
+			// governed releases: the policy of today, or the one in the tag's own tree, says so. A
+			// policy that cannot be read is not "never adopted".
+			if held, heldErr := TagHoldsAdoptedReleasePolicy(s.Root, tag); heldErr == nil && !held {
+				continue
+			}
+		}
+		if snapErr != nil || snap.Manifest == nil {
+			cause := "no manifest"
+			if snapErr != nil {
+				cause = snapErr.Error()
+			}
+			status.Releases = append(status.Releases, ReleaseProjection{Version: tag, State: "prepared", Events: []ReleaseEvent{},
+				Gaps: []string{"tag " + tag + " exists, its release directory is missing from the working tree and its tree holds no readable snapshot: " + cause}})
+			continue
+		}
+		projection := ProjectRelease(snap.Manifest, []ReleaseEvent{})
+		projection.Snapshot = &snap
+		projection.Gaps = append(projection.Gaps, "the release directory is missing from the working tree; the release is read from its tag")
+		for _, issue := range snap.Issues {
+			projection.Gaps = append(projection.Gaps, "tag snapshot manifest "+issue.String())
+		}
+		for _, gap := range snap.Gaps {
+			projection.Gaps = append(projection.Gaps, "tag snapshot: "+gap)
+		}
+		if snap.Intact() {
+			projection.State = "tagged"
 		}
 		status.Releases = append(status.Releases, projection)
 	}
@@ -353,25 +533,85 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 	return status, nil
 }
 
-func compareReleaseVersions(a, b string) int {
-	parse := func(v string) [3]int {
-		m := releaseVersionRE.FindStringSubmatch(v)
-		var n [3]int
-		if len(m) > 3 {
-			for i := 0; i < 3; i++ {
-				n[i], _ = strconv.Atoi(m[i+1])
+// compareReleaseVersions orders two release versions by Semantic Versioning precedence.
+func compareReleaseVersions(a, b string) int { return CompareReleasePrecedence(a, b) }
+
+// CompareReleasePrecedence orders two release versions by Semantic Versioning 2.0
+// precedence: the core numbers first, then a version with a prerelease before the same core
+// without one, then the prerelease identifiers one by one (numbers as numbers and before
+// words, words as text, a shorter list before a longer one that starts with it). A text that is
+// not a release version sorts by its text after every version that is, so the order is total.
+func CompareReleasePrecedence(a, b string) int {
+	ma, mb := releaseVersionRE.FindStringSubmatch(a), releaseVersionRE.FindStringSubmatch(b)
+	switch {
+	case ma == nil && mb == nil:
+		return strings.Compare(a, b)
+	case ma == nil:
+		return 1
+	case mb == nil:
+		return -1
+	}
+	for i := 1; i <= 3; i++ {
+		if c := compareNumericString(ma[i], mb[i]); c != 0 {
+			return c
+		}
+	}
+	pa, pb := ma[4], mb[4]
+	switch {
+	case pa == "" && pb == "":
+		return 0
+	case pa == "":
+		return 1
+	case pb == "":
+		return -1
+	}
+	ia, ib := strings.Split(pa, "."), strings.Split(pb, ".")
+	for i := 0; i < len(ia) && i < len(ib); i++ {
+		x, y := ia[i], ib[i]
+		xn, yn := isNumericIdentifier(x), isNumericIdentifier(y)
+		switch {
+		case xn && yn:
+			if c := compareNumericString(x, y); c != 0 {
+				return c
+			}
+		case xn:
+			return -1
+		case yn:
+			return 1
+		default:
+			if c := strings.Compare(x, y); c != 0 {
+				return c
 			}
 		}
-		return n
 	}
-	x, y := parse(a), parse(b)
-	for i := 0; i < 3; i++ {
-		if x[i] < y[i] {
+	switch {
+	case len(ia) < len(ib):
+		return -1
+	case len(ia) > len(ib):
+		return 1
+	}
+	return 0
+}
+
+func isNumericIdentifier(s string) bool {
+	if s == "" {
+		return false
+	}
+	for _, r := range s {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// compareNumericString compares two decimal strings without leading zeros as numbers, however long.
+func compareNumericString(a, b string) int {
+	if len(a) != len(b) {
+		if len(a) < len(b) {
 			return -1
 		}
-		if x[i] > y[i] {
-			return 1
-		}
+		return 1
 	}
 	return strings.Compare(a, b)
 }
@@ -380,6 +620,10 @@ func NewReleaseManifest(version, previous, preparedAt string, fragments []Releas
 	specs := []string{}
 	categories := map[string]int{}
 	breaking := false
+	if fragments == nil {
+		// An empty release freezes an empty list, never null.
+		fragments = []ReleaseFragment{}
+	}
 	for _, f := range fragments {
 		specs = append(specs, f.Spec)
 		categories[f.Category]++
@@ -403,4 +647,90 @@ func CanonicalJSON(value any) []byte {
 
 func NewReleaseEvent(version, state string, evidence ReleaseEvidence, now time.Time) ReleaseEvent {
 	return ReleaseEvent{SchemaVersion: 1, Version: version, State: state, RecordedAt: now.UTC().Format(time.RFC3339), Evidence: evidence, EvidenceDigest: ReleaseDigest(evidence)}
+}
+
+// GitNotARepository reports that root is not inside a Git repository at all, which is the only
+// reason a failing git command says nothing about the releases there are. A `.git` that is there,
+// whose gitdir was lost, is a repository that could not be read: Git words both the same way.
+func GitNotARepository(root string) bool {
+	_, err := gitOutput(root, "rev-parse", "--git-dir")
+	var failure *gitCommandError
+	if !errors.As(err, &failure) || !strings.Contains(failure.Stderr, "not a git repository") {
+		return false
+	}
+	abs, absErr := filepath.Abs(root)
+	if absErr != nil {
+		return false
+	}
+	for dir := abs; ; dir = filepath.Dir(dir) {
+		if _, statErr := os.Lstat(filepath.Join(dir, ".git")); statErr == nil || !errors.Is(statErr, os.ErrNotExist) {
+			return false
+		}
+		if filepath.Dir(dir) == dir {
+			return true
+		}
+	}
+}
+
+func gitNotARepository(root string) bool { return GitNotARepository(root) }
+
+// TaggedReleaseWorktreeGaps binds the working tree's copy of a tagged release to the cut the tag
+// holds: the manifest, the notes and every archived fragment are byte for byte what the tag's
+// snapshot froze, and nothing is archived that the manifest does not freeze. The tag's commit
+// itself is not compared with HEAD.
+func TaggedReleaseWorktreeGaps(root, target string, manifest *ReleaseManifest, snap ReleaseSnapshot) []string {
+	if snap.Manifest == nil {
+		return []string{} // reported by the snapshot
+	}
+	gaps := []string{}
+	if rawManifest, rerr := os.ReadFile(filepath.Join(root, ".pose", "releases", target, "manifest.json")); rerr != nil {
+		gaps = append(gaps, "the manifest of the working tree could not be read: "+rerr.Error())
+	} else if ReleaseDigest(string(rawManifest)) != snap.ManifestDigest {
+		gaps = append(gaps, "the working tree's manifest is not the manifest of the tag")
+	}
+	return append(gaps, ReleaseFilesGaps(root, target, manifest)...)
+}
+
+// ReleaseFilesGaps checks that the files a manifest freezes are in the working tree as it froze
+// them: the notes, every archived fragment, and nothing archived that it does not freeze. It is
+// the check of a prepared cut that has no tag, and the second half of the check of a tagged one.
+func ReleaseFilesGaps(root, target string, manifest *ReleaseManifest) []string {
+	gaps := []string{}
+	notes, nerr := os.ReadFile(filepath.Join(root, ".pose", "changelogs", target+".md"))
+	if nerr != nil {
+		gaps = append(gaps, "canonical notes missing")
+	} else if ReleaseDigest(string(notes)) != manifest.NotesDigest {
+		gaps = append(gaps, "canonical notes digest mismatch")
+	}
+	frozen := map[string]bool{}
+	for _, f := range manifest.Fragments {
+		frozen[f.Path] = true
+		raw, rerr := os.ReadFile(filepath.Join(root, ".pose", "changelogs", target, f.Path))
+		switch {
+		case rerr != nil:
+			gaps = append(gaps, "fragment "+f.Spec+" could not be read from the working tree: "+rerr.Error())
+		case ReleaseDigest(string(raw)) != f.Digest:
+			gaps = append(gaps, "fragment digest mismatch: "+f.Spec)
+		}
+	}
+	archiveDir := filepath.Join(root, ".pose", "changelogs", target)
+	entries, derr := os.ReadDir(archiveDir)
+	if derr != nil {
+		if absent, absentErr := ProvenAbsent(archiveDir); absentErr == nil && absent {
+			derr = nil // a release with no fragments leaves no directory
+		} else if absentErr != nil {
+			derr = absentErr
+		}
+	}
+	switch {
+	case derr != nil:
+		gaps = append(gaps, "the archive of the working tree could not be listed: "+derr.Error())
+	default:
+		for _, entry := range entries {
+			if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".md") && entry.Name() != "README.md" && !frozen[entry.Name()] {
+				gaps = append(gaps, "the working tree archives fragment "+entry.Name()+" that the manifest does not freeze")
+			}
+		}
+	}
+	return gaps
 }

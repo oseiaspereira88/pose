@@ -2167,6 +2167,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "release-manifest-tag-integrity-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "AManifestIsValidOnlyIf|ATagWithoutTheSnapshotInItsTree|LightweightAndAnnotatedTagsResolve|TheSnapshotIsVerifiedAgainstTheTaggedTree|ACorrectCutStaysIntact|AVersionSourceThatCannotBe|ReleaseCheckReadsTheTags|ReleaseStatusReportsTheSnapshot|ReleaseCheckDisclosesTheVersionSources|AnInvalidManifestKeepsTheReleaseStatusUnread|TestReleaseBrokenNewerTag|TestReleaseCorruptTag",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "distributed-instructions-parity-integration",
           "program": "go",
           "args": [

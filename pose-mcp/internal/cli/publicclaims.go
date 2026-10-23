@@ -166,7 +166,7 @@ func resolvePublicVersionProvenance(root, source, candidate string) publicVersio
 		}
 		// Releases are sorted newest first; the first with retained
 		// publication evidence is the latest proven publication.
-		if out.PublishedVersion == "" && (release.State == "published" || release.State == "verified") && len(release.Gaps) == 0 {
+		if out.PublishedVersion == "" && (release.State == "published" || release.State == "verified") && release.Sound() {
 			out.PublishedVersion = strings.TrimPrefix(release.Version, "v")
 			out.PublishedSource = ".pose/releases/" + release.Version + "/events.jsonl"
 			out.PublishedVersionState = release.State

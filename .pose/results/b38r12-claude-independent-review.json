@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "review": "b38r12-claude-independent-review",
+  "spec": "pose-release-manifest-tag-integrity",
+  "pr": 198,
+  "head": "75a0a9ed",
+  "reviewer": {
+    "id": "agent:independent-claude-opus-5-5-review",
+    "vendor": "Claude/Anthropic",
+    "implementer_vendor": "Claude/Anthropic",
+    "vendor_separation": false,
+    "separation": "execution and context only; Codex unavailable (usage limit until 2026-10-24); declared, not authenticated",
+    "attestation": "none (blocking finding)"
+  },
+  "decision": "changes-requested",
+  "blocking": [
+    {
+      "id": "R12-F01",
+      "severity": "medium",
+      "location": "pose-mcp/internal/pose/release_lifecycle.go:471-492",
+      "requirements": ["R3", "R7"],
+      "summary": "GetReleaseStatus sets adopted=false when today's release policy cannot be loaded (corrupt, lost link, deleted with a governance witness); a governed tag without manifest whose tree lacks an adopted policy is dropped and release open-next approves",
+      "probe": {
+        "fixture": "adoptedTaggedRelease v1.0.0 verified + tag v1.1.0 on a commit with an empty tree",
+        "rows": [
+          {"policy": "intact", "status_lists_v1.1.0": true, "open_next_exit": 1, "check_release_errors": 1},
+          {"policy": "corrupt JSON", "status_lists_v1.1.0": false, "open_next_exit": 0, "check_release_errors": 1},
+          {"policy": "lost link", "status_lists_v1.1.0": false, "open_next_exit": 0, "check_release_errors": 1},
+          {"policy": "deleted, cut v1.0.0 witnesses adoption", "status_lists_v1.1.0": false, "open_next_exit": 0, "check_release_errors": 1}
+        ]
+      },
+      "minimal_action": "single domain adoption predicate shared by checker, status and witness: readable -> adopted_at; unreadable and not proven absent -> adopted; proven absent -> governance witness"
+    }
+  ],
+  "followups_low_new": [
+    {
+      "id": "R12-L19",
+      "summary": "status of a non-adopted project still reads a snapshot and the tree policy for every tag before dropping it",
+      "measure": {"tags": 300, "policy": "scaffold, adopted_at empty", "status_ms": 2867, "releases": 0}
+    }
+  ],
+  "followups_registered_unchanged": 18,
+  "checks": {
+    "go_vet": "ok",
+    "go_test_all": "ok",
+    "go_test_race_release": "ok",
+    "pose_check_strict_head_binary": "SUCCESS, 30 preexisting warnings",
+    "artifact_check": {"claims": 47, "change_sets": 1},
+    "debt_markers_added_go_lines": 0
+  },
+  "side_effects": "delivery-integrity.json restored to HEAD after artifact-check; preexisting generation.json modification left untouched; nothing committed"
+}

@@ -19,7 +19,10 @@ var Version = version.Version
 
 // The engine package records the version in assessment bindings without
 // importing internal/version (spec pose-engine-package-stays-mirrorable).
-func init() { posemodel.EngineVersion = version.Version }
+func init() {
+	posemodel.EngineVersion = version.Version
+	posemodel.EngineReleaseBase = version.ReleaseBase()
+}
 
 // Main is the entrypoint used by cmd/pose. It returns the process exit code.
 func Main(args []string, stdout, stderr io.Writer) int {

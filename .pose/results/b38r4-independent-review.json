@@ -1,0 +1,2037 @@
+{
+  "schema_version": 1,
+  "review": "b38r4 / PR #198",
+  "decision": "changes-requested",
+  "head": "74ca559db942dbaeec218e9af3ecfd915215dbac",
+  "base": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+  "merge_base": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+  "spec": "pose-release-manifest-tag-integrity",
+  "reviewer": {
+    "id": "agent:independent-gpt-6.1-sol-review",
+    "platform": "Codex",
+    "vendor": "OpenAI",
+    "implementer_platform": "Claude",
+    "implementer_vendor": "Anthropic",
+    "identity_assurance": "declared",
+    "separation_assurance": "declared",
+    "different_vendor": true,
+    "cryptographically_authenticated": false
+  },
+  "authorization": {
+    "seal": false,
+    "attest": false,
+    "close": false,
+    "commit": false,
+    "push": false,
+    "policy_changed": false,
+    "issuer_pin_added": false,
+    "reason": "eight merge blockers; explicit requester instruction"
+  },
+  "review_plan": {
+    "bundle_id": "rvb-4ebc3bd1079f5ff3",
+    "bundle_digest": "sha256:4ebc3bd1079f5ff35a34827fa355b9fd3c0f04f1f61526e7727ca02baf1b0924",
+    "state": "prepared-unsealed",
+    "plan_digest": "sha256:882f78cf69f15e14a89033e57401485d12ca4978d97dfbb2bfb5a3e2655c7982",
+    "subject": {
+      "change_sets": [
+        "cs-c7ba2980e125"
+      ],
+      "base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+      "head": "74ca559db942dbaeec218e9af3ecfd915215dbac",
+      "implementation_digest": "sha256:c9fcfb1b158f5205856a5506565240dda053d1d9fe8b1cfca957fef95e671de2",
+      "patch_digest": "sha256:90758460aaebaa72cca285eabe52ad574b1e8c586b35258f46ca05526618e77f",
+      "tree_digest": "sha256:a74ce841b595c869234da989c02003bda388b4b37b7d3ed6985bcadf7771a880"
+    },
+    "criteria": [
+      {
+        "id": "assumption-integrity",
+        "description": "Identify material assumptions and their applicable evidence; distinguish verified facts, unresolved assumptions and accepted risks.",
+        "required": true,
+        "kind": "judgment",
+        "profiles": [
+          "engineering-judgment@1",
+          "high-criticality-review@1"
+        ]
+      },
+      {
+        "id": "backend-concurrency",
+        "description": "Concurrent access, cancellation and lifecycle behavior are safe where applicable.",
+        "required": true,
+        "kind": "mechanical",
+        "rules": [
+          "backend-go"
+        ],
+        "evidence_classes": [
+          "e2e",
+          "integration",
+          "unit"
+        ],
+        "profiles": [
+          "backend-review@1"
+        ]
+      },
+      {
+        "id": "backend-contracts",
+        "description": "Public API, event, file and tool contracts remain compatible or explicitly migrated.",
+        "required": true,
+        "kind": "mechanical",
+        "rules": [
+          "backend-go"
+        ],
+        "evidence_classes": [
+          "e2e",
+          "integration"
+        ],
+        "profiles": [
+          "backend-review@1"
+        ]
+      },
+      {
+        "id": "backend-input-errors",
+        "description": "Inputs, validation failures and error paths are bounded, typed and actionable.",
+        "required": true,
+        "kind": "mechanical",
+        "rules": [
+          "backend-go",
+          "security"
+        ],
+        "evidence_classes": [
+          "e2e",
+          "integration",
+          "unit"
+        ],
+        "profiles": [
+          "backend-review@1"
+        ]
+      },
+      {
+        "id": "backend-integration-impact",
+        "description": "Providers, consumers and inter-component boundaries remain integrated.",
+        "required": true,
+        "kind": "mechanical",
+        "evidence_classes": [
+          "integration"
+        ],
+        "profiles": [
+          "backend-review@1"
+        ]
+      },
+      {
+        "id": "backend-observability",
+        "description": "Failures are diagnosable through bounded, non-sensitive logs, metrics or returned context.",
+        "required": true,
+        "kind": "mechanical",
+        "rules": [
+          "backend-go",
+          "security"
+        ],
+        "evidence_classes": [
+          "integration",
+          "unit"
+        ],
+        "profiles": [
+          "backend-review@1"
+        ]
+      },
+      {
+        "id": "compatibility",
+        "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated.",
+        "required": true,
+        "kind": "judgment",
+        "profiles": [
+          "spec-closeout@1"
+        ]
+      },
+      {
+        "id": "correctness",
+        "description": "Functional and negative behavior is correct.",
+        "required": true,
+        "kind": "mechanical",
+        "evidence_classes": [
+          "build",
+          "e2e",
+          "integration",
+          "unit"
+        ],
+        "profiles": [
+          "spec-closeout@1"
+        ]
+      },
+      {
+        "id": "design-causality",
+        "description": "Explain how the selected design addresses the stated requirement and material cause, citing the relevant decision basis and structural observations where available.",
+        "required": true,
+        "kind": "judgment",
+        "profiles": [
+          "engineering-judgment@1",
+          "high-criticality-review@1"
+        ]
+      },
+      {
+        "id": "documentation",
+        "description": "Operational docs, templates and scaffold match runtime behavior.",
+        "required": true,
+        "kind": "judgment",
+        "rules": [
+          "documentation-style"
+        ],
+        "profiles": [
+          "spec-closeout@1"
+        ]
+      },
+      {
+        "id": "operability",
+        "description": "Errors, explanations and remediation are actionable.",
+        "required": true,
+        "kind": "judgment",
+        "profiles": [
+          "spec-closeout@1"
+        ]
+      },
+      {
+        "id": "requirements",
+        "description": "Every requirement has current, relevant evidence.",
+        "required": true,
+        "kind": "mechanical",
+        "evidence_classes": [
+          "e2e",
+          "integration",
+          "unit"
+        ],
+        "profiles": [
+          "spec-closeout@1"
+        ]
+      },
+      {
+        "id": "scope",
+        "description": "The implementation matches the approved spec scope.",
+        "required": true,
+        "kind": "judgment",
+        "rules": [
+          "documentation-style"
+        ],
+        "profiles": [
+          "spec-closeout@1"
+        ]
+      },
+      {
+        "id": "security",
+        "description": "Inputs, paths, evidence and authority boundaries are safe.",
+        "required": true,
+        "kind": "judgment",
+        "rules": [
+          "security"
+        ],
+        "profiles": [
+          "spec-closeout@1"
+        ]
+      },
+      {
+        "id": "solution-proportionality",
+        "description": "Compare the solution with the smallest sufficient alternative, including negative space, speculative extensibility and the condition that would invalidate the choice.",
+        "required": true,
+        "kind": "judgment",
+        "profiles": [
+          "engineering-judgment@1",
+          "high-criticality-review@1"
+        ]
+      }
+    ],
+    "tools": [
+      {
+        "id": "artifact-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "artifact-check",
+          "--spec",
+          "pose-release-manifest-tag-integrity",
+          "--strict"
+        ],
+        "rationale": "reconcile declared artifacts with Git-observed provenance",
+        "criteria": [
+          "requirements",
+          "scope"
+        ],
+        "preconditions": [
+          "artifacts-attributed"
+        ]
+      },
+      {
+        "id": "assess-design",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "assess",
+          "design",
+          "--spec",
+          "pose-release-manifest-tag-integrity",
+          "--json"
+        ],
+        "rationale": "observe bounded structural deltas on the canonical review subject",
+        "evidence_classes": [
+          "structure"
+        ],
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "assess-discover",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "assess",
+          "discover",
+          "--component",
+          "pose-mcp"
+        ],
+        "rationale": "inspect component structure, language, size and visible debt",
+        "component": "pose-mcp",
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "assess-integrate",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "assess",
+          "integrate"
+        ],
+        "rationale": "inspect providers, consumers and inter-component contract gaps",
+        "evidence_classes": [
+          "integration"
+        ],
+        "criteria": [
+          "backend-contracts",
+          "backend-integration-impact"
+        ],
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "assess-tech-debt",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "assess",
+          "tech-debt"
+        ],
+        "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+        "criteria": [
+          "correctness"
+        ],
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "closeout-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "closeout-check",
+          "spec:pose-release-manifest-tag-integrity"
+        ],
+        "rationale": "verify remaining hierarchical closeout blockers",
+        "preconditions": [
+          "review-complete"
+        ]
+      },
+      {
+        "id": "review-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "review-check",
+          "spec:pose-release-manifest-tag-integrity"
+        ],
+        "rationale": "verify exact review-plan coverage and freshness",
+        "preconditions": [
+          "review-complete"
+        ]
+      },
+      {
+        "id": "suggest-review",
+        "requiredness": "recommended",
+        "args": [
+          "pose",
+          "suggest",
+          "review",
+          "--path",
+          "pose-mcp"
+        ],
+        "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+        "component": "pose-mcp",
+        "preconditions": [
+          "scope-authorized"
+        ]
+      },
+      {
+        "id": "surface-check",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "surface-check",
+          "--spec",
+          "pose-release-manifest-tag-integrity",
+          "--strict"
+        ],
+        "rationale": "verify delivery composition, reachability and fresh evidence",
+        "evidence_classes": [
+          "integration",
+          "reachability"
+        ],
+        "preconditions": [
+          "delivery-target-declared"
+        ]
+      },
+      {
+        "id": "validate",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "validate",
+          "--strict"
+        ],
+        "rationale": "run the registered deterministic checks for the affected module",
+        "evidence_classes": [
+          "build",
+          "e2e",
+          "integration",
+          "unit"
+        ],
+        "criteria": [
+          "backend-concurrency",
+          "backend-input-errors",
+          "backend-observability",
+          "correctness",
+          "requirements"
+        ],
+        "preconditions": [
+          "delivery-target-declared"
+        ]
+      },
+      {
+        "id": "validate",
+        "requiredness": "required",
+        "args": [
+          "pose",
+          "validate",
+          "--strict",
+          "--module",
+          "pose-mcp"
+        ],
+        "rationale": "run the registered deterministic checks for the affected module",
+        "evidence_classes": [
+          "build",
+          "e2e",
+          "integration",
+          "unit"
+        ],
+        "component": "pose-mcp",
+        "preconditions": [
+          "delivery-target-declared"
+        ]
+      }
+    ],
+    "selected_profiles": [
+      {
+        "ref": "spec-closeout@1",
+        "category": "base",
+        "order": 0,
+        "source": ".pose/review-profiles/spec-closeout.json",
+        "rationale": "selected by terminal scope policy"
+      },
+      {
+        "ref": "backend-review@1",
+        "category": "language",
+        "order": 1,
+        "source": ".pose/review-profiles/backend-review.json",
+        "components": [
+          "pose-mcp"
+        ],
+        "rationale": "matched typed language selector"
+      },
+      {
+        "ref": "engineering-judgment@1",
+        "category": "delivery",
+        "order": 4,
+        "source": ".pose/review-profiles/engineering-judgment.json",
+        "components": [
+          "pose-mcp"
+        ],
+        "rationale": "matched typed delivery selector"
+      },
+      {
+        "ref": "high-criticality-review@1",
+        "category": "delivery",
+        "order": 4,
+        "source": ".pose/review-profiles/high-criticality-review.json",
+        "components": [
+          "pose-mcp"
+        ],
+        "rationale": "matched typed delivery selector"
+      }
+    ],
+    "completion_tools": "deferred: review not complete; no sealing, auto-attest, attestation, verify or close"
+  },
+  "source_engine": {
+    "installed_revision": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+    "review_runtime": "/tmp/b38r4-pose",
+    "build_command": "go build -o /tmp/b38r4-pose ./cmd/pose (in temporary copy of current pose-mcp and mcp-enforce)",
+    "binary_sha256": "sha256:e617d90054f91699f3083100572bae9973083b560b9c8160b91ebd0e604f14c6",
+    "production_sources": [
+      {
+        "path": "pose-mcp/internal/cli/publicclaims.go",
+        "sha256": "sha256:b719a9e428f4ce63723197cbb176c850b07d2cfcdfe637741229a8f19ae37456",
+        "temporary_copy_matches": true
+      },
+      {
+        "path": "pose-mcp/internal/cli/release_lifecycle.go",
+        "sha256": "sha256:f98d48979f667ca7426a34db596d7155cf09c8aec25a0fc2356d28d8001de827",
+        "temporary_copy_matches": true
+      },
+      {
+        "path": "pose-mcp/internal/pose/obligation_sources.go",
+        "sha256": "sha256:ef367ec05d106c9c6d986e9bc8a97b7e090a2ee752dbf4c356da3a62746c21c3",
+        "temporary_copy_matches": true
+      },
+      {
+        "path": "pose-mcp/internal/pose/release_archive.go",
+        "sha256": "sha256:31c0e3b904694d85c7ad64acd9690848d83fc5d3e1a9248cfedd0dfa6c31f8a5",
+        "temporary_copy_matches": true
+      },
+      {
+        "path": "pose-mcp/internal/pose/release_lifecycle.go",
+        "sha256": "sha256:368de23832b394dd05bcf59eafc9cd78d7ab6fcb17a5fb46c2b96dd53f5fcb2f",
+        "temporary_copy_matches": true
+      },
+      {
+        "path": "pose-mcp/internal/pose/release_manifest_integrity.go",
+        "sha256": "sha256:bbab2463eb0a12f793aadcf032a73883acf7711d9561681c42479ea160659f16",
+        "temporary_copy_matches": true
+      }
+    ],
+    "probe_source_location": "temporary copy only; no production-file edits in this clone"
+  },
+  "findings": [
+    {
+      "id": "R4-F01",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Multiline legítimo é recusado; 42 manifests históricos deixam de ser lidos e check falha com 131 erros.",
+      "probes": [
+        "TestB38R4MultilineFragmentIsRefused",
+        "TestB38R4HistoricalManifests"
+      ],
+      "requirements": [
+        "R1",
+        "R6",
+        "R8"
+      ]
+    },
+    {
+      "id": "R4-F02",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Snapshot reinterpreta os bytes de um symlink de versão como conteúdo de arquivo regular e certifica versão errada.",
+      "probes": [
+        "TestB38R4VersionSourceSymlink"
+      ],
+      "requirements": [
+        "R3",
+        "R4",
+        "R8"
+      ]
+    },
+    {
+      "id": "R4-F03",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "summary": "Check preparado não recompõe notas; release notes descarta gaps e imprime snapshot recusado.",
+      "probes": [
+        "TestB38R4PreparedNotesProjection"
+      ],
+      "requirements": [
+        "R2",
+        "R3",
+        "R7"
+      ]
+    },
+    {
+      "id": "R4-F04",
+      "severity": "medium",
+      "classification": "merge-blocking",
+      "summary": "Status preparado continua Sound=true após perder notas, fragment ou fonte de versão.",
+      "probes": [
+        "TestB38R4PreparedStatus",
+        "TestB38R4PreparedLostArchiveNotes"
+      ],
+      "requirements": [
+        "R3",
+        "R7",
+        "R8"
+      ]
+    },
+    {
+      "id": "R4-F05",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Fila omite verified não sólido; check aceita ausência de tag anteriormente registrada como tagged.",
+      "probes": [
+        "TestB38R4UnsoundVerifiedObligation",
+        "TestB38R4LostTagVsRecordedState"
+      ],
+      "requirements": [
+        "R4",
+        "R7"
+      ]
+    },
+    {
+      "id": "R4-F06",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Testemunho de archival aceita outro cut sob tag existente, apesar do binding divergente conhecido pelo status.",
+      "probes": [
+        "TestB38R4ArchiveDifferentCut"
+      ],
+      "requirements": [
+        "R3",
+        "R5",
+        "R7"
+      ]
+    },
+    {
+      "id": "R4-F07",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Objeto tree perdido vira ausência/default/fallback; raiz dangling e policy ilegível também são normalizadas.",
+      "probes": [
+        "TestB38R4RealLostGitObjects",
+        "TestB38R4GitObjectLossIsAbsence",
+        "TestB38R4DanglingReleaseRoot",
+        "TestB38R4PolicyFallbackOnLoss"
+      ],
+      "requirements": [
+        "R3",
+        "R4",
+        "R7"
+      ]
+    },
+    {
+      "id": "R4-F08",
+      "severity": "high",
+      "classification": "merge-blocking",
+      "summary": "Cutoff inválido oculta todas as tags no status e checker; schema futuro de policy de changelog é aceito sem limite.",
+      "probes": [
+        "TestB38R4InvalidCutoffHidesTags",
+        "TestB38R4InvalidCutoffSkipsChecker",
+        "TestB38R4ChangelogFuturePolicy"
+      ],
+      "requirements": [
+        "R3",
+        "R6",
+        "R7"
+      ]
+    }
+  ],
+  "acceptable_followups": [
+    {
+      "id": "R4-L01",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "summary": "kind:null é equivalente ao kind vazio do engine; tornar shape estrito sem falsa prova de fonte.",
+      "probe": "TestB38R4NullEvidenceKind",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01",
+      "spec_disposition_proposed": "open",
+      "spec_was_edited": false
+    },
+    {
+      "id": "R4-L02",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "summary": "Filtros diferentes de arquivos auxiliares no archive causam recusa excessiva.",
+      "probe": "TestB38R4ReadmeInArchive",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01",
+      "spec_disposition_proposed": "open",
+      "spec_was_edited": false
+    },
+    {
+      "id": "R4-L03",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "summary": "Divulgar limits no status humano e estado declarado do candidato não sólido; JSON e gate publicado já distinguem.",
+      "probe": "TestB38R4HumanStatusLimits",
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01",
+      "spec_disposition_proposed": "open",
+      "spec_was_edited": false
+    },
+    {
+      "id": "R4-L04",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "summary": "Ampliar pattern integration a TestF*/TestR2*; testes já são executados na suíte Go completa.",
+      "probe": null,
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01",
+      "spec_disposition_proposed": "open",
+      "spec_was_edited": false
+    },
+    {
+      "id": "R4-L05",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "summary": "Texto de authoring desatualizado; conservar o follow-up editorial já aberto sem duplicação.",
+      "probe": null,
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01",
+      "spec_disposition_proposed": "open",
+      "spec_was_edited": false
+    }
+  ],
+  "checks": {
+    "validation": [
+      {
+        "path": ".pose/results/b38r4-global-validation.json",
+        "engine": "installed engine 8aa729a7",
+        "outcome": "pass",
+        "counts": {
+          "executed": 140,
+          "passed": 140,
+          "failed": 0,
+          "optional_failed": 0,
+          "errored": 0,
+          "skipped": 0
+        },
+        "git_head": "74ca559db942dbaeec218e9af3ecfd915215dbac",
+        "sha256": "sha256:402ad3316d2f984c08f2fe214ff73c6d7e54e0f5b4c08baf2fdcd82562eb5a28"
+      },
+      {
+        "path": ".pose/results/b38r4-independent-validation.json",
+        "engine": "production sources of reviewed HEAD",
+        "outcome": "pass",
+        "counts": {
+          "executed": 137,
+          "passed": 137,
+          "failed": 0,
+          "optional_failed": 0,
+          "errored": 0,
+          "skipped": 0
+        },
+        "git_head": "74ca559db942dbaeec218e9af3ecfd915215dbac",
+        "sha256": "sha256:244ad9e6bf154fb5ffd42b1d290b3c6ebb57e3850c8364412615dca842a98f7a"
+      }
+    ],
+    "current_engine_check": {
+      "outcome": "fail",
+      "errors": 131,
+      "release_errors": 42,
+      "delivery_contract_errors": 89,
+      "output": "✖ error delivery contract: spec:pose-review-plan-producible-evidence-classes: action-mismatch [.pose/changelogs/unreleased/pose-review-plan-producible-evidence-classes.md -> .pose/changelogs/v1.7.12/pose-review-plan-producible-evidence-classes.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-review-plan-producible-evidence-classes.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-review-subject-submodule-classification: action-mismatch [.pose/changelogs/unreleased/pose-review-subject-submodule-classification.md -> .pose/changelogs/v1.7.11/pose-review-subject-submodule-classification.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-review-subject-submodule-classification.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-adoption-stamp-stays-readable: action-mismatch [.pose/changelogs/unreleased/pose-adoption-stamp-stays-readable.md -> .pose/changelogs/v2.0.2/pose-adoption-stamp-stays-readable.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-adoption-stamp-stays-readable.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-attest-records-not-applicable: action-mismatch [.pose/changelogs/unreleased/pose-attest-records-not-applicable.md -> .pose/changelogs/v2.0.0/pose-attest-records-not-applicable.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-attest-records-not-applicable.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-attestation-evidence-must-be-in-the-bundle: action-mismatch [.pose/changelogs/unreleased/pose-attestation-evidence-must-be-in-the-bundle.md -> .pose/changelogs/v2.0.0/pose-attestation-evidence-must-be-in-the-bundle.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-attestation-evidence-must-be-in-the-bundle.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-closeout-regenerates-before-sealing: action-mismatch [.pose/changelogs/unreleased/pose-closeout-regenerates-before-sealing.md -> .pose/changelogs/v3.0.0/pose-closeout-regenerates-before-sealing.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-closeout-regenerates-before-sealing.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-contract-adoption-registry: action-mismatch [.pose/changelogs/unreleased/pose-contract-adoption-registry.md -> .pose/changelogs/v2.0.0/pose-contract-adoption-registry.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-contract-adoption-registry.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-contract-adoption-stamp: action-mismatch [.pose/changelogs/unreleased/pose-contract-adoption-stamp.md -> .pose/changelogs/v2.0.0/pose-contract-adoption-stamp.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-contract-adoption-stamp.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-diagnose-invisible-governance-failures: action-mismatch [.pose/changelogs/unreleased/pose-diagnose-invisible-governance-failures.md -> .pose/changelogs/v1.8.0/pose-diagnose-invisible-governance-failures.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-diagnose-invisible-governance-failures.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-doctor-selected-profiles-only: action-mismatch [.pose/changelogs/unreleased/pose-doctor-selected-profiles-only.md -> .pose/changelogs/v1.8.1/pose-doctor-selected-profiles-only.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-doctor-selected-profiles-only.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-one-evidence-class-vocabulary: action-mismatch [.pose/changelogs/unreleased/pose-one-evidence-class-vocabulary.md -> .pose/changelogs/v2.0.0/pose-one-evidence-class-vocabulary.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-one-evidence-class-vocabulary.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-public-claims-onboarding: action-mismatch [.pose/changelogs/unreleased/pose-public-claims-onboarding.md -> .pose/changelogs/v2.0.0/pose-public-claims-onboarding.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-public-claims-onboarding.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-review-subject-and-scope-precision: action-mismatch [.pose/changelogs/unreleased/pose-review-subject-and-scope-precision.md -> .pose/changelogs/v1.8.0/pose-review-subject-and-scope-precision.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-review-subject-and-scope-precision.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-review-subject-unclassified-removals: action-mismatch [.pose/changelogs/unreleased/pose-review-subject-unclassified-removals.md -> .pose/changelogs/v2.0.0/pose-review-subject-unclassified-removals.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-review-subject-unclassified-removals.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-self-update-handoff-path: action-mismatch [.pose/changelogs/unreleased/pose-self-update-handoff-path.md -> .pose/changelogs/v2.0.1/pose-self-update-handoff-path.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-self-update-handoff-path.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-tool-dispositions-must-be-supported: action-mismatch [.pose/changelogs/unreleased/pose-tool-dispositions-must-be-supported.md -> .pose/changelogs/v2.0.0/pose-tool-dispositions-must-be-supported.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-tool-dispositions-must-be-supported.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-bundles-seal-the-contracts-that-govern-them: action-mismatch [.pose/changelogs/unreleased/pose-bundles-seal-the-contracts-that-govern-them.md -> .pose/changelogs/v4.0.0/pose-bundles-seal-the-contracts-that-govern-them.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-bundles-seal-the-contracts-that-govern-them.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-changelog-and-dor-policy-types: action-mismatch [.pose/changelogs/unreleased/pose-changelog-and-dor-policy-types.md -> .pose/changelogs/v4.0.0/pose-changelog-and-dor-policy-types.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-changelog-and-dor-policy-types.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-component-evidence-is-not-inherited-upward: action-mismatch [.pose/changelogs/unreleased/pose-component-evidence-is-not-inherited-upward.md -> .pose/changelogs/v4.0.0/pose-component-evidence-is-not-inherited-upward.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-component-evidence-is-not-inherited-upward.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-doctor-fixtures-exercise-production-path: action-mismatch [.pose/changelogs/unreleased/pose-doctor-fixtures-exercise-production-path.md -> .pose/changelogs/v4.0.0/pose-doctor-fixtures-exercise-production-path.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-doctor-fixtures-exercise-production-path.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-doctor-reports-unread-policy-keys: action-mismatch [.pose/changelogs/unreleased/pose-doctor-reports-unread-policy-keys.md -> .pose/changelogs/v4.0.0/pose-doctor-reports-unread-policy-keys.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-doctor-reports-unread-policy-keys.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-emittable-analysis-evidence-classes: action-mismatch [.pose/changelogs/unreleased/pose-emittable-analysis-evidence-classes.md -> .pose/changelogs/v4.0.0/pose-emittable-analysis-evidence-classes.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-emittable-analysis-evidence-classes.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-evidence-scoped-to-component: action-mismatch [.pose/changelogs/unreleased/pose-evidence-scoped-to-component.md -> .pose/changelogs/v3.0.0/pose-evidence-scoped-to-component.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-evidence-scoped-to-component.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-policy-keys-and-release-surface-coverage: action-mismatch [.pose/changelogs/unreleased/pose-policy-keys-and-release-surface-coverage.md -> .pose/changelogs/v4.0.0/pose-policy-keys-and-release-surface-coverage.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-policy-keys-and-release-surface-coverage.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-release-boundary-rehearsal: action-mismatch [.pose/changelogs/unreleased/pose-release-boundary-rehearsal.md -> .pose/changelogs/v4.0.0/pose-release-boundary-rehearsal.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-release-boundary-rehearsal.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-release-notes-name-contract-adoption: action-mismatch [.pose/changelogs/unreleased/pose-release-notes-name-contract-adoption.md -> .pose/changelogs/v4.0.0/pose-release-notes-name-contract-adoption.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-release-notes-name-contract-adoption.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-remaining-command-surfaces-coverage: action-mismatch [.pose/changelogs/unreleased/pose-remaining-command-surfaces-coverage.md -> .pose/changelogs/v4.0.0/pose-remaining-command-surfaces-coverage.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-remaining-command-surfaces-coverage.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-roadmap-check-reaches-its-gate: action-mismatch [.pose/changelogs/unreleased/pose-roadmap-check-reaches-its-gate.md -> .pose/changelogs/v4.0.0/pose-roadmap-check-reaches-its-gate.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-roadmap-check-reaches-its-gate.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-seal-names-carried-forward-evidence: action-mismatch [.pose/changelogs/unreleased/pose-seal-names-carried-forward-evidence.md -> .pose/changelogs/v4.0.0/pose-seal-names-carried-forward-evidence.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-seal-names-carried-forward-evidence.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-bundle-findings-take-the-contract-the-legacy-path-had: action-mismatch [.pose/changelogs/unreleased/pose-bundle-findings-take-the-contract-the-legacy-path-had.md -> .pose/changelogs/v5.0.0/pose-bundle-findings-take-the-contract-the-legacy-path-had.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-bundle-findings-take-the-contract-the-legacy-path-had.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-changelog-adoption-is-the-instances: action-mismatch [.pose/changelogs/unreleased/pose-changelog-adoption-is-the-instances.md -> .pose/changelogs/v5.0.0/pose-changelog-adoption-is-the-instances.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-changelog-adoption-is-the-instances.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-class-producers-reads-the-disjunction: action-mismatch [.pose/changelogs/unreleased/pose-class-producers-reads-the-disjunction.md -> .pose/changelogs/v5.0.1/pose-class-producers-reads-the-disjunction.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-class-producers-reads-the-disjunction.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-compat-gate-pose-md-preservation: action-mismatch [.pose/changelogs/unreleased/pose-compat-gate-pose-md-preservation.md -> .pose/changelogs/v5.0.1/pose-compat-gate-pose-md-preservation.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-compat-gate-pose-md-preservation.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-cross-version-guard-is-this-repositorys: action-mismatch [.pose/changelogs/unreleased/pose-cross-version-guard-is-this-repositorys.md -> .pose/changelogs/v4.0.1/pose-cross-version-guard-is-this-repositorys.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-cross-version-guard-is-this-repositorys.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-doctor-reports-a-profile-left-behind: action-mismatch [.pose/changelogs/unreleased/pose-doctor-reports-a-profile-left-behind.md -> .pose/changelogs/v5.0.0/pose-doctor-reports-a-profile-left-behind.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-doctor-reports-a-profile-left-behind.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-mcp-server-survives-self-update: action-mismatch [.pose/changelogs/unreleased/pose-mcp-server-survives-self-update.md -> .pose/changelogs/v5.0.1/pose-mcp-server-survives-self-update.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-mcp-server-survives-self-update.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-one-follow-up-format: action-mismatch [.pose/changelogs/unreleased/pose-one-follow-up-format.md -> .pose/changelogs/v5.0.2/pose-one-follow-up-format.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-one-follow-up-format.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-only-the-signing-gate-is-read-live: action-mismatch [.pose/changelogs/unreleased/pose-only-the-signing-gate-is-read-live.md -> .pose/changelogs/v5.0.0/pose-only-the-signing-gate-is-read-live.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-only-the-signing-gate-is-read-live.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-parity-reads-the-cli-surface: action-mismatch [.pose/changelogs/unreleased/pose-parity-reads-the-cli-surface.md -> .pose/changelogs/v5.0.1/pose-parity-reads-the-cli-surface.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-parity-reads-the-cli-surface.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-report-a-demanded-class-nothing-produces: action-mismatch [.pose/changelogs/unreleased/pose-report-a-demanded-class-nothing-produces.md -> .pose/changelogs/v5.0.0/pose-report-a-demanded-class-nothing-produces.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-report-a-demanded-class-nothing-produces.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-report-coverage-that-rests-on-inference: action-mismatch [.pose/changelogs/unreleased/pose-report-coverage-that-rests-on-inference.md -> .pose/changelogs/v5.0.0/pose-report-coverage-that-rests-on-inference.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-report-coverage-that-rests-on-inference.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-report-help-names-every-flag: action-mismatch [.pose/changelogs/unreleased/pose-report-help-names-every-flag.md -> .pose/changelogs/v5.0.1/pose-report-help-names-every-flag.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-report-help-names-every-flag.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-reuse-is-sealed-signing-stays-live: action-mismatch [.pose/changelogs/unreleased/pose-reuse-is-sealed-signing-stays-live.md -> .pose/changelogs/v5.0.0/pose-reuse-is-sealed-signing-stays-live.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-reuse-is-sealed-signing-stays-live.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-shipped-review-profiles-are-schema-v2: action-mismatch [.pose/changelogs/unreleased/pose-shipped-review-profiles-are-schema-v2.md -> .pose/changelogs/v4.0.1/pose-shipped-review-profiles-are-schema-v2.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-shipped-review-profiles-are-schema-v2.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-the-guard-signal-is-declared-not-inherited: action-mismatch [.pose/changelogs/unreleased/pose-the-guard-signal-is-declared-not-inherited.md -> .pose/changelogs/v5.0.0/pose-the-guard-signal-is-declared-not-inherited.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-the-guard-signal-is-declared-not-inherited.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-docs-and-manuals-match-5-0-2: action-mismatch [.pose/changelogs/unreleased/pose-docs-and-manuals-match-5-0-2.md -> .pose/changelogs/v5.0.3/pose-docs-and-manuals-match-5-0-2.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-docs-and-manuals-match-5-0-2.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-help-names-flags-the-parser-accepts: action-mismatch [.pose/changelogs/unreleased/pose-help-names-flags-the-parser-accepts.md -> .pose/changelogs/v5.0.3/pose-help-names-flags-the-parser-accepts.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-help-names-flags-the-parser-accepts.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-lint-spec-all-is-a-gate: existence [.pose/changelogs/unreleased/pose-lint-spec-all-is-a-gate.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-lint-spec-all-is-a-gate.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-machinery-backs-up-only-local-edits: action-mismatch [.pose/changelogs/unreleased/pose-machinery-backs-up-only-local-edits.md -> .pose/changelogs/v5.0.4/pose-machinery-backs-up-only-local-edits.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-machinery-backs-up-only-local-edits.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-manual-merge-backs-up-only-local-edits: action-mismatch [.pose/changelogs/unreleased/pose-manual-merge-backs-up-only-local-edits.md -> .pose/changelogs/v5.0.5/pose-manual-merge-backs-up-only-local-edits.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-manual-merge-backs-up-only-local-edits.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-stdio-server-honours-sigterm: action-mismatch [.pose/changelogs/unreleased/pose-stdio-server-honours-sigterm.md -> .pose/changelogs/v5.0.2/pose-stdio-server-honours-sigterm.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-stdio-server-honours-sigterm.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-update-reports-what-it-delivered: action-mismatch [.pose/changelogs/unreleased/pose-update-reports-what-it-delivered.md -> .pose/changelogs/v5.0.2/pose-update-reports-what-it-delivered.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-update-reports-what-it-delivered.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-usage-findings-adjudication: existence [.pose/changelogs/unreleased/pose-usage-findings-adjudication.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-usage-findings-adjudication.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-validate-report-carries-its-run: action-mismatch [.pose/changelogs/unreleased/pose-validate-report-carries-its-run.md -> .pose/changelogs/v5.0.2/pose-validate-report-carries-its-run.md]: declared artifact action is absent from the attributed Git change sets; no release manifest archives .pose/changelogs/unreleased/pose-validate-report-carries-its-run.md (correct the action or record the exact attributed revisions)\n✖ error delivery contract: spec:pose-cli-output-machine-channel: existence [.pose/changelogs/unreleased/pose-cli-output-machine-channel.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-cli-output-machine-channel.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-discovery-gitignore-inside-submodules: existence [.pose/changelogs/unreleased/pose-discovery-gitignore-inside-submodules.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-discovery-gitignore-inside-submodules.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-abm-progressive-review: existence [.pose/changelogs/unreleased/pose-abm-progressive-review.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-abm-progressive-review.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:artifact-claims-stop-at-the-section-end: existence [.pose/changelogs/unreleased/artifact-claims-stop-at-the-section-end.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/artifact-claims-stop-at-the-section-end.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:check-builds-the-delivery-graph-once: existence [.pose/changelogs/unreleased/check-builds-the-delivery-graph-once.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/check-builds-the-delivery-graph-once.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:check-strict-verdict-names-its-mode: existence [.pose/changelogs/unreleased/check-strict-verdict-names-its-mode.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/check-strict-verdict-names-its-mode.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:parse-the-delivery-index-once-per-content: existence [.pose/changelogs/unreleased/parse-the-delivery-index-once-per-content.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/parse-the-delivery-index-once-per-content.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-dist-records-its-own-contract-adoption: existence [.pose/changelogs/unreleased/pose-dist-records-its-own-contract-adoption.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-dist-records-its-own-contract-adoption.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:review-policy-adoption-is-the-instances: existence [.pose/changelogs/unreleased/review-policy-adoption-is-the-instances.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/review-policy-adoption-is-the-instances.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:check-worker-count-is-the-machines: existence [.pose/changelogs/unreleased/check-worker-count-is-the-machines.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/check-worker-count-is-the-machines.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-qualified-artifact-resolution: existence [.pose/changelogs/unreleased/pose-qualified-artifact-resolution.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-qualified-artifact-resolution.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-abm-review-soundness-residuals: existence [.pose/changelogs/unreleased/pose-abm-review-soundness-residuals.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-abm-review-soundness-residuals.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-federated-carried-forward-proof: existence [.pose/changelogs/unreleased/pose-federated-carried-forward-proof.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-federated-carried-forward-proof.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-federated-milestone-scoped-acceptance: existence [.pose/changelogs/unreleased/pose-federated-milestone-scoped-acceptance.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-federated-milestone-scoped-acceptance.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-federated-spec-dependency-acceptance: existence [.pose/changelogs/unreleased/pose-federated-spec-dependency-acceptance.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-federated-spec-dependency-acceptance.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-roadmap-gate-scopes-milestones-and-external-members: existence [.pose/changelogs/unreleased/pose-roadmap-gate-scopes-milestones-and-external-members.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-roadmap-gate-scopes-milestones-and-external-members.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-spec-transfer-reconcile-terminal: existence [.pose/changelogs/unreleased/pose-spec-transfer-reconcile-terminal.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-spec-transfer-reconcile-terminal.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-abm-atomic-start: existence [.pose/changelogs/unreleased/pose-abm-atomic-start.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-abm-atomic-start.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-abm-causality-attestation: existence [.pose/changelogs/unreleased/pose-abm-causality-attestation.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-abm-causality-attestation.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-abm-contract-nodes: existence [.pose/changelogs/unreleased/pose-abm-contract-nodes.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-abm-contract-nodes.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-check-dor-accepts-qualified-refs: existence [.pose/changelogs/unreleased/pose-check-dor-accepts-qualified-refs.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-check-dor-accepts-qualified-refs.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-governance-outcomes-v2: existence [.pose/changelogs/unreleased/pose-governance-outcomes-v2.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-governance-outcomes-v2.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-governance-stats-local-freshness: existence [.pose/changelogs/unreleased/pose-governance-stats-local-freshness.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-governance-stats-local-freshness.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-review-bundle-seals-planned-component-evidence: existence [.pose/changelogs/unreleased/pose-review-bundle-seals-planned-component-evidence.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-review-bundle-seals-planned-component-evidence.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-abm-retrospective-replay: existence [.pose/changelogs/unreleased/pose-abm-retrospective-replay.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-abm-retrospective-replay.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-v6-release-readiness: existence [.pose/changelogs/unreleased/pose-v6-release-readiness.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-v6-release-readiness.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-v6-1-0-release-readiness: existence [.pose/changelogs/unreleased/pose-v6-1-0-release-readiness.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-v6-1-0-release-readiness.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:public-claims-reads-release-lines: existence [.pose/changelogs/unreleased/public-claims-reads-release-lines.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/public-claims-reads-release-lines.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:review-subject-classifies-capabilities: existence [.pose/changelogs/unreleased/review-subject-classifies-capabilities.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/review-subject-classifies-capabilities.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-design-delta-batched-git-reads: existence [.pose/changelogs/unreleased/pose-design-delta-batched-git-reads.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-design-delta-batched-git-reads.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-governance-residual-diagnostics: existence [.pose/changelogs/unreleased/pose-governance-residual-diagnostics.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-governance-residual-diagnostics.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-history-quiet-tolerated-verdict: existence [.pose/changelogs/unreleased/pose-history-quiet-tolerated-verdict.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-history-quiet-tolerated-verdict.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-release-doc-discovery-and-sbom-parser: existence [.pose/changelogs/unreleased/pose-release-doc-discovery-and-sbom-parser.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-release-doc-discovery-and-sbom-parser.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-v6-2-0-delivery-authority-diagnostics: existence [.pose/changelogs/unreleased/pose-v6-2-0-delivery-authority-diagnostics.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-v6-2-0-delivery-authority-diagnostics.md (correct the exact path or commit the artifact before closeout)\n✖ error delivery contract: spec:pose-v6-2-0-release-stability: existence [.pose/changelogs/unreleased/pose-v6-2-0-release-stability.md]: declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-v6-2-0-release-stability.md (correct the exact path or commit the artifact before closeout)\n⚠ warning changelog: done spec without a changelog fragment: pose-agy-smoke-test\n⚠ warning changelog: done spec without a changelog fragment: pose-canonical-positioning\n⚠ warning changelog: done spec without a changelog fragment: pose-community-contribution-surfaces\n⚠ warning changelog: done spec without a changelog fragment: pose-docs-canonical-route\n⚠ warning changelog: done spec without a changelog fragment: pose-first-governed-loop-quickstart\n⚠ warning changelog: done spec without a changelog fragment: pose-launch-proof-demo\n⚠ warning changelog: done spec without a changelog fragment: pose-public-claims-contract\n⚠ warning changelog: done spec without a changelog fragment: pose-readme-evaluation-path\n⚠ warning changelog: done spec without a changelog fragment: pose-release-recovery-verification\n⚠ warning changelog: done spec without a changelog fragment: pose-release-security-gate-integrity\n⚠ warning changelog: done spec without a changelog fragment: pose-sdd-migration-acquisition\n⚠ warning changelog: done spec without a changelog fragment: pose-code-cites-the-specs-that-delivered-it\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-authority-fixture-clock\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-design-basis\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-governance-outcomes\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-remediation-lineage\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-authority\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-tool-deferred-without-delivery\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-structural-delta\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-subject-evidence\n⚠ warning changelog: done spec without a changelog fragment: pose-check-qualified-roadmap-members\n⚠ warning changelog: done spec without a changelog fragment: pose-dist-adopts-spec-authority-transfer\n⚠ warning changelog: done spec without a changelog fragment: pose-federated-external-milestone-members\n⚠ warning changelog: done spec without a changelog fragment: pose-review-bundle-classifies-transfer-records\n⚠ warning changelog: done spec without a changelog fragment: pose-spec-transfer-completion-and-references\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-capability-adoption\n⚠ warning changelog: done spec without a changelog fragment: pose-open-backlog-reconciliation\n✖ error release: governed tag v0.16.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.16.1 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.16.2 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.16.3 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.17.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.18.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.18.1 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.18.2 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.19.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.20.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.20.1 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.20.2 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.20.3 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.21.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.22.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.23.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v0.23.1 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v1.0.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v1.1.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v1.2.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v1.2.1 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v1.7.11 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v1.7.12 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v1.8.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v1.8.1 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v2.0.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v2.0.1 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v2.0.2 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v3.0.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v4.0.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v4.0.1 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v5.0.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v5.0.1 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v5.0.2 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v5.0.3 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v5.0.4 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v5.0.5 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v5.0.7 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v5.0.8 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v6.0.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v6.1.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n✖ error release: governed tag v6.2.0 has a snapshot that is not intact: manifest: is not an unambiguous JSON document: JSON string contains a control character\n⚠ warning capabilities: assessment is 62 days old (policy: 30); consider reassessing\n⚠ warning capabilities: baseline_commit is 1546 commits behind HEAD (policy: 200); consider reassessing\nResult: FAILURE — POSE structure has 131 error(s).\n\n💡 [Contributor Mode ACTIVE] If this failure stems from a POSE engine defect, false-positive, or missing stack rule, stage a synthetic reproduction locally with:\n   pose contribute stage --type bug --title \"<brief-summary>\"\n"
+    },
+    "installed_engine_check": {
+      "outcome": "pass",
+      "warnings": 29,
+      "qualification": "older runtime; not a qualification of B38"
+    },
+    "current_release_status": {
+      "outcome": "fail",
+      "output": "pose: release manifest of v0.16.0 is not valid: manifest: is not an unambiguous JSON document: JSON string contains a control character\n"
+    },
+    "artifact_check": {
+      "outcome": "pass-for-selected-spec",
+      "spec_claims": 33,
+      "spec_findings": [],
+      "global_findings": {
+        "warning:orphan": 640
+      }
+    },
+    "surface_check": {
+      "outcome": "pass",
+      "results_path": ".pose/results/b38r4-independent-validation.json",
+      "findings": [],
+      "default_old_results_attempt": "stale-evidence; replaced by explicit current results for the final check"
+    },
+    "lint_spec": {
+      "outcome": "pass",
+      "output": "---\n⚠ warning section pose-release-manifest-tag-integrity\n    optional section missing: Tasks\nspec.path=/home/go/.cache/pose-work/b38/pose-dist/.pose/specs/2026-10-13-pose-release-manifest-tag-integrity.md\nspec.status=in-progress\nspec.sections.total=6\nspec.sections.filled=6\nspec.sections.skeleton=0\nspec.sections.empty=0\nspec.required.missing=0\nspec.followups.total=1\nspec.followups.open=1\nspec.lifecycle.failures=0\nspec.requirements.ids=8\nspec.requirements.duplicate_failures=0\nspec.trace.present=true\nspec.trace.entries=8\nspec.trace.missing=0\nspec.trace.failures=0\nspec.amendments.events=0\nspec.amendments.failures=0\n\nlint.specs.checked=1\nlint.specs.failed=0\nResultado: SUCESSO\n"
+    },
+    "govulncheck": {
+      "outcome": "pass",
+      "command": "go run golang.org/x/vuln/cmd/govulncheck@v1.4.0 ./... (pose-mcp)",
+      "output": "No vulnerabilities found.\n"
+    },
+    "gitleaks": {
+      "outcome": "pass",
+      "command": "go run github.com/zricethezav/gitleaks/v8@v8.21.2 git --no-banner --redact --config ../.gitleaks.toml --log-opts=origin/main..HEAD .. (pose-mcp)",
+      "output": "\u001b[90m2:20PM\u001b[0m \u001b[32mINF\u001b[0m 11 commits scanned.\n\u001b[90m2:20PM\u001b[0m \u001b[32mINF\u001b[0m scan completed in 478ms\n\u001b[90m2:20PM\u001b[0m \u001b[32mINF\u001b[0m no leaks found\n"
+    },
+    "diff_check": {
+      "outcome": "pass",
+      "command": "git diff origin/main...HEAD --check"
+    },
+    "context": {
+      "schema_version": 1,
+      "selected_project_id": "proj.pose-dist",
+      "selected_revision": "74ca559db942dbaeec218e9af3ecfd915215dbac",
+      "task_ref": "xref:proj.pose-dist/spec:pose-release-manifest-tag-integrity",
+      "authority": {
+        "project_id": "proj.pose-dist",
+        "kind": "spec",
+        "slug": "pose-release-manifest-tag-integrity"
+      },
+      "coordinator_relation": "same-project-authority",
+      "task_resolution": {
+        "schema_version": 1,
+        "identity": {
+          "project_id": "proj.pose-dist",
+          "kind": "spec",
+          "slug": "pose-release-manifest-tag-integrity"
+        },
+        "resolved": true,
+        "resolution_state": "resolved",
+        "status": "in-progress",
+        "source_revision": "74ca559db942dbaeec218e9af3ecfd915215dbac",
+        "source_digest": "781303fe3eb09cc2e0b505f6383cdac2e4fa9cc5e628aa5fe93a8bf457f8a5b9",
+        "dependencies": [
+          {
+            "project_id": "proj.pose-dist",
+            "kind": "spec",
+            "slug": "pose-release-lifecycle-closure"
+          }
+        ]
+      },
+      "authority_revision": "74ca559db942dbaeec218e9af3ecfd915215dbac",
+      "supported_contracts": [
+        "qualified-artifact-refs@1",
+        "spec-authority-transfer@1",
+        "federated-roadmap-acceptance@1"
+      ],
+      "context_revision": "0f3ddc614b72ac15d9d72e3a7b662f640a5989144b32cc698afb85ec52e62e51"
+    },
+    "assess_design": {
+      "schema_version": 1,
+      "parser_version": "pose-design-delta/v2",
+      "scope": "spec:pose-release-manifest-tag-integrity",
+      "status": "observed",
+      "input_digest": "sha256:da23a1c694f060f363814c1ccd3b51b9bc7bf73e55a373c82fda42b6e221ed94",
+      "cache_key": "sha256:da23a1c694f060f363814c1ccd3b51b9bc7bf73e55a373c82fda42b6e221ed94",
+      "subject": {
+        "base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+        "head": "74ca559db942dbaeec218e9af3ecfd915215dbac",
+        "patch_digest": "sha256:90758460aaebaa72cca285eabe52ad574b1e8c586b35258f46ca05526618e77f",
+        "tree_digest": "sha256:a74ce841b595c869234da989c02003bda388b4b37b7d3ed6985bcadf7771a880",
+        "implementation_digest": "sha256:c9fcfb1b158f5205856a5506565240dda053d1d9fe8b1cfca957fef95e671de2",
+        "entries": 23
+      },
+      "coverage": {
+        "files_in_subject": 23,
+        "files_observed": 23,
+        "bytes_read": 1387019,
+        "max_files": 4096,
+        "max_bytes": 16777216,
+        "detectors": [
+          {
+            "id": "dependency-go",
+            "state": "not-applicable"
+          },
+          {
+            "id": "dependency-npm",
+            "state": "not-applicable"
+          },
+          {
+            "id": "component",
+            "state": "not-applicable"
+          },
+          {
+            "id": "delivery-metadata",
+            "state": "observed",
+            "observed": 1
+          },
+          {
+            "id": "governance-contract",
+            "state": "not-applicable"
+          },
+          {
+            "id": "public-contract",
+            "state": "not-applicable"
+          },
+          {
+            "id": "git-actions",
+            "state": "observed",
+            "observed": 23
+          }
+        ]
+      },
+      "deltas": [
+        {
+          "id": "sd-784aeee45cd2d0dd599f7d9bba11188d",
+          "display_id": "SD-784aeee4",
+          "kind": "validation-check",
+          "action": "added",
+          "state": "observed",
+          "subject": "moduleOverrides.pose-mcp:release-manifest-tag-integrity-integration",
+          "path": ".pose/indexes/validation-matrix.json"
+        }
+      ]
+    },
+    "assess_discover": [
+      {
+        "schema_version": 1,
+        "component_slug": "pose-mcp",
+        "path": "pose-mcp",
+        "discovered_at": "2026-10-18T17:21:01Z",
+        "baseline_commit": "74ca559db942",
+        "metrics": {
+          "loc_production": 75317,
+          "loc_tests": 63264,
+          "total_files": 586,
+          "languages": [
+            "go"
+          ]
+        },
+        "technical_debt": {
+          "todos": 1,
+          "fixmes": 0,
+          "panics": 0,
+          "stubs": 0
+        },
+        "metadata": {
+          "criticality": "high",
+          "domain": "go",
+          "validationProfile": "baseline"
+        },
+        "status": "verified",
+        "completeness_score": 0.995,
+        "binding": {
+          "content_tree": "d12f428c3d115d7e2aa462b95b8316824f33377c",
+          "engine_version": "7.4.1-dev",
+          "matrix_digest": "sha256:1fd3f2be3db4fcde2e25c36417eb91bae1d7a0167d63f80c6f4e08806df9abdb"
+        },
+        "scan_complete": true,
+        "coverage": {
+          "losses": [],
+          "exclusions": [
+            {
+              "producer": "component-discovery",
+              "pattern": "generated-or-binary",
+              "reason": "generated and binary files are not scanned",
+              "count": 1,
+              "examples": [
+                "pose-mcp/internal/pose/assessment_scan.go"
+              ]
+            },
+            {
+              "producer": "component-discovery",
+              "pattern": "skipped-directory",
+              "reason": "directories that hold dependencies, build output or tool state are not scanned",
+              "count": 2,
+              "examples": [
+                ".pose",
+                "dist"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "assess_integrate": {
+      "schema_version": 1,
+      "evaluated_at": "2026-10-18T17:29:08Z",
+      "baseline_commit": "74ca559db942",
+      "summary": {
+        "total_integrations": 64,
+        "active_contracts": 1,
+        "identified_gaps": 63
+      },
+      "contracts": [
+        {
+          "name": "MCP tool conductor_run_close",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool conductor_run_event",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool conductor_run_open",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_action_open",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_action_requests",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_action_resolve",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_capability_history",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_capability_stale",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_capability_state",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_check",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_closeout_state",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_component_discover",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_delivery_integrity",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_design_delta",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_docs_state",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_extension_list",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_federated_roadmap_acceptance",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_get_assessment",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_get_changelog",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_get_followups",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_get_integration_matrix",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_get_knowledge",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_get_report",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_get_roadmap",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_get_rules",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_get_skill",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_get_spec",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "mcp-enforce",
+          "status": "active"
+        },
+        {
+          "name": "MCP tool pose_get_tech_debt_report",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_get_workflow",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_governance_stats",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_insights",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_integration_check",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_lint_spec",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_list_assessments",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_list_knowledge",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_list_reports",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_list_roadmaps",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_list_specs",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_mcp_context",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_obligations",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_project_state",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_release_status",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_requirement_trace",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_review_attest",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_review_bundle",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_review_plan",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_review_prepare",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_skills_check",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_spec_amendments",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_spec_readiness",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_spec_transfer_status",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_start_status",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_suggest",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_surface_assurance",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_tech_debt_check",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_usage",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_validate_approve",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_validate_cancel",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_validate_request",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_validate_status",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "MCP tool pose_validate_submit",
+          "protocol": "mcp",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "HTTP /admin/refresh",
+          "protocol": "rest",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "HTTP /healthz",
+          "protocol": "rest",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        },
+        {
+          "name": "HTTP /mcp",
+          "protocol": "rest",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "status": "gap"
+        }
+      ],
+      "gaps": [
+        {
+          "gap_id": "GAP-3dcadd4f",
+          "title": "No consumer observed for MCP tool conductor_run_close",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-253d911d",
+          "title": "No consumer observed for MCP tool conductor_run_event",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-96ba2db7",
+          "title": "No consumer observed for MCP tool conductor_run_open",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-5db5a249",
+          "title": "No consumer observed for MCP tool pose_action_open",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-a89c576d",
+          "title": "No consumer observed for MCP tool pose_action_requests",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-6de0d012",
+          "title": "No consumer observed for MCP tool pose_action_resolve",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-42f38156",
+          "title": "No consumer observed for MCP tool pose_capability_history",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-526d5db1",
+          "title": "No consumer observed for MCP tool pose_capability_stale",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-1723b6ee",
+          "title": "No consumer observed for MCP tool pose_capability_state",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-3b191a46",
+          "title": "No consumer observed for MCP tool pose_check",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-d83dfa41",
+          "title": "No consumer observed for MCP tool pose_closeout_state",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-2b269c89",
+          "title": "No consumer observed for MCP tool pose_component_discover",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-4d3323ce",
+          "title": "No consumer observed for MCP tool pose_delivery_integrity",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-975000d8",
+          "title": "No consumer observed for MCP tool pose_design_delta",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-a0de8c4e",
+          "title": "No consumer observed for MCP tool pose_docs_state",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-28319ba1",
+          "title": "No consumer observed for MCP tool pose_extension_list",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-da35d2c1",
+          "title": "No consumer observed for MCP tool pose_federated_roadmap_acceptance",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-6beb18b0",
+          "title": "No consumer observed for MCP tool pose_get_assessment",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-4591b983",
+          "title": "No consumer observed for MCP tool pose_get_changelog",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-c243e080",
+          "title": "No consumer observed for MCP tool pose_get_followups",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-5c88244f",
+          "title": "No consumer observed for MCP tool pose_get_integration_matrix",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-6184cb5e",
+          "title": "No consumer observed for MCP tool pose_get_knowledge",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-ca59e900",
+          "title": "No consumer observed for MCP tool pose_get_report",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-49656cfd",
+          "title": "No consumer observed for MCP tool pose_get_roadmap",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-2c4566b3",
+          "title": "No consumer observed for MCP tool pose_get_rules",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-bcb0d677",
+          "title": "No consumer observed for MCP tool pose_get_skill",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-c631ddfd",
+          "title": "No consumer observed for MCP tool pose_get_tech_debt_report",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-6e11b88a",
+          "title": "No consumer observed for MCP tool pose_get_workflow",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-f9a968d0",
+          "title": "No consumer observed for MCP tool pose_governance_stats",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-52b62b39",
+          "title": "No consumer observed for MCP tool pose_insights",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-efbf903c",
+          "title": "No consumer observed for MCP tool pose_integration_check",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-de0a1bcc",
+          "title": "No consumer observed for MCP tool pose_lint_spec",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-b30f7eaf",
+          "title": "No consumer observed for MCP tool pose_list_assessments",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-a92d9477",
+          "title": "No consumer observed for MCP tool pose_list_knowledge",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-c74bb593",
+          "title": "No consumer observed for MCP tool pose_list_reports",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-3546aaa0",
+          "title": "No consumer observed for MCP tool pose_list_roadmaps",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-c158e52d",
+          "title": "No consumer observed for MCP tool pose_list_specs",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-d2b3bba3",
+          "title": "No consumer observed for MCP tool pose_mcp_context",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-4176db82",
+          "title": "No consumer observed for MCP tool pose_obligations",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-95c9942d",
+          "title": "No consumer observed for MCP tool pose_project_state",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-4be1e8a3",
+          "title": "No consumer observed for MCP tool pose_release_status",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-8c1171f0",
+          "title": "No consumer observed for MCP tool pose_requirement_trace",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-7fe36cf5",
+          "title": "No consumer observed for MCP tool pose_review_attest",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-0aed6fe8",
+          "title": "No consumer observed for MCP tool pose_review_bundle",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-d5ec9388",
+          "title": "No consumer observed for MCP tool pose_review_plan",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-82926d92",
+          "title": "No consumer observed for MCP tool pose_review_prepare",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-e0b19772",
+          "title": "No consumer observed for MCP tool pose_skills_check",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-c478d47e",
+          "title": "No consumer observed for MCP tool pose_spec_amendments",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-3337a34d",
+          "title": "No consumer observed for MCP tool pose_spec_readiness",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-4d6cbab5",
+          "title": "No consumer observed for MCP tool pose_spec_transfer_status",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-a29807bf",
+          "title": "No consumer observed for MCP tool pose_start_status",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-47837534",
+          "title": "No consumer observed for MCP tool pose_suggest",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-4e92b6ec",
+          "title": "No consumer observed for MCP tool pose_surface_assurance",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-2a822d27",
+          "title": "No consumer observed for MCP tool pose_tech_debt_check",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-c94b5e59",
+          "title": "No consumer observed for MCP tool pose_usage",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-c8c850e8",
+          "title": "No consumer observed for MCP tool pose_validate_approve",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-5424a827",
+          "title": "No consumer observed for MCP tool pose_validate_cancel",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-bb4e7fbb",
+          "title": "No consumer observed for MCP tool pose_validate_request",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-e32ba49c",
+          "title": "No consumer observed for MCP tool pose_validate_status",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-4b014c9c",
+          "title": "No consumer observed for MCP tool pose_validate_submit",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-7baa2119",
+          "title": "No consumer observed for HTTP /admin/refresh",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-61862039",
+          "title": "No consumer observed for HTTP /healthz",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        },
+        {
+          "gap_id": "GAP-0338c2bf",
+          "title": "No consumer observed for HTTP /mcp",
+          "severity": "medium",
+          "provider": "pose-mcp",
+          "consumer": "unobserved",
+          "description": "A provider declaration was observed, but no repository consumer reference was found."
+        }
+      ]
+    },
+    "assess_tech_debt": {
+      "schema_version": 1,
+      "evaluated_at": "2026-10-18T17:29:08Z",
+      "baseline_commit": "74ca559db942",
+      "summary": {
+        "total_markers": 1,
+        "todos": 1,
+        "fixmes": 0,
+        "panics": 0,
+        "stubs": 0,
+        "covered_count": 1,
+        "uncovered_count": 0,
+        "recommended_followups": 0,
+        "recommended_specs": 0,
+        "recommended_roadmaps": 0
+      },
+      "items": [
+        {
+          "id": "DEBT-8dcc4523",
+          "marker": "TODO",
+          "file": "pose-mcp/internal/pose/techdebt.go",
+          "line": 329,
+          "snippet": "// ignored, so a TODO after a 70 000-character line was lost without a word.",
+          "component": "pose-mcp",
+          "coverage": "covered_by_spec",
+          "coverage_ref": "spec:pose-residual-material-coverage-and-identity",
+          "recommendation": "none",
+          "link": "file:///home/go/.cache/pose-work/b38/pose-dist/pose-mcp/internal/pose/techdebt.go#L329"
+        }
+      ],
+      "scanned_files": 265,
+      "complete": false,
+      "coverage": {
+        "losses": [
+          {
+            "producer": "techdebt-reconciliation",
+            "artifact": ".pose/specs/2026-08-15-pose-instance-engine-version-tracking.md",
+            "kind": "invalid",
+            "detail": "a follow-up bullet has no description"
+          },
+          {
+            "producer": "techdebt-reconciliation",
+            "artifact": ".pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md",
+            "kind": "invalid",
+            "detail": "a follow-up bullet has no description"
+          }
+        ],
+        "exclusions": [
+          {
+            "producer": "assessment-scan",
+            "pattern": "generated-header",
+            "reason": "files that declare themselves generated are not scanned",
+            "count": 1,
+            "examples": [
+              "pose-mcp/internal/pose/assessment_scan.go"
+            ]
+          },
+          {
+            "producer": "assessment-scan",
+            "pattern": "skipped-directory",
+            "reason": "directories that hold dependencies, build output or tool state are not scanned",
+            "count": 36,
+            "examples": [
+              ".agents",
+              ".claude",
+              ".docs-site-build"
+            ]
+          }
+        ]
+      }
+    },
+    "recurrence": {
+      "schema_version": 1,
+      "command": "recurrence-check",
+      "outcome": "pass",
+      "verdict": "SUCCESS — no recurrent failure",
+      "findings": [],
+      "fields": {
+        "recurrence.flagged_keys": "0",
+        "recurrence.flapping_keys": "0",
+        "recurrence.records_scanned": "393",
+        "recurrence.resolved_clusters": "0",
+        "recurrence.threshold": "3",
+        "recurrence.window_days": "14"
+      }
+    },
+    "suggest": "# POSE trail — review\n\nAvaliação técnica de PR/diff: escopo, contratos, segurança, validação.\n- Path:      pose-mcp → domain: go (repo-map)\n- Workflow:  .pose/workflows/review.md\n- Skill:     pose-review\n- Rules:     .pose/rules/security.md, .pose/rules/documentation-style.md\n- Spec:      false\n- ADR:       false\n- Knowledge: consume=true, produce=handoff (quando aceitar risco residual ou condicionar merge)\n- Validation: exigir evidência de pose validate do implementador\n",
+    "followups": {
+      "executed": true,
+      "command": "pose followups --all --json",
+      "output_sha256": "sha256:39e81aa38cd627640ede2dca416416c30ebcdf24c2aabbd4c7e492fc69490433",
+      "consequential_dispositions_written": false
+    }
+  },
+  "probes": {
+    "command": "POSE_B38_REVIEW_ROOT=<reviewed clone> go test ./internal/pose ./internal/cli -run TestB38R4 -count=1 -v",
+    "outcome": "pass-diagnostic-observations-reproduced",
+    "test_count": 21,
+    "meaning": "PASS reproduces the defect or confirms a named control; it is not an approval of the observed behavior",
+    "sources": {
+      "internal/pose/b38r4_probe_test.go": "package pose\n\nimport (\n \"encoding/json\"\n \"os\"\n \"os/exec\"\n \"path/filepath\"\n \"strings\"\n \"testing\"\n \"time\"\n)\n\n// Diagnostic probes: PASS means the observation was reproduced, not that the gate is sound.\nfunc TestB38R4NullEvidenceKind(t *testing.T) {\n r:=newReleaseRepo(t,\"v1.0.0\")\n bare:=ReleasePolicy{SchemaVersion:1}\n r.manifest=NewReleaseManifest(r.version,\"\",r.manifest.PreparedAt,r.manifest.Fragments,bare,ChangelogPolicy{},map[string]string{\"source\":EngineVersionFile,\"kind\":\"\",\"value\":r.version})\n raw:=strings.Replace(string(CanonicalJSON(r.manifest)),`\"kind\": \"\"`,`\"kind\": null`,1)\n _,issues:=ValidateReleaseManifestBytes([]byte(raw),r.version)\n t.Logf(\"null kind issues=%v\",issues)\n if len(issues)!=0 {t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4PreparedStatus(t *testing.T) {\n for _,victim:=range []string{\".pose/changelogs/v1.0.0.md\",\".pose/changelogs/v1.0.0/alpha.md\",\"VERSION\"} {\n  r:=newReleaseRepo(t,\"v1.0.0\");os.Remove(filepath.Join(r.root,victim))\n  s,e:=(Store{Root:r.root}).GetReleaseStatus(r.version)\n  if e!=nil {t.Fatal(e)}\n  t.Logf(\"lost=%s state=%s sound=%t gaps=%v\",victim,s.Releases[0].State,s.Releases[0].Sound(),s.Releases[0].Gaps)\n  if !s.Releases[0].Sound(){t.Fatal(\"observation changed\")}\n }\n}\n\nfunc TestB38R4UnsoundVerifiedObligation(t *testing.T) {\n r:=tagged(t,newReleaseRepo(t,\"v1.0.0\"))\n e:=ReleaseEvidence{SchemaVersion:1,Provider:\"github\",Repository:\"o/r\",Version:r.version,Tag:r.version,Commit:r.headCommit(t,r.version)}\n taggedEv:=NewReleaseEvent(r.version,\"tagged\",e,time.Now())\n pub:=NewReleaseEvent(r.version,\"published\",e,time.Now())\n e.Publication=pub.EvidenceDigest\n verified:=NewReleaseEvent(r.version,\"verified\",e,time.Now())\n lines:=[]string{}\n for _,v:=range []ReleaseEvent{taggedEv,pub,verified}{raw,_:=json.Marshal(v);lines=append(lines,string(raw))}\n relWrite(t,r.root,\".pose/releases/v1.0.0/events.jsonl\",strings.Join(lines,\"\\n\")+\"\\n\")\n os.Remove(filepath.Join(r.root,\".pose/changelogs/v1.0.0.md\"))\n s,err:=(Store{Root:r.root}).GetReleaseStatus(\"\");if err!=nil{t.Fatal(err)}\n obs,err:=(Store{Root:r.root}).releaseQueueObligations(\"proj.test\");if err!=nil{t.Fatal(err)}\n t.Logf(\"state=%s sound=%t gaps=%v obligations=%v\",s.Releases[0].State,s.Releases[0].Sound(),s.Releases[0].Gaps,obs)\n if s.Releases[0].Sound()||len(obs)!=0{t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4ArchiveDifferentCut(t *testing.T) {\n r:=tagged(t,newReleaseRepo(t,\"v1.0.0\"))\n r.body=strings.ReplaceAll(r.body,\"alpha\",\"beta\")\n f:=ReleaseFragment{Spec:\"beta\",Category:\"fixed\",Body:\"Fixes beta.\",Path:\"alpha.md\",Digest:ReleaseDigest(r.body)}\n r.manifest=NewReleaseManifest(r.version,\"\",r.manifest.PreparedAt,[]ReleaseFragment{f},fixtureReleasePolicy(),ChangelogPolicy{},r.manifest.VersionEvidence)\n r.notes=RenderReleaseNotes(r.version,r.manifest.Fragments,ChangelogPolicy{})\n r.writeAll(t);r.commit(t,\"replace the cut\")\n a:=LoadArchivedFragments(r.root)\n witness,note,ok:=newArchivalLedger(a,func(string)bool{return true}).resolve(\"beta\",pendingFragmentDir+\"alpha.md\",\"\")\n s,err:=(Store{Root:r.root}).GetReleaseStatus(r.version);if err!=nil{t.Fatal(err)}\n t.Logf(\"witness=%+v ok=%t note=%s status_sound=%t status_gaps=%v\",witness,ok,note,s.Releases[0].Sound(),s.Releases[0].Gaps)\n if !ok||!witness.Intact||s.Releases[0].Sound(){t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4ReadmeInArchive(t *testing.T){\n r:=newReleaseRepo(t,\"v1.0.0\");relWrite(t,r.root,\".pose/changelogs/v1.0.0/README.md\",\"archive guide\\n\")\n fs,e:=LoadReleaseFragments(filepath.Join(r.root,\".pose/changelogs/v1.0.0\"),ChangelogPolicy{});if e!=nil{t.Fatal(e)}\n snap:=snapshotOf(t,tagged(t,r))\n t.Logf(\"loaded_fragments=%d snapshot_intact=%t gaps=%v\",len(fs),snap.Intact(),snap.Gaps)\n if snap.Intact(){t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4ChangelogFuturePolicy(t *testing.T){\n r:=newReleaseRepo(t,\"v1.0.0\");relWrite(t,r.root,\".pose/policy/changelog.json\",`{\"schema_version\":999,\"categories\":[\"fixed\"]}`)\n snap:=snapshotOf(t,tagged(t,r));t.Logf(\"intact=%t gaps=%v limits=%v\",snap.Intact(),snap.Gaps,snap.Limits)\n if !snap.Intact(){t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4DanglingReleaseRoot(t *testing.T){\n r:=newReleaseRepo(t,\"v1.0.0\");os.Rename(filepath.Join(r.root,\".pose/releases\"),filepath.Join(r.root,\".pose/releases.saved\"))\n os.Symlink(\"missing\",filepath.Join(r.root,\".pose/releases\"))\n s,e:=(Store{Root:r.root}).GetReleaseStatus(\"\")\n t.Logf(\"status=%+v err=%v\",s,e)\n if e!=nil||len(s.Releases)!=0{t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4GitObjectLossIsAbsence(t *testing.T){\n r:=newReleaseRepo(t,\"v1.0.0\")\n relWrite(t,r.root,\".pose/policy/changelog.json\",`{\"schema_version\":1,\"categories\":[\"fixed\"]}`)\n r=tagged(t,r)\n real,e:=exec.LookPath(\"git\");if e!=nil{t.Fatal(e)}\n shim:=t.TempDir()\n script:=\"#!/bin/sh\\ncase \\\"$*\\\" in\\n*\\\"cat-file blob\\\"*\\\":.pose/policy/changelog.json\\\"*) echo 'fatal: Not a valid object name unreadable-blob' >&2; exit 128;;\\nesac\\nexec \"+real+\" \\\"$@\\\"\\n\"\n if e:=os.WriteFile(filepath.Join(shim,\"git\"),[]byte(script),0755);e!=nil{t.Fatal(e)}\n t.Setenv(\"PATH\",shim+string(os.PathListSeparator)+os.Getenv(\"PATH\"))\n snap,e:=ReadReleaseSnapshot(r.root,r.version)\n t.Logf(\"unreadable_changelog_blob intact=%t issues=%v gaps=%v limits=%v err=%v\",snap.Intact(),snap.Issues,snap.Gaps,snap.Limits,e)\n if e!=nil||!snap.Intact(){t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4VersionSourceSymlink(t *testing.T){\n r:=newReleaseRepo(t,\"v1.0.0\")\n os.Remove(filepath.Join(r.root,\"VERSION\"))\n os.Symlink(\"1.0.0\",filepath.Join(r.root,\"VERSION\"))\n relWrite(t,r.root,\"1.0.0\",\"9.9.9\\n\")\n actual,e:=ReadReleaseVersionSource(r.root,*fixtureReleasePolicy().VersionSource)\n if e!=nil{t.Fatal(e)}\n snap:=snapshotOf(t,tagged(t,r))\n s,e:=(Store{Root:r.root}).GetReleaseStatus(r.version)\n if e!=nil{t.Fatal(e)}\n t.Logf(\"actual_source=%s snapshot_intact=%t gaps=%v limits=%v status_sound=%t\",actual,snap.Intact(),snap.Gaps,snap.Limits,s.Releases[0].Sound())\n if actual!=\"v9.9.9\"||!snap.Intact()||!s.Releases[0].Sound(){t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4RealLostGitObjects(t *testing.T){\n for _,victim:=range []string{\".pose/policy/changelog.json\",\".pose/policy\"} {\n  r:=newReleaseRepo(t,\"v1.0.0\")\n  relWrite(t,r.root,\".pose/policy/changelog.json\",`{\"schema_version\":1,\"categories\":[\"fixed\"]}`)\n  relWrite(t,r.root,\".pose/release-policy.json\",string(CanonicalJSON(fixtureReleasePolicy())))\n  r=tagged(t,r)\n  id:=relGit(t,r.root,\"rev-parse\",\"HEAD:\"+victim)\n  os.Remove(filepath.Join(r.root,\".git/objects\",id[:2],id[2:]))\n  snap,e:=ReadReleaseSnapshot(r.root,r.version)\n  t.Logf(\"lost_object=%s intact=%t gaps=%v err=%v\",victim,snap.Intact(),snap.Gaps,e)\n }\n}\n\nfunc TestB38R4MultilineFragmentIsRefused(t *testing.T){\n r:=newReleaseRepo(t,\"v1.0.0\")\n r.body=\"---\\nspec: alpha\\ncategory: fixed\\nbreaking: false\\n---\\n\\nFirst line.\\nSecond line.\\n\"\n relWrite(t,r.root,\".pose/changelogs/v1.0.0/alpha.md\",r.body)\n fs,e:=LoadReleaseFragments(filepath.Join(r.root,\".pose/changelogs/v1.0.0\"),ChangelogPolicy{});if e!=nil{t.Fatal(e)}\n r.manifest=NewReleaseManifest(r.version,\"\",r.manifest.PreparedAt,fs,fixtureReleasePolicy(),ChangelogPolicy{},r.manifest.VersionEvidence)\n raw:=CanonicalJSON(r.manifest)\n var conventional ReleaseManifest\n je:=json.Unmarshal(raw,&conventional)\n _,issues:=ValidateReleaseManifestBytes(raw,r.version)\n t.Logf(\"valid_json_error=%v fragment_body=%q issues=%v\",je,fs[0].Body,issues)\n if je!=nil||len(issues)==0{t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4HistoricalManifests(t *testing.T){\n root:=os.Getenv(\"POSE_B38_REVIEW_ROOT\");if root==\"\"{t.Skip(\"repository inventory was not requested\")}\n entries,e:=os.ReadDir(filepath.Join(root,\".pose/releases\"));if e!=nil{t.Fatal(e)}\n valid,invalid:=0,0\n for _,entry:=range entries {\n  if !entry.IsDir()||ValidateReleaseVersion(entry.Name())!=nil{continue}\n  raw,e:=os.ReadFile(filepath.Join(root,\".pose/releases\",entry.Name(),\"manifest.json\"));if e!=nil{t.Fatal(e)}\n  _,issues:=ValidateReleaseManifestBytes(raw,entry.Name())\n  if len(issues)==0{valid++}else{invalid++;t.Logf(\"version=%s issues=%v\",entry.Name(),issues)}\n }\n t.Logf(\"historical_inventory valid=%d invalid=%d\",valid,invalid)\n}\n\nfunc TestB38R4InvalidCutoffHidesTags(t *testing.T){\n r:=newReleaseRepo(t,\"v1.0.0\")\n relGit(t,r.root,\"rm\",\"-r\",\"-q\",\".pose/releases\",\".pose/changelogs\")\n relGit(t,r.root,\"commit\",\"-qm\",\"no release snapshot\")\n relGit(t,r.root,\"tag\",r.version)\n p:=fixtureReleasePolicy();p.AdoptedAt=\"2026-08-03\";p.Provider=\"github\";p.Repository=\"o/r\";p.LegacyCutoff=\"not-a-version\"\n relWrite(t,r.root,\".pose/policy/release.json\",string(CanonicalJSON(p)))\n s,e:=(Store{Root:r.root}).GetReleaseStatus(\"\")\n t.Logf(\"policy_validation=%v cutoff_comparison=%d status=%+v err=%v\",ValidateReleasePolicy(p),CompareReleasePrecedence(p.LegacyCutoff,r.version),s,e)\n if ValidateReleasePolicy(p)!=nil||e!=nil||len(s.Releases)!=0{t.Fatal(\"observation changed\")}\n p.LegacyCutoff=\"\"\n relWrite(t,r.root,\".pose/policy/release.json\",string(CanonicalJSON(p)))\n s,e=(Store{Root:r.root}).GetReleaseStatus(\"\")\n t.Logf(\"control_without_cutoff=%+v err=%v\",s,e)\n if e!=nil||len(s.Releases)!=1||len(s.Releases[0].Gaps)==0{t.Fatal(\"control failed\")}\n}\n",
+      "internal/cli/b38r4_probe_test.go": "package cli\n\nimport (\n \"bytes\"\n \"os\"\n \"path/filepath\"\n \"strings\"\n \"testing\"\n posemodel \"github.com/harne8/pose-mcp/internal/pose\"\n)\n\nfunc TestB38R4PreparedNotesProjection(t *testing.T){\n root:=cliReleaseRepo(t)\n m,e:=posemodel.LoadReleaseManifest(root,\"v1.0.0\");if e!=nil{t.Fatal(e)}\n m.NotesDigest=posemodel.ReleaseDigest(\"# Unrelated notes\\n\")\n writeCloseoutCLIFile(t,root,\".pose/changelogs/v1.0.0.md\",\"# Unrelated notes\\n\")\n writeCloseoutCLIFile(t,root,\".pose/releases/v1.0.0/manifest.json\",string(posemodel.CanonicalJSON(m)))\n gaps,_:=checkRelease(root,\"v1.0.0\")\n var out,errs bytes.Buffer\n code:=cmdReleaseNotesSnapshot(root,[]string{\"--version\",\"v1.0.0\"},&out,&errs)\n t.Logf(\"prepared_gaps=%v notes_code=%d notes=%q\",gaps,code,out.String())\n if len(gaps)!=0||code!=0{t.Fatal(\"observation changed\")}\n relGitCLI(t,root,\"add\",\"-A\");relGitCLI(t,root,\"commit\",\"-qm\",\"changed notes\");relGitCLI(t,root,\"tag\",\"v1.0.0\")\n gaps,_=checkRelease(root,\"v1.0.0\");out.Reset();errs.Reset()\n code=cmdReleaseNotesSnapshot(root,[]string{\"--version\",\"v1.0.0\"},&out,&errs)\n t.Logf(\"tagged_gaps=%v notes_code=%d notes=%q\",gaps,code,out.String())\n if len(gaps)==0||code!=0{t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4PreparedLostArchiveNotes(t *testing.T){\n root:=cliReleaseRepo(t)\n os.Remove(filepath.Join(root,\".pose/changelogs/v1.0.0/alpha.md\"))\n os.Remove(filepath.Join(root,\".pose/changelogs/v1.0.0.md\"))\n gaps,_:=checkRelease(root,\"v1.0.0\")\n s,e:=(posemodel.Store{Root:root}).GetReleaseStatus(\"\")\n t.Logf(\"check_gaps=%v status=%+v err=%v\",gaps,s,e)\n if len(gaps)==0||e!=nil||!s.Releases[0].Sound(){t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4PolicyFallbackOnLoss(t *testing.T){\n root:=cliReleaseRepo(t)\n old,err:=os.ReadFile(filepath.Join(root,\".pose/policy/release.json\"));if err!=nil{t.Fatal(err)}\n writeCloseoutCLIFile(t,root,\".pose/release-policy.json\",string(old))\n os.Remove(filepath.Join(root,\".pose/policy/release.json\"));os.Mkdir(filepath.Join(root,\".pose/policy/release.json\"),0755)\n writeCloseoutCLIFile(t,root,\".pose/policy/release.json/child\",\"not a policy\")\n gaps,_:=checkRelease(root,\"v1.0.0\")\n relGitCLI(t,root,\"add\",\"-A\");relGitCLI(t,root,\"commit\",\"-qm\",\"policy fallback\");relGitCLI(t,root,\"tag\",\"v1.0.0\")\n snap,e:=posemodel.ReadReleaseSnapshot(root,\"v1.0.0\")\n t.Logf(\"prepared_gaps=%v snapshot_intact=%t snapshot_gaps=%v err=%v\",gaps,snap.Intact(),snap.Gaps,e)\n if len(gaps)!=0||e!=nil||snap.Intact(){t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4PrepareNormalizesSource(t *testing.T){\n root:=t.TempDir()\n writeCloseoutCLIFile(t,root,\"VERSION\",\"1.0.0\\n\")\n writeCloseoutCLIFile(t,root,\".pose/policy/release.json\",`{\"schema_version\":1,\"adopted_at\":\"2026-08-03\",\"provider\":\"github\",\"repository\":\"o/r\",\"allow_empty\":true,\"version_source\":{\"path\":\"./VERSION\",\"kind\":\"text\"}}`)\n var out,errs bytes.Buffer\n code:=cmdReleasePrepare(root,[]string{\"--version\",\"v1.0.0\",\"--apply\"},&out,&errs)\n m,e:=posemodel.LoadReleaseManifest(root,\"v1.0.0\")\n t.Logf(\"prepare_code=%d out=%s stderr=%s own_loader_error=%v source=%s\",code,out.String(),errs.String(),e,m.VersionEvidence[\"source\"])\n if code!=0||e!=nil||m.VersionEvidence[\"source\"]!=\"VERSION\" {t.Fatal(\"control failed\")}\n}\n\nfunc TestB38R4CleanSourceAlias(t *testing.T){\n root:=cliReleaseRepo(t)\n p,_:=posemodel.LoadReleasePolicy(root);p.VersionSource.Path=\"./VERSION\"\n m,_:=posemodel.LoadReleaseManifest(root,\"v1.0.0\")\n m2:=posemodel.NewReleaseManifest(m.Version,m.PreviousVersion,m.PreparedAt,m.Fragments,p,posemodel.ChangelogPolicy{},map[string]string{\"source\":\"./VERSION\",\"kind\":\"text\",\"value\":m.Version})\n writeCloseoutCLIFile(t,root,\".pose/policy/release.json\",string(posemodel.CanonicalJSON(p)))\n writeCloseoutCLIFile(t,root,\".pose/releases/v1.0.0/manifest.json\",string(posemodel.CanonicalJSON(m2)))\n _,e:=posemodel.LoadReleaseManifest(root,\"v1.0.0\")\n t.Logf(\"policy_validate=%v manifest_error=%v\",p.VersionSource.Validate(),e)\n if e==nil||!strings.Contains(e.Error(),\"clean project-relative path\"){t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4LostTagVsRecordedState(t *testing.T){\n root:=cliReleaseRepo(t);relGitCLI(t,root,\"tag\",\"v1.0.0\")\n head:=strings.TrimSpace(gitOut(t,root,\"rev-parse\",\"HEAD\"))\n writeCloseoutCLIFile(t,root,\"evidence.json\",`{\"schema_version\":1,\"provider\":\"github\",\"repository\":\"o/r\",\"version\":\"v1.0.0\",\"tag\":\"v1.0.0\",\"commit\":\"`+head+`\"}`)\n var out,errs bytes.Buffer\n code:=cmdReleaseRecord(root,[]string{\"--version\",\"v1.0.0\",\"--event\",\"tagged\",\"--evidence\",\"evidence.json\"},&out,&errs)\n if code!=0{t.Fatalf(\"control record: %d %s\",code,errs.String())}\n relGitCLI(t,root,\"tag\",\"-d\",\"v1.0.0\")\n gaps,_:=checkRelease(root,\"v1.0.0\")\n s,e:=(posemodel.Store{Root:root}).GetReleaseStatus(\"v1.0.0\");if e!=nil{t.Fatal(e)}\n out.Reset();errs.Reset();code=cmdReleaseCheck(root,[]string{\"--version\",\"v1.0.0\",\"--strict\",\"--json\"},&out,&errs)\n t.Logf(\"recorded_state=%s sound=%t status_gaps=%v check_gaps=%v strict_code=%d result=%s\",s.Releases[0].State,s.Releases[0].Sound(),s.Releases[0].Gaps,gaps,code,out.String())\n if s.Releases[0].Sound()||len(gaps)!=0||code!=0{t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4HumanStatusLimits(t *testing.T){\n root:=cliReleaseRepoKind(t,\"engine\");relGitCLI(t,root,\"tag\",\"v1.0.0\")\n var out,errs bytes.Buffer\n code:=cmdReleaseStatus(root,nil,&out,&errs)\n s,e:=(posemodel.Store{Root:root}).GetReleaseStatus(\"\");if e!=nil{t.Fatal(e)}\n t.Logf(\"code=%d human=%q limits=%v\",code,out.String(),s.Releases[0].Snapshot.Limits)\n if code!=0||len(s.Releases[0].Snapshot.Limits)==0||strings.Contains(out.String(),\"re-read\"){t.Fatal(\"observation changed\")}\n}\n\nfunc TestB38R4InvalidCutoffSkipsChecker(t *testing.T){\n root:=cliReleaseRepo(t)\n relGitCLI(t,root,\"rm\",\"-r\",\"-q\",\".pose/releases\",\".pose/changelogs\")\n relGitCLI(t,root,\"commit\",\"-qm\",\"without snapshot\");relGitCLI(t,root,\"tag\",\"v1.0.0\")\n p:=cliFixturePolicy(\"text\");p.AdoptedAt=\"2026-08-03\";p.Provider=\"github\";p.Repository=\"o/r\";p.LegacyCutoff=\"not-a-version\"\n writeCloseoutCLIFile(t,root,\".pose/policy/release.json\",string(posemodel.CanonicalJSON(p)))\n var out bytes.Buffer\n c:=nativeChecker{root:root,mode:\"strict\",stdout:&out};appendReleasePolicyChecks(&c)\n t.Logf(\"invalid_cutoff errors=%d warnings=%d output=%q\",c.errors,c.warnings,out.String())\n if c.errors!=0{t.Fatal(\"observation changed\")}\n p.LegacyCutoff=\"\";writeCloseoutCLIFile(t,root,\".pose/policy/release.json\",string(posemodel.CanonicalJSON(p)))\n c=nativeChecker{root:root,mode:\"strict\",stdout:&out};appendReleasePolicyChecks(&c)\n t.Logf(\"without_cutoff errors=%d output=%q\",c.errors,out.String())\n if c.errors==0{t.Fatal(\"control failed\")}\n}\n"
+    },
+    "output": "=== RUN   TestB38R4NullEvidenceKind\n    b38r4_probe_test.go:20: null kind issues=[]\n--- PASS: TestB38R4NullEvidenceKind (0.01s)\n=== RUN   TestB38R4PreparedStatus\n    b38r4_probe_test.go:29: lost=.pose/changelogs/v1.0.0.md state=prepared sound=true gaps=[]\n    b38r4_probe_test.go:29: lost=.pose/changelogs/v1.0.0/alpha.md state=prepared sound=true gaps=[]\n    b38r4_probe_test.go:29: lost=VERSION state=prepared sound=true gaps=[]\n--- PASS: TestB38R4PreparedStatus (0.02s)\n=== RUN   TestB38R4UnsoundVerifiedObligation\n    b38r4_probe_test.go:47: state=verified sound=false gaps=[canonical notes missing] obligations=[]\n--- PASS: TestB38R4UnsoundVerifiedObligation (0.04s)\n=== RUN   TestB38R4ArchiveDifferentCut\n    b38r4_probe_test.go:61: witness={Version:v1.0.0 Spec:beta Pending:.pose/changelogs/unreleased/alpha.md Archived:.pose/changelogs/v1.0.0/alpha.md Intact:true Manifest:.pose/releases/v1.0.0/manifest.json ManifestDigest:sha256:9c51045fa5d32a378acc802d0f0332b9d76de04ce8c56d249927634ee511196b} ok=true note= status_sound=false status_gaps=[the working tree's manifest is not the manifest of the tag]\n--- PASS: TestB38R4ArchiveDifferentCut (0.02s)\n=== RUN   TestB38R4ReadmeInArchive\n    b38r4_probe_test.go:69: loaded_fragments=1 snapshot_intact=false gaps=[the tagged tree holds fragment README.md that the manifest does not freeze]\n--- PASS: TestB38R4ReadmeInArchive (0.02s)\n=== RUN   TestB38R4ChangelogFuturePolicy\n    b38r4_probe_test.go:75: intact=true gaps=[] limits=[]\n--- PASS: TestB38R4ChangelogFuturePolicy (0.02s)\n=== RUN   TestB38R4DanglingReleaseRoot\n    b38r4_probe_test.go:83: status=&{Pending:[] Releases:[]} err=<nil>\n--- PASS: TestB38R4DanglingReleaseRoot (0.01s)\n=== RUN   TestB38R4GitObjectLossIsAbsence\n    b38r4_probe_test.go:97: unreadable_changelog_blob intact=true issues=[] gaps=[] limits=[] err=<nil>\n--- PASS: TestB38R4GitObjectLossIsAbsence (0.02s)\n=== RUN   TestB38R4VersionSourceSymlink\n    b38r4_probe_test.go:111: actual_source=v9.9.9 snapshot_intact=true gaps=[] limits=[] status_sound=true\n--- PASS: TestB38R4VersionSourceSymlink (0.04s)\n=== RUN   TestB38R4RealLostGitObjects\n    b38r4_probe_test.go:124: lost_object=.pose/policy/changelog.json intact=false gaps=[the changelog policy of the tagged tree could not be read: pose: git cat-file: fatal: git cat-file 17870ae10308f3f48c1dc83ffdceecdcf2afcc5e:.pose/policy/changelog.json: bad file\n         exit status 128] err=<nil>\n    b38r4_probe_test.go:124: lost_object=.pose/policy intact=true gaps=[] err=<nil>\n--- PASS: TestB38R4RealLostGitObjects (0.04s)\n=== RUN   TestB38R4MultilineFragmentIsRefused\n    b38r4_probe_test.go:138: valid_json_error=<nil> fragment_body=\"First line.\\nSecond line.\" issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n--- PASS: TestB38R4MultilineFragmentIsRefused (0.01s)\n=== RUN   TestB38R4HistoricalManifests\n    b38r4_probe_test.go:150: version=v0.16.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.16.1 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.16.2 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.16.3 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.17.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.18.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.18.1 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.18.2 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.19.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.20.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.20.1 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.20.2 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.20.3 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.21.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.22.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.23.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v0.23.1 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v1.0.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v1.1.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v1.2.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v1.2.1 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v1.7.11 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v1.7.12 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v1.8.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v1.8.1 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v2.0.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v2.0.1 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v2.0.2 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v3.0.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v4.0.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v4.0.1 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v5.0.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v5.0.1 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v5.0.2 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v5.0.3 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v5.0.4 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v5.0.5 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v5.0.7 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v5.0.8 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v6.0.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v6.1.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:150: version=v6.2.0 issues=[manifest: is not an unambiguous JSON document: JSON string contains a control character]\n    b38r4_probe_test.go:152: historical_inventory valid=33 invalid=42\n--- PASS: TestB38R4HistoricalManifests (0.00s)\n=== RUN   TestB38R4InvalidCutoffHidesTags\n    b38r4_probe_test.go:163: policy_validation=<nil> cutoff_comparison=1 status=&{Pending:[] Releases:[]} err=<nil>\n    b38r4_probe_test.go:168: control_without_cutoff=&{Pending:[] Releases:[{Version:v1.0.0 State:prepared Manifest:<nil> Events:[] Gaps:[tag v1.0.0 exists, its release directory is missing from the working tree and its tree holds no readable snapshot: pose: the tag's tree does not hold the release snapshot: v1.0.0 has no .pose/releases/v1.0.0/manifest.json at 3998be465c72] Snapshot:<nil>}]} err=<nil>\n--- PASS: TestB38R4InvalidCutoffHidesTags (0.02s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.272s\n=== RUN   TestB38R4PreparedNotesProjection\n    b38r4_probe_test.go:21: prepared_gaps=[] notes_code=0 notes=\"# Unrelated notes\\n\"\n    b38r4_probe_test.go:26: tagged_gaps=[tag snapshot: the canonical notes of the tagged tree are not the rendering of the fragments the manifest froze] notes_code=0 notes=\"# Unrelated notes\\n\"\n--- PASS: TestB38R4PreparedNotesProjection (0.06s)\n=== RUN   TestB38R4PreparedLostArchiveNotes\n    b38r4_probe_test.go:36: check_gaps=[canonical notes missing archived fragment count differs from manifest fragment digest mismatch: alpha] status=&{Pending:[] Releases:[{Version:v1.0.0 State:prepared Manifest:0xc14fe6e0160 Events:[] Gaps:[] Snapshot:<nil>}]} err=<nil>\n--- PASS: TestB38R4PreparedLostArchiveNotes (0.01s)\n=== RUN   TestB38R4PolicyFallbackOnLoss\n    b38r4_probe_test.go:49: prepared_gaps=[] snapshot_intact=false snapshot_gaps=[the release policy of the tagged tree (.pose/policy/release.json) could not be read: pose: git cat-file: fatal: git cat-file 8b3127e7d7752d7720f59a671a0091708e45ecc3:.pose/policy/release.json: bad file\n         exit status 128] err=<nil>\n--- PASS: TestB38R4PolicyFallbackOnLoss (0.02s)\n=== RUN   TestB38R4PrepareNormalizesSource\n    b38r4_probe_test.go:60: prepare_code=0 out=Prepared v1.0.0: 0 fragments archived; notes and manifest frozen.\n         stderr= own_loader_error=<nil> source=VERSION\n--- PASS: TestB38R4PrepareNormalizesSource (0.00s)\n=== RUN   TestB38R4CleanSourceAlias\n    b38r4_probe_test.go:72: policy_validate=<nil> manifest_error=pose: release manifest of v1.0.0 is not valid: version_evidence.source: is not a clean project-relative path\n--- PASS: TestB38R4CleanSourceAlias (0.00s)\n=== RUN   TestB38R4LostTagVsRecordedState\n    b38r4_probe_test.go:87: recorded_state=tagged sound=false status_gaps=[] check_gaps=[] strict_code=0 result={\n          \"gaps\": [],\n          \"snapshot_limits\": null,\n          \"tag_commit\": \"\",\n          \"tagged\": false,\n          \"valid\": true,\n          \"version\": \"v1.0.0\"\n        }\n--- PASS: TestB38R4LostTagVsRecordedState (0.04s)\n=== RUN   TestB38R4HumanStatusLimits\n    b38r4_probe_test.go:96: code=0 human=\"Pending fragments: 0\\nv1.0.0\\ttagged\\n\" limits=[the version evidence is the engine's own version file: it exists in the tagged tree and its value was not re-read]\n--- PASS: TestB38R4HumanStatusLimits (0.03s)\n=== RUN   TestB38R4InvalidCutoffSkipsChecker\n    b38r4_probe_test.go:108: invalid_cutoff errors=0 warnings=0 output=\"\"\n    b38r4_probe_test.go:112: without_cutoff errors=1 output=\"✖ error release: governed tag v1.0.0 has no manifest in its tagged tree\\n\"\n--- PASS: TestB38R4InvalidCutoffSkipsChecker (0.01s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.165s\n"
+  },
+  "class_sweep": {
+    "text_ordering": "CompareReleasePrecedence, previous, status, releaseInputs, open-next, cutoff, backfill, publicclaims and obligations; valid SemVer controls pass; invalid cutoff is F08.",
+    "absence_vs_loss": "blobs/trees, resolver, policy fallback, roots/pending/archive/releases, prepare, checker, status, notes and archival; F04/F05/F07; legitimate absent empty archive remains allowed.",
+    "unvalidated_fields": "root/nested manifest, evidence map, policy/schema/cutoff, notes projections, fragment identity, states and witness; F01/F02/F03/F05/F08, equivalent null kind L01.",
+    "path_comparison": "clean paths, mode/symlink, source policy, tag/worktree binding, refs/tags namespace, archival/review consumers; F02/F06/F07; producer normalizes ./VERSION and strict loader rejects forged unclean source."
+  },
+  "recurrence": "manual recurrence in backend/contracts and partial consumer validation; formal 14-day recurrence-check has zero flagged clusters",
+  "contributor_feedback_staged": false,
+  "worktree": {
+    "initial_dirty_path": ".pose/indexes/generation.json",
+    "implementation_edited": false,
+    "spec_edited": false,
+    "policy_edited": false,
+    "tool_side_effects": "assessment/state/index artifacts regenerated by required review tools; left uncommitted",
+    "report_path": ".pose/reports/2026-10-18-b38r4-independent-review.md"
+  }
+}

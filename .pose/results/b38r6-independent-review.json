@@ -1,0 +1,446 @@
+{
+  "schema_version": 1,
+  "review": "b38r6",
+  "repository": "oseiaspereira88/pose",
+  "pr": 198,
+  "spec": "pose-release-manifest-tag-integrity",
+  "head": "3a6962738d11e6469996c55eedb8ac6c1552e6b3",
+  "base": "8aa729a76ab1c094690a0892263a86bf3bb7bb42",
+  "decision": "changes-requested",
+  "reviewer": {
+    "principal": "agent:independent-gpt-6.1-sol-review",
+    "tool": "Codex",
+    "vendor": "OpenAI",
+    "implementer": "Claude/Anthropic",
+    "identity_assurance": "declared",
+    "separation": "different-vendor-declared",
+    "cryptographically_verified": false
+  },
+  "sealed": false,
+  "attested": false,
+  "committed": false,
+  "pushed": false,
+  "policy_changed": false,
+  "issuer_pin_added": false,
+  "prepared_bundle": {
+    "id": "rvb-ff56d972cf39f338",
+    "digest": "sha256:ff56d972cf39f338da360b7c9866cda3394e4876347073e2a7f2875e2f2cc0da",
+    "plan_digest": "sha256:2701e435116e9327e2d11a3e86836f2535d058037ede660f9e724739da87e20f",
+    "patch_digest": "sha256:2b9e160ad3b21e527e6f1dcbf601439585738602b77ff305914ff61469ca2b93",
+    "tree_digest": "sha256:d366c46b33426e633b01450c9234e9a7bc1975c97ba11fa4616662d0cc78d1ed",
+    "state": "prepared-only"
+  },
+  "findings": [
+    {
+      "id": "R6-F01",
+      "severity": "high",
+      "classification": "merge-blocker",
+      "title": "Exceção Compatibility apaga conteúdo autoritativo de categoria customizada",
+      "locations": [
+        "pose-mcp/internal/pose/release_candidate.go:71",
+        "pose-mcp/internal/pose/release_candidate.go:92"
+      ],
+      "requirements": [
+        "R2",
+        "R3",
+        "R7"
+      ],
+      "probes": [
+        "TestB38R6CompatibilityCategory",
+        "TestB38R6CompatibilityConsumerParity"
+      ],
+      "action": "Distinguir a seção de registry da seção renderizada de fragments; nunca excluir uma categoria de fragments da recomposição."
+    },
+    {
+      "id": "R6-F02",
+      "severity": "high",
+      "classification": "merge-blocker",
+      "title": "Ancestral não-tree no snapshot vira ausência e autoriza fallback de policy",
+      "locations": [
+        "pose-mcp/internal/pose/release_manifest_integrity.go:321",
+        "pose-mcp/internal/pose/release_manifest_integrity.go:330",
+        "pose-mcp/internal/pose/release_manifest_integrity.go:388"
+      ],
+      "requirements": [
+        "R3",
+        "R4",
+        "R7"
+      ],
+      "probes": [
+        "TestB38R6GitPolicyAncestor",
+        "TestB38R6PolicyFileAncestor"
+      ],
+      "action": "Provar ausência percorrendo os ancestrais no tree; um ancestral blob/link/gitlink deve ser diagnóstico de tipo/perda, sem fallback nem defaults."
+    },
+    {
+      "id": "R6-F03",
+      "severity": "high",
+      "classification": "merge-blocker",
+      "title": "Checker e planejamento continuam descartando perda do inventário de releases",
+      "locations": [
+        "pose-mcp/internal/cli/release_lifecycle.go:119",
+        "pose-mcp/internal/cli/release_lifecycle.go:831"
+      ],
+      "requirements": [
+        "R3",
+        "R7"
+      ],
+      "probes": [
+        "TestB38R6CheckerLostReleases",
+        "TestB38R6PlanLostInventory"
+      ],
+      "action": "Propagar ReadDir failures; só usar inventário vazio após ProvenAbsent aplicado corretamente ao mesmo path e seus ancestrais."
+    },
+    {
+      "id": "R6-F04",
+      "severity": "medium",
+      "classification": "merge-blocker",
+      "title": "ProvenAbsent resolve paths relativos a partir de / e esconde perdas no Store/MCP",
+      "locations": [
+        "pose-mcp/internal/pose/path_state.go:17",
+        "pose-mcp/internal/pose/path_state.go:20",
+        "pose-mcp/internal/pose/roots.go:137"
+      ],
+      "requirements": [
+        "R3",
+        "R7"
+      ],
+      "probes": [
+        "TestB38R6RelativeAbsence"
+      ],
+      "action": "Converter para path absoluto com erro propagado ou preservar a base do cwd; testar roots absolutos e relativos nos consumidores."
+    },
+    {
+      "id": "R6-F05",
+      "severity": "medium",
+      "classification": "merge-blocker",
+      "title": "Checker aplica categorias atuais a fragments históricos intactos",
+      "locations": [
+        "pose-mcp/internal/cli/release_lifecycle.go:811"
+      ],
+      "requirements": [
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "probes": [
+        "TestB38R6HistoricalCategoryPolicy"
+      ],
+      "action": "Ler identidade/inventário histórico sob o contrato do cut; usar a policy atual para pending/candidatos e preservar histórico legítimo."
+    },
+    {
+      "id": "R6-F06",
+      "severity": "medium",
+      "classification": "merge-blocker",
+      "kind": "validation-blocker",
+      "title": "Gate estrutural da entrega falha na baseline real: v0.16.4 divergente e v6.3.0 sem tag comparado à versão atual",
+      "locations": [
+        "pose-mcp/internal/cli/release_lifecycle.go:836",
+        ".pose/releases/v0.16.4/manifest.json",
+        ".pose/releases/v6.3.0/manifest.json"
+      ],
+      "requirements": [
+        "R6",
+        "R8"
+      ],
+      "action": "Reconciliar as duas falhas do gate sem inventar prova, mover tags ou enfraquecer policy; distinguir reparo do worktree e disposição de candidato antigo sem tag."
+    },
+    {
+      "id": "R6-L01",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Recusar kind:null em version_evidence; hoje equivale a kind vazio do engine, sem alterar source/value nem aprovar conteúdo divergente.",
+      "locations": [
+        "pose-mcp/internal/pose/release_manifest_integrity.go:171"
+      ],
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "R6-L02",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Harmonizar filtros de auxiliares (README, .gitkeep, subdiretórios e outros arquivos) entre loader, FilesGaps e snapshot; hoje a divergência causa recusa excessiva na tag.",
+      "locations": [
+        "pose-mcp/internal/pose/release_manifest_integrity.go:504"
+      ],
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "R6-L03",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Exibir Limits no status humano e preservar os limites devolvidos pelo candidato no status/check e qualificar CandidateState em publicclaims; publicação continua exigindo Sound e erros materiais continuam gaps.",
+      "locations": [
+        "pose-mcp/internal/cli/release_lifecycle.go:675"
+      ],
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "R6-L04",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Ampliar o pattern do integration check para regressões F*/R2*/R4*; go test ./... já as executa.",
+      "locations": [
+        ".pose/indexes/validation-matrix.json:2069"
+      ],
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "R6-L05",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Reconciliar texto de authoring que ainda diz que código/testes não existem; manter o item editorial já aberto, sem duplicar.",
+      "locations": [
+        ".pose/specs/2026-10-13-pose-release-manifest-tag-integrity.md:134"
+      ],
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "R6-L06",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Explicitar symlinks de worktree com bytes idênticos: FilesGaps/archival seguem, LoadReleaseFragments recusa. Snapshot da tag exige arquivo regular e os bytes permanecem iguais.",
+      "locations": [
+        "pose-mcp/internal/pose/release_lifecycle.go:652"
+      ],
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "R6-L07",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Fazer smokes históricos falharem ou declararem cobertura incompleta para erro de leitura/zero fixtures; o teste de tags hoje continua em qualquer snapErr, não só legacy.",
+      "locations": [
+        "pose-mcp/internal/pose/release_history_test.go:41"
+      ],
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    },
+    {
+      "id": "R6-L08",
+      "severity": "low",
+      "classification": "acceptable-follow-up",
+      "title": "Usar loader estrito no plan/prepare para não escrever candidato que os qualificadores recusam imediatamente por changelog policy inválida/futura. Check/status/snapshot já recusam, portanto não há falsa aprovação.",
+      "locations": [
+        "pose-mcp/internal/cli/release_lifecycle.go:104"
+      ],
+      "owner": "@core",
+      "criticality": "low",
+      "review_by": "2026-12-01"
+    }
+  ],
+  "probe_run": {
+    "command": "go test ./internal/pose ./internal/cli -run TestB38R6 -count=1 -v",
+    "workdir": "temporary copy of HEAD sources plus sibling mcp-enforce",
+    "outcome": "expected assertion failures reproduce merge blockers",
+    "sources": {
+      "internal/pose/b38r6_probe_test.go": "package pose\nimport(\"testing\";\"os\";\"path/filepath\";\"strings\")\nfunc TestB38R6CompatibilityCategory(t *testing.T){\n r:=newReleaseRepo(t,\"v1.0.0\")\n cp:=ChangelogPolicy{SchemaVersion:1,Categories:[]string{\"compatibility\"}}\n r.body=\"---\\nspec: alpha\\ncategory: compatibility\\nbreaking: false\\n---\\n\\nRequired release content.\\n\"\n fs:=[]ReleaseFragment{{Spec:\"alpha\",Category:\"compatibility\",Path:\"alpha.md\",Body:\"Required release content.\",Digest:ReleaseDigest(r.body)}}\n r.manifest=NewReleaseManifest(r.version,\"\",\"2026-10-02T00:00:00Z\",fs,fixtureReleasePolicy(),cp,r.manifest.VersionEvidence)\n r.notes=RenderReleaseNotes(r.version,fs,cp)\n r.notes=strings.Replace(r.notes,\"Required release content.\",\"False replacement.\",1)\n r.manifest.NotesDigest=ReleaseDigest(r.notes);r.writeAll(t)\n relWrite(t,r.root,\".pose/policy/changelog.json\",string(CanonicalJSON(cp)))\n gaps,limits:=ReleaseCandidateGaps(r.root,r.version,&r.manifest)\n t.Logf(\"candidate gaps=%v limits=%v\",gaps,limits)\n snap:=snapshotOf(t,tagged(t,r));t.Logf(\"snapshot intact=%v gaps=%v limits=%v\",snap.Intact(),snap.Gaps,snap.Limits)\n if len(gaps)==0||snap.Intact(){t.Error(\"materially false notes accepted as compatibility-only difference\")}\n}\nfunc TestB38R6GitPolicyAncestor(t *testing.T){\n r:=newReleaseRepo(t,\"v1.0.0\")\n raw,err:=os.ReadFile(filepath.Join(r.root,\".pose/policy/release.json\"));if err!=nil{t.Fatal(err)}\n relWrite(t,r.root,\".pose/release-policy.json\",string(raw))\n os.RemoveAll(filepath.Join(r.root,\".pose/policy\"));if err:=os.Symlink(\"lost-policy\",filepath.Join(r.root,\".pose/policy\"));err!=nil{t.Fatal(err)}\n snap:=snapshotOf(t,tagged(t,r));t.Logf(\"snapshot intact=%v gaps=%v issues=%v\",snap.Intact(),snap.Gaps,snap.Issues)\n if snap.Intact(){t.Error(\"policy ancestor is a link, not absence; accepted legacy fallback and default changelog\")}\n}\nfunc TestB38R6RelativeAbsence(t *testing.T){\n root:=t.TempDir();t.Chdir(root)\n if err:=os.Symlink(\"lost\", \".pose\");err!=nil{t.Fatal(err)}\n absent,err:=ProvenAbsent(\".pose/releases\");t.Logf(\"absent=%v err=%v\",absent,err)\n status,serr:=(Store{Root:\".\"}).GetReleaseStatus(\"\");t.Logf(\"status=%+v err=%v\",status,serr)\n if absent&&err==nil||serr==nil{t.Error(\"relative root masks lost ancestor as absence\")}\n}\nfunc TestB38R6LowVariants(t *testing.T){\n t.Run(\"null kind\",func(t *testing.T){r:=newReleaseRepo(t,\"v1.0.0\");policy:=ReleasePolicy{SchemaVersion:1};r.manifest=NewReleaseManifest(r.version,\"\",\"2026-10-02T00:00:00Z\",r.manifest.Fragments,policy,ChangelogPolicy{},map[string]string{\"source\":EngineVersionFile,\"kind\":\"\",\"value\":r.version});raw:=strings.Replace(string(CanonicalJSON(r.manifest)),`\"kind\": \"\"`,`\"kind\": null`,1);_,issues:=ValidateReleaseManifestBytes([]byte(raw),r.version);t.Logf(\"null kind issues=%v\",issues)})\n t.Run(\"README archive\",func(t *testing.T){r:=newReleaseRepo(t,\"v1.0.0\");relWrite(t,r.root,\".pose/changelogs/v1.0.0/README.md\",\"Auxiliary text\\n\");g,l:=ReleaseCandidateGaps(r.root,r.version,&r.manifest);s:=snapshotOf(t,tagged(t,r));t.Logf(\"candidate gaps=%v limits=%v snapshot gaps=%v\",g,l,s.Gaps)})\n}\nfunc TestB38R6PolicyFileAncestor(t *testing.T){\n r:=newReleaseRepo(t,\"v1.0.0\");raw,_:=os.ReadFile(filepath.Join(r.root,\".pose/policy/release.json\"));relWrite(t,r.root,\".pose/release-policy.json\",string(raw));os.RemoveAll(filepath.Join(r.root,\".pose/policy\"));relWrite(t,r.root,\".pose/policy\",\"not a directory\");s:=snapshotOf(t,tagged(t,r));t.Logf(\"file ancestor intact=%v gaps=%v\",s.Intact(),s.Gaps);if s.Intact(){t.Error(\"policy ancestor blob is not absence\")}\n}\nfunc TestB38R6LowByteIdenticalLinks(t *testing.T){\n r:=tagged(t,newReleaseRepo(t,\"v1.0.0\"));relWrite(t,r.root,\"original-fragment.md\",r.body);p:=filepath.Join(r.root,\".pose/changelogs/v1.0.0/alpha.md\");os.Remove(p);if err:=os.Symlink(filepath.Join(r.root,\"original-fragment.md\"),p);err!=nil{t.Fatal(err)}\n s,err:=(Store{Root:r.root}).GetReleaseStatus(r.version);_,loaderr:=LoadReleaseFragments(filepath.Dir(p),ChangelogPolicy{});t.Logf(\"tagged sound=%v err=%v archive loader=%v\",s.Releases[0].Sound(),err,loaderr)\n}\nfunc TestB38R6HistoryInventory(t *testing.T){\n root:=os.Getenv(\"B38_REVIEW_ROOT\");if root==\"\"{t.Skip(\"explicit source repository not selected\")};raw,err:=gitOutput(root,\"tag\",\"--list\",\"v*\");if err!=nil{t.Fatal(err)}\n total,intact,missing,other:=0,0,0,0\n for _,tag:=range strings.Fields(raw){if ValidateReleaseVersion(tag)!=nil{continue};total++;s,e:=ReadReleaseSnapshot(root,tag);if e!=nil{if strings.Contains(e.Error(),ErrReleaseSnapshotMissing.Error()){missing++}else{other++;t.Errorf(\"%s: %v\",tag,e)};continue};if !s.Intact(){t.Errorf(\"%s: issues=%v gaps=%v\",tag,s.Issues,s.Gaps)}else{intact++}}\n t.Logf(\"tags=%d intact=%d missing_snapshot=%d other_errors=%d\",total,intact,missing,other)\n}\n",
+      "internal/cli/b38r6_probe_test.go": "package cli\nimport(\"testing\";\"os\";\"path/filepath\";\"bytes\";\"strings\";posemodel \"github.com/harne8/pose-mcp/internal/pose\")\nfunc TestB38R6CheckerLostReleases(t *testing.T){\n for _,variant:=range []string{\"dangling\",\"file\"}{t.Run(variant,func(t *testing.T){\n root:=cliReleaseRepo(t)\n m,err:=posemodel.LoadReleaseManifest(root,\"v1.0.0\");if err!=nil{t.Fatal(err)}\n p:=cliFixturePolicy(\"text\");p.AdoptedAt=\"2026-10-01\";p.Provider=\"github\";p.Repository=\"o/r\"\n m.PolicyDigest=posemodel.ReleaseDigest(p)\n // checker needs adopted policy; the release inventory itself is what is lost.\n writeCloseoutCLIFile(t,root,\".pose/policy/release.json\",string(posemodel.CanonicalJSON(p)))\n os.RemoveAll(filepath.Join(root,\".pose/releases\"))\n if variant==\"dangling\"{if err:=os.Symlink(\"lost-releases\",filepath.Join(root,\".pose/releases\"));err!=nil{t.Fatal(err)}}else{writeCloseoutCLIFile(t,root,\".pose/releases\",\"not a directory\")}\n var out bytes.Buffer\n c:=&nativeChecker{root:root,mode:\"strict\",stdout:&out}\n appendReleasePolicyChecks(c);t.Logf(\"checker errors=%d output=%s\",c.errors,out.String())\n _,serr:=(posemodel.Store{Root:root}).GetReleaseStatus(\"\");t.Logf(\"status error=%v\",serr)\n if c.errors==0{t.Error(\"release checker accepted a lost release inventory\")}\n })}\n}\nfunc TestB38R6PrepareChangelogPolicy(t *testing.T){\n for _,raw:=range []string{`{\"schema_version\":999}`,`{broken`}{t.Run(raw,func(t *testing.T){\n root,target:=preparedEngineReleaseWith(t,true)\n os.RemoveAll(filepath.Join(root,\".pose/releases\",target));os.RemoveAll(filepath.Join(root,\".pose/changelogs\",target));os.Remove(filepath.Join(root,\".pose/changelogs\",target+\".md\"))\n writeCloseoutCLIFile(t,root,\".pose/policy/changelog.json\",raw)\n var out,errs bytes.Buffer\n code:=cmdReleasePrepare(root,[]string{\"--version\",target,\"--apply\"},&out,&errs)\n gaps,_:=checkRelease(root,target)\n t.Logf(\"prepare code=%d out=%s err=%s check gaps=%v\",code,out.String(),errs.String(),gaps)\n if code==0&&!strings.Contains(errs.String(),\"policy\"){t.Error(\"prepare writes a cut that its own checker rejects for policy\")}\n })}\n}\nfunc TestB38R6PlanLostInventory(t *testing.T){\n root,target:=preparedEngineReleaseWith(t,true)\n os.RemoveAll(filepath.Join(root,\".pose/releases\"));if err:=os.Symlink(\"lost-inventory\",filepath.Join(root,\".pose/releases\"));err!=nil{t.Fatal(err)}\n _,_,previous,_,err:=releaseInputs(root,target);t.Logf(\"previous=%q err=%v\",previous,err)\n if err==nil{t.Error(\"release plan interprets lost release inventory as no previous releases\")}\n}\nfunc TestB38R6CompatibilityConsumerParity(t *testing.T){\n root:=cliReleaseRepo(t)\n policy:=cliFixturePolicy(\"text\"); cp:=posemodel.ChangelogPolicy{SchemaVersion:1,Categories:[]string{\"compatibility\"}}\n body:=\"---\\nspec: alpha\\ncategory: compatibility\\nbreaking: false\\n---\\n\\nRequired content.\\n\"\n fs:=[]posemodel.ReleaseFragment{{Spec:\"alpha\",Category:\"compatibility\",Body:\"Required content.\",Path:\"alpha.md\",Digest:posemodel.ReleaseDigest(body)}}\n m:=posemodel.NewReleaseManifest(\"v1.0.0\",\"\",\"2026-10-02T00:00:00Z\",fs,policy,cp,evidenceFor(\"text\"))\n notes:=strings.Replace(posemodel.RenderReleaseNotes(\"v1.0.0\",fs,cp),\"Required content.\",\"False content.\",1);m.NotesDigest=posemodel.ReleaseDigest(notes)\n writeCloseoutCLIFile(t,root,\".pose/policy/changelog.json\",string(posemodel.CanonicalJSON(cp)))\n writeCloseoutCLIFile(t,root,\".pose/changelogs/v1.0.0/alpha.md\",body)\n writeCloseoutCLIFile(t,root,\".pose/changelogs/v1.0.0.md\",notes)\n writeCloseoutCLIFile(t,root,\".pose/releases/v1.0.0/manifest.json\",string(posemodel.CanonicalJSON(m)))\n relGitCLI(t,root,\"add\",\"-A\");relGitCLI(t,root,\"commit\",\"-qm\",\"custom category cut\");relGitCLI(t,root,\"tag\",\"v1.0.0\")\n gaps,_:=checkRelease(root,\"v1.0.0\");s,err:=(posemodel.Store{Root:root}).GetReleaseStatus(\"v1.0.0\")\n t.Logf(\"check gaps=%v status sound=%v err=%v\",gaps,s.Releases[0].Sound(),err)\n var out,errs bytes.Buffer\n code:=cmdReleaseNotesSnapshot(root,[]string{\"--version\",\"v1.0.0\"},&out,&errs);t.Logf(\"notes code=%d text=%s\",code,out.String())\n if len(gaps)==0||s.Releases[0].Sound()||code==0{t.Error(\"consumers accepted materially altered notes\")}\n}\nfunc TestB38R6HistoricalCategoryPolicy(t *testing.T){\n root:=cliReleaseRepo(t)\n p:=cliFixturePolicy(\"text\");p.AdoptedAt=\"2026-10-01\";p.Provider=\"github\";p.Repository=\"o/r\"\n m,_:=posemodel.LoadReleaseManifest(root,\"v1.0.0\")\n m2:=posemodel.NewReleaseManifest(m.Version,m.PreviousVersion,m.PreparedAt,m.Fragments,p,posemodel.ChangelogPolicy{},m.VersionEvidence)\n writeCloseoutCLIFile(t,root,\".pose/policy/release.json\",string(posemodel.CanonicalJSON(p)))\n writeCloseoutCLIFile(t,root,\".pose/releases/v1.0.0/manifest.json\",string(posemodel.CanonicalJSON(m2)))\n relGitCLI(t,root,\"add\",\"-A\");relGitCLI(t,root,\"commit\",\"-qm\",\"adopted cut\");relGitCLI(t,root,\"tag\",\"v1.0.0\")\n writeCloseoutCLIFile(t,root,\".pose/policy/changelog.json\",`{\"schema_version\":1,\"categories\":[\"added\"]}`)\n var out bytes.Buffer;c:=&nativeChecker{root:root,mode:\"strict\",stdout:&out};appendReleasePolicyChecks(c)\n gaps,_:=checkRelease(root,\"v1.0.0\");s,err:=(posemodel.Store{Root:root}).GetReleaseStatus(\"v1.0.0\")\n t.Logf(\"checker errors=%d out=%s check gaps=%v sound=%v err=%v\",c.errors,out.String(),gaps,s.Releases[0].Sound(),err)\n if c.errors!=0{t.Error(\"a later valid changelog policy invalidates a legitimate historical cut in the checker\")}\n}\nfunc TestB38R6LowHumanLimits(t *testing.T){\n root:=cliReleaseRepoKind(t,\"engine\");relGitCLI(t,root,\"tag\",\"v1.0.0\")\n var out,errs bytes.Buffer;code:=cmdReleaseStatus(root,nil,&out,&errs)\n t.Logf(\"status code=%d text=%s\",code,out.String())\n s,err:=(posemodel.Store{Root:root}).GetReleaseStatus(\"v1.0.0\");t.Logf(\"JSON snapshot limits=%v err=%v\",s.Releases[0].Snapshot.Limits,err)\n}\n"
+    },
+    "output": "=== RUN   TestB38R6CompatibilityCategory\n    b38r6_probe_test.go:14: candidate gaps=[] limits=[the compatibility section of the notes was not re-derived: it depends on the contract registry of the engine that cut the release]\n    b38r6_probe_test.go:15: snapshot intact=true gaps=[] limits=[the compatibility section of the notes was not re-derived: it depends on the contract registry of the engine that cut the release]\n    b38r6_probe_test.go:16: materially false notes accepted as compatibility-only difference\n--- FAIL: TestB38R6CompatibilityCategory (0.03s)\n=== RUN   TestB38R6GitPolicyAncestor\n    b38r6_probe_test.go:23: snapshot intact=true gaps=[] issues=[]\n    b38r6_probe_test.go:24: policy ancestor is a link, not absence; accepted legacy fallback and default changelog\n--- FAIL: TestB38R6GitPolicyAncestor (0.02s)\n=== RUN   TestB38R6RelativeAbsence\n    b38r6_probe_test.go:29: absent=true err=<nil>\n    b38r6_probe_test.go:30: status=&{Pending:[] Releases:[]} err=<nil>\n    b38r6_probe_test.go:31: relative root masks lost ancestor as absence\n--- FAIL: TestB38R6RelativeAbsence (0.00s)\n=== RUN   TestB38R6LowVariants\n=== RUN   TestB38R6LowVariants/null_kind\n    b38r6_probe_test.go:34: null kind issues=[]\n=== RUN   TestB38R6LowVariants/README_archive\n    b38r6_probe_test.go:35: candidate gaps=[] limits=[] snapshot gaps=[the tagged tree holds fragment README.md that the manifest does not freeze]\n--- PASS: TestB38R6LowVariants (0.03s)\n    --- PASS: TestB38R6LowVariants/null_kind (0.00s)\n    --- PASS: TestB38R6LowVariants/README_archive (0.02s)\n=== RUN   TestB38R6PolicyFileAncestor\n    b38r6_probe_test.go:38: file ancestor intact=true gaps=[]\n    b38r6_probe_test.go:38: policy ancestor blob is not absence\n--- FAIL: TestB38R6PolicyFileAncestor (0.02s)\n=== RUN   TestB38R6LowByteIdenticalLinks\n    b38r6_probe_test.go:42: tagged sound=true err=<nil> archive loader=release fragment alpha.md must not be a symlink\n--- PASS: TestB38R6LowByteIdenticalLinks (0.02s)\n=== RUN   TestB38R6HistoryInventory\n    b38r6_probe_test.go:48: tags=81 intact=74 missing_snapshot=7 other_errors=0\n--- PASS: TestB38R6HistoryInventory (1.92s)\nFAIL\nFAIL\tgithub.com/harne8/pose-mcp/internal/pose\t2.042s\n=== RUN   TestB38R6CheckerLostReleases\n=== RUN   TestB38R6CheckerLostReleases/dangling\n    b38r6_probe_test.go:15: checker errors=0 output=\n    b38r6_probe_test.go:16: status error=pose: the release directory could not be read: pose: /tmp/TestB38R6CheckerLostReleasesdangling3489612011/001/.pose/releases is a link whose target cannot be read: stat /tmp/TestB38R6CheckerLostReleasesdangling3489612011/001/.pose/releases: no such file or directory\n    b38r6_probe_test.go:17: release checker accepted a lost release inventory\n=== RUN   TestB38R6CheckerLostReleases/file\n    b38r6_probe_test.go:15: checker errors=0 output=\n    b38r6_probe_test.go:16: status error=pose: the release directory could not be read: open /tmp/TestB38R6CheckerLostReleasesfile3872158373/001/.pose/releases: not a directory\n    b38r6_probe_test.go:17: release checker accepted a lost release inventory\n--- FAIL: TestB38R6CheckerLostReleases (0.01s)\n    --- FAIL: TestB38R6CheckerLostReleases/dangling (0.01s)\n    --- FAIL: TestB38R6CheckerLostReleases/file (0.01s)\n=== RUN   TestB38R6PrepareChangelogPolicy\n=== RUN   TestB38R6PrepareChangelogPolicy/{\"schema_version\":999}\n    b38r6_probe_test.go:28: prepare code=0 out=Prepared v7.4.1: 0 fragments archived; notes and manifest frozen.\n         err= check gaps=[the changelog policy cannot be used: the changelog policy schema_version 999 is not supported by this engine]\n    b38r6_probe_test.go:29: prepare writes a cut that its own checker rejects for policy\n=== RUN   TestB38R6PrepareChangelogPolicy/{broken\n    b38r6_probe_test.go:28: prepare code=0 out=Prepared v7.4.1: 0 fragments archived; notes and manifest frozen.\n         err= check gaps=[the changelog policy cannot be used: invalid changelog policy: invalid character 'b' looking for beginning of object key string]\n    b38r6_probe_test.go:29: prepare writes a cut that its own checker rejects for policy\n--- FAIL: TestB38R6PrepareChangelogPolicy (0.01s)\n    --- FAIL: TestB38R6PrepareChangelogPolicy/{\"schema_version\":999} (0.01s)\n    --- FAIL: TestB38R6PrepareChangelogPolicy/{broken (0.00s)\n=== RUN   TestB38R6PlanLostInventory\n    b38r6_probe_test.go:35: previous=\"\" err=<nil>\n    b38r6_probe_test.go:36: release plan interprets lost release inventory as no previous releases\n--- FAIL: TestB38R6PlanLostInventory (0.00s)\n=== RUN   TestB38R6CompatibilityConsumerParity\n    b38r6_probe_test.go:51: check gaps=[] status sound=true err=<nil>\n    b38r6_probe_test.go:53: notes code=0 text=# POSE v1.0.0\n        \n        ## Compatibility\n        \n        - False content. (alpha)\n        \n    b38r6_probe_test.go:54: consumers accepted materially altered notes\n--- FAIL: TestB38R6CompatibilityConsumerParity (0.09s)\n=== RUN   TestB38R6HistoricalCategoryPolicy\n    b38r6_probe_test.go:67: checker errors=1 out=✖ error release: malformed release fragment /tmp/TestB38R6HistoricalCategoryPolicy2663066462/001/.pose/changelogs/v1.0.0/alpha.md: invalid `category: fixed` (want added)\n         check gaps=[] sound=true err=<nil>\n    b38r6_probe_test.go:68: a later valid changelog policy invalidates a legitimate historical cut in the checker\n--- FAIL: TestB38R6HistoricalCategoryPolicy (0.13s)\n=== RUN   TestB38R6LowHumanLimits\n    b38r6_probe_test.go:73: status code=0 text=Pending fragments: 0\n        v1.0.0\ttagged\n    b38r6_probe_test.go:74: JSON snapshot limits=[the version evidence is the engine's own version file: it exists in the tagged tree and its value was not re-read] err=<nil>\n--- PASS: TestB38R6LowHumanLimits (0.05s)\nFAIL\nFAIL\tgithub.com/harne8/pose-mcp/internal/cli\t0.296s\nFAIL\n"
+  },
+  "checks": {
+    "validate_global": {
+      "mode": "strict",
+      "git_head": "3a6962738d11e6469996c55eedb8ac6c1552e6b3",
+      "matrix_sha256": "sha256:1fd3f2be3db4fcde2e25c36417eb91bae1d7a0167d63f80c6f4e08806df9abdb",
+      "provenance_digest": "sha256:8a9c260e0098b35a4936b645a494f9753ec2c0535be48484d0007052146c5b1a",
+      "outcome": "pass",
+      "counts": {
+        "executed": 140,
+        "passed": 140,
+        "failed": 0,
+        "optional_failed": 0,
+        "errored": 0,
+        "skipped": 0
+      },
+      "log_tail": [
+        "[module] tests (contract, mode=strict)",
+        "140 step(s) · 140 pass · 338.3s",
+        "Result: SUCCESS",
+        "json: /home/go/.cache/pose-work/b38/pose-dist/.pose/results/b38r6-global-validation.json"
+      ],
+      "results_sha256": "sha256:8e1dce746271b989613b2c9c14be00efc8f1a8a4163886fb2b32ddf479675441"
+    },
+    "validate_module": {
+      "mode": "strict",
+      "git_head": "3a6962738d11e6469996c55eedb8ac6c1552e6b3",
+      "matrix_sha256": "sha256:1fd3f2be3db4fcde2e25c36417eb91bae1d7a0167d63f80c6f4e08806df9abdb",
+      "provenance_digest": "sha256:8a9c260e0098b35a4936b645a494f9753ec2c0535be48484d0007052146c5b1a",
+      "outcome": "pass",
+      "counts": {
+        "executed": 137,
+        "passed": 137,
+        "failed": 0,
+        "optional_failed": 0,
+        "errored": 0,
+        "skipped": 0
+      },
+      "log_tail": [
+        "  <- test-scripts-remove-their-temp-files-integration pass 2.4s",
+        "137 step(s) · 137 pass · 336.6s",
+        "Result: SUCCESS",
+        "json: /home/go/.cache/pose-work/b38/pose-dist/.pose/results/b38r6-module-validation.json"
+      ],
+      "results_sha256": "sha256:4c1f08e0d9a69de29b5fbf667e91b94b75c3023725c55a6bb4ce4db966815997"
+    },
+    "check": "⚠ warning changelog: done spec without a changelog fragment: pose-agy-smoke-test\n⚠ warning changelog: done spec without a changelog fragment: pose-canonical-positioning\n⚠ warning changelog: done spec without a changelog fragment: pose-community-contribution-surfaces\n⚠ warning changelog: done spec without a changelog fragment: pose-docs-canonical-route\n⚠ warning changelog: done spec without a changelog fragment: pose-first-governed-loop-quickstart\n⚠ warning changelog: done spec without a changelog fragment: pose-launch-proof-demo\n⚠ warning changelog: done spec without a changelog fragment: pose-public-claims-contract\n⚠ warning changelog: done spec without a changelog fragment: pose-readme-evaluation-path\n⚠ warning changelog: done spec without a changelog fragment: pose-release-recovery-verification\n⚠ warning changelog: done spec without a changelog fragment: pose-release-security-gate-integrity\n⚠ warning changelog: done spec without a changelog fragment: pose-sdd-migration-acquisition\n⚠ warning changelog: done spec without a changelog fragment: pose-code-cites-the-specs-that-delivered-it\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-authority-fixture-clock\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-design-basis\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-governance-outcomes\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-remediation-lineage\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-authority\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-review-tool-deferred-without-delivery\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-structural-delta\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-subject-evidence\n⚠ warning changelog: done spec without a changelog fragment: pose-check-qualified-roadmap-members\n⚠ warning changelog: done spec without a changelog fragment: pose-dist-adopts-spec-authority-transfer\n⚠ warning changelog: done spec without a changelog fragment: pose-federated-external-milestone-members\n⚠ warning changelog: done spec without a changelog fragment: pose-review-bundle-classifies-transfer-records\n⚠ warning changelog: done spec without a changelog fragment: pose-spec-transfer-completion-and-references\n⚠ warning changelog: done spec without a changelog fragment: pose-abm-capability-adoption\n⚠ warning changelog: done spec without a changelog fragment: pose-open-backlog-reconciliation\n✖ error release: v0.16.4 is not a sound cut: canonical notes digest mismatch; fragment pose-upgrade-compatibility-lab could not be read from the working tree: open /home/go/.cache/pose-work/b38/pose-dist/.pose/changelogs/v0.16.4/pose-upgrade-compatibility-lab.md: no such file or directory; the working tree archives fragment pose-scaffold-backup-preservation.md that the manifest does not freeze\n✖ error release: v6.3.0 is not a sound cut: the project's version file says v7.4.1, the manifest recorded v6.3.0\n⚠ warning capabilities: assessment is 62 days old (policy: 30); consider reassessing\n⚠ warning capabilities: baseline_commit is 1552 commits behind HEAD (policy: 200); consider reassessing\nResult: FAILURE — POSE structure has 2 error(s).\n\n💡 [Contributor Mode ACTIVE] If this failure stems from a POSE engine defect, false-positive, or missing stack rule, stage a synthetic reproduction locally with:\n   pose contribute stage --type bug --title \"<brief-summary>\"\n",
+    "lint": "---\n⚠ warning section pose-release-manifest-tag-integrity\n    optional section missing: Tasks\nspec.path=/home/go/.cache/pose-work/b38/pose-dist/.pose/specs/2026-10-13-pose-release-manifest-tag-integrity.md\nspec.status=in-progress\nspec.sections.total=6\nspec.sections.filled=6\nspec.sections.skeleton=0\nspec.sections.empty=0\nspec.required.missing=0\nspec.followups.total=1\nspec.followups.open=1\nspec.lifecycle.failures=0\nspec.requirements.ids=8\nspec.requirements.duplicate_failures=0\nspec.trace.present=true\nspec.trace.entries=8\nspec.trace.missing=0\nspec.trace.failures=0\nspec.amendments.events=0\nspec.amendments.failures=0\n\nlint.specs.checked=1\nlint.specs.failed=0\nResultado: SUCESSO\n",
+    "surface": "surface.spec=pose-release-manifest-tag-integrity\nsurface.targets=1\nsurface.results=139\nsurface.findings=2\nsurface.provenance_digest=sha256:8a9c260e0098b35a4936b645a494f9753ec2c0535be48484d0007052146c5b1a\n✖ error stale-evidence capability:release-manifest-tag-integrity\n    passed integration evidence is bound to a different scoped provenance digest\n    fix: rerun the registered validation check for this delivery scope\n✖ error unconsumed-capability capability:release-manifest-tag-integrity\n    required current evidence is missing: integration\n    fix: run registered checks with the required evidenceClass against the\n    current provenance digest\n",
+    "current-surface": "surface.spec=pose-release-manifest-tag-integrity\nsurface.targets=1\nsurface.results=139\nsurface.findings=2\nsurface.provenance_digest=sha256:8a9c260e0098b35a4936b645a494f9753ec2c0535be48484d0007052146c5b1a\n✖ error stale-evidence capability:release-manifest-tag-integrity\n    passed integration evidence is bound to a different scoped provenance digest\n    fix: rerun the registered validation check for this delivery scope\n✖ error unconsumed-capability capability:release-manifest-tag-integrity\n    required current evidence is missing: integration\n    fix: run registered checks with the required evidenceClass against the\n    current provenance digest\n",
+    "recurrence": "recurrence.flapping_keys=0\nrecurrence.resolved_clusters=0\nrecurrence.window_days=14\nrecurrence.threshold=3\nrecurrence.records_scanned=393\nrecurrence.flagged_keys=0\n",
+    "discover": "Discovered 1 components:\n  - pose-mcp                       LOC: 75591 (prod) / 63533 (test) | Debt TODOs: 1, FIXMEs: 0\nassess.freshness.pose-mcp=refreshed (stale: component content changed (b854168a2e2f → 843171bd5576); validation matrix changed)\n",
+    "secrets": "\u001b[90m7:17PM\u001b[0m \u001b[32mINF\u001b[0m 17 commits scanned.\n\u001b[90m7:17PM\u001b[0m \u001b[32mINF\u001b[0m scan completed in 916ms\n\u001b[90m7:17PM\u001b[0m \u001b[32mINF\u001b[0m no leaks found\n",
+    "govuln": "No vulnerabilities found.\n",
+    "history": "=== RUN   TestEveryHistoricalReleaseManifestOfThisRepositoryStillLoads\n    release_history_test.go:26: 75 releases read\n--- PASS: TestEveryHistoricalReleaseManifestOfThisRepositoryStillLoads (0.01s)\n=== RUN   TestEveryReleaseTagOfThisRepositoryIsIntactForThisEngine\n--- PASS: TestEveryReleaseTagOfThisRepositoryIsIntactForThisEngine (2.21s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t2.231s\n",
+    "history-inventory": "=== RUN   TestB38R6HistoryInventory\n    b38r6_probe_test.go:49: tags=81 intact=74 missing_snapshot=7 other_errors=0\n--- PASS: TestB38R6HistoryInventory (1.93s)\nPASS\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t1.931s\n",
+    "artifact_summary": [
+      "artifact.spec=pose-release-manifest-tag-integrity",
+      "artifact.change_set=cs-ca8eeecfb0ee",
+      "artifact.change_set.base=1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+      "artifact.change_set.head=3a6962738d11e6469996c55eedb8ac6c1552e6b3",
+      "artifact.change_set.commits=17",
+      "artifact.diff_digest=sha256:fe0b1b7ea91bd25f1381e95937b9215845e82a9cb1c7600d409289e6bf49daed",
+      "artifact.claims=42",
+      "artifact.observed=51",
+      "artifact.findings=639"
+    ],
+    "tech_debt": "Technical Debt Assessment Results:\n  - Total Debt Markers: 1 (TODOs: 1, FIXMEs: 0, Panics: 0, Stubs: 0)\n  - Uncovered Debt Items: 0\n  - Recommendations: 0 Follow-ups, 0 Specs, 0 Roadmaps\n\ntechdebt.scan=INCOMPLETE — 267 source file(s) scanned; 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md (scope unknown); invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown); zero markers does not prove the unread files have none\ntechdebt.excluded=generated-header: 1 file(s) — files that declare themselves generated are not scanned\ntechdebt.excluded=skipped-directory: 36 file(s) — directories that hold dependencies, build output or tool state are not scanned\nArtifacts written to .pose/assessments/technical-debt.md and .pose/state/technical-debt.json\n",
+    "integrate_tail": [
+      "  ⚠️ [GAP-4b014c9c] No consumer observed for MCP tool pose_validate_submit (medium)",
+      "     Provider: pose-mcp | Consumer: unobserved",
+      "     A provider declaration was observed, but no repository consumer reference was found.",
+      "",
+      "  ⚠️ [GAP-7baa2119] No consumer observed for HTTP /admin/refresh (medium)",
+      "     Provider: pose-mcp | Consumer: unobserved",
+      "     A provider declaration was observed, but no repository consumer reference was found.",
+      "",
+      "  ⚠️ [GAP-61862039] No consumer observed for HTTP /healthz (medium)",
+      "     Provider: pose-mcp | Consumer: unobserved",
+      "     A provider declaration was observed, but no repository consumer reference was found.",
+      "",
+      "  ⚠️ [GAP-0338c2bf] No consumer observed for HTTP /mcp (medium)",
+      "     Provider: pose-mcp | Consumer: unobserved",
+      "     A provider declaration was observed, but no repository consumer reference was found.",
+      "",
+      "Artifacts written to .pose/assessments/integrations.md and .pose/state/integrations.json"
+    ],
+    "design": {
+      "schema_version": 1,
+      "parser_version": "pose-design-delta/v2",
+      "scope": "spec:pose-release-manifest-tag-integrity",
+      "status": "observed",
+      "input_digest": "sha256:ef427569bb9921b4a7480c670e99e33a1ec1a0ecb1312c8a5b157f334fe795c8",
+      "cache_key": "sha256:ef427569bb9921b4a7480c670e99e33a1ec1a0ecb1312c8a5b157f334fe795c8",
+      "subject": {
+        "base": "1e0a313ba1d87cebd4a355eeb3b83c0bd080e5e8",
+        "head": "3a6962738d11e6469996c55eedb8ac6c1552e6b3",
+        "patch_digest": "sha256:2b9e160ad3b21e527e6f1dcbf601439585738602b77ff305914ff61469ca2b93",
+        "tree_digest": "sha256:d366c46b33426e633b01450c9234e9a7bc1975c97ba11fa4616662d0cc78d1ed",
+        "implementation_digest": "sha256:ca09dce1aef86a2d5b5b4f03c731e74d0c8450d18d47789224db73470faf1bcb",
+        "entries": 28
+      },
+      "coverage": {
+        "files_in_subject": 28,
+        "files_observed": 28,
+        "bytes_read": 1453296,
+        "max_files": 4096,
+        "max_bytes": 16777216,
+        "detectors": [
+          {
+            "id": "dependency-go",
+            "state": "not-applicable"
+          },
+          {
+            "id": "dependency-npm",
+            "state": "not-applicable"
+          },
+          {
+            "id": "component",
+            "state": "not-applicable"
+          },
+          {
+            "id": "delivery-metadata",
+            "state": "observed",
+            "observed": 1
+          },
+          {
+            "id": "governance-contract",
+            "state": "not-applicable"
+          },
+          {
+            "id": "public-contract",
+            "state": "not-applicable"
+          },
+          {
+            "id": "git-actions",
+            "state": "observed",
+            "observed": 28
+          }
+        ]
+      },
+      "deltas": [
+        {
+          "id": "sd-784aeee45cd2d0dd599f7d9bba11188d",
+          "display_id": "SD-784aeee4",
+          "kind": "validation-check",
+          "action": "added",
+          "state": "observed",
+          "subject": "moduleOverrides.pose-mcp:release-manifest-tag-integrity-integration",
+          "path": ".pose/indexes/validation-matrix.json"
+        }
+      ]
+    },
+    "real_release_checks": {
+      "v0.16.4": {
+        "gaps": [
+          "canonical notes digest mismatch",
+          "fragment pose-upgrade-compatibility-lab could not be read from the working tree: open /home/go/.cache/pose-work/b38/pose-dist/.pose/changelogs/v0.16.4/pose-upgrade-compatibility-lab.md: no such file or directory",
+          "the working tree archives fragment pose-scaffold-backup-preservation.md that the manifest does not freeze"
+        ],
+        "snapshot_limits": [
+          "the version evidence is the engine's own version file: it exists in the tagged tree and its value was not re-read"
+        ],
+        "tag_commit": "b29a51bb983a6da86772376811e0256e27f15283",
+        "tagged": true,
+        "valid": false,
+        "version": "v0.16.4"
+      },
+      "v6.3.0": {
+        "gaps": [
+          "the project's version file says v7.4.1, the manifest recorded v6.3.0"
+        ],
+        "snapshot_limits": null,
+        "tag_commit": "",
+        "tagged": false,
+        "valid": false,
+        "version": "v6.3.0"
+      }
+    }
+  },
+  "workspace": {
+    "initial_dirty": [
+      ".pose/indexes/generation.json"
+    ],
+    "production_and_tests_changed": false,
+    "spec_changed": false,
+    "assessment_refreshes": "restored to initial clean tracked content after evidence collection",
+    "derived_indexes_left_uncommitted": [
+      ".pose/indexes/delivery-integrity.json",
+      ".pose/indexes/generation.json"
+    ]
+  }
+}
