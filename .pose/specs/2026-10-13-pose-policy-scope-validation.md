@@ -1,8 +1,8 @@
 ---
 slug: pose-policy-scope-validation
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-24
 depends_on: pose-effective-governance-projection
 priority: 1
 components: pose-mcp
@@ -133,15 +133,29 @@ Produtor registrado antes da coleta; resultados pendentes, sem declaração ante
 
 ### Delivered scope
 
-Implementação B05 e regressões focadas no domínio, CLI e MCP verificadas.
-Validação canônica, revisão selada e fechamento funcional ainda pendentes.
-A autoria inicial do lote 1 não era entrega de código.
+Fechamento funcional nativo em 2026-10-24 após validação estrita148/148 (236.4s),
+21 claims reconciliadas sem erros, composição sem findings e revisão separada
+Codex com os15critérios aprovados. Fonte5b4161b, bundle rvb-03f3e1b04bb0969a,
+atestação rva-f40a1cf3f65c9310. O gate terminal confirmou lifecycle done sem
+blockers. Na fotografia deste commit de fechamento, a publicação individual na main remota
+ainda exige commit de metadados, checks finais do PR, merge exato e verificação
+pós-merge; o recibo posterior fica no PR individual da B05. Esta conclusão funcional
+segue closure_policy e não equivale a publicação remota.
 
 ### Residual risks
 
-Configured pode representar presença bruta; applicable/effective precisam de validade e seleção reais. Rejeitar erro de digitação pode alterar callers antes tolerados: registrar a decisão de compatibilidade antes da implementação. Não ampliar a taxonomia para aceitar silenciosamente todas as chaves.
+A recusa mais estrita é breaking/major; operadores corrigem seletores inválidos
+explicitamente, sem migração/adoption/release automática. Entradas de governança
+são globais e nomeiam os kinds, enquanto scope opcional adiciona contexto histórico.
+A inspeção de registros selados não é avaliação da policy atual. Integração tem
+64 contratos/63 consumidores heurísticos não observados; dívida técnica INCOMPLETE
+por duas specs antigas inválidas. Avisos estruturais/órfãos não são novos blockers.
+Revisão é execução separada do mesmo vendor com identidade declarada, sem prova
+de independência cognitiva/humana/autenticada. Relatórios de execução/revisão
+preservam evidência e limites; a confirmação de publicação ficará no PR.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Sem follow-up residual da B05 identificado na revisão real; os defeitos de
+consumo MCP e baseline protegida foram resolvidos neste escopo. Nenhuma demanda
+alheia foi encerrada, duplicada ou criada. O programa e roadmaps permanecem abertos.

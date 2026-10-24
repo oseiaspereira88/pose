@@ -28,4 +28,76 @@ The [existing prospective ADR:17](/tmp/pose-b05-work/.pose/adr/2026-10-23-shared
 
 ## Sealed delivery review
 
-Pending actual final execution and exact bundle binding. Design advice is not approval.
+Actual run 20261024T015741-codex-237680; session 01a16c45-9770-7f10-a10d-ef6ec9581985. Same-vendor separate execution, no human or authenticated/cross-vendor assurance. Verbatim final response follows.
+
+Decision: **APPROVED**, conditioned on final-head PR CI, including required Security checks, being green before merge. No B05 blocker or residual finding identified. This does not claim closeout, publication, or merge checks are complete.
+
+This is the separate Codex/OpenAI read-only review execution. The requested target was `gpt-6.1-sol`; this runtime provides no authenticated model/session receipt to independently verify that identifier. No human confirmation, authenticated reviewer independence, cognitive independence, or cross-vendor assurance is claimed. I made no writes, ran no tests or native POSE commands, spawned no agents, and recorded no attestation.
+
+The actual [sealed bundle](/tmp/pose-b05-work/.pose/review-bundles/rvb-03f3e1b04bb0969a.json) binds:
+
+| Identity | Exact value |
+|---|---|
+| Bundle | `rvb-03f3e1b04bb0969a` |
+| Bundle digest | `sha256:03f3e1b04bb0969a3d83dce99f1e31f0efacb4d9e9e7656a93bf2a394a314142` |
+| Plan digest | `sha256:cda61cde7d4843389099a224279feef552fb80600a33ab3328e2e7176f58883e` |
+| Implementation digest | `sha256:fbd58f6a99a72ab6a548e5d670a00781fabf3a20d738d8d84a35d09551ccbfa1` |
+| Patch digest | `sha256:005837993dcaf5196c2e382a90cd71bd2a181313debbd095771640afb8eb778c` |
+| Tree digest | `sha256:ae485497d183b9a95ec114bb3d8140aa97a5c03a9ac04dde53ca09164e427fe4` |
+| Source | `5b4161b83bb0bc4718fa55753f79556bb88846f9` |
+| Git source tree | `476952cf1783a81f9ae110db892782992a4839b2` |
+| Baseline | `40b1a50276040cb7735e4c05062e2e67e4164d27` |
+
+Product code remains unchanged from requested source `bf8225f796a780d202f544723c4ac9486f4e3082`; intervening commits contain attribution, trace, and execution documentation.
+
+I independently recomputed the bundle, plan, implementation, patch, and tree digests. All 17 subject entries match immutable Git content and current file bytes. Consumed file hashes match. The attributed range contains exactly five commits, all carrying the exact B05 trailer. Four semantic-section hashes match; R1–R6 and D1–D2 remain unchanged since managed start. The sealed basis matches the start receipt. No gitlink changed.
+
+The current [canonical validation result](/tmp/pose-b05-work/.pose/results/delivery-validation.json) reports **148/148 passed**, without failures or skips, at the sealed source. All 144 sealed validation entries match its checks, classes, source, and provenance digest `sha256:6176381d536be76b4a7fc5eada732c74d374821d45ee615733f50fcb8b0a4141`. The additional structural evidence binds to the same implementation.
+
+All **15 actual plan criteria** follow.
+
+| id | passed/finding/not-applicable | individual reason |
+|---|---|---|
+| assumption-integrity | passed | Known defaults, global projection semantics, historical-read separation, and assessment limitations are explicit and supported by source and regressions. |
+| backend-concurrency | passed | No concurrency machinery changed; sealed unit and integration evidence passes. |
+| backend-contracts | passed | Stricter refusal is explicitly breaking/major; CLI/MCP behavior and preserved historical contracts are documented and tested. |
+| backend-input-errors | passed | Sorted exact-key validation produces localized field, quoted-key, and unsupported-kind diagnostics; protected-baseline errors retain their typed cause. |
+| backend-integration-impact | passed | Sealed `policy-scope-validation-integration` exercises domain, CLI, and MCP boundaries successfully. |
+| backend-observability | passed | CLI reports configuration errors; MCP returns a tool error instead of silently omitting governance. |
+| compatibility | passed | Known defaults and unknown top-level fields remain accepted. Invalid selector compatibility is intentionally tightened, with no migration or adoption. |
+| correctness | passed | Shared taxonomy governs parsing, both policy maps, and direct assurance lookup; focused and full canonical checks pass. |
+| design-causality | passed | Shared validation removes selector/consumer disagreement; typed baseline refusal prevents protection downgrade. Structural mapping appears below. |
+| documentation | passed | English/Portuguese manuals and embedded distribution describe runtime behavior; corrected parity passes canonical validation. |
+| operability | passed | Diagnostics identify the invalid selector and supported kinds without rewriting operator configuration. |
+| requirements | passed | R1–R6 have relevant sealed unit/integration evidence covering rejection, defaults, consumers, future kinds, and sealed history. |
+| scope | passed | Changes implement B05 assurance/independence validation and its consumption boundaries; unrelated profile validation remains excluded. |
+| security | passed | Invalid maps fail as a whole across supported schemas, including disabled policies; no partial protection or baseline-warning downgrade remains. Required final-head Security CI remains a merge condition. |
+| solution-proportionality | passed | One small shared validator plus targeted consumer fixes addresses the defect without policy migration, historical parsing exceptions, or speculative taxonomy expansion. |
+
+The bundle contains **one material structural fact**.
+
+| SD-id | Rn or Dn | causal reason |
+|---|---|---|
+| SD-402ecdb3 | D2 | The prospective taxonomy ADR establishes exact supported selectors, whole-policy refusal, historical-record preservation, and breaking/major classification, preventing consumers from interpreting configuration under conflicting contracts. |
+
+Rules applied during review: mixed security bugfix/documentation change; `.pose/workflows/review.md`, `backend-go.md`, `security.md`, `documentation-style.md`, `delivery-evidence.md`, and cumulative recurrence guidance. Knowledge governance was consulted; no knowledge artifact changed. Frontend and infrastructure rules are inapplicable.
+
+Actual tool dispositions:
+
+| Tool | Requirement | Disposition |
+|---|---|---|
+| artifact-check | required | Inspected fresh output: 21 claims, one immutable attributed change set, no B05 findings. |
+| surface-check | required | Inspected fresh output: no findings; composed capability connects artifacts, production entrypoint, and current integration evidence. |
+| validate | required | Inspected current strict run: 148/148 passed. |
+| validate — pose-mcp | required | Covered by the same canonical run’s registered module checks. |
+| assess-design | recommended | Inspected sealed structural evidence and its sole material fact. |
+| assess-discover — pose-mcp | recommended | Inspected start assessment reuse; no delivery-completion refresh claimed. |
+| assess-integrate | recommended | Inspected: 64 contracts, 63 heuristic unobserved consumers; not proof of runtime absence. |
+| assess-tech-debt | recommended | Inspected: incomplete coverage due two pre-existing invalid specs; observed marker covered, no debt-free claim. |
+| suggest-review — pose-mcp | recommended | Native invocation skipped under read-only instruction; resolved plan profiles and applicable rules inspected directly. |
+| review-check | required, completion-only | Deferred until the primary records this actual response in a fresh attestation. |
+| closeout-check | required, completion-only | Deferred until review recording and verification. |
+
+Strict structural checking passed with 30 warnings; spec lint passed with its optional Tasks warning. Recurrence execution and additional scanners were not run in this read-only session. The invalid-selector shortcut is covered by B05’s negative regressions; no new review gate was introduced requiring a new adversarial-corpus row.
+
+No risk waiver or invented finding is supplied. Preserve this response verbatim; translate only these actual judgments into a fresh attestation for the exact bundle above.
