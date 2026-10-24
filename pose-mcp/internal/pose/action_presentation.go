@@ -25,6 +25,9 @@ type ActionGroup struct {
 
 // ActionPresentationItem is the bound content of one request.
 type ActionPresentationItem struct {
+	State         string          `json:"state"`
+	Satisfaction  string          `json:"satisfaction"`
+	NextStep      *ActionNextStep `json:"next_step,omitempty"`
 	ID            string          `json:"id"`
 	Kind          string          `json:"kind"`
 	Question      string          `json:"question"`
@@ -49,11 +52,15 @@ func PresentActionRequests(views []ActionRequestView, actor string) ActionPresen
 	var keys []string
 	for _, view := range views {
 		r := view.Request
-		waiting := view.State == ActionStateOpen || (view.State == ActionStateInvalidated && view.Satisfaction == SatisfactionInvalidated && view.Answer != "")
+		step := view.NextStep
+		if step == nil {
+			step = nextActionStep(view)
+		}
+		waiting := step != nil
 		if !waiting {
 			continue
 		}
-		if actor != "" && r.Recipient.Principal != actor && r.Recipient.Role != actor {
+		if actor != "" && r.Recipient.Principal != actor && r.Recipient.Role != actor && !(r.RequestedBy.Principal == actor && step != nil && (step.Operation == "supersede")) {
 			continue
 		}
 		earliest := ""
@@ -78,8 +85,12 @@ func PresentActionRequests(views []ActionRequestView, actor string) ActionPresen
 			groups[key] = group
 			keys = append(keys, key)
 		}
-		group.Requests = append(group.Requests, ActionPresentationItem{ID: r.ID, Kind: r.Kind, Question: r.Question, Context: r.Context, Options: r.Options,
-			Recommend: r.Recommend, Recipient: r.Recipient, Restricts: restricts, RequestDigest: r.RequestDigest, Revision: view.Revision})
+		options, recommend := r.Options, r.Recommend
+		if step.Kind != "answer" {
+			options, recommend = nil, ""
+		}
+		group.Requests = append(group.Requests, ActionPresentationItem{State: view.State, Satisfaction: view.Satisfaction, NextStep: step, ID: r.ID, Kind: r.Kind, Question: r.Question, Context: r.Context, Options: options,
+			Recommend: recommend, Recipient: r.Recipient, Restricts: restricts, RequestDigest: r.RequestDigest, Revision: view.Revision})
 		if group.Interrupt {
 			out.InterruptNow++
 		} else {

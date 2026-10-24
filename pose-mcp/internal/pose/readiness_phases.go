@@ -21,10 +21,11 @@ type PhaseReadiness struct {
 // PhaseRestriction is one obligation restricting the phase, over a scope.
 // An empty scope is the whole spec.
 type PhaseRestriction struct {
-	Obligation string    `json:"obligation"`
-	Category   string    `json:"category"`
-	ReasonCode string    `json:"reason_code"`
-	Scope      []NodeRef `json:"scope,omitempty"`
+	NextStep   *ActionNextStep `json:"next_step,omitempty"`
+	Obligation string          `json:"obligation"`
+	Category   string          `json:"category"`
+	ReasonCode string          `json:"reason_code"`
+	Scope      []NodeRef       `json:"scope,omitempty"`
 }
 
 // SpecPhases is the per-phase projection of one spec.
@@ -114,7 +115,7 @@ func PhasesFromReport(spec *Spec, report ObligationReport) SpecPhases {
 			if len(scope) == 0 {
 				wholeSpec = true
 			}
-			p.Restricting = append(p.Restricting, PhaseRestriction{Obligation: o.ID, Category: o.Category, ReasonCode: o.ReasonCode, Scope: scope})
+			p.Restricting = append(p.Restricting, PhaseRestriction{Obligation: o.ID, Category: o.Category, ReasonCode: o.ReasonCode, Scope: scope, NextStep: cloneActionNextStep(o.NextStep)})
 		}
 		sort.Slice(p.Restricting, func(i, j int) bool { return p.Restricting[i].Obligation < p.Restricting[j].Obligation })
 		p.Unread = uniqueSorted(unread[phase])

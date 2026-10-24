@@ -66,6 +66,9 @@ func lifecycleLimitations(e ActionEvent) []string {
 
 // admitLifecycle runs for both initial admission and the protected append.
 func (s Store) admitLifecycle(r ActionRequest, e *ActionEvent, signature string, earliest, latest time.Time) error {
+	return s.admitLifecycleMode(r, e, signature, earliest, latest, false)
+}
+func (s Store) admitLifecycleMode(r ActionRequest, e *ActionEvent, signature string, earliest, latest time.Time, allowMissingProof bool) error {
 	fail := func(why string) error { return fmt.Errorf("%w: %s", ErrActionVerificationFailed, why) }
 	if e.LifecycleVersion != 1 {
 		return fail("unsupported lifecycle binding version")
@@ -141,6 +144,13 @@ func (s Store) admitLifecycle(r ActionRequest, e *ActionEvent, signature string,
 		}
 	}
 	proof := e.SSHSignature != nil || (e.Claim != nil && e.Envelope != nil)
+	if err := policy.CheckPresenceMigration(e.Actor); err != nil {
+		return err
+	}
+	if allowMissingProof && signature == "" && e.SSHSignature == nil {
+		e.Assurance = ReviewIdentityAssuranceDeclared
+		return nil
+	}
 	if (policy.IdentityAssurance == ReviewIdentityAssuranceVerified || e.Channel == "mcp") && !proof {
 		return fail("this lifecycle operation needs proof, not a principal label")
 	}

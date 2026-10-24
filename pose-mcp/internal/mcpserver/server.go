@@ -1200,12 +1200,19 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 				r.Subject = &pose.ActionSubject{Node: node}
 			}
 		}
+		if a.Authority != nil {
+			a.Authority.Channel = "mcp"
+		}
 		if !a.Apply {
-			prepared, err := store.PrepareActionRequest(r, time.Now())
+			preflight, err := store.PreflightActionOpen(r, a.Authority, time.Now())
+			prepared := preflight.Request
 			if err != nil {
 				return nil, err
 			}
-			return map[string]any{"preview": true, "request": prepared, "apply": "false (call again with apply: true to record it)"}, nil
+			if r.Supersedes != "" && a.Authority == nil {
+				preflight.ProofPending = true
+			}
+			return map[string]any{"preview": true, "request": prepared, "preflight": preflight, "apply": "false (apply revalidates identity, authority and proof)"}, nil
 		}
 		if r.Supersedes != "" {
 			if a.Authority == nil {
@@ -1258,6 +1265,14 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err != nil {
 			return nil, err
 		}
+		if !a.Apply {
+			if a.RequestDigest == "" {
+				a.RequestDigest = view.Request.RequestDigest
+			}
+			if a.ExpectedRevision == 0 {
+				a.ExpectedRevision = view.Revision
+			}
+		}
 		res := pose.ActionResolution{RequestID: a.ID, Type: a.Operation, Actor: a.Actor, Answer: a.Answer, Reason: a.Reason,
 			RequestDigest: a.RequestDigest, ExpectedRevision: a.ExpectedRevision, IdempotencyKey: a.IdempotencyKey, Role: a.Role, Evidence: a.Evidence,
 			Execution: a.Execution, Channel: "mcp", Signature: a.Signature, Claim: a.Claim, Envelope: a.Envelope}
@@ -1273,13 +1288,21 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		} else if a.Reason != "" {
 			statementCommand += " --reason " + shellQuote(a.Reason)
 		}
+		if a.Role != "" {
+			statementCommand += " --role " + shellQuote(a.Role)
+		}
 		if !a.Apply {
+			preflight, err := store.PreflightActionResolution(res, time.Now())
+			if err != nil {
+				return nil, err
+			}
 			policy, err := pose.LoadActionPolicyIn(pose.FilesOrNative(store.FS), store.Root)
 			if err != nil {
 				return nil, err
 			}
 			return map[string]any{
-				"preview":             true,
+				"preview":    true,
+				"admissible": preflight.Admissible, "acceptance": preflight.Acceptance, "proof_pending": preflight.ProofPending, "audit_persisted": false,
 				"request":             view,
 				"presence_policy":     policy.PresencePolicy(),
 				"presence_evaluation": "not-evaluated",
@@ -2497,7 +2520,7 @@ func toolDefinitions() []map[string]any {
 			"description": "Open a material request to a person or an external system — the MCP equivalent of `pose action open`. " +
 				"Open one only when a different answer would materially change execution, scope, authority, risk acceptance, " +
 				"closeout or publication and no authorization already given covers it. Previews (writes nothing) unless apply " +
-				"is true; with apply it appends to the request's journal under .pose/actions/. An answer is recorded with " +
+				"is true; previews run readonly domain admission and disclose missing proof without certifying apply. Supersession retries resume the same durable predecessor intent. An answer is recorded with " +
 				"pose_action_resolve, only with the principal's signature or a trusted issuer's claim, or on the CLI.",
 			"inputSchema": map[string]any{
 				"type": "object",
@@ -2534,7 +2557,7 @@ func toolDefinitions() []map[string]any {
 				"preview that returns the exact statement to sign and the ssh-keygen command; the principal signs it on their machine " +
 				"and the signature is passed back with apply: true. A call without a proof is refused under any identity assurance: a " +
 				"principal name written by an agent is a declaration, not a proof. Human presence follows actions.json's explicit scope; " +
-				"an issuer claim alone proves no presence. A registered SK signature may accompany a claim; every supplied proof must verify. Optional operation cancelled or waived uses a pose-action-lifecycle statement; arbitrary actor invalidation is refused.",
+				"an issuer claim alone proves no presence. Preview validates actor, option, digest, revision and state; missing proof remains pending and acceptance is not certified. Refusal records no journal event. A registered SK signature may accompany a claim; every supplied proof must verify. Optional operation cancelled or waived uses a pose-action-lifecycle statement; arbitrary actor invalidation is refused.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{

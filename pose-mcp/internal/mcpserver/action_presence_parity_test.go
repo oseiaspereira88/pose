@@ -60,7 +60,11 @@ func TestActionPresenceMCPPreviewAndApplyParity(t *testing.T) {
 			}
 			preview := resolveCall(t, ts, view, nil)
 			sc, ok := preview.Result["structuredContent"].(map[string]any)
-			if !ok || sc["presence_evaluation"] != "not-evaluated" || sc["presence_policy"] == nil {
+			if tc.name == "legacy" {
+				if preview.Result["isError"] != true || !strings.Contains(toolText(preview), "migration-required") {
+					t.Fatalf("known migration blocker hidden: %+v", preview)
+				}
+			} else if !ok || sc["presence_evaluation"] != "not-evaluated" || sc["presence_policy"] == nil {
 				t.Fatalf("preview claims evaluated proof/hides policy: %+v", preview)
 			}
 			args := presenceMCPClaim(t, root, view)

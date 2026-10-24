@@ -1,8 +1,8 @@
 # Technical Debt Assessment: pose-dist
 
 > **Gerado por**: POSE Technical Debt Engine (`pose assess tech-debt`)
-> **Data de Avaliação**: 2026-10-24T10:05:23Z
-> **Baseline Commit**: 27c5be7a8dcb
+> **Data de Avaliação**: 2026-10-24T20:15:25Z
+> **Baseline Commit**: a0e4ac097d13
 
 ## 1. Resumo Executivo
 
@@ -11,7 +11,7 @@
 - **Cobertos por Backlog Ativo**: 1
 - **Não Cobertos**: 0
 - **Recomendações**: 0 Follow-ups | 0 Specs | 0 Roadmaps
-- **Escopo do scan**: 279 arquivo(s) de código lidos; **INCOMPLETO** — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md (scope unknown); invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown). Zero marcadores não prova ausência de dívida nos arquivos não lidos.
+- **Escopo do scan**: 281 arquivo(s) de código lidos; **INCOMPLETO** — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md (scope unknown); invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown). Zero marcadores não prova ausência de dívida nos arquivos não lidos.
 - **Excluídos (generated-header)**: 1 arquivo(s) — files that declare themselves generated are not scanned
 - **Excluídos (skipped-directory)**: 40 arquivo(s) — directories that hold dependencies, build output or tool state are not scanned
 

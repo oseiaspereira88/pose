@@ -135,13 +135,17 @@ func cmdActionOpen(root string, args []string, stdout, stderr io.Writer) int {
 	store := posemodel.Store{Root: root}
 	out := render(stdout, stderr)
 	if !apply {
-		prepared, err := store.PrepareActionRequest(r, time.Now())
+		preflight, err := store.PreflightActionOpen(r, authority, time.Now())
+		prepared := preflight.Request
 		if err != nil {
 			out.Failure("pose action open: " + err.Error())
 			return 1
 		}
 		if jsonOutput {
-			return writeJSON(stdout, prepared)
+			return writeJSON(stdout, struct {
+				posemodel.ActionRequest
+				Preflight posemodel.ActionOpenPreflight `json:"preflight"`
+			}{prepared, preflight})
 		}
 		out.Field("action.preview", "true")
 		out.Field("action.id", prepared.ID)
@@ -220,7 +224,7 @@ func cmdActionList(root string, args []string, stdout, stderr io.Writer) int {
 			return writeJSON(stdout, presentation)
 		}
 		out := render(stdout, stderr)
-		out.Field("actions.present", fmt.Sprintf("%d request(s) to answer now, %d that can wait for their phase", presentation.InterruptNow, presentation.CanWait))
+		out.Field("actions.present", fmt.Sprintf("%d condition(s) needing treatment now, %d that can wait for their phase", presentation.InterruptNow, presentation.CanWait))
 		for _, group := range presentation.Groups {
 			when := "can wait until " + group.EarliestPhase
 			if group.Interrupt {
@@ -228,7 +232,10 @@ func cmdActionList(root string, args []string, stdout, stderr io.Writer) int {
 			}
 			out.Field("actions.group", group.Origin+" — "+when)
 			for _, item := range group.Requests {
-				out.Field("  "+item.ID, fmt.Sprintf("%s: %s (restricts %s; answer against %s at revision %d)", item.Kind, item.Question, strings.Join(item.Restricts, ","), item.RequestDigest, item.Revision))
+				out.Field("  "+item.ID, fmt.Sprintf("%s: %s (restricts %s; state %s, %s)", item.Kind, item.Question, strings.Join(item.Restricts, ","), item.State, item.Satisfaction))
+				if item.NextStep != nil {
+					out.Field("    next_step", item.NextStep.Kind+": "+item.NextStep.Reason)
+				}
 				for _, option := range item.Options {
 					marker := ""
 					if option.ID == item.Recommend {
@@ -310,6 +317,15 @@ func renderActionView(out interface{ Field(string, string) }, v posemodel.Action
 		}
 	}
 	out.Field("action.request_digest", r.RequestDigest)
+	if v.NextStep != nil {
+		out.Field("action.next_step.kind", v.NextStep.Kind)
+		out.Field("action.next_step.reason", v.NextStep.Reason)
+	}
+	if v.Recovery != nil {
+		out.Field("action.recovery.phase", v.Recovery.Phase)
+		out.Field("action.recovery.predecessor", v.Recovery.Predecessor)
+		out.Field("action.recovery.successor", v.Recovery.Successor)
+	}
 	if v.State == posemodel.ActionStateAnswered {
 		out.Field("action.answer", fmt.Sprintf("%s by %s (%s)", v.Answer, v.AnsweredBy, v.Assurance))
 		if v.Presence != nil {

@@ -11,10 +11,11 @@ import (
 // their legacy strings during the transition, rendered from these items where
 // the producer builds them itself.
 type Diagnostic struct {
-	Code      string   `json:"code"`
-	Domain    string   `json:"domain"`
-	Refs      []string `json:"refs,omitempty"`
-	Condition string   `json:"condition,omitempty"`
+	NextStep  *ActionNextStep `json:"next_step,omitempty"`
+	Code      string          `json:"code"`
+	Domain    string          `json:"domain"`
+	Refs      []string        `json:"refs,omitempty"`
+	Condition string          `json:"condition,omitempty"`
 	// Opaque marks a legacy text blocker the producer cannot yet type: it
 	// keeps its origin and message and claims nothing else.
 	Opaque  bool   `json:"opaque,omitempty"`

@@ -380,7 +380,7 @@
       "name": "pose_spec_readiness"
     },
     {
-      "description": "Open a material request to a person or an external system — the MCP equivalent of `pose action open`. Open one only when a different answer would materially change execution, scope, authority, risk acceptance, closeout or publication and no authorization already given covers it. Previews (writes nothing) unless apply is true; with apply it appends to the request's journal under .pose/actions/. An answer is recorded with pose_action_resolve, only with the principal's signature or a trusted issuer's claim, or on the CLI.",
+      "description": "Open a material request to a person or an external system — the MCP equivalent of `pose action open`. Open one only when a different answer would materially change execution, scope, authority, risk acceptance, closeout or publication and no authorization already given covers it. Previews (writes nothing) unless apply is true; previews run readonly domain admission and disclose missing proof without certifying apply. Supersession retries resume the same durable predecessor intent. An answer is recorded with pose_action_resolve, only with the principal's signature or a trusted issuer's claim, or on the CLI.",
       "inputSchema": {
         "properties": {
           "apply": {
@@ -504,7 +504,7 @@
       "name": "pose_action_open"
     },
     {
-      "description": "Record a principal's answer to an action request — only with the principal's proof: a signature by a key registered to it in .pose/policy/actions.json (`pose identity add`), or a trusted issuer's claim. Without apply it is a preview that returns the exact statement to sign and the ssh-keygen command; the principal signs it on their machine and the signature is passed back with apply: true. A call without a proof is refused under any identity assurance: a principal name written by an agent is a declaration, not a proof. Human presence follows actions.json's explicit scope; an issuer claim alone proves no presence. A registered SK signature may accompany a claim; every supplied proof must verify. Optional operation cancelled or waived uses a pose-action-lifecycle statement; arbitrary actor invalidation is refused.",
+      "description": "Record a principal's answer to an action request — only with the principal's proof: a signature by a key registered to it in .pose/policy/actions.json (`pose identity add`), or a trusted issuer's claim. Without apply it is a preview that returns the exact statement to sign and the ssh-keygen command; the principal signs it on their machine and the signature is passed back with apply: true. A call without a proof is refused under any identity assurance: a principal name written by an agent is a declaration, not a proof. Human presence follows actions.json's explicit scope; an issuer claim alone proves no presence. Preview validates actor, option, digest, revision and state; missing proof remains pending and acceptance is not certified. Refusal records no journal event. A registered SK signature may accompany a claim; every supplied proof must verify. Optional operation cancelled or waived uses a pose-action-lifecycle statement; arbitrary actor invalidation is refused.",
       "inputSchema": {
         "properties": {
           "actor": {

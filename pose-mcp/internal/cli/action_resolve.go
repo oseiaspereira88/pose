@@ -133,6 +133,12 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 			}
 		}
 	}
+	if apply && signKey != "" {
+		if _, err := store.PreflightActionResolution(res, time.Now()); err != nil {
+			out.Failure("pose action " + verb + ": " + err.Error())
+			return 1
+		}
+	}
 	if signKey != "" || signatureFile != "" {
 		if signKey != "" && signatureFile != "" {
 			return usageError(stderr, "--sign or --signature (one of them) proves an answer: use it with pose action resolve")
@@ -167,29 +173,37 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 		}
 	}
 	if !apply {
-		view, err := store.LoadActionRequest(res.RequestID)
+		preflight, err := store.PreflightActionResolution(res, time.Now())
+		if jsonOutput {
+			body := map[string]any{"preview": true, "request": preflight.Request, "admissible": preflight.Admissible, "acceptance": preflight.Acceptance, "proof_pending": preflight.ProofPending, "audit_persisted": false, "refusal": preflight.Refusal, "presence_policy": presencePolicy, "presence_evaluation": "not-evaluated"}
+			if res.Type != posemodel.ActionEventAnswered {
+				body["operation"] = res.Type
+				body["statement"] = string(posemodel.LifecycleStatement(preflight.Request.Request, res).Canonical())
+				body["namespace"] = posemodel.ActionLifecycleNamespace
+			}
+			code := writeJSON(stdout, body)
+			if err != nil {
+				return 1
+			}
+			return code
+		}
+		out.Field("action.preview", "true")
+		out.Field("action.acceptance", "not-certified")
+		out.Field("action.proof_pending", fmt.Sprint(preflight.ProofPending))
+		out.Field("action.audit_persisted", "false")
 		if err != nil {
 			out.Failure("pose action " + verb + ": " + err.Error())
 			return 1
 		}
-		if res.Type != posemodel.ActionEventAnswered && jsonOutput {
-			return writeJSON(stdout, map[string]any{"preview": true, "request": view, "operation": res.Type, "statement": string(posemodel.LifecycleStatement(view.Request, res).Canonical()), "namespace": posemodel.ActionLifecycleNamespace, "apply": false})
-		}
-		if res.Type == posemodel.ActionEventAnswered && jsonOutput {
-			return writeJSON(stdout, map[string]any{"preview": true, "request": view, "presence_policy": presencePolicy, "presence_evaluation": "not-evaluated", "apply": false})
-		}
-		out.Field("action.preview", "true")
 		if res.Type == posemodel.ActionEventAnswered {
 			out.Field("action.presence_policy.scope", presencePolicy.Scope)
 			out.Field("action.presence_policy.evaluation", presencePolicy.Evaluation)
-			if presencePolicy.MigrationRequired {
-				out.Field("action.presence_policy.migration", "required before a new human answer; explicitly choose schema 2 and scope")
-			}
 		}
-		renderActionView(out, view)
-		out.Field("action.apply", "false (rerun with --apply to record the "+verb+")")
+		renderActionView(out, preflight.Request)
+		out.Field("action.apply", "false (apply revalidates the current request, authority and proof)")
 		return 0
 	}
+
 	view, err := store.ResolveActionRequest(res, time.Now())
 	if err != nil {
 		out.Failure("pose action " + verb + ": " + err.Error())
@@ -232,12 +246,15 @@ func cmdActionStatement(root string, args []string, stdout, stderr io.Writer) in
 	}
 	id, actor, answer, key, reason := args[0], "", "", "", ""
 	operation, successor, successorDigest, requestDigest := posemodel.ActionEventAnswered, "", "", ""
+	role := ""
 	revision := 0
 	for i := 1; i < len(args); i++ {
 		if i+1 >= len(args) {
 			return usageError(stderr, usage)
 		}
 		switch args[i] {
+		case "--role":
+			role = args[i+1]
 		case "--operation":
 			operation = args[i+1]
 		case "--expected-revision":
@@ -271,6 +288,16 @@ func cmdActionStatement(root string, args []string, stdout, stderr io.Writer) in
 	}
 	// Raw bytes, not rendered fields: what is printed is what gets signed.
 	if operation == posemodel.ActionEventAnswered {
+		if revision == 0 {
+			revision = view.Revision
+		}
+		if requestDigest == "" {
+			requestDigest = view.Request.RequestDigest
+		}
+		if _, err := (posemodel.Store{Root: root}).PreflightActionResolution(posemodel.ActionResolution{RequestID: id, Type: operation, Actor: actor, Role: role, Answer: answer, Reason: reason, IdempotencyKey: key, RequestDigest: requestDigest, ExpectedRevision: revision}, time.Now()); err != nil {
+			render(stdout, stderr).Failure("pose action statement: " + err.Error())
+			return 1
+		}
 		_, _ = stdout.Write(posemodel.AnswerStatement(view.Request, actor, answer, key, reason).Canonical())
 	} else {
 		if operation != posemodel.ActionEventWaived && operation != posemodel.ActionEventCancelled && operation != posemodel.ActionEventSuperseded {

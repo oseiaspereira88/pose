@@ -135,7 +135,8 @@ func TestActionPresenceCLIPreviewAndMigrationBeforeSigner(t *testing.T) {
 	}
 	code, out := runPose(t, root, args...)
 	var preview map[string]any
-	if err := json.Unmarshal([]byte(out), &preview); code != 0 || err != nil || preview["presence_evaluation"] != "not-evaluated" {
+	// B10 exposes this known admission blocker while retaining policy disclosure.
+	if err := json.Unmarshal([]byte(out), &preview); code == 0 || err != nil || preview["presence_evaluation"] != "not-evaluated" || !strings.Contains(out, "migration-required") {
 		t.Fatalf("preview: %d %v %s", code, err, out)
 	}
 	policy, ok := preview["presence_policy"].(map[string]any)

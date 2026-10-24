@@ -1,12 +1,12 @@
 package pose
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -119,6 +119,19 @@ func ActionRequestDigest(r ActionRequest) string {
 // project is this store's project id; local target refs (`requirement:R4`)
 // are qualified against the origin.
 func (s Store) PrepareActionRequest(r ActionRequest, now time.Time) (ActionRequest, error) {
+	// Preparation is readonly with respect to caller-owned slices, including
+	// concurrent attempts derived from the same prepared request.
+	r.Options = slices.Clone(r.Options)
+	r.Targets = slices.Clone(r.Targets)
+	r.Effects = slices.Clone(r.Effects)
+	for n := range r.Effects {
+		r.Effects[n].Scope = slices.Clone(r.Effects[n].Scope)
+	}
+	if r.Subject != nil {
+		subject := *r.Subject
+		r.Subject = &subject
+	}
+
 	fail := func(format string, a ...any) (ActionRequest, error) {
 		return ActionRequest{}, fmt.Errorf("pose: action request: "+format, a...)
 	}
@@ -459,6 +472,8 @@ const (
 
 // ActionRequestView is a request with its derived state.
 type ActionRequestView struct {
+	Recovery     *ActionRecovery            `json:"recovery,omitempty"`
+	NextStep     *ActionNextStep            `json:"next_step,omitempty"`
 	Request      ActionRequest              `json:"request"`
 	State        string                     `json:"state"`
 	Answer       string                     `json:"answer,omitempty"`
@@ -501,60 +516,36 @@ func (s Store) OpenActionRequestAuthorized(r ActionRequest, authority *ActionRes
 	if err != nil {
 		return ActionRequestView{}, err
 	}
-	if existing, err := s.LoadActionRequest(prepared.ID); err == nil {
-		if existing.Request.RequestDigest == prepared.RequestDigest {
-			return existing, nil
-		}
-		return ActionRequestView{}, fmt.Errorf("pose: action request identity collision for %s", prepared.ID)
-	}
-	var retirement ActionEvent
-	var predecessorRevision int
 	if prepared.Supersedes != "" {
-		prior, err := s.LoadActionRequest(prepared.Supersedes)
-		if err != nil {
-			return ActionRequestView{}, err
+		return s.openSupersession(prepared, authority, now)
+	}
+	return s.openPreparedAction(prepared)
+}
+
+func (s Store) openPreparedAction(prepared ActionRequest) (ActionRequestView, error) {
+	if existing, err := s.loadActionRequestBase(prepared.ID); err == nil {
+		if existing.Request.RequestDigest != prepared.RequestDigest {
+			return ActionRequestView{}, fmt.Errorf("%w: request identity collision", ErrActionIdempotencyConflict)
 		}
-		res := ActionResolution{Actor: prepared.RequestedBy.Principal, RequestDigest: prior.Request.RequestDigest,
-			ExpectedRevision: prior.Revision, IdempotencyKey: "supersede:" + prepared.ID, Reason: "superseded by " + prepared.ID}
-		if authority != nil {
-			res = *authority
-			if res.SuccessorID != prepared.ID || res.SuccessorDigest != prepared.RequestDigest {
-				return ActionRequestView{}, fmt.Errorf("%w: authorization names a different successor", ErrActionVerificationFailed)
-			}
-		}
-		res.Type, res.RequestID = ActionEventSuperseded, prior.Request.ID
-		res.SuccessorID, res.SuccessorDigest = prepared.ID, prepared.RequestDigest
-		retirement = lifecycleEvent(res, now)
-		if err := s.admitLifecycle(prior.Request, &retirement, res.Signature, now, now); err != nil {
-			return ActionRequestView{}, err
-		}
-		if res.ExpectedRevision != prior.Revision {
-			return ActionRequestView{}, ErrActionRevisionConflict
-		}
-		predecessorRevision = prior.Revision
+		return s.withActionRecovery(existing), nil
+	} else if !os.IsNotExist(err) {
+		return ActionRequestView{}, err
 	}
 	if _, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, actionDir, true); err != nil {
 		return ActionRequestView{}, err
 	}
 	event := ActionEvent{SchemaVersion: ActionRequestSchemaVersion, Seq: 1, Type: ActionEventOpened, At: prepared.RequestedAt, Request: &prepared, Actor: prepared.RequestedBy.Principal, Execution: prepared.RequestedBy.Execution, RequestDigest: prepared.RequestDigest}
-	path := actionJournalPath(s.Root, prepared.ID)
 	line, err := json.Marshal(event)
 	if err != nil {
 		return ActionRequestView{}, err
 	}
-	// Created exclusively and synced, as writeActionEvent syncs every event.
-	if err := s.fsys().CreateExclusive(path, append(line, '\n'), 0o644, true); err != nil {
+	if err := s.fsys().CreateExclusive(actionJournalPath(s.Root, prepared.ID), append(line, '\n'), 0644, true); err != nil {
 		return ActionRequestView{}, err
-	}
-	if prepared.Supersedes != "" {
-		if _, err := s.appendActionEvent(prepared.Supersedes, retirement, predecessorRevision, now); err != nil {
-			return ActionRequestView{}, fmt.Errorf("pose: request %s opened but %s was not marked superseded: %w", prepared.ID, prepared.Supersedes, err)
-		}
 	}
 	return s.LoadActionRequest(prepared.ID)
 }
 
-func writeActionEvent(file *os.File, event ActionEvent) error {
+func (s Store) writeActionEvent(file *os.File, event ActionEvent) error {
 	raw, err := json.Marshal(event)
 	if err != nil {
 		return err
@@ -562,11 +553,22 @@ func writeActionEvent(file *os.File, event ActionEvent) error {
 	if _, err := file.Write(append(raw, '\n')); err != nil {
 		return err
 	}
+	if syncer, ok := s.fsys().(interface{ syncActionJournal(*os.File) error }); ok {
+		return syncer.syncActionJournal(file)
+	}
 	return file.Sync()
 }
 
 // LoadActionRequest reads one journal and derives the request's state.
 func (s Store) LoadActionRequest(id string) (ActionRequestView, error) {
+	view, err := s.loadActionRequestBase(id)
+	if err != nil {
+		return view, err
+	}
+	return s.withActionRecovery(view), nil
+}
+
+func (s Store) loadActionRequestBase(id string) (ActionRequestView, error) {
 	if err := s.checkActionJournal(id); err != nil {
 		return ActionRequestView{}, err
 	}
@@ -688,7 +690,7 @@ func (s Store) deriveActionView(events []ActionEvent) ActionRequestView {
 	if request.Subject == nil {
 		view.Limitations = append(view.Limitations, "request has no material subject; its answer provides no content-change detection")
 	}
-	if view.State == ActionStateAnswered && request.Subject != nil {
+	if (view.State == ActionStateAnswered || view.State == ActionStateOpen) && request.Subject != nil {
 		current := s.currentSubjectDigest(request)
 		switch {
 		case current == "":
@@ -696,7 +698,7 @@ func (s Store) deriveActionView(events []ActionEvent) ActionRequestView {
 			view.Limitations = append(view.Limitations, "the request's subject no longer resolves; the answer cannot be checked against it")
 		case current != request.Subject.Digest:
 			view.State, view.Satisfaction = ActionStateInvalidated, SatisfactionInvalidated
-			view.Limitations = append(view.Limitations, "the subject changed after the answer ("+request.Subject.Digest+" → "+current+")")
+			view.Limitations = append(view.Limitations, "the material subject changed since the request ("+request.Subject.Digest+" → "+current+")")
 		}
 	}
 	if view.State == ActionStateAnswered && view.Assurance != ReviewIdentityAssuranceVerified {
@@ -758,8 +760,8 @@ func actionObligation(project string, view ActionRequestView) Obligation {
 	o.Category = ObligationActorAction
 	o.ReasonCode = "action-" + view.State
 	o.Recipient = r.Recipient
-	o.Targets = append([]NodeRef(nil), r.Targets...)
-	o.Effects = append([]ObligationEffect(nil), r.Effects...)
+	o.Targets = slices.Clone(r.Targets)
+	o.Effects = slices.Clone(r.Effects)
 	o.Satisfaction = view.Satisfaction
 	if view.SubjectUnknown {
 		o.Knowledge = KnowledgeUnknown
@@ -775,7 +777,12 @@ func actionObligation(project string, view ActionRequestView) Obligation {
 	case r.Recipient.Role != "":
 		who = "role " + r.Recipient.Role
 	}
-	o.Condition = fmt.Sprintf("%s answers %s %s with a satisfying answer bound to %s", who, r.Kind, r.ID, r.RequestDigest)
+	o.NextStep = view.NextStep
+	if view.NextStep != nil && view.NextStep.Kind != "answer" {
+		o.Condition = view.NextStep.Reason
+	} else {
+		o.Condition = fmt.Sprintf("%s answers %s %s with a satisfying answer bound to %s", who, r.Kind, r.ID, r.RequestDigest)
+	}
 	o.Observation.Limitations = append(o.Observation.Limitations, view.Limitations...)
 	o.Message = fmt.Sprintf("%s (%s, %s): %s", r.ID, r.Kind, view.State, r.Question)
 	if view.State == ActionStateAnswered && view.Satisfaction != SatisfactionSatisfied {
@@ -800,41 +807,56 @@ var (
 // skips the revision check (used only by the engine's own supersession).
 // A retry with the same idempotency key and the same content is a no-op; the
 // same key with different content is refused.
-func (s Store) appendActionEvent(id string, event ActionEvent, expected int, now time.Time) (ActionRequestView, error) {
+func (s Store) lockedActionJournal(id string) (*os.File, []ActionEvent, func(), error) {
 	if err := s.checkActionJournal(id); err != nil {
-		return ActionRequestView{}, err
+		return nil, nil, nil, err
 	}
-	// The journal is appended under an exclusive lock on its open file, which
-	// a preview cannot take; no update appends to one.
-	if preview := s.fsys().Preview(); preview != nil {
-		return ActionRequestView{}, preview.Unsupported("appending an event to action request " + id)
+	if p := s.fsys().Preview(); p != nil {
+		return nil, nil, nil, p.Unsupported("locking action journal " + id)
 	}
-	path := actionJournalPath(s.Root, id)
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND, 0o644)
+	file, err := os.OpenFile(actionJournalPath(s.Root, id), os.O_RDWR|os.O_APPEND, 0644)
 	if err != nil {
-		return ActionRequestView{}, err
+		return nil, nil, nil, err
 	}
-	defer file.Close()
 	unlock, err := lockSpecTransferFile(file)
 	if err != nil {
-		return ActionRequestView{}, fmt.Errorf("%w: another writer holds request %s", ErrActionRevisionConflict, id)
+		file.Close()
+		return nil, nil, nil, fmt.Errorf("%w: another writer holds %s", ErrActionRevisionConflict, id)
 	}
-	defer unlock()
-	raw, err := s.fsys().ReadFile(path)
+	release := func() { unlock(); file.Close() }
+	raw, err := s.fsys().ReadFile(actionJournalPath(s.Root, id))
 	if err != nil {
-		return ActionRequestView{}, err
+		release()
+		return nil, nil, nil, err
 	}
 	events, err := parseActionJournal(raw)
 	if err != nil {
-		return ActionRequestView{}, err
+		release()
+		return nil, nil, nil, err
+	}
+	if len(events) == 0 || events[0].Request == nil || events[0].Request.ID != id || ActionRequestDigest(*events[0].Request) != events[0].Request.RequestDigest {
+		release()
+		return nil, nil, nil, fmt.Errorf("%w: invalid journal opening", ErrActionVerificationFailed)
 	}
 	if err := s.verifyActionAnswers(events); err != nil {
+		release()
+		return nil, nil, nil, err
+	}
+	return file, events, release, nil
+}
+func (s Store) appendActionEvent(id string, event ActionEvent, expected int, now time.Time) (ActionRequestView, error) {
+	file, events, release, err := s.lockedActionJournal(id)
+	if err != nil {
 		return ActionRequestView{}, err
 	}
+	defer release()
+	return s.appendActionEventLocked(file, events, id, event, expected, now)
+}
+func (s Store) appendActionEventLocked(file *os.File, events []ActionEvent, id string, event ActionEvent, expected int, now time.Time) (ActionRequestView, error) {
 	for _, prior := range events {
 		if prior.IdempotencyKey != "" && prior.IdempotencyKey == event.IdempotencyKey {
-			if sameActionWrite(prior, event) {
-				return s.deriveActionView(events), nil
+			if sameActionIntent(prior, event) {
+				return s.withActionRecovery(s.deriveActionView(events)), nil
 			}
 			return ActionRequestView{}, fmt.Errorf("%w: key %s already recorded different content", ErrActionIdempotencyConflict, event.IdempotencyKey)
 		}
@@ -843,8 +865,17 @@ func (s Store) appendActionEvent(id string, event ActionEvent, expected int, now
 		return ActionRequestView{}, fmt.Errorf("%w: written against revision %d, the journal is at %d", ErrActionRevisionConflict, expected, len(events))
 	}
 	current := s.deriveActionView(events)
-	if expected >= 0 && current.State != ActionStateOpen && event.Type != ActionEventInvalidated && event.Type != ActionEventSuperseded {
+	if event.Type == ActionEventSuperseded && current.State == ActionStateSuperseded {
+		return ActionRequestView{}, ErrActionIntentConflict
+	}
+	if expected >= 0 && !actionResolutionStateAdmitted(current, event.Type) && event.Type != ActionEventInvalidated && event.Type != ActionEventSuperseded {
 		return ActionRequestView{}, fmt.Errorf("%w: request %s is %s; supersede it with a new request instead", ErrActionNotOpen, id, current.State)
+	}
+	if event.Type == ActionEventAnswered || event.LifecycleVersion != 0 && event.Type != ActionEventSuperseded {
+		res := resolutionFromEvent(event, expected)
+		if _, _, _, err := s.prepareActionResolutionAgainst(s.withActionRecovery(current), res, now, false); err != nil {
+			return ActionRequestView{}, err
+		}
 	}
 	// Recompose authority, current policy, proof and revision inside the lock.
 	if event.LifecycleVersion != 0 {
@@ -866,18 +897,8 @@ func (s Store) appendActionEvent(id string, event ActionEvent, expected int, now
 	if event.At == "" {
 		event.At = now.UTC().Truncate(time.Second).Format(time.RFC3339)
 	}
-	if err := writeActionEvent(file, event); err != nil {
+	if err := s.writeActionEvent(file, event); err != nil {
 		return ActionRequestView{}, err
 	}
-	return s.deriveActionView(append(events, event)), nil
-}
-
-func sameActionWrite(a, b ActionEvent) bool {
-	strip := func(e ActionEvent) ActionEvent {
-		e.Seq, e.At, e.SchemaVersion = 0, "", 0
-		return e
-	}
-	left, _ := json.Marshal(strip(a))
-	right, _ := json.Marshal(strip(b))
-	return bytes.Equal(left, right)
+	return s.withActionRecovery(s.deriveActionView(append(events, event))), nil
 }
