@@ -88,10 +88,10 @@ capacidade.
   - report:pose-agency-readiness-pilot.md
 
 ## Arquitetura
-<!-- state:derived hash:9001cae9c197 status:active -->
+<!-- state:derived hash:f7f820ab9e54 status:active -->
 
 - componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=81911 testes=73042 total=154953
+- linhas_de_codigo: producao=82300 testes=73612 total=155912
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63

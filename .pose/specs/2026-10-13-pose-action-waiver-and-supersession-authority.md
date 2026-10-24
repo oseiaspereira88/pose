@@ -51,13 +51,30 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 - created: .pose/adr/2026-10-24-bind-action-lifecycle-proof-to-operation-and-predecessor.md
 - modified: .pose/assessments/README.md
 - modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/docs-site.md
 - modified: .pose/assessments/integrations.md
+- modified: .pose/assessments/mcp-enforce.md
+- modified: .pose/assessments/pose-mcp.md
 - modified: .pose/assessments/technical-debt.md
 - created: .pose/changelogs/unreleased/pose-action-waiver-and-supersession-authority.md
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/generation.json
+- modified: .pose/indexes/releases.json
+- modified: .pose/indexes/roadmaps.json
+- modified: .pose/indexes/spec-graph.json
 - modified: .pose/indexes/validation-matrix.json
+- created: .pose/reports/2026-10-24-b09-implementation.md
+- created: .pose/reports/2026-10-24-b09-independent-review.md
+- modified: .pose/reports/2026-10-24-standard-validate-native.md
+- modified: .pose/reports/history/standard-validate-native.jsonl
+- modified: .pose/results/delivery-validation.json
 - modified: .pose/specs/2026-10-13-pose-action-waiver-and-supersession-authority.md
 - created: .pose/starts/pose-action-waiver-and-supersession-authority.json
+- modified: .pose/state/components/docs-site.json
+- modified: .pose/state/components/mcp-enforce.json
+- modified: .pose/state/components/pose-mcp.json
 - modified: .pose/state/integrations.json
+- modified: .pose/state/project-state.md
 - modified: .pose/state/technical-debt.json
 - modified: POSE.md
 - modified: docs-site/docs/mcp.md
@@ -95,7 +112,7 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Definir ADR prospectivo e plano de teste proporcional ao contrato de segurança.
 - [x] Reproduzir e corrigir writer/releitura de waiver, cancelamento e supersession.
 - [x] Expor provas e operação nos transportes CLI/MCP.
-- [ ] Executar regressões, suíte completa, vet/build/race e validação nativa.
+- [ ] Completar a coleta final da matriz após a correção de paridade documental; regressões e race passaram.
 - [ ] Reconciliar artefatos, revisão separada e gates de closeout.
 
 ## 5. Decisions
@@ -164,6 +181,8 @@ Evidence from targeted B09 regressions, including signed public supersession rou
 Implementação B09 em andamento em 2026-10-24: domínio, CLI/MCP e regressões direcionadas passaram. A primeira revisão separada identificou instabilidade da identidade do sucessor entre preview e aplicação; a correção preserva requested_at validado e os controles assinados pelos transportes passaram. Matriz nativa final, nova revisão e closeout permanecem pendentes.
 
 ### Residual risks
+
+Ver [relatório de implementação](../reports/2026-10-24-b09-implementation.md) e [revisão separada](../reports/2026-10-24-b09-independent-review.md) para evidência, correção F1 e limites reais.
 
 Novos bindings e autoridade nos eventos alteram um contrato de segurança e podem exigir mudança de schema/versionamento. B09 depende dos closeouts de B01 e B05; B04 entra transitivamente por qualificação de B01, sem nova aresta artificial no DAG histórico. Recovery durável da substituição é B10.
 
