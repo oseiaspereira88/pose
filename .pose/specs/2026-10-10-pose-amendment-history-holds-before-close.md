@@ -41,24 +41,24 @@ The amendment log stays append-only; nothing rewrites recorded events.
 
 ### Artifacts
 
-- modified: .pose/adr/2026-10-24-seed-first-amendment-from-recorded-start.md
+- created: .pose/adr/2026-10-24-seed-first-amendment-from-recorded-start.md
 - modified: .pose/assessments/README.md
 - modified: .pose/assessments/consolidated.md
 - modified: .pose/assessments/technical-debt.md
-- modified: .pose/changelogs/unreleased/pose-amendment-history-holds-before-close.md
+- created: .pose/changelogs/unreleased/pose-amendment-history-holds-before-close.md
 - modified: .pose/indexes/validation-matrix.json
-- modified: .pose/reports/2026-10-24-amendment-history-before-close.md
-- modified: .pose/specs/2026-10-10-pose-amendment-history-holds-before-close.md
-- modified: .pose/starts/pose-amendment-history-holds-before-close.json
+- created: .pose/reports/2026-10-24-amendment-history-before-close.md
+- created: .pose/specs/2026-10-10-pose-amendment-history-holds-before-close.md
+- created: .pose/starts/pose-amendment-history-holds-before-close.json
 - modified: .pose/state/technical-debt.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/cli/amend.go
-- modified: pose-mcp/internal/cli/amendment_history_close_test.go
+- created: pose-mcp/internal/cli/amendment_history_close_test.go
 - modified: pose-mcp/internal/cli/lintspec.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
-- modified: pose-mcp/internal/pose/amendment_history_close_test.go
+- created: pose-mcp/internal/pose/amendment_history_close_test.go
 - modified: pose-mcp/internal/pose/amendments.go
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
