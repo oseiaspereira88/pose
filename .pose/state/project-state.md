@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-24T18:23:26Z
-baseline_commit: 6bb4c7952efefe305c90457ef9d684d40aadb0b5
+generated_at: 2026-10-24T18:24:29Z
+baseline_commit: 874e2565d0f1839af5746588af089bcc4d515351
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -76,10 +76,10 @@ capacidade.
 - knowledge: total=13 ativo=13 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:e01c13d6140a -->
+<!-- state:derived hash:7c18328ba0ec -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
-- últimos 30 dias: total=108 outcome_ok=79 outcome_outro=29
+- últimos 30 dias: total=107 outcome_ok=78 outcome_outro=29
 - reports revisados (.md): total=270
   - report:2026-10-24-b09-implementation.md
   - report:2026-10-24-standard-validate-native.md
