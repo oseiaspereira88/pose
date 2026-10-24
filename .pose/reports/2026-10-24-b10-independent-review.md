@@ -14,3 +14,7 @@ Reviewed domain recovery/preflight, CLI/MCP producers, presentation/Attention/re
 The reviewer approved the technical changes after rerunning targeted recovery/lifecycle/presentation/Attention/phase/diagnostic regressions. Final authority target/type mismatch guard was separately checked and its targeted test passed; technical approval reconfirmed without new findings. Native attestation follows only after canonical evidence, current index, strict surface gate and sealed bundle; no approval record is fabricated by this report.
 
 Generic adversarial corpus expansion remains an explicit low-priority follow-up; actual B10 regressions are permanent registered producers. No open functional finding remains from the completed review rounds.
+
+## Native decision
+
+Reviewer execution applied `rva-2b75f733d430f32c` to sealed bundle `rvb-3445331d68b31b66` (147 evidence entries). All 15 criteria are explicit; mapping SD-28b35a96 to D2 is recorded. Prepared/concluded/applied attribution identifies the actual separate agent execution. No human confirmation is claimed. Reviewer verified ready-to-close/fresh/approved and passing review-check; completion tools were deferred to the guarded lifecycle transition. The primary subsequently ran that native transition successfully.

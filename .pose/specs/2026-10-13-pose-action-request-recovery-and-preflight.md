@@ -1,8 +1,8 @@
 ---
 slug: pose-action-request-recovery-and-preflight
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-24
 depends_on: pose-action-waiver-and-supersession-authority, pose-action-requests, pose-action-request-presentation
 priority: 1
 components: pose-mcp
@@ -110,8 +110,8 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Registrar ADR e estratégia de teste antes do código.
 - [x] Reproduzir preview permissivo e retomada interrompida.
 - [x] Implementar intenção durável, preflight compartilhado e next steps.
-- [ ] Qualificar domínio/CLI/MCP, falhas, concorrência e scanners.
-- [ ] Reconciliar artefatos e evidência; revisão separada e closeout nativo.
+- [x] Qualificar domínio/CLI/MCP, falhas, concorrência e scanners.
+- [x] Reconciliar artefatos e evidência; revisão separada e closeout nativo.
 
 ## 5. Decisions
 
@@ -185,7 +185,7 @@ Consultar também a [análise de recovery](../reports/2026-10-12-pose-front-09-c
 
 ### Delivered scope
 
-Implementado B10: preflight compartilhado e read-only, próximos passos tipados,
+Implementado e fechado nativamente em 2026-10-24. B10: preflight compartilhado e read-only, próximos passos tipados,
 intenção imutável de supersession, retomada idempotente e recusa explícita de
 corrupção/conflito. CLI/MCP, Attention, readiness e diagnósticos de escrita usam o
 mesmo domínio. Manuais EN/PT, catálogo, scaffold e matriz sincronizados. O gate

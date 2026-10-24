@@ -25,3 +25,11 @@ Shared preparation checks structural admissibility without writes/signing; missi
 ## Separate review
 
 See `2026-10-24-b10-independent-review.md`. Findings fixed with permanent regressions before source sealing. No secrets, live production data or policy changes needed.
+
+## Native closeout
+
+Canonical strict validation passed 150/150 (0 failed/errored/skipped) at source HEAD `9d0f80d821c95895df0ce3c50465b2e90071d66d`, including `action-recovery-preflight-integration`. Pinned CI gitleaks scanned the B10 source commit without leaks. Artifact attribution matched 39 claims/39 observations, with historical unrelated orphan warnings only.
+
+The index was refreshed after validation. Strict surface check reported targets=1, results=150, findings=0 for provenance `sha256:6b5fcd7858853f221e27d7e5580fa5c67d3493332161aeb917e699e8eae1acb1`. Sealed bundle `rvb-3445331d68b31b66` carries 147 evidence entries. The actual separate reviewer applied approved attestation `rva-2b75f733d430f32c` with 15 criteria and structural mapping SD-28b35a96 to D2. Native verify reported ready-to-close, fresh=true, approved=true, and review-check passed.
+
+Native `pose close spec:pose-action-request-recovery-and-preflight` completed successfully, setting done/completed_at 2026-10-24 through its guarded transition. No lifecycle or policy bytes were bypassed. Final assessment refresh, strict lint and terminal closeout verification are retained with the final evidence commit.

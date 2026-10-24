@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-24T18:24:29Z
-baseline_commit: 874e2565d0f1839af5746588af089bcc4d515351
+generated_at: 2026-10-24T22:56:41Z
+baseline_commit: 9d0f80d821c95895df0ce3c50465b2e90071d66d
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:05f959603125 -->
+<!-- state:derived hash:12d5cf8bca54 -->
 
-- specs: total=446 draft=29 in-progress=17 blocked=0 done=399 superseded=0 abandoned=1
+- specs: total=446 draft=28 in-progress=17 blocked=0 done=400 superseded=0 abandoned=1
 - roadmaps: total=22 active=3 done=11
 - últimos closeouts:
   - spec:pose-action-waiver-and-supersession-authority (2026-10-24)
   - spec:pose-policy-scope-validation (2026-10-24)
-  - spec:pose-update-dry-run-reports-the-whole-update (2026-10-23)
+  - spec:pose-action-request-recovery-and-preflight (2026-10-24)
   - spec:pose-proof-presence-channel-parity (2026-10-23)
-  - spec:pose-action-target-and-node-scoping (2026-10-22)
-  - ... e mais 394 (ver `pose_list_specs status:done`)
+  - spec:pose-update-dry-run-reports-the-whole-update (2026-10-23)
+  - ... e mais 395 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:cd798c61fadb -->
+<!-- state:derived hash:ee4c20a87ebc -->
 
-- abertos: 149
-- por criticidade: high=4 medium=23 low=103 sem-classificação=19
+- abertos: 151
+- por criticidade: high=4 medium=24 low=104 sem-classificação=19
 - vencidos (review < hoje): 30
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
@@ -76,22 +76,22 @@ capacidade.
 - knowledge: total=13 ativo=13 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:7c18328ba0ec -->
+<!-- state:derived hash:ef6d86428447 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
-- últimos 30 dias: total=107 outcome_ok=78 outcome_outro=29
-- reports revisados (.md): total=270
+- últimos 30 dias: total=99 outcome_ok=71 outcome_outro=28
+- reports revisados (.md): total=272
+  - report:2026-10-24-b10-independent-review.md
+  - report:2026-10-24-b10-implementation.md
   - report:2026-10-24-b09-implementation.md
   - report:2026-10-24-standard-validate-native.md
   - report:2026-10-24-b09-independent-review.md
-  - report:2026-10-23-policy-scope-validation.md
-  - report:2026-10-23-standard-b29-security-boundary-final-source-qualification.md
 
 ## Arquitetura
-<!-- state:derived hash:f7f820ab9e54 status:active -->
+<!-- state:derived hash:c432580d2d6e status:active -->
 
 - componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=82300 testes=73612 total=155912
+- linhas_de_codigo: producao=82928 testes=74514 total=157442
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63
