@@ -1,6 +1,6 @@
 ---
 slug: pose-action-waiver-and-supersession-authority
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-action-answers-reverify-on-read, pose-review-disclosure-requires-proof, pose-policy-scope-validation, pose-action-request-resolution, pose-action-requests
@@ -26,7 +26,7 @@ e a [análise de ações](../reports/2026-10-12-pose-front-04-actions-obligation
 
 ### Constraints
 
-Esta interação escreve a spec; não implementa o comportamento. Preservar as
+Implementação B09 autorizada pela solicitação de prosseguir com a próxima spec em 2026-10-24; branch `impl/pose-b09-lifecycle-authority`. Preservar as
 fundações done, contratos selados, evidências e autorizações já existentes.
 Não adotar policy/capability automaticamente. Classificar compatibilidade antes
 de iniciar: recusa mais estrita ou mudança de semântica pública não é patch por
@@ -48,22 +48,33 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-3-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
-
-- created: .pose/specs/2026-10-13-pose-action-waiver-and-supersession-authority.md
-- created: .pose/starts/pose-action-waiver-and-supersession-authority.json
+- created: .pose/adr/2026-10-24-bind-action-lifecycle-proof-to-operation-and-predecessor.md
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/integrations.md
+- modified: .pose/assessments/technical-debt.md
 - created: .pose/changelogs/unreleased/pose-action-waiver-and-supersession-authority.md
-- modified: pose-mcp/internal/pose/action_resolution.go
-- modified: pose-mcp/internal/pose/action_request.go
-- modified: pose-mcp/internal/pose/principal_keys.go
-- created: pose-mcp/internal/pose/action_lifecycle_authority_test.go
-- created: pose-mcp/internal/cli/action_lifecycle_authority_test.go
-- created: pose-mcp/internal/mcpserver/action_lifecycle_authority_test.go
 - modified: .pose/indexes/validation-matrix.json
+- modified: .pose/specs/2026-10-13-pose-action-waiver-and-supersession-authority.md
+- created: .pose/starts/pose-action-waiver-and-supersession-authority.json
+- modified: .pose/state/integrations.json
+- modified: .pose/state/technical-debt.json
 - modified: POSE.md
+- modified: docs-site/docs/mcp.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/cli/action.go
+- created: pose-mcp/internal/cli/action_lifecycle_authority_test.go
+- modified: pose-mcp/internal/cli/action_resolve.go
+- created: pose-mcp/internal/mcpserver/action_lifecycle_authority_test.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- created: pose-mcp/internal/pose/action_lifecycle.go
+- created: pose-mcp/internal/pose/action_lifecycle_authority_test.go
+- modified: pose-mcp/internal/pose/action_request.go
+- modified: pose-mcp/internal/pose/action_resolution.go
+- modified: pose-mcp/internal/pose/principal_keys.go
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
@@ -78,9 +89,20 @@ executar assessment freshness no componente, completar o plano de artefatos,
 registrar produtores de evidência na matriz e criar a baseline por start.
 Não contornar dependência não terminal apenas porque o código parece presente.
 
+## 4. Tasks
+
+- [x] Resolver autoridade/dependências, assessment freshness e start nativo.
+- [x] Definir ADR prospectivo e plano de teste proporcional ao contrato de segurança.
+- [x] Reproduzir e corrigir writer/releitura de waiver, cancelamento e supersession.
+- [x] Expor provas e operação nos transportes CLI/MCP.
+- [ ] Executar regressões, suíte completa, vet/build/race e validação nativa.
+- [ ] Reconciliar artefatos, revisão separada e gates de closeout.
+
 ## 5. Decisions
 
 ### Decision D1
+- ADR: [lifecycle bindings](../adr/2026-10-24-bind-action-lifecycle-proof-to-operation-and-predecessor.md)
+- Knowledge: knowledge:action-answer-proof-and-historical-time
 - Basis: R1, R2, R3, R4, R5, R6
 - Decision: Autorizar cada operação pelo efeito material e pela origem comprovada; distinguir observação mecânica de dispensa por ator.
 - Rationale: Poder criar uma pergunta ou possuir uma assinatura de answer não concede poder para retirar condição de terceiro.
@@ -102,35 +124,44 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 | V6 — Releitura legado/prova inválida, CLI/MCP e policy off | Disclosure fiel, limites históricos e contratos existentes preservados. |
 | V7 — Policy/authority muda antes do append | Revalidação recusa sem evento efetivo e sem anunciar auditoria inexistente. |
 
+### Execution plan (required before code)
+
+| Scope/scenario | Required command | Expected evidence |
+| --- | --- | --- |
+| Domain V1–V7, signed positive controls and byte-preserving refusals | `cd pose-mcp && go test ./internal/pose -run ActionLifecycle -count=1` | missing/tampered/replayed/expired proof, wrong actor/digest/revision and spoofed invalidation refused; legitimate controls pass |
+| CLI/MCP transport and projection smoke | `cd pose-mcp && go test ./internal/cli ./internal/mcpserver -run ActionLifecycle -count=1` | same operation bindings and no proof bypass |
+| Whole module and vet | `cd pose-mcp && go test ./... && go vet ./... && go build ./...` | no regression/build errors |
+| Concurrent writer/reader | `cd pose-mcp && go test -race ./internal/pose ./internal/cli ./internal/mcpserver` | no data races |
+| Governed checks/security/composition | `pose validate --strict --module pose-mcp --report` | registered integration and applicable security checks pass |
+| Contract/debt | `pose assess integrate` / `pose assess tech-debt` | review changes and residual markers |
+
+Timeout/unavailable policy/key/issuer produce explicit errors, never fallback authorization. Policy off keeps declared local behavior; MCP remains proof-only. Supersession recovery after an authorized partial opening is explicitly deferred to B10.
+
 ### Deterministic checks
 
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Regressões de domínio e transportes criadas e executadas; a coleta final será registrada abaixo.
 
 ### Requirement trace
 
-Trace planejado; vincular os casos aos produtores reais na implementação.
-Não declarar requisitos funcionais satisfeitos pelo lint.
+Evidence from targeted B09 regressions, including signed public supersession roundtrips; complete validation and final review remain pending.
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1–V5 |
-| R2 | V1 |
-| R3 | V2, V3 |
-| R4 | V4 |
-| R5 | V5 |
-| R6 | V6 |
-| R7 | V6 |
-| R8 | V7 |
+- R1 [satisfied] test:TestActionLifecycleCancellationDoesNotWaiveAnotherProducer
+- R2 [satisfied] test:TestActionLifecycleWaiverProofAndHistoricalRead
+- R3 [satisfied] test:TestActionLifecycleSupersessionAuthorizesPredecessor
+- R4 [satisfied] test:TestActionLifecycleCancellationDoesNotWaiveAnotherProducer
+- R5 [satisfied] test:TestActionLifecycleInvalidationIsObservedNotActorDeclared
+- R6 [satisfied] test:TestActionLifecycleLegacyIsDisclosedAndNotUpgraded
+- R7 [satisfied] test:TestActionLifecycleMCPProofOnlyAndBoundIssuerControl test:TestActionLifecycleCLISupersessionPreservesPreviewIdentity
+- R8 [satisfied] test:TestActionLifecycleProtectedAppendRechecksPolicy
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 3. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+Implementação B09 em andamento em 2026-10-24: domínio, CLI/MCP e regressões direcionadas passaram. A primeira revisão separada identificou instabilidade da identidade do sucessor entre preview e aplicação; a correção preserva requested_at validado e os controles assinados pelos transportes passaram. Matriz nativa final, nova revisão e closeout permanecem pendentes.
 
 ### Residual risks
 

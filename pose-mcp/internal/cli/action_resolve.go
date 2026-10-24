@@ -134,7 +134,7 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 		}
 	}
 	if signKey != "" || signatureFile != "" {
-		if res.Type != posemodel.ActionEventAnswered || signKey != "" && signatureFile != "" {
+		if signKey != "" && signatureFile != "" {
 			return usageError(stderr, "--sign or --signature (one of them) proves an answer: use it with pose action resolve")
 		}
 		if signatureFile != "" {
@@ -152,8 +152,13 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 				out.Failure("pose action " + verb + ": " + err.Error())
 				return 1
 			}
-			statement := posemodel.AnswerStatement(view.Request, res.Actor, res.Answer, res.IdempotencyKey, res.Reason)
-			signature, err := sshSign(signKey, statement.Canonical())
+			statement := posemodel.AnswerStatement(view.Request, res.Actor, res.Answer, res.IdempotencyKey, res.Reason).Canonical()
+			namespace := posemodel.ActionAnswerNamespace
+			if res.Type != posemodel.ActionEventAnswered {
+				statement = posemodel.LifecycleStatement(view.Request, res).Canonical()
+				namespace = posemodel.ActionLifecycleNamespace
+			}
+			signature, err := sshSignNamespace(signKey, statement, namespace)
 			if err != nil {
 				out.Failure("pose action " + verb + ": " + err.Error())
 				return 1
@@ -166,6 +171,9 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 		if err != nil {
 			out.Failure("pose action " + verb + ": " + err.Error())
 			return 1
+		}
+		if res.Type != posemodel.ActionEventAnswered && jsonOutput {
+			return writeJSON(stdout, map[string]any{"preview": true, "request": view, "operation": res.Type, "statement": string(posemodel.LifecycleStatement(view.Request, res).Canonical()), "namespace": posemodel.ActionLifecycleNamespace, "apply": false})
 		}
 		if res.Type == posemodel.ActionEventAnswered && jsonOutput {
 			return writeJSON(stdout, map[string]any{"preview": true, "request": view, "presence_policy": presencePolicy, "presence_evaluation": "not-evaluated", "apply": false})
@@ -197,11 +205,14 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 // sshSign signs message with the user's own ssh-keygen; POSE hands it the key
 // path and never reads the key. A security key asks for its touch here.
 func sshSign(keyPath string, message []byte) (string, error) {
+	return sshSignNamespace(keyPath, message, posemodel.ActionAnswerNamespace)
+}
+func sshSignNamespace(keyPath string, message []byte, namespace string) (string, error) {
 	keygen, err := exec.LookPath("ssh-keygen")
 	if err != nil {
 		return "", errors.New("ssh-keygen is not installed; sign `pose action statement` elsewhere and pass --signature <file>")
 	}
-	cmd := exec.Command(keygen, "-Y", "sign", "-f", keyPath, "-n", posemodel.ActionAnswerNamespace)
+	cmd := exec.Command(keygen, "-Y", "sign", "-f", keyPath, "-n", namespace)
 	cmd.Stdin = bytes.NewReader(message)
 	var signature, diagnostics bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &signature, &diagnostics
@@ -220,11 +231,23 @@ func cmdActionStatement(root string, args []string, stdout, stderr io.Writer) in
 		return usageError(stderr, usage)
 	}
 	id, actor, answer, key, reason := args[0], "", "", "", ""
+	operation, successor, successorDigest, requestDigest := posemodel.ActionEventAnswered, "", "", ""
+	revision := 0
 	for i := 1; i < len(args); i++ {
 		if i+1 >= len(args) {
 			return usageError(stderr, usage)
 		}
 		switch args[i] {
+		case "--operation":
+			operation = args[i+1]
+		case "--expected-revision":
+			revision, _ = strconv.Atoi(args[i+1])
+		case "--request-digest":
+			requestDigest = args[i+1]
+		case "--successor-id":
+			successor = args[i+1]
+		case "--successor-digest":
+			successorDigest = args[i+1]
 		case "--actor":
 			actor = args[i+1]
 		case "--answer":
@@ -238,7 +261,7 @@ func cmdActionStatement(root string, args []string, stdout, stderr io.Writer) in
 		}
 		i++
 	}
-	if actor == "" || answer == "" || key == "" {
+	if actor == "" || key == "" || operation == posemodel.ActionEventAnswered && answer == "" {
 		return usageError(stderr, usage)
 	}
 	view, err := posemodel.Store{Root: root}.LoadActionRequest(id)
@@ -247,6 +270,19 @@ func cmdActionStatement(root string, args []string, stdout, stderr io.Writer) in
 		return 1
 	}
 	// Raw bytes, not rendered fields: what is printed is what gets signed.
-	_, _ = stdout.Write(posemodel.AnswerStatement(view.Request, actor, answer, key, reason).Canonical())
+	if operation == posemodel.ActionEventAnswered {
+		_, _ = stdout.Write(posemodel.AnswerStatement(view.Request, actor, answer, key, reason).Canonical())
+	} else {
+		if operation != posemodel.ActionEventWaived && operation != posemodel.ActionEventCancelled && operation != posemodel.ActionEventSuperseded {
+			return usageError(stderr, "unsupported lifecycle operation")
+		}
+		if revision < 1 || reason == "" {
+			return usageError(stderr, "lifecycle statement needs --expected-revision and --reason")
+		}
+		if requestDigest == "" {
+			requestDigest = view.Request.RequestDigest
+		}
+		_, _ = stdout.Write(posemodel.LifecycleStatement(view.Request, posemodel.ActionResolution{Type: operation, Actor: actor, RequestDigest: requestDigest, ExpectedRevision: revision, IdempotencyKey: key, Reason: reason, SuccessorID: successor, SuccessorDigest: successorDigest}).Canonical())
+	}
 	return 0
 }

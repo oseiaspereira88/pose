@@ -249,6 +249,9 @@ func (s Store) PrepareActionRequest(r ActionRequest, now time.Time) (ActionReque
 	if r.RequestedAt == "" {
 		r.RequestedAt = now.UTC().Truncate(time.Second).Format(time.RFC3339)
 	}
+	if _, err := time.Parse(time.RFC3339Nano, r.RequestedAt); err != nil {
+		return fail("requested_at must be an RFC3339 timestamp from the prepared request")
+	}
 	r.RequestDigest = ActionRequestDigest(r)
 	identity, _ := digestJSON([]string{"action-request/v1", r.RequestDigest, r.RequestedAt, r.RequestedBy.Principal, r.Supersedes})
 	r.ID = "act-" + strings.TrimPrefix(identity, "sha256:")[:16]
@@ -395,10 +398,15 @@ type ActionAuthorityClaim struct {
 	Answer        string `json:"answer"`
 	// Reason, when the answer has one, is signed with it (spec
 	// pose-adopt-request-keeps-the-reason); omitted when empty.
-	Reason    string `json:"reason,omitempty"`
-	Issuer    string `json:"issuer"`
-	IssuedAt  string `json:"issued_at"`
-	ExpiresAt string `json:"expires_at,omitempty"`
+	Reason           string `json:"reason,omitempty"`
+	Issuer           string `json:"issuer"`
+	IssuedAt         string `json:"issued_at"`
+	ExpiresAt        string `json:"expires_at,omitempty"`
+	Operation        string `json:"operation,omitempty"`
+	ExpectedRevision int    `json:"expected_revision,omitempty"`
+	IdempotencyKey   string `json:"idempotency_key,omitempty"`
+	SuccessorID      string `json:"successor_id,omitempty"`
+	SuccessorDigest  string `json:"successor_digest,omitempty"`
 }
 
 // ActionClaimEnvelope carries the Ed25519 signature over the canonical claim.
@@ -411,6 +419,9 @@ type ActionClaimEnvelope struct {
 
 // ActionEvent is one append-only entry of a request's journal.
 type ActionEvent struct {
+	LifecycleVersion int                   `json:"lifecycle_version,omitempty"`
+	ExpectedRevision int                   `json:"expected_revision,omitempty"`
+	SuccessorDigest  string                `json:"successor_digest,omitempty"`
 	SchemaVersion    int                   `json:"schema_version"`
 	Seq              int                   `json:"seq"`
 	Type             string                `json:"type"`
@@ -480,6 +491,12 @@ func (s Store) checkActionJournal(id string) error {
 // OpenActionRequest persists a prepared request as the first journal event.
 // Opening the same prepared request again is idempotent.
 func (s Store) OpenActionRequest(r ActionRequest, now time.Time) (ActionRequestView, error) {
+	return s.OpenActionRequestAuthorized(r, nil, now)
+}
+
+// OpenActionRequestAuthorized accepts proof for retirement of the predecessor.
+// Creation of a question alone does not grant authority over its predecessor.
+func (s Store) OpenActionRequestAuthorized(r ActionRequest, authority *ActionResolution, now time.Time) (ActionRequestView, error) {
 	prepared, err := s.PrepareActionRequest(r, now)
 	if err != nil {
 		return ActionRequestView{}, err
@@ -489,6 +506,32 @@ func (s Store) OpenActionRequest(r ActionRequest, now time.Time) (ActionRequestV
 			return existing, nil
 		}
 		return ActionRequestView{}, fmt.Errorf("pose: action request identity collision for %s", prepared.ID)
+	}
+	var retirement ActionEvent
+	var predecessorRevision int
+	if prepared.Supersedes != "" {
+		prior, err := s.LoadActionRequest(prepared.Supersedes)
+		if err != nil {
+			return ActionRequestView{}, err
+		}
+		res := ActionResolution{Actor: prepared.RequestedBy.Principal, RequestDigest: prior.Request.RequestDigest,
+			ExpectedRevision: prior.Revision, IdempotencyKey: "supersede:" + prepared.ID, Reason: "superseded by " + prepared.ID}
+		if authority != nil {
+			res = *authority
+			if res.SuccessorID != prepared.ID || res.SuccessorDigest != prepared.RequestDigest {
+				return ActionRequestView{}, fmt.Errorf("%w: authorization names a different successor", ErrActionVerificationFailed)
+			}
+		}
+		res.Type, res.RequestID = ActionEventSuperseded, prior.Request.ID
+		res.SuccessorID, res.SuccessorDigest = prepared.ID, prepared.RequestDigest
+		retirement = lifecycleEvent(res, now)
+		if err := s.admitLifecycle(prior.Request, &retirement, res.Signature, now, now); err != nil {
+			return ActionRequestView{}, err
+		}
+		if res.ExpectedRevision != prior.Revision {
+			return ActionRequestView{}, ErrActionRevisionConflict
+		}
+		predecessorRevision = prior.Revision
 	}
 	if _, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, actionDir, true); err != nil {
 		return ActionRequestView{}, err
@@ -504,7 +547,7 @@ func (s Store) OpenActionRequest(r ActionRequest, now time.Time) (ActionRequestV
 		return ActionRequestView{}, err
 	}
 	if prepared.Supersedes != "" {
-		if _, err := s.appendActionEvent(prepared.Supersedes, ActionEvent{Type: ActionEventSuperseded, At: prepared.RequestedAt, Actor: prepared.RequestedBy.Principal, SupersededBy: prepared.ID, Reason: "superseded by " + prepared.ID, IdempotencyKey: "supersede:" + prepared.ID}, -1, now); err != nil {
+		if _, err := s.appendActionEvent(prepared.Supersedes, retirement, predecessorRevision, now); err != nil {
 			return ActionRequestView{}, fmt.Errorf("pose: request %s opened but %s was not marked superseded: %w", prepared.ID, prepared.Supersedes, err)
 		}
 	}
@@ -560,6 +603,9 @@ func (s Store) verifyActionAnswers(events []ActionEvent) error {
 	r := *events[0].Request
 	for _, event := range events[1:] {
 		if event.Type != ActionEventAnswered {
+			if err := s.verifyLifecycleEvent(r, event); err != nil {
+				return err
+			}
 			continue
 		}
 		fail := func(err error) error {
@@ -619,10 +665,19 @@ func (s Store) deriveActionView(events []ActionEvent) ActionRequestView {
 				view.Satisfaction = SatisfactionSatisfied
 			}
 		case ActionEventCancelled:
+			view.Assurance = lifecycleAssurance(event)
+			view.Presence = observeActionPresence(request, event)
+			view.Limitations = append(view.Limitations, lifecycleLimitations(event)...)
 			view.State, view.Satisfaction = ActionStateCancelled, SatisfactionCancelled
 		case ActionEventWaived:
+			view.Assurance = lifecycleAssurance(event)
+			view.Presence = observeActionPresence(request, event)
+			view.Limitations = append(view.Limitations, lifecycleLimitations(event)...)
 			view.State, view.Satisfaction = ActionStateWaived, SatisfactionWaived
 		case ActionEventSuperseded:
+			view.Assurance = lifecycleAssurance(event)
+			view.Presence = observeActionPresence(request, event)
+			view.Limitations = append(view.Limitations, lifecycleLimitations(event)...)
 			view.State, view.Satisfaction = ActionStateSuperseded, SatisfactionCancelled
 		case ActionEventInvalidated:
 			view.State, view.Satisfaction = ActionStateInvalidated, SatisfactionInvalidated
@@ -788,8 +843,23 @@ func (s Store) appendActionEvent(id string, event ActionEvent, expected int, now
 		return ActionRequestView{}, fmt.Errorf("%w: written against revision %d, the journal is at %d", ErrActionRevisionConflict, expected, len(events))
 	}
 	current := s.deriveActionView(events)
-	if expected >= 0 && current.State != ActionStateOpen && event.Type != ActionEventInvalidated {
+	if expected >= 0 && current.State != ActionStateOpen && event.Type != ActionEventInvalidated && event.Type != ActionEventSuperseded {
 		return ActionRequestView{}, fmt.Errorf("%w: request %s is %s; supersede it with a new request instead", ErrActionNotOpen, id, current.State)
+	}
+	// Recompose authority, current policy, proof and revision inside the lock.
+	if event.LifecycleVersion != 0 {
+		if event.ExpectedRevision != len(events) {
+			return ActionRequestView{}, ErrActionRevisionConflict
+		}
+		if event.Type == ActionEventSuperseded {
+			successor, err := s.LoadActionRequest(event.SupersededBy)
+			if err != nil || successor.Request.Supersedes != id || successor.Request.RequestDigest != event.SuccessorDigest {
+				return ActionRequestView{}, fmt.Errorf("%w: successor no longer matches retirement", ErrActionVerificationFailed)
+			}
+		}
+		if err := s.admitLifecycle(*events[0].Request, &event, "", now, now); err != nil {
+			return ActionRequestView{}, err
+		}
 	}
 	event.SchemaVersion = ActionRequestSchemaVersion
 	event.Seq = len(events) + 1

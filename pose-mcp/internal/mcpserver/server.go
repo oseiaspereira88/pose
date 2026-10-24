@@ -1135,21 +1135,23 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		// The MCP equivalent of `pose action open` (spec pose-action-requests
 		// R1): the same domain function, a preview unless apply is true.
 		var a struct {
-			Origin      string            `json:"origin"`
-			Kind        string            `json:"kind"`
-			Question    string            `json:"question"`
-			Context     string            `json:"context"`
-			RequestedBy string            `json:"requested_by"`
-			Execution   string            `json:"execution"`
-			Recipient   string            `json:"recipient"`
-			Role        string            `json:"recipient_role"`
-			Options     map[string]string `json:"options"`
-			Recommend   string            `json:"recommend"`
-			Targets     []string          `json:"targets"`
-			Effects     []json.RawMessage `json:"effects"`
-			Subject     string            `json:"subject"`
-			Supersedes  string            `json:"supersedes"`
-			Apply       bool              `json:"apply"`
+			Origin      string                 `json:"origin"`
+			Kind        string                 `json:"kind"`
+			Question    string                 `json:"question"`
+			Context     string                 `json:"context"`
+			RequestedBy string                 `json:"requested_by"`
+			Execution   string                 `json:"execution"`
+			Recipient   string                 `json:"recipient"`
+			Role        string                 `json:"recipient_role"`
+			Options     map[string]string      `json:"options"`
+			Recommend   string                 `json:"recommend"`
+			Targets     []string               `json:"targets"`
+			Effects     []json.RawMessage      `json:"effects"`
+			Subject     string                 `json:"subject"`
+			RequestedAt string                 `json:"requested_at"`
+			Supersedes  string                 `json:"supersedes"`
+			Authority   *pose.ActionResolution `json:"authority"`
+			Apply       bool                   `json:"apply"`
 		}
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_action_open: invalid arguments")
@@ -1164,7 +1166,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}
 		r := pose.ActionRequest{Origin: a.Origin, Kind: a.Kind, Question: a.Question, Context: a.Context,
 			RequestedBy: pose.ActionPrincipal{Principal: a.RequestedBy, Execution: a.Execution},
-			Recipient:   pose.ObligationActor{Principal: a.Recipient, Role: a.Role}, Recommend: a.Recommend, Supersedes: a.Supersedes}
+			Recipient:   pose.ObligationActor{Principal: a.Recipient, Role: a.Role}, Recommend: a.Recommend, Supersedes: a.Supersedes, RequestedAt: a.RequestedAt}
 		ids := make([]string, 0, len(a.Options))
 		for id := range a.Options {
 			ids = append(ids, id)
@@ -1205,7 +1207,13 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			}
 			return map[string]any{"preview": true, "request": prepared, "apply": "false (call again with apply: true to record it)"}, nil
 		}
-		return store.OpenActionRequest(r, time.Now())
+		if r.Supersedes != "" {
+			if a.Authority == nil {
+				return nil, fmt.Errorf("%w: MCP supersession needs predecessor authority and operation-bound proof", pose.ErrActionVerificationFailed)
+			}
+			a.Authority.Channel = "mcp"
+		}
+		return store.OpenActionRequestAuthorized(r, a.Authority, time.Now())
 	case "pose_action_resolve":
 		// The MCP way to record an answer (spec
 		// pose-mcp-action-resolve-signed-only): only an answer the principal
@@ -1214,6 +1222,8 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		// so no declared answer is accepted here under any assurance.
 		var a struct {
 			ID               string                     `json:"id"`
+			Operation        string                     `json:"operation"`
+			Reason           string                     `json:"reason"`
 			Actor            string                     `json:"actor"`
 			Answer           string                     `json:"answer"`
 			RequestDigest    string                     `json:"request_digest"`
@@ -1230,7 +1240,16 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_action_resolve: invalid arguments")
 		}
-		for name, value := range map[string]string{"id": a.ID, "actor": a.Actor, "answer": a.Answer, "idempotency_key": a.IdempotencyKey} {
+		if a.Operation == "" {
+			a.Operation = pose.ActionEventAnswered
+		}
+		if a.Operation != pose.ActionEventAnswered && a.Operation != pose.ActionEventCancelled && a.Operation != pose.ActionEventWaived {
+			return nil, fmt.Errorf("pose_action_resolve: unsupported actor operation %q", a.Operation)
+		}
+		if a.Operation == pose.ActionEventAnswered && a.Answer == "" {
+			return nil, fmt.Errorf("pose_action_resolve: required argument \"answer\" missing")
+		}
+		for name, value := range map[string]string{"id": a.ID, "actor": a.Actor, "idempotency_key": a.IdempotencyKey} {
 			if strings.TrimSpace(value) == "" {
 				return nil, fmt.Errorf("pose_action_resolve: required argument %q missing", name)
 			}
@@ -1239,7 +1258,21 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err != nil {
 			return nil, err
 		}
-		statement := pose.AnswerStatement(view.Request, a.Actor, a.Answer, a.IdempotencyKey, "")
+		res := pose.ActionResolution{RequestID: a.ID, Type: a.Operation, Actor: a.Actor, Answer: a.Answer, Reason: a.Reason,
+			RequestDigest: a.RequestDigest, ExpectedRevision: a.ExpectedRevision, IdempotencyKey: a.IdempotencyKey, Role: a.Role, Evidence: a.Evidence,
+			Execution: a.Execution, Channel: "mcp", Signature: a.Signature, Claim: a.Claim, Envelope: a.Envelope}
+		statementBytes := pose.AnswerStatement(view.Request, a.Actor, a.Answer, a.IdempotencyKey, a.Reason).Canonical()
+		namespace := pose.ActionAnswerNamespace
+		if a.Operation != pose.ActionEventAnswered {
+			statementBytes = pose.LifecycleStatement(view.Request, res).Canonical()
+			namespace = pose.ActionLifecycleNamespace
+		}
+		statementCommand := fmt.Sprintf("pose action statement %s --actor %s --answer %s --idempotency-key %s", a.ID, shellQuote(a.Actor), shellQuote(a.Answer), shellQuote(a.IdempotencyKey))
+		if a.Operation != pose.ActionEventAnswered {
+			statementCommand = fmt.Sprintf("pose action statement %s --actor %s --operation %s --expected-revision %d --request-digest %s --idempotency-key %s --reason %s", a.ID, shellQuote(a.Actor), shellQuote(a.Operation), a.ExpectedRevision, shellQuote(a.RequestDigest), shellQuote(a.IdempotencyKey), shellQuote(a.Reason))
+		} else if a.Reason != "" {
+			statementCommand += " --reason " + shellQuote(a.Reason)
+		}
 		if !a.Apply {
 			policy, err := pose.LoadActionPolicyIn(pose.FilesOrNative(store.FS), store.Root)
 			if err != nil {
@@ -1250,18 +1283,18 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 				"request":             view,
 				"presence_policy":     policy.PresencePolicy(),
 				"presence_evaluation": "not-evaluated",
-				"statement":           string(statement.Canonical()),
-				"statement_command":   fmt.Sprintf("pose action statement %s --actor %s --answer %s --idempotency-key %s", a.ID, shellQuote(a.Actor), shellQuote(a.Answer), shellQuote(a.IdempotencyKey)),
-				"sign_command":        "ssh-keygen -Y sign -f <private key registered to " + a.Actor + "> -n " + pose.ActionAnswerNamespace,
+				"statement":           string(statementBytes),
+				"operation":           a.Operation,
+				"namespace":           namespace,
+				"statement_command":   statementCommand,
+				"sign_command":        "ssh-keygen -Y sign -f <private key registered to " + a.Actor + "> -n " + namespace,
 				"apply":               "false (the principal signs the statement; call again with signature and apply: true)",
 			}, nil
 		}
 		if strings.TrimSpace(a.Signature) == "" && (a.Claim == nil || a.Envelope == nil) {
 			return nil, fmt.Errorf("pose_action_resolve: %w: an answer over MCP needs the principal's proof — a signature by a key registered to %s over the statement the preview returns, or a trusted issuer's claim; a principal name written by an agent is not one", pose.ErrActionVerificationFailed, a.Actor)
 		}
-		return store.ResolveActionRequest(pose.ActionResolution{RequestID: a.ID, Type: pose.ActionEventAnswered, Actor: a.Actor, Answer: a.Answer,
-			RequestDigest: a.RequestDigest, ExpectedRevision: a.ExpectedRevision, IdempotencyKey: a.IdempotencyKey, Role: a.Role, Evidence: a.Evidence,
-			Execution: a.Execution, Channel: "mcp", Signature: a.Signature, Claim: a.Claim, Envelope: a.Envelope}, time.Now())
+		return store.ResolveActionRequest(res, time.Now())
 	case "pose_review_prepare":
 		// Read-only auto-attest preparation over MCP (spec
 		// pose-mcp-review-attest-signed-only R6): the criteria automation can
@@ -2484,10 +2517,12 @@ func toolDefinitions() []map[string]any {
 						map[string]any{"type": "string"},
 						map[string]any{"type": "object", "properties": map[string]any{"phase": map[string]any{"type": "string"}, "mode": map[string]any{"type": "string"}, "scope": map[string]any{"type": "array", "items": map[string]any{"type": "string"}}}, "required": []string{"phase", "mode"}, "additionalProperties": false},
 					}}, "description": "phase:mode strings retain whole-source scope; objects add explicit qualified node scopes. Targets indicate relevance, not implicit blocking scope."},
-					"subject":    map[string]any{"type": "string", "description": "Optional requirement:R4 or path:<file> whose change invalidates an answer"},
-					"supersedes": map[string]any{"type": "string", "description": "Optional act-<id> this request replaces"},
-					"apply":      map[string]any{"type": "boolean", "description": "Record the request; without it the call is a preview"},
-					"project_id": map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
+					"subject":      map[string]any{"type": "string", "description": "Optional requirement:R4 or path:<file> whose change invalidates an answer"},
+					"requested_at": map[string]any{"type": "string", "description": "RFC3339 timestamp returned by the replacement preview; preserve it to keep the signed successor ID stable"},
+					"supersedes":   map[string]any{"type": "string", "description": "Optional predecessor; requires operation-bound authority proof"},
+					"authority":    map[string]any{"type": "object", "description": "Predecessor lifecycle authorization: actor, request_digest, expected_revision, idempotency_key, reason, role and signature or schema-2 claim/envelope; binds successor ID/digest returned by preview"},
+					"apply":        map[string]any{"type": "boolean", "description": "Record the request; without it the call is a preview"},
+					"project_id":   map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
 				},
 				"required": []string{"origin", "kind", "question", "requested_by", "targets", "effects"},
 			},
@@ -2499,11 +2534,13 @@ func toolDefinitions() []map[string]any {
 				"preview that returns the exact statement to sign and the ssh-keygen command; the principal signs it on their machine " +
 				"and the signature is passed back with apply: true. A call without a proof is refused under any identity assurance: a " +
 				"principal name written by an agent is a declaration, not a proof. Human presence follows actions.json's explicit scope; " +
-				"an issuer claim alone proves no presence. A registered SK signature may accompany a claim; every supplied proof must verify. Cancel, waive and invalidate stay on the CLI.",
+				"an issuer claim alone proves no presence. A registered SK signature may accompany a claim; every supplied proof must verify. Optional operation cancelled or waived uses a pose-action-lifecycle statement; arbitrary actor invalidation is refused.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
 					"id":                map[string]any{"type": "string", "description": "act-<16 hex> id"},
+					"operation":         map[string]any{"type": "string", "enum": []string{"answered", "cancelled", "waived"}, "description": "Defaults to answered; lifecycle operations require distinct bound proof"},
+					"reason":            map[string]any{"type": "string", "description": "Signed reason; required for lifecycle operations"},
 					"actor":             map[string]any{"type": "string", "description": "The answering principal (human:<id> or agent:<id>)"},
 					"answer":            map[string]any{"type": "string", "description": "An option id, or the text of an input"},
 					"request_digest":    map[string]any{"type": "string", "description": "The request digest the answer was given for"},
@@ -2518,7 +2555,7 @@ func toolDefinitions() []map[string]any {
 					"apply":             map[string]any{"type": "boolean", "description": "Record the answer; without it the call is a preview"},
 					"project_id":        map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
 				},
-				"required": []string{"id", "actor", "answer", "idempotency_key"},
+				"required": []string{"id", "actor", "idempotency_key"},
 			},
 		},
 		{

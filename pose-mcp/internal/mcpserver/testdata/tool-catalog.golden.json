@@ -387,6 +387,10 @@
             "description": "Record the request; without it the call is a preview",
             "type": "boolean"
           },
+          "authority": {
+            "description": "Predecessor lifecycle authorization: actor, request_digest, expected_revision, idempotency_key, reason, role and signature or schema-2 claim/envelope; binds successor ID/digest returned by preview",
+            "type": "object"
+          },
           "context": {
             "description": "Optional context",
             "type": "string"
@@ -463,6 +467,10 @@
             "description": "Optional recommended option id",
             "type": "string"
           },
+          "requested_at": {
+            "description": "RFC3339 timestamp returned by the replacement preview; preserve it to keep the signed successor ID stable",
+            "type": "string"
+          },
           "requested_by": {
             "description": "agent:\u003cid\u003e or human:\u003cid\u003e asking",
             "type": "string"
@@ -472,7 +480,7 @@
             "type": "string"
           },
           "supersedes": {
-            "description": "Optional act-\u003cid\u003e this request replaces",
+            "description": "Optional predecessor; requires operation-bound authority proof",
             "type": "string"
           },
           "targets": {
@@ -496,7 +504,7 @@
       "name": "pose_action_open"
     },
     {
-      "description": "Record a principal's answer to an action request — only with the principal's proof: a signature by a key registered to it in .pose/policy/actions.json (`pose identity add`), or a trusted issuer's claim. Without apply it is a preview that returns the exact statement to sign and the ssh-keygen command; the principal signs it on their machine and the signature is passed back with apply: true. A call without a proof is refused under any identity assurance: a principal name written by an agent is a declaration, not a proof. Human presence follows actions.json's explicit scope; an issuer claim alone proves no presence. A registered SK signature may accompany a claim; every supplied proof must verify. Cancel, waive and invalidate stay on the CLI.",
+      "description": "Record a principal's answer to an action request — only with the principal's proof: a signature by a key registered to it in .pose/policy/actions.json (`pose identity add`), or a trusted issuer's claim. Without apply it is a preview that returns the exact statement to sign and the ssh-keygen command; the principal signs it on their machine and the signature is passed back with apply: true. A call without a proof is refused under any identity assurance: a principal name written by an agent is a declaration, not a proof. Human presence follows actions.json's explicit scope; an issuer claim alone proves no presence. A registered SK signature may accompany a claim; every supplied proof must verify. Optional operation cancelled or waived uses a pose-action-lifecycle statement; arbitrary actor invalidation is refused.",
       "inputSchema": {
         "properties": {
           "actor": {
@@ -542,8 +550,21 @@
             "description": "Key that makes a retry a no-op; it is part of the signed statement",
             "type": "string"
           },
+          "operation": {
+            "description": "Defaults to answered; lifecycle operations require distinct bound proof",
+            "enum": [
+              "answered",
+              "cancelled",
+              "waived"
+            ],
+            "type": "string"
+          },
           "project_id": {
             "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "reason": {
+            "description": "Signed reason; required for lifecycle operations",
             "type": "string"
           },
           "request_digest": {
@@ -562,7 +583,6 @@
         "required": [
           "id",
           "actor",
-          "answer",
           "idempotency_key"
         ],
         "type": "object"

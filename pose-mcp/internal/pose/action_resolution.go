@@ -39,28 +39,30 @@ type ActionPolicy struct {
 
 // ActionResolution is a requested write to a request's journal.
 type ActionResolution struct {
-	RequestID        string
-	Type             string // answered | cancelled | waived | invalidated
-	Actor            string
-	Execution        string
-	Channel          string
-	Role             string
-	RequestDigest    string
-	Answer           string
-	Evidence         []string
-	Reason           string
-	PreparedBy       string
-	AppliedBy        string
-	ConfirmationMode string
-	IdempotencyKey   string
+	RequestID        string   `json:"request_id,omitempty"`
+	Type             string   `json:"operation,omitempty"` // answered | cancelled | waived | invalidated
+	Actor            string   `json:"actor,omitempty"`
+	Execution        string   `json:"execution,omitempty"`
+	Channel          string   `json:"channel,omitempty"`
+	Role             string   `json:"role,omitempty"`
+	RequestDigest    string   `json:"request_digest,omitempty"`
+	Answer           string   `json:"answer,omitempty"`
+	Evidence         []string `json:"evidence,omitempty"`
+	Reason           string   `json:"reason,omitempty"`
+	PreparedBy       string   `json:"prepared_by,omitempty"`
+	AppliedBy        string   `json:"applied_by,omitempty"`
+	ConfirmationMode string   `json:"confirmation_mode,omitempty"`
+	IdempotencyKey   string   `json:"idempotency_key,omitempty"`
 	// ExpectedRevision is the journal length the writer read. A write
 	// against an older revision is refused: two answers never both land.
-	ExpectedRevision int
-	Claim            *ActionAuthorityClaim
-	Envelope         *ActionClaimEnvelope
+	ExpectedRevision int                   `json:"expected_revision,omitempty"`
+	Claim            *ActionAuthorityClaim `json:"claim,omitempty"`
+	Envelope         *ActionClaimEnvelope  `json:"envelope,omitempty"`
 	// Signature is an armored SSHSIG over AnswerStatement, made by a key
 	// registered to Actor.
-	Signature string
+	Signature       string `json:"signature,omitempty"`
+	SuccessorID     string `json:"successor_id,omitempty"`
+	SuccessorDigest string `json:"successor_digest,omitempty"`
 }
 
 // LoadActionPolicy reads the policy; an absent file is the empty declared
@@ -239,22 +241,12 @@ func (s Store) ResolveActionRequest(res ActionResolution, now time.Time) (Action
 			return ActionRequestView{}, err
 		}
 	case ActionEventCancelled, ActionEventWaived:
-		if event.Reason == "" {
-			return ActionRequestView{}, fmt.Errorf("pose: a %s needs a reason", res.Type)
-		}
-		// The requester may withdraw its own question; a waiver dispenses
-		// with the condition, so it needs the request's authority.
-		if !(res.Type == ActionEventCancelled && res.Actor == r.RequestedBy.Principal) {
-			role, err := authorizeActionActor(policy, r, res.Actor, res.Role)
-			if err != nil {
-				return ActionRequestView{}, err
-			}
-			event.Role = role
+		event = lifecycleEvent(res, now)
+		if err := s.admitLifecycle(r, &event, res.Signature, now, now); err != nil {
+			return ActionRequestView{}, err
 		}
 	case ActionEventInvalidated:
-		if event.Reason == "" {
-			return ActionRequestView{}, errors.New("pose: an invalidation needs a reason")
-		}
+		return ActionRequestView{}, fmt.Errorf("%w: invalidation is an engine observation of material change, not an actor resolution", ErrActionNotAuthorized)
 	default:
 		return ActionRequestView{}, fmt.Errorf("pose: unknown resolution type %q", res.Type)
 	}
@@ -331,8 +323,12 @@ func (s Store) verifyActionClaimWithin(r ActionRequest, res ActionResolution, ro
 		return fail("the claim signs another answer")
 	case claim.Reason != strings.TrimSpace(res.Reason):
 		return fail("the claim does not sign the answer's reason")
-	case claim.SchemaVersion != 1:
-		return fail("unsupported claim schema")
+	case res.Type != "" && res.Type != ActionEventAnswered && claim.SchemaVersion != 2:
+		return fail("lifecycle proof requires claim schema 2")
+	case (res.Type == "" || res.Type == ActionEventAnswered) && (claim.SchemaVersion != 1 || claim.Operation != ""):
+		return fail("unsupported answer claim schema or operation")
+	case claim.SchemaVersion == 2 && (claim.Operation != res.Type || claim.ExpectedRevision != res.ExpectedRevision || claim.IdempotencyKey != res.IdempotencyKey || claim.SuccessorID != res.SuccessorID || claim.SuccessorDigest != res.SuccessorDigest):
+		return fail("the lifecycle claim does not bind this operation, revision, idempotency key and successor")
 	}
 	// The claim's role is the kind of principal (human or agent), as in
 	// review authority; the request's role is checked against the policy.

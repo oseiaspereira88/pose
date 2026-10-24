@@ -774,3 +774,15 @@ verified-source.
 
 Este contrato aditivo é classificado para minor. Não adota policy, não reescreve
 registros históricos e não cria receipts retrospectivos.
+
+### Autoridade de lifecycle de actions
+
+Prova de answer autoriza somente a resposta. Novos eventos de waiver, cancelamento e supersession carregam `lifecycle_version: 1`. Sob policy verified exigem SSHSIG de operação (`pose-action-lifecycle`) ou claim schema 2 de issuer confiável. MCP sempre exige prova; todos os emissores fornecidos devem verificar, e presença humana segue o scope de canal vigente.
+
+Use `pose action waive` para dispensa pela autoridade destinatária/role e `pose action cancel` somente para retirar a própria pergunta do requester. Cancelamento não dispensa condição de outro producer. Policy local declared conserva operações declaradas e as divulga assim. Eventos legados sem binding continuam explicitamente legados e não dispensam condição sob policy verified. A releitura verifica assinatura e bindings no tempo histórico de aceitação, com pins de confiança atuais; não comprova autorização histórica de role nem proveniência de hardware.
+
+O preview JSON de lifecycle retorna statement exato com operação, request/digest/projeto, revisão, idempotency key e reason. Use `--sign`, `--signature` ou arquivo `--claim` schema 2. Para assinatura externa, use `pose action statement <act-id> --operation waived|cancelled|superseded --actor <principal> --expected-revision <n> --idempotency-key <key> --reason <texto>`; supersession também exige `--successor-id` e `--successor-digest` do preview da substituta. Claim schema 2 vincula `operation`, `expected_revision`, `idempotency_key`, `reason`, `successor_id` e `successor_digest`, além dos bindings existentes; claim de answer schema 1 não autoriza retirada.
+
+Preserve `requested_at` do preview por `--requested-at` (CLI) ou `requested_at` (MCP); o timestamp RFC3339 conserva a identidade durante a assinatura e é metadado da request, não proveniência autenticada de relógio. Abrir substituta com `--supersedes` exige requester ou autoridade destinatária da anterior. Sob verified, informe `--authority <JSON relativo ao projeto>` com actor, request_digest, expected_revision, idempotency_key, reason, signature ou claim/envelope e successor_id/successor_digest exatos do preview. MCP `pose_action_open` aceita o mesmo objeto `authority`, sempre com prova. O writer autoriza antes de criar e recompõe sob lock da anterior. Se uma mudança concorrente impedir o append, o erro informa a abertura parcial e a condição anterior permanece; recovery entre journals pertence a B10.
+
+MCP `pose_action_resolve` usa `operation: answered` por padrão e aceita `cancelled`/`waived` com reason e prova específica. Chamadas arbitrárias de actor para `invalidate` são recusadas. Mudança de subject é observação derivada dos digests original/atual pelo engine; transferência conserva o caminho governado existente. Observação mecânica não exige nova assinatura humana nem concede waiver. Nenhuma policy, issuer ou pin é adotado automaticamente. Avalie compatibilidade da recusa mais estrita antes da publicação.
