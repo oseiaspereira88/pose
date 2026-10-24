@@ -53,6 +53,7 @@ Declaração prospectiva reconciliada antes do managed start. Metadados gerados 
 - created: .pose/changelogs/unreleased/pose-policy-scope-validation.md
 - created: .pose/adr/2026-10-23-shared-supported-scope-taxonomy-for-review-policy.md
 - created: .pose/reports/2026-10-23-policy-scope-validation.md
+- created: .pose/reports/2026-10-23-b05-independent-review.md
 - created: pose-mcp/internal/pose/review_policy_scope.go
 - modified: pose-mcp/internal/pose/review_plan.go
 - modified: pose-mcp/internal/mcpserver/server.go
@@ -121,7 +122,7 @@ Risco alto de contrato de segurança. Antes do código: reproduzir chave spce ac
 
 - R1 [satisfied] test:TestPolicyScopeRejectsUnsupportedMapKeys; test:TestPolicyScopeKnownKindsAndDefaults
 - R2 [satisfied] test:TestPolicyScopeVerifiedProtectionNamesOnlySupportedKinds; test:TestPolicyScopeProjectionRejectsMalformedContext
-- R3 [satisfied] test:TestPolicyScopeRejectsUnsupportedMapKeys; test:TestPolicyScopeCLIRefusesInvalidConfiguration; test:TestPolicyScopeMCPRefusesInvalidConfiguration
+- R3 [satisfied] test:TestPolicyScopeRejectsUnsupportedMapKeys; test:TestPolicyScopeCLIRefusesInvalidConfiguration; test:TestPolicyScopeMCPRefusesInvalidConfiguration; evidence:integration
 - R4 [satisfied] test:TestPolicyScopeKnownKindsAndDefaults; test:TestPolicyScopeVerifiedProtectionNamesOnlySupportedKinds
 - R5 [satisfied] test:TestPolicyScopeRejectsUnsupportedMapKeys; test:TestPolicyScopeKnownKindsAndDefaults
 - R6 [satisfied] test:TestPolicyScopeInvalidCurrentPolicyPreservesSealedHistory; test:TestPolicyScopeInvalidProtectedBaselineCannotDowngradeToWarning
