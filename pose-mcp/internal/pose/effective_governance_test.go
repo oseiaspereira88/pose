@@ -140,3 +140,32 @@ func TestTheProjectionWritesNothing(t *testing.T) {
 		t.Fatal("reading effective governance changed the tree")
 	}
 }
+
+func TestPolicyScopeProjectionRejectsMalformedContext(t *testing.T) {
+	s := governanceFixture(t, governanceReviewPolicy, "")
+	for _, scope := range []string{"spce:alpha", "spec:", "milestone:alpha"} {
+		p, err := s.EffectiveGovernance(scope)
+		if err == nil || len(p.Entries) > 0 {
+			t.Fatalf("unsupported context appeared legitimate: %+v %v", p, err)
+		}
+	}
+}
+
+func TestPolicyScopeVerifiedProtectionNamesOnlySupportedKinds(t *testing.T) {
+	raw := `{"schema_version":2,"enabled":true,"review_bundles":true,"review_bundles_adopted_at":"2026-08-14","identity_assurance":{"roadmap":"verified","spec":"declared"},"authority_audience":"test","authority_project":"pose","trusted_attestation_issuers":["test#sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]}`
+	s := governanceFixture(t, raw, "")
+	p, err := s.EffectiveGovernance("spec:alpha")
+	if err != nil {
+		t.Fatal(err)
+	}
+	entry := governanceEntry(t, p, "verified-identity")
+	if !entry.Effective || entry.Value != "roadmap" {
+		t.Fatalf("global projection lost actual kind: %+v", entry)
+	}
+	raw = strings.ReplaceAll(raw, `"roadmap":"verified"`, `"spce":"verified"`)
+	s = governanceFixture(t, raw, "")
+	p, err = s.EffectiveGovernance("")
+	if err == nil || len(p.Entries) > 0 {
+		t.Fatalf("unknown verified scope appears effective: %+v %v", p, err)
+	}
+}

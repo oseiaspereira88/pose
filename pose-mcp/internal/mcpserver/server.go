@@ -1394,15 +1394,16 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		// Effective governance is read live from the policies the gates read,
 		// so it is current even when the persisted artifact is stale.
 		governance, governanceErr := store.EffectiveGovernance(a.GovernanceScope)
+		if governanceErr != nil {
+			return nil, governanceErr
+		}
 		if !store.HasProjectState() {
 			out := map[string]any{"initialized": false, "message": "project state not initialized (run `pose state init`)"}
-			if governanceErr == nil {
-				out["effective_governance"] = governance
-			}
+			out["effective_governance"] = governance
 			return out, nil
 		}
 		state, err := store.ProjectState(ctx, a.Section)
-		if err == nil && governanceErr == nil {
+		if err == nil {
 			state.EffectiveGovernance = &governance
 		}
 		return state, err

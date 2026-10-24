@@ -193,6 +193,14 @@
       "digest": "sha256:54a0e24e08df3708a79b750f93a20bc595f98ae6bb32efc7ff5c20d2637c47c9"
     },
     {
+      "spec": "pose-policy-scope-validation",
+      "category": "security",
+      "breaking": true,
+      "body": "Reject unsupported identity_assurance and reviewer_independence scope keys across\nreview-policy schemas 1–4 using the canonical spec/milestone/roadmap taxonomy.\nPropagate current-policy errors through CLI/MCP, refuse malformed governance\ncontext and prevent invalid protected selectors from downgrading preparation.\nKeep known defaults, unknown top-level metadata and historical sealed records.",
+      "path": "pose-policy-scope-validation.md",
+      "digest": "sha256:1d345adaab44f63153dce614580307dea443fe50f736154b50280b33c4775249"
+    },
+    {
       "spec": "pose-proof-presence-channel-parity",
       "category": "security",
       "breaking": true,

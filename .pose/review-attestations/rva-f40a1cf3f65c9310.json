@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-f40a1cf3f65c9310",
+  "bundle_id": "rvb-03f3e1b04bb0969a",
+  "bundle_digest": "sha256:03f3e1b04bb0969a3d83dce99f1e31f0efacb4d9e9e7656a93bf2a394a314142",
+  "reviewer": "agent:independent-codex-b05-01a16c45",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-84e23ecd24786122",
+      "rationale": "Known defaults, global projection semantics, historical-read separation, and assessment limitations are explicit and supported by source and regressions. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "No concurrency machinery changed; sealed unit and integration evidence passes. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "Stricter refusal is explicitly breaking/major; CLI/MCP behavior and preserved historical contracts are documented and tested. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "Sorted exact-key validation produces localized field, quoted-key, and unsupported-kind diagnostics; protected-baseline errors retain their typed cause. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "Sealed `policy-scope-validation-integration` exercises domain, CLI, and MCP boundaries successfully. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "CLI reports configuration errors; MCP returns a tool error instead of silently omitting governance. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "Known defaults and unknown top-level fields remain accepted. Invalid selector compatibility is intentionally tightened, with no migration or adoption. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "Shared taxonomy governs parsing, both policy maps, and direct assurance lookup; focused and full canonical checks pass. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-84e23ecd24786122",
+      "rationale": "Shared validation removes selector/consumer disagreement; typed baseline refusal prevents protection downgrade. Structural mapping appears below. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md",
+      "mappings": [
+        {
+          "delta": "SD-402ecdb3",
+          "basis": "D2",
+          "disposition": "mapped",
+          "rationale": "The prospective taxonomy ADR establishes exact supported selectors, whole-policy refusal, historical-record preservation, and breaking/major classification, preventing consumers from interpreting configuration under conflicting contracts.; actual session 01a16c45-9770-7f10-a10d-ef6ec9581985; report:2026-10-23-b05-independent-review.md"
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "English/Portuguese manuals and embedded distribution describe runtime behavior; corrected parity passes canonical validation. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "Diagnostics identify the invalid selector and supported kinds without rewriting operator configuration. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "R1–R6 have relevant sealed unit/integration evidence covering rejection, defaults, consumers, future kinds, and sealed history. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-84e23ecd24786122",
+      "rationale": "Changes implement B05 assurance/independence validation and its consumption boundaries; unrelated profile validation remains excluded. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "Invalid maps fail as a whole across supported schemas, including disabled policies; no partial protection or baseline-warning downgrade remains. Required final-head Security CI remains a merge condition. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-84e23ecd24786122",
+      "rationale": "One small shared validator plus targeted consumer fixes addresses the defect without policy migration, historical parsing exceptions, or speculative taxonomy expansion. Actual separate same-vendor session 01a16c45-9770-7f10-a10d-ef6ec9581985; collector execution is distinct from reviewer inspection. report:2026-10-23-b05-independent-review.md"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "report:2026-10-23-policy-scope-validation.md",
+      "rationale": "Native collector gate passed; actual separate reviewer inspected output on this exact subject. Completion-only gates are deferred."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "Native collector gate passed; actual separate reviewer inspected output on this exact subject. Completion-only gates are deferred."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "Native collector gate passed; actual separate reviewer inspected output on this exact subject. Completion-only gates are deferred."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/policy-scope-validation-integration",
+      "rationale": "Native collector gate passed; actual separate reviewer inspected output on this exact subject. Completion-only gates are deferred."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    }
+  ],
+  "evidence_refs": [
+    "report:2026-10-23-b05-independent-review.md",
+    "report:2026-10-23-policy-scope-validation.md"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:codex-b05-primary",
+    "concluded_by": "agent:independent-codex-b05-01a16c45",
+    "applied_by": "agent:codex-b05-primary"
+  },
+  "attested_at": "2026-10-24T05:16:04Z",
+  "path": ".pose/review-attestations/rva-f40a1cf3f65c9310.json"
+}

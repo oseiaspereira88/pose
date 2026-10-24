@@ -221,6 +221,10 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	if len(guard.Paths) > 0 && guard.Revision != "" {
 		baseline, err = s.resolveReviewPolicyBaseline(guard.Revision, scope.Kind)
 		if err != nil {
+			var scopeErr *reviewPolicyScopeError
+			if errors.As(err, &scopeErr) {
+				return ReviewPlan{}, fmt.Errorf("pose: protected review policy baseline %s: %w", guard.Revision, err)
+			}
 			guard.Reason, baseline = err.Error(), reviewPolicyBaseline{}
 		}
 	}

@@ -1,8 +1,8 @@
 ---
 slug: pose-policy-scope-validation
-status: draft
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-24
 depends_on: pose-effective-governance-projection
 priority: 1
 components: pose-mcp
@@ -26,7 +26,7 @@ e a [análise de confiança](../reports/2026-10-11-pose-front-02-trust-chain.md)
 
 ### Constraints
 
-Esta interação escreve a spec; não implementa o comportamento. Preservar as
+Implementação autorizada pelo usuário em 2026-10-23, com entrega individual na main remota. Preservar as
 fundações done, contratos selados, evidências e autorizações já existentes.
 Não adotar policy/capability automaticamente. Classificar compatibilidade antes
 de iniciar: recusa mais estrita ou mudança de semântica pública não é patch por
@@ -46,14 +46,17 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-1-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
+Declaração prospectiva reconciliada antes do managed start. Metadados gerados pelos gates são evidência operacional, não código de produto.
 
-- created: .pose/specs/2026-10-13-pose-policy-scope-validation.md
+- modified: .pose/specs/2026-10-13-pose-policy-scope-validation.md
 - created: .pose/starts/pose-policy-scope-validation.json
 - created: .pose/changelogs/unreleased/pose-policy-scope-validation.md
+- created: .pose/adr/2026-10-23-shared-supported-scope-taxonomy-for-review-policy.md
+- created: .pose/reports/2026-10-23-policy-scope-validation.md
+- created: .pose/reports/2026-10-23-b05-independent-review.md
+- created: pose-mcp/internal/pose/review_policy_scope.go
+- modified: pose-mcp/internal/pose/review_plan.go
+- modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/effective_governance.go
 - created: pose-mcp/internal/pose/review_policy_scope_test.go
@@ -62,6 +65,10 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - created: pose-mcp/internal/mcpserver/policy_scope_validation_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/results/pose-implementation-plan.json
 
 ### Delivery targets
 
@@ -82,6 +89,11 @@ Não contornar dependência não terminal apenas porque o código parece present
 - Basis: R1, R2, R3, R5
 - Decision: Separar presença de configuração, validade e efetividade, com taxonomia compartilhada.
 - Rationale: Um valor verified em chave que o motor não seleciona não protege o operador.
+
+### Decision D2
+- Basis: R1, R2, R3, R4, R5, R6
+- Decision: Usar taxonomia fechada compartilhada spec/milestone/roadmap, recusar mapas atuais inválidos sem normalização e sem projeção parcial de proteção. Preservar defaults conhecidos, campos top-level desconhecidos e payloads históricos selados; a recusa mais estrita é breaking e exige classificação major, sem release/adoption automática.
+- Rationale: Uma policy inválida não pode aparentar proteção. O contrato histórico selado não é uma policy atual a migrar. ADR prospectivo: [shared supported scope taxonomy](../adr/2026-10-23-shared-supported-scope-taxonomy-for-review-policy.md).
 
 ## 6. Validation
 
@@ -104,25 +116,46 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Risco alto de contrato de segurança. Antes do código: reproduzir chave spce aceita no domínio/projeção; testar mapas identity_assurance e reviewer_independence nas schemas 1–4, chaves vazias, espaços, case, newline, typo, futuro e configuração mista. Cobrir defaults ausentes/declared, getters diretos, seleção de preparação, erro CLI humano/JSON e MCP sem effective falso, arquivo do operador intacto e leitura de bundle histórico com policy atual inválida. Rodar testes focados antes/depois, suíte completa via pose validate --strict --report --json-out .pose/results/delivery-validation.json, assess integrate/tech-debt, artifact/surface/check/lint, revisão real separada sobre bundle selado e CI/Security antes/depois do merge. Concorrência não alterada; race conforme matriz existente.
 
 ### Requirement trace
 
-Mapear os R-IDs aos casos acima e aos produtores reais durante a implementação.
-Não declarar satisfeitos os requisitos funcionais pelo lint desta spec.
+- R1 [satisfied] test:TestPolicyScopeRejectsUnsupportedMapKeys; test:TestPolicyScopeKnownKindsAndDefaults
+- R2 [satisfied] test:TestPolicyScopeVerifiedProtectionNamesOnlySupportedKinds; test:TestPolicyScopeProjectionRejectsMalformedContext
+- R3 [satisfied] test:TestPolicyScopeRejectsUnsupportedMapKeys; test:TestPolicyScopeCLIRefusesInvalidConfiguration; test:TestPolicyScopeMCPRefusesInvalidConfiguration; evidence:integration
+- R4 [satisfied] test:TestPolicyScopeKnownKindsAndDefaults; test:TestPolicyScopeVerifiedProtectionNamesOnlySupportedKinds
+- R5 [satisfied] test:TestPolicyScopeRejectsUnsupportedMapKeys; test:TestPolicyScopeKnownKindsAndDefaults
+- R6 [satisfied] test:TestPolicyScopeInvalidCurrentPolicyPreservesSealedHistory; test:TestPolicyScopeInvalidProtectedBaselineCannotDowngradeToWarning
+
+Produtor registrado antes da coleta; resultados pendentes, sem declaração antecipada de aprovação.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 1. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+Fechamento funcional nativo em 2026-10-24 após validação estrita148/148 (236.4s),
+21 claims reconciliadas sem erros, composição sem findings e revisão separada
+Codex com os15critérios aprovados. Fonte5b4161b, bundle rvb-03f3e1b04bb0969a,
+atestação rva-f40a1cf3f65c9310. O gate terminal confirmou lifecycle done sem
+blockers. Na fotografia deste commit de fechamento, a publicação individual na main remota
+ainda exige commit de metadados, checks finais do PR, merge exato e verificação
+pós-merge; o recibo posterior fica no PR individual da B05. Esta conclusão funcional
+segue closure_policy e não equivale a publicação remota.
 
 ### Residual risks
 
-Configured pode representar presença bruta; applicable/effective precisam de validade e seleção reais. Rejeitar erro de digitação pode alterar callers antes tolerados: registrar a decisão de compatibilidade antes da implementação. Não ampliar a taxonomia para aceitar silenciosamente todas as chaves.
+A recusa mais estrita é breaking/major; operadores corrigem seletores inválidos
+explicitamente, sem migração/adoption/release automática. Entradas de governança
+são globais e nomeiam os kinds, enquanto scope opcional adiciona contexto histórico.
+A inspeção de registros selados não é avaliação da policy atual. Integração tem
+64 contratos/63 consumidores heurísticos não observados; dívida técnica INCOMPLETE
+por duas specs antigas inválidas. Avisos estruturais/órfãos não são novos blockers.
+Revisão é execução separada do mesmo vendor com identidade declarada, sem prova
+de independência cognitiva/humana/autenticada. Relatórios de execução/revisão
+preservam evidência e limites; a confirmação de publicação ficará no PR.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Sem follow-up residual da B05 identificado na revisão real; os defeitos de
+consumo MCP e baseline protegida foram resolvidos neste escopo. Nenhuma demanda
+alheia foi encerrada, duplicada ou criada. O programa e roadmaps permanecem abertos.
