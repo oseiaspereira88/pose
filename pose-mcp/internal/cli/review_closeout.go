@@ -1740,6 +1740,10 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 				return 1
 			}
 		}
+		if _, findings, err := store.InspectAmendmentHistory(*sp); err != nil || len(findings) > 0 {
+			render(io.Discard, stderr).Failure(fmt.Sprintf("pose close: amendment history gate failed: %v %s", err, strings.Join(findings, "; ")))
+			return 1
+		}
 		// The exit gate of a spec is its requirement trace: closing marks it
 		// done, and a done spec whose promises point at no evidence fails
 		// lint. Refusing here keeps `pose close` from producing what the
@@ -1795,6 +1799,17 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 	if guard != nil {
 		if err := guard(); err != nil {
 			render(io.Discard, stderr).Failure("pose close: " + err.Error())
+			return 1
+		}
+	}
+	if scope.Kind == "spec" {
+		sp, err := store.GetSpec(scope.Slug)
+		if err != nil {
+			render(io.Discard, stderr).Failure("pose close: " + err.Error())
+			return 1
+		}
+		if _, findings, err := store.InspectAmendmentHistory(*sp); err != nil || len(findings) > 0 {
+			render(io.Discard, stderr).Failure(fmt.Sprintf("pose close: amendment history gate failed: %v %s", err, strings.Join(findings, "; ")))
 			return 1
 		}
 	}

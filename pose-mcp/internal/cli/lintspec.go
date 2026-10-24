@@ -786,21 +786,19 @@ func lintOneSpecWith(r *cliout.Renderer, fields bool, specPath string, requiredO
 	// append-only event log exists, a done spec must acknowledge the current
 	// requirement state — silent post-evidence rewrites are rejected.
 	amendFailures, amendEvents := 0, 0
-	if events, aerr := posepkg.LoadAmendments(posepkg.AmendmentsPath(specPath)); aerr != nil {
-		lint.finding(cliout.StateError, "amendments", fmt.Sprintf(cliText(locale, "amendments.jsonl: %v", "amendments.jsonl: %v"), aerr))
+	events, findings, aerr := (posepkg.Store{Root: lintProjectRoot(specPath)}).InspectAmendmentHistory(posepkg.Spec{Slug: slug, Path: specPath, Body: text})
+	amendEvents = len(events)
+	if aerr != nil {
+		lint.finding(cliout.StateError, "amendments", "amendment history: "+aerr.Error())
 		amendFailures++
-	} else if events != nil {
-		amendEvents = len(events)
-		if specStatus == "done" {
-			adopted, perr := posepkg.Store{Root: lintProjectRoot(specPath)}.ContractNodesAdopted()
-			if perr != nil {
-				lint.finding(cliout.StateError, "amendments", "review policy: "+perr.Error())
+	} else if specStatus == "done" || specStatus == "in-progress" {
+		for _, finding := range findings {
+			severity := cliout.StateWarning
+			if specStatus == "done" {
+				severity = cliout.StateError
 				amendFailures++
 			}
-			for _, finding := range posepkg.UnacknowledgedNodeChanges(slug, text, events, adopted) {
-				lint.finding(cliout.StateError, "amendments", fmt.Sprintf(cliText(locale, "amendment history: %s", "amendment history: %s"), finding))
-				amendFailures++
-			}
+			lint.finding(severity, "amendments", "amendment history: "+finding)
 		}
 	}
 

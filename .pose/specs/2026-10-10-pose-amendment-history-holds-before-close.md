@@ -1,6 +1,6 @@
 ---
 slug: pose-amendment-history-holds-before-close
-status: draft
+status: in-progress
 created_at: 2026-10-10
 completed_at:
 supersedes:
@@ -10,7 +10,7 @@ components: pose-mcp
 task_type: bugfix
 surface: minimal
 changelog:
-delivers:
+delivers: capability:amendment-history-before-close
 ---
 
 # Spec: The amendment history holds before a spec closes
@@ -41,13 +41,48 @@ The amendment log stays append-only; nothing rewrites recorded events.
 
 ### Artifacts
 
-- created: .pose/specs/2026-10-10-pose-amendment-history-holds-before-close.md
+- modified: .pose/adr/2026-10-24-seed-first-amendment-from-recorded-start.md
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/technical-debt.md
+- modified: .pose/changelogs/unreleased/pose-amendment-history-holds-before-close.md
+- modified: .pose/indexes/validation-matrix.json
+- modified: .pose/reports/2026-10-24-amendment-history-before-close.md
+- modified: .pose/specs/2026-10-10-pose-amendment-history-holds-before-close.md
+- modified: .pose/starts/pose-amendment-history-holds-before-close.json
+- modified: .pose/state/technical-debt.json
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/cli/amend.go
+- modified: pose-mcp/internal/cli/amendment_history_close_test.go
+- modified: pose-mcp/internal/cli/lintspec.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
+- modified: pose-mcp/internal/pose/amendment_history_close_test.go
+- modified: pose-mcp/internal/pose/amendments.go
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
-Implementation artifacts are declared when the spec starts.
+### Delivery targets
+
+- capability:amendment-history-before-close module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/amend.go
+
+## 4. Tasks
+
+- [x] Resolve canonical authority, assess freshness and preserve R1–R3.
+- [x] Reproduce first amendment and premature close failures.
+- [x] Seed only from a valid recorded start; share history gate and warning.
+- [ ] Execute domain/CLI regressions and canonical full validation.
+- [ ] Separate review and native closeout.
 
 ## 5. Decisions
 
-No decision recorded yet; the spec is a draft.
+### Decision D1
+- Basis: R1, R2, R3
+- ADR: [First amendment baseline](../adr/2026-10-24-seed-first-amendment-from-recorded-start.md)
+- Knowledge: knowledge:adr-sealed-review-bundles-review, knowledge:pose-b07-implementation
+- Decision: Seed the first non-baseline amendment from the validated start record, and reuse the same history findings in lint and pre-transition close.
+- Rationale: Start records preserve the old nodes; current text cannot reconstruct that baseline. Keep opt-in journals, schemas and append-only history.
 
 ## 6. Validation
 
@@ -55,16 +90,32 @@ No decision recorded yet; the spec is a draft.
 
 Reproduce both 2026-10-10 cases in fixtures: a started spec amended once fails the done lint today and passes with R1; a close over a failing history is refused with R2.
 
+The module has high criticality. Use `pose-test-plan` before code. Required checks:
+
+| Scenario | Command | Expected evidence |
+| --- | --- | --- |
+| First semantic/added/transition amendment, schema 1/2, flat/folder, invalid or absent start | `cd pose-mcp && go test ./internal/pose ./internal/cli -run AmendmentHistory -count=1` | start nodes acknowledged; changed/new nodes use explicit event; invalid input writes zero bytes; no legacy auto-baseline |
+| Close with invalid/malformed history and in-progress lint warning; valid positive close | same registered integration command | refuse before lifecycle write, actionable finding; warning is nonfatal; valid history closes |
+| Full suite/build/vet and composition | `pose validate --strict --json-out .pose/results/delivery-validation.json` | all checks pass with current provenance |
+| Concurrency | `cd pose-mcp && go test -race ./internal/pose ./internal/cli` | shared lifecycle lock serializes amend/close; no races |
+| Security | `cd pose-mcp && govulncheck ./...` plus pinned CI gitleaks | no vulnerabilities or secrets |
+
 ### Requirement trace
+
+- R1 [satisfied] test:TestAmendmentHistoryFirstChangeSeedsRecordedStart test:TestAmendmentHistoryFlatAddedAndTransitionKeepEarlierNodes
+- R2 [satisfied] test:TestAmendmentHistoryCloseRefusesBeforeTransition test:TestAmendmentHistoryCloseRechecksUnderLockAndValidControl
+- R3 [satisfied] test:TestAmendmentHistoryInProgressWarnsBeforeDone
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: opened on 2026-10-10 from the independent reviews of the review-subject classifier and Harne8's 7.2.0 adoption.
+Implemented the existing R1–R3 as the prerequisite of B11, under current continuation authorization. Readonly context resolved `proj.pose-dist`; assessment freshness reused. The first amendment copies only recorded start state; existing journals stay append-only. Lint warns during execution and close checks before transition and again under the shared lifecycle lock. No release, policy adoption, parent gitlink update or remote publication. Native validation/review/closeout determine the final lifecycle state.
 
 ### Residual risks
 
-None yet.
+Explicit `--baseline` retains its existing current-state semantics; review must judge materiality. Cooperative locking cannot prevent arbitrary filesystem edits. Append/Sync failure is surfaced without truncation; inspect partial journals explicitly. No journal remains opt-out. B11 still owns semantic terminal verification and plan/transport parity; this prerequisite does not claim that delivery.
 
 ### Follow-ups
+
+- [open] Extend the generic adversarial corpus with first-amendment/start and preclose-history cases; permanent regression producer already covers R1–R3. (owner:@pose-maintainers crit:low review:2026-11-08)
