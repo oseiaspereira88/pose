@@ -54,6 +54,8 @@ Declaração prospectiva reconciliada antes do managed start. Metadados gerados 
 - created: .pose/adr/2026-10-23-shared-supported-scope-taxonomy-for-review-policy.md
 - created: .pose/reports/2026-10-23-policy-scope-validation.md
 - created: pose-mcp/internal/pose/review_policy_scope.go
+- modified: pose-mcp/internal/pose/review_plan.go
+- modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/effective_governance.go
 - created: pose-mcp/internal/pose/review_policy_scope_test.go

@@ -49,6 +49,9 @@ func ParseScopeRef(value string) (ScopeRef, error) {
 	if len(parts) != 2 {
 		return ScopeRef{}, fmt.Errorf("pose: invalid scope ref %q", value)
 	}
+	if !reviewScopeKindSupported(parts[0]) {
+		return ScopeRef{}, fmt.Errorf("pose: unsupported scope kind %q", parts[0])
+	}
 	switch parts[0] {
 	case "spec", "roadmap":
 		if err := ValidateSlug(parts[1]); err != nil {
@@ -242,8 +245,11 @@ type ReviewPolicy struct {
 }
 
 // ReviewIdentityAssurance resolves the assurance a scope kind requires,
-// defaulting to `declared`.
+// defaulting to `declared` for supported kinds. Unsupported kinds have no assurance.
 func (p ReviewPolicy) ReviewIdentityAssurance(kind string) string {
+	if !reviewScopeKindSupported(kind) {
+		return ""
+	}
 	if value := p.IdentityAssurance[kind]; value == ReviewIdentityAssuranceVerified {
 		return ReviewIdentityAssuranceVerified
 	}
@@ -512,6 +518,12 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 	if p.SchemaVersion != ReviewSchemaVersion && p.SchemaVersion != ReviewPolicySchemaVersion && p.SchemaVersion != QualifiedArtifactPolicySchemaVersion && p.SchemaVersion != SpecAuthorityTransferPolicySchemaVersion {
 		return ReviewPolicy{}, fmt.Errorf("pose: unsupported review policy schema %d", p.SchemaVersion)
 	}
+	if err := validateReviewPolicyScopes("identity_assurance", p.IdentityAssurance); err != nil {
+		return ReviewPolicy{}, err
+	}
+	if err := validateReviewPolicyScopes("reviewer_independence", p.ReviewerIndependence); err != nil {
+		return ReviewPolicy{}, err
+	}
 	if p.SchemaVersion >= ReviewPolicySchemaVersion {
 		if p.UnmappedComponentBehavior == "" {
 			p.UnmappedComponentBehavior = "warning"
@@ -555,9 +567,6 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 		}
 		verified := false
 		for scope, assurance := range p.IdentityAssurance {
-			if scope == "" || strings.ContainsAny(scope, "\r\n") {
-				return ReviewPolicy{}, fmt.Errorf("pose: invalid identity assurance scope")
-			}
 			switch assurance {
 			case ReviewIdentityAssuranceDeclared:
 			case ReviewIdentityAssuranceVerified:

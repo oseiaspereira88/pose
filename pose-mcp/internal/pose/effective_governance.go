@@ -69,6 +69,11 @@ const (
 // EffectiveGovernance projects the instance's governance. scope may be empty.
 func (s Store) EffectiveGovernance(scope string) (GovernanceProjection, error) {
 	out := GovernanceProjection{SchemaVersion: GovernanceProjectionSchemaVersion}
+	if scope != "" {
+		if _, err := ParseScopeRef(scope); err != nil {
+			return out, err
+		}
+	}
 	policy, raw, err := s.loadReviewPolicy()
 	if err != nil {
 		return out, err
