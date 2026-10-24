@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-24T05:18:04Z
-baseline_commit: 5b4161b83bb0bc4718fa55753f79556bb88846f9
+generated_at: 2026-10-24T18:23:26Z
+baseline_commit: 6bb4c7952efefe305c90457ef9d684d40aadb0b5
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:187837670335 -->
+<!-- state:derived hash:05f959603125 -->
 
-- specs: total=446 draft=30 in-progress=17 blocked=0 done=398 superseded=0 abandoned=1
+- specs: total=446 draft=29 in-progress=17 blocked=0 done=399 superseded=0 abandoned=1
 - roadmaps: total=22 active=3 done=11
 - últimos closeouts:
+  - spec:pose-action-waiver-and-supersession-authority (2026-10-24)
   - spec:pose-policy-scope-validation (2026-10-24)
-  - spec:pose-proof-presence-channel-parity (2026-10-23)
   - spec:pose-update-dry-run-reports-the-whole-update (2026-10-23)
-  - spec:pose-distributed-instructions-parity (2026-10-22)
-  - spec:pose-spec-facts-evidence-binding (2026-10-22)
-  - ... e mais 393 (ver `pose_list_specs status:done`)
+  - spec:pose-proof-presence-channel-parity (2026-10-23)
+  - spec:pose-action-target-and-node-scoping (2026-10-22)
+  - ... e mais 394 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:cd798c61fadb -->
@@ -76,16 +76,16 @@ capacidade.
 - knowledge: total=13 ativo=13 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:171b73c7f162 -->
+<!-- state:derived hash:e01c13d6140a -->
 
-- último registro: task=validate-native outcome=pass (2026-10-24T05:07:36Z)
-- últimos 30 dias: total=110 outcome_ok=80 outcome_outro=30
-- reports revisados (.md): total=268
-  - report:2026-10-23-policy-scope-validation.md
-  - report:2026-10-23-b05-independent-review.md
+- último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
+- últimos 30 dias: total=108 outcome_ok=79 outcome_outro=29
+- reports revisados (.md): total=270
+  - report:2026-10-24-b09-implementation.md
   - report:2026-10-24-standard-validate-native.md
-  - report:pose-abm-capability-adoption.md
-  - report:pose-agency-readiness-pilot.md
+  - report:2026-10-24-b09-independent-review.md
+  - report:2026-10-23-policy-scope-validation.md
+  - report:2026-10-23-standard-b29-security-boundary-final-source-qualification.md
 
 ## Arquitetura
 <!-- state:derived hash:f7f820ab9e54 status:active -->

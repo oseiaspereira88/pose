@@ -1,8 +1,8 @@
 ---
 slug: pose-action-waiver-and-supersession-authority
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-24
 depends_on: pose-action-answers-reverify-on-read, pose-review-disclosure-requires-proof, pose-policy-scope-validation, pose-action-request-resolution, pose-action-requests
 priority: 1
 components: pose-mcp
@@ -113,7 +113,7 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Reproduzir e corrigir writer/releitura de waiver, cancelamento e supersession.
 - [x] Expor provas e operação nos transportes CLI/MCP.
 - [x] Completar a coleta final: matriz global 149/149; regressões, race e scanners passaram.
-- [ ] Reconciliar artefatos, revisão separada e gates de closeout.
+- [x] Reconciliar artefatos, revisão separada e gates de closeout; fechamento nativo aplicado em 2026-10-24.
 
 ## 5. Decisions
 
@@ -178,15 +178,18 @@ Targeted B09 regressions, signed CLI/MCP roundtrips, race and the final global m
 
 ### Delivered scope
 
-Implementação B09 em andamento em 2026-10-24: domínio, CLI/MCP e regressões direcionadas passaram. A primeira revisão separada identificou instabilidade da identidade do sucessor entre preview e aplicação; a correção preserva requested_at validado e os controles assinados pelos transportes passaram. A revisão separada round 2 aprovou o código corrigido; matriz nativa final 149/149, race e scanners passaram. Ver o relatório de implementação; o fechamento nativo exige os gates selados.
+Implementado e fechado nativamente em 2026-10-24. Waiver, retirada pelo requester e supersession têm autoridade e prova próprias, namespace SSHSIG de lifecycle e claim schema 2, releitura histórica compartilhada e revalidação sob lock. Invalidation arbitrária por ator é recusada; observação material permanece no engine. CLI/MCP preservam a identidade preparada durante assinatura externa; manuais, catálogo e scaffold foram sincronizados.
+
+A coleta final no HEAD `6bb4c79` passou 149/149; race e scanners passaram. Artifact-check reconciliou 44 claims/45 observações sem erros (bundles derivados têm tratamento próprio), surface-check retornou um target, 149 resultados e zero findings, e o índice foi publicado e verificado antes do selo final. Bundle `rvb-3280abe765d3b8e7`, atestação `rva-2c351d7043c5e90d`, reviewer `agent:independent-codex-b09-review` (execução real `/root/b09_review`, OpenAI GPT-6.1-sol, mesmo fornecedor/modelo, separação declarada; sem confirmação humana nem independência cognitiva comprovada). Review verify e review-check passaram, fresh/approved.
+
+O comando `pose close spec:pose-action-waiver-and-supersession-authority` publicou `done` e `completed_at: 2026-10-24`. Foi usado o fluxo manual nativo com os mesmos gates de review/entrega/trace e CAS; o coletor recuperável recusou somente as saídas de relatório/history que não constam como paths gerados admitidos. Não houve edição manual do lifecycle nem alteração de policy. Os relatórios de implementação e revisão registram a correção F1, coleta inicial com falha de paridade e renovação da proveniência após o commit dos índices.
 
 ### Residual risks
 
 Ver [relatório de implementação](../reports/2026-10-24-b09-implementation.md) e [revisão separada](../reports/2026-10-24-b09-independent-review.md) para evidência, correção F1 e limites reais.
 
-Novos bindings e autoridade nos eventos alteram um contrato de segurança e podem exigir mudança de schema/versionamento. B09 depende dos closeouts de B01 e B05; B04 entra transitivamente por qualificação de B01, sem nova aresta artificial no DAG histórico. Recovery durável da substituição é B10.
+Os novos bindings de lifecycle alteram o contrato de segurança; o changelog marca breaking e a publicação/adopção exige revisão de compatibilidade. Nenhuma policy, issuer, release ou pin Harne8 foi adotado por esta entrega. B09 depende dos closeouts de B01 e B05; B04 entra transitivamente por qualificação de B01, sem nova aresta artificial no DAG histórico. Recovery durável da substituição é B10.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+Nenhum follow-up adicional aberto. As fronteiras de recuperação B10, publicação/adopção e confiança histórica permanecem explícitas nos riscos e no programa; esta entrega não muda seus estados.
