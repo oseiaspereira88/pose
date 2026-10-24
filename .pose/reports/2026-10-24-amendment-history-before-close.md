@@ -25,3 +25,5 @@ Explicit `--baseline` deliberately keeps its current-state snapshot contract. Ha
 ## Rules applied during review
 
 Backend Go: domain gate reuse, propagated errors and cooperative lock. Security: no secrets or automatic policy/authority changes. Documentation style: canonical spec and EN/PT manual parity. Delivery evidence: registered integration required before close. Knowledge: consumed sealed-bundle decision log and B07 handoff; no upstream contribution staged without consent. Tech-debt assessment remains incomplete due to two preexisting invalid spec sources; one covered marker and zero uncovered do not prove global absence of debt.
+
+Race rerun with `TMPDIR=/var/tmp` passed both changed packages (pose 80.285s, CLI 98.065s). The ambient cause is `/tmp/.git`, which the engine's ancestor discovery sees even when fixtures are placed in a child directory; GIT_CEILING_DIRECTORIES is intentionally stripped by the production git wrapper. Final collection therefore uses `/var/tmp`. Structure check caught a missing `spec:` field in the new changelog fragment; corrected to the canonical template before the final collection.

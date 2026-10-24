@@ -1,4 +1,6 @@
 ---
+spec: pose-amendment-history-holds-before-close
+refs:
 category: fixed
 breaking: true
 ---
