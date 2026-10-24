@@ -17,6 +17,14 @@
       "digest": "sha256:502897d6c530a821d3bc4b6848f7751b1496869412ec8587b932e1f22723daac"
     },
     {
+      "spec": "pose-action-waiver-and-supersession-authority",
+      "category": "security",
+      "breaking": true,
+      "body": "Waiver and supersession now require operation-specific authority and proof under verified policy; requester withdrawal remains distinct from waiver. MCP retirement always needs proof, and arbitrary actor invalidation is refused. New lifecycle events reverify recorded proof on read. Schema-1 answer signatures cannot authorize retirement; unsigned legacy exemptions cannot satisfy verified policy. Review compatibility before publication or adoption; cross-journal supersession recovery remains a separate capability.",
+      "path": "pose-action-waiver-and-supersession-authority.md",
+      "digest": "sha256:ced96a11cb345960114306c6a9e6031437180b18206eec2e7a94c8494e0fc5b3"
+    },
+    {
       "spec": "pose-cli-mcp-operation-results",
       "category": "changed",
       "breaking": false,

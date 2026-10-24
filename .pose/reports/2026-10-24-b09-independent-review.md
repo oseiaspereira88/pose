@@ -68,3 +68,19 @@ Bugfix/security contract change. Read `.pose/workflows/review.md`,
 before claiming completion. No frontend or infrastructure behavior changed.
 Security takes precedence over declared labels and transport input. Native
 verify/review-check and closeout remain separate required gates.
+
+## Final evidence follow-up
+
+The same separate reviewer directly checked the final native log and JSON bound
+to HEAD `db37c8b`: 149/149 SUCCESS, full pose-mcp build/test/vet, full race and
+final lifecycle race, vulnerability scan without findings, two-commit secret scan
+without leaks, and strict check SUCCESS with 30 preserved historical warnings.
+The reviewer confirmed this report faithfully records both rounds and maintained
+technical approval without additional findings or newly accepted residual risk.
+
+The 16th observed criterion, cross-component-integration, was approved for the
+changed scope: signed CLI/MCP controls exercise the common domain and catalog;
+docs-site changes are documentary, with no runtime integration change. Its
+appearance in the matrix is not a site build proof because no checks are
+registered for that component. Index/artifact/surface and the later sealed review
+and closeout gates remain separate from this evidence follow-up.

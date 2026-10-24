@@ -112,7 +112,7 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Definir ADR prospectivo e plano de teste proporcional ao contrato de segurança.
 - [x] Reproduzir e corrigir writer/releitura de waiver, cancelamento e supersession.
 - [x] Expor provas e operação nos transportes CLI/MCP.
-- [ ] Completar a coleta final da matriz após a correção de paridade documental; regressões e race passaram.
+- [x] Completar a coleta final: matriz global 149/149; regressões, race e scanners passaram.
 - [ ] Reconciliar artefatos, revisão separada e gates de closeout.
 
 ## 5. Decisions
@@ -163,7 +163,7 @@ Regressões de domínio e transportes criadas e executadas; a coleta final será
 
 ### Requirement trace
 
-Evidence from targeted B09 regressions, including signed public supersession roundtrips; complete validation and final review remain pending.
+Targeted B09 regressions, signed CLI/MCP roundtrips, race and the final global matrix (149/149) passed. Separate code review round 2 approved the correction; sealed native review/closeout are recorded by their own gates.
 
 - R1 [satisfied] test:TestActionLifecycleCancellationDoesNotWaiveAnotherProducer
 - R2 [satisfied] test:TestActionLifecycleWaiverProofAndHistoricalRead
@@ -178,7 +178,7 @@ Evidence from targeted B09 regressions, including signed public supersession rou
 
 ### Delivered scope
 
-Implementação B09 em andamento em 2026-10-24: domínio, CLI/MCP e regressões direcionadas passaram. A primeira revisão separada identificou instabilidade da identidade do sucessor entre preview e aplicação; a correção preserva requested_at validado e os controles assinados pelos transportes passaram. Matriz nativa final, nova revisão e closeout permanecem pendentes.
+Implementação B09 em andamento em 2026-10-24: domínio, CLI/MCP e regressões direcionadas passaram. A primeira revisão separada identificou instabilidade da identidade do sucessor entre preview e aplicação; a correção preserva requested_at validado e os controles assinados pelos transportes passaram. A revisão separada round 2 aprovou o código corrigido; matriz nativa final 149/149, race e scanners passaram. Ver o relatório de implementação; o fechamento nativo exige os gates selados.
 
 ### Residual risks
 
