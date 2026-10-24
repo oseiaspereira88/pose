@@ -1,6 +1,6 @@
 ---
 slug: pose-policy-scope-validation
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-effective-governance-projection
@@ -26,7 +26,7 @@ e a [análise de confiança](../reports/2026-10-11-pose-front-02-trust-chain.md)
 
 ### Constraints
 
-Esta interação escreve a spec; não implementa o comportamento. Preservar as
+Implementação autorizada pelo usuário em 2026-10-23, com entrega individual na main remota. Preservar as
 fundações done, contratos selados, evidências e autorizações já existentes.
 Não adotar policy/capability automaticamente. Classificar compatibilidade antes
 de iniciar: recusa mais estrita ou mudança de semântica pública não é patch por
@@ -46,14 +46,14 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-1-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
+Declaração prospectiva reconciliada antes do managed start. Metadados gerados pelos gates são evidência operacional, não código de produto.
 
-- created: .pose/specs/2026-10-13-pose-policy-scope-validation.md
+- modified: .pose/specs/2026-10-13-pose-policy-scope-validation.md
 - created: .pose/starts/pose-policy-scope-validation.json
 - created: .pose/changelogs/unreleased/pose-policy-scope-validation.md
+- created: .pose/adr/2026-10-23-shared-supported-scope-taxonomy-for-review-policy.md
+- created: .pose/reports/2026-10-23-policy-scope-validation.md
+- created: pose-mcp/internal/pose/review_policy_scope.go
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/effective_governance.go
 - created: pose-mcp/internal/pose/review_policy_scope_test.go
@@ -62,6 +62,7 @@ não tratar a declaração de um teste futuro como teste existente ou executado.
 - created: pose-mcp/internal/mcpserver/policy_scope_validation_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: .pose/results/pose-implementation-plan.json
 
 ### Delivery targets
 
@@ -82,6 +83,11 @@ Não contornar dependência não terminal apenas porque o código parece present
 - Basis: R1, R2, R3, R5
 - Decision: Separar presença de configuração, validade e efetividade, com taxonomia compartilhada.
 - Rationale: Um valor verified em chave que o motor não seleciona não protege o operador.
+
+### Decision D2
+- Basis: R1, R2, R3, R4, R5, R6
+- Decision: Usar taxonomia fechada compartilhada spec/milestone/roadmap, recusar mapas atuais inválidos sem normalização e sem projeção parcial de proteção. Preservar defaults conhecidos, campos top-level desconhecidos e payloads históricos selados; a recusa mais estrita é breaking e exige classificação major, sem release/adoption automática.
+- Rationale: Uma policy inválida não pode aparentar proteção. O contrato histórico selado não é uma policy atual a migrar. ADR prospectivo: [shared supported scope taxonomy](../adr/2026-10-23-shared-supported-scope-taxonomy-for-review-policy.md).
 
 ## 6. Validation
 
@@ -104,12 +110,18 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Risco alto de contrato de segurança. Antes do código: reproduzir chave spce aceita no domínio/projeção; testar mapas identity_assurance e reviewer_independence nas schemas 1–4, chaves vazias, espaços, case, newline, typo, futuro e configuração mista. Cobrir defaults ausentes/declared, getters diretos, seleção de preparação, erro CLI humano/JSON e MCP sem effective falso, arquivo do operador intacto e leitura de bundle histórico com policy atual inválida. Rodar testes focados antes/depois, suíte completa via pose validate --strict --report --json-out .pose/results/delivery-validation.json, assess integrate/tech-debt, artifact/surface/check/lint, revisão real separada sobre bundle selado e CI/Security antes/depois do merge. Concorrência não alterada; race conforme matriz existente.
 
 ### Requirement trace
 
-Mapear os R-IDs aos casos acima e aos produtores reais durante a implementação.
-Não declarar satisfeitos os requisitos funcionais pelo lint desta spec.
+- R1 → V1/V2/V4; policy-scope-validation-integration.
+- R2 → V1/V5; policy-scope-validation-integration.
+- R3 → V2/V5; policy-scope-validation-integration.
+- R4 → V2/V3; policy-scope-validation-integration.
+- R5 → V1/V4; policy-scope-validation-integration.
+- R6 → V5/V6; policy-scope-validation-integration.
+
+Produtor registrado antes da coleta; resultados pendentes, sem declaração antecipada de aprovação.
 
 ## 7. Final Report
 
