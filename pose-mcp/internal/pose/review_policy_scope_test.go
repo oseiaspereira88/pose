@@ -132,3 +132,27 @@ func TestPolicyScopeInvalidProtectedBaselineCannotDowngradeToWarning(t *testing.
 		t.Fatalf("invalid baseline became unprotected plan: %v", err)
 	}
 }
+
+func TestPolicyScopeDisabledPolicyStillDiagnosesSelectors(t *testing.T) {
+	for _, field := range []string{"identity_assurance", "reviewer_independence"} {
+		policy := map[string]any{"schema_version": 2, "enabled": false, field: map[string]string{"spce": "declared", "future": "declared"}}
+		raw, _ := json.Marshal(policy)
+		s := governanceFixture(t, string(raw), "")
+		for i := 0; i < 8; i++ {
+			_, err := s.GetReviewPolicy()
+			if err == nil || !strings.Contains(err.Error(), field+`["future"]`) {
+				t.Fatalf("inactive invalid map or unstable diagnostic: %v", err)
+			}
+		}
+	}
+	for _, ref := range []string{"spec:alpha", "roadmap:alpha", "milestone:alpha/beta", " spec:alpha "} {
+		if _, err := ParseScopeRef(ref); err != nil {
+			t.Fatalf("supported reference rejected: %v", err)
+		}
+	}
+	for _, ref := range []string{"spce:alpha", "SPEC:alpha", "spec :alpha", "future:alpha"} {
+		if _, err := ParseScopeRef(ref); err == nil {
+			t.Fatalf("unsupported reference accepted: %q", ref)
+		}
+	}
+}

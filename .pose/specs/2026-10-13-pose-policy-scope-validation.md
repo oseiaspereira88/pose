@@ -64,6 +64,9 @@ Declaração prospectiva reconciliada antes do managed start. Metadados gerados 
 - created: pose-mcp/internal/mcpserver/policy_scope_validation_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/results/pose-implementation-plan.json
 
 ### Delivery targets
@@ -116,12 +119,12 @@ Risco alto de contrato de segurança. Antes do código: reproduzir chave spce ac
 
 ### Requirement trace
 
-- R1 → V1/V2/V4; policy-scope-validation-integration.
-- R2 → V1/V5; policy-scope-validation-integration.
-- R3 → V2/V5; policy-scope-validation-integration.
-- R4 → V2/V3; policy-scope-validation-integration.
-- R5 → V1/V4; policy-scope-validation-integration.
-- R6 → V5/V6; policy-scope-validation-integration.
+- R1 [satisfied] test:TestPolicyScopeRejectsUnsupportedMapKeys; test:TestPolicyScopeKnownKindsAndDefaults
+- R2 [satisfied] test:TestPolicyScopeVerifiedProtectionNamesOnlySupportedKinds; test:TestPolicyScopeProjectionRejectsMalformedContext
+- R3 [satisfied] test:TestPolicyScopeRejectsUnsupportedMapKeys; test:TestPolicyScopeCLIRefusesInvalidConfiguration; test:TestPolicyScopeMCPRefusesInvalidConfiguration
+- R4 [satisfied] test:TestPolicyScopeKnownKindsAndDefaults; test:TestPolicyScopeVerifiedProtectionNamesOnlySupportedKinds
+- R5 [satisfied] test:TestPolicyScopeRejectsUnsupportedMapKeys; test:TestPolicyScopeKnownKindsAndDefaults
+- R6 [satisfied] test:TestPolicyScopeInvalidCurrentPolicyPreservesSealedHistory; test:TestPolicyScopeInvalidProtectedBaselineCannotDowngradeToWarning
 
 Produtor registrado antes da coleta; resultados pendentes, sem declaração antecipada de aprovação.
 
@@ -129,8 +132,9 @@ Produtor registrado antes da coleta; resultados pendentes, sem declaração ante
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 1. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+Implementação B05 e regressões focadas no domínio, CLI e MCP verificadas.
+Validação canônica, revisão selada e fechamento funcional ainda pendentes.
+A autoria inicial do lote 1 não era entrega de código.
 
 ### Residual risks
 
