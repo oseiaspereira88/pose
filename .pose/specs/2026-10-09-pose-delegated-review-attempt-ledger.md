@@ -1,8 +1,8 @@
 ---
 slug: pose-delegated-review-attempt-ledger
-status: in-progress
+status: done
 created_at: 2026-10-09
-completed_at:
+completed_at: 2026-10-25
 supersedes:
 depends_on: pose-delegated-review-dispatch
 priority: 2
@@ -129,7 +129,7 @@ Fixture with a rejecting run: a rerun on the same bundle without a reason is ref
 
 ### Delivered scope
 
-Implemented durable ordinal reservations, immutable run witnesses, rerun admission, verify disclosure and declared draft metrics across text/JSON/HTML/MCP. No delegated-review policy, vendor identity proof, automatic attestation, run continuation or adapter containment is adopted. Registered full validation and native review/closeout remain the delivery authority.
+Implemented durable ordinal reservations, immutable run witnesses, rerun admission, verify disclosure and declared draft metrics across text/JSON/HTML/MCP. No delegated-review policy, vendor identity proof, automatic attestation, run continuation or adapter containment is adopted. Native close completed on 2026-10-25 after 153/153 canonical checks, artifact reconciliation (35/35), composition with zero findings, and approved attestation `rva-83cfa3925739793c` on bundle `rvb-da193121009a577e`.
 
 ### Residual risks
 

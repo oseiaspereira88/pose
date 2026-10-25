@@ -185,6 +185,14 @@
       "digest": "sha256:dd7a67a589092097bb8a078ac16aee90f525bf8f8cabb531b15ca26d9dac30d2"
     },
     {
+      "spec": "pose-delegated-review-attempt-ledger",
+      "category": "added",
+      "breaking": true,
+      "body": "Reserve delegated attempts durably before launch and keep immutable witnesses for every run, including rejecting drafts. Repeating an unchanged completed bundle now requires an explicit reason, and quota/refusal checks use current reserved history. History-check detects removed or rewritten evidence; verify and insights disclose prior runs, declared draft rates and incomplete coverage. Upgrade shared writers together; no delegated-review policy or authenticated identity is adopted.",
+      "path": "pose-delegated-review-attempt-ledger.md",
+      "digest": "sha256:007df121af7eaa711fbe54d4977bad69babca4ba9ee568a8f43378ad48262551"
+    },
+    {
       "spec": "pose-distributed-instructions-parity",
       "category": "changed",
       "breaking": false,

@@ -115,6 +115,7 @@ Usage traceability and explainable semantic-advisory retrieval delivered.
 - paths: pose-mcp/internal/mcpserver/*.go
 - stale: since=2026-10-24T22:56:41Z;trigger=spec:pose-action-request-recovery-and-preflight;hits=pose-mcp/internal/mcpserver/action_presence_parity_test.go,pose-mcp/internal/mcpserver/action_recovery_preflight_test.go,pose-mcp/internal/mcpserver/server.go
 - stale: since=2026-10-25T03:05:16Z;trigger=spec:pose-closeout-terminal-verification;hits=pose-mcp/internal/mcpserver/closeout_terminal_verification_test.go
+- stale: since=2026-10-25T13:32:17Z;trigger=spec:pose-delegated-review-attempt-ledger;hits=pose-mcp/internal/mcpserver/review_attempt_ledger_test.go
 
 Golden-fixture catalog conformance, uniform project scoping, pagination and 50 tools.
 
