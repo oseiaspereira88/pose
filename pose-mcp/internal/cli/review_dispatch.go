@@ -101,6 +101,8 @@ func cmdReviewDispatch(root string, args []string, stdout, stderr io.Writer) int
 	}
 	out.Field("review_dispatch.attempt", run.AttemptID)
 	out.Field("review_dispatch.reason", run.Reason)
+	out.Field("review_dispatch.limit_of", run.LimitOf)
+	out.Field("review_dispatch.partial", fmt.Sprint(run.Status == posemodel.ReviewRunInterrupted))
 	out.Field("review_dispatch.run", run.RunID)
 	out.Field("review_dispatch.status", run.Status)
 	if run.Failure != "" {

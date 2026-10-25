@@ -345,7 +345,7 @@ func writeJSON(w io.Writer, value any) int {
 
 func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|dispatch|attest|auto-attest|verify|record|attribution-supplement> ...")
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|dispatch|resume|status|attest|auto-attest|verify|record|attribution-supplement> ...")
 		return 2
 	}
 	if code, handled := routeQualifiedReviewScope(root, args, stdout, stderr); handled {
@@ -356,6 +356,10 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdReviewBundle(root, args[1:], stdout, stderr)
 	case "brief":
 		return cmdReviewBrief(root, args[1:], stdout, stderr)
+	case "resume":
+		return cmdReviewResume(root, args[1:], stdout, stderr)
+	case "status":
+		return cmdReviewStatus(root, args[1:], stdout, stderr)
 	case "dispatch":
 		return cmdReviewDispatch(root, args[1:], stdout, stderr)
 	case "attest":
@@ -369,7 +373,7 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 	case "attribution-supplement":
 		return cmdReviewAttributionSupplement(root, args[1:], stdout, stderr)
 	default:
-		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|dispatch|attest|auto-attest|verify|record|attribution-supplement> ...")
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|dispatch|resume|status|attest|auto-attest|verify|record|attribution-supplement> ...")
 		return 2
 	}
 }
@@ -595,7 +599,7 @@ func cmdReviewVerify(root string, args []string, stdout, stderr io.Writer) int {
 			}
 		}
 		for _, run := range verification.DelegatedRuns {
-			render(stdout, stderr).Field("review_verify.run."+run.RunID, run.Adapter+" "+run.Status+" draft="+run.DraftDecision+" bundle="+run.BundleID+" reason="+run.Reason+"; "+run.Assurance)
+			render(stdout, stderr).Field("review_verify.run."+run.RunID, run.Adapter+" "+run.Status+" draft="+run.DraftDecision+" bundle="+run.BundleID+" reason="+run.Reason+fmt.Sprintf(" partial=%t resumes=%s limit_of=%s; ", run.Partial, run.Resumes, run.LimitOf)+run.Assurance)
 		}
 		for _, loss := range verification.DelegatedHistoryLosses {
 			render(stdout, stderr).Field("review_verify.delegated_history_loss", loss)

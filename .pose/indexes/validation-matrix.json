@@ -2152,6 +2152,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "delegated-run-continuity-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "./internal/cli", "./internal/mcpserver", "-run", "RunContinuity", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "delegated-attempt-ledger-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "./internal/cli", "./internal/mcpserver", "-run", "AttemptLedger", "-count=1"],

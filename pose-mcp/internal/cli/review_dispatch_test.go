@@ -110,7 +110,11 @@ func TestReviewDispatchRunsAndRecordsAdapters(t *testing.T) {
 	}
 	for adapter, want := range map[string]string{"fail": "the reviewer command failed", "slow": "timeout", "editor": "changed files in the sealed worktree"} {
 		code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", adapter, "--reason", "regression control", "--apply")
-		if code == 0 || !strings.Contains(out, "review_dispatch.status=failed") || !strings.Contains(out, want) {
+		status := "failed"
+		if adapter == "slow" {
+			status = "interrupted"
+		}
+		if code == 0 || !strings.Contains(out, "review_dispatch.status="+status) || !strings.Contains(out, want) {
 			t.Fatalf("%s: %d %s", adapter, code, out)
 		}
 	}
@@ -174,7 +178,7 @@ func TestReviewDispatchTimeoutKillsTheAdaptersChildren(t *testing.T) {
 	if elapsed := time.Since(start); elapsed > 10*time.Second {
 		t.Fatalf("the timeout did not hold: %s", elapsed)
 	}
-	if code == 0 || !strings.Contains(out, "review_dispatch.status=failed") || !strings.Contains(out, "timeout") {
+	if code == 0 || !strings.Contains(out, "review_dispatch.status=interrupted") || !strings.Contains(out, "timeout") {
 		t.Fatalf("spawner: %d %s", code, out)
 	}
 }

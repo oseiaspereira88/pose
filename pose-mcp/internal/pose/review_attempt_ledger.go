@@ -412,11 +412,12 @@ func reviewHistoryGit(root string, args ...string) ([]byte, error) {
 // ReviewRunHistoryFindings adds the Git anchor: edits and deletions of tracked
 // immutable evidence are violations even when staged or committed.
 func (s Store) ReviewRunHistoryFindings() ([]string, error) {
-	findings, err := s.ReviewRunLedgerFindings("")
+	runs, losses, err := s.ReadReviewRuns("")
+	findings := append(losses, s.reviewContinuationFindings(runs)...)
 	if err != nil {
 		return nil, err
 	}
-	roots := []string{reviewRunsDir, reviewRunLedgerDir, reviewAttemptDir}
+	roots := []string{reviewRunsDir, reviewRunLedgerDir, reviewAttemptDir, reviewContinuationsDir}
 	if _, headErr := snapshotGit(s.Root, "rev-parse", "--verify", "HEAD"); headErr != nil {
 		// An unborn repository without delegated data has no delegated history
 		// contract to verify. Preserve the report-history gate's existing behavior.
@@ -490,15 +491,20 @@ func draftReviewDecision(output string) string {
 }
 
 type ReviewRunSummary struct {
-	SupersededBy  string `json:"superseded_by,omitempty"`
-	RunID         string `json:"run_id"`
-	AttemptID     string `json:"attempt_id,omitempty"`
-	BundleID      string `json:"bundle_id"`
-	Adapter       string `json:"adapter"`
-	Status        string `json:"status"`
-	DraftDecision string `json:"draft_decision"`
-	Reason        string `json:"reason,omitempty"`
-	Assurance     string `json:"assurance"`
+	ResumedBy     string              `json:"resumed_by,omitempty"`
+	Resumes       string              `json:"resumes,omitempty"`
+	LimitOf       string              `json:"limit_of,omitempty"`
+	Partial       bool                `json:"partial,omitempty"`
+	Interruption  *ReviewInterruption `json:"interruption,omitempty"`
+	SupersededBy  string              `json:"superseded_by,omitempty"`
+	RunID         string              `json:"run_id"`
+	AttemptID     string              `json:"attempt_id,omitempty"`
+	BundleID      string              `json:"bundle_id"`
+	Adapter       string              `json:"adapter"`
+	Status        string              `json:"status"`
+	DraftDecision string              `json:"draft_decision"`
+	Reason        string              `json:"reason,omitempty"`
+	Assurance     string              `json:"assurance"`
 }
 
 func (s Store) reviewRunSummaries(scope string) ([]ReviewRunSummary, []string) {
@@ -513,7 +519,7 @@ func (s Store) reviewRunSummaries(scope string) ([]ReviewRunSummary, []string) {
 			if run.Status == ReviewRunCompleted {
 				decision = draftReviewDecision(run.Output)
 			}
-			out = append(out, ReviewRunSummary{SupersededBy: run.SupersededBy, RunID: run.RunID, AttemptID: run.AttemptID, BundleID: run.BundleID, Adapter: run.Adapter, Status: run.Status, DraftDecision: decision, Reason: run.Reason, Assurance: "declared-draft-not-attestation"})
+			out = append(out, ReviewRunSummary{Resumes: run.Resumes, LimitOf: run.LimitOf, Partial: run.Status == ReviewRunInterrupted, Interruption: run.Interruption, SupersededBy: run.SupersededBy, RunID: run.RunID, AttemptID: run.AttemptID, BundleID: run.BundleID, Adapter: run.Adapter, Status: run.Status, DraftDecision: decision, Reason: run.Reason, Assurance: "declared-draft-not-attestation"})
 		}
 	}
 	attempts, losses := s.allDelegatedReviewAttempts()
@@ -530,6 +536,7 @@ func (s Store) reviewRunSummaries(scope string) ([]ReviewRunSummary, []string) {
 }
 
 type DelegatedReviewMetric struct {
+	Resumes             int      `json:"resumes"`
 	Key                 string   `json:"key"`
 	Runs                int      `json:"runs"`
 	Attempts            int      `json:"attempts"`
@@ -659,6 +666,9 @@ func (s Store) delegatedReviewInsights(sinceDays int) *DelegatedReviewInsights {
 		}
 		for _, r := range []*DelegatedReviewMetric{row(bundles, run.BundleID), row(adapters, run.Adapter)} {
 			r.Runs++
+			if run.Resumes != "" && run.SupersededBy == "" {
+				r.Resumes++
+			}
 			decision := "unknown"
 			if run.Status == ReviewRunCompleted && run.SupersededBy == "" {
 				decision = draftReviewDecision(run.Output)

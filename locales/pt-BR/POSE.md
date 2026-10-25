@@ -819,3 +819,23 @@ Reservas ficam em `.pose/review-attempts/`, recibos finais ligam o run, e `.pose
 `pose history-check --strict` detecta runs testemunhados ausentes ou reescritos e modificações/exclusões Git em runs, ledger e reservas imutáveis versionados, inclusive staged ou commitados. Histórico contendo apenas delegação é suportado. É necessária confiança em Git/filesystem: apagar evidência ainda não ancorada e seus witnesses não pode ser provado pelo mesmo armazenamento apagado. Não se alega armazenamento append-only criptográfico ou identidade de vendor. Registros limitam-se a 1 MiB, inventários a 10000 entradas, leitura de JSON de runs a 32 MiB por operação, transcripts a 256 MiB cada e 512 MiB por verificação, e observação Git a 8 MiB/30 segundos; limite esgotado é unknown, nunca histórico truncado considerado íntegro.
 
 `pose review verify` e MCP mostram runs anteriores do mesmo scope junto da atestação, inclusive drafts que rejeitaram. `pose insights` é alias de `pose stats`; texto, JSON, HTML e MCP `pose_insights` mostram runs por bundle, tentativas, reruns e taxa declarada de aprovação de drafts por adapter. A janela limita os eventos contados; o histórico anterior completo classifica reruns. A taxa usa drafts completed, não superseded, com uma linha inequívoca `decision: approved|changes-requested|rejected`; saída ambígua, falhas e runs stale ficam unknown. Runs legados sem reserva contam como tentativas individuais sem afirmar que houve reserva. Labels e taxas de drafts não são aprovações verificadas e nunca aplicam atestação ou adotam delegated-review automaticamente.
+
+### Retomar reviews delegados interrompidos
+
+Declare os campos opcionais `limit`, `session` e `resume` no adapter em `.pose/policy/reviewers.json`. Use padrões RE2; os padrões de sessão/reset exigem exatamente um grupo de captura. Declare exit codes ou padrões de saída para reconhecer limites em stdout/stderr ou `{output}`. O reset capturado deve ser um instante RFC3339; o motor não infere vocabulário de fornecedor. Exemplo de campos em um adapter já configurado:
+
+```json
+{
+  "limit": {"exit_codes": [75], "output_patterns": ["LIMIT"], "reset_pattern": "reset: (\\S+)"},
+  "session": {"pattern": "session: (\\S+)"},
+  "resume": {"command": ["reviewer", "resume", "{session}", "--output", "{output}"], "max_resumes": 3, "max_wall_time": "60m"}
+}
+```
+
+Passe `{session}` como argumento inteiro, nunca dentro de código shell. As capturas dos dois canais devem concordar. A referência de sessão fica em `.pose/review-private/` (diretório 0700/arquivos 0600, ignorado pelo Git); mantenha esse runtime privado. Registros públicos contêm o digest. O supervisor remove a referência do transcript e do draft antes de publicar; capturas ambíguas retêm os bytes sem redação. Perder esse material impede a recuperação, sem inventar outra sessão.
+
+Execute `pose review status [--json]` para ver interrupções, drafts parciais, reset e tempo restante. `pose doctor` avisa sobre endpoints interrompidos. Runs terminam completed, failed ou interrupted; registros stale legados continuam legíveis. Sem declarações, interrupções são unknown e não retomáveis. Um draft interrompido é evidência parcial, nunca rejeição ou review.
+
+Visualize `pose review resume <run-id>` e passe `--apply` para retomar com o mesmo adapter, sessão capturada, digest do brief, commit selado e digest do checkout reconstruído. A continuação usa a tentativa original, sem consumir outra quota. O padrão permite três resumes e 60 minutos acumulados de wall-clock; altere com `resume.max_resumes`/`max_wall_time`. Mudanças de policy/inputs, predecessor perdido ou reescrito, predecessor terminal e orçamento esgotado impedem resume. Uma reserva imutável por predecessor permite apenas uma continuação; repetições retornam o resultado existente ou mostram a reserva pendente sem iniciar outro processo. Perder o host antes de publicar resultado permanece evidência incompleta explícita; não há recuperação automática sem um registro interrompido capturado.
+
+Use `--wait-until-reset[=<duração>]` para esperar uma vez pelo reset registrado, mais até um segundo de jitter, e revalidar antes de retomar. O padrão e máximo são 24 horas; reset ausente ou além do limite impede a espera. Não há polling do fornecedor nem fallback automático. Para escolher outro adapter após um limite pendente, faça dispatch explícito com `--via <adapter>`; ele cria outra tentativa com `limit-of:<run>` e mostra ambos os runs. Insights conta resumes separadamente de tentativas/reruns; taxas declaradas de aprovação usam somente drafts completed não superseded.

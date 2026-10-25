@@ -415,7 +415,7 @@ func cmdStats(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	if result.DelegatedReview != nil && !jsonOut && !htmlOut {
 		for _, row := range result.DelegatedReview.ByBundle {
-			render(stdout, stderr).Field("stats.delegated.bundle."+row.Key, fmt.Sprintf("runs=%d attempts=%d reruns=%d reruns_without_reason=%d", row.Runs, row.Attempts, row.Reruns, row.RerunsWithoutReason))
+			render(stdout, stderr).Field("stats.delegated.bundle."+row.Key, fmt.Sprintf("runs=%d attempts=%d resumes=%d reruns=%d reruns_without_reason=%d", row.Runs, row.Attempts, row.Resumes, row.Reruns, row.RerunsWithoutReason))
 		}
 		for _, row := range result.DelegatedReview.ByAdapter {
 			rate := "unknown"
@@ -563,13 +563,13 @@ func renderDelegatedReviewHTML(metrics *posepkg.DelegatedReviewInsights) string 
 		name string
 		rows []posepkg.DelegatedReviewMetric
 	}{{"Bundles", metrics.ByBundle}, {"Adapters", metrics.ByAdapter}} {
-		b.WriteString("<h3>" + group.name + "</h3><table><tr><th>Key</th><th>Runs</th><th>Attempts</th><th>Reruns</th><th>Without reason</th><th>Draft approval rate</th></tr>")
+		b.WriteString("<h3>" + group.name + "</h3><table><tr><th>Key</th><th>Runs</th><th>Attempts</th><th>Resumes</th><th>Reruns</th><th>Without reason</th><th>Draft approval rate</th></tr>")
 		for _, row := range group.rows {
 			rate := "unknown"
 			if row.ApprovalRate != nil {
 				rate = fmt.Sprintf("%.4f", *row.ApprovalRate)
 			}
-			b.WriteString(fmt.Sprintf("<tr><td>%s</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%s</td></tr>", html.EscapeString(row.Key), row.Runs, row.Attempts, row.Reruns, row.RerunsWithoutReason, rate))
+			b.WriteString(fmt.Sprintf("<tr><td>%s</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%s</td></tr>", html.EscapeString(row.Key), row.Runs, row.Attempts, row.Resumes, row.Reruns, row.RerunsWithoutReason, rate))
 		}
 		b.WriteString("</table>")
 	}

@@ -809,3 +809,23 @@ Reservations live in `.pose/review-attempts/`, final receipts link the run, and 
 `pose history-check --strict` detects missing or rewritten witnessed runs and Git modifications/deletions of tracked immutable run, ledger and attempt files, including staged or committed changes. History containing only delegated records is supported. Git/filesystem trust is required: erasing unanchored evidence and its witnesses cannot be proved from that same erased storage. No cryptographic append-only storage or vendor identity is claimed. Records are limited to 1 MiB, inventories to 10000 entries, run JSON reads to 32 MiB per operation, transcripts to 256 MiB each and 512 MiB per verification, and Git history observation to 8 MiB/30 seconds; exceeding a bound is unknown, never a clean truncated history.
 
 `pose review verify` and MCP disclose scope-wide prior runs alongside the attestation, including earlier rejecting drafts. `pose insights` aliases `pose stats`; text, JSON, HTML and MCP `pose_insights` show runs per bundle, attempts, reruns and per-adapter declared draft approval rates. A time window limits counted events, while the full preceding history classifies reruns. Approval rate uses unambiguous completed, unsuperseded `decision: approved|changes-requested|rejected` drafts; ambiguous output, failures and stale runs are unknown. Legacy unreserved runs count as individual attempts without claiming a reservation existed. Draft labels and rates are not verified approvals and never apply an attestation or enable delegated-review automatically.
+
+### Continue interrupted delegated reviews
+
+Configure optional `limit`, `session` and `resume` fields on an adapter in `.pose/policy/reviewers.json`. Use RE2 patterns; session/reset patterns need exactly one capture group. Recognize limits by declared exit codes or output patterns in stdout/stderr or `{output}`. Parse reset captures as RFC3339 instants. The engine does not infer vendor vocabulary. Example fields on an otherwise configured adapter:
+
+```json
+{
+  "limit": {"exit_codes": [75], "output_patterns": ["LIMIT"], "reset_pattern": "reset: (\\S+)"},
+  "session": {"pattern": "session: (\\S+)"},
+  "resume": {"command": ["reviewer", "resume", "{session}", "--output", "{output}"], "max_resumes": 3, "max_wall_time": "60m"}
+}
+```
+
+Pass `{session}` as an entire argv element, never inside shell code. Captures from both output channels must agree. Session references are saved under `.pose/review-private/` (directory 0700/files 0600, self-ignored by Git); keep that runtime material private. Public records contain the session digest. The supervisor redacts the captured reference from both transcript and draft before publishing; ambiguous captures withhold the unredacted bytes. Losing private material makes a run not recoverable; no replacement session is invented.
+
+Run `pose review status [--json]` to inspect interruptions, partial drafts, reset instants and remaining wait. `pose doctor` warns about interrupted attempt endpoints. Runs finish completed, failed or interrupted; legacy stale records remain readable. Undeclared interruptions are unknown and not resumable. An interrupted draft is partial evidence, never a rejection or a review.
+
+Preview `pose review resume <run-id>`, then pass `--apply` to continue with the same adapter, captured session, brief digest, sealed commit and reconstructed checkout digest. Resume uses the original attempt and does not spend another attempt quota. The default maximum is three resumes and 60 minutes of accumulated wall-clock; configure `resume.max_resumes`/`max_wall_time` to change these bounds. Policy changes, changed inputs, lost or rewritten predecessors, terminal predecessors and spent budgets refuse. An immutable predecessor claim permits only one continuation; repeated requests return the recorded result or expose its pending reservation without launching another process. A lost host before a result is published remains explicit incomplete evidence; this is not automatic recovery without a captured interrupted record.
+
+Use `--wait-until-reset[=<duration>]` to wait once for a recorded reset, plus at most one second of jitter, then revalidate and resume. Default and maximum wait are 24 hours; a missing or more distant reset refuses. No vendor polling or automatic fallback occurs. To choose another adapter after a pending usage limit, explicitly dispatch with `--via <adapter>`; this creates a new attempt with `limit-of:<run>` and discloses both runs. Insights reports resumes separately from attempts and reruns; declared draft approval rates use completed unsuperseded drafts only.

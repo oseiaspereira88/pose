@@ -39,11 +39,14 @@ type ReviewerAdapter struct {
 	// Command is the argv; "{output}" is replaced by a file the reviewer may
 	// write its final message to. The brief arrives on stdin and the working
 	// directory is the disposable worktree.
-	Command          []string `json:"command"`
-	Vendor           string   `json:"vendor"`
-	Model            string   `json:"model"`
-	Timeout          string   `json:"timeout,omitempty"`
-	MaxRunsPerBundle int      `json:"max_runs_per_bundle,omitempty"`
+	Command          []string         `json:"command"`
+	Vendor           string           `json:"vendor"`
+	Model            string           `json:"model"`
+	Timeout          string           `json:"timeout,omitempty"`
+	MaxRunsPerBundle int              `json:"max_runs_per_bundle,omitempty"`
+	Limit            *ReviewerLimit   `json:"limit,omitempty"`
+	Session          *ReviewerSession `json:"session,omitempty"`
+	Resume           *ReviewerResume  `json:"resume,omitempty"`
 }
 
 // ReviewersPolicy is .pose/policy/reviewers.json.
@@ -79,6 +82,9 @@ func (s Store) LoadReviewersPolicy() (ReviewersPolicy, bool, error) {
 		return ReviewersPolicy{}, false, fmt.Errorf("pose: .pose/policy/reviewers.json schema_version %d is not supported", policy.SchemaVersion)
 	}
 	for name, adapter := range policy.Adapters {
+		if err := validateContinuityAdapter(adapter); err != nil {
+			return ReviewersPolicy{}, false, fmt.Errorf("pose: reviewer adapter %s: %w", name, err)
+		}
 		if len(adapter.Command) == 0 || adapter.Vendor == "" || adapter.Model == "" {
 			return ReviewersPolicy{}, false, fmt.Errorf("pose: reviewer adapter %s needs command, vendor and model", name)
 		}
@@ -93,39 +99,48 @@ func (s Store) LoadReviewersPolicy() (ReviewersPolicy, bool, error) {
 
 // ReviewRun is one recorded dispatch.
 type ReviewRun struct {
-	LedgerVersion    int    `json:"ledger_version,omitempty"`
-	AttemptID        string `json:"attempt_id,omitempty"`
-	Reason           string `json:"reason,omitempty"`
-	SchemaVersion    int    `json:"schema_version"`
-	RunID            string `json:"run_id"`
-	Scope            string `json:"scope"`
-	BundleID         string `json:"bundle_id"`
-	BundleDigest     string `json:"bundle_digest"`
-	SealedCommit     string `json:"sealed_commit"`
-	Kind             string `json:"kind"`
-	BriefDigest      string `json:"brief_digest"`
-	Adapter          string `json:"adapter"`
-	Vendor           string `json:"vendor"`
-	Model            string `json:"model"`
-	StartedAt        string `json:"started_at"`
-	EndedAt          string `json:"ended_at"`
-	ExitCode         int    `json:"exit_code"`
-	Status           string `json:"status"`
-	Failure          string `json:"failure,omitempty"`
-	TranscriptDigest string `json:"transcript_digest"`
-	TranscriptPath   string `json:"transcript_path"`
-	Output           string `json:"output"`
-	PolicyDigest     string `json:"policy_digest,omitempty"`
-	Supersedes       string `json:"supersedes,omitempty"`
-	SupersededBy     string `json:"superseded_by,omitempty"`
-	Path             string `json:"-"`
+	sessionForRedaction string
+	Resumes             string              `json:"resumes,omitempty"`
+	Interruption        *ReviewInterruption `json:"interruption,omitempty"`
+	SessionDigest       string              `json:"session_digest,omitempty"`
+	TreeDigest          string              `json:"tree_digest,omitempty"`
+	BriefNotes          string              `json:"brief_notes,omitempty"`
+	PartialDigest       string              `json:"partial_digest,omitempty"`
+	LimitOf             string              `json:"limit_of,omitempty"`
+	LedgerVersion       int                 `json:"ledger_version,omitempty"`
+	AttemptID           string              `json:"attempt_id,omitempty"`
+	Reason              string              `json:"reason,omitempty"`
+	SchemaVersion       int                 `json:"schema_version"`
+	RunID               string              `json:"run_id"`
+	Scope               string              `json:"scope"`
+	BundleID            string              `json:"bundle_id"`
+	BundleDigest        string              `json:"bundle_digest"`
+	SealedCommit        string              `json:"sealed_commit"`
+	Kind                string              `json:"kind"`
+	BriefDigest         string              `json:"brief_digest"`
+	Adapter             string              `json:"adapter"`
+	Vendor              string              `json:"vendor"`
+	Model               string              `json:"model"`
+	StartedAt           string              `json:"started_at"`
+	EndedAt             string              `json:"ended_at"`
+	ExitCode            int                 `json:"exit_code"`
+	Status              string              `json:"status"`
+	Failure             string              `json:"failure,omitempty"`
+	TranscriptDigest    string              `json:"transcript_digest"`
+	TranscriptPath      string              `json:"transcript_path"`
+	Output              string              `json:"output"`
+	PolicyDigest        string              `json:"policy_digest,omitempty"`
+	Supersedes          string              `json:"supersedes,omitempty"`
+	SupersededBy        string              `json:"superseded_by,omitempty"`
+	Path                string              `json:"-"`
 }
 
 // Review run states.
 const (
-	ReviewRunCompleted = "completed"
-	ReviewRunFailed    = "failed"
-	ReviewRunStale     = "stale"
+	ReviewRunCompleted   = "completed"
+	ReviewRunFailed      = "failed"
+	ReviewRunInterrupted = "interrupted"
+	ReviewRunStale       = "stale"
 )
 
 // ListReviewRuns returns the recorded runs for bundleID ("" for all).
@@ -183,10 +198,8 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 			lost = append(lost, e.Name()+" ("+verr.Error()+")")
 			continue
 		}
-		if bundleID == "" || run.BundleID == bundleID {
-			run.Path = filepath.ToSlash(filepath.Join(reviewRunsDir, e.Name()))
-			out = append(out, run)
-		}
+		run.Path = filepath.ToSlash(filepath.Join(reviewRunsDir, e.Name()))
+		out = append(out, run)
 	}
 	sort.Slice(out, func(i, j int) bool {
 		a, _ := time.Parse(time.RFC3339Nano, out[i].StartedAt)
@@ -234,25 +247,42 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 			}
 		}
 	}
-	findings, ledgerErr := s.reviewRunLedgerFindings(bundleID, &readBudget)
+	findings, ledgerErr := s.reviewRunLedgerFindings("", &readBudget)
 	if ledgerErr != nil {
 		lost = append(lost, ledgerErr.Error())
 	}
 	lost = append(lost, findings...)
+	lost = append(lost, s.reviewContinuationFindings(out)...)
+	if bundleID != "" {
+		filtered := []ReviewRun{}
+		for _, run := range out {
+			if run.BundleID == bundleID {
+				filtered = append(filtered, run)
+			}
+		}
+		out = filtered
+	}
 	return out, uniqueSorted(lost), nil
 }
 
 // DispatchPlan is what a dispatch will do.
 type DispatchPlan struct {
-	Reason         string
-	PolicyDigest   string
-	OriginWorktree string
-	Adapter        string
-	Config         ReviewerAdapter
-	Brief          ReviewBrief
-	Bundle         ReviewBundle
-	SealedCommit   string
-	PriorRuns      int
+	PendingContinuation *PendingReviewContinuation
+	processTimeout      time.Duration
+	predecessor         *ReviewRun
+	session             string
+	notes               string
+	Existing            *ReviewRun
+	LimitOf             string
+	Reason              string
+	PolicyDigest        string
+	OriginWorktree      string
+	Adapter             string
+	Config              ReviewerAdapter
+	Brief               ReviewBrief
+	Bundle              ReviewBundle
+	SealedCommit        string
+	PriorRuns           int
 }
 
 // PlanReviewDispatch resolves the bundle, brief and adapter without running.
@@ -296,7 +326,25 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string, reason ..
 	if err != nil {
 		return DispatchPlan{}, err
 	}
-	plan := DispatchPlan{Reason: why, PolicyDigest: directoryDigestIn(s.fsys(), filepath.Join(s.Root, ".pose", "policy")), OriginWorktree: origin, Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: 0}
+	plan := DispatchPlan{notes: notes, Reason: why, PolicyDigest: directoryDigestIn(s.fsys(), filepath.Join(s.Root, ".pose", "policy")), OriginWorktree: origin, Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: 0}
+	runs, losses, err := s.ReadReviewRuns(bundle.BundleID)
+	if err != nil {
+		return DispatchPlan{}, err
+	}
+	if len(losses) > 0 {
+		return DispatchPlan{}, fmt.Errorf("review history incomplete: %v", losses)
+	}
+	continued := map[string]bool{}
+	for _, r := range runs {
+		if r.Resumes != "" {
+			continued[r.Resumes] = true
+		}
+	}
+	for _, prior := range runs {
+		if prior.Status == ReviewRunInterrupted && prior.SupersededBy == "" && !continued[prior.RunID] && prior.Interruption != nil && prior.Interruption.Cause == "usage-limit" && prior.Adapter != adapter {
+			plan.LimitOf, plan.Reason = prior.RunID, "limit-of:"+prior.RunID
+		}
+	}
 	_, currentCount, err := s.reviewAttemptAdmission(plan)
 	if err != nil {
 		return DispatchPlan{}, err
@@ -310,12 +358,32 @@ var ErrNoReviewerAdapter = errors.New("pose: no reviewer adapter is configured i
 
 // RunReviewDispatch executes plan and records the run, failed or completed.
 func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (result ReviewRun, resultErr error) {
-	run := ReviewRun{SchemaVersion: 1, Scope: plan.Brief.Scope, BundleID: plan.Bundle.BundleID, BundleDigest: plan.Bundle.BundleDigest,
+	if plan.PendingContinuation != nil {
+		return ReviewRun{}, plan.PendingContinuation
+	}
+	if plan.Existing != nil {
+		if plan.predecessor == nil {
+			return ReviewRun{}, fmt.Errorf("existing continuation lacks predecessor")
+		}
+		fresh, err := s.PlanReviewResume(plan.predecessor.RunID)
+		if err != nil {
+			return ReviewRun{}, err
+		}
+		if fresh.Existing == nil {
+			return ReviewRun{}, fmt.Errorf("existing continuation disappeared")
+		}
+		return *fresh.Existing, nil
+	}
+	run := ReviewRun{BriefNotes: plan.notes, LimitOf: plan.LimitOf, SchemaVersion: 1, Scope: plan.Brief.Scope, BundleID: plan.Bundle.BundleID, BundleDigest: plan.Bundle.BundleDigest,
 		SealedCommit: plan.SealedCommit, Kind: plan.Brief.Kind, BriefDigest: plan.Brief.Digest, Adapter: plan.Adapter,
 		Vendor: plan.Config.Vendor, Model: plan.Config.Model, Reason: plan.Reason, PolicyDigest: plan.PolicyDigest, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1}
 	transcript := []byte{}
 	finish := func(status, failure string) (ReviewRun, error) {
+		run.sessionForRedaction = ""
 		run.Status, run.Failure = status, failure
+		if status != ReviewRunInterrupted {
+			run.Interruption, run.PartialDigest = nil, ""
+		}
 		run.EndedAt = now().UTC().Format(time.RFC3339Nano)
 		return s.recordReviewRun(run, transcript)
 	}
@@ -323,15 +391,42 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 	if err := s.checkDispatchOrigin(plan); err != nil {
 		return finish(ReviewRunFailed, "the run was not started: "+err.Error())
 	}
-	attempt, err := s.reserveDelegatedReviewAttempt(plan, now())
-	if err != nil {
-		return ReviewRun{}, err
+	var attempt DelegatedReviewAttempt
+	if plan.predecessor == nil {
+		var err error
+		attempt, err = s.reserveDelegatedReviewAttempt(plan, now())
+		if err != nil {
+			return ReviewRun{}, err
+		}
+		run.AttemptID, run.Reason = attempt.AttemptID, attempt.Reason
+	} else {
+		// Re-plan at execution, before the exclusive predecessor claim.
+		fresh, err := s.PlanReviewResume(plan.predecessor.RunID)
+		if err != nil {
+			return ReviewRun{}, err
+		}
+		if fresh.PendingContinuation != nil {
+			return ReviewRun{}, fresh.PendingContinuation
+		}
+		if fresh.Existing != nil {
+			return *fresh.Existing, nil
+		}
+		plan = fresh
+		run.AttemptID, run.Reason, run.Resumes = fresh.predecessor.AttemptID, fresh.predecessor.Reason, fresh.predecessor.RunID
+		run.TreeDigest = fresh.predecessor.TreeDigest
+		if err := s.claimReviewContinuation(*fresh.predecessor, now()); err != nil {
+			return ReviewRun{}, err
+		}
 	}
-	run.AttemptID = attempt.AttemptID
-	run.Reason = attempt.Reason
 	defer func() {
 		if result.RunID != "" {
-			if err := s.finishDelegatedReviewAttempt(attempt, result); err != nil {
+			var err error
+			if plan.predecessor == nil {
+				err = s.finishDelegatedReviewAttempt(attempt, result)
+			} else {
+				err = s.finishReviewContinuation(result)
+			}
+			if err != nil {
 				resultErr = errors.Join(resultErr, fmt.Errorf("attempt result not confirmed: %w", err))
 			}
 		}
@@ -373,14 +468,40 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 		return finish(ReviewRunFailed, err.Error())
 	}
 
+	rawTree, err := json.Marshal(diskBefore)
+	if err != nil {
+		return finish(ReviewRunFailed, err.Error())
+	}
+	if plan.predecessor != nil && digestBytes(rawTree) != plan.predecessor.TreeDigest {
+		return finish(ReviewRunFailed, "recreated worktree tree digest differs")
+	}
+	run.TreeDigest = digestBytes(rawTree)
 	outputFile := filepath.Join(tmp, "output.txt")
-	argv := make([]string, len(plan.Config.Command))
-	for i, arg := range plan.Config.Command {
-		argv[i] = strings.ReplaceAll(arg, "{output}", outputFile)
+	command := plan.Config.Command
+	if plan.predecessor != nil {
+		command = plan.Config.Resume.Command
+	}
+	argv := make([]string, len(command))
+	for i, arg := range command {
+		argv[i] = strings.ReplaceAll(strings.ReplaceAll(arg, "{output}", outputFile), "{session}", plan.session)
 	}
 	timeout := 60 * time.Minute
 	if plan.Config.Timeout != "" {
 		timeout, _ = time.ParseDuration(plan.Config.Timeout)
+	}
+	if plan.processTimeout > 0 {
+		started, err := time.Parse(time.RFC3339Nano, run.StartedAt)
+		if err != nil {
+			return finish(ReviewRunFailed, "invalid execution start")
+		}
+		setup := now().Sub(started)
+		remaining := plan.processTimeout - setup
+		if setup < 0 || remaining <= 0 {
+			return finish(ReviewRunFailed, "accumulated wall-clock budget spent before adapter launch")
+		}
+		if remaining < timeout {
+			timeout = remaining
+		}
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -413,11 +534,36 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 	} else {
 		run.Output = tail(string(transcript), 20000)
 	}
-	switch {
-	case errors.Is(ctx.Err(), context.DeadlineExceeded):
-		return finish(ReviewRunFailed, "timeout after "+timeout.String())
-	case runErr != nil:
-		return finish(ReviewRunFailed, "the reviewer command failed: "+runErr.Error())
+	if runErr != nil && cmd.ProcessState == nil {
+		run.Output, transcript = "", nil
+		return finish(ReviewRunFailed, "reviewer command could not start")
+	}
+	status, failure, captureErr := s.classifyReviewInterruption(&run, plan, transcript, runErr, ctx.Err())
+	if captureErr != nil {
+		run.Output, transcript = "", nil
+		return finish(ReviewRunFailed, "adapter capture failed; unredacted output withheld")
+	}
+	if session := run.sessionForRedaction; session != "" {
+		transcript = []byte(strings.ReplaceAll(string(transcript), session, "[private-session]"))
+		run.Output = strings.ReplaceAll(run.Output, session, "[private-session]")
+	}
+	run.sessionForRedaction = ""
+	if status != "" {
+		// Partial drafts are evidence only after the same containment checks.
+		after, err := dispatchDiskSnapshot(worktree)
+		if err != nil || !reflect.DeepEqual(diskBefore, after) {
+			return finish(ReviewRunFailed, "interrupted adapter changed or obscured the sealed worktree")
+		}
+		if err := verifyDispatchWorktreeFor(worktree, plan.SealedCommit, submodules); err != nil {
+			return finish(ReviewRunFailed, err.Error())
+		}
+		if err := s.checkDispatchOrigin(plan); err != nil {
+			return finish(ReviewRunFailed, "origin changed during interruption: "+err.Error())
+		}
+		if status == ReviewRunInterrupted {
+			run.PartialDigest = digestBytes([]byte(run.Output))
+		}
+		return finish(status, failure)
 	}
 	diskAfter, err := dispatchDiskSnapshot(worktree)
 	if err != nil {
@@ -442,7 +588,7 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 		return finish(ReviewRunFailed, err.Error())
 	}
 	if err := s.checkDispatchOrigin(plan); err != nil {
-		return finish(ReviewRunStale, "origin or policy changed: "+err.Error())
+		return finish(ReviewRunFailed, "origin or policy changed: "+err.Error())
 	}
 
 	published, err := finish(ReviewRunCompleted, "")
@@ -452,7 +598,7 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 	if why := s.checkDispatchOrigin(plan); why != nil {
 		late := published
 		late.RunID, late.Path, late.TranscriptDigest, late.TranscriptPath = "", "", "", ""
-		late.Status, late.Failure, late.Supersedes = ReviewRunStale, why.Error(), published.RunID
+		late.Status, late.Failure, late.Supersedes = ReviewRunFailed, why.Error(), published.RunID
 		late.EndedAt = now().UTC().Format(time.RFC3339Nano)
 		return s.recordReviewRun(late, transcript)
 	}
@@ -834,9 +980,12 @@ func validateReviewRunRecord(name string, run ReviewRun) error {
 		return fmt.Errorf("schema_version %d is not read by this engine", run.SchemaVersion)
 	}
 	switch run.Status {
-	case ReviewRunCompleted, ReviewRunFailed, ReviewRunStale:
+	case ReviewRunCompleted, ReviewRunFailed, ReviewRunStale, ReviewRunInterrupted:
 	default:
 		return fmt.Errorf("status %q is not a state of a run", run.Status)
+	}
+	if err := validateContinuityRun(run); err != nil {
+		return err
 	}
 	if run.BundleID == "" || run.Scope == "" {
 		return fmt.Errorf("the bundle or scope is missing")

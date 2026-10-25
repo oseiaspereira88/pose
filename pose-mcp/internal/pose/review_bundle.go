@@ -1120,7 +1120,7 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 		// like the repository's own LICENSE and NOTICE (found in review).
 		return "documentation", true
 	}
-	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/review-attribution-supplements/", ".pose/closeout-plans/", ".pose/contributions/", ".pose/feedback/", ".pose/review-runs/", ".pose/review-attempts/", ".pose/review-run-ledger/", ".pose/events/", ".pose/investigations/"} {
+	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/review-attribution-supplements/", ".pose/closeout-plans/", ".pose/contributions/", ".pose/feedback/", ".pose/review-runs/", ".pose/review-attempts/", ".pose/review-run-ledger/", ".pose/review-continuations/", ".pose/review-private/", ".pose/events/", ".pose/investigations/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "derived-evidence", false
 		}
