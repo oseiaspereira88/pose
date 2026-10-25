@@ -20,6 +20,9 @@ import (
 // it; the plan never writes that answer. It promises a recoverable
 // operation, not a transaction over Git and external processes.
 type CloseoutPlan struct {
+	LifecycleDone bool                        `json:"lifecycle_done"`
+	Verification  *CloseoutState              `json:"verification,omitempty"`
+	NextAction    string                      `json:"next_action,omitempty"`
 	SchemaVersion int                         `json:"schema_version"`
 	Scope         string                      `json:"scope"`
 	Digest        string                      `json:"digest"`
@@ -42,8 +45,8 @@ type CloseoutPlanInputs struct {
 	VerifyState  string `json:"verify_state"`
 }
 
-// CloseoutPlanStep is one step and its state: done, pending, blocked or
-// waiting (on a reviewer).
+// CloseoutPlanStep is one step and its state: done, pending, blocked,
+// waiting (on a reviewer), or not-run (no historical execution inferred).
 type CloseoutPlanStep struct {
 	ID     string `json:"id"`
 	State  string `json:"state"`
@@ -65,6 +68,7 @@ const (
 	CloseoutStatePending      = "pending"
 	CloseoutStateBlocked      = "blocked"
 	CloseoutStateWaiting      = "waiting"
+	CloseoutStateNotRun       = "not-run"
 	closeoutCheckpointDir     = ".pose/closeout-plans"
 	CloseoutPlanSchemaVersion = 1
 )
@@ -97,10 +101,28 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 	}
 
 	if spec.Status == "done" {
-		for _, id := range []string{CloseoutStepContext, CloseoutStepTrace, CloseoutStepEvidence, CloseoutStepIndex, CloseoutStepSeal, CloseoutStepMechanical, CloseoutStepJudgment, CloseoutStepVerify, CloseoutStepTransition} {
-			step(id, CloseoutStateDone, "the spec is done")
+		state, err := s.GetCloseoutState(ref)
+		if err != nil {
+			return plan, err
 		}
-		plan.Terminal = true
+		plan.LifecycleDone = true
+		plan.Verification = &state
+		plan.Terminal = state.Terminal
+		plan.Blockers = append([]string{}, state.Blockers...)
+		plan.NextAction = state.NextAction
+		plan.BundleID = state.Review.BundleID
+		step(CloseoutStepContext, CloseoutStateDone, "current scope and applicable contract read")
+		for _, id := range []string{CloseoutStepTrace, CloseoutStepEvidence, CloseoutStepIndex, CloseoutStepSeal, CloseoutStepMechanical, CloseoutStepJudgment} {
+			step(id, CloseoutStateNotRun, "no historical execution is inferred from lifecycle done; see verification basis and limitations")
+		}
+		if state.Terminal {
+			plan.Inputs.VerifyState = "terminal-verified"
+			step(CloseoutStepVerify, CloseoutStateDone, "applicable terminal verifier passed in this query")
+		} else {
+			plan.Inputs.VerifyState = "terminal-blocked"
+			step(CloseoutStepVerify, CloseoutStateBlocked, strings.Join(state.Blockers, "; ")+"; "+state.NextAction)
+		}
+		step(CloseoutStepTransition, CloseoutStateDone, "lifecycle is already done; no transition executed")
 		plan.Digest = closeoutPlanDigest(plan)
 		return plan, nil
 	}
@@ -121,6 +143,19 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 		return plan, nil
 	}
 	step(CloseoutStepContext, CloseoutStateDone, "")
+	if _, findings, historyErr := s.InspectAmendmentHistory(*spec); historyErr != nil || len(findings) > 0 {
+		reason := strings.Join(findings, "; ")
+		if historyErr != nil {
+			reason = historyErr.Error()
+		}
+		reason = "amendment history: " + reason
+		step(CloseoutStepTrace, CloseoutStateBlocked, reason)
+		plan.Blockers = append(plan.Blockers, reason)
+		plan.NextAction = "inspect amendment history and explicitly acknowledge or repair it before closing " + ref
+		plan.Digest = closeoutPlanDigest(plan)
+		return plan, nil
+	}
+
 	// The exit gate comes before sealing: completing the trace edits the spec,
 	// which would supersede a bundle sealed first (spec
 	// pose-quickstart-real-lifecycle).
@@ -204,7 +239,7 @@ func closeoutPlanDigest(plan CloseoutPlan) string {
 // NextCloseoutStep is the first step that is not done.
 func (p CloseoutPlan) NextCloseoutStep() (CloseoutPlanStep, bool) {
 	for _, st := range p.Steps {
-		if st.State != CloseoutStateDone {
+		if st.State != CloseoutStateDone && st.State != CloseoutStateNotRun {
 			return st, true
 		}
 	}

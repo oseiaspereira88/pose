@@ -1666,6 +1666,12 @@ func scopeRefForArtifact(ref posemodel.ArtifactRef) string {
 }
 
 func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Writer) int {
+	return cmdCloseLocalWithEffect(root, ref, guard, stdout, stderr, nil)
+}
+
+// The pipeline confirms a transition only from the write point, never exit 0
+// alone: another execution may have closed the scope since it planned.
+func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stderr io.Writer, transitioned func()) int {
 	store := cliGovernedStore(root)
 	// The gates below judge the artifact as it is now; the transition is
 	// published only over those same bytes (spec
@@ -1675,6 +1681,16 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 	if err != nil {
 		fmt.Fprintf(stderr, "pose close: %v\n", err)
 		return 1
+	}
+	// Repeating close on an already-done spec is a readonly terminal check,
+	// bounded by the same historical contract as closeout-check and the plan.
+	if scope, parseErr := posemodel.ParseScopeRef(ref); parseErr == nil && scope.Kind == "spec" && state.LifecycleDone {
+		if !state.Terminal {
+			render(io.Discard, stderr).Failure("pose close: terminal verification blocked: " + strings.Join(state.Blockers, "; ") + "; " + state.NextAction)
+			return 1
+		}
+		render(stdout, stderr).Field("close.already-satisfied", ref+"; applicable terminal verifier passed; no transition executed")
+		return 0
 	}
 	// Governed effects (spec pose-governed-effect-enforcement): this is the
 	// write point of the closeout transition, so an adopted, unsatisfied
@@ -1820,6 +1836,9 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 		}
 		fmt.Fprintf(stderr, "pose close: %v\n", err)
 		return 1
+	}
+	if transitioned != nil {
+		transitioned()
 	}
 	fmt.Fprintf(stdout, "Closed: %s\n", ref)
 	return 0
