@@ -1,4 +1,4 @@
-# Component Assessments: pose-b05-work
+# Component Assessments: pose-dist
 
 > **Gerado Automaticamente por**: POSE Discovery Engine (`pose assess discover`)
 
@@ -8,7 +8,7 @@
 |----|------------|---------------|-----------|--------------|------------|----------|--------|--------------------|
 | 01 | `docs-site` | `docs-site` | `n/a` | 0 | 0 | 0 | `verified` | [docs-site.md](./docs-site.md) |
 | 02 | `mcp-enforce` | `mcp-enforce` | `go` | 870 | 1029 | 17 | `verified` | [mcp-enforce.md](./mcp-enforce.md) |
-| 03 | `pose-mcp` | `pose-mcp` | `go` | 81041 | 72013 | 636 | `verified` | [pose-mcp.md](./pose-mcp.md) |
+| 03 | `pose-mcp` | `pose-mcp` | `go` | 84068 | 74979 | 659 | `verified` | [pose-mcp.md](./pose-mcp.md) |
 
 ## Assessments Consolidados & Governança Global
 

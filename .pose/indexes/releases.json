@@ -9,6 +9,14 @@
       "digest": "sha256:744b9199a134b6dfebb0264afc2e22bdd7c0f2e9eae89e20fee2d49ffc60759b"
     },
     {
+      "spec": "pose-action-request-recovery-and-preflight",
+      "category": "fixed",
+      "breaking": true,
+      "body": "Resume a partially opened replacement with one durable predecessor intent and current authority; keep incomplete conditions visible and restrictive. Readonly CLI/MCP previews now refuse invalid proposals and disclose pending proof, while typed next steps distinguish answers, remediation and repair. Reject identical-material re-asking after decline. Refusals are command diagnostics, not fabricated journal events. Upgrade all writers sharing journals before adoption.",
+      "path": "pose-action-request-recovery-and-preflight.md",
+      "digest": "sha256:d4ee37d14c32a23850d58607355b508e0099d89ecb674f59c46326d5b6f25577"
+    },
+    {
       "spec": "pose-action-target-and-node-scoping",
       "category": "fixed",
       "breaking": true,
@@ -17,12 +25,36 @@
       "digest": "sha256:502897d6c530a821d3bc4b6848f7751b1496869412ec8587b932e1f22723daac"
     },
     {
+      "spec": "pose-action-waiver-and-supersession-authority",
+      "category": "security",
+      "breaking": true,
+      "body": "Waiver and supersession now require operation-specific authority and proof under verified policy; requester withdrawal remains distinct from waiver. MCP retirement always needs proof, and arbitrary actor invalidation is refused. New lifecycle events reverify recorded proof on read. Schema-1 answer signatures cannot authorize retirement; unsigned legacy exemptions cannot satisfy verified policy. Review compatibility before publication or adoption; cross-journal supersession recovery remains a separate capability.",
+      "path": "pose-action-waiver-and-supersession-authority.md",
+      "digest": "sha256:ced96a11cb345960114306c6a9e6031437180b18206eec2e7a94c8494e0fc5b3"
+    },
+    {
+      "spec": "pose-amendment-history-holds-before-close",
+      "category": "fixed",
+      "breaking": true,
+      "body": "The first amendment now preserves recorded atomic-start nodes. In-progress lint warns about pending history changes, and close refuses opted-in histories that done lint would reject, including malformed logs. Existing journals stay append-only and no history is enabled automatically. Update shared writers together so amendment append and close use the same lifecycle lock.",
+      "path": "pose-amendment-history-holds-before-close.md",
+      "digest": "sha256:d5df25958acb84a2ee7dd499572de9d1c67b8e4308e79b52a72d9de5b6c83810"
+    },
+    {
       "spec": "pose-cli-mcp-operation-results",
       "category": "changed",
       "breaking": false,
       "body": "`pose close spec:\u003cslug\u003e --apply|--resume --json` now writes exactly one JSON\ndocument, the operation result: `operation`, `outcome` (`completed`,\n`already-satisfied`, `waiting`, `blocked`, `conflict`, `failed`), the step it\nstopped at, the steps it ran, the pending criteria, the next action, the\neffects the domain confirmed, the steps left unconfirmed after a failure and\na typed cause. It used to print text with `--json`. The human output reads the\nsame result, and a call that runs no step on a spec already closed reports\n`closeout_plan.result=already-satisfied` instead of `closed`, because it did\nnot verify anything; `pose closeout-check` does.\n\n`pose continuous-closeout status --json` writes an operation result instead\nof ignoring the flag; the exit keeps its meaning.\n\nStricter parsers, classified for a minor release: `pose specs` refuses an\nunknown flag, a missing value, an unparseable or negative `--since` and a\nnon-positive `--recent` with exit 2 instead of listing every spec, and MCP\n`pose_list_specs` refuses the same values; `pose close` refuses two different\nmodes and `--plan` with `--digest`, `--reviewer` or `--skip-evidence`;\n`pose start` refuses two of `--apply`, `--status` and `--cancel`, `--digest`\noutside `--apply` and `--cancel --json`. A repeated `pose start --apply\n--json` returns the start record as JSON instead of text. `pose specs facts`\nrefuses unknown arguments and reads `--json` in any position; `pose_list_specs`\nalso refuses unknown arguments, an explicit `0` for `recent` or `limit`, an\nexplicit `null` and an empty `since`, and keeps the advertised `sort: \"slug\"`.\n`pose close \u003cscope\u003e --json` (no plan mode) is refused instead of ignored. A\n`pose start --apply` that fails after recording its baseline reports it as a\nconfirmed effect and says the same apply resumes it; repeating it now finishes\nfrom its record a transition that was already published, while a spec that\nhas not moved is judged again by the current plan and its restrictions. A\nbaseline the repository has moved past, or a spec changed under the start, is\nreported as a conflict to cancel and preview again, not as resumable. A failed\napply lists the spec moved to `in-progress` as a confirmed effect once it is\npublished, and `steps_run` names only the steps that call ran, so a retry does\nnot claim the baseline or the transition an earlier call published. A baseline\nwrite cut short leaves a start record that does not read; the apply reports\nits `baseline` step as failed and unconfirmed, and it and any retry say to\ninspect and remove that record before a new preview. With `--json`, a failure of `start`, `close --plan`, `specs` or\n`specs facts` is one JSON operation result instead of an empty stdout.\n\nAn MCP gate (`pose_check`, `pose_lint_spec`, `pose_skills_check`) stopped by\nits deadline or a cancellation now returns an error result with\n`error_code: execution_inconclusive`, the cause and the partial output, where\nit used to return `passed: false`; a stopped gate no longer holds the call\nwhile a process it started keeps the output open.\n\nThe usage journal counts a close that stops on a reviewer as `waiting`, not\n`failed`, and marks derived signal events `duration_unknown` instead of 0 ms;\n`pose usage` reports `waiting` and `duration_samples` and shows an unmeasured\nP95 as `-`.",
       "path": "pose-cli-mcp-operation-results.md",
       "digest": "sha256:dc0be5c841dc028e6b1cdad6b1d216ffa5f04147d00e7a128462edc71e1113e4"
+    },
+    {
+      "spec": "pose-closeout-terminal-verification",
+      "category": "fixed",
+      "breaking": true,
+      "body": "A done lifecycle no longer certifies terminal closeout or fabricated execution steps. Plans, CLI and MCP disclose the applicable verification basis and historical limits; invalid proof/history remains blocked without reopening or rewriting records. Repeated close/apply/resume verifies a done scope without modifying its checkpoint, lifecycle or review. Consumers must handle the new `not-run` plan step state.",
+      "path": "pose-closeout-terminal-verification.md",
+      "digest": "sha256:5591d42a565f175a1f60ca7c56af8353bcc04746f4c01507d3c40d0171635eba"
     },
     {
       "spec": "pose-consolidation-batch-1-authoring",
@@ -151,6 +183,22 @@
       "body": "Formalize the consolidation planning bootstrap: map the 44 canonical units and 96 source candidates into bounded authoring batches, preserve existing specs and merged proof corrections, and keep future implementation, adoption and release qualification explicit.",
       "path": "pose-consolidation-program-bootstrap.md",
       "digest": "sha256:dd7a67a589092097bb8a078ac16aee90f525bf8f8cabb531b15ca26d9dac30d2"
+    },
+    {
+      "spec": "pose-delegated-review-attempt-ledger",
+      "category": "added",
+      "breaking": true,
+      "body": "Reserve delegated attempts durably before launch and keep immutable witnesses for every run, including rejecting drafts. Repeating an unchanged completed bundle now requires an explicit reason, and quota/refusal checks use current reserved history. History-check detects removed or rewritten evidence; verify and insights disclose prior runs, declared draft rates and incomplete coverage. Upgrade shared writers together; no delegated-review policy or authenticated identity is adopted.",
+      "path": "pose-delegated-review-attempt-ledger.md",
+      "digest": "sha256:007df121af7eaa711fbe54d4977bad69babca4ba9ee568a8f43378ad48262551"
+    },
+    {
+      "spec": "pose-delegated-review-run-continuity",
+      "category": "added",
+      "breaking": true,
+      "body": "Continue interrupted delegated reviews with the original session, sealed inputs and attempt quota. Declare adapter limit/session/resume behavior, inspect partial drafts and reset times, wait once for a bounded reset, and choose any cross-adapter fallback explicitly. Timeouts and observed process loss now produce interrupted records; legacy stale records remain readable. Continuations are counted separately from attempts and cannot apply a review attestation.",
+      "path": "pose-delegated-review-run-continuity.md",
+      "digest": "sha256:db877705c6a02bea56849e3820455a136401c694bbfa1e0c615b99db6d3ffccd"
     },
     {
       "spec": "pose-distributed-instructions-parity",

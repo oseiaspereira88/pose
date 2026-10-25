@@ -1,8 +1,8 @@
 ---
 slug: pose-closeout-terminal-verification
-status: draft
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-25
 depends_on: pose-action-target-and-node-scoping, pose-amendment-history-holds-before-close, pose-recoverable-closeout-plan
 priority: 1
 components: pose-mcp
@@ -26,7 +26,7 @@ e a [análise de UX](../reports/2026-10-12-pose-front-07-operational-ux.md).
 
 ### Constraints
 
-Esta interação escreve a spec; não implementa o comportamento. Preservar as
+Implementação autorizada em 2026-10-24 pela continuação solicitada; baseline `94b4f4b`. A dependência de amendments está done e será consumida sem novo seeding. Preservar as
 fundações done, contratos selados, evidências e autorizações já existentes.
 Não adotar policy/capability automaticamente. Classificar compatibilidade antes
 de iniciar: recusa mais estrita ou mudança de semântica pública não é patch por
@@ -48,22 +48,30 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-5-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
-
-- created: .pose/specs/2026-10-13-pose-closeout-terminal-verification.md
-- created: .pose/starts/pose-closeout-terminal-verification.json
+- created: .pose/adr/2026-10-24-verify-terminal-state-with-the-applicable-closeout-contract.md
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/integrations.md
+- modified: .pose/assessments/technical-debt.md
 - created: .pose/changelogs/unreleased/pose-closeout-terminal-verification.md
-- modified: pose-mcp/internal/pose/closeout_plan.go
-- modified: pose-mcp/internal/pose/review_closeout.go
-- modified: pose-mcp/internal/cli/closeout_plan.go
-- created: pose-mcp/internal/pose/closeout_terminal_verification_test.go
-- created: pose-mcp/internal/cli/closeout_terminal_verification_test.go
-- created: pose-mcp/internal/mcpserver/closeout_terminal_verification_test.go
 - modified: .pose/indexes/validation-matrix.json
+- created: .pose/reports/2026-10-24-b11-terminal-verification.md
+- modified: .pose/specs/2026-10-13-pose-closeout-terminal-verification.md
+- created: .pose/starts/pose-closeout-terminal-verification.json
+- modified: .pose/state/integrations.json
+- modified: .pose/state/technical-debt.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/cli/closeout_plan.go
+- created: pose-mcp/internal/cli/closeout_terminal_verification_test.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- created: pose-mcp/internal/mcpserver/closeout_terminal_verification_test.go
+- modified: pose-mcp/internal/pose/closeout_plan.go
+- created: pose-mcp/internal/pose/closeout_terminal_verification_test.go
+- modified: pose-mcp/internal/pose/diagnostic_codes.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
@@ -78,9 +86,19 @@ executar assessment freshness no componente, completar o plano de artefatos,
 registrar produtores de evidência na matriz e criar a baseline por start.
 Não contornar dependência não terminal apenas porque o código parece presente.
 
+## 4. Tasks
+
+- [x] Resolver autoridade e dependências; assessment freshness antes do código.
+- [x] Reproduzir done sem review e definir contrato compatível.
+- [x] Compartilhar verificação aplicável e gate de amendments sem duplicação.
+- [x] Qualificar domínio, CLI/MCP, histórico e operação sem writes.
+- [x] Revisão separada, evidência canônica e closeout nativo.
+
 ## 5. Decisions
 
 ### Decision D1
+- ADR: [Verificação terminal aplicável](../adr/2026-10-24-verify-terminal-state-with-the-applicable-closeout-contract.md)
+- Knowledge: knowledge:adr-sealed-review-bundles-review, knowledge:pose-b07-implementation
 - Basis: R1, R2, R3, R5, R6
 - Decision: Compartilhar verificação semântica aplicável e consumir o gate da spec existente de amendments.
 - Rationale: Status bruto e duplicação de baseline não comprovam closeout nem preservam a história.
@@ -101,41 +119,45 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 | V5 — Legacy, cutoff e mudança de policy atual | Contrato histórico aplicável preservado; sem enforcement retrospectivo indevido. |
 | V6 — Prova/contexto ilegíveis e paridade CLI/MCP | Limitação/blocker fiel; não fabricar terminal, receipt ou review. |
 
+### Execution plan
+
+| Cenário obrigatório | Comando | Evidência esperada |
+| --- | --- | --- |
+| Done sem review, legacy/cutoff, válido, histórico ilegível | `cd pose-mcp && go test ./internal/pose ./internal/cli ./internal/mcpserver -run TerminalVerification -count=1` | mesmo veredito entre state/plan/CLI/MCP; sem escrita ou review fabricado |
+| Amendment inválido antes do write, histórico preservado | mesmo produtor registrado | erro compartilhado antes da transição; log/start bytes preservados |
+| Suíte completa/build/vet/composição | `pose validate --strict --json-out .pose/results/delivery-validation.json` com `TMPDIR=/var/tmp` | evidência atual de todos os checks, inclusive produtor B11 |
+| Segurança | `cd pose-mcp && govulncheck ./...` e gitleaks fixado no CI | ausência de vulnerabilidades e segredos |
+
 ### Deterministic checks
 
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Regressões de domínio/CLI/MCP e controles de B12/amendments passaram; a matriz canônica será registrada antes da selagem. Use TMPDIR=/var/tmp para evitar o metadado Git inválido ancestral de /tmp.
 
 ### Requirement trace
 
-Trace planejado; vincular casos aos produtores reais na implementação.
-Não declarar requisitos funcionais satisfeitos pelo lint.
+Regressões permanentes do produtor `closeout-terminal-verification-integration` e controles históricos existentes.
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1, V2 |
-| R2 | V1, V6 |
-| R3 | V3, V4 |
-| R4 | V2, V6 |
-| R5 | V5 |
-| R6 | V3, V4 |
-| R7 | V1, V2, V6 |
-| R8 | V1–V6 |
+- R1 [satisfied] test:TestTerminalVerificationDoneUsesApplicableVerifier
+- R2 [satisfied] test:TestTerminalVerificationMCPPlanMatchesStateAndDomain
+- R3 [satisfied] test:TestTerminalVerificationAmendmentGateBeforeSealingAndAfterDone
+- R4 [satisfied] test:TestTerminalVerificationValidNoopPreservesCheckpointAndHistory
+- R5 [satisfied] test:TestTerminalVerificationDoneUsesApplicableVerifier
+- R6 [satisfied] test:TestTerminalVerificationAmendmentGateBeforeSealingAndAfterDone
+- R7 [satisfied] test:TestTerminalVerificationNoopDoesNotConfirmTransitionEffect
+- R8 [satisfied] test:TestTerminalVerificationDoneWithoutReviewIsBlockedAndReadonly
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 5. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+Implementado o verificador terminal compartilhado, com lifecycle distinto, prova e limitações explícitas e no-op sem mutação. A dependência de amendments foi fechada em `94b4f4b` antes do start B11; seus R1–R3 e histórico foram preservados. Fechada nativamente em 2026-10-25, com matriz estrita 152/152, composição sem findings e review aprovada; consulte o [relatório](../reports/2026-10-24-b11-terminal-verification.md).
 
 ### Residual risks
 
-No-op de lifecycle não garante conclusão atual. A implementação precisa distinguir contrato histórico aplicável de exigência nova e não reescrever status/review para sanar lacuna. A spec de amendments está draft e precisa de plano/start próprios; este lote documenta sua continuidade sem mudar baseline ou declarar execução.
+No-op de lifecycle não garante conclusão atual. A implementação precisa distinguir contrato histórico aplicável de exigência nova e não reescrever status/review para sanar lacuna. A dependência de amendments está done; B11 consome apenas seu assessment e não cria journal ou baseline paralelos. O novo estado `not-run` é breaking para consumidores do plano; atualizar clientes antes de adoção. A verificação é limitada ao contrato aplicável, não comprova materialidade ou execução histórica sem receipt.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+- [open] Acrescentar cenário raw-done-terminal ao corpus adversarial genérico; regressões permanentes e produtor registrado já cobrem R1–R8. (owner:@pose-maintainers crit:low review:2026-11-08)

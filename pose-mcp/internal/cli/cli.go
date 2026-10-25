@@ -291,7 +291,7 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 		default:
 			return cmdClose(root, args, stdout, stderr)
 		}
-	case "update", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "usage", "stacks", "skills-check", "record-deployment", "record-incident", "dora-metrics", "adoption-metrics", "events-housekeeping", "semantic-suggest", "suggest-feedback", "portfolio-projection", "reconcile-evidence":
+	case "update", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "insights", "usage", "stacks", "skills-check", "record-deployment", "record-incident", "dora-metrics", "adoption-metrics", "events-housekeeping", "semantic-suggest", "suggest-feedback", "portfolio-projection", "reconcile-evidence":
 		root, err := projectRoot()
 		if err != nil {
 			fmt.Fprintf(stderr, "pose %s: %v\n", cmd, err)
@@ -497,7 +497,7 @@ Project state:
   state [init|refresh|diff]           Native project-state artifact (bare = validate)
 
 Discovery and metrics:
-  suggest | stats | usage | recurrence-effect | stacks
+  suggest | stats | insights | usage | recurrence-effect | stacks
   record-deployment | record-incident | dora-metrics | adoption-metrics
   semantic-suggest | suggest-feedback | portfolio-projection | reconcile-evidence
 
@@ -562,7 +562,7 @@ Estado do projeto:
   state [init|refresh|diff]           Artefato nativo de project-state (sem subcomando = validar)
 
 Descoberta e métricas:
-  suggest | stats | usage | recurrence-effect | stacks
+  suggest | stats | insights | usage | recurrence-effect | stacks
   record-deployment | record-incident | dora-metrics | adoption-metrics
   semantic-suggest | suggest-feedback | portfolio-projection | reconcile-evidence
 

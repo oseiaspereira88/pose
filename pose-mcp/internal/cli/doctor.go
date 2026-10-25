@@ -262,6 +262,7 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	}
 	add("instance.pose-dir", "ok", text(".pose/ present", ".pose/ presente"), "")
 	diagnoseProjectState(root, add, text)
+	diagnoseReviewContinuity(root, add)
 
 	// 3. Native engine contract.
 	add("engine.native", "ok", text("native Go engine active; no script runtime required", "motor Go nativo ativo; runtime de scripts não é necessário"), "")

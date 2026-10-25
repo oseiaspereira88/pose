@@ -327,6 +327,8 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Subcommands: []SubcommandHelp{
 			{"bundle", "pose review bundle <scope|xref> [--seal] [--explain] [--expect-context <digest>]", "Prepare or seal an immutable review subject bundle", "Prepara ou sela o bundle imutável de revisão"},
 			{"brief", "pose review brief <bundle-id|scope> [--kind review|adjudication|smoke] [--note-file <path>] [--json]", "Render the request a delegated reviewer receives, from the sealed bundle alone", "Gera o pedido que um revisor delegado recebe, só a partir do bundle selado"},
+			{"resume", "pose review resume <run-id> [--wait-until-reset[=<max-duration>]] [--apply]", "Continue an interrupted run under its original attempt", "Retoma um run interrompido sob a tentativa original"},
+			{"status", "pose review status [--json]", "Show interrupted runs and their reset instants", "Mostra runs interrompidos e seus instantes de reset"},
 			{"dispatch", "pose review dispatch <bundle-id|scope> --via <adapter> [--kind review|adjudication|smoke] [--note-file <path>] [--apply]", "Run a configured reviewer on a disposable worktree at the sealed commit and record the run; never records an attestation", "Roda um revisor configurado num worktree descartável no commit selado e registra a execução; nunca registra atestação"},
 			{"auto-attest", "pose review auto-attest <scope|bundle-id> [--apply]", "Extract validation results and automatically record attestation", "Extrai resultados de validação e registra atestação automaticamente"},
 			{"attest", "pose review attest <bundle-id|scope|xref> --reviewer <id> --decision <decision> --evidence <ref> [--criterion ID|disposition|evidence|rationale] [--mapping CRITERION|DELTA|basis-or-disposition|rationale] [--prepared-by <p>] [--concluded-by <p>] [--confirmed-by <p> --confirmation-mode adopted-conclusions|authorized-operation] [--applied-by <p>] [--apply] [--expect-context <digest>]", "Record a manual review decision attestation; attribution roles are explicit, never derived from --reviewer, and a confirmation is bound to the exact content written; cross-project writes may target a qualified xref scope only with a fresh context digest", "Registra uma atestação manual; os papéis de atribuição são explícitos, nunca derivados de --reviewer, e uma confirmação fica vinculada ao conteúdo exato gravado; escritas externas podem usar escopo xref qualificado somente com digest de contexto atual"},
@@ -797,6 +799,16 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Examples: []string{
 			"pose migrate v7 --dry-run",
 		},
+	},
+	"insights": {
+		Name:            "insights",
+		SummaryEN:       "Display historical statistics and declared delegated-review draft metrics",
+		SummaryPtBR:     "Exibe estatísticas históricas e métricas declaradas de drafts de review delegado",
+		Usage:           "pose insights [workflows|tasks|contexts] [--since-days N] [--json|--html [--out file]]",
+		DescriptionEN:   "Alias of pose stats. Delegated metrics count immutable runs and attempts and disclose incomplete history; draft rates are not verified approval rates.",
+		DescriptionPtBR: "Alias de pose stats. As métricas delegadas contam runs e tentativas imutáveis e revelam histórico incompleto; taxas de drafts não são taxas de aprovação verificada.",
+		Flags:           []FlagHelp{{"--since-days <N>", "Count events in the window, classifying reruns against full history", "Conta eventos da janela e classifica reruns pelo histórico completo"}, {"--json", "Output JSON", "Emite JSON"}, {"--html", "Write HTML report", "Grava relatório HTML"}, {"--out <file>", "Confined HTML output path", "Caminho confinado do HTML"}},
+		Examples:        []string{"pose insights --json", "pose insights --since-days 14 --html"},
 	},
 	"stats": {
 		Name:            "stats",

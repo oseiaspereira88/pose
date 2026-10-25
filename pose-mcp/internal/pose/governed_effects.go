@@ -61,7 +61,12 @@ func (s Store) GovernedEffectRestrictions(phase string, slugs []string) ([]Oblig
 // governedEffectDiagnostic renders one restriction as the typed cause the
 // refusing surface reports.
 func governedEffectDiagnostic(o Obligation, phase, ref string) Diagnostic {
-	return NewDiagnostic("action-request-pending", fmt.Sprintf("%s restricts %s: %s", o.Source.Detail, phase, o.Message), ref, o.Source.Detail)
+	d := NewDiagnostic("action-request-pending", fmt.Sprintf("%s restricts %s: %s", o.Source.Detail, phase, o.Message), ref, o.Source.Detail)
+	d.NextStep = cloneActionNextStep(o.NextStep)
+	if d.NextStep != nil {
+		d.Condition = d.NextStep.Reason
+	}
+	return d
 }
 
 // ReleaseGovernedRefusal is the refusal a release write reports when an

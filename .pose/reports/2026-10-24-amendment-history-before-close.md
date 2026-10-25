@@ -1,0 +1,45 @@
+# Amendment history before close — implementation and review
+
+Date: 2026-10-24. Canonical spec: `pose-amendment-history-holds-before-close` (existing R1–R3, not a new copy). Baseline `b79744d2f3eda1cbb93435813d65b026f1fa845a`, branch `impl/pose-amendment-history-before-close`. B11 requires this prerequisite first; B11 itself remains separate. No remote publication, release, adoption or parent gitlink update.
+
+## Reproduction and correction
+
+Before the fix, TestAmendmentHistoryFirstChangeSeedsRecordedStart failed for both schema variants (only the change event existed), TestAmendmentHistoryInProgressWarnsBeforeDone had no warning, and TestAmendmentHistoryCloseRefusesBeforeTransition observed exit 0 / Closed despite invalid history. Local reproduction log `/tmp/pose-amendment-repro.log` is supplementary, not canonical delivery evidence.
+
+Root cause: amendment writing had no bridge from the atomic start snapshot, and history comparison lived only in done lint. The fix copies validated recorded start nodes into a new baseline event before the first valid non-baseline change. Schema 1 filters requirements, schema 2 preserves node state/relations. Current timestamp/declared author are retained, with exact start slug/plan digest/RecordedAt in rationale; no past review or signing is invented. A shared readonly history assessment serves lint and pre-transition close; close repeats it under the lifecycle lock shared with amend. Existing journals are never rewritten/repaired. No journal retains the opt-in contract.
+
+## Validation and review
+
+Expanded domain/CLI regressions passed, including new/changed/transition nodes, flat specs, malformed/incomplete/wrong-spec/tampered start, no-start/existing history, zero journal writes for refused requests, positive close and journal mutation after initial gates. An invalid verified-assumption fixture initially failed for missing Evidence/Scope; the fixture was corrected to comply with the existing contract, and the rerun passed. Catalog/MCP tools are unchanged; existing readers consume the same journal schemas.
+
+Actual separate review execution `/root/amendment_review` inspected R1–R3 and ran amendments/contract-node/trace/close-revalidation regressions: PASS. No blocking findings. Its low operational suggestion to identify the start precisely in seed rationale was applied. Reviewer did not execute the primary's complete suite, race or scanners and does not claim so. Native declared identity `agent:independent-codex-amendment-review` identifies that actual agent execution, with no human confirmation, cryptographic identity or cognitive-independence claim. Native attestation follows canonical evidence and bundle sealing.
+
+## Boundaries
+
+Explicit `--baseline` deliberately keeps its current-state snapshot contract. Hash checks do not prove materiality, rationale or review truthfulness. Old/incomplete journals require explicit repair; append/Sync failure is reported without rollback or truncation. Shared writers need the same lifecycle locking behavior. Generic adversarial corpus expansion is a low-priority open follow-up, not a claim that the permanent new regressions are absent. The accepted ADR records this compatibility change.
+
+## Verification notes
+
+`govulncheck ./...` passed without vulnerabilities. The initial full suite caught the direct-print ratchet improvement (amend.go prints dropped 21 to 19); the tracked baseline was lowered as required. The same concurrent collection also encountered existing ambient Git fixture status-128 failures in unrelated review tests. No Git engine code was changed; final canonical validation uses isolated TMPDIR/GIT_CEILING_DIRECTORIES and sequential producers. Full/race outcomes are recorded only after their successful reruns.
+
+## Rules applied during review
+
+Backend Go: domain gate reuse, propagated errors and cooperative lock. Security: no secrets or automatic policy/authority changes. Documentation style: canonical spec and EN/PT manual parity. Delivery evidence: registered integration required before close. Knowledge: consumed sealed-bundle decision log and B07 handoff; no upstream contribution staged without consent. Tech-debt assessment remains incomplete due to two preexisting invalid spec sources; one covered marker and zero uncovered do not prove global absence of debt.
+
+Race rerun with `TMPDIR=/var/tmp` passed both changed packages (pose 80.285s, CLI 98.065s). The ambient cause is `/tmp/.git`, which the engine's ancestor discovery sees even when fixtures are placed in a child directory; GIT_CEILING_DIRECTORIES is intentionally stripped by the production git wrapper. Final collection therefore uses `/var/tmp`. Structure check caught a missing `spec:` field in the new changelog fragment; corrected to the canonical template before the final collection.
+
+## Artifact reconciliation correction
+
+The first artifact-check had equal counts (21/21) but nine error findings: a staging-based action inventory misclassified newly added files as modified, including the canonical spec whose original creation belongs to the attributed history. Surface-check correctly blocked. Declarations were corrected against the immutable attributed actions; no lifecycle transition, seal or approval bypassed this failure. Fresh canonical results and index are regenerated after that declarative correction.
+
+## Final canonical evidence and native closeout
+
+- Final `TMPDIR=/var/tmp pose validate --strict --json-out .pose/results/delivery-validation.json`: PASS 151/151, 178.8s, HEAD `8a351407a57d3b729ff76b9977bba34e3c31e503`, zero failed/errored/skipped. Includes full Go suite, build/vet and registered `amendment-history-before-close-integration`. Earlier failed /tmp collections were not sealed.
+- Corrected artifact-check strict: exit 0, 21 claims/21 observations, no error findings. Historical unrelated orphan warnings remain.
+- Strict surface after final index refresh: targets=1, results=151, findings=0, provenance `sha256:878f01d989c7c0ac13710a4b5d3637d95a7b28343ea3bc00015fdd9272eeb9e2`.
+- Sealed bundle `rvb-3d245ecde2f3cfa6`, digest `sha256:3d245ecde2f3cfa631ec5d56ba09446410413f6e9524cff7e4e01116deb1e677`, 148 evidence entries.
+- Actual separate reviewer applied approved attestation `rva-1486040a903fcb38`, 15 criteria and structural mapping SD-bed17bf9 to D1, explicit prepared/concluded/applied declared agent attribution. `review verify` ready-to-close/fresh/approved and `review-check` passed.
+- Native `pose close spec:pose-amendment-history-holds-before-close` succeeded on 2026-10-24; lifecycle done/completed_at written through the guarded transition. No policy or lifecycle bypass.
+- Structure strict passed with 30 warnings; recurrence scanned 432 records, flagged 0 keys (one historical flapping key). Govulncheck and pinned CI gitleaks passed; the final declarations-only correction contains no secrets or product code.
+
+Final assessment refresh, strict spec lint and terminal closeout verification are performed before the evidence commit. The parent Harne8 pin and remote publication remain untouched. The next implementation unit consumes this gate in B11; that terminal-plan verification is not delivered by this prerequisite.

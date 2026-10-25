@@ -7,6 +7,7 @@ import "sort"
 // obligation, merges ids or decides what blocks — the effects already say
 // that. Ordering inside a group is by id, not by urgency.
 type Attention struct {
+	NextSteps map[string]ActionNextStep `json:"next_steps,omitempty"`
 	// Incomplete is true when any producer was not current; the reader sees
 	// this before anything that suggests continuing.
 	Incomplete bool               `json:"incomplete"`
@@ -61,6 +62,15 @@ func BuildAttention(report ObligationReport, actor string) Attention {
 		if o.Satisfaction != SatisfactionPending && o.Satisfaction != SatisfactionInvalidated {
 			continue
 		}
+		if o.NextStep != nil {
+			if a.NextSteps == nil {
+				a.NextSteps = map[string]ActionNextStep{}
+			}
+			step := *o.NextStep
+			step.Required = append([]string(nil), step.Required...)
+			a.NextSteps[o.ID] = step
+		}
+
 		forActor := false
 		if actor == "" {
 			forActor = o.Waiting == WaitingActor || o.Recipient.Principal != "" || o.Recipient.Role != ""

@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-1486040a903fcb38",
+  "bundle_id": "rvb-3d245ecde2f3cfa6",
+  "bundle_digest": "sha256:3d245ecde2f3cfa631ec5d56ba09446410413f6e9524cff7e4e01116deb1e677",
+  "reviewer": "agent:independent-codex-amendment-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Separate execution /root/amendment_review inspected recorded-start validity and declared-history limits. Identity is declared, not cryptographic or human-confirmed; cognitive independence is not observable. Cooperative locking excludes arbitrary filesystem edits; materiality remains review judgment."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Amend uses the existing nonblocking lifecycle lock shared by start and close; close repeats the history gate under that lock. Reviewer reran regression controls; primary full race on domain and CLI passed in isolated /var/tmp."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Schema 1 remains R-only and schema 2 requires explicit adoption. Missing journals remain opt-out, existing events stay append-only, and explicit baseline retains current-state meaning. B11 terminal-plan verification remains a separate scope."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Inspected malformed, tampered, wrong-spec and incomplete start refusal plus invalid requested-change zero writes. Append and Sync errors are propagated without truncation or automatic repair."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Registered integration exercises actual domain and CLI amendment/lint/close producers. Existing MCP reads unchanged schemas; no MCP write or catalog contract changed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Errors name history findings and explicit repair, in-progress lint warns without falsely claiming done enforcement, and seed rationale identifies its start source without backdating."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Intentional stricter close behavior is recorded in accepted ADR and changelog. Existing schema/adoption/legacy opt-in contracts are preserved; no migration or policy adoption is inferred."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Reviewer reran TestAmendmentHistory, TestAmend and ABMContractNodes plus trace and protected-close controls; final registered integration passed. Initial verified-assumption fixture failure was corrected with typed evidence and scope, not by weakening production validation."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "D1 addresses the two observed causes: first change omitted earlier start nodes, and done-only lint allowed an invalid transition. Seed from immutable recorded start and shared prospective gate correct them without a second journal or taxonomy.",
+      "mappings": [
+        {
+          "delta": "SD-bed17bf9",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The accepted ADR implements the existing R1-R3 contract through recorded-start seeding and the shared pretransition history gate."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Inspected EN/PT manuals, generated scaffold, canonical spec R1-R3, ADR and honest implementation report. Artifact action declarations were corrected after the strict gate caught staging-based classification; current sealed evidence follows that correction."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "No automatic repair, retry loop, past approval or backdated event is fabricated. Partial append remains inspectable and actionable. Recorded start source is identified, and existing nonempty journals are never silently reseeded."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "R1 seeded old hashes and unchanged nodes, R2 refused before lifecycle writes and rechecked under lock, and R3 emitted nonfatal in-progress warnings. Each has permanent tests and current registered integration evidence."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Only the canonical amendment prerequisite R1-R3 is delivered. B11 semantic terminal verification, release, remote publication and parent gitlink adoption are excluded. Print-site ratchet adjustment records an actual decrease."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Inspected path validation, shared lifecycle lock, invalid-history refusals and absence of automatic authority changes. Primary govulncheck and pinned secret scan passed; reviewer did not claim to execute those scanners."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Smallest sufficient solution reuses start projection, amendment schemas, lifecycle lock and one shared history assessment. Current-text auto-seeding would erase the change; a second journal or general recovery framework is unnecessary. Generic adversarial corpus expansion is explicitly owned as a low-priority follow-up."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Inspected primary current strict canonical 151/151, artifact-check strict 21 matched claims with zero errors, and strict surface targets1/results151/findings0. Reviewer independently reran targeted regressions; sealed integration anchors this inspected evidence."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Not separately executed by reviewer; inspected rules, bound structural observation and primary assessments. Debt assessment is incomplete due to two invalid old spec sources; recurrence found no flagged keys."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Not separately executed by reviewer; inspected rules, bound structural observation and primary assessments. Debt assessment is incomplete due to two invalid old spec sources; recurrence found no flagged keys."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Not separately executed by reviewer; inspected rules, bound structural observation and primary assessments. Debt assessment is incomplete due to two invalid old spec sources; recurrence found no flagged keys."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Not separately executed by reviewer; inspected rules, bound structural observation and primary assessments. Debt assessment is incomplete due to two invalid old spec sources; recurrence found no flagged keys."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate runs after this attestation; no premature terminal claim."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate runs after this attestation; no premature terminal claim."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Not separately executed by reviewer; inspected rules, bound structural observation and primary assessments. Debt assessment is incomplete due to two invalid old spec sources; recurrence found no flagged keys."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Inspected primary current strict canonical 151/151, artifact-check strict 21 matched claims with zero errors, and strict surface targets1/results151/findings0. Reviewer independently reran targeted regressions; sealed integration anchors this inspected evidence."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Inspected primary current strict canonical 151/151, artifact-check strict 21 matched claims with zero errors, and strict surface targets1/results151/findings0. Reviewer independently reran targeted regressions; sealed integration anchors this inspected evidence."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/amendment-history-before-close-integration",
+      "rationale": "Inspected primary current strict canonical 151/151, artifact-check strict 21 matched claims with zero errors, and strict surface targets1/results151/findings0. Reviewer independently reran targeted regressions; sealed integration anchors this inspected evidence."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/amendment-history-before-close-integration",
+    "structure:design-50e0383d917ae469"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-codex-amendment-review",
+    "concluded_by": "agent:independent-codex-amendment-review",
+    "applied_by": "agent:independent-codex-amendment-review"
+  },
+  "attested_at": "2026-10-25T00:15:44Z",
+  "path": ".pose/review-attestations/rva-1486040a903fcb38.json"
+}

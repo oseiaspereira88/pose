@@ -345,7 +345,7 @@ func writeJSON(w io.Writer, value any) int {
 
 func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|dispatch|attest|auto-attest|verify|record|attribution-supplement> ...")
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|dispatch|resume|status|attest|auto-attest|verify|record|attribution-supplement> ...")
 		return 2
 	}
 	if code, handled := routeQualifiedReviewScope(root, args, stdout, stderr); handled {
@@ -356,6 +356,10 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdReviewBundle(root, args[1:], stdout, stderr)
 	case "brief":
 		return cmdReviewBrief(root, args[1:], stdout, stderr)
+	case "resume":
+		return cmdReviewResume(root, args[1:], stdout, stderr)
+	case "status":
+		return cmdReviewStatus(root, args[1:], stdout, stderr)
 	case "dispatch":
 		return cmdReviewDispatch(root, args[1:], stdout, stderr)
 	case "attest":
@@ -369,7 +373,7 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 	case "attribution-supplement":
 		return cmdReviewAttributionSupplement(root, args[1:], stdout, stderr)
 	default:
-		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|dispatch|attest|auto-attest|verify|record|attribution-supplement> ...")
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|dispatch|resume|status|attest|auto-attest|verify|record|attribution-supplement> ...")
 		return 2
 	}
 }
@@ -593,6 +597,12 @@ func cmdReviewVerify(root string, args []string, stdout, stderr io.Writer) int {
 			for _, reuse := range verification.Assurance.Reuse {
 				render(stdout, stderr).Field("review_verify.reused."+reuse.Criterion, "from "+reuse.FromAttestation+"; "+reuse.Mode+"; "+reuse.State)
 			}
+		}
+		for _, run := range verification.DelegatedRuns {
+			render(stdout, stderr).Field("review_verify.run."+run.RunID, run.Adapter+" "+run.Status+" draft="+run.DraftDecision+" bundle="+run.BundleID+" reason="+run.Reason+fmt.Sprintf(" partial=%t resumes=%s limit_of=%s; ", run.Partial, run.Resumes, run.LimitOf)+run.Assurance)
+		}
+		for _, loss := range verification.DelegatedHistoryLosses {
+			render(stdout, stderr).Field("review_verify.delegated_history_loss", loss)
 		}
 		for _, warning := range verification.Warnings {
 			fmt.Fprintf(stdout, "[WARN] %s\n", warning)
@@ -1666,6 +1676,12 @@ func scopeRefForArtifact(ref posemodel.ArtifactRef) string {
 }
 
 func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Writer) int {
+	return cmdCloseLocalWithEffect(root, ref, guard, stdout, stderr, nil)
+}
+
+// The pipeline confirms a transition only from the write point, never exit 0
+// alone: another execution may have closed the scope since it planned.
+func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stderr io.Writer, transitioned func()) int {
 	store := cliGovernedStore(root)
 	// The gates below judge the artifact as it is now; the transition is
 	// published only over those same bytes (spec
@@ -1675,6 +1691,16 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 	if err != nil {
 		fmt.Fprintf(stderr, "pose close: %v\n", err)
 		return 1
+	}
+	// Repeating close on an already-done spec is a readonly terminal check,
+	// bounded by the same historical contract as closeout-check and the plan.
+	if scope, parseErr := posemodel.ParseScopeRef(ref); parseErr == nil && scope.Kind == "spec" && state.LifecycleDone {
+		if !state.Terminal {
+			render(io.Discard, stderr).Failure("pose close: terminal verification blocked: " + strings.Join(state.Blockers, "; ") + "; " + state.NextAction)
+			return 1
+		}
+		render(stdout, stderr).Field("close.already-satisfied", ref+"; applicable terminal verifier passed; no transition executed")
+		return 0
 	}
 	// Governed effects (spec pose-governed-effect-enforcement): this is the
 	// write point of the closeout transition, so an adopted, unsatisfied
@@ -1740,6 +1766,10 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 				return 1
 			}
 		}
+		if _, findings, err := store.InspectAmendmentHistory(*sp); err != nil || len(findings) > 0 {
+			render(io.Discard, stderr).Failure(fmt.Sprintf("pose close: amendment history gate failed: %v %s", err, strings.Join(findings, "; ")))
+			return 1
+		}
 		// The exit gate of a spec is its requirement trace: closing marks it
 		// done, and a done spec whose promises point at no evidence fails
 		// lint. Refusing here keeps `pose close` from producing what the
@@ -1798,6 +1828,17 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 			return 1
 		}
 	}
+	if scope.Kind == "spec" {
+		sp, err := store.GetSpec(scope.Slug)
+		if err != nil {
+			render(io.Discard, stderr).Failure("pose close: " + err.Error())
+			return 1
+		}
+		if _, findings, err := store.InspectAmendmentHistory(*sp); err != nil || len(findings) > 0 {
+			render(io.Discard, stderr).Failure(fmt.Sprintf("pose close: amendment history gate failed: %v %s", err, strings.Join(findings, "; ")))
+			return 1
+		}
+	}
 	if err := applyLifecycleDone(path, scope.Kind == "spec", judged); err != nil {
 		if errors.Is(err, posemodel.ErrPublishConflict) {
 			render(io.Discard, stderr).Failure("pose close: " + err.Error() + "; the gates judged other bytes, so run `pose close " + ref + "` again to judge the current ones")
@@ -1805,6 +1846,9 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 		}
 		fmt.Fprintf(stderr, "pose close: %v\n", err)
 		return 1
+	}
+	if transitioned != nil {
+		transitioned()
 	}
 	fmt.Fprintf(stdout, "Closed: %s\n", ref)
 	return 0

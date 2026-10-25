@@ -159,17 +159,21 @@ func VerifyRecordedActionSignature(r ActionRequest, event ActionEvent) error {
 	}
 	want := AnswerStatement(r, event.Actor, event.Answer, event.IdempotencyKey, event.Reason)
 	want.RequestDigest = event.RequestDigest
-	if sig.Statement != string(want.Canonical()) {
+	canonical, namespace := want.Canonical(), ActionAnswerNamespace
+	if event.LifecycleVersion != 0 {
+		canonical, namespace = LifecycleStatement(r, lifecycleResolution(event)).Canonical(), ActionLifecycleNamespace
+	}
+	if sig.Statement != string(canonical) {
 		return errors.New("the recorded statement is not this answer's")
 	}
-	check, err := VerifySSHSignature(sig.Signature, ActionAnswerNamespace, []byte(sig.Statement))
+	check, err := VerifySSHSignature(sig.Signature, namespace, []byte(sig.Statement))
 	if err != nil {
 		return err
 	}
 	if check.Key.AuthorizedKey() != sig.Key {
 		return errors.New("the signature was made by another key than the one recorded")
 	}
-	if sig.Namespace != ActionAnswerNamespace || sig.Fingerprint != check.Key.Fingerprint() ||
+	if sig.Namespace != namespace || sig.Fingerprint != check.Key.Fingerprint() ||
 		sig.UserPresent != check.UserPresent || sig.UserVerified != check.UserVerified {
 		return errors.New("the recorded signature metadata does not match its proof")
 	}
@@ -181,7 +185,11 @@ func VerifyRecordedActionSignature(r ActionRequest, event ActionEvent) error {
 func verifyActionSignature(policy ActionPolicy, r ActionRequest, res ActionResolution) (*ActionSSHSignature, error) {
 	fail := func(reason string) error { return fmt.Errorf("%w: %s", ErrActionVerificationFailed, reason) }
 	statement := AnswerStatement(r, res.Actor, res.Answer, res.IdempotencyKey, res.Reason)
-	check, err := VerifySSHSignature(res.Signature, ActionAnswerNamespace, statement.Canonical())
+	canonical, namespace := statement.Canonical(), ActionAnswerNamespace
+	if res.Type != "" && res.Type != ActionEventAnswered {
+		canonical, namespace = LifecycleStatement(r, res).Canonical(), ActionLifecycleNamespace
+	}
+	check, err := VerifySSHSignature(res.Signature, namespace, canonical)
 	if err != nil {
 		return nil, fail(err.Error() + " (it must sign `pose action statement` for this request version, actor, answer and idempotency key)")
 	}
@@ -198,7 +206,7 @@ func verifyActionSignature(policy ActionPolicy, r ActionRequest, res ActionResol
 		}
 		return nil, fail("the signing key " + check.Key.Fingerprint() + " is not registered to " + res.Actor + " in .pose/policy/actions.json (`pose identity add`)")
 	}
-	return &ActionSSHSignature{Namespace: ActionAnswerNamespace, Statement: string(statement.Canonical()), Signature: strings.TrimSpace(res.Signature) + "\n",
+	return &ActionSSHSignature{Namespace: namespace, Statement: string(canonical), Signature: strings.TrimSpace(res.Signature) + "\n",
 		Key: check.Key.AuthorizedKey(), Fingerprint: check.Key.Fingerprint(), UserPresent: check.UserPresent, UserVerified: check.UserVerified}, nil
 }
 

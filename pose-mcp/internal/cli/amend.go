@@ -102,6 +102,15 @@ func cmdAmend(args []string, stdout, stderr io.Writer) int {
 			specPath = filepath.Join(specPath, "spec.md")
 		}
 	}
+	// Amendment and close share the lifecycle lock; queries remain readonly.
+	if !nodes && !list {
+		unlock, err := posepkg.LockSpecLifecycle(root, slug, "amend.append")
+		if err != nil {
+			render(stdout, stderr).Failure("pose amend: " + err.Error())
+			return 1
+		}
+		defer unlock()
+	}
 	raw, err := os.ReadFile(specPath)
 	if err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "pose amend: spec not found: %s\n", "pose amend: spec não encontrada: %s\n"), specPath)
@@ -179,8 +188,19 @@ func cmdAmend(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 
+	var seed *posepkg.Amendment
+	if len(events) == 0 && !baseline {
+		seed, err = (posepkg.Store{Root: root}).AmendmentBaselineFromStart(slug, adopted, author, time.Now().UTC().Format(time.RFC3339))
+		if err != nil {
+			render(stdout, stderr).Failure("pose amend: " + err.Error())
+			return 1
+		}
+		if seed != nil {
+			events = append(events, *seed)
+		}
+	}
 	if adopted {
-		return appendNodeAmendment(root, slug, logPath, projection, events, baseline, ids, change, rationale, author, reviewer, stdout, stderr)
+		return appendNodeAmendment(root, slug, logPath, projection, events, seed, baseline, ids, change, rationale, author, reviewer, stdout, stderr)
 	}
 	if change == "transition" {
 		render(stdout, stderr).Failure("pose amend: --change transition needs the contract_nodes_version capability")
@@ -236,18 +256,7 @@ func cmdAmend(args []string, stdout, stderr io.Writer) int {
 		}
 	}
 
-	line, err := json.Marshal(event)
-	if err != nil {
-		fmt.Fprintln(stderr, err)
-		return 1
-	}
-	f, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
-	if err != nil {
-		fmt.Fprintln(stderr, err)
-		return 1
-	}
-	defer f.Close()
-	if _, err := f.Write(append(line, '\n')); err != nil {
+	if err := appendAmendmentRecords(logPath, seed, event); err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1
 	}
@@ -262,7 +271,7 @@ func cmdAmend(args []string, stdout, stderr io.Writer) int {
 // appendNodeAmendment records a schema-2 event under the adopted
 // contract_nodes_version capability: every node of a baseline, or the named
 // R/A/D nodes with their state before and after.
-func appendNodeAmendment(root, slug, logPath string, projection posepkg.ContractNodesProjection, events []posepkg.Amendment, baseline bool, ids []string, change, rationale, author, reviewer string, stdout, stderr io.Writer) int {
+func appendNodeAmendment(root, slug, logPath string, projection posepkg.ContractNodesProjection, events []posepkg.Amendment, seed *posepkg.Amendment, baseline bool, ids []string, change, rationale, author, reviewer string, stdout, stderr io.Writer) int {
 	r := render(stdout, stderr)
 	current := posepkg.CurrentNodeStates(projection)
 	acknowledged := posepkg.AcknowledgedNodeStates(events)
@@ -343,18 +352,7 @@ func appendNodeAmendment(root, slug, logPath string, projection posepkg.Contract
 		}
 	}
 	sort.Strings(event.IDs)
-	line, err := json.Marshal(event)
-	if err != nil {
-		r.Failure(err.Error())
-		return 1
-	}
-	f, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
-	if err != nil {
-		r.Failure(err.Error())
-		return 1
-	}
-	defer f.Close()
-	if _, err := f.Write(append(line, '\n')); err != nil {
+	if err := appendAmendmentRecords(logPath, seed, event); err != nil {
 		r.Failure(err.Error())
 		return 1
 	}
@@ -364,4 +362,39 @@ func appendNodeAmendment(root, slug, logPath string, projection posepkg.Contract
 	}
 	r.Field("amend.recorded", fmt.Sprintf("[%s] %s → %s", event.Change, strings.Join(event.IDs, ","), logPath))
 	return 0
+}
+
+// Validate before calling: both records are serialized before any append. A
+// failed/torn append is reported; existing journal bytes are never truncated.
+func appendAmendmentRecords(path string, seed *posepkg.Amendment, event posepkg.Amendment) error {
+	records := []posepkg.Amendment{}
+	if seed != nil {
+		records = append(records, *seed)
+	}
+	records = append(records, event)
+	var data []byte
+	for _, record := range records {
+		line, err := json.Marshal(record)
+		if err != nil {
+			return err
+		}
+		data = append(data, line...)
+		data = append(data, '\n')
+	}
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	if err != nil {
+		return err
+	}
+	n, writeErr := f.Write(data)
+	if writeErr == nil && n != len(data) {
+		writeErr = io.ErrShortWrite
+	}
+	if writeErr == nil {
+		writeErr = f.Sync()
+	}
+	closeErr := f.Close()
+	if writeErr != nil {
+		return writeErr
+	}
+	return closeErr
 }

@@ -56,7 +56,7 @@ func TestReviewDispatchOriginMutationDuringRunIsHistoricalFailure(t *testing.T) 
 	command := "cat >/dev/null; printf 'package changed\\n' > '" + filepath.Join(root, "pose-mcp/lib.go") + "'; echo reviewer-result"
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"edit": {Command: []string{"sh", "-c", command}, Vendor: "test", Model: "test"}})
 	code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "edit", "--apply")
-	if code == 0 || !strings.Contains(out, "review_dispatch.status=stale") {
+	if code == 0 || !strings.Contains(out, "review_dispatch.status=failed") {
 		t.Fatalf("origin changed: %d %s", code, out)
 	}
 	runs, err := (posemodel.Store{Root: root}).ListReviewRuns("")
@@ -143,11 +143,11 @@ func TestARunWhosePolicyChangedWhileItRanIsStale(t *testing.T) {
 		"racer": {Command: []string{"sh", "-c", "cat >/dev/null; echo '\n' >> '" + root + "/.pose/policy/review.json'; echo decision: approved"}, Vendor: "test", Model: "r-1", Timeout: "30s"},
 	})
 	code, out := dispatchOnce(t, root, "racer")
-	if code == 0 || !strings.Contains(out, "review_dispatch.status=stale") || !strings.Contains(out, "policy changed") {
+	if code == 0 || !strings.Contains(out, "review_dispatch.status=failed") || !strings.Contains(out, "policy changed") {
 		t.Fatalf("%d %s", code, out)
 	}
 	runs, _ := posemodel.Store{Root: root}.ListReviewRuns("")
-	if len(runs) != 1 || runs[0].Status != posemodel.ReviewRunStale || runs[0].Output == "" {
+	if len(runs) != 1 || runs[0].Status != posemodel.ReviewRunFailed || runs[0].Output == "" {
 		t.Fatalf("the stale run must stay on the record as history: %+v", runs)
 	}
 }

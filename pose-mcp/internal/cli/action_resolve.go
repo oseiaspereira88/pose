@@ -133,8 +133,14 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 			}
 		}
 	}
+	if apply && signKey != "" {
+		if _, err := store.PreflightActionResolution(res, time.Now()); err != nil {
+			out.Failure("pose action " + verb + ": " + err.Error())
+			return 1
+		}
+	}
 	if signKey != "" || signatureFile != "" {
-		if res.Type != posemodel.ActionEventAnswered || signKey != "" && signatureFile != "" {
+		if signKey != "" && signatureFile != "" {
 			return usageError(stderr, "--sign or --signature (one of them) proves an answer: use it with pose action resolve")
 		}
 		if signatureFile != "" {
@@ -152,8 +158,13 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 				out.Failure("pose action " + verb + ": " + err.Error())
 				return 1
 			}
-			statement := posemodel.AnswerStatement(view.Request, res.Actor, res.Answer, res.IdempotencyKey, res.Reason)
-			signature, err := sshSign(signKey, statement.Canonical())
+			statement := posemodel.AnswerStatement(view.Request, res.Actor, res.Answer, res.IdempotencyKey, res.Reason).Canonical()
+			namespace := posemodel.ActionAnswerNamespace
+			if res.Type != posemodel.ActionEventAnswered {
+				statement = posemodel.LifecycleStatement(view.Request, res).Canonical()
+				namespace = posemodel.ActionLifecycleNamespace
+			}
+			signature, err := sshSignNamespace(signKey, statement, namespace)
 			if err != nil {
 				out.Failure("pose action " + verb + ": " + err.Error())
 				return 1
@@ -162,26 +173,37 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 		}
 	}
 	if !apply {
-		view, err := store.LoadActionRequest(res.RequestID)
+		preflight, err := store.PreflightActionResolution(res, time.Now())
+		if jsonOutput {
+			body := map[string]any{"preview": true, "request": preflight.Request, "admissible": preflight.Admissible, "acceptance": preflight.Acceptance, "proof_pending": preflight.ProofPending, "audit_persisted": false, "refusal": preflight.Refusal, "presence_policy": presencePolicy, "presence_evaluation": "not-evaluated"}
+			if res.Type != posemodel.ActionEventAnswered {
+				body["operation"] = res.Type
+				body["statement"] = string(posemodel.LifecycleStatement(preflight.Request.Request, res).Canonical())
+				body["namespace"] = posemodel.ActionLifecycleNamespace
+			}
+			code := writeJSON(stdout, body)
+			if err != nil {
+				return 1
+			}
+			return code
+		}
+		out.Field("action.preview", "true")
+		out.Field("action.acceptance", "not-certified")
+		out.Field("action.proof_pending", fmt.Sprint(preflight.ProofPending))
+		out.Field("action.audit_persisted", "false")
 		if err != nil {
 			out.Failure("pose action " + verb + ": " + err.Error())
 			return 1
 		}
-		if res.Type == posemodel.ActionEventAnswered && jsonOutput {
-			return writeJSON(stdout, map[string]any{"preview": true, "request": view, "presence_policy": presencePolicy, "presence_evaluation": "not-evaluated", "apply": false})
-		}
-		out.Field("action.preview", "true")
 		if res.Type == posemodel.ActionEventAnswered {
 			out.Field("action.presence_policy.scope", presencePolicy.Scope)
 			out.Field("action.presence_policy.evaluation", presencePolicy.Evaluation)
-			if presencePolicy.MigrationRequired {
-				out.Field("action.presence_policy.migration", "required before a new human answer; explicitly choose schema 2 and scope")
-			}
 		}
-		renderActionView(out, view)
-		out.Field("action.apply", "false (rerun with --apply to record the "+verb+")")
+		renderActionView(out, preflight.Request)
+		out.Field("action.apply", "false (apply revalidates the current request, authority and proof)")
 		return 0
 	}
+
 	view, err := store.ResolveActionRequest(res, time.Now())
 	if err != nil {
 		out.Failure("pose action " + verb + ": " + err.Error())
@@ -197,11 +219,14 @@ func cmdActionResolve(root, verb string, args []string, stdout, stderr io.Writer
 // sshSign signs message with the user's own ssh-keygen; POSE hands it the key
 // path and never reads the key. A security key asks for its touch here.
 func sshSign(keyPath string, message []byte) (string, error) {
+	return sshSignNamespace(keyPath, message, posemodel.ActionAnswerNamespace)
+}
+func sshSignNamespace(keyPath string, message []byte, namespace string) (string, error) {
 	keygen, err := exec.LookPath("ssh-keygen")
 	if err != nil {
 		return "", errors.New("ssh-keygen is not installed; sign `pose action statement` elsewhere and pass --signature <file>")
 	}
-	cmd := exec.Command(keygen, "-Y", "sign", "-f", keyPath, "-n", posemodel.ActionAnswerNamespace)
+	cmd := exec.Command(keygen, "-Y", "sign", "-f", keyPath, "-n", namespace)
 	cmd.Stdin = bytes.NewReader(message)
 	var signature, diagnostics bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &signature, &diagnostics
@@ -220,11 +245,26 @@ func cmdActionStatement(root string, args []string, stdout, stderr io.Writer) in
 		return usageError(stderr, usage)
 	}
 	id, actor, answer, key, reason := args[0], "", "", "", ""
+	operation, successor, successorDigest, requestDigest := posemodel.ActionEventAnswered, "", "", ""
+	role := ""
+	revision := 0
 	for i := 1; i < len(args); i++ {
 		if i+1 >= len(args) {
 			return usageError(stderr, usage)
 		}
 		switch args[i] {
+		case "--role":
+			role = args[i+1]
+		case "--operation":
+			operation = args[i+1]
+		case "--expected-revision":
+			revision, _ = strconv.Atoi(args[i+1])
+		case "--request-digest":
+			requestDigest = args[i+1]
+		case "--successor-id":
+			successor = args[i+1]
+		case "--successor-digest":
+			successorDigest = args[i+1]
 		case "--actor":
 			actor = args[i+1]
 		case "--answer":
@@ -238,7 +278,7 @@ func cmdActionStatement(root string, args []string, stdout, stderr io.Writer) in
 		}
 		i++
 	}
-	if actor == "" || answer == "" || key == "" {
+	if actor == "" || key == "" || operation == posemodel.ActionEventAnswered && answer == "" {
 		return usageError(stderr, usage)
 	}
 	view, err := posemodel.Store{Root: root}.LoadActionRequest(id)
@@ -247,6 +287,29 @@ func cmdActionStatement(root string, args []string, stdout, stderr io.Writer) in
 		return 1
 	}
 	// Raw bytes, not rendered fields: what is printed is what gets signed.
-	_, _ = stdout.Write(posemodel.AnswerStatement(view.Request, actor, answer, key, reason).Canonical())
+	if operation == posemodel.ActionEventAnswered {
+		if revision == 0 {
+			revision = view.Revision
+		}
+		if requestDigest == "" {
+			requestDigest = view.Request.RequestDigest
+		}
+		if _, err := (posemodel.Store{Root: root}).PreflightActionResolution(posemodel.ActionResolution{RequestID: id, Type: operation, Actor: actor, Role: role, Answer: answer, Reason: reason, IdempotencyKey: key, RequestDigest: requestDigest, ExpectedRevision: revision}, time.Now()); err != nil {
+			render(stdout, stderr).Failure("pose action statement: " + err.Error())
+			return 1
+		}
+		_, _ = stdout.Write(posemodel.AnswerStatement(view.Request, actor, answer, key, reason).Canonical())
+	} else {
+		if operation != posemodel.ActionEventWaived && operation != posemodel.ActionEventCancelled && operation != posemodel.ActionEventSuperseded {
+			return usageError(stderr, "unsupported lifecycle operation")
+		}
+		if revision < 1 || reason == "" {
+			return usageError(stderr, "lifecycle statement needs --expected-revision and --reason")
+		}
+		if requestDigest == "" {
+			requestDigest = view.Request.RequestDigest
+		}
+		_, _ = stdout.Write(posemodel.LifecycleStatement(view.Request, posemodel.ActionResolution{Type: operation, Actor: actor, RequestDigest: requestDigest, ExpectedRevision: revision, IdempotencyKey: key, Reason: reason, SuccessorID: successor, SuccessorDigest: successorDigest}).Canonical())
+	}
 	return 0
 }

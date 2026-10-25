@@ -19,7 +19,8 @@ import (
 // the running execution (Waiting), and which phase of which scope it
 // restricts (Effects).
 type Obligation struct {
-	SchemaVersion int `json:"schema_version"`
+	NextStep      *ActionNextStep `json:"next_step,omitempty"`
+	SchemaVersion int             `json:"schema_version"`
 	// ID depends on the logical identity of the source, never on message
 	// text, list order or query time.
 	ID      string           `json:"id"`

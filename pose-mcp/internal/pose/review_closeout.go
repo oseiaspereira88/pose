@@ -417,6 +417,8 @@ type ReviewEvaluation struct {
 }
 
 type CloseoutState struct {
+	VerificationBasis   string                            `json:"verification_basis,omitempty"`
+	Limitations         []string                          `json:"limitations,omitempty"`
 	SchemaVersion       int                               `json:"schema_version"`
 	Scope               string                            `json:"scope"`
 	ScopeDigest         string                            `json:"scope_digest"`
@@ -2360,6 +2362,14 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 		return CloseoutState{}, err
 	}
 	state := CloseoutState{SchemaVersion: ReviewSchemaVersion, Scope: ref, ScopeDigest: review.ScopeDigest, Review: review, LifecycleDone: true, Blockers: append([]string{}, review.Blockers...)}
+	state.VerificationBasis = "applicable-review-contract"
+	if review.BundleID != "" {
+		state.VerificationBasis = "sealed-review-contract"
+	}
+	if !review.Required {
+		state.VerificationBasis = "review-not-required-under-applicable-policy"
+		state.Limitations = []string{"Review is not required under the applicable policy/cutoff; this does not establish a historical execution receipt."}
+	}
 	var diagnostics []Diagnostic
 	for _, blocker := range review.Blockers {
 		diagnostics = append(diagnostics, OpaqueDiagnostic("review-blocker", DiagnosticCloseout, blocker))
@@ -2378,6 +2388,14 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 			return state, err
 		}
 		state.LifecycleDone = sp.Status == "done"
+		if _, findings, historyErr := s.InspectAmendmentHistory(*sp); historyErr != nil {
+			block(OpaqueDiagnostic("amendment-history-invalid", DiagnosticCloseout, "amendment history: "+historyErr.Error()))
+			state.Limitations = append(state.Limitations, "Amendment history could not be verified; inspect and repair it explicitly.")
+		} else {
+			for _, finding := range findings {
+				block(OpaqueDiagnostic("amendment-history-invalid", DiagnosticCloseout, "amendment history: "+finding))
+			}
+		}
 	case "milestone":
 		rm, err := s.GetRoadmap(scope.Roadmap)
 		if err != nil {

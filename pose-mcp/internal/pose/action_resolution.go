@@ -39,28 +39,30 @@ type ActionPolicy struct {
 
 // ActionResolution is a requested write to a request's journal.
 type ActionResolution struct {
-	RequestID        string
-	Type             string // answered | cancelled | waived | invalidated
-	Actor            string
-	Execution        string
-	Channel          string
-	Role             string
-	RequestDigest    string
-	Answer           string
-	Evidence         []string
-	Reason           string
-	PreparedBy       string
-	AppliedBy        string
-	ConfirmationMode string
-	IdempotencyKey   string
+	RequestID        string   `json:"request_id,omitempty"`
+	Type             string   `json:"operation,omitempty"` // answered | cancelled | waived | invalidated
+	Actor            string   `json:"actor,omitempty"`
+	Execution        string   `json:"execution,omitempty"`
+	Channel          string   `json:"channel,omitempty"`
+	Role             string   `json:"role,omitempty"`
+	RequestDigest    string   `json:"request_digest,omitempty"`
+	Answer           string   `json:"answer,omitempty"`
+	Evidence         []string `json:"evidence,omitempty"`
+	Reason           string   `json:"reason,omitempty"`
+	PreparedBy       string   `json:"prepared_by,omitempty"`
+	AppliedBy        string   `json:"applied_by,omitempty"`
+	ConfirmationMode string   `json:"confirmation_mode,omitempty"`
+	IdempotencyKey   string   `json:"idempotency_key,omitempty"`
 	// ExpectedRevision is the journal length the writer read. A write
 	// against an older revision is refused: two answers never both land.
-	ExpectedRevision int
-	Claim            *ActionAuthorityClaim
-	Envelope         *ActionClaimEnvelope
+	ExpectedRevision int                   `json:"expected_revision,omitempty"`
+	Claim            *ActionAuthorityClaim `json:"claim,omitempty"`
+	Envelope         *ActionClaimEnvelope  `json:"envelope,omitempty"`
 	// Signature is an armored SSHSIG over AnswerStatement, made by a key
 	// registered to Actor.
-	Signature string
+	Signature       string `json:"signature,omitempty"`
+	SuccessorID     string `json:"successor_id,omitempty"`
+	SuccessorDigest string `json:"successor_digest,omitempty"`
 }
 
 // LoadActionPolicy reads the policy; an absent file is the empty declared
@@ -168,54 +170,62 @@ func (s Store) ResolveActionRequest(res ActionResolution, now time.Time) (Action
 	if err != nil {
 		return ActionRequestView{}, err
 	}
+	_, event, _, err := s.prepareActionResolutionAgainst(view, res, now, false)
+	if err != nil {
+		return ActionRequestView{}, err
+	}
+	return s.appendActionEvent(view.Request.ID, event, res.ExpectedRevision, now)
+}
+
+func (s Store) prepareActionResolutionAgainst(view ActionRequestView, res ActionResolution, now time.Time, allowMissingProof bool) (ActionRequestView, ActionEvent, bool, error) {
 	r := view.Request
 	project, err := s.WriteProjectID()
 	if err != nil {
-		return ActionRequestView{}, err
+		return view, ActionEvent{}, false, err
 	}
 	if r.Project != project {
-		return ActionRequestView{}, fmt.Errorf("%w: request %s belongs to %s, this project is %s", ErrActionForeignProject, r.ID, r.Project, project)
+		return view, ActionEvent{}, false, fmt.Errorf("%w: request %s belongs to %s, this project is %s", ErrActionForeignProject, r.ID, r.Project, project)
 	}
 	if !validReviewPrincipal(res.Actor) {
-		return ActionRequestView{}, fmt.Errorf("%w: actor must be an agent: or human: principal", ErrActionNotAuthorized)
+		return view, ActionEvent{}, false, fmt.Errorf("%w: actor must be an agent: or human: principal", ErrActionNotAuthorized)
 	}
 	if res.ExpectedRevision < 1 {
-		return ActionRequestView{}, fmt.Errorf("%w: a resolution names the revision it was written against", ErrActionRevisionConflict)
+		return view, ActionEvent{}, false, fmt.Errorf("%w: a resolution names the revision it was written against", ErrActionRevisionConflict)
 	}
 	if strings.TrimSpace(res.IdempotencyKey) == "" {
-		return ActionRequestView{}, errors.New("pose: an idempotency key is required so a retry never records twice")
+		return view, ActionEvent{}, false, errors.New("pose: an idempotency key is required so a retry never records twice")
 	}
 	if res.RequestDigest != r.RequestDigest {
-		return ActionRequestView{}, fmt.Errorf("%w: the answer was given for %s; the request is now %s", ErrActionStaleDigest, res.RequestDigest, r.RequestDigest)
+		return view, ActionEvent{}, false, fmt.Errorf("%w: the answer was given for %s; the request is now %s", ErrActionStaleDigest, res.RequestDigest, r.RequestDigest)
 	}
 	policy, err := LoadActionPolicyIn(s.fsys(), s.Root)
 	if err != nil {
-		return ActionRequestView{}, err
+		return view, ActionEvent{}, false, err
 	}
 	event := ActionEvent{Type: res.Type, At: now.UTC().Truncate(time.Second).Format(time.RFC3339), Actor: res.Actor, Execution: res.Execution, Channel: res.Channel,
 		RequestDigest: res.RequestDigest, Answer: res.Answer, Evidence: res.Evidence, Reason: strings.TrimSpace(res.Reason), PreparedBy: res.PreparedBy, AppliedBy: res.AppliedBy,
 		ConfirmationMode: res.ConfirmationMode, IdempotencyKey: res.IdempotencyKey, Claim: res.Claim, Envelope: res.Envelope, Assurance: ReviewIdentityAssuranceDeclared}
 	for _, p := range []string{res.PreparedBy, res.AppliedBy} {
 		if p != "" && !validReviewPrincipal(p) {
-			return ActionRequestView{}, errors.New("pose: prepared_by and applied_by must be agent: or human: principals")
+			return view, ActionEvent{}, false, errors.New("pose: prepared_by and applied_by must be agent: or human: principals")
 		}
 	}
 	switch res.ConfirmationMode {
 	case "", ReviewConfirmationAdoptedConclusions, ReviewConfirmationAuthorizedOperation:
 	default:
-		return ActionRequestView{}, fmt.Errorf("pose: unknown confirmation_mode %q", res.ConfirmationMode)
+		return view, ActionEvent{}, false, fmt.Errorf("pose: unknown confirmation_mode %q", res.ConfirmationMode)
 	}
 	switch res.Type {
 	case ActionEventAnswered:
 		if !actionAnswerAdmitted(r, res.Answer) {
-			return ActionRequestView{}, fmt.Errorf("%w: %q is not an answer %s admits", ErrActionInvalidAnswer, res.Answer, r.ID)
+			return view, ActionEvent{}, false, fmt.Errorf("%w: %q is not an answer %s admits", ErrActionInvalidAnswer, res.Answer, r.ID)
 		}
 		if r.Kind == ActionExternalOperation && res.Answer == "done" && len(res.Evidence) == 0 {
-			return ActionRequestView{}, fmt.Errorf("%w: an external operation reported done needs an evidence reference", ErrActionInvalidAnswer)
+			return view, ActionEvent{}, false, fmt.Errorf("%w: an external operation reported done needs an evidence reference", ErrActionInvalidAnswer)
 		}
 		role, err := authorizeActionActor(policy, r, res.Actor, res.Role)
 		if err != nil {
-			return ActionRequestView{}, err
+			return view, ActionEvent{}, false, err
 		}
 		event.Role = role
 		// A signature by a registered key and a trusted issuer's claim are
@@ -224,41 +234,61 @@ func (s Store) ResolveActionRequest(res ActionResolution, now time.Time) (Action
 		if strings.TrimSpace(res.Signature) != "" {
 			signature, err := verifyActionSignature(policy, r, res)
 			if err != nil {
-				return ActionRequestView{}, err
+				return view, ActionEvent{}, false, err
 			}
 			event.SSHSignature = signature
 			event.Assurance = ReviewIdentityAssuranceVerified
 		}
-		if res.Claim != nil || res.Envelope != nil || policy.IdentityAssurance == ReviewIdentityAssuranceVerified && event.SSHSignature == nil {
+		if res.Claim != nil || res.Envelope != nil || policy.IdentityAssurance == ReviewIdentityAssuranceVerified && event.SSHSignature == nil && !allowMissingProof {
 			if err := s.verifyActionClaimAt(r, res, role, now); err != nil {
-				return ActionRequestView{}, err
+				return view, ActionEvent{}, false, err
 			}
 			event.Assurance = ReviewIdentityAssuranceVerified
 		}
-		if err := admitActionPresence(policy, res.Actor, event.SSHSignature, res.Claim != nil || res.Envelope != nil); err != nil {
-			return ActionRequestView{}, err
+		if err := policy.CheckPresenceMigration(res.Actor); err != nil {
+			return view, ActionEvent{}, false, err
+		}
+		if !(allowMissingProof && res.Signature == "") {
+			if err := admitActionPresence(policy, res.Actor, event.SSHSignature, res.Claim != nil || res.Envelope != nil); err != nil {
+				return view, ActionEvent{}, false, err
+			}
 		}
 	case ActionEventCancelled, ActionEventWaived:
-		if event.Reason == "" {
-			return ActionRequestView{}, fmt.Errorf("pose: a %s needs a reason", res.Type)
-		}
-		// The requester may withdraw its own question; a waiver dispenses
-		// with the condition, so it needs the request's authority.
-		if !(res.Type == ActionEventCancelled && res.Actor == r.RequestedBy.Principal) {
-			role, err := authorizeActionActor(policy, r, res.Actor, res.Role)
-			if err != nil {
-				return ActionRequestView{}, err
-			}
-			event.Role = role
+		event = lifecycleEvent(res, now)
+		if err := s.admitLifecycleMode(r, &event, res.Signature, now, now, allowMissingProof); err != nil {
+			return view, ActionEvent{}, false, err
 		}
 	case ActionEventInvalidated:
-		if event.Reason == "" {
-			return ActionRequestView{}, errors.New("pose: an invalidation needs a reason")
-		}
+		return view, ActionEvent{}, false, fmt.Errorf("%w: invalidation is an engine observation of material change, not an actor resolution", ErrActionNotAuthorized)
 	default:
-		return ActionRequestView{}, fmt.Errorf("pose: unknown resolution type %q", res.Type)
+		return view, ActionEvent{}, false, fmt.Errorf("pose: unknown resolution type %q", res.Type)
 	}
-	return s.appendActionEvent(r.ID, event, res.ExpectedRevision, now)
+
+	// A retry is recognized before state/revision checks, as at the writer.
+	for _, prior := range view.Events {
+		if prior.IdempotencyKey != "" && prior.IdempotencyKey == event.IdempotencyKey {
+			if view.State == ActionStateInvalidated || view.SubjectUnknown {
+				return view, ActionEvent{}, false, ErrActionNotOpen
+			}
+			if !sameActionIntent(prior, event) {
+				return view, ActionEvent{}, false, ErrActionIdempotencyConflict
+			}
+			return view, event, actionProofPending(policy, res), nil
+		}
+	}
+	if res.ExpectedRevision != view.Revision {
+		return view, ActionEvent{}, false, ErrActionRevisionConflict
+	}
+	if view.Recovery != nil && view.Recovery.Phase != "complete" {
+		return view, ActionEvent{}, false, ErrActionRecoveryPending
+	}
+	if view.SubjectUnknown {
+		return view, ActionEvent{}, false, ErrActionNotOpen
+	}
+	if !actionResolutionStateAdmitted(view, res.Type) {
+		return view, ActionEvent{}, false, ErrActionNotOpen
+	}
+	return view, event, actionProofPending(policy, res), nil
 }
 
 func actionAnswerAdmitted(r ActionRequest, answer string) bool {
@@ -331,8 +361,12 @@ func (s Store) verifyActionClaimWithin(r ActionRequest, res ActionResolution, ro
 		return fail("the claim signs another answer")
 	case claim.Reason != strings.TrimSpace(res.Reason):
 		return fail("the claim does not sign the answer's reason")
-	case claim.SchemaVersion != 1:
-		return fail("unsupported claim schema")
+	case res.Type != "" && res.Type != ActionEventAnswered && claim.SchemaVersion != 2:
+		return fail("lifecycle proof requires claim schema 2")
+	case (res.Type == "" || res.Type == ActionEventAnswered) && (claim.SchemaVersion != 1 || claim.Operation != ""):
+		return fail("unsupported answer claim schema or operation")
+	case claim.SchemaVersion == 2 && (claim.Operation != res.Type || claim.ExpectedRevision != res.ExpectedRevision || claim.IdempotencyKey != res.IdempotencyKey || claim.SuccessorID != res.SuccessorID || claim.SuccessorDigest != res.SuccessorDigest):
+		return fail("the lifecycle claim does not bind this operation, revision, idempotency key and successor")
 	}
 	// The claim's role is the kind of principal (human or agent), as in
 	// review authority; the request's role is checked against the policy.

@@ -1,7 +1,7 @@
 # Component Assessment: docs-site (`docs-site`)
 
 > **Mapeamento de Módulo POSE**: `docs-site`
-> **Data de Avaliação**: 2026-10-24T05:17:15Z | **Baseline Commit**: 5b4161b83bb0
+> **Data de Avaliação**: 2026-10-25T14:51:24Z | **Baseline Commit**: 982f2c348cbb
 > **Métricas**: 0 LOC Produção | 0 LOC Testes | 0 Arquivos Totais
 > **Linguagens**: n/a
 > **Saúde de Código**: 0 TODOs | 0 FIXMEs | 0 Panics | 0 Stubs
@@ -10,7 +10,7 @@
 
 ## 1. Visão Geral e Estrutura do Módulo
 
-O componente **docs-site** reside no caminho `docs-site` do projeto **pose-b05-work**.
+O componente **docs-site** reside no caminho `docs-site` do projeto **pose-dist**.
 
 - **Status de Verificação POSE**: `verified`
 - **Pontuação de Completude**: 100%
@@ -29,3 +29,4 @@ O componente **docs-site** reside no caminho `docs-site` do projeto **pose-b05-w
 ## Escopo do scan
 
 - Nenhum arquivo ou diretório do componente deixou de ser lido.
+- Excluídos (skipped-directory): 1 — directories that hold dependencies, build output or tool state are not scanned

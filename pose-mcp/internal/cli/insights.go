@@ -413,6 +413,22 @@ func cmdStats(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, err)
 		return 1
 	}
+	if result.DelegatedReview != nil && !jsonOut && !htmlOut {
+		for _, row := range result.DelegatedReview.ByBundle {
+			render(stdout, stderr).Field("stats.delegated.bundle."+row.Key, fmt.Sprintf("runs=%d attempts=%d resumes=%d reruns=%d reruns_without_reason=%d", row.Runs, row.Attempts, row.Resumes, row.Reruns, row.RerunsWithoutReason))
+		}
+		for _, row := range result.DelegatedReview.ByAdapter {
+			rate := "unknown"
+			if row.ApprovalRate != nil {
+				rate = fmt.Sprintf("%.4f", *row.ApprovalRate)
+			}
+			render(stdout, stderr).Field("stats.delegated.adapter."+row.Key, "declared_draft_approval_rate="+rate)
+		}
+		render(stdout, stderr).Field("stats.delegated.coverage_complete", strconv.FormatBool(result.DelegatedReview.CoverageComplete))
+		for i, loss := range result.DelegatedReview.Losses {
+			render(stdout, stderr).Field("stats.delegated.loss."+strconv.Itoa(i+1), loss)
+		}
+	}
 	rows := result.Rows
 	if htmlOut {
 		if out == "" {
@@ -432,6 +448,9 @@ func cmdStats(root string, args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		content := renderStatsHTML(workflows.Rows, tasks.Rows, result.RecordsScanned, result.RecordsSkippedInvalid, collectSpecInsights(root))
+		if result.DelegatedReview != nil {
+			content = strings.Replace(content, "</body>", renderDelegatedReviewHTML(result.DelegatedReview)+"</body>", 1)
+		}
 		if err := writeAtomic(out, []byte(content), 0o644); err != nil {
 			fmt.Fprintln(stderr, err)
 			return 1
@@ -536,3 +555,27 @@ func renderStatsHTML(workflows, tasks []statRow, scanned, invalid int, specs spe
 	return fmt.Sprintf("<!doctype html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; style-src 'unsafe-inline'\"><title>POSE local insights</title><style>body{font-family:system-ui;margin:2rem}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:.4rem}.cards{display:flex;gap:1rem;flex-wrap:wrap}.card{border:1px solid #ccc;padding:1rem}</style></head><body><h1>POSE local insights</h1><div class=\"cards\"><div class=\"card\">History records: %d</div><div class=\"card\">Invalid skipped: %d</div><div class=\"card\">Open follow-ups: %d</div><div class=\"card\">Oldest open follow-up: %s</div><div class=\"card\">Completed specs: %d</div><div class=\"card\">Average lead time: %s</div></div><h2>Outcomes by workflow</h2><table>%s</table><h2>Outcomes by task</h2><table>%s</table><h2>Recurrence candidates</h2><table>%s</table></body></html>", scanned, invalid, specs.OpenFollowups, oldest, specs.Completed, lead, workflowRows.String(), taskRows.String(), recurrenceRows.String())
 }
 func usageError(w io.Writer, msg string) int { fmt.Fprintln(w, msg); return 2 }
+
+func renderDelegatedReviewHTML(metrics *posepkg.DelegatedReviewInsights) string {
+	var b strings.Builder
+	b.WriteString("<section><h2>Delegated review drafts</h2><p>Declared draft outcomes, not verified approvals. Coverage complete: " + strconv.FormatBool(metrics.CoverageComplete) + "</p>")
+	for _, group := range []struct {
+		name string
+		rows []posepkg.DelegatedReviewMetric
+	}{{"Bundles", metrics.ByBundle}, {"Adapters", metrics.ByAdapter}} {
+		b.WriteString("<h3>" + group.name + "</h3><table><tr><th>Key</th><th>Runs</th><th>Attempts</th><th>Resumes</th><th>Reruns</th><th>Without reason</th><th>Draft approval rate</th></tr>")
+		for _, row := range group.rows {
+			rate := "unknown"
+			if row.ApprovalRate != nil {
+				rate = fmt.Sprintf("%.4f", *row.ApprovalRate)
+			}
+			b.WriteString(fmt.Sprintf("<tr><td>%s</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%s</td></tr>", html.EscapeString(row.Key), row.Runs, row.Attempts, row.Resumes, row.Reruns, row.RerunsWithoutReason, rate))
+		}
+		b.WriteString("</table>")
+	}
+	for _, loss := range metrics.Losses {
+		b.WriteString("<p>History loss: " + html.EscapeString(loss) + "</p>")
+	}
+	b.WriteString("</section>")
+	return b.String()
+}

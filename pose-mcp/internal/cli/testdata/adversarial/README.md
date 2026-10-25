@@ -37,3 +37,8 @@ adopting project's features.
 | `calendar-ttl-as-premise-trigger` | enforced | An arbitrary expiry date is accepted as the material trigger of a premise | pose-assumption-validity-scope |
 | `unobserved-falsifier-reads-uncontradicted` | known-gap | A falsifier check that no run produces raises nothing, and nothing says the falsifier was never observed | pose-falsifier-reconsideration |
 | `request-opened-after-preview-transfers` | delegated | A request opened after a transfer preview is moved with the spec (`pose/spec_transfer_actions_test.go:TestTransferRefusesARequestOpenedAfterThePreview`) | pose-transfer-preserves-obligations |
+
+| `deleted-reservation-resets-quota` | delegated | Deleting a reservation and receipt makes a surviving run stop consuming quota | pose-delegated-review-attempt-ledger |
+| `witness-bundle-filter-hides-loss` | delegated | Editing a witness bundle makes scoped readers skip its corruption | pose-delegated-review-attempt-ledger |
+| `window-erases-rerun` | delegated | Moving a prior run outside the time window turns a rerun into a first attempt | pose-delegated-review-attempt-ledger |
+| `oversized-writer-publishes-unreadable-run` | delegated | A writer reports completion for a run its bounded reader immediately refuses | pose-delegated-review-attempt-ledger |

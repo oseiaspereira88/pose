@@ -271,6 +271,19 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 		result.NextAction = "review the new plan with `pose close " + ref + " --plan`"
 		return result
 	}
+	// A done scope is verification-only: never repair history or checkpoints
+	// by running the pipeline again. The query result carries the fresh basis;
+	// no operation step or effect ran (B12 already-satisfied contract).
+	if plan.LifecycleDone {
+		if !plan.Terminal {
+			result.Fail(posemodel.OutcomeBlocked, posemodel.CloseoutStepVerify, "terminal-verification-blocked", strings.Join(plan.Blockers, "; "))
+			result.NextAction = plan.NextAction
+			return result
+		}
+		result.Outcome = posemodel.OutcomeAlreadySatisfied
+		result.NextAction = "the applicable terminal verifier passed; no lifecycle operation ran; repeat verification with `pose closeout-check " + ref + "`"
+		return result
+	}
 	// The checkpoint is progress, never authority: a checkpoint that does
 	// not read stops the call before anything runs, and one that records
 	// effects the repository does not reflect is a conflict, unless the
@@ -420,8 +433,11 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 			}
 		case posemodel.CloseoutStepTransition:
 			stepRef = ref
-			if code := cmdCloseLocal(root, ref, nil, &buffer, &buffer); code != 0 {
+			transitioned := false
+			if code := cmdCloseLocalWithEffect(root, ref, nil, &buffer, &buffer, func() { transitioned = true }); code != 0 {
 				stepErr, cause = fmt.Errorf("guarded transition refused: %s", strings.TrimSpace(buffer.String())), "transition-refused"
+			} else if !transitioned {
+				stepErr, cause, wrote = fmt.Errorf("the lifecycle was already done when the transition ran; re-plan to verify that state"), "transition-not-executed", false
 			}
 		}
 		if stepErr != nil {
@@ -449,8 +465,7 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 		result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "checkpoint", Reason: "the checkpoint of the finished run was not removed: " + err.Error() + "; remove it, since the run it records is over"})
 	}
 	if !ran {
-		// Nothing ran: the stored state already says done. That is not a
-		// fresh verification of the gates (R4).
+		// No operation step ran; the plan carries its readonly verification.
 		result.Outcome = posemodel.OutcomeAlreadySatisfied
 		result.NextAction = "no step ran in this call; `pose closeout-check " + ref + "` verifies the current gates"
 		return result
@@ -478,7 +493,17 @@ func renderClosePlanResult(out *cliout.Renderer, result posemodel.OperationResul
 	}
 	switch result.Outcome {
 	case posemodel.OutcomeCompleted:
-		out.Field("closeout_plan.result", "closed "+result.Scope+"; "+result.NextAction)
+		transitioned := false
+		for _, effect := range result.Effects {
+			if effect.Effect == "spec-closed" {
+				transitioned = true
+			}
+		}
+		if transitioned {
+			out.Field("closeout_plan.result", "closed "+result.Scope+"; "+result.NextAction)
+		} else {
+			out.Field("closeout_plan.result", "completed-steps "+result.Scope+"; no lifecycle transition was executed by this call; "+result.NextAction)
+		}
 	case posemodel.OutcomeAlreadySatisfied:
 		out.Field("closeout_plan.result", "already-satisfied "+result.Scope+"; "+result.NextAction)
 	case posemodel.OutcomeWaiting:

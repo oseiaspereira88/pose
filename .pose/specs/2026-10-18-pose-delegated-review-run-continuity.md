@@ -1,15 +1,15 @@
 ---
 slug: pose-delegated-review-run-continuity
-status: draft
+status: done
 created_at: 2026-10-18
-completed_at:
+completed_at: 2026-10-25
 supersedes:
 depends_on: pose-delegated-review-attempt-ledger
 priority: 2
 components: pose-mcp
 task_type: feature
 changelog:
-delivers:
+delivers: capability:delegated-run-continuity
 ---
 
 # Spec: A delegated review that is interrupted is resumed, not restarted
@@ -26,7 +26,7 @@ Origin: the B06 consolidation reviews (2026-10-17). A review of a large diff tak
 
 ### Constraints
 
-Reuses the run record, the attempt reservation and the exclusive publisher of the ledger and state-consistency work; adds no runner. Vendor-specific behaviour (how a session is named, how a limit is worded) lives in the adapter declaration, never in the engine. Nothing here makes an interrupted run a review.
+Reuses the run record, the attempt reservation and the exclusive publisher of the ledger and state-consistency work; adds no runner. Vendor-specific behaviour (how a session is named, how a limit is worded) lives in the adapter declaration, never in the engine. Nothing here makes an interrupted run a review. Implementation authorized by continuation on 2026-10-25, baseline `3fa69b6`.
 
 ### Non-goals
 
@@ -68,7 +68,42 @@ Run-state model and the supervisor's classification, adapter policy reader, `rev
 
 ### Artifacts
 
-Implementation artifacts are declared when the spec starts.
+- created: .pose/adr/2026-10-25-continue-delegated-runs-under-one-immutable-attempt.md
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/integrations.md
+- modified: .pose/assessments/technical-debt.md
+- created: .pose/changelogs/unreleased/pose-delegated-review-run-continuity.md
+- modified: .pose/indexes/validation-matrix.json
+- created: .pose/reports/2026-10-25-b16-run-continuity.md
+- modified: .pose/specs/2026-10-18-pose-delegated-review-run-continuity.md
+- created: .pose/starts/pose-delegated-review-run-continuity.json
+- modified: .pose/state/integrations.json
+- modified: .pose/state/technical-debt.json
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/doctor.go
+- modified: pose-mcp/internal/cli/git_snapshot_integrity_test.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/insights.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/review_dispatch.go
+- modified: pose-mcp/internal/cli/review_dispatch_test.go
+- created: pose-mcp/internal/cli/review_run_continuity.go
+- created: pose-mcp/internal/cli/review_run_continuity_test.go
+- created: pose-mcp/internal/mcpserver/review_run_continuity_test.go
+- modified: pose-mcp/internal/pose/review_attempt_ledger.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
+- created: pose-mcp/internal/pose/review_run_continuity.go
+- created: pose-mcp/internal/pose/review_run_continuity_test.go
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+
+### Delivery targets
+
+- capability:delegated-run-continuity module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/review_dispatch.go
 
 ### API/contract changes
 
@@ -76,16 +111,18 @@ New run states and fields; new `review resume` subcommand; additions to `reviewe
 
 ## 4. Tasks
 
-- [ ] Run states, interruption causes and adapter declarations
-- [ ] Resume with worktree and brief verification
-- [ ] Attempt accounting and ledger interaction
-- [ ] Wait-until-reset and explicit vendor fallback
-- [ ] Status, doctor and insights
+- [x] Run states, interruption causes and adapter declarations
+- [x] Resume with worktree and brief verification
+- [x] Attempt accounting and ledger interaction
+- [x] Wait-until-reset and explicit vendor fallback
+- [x] Status, doctor and insights
 
 ## 5. Decisions
 
 ### Decision D1
 - Basis: R3, R5, R8
+- ADR: [Continue under one immutable attempt](../adr/2026-10-25-continue-delegated-runs-under-one-immutable-attempt.md)
+- Knowledge: knowledge:pose-b07-implementation, knowledge:adr-sealed-review-bundles-review
 - Minimal option: treat a resume as a new dispatch with `--reason`
 - Selected option: a resume is a continuation of one attempt, linked by `resumes:`
 - Rationale: a reason-bearing rerun is exactly what the ledger exists to make rare and visible; an interruption is not the reviewer's verdict and must not be priced like one
@@ -108,14 +145,35 @@ A fake adapter that is interrupted at chosen points (limit with and without a re
 
 ### Requirement trace
 
+- R1 [satisfied] test:TestRunContinuityClassificationAndWait test:TestRunContinuityObservedProcessLoss test:TestRunContinuityLaunchFailureAndSessionRotation
+- R2 [satisfied] test:TestRunContinuityPolicyAndPartialIntegrity test:TestRunContinuityOutputCaptureAndConflicts
+- R3 [satisfied] test:TestRunContinuityInterruptedResumeAndAccounting test:TestRunContinuityConcurrentResumeLaunchesOnce
+- R4 [satisfied] test:TestRunContinuityBudgetsAndChangedInputs test:TestRunContinuityRefusalAndExplicitFallback
+- R5 [satisfied] test:TestRunContinuityInterruptedResumeAndAccounting test:TestRunContinuityConcurrentResumeLaunchesOnce
+- R6 [satisfied] test:TestRunContinuityMCPPartialNeverBecomesVerdict test:TestRunContinuityOutputCaptureAndConflicts
+- R7 [satisfied] test:TestRunContinuityClassificationAndWait test:TestRunContinuityRefusalAndExplicitFallback
+- R8 [satisfied] test:TestRunContinuityRefusalAndExplicitFallback
+- R9 [satisfied] test:TestRunContinuityDoctorStatusAndPending
+
+### Required execution plan
+
+| Scenario | Command | Expected evidence |
+| --- | --- | --- |
+| Classification, redaction, budgets and chain integrity (required) | `cd pose-mcp && go test ./internal/pose ./internal/cli ./internal/mcpserver -run RunContinuity -count=1` | Interrupted partials never become verdicts; same-attempt continuation; refusal on changed evidence, duplicate claim and spent budget |
+| Concurrent resume and publication (required) | `cd pose-mcp && go test -race ./internal/pose ./internal/cli -run RunContinuity -count=1` | One continuation claim and no duplicate adapter launch |
+| Full composition and regression (required) | `pose validate --strict --json-out .pose/results/delivery-validation.json` with TMPDIR=/var/tmp | All registered checks pass with current provenance |
+| Security (required) | `cd pose-mcp && govulncheck ./...` and pinned CI gitleaks | No new vulnerabilities or secrets; session absent from persisted transcript, output and summaries |
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: part of roadmap `delegated-review`, opened on 2026-10-18 from the operating experience of the B06 review rounds (see Origin).
+Implemented interruption classification, private session capture, same-attempt continuations, bounded wait and explicit fallback, with CLI/doctor/insights/MCP disclosure. Native close completed on 2026-10-25 after 154/154 canonical checks, artifact reconciliation (32/32), composition with zero findings, and approved attestation `rva-2c1e6fda7692c955` on bundle `rvb-a2a8de43595b6c2d`. See report `2026-10-25-b16-run-continuity.md`.
 
 ### Residual risks
 
-None yet.
+Filesystem/Git anchors remain trusted. Private session loss prevents recovery. A claim without a captured run/result remains explicit pending evidence, not an automatic host-loss recovery or permission to relaunch. No review authority, vendor identity authentication, new runner, policy adoption or adapter containment is introduced.
 
 ### Follow-ups
+
+No new residual task. Round protocol, producer authentication and adapter containment remain in their canonical specs; this delivery does not change their disposition.

@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -193,4 +194,58 @@ func UnacknowledgedChanges(body string, events []Amendment) []string {
 		}
 	}
 	return findings
+}
+
+// InspectAmendmentHistory returns the same prospective done gate to lint and
+// close. No journal remains opt-out; reading never seeds or repairs history.
+func (s Store) InspectAmendmentHistory(spec Spec) ([]Amendment, []string, error) {
+	events, err := LoadAmendments(AmendmentsPath(spec.Path))
+	if err != nil {
+		return nil, nil, err
+	}
+	if len(events) == 0 {
+		return events, nil, nil
+	}
+	adopted, err := s.ContractNodesAdopted()
+	if err != nil {
+		return events, nil, err
+	}
+	return events, UnacknowledgedNodeChanges(spec.Slug, spec.Body, events, adopted), nil
+}
+
+// AmendmentBaselineFromStart copies observable start state, never current
+// edited text. The event is recorded now by the caller, not backdated.
+func (s Store) AmendmentBaselineFromStart(slug string, adopted bool, author, at string) (*Amendment, error) {
+	record, exists, err := s.GetStartRecord(slug)
+	if err != nil || !exists {
+		return nil, err
+	}
+	if record.Spec != slug || record.Phase != "started" ||
+		record.Baseline.SchemaVersion != ContractNodesSchemaVersion ||
+		record.Baseline.Namespace != "spec:"+slug ||
+		contractNodesDigest(record.Baseline) != record.Baseline.Digest {
+		return nil, fmt.Errorf("amendment history: invalid or incomplete recorded start; repair explicitly")
+	}
+	event := &Amendment{Schema: AmendmentSchema, At: at, Change: "baseline", Author: author,
+		Rationale: fmt.Sprintf("Copied from atomic start %s plan %s recorded %s; recorded now, not a historical approval", slug, record.PlanDigest, record.RecordedAt), Hashes: map[string]string{}}
+	if adopted {
+		event.Schema = AmendmentSchemaV2
+		event.Assurance = "declared"
+		event.After = map[string]NodeState{}
+	}
+	for _, node := range record.Baseline.Nodes {
+		if !adopted && node.Kind != "requirement" {
+			continue
+		}
+		event.IDs = append(event.IDs, node.ID)
+		event.Hashes[node.ID] = node.Hash
+		if adopted {
+			event.After[node.ID] = NodeState{Hash: node.Hash, State: node.State, Relations: node.Relations}
+		}
+	}
+	sort.Strings(event.IDs)
+	if len(event.IDs) == 0 {
+		return nil, nil
+	}
+	return event, nil
 }

@@ -6,6 +6,7 @@ package cli
 import (
 	"fmt"
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"io"
 	"os"
 	"os/exec"
@@ -46,7 +47,17 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 	}
 	gate.root = root
 	historyDir := filepath.Join(root, ".pose", "reports", "history")
-	if fi, err := os.Stat(historyDir); err != nil || !fi.IsDir() {
+	ledgerOnly := false
+	if fi, statErr := os.Stat(historyDir); os.IsNotExist(statErr) {
+		for _, rel := range []string{".pose/review-runs", ".pose/review-attempts", ".pose/review-run-ledger"} {
+			if _, err := os.Lstat(filepath.Join(root, rel)); err == nil {
+				ledgerOnly = true
+				break
+			}
+		}
+		_ = fi
+	}
+	if fi, err := os.Stat(historyDir); !ledgerOnly && (err != nil || !fi.IsDir()) {
 		fmt.Fprintf(stderr, cliText(locale, "Error: history directory not found: %s\n", "Erro: history dir ausente: %s\n"), historyDir)
 		return 2
 	}
@@ -56,6 +67,9 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 	}
 
 	entries, err := os.ReadDir(historyDir)
+	if ledgerOnly && os.IsNotExist(err) {
+		err = nil
+	}
 	if err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "Error: reading %s: %v\n", "Erro: lendo %s: %v\n"), historyDir, err)
 		return 2
@@ -88,6 +102,18 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 		}
 	}
 
+	findings, ledgerErr := (posemodel.Store{Root: root}).ReviewRunHistoryFindings()
+	if ledgerErr != nil {
+		findings = append(findings, ledgerErr.Error())
+	}
+	gate.Field("history.review_run_violations", strconv.Itoa(len(findings)))
+	for _, finding := range findings {
+		gate.r.Finding(cliout.Finding{State: cliout.StateError, Code: "review-run-history", Message: finding})
+	}
+	if len(findings) > 0 {
+		gate.Verdict(cliout.StateFail, "Resultado: FALHA", "immutable delegated review history was lost or rewritten")
+		return 1
+	}
 	gate.Field("history.untracked", strconv.Itoa(untracked))
 	gate.Field("history.modified_unstaged", strconv.Itoa(modified))
 	gate.Field("history.staged_or_clean", strconv.Itoa(clean))
