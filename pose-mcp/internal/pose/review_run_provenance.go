@@ -178,7 +178,8 @@ func (s Store) prepareRunProvenance(plan DispatchPlan, policy ReviewersPolicy) (
 	return &ReviewRunProvenance{ExecutionState: "not-started", SchemaVersion: 1, Project: review.AuthorityProject, Audience: review.AuthorityAudience, WorktreeDigest: digestBytes([]byte(plan.OriginWorktree)), Trust: policy.Provenance.Trust, Implementation: implementation, Reviewer: reviewer, ConfigDigest: digestBytes(raw), CommandTemplateDigest: digestBytes(argv), TemplateVersion: plan.Brief.TemplateVersion, PlannedWireDigest: digestBytes([]byte(plan.Brief.Text)), NotesDigest: digestBytes([]byte(plan.notes))}, nil
 }
 func reviewExecutableDigest(path string) (string, error) {
-	// Resolve symlinks such as /bin/sh once; hash and execute the same selected file.
+	// Resolve the observed target for hashing; execution retains the selected
+	// path spelling so relative and shebang argv0 semantics stay unchanged.
 	resolved, e := filepath.EvalSymlinks(path)
 	if e != nil {
 		return "", e
@@ -627,21 +628,30 @@ func (s Store) runProvenanceProjectBinding(project string) error {
 }
 
 func resolveProvenanceExecutable(command, worktree string) (string, error) {
-	selected := command
-	if !filepath.IsAbs(selected) {
-		if strings.ContainsAny(selected, "/\\") {
-			selected = filepath.Join(worktree, selected)
+	_, hashed, e := provenanceExecutableSelection(command, worktree)
+	return hashed, e
+}
+
+// Keep the exec path's original relative/symlink spelling: kernels use that
+// spelling as a shebang script's $0. Resolve only the hash observation.
+func provenanceExecutableSelection(command, worktree string) (selected, hashed string, err error) {
+	selected = command
+	observed := command
+	if !filepath.IsAbs(command) {
+		if strings.ContainsAny(command, "/\\") {
+			observed = filepath.Join(worktree, command)
 		} else {
-			var e error
-			selected, e = exec.LookPath(selected)
-			if e != nil {
-				return "", e
+			selected, err = exec.LookPath(command)
+			if err != nil {
+				return "", "", err
 			}
+			observed = selected
 		}
 	}
-	resolved, e := filepath.EvalSymlinks(selected)
-	if e != nil {
-		return "", e
+	hashed, err = filepath.EvalSymlinks(observed)
+	if err != nil {
+		return "", "", err
 	}
-	return filepath.Abs(resolved)
+	hashed, err = filepath.Abs(hashed)
+	return selected, hashed, err
 }

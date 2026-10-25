@@ -505,7 +505,7 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 	if run.Provenance != nil {
 		copy := *run.Provenance
 		run.Provenance = &copy
-		resolved, err := resolveProvenanceExecutable(argv[0], worktree)
+		selected, resolved, err := provenanceExecutableSelection(argv[0], worktree)
 		if err != nil {
 			return finish(ReviewRunFailed, "provenance executable could not be resolved")
 		}
@@ -514,7 +514,7 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 			return finish(ReviewRunFailed, err.Error())
 		}
 		run.Provenance.ExecutableDigest = digest
-		execPath = resolved
+		execPath = selected
 		raw, _ := json.Marshal(argv)
 		run.Provenance.ArgvDigest = digestBytes(raw)
 	}

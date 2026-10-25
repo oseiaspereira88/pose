@@ -1,6 +1,7 @@
 package pose
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"os"
@@ -449,5 +450,29 @@ func TestRunProvenanceLiveOptInDoesNotGrandfatherPrefix(t *testing.T) {
 	blockers := s.validateBundleAttestation(bundle, att)
 	if len(blockers) == 0 || !strings.Contains(strings.Join(blockers, ";"), "signed run reference") {
 		t.Fatal("old declared gate exempted prefix after live adoption", blockers)
+	}
+}
+
+func TestRunProvenanceRelativeScriptKeepsOriginalExecPath(t *testing.T) {
+	root := t.TempDir()
+	script := filepath.Join(root, "reviewer.sh")
+	body := "#!/bin/sh\ntest \"$0\" = ./reviewer.sh || exit 7\ncat >/dev/null\nprintf 'decision: approved\\n'\n"
+	if e := os.WriteFile(script, []byte(body), 0755); e != nil {
+		t.Fatal(e)
+	}
+	selected, hashed, e := provenanceExecutableSelection("./reviewer.sh", root)
+	if e != nil || selected != "./reviewer.sh" || hashed != script {
+		t.Fatal(selected, hashed, e)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	command := exec.CommandContext(ctx, selected)
+	command.Dir = root
+	command.Args[0] = "./reviewer.sh"
+	var output bytes.Buffer
+	command.Stdout = &output
+	_, _, complete, started, e := runProvenanceCommand(command, "fixture brief")
+	if e != nil || !complete || !started || !strings.Contains(output.String(), "decision: approved") {
+		t.Fatal("relative shebang argv0 changed", complete, started, e, output.String())
 	}
 }
