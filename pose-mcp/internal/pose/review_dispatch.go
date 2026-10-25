@@ -93,6 +93,9 @@ func (s Store) LoadReviewersPolicy() (ReviewersPolicy, bool, error) {
 
 // ReviewRun is one recorded dispatch.
 type ReviewRun struct {
+	LedgerVersion    int    `json:"ledger_version,omitempty"`
+	AttemptID        string `json:"attempt_id,omitempty"`
+	Reason           string `json:"reason,omitempty"`
 	SchemaVersion    int    `json:"schema_version"`
 	RunID            string `json:"run_id"`
 	Scope            string `json:"scope"`
@@ -137,7 +140,7 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 	if info, lerr := os.Lstat(dir); lerr == nil && info.Mode()&os.ModeSymlink != 0 {
 		return nil, nil, fmt.Errorf("pose: the review runs directory is a link, not the directory the runs are written to")
 	}
-	entries, err := os.ReadDir(dir)
+	entries, err := ledgerEntries(s.Root, reviewRunsDir)
 	if errors.Is(err, os.ErrNotExist) {
 		if _, lerr := os.Lstat(dir); lerr == nil {
 			return nil, nil, fmt.Errorf("pose: the review runs directory is a link whose target cannot be read")
@@ -149,6 +152,7 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 	}
 	out := []ReviewRun{}
 	var lost []string
+	readBudget := int64(32 << 20)
 	for _, e := range entries {
 		if !strings.HasSuffix(e.Name(), ".json") {
 			continue
@@ -157,9 +161,17 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 			lost = append(lost, e.Name()+" (not a regular file)")
 			continue
 		}
-		raw, err := os.ReadFile(filepath.Join(dir, e.Name()))
+		info, infoErr := e.Info()
+		if infoErr != nil || info.Size() > reviewLedgerMaxBytes {
+			lost = append(lost, e.Name()+" (record exceeds bound or is unreadable)")
+			continue
+		}
+		raw, err := readLedgerRawBudget(filepath.Join(dir, e.Name()), &readBudget)
 		if err != nil {
 			lost = append(lost, e.Name()+" ("+err.Error()+")")
+			if errors.Is(err, errReviewLedgerBudget) {
+				break
+			}
 			continue
 		}
 		var run ReviewRun
@@ -193,11 +205,46 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 	for i := range out {
 		out[i].SupersededBy = superseded[out[i].RunID]
 	}
-	return out, lost, nil
+	checked := map[string][]DelegatedReviewAttempt{}
+	for _, run := range out {
+		if run.LedgerVersion == 1 {
+			if _, err := os.Lstat(filepath.Join(s.Root, reviewRunLedgerDir, run.RunID+".json")); err != nil {
+				lost = append(lost, "missing run witness "+run.RunID)
+			}
+		}
+		if run.AttemptID != "" {
+			attempts, ok := checked[run.BundleID]
+			if !ok {
+				var aerr error
+				attempts, aerr = s.readDelegatedReviewAttempts(run.BundleID, &readBudget)
+				if aerr != nil {
+					lost = append(lost, aerr.Error())
+				}
+				checked[run.BundleID] = attempts
+			}
+			found := false
+			for _, a := range attempts {
+				if a.AttemptID == run.AttemptID && a.BundleDigest == run.BundleDigest && a.Scope == run.Scope && a.Adapter == run.Adapter && a.Reason == run.Reason {
+					found = true
+					break
+				}
+			}
+			if !found {
+				lost = append(lost, "missing or conflicting attempt reservation "+run.AttemptID)
+			}
+		}
+	}
+	findings, ledgerErr := s.reviewRunLedgerFindings(bundleID, &readBudget)
+	if ledgerErr != nil {
+		lost = append(lost, ledgerErr.Error())
+	}
+	lost = append(lost, findings...)
+	return out, uniqueSorted(lost), nil
 }
 
 // DispatchPlan is what a dispatch will do.
 type DispatchPlan struct {
+	Reason         string
 	PolicyDigest   string
 	OriginWorktree string
 	Adapter        string
@@ -209,7 +256,14 @@ type DispatchPlan struct {
 }
 
 // PlanReviewDispatch resolves the bundle, brief and adapter without running.
-func (s Store) PlanReviewDispatch(target, kind, notes, adapter string) (DispatchPlan, error) {
+func (s Store) PlanReviewDispatch(target, kind, notes, adapter string, reason ...string) (DispatchPlan, error) {
+	if len(reason) > 1 {
+		return DispatchPlan{}, fmt.Errorf("pose: one rerun reason is accepted")
+	}
+	why := ""
+	if len(reason) == 1 {
+		why = strings.TrimSpace(reason[0])
+	}
 	brief, err := s.RenderReviewBrief(target, kind, notes)
 	if err != nil {
 		return DispatchPlan{}, err
@@ -238,34 +292,27 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string) (Dispatch
 	if commit == "" || exec.Command("git", "-C", s.Root, "cat-file", "-e", commit+"^{commit}").Run() != nil {
 		return DispatchPlan{}, fmt.Errorf("pose: the bundle's sealed commit %q is not in this repository", commit)
 	}
-	prior, lost, err := s.ReadReviewRuns(bundle.BundleID)
-	if err != nil {
-		return DispatchPlan{}, err
-	}
-	if len(lost) > 0 {
-		return DispatchPlan{}, fmt.Errorf("review run coverage is unknown: %v", lost)
-	}
-	count := 0
-	for _, run := range prior {
-		if run.Adapter == adapter {
-			count++
-		}
-	}
 	origin, err := dispatchWorktreeIdentity(s.Root)
 	if err != nil {
 		return DispatchPlan{}, err
 	}
-	return DispatchPlan{PolicyDigest: directoryDigestIn(s.fsys(), filepath.Join(s.Root, ".pose", "policy")), OriginWorktree: origin, Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: count}, nil
+	plan := DispatchPlan{Reason: why, PolicyDigest: directoryDigestIn(s.fsys(), filepath.Join(s.Root, ".pose", "policy")), OriginWorktree: origin, Adapter: adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: commit, PriorRuns: 0}
+	_, currentCount, err := s.reviewAttemptAdmission(plan)
+	if err != nil {
+		return DispatchPlan{}, err
+	}
+	plan.PriorRuns = currentCount
+	return plan, nil
 }
 
 // ErrNoReviewerAdapter means the project configured no reviewer.
 var ErrNoReviewerAdapter = errors.New("pose: no reviewer adapter is configured in .pose/policy/reviewers.json")
 
 // RunReviewDispatch executes plan and records the run, failed or completed.
-func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (ReviewRun, error) {
+func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (result ReviewRun, resultErr error) {
 	run := ReviewRun{SchemaVersion: 1, Scope: plan.Brief.Scope, BundleID: plan.Bundle.BundleID, BundleDigest: plan.Bundle.BundleDigest,
 		SealedCommit: plan.SealedCommit, Kind: plan.Brief.Kind, BriefDigest: plan.Brief.Digest, Adapter: plan.Adapter,
-		Vendor: plan.Config.Vendor, Model: plan.Config.Model, PolicyDigest: plan.PolicyDigest, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1}
+		Vendor: plan.Config.Vendor, Model: plan.Config.Model, Reason: plan.Reason, PolicyDigest: plan.PolicyDigest, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1}
 	transcript := []byte{}
 	finish := func(status, failure string) (ReviewRun, error) {
 		run.Status, run.Failure = status, failure
@@ -276,9 +323,19 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 	if err := s.checkDispatchOrigin(plan); err != nil {
 		return finish(ReviewRunFailed, "the run was not started: "+err.Error())
 	}
-	if plan.Config.MaxRunsPerBundle > 0 && plan.PriorRuns >= plan.Config.MaxRunsPerBundle {
-		return finish(ReviewRunFailed, fmt.Sprintf("budget exhausted: %d run(s) of %s on this bundle, at most %d", plan.PriorRuns, plan.Adapter, plan.Config.MaxRunsPerBundle))
+	attempt, err := s.reserveDelegatedReviewAttempt(plan, now())
+	if err != nil {
+		return ReviewRun{}, err
 	}
+	run.AttemptID = attempt.AttemptID
+	run.Reason = attempt.Reason
+	defer func() {
+		if result.RunID != "" {
+			if err := s.finishDelegatedReviewAttempt(attempt, result); err != nil {
+				resultErr = errors.Join(resultErr, fmt.Errorf("attempt result not confirmed: %w", err))
+			}
+		}
+	}()
 	tmp, err := os.MkdirTemp("", "pose-review-run-*")
 	if err != nil {
 		return ReviewRun{}, err
@@ -623,6 +680,7 @@ func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, err
 	// Identity covers only persisted content, never fields derived by a reader
 	// or a previous write of a copied record.
 	run.RunID, run.Path, run.TranscriptPath, run.SupersededBy = "", "", "", ""
+	run.LedgerVersion = 1
 	sum := sha256.Sum256(transcript)
 	run.TranscriptDigest = "sha256:" + hex.EncodeToString(sum[:])
 	identity, _ := json.Marshal(run)
@@ -633,31 +691,30 @@ func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, err
 		return ReviewRun{}, err
 	}
 	run.TranscriptPath = filepath.ToSlash(filepath.Join(reviewRunsDir, run.RunID+".transcript"))
-	if err := writeNewFile(filepath.Join(dir, run.RunID+".transcript"), transcript); err != nil {
-		return ReviewRun{}, err
-	}
-	raw, err := json.MarshalIndent(run, "", "  ")
+	pretty, err := json.MarshalIndent(run, "", "  ")
 	if err != nil {
 		return ReviewRun{}, err
 	}
-	if err := writeNewFile(filepath.Join(dir, run.RunID+".json"), append(raw, '\n')); err != nil {
+	pretty = append(pretty, '\n')
+	if len(pretty) > reviewLedgerMaxBytes {
+		return ReviewRun{}, fmt.Errorf("review run record exceeds %d-byte bound; nothing published", reviewLedgerMaxBytes)
+	}
+	if len(transcript) > reviewTranscriptMaxBytes {
+		return ReviewRun{}, fmt.Errorf("review transcript exceeds %d-byte bound; nothing published", reviewTranscriptMaxBytes)
+	}
+
+	witness := reviewRunWitness{SchemaVersion: 1, RunID: run.RunID, BundleID: run.BundleID, Scope: run.Scope, RecordDigest: digestBytes(pretty), TranscriptDigest: run.TranscriptDigest}
+	if err := publishLedgerJSON(s.Root, filepath.ToSlash(filepath.Join(reviewRunLedgerDir, run.RunID+".json")), witness); err != nil {
+		return ReviewRun{}, err
+	}
+	if err := PublishFile(filepath.Join(dir, run.RunID+".transcript"), transcript, 0644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
+		return ReviewRun{}, err
+	}
+	if err := PublishFile(filepath.Join(dir, run.RunID+".json"), pretty, 0644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
 		return ReviewRun{}, err
 	}
 	run.Path = filepath.ToSlash(filepath.Join(reviewRunsDir, run.RunID+".json"))
 	return run, nil
-}
-
-func writeNewFile(path string, raw []byte) error {
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
-	if err != nil {
-		return err
-	}
-	if _, err := file.Write(raw); err != nil {
-		file.Close()
-		os.Remove(path)
-		return err
-	}
-	return file.Close()
 }
 
 func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
@@ -770,6 +827,9 @@ func validateReviewRunRecord(name string, run ReviewRun) error {
 	if name != run.RunID+".json" {
 		return fmt.Errorf("the file is not named after the run it holds")
 	}
+	if run.LedgerVersion != 0 && run.LedgerVersion != 1 {
+		return fmt.Errorf("unknown ledger version %d", run.LedgerVersion)
+	}
 	if run.SchemaVersion != 1 {
 		return fmt.Errorf("schema_version %d is not read by this engine", run.SchemaVersion)
 	}
@@ -799,6 +859,8 @@ func validateReviewRunRecord(name string, run ReviewRun) error {
 	return nil
 }
 
+const reviewTranscriptMaxBytes = 256 << 20
+
 func (s Store) reviewRunTranscriptIntact(run ReviewRun) string {
 	full := filepath.Join(s.Root, filepath.FromSlash(run.TranscriptPath))
 	info, err := os.Lstat(full)
@@ -808,12 +870,28 @@ func (s Store) reviewRunTranscriptIntact(run ReviewRun) string {
 	if !info.Mode().IsRegular() {
 		return "the transcript of the run is not a regular file"
 	}
-	raw, err := os.ReadFile(full)
+	if info.Size() > reviewTranscriptMaxBytes {
+		return "the transcript exceeds the 256 MiB verification bound"
+	}
+	file, err := os.Open(full)
 	if err != nil {
 		return "the transcript of the run cannot be read: " + err.Error()
 	}
-	sum := sha256.Sum256(raw)
-	if "sha256:"+hex.EncodeToString(sum[:]) != run.TranscriptDigest {
+	opened, statErr := file.Stat()
+	if statErr != nil || !opened.Mode().IsRegular() || !os.SameFile(info, opened) {
+		file.Close()
+		return "the transcript changed while opening"
+	}
+	hash := sha256.New()
+	n, readErr := io.Copy(hash, io.LimitReader(file, reviewTranscriptMaxBytes+1))
+	closeErr := file.Close()
+	if readErr != nil || closeErr != nil {
+		return fmt.Sprintf("the transcript could not be verified: %v %v", readErr, closeErr)
+	}
+	if n > reviewTranscriptMaxBytes {
+		return "the transcript exceeds the 256 MiB verification bound"
+	}
+	if "sha256:"+hex.EncodeToString(hash.Sum(nil)) != run.TranscriptDigest {
 		return "the transcript of the run is not the one its digest names"
 	}
 	return ""

@@ -798,6 +798,16 @@ var commandHelpCatalog = map[string]CommandHelp{
 			"pose migrate v7 --dry-run",
 		},
 	},
+	"insights": {
+		Name:            "insights",
+		SummaryEN:       "Display historical statistics and declared delegated-review draft metrics",
+		SummaryPtBR:     "Exibe estatísticas históricas e métricas declaradas de drafts de review delegado",
+		Usage:           "pose insights [workflows|tasks|contexts] [--since-days N] [--json|--html [--out file]]",
+		DescriptionEN:   "Alias of pose stats. Delegated metrics count immutable runs and attempts and disclose incomplete history; draft rates are not verified approval rates.",
+		DescriptionPtBR: "Alias de pose stats. As métricas delegadas contam runs e tentativas imutáveis e revelam histórico incompleto; taxas de drafts não são taxas de aprovação verificada.",
+		Flags:           []FlagHelp{{"--since-days <N>", "Count events in the window, classifying reruns against full history", "Conta eventos da janela e classifica reruns pelo histórico completo"}, {"--json", "Output JSON", "Emite JSON"}, {"--html", "Write HTML report", "Grava relatório HTML"}, {"--out <file>", "Confined HTML output path", "Caminho confinado do HTML"}},
+		Examples:        []string{"pose insights --json", "pose insights --since-days 14 --html"},
+	},
 	"stats": {
 		Name:            "stats",
 		SummaryEN:       "Display historical POSE engineering statistics and task metrics",

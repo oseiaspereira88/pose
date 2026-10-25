@@ -436,16 +436,18 @@ type ReviewBundleDelta struct {
 }
 
 type ReviewBundleVerification struct {
-	Scope       string             `json:"scope"`
-	State       string             `json:"state"`
-	Bundle      *ReviewBundle      `json:"bundle,omitempty"`
-	Attestation *ReviewAttestation `json:"attestation,omitempty"`
-	Delta       *ReviewBundleDelta `json:"delta,omitempty"`
-	Fresh       bool               `json:"fresh"`
-	Approved    bool               `json:"approved"`
-	NextAction  string             `json:"next_action"`
-	Warnings    []string           `json:"warnings,omitempty"`
-	Blockers    []string           `json:"blockers,omitempty"`
+	DelegatedRuns          []ReviewRunSummary `json:"delegated_runs,omitempty"`
+	DelegatedHistoryLosses []string           `json:"delegated_history_losses,omitempty"`
+	Scope                  string             `json:"scope"`
+	State                  string             `json:"state"`
+	Bundle                 *ReviewBundle      `json:"bundle,omitempty"`
+	Attestation            *ReviewAttestation `json:"attestation,omitempty"`
+	Delta                  *ReviewBundleDelta `json:"delta,omitempty"`
+	Fresh                  bool               `json:"fresh"`
+	Approved               bool               `json:"approved"`
+	NextAction             string             `json:"next_action"`
+	Warnings               []string           `json:"warnings,omitempty"`
+	Blockers               []string           `json:"blockers,omitempty"`
 	// Assurance discloses what this record proves about its reviewer (spec
 	// pose-review-assurance-disclosure).
 	Assurance *ReviewAssurance `json:"assurance,omitempty"`
@@ -1118,7 +1120,7 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 		// like the repository's own LICENSE and NOTICE (found in review).
 		return "documentation", true
 	}
-	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/review-attribution-supplements/", ".pose/closeout-plans/", ".pose/contributions/", ".pose/feedback/", ".pose/review-runs/", ".pose/events/", ".pose/investigations/"} {
+	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/review-attribution-supplements/", ".pose/closeout-plans/", ".pose/contributions/", ".pose/feedback/", ".pose/review-runs/", ".pose/review-attempts/", ".pose/review-run-ledger/", ".pose/events/", ".pose/investigations/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "derived-evidence", false
 		}
@@ -2794,6 +2796,9 @@ func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error
 	if err == nil && verification.Bundle != nil {
 		assurance := s.DescribeReviewAssurance(*verification.Bundle, verification.Attestation)
 		verification.Assurance = &assurance
+	}
+	if err == nil {
+		verification.DelegatedRuns, verification.DelegatedHistoryLosses = s.reviewRunSummaries(scope)
 	}
 	return verification, err
 }

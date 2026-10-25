@@ -432,6 +432,9 @@ func isRuntimeReference(ref string) bool {
 		".pose/policy/adoption-decisions.json",
 		".pose/project.json",
 		".pose/closeout-plans",
+		// Delegated attempt and witness records are created only by dispatch.
+		".pose/review-attempts",
+		".pose/review-run-ledger",
 		".pose/contributions",
 		// The docs manifest exists once `pose docs-init` runs, and release
 		// records once the project releases; a fresh install has neither, and

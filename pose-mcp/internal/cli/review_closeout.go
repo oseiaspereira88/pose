@@ -594,6 +594,12 @@ func cmdReviewVerify(root string, args []string, stdout, stderr io.Writer) int {
 				render(stdout, stderr).Field("review_verify.reused."+reuse.Criterion, "from "+reuse.FromAttestation+"; "+reuse.Mode+"; "+reuse.State)
 			}
 		}
+		for _, run := range verification.DelegatedRuns {
+			render(stdout, stderr).Field("review_verify.run."+run.RunID, run.Adapter+" "+run.Status+" draft="+run.DraftDecision+" bundle="+run.BundleID+" reason="+run.Reason+"; "+run.Assurance)
+		}
+		for _, loss := range verification.DelegatedHistoryLosses {
+			render(stdout, stderr).Field("review_verify.delegated_history_loss", loss)
+		}
 		for _, warning := range verification.Warnings {
 			fmt.Fprintf(stdout, "[WARN] %s\n", warning)
 		}

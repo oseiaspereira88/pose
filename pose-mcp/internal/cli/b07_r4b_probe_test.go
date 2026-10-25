@@ -144,7 +144,7 @@ func TestB07R4BActualRunIdentity(t *testing.T) {
 	modified, _ := json.Marshal(obj)
 	os.WriteFile(filepath.Join(root, r.Path), modified, 0644)
 	runs, lost, _ := s.ReadReviewRuns("")
-	if len(runs) != 0 || len(lost) != 1 {
+	if len(runs) != 0 || len(lost) < 1 || !strings.Contains(strings.Join(lost, ";"), "identity") {
 		t.Fatalf("an edited record was read as a run: %v %v", runs, lost)
 	}
 	why := s.ReviewRunStillGoverns(r)

@@ -14,15 +14,15 @@ import (
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
-const reviewDispatchUsage = "Usage: pose review dispatch <bundle-id|scope> --via <adapter> [--kind review|adjudication|smoke] [--note-file <path>] [--apply]"
+const reviewDispatchUsage = "Usage: pose review dispatch <bundle-id|scope> --via <adapter> [--kind review|adjudication|smoke] [--note-file <path>] [--reason <text>] [--apply]"
 
 func cmdReviewDispatch(root string, args []string, stdout, stderr io.Writer) int {
-	var target, adapter, kind, noteFile string
+	var target, adapter, kind, noteFile, reason string
 	apply := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
-		case "--via", "--kind", "--note-file":
-			if i+1 >= len(args) {
+		case "--via", "--kind", "--note-file", "--reason":
+			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "-") {
 				return usageError(stderr, reviewDispatchUsage)
 			}
 			switch args[i] {
@@ -30,6 +30,8 @@ func cmdReviewDispatch(root string, args []string, stdout, stderr io.Writer) int
 				adapter = args[i+1]
 			case "--kind":
 				kind = args[i+1]
+			case "--reason":
+				reason = args[i+1]
 			default:
 				noteFile = args[i+1]
 			}
@@ -66,7 +68,7 @@ func cmdReviewDispatch(root string, args []string, stdout, stderr io.Writer) int
 		}
 		ref = resolved
 	}
-	plan, err := store.PlanReviewDispatch(ref, kind, notes, adapter)
+	plan, err := store.PlanReviewDispatch(ref, kind, notes, adapter, reason)
 	if errors.Is(err, posemodel.ErrNoReviewerAdapter) {
 		// Not silent: hand over the brief and say what to configure.
 		example, _ := json.MarshalIndent(posemodel.ExampleReviewersPolicy(), "", "  ")
@@ -97,6 +99,8 @@ func cmdReviewDispatch(root string, args []string, stdout, stderr io.Writer) int
 		out.Failure("pose review dispatch: " + strings.TrimPrefix(err.Error(), "pose: "))
 		return 1
 	}
+	out.Field("review_dispatch.attempt", run.AttemptID)
+	out.Field("review_dispatch.reason", run.Reason)
 	out.Field("review_dispatch.run", run.RunID)
 	out.Field("review_dispatch.status", run.Status)
 	if run.Failure != "" {

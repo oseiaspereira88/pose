@@ -81,7 +81,7 @@ func TestB07R3PersistedRunIdentity(t *testing.T) {
 	// A record edited after it was written is not read as a run: it is lost, and a copy of the run that
 	// it used to be does not govern while the loss stands.
 	runs, lost, e := s.ReadReviewRuns("")
-	if e != nil || len(runs) != 0 || len(lost) != 1 {
+	if e != nil || len(runs) != 0 || len(lost) < 1 || !strings.Contains(strings.Join(lost, ";"), "identity") {
 		t.Fatalf("an edited record was read as a run: runs=%v lost=%v %v", runs, lost, e)
 	}
 	if why := s.ReviewRunStillGoverns(r); why == "" {

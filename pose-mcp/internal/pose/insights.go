@@ -26,12 +26,13 @@ type InsightRow struct {
 // InsightsResult is the stable machine-readable contract shared by the CLI
 // and the pose_insights MCP tool.
 type InsightsResult struct {
-	GroupBy                string       `json:"group_by"`
-	SinceDays              int          `json:"since_days"`
-	RecordsScanned         int          `json:"records_scanned"`
-	RecordsSkippedByWindow int          `json:"records_skipped_by_window"`
-	RecordsSkippedInvalid  int          `json:"records_skipped_invalid"`
-	Rows                   []InsightRow `json:"rows"`
+	DelegatedReview        *DelegatedReviewInsights `json:"delegated_review,omitempty"`
+	GroupBy                string                   `json:"group_by"`
+	SinceDays              int                      `json:"since_days"`
+	RecordsScanned         int                      `json:"records_scanned"`
+	RecordsSkippedByWindow int                      `json:"records_skipped_by_window"`
+	RecordsSkippedInvalid  int                      `json:"records_skipped_invalid"`
+	Rows                   []InsightRow             `json:"rows"`
 }
 
 type insightRecord struct {
@@ -59,6 +60,7 @@ func (s Store) Insights(groupBy string, sinceDays int) (*InsightsResult, error) 
 	}
 	rows, skipped := aggregateInsightRows(records, groupBy, sinceDays)
 	return &InsightsResult{
+		DelegatedReview:        s.delegatedReviewInsights(sinceDays),
 		GroupBy:                groupBy,
 		SinceDays:              sinceDays,
 		RecordsScanned:         len(records),

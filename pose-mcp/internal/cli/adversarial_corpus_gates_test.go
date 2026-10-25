@@ -151,7 +151,11 @@ func init() {
 // delegatedCorpusCases are enforced by a test in another package because
 // their fixture lives there; the corpus only checks the test still exists.
 var delegatedCorpusCases = map[string]string{
-	"request-opened-after-preview-transfers": "pose/spec_transfer_actions_test.go:TestTransferRefusesARequestOpenedAfterThePreview",
+	"deleted-reservation-resets-quota":          "pose/review_attempt_ledger_test.go:TestAttemptLedgerReasonQuotaAndReservationLoss",
+	"witness-bundle-filter-hides-loss":          "pose/review_attempt_ledger_test.go:TestAttemptLedgerScopedWitnessAndHistoricalWindow",
+	"window-erases-rerun":                       "pose/review_attempt_ledger_test.go:TestAttemptLedgerScopedWitnessAndHistoricalWindow",
+	"oversized-writer-publishes-unreadable-run": "pose/review_attempt_ledger_test.go:TestAttemptLedgerWriterAndTranscriptBoundsAgree",
+	"request-opened-after-preview-transfers":    "pose/spec_transfer_actions_test.go:TestTransferRefusesARequestOpenedAfterThePreview",
 }
 
 func TestDelegatedCorpusCasesStillExist(t *testing.T) {
