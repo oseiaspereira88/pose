@@ -49,6 +49,14 @@
       "digest": "sha256:dc0be5c841dc028e6b1cdad6b1d216ffa5f04147d00e7a128462edc71e1113e4"
     },
     {
+      "spec": "pose-closeout-terminal-verification",
+      "category": "fixed",
+      "breaking": true,
+      "body": "A done lifecycle no longer certifies terminal closeout or fabricated execution steps. Plans, CLI and MCP disclose the applicable verification basis and historical limits; invalid proof/history remains blocked without reopening or rewriting records. Repeated close/apply/resume verifies a done scope without modifying its checkpoint, lifecycle or review. Consumers must handle the new `not-run` plan step state.",
+      "path": "pose-closeout-terminal-verification.md",
+      "digest": "sha256:5591d42a565f175a1f60ca7c56af8353bcc04746f4c01507d3c40d0171635eba"
+    },
+    {
       "spec": "pose-consolidation-batch-1-authoring",
       "category": "changed",
       "breaking": false,

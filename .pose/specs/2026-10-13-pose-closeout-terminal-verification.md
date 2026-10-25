@@ -1,8 +1,8 @@
 ---
 slug: pose-closeout-terminal-verification
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-25
 depends_on: pose-action-target-and-node-scoping, pose-amendment-history-holds-before-close, pose-recoverable-closeout-plan
 priority: 1
 components: pose-mcp
@@ -91,8 +91,8 @@ Não contornar dependência não terminal apenas porque o código parece present
 - [x] Resolver autoridade e dependências; assessment freshness antes do código.
 - [x] Reproduzir done sem review e definir contrato compatível.
 - [x] Compartilhar verificação aplicável e gate de amendments sem duplicação.
-- [ ] Qualificar domínio, CLI/MCP, histórico e operação sem writes.
-- [ ] Revisão separada, evidência canônica e closeout nativo.
+- [x] Qualificar domínio, CLI/MCP, histórico e operação sem writes.
+- [x] Revisão separada, evidência canônica e closeout nativo.
 
 ## 5. Decisions
 
@@ -152,7 +152,7 @@ Regressões permanentes do produtor `closeout-terminal-verification-integration`
 
 ### Delivered scope
 
-Implementado o verificador terminal compartilhado, com lifecycle distinto, prova e limitações explícitas e no-op sem mutação. A dependência de amendments foi fechada em `94b4f4b` antes do start B11; seus R1–R3 e histórico foram preservados. Gates finais e closeout nativo ainda determinam o estado de entrega.
+Implementado o verificador terminal compartilhado, com lifecycle distinto, prova e limitações explícitas e no-op sem mutação. A dependência de amendments foi fechada em `94b4f4b` antes do start B11; seus R1–R3 e histórico foram preservados. Fechada nativamente em 2026-10-25, com matriz estrita 152/152, composição sem findings e review aprovada; consulte o [relatório](../reports/2026-10-24-b11-terminal-verification.md).
 
 ### Residual risks
 
