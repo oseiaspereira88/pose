@@ -1,8 +1,8 @@
 ---
 slug: pose-delegated-review-run-continuity
-status: in-progress
+status: done
 created_at: 2026-10-18
-completed_at:
+completed_at: 2026-10-25
 supersedes:
 depends_on: pose-delegated-review-attempt-ledger
 priority: 2
@@ -168,7 +168,7 @@ A fake adapter that is interrupted at chosen points (limit with and without a re
 
 ### Delivered scope
 
-Implemented interruption classification, private session capture, same-attempt continuations, bounded wait and explicit fallback, with CLI/doctor/insights/MCP disclosure. Canonical validation, native review and closeout determine delivery; see report `2026-10-25-b16-run-continuity.md`.
+Implemented interruption classification, private session capture, same-attempt continuations, bounded wait and explicit fallback, with CLI/doctor/insights/MCP disclosure. Native close completed on 2026-10-25 after 154/154 canonical checks, artifact reconciliation (32/32), composition with zero findings, and approved attestation `rva-2c1e6fda7692c955` on bundle `rvb-a2a8de43595b6c2d`. See report `2026-10-25-b16-run-continuity.md`.
 
 ### Residual risks
 

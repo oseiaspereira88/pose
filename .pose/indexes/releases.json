@@ -193,6 +193,14 @@
       "digest": "sha256:007df121af7eaa711fbe54d4977bad69babca4ba9ee568a8f43378ad48262551"
     },
     {
+      "spec": "pose-delegated-review-run-continuity",
+      "category": "added",
+      "breaking": true,
+      "body": "Continue interrupted delegated reviews with the original session, sealed inputs and attempt quota. Declare adapter limit/session/resume behavior, inspect partial drafts and reset times, wait once for a bounded reset, and choose any cross-adapter fallback explicitly. Timeouts and observed process loss now produce interrupted records; legacy stale records remain readable. Continuations are counted separately from attempts and cannot apply a review attestation.",
+      "path": "pose-delegated-review-run-continuity.md",
+      "digest": "sha256:db877705c6a02bea56849e3820455a136401c694bbfa1e0c615b99db6d3ffccd"
+    },
+    {
       "spec": "pose-distributed-instructions-parity",
       "category": "changed",
       "breaking": false,
