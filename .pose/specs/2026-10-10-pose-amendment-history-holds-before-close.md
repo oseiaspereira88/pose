@@ -1,8 +1,8 @@
 ---
 slug: pose-amendment-history-holds-before-close
-status: in-progress
+status: done
 created_at: 2026-10-10
-completed_at:
+completed_at: 2026-10-25
 supersedes:
 depends_on:
 priority: 1
@@ -72,8 +72,8 @@ The amendment log stays append-only; nothing rewrites recorded events.
 - [x] Resolve canonical authority, assess freshness and preserve R1–R3.
 - [x] Reproduce first amendment and premature close failures.
 - [x] Seed only from a valid recorded start; share history gate and warning.
-- [ ] Execute domain/CLI regressions and canonical full validation.
-- [ ] Separate review and native closeout.
+- [x] Execute domain/CLI regressions and canonical full validation.
+- [x] Separate review and native closeout.
 
 ## 5. Decisions
 
@@ -110,7 +110,7 @@ The module has high criticality. Use `pose-test-plan` before code. Required chec
 
 ### Delivered scope
 
-Implemented the existing R1–R3 as the prerequisite of B11, under current continuation authorization. Readonly context resolved `proj.pose-dist`; assessment freshness reused. The first amendment copies only recorded start state; existing journals stay append-only. Lint warns during execution and close checks before transition and again under the shared lifecycle lock. No release, policy adoption, parent gitlink update or remote publication. Native validation/review/closeout determine the final lifecycle state.
+Implemented and natively closed on 2026-10-24 the existing R1–R3 as the prerequisite of B11, under current continuation authorization. Readonly context resolved `proj.pose-dist`; assessment freshness reused. The first amendment copies only recorded start state; existing journals stay append-only. Lint warns during execution and close checks before transition and again under the shared lifecycle lock. No release, policy adoption, parent gitlink update or remote publication. Final strict validation passed 151/151 at HEAD `8a35140`; sealed review and guarded closeout are recorded in [implementation evidence](../reports/2026-10-24-amendment-history-before-close.md).
 
 ### Residual risks
 

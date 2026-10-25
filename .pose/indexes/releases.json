@@ -33,6 +33,14 @@
       "digest": "sha256:ced96a11cb345960114306c6a9e6031437180b18206eec2e7a94c8494e0fc5b3"
     },
     {
+      "spec": "pose-amendment-history-holds-before-close",
+      "category": "fixed",
+      "breaking": true,
+      "body": "The first amendment now preserves recorded atomic-start nodes. In-progress lint warns about pending history changes, and close refuses opted-in histories that done lint would reject, including malformed logs. Existing journals stay append-only and no history is enabled automatically. Update shared writers together so amendment append and close use the same lifecycle lock.",
+      "path": "pose-amendment-history-holds-before-close.md",
+      "digest": "sha256:d5df25958acb84a2ee7dd499572de9d1c67b8e4308e79b52a72d9de5b6c83810"
+    },
+    {
       "spec": "pose-cli-mcp-operation-results",
       "category": "changed",
       "breaking": false,
