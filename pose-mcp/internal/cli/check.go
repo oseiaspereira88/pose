@@ -438,6 +438,7 @@ func isRuntimeReference(ref string) bool {
 		".pose/review-continuations",
 		".pose/review-private",
 		".pose/review-run-ledger",
+		".pose/review-run-proofs",
 		".pose/contributions",
 		// The docs manifest exists once `pose docs-init` runs, and release
 		// records once the project releases; a fresh install has neither, and

@@ -1,5 +1,6 @@
-// The bundle validator reads exactly one thing from the live policy
-// (spec pose-only-the-signing-gate-is-read-live).
+// The bundle validator reads only the explicit live trust bars
+// (spec pose-only-the-signing-gate-is-read-live, extended by
+// pose-delegated-review-run-provenance).
 //
 // Everything a sealed bundle is judged by is sealed with it, so that a setting
 // flipped today cannot re-judge a review recorded years ago. One gate is
@@ -10,7 +11,10 @@
 // That exception is one line of code and one paragraph of ADR. Sealing it by
 // symmetry with the others would look like tidying and would quietly exempt
 // every existing bundle from a security requirement — so the count is asserted
-// rather than remembered.
+// rather than remembered. B17 adds delegated_review as a second explicit trust
+// bar: after opt-in, an old sealed declared gate cannot grandfather a typed
+// reviewer prefix into current machine assurance. The historical test name
+// stays stable for requirement traces; every other live field remains refused.
 
 package pose
 
@@ -135,8 +139,12 @@ func TestOnlyTheSigningGateIsReadFromLivePolicy(t *testing.T) {
 		t.Error("the signing requirement is no longer read from the live policy — a bundle sealed before a project started requiring signatures is now permanently exempt from it")
 	}
 	delete(seen, "RequireSignedAttestations")
+	if !seen["DelegatedReview"] {
+		t.Error("the delegated run proof bar is no longer read live; prefix-only identities could remain exempt after explicit opt-in")
+	}
+	delete(seen, "DelegatedReview")
 	for field := range seen {
-		t.Errorf("policy.%s is read live while judging a sealed bundle: seal it into the bundle's gates, or record here why it is the second exception", field)
+		t.Errorf("policy.%s is read live while judging a sealed bundle: seal it into the bundle's gates, or record here why it is an additional explicit trust exception", field)
 	}
 }
 

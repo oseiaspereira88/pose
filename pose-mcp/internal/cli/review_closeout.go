@@ -356,6 +356,10 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdReviewBundle(root, args[1:], stdout, stderr)
 	case "brief":
 		return cmdReviewBrief(root, args[1:], stdout, stderr)
+	case "run-sign":
+		return cmdReviewRunSign(root, args[1:], stdout, stderr)
+	case "run-proof":
+		return cmdReviewRunProof(root, args[1:], stdout, stderr)
 	case "resume":
 		return cmdReviewResume(root, args[1:], stdout, stderr)
 	case "status":
@@ -712,19 +716,23 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 	apply := false
 	// A native issuer signs the attestation in place of recording it unsigned
 	// (spec pose-native-attestation-issuer).
-	var signWith, reviewExecution, implementationPrincipal, implementationExecution, claimTTL string
+	var signWith, reviewExecution, implementationPrincipal, implementationExecution, claimTTL, runID, runProof string
 	claimAuthority := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--authority":
 			claimAuthority = true
-		case "--sign", "--review-execution", "--implementation-principal", "--implementation-execution", "--claim-ttl":
+		case "--run", "--run-proof", "--sign", "--review-execution", "--implementation-principal", "--implementation-execution", "--claim-ttl":
 			if i+1 >= len(args) {
 				render(stdout, stderr).Failure("pose review attest: missing option value")
 				return 2
 			}
 			i++
 			switch args[i-1] {
+			case "--run":
+				runID = args[i]
+			case "--run-proof":
+				runProof = args[i]
 			case "--sign":
 				signWith = args[i]
 			case "--review-execution":
@@ -828,6 +836,12 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	att := posemodel.ReviewAttestation{BundleID: bundle.BundleID, BundleDigest: bundle.BundleDigest, Reviewer: reviewer, Decision: decision, Criteria: criteria, Tools: tools, EvidenceRefs: evidence, Findings: parsedFindings}
+	if runID != "" || runProof != "" {
+		if runID == "" || runProof == "" || signWith == "" {
+			return usageError(stderr, "pose review attest: --run and --run-proof require each other and --sign")
+		}
+		att.Run = &posemodel.ReviewRunReference{RunID: runID, ProofID: runProof}
+	}
 	if attributed {
 		attribution.SchemaVersion = posemodel.ReviewAttributionSchemaVersion
 		att.Attribution = &attribution

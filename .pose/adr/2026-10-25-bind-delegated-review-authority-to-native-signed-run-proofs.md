@@ -1,0 +1,17 @@
+# ADR: Bind delegated review authority to native signed run proofs
+
+## Status
+Accepted (2026-10-25), spec `pose-delegated-review-run-provenance`.
+
+## Context
+B01/B04 already verify native issuer authority and current trust. B16 preserves runs and attempts, but configured vendor/model and a reviewer prefix are declarations. B17 must bind executor assertions to actual sealed execution inputs without inventing vendor receipts or automatically applying a draft (B19).
+
+## Decision
+Capture optional provenance before dispatch from explicit reviewers policy: implementation principal/execution/vendor/model and adapter executor principal, with an explicit executor-attested trust declaration. Normalize identity components and reject unknown baselines for authority. Bind the project/audience protected by review policy, origin worktree identity, sealed scope/kind/bundle/commit, complete adapter/config/argv, brief body and wire digests, template and notes, raw/redacted output/transcript digests, completeness and run lineage.
+
+Sign a separate immutable run-proof envelope using the existing native issuer key and pin grant; never rewrite the content-addressed run or reconstruct a provenance snapshot for legacy runs. Verification rereads the run, transcript, attempt lineage, current policy/config/issuer/audience/project/time and current sealed inputs. Pin revocation and source loss invalidate current machine assurance. Bind the exact proof digest in an attestation reference and sign that attestation through the existing issuer/authority/preflight path. The same proof check feeds admission and disclosure. Vendor OR model difference satisfies different-actor under explicit executor-attested trust, with vendor difference preferred and same-vendor/model refused. This never satisfies mandatory-human.
+
+Recognize an opt-in `delegated_review` review-policy gate for agent different-actor proof; do not add or enable the catalog capability here. The live opt-in bar rejects prefix-only agent reviews when enabled, analogous to the existing live signing bar; non-adopting instances retain declared behavior. This prospectively extends the single-live-signing-bar invariant of `pose-only-the-signing-gate-is-read-live`: exactly RequireSignedAttestations and DelegatedReview remain live, with every other verdict gate sealed. An old declared bundle cannot grandfather a prefix into current machine assurance; no historical proof is reconstructed and no older record is rewritten. The source guard retains its historical test name for requirement traces and now asserts exactly those two trust bars. B19 owns adoption UX, cutoffs/rollback and semantic conclusion application.
+
+## Consequences
+Machine-attested identifies an authorized executor's signed declaration, not an independent vendor receipt, a human confirmation or cognitive independence. Private sessions and issuer keys never enter the proof; commands bind their policy template rather than interpolated session/output paths. Raw hashes record what the executor observed while retained redacted artifacts remain directly verifiable; truncated output cannot establish a completed review. Signature validity cannot erase rejection history, quota or supersession. Rejected alternatives: trusting configured strings without proof, signing today's configuration for old runs, a parallel issuer chain and automatic draft-to-attestation conversion.

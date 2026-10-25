@@ -212,6 +212,7 @@ type ReviewPolicy struct {
 	AllowCriterionReuse          bool     `json:"allow_criterion_reuse,omitempty"`
 	RequireSignedAttestations    bool     `json:"require_signed_attestations,omitempty"`
 	TrustedAttestationIssuers    []string `json:"trusted_attestation_issuers,omitempty"`
+	DelegatedReview              bool     `json:"delegated_review,omitempty"`
 	// IdentityAssurance is per scope kind and holds `declared` or `verified`.
 	//
 	// It is a second axis, not a stronger value of the first. Independence says
@@ -567,7 +568,7 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 				return ReviewPolicy{}, fmt.Errorf("pose: invalid trusted attestation issuer")
 			}
 		}
-		verified := false
+		verified := p.DelegatedReview
 		for scope, assurance := range p.IdentityAssurance {
 			switch assurance {
 			case ReviewIdentityAssuranceDeclared:
