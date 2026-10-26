@@ -311,7 +311,20 @@ func ResolveReleaseTag(root, tag string) (commit string, annotated bool, err err
 }
 
 func gitOutput(root string, args ...string) (string, error) {
+	return gitOutputIn(root, nil, args...)
+}
+
+// gitOutputUntranslated runs git in the C locale, for the callers that read what git says: a
+// translated git words the same answer differently.
+func gitOutputUntranslated(root string, args ...string) (string, error) {
+	return gitOutputIn(root, []string{"LC_ALL=C"}, args...)
+}
+
+func gitOutputIn(root string, env []string, args ...string) (string, error) {
 	cmd := exec.Command("git", append([]string{"-C", root}, args...)...)
+	if env != nil {
+		cmd.Env = append(os.Environ(), env...)
+	}
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()

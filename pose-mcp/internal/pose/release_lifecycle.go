@@ -673,7 +673,7 @@ func NewReleaseEvent(version, state string, evidence ReleaseEvidence, now time.T
 // reason a failing git command says nothing about the releases there are. A `.git` that is there,
 // whose gitdir was lost, is a repository that could not be read: Git words both the same way.
 func GitNotARepository(root string) bool {
-	_, err := gitOutput(root, "rev-parse", "--git-dir")
+	_, err := gitOutputUntranslated(root, "rev-parse", "--git-dir")
 	var failure *gitCommandError
 	if !errors.As(err, &failure) || !strings.Contains(failure.Stderr, "not a git repository") {
 		return false
