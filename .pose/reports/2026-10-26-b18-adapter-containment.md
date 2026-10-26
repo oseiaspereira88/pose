@@ -1,0 +1,19 @@
+# B18: Bound trusted delegated adapter execution
+
+## Authority and implementation
+
+Spec `pose-delegated-adapter-containment`, baseline `a2c0237add2adc789d1a338536713ccfd5e0b33f` after PR206 merge. Preserved R1–R10 and recorded the native start before code. Consumed knowledge:pose-b07-implementation; extended accepted adapter/B07/B12/B16/B17 contracts through the linked ADR without changing historical decisions or adopting policy.
+
+Resolve explicit trusted-process or classified legacy-trusted compatibility and required host capabilities before reservation/spawn. Use finite run/capture/output/retained-byte limits, validate units/ranges/null/zero/unknown enforcement fields, and refuse unavailable filesystem/Git/network/credential-file/CPU/memory/escaped-descendant requirements. Minimal environment excludes ambient tokens; explicit names authorize credentials. Preserve raw hashes, capture session privately, redact overlapping session/credential values together within byte bounds, then hash/canonicalize/sign retained artifacts. Partial byte boundaries withhold output rather than leaking credential prefixes or validating truncation.
+
+Open the runtime root before spawn and read only bounded regular output through that descriptor. Bound Git setup capture/deadline, disable unsealed checkout hooks, propagate caller/CLI cancellation, bound pipes and observe Linux process-group termination. Cleanup uses descriptors for the exact workspace and its exact Git registration, validates identity/backlinks/locks, and never recursively deletes through an adapter-controlled absolute path or prunes global worktrees. Record cleanup OperationResult separately from the domain draft before immutable publication. Failed cleanup blocks authority/continuation, remains a failure on replay and never respawns for compensation. Expose the same safety record through CLI and existing MCP review-bundle projection; metrics do not count cleanup-incomplete drafts as approvals.
+
+## Validation and review progress
+
+Focused domain/CLI/MCP dispatch, continuity and provenance regressions passed. Race detector passed across the three packages (13.415s/7.702s/1.962s on the intermediate source); go vet/build passed. A full intermediate-source Go suite passed across all packages. Final canonical evidence and final-source race remain to be recorded below. Windows cross-build passed with already installed official Go1.26.10; distro GOROOT lacked Windows standard-library sources, so that first attempt was an environment failure, not runtime qualification.
+
+Separate actual execution `/root/b18_review` reproduced credential-prefix/overlap/expansion, descriptor/path cleanup races, lost runtime and replay weaknesses. Corrections and permanent regressions were reviewed independently, including finite setsid escape, exclusive registration deletion, preserved readers and no automatic respawn. No native attestation has been published yet. Synthetic issuer proofs qualify code paths only and are not promoted to this actual reviewer's identity.
+
+## Limits
+
+This backend executes a trusted local executable. A worktree is not a sandbox and shared Git/outside/transient writes remain possible; controlled fixtures demonstrate the limitation. No OS memory/CPU quota, automatic expiry, aggregate storage quota or escaped-descendant containment is supplied. Windows/other platforms do not gain process-group runtime support through cross-compilation. OS filesystem calls remain subject to I/O latency. Exact-value redaction does not claim general DLP. Retain immutable evidence, including failed/rejected attempts, without deletion-based quota restoration. Export retained redacted artifacts and their full inventory, excluding private sessions/issuer keys. No real vendor, release, new isolation backend, instance adoption, parent gitlink change or upstream contribution was activated.

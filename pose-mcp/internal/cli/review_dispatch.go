@@ -3,12 +3,15 @@ package cli
 // pose review dispatch (spec pose-delegated-review-dispatch).
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
@@ -51,7 +54,7 @@ func cmdReviewDispatch(root string, args []string, stdout, stderr io.Writer) int
 	out := render(stdout, stderr)
 	notes := ""
 	if noteFile != "" {
-		raw, err := os.ReadFile(noteFile)
+		raw, err := posemodel.ReadReviewAdapterFile(noteFile, posemodel.ReviewNotesMaxBytes)
 		if err != nil {
 			out.Failure("pose review dispatch: " + err.Error())
 			return 1
@@ -90,11 +93,23 @@ func cmdReviewDispatch(root string, args []string, stdout, stderr io.Writer) int
 	out.Field("review_dispatch.adapter", fmt.Sprintf("%s (%s %s)", plan.Adapter, plan.Config.Vendor, plan.Config.Model))
 	out.Field("review_dispatch.sealed_commit", plan.SealedCommit)
 	out.Field("review_dispatch.prior_runs", fmt.Sprint(plan.PriorRuns))
+	safety, _ := posemodel.ResolveReviewerContainment(plan.Config)
+	if safety != nil {
+		raw, _ := json.Marshal(safety)
+		out.Field("review_dispatch.safety", string(raw))
+	}
 	if !apply {
 		out.Field("review_dispatch.apply", "false")
 		return 0
 	}
-	run, err := store.RunReviewDispatch(plan, time.Now)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
+	if run.Safety != nil {
+		raw, _ := json.Marshal(run.Safety)
+		out.Field("review_dispatch.safety", string(raw))
+		out.Field("review_dispatch.run", run.RunID)
+	}
 	if err != nil {
 		out.Failure("pose review dispatch: " + strings.TrimPrefix(err.Error(), "pose: "))
 		return 1

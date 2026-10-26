@@ -296,11 +296,16 @@ func TestRunProvenanceTruncatedOutputAndPartialAudit(t *testing.T) {
 	f := provenanceRunFixture(t, "different-vendor", "implementation-model", func(a *ReviewerAdapter) {
 		a.Command = []string{"sh", "-c", `cat >/dev/null; printf 'decision: approved\n'; head -c 24000 /dev/zero | tr '\000' x`}
 	})
-	if f.run.Status != ReviewRunCompleted || f.run.Provenance.OutputComplete {
+	if f.run.Status != ReviewRunFailed || f.run.Provenance.OutputComplete {
 		t.Fatal("fixture did not truncate", f.run.Status)
 	}
-	if _, e := f.store.SignReviewRunProof(f.run.RunID, f.key, time.Hour, time.Now(), true); e == nil {
-		t.Fatal("truncated completed draft established a proof")
+	proof, e := f.store.SignReviewRunProof(f.run.RunID, f.key, time.Hour, time.Now(), true)
+	if e != nil {
+		t.Fatal(e)
+	}
+	audit, e := f.store.VerifyReviewRunProof(f.run.RunID, proof.ProofID)
+	if e != nil || audit.CompleteReview || audit.State != ReviewRunFailed {
+		t.Fatal("truncated draft became a review", audit, e)
 	}
 	f = provenanceFixture(t, "different-vendor", "implementation-model", func(a *ReviewerAdapter) {
 		a.Command = []string{"sh", "-c", `cat >/dev/null; printf 'session: private-fixture-ref\ndecision: rejected\n'; exit 75`}
@@ -308,7 +313,7 @@ func TestRunProvenanceTruncatedOutputAndPartialAudit(t *testing.T) {
 		a.Session = &ReviewerSession{Pattern: `session: (\S+)`}
 		a.Resume = &ReviewerResume{Command: []string{"sh", "-c", `cat >/dev/null; printf 'decision: approved\n'`, "sh", "{session}"}}
 	})
-	audit, e := f.store.VerifyReviewRunProof(f.run.RunID, f.proof.ProofID)
+	audit, e = f.store.VerifyReviewRunProof(f.run.RunID, f.proof.ProofID)
 	if e != nil || audit.State != ReviewRunInterrupted || audit.CompleteReview {
 		t.Fatal("partial audit became review", audit, e)
 	}

@@ -810,6 +810,36 @@ Reservations live in `.pose/review-attempts/`, final receipts link the run, and 
 
 `pose review verify` and MCP disclose scope-wide prior runs alongside the attestation, including earlier rejecting drafts. `pose insights` aliases `pose stats`; text, JSON, HTML and MCP `pose_insights` show runs per bundle, attempts, reruns and per-adapter declared draft approval rates. A time window limits counted events, while the full preceding history classifies reruns. Approval rate uses unambiguous completed, unsuperseded `decision: approved|changes-requested|rejected` drafts; ambiguous output, failures and stale runs are unknown. Legacy unreserved runs count as individual attempts without claiming a reservation existed. Draft labels and rates are not verified approvals and never apply an attestation or enable delegated-review automatically.
 
+### Bound delegated adapter execution
+
+Declare an optional `containment` object on each adapter in `.pose/policy/reviewers.json`. Use schema 1 and `trusted-process`. This backend runs a trusted local executable; a disposable worktree shares Git metadata and does not isolate filesystem, original repository, network, credential files, CPU or memory. Required guarantees that the host cannot enforce are refused before reserving an attempt or spawning a process. Linux process-group termination requires an observable process inventory and is checked after kill; descendants that escape the group remain outside its coverage. Windows/other ports do not qualify group containment from a cross-build.
+
+```json
+{
+  "containment": {
+    "schema_version": 1,
+    "profile": "trusted-process",
+    "required": ["bounded-capture", "environment-allowlist"],
+    "environment": ["LANG"],
+    "credentials": ["REVIEWER_API_KEY"],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "retention_ttl_seconds": 0
+  }
+}
+```
+
+Keep environment/credentials lists unique (at most 128/32 names). Ambient token variables are excluded. Explicit profiles use a private disposable HOME; an omitted profile is disclosed as `legacy-trusted` and retains HOME compatibility. This is environment filtering, not protection against an executable reading same-user files. Authorize credential variable names explicitly; never put their values in policy, argv, brief or notes. Loader hooks and Git redirection variables cannot be allowlisted. Credential values and captured session references are redacted together in one bounded pass, longest match first; this is exact-value redaction, not general data-loss prevention or a guarantee against encoded secrets emitted by an untrusted adapter.
+
+Use a positive timeout from 1ms to 24h (omitted: 60m). Omit `max_runs_per_bundle` for a finite default of three; explicit values must be 1..100, including on legacy adapters. Explicit zero/null is invalid. Omitted stream/output/retained limits are 8MiB/64KiB/16MiB; explicit ranges are 1..64MiB, 1..128KiB and 1..128MiB. Require retained bytes to cover `stream_bytes + 6*output_bytes + 1048576` for JSON escaping and metadata. The retained budget covers the run record plus transcript per execution; independent bounded ledger/proof inventories still apply. It is not an aggregate storage quota, an adapter memory quota or an OS disk limit. Memory/CPU settings, positive TTL and unknown enforcement fields are refused by this backend.
+
+Bound setup to two minutes and 64KiB of discarded diagnostic capture; disable ambient checkout hooks. Bound concurrent stdout/stderr together during capture and read `{output}` through a root descriptor opened before spawn, refusing links, special files, identity changes and oversized files. Notes must be regular non-symlink UTF-8 files up to 16KiB. Do not interpolate brief/notes into shell code. Truncated, unsafe or unredactable channels make the execution failed/incomplete; withhold their bytes because a cutoff can split a credential. No such draft governs review authority. Caller cancellation and CLI interrupt/termination signals stop the covered process set; pipe wait is bounded.
+
+Inspect `safety` on the immutable run, CLI dispatch/verify/resume and the existing MCP review-bundle projection. It reports profile/platform, available/unavailable capabilities, limits, capture completeness, execution cause, runtime resource identifier and the B12 cleanup OperationResult. Cleanup verifies operation ownership and removes only the captured workspace and its exact Git registration through confined descriptors, never a global Git prune. Inventory caps are 100000 workspace entries/256MiB, 1024 registration entries/256MiB and 4096 runtime entries/128MiB, depth 128. OS filesystem calls remain subject to I/O latency; no hard syscall deadline is claimed. Failure retains uncertain resources and is separate from the domain draft. It returns an operational error, blocks authority/continuation and remains an error on idempotent replay, without another spawn. Inspect the recorded runtime identifier and registration rather than rerunning the adapter to compensate.
+
+Retain evidence without automatic expiry (`retention_ttl_seconds: 0`); newly written run/transcript files use mode 0600 and private sessions retain their existing 0700/0600 policy. Export retained redacted run/transcript, witness, attempt/continuation receipts and optional proof together, preserving inventory and digests; exclude private sessions and issuer keys. Raw-byte digests precede redaction; retained-byte digests, canonical run identity, witness and native signature follow. No retention operation removes rejection history or restores quota. Legacy records remain readable with no fabricated safety observations. No instance policy, sandbox backend or real vendor is activated by these examples.
+
 ### Continue interrupted delegated reviews
 
 Configure optional `limit`, `session` and `resume` fields on an adapter in `.pose/policy/reviewers.json`. Use RE2 patterns; session/reset patterns need exactly one capture group. Recognize limits by declared exit codes or output patterns in stdout/stderr or `{output}`. Parse reset captures as RFC3339 instants. The engine does not infer vendor vocabulary. Example fields on an otherwise configured adapter:

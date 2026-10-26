@@ -603,6 +603,10 @@ func cmdReviewVerify(root string, args []string, stdout, stderr io.Writer) int {
 			}
 		}
 		for _, run := range verification.DelegatedRuns {
+			if run.Safety != nil {
+				raw, _ := json.Marshal(run.Safety)
+				render(stdout, stderr).Field("review_verify.safety."+run.RunID, string(raw))
+			}
 			render(stdout, stderr).Field("review_verify.run."+run.RunID, run.Adapter+" "+run.Status+" draft="+run.DraftDecision+" bundle="+run.BundleID+" reason="+run.Reason+fmt.Sprintf(" partial=%t resumes=%s limit_of=%s; ", run.Partial, run.Resumes, run.LimitOf)+run.Assurance)
 		}
 		for _, loss := range verification.DelegatedHistoryLosses {
