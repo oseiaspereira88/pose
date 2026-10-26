@@ -66,6 +66,21 @@ func TestAdapterContainmentConfiguration(t *testing.T) {
 	}
 }
 
+func TestAdapterContainmentEnvironmentNamesCannotBypassReservedKeys(t *testing.T) {
+	for _, name := range []string{"home", "Home", "userprofile", "tmp", "Temp", "tmpdir", "bash_env", "Env", "shellopts", "git_dir", "ld_preload", "dyld_library_path"} {
+		a := ReviewerAdapter{Command: []string{"sh"}, Vendor: "fixture", Model: "fixture", Containment: containmentPolicy()}
+		a.Containment.Environment = []string{name}
+		if _, err := ResolveReviewerContainment(a); err == nil {
+			t.Fatal("reserved case variant accepted", name)
+		}
+	}
+	a := ReviewerAdapter{Command: []string{"sh"}, Vendor: "fixture", Model: "fixture", Containment: containmentPolicy()}
+	a.Containment.Environment = []string{"FIXTURE_ALLOWED", "fixture_allowed"}
+	if _, err := ResolveReviewerContainment(a); err == nil {
+		t.Fatal("case-fold duplicate accepted")
+	}
+}
+
 func TestAdapterContainmentConcurrentCapture(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

@@ -175,12 +175,13 @@ func ResolveReviewerContainment(a ReviewerAdapter) (*ReviewExecutionSafety, erro
 	}
 	seen := map[string]bool{}
 	for _, name := range append(append([]string{}, p.Environment...), p.Credentials...) {
-		if len(name) > 128 || !adapterEnvironmentName.MatchString(name) || seen[name] {
+		if len(name) > 128 || !adapterEnvironmentName.MatchString(name) || seen[strings.ToUpper(name)] {
 			return nil, fmt.Errorf("environment/credentials require unique valid variable names")
 		}
-		seen[name] = true
+		upper := strings.ToUpper(name)
+		seen[upper] = true
 		// Loader hooks can turn a trusted binary into an unrelated executable.
-		if strings.HasPrefix(name, "LD_") || strings.HasPrefix(name, "DYLD_") || strings.HasPrefix(name, "GIT_") || name == "BASH_ENV" || name == "ENV" || name == "SHELLOPTS" || name == "HOME" || name == "TMPDIR" {
+		if strings.HasPrefix(upper, "LD_") || strings.HasPrefix(upper, "DYLD_") || strings.HasPrefix(upper, "GIT_") || upper == "BASH_ENV" || upper == "ENV" || upper == "SHELLOPTS" || upper == "HOME" || upper == "USERPROFILE" || upper == "TMPDIR" || upper == "TMP" || upper == "TEMP" {
 			return nil, fmt.Errorf("environment variable %s is reserved or unsafe", name)
 		}
 	}
@@ -221,9 +222,15 @@ func reviewAdapterEnvironment(a ReviewerAdapter, tmp, brief, notes string) ([]st
 		names = append(names, a.Containment.Environment...)
 	}
 	values := map[string]string{}
+	put := func(name, value string) {
+		if runtime.GOOS == "windows" {
+			name = strings.ToUpper(name)
+		}
+		values[name] = value
+	}
 	for _, name := range names {
 		if value, ok := os.LookupEnv(name); ok {
-			values[name] = value
+			put(name, value)
 		}
 	}
 	secrets := []string{}
@@ -236,7 +243,7 @@ func reviewAdapterEnvironment(a ReviewerAdapter, tmp, brief, notes string) ([]st
 				if strings.Contains(brief, value) || strings.Contains(notes, value) {
 					return nil, nil, fmt.Errorf("brief/notes contain an authorized credential; refusing execution")
 				}
-				values[name] = value
+				put(name, value)
 				secrets = append(secrets, value)
 			}
 		}

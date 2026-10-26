@@ -92,9 +92,9 @@ Reutilizar B07/B12/B16/B17, `knowledge:pose-b07-implementation` e a decisão [tr
 
 ## 4. Tasks
 
-- [ ] Resolver perfil/compatibilidade e validar configuração antes do efeito.
-- [ ] Aplicar limites de captura, ambiente e leitura; qualificar término/cleanup.
-- [ ] Expor a mesma evidência em registros, CLI e MCP; documentar retenção.
+- [x] Resolver perfil/compatibilidade e validar configuração antes do efeito.
+- [x] Aplicar limites de captura, ambiente e leitura; qualificar término/cleanup.
+- [x] Expor a mesma evidência em registros, CLI e MCP; documentar retenção.
 - [ ] Executar regressões, matriz canônica e revisão separada; fechar nativamente.
 
 ## 5. Decisions
@@ -148,7 +148,7 @@ Executar suíte Go do módulo e integração CLI/MCP/Attention dos produtores al
 - R6 [satisfied] test:TestAdapterContainmentTimeoutAndChildren test:TestAdapterContainmentCallerCancellation test:TestAdapterContainmentEscapedFiniteChildIsDisclosedNotContained
 - R7 [satisfied] test:TestAdapterContainmentCleanupCapturedRootsRefuseReplacement test:TestAdapterContainmentCleanupOnlyOwnRegistrationAndIdempotence test:TestAdapterContainmentFailedCleanupContinuationRemainsFailed test:TestAdapterContainmentCLICleanupFailureIsRetainedAndNotApproval
 - R8 [satisfied] test:TestAdapterContainmentEnvironmentAndSignedRetention test:TestAdapterContainmentFailedCleanupContinuationRemainsFailed
-- R9 [satisfied] test:TestAdapterContainmentCLIRealDispatchAndDisclosure test:TestAdapterContainmentMCPReportsFailedCleanupWithoutApproval
+- R9 [satisfied] capability:delegated-adapter-containment evidence:integration check:delegated-adapter-containment-integration test:TestAdapterContainmentCLIRealDispatchAndDisclosure test:TestAdapterContainmentMCPReportsFailedCleanupWithoutApproval
 - R10 [satisfied] test:TestAdapterContainmentConfiguration test:TestAdapterContainmentSetupDoesNotRunCheckoutHook test:TestAdapterContainmentCleanupCapturedRootsRefuseReplacement test:TestAdapterContainmentMCPReportsFailedCleanupWithoutApproval
 
 ## 7. Final Report
