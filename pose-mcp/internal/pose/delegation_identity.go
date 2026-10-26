@@ -39,6 +39,10 @@ type ReviewBundleImplementation struct {
 	Model           string `json:"model"`
 	ExecutionDigest string `json:"execution_digest,omitempty"`
 	Source          string `json:"source"`
+	// Replaces names the bundle of the same content whose identity this seal
+	// replaced, so the replacement governs whatever the seal instants say
+	// (spec pose-delegation-routing D3).
+	Replaces string `json:"replaces,omitempty"`
 }
 
 // sessionVendorMarkers are the variables by which an agent host tells its
@@ -135,11 +139,14 @@ func firstSet(getenv func(string) string, names []string) string {
 	return ""
 }
 
+// normalizeIdentityPart reads a vendor or a model the way provenance does.
+func normalizeIdentityPart(v string) string { return strings.ToLower(strings.TrimSpace(v)) }
+
 // AchievedIndependence compares an agent with the implementation. An unknown
 // vendor or model on either side establishes no difference (D2).
 func AchievedIndependence(implVendor, implModel, vendor, model string) string {
-	known := func(v string) bool { v = strings.TrimSpace(v); return v != "" && v != ImplementationUnknown }
-	implVendor, implModel, vendor, model = strings.ToLower(implVendor), strings.ToLower(implModel), strings.ToLower(vendor), strings.ToLower(model)
+	known := func(v string) bool { return v != "" && v != ImplementationUnknown }
+	implVendor, implModel, vendor, model = normalizeIdentityPart(implVendor), normalizeIdentityPart(implModel), normalizeIdentityPart(vendor), normalizeIdentityPart(model)
 	switch {
 	case known(implVendor) && known(vendor) && implVendor != vendor:
 		return IndependenceDifferentVendor
@@ -164,6 +171,9 @@ func validateBundleImplementation(id ReviewBundleImplementation) error {
 	}
 	if id.ExecutionDigest != "" && !validProofDigest(id.ExecutionDigest) {
 		return fmt.Errorf("implementation execution digest is malformed")
+	}
+	if id.Replaces != "" && (!strings.HasPrefix(id.Replaces, "rvb-") || len(id.Replaces) != 20) {
+		return fmt.Errorf("implementation replaces %q, which is not a bundle id", id.Replaces)
 	}
 	return nil
 }

@@ -349,8 +349,11 @@ type DispatchPlan struct {
 	// the implementation the plan read (spec pose-delegation-routing R8).
 	Routing        *DelegationRoutingRecord
 	implementation *ReviewBundleImplementation
-	// Warnings are printed before the run starts.
-	Warnings []string
+	// Warnings are printed before the run starts. SameVendorWarning is set
+	// when the plan's agent shares the implementation's vendor; a caller that
+	// named the agent prints it, routing does not (R9).
+	Warnings          []string
+	SameVendorWarning string
 }
 
 // Implementation is the identity the plan compares its agent with.
@@ -364,19 +367,50 @@ func (p DispatchPlan) Implementation() ReviewBundleImplementation {
 	return ReviewBundleImplementation{Vendor: ImplementationUnknown, Model: ImplementationUnknown, Source: ImplementationDetected}
 }
 
-// planImplementation reads the identity a run of bundle is compared with and
-// warns when the policy still declares one the bundle overrides (R4).
-func (s Store) planImplementation(plan *DispatchPlan) {
-	policy, _, found, err := s.LoadDelegationPolicy()
-	if err != nil || !found {
-		return
+// PlanImplementationWithLead reads the plan's implementation again with the
+// --lead the caller declared, for a bundle that records none (R4), and records
+// the agent as named.
+func (s Store) PlanImplementationWithLead(plan *DispatchPlan, lead string) {
+	plan.Routing, plan.Warnings, plan.SameVendorWarning = nil, nil, ""
+	s.planImplementation(plan, lead)
+}
+
+// routingAgainstAnotherBundle refuses a routing decision made against an
+// implementation the plan's bundle does not record: the run would record an
+// identity and an independence it did not have (spec pose-delegation-routing
+// R8).
+func routingAgainstAnotherBundle(plan DispatchPlan) string {
+	if plan.Routing == nil || plan.Routing.ImplementationFrom != ImplementationFromBundle {
+		return ""
 	}
-	impl, _, err := s.RoutingImplementation(plan.Bundle, policy, "")
-	if err == nil {
-		plan.implementation = &impl
+	sealed := plan.Bundle.Payload.Implementation
+	if sealed == nil || !sameImplementation(*sealed, plan.Routing.Implementation) {
+		return "the run was routed against another implementation than bundle " + plan.Bundle.BundleID + " records; route it again"
 	}
-	if plan.Bundle.Payload.Implementation != nil && policy.Provenance != nil && policy.Provenance.Implementation != (ModelIdentity{}) {
-		plan.Warnings = append(plan.Warnings, "provenance.implementation in the delegation policy is ignored: bundle "+plan.Bundle.BundleID+" records the implementation it was sealed by; remove the policy entry")
+	return ""
+}
+
+// planImplementation reads the identity a run of bundle is compared with,
+// records the agent as named unless routing chose it (R8, R9), and warns when
+// the policy still declares an identity the bundle overrides (R4).
+func (s Store) planImplementation(plan *DispatchPlan, lead string) {
+	impl := ReviewBundleImplementation{Vendor: ImplementationUnknown, Model: ImplementationUnknown, Source: ImplementationDetected}
+	from := ImplementationFromNone
+	if policy, _, found, err := s.LoadDelegationPolicy(); err == nil && found {
+		if read, readFrom, err := s.RoutingImplementation(plan.Bundle, policy, lead); err == nil {
+			impl, from = read, readFrom
+		}
+		if plan.Bundle.Payload.Implementation != nil && policy.Provenance != nil && policy.Provenance.Implementation != (ModelIdentity{}) {
+			plan.Warnings = append(plan.Warnings, "provenance.implementation in the delegation policy is ignored: bundle "+plan.Bundle.BundleID+" records the implementation it was sealed by; remove the policy entry")
+		}
+	}
+	plan.implementation = &impl
+	if plan.Routing == nil {
+		record := ExplicitDelegationRoute(plan.Adapter, impl, from)
+		plan.Routing = &record
+	}
+	if knownIdentityPart(impl.Vendor) && normalizeIdentityPart(plan.Config.Vendor) == impl.Vendor {
+		plan.SameVendorWarning = "agent " + plan.Adapter + " shares the implementation's vendor (" + impl.Vendor + "); the run cannot achieve vendor independence"
 	}
 }
 
@@ -451,7 +485,7 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string, reason ..
 		return DispatchPlan{}, err
 	}
 	plan.PriorRuns = currentCount
-	s.planImplementation(&plan)
+	s.planImplementation(&plan, "")
 	plan.provenance, err = s.prepareRunProvenance(plan, policy)
 	if err != nil {
 		return DispatchPlan{}, err
@@ -472,6 +506,9 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (Revie
 func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPlan, now func() time.Time) (result ReviewRun, resultErr error) {
 	if err := parent.Err(); err != nil {
 		return ReviewRun{}, err
+	}
+	if why := routingAgainstAnotherBundle(plan); why != "" {
+		return ReviewRun{}, errors.New("pose: " + why)
 	}
 	// pose delegate cancel stops the run through this context (R13).
 	parent, cancelRun := context.WithCancel(parent)
@@ -1269,6 +1306,11 @@ func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
 	}
 	if !sealedBundleMatches(plan.Bundle, prepared) {
 		return "stale: the bundle was superseded or its inputs changed while the run was going (the scope now prepares " + prepared.BundleDigest + ")"
+	}
+	// Equal content is not the governing bundle: a later seal may have replaced
+	// the implementation identity this run was compared with.
+	if governing := governingSealedBundle(read.Bundles, prepared); governing == nil || governing.BundleID != plan.Bundle.BundleID {
+		return "stale: another sealed bundle of the same content now governs the scope (its implementation identity was sealed again)"
 	}
 	// An equal digest is not an eligible preparation: a preparation that carries blockers
 	// (an unreadable Git status among them) did not read what it says it read.

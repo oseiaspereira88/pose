@@ -23,6 +23,9 @@ const (
 	DelegationAgentLimited     = "limited"
 	DelegationAgentMissing     = "missing"
 	DelegationAgentProbeFailed = "probe-failed"
+	// DelegationAgentUnknown means the run history could not be read whole:
+	// a run that cannot be read may be the limit that blocks the agent.
+	DelegationAgentUnknown = "unknown"
 )
 
 // DelegationStepPreferred and DelegationStepExplicit name how a run's agent
@@ -141,8 +144,21 @@ func (s Store) RoutingImplementation(bundle ReviewBundle, policy DelegationPolic
 func (s Store) DelegationAvailabilityOf(policy DelegationPolicy, now time.Time, probe bool) map[string]DelegationAvailability {
 	lastRun := map[string]ReviewRun{}
 	lastLimit := map[string]string{}
-	if runs, _, err := s.ReadReviewRuns(""); err == nil {
-		sort.SliceStable(runs, func(i, j int) bool { return runs[i].StartedAt < runs[j].StartedAt })
+	runs, lost, err := s.ReadReviewRuns("")
+	historyLoss := ""
+	switch {
+	case err != nil:
+		historyLoss = err.Error()
+	case len(lost) > 0:
+		historyLoss = strings.Join(lost, "; ")
+	default:
+		// By the instants the runs started, not by their spelling: fractions of
+		// a second are written with as many digits as they need.
+		sort.SliceStable(runs, func(i, j int) bool {
+			a, errA := time.Parse(time.RFC3339Nano, runs[i].StartedAt)
+			b, errB := time.Parse(time.RFC3339Nano, runs[j].StartedAt)
+			return errA == nil && errB == nil && a.Before(b)
+		})
 		for _, run := range runs {
 			lastRun[run.Adapter] = run
 			if run.Interruption != nil && run.Interruption.Cause == "usage-limit" {
@@ -160,9 +176,11 @@ func (s Store) DelegationAvailabilityOf(policy DelegationPolicy, now time.Time, 
 		switch {
 		case !a.OnPath:
 			a.State, a.Detail = DelegationAgentMissing, "its CLI "+a.CLI+" is not on the path"
+		case historyLoss != "":
+			a.State, a.Detail = DelegationAgentUnknown, "the run history could not be read whole: "+historyLoss
 		case ran && last.Interruption != nil && last.Interruption.Cause == "usage-limit":
 			if at, err := time.Parse(time.RFC3339Nano, last.Interruption.ResetAt); err == nil && at.After(now) {
-				a.State, a.LimitedUntil = DelegationAgentLimited, at.UTC().Format(time.RFC3339)
+				a.State, a.LimitedUntil = DelegationAgentLimited, at.UTC().Format(time.RFC3339Nano)
 				a.Detail = "limited until " + a.LimitedUntil
 			} else if err != nil {
 				// A limit with no known reset blocks the agent without a wait.
@@ -221,6 +239,7 @@ func RouteDelegation(policy DelegationPolicy, eligible []string, impl ReviewBund
 	for _, name := range eligible {
 		isEligible[name] = true
 	}
+	impl.Vendor, impl.Model = normalizeIdentityPart(impl.Vendor), normalizeIdentityPart(impl.Model)
 	knownVendor := knownIdentityPart(impl.Vendor)
 	groups := map[string][]string{}
 	for _, name := range policy.DeclaredAgentNames() {
@@ -228,7 +247,7 @@ func RouteDelegation(policy DelegationPolicy, eligible []string, impl ReviewBund
 			continue
 		}
 		agent := policy.Agents[name]
-		vendor, model := strings.ToLower(agent.Vendor), strings.ToLower(agent.Model)
+		vendor, model := normalizeIdentityPart(agent.Vendor), normalizeIdentityPart(agent.Model)
 		group := DelegationStepPreferred
 		if record.Prefer == DelegationPreferOpposite && knownVendor && vendor == impl.Vendor {
 			group = DelegationStepSameModel
@@ -286,7 +305,7 @@ func delegationWaitCandidate(considered []string, avail map[string]DelegationAva
 	best, bestAt := "", time.Time{}
 	for _, name := range considered {
 		a := avail[name]
-		at, err := time.Parse(time.RFC3339, a.LimitedUntil)
+		at, err := time.Parse(time.RFC3339Nano, a.LimitedUntil)
 		if a.State != DelegationAgentLimited || err != nil || at.Sub(now) > maxWait {
 			return "", "", false
 		}
@@ -294,7 +313,7 @@ func delegationWaitCandidate(considered []string, avail map[string]DelegationAva
 			best, bestAt = name, at
 		}
 	}
-	return best, bestAt.UTC().Format(time.RFC3339), true
+	return best, bestAt.UTC().Format(time.RFC3339Nano), true
 }
 
 // ExplicitDelegationRoute records an agent named with --agent (R9).

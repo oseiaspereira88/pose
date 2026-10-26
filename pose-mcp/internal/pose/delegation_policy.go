@@ -106,8 +106,9 @@ type DelegationAgent struct {
 	Executor         string               `json:"executor,omitempty"`
 	Containment      *ReviewerContainment `json:"containment,omitempty"`
 	// Probe is an optional availability check (spec pose-delegation-routing
-	// R6). It is not part of the adapter the review path verifies, so adding
-	// one never stales a recorded run.
+	// R6). It is not part of the adapter the review path verifies, so it never
+	// changes the adapter digest a run's provenance binds; adding one is still a
+	// policy edit, which changes the policy baseline as any edit does (D5).
 	Probe *DelegationProbe `json:"probe,omitempty"`
 }
 

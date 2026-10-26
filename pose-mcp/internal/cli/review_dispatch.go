@@ -86,6 +86,12 @@ func cmdReviewDispatch(root string, args []string, stdout, stderr io.Writer) int
 	if adapter == "" {
 		return usageError(stderr, reviewDispatchUsage)
 	}
+	for _, warning := range plan.Warnings {
+		out.Hint("pose review dispatch: " + warning)
+	}
+	if plan.SameVendorWarning != "" {
+		out.Hint("pose review dispatch: " + plan.SameVendorWarning)
+	}
 	out.Field("review_dispatch.scope", plan.Brief.Scope)
 	out.Field("review_dispatch.bundle", plan.Bundle.BundleID)
 	out.Field("review_dispatch.kind", plan.Brief.Kind)

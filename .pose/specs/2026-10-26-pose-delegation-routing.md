@@ -74,6 +74,7 @@ Bundle sealing and payload schema, routing resolver, availability reader, run re
 - created: pose-mcp/internal/pose/delegation_identity.go
 - created: pose-mcp/internal/pose/delegation_routing.go
 - created: pose-mcp/internal/pose/delegation_routing_test.go
+- created: pose-mcp/internal/pose/delegation_routing_review_test.go
 - modified: pose-mcp/internal/pose/delegation_policy.go
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
@@ -87,6 +88,9 @@ Bundle sealing and payload schema, routing resolver, availability reader, run re
 - modified: pose-mcp/internal/cli/delegate_test.go
 - created: pose-mcp/internal/cli/delegate_routing_test.go
 - modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/review_dispatch.go
+- modified: pose-mcp/internal/mcpserver/review_run_provenance_test.go
+- modified: pose-mcp/internal/mcpserver/server_test.go
 - modified: pose-mcp/internal/cli/review_run_provenance_test.go
 - modified: pose-mcp/internal/cli/cli_test.go
 - modified: pose-mcp/internal/cli/help_catalog.go
@@ -113,7 +117,8 @@ Bundle payload field `implementation`; policy keys `routing.prefer`, `routing.on
 - [x] Availability and `agents` states
 - [x] Resolver with preference and fallback steps
 - [x] Routing record and achieved independence, disclosed at verify and closeout
-- [ ] Independent review and closeout
+- [x] First independent review: changes requested (B01–B08, F01–F05), all addressed; B04 by correcting D5, whose claim that a probe never stales a recorded run was wrong
+- [ ] Second independent review and closeout
 
 ## 5. Decisions
 
@@ -138,7 +143,7 @@ Bundle payload field `implementation`; policy keys `routing.prefer`, `routing.on
 - Minimal option: put the identity in the payload like any other field
 - Selected option: seal it in the payload, but never prepare it, and match a sealed bundle with a preparation by their content once the preparation takes the sealed identity
 - Rationale: every freshness check compares a preparation with a sealed bundle; an identity in the prepared payload would make every bundle stale for any session of another vendor, and an identity outside the payload could be edited after the fact
-- Consequences: resealing content a bundle already holds returns that bundle with its identity, so a reviewer closing out never becomes the implementation; only a declared `--lead` naming another identity seals anew; two bundles of one content can exist, and the newer governs
+- Consequences: resealing content a bundle already holds returns the bundle that governs it, with its identity, so a reviewer closing out never becomes the implementation; only a declared `--lead` naming another identity than the governing bundle's seals anew, and that seal names the bundle whose identity it replaces, so it governs whatever the seal instants or the ids say and a historical identity declared again is a new seal; a run compared with a replaced identity stops governing, and a run routed against an identity its bundle does not record does not start
 - Falsifier: a bundle reported stale, or a reseal minting a bundle, when only the sealing session changed
 
 ### Decision D4
@@ -153,9 +158,9 @@ Bundle payload field `implementation`; policy keys `routing.prefer`, `routing.on
 - Basis: R6, R7
 - Minimal option: no default `max_wait`, so `wait` applies only when configured
 - Selected option: default `max_wait` 5h, bounded at 24h; a probe is an argv with a 10s default and 60s bound, no placeholder, outside the adapter the review path verifies
-- Rationale: `wait` is a default step, and a default that never applies is a default in name only; the vendors' usage windows are a few hours; a probe in the adapter would stale every recorded run when it is added
-- Consequences: an instance that wants no waiting removes `wait` from `on_unavailable` or sets `max_wait` to 0
-- Falsifier: a run that waited longer than `max_wait`, or a recorded run staled by adding a probe
+- Rationale: `wait` is a default step, and a default that never applies is a default in name only; the vendors' usage windows are a few hours; a probe in the adapter would change the adapter digest a run's provenance binds
+- Consequences: an instance that wants no waiting removes `wait` from `on_unavailable` or sets `max_wait` to 0; adding a probe is still an edit of `.pose/policy`, and like every policy edit it changes the policy baseline, so runs recorded under the earlier policy stop governing as they do for any other policy change — a probe is not exempt from that rule
+- Falsifier: a run that waited longer than `max_wait`, or a run's provenance failing on its adapter digest because a probe was added
 
 ### Decision D6
 - Basis: R10
@@ -169,7 +174,7 @@ Bundle payload field `implementation`; policy keys `routing.prefer`, `routing.on
 
 ### Strategy
 
-Fixture sessions with each vendor's markers seal bundles with the expected identity; `--lead` overrides and is labelled; a fake agent set with one vendor limited and one CLI missing routes through each fallback step in order; `wait` starts after a recorded reset and is skipped beyond `max_wait`; a same-model run is disclosed and refused as `different-actor`; an earlier bundle still reads the policy identity.
+R10 is delivered as the session-identity determination the seal uses (D6); its caller in `pose delegate task` is deferred to `pose-delegation-task`, and the trace records it as such rather than as an executed task path. Fixture sessions with each vendor's markers seal bundles with the expected identity; `--lead` overrides and is labelled; a fake agent set with one vendor limited and one CLI missing routes through each fallback step in order; `wait` starts after a recorded reset and is skipped beyond `max_wait`; a same-model run is disclosed and refused as `different-actor`; an earlier bundle still reads the policy identity.
 
 ### Requirement trace
 

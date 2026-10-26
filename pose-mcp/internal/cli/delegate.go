@@ -53,7 +53,6 @@ var delegatePlanned = map[string]string{
 
 var (
 	delegateLabelRE = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`)
-	delegateLeadRE  = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,31}$`)
 )
 
 // commonDelegateFlags are taken by every subcommand.
@@ -136,10 +135,14 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 				}
 				f.label = value
 			case "--lead":
-				if !delegateLeadRE.MatchString(value) {
-					return f, tr("--lead takes a vendor name such as openai or anthropic", "--lead recebe um nome de vendor como openai ou anthropic")
+				vendor, model, err := posemodel.ParseLead(value)
+				if err != nil {
+					return f, tr("--lead takes <vendor>[/<model>], such as openai or anthropic/claude-opus-5-5", "--lead recebe <vendor>[/<modelo>], como openai ou anthropic/claude-opus-5-5")
 				}
-				f.lead = value
+				f.lead = vendor
+				if model != "" {
+					f.lead += "/" + model
+				}
 			case "--reason":
 				f.reason = value
 			case "--note-file":
@@ -243,7 +246,7 @@ func (f delegateFlags) mismatch(a posemodel.DelegationAttempt) string {
 		return "--access " + f.access
 	case f.label != "" && f.label != a.Label:
 		return "--label " + f.label
-	case f.lead != "" && f.lead != a.Lead:
+	case f.lead != "" && f.lead != a.Lead && leadVendor(f.lead) != a.Lead:
 		return "--lead " + f.lead
 	}
 	return ""
@@ -279,38 +282,33 @@ func namedAttempt(attempts []posemodel.DelegationAttempt, f delegateFlags) (pose
 // name is taken as given and the run still records the independence it
 // achieves; auto (or no flag) routes among the agents that can run the
 // purpose. The returned warnings go to stderr.
-func routeDelegateAgent(store posemodel.Store, kind, ref, notes string, f delegateFlags, now time.Time) (string, *posemodel.DelegationRoutingRecord, []string, int, error) {
+func routeDelegateAgent(store posemodel.Store, kind, ref, notes string, f delegateFlags, now time.Time) (string, *posemodel.DelegationRoutingRecord, string, int, error) {
 	readers, found, err := store.LoadReviewersPolicyFor(kind)
 	if err != nil {
-		return "", nil, nil, 1, err
+		return "", nil, "", 1, err
 	}
 	if !found || len(readers.Adapters) == 0 {
-		return "", nil, nil, 1, posemodel.ErrNoReviewerAdapter
+		return "", nil, "", 1, posemodel.ErrNoReviewerAdapter
 	}
 	policy, _, _, err := store.LoadDelegationPolicy()
 	if err != nil {
-		return "", nil, nil, 1, err
+		return "", nil, "", 1, err
 	}
 	brief, err := store.RenderReviewBrief(ref, kind, notes)
 	if err != nil {
-		return "", nil, nil, 1, err
+		return "", nil, "", 1, err
 	}
 	bundle, err := store.LoadReviewBundle(brief.BundleID)
 	if err != nil {
-		return "", nil, nil, 1, err
+		return "", nil, "", 1, err
+	}
+	if f.agent != "" && f.agent != "auto" {
+		// A named agent is recorded by the plan itself (R9).
+		return f.agent, nil, bundle.BundleID, 0, nil
 	}
 	impl, from, err := store.RoutingImplementation(bundle, policy, f.lead)
 	if err != nil {
-		return "", nil, nil, 2, err
-	}
-	if f.agent != "" && f.agent != "auto" {
-		record := posemodel.ExplicitDelegationRoute(f.agent, impl, from)
-		var warnings []string
-		if agent, ok := readers.Adapters[f.agent]; ok && impl.Vendor != posemodel.ImplementationUnknown && strings.EqualFold(agent.Vendor, impl.Vendor) {
-			warnings = append(warnings, tr("agent "+f.agent+" shares the implementation's vendor ("+impl.Vendor+"); the run cannot achieve vendor independence",
-				"o agente "+f.agent+" é do mesmo vendor da implementação ("+impl.Vendor+"); o run não alcança independência de vendor"))
-		}
-		return f.agent, &record, warnings, 0, nil
+		return "", nil, "", 2, err
 	}
 	eligible := make([]string, 0, len(readers.Adapters))
 	for name := range readers.Adapters {
@@ -319,9 +317,15 @@ func routeDelegateAgent(store posemodel.Store, kind, ref, notes string, f delega
 	avail := store.DelegationAvailabilityOf(policy, now, true)
 	agent, record, err := posemodel.RouteDelegation(policy, eligible, impl, from, avail, now)
 	if err != nil {
-		return "", &record, nil, 1, err
+		return "", &record, bundle.BundleID, 1, err
 	}
-	return agent, &record, nil, 0, nil
+	return agent, &record, bundle.BundleID, 0, nil
+}
+
+// leadVendor is the vendor part of a --lead value.
+func leadVendor(lead string) string {
+	vendor, _, _ := strings.Cut(lead, "/")
+	return vendor
 }
 
 // waitForRoute sleeps until the reset the wait step chose, without polling,
@@ -330,7 +334,7 @@ func waitForRoute(ctx context.Context, stderr io.Writer, record *posemodel.Deleg
 	if record == nil || record.Step != posemodel.DelegationStepWait {
 		return nil
 	}
-	until, err := time.Parse(time.RFC3339, record.WaitUntil)
+	until, err := time.Parse(time.RFC3339Nano, record.WaitUntil)
 	if err != nil {
 		return err
 	}
@@ -378,7 +382,7 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 		ref = resolved
 	}
 	kind := posemodel.DelegationKindForPurpose(purpose)
-	agent, route, warnings, code, err := routeDelegateAgent(store, kind, ref, notes, f, time.Now())
+	agent, route, routedBundle, code, err := routeDelegateAgent(store, kind, ref, notes, f, time.Now())
 	if errors.Is(err, posemodel.ErrNoReviewerAdapter) {
 		return delegateNoAgent(stdout, stderr, f.jsonOut, purpose)
 	}
@@ -392,10 +396,22 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	if !f.dryRun {
+	if !f.dryRun && route != nil && route.Step == posemodel.DelegationStepWait {
 		if err := waitForRoute(ctx, stderr, route, agent); err != nil {
 			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
 		}
+		// The bundle or the policy may have changed during the wait: route
+		// again against what the run will read, and start only the same agent
+		// (R7, R8).
+		again, rerouted, rebundle, code, err := routeDelegateAgent(store, kind, ref, notes, f, time.Now())
+		if err != nil {
+			return delegateFail(stdout, stderr, f.jsonOut, purpose, code, err)
+		}
+		if again != agent || rebundle != routedBundle || rerouted.Step == posemodel.DelegationStepWait {
+			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the bundle, the policy or the agents changed while waiting; run pose delegate again",
+				"o bundle, a policy ou os agentes mudaram durante a espera; rode pose delegate de novo")))
+		}
+		route.Implementation, route.ImplementationFrom = rerouted.Implementation, rerouted.ImplementationFrom
 	}
 	plan, err := store.PlanReviewDispatch(ref, kind, notes, agent, f.reason)
 	if errors.Is(err, posemodel.ErrNoReviewerAdapter) {
@@ -404,8 +420,22 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
 	}
-	plan.Label, plan.Purpose, plan.Lead, plan.Routing = f.label, purpose, f.lead, route
-	for _, warning := range append(warnings, plan.Warnings...) {
+	if plan.Bundle.BundleID != routedBundle {
+		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the bundle of the scope changed while the run was being routed; run pose delegate again",
+			"o bundle do escopo mudou enquanto o run era roteado; rode pose delegate de novo")))
+	}
+	plan.Label, plan.Purpose, plan.Lead = f.label, purpose, f.lead
+	warnings := plan.Warnings
+	if route == nil {
+		store.PlanImplementationWithLead(&plan, f.lead)
+		warnings = plan.Warnings
+		if plan.SameVendorWarning != "" {
+			warnings = append(warnings, plan.SameVendorWarning)
+		}
+	} else {
+		plan.Routing = route
+	}
+	for _, warning := range warnings {
 		render(stdout, stderr).Hint("pose delegate " + purpose + ": " + warning)
 	}
 	impl := plan.Implementation()
@@ -878,7 +908,7 @@ func cmdDelegateAgents(root string, args []string, stdout, stderr io.Writer) int
 			row.Limited = true
 		}
 		if f.lead != "" {
-			independent := agent.Vendor != f.lead
+			independent := !strings.EqualFold(strings.TrimSpace(agent.Vendor), leadVendor(f.lead))
 			row.IndependentOfLead = &independent
 		}
 		rows = append(rows, row)

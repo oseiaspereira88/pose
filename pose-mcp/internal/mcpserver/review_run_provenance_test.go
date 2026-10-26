@@ -58,7 +58,10 @@ func TestRunProvenanceMCPReadsCurrentMachineProof(t *testing.T) {
 	raw, _ = json.Marshal(graph)
 	write(".pose/indexes/delivery-integrity.json", string(raw))
 	s := pose.Store{Root: root}
-	bundle, e := s.SealReviewBundle("spec:alpha", time.Now())
+	// The implementer seals from its own session, so the bundle records it
+	// and the run is compared with it (spec pose-delegation-routing R1–R3).
+	t.Setenv("CODEX_THREAD_ID", "implementation-fixture")
+	bundle, e := s.SealReviewBundleLead("spec:alpha", "openai/implementation-model", time.Now())
 	if e != nil {
 		t.Fatal(e)
 	}

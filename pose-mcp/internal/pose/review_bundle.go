@@ -1771,14 +1771,18 @@ func (s Store) sealReviewBundle(ref string, identity *ReviewBundleImplementation
 	if err != nil {
 		return ReviewBundle{}, err
 	}
-	for i := len(sealed) - 1; i >= 0; i-- {
-		existing := sealed[i]
-		if !sealedBundleMatches(existing, bundle) {
-			continue
+	// Content a sealed bundle already holds keeps the bundle that governs it,
+	// unless a declared identity names another: then the new seal replaces
+	// that bundle's identity by name, so it governs whatever the seal instants
+	// say, and a historical identity declared again is a new seal, never the
+	// historical bundle handed back (spec pose-delegation-routing D3).
+	if governing := governingSealedBundle(sealed, bundle); governing != nil {
+		if !declared || identity == nil || governing.Payload.Implementation != nil && sameImplementation(*governing.Payload.Implementation, *identity) {
+			return *governing, nil
 		}
-		if !declared || identity != nil && existing.Payload.Implementation != nil && sameImplementation(*existing.Payload.Implementation, *identity) {
-			return existing, nil
-		}
+		replaced := *identity
+		replaced.Replaces = governing.BundleID
+		identity = &replaced
 	}
 	if identity != nil {
 		bundle.Payload.Implementation = identity
@@ -1835,6 +1839,32 @@ func sealedBundleMatches(sealed, prepared ReviewBundle) bool {
 	payload.Implementation = sealed.Payload.Implementation
 	digest, err := reviewBundlePayloadDigest(payload)
 	return err == nil && digest == sealed.BundleDigest
+}
+
+// governingSealedBundle is the sealed bundle that governs prepared's content:
+// among the bundles holding it, the newest whose identity no other of them
+// replaced. Bundles are in seal order.
+func governingSealedBundle(bundles []ReviewBundle, prepared ReviewBundle) *ReviewBundle {
+	replaced := map[string]bool{}
+	matching := []int{}
+	for i := range bundles {
+		if sealedBundleMatches(bundles[i], prepared) {
+			matching = append(matching, i)
+			if impl := bundles[i].Payload.Implementation; impl != nil && impl.Replaces != "" {
+				replaced[impl.Replaces] = true
+			}
+		}
+	}
+	for j := len(matching) - 1; j >= 0; j-- {
+		if bundle := bundles[matching[j]]; !replaced[bundle.BundleID] {
+			return &bundle
+		}
+	}
+	if len(matching) > 0 {
+		bundle := bundles[matching[len(matching)-1]]
+		return &bundle
+	}
+	return nil
 }
 
 func sameImplementation(a, b ReviewBundleImplementation) bool {
@@ -2213,11 +2243,8 @@ func (s Store) CurrentReviewBundle(scope string) (*ReviewBundle, error) {
 // snapshot contains every edge of the milestone's own manifest, so revocation
 // or a source change still stales it.
 func (s Store) matchSealedReviewBundle(scope string, prepared ReviewBundle, bundles []ReviewBundle) (*ReviewBundle, error) {
-	for i := len(bundles) - 1; i >= 0; i-- {
-		if sealedBundleMatches(bundles[i], prepared) {
-			bundle := bundles[i]
-			return &bundle, nil
-		}
+	if governing := governingSealedBundle(bundles, prepared); governing != nil {
+		return governing, nil
 	}
 	if prepared.Payload.Scope.Kind != "milestone" || s.FederatedResolver == nil {
 		return nil, nil

@@ -20,6 +20,11 @@ import (
 
 func TestMain(m *testing.M) {
 	_ = os.Setenv("POSE_USAGE_DISABLED", "1")
+	// A bundle sealed here must not record the agent running the suite as its
+	// implementation (spec pose-delegation-routing R2).
+	for _, name := range pose.DelegationSessionVariables() {
+		_ = os.Unsetenv(name)
+	}
 	cleanup, err := testgit.Isolate()
 	if err != nil {
 		panic(err)
