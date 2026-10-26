@@ -248,11 +248,20 @@ func RouteDelegation(policy DelegationPolicy, eligible []string, impl ReviewBund
 		}
 		agent := policy.Agents[name]
 		vendor, model := normalizeIdentityPart(agent.Vendor), normalizeIdentityPart(agent.Model)
+		// A difference is proved only between identities both known: an agent
+		// whose vendor is unknown is not the opposite vendor, and one whose
+		// model is unknown is not another model (D2); it waits for the last
+		// step.
 		group := DelegationStepPreferred
-		if record.Prefer == DelegationPreferOpposite && knownVendor && vendor == impl.Vendor {
-			group = DelegationStepSameModel
-			if knownIdentityPart(impl.Model) && model != impl.Model {
-				group = DelegationStepOtherModel
+		if record.Prefer == DelegationPreferOpposite && knownVendor {
+			switch {
+			case !knownIdentityPart(vendor):
+				group = DelegationStepSameModel
+			case vendor == impl.Vendor:
+				group = DelegationStepSameModel
+				if knownIdentityPart(impl.Model) && knownIdentityPart(model) && model != impl.Model {
+					group = DelegationStepOtherModel
+				}
 			}
 		}
 		groups[group] = append(groups[group], name)

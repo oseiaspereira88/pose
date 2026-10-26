@@ -162,3 +162,24 @@ func TestNamedRunsRecordTheirRouting(t *testing.T) {
 		t.Fatalf("the shared plan does not warn: %q %v", plan.SameVendorWarning, err)
 	}
 }
+
+// B09 of the second review: an agent whose vendor or model is unknown proves
+// no difference, so it is never routed as the opposite vendor or another
+// model ahead of an agent that is.
+func TestUnknownCandidatesProveNoDifference(t *testing.T) {
+	impl := ReviewBundleImplementation{Vendor: "anthropic", Model: "claude-opus-5-5", Source: ImplementationDetected}
+	avail := map[string]DelegationAvailability{"a": {State: DelegationAgentAvailable}, "b": {State: DelegationAgentAvailable}}
+	for name, c := range map[string]struct{ policy, agent, step string }{
+		"unknown model before another model": {`{"schema_version":2,"agents":{"a":{"vendor":"anthropic","model":"unknown","cli":"sh","commands":{"read":["sh"]}},"b":{"vendor":"anthropic","model":"claude-sonnet-5-5","cli":"sh","commands":{"read":["sh"]}}}}`, "b", DelegationStepOtherModel},
+		"unknown vendor before the opposite":  {`{"schema_version":2,"agents":{"a":{"vendor":"unknown","model":"m","cli":"sh","commands":{"read":["sh"]}},"b":{"vendor":"openai","model":"gpt-6.1-sol","cli":"sh","commands":{"read":["sh"]}}}}`, "b", DelegationStepPreferred},
+	} {
+		agent, record, err := RouteDelegation(routingPolicy(t, c.policy), []string{"a", "b"}, impl, ImplementationFromBundle, avail, time.Now())
+		if err != nil || agent != c.agent || record.Step != c.step {
+			t.Fatalf("%s: %s %s %v", name, agent, record.Step, err)
+		}
+	}
+	only := `{"schema_version":2,"agents":{"a":{"vendor":"unknown","model":"unknown","cli":"sh","commands":{"read":["sh"]}}}}`
+	if agent, record, err := RouteDelegation(routingPolicy(t, only), []string{"a"}, impl, ImplementationFromBundle, map[string]DelegationAvailability{"a": {State: DelegationAgentAvailable}}, time.Now()); err != nil || agent != "a" || record.Step != DelegationStepSameModel {
+		t.Fatalf("an unknown agent alone is the same-model step: %s %s %v", agent, record.Step, err)
+	}
+}

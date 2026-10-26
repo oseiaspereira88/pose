@@ -160,3 +160,29 @@ func TestAliasRecordsRoutingAndLeadTakesAModel(t *testing.T) {
 		t.Fatal("the help still says auto is the only agent")
 	}
 }
+
+// F06 and F07 of the second review: a named agent's preview discloses the
+// routing it would record, and agents' limited flag is the state routing reads.
+func TestPreviewDisclosesNamedRoutingAndLimitedFollowsTheState(t *testing.T) {
+	root := dispatchInstance(t)
+	marker := filepath.Join(t.TempDir(), "limited-once")
+	writeDelegation(t, root, `{"schema_version": 2, "agents": {
+  "same": {"vendor": "anthropic", "model": "m", "cli": "sh",
+    "commands": {"read": ["sh", "-c", "cat >/dev/null; if [ -e `+marker+` ]; then echo decision: approved; else touch `+marker+`; echo 'LIMIT reset: 2099-01-01T00:00:00Z'; exit 1; fi"]},
+    "limit": {"output_patterns": ["LIMIT"], "reset_pattern": "reset: (\\S+)"}}
+}, "purposes": {"review": {"max_runs_per_bundle": 9}}}`)
+	code, out, _ := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--agent", "same", "--dry-run", "--json")
+	if code != 0 || !strings.Contains(out, `"step": "explicit"`) || strings.Contains(out, `"routing": null`) {
+		t.Fatalf("named preview: %d %s", code, out)
+	}
+	runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--agent", "same")
+	if _, out, _ := runPoseSplit(t, root, "delegate", "agents", "--json"); !strings.Contains(out, `"limited": true`) || !strings.Contains(out, `"state": "limited"`) {
+		t.Fatalf("limited agent: %s", out)
+	}
+	if code, out, _ := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--agent", "same", "--reason", "after the limit"); code != 0 {
+		t.Fatalf("second run: %d %s", code, out)
+	}
+	if _, out, _ := runPoseSplit(t, root, "delegate", "agents", "--json"); !strings.Contains(out, `"state": "available"`) || !strings.Contains(out, `"limited": false`) || !strings.Contains(out, `"limit_reset_at": "2099-01-01T00:00:00Z"`) {
+		t.Fatalf("an agent whose last run succeeded: %s", out)
+	}
+}

@@ -444,7 +444,7 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 		argv := redactArgv(posemodel.ReviewerArgv(plan.Config.Command, "{output}", "", plan.Effort, plan.Config.Effort), plan.Config)
 		return delegatePrintPlan(stdout, stderr, f.jsonOut, plan, argv, map[string]any{"scope": plan.Brief.Scope, "bundle": plan.Bundle.BundleID,
 			"brief_digest": plan.Brief.Digest, "prior_runs": plan.PriorRuns, "label": plan.Label, "lead": plan.Lead,
-			"routing": route, "independence": independence, "implementation": posemodel.DescribeImplementation(impl)})
+			"routing": plan.Routing, "independence": independence, "implementation": posemodel.DescribeImplementation(impl)})
 	}
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	return delegatePrintRun(stdout, stderr, f.jsonOut, purpose, run, err)
@@ -904,9 +904,9 @@ func cmdDelegateAgents(root string, args []string, stdout, stderr io.Writer) int
 		a := avail[name]
 		row := delegateAgentRow{Name: name, Vendor: agent.Vendor, Model: agent.Model, CLI: a.CLI, OnPath: a.OnPath, Access: access, Events: events, LimitResetAt: a.LimitResetAt,
 			State: a.State, LimitedUntil: a.LimitedUntil, Detail: a.Detail}
-		if t, err := time.Parse(time.RFC3339Nano, row.LimitResetAt); err == nil && t.After(time.Now()) {
-			row.Limited = true
-		}
+		// limited is the state routing reads now; limit_reset_at stays the
+		// reset of the last limit ever recorded.
+		row.Limited = a.State == posemodel.DelegationAgentLimited
 		if f.lead != "" {
 			independent := !strings.EqualFold(strings.TrimSpace(agent.Vendor), leadVendor(f.lead))
 			row.IndependentOfLead = &independent

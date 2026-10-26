@@ -118,7 +118,8 @@ Bundle payload field `implementation`; policy keys `routing.prefer`, `routing.on
 - [x] Resolver with preference and fallback steps
 - [x] Routing record and achieved independence, disclosed at verify and closeout
 - [x] First independent review: changes requested (B01–B08, F01–F05), all addressed; B04 by correcting D5, whose claim that a probe never stales a recorded run was wrong
-- [ ] Second independent review and closeout
+- [x] Second independent review: B01–B08 and F01–F05 accepted as fixed (B04 by the corrected D5, B08 by both layers); changes requested for B09, with F06 and F07, all addressed with regression tests that fail on ca7aab5
+- [ ] Third independent review and closeout
 
 ## 5. Decisions
 
