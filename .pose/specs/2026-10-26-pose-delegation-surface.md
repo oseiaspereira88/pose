@@ -89,6 +89,7 @@ CLI command tree and help catalog, dispatch front end, policy loader and migrati
 - modified: pose-mcp/internal/pose/review_dispatch.go
 - modified: pose-mcp/internal/pose/review_run_continuity.go
 - modified: pose-mcp/internal/pose/review_run_provenance.go
+- modified: pose-mcp/internal/pose/review_attempt_ledger.go
 - created: pose-mcp/internal/cli/delegate.go
 - created: pose-mcp/internal/cli/delegate_test.go
 - modified: pose-mcp/internal/cli/cli.go
@@ -122,7 +123,8 @@ New command tree `pose delegate`; `delegation.json` schema 2; normalized event s
 - [x] `ls`, `cancel`, `agents`, run references, `--dry-run`, `--json`
 - [x] Aliases with deprecation notice
 - [x] First independent review: changes requested (B01–B10, F01–F03), all addressed with regression tests that fail on the reviewed commit
-- [ ] Second independent review and closeout
+- [x] Second independent review: changes requested (B02, B06, B07, B09 partial; N01–N02 new blockers; N03 follow-up), all addressed with regression tests that fail on the reviewed commit
+- [ ] Third independent review and closeout
 
 ## 5. Decisions
 

@@ -80,7 +80,11 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 				row.sessions = append(row.sessions, value)
 			}
 		}
-		if events, err := s.ReadDelegationEvents(run); err == nil {
+		events, err := s.ReadDelegationEvents(run)
+		if err != nil {
+			// A turn count read from nothing would report a whole history.
+			lost = append(lost, "the events of run "+run.RunID+" could not be read: "+err.Error())
+		} else {
 			for _, e := range events {
 				if e.Kind == DelegationEventTurn {
 					row.Turns++

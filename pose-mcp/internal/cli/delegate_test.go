@@ -511,3 +511,44 @@ func TestDelegateRunsRecordedBeforeTheConversionKeepGoverning(t *testing.T) {
 		t.Fatalf("an edited policy kept the earlier baseline: %q", why)
 	}
 }
+
+// B07, B09 and N02 of the second review: ls refuses a named run a selecting
+// flag does not match, words an ambiguous reference in the person's locale
+// with its candidates, and reports events it cannot read as a loss.
+func TestDelegateLsRefusesMismatchLocalizesAndReportsUnreadableEvents(t *testing.T) {
+	root := dispatchInstance(t)
+	streamFile := filepath.Join(t.TempDir(), "stream.jsonl")
+	if err := os.WriteFile(streamFile, []byte(`{"type":"turn.started"}`+"\n"+`{"type":"item.completed","item":{"type":"agent_message","text":"decision: approved"}}`+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	writeDelegation(t, root, delegationPolicy(`"streamer": {"vendor": "test", "model": "s-1", "events": "codex-jsonl",
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; cat `+streamFile+`"]}}`))
+	if code, out, errOut := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--label", "named"); code != 0 {
+		t.Fatalf("review: %d %s %s", code, out, errOut)
+	}
+	if code, out, _ := runPoseSplit(t, root, "delegate", "ls", "named", "--agent", "someone-else", "--json"); code != 2 || !strings.Contains(out, "does not match --agent someone-else") {
+		t.Fatalf("a named run of another agent: %d %s", code, out)
+	}
+	if code, _, _ := runPoseSplit(t, root, "delegate", "ls", "--agent", "someone-else", "--json"); code != 0 {
+		t.Fatalf("without a reference the flag filters: %d", code)
+	}
+	runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--label", "named", "--reason", "second look")
+	t.Setenv("POSE_LOCALE", "pt-BR")
+	code, out, _ := runPoseSplit(t, root, "delegate", "ls", "named", "--json")
+	var ambiguous struct {
+		Error      string   `json:"error"`
+		Candidates []string `json:"candidates"`
+	}
+	if code != 2 || json.Unmarshal([]byte(out), &ambiguous) != nil || len(ambiguous.Candidates) != 2 || !strings.Contains(ambiguous.Error, "nomeia mais de um run delegado") {
+		t.Fatalf("an ambiguous label in pt-BR: %d %s", code, out)
+	}
+	runs, _ := posemodel.Store{Root: root}.ListReviewRuns("")
+	events := filepath.Join(root, ".pose", "review-runs", runs[0].RunID+".events.ndjson")
+	if err := os.WriteFile(events, []byte("{}\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("POSE_LOCALE", "en")
+	if code, out, _ := runPoseSplit(t, root, "delegate", "ls", "--json"); code != 1 || !strings.Contains(out, "could not be read") {
+		t.Fatalf("unreadable events are a loss: %d %s", code, out)
+	}
+}

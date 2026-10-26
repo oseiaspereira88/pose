@@ -4,9 +4,10 @@ package pose
 //
 // An agent's `events` field selects the parser that turns its stream into one
 // versioned event schema, the same for every vendor, kept beside the raw
-// transcript and bound to the run record by digest. The parsers read the
-// redacted transcript, so an event never holds what the transcript withheld,
-// and they never carry a session reference.
+// transcript and bound to the run record by digest. The parsers read the raw
+// stream, where a JSON escape no longer hides a value once decoded; every
+// field is redacted whole, before it is cut to its bound, so an event never
+// holds what the transcript withheld, nor a prefix of it.
 
 import (
 	"bytes"
@@ -46,12 +47,21 @@ type DelegationEvent struct {
 	Text     string `json:"text,omitempty"`
 	ExitCode *int   `json:"exit_code,omitempty"`
 	ResetAt  string `json:"reset_at,omitempty"`
+	// tail bounds Text by its end, for a tool's output.
+	tail bool
 }
 
 // NormalizeDelegationEvents parses transcript with the parser format selects
 // and appends the final message. An unknown or empty format reads as plain:
 // only the final message is an event.
 func NormalizeDelegationEvents(format string, transcript []byte, final string) []DelegationEvent {
+	events, _ := normalizeDelegationEvents(format, transcript, final, func(v string) (string, error) { return v, nil })
+	return events
+}
+
+// normalizeDelegationEvents passes every decoded field through clean before
+// it is bounded.
+func normalizeDelegationEvents(format string, transcript []byte, final string, clean func(string) (string, error)) ([]DelegationEvent, error) {
 	var events []DelegationEvent
 	switch format {
 	case DelegationEventsCodexJSONL:
@@ -60,12 +70,25 @@ func NormalizeDelegationEvents(format string, transcript []byte, final string) [
 		events = claudeEvents(transcript)
 	}
 	if strings.TrimSpace(final) != "" {
-		events = append(events, DelegationEvent{Kind: DelegationEventFinal, Text: boundEventText(final)})
+		events = append(events, DelegationEvent{Kind: DelegationEventFinal, Text: final})
 	}
 	for i := range events {
-		events[i].Version, events[i].Seq = DelegationEventSchemaVersion, i+1
+		e := &events[i]
+		for _, field := range []*string{&e.Tool, &e.Text, &e.ResetAt} {
+			cleaned, err := clean(*field)
+			if err != nil {
+				return nil, err
+			}
+			*field = cleaned
+		}
+		if e.tail {
+			e.Text = boundEventTail(e.Text)
+		} else {
+			e.Text = boundEventText(e.Text)
+		}
+		e.Version, e.Seq = DelegationEventSchemaVersion, i+1
 	}
-	return events
+	return events, nil
 }
 
 // EncodeDelegationEvents renders events as NDJSON.
@@ -104,15 +127,15 @@ func codexEvents(transcript []byte) []DelegationEvent {
 			out = append(out, DelegationEvent{Kind: DelegationEventTurn})
 		case "item.started":
 			if itemType == "command_execution" {
-				out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: "shell", Text: boundEventText(unwrapShell(str(item["command"])))})
+				out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: "shell", Text: unwrapShell(str(item["command"]))})
 			}
 		case "item.completed":
 			switch itemType {
 			case "agent_message":
-				out = append(out, DelegationEvent{Kind: DelegationEventMessage, Text: boundEventText(str(item["text"]))})
+				out = append(out, DelegationEvent{Kind: DelegationEventMessage, Text: str(item["text"])})
 			case "command_execution":
 				code := intOf(item["exit_code"])
-				out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: "shell", ExitCode: &code, Text: boundEventTail(str(item["aggregated_output"]))})
+				out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: "shell", ExitCode: &code, Text: str(item["aggregated_output"]), tail: true})
 			case "file_change":
 				paths := []string{}
 				changes, _ := item["changes"].([]any)
@@ -121,7 +144,7 @@ func codexEvents(transcript []byte) []DelegationEvent {
 						paths = append(paths, strings.TrimSpace(str(m["kind"])+" "+str(m["path"])))
 					}
 				}
-				out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: "file_change", Text: boundEventText(strings.Join(paths, ", "))})
+				out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: "file_change", Text: strings.Join(paths, ", ")})
 			}
 		case "turn.failed":
 			errObj, _ := e["error"].(map[string]any)
@@ -150,7 +173,7 @@ func claudeEvents(transcript []byte) []DelegationEvent {
 				switch str(part["type"]) {
 				case "text":
 					if text := strings.TrimSpace(str(part["text"])); text != "" {
-						out = append(out, DelegationEvent{Kind: DelegationEventMessage, Text: boundEventText(text)})
+						out = append(out, DelegationEvent{Kind: DelegationEventMessage, Text: text})
 					}
 				case "tool_use":
 					input, _ := part["input"].(map[string]any)
@@ -165,13 +188,13 @@ func claudeEvents(transcript []byte) []DelegationEvent {
 						text = str(part["name"])
 					}
 					tools[str(part["id"])] = tool
-					out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: tool, Text: boundEventText(text)})
+					out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: tool, Text: text})
 				case "tool_result":
 					code := 0
 					if b, _ := part["is_error"].(bool); b {
 						code = 1
 					}
-					out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: tools[str(part["tool_use_id"])], ExitCode: &code, Text: boundEventTail(toolResultText(part["content"]))})
+					out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: tools[str(part["tool_use_id"])], ExitCode: &code, Text: toolResultText(part["content"]), tail: true})
 				}
 			}
 		case "rate_limit_event":
@@ -194,10 +217,10 @@ func limitOrError(text, reset string) DelegationEvent {
 	lower := strings.ToLower(text)
 	for _, phrase := range []string{"usage limit", "hit your limit", "session limit", "weekly limit", "rate limit"} {
 		if strings.Contains(lower, phrase) {
-			return DelegationEvent{Kind: DelegationEventUsageLimit, Text: boundEventText(text), ResetAt: reset}
+			return DelegationEvent{Kind: DelegationEventUsageLimit, Text: text, ResetAt: reset}
 		}
 	}
-	return DelegationEvent{Kind: DelegationEventError, Text: boundEventText(text)}
+	return DelegationEvent{Kind: DelegationEventError, Text: text}
 }
 
 func toolResultText(content any) string {
@@ -286,7 +309,7 @@ func (s Store) ReadDelegationEvents(run ReviewRun) ([]DelegationEvent, error) {
 	if run.EventsDigest == "" {
 		return nil, nil
 	}
-	raw, err := readLedgerRaw(filepath.Join(s.Root, filepath.FromSlash(delegationEventsPath(run.RunID))))
+	raw, err := readBoundedRegular(filepath.Join(s.Root, filepath.FromSlash(delegationEventsPath(run.RunID))), delegationEventsMaxBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -339,16 +362,17 @@ func DelegationStreamFinal(format string, transcript []byte) string {
 	return final
 }
 
-// redactedDelegationEvents normalizes the raw stream and redacts every text
+// redactedDelegationEvents normalizes the raw stream and redacts every field
 // with the run's credentials and session after JSON decoding.
 func redactedDelegationEvents(format string, raw []byte, final string, secrets []string, session string) ([]byte, error) {
-	events := NormalizeDelegationEvents(format, raw, final)
-	for i := range events {
-		red, err := redactReviewCapture([]byte(events[i].Text), secrets, session, 64<<10)
-		if err != nil {
-			return nil, err
-		}
-		events[i].Text = string(red)
+	events, err := normalizeDelegationEvents(format, raw, final, func(v string) (string, error) {
+		// A replacement is at most 17 bytes for a value of one or more, so this
+		// budget never refuses a field the stream budget already admitted.
+		red, err := redactReviewCapture([]byte(v), secrets, session, 17*int64(len(v))+1)
+		return string(red), err
+	})
+	if err != nil {
+		return nil, err
 	}
 	return EncodeDelegationEvents(events), nil
 }

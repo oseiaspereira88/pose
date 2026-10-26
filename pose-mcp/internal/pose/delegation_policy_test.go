@@ -269,3 +269,42 @@ func TestDelegationMigrationKeepsThePolicyBaselineOfEarlierRuns(t *testing.T) {
 		t.Fatal("an archive that is not the converted file restored the baseline")
 	}
 }
+
+// B06 of the second review: a key spelled otherwise than its field, or
+// repeated, cannot set a budget the explicit checks never read.
+func TestDelegationPolicyRefusesFoldedAndRepeatedKeys(t *testing.T) {
+	cases := map[string]string{
+		"folded purpose budget":   strings.Replace(delegationFixture, `"review": {"max_runs_per_bundle": 3}`, `"review": {"MAX_RUNS_PER_BUNDLE": 0}`, 1),
+		"folded after canonical":  strings.Replace(delegationFixture, `"review": {"max_runs_per_bundle": 3}`, `"review": {"max_runs_per_bundle": 3, "MAX_RUNS_PER_BUNDLE": 0}`, 1),
+		"repeated purpose budget": strings.Replace(delegationFixture, `"review": {"max_runs_per_bundle": 3}`, `"review": {"max_runs_per_bundle": 3, "max_runs_per_bundle": 0}`, 1),
+		"folded agent timeout":    strings.Replace(delegationFixture, `"timeout": "60m"`, `"Timeout": "60m"`, 1),
+		"folded top level":        strings.Replace(delegationFixture, `"schema_version"`, `"Schema_Version"`, 1),
+	}
+	for name, raw := range cases {
+		if raw == delegationFixture {
+			t.Fatalf("%s: the fixture edit did not apply", name)
+		}
+		if _, err := ParseDelegationPolicy([]byte(raw)); err == nil {
+			t.Errorf("%s: accepted", name)
+		}
+	}
+	if _, err := ParseDelegationPolicy([]byte(`{"schema_version":2,"agents":{},"purposes":{"review":{"MAX_RUNS_PER_BUNDLE":0}}}`)); err == nil {
+		t.Error("a folded budget beside no agent: accepted")
+	}
+}
+
+// N03 of the second review: the policy-wide fields are validated with no
+// agent configured too.
+func TestDelegationPolicyValidatesGlobalFieldsWithoutAgents(t *testing.T) {
+	for name, raw := range map[string]string{
+		"invented trust":      `{"schema_version":2,"agents":{},"provenance":{"trust":"invented","implementation":{}}}`,
+		"bogus migrated_from": `{"schema_version":2,"agents":{},"migrated_from":{"path":"x","archive":"y","digest":"z"}}`,
+	} {
+		if _, err := ParseDelegationPolicy([]byte(raw)); err == nil {
+			t.Errorf("%s: accepted", name)
+		}
+	}
+	if _, err := ParseDelegationPolicy([]byte(`{"schema_version":2,"agents":{}}`)); err != nil {
+		t.Fatalf("an empty policy: %v", err)
+	}
+}

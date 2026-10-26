@@ -67,11 +67,17 @@ func attemptIdentity(a DelegatedReviewAttempt) string {
 }
 
 func readLedgerRaw(path string) ([]byte, error) {
+	return readBoundedRegular(path, reviewLedgerMaxBytes)
+}
+
+// readBoundedRegular reads a regular file of at most limit bytes, refusing a
+// link or a file replaced while it was opened.
+func readBoundedRegular(path string, limit int64) ([]byte, error) {
 	info, err := os.Lstat(path)
 	if err != nil {
 		return nil, err
 	}
-	if !info.Mode().IsRegular() || info.Size() > reviewLedgerMaxBytes {
+	if !info.Mode().IsRegular() || info.Size() > limit {
 		return nil, fmt.Errorf("ledger record is not a bounded regular file: %s", path)
 	}
 	f, err := os.Open(path)
@@ -83,7 +89,7 @@ func readLedgerRaw(path string) ([]byte, error) {
 		f.Close()
 		return nil, fmt.Errorf("ledger file changed while opening %s", path)
 	}
-	raw, err := io.ReadAll(io.LimitReader(f, reviewLedgerMaxBytes+1))
+	raw, err := io.ReadAll(io.LimitReader(f, limit+1))
 	closeErr := f.Close()
 	if err != nil {
 		return nil, err
@@ -91,7 +97,7 @@ func readLedgerRaw(path string) ([]byte, error) {
 	if closeErr != nil {
 		return nil, closeErr
 	}
-	if len(raw) > reviewLedgerMaxBytes {
+	if int64(len(raw)) > limit {
 		return nil, fmt.Errorf("ledger record exceeds bound")
 	}
 	return raw, nil

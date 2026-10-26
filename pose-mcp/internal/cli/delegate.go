@@ -216,7 +216,7 @@ func delegateFail(stdout, stderr io.Writer, jsonOut bool, command string, code i
 func refError(err error) error {
 	var ambiguous *posemodel.ErrDelegationRefAmbiguous
 	if errors.As(err, &ambiguous) {
-		return &posemodel.ErrDelegationRefAmbiguous{Ref: ambiguous.Ref, Candidates: ambiguous.Candidates}
+		return localizedRefError{err: ambiguous, msg: tr(err.Error(), fmt.Sprintf("%q nomeia mais de um run delegado: %s", ambiguous.Ref, strings.Join(ambiguous.Candidates, ", ")))}
 	}
 	var unknown *posemodel.ErrDelegationRefUnknown
 	if errors.As(err, &unknown) {
@@ -224,6 +224,16 @@ func refError(err error) error {
 	}
 	return err
 }
+
+// localizedRefError words a reference error in the person's locale and keeps
+// the engine's error, so the error document still carries its candidates.
+type localizedRefError struct {
+	err error
+	msg string
+}
+
+func (e localizedRefError) Error() string { return e.msg }
+func (e localizedRefError) Unwrap() error { return e.err }
 
 // mismatch names the first selecting flag an attempt does not match.
 func (f delegateFlags) mismatch(a posemodel.DelegationAttempt) string {
@@ -490,6 +500,11 @@ func cmdDelegateLs(root string, args []string, stdout, stderr io.Writer) int {
 		one, err := posemodel.ResolveDelegationRef(attempts, f.positional[0])
 		if err != nil {
 			return delegateFail(stdout, stderr, f.jsonOut, "ls", 2, refError(err))
+		}
+		// A named run is refused when a selecting flag does not match it, as on
+		// every other lifecycle command (D8); without a reference they filter.
+		if flag := f.mismatch(one); flag != "" {
+			return delegateFail(stdout, stderr, f.jsonOut, "ls", 2, errors.New(tr("attempt "+one.AttemptID+" does not match "+flag, "a tentativa "+one.AttemptID+" não corresponde a "+flag)))
 		}
 		attempts = []posemodel.DelegationAttempt{one}
 	}

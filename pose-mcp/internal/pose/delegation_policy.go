@@ -18,6 +18,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strings"
 	"time"
@@ -189,6 +190,9 @@ func ParseDelegationPolicy(raw []byte) (DelegationPolicy, error) {
 	if err := dec.Decode(&extra); err != io.EOF {
 		return DelegationPolicy{}, fmt.Errorf("pose: invalid %s: data after the policy object", delegationPolicyPath)
 	}
+	if err := exactJSONKeys(json.NewDecoder(bytes.NewReader(raw)), reflect.TypeOf(policy)); err != nil {
+		return DelegationPolicy{}, fmt.Errorf("pose: invalid %s: %w", delegationPolicyPath, err)
+	}
 	if err := validateExplicitDelegationBudgets(raw); err != nil {
 		return DelegationPolicy{}, err
 	}
@@ -199,6 +203,75 @@ func ParseDelegationPolicy(raw []byte) (DelegationPolicy, error) {
 		return DelegationPolicy{}, err
 	}
 	return policy, nil
+}
+
+// exactJSONKeys refuses a key that names a field by another spelling, or that
+// an object repeats: encoding/json matches field names without regard to case
+// and keeps the last duplicate, so such a key would set a value the explicit
+// checks below never read.
+func exactJSONKeys(dec *json.Decoder, t reflect.Type) error {
+	for t.Kind() == reflect.Pointer {
+		t = t.Elem()
+	}
+	tok, err := dec.Token()
+	if err != nil {
+		return err
+	}
+	delim, ok := tok.(json.Delim)
+	if !ok {
+		return nil
+	}
+	switch delim {
+	case '[':
+		elem := t
+		if t.Kind() == reflect.Slice || t.Kind() == reflect.Array {
+			elem = t.Elem()
+		}
+		for dec.More() {
+			if err := exactJSONKeys(dec, elem); err != nil {
+				return err
+			}
+		}
+	case '{':
+		seen := map[string]bool{}
+		for dec.More() {
+			keyTok, err := dec.Token()
+			if err != nil {
+				return err
+			}
+			key, _ := keyTok.(string)
+			if seen[key] {
+				return fmt.Errorf("key %q appears twice in one object", key)
+			}
+			seen[key] = true
+			next := t
+			switch t.Kind() {
+			case reflect.Map:
+				next = t.Elem()
+			case reflect.Struct:
+				field, ok := exactJSONField(t, key)
+				if !ok {
+					return fmt.Errorf("key %q is not spelled as a field of this object (field names are exact)", key)
+				}
+				next = field
+			}
+			if err := exactJSONKeys(dec, next); err != nil {
+				return err
+			}
+		}
+	}
+	_, err = dec.Token()
+	return err
+}
+
+func exactJSONField(t reflect.Type, key string) (reflect.Type, bool) {
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		if name, _, _ := strings.Cut(f.Tag.Get("json"), ","); name == key && f.IsExported() {
+			return f.Type, true
+		}
+	}
+	return nil, false
 }
 
 // validateExplicitDelegationBudgets refuses a budget or timeout written as
@@ -273,9 +346,6 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 		if !validEnvName(name) {
 			return fmt.Errorf("pose: env_unset entry %q is not an environment variable name", name)
 		}
-	}
-	if len(policy.Agents) == 0 {
-		return nil
 	}
 	for name, agent := range policy.Agents {
 		if ValidateSlug(name) != nil {

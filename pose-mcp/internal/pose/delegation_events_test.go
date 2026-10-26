@@ -152,3 +152,55 @@ func TestDelegationEventsKeepRunesAndLongLines(t *testing.T) {
 		t.Fatalf("a line over 16 MiB hid the final message: %q", got)
 	}
 }
+
+// B02 and N01 of the second review: every decoded field is redacted, the tool
+// name too, and before it is cut, so a bound never keeps a credential's
+// prefix at the head of a text nor its suffix at the tail of an output.
+func TestDelegationEventsRedactEveryFieldBeforeTheBound(t *testing.T) {
+	secret := "synthetic-token"
+	head := strings.Repeat("x", delegationEventTextBytes-6) + secret
+	tail := secret + strings.Repeat("y", delegationEventTextBytes-6)
+	claude := `{"type":"assistant","message":{"content":[{"type":"tool_use","id":"t1","name":"` + secret + `","input":{}}]}}` + "\n" +
+		`{"type":"assistant","message":{"content":[{"type":"text","text":"` + head + `"}]}}` + "\n"
+	codex := `{"type":"item.completed","item":{"type":"command_execution","aggregated_output":"` + tail + `","exit_code":0}}` + "\n"
+	for format, stream := range map[string]string{DelegationEventsClaudeStreamJSON: claude, DelegationEventsCodexJSONL: codex} {
+		out, err := redactedDelegationEvents(format, []byte(stream), "", []string{secret}, "s3ssion-ref")
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, part := range []string{secret, "synthe", "-token"} {
+			if strings.Contains(string(out), part) {
+				t.Fatalf("%s: %q survived redaction: %s", format, part, out)
+			}
+		}
+		// The tail keeps the end of the placeholder, never of the credential.
+		if !strings.Contains(string(out), "ntial]") {
+			t.Fatalf("%s: nothing was redacted: %s", format, out)
+		}
+	}
+}
+
+// N02 of the second review: the reader admits every events file the writer
+// publishes.
+func TestDelegationEventsReadWhatTheWriterPublishes(t *testing.T) {
+	root := t.TempDir()
+	dir, err := ensureReviewArtifactDir(root, reviewRunsDir, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var stream strings.Builder
+	for i := 0; i < 300; i++ {
+		stream.WriteString(`{"type":"item.completed","item":{"type":"agent_message","text":"` + strings.Repeat("m", delegationEventTextBytes) + `"}}` + "\n")
+	}
+	events := EncodeDelegationEvents(NormalizeDelegationEvents(DelegationEventsCodexJSONL, []byte(stream.String()), ""))
+	if len(events) <= reviewLedgerMaxBytes {
+		t.Fatalf("the fixture is %d bytes, not over the ledger bound", len(events))
+	}
+	if err := publishDelegationEvents(dir, "rrn-0000000000000002", events); err != nil {
+		t.Fatal(err)
+	}
+	read, err := Store{Root: root}.ReadDelegationEvents(ReviewRun{RunID: "rrn-0000000000000002", EventsDigest: digestBytes(events)})
+	if err != nil || len(read) != 300 {
+		t.Fatalf("published events are unreadable: %v (%d)", err, len(read))
+	}
+}
