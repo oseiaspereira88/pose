@@ -1,8 +1,8 @@
 ---
 slug: pose-delegation-routing
-status: in-progress
+status: done
 created_at: 2026-10-26
-completed_at:
+completed_at: 2026-10-26
 supersedes:
 depends_on: pose-delegation-surface, pose-delegated-review-run-provenance
 priority: 2
@@ -119,7 +119,7 @@ Bundle payload field `implementation`; policy keys `routing.prefer`, `routing.on
 - [x] Routing record and achieved independence, disclosed at verify and closeout
 - [x] First independent review: changes requested (B01–B08, F01–F05), all addressed; B04 by correcting D5, whose claim that a probe never stales a recorded run was wrong
 - [x] Second independent review: B01–B08 and F01–F05 accepted as fixed (B04 by the corrected D5, B08 by both layers); changes requested for B09, with F06 and F07, all addressed with regression tests that fail on ca7aab5
-- [ ] Third independent review and closeout
+- [x] Third independent review and native closeout: B09, F06 and F07 fixed; prior closures preserved; F08 and F09 accepted as low residual risks with owned follow-ups
 
 ## 5. Decisions
 
@@ -179,14 +179,45 @@ R10 is delivered as the session-identity determination the seal uses (D6); its c
 
 ### Requirement trace
 
+- R1 [satisfied] check:test test:TestSealRecordsTheImplementationAndKeepsIt report:.pose/results/delivery-validation.json
+- R2 [satisfied] check:test test:TestSessionIdentityDetectsDeclaresAndNeverGuesses test:TestAchievedIndependence report:.pose/results/delivery-validation.json
+- R3 [satisfied] check:test test:TestSessionIdentityDetectsDeclaresAndNeverGuesses test:TestSealRecordsTheImplementationAndKeepsIt report:.pose/results/delivery-validation.json
+- R4 [satisfied] check:delegated-run-provenance-integration test:TestRunProvenanceReadsTheSealedImplementation report:.pose/results/delivery-validation.json
+- R5 [satisfied] check:test check:delegation-surface-integration test:TestRouteDelegationStepsInOrder test:TestUnknownCandidatesProveNoDifference report:.pose/results/delivery-validation.json
+- R6 [satisfied] check:delegation-surface-integration test:TestDelegationAvailabilityReadsPathRunsAndProbe test:TestAvailabilityReadsTheLastRunByInstant test:TestPreviewDisclosesNamedRoutingAndLimitedFollowsTheState report:.pose/results/delivery-validation.json
+- R7 [satisfied] check:test test:TestRouteDelegationStepsInOrder test:TestWaitKeepsTheFractionOfTheReset report:.pose/results/delivery-validation.json
+- R8 [satisfied] check:test check:delegation-surface-integration test:TestNamedRunsRecordTheirRouting test:TestAliasRecordsRoutingAndLeadTakesAModel report:.pose/results/delivery-validation.json
+- R9 [satisfied] check:test test:TestNamedRunsRecordTheirRouting test:TestPreviewDisclosesNamedRoutingAndLimitedFollowsTheState report:.pose/results/delivery-validation.json
+- R10 [deferred-integration: spec:pose-delegation-task] Shared session detector delivered and verified by test:TestSessionIdentityDetectsDeclaresAndNeverGuesses and check:test; invoking it from the launching task session is deferred under D6, not claimed as an executed task path.
+- R11 [satisfied] check:delegated-run-provenance-integration test:TestRunProvenanceReadsTheSealedImplementation test:TestRunProvenanceSameModelAndUnknownBaselineRefused report:.pose/results/delivery-validation.json
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: milestone `routing` of roadmap `delegation`.
+Milestone `routing` of roadmap `delegation`: sealed implementation identity with declared/detected source, legacy reading, ordered availability-aware routing and bounded cancellable waiting, per-run routing and achieved independence, and shared assurance disclosure. The prior dispatch, ledger, continuity, provenance and containment guarantees remain in force. R10 delivers the shared detector; integration into a running `pose delegate task` remains deferred to `pose-delegation-task` under D6.
+
+### Independent review and evidence
+
+Maintainer-authorized reviewer `agent:independent-gpt-6.1-sol-review` (Codex/OpenAI), a different vendor from implementer Claude/Anthropic, session `f2a4d9f2-d557-4064-ae96-6ed52bb47cd2`. The `agent:independent-` prefix is a declaration required by the engine; identity is declared and this instance's attestations are unsigned.
+
+Bundle `rvb-d7d135d12bc26b47`, attestation `rva-0440231118d1df1d`. Sealed explicitly with `--lead anthropic/claude-opus-5-5`; the seal's warning about the missing Anthropic session reference in the reviewing environment is expected. No implementation execution digest was invented. The native approval is declared review, not a signed vendor receipt.
+
+B09, F06 and F07 are fixed; B01-B08 and F01-F05 retain their earlier dispositions, including the D5 correction and both B08 layers. Round-2 probes pass; two old round-1 assertions remain superseded by the already accepted contract decisions. Full report, reproductions and mutation logs are retained locally under `.review-work/round3/` (deliberately untracked). Residual-risk handoff: knowledge:delegation-routing-round3.
+
+### Validation executed
+
+`pose validate --strict`: 158/158 checks passed, no failures/errors/skips, recorded at `.pose/results/delivery-validation.json`. Independently: vet, Windows and Darwin builds, full tests in C and pt_BR.UTF-8 locales, the selected race suite and the full suite without session markers all passed. All three TestMain implementations remove parent session markers. Five production mutations for R1, D3, R5, R7 and R11 each failed a behavioral regression test; the new correction tests also fail against the preceding production revision. No tracked production or test files were edited.
+
+Strict artifact reconciliation matched 33 claims with 33 observed paths. Fresh capability composition, integration assessment, rule selection, design/debt assessment and native review verification were executed. Security scans found no known vulnerabilities or leaks in the reviewed change set. The docs-site matrix declares no checks; its documentation was manually reviewed, with that tool disposition disclosed rather than borrowed evidence. Both strict spec lint and all-spec lint passed; the strict structural check passed with preexisting warnings. The delegation roadmap remains nonterminal because later milestones are still draft; closing this spec does not close the whole roadmap.
 
 ### Residual risks
 
-None yet.
+F08 is a low disclosure defect: `agents --lead` can label an unknown vendor independent, but that boolean does not govern routing, recorded independence or run-backed authority. F09 is a low helper serialization defect: canonicalizing a policy loses an explicitly empty fallback list; existing production writers do not rewrite an existing schema-2 policy. Acceptance expires at review on 2026-11-25, or earlier if such a writer is introduced. The handoff records synthetic recipes and boundaries.
+
+The integration scan retains preexisting unobserved external consumers; the debt scan retains the same two invalid historical specs and does not certify global absence of debt. Identity remains a declaration rather than authenticated cognitive independence. No general task execution or remote-runner trust is claimed.
 
 ### Follow-ups
+
+- [open] F08: make `pose delegate agents --lead` disclose unknown vendor conservatively in text and JSON; the current independent_of_lead boolean is not consumed by routing or approval. See knowledge:delegation-routing-round3. (owner:@oseiaspereira88 crit:low review:2026-11-25)
+- [open] F09: preserve absent versus explicitly empty routing.on_unavailable in canonical policy serialization before adding an existing-schema-2 rewrite consumer, also preserving declared agent order. See knowledge:delegation-routing-round3. (owner:@oseiaspereira88 crit:low review:2026-11-25)

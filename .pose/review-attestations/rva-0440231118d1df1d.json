@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-0440231118d1df1d",
+  "bundle_id": "rvb-d7d135d12bc26b47",
+  "bundle_digest": "sha256:d7d135d12bc26b476424140b19912baa9032a2ae7832b687314af76476f8e8ca",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The agent:independent- prefix is the declaration required by the engine, not authenticated identity. This maintainer-authorized review is a different-vendor execution, Codex/OpenAI versus implementer Claude/Anthropic. Identities are declared and pose-dist attestations are unsigned. Unknown candidates no longer establish routing difference; unknown implementation does not sustain run-backed authority. F08 and F09 are accepted only in the narrow disclosure/helper scopes recorded in their findings and knowledge:delegation-routing-round3, owner @oseiaspereira88 review 2026-11-25."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Cancelable timer waits without polling; dry-run does not wait or reserve. CLI recalculates after wait and demands same agent/bundle; engine refuses a route for another sealed implementation. Resume preserves agent, attempt and routing. Selected race and full suites passed with Codex markers and without them."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Schema-1 migration preserves projected adapters and legacy provenance; new bundles ignore policy implementation with warning. Sealed-content consumers use the D3 matcher; ledger, receipts, proof and continuation canonical digests remain verified. F09 is a low accepted risk only for an unused existing-schema-2 serialization path, not permission to change fallback behavior in production."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Exact policy keys, duplicate keys, lead structure, probe argv/timeout and max_wait bounds are validated. Unreadable history, missing CLI and unknown reset refuse availability or waiting conservatively. No available agent returns the decision without a run. Original adversarial probes and versioned negative tests passed."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "CLI delegate, deprecated dispatch aliases, Store execution, continuity and proof share implementation/routing records. Verify, review-check, closeout, MCP and attention share assurance disclosure. Integration assessment executed, with no new provider/consumer gap for this change; fresh delegation/provenance/containment tests passed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Routing candidates, skip reasons, chosen step and achieved independence persist in runs for review/adjudicate/smoke/aliases/resume. F06 named preview and F07 current limited boolean are fixed. Failures disclose bounded reasons without parent session values; declared sources stay labelled. F08 is separately recorded as a low accepted disclosure defect."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "f09",
+      "rationale": "F09 is accepted as low risk: canonical helper loses explicit empty fallback, but production does not rewrite existing schema-2 policies. Fix before adding that writer; owner @oseiaspereira88 review 2026-11-25; knowledge:delegation-routing-round3."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reexecuted round2 probes and prior round1 controls. B09 F06 F07 fixed; B04 remains superseded by amended D5 and B08 early refusal is expected. Full Go suites in both locales and clean-session CI environment, cross-builds, vet and race pass. Five production mutations R1 D3 R5 R7 R11 fail behavior tests without editing tracked files."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Routing spans the pose-mcp CLI/domain and docs-site documentation. Full matrix validation and integration assessment ran. docs-site declares no check producer and is reviewed manually; no sibling evidence is invented for it. Fresh pose-mcp integration evidence covers the production capability."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "D1 seals who implemented instead of reading a per-scope manual policy baseline. D3 copies only the sealed identity into preparation before complete payload hashing; content changes still stale. Replaces governs same-second reseals and historical reassertion. D5 keeps probes out of adapter digests while retaining policy baseline invalidation. Both B08 layers and the conservative unknown checks were reexecuted. The design assessment observes no structural deltas; that does not waive the CLI, policy and bundle contract review."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Four manuals, help catalog, two docs-site pages and changelog agree on routing, legacy reading, explicit overrides, availability, wait bounds and task deferral. en and pt-BR semantics match. Auto help no longer claims only one configured agent. The residual agents unknown disclosure in F08 is explicitly recorded, not silently claimed correct."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "f08",
+      "rationale": "F08 is accepted as low risk: agents reports unknown vendor independent, but routing and authority never consume that boolean. Fix conservative disclosure; owner @oseiaspereira88 review 2026-11-25; knowledge:delegation-routing-round3."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1-R9 and R11 covered by seal/detection/override, legacy/proof, routing/availability/wait, purposes/resume and different-actor tests plus independent probes. R10 shared detector verified, task invocation explicitly deferred to pose-delegation-task under D6; no executed task claimed. capability:delegation-routing composition checked after fresh validation."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "R1-R9 and R11 implement milestone routing over the prior dispatch, ledger, continuity and containment contracts. B09 F06 F07 are fixed by rerun probes; prior closures remain. Implementation was Claude/Anthropic session f2a4d9f2-d557-4064-ae96-6ed52bb47cd2 supplied by the maintainer. Sealed explicitly with --lead anthropic/claude-opus-5-5 from Codex: no Anthropic session reference is present and the missing-execution warning is expected; no digest was invented. R10 is the shared detector with task invocation deferred per D6."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Session references are hashed, never persisted in the bundle. Tampered identity without matching digest is refused. Legacy policy fallback is restricted to bundles lacking implementation. Unknown vendor cannot support run-backed authority; same-model and unknown model without vendor difference fail different-actor. Claims bind implementation principal/execution and review run. Cheap gate evasion was tested by R11 mutation and the dedicated unknown-candidate probes. Declaration is not a vendor receipt; no trust policy or containment guarantee was weakened."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "D6 delivers the shared SessionIdentity detector with vendor markers, explicit lead and configured models. The smallest sufficient milestone routing does not execute general tasks; R10 caller integration stays in pose-delegation-task and must be traced deferred-integration. Existing proof and containment paths remain authoritative. A future task using different identity determination or a schema-2 writer using the lossy F09 serializer invalidates these conclusions."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict for this spec: 33 claims and 33 observed paths in three attributed commits; global orphan warnings are outside this spec."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-b5d6ed01edb6c8e1",
+      "rationale": "Executed JSON design assessment on 409ca03..040cae6: 32 semantic source entries observed and no structural deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed --if-stale for this component; refreshed assessment retained in review evidence, its generated state is not committed."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed --if-stale for this component; refreshed assessment retained in review evidence, its generated state is not committed."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed for CLI, policy and bundle contracts: 64 contracts and the same 63 unobserved-consumer gaps as baseline, no new gap. Fresh delegation integration check covers the local production path, not external consumer adoption."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed inventory: 295 source files, one covered TODO, zero uncovered. Scan remains incomplete for the same two invalid historical 2026-08-15 specs as baseline; changed sources reviewed directly, no global absence claim."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred until this attestation exists; will execute and retain its real result before closeout."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred until this attestation exists; will execute and retain its real result before closeout."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed component-specific rule resolution and applied security, backend-go, documentation and knowledge governance as applicable."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed component-specific rule resolution and applied security, backend-go, documentation and knowledge governance as applicable."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed strict for capability:delegation-routing after current validation; composed-capability requires fresh integration evidence and it is present."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed complete strict matrix including pose-mcp; all registered results passed. This disposition names the actual containing-module result."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Executed module docs-site validation, which registers no checks. No producer can emit the demanded evidence classes; docs pages were reviewed manually, without borrowing sibling evidence."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed complete strict matrix including pose-mcp; all registered results passed. This disposition names the actual containing-module result."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delegated-run-provenance-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "f08",
+      "severity": "low",
+      "evidence": "knowledge:delegation-routing-round3",
+      "action": "Make agents independent_of_lead conservative for unknown vendor in text and JSON",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "Disclosure only; router, recorded independence and approval proof do not consume this boolean. Reproduced for both known lead vendors; retained independent probe is in .review-work/round3.",
+      "review_by": "2026-11-25"
+    },
+    {
+      "id": "f09",
+      "severity": "low",
+      "evidence": "knowledge:delegation-routing-round3",
+      "action": "Preserve absent versus explicitly empty on_unavailable when canonicalizing policy",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "Current production canonical writers only print examples or migrate schema 1; no existing schema-2 rewrite consumer. Reproduced helper round trip enables same-model fallback; fix before such a writer is added.",
+      "review_by": "2026-11-25"
+    }
+  ],
+  "attested_at": "2026-10-26T16:03:12Z",
+  "path": ".pose/review-attestations/rva-0440231118d1df1d.json"
+}
