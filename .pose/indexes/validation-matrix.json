@@ -2152,6 +2152,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "delegated-adapter-containment-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "./internal/cli", "./internal/mcpserver", "-run", "TestAdapterContainment", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "delegated-run-provenance-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "./internal/cli", "./internal/mcpserver", "-run", "RunProvenance", "-count=1"],

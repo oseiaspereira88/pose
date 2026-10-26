@@ -27,6 +27,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 // ReviewersPolicySchemaVersion versions .pose/policy/reviewers.json.
@@ -36,6 +37,7 @@ const reviewRunsDir = ".pose/review-runs"
 
 // ReviewerAdapter is one configured reviewer command.
 type ReviewerAdapter struct {
+	Containment *ReviewerContainment `json:"containment,omitempty"`
 	// Command is the argv; "{output}" is replaced by a file the reviewer may
 	// write its final message to. The brief arrives on stdin and the working
 	// directory is the disposable worktree.
@@ -69,7 +71,7 @@ func ExampleReviewersPolicy() ReviewersPolicy {
 
 // LoadReviewersPolicy reads the adapters; an absent file means none.
 func (s Store) LoadReviewersPolicy() (ReviewersPolicy, bool, error) {
-	raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "policy", "reviewers.json"))
+	raw, err := ReadReviewAdapterFile(filepath.Join(s.Root, ".pose", "policy", "reviewers.json"), 1<<20)
 	if errors.Is(err, os.ErrNotExist) {
 		return ReviewersPolicy{}, false, nil
 	}
@@ -83,10 +85,16 @@ func (s Store) LoadReviewersPolicy() (ReviewersPolicy, bool, error) {
 	if policy.SchemaVersion != ReviewersPolicySchemaVersion {
 		return ReviewersPolicy{}, false, fmt.Errorf("pose: .pose/policy/reviewers.json schema_version %d is not supported", policy.SchemaVersion)
 	}
+	if err := validateExplicitReviewBudget(raw); err != nil {
+		return ReviewersPolicy{}, false, err
+	}
 	if err := validateRunProvenancePolicy(policy); err != nil {
 		return ReviewersPolicy{}, false, err
 	}
 	for name, adapter := range policy.Adapters {
+		if _, err := ResolveReviewerContainment(adapter); err != nil {
+			return ReviewersPolicy{}, false, fmt.Errorf("adapter %s: %w", name, err)
+		}
 		if err := validateContinuityAdapter(adapter); err != nil {
 			return ReviewersPolicy{}, false, fmt.Errorf("pose: reviewer adapter %s: %w", name, err)
 		}
@@ -104,7 +112,8 @@ func (s Store) LoadReviewersPolicy() (ReviewersPolicy, bool, error) {
 
 // ReviewRun is one recorded dispatch.
 type ReviewRun struct {
-	Provenance          *ReviewRunProvenance `json:"provenance,omitempty"`
+	Safety              *ReviewExecutionSafety `json:"safety,omitempty"`
+	Provenance          *ReviewRunProvenance   `json:"provenance,omitempty"`
 	sessionForRedaction string
 	Resumes             string              `json:"resumes,omitempty"`
 	Interruption        *ReviewInterruption `json:"interruption,omitempty"`
@@ -294,6 +303,9 @@ type DispatchPlan struct {
 
 // PlanReviewDispatch resolves the bundle, brief and adapter without running.
 func (s Store) PlanReviewDispatch(target, kind, notes, adapter string, reason ...string) (DispatchPlan, error) {
+	if err := validateReviewNotes(notes); err != nil {
+		return DispatchPlan{}, err
+	}
 	if len(reason) > 1 {
 		return DispatchPlan{}, fmt.Errorf("pose: one rerun reason is accepted")
 	}
@@ -356,6 +368,9 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string, reason ..
 	if err != nil {
 		return DispatchPlan{}, err
 	}
+	if _, _, err := reviewAdapterEnvironment(config, "", brief.Text, notes); err != nil {
+		return DispatchPlan{}, err
+	}
 	plan.PriorRuns = currentCount
 	plan.provenance, err = s.prepareRunProvenance(plan, policy)
 	if err != nil {
@@ -368,7 +383,16 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string, reason ..
 var ErrNoReviewerAdapter = errors.New("pose: no reviewer adapter is configured in .pose/policy/reviewers.json")
 
 // RunReviewDispatch executes plan and records the run, failed or completed.
-func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (result ReviewRun, resultErr error) {
+func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (ReviewRun, error) {
+	return s.RunReviewDispatchContext(context.Background(), plan, now)
+}
+
+// RunReviewDispatchContext also propagates caller cancellation to the covered
+// process set. Cleanup has its own bounded context and never respawns the adapter.
+func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPlan, now func() time.Time) (result ReviewRun, resultErr error) {
+	if err := parent.Err(); err != nil {
+		return ReviewRun{}, err
+	}
 	if plan.PendingContinuation != nil {
 		return ReviewRun{}, plan.PendingContinuation
 	}
@@ -383,13 +407,56 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 		if fresh.Existing == nil {
 			return ReviewRun{}, fmt.Errorf("existing continuation disappeared")
 		}
-		return *fresh.Existing, nil
+		return existingReviewDispatchResult(*fresh.Existing)
+	}
+	if _, _, err := reviewAdapterEnvironment(plan.Config, "", plan.Brief.Text, plan.notes); err != nil {
+		return ReviewRun{}, err
 	}
 	run := ReviewRun{Provenance: plan.provenance, BriefNotes: plan.notes, LimitOf: plan.LimitOf, SchemaVersion: 1, Scope: plan.Brief.Scope, BundleID: plan.Bundle.BundleID, BundleDigest: plan.Bundle.BundleDigest,
 		SealedCommit: plan.SealedCommit, Kind: plan.Brief.Kind, BriefDigest: plan.Brief.Digest, Adapter: plan.Adapter,
 		Vendor: plan.Config.Vendor, Model: plan.Config.Model, Reason: plan.Reason, PolicyDigest: plan.PolicyDigest, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1}
+	safety, err := ResolveReviewerContainment(plan.Config)
+	if err != nil {
+		return ReviewRun{}, err
+	}
+	if err := validateReviewNotes(plan.notes); err != nil {
+		return ReviewRun{}, err
+	}
+	run.Safety = safety
+	var cleanup func() error
+	var cleanupErr error
+	var terminationFailed bool
+	cleaned := false
+	doCleanup := func() {
+		if cleaned {
+			return
+		}
+		cleaned = true
+		outcome := NewOperationResult("review.dispatch.cleanup", run.Scope)
+		outcome.StepsRun = append(outcome.StepsRun, OperationStep{ID: "cleanup", Result: "done"})
+		if terminationFailed {
+			cleanupErr = fmt.Errorf("process termination incomplete; runtime resources retained")
+		} else if cleanup != nil {
+			cleanupErr = cleanup()
+		}
+		if cleanupErr != nil {
+			outcome.StepsRun[0].Result = "failed"
+			outcome.Fail(OutcomeFailed, "cleanup", "cleanup-incomplete", cleanupErr.Error())
+			outcome.Unconfirmed = []OperationUncertain{{Step: "cleanup", Reason: "owned resources may remain; no automatic respawn"}}
+		} else {
+			outcome.Outcome = OutcomeCompleted
+		}
+		run.Safety.Operation = outcome
+	}
+	defer func() {
+		doCleanup()
+		if cleanupErr != nil {
+			resultErr = errors.Join(resultErr, cleanupErr)
+		}
+	}()
 	transcript := []byte{}
 	finish := func(status, failure string) (ReviewRun, error) {
+		doCleanup()
 		run.sessionForRedaction = ""
 		run.Status, run.Failure = status, failure
 		if status != ReviewRunInterrupted {
@@ -420,7 +487,7 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 			return ReviewRun{}, fresh.PendingContinuation
 		}
 		if fresh.Existing != nil {
-			return *fresh.Existing, nil
+			return existingReviewDispatchResult(*fresh.Existing)
 		}
 		plan = fresh
 		run.Provenance = fresh.provenance
@@ -445,14 +512,62 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 	}()
 	tmp, err := os.MkdirTemp("", "pose-review-run-*")
 	if err != nil {
-		return ReviewRun{}, err
+		return finish(ReviewRunFailed, "runtime directory setup failed")
 	}
-	defer os.RemoveAll(tmp)
+	safety.RuntimeID = filepath.Base(tmp)
+	owned, err := os.Lstat(tmp)
+	if err != nil {
+		return finish(ReviewRunFailed, "runtime directory identity unavailable")
+	}
+	runtimeRoot, err := os.OpenRoot(tmp)
+	if err != nil {
+		return finish(ReviewRunFailed, "runtime root unavailable")
+	}
+	defer runtimeRoot.Close()
+	var worktreeOwned os.FileInfo
+	var gitMarker []byte
+	var ownership *reviewCleanupOwnership
 	worktree := filepath.Join(tmp, "worktree")
-	if out, err := exec.Command("git", "-C", s.Root, "worktree", "add", "--detach", worktree, plan.SealedCommit).CombinedOutput(); err != nil {
-		return ReviewRun{}, fmt.Errorf("pose: creating the review worktree: %v: %s", err, strings.TrimSpace(string(out)))
+	cleanup = func() error {
+		return s.cleanupReviewResources(tmp, owned, worktree, worktreeOwned, gitMarker, ownership)
 	}
-	defer exec.Command("git", "-C", s.Root, "worktree", "remove", "--force", worktree).Run()
+	hooks := filepath.Join(tmp, "empty-hooks")
+	if err := os.Mkdir(hooks, 0700); err != nil {
+		return finish(ReviewRunFailed, "private hook directory setup failed")
+	}
+	setupCtx, stopSetup := context.WithTimeout(parent, 2*time.Minute)
+	setup := reviewSetupCommand(setupCtx, gitCommand("-C", s.Root, "-c", "core.hooksPath="+hooks, "worktree", "add", "--detach", worktree, plan.SealedCommit))
+	setupOutput := &reviewBoundedCapture{limit: 64 << 10, cancel: stopSetup}
+	setup.Stdout, setup.Stderr = setupOutput, setupOutput
+	setupErr := setup.Run()
+	_, setupOverflow := setupOutput.result()
+	terminationErr := killProcessGroup(setup)
+	if terminationErr != nil {
+		terminationFailed = true
+	}
+	setupCause := executionCause(setupCtx)
+	stopSetup()
+	if setupErr != nil || terminationErr != nil || setupOverflow {
+		safety.ExecutionCause = setupCause
+		if setupOverflow {
+			safety.ExecutionCause = "setup-capture-limit"
+		}
+		return finish(ReviewRunFailed, "review worktree setup failed or termination incomplete")
+	}
+
+	worktreeOwned, err = os.Lstat(worktree)
+	if err != nil {
+		return finish(ReviewRunFailed, "worktree identity unavailable")
+	}
+	gitMarker, err = ReadReviewAdapterFile(filepath.Join(worktree, ".git"), 4096)
+	if err != nil {
+		return finish(ReviewRunFailed, "worktree marker unavailable")
+	}
+	ownership, err = s.captureReviewCleanupOwnership(runtimeRoot, worktree, gitMarker)
+	if err != nil {
+		return finish(ReviewRunFailed, "worktree registration ownership unavailable")
+	}
+	defer ownership.registry.Close()
 
 	submodules := map[string]bool{}
 	for _, entry := range plan.Bundle.Payload.Subject.Entries {
@@ -497,10 +612,7 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 	for i, arg := range command {
 		argv[i] = strings.ReplaceAll(strings.ReplaceAll(arg, "{output}", outputFile), "{session}", plan.session)
 	}
-	timeout := 60 * time.Minute
-	if plan.Config.Timeout != "" {
-		timeout, _ = time.ParseDuration(plan.Config.Timeout)
-	}
+	timeout := time.Duration(safety.TimeoutMS) * time.Millisecond
 	execPath := argv[0]
 	if run.Provenance != nil {
 		copy := *run.Provenance
@@ -532,14 +644,20 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 			timeout = remaining
 		}
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(parent, timeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, execPath, argv[1:]...)
 	cmd.Args[0] = argv[0]
 	cmd.Dir = worktree
 	cmd.Stdin = strings.NewReader(plan.Brief.Text)
-	var combined bytes.Buffer
-	cmd.Stdout, cmd.Stderr = &combined, &combined
+	env, secrets, err := reviewAdapterEnvironment(plan.Config, tmp, plan.Brief.Text, plan.notes)
+	if err != nil {
+		run.BriefNotes = ""
+		return finish(ReviewRunFailed, err.Error())
+	}
+	cmd.Env = env
+	combined := &reviewBoundedCapture{limit: safety.StreamBytes, cancel: cancel}
+	cmd.Stdout, cmd.Stderr = combined, combined
 	// Adapters such as `codex exec` and `claude -p` start children; killing
 	// only the parent left a child holding stdout, so the timeout never fired
 	// (found in review). The run gets its own process group, the whole group
@@ -558,18 +676,24 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 			run.Provenance.ExecutionState = "started"
 		}
 	}
-	killProcessGroup(cmd)
+	terminationErr = killProcessGroup(cmd)
+	terminationFailed = terminationErr != nil
 	// The adapter exited and a child it left still held the output when
 	// WaitDelay expired: the run finished, its leftover is killed above, and
 	// the exit status decides (found in review).
 	if errors.Is(runErr, exec.ErrWaitDelay) && cmd.ProcessState != nil && cmd.ProcessState.Success() {
 		runErr = nil
 	}
-	transcript = combined.Bytes()
+	transcript, overflow := combined.result()
+	safety.CaptureComplete = !overflow
 	if cmd.ProcessState != nil {
 		run.ExitCode = cmd.ProcessState.ExitCode()
 	}
-	if raw, err := os.ReadFile(outputFile); err == nil && len(bytes.TrimSpace(raw)) > 0 {
+	raw, outputErr := readReviewAdapterOutput(runtimeRoot, safety.OutputBytes)
+	if outputErr != nil && !errors.Is(outputErr, os.ErrNotExist) {
+		safety.CaptureComplete = false
+	}
+	if outputErr == nil && len(bytes.TrimSpace(raw)) > 0 {
 		run.Output = string(raw)
 		if run.Provenance != nil {
 			run.Provenance.OutputComplete = true
@@ -577,6 +701,9 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 		}
 	} else {
 		run.Output = tail(string(transcript), 20000)
+		if len(transcript) > 20000 || int64(len(transcript)) > safety.OutputBytes {
+			safety.CaptureComplete = false
+		}
 		if run.Provenance != nil {
 			run.Provenance.OutputComplete = len(transcript) > 0 && len(transcript) <= 20000
 			run.Provenance.OutputSource = "transcript-tail"
@@ -593,19 +720,48 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 		}
 		return finish(ReviewRunFailed, "reviewer command could not start")
 	}
+	// Raw provenance hashes above precede redaction; only complete, bounded
+	// redacted channels can be retained. Partial boundaries can expose a secret.
+	safety.ExecutionCause = executionCause(ctx)
+	if !utf8.ValidString(run.Output) || terminationErr != nil {
+		safety.CaptureComplete = false
+	}
+	if !safety.CaptureComplete {
+		transcript = nil
+		run.Output = ""
+		if run.Provenance != nil {
+			run.Provenance.OutputComplete = false
+		}
+		if terminationErr != nil {
+			return finish(ReviewRunFailed, "process group termination failed; descendants may remain")
+		}
+		safety.ExecutionCause = "capture-incomplete"
+		return finish(ReviewRunFailed, "adapter capture incomplete: stream/output limit or unsafe output file")
+	}
 	status, failure, captureErr := s.classifyReviewInterruption(&run, plan, transcript, runErr, ctx.Err())
+	if captureErr == nil {
+		var redactErr error
+		transcript, redactErr = redactReviewCapture(transcript, secrets, run.sessionForRedaction, safety.StreamBytes)
+		var output []byte
+		if redactErr == nil {
+			output, redactErr = redactReviewCapture([]byte(run.Output), secrets, run.sessionForRedaction, safety.OutputBytes)
+		}
+		run.Output = string(output)
+		if redactErr != nil {
+			captureErr = redactErr
+		}
+	}
 	if captureErr != nil {
 		run.Output, transcript = "", nil
+		safety.CaptureComplete = false
+		safety.ExecutionCause = "capture-incomplete"
 		if run.Provenance != nil {
 			run.Provenance.OutputComplete = false
 		}
 		return finish(ReviewRunFailed, "adapter capture failed; unredacted output withheld")
 	}
-	if session := run.sessionForRedaction; session != "" {
-		transcript = []byte(strings.ReplaceAll(string(transcript), session, "[private-session]"))
-		run.Output = strings.ReplaceAll(run.Output, session, "[private-session]")
-	}
 	run.sessionForRedaction = ""
+
 	if status != "" {
 		// Partial drafts are evidence only after the same containment checks.
 		after, err := dispatchDiskSnapshot(worktree)
@@ -911,10 +1067,13 @@ func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, err
 	if err := publishLedgerJSON(s.Root, filepath.ToSlash(filepath.Join(reviewRunLedgerDir, run.RunID+".json")), witness); err != nil {
 		return ReviewRun{}, err
 	}
-	if err := PublishFile(filepath.Join(dir, run.RunID+".transcript"), transcript, 0644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
+	if run.Safety != nil && int64(len(pretty)+len(transcript)) > run.Safety.RetainedBytes {
+		return ReviewRun{}, fmt.Errorf("retained run exceeds containment byte budget; attempt remains incomplete")
+	}
+	if err := PublishFile(filepath.Join(dir, run.RunID+".transcript"), transcript, 0600, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
 		return ReviewRun{}, err
 	}
-	if err := PublishFile(filepath.Join(dir, run.RunID+".json"), pretty, 0644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
+	if err := PublishFile(filepath.Join(dir, run.RunID+".json"), pretty, 0600, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
 		return ReviewRun{}, err
 	}
 	run.Path = filepath.ToSlash(filepath.Join(reviewRunsDir, run.RunID+".json"))
@@ -975,6 +1134,9 @@ func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
 }
 
 func (s Store) ReviewRunStillGoverns(run ReviewRun) string {
+	if why := reviewSafetyConflict(run); why != "" {
+		return why
+	}
 	if run.Status != ReviewRunCompleted {
 		return "the run is " + run.Status + ", not completed"
 	}

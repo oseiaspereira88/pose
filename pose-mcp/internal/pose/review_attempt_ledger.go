@@ -291,8 +291,8 @@ func (s Store) reviewAttemptAdmission(plan DispatchPlan) ([]DelegatedReviewAttem
 			count++
 		}
 	}
-	if plan.Config.MaxRunsPerBundle > 0 && count >= plan.Config.MaxRunsPerBundle {
-		return nil, count, fmt.Errorf("budget exhausted: %d attempt(s) of %s on this bundle, at most %d", count, plan.Adapter, plan.Config.MaxRunsPerBundle)
+	if count >= effectiveReviewMaxRuns(plan.Config) {
+		return nil, count, fmt.Errorf("budget exhausted: %d attempt(s) of %s on this bundle, at most %d", count, plan.Adapter, effectiveReviewMaxRuns(plan.Config))
 	}
 	if completed && strings.TrimSpace(plan.Reason) == "" {
 		return nil, count, fmt.Errorf("completed run exists on unchanged bundle; an explicit --reason is required")
@@ -491,20 +491,21 @@ func draftReviewDecision(output string) string {
 }
 
 type ReviewRunSummary struct {
-	ResumedBy     string              `json:"resumed_by,omitempty"`
-	Resumes       string              `json:"resumes,omitempty"`
-	LimitOf       string              `json:"limit_of,omitempty"`
-	Partial       bool                `json:"partial,omitempty"`
-	Interruption  *ReviewInterruption `json:"interruption,omitempty"`
-	SupersededBy  string              `json:"superseded_by,omitempty"`
-	RunID         string              `json:"run_id"`
-	AttemptID     string              `json:"attempt_id,omitempty"`
-	BundleID      string              `json:"bundle_id"`
-	Adapter       string              `json:"adapter"`
-	Status        string              `json:"status"`
-	DraftDecision string              `json:"draft_decision"`
-	Reason        string              `json:"reason,omitempty"`
-	Assurance     string              `json:"assurance"`
+	Safety        *ReviewExecutionSafety `json:"safety,omitempty"`
+	ResumedBy     string                 `json:"resumed_by,omitempty"`
+	Resumes       string                 `json:"resumes,omitempty"`
+	LimitOf       string                 `json:"limit_of,omitempty"`
+	Partial       bool                   `json:"partial,omitempty"`
+	Interruption  *ReviewInterruption    `json:"interruption,omitempty"`
+	SupersededBy  string                 `json:"superseded_by,omitempty"`
+	RunID         string                 `json:"run_id"`
+	AttemptID     string                 `json:"attempt_id,omitempty"`
+	BundleID      string                 `json:"bundle_id"`
+	Adapter       string                 `json:"adapter"`
+	Status        string                 `json:"status"`
+	DraftDecision string                 `json:"draft_decision"`
+	Reason        string                 `json:"reason,omitempty"`
+	Assurance     string                 `json:"assurance"`
 }
 
 func (s Store) reviewRunSummaries(scope string) ([]ReviewRunSummary, []string) {
@@ -516,10 +517,10 @@ func (s Store) reviewRunSummaries(scope string) ([]ReviewRunSummary, []string) {
 	for _, run := range runs {
 		if run.Scope == scope {
 			decision := "unknown"
-			if run.Status == ReviewRunCompleted {
+			if run.Status == ReviewRunCompleted && reviewSafetyConflict(run) == "" {
 				decision = draftReviewDecision(run.Output)
 			}
-			out = append(out, ReviewRunSummary{Resumes: run.Resumes, LimitOf: run.LimitOf, Partial: run.Status == ReviewRunInterrupted, Interruption: run.Interruption, SupersededBy: run.SupersededBy, RunID: run.RunID, AttemptID: run.AttemptID, BundleID: run.BundleID, Adapter: run.Adapter, Status: run.Status, DraftDecision: decision, Reason: run.Reason, Assurance: "declared-draft-not-attestation"})
+			out = append(out, ReviewRunSummary{Safety: run.Safety, Resumes: run.Resumes, LimitOf: run.LimitOf, Partial: run.Status == ReviewRunInterrupted, Interruption: run.Interruption, SupersededBy: run.SupersededBy, RunID: run.RunID, AttemptID: run.AttemptID, BundleID: run.BundleID, Adapter: run.Adapter, Status: run.Status, DraftDecision: decision, Reason: run.Reason, Assurance: "declared-draft-not-attestation"})
 		}
 	}
 	attempts, losses := s.allDelegatedReviewAttempts()
@@ -670,7 +671,7 @@ func (s Store) delegatedReviewInsights(sinceDays int) *DelegatedReviewInsights {
 				r.Resumes++
 			}
 			decision := "unknown"
-			if run.Status == ReviewRunCompleted && run.SupersededBy == "" {
+			if run.Status == ReviewRunCompleted && run.SupersededBy == "" && reviewSafetyConflict(run) == "" {
 				decision = draftReviewDecision(run.Output)
 			}
 			switch decision {

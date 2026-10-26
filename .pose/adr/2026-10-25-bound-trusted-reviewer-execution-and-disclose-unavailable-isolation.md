@@ -1,0 +1,17 @@
+# ADR: Bound trusted reviewer execution and disclose unavailable isolation
+
+## Status
+Accepted (2026-10-25), spec `pose-delegated-adapter-containment`.
+
+## Context
+The adapter ADR describes a disposable copy. B07 proves before/after integrity, not prevention of outside access; a Git worktree shares metadata. B12 separates execution outcome from domain verdict. B16/B17 preserve quota, exact bytes and signed evidence. Unbounded capture, inherited environment and ignored cleanup errors currently weaken that chain.
+
+## Decision
+Implement a trusted-process profile, with explicit required capabilities checked before reservation/spawn and an observed platform report. Never advertise filesystem/origin/shared-Git/network/credential-file isolation, hard CPU/memory limits, or escaped-descendant control. Refuse requirements for those capabilities. Linux qualifies the new process group only with an observable inventory and post-kill observation. Other ports, including Windows, refuse required group guarantees; a cross-build does not qualify runtime containment. An omitted profile is classified legacy-trusted, retains HOME compatibility, but uses bounded capture and a minimal environment. Explicit trusted-process uses a private disposable HOME. Credential environment names require explicit authorization and values are redacted before retention; filesystem access remains unrestricted.
+
+Default omitted run budget is three; explicit JSON zero/negative is invalid. Omitted timeout is 60 minutes, present timeout must be between 1ms and 24 hours. Stream/output/retained bytes have explicit finite defaults and ranges. TTL zero explicitly retains immutable evidence without automatic deletion; positive expiry is unavailable and refused. Export consists of retained redacted runs/transcripts/witnesses/proofs and their inventory, excluding private sessions/issuer keys. No deletion may restore quota or approval.
+
+Record actual profile, limits and an OperationResult for cleanup in the immutable run before publication. Cleanup removes operation-owned resources through root descriptors opened before spawn, including the exact Git worktree registration; never call recursive git worktree remove on an adapter-controlled path or prune unrelated registrations. Verify identities/backlinks/locks and bound inventories, refusing oversized resources/replacements. Bound setup subprocess wait/capture and disable unsealed checkout hooks. Filesystem calls are subject to OS I/O latency; no hard syscall deadline is claimed. Failed cleanup remains operational failure separately from the domain draft and cannot govern review authority. Keep legacy records readable without fabricating observed capabilities. Raw-output hashes precede redaction; redacted-byte hashes, canonical record and signatures follow. Permissions restrict newly retained artifacts to the executing user.
+
+## Consequences
+This narrows ambient credentials and bounds engine capture, but does not sandbox a hostile local executable. An attacker able to read arbitrary same-user files remains outside this backend's protection. Rejected alternatives: calling a worktree a sandbox; a mandatory container/vendor dependency; inventing memory/CPU enforcement; silently unlimited zero; deleting signed artifacts on TTL; a parallel quota/issuer ledger. A future qualified isolation backend must supply its own platform evidence before advertising additional capabilities.

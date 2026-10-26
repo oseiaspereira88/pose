@@ -1,11 +1,15 @@
 package cli
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
@@ -89,7 +93,14 @@ func cmdReviewResume(root string, args []string, stdout, stderr io.Writer) int {
 		out.Field("review_resume.apply", "false")
 		return 0
 	}
-	run, e := store.RunReviewDispatch(plan, time.Now)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	run, e := store.RunReviewDispatchContext(ctx, plan, time.Now)
+	if run.Safety != nil {
+		raw, _ := json.Marshal(run.Safety)
+		out.Field("review_resume.safety", string(raw))
+		out.Field("review_resume.run", run.RunID)
+	}
 	if e != nil {
 		out.Failure("pose review resume: " + e.Error())
 		return 1

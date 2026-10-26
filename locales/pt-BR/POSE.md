@@ -820,6 +820,36 @@ Reservas ficam em `.pose/review-attempts/`, recibos finais ligam o run, e `.pose
 
 `pose review verify` e MCP mostram runs anteriores do mesmo scope junto da atestação, inclusive drafts que rejeitaram. `pose insights` é alias de `pose stats`; texto, JSON, HTML e MCP `pose_insights` mostram runs por bundle, tentativas, reruns e taxa declarada de aprovação de drafts por adapter. A janela limita os eventos contados; o histórico anterior completo classifica reruns. A taxa usa drafts completed, não superseded, com uma linha inequívoca `decision: approved|changes-requested|rejected`; saída ambígua, falhas e runs stale ficam unknown. Runs legados sem reserva contam como tentativas individuais sem afirmar que houve reserva. Labels e taxas de drafts não são aprovações verificadas e nunca aplicam atestação ou adotam delegated-review automaticamente.
 
+### Limitar a execução do adapter delegado
+
+Declare `containment` opcional em cada adapter de `.pose/policy/reviewers.json`, schema 1 e `trusted-process`. O backend exige executável local confiável. Worktree compartilha Git; não isola filesystem, raiz original, rede, credenciais em disco, CPU ou memória. Exigência indisponível é recusada antes da reserva/spawn. Linux qualifica término do grupo somente com inventário observável e verificação após kill. Filho que escapa do grupo fica fora dessa cobertura; cross-build não qualifica runtime Windows/outras plataformas.
+
+```json
+{
+  "containment": {
+    "schema_version": 1,
+    "profile": "trusted-process",
+    "required": ["bounded-capture", "environment-allowlist"],
+    "environment": ["LANG"],
+    "credentials": ["REVIEWER_API_KEY"],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "retention_ttl_seconds": 0
+  }
+}
+```
+
+Mantenha listas `environment`/`credentials` únicas sem distinguir maiúsculas/minúsculas, com no máximo 128/32 nomes. Tokens ambientes são excluídos. Perfil explícito usa HOME descartável privado; ausência é classificada `legacy-trusted` e conserva HOME por compatibilidade. A filtragem não impede leitura de arquivos do mesmo usuário. Autorize nomes de credenciais; não coloque valores em policy, argv, brief ou notas. Hooks de loader e variáveis de redirecionamento Git não podem ser autorizados. Credenciais/sessões recebem redação em uma passagem limitada, com maior match primeiro. A proteção cobre valores exatos, sem alegar DLP ou detectar variantes codificadas emitidas por executável hostil.
+
+Use timeout de 1ms a 24h, default 60m. Omita `max_runs_per_bundle` para default finito de três; valor explícito deve ser 1..100, inclusive no legado. Zero/null explícito é inválido. Defaults de `stream_bytes`, `output_bytes`, `retained_bytes`: 8MiB/64KiB/16MiB; ranges explícitos: 1..64MiB, 1..128KiB, 1..128MiB. Reserve `stream_bytes + 6*output_bytes + 1048576` para escaping JSON/metadados. Orçamento retido cobre run+transcript por execução, além dos inventários limitados de ledger/provas; não é quota global de armazenamento, memória do adapter ou disco do SO. Configurações de memória/CPU, TTL positivo e campos de enforcement desconhecidos são recusados.
+
+Limite setup a dois minutos/64KiB de diagnóstico descartado e desative hooks de checkout não selados. Capture stdout/stderr juntos com orçamento finito; leia `{output}` por descritor da raiz aberto antes do spawn. Recuse symlinks, arquivos especiais, identidade alterada e excesso de bytes. Notas exigem arquivo regular sem symlink, UTF-8 até 16KiB. Não interpole brief/notas em shell. Captura truncada/insegura ou impossível de redigir vira failed/incomplete e retém zero bytes dos canais: um corte pode dividir credencial. O draft não governa autoridade. Cancelamento do caller e sinais de interrupção/término CLI encerram o conjunto coberto; espera de pipes é limitada.
+
+Consulte `safety` no run imutável, CLI dispatch/verify/resume e projeção MCP review-bundle existente: profile/platform, capacidades disponíveis/indisponíveis, limites, completude, causa, identificador de runtime e OperationResult B12 de cleanup. Cleanup valida ownership e remove workspace/registro Git exato pelos descritores confinados; nunca faça prune global. Inventários: workspace 100000 entradas/256MiB, registro 1024/256MiB, runtime 4096/128MiB, profundidade 128. Chamadas filesystem dependem de latência de I/O; nenhum deadline absoluto de syscall é alegado. Falha mantém recursos incertos, separada do draft de domínio, devolve erro operacional, bloqueia autoridade/continuação e permanece erro em replay idempotente sem novo spawn. Inspecione o identificador de runtime e seu registro em vez de reexecutar como compensação.
+
+Retenha evidência sem expiração automática (`retention_ttl_seconds: 0`). Run/transcript novos usam 0600; sessões privadas mantêm 0700/0600. Exporte run/transcript redigidos, witness, recibos de tentativa/continuação e prova opcional juntos, conservando inventário/digests; exclua sessões privadas/chaves de issuer. Digests raw precedem redação; depois vêm digests retidos, identidade canônica, witness e assinatura nativa. Retenção não apaga rejeições nem restaura cota. Registros legados continuam legíveis sem observações inventadas de segurança. Exemplos não ativam policy, backend sandbox ou fornecedor real.
+
 ### Retomar reviews delegados interrompidos
 
 Declare os campos opcionais `limit`, `session` e `resume` no adapter em `.pose/policy/reviewers.json`. Use padrões RE2; os padrões de sessão/reset exigem exatamente um grupo de captura. Declare exit codes ou padrões de saída para reconhecer limites em stdout/stderr ou `{output}`. O reset capturado deve ser um instante RFC3339; o motor não infere vocabulário de fornecedor. Exemplo de campos em um adapter já configurado:

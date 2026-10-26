@@ -492,6 +492,9 @@ func (s Store) runBackedReviewBlockers(bundle ReviewBundle, att ReviewAttestatio
 }
 
 func (s Store) runProofContextConflict(run ReviewRun) string {
+	if why := reviewSafetyConflict(run); why != "" {
+		return why
+	}
 	if run.Status == ReviewRunCompleted {
 		return s.ReviewRunStillGoverns(run)
 	}
