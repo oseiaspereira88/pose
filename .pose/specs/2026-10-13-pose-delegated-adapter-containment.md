@@ -1,8 +1,8 @@
 ---
 slug: pose-delegated-adapter-containment
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-10-26
 depends_on: pose-git-and-dispatch-snapshot-integrity, pose-cli-mcp-operation-results, pose-delegated-review-dispatch
 priority: 1
 components: pose-mcp
@@ -95,7 +95,7 @@ Reutilizar B07/B12/B16/B17, `knowledge:pose-b07-implementation` e a decisão [tr
 - [x] Resolver perfil/compatibilidade e validar configuração antes do efeito.
 - [x] Aplicar limites de captura, ambiente e leitura; qualificar término/cleanup.
 - [x] Expor a mesma evidência em registros, CLI e MCP; documentar retenção.
-- [ ] Executar regressões, matriz canônica e revisão separada; fechar nativamente.
+- [x] Executar regressões, matriz canônica e revisão separada do código; preparar closeout nativo.
 
 ## 5. Decisions
 
@@ -108,7 +108,7 @@ Reutilizar B07/B12/B16/B17, `knowledge:pose-b07-implementation` e a decisão [tr
 
 ### Strategy
 
-Usar fixtures sintéticas e snapshot fixo. Os casos abaixo são planejamento de execução, não evidência de satisfação.
+Usar fixtures sintéticas e snapshot fixo. Plano V1–V8 definido antes do código; regressões reais correspondentes constam no trace. Validação canônica final no commit `93bd352`: 156/156 checks strict em 254.6s, incluindo `delegated-adapter-containment-integration`, no caminho de policy `.pose/results/delivery-validation.json`. Race final passou nos três consumidores; govulncheck e secret scan sem achados. [Relatório](../reports/2026-10-26-b18-adapter-containment.md).
 
 | Caso planejado | Resultado esperado |
 |---|---|
@@ -155,7 +155,7 @@ Executar suíte Go do módulo e integração CLI/MCP/Attention dos produtores al
 
 ### Delivered scope
 
-Implementados perfil trusted-process/legacy, capacidades honestas, configuração e budgets finitos, ambiente/credenciais explícitos, captura/redaction limitada, leitura por root descriptor, cancelamento e cleanup confinado com OperationResult imutável. Regressões reais CLI/MCP e qualificação Linux em [relatório B18](../reports/2026-10-26-b18-adapter-containment.md). Validação canônica, revisão selada e closeout ainda em execução.
+Implementados perfil trusted-process/legacy, capacidades honestas, configuração e budgets finitos, ambiente/credenciais explícitos, captura/redaction limitada, leitura por root descriptor, cancelamento e cleanup confinado com OperationResult imutável. Regressões reais CLI/MCP e qualificação Linux em [relatório B18](../reports/2026-10-26-b18-adapter-containment.md). Validação canônica final passou 156/156; artifact-check reconciliou 31/31 e surface-check 1 target/156 resultados/0 findings. Bundle `rvb-089d6bbf48270dc0` selou 153 evidências; revisão separada `rva-013be502c850b7c2` aprovada com 15 critérios/11 tools/mapping `SD-ebdf5e74 → D1`. Native verify confirmou fresh/approved/ready-to-close e `pose close` aplicou done em 2026-10-26 UTC. A revisão real é declarada, executada separadamente pelo mesmo fornecedor; provas sintéticas não autenticam essa identidade.
 
 ### Residual risks
 

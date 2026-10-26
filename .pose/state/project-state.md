@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-26T01:36:38Z
-baseline_commit: 9c2cbbb11c98244eff81e54c3392d5e8e5316d3a
+generated_at: 2026-10-26T03:33:08Z
+baseline_commit: 93bd35285e416b8c5724ffb32655adbaa5728196
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:98af4789a879 -->
+<!-- state:derived hash:977abec6a337 -->
 
-- specs: total=446 draft=23 in-progress=17 blocked=0 done=405 superseded=0 abandoned=1
+- specs: total=446 draft=22 in-progress=17 blocked=0 done=406 superseded=0 abandoned=1
 - roadmaps: total=22 active=3 done=11
 - últimos closeouts:
   - spec:pose-delegated-review-run-provenance (2026-10-26)
-  - spec:pose-closeout-terminal-verification (2026-10-25)
-  - spec:pose-delegated-review-run-continuity (2026-10-25)
+  - spec:pose-delegated-adapter-containment (2026-10-26)
   - spec:pose-amendment-history-holds-before-close (2026-10-25)
-  - spec:pose-delegated-review-attempt-ledger (2026-10-25)
-  - ... e mais 400 (ver `pose_list_specs status:done`)
+  - spec:pose-delegated-review-run-continuity (2026-10-25)
+  - spec:pose-closeout-terminal-verification (2026-10-25)
+  - ... e mais 401 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:541eff3c6e23 -->
@@ -76,22 +76,22 @@ capacidade.
 - knowledge: total=13 ativo=13 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:0621ccce3f74 -->
+<!-- state:derived hash:6d7d7e094987 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
 - últimos 30 dias: total=89 outcome_ok=64 outcome_outro=25
-- reports revisados (.md): total=277
+- reports revisados (.md): total=278
+  - report:2026-10-26-b18-adapter-containment.md
   - report:2026-10-25-b17-run-provenance.md
   - report:2026-10-24-b10-implementation.md
   - report:2026-10-24-b10-independent-review.md
   - report:2026-10-24-b11-terminal-verification.md
-  - report:2026-10-24-standard-validate-native.md
 
 ## Arquitetura
-<!-- state:derived hash:0e2b21380526 status:active -->
+<!-- state:derived hash:3926d1e5cceb status:active -->
 
 - componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=85847 testes=76715 total=162562
+- linhas_de_codigo: producao=86761 testes=77533 total=164294
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63
