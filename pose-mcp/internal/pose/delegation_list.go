@@ -42,15 +42,23 @@ type DelegationAttempt struct {
 	Active          bool   `json:"active"`
 	Liveness        string `json:"liveness,omitempty"`
 	CancelRequested bool   `json:"cancel_requested,omitempty"`
-	sessions        []string
-	latest          *ReviewRun
+	// HeartbeatAge is how long ago the running process last beat; a stalled
+	// run is not active (spec pose-delegated-review-completion-signal R4, R6).
+	HeartbeatAge string `json:"heartbeat_age,omitempty"`
+	StalledAt    string `json:"stalled_at,omitempty"`
+	sessions     []string
+	latest       *ReviewRun
 }
 
 // Latest is the latest recorded run of the attempt, if any.
 func (a DelegationAttempt) Latest() *ReviewRun { return a.latest }
 
-// DelegationRunning is the state of an attempt whose process is still there.
-const DelegationRunning = "running"
+// DelegationRunning is the state of an attempt whose process is still there;
+// DelegationStalled, of one whose process is gone without a record.
+const (
+	DelegationRunning = "running"
+	DelegationStalled = "stalled"
+)
 
 // ListDelegationAttempts groups every recorded run by attempt, adds the runs
 // in progress, and returns the losses the run history reports.
@@ -131,6 +139,12 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 		}
 		row.State, row.Active, row.Liveness, row.CancelRequested = DelegationRunning, true, marker.Liveness, marker.CancelRequested
 		row.EndedAt, row.Failure, row.Interruption, row.Partial, row.TimeLeft = "", "", nil, false, ""
+		if beat, err := time.Parse(time.RFC3339Nano, marker.HeartbeatAt); err == nil {
+			row.HeartbeatAge = time.Since(beat).Round(time.Second).String()
+		}
+		if marker.StalledAt != "" {
+			row.State, row.Active, row.StalledAt = DelegationStalled, false, marker.StalledAt
+		}
 	}
 	out := make([]DelegationAttempt, 0, len(order))
 	for _, key := range order {

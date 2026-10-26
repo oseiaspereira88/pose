@@ -22,6 +22,11 @@ func TestMain(m *testing.M) {
 	for _, name := range posemodel.DelegationSessionVariables() {
 		_ = os.Unsetenv(name)
 	}
+	// A detached run started in this process would run the test binary as
+	// its supervisor; the detach tests run the built pose command instead.
+	delegateExecutable = func() (string, error) {
+		return "", fmt.Errorf("tests start detached runs through the built pose command (poseBinary)")
+	}
 	cleanup, err := testgit.Isolate()
 	if err != nil {
 		panic(err)

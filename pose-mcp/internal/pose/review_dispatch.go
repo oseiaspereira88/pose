@@ -354,6 +354,10 @@ type DispatchPlan struct {
 	// named the agent prints it, routing does not (R9).
 	Warnings          []string
 	SameVendorWarning string
+	// OnStart is called once the attempt is reserved and its marker written,
+	// so a detached run can hand its reference back (spec
+	// pose-delegated-review-completion-signal R1).
+	OnStart func(attempt string)
 }
 
 // Implementation is the identity the plan compares its agent with.
@@ -648,6 +652,9 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	}
 	defer stopActive()
 	cancelled = cancelFlag
+	if plan.OnStart != nil {
+		plan.OnStart(run.AttemptID)
+	}
 	tmp, err := os.MkdirTemp("", "pose-review-run-*")
 	if err != nil {
 		return finish(ReviewRunFailed, "runtime directory setup failed")

@@ -43,6 +43,14 @@ type DelegationActiveRun struct {
 	BundleID  string         `json:"bundle_id"`
 	StartedAt string         `json:"started_at"`
 	Owner     StartLockOwner `json:"owner"`
+	// HeartbeatAt is rewritten every HeartbeatEvery seconds by the process
+	// that runs the attempt (spec pose-delegated-review-completion-signal R4,
+	// D2).
+	HeartbeatAt    string `json:"heartbeat_at,omitempty"`
+	HeartbeatEvery int    `json:"heartbeat_every,omitempty"`
+	// StalledAt is computed by the reader from the stall claim the first
+	// reader that found the run stalled published.
+	StalledAt string `json:"stalled_at,omitempty"`
 	// Liveness is computed by the reader: owner-active, owner-dead or owner-unknown.
 	Liveness string `json:"liveness,omitempty"`
 	Detail   string `json:"detail,omitempty"`
@@ -89,7 +97,9 @@ func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (s
 	if _, err := rand.Read(token); err != nil {
 		return func() {}, cancelled, err
 	}
-	marker := DelegationActiveRun{SchemaVersion: 1, AttemptID: run.AttemptID, RunToken: hex.EncodeToString(token), Resumes: run.Resumes, Label: run.Label, Purpose: run.Purpose, Agent: run.Adapter, Scope: run.Scope, BundleID: run.BundleID, StartedAt: run.StartedAt, Owner: owner}
+	every := delegationHeartbeatEvery
+	marker := DelegationActiveRun{SchemaVersion: 1, AttemptID: run.AttemptID, RunToken: hex.EncodeToString(token), Resumes: run.Resumes, Label: run.Label, Purpose: run.Purpose, Agent: run.Adapter, Scope: run.Scope, BundleID: run.BundleID, StartedAt: run.StartedAt, Owner: owner,
+		HeartbeatAt: time.Now().UTC().Format(time.RFC3339Nano), HeartbeatEvery: int(every / time.Second)}
 	raw, _ := json.MarshalIndent(marker, "", "  ")
 	path := filepath.Join(dir, run.AttemptID+".json")
 	request := cancelRequestPath(dir, marker)
@@ -100,10 +110,14 @@ func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (s
 	go func() {
 		ticker := time.NewTicker(250 * time.Millisecond)
 		defer ticker.Stop()
+		heartbeat := time.NewTicker(every)
+		defer heartbeat.Stop()
 		for {
 			select {
 			case <-done:
 				return
+			case <-heartbeat.C:
+				beatDelegationMarker(path, marker.RunToken)
 			case <-ticker.C:
 				if _, err := os.Lstat(request); err == nil {
 					cancelled.Store(true)
@@ -122,6 +136,62 @@ func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (s
 		})
 	}
 	return stop, cancelled, nil
+}
+
+// delegationHeartbeatEvery is the interval a running attempt declares.
+var delegationHeartbeatEvery = 10 * time.Second
+
+// beatDelegationMarker rewrites the heartbeat of the marker run token names,
+// by compare-and-swap: a marker already recorded stalled, or replaced by
+// another run, is left as it is.
+func beatDelegationMarker(path, token string) {
+	raw, err := readLedgerRaw(path)
+	if err != nil {
+		return
+	}
+	var marker DelegationActiveRun
+	if json.Unmarshal(raw, &marker) != nil || marker.RunToken != token {
+		return
+	}
+	marker.HeartbeatAt = time.Now().UTC().Format(time.RFC3339Nano)
+	next, _ := json.MarshalIndent(marker, "", "  ")
+	_ = PublishFile(path, append(next, '\n'), 0600, PublishAuthoritative, ExpectBytes(raw, true))
+}
+
+// delegationMarkerSilent reports a heartbeat older than three intervals.
+func delegationMarkerSilent(marker DelegationActiveRun, now time.Time) bool {
+	every := time.Duration(marker.HeartbeatEvery) * time.Second
+	if every <= 0 {
+		every = delegationHeartbeatEvery
+	}
+	last := marker.HeartbeatAt
+	if last == "" {
+		last = marker.StartedAt
+	}
+	at, err := time.Parse(time.RFC3339Nano, last)
+	return err == nil && now.Sub(at) > 3*every
+}
+
+// stallClaimPath names the claim that records a run stalled.
+func stallClaimPath(dir string, marker DelegationActiveRun) string {
+	return filepath.Join(dir, marker.AttemptID+"."+marker.RunToken+".stalled")
+}
+
+func readDelegationStall(dir string, marker DelegationActiveRun) string {
+	raw, err := readLedgerRaw(stallClaimPath(dir, marker))
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(raw))
+}
+
+// recordDelegationStall publishes the stall claim exclusively: the first
+// reader's instant is the one every reader returns, so concurrent readers
+// agree (R4).
+func recordDelegationStall(dir string, marker DelegationActiveRun) string {
+	at := time.Now().UTC().Format(time.RFC3339Nano)
+	_ = PublishFile(stallClaimPath(dir, marker), []byte(at+"\n"), 0600, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent})
+	return readDelegationStall(dir, marker)
 }
 
 func cancelRequestPath(dir string, marker DelegationActiveRun) string {
@@ -171,6 +241,10 @@ func (s Store) ListDelegationActive() ([]DelegationActiveRun, []string, error) {
 			continue
 		}
 		marker.Liveness, marker.Detail = probeStartLockOwner(marker.Owner)
+		marker.StalledAt = readDelegationStall(dir, marker)
+		if marker.StalledAt == "" && delegationMarkerSilent(marker, time.Now()) && marker.Liveness == LockOwnerDead {
+			marker.StalledAt = recordDelegationStall(dir, marker)
+		}
 		if _, err := os.Lstat(cancelRequestPath(dir, marker)); err == nil {
 			marker.CancelRequested = true
 		}

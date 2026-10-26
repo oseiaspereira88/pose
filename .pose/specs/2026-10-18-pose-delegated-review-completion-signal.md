@@ -1,6 +1,6 @@
 ---
 slug: pose-delegated-review-completion-signal
-status: draft
+status: in-progress
 created_at: 2026-10-18
 completed_at:
 supersedes:
@@ -9,7 +9,7 @@ priority: 2
 components: pose-mcp
 task_type: feature
 changelog:
-delivers:
+delivers: capability:delegation-observation
 ---
 
 # Spec: A delegated run can be watched and announces that it finished
@@ -73,7 +73,30 @@ Supervisor, run record heartbeat and terminal marker, `pose delegate wait`, `ls`
 
 ### Artifacts
 
-Implementation artifacts are declared when the spec starts.
+- modified: .pose/specs/2026-10-18-pose-delegated-review-completion-signal.md
+- created: .pose/starts/pose-delegated-review-completion-signal.json
+- modified: pose-mcp/internal/pose/delegation_active.go
+- modified: pose-mcp/internal/pose/delegation_list.go
+- created: pose-mcp/internal/pose/delegation_wait.go
+- created: pose-mcp/internal/pose/delegation_wait_test.go
+- created: pose-mcp/internal/pose/delegation_supervision_linux_test.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
+- modified: pose-mcp/internal/cli/delegate.go
+- created: pose-mcp/internal/cli/delegate_wait.go
+- created: pose-mcp/internal/cli/delegate_wait_test.go
+- created: pose-mcp/internal/cli/delegate_detach_unix.go
+- created: pose-mcp/internal/cli/delegate_detach_windows.go
+- modified: pose-mcp/internal/cli/delegate_test.go
+- modified: pose-mcp/internal/cli/cli_test.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+
+### Delivery targets
+
+- capability:delegation-observation module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/delegate.go
 
 ### API/contract changes
 
@@ -81,9 +104,9 @@ Implementation artifacts are declared when the spec starts.
 
 ## 4. Tasks
 
-- [ ] Supervisor, heartbeat and stalled detection
-- [ ] Atomic terminal transition and marker
-- [ ] `wait` with distinguishing exit codes
+- [x] Supervisor, heartbeat and stalled detection
+- [x] Atomic terminal transition and marker
+- [x] `wait` with distinguishing exit codes
 - [ ] `ls` and the MCP status tool
 - [ ] `watch` with chain replay, picker and colour rules
 - [ ] `on_terminal` hook under containment
@@ -105,6 +128,30 @@ Implementation artifacts are declared when the spec starts.
 - Rationale: a pid is reused; a heartbeat alone cannot tell a slow reviewer from a dead one
 - Consequences: a long silent reviewer step must still heartbeat from the supervisor, not from the vendor
 - Falsifier: a live run recorded `stalled`, or a dead run never recorded
+
+### Decision D3
+- Basis: R1
+- Minimal option: return the run identifier
+- Selected option: return the attempt identifier, a run reference every lifecycle command takes
+- Rationale: a run identifier is derived from the run's recorded content and exists only when the run ends; the attempt is reserved before the agent starts
+- Consequences: `wait`, `ls`, `watch` and `cancel` take the attempt; the run identifier appears in their output once the run ends
+- Falsifier: a detached run whose returned reference no lifecycle command resolves
+
+### Decision D4
+- Basis: R4, R5
+- Minimal option: rewrite the marker with the stall under a digest expectation
+- Selected option: publish an exclusive stall claim beside the marker (a hard link that fails when it exists); the marker is never removed by a reader, and the record is published before the running process removes its marker
+- Rationale: a digest expectation is checked before a rename and two readers can both pass it; an exclusive link cannot be won twice, so every reader returns the first reader's instant
+- Consequences: a stalled marker and its claim stay in the private directory; the attempt stays consumed and is not resumable, as a lost host is
+- Falsifier: two readers returning different stall instants, or a run recorded stalled while its process runs
+
+### Decision D5
+- Basis: R1, routing R7
+- Minimal option: detach a run whose route must first wait for a usage-limit reset, and hand back nothing until it starts
+- Selected option: refuse to detach such a run, naming the reset
+- Rationale: R1 promises the reference at once; a reset can be hours away, and a supervisor waiting with nothing to hand back is the unobserved run this spec exists to end
+- Consequences: the caller runs it in the foreground, where the wait is visible, or detaches after the reset
+- Falsifier: a detached run that waited for a reset before handing back its attempt
 
 ## 6. Validation
 

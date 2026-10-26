@@ -46,7 +46,6 @@ const (
 // Subcommands named by the ADR whose behaviour a later spec delivers.
 var delegatePlanned = map[string]string{
 	"watch":   "pose-delegated-review-completion-signal",
-	"wait":    "pose-delegated-review-completion-signal",
 	"handoff": "pose-delegation-handoff",
 	"task":    "pose-delegation-task",
 }
@@ -63,8 +62,8 @@ func tr(english, portuguese string) string { return cliText(cliLocaleValue(), en
 
 type delegateFlags struct {
 	agent, access, label, lead, reason, noteFile string
-	dryRun, jsonOut, active, wait                bool
-	waitMax                                      time.Duration
+	dryRun, jsonOut, active, wait, detach        bool
+	waitMax, timeout                             time.Duration
 	positional                                   []string
 }
 
@@ -83,15 +82,11 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 			f.positional = append(f.positional, arg)
 			continue
 		}
-		if name == "--detach" {
-			return f, tr("--detach is not available yet; it is delivered by spec pose-delegated-review-completion-signal",
-				"--detach ainda não está disponível; ele é entregue pela spec pose-delegated-review-completion-signal")
-		}
 		if !permit[name] {
 			return f, tr("unknown or inapplicable flag "+name, "flag desconhecida ou inaplicável "+name)
 		}
 		switch name {
-		case "--dry-run", "--json", "--active":
+		case "--dry-run", "--json", "--active", "--detach":
 			if hasInline {
 				return f, tr(name+" takes no value", name+" não recebe valor")
 			}
@@ -100,6 +95,8 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 				f.dryRun = true
 			case "--json":
 				f.jsonOut = true
+			case "--detach":
+				f.detach = true
 			default:
 				f.active = true
 			}
@@ -145,6 +142,12 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 				}
 			case "--reason":
 				f.reason = value
+			case "--timeout":
+				d, err := time.ParseDuration(value)
+				if err != nil || d <= 0 {
+					return f, tr("--timeout takes a positive duration", "--timeout recebe uma duração positiva")
+				}
+				f.timeout = d
 			case "--note-file":
 				f.noteFile = value
 			}
@@ -173,6 +176,8 @@ func cmdDelegate(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdDelegateCancel(root, rest, stdout, stderr)
 	case "agents":
 		return cmdDelegateAgents(root, rest, stdout, stderr)
+	case "wait":
+		return cmdDelegateWait(root, rest, stdout, stderr)
 	}
 	return delegateUsage(stdout, stderr, rest, sub, tr("unknown subcommand", "subcomando desconhecido")+"\n"+tr("Usage: ", "Uso: ")+delegateUsageText)
 }
@@ -351,12 +356,16 @@ func waitForRoute(ctx context.Context, stderr io.Writer, record *posemodel.Deleg
 }
 
 func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.Writer) int {
-	f, problem := parseDelegateFlags(args, "--reason", "--note-file")
+	f, problem := parseDelegateFlags(args, "--reason", "--note-file", "--detach")
 	if problem != "" {
 		return delegateUsage(stdout, stderr, args, purpose, problem)
 	}
 	if len(f.positional) != 1 {
 		return delegateUsage(stdout, stderr, args, purpose, tr("Usage: ", "Uso: ")+"pose delegate "+purpose+" <scope|bundle-id> [--agent auto|<name>] [--label <name>] [--lead <vendor>] [--reason <text>] [--note-file <path>] [--dry-run] [--json]")
+	}
+	// A detached run is this command run again in its own session (R1).
+	if f.detach && !f.dryRun && !delegateSupervised() {
+		return detachDelegateRun(root, purpose, args, f, stdout, stderr)
 	}
 	// R3: the review-path purposes read only.
 	if f.access != "" && f.access != posemodel.DelegationAccessRead {
@@ -397,6 +406,12 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	if !f.dryRun && route != nil && route.Step == posemodel.DelegationStepWait {
+		// A detached run hands its attempt back when it starts; one that would
+		// first wait hours for a reset has none to hand back (D3).
+		if delegateSupervised() {
+			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("every agent is limited until "+route.WaitUntil+"; a detached run does not wait for a reset: run it without --detach, or after the reset",
+				"todos os agentes estão limitados até "+route.WaitUntil+"; um run destacado não espera um reset: rode sem --detach, ou depois do reset")))
+		}
 		if err := waitForRoute(ctx, stderr, route, agent); err != nil {
 			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
 		}
@@ -445,6 +460,9 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 		return delegatePrintPlan(stdout, stderr, f.jsonOut, plan, argv, map[string]any{"scope": plan.Brief.Scope, "bundle": plan.Bundle.BundleID,
 			"brief_digest": plan.Brief.Digest, "prior_runs": plan.PriorRuns, "label": plan.Label, "lead": plan.Lead,
 			"routing": plan.Routing, "independence": independence, "implementation": posemodel.DescribeImplementation(impl)})
+	}
+	if delegateSupervised() {
+		plan.OnStart = supervisorHandback()
 	}
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	return delegatePrintRun(stdout, stderr, f.jsonOut, purpose, run, err)
@@ -646,6 +664,12 @@ func cmdDelegateLs(root string, args []string, stdout, stderr io.Writer) int {
 			}
 			if a.Active && a.Liveness != "" {
 				value += " owner=" + a.Liveness
+			}
+			if a.HeartbeatAge != "" {
+				value += " heartbeat=" + a.HeartbeatAge
+			}
+			if a.StalledAt != "" {
+				value += " stalled_at=" + a.StalledAt
 			}
 			if a.Interruption != nil {
 				value += fmt.Sprintf(" cause=%s resumable=%t partial=%t", a.Interruption.Cause, a.Interruption.Resumable, a.Partial)
