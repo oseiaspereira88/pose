@@ -180,6 +180,26 @@ func TestDelegationEventsRedactEveryFieldBeforeTheBound(t *testing.T) {
 	}
 }
 
+// N01 of the third review: a parser that trims, unquotes or joins a decoded
+// value before redaction splits a credential the transcript redacts whole, so
+// every value is redacted as decoded, whatever the parser does with it next.
+func TestDelegationEventsRedactBeforeAParserTransforms(t *testing.T) {
+	secret := " synthetic-token "
+	claude := `{"type":"assistant","message":{"content":[{"type":"text","text":"` + secret + `"}]}}` + "\n" +
+		`{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"t1","content":[{"type":"text","text":"` + secret + `"}]}]}}` + "\n"
+	codex := `{"type":"item.started","item":{"type":"command_execution","command":"/usr/bin/bash -lc '` + secret + `'"}}` + "\n" +
+		`{"type":"item.completed","item":{"type":"file_change","changes":[{"kind":"","path":"` + secret + `"}]}}` + "\n"
+	for format, stream := range map[string]string{DelegationEventsClaudeStreamJSON: claude, DelegationEventsCodexJSONL: codex} {
+		out, err := redactedDelegationEvents(format, []byte(stream), "", []string{secret}, "s3ssion-ref")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(string(out), "synthetic-token") || !strings.Contains(string(out), "[credential]") {
+			t.Fatalf("%s: a transformed value escaped redaction: %s", format, out)
+		}
+	}
+}
+
 // N02 of the second review: the reader admits every events file the writer
 // publishes.
 func TestDelegationEventsReadWhatTheWriterPublishes(t *testing.T) {

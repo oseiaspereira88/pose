@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -35,7 +36,7 @@ func TestDelegationCancelNamesOneRun(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	active, _ := s.ListDelegationActive()
+	active, _, _ := s.ListDelegationActive()
 	if len(active) != 1 || !validRunToken(active[0].RunToken) {
 		t.Fatalf("marker: %+v", active)
 	}
@@ -78,5 +79,36 @@ func TestDelegationCancelNamesOneRun(t *testing.T) {
 		if e.Name() != stale {
 			t.Fatalf("left in the active directory: %s", e.Name())
 		}
+	}
+}
+
+// N04 of the third review: a marker the listing cannot read is a loss, so ls
+// never reports no running run when it could not observe one.
+func TestDelegationActiveReportsUnreadableMarkers(t *testing.T) {
+	s := Store{Root: t.TempDir()}
+	_, cancel := context.WithCancel(context.Background())
+	stop, _, err := s.markDelegationActive(activeRun("att-1"), cancel)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer stop()
+	dir, err := s.delegationActiveDir(false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(dir, "att-1.json")
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, raw[:len(raw)/2], 0600); err != nil {
+		t.Fatal(err)
+	}
+	attempts, lost, err := s.ListDelegationAttempts()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(attempts) != 0 || len(lost) != 1 || !strings.Contains(lost[0], "att-1.json") {
+		t.Fatalf("an unreadable marker went unreported: attempts=%+v lost=%v", attempts, lost)
 	}
 }

@@ -668,17 +668,17 @@ func cmdDelegateCancel(root string, args []string, stdout, stderr io.Writer) int
 		return delegateUsage(stdout, stderr, args, "cancel", problem+"\n"+tr("Usage: ", "Uso: ")+"pose delegate cancel <run> [--dry-run] [--json]")
 	}
 	store := posemodel.Store{Root: root}
-	attempts, _, err := store.ListDelegationAttempts()
+	attempts, lost, err := store.ListDelegationAttempts()
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, "cancel", 1, err)
 	}
 	attempt, code, err := namedAttempt(attempts, f)
 	if err != nil {
-		return delegateFail(stdout, stderr, f.jsonOut, "cancel", code, err)
+		return delegateFail(stdout, stderr, f.jsonOut, "cancel", code, withDelegationLosses(err, lost))
 	}
 	if !attempt.Active {
-		return delegateFail(stdout, stderr, f.jsonOut, "cancel", 1, errors.New(tr("attempt "+attempt.AttemptID+" is "+attempt.State+", not running",
-			"a tentativa "+attempt.AttemptID+" está "+attempt.State+", não rodando")))
+		return delegateFail(stdout, stderr, f.jsonOut, "cancel", 1, withDelegationLosses(errors.New(tr("attempt "+attempt.AttemptID+" is "+attempt.State+", not running",
+			"a tentativa "+attempt.AttemptID+" está "+attempt.State+", não rodando")), lost))
 	}
 	if f.dryRun {
 		if f.jsonOut {
@@ -724,6 +724,15 @@ func cmdDelegateCancel(root string, args []string, stdout, stderr io.Writer) int
 		return 1
 	}
 	return 0
+}
+
+// withDelegationLosses names what the listing could not read beside a run it
+// did not find running: the run may be the one an unreadable marker hides.
+func withDelegationLosses(err error, lost []string) error {
+	if len(lost) == 0 {
+		return err
+	}
+	return fmt.Errorf("%w (%s %s)", err, tr("unread:", "não lido:"), strings.Join(lost, "; "))
 }
 
 // delegateAgentRow is one line of pose delegate agents (R14).

@@ -117,10 +117,11 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 			}
 		}
 	}
-	active, err := s.ListDelegationActive()
+	active, activeLost, err := s.ListDelegationActive()
 	if err != nil {
 		lost = append(lost, "active runs could not be read: "+err.Error())
 	}
+	lost = append(lost, activeLost...)
 	for _, marker := range active {
 		row, ok := byAttempt[marker.AttemptID]
 		if !ok {

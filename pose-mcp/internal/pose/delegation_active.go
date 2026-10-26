@@ -136,30 +136,38 @@ func validRunToken(token string) bool {
 	return err == nil
 }
 
-// ListDelegationActive reads the markers with the liveness of their owners.
-func (s Store) ListDelegationActive() ([]DelegationActiveRun, error) {
+// ListDelegationActive reads the markers with the liveness of their owners,
+// and returns as losses the markers it cannot read: a run it cannot observe is
+// reported, never listed as running nor left out in silence.
+func (s Store) ListDelegationActive() ([]DelegationActiveRun, []string, error) {
 	dir, err := s.delegationActiveDir(false)
 	if errors.Is(err, os.ErrNotExist) {
-		return []DelegationActiveRun{}, nil
+		return []DelegationActiveRun{}, nil, nil
 	}
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	out := []DelegationActiveRun{}
+	var lost []string
 	for _, e := range entries {
-		if !strings.HasSuffix(e.Name(), ".json") || !e.Type().IsRegular() {
+		if !strings.HasSuffix(e.Name(), ".json") {
 			continue
 		}
 		raw, err := readLedgerRaw(filepath.Join(dir, e.Name()))
+		if errors.Is(err, os.ErrNotExist) {
+			continue // the run ended between the listing and the read
+		}
 		if err != nil {
+			lost = append(lost, "the active run marker "+e.Name()+" could not be read: "+err.Error())
 			continue
 		}
 		var marker DelegationActiveRun
 		if json.Unmarshal(raw, &marker) != nil || marker.SchemaVersion != 1 || marker.AttemptID+".json" != e.Name() || !validRunToken(marker.RunToken) {
+			lost = append(lost, "the active run marker "+e.Name()+" is not one this engine reads")
 			continue
 		}
 		marker.Liveness, marker.Detail = probeStartLockOwner(marker.Owner)
@@ -171,7 +179,7 @@ func (s Store) ListDelegationActive() ([]DelegationActiveRun, error) {
 	sort.Slice(out, func(i, j int) bool {
 		return out[i].StartedAt < out[j].StartedAt || out[i].StartedAt == out[j].StartedAt && out[i].AttemptID < out[j].AttemptID
 	})
-	return out, nil
+	return out, lost, nil
 }
 
 // ErrDelegationNotActive means no running run matches.
@@ -180,7 +188,7 @@ var ErrDelegationNotActive = errors.New("pose: the run is not running")
 // RequestDelegationCancel asks the process running attempt to stop. A marker
 // whose owner is proven dead is not cancelled: nothing runs to stop.
 func (s Store) RequestDelegationCancel(attempt string) (DelegationActiveRun, error) {
-	active, err := s.ListDelegationActive()
+	active, _, err := s.ListDelegationActive()
 	if err != nil {
 		return DelegationActiveRun{}, err
 	}

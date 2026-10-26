@@ -6,8 +6,9 @@ package pose
 // versioned event schema, the same for every vendor, kept beside the raw
 // transcript and bound to the run record by digest. The parsers read the raw
 // stream, where a JSON escape no longer hides a value once decoded; every
-// field is redacted whole, before it is cut to its bound, so an event never
-// holds what the transcript withheld, nor a prefix of it.
+// decoded value is redacted whole before a parser trims, unquotes or joins it,
+// and every field again before it is cut to its bound, so an event never holds
+// what the transcript withheld, nor a part of it.
 
 import (
 	"bytes"
@@ -59,15 +60,31 @@ func NormalizeDelegationEvents(format string, transcript []byte, final string) [
 	return events
 }
 
-// normalizeDelegationEvents passes every decoded field through clean before
-// it is bounded.
+// normalizeDelegationEvents passes every decoded value through clean before a
+// parser transforms it, and every field again before it is bounded: a trim, an
+// unquote or a join can split a value the transcript redacts whole, or join one
+// it never held.
 func normalizeDelegationEvents(format string, transcript []byte, final string, clean func(string) (string, error)) ([]DelegationEvent, error) {
+	var cleanErr error
+	field := func(v any) string {
+		if cleanErr != nil {
+			return ""
+		}
+		cleaned, err := clean(str(v))
+		if err != nil {
+			cleanErr = err
+		}
+		return cleaned
+	}
 	var events []DelegationEvent
 	switch format {
 	case DelegationEventsCodexJSONL:
-		events = codexEvents(transcript)
+		events = codexEvents(transcript, field)
 	case DelegationEventsClaudeStreamJSON:
-		events = claudeEvents(transcript)
+		events = claudeEvents(transcript, field)
+	}
+	if cleanErr != nil {
+		return nil, cleanErr
 	}
 	if strings.TrimSpace(final) != "" {
 		events = append(events, DelegationEvent{Kind: DelegationEventFinal, Text: final})
@@ -117,7 +134,9 @@ func jsonLines(transcript []byte, each func(map[string]any)) {
 	}
 }
 
-func codexEvents(transcript []byte) []DelegationEvent {
+// field yields a decoded value an event may carry; str reads one that only
+// classifies.
+func codexEvents(transcript []byte, field func(any) string) []DelegationEvent {
 	var out []DelegationEvent
 	jsonLines(transcript, func(e map[string]any) {
 		item, _ := e["item"].(map[string]any)
@@ -127,36 +146,36 @@ func codexEvents(transcript []byte) []DelegationEvent {
 			out = append(out, DelegationEvent{Kind: DelegationEventTurn})
 		case "item.started":
 			if itemType == "command_execution" {
-				out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: "shell", Text: unwrapShell(str(item["command"]))})
+				out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: "shell", Text: unwrapShell(field(item["command"]))})
 			}
 		case "item.completed":
 			switch itemType {
 			case "agent_message":
-				out = append(out, DelegationEvent{Kind: DelegationEventMessage, Text: str(item["text"])})
+				out = append(out, DelegationEvent{Kind: DelegationEventMessage, Text: field(item["text"])})
 			case "command_execution":
 				code := intOf(item["exit_code"])
-				out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: "shell", ExitCode: &code, Text: str(item["aggregated_output"]), tail: true})
+				out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: "shell", ExitCode: &code, Text: field(item["aggregated_output"]), tail: true})
 			case "file_change":
 				paths := []string{}
 				changes, _ := item["changes"].([]any)
 				for _, c := range changes {
 					if m, ok := c.(map[string]any); ok {
-						paths = append(paths, strings.TrimSpace(str(m["kind"])+" "+str(m["path"])))
+						paths = append(paths, strings.TrimSpace(field(m["kind"])+" "+field(m["path"])))
 					}
 				}
 				out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: "file_change", Text: strings.Join(paths, ", ")})
 			}
 		case "turn.failed":
 			errObj, _ := e["error"].(map[string]any)
-			out = append(out, limitOrError(str(errObj["message"]), ""))
+			out = append(out, limitOrError(field(errObj["message"]), ""))
 		case "error":
-			out = append(out, limitOrError(str(e["message"]), ""))
+			out = append(out, limitOrError(field(e["message"]), ""))
 		}
 	})
 	return out
 }
 
-func claudeEvents(transcript []byte) []DelegationEvent {
+func claudeEvents(transcript []byte, field func(any) string) []DelegationEvent {
 	var out []DelegationEvent
 	tools := map[string]string{} // tool_use id -> normalized tool name
 	jsonLines(transcript, func(e map[string]any) {
@@ -172,20 +191,20 @@ func claudeEvents(transcript []byte) []DelegationEvent {
 				part, _ := c.(map[string]any)
 				switch str(part["type"]) {
 				case "text":
-					if text := strings.TrimSpace(str(part["text"])); text != "" {
+					if text := strings.TrimSpace(field(part["text"])); text != "" {
 						out = append(out, DelegationEvent{Kind: DelegationEventMessage, Text: text})
 					}
 				case "tool_use":
 					input, _ := part["input"].(map[string]any)
-					tool, text := str(part["name"]), str(input["command"])
+					tool, text := field(part["name"]), field(input["command"])
 					if tool == "Bash" {
 						tool = "shell"
 					}
 					if text == "" {
-						text = str(input["file_path"])
+						text = field(input["file_path"])
 					}
 					if text == "" {
-						text = str(part["name"])
+						text = field(part["name"])
 					}
 					tools[str(part["id"])] = tool
 					out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: tool, Text: text})
@@ -194,7 +213,7 @@ func claudeEvents(transcript []byte) []DelegationEvent {
 					if b, _ := part["is_error"].(bool); b {
 						code = 1
 					}
-					out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: tools[str(part["tool_use_id"])], ExitCode: &code, Text: toolResultText(part["content"]), tail: true})
+					out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: tools[str(part["tool_use_id"])], ExitCode: &code, Text: toolResultText(part["content"], field), tail: true})
 				}
 			}
 		case "rate_limit_event":
@@ -204,7 +223,7 @@ func claudeEvents(transcript []byte) []DelegationEvent {
 			}
 		case "result":
 			if b, _ := e["is_error"].(bool); b {
-				out = append(out, limitOrError(str(e["result"]), ""))
+				out = append(out, limitOrError(field(e["result"]), ""))
 			}
 		}
 	})
@@ -223,15 +242,15 @@ func limitOrError(text, reset string) DelegationEvent {
 	return DelegationEvent{Kind: DelegationEventError, Text: text}
 }
 
-func toolResultText(content any) string {
+func toolResultText(content any, field func(any) string) string {
 	switch v := content.(type) {
 	case string:
-		return v
+		return field(v)
 	case []any:
 		parts := []string{}
 		for _, c := range v {
 			if m, ok := c.(map[string]any); ok {
-				parts = append(parts, str(m["text"]))
+				parts = append(parts, field(m["text"]))
 			}
 		}
 		return strings.Join(parts, "\n")
