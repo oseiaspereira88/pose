@@ -428,6 +428,10 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 		timeout = total - spent
 	}
 	plan.processTimeout = timeout
+	plan.provenance, e = s.prepareRunProvenance(plan, policy)
+	if e != nil {
+		return DispatchPlan{}, e
+	}
 	plan.session, e = s.readReviewSession(prior.SessionDigest)
 	if e != nil {
 		return DispatchPlan{}, e

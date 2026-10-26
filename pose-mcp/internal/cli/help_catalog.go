@@ -327,6 +327,8 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Subcommands: []SubcommandHelp{
 			{"bundle", "pose review bundle <scope|xref> [--seal] [--explain] [--expect-context <digest>]", "Prepare or seal an immutable review subject bundle", "Prepara ou sela o bundle imutável de revisão"},
 			{"brief", "pose review brief <bundle-id|scope> [--kind review|adjudication|smoke] [--note-file <path>] [--json]", "Render the request a delegated reviewer receives, from the sealed bundle alone", "Gera o pedido que um revisor delegado recebe, só a partir do bundle selado"},
+			{"run-sign", "pose review run-sign <run-id> --issuer <name> [--ttl <duration>] [--apply] [--json]", "Sign captured run provenance with a pinned native issuer", "Assina a proveniência capturada com issuer nativo fixado"},
+			{"run-proof", "pose review run-proof <run-id> <proof-id> [--json]", "Verify current run proof and disclose executor assurance", "Verifica a prova atual e divulga assurance do executor"},
 			{"resume", "pose review resume <run-id> [--wait-until-reset[=<max-duration>]] [--apply]", "Continue an interrupted run under its original attempt", "Retoma um run interrompido sob a tentativa original"},
 			{"status", "pose review status [--json]", "Show interrupted runs and their reset instants", "Mostra runs interrompidos e seus instantes de reset"},
 			{"dispatch", "pose review dispatch <bundle-id|scope> --via <adapter> [--kind review|adjudication|smoke] [--note-file <path>] [--apply]", "Run a configured reviewer on a disposable worktree at the sealed commit and record the run; never records an attestation", "Roda um revisor configurado num worktree descartável no commit selado e registra a execução; nunca registra atestação"},

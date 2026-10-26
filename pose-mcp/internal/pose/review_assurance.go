@@ -13,6 +13,8 @@ import "strings"
 // principals, executions and credentials, never whether a second reviewer
 // thought independently, so that field is a constant and exists to be read.
 type ReviewAssurance struct {
+	RunReference          *ReviewRunReference     `json:"run_reference,omitempty"`
+	Run                   *ReviewRunAssurance     `json:"run,omitempty"`
 	Temporal              *ReviewTrustTime        `json:"temporal,omitempty"`
 	Reuse                 []ReviewReuseDisclosure `json:"reuse,omitempty"`
 	IdentityAssurance     string                  `json:"identity_assurance"`
@@ -132,6 +134,36 @@ func (s Store) describeReviewAssurance(bundle ReviewBundle, att *ReviewAttestati
 	out.Reviewer = att.Reviewer
 	out.SeparationDeclared = reviewDeclaredSeparation(att.Reviewer)
 	out.ReviewerRole = reviewDeclaredRole(att.Reviewer)
+	if att.Run != nil {
+		ref := *att.Run
+		out.RunReference = &ref
+		if blockers := s.runBackedReviewBlockers(bundle, *att); len(blockers) > 0 {
+			out.ReviewerIdentity = reviewAssuranceNotVerified
+			out.Limitations = []string{ReviewLimitationClaimNotVerified, ReviewLimitationCognitive}
+			return out
+		}
+		proof, err := s.verifyRunReviewReference(bundle, *att)
+		if err != nil {
+			out.Limitations = []string{ReviewLimitationClaimNotVerified}
+			return out
+		}
+		out.Run = &proof
+		out.ReviewerIdentity = ReviewRunMachineAttested
+		out.ReviewerRole = "agent"
+		out.SeparationVerified = "signed-executor-execution"
+		if bundle.Payload.Plan.Independence == "different-actor" {
+			out.SeparationVerified = "vendor-or-model"
+		}
+		claim := att.Authority
+		out.VerifiedClaim = &ReviewAssuranceClaim{Principal: claim.Principal, Role: "agent", ReviewExecution: claim.ReviewExecution, ImplementationPrincipal: claim.ImplementationPrincipal, ImplementationExecution: claim.ImplementationExecution, Issuer: claim.Issuer, Audience: claim.Audience, BundleDigest: claim.BundleDigest}
+		out.Limitations = proof.Limitations
+		return out
+	}
+	if policy, _, err := s.loadReviewPolicy(); err != nil || policy.DelegatedReview && strings.HasPrefix(att.Reviewer, "agent:") && bundle.Payload.Plan.Independence == "different-actor" {
+		out.ReviewerIdentity = reviewAssuranceNotVerified
+		out.Limitations = []string{"signed-run-proof-required", ReviewLimitationCognitive}
+		return out
+	}
 	if out.IdentityAssurance != ReviewIdentityAssuranceVerified {
 		out.ReviewerIdentity = ReviewIdentityAssuranceDeclared
 		out.Limitations = []string{ReviewLimitationIdentityDeclared, ReviewLimitationSeparationDeclared, ReviewLimitationCognitive}
@@ -194,12 +226,17 @@ func RenderReviewAssurance(a ReviewAssurance) string {
 	switch a.ReviewerIdentity {
 	case ReviewIdentityAssuranceVerified:
 		identity = "verified " + a.ReviewerRole + " identity"
+	case ReviewRunMachineAttested:
+		identity = "machine-attested executor declaration"
 	case reviewAssuranceNotVerified:
 		identity = "identity not verified"
 	}
 	text := reviewer + " — " + identity + "; assurance " + a.IdentityAssurance +
 		"; separation required " + a.SeparationRequired + ", declared " + a.SeparationDeclared + ", verified " + a.SeparationVerified +
 		"; cognitive independence " + a.CognitiveIndependence
+	if a.Run != nil {
+		text += "; run " + a.Run.RunID + " proof " + a.Run.ProofID + "; reviewer " + a.Run.Reviewer.Vendor + "/" + a.Run.Reviewer.Model + "; implementation " + a.Run.Implementation.Vendor + "/" + a.Run.Implementation.Model + "; source " + a.Run.IdentitySource
+	}
 	if a.Temporal != nil {
 		text += "; historical claim " + a.Temporal.HistoricalValidity + " at " + a.Temporal.TimeBasis + "; current operation " + a.Temporal.CurrentValidity + "; historical authorization " + a.Temporal.HistoricalAuthorization
 	}

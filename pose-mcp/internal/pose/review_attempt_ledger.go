@@ -417,7 +417,7 @@ func (s Store) ReviewRunHistoryFindings() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	roots := []string{reviewRunsDir, reviewRunLedgerDir, reviewAttemptDir, reviewContinuationsDir}
+	roots := []string{reviewRunsDir, reviewRunLedgerDir, reviewAttemptDir, reviewContinuationsDir, reviewRunProofDir}
 	if _, headErr := snapshotGit(s.Root, "rev-parse", "--verify", "HEAD"); headErr != nil {
 		// An unborn repository without delegated data has no delegated history
 		// contract to verify. Preserve the report-history gate's existing behavior.

@@ -363,6 +363,7 @@ type ReviewAuthorityClaim struct {
 }
 
 type ReviewAttestation struct {
+	Run           *ReviewRunReference     `json:"run,omitempty"`
 	SchemaVersion int                     `json:"schema_version"`
 	AttestationID string                  `json:"attestation_id"`
 	BundleID      string                  `json:"bundle_id"`
@@ -1120,7 +1121,7 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 		// like the repository's own LICENSE and NOTICE (found in review).
 		return "documentation", true
 	}
-	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/review-attribution-supplements/", ".pose/closeout-plans/", ".pose/contributions/", ".pose/feedback/", ".pose/review-runs/", ".pose/review-attempts/", ".pose/review-run-ledger/", ".pose/review-continuations/", ".pose/review-private/", ".pose/events/", ".pose/investigations/"} {
+	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/review-attribution-supplements/", ".pose/closeout-plans/", ".pose/contributions/", ".pose/feedback/", ".pose/review-runs/", ".pose/review-attempts/", ".pose/review-run-ledger/", ".pose/review-continuations/", ".pose/review-private/", ".pose/review-run-proofs/", ".pose/events/", ".pose/investigations/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "derived-evidence", false
 		}
@@ -3019,18 +3020,24 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	// satisfies `different-actor`, and `human:` satisfies `mandatory-human`,
 	// because nothing here compares a principal, a session or a grant
 	// (spec pose-abm-review-authority).
-	switch bundle.Payload.SealedGates().IdentityAssurance {
-	case ReviewIdentityAssuranceVerified:
-		blockers = append(blockers, s.verifiedAuthorityBlockers(bundle, att)...)
-	default:
-		switch bundle.Payload.Plan.Independence {
-		case "different-actor":
-			if !strings.HasPrefix(att.Reviewer, "agent:independent-") && !strings.HasPrefix(att.Reviewer, "human:") {
-				blockers = append(blockers, "review policy requires a different-actor reviewer identity; under declared assurance that is read from the reviewer prefix, not authenticated")
-			}
-		case "mandatory-human":
-			if !strings.HasPrefix(att.Reviewer, "human:") {
-				blockers = append(blockers, "review policy requires human approval")
+	if att.Run != nil {
+		blockers = append(blockers, s.runBackedReviewBlockers(bundle, att)...)
+	} else if policy.DelegatedReview && strings.HasPrefix(att.Reviewer, "agent:") && bundle.Payload.Plan.Independence == "different-actor" {
+		blockers = append(blockers, "delegated-review requires a signed run reference; reviewer prefix does not prove independence")
+	} else {
+		switch bundle.Payload.SealedGates().IdentityAssurance {
+		case ReviewIdentityAssuranceVerified:
+			blockers = append(blockers, s.verifiedAuthorityBlockers(bundle, att)...)
+		default:
+			switch bundle.Payload.Plan.Independence {
+			case "different-actor":
+				if !strings.HasPrefix(att.Reviewer, "agent:independent-") && !strings.HasPrefix(att.Reviewer, "human:") {
+					blockers = append(blockers, "review policy requires a different-actor reviewer identity; under declared assurance that is read from the reviewer prefix, not authenticated")
+				}
+			case "mandatory-human":
+				if !strings.HasPrefix(att.Reviewer, "human:") {
+					blockers = append(blockers, "review policy requires human approval")
+				}
 			}
 		}
 	}
@@ -3656,6 +3663,10 @@ func (s Store) verifiedAuthorityBlockers(bundle ReviewBundle, att ReviewAttestat
 	case "different-actor", "mandatory-human":
 		if claim.ImplementationPrincipal == "" || claim.ImplementationExecution == "" {
 			blockers = append(blockers, "review policy requires a different actor and the claim does not say who implemented")
+		} else if att.Run != nil && claim.Role == "agent" && bundle.Payload.Plan.Independence == "different-actor" {
+			if _, err := s.verifyRunReviewReference(bundle, att); err != nil {
+				blockers = append(blockers, err.Error())
+			}
 		} else if claim.Principal == claim.ImplementationPrincipal {
 			blockers = append(blockers, "review policy requires a different actor and the same principal implemented and reviewed")
 		} else if claim.ReviewExecution == claim.ImplementationExecution {

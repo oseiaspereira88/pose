@@ -829,3 +829,30 @@ Run `pose review status [--json]` to inspect interruptions, partial drafts, rese
 Preview `pose review resume <run-id>`, then pass `--apply` to continue with the same adapter, captured session, brief digest, sealed commit and reconstructed checkout digest. Resume uses the original attempt and does not spend another attempt quota. The default maximum is three resumes and 60 minutes of accumulated wall-clock; configure `resume.max_resumes`/`max_wall_time` to change these bounds. Policy changes, changed inputs, lost or rewritten predecessors, terminal predecessors and spent budgets refuse. An immutable predecessor claim permits only one continuation; repeated requests return the recorded result or expose its pending reservation without launching another process. A lost host before a result is published remains explicit incomplete evidence; this is not automatic recovery without a captured interrupted record.
 
 Use `--wait-until-reset[=<duration>]` to wait once for a recorded reset, plus at most one second of jitter, then revalidate and resume. Default and maximum wait are 24 hours; a missing or more distant reset refuses. No vendor polling or automatic fallback occurs. To choose another adapter after a pending usage limit, explicitly dispatch with `--via <adapter>`; this creates a new attempt with `limit-of:<run>` and discloses both runs. Insights reports resumes separately from attempts and reruns; declared draft approval rates use completed unsuperseded drafts only.
+
+### Verify signed delegated run provenance
+
+Declare the executor and implementation baseline before dispatch. Add `provenance` to reviewers policy and an `executor` agent principal to every adapter. The following identities are synthetic examples; record the real declared baseline rather than inferring it from a reviewer name:
+
+```json
+{
+  "schema_version": 1,
+  "provenance": {
+    "trust": "executor-attested",
+    "implementation": {"principal": "agent:implementer", "execution": "implementation-run-1", "vendor": "vendor-a", "model": "model-a"}
+  },
+  "adapters": {
+    "reviewer": {"executor": "agent:reviewer", "command": ["reviewer", "--output", "{output}"], "vendor": "vendor-b", "model": "model-b"}
+  }
+}
+```
+
+Use the existing native issuer and its attestation pin. Set protected `authority_project` and `authority_audience` in review policy; a declared project identity must agree. Keep keys outside the project. Dispatch captures origin/worktree, bundle/commit/scope/kind, configuration/argv/executable, identities, brief template/body/notes, planned stdin and actual pipe-write digests, raw and retained redacted output/transcript digests and completeness. A pipe write does not prove the vendor consumed the prompt. Session references and private keys stay outside the public proof.
+
+Preview `pose review run-sign <run-id> --issuer <name> [--ttl <duration>]`, then add `--apply` to publish an immutable proof under `.pose/review-run-proofs/`. TTL is optional (no expiry when absent), positive when supplied and at most 365 days. Verify it with `pose review run-proof <run-id> <proof-id> [--json]`. The proof signs the captured executor declaration; it is not an independent vendor receipt or human confirmation. Failed or interrupted audit records disclose their state and `complete_review=false`. Unknown or ambiguous draft decisions also keep that flag false. A true flag describes completed delivery with one draft decision, not approval or complete typed-conclusion validation. A completed run with incomplete stdin or truncated output cannot establish a completed review. Legacy runs have no captured provenance and cannot be upgraded by signing today's configuration.
+
+Attach `--run <run-id> --run-proof <proof-id> --sign <issuer>` to a complete `pose review attest` request. The native issuer derives authority principal/execution bindings from the run and signs the exact reference. Criteria, tools, evidence and all ordinary preflight checks still apply. A rejecting or ambiguous draft cannot support an approval; a run-backed attestation cannot predate its completed run or signed proof. Adjudication/smoke run proofs bind their kinds but cannot be used as review attestations. Automatic validation/application of complete typed conclusions belongs to the capability, not to run signing.
+
+Opt in to the verification bar with `delegated_review: true` in review policy only when preparing adoption. This live bar requires a signed run reference for agent different-actor review and refuses a prefix-only identity; it does not enable or add the future catalog capability. Non-adopting instances keep declared behavior. Under explicit executor-attested trust, normalized vendor OR model difference satisfies different-actor (vendor difference preferred); unknown baselines and the same vendor/model refuse. A machine run never satisfies mandatory-human. Catalog adoption, cutoffs/rollback and automatic conclusion application remain separate capability work.
+
+Read the same current assurance through verify, review-check, MCP and `pose state --attention`: `machine-attested` names the signed executor declaration, its source, run/proof and vendor/model comparisons. Current issuer pins, project/audience/time, sealed inputs, retained artifacts and original/continuation receipts are reverified. Revocation, missing receipts, rewritten data or stale inputs remove machine assurance. Signing does not reset quotas or erase earlier rejecting runs. Worktree binding currently requires the originating local context; no portable remote-runner trust or universal containment is claimed.

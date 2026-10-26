@@ -839,3 +839,30 @@ Execute `pose review status [--json]` para ver interrupções, drafts parciais, 
 Visualize `pose review resume <run-id>` e passe `--apply` para retomar com o mesmo adapter, sessão capturada, digest do brief, commit selado e digest do checkout reconstruído. A continuação usa a tentativa original, sem consumir outra quota. O padrão permite três resumes e 60 minutos acumulados de wall-clock; altere com `resume.max_resumes`/`max_wall_time`. Mudanças de policy/inputs, predecessor perdido ou reescrito, predecessor terminal e orçamento esgotado impedem resume. Uma reserva imutável por predecessor permite apenas uma continuação; repetições retornam o resultado existente ou mostram a reserva pendente sem iniciar outro processo. Perder o host antes de publicar resultado permanece evidência incompleta explícita; não há recuperação automática sem um registro interrompido capturado.
 
 Use `--wait-until-reset[=<duração>]` para esperar uma vez pelo reset registrado, mais até um segundo de jitter, e revalidar antes de retomar. O padrão e máximo são 24 horas; reset ausente ou além do limite impede a espera. Não há polling do fornecedor nem fallback automático. Para escolher outro adapter após um limite pendente, faça dispatch explícito com `--via <adapter>`; ele cria outra tentativa com `limit-of:<run>` e mostra ambos os runs. Insights conta resumes separadamente de tentativas/reruns; taxas declaradas de aprovação usam somente drafts completed não superseded.
+
+### Verificar proveniência assinada de runs delegados
+
+Declare executor e baseline de implementação antes do dispatch. Acrescente `provenance` na policy de reviewers e um principal agente `executor` em cada adapter. As identidades abaixo são exemplos sintéticos; registre a baseline real declarada, sem inferi-la pelo nome do revisor:
+
+```json
+{
+  "schema_version": 1,
+  "provenance": {
+    "trust": "executor-attested",
+    "implementation": {"principal": "agent:implementer", "execution": "implementation-run-1", "vendor": "vendor-a", "model": "model-a"}
+  },
+  "adapters": {
+    "reviewer": {"executor": "agent:reviewer", "command": ["reviewer", "--output", "{output}"], "vendor": "vendor-b", "model": "model-b"}
+  }
+}
+```
+
+Reutilize o issuer nativo e seu pin de atestações. Configure `authority_project` e `authority_audience` protegidos na policy de review; a identidade declarada do projeto deve concordar. Mantenha chaves fora do projeto. O dispatch captura origem/worktree, bundle/commit/scope/kind, configuração/argv/executável, identidades, template/body/notas do brief, stdin planejado e bytes escritos no pipe, digests de saída/transcript brutos e retidos com redação, além de completude. Escrever no pipe não prova que o fornecedor consumiu o prompt. Sessões e chaves privadas ficam fora da prova pública.
+
+Visualize `pose review run-sign <run-id> --issuer <nome> [--ttl <duração>]` e acrescente `--apply` para publicar uma prova imutável em `.pose/review-run-proofs/`. TTL é opcional (sem expiração quando ausente), positivo quando informado e limitado a 365 dias. Verifique com `pose review run-proof <run-id> <proof-id> [--json]`. A prova assina a declaração capturada do executor; não é recibo independente do fornecedor nem confirmação humana. Auditorias failed/interrupted mostram seu estado e `complete_review=false`. Decisão desconhecida ou ambígua também mantém a flag falsa. A flag verdadeira descreve entrega concluída com uma decisão de draft, não aprovação nem validação completa da conclusão tipada. Run completed com stdin incompleto ou saída truncada não estabelece review concluído. Runs legados sem proveniência capturada não são promovidos assinando a configuração atual.
+
+Acrescente `--run <run-id> --run-proof <proof-id> --sign <issuer>` a uma solicitação completa de `pose review attest`. O issuer deriva do run os vínculos de principal/execução e assina a referência exata. Critérios, tools, evidências e preflight continuam obrigatórios. Draft negativo ou ambíguo não apoia aprovação; a atestação não pode anteceder o término do run ou sua prova assinada. Provas de adjudication/smoke vinculam seus kinds e não servem como atestações de review. Validar/aplicar automaticamente conclusões completas e tipadas pertence à capability, não à assinatura do run.
+
+Ative a barreira de verificação com `delegated_review: true` na policy de review somente ao preparar adoção. Essa barreira viva exige prova de run para review de agente different-actor e recusa prefixo isolado; ela não adiciona nem habilita a capability futura no catálogo. Instâncias não adotantes mantêm o comportamento declared. Com confiança executor-attested explícita, vendor OU modelo normalizado diferente satisfaz different-actor (vendor distinto preferido); baseline desconhecida e mesmo vendor/modelo recusam. Run de máquina nunca satisfaz mandatory-human. Adoção no catálogo, cutoffs/rollback e aplicação automática de conclusões continuam no escopo separado da capability.
+
+Leia a mesma assurance atual por verify, review-check, MCP e `pose state --attention`: `machine-attested` identifica a declaração assinada, sua fonte, run/proof e comparação de vendor/modelo. Pins atuais, projeto/audience/tempo, inputs selados, artefatos retidos e receipts originais/de continuação são revalidados. Revogação, receipt ausente, dados reescritos ou inputs stale retiram a assurance de máquina. Assinar não restaura quota nem apaga runs negativos anteriores. O vínculo de worktree exige o contexto local de origem; não há alegação de confiança portátil em runner remoto nem contenção universal.

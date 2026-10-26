@@ -454,6 +454,26 @@ func (s Store) SignReviewAttestation(att ReviewAttestation, key IssuerKey, autho
 	if key.private == nil {
 		return ReviewAttestationEnvelope{}, fmt.Errorf("pose: issuer %s has no loaded key", key.Name)
 	}
+	if att.Run != nil {
+		run, err := s.LoadProvenanceReviewRun(att.Run.RunID)
+		if err != nil {
+			return ReviewAttestationEnvelope{}, err
+		}
+		if run.Provenance == nil {
+			return ReviewAttestationEnvelope{}, fmt.Errorf("run has no captured provenance")
+		}
+		if att.Reviewer != run.Provenance.Reviewer.Principal {
+			return ReviewAttestationEnvelope{}, fmt.Errorf("attestation reviewer differs from captured executor")
+		}
+		if authority != nil && (authority.ReviewExecution != run.RunID || authority.ImplementationPrincipal != run.Provenance.Implementation.Principal || authority.ImplementationExecution != run.Provenance.Implementation.Execution) {
+			return ReviewAttestationEnvelope{}, fmt.Errorf("authority conflicts with run provenance")
+		}
+		ttl := time.Duration(0)
+		if authority != nil {
+			ttl = authority.TTL
+		}
+		authority = &NativeAuthority{ReviewExecution: run.RunID, ImplementationPrincipal: run.Provenance.Implementation.Principal, ImplementationExecution: run.Provenance.Implementation.Execution, TTL: ttl}
+	}
 	if authority != nil {
 		bundle, err := s.LoadReviewBundle(att.BundleID)
 		if err != nil {

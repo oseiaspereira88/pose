@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 
 	"github.com/harne8/pose-mcp/internal/pose"
@@ -63,6 +64,14 @@ func cmdStateAttention(root string, args []string, stdout, stderr io.Writer) int
 		byID[o.ID] = o
 	}
 	out := render(stdout, stderr)
+	scopes := make([]string, 0, len(report.ReviewAssurance))
+	for scope := range report.ReviewAssurance {
+		scopes = append(scopes, scope)
+	}
+	sort.Strings(scopes)
+	for _, scope := range scopes {
+		out.Field("attention.review_assurance."+scope, pose.RenderReviewAssurance(report.ReviewAssurance[scope]))
+	}
 	if attention.Incomplete {
 		limits := []string{}
 		for _, c := range attention.Coverage {

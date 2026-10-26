@@ -39,6 +39,7 @@ type ReviewerAdapter struct {
 	// Command is the argv; "{output}" is replaced by a file the reviewer may
 	// write its final message to. The brief arrives on stdin and the working
 	// directory is the disposable worktree.
+	Executor         string           `json:"executor,omitempty"`
 	Command          []string         `json:"command"`
 	Vendor           string           `json:"vendor"`
 	Model            string           `json:"model"`
@@ -51,6 +52,7 @@ type ReviewerAdapter struct {
 
 // ReviewersPolicy is .pose/policy/reviewers.json.
 type ReviewersPolicy struct {
+	Provenance    *ReviewRunProvenancePolicy `json:"provenance,omitempty"`
 	SchemaVersion int                        `json:"schema_version"`
 	Adapters      map[string]ReviewerAdapter `json:"adapters"`
 }
@@ -81,6 +83,9 @@ func (s Store) LoadReviewersPolicy() (ReviewersPolicy, bool, error) {
 	if policy.SchemaVersion != ReviewersPolicySchemaVersion {
 		return ReviewersPolicy{}, false, fmt.Errorf("pose: .pose/policy/reviewers.json schema_version %d is not supported", policy.SchemaVersion)
 	}
+	if err := validateRunProvenancePolicy(policy); err != nil {
+		return ReviewersPolicy{}, false, err
+	}
 	for name, adapter := range policy.Adapters {
 		if err := validateContinuityAdapter(adapter); err != nil {
 			return ReviewersPolicy{}, false, fmt.Errorf("pose: reviewer adapter %s: %w", name, err)
@@ -99,6 +104,7 @@ func (s Store) LoadReviewersPolicy() (ReviewersPolicy, bool, error) {
 
 // ReviewRun is one recorded dispatch.
 type ReviewRun struct {
+	Provenance          *ReviewRunProvenance `json:"provenance,omitempty"`
 	sessionForRedaction string
 	Resumes             string              `json:"resumes,omitempty"`
 	Interruption        *ReviewInterruption `json:"interruption,omitempty"`
@@ -267,6 +273,7 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 
 // DispatchPlan is what a dispatch will do.
 type DispatchPlan struct {
+	provenance          *ReviewRunProvenance
 	PendingContinuation *PendingReviewContinuation
 	processTimeout      time.Duration
 	predecessor         *ReviewRun
@@ -350,6 +357,10 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string, reason ..
 		return DispatchPlan{}, err
 	}
 	plan.PriorRuns = currentCount
+	plan.provenance, err = s.prepareRunProvenance(plan, policy)
+	if err != nil {
+		return DispatchPlan{}, err
+	}
 	return plan, nil
 }
 
@@ -374,7 +385,7 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 		}
 		return *fresh.Existing, nil
 	}
-	run := ReviewRun{BriefNotes: plan.notes, LimitOf: plan.LimitOf, SchemaVersion: 1, Scope: plan.Brief.Scope, BundleID: plan.Bundle.BundleID, BundleDigest: plan.Bundle.BundleDigest,
+	run := ReviewRun{Provenance: plan.provenance, BriefNotes: plan.notes, LimitOf: plan.LimitOf, SchemaVersion: 1, Scope: plan.Brief.Scope, BundleID: plan.Bundle.BundleID, BundleDigest: plan.Bundle.BundleDigest,
 		SealedCommit: plan.SealedCommit, Kind: plan.Brief.Kind, BriefDigest: plan.Brief.Digest, Adapter: plan.Adapter,
 		Vendor: plan.Config.Vendor, Model: plan.Config.Model, Reason: plan.Reason, PolicyDigest: plan.PolicyDigest, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1}
 	transcript := []byte{}
@@ -412,6 +423,7 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 			return *fresh.Existing, nil
 		}
 		plan = fresh
+		run.Provenance = fresh.provenance
 		run.AttemptID, run.Reason, run.Resumes = fresh.predecessor.AttemptID, fresh.predecessor.Reason, fresh.predecessor.RunID
 		run.TreeDigest = fresh.predecessor.TreeDigest
 		if err := s.claimReviewContinuation(*fresh.predecessor, now()); err != nil {
@@ -489,6 +501,23 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 	if plan.Config.Timeout != "" {
 		timeout, _ = time.ParseDuration(plan.Config.Timeout)
 	}
+	execPath := argv[0]
+	if run.Provenance != nil {
+		copy := *run.Provenance
+		run.Provenance = &copy
+		selected, resolved, err := provenanceExecutableSelection(argv[0], worktree)
+		if err != nil {
+			return finish(ReviewRunFailed, "provenance executable could not be resolved")
+		}
+		digest, err := reviewExecutableDigest(resolved)
+		if err != nil {
+			return finish(ReviewRunFailed, err.Error())
+		}
+		run.Provenance.ExecutableDigest = digest
+		execPath = selected
+		raw, _ := json.Marshal(argv)
+		run.Provenance.ArgvDigest = digestBytes(raw)
+	}
 	if plan.processTimeout > 0 {
 		started, err := time.Parse(time.RFC3339Nano, run.StartedAt)
 		if err != nil {
@@ -505,7 +534,8 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, argv[0], argv[1:]...)
+	cmd := exec.CommandContext(ctx, execPath, argv[1:]...)
+	cmd.Args[0] = argv[0]
 	cmd.Dir = worktree
 	cmd.Stdin = strings.NewReader(plan.Brief.Text)
 	var combined bytes.Buffer
@@ -517,7 +547,17 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 	// a few seconds after the kill.
 	isolateProcessGroup(cmd)
 	cmd.WaitDelay = 5 * time.Second
-	runErr := cmd.Run()
+	var runErr error
+	if run.Provenance == nil {
+		runErr = cmd.Run()
+	} else {
+		digest, n, complete, started, err := runProvenanceCommand(cmd, plan.Brief.Text)
+		runErr = err
+		run.Provenance.WireDigest, run.Provenance.WireBytes, run.Provenance.WireComplete = digest, n, complete
+		if started {
+			run.Provenance.ExecutionState = "started"
+		}
+	}
 	killProcessGroup(cmd)
 	// The adapter exited and a child it left still held the output when
 	// WaitDelay expired: the run finished, its leftover is killed above, and
@@ -531,16 +571,34 @@ func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (resul
 	}
 	if raw, err := os.ReadFile(outputFile); err == nil && len(bytes.TrimSpace(raw)) > 0 {
 		run.Output = string(raw)
+		if run.Provenance != nil {
+			run.Provenance.OutputComplete = true
+			run.Provenance.OutputSource = "file"
+		}
 	} else {
 		run.Output = tail(string(transcript), 20000)
+		if run.Provenance != nil {
+			run.Provenance.OutputComplete = len(transcript) > 0 && len(transcript) <= 20000
+			run.Provenance.OutputSource = "transcript-tail"
+		}
+	}
+	if run.Provenance != nil {
+		run.Provenance.RawTranscriptDigest = digestBytes(transcript)
+		run.Provenance.RawOutputDigest = digestBytes([]byte(run.Output))
 	}
 	if runErr != nil && cmd.ProcessState == nil {
 		run.Output, transcript = "", nil
+		if run.Provenance != nil {
+			run.Provenance.OutputComplete = false
+		}
 		return finish(ReviewRunFailed, "reviewer command could not start")
 	}
 	status, failure, captureErr := s.classifyReviewInterruption(&run, plan, transcript, runErr, ctx.Err())
 	if captureErr != nil {
 		run.Output, transcript = "", nil
+		if run.Provenance != nil {
+			run.Provenance.OutputComplete = false
+		}
 		return finish(ReviewRunFailed, "adapter capture failed; unredacted output withheld")
 	}
 	if session := run.sessionForRedaction; session != "" {

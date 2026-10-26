@@ -29,17 +29,18 @@ type ObligationQuery struct {
 // producer, whether that producer was read: an empty list with incomplete
 // coverage is not "nothing is owed".
 type ObligationReport struct {
-	SchemaVersion int                  `json:"schema_version"`
-	Query         ObligationQuery      `json:"query"`
-	Snapshot      ObligationSnapshot   `json:"snapshot"`
-	Coverage      []ProducerCoverage   `json:"coverage"`
-	Complete      bool                 `json:"complete"`
-	Obligations   []Obligation         `json:"obligations"`
-	Counts        map[string]int       `json:"counts"`
-	Limitations   []string             `json:"limitations,omitempty"`
-	Durations     map[string]float64   `json:"producer_seconds,omitempty"`
-	scopeSpecs    []Spec               `json:"-"`
-	producerState map[string]*Coverage `json:"-"`
+	ReviewAssurance map[string]ReviewAssurance `json:"review_assurance,omitempty"`
+	SchemaVersion   int                        `json:"schema_version"`
+	Query           ObligationQuery            `json:"query"`
+	Snapshot        ObligationSnapshot         `json:"snapshot"`
+	Coverage        []ProducerCoverage         `json:"coverage"`
+	Complete        bool                       `json:"complete"`
+	Obligations     []Obligation               `json:"obligations"`
+	Counts          map[string]int             `json:"counts"`
+	Limitations     []string                   `json:"limitations,omitempty"`
+	Durations       map[string]float64         `json:"producer_seconds,omitempty"`
+	scopeSpecs      []Spec                     `json:"-"`
+	producerState   map[string]*Coverage       `json:"-"`
 }
 
 // ObligationSnapshot says which state an answer describes. It reuses the
@@ -153,12 +154,15 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 		err      error
 		duration float64
 	}
+	assurance := map[string]ReviewAssurance{}
 	producers := []struct {
 		name string
 		fn   func() ([]Obligation, error)
 	}{
 		{"readiness", func() ([]Obligation, error) { return s.readinessObligations(project, specs) }},
-		{"closeout", func() ([]Obligation, error) { return s.closeoutObligations(project, specs, report.producerState) }},
+		{"closeout", func() ([]Obligation, error) {
+			return s.closeoutObligations(project, specs, report.producerState, assurance)
+		}},
 		{"start", func() ([]Obligation, error) {
 			return s.startObligationItems(project, specs, report.producerState["start"])
 		}},
@@ -195,6 +199,9 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 		}(i)
 	}
 	wg.Wait()
+	if len(assurance) > 0 {
+		report.ReviewAssurance = assurance
+	}
 	var all []Obligation
 	for i, producer := range producers {
 		report.Durations[producer.name] = results[i].duration
@@ -454,7 +461,7 @@ func forEachSpec(specs []Spec, fn func(Spec) ([]Obligation, error)) ([]Obligatio
 // closeoutObligations projects what stands between an in-progress spec and a
 // terminal closeout, and the judgment its current bundle still owes. Draft
 // specs owe nothing at closeout yet.
-func (s Store) closeoutObligations(project string, specs []Spec, coverage map[string]*Coverage) ([]Obligation, error) {
+func (s Store) closeoutObligations(project string, specs []Spec, coverage map[string]*Coverage, assurance ...map[string]ReviewAssurance) ([]Obligation, error) {
 	review := coverage["review"]
 	var reviewMu sync.Mutex
 	return forEachSpec(specs, func(sp Spec) ([]Obligation, error) {
@@ -466,6 +473,14 @@ func (s Store) closeoutObligations(project string, specs []Spec, coverage map[st
 		state, err := s.GetCloseoutState(ref)
 		if err != nil {
 			return nil, err
+		}
+		if len(assurance) > 0 && state.Review.Assurance != nil {
+			policy, _, policyErr := s.loadReviewPolicy()
+			if state.Review.Assurance.RunReference != nil || policyErr == nil && policy.DelegatedReview {
+				reviewMu.Lock()
+				assurance[0][ref] = *state.Review.Assurance
+				reviewMu.Unlock()
+			}
 		}
 		source := specNode(project, sp.Slug)
 		for _, d := range state.Diagnostics {
