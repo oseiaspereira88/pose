@@ -11,7 +11,7 @@ import (
 // still being written is not read.
 func TestDelegationLiveEventsAreRedactedAndIncremental(t *testing.T) {
 	s := Store{Root: t.TempDir()}
-	w := s.startDelegationLive("att-live", DelegationEventsClaudeStreamJSON, []string{"synthetic-token"}, `"session_id":"([^"]+)"`, "")
+	w := s.startDelegationLive("att-live", DelegationEventsClaudeStreamJSON, []string{"synthetic-token"}, `"session_id":"([^"]+)"`, "", 0)
 	if w == nil {
 		t.Fatal("no live writer")
 	}

@@ -2,6 +2,7 @@ package pose
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -24,7 +25,7 @@ func writeActiveMarker(t *testing.T, s Store, attempt string, heartbeat time.Tim
 	if dead {
 		owner.ProcessStart = "1"
 	}
-	marker := DelegationActiveRun{SchemaVersion: 1, AttemptID: attempt, RunToken: "0123456789abcdef0123456789abcdef", Purpose: "review", Agent: "a", Scope: "spec:x", BundleID: "rvb-1",
+	marker := DelegationActiveRun{SchemaVersion: 1, AttemptID: attempt, RunToken: hex.EncodeToString([]byte("synthetic-run-16")), Purpose: "review", Agent: "a", Scope: "spec:x", BundleID: "rvb-1",
 		StartedAt: heartbeat.UTC().Format(time.RFC3339Nano), Owner: owner, HeartbeatAt: heartbeat.UTC().Format(time.RFC3339Nano), HeartbeatEvery: 10}
 	raw, _ := json.Marshal(marker)
 	if err := os.WriteFile(filepath.Join(dir, attempt+".json"), raw, 0o600); err != nil {

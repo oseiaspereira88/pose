@@ -650,7 +650,9 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	if err != nil {
 		return finish(ReviewRunFailed, "the run was not started: "+err.Error())
 	}
-	defer stopActive()
+	// The marker goes only once the record is published: without a record it
+	// is the one trace of the reserved attempt.
+	defer func() { stopActive(resultErr != nil || result.Path == "") }()
 	cancelled = cancelFlag
 	if plan.OnStart != nil {
 		plan.OnStart(run.AttemptID)
@@ -812,7 +814,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	if plan.Config.Session != nil {
 		sessionPattern = plan.Config.Session.Pattern
 	}
-	if live := s.startDelegationLive(run.AttemptID, plan.Config.Events, secrets, sessionPattern, plan.session); live != nil {
+	if live := s.startDelegationLive(run.AttemptID, plan.Config.Events, secrets, sessionPattern, plan.session, safety.StreamBytes); live != nil {
 		tee := io.MultiWriter(combined, live)
 		cmd.Stdout, cmd.Stderr = tee, tee
 		defer func() { _ = os.Remove(s.delegationLivePath(run.AttemptID)) }()

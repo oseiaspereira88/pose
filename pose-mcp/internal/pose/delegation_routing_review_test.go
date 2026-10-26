@@ -171,7 +171,7 @@ func TestUnknownCandidatesProveNoDifference(t *testing.T) {
 	avail := map[string]DelegationAvailability{"a": {State: DelegationAgentAvailable}, "b": {State: DelegationAgentAvailable}}
 	for name, c := range map[string]struct{ policy, agent, step string }{
 		"unknown model before another model": {`{"schema_version":2,"agents":{"a":{"vendor":"anthropic","model":"unknown","cli":"sh","commands":{"read":["sh"]}},"b":{"vendor":"anthropic","model":"claude-sonnet-5-5","cli":"sh","commands":{"read":["sh"]}}}}`, "b", DelegationStepOtherModel},
-		"unknown vendor before the opposite":  {`{"schema_version":2,"agents":{"a":{"vendor":"unknown","model":"m","cli":"sh","commands":{"read":["sh"]}},"b":{"vendor":"openai","model":"gpt-6.1-sol","cli":"sh","commands":{"read":["sh"]}}}}`, "b", DelegationStepPreferred},
+		"unknown vendor before the opposite": {`{"schema_version":2,"agents":{"a":{"vendor":"unknown","model":"m","cli":"sh","commands":{"read":["sh"]}},"b":{"vendor":"openai","model":"gpt-6.1-sol","cli":"sh","commands":{"read":["sh"]}}}}`, "b", DelegationStepPreferred},
 	} {
 		agent, record, err := RouteDelegation(routingPolicy(t, c.policy), []string{"a", "b"}, impl, ImplementationFromBundle, avail, time.Now())
 		if err != nil || agent != c.agent || record.Step != c.step {

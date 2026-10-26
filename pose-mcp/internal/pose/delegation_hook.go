@@ -13,7 +13,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"time"
@@ -47,6 +46,16 @@ func (s Store) RunDelegationTerminalHook(run ReviewRun) *DelegationHookOutcome {
 		hook = policy.Purposes[purpose].OnTerminal
 	}
 	if hook == nil {
+		return nil
+	}
+	// Once per run: a claim published before the hook starts makes a repeated
+	// request for the same run — an idempotent resume returning the recorded
+	// continuation — run nothing again.
+	dir, err := s.delegationHookDir()
+	if err != nil || !validAttemptFileName(run.RunID) {
+		return nil
+	}
+	if PublishFile(filepath.Join(dir, run.RunID+".claim"), []byte(time.Now().UTC().Format(time.RFC3339Nano)+"\n"), 0600, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}) != nil {
 		return nil
 	}
 	outcome := &DelegationHookOutcome{SchemaVersion: 1, RunID: run.RunID, State: run.Status, ExitCode: -1, RanAt: time.Now().UTC().Format(time.RFC3339Nano)}
@@ -85,12 +94,17 @@ func (s Store) RunDelegationTerminalHook(run ReviewRun) *DelegationHookOutcome {
 	return outcome
 }
 
-func (s Store) recordDelegationHook(outcome DelegationHookOutcome) {
+// delegationHookDir is the hooks directory, reached without following a link.
+func (s Store) delegationHookDir() (string, error) {
 	if _, err := s.delegationActiveDir(true); err != nil {
-		return
+		return "", err
 	}
-	dir := filepath.Join(s.Root, filepath.FromSlash(delegationHookDir))
-	if err := os.MkdirAll(dir, 0o700); err != nil || !validAttemptFileName(outcome.RunID) {
+	return ensureReviewArtifactDir(s.Root, delegationHookDir, true)
+}
+
+func (s Store) recordDelegationHook(outcome DelegationHookOutcome) {
+	dir, err := s.delegationHookDir()
+	if err != nil || !validAttemptFileName(outcome.RunID) {
 		return
 	}
 	raw, _ := json.MarshalIndent(outcome, "", "  ")
@@ -102,7 +116,11 @@ func (s Store) ReadDelegationHook(runID string) *DelegationHookOutcome {
 	if !validAttemptFileName(runID) {
 		return nil
 	}
-	raw, err := readLedgerRaw(filepath.Join(s.Root, filepath.FromSlash(delegationHookDir), runID+".json"))
+	dir, err := ensureReviewArtifactDir(s.Root, delegationHookDir, false)
+	if err != nil {
+		return nil
+	}
+	raw, err := readLedgerRaw(filepath.Join(dir, runID+".json"))
 	if err != nil {
 		return nil
 	}

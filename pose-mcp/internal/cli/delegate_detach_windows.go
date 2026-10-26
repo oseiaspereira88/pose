@@ -12,3 +12,10 @@ func detachProcess(cmd *exec.Cmd) {
 	const detachedProcess, newProcessGroup = 0x00000008, 0x00000200
 	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: detachedProcess | newProcessGroup}
 }
+
+// stopDetached kills the detached run.
+func stopDetached(cmd *exec.Cmd) {
+	if cmd.Process != nil {
+		_ = cmd.Process.Kill()
+	}
+}

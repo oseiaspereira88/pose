@@ -82,6 +82,10 @@ Supervisor, run record heartbeat and terminal marker, `pose delegate wait`, `ls`
 - created: pose-mcp/internal/pose/delegation_supervision_linux_test.go
 - created: pose-mcp/internal/pose/delegation_live.go
 - created: pose-mcp/internal/pose/delegation_live_test.go
+- created: pose-mcp/internal/pose/delegation_observation_review_test.go
+- created: pose-mcp/internal/cli/delegate_observation_review_test.go
+- modified: .gitleaksignore
+- modified: pose-mcp/internal/pose/delegation_routing_review_test.go
 - created: pose-mcp/internal/pose/delegation_hook.go
 - modified: pose-mcp/internal/pose/delegation_events.go
 - modified: pose-mcp/internal/pose/delegation_policy.go
@@ -118,7 +122,8 @@ Supervisor, run record heartbeat and terminal marker, `pose delegate wait`, `ls`
 - [x] `ls` with heartbeat age and stall; the MCP status tool is delivered by `pose-delegation-mcp`, as R6 names
 - [x] `watch` with chain replay, picker and colour rules
 - [x] `on_terminal` hook under containment
-- [ ] Independent review and closeout
+- [x] First independent review: changes requested (B01–B09; F01–F04), B01–B09 and F02–F04 addressed with regression tests that fail on 2e015c4; F01 (redacted live events a failed capture later withholds) stays a disclosed follow-up of D7
+- [ ] Second independent review and closeout
 
 ## 5. Decisions
 
@@ -175,7 +180,7 @@ Supervisor, run record heartbeat and terminal marker, `pose delegate wait`, `ls`
 - Minimal option: follow the raw stream and redact at the end
 - Selected option: normalize and redact each complete line as it arrives, with the run's credentials and every session reference the stream has declared so far, into a private file removed when the record is published
 - Rationale: a watcher must never see a credential the record would withhold; a session reference is known only once the stream declares it
-- Consequences: a session reference printed before the line that declares it can reach the live file, which is private and short-lived; the events bound to the record are derived again from the whole transcript and redacted with it
+- Consequences: a session reference printed before the line that declares it can reach the live file, which is private and short-lived; the events bound to the record are derived again from the whole transcript and redacted with it; a line is read whole whatever its length, within the capture's stream budget, so the live events keep the record's numbering; and a watcher may already have seen redacted events that a capture failing later withholds from the record
 - Falsifier: a credential the record redacts appearing in a live event
 
 ## 6. Validation

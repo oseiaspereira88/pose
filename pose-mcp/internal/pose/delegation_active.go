@@ -81,21 +81,25 @@ func validAttemptFileName(attempt string) bool {
 // markDelegationActive writes the marker and starts the cancellation watcher.
 // The returned stop removes both; cancelled reports whether a cancellation
 // request stopped the run.
-func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (stop func(), cancelled *atomic.Bool, err error) {
+//
+// stop(true) stops the watcher and the heartbeat but keeps the marker: a run
+// whose record was not published leaves it, and it turns stalled once its
+// process is gone (spec pose-delegated-review-completion-signal R4, R5).
+func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (stop func(keepMarker ...bool), cancelled *atomic.Bool, err error) {
 	cancelled = &atomic.Bool{}
 	if !validAttemptFileName(run.AttemptID) {
-		return func() {}, cancelled, fmt.Errorf("pose: attempt %q cannot name an active marker", run.AttemptID)
+		return func(...bool) {}, cancelled, fmt.Errorf("pose: attempt %q cannot name an active marker", run.AttemptID)
 	}
 	dir, err := s.delegationActiveDir(true)
 	if err != nil {
-		return func() {}, cancelled, err
+		return func(...bool) {}, cancelled, err
 	}
 	owner := StartLockOwner{SchemaVersion: StartLockOwnerSchemaVersion, Resource: "delegate:" + run.AttemptID, Worktree: s.Root, Operation: "pose delegate " + run.Purpose, PID: os.Getpid(), AcquiredAt: run.StartedAt}
 	owner.Host, _ = os.Hostname()
 	identifyStartLockProcess(&owner)
 	token := make([]byte, 16)
 	if _, err := rand.Read(token); err != nil {
-		return func() {}, cancelled, err
+		return func(...bool) {}, cancelled, err
 	}
 	every := delegationHeartbeatEvery
 	marker := DelegationActiveRun{SchemaVersion: 1, AttemptID: run.AttemptID, RunToken: hex.EncodeToString(token), Resumes: run.Resumes, Label: run.Label, Purpose: run.Purpose, Agent: run.Adapter, Scope: run.Scope, BundleID: run.BundleID, StartedAt: run.StartedAt, Owner: owner,
@@ -104,7 +108,7 @@ func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (s
 	path := filepath.Join(dir, run.AttemptID+".json")
 	request := cancelRequestPath(dir, marker)
 	if err := PublishFile(path, append(raw, '\n'), 0600, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
-		return func() {}, cancelled, fmt.Errorf("pose: another run of attempt %s is active: %w", run.AttemptID, err)
+		return func(...bool) {}, cancelled, fmt.Errorf("pose: another run of attempt %s is active: %w", run.AttemptID, err)
 	}
 	done := make(chan struct{})
 	go func() {
@@ -128,11 +132,13 @@ func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (s
 		}
 	}()
 	var once sync.Once
-	stop = func() {
+	stop = func(keepMarker ...bool) {
 		once.Do(func() {
 			close(done)
 			_ = os.Remove(request)
-			_ = os.Remove(path)
+			if len(keepMarker) == 0 || !keepMarker[0] {
+				_ = os.Remove(path)
+			}
 		})
 	}
 	return stop, cancelled, nil
@@ -308,4 +314,29 @@ func (s Store) DelegationRunActive(marker DelegationActiveRun) bool {
 	}
 	var now DelegationActiveRun
 	return json.Unmarshal(raw, &now) == nil && now.RunToken == marker.RunToken
+}
+
+// DelegationPrivateDir is a directory of the engine's private delegation
+// state, created without following a link; Git ignores the whole private tree.
+func (s Store) DelegationPrivateDir(name string) (string, error) {
+	if _, err := s.delegationActiveDir(true); err != nil {
+		return "", err
+	}
+	return ensureReviewArtifactDir(s.Root, reviewPrivateDir+"/"+name, true)
+}
+
+// DelegationActiveMarkerExists reports, without reading the run history,
+// whether attempt still has a marker: a waiter checks this cheaply and reads
+// the history only when it is gone (spec
+// pose-delegated-review-completion-signal R3).
+func (s Store) DelegationActiveMarkerExists(attempt string) bool {
+	if !validAttemptFileName(attempt) {
+		return false
+	}
+	dir, err := s.delegationActiveDir(false)
+	if err != nil {
+		return false
+	}
+	_, err = os.Lstat(filepath.Join(dir, attempt+".json"))
+	return err == nil
 }

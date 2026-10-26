@@ -53,7 +53,7 @@ func cmdDelegateWatch(root string, args []string, stdout, stderr io.Writer) int 
 		f.refresh = 2 * time.Second
 	}
 	store := posemodel.Store{Root: root}
-	attempts, _, err := store.ListDelegationAttempts()
+	attempts, lost, err := store.ListDelegationAttempts()
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, "watch", 1, err)
 	}
@@ -71,8 +71,25 @@ func cmdDelegateWatch(root string, args []string, stdout, stderr io.Writer) int 
 		}
 		attempt = a
 	}
-	w := &watchPrinter{out: stdout, profile: render(stdout, stderr).OutProfile(), f: f}
-	return w.follow(store, attempt)
+	w := &watchPrinter{out: stdout, profile: render(stdout, stderr).OutProfile(), f: f, losses: map[string]bool{}}
+	w.lose(lost)
+	code := w.follow(store, attempt)
+	// What could not be read is said, and the watch does not end as if the
+	// history it showed were whole.
+	if len(w.losses) > 0 {
+		out := render(stdout, stderr)
+		for loss := range w.losses {
+			out.Failure(tr("delegated run history incomplete: ", "histórico de runs delegados incompleto: ") + loss)
+		}
+		return 1
+	}
+	return code
+}
+
+func (w *watchPrinter) lose(lost []string) {
+	for _, loss := range lost {
+		w.losses[loss] = true
+	}
 }
 
 func containsFlag(args []string, name string) bool {
@@ -139,6 +156,9 @@ func pickAttempt(root string, candidates []posemodel.DelegationAttempt, f delega
 			return "", err
 		}
 		preview := shellQuote(self) + " delegate watch {1} --no-follow --lines " + strconv.Itoa(f.lines)
+		if f.verbose {
+			preview += " -v"
+		}
 		if f.refresh > 0 {
 			// fzf replaces the preview when the cursor moves; the loop keeps
 			// the one in view current.
@@ -178,6 +198,7 @@ type watchPrinter struct {
 	// liveSeq is the last live event shown; the record of the run followed
 	// live then adds only what the live file did not carry.
 	liveSeq int
+	losses  map[string]bool
 }
 
 // follow replays the attempt's recorded runs, then its live events until the
@@ -195,10 +216,11 @@ func (w *watchPrinter) follow(store posemodel.Store, attempt posemodel.Delegatio
 	var offset int64
 	for {
 		offset = w.live(store, attempt, offset)
-		attempts, _, err := store.ListDelegationAttempts()
+		attempts, lost, err := store.ListDelegationAttempts()
 		if err != nil {
 			return 1
 		}
+		w.lose(lost)
 		current, found := attempt, false
 		for _, a := range attempts {
 			if a.AttemptID == attempt.AttemptID {
@@ -219,10 +241,12 @@ func (w *watchPrinter) follow(store posemodel.Store, attempt posemodel.Delegatio
 
 // replay prints the recorded runs of the attempt not printed yet.
 func (w *watchPrinter) replay(store posemodel.Store, attempt posemodel.DelegationAttempt, shown map[string]bool) {
-	runs, _, err := store.ReadReviewRuns("")
+	runs, lost, err := store.ReadReviewRuns("")
 	if err != nil {
+		w.lose([]string{err.Error()})
 		return
 	}
+	w.lose(lost)
 	byID := map[string]posemodel.ReviewRun{}
 	continuedBy := map[string]string{}
 	for _, r := range runs {

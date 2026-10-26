@@ -9,7 +9,6 @@ package cli
 // that tracks the process is woken when the run ends.
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,7 +16,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -27,37 +25,51 @@ import (
 const (
 	delegateWaitSchema   = "pose.delegate.wait/v1"
 	delegateDetachSchema = "pose.delegate.detach/v1"
-	// delegateSupervisorFD names, in a detached run's environment, the
-	// descriptor on which it hands its attempt back.
-	delegateSupervisorFD = "POSE_DELEGATE_SUPERVISOR_FD"
-	delegateDetachBound  = 2 * time.Minute
-	delegateWaitStep     = 500 * time.Millisecond
+	// delegateHandback names, in a detached run's environment, the file in
+	// which it hands its attempt back: a file, not an inherited descriptor,
+	// so the hand-back works on every platform.
+	delegateHandback = "POSE_DELEGATE_HANDBACK"
+	delegateWaitStep = 500 * time.Millisecond
 )
+
+// delegateDetachBound is how long a detached run has to reserve its attempt.
+var delegateDetachBound = 2 * time.Minute
 
 // delegateExecutable is the pose binary a detached run starts; tests point it
 // at a built binary.
 var delegateExecutable = os.Executable
 
 // delegateSupervised reports whether this process is a detached run.
-func delegateSupervised() bool { return os.Getenv(delegateSupervisorFD) != "" }
+func delegateSupervised() bool { return os.Getenv(delegateHandback) != "" }
 
-// supervisorHandback writes the attempt to the descriptor the caller holds,
-// once, and closes it.
+// supervisorHandback publishes the attempt where the caller waits for it.
 func supervisorHandback() func(attempt string) {
-	fd, err := strconv.Atoi(os.Getenv(delegateSupervisorFD))
-	if err != nil || fd < 3 {
+	path := os.Getenv(delegateHandback)
+	if path == "" {
 		return nil
 	}
-	pipe := os.NewFile(uintptr(fd), "pose-delegate-supervisor")
 	return func(attempt string) {
 		raw, _ := json.Marshal(map[string]string{"attempt": attempt})
-		_, _ = pipe.Write(append(raw, '\n'))
-		_ = pipe.Close()
+		_ = posemodel.PublishFile(path, append(raw, '\n'), 0o600, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAbsent})
 	}
 }
 
+func readHandback(path string) string {
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	var h struct {
+		Attempt string `json:"attempt"`
+	}
+	_ = json.Unmarshal(raw, &h)
+	return h.Attempt
+}
+
 // detachDelegateRun starts the same command, without --detach, as a detached
-// run and returns when it has reserved its attempt (R1).
+// run and returns when it has reserved its attempt (R1). A run that does not
+// reserve within the bound is stopped, and an attempt it reserved meanwhile is
+// named, never left running unannounced.
 func detachDelegateRun(root, purpose string, args []string, f delegateFlags, stdout, stderr io.Writer) int {
 	self, err := delegateExecutable()
 	if err != nil {
@@ -69,57 +81,55 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 			child = append(child, arg)
 		}
 	}
-	// The log sits with the engine's private run state, which Git ignores.
-	private := filepath.Join(root, ".pose", "review-private")
-	logDir := filepath.Join(private, "supervisors")
-	if err := os.MkdirAll(logDir, 0o700); err != nil {
+	logDir, err := posemodel.Store{Root: root}.DelegationPrivateDir("supervisors")
+	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
 	}
-	if _, err := os.Lstat(filepath.Join(private, ".gitignore")); errors.Is(err, os.ErrNotExist) {
-		_ = os.WriteFile(filepath.Join(private, ".gitignore"), []byte("*\n"), 0o600)
-	}
-	logPath := filepath.Join(logDir, time.Now().UTC().Format("20060102T150405.000000000")+".log")
+	stamp := time.Now().UTC().Format("20060102T150405.000000000")
+	logPath := filepath.Join(logDir, stamp+".log")
+	handback := filepath.Join(logDir, stamp+".handback")
 	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
 	}
 	defer logFile.Close()
-	reader, writer, err := os.Pipe()
-	if err != nil {
-		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
-	}
-	defer reader.Close()
 	cmd := exec.Command(self, child...)
 	cmd.Dir = root
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = nil, logFile, logFile
-	cmd.ExtraFiles = []*os.File{writer}
-	cmd.Env = append(os.Environ(), delegateSupervisorFD+"=3")
+	cmd.Env = append(os.Environ(), delegateHandback+"="+handback)
 	detachProcess(cmd)
 	if err := cmd.Start(); err != nil {
-		writer.Close()
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
 	}
-	writer.Close()
 	pid := cmd.Process.Pid
-	_ = cmd.Process.Release()
-	type handback struct {
-		Attempt string `json:"attempt"`
-	}
-	got := make(chan handback, 1)
-	go func() {
-		var h handback
-		if line, err := bufio.NewReader(reader).ReadBytes('\n'); err == nil {
-			_ = json.Unmarshal(line, &h)
-		}
-		got <- h
-	}()
-	var h handback
-	select {
-	case h = <-got:
-	case <-time.After(delegateDetachBound):
-	}
+	exited := make(chan struct{})
+	go func() { _ = cmd.Wait(); close(exited) }()
 	rel := filepath.ToSlash(strings.TrimPrefix(logPath, root+string(filepath.Separator)))
-	if h.Attempt == "" {
+	deadline := time.After(delegateDetachBound)
+	attempt := ""
+wait:
+	for {
+		if attempt = readHandback(handback); attempt != "" {
+			break
+		}
+		select {
+		case <-exited:
+			attempt = readHandback(handback)
+			break wait
+		case <-deadline:
+			stopDetached(cmd)
+			<-exited
+			if attempt = readHandback(handback); attempt != "" {
+				return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the detached run reserved attempt "+attempt+" after the hand-back bound and was stopped; see pose delegate ls "+attempt,
+					"o run destacado reservou a tentativa "+attempt+" depois do limite da devolução e foi parado; veja pose delegate ls "+attempt)))
+			}
+			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the detached run did not reserve its attempt within "+delegateDetachBound.String()+" and was stopped; its log is "+rel,
+				"o run destacado não reservou a tentativa em "+delegateDetachBound.String()+" e foi parado; o log é "+rel)))
+		case <-time.After(100 * time.Millisecond):
+		}
+	}
+	_ = os.Remove(handback)
+	if attempt == "" {
 		tail, _ := os.ReadFile(logPath)
 		if len(tail) > 2048 {
 			tail = tail[len(tail)-2048:]
@@ -127,19 +137,22 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the detached run ended before reserving its attempt; its log ("+rel+") ends with:\n", "o run destacado terminou antes de reservar a tentativa; o log ("+rel+") termina com:\n")+strings.TrimSpace(string(tail))))
 	}
 	if f.jsonOut {
-		writeDelegateJSON(stdout, map[string]any{"schema": delegateDetachSchema, "attempt": h.Attempt, "supervisor_pid": pid, "log": rel,
-			"marker": ".pose/review-private/active/" + h.Attempt + ".json", "records": ".pose/review-runs/"})
+		writeDelegateJSON(stdout, map[string]any{"schema": delegateDetachSchema, "attempt": attempt, "supervisor_pid": pid, "log": rel,
+			"marker": ".pose/review-private/active/" + attempt + ".json", "records": ".pose/review-runs/"})
 		return 0
 	}
 	out := render(stdout, stderr)
-	out.Field("delegate.attempt", h.Attempt)
+	out.Field("delegate.attempt", attempt)
 	out.Field("delegate.supervisor_pid", fmt.Sprint(pid))
 	out.Field("delegate.log", rel)
-	out.Field("delegate.next", "pose delegate wait "+h.Attempt)
+	out.Field("delegate.next", "pose delegate wait "+attempt)
 	return 0
 }
 
-// cmdDelegateWait blocks until the run is terminal (R2, R3, R8).
+// cmdDelegateWait blocks until the run is terminal (R2, R3, R8). While the
+// attempt's marker is there it only checks the marker; the history is read
+// when the marker goes. A history it could not read whole is never answered
+// with a run's state: the losses are reported and the wait exits 1.
 func cmdDelegateWait(root string, args []string, stdout, stderr io.Writer) int {
 	f, problem := parseDelegateFlags(args, "--timeout")
 	if problem == "" && len(f.positional) != 1 {
@@ -154,15 +167,18 @@ func cmdDelegateWait(root string, args []string, stdout, stderr io.Writer) int {
 		deadline = time.Now().Add(f.timeout)
 	}
 	for {
-		attempts, _, err := store.ListDelegationAttempts()
+		attempts, lost, err := store.ListDelegationAttempts()
 		if err != nil {
 			return delegateFail(stdout, stderr, f.jsonOut, "wait", 1, err)
 		}
 		attempt, code, err := namedAttempt(attempts, f)
 		if err != nil {
-			return delegateFail(stdout, stderr, f.jsonOut, "wait", code, err)
+			return delegateFail(stdout, stderr, f.jsonOut, "wait", code, withDelegationLosses(err, lost))
 		}
 		result, terminal := posemodel.DelegationWaitOutcome(attempt)
+		if terminal && len(lost) > 0 {
+			return delegateFail(stdout, stderr, f.jsonOut, "wait", 1, withDelegationLosses(errors.New(tr("the run history could not be read whole, so the run's end cannot be told", "o histórico de runs não pôde ser lido inteiro, então o fim do run não pode ser dito")), lost))
+		}
 		if !terminal && !deadline.IsZero() && !time.Now().Before(deadline) {
 			result.Code = posemodel.DelegationWaitTimeout
 			terminal = true
@@ -171,11 +187,19 @@ func cmdDelegateWait(root string, args []string, stdout, stderr io.Writer) int {
 			printWaitResult(stdout, f.jsonOut, result)
 			return result.Code
 		}
-		step := delegateWaitStep
-		if !deadline.IsZero() && time.Until(deadline) < step {
-			step = time.Until(deadline)
+		// Running: watch only the marker until it goes, or the heartbeat
+		// interval passes, so a stall is still noticed.
+		recheck := time.Now().Add(10 * time.Second)
+		for store.DelegationActiveMarkerExists(attempt.AttemptID) && time.Now().Before(recheck) {
+			if !deadline.IsZero() && !time.Now().Before(deadline) {
+				break
+			}
+			step := delegateWaitStep
+			if !deadline.IsZero() && time.Until(deadline) < step {
+				step = time.Until(deadline)
+			}
+			time.Sleep(step)
 		}
-		time.Sleep(step)
 	}
 }
 

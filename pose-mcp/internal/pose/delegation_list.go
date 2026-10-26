@@ -65,6 +65,11 @@ const (
 // ListDelegationAttempts groups every recorded run by attempt, adds the runs
 // in progress, and returns the losses the run history reports.
 func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
+	// The markers are read before the runs: a run publishes its record before
+	// it removes its marker, so a reader that finds no marker for an attempt
+	// it saw running finds its record (spec
+	// pose-delegated-review-completion-signal R5).
+	active, activeLost, activeErr := s.ListDelegationActive()
 	runs, lost, err := s.ReadReviewRuns("")
 	if err != nil {
 		return nil, nil, err
@@ -130,9 +135,8 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 			}
 		}
 	}
-	active, activeLost, err := s.ListDelegationActive()
-	if err != nil {
-		lost = append(lost, "active runs could not be read: "+err.Error())
+	if activeErr != nil {
+		lost = append(lost, "active runs could not be read: "+activeErr.Error())
 	}
 	lost = append(lost, activeLost...)
 	for _, marker := range active {
@@ -149,6 +153,15 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 		}
 		if marker.StalledAt != "" {
 			row.State, row.Active, row.StalledAt = DelegationStalled, false, marker.StalledAt
+		}
+		// A running run's progress comes from its live events (R12).
+		if live, _, err := s.ReadDelegationLiveEvents(marker.AttemptID, 0); err == nil && len(live) > 0 {
+			for _, e := range live {
+				if e.Kind == DelegationEventTurn {
+					row.Turns++
+				}
+			}
+			row.LastStep = delegationStepText(live[len(live)-1])
 		}
 	}
 	out := make([]DelegationAttempt, 0, len(order))

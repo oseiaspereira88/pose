@@ -36,6 +36,10 @@ type delegationLiveWriter struct {
 	pending  []byte
 	seq      int
 	written  int64
+	// limit is the capture's stream budget: the live events read exactly the
+	// bytes the transcript keeps, so their numbering is the record's.
+	limit int64
+	read  int64
 }
 
 func (s Store) delegationLivePath(attempt string) string {
@@ -43,22 +47,30 @@ func (s Store) delegationLivePath(attempt string) string {
 }
 
 // startDelegationLive opens the live file of attempt; nil when the agent's
-// stream has no parser or the file cannot be made.
-func (s Store) startDelegationLive(attempt, format string, secrets []string, sessionPattern, knownSession string) *delegationLiveWriter {
+// stream has no parser or the file cannot be made. The directory is reached
+// without following a link, and the file is a new one renamed into place, so
+// neither a linked directory nor a linked file is ever written through.
+func (s Store) startDelegationLive(attempt, format string, secrets []string, sessionPattern, knownSession string, limit int64) *delegationLiveWriter {
 	if format != DelegationEventsCodexJSONL && format != DelegationEventsClaudeStreamJSON || !validAttemptFileName(attempt) {
 		return nil
 	}
 	if _, err := s.delegationActiveDir(true); err != nil {
 		return nil
 	}
-	if err := os.MkdirAll(filepath.Join(s.Root, filepath.FromSlash(delegationLiveDir)), 0o700); err != nil {
-		return nil
-	}
-	file, err := os.OpenFile(s.delegationLivePath(attempt), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o600)
+	dir, err := ensureReviewArtifactDir(s.Root, delegationLiveDir, true)
 	if err != nil {
 		return nil
 	}
-	w := &delegationLiveWriter{file: file, format: format, secrets: secrets, tools: map[string]string{}}
+	file, err := os.CreateTemp(dir, ".live-*")
+	if err != nil {
+		return nil
+	}
+	if err := file.Chmod(0o600); err != nil || os.Rename(file.Name(), filepath.Join(dir, attempt+".ndjson")) != nil {
+		file.Close()
+		os.Remove(file.Name())
+		return nil
+	}
+	w := &delegationLiveWriter{file: file, format: format, secrets: secrets, tools: map[string]string{}, limit: limit}
 	if knownSession != "" {
 		w.sessions = append(w.sessions, knownSession)
 	}
@@ -74,15 +86,25 @@ func (w *delegationLiveWriter) Write(p []byte) (int, error) {
 	if w.file == nil {
 		return len(p), nil
 	}
-	w.pending = append(w.pending, p...)
+	// Past the stream budget the transcript keeps nothing more, and neither
+	// do the live events.
+	take := p
+	if w.limit > 0 {
+		if w.read >= w.limit {
+			return len(p), nil
+		}
+		if int64(len(take)) > w.limit-w.read {
+			take = take[:w.limit-w.read]
+		}
+	}
+	w.read += int64(len(take))
+	w.pending = append(w.pending, take...)
 	for {
+		// A line is read whole, whatever its length, as the record reads it:
+		// dropping one would renumber what follows and skip a session it
+		// declares.
 		i := bytes.IndexByte(w.pending, '\n')
 		if i < 0 {
-			// A line longer than the events' own bound is dropped live; the
-			// published events read it whole from the transcript.
-			if len(w.pending) > delegationEventsMaxBytes {
-				w.pending = nil
-			}
 			return len(p), nil
 		}
 		line := w.pending[:i+1]
@@ -166,27 +188,25 @@ func (s Store) ReadDelegationLiveEvents(attempt string, offset int64) ([]Delegat
 	if !validAttemptFileName(attempt) {
 		return nil, offset, nil
 	}
-	f, err := os.Open(s.delegationLivePath(attempt))
+	dir, err := ensureReviewArtifactDir(s.Root, delegationLiveDir, false)
 	if os.IsNotExist(err) {
 		return nil, offset, nil
 	}
 	if err != nil {
 		return nil, offset, err
 	}
-	defer f.Close()
-	info, err := f.Stat()
-	if err != nil || !info.Mode().IsRegular() {
+	// A regular file only, never through a link, and bounded as the writer is.
+	raw, err := readBoundedRegular(filepath.Join(dir, attempt+".ndjson"), delegationEventsMaxBytes)
+	if os.IsNotExist(err) {
+		return nil, offset, nil
+	}
+	if err != nil {
 		return nil, offset, err
 	}
-	if info.Size() < offset {
+	if int64(len(raw)) < offset {
 		offset = 0 // a continuation of the attempt started the file again
 	}
-	if info.Size()-offset > delegationEventsMaxBytes {
-		offset = info.Size() - delegationEventsMaxBytes
-	}
-	buf := make([]byte, info.Size()-offset)
-	n, _ := f.ReadAt(buf, offset)
-	buf = buf[:n]
+	buf := raw[offset:]
 	end := bytes.LastIndexByte(buf, '\n')
 	if end < 0 {
 		return nil, offset, nil
