@@ -18,25 +18,25 @@ delivers:
 
 ### Goal
 
-Let a project request a delegated review as an action request that a local adapter, CI or Harne8's Conductor fulfils through the same contract.
+Let a project request a delegated review as an action request that a local agent, CI or Harne8's Conductor fulfils through the same contract.
 
 ### Business value
 
 The maintainer requires that a developer can work with the repository and POSE alone or with Harne8, neither excluding the other. A review request that any runner can fulfil keeps both paths equal.
 
-Origin: the 2026-10-09 review of `pose-native-attestation-issuer` by Codex through a personal launcher; it found three real defects in three rounds and exposed what the engine lacks (ADR `2026-10-09-delegated-review-is-an-adapter`, roadmap `delegated-review`).
+Origin: the 2026-10-09 review of `pose-native-attestation-issuer` by Codex through a personal launcher; it found three real defects in three rounds and exposed what the engine lacks (ADR `2026-10-09-delegated-review-is-an-adapter`, roadmap `delegated-review`). Command names follow the [delegation ADR](../adr/2026-10-26-delegation-is-a-first-class-execution-surface.md) of 2026-10-26.
 
 ### Constraints
 
-The runner produces the same run record and draft as `review dispatch`; the request is satisfied only by a valid run. Requirements assume the ADR's provisional answers until `pose-delegated-review-contract` closes.
+The runner produces the same run record and draft as `pose delegate review`; the request is satisfied only by a valid run. Requirements assume the ADR's provisional answers until `pose-delegated-review-contract` closes.
 
 ## 2. Requirements
 
 ### Functional
 
-- R1: `pose review request <bundle> --kind delegated-review` shall open an action request carrying the brief digest and the accepted adapters.
+- R1: `pose review request <bundle> --kind delegated-review` shall open an action request carrying the brief digest and the accepted agents.
 - R2: A runner shall fulfil it by attaching a run record whose brief digest matches; any other answer leaves it unsatisfied.
-- R3: The same request shall be fulfillable by a local `pose review dispatch` and by a non-local runner, demonstrated with a CI job and documented for the Harne8 Conductor.
+- R3: The same request shall be fulfillable by a local `pose delegate review` and by a non-local runner, demonstrated with a CI job and documented for the Harne8 Conductor.
 
 ## 3. Technical Plan
 

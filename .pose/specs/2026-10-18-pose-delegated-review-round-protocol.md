@@ -4,7 +4,7 @@ status: draft
 created_at: 2026-10-18
 completed_at:
 supersedes:
-depends_on: pose-delegated-review-attempt-ledger, pose-delegated-review-brief
+depends_on: pose-delegated-review-attempt-ledger, pose-delegated-review-brief, pose-delegation-handoff
 priority: 2
 components: pose-mcp
 task_type: feature
@@ -24,9 +24,11 @@ Make the rounds of a delegated review one process: the brief of a round after th
 
 Origin: B06 (2026-10-17), the largest consolidation unit so far. Four review rounds returned 19, 12, 10 and 6 findings. Each round reviewed the new commit afresh, so a finding "partially fixed" came back as a new finding two rounds later, and the reviewer stopped at the first medium finding each time, handing the rest to the next round. Nothing in the record says which findings of round N were verified fixed in round N+1, how many rounds a scope has taken, or whether they converge. That is exactly the information a maintainer needs to decide between another round, a different reviewer and a human adjudication.
 
+Amended on 2026-10-26 by the [delegation ADR](../adr/2026-10-26-delegation-is-a-first-class-execution-surface.md): the rounds of a scope form a thread, and by default a round after a rejection continues the thread's session instead of starting a cold one (R6, R9, D1).
+
 ### Constraints
 
-The brief remains generated from the sealed bundle and the ledger, not written by the implementer; prior findings come from the ledger, the implementer's text stays in its labelled notes. A reviewer's independence is not traded for context unless a policy says so.
+The brief remains generated from the sealed bundle and the ledger, not written by the implementer; prior findings come from the ledger, the implementer's text stays in its labelled notes. A continued session receives the same generated brief as a cold one, so the safeguards against anchoring do not depend on the session's memory.
 
 ### Non-goals
 
@@ -41,9 +43,11 @@ Resuming an interrupted run (`pose-delegated-review-run-continuity`); deciding t
 - R3: The brief shall instruct the reviewer to state for each prior finding whether it is `fixed`, `partial`, `not-fixed` or `superseded`, with evidence, before reporting anything new, and to report every finding it can establish in this round, with a completeness statement naming what it swept.
 - R4: A draft for a round after the first shall carry `prior_findings` (one entry per prior finding) and `sweep`; a draft that omits a prior finding that was open, or whose `fixed` entry cites no evidence, shall be invalid and shall not be accepted as an approval.
 - R5: A prior finding reported `partial` or `not-fixed` shall keep its identifier in the next brief, so one defect has one identity across rounds.
-- R6: By default each round runs a new vendor session. An adapter may declare `continue_across_rounds`, which resumes the previous round's session when the supersession chain is unbroken and the policy allows it; the run records the session lineage and `pose review verify` discloses it.
-- R7: `pose insights` shall report, per scope, findings per round, the share of prior findings fixed, partial and not-fixed, and rounds to approval; `pose review verify` shall warn when a scope passes the policy's round threshold (default 5), recommending a different adapter or a human adjudication.
+- R6: When `routing.rounds` is `continue-thread` (the default), a round after the first shall resume the thread's current session; it shall open a new session, recording the reason, when the agent's vendor changes, the supersession chain is broken, the session can no longer be resumed, or the scope reaches the round threshold. When `routing.rounds` is `cold-session`, every round shall open a new session. The run shall record the session lineage and `pose review verify` shall disclose it.
+- R7: `pose insights` shall report, per scope, findings per round, the share of prior findings fixed, partial and not-fixed, and rounds to approval; `pose review verify` shall warn when a scope passes the policy's round threshold (default 5), recommending a different agent or a human adjudication.
 - R8: A scope whose rounds do not converge shall not be hidden by the round protocol: a rejection stays visible as the ledger requires, and the protocol shall never lower the number of rounds recorded.
+- R9: A continued session shall receive the full generated brief of its round, including the prior-findings section of R2, and its draft shall satisfy R3 and R4 exactly as a cold session's draft must; remembering an earlier round shall never replace accounting for it.
+- R10: `pose insights` shall report the R7 figures separately for continued and cold rounds, so the default of R6 can be judged on measured convergence.
 
 ### Non-functional
 
@@ -69,25 +73,26 @@ Implementation artifacts are declared when the spec starts.
 
 ### API/contract changes
 
-Brief gains a prior-findings section; the draft gains `prior_findings` and `sweep`; adapter gains `continue_across_rounds`; policy gains a round threshold.
+Brief gains a prior-findings section; the draft gains `prior_findings` and `sweep`; `delegation.json` gains `routing.rounds` (`continue-thread` or `cold-session`) and a round threshold.
 
 ## 4. Tasks
 
 - [ ] Round derivation and disclosure
 - [ ] Prior-findings section of the brief
 - [ ] Draft schema and validation
-- [ ] Session lineage across rounds
+- [ ] Thread session continuation, forced new sessions and lineage
+- [ ] Insights split between continued and cold rounds
 - [ ] Insights and the round threshold
 
 ## 5. Decisions
 
 ### Decision D1
 - Basis: R6
-- Minimal option: always continue the previous vendor session so the reviewer remembers
-- Selected option: new session by default, continuation only when declared and allowed
-- Rationale: a reviewer that remembers its earlier verdict anchors on it; the cold session with the prior findings in its brief gets the context and keeps the independence
-- Consequences: a round costs the full read of the subject
-- Falsifier: rounds that converge faster with a continued session and no loss of defects found, measured by insights
+- Minimal option: a new session for every round
+- Selected option: continue the thread's session by default (`continue-thread`), with `cold-session` available by policy and a new session forced on a vendor change, a broken chain, an unresumable session or the round threshold
+- Rationale: the maintainer's decision of 2026-10-26 in the delegation ADR. A reviewer that already read the subject verifies its own findings without a full re-read, and the risk that it anchors on its earlier verdict is carried by R2–R5 and R9, which make every prior finding an explicit, evidenced entry whatever the session remembers. The original choice of a cold session is kept as the policy alternative
+- Consequences: a continued round costs less than a full read; the comparison of R10 decides whether the default holds
+- Falsifier: insights showing continued rounds accept more prior findings as `fixed` that a later round or a cold reviewer finds still open, or converge no faster than cold rounds
 
 ### Decision D2
 - Basis: R3, R4
@@ -101,7 +106,7 @@ Brief gains a prior-findings section; the draft gains `prior_findings` and `swee
 
 ### Strategy
 
-A fixture scope with three seeded defects reviewed over three rounds by a fake adapter: round 2 must account for each prior finding, a draft that omits one is refused, a `partial` keeps its identity, the section is byte-stable, a continued session is disclosed, and insights report the convergence figures; a tampered prior run makes the brief refuse.
+A fixture scope with three seeded defects reviewed over three rounds by a fake adapter: round 2 must account for each prior finding, a draft that omits one is refused, a `partial` keeps its identity, the section is byte-stable, rounds 2 and 3 continue the thread's session and are disclosed, a vendor change and the round threshold each open a new session with its reason, `cold-session` opens one every round, a continued session's draft that omits a prior finding is refused like a cold one, and insights report the convergence figures for continued and cold rounds; a tampered prior run makes the brief refuse.
 
 ### Requirement trace
 
@@ -109,7 +114,7 @@ A fixture scope with three seeded defects reviewed over three rounds by a fake a
 
 ### Delivered scope
 
-Not started: part of roadmap `delegated-review`, opened on 2026-10-18 from the operating experience of the B06 review rounds (see Origin).
+Not started: opened on 2026-10-18 under roadmap `delegated-review` from the operating experience of the B06 review rounds (see Origin); moved on 2026-10-26 to milestone `rounds` of roadmap `delegation`.
 
 ### Residual risks
 

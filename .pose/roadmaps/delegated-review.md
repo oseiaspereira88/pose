@@ -23,6 +23,12 @@ Continue the remaining draft contracts and the corrective deltas according to th
 [implementation plan](../results/pose-implementation-plan.json); their existence
 does not qualify the complete capability, adoption or remote integration.
 
+On 2026-10-26 the [delegation ADR](../adr/2026-10-26-delegation-is-a-first-class-execution-surface.md)
+made delegation a first-class execution surface (`pose delegate`). The remaining
+draft milestones — adoption, completion-signal, round-protocol and fulfillment —
+moved to the [`delegation`](delegation.md) roadmap; the milestones that stay here
+are the delivered foundation.
+
 ## Milestone: contract
 - after:
 - target_start:
@@ -66,11 +72,9 @@ from the `agent:independent-` prefix in adopting instances; a rejection
 stays visible, and rerunning an unchanged bundle without a reason is
 refused.
 
-## Milestone: adoption
-- after: trust, adapter-containment, spec:pose-review-approval-domain-preflight, fulfillment, continuity, completion-signal, round-protocol
-- target_start:
-- target_due:
-- specs: pose-delegated-review-capability
+## Moved to `delegation`: adoption
+
+This milestone moved to the [`delegation`](delegation.md) roadmap on 2026-10-26; the gate below is kept as it was written here.
 
 **Exit gate:** `delegated-review` is a catalog capability, off by default,
 documented with Codex and Claude Code adapter examples; a "review by another
@@ -109,22 +113,18 @@ como rerun; o rascunho parcial nunca vira review; a troca de vendor é sempre ex
 e registrada. Origem: as rodadas de review da B06 (2026-10-17). Spec rascunho: sem
 implementação nem closeout nesta escrita.
 
-## Milestone: completion-signal
-- after: dispatch, attempt-ledger
-- target_start:
-- target_due:
-- specs: pose-delegated-review-completion-signal
+## Moved to `delegation`: completion-signal
+
+This milestone moved to the [`delegation`](delegation.md) roadmap on 2026-10-26; the gate below is kept as it was written here.
 
 **Exit gate:** `pose review dispatch --detach` devolve o run de imediato e
 `pose review wait` bloqueia até o estado terminal, com código de saída que distingue
 aprovado, mudanças pedidas, falha, interrompido e travado; um host que acompanha
 processos é acordado pela saída. Não depende de notificação específica de host.
 
-## Milestone: round-protocol
-- after: brief, attempt-ledger
-- target_start:
-- target_due:
-- specs: pose-delegated-review-round-protocol
+## Moved to `delegation`: round-protocol
+
+This milestone moved to the [`delegation`](delegation.md) roadmap on 2026-10-26; the gate below is kept as it was written here.
 
 **Exit gate:** a rodada N+1 recebe do ledger os findings da rodada N, o rascunho
 precisa contabilizar cada um e declarar a varredura, e `insights` mede a convergência
@@ -173,11 +173,9 @@ R1–R3/status/baseline de fulfillment e reconciliar o texto provisório com o A
 aceito antes do start. O gate B19 documentado no lote 10 ainda é prospectivo;
 formalizar/qualificar sua evidência corrente antes de executar B20.
 
-## Milestone: fulfillment
-- after: trust, adapter-containment, spec:pose-action-target-and-node-scoping, spec:pose-action-waiver-and-supersession-authority, spec:pose-action-request-recovery-and-preflight, spec:pose-review-approval-domain-preflight
-- target_start:
-- target_due:
-- specs: pose-delegated-review-action-fulfillment
+## Moved to `delegation`: fulfillment
+
+This milestone moved to the [`delegation`](delegation.md) roadmap on 2026-10-26; the gate below is kept as it was written here.
 
 **Exit gate:** B20 exige B08/B09/B10 e aceite corrente da fase B19, sem depender
 de capability done. Reconciliar F1–F8 do relatório na spec existente: request,
