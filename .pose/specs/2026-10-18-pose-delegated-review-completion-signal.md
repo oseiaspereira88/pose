@@ -1,8 +1,8 @@
 ---
 slug: pose-delegated-review-completion-signal
-status: in-progress
+status: done
 created_at: 2026-10-18
-completed_at:
+completed_at: 2026-10-26
 supersedes:
 depends_on: pose-delegated-review-dispatch, pose-delegated-review-attempt-ledger, pose-delegation-surface
 priority: 2
@@ -125,7 +125,7 @@ Supervisor, run record heartbeat and terminal marker, `pose delegate wait`, `ls`
 - [x] First independent review: changes requested (B01–B09; F01–F04), B01–B09 and F02–F04 addressed with regression tests that fail on 2e015c4; F01 (redacted live events a failed capture later withholds) stays a disclosed follow-up of D7
 - [x] Second independent review: B01–B07, B09 and F02–F04 accepted as fixed and the exact gitleaks entry accepted; B08 partial and the new follow-up N01 addressed with regression tests that fail on 939c5ab; F01 stays disclosed under D7
 - [x] Third independent review (Claude Sonnet 5.5, same vendor, another model): B08 and N01 accepted as fixed; the new blocker N02 and the follow-ups F-R3-01, F-R3-03, F-R3-04, F-R3-06, F-R3-08 and F-R3-10 addressed, with regression tests that fail on 9377ac7 where the behaviour is testable; F01, F-R3-02, F-R3-05, F-R3-07 and F-R3-09 stay follow-ups for the closeout
-- [ ] Fourth independent review and closeout
+- [x] Fourth independent review (Claude Sonnet 5.5, same vendor, another model) and closeout: N02, F-R3-01, F-R3-03, F-R3-04, F-R3-06, F-R3-08 and F-R3-10 accepted as fixed with no blocker; F01, F-R3-02, F-R3-05, F-R3-07, F-R3-09 and the new F-R4-01 to F-R4-05 are the open follow-ups of the Final Report
 
 ## 5. Decisions
 
@@ -193,14 +193,52 @@ A fake adapter exercises approved, changes-requested, failed, interrupted and ki
 
 ### Requirement trace
 
+- R1 [satisfied] check:test check:delegation-surface-integration test:TestDelegateDetachAndWait test:TestADetachedRunThatDoesNotHandBackIsStopped test:TestADetachedRunThatCannotHandBackDoesNotRun test:TestADetachedRunReadsTheCallersFiles report:.pose/results/delivery-validation.json
+- R2 [satisfied] check:test check:delegation-surface-integration test:TestDelegationWaitOutcomeCodes test:TestDelegateDetachAndWait test:TestWaitReportsAnIncompleteHistory report:.pose/results/delivery-validation.json
+- R3 [satisfied] check:delegation-surface-integration test:TestDelegateDetachAndWait report:.pose/results/delivery-validation.json
+- R4 [satisfied] check:test check:delegation-surface-integration test:TestDelegationStallNeedsSilenceAndADeadOwner test:TestDelegationMarkerBeats report:.pose/results/delivery-validation.json
+- R5 [satisfied] check:test test:TestAReaderNeverLosesAnEndingAttempt test:TestARunWithoutARecordKeepsItsMarker report:.pose/results/delivery-validation.json
+- R6 [deferred-integration: spec:pose-delegation-mcp] The ls half is delivered and verified by test:TestPreviewCarriesVerboseAndLsReadsLiveProgress and check:delegation-surface-integration; the MCP tool pose_delegate_status that this requirement names is delivered by pose-delegation-mcp and is not claimed as satisfied here.
+- R7 [satisfied] check:test check:delegation-surface-integration test:TestDelegateOnTerminalHook test:TestTheHookRunsOncePerRun test:TestAnUnrecordedHookOutcomeIsReported test:TestHookBoundAndRelativeCommand report:.pose/results/delivery-validation.json
+- R8 [satisfied] check:delegation-surface-integration test:TestDelegateDetachAndWait report:.pose/results/delivery-validation.json
+- R9 [satisfied] check:test check:delegation-surface-integration test:TestDelegationLiveEventsAreRedactedAndIncremental test:TestDelegateWatchFollowsLive test:TestLiveEventsReadLongLinesWhole test:TestLiveEventsNeverFollowALink report:.pose/results/delivery-validation.json
+- R10 [satisfied] check:delegation-surface-integration test:TestDelegateWatchReplaysTheChain report:.pose/results/delivery-validation.json
+- R11 [satisfied] check:delegation-surface-integration test:TestDelegateWatchPicksARun report:.pose/results/delivery-validation.json
+- R12 [satisfied] check:delegation-surface-integration test:TestDelegateWatchReplaysTheChain test:TestPreviewCarriesVerboseAndLsReadsLiveProgress report:.pose/results/delivery-validation.json
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: opened on 2026-10-18 under roadmap `delegated-review` from the operating experience of the B06 review rounds (see Origin); moved on 2026-10-26 to milestone `observation` of roadmap `delegation`.
+Milestone `observation` of roadmap `delegation`: `pose delegate review|adjudicate|smoke --detach` starts the run in a session of its own, in the caller's directory, and returns its attempt once the attempt is handed back (a run that cannot hand back does not start its agent; a route that must wait for a usage-limit reset is not detached); `pose delegate wait` ends with the run and exits 0, 10, 20, 30, 40, 50 or 2; the running process rewrites a heartbeat and a run whose heartbeat is stale and whose process is provably gone is recorded `stalled` through an exclusive claim; the terminal record is published before the marker goes; `pose delegate watch` replays an attempt's chain with resume markers and follows the redacted live events until the record is published, with a picker and colours only on a terminal; `on_terminal` runs once under containment and its failure never changes the run's state; `ls` shows heartbeat age, stall and hook failure; the four manuals and the help catalogue describe it. R6 is delivered for `ls` only: the MCP tool `pose_delegate_status` is delivered by `pose-delegation-mcp`, deferred and not satisfied here. The guarantees of `pose-delegation-surface` and `pose-delegation-routing` (dispatch, ledger, continuity, provenance, containment, routing) were not weakened. Opened on 2026-10-18 under roadmap `delegated-review` from the operating experience of the B06 review rounds (see Origin); moved on 2026-10-26 to milestone `observation` of roadmap `delegation`.
+
+### Independent review and evidence
+
+Maintainer-authorized reviewer `agent:independent-claude-sonnet-5-5-review` (Claude Sonnet 5.5, Anthropic), the same vendor and another model than the implementer, Claude Opus 5.5 (`agent:claude-opus-5-5`, session `f2a4d9f2-d557-4064-ae96-6ed52bb47cd2`). The `agent:independent-` prefix is a declaration required by the engine; by the rule of 2026-10-09 another model satisfies `different-actor` and another vendor would be preferred. Identity is declared and this instance's attestations are unsigned. Rounds 1 and 2 were Codex (OpenAI); rounds 3 and 4 were this reviewer.
+
+Bundle `rvb-5535a3591b6decad`, attestation `rva-197bace721068608`, sealed with `--lead anthropic/claude-opus-5-5`; the seal's absence of an Anthropic session reference in the reviewing environment is expected, no implementation execution digest was invented, and the approval is a declared review, not a signed vendor receipt.
+
+Round 4 of `a8ce8cf97acb89815cc8440f028ec319c63ec1c3` accepted N02 (a detached run read a relative `--note-file` from the project root), F-R3-01, F-R3-03, F-R3-04, F-R3-06, F-R3-08 and F-R3-10 as fixed, and kept B08 and N01 fixed and the earlier rounds' closed items closed. N02, F-R3-01 and F-R3-06 have regression tests that fail when the production line is reverted; F-R3-03, F-R3-04, F-R3-08 and F-R3-10 have none (F-R4-01). The round-3 probes were re-executed, a variant of N02 from a subdirectory, a symlinked directory and with an absolute path passes, and four concurrent watchers of a 150-event stream show no loss or duplicate. Full report, probes and mutation logs are kept locally under `.review-work/round4/` (deliberately untracked). Residual-risk handoff: knowledge:delegation-observation-round4.
+
+### Validation executed
+
+`pose validate --strict`: 158/158 checks passed on a8ce8cf, recorded at `.pose/results/delivery-validation.json`. Independently: `go vet`, Windows and Darwin builds (compilation only), the full suite under `LC_ALL=C`, under `pt_BR.UTF-8` and without any session marker, and the race selection `Delegat|Stall|Beat|WaitOutcome|Detach|Live|Watch|OnTerminal` passed; gitleaks over 2208 commits found no leak. Production mutations for R2, R4, R7, R9, N02, F-R3-01 and F-R3-06 each fail their test; the mutations of F-R3-03, F-R3-04, F-R3-08 and F-R3-10 do not.
+
+Strict artifact reconciliation matched 32 claims with 32 observed paths in five attributed commits; `surface-check --strict` for `capability:delegation-observation` found no finding; the integration assessment reports the 63 unobserved-consumer gaps of the baseline and none new; the debt scan retains one covered TODO and the same two invalid historical specs, so it does not certify global absence of debt; design assessment observed no structural delta.
 
 ### Residual risks
 
-None yet.
+A watcher may already have seen redacted live events that a capture failing later withholds from the record (F01, D7). After `kill -9` of the supervisor the run is recorded `stalled` at about 35 seconds but its agent keeps running, and the supervisor stop path has no test (F-R3-05, F-R3-02). `on_terminal` does not fire for the deprecated alias nor for a stalled run (F-R3-07). A reader racing back-to-back heartbeat rewrites can list a marker as a loss, which needs consecutive rewrites the real 10 second beat does not produce (F-R3-09). An outcome the hook could not publish reads as no hook for up to six minutes (F-R4-02). Identity remains a declaration rather than authenticated cognitive independence, and the Windows build was compiled but not run.
 
 ### Follow-ups
+
+- [open] F01: redact the live view with what the record will withhold, or withhold the live events of a capture that later fails; disclosed under D7. See knowledge:delegation-observation-round4. (owner:@oseiaspereira88 crit:low review:2026-11-25)
+- [open] F-R3-02: test the SIGTERM, grace and SIGKILL path of a stopped supervisor and make the fallback reach the agent's own group. See knowledge:delegation-observation-round4. (owner:@oseiaspereira88 crit:low review:2026-11-25)
+- [open] F-R3-05: stop or announce the agent, and clear the live file and marker, of a run recorded `stalled`. See knowledge:delegation-observation-round4. (owner:@oseiaspereira88 crit:low review:2026-11-25)
+- [open] F-R3-07: fire `on_terminal` for the deprecated alias and for stalled runs, or narrow the manual wording. See knowledge:delegation-observation-round4. (owner:@oseiaspereira88 crit:low review:2026-11-25)
+- [open] F-R3-09: retry once a marker read that races a rewrite before listing a loss. See knowledge:delegation-observation-round4. (owner:@oseiaspereira88 crit:low review:2026-11-25)
+- [open] F-R4-01: add regression tests for F-R3-03, F-R3-04, F-R3-08 and F-R3-10. See knowledge:delegation-observation-round4. (owner:@oseiaspereira88 crit:low review:2026-11-25)
+- [open] F-R4-02: show a pending hook state and report a lost hook outcome earlier than six minutes. See knowledge:delegation-observation-round4. (owner:@oseiaspereira88 crit:low review:2026-11-25)
+- [open] F-R4-03: document in the four manuals how a relative `on_terminal` command is resolved. See knowledge:delegation-observation-round4. (owner:@oseiaspereira88 crit:low review:2026-11-25)
+- [open] F-R4-04: show the live events of a stalled run in `watch` and print the `--detach` paths relative to the caller. See knowledge:delegation-observation-round4. (owner:@oseiaspereira88 crit:low review:2026-11-25)
+- [open] F-R4-05: name or select the review regression tests so the delegation integration check and the race selection run them. See knowledge:delegation-observation-round4. (owner:@oseiaspereira88 crit:low review:2026-11-25)

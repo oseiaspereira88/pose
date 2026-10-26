@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-197bace721068608",
+  "bundle_id": "rvb-5535a3591b6decad",
+  "bundle_digest": "sha256:5535a3591b6decad40d6ca4165a815578798b3cc61a87456a439c693a6f3be71",
+  "reviewer": "agent:independent-claude-sonnet-5-5-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The agent:independent- prefix is a declaration the engine requires, not an authenticated identity, and pose-dist attestations are unsigned. This execution is the same vendor (Anthropic) and another model (claude-sonnet-5-5) than the implementer, claude-opus-5-5, whose Claude session f2a4d9f2-d557-4064-ae96-6ed52bb47cd2 the bundle records as declared through --lead anthropic/claude-opus-5-5 because this environment holds no Anthropic session reference. By the rule of 2026-10-09 another model satisfies different-actor; another vendor would be preferred. Rounds 1 and 2 were Codex (OpenAI), round 3 and this one Claude Sonnet 5.5. Nothing was reused: the round 3 probes were re-executed against a8ce8cf, production code was mutated, and the suites and native gates were run again."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "f-r3-09",
+      "rationale": "Heartbeat rewrites, the exclusive stall claim (16 readers agree), multiple waiters, the live tee under concurrent stdout and stderr and four concurrent watchers on a 150-event stream (no loss, no duplicate event) held, and the race selection is clean. One residual: a reader racing back-to-back marker rewrites can list the marker as a loss (F-R3-09), 8 of 8 under 6 readers and 400 consecutive beats, 0 in 115k reads at a beat every 10ms; the real beat is every 10s. Accepted as low."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The wait exit codes (0, 10, 20, 30, 40, 50, 2), the one-line output, the NDJSON of watch, the policy key on_terminal and the detach schema hold, and the mutation of approved to failed (R2) fails TestDelegationWaitOutcomeCodes. The contract change of this round is that a detached run starts in the caller's directory, the same as the command without --detach (N02), verified from a subdirectory, a symlinked directory and with an absolute path."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Invalid flags of wait and watch exit 2, a policy hook with a placeholder or a timeout over five minutes is refused, an unreadable history is never answered with a run state, a live file that is a link or oversized is refused, and live events that cannot be read are now reported as a loss (F-R3-10) without a spurious loss under concurrent writes."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "assess integrate executed: 63 gaps, all unobserved consumers and the same count as the previous baseline, no new provider or consumer gap for the CLI and policy contracts this spec changes. The delegation surface integration check passes, and dispatch, ledger, continuity, provenance and containment are untouched by the final commit."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "f-r4-02",
+      "rationale": "Heartbeat age, stall, hook failure and live progress reach ls and watch, and a stalled watch now says it stalled. Residual: since F-R3-01 a hook claimed under six minutes ago reads as no hook, so an outcome that could not be published is invisible for up to six minutes before it is reported as lost; the foreground command still prints the failure it had. Accepted as low."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "f-r3-07",
+      "rationale": "Existing commands keep their behaviour and the deprecated pose review dispatch aliases are unchanged. on_terminal fires for pose delegate review and resume but not for the alias path nor for a run recorded stalled, while the manual says once after a run ends (F-R3-07). Accepted as low with the manual wording to be narrowed."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "f-r3-02",
+      "rationale": "The R2, R4, R7 and R9 production mutations each fail their test, as do the N02, F-R3-01 and F-R3-06 reversions; vet, Windows and Darwin builds, the full suites under C and pt_BR locales and without session markers, and the race selection pass. Residual: the SIGTERM, grace and SIGKILL path of a stopped supervisor has no test and the SIGKILL fallback does not reach the agent's own group (F-R3-02), and F-R3-03, F-R3-04, F-R3-08 and F-R3-10 survive reversion (F-R4-01)."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "f01",
+      "rationale": "The causal chain holds: the record is published before the marker goes, a reader that sees the marker go finds the record, and the live file is removed only with that publication. D7 discloses that a watcher may already have seen redacted events a capture failing later withholds from the record (F01), the one disclosed follow-up that stays."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "f-r4-03",
+      "rationale": "The four manuals and the help catalogue now agree with the code on detach, wait, watch, the hook and the options table (F-R3-08), and the claims about exit codes, D3, D5 and containment were checked against behaviour. Residual: how a relative on_terminal command is resolved is not documented (F-R4-03), and the once after a run ends wording is wider than the alias and stalled paths (F-R3-07)."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "f-r3-05",
+      "rationale": "Stalled detection, the exclusive claim, ls heartbeat age and SIGTERM to the supervisor stopping the agent group work as specified. After kill -9 of the supervisor the run is stalled at about 35s as designed, but its agent keeps running and the live file, claim and marker remain (F-R3-05); disclosed as a residual risk."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 to R5 and R7 to R12 are delivered and exercised: detach with handshake and D3/D5, wait codes, heartbeat and stall, atomic terminal transition, redacted live events, watch with chain replay and picker, the hook under containment and the ls and colour rules. R6 is delivered for ls only; the MCP tool pose_delegate_status is deferred to pose-delegation-mcp as the requirement names and is not claimed as satisfied here."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The commit reviewed changes only the files the spec declares (artifact-check: 32 claims and 32 observed paths in five attributed commits), touches no dispatch, ledger, continuity, provenance or containment code, and weakens no guarantee of the two earlier delegation specs. The agent environment carries no POSE_ or session marker. The agent: prefix is a declaration, as recorded under assumption-integrity."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Credentials and declared session references are redacted from live events (R9 mutation fails its test); the live file is private, never followed through a link and bounded; the hook receives only POSE_DELEGATE_RUN and POSE_DELEGATE_STATE and the run directory, in its own process group within a bound; the agent does not receive the hand-back path; gitleaks over 2208 commits finds no leak and .gitleaksignore is unchanged. A relative hook path is joined to the project root, a path the policy itself already controls."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The supervisor is the same pose binary started in its own session with a file hand-back, wait polls the marker and not the history, and the live tee is a bounded private file; no daemon, socket or new dependency was added. The final commit is the minimal fix per finding."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict for this spec: 32 claims and 32 observed paths in five attributed commits (base 3e7e1fd to head a8ce8cf). The 749 orphan warnings concern other specs."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-a3f1df539c0d3756",
+      "rationale": "Executed JSON design assessment for the spec: status observed, 31 of 31 files in the subject, no structural deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed for pose-mcp without --update-state: 90785 production lines, 1 TODO covered by a spec; the generated state is not committed."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed: 63 gaps, all unobserved consumers and the same count as the previous baseline; no new gap for the CLI and policy contracts this spec changes."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed: 302 source files, 1 TODO covered, 0 uncovered; the scan stays incomplete for the same two invalid historical 2026-08-15 specs, so no global absence claim is made."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred until this attestation exists; it is executed and its real result retained before closeout."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred until this attestation exists; it is executed and its real result retained before closeout."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed for pose-mcp; the security, documentation-style and backend-go rules and the knowledge governance were applied."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed strict for capability:delegation-observation after the current validation: one target, 158 results, no finding; the composed capability has fresh integration evidence."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed the complete strict matrix: 158 of 158 checks passed on a8ce8cf. This disposition names the containing-module result."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed the complete strict matrix including pose-mcp: all registered results passed."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delegated-run-provenance-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "knowledge:delegation-observation-round4",
+    "structure:design-a3f1df539c0d3756",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "f01",
+      "severity": "low",
+      "evidence": "knowledge:delegation-observation-round4",
+      "action": "Redact the live view with what the record will withhold, or withhold the live events of a capture that later fails",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "Severity low: disclosed under D7, private and short-lived, and not a credential leak: the events shown are redacted with the credentials and the declared sessions; only a capture the record later withholds can have been shown. Reproduced by TestReviewProbeLiveCaptureWithheld.",
+      "review_by": "2026-11-25"
+    },
+    {
+      "id": "f-r3-02",
+      "severity": "low",
+      "evidence": "knowledge:delegation-observation-round4",
+      "action": "Test the SIGTERM, grace and SIGKILL path of a stopped supervisor and make the fallback reach the agent group",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "Severity low, graded medium in round 3 and lowered here because the hand-back now precedes the agent: swapping SIGTERM for SIGKILL keeps the delegate suites green. With the hand-back before the agent the exposure is a window of about 100ms or a supervisor hung over 30s.",
+      "review_by": "2026-11-25"
+    },
+    {
+      "id": "f-r3-05",
+      "severity": "low",
+      "evidence": "knowledge:delegation-observation-round4",
+      "action": "Stop or announce the agent and remove the live file and marker residue of a run recorded stalled",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "After kill -9 of the supervisor the agent keeps running; the run is stalled and named by ls, and pose delegate cancel stops one still recorded.",
+      "review_by": "2026-11-25"
+    },
+    {
+      "id": "f-r3-07",
+      "severity": "low",
+      "evidence": "knowledge:delegation-observation-round4",
+      "action": "Fire on_terminal for the deprecated alias and for stalled runs, or narrow the manual wording",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "The completion signal is wait, which exits 40 on a stall; the hook is a convenience and the alias keeps its documented behaviour.",
+      "review_by": "2026-11-25"
+    },
+    {
+      "id": "f-r3-09",
+      "severity": "low",
+      "evidence": "knowledge:delegation-observation-round4",
+      "action": "Retry a marker read that races a rewrite once before listing a loss",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "Needs consecutive rewrites; the real beat is every 10s and 0 losses were seen in 115k reads at 10ms.",
+      "review_by": "2026-11-25"
+    },
+    {
+      "id": "f-r4-01",
+      "severity": "low",
+      "evidence": "knowledge:delegation-observation-round4",
+      "action": "Add regression tests for F-R3-03, F-R3-04, F-R3-08 and F-R3-10",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "Reverting each leaves the delegate, watch, stall and help suites green; F-R3-04 and F-R3-10 are testable.",
+      "review_by": "2026-11-25"
+    },
+    {
+      "id": "f-r4-02",
+      "severity": "low",
+      "evidence": "knowledge:delegation-observation-round4",
+      "action": "Show a pending hook state and report a lost outcome earlier than six minutes",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "A claim under six minutes old reads as no hook after F-R3-01; the foreground command prints the failure it had and the loss is reported afterwards.",
+      "review_by": "2026-11-25"
+    },
+    {
+      "id": "f-r4-03",
+      "severity": "low",
+      "evidence": "knowledge:delegation-observation-round4",
+      "action": "Document how a relative on_terminal command is resolved in the four manuals",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "A name with a separator is a path from the project root, a bare name goes through PATH, and the policy is committed and trusted like the command itself.",
+      "review_by": "2026-11-25"
+    },
+    {
+      "id": "f-r4-04",
+      "severity": "low",
+      "evidence": "knowledge:delegation-observation-round4",
+      "action": "Show the live events of a stalled run in watch and print detach paths relative to the caller",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "Watch of a stalled run prints only the stall marker and the detach paths are project-root-relative.",
+      "review_by": "2026-11-25"
+    },
+    {
+      "id": "f-r4-05",
+      "severity": "low",
+      "evidence": "knowledge:delegation-observation-round4",
+      "action": "Name or select the review regression tests so the integration check and the race selection run them",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "They run in the unit lane only; none of the four names matches the integration check pattern.",
+      "review_by": "2026-11-25"
+    }
+  ],
+  "attested_at": "2026-10-26T19:39:09Z",
+  "path": ".pose/review-attestations/rva-197bace721068608.json"
+}
