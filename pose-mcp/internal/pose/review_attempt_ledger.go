@@ -673,7 +673,7 @@ func (s Store) delegatedReviewInsights(sinceDays int) *DelegatedReviewInsights {
 		}
 		for _, r := range []*DelegatedReviewMetric{row(bundles, run.BundleID), row(adapters, run.Adapter)} {
 			r.Runs++
-			if run.Resumes != "" && run.SupersededBy == "" {
+			if run.continues() != "" && run.SupersededBy == "" {
 				r.Resumes++
 			}
 			decision := "unknown"

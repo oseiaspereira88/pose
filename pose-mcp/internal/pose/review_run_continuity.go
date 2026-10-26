@@ -295,7 +295,7 @@ func (s Store) claimReviewContinuation(r ReviewRun, at time.Time) error {
 func (s Store) finishReviewContinuation(r ReviewRun) error {
 	raw, _ := json.Marshal(r)
 	receipt := reviewAttemptReceipt{1, r.AttemptID, r.RunID, digestBytes(raw)}
-	return publishLedgerJSON(s.Root, continuationPath(r.Resumes, true), receipt)
+	return publishLedgerJSON(s.Root, continuationPath(r.continues(), true), receipt)
 }
 func (s Store) existingReviewContinuation(r ReviewRun, runs []ReviewRun) (*ReviewRun, error) {
 	var claim reviewContinuation
@@ -321,7 +321,7 @@ func (s Store) existingReviewContinuation(r ReviewRun, runs []ReviewRun) (*Revie
 			copy := next
 			copy.Path, copy.SupersededBy = "", ""
 			raw, _ := json.Marshal(copy)
-			if receipt.SchemaVersion != 1 || receipt.AttemptID != r.AttemptID || next.AttemptID != r.AttemptID || next.Resumes != r.RunID || receipt.RunDigest != digestBytes(raw) {
+			if receipt.SchemaVersion != 1 || receipt.AttemptID != r.AttemptID || next.AttemptID != r.AttemptID || next.continues() != r.RunID || receipt.RunDigest != digestBytes(raw) {
 				return nil, fmt.Errorf("invalid continuation receipt")
 			}
 			return &next, nil
@@ -394,6 +394,9 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 		return DispatchPlan{}, e
 	}
 	if existing != nil {
+		if existing.HandsOffFrom == prior.RunID {
+			return DispatchPlan{}, fmt.Errorf("pose: run %s was handed off to run %s; it is not resumed", prior.RunID, existing.RunID)
+		}
 		plan.Existing = existing
 		return plan, nil
 	}
@@ -415,7 +418,7 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 				return DispatchPlan{}, fmt.Errorf("invalid accumulated wall-clock evidence")
 			}
 			spent += end.Sub(start)
-			if r.Resumes != "" {
+			if r.continues() != "" {
 				count++
 			}
 		}
@@ -532,22 +535,33 @@ func (s Store) reviewContinuationFindings(runs []ReviewRun) []string {
 		copy := next
 		copy.Path, copy.SupersededBy = "", ""
 		raw, _ := json.Marshal(copy)
-		if !ok || !exists || receipt.SchemaVersion != 1 || receipt.AttemptID != claim.AttemptID || next.AttemptID != claim.AttemptID || next.Resumes != id || receipt.RunDigest != digestBytes(raw) {
+		if !ok || !exists || receipt.SchemaVersion != 1 || receipt.AttemptID != claim.AttemptID || next.AttemptID != claim.AttemptID || next.continues() != id || receipt.RunDigest != digestBytes(raw) {
 			losses = append(losses, "missing or conflicting continuation result "+id)
 		}
 	}
 	children := map[string][]ReviewRun{}
 	for _, r := range runs {
-		if r.Resumes != "" {
-			prior, ok := byID[r.Resumes]
-			_, claimed := claims[r.Resumes]
-			if !ok || !claimed || prior.Status != ReviewRunInterrupted || prior.Interruption == nil || !prior.Interruption.Resumable || r.AttemptID != prior.AttemptID || r.BundleDigest != prior.BundleDigest || r.BriefDigest != prior.BriefDigest || r.Adapter != prior.Adapter || r.SealedCommit != prior.SealedCommit || r.TreeDigest != prior.TreeDigest {
+		if r.Resumes != "" && r.HandsOffFrom != "" {
+			losses = append(losses, "invalid continuation chain "+r.RunID+": both a resume and a handoff")
+		}
+		if parentID := r.continues(); parentID != "" {
+			prior, ok := byID[parentID]
+			_, claimed := claims[parentID]
+			same := ok && claimed && r.AttemptID == prior.AttemptID && r.BundleDigest == prior.BundleDigest && r.BriefDigest == prior.BriefDigest && r.SealedCommit == prior.SealedCommit
+			if r.Resumes != "" {
+				// A resume continues the same agent and session, of a resumable stop.
+				same = same && prior.Status == ReviewRunInterrupted && prior.Interruption != nil && prior.Interruption.Resumable && r.Adapter == prior.Adapter && r.TreeDigest == prior.TreeDigest
+			} else {
+				// A handoff continues another agent, of any stop short of a conclusion.
+				same = same && handoffable(prior) == "" && r.Adapter != prior.Adapter && r.HandoffDigest != "" && (prior.TreeDigest == "" || r.TreeDigest == prior.TreeDigest)
+			}
+			if !same {
 				losses = append(losses, "invalid continuation chain "+r.RunID)
 			}
-			if _, ok := receipts[r.Resumes]; !ok {
-				losses = append(losses, "missing continuation result receipt "+r.Resumes)
+			if _, ok := receipts[parentID]; !ok {
+				losses = append(losses, "missing continuation result receipt "+parentID)
 			}
-			children[r.Resumes] = append(children[r.Resumes], r)
+			children[parentID] = append(children[parentID], r)
 		}
 	}
 	for id, group := range children {
@@ -558,7 +572,7 @@ func (s Store) reviewContinuationFindings(runs []ReviewRun) []string {
 				continue
 			}
 			next, ok := byID[child.SupersededBy]
-			if !ok || next.Resumes != id || next.Supersedes != child.RunID {
+			if !ok || next.continues() != id || next.Supersedes != child.RunID {
 				losses = append(losses, "invalid continuation supersession "+id)
 			}
 		}
@@ -586,8 +600,8 @@ func (s Store) reviewInterruptedRuns(includeContinued bool) ([]ReviewRunSummary,
 	}
 	continued := map[string]string{}
 	for _, r := range runs {
-		if r.Resumes != "" {
-			continued[r.Resumes] = r.RunID
+		if r.continues() != "" {
+			continued[r.continues()] = r.RunID
 		}
 	}
 	out := []ReviewRunSummary{}

@@ -1,6 +1,6 @@
 ---
 slug: pose-delegation-handoff
-status: draft
+status: in-progress
 created_at: 2026-10-26
 completed_at:
 supersedes:
@@ -8,7 +8,7 @@ depends_on: pose-delegation-routing, pose-delegated-review-completion-signal
 priority: 2
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: capability:delegation-handoff
 ---
 
 # Spec: A stopped delegated run can continue with another agent
@@ -67,7 +67,30 @@ Continuation planner, brief renderer (handoff section), run record (`hands_off_f
 
 ### Artifacts
 
-Implementation artifacts are declared when the spec starts.
+- modified: .pose/specs/2026-10-26-pose-delegation-handoff.md
+- created: .pose/starts/pose-delegation-handoff.json
+- created: .pose/changelogs/unreleased/pose-delegation-handoff.md
+- created: pose-mcp/internal/pose/delegation_handoff.go
+- created: pose-mcp/internal/pose/delegation_handoff_test.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
+- modified: pose-mcp/internal/pose/review_run_continuity.go
+- modified: pose-mcp/internal/pose/review_run_provenance.go
+- modified: pose-mcp/internal/pose/review_attempt_ledger.go
+- created: pose-mcp/internal/cli/delegate_handoff.go
+- created: pose-mcp/internal/cli/delegate_handoff_test.go
+- modified: pose-mcp/internal/cli/delegate.go
+- modified: pose-mcp/internal/cli/delegate_wait.go
+- modified: pose-mcp/internal/cli/delegate_watch.go
+- modified: pose-mcp/internal/cli/delegate_test.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+
+### Delivery targets
+
+- capability:delegation-handoff module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/delegate_handoff.go
 
 ### API/contract changes
 
@@ -75,11 +98,12 @@ Implementation artifacts are declared when the spec starts.
 
 ## 4. Tasks
 
-- [ ] Continuation of another agent under the same attempt and budget
-- [ ] Handoff brief section with digests
-- [ ] Lineage in the record and in watch
-- [ ] Terminal choices and `next_actions`
-- [ ] Thread session update on vendor change
+- [x] Continuation of another agent under the same attempt and budget
+- [x] Handoff brief section with digests
+- [x] Lineage in the record and in watch
+- [x] Terminal choices and `next_actions`
+- [ ] Thread session update on vendor change: deferred to `pose-delegated-review-round-protocol` (D3)
+- [ ] Independent review and closeout
 
 ## 5. Decisions
 
@@ -98,6 +122,22 @@ Implementation artifacts are declared when the spec starts.
 - Rationale: the new reviewer gains the ground already covered without inheriting the stopped reviewer's reasoning wholesale, and re-verifies what it relies on
 - Consequences: some reasoning is redone
 - Falsifier: a handoff review that cites the predecessor's partial as its evidence
+
+### Decision D3
+- Basis: R10
+- Minimal option: record a thread session on the run now
+- Selected option: leave R10 to `pose-delegated-review-round-protocol`, which introduces the thread and its current session; a handoff run captures its own session as every run does, so the protocol can name it the thread's
+- Rationale: no thread exists in the engine yet; a field nothing reads would be a contract with no consumer
+- Consequences: R10 is delivered with the round protocol, and the trace records it as deferred, not satisfied
+- Falsifier: a round after a vendor handoff that resumes the stopped vendor's session
+
+### Decision D4
+- Basis: R1, R2, R5
+- Minimal option: let a handoff continue only an interrupted run, and keep the reservation's agent for every run of the attempt
+- Selected option: a handoff continues an interrupted or failed run, claims it as a resume does, and a run is continued once by either; the attempt reservation names the first agent, and each continuation's agent is checked against its own predecessor (a resume keeps it, a handoff changes it)
+- Rationale: one claim per run keeps resume and handoff mutually exclusive without a second ledger; a failed run is as unfinished as an interrupted one
+- Consequences: `resume` refuses a run that was handed off, naming its continuation; a run stalled without a record has nothing to hand off and is refused
+- Falsifier: one run continued twice, or a continuation whose agent no chain check compares
 
 ## 6. Validation
 

@@ -46,8 +46,7 @@ const (
 
 // Subcommands named by the ADR whose behaviour a later spec delivers.
 var delegatePlanned = map[string]string{
-	"handoff": "pose-delegation-handoff",
-	"task":    "pose-delegation-task",
+	"task": "pose-delegation-task",
 }
 
 var (
@@ -62,6 +61,7 @@ func tr(english, portuguese string) string { return cliText(cliLocaleValue(), en
 
 type delegateFlags struct {
 	agent, access, label, lead, reason, noteFile string
+	to                                           string
 	dryRun, jsonOut, active, wait, detach        bool
 	verbose, noFollow                            bool
 	lines                                        int
@@ -166,6 +166,8 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 					return f, tr("--timeout takes a positive duration", "--timeout recebe uma duração positiva")
 				}
 				f.timeout = d
+			case "--to":
+				f.to = value
 			case "--note-file":
 				f.noteFile = value
 			}
@@ -198,6 +200,8 @@ func cmdDelegate(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdDelegateWait(root, rest, stdout, stderr)
 	case "watch":
 		return cmdDelegateWatch(root, rest, stdout, stderr)
+	case "handoff":
+		return cmdDelegateHandoff(root, rest, stdout, stderr)
 	}
 	return delegateUsage(stdout, stderr, rest, sub, tr("unknown subcommand", "subcomando desconhecido")+"\n"+tr("Usage: ", "Uso: ")+delegateUsageText)
 }
@@ -486,7 +490,13 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	}
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	delegateTerminalHook(store, run, err, stdout, stderr, purpose)
-	return delegatePrintRun(stdout, stderr, f.jsonOut, purpose, run, err)
+	code = delegatePrintRun(stdout, stderr, f.jsonOut, purpose, run, err)
+	if err == nil && !f.jsonOut && !delegateSupervised() {
+		if next, chose := offerDelegateChoices(root, run, stdout, stderr); chose {
+			return next
+		}
+	}
+	return code
 }
 
 func delegateNoAgent(stdout, stderr io.Writer, jsonOut bool, command string) int {
@@ -588,7 +598,7 @@ func delegatePrintRun(stdout, stderr io.Writer, jsonOut bool, command string, ru
 	attestation := tr("not recorded: a run's conclusion is recorded only by the engine's verified step", "não registrada: a conclusão de um run só é registrada pelo passo verificado do motor")
 	if jsonOut {
 		doc := map[string]any{"schema": delegateRunSchema, "purpose": run.Purpose, "agent": run.Adapter, "vendor": run.Vendor, "model": run.Model,
-			"label": run.Label, "lead": run.Lead, "scope": run.Scope, "bundle": run.BundleID, "attempt": run.AttemptID, "run": run.RunID, "resumes": run.Resumes,
+			"label": run.Label, "lead": run.Lead, "scope": run.Scope, "bundle": run.BundleID, "attempt": run.AttemptID, "run": run.RunID, "resumes": run.Resumes, "hands_off_from": run.HandsOffFrom,
 			"status": run.Status, "failure": run.Failure, "record": run.Path, "events": run.EventsDigest != "", "env_removed": run.EnvRemoved, "attestation": attestation}
 		if run.Interruption != nil {
 			doc["interruption"] = run.Interruption
@@ -609,6 +619,9 @@ func delegatePrintRun(stdout, stderr io.Writer, jsonOut bool, command string, ru
 		out.Field("delegate.attempt", run.AttemptID)
 		if run.Resumes != "" {
 			out.Field("delegate.resumes", run.Resumes)
+		}
+		if run.HandsOffFrom != "" {
+			out.Field("delegate.hands_off_from", run.HandsOffFrom)
 		}
 		out.Field("delegate.run", run.RunID)
 		out.Field("delegate.status", run.Status)
@@ -683,7 +696,16 @@ func cmdDelegateLs(root string, args []string, stdout, stderr io.Writer) int {
 		lost = []string{}
 	}
 	if f.jsonOut {
-		writeDelegateJSON(stdout, map[string]any{"schema": delegateListSchema, "attempts": selected, "losses": lost})
+		// R9: a stopped attempt carries the ways forward it has now.
+		type listed struct {
+			posemodel.DelegationAttempt
+			NextActions []delegateNextAction `json:"next_actions,omitempty"`
+		}
+		rows := make([]listed, 0, len(selected))
+		for _, a := range selected {
+			rows = append(rows, listed{a, delegateNextActions(store, a)})
+		}
+		writeDelegateJSON(stdout, map[string]any{"schema": delegateListSchema, "attempts": rows, "losses": lost})
 	} else {
 		out := render(stdout, stderr)
 		if len(selected) == 0 {
@@ -830,7 +852,13 @@ func cmdDelegateResume(root string, args []string, stdout, stderr io.Writer) int
 	defer stop()
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	delegateTerminalHook(store, run, err, stdout, stderr, "resume")
-	return delegatePrintRun(stdout, stderr, f.jsonOut, "resume", run, err)
+	code = delegatePrintRun(stdout, stderr, f.jsonOut, "resume", run, err)
+	if err == nil && !f.jsonOut {
+		if next, chose := offerDelegateChoices(root, run, stdout, stderr); chose {
+			return next
+		}
+	}
+	return code
 }
 
 func cmdDelegateCancel(root string, args []string, stdout, stderr io.Writer) int {

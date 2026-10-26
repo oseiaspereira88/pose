@@ -193,7 +193,7 @@ func cmdDelegateWait(root string, args []string, stdout, stderr io.Writer) int {
 			terminal = true
 		}
 		if terminal {
-			printWaitResult(stdout, f.jsonOut, result)
+			printWaitResult(stdout, f.jsonOut, result, delegateNextActions(store, attempt))
 			return result.Code
 		}
 		// Running: watch only the marker until it goes, or the heartbeat
@@ -213,12 +213,13 @@ func cmdDelegateWait(root string, args []string, stdout, stderr io.Writer) int {
 }
 
 // printWaitResult prints the one line of a wait.
-func printWaitResult(stdout io.Writer, jsonOut bool, r posemodel.DelegationWaitResult) {
+func printWaitResult(stdout io.Writer, jsonOut bool, r posemodel.DelegationWaitResult, next []delegateNextAction) {
 	if jsonOut {
 		raw, _ := json.Marshal(struct {
 			Schema string `json:"schema"`
 			posemodel.DelegationWaitResult
-		}{delegateWaitSchema, r})
+			NextActions []delegateNextAction `json:"next_actions,omitempty"`
+		}{delegateWaitSchema, r, next})
 		render(stdout, io.Discard).ContractLine(string(raw))
 		return
 	}

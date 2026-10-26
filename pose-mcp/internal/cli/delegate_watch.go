@@ -257,6 +257,8 @@ func (w *watchPrinter) replay(store posemodel.Store, attempt posemodel.Delegatio
 		byID[r.RunID] = r
 		if r.Resumes != "" {
 			continuedBy[r.Resumes] = r.RunID
+		} else if r.HandsOffFrom != "" {
+			continuedBy[r.HandsOffFrom] = r.RunID
 		}
 	}
 	for _, id := range attempt.Runs {
@@ -271,6 +273,8 @@ func (w *watchPrinter) replay(store posemodel.Store, attempt posemodel.Delegatio
 			// shown are not repeated.
 		} else if run.Resumes != "" {
 			w.marker("↻", tr("resumed ", "retomado ")+run.Resumes+" → "+run.RunID+" ("+run.Adapter+")", cliout.ToneInfo, map[string]any{"run": run.RunID, "resumes": run.Resumes})
+		} else if run.HandsOffFrom != "" {
+			w.marker("⇄", tr("handed off ", "repassado ")+run.HandsOffFrom+" → "+run.RunID+" ("+run.Adapter+")", cliout.ToneInfo, map[string]any{"run": run.RunID, "hands_off_from": run.HandsOffFrom})
 		} else {
 			w.marker("▶", tr("run ", "run ")+run.RunID+" ("+run.Adapter+", "+run.Purpose+")", cliout.ToneBold, map[string]any{"run": run.RunID})
 		}
@@ -287,9 +291,9 @@ func (w *watchPrinter) replay(store posemodel.Store, attempt posemodel.Delegatio
 		end := run.Status
 		if run.Interruption != nil {
 			end += " (" + run.Interruption.Cause + ")"
-			if next := continuedBy[run.RunID]; next != "" {
-				end += tr(", continued by ", ", continuado por ") + next
-			}
+		}
+		if next := continuedBy[run.RunID]; next != "" {
+			end += tr(", continued by ", ", continuado por ") + next
 		}
 		tone := cliout.ToneOK
 		if run.Status != posemodel.ReviewRunCompleted {

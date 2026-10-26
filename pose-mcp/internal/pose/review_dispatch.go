@@ -141,37 +141,42 @@ type ReviewRun struct {
 	Provenance          *ReviewRunProvenance   `json:"provenance,omitempty"`
 	sessionForRedaction string
 	eventsBytes         []byte
-	Resumes             string              `json:"resumes,omitempty"`
-	Interruption        *ReviewInterruption `json:"interruption,omitempty"`
-	SessionDigest       string              `json:"session_digest,omitempty"`
-	TreeDigest          string              `json:"tree_digest,omitempty"`
-	BriefNotes          string              `json:"brief_notes,omitempty"`
-	PartialDigest       string              `json:"partial_digest,omitempty"`
-	LimitOf             string              `json:"limit_of,omitempty"`
-	LedgerVersion       int                 `json:"ledger_version,omitempty"`
-	AttemptID           string              `json:"attempt_id,omitempty"`
-	Reason              string              `json:"reason,omitempty"`
-	SchemaVersion       int                 `json:"schema_version"`
-	RunID               string              `json:"run_id"`
-	Scope               string              `json:"scope"`
-	BundleID            string              `json:"bundle_id"`
-	BundleDigest        string              `json:"bundle_digest"`
-	SealedCommit        string              `json:"sealed_commit"`
-	Kind                string              `json:"kind"`
-	BriefDigest         string              `json:"brief_digest"`
-	Adapter             string              `json:"adapter"`
-	Vendor              string              `json:"vendor"`
-	Model               string              `json:"model"`
-	StartedAt           string              `json:"started_at"`
-	EndedAt             string              `json:"ended_at"`
-	ExitCode            int                 `json:"exit_code"`
-	Status              string              `json:"status"`
-	Failure             string              `json:"failure,omitempty"`
-	TranscriptDigest    string              `json:"transcript_digest"`
-	TranscriptPath      string              `json:"transcript_path"`
-	Output              string              `json:"output"`
-	PolicyDigest        string              `json:"policy_digest,omitempty"`
-	Supersedes          string              `json:"supersedes,omitempty"`
+	Resumes             string `json:"resumes,omitempty"`
+	// HandsOffFrom names the run this one continues with another agent, and
+	// HandoffDigest the section its brief added (spec
+	// pose-delegation-handoff R4, R5).
+	HandsOffFrom     string              `json:"hands_off_from,omitempty"`
+	HandoffDigest    string              `json:"handoff_digest,omitempty"`
+	Interruption     *ReviewInterruption `json:"interruption,omitempty"`
+	SessionDigest    string              `json:"session_digest,omitempty"`
+	TreeDigest       string              `json:"tree_digest,omitempty"`
+	BriefNotes       string              `json:"brief_notes,omitempty"`
+	PartialDigest    string              `json:"partial_digest,omitempty"`
+	LimitOf          string              `json:"limit_of,omitempty"`
+	LedgerVersion    int                 `json:"ledger_version,omitempty"`
+	AttemptID        string              `json:"attempt_id,omitempty"`
+	Reason           string              `json:"reason,omitempty"`
+	SchemaVersion    int                 `json:"schema_version"`
+	RunID            string              `json:"run_id"`
+	Scope            string              `json:"scope"`
+	BundleID         string              `json:"bundle_id"`
+	BundleDigest     string              `json:"bundle_digest"`
+	SealedCommit     string              `json:"sealed_commit"`
+	Kind             string              `json:"kind"`
+	BriefDigest      string              `json:"brief_digest"`
+	Adapter          string              `json:"adapter"`
+	Vendor           string              `json:"vendor"`
+	Model            string              `json:"model"`
+	StartedAt        string              `json:"started_at"`
+	EndedAt          string              `json:"ended_at"`
+	ExitCode         int                 `json:"exit_code"`
+	Status           string              `json:"status"`
+	Failure          string              `json:"failure,omitempty"`
+	TranscriptDigest string              `json:"transcript_digest"`
+	TranscriptPath   string              `json:"transcript_path"`
+	Output           string              `json:"output"`
+	PolicyDigest     string              `json:"policy_digest,omitempty"`
+	Supersedes       string              `json:"supersedes,omitempty"`
 	// Label, Purpose and Lead are given by pose delegate; EnvRemoved names the
 	// parent session variables the child did not receive (never their values);
 	// Events and EventsDigest bind the normalized event stream kept beside
@@ -290,9 +295,12 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 				}
 				checked[run.BundleID] = attempts
 			}
+			// The reservation names the attempt's first agent; a continuation's
+			// agent is checked against its own predecessor by the continuation
+			// chain (a resume keeps it, a handoff changes it).
 			found := false
 			for _, a := range attempts {
-				if a.AttemptID == run.AttemptID && a.BundleDigest == run.BundleDigest && a.Scope == run.Scope && a.Adapter == run.Adapter && a.Reason == run.Reason {
+				if a.AttemptID == run.AttemptID && a.BundleDigest == run.BundleDigest && a.Scope == run.Scope && (a.Adapter == run.Adapter || run.continues() != "") && a.Reason == run.Reason {
 					found = true
 					break
 				}
@@ -326,19 +334,23 @@ type DispatchPlan struct {
 	PendingContinuation *PendingReviewContinuation
 	processTimeout      time.Duration
 	predecessor         *ReviewRun
-	session             string
-	notes               string
-	Existing            *ReviewRun
-	LimitOf             string
-	Reason              string
-	PolicyDigest        string
-	OriginWorktree      string
-	Adapter             string
-	Config              ReviewerAdapter
-	Brief               ReviewBrief
-	Bundle              ReviewBundle
-	SealedCommit        string
-	PriorRuns           int
+	// handoff makes the continuation another agent's, with handoffSection
+	// appended to the brief (spec pose-delegation-handoff).
+	handoff        bool
+	handoffSection string
+	session        string
+	notes          string
+	Existing       *ReviewRun
+	LimitOf        string
+	Reason         string
+	PolicyDigest   string
+	OriginWorktree string
+	Adapter        string
+	Config         ReviewerAdapter
+	Brief          ReviewBrief
+	Bundle         ReviewBundle
+	SealedCommit   string
+	PriorRuns      int
 	// Effort is the requested effort level; "" means the agent's default.
 	Effort string
 	// Label, Purpose and Lead are recorded on the run (pose delegate).
@@ -369,6 +381,15 @@ func (p DispatchPlan) Implementation() ReviewBundleImplementation {
 		return *p.implementation
 	}
 	return ReviewBundleImplementation{Vendor: ImplementationUnknown, Model: ImplementationUnknown, Source: ImplementationDetected}
+}
+
+// replanContinuation plans a continuation again at execution, as a resume or
+// as a handoff to the same agent.
+func (s Store) replanContinuation(plan DispatchPlan) (DispatchPlan, error) {
+	if plan.handoff {
+		return s.PlanReviewHandoff(plan.predecessor.RunID, plan.Adapter)
+	}
+	return s.PlanReviewResume(plan.predecessor.RunID)
 }
 
 // PlanImplementationWithLead reads the plan's implementation again with the
@@ -472,8 +493,8 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string, reason ..
 	}
 	continued := map[string]bool{}
 	for _, r := range runs {
-		if r.Resumes != "" {
-			continued[r.Resumes] = true
+		if r.continues() != "" {
+			continued[r.continues()] = true
 		}
 	}
 	for _, prior := range runs {
@@ -525,7 +546,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		if plan.predecessor == nil {
 			return ReviewRun{}, fmt.Errorf("existing continuation lacks predecessor")
 		}
-		fresh, err := s.PlanReviewResume(plan.predecessor.RunID)
+		fresh, err := s.replanContinuation(plan)
 		if err != nil {
 			return ReviewRun{}, err
 		}
@@ -613,7 +634,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		run.AttemptID, run.Reason = attempt.AttemptID, attempt.Reason
 	} else {
 		// Re-plan at execution, before the exclusive predecessor claim.
-		fresh, err := s.PlanReviewResume(plan.predecessor.RunID)
+		fresh, err := s.replanContinuation(plan)
 		if err != nil {
 			return ReviewRun{}, err
 		}
@@ -625,7 +646,12 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		}
 		plan = fresh
 		run.Provenance = fresh.provenance
-		run.AttemptID, run.Reason, run.Resumes = fresh.predecessor.AttemptID, fresh.predecessor.Reason, fresh.predecessor.RunID
+		run.AttemptID, run.Reason = fresh.predecessor.AttemptID, fresh.predecessor.Reason
+		if fresh.handoff {
+			run.HandsOffFrom, run.HandoffDigest = fresh.predecessor.RunID, digestBytes([]byte(fresh.handoffSection))
+		} else {
+			run.Resumes = fresh.predecessor.RunID
+		}
 		run.TreeDigest = fresh.predecessor.TreeDigest
 		// A continuation is the same task: it keeps the predecessor's name and purpose.
 		run.Label, run.Purpose, run.Lead = fresh.predecessor.Label, fresh.predecessor.Purpose, fresh.predecessor.Lead
@@ -750,13 +776,13 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	if err != nil {
 		return finish(ReviewRunFailed, err.Error())
 	}
-	if plan.predecessor != nil && digestBytes(rawTree) != plan.predecessor.TreeDigest {
+	if plan.predecessor != nil && (!plan.handoff || plan.predecessor.TreeDigest != "") && digestBytes(rawTree) != plan.predecessor.TreeDigest {
 		return finish(ReviewRunFailed, "recreated worktree tree digest differs")
 	}
 	run.TreeDigest = digestBytes(rawTree)
 	outputFile := filepath.Join(tmp, "output.txt")
 	command := plan.Config.Command
-	if plan.predecessor != nil {
+	if plan.predecessor != nil && !plan.handoff {
 		command = plan.Config.Resume.Command
 	}
 	argv := ReviewerArgv(command, outputFile, plan.session, plan.Effort, plan.Config.Effort)
@@ -1045,7 +1071,17 @@ func (s Store) checkDispatchOrigin(plan DispatchPlan) error {
 	if plan.SealedCommit != plan.Bundle.Payload.Subject.Head || plan.Brief.BundleID != plan.Bundle.BundleID || plan.Brief.BundleDigest != plan.Bundle.BundleDigest {
 		return fmt.Errorf("dispatch input conflict: plan does not identify its sealed bundle")
 	}
-	body, ok := strings.CutSuffix(plan.Brief.Text, "\n<!-- brief-digest: "+plan.Brief.Digest+" -->\n")
+	// A handoff brief is the generated brief followed by its section; the
+	// generated part keeps its own digest (spec pose-delegation-handoff R4).
+	text := plan.Brief.Text
+	if plan.handoff {
+		generated, ok := strings.CutSuffix(text, plan.handoffSection)
+		if !ok || plan.handoffSection == "" {
+			return fmt.Errorf("dispatch input conflict: handoff section changed")
+		}
+		text = generated
+	}
+	body, ok := strings.CutSuffix(text, "\n<!-- brief-digest: "+plan.Brief.Digest+" -->\n")
 	if !ok || digestBytes([]byte(body)) != plan.Brief.Digest {
 		return fmt.Errorf("dispatch input conflict: brief digest changed")
 	}

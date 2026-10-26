@@ -46,7 +46,7 @@ func TestDelegateTreeParsesAndRefusesAsSpecified(t *testing.T) {
 	if code, _, _ := runPoseSplit(t, root, "delegate", "reveiw", "spec:alpha"); code != 2 {
 		t.Fatalf("an unknown subcommand exits 2, got %d", code)
 	}
-	for sub, spec := range map[string]string{"handoff": "pose-delegation-handoff", "task": "pose-delegation-task"} {
+	for sub, spec := range map[string]string{"task": "pose-delegation-task"} {
 		if code, _, errOut := runPoseSplit(t, root, "delegate", sub, "x"); code != 2 || !strings.Contains(errOut, spec) {
 			t.Fatalf("%s: %d %s", sub, code, errOut)
 		}
@@ -439,8 +439,8 @@ func TestDelegateCommonFlagsEverywhere(t *testing.T) {
 func TestDelegateMessagesFollowTheLocale(t *testing.T) {
 	root := dispatchInstance(t)
 	t.Setenv("POSE_LOCALE", "pt-BR")
-	if code, _, errOut := runPoseSplit(t, root, "delegate", "handoff", "x"); code != 2 || !strings.Contains(errOut, "ainda não está disponível") {
-		t.Fatalf("handoff: %d %s", code, errOut)
+	if code, _, errOut := runPoseSplit(t, root, "delegate", "task", "x"); code != 2 || !strings.Contains(errOut, "ainda não está disponível") {
+		t.Fatalf("task: %d %s", code, errOut)
 	}
 	if code, _, errOut := runPoseSplit(t, root, "delegate", "ls", "--bogus"); code != 2 || !strings.Contains(errOut, "flag desconhecida") {
 		t.Fatalf("flag: %d %s", code, errOut)

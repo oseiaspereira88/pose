@@ -206,7 +206,7 @@ func (s Store) prepareRunProvenance(plan DispatchPlan, policy ReviewersPolicy) (
 	}
 	raw, _ := json.Marshal(plan.Config)
 	command := plan.Config.Command
-	if plan.predecessor != nil {
+	if plan.predecessor != nil && !plan.handoff {
 		command = plan.Config.Resume.Command
 	}
 	argv, _ := json.Marshal(command)
@@ -435,6 +435,20 @@ func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time
 		return fail("origin worktree identity differs")
 	}
 	brief, e := s.RenderReviewBrief(run.BundleID, run.Kind, run.BriefNotes)
+	// A handoff run was sent the brief and the section its predecessor's
+	// record yields; the verifier derives the same bytes (spec
+	// pose-delegation-handoff R4).
+	if e == nil && run.HandsOffFrom != "" {
+		prior, priorErr := s.LoadProvenanceReviewRun(run.HandsOffFrom)
+		if priorErr != nil {
+			return fail("the handoff predecessor cannot be read")
+		}
+		section := s.handoffSectionFor(prior)
+		if digestBytes([]byte(section)) != run.HandoffDigest {
+			return fail("handoff section differs from the predecessor's record")
+		}
+		brief.Text += section
+	}
 	if e != nil || brief.Digest != run.BriefDigest || p.PlannedWireDigest != digestBytes([]byte(brief.Text)) || p.TemplateVersion != brief.TemplateVersion || p.NotesDigest != digestBytes([]byte(run.BriefNotes)) {
 		return fail("brief/template/notes/transmitted bytes differ")
 	}
@@ -582,12 +596,12 @@ func (s Store) provenanceAttemptLineage(run ReviewRun, runs []ReviewRun) error {
 	}
 	current := run
 	seen := map[string]bool{}
-	for current.Resumes != "" {
+	for current.continues() != "" {
 		if seen[current.RunID] {
 			return fmt.Errorf("cyclic provenance continuation")
 		}
 		seen[current.RunID] = true
-		parent, ok := byID[current.Resumes]
+		parent, ok := byID[current.continues()]
 		if !ok || parent.AttemptID != run.AttemptID {
 			return fmt.Errorf("provenance predecessor missing or foreign")
 		}
