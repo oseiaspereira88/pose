@@ -1,8 +1,8 @@
 ---
 slug: pose-delegated-review-run-provenance
-status: in-progress
+status: done
 created_at: 2026-10-09
-completed_at:
+completed_at: 2026-10-26
 supersedes:
 depends_on: pose-delegated-review-dispatch, pose-native-attestation-issuer, pose-action-answers-reverify-on-read, pose-review-disclosure-requires-proof, pose-historical-trust-and-review-reuse, pose-delegated-review-attempt-ledger
 priority: 2
@@ -142,7 +142,7 @@ Adversarial tests: a prefix-only reviewer is refused under the capability; a run
 
 ### Delivered scope
 
-Implemented immutable native-signed run proofs, exact attestation references, current vendor/model independence verification, live opt-in proof bar and shared machine-attested assurance across domain/CLI/MCP/Attention. Canonical validation, independent native review and closeout remain the delivery authority; see report `2026-10-25-b17-run-provenance.md`.
+Implemented immutable native-signed run proofs, exact attestation references, current vendor/model independence verification, live opt-in proof bar and shared machine-attested assurance across domain/CLI/MCP/Attention. Native close completed on 2026-10-26 UTC after 155/155 canonical checks, artifact reconciliation (34/34), composition with zero findings, and approved attestation `rva-2c52945f6501f69f` on bundle `rvb-4029013ccaacc1c0`. See report `2026-10-25-b17-run-provenance.md`.
 
 ### Residual risks
 
