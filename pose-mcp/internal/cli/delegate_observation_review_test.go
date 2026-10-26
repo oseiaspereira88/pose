@@ -125,3 +125,24 @@ func TestADetachedRunThatCannotHandBackDoesNotRun(t *testing.T) {
 		t.Fatalf("a run that could not hand back: %+v %s", runs, out)
 	}
 }
+
+// N02 of the third review: a detached run starts where the caller stands, so
+// a relative --note-file is the caller's file.
+func TestADetachedRunReadsTheCallersFiles(t *testing.T) {
+	root := dispatchInstance(t)
+	writeDelegation(t, root, slowApprovingAgent)
+	sub := filepath.Join(root, "sub")
+	os.MkdirAll(sub, 0o755)
+	os.WriteFile(filepath.Join(root, "notes.md"), []byte("decoy at the root\n"), 0o644)
+	os.WriteFile(filepath.Join(sub, "notes.md"), []byte("notes of the caller\n"), 0o644)
+	code, out := runBuilt(t, sub, "delegate", "review", "spec:alpha", "--note-file", "notes.md", "--detach", "--json")
+	var detached struct{ Attempt string }
+	if code != 0 || json.Unmarshal([]byte(out), &detached) != nil {
+		t.Fatalf("detach from a subdirectory: %d %s", code, out)
+	}
+	runBuilt(t, root, "delegate", "wait", detached.Attempt)
+	runs, _ := posemodel.Store{Root: root}.ListReviewRuns("")
+	if len(runs) != 1 || !strings.Contains(runs[0].BriefNotes, "notes of the caller") {
+		t.Fatalf("the detached run read another file: %+v", runs)
+	}
+}

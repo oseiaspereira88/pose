@@ -99,7 +99,12 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 	}
 	defer logFile.Close()
 	cmd := exec.Command(self, child...)
+	// The run starts where the caller stands, so a relative --note-file or
+	// scope reads what the caller meant.
 	cmd.Dir = root
+	if wd, err := os.Getwd(); err == nil {
+		cmd.Dir = wd
+	}
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = nil, logFile, logFile
 	cmd.Env = append(os.Environ(), delegateHandback+"="+handback)
 	detachProcess(cmd)
@@ -138,7 +143,7 @@ wait:
 		if len(tail) > 2048 {
 			tail = tail[len(tail)-2048:]
 		}
-		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the detached run ended before reserving its attempt; its log ("+rel+") ends with:\n", "o run destacado terminou antes de reservar a tentativa; o log ("+rel+") termina com:\n")+strings.TrimSpace(string(tail))))
+		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the detached run ended without handing back its attempt (an attempt it reserved is listed by pose delegate ls); its log ("+rel+") ends with:\n", "o run destacado terminou sem devolver a tentativa (uma tentativa que ele reservou aparece em pose delegate ls); o log ("+rel+") termina com:\n")+strings.TrimSpace(string(tail))))
 	}
 	if f.jsonOut {
 		writeDelegateJSON(stdout, map[string]any{"schema": delegateDetachSchema, "attempt": attempt, "supervisor_pid": pid, "log": rel,

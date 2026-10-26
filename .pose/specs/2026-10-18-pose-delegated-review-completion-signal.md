@@ -124,7 +124,8 @@ Supervisor, run record heartbeat and terminal marker, `pose delegate wait`, `ls`
 - [x] `on_terminal` hook under containment
 - [x] First independent review: changes requested (B01–B09; F01–F04), B01–B09 and F02–F04 addressed with regression tests that fail on 2e015c4; F01 (redacted live events a failed capture later withholds) stays a disclosed follow-up of D7
 - [x] Second independent review: B01–B07, B09 and F02–F04 accepted as fixed and the exact gitleaks entry accepted; B08 partial and the new follow-up N01 addressed with regression tests that fail on 939c5ab; F01 stays disclosed under D7
-- [ ] Third independent review and closeout
+- [x] Third independent review (Claude Sonnet 5.5, same vendor, another model): B08 and N01 accepted as fixed; the new blocker N02 and the follow-ups F-R3-01, F-R3-03, F-R3-04, F-R3-06, F-R3-08 and F-R3-10 addressed, with regression tests that fail on 9377ac7 where the behaviour is testable; F01, F-R3-02, F-R3-05, F-R3-07 and F-R3-09 stay follow-ups for the closeout
+- [ ] Fourth independent review and closeout
 
 ## 5. Decisions
 

@@ -206,6 +206,10 @@ type watchPrinter struct {
 func (w *watchPrinter) follow(store posemodel.Store, attempt posemodel.DelegationAttempt) int {
 	shown := map[string]bool{}
 	w.replay(store, attempt, shown)
+	if attempt.State == posemodel.DelegationStalled {
+		w.marker("■", tr("stalled: its process is gone and left no record (since ", "travado: o processo não existe mais e não deixou registro (desde ")+attempt.StalledAt+")", cliout.ToneBad, map[string]any{"attempt": attempt.AttemptID, "status": posemodel.DelegationStalled})
+		return 0
+	}
 	if !attempt.Active || w.f.noFollow {
 		if attempt.Active {
 			w.live(store, attempt, 0)
@@ -299,6 +303,7 @@ func (w *watchPrinter) replay(store posemodel.Store, attempt posemodel.Delegatio
 func (w *watchPrinter) live(store posemodel.Store, attempt posemodel.DelegationAttempt, offset int64) int64 {
 	events, next, err := store.ReadDelegationLiveEvents(attempt.AttemptID, offset)
 	if err != nil {
+		w.lose([]string{"the live events of attempt " + attempt.AttemptID + " could not be read: " + err.Error()})
 		return offset
 	}
 	for _, e := range events {

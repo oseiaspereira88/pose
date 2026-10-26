@@ -143,3 +143,26 @@ func TestAnUnrecordedHookOutcomeIsReported(t *testing.T) {
 		t.Fatalf("an unrecorded outcome: %+v", outcome)
 	}
 }
+
+// F-R3-01 and F-R3-06 of the third review: a hook still within its bound is
+// not reported as lost, and a relative hook command names a file of the
+// project.
+func TestHookBoundAndRelativeCommand(t *testing.T) {
+	s := Store{Root: t.TempDir()}
+	dir, err := s.delegationHookDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.WriteFile(filepath.Join(dir, "rrn-aaaaaaaaaaaaaaaa.claim"), []byte(time.Now().UTC().Format(time.RFC3339Nano)+"\n"), 0o600)
+	if outcome := s.ReadDelegationHook("rrn-aaaaaaaaaaaaaaaa"); outcome != nil {
+		t.Fatalf("a hook within its bound read as lost: %+v", outcome)
+	}
+	os.MkdirAll(filepath.Join(s.Root, filepath.FromSlash(reviewRunsDir)), 0o755)
+	os.MkdirAll(filepath.Join(s.Root, ".pose", "policy"), 0o755)
+	os.WriteFile(filepath.Join(s.Root, "hook.sh"), []byte("#!/bin/sh\necho ran > relative-hook.txt\n"), 0o755)
+	os.WriteFile(filepath.Join(s.Root, filepath.FromSlash(delegationPolicyPath)), []byte(`{"schema_version":2,"agents":{"a":{"vendor":"v","model":"m","commands":{"read":["sh"]},"on_terminal":{"command":["./hook.sh"]}}}}`), 0o644)
+	outcome := s.RunDelegationTerminalHook(ReviewRun{RunID: "rrn-bbbbbbbbbbbbbbbb", Adapter: "a", Status: ReviewRunCompleted})
+	if outcome == nil || outcome.Failure != "" {
+		t.Fatalf("a relative hook: %+v", outcome)
+	}
+}

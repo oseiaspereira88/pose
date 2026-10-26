@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -65,7 +66,13 @@ func (s Store) RunDelegationTerminalHook(run ReviewRun) *DelegationHookOutcome {
 			bound = d
 		}
 	}
-	executable, err := exec.LookPath(hook.Command[0])
+	// A relative path names a file of the project, not of the run directory
+	// the hook works in.
+	program := hook.Command[0]
+	if strings.ContainsAny(program, `/\`) && !filepath.IsAbs(program) {
+		program = filepath.Join(s.Root, filepath.FromSlash(program))
+	}
+	executable, err := exec.LookPath(program)
 	if err != nil {
 		outcome.Failure = "the hook's command is not found: " + err.Error()
 		s.recordDelegationHook(*outcome)
@@ -124,7 +131,11 @@ func (s Store) ReadDelegationHook(runID string) *DelegationHookOutcome {
 	if err != nil {
 		// Claimed but never recorded: the hook started and its outcome was
 		// lost, which is said rather than read as no hook at all.
-		if _, claimErr := readLedgerRaw(filepath.Join(dir, runID+".claim")); claimErr == nil {
+		if claim, claimErr := readLedgerRaw(filepath.Join(dir, runID+".claim")); claimErr == nil {
+			// A hook within its longest bound may still be running.
+			if at, err := time.Parse(time.RFC3339Nano, strings.TrimSpace(string(claim))); err == nil && time.Since(at) < delegationHookMaxBound+time.Minute {
+				return nil
+			}
 			return &DelegationHookOutcome{SchemaVersion: 1, RunID: runID, ExitCode: -1, Failure: "the hook was started but its outcome was not recorded"}
 		}
 		return nil

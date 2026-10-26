@@ -32,6 +32,10 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	code := m.Run()
+	// The pose command the detach tests built is removed with the run.
+	if builtPose != "" {
+		_ = os.RemoveAll(filepath.Dir(builtPose))
+	}
 	cleanup()
 	os.Exit(code)
 }
