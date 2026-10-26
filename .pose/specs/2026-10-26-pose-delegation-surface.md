@@ -82,6 +82,9 @@ CLI command tree and help catalog, dispatch front end, policy loader and migrati
 - created: pose-mcp/internal/pose/delegation_events.go
 - created: pose-mcp/internal/pose/delegation_events_test.go
 - created: pose-mcp/internal/pose/delegation_active.go
+- created: pose-mcp/internal/pose/delegation_active_test.go
+- modified: pose-mcp/internal/pose/obligation_projection.go
+- modified: pose-mcp/internal/pose/review_bundle.go
 - created: pose-mcp/internal/pose/delegation_list.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
 - modified: pose-mcp/internal/pose/review_run_continuity.go
@@ -118,7 +121,8 @@ New command tree `pose delegate`; `delegation.json` schema 2; normalized event s
 - [x] Environment removal and event normalization
 - [x] `ls`, `cancel`, `agents`, run references, `--dry-run`, `--json`
 - [x] Aliases with deprecation notice
-- [ ] Independent review and closeout
+- [x] First independent review: changes requested (B01–B10, F01–F03), all addressed with regression tests that fail on the reviewed commit
+- [ ] Second independent review and closeout
 
 ## 5. Decisions
 
@@ -141,10 +145,10 @@ New command tree `pose delegate`; `delegation.json` schema 2; normalized event s
 ### Decision D3
 - Basis: R13
 - Minimal option: signal the running `pose` process (SIGTERM) and classify like any termination
-- Selected option: a private marker per running attempt, naming its process as a start lock does, and a cancellation request file the running process watches; the run is stopped through its own context
+- Selected option: a private marker per running attempt, naming its process as a start lock does and carrying a random token for this run, and a cancellation request file named by attempt and token that the running process watches; the run is stopped through its own context, and a request whose run ended is withdrawn
 - Rationale: a signal reads as an interruption and the delivered continuity records it `interrupted` and resumable, which a deliberate cancel is not; a file request works the same on every platform and leaves an accidental Ctrl-C resumable as before
 - Consequences: `.pose/review-private/active/` holds runtime markers; a marker whose owner is proven dead is reported, never cancelled
-- Falsifier: a cancelled run recorded `interrupted`, or a run stopped by a request meant for another attempt
+- Falsifier: a cancelled run recorded `interrupted`, or a run stopped by a request meant for another attempt or for another run of the same attempt
 
 ### Decision D4
 - Basis: R6, R7 and the security rule on placeholders
@@ -170,6 +174,22 @@ New command tree `pose delegate`; `delegation.json` schema 2; normalized event s
 - Consequences: a stream that carries no final message keeps the delivered behaviour
 - Falsifier: a streaming run whose recorded draft is not the agent's final message
 
+### Decision D7
+- Basis: R7
+- Minimal option: convert in place and let earlier runs go stale, as any policy change makes them
+- Selected option: archive the converted `reviewers.json` outside `.pose/policy` and name it in `migrated_from`; a run recorded before the conversion keeps its policy baseline when the directory, with the archived file in the place of `delegation.json`, reproduces the recorded digest and `delegation.json` is exactly the conversion of that archive
+- Rationale: the conversion changes the policy's form, not its meaning, and R7 promises that recorded runs keep verifying; the baseline of every run is the digest of the whole policy directory, which the conversion necessarily changes. Found by the first independent review (B01)
+- Consequences: instances that converted carry one archived file; editing `delegation.json` after the conversion ends the inherited baseline, as any policy change does
+- Falsifier: a run recorded before the conversion that stops governing after `pose update`, or one that keeps governing after `delegation.json` is edited
+
+### Decision D8
+- Basis: R2
+- Minimal option: each subcommand takes only the flags it acts on
+- Selected option: every subcommand takes the six common flags; where a command starts a run they set it, where it names or lists runs or agents they select, and a run that does not match a selecting flag is refused when named; `--dry-run` changes nothing anywhere
+- Rationale: R2 gives the flags one meaning across the tree, so a person or an agent can add `--agent` or `--label` to any command without learning which accept it. Found by the first independent review (B07)
+- Consequences: `resume --agent other` is refused rather than reinterpreted; changing agent is `handoff` (`pose-delegation-handoff`)
+- Falsifier: a common flag refused as inapplicable by a subcommand, or one that sets on one command and is ignored on another
+
 ## 6. Validation
 
 ### Strategy
@@ -178,20 +198,20 @@ Each subcommand parses and rejects as specified; a review run through `pose dele
 
 ### Requirement trace
 
-- R1 [satisfied] check:delegation-surface-integration test:TestDelegateTreeParsesAndRefusesAsSpecified
-- R2 [satisfied] check:delegation-surface-integration test:TestDelegateTreeParsesAndRefusesAsSpecified test:TestDelegateAutoAgentAndDryRun
+- R1 [satisfied] check:delegation-surface-integration test:TestDelegateTreeParsesAndRefusesAsSpecified test:TestDelegateMessagesFollowTheLocale
+- R2 [satisfied] check:delegation-surface-integration test:TestDelegateTreeParsesAndRefusesAsSpecified test:TestDelegateAutoAgentAndDryRun test:TestDelegateCommonFlagsEverywhere
 - R3 [satisfied] check:delegation-surface-integration test:TestDelegateTreeParsesAndRefusesAsSpecified test:TestReviewDispatchRunsAndRecordsAdapters
 - R4 [satisfied] check:delegation-surface-integration test:TestDelegateAutoAgentAndDryRun
 - R5 [satisfied] check:delegation-surface-integration test:TestDelegateReviewRecordsWhatTheAliasRecords
-- R6 [satisfied] check:delegation-surface-integration test:TestDelegationPolicyProjectsPerPurposeBudgets test:TestDelegationPolicyRefusesWhatItCannotStateSafely
-- R7 [satisfied] check:delegation-surface-integration test:TestDelegationMigrationProjectsTheSameAdapters test:TestDelegationMigrationIsDeterministic test:TestDelegationMigrationKeepsUnsharedBudgetsPerAgent test:TestDelegationPolicyFilesAreExclusive test:TestUpdateConvertsTheReviewersPolicy test:TestUpdateKeepsAReviewersPolicyItCannotConvertSafely
+- R6 [satisfied] check:delegation-surface-integration test:TestDelegationPolicyProjectsPerPurposeBudgets test:TestDelegationPolicyRefusesWhatItCannotStateSafely test:TestDelegationPolicyRefusesExplicitZeroNullAndTrailingData test:TestDelegationResumeCommandKeepsPlaceholdersWhole
+- R7 [satisfied] check:delegation-surface-integration test:TestDelegationMigrationProjectsTheSameAdapters test:TestDelegationMigrationIsDeterministic test:TestDelegationMigrationKeepsUnsharedBudgetsPerAgent test:TestDelegationPolicyFilesAreExclusive test:TestUpdateConvertsTheReviewersPolicy test:TestUpdateKeepsAReviewersPolicyItCannotConvertSafely test:TestDelegationMigrationKeepsThePolicyBaselineOfEarlierRuns test:TestDelegateRunsRecordedBeforeTheConversionKeepGoverning
 - R8 [satisfied] check:delegation-surface-integration test:TestDelegateChildReceivesNoParentSession
-- R9 [satisfied] capability:delegation-surface evidence:integration check:delegation-surface-integration test:TestDelegationEventsAreTheSameForBothVendors test:TestDelegationEventsReportUsageLimits test:TestDelegationEventsArePlainAndBounded test:TestDelegationEventsAreBoundToTheRecord test:TestDelegateListsAndNamesRuns
+- R9 [satisfied] capability:delegation-surface evidence:integration check:delegation-surface-integration test:TestDelegationEventsAreTheSameForBothVendors test:TestDelegationEventsReportUsageLimits test:TestDelegationEventsArePlainAndBounded test:TestDelegationEventsAreBoundToTheRecord test:TestDelegationEventsRedactDecodedValues test:TestDelegationEventsKeepRunesAndLongLines test:TestDelegateListsAndNamesRuns
 - R10 [satisfied] check:delegation-surface-integration test:TestDelegateTreeParsesAndRefusesAsSpecified test:TestDelegateReviewRecordsWhatTheAliasRecords test:TestDelegateAgentsShowsAvailability
-- R11 [satisfied] check:delegation-surface-integration test:TestDelegateListsAndNamesRuns
-- R12 [satisfied] check:delegation-surface-integration test:TestDelegateAutoAgentAndDryRun
-- R13 [satisfied] check:delegation-surface-integration test:TestDelegateCancelRecordsAFailedCancelledRun
-- R14 [satisfied] check:delegation-surface-integration test:TestDelegateAgentsShowsAvailability
+- R11 [satisfied] check:delegation-surface-integration test:TestDelegateListsAndNamesRuns test:TestDelegateResumeIsIdempotent
+- R12 [satisfied] check:delegation-surface-integration test:TestDelegateAutoAgentAndDryRun test:TestDelegateResumeIsIdempotent
+- R13 [satisfied] check:delegation-surface-integration test:TestDelegateCancelRecordsAFailedCancelledRun test:TestDelegationCancelNamesOneRun
+- R14 [satisfied] check:delegation-surface-integration test:TestDelegateAgentsShowsAvailability test:TestDelegateAgentsShowsTheLastLimit
 
 ## 7. Final Report
 

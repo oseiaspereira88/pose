@@ -848,18 +848,68 @@ func directoryDigestIn(files Files, dir string) string {
 	if walkErr != nil {
 		return directoryUnavailable
 	}
-	sort.Strings(names)
-	h := sha256.New()
+	contents := map[string][]byte{}
 	for _, name := range names {
 		raw, err := files.ReadFile(filepath.Join(dir, filepath.FromSlash(name)))
 		if err != nil {
 			return directoryUnavailable
 		}
+		contents[name] = raw
+	}
+	return digestDirectoryContents(contents)
+}
+
+func digestDirectoryContents(contents map[string][]byte) string {
+	names := make([]string, 0, len(contents))
+	for name := range contents {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	h := sha256.New()
+	for _, name := range names {
+		raw := contents[name]
 		// Length-prefixed: a name and a content cannot be read as other names and contents.
 		fmt.Fprintf(h, "%d:%s%d:", len(name), name, len(raw))
 		h.Write(raw)
 	}
 	return "sha256:" + hex.EncodeToString(h.Sum(nil))
+}
+
+// directoryDigestReplacing is directoryDigestIn of dir with the regular file
+// drop taken out and a file add holding raw put in, as the directory read
+// before a conversion replaced one by the other.
+func directoryDigestReplacing(files Files, dir, drop, add string, raw []byte) string {
+	contents := map[string][]byte{}
+	walkErr := WalkDirIn(files, dir, func(p string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		switch {
+		case p == dir || d.IsDir():
+			return nil
+		case d.Type().IsRegular():
+			rel, rerr := filepath.Rel(dir, p)
+			if rerr != nil {
+				return rerr
+			}
+			data, rerr := files.ReadFile(p)
+			contents[filepath.ToSlash(rel)] = data
+			return rerr
+		}
+		return errors.New("not a regular file: " + p)
+	})
+	if walkErr != nil {
+		return directoryUnavailable
+	}
+	if _, ok := contents[drop]; !ok {
+		return directoryUnavailable
+	}
+	if _, ok := contents[add]; ok {
+		return directoryUnavailable
+	}
+	delete(contents, drop)
+	contents[add] = raw
+	return digestDirectoryContents(contents)
 }
 
 // directoryDigest reads the filesystem directly; directoryDigestIn reads the operation's files.

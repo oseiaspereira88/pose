@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -353,5 +354,160 @@ func TestUpdateKeepsAReviewersPolicyItCannotConvertSafely(t *testing.T) {
 	}
 	if policy, found, err := (posemodel.Store{Root: repo}).LoadReviewersPolicyFor("review"); err != nil || !found || len(policy.Adapters) != 1 {
 		t.Fatalf("the legacy policy no longer reads: %v %v", found, err)
+	}
+}
+
+// A reviewer that stops on a declared limit, publishes its session, and
+// approves when resumed. Placeholders stay whole argv elements.
+const resumableAgent = `"resumer": {"vendor": "test", "model": "r-1",
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; echo 'session: sess-abcdef123'; echo 'LIMIT reset: 2099-01-01T00:00:00Z'; exit 75"]},
+      "limit": {"exit_codes": [75], "reset_pattern": "reset: (\\S+)"},
+      "session": {"pattern": "session: (\\S+)"},
+      "resume": {"command": ["sh", "-c", "cat >/dev/null; echo resumed $0; echo decision: approved", "{session}"], "max_resumes": 2}}`
+
+// B05 of the first review: resuming is idempotent as the delivered
+// continuity is; the same reference returns the recorded continuation.
+// B08: the text preview names purpose, access and working directory.
+func TestDelegateResumeIsIdempotent(t *testing.T) {
+	root := dispatchInstance(t)
+	writeDelegation(t, root, delegationPolicy(resumableAgent))
+	if code, out, errOut := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--label", "stopper"); code != 1 || !strings.Contains(out, "interrupted") {
+		t.Fatalf("first run: %d %s %s", code, out, errOut)
+	}
+	runs, _ := posemodel.Store{Root: root}.ListReviewRuns("")
+	original := runs[0].RunID
+	code, out, _ := runPoseSplit(t, root, "delegate", "resume", "stopper", "--dry-run")
+	for _, want := range []string{"delegate.purpose=review", "delegate.access=read", "delegate.workdir=", "delegate.resumes=" + original} {
+		if code != 0 || !strings.Contains(out, want) {
+			t.Fatalf("the preview lacks %s: %d %s", want, code, out)
+		}
+	}
+	code, out, errOut := runPoseSplit(t, root, "delegate", "resume", "stopper", "--json")
+	var first map[string]any
+	if code != 0 || json.Unmarshal([]byte(out), &first) != nil || first["status"] != "completed" || first["resumes"] != original {
+		t.Fatalf("resume: %d %s %s", code, out, errOut)
+	}
+	for _, ref := range []string{"stopper", original} {
+		code, out, _ := runPoseSplit(t, root, "delegate", "resume", ref, "--json")
+		var again map[string]any
+		if code != 0 || json.Unmarshal([]byte(out), &again) != nil || again["run"] != first["run"] {
+			t.Fatalf("resume %s again did not return the recorded continuation: %d %s", ref, code, out)
+		}
+	}
+	if runs, _ := (posemodel.Store{Root: root}).ListReviewRuns(""); len(runs) != 2 {
+		t.Fatalf("a repeated resume launched another run: %d runs", len(runs))
+	}
+}
+
+// B07 of the first review: every subcommand takes the common flags with one
+// meaning; on lifecycle commands they select runs.
+func TestDelegateCommonFlagsEverywhere(t *testing.T) {
+	root := dispatchInstance(t)
+	writeDelegation(t, root, delegationPolicy(approvingAgent))
+	if code, _, errOut := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--label", "flagged", "--lead", "anthropic"); code != 0 {
+		t.Fatalf("run: %s", errOut)
+	}
+	common := [][]string{{"--agent", "ok"}, {"--access", "read"}, {"--label", "flagged"}, {"--lead", "anthropic"}, {"--dry-run"}, {"--json"}}
+	for _, sub := range [][]string{{"ls"}, {"agents"}, {"cancel", "flagged"}, {"resume", "flagged"}} {
+		for _, flag := range common {
+			_, out, errOut := runPoseSplit(t, root, append(append([]string{"delegate"}, sub...), flag...)...)
+			if strings.Contains(out+errOut, "inapplicable flag") {
+				t.Fatalf("%v refuses %v: %s %s", sub, flag, out, errOut)
+			}
+		}
+	}
+	code, out, _ := runPoseSplit(t, root, "delegate", "ls", "--lead", "anthropic", "--agent", "ok", "--json")
+	if code != 0 || !strings.Contains(out, `"label": "flagged"`) {
+		t.Fatalf("selecting flags: %d %s", code, out)
+	}
+	if code, out, _ := runPoseSplit(t, root, "delegate", "ls", "--lead", "openai", "--json"); code != 0 || strings.Contains(out, `"flagged"`) {
+		t.Fatalf("a run of another lead was listed: %s", out)
+	}
+	if code, _, errOut := runPoseSplit(t, root, "delegate", "resume", "flagged", "--agent", "someone-else"); code != 2 || !strings.Contains(errOut, "--agent someone-else") {
+		t.Fatalf("a run that does not match was taken: %d %s", code, errOut)
+	}
+	code, out, _ = runPoseSplit(t, root, "delegate", "agents", "--lead", "test", "--json")
+	if code != 0 || !strings.Contains(out, `"independent_of_lead": false`) {
+		t.Fatalf("agents --lead: %s", out)
+	}
+}
+
+// B09 of the first review: messages follow POSE_LOCALE like the help.
+func TestDelegateMessagesFollowTheLocale(t *testing.T) {
+	root := dispatchInstance(t)
+	t.Setenv("POSE_LOCALE", "pt-BR")
+	if code, _, errOut := runPoseSplit(t, root, "delegate", "wait", "x"); code != 2 || !strings.Contains(errOut, "ainda não está disponível") {
+		t.Fatalf("wait: %d %s", code, errOut)
+	}
+	if code, _, errOut := runPoseSplit(t, root, "delegate", "ls", "--bogus"); code != 2 || !strings.Contains(errOut, "flag desconhecida") {
+		t.Fatalf("flag: %d %s", code, errOut)
+	}
+	if code, out, _ := runPoseSplit(t, root, "delegate", "ls"); code != 0 || !strings.Contains(out, "nenhum") {
+		t.Fatalf("empty listing: %d %s", code, out)
+	}
+}
+
+// B10 of the first review: agents shows the reset of the last recorded
+// limit, not the largest one ever seen. F01: ls shows the interruption.
+func TestDelegateAgentsShowsTheLastLimit(t *testing.T) {
+	root := dispatchInstance(t)
+	resetFile := filepath.Join(t.TempDir(), "reset")
+	writeDelegation(t, root, delegationPolicy(`"limited": {"vendor": "test", "model": "l-1", "cli": "sh",
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; echo \"LIMIT reset: $(cat `+resetFile+`)\"; exit 1"]},
+      "limit": {"output_patterns": ["LIMIT"], "reset_pattern": "reset: (\\S+)"}}`))
+	for i, reset := range []string{"2099-01-01T00:00:00Z", "2030-06-01T00:00:00Z"} {
+		if err := os.WriteFile(resetFile, []byte(reset), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		args := []string{"delegate", "review", "spec:alpha", "--label", fmt.Sprintf("limited-%d", i)}
+		if i > 0 {
+			args = append(args, "--reason", "after the first limit")
+		}
+		if code, out, errOut := runPoseSplit(t, root, args...); code != 1 || !strings.Contains(out, "interrupted") {
+			t.Fatalf("run %d: %d %s %s", i, code, out, errOut)
+		}
+	}
+	code, out, _ := runPoseSplit(t, root, "delegate", "agents", "--json")
+	if code != 0 || !strings.Contains(out, `"limit_reset_at": "2030-06-01T00:00:00Z"`) {
+		t.Fatalf("agents: %s", out)
+	}
+	if code, out, _ := runPoseSplit(t, root, "delegate", "ls", "limited-1"); code != 0 || !strings.Contains(out, "cause=usage-limit") || !strings.Contains(out, "reset_at=2030-06-01T00:00:00Z") || !strings.Contains(out, "time_left=") {
+		t.Fatalf("ls does not show the interruption: %d %s", code, out)
+	}
+}
+
+// B01 of the first review and D7: a run recorded under reviewers.json still
+// governs after pose update converts it, and stops governing once
+// delegation.json is edited.
+func TestDelegateRunsRecordedBeforeTheConversionKeepGoverning(t *testing.T) {
+	root := dispatchInstance(t)
+	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{
+		"ok": {Command: []string{"sh", "-c", "grep -q 'Independent review of spec:alpha' && echo decision: approved"}, Vendor: "test", Model: "ok-1", Timeout: "30s", MaxRunsPerBundle: 2},
+	})
+	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "ok", "--apply"); code != 0 {
+		t.Fatalf("run: %s", out)
+	}
+	store := posemodel.Store{Root: root}
+	runs, _ := store.ListReviewRuns("")
+	if why := store.ReviewRunStillGoverns(runs[0]); why != "" {
+		t.Fatalf("fixture: the run does not govern before the conversion: %s", why)
+	}
+	migrateDelegationPolicyIn(posemodel.NativeFiles(), root, func(string, string, ...any) {})
+	if _, err := os.Stat(filepath.Join(root, ".pose", "policy", "delegation.json")); err != nil {
+		t.Fatal("fixture: nothing was converted")
+	}
+	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(posemodel.DelegationArchivePath()))); err != nil {
+		t.Fatal("the converted file was not archived")
+	}
+	if why := store.ReviewRunStillGoverns(runs[0]); why != "" {
+		t.Fatalf("the conversion made an earlier run stale: %s", why)
+	}
+	path := filepath.Join(root, ".pose", "policy", "delegation.json")
+	raw, _ := os.ReadFile(path)
+	if err := os.WriteFile(path, []byte(strings.Replace(string(raw), `"30s"`, `"31s"`, 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if why := store.ReviewRunStillGoverns(runs[0]); !strings.Contains(why, "policy changed") {
+		t.Fatalf("an edited policy kept the earlier baseline: %q", why)
 	}
 }

@@ -12,6 +12,8 @@ package pose
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,6 +21,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -27,16 +30,19 @@ const delegationActiveDir = reviewPrivateDir + "/active"
 
 // DelegationActiveRun is the marker of a run in progress.
 type DelegationActiveRun struct {
-	SchemaVersion int            `json:"schema_version"`
-	AttemptID     string         `json:"attempt_id"`
-	Resumes       string         `json:"resumes,omitempty"`
-	Label         string         `json:"label,omitempty"`
-	Purpose       string         `json:"purpose"`
-	Agent         string         `json:"agent"`
-	Scope         string         `json:"scope"`
-	BundleID      string         `json:"bundle_id"`
-	StartedAt     string         `json:"started_at"`
-	Owner         StartLockOwner `json:"owner"`
+	SchemaVersion int    `json:"schema_version"`
+	AttemptID     string `json:"attempt_id"`
+	// RunToken names this run of the attempt: a cancellation request carries
+	// it, so a request meant for one run never stops another.
+	RunToken  string         `json:"run_token"`
+	Resumes   string         `json:"resumes,omitempty"`
+	Label     string         `json:"label,omitempty"`
+	Purpose   string         `json:"purpose"`
+	Agent     string         `json:"agent"`
+	Scope     string         `json:"scope"`
+	BundleID  string         `json:"bundle_id"`
+	StartedAt string         `json:"started_at"`
+	Owner     StartLockOwner `json:"owner"`
 	// Liveness is computed by the reader: owner-active, owner-dead or owner-unknown.
 	Liveness string `json:"liveness,omitempty"`
 	Detail   string `json:"detail,omitempty"`
@@ -79,11 +85,14 @@ func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (s
 	owner := StartLockOwner{SchemaVersion: StartLockOwnerSchemaVersion, Resource: "delegate:" + run.AttemptID, Worktree: s.Root, Operation: "pose delegate " + run.Purpose, PID: os.Getpid(), AcquiredAt: run.StartedAt}
 	owner.Host, _ = os.Hostname()
 	identifyStartLockProcess(&owner)
-	marker := DelegationActiveRun{SchemaVersion: 1, AttemptID: run.AttemptID, Resumes: run.Resumes, Label: run.Label, Purpose: run.Purpose, Agent: run.Adapter, Scope: run.Scope, BundleID: run.BundleID, StartedAt: run.StartedAt, Owner: owner}
+	token := make([]byte, 16)
+	if _, err := rand.Read(token); err != nil {
+		return func() {}, cancelled, err
+	}
+	marker := DelegationActiveRun{SchemaVersion: 1, AttemptID: run.AttemptID, RunToken: hex.EncodeToString(token), Resumes: run.Resumes, Label: run.Label, Purpose: run.Purpose, Agent: run.Adapter, Scope: run.Scope, BundleID: run.BundleID, StartedAt: run.StartedAt, Owner: owner}
 	raw, _ := json.MarshalIndent(marker, "", "  ")
 	path := filepath.Join(dir, run.AttemptID+".json")
-	request := filepath.Join(dir, run.AttemptID+".cancel")
-	_ = os.Remove(request) // a request for an earlier run of the attempt is not for this one
+	request := cancelRequestPath(dir, marker)
 	if err := PublishFile(path, append(raw, '\n'), 0600, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
 		return func() {}, cancelled, fmt.Errorf("pose: another run of attempt %s is active: %w", run.AttemptID, err)
 	}
@@ -104,12 +113,27 @@ func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (s
 			}
 		}
 	}()
+	var once sync.Once
 	stop = func() {
-		close(done)
-		_ = os.Remove(request)
-		_ = os.Remove(path)
+		once.Do(func() {
+			close(done)
+			_ = os.Remove(request)
+			_ = os.Remove(path)
+		})
 	}
 	return stop, cancelled, nil
+}
+
+func cancelRequestPath(dir string, marker DelegationActiveRun) string {
+	return filepath.Join(dir, marker.AttemptID+"."+marker.RunToken+".cancel")
+}
+
+func validRunToken(token string) bool {
+	if len(token) != 32 {
+		return false
+	}
+	_, err := hex.DecodeString(token)
+	return err == nil
 }
 
 // ListDelegationActive reads the markers with the liveness of their owners.
@@ -135,11 +159,11 @@ func (s Store) ListDelegationActive() ([]DelegationActiveRun, error) {
 			continue
 		}
 		var marker DelegationActiveRun
-		if json.Unmarshal(raw, &marker) != nil || marker.SchemaVersion != 1 || marker.AttemptID+".json" != e.Name() {
+		if json.Unmarshal(raw, &marker) != nil || marker.SchemaVersion != 1 || marker.AttemptID+".json" != e.Name() || !validRunToken(marker.RunToken) {
 			continue
 		}
 		marker.Liveness, marker.Detail = probeStartLockOwner(marker.Owner)
-		if _, err := os.Lstat(filepath.Join(dir, marker.AttemptID+".cancel")); err == nil {
+		if _, err := os.Lstat(cancelRequestPath(dir, marker)); err == nil {
 			marker.CancelRequested = true
 		}
 		out = append(out, marker)
@@ -171,11 +195,17 @@ func (s Store) RequestDelegationCancel(attempt string) (DelegationActiveRun, err
 		if err != nil {
 			return marker, err
 		}
-		request := filepath.Join(dir, attempt+".cancel")
+		request := cancelRequestPath(dir, marker)
 		if err := PublishFile(request, []byte(time.Now().UTC().Format(time.RFC3339Nano)+"\n"), 0600, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil && !errors.Is(err, os.ErrExist) {
 			if _, statErr := os.Lstat(request); statErr != nil {
 				return marker, err
 			}
+		}
+		// The run may have ended between the read and the request: a request
+		// that names no running run is withdrawn, never left for a successor.
+		if !s.DelegationRunActive(marker) {
+			_ = os.Remove(request)
+			return marker, ErrDelegationNotActive
 		}
 		marker.CancelRequested = true
 		return marker, nil
@@ -183,12 +213,17 @@ func (s Store) RequestDelegationCancel(attempt string) (DelegationActiveRun, err
 	return DelegationActiveRun{}, ErrDelegationNotActive
 }
 
-// DelegationStillActive reports whether attempt's marker is still there.
-func (s Store) DelegationStillActive(attempt string) bool {
+// DelegationRunActive reports whether the run marker names is still the
+// running run of its attempt.
+func (s Store) DelegationRunActive(marker DelegationActiveRun) bool {
 	dir, err := s.delegationActiveDir(false)
 	if err != nil {
 		return false
 	}
-	_, err = os.Lstat(filepath.Join(dir, attempt+".json"))
-	return err == nil
+	raw, err := readLedgerRaw(filepath.Join(dir, marker.AttemptID+".json"))
+	if err != nil {
+		return false
+	}
+	var now DelegationActiveRun
+	return json.Unmarshal(raw, &now) == nil && now.RunToken == marker.RunToken
 }

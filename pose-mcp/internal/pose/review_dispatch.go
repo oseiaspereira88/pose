@@ -140,6 +140,7 @@ type ReviewRun struct {
 	Safety              *ReviewExecutionSafety `json:"safety,omitempty"`
 	Provenance          *ReviewRunProvenance   `json:"provenance,omitempty"`
 	sessionForRedaction string
+	eventsBytes         []byte
 	Resumes             string              `json:"resumes,omitempty"`
 	Interruption        *ReviewInterruption `json:"interruption,omitempty"`
 	SessionDigest       string              `json:"session_digest,omitempty"`
@@ -810,12 +811,18 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	status, failure, captureErr := s.classifyReviewInterruption(&run, plan, transcript, runErr, ctx.Err())
 	if captureErr == nil {
 		var redactErr error
+		raw := transcript
 		transcript, redactErr = redactReviewCapture(transcript, secrets, run.sessionForRedaction, safety.StreamBytes)
 		var output []byte
 		if redactErr == nil {
 			output, redactErr = redactReviewCapture([]byte(run.Output), secrets, run.sessionForRedaction, safety.OutputBytes)
 		}
 		run.Output = string(output)
+		if redactErr == nil && run.Events != "" {
+			// Events are parsed from the decoded stream, where a JSON escape no longer
+			// hides a value: each text is redacted again after decoding.
+			run.eventsBytes, redactErr = redactedDelegationEvents(run.Events, raw, run.Output, secrets, run.sessionForRedaction)
+		}
 		if redactErr != nil {
 			captureErr = redactErr
 		}
@@ -874,6 +881,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		return finish(ReviewRunFailed, "origin or policy changed: "+err.Error())
 	}
 
+	events := run.eventsBytes
 	published, err := finish(ReviewRunCompleted, "")
 	if err != nil {
 		return published, err
@@ -882,6 +890,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		late := published
 		late.RunID, late.Path, late.TranscriptDigest, late.TranscriptPath = "", "", "", ""
 		late.Status, late.Failure, late.Supersedes = ReviewRunFailed, why.Error(), published.RunID
+		late.eventsBytes = events
 		late.EndedAt = now().UTC().Format(time.RFC3339Nano)
 		return s.recordReviewRun(late, transcript)
 	}
@@ -1137,9 +1146,10 @@ func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, err
 	var events []byte
 	run.EventsDigest = ""
 	if run.Events != "" {
-		events = EncodeDelegationEvents(NormalizeDelegationEvents(run.Events, transcript, run.Output))
+		events = run.eventsBytes
 		run.EventsDigest = digestBytes(events)
 	}
+	run.eventsBytes = nil // never part of the record or of a copy compared with it
 	identity, _ := json.Marshal(run)
 	idSum := sha256.Sum256(identity)
 	run.RunID = "rrn-" + hex.EncodeToString(idSum[:])[:16]
@@ -1196,7 +1206,11 @@ func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
 		return "stale: the dispatch has no readable policy baseline (" + plan.PolicyDigest + ")"
 	}
 	if now := directoryDigestIn(s.fsys(), filepath.Join(s.Root, ".pose", "policy")); now != plan.PolicyDigest {
-		return "stale: the policy changed or can no longer be read whole while the run was going (" + now + ")"
+		// A run recorded before pose update converted reviewers.json keeps its
+		// baseline while delegation.json is exactly that conversion (D7).
+		if before, ok := s.migratedPolicyBaseline(); !ok || before != plan.PolicyDigest {
+			return "stale: the policy changed or can no longer be read whole while the run was going (" + now + ")"
+		}
 	}
 	// Every sealed bundle of the scope must have been read: one that cannot be read may be
 	// the one that superseded this.

@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -127,7 +128,22 @@ type DelegationPolicy struct {
 	Purposes      map[string]DelegationPurposePolicy `json:"purposes,omitempty"`
 	EnvUnset      []string                           `json:"env_unset,omitempty"`
 	Provenance    *ReviewRunProvenancePolicy         `json:"provenance,omitempty"`
+	// MigratedFrom names the schema 1 file this policy was converted from
+	// and its archived bytes, so runs recorded before the conversion keep
+	// their policy baseline (spec pose-delegation-surface D7).
+	MigratedFrom *DelegationMigration `json:"migrated_from,omitempty"`
 }
+
+// DelegationMigration records a pose update conversion.
+type DelegationMigration struct {
+	Path    string `json:"path"`
+	Archive string `json:"archive"`
+	Digest  string `json:"digest"`
+}
+
+// delegationArchivePath keeps the converted reviewers.json outside
+// .pose/policy, whose digest is every run's policy baseline.
+const delegationArchivePath = ".pose/policy-migrations/reviewers.json"
 
 // ErrDelegationPolicyConflict means both policy files exist.
 var ErrDelegationPolicyConflict = errors.New("pose: both .pose/policy/delegation.json and .pose/policy/reviewers.json exist; keep delegation.json and remove reviewers.json (pose update converts one into the other)")
@@ -169,8 +185,12 @@ func ParseDelegationPolicy(raw []byte) (DelegationPolicy, error) {
 	if err := dec.Decode(&policy); err != nil {
 		return DelegationPolicy{}, fmt.Errorf("pose: invalid %s: %w", delegationPolicyPath, err)
 	}
-	if dec.More() {
-		return DelegationPolicy{}, fmt.Errorf("pose: invalid %s: trailing data", delegationPolicyPath)
+	var extra json.RawMessage
+	if err := dec.Decode(&extra); err != io.EOF {
+		return DelegationPolicy{}, fmt.Errorf("pose: invalid %s: data after the policy object", delegationPolicyPath)
+	}
+	if err := validateExplicitDelegationBudgets(raw); err != nil {
+		return DelegationPolicy{}, err
 	}
 	if policy.SchemaVersion != DelegationPolicySchemaVersion {
 		return DelegationPolicy{}, fmt.Errorf("pose: %s schema_version %d is not supported", delegationPolicyPath, policy.SchemaVersion)
@@ -179,6 +199,45 @@ func ParseDelegationPolicy(raw []byte) (DelegationPolicy, error) {
 		return DelegationPolicy{}, err
 	}
 	return policy, nil
+}
+
+// validateExplicitDelegationBudgets refuses a budget or timeout written as
+// zero, null or empty, as schema 1 refuses an explicit zero budget: omit a
+// field to take the default.
+func validateExplicitDelegationBudgets(raw []byte) error {
+	var doc struct {
+		Agents   map[string]map[string]json.RawMessage `json:"agents"`
+		Purposes map[string]map[string]json.RawMessage `json:"purposes"`
+	}
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		return err
+	}
+	check := func(where string, fields map[string]json.RawMessage) error {
+		if value, ok := fields["max_runs_per_bundle"]; ok {
+			var n int
+			if bytes.Equal(bytes.TrimSpace(value), []byte("null")) || json.Unmarshal(value, &n) != nil || n < 1 || n > 100 {
+				return fmt.Errorf("pose: %s: explicit max_runs_per_bundle must be 1..100; omit it for the default", where)
+			}
+		}
+		if value, ok := fields["timeout"]; ok {
+			var d string
+			if json.Unmarshal(value, &d) != nil || d == "" {
+				return fmt.Errorf("pose: %s: explicit timeout must be a positive duration; omit it for the default", where)
+			}
+		}
+		return nil
+	}
+	for name, fields := range doc.Agents {
+		if err := check("delegation agent "+name, fields); err != nil {
+			return err
+		}
+	}
+	for name, fields := range doc.Purposes {
+		if err := check("delegation purpose "+name, fields); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func validateDelegationPolicy(policy DelegationPolicy) error {
@@ -241,6 +300,16 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 				return fmt.Errorf("pose: delegation agent %s command %s: %w", name, access, err)
 			}
 		}
+		if agent.Resume != nil && len(agent.Resume.Command) > 0 {
+			if err := validateDelegationArgv(agent.Resume.Command, agent.Effort); err != nil {
+				return fmt.Errorf("pose: delegation agent %s resume command: %w", name, err)
+			}
+		}
+		if agent.Timeout != "" {
+			if d, err := time.ParseDuration(agent.Timeout); err != nil || d <= 0 {
+				return fmt.Errorf("pose: delegation agent %s: timeout must be a positive duration", name)
+			}
+		}
 		if agent.Effort != nil {
 			if len(agent.Effort.Levels) == 0 {
 				return fmt.Errorf("pose: delegation agent %s: effort needs levels", name)
@@ -271,6 +340,9 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 				return fmt.Errorf("pose: delegation agent %s: %w", name, err)
 			}
 		}
+	}
+	if m := policy.MigratedFrom; m != nil && (m.Path != reviewersPolicyPath || m.Archive != delegationArchivePath || !isSHA256(m.Digest)) {
+		return fmt.Errorf("pose: migrated_from must name %s, its archive %s and the archive's digest", reviewersPolicyPath, delegationArchivePath)
 	}
 	return validateRunProvenancePolicy(policy.reviewersView(DelegationPurposeReview))
 }
@@ -434,6 +506,7 @@ func MigrateReviewersPolicyFile(files Files, root string) (out []byte, ok bool, 
 	if err != nil {
 		return nil, false, err
 	}
+	policy.MigratedFrom = &DelegationMigration{Path: reviewersPolicyPath, Archive: delegationArchivePath, Digest: digestBytes(raw)}
 	out, err = CanonicalDelegationPolicy(policy)
 	if err != nil {
 		return nil, false, err
@@ -466,4 +539,43 @@ func ExampleDelegationPolicy() DelegationPolicy {
 		"claude": {Vendor: "anthropic", Model: "claude-opus-5-5", CLI: "claude", Events: DelegationEventsClaudeStreamJSON, Timeout: "60m",
 			Commands: map[string][]string{DelegationAccessRead: {"claude", "-p", "--model", "claude-opus-5-5", "--permission-mode", "plan", "--output-format", "stream-json", "--verbose"}}},
 	}, Purposes: map[string]DelegationPurposePolicy{DelegationPurposeReview: {MaxRunsPerBundle: 3}}}
+}
+
+// DelegationArchivePath is where pose update keeps the converted schema 1 file.
+func DelegationArchivePath() string { return delegationArchivePath }
+
+// migratedPolicyBaseline is the digest .pose/policy had before pose update
+// converted reviewers.json: the directory as it is, with delegation.json in
+// the place of the archived reviewers.json. It is known only while
+// delegation.json is exactly the conversion of that archive, so an edited
+// policy never inherits the baseline of the one it replaced.
+func (s Store) migratedPolicyBaseline() (string, bool) {
+	files := s.fsys()
+	dir := filepath.Join(s.Root, ".pose", "policy")
+	current, err := files.ReadFile(filepath.Join(s.Root, filepath.FromSlash(delegationPolicyPath)))
+	if err != nil {
+		return "", false
+	}
+	policy, err := ParseDelegationPolicy(current)
+	if err != nil || policy.MigratedFrom == nil {
+		return "", false
+	}
+	archived, err := files.ReadFile(filepath.Join(s.Root, filepath.FromSlash(delegationArchivePath)))
+	if err != nil || digestBytes(archived) != policy.MigratedFrom.Digest {
+		return "", false
+	}
+	legacy, err := parseReviewersPolicy(archived)
+	if err != nil {
+		return "", false
+	}
+	again, err := MigrateReviewersPolicy(legacy)
+	if err != nil {
+		return "", false
+	}
+	again.MigratedFrom = policy.MigratedFrom
+	expected, err := CanonicalDelegationPolicy(again)
+	if err != nil || !bytes.Equal(expected, current) {
+		return "", false
+	}
+	return directoryDigestReplacing(files, dir, "delegation.json", "reviewers.json", archived), true
 }

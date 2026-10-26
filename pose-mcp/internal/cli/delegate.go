@@ -7,6 +7,11 @@ package cli
 // pose delegate governs executions: who runs, with which access, and what
 // happened. review, adjudicate and smoke run through the delivered dispatch
 // path; the lifecycle commands read the same run records.
+//
+// Every subcommand takes the common flags with one meaning (R2): where a
+// command starts a run they set it (--agent, --access, --label, --lead);
+// where it names or lists runs they select them, and a run that does not
+// match is not the one named; --dry-run changes nothing anywhere.
 
 import (
 	"context"
@@ -27,7 +32,7 @@ import (
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
-const delegateUsageText = "Usage: pose delegate <review|adjudicate|smoke|task|ls|watch|wait|resume|handoff|cancel|agents> [args] [--agent auto|<name>] [--access read|sandboxed|write|full] [--label <name>] [--lead <vendor>] [--dry-run] [--json]"
+const delegateUsageText = "pose delegate <review|adjudicate|smoke|task|ls|watch|wait|resume|handoff|cancel|agents> [args] [--agent auto|<name>] [--access read|sandboxed|write|full] [--label <name>] [--lead <vendor>] [--dry-run] [--json]"
 
 // Versioned JSON documents of pose delegate (R10).
 const (
@@ -52,6 +57,12 @@ var (
 	delegateLeadRE  = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,31}$`)
 )
 
+// commonDelegateFlags are taken by every subcommand.
+var commonDelegateFlags = []string{"--agent", "--access", "--label", "--lead", "--dry-run", "--json"}
+
+// tr picks the message for the session's locale.
+func tr(english, portuguese string) string { return cliText(cliLocaleValue(), english, portuguese) }
+
 type delegateFlags struct {
 	agent, access, label, lead, reason, noteFile string
 	dryRun, jsonOut, active, wait                bool
@@ -59,12 +70,12 @@ type delegateFlags struct {
 	positional                                   []string
 }
 
-// parseDelegateFlags gives every subcommand the same flags with the same
-// meaning (R2); allowed names the flags this subcommand takes.
-func parseDelegateFlags(args []string, allowed ...string) (delegateFlags, string) {
+// parseDelegateFlags reads the common flags and the extra ones a subcommand
+// takes; problem is a message for the person, in their locale.
+func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) {
 	f := delegateFlags{waitMax: 24 * time.Hour}
 	permit := map[string]bool{}
-	for _, name := range allowed {
+	for _, name := range append(append([]string(nil), commonDelegateFlags...), extra...) {
 		permit[name] = true
 	}
 	for i := 0; i < len(args); i++ {
@@ -75,15 +86,16 @@ func parseDelegateFlags(args []string, allowed ...string) (delegateFlags, string
 			continue
 		}
 		if name == "--detach" {
-			return f, "--detach is not available yet; it is delivered by spec pose-delegated-review-completion-signal"
+			return f, tr("--detach is not available yet; it is delivered by spec pose-delegated-review-completion-signal",
+				"--detach ainda não está disponível; ele é entregue pela spec pose-delegated-review-completion-signal")
 		}
 		if !permit[name] {
-			return f, "unknown or inapplicable flag " + name
+			return f, tr("unknown or inapplicable flag "+name, "flag desconhecida ou inaplicável "+name)
 		}
 		switch name {
 		case "--dry-run", "--json", "--active":
 			if hasInline {
-				return f, name + " takes no value"
+				return f, tr(name+" takes no value", name+" não recebe valor")
 			}
 			switch name {
 			case "--dry-run":
@@ -98,7 +110,7 @@ func parseDelegateFlags(args []string, allowed ...string) (delegateFlags, string
 			if hasInline {
 				d, err := time.ParseDuration(inline)
 				if err != nil || d <= 0 || d > 24*time.Hour {
-					return f, "--wait-until-reset takes a duration up to 24h"
+					return f, tr("--wait-until-reset takes a duration up to 24h", "--wait-until-reset recebe uma duração de até 24h")
 				}
 				f.waitMax = d
 			}
@@ -106,7 +118,7 @@ func parseDelegateFlags(args []string, allowed ...string) (delegateFlags, string
 			value := inline
 			if !hasInline {
 				if i+1 >= len(args) || strings.HasPrefix(args[i+1], "-") {
-					return f, name + " needs a value"
+					return f, tr(name+" needs a value", name+" precisa de um valor")
 				}
 				value = args[i+1]
 				i++
@@ -115,15 +127,18 @@ func parseDelegateFlags(args []string, allowed ...string) (delegateFlags, string
 			case "--agent":
 				f.agent = value
 			case "--access":
+				if !containsString([]string{posemodel.DelegationAccessRead, posemodel.DelegationAccessSandboxed, posemodel.DelegationAccessWrite, posemodel.DelegationAccessFull}, value) {
+					return f, tr("--access takes read, sandboxed, write or full", "--access recebe read, sandboxed, write ou full")
+				}
 				f.access = value
 			case "--label":
 				if !delegateLabelRE.MatchString(value) {
-					return f, "--label takes letters, digits, '.', '_' and '-' (64 at most)"
+					return f, tr("--label takes letters, digits, '.', '_' and '-' (64 at most)", "--label aceita letras, dígitos, '.', '_' e '-' (no máximo 64)")
 				}
 				f.label = value
 			case "--lead":
 				if !delegateLeadRE.MatchString(value) {
-					return f, "--lead takes a vendor name such as openai or anthropic"
+					return f, tr("--lead takes a vendor name such as openai or anthropic", "--lead recebe um nome de vendor como openai ou anthropic")
 				}
 				f.lead = value
 			case "--reason":
@@ -143,7 +158,7 @@ func cmdDelegate(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	sub, rest := args[0], args[1:]
 	if spec, planned := delegatePlanned[sub]; planned {
-		return delegateUsage(stdout, stderr, rest, sub, "not available yet; it is delivered by spec "+spec)
+		return delegateUsage(stdout, stderr, rest, sub, tr("not available yet; it is delivered by spec "+spec, "ainda não está disponível; é entregue pela spec "+spec))
 	}
 	switch sub {
 	case posemodel.DelegationPurposeReview, posemodel.DelegationPurposeAdjudicate, posemodel.DelegationPurposeSmoke:
@@ -157,7 +172,7 @@ func cmdDelegate(root string, args []string, stdout, stderr io.Writer) int {
 	case "agents":
 		return cmdDelegateAgents(root, rest, stdout, stderr)
 	}
-	return delegateUsage(stdout, stderr, rest, sub, "unknown subcommand\n"+delegateUsageText)
+	return delegateUsage(stdout, stderr, rest, sub, tr("unknown subcommand", "subcomando desconhecido")+"\n"+tr("Usage: ", "Uso: ")+delegateUsageText)
 }
 
 // delegateUsage reports a usage error: exit 2, as text, or as the error
@@ -197,6 +212,60 @@ func delegateFail(stdout, stderr io.Writer, jsonOut bool, command string, code i
 	return code
 }
 
+// refError renders a reference error in the person's locale.
+func refError(err error) error {
+	var ambiguous *posemodel.ErrDelegationRefAmbiguous
+	if errors.As(err, &ambiguous) {
+		return &posemodel.ErrDelegationRefAmbiguous{Ref: ambiguous.Ref, Candidates: ambiguous.Candidates}
+	}
+	var unknown *posemodel.ErrDelegationRefUnknown
+	if errors.As(err, &unknown) {
+		return errors.New(tr(err.Error(), fmt.Sprintf("nenhum run delegado se chama %q (um id de run, um id de tentativa, um label ou um prefixo de sessão de seis caracteres ou mais)", unknown.Ref)))
+	}
+	return err
+}
+
+// mismatch names the first selecting flag an attempt does not match.
+func (f delegateFlags) mismatch(a posemodel.DelegationAttempt) string {
+	switch {
+	case f.agent != "" && f.agent != "auto" && f.agent != a.Agent:
+		return "--agent " + f.agent
+	case f.access != "" && f.access != a.Access:
+		return "--access " + f.access
+	case f.label != "" && f.label != a.Label:
+		return "--label " + f.label
+	case f.lead != "" && f.lead != a.Lead:
+		return "--lead " + f.lead
+	}
+	return ""
+}
+
+// namedAttempt resolves the one reference a lifecycle command takes: the
+// positional reference, or --label when there is none; the other common
+// flags then select, and a run that does not match is refused.
+func namedAttempt(attempts []posemodel.DelegationAttempt, f delegateFlags) (posemodel.DelegationAttempt, int, error) {
+	ref := ""
+	switch len(f.positional) {
+	case 0:
+		ref = f.label
+	case 1:
+		ref = f.positional[0]
+	default:
+		return posemodel.DelegationAttempt{}, 2, errors.New(tr("one run reference at most", "no máximo uma referência de run"))
+	}
+	if ref == "" {
+		return posemodel.DelegationAttempt{}, 2, errors.New(tr("name a run (a run id, an attempt id, a label or a session prefix)", "nomeie um run (id de run, id de tentativa, label ou prefixo de sessão)"))
+	}
+	attempt, err := posemodel.ResolveDelegationRef(attempts, ref)
+	if err != nil {
+		return attempt, 2, refError(err)
+	}
+	if flag := f.mismatch(attempt); flag != "" {
+		return attempt, 2, errors.New(tr("attempt "+attempt.AttemptID+" does not match "+flag, "a tentativa "+attempt.AttemptID+" não corresponde a "+flag))
+	}
+	return attempt, 0, nil
+}
+
 // resolveDelegateAgent applies --agent: a name is taken as given; auto (or no
 // flag) is the only agent that can run the purpose (R4). With several, the
 // choice belongs to spec pose-delegation-routing; until then it is refused.
@@ -219,20 +288,22 @@ func resolveDelegateAgent(store posemodel.Store, kind, requested string) (string
 	if len(names) == 1 {
 		return names[0], 0, nil
 	}
-	return "", 2, fmt.Errorf("several agents can run this purpose (%s); name one with --agent", strings.Join(names, ", "))
+	return "", 2, errors.New(tr("several agents can run this purpose ("+strings.Join(names, ", ")+"); name one with --agent",
+		"vários agentes podem rodar este propósito ("+strings.Join(names, ", ")+"); nomeie um com --agent"))
 }
 
 func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.Writer) int {
-	f, problem := parseDelegateFlags(args, "--agent", "--access", "--label", "--lead", "--reason", "--note-file", "--dry-run", "--json")
+	f, problem := parseDelegateFlags(args, "--reason", "--note-file")
 	if problem != "" {
 		return delegateUsage(stdout, stderr, args, purpose, problem)
 	}
 	if len(f.positional) != 1 {
-		return delegateUsage(stdout, stderr, args, purpose, "Usage: pose delegate "+purpose+" <scope|bundle-id> [--agent auto|<name>] [--label <name>] [--lead <vendor>] [--reason <text>] [--note-file <path>] [--dry-run] [--json]")
+		return delegateUsage(stdout, stderr, args, purpose, tr("Usage: ", "Uso: ")+"pose delegate "+purpose+" <scope|bundle-id> [--agent auto|<name>] [--label <name>] [--lead <vendor>] [--reason <text>] [--note-file <path>] [--dry-run] [--json]")
 	}
 	// R3: the review-path purposes read only.
 	if f.access != "" && f.access != posemodel.DelegationAccessRead {
-		return delegateUsage(stdout, stderr, args, purpose, "runs with read access only; --access "+f.access+" is for pose delegate task")
+		return delegateUsage(stdout, stderr, args, purpose, tr("runs with read access only; --access "+f.access+" is for pose delegate task",
+			"roda só com acesso de leitura; --access "+f.access+" é para pose delegate task"))
 	}
 	notes := ""
 	if f.noteFile != "" {
@@ -269,7 +340,9 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	}
 	plan.Label, plan.Purpose, plan.Lead = f.label, purpose, f.lead
 	if f.dryRun {
-		return delegatePrintPlan(stdout, stderr, f.jsonOut, plan)
+		argv := redactArgv(posemodel.ReviewerArgv(plan.Config.Command, "{output}", "", plan.Effort, plan.Config.Effort), plan.Config)
+		return delegatePrintPlan(stdout, stderr, f.jsonOut, plan, argv, map[string]any{"scope": plan.Brief.Scope, "bundle": plan.Bundle.BundleID,
+			"brief_digest": plan.Brief.Digest, "prior_runs": plan.PriorRuns, "label": plan.Label, "lead": plan.Lead})
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -279,7 +352,7 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 
 func delegateNoAgent(stdout, stderr io.Writer, jsonOut bool, command string) int {
 	example, _ := posemodel.CanonicalDelegationPolicy(posemodel.ExampleDelegationPolicy())
-	err := fmt.Errorf("no agent is configured; add .pose/policy/delegation.json, for example:\n%s", example)
+	err := errors.New(tr("no agent is configured; add .pose/policy/delegation.json, for example:\n", "nenhum agente configurado; adicione .pose/policy/delegation.json, por exemplo:\n") + string(example))
 	return delegateFail(stdout, stderr, jsonOut, command, 1, err)
 }
 
@@ -302,15 +375,17 @@ func redactArgv(argv []string, config posemodel.ReviewerAdapter) []string {
 	return out
 }
 
-func delegatePrintPlan(stdout, stderr io.Writer, jsonOut bool, plan posemodel.DispatchPlan) int {
-	argv := redactArgv(posemodel.ReviewerArgv(plan.Config.Command, "{output}", "", plan.Effort, plan.Config.Effort), plan.Config)
-	workdir := "a disposable worktree at " + plan.SealedCommit
+// delegatePrintPlan prints what a run would do (R12): agent, purpose, access,
+// working directory and argv, plus the fields of the command at hand.
+func delegatePrintPlan(stdout, stderr io.Writer, jsonOut bool, plan posemodel.DispatchPlan, argv []string, extra map[string]any) int {
+	workdir := tr("a disposable worktree at ", "um worktree descartável em ") + plan.SealedCommit
+	doc := map[string]any{"schema": delegatePlanSchema, "purpose": plan.Purpose, "agent": plan.Adapter, "vendor": plan.Config.Vendor, "model": plan.Config.Model,
+		"access": posemodel.DelegationAccessRead, "workdir": workdir, "argv": argv, "reserves_attempt": false}
+	for k, v := range extra {
+		doc[k] = v
+	}
 	if jsonOut {
-		writeDelegateJSON(stdout, map[string]any{
-			"schema": delegatePlanSchema, "purpose": plan.Purpose, "agent": plan.Adapter, "vendor": plan.Config.Vendor, "model": plan.Config.Model,
-			"access": posemodel.DelegationAccessRead, "workdir": workdir, "argv": argv, "scope": plan.Brief.Scope, "bundle": plan.Bundle.BundleID,
-			"brief_digest": plan.Brief.Digest, "prior_runs": plan.PriorRuns, "label": plan.Label, "lead": plan.Lead, "reserves_attempt": false,
-		})
+		writeDelegateJSON(stdout, doc)
 		return 0
 	}
 	out := render(stdout, stderr)
@@ -320,14 +395,17 @@ func delegatePrintPlan(stdout, stderr io.Writer, jsonOut bool, plan posemodel.Di
 	out.Field("delegate.workdir", workdir)
 	raw, _ := json.Marshal(argv)
 	out.Field("delegate.argv", string(raw))
-	out.Field("delegate.scope", plan.Brief.Scope)
-	out.Field("delegate.bundle", plan.Bundle.BundleID)
-	out.Field("delegate.brief_digest", plan.Brief.Digest)
-	out.Field("delegate.prior_runs", fmt.Sprint(plan.PriorRuns))
-	if plan.Label != "" {
-		out.Field("delegate.label", plan.Label)
+	keys := make([]string, 0, len(extra))
+	for k := range extra {
+		keys = append(keys, k)
 	}
-	out.Field("delegate.dry_run", "true (no attempt reserved)")
+	sort.Strings(keys)
+	for _, k := range keys {
+		if value := fmt.Sprint(extra[k]); value != "" {
+			out.Field("delegate."+k, value)
+		}
+	}
+	out.Field("delegate.dry_run", tr("true (nothing reserved or claimed)", "true (nada reservado nem reivindicado)"))
 	return 0
 }
 
@@ -336,11 +414,11 @@ func delegatePrintRun(stdout, stderr io.Writer, jsonOut bool, command string, ru
 	if err != nil || run.Status != posemodel.ReviewRunCompleted {
 		code = 1
 	}
+	attestation := tr("not recorded: a run's conclusion is recorded only by the engine's verified step", "não registrada: a conclusão de um run só é registrada pelo passo verificado do motor")
 	if jsonOut {
 		doc := map[string]any{"schema": delegateRunSchema, "purpose": run.Purpose, "agent": run.Adapter, "vendor": run.Vendor, "model": run.Model,
-			"label": run.Label, "scope": run.Scope, "bundle": run.BundleID, "attempt": run.AttemptID, "run": run.RunID, "status": run.Status,
-			"failure": run.Failure, "record": run.Path, "events": run.EventsDigest != "", "env_removed": run.EnvRemoved,
-			"attestation": "not recorded: a run's conclusion is recorded only by the engine's verified step"}
+			"label": run.Label, "lead": run.Lead, "scope": run.Scope, "bundle": run.BundleID, "attempt": run.AttemptID, "run": run.RunID, "resumes": run.Resumes,
+			"status": run.Status, "failure": run.Failure, "record": run.Path, "events": run.EventsDigest != "", "env_removed": run.EnvRemoved, "attestation": attestation}
 		if run.Interruption != nil {
 			doc["interruption"] = run.Interruption
 		}
@@ -358,6 +436,9 @@ func delegatePrintRun(stdout, stderr io.Writer, jsonOut bool, command string, ru
 			out.Field("delegate.label", run.Label)
 		}
 		out.Field("delegate.attempt", run.AttemptID)
+		if run.Resumes != "" {
+			out.Field("delegate.resumes", run.Resumes)
+		}
 		out.Field("delegate.run", run.RunID)
 		out.Field("delegate.status", run.Status)
 		if run.Failure != "" {
@@ -367,7 +448,7 @@ func delegatePrintRun(stdout, stderr io.Writer, jsonOut bool, command string, ru
 			out.Field("delegate.interruption", fmt.Sprintf("cause=%s resumable=%t reset_at=%s", run.Interruption.Cause, run.Interruption.Resumable, run.Interruption.ResetAt))
 		}
 		out.Field("delegate.record", run.Path)
-		out.Field("delegate.attestation", "not recorded: a run's conclusion is recorded only by the engine's verified step")
+		out.Field("delegate.attestation", attestation)
 	}
 	if err != nil {
 		out.Failure("pose delegate " + command + ": " + strings.TrimPrefix(err.Error(), "pose: "))
@@ -393,62 +474,58 @@ func delegateAge(at string) string {
 }
 
 func cmdDelegateLs(root string, args []string, stdout, stderr io.Writer) int {
-	f, problem := parseDelegateFlags(args, "--json", "--active")
-	if problem != "" || len(f.positional) > 1 {
-		if problem == "" {
-			problem = "one reference at most"
-		}
-		return delegateUsage(stdout, stderr, args, "ls", problem+"\nUsage: pose delegate ls [<run>|<bundle-id>] [--active] [--json]")
+	f, problem := parseDelegateFlags(args, "--active")
+	if problem == "" && len(f.positional) > 1 {
+		problem = tr("one reference at most", "no máximo uma referência")
+	}
+	if problem != "" {
+		return delegateUsage(stdout, stderr, args, "ls", problem+"\n"+tr("Usage: ", "Uso: ")+"pose delegate ls [<run>|<bundle-id>] [--active] [--agent <name>] [--access <level>] [--label <name>] [--lead <vendor>] [--json]")
 	}
 	store := posemodel.Store{Root: root}
 	attempts, lost, err := store.ListDelegationAttempts()
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, "ls", 1, err)
 	}
-	if len(f.positional) == 1 {
-		ref := f.positional[0]
-		if strings.HasPrefix(ref, "rvb-") {
-			filtered := []posemodel.DelegationAttempt{}
-			for _, a := range attempts {
-				if a.BundleID == ref {
-					filtered = append(filtered, a)
-				}
-			}
-			attempts = filtered
-		} else {
-			one, err := posemodel.ResolveDelegationRef(attempts, ref)
-			if err != nil {
-				return delegateFail(stdout, stderr, f.jsonOut, "ls", 2, err)
-			}
-			attempts = []posemodel.DelegationAttempt{one}
+	if len(f.positional) == 1 && !strings.HasPrefix(f.positional[0], "rvb-") {
+		one, err := posemodel.ResolveDelegationRef(attempts, f.positional[0])
+		if err != nil {
+			return delegateFail(stdout, stderr, f.jsonOut, "ls", 2, refError(err))
 		}
+		attempts = []posemodel.DelegationAttempt{one}
 	}
-	if f.active {
-		filtered := []posemodel.DelegationAttempt{}
-		for _, a := range attempts {
-			if a.Active {
-				filtered = append(filtered, a)
-			}
+	selected := []posemodel.DelegationAttempt{}
+	for _, a := range attempts {
+		if len(f.positional) == 1 && strings.HasPrefix(f.positional[0], "rvb-") && a.BundleID != f.positional[0] {
+			continue
 		}
-		attempts = filtered
+		if f.active && !a.Active || f.mismatch(a) != "" {
+			continue
+		}
+		selected = append(selected, a)
 	}
 	if lost == nil {
 		lost = []string{}
 	}
 	if f.jsonOut {
-		writeDelegateJSON(stdout, map[string]any{"schema": delegateListSchema, "attempts": attempts, "losses": lost})
+		writeDelegateJSON(stdout, map[string]any{"schema": delegateListSchema, "attempts": selected, "losses": lost})
 	} else {
 		out := render(stdout, stderr)
-		if len(attempts) == 0 {
-			out.Field("delegate.runs", "none")
+		if len(selected) == 0 {
+			out.Field("delegate.runs", tr("none", "nenhum"))
 		}
-		for _, a := range attempts {
+		for _, a := range selected {
 			value := fmt.Sprintf("state=%s purpose=%s agent=%s turns=%d age=%s", a.State, a.Purpose, a.Agent, a.Turns, delegateAge(a.StartedAt))
 			if a.Label != "" {
 				value += " label=" + a.Label
 			}
 			if a.Active && a.Liveness != "" {
 				value += " owner=" + a.Liveness
+			}
+			if a.Interruption != nil {
+				value += fmt.Sprintf(" cause=%s resumable=%t partial=%t", a.Interruption.Cause, a.Interruption.Resumable, a.Partial)
+				if a.Interruption.ResetAt != "" {
+					value += " reset_at=" + a.Interruption.ResetAt + " time_left=" + a.TimeLeft
+				}
 			}
 			if a.LatestRun != "" {
 				value += " run=" + a.LatestRun
@@ -459,7 +536,7 @@ func cmdDelegateLs(root string, args []string, stdout, stderr io.Writer) int {
 			out.Field("delegate."+a.AttemptID, value)
 		}
 		for _, loss := range lost {
-			out.Failure("delegated run history incomplete: " + loss)
+			out.Failure(tr("delegated run history incomplete: ", "histórico de runs delegados incompleto: ") + loss)
 		}
 	}
 	if len(lost) > 0 {
@@ -468,78 +545,99 @@ func cmdDelegateLs(root string, args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
+// resumeTarget is the run a resume continues (R11 with the delivered
+// continuity): the run named by its id, or the attempt's latest run when it
+// is interrupted, or the interrupted run the latest one continued, whose
+// recorded continuation is then returned instead of a new run.
+func resumeTarget(attempt posemodel.DelegationAttempt, ref string) (string, error) {
+	if containsString(attempt.Runs, ref) {
+		return ref, nil
+	}
+	latest := attempt.Latest()
+	switch {
+	case latest == nil:
+		return "", errors.New(tr("attempt "+attempt.AttemptID+" has no recorded run", "a tentativa "+attempt.AttemptID+" não tem run registrado"))
+	case latest.Status == posemodel.ReviewRunInterrupted:
+		return latest.RunID, nil
+	case latest.Resumes != "":
+		return latest.Resumes, nil
+	}
+	return "", errors.New(tr("the latest run of attempt "+attempt.AttemptID+" is "+latest.Status+", not interrupted",
+		"o run mais recente da tentativa "+attempt.AttemptID+" está "+latest.Status+", não interrompido"))
+}
+
 func cmdDelegateResume(root string, args []string, stdout, stderr io.Writer) int {
-	f, problem := parseDelegateFlags(args, "--wait-until-reset", "--dry-run", "--json")
-	if problem != "" || len(f.positional) != 1 {
-		if problem == "" {
-			problem = "one run reference"
-		}
-		return delegateUsage(stdout, stderr, args, "resume", problem+"\nUsage: pose delegate resume <run> [--wait-until-reset[=<max>]] [--dry-run] [--json]")
+	f, problem := parseDelegateFlags(args, "--wait-until-reset")
+	if problem != "" {
+		return delegateUsage(stdout, stderr, args, "resume", problem+"\n"+tr("Usage: ", "Uso: ")+"pose delegate resume <run> [--wait-until-reset[=<max>]] [--dry-run] [--json]")
 	}
 	store := cliGovernedStore(root)
 	attempts, _, err := store.ListDelegationAttempts()
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, err)
 	}
-	attempt, err := posemodel.ResolveDelegationRef(attempts, f.positional[0])
+	attempt, code, err := namedAttempt(attempts, f)
 	if err != nil {
-		return delegateFail(stdout, stderr, f.jsonOut, "resume", 2, err)
+		return delegateFail(stdout, stderr, f.jsonOut, "resume", code, err)
 	}
 	if attempt.Active {
-		return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, fmt.Errorf("attempt %s is still running", attempt.AttemptID))
+		return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, errors.New(tr("attempt "+attempt.AttemptID+" is still running", "a tentativa "+attempt.AttemptID+" ainda está rodando")))
 	}
-	latest := attempt.Latest()
-	if latest == nil || latest.Status != posemodel.ReviewRunInterrupted {
-		state := "unknown"
-		if latest != nil {
-			state = latest.Status
-		}
-		return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, fmt.Errorf("the latest run of attempt %s is %s, not interrupted", attempt.AttemptID, state))
+	ref := attempt.AttemptID
+	if len(f.positional) == 1 {
+		ref = f.positional[0]
 	}
-	plan, err := store.PlanReviewResume(latest.RunID)
+	target, err := resumeTarget(attempt, ref)
+	if err != nil {
+		return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, err)
+	}
+	plan, err := store.PlanReviewResume(target)
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, err)
 	}
 	if plan.PendingContinuation != nil {
-		return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, fmt.Errorf("a continuation of %s is pending (%s)", latest.RunID, plan.PendingContinuation.ID))
+		return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, errors.New(tr("a continuation of "+target+" is pending ("+plan.PendingContinuation.ID+")",
+			"uma continuação de "+target+" está pendente ("+plan.PendingContinuation.ID+")")))
 	}
 	var delay time.Duration
-	if f.wait {
+	if f.wait && plan.Existing == nil {
 		var seed [1]byte
 		if _, err := rand.Read(seed[:]); err != nil {
 			return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, err)
 		}
-		delay, err = posemodel.ReviewResumeDelay(*latest, time.Now(), f.waitMax, time.Duration(seed[0])*time.Second/255)
+		var prior posemodel.ReviewRun
+		if latest := attempt.Latest(); latest != nil && latest.RunID == target {
+			prior = *latest
+		} else if runs, rerr := store.ListReviewRuns(""); rerr == nil {
+			for _, r := range runs {
+				if r.RunID == target {
+					prior = r
+				}
+			}
+		}
+		delay, err = posemodel.ReviewResumeDelay(prior, time.Now(), f.waitMax, time.Duration(seed[0])*time.Second/255)
 		if err != nil {
 			return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, err)
 		}
 	}
 	if f.dryRun {
-		argv := redactArgv(posemodel.ReviewerArgv(plan.Config.Resume.Command, "{output}", "{session}", plan.Effort, plan.Config.Effort), plan.Config)
-		if f.jsonOut {
-			writeDelegateJSON(stdout, map[string]any{"schema": delegatePlanSchema, "purpose": attempt.Purpose, "agent": plan.Adapter, "vendor": plan.Config.Vendor,
-				"model": plan.Config.Model, "access": posemodel.DelegationAccessRead, "workdir": "a disposable worktree at " + plan.SealedCommit, "argv": argv,
-				"resumes": latest.RunID, "attempt": attempt.AttemptID, "wait": delay.String(), "reserves_attempt": false})
-			return 0
+		extra := map[string]any{"resumes": target, "attempt": attempt.AttemptID, "label": attempt.Label}
+		if plan.Existing != nil {
+			extra["recorded_continuation"] = plan.Existing.RunID
 		}
-		out := render(stdout, stderr)
-		out.Field("delegate.resumes", latest.RunID)
-		out.Field("delegate.attempt", attempt.AttemptID)
-		out.Field("delegate.agent", fmt.Sprintf("%s (%s %s)", plan.Adapter, plan.Config.Vendor, plan.Config.Model))
-		raw, _ := json.Marshal(argv)
-		out.Field("delegate.argv", string(raw))
 		if f.wait {
-			out.Field("delegate.wait", delay.String())
+			extra["wait"] = delay.String()
 		}
-		out.Field("delegate.dry_run", "true (nothing claimed)")
-		return 0
+		plan.Purpose = attempt.Purpose
+		argv := redactArgv(posemodel.ReviewerArgv(plan.Config.Resume.Command, "{output}", "{session}", plan.Effort, plan.Config.Effort), plan.Config)
+		return delegatePrintPlan(stdout, stderr, f.jsonOut, plan, argv, extra)
 	}
-	if f.wait && plan.Existing == nil && delay > 0 {
+	if delay > 0 {
 		if !f.jsonOut {
 			render(stdout, stderr).Field("delegate.wait", delay.String())
 		}
 		time.Sleep(delay)
-		if plan, err = store.PlanReviewResume(latest.RunID); err != nil {
+		if plan, err = store.PlanReviewResume(target); err != nil {
 			return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, err)
 		}
 	}
@@ -550,33 +648,43 @@ func cmdDelegateResume(root string, args []string, stdout, stderr io.Writer) int
 }
 
 func cmdDelegateCancel(root string, args []string, stdout, stderr io.Writer) int {
-	f, problem := parseDelegateFlags(args, "--json")
-	if problem != "" || len(f.positional) != 1 {
-		if problem == "" {
-			problem = "one run reference"
-		}
-		return delegateUsage(stdout, stderr, args, "cancel", problem+"\nUsage: pose delegate cancel <run> [--json]")
+	f, problem := parseDelegateFlags(args)
+	if problem != "" {
+		return delegateUsage(stdout, stderr, args, "cancel", problem+"\n"+tr("Usage: ", "Uso: ")+"pose delegate cancel <run> [--dry-run] [--json]")
 	}
 	store := posemodel.Store{Root: root}
 	attempts, _, err := store.ListDelegationAttempts()
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, "cancel", 1, err)
 	}
-	attempt, err := posemodel.ResolveDelegationRef(attempts, f.positional[0])
+	attempt, code, err := namedAttempt(attempts, f)
 	if err != nil {
-		return delegateFail(stdout, stderr, f.jsonOut, "cancel", 2, err)
+		return delegateFail(stdout, stderr, f.jsonOut, "cancel", code, err)
 	}
 	if !attempt.Active {
-		return delegateFail(stdout, stderr, f.jsonOut, "cancel", 1, fmt.Errorf("attempt %s is %s, not running", attempt.AttemptID, attempt.State))
+		return delegateFail(stdout, stderr, f.jsonOut, "cancel", 1, errors.New(tr("attempt "+attempt.AttemptID+" is "+attempt.State+", not running",
+			"a tentativa "+attempt.AttemptID+" está "+attempt.State+", não rodando")))
 	}
-	if _, err := store.RequestDelegationCancel(attempt.AttemptID); err != nil {
+	if f.dryRun {
+		if f.jsonOut {
+			writeDelegateJSON(stdout, map[string]any{"schema": delegateCancelSchema, "attempt": attempt.AttemptID, "requested": false, "dry_run": true, "owner": attempt.Liveness})
+			return 0
+		}
+		out := render(stdout, stderr)
+		out.Field("delegate.attempt", attempt.AttemptID)
+		out.Field("delegate.owner", attempt.Liveness)
+		out.Field("delegate.dry_run", tr("true (no cancellation requested)", "true (nenhum cancelamento pedido)"))
+		return 0
+	}
+	marker, err := store.RequestDelegationCancel(attempt.AttemptID)
+	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, "cancel", 1, err)
 	}
 	deadline := time.Now().Add(60 * time.Second)
-	for store.DelegationStillActive(attempt.AttemptID) && time.Now().Before(deadline) {
+	for store.DelegationRunActive(marker) && time.Now().Before(deadline) {
 		time.Sleep(200 * time.Millisecond)
 	}
-	stopped := !store.DelegationStillActive(attempt.AttemptID)
+	stopped := !store.DelegationRunActive(marker)
 	status, run := "", ""
 	if after, _, err := store.ListDelegationAttempts(); err == nil {
 		for _, a := range after {
@@ -590,7 +698,7 @@ func cmdDelegateCancel(root string, args []string, stdout, stderr io.Writer) int
 	} else {
 		out := render(stdout, stderr)
 		out.Field("delegate.attempt", attempt.AttemptID)
-		out.Field("delegate.cancel", "requested")
+		out.Field("delegate.cancel", tr("requested", "pedido"))
 		out.Field("delegate.stopped", fmt.Sprint(stopped))
 		if run != "" {
 			out.Field("delegate.run", run)
@@ -605,35 +713,42 @@ func cmdDelegateCancel(root string, args []string, stdout, stderr io.Writer) int
 
 // delegateAgentRow is one line of pose delegate agents (R14).
 type delegateAgentRow struct {
-	Name         string   `json:"name"`
-	Vendor       string   `json:"vendor"`
-	Model        string   `json:"model"`
-	CLI          string   `json:"cli"`
-	OnPath       bool     `json:"on_path"`
-	Access       []string `json:"access"`
-	Events       string   `json:"events"`
-	LimitResetAt string   `json:"limit_reset_at,omitempty"`
-	Limited      bool     `json:"limited"`
+	Name              string   `json:"name"`
+	Vendor            string   `json:"vendor"`
+	Model             string   `json:"model"`
+	CLI               string   `json:"cli"`
+	OnPath            bool     `json:"on_path"`
+	Access            []string `json:"access"`
+	Events            string   `json:"events"`
+	LimitResetAt      string   `json:"limit_reset_at,omitempty"`
+	Limited           bool     `json:"limited"`
+	IndependentOfLead *bool    `json:"independent_of_lead,omitempty"`
 }
 
 func cmdDelegateAgents(root string, args []string, stdout, stderr io.Writer) int {
-	f, problem := parseDelegateFlags(args, "--json")
-	if problem != "" || len(f.positional) > 0 {
-		if problem == "" {
-			problem = "no arguments"
-		}
-		return delegateUsage(stdout, stderr, args, "agents", problem+"\nUsage: pose delegate agents [--json]")
+	f, problem := parseDelegateFlags(args)
+	if problem == "" && len(f.positional) > 0 {
+		problem = tr("no arguments", "sem argumentos")
+	}
+	if problem != "" {
+		return delegateUsage(stdout, stderr, args, "agents", problem+"\n"+tr("Usage: ", "Uso: ")+"pose delegate agents [--agent <name>] [--access <level>] [--label <name>] [--lead <vendor>] [--json]")
 	}
 	store := posemodel.Store{Root: root}
 	policy, path, found, err := store.LoadDelegationPolicy()
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, "agents", 1, err)
 	}
+	// The reset of the last recorded usage limit of each agent: runs are read
+	// in the order they started, so the last one written wins.
 	resets := map[string]string{}
+	labelled := map[string]bool{}
 	if runs, _, err := store.ReadReviewRuns(""); err == nil {
 		for _, run := range runs {
-			if run.Interruption != nil && run.Interruption.Cause == "usage-limit" && run.Interruption.ResetAt > resets[run.Adapter] {
+			if run.Interruption != nil && run.Interruption.Cause == "usage-limit" {
 				resets[run.Adapter] = run.Interruption.ResetAt
+			}
+			if f.label != "" && run.Label == f.label {
+				labelled[run.Adapter] = true
 			}
 		}
 	}
@@ -645,6 +760,9 @@ func cmdDelegateAgents(root string, args []string, stdout, stderr io.Writer) int
 			access = append(access, level)
 		}
 		sort.Strings(access)
+		if f.agent != "" && f.agent != "auto" && f.agent != name || f.access != "" && !containsString(access, f.access) || f.label != "" && !labelled[name] {
+			continue
+		}
 		cli := agent.CLI
 		if cli == "" && len(access) > 0 {
 			cli = agent.Commands[access[0]][0]
@@ -658,6 +776,10 @@ func cmdDelegateAgents(root string, args []string, stdout, stderr io.Writer) int
 		if t, err := time.Parse(time.RFC3339Nano, row.LimitResetAt); err == nil && t.After(time.Now()) {
 			row.Limited = true
 		}
+		if f.lead != "" {
+			independent := agent.Vendor != f.lead
+			row.IndependentOfLead = &independent
+		}
 		rows = append(rows, row)
 	}
 	if f.jsonOut {
@@ -670,7 +792,7 @@ func cmdDelegateAgents(root string, args []string, stdout, stderr io.Writer) int
 	}
 	out := render(stdout, stderr)
 	if !found {
-		out.Field("delegate.agents", "none configured (.pose/policy/delegation.json)")
+		out.Field("delegate.agents", tr("none configured (.pose/policy/delegation.json)", "nenhum configurado (.pose/policy/delegation.json)"))
 		return 0
 	}
 	out.Field("delegate.policy", path)
@@ -679,10 +801,22 @@ func cmdDelegateAgents(root string, args []string, stdout, stderr io.Writer) int
 		if row.LimitResetAt != "" {
 			value += " last_limit_reset=" + row.LimitResetAt
 			if row.Limited {
-				value += " (limited now)"
+				value += tr(" (limited now)", " (limitado agora)")
 			}
+		}
+		if row.IndependentOfLead != nil {
+			value += fmt.Sprintf(" independent_of_lead=%t", *row.IndependentOfLead)
 		}
 		out.Field("delegate.agent."+row.Name, value)
 	}
 	return 0
+}
+
+func containsString(values []string, wanted string) bool {
+	for _, value := range values {
+		if value == wanted {
+			return true
+		}
+	}
+	return false
 }

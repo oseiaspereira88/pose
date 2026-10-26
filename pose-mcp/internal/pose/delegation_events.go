@@ -9,7 +9,6 @@ package pose
 // and they never carry a session reference.
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -81,10 +80,10 @@ func EncodeDelegationEvents(events []DelegationEvent) []byte {
 }
 
 func jsonLines(transcript []byte, each func(map[string]any)) {
-	scanner := bufio.NewScanner(bytes.NewReader(transcript))
-	scanner.Buffer(make([]byte, 64<<10), 16<<20)
-	for scanner.Scan() {
-		line := bytes.TrimSpace(scanner.Bytes())
+	// The transcript is already bounded by the containment's stream budget, so
+	// a line is read whole whatever its length.
+	for _, line := range bytes.Split(transcript, []byte("\n")) {
+		line = bytes.TrimSpace(line)
 		if len(line) == 0 || line[0] != '{' {
 			continue // a vendor's log line on the same channel
 		}
@@ -338,4 +337,18 @@ func DelegationStreamFinal(format string, transcript []byte) string {
 		})
 	}
 	return final
+}
+
+// redactedDelegationEvents normalizes the raw stream and redacts every text
+// with the run's credentials and session after JSON decoding.
+func redactedDelegationEvents(format string, raw []byte, final string, secrets []string, session string) ([]byte, error) {
+	events := NormalizeDelegationEvents(format, raw, final)
+	for i := range events {
+		red, err := redactReviewCapture([]byte(events[i].Text), secrets, session, 64<<10)
+		if err != nil {
+			return nil, err
+		}
+		events[i].Text = string(red)
+	}
+	return EncodeDelegationEvents(events), nil
 }

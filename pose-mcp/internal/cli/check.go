@@ -436,6 +436,7 @@ func isRuntimeReference(ref string) bool {
 		".pose/review-attempts",
 		".pose/policy/reviewers.json",
 		".pose/policy/delegation.json",
+		".pose/policy-migrations",
 		".pose/review-continuations",
 		".pose/review-private",
 		".pose/review-run-ledger",

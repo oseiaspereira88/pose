@@ -552,12 +552,29 @@ func migrateDelegationPolicyIn(files posemodel.Files, target string, log func(en
 	if !ok {
 		return
 	}
+	legacy := filepath.Join(target, ".pose", "policy", "reviewers.json")
+	raw, err := files.ReadFile(legacy)
+	if err != nil {
+		updatePhaseFailure(files, log, "delegation policy migration", err)
+		return
+	}
+	// The converted file is archived outside .pose/policy: runs recorded before
+	// the conversion keep their policy baseline through it (spec D7).
+	archive := filepath.Join(target, filepath.FromSlash(posemodel.DelegationArchivePath()))
+	if err := files.MkdirAll(filepath.Dir(archive), 0o755); err != nil {
+		updatePhaseFailure(files, log, "delegation policy migration", err)
+		return
+	}
+	if err := files.WriteFile(archive, raw, 0o644); err != nil {
+		updatePhaseFailure(files, log, "delegation policy migration", err)
+		return
+	}
 	dst := filepath.Join(target, ".pose", "policy", "delegation.json")
 	if err := files.WriteFile(dst, out, 0o644); err != nil {
 		updatePhaseFailure(files, log, "delegation policy migration", err)
 		return
 	}
-	if err := files.Remove(filepath.Join(target, ".pose", "policy", "reviewers.json")); err != nil {
+	if err := files.Remove(legacy); err != nil {
 		updatePhaseFailure(files, log, "delegation policy migration", err)
 		return
 	}

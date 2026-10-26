@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"unicode/utf8"
 )
 
 // The same session as each vendor records it: one turn, one shell command
@@ -122,5 +123,32 @@ func TestDelegationEventsAreBoundToTheRecord(t *testing.T) {
 	}
 	if _, err := s.ReadDelegationEvents(run); err == nil {
 		t.Fatal("events that are not the bound bytes were read")
+	}
+}
+
+// B02 of the first review: a value hidden by a JSON escape is redacted after
+// decoding, so the events never re-expose what the transcript withheld.
+func TestDelegationEventsRedactDecodedValues(t *testing.T) {
+	stream := `{"type":"item.started","item":{"type":"command_execution","command":"echo synthetic-token s3ssion-ref"}}` + "\n"
+	out, err := redactedDelegationEvents(DelegationEventsCodexJSONL, []byte(stream), "", []string{"synthetic-token"}, "s3ssion-ref")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(out), "synthetic-token") || strings.Contains(string(out), "s3ssion-ref") || !strings.Contains(string(out), "[credential]") {
+		t.Fatalf("decoded values leaked: %s", out)
+	}
+}
+
+// F02 and F03: the last step is cut on a rune boundary and a long line is
+// read whole.
+func TestDelegationEventsKeepRunesAndLongLines(t *testing.T) {
+	step := delegationStepText(DelegationEvent{Kind: DelegationEventMessage, Text: strings.Repeat("a", 66) + "é" + strings.Repeat("b", 30)})
+	if !utf8.ValidString(step) {
+		t.Fatalf("invalid UTF-8: %q", step)
+	}
+	long := `{"type":"item.completed","item":{"type":"command_execution","aggregated_output":"` + strings.Repeat("x", 17<<20) + `","exit_code":0}}` + "\n" +
+		`{"type":"item.completed","item":{"type":"agent_message","text":"decision: approved"}}` + "\n"
+	if got := DelegationStreamFinal(DelegationEventsCodexJSONL, []byte(long)); got != "decision: approved" {
+		t.Fatalf("a line over 16 MiB hid the final message: %q", got)
 	}
 }

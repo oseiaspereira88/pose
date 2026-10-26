@@ -196,3 +196,76 @@ func TestDelegationPolicyRefusesWhatItCannotStateSafely(t *testing.T) {
 		}
 	}
 }
+
+// B06 of the first review: the schema is strict about explicit budgets and
+// about anything after the policy object.
+func TestDelegationPolicyRefusesExplicitZeroNullAndTrailingData(t *testing.T) {
+	cases := map[string]string{
+		"purpose budget zero": strings.Replace(delegationFixture, `"review": {"max_runs_per_bundle": 3}`, `"review": {"max_runs_per_bundle": 0}`, 1),
+		"purpose budget null": strings.Replace(delegationFixture, `"review": {"max_runs_per_bundle": 3}`, `"review": {"max_runs_per_bundle": null}`, 1),
+		"agent budget null":   strings.Replace(delegationFixture, `"timeout": "60m"`, `"timeout": "60m", "max_runs_per_bundle": null`, 1),
+		"empty timeout":       strings.Replace(delegationFixture, `"timeout": "60m"`, `"timeout": ""`, 1),
+		"trailing brace":      delegationFixture + "}\n",
+		"second object":       delegationFixture + "{}\n",
+	}
+	for name, raw := range cases {
+		if raw == delegationFixture {
+			t.Fatalf("%s: the fixture edit did not apply", name)
+		}
+		if _, err := ParseDelegationPolicy([]byte(raw)); err == nil {
+			t.Errorf("%s: accepted", name)
+		}
+	}
+	if _, err := ParseDelegationPolicy([]byte(delegationFixture)); err != nil {
+		t.Fatalf("the valid fixture: %v", err)
+	}
+}
+
+// B03 of the first review: the resume command keeps placeholders whole too.
+func TestDelegationResumeCommandKeepsPlaceholdersWhole(t *testing.T) {
+	raw := strings.Replace(delegationFixture, `"timeout": "60m"`, `"timeout": "60m",
+      "session": {"pattern": "session: (\\S+)"},
+      "resume": {"command": ["sh", "-c", "cat > {output}", "{session}"]}`, 1)
+	if _, err := ParseDelegationPolicy([]byte(raw)); err == nil || !strings.Contains(err.Error(), "resume command") {
+		t.Fatalf("an interpolated resume command was accepted: %v", err)
+	}
+	ok := strings.Replace(raw, `"cat > {output}", "{session}"`, `"resume-reviewer", "{session}", "{output}"`, 1)
+	if _, err := ParseDelegationPolicy([]byte(ok)); err != nil {
+		t.Fatalf("a whole-element resume command was refused: %v", err)
+	}
+}
+
+// B01 of the first review and D7: after pose update converts reviewers.json,
+// a run recorded before the conversion keeps its policy baseline, and only
+// while delegation.json is exactly that conversion.
+func TestDelegationMigrationKeepsThePolicyBaselineOfEarlierRuns(t *testing.T) {
+	root := t.TempDir()
+	s := Store{Root: root}
+	writePolicy(t, root, ".pose/policy/review.json", `{"schema_version":2}`)
+	writePolicy(t, root, reviewersPolicyPath, legacyReviewersFixture)
+	before := directoryDigestIn(s.fsys(), filepath.Join(root, ".pose", "policy"))
+	converted, ok, err := MigrateReviewersPolicyFile(NativeFiles(), root)
+	if err != nil || !ok {
+		t.Fatalf("migration: %v %v", ok, err)
+	}
+	writePolicy(t, root, delegationArchivePath, legacyReviewersFixture)
+	writePolicy(t, root, delegationPolicyPath, string(converted))
+	if err := os.Remove(filepath.Join(root, filepath.FromSlash(reviewersPolicyPath))); err != nil {
+		t.Fatal(err)
+	}
+	if now := directoryDigestIn(s.fsys(), filepath.Join(root, ".pose", "policy")); now == before {
+		t.Fatal("fixture: the conversion did not change the policy directory")
+	}
+	if got, ok := s.migratedPolicyBaseline(); !ok || got != before {
+		t.Fatalf("the earlier baseline is lost: %v %s want %s", ok, got, before)
+	}
+	writePolicy(t, root, delegationPolicyPath, strings.Replace(string(converted), `"timeout": "45m"`, `"timeout": "50m"`, 1))
+	if _, ok := s.migratedPolicyBaseline(); ok {
+		t.Fatal("an edited delegation.json inherited the baseline of the policy it replaced")
+	}
+	writePolicy(t, root, delegationPolicyPath, string(converted))
+	writePolicy(t, root, delegationArchivePath, legacyReviewersFixture+" ")
+	if _, ok := s.migratedPolicyBaseline(); ok {
+		t.Fatal("an archive that is not the converted file restored the baseline")
+	}
+}

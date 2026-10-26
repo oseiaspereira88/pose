@@ -11,30 +11,37 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 )
 
 // DelegationAttempt is one attempt and its continuations.
 type DelegationAttempt struct {
-	AttemptID       string              `json:"attempt_id"`
-	Runs            []string            `json:"runs"`
-	LatestRun       string              `json:"latest_run,omitempty"`
-	State           string              `json:"state"`
-	Purpose         string              `json:"purpose"`
-	Agent           string              `json:"agent"`
-	Vendor          string              `json:"vendor,omitempty"`
-	Model           string              `json:"model,omitempty"`
-	Label           string              `json:"label,omitempty"`
-	Scope           string              `json:"scope"`
-	BundleID        string              `json:"bundle_id"`
-	StartedAt       string              `json:"started_at"`
-	EndedAt         string              `json:"ended_at,omitempty"`
-	Turns           int                 `json:"turns"`
-	LastStep        string              `json:"last_step,omitempty"`
-	Failure         string              `json:"failure,omitempty"`
-	Interruption    *ReviewInterruption `json:"interruption,omitempty"`
-	Active          bool                `json:"active"`
-	Liveness        string              `json:"liveness,omitempty"`
-	CancelRequested bool                `json:"cancel_requested,omitempty"`
+	AttemptID    string              `json:"attempt_id"`
+	Runs         []string            `json:"runs"`
+	LatestRun    string              `json:"latest_run,omitempty"`
+	State        string              `json:"state"`
+	Purpose      string              `json:"purpose"`
+	Agent        string              `json:"agent"`
+	Vendor       string              `json:"vendor,omitempty"`
+	Model        string              `json:"model,omitempty"`
+	Label        string              `json:"label,omitempty"`
+	Lead         string              `json:"lead,omitempty"`
+	Access       string              `json:"access"`
+	Scope        string              `json:"scope"`
+	BundleID     string              `json:"bundle_id"`
+	StartedAt    string              `json:"started_at"`
+	EndedAt      string              `json:"ended_at,omitempty"`
+	Turns        int                 `json:"turns"`
+	LastStep     string              `json:"last_step,omitempty"`
+	Failure      string              `json:"failure,omitempty"`
+	Interruption *ReviewInterruption `json:"interruption,omitempty"`
+	// Partial says an interrupted run kept a partial draft; TimeLeft is the
+	// wait until its recorded reset, when there is one.
+	Partial         bool   `json:"partial,omitempty"`
+	TimeLeft        string `json:"time_left,omitempty"`
+	Active          bool   `json:"active"`
+	Liveness        string `json:"liveness,omitempty"`
+	CancelRequested bool   `json:"cancel_requested,omitempty"`
 	sessions        []string
 	latest          *ReviewRun
 }
@@ -89,9 +96,21 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 		latest := row.latest
 		row.LatestRun, row.State, row.Agent, row.Vendor, row.Model = latest.RunID, latest.Status, latest.Adapter, latest.Vendor, latest.Model
 		row.Label, row.Scope, row.BundleID, row.EndedAt, row.Failure, row.Interruption = latest.Label, latest.Scope, latest.BundleID, latest.EndedAt, latest.Failure, latest.Interruption
-		row.Purpose = latest.Purpose
+		row.Purpose, row.Lead, row.Access = latest.Purpose, latest.Lead, DelegationAccessRead
 		if row.Purpose == "" {
 			row.Purpose = DelegationPurposeForKind(latest.Kind)
+		}
+		if latest.Status == ReviewRunInterrupted {
+			row.Partial = strings.TrimSpace(latest.Output) != ""
+			if latest.Interruption != nil && latest.Interruption.ResetAt != "" {
+				if at, err := time.Parse(time.RFC3339Nano, latest.Interruption.ResetAt); err == nil {
+					left := time.Until(at)
+					if left < 0 {
+						left = 0
+					}
+					row.TimeLeft = left.Round(time.Second).String()
+				}
+			}
 		}
 	}
 	active, err := s.ListDelegationActive()
@@ -101,12 +120,12 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 	for _, marker := range active {
 		row, ok := byAttempt[marker.AttemptID]
 		if !ok {
-			row = &DelegationAttempt{AttemptID: marker.AttemptID, Runs: []string{}, StartedAt: marker.StartedAt, Purpose: marker.Purpose, Agent: marker.Agent, Label: marker.Label, Scope: marker.Scope, BundleID: marker.BundleID}
+			row = &DelegationAttempt{AttemptID: marker.AttemptID, Runs: []string{}, StartedAt: marker.StartedAt, Purpose: marker.Purpose, Access: DelegationAccessRead, Agent: marker.Agent, Label: marker.Label, Scope: marker.Scope, BundleID: marker.BundleID}
 			byAttempt[marker.AttemptID] = row
 			order = append(order, marker.AttemptID)
 		}
 		row.State, row.Active, row.Liveness, row.CancelRequested = DelegationRunning, true, marker.Liveness, marker.CancelRequested
-		row.EndedAt, row.Failure, row.Interruption = "", "", nil
+		row.EndedAt, row.Failure, row.Interruption, row.Partial, row.TimeLeft = "", "", nil, false, ""
 	}
 	out := make([]DelegationAttempt, 0, len(order))
 	for _, key := range order {
@@ -119,7 +138,11 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 func delegationStepText(e DelegationEvent) string {
 	text := strings.Join(strings.Fields(e.Text), " ")
 	if len(text) > 80 {
-		text = text[:77] + "..."
+		cut := 77
+		for cut > 0 && !utf8RuneStart(text[cut]) {
+			cut--
+		}
+		text = text[:cut] + "..."
 	}
 	switch e.Kind {
 	case DelegationEventToolCall:
