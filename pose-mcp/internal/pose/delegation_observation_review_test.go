@@ -129,3 +129,17 @@ func TestTheHookRunsOncePerRun(t *testing.T) {
 		t.Fatalf("calls: %q", raw)
 	}
 }
+
+// N01 of the second review: a hook whose outcome could not be recorded is
+// reported, not read as no hook.
+func TestAnUnrecordedHookOutcomeIsReported(t *testing.T) {
+	s := Store{Root: t.TempDir()}
+	dir, err := s.delegationHookDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.WriteFile(filepath.Join(dir, "rrn-0123456789abcdef.claim"), []byte("x\n"), 0o600)
+	if outcome := s.ReadDelegationHook("rrn-0123456789abcdef"); outcome == nil || !strings.Contains(outcome.Failure, "not recorded") {
+		t.Fatalf("an unrecorded outcome: %+v", outcome)
+	}
+}

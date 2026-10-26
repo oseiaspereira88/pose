@@ -123,7 +123,8 @@ Supervisor, run record heartbeat and terminal marker, `pose delegate wait`, `ls`
 - [x] `watch` with chain replay, picker and colour rules
 - [x] `on_terminal` hook under containment
 - [x] First independent review: changes requested (B01–B09; F01–F04), B01–B09 and F02–F04 addressed with regression tests that fail on 2e015c4; F01 (redacted live events a failed capture later withholds) stays a disclosed follow-up of D7
-- [ ] Second independent review and closeout
+- [x] Second independent review: B01–B07, B09 and F02–F04 accepted as fixed and the exact gitleaks entry accepted; B08 partial and the new follow-up N01 addressed with regression tests that fail on 939c5ab; F01 stays disclosed under D7
+- [ ] Third independent review and closeout
 
 ## 5. Decisions
 

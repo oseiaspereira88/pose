@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -99,5 +100,28 @@ func TestPreviewCarriesVerboseAndLsReadsLiveProgress(t *testing.T) {
 	runBuilt(t, root, "delegate", "wait", detached.Attempt)
 	if !strings.Contains(ls, `"turns": 1`) || !strings.Contains(ls, `"last_step": "message: looking at the bundle"`) {
 		t.Fatalf("ls of a running run: %s", ls)
+	}
+}
+
+// B08 of the second review: a detached run that cannot hand its attempt back
+// does not start its agent, and one stopped after the bound records its run
+// instead of leaving the agent running.
+func TestADetachedRunThatCannotHandBackDoesNotRun(t *testing.T) {
+	root := dispatchInstance(t)
+	writeDelegation(t, root, slowApprovingAgent)
+	// The hand-back file already exists, so its exclusive publication fails.
+	dir, err := posemodel.Store{Root: root}.DelegationPrivateDir("supervisors")
+	if err != nil {
+		t.Fatal(err)
+	}
+	handback := filepath.Join(dir, "occupied.handback")
+	os.WriteFile(handback, []byte("{}\n"), 0o600)
+	cmd := exec.Command(poseBinary(t), "delegate", "review", "spec:alpha")
+	cmd.Dir = root
+	cmd.Env = append(os.Environ(), delegateHandback+"="+handback)
+	out, _ := cmd.CombinedOutput()
+	runs, _ := posemodel.Store{Root: root}.ListReviewRuns("")
+	if len(runs) != 1 || runs[0].Status != posemodel.ReviewRunFailed || !strings.Contains(runs[0].Failure, "could not be handed back") {
+		t.Fatalf("a run that could not hand back: %+v %s", runs, out)
 	}
 }

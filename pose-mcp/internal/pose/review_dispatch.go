@@ -357,7 +357,7 @@ type DispatchPlan struct {
 	// OnStart is called once the attempt is reserved and its marker written,
 	// so a detached run can hand its reference back (spec
 	// pose-delegated-review-completion-signal R1).
-	OnStart func(attempt string)
+	OnStart func(attempt string) error
 }
 
 // Implementation is the identity the plan compares its agent with.
@@ -654,8 +654,12 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	// is the one trace of the reserved attempt.
 	defer func() { stopActive(resultErr != nil || result.Path == "") }()
 	cancelled = cancelFlag
+	// A detached run that cannot hand its attempt back stops here: nobody
+	// would know which attempt runs (R1).
 	if plan.OnStart != nil {
-		plan.OnStart(run.AttemptID)
+		if err := plan.OnStart(run.AttemptID); err != nil {
+			return finish(ReviewRunFailed, "the run was not started: its attempt could not be handed back: "+err.Error())
+		}
 	}
 	tmp, err := os.MkdirTemp("", "pose-review-run-*")
 	if err != nil {

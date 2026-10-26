@@ -13,9 +13,11 @@ func detachProcess(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: detachedProcess | newProcessGroup}
 }
 
-// stopDetached kills the detached run.
-func stopDetached(cmd *exec.Cmd) {
+// stopDetached kills the detached run; Windows has no interrupt to ask it
+// to stop its agent first.
+func stopDetached(cmd *exec.Cmd, exited <-chan struct{}) {
 	if cmd.Process != nil {
 		_ = cmd.Process.Kill()
+		<-exited
 	}
 }

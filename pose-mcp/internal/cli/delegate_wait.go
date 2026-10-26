@@ -32,8 +32,12 @@ const (
 	delegateWaitStep = 500 * time.Millisecond
 )
 
-// delegateDetachBound is how long a detached run has to reserve its attempt.
-var delegateDetachBound = 2 * time.Minute
+// delegateDetachBound is how long a detached run has to reserve its attempt;
+// delegateStopGrace, how long one asked to stop has to record its run.
+var (
+	delegateDetachBound = 2 * time.Minute
+	delegateStopGrace   = 30 * time.Second
+)
 
 // delegateExecutable is the pose binary a detached run starts; tests point it
 // at a built binary.
@@ -42,15 +46,16 @@ var delegateExecutable = os.Executable
 // delegateSupervised reports whether this process is a detached run.
 func delegateSupervised() bool { return os.Getenv(delegateHandback) != "" }
 
-// supervisorHandback publishes the attempt where the caller waits for it.
-func supervisorHandback() func(attempt string) {
+// supervisorHandback publishes the attempt where the caller waits for it; a
+// hand-back that cannot be published stops the run before its agent starts.
+func supervisorHandback() func(attempt string) error {
 	path := os.Getenv(delegateHandback)
 	if path == "" {
 		return nil
 	}
-	return func(attempt string) {
+	return func(attempt string) error {
 		raw, _ := json.Marshal(map[string]string{"attempt": attempt})
-		_ = posemodel.PublishFile(path, append(raw, '\n'), 0o600, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAbsent})
+		return posemodel.PublishFile(path, append(raw, '\n'), 0o600, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAbsent})
 	}
 }
 
@@ -117,8 +122,7 @@ wait:
 			attempt = readHandback(handback)
 			break wait
 		case <-deadline:
-			stopDetached(cmd)
-			<-exited
+			stopDetached(cmd, exited)
 			if attempt = readHandback(handback); attempt != "" {
 				return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the detached run reserved attempt "+attempt+" after the hand-back bound and was stopped; see pose delegate ls "+attempt,
 					"o run destacado reservou a tentativa "+attempt+" depois do limite da devolução e foi parado; veja pose delegate ls "+attempt)))

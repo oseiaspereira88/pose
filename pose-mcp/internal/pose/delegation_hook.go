@@ -122,6 +122,11 @@ func (s Store) ReadDelegationHook(runID string) *DelegationHookOutcome {
 	}
 	raw, err := readLedgerRaw(filepath.Join(dir, runID+".json"))
 	if err != nil {
+		// Claimed but never recorded: the hook started and its outcome was
+		// lost, which is said rather than read as no hook at all.
+		if _, claimErr := readLedgerRaw(filepath.Join(dir, runID+".claim")); claimErr == nil {
+			return &DelegationHookOutcome{SchemaVersion: 1, RunID: runID, ExitCode: -1, Failure: "the hook was started but its outcome was not recorded"}
+		}
 		return nil
 	}
 	var outcome DelegationHookOutcome
