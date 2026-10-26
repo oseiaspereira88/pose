@@ -1,8 +1,8 @@
 ---
 slug: pose-delegation-surface
-status: in-progress
+status: done
 created_at: 2026-10-26
-completed_at:
+completed_at: 2026-10-26
 supersedes:
 depends_on: pose-delegated-adapter-containment, pose-delegated-review-run-continuity, pose-delegated-review-attempt-ledger
 priority: 2
@@ -126,7 +126,7 @@ New command tree `pose delegate`; `delegation.json` schema 2; normalized event s
 - [x] Second independent review: changes requested (B02, B06, B07, B09 partial; N01–N02 new blockers; N03 follow-up), all addressed with regression tests that fail on the reviewed commit
 - [x] Third independent review: changes requested (N01 partial; N04 follow-up, fixed in the same change), both addressed with regression tests that fail on the reviewed commit
 - [x] Fourth independent review: changes requested (N05 new blocker; N04 residual follow-up, fixed in the same change), both addressed with regression tests that fail on the reviewed commit
-- [ ] Fifth independent review and closeout
+- [x] Fifth independent review and native closeout: approved by agent:independent-gpt-6.1-sol-review; N05 and residual N04 fixed, no remaining findings
 
 ## 5. Decisions
 
@@ -221,10 +221,74 @@ Each subcommand parses and rejects as specified; a review run through `pose dele
 
 ### Delivered scope
 
-Not started: milestone `surface` of roadmap `delegation`.
+Delivered milestone `surface` of roadmap `delegation`: the `pose delegate`
+command tree and vocabulary, review/adjudicate/smoke over the existing dispatch,
+ledger, continuity, provenance and containment paths, schema 2 policy with
+lossless schema 1 migration, parent session environment removal, normalized
+redacted events, run references, listing, cancellation, availability and
+versioned JSON. Deprecated review aliases retain their behavior and exit codes.
+Task, watch, wait and handoff name their successor specs and refuse execution;
+routing, detach, general tasks and MCP remain outside this delivery.
+
+### Independent review and evidence
+
+Approved on 2026-10-26 by the maintainer-authorized reviewer
+`agent:independent-gpt-6.1-sol-review` (Codex/OpenAI), reviewing implementation
+commit `25055ee10bebd9085938925fce0834d596b85070` by
+`agent:claude-opus-5-5` (Claude/Anthropic), session
+`f2fa76f7-0c77-4cc7-a1d5-da4fa953d6dc`. The `agent:independent-` prefix is the
+engine-required declaration; identity is declared and attestations in this
+repository are unsigned. Another vendor performed this review; the declaration
+is not an authenticated proof of identity or cognitive independence.
+
+Sealed bundle: `rvb-ea1878be85c3133d`; attestation:
+`rva-025f46a30d45dfb1`. The attestation records all 16 criteria and 14 tool
+entries, with specific judgments on R1–R14 and D1–D8. Native `review verify`
+reported fresh, approved and ready-to-close before `pose close` applied the
+lifecycle transition. The immutable subject covers all five implementation
+commits and 33 reconciled artifact paths.
+
+Strict native validation passed 158/158 checks in
+`.pose/results/delivery-validation.json`; module validation passed 155/155 for
+`pose-mcp`. `docs-site` has no registered check producer: its strict validation
+ran zero checks, and the tool disposition records that limitation. The four
+manuals and two docs-site pages were reviewed against runtime, with en/pt-BR
+mirror parity checked. Strict artifact and surface checks passed for
+`capability:delegation-surface` at `pose-mcp/internal/cli/delegate.go`.
+
+Independent checks passed: `go vet ./...` with `LC_ALL=C`, Windows and Darwin
+cross-builds, uncached full Go suites with C and pt_BR.UTF-8 locales, and the
+race suite for Delegat, ReviewDispatch, RunContinuity and AdapterContainment.
+Production mutations for R5, R7, R8 and R13 each made their regression fail;
+the unchanged production passed. All round-4 probes were reexecuted. N05 and
+the residual N04 are fixed, including 48 combinations of ambiguous/unknown
+session reference, text/JSON, dry-run and locale. Their current regression
+tests fail against round-4 production. No earlier fixed finding regressed.
+
+The complete independent inventory, probes, command output, mutations and
+check summaries are retained locally under `.review-work/round5/`, as requested,
+and are not versioned. Native bundle, attestation and validation evidence are
+versioned with this closeout.
+
+The full `delegation` roadmap remains non-terminal: its later milestones and
+existing successor specs are still open. `roadmap-check delegation` reports
+those obligations; this closeout does not claim the entire roadmap delivered.
 
 ### Residual risks
 
-None yet.
+Trusted-process retains its documented host limitations: cross-builds do not
+qualify Windows/Darwin runtime containment, and a disposable worktree does not
+isolate filesystem, network, credential files, CPU or memory. Escaped process
+groups remain outside the delivered termination coverage. These are existing
+explicit boundaries, not new accepted findings. Global integration assessment
+uses heuristic consumer observation; its MCP gaps do not demonstrate a new
+CLI integration defect. Global technical-debt scanning reports incomplete
+coverage for two unrelated historical specs; no uncovered marker was found
+in the inspected changed production paths. Existing component-owner and
+unmapped-root metadata warnings remain disclosed by native verification.
 
 ### Follow-ups
+
+No new follow-up or unresolved review finding remains. All findings from the
+previous rounds are fixed; successor features remain governed by their
+existing roadmap specs.

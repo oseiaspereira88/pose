@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-26T03:33:08Z
-baseline_commit: 93bd35285e416b8c5724ffb32655adbaa5728196
+generated_at: 2026-10-26T12:52:19Z
+baseline_commit: 25055ee10bebd9085938925fce0834d596b85070
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:977abec6a337 -->
+<!-- state:derived hash:748dc511e1fd -->
 
-- specs: total=446 draft=22 in-progress=17 blocked=0 done=406 superseded=0 abandoned=1
-- roadmaps: total=22 active=3 done=11
+- specs: total=453 draft=27 in-progress=17 blocked=0 done=408 superseded=0 abandoned=1
+- roadmaps: total=23 active=3 done=11
 - últimos closeouts:
-  - spec:pose-delegated-review-run-provenance (2026-10-26)
+  - spec:pose-delegation-surface (2026-10-26)
   - spec:pose-delegated-adapter-containment (2026-10-26)
-  - spec:pose-amendment-history-holds-before-close (2026-10-25)
-  - spec:pose-delegated-review-run-continuity (2026-10-25)
+  - spec:pose-delegated-review-run-provenance (2026-10-26)
+  - spec:pose-git-repository-detection-ignores-locale (2026-10-26)
   - spec:pose-closeout-terminal-verification (2026-10-25)
-  - ... e mais 401 (ver `pose_list_specs status:done`)
+  - ... e mais 403 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:541eff3c6e23 -->
@@ -76,16 +76,16 @@ capacidade.
 - knowledge: total=13 ativo=13 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:6d7d7e094987 -->
+<!-- state:derived hash:ffe8deba2357 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
-- últimos 30 dias: total=89 outcome_ok=64 outcome_outro=25
+- últimos 30 dias: total=82 outcome_ok=58 outcome_outro=24
 - reports revisados (.md): total=278
-  - report:2026-10-26-b18-adapter-containment.md
-  - report:2026-10-25-b17-run-provenance.md
-  - report:2026-10-24-b10-implementation.md
-  - report:2026-10-24-b10-independent-review.md
-  - report:2026-10-24-b11-terminal-verification.md
+  - report:pose-abm-capability-adoption.md
+  - report:pose-agency-readiness-pilot.md
+  - report:pose-v6-2-0-autonomous-work.md
+  - report:pose-v7-legacy-cleanup-plan.md
+  - report:README.md
 
 ## Arquitetura
 <!-- state:derived hash:3926d1e5cceb status:active -->
