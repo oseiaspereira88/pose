@@ -80,6 +80,14 @@ Supervisor, run record heartbeat and terminal marker, `pose delegate wait`, `ls`
 - created: pose-mcp/internal/pose/delegation_wait.go
 - created: pose-mcp/internal/pose/delegation_wait_test.go
 - created: pose-mcp/internal/pose/delegation_supervision_linux_test.go
+- created: pose-mcp/internal/pose/delegation_live.go
+- created: pose-mcp/internal/pose/delegation_live_test.go
+- created: pose-mcp/internal/pose/delegation_hook.go
+- modified: pose-mcp/internal/pose/delegation_events.go
+- modified: pose-mcp/internal/pose/delegation_policy.go
+- created: pose-mcp/internal/cli/delegate_watch.go
+- created: pose-mcp/internal/cli/delegate_watch_test.go
+- modified: pose-mcp/internal/cli/cliout/state.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
 - modified: pose-mcp/internal/cli/delegate.go
 - created: pose-mcp/internal/cli/delegate_wait.go
@@ -107,9 +115,10 @@ Supervisor, run record heartbeat and terminal marker, `pose delegate wait`, `ls`
 - [x] Supervisor, heartbeat and stalled detection
 - [x] Atomic terminal transition and marker
 - [x] `wait` with distinguishing exit codes
-- [ ] `ls` and the MCP status tool
-- [ ] `watch` with chain replay, picker and colour rules
-- [ ] `on_terminal` hook under containment
+- [x] `ls` with heartbeat age and stall; the MCP status tool is delivered by `pose-delegation-mcp`, as R6 names
+- [x] `watch` with chain replay, picker and colour rules
+- [x] `on_terminal` hook under containment
+- [ ] Independent review and closeout
 
 ## 5. Decisions
 
@@ -152,6 +161,22 @@ Supervisor, run record heartbeat and terminal marker, `pose delegate wait`, `ls`
 - Rationale: R1 promises the reference at once; a reset can be hours away, and a supervisor waiting with nothing to hand back is the unobserved run this spec exists to end
 - Consequences: the caller runs it in the foreground, where the wait is visible, or detaches after the reset
 - Falsifier: a detached run that waited for a reset before handing back its attempt
+
+### Decision D6
+- Basis: R7
+- Minimal option: write the hook's outcome into the run record
+- Selected option: record it beside the run, in the engine's private state, keyed by the run identifier, and show it in `ls`
+- Rationale: the run record is published immutable and bound by digest to its ledger receipt and proof; the hook runs after that publication and may never change the run
+- Consequences: the outcome is local to the instance that ran the run, like the supervisor's log
+- Falsifier: a hook whose failure changed a run's state, its record or its digest
+
+### Decision D7
+- Basis: R9, security
+- Minimal option: follow the raw stream and redact at the end
+- Selected option: normalize and redact each complete line as it arrives, with the run's credentials and every session reference the stream has declared so far, into a private file removed when the record is published
+- Rationale: a watcher must never see a credential the record would withhold; a session reference is known only once the stream declares it
+- Consequences: a session reference printed before the line that declares it can reach the live file, which is private and short-lived; the events bound to the record are derived again from the whole transcript and redacted with it
+- Falsifier: a credential the record redacts appearing in a live event
 
 ## 6. Validation
 

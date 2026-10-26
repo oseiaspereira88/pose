@@ -167,3 +167,21 @@ func paint(p Profile, sgr, text string) string {
 	}
 	return sgr + text + sgrReset
 }
+
+// Tones a command outside this package may colour a word with; every one
+// degrades to plain text under the same rules as paint.
+const (
+	ToneOK   = "ok"
+	ToneBad  = "bad"
+	ToneWarn = "warn"
+	ToneDim  = "dim"
+	ToneBold = "bold"
+	ToneInfo = "info"
+)
+
+// Tint colours text with tone when, and only when, p is a terminal that asked
+// for colour (NO_COLOR, POSE_COLOR and --color are honoured by p).
+func Tint(p Profile, tone, text string) string {
+	sgr := map[string]string{ToneOK: sgrGreen, ToneBad: sgrRed, ToneWarn: sgrYellow, ToneDim: sgrDim, ToneBold: sgrBold, ToneInfo: sgrCyan}[tone]
+	return paint(p, sgr, text)
+}

@@ -110,6 +110,16 @@ type DelegationAgent struct {
 	// changes the adapter digest a run's provenance binds; adding one is still a
 	// policy edit, which changes the policy baseline as any edit does (D5).
 	Probe *DelegationProbe `json:"probe,omitempty"`
+	// OnTerminal runs once after a run of this agent ends (spec
+	// pose-delegated-review-completion-signal R7); it wins over the purpose's.
+	OnTerminal *DelegationHook `json:"on_terminal,omitempty"`
+}
+
+// DelegationHook is a command run after a run ends, with the run identifier
+// and state in its environment and nothing else.
+type DelegationHook struct {
+	Command []string `json:"command"`
+	Timeout string   `json:"timeout,omitempty"`
 }
 
 // DelegationProbe is a command whose success means the agent can run now.
@@ -128,6 +138,8 @@ const (
 	delegationDefaultMaxWait    = 5 * time.Hour
 	delegationProbeDefaultBound = 10 * time.Second
 	delegationProbeMaxBound     = 60 * time.Second
+	delegationHookDefaultBound  = 30 * time.Second
+	delegationHookMaxBound      = 5 * time.Minute
 )
 
 // RoutingPrefer is the preference in force.
@@ -170,8 +182,9 @@ type DelegationRouting struct {
 
 // DelegationPurposePolicy is the budget of one purpose.
 type DelegationPurposePolicy struct {
-	MaxRunsPerBundle int    `json:"max_runs_per_bundle,omitempty"`
-	Timeout          string `json:"timeout,omitempty"`
+	MaxRunsPerBundle int             `json:"max_runs_per_bundle,omitempty"`
+	Timeout          string          `json:"timeout,omitempty"`
+	OnTerminal       *DelegationHook `json:"on_terminal,omitempty"`
 }
 
 // DelegationPolicy is .pose/policy/delegation.json.
@@ -402,6 +415,9 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 		if !containsString(delegationPurposes, name) {
 			return fmt.Errorf("pose: delegation purpose %q is not one of %s", name, strings.Join(delegationPurposes, ", "))
 		}
+		if err := validateDelegationHook(purpose.OnTerminal); err != nil {
+			return fmt.Errorf("pose: delegation purpose %s on_terminal: %w", name, err)
+		}
 		if purpose.MaxRunsPerBundle < 0 || purpose.MaxRunsPerBundle > 100 {
 			return fmt.Errorf("pose: delegation purpose %s: max_runs_per_bundle must be 1..100; omit for default 3", name)
 		}
@@ -496,6 +512,9 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 				}
 			}
 		}
+		if err := validateDelegationHook(agent.OnTerminal); err != nil {
+			return fmt.Errorf("pose: delegation agent %s on_terminal: %w", name, err)
+		}
 		if probe := agent.Probe; probe != nil {
 			if err := validateDelegationArgv(probe.Command, nil); err != nil {
 				return fmt.Errorf("pose: delegation agent %s probe: %w", name, err)
@@ -531,6 +550,28 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 		return fmt.Errorf("pose: migrated_from must name %s, its archive %s and the archive's digest", reviewersPolicyPath, delegationArchivePath)
 	}
 	return validateRunProvenancePolicy(policy.reviewersView(DelegationPurposeReview))
+}
+
+// validateDelegationHook checks an on_terminal command: an argv with no
+// placeholder and a timeout up to five minutes.
+func validateDelegationHook(hook *DelegationHook) error {
+	if hook == nil {
+		return nil
+	}
+	if err := validateDelegationArgv(hook.Command, nil); err != nil {
+		return err
+	}
+	for _, arg := range hook.Command {
+		if delegationPlaceholder(arg) != "" {
+			return fmt.Errorf("a hook takes no placeholder; the run and its state are in its environment")
+		}
+	}
+	if hook.Timeout != "" {
+		if d, err := time.ParseDuration(hook.Timeout); err != nil || d <= 0 || d > delegationHookMaxBound {
+			return fmt.Errorf("timeout must be a positive duration up to %s", delegationHookMaxBound)
+		}
+	}
+	return nil
 }
 
 // delegationPlaceholder names the placeholder an argv element is, or "".

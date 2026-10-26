@@ -89,6 +89,12 @@ func normalizeDelegationEvents(format string, transcript []byte, final string, c
 	if strings.TrimSpace(final) != "" {
 		events = append(events, DelegationEvent{Kind: DelegationEventFinal, Text: final})
 	}
+	return finishDelegationEvents(events, 1, clean)
+}
+
+// finishDelegationEvents passes every field through clean again, bounds it
+// and numbers the events from first.
+func finishDelegationEvents(events []DelegationEvent, first int, clean func(string) (string, error)) ([]DelegationEvent, error) {
 	for i := range events {
 		e := &events[i]
 		for _, field := range []*string{&e.Tool, &e.Text, &e.ResetAt} {
@@ -103,7 +109,7 @@ func normalizeDelegationEvents(format string, transcript []byte, final string, c
 		} else {
 			e.Text = boundEventText(e.Text)
 		}
-		e.Version, e.Seq = DelegationEventSchemaVersion, i+1
+		e.Version, e.Seq = DelegationEventSchemaVersion, first+i
 	}
 	return events, nil
 }
@@ -176,8 +182,14 @@ func codexEvents(transcript []byte, field func(any) string) []DelegationEvent {
 }
 
 func claudeEvents(transcript []byte, field func(any) string) []DelegationEvent {
+	return claudeEventsWith(transcript, field, map[string]string{})
+}
+
+// claudeEventsWith keeps tools (tool_use id -> normalized tool name) across
+// calls, so a stream read line by line names a tool's output as the whole
+// stream does.
+func claudeEventsWith(transcript []byte, field func(any) string, tools map[string]string) []DelegationEvent {
 	var out []DelegationEvent
-	tools := map[string]string{} // tool_use id -> normalized tool name
 	jsonLines(transcript, func(e map[string]any) {
 		switch str(e["type"]) {
 		case "system":

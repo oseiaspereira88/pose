@@ -46,8 +46,10 @@ type DelegationAttempt struct {
 	// run is not active (spec pose-delegated-review-completion-signal R4, R6).
 	HeartbeatAge string `json:"heartbeat_age,omitempty"`
 	StalledAt    string `json:"stalled_at,omitempty"`
-	sessions     []string
-	latest       *ReviewRun
+	// HookFailure is why the latest run's on_terminal hook failed (R7).
+	HookFailure string `json:"hook_failure,omitempty"`
+	sessions    []string
+	latest      *ReviewRun
 }
 
 // Latest is the latest recorded run of the attempt, if any.
@@ -109,6 +111,9 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 		row.LatestRun, row.State, row.Agent, row.Vendor, row.Model = latest.RunID, latest.Status, latest.Adapter, latest.Vendor, latest.Model
 		row.Label, row.Scope, row.BundleID, row.EndedAt, row.Failure, row.Interruption = latest.Label, latest.Scope, latest.BundleID, latest.EndedAt, latest.Failure, latest.Interruption
 		row.Purpose, row.Lead, row.Access = latest.Purpose, latest.Lead, DelegationAccessRead
+		if hook := s.ReadDelegationHook(latest.RunID); hook != nil {
+			row.HookFailure = hook.Failure
+		}
 		if row.Purpose == "" {
 			row.Purpose = DelegationPurposeForKind(latest.Kind)
 		}

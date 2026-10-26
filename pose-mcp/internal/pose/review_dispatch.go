@@ -805,6 +805,19 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	cmd.Env = env
 	combined := &reviewBoundedCapture{limit: safety.StreamBytes, cancel: cancel}
 	cmd.Stdout, cmd.Stderr = combined, combined
+	// pose delegate watch follows the normalized, redacted events as they come
+	// (spec pose-delegated-review-completion-signal R9); the file goes when
+	// the record is published.
+	sessionPattern := ""
+	if plan.Config.Session != nil {
+		sessionPattern = plan.Config.Session.Pattern
+	}
+	if live := s.startDelegationLive(run.AttemptID, plan.Config.Events, secrets, sessionPattern, plan.session); live != nil {
+		tee := io.MultiWriter(combined, live)
+		cmd.Stdout, cmd.Stderr = tee, tee
+		defer func() { _ = os.Remove(s.delegationLivePath(run.AttemptID)) }()
+		defer live.Close()
+	}
 	// Adapters such as `codex exec` and `claude -p` start children; killing
 	// only the parent left a child holding stdout, so the timeout never fired
 	// (found in review). The run gets its own process group, the whole group

@@ -24,6 +24,7 @@ import (
 	"os/signal"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -45,7 +46,6 @@ const (
 
 // Subcommands named by the ADR whose behaviour a later spec delivers.
 var delegatePlanned = map[string]string{
-	"watch":   "pose-delegated-review-completion-signal",
 	"handoff": "pose-delegation-handoff",
 	"task":    "pose-delegation-task",
 }
@@ -63,7 +63,9 @@ func tr(english, portuguese string) string { return cliText(cliLocaleValue(), en
 type delegateFlags struct {
 	agent, access, label, lead, reason, noteFile string
 	dryRun, jsonOut, active, wait, detach        bool
-	waitMax, timeout                             time.Duration
+	verbose, noFollow                            bool
+	lines                                        int
+	waitMax, timeout, refresh                    time.Duration
 	positional                                   []string
 }
 
@@ -86,7 +88,7 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 			return f, tr("unknown or inapplicable flag "+name, "flag desconhecida ou inaplicável "+name)
 		}
 		switch name {
-		case "--dry-run", "--json", "--active", "--detach":
+		case "--dry-run", "--json", "--active", "--detach", "-v", "--no-follow":
 			if hasInline {
 				return f, tr(name+" takes no value", name+" não recebe valor")
 			}
@@ -97,6 +99,10 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 				f.jsonOut = true
 			case "--detach":
 				f.detach = true
+			case "-v":
+				f.verbose = true
+			case "--no-follow":
+				f.noFollow = true
 			default:
 				f.active = true
 			}
@@ -142,6 +148,18 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 				}
 			case "--reason":
 				f.reason = value
+			case "--lines":
+				n, err := strconv.Atoi(value)
+				if err != nil || n < 1 || n > 1000 {
+					return f, tr("--lines takes a number from 1 to 1000", "--lines recebe um número de 1 a 1000")
+				}
+				f.lines = n
+			case "--refresh":
+				d, err := time.ParseDuration(value)
+				if err != nil || d < 0 || d > time.Hour {
+					return f, tr("--refresh takes a duration from 0 to 1h (0 turns the preview's refresh off)", "--refresh recebe uma duração de 0 a 1h (0 desliga a atualização do preview)")
+				}
+				f.refresh = d
 			case "--timeout":
 				d, err := time.ParseDuration(value)
 				if err != nil || d <= 0 {
@@ -178,6 +196,8 @@ func cmdDelegate(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdDelegateAgents(root, rest, stdout, stderr)
 	case "wait":
 		return cmdDelegateWait(root, rest, stdout, stderr)
+	case "watch":
+		return cmdDelegateWatch(root, rest, stdout, stderr)
 	}
 	return delegateUsage(stdout, stderr, rest, sub, tr("unknown subcommand", "subcomando desconhecido")+"\n"+tr("Usage: ", "Uso: ")+delegateUsageText)
 }
@@ -465,6 +485,7 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 		plan.OnStart = supervisorHandback()
 	}
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
+	delegateTerminalHook(store, run, err, stdout, stderr, purpose)
 	return delegatePrintRun(stdout, stderr, f.jsonOut, purpose, run, err)
 }
 
@@ -472,6 +493,17 @@ func delegateNoAgent(stdout, stderr io.Writer, jsonOut bool, command string) int
 	example, _ := posemodel.CanonicalDelegationPolicy(posemodel.ExampleDelegationPolicy())
 	err := errors.New(tr("no agent is configured; add .pose/policy/delegation.json, for example:\n", "nenhum agente configurado; adicione .pose/policy/delegation.json, por exemplo:\n") + string(example))
 	return delegateFail(stdout, stderr, jsonOut, command, 1, err)
+}
+
+// delegateTerminalHook runs the policy's on_terminal hook once the run is
+// recorded, and says so when it failed; the run's state does not change (R7).
+func delegateTerminalHook(store posemodel.Store, run posemodel.ReviewRun, err error, stdout, stderr io.Writer, command string) {
+	if err != nil || run.RunID == "" {
+		return
+	}
+	if outcome := store.RunDelegationTerminalHook(run); outcome != nil && outcome.Failure != "" {
+		render(stdout, stderr).Hint("pose delegate " + command + ": on_terminal: " + outcome.Failure)
+	}
 }
 
 // routeSummary renders a routing decision for a person: the step chosen and
@@ -671,6 +703,9 @@ func cmdDelegateLs(root string, args []string, stdout, stderr io.Writer) int {
 			if a.StalledAt != "" {
 				value += " stalled_at=" + a.StalledAt
 			}
+			if a.HookFailure != "" {
+				value += " on_terminal_failed=" + strconv.Quote(a.HookFailure)
+			}
 			if a.Interruption != nil {
 				value += fmt.Sprintf(" cause=%s resumable=%t partial=%t", a.Interruption.Cause, a.Interruption.Resumable, a.Partial)
 				if a.Interruption.ResetAt != "" {
@@ -794,6 +829,7 @@ func cmdDelegateResume(root string, args []string, stdout, stderr io.Writer) int
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
+	delegateTerminalHook(store, run, err, stdout, stderr, "resume")
 	return delegatePrintRun(stdout, stderr, f.jsonOut, "resume", run, err)
 }
 
