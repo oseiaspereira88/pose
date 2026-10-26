@@ -125,7 +125,8 @@ New command tree `pose delegate`; `delegation.json` schema 2; normalized event s
 - [x] First independent review: changes requested (B01–B10, F01–F03), all addressed with regression tests that fail on the reviewed commit
 - [x] Second independent review: changes requested (B02, B06, B07, B09 partial; N01–N02 new blockers; N03 follow-up), all addressed with regression tests that fail on the reviewed commit
 - [x] Third independent review: changes requested (N01 partial; N04 follow-up, fixed in the same change), both addressed with regression tests that fail on the reviewed commit
-- [ ] Fourth independent review and closeout
+- [x] Fourth independent review: changes requested (N05 new blocker; N04 residual follow-up, fixed in the same change), both addressed with regression tests that fail on the reviewed commit
+- [ ] Fifth independent review and closeout
 
 ## 5. Decisions
 

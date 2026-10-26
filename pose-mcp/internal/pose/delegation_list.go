@@ -167,27 +167,28 @@ func delegationStepText(e DelegationEvent) string {
 }
 
 // ErrDelegationRefAmbiguous carries the candidates of an ambiguous reference.
+// Neither reference error carries the reference: it may be a session, which
+// no output names.
 type ErrDelegationRefAmbiguous struct {
-	Ref        string
 	Candidates []string
 }
 
 func (e *ErrDelegationRefAmbiguous) Error() string {
-	return fmt.Sprintf("pose: %q names more than one delegated run: %s", e.Ref, strings.Join(e.Candidates, ", "))
+	return "pose: the reference names more than one delegated run: " + strings.Join(e.Candidates, ", ")
 }
 
 // ErrDelegationRefUnknown means no attempt matches.
-type ErrDelegationRefUnknown struct{ Ref string }
+type ErrDelegationRefUnknown struct{}
 
 func (e *ErrDelegationRefUnknown) Error() string {
-	return fmt.Sprintf("pose: no delegated run is named %q (a run id, an attempt id, a label or a session prefix of six characters or more)", e.Ref)
+	return "pose: no delegated run matches the reference (a run id, an attempt id, a label or a session prefix of six characters or more)"
 }
 
 // ResolveDelegationRef finds the one attempt ref names (R11).
 func ResolveDelegationRef(attempts []DelegationAttempt, ref string) (DelegationAttempt, error) {
 	ref = strings.TrimSpace(ref)
 	if ref == "" {
-		return DelegationAttempt{}, &ErrDelegationRefUnknown{Ref: ref}
+		return DelegationAttempt{}, &ErrDelegationRefUnknown{}
 	}
 	// An identifier is exact and wins over a label or a session prefix.
 	for _, a := range attempts {
@@ -211,7 +212,7 @@ func ResolveDelegationRef(attempts []DelegationAttempt, ref string) (DelegationA
 	}
 	switch len(matched) {
 	case 0:
-		return DelegationAttempt{}, &ErrDelegationRefUnknown{Ref: ref}
+		return DelegationAttempt{}, &ErrDelegationRefUnknown{}
 	case 1:
 		return matched[0], nil
 	}
@@ -223,5 +224,5 @@ func ResolveDelegationRef(attempts []DelegationAttempt, ref string) (DelegationA
 		}
 		candidates = append(candidates, name)
 	}
-	return DelegationAttempt{}, &ErrDelegationRefAmbiguous{Ref: ref, Candidates: candidates}
+	return DelegationAttempt{}, &ErrDelegationRefAmbiguous{Candidates: candidates}
 }

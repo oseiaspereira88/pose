@@ -216,11 +216,11 @@ func delegateFail(stdout, stderr io.Writer, jsonOut bool, command string, code i
 func refError(err error) error {
 	var ambiguous *posemodel.ErrDelegationRefAmbiguous
 	if errors.As(err, &ambiguous) {
-		return localizedRefError{err: ambiguous, msg: tr(err.Error(), fmt.Sprintf("%q nomeia mais de um run delegado: %s", ambiguous.Ref, strings.Join(ambiguous.Candidates, ", ")))}
+		return localizedRefError{err: ambiguous, msg: tr(err.Error(), "a referência nomeia mais de um run delegado: "+strings.Join(ambiguous.Candidates, ", "))}
 	}
 	var unknown *posemodel.ErrDelegationRefUnknown
 	if errors.As(err, &unknown) {
-		return errors.New(tr(err.Error(), fmt.Sprintf("nenhum run delegado se chama %q (um id de run, um id de tentativa, um label ou um prefixo de sessão de seis caracteres ou mais)", unknown.Ref)))
+		return errors.New(tr(err.Error(), "nenhum run delegado corresponde à referência (um id de run, um id de tentativa, um label ou um prefixo de sessão de seis caracteres ou mais)"))
 	}
 	return err
 }
@@ -499,7 +499,7 @@ func cmdDelegateLs(root string, args []string, stdout, stderr io.Writer) int {
 	if len(f.positional) == 1 && !strings.HasPrefix(f.positional[0], "rvb-") {
 		one, err := posemodel.ResolveDelegationRef(attempts, f.positional[0])
 		if err != nil {
-			return delegateFail(stdout, stderr, f.jsonOut, "ls", 2, refError(err))
+			return delegateFail(stdout, stderr, f.jsonOut, "ls", 2, withDelegationLosses(refError(err), lost))
 		}
 		// A named run is refused when a selecting flag does not match it, as on
 		// every other lifecycle command (D8); without a reference they filter.

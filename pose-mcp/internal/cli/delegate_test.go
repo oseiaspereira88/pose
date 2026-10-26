@@ -552,3 +552,59 @@ func TestDelegateLsRefusesMismatchLocalizesAndReportsUnreadableEvents(t *testing
 		t.Fatalf("unreadable events are a loss: %d %s", code, out)
 	}
 }
+
+// N05 of the fourth review: a reference may be a session, so neither an
+// ambiguous nor an unknown reference is repeated in an error, in any command,
+// locale or mode; the candidates and exit 2 stay.
+func TestDelegateReferenceErrorsNeverRepeatASession(t *testing.T) {
+	root := dispatchInstance(t)
+	writeDelegation(t, root, delegationPolicy(resumableAgent))
+	runPoseSplit(t, root, "delegate", "review", "spec:alpha")
+	runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--reason", "second look")
+	if runs, _ := (posemodel.Store{Root: root}).ListReviewRuns(""); len(runs) != 2 {
+		t.Fatalf("two runs sharing one session were expected, got %d", len(runs))
+	}
+	for _, locale := range []string{"en", "pt-BR"} {
+		t.Setenv("POSE_LOCALE", locale)
+		for _, args := range [][]string{{"ls"}, {"resume"}, {"resume", "--dry-run"}, {"cancel"}, {"cancel", "--dry-run"}} {
+			for _, ref := range []string{"sess-abcdef123", "sess-unknown987"} {
+				for _, jsonOut := range []bool{true, false} {
+					call := append([]string{"delegate"}, args...)
+					call = append(call, ref)
+					if jsonOut {
+						call = append(call, "--json")
+					}
+					code, out, errOut := runPoseSplit(t, root, call...)
+					if code != 2 || strings.Contains(out+errOut, "sess-") {
+						t.Fatalf("%s %v: %d %s %s", locale, call, code, out, errOut)
+					}
+					var doc struct {
+						Candidates []string `json:"candidates"`
+					}
+					if jsonOut && ref == "sess-abcdef123" && (json.Unmarshal([]byte(out), &doc) != nil || len(doc.Candidates) != 2) {
+						t.Fatalf("%s %v lost its candidates: %s", locale, call, out)
+					}
+				}
+			}
+		}
+	}
+}
+
+// N04 of the fourth review: a named run ls cannot find may be the one an
+// unreadable marker hides, so the refusal names the loss, keeping exit 2.
+func TestDelegateLsNamesTheLossBesideAnUnknownReference(t *testing.T) {
+	root := dispatchInstance(t)
+	writeDelegation(t, root, delegationPolicy(resumableAgent))
+	runPoseSplit(t, root, "delegate", "review", "spec:alpha")
+	dir := filepath.Join(root, ".pose", "review-private", "active")
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "att-loss.json"), []byte(`{"schema_version":1,`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	code, out, _ := runPoseSplit(t, root, "delegate", "ls", "att-loss", "--json")
+	if code != 2 || !strings.Contains(out, "att-loss.json") || !strings.Contains(out, delegateErrorSchema) {
+		t.Fatalf("an unknown reference hid the loss: %d %s", code, out)
+	}
+}
