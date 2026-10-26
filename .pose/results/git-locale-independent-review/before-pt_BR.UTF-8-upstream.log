@@ -1,0 +1,7 @@
+--- FAIL: TestAPhaseWithAnUnreadProducerIsUnknownNotClear (0.01s)
+    readiness_phases_test.go:67: release is unread for sources the project does not have: {Phase:release State:unknown Restricting:[] Unread:[release] Note:no known restriction, but a producer that could restrict this phase was not read}
+--- FAIL: TestLoadArchivedFragmentsReadsWhatEachManifestAttests (0.00s)
+    release_archive_test.go:189: want exactly the attested fragment, intact, got [{Version:v1.2.0 Spec:alpha Pending:.pose/changelogs/unreleased/alpha.md Archived:.pose/changelogs/v1.2.0/alpha.md Intact:false Manifest:.pose/releases/v1.2.0/manifest.json ManifestDigest:}]
+FAIL
+FAIL	github.com/harne8/pose-mcp/internal/pose	0.017s
+FAIL

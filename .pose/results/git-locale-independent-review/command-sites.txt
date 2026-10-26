@@ -1,0 +1,89 @@
+pose-mcp/internal/cli/action_resolve.go:229:	cmd := exec.Command(keygen, "-Y", "sign", "-f", keyPath, "-n", namespace)
+pose-mcp/internal/pose/artifact_ref.go:341:	if top, err := exec.Command("git", "-C", s.Root, "rev-parse", "--show-toplevel").Output(); err == nil && sameProjectRoot(r.fsys(), s.Root, strings.TrimSpace(string(top))) {
+pose-mcp/internal/pose/artifact_ref.go:342:		if revision, err := exec.Command("git", "-C", s.Root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
+pose-mcp/internal/pose/assessment_freshness.go:57:	tree, err := exec.Command("git", "-C", s.Root, "rev-parse", spec).Output()
+pose-mcp/internal/pose/assessment_freshness.go:62:	status, err := exec.Command("git", "-C", s.Root, "status", "--porcelain", "--untracked-files=normal", "--", clean).Output()
+pose-mcp/internal/cli/artifact_integrity.go:32:	cmd := exec.Command("git", append([]string{"-C", root}, args...)...)
+pose-mcp/internal/cli/assess.go:120:	out, err := exec.Command("git", "-C", root, "rev-parse", "--short=12", "HEAD").Output()
+pose-mcp/internal/cli/assess.go:176:	if out, err := exec.Command("git", "-C", root, "rev-list", "--count", assessment.BaselineCommit+"..HEAD").Output(); err == nil {
+pose-mcp/internal/cli/capability_triggers.go:205:	out, err := exec.Command("git", "-C", root, "show", "--pretty=format:", "--name-only", commit).Output()
+pose-mcp/internal/pose/cli.go:151:	cmd := exec.CommandContext(ctx, executable, args...)
+pose-mcp/internal/pose/cli.go:188:	cmd := exec.CommandContext(ctx, executable, args...)
+pose-mcp/internal/cli/check.go:1076:	if _, err := exec.Command("git", "-C", checker.root, "rev-parse", "--verify", "HEAD").Output(); err != nil {
+pose-mcp/internal/cli/check.go:1084:		output, err := exec.Command(command[0], command[1:]...).Output()
+pose-mcp/internal/cli/check.go:1100:		old, _ := exec.Command("git", "-C", checker.root, "show", "HEAD:"+rel).Output()
+pose-mcp/internal/cli/cli.go:419:	out, err := exec.Command("git", "-C", dir, "rev-parse", "--show-toplevel").Output()
+pose-mcp/internal/pose/design_delta.go:764:	cmd := exec.Command("git", "-C", root, "cat-file", "-e", revision+":"+path)
+pose-mcp/internal/pose/design_delta.go:789:	cmd := exec.Command("git", "-C", root, "show", "--no-ext-diff", "--format=", revision+":"+path)
+pose-mcp/internal/cli/setup.go:298:	if err := exec.Command("git", "-C", root, "rev-parse", "--verify", "-q", "HEAD").Run(); err != nil {
+pose-mcp/internal/cli/setup.go:301:	out, err := exec.Command("git", "-C", root, "status", "--porcelain", "--", ".pose", "AGENTS.md", "POSE.md").Output()
+pose-mcp/internal/pose/spec_trailers.go:41:	out, err := exec.Command("git", append([]string{"-C", root}, SpecTrailerLogArgs...)...).Output()
+pose-mcp/internal/pose/discovery.go:61:	out, err := exec.Command("git", "-C", dir, "ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "-z").Output()
+pose-mcp/internal/pose/discovery.go:93:	out, err := exec.Command("git", "-C", dir, "ls-files", "--stage", "-z").Output()
+pose-mcp/internal/pose/discovery.go:538:	cmd := exec.Command("git", "-C", s.Root, "rev-parse", "--short=12", "HEAD")
+pose-mcp/internal/pose/discovery.go:539:	out, err := cmd.Output()
+pose-mcp/internal/pose/docs.go:341:	cmd := exec.CommandContext(ctx, "git", "-C", s.Root, "log", "-1", "--format=%cI", "--", relPath)
+pose-mcp/internal/pose/docs.go:342:	out, err := cmd.Output()
+pose-mcp/internal/cli/maintenance.go:548:	cmd := exec.Command(execPath, forwarded...)
+pose-mcp/internal/pose/docs_sync.go:120:	cmd := exec.CommandContext(ctx, "git", "-C", s.Root, "log", "-1", "--format=%H%x1f%cI", "--", relPath)
+pose-mcp/internal/pose/docs_sync.go:121:	out, err := cmd.Output()
+pose-mcp/internal/pose/docs_sync.go:133:	out, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output()
+pose-mcp/internal/pose/spec_transfer.go:643:	top, err := exec.Command("git", "-C", root, "rev-parse", "--show-toplevel").Output()
+pose-mcp/internal/pose/spec_transfer.go:647:	head, err := exec.Command("git", "-C", root, "rev-parse", "--verify", "HEAD").Output()
+pose-mcp/internal/pose/federated_acceptance.go:233:		top, err := gitCommand("-C", root, "rev-parse", "--show-toplevel").Output()
+pose-mcp/internal/pose/federated_acceptance.go:237:		revision, err := gitCommand("-C", root, "rev-parse", "--verify", "HEAD").Output()
+pose-mcp/internal/pose/federated_acceptance.go:242:		blobSize, err := gitCommand("-C", root, "cat-file", "-s", object).Output()
+pose-mcp/internal/pose/federated_acceptance.go:250:		head, err := gitCommand("-C", root, "show", object).Output()
+pose-mcp/internal/pose/federated_acceptance.go:547:	out, err := gitCommand("-C", source.Root, "log", "-1", "--format=%H", "--", rel).Output()
+pose-mcp/internal/pose/federated_acceptance.go:615:	committed, err := gitCommand("-C", source.Root, "show", resolved.Revision+":"+rel).Output()
+pose-mcp/internal/pose/federated_acceptance.go:627:	top, err := gitCommand("-C", child.Root, "rev-parse", "--show-toplevel").Output()
+pose-mcp/internal/pose/federated_acceptance.go:631:	parentTop, err := gitCommand("-C", parent.Root, "rev-parse", "--show-toplevel").Output()
+pose-mcp/internal/pose/federated_acceptance.go:644:	listing, err := gitCommand("-C", parent.Root, "ls-tree", "HEAD", "--", filepath.ToSlash(rel)).Output()
+pose-mcp/internal/pose/federated_acceptance.go:820:	if top, err := gitCommand("-C", root, "rev-parse", "--show-toplevel").Output(); err != nil || !sameProjectRoot(NativeFiles(), root, strings.TrimSpace(string(top))) {
+pose-mcp/internal/pose/federated_acceptance.go:823:	if head, err := gitCommand("-C", root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
+pose-mcp/internal/pose/git_batch.go:36:	cmd := exec.CommandContext(ctx, "git", "-C", r.root, "cat-file", "--batch")
+pose-mcp/internal/cli/state.go:350:	out, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output()
+pose-mcp/internal/cli/contribute.go:442:	cmd := exec.Command("gh", "issue", "create",
+pose-mcp/internal/pose/git_snapshot_integrity.go:103:	out, err := cmd.Output()
+pose-mcp/internal/pose/git_snapshot_integrity.go:274:		hash, e := cmd.Output()
+pose-mcp/internal/pose/git_snapshot_integrity.go:446:	cmd := exec.Command("git", args...)
+pose-mcp/internal/pose/git_snapshot_integrity.go:511:	out, err := gitCommand("-C", dir, "rev-parse", "--verify", "HEAD").Output()
+pose-mcp/internal/pose/git_spawn_cache.go:34:	raw, err := gitCommand("-C", root, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", commit).Output()
+pose-mcp/internal/cli/report.go:249:		if err := exec.Command("git", "-C", root, "add", "--", filepath.ToSlash(rel)).Run(); err != nil {
+pose-mcp/internal/cli/report.go:321:	output, err := exec.Command("git", args...).Output()
+pose-mcp/internal/cli/report_limitation.go:132:		cmd := exec.Command("gh", "issue", "create",
+pose-mcp/internal/cli/extension.go:186:	cmd := exec.Command("cosign", "verify-blob",
+pose-mcp/internal/cli/extension.go:192:	out, err := cmd.CombinedOutput()
+pose-mcp/internal/pose/state.go:333:	cmd := exec.CommandContext(ctx, "git", "-C", s.Root, "rev-list", "--count", baseline+"..HEAD")
+pose-mcp/internal/pose/state.go:334:	out, err := cmd.Output()
+pose-mcp/internal/cli/identity.go:42:		out, err := exec.Command("git", "-C", root, "config", "--get", key).Output()
+pose-mcp/internal/pose/test_catalog.go:76:	cmd := exec.CommandContext(ctx, "git", "-C", dir, "ls-files", "-z", "--recurse-submodules")
+pose-mcp/internal/pose/test_catalog.go:110:		out, err := exec.Command("git", "-C", dir, "rev-parse", "--show-toplevel").Output()
+pose-mcp/internal/pose/obligation_projection.go:724:	if head, err := gitCommand("-C", s.Root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
+pose-mcp/internal/pose/obligation_projection.go:731:	status, statusErr := gitCommand("-C", s.Root, "status", "--porcelain", "--untracked-files=no", "--", ".pose").Output()
+pose-mcp/internal/cli/validate.go:679:			cmd := exec.CommandContext(ctx, check.Program, execArgs...)
+pose-mcp/internal/cli/validate.go:819:		if out, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output(); err == nil {
+pose-mcp/internal/cli/validate.go:953:	cmd := exec.Command("go", "list", "./...")
+pose-mcp/internal/cli/validate.go:955:	out, err := cmd.Output()
+pose-mcp/internal/cli/install.go:100:		if err := exec.Command("git", "-C", target, "rev-parse", "--git-dir").Run(); err != nil {
+pose-mcp/internal/cli/validate_scope.go:73:	out, err := exec.Command("git", gitArgs...).Output()
+pose-mcp/internal/cli/validate_scope.go:85:		if untracked, err := exec.Command("git", "-C", root, "ls-files", "--others", "--exclude-standard").Output(); err == nil {
+pose-mcp/internal/cli/historycheck.go:64:	if err := exec.Command("git", "-C", root, "rev-parse", "--is-inside-work-tree").Run(); err != nil {
+pose-mcp/internal/cli/historycheck.go:88:		out, _ := exec.Command("git", "-C", root, "status", "--porcelain=v1", "--", rel).Output()
+pose-mcp/internal/pose/operation_git.go:27:	out, err := cmd.Output()
+pose-mcp/internal/pose/operation_git.go:182:	out, err := cmd.Output()
+pose-mcp/internal/usage/usage.go:481:	cmd := exec.Command("git", "-C", absRoot, "rev-parse", "--git-common-dir")
+pose-mcp/internal/usage/usage.go:482:	if out, err := cmd.Output(); err == nil {
+pose-mcp/internal/pose/review_dispatch_unix.go:49:	cmd := exec.CommandContext(ctx, source.Path, source.Args[1:]...)
+pose-mcp/internal/pose/review_attempt_ledger.go:402:	cmd := exec.CommandContext(ctx, "git", base.Args[1:]...)
+pose-mcp/internal/pose/review_dispatch_windows.go:19:	cmd := exec.CommandContext(ctx, source.Path, source.Args[1:]...)
+pose-mcp/internal/pose/review_path_attribution.go:136:	cmd := exec.CommandContext(ctx, "git", "-C", root, "-c", "core.quotePath=false", "log", "--no-walk", "--stdin",
+pose-mcp/internal/pose/release_manifest_integrity.go:324:	cmd := exec.Command("git", append([]string{"-C", root}, args...)...)
+pose-mcp/internal/pose/release_manifest_integrity.go:330:	out, err := cmd.Output()
+pose-mcp/internal/pose/review_dispatch.go:341:	if commit == "" || exec.Command("git", "-C", s.Root, "cat-file", "-e", commit+"^{commit}").Run() != nil {
+pose-mcp/internal/pose/review_dispatch.go:649:	cmd := exec.CommandContext(ctx, execPath, argv[1:]...)
+pose-mcp/internal/pose/review_dispatch.go:1357:		out, err := gitCommand("-C", root, "ls-tree", "-z", commit, "--", rel).Output()
+pose-mcp/internal/mcpserver/validate_orchestration.go:155:	if out, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output(); err == nil {
+pose-mcp/internal/pose/review_bundle.go:945:	out, err := gitCommand("-C", root, "rev-list", "--count", base+".."+head, "--").Output()
+pose-mcp/internal/pose/review_bundle.go:1037:	out, err := gitCommand(args...).Output()
+pose-mcp/internal/pose/review_bundle.go:1335:	committed, err := gitCommand("-C", s.Root, "show", "HEAD:"+rel).Output()

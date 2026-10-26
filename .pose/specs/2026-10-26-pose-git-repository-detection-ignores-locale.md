@@ -1,8 +1,8 @@
 ---
 slug: pose-git-repository-detection-ignores-locale
-status: in-progress
+status: done
 created_at: 2026-10-26
-completed_at:
+completed_at: 2026-10-26
 supersedes:
 depends_on:
 remediates:
@@ -75,10 +75,18 @@ The regression tests put a shim `git` first on the path that answers as a git ou
 
 ### Delivered scope
 
-Not started.
+Delivered R1 and R2 in `f5275457`: only the repository-detection probe runs in the C locale. Other Git calls preserve the user's locale, and the ancestor `.git` guard remains unchanged. Release readiness and archived-fragment readers correctly distinguish repository absence from Git failure under Portuguese Git.
+
+Independent reviewer `agent:independent-gpt-6.1-sol-review` (Codex/OpenAI), authorized by the maintainer, reviewed the Claude/Anthropic implementation from session `f2fa76f7-0c77-4cc7-a1d5-da4fa953d6dc`. The engine-required `agent:independent-` prefix declares separation; this instance uses unsigned attestations and does not verify identity or cognitive independence.
+
+Review bundle `rvb-e0eb83adbc8bd1a8` and attestation `rva-71fdab3c13270779` record approval. Before closure, `review verify` reported fresh, approved and ready-to-close; native `close` completed on 2026-10-26. Strict validation passed 157/157 checks, artifact reconciliation matched 7 claims to 7 observed actions, and the capability surface check reported zero findings. Strict spec lint, all-spec lint (453 specs), and `check --strict` passed.
+
+The reviewer independently reproduced the failures without the production fix, restored the files, and verified the four regression scenarios and full Go suite in both C and pt_BR.UTF-8. Go vet, the Windows cross-build and the pose package race run passed. A Git environment trace confirmed D1. See the [review and complete locale-reading inventory](../results/git-locale-independent-review/review.md) and adjacent execution logs; structured delivery evidence is in [delivery-validation.json](../results/delivery-validation.json).
 
 ### Residual risks
 
-None yet.
+No actionable defect was found in the delivered scope. Windows was cross-built rather than executed; shell-based regression shims skip there. The English diagnostic remains a text predicate, now evaluated under C locale; a future Git changing that diagnostic would require another review. Recommended scanner limitations and existing global orphan, metadata and check warnings are recorded in the independent review, without claiming those scans prove the whole repository clean.
 
 ### Follow-ups
+
+No additional follow-up is required for this fix.

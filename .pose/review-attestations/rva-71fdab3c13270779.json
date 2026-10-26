@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-71fdab3c13270779",
+  "bundle_id": "rvb-e0eb83adbc8bd1a8",
+  "bundle_digest": "sha256:e0eb83adbc8bd1a86a8aa89ff7017f61769e6b68f371a49aa2175fa1c4543536",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-repository-detection-locale-integration",
+      "rationale": "Real pt_BR Git and a deterministic shim independently reproduce the failure before the fix and pass after it in both process locales. No unverified locale assumption is treated as proof; Windows runtime is not claimed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The helper changes only the child environment and does not mutate global environment or shared state; the complete unit suite and independent race run pass."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-repository-detection-locale-integration",
+      "rationale": "R1 and R2 restore missing-repository and missing-tag classification without changing API signatures, CLI flags, MCP schemas or stored formats; both upstream consumers pass."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-repository-detection-locale-integration",
+      "rationale": "Git start failures and other stderr remain errors; the existing ancestor .git walk still excludes damaged repositories from absence. Only the interpretation probe is normalized."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-repository-detection-locale-integration",
+      "rationale": "Release readiness and archived-fragment readers pass with real Portuguese Git after failing without the fix. No inter-module provider or consumer contract changes."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-repository-detection-locale-integration",
+      "rationale": "Ordinary gitOutput retains the user locale and stderr context; only the private predicate probe receives C. Twelve traced Git calls confirm D1 and diagnostics remain visible."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-repository-detection-locale-integration",
+      "rationale": "The observable change is the required correction for translated Git outside repositories. English behavior, return types, serialized contracts and ordinary diagnostic languages remain compatible."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-repository-detection-locale-integration",
+      "rationale": "The two new tests fail without both production changes in C and pt_BR; the upstream pair fails only in pt_BR before the fix. All four and the full suites pass after restoration."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-6a8d26c83a4b0400",
+      "rationale": "R1 identifies an English stderr predicate. D1 normalizes exactly that child through gitOutputUntranslated; R2 then follows through ErrReleaseTagMissing to both existing release readers."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-repository-detection-locale-integration",
+      "rationale": "Intent, R1, R2, D1 and the changelog match the two production edits and the four regression scenarios. No operational scaffold behavior or user command changes require a template migration."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-repository-detection-locale-integration",
+      "rationale": "A genuine non-repository again reports missing releases rather than unreadable Git in Portuguese. Damaged .git ancestors remain uncertain, and non-probe Git diagnostics keep the user language."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-repository-detection-locale-integration",
+      "rationale": "Current sealed locale integration evidence exercises R1 directly and R2 through ResolveReleaseTag and both upstream release consumers; independent bilingual runs corroborate it."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-6a8d26c83a4b0400",
+      "rationale": "The seven artifact claims match seven observed actions in f5275457. Reviewer agent:independent-gpt-6.1-sol-review is maintainer-authorized; agent:independent- is the engine-required declaration prefix. This is Codex/OpenAI reviewing Claude/Anthropic agent:claude-opus-5-5 from session f2fa76f7-0c77-4cc7-a1d5-da4fa953d6dc. Identity is declared and pose-dist attestations are unsigned."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-repository-detection-locale-integration",
+      "rationale": "Production uses fixed exec.Command argv and a process-local LC_ALL override, with no shell evaluation, new trust boundary, dependency or secret. The existing lost-gitdir guard is unchanged."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-6a8d26c83a4b0400",
+      "rationale": "A local override at the text interpretation boundary is smaller in behavior than normalizing every Git child. The shared helper preserves nil Env for ordinary calls; no framework or speculative extension is added. Ignoring C or changing the recognized Git diagnostic would falsify D1."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict spec reconciliation: seven claims and seven observed actions in one attributed commit. Global orphan warnings are pre-existing repository inventory, not mismatches in this spec."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-6a8d26c83a4b0400",
+      "rationale": "Executed canonical structural assessment after indexing; observed matrix addition registers a new check and adds no material structural contract."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed if-stale discovery for pose-mcp; component content and validation matrix refresh were observed. Generated assessment and state changes are excluded from this closeout commit."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "check:assess-integrate",
+      "rationale": "Executed, but not used as clean integration proof: 63 static unobserved-consumer diagnostics do not demonstrate a broken contract and this fix changes none. Actual release-consumer integration tests provide the proof."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed, but not used as a complete clean scan: one covered marker in 287 scanned source files and two unrelated legacy specs unreadable. Diff inspection introduces no debt markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate requires the attestation; execute immediately after applying it and before close."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate requires the attestation; execute immediately after applying it and before close."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed for pose-mcp; selected backend-go, security and documentation-style and applied them in the independent review."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-repository-detection-locale-integration",
+      "rationale": "Executed strict capability composition check against fresh f5275457 integration evidence; release_lifecycle entrypoint is connected to reconciled artifacts."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed full strict validation with 157 of 157 checks passing and no skips, errors or failures. This full run includes every registered pose-mcp check as well as the unscoped plan obligation."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed full strict validation with 157 of 157 checks passing and no skips, errors or failures. This full run includes every registered pose-mcp check as well as the unscoped plan obligation."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/git-repository-detection-locale-integration",
+    "structure:design-6a8d26c83a4b0400",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-gpt-6.1-sol-review",
+    "concluded_by": "agent:independent-gpt-6.1-sol-review",
+    "applied_by": "agent:independent-gpt-6.1-sol-review"
+  },
+  "attested_at": "2026-10-26T07:39:32Z",
+  "path": ".pose/review-attestations/rva-71fdab3c13270779.json"
+}

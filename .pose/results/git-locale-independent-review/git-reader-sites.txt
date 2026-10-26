@@ -1,0 +1,28 @@
+pose-mcp/internal/pose/closeout_plan.go:94:	head, gitErr := snapshotGit(s.Root, "rev-parse", "--verify", "HEAD")
+pose-mcp/internal/pose/closeout_plan.go:300:	observedHead, err := snapshotGit(s.Root, "rev-parse", "--verify", "HEAD")
+pose-mcp/internal/pose/git_snapshot_integrity.go:101:func snapshotGit(root string, args ...string) ([]byte, error) {
+pose-mcp/internal/pose/git_snapshot_integrity.go:112:	out, err := snapshotGit(root, "status", "--porcelain=v1", "-z", "--untracked-files=all", "--ignore-submodules=none")
+pose-mcp/internal/pose/git_snapshot_integrity.go:149:	out, err := snapshotGit(root, "ls-tree", "-r", "-z", commit)
+pose-mcp/internal/pose/git_snapshot_integrity.go:209:			head, e := snapshotGit(full, "rev-parse", "--verify", "HEAD")
+pose-mcp/internal/pose/git_snapshot_integrity.go:367:	out, err := snapshotGit(root, "rev-parse", "--verify", "HEAD")
+pose-mcp/internal/pose/git_snapshot_integrity.go:399:	top, err := snapshotGit(root, "rev-parse", "--show-toplevel")
+pose-mcp/internal/pose/git_snapshot_integrity.go:423:		out, err := snapshotGit(root, "ls-tree", "-r", "-z", "--name-only", commit)
+pose-mcp/internal/pose/operation_git.go:24:func previewGit(root string, args ...string) ([]byte, error) {
+pose-mcp/internal/pose/operation_git.go:75:	if out, err := previewGit(root, "rev-parse", "--show-object-format"); err == nil {
+pose-mcp/internal/pose/operation_git.go:161:	out, err := previewGit(root, append([]string{"ls-files", "--stage", "-z", "--"}, paths...)...)
+pose-mcp/internal/pose/release_manifest_integrity.go:287:	if _, verr := gitOutput(root, "rev-parse", "--verify", "--quiet", "refs/tags/"+tag); verr != nil {
+pose-mcp/internal/pose/release_manifest_integrity.go:302:	kind, err := gitOutput(root, "cat-file", "-t", "refs/tags/"+tag)
+pose-mcp/internal/pose/release_manifest_integrity.go:306:	out, err := gitOutput(root, "rev-parse", "--verify", "refs/tags/"+tag+"^{commit}")
+pose-mcp/internal/pose/release_manifest_integrity.go:313:func gitOutput(root string, args ...string) (string, error) {
+pose-mcp/internal/pose/release_manifest_integrity.go:343:	return gitOutput(root, "tag", "--list", "v*")
+pose-mcp/internal/pose/release_manifest_integrity.go:349:	out, err := gitOutput(root, "ls-tree", "-z", commit, "--", rel)
+pose-mcp/internal/pose/release_manifest_integrity.go:363:			parentOut, perr := gitOutput(root, "ls-tree", "-z", commit, "--", dir)
+pose-mcp/internal/pose/release_manifest_integrity.go:399:	out, err := gitOutput(root, "cat-file", "blob", object)
+pose-mcp/internal/pose/release_manifest_integrity.go:421:	out, err := gitOutput(root, "ls-tree", "--name-only", "-z", commit+":"+dir)
+pose-mcp/internal/pose/review_adapter_containment.go:442:	raw, err := snapshotGit(s.Root, "rev-parse", "--path-format=absolute", "--git-common-dir")
+pose-mcp/internal/pose/review_attempt_ledger.go:421:	if _, headErr := snapshotGit(s.Root, "rev-parse", "--verify", "HEAD"); headErr != nil {
+pose-mcp/internal/pose/review_dispatch.go:828:	head, err := snapshotGit(root, "rev-parse", "--verify", "HEAD")
+pose-mcp/internal/pose/review_dispatch.go:871:	if _, err := snapshotGit(s.Root, "rev-parse", "--verify", "HEAD"); err != nil {
+pose-mcp/internal/pose/review_dispatch.go:896:	top, err := snapshotGit(root, "rev-parse", "--show-toplevel")
+pose-mcp/internal/pose/review_dispatch.go:912:	dir, err := snapshotGit(root, "rev-parse", "--absolute-git-dir")
+pose-mcp/internal/pose/review_dispatch.go:933:			head, err := snapshotGit(full, "rev-parse", "--verify", "HEAD")
