@@ -50,6 +50,16 @@ timeouts, budget overruns and execution failures are failed runs. A completed
 run does not create an attestation or approve the spec. The agent is a local
 command, not a host security sandbox.
 
+The bundle records who implemented it when it is sealed: the vendor detected
+from the sealing agent's session, or declared with `--seal --lead
+<vendor>[/<model>]`, and labelled as detected or declared. Seal from the
+implementing session; resealing the same content later, from a reviewer's
+session, keeps the identity the bundle already recorded. Routing then prefers
+an agent of another vendor, and every run records the independence it
+achieved — another vendor, another model, or the same model, which never
+satisfies a review that requires a different actor. A model nobody declared is
+unknown and never counts as a difference.
+
 Read the returned work, complete every judgment, then use `pose review attest`
 and the [CLI reference](cli.md#component-aware-and-convergent-review). Finish
 with `pose review verify`, `pose review-check` and `pose closeout-check` for

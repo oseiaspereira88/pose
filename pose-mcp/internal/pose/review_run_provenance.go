@@ -102,6 +102,12 @@ type ReviewRunAssurance struct {
 	ModelDifference  bool          `json:"model_difference"`
 	OutputComplete   bool          `json:"output_complete"`
 	Limitations      []string      `json:"limitations"`
+	// IndependenceAchieved and ImplementationSource disclose what the run
+	// achieved against whom: the identity the bundle sealed (detected or
+	// declared) or the policy's, for an earlier bundle (spec
+	// pose-delegation-routing R8, R11).
+	IndependenceAchieved string `json:"independence_achieved,omitempty"`
+	ImplementationSource string `json:"implementation_source,omitempty"`
 }
 
 var runIdentityComponent = regexp.MustCompile(`^[a-z0-9][a-z0-9._:/@+\-]{0,255}$`)
@@ -122,6 +128,30 @@ func normalizeModelIdentity(id ModelIdentity) (ModelIdentity, error) {
 	}
 	return id, nil
 }
+
+// runImplementationIdentity is the implementation a run of bundle is compared
+// with: the identity the bundle sealed, or for a bundle sealed before it
+// recorded one, the policy's declaration (spec pose-delegation-routing R4).
+// An unknown vendor cannot be the implementation of an attested run; an
+// unknown model stays unknown and never establishes a model difference.
+func runImplementationIdentity(bundle ReviewBundle, policy *ReviewRunProvenancePolicy) (ModelIdentity, error) {
+	if impl := bundle.Payload.Implementation; impl != nil {
+		if !knownIdentityPart(impl.Vendor) || impl.Principal == "" {
+			return ModelIdentity{}, fmt.Errorf("the bundle records no known implementation vendor; seal it with --lead <vendor>[/<model>]")
+		}
+		return ModelIdentity{Principal: impl.Principal, Execution: impl.ExecutionDigest, Vendor: impl.Vendor, Model: impl.Model}, nil
+	}
+	if policy == nil {
+		return ModelIdentity{}, fmt.Errorf("provenance implementation is missing")
+	}
+	return normalizeModelIdentity(policy.Implementation)
+}
+
+func knownIdentityPart(v string) bool {
+	v = strings.TrimSpace(v)
+	return v != "" && v != ImplementationUnknown
+}
+
 func validateRunProvenancePolicy(policy ReviewersPolicy) error {
 	if policy.Provenance == nil {
 		return nil
@@ -129,12 +159,17 @@ func validateRunProvenancePolicy(policy ReviewersPolicy) error {
 	if policy.Provenance.Trust != "executor-attested" {
 		return fmt.Errorf("provenance requires explicit executor-attested trust")
 	}
-	id, e := normalizeModelIdentity(policy.Provenance.Implementation)
-	if e != nil {
-		return e
-	}
-	if id.Execution == "" {
-		return fmt.Errorf("provenance needs implementation execution")
+	// The implementation is read from here only for bundles sealed before
+	// they recorded it (spec pose-delegation-routing R4); a policy for later
+	// bundles may omit it, but one that declares it declares it whole.
+	if policy.Provenance.Implementation != (ModelIdentity{}) {
+		id, e := normalizeModelIdentity(policy.Provenance.Implementation)
+		if e != nil {
+			return e
+		}
+		if id.Execution == "" {
+			return fmt.Errorf("provenance needs implementation execution")
+		}
 	}
 	for name, adapter := range policy.Adapters {
 		reviewer, e := normalizeModelIdentity(ModelIdentity{Principal: adapter.Executor, Vendor: adapter.Vendor, Model: adapter.Model})
@@ -161,7 +196,7 @@ func (s Store) prepareRunProvenance(plan DispatchPlan, policy ReviewersPolicy) (
 	if !validGovernanceProjectID(review.AuthorityProject) || strings.TrimSpace(review.AuthorityAudience) == "" {
 		return nil, fmt.Errorf("run provenance needs protected authority_project and authority_audience")
 	}
-	implementation, e := normalizeModelIdentity(policy.Provenance.Implementation)
+	implementation, e := runImplementationIdentity(plan.Bundle, policy.Provenance)
 	if e != nil {
 		return nil, e
 	}
@@ -382,7 +417,11 @@ func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time
 	if p.ConfigDigest != digestBytes(raw) {
 		return fail("adapter configuration differs")
 	}
-	implementation, e := normalizeModelIdentity(config.Provenance.Implementation)
+	bundle, e := s.LoadReviewBundle(run.BundleID)
+	if e != nil {
+		return fail("the reviewed bundle cannot be read")
+	}
+	implementation, e := runImplementationIdentity(bundle, config.Provenance)
 	if e != nil || implementation != p.Implementation || config.Provenance.Trust != p.Trust {
 		return fail("implementation baseline differs or is unknown")
 	}
@@ -435,7 +474,11 @@ func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time
 		return fail("truncated or incomplete draft cannot establish completed review")
 	}
 	decision := draftReviewDecision(run.Output)
-	return ReviewRunAssurance{DraftDecision: decision, ProofIssuedAt: c.IssuedAt, ProofExpiresAt: c.ExpiresAt, State: run.Status, CompleteReview: run.Status == ReviewRunCompleted && p.WireComplete && p.OutputComplete && decision != "unknown", Assurance: ReviewRunMachineAttested, RunID: run.RunID, ProofID: proof.ProofID, Issuer: proof.Issuer, Reviewer: reviewer, Implementation: implementation, IdentitySource: "native-issuer-signed-executor-declaration", VendorDifference: reviewer.Vendor != implementation.Vendor, ModelDifference: reviewer.Model != implementation.Model, OutputComplete: p.OutputComplete, Limitations: []string{"executor-declaration-not-independent-vendor-receipt", "raw-bytes-hashed-by-executor-redacted-artifacts-retained", ReviewLimitationIssuerTruthfulness, ReviewLimitationCognitive}}, nil
+	source := "policy"
+	if impl := bundle.Payload.Implementation; impl != nil {
+		source = impl.Source
+	}
+	return ReviewRunAssurance{IndependenceAchieved: AchievedIndependence(implementation.Vendor, implementation.Model, reviewer.Vendor, reviewer.Model), ImplementationSource: source, DraftDecision: decision, ProofIssuedAt: c.IssuedAt, ProofExpiresAt: c.ExpiresAt, State: run.Status, CompleteReview: run.Status == ReviewRunCompleted && p.WireComplete && p.OutputComplete && decision != "unknown", Assurance: ReviewRunMachineAttested, RunID: run.RunID, ProofID: proof.ProofID, Issuer: proof.Issuer, Reviewer: reviewer, Implementation: implementation, IdentitySource: "native-issuer-signed-executor-declaration", VendorDifference: AchievedIndependence(implementation.Vendor, implementation.Model, reviewer.Vendor, reviewer.Model) == IndependenceDifferentVendor, ModelDifference: knownIdentityPart(implementation.Model) && knownIdentityPart(reviewer.Model) && reviewer.Model != implementation.Model, OutputComplete: p.OutputComplete, Limitations: []string{"executor-declaration-not-independent-vendor-receipt", "raw-bytes-hashed-by-executor-redacted-artifacts-retained", ReviewLimitationIssuerTruthfulness, ReviewLimitationCognitive}}, nil
 }
 func validProofDigest(value string) bool {
 	return regexp.MustCompile(`^sha256:[0-9a-f]{64}$`).MatchString(value)

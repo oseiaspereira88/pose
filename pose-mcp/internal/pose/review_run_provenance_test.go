@@ -22,6 +22,13 @@ type runProvenanceFixture struct {
 
 func provenanceRunFixture(t *testing.T, vendor, model string, changes ...func(*ReviewerAdapter)) runProvenanceFixture {
 	t.Helper()
+	return provenanceRunFixtureAs(t, nil, vendor, model, changes...)
+}
+
+// provenanceRunFixtureAs seals with identity; nil seals the way bundles were
+// sealed before they recorded one.
+func provenanceRunFixtureAs(t *testing.T, identity *ReviewBundleImplementation, vendor, model string, changes ...func(*ReviewerAdapter)) runProvenanceFixture {
+	t.Helper()
 	useIssuerHome(t)
 	key, e := CreateIssuerKey("", "executor-fixture", time.Now())
 	if e != nil {
@@ -88,7 +95,10 @@ func provenanceRunFixture(t *testing.T, vendor, model string, changes ...func(*R
 	if e = os.WriteFile(graphPath, raw, 0644); e != nil {
 		t.Fatal(e)
 	}
-	bundle, e := s.SealReviewBundle("spec:backend", time.Now())
+	// Without an identity, the bundle is sealed the way bundles were before
+	// they recorded their implementation, and the run is compared with the
+	// policy's declaration (spec pose-delegation-routing R4).
+	bundle, e := s.sealReviewBundle("spec:backend", identity, identity != nil, "", time.Now())
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -104,7 +114,12 @@ func provenanceRunFixture(t *testing.T, vendor, model string, changes ...func(*R
 }
 func provenanceFixture(t *testing.T, vendor, model string, changes ...func(*ReviewerAdapter)) runProvenanceFixture {
 	t.Helper()
-	f := provenanceRunFixture(t, vendor, model, changes...)
+	return provenanceFixtureAs(t, nil, vendor, model, changes...)
+}
+
+func provenanceFixtureAs(t *testing.T, identity *ReviewBundleImplementation, vendor, model string, changes ...func(*ReviewerAdapter)) runProvenanceFixture {
+	t.Helper()
+	f := provenanceRunFixtureAs(t, identity, vendor, model, changes...)
 	proof, e := f.store.SignReviewRunProof(f.run.RunID, f.key, time.Hour, time.Now(), true)
 	if e != nil {
 		t.Fatal(e)

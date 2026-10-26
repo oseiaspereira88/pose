@@ -567,9 +567,17 @@ the start of this reference lists the read-only inspection forms.
 review, adjudication or smoke run (`--kind review|adjudication|smoke`).
 `pose delegate review|adjudicate|smoke <bundle-id|scope>` launches the agent
 configured in `.pose/policy/delegation.json` in a disposable worktree at the
-sealed commit; `--dry-run` previews it and reserves nothing, `--agent <name>`
-chooses among several agents, and `pose delegate ls`, `resume`, `cancel` and
-`agents` follow the runs. `pose review dispatch`, `resume` and `status` remain
+sealed commit; `--dry-run` previews it and reserves nothing. Without
+`--agent`, routing prefers an agent of the vendor opposite to the
+implementation the bundle sealed, then falls back through
+`routing.on_unavailable` (another model of the same vendor, a bounded wait for
+a known usage-limit reset, the same model); `--agent <name>` bypasses it. Each
+run records the routing decision and the independence it achieved, and
+`pose delegate ls`, `resume`, `cancel` and `agents` follow the runs; `agents`
+shows each agent as available, limited until a reset, missing or with a failed
+probe. `pose review bundle <scope> --seal --lead <vendor>[/<model>]` declares
+the implementation identity a seal records when the sealing session cannot be
+detected. `pose review dispatch`, `resume` and `status` remain
 as deprecated aliases for one minor version. The returned review remains subject to the
 bundle's criteria, identity requirements and verification gates; dispatch
 does not itself approve or close the spec.

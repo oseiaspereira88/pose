@@ -183,7 +183,11 @@ type ReviewRun struct {
 	Events       string   `json:"events,omitempty"`
 	EventsDigest string   `json:"events_digest,omitempty"`
 	SupersededBy string   `json:"superseded_by,omitempty"`
-	Path         string   `json:"-"`
+	// Routing is how the run's agent was chosen and IndependenceAchieved what
+	// it achieved against the implementation (spec pose-delegation-routing R8).
+	Routing              *DelegationRoutingRecord `json:"routing,omitempty"`
+	IndependenceAchieved string                   `json:"independence_achieved,omitempty"`
+	Path                 string                   `json:"-"`
 }
 
 // Review run states.
@@ -341,6 +345,39 @@ type DispatchPlan struct {
 	Label   string
 	Purpose string
 	Lead    string
+	// Routing is set by pose delegate; without it the run is compared with
+	// the implementation the plan read (spec pose-delegation-routing R8).
+	Routing        *DelegationRoutingRecord
+	implementation *ReviewBundleImplementation
+	// Warnings are printed before the run starts.
+	Warnings []string
+}
+
+// Implementation is the identity the plan compares its agent with.
+func (p DispatchPlan) Implementation() ReviewBundleImplementation {
+	switch {
+	case p.Routing != nil:
+		return p.Routing.Implementation
+	case p.implementation != nil:
+		return *p.implementation
+	}
+	return ReviewBundleImplementation{Vendor: ImplementationUnknown, Model: ImplementationUnknown, Source: ImplementationDetected}
+}
+
+// planImplementation reads the identity a run of bundle is compared with and
+// warns when the policy still declares one the bundle overrides (R4).
+func (s Store) planImplementation(plan *DispatchPlan) {
+	policy, _, found, err := s.LoadDelegationPolicy()
+	if err != nil || !found {
+		return
+	}
+	impl, _, err := s.RoutingImplementation(plan.Bundle, policy, "")
+	if err == nil {
+		plan.implementation = &impl
+	}
+	if plan.Bundle.Payload.Implementation != nil && policy.Provenance != nil && policy.Provenance.Implementation != (ModelIdentity{}) {
+		plan.Warnings = append(plan.Warnings, "provenance.implementation in the delegation policy is ignored: bundle "+plan.Bundle.BundleID+" records the implementation it was sealed by; remove the policy entry")
+	}
 }
 
 // PlanReviewDispatch resolves the bundle, brief and adapter without running.
@@ -414,6 +451,7 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string, reason ..
 		return DispatchPlan{}, err
 	}
 	plan.PriorRuns = currentCount
+	s.planImplementation(&plan)
 	plan.provenance, err = s.prepareRunProvenance(plan, policy)
 	if err != nil {
 		return DispatchPlan{}, err
@@ -461,7 +499,9 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	run := ReviewRun{Provenance: plan.provenance, BriefNotes: plan.notes, LimitOf: plan.LimitOf, SchemaVersion: 1, Scope: plan.Brief.Scope, BundleID: plan.Bundle.BundleID, BundleDigest: plan.Bundle.BundleDigest,
 		SealedCommit: plan.SealedCommit, Kind: plan.Brief.Kind, BriefDigest: plan.Brief.Digest, Adapter: plan.Adapter,
 		Vendor: plan.Config.Vendor, Model: plan.Config.Model, Reason: plan.Reason, PolicyDigest: plan.PolicyDigest, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1,
-		Label: plan.Label, Purpose: plan.Purpose, Lead: plan.Lead, Events: plan.Config.Events}
+		Label: plan.Label, Purpose: plan.Purpose, Lead: plan.Lead, Events: plan.Config.Events, Routing: plan.Routing}
+	impl := plan.Implementation()
+	run.IndependenceAchieved = AchievedIndependence(impl.Vendor, impl.Model, plan.Config.Vendor, plan.Config.Model)
 	safety, err := ResolveReviewerContainment(plan.Config)
 	if err != nil {
 		return ReviewRun{}, err
@@ -1227,7 +1267,7 @@ func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
 	if prepErr != nil {
 		return "stale: the inputs of the scope could not be prepared again: " + prepErr.Error()
 	}
-	if prepared.BundleDigest != plan.Bundle.BundleDigest {
+	if !sealedBundleMatches(plan.Bundle, prepared) {
 		return "stale: the bundle was superseded or its inputs changed while the run was going (the scope now prepares " + prepared.BundleDigest + ")"
 	}
 	// An equal digest is not an eligible preparation: a preparation that carries blockers

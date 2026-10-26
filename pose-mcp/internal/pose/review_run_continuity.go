@@ -431,6 +431,9 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 		timeout = total - spent
 	}
 	plan.processTimeout = timeout
+	// A continuation runs the same agent the attempt was routed to.
+	plan.Routing = prior.Routing
+	s.planImplementation(&plan)
 	plan.provenance, e = s.prepareRunProvenance(plan, policy)
 	if e != nil {
 		return DispatchPlan{}, e

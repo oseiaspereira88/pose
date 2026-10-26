@@ -11,11 +11,17 @@ import (
 	"testing"
 	"time"
 
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/testgit"
 )
 
 func TestMain(m *testing.M) {
 	_ = os.Setenv("POSE_USAGE_DISABLED", "1")
+	// A bundle sealed here must not record the agent running the suite as its
+	// implementation (spec pose-delegation-routing R2).
+	for _, name := range posemodel.DelegationSessionVariables() {
+		_ = os.Unsetenv(name)
+	}
 	cleanup, err := testgit.Isolate()
 	if err != nil {
 		panic(err)

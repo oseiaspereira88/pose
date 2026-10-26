@@ -225,6 +225,14 @@ type ReviewBundlePayload struct {
 	Gates          *ReviewBundleGates  `json:"gates,omitempty"`
 	Children       []ReviewBundleChild `json:"children,omitempty"`
 	ConsumedInputs []ReviewBundleInput `json:"consumed_inputs"`
+	// Implementation is who produced the subject, as the sealing session
+	// declared or was detected to be (spec pose-delegation-routing R1). It is
+	// sealed, so it cannot be edited after the fact, but it is not content: a
+	// preparation never carries it, and a sealed bundle matches a preparation
+	// when they are equal apart from it (see sealedBundleMatches). Nil means the
+	// bundle predates the field and its implementation is read from the policy
+	// (R4).
+	Implementation *ReviewBundleImplementation `json:"implementation,omitempty"`
 }
 
 // ReviewBundleGates are the policy-dependent parts of the closeout contract.
@@ -1725,12 +1733,64 @@ func ensureReviewArtifactDir(root, rel string, create bool) (string, error) {
 // SealReviewBundle writes a prepared, unblocked bundle atomically. Replaying
 // the same payload is idempotent.
 func (s Store) SealReviewBundle(ref string, now time.Time) (ReviewBundle, error) {
+	return s.SealReviewBundleLead(ref, "", now)
+}
+
+// SealReviewBundleLead seals with the implementation identity lead declares,
+// or the one detected from the sealing session when lead is empty (spec
+// pose-delegation-routing R1–R3). Sealing content that a sealed bundle of the
+// scope already holds returns that bundle, which keeps the identity it was
+// sealed with: a reviewer resealing to close out never becomes the
+// implementation. Only a declared lead that names another identity seals anew.
+func (s Store) SealReviewBundleLead(ref, lead string, now time.Time) (ReviewBundle, error) {
+	identity, warning, err := s.SealingIdentity(lead)
+	if err != nil {
+		return ReviewBundle{}, err
+	}
+	if identity.Vendor == ImplementationUnknown {
+		warning = joinWarnings(warning, "the seal records an unknown implementation vendor: no agent session was detected; seal from the implementing session or declare it with --lead")
+	} else if identity.ExecutionDigest == "" {
+		warning = joinWarnings(warning, "the seal names no implementation execution (no "+identity.Vendor+" session reference in the environment), so a review that must prove a different actor cannot be attested against it")
+	}
+	return s.sealReviewBundle(ref, &identity, lead != "", warning, now)
+}
+
+// sealReviewBundle seals ref recording identity; declared reseals content a
+// bundle already holds when that bundle records another identity. A nil
+// identity seals the way bundles were sealed before they recorded one, which
+// only the tests of the legacy reading need.
+func (s Store) sealReviewBundle(ref string, identity *ReviewBundleImplementation, declared bool, warning string, now time.Time) (ReviewBundle, error) {
 	bundle, err := s.PrepareReviewBundle(ref)
 	if err != nil {
 		return ReviewBundle{}, err
 	}
 	if len(bundle.Blockers) > 0 {
 		return bundle, fmt.Errorf("pose: review bundle is not sealable: %s", strings.Join(bundle.Blockers, "; "))
+	}
+	sealed, err := s.ListReviewBundles(bundle.Payload.Scope.Ref)
+	if err != nil {
+		return ReviewBundle{}, err
+	}
+	for i := len(sealed) - 1; i >= 0; i-- {
+		existing := sealed[i]
+		if !sealedBundleMatches(existing, bundle) {
+			continue
+		}
+		if !declared || identity != nil && existing.Payload.Implementation != nil && sameImplementation(*existing.Payload.Implementation, *identity) {
+			return existing, nil
+		}
+	}
+	if identity != nil {
+		bundle.Payload.Implementation = identity
+		digest, err := reviewBundlePayloadDigest(bundle.Payload)
+		if err != nil {
+			return ReviewBundle{}, err
+		}
+		bundle.BundleDigest = digest
+		bundle.BundleID = "rvb-" + strings.TrimPrefix(digest, "sha256:")[:16]
+	}
+	if warning != "" {
+		bundle.Warnings = uniqueSorted(append(bundle.Warnings, warning))
 	}
 	bundle.State = "sealed"
 	bundle.SealedAt = now.UTC().Truncate(time.Second).Format(time.RFC3339)
@@ -1755,6 +1815,40 @@ func (s Store) SealReviewBundle(ref string, now time.Time) (ReviewBundle, error)
 		return ReviewBundle{}, err
 	}
 	return bundle, nil
+}
+
+func joinWarnings(a, b string) string {
+	if a == "" {
+		return b
+	}
+	return a + "; " + b
+}
+
+// sealedBundleMatches reports whether sealed holds the content prepared
+// holds: equal digests once prepared carries the implementation sealed
+// recorded, which a preparation never has (spec pose-delegation-routing D3).
+func sealedBundleMatches(sealed, prepared ReviewBundle) bool {
+	if sealed.Payload.Implementation == nil || prepared.Payload.Implementation != nil {
+		return sealed.BundleDigest == prepared.BundleDigest
+	}
+	payload := prepared.Payload
+	payload.Implementation = sealed.Payload.Implementation
+	digest, err := reviewBundlePayloadDigest(payload)
+	return err == nil && digest == sealed.BundleDigest
+}
+
+func sameImplementation(a, b ReviewBundleImplementation) bool {
+	return a.Vendor == b.Vendor && a.Model == b.Model && a.Source == b.Source && a.Principal == b.Principal
+}
+
+// SealingIdentity is the identity a seal records: lead when declared, the
+// session's otherwise, with the model from routing.lead_models (R2, R3).
+func (s Store) SealingIdentity(lead string) (ReviewBundleImplementation, string, error) {
+	var leadModels map[string]string
+	if policy, _, found, err := s.LoadDelegationPolicy(); err == nil && found && policy.Routing != nil {
+		leadModels = policy.Routing.LeadModels
+	}
+	return EnvironmentSessionIdentity(lead, leadModels)
 }
 
 func writeImmutableJSON(path string, raw []byte) error {
@@ -1939,6 +2033,11 @@ func (s Store) LoadReviewBundle(id string) (ReviewBundle, error) {
 	if err != nil || digest != bundle.BundleDigest || id != "rvb-"+strings.TrimPrefix(digest, "sha256:")[:16] {
 		return ReviewBundle{}, fmt.Errorf("pose: review bundle %s digest mismatch", id)
 	}
+	if impl := bundle.Payload.Implementation; impl != nil {
+		if err := validateBundleImplementation(*impl); err != nil {
+			return ReviewBundle{}, fmt.Errorf("pose: review bundle %s: %w", id, err)
+		}
+	}
 	// The order of bundles is by the instant they were sealed: a bundle without a valid one
 	// has no known place in the history, and is not read as the oldest.
 	if _, ok := reviewInstant(bundle.SealedAt); !ok {
@@ -2115,7 +2214,7 @@ func (s Store) CurrentReviewBundle(scope string) (*ReviewBundle, error) {
 // or a source change still stales it.
 func (s Store) matchSealedReviewBundle(scope string, prepared ReviewBundle, bundles []ReviewBundle) (*ReviewBundle, error) {
 	for i := len(bundles) - 1; i >= 0; i-- {
-		if bundles[i].BundleDigest == prepared.BundleDigest {
+		if sealedBundleMatches(bundles[i], prepared) {
 			bundle := bundles[i]
 			return &bundle, nil
 		}
@@ -2136,7 +2235,7 @@ func (s Store) matchSealedReviewBundle(scope string, prepared ReviewBundle, bund
 			}
 			legacy = &candidate
 		}
-		if bundles[i].BundleDigest == legacy.BundleDigest {
+		if sealedBundleMatches(bundles[i], *legacy) {
 			bundle := bundles[i]
 			return &bundle, nil
 		}

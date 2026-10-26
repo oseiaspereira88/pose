@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"os/signal"
 	"regexp"
 	"sort"
@@ -276,30 +275,75 @@ func namedAttempt(attempts []posemodel.DelegationAttempt, f delegateFlags) (pose
 	return attempt, 0, nil
 }
 
-// resolveDelegateAgent applies --agent: a name is taken as given; auto (or no
-// flag) is the only agent that can run the purpose (R4). With several, the
-// choice belongs to spec pose-delegation-routing; until then it is refused.
-func resolveDelegateAgent(store posemodel.Store, kind, requested string) (string, int, error) {
-	if requested != "" && requested != "auto" {
-		return requested, 0, nil
-	}
-	policy, found, err := store.LoadReviewersPolicyFor(kind)
+// routeDelegateAgent applies --agent (spec pose-delegation-routing R5–R9): a
+// name is taken as given and the run still records the independence it
+// achieves; auto (or no flag) routes among the agents that can run the
+// purpose. The returned warnings go to stderr.
+func routeDelegateAgent(store posemodel.Store, kind, ref, notes string, f delegateFlags, now time.Time) (string, *posemodel.DelegationRoutingRecord, []string, int, error) {
+	readers, found, err := store.LoadReviewersPolicyFor(kind)
 	if err != nil {
-		return "", 1, err
+		return "", nil, nil, 1, err
 	}
-	if !found || len(policy.Adapters) == 0 {
-		return "", 1, posemodel.ErrNoReviewerAdapter
+	if !found || len(readers.Adapters) == 0 {
+		return "", nil, nil, 1, posemodel.ErrNoReviewerAdapter
 	}
-	names := make([]string, 0, len(policy.Adapters))
-	for name := range policy.Adapters {
-		names = append(names, name)
+	policy, _, _, err := store.LoadDelegationPolicy()
+	if err != nil {
+		return "", nil, nil, 1, err
 	}
-	sort.Strings(names)
-	if len(names) == 1 {
-		return names[0], 0, nil
+	brief, err := store.RenderReviewBrief(ref, kind, notes)
+	if err != nil {
+		return "", nil, nil, 1, err
 	}
-	return "", 2, errors.New(tr("several agents can run this purpose ("+strings.Join(names, ", ")+"); name one with --agent",
-		"vários agentes podem rodar este propósito ("+strings.Join(names, ", ")+"); nomeie um com --agent"))
+	bundle, err := store.LoadReviewBundle(brief.BundleID)
+	if err != nil {
+		return "", nil, nil, 1, err
+	}
+	impl, from, err := store.RoutingImplementation(bundle, policy, f.lead)
+	if err != nil {
+		return "", nil, nil, 2, err
+	}
+	if f.agent != "" && f.agent != "auto" {
+		record := posemodel.ExplicitDelegationRoute(f.agent, impl, from)
+		var warnings []string
+		if agent, ok := readers.Adapters[f.agent]; ok && impl.Vendor != posemodel.ImplementationUnknown && strings.EqualFold(agent.Vendor, impl.Vendor) {
+			warnings = append(warnings, tr("agent "+f.agent+" shares the implementation's vendor ("+impl.Vendor+"); the run cannot achieve vendor independence",
+				"o agente "+f.agent+" é do mesmo vendor da implementação ("+impl.Vendor+"); o run não alcança independência de vendor"))
+		}
+		return f.agent, &record, warnings, 0, nil
+	}
+	eligible := make([]string, 0, len(readers.Adapters))
+	for name := range readers.Adapters {
+		eligible = append(eligible, name)
+	}
+	avail := store.DelegationAvailabilityOf(policy, now, true)
+	agent, record, err := posemodel.RouteDelegation(policy, eligible, impl, from, avail, now)
+	if err != nil {
+		return "", &record, nil, 1, err
+	}
+	return agent, &record, nil, 0, nil
+}
+
+// waitForRoute sleeps until the reset the wait step chose, without polling,
+// or until ctx ends (R7).
+func waitForRoute(ctx context.Context, stderr io.Writer, record *posemodel.DelegationRoutingRecord, agent string) error {
+	if record == nil || record.Step != posemodel.DelegationStepWait {
+		return nil
+	}
+	until, err := time.Parse(time.RFC3339, record.WaitUntil)
+	if err != nil {
+		return err
+	}
+	render(io.Discard, stderr).Hint(tr("pose delegate: every earlier agent is limited; waiting until "+record.WaitUntil+" to start "+agent,
+		"pose delegate: todos os agentes anteriores estão limitados; esperando até "+record.WaitUntil+" para iniciar "+agent))
+	timer := time.NewTimer(time.Until(until))
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
 }
 
 func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.Writer) int {
@@ -334,12 +378,24 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 		ref = resolved
 	}
 	kind := posemodel.DelegationKindForPurpose(purpose)
-	agent, code, err := resolveDelegateAgent(store, kind, f.agent)
+	agent, route, warnings, code, err := routeDelegateAgent(store, kind, ref, notes, f, time.Now())
 	if errors.Is(err, posemodel.ErrNoReviewerAdapter) {
 		return delegateNoAgent(stdout, stderr, f.jsonOut, purpose)
 	}
 	if err != nil {
+		var none *posemodel.ErrNoDelegationAgentAvailable
+		if errors.As(err, &none) && f.jsonOut {
+			writeDelegateJSON(stdout, map[string]any{"schema": delegateErrorSchema, "command": purpose, "error": strings.TrimPrefix(err.Error(), "pose: "), "routing": none.Record})
+			return code
+		}
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, code, err)
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	if !f.dryRun {
+		if err := waitForRoute(ctx, stderr, route, agent); err != nil {
+			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
+		}
 	}
 	plan, err := store.PlanReviewDispatch(ref, kind, notes, agent, f.reason)
 	if errors.Is(err, posemodel.ErrNoReviewerAdapter) {
@@ -348,14 +404,18 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
 	}
-	plan.Label, plan.Purpose, plan.Lead = f.label, purpose, f.lead
+	plan.Label, plan.Purpose, plan.Lead, plan.Routing = f.label, purpose, f.lead, route
+	for _, warning := range append(warnings, plan.Warnings...) {
+		render(stdout, stderr).Hint("pose delegate " + purpose + ": " + warning)
+	}
+	impl := plan.Implementation()
+	independence := posemodel.AchievedIndependence(impl.Vendor, impl.Model, plan.Config.Vendor, plan.Config.Model)
 	if f.dryRun {
 		argv := redactArgv(posemodel.ReviewerArgv(plan.Config.Command, "{output}", "", plan.Effort, plan.Config.Effort), plan.Config)
 		return delegatePrintPlan(stdout, stderr, f.jsonOut, plan, argv, map[string]any{"scope": plan.Brief.Scope, "bundle": plan.Bundle.BundleID,
-			"brief_digest": plan.Brief.Digest, "prior_runs": plan.PriorRuns, "label": plan.Label, "lead": plan.Lead})
+			"brief_digest": plan.Brief.Digest, "prior_runs": plan.PriorRuns, "label": plan.Label, "lead": plan.Lead,
+			"routing": route, "independence": independence, "implementation": posemodel.DescribeImplementation(impl)})
 	}
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	return delegatePrintRun(stdout, stderr, f.jsonOut, purpose, run, err)
 }
@@ -364,6 +424,21 @@ func delegateNoAgent(stdout, stderr io.Writer, jsonOut bool, command string) int
 	example, _ := posemodel.CanonicalDelegationPolicy(posemodel.ExampleDelegationPolicy())
 	err := errors.New(tr("no agent is configured; add .pose/policy/delegation.json, for example:\n", "nenhum agente configurado; adicione .pose/policy/delegation.json, por exemplo:\n") + string(example))
 	return delegateFail(stdout, stderr, jsonOut, command, 1, err)
+}
+
+// routeSummary renders a routing decision for a person: the step chosen and
+// each agent skipped with its reason.
+func routeSummary(route *posemodel.DelegationRoutingRecord) string {
+	text := "step=" + route.Step
+	if route.WaitUntil != "" {
+		text += " wait_until=" + route.WaitUntil
+	}
+	for _, c := range route.Candidates {
+		if c.Skipped != "" {
+			text += "; " + c.Agent + " " + tr("skipped", "ignorado") + ": " + c.Skipped
+		}
+	}
+	return text
 }
 
 // redactArgv hides the values of the credentials an agent is authorized to
@@ -411,6 +486,12 @@ func delegatePrintPlan(stdout, stderr io.Writer, jsonOut bool, plan posemodel.Di
 	}
 	sort.Strings(keys)
 	for _, k := range keys {
+		if route, ok := extra[k].(*posemodel.DelegationRoutingRecord); ok {
+			if route != nil {
+				out.Field("delegate.routing", routeSummary(route))
+			}
+			continue
+		}
 		if value := fmt.Sprint(extra[k]); value != "" {
 			out.Field("delegate."+k, value)
 		}
@@ -746,6 +827,9 @@ type delegateAgentRow struct {
 	Events            string   `json:"events"`
 	LimitResetAt      string   `json:"limit_reset_at,omitempty"`
 	Limited           bool     `json:"limited"`
+	State             string   `json:"state"`
+	LimitedUntil      string   `json:"limited_until,omitempty"`
+	Detail            string   `json:"detail,omitempty"`
 	IndependentOfLead *bool    `json:"independent_of_lead,omitempty"`
 }
 
@@ -762,22 +846,18 @@ func cmdDelegateAgents(root string, args []string, stdout, stderr io.Writer) int
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, "agents", 1, err)
 	}
-	// The reset of the last recorded usage limit of each agent: runs are read
-	// in the order they started, so the last one written wins.
-	resets := map[string]string{}
 	labelled := map[string]bool{}
 	if runs, _, err := store.ReadReviewRuns(""); err == nil {
 		for _, run := range runs {
-			if run.Interruption != nil && run.Interruption.Cause == "usage-limit" {
-				resets[run.Adapter] = run.Interruption.ResetAt
-			}
 			if f.label != "" && run.Label == f.label {
 				labelled[run.Adapter] = true
 			}
 		}
 	}
+	// Availability as routing reads it (spec pose-delegation-routing R6).
+	avail := store.DelegationAvailabilityOf(policy, time.Now(), true)
 	rows := []delegateAgentRow{}
-	for _, name := range policy.AgentNames() {
+	for _, name := range policy.DeclaredAgentNames() {
 		agent := policy.Agents[name]
 		access := make([]string, 0, len(agent.Commands))
 		for level := range agent.Commands {
@@ -787,16 +867,13 @@ func cmdDelegateAgents(root string, args []string, stdout, stderr io.Writer) int
 		if f.agent != "" && f.agent != "auto" && f.agent != name || f.access != "" && !containsString(access, f.access) || f.label != "" && !labelled[name] {
 			continue
 		}
-		cli := agent.CLI
-		if cli == "" && len(access) > 0 {
-			cli = agent.Commands[access[0]][0]
-		}
-		_, lookErr := exec.LookPath(cli)
 		events := agent.Events
 		if events == "" {
 			events = posemodel.DelegationEventsPlain
 		}
-		row := delegateAgentRow{Name: name, Vendor: agent.Vendor, Model: agent.Model, CLI: cli, OnPath: lookErr == nil, Access: access, Events: events, LimitResetAt: resets[name]}
+		a := avail[name]
+		row := delegateAgentRow{Name: name, Vendor: agent.Vendor, Model: agent.Model, CLI: a.CLI, OnPath: a.OnPath, Access: access, Events: events, LimitResetAt: a.LimitResetAt,
+			State: a.State, LimitedUntil: a.LimitedUntil, Detail: a.Detail}
 		if t, err := time.Parse(time.RFC3339Nano, row.LimitResetAt); err == nil && t.After(time.Now()) {
 			row.Limited = true
 		}
@@ -821,7 +898,18 @@ func cmdDelegateAgents(root string, args []string, stdout, stderr io.Writer) int
 	}
 	out.Field("delegate.policy", path)
 	for _, row := range rows {
-		value := fmt.Sprintf("vendor=%s model=%s cli=%s on_path=%t access=%s events=%s", row.Vendor, row.Model, row.CLI, row.OnPath, strings.Join(row.Access, ","), row.Events)
+		state := row.State
+		switch {
+		case row.State == posemodel.DelegationAgentLimited && row.LimitedUntil != "":
+			state = tr("limited until ", "limitado até ") + row.LimitedUntil
+		case row.State == posemodel.DelegationAgentAvailable:
+			state = tr("available", "disponível")
+		case row.State == posemodel.DelegationAgentMissing:
+			state = tr("missing", "ausente")
+		case row.Detail != "":
+			state += " (" + row.Detail + ")"
+		}
+		value := fmt.Sprintf("%s · vendor=%s model=%s cli=%s on_path=%t access=%s events=%s", state, row.Vendor, row.Model, row.CLI, row.OnPath, strings.Join(row.Access, ","), row.Events)
 		if row.LimitResetAt != "" {
 			value += " last_limit_reset=" + row.LimitResetAt
 			if row.Limited {

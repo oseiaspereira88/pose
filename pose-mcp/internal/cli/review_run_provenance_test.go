@@ -28,6 +28,16 @@ func cliRunProvenanceFixture(t *testing.T) (string, posemodel.Store, posemodel.R
 		writeCloseoutCLIFile(t, root, ".pose/policy/reviewers.json", string(raw))
 		git("add", "-A")
 	})
+	// The fixture sealed in a session with no agent markers, so its bundle
+	// records an unknown implementation; a declared one seals anew, and the
+	// run is compared with it, not with the policy (spec pose-delegation-routing
+	// R3, R4). Seal instants have a resolution of a second; the reseal waits
+	// for the next one so the declared bundle is the newer.
+	time.Sleep(time.Until(time.Now().Truncate(time.Second).Add(time.Second)))
+	t.Setenv("CODEX_THREAD_ID", "implementation-fixture")
+	if code, out := runPose(t, root, "review", "bundle", "spec:alpha", "--seal", "--lead", "openai/implementation-model"); code != 0 || !strings.Contains(out, "review_bundle.implementation=openai/implementation-model (declared)") {
+		t.Fatal(code, out)
+	}
 	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--apply"); code != 0 {
 		t.Fatal(code, out)
 	}

@@ -105,14 +105,66 @@ type DelegationAgent struct {
 	Resume           *ReviewerResume      `json:"resume,omitempty"`
 	Executor         string               `json:"executor,omitempty"`
 	Containment      *ReviewerContainment `json:"containment,omitempty"`
+	// Probe is an optional availability check (spec pose-delegation-routing
+	// R6). It is not part of the adapter the review path verifies, so adding
+	// one never stales a recorded run.
+	Probe *DelegationProbe `json:"probe,omitempty"`
 }
 
-// DelegationRouting is read by spec pose-delegation-routing; this schema only
-// validates its shape.
+// DelegationProbe is a command whose success means the agent can run now.
+type DelegationProbe struct {
+	Command []string `json:"command"`
+	Timeout string   `json:"timeout,omitempty"`
+}
+
+// Routing defaults (spec pose-delegation-routing R5, R7).
+const (
+	DelegationPreferOpposite    = "opposite-vendor-of-implementation"
+	DelegationPreferAny         = "any"
+	DelegationStepOtherModel    = "same-vendor-other-model"
+	DelegationStepWait          = "wait"
+	DelegationStepSameModel     = "same-model"
+	delegationDefaultMaxWait    = 5 * time.Hour
+	delegationProbeDefaultBound = 10 * time.Second
+	delegationProbeMaxBound     = 60 * time.Second
+)
+
+// RoutingPrefer is the preference in force.
+func (r *DelegationRouting) RoutingPrefer() string {
+	if r == nil || r.Prefer == "" {
+		return DelegationPreferOpposite
+	}
+	return r.Prefer
+}
+
+// RoutingSteps are the fallback steps in force.
+func (r *DelegationRouting) RoutingSteps() []string {
+	if r == nil || r.OnUnavailable == nil {
+		return []string{DelegationStepOtherModel, DelegationStepWait, DelegationStepSameModel}
+	}
+	return append([]string{}, r.OnUnavailable...)
+}
+
+// RoutingMaxWait bounds the wait step.
+func (r *DelegationRouting) RoutingMaxWait() time.Duration {
+	if r == nil || r.MaxWait == "" {
+		return delegationDefaultMaxWait
+	}
+	d, _ := time.ParseDuration(r.MaxWait)
+	return d
+}
+
+// DelegationRouting orders the candidates of --agent auto (spec
+// pose-delegation-routing R5–R7).
 type DelegationRouting struct {
 	Prefer        string   `json:"prefer,omitempty"`
 	OnUnavailable []string `json:"on_unavailable,omitempty"`
 	Rounds        string   `json:"rounds,omitempty"`
+	// LeadModels names the model of each vendor's leading agent, so a sealed
+	// identity can establish a model difference (spec pose-delegation-routing
+	// R2, D2); MaxWait bounds the wait step (R7).
+	LeadModels map[string]string `json:"lead_models,omitempty"`
+	MaxWait    string            `json:"max_wait,omitempty"`
 }
 
 // DelegationPurposePolicy is the budget of one purpose.
@@ -133,6 +185,9 @@ type DelegationPolicy struct {
 	// and its archived bytes, so runs recorded before the conversion keep
 	// their policy baseline (spec pose-delegation-surface D7).
 	MigratedFrom *DelegationMigration `json:"migrated_from,omitempty"`
+	// agentOrder is the order the file declares its agents in, which routing
+	// follows (spec pose-delegation-routing R5).
+	agentOrder []string
 }
 
 // DelegationMigration records a pose update conversion.
@@ -202,7 +257,35 @@ func ParseDelegationPolicy(raw []byte) (DelegationPolicy, error) {
 	if err := validateDelegationPolicy(policy); err != nil {
 		return DelegationPolicy{}, err
 	}
+	policy.agentOrder = declaredObjectKeys(raw, "agents")
 	return policy, nil
+}
+
+// declaredObjectKeys returns the keys of the top-level object field, in the
+// order the document writes them.
+func declaredObjectKeys(raw []byte, field string) []string {
+	var doc map[string]json.RawMessage
+	if json.Unmarshal(raw, &doc) != nil {
+		return nil
+	}
+	dec := json.NewDecoder(bytes.NewReader(doc[field]))
+	if tok, err := dec.Token(); err != nil || tok != json.Delim('{') {
+		return nil
+	}
+	keys := []string{}
+	for dec.More() {
+		tok, err := dec.Token()
+		if err != nil {
+			return nil
+		}
+		key, _ := tok.(string)
+		keys = append(keys, key)
+		var skip json.RawMessage
+		if dec.Decode(&skip) != nil {
+			return nil
+		}
+	}
+	return keys
 }
 
 // exactJSONKeys refuses a key that names a field by another spelling, or that
@@ -341,6 +424,23 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 		if r.Rounds != "" && r.Rounds != "continue-thread" && r.Rounds != "cold-session" {
 			return fmt.Errorf("pose: routing.rounds %q is not known", r.Rounds)
 		}
+		seenStep := map[string]bool{}
+		for _, step := range r.OnUnavailable {
+			if seenStep[step] {
+				return fmt.Errorf("pose: routing.on_unavailable names %s twice", step)
+			}
+			seenStep[step] = true
+		}
+		for vendor, model := range r.LeadModels {
+			if _, _, err := ParseLead(vendor + "/" + model); err != nil || strings.Contains(vendor, "/") || model == "" || vendor != strings.ToLower(vendor) || model != strings.ToLower(model) {
+				return fmt.Errorf("pose: routing.lead_models %q: %q is not a vendor and a model", vendor, model)
+			}
+		}
+		if r.MaxWait != "" {
+			if d, err := time.ParseDuration(r.MaxWait); err != nil || d < 0 || d > 24*time.Hour {
+				return fmt.Errorf("pose: routing.max_wait must be a duration from 0 to 24h")
+			}
+		}
 	}
 	for _, name := range policy.EnvUnset {
 		if !validEnvName(name) {
@@ -392,6 +492,21 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 					if strings.Contains(arg, "{") && delegationPlaceholder(arg) != "" {
 						return fmt.Errorf("pose: delegation agent %s: effort level %s carries a placeholder", name, level)
 					}
+				}
+			}
+		}
+		if probe := agent.Probe; probe != nil {
+			if err := validateDelegationArgv(probe.Command, nil); err != nil {
+				return fmt.Errorf("pose: delegation agent %s probe: %w", name, err)
+			}
+			for _, arg := range probe.Command {
+				if delegationPlaceholder(arg) != "" {
+					return fmt.Errorf("pose: delegation agent %s probe: a probe takes no placeholder", name)
+				}
+			}
+			if probe.Timeout != "" {
+				if d, err := time.ParseDuration(probe.Timeout); err != nil || d <= 0 || d > delegationProbeMaxBound {
+					return fmt.Errorf("pose: delegation agent %s probe: timeout must be a positive duration up to %s", name, delegationProbeMaxBound)
 				}
 			}
 		}

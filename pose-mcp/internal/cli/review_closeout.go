@@ -468,26 +468,46 @@ func routeQualifiedReviewScope(root string, args []string, stdout, stderr io.Wri
 	}
 }
 
+const reviewBundleUsage = "Usage: pose review bundle <scope> [--json] [--explain] [--seal [--lead <vendor>[/<model>]]]"
+
 func cmdReviewBundle(root string, args []string, stdout, stderr io.Writer) int {
-	ref, jsonOutput, explain, seal := "", false, false, false
-	for _, arg := range args {
-		switch arg {
-		case "--json":
+	ref, jsonOutput, explain, seal, lead, leadGiven := "", false, false, false, "", false
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		switch {
+		case arg == "--json":
 			jsonOutput = true
-		case "--explain":
+		case arg == "--explain":
 			explain = true
-		case "--seal":
+		case arg == "--seal":
 			seal = true
+		case arg == "--lead" || strings.HasPrefix(arg, "--lead="):
+			// The implementation identity the seal records, declared instead of
+			// detected from the session (spec pose-delegation-routing R3).
+			value, inline := strings.CutPrefix(arg, "--lead=")
+			if !inline {
+				if i+1 >= len(args) {
+					render(stdout, stderr).Usage(reviewBundleUsage)
+					return 2
+				}
+				i++
+				value = args[i]
+			}
+			if _, _, err := posemodel.ParseLead(value); err != nil {
+				render(stdout, stderr).Failure("pose review bundle: " + strings.TrimPrefix(err.Error(), "pose: "))
+				return 2
+			}
+			lead, leadGiven = value, true
 		default:
 			if strings.HasPrefix(arg, "-") || ref != "" {
-				fmt.Fprintln(stderr, "Usage: pose review bundle <scope> [--json] [--explain] [--seal]")
+				render(stdout, stderr).Usage(reviewBundleUsage)
 				return 2
 			}
 			ref = arg
 		}
 	}
-	if ref == "" {
-		fmt.Fprintln(stderr, "Usage: pose review bundle <scope> [--json] [--explain] [--seal]")
+	if ref == "" || leadGiven && !seal {
+		render(stdout, stderr).Usage(reviewBundleUsage)
 		return 2
 	}
 	indexPath := filepath.Join(root, ".pose", "indexes", "delivery-integrity.json")
@@ -502,7 +522,7 @@ func cmdReviewBundle(root string, args []string, stdout, stderr io.Writer) int {
 	var bundle posemodel.ReviewBundle
 	var err error
 	if seal {
-		bundle, err = store.SealReviewBundle(ref, time.Now())
+		bundle, err = store.SealReviewBundleLead(ref, lead, time.Now())
 	} else {
 		bundle, err = store.PrepareReviewBundle(ref)
 	}
@@ -518,6 +538,9 @@ func cmdReviewBundle(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	} else {
 		fmt.Fprintf(stdout, "review_bundle.id=%s\nreview_bundle.digest=%s\nreview_bundle.scope=%s\nreview_bundle.state=%s\nreview_bundle.subject.patch_digest=%s\nreview_bundle.subject.tree_digest=%s\nreview_bundle.criteria=%d\nreview_bundle.tools=%d\nreview_bundle.evidence=%d\n", bundle.BundleID, bundle.BundleDigest, bundle.Payload.Scope.Ref, bundle.State, bundle.Payload.Subject.PatchDigest, bundle.Payload.Subject.TreeDigest, len(bundle.Payload.Plan.Criteria), len(bundle.Payload.Plan.Tools), len(bundle.Payload.Evidence))
+		if impl := bundle.Payload.Implementation; impl != nil {
+			fmt.Fprintf(stdout, "review_bundle.implementation=%s\n", posemodel.DescribeImplementation(*impl))
+		}
 		if explain {
 			for _, input := range bundle.Payload.Scope.Sections {
 				fmt.Fprintf(stdout, "include.%s=%s reason:%s\n", input.Kind, input.Path, input.Reason)

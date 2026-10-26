@@ -76,8 +76,10 @@ func TestDelegateTreeParsesAndRefusesAsSpecified(t *testing.T) {
 	}
 }
 
-// R4, R12: auto is the only agent of the purpose; with several it refuses and
-// lists them; --dry-run resolves everything and reserves nothing.
+// R4, R12: auto resolves an agent of the purpose; with several it routes
+// among them (spec pose-delegation-routing R5), in the order the policy
+// declares them when the implementation is unknown; --dry-run resolves
+// everything and reserves nothing.
 func TestDelegateAutoAgentAndDryRun(t *testing.T) {
 	root := dispatchInstance(t)
 	if code, out, errOut := runPoseSplit(t, root, "delegate", "review", "spec:alpha"); code != 1 || !strings.Contains(out+errOut, "delegation.json") {
@@ -86,8 +88,9 @@ func TestDelegateAutoAgentAndDryRun(t *testing.T) {
 	t.Setenv("REVIEWER_TOKEN", "tok-1234567890")
 	writeDelegation(t, root, delegationPolicy(approvingAgent, `"other": {"vendor": "test", "model": "o-1", "commands": {"read": ["sh", "-c", "echo tok-1234567890 >/dev/null"]},
       "containment": {"schema_version": 1, "profile": "trusted-process", "credentials": ["REVIEWER_TOKEN"], "retention_ttl_seconds": 0}}`))
-	code, out, errOut := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--json")
-	if code != 2 || !strings.Contains(out, "ok, other") || !strings.Contains(out, delegateErrorSchema) {
+	code, out, errOut := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--dry-run", "--json")
+	var routed map[string]any
+	if code != 0 || json.Unmarshal([]byte(out), &routed) != nil || routed["agent"] != "ok" || !strings.Contains(out, `"step": "preferred"`) || routed["independence"] != "same-model" {
 		t.Fatalf("several agents: %d %s %s", code, out, errOut)
 	}
 	code, out, _ = runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--agent", "other", "--dry-run", "--json", "--label", "alpha-r1")
@@ -461,7 +464,8 @@ func TestDelegateAgentsShowsTheLastLimit(t *testing.T) {
 		}
 		args := []string{"delegate", "review", "spec:alpha", "--label", fmt.Sprintf("limited-%d", i)}
 		if i > 0 {
-			args = append(args, "--reason", "after the first limit")
+			// Named, the agent runs although routing would skip it as limited.
+			args = append(args, "--reason", "after the first limit", "--agent", "limited")
 		}
 		if code, out, errOut := runPoseSplit(t, root, args...); code != 1 || !strings.Contains(out, "interrupted") {
 			t.Fatalf("run %d: %d %s %s", i, code, out, errOut)
@@ -560,7 +564,7 @@ func TestDelegateReferenceErrorsNeverRepeatASession(t *testing.T) {
 	root := dispatchInstance(t)
 	writeDelegation(t, root, delegationPolicy(resumableAgent))
 	runPoseSplit(t, root, "delegate", "review", "spec:alpha")
-	runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--reason", "second look")
+	runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--reason", "second look", "--agent", "resumer")
 	if runs, _ := (posemodel.Store{Root: root}).ListReviewRuns(""); len(runs) != 2 {
 		t.Fatalf("two runs sharing one session were expected, got %d", len(runs))
 	}

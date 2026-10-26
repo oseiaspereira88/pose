@@ -230,7 +230,9 @@ func TestRemediationLineageIsSemanticAndOrderIndependent(t *testing.T) {
 	}
 	setLinks("spec:b@revert, spec:a@defect-fix")
 	reordered, err := store.PrepareReviewBundle("spec:backend")
-	if err != nil || reordered.BundleDigest != linked.BundleDigest {
+	// A sealed bundle also records its implementation, which a preparation
+	// never carries: compare their content as the engine does.
+	if err != nil || !sealedBundleMatches(linked, reordered) {
 		t.Fatalf("order changed bundle: %v", err)
 	}
 	setLinks("spec:a@simplification, spec:b@revert")

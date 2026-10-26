@@ -1,6 +1,6 @@
 ---
 slug: pose-delegation-routing
-status: draft
+status: in-progress
 created_at: 2026-10-26
 completed_at:
 supersedes:
@@ -8,7 +8,7 @@ depends_on: pose-delegation-surface, pose-delegated-review-run-provenance
 priority: 2
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: capability:delegation-routing
 ---
 
 # Spec: Delegated runs are routed by the implementation they judge
@@ -68,7 +68,39 @@ Bundle sealing and payload schema, routing resolver, availability reader, run re
 
 ### Artifacts
 
-Implementation artifacts are declared when the spec starts.
+- modified: .pose/specs/2026-10-26-pose-delegation-routing.md
+- created: .pose/starts/pose-delegation-routing.json
+- created: .pose/changelogs/unreleased/pose-delegation-routing.md
+- created: pose-mcp/internal/pose/delegation_identity.go
+- created: pose-mcp/internal/pose/delegation_routing.go
+- created: pose-mcp/internal/pose/delegation_routing_test.go
+- modified: pose-mcp/internal/pose/delegation_policy.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
+- modified: pose-mcp/internal/pose/review_run_continuity.go
+- modified: pose-mcp/internal/pose/review_run_provenance.go
+- modified: pose-mcp/internal/pose/review_run_provenance_test.go
+- modified: pose-mcp/internal/pose/review_assurance.go
+- modified: pose-mcp/internal/pose/remediation_lineage_test.go
+- modified: pose-mcp/internal/pose/main_test.go
+- modified: pose-mcp/internal/cli/delegate.go
+- modified: pose-mcp/internal/cli/delegate_test.go
+- created: pose-mcp/internal/cli/delegate_routing_test.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/review_run_provenance_test.go
+- modified: pose-mcp/internal/cli/cli_test.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: docs-site/docs/cli.md
+- modified: docs-site/docs/review-and-trust.md
+
+### Delivery targets
+
+- capability:delegation-routing module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/delegate.go
 
 ### API/contract changes
 
@@ -76,11 +108,12 @@ Bundle payload field `implementation`; policy keys `routing.prefer`, `routing.on
 
 ## 4. Tasks
 
-- [ ] Implementation identity at seal, detection and override
-- [ ] Legacy reading for earlier bundles
-- [ ] Availability and `agents` states
-- [ ] Resolver with preference and fallback steps
-- [ ] Routing record and achieved independence, disclosed at verify and closeout
+- [x] Implementation identity at seal, detection and override
+- [x] Legacy reading for earlier bundles
+- [x] Availability and `agents` states
+- [x] Resolver with preference and fallback steps
+- [x] Routing record and achieved independence, disclosed at verify and closeout
+- [ ] Independent review and closeout
 
 ## 5. Decisions
 
@@ -99,6 +132,38 @@ Bundle payload field `implementation`; policy keys `routing.prefer`, `routing.on
 - Rationale: a guessed model would let a same-model run claim a model difference
 - Consequences: instances declare `routing.lead_models` to get model-based independence
 - Falsifier: a run credited with a model difference whose implementation model was never declared
+
+### Decision D3
+- Basis: R1, D1
+- Minimal option: put the identity in the payload like any other field
+- Selected option: seal it in the payload, but never prepare it, and match a sealed bundle with a preparation by their content once the preparation takes the sealed identity
+- Rationale: every freshness check compares a preparation with a sealed bundle; an identity in the prepared payload would make every bundle stale for any session of another vendor, and an identity outside the payload could be edited after the fact
+- Consequences: resealing content a bundle already holds returns that bundle with its identity, so a reviewer closing out never becomes the implementation; only a declared `--lead` naming another identity seals anew; two bundles of one content can exist, and the newer governs
+- Falsifier: a bundle reported stale, or a reseal minting a bundle, when only the sealing session changed
+
+### Decision D4
+- Basis: R2, R11
+- Minimal option: fall back to the policy's `provenance.implementation` when the session is not detected
+- Selected option: record vendor `unknown`, warn at seal, and refuse a run-backed attestation against it
+- Rationale: R4 makes the policy legacy for later bundles; reading it when detection fails would bring back the per-scope edit D1 removes, silently
+- Consequences: sealing from a terminal or CI without `--lead` gives a bundle routing treats as of unknown vendor and attested review cannot use; the seal says so
+- Falsifier: an attested different-actor review whose implementation vendor no seal recorded
+
+### Decision D5
+- Basis: R6, R7
+- Minimal option: no default `max_wait`, so `wait` applies only when configured
+- Selected option: default `max_wait` 5h, bounded at 24h; a probe is an argv with a 10s default and 60s bound, no placeholder, outside the adapter the review path verifies
+- Rationale: `wait` is a default step, and a default that never applies is a default in name only; the vendors' usage windows are a few hours; a probe in the adapter would stale every recorded run when it is added
+- Consequences: an instance that wants no waiting removes `wait` from `on_unavailable` or sets `max_wait` to 0
+- Falsifier: a run that waited longer than `max_wait`, or a recorded run staled by adding a probe
+
+### Decision D6
+- Basis: R10
+- Minimal option: implement the task identity inside `pose delegate task`
+- Selected option: deliver the session-identity determination R2 and R3 describe as the one function the seal uses, and leave its call from `task` to `pose-delegation-task`, whose purpose this spec does not run
+- Rationale: `task` is still refused by the surface; a second determination would drift from the seal's
+- Consequences: R10 is satisfied by the shared detector and its tests; `pose-delegation-task` calls it with the launching session's `--lead`
+- Falsifier: a task run whose implementation identity is determined differently from a seal in the same session
 
 ## 6. Validation
 

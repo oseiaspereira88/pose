@@ -236,6 +236,9 @@ func RenderReviewAssurance(a ReviewAssurance) string {
 		"; cognitive independence " + a.CognitiveIndependence
 	if a.Run != nil {
 		text += "; run " + a.Run.RunID + " proof " + a.Run.ProofID + "; reviewer " + a.Run.Reviewer.Vendor + "/" + a.Run.Reviewer.Model + "; implementation " + a.Run.Implementation.Vendor + "/" + a.Run.Implementation.Model + "; source " + a.Run.IdentitySource
+		if a.Run.IndependenceAchieved != "" {
+			text += "; implementation identity " + a.Run.ImplementationSource + "; independence achieved " + a.Run.IndependenceAchieved
+		}
 	}
 	if a.Temporal != nil {
 		text += "; historical claim " + a.Temporal.HistoricalValidity + " at " + a.Temporal.TimeBasis + "; current operation " + a.Temporal.CurrentValidity + "; historical authorization " + a.Temporal.HistoricalAuthorization
