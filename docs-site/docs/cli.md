@@ -565,9 +565,12 @@ the start of this reference lists the read-only inspection forms.
 
 `pose review brief <bundle-id|scope>` prepares a deterministic brief for a
 review, adjudication or smoke run (`--kind review|adjudication|smoke`).
-`pose review dispatch <bundle-id|scope> --via <adapter>` previews delegation;
-`--apply` launches the configured adapter in an isolated worktree. Configure
-the adapter before dispatching. The returned review remains subject to the
+`pose delegate review|adjudicate|smoke <bundle-id|scope>` launches the agent
+configured in `.pose/policy/delegation.json` in a disposable worktree at the
+sealed commit; `--dry-run` previews it and reserves nothing, `--agent <name>`
+chooses among several agents, and `pose delegate ls`, `resume`, `cancel` and
+`agents` follow the runs. `pose review dispatch`, `resume` and `status` remain
+as deprecated aliases for one minor version. The returned review remains subject to the
 bundle's criteria, identity requirements and verification gates; dispatch
 does not itself approve or close the spec.
 

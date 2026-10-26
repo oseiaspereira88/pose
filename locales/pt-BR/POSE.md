@@ -251,6 +251,13 @@ pose close <escopo|xref> [--expect-context <digest>]
 pose continuous-closeout <start <scope> [--apply]|status [--json]|complete --apply>
 pose artifact-backfill --from-git [--apply --confirm-spec-edits]
 
+# Execuções delegadas
+pose delegate review|adjudicate|smoke <escopo|bundle-id> [--agent auto|<nome>] [--label <nome>] [--lead <vendor>] [--reason <texto>] [--note-file <caminho>] [--dry-run] [--json]
+pose delegate ls [<run>|<bundle-id>] [--active] [--json]
+pose delegate resume <run> [--wait-until-reset[=<max>]] [--dry-run] [--json]
+pose delegate cancel <run> [--json]
+pose delegate agents [--json]
+
 # Estado do projeto e governança de docs
 pose state [init|refresh [--if-stale]|diff]  # artefato nativo de estado; sem subcomando = valida
 pose state --governance [--scope <ref>] [--json]  # ao vivo: governança suportada, configurada, aplicável e efetiva
@@ -810,9 +817,37 @@ Lifecycle `done` registra a transição; a verificação terminal lê o contrato
 
 Para um scope done, `pose close --apply|--resume` é readonly: estado verificado retorna `already-satisfied`, com `steps_run` e `effects` vazios; prova obrigatória ausente ou histórico inválido retorna blocked com ação de reparo suportada. Nenhum resultado reescreve checkpoints, starts, amendments ou lifecycle. `pose close` simples também verifica em vez de repetir a transição. Um plano in-progress verifica o gate existente de amendments antes de selar. Nenhuma policy, review ou recibo histórico é criado automaticamente.
 
+### Execuções delegadas (`pose delegate`)
+
+`pose review` governa o sujeito (bundle, brief, atestação, verify); `pose delegate` governa as execuções. Um **agente** é um perfil de CLI configurado em `.pose/policy/delegation.json`; um **run** é uma execução; uma **tentativa** é um run e suas continuações; uma **thread** são as rodadas de um escopo. `pose delegate review`, `adjudicate` e `smoke` rodam o brief gerado do bundle selado num worktree descartável no commit selado, só com acesso de leitura, sob o ledger de tentativas e a contenção abaixo; qualquer outro `--access` é recusado. Um run nunca registra atestação. Sem `--agent` (ou com `auto`) roda o único agente configurado para o propósito; com vários, nomeie um — o roteamento entre vendors é uma entrega posterior. `--label` nomeia o run, `--lead` registra o vendor que conduz o trabalho, `--dry-run` mostra agente, propósito, acesso, diretório de trabalho e argv resolvidos (com os valores de credenciais autorizadas ocultos) e não reserva nada, e `--json` imprime um documento versionado (`pose.delegate.run/v1`, `plan/v1`, `ls/v1`, `cancel/v1`, `agents/v1`, `error/v1`). Uma referência de run é um id de run, um id de tentativa, um label ou um prefixo de sessão com seis caracteres ou mais; uma referência ambígua sai com 2 e lista os candidatos.
+
+`pose delegate ls` lista as tentativas pelo run mais recente com estado, propósito, agente, label, turnos, idade e último passo, e os runs em andamento com a vivacidade do processo. `pose delegate cancel <run>` para um run em andamento; ele é registrado `failed` com a causa `cancelled`, e a tentativa continua consumida. `pose delegate agents` lista cada agente com vendor, modelo, se a CLI está no path e o instante de reset do último limite de uso registrado. `watch` e `wait` chegam com a spec `pose-delegated-review-completion-signal`, `handoff` com `pose-delegation-handoff` e `task` com `pose-delegation-task`; até lá saem com 2 nomeando a spec. `pose review dispatch`, `resume` e `status` ficam por uma versão minor como aliases depreciados, com o mesmo comportamento e exit codes, imprimindo o substituto no stderr.
+
+`delegation.json` é schema 2: `agents` (vendor, modelo, `cli`, `events`, `commands` por acesso, `effort`, `timeout`, `limit`, `session`, `resume`, `executor`, `containment`), `routing`, orçamentos por propósito (`purposes.<review|adjudicate|smoke|task>.max_runs_per_bundle`, `timeout`) e `env_unset`. Templates de comando são arrays de argv; `{output}`, `{session}` e `{effort}` são elementos inteiros, nunca interpolados, e `{effort}` vira o fragmento de argv do nível de esforço do agente. O `max_runs_per_bundle` do próprio agente vence o do propósito; o `timeout` do propósito vence o do agente. `pose update` converte `reviewers.json` (schema 1) em `delegation.json` de forma determinística e o remove: cada adapter vira um agente cujo comando `read` é o comando do adapter, um orçamento comum a todos os adapters vai para os propósitos do caminho de review, e cada agente projeta exatamente o adapter de origem, de modo que os runs registrados continuam verificando. O motor lê `reviewers.json` enquanto `delegation.json` não existe e recusa quando os dois existem. Um adapter schema 1 que interpola `{output}` ou `{session}` dentro de um argumento (em código `sh -c`, por exemplo) não é convertido: `pose update` avisa e mantém `reviewers.json` até o template passar o placeholder como elemento inteiro.
+
+```json
+{
+  "schema_version": 2,
+  "agents": {
+    "codex": {
+      "vendor": "openai", "model": "gpt-6.1-sol", "cli": "codex", "events": "codex-jsonl", "timeout": "60m",
+      "commands": {"read": ["codex", "exec", "-m", "gpt-6.1-sol", "{effort}", "-s", "read-only", "--json", "-o", "{output}", "-"]},
+      "effort": {"default": "medium", "levels": {"medium": ["-c", "model_reasoning_effort=\"medium\""], "high": ["-c", "model_reasoning_effort=\"high\""]}}
+    },
+    "claude": {
+      "vendor": "anthropic", "model": "claude-opus-5-5", "cli": "claude", "events": "claude-stream-json", "timeout": "60m",
+      "commands": {"read": ["claude", "-p", "--model", "claude-opus-5-5", "--permission-mode", "plan", "--output-format", "stream-json", "--verbose"]}
+    }
+  },
+  "purposes": {"review": {"max_runs_per_bundle": 3}}
+}
+```
+
+O processo filho não recebe nenhuma variável de sessão do agente pai (`CLAUDECODE`, os marcadores de sessão `CLAUDE_CODE_*`, `CODEX_THREAD_ID`, `CODEX_SESSION_ID` e os demais nomes que Claude Code e Codex definem para seus filhos), nem os nomes de `env_unset`, mesmo quando a allowlist de contenção os cita; o run registra os nomes removidos em `env_removed`, nunca os valores. O `events` do agente (`codex-jsonl`, `claude-stream-json` ou `plain`) escolhe o parser que transforma o stream redigido em eventos normalizados — turno, mensagem, chamada de ferramenta, saída de ferramenta, limite de uso, mensagem final, erro — guardados ao lado do transcript do run como `<run>.events.ndjson` e vinculados ao registro por `events_digest`. Um agente que não grava arquivo `{output}` tem o draft tirado da mensagem final que o stream traz. Um run em andamento é conhecido por um marcador privado em `.pose/review-private/active/`, que identifica o processo como uma trava de start.
+
 ### Tentativas e histórico de review delegado
 
-`pose review dispatch <scope|bundle> --via <adapter> --apply` reserva uma tentativa imutável antes de iniciar o adapter configurado. Um run completed no mesmo bundle exige `--reason <text>` explícito para cada novo dispatch, inclusive com outro adapter ou kind de brief. A quota é relida na execução e inclui tentativas falhas e reservadas; preview não autoriza o futuro. Chamadas concorrentes disputam um slot ordinal; a perdedora recusa sem iniciar adapter ou repetir. O motivo aceita uma linha de até 2048 bytes; não inclua segredos ou identificadores de sessão.
+`pose delegate review|adjudicate|smoke <escopo|bundle>` reserva uma tentativa imutável antes de iniciar o agente configurado. Um run completed no mesmo bundle exige `--reason <text>` explícito para cada novo dispatch, inclusive com outro agente ou kind de brief. A quota é relida na execução e inclui tentativas falhas e reservadas; preview não autoriza o futuro. Chamadas concorrentes disputam um slot ordinal; a perdedora recusa sem iniciar adapter ou repetir. O motivo aceita uma linha de até 2048 bytes; não inclua segredos ou identificadores de sessão.
 
 Reservas ficam em `.pose/review-attempts/`, recibos finais ligam o run, e `.pose/review-run-ledger/` testemunha bytes exatos do run e digests do transcript. Toda publicação usa o publisher exclusivo com sync. Runs novos carregam `ledger_version: 1`, `attempt_id` e motivo opcional; runs legados schema-1 preservam a identidade, sem inventar reserva ou assinatura. Reserva incompleta, witness/run/transcript ausente, recibo inconsistente, registro desconhecido ou limite de leitura esgotado tornam a cobertura explicitamente incompleta. Inspecione; não há exclusão, truncamento, reparo ou retry automático. Atualize juntos os writers que compartilham esses diretórios. Continuidade e proveniência autenticada continuam entregas separadas.
 
@@ -822,7 +857,7 @@ Reservas ficam em `.pose/review-attempts/`, recibos finais ligam o run, e `.pose
 
 ### Limitar a execução do adapter delegado
 
-Declare `containment` opcional em cada adapter de `.pose/policy/reviewers.json`, schema 1 e `trusted-process`. O backend exige executável local confiável. Worktree compartilha Git; não isola filesystem, raiz original, rede, credenciais em disco, CPU ou memória. Exigência indisponível é recusada antes da reserva/spawn. Linux qualifica término do grupo somente com inventário observável e verificação após kill. Filho que escapa do grupo fica fora dessa cobertura; cross-build não qualifica runtime Windows/outras plataformas.
+Declare `containment` opcional em cada agente de `.pose/policy/delegation.json`, contenção schema 1 e `trusted-process`. O backend exige executável local confiável. Worktree compartilha Git; não isola filesystem, raiz original, rede, credenciais em disco, CPU ou memória. Exigência indisponível é recusada antes da reserva/spawn. Linux qualifica término do grupo somente com inventário observável e verificação após kill. Filho que escapa do grupo fica fora dessa cobertura; cross-build não qualifica runtime Windows/outras plataformas.
 
 ```json
 {
@@ -852,7 +887,7 @@ Retenha evidência sem expiração automática (`retention_ttl_seconds: 0`). Run
 
 ### Retomar reviews delegados interrompidos
 
-Declare os campos opcionais `limit`, `session` e `resume` no adapter em `.pose/policy/reviewers.json`. Use padrões RE2; os padrões de sessão/reset exigem exatamente um grupo de captura. Declare exit codes ou padrões de saída para reconhecer limites em stdout/stderr ou `{output}`. O reset capturado deve ser um instante RFC3339; o motor não infere vocabulário de fornecedor. Exemplo de campos em um adapter já configurado:
+Declare os campos opcionais `limit`, `session` e `resume` no agente em `.pose/policy/delegation.json`. Use padrões RE2; os padrões de sessão/reset exigem exatamente um grupo de captura. Declare exit codes ou padrões de saída para reconhecer limites em stdout/stderr ou `{output}`. O reset capturado deve ser um instante RFC3339; o motor não infere vocabulário de fornecedor. Exemplo de campos em um agente já configurado:
 
 ```json
 {
@@ -864,15 +899,15 @@ Declare os campos opcionais `limit`, `session` e `resume` no adapter em `.pose/p
 
 Passe `{session}` como argumento inteiro, nunca dentro de código shell. As capturas dos dois canais devem concordar. A referência de sessão fica em `.pose/review-private/` (diretório 0700/arquivos 0600, ignorado pelo Git); mantenha esse runtime privado. Registros públicos contêm o digest. O supervisor remove a referência do transcript e do draft antes de publicar; capturas ambíguas retêm os bytes sem redação. Perder esse material impede a recuperação, sem inventar outra sessão.
 
-Execute `pose review status [--json]` para ver interrupções, drafts parciais, reset e tempo restante. `pose doctor` avisa sobre endpoints interrompidos. Runs terminam completed, failed ou interrupted; registros stale legados continuam legíveis. Sem declarações, interrupções são unknown e não retomáveis. Um draft interrompido é evidência parcial, nunca rejeição ou review.
+Execute `pose delegate ls [--json]` para ver interrupções, drafts parciais, reset e tempo restante. `pose doctor` avisa sobre endpoints interrompidos. Runs terminam completed, failed ou interrupted; registros stale legados continuam legíveis. Sem declarações, interrupções são unknown e não retomáveis. Um draft interrompido é evidência parcial, nunca rejeição ou review.
 
-Visualize `pose review resume <run-id>` e passe `--apply` para retomar com o mesmo adapter, sessão capturada, digest do brief, commit selado e digest do checkout reconstruído. A continuação usa a tentativa original, sem consumir outra quota. O padrão permite três resumes e 60 minutos acumulados de wall-clock; altere com `resume.max_resumes`/`max_wall_time`. Mudanças de policy/inputs, predecessor perdido ou reescrito, predecessor terminal e orçamento esgotado impedem resume. Uma reserva imutável por predecessor permite apenas uma continuação; repetições retornam o resultado existente ou mostram a reserva pendente sem iniciar outro processo. Perder o host antes de publicar resultado permanece evidência incompleta explícita; não há recuperação automática sem um registro interrompido capturado.
+Execute `pose delegate resume <run>` (`--dry-run` mostra antes) para retomar com o mesmo agente, sessão capturada, digest do brief, commit selado e digest do checkout reconstruído. A continuação usa a tentativa original, sem consumir outra quota. O padrão permite três resumes e 60 minutos acumulados de wall-clock; altere com `resume.max_resumes`/`max_wall_time`. Mudanças de policy/inputs, predecessor perdido ou reescrito, predecessor terminal e orçamento esgotado impedem resume. Uma reserva imutável por predecessor permite apenas uma continuação; repetições retornam o resultado existente ou mostram a reserva pendente sem iniciar outro processo. Perder o host antes de publicar resultado permanece evidência incompleta explícita; não há recuperação automática sem um registro interrompido capturado.
 
-Use `--wait-until-reset[=<duração>]` para esperar uma vez pelo reset registrado, mais até um segundo de jitter, e revalidar antes de retomar. O padrão e máximo são 24 horas; reset ausente ou além do limite impede a espera. Não há polling do fornecedor nem fallback automático. Para escolher outro adapter após um limite pendente, faça dispatch explícito com `--via <adapter>`; ele cria outra tentativa com `limit-of:<run>` e mostra ambos os runs. Insights conta resumes separadamente de tentativas/reruns; taxas declaradas de aprovação usam somente drafts completed não superseded.
+Use `--wait-until-reset[=<duração>]` para esperar uma vez pelo reset registrado, mais até um segundo de jitter, e revalidar antes de retomar. O padrão e máximo são 24 horas; reset ausente ou além do limite impede a espera. Não há polling do fornecedor nem fallback automático. Para escolher outro agente após um limite pendente, rode-o explicitamente com `--agent <nome>`; ele cria outra tentativa com `limit-of:<run>` e mostra ambos os runs. Insights conta resumes separadamente de tentativas/reruns; taxas declaradas de aprovação usam somente drafts completed não superseded.
 
 ### Verificar proveniência assinada de runs delegados
 
-Declare executor e baseline de implementação antes do dispatch. Acrescente `provenance` na policy de reviewers e um principal agente `executor` em cada adapter. As identidades abaixo são exemplos sintéticos; registre a baseline real declarada, sem inferi-la pelo nome do revisor:
+Declare executor e baseline de implementação antes do dispatch. Acrescente `provenance` na policy de delegação e um principal agente `executor` em cada agente. Uma policy schema 1 recebe os mesmos campos nos adapters, como abaixo. As identidades abaixo são exemplos sintéticos; registre a baseline real declarada, sem inferi-la pelo nome do revisor:
 
 ```json
 {

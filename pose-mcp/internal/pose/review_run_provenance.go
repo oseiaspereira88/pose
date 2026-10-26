@@ -370,7 +370,7 @@ func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time
 	if why := s.runProofContextConflict(run); why != "" {
 		return fail(why)
 	}
-	config, found, e := s.LoadReviewersPolicy()
+	config, found, e := s.LoadReviewersPolicyFor(run.Kind)
 	if e != nil || !found || config.Provenance == nil {
 		return fail("current execution policy is missing")
 	}

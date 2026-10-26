@@ -256,6 +256,13 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 2
 		}
 		return cmdAdopt(root, args, stdout, stderr)
+	case "delegate":
+		root, err := projectRoot()
+		if err != nil {
+			render(stdout, stderr).Failure("pose delegate: " + err.Error())
+			return 2
+		}
+		return cmdDelegate(root, args, stdout, stderr)
 	case "action":
 		root, err := projectRoot()
 		if err != nil {
@@ -485,6 +492,7 @@ Governed closeout:
   review attest <bundle-id> [...]     Record/import a separate attestation
   review verify <scope|bundle-id>     Verify freshness and closeout readiness
   review record <scope> [...]         Compatibility entrypoint
+  delegate review <scope> [--agent]   Run a delegated review; also adjudicate, smoke, ls, resume, cancel, agents
   close <scope>                         Apply a review-gated lifecycle transition
   continuous-closeout <action>          Persist and project a terminal scope
   artifact-backfill --from-git          Propose explicit historical provenance
@@ -550,6 +558,7 @@ Fechamento governado:
   review attest <bundle-id> [...]      Registra/importa atestação separada
   review verify <escopo|bundle-id>     Verifica atualidade e prontidão para fechamento
   review record <escopo> [...]         Entrada de compatibilidade
+  delegate review <escopo> [--agent]   Roda um review delegado; também adjudicate, smoke, ls, resume, cancel, agents
   close <escopo>                        Aplica transição de ciclo de vida governada
   continuous-closeout <ação>            Persiste e projeta um escopo terminal
   artifact-backfill --from-git          Propõe proveniência histórica explícita

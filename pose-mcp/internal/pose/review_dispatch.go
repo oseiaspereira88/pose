@@ -26,6 +26,7 @@ import (
 	"runtime"
 	"sort"
 	"strings"
+	"sync/atomic"
 	"time"
 	"unicode/utf8"
 )
@@ -50,6 +51,10 @@ type ReviewerAdapter struct {
 	Limit            *ReviewerLimit   `json:"limit,omitempty"`
 	Session          *ReviewerSession `json:"session,omitempty"`
 	Resume           *ReviewerResume  `json:"resume,omitempty"`
+	// Events and Effort come from a delegation.json agent (schema 2); a
+	// schema 1 adapter has neither, so its projection is unchanged.
+	Events string          `json:"events,omitempty"`
+	Effort *ReviewerEffort `json:"effort,omitempty"`
 }
 
 // ReviewersPolicy is .pose/policy/reviewers.json.
@@ -69,45 +74,65 @@ func ExampleReviewersPolicy() ReviewersPolicy {
 	}}
 }
 
-// LoadReviewersPolicy reads the adapters; an absent file means none.
+// LoadReviewersPolicy reads the adapters of the review purpose; an absent
+// policy means none.
 func (s Store) LoadReviewersPolicy() (ReviewersPolicy, bool, error) {
-	raw, err := ReadReviewAdapterFile(filepath.Join(s.Root, ".pose", "policy", "reviewers.json"), 1<<20)
-	if errors.Is(err, os.ErrNotExist) {
-		return ReviewersPolicy{}, false, nil
-	}
-	if err != nil {
+	return s.LoadReviewersPolicyFor("review")
+}
+
+// LoadReviewersPolicyFor reads the adapters for the purpose that runs a brief
+// of kind: delegation.json (schema 2) projected for that purpose, or
+// reviewers.json (schema 1) through the same conversion.
+func (s Store) LoadReviewersPolicyFor(kind string) (ReviewersPolicy, bool, error) {
+	policy, _, found, err := s.LoadDelegationPolicy()
+	if err != nil || !found {
 		return ReviewersPolicy{}, false, err
 	}
+	return policy.reviewersView(DelegationPurposeForKind(kind)), true, nil
+}
+
+// activeDelegationPolicyPath is the policy file the engine reads now.
+func (s Store) activeDelegationPolicyPath() string {
+	if _, err := os.Lstat(filepath.Join(s.Root, filepath.FromSlash(delegationPolicyPath))); err == nil {
+		return delegationPolicyPath
+	}
+	return reviewersPolicyPath
+}
+
+func parseReviewersPolicy(raw []byte) (ReviewersPolicy, error) {
 	var policy ReviewersPolicy
 	if err := json.Unmarshal(raw, &policy); err != nil {
-		return ReviewersPolicy{}, false, fmt.Errorf("pose: invalid .pose/policy/reviewers.json: %w", err)
+		return ReviewersPolicy{}, fmt.Errorf("pose: invalid .pose/policy/reviewers.json: %w", err)
 	}
 	if policy.SchemaVersion != ReviewersPolicySchemaVersion {
-		return ReviewersPolicy{}, false, fmt.Errorf("pose: .pose/policy/reviewers.json schema_version %d is not supported", policy.SchemaVersion)
+		return ReviewersPolicy{}, fmt.Errorf("pose: .pose/policy/reviewers.json schema_version %d is not supported", policy.SchemaVersion)
 	}
 	if err := validateExplicitReviewBudget(raw); err != nil {
-		return ReviewersPolicy{}, false, err
+		return ReviewersPolicy{}, err
 	}
 	if err := validateRunProvenancePolicy(policy); err != nil {
-		return ReviewersPolicy{}, false, err
+		return ReviewersPolicy{}, err
 	}
 	for name, adapter := range policy.Adapters {
+		if adapter.Events != "" || adapter.Effort != nil {
+			return ReviewersPolicy{}, fmt.Errorf("pose: reviewer adapter %s: events and effort are delegation.json fields", name)
+		}
 		if _, err := ResolveReviewerContainment(adapter); err != nil {
-			return ReviewersPolicy{}, false, fmt.Errorf("adapter %s: %w", name, err)
+			return ReviewersPolicy{}, fmt.Errorf("adapter %s: %w", name, err)
 		}
 		if err := validateContinuityAdapter(adapter); err != nil {
-			return ReviewersPolicy{}, false, fmt.Errorf("pose: reviewer adapter %s: %w", name, err)
+			return ReviewersPolicy{}, fmt.Errorf("pose: reviewer adapter %s: %w", name, err)
 		}
 		if len(adapter.Command) == 0 || adapter.Vendor == "" || adapter.Model == "" {
-			return ReviewersPolicy{}, false, fmt.Errorf("pose: reviewer adapter %s needs command, vendor and model", name)
+			return ReviewersPolicy{}, fmt.Errorf("pose: reviewer adapter %s needs command, vendor and model", name)
 		}
 		if adapter.Timeout != "" {
 			if _, err := time.ParseDuration(adapter.Timeout); err != nil {
-				return ReviewersPolicy{}, false, fmt.Errorf("pose: reviewer adapter %s timeout: %w", name, err)
+				return ReviewersPolicy{}, fmt.Errorf("pose: reviewer adapter %s timeout: %w", name, err)
 			}
 		}
 	}
-	return policy, true, nil
+	return policy, nil
 }
 
 // ReviewRun is one recorded dispatch.
@@ -146,8 +171,18 @@ type ReviewRun struct {
 	Output              string              `json:"output"`
 	PolicyDigest        string              `json:"policy_digest,omitempty"`
 	Supersedes          string              `json:"supersedes,omitempty"`
-	SupersededBy        string              `json:"superseded_by,omitempty"`
-	Path                string              `json:"-"`
+	// Label, Purpose and Lead are given by pose delegate; EnvRemoved names the
+	// parent session variables the child did not receive (never their values);
+	// Events and EventsDigest bind the normalized event stream kept beside
+	// the transcript (spec pose-delegation-surface R8, R9, R11).
+	Label        string   `json:"label,omitempty"`
+	Purpose      string   `json:"purpose,omitempty"`
+	Lead         string   `json:"lead,omitempty"`
+	EnvRemoved   []string `json:"env_removed,omitempty"`
+	Events       string   `json:"events,omitempty"`
+	EventsDigest string   `json:"events_digest,omitempty"`
+	SupersededBy string   `json:"superseded_by,omitempty"`
+	Path         string   `json:"-"`
 }
 
 // Review run states.
@@ -299,6 +334,12 @@ type DispatchPlan struct {
 	Bundle              ReviewBundle
 	SealedCommit        string
 	PriorRuns           int
+	// Effort is the requested effort level; "" means the agent's default.
+	Effort string
+	// Label, Purpose and Lead are recorded on the run (pose delegate).
+	Label   string
+	Purpose string
+	Lead    string
 }
 
 // PlanReviewDispatch resolves the bundle, brief and adapter without running.
@@ -321,7 +362,7 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string, reason ..
 	if err != nil {
 		return DispatchPlan{}, err
 	}
-	policy, found, err := s.LoadReviewersPolicy()
+	policy, found, err := s.LoadReviewersPolicyFor(brief.Kind)
 	if err != nil {
 		return DispatchPlan{}, err
 	}
@@ -380,7 +421,7 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string, reason ..
 }
 
 // ErrNoReviewerAdapter means the project configured no reviewer.
-var ErrNoReviewerAdapter = errors.New("pose: no reviewer adapter is configured in .pose/policy/reviewers.json")
+var ErrNoReviewerAdapter = errors.New("pose: no agent is configured in .pose/policy/delegation.json")
 
 // RunReviewDispatch executes plan and records the run, failed or completed.
 func (s Store) RunReviewDispatch(plan DispatchPlan, now func() time.Time) (ReviewRun, error) {
@@ -393,6 +434,10 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	if err := parent.Err(); err != nil {
 		return ReviewRun{}, err
 	}
+	// pose delegate cancel stops the run through this context (R13).
+	parent, cancelRun := context.WithCancel(parent)
+	defer cancelRun()
+	var cancelled *atomic.Bool
 	if plan.PendingContinuation != nil {
 		return ReviewRun{}, plan.PendingContinuation
 	}
@@ -414,7 +459,8 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	}
 	run := ReviewRun{Provenance: plan.provenance, BriefNotes: plan.notes, LimitOf: plan.LimitOf, SchemaVersion: 1, Scope: plan.Brief.Scope, BundleID: plan.Bundle.BundleID, BundleDigest: plan.Bundle.BundleDigest,
 		SealedCommit: plan.SealedCommit, Kind: plan.Brief.Kind, BriefDigest: plan.Brief.Digest, Adapter: plan.Adapter,
-		Vendor: plan.Config.Vendor, Model: plan.Config.Model, Reason: plan.Reason, PolicyDigest: plan.PolicyDigest, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1}
+		Vendor: plan.Config.Vendor, Model: plan.Config.Model, Reason: plan.Reason, PolicyDigest: plan.PolicyDigest, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1,
+		Label: plan.Label, Purpose: plan.Purpose, Lead: plan.Lead, Events: plan.Config.Events}
 	safety, err := ResolveReviewerContainment(plan.Config)
 	if err != nil {
 		return ReviewRun{}, err
@@ -457,6 +503,12 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	transcript := []byte{}
 	finish := func(status, failure string) (ReviewRun, error) {
 		doCleanup()
+		if cancelled != nil && cancelled.Load() && status != ReviewRunCompleted {
+			// A deliberate cancellation is a failure, never a resumable interruption,
+			// and it returns no budget (spec pose-delegation-surface D2).
+			status, failure = ReviewRunFailed, "cancelled by pose delegate cancel"
+			run.Safety.ExecutionCause = "cancelled"
+		}
 		run.sessionForRedaction = ""
 		run.Status, run.Failure = status, failure
 		if status != ReviewRunInterrupted {
@@ -493,6 +545,8 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		run.Provenance = fresh.provenance
 		run.AttemptID, run.Reason, run.Resumes = fresh.predecessor.AttemptID, fresh.predecessor.Reason, fresh.predecessor.RunID
 		run.TreeDigest = fresh.predecessor.TreeDigest
+		// A continuation is the same task: it keeps the predecessor's name and purpose.
+		run.Label, run.Purpose, run.Lead = fresh.predecessor.Label, fresh.predecessor.Purpose, fresh.predecessor.Lead
 		if err := s.claimReviewContinuation(*fresh.predecessor, now()); err != nil {
 			return ReviewRun{}, err
 		}
@@ -510,6 +564,12 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 			}
 		}
 	}()
+	stopActive, cancelFlag, err := s.markDelegationActive(run, cancelRun)
+	if err != nil {
+		return finish(ReviewRunFailed, "the run was not started: "+err.Error())
+	}
+	defer stopActive()
+	cancelled = cancelFlag
 	tmp, err := os.MkdirTemp("", "pose-review-run-*")
 	if err != nil {
 		return finish(ReviewRunFailed, "runtime directory setup failed")
@@ -608,10 +668,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	if plan.predecessor != nil {
 		command = plan.Config.Resume.Command
 	}
-	argv := make([]string, len(command))
-	for i, arg := range command {
-		argv[i] = strings.ReplaceAll(strings.ReplaceAll(arg, "{output}", outputFile), "{session}", plan.session)
-	}
+	argv := ReviewerArgv(command, outputFile, plan.session, plan.Effort, plan.Config.Effort)
 	timeout := time.Duration(safety.TimeoutMS) * time.Millisecond
 	execPath := argv[0]
 	if run.Provenance != nil {
@@ -655,6 +712,11 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		run.BriefNotes = ""
 		return finish(ReviewRunFailed, err.Error())
 	}
+	unset := []string{}
+	if policy, _, found, perr := s.LoadDelegationPolicy(); perr == nil && found {
+		unset = policy.EnvUnset
+	}
+	env, run.EnvRemoved = withoutParentSession(env, unset)
 	cmd.Env = env
 	combined := &reviewBoundedCapture{limit: safety.StreamBytes, cancel: cancel}
 	cmd.Stdout, cmd.Stderr = combined, combined
@@ -698,6 +760,13 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		if run.Provenance != nil {
 			run.Provenance.OutputComplete = true
 			run.Provenance.OutputSource = "file"
+		}
+	} else if final := DelegationStreamFinal(plan.Config.Events, transcript); strings.TrimSpace(final) != "" && int64(len(final)) <= safety.OutputBytes {
+		// The agent writes no output file; its stream names its final message.
+		run.Output = final
+		if run.Provenance != nil {
+			run.Provenance.OutputComplete = true
+			run.Provenance.OutputSource = "stream-final"
 		}
 	} else {
 		run.Output = tail(string(transcript), 20000)
@@ -851,10 +920,10 @@ func (s Store) checkDispatchOrigin(plan DispatchPlan) error {
 	if plan.OriginWorktree == "" || origin != plan.OriginWorktree {
 		return fmt.Errorf("dispatch origin conflict: worktree identity changed")
 	}
-	if _, err := dispatchRegularInputPath(s.Root, ".pose/policy/reviewers.json"); err != nil {
+	if _, err := dispatchRegularInputPath(s.Root, s.activeDelegationPolicyPath()); err != nil {
 		return err
 	}
-	policy, found, err := s.LoadReviewersPolicy()
+	policy, found, err := s.LoadReviewersPolicyFor(plan.Brief.Kind)
 	if err != nil {
 		return fmt.Errorf("dispatch adapter policy unavailable: %w", err)
 	}
@@ -1029,6 +1098,28 @@ func dispatchRegularInputPath(root, path string) (string, error) {
 	return full, nil
 }
 
+// ReviewerArgv expands a command template: "{effort}" becomes the argv
+// fragment of the effort level (the agent's default when level is ""), and
+// "{output}" and "{session}" become their values. Schema 2 templates hold
+// placeholders only as whole elements; schema 1 templates keep their
+// in-element replacement.
+func ReviewerArgv(command []string, output, session, level string, effort *ReviewerEffort) []string {
+	argv := make([]string, 0, len(command))
+	for _, arg := range command {
+		if arg == "{effort}" {
+			if effort != nil {
+				if level == "" {
+					level = effort.Default
+				}
+				argv = append(argv, effort.Levels[level]...)
+			}
+			continue
+		}
+		argv = append(argv, strings.ReplaceAll(strings.ReplaceAll(arg, "{output}", output), "{session}", session))
+	}
+	return argv
+}
+
 func tail(s string, n int) string {
 	if len(s) <= n {
 		return s
@@ -1043,6 +1134,12 @@ func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, err
 	run.LedgerVersion = 1
 	sum := sha256.Sum256(transcript)
 	run.TranscriptDigest = "sha256:" + hex.EncodeToString(sum[:])
+	var events []byte
+	run.EventsDigest = ""
+	if run.Events != "" {
+		events = EncodeDelegationEvents(NormalizeDelegationEvents(run.Events, transcript, run.Output))
+		run.EventsDigest = digestBytes(events)
+	}
 	identity, _ := json.Marshal(run)
 	idSum := sha256.Sum256(identity)
 	run.RunID = "rrn-" + hex.EncodeToString(idSum[:])[:16]
@@ -1067,11 +1164,16 @@ func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, err
 	if err := publishLedgerJSON(s.Root, filepath.ToSlash(filepath.Join(reviewRunLedgerDir, run.RunID+".json")), witness); err != nil {
 		return ReviewRun{}, err
 	}
-	if run.Safety != nil && int64(len(pretty)+len(transcript)) > run.Safety.RetainedBytes {
+	if run.Safety != nil && int64(len(pretty)+len(transcript)+len(events)) > run.Safety.RetainedBytes {
 		return ReviewRun{}, fmt.Errorf("retained run exceeds containment byte budget; attempt remains incomplete")
 	}
 	if err := PublishFile(filepath.Join(dir, run.RunID+".transcript"), transcript, 0600, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
 		return ReviewRun{}, err
+	}
+	if run.EventsDigest != "" {
+		if err := publishDelegationEvents(dir, run.RunID, events); err != nil {
+			return ReviewRun{}, err
+		}
 	}
 	if err := PublishFile(filepath.Join(dir, run.RunID+".json"), pretty, 0600, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
 		return ReviewRun{}, err

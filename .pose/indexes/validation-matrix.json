@@ -2159,6 +2159,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "delegation-surface-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "TestDelegation|TestDelegate|TestUpdateConvertsTheReviewersPolicy|TestUpdateKeepsAReviewersPolicyItCannotConvertSafely|TestReviewDispatch",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "delegated-run-provenance-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "./internal/cli", "./internal/mcpserver", "-run", "RunProvenance", "-count=1"],

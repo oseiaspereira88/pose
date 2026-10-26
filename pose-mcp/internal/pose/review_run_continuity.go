@@ -354,7 +354,7 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 	if why := s.reviewRunTranscriptIntact(*prior); why != "" {
 		return DispatchPlan{}, fmt.Errorf("resume: %s", why)
 	}
-	policy, _, e := s.LoadReviewersPolicy()
+	policy, _, e := s.LoadReviewersPolicyFor(prior.Kind)
 	if e != nil {
 		return DispatchPlan{}, e
 	}

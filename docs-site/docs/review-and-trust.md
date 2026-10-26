@@ -37,16 +37,17 @@ coverage before recording a conclusion.
 
 ```bash
 pose review brief <bundle-id> --kind review
-pose review dispatch <bundle-id> --via <adapter>
-# After configuring and inspecting the adapter:
-pose review dispatch <bundle-id> --via <adapter> --apply
+pose delegate review <bundle-id> --dry-run
+# After configuring and inspecting the agent:
+pose delegate review <bundle-id> --label <name>
+pose delegate ls <name>
 ```
 
 The brief is generated from the bundle. Implementer notes are labelled
 separately. Dispatch runs a configured command in a disposable worktree at the
 sealed commit and retains its outcome under `.pose/review-runs/`. File changes,
 timeouts, budget overruns and execution failures are failed runs. A completed
-run does not create an attestation or approve the spec. The adapter is a local
+run does not create an attestation or approve the spec. The agent is a local
 command, not a host security sandbox.
 
 Read the returned work, complete every judgment, then use `pose review attest`

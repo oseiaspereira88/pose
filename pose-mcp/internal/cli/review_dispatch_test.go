@@ -126,7 +126,8 @@ func TestReviewDispatchRunsAndRecordsAdapters(t *testing.T) {
 
 	after, _ := hashTree(root, true)
 	for path := range after {
-		if strings.HasPrefix(path, ".pose/review-runs/") || strings.HasPrefix(path, ".pose/review-attempts/") || strings.HasPrefix(path, ".pose/review-run-ledger/") {
+		// .pose/review-private holds the git-ignored runtime marker of a run in progress.
+		if strings.HasPrefix(path, ".pose/review-runs/") || strings.HasPrefix(path, ".pose/review-attempts/") || strings.HasPrefix(path, ".pose/review-run-ledger/") || strings.HasPrefix(path, ".pose/review-private/") {
 			delete(after, path)
 		}
 	}

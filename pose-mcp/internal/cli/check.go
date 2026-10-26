@@ -435,6 +435,7 @@ func isRuntimeReference(ref string) bool {
 		// Delegated attempt and witness records are created only by dispatch.
 		".pose/review-attempts",
 		".pose/policy/reviewers.json",
+		".pose/policy/delegation.json",
 		".pose/review-continuations",
 		".pose/review-private",
 		".pose/review-run-ledger",

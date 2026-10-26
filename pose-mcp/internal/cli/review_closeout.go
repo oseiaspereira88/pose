@@ -360,11 +360,16 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdReviewRunSign(root, args[1:], stdout, stderr)
 	case "run-proof":
 		return cmdReviewRunProof(root, args[1:], stdout, stderr)
+	// Deprecated aliases of pose delegate (spec pose-delegation-surface R5): same
+	// behaviour and exit codes, one line naming the replacement, absent from help.
 	case "resume":
+		render(stdout, stderr).Hint("pose review resume is deprecated; use pose delegate resume <run>")
 		return cmdReviewResume(root, args[1:], stdout, stderr)
 	case "status":
+		render(stdout, stderr).Hint("pose review status is deprecated; use pose delegate ls")
 		return cmdReviewStatus(root, args[1:], stdout, stderr)
 	case "dispatch":
+		render(stdout, stderr).Hint("pose review dispatch is deprecated; use pose delegate review|adjudicate|smoke <scope|bundle-id>")
 		return cmdReviewDispatch(root, args[1:], stdout, stderr)
 	case "attest":
 		return cmdReviewAttest(root, args[1:], stdout, stderr)

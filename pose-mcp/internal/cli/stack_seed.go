@@ -114,6 +114,7 @@ func seedAbsentInstanceConfigIn(files posemodel.Files, dist fs.FS, target string
 
 	// Migrate existing review policy / profiles from v1 to v2 if present
 	migrateInstanceReviewPolicyIn(files, dist, target, log)
+	migrateDelegationPolicyIn(files, target, log)
 	stampContractAdoptionIn(files, target, files.Now().UTC(), log)
 	stampChangelogAdoptionIn(files, target, files.Now().UTC(), log)
 
@@ -537,4 +538,28 @@ func declaredProjectIdentityIn(files posemodel.Files, target string) (string, st
 // operation's files.
 func declaredProjectIdentity(target string) (string, string) {
 	return declaredProjectIdentityIn(posemodel.NativeFiles(), target)
+}
+
+// migrateDelegationPolicyIn converts reviewers.json (schema 1) into
+// delegation.json (schema 2) deterministically and removes the old file (spec
+// pose-delegation-surface R7). The preview of pose update shows both paths.
+func migrateDelegationPolicyIn(files posemodel.Files, target string, log func(english, portuguese string, a ...any)) {
+	out, ok, err := posemodel.MigrateReviewersPolicyFile(files, target)
+	if err != nil {
+		updatePhaseFailure(files, log, "delegation policy migration", err)
+		return
+	}
+	if !ok {
+		return
+	}
+	dst := filepath.Join(target, ".pose", "policy", "delegation.json")
+	if err := files.WriteFile(dst, out, 0o644); err != nil {
+		updatePhaseFailure(files, log, "delegation policy migration", err)
+		return
+	}
+	if err := files.Remove(filepath.Join(target, ".pose", "policy", "reviewers.json")); err != nil {
+		updatePhaseFailure(files, log, "delegation policy migration", err)
+		return
+	}
+	log("delegation policy: .pose/policy/reviewers.json (schema 1) → .pose/policy/delegation.json (schema 2)", "policy de delegação: .pose/policy/reviewers.json (schema 1) → .pose/policy/delegation.json (schema 2)")
 }
