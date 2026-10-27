@@ -82,6 +82,7 @@ Brief generator, draft schema and validation, supersession chain, verify disclos
 - modified: pose-mcp/internal/pose/delegation_handoff.go
 - modified: pose-mcp/internal/pose/delegation_policy.go
 - modified: pose-mcp/internal/pose/delegation_list.go
+- modified: pose-mcp/internal/pose/delegation_active.go
 - modified: pose-mcp/internal/pose/delegation_wait.go
 - modified: pose-mcp/internal/pose/review_attempt_ledger.go
 - modified: pose-mcp/internal/pose/review_bundle.go
@@ -90,10 +91,14 @@ Brief generator, draft schema and validation, supersession chain, verify disclos
 - modified: pose-mcp/internal/cli/delegate.go
 - modified: pose-mcp/internal/cli/insights.go
 - modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/delegate_task_test.go
+- modified: .gitleaksignore
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+
+`delegate_task_test.go` and `.gitleaksignore` change with this spec only to clear the Security workflow: a synthetic credential a fixture of `pose-delegation-task` wrote out (commit `fb06eca`) is pinned by its exact fingerprint, and the fixture now builds it.
 
 ### Delivery targets
 
@@ -134,7 +139,7 @@ Brief gains a prior-findings section; the draft gains `prior_findings` and `swee
 ### Decision D3
 - Basis: R2, R4
 - Minimal option: read findings from the draft's prose
-- Selected option: the draft is the fenced code block whose info string is `pose-draft`, at the end of the reviewer's final message: JSON with schema `pose.review.draft/v1`, `decision`, `findings` (`id`, `severity`, `disposition`, `file`, `line`, `summary`) and, from round 2, `prior_findings` and `sweep`, decoded strictly; the brief of every review round asks for it (template `review-brief/2`), and a decision line that contradicts the block makes the draft invalid. Where there is a block, its decision is the run's decision for every reader (wait, insights, verify, run provenance); the decision line is read only for drafts without one. A message carries one block; a finding's own identifier never takes the reserved round prefix `R<n>-`, so the identity a finding is carried under is injective. The maintainer chose this format on 2026-10-27, for this spec and for `pose-delegated-review-conclusions`
+- Selected option: the draft is the fenced code block whose info string is `pose-draft`, at the end of the reviewer's final message: JSON with schema `pose.review.draft/v1`, `decision`, `findings` (`id`, `severity`, `disposition`, `file`, `line`, `summary`) and, from round 2, `prior_findings` and `sweep`, decoded strictly; the brief of every review round asks for it (template `review-brief/2`), and any decision line outside the block that does not state the block's decision, however many there are, makes the draft invalid. Fences are whole lines, LF or CRLF: the opening line is exactly the info string, the block closes at the first line that is exactly three backticks, and a fence line in any other form, or a second block, is an error, never a block read as absent. An account names only open findings of the scope's rounds. Where there is a block, its decision is the run's decision for every reader (wait, insights, verify, run provenance); the decision line is read only for drafts without one. A message carries one block; a finding's own identifier never takes the reserved round prefix `R<n>-`, so the identity a finding is carried under is injective. The maintainer chose this format on 2026-10-27, for this spec and for `pose-delegated-review-conclusions`
 - Rationale: an identity kept across rounds needs findings the engine can read without interpreting prose; the conclusions phase needs the same structure
 - Consequences: round 1 briefs change, against the compatibility note "Round 1 briefs are unchanged": they ask for the block so that round 2 has identified findings to carry. A round-1 draft without the block is still valid; it only leaves the next round with nothing to carry, which the next brief says. Runs briefed with `review-brief/1` keep verifying: the brief a run was sent is re-rendered with the template whose digest it recorded
 - Falsifier: a finding of round N absent from round N+1's brief while the draft of round N reported it

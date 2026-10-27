@@ -570,12 +570,29 @@ func roundsSummary(m posepkg.ReviewRoundMetric) string {
 	for i, n := range m.FindingsPerRound {
 		findings[i] = strconv.Itoa(n)
 	}
-	mode := func(c posepkg.ReviewRoundConvergence) string {
-		fixed := "unknown"
-		if c.FixedShare != nil {
-			fixed = fmt.Sprintf("%.2f", *c.FixedShare)
+	ratio := func(v *float64) string {
+		if v == nil {
+			return "unknown"
 		}
-		return fmt.Sprintf("rounds=%d invalid=%d fixed=%d partial=%d not_fixed=%d fixed_share=%s", c.Rounds, c.InvalidRounds, c.Fixed, c.Partial, c.NotFixed, fixed)
+		return fmt.Sprintf("%.2f", *v)
+	}
+	mode := func(c posepkg.ReviewRoundConvergence) string {
+		trajectory := make([]string, 0, len(c.Trajectory))
+		for _, p := range c.Trajectory {
+			point := fmt.Sprintf("r%d:%d", p.Round, p.Findings)
+			if p.Invalid {
+				point += "(invalid)"
+			} else if p.Approved {
+				point += "(approved)"
+			}
+			trajectory = append(trajectory, point)
+		}
+		approved := "none"
+		if c.RoundsToApproval != nil {
+			approved = strconv.Itoa(*c.RoundsToApproval)
+		}
+		return fmt.Sprintf("rounds=%d invalid=%d trajectory=%s rounds_to_approval=%s accounted=%d fixed=%d partial=%d not_fixed=%d superseded=%d fixed_share=%s partial_share=%s not_fixed_share=%s superseded_share=%s",
+			c.Rounds, c.InvalidRounds, strings.Join(trajectory, ","), approved, c.Accounted, c.Fixed, c.Partial, c.NotFixed, c.Superseded, ratio(c.FixedShare), ratio(c.PartialShare), ratio(c.NotFixedShare), ratio(c.SupersededShare))
 	}
 	return fmt.Sprintf("rounds=%d findings_per_round=%s invalid=%d rounds_to_approval=%s; continued: %s; cold: %s", m.Rounds, strings.Join(findings, ","), m.InvalidRounds, approval, mode(m.Continued), mode(m.Cold))
 }

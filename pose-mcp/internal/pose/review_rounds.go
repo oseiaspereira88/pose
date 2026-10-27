@@ -76,24 +76,42 @@ const (
 )
 
 // ParseReviewDraft reads the pose-draft block of output: nil when there is
-// none, an error when the block is not one valid draft.
+// none, an error when the block is not one valid draft. Fences are whole
+// lines, LF or CRLF: an opening line is exactly "```pose-draft", the block
+// closes at the first line that is exactly "```", and any other line that
+// starts a fence before it, or a second block, is an error, never a block
+// read as absent (review round 2, R2-B2). Every decision line outside the
+// block must agree with it (R2-B1).
 func ParseReviewDraft(output string) (*ReviewDraft, error) {
-	start := strings.Index(output, reviewDraftFence+"\n")
-	if start < 0 {
+	lines := strings.Split(output, "\n")
+	for i := range lines {
+		lines[i] = strings.TrimSuffix(lines[i], "\r")
+	}
+	open, close := -1, -1
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		switch {
+		case open < 0 && strings.HasPrefix(trimmed, reviewDraftFence):
+			if line != reviewDraftFence {
+				return nil, fmt.Errorf("line %d opens a pose-draft block in a form the engine does not read: %q", i+1, quoteLedgerText(line))
+			}
+			open = i
+		case open >= 0 && close < 0 && strings.HasPrefix(trimmed, "```"):
+			if line != "```" {
+				return nil, fmt.Errorf("line %d inside the pose-draft block is not its closing fence: %q", i+1, quoteLedgerText(line))
+			}
+			close = i
+		case close >= 0 && strings.HasPrefix(trimmed, reviewDraftFence):
+			return nil, fmt.Errorf("the message carries more than one pose-draft block")
+		}
+	}
+	if open < 0 {
 		return nil, nil
 	}
-	if strings.Count(output, reviewDraftFence+"\n") > 1 {
-		return nil, fmt.Errorf("the message carries more than one pose-draft block")
-	}
-	body := output[start+len(reviewDraftFence)+1:]
-	end := strings.Index(body, "\n```")
-	if end < 0 && strings.HasPrefix(body, "```") {
-		end = 0
-	}
-	if end < 0 {
+	if close < 0 {
 		return nil, fmt.Errorf("the pose-draft block is not closed")
 	}
-	raw := []byte(body[:end])
+	raw := []byte(strings.Join(lines[open+1:close], "\n"))
 	var draft ReviewDraft
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.DisallowUnknownFields()
@@ -109,8 +127,14 @@ func ParseReviewDraft(output string) (*ReviewDraft, error) {
 	if err := validateReviewDraft(draft); err != nil {
 		return nil, err
 	}
-	if line := legacyReviewDecision(output); line != "unknown" && line != draft.Decision {
-		return nil, fmt.Errorf("the draft's decision %s differs from the decision line %s", draft.Decision, line)
+	for i, line := range lines {
+		if i > open && i <= close {
+			continue
+		}
+		key, value, ok := strings.Cut(strings.TrimSpace(line), ":")
+		if ok && key == "decision" && strings.TrimSpace(value) != draft.Decision {
+			return nil, fmt.Errorf("the draft's decision %s differs from the decision line %q", draft.Decision, strings.TrimSpace(value))
+		}
 	}
 	return &draft, nil
 }
@@ -202,14 +226,20 @@ func roundFindingID(round int, id string) string {
 	return fmt.Sprintf("R%d-%s", round, id)
 }
 
-// concludingReviewRun is the run a round concluded with on bundle: the latest
-// completed review run of it that no run supersedes.
+// concludingReviewRun is the run a round concluded with on bundle: of the
+// completed review runs of it that no run supersedes, the one that ended
+// last, the run id breaking a tie (review round 2, R2-F1).
 func concludingReviewRun(runs []ReviewRun, bundleID string) *ReviewRun {
 	var out *ReviewRun
+	var outEnded time.Time
 	for i := range runs {
 		r := &runs[i]
-		if r.BundleID == bundleID && r.Kind == ReviewBriefKindReview && r.Status == ReviewRunCompleted && r.SupersededBy == "" {
-			out = r
+		if r.BundleID != bundleID || r.Kind != ReviewBriefKindReview || r.Status != ReviewRunCompleted || r.SupersededBy != "" {
+			continue
+		}
+		ended, _ := time.Parse(time.RFC3339Nano, r.EndedAt)
+		if out == nil || ended.After(outEnded) || ended.Equal(outEnded) && r.RunID > out.RunID {
+			out, outEnded = r, ended
 		}
 	}
 	return out
@@ -349,13 +379,26 @@ func ValidateRoundDraft(round ReviewRound, output string) []string {
 	if err != nil {
 		return []string{err.Error()}
 	}
+	var problems []string
+	open := map[string]bool{}
+	for _, f := range round.Open {
+		open[f.ID] = true
+	}
+	if draft != nil {
+		// An account of a finding no round reported is not an account: it
+		// would count as convergence without a defect (review round 2, R2-B3).
+		for _, p := range draft.PriorFindings {
+			if !open[p.ID] {
+				problems = append(problems, "prior finding "+p.ID+" is not an open finding of the scope's rounds")
+			}
+		}
+	}
 	if round.Number < 2 {
-		return nil
+		return problems
 	}
 	if draft == nil {
 		return []string{"a draft of round " + fmt.Sprint(round.Number) + " needs a pose-draft block"}
 	}
-	var problems []string
 	accounted := map[string]ReviewDraftPrior{}
 	for _, p := range draft.PriorFindings {
 		accounted[p.ID] = p
@@ -521,19 +564,33 @@ type ReviewRoundMetric struct {
 // one kind: those whose session continued the previous round's, or cold ones
 // (R10). Shares are of the prior findings accounted for in valid drafts.
 type ReviewRoundConvergence struct {
-	Rounds          int      `json:"rounds"`
-	InvalidRounds   int      `json:"invalid_rounds"`
-	Findings        int      `json:"findings"`
-	Approvals       int      `json:"approvals"`
-	Accounted       int      `json:"accounted"`
-	Fixed           int      `json:"fixed"`
-	Partial         int      `json:"partial"`
-	NotFixed        int      `json:"not_fixed"`
-	Superseded      int      `json:"superseded"`
-	FixedShare      *float64 `json:"fixed_share"`
-	PartialShare    *float64 `json:"partial_share"`
-	NotFixedShare   *float64 `json:"not_fixed_share"`
-	SupersededShare *float64 `json:"superseded_share"`
+	// Trajectory is the findings each round of this kind reported, and
+	// RoundsToApproval the round of this kind whose valid draft first
+	// approved, if one did (R7 per kind, R10; review round 2, R2-B4).
+	Trajectory       []ReviewRoundPoint `json:"trajectory"`
+	RoundsToApproval *int               `json:"rounds_to_approval"`
+	Rounds           int                `json:"rounds"`
+	InvalidRounds    int                `json:"invalid_rounds"`
+	Findings         int                `json:"findings"`
+	Approvals        int                `json:"approvals"`
+	Accounted        int                `json:"accounted"`
+	Fixed            int                `json:"fixed"`
+	Partial          int                `json:"partial"`
+	NotFixed         int                `json:"not_fixed"`
+	Superseded       int                `json:"superseded"`
+	FixedShare       *float64           `json:"fixed_share"`
+	PartialShare     *float64           `json:"partial_share"`
+	NotFixedShare    *float64           `json:"not_fixed_share"`
+	SupersededShare  *float64           `json:"superseded_share"`
+}
+
+// ReviewRoundPoint is one round of a kind: its number, the findings its
+// draft reported, and whether its valid draft approved.
+type ReviewRoundPoint struct {
+	Round    int  `json:"round"`
+	Findings int  `json:"findings"`
+	Approved bool `json:"approved"`
+	Invalid  bool `json:"invalid"`
 }
 
 // reviewRoundMetrics measures each scope's rounds. The number of rounds is
@@ -573,7 +630,7 @@ func reviewRoundMetrics(runs []ReviewRun) []ReviewRoundMetric {
 	}
 	var out []ReviewRoundMetric
 	for _, scope := range scopes {
-		m := ReviewRoundMetric{Scope: scope, Rounds: highest[scope]}
+		m := ReviewRoundMetric{Scope: scope, Rounds: highest[scope], Continued: ReviewRoundConvergence{Trajectory: []ReviewRoundPoint{}}, Cold: ReviewRoundConvergence{Trajectory: []ReviewRoundPoint{}}}
 		m.FindingsPerRound = make([]int, m.Rounds)
 		for n := 1; n <= m.Rounds; n++ {
 			r, ok := concluding[scope][n]
@@ -601,6 +658,11 @@ func reviewRoundMetrics(runs []ReviewRun) []ReviewRoundMetric {
 				kind = &m.Continued
 			}
 			kind.Rounds++
+			point := ReviewRoundPoint{Round: n, Approved: approved, Invalid: invalid || draft == nil}
+			if draft != nil {
+				point.Findings = len(draft.Findings)
+			}
+			kind.Trajectory = append(kind.Trajectory, point)
 			if invalid || draft == nil {
 				kind.InvalidRounds++
 				continue
@@ -608,6 +670,10 @@ func reviewRoundMetrics(runs []ReviewRun) []ReviewRoundMetric {
 			kind.Findings += len(draft.Findings)
 			if approved {
 				kind.Approvals++
+				if kind.RoundsToApproval == nil {
+					at := n
+					kind.RoundsToApproval = &at
+				}
 			}
 			for _, p := range draft.PriorFindings {
 				kind.Accounted++

@@ -158,6 +158,9 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 			order = append(order, marker.AttemptID)
 		}
 		row.State, row.Active, row.Liveness, row.CancelRequested = DelegationRunning, true, marker.Liveness, marker.CancelRequested
+		if marker.Round > 0 {
+			row.Round = marker.Round
+		}
 		row.EndedAt, row.Failure, row.Interruption, row.Partial, row.TimeLeft = "", "", nil, false, ""
 		if beat, err := time.Parse(time.RFC3339Nano, marker.HeartbeatAt); err == nil {
 			row.HeartbeatAge = time.Since(beat).Round(time.Second).String()

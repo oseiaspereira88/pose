@@ -276,10 +276,12 @@ func TestDelegateTaskPolicyAndBudgetsHold(t *testing.T) {
 // authorized credential; a session printed on both streams is one session.
 func TestDelegateTaskRedactsBeforeItCutsAndShows(t *testing.T) {
 	root, state, prompt := taskInstance(t)
-	t.Setenv("TASK_TOKEN", "tok-0123456789abcdef")
+	// A synthetic credential, built here so no line of the source carries it.
+	token := strings.Join([]string{"tok", "0123456789abcdef"}, "-")
+	t.Setenv("TASK_TOKEN", token)
 	secretive := `"secretive": {"vendor": "test", "model": "s-2", "timeout": "30s",
       "containment": {"schema_version": 1, "profile": "trusted-process", "credentials": ["TASK_TOKEN"], "output_bytes": 16},
-      "commands": {"read": ["sh", "-c", "cat >/dev/null; printf '%s' \"padding-padding-padding-padding $TASK_TOKEN\"", "x", "--token=tok-0123456789abcdef"]}}`
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; printf '%s' \"padding-padding-padding-padding $TASK_TOKEN\"", "x", "--token=` + token + `"]}}`
 	twice := `"twice": {"vendor": "test", "model": "t-2", "timeout": "30s",
       "commands": {"read": ["sh", "-c", "cat >/dev/null; echo 'session: same-sess-01'; echo 'session: same-sess-01' >&2; echo done"]},
       "session": {"pattern": "session: (\\S+)"}}`

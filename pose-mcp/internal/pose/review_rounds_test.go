@@ -187,3 +187,53 @@ func TestReviewRoundMetricsNeverLowerOrLaunder(t *testing.T) {
 		t.Fatalf("continued figures: %+v", m.Continued)
 	}
 }
+
+// Review round 2: a decision line that contradicts the block makes the draft
+// invalid however many there are (R2-B1); fences are whole lines, LF or
+// CRLF, and a malformed one is an error, not an absent block (R2-B2); an
+// account of a finding no round reported is a problem (R2-B3); the run that
+// ended last concludes a bundle (R2-F1); each kind has its own trajectory
+// and approval round (R2-B4).
+func TestReviewRoundsHoldAgainstTheSecondReview(t *testing.T) {
+	block := "```pose-draft\n" + `{"schema":"pose.review.draft/v1","decision":"approved","findings":[]}` + "\n```\n"
+	for name, out := range map[string]string{
+		"two contradicting lines": "decision: rejected\ndecision: rejected\n" + block,
+		"invalid line":            "decision: maybe\n" + block,
+		"bad closing fence":       "```pose-draft\n" + `{"schema":"pose.review.draft/v1","decision":"approved","findings":[]}` + "\n```not-a-closing-fence\n",
+		"indented opening":        "  ```pose-draft\n" + `{"schema":"pose.review.draft/v1","decision":"approved","findings":[]}` + "\n```\n",
+		"crlf bad schema":         "decision: approved\r\n```pose-draft\r\n" + `{"schema":"bad","decision":"approved","findings":[]}` + "\r\n```\r\n",
+	} {
+		if _, err := ParseReviewDraft(out); err == nil {
+			t.Fatalf("%s: read as a valid draft or as no draft", name)
+		}
+		if draftReviewDecision(out) == "approved" {
+			t.Fatalf("%s: decided approved", name)
+		}
+	}
+	crlf := strings.ReplaceAll("decision: approved\n"+block, "\n", "\r\n")
+	if d, err := ParseReviewDraft(crlf); err != nil || d == nil || d.Decision != "approved" {
+		t.Fatalf("a CRLF draft: %v %+v", err, d)
+	}
+	round := ReviewRound{Number: 2, Open: []ReviewOpenFinding{{ID: "R1-B1"}}}
+	invented := draftOutput("changes-requested", `{"schema":"pose.review.draft/v1","decision":"changes-requested","findings":[],"prior_findings":[{"id":"R1-B1","status":"not-fixed","evidence":"x"},{"id":"R1-INVENTED","status":"fixed","evidence":"y"}],"sweep":"all"}`)
+	if problems := ValidateRoundDraft(round, invented); len(problems) != 1 || !strings.Contains(problems[0], "R1-INVENTED") {
+		t.Fatalf("an invented account passed: %v", problems)
+	}
+	a := ReviewRun{RunID: "rrn-a", BundleID: "rvb-1", Kind: ReviewBriefKindReview, Status: ReviewRunCompleted, StartedAt: "2026-10-27T01:00:00Z", EndedAt: "2026-10-27T01:30:00Z"}
+	b := ReviewRun{RunID: "rrn-b", BundleID: "rvb-1", Kind: ReviewBriefKindReview, Status: ReviewRunCompleted, StartedAt: "2026-10-27T01:10:00Z", EndedAt: "2026-10-27T01:20:00Z"}
+	if got := concludingReviewRun([]ReviewRun{a, b}, "rvb-1"); got == nil || got.RunID != "rrn-a" {
+		t.Fatalf("the run that ended last does not conclude: %+v", got)
+	}
+	approve := draftOutput("approved", `{"schema":"pose.review.draft/v1","decision":"approved","findings":[],"prior_findings":[{"id":"R1-B1","status":"fixed","evidence":"x"}],"sweep":"all"}`)
+	request := draftOutput("changes-requested", `{"schema":"pose.review.draft/v1","decision":"changes-requested","findings":[{"id":"B1","severity":"low","disposition":"blocker","summary":"x"}]}`)
+	runs := []ReviewRun{
+		{RunID: "1", Scope: "spec:s", Kind: ReviewBriefKindReview, Status: ReviewRunCompleted, Round: 1, Output: request},
+		{RunID: "2", Scope: "spec:s", Kind: ReviewBriefKindReview, Status: ReviewRunCompleted, Round: 2, Output: draftOutput("changes-requested", `{"schema":"pose.review.draft/v1","decision":"changes-requested","findings":[{"id":"B2","severity":"low","disposition":"blocker","summary":"y"}],"prior_findings":[{"id":"R1-B1","status":"partial","evidence":"x"}],"sweep":"all"}`), Thread: &ReviewThread{Mode: ReviewThreadNew}},
+		{RunID: "3", Scope: "spec:s", Kind: ReviewBriefKindReview, Status: ReviewRunCompleted, Round: 3, Output: approve, Thread: &ReviewThread{Mode: ReviewThreadContinued}},
+	}
+	m := reviewRoundMetrics(runs)[0]
+	if len(m.Cold.Trajectory) != 1 || m.Cold.Trajectory[0] != (ReviewRoundPoint{Round: 2, Findings: 1}) || m.Cold.RoundsToApproval != nil ||
+		len(m.Continued.Trajectory) != 1 || !m.Continued.Trajectory[0].Approved || m.Continued.RoundsToApproval == nil || *m.Continued.RoundsToApproval != 3 {
+		t.Fatalf("per-kind figures: cold=%+v continued=%+v", m.Cold, m.Continued)
+	}
+}

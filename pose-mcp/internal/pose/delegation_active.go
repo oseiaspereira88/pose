@@ -56,6 +56,9 @@ type DelegationActiveRun struct {
 	Detail   string `json:"detail,omitempty"`
 	// CancelRequested is computed by the reader.
 	CancelRequested bool `json:"cancel_requested,omitempty"`
+	// Round is the review round the run reviews (spec
+	// pose-delegated-review-round-protocol R1).
+	Round int `json:"round,omitempty"`
 }
 
 func (s Store) delegationActiveDir(create bool) (string, error) {
@@ -102,7 +105,7 @@ func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (s
 		return func(...bool) {}, cancelled, err
 	}
 	every := delegationHeartbeatEvery
-	marker := DelegationActiveRun{SchemaVersion: 1, AttemptID: run.AttemptID, RunToken: hex.EncodeToString(token), Resumes: run.Resumes, Label: run.Label, Purpose: run.Purpose, Agent: run.Adapter, Scope: run.Scope, BundleID: run.BundleID, StartedAt: run.StartedAt, Owner: owner,
+	marker := DelegationActiveRun{SchemaVersion: 1, AttemptID: run.AttemptID, RunToken: hex.EncodeToString(token), Resumes: run.Resumes, Label: run.Label, Purpose: run.Purpose, Agent: run.Adapter, Scope: run.Scope, BundleID: run.BundleID, StartedAt: run.StartedAt, Owner: owner, Round: run.Round,
 		HeartbeatAt: time.Now().UTC().Format(time.RFC3339Nano), HeartbeatEvery: int(every / time.Second)}
 	raw, _ := json.MarshalIndent(marker, "", "  ")
 	path := filepath.Join(dir, run.AttemptID+".json")

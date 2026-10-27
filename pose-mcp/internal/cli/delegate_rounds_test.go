@@ -71,6 +71,20 @@ func roundsAgent(name, vendor string, sloppy bool) string {
       "resume": {"command": ` + string(resume) + `}}`
 }
 
+// roundsMetric reads the round figures of the one scope insights reports.
+func roundsMetric(t *testing.T, out string) posemodel.ReviewRoundMetric {
+	t.Helper()
+	var doc struct {
+		DelegatedReview struct {
+			Rounds []posemodel.ReviewRoundMetric `json:"rounds"`
+		} `json:"delegated_review"`
+	}
+	if err := json.Unmarshal([]byte(out), &doc); err != nil || len(doc.DelegatedReview.Rounds) != 1 {
+		t.Fatalf("insights rounds: %v %s", err, out)
+	}
+	return doc.DelegatedReview.Rounds[0]
+}
+
 func roundRun(t *testing.T, root, agent string) map[string]any {
 	t.Helper()
 	code, out, errOut := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--agent", agent, "--json", "--reason", "next round")
@@ -121,7 +135,7 @@ func TestReviewRoundsContinueTheThreadAndAccountForFindings(t *testing.T) {
 		t.Fatalf("verify: %s", out)
 	}
 	code, out := runPose(t, root, "insights", "--json")
-	if code != 0 || !strings.Contains(out, `"rounds"`) || !strings.Contains(out, `"scope":"spec:alpha"`) || !strings.Contains(out, `"rounds_to_approval":2`) || !strings.Contains(out, `"continued":{"rounds":1,"invalid_rounds":0,"findings":0,"approvals":1,"accounted":2,"fixed":1,"partial":1`) {
+	if m := roundsMetric(t, out); code != 0 || m.Scope != "spec:alpha" || m.RoundsToApproval == nil || *m.RoundsToApproval != 2 || m.Continued.Rounds != 1 || m.Continued.Approvals != 1 || m.Continued.Accounted != 2 || m.Continued.Fixed != 1 || m.Continued.Partial != 1 {
 		t.Fatalf("insights: %d %s", code, out)
 	}
 }
@@ -224,7 +238,7 @@ func TestReviewRoundsSurviveLossesAndResumes(t *testing.T) {
 	if r := runRecord(t, root, resumed["run"].(string)); r.Round != 2 || r.Thread == nil || r.Thread.Mode != posemodel.ReviewThreadContinued || len(r.DraftProblems) != 0 {
 		t.Fatalf("the resumed round 2 lost its lineage: round=%d thread=%+v problems=%v", r.Round, r.Thread, r.DraftProblems)
 	}
-	if _, out := runPose(t, root, "insights", "--json"); !strings.Contains(out, `"continued":{"rounds":1`) {
+	if _, out := runPose(t, root, "insights", "--json"); roundsMetric(t, out).Continued.Rounds != 1 {
 		t.Fatalf("a resumed continued round counted as cold: %s", out)
 	}
 }
