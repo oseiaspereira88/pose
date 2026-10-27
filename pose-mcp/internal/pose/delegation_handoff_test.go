@@ -81,8 +81,8 @@ func TestHandoffCommandsPairOnlyWhatIsKnown(t *testing.T) {
 }
 
 // R4: a run verifies against the renderer version it recorded; one recorded
-// before versions existed verifies against either legacy renderer, and a
-// versioned run never against a legacy one.
+// before versions existed verifies against any of the renderers that may have
+// made it, and a versioned run never against a legacy one.
 func TestHandoffSectionVerifiesByRecordedRenderer(t *testing.T) {
 	two := 2
 	events := []DelegationEvent{{Kind: DelegationEventToolCall, Text: "test-A", Call: "a"}, {Kind: DelegationEventToolCall, Text: "test-B"}, {Kind: DelegationEventToolOutput, ExitCode: &two}}
@@ -96,7 +96,7 @@ func TestHandoffSectionVerifiesByRecordedRenderer(t *testing.T) {
 		version int
 		section string
 		want    bool
-	}{{0, legacy, true}, {0, renderHandoffSectionWith(prior, events, nil, handoffCommandsV0), true}, {handoffRenderer, current, true}, {handoffRenderer, legacy, false}, {7, current, false}} {
+	}{{0, legacy, true}, {0, renderHandoffSectionWith(prior, events, nil, handoffCommandsV0), true}, {0, current, true}, {handoffRenderer, current, true}, {handoffRenderer, legacy, false}, {7, current, false}} {
 		run := ReviewRun{HandoffRenderer: c.version, HandoffDigest: digestBytes([]byte(c.section))}
 		if got := handoffSectionMatching(run, prior, events, nil); (got == c.section) != c.want {
 			t.Fatalf("version %d: matched=%v, want %v", c.version, got == c.section, c.want)

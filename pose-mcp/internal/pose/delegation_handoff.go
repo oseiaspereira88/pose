@@ -23,9 +23,10 @@ import (
 const handoffRenderer = 2
 
 // handoffRenderers are the commands renderers by version; 0 is a run recorded
-// before the version was, whose section either legacy renderer may have made.
+// before the version was, whose section any of the three renderers may have
+// made (0ac1cb6 already rendered as version 2 without recording it).
 var handoffRenderers = map[int][]func([]DelegationEvent) []string{
-	0:               {handoffCommandsV1, handoffCommandsV0},
+	0:               {handoffCommands, handoffCommandsV1, handoffCommandsV0},
 	handoffRenderer: {handoffCommands},
 }
 
