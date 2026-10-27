@@ -13,6 +13,7 @@ package mcpserver
 
 import (
 	"context"
+	"regexp"
 
 	"encoding/json"
 	"errors"
@@ -85,7 +86,12 @@ var delegateSummaryKeys = map[string]bool{
 	"attempts": true,
 }
 
-// delegateSummary reduces a CLI document to the summary keys.
+// delegateSummary reduces a CLI document to the summary keys, and every
+// field that carries text the engine composed to a typed projection: codes,
+// identifiers, times, flags and counts (R7; review round 2, B02). An error, a
+// failure, a skipped candidate's reason, a way forward's why and a loss can
+// carry what a run or its files hold — a credential the agent was given
+// named in a file, a log path, a prompt — so no such text crosses.
 func delegateSummary(doc map[string]any) map[string]any {
 	out := map[string]any{}
 	for k, v := range doc {
@@ -93,7 +99,144 @@ func delegateSummary(doc map[string]any) map[string]any {
 			out[k] = v
 		}
 	}
+	for _, k := range []string{"status", "state", "decision", "liveness", "access", "reason_code", "implementation_from", "purpose"} {
+		if v, ok := out[k]; ok {
+			out[k] = delegateCode(v)
+		}
+	}
+	if _, ok := out["error"]; ok {
+		out["error"] = delegateRefusalText(out["reason_code"])
+	}
+	if _, ok := out["failure"]; ok {
+		delete(out, "failure")
+		out["failed"] = true
+	}
+	if losses, ok := out["losses"].([]any); ok {
+		out["losses"] = len(losses)
+	}
+	if v, ok := out["interruption"].(map[string]any); ok {
+		out["interruption"] = map[string]any{"cause": delegateCode(v["cause"]), "resumable": v["resumable"] == true, "reset_at": delegateTime(v["reset_at"])}
+	}
+	if v, ok := out["routing"].(map[string]any); ok {
+		out["routing"] = delegateRouting(v)
+	}
+	if v, ok := out["next_actions"].([]any); ok {
+		out["next_actions"] = delegateNextActions(v)
+	}
+	if v, ok := out["candidates"].([]any); ok {
+		out["candidates"] = delegateNames(v)
+	}
+	if v, ok := out["attempts"].([]any); ok {
+		rows := []any{}
+		for _, row := range v {
+			if m, ok := row.(map[string]any); ok {
+				rows = append(rows, delegateSummary(m))
+			}
+		}
+		out["attempts"] = rows
+	}
+	for _, k := range []string{"reset_at", "started_at", "ended_at", "stalled_at"} {
+		if v, ok := out[k]; ok {
+			out[k] = delegateTime(v)
+		}
+	}
 	return out
+}
+
+var (
+	delegateCodeShape = regexp.MustCompile(`^[a-z][a-z0-9-]{0,47}$`)
+	delegateNameShape = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._@:+-]{0,95}$`)
+	// A way forward is a pose command over identifiers: anything else in it
+	// is not a command a delegate tool hands on.
+	delegateCommandShape = regexp.MustCompile(`^pose [a-z][a-z-]*( [A-Za-z0-9][A-Za-z0-9._@:+=/-]{0,95}| --[a-z][a-z-]*)*$`)
+)
+
+// delegateCode is v when it is a code, else "other".
+func delegateCode(v any) any {
+	if s, ok := v.(string); ok && delegateCodeShape.MatchString(s) {
+		return s
+	}
+	if s, ok := v.(string); ok && s == "" {
+		return ""
+	}
+	return "other"
+}
+
+// delegateTime is v when it is an RFC 3339 time, else absent.
+func delegateTime(v any) any {
+	if s, ok := v.(string); ok {
+		if _, err := time.Parse(time.RFC3339Nano, s); err == nil {
+			return s
+		}
+	}
+	return nil
+}
+
+// delegateName is v when it is an identifier, else absent.
+func delegateName(v any) any {
+	if s, ok := v.(string); ok && delegateNameShape.MatchString(s) {
+		return s
+	}
+	return nil
+}
+
+func delegateNames(v []any) []any {
+	out := []any{}
+	for _, item := range v {
+		if name := delegateName(item); name != nil {
+			out = append(out, name)
+		}
+	}
+	return out
+}
+
+// delegateRouting keeps who was considered and how: the reason a candidate
+// was skipped stays on the host, its being skipped crosses.
+func delegateRouting(v map[string]any) map[string]any {
+	out := map[string]any{"requested": delegateName(v["requested"]), "prefer": delegateName(v["prefer"]), "implementation_from": delegateCode(v["implementation_from"]), "step": delegateCode(v["step"]), "wait_until": delegateTime(v["wait_until"])}
+	if impl, ok := v["implementation"].(map[string]any); ok {
+		out["implementation"] = map[string]any{"vendor": delegateName(impl["vendor"]), "model": delegateName(impl["model"])}
+	}
+	candidates := []any{}
+	if list, ok := v["candidates"].([]any); ok {
+		for _, item := range list {
+			c, _ := item.(map[string]any)
+			candidates = append(candidates, map[string]any{"agent": delegateName(c["agent"]), "vendor": delegateName(c["vendor"]), "model": delegateName(c["model"]), "group": delegateName(c["group"]), "state": delegateCode(c["state"]), "skipped": c["skipped"] != nil && c["skipped"] != ""})
+		}
+	}
+	out["candidates"] = candidates
+	return out
+}
+
+func delegateNextActions(v []any) []any {
+	out := []any{}
+	for _, item := range v {
+		a, _ := item.(map[string]any)
+		action := map[string]any{"action": delegateCode(a["action"]), "available": a["available"] == true}
+		if command, ok := a["command"].(string); ok && delegateCommandShape.MatchString(command) {
+			action["command"] = command
+		}
+		out = append(out, action)
+	}
+	return out
+}
+
+// delegateRefusalText is what a refusal says over MCP: the reason code's
+// meaning, never the CLI's message, which can name what the project holds.
+func delegateRefusalText(code any) string {
+	switch code {
+	case pose.DelegationReasonRerunWithoutReason:
+		return "a completed run on this unchanged bundle runs again only with a reason"
+	case pose.DelegationReasonBudgetExhausted:
+		return "the attempt budget is spent"
+	case pose.DelegationReasonContainment:
+		return "no agent's containment meets the policy for this purpose"
+	case pose.DelegationReasonAgentUnavailable:
+		return "no agent the routing allows is available now"
+	case pose.DelegationReasonNoAgent:
+		return "no agent is configured: the project has no delegation policy with an agent"
+	}
+	return "pose delegate refused; the same command run on the host says why"
 }
 
 // runDelegate runs the CLI with --json within the call's deadline and returns
@@ -121,7 +264,7 @@ func (s *Server) runDelegate(ctx context.Context, root string, args ...string) (
 // delegateRefused turns a CLI error document into the tool's error, keeping
 // its reason code (R5).
 func delegateRefused(tool string, doc map[string]any) (any, error) {
-	if losses, ok := doc["losses"].([]any); ok && len(losses) > 0 && doc["error"] == nil {
+	if losses, ok := doc["losses"].(int); ok && losses > 0 && doc["error"] == nil {
 		// A history that could not be read whole answers nothing about the
 		// run (review round 1, F01).
 		return map[string]any{"refused": true, "error": "the delegated run history could not be read whole", "losses": losses}, nil
@@ -148,26 +291,30 @@ func (s *Server) dispatchDelegate(ctx context.Context, root, name string, args j
 		Lead           string `json:"lead"`
 		Run            string `json:"run"`
 		To             string `json:"to"`
-		TimeoutSeconds int    `json:"timeout_seconds"`
+		TimeoutSeconds *int   `json:"timeout_seconds"`
 		Apply          bool   `json:"apply"`
 	}
 	if err := json.Unmarshal(args, &a); err != nil {
 		return nil, fmt.Errorf("%s: invalid arguments", name)
 	}
-	if a.TimeoutSeconds < 0 || a.TimeoutSeconds > int(delegateWaitMax/time.Second) {
+	if a.TimeoutSeconds != nil && (*a.TimeoutSeconds < 1 || *a.TimeoutSeconds > int(delegateWaitMax/time.Second)) {
 		return nil, fmt.Errorf("%s: timeout_seconds must be from 1 to %d", name, int(delegateWaitMax/time.Second))
 	}
-	// One deadline per call, shared by every subprocess it runs (B05).
+	wait := delegateWaitDefault
+	if a.TimeoutSeconds != nil {
+		wait = time.Duration(*a.TimeoutSeconds) * time.Second
+	}
+	// One deadline per call, shared by every subprocess it runs, chosen by
+	// the operation: an argument it does not take changes nothing (review
+	// rounds 1 and 2, B05).
 	bound := delegateStatusBound
-	switch {
-	case name == "pose_delegate_wait":
-		wait := delegateWaitDefault
-		if a.TimeoutSeconds > 0 {
-			wait = time.Duration(a.TimeoutSeconds) * time.Second
-		}
+	switch name {
+	case "pose_delegate_wait":
 		bound = wait + delegateStatusBound
-	case a.Apply:
-		bound = delegateStartBound
+	case "pose_delegate_start", "pose_delegate_resume", "pose_delegate_handoff":
+		if a.Apply {
+			bound = delegateStartBound
+		}
 	}
 	ctx, cancel := context.WithTimeout(ctx, bound)
 	defer cancel()
@@ -259,10 +406,7 @@ func (s *Server) dispatchDelegate(ctx context.Context, root, name string, args j
 		if a.Run == "" {
 			return nil, fmt.Errorf("%s: required argument %q missing", name, "run")
 		}
-		timeout := delegateWaitDefault
-		if a.TimeoutSeconds > 0 {
-			timeout = time.Duration(a.TimeoutSeconds) * time.Second
-		}
+		timeout := wait
 		doc, code, err = s.runDelegate(ctx, root, "wait", a.Run, "--timeout", timeout.String())
 		if err == nil && code == 50 {
 			// R3: the bound passed; the run goes on.
@@ -286,7 +430,7 @@ func (s *Server) dispatchDelegate(ctx context.Context, root, name string, args j
 	if err != nil {
 		return nil, err
 	}
-	if _, refused := doc["error"]; refused {
+	if _, refused := doc["error"]; refused || (code != 0 && name != "pose_delegate_wait") {
 		return delegateRefused(name, doc)
 	}
 	if !a.Apply && (name == "pose_delegate_resume" || name == "pose_delegate_handoff") {
@@ -324,8 +468,10 @@ func delegateToolDefinitions() []map[string]any {
 		},
 		{
 			"name": "pose_delegate_status",
-			"description": "Read a delegated run without blocking: its state, heartbeat age, turns, last step, round, the decision and " +
-				"exit code once terminal, and next_actions with whether each is available now and why not.",
+			"description": "Read a delegated run without blocking: its state, heartbeat age, turns, round, the decision and " +
+				"exit code once terminal, and next_actions with whether each is available now. Text the engine composes — an error, " +
+				"a failure, why a candidate was skipped or an action is unavailable — stays on the host: the result carries codes, " +
+				"identifiers, times, flags and counts.",
 			"inputSchema": map[string]any{
 				"type":       "object",
 				"properties": map[string]any{"run": run, "project_id": project},

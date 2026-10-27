@@ -9,7 +9,6 @@ package cli
 // that tracks the process is woken when the run ends.
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -58,6 +57,43 @@ func supervisorHandback() func(attempt string) error {
 		raw, _ := json.Marshal(map[string]string{"attempt": attempt})
 		return posemodel.PublishFile(path, append(raw, '\n'), 0o600, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAbsent})
 	}
+}
+
+// handBackRefusal is how a detached run that refuses before it reserves an
+// attempt hands its error document back: in a file beside the hand-back, so
+// the caller returns that refusal with its reason code, never a log (spec
+// pose-delegation-mcp R5, R7; review rounds 1 and 2, B03).
+func handBackRefusal(doc map[string]any) {
+	path := os.Getenv(delegateHandback)
+	if path == "" {
+		return
+	}
+	// A run that handed its attempt back is answered by that attempt.
+	if _, err := os.Stat(path); err == nil {
+		return
+	}
+	raw, err := json.Marshal(doc)
+	if err != nil {
+		return
+	}
+	_ = posemodel.PublishFile(path+".refusal", append(raw, '\n'), 0o600, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAbsent})
+}
+
+// readRefusal is the error document a detached run handed back, when it is
+// one: the error schema with an error.
+func readRefusal(path string) map[string]any {
+	raw, err := os.ReadFile(path + ".refusal")
+	if err != nil {
+		return nil
+	}
+	var doc map[string]any
+	if json.Unmarshal(raw, &doc) != nil || doc["schema"] != delegateErrorSchema {
+		return nil
+	}
+	if msg, ok := doc["error"].(string); !ok || msg == "" {
+		return nil
+	}
+	return doc
 }
 
 func readHandback(path string) string {
@@ -138,16 +174,25 @@ wait:
 		case <-time.After(100 * time.Millisecond):
 		}
 	}
+	refusal := readRefusal(handback)
 	_ = os.Remove(handback)
+	_ = os.Remove(handback + ".refusal")
 	if attempt == "" {
-		// A child that refused wrote its error document: that refusal, with
-		// its reason code, is the answer, not the log's tail (spec
-		// pose-delegation-mcp R5, R7; review round 1, B02, B03).
-		if f.jsonOut {
-			if doc := lastDelegateErrorDocument(logPath); doc != nil {
-				writeDelegateJSON(stdout, doc)
+		// A child that refused handed its error document back: that refusal,
+		// with its reason code, is the answer (B03).
+		if refusal != nil {
+			if f.jsonOut {
+				writeDelegateJSON(stdout, refusal)
 				return 1
 			}
+			msg, _ := refusal["error"].(string)
+			render(stdout, stderr).Failure("pose delegate " + purpose + ": " + msg)
+			return 1
+		}
+		// A document carries no log: its tail is for the person at the
+		// terminal (R7).
+		if f.jsonOut {
+			return delegateFail(stdout, stderr, true, purpose, 1, errors.New("the detached run ended without handing back its attempt or a refusal; an attempt it reserved is listed by pose delegate ls"))
 		}
 		tail, _ := os.ReadFile(logPath)
 		if len(tail) > 2048 {
@@ -246,33 +291,4 @@ func printWaitResult(stdout io.Writer, jsonOut bool, r posemodel.DelegationWaitR
 	}
 	line += fmt.Sprintf(" exit=%d", r.Code)
 	render(stdout, io.Discard).ContractLine(line)
-}
-
-// lastDelegateErrorDocument is the last pose delegate error document a
-// detached child wrote to its log, reduced to what a refusal carries.
-func lastDelegateErrorDocument(logPath string) map[string]any {
-	raw, err := os.ReadFile(logPath)
-	if err != nil {
-		return nil
-	}
-	marker := []byte("\"schema\": \"" + delegateErrorSchema + "\"")
-	at := bytes.LastIndex(raw, marker)
-	if at < 0 {
-		return nil
-	}
-	start := bytes.LastIndexByte(raw[:at], '{')
-	if start < 0 {
-		return nil
-	}
-	var doc map[string]any
-	if json.NewDecoder(bytes.NewReader(raw[start:])).Decode(&doc) != nil {
-		return nil
-	}
-	out := map[string]any{"schema": delegateErrorSchema}
-	for _, k := range []string{"command", "error", "reason_code", "usage", "candidates"} {
-		if v, ok := doc[k]; ok {
-			out[k] = v
-		}
-	}
-	return out
 }

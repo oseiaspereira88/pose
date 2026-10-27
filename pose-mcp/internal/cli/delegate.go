@@ -234,6 +234,10 @@ func delegateUsage(stdout, stderr io.Writer, args []string, command, msg string)
 }
 
 func writeDelegateJSON(stdout io.Writer, doc any) {
+	// Every error document a detached run writes is handed back (B03).
+	if m, ok := doc.(map[string]any); ok && m["schema"] == delegateErrorSchema {
+		handBackRefusal(m)
+	}
 	enc := json.NewEncoder(stdout)
 	enc.SetIndent("", "  ")
 	_ = enc.Encode(doc)
@@ -242,20 +246,21 @@ func writeDelegateJSON(stdout io.Writer, doc any) {
 // delegateFail reports a failure as text or as the error document.
 func delegateFail(stdout, stderr io.Writer, jsonOut bool, command string, code int, err error) int {
 	msg := strings.TrimPrefix(err.Error(), "pose: ")
+	doc := map[string]any{"schema": delegateErrorSchema, "command": command, "error": msg}
+	// The reason code of a refusal is the same over MCP (spec
+	// pose-delegation-mcp R5).
+	if code := posemodel.DelegationReasonCode(err); code != "" {
+		doc["reason_code"] = code
+	}
+	var ambiguous *posemodel.ErrDelegationRefAmbiguous
+	if errors.As(err, &ambiguous) {
+		doc["candidates"] = ambiguous.Candidates
+	}
 	if jsonOut {
-		doc := map[string]any{"schema": delegateErrorSchema, "command": command, "error": msg}
-		// The reason code of a refusal is the same over MCP (spec
-		// pose-delegation-mcp R5).
-		if code := posemodel.DelegationReasonCode(err); code != "" {
-			doc["reason_code"] = code
-		}
-		var ambiguous *posemodel.ErrDelegationRefAmbiguous
-		if errors.As(err, &ambiguous) {
-			doc["candidates"] = ambiguous.Candidates
-		}
 		writeDelegateJSON(stdout, doc)
 		return code
 	}
+	handBackRefusal(doc)
 	if code == 2 {
 		return usageError(stderr, "pose delegate "+command+": "+msg)
 	}

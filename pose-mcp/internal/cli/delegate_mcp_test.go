@@ -222,3 +222,24 @@ func TestDelegateToolsOverMCPHoldAgainstTheFirstReview(t *testing.T) {
 		t.Fatalf("a nested server ran in the parent: %v (%d → %d)", r, len(before), len(after))
 	}
 }
+
+// Review round 2, B03: a detached handoff refused by routing — an error
+// document with nested objects — keeps its reason code over MCP, and
+// carries no log.
+func TestDelegateToolsOverMCPKeepADetachedRoutingRefusal(t *testing.T) {
+	root := dispatchInstance(t)
+	writeDelegation(t, root, delegationPolicy(limitingAgent))
+	call := delegateMCP(t, root)
+	started := call("pose_delegate_start", map[string]any{"purpose": "review", "target": "spec:alpha", "agent": "stopper", "apply": true})
+	attempt, _ := started["attempt"].(string)
+	if waited := call("pose_delegate_wait", map[string]any{"run": attempt, "timeout_seconds": 60}); waited["state"] != "interrupted" {
+		t.Fatalf("the run did not stop: %v %v", started, waited)
+	}
+	writeDelegation(t, root, delegationPolicy(limitingAgent, `"absent": {"vendor": "other", "model": "a-1", "commands": {"read": ["/nonexistent-SYNTHETIC_PRIVATE_PROMPT/cli"]}}`))
+	preview := call("pose_delegate_handoff", map[string]any{"run": attempt, "to": "auto"})
+	refused := call("pose_delegate_handoff", map[string]any{"run": attempt, "to": "auto", "apply": true})
+	out := string(mustJSON(refused))
+	if refused["refused"] != true || refused["reason_code"] != preview["reason_code"] || refused["reason_code"] == nil || strings.Contains(out, "supervisors") || strings.Contains(out, "SYNTHETIC") {
+		t.Fatalf("preview %v, applied %s", preview, out)
+	}
+}
