@@ -28,8 +28,8 @@ type ReviewerResume struct {
 	// Commands resumes a task with the access it ran with (spec
 	// pose-delegation-task R8); Command is the read access's.
 	Commands    map[string][]string `json:"commands,omitempty"`
-	MaxResumes  int      `json:"max_resumes,omitempty"`
-	MaxWallTime string   `json:"max_wall_time,omitempty"`
+	MaxResumes  int                 `json:"max_resumes,omitempty"`
+	MaxWallTime string              `json:"max_wall_time,omitempty"`
 }
 type ReviewInterruption struct {
 	Cause     string `json:"cause"`
@@ -83,22 +83,33 @@ func validateContinuityAdapter(a ReviewerAdapter) error {
 		}
 	}
 	if a.Resume != nil {
-		if len(a.Resume.Command) == 0 || a.Resume.MaxResumes < 0 || a.Resume.MaxResumes > 100 {
+		// A resume declares the read command, the commands per access a task
+		// resumes with (spec pose-delegation-task D3), or both.
+		commands := [][]string{}
+		if len(a.Resume.Command) > 0 {
+			commands = append(commands, a.Resume.Command)
+		}
+		for _, argv := range a.Resume.Commands {
+			commands = append(commands, argv)
+		}
+		if len(commands) == 0 || a.Resume.MaxResumes < 0 || a.Resume.MaxResumes > 100 {
 			return fmt.Errorf("resume needs command and bounded nonnegative max_resumes")
 		}
-		hasSession := false
-		for i, arg := range a.Resume.Command {
-			if arg == "{session}" {
-				if i == 0 || i > 0 && (a.Resume.Command[i-1] == "-c" || a.Resume.Command[i-1] == "-e" || a.Resume.Command[i-1] == "--eval" || a.Resume.Command[i-1] == "--command") {
-					return fmt.Errorf("session reference cannot be executable code")
+		for _, command := range commands {
+			hasSession := false
+			for i, arg := range command {
+				if arg == "{session}" {
+					if i == 0 || i > 0 && (command[i-1] == "-c" || command[i-1] == "-e" || command[i-1] == "--eval" || command[i-1] == "--command") {
+						return fmt.Errorf("session reference cannot be executable code")
+					}
+					hasSession = true
+				} else if strings.Contains(arg, "{session}") {
+					return fmt.Errorf("{session} must be a separate argv element, never interpolated into code")
 				}
-				hasSession = true
-			} else if strings.Contains(arg, "{session}") {
-				return fmt.Errorf("{session} must be a separate argv element, never interpolated into code")
 			}
-		}
-		if !hasSession {
-			return fmt.Errorf("resume command needs {session}")
+			if !hasSession {
+				return fmt.Errorf("resume command needs {session}")
+			}
 		}
 		if a.Session == nil {
 			return fmt.Errorf("resume needs session declaration")
@@ -234,7 +245,7 @@ func (s Store) classifyReviewInterruption(run *ReviewRun, plan DispatchPlan, tra
 	if plan.Config.Limit == nil && plan.Config.Session == nil && plan.Config.Resume == nil {
 		cause = "unknown"
 	}
-	interruption := &ReviewInterruption{Cause: cause, Resumable: run.SessionDigest != "" && plan.Config.Resume != nil}
+	interruption := &ReviewInterruption{Cause: cause, Resumable: run.SessionDigest != "" && plan.Config.Resume != nil && len(plan.Config.Resume.Command) > 0}
 	if cause == "usage-limit" {
 		reset, e := captureReviewChannels(resetPattern(plan.Config), string(transcript), run.Output)
 		if e != nil {
@@ -362,7 +373,7 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 		return DispatchPlan{}, e
 	}
 	config, ok := policy.Adapters[prior.Adapter]
-	if !ok || config.Resume == nil {
+	if !ok || config.Resume == nil || len(config.Resume.Command) == 0 {
 		return DispatchPlan{}, fmt.Errorf("resume adapter declaration missing")
 	}
 	brief, e := s.RenderReviewBrief(prior.BundleID, prior.Kind, prior.BriefNotes)

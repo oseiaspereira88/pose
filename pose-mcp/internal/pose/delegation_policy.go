@@ -550,11 +550,19 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 		if agent.MaxRunsPerBundle < 0 || agent.MaxRunsPerBundle > 100 {
 			return fmt.Errorf("pose: delegation agent %s: max_runs_per_bundle must be 1..100; omit for the purpose budget", name)
 		}
-		for _, purpose := range []string{DelegationPurposeReview, DelegationPurposeAdjudicate, DelegationPurposeSmoke} {
-			if _, ok := agent.Commands[DelegationAccessRead]; !ok {
+		// Every agent that can run a purpose is checked for it: one with no
+		// read command still runs tasks (review round 1 of
+		// pose-delegation-task, B5).
+		for _, purpose := range []string{DelegationPurposeReview, DelegationPurposeAdjudicate, DelegationPurposeSmoke, DelegationPurposeTask} {
+			if _, ok := agent.Commands[DelegationAccessRead]; !ok && purpose != DelegationPurposeTask {
 				continue
 			}
 			adapter, _ := policy.agentAdapter(name, purpose)
+			for _, access := range delegationAccessLevels {
+				if len(adapter.Command) == 0 {
+					adapter.Command = agent.Commands[access]
+				}
+			}
 			if _, err := ResolveReviewerContainment(adapter); err != nil {
 				return fmt.Errorf("pose: delegation agent %s: %w", name, err)
 			}

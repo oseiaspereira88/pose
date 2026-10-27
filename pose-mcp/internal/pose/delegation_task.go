@@ -152,6 +152,9 @@ func (s Store) PlanDelegationTask(req DelegationTaskRequest) (DelegationTaskPlan
 		return DelegationTaskPlan{}, err
 	}
 	plan.OutsideGit = GitNotARepository(dir)
+	if err := plan.checkOutsideGit(); err != nil {
+		return DelegationTaskPlan{}, err
+	}
 	if req.Access == DelegationAccessFull {
 		plan.Warnings = append(plan.Warnings, DelegationAccessWarning)
 	}
@@ -189,6 +192,30 @@ func (p DelegationTaskPlan) checkFlags() error {
 	return nil
 }
 
+// checkOutsideGit refuses a task outside Git whose agent declares
+// outside_git_args its template has no place for: they would be dropped (B7).
+func (p DelegationTaskPlan) checkOutsideGit() error {
+	if p.OutsideGit && len(p.Config.OutsideGitArgs) > 0 && !containsString(p.Template, "{outside_git}") {
+		return taskUsage("%s is in no Git repository and agent %s declares outside_git_args, but its %s command has no {outside_git}", p.Dir, p.Agent, p.Access)
+	}
+	return nil
+}
+
+// taskResumeTemplate is the command that resumes a task of access: the
+// agent's resume.commands for it, or resume.command for read.
+func taskResumeTemplate(agent DelegationAgent, access string) []string {
+	if agent.Resume == nil {
+		return nil
+	}
+	if argv := agent.Resume.Commands[access]; len(argv) > 0 {
+		return argv
+	}
+	if access == DelegationAccessRead {
+		return agent.Resume.Command
+	}
+	return nil
+}
+
 func validateTaskPrompt(prompt string) error {
 	switch {
 	case strings.TrimSpace(prompt) == "":
@@ -216,10 +243,20 @@ func taskDirectory(dir string) (string, error) {
 	return abs, nil
 }
 
-// TaskArgv is the argv the task runs: the access template with the task's
-// fragments in place of {add_dirs}, {no_network} and {outside_git}, then the
-// output, session and effort placeholders every delegated run fills.
+// TaskArgv is the argv a task runs, as it may be shown or recorded: a
+// session it resumes stays {session}, never its value (review round 1, B1).
 func (p DelegationTaskPlan) TaskArgv(output string) []string {
+	session := ""
+	if p.session != "" {
+		session = "{session}"
+	}
+	return p.argv(output, session)
+}
+
+// argv is the access template with the task's fragments in place of
+// {add_dirs}, {no_network} and {outside_git}, then the output, session and
+// effort placeholders every delegated run fills.
+func (p DelegationTaskPlan) argv(output, session string) []string {
 	var expanded []string
 	for _, arg := range p.Template {
 		switch arg {
@@ -244,7 +281,7 @@ func (p DelegationTaskPlan) TaskArgv(output string) []string {
 			expanded = append(expanded, arg)
 		}
 	}
-	return ReviewerArgv(expanded, output, p.session, p.Effort, p.Config.Effort)
+	return ReviewerArgv(expanded, output, session, p.Effort, p.Config.Effort)
 }
 
 // taskStateDir is where the runs of a project live without --record: under
@@ -404,7 +441,7 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 	}
 	run := ReviewRun{SchemaVersion: 1, Scope: "task", Kind: DelegationPurposeTask, Purpose: DelegationPurposeTask, Adapter: plan.Agent,
 		Vendor: plan.Config.Vendor, Model: plan.Config.Model, Label: plan.Label, Lead: plan.Lead, Access: plan.Access, Dir: plan.Dir,
-		AddDirs: plan.AddDirs, NoNetwork: plan.NoNetwork, Recorded: plan.Record, Events: plan.Config.Events, Routing: plan.Routing,
+		AddDirs: plan.AddDirs, NoNetwork: plan.NoNetwork, Recorded: plan.Record, Effort: plan.Effort, Events: plan.Config.Events, Routing: plan.Routing,
 		StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1, PromptDigest: digestBytes([]byte(plan.Prompt)), Safety: safety}
 	if plan.predecessor == nil {
 		token := make([]byte, 16)
@@ -455,11 +492,19 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 		}
 	}
 	output := filepath.Join(tmp, "output.txt")
-	argv := plan.TaskArgv(output)
-	run.Argv = argv
+	argv := plan.argv(output, plan.session)
 	env, secrets, err := reviewAdapterEnvironment(plan.adapter, tmp, plan.Prompt, "")
 	if err != nil {
 		return finish(ReviewRunFailed, "the run was not started: "+err.Error())
+	}
+	// The record keeps the argv with the session as {session} and every
+	// authorized credential redacted (B1).
+	for _, arg := range plan.TaskArgv(output) {
+		red, rerr := redactReviewCapture([]byte(arg), secrets, "", 17*int64(len(arg))+1)
+		if rerr != nil {
+			return finish(ReviewRunFailed, "the run was not started: its argv could not be redacted")
+		}
+		run.Argv = append(run.Argv, string(red))
 	}
 	env, run.EnvRemoved = withoutParentSession(env, plan.envUnset)
 	timeout := time.Duration(safety.TimeoutMS) * time.Millisecond
@@ -507,21 +552,43 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 		return finish(ReviewRunFailed, "the agent's output exceeded the stream budget")
 	}
 	safety.CaptureComplete = true
+	// The final message obeys output_bytes whatever its source: a file the
+	// agent wrote that is not readable within it fails the run, and so does a
+	// stream final message beyond it; the stream's tail is cut to it (B3).
 	raw, outputErr := ReadReviewAdapterFile(output, safety.OutputBytes)
+	final := DelegationStreamFinal(plan.Config.Events, transcript)
 	switch {
+	case outputErr != nil && !errors.Is(outputErr, os.ErrNotExist):
+		safety.CaptureComplete = false
+		return finish(ReviewRunFailed, "the agent's output file is not a regular file within output_bytes")
 	case outputErr == nil && len(bytes.TrimSpace(raw)) > 0:
 		run.Output = string(raw)
-	case strings.TrimSpace(DelegationStreamFinal(plan.Config.Events, transcript)) != "":
-		run.Output = DelegationStreamFinal(plan.Config.Events, transcript)
+	case strings.TrimSpace(final) != "":
+		if int64(len(final)) > safety.OutputBytes {
+			safety.CaptureComplete = false
+			return finish(ReviewRunFailed, "the agent's final message exceeds output_bytes")
+		}
+		run.Output = final
 	default:
-		run.Output = tail(string(transcript), 20000)
+		limit := 20000
+		if int64(limit) > safety.OutputBytes {
+			limit = int(safety.OutputBytes)
+		}
+		run.Output = tail(string(transcript), limit)
 	}
-	status, failure, captureErr := s.classifyReviewInterruption(&run, DispatchPlan{Config: plan.adapter, session: plan.session}, transcript, runErr, ctx.Err())
+	// The session and the limit are recognized on both streams, so a
+	// session the agent prints only on stderr is redacted there too (B2).
+	channels := append(append(append([]byte(nil), transcript...), '\n'), errText...)
+	status, failure, captureErr := s.classifyReviewInterruption(&run, DispatchPlan{Config: plan.adapter, session: plan.session}, channels, runErr, ctx.Err())
+	if run.Interruption != nil {
+		// A task resumes with its access's command, not the review's.
+		run.Interruption.Resumable = run.SessionDigest != "" && len(taskResumeTemplate(plan.Config, plan.Access)) > 0
+	}
 	session := run.sessionForRedaction
 	run.sessionForRedaction = ""
 	if captureErr == nil {
 		var redacted []byte
-		if redacted, captureErr = redactReviewCapture([]byte(run.Output), secrets, session, safety.OutputBytes+1<<10); captureErr == nil {
+		if redacted, captureErr = redactReviewCapture([]byte(run.Output), secrets, session, safety.OutputBytes); captureErr == nil {
 			run.Output = string(redacted)
 		}
 	}
@@ -658,10 +725,7 @@ func (s Store) PlanDelegationTaskResume(id, prompt string) (DelegationTaskPlan, 
 	if !ok || agent.Resume == nil {
 		return DelegationTaskPlan{}, fmt.Errorf("pose: agent %s declares no resume", prior.Adapter)
 	}
-	template := agent.Resume.Commands[prior.Access]
-	if len(template) == 0 && prior.Access == DelegationAccessRead {
-		template = agent.Resume.Command
-	}
+	template := taskResumeTemplate(agent, prior.Access)
 	if len(template) == 0 {
 		return DelegationTaskPlan{}, fmt.Errorf("pose: agent %s declares no resume command for --access %s", prior.Adapter, prior.Access)
 	}
@@ -718,6 +782,11 @@ func (s Store) taskContinuationPlan(policy DelegationPolicy, prior ReviewRun, ag
 	}
 	agent := policy.Agents[agentName]
 	req := DelegationTaskRequest{Agent: agentName, Access: prior.Access, Dir: prior.Dir, Prompt: prompt, AddDirs: prior.AddDirs, NoNetwork: prior.NoNetwork, Record: prior.Recorded}
+	if prior.Adapter == agentName {
+		// A resume keeps the effort the run was started with (F1); another
+		// agent declares its own levels.
+		req.Effort = prior.Effort
+	}
 	plan := DelegationTaskPlan{DelegationTaskRequest: req, Config: agent, Template: template, envUnset: policy.EnvUnset, predecessor: &prior, processTimeout: left}
 	if err := plan.checkFlags(); err != nil {
 		return DelegationTaskPlan{}, err
@@ -725,6 +794,9 @@ func (s Store) taskContinuationPlan(policy DelegationPolicy, prior ReviewRun, ag
 	plan.adapter, _ = policy.agentAdapter(agentName, DelegationPurposeTask)
 	plan.adapter.Command = template
 	plan.OutsideGit = GitNotARepository(prior.Dir)
+	if err := plan.checkOutsideGit(); err != nil {
+		return DelegationTaskPlan{}, err
+	}
 	if prior.Access == DelegationAccessFull {
 		plan.Warnings = append(plan.Warnings, DelegationAccessWarning)
 	}

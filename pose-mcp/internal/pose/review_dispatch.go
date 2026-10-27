@@ -205,6 +205,7 @@ type ReviewRun struct {
 	Recorded     bool     `json:"recorded,omitempty"`
 	Argv         []string `json:"argv,omitempty"`
 	PromptDigest string   `json:"prompt_digest,omitempty"`
+	Effort       string   `json:"effort,omitempty"`
 	StderrDigest string   `json:"stderr_digest,omitempty"`
 	Path         string   `json:"-"`
 	// eventsDir is where a task run's files are; a review run's are in

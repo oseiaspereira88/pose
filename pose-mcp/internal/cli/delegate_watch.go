@@ -250,6 +250,9 @@ func (w *watchPrinter) replay(store posemodel.Store, attempt posemodel.Delegatio
 		w.lose([]string{err.Error()})
 		return
 	}
+	// A task's runs are read where tasks keep them (spec pose-delegation-task R8).
+	tasks, taskLost := store.ReadDelegationTaskRuns()
+	runs, lost = append(runs, tasks...), append(lost, taskLost...)
 	w.lose(lost)
 	byID := map[string]posemodel.ReviewRun{}
 	continuedBy := map[string]string{}

@@ -180,3 +180,93 @@ func TestDelegateTaskResumesAndHandsOff(t *testing.T) {
 		t.Fatal("a completed handoff was resumed")
 	}
 }
+
+// taskRecordOf reads the task record of run id from the state directory.
+func taskRecordOf(t *testing.T, state, id string) (map[string]any, string) {
+	t.Helper()
+	matches, _ := filepath.Glob(filepath.Join(state, "pose", "delegate", "*", id+".json"))
+	if len(matches) != 1 {
+		t.Fatalf("record of %s: %v", id, matches)
+	}
+	raw, _ := os.ReadFile(matches[0])
+	var record map[string]any
+	if err := json.Unmarshal(raw, &record); err != nil {
+		t.Fatal(err)
+	}
+	return record, filepath.Dir(matches[0])
+}
+
+// Review round 1, B1, B2, F1: the record of a resumed task keeps {session} in
+// its argv, never the session; a session printed only on stderr is redacted
+// there; a resume keeps the effort the task started with.
+func TestDelegateTaskKeepsSessionsOutOfItsRecord(t *testing.T) {
+	root, state, prompt := taskInstance(t)
+	effortful := `"effortful": {"vendor": "test", "model": "e-1", "timeout": "30s",
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; echo 'session: effort-sess-01' >&2; echo \"$@\"; exit 75", "x", "{effort}"]},
+      "effort": {"default": "low", "levels": {"low": ["--low"], "high": ["--high"]}},
+      "limit": {"exit_codes": [75]}, "session": {"pattern": "session: (\\S+)"},
+      "resume": {"command": ["sh", "-c", "cat >/dev/null; echo \"resumed $@\"", "x", "{session}", "{effort}"]}}`
+	writeDelegation(t, root, taskPolicy(`"default_access": "read"`, taskWorker, effortful))
+	code, out, errOut := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "effortful", "--effort", "high", "--json")
+	var first map[string]any
+	if code != 75 || json.Unmarshal([]byte(out), &first) != nil {
+		t.Fatalf("task: %d %s %s", code, out, errOut)
+	}
+	_, dir := taskRecordOf(t, state, first["run"].(string))
+	stderrFile, _ := os.ReadFile(filepath.Join(dir, first["run"].(string)+".stderr"))
+	if strings.Contains(string(stderrFile), "effort-sess-01") {
+		t.Fatalf("a session on stderr was kept: %s", stderrFile)
+	}
+	code, out, errOut = runPoseSplit(t, root, "delegate", "resume", first["run"].(string), "--json")
+	var second map[string]any
+	if code != 0 || json.Unmarshal([]byte(out), &second) != nil || !strings.Contains(second["final"].(string), "--high") {
+		t.Fatalf("resume lost its effort: %d %s %s", code, out, errOut)
+	}
+	record, _ := taskRecordOf(t, state, second["run"].(string))
+	raw, _ := json.Marshal(record)
+	if strings.Contains(string(raw), "effort-sess-01") || !strings.Contains(string(raw), "{session}") {
+		t.Fatalf("the resumed record keeps the session: %s", raw)
+	}
+	if code, out, _ := runPoseSplit(t, root, "delegate", "watch", second["run"].(string), "--no-follow"); code != 0 || !strings.Contains(out, second["run"].(string)) {
+		t.Fatalf("watch does not replay a task: %d %s", code, out)
+	}
+}
+
+// Review round 1, B3, B5, B6, B7: the final message obeys output_bytes; a
+// task-only agent's continuity is validated before anything runs; resume
+// commands per access stand alone; outside Git, declared outside_git_args
+// with no place in the template are refused.
+func TestDelegateTaskPolicyAndBudgetsHold(t *testing.T) {
+	root, _, prompt := taskInstance(t)
+	bounded := `"bounded": {"vendor": "test", "model": "b-1", "timeout": "30s",
+      "containment": {"schema_version": 1, "profile": "trusted-process", "stream_bytes": 4096, "output_bytes": 16},
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; head -c 100 /dev/zero | tr '\\000' x > \"$1\"", "x", "{output}"]}}`
+	writeDelegation(t, root, taskPolicy("", bounded))
+	if code, out, errOut := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "bounded", "--json"); code == 0 || !strings.Contains(out, "output_bytes") {
+		t.Fatalf("an output beyond its budget: %d %s %s", code, out, errOut)
+	}
+	writer := `"writer": {"vendor": "test", "model": "w-2", "timeout": "30s",
+      "commands": {"write": ["sh", "-c", "cat >/dev/null; echo 'session: write-sess-1'; exit 75"]},
+      "limit": {"exit_codes": [75], "output_patterns": ["["]}}`
+	writeDelegation(t, root, taskPolicy("", writer))
+	if code, _, errOut := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "writer", "--access", "write"); code != 1 || !strings.Contains(errOut, "writer") {
+		t.Fatalf("a task-only agent's invalid pattern: %d %s", code, errOut)
+	}
+	writer = `"writer": {"vendor": "test", "model": "w-2", "timeout": "30s",
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; echo read"], "write": ["sh", "-c", "cat >/dev/null; echo 'session: write-sess-1'; exit 75"]},
+      "limit": {"exit_codes": [75]}, "session": {"pattern": "session: (\\S+)"},
+      "resume": {"commands": {"write": ["sh", "-c", "cat >/dev/null; echo resumed-write", "{session}"]}}}`
+	writeDelegation(t, root, taskPolicy("", writer))
+	if code, _, errOut := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "writer", "--access", "write", "--label", "w"); code != 75 {
+		t.Fatalf("write task: %d %s", code, errOut)
+	}
+	if code, out, errOut := runPoseSplit(t, root, "delegate", "resume", "w"); code != 0 || !strings.Contains(out, "resumed-write") {
+		t.Fatalf("resume with resume.commands alone: %d %s %s", code, out, errOut)
+	}
+	outside := `"outside": {"vendor": "test", "model": "o-1", "timeout": "30s",
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; echo ran"]}, "outside_git_args": ["--skip-git"]}`
+	writeDelegation(t, root, taskPolicy("", outside))
+	if code, _, errOut := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "outside", "--cd", t.TempDir()); code != 2 || !strings.Contains(errOut, "{outside_git}") {
+		t.Fatalf("outside_git_args with no place: %d %s", code, errOut)
+	}
+}
