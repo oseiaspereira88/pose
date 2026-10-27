@@ -203,6 +203,26 @@ event formats; `NO_COLOR` and no colour off a terminal.
 4. **Rounds:** `continue-thread` is the default, accepting the anchoring risk
    under the R2–R5 safeguards.
 
+## Amendment (2026-10-27): phase B19 is a spec
+
+The plan of batches 10 and 11 runs the capability in phases B19 → B20 → B21:
+conclusions and their destinations are accepted (B19) before action
+fulfillment (B20) uses them, and the capability qualifies the integrated
+journeys (B21) after both. It asked for a native checkpoint of phase
+acceptance, since the gates read the status of a whole spec, and the
+capability cannot be done before fulfillment, which depends on it.
+
+The maintainer chose on 2026-10-27 to make phase B19 a spec of its own,
+[`pose-delegated-review-conclusions`](../specs/2026-10-27-pose-delegated-review-conclusions.md),
+instead of a new kind of gate. It carries R5 and R7 of the capability
+verbatim; fulfillment depends on it, and the capability traces those two
+requirements to it. The native graph of `depends_on` and `done` then
+expresses B19 → B20 → B21 with no cycle and no mechanism used by one phase
+only. This departs from the batch 10 instruction not to create a spec per
+phase, deliberately: that instruction assumed the checkpoint would be built,
+and its purpose — no circular wait, no intermediate acceptance promoted to the
+capability's `done` — holds.
+
 ## Consequences
 
 - `pose review dispatch`, `resume` and `status` become aliases and then

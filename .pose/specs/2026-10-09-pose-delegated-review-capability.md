@@ -4,7 +4,7 @@ status: draft
 created_at: 2026-10-09
 completed_at:
 supersedes:
-depends_on: pose-delegated-review-run-provenance, pose-delegated-review-attempt-ledger, pose-delegation-routing, pose-delegation-handoff, pose-delegated-review-round-protocol, pose-delegated-review-action-fulfillment, pose-delegation-mcp
+depends_on: pose-delegated-review-conclusions, pose-delegated-review-run-provenance, pose-delegated-review-attempt-ledger, pose-delegation-routing, pose-delegation-handoff, pose-delegated-review-round-protocol, pose-delegated-review-action-fulfillment, pose-delegation-mcp
 priority: 3
 components: pose-mcp
 task_type: feature
@@ -43,6 +43,8 @@ Offered by `pose init`; an existing instance stays as it is until it adopts the 
 - R5: When a `pose delegate review` run passes every check — brief generated from the sealed bundle, disposable copy unchanged, run record intact and signed, `different-vendor` or `different-model` independence against the implementation recorded in the bundle, conclusion complete and accepted by the attestation preflight, no earlier rejection on an unchanged bundle — the engine shall record the attestation from the run with no further step; a rejecting conclusion shall be recorded and block the scope until the bundle changes.
 - R6: Review policy shall declare which criteria require a person, and the engine shall turn each escalation — such a criterion, reviewers in conflict, a reviewer asking for a business decision, or the run budget exhausted without approval — into an action request with the question and options ready, answered as a confirmation or approval; nothing else waits on a person.
 - R7: An `adjudication` or `smoke` run that passes the same checks shall record its verdict where its origin expects it (the adjudicated spec's decision record, the smoke target's evidence), under the same rules.
+
+R5 and R7 are delivered by [`pose-delegated-review-conclusions`](2026-10-27-pose-delegated-review-conclusions.md) (phase B19, amendment of 2026-10-27 to the delegation ADR); this spec traces them to it and qualifies them in the integrated journeys of R4.
 - R8: `pose init` shall offer delegation with yes as the default answer; on yes it shall write `delegation.json` with an agent for each supported CLI found on the path and record `delegated_review: true` dated the day of the init; on a refusal, or when the init is not interactive, it shall record `delegated_review: false` and write no `delegation.json`.
 - R9: `pose update` shall never turn the capability on; while it is off, it shall print one suggestion naming `pose adopt delegated-review`.
 - R10: While `delegated_review` is false, a plan that requires `different-actor` shall be satisfied by an attestation with `same-actor-separate-execution`, and `pose review verify`, the closeout and the review record shall disclose the limitation `delegated-review-disabled`; plans that require `mandatory-human` shall be unchanged.

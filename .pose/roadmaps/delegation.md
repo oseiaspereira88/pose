@@ -108,17 +108,31 @@ no gate, attestation or closeout ever reads a task run.
 a bounded timeout; a rerun on an unchanged bundle without a reason is refused
 over MCP exactly as on the CLI.
 
+## Milestone: conclusions
+- after: routing, spec:pose-delegated-review-run-provenance, spec:pose-delegated-adapter-containment, spec:pose-review-approval-domain-preflight
+- target_start:
+- target_due:
+- specs: pose-delegated-review-conclusions
+
+**Exit gate:** phase B19 of the batch 10 plan: a passing review run is
+recorded as the attestation by the engine, an adjudication or smoke run as its
+verdict at its destination, a rejection blocks until the bundle changes, and
+a failed check, an incomplete conclusion, a replay or a superseded bundle
+record nothing. Made a spec by the amendment of 2026-10-27 to the delegation
+ADR, so fulfillment can require it done without requiring the capability.
+
 ## Milestone: fulfillment
-- after: surface, spec:pose-delegated-review-run-provenance, spec:pose-delegated-adapter-containment, spec:pose-action-target-and-node-scoping, spec:pose-action-waiver-and-supersession-authority, spec:pose-action-request-recovery-and-preflight, spec:pose-review-approval-domain-preflight
+- after: surface, conclusions, spec:pose-delegated-review-run-provenance, spec:pose-delegated-adapter-containment, spec:pose-action-target-and-node-scoping, spec:pose-action-waiver-and-supersession-authority, spec:pose-action-request-recovery-and-preflight, spec:pose-review-approval-domain-preflight
 - target_start:
 - target_due:
 - specs: pose-delegated-review-action-fulfillment
 
 **Exit gate:** the gate recorded for this milestone under `delegated-review`
-holds unchanged, with `pose delegate` as the local fulfiller.
+holds unchanged, with `pose delegate` as the local fulfiller; its current
+acceptance of phase B19 is the `conclusions` milestone.
 
 ## Milestone: adoption
-- after: routing, continuity, rounds, fulfillment, agent-access, spec:pose-review-approval-domain-preflight
+- after: routing, continuity, rounds, conclusions, fulfillment, agent-access, spec:pose-review-approval-domain-preflight
 - target_start:
 - target_due:
 - specs: pose-delegated-review-capability
