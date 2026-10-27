@@ -78,6 +78,9 @@ const (
 	ImplementationFromPolicy = "policy"
 	ImplementationFromLead   = "lead"
 	ImplementationFromNone   = "none"
+	// ImplementationFromSession is the launching session, the implementation
+	// a task is routed against (spec pose-delegation-task R10).
+	ImplementationFromSession = "session"
 )
 
 // ErrNoDelegationAgentAvailable means routing found no agent it may start.

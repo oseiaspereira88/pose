@@ -46,10 +46,8 @@ func TestDelegateTreeParsesAndRefusesAsSpecified(t *testing.T) {
 	if code, _, _ := runPoseSplit(t, root, "delegate", "reveiw", "spec:alpha"); code != 2 {
 		t.Fatalf("an unknown subcommand exits 2, got %d", code)
 	}
-	for sub, spec := range map[string]string{"task": "pose-delegation-task"} {
-		if code, _, errOut := runPoseSplit(t, root, "delegate", sub, "x"); code != 2 || !strings.Contains(errOut, spec) {
-			t.Fatalf("%s: %d %s", sub, code, errOut)
-		}
+	if code, _, errOut := runPoseSplit(t, root, "delegate", "task"); code != 2 || !strings.Contains(errOut, "prompt") {
+		t.Fatalf("task without a prompt: %d %s", code, errOut)
 	}
 	for _, args := range [][]string{
 		{"delegate", "review", "spec:alpha", "--access", "write"},
@@ -439,7 +437,7 @@ func TestDelegateCommonFlagsEverywhere(t *testing.T) {
 func TestDelegateMessagesFollowTheLocale(t *testing.T) {
 	root := dispatchInstance(t)
 	t.Setenv("POSE_LOCALE", "pt-BR")
-	if code, _, errOut := runPoseSplit(t, root, "delegate", "task", "x"); code != 2 || !strings.Contains(errOut, "ainda não está disponível") {
+	if code, _, errOut := runPoseSplit(t, root, "delegate", "task"); code != 2 || !strings.Contains(errOut, "nomeie o arquivo do prompt") {
 		t.Fatalf("task: %d %s", code, errOut)
 	}
 	if code, _, errOut := runPoseSplit(t, root, "delegate", "ls", "--bogus"); code != 2 || !strings.Contains(errOut, "flag desconhecida") {

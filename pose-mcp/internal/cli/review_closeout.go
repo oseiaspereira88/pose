@@ -834,6 +834,10 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	store := cliGovernedStore(root)
+	if runID != "" && store.IsDelegationTaskRun(runID) {
+		render(stdout, stderr).Failure("pose review attest: " + strings.TrimPrefix(posemodel.ErrDelegationTaskRun(runID).Error(), "pose: "))
+		return 1
+	}
 	bundle, err := resolveReviewAttestBundle(store, target)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)

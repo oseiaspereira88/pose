@@ -113,6 +113,14 @@ type DelegationAgent struct {
 	// OnTerminal runs once after a run of this agent ends (spec
 	// pose-delegated-review-completion-signal R7); it wins over the purpose's.
 	OnTerminal *DelegationHook `json:"on_terminal,omitempty"`
+	// A task's command template carries {outside_git}, {add_dirs} and
+	// {no_network} where these fragments go (spec pose-delegation-task R3,
+	// R4): OutsideGitArgs when the directory is in no Git repository,
+	// AddDirArgs once per --add-dir with {dir} its path, NoNetworkArgs with
+	// --no-network.
+	OutsideGitArgs []string `json:"outside_git_args,omitempty"`
+	AddDirArgs     []string `json:"add_dir_args,omitempty"`
+	NoNetworkArgs  []string `json:"no_network_args,omitempty"`
 }
 
 // DelegationHook is a command run after a run ends, with the run identifier
@@ -185,6 +193,9 @@ type DelegationPurposePolicy struct {
 	MaxRunsPerBundle int             `json:"max_runs_per_bundle,omitempty"`
 	Timeout          string          `json:"timeout,omitempty"`
 	OnTerminal       *DelegationHook `json:"on_terminal,omitempty"`
+	// DefaultAccess is the access of a task whose caller names none; never
+	// full (spec pose-delegation-task R2).
+	DefaultAccess string `json:"default_access,omitempty"`
 }
 
 // DelegationPolicy is .pose/policy/delegation.json.
@@ -426,6 +437,9 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 				return fmt.Errorf("pose: delegation purpose %s: timeout must be a positive duration", name)
 			}
 		}
+		if purpose.DefaultAccess != "" && (name != DelegationPurposeTask || !containsString(delegationAccessLevels, purpose.DefaultAccess) || purpose.DefaultAccess == DelegationAccessFull) {
+			return fmt.Errorf("pose: delegation purpose %s: default_access is for the task purpose and is read, sandboxed or write; full is never a default", name)
+		}
 	}
 	if r := policy.Routing; r != nil {
 		if r.Prefer != "" && r.Prefer != "opposite-vendor-of-implementation" && r.Prefer != "any" {
@@ -491,6 +505,9 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 			if err := validateDelegationArgv(agent.Resume.Command, agent.Effort); err != nil {
 				return fmt.Errorf("pose: delegation agent %s resume command: %w", name, err)
 			}
+		}
+		if err := validateTaskFragments(name, agent); err != nil {
+			return err
 		}
 		if agent.Timeout != "" {
 			if d, err := time.ParseDuration(agent.Timeout); err != nil || d <= 0 {
@@ -577,10 +594,39 @@ func validateDelegationHook(hook *DelegationHook) error {
 // delegationPlaceholder names the placeholder an argv element is, or "".
 func delegationPlaceholder(arg string) string {
 	switch arg {
-	case "{output}", "{session}", "{effort}":
+	case "{output}", "{session}", "{effort}", "{outside_git}", "{add_dirs}", "{no_network}":
 		return arg
 	}
 	return ""
+}
+
+// validateTaskFragments checks the task fragments of agent and the resume
+// commands it declares per access (spec pose-delegation-task R3, R4, R8).
+func validateTaskFragments(name string, agent DelegationAgent) error {
+	for label, fragment := range map[string][]string{"outside_git_args": agent.OutsideGitArgs, "add_dir_args": agent.AddDirArgs, "no_network_args": agent.NoNetworkArgs} {
+		dirs := 0
+		for _, arg := range fragment {
+			if arg == "{dir}" {
+				dirs++
+			} else if strings.Contains(arg, "{") {
+				return fmt.Errorf("pose: delegation agent %s: %s carries a placeholder", name, label)
+			}
+		}
+		if label == "add_dir_args" && len(fragment) > 0 && dirs != 1 || label != "add_dir_args" && dirs > 0 {
+			return fmt.Errorf("pose: delegation agent %s: add_dir_args takes {dir} once as a whole element, and the other fragments take none", name)
+		}
+	}
+	if agent.Resume != nil {
+		for access, argv := range agent.Resume.Commands {
+			if !containsString(delegationAccessLevels, access) {
+				return fmt.Errorf("pose: delegation agent %s: resume access %q is not one of %s", name, access, strings.Join(delegationAccessLevels, ", "))
+			}
+			if err := validateDelegationArgv(argv, agent.Effort); err != nil || !containsString(argv, "{session}") {
+				return fmt.Errorf("pose: delegation agent %s resume command %s: it needs {session} as a whole element and a valid argv", name, access)
+			}
+		}
+	}
+	return nil
 }
 
 func validateDelegationArgv(argv []string, effort *ReviewerEffort) error {
@@ -597,7 +643,7 @@ func validateDelegationArgv(argv []string, effort *ReviewerEffort) error {
 			}
 			continue
 		}
-		for _, p := range []string{"{output}", "{session}", "{effort}"} {
+		for _, p := range []string{"{output}", "{session}", "{effort}", "{outside_git}", "{add_dirs}", "{no_network}"} {
 			if strings.Contains(arg, p) {
 				return fmt.Errorf("%s must be a whole argv element, never interpolated", p)
 			}

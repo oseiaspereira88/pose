@@ -1,6 +1,6 @@
 ---
 slug: pose-delegation-task
-status: draft
+status: in-progress
 created_at: 2026-10-26
 completed_at:
 supersedes:
@@ -8,7 +8,7 @@ depends_on: pose-delegation-surface, pose-delegated-review-completion-signal
 priority: 3
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: capability:delegation-task
 ---
 
 # Spec: A general task can be delegated to another agent
@@ -67,19 +67,47 @@ Task front end, access templates, record location and permissions, exclusion fro
 
 ### Artifacts
 
-Implementation artifacts are declared when the spec starts.
+- modified: .pose/specs/2026-10-26-pose-delegation-task.md
+- created: .pose/starts/pose-delegation-task.json
+- created: .pose/changelogs/unreleased/pose-delegation-task.md
+- created: pose-mcp/internal/pose/delegation_task.go
+- modified: pose-mcp/internal/pose/delegation_policy.go
+- modified: pose-mcp/internal/pose/delegation_list.go
+- modified: pose-mcp/internal/pose/delegation_events.go
+- modified: pose-mcp/internal/pose/delegation_routing.go
+- modified: pose-mcp/internal/pose/delegation_wait.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
+- modified: pose-mcp/internal/pose/review_run_continuity.go
+- modified: pose-mcp/internal/pose/review_run_provenance.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- created: pose-mcp/internal/cli/delegate_task.go
+- created: pose-mcp/internal/cli/delegate_task_test.go
+- modified: pose-mcp/internal/cli/delegate.go
+- modified: pose-mcp/internal/cli/delegate_handoff.go
+- modified: pose-mcp/internal/cli/delegate_test.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+
+### Delivery targets
+
+- capability:delegation-task module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/delegate_task.go
 
 ### API/contract changes
 
-`pose delegate task`; policy keys `purposes.task.default_access` and `agents.<name>.outside_git_args`; record location.
+`pose delegate task`; policy keys `purposes.task.default_access`, `agents.<name>.outside_git_args`, `add_dir_args`, `no_network_args` and `resume.commands`, and the template placeholders `{outside_git}`, `{add_dirs}` and `{no_network}` (D3); record location; `pose delegate resume --prompt` for tasks; `wait` exits 0 for a task its agent completed.
 
 ## 4. Tasks
 
-- [ ] Task front end over the shared run lifecycle
-- [ ] Access templates, warnings and refusals
-- [ ] Record location, permissions and `--record`
-- [ ] Exclusion from every review and gate reader
-- [ ] Continuation message and `next_actions`
+- [x] Task front end over the shared run lifecycle
+- [x] Access templates, warnings and refusals
+- [x] Record location, permissions and `--record`
+- [x] Exclusion from every review and gate reader
+- [x] Continuation message and `next_actions`
+- [ ] Independent review and closeout
 
 ## 5. Decisions
 
@@ -98,6 +126,22 @@ Implementation artifacts are declared when the spec starts.
 - Rationale: a write-capable run must never become an approval, whatever the caller intends
 - Consequences: a task that reviews something has to be run as a review
 - Falsifier: an attestation, verdict or closeout that cites a task run
+
+### Decision D3
+- Basis: R3, R4, R8
+- Minimal option: append `--add-dir`, `--no-network` and the outside-Git arguments at the end of the agent's argv
+- Selected option: the agent's template places `{add_dirs}`, `{no_network}` and `{outside_git}` as whole elements, filled from `add_dir_args` (with `{dir}`), `no_network_args` and `outside_git_args`; a flag whose placeholder or fragment is missing is refused with exit 2; a task resumes with `resume.commands` for its access, and a read task may use `resume.command`
+- Rationale: the agents' CLIs read flags at fixed positions (before a trailing `-` for stdin, after a subcommand), so only the template knows where a fragment goes; resuming a write task with the read command would silently drop its access
+- Consequences: an agent without the fragments cannot take those flags, and says so; existing review templates are unchanged
+- Falsifier: a task that ran without the network restriction or the extra directory it was asked for, or a resumed task with another access
+
+### Decision D4
+- Basis: R5, R7
+- Minimal option: record tasks under `.pose/review-runs` with a purpose field every reader filters
+- Selected option: task runs are stored apart (state directory, or `.pose/delegate-runs` with `--record`), read only by the lifecycle commands, with their own identifiers (`tat-` attempts, `trn-` runs) and no attempt reservation or bundle; attestation and provenance refuse a task run by name
+- Rationale: a reader that forgets the filter would turn a task into evidence; storage the review readers never open cannot
+- Consequences: a task has no bundle budget; its continuation budget is the attempt's, as for reviews
+- Falsifier: a review reader, a gate or a closeout that lists a task run
 
 ## 6. Validation
 

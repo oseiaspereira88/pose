@@ -369,7 +369,11 @@ func (s Store) ReadDelegationEvents(run ReviewRun) ([]DelegationEvent, error) {
 	if run.EventsDigest == "" {
 		return nil, nil
 	}
-	raw, err := readBoundedRegular(filepath.Join(s.Root, filepath.FromSlash(delegationEventsPath(run.RunID))), delegationEventsMaxBytes)
+	path := filepath.Join(s.Root, filepath.FromSlash(delegationEventsPath(run.RunID)))
+	if run.eventsDir != "" {
+		path = filepath.Join(run.eventsDir, run.RunID+".events.ndjson")
+	}
+	raw, err := readBoundedRegular(path, delegationEventsMaxBytes)
 	if err != nil {
 		return nil, err
 	}

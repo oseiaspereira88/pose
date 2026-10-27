@@ -246,6 +246,9 @@ func reviewRunCanonicalDigest(run ReviewRun) string {
 	return digestBytes(raw)
 }
 func (s Store) LoadProvenanceReviewRun(id string) (ReviewRun, error) {
+	if s.IsDelegationTaskRun(id) {
+		return ReviewRun{}, ErrDelegationTaskRun(id)
+	}
 	if !regexp.MustCompile(`^rrn-[0-9a-f]{16}$`).MatchString(id) {
 		return ReviewRun{}, fmt.Errorf("invalid provenance run id")
 	}

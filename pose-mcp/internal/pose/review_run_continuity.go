@@ -24,7 +24,10 @@ type ReviewerSession struct {
 	Pattern string `json:"pattern"`
 }
 type ReviewerResume struct {
-	Command     []string `json:"command"`
+	Command []string `json:"command"`
+	// Commands resumes a task with the access it ran with (spec
+	// pose-delegation-task R8); Command is the read access's.
+	Commands    map[string][]string `json:"commands,omitempty"`
 	MaxResumes  int      `json:"max_resumes,omitempty"`
 	MaxWallTime string   `json:"max_wall_time,omitempty"`
 }

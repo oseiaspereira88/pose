@@ -45,9 +45,7 @@ const (
 )
 
 // Subcommands named by the ADR whose behaviour a later spec delivers.
-var delegatePlanned = map[string]string{
-	"task": "pose-delegation-task",
-}
+var delegatePlanned = map[string]string{}
 
 var (
 	delegateLabelRE = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`)
@@ -61,7 +59,9 @@ func tr(english, portuguese string) string { return cliText(cliLocaleValue(), en
 
 type delegateFlags struct {
 	agent, access, label, lead, reason, noteFile string
-	to                                           string
+	to, cd, effort, promptFile                   string
+	addDirs                                      []string
+	noNetwork, record                            bool
 	dryRun, jsonOut, active, wait, detach        bool
 	verbose, noFollow                            bool
 	lines                                        int
@@ -88,7 +88,7 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 			return f, tr("unknown or inapplicable flag "+name, "flag desconhecida ou inaplicável "+name)
 		}
 		switch name {
-		case "--dry-run", "--json", "--active", "--detach", "-v", "--no-follow":
+		case "--dry-run", "--json", "--active", "--detach", "-v", "--no-follow", "--no-network", "--record":
 			if hasInline {
 				return f, tr(name+" takes no value", name+" não recebe valor")
 			}
@@ -101,6 +101,10 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 				f.detach = true
 			case "-v":
 				f.verbose = true
+			case "--no-network":
+				f.noNetwork = true
+			case "--record":
+				f.record = true
 			case "--no-follow":
 				f.noFollow = true
 			default:
@@ -168,6 +172,14 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 				f.timeout = d
 			case "--to":
 				f.to = value
+			case "--cd":
+				f.cd = value
+			case "--add-dir":
+				f.addDirs = append(f.addDirs, value)
+			case "--effort":
+				f.effort = value
+			case "--prompt":
+				f.promptFile = value
 			case "--note-file":
 				f.noteFile = value
 			}
@@ -188,6 +200,8 @@ func cmdDelegate(root string, args []string, stdout, stderr io.Writer) int {
 	switch sub {
 	case posemodel.DelegationPurposeReview, posemodel.DelegationPurposeAdjudicate, posemodel.DelegationPurposeSmoke:
 		return cmdDelegatePurpose(root, sub, rest, stdout, stderr)
+	case posemodel.DelegationPurposeTask:
+		return cmdDelegateTask(root, rest, stdout, stderr)
 	case "ls":
 		return cmdDelegateLs(root, rest, stdout, stderr)
 	case "resume":
@@ -787,9 +801,9 @@ func resumeTarget(attempt posemodel.DelegationAttempt, ref string) (string, erro
 }
 
 func cmdDelegateResume(root string, args []string, stdout, stderr io.Writer) int {
-	f, problem := parseDelegateFlags(args, "--wait-until-reset")
+	f, problem := parseDelegateFlags(args, "--wait-until-reset", "--prompt")
 	if problem != "" {
-		return delegateUsage(stdout, stderr, args, "resume", problem+"\n"+tr("Usage: ", "Uso: ")+"pose delegate resume <run> [--wait-until-reset[=<max>]] [--dry-run] [--json]")
+		return delegateUsage(stdout, stderr, args, "resume", problem+"\n"+tr("Usage: ", "Uso: ")+"pose delegate resume <run> [--wait-until-reset[=<max>]] [--prompt <file|->] [--dry-run] [--json]")
 	}
 	store := cliGovernedStore(root)
 	attempts, _, err := store.ListDelegationAttempts()
@@ -810,6 +824,12 @@ func cmdDelegateResume(root string, args []string, stdout, stderr io.Writer) int
 	target, err := resumeTarget(attempt, ref)
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, err)
+	}
+	if attempt.Purpose == posemodel.DelegationPurposeTask {
+		return cmdDelegateTaskResume(root, store, f, attempt, target, stdout, stderr)
+	}
+	if f.promptFile != "" {
+		return delegateUsage(stdout, stderr, args, "resume", tr("--prompt is for a task; a review is resumed with its own brief", "--prompt é para uma task; uma review é retomada com o próprio brief"))
 	}
 	plan, err := store.PlanReviewResume(target)
 	if err != nil {

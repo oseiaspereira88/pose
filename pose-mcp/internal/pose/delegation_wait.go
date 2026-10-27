@@ -47,6 +47,14 @@ func DelegationWaitOutcome(a DelegationAttempt) (DelegationWaitResult, bool) {
 	}
 	switch latest.Status {
 	case ReviewRunCompleted:
+		// A task concludes nothing (spec pose-delegation-task R7): it succeeded
+		// when its agent did.
+		if latest.Purpose == DelegationPurposeTask {
+			if latest.ExitCode != 0 {
+				result.Code = DelegationWaitFailed
+			}
+			break
+		}
 		result.Decision = draftReviewDecision(latest.Output)
 		switch result.Decision {
 		case "approved":

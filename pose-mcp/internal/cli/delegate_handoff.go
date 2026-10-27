@@ -58,6 +58,9 @@ func cmdDelegateHandoff(root string, args []string, stdout, stderr io.Writer) in
 	if containsString(attempt.Runs, f.positional[0]) {
 		target = f.positional[0]
 	}
+	if attempt.Purpose == posemodel.DelegationPurposeTask {
+		return cmdDelegateTaskHandoff(root, store, f, attempt, *latest, target, stdout, stderr)
+	}
 	agent := f.to
 	var route *posemodel.DelegationRoutingRecord
 	// A run already handed off is continued by that run's agent: repeating
@@ -184,6 +187,9 @@ func delegateNextActions(store posemodel.Store, a posemodel.DelegationAttempt) [
 	latest := a.Latest()
 	if a.Active || latest == nil || latest.Status == posemodel.ReviewRunCompleted || latest.Status == posemodel.ReviewRunStale {
 		return nil
+	}
+	if latest.Purpose == posemodel.DelegationPurposeTask {
+		return delegateTaskNextActions(store, a, *latest)
 	}
 	reason := func(err error) string { return strings.TrimPrefix(err.Error(), "pose: ") }
 	var actions []delegateNextAction

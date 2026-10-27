@@ -74,6 +74,10 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	// Task runs share the lifecycle, never the review history (spec
+	// pose-delegation-task R7, R8).
+	tasks, taskLost := s.ReadDelegationTaskRuns()
+	runs, lost = append(runs, tasks...), append(lost, taskLost...)
 	byAttempt := map[string]*DelegationAttempt{}
 	order := []string{}
 	for i := range runs {
@@ -116,6 +120,9 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 		row.LatestRun, row.State, row.Agent, row.Vendor, row.Model = latest.RunID, latest.Status, latest.Adapter, latest.Vendor, latest.Model
 		row.Label, row.Scope, row.BundleID, row.EndedAt, row.Failure, row.Interruption = latest.Label, latest.Scope, latest.BundleID, latest.EndedAt, latest.Failure, latest.Interruption
 		row.Purpose, row.Lead, row.Access = latest.Purpose, latest.Lead, DelegationAccessRead
+		if latest.Access != "" {
+			row.Access = latest.Access
+		}
 		if hook := s.ReadDelegationHook(latest.RunID); hook != nil {
 			row.HookFailure = hook.Failure
 		}

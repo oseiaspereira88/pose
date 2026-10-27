@@ -195,7 +195,21 @@ type ReviewRun struct {
 	// it achieved against the implementation (spec pose-delegation-routing R8).
 	Routing              *DelegationRoutingRecord `json:"routing,omitempty"`
 	IndependenceAchieved string                   `json:"independence_achieved,omitempty"`
-	Path                 string                   `json:"-"`
+	// A task run (spec pose-delegation-task) records the access it ran with,
+	// its directory and flags, the argv it ran, and the digests of the prompt
+	// and the error stream kept beside its record; Recorded is --record.
+	Access       string   `json:"access,omitempty"`
+	Dir          string   `json:"dir,omitempty"`
+	AddDirs      []string `json:"add_dirs,omitempty"`
+	NoNetwork    bool     `json:"no_network,omitempty"`
+	Recorded     bool     `json:"recorded,omitempty"`
+	Argv         []string `json:"argv,omitempty"`
+	PromptDigest string   `json:"prompt_digest,omitempty"`
+	StderrDigest string   `json:"stderr_digest,omitempty"`
+	Path         string   `json:"-"`
+	// eventsDir is where a task run's files are; a review run's are in
+	// reviewRunsDir.
+	eventsDir string
 }
 
 // Review run states.
