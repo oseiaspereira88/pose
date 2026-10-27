@@ -1,8 +1,8 @@
 ---
 slug: pose-delegation-mcp
-status: in-progress
+status: done
 created_at: 2026-10-26
-completed_at:
+completed_at: 2026-10-27
 supersedes:
 depends_on: pose-delegated-review-completion-signal, pose-delegated-review-round-protocol, pose-delegation-handoff
 priority: 3
@@ -106,7 +106,7 @@ Tools `pose_delegate_start`, `pose_delegate_status`, `pose_delegate_wait`, `pose
 - [x] Shared refusal codes
 - [x] Bounded wait
 - [x] Result redaction
-- [ ] Independent review and closeout
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -150,14 +150,49 @@ Over a fake agent, each tool returns the documented shape; a rerun on an unchang
 
 ### Requirement trace
 
+- R1 [satisfied] Within D4, review/adjudicate/smoke start detached; task start is deferred. D2 returns an attempt handle first and wait resolves the run (F02). test:TestDelegateToolsOverMCPMatchTheCLI capability:delegation-mcp evidence:integration check:delegation-surface-integration commit:f0514d01404e7bed0cfc602f2db065f3e0c6289e
+- R2 [satisfied] Status reports active/terminal state, heartbeat, decision and safe next_actions. test:TestDelegateToolsOverMCPMatchTheCLI test:TestDelegateToolsStatusKeepsFailedAndHidesRunnerErrors evidence:integration check:delegation-surface-integration
+- R3 [satisfied] Wait returns still-running at its bound and the terminal result afterward. test:TestDelegateToolsOverMCPMatchTheCLI test:TestDelegateToolsBoundIsTheOperations evidence:integration check:delegation-surface-integration
+- R4 [satisfied] Resume/handoff share CLI behavior for review and task runs, including repeated predecessor requests with and without task --record; the attempt identifies the successor through wait (F02). test:TestDelegateToolsOverMCPContinueStoppedRuns test:TestDelegateToolsOverMCPReturnAnExistingContinuation test:TestDelegateToolsOverMCPReturnAnExistingTaskContinuation evidence:integration check:delegation-surface-integration
+- R5 [satisfied] Shared typed refusals preserve reason codes across foreground, detach and MCP, including nested routing refusals. test:TestDelegateToolsOverMCPMatchTheCLI test:TestDelegateToolsOverMCPKeepADetachedRoutingRefusal evidence:integration check:delegation-surface-integration
+- R6 [satisfied] D3 resolves one authorized project under the shared default/explicit project contract; denial, unknown and ambiguous selection stop before execution, and the resolved root is carried to the child. test:TestDelegateToolsOverMCPHoldAgainstTheFirstReview evidence:integration check:delegation-surface-integration
+- R7 [satisfied] Results project safe summaries and fixed diagnostics, including failed after repeated projection and runner startup errors. test:TestDelegateToolsProjectWhatTheyReturn test:TestDelegateToolsStatusKeepsFailedAndHidesRunnerErrors test:TestDelegateToolsOverMCPHoldAgainstTheFirstReview evidence:integration check:delegation-surface-integration
+
+Unnumbered non-functional clause (review coverage label R8, not a published requirement ID): Non-functional bound: one shared deadline per call, operation-specific bounds and bounded wait. test:TestDelegateToolsShareOneDeadlinePerCall test:TestDelegateToolsBoundIsTheOperations evidence:integration check:delegation-surface-integration
+
+Unnumbered security clause (review coverage label R9, not a published requirement ID): Security: existing policy/project authorization and shared CLI ledger/containment refusals remain in force; partial output is not an approval. test:TestDelegateToolsOverMCPHoldAgainstTheFirstReview test:TestDelegateToolsOverMCPMatchTheCLI evidence:integration check:delegation-surface-integration
+
+Unnumbered compatibility clause (review coverage label R10, not a published requirement ID): Compatibility: catalog/golden and the full module suite preserve existing MCP tools while adding delegation. test:TestDelegateToolsOverMCPMatchTheCLI report:.pose/results/delivery-validation.json evidence:integration check:delegation-surface-integration
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: milestone `agent-access` of roadmap `delegation`.
+Milestone `agent-access` of roadmap `delegation`: five bounded MCP tools start, inspect, wait for, resume and hand off delegated runs through the shared CLI/domain lifecycle, attempt ledger, authorized project root and typed refusal codes. Results project the normalized summary without private transcript, prompt, session, environment values or host diagnostics. Existing review and task continuations return idempotently through MCP and detached CLI, with task history both private and recorded; a consumed handback is not recreated at terminal.
+
+D3 follows the shared explicit/default project selection contract. D4 limits MCP start to review, adjudicate and smoke; starting a task over MCP remains deferred. F02 preserves the attempt-first identity contract: wait returns the run. This delivery does not close the broader roadmap or its remaining members.
+
+### Independent review and evidence
+
+Approved implementation commit `f0514d01404e7bed0cfc602f2db065f3e0c6289e`, sealed bundle `rvb-557e630823d2fe7a`, attestation `rva-7d020e952840064f`. The maintainer-authorized reviewer `agent:independent-gpt-6.1-sol-review` declares Codex/OpenAI, another vendor than implementer Claude/Anthropic, Claude Opus 5.5. The engine-required independent prefix is a declaration, not authenticated separation; this instance uses unsigned attestations and does not observe cognitive independence. The seal explicitly names `anthropic/claude-opus-5-5`; its missing Anthropic execution/session warning is disclosed and no execution digest was invented. The native domain accepted the explicit review; verify returned fresh, approved and ready-to-close before the guarded lifecycle transition.
+
+All blockers B01–B07 are fixed in the reexecuted cases. F01/F04/F05/F06/F07/F08 are reconciled as fixed; F02 and F03 are accepted only at low severity below and in the operability judgment. Their native finding IDs are `f02` and `f03`. Expiring context and reproduction recipes are retained in knowledge:delegation-mcp-round5, consuming knowledge:delegation-observation-round4, knowledge:delegation-routing-round3 and knowledge:delegated-rounds-legacy-status. Local reports, probes and overlays remain in `.review-work/round1/` through `.review-work/round5/`, deliberately untracked.
+
+### Validation executed
+
+Global strict validation passed 158/158 checks at the implementation head; separate strict pose-mcp validation passed 155/155, with no failures, errors or skips. Canonical machine evidence is `.pose/results/delivery-validation.json`. docs-site declares no validation producer: its selector executed zero checks and its tool disposition explicitly records not-used rather than borrowing Go evidence. Catalog, help and root/scaffold English/Portuguese manuals were compared with runtime behavior.
+
+Independent vet, Windows/Darwin builds, both locale full Go suites (locale C without session markers), selected race checks and redacted Gitleaks passed. All prior probe families and TestRound4 cases were reexecuted. Seven production reversions failed the expected assertions, including omission of existing task handback and removal of the once-only guard. Replay probes preserve attempt, successor and two task runs; the late-handback probe leaves zero residual handbacks.
+
+Strict artifact reconciliation observed all 28 declared artifacts in five implementing commits. Strict surface-check verified capability:delegation-mcp through its production handler and current integration evidence with zero findings. Rule selection, bounded design, component discovery, provider/consumer and debt assessments were executed. The broad debt scan remains incomplete for two unchanged old invalid specs; static unobserved-consumer diagnostics are disclosed limits, not claims of complete repository-wide assurance. Output from discovery and assessments is retained locally and excluded from this closeout commit; only state files produced by native close are included.
+
+The spec publishes R1–R7. The three unnumbered non-functional/security/compatibility clauses are covered in Requirement trace using review labels R8–R10, explicitly not invented published requirement IDs; native close refused such orphan IDs before the trace representation was corrected. Requirements, Technical Plan and Decisions were preserved.
 
 ### Residual risks
 
-None yet.
+F02 limits initial identity presentation; the attempt remains observable and wait resolves the run. F03 is a recovery window of intentional detached execution: cancellation of the transport after reservation can leave the caller without a response while the discoverable run continues. Neither permits duplicate execution beyond the ledger, budget bypass or acceptance of task/partial output as governance evidence. Fake-agent checks establish engine behavior, not a provider receipt or guaranteed reviewer cognition.
 
 ### Follow-ups
+
+- [open] F02: Align the public identity contract with the initial attempt handle or return the new run identity at handback, retaining continuation retry regressions. See knowledge:delegation-mcp-round5. (owner:@oseiaspereira88 crit:low review:2026-11-26)
+- [open] F03: Document recovery and correlate retries after transport timeout/cancellation; consult ls/status before repeating and keep explicit cancellation separate. See knowledge:delegation-mcp-round5. (owner:@oseiaspereira88 crit:low review:2026-11-26)

@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-7d020e952840064f",
+  "bundle_id": "rvb-557e630823d2fe7a",
+  "bundle_digest": "sha256:557e630823d2fe7a7e23ca7a340c6d2d2c49763ed773342b1c48542be3e8f34b",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-6b537b5080df3b02",
+      "rationale": "The maintainer-authorized reviewer agent:independent-gpt-6.1-sol-review declares Codex/OpenAI, another vendor than implementer Claude/Anthropic Opus 5.5. The independent prefix is a declaration and this instance uses unsigned attestations; no cryptographic vendor proof or sealing-session identity is invented. Fake agents prove engine behavior. D3 resolves one authorized default project; D4 excludes task start only. F02 and F03 remain explicit low accepted risks."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Exclusive attempt and continuation claims, budgets, lineage and cancellation remain shared. OnStart and the final handback check are sequential in one CLI process; MCP calls spawn separate processes. B06 and B07 retries return the same existing attempt and successor without another run; F08 no longer recreates consumed handbacks. The independent race selection passed. F03 retains the intentional detached recovery window."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The five MCP tools call the shared CLI and typed refusals. Repeated review and task resume/handoff match foreground behavior over detach/MCP, including private and recorded task history. D3 follows shared project scope; D4 limits start to review/adjudicate/smoke. F02 acknowledges that the initial handle is an attempt and wait returns run identity."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "All five tools refuse denied, unknown and ambiguous project selection before the runner. Flag prefixes, NUL/newline and invalid timeout bounds including overflow refuse. Start phases share one deadline; status cannot gain a write deadline through apply. Nested refusal JSON, braces, no-agent and continuation budgets keep refusal codes; runner startup errors use fixed text."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "CLI dispatch, supervisor handback, MCP projection, status and wait share the same attempt ledger and continuation planning. Existing task and review continuations now return without another agent or budget expenditure. The provider/consumer assessment was executed and read; baseline unobserved external consumers are not a newly broken contract. Current delegation integration passed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Status preserves failed through both projections, while successful status remains completed without a spurious flag. History loss is a count and refusal, runner errors contain no host path, and errors/failure/routing/why do not copy private diagnostics. Attempt and next_actions allow recovery; F02 initial identity and F03 transport cancellation are tracked rather than hidden."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Catalog/golden, help, changelog and all four manuals match the additive tools and detach flags. Existing MCP tools remain covered by the full suite. Existing CLI planning, typed refusals, lineage, task privacy and partial-not-review contracts remain intact. D3/D4 are documented adaptations; no claim is made that task start over MCP is delivered."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "B01 through B07 and F01/F04/F05/F06/F07/F08 are reconciled against current probes. Seven production reversions each fail an assertion, including removing task existing handback and disabling the once-only guard. Foreground/detach/MCP repetitions preserve successor and attempt with two task runs; no extra run, approval from partial, or budget bypass was reproduced."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Current integration proves the registered MCP production entrypoint consumes CLI dispatch, authorization roots, supervisor handback and normalized status/wait. The strict capability surface check has current evidence and no findings. CLI/policy contracts were assessed explicitly. docs-site is checked by source/catalog comparison and has no validation producer; its absence is disclosed rather than credited with pose-mcp execution."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-6b537b5080df3b02",
+      "rationale": "D1/D2 use one CLI/domain implementation for planning, authorization-root transport, budgets, refusals and execution. Typed summary projection closes the reproduced private-text sinks. Returning an existing attempt fixes the no-OnStart branch; remembering publication independently of the consumed file fixes the temporal cause of F08. Native composition ties capability:delegation-mcp to the production handler and current integration evidence."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The tool catalog, golden, docs-site and root/scaffold English/Portuguese manuals were compared to runtime. Status no longer promises private last_step; typed refusal descriptions and bounds agree. Closeout trace explicitly records D3/D4 and F02 instead of claiming task start or immediate new-run identity. F03 recovery documentation remains an owned low follow-up. docs-site has no registered validation producer and no docs test is invented."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Start/resume/handoff return bounded detached attempt handles and wait resolves their outcomes. Existing continuations return on retry; refusal reason codes and safe fixed diagnostics survive transport. Accepted-risk F02 is the initial attempt rather than run handle; accepted-risk F03 is transport cancellation after reservation leaving a discoverable detached run. Both are low, owned by @oseiaspereira88 and due for review 2026-11-26."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "R1 is delivered for review/adjudicate/smoke under D4 with the F02 attempt handle; R4 includes both task and review continuation and returns run through wait. R2/R3 bounded status/wait, R5 typed refusal parity, R6 authorized unambiguous project under D3 and R7 summary redaction pass the composed probes. Bounds/security/compatibility are traced as R8/R9/R10. Current global and module validation pass."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-6b537b5080df3b02",
+      "rationale": "The five additive MCP tools implement the agent-access milestone under the delegation ADR. D3 applies the existing project selection contract and D4 explicitly defers task start; continuing an existing task remains in R4 and now passes. The reviewed change set is the five attributed implementing commits ending f0514d01404e7bed0cfc602f2db065f3e0c6289e. No policy, matrix, capability adoption or unrelated production change was made by the reviewer."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The server admits policy/project identity before running the CLI and DelegateEnv preserves the authorized root, including nested projects. The runner uses the current executable with argv, not shell interpolation. Value probes cover transcript, synthetic credential in filename, session/loss text and nested diagnostics; no forbidden value crosses in reproduced results. Gitleaks found no leak. Continuations preserve budgets and partial cannot become governance approval."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-6b537b5080df3b02",
+      "rationale": "A subprocess wrapper reuses the existing planner and ledger instead of implementing a second lifecycle in MCP. The minimum sufficient fix publishes existing task attempts and records publication once per child. The cost is one process per operation plus preview for start, and fixed bounded diagnostics; streaming, task start and immediate run allocation are not added. Any demonstrated root escape, duplicate continuation, unbounded call or private-value projection invalidates this judgment."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict reconciliation: 28 declared and 28 observed artifacts in five attributed implementing commits. Preexisting global orphan warnings were read and are outside this change."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-6b537b5080df3b02",
+      "rationale": "Executed the bounded design assessment and read the subject, structural observations and decision basis for D1-D4."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed if-stale discovery for docs-site and read language, structure, size and debt. Generated assessment/state output is not delivery source and will not be committed."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed if-stale discovery for pose-mcp and read language, structure, size and debt. Generated assessment/state output is not delivery source and will not be committed."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed and read the CLI/MCP/policy provider-consumer assessment. Static unobserved-consumer baseline is not a newly broken boundary; the sealed delegation integration validates the changed path."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed the scan: one covered TODO, zero uncovered markers, but INCOMPLETE for two unchanged old invalid specs. Changed files were independently inspected; no complete repository-wide debt assurance is claimed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only native gate; execute after this attestation and before close, without circularly claiming prior approval."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only native gate; execute after this attestation and before close, without circularly claiming prior approval."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed component-specific selection for docs-site; applied its declared rules together with security and delivery/knowledge governance."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed component-specific selection for pose-mcp; applied its declared rules together with security and delivery/knowledge governance."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed strict surface check for capability:delegation-mcp: one production-composed target, current integration evidence, zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed strict global validation into the policy results path; every registered check passed. The sealed global evidence binds the implementation head."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Executed module selector and inspected the matrix: docs-site declares producer_coverage none and registers no checks. No build or test evidence is fabricated; source/catalog/manual comparison covers this documentation component."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed strict component validation into the independent module result; every registered check passed. The sealed global evidence binds the implementation head."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "structure:design-6b537b5080df3b02",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "f02",
+      "severity": "low",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "action": "Align the initial attempt handle contract or return run identity at handback",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "The attempt is a working observable handle and wait returns the run; no ledger loss or extra execution was demonstrated",
+      "review_by": "2026-11-26"
+    },
+    {
+      "id": "f03",
+      "severity": "low",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "action": "Document recovery and correlate retries after transport timeout or cancellation",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "Detached execution is intentional and remains discoverable by ledger with budgets preserved; cancelling transport does not cancel the attempt",
+      "review_by": "2026-11-26"
+    }
+  ],
+  "attested_at": "2026-10-27T22:58:17Z",
+  "path": ".pose/review-attestations/rva-7d020e952840064f.json"
+}
