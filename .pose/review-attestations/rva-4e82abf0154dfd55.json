@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-4e82abf0154dfd55",
+  "bundle_id": "rvb-0d0c180fd61d0b2b",
+  "bundle_digest": "sha256:0d0c180fd61d0b2bfeb3a7acb482cf597b9911007ad1ecbd97caaaeb2bcf5365",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Reviewed R1-R10 and D1-D4 on f19a1c7 using synthetic agents, both locales, race tests and 23 detected negative mutations. Real vendor CLIs and non-Linux process containment were not qualified; Windows and Darwin were build-checked. Access and network behavior depend on the declared trusted CLI templates. Identity is declared and local attestations are unsigned."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Cancellation, live markers, exclusive continuation claims and attempt budgets passed. Concurrent resume probes produced one continuation and one refusal. The shared classifier preserves review behavior without extra channels; task stderr is evaluated independently."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The delegation policy additions and task argv placeholders preserve existing review templates and legacy resume.command. Task resume.commands work by access; review resumable remains false without its legacy command. CLI JSON, exit codes and both locales passed."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Unsupported access and flags refuse before execution; no-network with write or full exits 2; missing outside_git placeholder exits 2. Invalid task-only regex and resume bounds are rejected. Output-file, stream and redaction failures keep bounded, safe records."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The registered delegation integration exercises task and review paths together. Task records stay outside review storage, attest and provenance refuse them, and review classifier calls supply no extra channels. Integration assessment observed 64 contracts and 63 unobserved-consumer gaps without attributing those global gaps to this task."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Final stdout, structured JSON, raw redacted streams and normalized events were inspected. Anchored, repeated and conflicting sessions plus stderr limits and resets are reconciled per channel. Failed runs omit an argv whose session redaction did not complete."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Existing review, adjudicate and smoke templates and policy behavior are preserved. The variadic capture helper has the same two-channel behavior for review; only task adds stderr. Legacy review resume and provenance regressions passed. F3 is an open parity follow-up for task detach, outside the enumerated R8 lifecycle acceptance."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "All task and legacy delegation cases passed, including the fixes from rounds 1-3. Independent probes cover access modes, directory and prompt input, private records, final and exit status, watch replay, cancellation, resume, handoff, routing and confidentiality on failure paths."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-10c445bb0629b86e",
+      "rationale": "D1 and D4 separate task storage and tat/trn identities from review evidence so a missed purpose filter cannot grant review authority. D3 places fragments only at template-owned positions. Longest-first single-pass redaction and per-channel recognition address the reproduced privacy and limit causes without altering review channels."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The four manuals remain paired with their scaffolds and explain access, real working directories, record location, templates, stdout, task wait and resume. Help now lists task flags and resume prompt. The changelog matches implemented lifecycle behavior. F3 remains explicitly tracked for parity before launcher retirement."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "ls, watch, wait success 0, cancel, default and custom resume prompts, handoff lineage, renderer version 2 and next_actions were exercised. Terminal choices were tested through a PTY. Exhausted budgets and incompatible flags return actionable diagnostics. A task is never presented as an approval."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Every R1-R10 has current relevant integration coverage on the implemented head, plus independent probes. The local report maps each requirement to its cases. No requirement is waived or deferred; Requirement trace and Final Report are separately gated closeout metadata."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The reviewed subject is pose-delegation-task milestone task of roadmap delegation, implemented through f19a1c723ac66020e6215ad746640cdb892305b3 by Claude Opus 5.5 session f2a4d9f2-d557-4064-ae96-6ed52bb47cd2, principal agent:claude-opus-5-5. Reviewer agent:independent-gpt-6.1-sol-review is maintainer-authorized Codex/OpenAI, another vendor than Claude/Anthropic. The agent:independent- prefix is an engine-required declaration, not a signed identity proof. F3 remains open with owner @oseiaspereira88, medium, review 2026-11-10 for task detach parity; R8 enumerates ls/watch/wait/resume/handoff/cancel."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "No blocker remains in the reproduced confidentiality, authority and containment cases. Overlapping credentials, anchored and conflicting sessions, stream tails and early failures are safe; owner-only task files and separation from governance are preserved. F2 remains open with owner @oseiaspereira88, medium, review 2026-11-10: harden symbolic ancestors of the external state path. Leaf and file permissions remain private and no cross-user disclosure was demonstrated. This is a future hardening item, not a waiver of R5 permissions or R7 authority boundaries."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-10c445bb0629b86e",
+      "rationale": "The task purpose reuses the existing execution lifecycle with separate storage, explicit access templates and bounded captures. Keeping tasks inside the review ledger with only a purpose flag would reduce storage code but violate D4. The implementation adds no scheduler or cross-project authority mechanism; the design must be revisited if a governance gate ever consumes task records."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict check: 25 claims and 25 observed paths across five attributed commits; global orphan warnings are unrelated historical inventory."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-10c445bb0629b86e",
+      "rationale": "Executed the native design assessment: all 24 subject files observed; its input and implementation digests match the sealed structural observation."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed discover with if-stale for pose-mcp; refreshed its changed committed content and matrix assessment. Generated state is excluded from the closeout commit unless close itself produced it."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed integrate for the CLI and policy contract change: 64 contracts evaluated; 63 unobserved-consumer gaps disclosed as global observations, not fabricated task defects."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed assessment: one TODO and zero uncovered markers. Coverage is incomplete for two historical invalid specs; this is not a claim of a globally complete debt scan."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate: requires the applied attestation; execute immediately after it is recorded."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate: requires the applied attestation; execute immediately after it is recorded."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed for pose-mcp and applied backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed strict surface check for capability:delegation-task: zero findings and current scoped provenance matches the registered integration results."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed strict global validation 158 of 158 passed and strict pose-mcp validation 155 of 155 passed; no failed checks; canonical global result was generated against f19a1c7."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed strict global validation 158 of 158 passed and strict pose-mcp validation 155 of 155 passed; no failed checks; canonical global result was generated against f19a1c7."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delegation-surface-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-27T14:19:43Z",
+  "path": ".pose/review-attestations/rva-4e82abf0154dfd55.json"
+}

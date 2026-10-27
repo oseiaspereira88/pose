@@ -241,6 +241,14 @@
       "digest": "sha256:a141f0dc658ab733435146cb2cfc85b932cb822a1910acdec75fb536e3ba16a0"
     },
     {
+      "spec": "pose-delegation-task",
+      "category": "added",
+      "breaking": false,
+      "body": "Add `pose delegate task \u003cprompt-file|-\u003e`: a general task handed to another agent in a real directory (`--cd`) with the access its caller chooses (`read`, `sandboxed`, `write`, `full`; `full` is never a default and warns), `--add-dir`, `--effort` and `--no-network` placed by the agent's template and refused when it cannot carry them. The final message goes to stdout and the agent's exit code is returned. The record is owner-only under the user's state directory, or under `.pose/delegate-runs/` with `--record`; no review reader reads a task and attestation refuses it. `ls`, `watch`, `wait`, `cancel`, `resume` (with a default continuation message or `--prompt`) and `handoff` work on tasks.",
+      "path": "pose-delegation-task.md",
+      "digest": "sha256:6b4b58bb0cfa7cc89b319c1d61275896fb2f24ecc8e34717c7ca294899bed923"
+    },
+    {
       "spec": "pose-distributed-instructions-parity",
       "category": "changed",
       "breaking": false,

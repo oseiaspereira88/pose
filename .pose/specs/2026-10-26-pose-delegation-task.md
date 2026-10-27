@@ -1,8 +1,8 @@
 ---
 slug: pose-delegation-task
-status: in-progress
+status: done
 created_at: 2026-10-26
-completed_at:
+completed_at: 2026-10-27
 supersedes:
 depends_on: pose-delegation-surface, pose-delegated-review-completion-signal
 priority: 3
@@ -108,7 +108,7 @@ Task front end, access templates, record location and permissions, exclusion fro
 - [x] Record location, permissions and `--record`
 - [x] Exclusion from every review and gate reader
 - [x] Continuation message and `next_actions`
-- [ ] Independent review and closeout
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -152,14 +152,42 @@ A fake agent runs a task with each access level, inside and outside a Git reposi
 
 ### Requirement trace
 
+- R1 [satisfied] check:delegation-surface-integration test:TestDelegateTaskRunsWithItsAccessAndRecordsPrivately report:.pose/results/delivery-validation.json commit:f19a1c723ac66020e6215ad746640cdb892305b3 — Prompt stdin and the selected working directory reach the agent.
+- R2 [satisfied] check:delegation-surface-integration test:TestDelegateTaskRefusesWhatItCannotEnforce report:.pose/results/delivery-validation.json commit:f19a1c723ac66020e6215ad746640cdb892305b3 — Access templates, the read/default policy and the full warning/default refusal hold.
+- R3 [satisfied] check:delegation-surface-integration test:TestDelegateTaskRefusesWhatItCannotEnforce report:.pose/results/delivery-validation.json commit:f19a1c723ac66020e6215ad746640cdb892305b3 — Supported fragments reach their template positions; unsupported flags and no-network with write/full exit 2.
+- R4 [satisfied] check:delegation-surface-integration test:TestDelegateTaskPolicyAndBudgetsHold report:.pose/results/delivery-validation.json commit:f19a1c723ac66020e6215ad746640cdb892305b3 — Outside-Git execution receives its declared fragment or refuses a template that cannot carry it.
+- R5 [satisfied] check:delegation-surface-integration test:TestDelegateTaskRunsWithItsAccessAndRecordsPrivately report:.pose/results/delivery-validation.json commit:f19a1c723ac66020e6215ad746640cdb892305b3 — State and --record locations, private permissions, content digests and separate identities hold; redaction failure paths are covered by TestDelegateTaskRedactionHoldsOnEveryPath.
+- R6 [satisfied] check:delegation-surface-integration test:TestDelegateTaskRunsWithItsAccessAndRecordsPrivately report:.pose/results/delivery-validation.json commit:f19a1c723ac66020e6215ad746640cdb892305b3 — Final stdout, agent exit code and one JSON result document are preserved.
+- R7 [satisfied] check:delegation-surface-integration test:TestDelegateTaskIsNeverEvidence report:.pose/results/delivery-validation.json commit:f19a1c723ac66020e6215ad746640cdb892305b3 — Review readers, provenance and attestation refuse task evidence; task records remain physically separate.
+- R8 [satisfied] check:delegation-surface-integration test:TestDelegateTaskResumesAndHandsOff report:.pose/results/delivery-validation.json commit:f19a1c723ac66020e6215ad746640cdb892305b3 — Resume, default prompt, handoff and wait work; TestDelegateTaskKeepsSessionsOutOfItsRecord covers watch replay, session privacy and effort.
+- R9 [satisfied] check:delegation-surface-integration test:TestDelegateTaskResumesAndHandsOff report:.pose/results/delivery-validation.json commit:f19a1c723ac66020e6215ad746640cdb892305b3 — A limited task reports resume and handoff next_actions; terminal choices were independently exercised through a PTY.
+- R10 [satisfied] check:test test:TestSessionIdentityDetectsDeclaresAndNeverGuesses report:.pose/results/delivery-validation.json commit:f19a1c723ac66020e6215ad746640cdb892305b3 — Launching-session identity and TestRouteDelegationStepsInOrder supply the task auto router; an independent CLI probe selected the opposite vendor.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: milestone `task` of roadmap `delegation`.
+Delivered `pose delegate task` on implementation head `f19a1c723ac66020e6215ad746640cdb892305b3`, milestone `task` of roadmap `delegation`: prompt input and real working directory, access templates and explicit fragments, private records outside governance storage, final stdout and agent exit status, structured JSON, observation, cancellation, continuation, handoff and launching-session routing. Tasks never become review evidence. Full launcher parity remains the retirement milestone's responsibility.
+
+Independent review was performed by maintainer-authorized `agent:independent-gpt-6.1-sol-review` (Codex/OpenAI), another vendor than implementer Claude/Anthropic (`agent:claude-opus-5-5`, session `f2a4d9f2-d557-4064-ae96-6ed52bb47cd2`). The engine-required `agent:independent-` prefix is a declaration, not authenticated proof. Local attestations are unsigned; cognitive independence is not observable. The seal declares implementation `anthropic/claude-opus-5-5`; its warning about the absent Anthropic session reference in the sealing environment is expected and retained.
+
+Sealed bundle: [rvb-0d0c180fd61d0b2b](../review-bundles/rvb-0d0c180fd61d0b2b.json). Approved attestation: [rva-4e82abf0154dfd55](../review-attestations/rva-4e82abf0154dfd55.json). `review verify` confirmed fresh, approved review before the guarded native close. The independent review used the backend-go, security, documentation-style and delivery-evidence rules.
+
+### Validation executed
+
+- Native `validate --strict`: 158/158 passed; `validate --strict --module pose-mcp`: 155/155 passed. Canonical evidence: [delivery-validation.json](../results/delivery-validation.json), generated against the implementation head above.
+- Independent `go vet ./...`, Windows and Darwin builds, complete tests in C and pt_BR.UTF-8 locales without inherited agent session markers, and race tests for delegation/handoff/task passed. All Go temporaries used `/var/tmp/pose-work-go`.
+- Twenty-three isolated negative mutations were detected and restored. Probes from rounds 1–3 were rerun, including overlapping credentials, anchored/equal/conflicting sessions, stderr limits, safe failure records and the shared review classifier without task-only channels. No blocker remained in round 4.
+- Strict artifact reconciliation passed with 25 claims and 25 observed paths. Strict surface-check for `capability:delegation-task` passed with zero findings. The design assessment observed all 24 subject files. Integration and debt assessments were executed; their global unobserved-consumer gaps and two historical unreadable specs were disclosed rather than represented as a clean global assessment.
+- The native close required Requirement trace before transitioning; R1–R10 were recorded and the guarded close succeeded on 2026-10-27. Spec and global lint were run, with 454 specs passing the global lint. The roadmap remains non-terminal; its other incomplete milestones are not delivery of this task.
 
 ### Residual risks
 
-None yet.
+Execution trusts the configured agent CLI and operates on the real directory. POSE bounds time and captured output; filesystem, network and credential-file isolation remain the declared agent mode's responsibility. Actual vendor CLIs were not qualified by the synthetic-agent tests, and Windows/Darwin were build-checked rather than runtime-qualified.
+
+F2 is a future hardening item: the external state path accepts a symbolic ancestor while its leaf and record files remain owner-only; no cross-user disclosure was demonstrated. F3 is a parity gap retained for the retirement work: task does not accept `--detach`. Neither item waives an R1–R10 acceptance requirement. The owner and review triggers below are the operational handoff.
 
 ### Follow-ups
+
+- [open] F2: harden traversal and ownership checks for symbolic or writable ancestors of the external task-state path, preserving an explicit contract for XDG_STATE_HOME. (owner:@oseiaspereira88 crit:medium review:2026-11-10)
+- [open] F3: implement task detach and reconcile its behavior with the delegation ADR before the launcher parity gate and retirement. (owner:@oseiaspereira88 crit:medium review:2026-11-10)
