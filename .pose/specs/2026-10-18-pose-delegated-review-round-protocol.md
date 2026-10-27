@@ -1,8 +1,8 @@
 ---
 slug: pose-delegated-review-round-protocol
-status: in-progress
+status: done
 created_at: 2026-10-18
-completed_at:
+completed_at: 2026-10-27
 supersedes:
 depends_on: pose-delegated-review-attempt-ledger, pose-delegated-review-brief, pose-delegation-handoff
 priority: 2
@@ -116,7 +116,7 @@ Brief gains a prior-findings section; the draft gains `prior_findings` and `swee
 - [x] Thread session continuation, forced new sessions and lineage
 - [x] Insights split between continued and cold rounds
 - [x] Insights and the round threshold
-- [ ] Independent review and closeout
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -168,14 +168,41 @@ A fixture scope with three seeded defects reviewed over three rounds by a fake a
 
 ### Requirement trace
 
+- R1 [satisfied] Ledger-derived rounds and lineage are disclosed by verify, delegate ls and insights; test:TestReviewRoundsContinueTheThreadAndAccountForFindings and test:TestReviewRoundsSurviveLossesAndResumes cover recorded and active/continued rounds. The deprecated review status projection has the accepted low follow-up f-r4-01.
+- R2 [satisfied] Prior findings come from the intact ledger, are quoted as data and retain their evidence reference and reviewed commit; test:TestReviewRoundsCarryOpenFindings and test:TestReviewRoundsHoldAgainstTheFirstReview cover carry, stable rendering and tampering refusal.
+- R3 [satisfied] The generated brief requires an account for each open finding and a whole-subject sweep; test:TestValidateRoundDraftRequiresAnAccount and test:TestReviewRoundsContinueTheThreadAndAccountForFindings cover the account and completeness contract.
+- R4 [satisfied] Missing/unevidenced/invented accounts and malformed or ambiguous typed drafts are invalid, never approval; test:TestReviewRoundsRefuseAnIncompleteAccount, test:TestReviewRoundsHoldAgainstTheSecondReview and test:TestReviewRoundsHoldAgainstTheThirdReview cover the negative paths.
+- R5 [satisfied] Partial/not-fixed and unaccounted findings retain their carried identity; local prefixes are reserved and long IDs remain accountable. Verified by test:TestReviewRoundsCarryOpenFindings and test:TestReviewRoundsHoldAgainstTheFirstReview.
+- R6 [satisfied] Continue-thread, explicit cold reasons, vendor/agent changes, threshold, interrupted resumes and lineage are covered by test:TestReviewRoundsContinueTheThreadAndAccountForFindings, test:TestReviewRoundsRefuseAnIncompleteAccount and test:TestReviewRoundsSurviveLossesAndResumes. The independent composed handoff probe also confirmed later-round reuse of the handoff-owned private session, delivering the deferred R10 of pose-delegation-handoff.
+- R7 [satisfied] Per-scope findings, shares, approval round and threshold guidance are covered by test:TestReviewRoundMetricsNeverLowerOrLaunder, test:TestReviewRoundsRefuseAnIncompleteAccount and test:TestReviewRoundsHoldAgainstTheThirdReview.
+- R8 [satisfied] The maximum recorded round survives failed/superseded conclusions; rejecting history stays visible. Verified by test:TestReviewRoundMetricsNeverLowerOrLaunder and check:delegated-attempt-ledger-integration.
+- R9 [satisfied] Continued runs receive the generated full brief and use the same account validator as cold runs; test:TestReviewRoundsContinueTheThreadAndAccountForFindings and test:TestValidateRoundDraftRequiresAnAccount cover the composition. The independent same-agent three-round probe now refuses the original omitted-finding laundering sequence.
+- R10 [satisfied] Continued/cold groups expose trajectory, first approval round and all status shares, in JSON and human output; test:TestReviewRoundsHoldAgainstTheSecondReview, test:TestReviewRoundsHoldAgainstTheThirdReview and test:TestReviewRoundsContinueTheThreadAndAccountForFindings cover the figures and consistent last-ending-run selection.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: opened on 2026-10-18 under roadmap `delegated-review` from the operating experience of the B06 review rounds (see Origin); moved on 2026-10-26 to milestone `rounds` of roadmap `delegation`.
+Milestone `rounds` of roadmap `delegation`: ledger-derived rounds and stable finding identities; a quoted, byte-stable prior-findings section in generated review-brief/2 with review-brief/1 matching preserved; strict pose-draft decisions and account/sweep validation; continued and explicitly cold sessions with private lineage; invalid-draft refusal in wait, proof and run-backed approval; active/terminal disclosure; and per-mode convergence trajectories, shares and approval rounds. Later rounds reuse the session captured by a concluding handoff, delivering the integration deferred as R10 of pose-delegation-handoff.
+
+### Independent review and evidence
+
+Maintainer-authorized reviewer `agent:independent-gpt-6.1-sol-review` (Codex/OpenAI), another vendor than implementer Claude/Anthropic, Claude Opus 5.5 session `f2a4d9f2-d557-4064-ae96-6ed52bb47cd2`. The `agent:independent-` prefix is an engine-required declaration, not authenticated separation. Identity is declared; this instance's attestations are unsigned.
+
+Approved implementation commit `fa0c589aac678fe548e3725f745ba6628cef3e8f`, sealed bundle `rvb-aaec9b9e16165671`, attestation `rva-78b867ebfada5dcb`. The seal explicitly names `anthropic/claude-opus-5-5` from the reviewing Codex environment; its missing Anthropic session-reference warning is expected and no implementation execution digest was invented. Native verify reported fresh, approved and ready-to-close before the guarded lifecycle transition.
+
+All findings from review rounds 1–3 are reconciled as fixed. Round 4 records only the low-severity accepted-risk finding `f-r4-01` below. Expiring operational context and a reproduction recipe are retained in knowledge:delegated-rounds-legacy-status. Complete local reports, overlays and probes remain in `.review-work/round1/` through `.review-work/round4/`, deliberately untracked.
+
+### Validation executed
+
+Global `pose validate --strict`: 158/158 checks passed; component `pose-mcp` strict validation: 155/155 passed; zero failures, errors or skips. Canonical structured evidence is `.pose/results/delivery-validation.json`. Independent vet, Windows/Darwin builds, both locale full suites without session markers, selected race and Dash checks passed. Production omission mutations for R2/R4/R5/R6 were detected; the third-review regression failed against f84812e production. The positive 96-candidate fence corpus, selection permutations and composed handoff-to-next-round session probe passed. The pinned, redacted Gitleaks workflow command passed.
+
+Strict artifact reconciliation observed all 28 declared artifacts across the four implementation/correction commits. Strict surface-check verified the declared capability with zero findings. The bounded design report, component discovery, integration/debt assessment, rule selection and native completion gates were executed; exact outputs are retained in the local round-4 report. The broad debt scan's two unchanged old-spec losses and static unobserved MCP consumers are disclosed assessment limits, not claims of complete repository-wide coverage.
 
 ### Residual risks
 
-None yet.
+The existing executor-declaration and cognitive-assurance limits remain: fake-agent tests establish engine behavior, not a provider receipt or guaranteed reviewer cognition. Continue-thread retains the maintainer-accepted anchoring trade-off under full-brief/account safeguards, explicit cold reasons, threshold and measurable trajectories. The deprecated status presentation gap is accepted only at low severity because canonical delegate ls, persisted runs, verify and approval retain the correct round.
 
 ### Follow-ups
+
+- [open] f-r4-01: Carry round and thread through deprecated review status interrupted summaries and text, or explicitly document its narrower legacy projection before alias retirement; add JSON/text regressions. See knowledge:delegated-rounds-legacy-status. (owner:@oseiaspereira88 crit:low review:2026-11-26)

@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-27T08:19:13Z
-baseline_commit: 94e9b700a9de7fa2fbcbcbfa01c6a1ea392aee86
+generated_at: 2026-10-27T19:02:29Z
+baseline_commit: fa0c589aac678fe548e3725f745ba6628cef3e8f
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:f12044751ef8 -->
+<!-- state:derived hash:25405b91f083 -->
 
-- specs: total=454 draft=25 in-progress=17 blocked=0 done=411 superseded=0 abandoned=1
+- specs: total=454 draft=23 in-progress=17 blocked=0 done=413 superseded=0 abandoned=1
 - roadmaps: total=23 active=3 done=11
 - últimos closeouts:
+  - spec:pose-delegation-task (2026-10-27)
+  - spec:pose-delegated-review-round-protocol (2026-10-27)
   - spec:pose-delegation-handoff (2026-10-27)
-  - spec:pose-delegated-review-run-provenance (2026-10-26)
-  - spec:pose-delegation-surface (2026-10-26)
-  - spec:pose-delegated-adapter-containment (2026-10-26)
   - spec:pose-git-repository-detection-ignores-locale (2026-10-26)
-  - ... e mais 406 (ver `pose_list_specs status:done`)
+  - spec:pose-delegated-review-completion-signal (2026-10-26)
+  - ... e mais 408 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:592a583533db -->
+<!-- state:derived hash:fdbcc685eb36 -->
 
-- abertos: 168
-- por criticidade: high=4 medium=27 low=118 sem-classificação=19
+- abertos: 170
+- por criticidade: high=4 medium=29 low=118 sem-classificação=19
 - vencidos (review < hoje): 30
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
@@ -76,16 +76,16 @@ capacidade.
 - knowledge: total=13 ativo=13 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:8e68285fbc72 -->
+<!-- state:derived hash:57a02a194a0f -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
-- últimos 30 dias: total=66 outcome_ok=42 outcome_outro=24
+- últimos 30 dias: total=65 outcome_ok=41 outcome_outro=24
 - reports revisados (.md): total=278
   - report:pose-abm-capability-adoption.md
   - report:pose-agency-readiness-pilot.md
   - report:pose-v6-2-0-autonomous-work.md
   - report:pose-v7-legacy-cleanup-plan.md
-  - report:2026-10-23-standard-b29-update-preview-source-qualification.md
+  - report:2026-10-pose-open-backlog-reconciliation.md
 
 ## Arquitetura
 <!-- state:derived hash:3926d1e5cceb status:active -->
