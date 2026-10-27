@@ -54,9 +54,22 @@ func supervisorHandback() func(attempt string) error {
 		return nil
 	}
 	return func(attempt string) error {
-		raw, _ := json.Marshal(map[string]string{"attempt": attempt})
-		return posemodel.PublishFile(path, append(raw, '\n'), 0o600, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAbsent})
+		return publishHandback(path, attempt)
 	}
+}
+
+// handedBack records that this process handed an attempt back: the caller
+// consumes the file, so its absence later does not mean nothing was handed
+// back (review round 4, F08).
+var handedBack bool
+
+func publishHandback(path, attempt string) error {
+	raw, _ := json.Marshal(map[string]string{"attempt": attempt})
+	err := posemodel.PublishFile(path, append(raw, '\n'), 0o600, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAbsent})
+	if err == nil {
+		handedBack = true
+	}
+	return err
 }
 
 // handBackRefusal is how a detached run that refuses before it reserves an
@@ -101,16 +114,23 @@ func readRefusal(path string) map[string]any {
 // detached caller returns it as the foreground command does (review round 3,
 // B06). A run that started handed its attempt back already.
 func handBackExisting(run posemodel.ReviewRun, err error) {
+	if err == nil {
+		handBackAttempt(run.AttemptID)
+	}
+}
+
+// handBackAttempt hands attempt back unless this process handed one back
+// already; a task's existing continuation goes through it too (review round
+// 4, B07).
+func handBackAttempt(attempt string) {
 	path := os.Getenv(delegateHandback)
-	if path == "" || err != nil || run.AttemptID == "" {
+	if path == "" || attempt == "" || handedBack {
 		return
 	}
 	if _, statErr := os.Stat(path); statErr == nil {
 		return
 	}
-	if publish := supervisorHandback(); publish != nil {
-		_ = publish(run.AttemptID)
-	}
+	_ = publishHandback(path, attempt)
 }
 
 func readHandback(path string) string {

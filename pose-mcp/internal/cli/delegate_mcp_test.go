@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -277,5 +278,64 @@ func TestDelegateToolsOverMCPReturnAnExistingContinuation(t *testing.T) {
 		if replay := call("pose_delegate_wait", map[string]any{"run": attempt, "timeout_seconds": 60}); replay["run"] != done["run"] {
 			t.Fatalf("%s repeated ran again: %v, first %v", op, replay, done)
 		}
+	}
+}
+
+// Review round 4, B07: a task's existing continuation, too, is returned
+// detached and over MCP as the foreground CLI returns it, with and without
+// --record, and no agent runs again.
+func TestDelegateToolsOverMCPReturnAnExistingTaskContinuation(t *testing.T) {
+	for _, record := range []bool{true, false} {
+		for _, op := range []string{"resume", "handoff"} {
+			t.Run(fmt.Sprintf("%s/record=%t", op, record), func(t *testing.T) {
+				root, _, prompt := taskInstance(t)
+				initial := []string{"delegate", "task", prompt, "--agent", "limited", "--json"}
+				if record {
+					initial = append(initial, "--record")
+				}
+				runPoseSplit(t, root, initial...)
+				runs, lost := posemodel.Store{Root: root}.ReadDelegationTaskRuns()
+				if len(runs) != 1 || len(lost) > 0 {
+					t.Fatalf("runs %d, lost %v", len(runs), lost)
+				}
+				predecessor := runs[0].RunID
+				call := delegateMCP(t, root)
+				args := map[string]any{"run": predecessor, "apply": true}
+				cli := []string{"delegate", op, predecessor, "--json"}
+				if op == "handoff" {
+					args["to"] = "worker"
+					cli = append(cli, "--to", "worker")
+				}
+				first := call("pose_delegate_"+op, args)
+				attempt, _ := first["attempt"].(string)
+				done := call("pose_delegate_wait", map[string]any{"run": attempt, "timeout_seconds": 30})
+				if attempt == "" || done["state"] != "completed" {
+					t.Fatalf("first %v, then %v", first, done)
+				}
+				again := call("pose_delegate_"+op, args)
+				code, out := runBuilt(t, root, append(cli, "--detach")...)
+				if again["attempt"] != attempt || again["refused"] != nil || code != 0 || !strings.Contains(out, attempt) {
+					t.Fatalf("repeated: MCP %v, --detach %d %s", again, code, out)
+				}
+				after, _ := posemodel.Store{Root: root}.ReadDelegationTaskRuns()
+				if len(after) != 2 {
+					t.Fatalf("a repeat ran an agent: %d runs", len(after))
+				}
+			})
+		}
+	}
+}
+
+// Review round 4, F08: a run that started hands its attempt back once; the
+// file the caller consumed is not written again when the run ends.
+func TestDetachedRunHandsBackOnce(t *testing.T) {
+	root := dispatchInstance(t)
+	writeDelegation(t, root, delegationPolicy(`"slow": {"vendor": "test", "model": "s-1", "commands": {"read": ["sh", "-c", "cat >/dev/null; sleep 1; echo decision: approved"]}}`))
+	call := delegateMCP(t, root)
+	started := call("pose_delegate_start", map[string]any{"purpose": "review", "target": "spec:alpha", "agent": "slow", "apply": true})
+	call("pose_delegate_wait", map[string]any{"run": started["attempt"], "timeout_seconds": 30})
+	time.Sleep(500 * time.Millisecond)
+	if left, _ := filepath.Glob(filepath.Join(root, ".pose", "review-private", "supervisors", "*.handback*")); len(left) != 0 {
+		t.Fatalf("hand-backs left: %v", left)
 	}
 }

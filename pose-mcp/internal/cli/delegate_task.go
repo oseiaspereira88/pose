@@ -284,6 +284,7 @@ func cmdDelegateTaskResume(root string, store posemodel.Store, f delegateFlags, 
 		}
 	}
 	if plan.Existing != nil {
+		handBackAttempt(plan.Existing.AttemptID)
 		return delegatePrintTask(stdout, stderr, f.jsonOut, "resume", *plan.Existing, nil)
 	}
 	return runDelegateTask(root, store, ctx, plan, f, "resume", map[string]any{"resumes": target, "attempt": attempt.AttemptID}, stdout, stderr)
@@ -316,6 +317,7 @@ func cmdDelegateTaskHandoff(root string, store posemodel.Store, f delegateFlags,
 		return delegateTaskFail(stdout, stderr, f.jsonOut, "handoff", err, nil)
 	}
 	if plan.Existing != nil {
+		handBackAttempt(plan.Existing.AttemptID)
 		return delegatePrintTask(stdout, stderr, f.jsonOut, "handoff", *plan.Existing, nil)
 	}
 	plan.Routing = route
