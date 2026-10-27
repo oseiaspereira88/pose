@@ -51,18 +51,20 @@ func nextReviewRound(t *testing.T, root, change string) {
 // for them; it marks whether it ran its resume command, so a continued
 // thread shows. sloppy omits a prior finding.
 func roundsAgent(name, vendor string, sloppy bool) string {
-	prior := `{\"id\":\"R1-B1\",\"status\":\"fixed\",\"evidence\":\"lib.go:2\"},{\"id\":\"R1-B2\",\"status\":\"partial\",\"evidence\":\"half done\"}`
+	prior := `{"id":"R1-B1","status":"fixed","evidence":"lib.go:2"},{"id":"R1-B2","status":"partial","evidence":"half done"}`
 	if sloppy {
-		prior = `{\"id\":\"R1-B1\",\"status\":\"fixed\",\"evidence\":\"lib.go:2\"}`
+		prior = `{"id":"R1-B1","status":"fixed","evidence":"lib.go:2"}`
 	}
-	script := `in=$(cat); echo "session: rounds-sess-01"; [ -n "$1" ] && echo RESUMED-$1;
-if printf '%s' "$in" | grep -q 'This is round 2'; then
-  printf 'decision: approved\n` + "```pose-draft" + `\n{\"schema\":\"pose.review.draft/v1\",\"decision\":\"approved\",\"findings\":[],\"prior_findings\":[` + prior + `],\"sweep\":\"the whole change\"}\n` + "```" + `\n';
-else
-  printf 'decision: changes-requested\n` + "```pose-draft" + `\n{\"schema\":\"pose.review.draft/v1\",\"decision\":\"changes-requested\",\"findings\":[{\"id\":\"B1\",\"severity\":\"high\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/lib.go\",\"line\":1,\"summary\":\"first defect\"},{\"id\":\"B2\",\"severity\":\"medium\",\"disposition\":\"blocker\",\"summary\":\"second defect\"}]}\n` + "```" + `\n';
-fi`
-	argv, _ := json.Marshal([]string{"sh", "-c", strings.ReplaceAll(script, "\n", " "), "x"})
-	resume, _ := json.Marshal([]string{"sh", "-c", strings.ReplaceAll(script, "\n", " "), "x", "{session}"})
+	// The drafts sit in single-quoted shell words and are printed with %s:
+	// no printf escape, so every sh prints them alike.
+	second := `{"schema":"pose.review.draft/v1","decision":"approved","findings":[],"prior_findings":[` + prior + `],"sweep":"the whole change"}`
+	first := `{"schema":"pose.review.draft/v1","decision":"changes-requested","findings":[{"id":"B1","severity":"high","disposition":"blocker","file":"pose-mcp/lib.go","line":1,"summary":"first defect"},{"id":"B2","severity":"medium","disposition":"blocker","summary":"second defect"}]}`
+	fence := "```"
+	script := `in=$(cat); echo "session: rounds-sess-01"; [ -n "$1" ] && echo RESUMED-$1; ` +
+		`if printf '%s' "$in" | grep -q 'This is round 2'; then printf '%s\n' 'decision: approved' '` + fence + `pose-draft' '` + second + `' '` + fence + `'; ` +
+		`else printf '%s\n' 'decision: changes-requested' '` + fence + `pose-draft' '` + first + `' '` + fence + `'; fi`
+	argv, _ := json.Marshal([]string{"sh", "-c", script, "x"})
+	resume, _ := json.Marshal([]string{"sh", "-c", script, "x", "{session}"})
 	return `"` + name + `": {"vendor": "` + vendor + `", "model": "` + name + `-1", "timeout": "30s",
       "commands": {"read": ` + string(argv) + `},
       "session": {"pattern": "session: (\\S+)"},
@@ -103,7 +105,7 @@ func TestReviewRoundsContinueTheThreadAndAccountForFindings(t *testing.T) {
 	}
 	nextReviewRound(t, root, "fix B1")
 	brief, err := posemodel.Store{Root: root}.RenderReviewBrief("spec:alpha", "review", "")
-	if err != nil || !strings.Contains(brief.Text, "This is round 2") || !strings.Contains(brief.Text, "- R1-B1 (high, blocker, round 1) pose-mcp/lib.go:1 — first defect") {
+	if err != nil || !strings.Contains(brief.Text, "This is round 2") || !strings.Contains(brief.Text, "> R1-B1 (high, blocker, round 1) at pose-mcp/lib.go:1 — first defect") {
 		t.Fatalf("round 2 brief: %v\n%s", err, brief.Text)
 	}
 	second := roundRun(t, root, "rounder")
@@ -119,7 +121,7 @@ func TestReviewRoundsContinueTheThreadAndAccountForFindings(t *testing.T) {
 		t.Fatalf("verify: %s", out)
 	}
 	code, out := runPose(t, root, "insights", "--json")
-	if code != 0 || !strings.Contains(out, `"rounds"`) || !strings.Contains(out, `"scope":"spec:alpha"`) || !strings.Contains(out, `"rounds_to_approval":2`) || !strings.Contains(out, `"continued":{"rounds":1,"fixed":1,"partial":1`) {
+	if code != 0 || !strings.Contains(out, `"rounds"`) || !strings.Contains(out, `"scope":"spec:alpha"`) || !strings.Contains(out, `"rounds_to_approval":2`) || !strings.Contains(out, `"continued":{"rounds":1,"invalid_rounds":0,"findings":0,"approvals":1,"accounted":2,"fixed":1,"partial":1`) {
 		t.Fatalf("insights: %d %s", code, out)
 	}
 }
@@ -170,5 +172,59 @@ func TestReviewRoundsRefuseAnIncompleteAccount(t *testing.T) {
 	}
 	if code, out, _ := runPoseSplit(t, root, "delegate", "ls", late["run"].(string), "--json"); code != 0 || !strings.Contains(out, `"round": 2`) {
 		t.Fatalf("ls does not show the round: %d %s", code, out)
+	}
+}
+
+// Review round 1, B9, B10, B11: a bundle of an earlier round that cannot be
+// read makes the brief refuse rather than fall back to round 1; ls and
+// insights show the round in text; a resume in round 2 keeps its thread.
+func TestReviewRoundsSurviveLossesAndResumes(t *testing.T) {
+	root := dispatchInstance(t)
+	writeDelegation(t, root, delegationPolicy(roundsAgent("rounder", "other", false)))
+	first := roundRun(t, root, "rounder")
+	nextReviewRound(t, root, "fix B1")
+	if code, out, _ := runPoseSplit(t, root, "delegate", "ls", first["run"].(string)); code != 0 || !strings.Contains(out, "round=1") {
+		t.Fatalf("ls text: %d %s", code, out)
+	}
+	if code, out := runPose(t, root, "insights"); code != 0 || !strings.Contains(out, "stats.delegated.rounds.spec:alpha=rounds=1") {
+		t.Fatalf("insights text: %d %s", code, out)
+	}
+	bundle := runRecord(t, root, first["run"].(string)).BundleID
+	path := filepath.Join(root, ".pose", "review-bundles", bundle+".json")
+	saved, _ := os.ReadFile(path)
+	_ = os.WriteFile(path, []byte("{"), 0o644)
+	if _, err := (posemodel.Store{Root: root}).RenderReviewBrief("spec:alpha", "review", ""); err == nil {
+		t.Fatal("a lost bundle of round 1 let round 2 be briefed as round 1")
+	}
+	_ = os.WriteFile(path, saved, 0o644)
+	marker := filepath.Join(t.TempDir(), "stopped")
+	limited := strings.Replace(roundsAgent("rounder", "other", false), `"session": {`, `"limit": {"exit_codes": [75]}, "session": {`, 1)
+	limited = strings.ReplaceAll(limited, `[ -n \"$1\" ] \u0026\u0026 echo RESUMED-$1;`, `[ -n \"$1\" ] \u0026\u0026 [ ! -e `+marker+` ] \u0026\u0026 touch `+marker+` \u0026\u0026 echo partial \u0026\u0026 exit 75;`)
+	if !strings.Contains(limited, marker) {
+		t.Fatal("the limited agent was not built")
+	}
+	writeDelegation(t, root, delegationPolicy(limited))
+	code, out, errOut := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--agent", "rounder", "--json", "--reason", "round 2")
+	var stopped map[string]any
+	if json.Unmarshal([]byte(out), &stopped) != nil || stopped["status"] != "interrupted" {
+		if run, ok := stopped["run"].(string); ok {
+			r := runRecord(t, root, run)
+			t.Logf("thread=%+v output=%q", r.Thread, r.Output)
+		}
+		t.Fatalf("round 2 did not stop: %d %s %s", code, out, errOut)
+	}
+	if r := runRecord(t, root, stopped["run"].(string)); r.Round != 2 || r.Thread == nil || r.Thread.Mode != posemodel.ReviewThreadContinued {
+		t.Fatalf("the stopped round 2: round=%d thread=%+v", r.Round, r.Thread)
+	}
+	code, out, errOut = runPoseSplit(t, root, "delegate", "resume", stopped["run"].(string), "--json")
+	var resumed map[string]any
+	if json.Unmarshal([]byte(out), &resumed) != nil || resumed["status"] != "completed" {
+		t.Fatalf("resume: %d %s %s", code, out, errOut)
+	}
+	if r := runRecord(t, root, resumed["run"].(string)); r.Round != 2 || r.Thread == nil || r.Thread.Mode != posemodel.ReviewThreadContinued || len(r.DraftProblems) != 0 {
+		t.Fatalf("the resumed round 2 lost its lineage: round=%d thread=%+v problems=%v", r.Round, r.Thread, r.DraftProblems)
+	}
+	if _, out := runPose(t, root, "insights", "--json"); !strings.Contains(out, `"continued":{"rounds":1`) {
+		t.Fatalf("a resumed continued round counted as cold: %s", out)
 	}
 }

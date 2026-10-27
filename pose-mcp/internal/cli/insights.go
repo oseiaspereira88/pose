@@ -417,6 +417,10 @@ func cmdStats(root string, args []string, stdout, stderr io.Writer) int {
 		for _, row := range result.DelegatedReview.ByBundle {
 			render(stdout, stderr).Field("stats.delegated.bundle."+row.Key, fmt.Sprintf("runs=%d attempts=%d resumes=%d reruns=%d reruns_without_reason=%d", row.Runs, row.Attempts, row.Resumes, row.Reruns, row.RerunsWithoutReason))
 		}
+		// Convergence per scope (spec pose-delegated-review-round-protocol R7, R10).
+		for _, m := range result.DelegatedReview.Rounds {
+			render(stdout, stderr).Field("stats.delegated.rounds."+m.Scope, roundsSummary(m))
+		}
 		for _, row := range result.DelegatedReview.ByAdapter {
 			rate := "unknown"
 			if row.ApprovalRate != nil {
@@ -556,9 +560,36 @@ func renderStatsHTML(workflows, tasks []statRow, scanned, invalid int, specs spe
 }
 func usageError(w io.Writer, msg string) int { fmt.Fprintln(w, msg); return 2 }
 
+// roundsSummary renders one scope's round figures for a person.
+func roundsSummary(m posepkg.ReviewRoundMetric) string {
+	approval := "none"
+	if m.RoundsToApproval != nil {
+		approval = strconv.Itoa(*m.RoundsToApproval)
+	}
+	findings := make([]string, len(m.FindingsPerRound))
+	for i, n := range m.FindingsPerRound {
+		findings[i] = strconv.Itoa(n)
+	}
+	mode := func(c posepkg.ReviewRoundConvergence) string {
+		fixed := "unknown"
+		if c.FixedShare != nil {
+			fixed = fmt.Sprintf("%.2f", *c.FixedShare)
+		}
+		return fmt.Sprintf("rounds=%d invalid=%d fixed=%d partial=%d not_fixed=%d fixed_share=%s", c.Rounds, c.InvalidRounds, c.Fixed, c.Partial, c.NotFixed, fixed)
+	}
+	return fmt.Sprintf("rounds=%d findings_per_round=%s invalid=%d rounds_to_approval=%s; continued: %s; cold: %s", m.Rounds, strings.Join(findings, ","), m.InvalidRounds, approval, mode(m.Continued), mode(m.Cold))
+}
+
 func renderDelegatedReviewHTML(metrics *posepkg.DelegatedReviewInsights) string {
 	var b strings.Builder
 	b.WriteString("<section><h2>Delegated review drafts</h2><p>Declared draft outcomes, not verified approvals. Coverage complete: " + strconv.FormatBool(metrics.CoverageComplete) + "</p>")
+	if len(metrics.Rounds) > 0 {
+		b.WriteString("<h3>Review rounds</h3><table><tr><th>Scope</th><th>Rounds and convergence</th></tr>")
+		for _, m := range metrics.Rounds {
+			b.WriteString("<tr><td>" + html.EscapeString(m.Scope) + "</td><td>" + html.EscapeString(roundsSummary(m)) + "</td></tr>")
+		}
+		b.WriteString("</table>")
+	}
 	for _, group := range []struct {
 		name string
 		rows []posepkg.DelegatedReviewMetric

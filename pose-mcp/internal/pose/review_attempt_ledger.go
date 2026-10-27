@@ -473,8 +473,10 @@ func (s Store) ReviewRunHistoryFindings() ([]string, error) {
 	return uniqueSorted(findings), nil
 }
 
+// legacyReviewDecision reads the decision line of a final message; a
+// pose-draft block, when present, decides instead (draftReviewDecision).
 // DraftDecision is telemetry about an adapter's text, not verified authority.
-func draftReviewDecision(output string) string {
+func legacyReviewDecision(output string) string {
 	decision := ""
 	for _, line := range strings.Split(output, "\n") {
 		key, value, ok := strings.Cut(strings.TrimSpace(line), ":")
@@ -551,13 +553,16 @@ func (s Store) reviewRunSummaries(scope string) ([]ReviewRunSummary, []string) {
 }
 
 type DelegatedReviewMetric struct {
-	Resumes             int      `json:"resumes"`
-	Key                 string   `json:"key"`
-	Runs                int      `json:"runs"`
-	Attempts            int      `json:"attempts"`
-	ApprovedDrafts      int      `json:"approved_drafts"`
-	RejectingDrafts     int      `json:"rejecting_drafts"`
-	UnknownDrafts       int      `json:"unknown_drafts"`
+	Resumes         int    `json:"resumes"`
+	Key             string `json:"key"`
+	Runs            int    `json:"runs"`
+	Attempts        int    `json:"attempts"`
+	ApprovedDrafts  int    `json:"approved_drafts"`
+	RejectingDrafts int    `json:"rejecting_drafts"`
+	UnknownDrafts   int    `json:"unknown_drafts"`
+	// InvalidDrafts are drafts that do not account for their round (spec
+	// pose-delegated-review-round-protocol R4): never approvals.
+	InvalidDrafts       int      `json:"invalid_drafts"`
 	Reruns              int      `json:"reruns_without_bundle_change"`
 	RerunsWithoutReason int      `json:"reruns_without_reason"`
 	ApprovalRate        *float64 `json:"approval_rate"`
@@ -690,8 +695,13 @@ func (s Store) delegatedReviewInsights(sinceDays int) *DelegatedReviewInsights {
 			decision := "unknown"
 			if run.Status == ReviewRunCompleted && run.SupersededBy == "" && reviewSafetyConflict(run) == "" {
 				decision = draftReviewDecision(run.Output)
+				if len(run.DraftProblems) > 0 {
+					decision = "invalid"
+				}
 			}
 			switch decision {
+			case "invalid":
+				r.InvalidDrafts++
 			case "approved":
 				r.ApprovedDrafts++
 			case "changes-requested", "rejected":

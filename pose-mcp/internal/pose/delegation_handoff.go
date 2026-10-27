@@ -322,6 +322,7 @@ func (s Store) PlanReviewHandoff(id, agent string) (DispatchPlan, error) {
 	plan := DispatchPlan{predecessor: prior, handoff: true, handoffSection: section, notes: prior.BriefNotes, Reason: prior.Reason,
 		PolicyDigest: directoryDigestIn(s.fsys(), filepath.Join(s.Root, ".pose", "policy")), OriginWorktree: origin, Adapter: agent, Config: config,
 		Brief: handoffBrief, Bundle: bundle, SealedCommit: prior.SealedCommit}
+	continuationRound(&plan, *prior, true)
 	if e = s.checkDispatchOrigin(plan); e != nil {
 		return DispatchPlan{}, e
 	}

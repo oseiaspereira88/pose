@@ -364,8 +364,9 @@ type DispatchPlan struct {
 	handoff        bool
 	handoffSection string
 	session        string
-	// thread is how a round after the first relates to the previous round's
-	// session.
+	// round is the round of the scope the run reviews, and thread how a
+	// round after the first relates to the previous round's session.
+	round  int
 	thread *ReviewThread
 	// extraChannels are outputs the interruption classifier reads beside the
 	// transcript and the output, each on its own: a task's stderr.
@@ -597,7 +598,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	run := ReviewRun{Provenance: plan.provenance, BriefNotes: plan.notes, LimitOf: plan.LimitOf, SchemaVersion: 1, Scope: plan.Brief.Scope, BundleID: plan.Bundle.BundleID, BundleDigest: plan.Bundle.BundleDigest,
 		SealedCommit: plan.SealedCommit, Kind: plan.Brief.Kind, BriefDigest: plan.Brief.Digest, Adapter: plan.Adapter,
 		Vendor: plan.Config.Vendor, Model: plan.Config.Model, Reason: plan.Reason, PolicyDigest: plan.PolicyDigest, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1,
-		Label: plan.Label, Purpose: plan.Purpose, Lead: plan.Lead, Events: plan.Config.Events, Routing: plan.Routing, Thread: plan.thread}
+		Label: plan.Label, Purpose: plan.Purpose, Lead: plan.Lead, Events: plan.Config.Events, Routing: plan.Routing, Round: plan.round, Thread: plan.thread}
 	impl := plan.Implementation()
 	run.IndependenceAchieved = AchievedIndependence(impl.Vendor, impl.Model, plan.Config.Vendor, plan.Config.Model)
 	safety, err := ResolveReviewerContainment(plan.Config)

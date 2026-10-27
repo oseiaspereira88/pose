@@ -753,6 +753,9 @@ func cmdDelegateLs(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		for _, a := range selected {
 			value := fmt.Sprintf("state=%s purpose=%s agent=%s turns=%d age=%s", a.State, a.Purpose, a.Agent, a.Turns, delegateAge(a.StartedAt))
+			if a.Round > 0 {
+				value += fmt.Sprintf(" round=%d", a.Round)
+			}
 			if a.Label != "" {
 				value += " label=" + a.Label
 			}
