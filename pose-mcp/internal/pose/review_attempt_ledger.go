@@ -298,10 +298,10 @@ func (s Store) reviewAttemptAdmission(plan DispatchPlan) ([]DelegatedReviewAttem
 		}
 	}
 	if count >= effectiveReviewMaxRuns(plan.Config) {
-		return nil, count, fmt.Errorf("budget exhausted: %d attempt(s) of %s on this bundle, at most %d", count, plan.Adapter, effectiveReviewMaxRuns(plan.Config))
+		return nil, count, refusal(DelegationReasonBudgetExhausted, fmt.Errorf("budget exhausted: %d attempt(s) of %s on this bundle, at most %d", count, plan.Adapter, effectiveReviewMaxRuns(plan.Config)))
 	}
 	if completed && strings.TrimSpace(plan.Reason) == "" {
-		return nil, count, fmt.Errorf("completed run exists on unchanged bundle; an explicit --reason is required")
+		return nil, count, refusal(DelegationReasonRerunWithoutReason, fmt.Errorf("completed run exists on unchanged bundle; an explicit --reason is required"))
 	}
 	return attempts, count, nil
 }

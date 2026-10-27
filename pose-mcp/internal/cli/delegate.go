@@ -243,6 +243,11 @@ func delegateFail(stdout, stderr io.Writer, jsonOut bool, command string, code i
 	msg := strings.TrimPrefix(err.Error(), "pose: ")
 	if jsonOut {
 		doc := map[string]any{"schema": delegateErrorSchema, "command": command, "error": msg}
+		// The reason code of a refusal is the same over MCP (spec
+		// pose-delegation-mcp R5).
+		if code := posemodel.DelegationReasonCode(err); code != "" {
+			doc["reason_code"] = code
+		}
 		var ambiguous *posemodel.ErrDelegationRefAmbiguous
 		if errors.As(err, &ambiguous) {
 			doc["candidates"] = ambiguous.Candidates
@@ -436,7 +441,7 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	if err != nil {
 		var none *posemodel.ErrNoDelegationAgentAvailable
 		if errors.As(err, &none) && f.jsonOut {
-			writeDelegateJSON(stdout, map[string]any{"schema": delegateErrorSchema, "command": purpose, "error": strings.TrimPrefix(err.Error(), "pose: "), "routing": none.Record})
+			writeDelegateJSON(stdout, map[string]any{"schema": delegateErrorSchema, "command": purpose, "error": strings.TrimPrefix(err.Error(), "pose: "), "routing": none.Record, "reason_code": posemodel.DelegationReasonCode(err)})
 			return code
 		}
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, code, err)
@@ -817,9 +822,17 @@ func resumeTarget(attempt posemodel.DelegationAttempt, ref string) (string, erro
 }
 
 func cmdDelegateResume(root string, args []string, stdout, stderr io.Writer) int {
-	f, problem := parseDelegateFlags(args, "--wait-until-reset", "--prompt")
+	f, problem := parseDelegateFlags(args, "--wait-until-reset", "--prompt", "--detach")
 	if problem != "" {
-		return delegateUsage(stdout, stderr, args, "resume", problem+"\n"+tr("Usage: ", "Uso: ")+"pose delegate resume <run> [--wait-until-reset[=<max>]] [--prompt <file|->] [--dry-run] [--json]")
+		return delegateUsage(stdout, stderr, args, "resume", problem+"\n"+tr("Usage: ", "Uso: ")+"pose delegate resume <run> [--wait-until-reset[=<max>]] [--prompt <file|->] [--detach] [--dry-run] [--json]")
+	}
+	// A detached resume is this command run again in its own session (spec
+	// pose-delegation-mcp R4); it hands its attempt back once it starts.
+	if f.detach && !f.dryRun && !delegateSupervised() {
+		if f.wait {
+			return delegateUsage(stdout, stderr, args, "resume", tr("--detach does not wait for a reset: resume after it, or without --detach", "--detach não espera um reset: retome depois dele, ou sem --detach"))
+		}
+		return detachDelegateRun(root, "resume", args, f, stdout, stderr)
 	}
 	store := cliGovernedStore(root)
 	attempts, _, err := store.ListDelegationAttempts()
@@ -899,6 +912,9 @@ func cmdDelegateResume(root string, args []string, stdout, stderr io.Writer) int
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+	if delegateSupervised() {
+		plan.OnStart = supervisorHandback()
+	}
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	delegateTerminalHook(store, run, err, stdout, stderr, "resume")
 	code = delegatePrintRun(stdout, stderr, f.jsonOut, "resume", run, err, delegateRunNextActions(store, run, err)...)

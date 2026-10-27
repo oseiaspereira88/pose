@@ -332,7 +332,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 			{"--reason <text>", "Why a run is repeated on an unchanged bundle (attempt ledger)", "Por que um run se repete num bundle inalterado (ledger de tentativas)"},
 			{"--note-file <path>", "Labelled implementer notes appended to the brief", "Notas rotuladas do implementador anexadas ao brief"},
 			{"--to <agent|auto>", "handoff: the agent that continues the stopped run; auto routes, the stopped agent excluded", "handoff: o agente que continua o run parado; auto roteia, excluindo o agente parado"},
-			{"--detach", "Start the run in a session of its own and return its attempt at once (review, adjudicate, smoke)", "Inicia o run numa sessão própria e devolve a tentativa na hora (review, adjudicate, smoke)"},
+			{"--detach", "Start the run in a session of its own and return its attempt at once (review, adjudicate, smoke, resume, handoff)", "Inicia o run numa sessão própria e devolve a tentativa na hora (review, adjudicate, smoke, resume, handoff)"},
 			{"--cd <dir>", "task: the directory the agent runs in (default: the current one)", "task: o diretório onde o agente roda (padrão: o atual)"},
 			{"--add-dir <dir>", "task: another directory the agent may reach, through the agent's add_dir_args (repeatable)", "task: outro diretório que o agente pode alcançar, via add_dir_args do agente (repetível)"},
 			{"--effort <level>", "task: an effort level the agent declares", "task: um nível de esforço que o agente declara"},

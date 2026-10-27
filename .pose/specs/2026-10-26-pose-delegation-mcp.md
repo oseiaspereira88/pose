@@ -1,6 +1,6 @@
 ---
 slug: pose-delegation-mcp
-status: draft
+status: in-progress
 created_at: 2026-10-26
 completed_at:
 supersedes:
@@ -8,7 +8,7 @@ depends_on: pose-delegated-review-completion-signal, pose-delegated-review-round
 priority: 3
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: capability:delegation-mcp
 ---
 
 # Spec: Agents operate delegated runs over MCP
@@ -63,7 +63,35 @@ MCP server tool catalog and handlers, shared refusal codes with the CLI, bounded
 
 ### Artifacts
 
-Implementation artifacts are declared when the spec starts.
+- modified: .pose/specs/2026-10-26-pose-delegation-mcp.md
+- created: .pose/starts/pose-delegation-mcp.json
+- created: .pose/changelogs/unreleased/pose-delegation-mcp.md
+- created: pose-mcp/internal/mcpserver/delegate_tools.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/catalog.go
+- modified: pose-mcp/internal/mcpserver/server_test.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- created: pose-mcp/internal/pose/delegation_refusal.go
+- modified: pose-mcp/internal/pose/review_attempt_ledger.go
+- modified: pose-mcp/internal/pose/review_run_continuity.go
+- modified: pose-mcp/internal/pose/review_adapter_containment.go
+- modified: pose-mcp/internal/pose/delegation_handoff.go
+- modified: pose-mcp/internal/pose/delegation_task.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
+- modified: pose-mcp/internal/cli/delegate.go
+- modified: pose-mcp/internal/cli/delegate_handoff.go
+- modified: pose-mcp/internal/cli/delegate_task.go
+- created: pose-mcp/internal/cli/delegate_mcp_test.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: docs-site/docs/mcp.md
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+
+### Delivery targets
+
+- capability:delegation-mcp module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/mcpserver/delegate_tools.go
 
 ### API/contract changes
 
@@ -71,10 +99,11 @@ Tools `pose_delegate_start`, `pose_delegate_status`, `pose_delegate_wait`, `pose
 
 ## 4. Tasks
 
-- [ ] Tools over the shared run lifecycle
-- [ ] Shared refusal codes
-- [ ] Bounded wait
-- [ ] Result redaction
+- [x] Tools over the shared run lifecycle
+- [x] Shared refusal codes
+- [x] Bounded wait
+- [x] Result redaction
+- [ ] Independent review and closeout
 
 ## 5. Decisions
 
@@ -85,6 +114,30 @@ Tools `pose_delegate_start`, `pose_delegate_status`, `pose_delegate_wait`, `pose
 - Rationale: the safeguard that justified reversing the 2026-10-09 decision is the ledger's refusal; any MCP path around it reopens the approval loop
 - Consequences: refusal codes become a shared contract of CLI and MCP
 - Falsifier: an MCP sequence that obtains a second run on an unchanged bundle without a reason
+
+### Decision D2
+- Basis: R1–R5
+- Minimal option: reimplement planning, routing and refusals in the MCP server
+- Selected option: each tool runs `pose delegate … --json` in the project the server resolved, with the binary that serves MCP, under the tool's bound, and reduces the CLI's document to the summary keys; refusals are typed in the engine (`DelegationRefusal`) and carry a `reason_code` in the CLI's error document, which the tool returns as is. A start first previews (`--dry-run`) to report the agent, routing and independence, then starts `--detach`. `pose delegate resume` and `handoff` gain `--detach`, which hands the continuation's attempt back once it starts; a continuation re-planned at execution keeps the hand-back and the routing the caller set
+- Rationale: one implementation of planning and refusal is the only way an MCP path cannot drift around the ledger's refusal (D1); the server package cannot import the CLI, and the CLI already isolates a detached run in its own session
+- Consequences: an MCP call costs a process start; the tool bounds are the CLI's detach bound (150 s for a start, resume or handoff), 30 s for a status and the wait's own bound plus 30 s
+- Falsifier: a refusal over MCP that the CLI does not make, or one with another reason code
+
+### Decision D3
+- Basis: R6
+- Minimal option: make `project_id` a required argument of each tool
+- Selected option: the tools follow the server's shared project-scope contract (spec `pose-mcp-project-scope-contract`): `project_id` is optional with the shared description, the default project is used only when it is unambiguous, and an unknown or ambiguous project is refused with the server's typed errors; the server's authorization admits each call before it runs, and write-capable tools are classed `external-side-effect`
+- Rationale: the catalog's conformance test forbids a required `project_id` (a default is convenience only); requiring it in five tools would break the contract every other tool keeps, while every call still runs in one resolved, authorized project
+- Consequences: R6's "require `project_id`" is met as "resolve a single authorized project"; the trace says so
+- Falsifier: a delegate tool that ran in a project the caller could not read, or in an ambiguous selection
+
+### Decision D4
+- Basis: R1
+- Minimal option: start tasks over MCP
+- Selected option: `pose_delegate_start` starts review, adjudicate and smoke runs and refuses a task, which has no detached form yet (follow-up F3 of `pose-delegation-task`) and whose prompt and access are the caller's to choose on the CLI
+- Rationale: R1 requires every start to be detached; a task started in the foreground would block the call past its bound
+- Consequences: R1 holds for the review purposes; a task over MCP waits for `pose delegate task --detach`
+- Falsifier: an MCP call that blocks on a task
 
 ## 6. Validation
 

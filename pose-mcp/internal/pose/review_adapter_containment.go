@@ -93,6 +93,11 @@ func effectiveReviewMaxRuns(a ReviewerAdapter) int {
 // ResolveReviewerContainment is shared by preview, execution and consumers.
 // It makes no changes, including attempt reservations.
 func ResolveReviewerContainment(a ReviewerAdapter) (*ReviewExecutionSafety, error) {
+	safety, err := resolveReviewerContainment(a)
+	return safety, refusal(DelegationReasonContainment, err)
+}
+
+func resolveReviewerContainment(a ReviewerAdapter) (*ReviewExecutionSafety, error) {
 	for _, identity := range []string{a.Vendor, a.Model} {
 		if strings.TrimSpace(identity) == "" || strings.ContainsAny(identity, "\x00\r\n") {
 			return nil, fmt.Errorf("adapter identity must be nonempty without surrounding whitespace")

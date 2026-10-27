@@ -43,6 +43,21 @@
     "pose_component_discover": {
       "risk": "read"
     },
+    "pose_delegate_handoff": {
+      "risk": "external-side-effect"
+    },
+    "pose_delegate_resume": {
+      "risk": "external-side-effect"
+    },
+    "pose_delegate_start": {
+      "risk": "external-side-effect"
+    },
+    "pose_delegate_status": {
+      "risk": "read"
+    },
+    "pose_delegate_wait": {
+      "risk": "read"
+    },
     "pose_delivery_integrity": {
       "risk": "read"
     },
@@ -1664,6 +1679,148 @@
         "type": "object"
       },
       "name": "pose_get_tech_debt_report"
+    },
+    {
+      "description": "Start a delegated review, adjudication or smoke run of a scope or bundle, as `pose delegate \u003cpurpose\u003e --detach` does: always detached, returning once the run has reserved its attempt, with the agent, the routing and the independence it achieves. Without apply it previews the plan. Every refusal of the CLI is returned with its reason_code (rerun-without-reason, budget-exhausted, containment-incompatible, agent-unavailable, no-agent). The result is the normalized summary: no transcript, prompt, session reference or environment value.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "An agent name, or auto (the default) to route",
+            "type": "string"
+          },
+          "apply": {
+            "description": "Start the run detached; without it the call previews the plan and changes nothing",
+            "type": "boolean"
+          },
+          "label": {
+            "description": "A label to name the run by",
+            "type": "string"
+          },
+          "lead": {
+            "description": "The implementation's vendor[/model], when the bundle does not record it",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "purpose": {
+            "description": "review, adjudicate or smoke",
+            "type": "string"
+          },
+          "reason": {
+            "description": "Why a completed run on an unchanged bundle is run again",
+            "type": "string"
+          },
+          "target": {
+            "description": "A scope (spec:\u003cslug\u003e, …) or a sealed bundle id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "purpose",
+          "target"
+        ],
+        "type": "object"
+      },
+      "name": "pose_delegate_start"
+    },
+    {
+      "description": "Read a delegated run without blocking: its state, heartbeat age, turns, last step, round, the decision and exit code once terminal, and next_actions with whether each is available now and why not.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "run": {
+            "description": "A run id, an attempt id or a label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run"
+        ],
+        "type": "object"
+      },
+      "name": "pose_delegate_status"
+    },
+    {
+      "description": "Wait for a delegated run to end, at most timeout_seconds (default 30, at most 300): the terminal result (state, decision, exit code, resumability), or state still-running when the bound passes.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "run": {
+            "description": "A run id, an attempt id or a label",
+            "type": "string"
+          },
+          "timeout_seconds": {
+            "description": "How long to wait, in seconds (1..300)",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "run"
+        ],
+        "type": "object"
+      },
+      "name": "pose_delegate_wait"
+    },
+    {
+      "description": "Resume a stopped delegated run with its agent and session, as `pose delegate resume --detach` does, returning once the continuation has reserved its run; without apply it previews. Refusals carry the CLI's reason_code.",
+      "inputSchema": {
+        "properties": {
+          "apply": {
+            "description": "Start the run detached; without it the call previews the plan and changes nothing",
+            "type": "boolean"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "run": {
+            "description": "A run id, an attempt id or a label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run"
+        ],
+        "type": "object"
+      },
+      "name": "pose_delegate_resume"
+    },
+    {
+      "description": "Hand a stopped delegated run off to another agent under the same attempt, as `pose delegate handoff --detach` does; without apply it previews. Refusals carry the CLI's reason_code.",
+      "inputSchema": {
+        "properties": {
+          "apply": {
+            "description": "Start the run detached; without it the call previews the plan and changes nothing",
+            "type": "boolean"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "run": {
+            "description": "A run id, an attempt id or a label",
+            "type": "string"
+          },
+          "to": {
+            "description": "The agent to hand the run to, or auto",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run",
+          "to"
+        ],
+        "type": "object"
+      },
+      "name": "pose_delegate_handoff"
     }
   ]
 }

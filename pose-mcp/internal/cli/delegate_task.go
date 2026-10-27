@@ -96,7 +96,7 @@ func delegateTaskFail(stdout, stderr io.Writer, jsonOut bool, command string, er
 		code = 2
 	}
 	if route != nil && jsonOut {
-		writeDelegateJSON(stdout, map[string]any{"schema": delegateErrorSchema, "command": command, "error": strings.TrimPrefix(err.Error(), "pose: "), "routing": route})
+		writeDelegateJSON(stdout, map[string]any{"schema": delegateErrorSchema, "command": command, "error": strings.TrimPrefix(err.Error(), "pose: "), "routing": route, "reason_code": posemodel.DelegationReasonCode(err)})
 		return code
 	}
 	return delegateFail(stdout, stderr, jsonOut, command, code, err)
@@ -147,10 +147,14 @@ func runDelegateTask(root string, store posemodel.Store, ctx context.Context, pl
 	if f.dryRun {
 		return delegatePrintTaskPlan(stdout, stderr, f.jsonOut, plan, extra)
 	}
+	// A detached resume or handoff hands its attempt back once it starts.
+	if delegateSupervised() {
+		plan.OnStart = supervisorHandback()
+	}
 	run, err := store.RunDelegationTask(ctx, plan, time.Now)
 	delegateTerminalHook(store, run, err, stdout, stderr, command)
 	code := delegatePrintTask(stdout, stderr, f.jsonOut, command, run, err, delegateRunNextActions(store, run, err)...)
-	if err == nil && !f.jsonOut {
+	if err == nil && !f.jsonOut && !delegateSupervised() {
 		if next, chose := offerDelegateChoices(root, run, stdout, stderr); chose {
 			return next
 		}

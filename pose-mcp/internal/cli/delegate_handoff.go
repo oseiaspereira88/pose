@@ -23,15 +23,18 @@ import (
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
-const delegateHandoffUsage = "pose delegate handoff <run> --to <agent|auto> [--dry-run] [--json]"
+const delegateHandoffUsage = "pose delegate handoff <run> --to <agent|auto> [--detach] [--dry-run] [--json]"
 
 func cmdDelegateHandoff(root string, args []string, stdout, stderr io.Writer) int {
-	f, problem := parseDelegateFlags(args, "--to")
+	f, problem := parseDelegateFlags(args, "--to", "--detach")
 	if problem == "" && (len(f.positional) != 1 || f.to == "") {
 		problem = tr("name the run and the agent to hand it to", "nomeie o run e o agente que o recebe")
 	}
 	if problem != "" {
 		return delegateUsage(stdout, stderr, args, "handoff", problem+"\n"+tr("Usage: ", "Uso: ")+delegateHandoffUsage)
+	}
+	if f.detach && !f.dryRun && !delegateSupervised() {
+		return detachDelegateRun(root, "handoff", args, f, stdout, stderr)
 	}
 	store := cliGovernedStore(root)
 	attempts, lost, err := store.ListDelegationAttempts()
@@ -81,7 +84,7 @@ func cmdDelegateHandoff(root string, args []string, stdout, stderr io.Writer) in
 		chosen, record, err := routeHandoff(store, *latest)
 		if err != nil {
 			if record != nil && f.jsonOut {
-				writeDelegateJSON(stdout, map[string]any{"schema": delegateErrorSchema, "command": "handoff", "error": strings.TrimPrefix(err.Error(), "pose: "), "routing": record})
+				writeDelegateJSON(stdout, map[string]any{"schema": delegateErrorSchema, "command": "handoff", "error": strings.TrimPrefix(err.Error(), "pose: "), "routing": record, "reason_code": posemodel.DelegationReasonCode(err)})
 				return 1
 			}
 			return delegateFail(stdout, stderr, f.jsonOut, "handoff", 1, err)
@@ -113,6 +116,9 @@ func cmdDelegateHandoff(root string, args []string, stdout, stderr io.Writer) in
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+	if delegateSupervised() {
+		plan.OnStart = supervisorHandback()
+	}
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	delegateTerminalHook(store, run, err, stdout, stderr, "handoff")
 	code = delegatePrintRun(stdout, stderr, f.jsonOut, "handoff", run, err, delegateRunNextActions(store, run, err)...)

@@ -347,7 +347,7 @@ func (s Store) PlanReviewHandoff(id, agent string) (DispatchPlan, error) {
 		return DispatchPlan{}, e
 	}
 	if count >= limit || spent >= total {
-		return DispatchPlan{}, fmt.Errorf("pose: the attempt's continuation budget is spent: %d continuations, %s wall-clock", count, spent)
+		return DispatchPlan{}, refusal(DelegationReasonBudgetExhausted, fmt.Errorf("pose: the attempt's continuation budget is spent: %d continuations, %s wall-clock", count, spent))
 	}
 	timeout := 60 * time.Minute
 	if config.Timeout != "" {

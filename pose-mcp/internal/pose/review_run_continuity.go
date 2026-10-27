@@ -425,7 +425,7 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 		return DispatchPlan{}, e
 	}
 	if count >= limit || spent >= total {
-		return DispatchPlan{}, fmt.Errorf("resume budget exhausted: %d resumes, %s wall-clock", count, spent)
+		return DispatchPlan{}, refusal(DelegationReasonBudgetExhausted, fmt.Errorf("resume budget exhausted: %d resumes, %s wall-clock", count, spent))
 	}
 	timeout := 60 * time.Minute
 	if config.Timeout != "" {

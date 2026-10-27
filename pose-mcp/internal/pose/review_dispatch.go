@@ -418,10 +418,23 @@ func (p DispatchPlan) Implementation() ReviewBundleImplementation {
 // replanContinuation plans a continuation again at execution, as a resume or
 // as a handoff to the same agent.
 func (s Store) replanContinuation(plan DispatchPlan) (DispatchPlan, error) {
+	var fresh DispatchPlan
+	var err error
 	if plan.handoff {
-		return s.PlanReviewHandoff(plan.predecessor.RunID, plan.Adapter)
+		fresh, err = s.PlanReviewHandoff(plan.predecessor.RunID, plan.Adapter)
+	} else {
+		fresh, err = s.PlanReviewResume(plan.predecessor.RunID)
 	}
-	return s.PlanReviewResume(plan.predecessor.RunID)
+	if err != nil {
+		return fresh, err
+	}
+	// What the caller set on the plan is kept: the hand-back of a detached run
+	// and the routing that chose its agent (spec pose-delegation-mcp R4).
+	fresh.OnStart, fresh.Purpose = plan.OnStart, plan.Purpose
+	if fresh.Routing == nil {
+		fresh.Routing = plan.Routing
+	}
+	return fresh, nil
 }
 
 // PlanImplementationWithLead reads the plan's implementation again with the

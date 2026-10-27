@@ -721,7 +721,7 @@ func (s Store) planTaskContinuation(id string) (DelegationPolicy, []ReviewRun, *
 		return policy, nil, nil, nil, 0, err
 	}
 	if count >= limit || spent >= total {
-		return policy, nil, nil, nil, 0, fmt.Errorf("pose: the attempt's continuation budget is spent: %d continuations, %s wall-clock", count, spent)
+		return policy, nil, nil, nil, 0, refusal(DelegationReasonBudgetExhausted, fmt.Errorf("pose: the attempt's continuation budget is spent: %d continuations, %s wall-clock", count, spent))
 	}
 	return policy, runs, prior, nil, total - spent, nil
 }

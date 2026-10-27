@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "spec": "pose-delegation-mcp",
+  "plan_digest": "c8ce20a38115ca48068ed70301d596f4cd4d09978fca43fba783db3562d8fe89",
+  "revision": "03eabfdfff014eeb81804855cc5b4595f28de816",
+  "spec_digest_before": "94296fa01526af8e395d8dfc36736096e7e78d286f370a427b054a839adb59ce",
+  "spec_digest_after": "15ecbf643b05d017f517f4a9032239aa8c93e28a06f1066d135091787fa7053f",
+  "baseline": {
+    "schema_version": 1,
+    "namespace": "spec:pose-delegation-mcp",
+    "nodes": [
+      {
+        "id": "R1",
+        "kind": "requirement",
+        "namespace": "spec:pose-delegation-mcp",
+        "hash": "271739785d8b",
+        "state": "active"
+      },
+      {
+        "id": "R2",
+        "kind": "requirement",
+        "namespace": "spec:pose-delegation-mcp",
+        "hash": "a3af3e22d0c2",
+        "state": "active"
+      },
+      {
+        "id": "R3",
+        "kind": "requirement",
+        "namespace": "spec:pose-delegation-mcp",
+        "hash": "957d800d8261",
+        "state": "active"
+      },
+      {
+        "id": "R4",
+        "kind": "requirement",
+        "namespace": "spec:pose-delegation-mcp",
+        "hash": "815d28875918",
+        "state": "active"
+      },
+      {
+        "id": "R5",
+        "kind": "requirement",
+        "namespace": "spec:pose-delegation-mcp",
+        "hash": "2ac4aaabddc9",
+        "state": "active"
+      },
+      {
+        "id": "R6",
+        "kind": "requirement",
+        "namespace": "spec:pose-delegation-mcp",
+        "hash": "b735db2e60ec",
+        "state": "active"
+      },
+      {
+        "id": "R7",
+        "kind": "requirement",
+        "namespace": "spec:pose-delegation-mcp",
+        "hash": "8e858971842c",
+        "state": "active"
+      },
+      {
+        "id": "D1",
+        "kind": "decision",
+        "namespace": "spec:pose-delegation-mcp",
+        "hash": "9b2c1796d955",
+        "state": "active",
+        "relations": [
+          "R5"
+        ]
+      },
+      {
+        "id": "D2",
+        "kind": "decision",
+        "namespace": "spec:pose-delegation-mcp",
+        "hash": "2562f17ef12c",
+        "state": "active",
+        "relations": [
+          "R1–R5"
+        ]
+      },
+      {
+        "id": "D3",
+        "kind": "decision",
+        "namespace": "spec:pose-delegation-mcp",
+        "hash": "2ff5d7bc1109",
+        "state": "active",
+        "relations": [
+          "R6"
+        ]
+      },
+      {
+        "id": "D4",
+        "kind": "decision",
+        "namespace": "spec:pose-delegation-mcp",
+        "hash": "90dc3afa6bab",
+        "state": "active",
+        "relations": [
+          "R1"
+        ]
+      }
+    ],
+    "diagnostics": [
+      {
+        "severity": "error",
+        "code": "invalid-basis-ref",
+        "id": "D2",
+        "line": 106,
+        "message": "decision basis ref \"R1–R5\" is not R\u003cN\u003e, A\u003cN\u003e or C\u003cN\u003e"
+      },
+      {
+        "severity": "error",
+        "code": "no-requirement-path",
+        "id": "D2",
+        "line": 106,
+        "message": "material decision basis must reach a declared requirement or constraint"
+      }
+    ],
+    "digest": "sha256:6edb3bef49c71bb1154741b85636fa14d0247971fc8c57ad4b8a4178c73c5795"
+  },
+  "phase": "started",
+  "recorded_at": "2026-10-27T19:24:58Z"
+}

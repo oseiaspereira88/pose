@@ -137,6 +137,7 @@ type Server struct {
 	identitySecret []byte             // verifies X-MCP-Execution-Identity (ADR-007); empty = disabled
 	reporter       Reporter           // nil = conductor_run_* tools return config error
 	harness        HarnessExecutor    // nil = pose_validate_submit returns config error
+	delegateRunner DelegateRunner     // nil = the running pose binary (spec pose-delegation-mcp)
 	orch           *orchestrator      // safe validation orchestration state (spec pose-safe-validate-orchestration)
 	obs            *observability.Provider
 	cursor         CursorStore // resumable SSE event log (pose-mcp-enterprise-hardening); defaults to in-process memory
@@ -849,6 +850,8 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}()
 	}
 	switch name {
+	case "pose_delegate_start", "pose_delegate_status", "pose_delegate_wait", "pose_delegate_resume", "pose_delegate_handoff":
+		return s.dispatchDelegate(ctx, store.Root, name, args)
 	case "pose_get_spec":
 		var a struct {
 			Slug string `json:"slug"`
@@ -2304,6 +2307,10 @@ func terminalEventType(outcome string) string {
 }
 
 func toolDefinitions() []map[string]any {
+	return append(baseToolDefinitions(), delegateToolDefinitions()...)
+}
+
+func baseToolDefinitions() []map[string]any {
 	return []map[string]any{
 		{
 			"name": "pose_get_spec",
