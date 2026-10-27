@@ -51,6 +51,30 @@ type ReviewDraftFinding struct {
 	File        string `json:"file,omitempty"`
 	Line        int    `json:"line,omitempty"`
 	Summary     string `json:"summary"`
+	// Action, Owner and ReviewBy let a follow-up become an accepted risk in
+	// the attestation the engine records (spec
+	// pose-delegated-review-conclusions R1).
+	Action   string `json:"action,omitempty"`
+	Owner    string `json:"owner,omitempty"`
+	ReviewBy string `json:"review_by,omitempty"`
+}
+
+// ReviewDraftCriterion answers one criterion of the plan, as the reviewer of
+// a recorded attestation does (spec pose-delegated-review-conclusions R1).
+type ReviewDraftCriterion struct {
+	ID          string `json:"id"`
+	Disposition string `json:"disposition"`
+	Evidence    string `json:"evidence,omitempty"`
+	Rationale   string `json:"rationale,omitempty"`
+}
+
+// ReviewDraftTool is the disposition of one tool the plan requires.
+type ReviewDraftTool struct {
+	ID          string `json:"id"`
+	Component   string `json:"component,omitempty"`
+	Disposition string `json:"disposition"`
+	Evidence    string `json:"evidence,omitempty"`
+	Rationale   string `json:"rationale,omitempty"`
 }
 
 // ReviewDraftPrior is a draft's account of one prior finding (R3, R4).
@@ -67,6 +91,10 @@ type ReviewDraft struct {
 	Findings      []ReviewDraftFinding `json:"findings"`
 	PriorFindings []ReviewDraftPrior   `json:"prior_findings,omitempty"`
 	Sweep         string               `json:"sweep,omitempty"`
+	// Criteria and Tools are the typed conclusion the engine records as an
+	// attestation (spec pose-delegated-review-conclusions R1).
+	Criteria []ReviewDraftCriterion `json:"criteria,omitempty"`
+	Tools    []ReviewDraftTool      `json:"tools,omitempty"`
 }
 
 // Prior finding statuses (R3).
@@ -184,6 +212,31 @@ func validateReviewDraft(d ReviewDraft) error {
 			return fmt.Errorf("finding %s needs a bounded summary and location", f.ID)
 		}
 		seen[f.ID] = true
+	}
+	answered := map[string]bool{}
+	for _, c := range d.Criteria {
+		switch {
+		case ValidateSlug(c.ID) != nil || answered[c.ID]:
+			return fmt.Errorf("criterion %q is not a unique criterion id", c.ID)
+		case c.Disposition != "passed" && c.Disposition != "finding" && c.Disposition != "not-applicable":
+			return fmt.Errorf("criterion %s: disposition %q is not passed, finding or not-applicable", c.ID, c.Disposition)
+		case len(c.Evidence) > reviewDraftMaxText || len(c.Rationale) > reviewDraftMaxText:
+			return fmt.Errorf("criterion %s exceeds its bounds", c.ID)
+		}
+		answered[c.ID] = true
+	}
+	for _, t := range d.Tools {
+		if ValidateSlug(t.ID) != nil || strings.TrimSpace(t.Disposition) == "" || len(t.Evidence) > reviewDraftMaxText || len(t.Rationale) > reviewDraftMaxText || len(t.Component) > 256 {
+			return fmt.Errorf("tool %q needs an id, a disposition and bounded text", t.ID)
+		}
+	}
+	for _, f := range d.Findings {
+		if len(f.Action) > reviewDraftMaxText || len(f.Owner) > 256 || len(f.ReviewBy) > 64 {
+			return fmt.Errorf("finding %s exceeds its bounds", f.ID)
+		}
+	}
+	if len(d.Criteria) > reviewDraftMaxFindings || len(d.Tools) > reviewDraftMaxFindings {
+		return fmt.Errorf("the draft exceeds its bounds")
 	}
 	accounted := map[string]bool{}
 	for _, p := range d.PriorFindings {

@@ -226,7 +226,10 @@ type DelegationPolicy struct {
 	Routing       *DelegationRouting                 `json:"routing,omitempty"`
 	Purposes      map[string]DelegationPurposePolicy `json:"purposes,omitempty"`
 	EnvUnset      []string                           `json:"env_unset,omitempty"`
-	Provenance    *ReviewRunProvenancePolicy         `json:"provenance,omitempty"`
+	// Conclusions names the native issuer that signs the conclusion of a
+	// review run the engine records (spec pose-delegated-review-conclusions).
+	Conclusions *DelegationConclusions     `json:"conclusions,omitempty"`
+	Provenance  *ReviewRunProvenancePolicy `json:"provenance,omitempty"`
 	// MigratedFrom names the schema 1 file this policy was converted from
 	// and its archived bytes, so runs recorded before the conversion keep
 	// their policy baseline (spec pose-delegation-surface D7).
@@ -234,6 +237,19 @@ type DelegationPolicy struct {
 	// agentOrder is the order the file declares its agents in, which routing
 	// follows (spec pose-delegation-routing R5).
 	agentOrder []string
+}
+
+// DelegationConclusions configures how the engine records a run's conclusion.
+type DelegationConclusions struct {
+	Issuer string `json:"issuer"`
+}
+
+// ConclusionsIssuer is the issuer that signs conclusions, or "".
+func (p DelegationPolicy) ConclusionsIssuer() string {
+	if p.Conclusions == nil {
+		return ""
+	}
+	return p.Conclusions.Issuer
 }
 
 // DelegationMigration records a pose update conversion.
@@ -496,6 +512,9 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 				return fmt.Errorf("pose: routing.max_wait must be a duration from 0 to 24h")
 			}
 		}
+	}
+	if c := policy.Conclusions; c != nil && ValidateSlug(c.Issuer) != nil {
+		return fmt.Errorf("pose: conclusions.issuer %q is not an issuer name", c.Issuer)
 	}
 	for _, name := range policy.EnvUnset {
 		if !validEnvName(name) {

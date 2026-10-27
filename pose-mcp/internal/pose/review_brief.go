@@ -27,7 +27,7 @@ const (
 )
 
 var reviewBriefTemplates = map[string]string{
-	ReviewBriefKindReview:       reviewBriefTemplateRounds,
+	ReviewBriefKindReview:       reviewBriefTemplateConclusions,
 	ReviewBriefKindAdjudication: "adjudication-brief/1",
 	ReviewBriefKindSmoke:        "smoke-brief/1",
 }
@@ -47,9 +47,16 @@ type ReviewBrief struct {
 // (spec pose-delegated-review-round-protocol), and the one before it, kept so
 // a run briefed with it still verifies.
 const (
-	reviewBriefTemplateRounds = "review-brief/2"
-	reviewBriefTemplateFirst  = "review-brief/1"
+	reviewBriefTemplateConclusions = "review-brief/3"
+	reviewBriefTemplateRounds      = "review-brief/2"
+	reviewBriefTemplateFirst       = "review-brief/1"
 )
+
+// reviewBriefEarlierTemplates are the review templates a run may have been
+// briefed with before the current one, newest first; a run briefed with one
+// is re-rendered with it to verify and to continue (the brief a run was sent
+// never changes under it).
+var reviewBriefEarlierTemplates = []string{reviewBriefTemplateRounds, reviewBriefTemplateFirst}
 
 // ReviewBriefKinds lists the accepted kinds.
 func ReviewBriefKinds() []string {
@@ -72,8 +79,10 @@ func (s Store) RenderReviewBriefMatching(target, kind, notes, digest string) (Re
 	if err != nil || brief.Digest == digest || kind != ReviewBriefKindReview && kind != "" {
 		return brief, err
 	}
-	if earlier, eerr := s.renderReviewBriefAs(target, kind, notes, reviewBriefTemplateFirst); eerr == nil && earlier.Digest == digest {
-		return earlier, nil
+	for _, version := range reviewBriefEarlierTemplates {
+		if earlier, eerr := s.renderReviewBriefAs(target, kind, notes, version); eerr == nil && earlier.Digest == digest {
+			return earlier, nil
+		}
 	}
 	return brief, nil
 }
@@ -122,14 +131,14 @@ func (s Store) renderReviewBriefAs(target, kind, notes, version string) (ReviewB
 		smoke = &script
 	}
 	var round *ReviewRound
-	if template == reviewBriefTemplateRounds {
+	if template == reviewBriefTemplateRounds || template == reviewBriefTemplateConclusions {
 		derived, err := s.ReviewRoundOf(bundle)
 		if err != nil {
 			return ReviewBrief{}, err
 		}
 		round = &derived
 	}
-	body := renderReviewBriefBody(bundle, kind, template, notes, smoke, round)
+	body := renderReviewBriefBody(bundle, kind, template, notes, smoke, round, template == reviewBriefTemplateConclusions)
 	sum := sha256.Sum256([]byte(body))
 	digest := "sha256:" + hex.EncodeToString(sum[:])
 	return ReviewBrief{Kind: kind, TemplateVersion: template, Scope: bundle.Payload.Scope.Ref, BundleID: bundle.BundleID,
@@ -174,7 +183,7 @@ func (s Store) smokeScriptFor(scope ReviewBundleScope) (smokeScript, error) {
 
 var requirementLine = regexp.MustCompile(`^- R[0-9]+:`)
 
-func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, smoke *smokeScript, round *ReviewRound) string {
+func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, smoke *smokeScript, round *ReviewRound, conclusion bool) string {
 	var b strings.Builder
 	line := func(format string, a ...any) { fmt.Fprintf(&b, format+"\n", a...) }
 	scope := bundle.Payload.Scope
@@ -355,6 +364,9 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 	}
 	if round != nil {
 		line("%d. At the end, the draft POSE reads: one fenced block opened with ```pose-draft holding a JSON object with `schema` %q, `decision` (the decision above), `findings` (each with `id`, `severity` high|medium|low, `disposition` blocker|follow-up, `file`, `line` and `summary`)%s. Everything outside the block is yours and is not read.", next, ReviewDraftSchema, roundFields(*round))
+		if conclusion {
+			line("%d. In the same block, the conclusion POSE records as the attestation: `criteria` (one entry per criterion above, each with `id`, `disposition` passed|finding|not-applicable, `evidence` as `<class>:<ref>` — a class the criterion asks for when it names one — and `rationale` for not-applicable), and `tools` (one entry per tool above, each with `id`, `component` when it has one, `disposition`, `evidence` and `rationale`). A follow-up finding that should be accepted as a risk carries `action`, `owner` and `review_by`; any other finding stays open. A criterion or tool you do not answer is not answered for you.", next+1)
+		}
 	}
 	return b.String()
 }

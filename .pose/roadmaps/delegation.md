@@ -112,7 +112,7 @@ over MCP exactly as on the CLI.
 - after: routing, spec:pose-delegated-review-run-provenance, spec:pose-delegated-adapter-containment, spec:pose-review-approval-domain-preflight
 - target_start:
 - target_due:
-- specs: pose-delegated-review-conclusions
+- specs: pose-delegated-review-conclusions, pose-delegated-verdict-destinations
 
 **Exit gate:** phase B19 of the batch 10 plan: a passing review run is
 recorded as the attestation by the engine, an adjudication or smoke run as its

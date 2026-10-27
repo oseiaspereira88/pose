@@ -121,6 +121,7 @@ func cmdDelegateHandoff(root string, args []string, stdout, stderr io.Writer) in
 	}
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	handBackExisting(run, err)
+	delegateAutoConclude(store, run, err, stdout, stderr)
 	delegateTerminalHook(store, run, err, stdout, stderr, "handoff")
 	code = delegatePrintRun(stdout, stderr, f.jsonOut, "handoff", run, err, delegateRunNextActions(store, run, err)...)
 	if err == nil && !f.jsonOut {

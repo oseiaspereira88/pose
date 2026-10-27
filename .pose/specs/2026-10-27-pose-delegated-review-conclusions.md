@@ -1,14 +1,14 @@
 ---
 slug: pose-delegated-review-conclusions
-status: draft
+status: in-progress
 created_at: 2026-10-27
 completed_at:
 supersedes:
-depends_on: pose-delegated-review-run-provenance, pose-delegated-review-attempt-ledger, pose-delegated-adapter-containment, pose-review-approval-domain-preflight, pose-delegation-routing
+depends_on: pose-delegated-review-round-protocol, pose-delegated-review-run-provenance, pose-delegated-review-attempt-ledger, pose-delegated-adapter-containment, pose-review-approval-domain-preflight, pose-delegation-routing
 priority: 3
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: capability:delegated-review-conclusions
 ---
 
 # Spec: The engine records a delegated run's validated conclusion
@@ -36,7 +36,7 @@ Turning the capability on; action requests and their fulfillment; escalations to
 ### Functional
 
 - R1: When a `pose delegate review` run passes every check — brief generated from the sealed bundle, disposable copy unchanged, run record intact and signed, `different-vendor` or `different-model` independence against the implementation recorded in the bundle, conclusion complete and accepted by the attestation preflight, no earlier rejection on an unchanged bundle — the engine shall record the attestation from the run with no further step; a rejecting conclusion shall be recorded and block the scope until the bundle changes.
-- R2: An `adjudication` or `smoke` run that passes the same checks shall record its verdict where its origin expects it (the adjudicated spec's decision record, the smoke target's evidence), under the same rules.
+- R2: An `adjudication` or `smoke` run that passes the same checks shall record its verdict where its origin expects it (the adjudicated spec's decision record, the smoke target's evidence), under the same rules. Delivered by [`pose-delegated-verdict-destinations`](2026-10-27-pose-delegated-verdict-destinations.md): no such destination exists yet, and defining them is a feature of its own (decision D2, the maintainer's choice of 2026-10-27).
 - R3: A run that fails any check, an incomplete or unparseable conclusion and a run whose cleanup is incomplete shall record no governed effect, and the reason shall be reported on the run.
 - R4: Recording shall be idempotent: replaying the same run records nothing new, and a run for a superseded bundle, subject or policy records nothing and says why.
 
@@ -57,18 +57,59 @@ Conclusion validators per kind, destinations (attestation, decision record, smok
 ### Artifacts
 
 - created: .pose/specs/2026-10-27-pose-delegated-review-conclusions.md
+- created: .pose/specs/2026-10-27-pose-delegated-verdict-destinations.md
+- modified: .pose/roadmaps/delegation.md
+- created: .pose/starts/pose-delegated-review-conclusions.json
+- created: .pose/changelogs/unreleased/pose-delegated-review-conclusions.md
+- created: pose-mcp/internal/pose/review_conclusions.go
+- created: pose-mcp/internal/pose/review_conclusions_test.go
+- modified: pose-mcp/internal/pose/review_rounds.go
+- modified: pose-mcp/internal/pose/review_brief.go
+- modified: pose-mcp/internal/pose/review_brief_test.go
+- modified: pose-mcp/internal/pose/delegation_policy.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- created: pose-mcp/internal/cli/review_conclude.go
+- created: pose-mcp/internal/cli/review_conclude_test.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/delegate.go
+- modified: pose-mcp/internal/cli/delegate_handoff.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
-Implementation artifacts are declared when the spec starts.
+### Delivery targets
+
+- capability:delegated-review-conclusions module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/review_conclude.go
 
 ## 4. Tasks
 
-- [ ] Review conclusion recorded as the attestation
-- [ ] Adjudication and smoke destinations
-- [ ] Refusals, idempotence and supersession
+- [x] Review conclusion recorded as the attestation
+- [ ] Adjudication and smoke destinations: moved to `pose-delegated-verdict-destinations` (D2)
+- [x] Refusals, idempotence and supersession
+- [ ] Independent review and closeout
 
 ## 5. Decisions
 
 Phase B19 as a spec of its own is recorded by the amendment of 2026-10-27 to the delegation ADR, by the maintainer's choice of 2026-10-27.
+
+### Decision D1
+- Basis: R1
+- Minimal option: a person runs `pose review run-sign` and `pose review attest --run --run-proof --sign` with the criteria and tools as flags
+- Selected option: the conclusion is typed in the run's pose-draft block — `criteria` and `tools` beside the findings, which the brief of template `review-brief/3` asks for, and `action`, `owner` and `review_by` on a follow-up to accept it as a risk — and the engine signs the run's proof and the attestation with the native issuer the delegation policy names (`conclusions.issuer`, the key outside the project) or `--issuer`, recording it through the same domain writer and preflight as every attestation. It records on its own as a review run completes only when review policy `delegated_review` is true and the issuer is set; otherwise `pose review conclude <run>` does it on demand. The maintainer chose this on 2026-10-27
+- Rationale: one writer and one preflight keep the conclusion to the bar every attestation meets; a typed conclusion leaves nothing for the engine to answer on the reviewer's behalf
+- Consequences: a criterion or tool the draft does not answer is refused by the preflight, never filled in; runs briefed with `review-brief/1` and `/2` keep verifying with their template
+- Falsifier: an attestation whose criterion, tool or finding the run's draft did not state
+
+### Decision D2
+- Basis: R2
+- Minimal option: give adjudication and smoke verdicts a file of their own under this spec
+- Selected option: move R2 to `pose-delegated-verdict-destinations`, which defines where each verdict goes (the adjudicated spec's decision record, the smoke target's surface evidence) and records it under the same rules; the maintainer chose this on 2026-10-27
+- Rationale: neither destination exists, and defining them is a feature of its own; the review conclusion needs none of it
+- Consequences: R2 is traced as delivered by that spec, not here
+- Falsifier: an adjudication or smoke verdict recorded with no destination its origin reads
+
 
 ## 6. Validation
 
