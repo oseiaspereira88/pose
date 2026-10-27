@@ -175,7 +175,8 @@ func TestDelegateStoppedRunActionsAreExecutable(t *testing.T) {
 	}
 }
 
-// F01: repeating a handoff with --to auto returns the recorded continuation.
+// F01, F02: repeating a handoff with --to auto returns the recorded
+// continuation; naming another agent is refused.
 func TestDelegateHandoffAutoRetryReturnsTheContinuation(t *testing.T) {
 	root := handoffInstance(t)
 	runs, _ := posemodel.Store{Root: root}.ListReviewRuns("")
@@ -186,6 +187,10 @@ func TestDelegateHandoffAutoRetryReturnsTheContinuation(t *testing.T) {
 	code, out, errOut := runPoseSplit(t, root, "delegate", "handoff", first, "--to", "auto", "--json")
 	if code != 0 || !strings.Contains(out, `"hands_off_from": "`+first) {
 		t.Fatalf("an auto retry: %d %s %s", code, out, errOut)
+	}
+	// Another agent named explicitly is refused, naming the continuation.
+	if code, out, errOut := runPoseSplit(t, root, "delegate", "handoff", first, "--to", "stopper"); code != 1 || !strings.Contains(out+errOut, "already handed off to continuer") {
+		t.Fatalf("a conflicting destination: %d %s %s", code, out, errOut)
 	}
 	if runs, _ := (posemodel.Store{Root: root}).ListReviewRuns(""); len(runs) != 2 {
 		t.Fatalf("runs: %d", len(runs))

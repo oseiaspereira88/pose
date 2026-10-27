@@ -33,6 +33,7 @@ type delegationLiveWriter struct {
 	sessions []string
 	pattern  *regexp.Regexp
 	tools    map[string]string
+	calls    map[string]string // call identifiers to their ordinals
 	pending  []byte
 	seq      int
 	written  int64
@@ -70,7 +71,7 @@ func (s Store) startDelegationLive(attempt, format string, secrets []string, ses
 		os.Remove(file.Name())
 		return nil
 	}
-	w := &delegationLiveWriter{file: file, format: format, secrets: secrets, tools: map[string]string{}, limit: limit}
+	w := &delegationLiveWriter{file: file, format: format, secrets: secrets, tools: map[string]string{}, calls: map[string]string{}, limit: limit}
 	if knownSession != "" {
 		w.sessions = append(w.sessions, knownSession)
 	}
@@ -147,7 +148,7 @@ func (w *delegationLiveWriter) feed(line []byte) {
 	if cleanErr != nil || len(events) == 0 {
 		return
 	}
-	events, err := finishDelegationEvents(events, w.seq+1, clean)
+	events, err := finishDelegationEvents(events, w.seq+1, clean, w.calls)
 	if err != nil {
 		return
 	}

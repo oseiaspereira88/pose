@@ -1,6 +1,7 @@
 package pose
 
 import (
+	"bytes"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -58,6 +59,59 @@ func TestHandoffCommandsPairOnlyWhatIsKnown(t *testing.T) {
 	}
 	if strings.Contains(got, "test-B` → exit 2") || strings.Contains(got, "test-A` → exit 0") {
 		t.Fatalf("a status was guessed:\n%s", got)
+	}
+	// An identified call still waiting makes an anonymous output ambiguous,
+	// and calls sharing an identifier are told apart by none.
+	for name, events := range map[string][]DelegationEvent{
+		"identified and anonymous": {{Kind: DelegationEventToolCall, Text: "test-A", Call: "a"}, {Kind: DelegationEventToolCall, Text: "test-B"}, {Kind: DelegationEventToolOutput, ExitCode: &two}},
+		"shared identifier":        {{Kind: DelegationEventToolCall, Text: "test-A", Call: "x"}, {Kind: DelegationEventToolCall, Text: "test-B", Call: "x"}, {Kind: DelegationEventToolOutput, Call: "x", ExitCode: &two}},
+	} {
+		got := strings.Join(handoffCommands(events), "\n")
+		if !strings.Contains(got, "> `test-A` → exit unknown") || !strings.Contains(got, "> `test-B` → exit unknown") || !strings.Contains(got, "not known)` → exit 2") {
+			t.Fatalf("%s: a status was guessed:\n%s", name, got)
+		}
+	}
+	// A status the stream did not record is unknown, not a success.
+	stream := []byte(`{"type":"item.started","item":{"type":"command_execution","id":"a","command":"test-A"}}
+{"type":"item.completed","item":{"type":"command_execution","id":"a","exit_code":null}}
+`)
+	if got := strings.Join(handoffCommands(NormalizeDelegationEvents(DelegationEventsCodexJSONL, stream, "")), "\n"); got != "> `test-A` → exit unknown" {
+		t.Fatalf("an absent exit status: %s", got)
+	}
+}
+
+// R3 and the containment of the stream: a call identifier is written only as
+// its ordinal, so a value the transcript redacts never reaches the persisted
+// or the live events, and correlation survives.
+func TestDelegationEventsWriteCallOrdinalsOnly(t *testing.T) {
+	secret, session := "synthetic-credential-12345", "synthetic-private-session-67890"
+	for _, format := range []string{DelegationEventsCodexJSONL, DelegationEventsClaudeStreamJSON} {
+		var stream []byte
+		for _, id := range []string{secret, session} {
+			var obj any
+			if format == DelegationEventsCodexJSONL {
+				obj = map[string]any{"type": "item.started", "item": map[string]any{"type": "command_execution", "id": id, "command": "echo safe"}}
+			} else {
+				obj = map[string]any{"type": "assistant", "message": map[string]any{"content": []any{map[string]any{"type": "tool_use", "name": "Bash", "id": id, "input": map[string]any{"command": "echo safe"}}}}}
+			}
+			raw, _ := json.Marshal(obj)
+			stream = append(append(stream, raw...), '\n')
+		}
+		persisted, err := redactedDelegationEvents(format, stream, "", []string{secret}, session)
+		if err != nil || bytes.Contains(persisted, []byte(secret)) || bytes.Contains(persisted, []byte(session)) || !bytes.Contains(persisted, []byte(`"call":"call-2"`)) {
+			t.Fatalf("%s persisted: %v %s", format, err, persisted)
+		}
+		s := Store{Root: t.TempDir()}
+		w := s.startDelegationLive("att-calls", format, []string{secret}, "", session, 64<<10)
+		if w == nil {
+			t.Fatal("live writer")
+		}
+		w.Write(stream)
+		w.Close()
+		live, err := os.ReadFile(s.delegationLivePath("att-calls"))
+		if err != nil || bytes.Contains(live, []byte(secret)) || bytes.Contains(live, []byte(session)) || !bytes.Contains(live, []byte(`"call":"call-2"`)) {
+			t.Fatalf("%s live: %v %s", format, err, live)
+		}
 	}
 }
 

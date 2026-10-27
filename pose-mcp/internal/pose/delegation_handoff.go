@@ -89,56 +89,80 @@ func renderHandoffSection(prior ReviewRun, events []DelegationEvent, eventsErr e
 	return section
 }
 
-// handoffCommands lists the commands a run made with their exit status. A
-// call and an output are paired by the call identifier the stream recorded;
-// without one, only an output that directly follows the one call still
-// waiting for its output is paired, and anything else is listed with its
-// status unknown rather than guessed (R3).
+// handoffCommands lists the commands a run made with their exit status. An
+// output is paired with a call only when nothing else could have produced it:
+// by a call identifier that names exactly one waiting call, or, without one,
+// when exactly one call waits and none is owed an earlier ambiguous output.
+// Anything else is listed with its status unknown rather than guessed (R3).
 func handoffCommands(events []DelegationEvent) []string {
 	type call struct {
 		text string
 		exit string
 	}
 	var calls []*call
-	byID := map[string]*call{}
-	var waiting []*call // calls with no identifier and no output yet
+	byID := map[string][]*call{} // waiting calls by identifier
+	ambiguous := map[string]bool{}
+	var anonymous []*call // waiting calls without an identifier
 	// unclaimed counts outputs still owed to calls that became ambiguous:
 	// until they arrive, no anonymous output is paired by elimination.
 	unclaimed := 0
+	waitingIdentified := func() int {
+		n := 0
+		for _, waiting := range byID {
+			n += len(waiting)
+		}
+		return n
+	}
+	unknown := func(code string) {
+		calls = append(calls, &call{text: "(an output whose command is not known)", exit: code})
+	}
 	for _, e := range events {
 		switch e.Kind {
 		case DelegationEventToolCall:
 			c := &call{text: strings.ReplaceAll(strings.Join(strings.Fields(e.Text), " "), "`", "'"), exit: "unknown"}
 			calls = append(calls, c)
-			if e.Call != "" {
-				byID[e.Call] = c
-			} else {
-				waiting = append(waiting, c)
+			if e.Call == "" {
+				anonymous = append(anonymous, c)
+				continue
+			}
+			byID[e.Call] = append(byID[e.Call], c)
+			if len(byID[e.Call]) > 1 {
+				ambiguous[e.Call] = true
 			}
 		case DelegationEventToolOutput:
 			code := "unknown"
 			if e.ExitCode != nil {
 				code = fmt.Sprint(*e.ExitCode)
 			}
-			switch {
-			case e.Call != "" && byID[e.Call] != nil:
-				byID[e.Call].exit = code
-				delete(byID, e.Call)
-			case e.Call == "" && len(waiting) == 1 && unclaimed == 0:
-				waiting[0].exit = code
-				waiting = nil
-			default:
-				// Several calls wait, or the call was never recorded: which
-				// command this output belongs to is not known, and the calls
-				// it may answer stay unknown.
-				calls = append(calls, &call{text: "(an output whose command is not known)", exit: code})
-				if e.Call == "" {
-					unclaimed += len(waiting)
-					waiting = nil
-					if unclaimed > 0 {
-						unclaimed--
-					}
+			if e.Call != "" {
+				waiting := byID[e.Call]
+				switch {
+				case len(waiting) == 0:
+					unknown(code)
+				case ambiguous[e.Call]:
+					// Several calls share the identifier: one of them ended,
+					// which one is not known.
+					unknown(code)
+					byID[e.Call] = waiting[1:]
+				default:
+					waiting[0].exit = code
+					delete(byID, e.Call)
 				}
+				continue
+			}
+			if len(anonymous) == 1 && waitingIdentified() == 0 && unclaimed == 0 {
+				anonymous[0].exit = code
+				anonymous = nil
+				continue
+			}
+			// Several calls wait, or none: which command this output belongs
+			// to is not known, and the anonymous calls it may answer stay
+			// unknown.
+			unknown(code)
+			unclaimed += len(anonymous)
+			anonymous = nil
+			if unclaimed > 0 {
+				unclaimed--
 			}
 		}
 	}

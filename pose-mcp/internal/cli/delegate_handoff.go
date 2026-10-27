@@ -12,6 +12,7 @@ import (
 	"bufio"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/signal"
@@ -59,13 +60,18 @@ func cmdDelegateHandoff(root string, args []string, stdout, stderr io.Writer) in
 	}
 	agent := f.to
 	var route *posemodel.DelegationRoutingRecord
-	// A run already handed off is continued by that run's agent: repeating the
-	// command returns the recorded continuation, whatever --to says (F01).
+	// A run already handed off is continued by that run's agent: repeating
+	// the command with --to auto or that agent returns the recorded
+	// continuation, and another agent is refused (F01).
 	if runs, rerr := store.ListReviewRuns(""); rerr == nil {
 		for _, r := range runs {
-			if r.HandsOffFrom == target {
-				agent = r.Adapter
+			if r.HandsOffFrom != target {
+				continue
 			}
+			if agent != "auto" && agent != r.Adapter {
+				return delegateFail(stdout, stderr, f.jsonOut, "handoff", 1, fmt.Errorf(tr("run %s was already handed off to %s by run %s", "o run %s já foi repassado para %s pelo run %s"), target, r.Adapter, r.RunID))
+			}
+			agent = r.Adapter
 		}
 	}
 	if agent == "auto" {

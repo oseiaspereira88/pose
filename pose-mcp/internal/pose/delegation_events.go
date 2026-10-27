@@ -48,8 +48,10 @@ type DelegationEvent struct {
 	Text     string `json:"text,omitempty"`
 	ExitCode *int   `json:"exit_code,omitempty"`
 	ResetAt  string `json:"reset_at,omitempty"`
-	// Call pairs a tool call with its output: the identifier the agent's
-	// stream gives the call, when it gives one.
+	// Call pairs a tool call with its output: an ordinal the normalizer
+	// assigns to each distinct identifier the agent's stream gives a call
+	// (call-1, call-2, …), so the identifier itself, which may carry any
+	// value, is never written.
 	Call string `json:"call,omitempty"`
 	// tail bounds Text by its end, for a tool's output.
 	tail bool
@@ -92,14 +94,23 @@ func normalizeDelegationEvents(format string, transcript []byte, final string, c
 	if strings.TrimSpace(final) != "" {
 		events = append(events, DelegationEvent{Kind: DelegationEventFinal, Text: final})
 	}
-	return finishDelegationEvents(events, 1, clean)
+	return finishDelegationEvents(events, 1, clean, map[string]string{})
 }
 
-// finishDelegationEvents passes every field through clean again, bounds it
-// and numbers the events from first.
-func finishDelegationEvents(events []DelegationEvent, first int, clean func(string) (string, error)) ([]DelegationEvent, error) {
+// finishDelegationEvents passes every field through clean again, bounds it,
+// replaces each call identifier by its ordinal in calls and numbers the
+// events from first.
+func finishDelegationEvents(events []DelegationEvent, first int, clean func(string) (string, error), calls map[string]string) ([]DelegationEvent, error) {
 	for i := range events {
 		e := &events[i]
+		if e.Call != "" {
+			ordinal, ok := calls[e.Call]
+			if !ok {
+				ordinal = fmt.Sprintf("call-%d", len(calls)+1)
+				calls[e.Call] = ordinal
+			}
+			e.Call = ordinal
+		}
 		for _, field := range []*string{&e.Tool, &e.Text, &e.ResetAt} {
 			cleaned, err := clean(*field)
 			if err != nil {
@@ -162,8 +173,7 @@ func codexEvents(transcript []byte, field func(any) string) []DelegationEvent {
 			case "agent_message":
 				out = append(out, DelegationEvent{Kind: DelegationEventMessage, Text: field(item["text"])})
 			case "command_execution":
-				code := intOf(item["exit_code"])
-				out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: "shell", ExitCode: &code, Text: field(item["aggregated_output"]), tail: true, Call: callID(item["id"])})
+				out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: "shell", ExitCode: exitCodeOf(item["exit_code"]), Text: field(item["aggregated_output"]), tail: true, Call: callID(item["id"])})
 			case "file_change":
 				paths := []string{}
 				changes, _ := item["changes"].([]any)
@@ -297,8 +307,8 @@ func unixInstant(v any) string {
 	return time.Unix(int64(f), 0).UTC().Format(time.RFC3339Nano)
 }
 
-// callID keeps a call identifier only when it looks like one: a short token,
-// never a value an event could carry content in.
+// callID keeps a call identifier only when it looks like one, a short token;
+// finishDelegationEvents replaces it before anything is written.
 func callID(v any) string {
 	id := str(v)
 	if len(id) == 0 || len(id) > 128 || strings.ContainsAny(id, " \t\r\n") {
@@ -312,9 +322,15 @@ func str(v any) string {
 	return s
 }
 
-func intOf(v any) int {
-	f, _ := v.(float64)
-	return int(f)
+// exitCodeOf is the exit status a stream recorded, or nil when it recorded
+// none: an absent status is not a success.
+func exitCodeOf(v any) *int {
+	f, ok := v.(float64)
+	if !ok {
+		return nil
+	}
+	code := int(f)
+	return &code
 }
 
 func boundEventText(s string) string {
