@@ -96,6 +96,23 @@ func readRefusal(path string) map[string]any {
 	return doc
 }
 
+// handBackExisting hands back the attempt of a run the dispatch answered
+// without starting one — a continuation or a run that already exists — so a
+// detached caller returns it as the foreground command does (review round 3,
+// B06). A run that started handed its attempt back already.
+func handBackExisting(run posemodel.ReviewRun, err error) {
+	path := os.Getenv(delegateHandback)
+	if path == "" || err != nil || run.AttemptID == "" {
+		return
+	}
+	if _, statErr := os.Stat(path); statErr == nil {
+		return
+	}
+	if publish := supervisorHandback(); publish != nil {
+		_ = publish(run.AttemptID)
+	}
+}
+
 func readHandback(path string) string {
 	raw, err := os.ReadFile(path)
 	if err != nil {

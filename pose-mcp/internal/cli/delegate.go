@@ -514,6 +514,7 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 		plan.OnStart = supervisorHandback()
 	}
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
+	handBackExisting(run, err)
 	delegateTerminalHook(store, run, err, stdout, stderr, purpose)
 	code = delegatePrintRun(stdout, stderr, f.jsonOut, purpose, run, err, delegateRunNextActions(store, run, err)...)
 	if err == nil && !f.jsonOut && !delegateSupervised() {
@@ -939,6 +940,7 @@ func cmdDelegateResume(root string, args []string, stdout, stderr io.Writer) int
 		plan.OnStart = supervisorHandback()
 	}
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
+	handBackExisting(run, err)
 	delegateTerminalHook(store, run, err, stdout, stderr, "resume")
 	code = delegatePrintRun(stdout, stderr, f.jsonOut, "resume", run, err, delegateRunNextActions(store, run, err)...)
 	if err == nil && !f.jsonOut {

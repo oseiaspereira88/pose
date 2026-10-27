@@ -3,6 +3,7 @@ package mcpserver
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -122,5 +123,27 @@ func TestDelegateToolsProjectWhatTheyReturn(t *testing.T) {
 	}
 	if out := call("pose_delegate_resume", map[string]any{"run": "rat-x", "apply": true}); !strings.HasPrefix(out, "error:") {
 		t.Errorf("a failing exit without a refusal answered: %s", out)
+	}
+}
+
+// Review round 3: a status keeps failed when the ls row it reads was
+// projected already (F06); a runner that cannot start names no host path
+// (F07).
+func TestDelegateToolsStatusKeepsFailedAndHidesRunnerErrors(t *testing.T) {
+	root := t.TempDir()
+	server := New(pose.Store{Root: root}).WithDelegateRunner(func(ctx context.Context, dir string, args []string) ([]byte, int, error) {
+		raw, _ := json.Marshal(map[string]any{"schema": "pose.delegate.ls/v1", "attempts": []any{map[string]any{"attempt": "rat-x", "active": true, "status": "failed", "failure": "x"}}})
+		return raw, 0, nil
+	})
+	args, _ := json.Marshal(map[string]any{"run": "rat-x"})
+	status, err := server.dispatchDelegate(context.Background(), root, "pose_delegate_status", args)
+	if err != nil || status.(map[string]any)["failed"] != true {
+		t.Fatalf("status: %v %v", status, err)
+	}
+	server.delegateRunner = func(ctx context.Context, dir string, args []string) ([]byte, int, error) {
+		return nil, -1, errors.New("chdir /SYNTHETIC_MISSING_PROJECT: no such file or directory")
+	}
+	if _, err := server.dispatchDelegate(context.Background(), root, "pose_delegate_status", args); err == nil || strings.Contains(err.Error(), "SYNTHETIC") {
+		t.Fatalf("runner error: %v", err)
 	}
 }

@@ -84,6 +84,9 @@ var delegateSummaryKeys = map[string]bool{
 	"attestation": true, "prior_runs": true, "reserves_attempt": true, "supervisor_pid": true, "losses": true, "candidates": true,
 	// attempts is the ls document's list; each row is reduced again by status.
 	"attempts": true,
+	// failed is the projection of a failure: a row projected again keeps it
+	// (review round 3, F06).
+	"failed": true,
 }
 
 // delegateSummary reduces a CLI document to the summary keys, and every
@@ -252,7 +255,9 @@ func (s *Server) runDelegate(ctx context.Context, root string, args ...string) (
 		return nil, code, fmt.Errorf("pose delegate %s did not answer within the call's bound", args[0])
 	}
 	if err != nil {
-		return nil, code, err
+		// The runner's error names the host's paths: the caller learns the
+		// command did not start (review round 3, F07).
+		return nil, code, fmt.Errorf("pose delegate %s could not start", args[0])
 	}
 	var doc map[string]any
 	if err := json.Unmarshal(out, &doc); err != nil {

@@ -243,3 +243,39 @@ func TestDelegateToolsOverMCPKeepADetachedRoutingRefusal(t *testing.T) {
 		t.Fatalf("preview %v, applied %s", preview, out)
 	}
 }
+
+// Review round 3, B06: repeating a resume or a handoff of a predecessor
+// whose continuation exists returns that continuation detached, over MCP,
+// as the foreground CLI does, and runs no agent again.
+func TestDelegateToolsOverMCPReturnAnExistingContinuation(t *testing.T) {
+	root := dispatchInstance(t)
+	writeDelegation(t, root, delegationPolicy(limitingAgent, continuingAgent))
+	call := delegateMCP(t, root)
+	for _, op := range []string{"resume", "handoff"} {
+		started := call("pose_delegate_start", map[string]any{"purpose": "review", "target": "spec:alpha", "agent": "stopper", "label": op, "reason": op, "apply": true})
+		attempt, _ := started["attempt"].(string)
+		waited := call("pose_delegate_wait", map[string]any{"run": attempt, "timeout_seconds": 60})
+		predecessor, _ := waited["run"].(string)
+		if waited["state"] != "interrupted" || predecessor == "" {
+			t.Fatalf("%s: the run did not stop: %v", op, waited)
+		}
+		args := map[string]any{"run": predecessor, "apply": true}
+		if op == "handoff" {
+			args["to"] = "continuer"
+		}
+		first := call("pose_delegate_"+op, args)
+		done := call("pose_delegate_wait", map[string]any{"run": attempt, "timeout_seconds": 60})
+		if first["attempt"] != attempt || done["state"] != "completed" {
+			t.Fatalf("%s: %v then %v", op, first, done)
+		}
+		before, _, _ := posemodel.Store{Root: root}.ListDelegationAttempts()
+		again := call("pose_delegate_"+op, args)
+		after, _, _ := posemodel.Store{Root: root}.ListDelegationAttempts()
+		if again["attempt"] != attempt || again["refused"] != nil || len(after) != len(before) {
+			t.Fatalf("%s repeated: %v", op, again)
+		}
+		if replay := call("pose_delegate_wait", map[string]any{"run": attempt, "timeout_seconds": 60}); replay["run"] != done["run"] {
+			t.Fatalf("%s repeated ran again: %v, first %v", op, replay, done)
+		}
+	}
+}
