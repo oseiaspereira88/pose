@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-19adaa30e9ae9f12",
+  "bundle_id": "rvb-7850daa8171184bc",
+  "bundle_digest": "sha256:7850daa8171184bc03ca955ccc31d1bd34e142b306f3ea1b89aa32e772e24bc0",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The agent:independent- prefix is a declaration required by the engine, not authenticated identity. Maintainer-authorized reviewer is Codex/OpenAI, another vendor than implementer Claude/Anthropic. Identity is declared and pose-dist attestations are unsigned. No execution digest or Anthropic session marker is invented in this reviewing environment."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Resume and handoff share one predecessor claim and receipts. Exactly one winner in the concurrent independent race; mixed chains preserve history, budgets and watch order. Same-attempt accounting and opening-agent ceiling remain in force."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "CLI handoff, optional hands_off_from/handoff_renderer records and normalized call ordinals preserve existing reads. Historical proofs from eb4ad73,341aa5e,0ac1cb6 verify without rewriting records; versioned runs never fall back."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Completed/same-agent runs, missing attempts, recordless stalls, conflicting explicit destination, spent budget and invalid wait bound are refused with reasons. Unknown renderer and forged brief/section are rejected; raw paths, session and environment controls remain bounded."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Native CLI/domain dispatch, normalized events, shared continuation ledger, version-aware proof and watch/wait paths compose capability:delegation-handoff. Integration assessment was executed; 63 existing unobserved external consumers are diagnostics, not claimed external adoption."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Initial command, ls and wait carry truthful next_actions with unavailable reasons and explicit no-op cancel. Watch marks resume versus handoff in order; interrupted predecessor stays partial/unknown and only successor concludes."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Unversioned immutable runs reconstruct against current,V1,V0 only when the section digest matches; explicitly versioned runs never fall back. Raw-ID, anonymous and no-events history remains readable. The base/wire digest and signed canonical record bind the selected section."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "B01-B09 and F01-F03 reconciled. Fifteen literal upgrade cases from eb4ad73,341aa5e,0ac1cb6 pass against the current binary. Prior independent probes and version-isolation/forgery refusals pass under race. No unresolved finding remains."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "D1 preserves the original attempt ceiling rather than allowing vendor alternation to increase it. D2 bounds and quotes only recorded partial/commands and requires re-verification. D4 reuses one claim and receipt across resume/handoff. Renderer versioning repairs B09 without restoring unsafe pairing for new runs."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Four manuals, help catalog and changelog match the implemented handoff semantics. Final trace/report will record R10 as deferred and identity limitations. The unrelated 841fc2b documentary changes are excluded."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Stopped command results, ls and wait disclose executable next_actions or unavailable reasons. Cancel is an explicit no-op on a stopped run; terminal choices wait for an answer, including after handoff. Auto retries return the existing continuation; conflicting explicit destination is refused."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1-R9 verified within D1-D4 boundaries. R10 is deferred to pose-delegated-review-round-protocol, not satisfied. Attempt ceiling is the opening agents; only the successor concludes. Renderer version 2 is recorded and unversioned runs cover all three historical renderers."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Milestone continuity delivers cross-agent handoff on the existing attempt and claim. Recordless stalls are refused under D4. Thread/current-session integration remains deferred under D3. Implementation is Claude/Anthropic session f2a4d9f2-d557-4064-ae96-6ed52bb47cd2; seal lead is explicitly anthropic/claude-opus-5-5 from the Codex reviewer environment."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Partial output remains quoted and cannot become a gate verdict. Call ordinals disclose no raw credential/session value in normalized persisted/live events. New runs remain renderer 2; forged digest, removed version and unknown version are refused. Exclusive predecessor claim, private session storage and containment remain intact."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The smallest sufficient continuation reuses the attempt, claim, budget and containment. Two legacy command renderers exist only for immutable proof reconstruction; a third candidate is necessary for the unversioned 0ac1cb6 producer. No thread/session contract or general task execution is fabricated."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict for this spec: 23 claims and 23 observed paths across six attributed implementation commits. The range includes one unrelated documentary commit, explicitly excluded from the attributed subject; global orphan warnings are outside this spec."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-a6deaf0be77301cb",
+      "rationale": "Executed JSON assessment on the canonical sealed subject: 22 entries observed, zero detected structural deltas. This does not waive the manual CLI, record and proof contract review."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed --if-stale for pose-mcp and refreshed its changed content/matrix assessment; outputs retained locally and restored before attestation, not staged as implementation or close-produced state."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed integration assessment for changed CLI/policy/record contracts: 64 declarations, one active local contract and 63 preexisting unobserved consumers. Native handoff integration passed; no external adoption is claimed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed: 305 source files, one covered marker, zero uncovered. Coverage remains incomplete for two preexisting invalid historical specs; changed sources reviewed directly, no global absence claim."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate requires this attestation; will execute immediately after approved verification and retain its real result before closeout."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate requires this attestation; will execute immediately after approved verification and retain its real result before closeout."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed component rule selection and applied backend-go, security, documentation-style, delivery-evidence and knowledge governance within the authorized scope."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed strict for capability:delegation-handoff: one composed-capability path, current integration evidence and zero composition findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed strict global validation 158/158 and the component-specific invocation; matching current-head module evidence is sealed. No required check was waived."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed strict global validation 158/158 and the component-specific invocation; matching current-head module evidence is sealed. No required check was waived."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delegated-run-provenance-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-27T07:08:14Z",
+  "path": ".pose/review-attestations/rva-19adaa30e9ae9f12.json"
+}

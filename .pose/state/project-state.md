@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-26T19:45:22Z
-baseline_commit: a8ce8cf97acb89815cc8440f028ec319c63ec1c3
+generated_at: 2026-10-27T08:19:13Z
+baseline_commit: 94e9b700a9de7fa2fbcbcbfa01c6a1ea392aee86
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:da80604cae1a -->
+<!-- state:derived hash:f12044751ef8 -->
 
-- specs: total=453 draft=25 in-progress=17 blocked=0 done=410 superseded=0 abandoned=1
+- specs: total=454 draft=25 in-progress=17 blocked=0 done=411 superseded=0 abandoned=1
 - roadmaps: total=23 active=3 done=11
 - últimos closeouts:
-  - spec:pose-delegated-adapter-containment (2026-10-26)
-  - spec:pose-delegation-surface (2026-10-26)
-  - spec:pose-delegation-routing (2026-10-26)
+  - spec:pose-delegation-handoff (2026-10-27)
   - spec:pose-delegated-review-run-provenance (2026-10-26)
-  - spec:pose-delegated-review-completion-signal (2026-10-26)
-  - ... e mais 405 (ver `pose_list_specs status:done`)
+  - spec:pose-delegation-surface (2026-10-26)
+  - spec:pose-delegated-adapter-containment (2026-10-26)
+  - spec:pose-git-repository-detection-ignores-locale (2026-10-26)
+  - ... e mais 406 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:592a583533db -->
@@ -76,16 +76,16 @@ capacidade.
 - knowledge: total=13 ativo=13 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:f48de02ed97f -->
+<!-- state:derived hash:8e68285fbc72 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
-- últimos 30 dias: total=77 outcome_ok=53 outcome_outro=24
+- últimos 30 dias: total=66 outcome_ok=42 outcome_outro=24
 - reports revisados (.md): total=278
   - report:pose-abm-capability-adoption.md
   - report:pose-agency-readiness-pilot.md
   - report:pose-v6-2-0-autonomous-work.md
   - report:pose-v7-legacy-cleanup-plan.md
-  - report:2026-10-23-standard-validate-native.md
+  - report:2026-10-23-standard-b29-update-preview-source-qualification.md
 
 ## Arquitetura
 <!-- state:derived hash:3926d1e5cceb status:active -->

@@ -1,8 +1,8 @@
 ---
 slug: pose-delegation-handoff
-status: in-progress
+status: done
 created_at: 2026-10-26
-completed_at:
+completed_at: 2026-10-27
 supersedes:
 depends_on: pose-delegation-routing, pose-delegated-review-completion-signal
 priority: 2
@@ -106,7 +106,7 @@ Continuation planner, brief renderer (handoff section), run record (`hands_off_f
 - [x] Lineage in the record and in watch
 - [x] Terminal choices and `next_actions`
 - [ ] Thread session update on vendor change: deferred to `pose-delegated-review-round-protocol` (D3)
-- [ ] Independent review and closeout
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -150,14 +150,43 @@ A fake agent stops on a recorded limit; a handoff to a second fake agent runs un
 
 ### Requirement trace
 
+- R1 [satisfied] Interrupted/failed handoffs and completed/same-agent refusals verified by test:TestDelegateHandoffRefusesAndIsBounded and check:delegation-surface-integration. A stall without a record is refused under D4; no orphan continuation is started.
+- R2 [satisfied] Shared attempt identity and the opening agent's continuation ceiling verified by test:TestAttemptContinuationBudgetIsTheOpeningAgents and test:TestDelegateHandoffRefusesAndIsBounded; resume/handoff share the exclusive predecessor claim and accumulated wall-clock budget.
+- R3 [satisfied] Recorded partial and normalized commands, conservative call correlation, quoting and disclosed truncation verified by test:TestHandoffSectionQuotesAndBounds and test:TestHandoffCommandsPairOnlyWhatIsKnown.
+- R4 [satisfied] Base/section/wire digests and recorded renderer verified by test:TestHandoffRunProvenanceVerifies and test:TestHandoffSectionVerifiesByRecordedRenderer. Literal proofs from eb4ad73, 341aa5e and 0ac1cb6 each verify in all five independent upgrade scenarios.
+- R5 [satisfied] hands_off_from, receipts and distinct watch markers verified by test:TestDelegateHandoffContinuesTheAttemptWithAnotherAgent and check:delegated-run-continuity-integration; independent probes replay both mixed-chain orders without history findings.
+- R6 [satisfied] Quoted partial never supplies the successor's decision, as verified by test:TestHandoffSectionQuotesAndBounds and test:TestDelegateHandoffContinuesTheAttemptWithAnotherAgent; only the successor's own rejecting output determines wait exit 10.
+- R7 [satisfied] Auto routing, availability and recorded-continuation retry verified by test:TestDelegateStoppedRunsOfferTheirWaysForward and test:TestDelegateHandoffAutoRetryReturnsTheContinuation.
+- R8 [satisfied] Initial and repeated terminal choices, including cancel alone, verified by test:TestDelegateStoppedRunActionsAreExecutable; no action starts before the answer.
+- R9 [satisfied] JSON and plain stopped-command results plus ls/wait actions, unavailable reasons and cancel semantics verified by test:TestDelegateStoppedRunActionsAreExecutable and check:delegation-surface-integration.
+- R10 [deferred-integration: spec:pose-delegated-review-round-protocol] D3 defers the thread's current-session update and later-round session reuse to the round protocol. Each handoff captures its own session, but that integration is not claimed satisfied or executed here.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: milestone `continuity` of roadmap `delegation`.
+Milestone `continuity` of roadmap `delegation`: cross-agent handoff of an interrupted or failed run under the same attempt, exclusive continuation claim and opening-agent budget; quoted bounded recorded partial and commands; lineage and renderer version in the run; reconstruction of immutable legacy proofs; terminal choices, machine-readable next_actions and mixed-chain watch replay. A stall without a record is refused under D4. R10 remains deferred to `pose-delegated-review-round-protocol` under D3, not satisfied.
+
+### Independent review and evidence
+
+Maintainer-authorized reviewer `agent:independent-gpt-6.1-sol-review` (Codex/OpenAI), another vendor than the implementer Claude/Anthropic, Claude Opus 5.5 session `f2a4d9f2-d557-4064-ae96-6ed52bb47cd2`. The `agent:independent-` prefix is a declaration required by the engine, not authenticated separation. Identity is declared and this instance's attestations are unsigned.
+
+Bundle `rvb-7850daa8171184bc`, attestation `rva-19adaa30e9ae9f12`, approved over implemented commit `94e9b700a9de7fa2fbcbcbfa01c6a1ea392aee86`. Sealed explicitly with `--lead anthropic/claude-opus-5-5` from the reviewing Codex environment; the warning that no Anthropic session reference is available is expected, and no implementation execution digest was invented.
+
+B01-B09 and F01-F03 are reconciled as fixed, including the unversioned conservative renderer introduced by 0ac1cb6. The complete review reports and independent probes are retained locally under `.review-work/round1/` through `.review-work/round5/` (deliberately untracked). The unrelated documentary commit 841fc2b was excluded from the implementation review.
+
+### Validation executed
+
+`pose validate --strict`: 158/158 checks passed, no failures, errors or skips; structured evidence is `.pose/results/delivery-validation.json`. Prior independent vet, Windows/Darwin builds, both locales, clean-session full suite and selected race checks passed. Current independent probes pass with -race, including claim exclusivity, mixed lineage, version isolation, forged/unknown-version refusals, stopped-run choices and all reconciled findings. Literal immutable proofs from eb4ad73, 341aa5e and 0ac1cb6 verify 5/5 each against the final binary. Earlier production omission mutations, including the always-current renderer mutation, failed the relevant regression tests without editing tracked code or tests.
+
+Native artifact reconciliation, capability composition, rule selection, design/discovery/integration/debt assessment, approved review verification and completion gates were executed; their exact outputs are recorded in the local round-5 report. The roadmap remains nonterminal because subsequent milestones are not delivered by this spec.
 
 ### Residual risks
 
-None yet.
+Identity and cognitive independence remain declarations, not vendor-authenticated receipts. Historical renderer selection is restricted to immutable unversioned runs and a matching bound digest; new runs record version 2 and never fall back to unsafe legacy pairing. The partial still requires independent re-verification and never becomes gate evidence on its own. R10's thread/session integration remains deferred under D3.
+
+The integration assessment retains preexisting unobserved external consumers; the debt assessment retains incomplete coverage for two invalid historical specs and does not certify global absence of debt. No general task execution, thread protocol or external consumer adoption is claimed.
 
 ### Follow-ups
+
+No open follow-ups remain for this spec. The round-protocol integration of R10 is the explicit D3 deferral to the existing spec, not a claim of delivered session reuse.
