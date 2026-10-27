@@ -9,6 +9,7 @@ package cli
 // that tracks the process is woken when the run ends.
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -139,6 +140,15 @@ wait:
 	}
 	_ = os.Remove(handback)
 	if attempt == "" {
+		// A child that refused wrote its error document: that refusal, with
+		// its reason code, is the answer, not the log's tail (spec
+		// pose-delegation-mcp R5, R7; review round 1, B02, B03).
+		if f.jsonOut {
+			if doc := lastDelegateErrorDocument(logPath); doc != nil {
+				writeDelegateJSON(stdout, doc)
+				return 1
+			}
+		}
 		tail, _ := os.ReadFile(logPath)
 		if len(tail) > 2048 {
 			tail = tail[len(tail)-2048:]
@@ -236,4 +246,33 @@ func printWaitResult(stdout io.Writer, jsonOut bool, r posemodel.DelegationWaitR
 	}
 	line += fmt.Sprintf(" exit=%d", r.Code)
 	render(stdout, io.Discard).ContractLine(line)
+}
+
+// lastDelegateErrorDocument is the last pose delegate error document a
+// detached child wrote to its log, reduced to what a refusal carries.
+func lastDelegateErrorDocument(logPath string) map[string]any {
+	raw, err := os.ReadFile(logPath)
+	if err != nil {
+		return nil
+	}
+	marker := []byte("\"schema\": \"" + delegateErrorSchema + "\"")
+	at := bytes.LastIndex(raw, marker)
+	if at < 0 {
+		return nil
+	}
+	start := bytes.LastIndexByte(raw[:at], '{')
+	if start < 0 {
+		return nil
+	}
+	var doc map[string]any
+	if json.NewDecoder(bytes.NewReader(raw[start:])).Decode(&doc) != nil {
+		return nil
+	}
+	out := map[string]any{"schema": delegateErrorSchema}
+	for _, k := range []string{"command", "error", "reason_code", "usage", "candidates"} {
+		if v, ok := doc[k]; ok {
+			out[k] = v
+		}
+	}
+	return out
 }

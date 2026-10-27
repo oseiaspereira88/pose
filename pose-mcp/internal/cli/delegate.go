@@ -22,6 +22,7 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -519,9 +520,26 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 }
 
 func delegateNoAgent(stdout, stderr io.Writer, jsonOut bool, command string) int {
+	// The document keeps the typed refusal and no example: the example is
+	// for a person reading the terminal (spec pose-delegation-mcp R5, R7).
+	if jsonOut {
+		return delegateFail(stdout, stderr, true, command, 1, posemodel.ErrNoReviewerAdapter)
+	}
 	example, _ := posemodel.CanonicalDelegationPolicy(posemodel.ExampleDelegationPolicy())
 	err := errors.New(tr("no agent is configured; add .pose/policy/delegation.json, for example:\n", "nenhum agente configurado; adicione .pose/policy/delegation.json, por exemplo:\n") + string(example))
 	return delegateFail(stdout, stderr, jsonOut, command, 1, err)
+}
+
+// delegateGivenRoot checks the root a caller names: an absolute directory
+// holding a POSE instance.
+func delegateGivenRoot(root string) (string, error) {
+	if !filepath.IsAbs(root) {
+		return "", errors.New(posemodel.DelegateRootEnv + " must be an absolute path")
+	}
+	if info, err := os.Stat(filepath.Join(root, ".pose")); err != nil || !info.IsDir() {
+		return "", errors.New(posemodel.DelegateRootEnv + " names no POSE instance")
+	}
+	return filepath.Clean(root), nil
 }
 
 // delegateTerminalHook runs the policy's on_terminal hook once the run is

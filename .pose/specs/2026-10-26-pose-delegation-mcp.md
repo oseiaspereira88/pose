@@ -67,6 +67,9 @@ MCP server tool catalog and handlers, shared refusal codes with the CLI, bounded
 - created: .pose/starts/pose-delegation-mcp.json
 - created: .pose/changelogs/unreleased/pose-delegation-mcp.md
 - created: pose-mcp/internal/mcpserver/delegate_tools.go
+- created: pose-mcp/internal/mcpserver/delegate_tools_test.go
+- modified: pose-mcp/internal/cli/cli.go
+- modified: pose-mcp/internal/cli/delegate_wait.go
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/catalog.go
 - modified: pose-mcp/internal/mcpserver/server_test.go

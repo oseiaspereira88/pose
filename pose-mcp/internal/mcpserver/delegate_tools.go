@@ -13,9 +13,11 @@ package mcpserver
 
 import (
 	"context"
+
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/pose"
 	"os"
 	"os/exec"
 	"strings"
@@ -50,6 +52,7 @@ func defaultDelegateRunner(ctx context.Context, root string, args []string) ([]b
 	}
 	cmd := exec.CommandContext(ctx, self, append([]string{"delegate"}, args...)...)
 	cmd.Dir = root
+	cmd.Env = DelegateEnv(root)
 	out, err := cmd.Output()
 	var exit *exec.ExitError
 	if errors.As(err, &exit) {
@@ -61,6 +64,13 @@ func defaultDelegateRunner(ctx context.Context, root string, args []string) ([]b
 	return out, 0, nil
 }
 
+// DelegateEnv is the environment a delegate subprocess runs with: the
+// server's, and the root the server resolved and authorized, which the CLI
+// uses instead of rediscovering one (R6; review round 1, B01).
+func DelegateEnv(root string) []string {
+	return append(os.Environ(), pose.DelegateRootEnv+"="+root)
+}
+
 // delegateSummaryKeys are the fields a delegate tool returns: the normalized
 // summary of a run, its attempt and its ways forward (R7).
 var delegateSummaryKeys = map[string]bool{
@@ -68,7 +78,7 @@ var delegateSummaryKeys = map[string]bool{
 	"scope": true, "bundle": true, "attempt": true, "run": true, "runs": true, "latest_run": true, "resumes": true, "hands_off_from": true,
 	"status": true, "state": true, "failure": true, "interruption": true, "next_actions": true, "error": true, "reason_code": true,
 	"usage": true, "routing": true, "independence": true, "implementation": true, "decision": true, "resumable": true, "reset_at": true,
-	"exit_code": true, "active": true, "liveness": true, "heartbeat_age": true, "stalled_at": true, "turns": true, "last_step": true,
+	"exit_code": true, "active": true, "liveness": true, "heartbeat_age": true, "stalled_at": true, "turns": true,
 	"round": true, "started_at": true, "ended_at": true, "access": true, "time_left": true, "partial": true, "cancel_requested": true,
 	"attestation": true, "prior_runs": true, "reserves_attempt": true, "supervisor_pid": true, "losses": true, "candidates": true,
 	// attempts is the ls document's list; each row is reduced again by status.
@@ -86,18 +96,17 @@ func delegateSummary(doc map[string]any) map[string]any {
 	return out
 }
 
-// runDelegate runs the CLI with --json under bound and returns its document,
-// reduced, with the CLI's exit code.
-func (s *Server) runDelegate(ctx context.Context, root string, bound time.Duration, args ...string) (map[string]any, int, error) {
+// runDelegate runs the CLI with --json within the call's deadline and returns
+// its document, reduced, with the CLI's exit code. The deadline is the
+// call's, shared by every subprocess it runs (review round 1, B05).
+func (s *Server) runDelegate(ctx context.Context, root string, args ...string) (map[string]any, int, error) {
 	runner := s.delegateRunner
 	if runner == nil {
 		runner = defaultDelegateRunner
 	}
-	ctx, cancel := context.WithTimeout(ctx, bound)
-	defer cancel()
 	out, code, err := runner(ctx, root, append(args, "--json"))
 	if ctx.Err() != nil {
-		return nil, code, fmt.Errorf("pose delegate %s did not answer within %s", args[0], bound)
+		return nil, code, fmt.Errorf("pose delegate %s did not answer within the call's bound", args[0])
 	}
 	if err != nil {
 		return nil, code, err
@@ -112,6 +121,11 @@ func (s *Server) runDelegate(ctx context.Context, root string, bound time.Durati
 // delegateRefused turns a CLI error document into the tool's error, keeping
 // its reason code (R5).
 func delegateRefused(tool string, doc map[string]any) (any, error) {
+	if losses, ok := doc["losses"].([]any); ok && len(losses) > 0 && doc["error"] == nil {
+		// A history that could not be read whole answers nothing about the
+		// run (review round 1, F01).
+		return map[string]any{"refused": true, "error": "the delegated run history could not be read whole", "losses": losses}, nil
+	}
 	if msg, ok := doc["error"].(string); ok {
 		result := map[string]any{"refused": true, "error": msg}
 		for _, k := range []string{"reason_code", "routing", "candidates", "usage"} {
@@ -140,6 +154,23 @@ func (s *Server) dispatchDelegate(ctx context.Context, root, name string, args j
 	if err := json.Unmarshal(args, &a); err != nil {
 		return nil, fmt.Errorf("%s: invalid arguments", name)
 	}
+	if a.TimeoutSeconds < 0 || a.TimeoutSeconds > int(delegateWaitMax/time.Second) {
+		return nil, fmt.Errorf("%s: timeout_seconds must be from 1 to %d", name, int(delegateWaitMax/time.Second))
+	}
+	// One deadline per call, shared by every subprocess it runs (B05).
+	bound := delegateStatusBound
+	switch {
+	case name == "pose_delegate_wait":
+		wait := delegateWaitDefault
+		if a.TimeoutSeconds > 0 {
+			wait = time.Duration(a.TimeoutSeconds) * time.Second
+		}
+		bound = wait + delegateStatusBound
+	case a.Apply:
+		bound = delegateStartBound
+	}
+	ctx, cancel := context.WithTimeout(ctx, bound)
+	defer cancel()
 	// R6: the call runs in the project the server resolved for it, under the
 	// shared project-scope contract — the default project only when it is
 	// unambiguous — after the server's authorization admitted it.
@@ -180,7 +211,7 @@ func (s *Server) dispatchDelegate(ctx context.Context, root, name string, args j
 		}
 		// The plan names the agent and the independence the run achieves; the
 		// detached run then reserves its attempt (R1).
-		plan, pcode, perr := s.runDelegate(ctx, root, delegateStatusBound, common([]string{a.Purpose, a.Target, "--dry-run"})...)
+		plan, pcode, perr := s.runDelegate(ctx, root, common([]string{a.Purpose, a.Target, "--dry-run"})...)
 		if perr != nil {
 			return nil, perr
 		}
@@ -191,7 +222,7 @@ func (s *Server) dispatchDelegate(ctx context.Context, root, name string, args j
 			plan["apply"] = "false (call again with apply: true to start the run detached)"
 			return plan, nil
 		}
-		doc, code, err = s.runDelegate(ctx, root, delegateStartBound, common([]string{a.Purpose, a.Target, mode})...)
+		doc, code, err = s.runDelegate(ctx, root, common([]string{a.Purpose, a.Target, mode})...)
 		if err == nil && code == 0 {
 			doc["agent"], doc["independence"], doc["routing"] = plan["agent"], plan["independence"], plan["routing"]
 		}
@@ -199,7 +230,7 @@ func (s *Server) dispatchDelegate(ctx context.Context, root, name string, args j
 		if a.Run == "" {
 			return nil, fmt.Errorf("%s: required argument %q missing", name, "run")
 		}
-		listed, lcode, lerr := s.runDelegate(ctx, root, delegateStatusBound, "ls", a.Run)
+		listed, lcode, lerr := s.runDelegate(ctx, root, "ls", a.Run)
 		if lerr != nil {
 			return nil, lerr
 		}
@@ -214,7 +245,7 @@ func (s *Server) dispatchDelegate(ctx context.Context, root, name string, args j
 		status := delegateSummary(row)
 		if active, _ := row["active"].(bool); !active {
 			// Terminal: the outcome a waiter reads, without waiting (R2).
-			outcome, _, oerr := s.runDelegate(ctx, root, delegateStatusBound, "wait", a.Run, "--timeout", "1ms")
+			outcome, _, oerr := s.runDelegate(ctx, root, "wait", a.Run, "--timeout", "1ms")
 			if oerr == nil {
 				for _, k := range []string{"decision", "exit_code", "resumable", "reset_at"} {
 					if v, ok := outcome[k]; ok {
@@ -232,10 +263,7 @@ func (s *Server) dispatchDelegate(ctx context.Context, root, name string, args j
 		if a.TimeoutSeconds > 0 {
 			timeout = time.Duration(a.TimeoutSeconds) * time.Second
 		}
-		if timeout > delegateWaitMax {
-			timeout = delegateWaitMax
-		}
-		doc, code, err = s.runDelegate(ctx, root, timeout+delegateStatusBound, "wait", a.Run, "--timeout", timeout.String())
+		doc, code, err = s.runDelegate(ctx, root, "wait", a.Run, "--timeout", timeout.String())
 		if err == nil && code == 50 {
 			// R3: the bound passed; the run goes on.
 			doc["state"] = "still-running"
@@ -246,20 +274,12 @@ func (s *Server) dispatchDelegate(ctx context.Context, root, name string, args j
 		if a.Run == "" {
 			return nil, fmt.Errorf("%s: required argument %q missing", name, "run")
 		}
-		bound := delegateStatusBound
-		if a.Apply {
-			bound = delegateStartBound
-		}
-		doc, code, err = s.runDelegate(ctx, root, bound, "resume", a.Run, mode)
+		doc, code, err = s.runDelegate(ctx, root, "resume", a.Run, mode)
 	case "pose_delegate_handoff":
 		if a.Run == "" || a.To == "" {
 			return nil, fmt.Errorf("%s: required arguments %q and %q", name, "run", "to")
 		}
-		bound := delegateStatusBound
-		if a.Apply {
-			bound = delegateStartBound
-		}
-		doc, code, err = s.runDelegate(ctx, root, bound, "handoff", a.Run, "--to", a.To, mode)
+		doc, code, err = s.runDelegate(ctx, root, "handoff", a.Run, "--to", a.To, mode)
 	default:
 		return nil, fmt.Errorf("unknown delegate tool %s", name)
 	}

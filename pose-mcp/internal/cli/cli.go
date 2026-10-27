@@ -258,6 +258,11 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 		return cmdAdopt(root, args, stdout, stderr)
 	case "delegate":
 		root, err := projectRoot()
+		// The root a caller resolved and authorized wins over the one the
+		// directory would yield (spec pose-delegation-mcp R6).
+		if given := os.Getenv(posemodel.DelegateRootEnv); given != "" {
+			root, err = delegateGivenRoot(given)
+		}
 		if err != nil {
 			render(stdout, stderr).Failure("pose delegate: " + err.Error())
 			return 2

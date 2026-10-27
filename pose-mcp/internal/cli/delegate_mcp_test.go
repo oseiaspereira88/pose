@@ -7,9 +7,12 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/harne8/pose-mcp/internal/mcpserver"
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
@@ -22,7 +25,7 @@ func delegateMCP(t *testing.T, root string) func(tool string, args map[string]an
 	binary := poseBinary(t)
 	server := mcpserver.New(posemodel.Store{Root: root}).WithDelegateRunner(func(ctx context.Context, dir string, args []string) ([]byte, int, error) {
 		cmd := exec.CommandContext(ctx, binary, append([]string{"delegate"}, args...)...)
-		cmd.Dir = dir
+		cmd.Dir, cmd.Env = dir, mcpserver.DelegateEnv(dir)
 		out, err := cmd.Output()
 		var exit *exec.ExitError
 		if errors.As(err, &exit) {
@@ -161,5 +164,61 @@ func TestDelegateToolsOverMCPContinueStoppedRuns(t *testing.T) {
 	}
 	if done := call("pose_delegate_wait", map[string]any{"run": second, "timeout_seconds": 60}); done["state"] != "completed" || done["decision"] != "approved" {
 		t.Fatalf("the resumed run: %v", done)
+	}
+}
+
+// Review round 1 of pose-delegation-mcp: the subprocess stays in the
+// authorized root (B01); no result carries the run's messages or a log
+// (B02); a detached continuation refused by its budget, and a project with
+// no agent, keep their reason codes (B03, B04); timeout_seconds is bounded
+// (F04).
+func TestDelegateToolsOverMCPHoldAgainstTheFirstReview(t *testing.T) {
+	root := dispatchInstance(t)
+	chatty := `"chatty": {"vendor": "test", "model": "chatty-1", "timeout": "30s", "events": "codex-jsonl",
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; printf '%s\\n' '{\"type\":\"item.completed\",\"item\":{\"type\":\"agent_message\",\"text\":\"SYNTHETIC_PRIVATE_PROMPT /private/x.log\"}}'; sleep 4; echo decision: approved"]}}`
+	writeDelegation(t, root, delegationPolicy(chatty, limitingAgent, strings.Replace(strings.Replace(limitingAgent, `"stopper"`, `"stopper-b"`, 1), `"vendor": "test"`, `"vendor": "other"`, 1), continuingAgent))
+	call := delegateMCP(t, root)
+	started := call("pose_delegate_start", map[string]any{"purpose": "review", "target": "spec:alpha", "agent": "chatty", "apply": true})
+	attempt, _ := started["attempt"].(string)
+	if attempt == "" {
+		t.Fatalf("start: %v", started)
+	}
+	deadline := time.Now().Add(3 * time.Second)
+	for time.Now().Before(deadline) {
+		status := call("pose_delegate_status", map[string]any{"run": attempt})
+		if strings.Contains(string(mustJSON(status)), "SYNTHETIC_PRIVATE") {
+			t.Fatalf("a status carries the run's message: %v", status)
+		}
+		time.Sleep(300 * time.Millisecond)
+	}
+	call("pose_delegate_wait", map[string]any{"run": attempt, "timeout_seconds": 60})
+	if bad := call("pose_delegate_wait", map[string]any{"run": attempt, "timeout_seconds": 99999}); !strings.Contains(string(mustJSON(bad)), "timeout_seconds") {
+		t.Fatalf("an unbounded wait was accepted: %v", bad)
+	}
+	stopped := call("pose_delegate_start", map[string]any{"purpose": "review", "target": "spec:alpha", "agent": "stopper", "reason": "budget", "apply": true})
+	first, _ := stopped["attempt"].(string)
+	call("pose_delegate_wait", map[string]any{"run": first, "timeout_seconds": 60})
+	call("pose_delegate_handoff", map[string]any{"run": first, "to": "stopper-b", "apply": true})
+	call("pose_delegate_wait", map[string]any{"run": first, "timeout_seconds": 60})
+	call("pose_delegate_handoff", map[string]any{"run": first, "to": "stopper", "apply": true})
+	call("pose_delegate_wait", map[string]any{"run": first, "timeout_seconds": 60})
+	refused := call("pose_delegate_handoff", map[string]any{"run": first, "to": "continuer", "apply": true})
+	if refused["reason_code"] != posemodel.DelegationReasonBudgetExhausted || strings.Contains(string(mustJSON(refused)), "supervisors") {
+		t.Fatalf("a detached refusal lost its code or carried a log: %v", refused)
+	}
+	empty := dispatchInstance(t)
+	if r := delegateMCP(t, empty)("pose_delegate_start", map[string]any{"purpose": "review", "target": "spec:alpha", "apply": true}); r["reason_code"] != posemodel.DelegationReasonNoAgent || strings.Contains(string(mustJSON(r)), "commands") {
+		t.Fatalf("no agent: %v", r)
+	}
+	// A server rooted at a nested instance runs there, never in the parent.
+	child := filepath.Join(root, "child")
+	if err := os.MkdirAll(filepath.Join(child, ".pose", "policy"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	before, _, _ := posemodel.Store{Root: root}.ListDelegationAttempts()
+	r := delegateMCP(t, child)("pose_delegate_start", map[string]any{"purpose": "review", "target": "spec:alpha", "agent": "chatty", "reason": "nested", "apply": true})
+	after, _, _ := posemodel.Store{Root: root}.ListDelegationAttempts()
+	if len(after) != len(before) || r["attempt"] != nil {
+		t.Fatalf("a nested server ran in the parent: %v (%d → %d)", r, len(before), len(after))
 	}
 }

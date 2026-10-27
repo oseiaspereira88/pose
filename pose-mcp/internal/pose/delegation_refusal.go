@@ -15,6 +15,12 @@ const (
 	DelegationReasonNoAgent            = "no-agent"
 )
 
+// DelegateRootEnv names the project root a `pose delegate` process runs in
+// when its caller resolved it — the MCP server, for the project it
+// authorized — so the process never rediscovers another one from the
+// directory it starts in (spec pose-delegation-mcp R6, review round 1, B01).
+const DelegateRootEnv = "POSE_DELEGATE_ROOT"
+
 // DelegationRefusal is a refusal with its reason code.
 type DelegationRefusal struct {
 	Code string
