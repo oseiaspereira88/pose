@@ -84,6 +84,7 @@ Task front end, access templates, record location and permissions, exclusion fro
 - created: pose-mcp/internal/cli/delegate_task_test.go
 - modified: pose-mcp/internal/cli/delegate.go
 - modified: pose-mcp/internal/cli/delegate_handoff.go
+- modified: pose-mcp/internal/cli/delegate_watch.go
 - modified: pose-mcp/internal/cli/delegate_test.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/cli/help_catalog.go
