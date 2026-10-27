@@ -35,7 +35,8 @@ func TestRunProvenanceMCPReadsCurrentMachineProof(t *testing.T) {
 	policy := map[string]any{"schema_version": 2, "enabled": true, "adopted_at": "2026-08-02", "profiles": map[string]string{"spec": "spec-closeout@1"}, "review_bundles": true, "review_bundles_adopted_at": "2026-08-14", "delegated_review": true, "reviewer_independence": map[string]string{"spec": "different-actor"}, "identity_assurance": map[string]string{"spec": "verified"}, "authority_project": "proj.fixture", "authority_audience": "fixture-audience", "trusted_attestation_issuers": []string{key.Pin()}}
 	raw, _ := json.Marshal(policy)
 	write(".pose/policy/review.json", string(raw))
-	reviewers := pose.ReviewersPolicy{SchemaVersion: 1, Provenance: &pose.ReviewRunProvenancePolicy{Trust: "executor-attested", Implementation: pose.ModelIdentity{Principal: "agent:implementer", Execution: "implementation-fixture", Vendor: "openai", Model: "implementation-model"}}, Adapters: map[string]pose.ReviewerAdapter{"fake": {Executor: "agent:reviewer", Command: []string{"sh", "-c", "cat >/dev/null; printf 'decision: approved\\n'"}, Vendor: "different-vendor", Model: "implementation-model"}}}
+	draftPath := filepath.Join(t.TempDir(), "draft.txt")
+	reviewers := pose.ReviewersPolicy{SchemaVersion: 1, Provenance: &pose.ReviewRunProvenancePolicy{Trust: "executor-attested", Implementation: pose.ModelIdentity{Principal: "agent:implementer", Execution: "implementation-fixture", Vendor: "openai", Model: "implementation-model"}}, Adapters: map[string]pose.ReviewerAdapter{"fake": {Executor: "agent:reviewer", Command: []string{"sh", "-c", "cat >/dev/null; cat '" + draftPath + "'"}, Vendor: "different-vendor", Model: "implementation-model"}}}
 	raw, _ = json.Marshal(reviewers)
 	write(".pose/policy/reviewers.json", string(raw))
 	write(".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
@@ -69,6 +70,7 @@ func TestRunProvenanceMCPReadsCurrentMachineProof(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
+	writeRunConclusion(t, s, bundle.BundleID, draftPath)
 	run, e := s.RunReviewDispatch(plan, time.Now)
 	if e != nil || run.Status != pose.ReviewRunCompleted {
 		t.Fatal(run.Failure, e)
@@ -128,5 +130,25 @@ func TestRunProvenanceMCPReadsCurrentMachineProof(t *testing.T) {
 	v = read()
 	if v.Approved || v.Assurance.ReviewerIdentity == pose.ReviewRunMachineAttested || v.Assurance.Run != nil {
 		t.Fatal("missing proof retained MCP assurance", v.Blockers)
+	}
+}
+
+// writeRunConclusion writes the typed conclusion the fixture's reviewer
+// returns: the criterion and the tools the attestation will state (spec
+// pose-delegated-review-conclusions D1).
+func writeRunConclusion(t *testing.T, s pose.Store, bundleID, path string) {
+	t.Helper()
+	prepared, e := s.PrepareReviewAttestation(bundleID, "agent:reviewer", time.Now())
+	if e != nil {
+		t.Fatal(e)
+	}
+	draft := pose.ReviewDraft{Schema: pose.ReviewDraftSchema, Decision: "approved", Findings: []pose.ReviewDraftFinding{},
+		Criteria: []pose.ReviewDraftCriterion{{ID: "correctness", Disposition: "passed", Evidence: "integration:val-alpha", Rationale: "fixture reviewer checked the sealed subject and found no defect"}}}
+	for _, tool := range prepared.Attestation.Tools {
+		draft.Tools = append(draft.Tools, pose.ReviewDraftTool{ID: tool.ID, Component: tool.Component, Disposition: tool.Disposition, Evidence: tool.Evidence, Rationale: tool.Rationale})
+	}
+	raw, _ := json.Marshal(draft)
+	if e := os.WriteFile(path, []byte("decision: approved\n```pose-draft\n"+string(raw)+"\n```\n"), 0o600); e != nil {
+		t.Fatal(e)
 	}
 }

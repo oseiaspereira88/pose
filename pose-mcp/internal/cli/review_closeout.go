@@ -1517,26 +1517,14 @@ func reviewToolDispositions(plan posemodel.ReviewPlan, raw []string, componentAw
 // pose-review-approval-domain-preflight R4, R7).
 func decodeReviewToolDispositions(plan posemodel.ReviewPlan, raw []string) ([]posemodel.ReviewToolDisposition, error) {
 	result := make([]posemodel.ReviewToolDisposition, 0, len(plan.Tools)+len(raw))
-	provided := map[string]bool{}
 	for _, value := range raw {
 		disposition, err := parseCLIReviewToolDisposition(value)
 		if err != nil {
 			return nil, err
 		}
-		provided[cliReviewToolKey(disposition.ID, disposition.Component)] = true
 		result = append(result, disposition)
 	}
-	for _, tool := range plan.Tools {
-		if provided[cliReviewToolKey(tool.ID, tool.Component)] {
-			continue
-		}
-		if cliReviewToolHasPrecondition(tool, "review-complete") {
-			result = append(result, posemodel.ReviewToolDisposition{ID: tool.ID, Component: tool.Component, Disposition: "deferred", Rationale: "post-review gate"})
-		} else if tool.Requiredness == "recommended" {
-			result = append(result, posemodel.ReviewToolDisposition{ID: tool.ID, Component: tool.Component, Disposition: "not-used", Rationale: "not used during review"})
-		}
-	}
-	return result, nil
+	return posemodel.ReviewToolDefaults(plan.Tools, result), nil
 }
 
 func parseCLIReviewToolDisposition(value string) (posemodel.ReviewToolDisposition, error) {

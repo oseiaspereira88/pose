@@ -19,11 +19,12 @@ func cliRunProvenanceFixture(t *testing.T) (string, posemodel.Store, posemodel.R
 	if e != nil {
 		t.Fatal(e)
 	}
+	draftPath := filepath.Join(t.TempDir(), "draft.txt")
 	root := dispatchInstanceWith(t, func(root string, git func(...string) string) {
 		policy := map[string]any{"schema_version": 2, "enabled": true, "adopted_at": "2026-08-02", "profiles": map[string]string{"spec": "spec-closeout@1"}, "review_bundles": true, "review_bundles_adopted_at": "2026-08-14", "delegated_review": true, "component_aware": true, "component_aware_adopted_at": "2026-08-13", "unmapped_component_behavior": "warning", "reviewer_independence": map[string]string{"spec": "different-actor"}, "identity_assurance": map[string]string{"spec": "verified"}, "authority_project": "proj.fixture", "authority_audience": "fixture-audience", "trusted_attestation_issuers": []string{key.Pin()}}
 		raw, _ := json.Marshal(policy)
 		writeCloseoutCLIFile(t, root, ".pose/policy/review.json", string(raw))
-		reviewers := posemodel.ReviewersPolicy{SchemaVersion: 1, Provenance: &posemodel.ReviewRunProvenancePolicy{Trust: "executor-attested", Implementation: posemodel.ModelIdentity{Principal: "agent:implementer", Execution: "implementation-fixture", Vendor: "openai", Model: "implementation-model"}}, Adapters: map[string]posemodel.ReviewerAdapter{"fake": {Executor: "agent:reviewer", Command: []string{"sh", "-c", "cat >/dev/null; printf 'decision: approved\\n'"}, Vendor: "openai", Model: "review-model"}}}
+		reviewers := posemodel.ReviewersPolicy{SchemaVersion: 1, Provenance: &posemodel.ReviewRunProvenancePolicy{Trust: "executor-attested", Implementation: posemodel.ModelIdentity{Principal: "agent:implementer", Execution: "implementation-fixture", Vendor: "openai", Model: "implementation-model"}}, Adapters: map[string]posemodel.ReviewerAdapter{"fake": {Executor: "agent:reviewer", Command: []string{"sh", "-c", "cat >/dev/null; cat '" + draftPath + "'"}, Vendor: "openai", Model: "review-model"}}}
 		raw, _ = json.Marshal(reviewers)
 		writeCloseoutCLIFile(t, root, ".pose/policy/reviewers.json", string(raw))
 		git("add", "-A")
@@ -37,6 +38,11 @@ func cliRunProvenanceFixture(t *testing.T) (string, posemodel.Store, posemodel.R
 	t.Setenv("CODEX_THREAD_ID", "implementation-fixture")
 	if code, out := runPose(t, root, "review", "bundle", "spec:alpha", "--seal", "--lead", "openai/implementation-model"); code != 0 || !strings.Contains(out, "review_bundle.implementation=openai/implementation-model (declared)") {
 		t.Fatal(code, out)
+	}
+	if current, e := (posemodel.Store{Root: root}).CurrentReviewBundle("spec:alpha"); e != nil || current == nil {
+		t.Fatal(current, e)
+	} else {
+		writeRunConclusion(t, posemodel.Store{Root: root}, current.BundleID, draftPath)
 	}
 	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--apply"); code != 0 {
 		t.Fatal(code, out)
@@ -118,4 +124,24 @@ func appendRunProvenanceTools(t *testing.T, s posemodel.Store, bundle, reviewer 
 		args = append(args, "--tool", fmt.Sprintf("%s|%s|%s|%s|%s", tool.ID, component, tool.Disposition, tool.Evidence, tool.Rationale))
 	}
 	return args
+}
+
+// writeRunConclusion writes the typed conclusion the fixture's reviewer
+// returns: the criterion and the tools the attestation will state (spec
+// pose-delegated-review-conclusions D1).
+func writeRunConclusion(t *testing.T, s posemodel.Store, bundleID, path string) {
+	t.Helper()
+	prepared, e := s.PrepareReviewAttestation(bundleID, "agent:reviewer", time.Now())
+	if e != nil {
+		t.Fatal(e)
+	}
+	draft := posemodel.ReviewDraft{Schema: posemodel.ReviewDraftSchema, Decision: "approved", Findings: []posemodel.ReviewDraftFinding{},
+		Criteria: []posemodel.ReviewDraftCriterion{{ID: "correctness", Disposition: "passed", Evidence: "integration:val-alpha", Rationale: "fixture reviewer checked the sealed subject and found no defect"}}}
+	for _, tool := range prepared.Attestation.Tools {
+		draft.Tools = append(draft.Tools, posemodel.ReviewDraftTool{ID: tool.ID, Component: tool.Component, Disposition: tool.Disposition, Evidence: tool.Evidence, Rationale: tool.Rationale})
+	}
+	raw, _ := json.Marshal(draft)
+	if e := os.WriteFile(path, []byte("decision: approved\n```pose-draft\n"+string(raw)+"\n```\n"), 0o600); e != nil {
+		t.Fatal(e)
+	}
 }

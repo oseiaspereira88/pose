@@ -66,6 +66,10 @@ type ReviewDraftCriterion struct {
 	Disposition string `json:"disposition"`
 	Evidence    string `json:"evidence,omitempty"`
 	Rationale   string `json:"rationale,omitempty"`
+	// Mappings answer the structural facts the criterion is responsible for,
+	// as `--criterion` mappings do; the writer's gate judges them (review
+	// round 1, B4).
+	Mappings []ReviewCriterionMapping `json:"mappings,omitempty"`
 }
 
 // ReviewDraftTool is the disposition of one tool the plan requires.
@@ -220,8 +224,13 @@ func validateReviewDraft(d ReviewDraft) error {
 			return fmt.Errorf("criterion %q is not a unique criterion id", c.ID)
 		case c.Disposition != "passed" && c.Disposition != "finding" && c.Disposition != "not-applicable":
 			return fmt.Errorf("criterion %s: disposition %q is not passed, finding or not-applicable", c.ID, c.Disposition)
-		case len(c.Evidence) > reviewDraftMaxText || len(c.Rationale) > reviewDraftMaxText:
+		case len(c.Evidence) > reviewDraftMaxText || len(c.Rationale) > reviewDraftMaxText || len(c.Mappings) > reviewDraftMaxFindings:
 			return fmt.Errorf("criterion %s exceeds its bounds", c.ID)
+		}
+		for _, m := range c.Mappings {
+			if strings.TrimSpace(m.Delta) == "" || len(m.Delta) > 256 || len(m.Basis) > 256 || len(m.Disposition) > 64 || len(m.Rationale) > reviewDraftMaxText || len(m.Owner) > 256 || len(m.ReviewBy) > 64 {
+				return fmt.Errorf("criterion %s: a mapping needs a delta and bounded text", c.ID)
+			}
 		}
 		answered[c.ID] = true
 	}

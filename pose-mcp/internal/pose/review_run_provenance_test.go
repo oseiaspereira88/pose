@@ -52,7 +52,11 @@ func provenanceRunFixtureAs(t *testing.T, identity *ReviewBundleImplementation, 
 	policy["trusted_attestation_issuers"] = []string{key.Pin()}
 	raw, _ = json.Marshal(policy)
 	writeReviewFixture(t, root, ".pose/policy/review.json", string(raw))
-	reviewers := ReviewersPolicy{SchemaVersion: 1, Provenance: &ReviewRunProvenancePolicy{Trust: "executor-attested", Implementation: ModelIdentity{Principal: "agent:implementer", Execution: "implementation-fixture", Vendor: "openai", Model: "implementation-model"}}, Adapters: map[string]ReviewerAdapter{"fake": {Executor: "agent:reviewer", Command: []string{"sh", "-c", "cat >/dev/null; printf 'decision: approved\\n'"}, Vendor: vendor, Model: model}}}
+	// The reviewer returns the typed conclusion its brief asks for, written
+	// once the bundle is sealed: a run's attestation states that conclusion
+	// (spec pose-delegated-review-conclusions D1).
+	draftPath := filepath.Join(t.TempDir(), "draft.txt")
+	reviewers := ReviewersPolicy{SchemaVersion: 1, Provenance: &ReviewRunProvenancePolicy{Trust: "executor-attested", Implementation: ModelIdentity{Principal: "agent:implementer", Execution: "implementation-fixture", Vendor: "openai", Model: "implementation-model"}}, Adapters: map[string]ReviewerAdapter{"fake": {Executor: "agent:reviewer", Command: []string{"sh", "-c", "cat >/dev/null; cat '" + draftPath + "'"}, Vendor: vendor, Model: model}}}
 	adapter := reviewers.Adapters["fake"]
 	for _, change := range changes {
 		change(&adapter)
@@ -102,6 +106,9 @@ func provenanceRunFixtureAs(t *testing.T, identity *ReviewBundleImplementation, 
 	if e != nil {
 		t.Fatal(e)
 	}
+	if e = os.WriteFile(draftPath, []byte(draftFrom(t, approvedBundleAttestation(bundle, "agent:reviewer"), nil)), 0o600); e != nil {
+		t.Fatal(e)
+	}
 	plan, e := s.PlanReviewDispatch(bundle.BundleID, "review", "fixture labelled notes", "fake")
 	if e != nil {
 		t.Fatal(e)
@@ -133,6 +140,11 @@ func (f runProvenanceFixture) attestation(t *testing.T, decision ...string) Revi
 	att := approvedBundleAttestation(f.bundle, "agent:reviewer")
 	if len(decision) > 0 {
 		att.Decision = decision[0]
+	}
+	// A run whose final message carries no typed conclusion concluded no
+	// criterion, tool or finding (D1).
+	if draft, _ := ParseReviewDraft(f.run.Output); draft == nil {
+		att.Criteria, att.Tools, att.Findings = nil, nil, nil
 	}
 	att.Run = &ReviewRunReference{RunID: f.run.RunID, ProofID: f.proof.ProofID}
 	envelope, e := f.store.SignReviewAttestation(att, f.key, nil, time.Now())

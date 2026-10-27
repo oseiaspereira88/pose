@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -257,7 +258,7 @@ func (s Store) LoadProvenanceReviewRun(id string) (ReviewRun, error) {
 		return ReviewRun{}, e
 	}
 	if len(lost) > 0 {
-		return ReviewRun{}, fmt.Errorf("run provenance history is incomplete: %v", lost)
+		return ReviewRun{}, fmt.Errorf("%w: %v", errReviewRunHistoryIncomplete, lost)
 	}
 	for _, run := range runs {
 		if run.RunID == id {
@@ -500,6 +501,10 @@ func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time
 func validProofDigest(value string) bool {
 	return regexp.MustCompile(`^sha256:[0-9a-f]{64}$`).MatchString(value)
 }
+
+// errReviewRunHistoryIncomplete is a run history that could not be read whole.
+var errReviewRunHistoryIncomplete = errors.New("run provenance history is incomplete")
+
 func (s Store) verifyRunReviewReference(bundle ReviewBundle, att ReviewAttestation) (ReviewRunAssurance, error) {
 	if att.Run == nil {
 		return ReviewRunAssurance{}, fmt.Errorf("signed run reference is missing")
@@ -540,6 +545,9 @@ func (s Store) verifyRunReviewReference(bundle ReviewBundle, att ReviewAttestati
 	}
 	if !approval && (draft != "rejected" && draft != "changes-requested") {
 		return assurance, fmt.Errorf("run draft does not support a rejecting attestation: decision is %s", draft)
+	}
+	if why := runConclusionDiffers(run, bundle, att); why != "" {
+		return assurance, fmt.Errorf("the attestation does not state the run's conclusion: %s", why)
 	}
 	if att.Authority == nil || att.Authority.Role != "agent" || att.Authority.ReviewExecution != run.RunID || att.Authority.ImplementationPrincipal != assurance.Implementation.Principal || att.Authority.ImplementationExecution != assurance.Implementation.Execution {
 		return assurance, fmt.Errorf("attestation authority differs from run provenance")

@@ -68,6 +68,10 @@ Conclusion validators per kind, destinations (attestation, decision record, smok
 - modified: pose-mcp/internal/pose/review_brief_test.go
 - modified: pose-mcp/internal/pose/delegation_policy.go
 - modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_run_provenance.go
+- modified: pose-mcp/internal/pose/review_run_provenance_test.go
+- modified: pose-mcp/internal/cli/review_run_provenance_test.go
+- modified: pose-mcp/internal/mcpserver/review_run_provenance_test.go
 - created: pose-mcp/internal/cli/review_conclude.go
 - created: pose-mcp/internal/cli/review_conclude_test.go
 - modified: pose-mcp/internal/cli/review_closeout.go
@@ -99,7 +103,7 @@ Phase B19 as a spec of its own is recorded by the amendment of 2026-10-27 to the
 - Minimal option: a person runs `pose review run-sign` and `pose review attest --run --run-proof --sign` with the criteria and tools as flags
 - Selected option: the conclusion is typed in the run's pose-draft block — `criteria` and `tools` beside the findings, which the brief of template `review-brief/3` asks for, and `action`, `owner` and `review_by` on a follow-up to accept it as a risk — and the engine signs the run's proof and the attestation with the native issuer the delegation policy names (`conclusions.issuer`, the key outside the project) or `--issuer`, recording it through the same domain writer and preflight as every attestation. It records on its own as a review run completes only when review policy `delegated_review` is true and the issuer is set; otherwise `pose review conclude <run>` does it on demand. The maintainer chose this on 2026-10-27
 - Rationale: one writer and one preflight keep the conclusion to the bar every attestation meets; a typed conclusion leaves nothing for the engine to answer on the reviewer's behalf
-- Consequences: a criterion or tool the draft does not answer is refused by the preflight, never filled in; runs briefed with `review-brief/1` and `/2` keep verifying with their template
+- Consequences: a criterion or tool the draft does not answer is refused by the preflight, never filled in; runs briefed with `review-brief/1` and `/2` keep verifying with their template; whoever signs it, an attestation of a run briefed with `review-brief/3` states that run's conclusion — criteria, tools that state a conclusion, and findings — or verify refuses it, so the manual `review attest --run --run-proof --sign` path is bound as the engine's is (review round 1, B1)
 - Falsifier: an attestation whose criterion, tool or finding the run's draft did not state
 
 ### Decision D2

@@ -29,6 +29,9 @@ const ReviewConclusionsDir = ".pose/review-conclusions"
 const (
 	ReviewConclusionRecorded = "recorded"
 	ReviewConclusionRefused  = "refused"
+	// ReviewConclusionPending reserves a run while its conclusion is signed
+	// and recorded.
+	ReviewConclusionPending = "concluding"
 )
 
 // ReviewConclusion is what the engine did with a run's conclusion.
@@ -125,22 +128,26 @@ func reviewAttestationFromDraft(run ReviewRun, bundle ReviewBundle, draft Review
 	att := ReviewAttestation{BundleID: bundle.BundleID, BundleDigest: bundle.BundleDigest, Reviewer: reviewer, Decision: draft.Decision}
 	evidence := map[string]bool{"delegated-run:" + run.RunID: true}
 	for _, c := range draft.Criteria {
-		att.Criteria = append(att.Criteria, ReviewCriterion{ID: c.ID, Disposition: c.Disposition, Evidence: c.Evidence, Rationale: c.Rationale})
+		att.Criteria = append(att.Criteria, ReviewCriterion{ID: c.ID, Disposition: c.Disposition, Evidence: c.Evidence, Rationale: c.Rationale, Mappings: c.Mappings})
 		if c.Evidence != "" {
 			evidence[c.Evidence] = true
 		}
 	}
+	var tools []ReviewToolDisposition
 	for _, t := range draft.Tools {
-		att.Tools = append(att.Tools, ReviewToolDisposition{ID: t.ID, Component: t.Component, Disposition: t.Disposition, Evidence: t.Evidence, Rationale: t.Rationale})
+		tools = append(tools, ReviewToolDisposition{ID: t.ID, Component: t.Component, Disposition: t.Disposition, Evidence: t.Evidence, Rationale: t.Rationale})
 	}
+	att.Tools = ReviewToolDefaults(bundle.Payload.Plan.Tools, tools)
 	for _, f := range draft.Findings {
 		finding := ReviewFinding{ID: f.ID, Severity: f.Severity, Evidence: findingEvidence(f), Action: f.Action, Disposition: "open"}
 		if f.Action == "" {
 			finding.Action = f.Summary
 		}
-		// A follow-up with an owner and a review date is a risk the reviewer
-		// accepted; anything else stays open and blocks an approval.
-		if f.Disposition == "follow-up" && f.Owner != "" && f.ReviewBy != "" {
+		// A follow-up the reviewer gave an action, an owner and a review date
+		// is a risk the reviewer accepted; anything else stays open and blocks
+		// an approval. The engine never writes the action for the reviewer
+		// (review round 1, B3).
+		if f.Disposition == "follow-up" && f.Action != "" && f.Owner != "" && f.ReviewBy != "" {
 			finding.Disposition, finding.Owner, finding.ReviewBy, finding.Rationale = "accepted-risk", f.Owner, f.ReviewBy, f.Summary
 		}
 		att.Findings = append(att.Findings, finding)
@@ -153,6 +160,30 @@ func reviewAttestationFromDraft(run ReviewRun, bundle ReviewBundle, draft Review
 	return att
 }
 
+// ReviewToolDefaults is given followed by the dispositions that state no
+// conclusion, for the plan's tools given leaves out: a post-review gate
+// deferred, a recommended tool not used. A required tool left out stays out,
+// for the domain writer to name. `review attest` and a run's conclusion fill
+// the same defaults, so a run's conclusion and its attestation agree on them.
+func ReviewToolDefaults(plan []ReviewPlanTool, given []ReviewToolDisposition) []ReviewToolDisposition {
+	out := append([]ReviewToolDisposition{}, given...)
+	provided := map[string]bool{}
+	for _, t := range given {
+		provided[t.ID+"\x00"+t.Component] = true
+	}
+	for _, tool := range plan {
+		if provided[tool.ID+"\x00"+tool.Component] {
+			continue
+		}
+		if containsString(tool.Preconditions, "review-complete") {
+			out = append(out, ReviewToolDisposition{ID: tool.ID, Component: tool.Component, Disposition: "deferred", Rationale: "post-review gate"})
+		} else if tool.Requiredness == "recommended" {
+			out = append(out, ReviewToolDisposition{ID: tool.ID, Component: tool.Component, Disposition: "not-used", Rationale: "not used during review"})
+		}
+	}
+	return out
+}
+
 func findingEvidence(f ReviewDraftFinding) string {
 	if f.File == "" {
 		return ""
@@ -163,22 +194,135 @@ func findingEvidence(f ReviewDraftFinding) string {
 	return "file:" + f.File
 }
 
+// runConclusionDiffers is why att does not state the typed conclusion of a
+// run briefed to write one (template review-brief/3), or "": its criteria,
+// tools and findings are the ones the run's draft concludes, whoever signs
+// it. A run briefed with an earlier template carried no typed conclusion and
+// binds only its decision, as before (review round 1, B1; decision D1).
+func runConclusionDiffers(run ReviewRun, bundle ReviewBundle, att ReviewAttestation) string {
+	if run.Provenance == nil || run.Provenance.TemplateVersion != reviewBriefTemplateConclusions {
+		return ""
+	}
+	draft, err := ParseReviewDraft(run.Output)
+	if err != nil {
+		return "the run's draft cannot be read: " + err.Error()
+	}
+	if draft == nil {
+		draft = &ReviewDraft{Decision: att.Decision}
+	}
+	want := reviewAttestationFromDraft(run, bundle, *draft, att.Reviewer)
+	var differ []string
+	differ = append(differ, differingItems("criterion", att.Criteria, want.Criteria)...)
+	differ = append(differ, differingItems("tool", concludingTools(bundle.Payload.Plan.Tools, att.Tools), concludingTools(bundle.Payload.Plan.Tools, want.Tools))...)
+	differ = append(differ, differingItems("finding", att.Findings, want.Findings)...)
+	if len(differ) > 0 {
+		return strings.Join(differ, "; ")
+	}
+	return ""
+}
+
+// concludingTools are the dispositions of tools that state a conclusion:
+// a post-review gate deferred and a recommended tool not used state none,
+// whatever their rationale says, so a writer that fills them is not
+// answering for the reviewer.
+func concludingTools(plan []ReviewPlanTool, tools []ReviewToolDisposition) []ReviewToolDisposition {
+	planned := map[string]ReviewPlanTool{}
+	for _, tool := range plan {
+		planned[tool.ID+"\x00"+tool.Component] = tool
+	}
+	out := []ReviewToolDisposition{}
+	for _, t := range tools {
+		tool, ok := planned[t.ID+"\x00"+t.Component]
+		if ok && t.Evidence == "" && (t.Disposition == "deferred" && containsString(tool.Preconditions, "review-complete") || t.Disposition == "not-used" && tool.Requiredness == "recommended") {
+			continue
+		}
+		out = append(out, t)
+	}
+	return out
+}
+
+// differingItems names the items of got and want, keyed by id and
+// component, that one has and the other lacks or states differently.
+func differingItems[T any](kind string, got, want []T) []string {
+	index := func(items []T) (map[string]string, []string) {
+		out, keys := map[string]string{}, []string{}
+		for _, v := range items {
+			raw, _ := json.Marshal(v)
+			var m struct {
+				ID        string `json:"id"`
+				Component string `json:"component"`
+			}
+			_ = json.Unmarshal(raw, &m)
+			key := m.ID
+			if m.Component != "" {
+				key += " (component " + m.Component + ")"
+			}
+			if _, seen := out[key]; !seen {
+				keys = append(keys, key)
+			}
+			out[key] += string(raw)
+		}
+		return out, keys
+	}
+	g, gk := index(got)
+	w, wk := index(want)
+	var differ []string
+	for _, k := range gk {
+		switch wv, ok := w[k]; {
+		case !ok:
+			differ = append(differ, kind+" "+k+" is not in the draft")
+		case wv != g[k]:
+			differ = append(differ, kind+" "+k+" differs from the draft's")
+		}
+	}
+	for _, k := range wk {
+		if _, ok := g[k]; !ok {
+			differ = append(differ, kind+" "+k+" of the draft is missing")
+		}
+	}
+	return differ
+}
+
+// reviewConclusionStale is how long a reservation may stand before another
+// conclusion of the same run takes it over: a conclusion signs and writes in
+// well under a minute, so one this old was interrupted.
+const reviewConclusionStale = 15 * time.Minute
+
 // ConcludeReviewRun records the conclusion of run id signed by issuer (R1),
 // or the reasons it records none (R3); a run that concluded before returns
-// its record (R4). Without apply nothing is signed or written: the result
-// says what would be.
+// its record (R4). The run is reserved before anything is signed, so two
+// conclusions of one run never both sign and record (review round 1, B2).
+// Without apply nothing is signed or written: the result says what the
+// checks found, and that the attestation preflight runs only on apply.
 func (s Store) ConcludeReviewRun(id, issuer string, apply bool, now time.Time) (ReviewConclusion, error) {
-	if existing, err := s.ReadReviewConclusion(id); err != nil {
-		return ReviewConclusion{}, err
-	} else if existing != nil {
-		existing.Replayed = true
-		return *existing, nil
-	}
-	run, err := s.LoadProvenanceReviewRun(id)
+	existing, existingRaw, err := s.readReviewConclusionRaw(id)
 	if err != nil {
 		return ReviewConclusion{}, err
 	}
-	result := ReviewConclusion{SchemaVersion: 1, RunID: run.RunID, BundleID: run.BundleID, Scope: run.Scope, State: ReviewConclusionRefused, Issuer: issuer, ConcludedAt: now.UTC().Format(time.RFC3339Nano)}
+	var takeOver []byte
+	if existing != nil {
+		if existing.State != ReviewConclusionPending {
+			existing.Replayed = true
+			return *existing, nil
+		}
+		recovered, stale, err := s.recoverReviewConclusion(*existing, existingRaw, now)
+		if err != nil || !stale || !apply {
+			return recovered, err
+		}
+		takeOver = existingRaw
+	}
+	result := ReviewConclusion{SchemaVersion: 1, RunID: id, State: ReviewConclusionRefused, Issuer: issuer, ConcludedAt: now.UTC().Format(time.RFC3339Nano)}
+	run, err := s.LoadProvenanceReviewRun(id)
+	if errors.Is(err, errReviewRunHistoryIncomplete) {
+		// A record that cannot be read is a reason too, kept under the id
+		// asked for (review round 1, B5).
+		result.Reasons = []string{"the run's record cannot be read: " + err.Error()}
+		return s.publishReviewConclusion(result, apply, takeOver)
+	}
+	if err != nil {
+		return ReviewConclusion{}, err
+	}
+	result.BundleID, result.Scope = run.BundleID, run.Scope
 	reasons, bundle, draft := s.reviewConclusionChecks(run)
 	if draft != nil {
 		result.Decision = draft.Decision
@@ -192,17 +336,32 @@ func (s Store) ConcludeReviewRun(id, issuer string, apply bool, now time.Time) (
 	}
 	if len(reasons) > 0 {
 		result.Reasons = reasons
-		return s.publishReviewConclusion(result, apply)
+		return s.publishReviewConclusion(result, apply, takeOver)
 	}
 	if !apply {
 		result.State = ReviewConclusionRecorded
-		result.Reasons = []string{"preview: the run's proof and its attestation would be signed by " + issuer + " and recorded"}
+		result.Reasons = []string{"preview: the run passes the conclusion checks; on apply its proof and its attestation are signed by " + issuer + " and recorded if the attestation preflight admits them, which a preview does not run"}
 		return result, nil
+	}
+	// Reserve the run before any effect; a reservation another conclusion
+	// holds answers this one.
+	pending := result
+	pending.State, pending.Reasons = ReviewConclusionPending, nil
+	reservation, err := s.writeReviewConclusion(pending, takeOver)
+	if err != nil {
+		if current, _, rerr := s.readReviewConclusionRaw(id); rerr == nil && current != nil {
+			current.Replayed = true
+			return *current, nil
+		}
+		return result, err
+	}
+	finish := func(final ReviewConclusion) (ReviewConclusion, error) {
+		return s.publishReviewConclusion(final, true, reservation)
 	}
 	proof, err := s.SignReviewRunProof(run.RunID, key, 0, now, true)
 	if err != nil {
 		result.Reasons = []string{"the run's proof cannot be signed: " + strings.TrimPrefix(err.Error(), "pose: ")}
-		return s.publishReviewConclusion(result, true)
+		return finish(result)
 	}
 	assurance, err := s.VerifyReviewRunProof(run.RunID, proof.ProofID)
 	if err != nil || !assurance.CompleteReview {
@@ -211,7 +370,7 @@ func (s Store) ConcludeReviewRun(id, issuer string, apply bool, now time.Time) (
 			why = "the signed proof does not verify: " + strings.TrimPrefix(err.Error(), "pose: ")
 		}
 		result.ProofID, result.Reasons = proof.ProofID, []string{why}
-		return s.publishReviewConclusion(result, true)
+		return finish(result)
 	}
 	att := reviewAttestationFromDraft(run, *bundle, *draft, assurance.Reviewer.Principal)
 	att.Run.ProofID = proof.ProofID
@@ -235,24 +394,72 @@ func (s Store) ConcludeReviewRun(id, issuer string, apply bool, now time.Time) (
 			err = fmt.Errorf("the attestation preflight refuses it: %s", strings.Join(refusal.Blockers, "; "))
 		}
 		result.ProofID, result.Reasons = proof.ProofID, []string{strings.TrimPrefix(err.Error(), "pose: ")}
-		return s.publishReviewConclusion(result, true)
+		return finish(result)
 	}
 	result.State, result.ProofID, result.Attestation = ReviewConclusionRecorded, proof.ProofID, recorded.AttestationID
-	return s.publishReviewConclusion(result, true)
+	return finish(result)
 }
 
-// publishReviewConclusion writes result once; a concurrent writer's record
-// wins and is returned (R4).
-func (s Store) publishReviewConclusion(result ReviewConclusion, apply bool) (ReviewConclusion, error) {
+// recoverReviewConclusion answers a reservation: one whose attestation was
+// recorded before it was interrupted is completed with that attestation; a
+// stale one is reported stale, for the caller to take over; any other is
+// another conclusion in progress.
+func (s Store) recoverReviewConclusion(pending ReviewConclusion, raw []byte, now time.Time) (ReviewConclusion, bool, error) {
+	if pending.BundleID != "" {
+		attestations, _ := s.ListReviewAttestations(pending.BundleID)
+		for _, att := range attestations {
+			if att.Run != nil && att.Run.RunID == pending.RunID && att.BundleID == pending.BundleID {
+				done := pending
+				done.State, done.Attestation, done.ProofID, done.Decision = ReviewConclusionRecorded, att.AttestationID, att.Run.ProofID, att.Decision
+				done.Reasons = []string{"completed from the attestation an interrupted conclusion recorded"}
+				out, err := s.publishReviewConclusion(done, true, raw)
+				out.Replayed = true
+				return out, false, err
+			}
+		}
+	}
+	reserved, err := time.Parse(time.RFC3339Nano, pending.ConcludedAt)
+	if err != nil || now.Sub(reserved) >= reviewConclusionStale {
+		return pending, true, nil
+	}
+	pending.Replayed = true
+	pending.Reasons = []string{"another conclusion of this run is in progress"}
+	return pending, false, nil
+}
+
+// readReviewConclusionRaw is the conclusion record of run and its bytes.
+func (s Store) readReviewConclusionRaw(runID string) (*ReviewConclusion, []byte, error) {
+	c, err := s.ReadReviewConclusion(runID)
+	if err != nil || c == nil {
+		return c, nil, err
+	}
+	raw, err := readBoundedRegular(reviewConclusionPath(s.Root, runID), 1<<20)
+	return c, raw, err
+}
+
+// writeReviewConclusion writes result where nothing is, or in place of the
+// bytes over when over is set, and returns what it wrote.
+func (s Store) writeReviewConclusion(result ReviewConclusion, over []byte) ([]byte, error) {
+	if _, err := ensureReviewArtifactDir(s.Root, ReviewConclusionsDir, true); err != nil {
+		return nil, err
+	}
+	raw, _ := json.MarshalIndent(result, "", "  ")
+	raw = append(raw, '\n')
+	expect := PublishExpectation{Mode: ExpectAbsent}
+	if over != nil {
+		expect = ExpectBytes(over, true)
+	}
+	return raw, PublishFile(reviewConclusionPath(s.Root, result.RunID), raw, 0o644, PublishAuthoritative, expect)
+}
+
+// publishReviewConclusion writes result once, or in place of the
+// reservation it holds; a concurrent writer's record wins and is returned
+// (R4).
+func (s Store) publishReviewConclusion(result ReviewConclusion, apply bool, over []byte) (ReviewConclusion, error) {
 	if !apply {
 		return result, nil
 	}
-	if _, err := ensureReviewArtifactDir(s.Root, ReviewConclusionsDir, true); err != nil {
-		return result, err
-	}
-	raw, _ := json.MarshalIndent(result, "", "  ")
-	err := PublishFile(reviewConclusionPath(s.Root, result.RunID), append(raw, '\n'), 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent})
-	if err != nil {
+	if _, err := s.writeReviewConclusion(result, over); err != nil {
 		if existing, rerr := s.ReadReviewConclusion(result.RunID); rerr == nil && existing != nil {
 			existing.Replayed = true
 			return *existing, nil
