@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -190,6 +191,34 @@ func (p DelegationTaskPlan) checkFlags() error {
 		}
 	}
 	return nil
+}
+
+// taskChannels is what the interruption classifier reads of a task: stdout
+// followed by stderr, where a session stderr repeats from stdout is dropped
+// from stderr so the one session is not read as two; two different sessions
+// stay ambiguous and are refused.
+func taskChannels(adapter ReviewerAdapter, stdout, stderr []byte) ([]byte, error) {
+	channels := append(append(append([]byte(nil), stdout...), '\n'), stderr...)
+	pattern := sessionPattern(adapter)
+	if pattern == "" {
+		return channels, nil
+	}
+	fromOut, err := captureReviewValue(pattern, string(stdout))
+	if err != nil {
+		return nil, err
+	}
+	fromErr, err := captureReviewValue(pattern, string(stderr))
+	if err != nil {
+		return nil, err
+	}
+	if fromOut != "" && fromErr != "" {
+		if fromOut != fromErr {
+			return nil, fmt.Errorf("stdout and stderr name different sessions")
+		}
+		cleaned := regexp.MustCompile(pattern).ReplaceAll(stderr, nil)
+		channels = append(append(append([]byte(nil), stdout...), '\n'), cleaned...)
+	}
+	return channels, nil
 }
 
 // checkOutsideGit refuses a task outside Git whose agent declares
@@ -569,16 +598,19 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 			return finish(ReviewRunFailed, "the agent's final message exceeds output_bytes")
 		}
 		run.Output = final
-	default:
-		limit := 20000
-		if int64(limit) > safety.OutputBytes {
-			limit = int(safety.OutputBytes)
-		}
-		run.Output = tail(string(transcript), limit)
 	}
-	// The session and the limit are recognized on both streams, so a
-	// session the agent prints only on stderr is redacted there too (B2).
-	channels := append(append(append([]byte(nil), transcript...), '\n'), errText...)
+	// With no final message the stream's tail stands in for it, cut only
+	// after the stream is redacted: a cut first could leave the end of a
+	// credential or a session that no longer matches (review round 2, B1).
+	tailed := run.Output == ""
+	// The session and the limit are recognized on both streams, so a session
+	// the agent prints only on stderr is redacted there too (B2); the same
+	// session printed on both is one session, not two (round 2, B3).
+	channels, chanErr := taskChannels(plan.adapter, transcript, errText)
+	if chanErr != nil {
+		safety.CaptureComplete = false
+		return finish(ReviewRunFailed, "the agent's output could not be redacted; it was not kept: "+chanErr.Error())
+	}
 	status, failure, captureErr := s.classifyReviewInterruption(&run, DispatchPlan{Config: plan.adapter, session: plan.session}, channels, runErr, ctx.Err())
 	if run.Interruption != nil {
 		// A task resumes with its access's command, not the review's.
@@ -586,6 +618,24 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 	}
 	session := run.sessionForRedaction
 	run.sessionForRedaction = ""
+	// The recorded argv is redacted again once the session is known: a
+	// template may carry it literally.
+	for i := 0; captureErr == nil && session != "" && i < len(run.Argv); i++ {
+		var red []byte
+		if red, captureErr = redactReviewCapture([]byte(run.Argv[i]), secrets, session, 17*int64(len(run.Argv[i]))+1); captureErr == nil {
+			run.Argv[i] = string(red)
+		}
+	}
+	if captureErr == nil {
+		stdout, captureErr = redactReviewCapture(transcript, secrets, session, safety.StreamBytes)
+	}
+	if captureErr == nil && tailed {
+		limit := 20000
+		if int64(limit) > safety.OutputBytes {
+			limit = int(safety.OutputBytes)
+		}
+		run.Output = tail(string(stdout), limit)
+	}
 	if captureErr == nil {
 		var redacted []byte
 		if redacted, captureErr = redactReviewCapture([]byte(run.Output), secrets, session, safety.OutputBytes); captureErr == nil {
@@ -594,9 +644,6 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 	}
 	if captureErr == nil && run.Events != "" {
 		run.eventsBytes, captureErr = redactedDelegationEvents(run.Events, transcript, run.Output, secrets, session)
-	}
-	if captureErr == nil {
-		stdout, captureErr = redactReviewCapture(transcript, secrets, session, safety.StreamBytes)
 	}
 	if captureErr == nil {
 		stderr, captureErr = redactReviewCapture(errText, secrets, session, safety.StreamBytes)

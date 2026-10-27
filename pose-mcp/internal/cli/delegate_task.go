@@ -166,7 +166,8 @@ func delegateTaskRecordPlace(record bool) string {
 }
 
 func delegatePrintTaskPlan(stdout, stderr io.Writer, jsonOut bool, plan posemodel.DelegationTaskPlan, extra map[string]any) int {
-	argv := plan.TaskArgv("{output}")
+	// Credentials an agent is authorized to receive never show (round 2, B2).
+	argv := redactArgv(plan.TaskArgv("{output}"), posemodel.ReviewerAdapter{Containment: plan.Config.Containment})
 	doc := map[string]any{"schema": delegatePlanSchema, "purpose": posemodel.DelegationPurposeTask, "agent": plan.Agent, "vendor": plan.Config.Vendor, "model": plan.Config.Model,
 		"access": plan.Access, "workdir": plan.Dir, "argv": argv, "outside_git": plan.OutsideGit, "record": delegateTaskRecordPlace(plan.Record),
 		"label": plan.Label, "lead": plan.Lead, "routing": plan.Routing, "reserves_attempt": false}

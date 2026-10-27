@@ -270,3 +270,38 @@ func TestDelegateTaskPolicyAndBudgetsHold(t *testing.T) {
 		t.Fatalf("outside_git_args with no place: %d %s", code, errOut)
 	}
 }
+
+// Review round 2, B1, B2, B3: a credential or a session is redacted before
+// the stream's tail stands in for the final message; the dry run hides an
+// authorized credential; a session printed on both streams is one session.
+func TestDelegateTaskRedactsBeforeItCutsAndShows(t *testing.T) {
+	root, state, prompt := taskInstance(t)
+	t.Setenv("TASK_TOKEN", "tok-0123456789abcdef")
+	secretive := `"secretive": {"vendor": "test", "model": "s-2", "timeout": "30s",
+      "containment": {"schema_version": 1, "profile": "trusted-process", "credentials": ["TASK_TOKEN"], "output_bytes": 16},
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; printf '%s' \"padding-padding-padding-padding $TASK_TOKEN\"", "x", "--token=tok-0123456789abcdef"]}}`
+	twice := `"twice": {"vendor": "test", "model": "t-2", "timeout": "30s",
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; echo 'session: same-sess-01'; echo 'session: same-sess-01' >&2; echo done"]},
+      "session": {"pattern": "session: (\\S+)"}}`
+	writeDelegation(t, root, taskPolicy("", secretive, twice))
+	code, out, errOut := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "secretive", "--json")
+	var doc map[string]any
+	if json.Unmarshal([]byte(out), &doc) != nil || strings.Contains(out, "0123456789") || strings.Contains(out, "456789abcdef") {
+		t.Fatalf("a credential suffix survived the tail: %d %s %s", code, out, errOut)
+	}
+	if run, _ := doc["run"].(string); run != "" {
+		matches, _ := filepath.Glob(filepath.Join(state, "pose", "delegate", "*", run+"*"))
+		for _, f := range matches {
+			raw, _ := os.ReadFile(f)
+			if strings.Contains(string(raw), "456789abcdef") {
+				t.Fatalf("%s keeps a credential suffix", f)
+			}
+		}
+	}
+	if code, out, _ := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "secretive", "--dry-run", "--json"); code != 0 || strings.Contains(out, "0123456789") || !strings.Contains(out, "[credential]") {
+		t.Fatalf("the dry run shows a credential: %d %s", code, out)
+	}
+	if code, out, errOut := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "twice", "--json"); code != 0 || !strings.Contains(out, `"completed"`) || strings.Contains(out, "same-sess-01") {
+		t.Fatalf("one session on both streams: %d %s %s", code, out, errOut)
+	}
+}
