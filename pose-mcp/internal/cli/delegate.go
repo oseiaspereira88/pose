@@ -552,14 +552,27 @@ func redactArgv(argv []string, config posemodel.ReviewerAdapter) []string {
 	if config.Containment == nil {
 		return out
 	}
+	// One pass, the longest value first: a credential that contains another
+	// is replaced whole, whatever order the policy lists them in, and a
+	// replacement is never scanned again (review round 3 of
+	// pose-delegation-task, R3-B1).
+	var values []string
 	for _, name := range config.Containment.Credentials {
-		value := os.Getenv(name)
-		if len(value) < 4 {
-			continue
+		if value := os.Getenv(name); len(value) >= 4 {
+			values = append(values, value)
 		}
-		for i := range out {
-			out[i] = strings.ReplaceAll(out[i], value, "[credential]")
-		}
+	}
+	sort.Slice(values, func(i, j int) bool { return len(values[i]) > len(values[j]) })
+	pairs := make([]string, 0, 2*len(values))
+	for _, value := range values {
+		pairs = append(pairs, value, "[credential]")
+	}
+	if len(pairs) == 0 {
+		return out
+	}
+	replacer := strings.NewReplacer(pairs...)
+	for i := range out {
+		out[i] = replacer.Replace(out[i])
 	}
 	return out
 }

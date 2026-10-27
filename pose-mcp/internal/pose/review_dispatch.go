@@ -357,6 +357,9 @@ type DispatchPlan struct {
 	handoff        bool
 	handoffSection string
 	session        string
+	// extraChannels are outputs the interruption classifier reads beside the
+	// transcript and the output, each on its own: a task's stderr.
+	extraChannels  []string
 	notes          string
 	Existing       *ReviewRun
 	LimitOf        string

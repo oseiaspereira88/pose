@@ -305,3 +305,51 @@ func TestDelegateTaskRedactsBeforeItCutsAndShows(t *testing.T) {
 		t.Fatalf("one session on both streams: %d %s %s", code, out, errOut)
 	}
 }
+
+// Review round 3: overlapping credentials hide whole in the dry run whatever
+// their order (R3-B1); an anchored session pattern still recognizes the
+// session (R3-B2); a limit marker in the session's line still stops the run
+// (R3-B3); a run that ends before its argv is redacted records none (R3-B4).
+func TestDelegateTaskRedactionHoldsOnEveryPath(t *testing.T) {
+	root, _, prompt := taskInstance(t)
+	t.Setenv("SHORT_TOKEN", "tok-overlap-01")
+	t.Setenv("LONG_TOKEN", "tok-overlap-01-sensitive-suffix")
+	overlap := `"overlap": {"vendor": "test", "model": "v-1", "timeout": "30s",
+      "containment": {"schema_version": 1, "profile": "trusted-process", "credentials": ["SHORT_TOKEN", "LONG_TOKEN"]},
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; echo ok", "x", "--token=tok-overlap-01-sensitive-suffix"]}}`
+	anchored := `"anchored": {"vendor": "test", "model": "a-1", "timeout": "30s",
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; printf 'session: anchored-sess-01'"]},
+      "session": {"pattern": "^session: (\\S+)$"}}`
+	marked := `"marked": {"vendor": "test", "model": "m-1", "timeout": "30s",
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; echo 'session: marked-sess-01'; echo 'session: marked-sess-01 LIMIT' >&2"]},
+      "limit": {"output_patterns": ["LIMIT"]}, "session": {"pattern": "session: (\\S+)[^\\n]*"},
+      "resume": {"command": ["sh", "-c", "cat >/dev/null; echo resumed", "{session}"]}}`
+	literal := `"literal": {"vendor": "test", "model": "l-2", "timeout": "30s",
+      "containment": {"schema_version": 1, "profile": "trusted-process", "output_bytes": 16},
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; echo \"session: $1\"; head -c 100 /dev/zero | tr '\\000' x > \"$2\"", "x", "literal-sess-01", "{output}"]},
+      "session": {"pattern": "session: (\\S+)"}}`
+	writeDelegation(t, root, taskPolicy("", overlap, anchored, marked, literal))
+	for _, args := range [][]string{{"--dry-run", "--json"}, {"--dry-run"}} {
+		code, out, errOut := runPoseSplit(t, root, append([]string{"delegate", "task", prompt, "--agent", "overlap"}, args...)...)
+		if code != 0 || strings.Contains(out+errOut, "sensitive-suffix") {
+			t.Fatalf("an overlapping credential shows %v: %s %s", args, out, errOut)
+		}
+	}
+	if code, out, errOut := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "anchored", "--json"); code != 0 || strings.Contains(out, "anchored-sess-01") {
+		t.Fatalf("an anchored session was published: %d %s %s", code, out, errOut)
+	}
+	if code, out, errOut := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "marked", "--json"); !strings.Contains(out, `"interrupted"`) || strings.Contains(out, "marked-sess-01") {
+		t.Fatalf("a limit in the session's line was lost: %d %s %s", code, out, errOut)
+	}
+	code, out, errOut := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "literal", "--record", "--json")
+	if code == 0 {
+		t.Fatalf("an output beyond its budget passed: %s %s", out, errOut)
+	}
+	records, _ := filepath.Glob(filepath.Join(root, ".pose", "delegate-runs", "trn-*.json"))
+	for _, record := range records {
+		raw, _ := os.ReadFile(record)
+		if strings.Contains(string(raw), "literal-sess-01") {
+			t.Fatalf("a failed run recorded a literal session: %s", raw)
+		}
+	}
+}

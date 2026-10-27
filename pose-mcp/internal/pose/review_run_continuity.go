@@ -192,7 +192,8 @@ func (s Store) readReviewSession(digest string) (string, error) {
 }
 func (s Store) classifyReviewInterruption(run *ReviewRun, plan DispatchPlan, transcript []byte, runErr, ctxErr error) (string, string, error) {
 	// Inspect both supported output channels before any public publication.
-	value, e := captureReviewChannels(sessionPattern(plan.Config), string(transcript), run.Output)
+	channels := append([]string{string(transcript), run.Output}, plan.extraChannels...)
+	value, e := captureReviewChannels(sessionPattern(plan.Config), channels...)
 	if e != nil {
 		return "", "", e
 	}
@@ -226,8 +227,10 @@ func (s Store) classifyReviewInterruption(run *ReviewRun, plan DispatchPlan, tra
 			}
 		}
 		for _, pattern := range p.OutputPatterns {
-			if regexp.MustCompile(pattern).Match(transcript) || regexp.MustCompile(pattern).MatchString(run.Output) {
-				limit = true
+			for _, channel := range channels {
+				if regexp.MustCompile(pattern).MatchString(channel) {
+					limit = true
+				}
 			}
 		}
 	}
@@ -247,7 +250,7 @@ func (s Store) classifyReviewInterruption(run *ReviewRun, plan DispatchPlan, tra
 	}
 	interruption := &ReviewInterruption{Cause: cause, Resumable: run.SessionDigest != "" && plan.Config.Resume != nil && len(plan.Config.Resume.Command) > 0}
 	if cause == "usage-limit" {
-		reset, e := captureReviewChannels(resetPattern(plan.Config), string(transcript), run.Output)
+		reset, e := captureReviewChannels(resetPattern(plan.Config), channels...)
 		if e != nil {
 			return "", "", e
 		}
@@ -610,22 +613,25 @@ func (s Store) reviewInterruptedRuns(includeContinued bool) ([]ReviewRunSummary,
 	return out, lost
 }
 
-func captureReviewChannels(pattern, transcript, output string) (string, error) {
-	a, e := captureReviewValue(pattern, transcript)
-	if e != nil {
-		return "", e
+// captureReviewChannels captures pattern on each channel as it was written,
+// never on a concatenation, and reconciles the values: every channel that
+// names one names the same.
+func captureReviewChannels(pattern string, channels ...string) (string, error) {
+	found := ""
+	for _, channel := range channels {
+		value, e := captureReviewValue(pattern, channel)
+		if e != nil {
+			return "", e
+		}
+		if value == "" {
+			continue
+		}
+		if found != "" && value != found {
+			return "", fmt.Errorf("conflicting adapter capture channels")
+		}
+		found = value
 	}
-	b, e := captureReviewValue(pattern, output)
-	if e != nil {
-		return "", e
-	}
-	if a != "" && b != "" && a != b {
-		return "", fmt.Errorf("conflicting adapter capture channels")
-	}
-	if a != "" {
-		return a, nil
-	}
-	return b, nil
+	return found, nil
 }
 
 // PendingReviewContinuation identifies an existing reserved continuation without

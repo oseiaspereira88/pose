@@ -22,7 +22,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -191,34 +190,6 @@ func (p DelegationTaskPlan) checkFlags() error {
 		}
 	}
 	return nil
-}
-
-// taskChannels is what the interruption classifier reads of a task: stdout
-// followed by stderr, where a session stderr repeats from stdout is dropped
-// from stderr so the one session is not read as two; two different sessions
-// stay ambiguous and are refused.
-func taskChannels(adapter ReviewerAdapter, stdout, stderr []byte) ([]byte, error) {
-	channels := append(append(append([]byte(nil), stdout...), '\n'), stderr...)
-	pattern := sessionPattern(adapter)
-	if pattern == "" {
-		return channels, nil
-	}
-	fromOut, err := captureReviewValue(pattern, string(stdout))
-	if err != nil {
-		return nil, err
-	}
-	fromErr, err := captureReviewValue(pattern, string(stderr))
-	if err != nil {
-		return nil, err
-	}
-	if fromOut != "" && fromErr != "" {
-		if fromOut != fromErr {
-			return nil, fmt.Errorf("stdout and stderr name different sessions")
-		}
-		cleaned := regexp.MustCompile(pattern).ReplaceAll(stderr, nil)
-		channels = append(append(append([]byte(nil), stdout...), '\n'), cleaned...)
-	}
-	return channels, nil
 }
 
 // checkOutsideGit refuses a task outside Git whose agent declares
@@ -503,7 +474,14 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 	}
 	defer os.RemoveAll(tmp)
 	var stdout, stderr []byte
+	// argvSafe is set once the recorded argv was redacted with the session
+	// the run printed; a run that ends before that records no argv, which a
+	// template could carry the session in (review round 3, B4).
+	argvSafe := false
 	finish := func(status, failure string) (ReviewRun, error) {
+		if !argvSafe {
+			run.Argv = nil
+		}
 		if cancelled.Load() && status != ReviewRunCompleted {
 			status, failure = ReviewRunFailed, "cancelled by pose delegate cancel"
 			run.Safety.ExecutionCause = "cancelled"
@@ -603,15 +581,10 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 	// after the stream is redacted: a cut first could leave the end of a
 	// credential or a session that no longer matches (review round 2, B1).
 	tailed := run.Output == ""
-	// The session and the limit are recognized on both streams, so a session
-	// the agent prints only on stderr is redacted there too (B2); the same
-	// session printed on both is one session, not two (round 2, B3).
-	channels, chanErr := taskChannels(plan.adapter, transcript, errText)
-	if chanErr != nil {
-		safety.CaptureComplete = false
-		return finish(ReviewRunFailed, "the agent's output could not be redacted; it was not kept: "+chanErr.Error())
-	}
-	status, failure, captureErr := s.classifyReviewInterruption(&run, DispatchPlan{Config: plan.adapter, session: plan.session}, channels, runErr, ctx.Err())
+	// The session, the limit and the reset are recognized on stdout and
+	// stderr, each as written; a session both print is one session, two
+	// different ones are refused (B2; review round 3, B2 and B3).
+	status, failure, captureErr := s.classifyReviewInterruption(&run, DispatchPlan{Config: plan.adapter, session: plan.session, extraChannels: []string{string(errText)}}, transcript, runErr, ctx.Err())
 	if run.Interruption != nil {
 		// A task resumes with its access's command, not the review's.
 		run.Interruption.Resumable = run.SessionDigest != "" && len(taskResumeTemplate(plan.Config, plan.Access)) > 0
@@ -626,6 +599,7 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 			run.Argv[i] = string(red)
 		}
 	}
+	argvSafe = captureErr == nil
 	if captureErr == nil {
 		stdout, captureErr = redactReviewCapture(transcript, secrets, session, safety.StreamBytes)
 	}
