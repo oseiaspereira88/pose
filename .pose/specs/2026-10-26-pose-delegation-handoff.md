@@ -112,7 +112,7 @@ Continuation planner, brief renderer (handoff section), run record (`hands_off_f
 - Minimal option: a handoff opens a new attempt
 - Selected option: a continuation of the same attempt sharing its budget
 - Rationale: a new attempt would let alternating agents bypass `max_runs_per_bundle` and turn a rejection-free history into repeated tries
-- Consequences: a long stop may exhaust the budget and escalate as the capability spec requires
+- Consequences: a long stop may exhaust the budget and escalate as the capability spec requires. The budget's ceiling is read from the agent that opened the attempt, for resumes and handoffs alike, so a successor that declares a larger budget or none does not widen it (review round 1, B01)
 - Falsifier: a chain of handoffs that runs longer than the attempt's continuation budget
 
 ### Decision D2

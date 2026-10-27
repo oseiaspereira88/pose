@@ -400,28 +400,11 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 		plan.Existing = existing
 		return plan, nil
 	}
-	limit := config.Resume.MaxResumes
-	if limit == 0 {
-		limit = 3
-	}
-	total := 60 * time.Minute
-	if config.Resume.MaxWallTime != "" {
-		total, _ = time.ParseDuration(config.Resume.MaxWallTime)
-	}
-	spent := time.Duration(0)
-	count := 0
-	for _, r := range runs {
-		if r.AttemptID == prior.AttemptID && r.SupersededBy == "" {
-			start, e1 := time.Parse(time.RFC3339Nano, r.StartedAt)
-			end, e2 := time.Parse(time.RFC3339Nano, r.EndedAt)
-			if e1 != nil || e2 != nil || end.Before(start) {
-				return DispatchPlan{}, fmt.Errorf("invalid accumulated wall-clock evidence")
-			}
-			spent += end.Sub(start)
-			if r.continues() != "" {
-				count++
-			}
-		}
+	// The attempt's budget, not this agent's: after a handoff the resumed
+	// agent may declare another (spec pose-delegation-handoff R2).
+	count, spent, limit, total, e := attemptContinuationBudget(runs, *prior, policy)
+	if e != nil {
+		return DispatchPlan{}, e
 	}
 	if count >= limit || spent >= total {
 		return DispatchPlan{}, fmt.Errorf("resume budget exhausted: %d resumes, %s wall-clock", count, spent)

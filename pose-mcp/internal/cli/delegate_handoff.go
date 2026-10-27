@@ -59,6 +59,15 @@ func cmdDelegateHandoff(root string, args []string, stdout, stderr io.Writer) in
 	}
 	agent := f.to
 	var route *posemodel.DelegationRoutingRecord
+	// A run already handed off is continued by that run's agent: repeating the
+	// command returns the recorded continuation, whatever --to says (F01).
+	if runs, rerr := store.ListReviewRuns(""); rerr == nil {
+		for _, r := range runs {
+			if r.HandsOffFrom == target {
+				agent = r.Adapter
+			}
+		}
+	}
 	if agent == "auto" {
 		chosen, record, err := routeHandoff(store, *latest)
 		if err != nil {
@@ -97,7 +106,13 @@ func cmdDelegateHandoff(root string, args []string, stdout, stderr io.Writer) in
 	defer stop()
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	delegateTerminalHook(store, run, err, stdout, stderr, "handoff")
-	return delegatePrintRun(stdout, stderr, f.jsonOut, "handoff", run, err)
+	code = delegatePrintRun(stdout, stderr, f.jsonOut, "handoff", run, err, delegateRunNextActions(store, run, err)...)
+	if err == nil && !f.jsonOut {
+		if next, chose := offerDelegateChoices(root, run, stdout, stderr); chose {
+			return next
+		}
+	}
+	return code
 }
 
 // routeHandoff routes a handoff among the agents of the stopped run's purpose,
@@ -143,40 +158,86 @@ func routeHandoff(store posemodel.Store, prior posemodel.ReviewRun) (string, *po
 // delegateNextAction is one way forward for a stopped run (R9).
 type delegateNextAction struct {
 	Action    string `json:"action"`
-	Command   string `json:"command"`
+	Command   string `json:"command,omitempty"`
 	Available bool   `json:"available"`
 	Why       string `json:"why,omitempty"`
 }
 
-// delegateNextActions lists what a stopped attempt can do next; nil for an
-// attempt that runs or concluded.
+// delegateCancelAction leaves the attempt stopped: it has no command because
+// nothing runs to stop, nothing is spent, and a later command can still
+// continue the run (R8, R9).
+func delegateCancelAction() delegateNextAction {
+	return delegateNextAction{Action: "cancel", Available: true, Why: tr("leave the run stopped; nothing runs and the attempt's budget is kept", "deixar o run parado; nada roda e o orçamento da tentativa é mantido")}
+}
+
+// delegateNextActions lists what a stopped attempt can do next, each judged by
+// the same read-only planning its command runs, so an action offered as
+// available is one its command would start (R9); nil for an attempt that runs
+// or concluded.
 func delegateNextActions(store posemodel.Store, a posemodel.DelegationAttempt) []delegateNextAction {
 	latest := a.Latest()
 	if a.Active || latest == nil || latest.Status == posemodel.ReviewRunCompleted || latest.Status == posemodel.ReviewRunStale {
 		return nil
 	}
+	reason := func(err error) string { return strings.TrimPrefix(err.Error(), "pose: ") }
 	var actions []delegateNextAction
 	if i := latest.Interruption; latest.Status == posemodel.ReviewRunInterrupted && i != nil {
 		resume := delegateNextAction{Action: "resume", Command: "pose delegate resume " + a.AttemptID}
-		reset, resetErr := time.Parse(time.RFC3339Nano, i.ResetAt)
+		plan, err := store.PlanReviewResume(latest.RunID)
 		switch {
 		case !i.Resumable:
 			resume.Why = tr("the stop is not resumable", "a parada não é retomável")
-		case i.ResetAt != "" && resetErr == nil && reset.After(time.Now()):
-			resume.Why = tr("the agent is limited until ", "o agente está limitado até ") + i.ResetAt
-			actions = append(actions, delegateNextAction{Action: "wait", Command: "pose delegate resume " + a.AttemptID + " --wait-until-reset", Available: true})
-		default:
-			resume.Available = true
+		case err != nil:
+			resume.Why = reason(err)
+		case plan.PendingContinuation != nil || plan.Existing != nil:
+			resume.Why = tr("the run was already continued", "o run já foi continuado")
+		}
+		if resume.Why == "" {
+			reset, resetErr := time.Parse(time.RFC3339Nano, i.ResetAt)
+			if i.ResetAt != "" && resetErr == nil && reset.After(time.Now()) {
+				wait := delegateNextAction{Action: "wait", Command: "pose delegate resume " + a.AttemptID + " --wait-until-reset"}
+				if _, err := posemodel.ReviewResumeDelay(*latest, time.Now(), 24*time.Hour, 0); err != nil {
+					wait.Why = reason(err)
+				} else {
+					wait.Available = true
+				}
+				actions = append(actions, wait)
+				resume.Why = tr("the agent is limited until ", "o agente está limitado até ") + i.ResetAt
+			} else {
+				resume.Available = true
+			}
 		}
 		actions = append(actions, resume)
 	}
 	handoff := delegateNextAction{Action: "handoff", Command: "pose delegate handoff " + a.AttemptID + " --to auto"}
-	if agent, _, err := routeHandoff(store, *latest); err == nil && agent != "" {
+	if agent, _, err := routeHandoff(store, *latest); err != nil {
+		handoff.Why = reason(err)
+	} else if plan, err := store.PlanReviewHandoff(latest.RunID, agent); err != nil {
+		handoff.Why = reason(err)
+	} else if plan.PendingContinuation != nil || plan.Existing != nil {
+		handoff.Why = tr("the run was already continued", "o run já foi continuado")
+	} else {
 		handoff.Available = true
-	} else if err != nil {
-		handoff.Why = strings.TrimPrefix(err.Error(), "pose: ")
 	}
-	return append(actions, handoff)
+	return append(actions, handoff, delegateCancelAction())
+}
+
+// delegateRunNextActions is the ways forward of the attempt run belongs to,
+// for a run that just stopped (R9).
+func delegateRunNextActions(store posemodel.Store, run posemodel.ReviewRun, err error) []delegateNextAction {
+	if err != nil || run.AttemptID == "" || run.Status == posemodel.ReviewRunCompleted {
+		return nil
+	}
+	attempts, _, lerr := store.ListDelegationAttempts()
+	if lerr != nil {
+		return nil
+	}
+	for _, a := range attempts {
+		if a.AttemptID == run.AttemptID {
+			return delegateNextActions(store, a)
+		}
+	}
+	return nil
 }
 
 // offerDelegateChoices asks, in a terminal, what to do with a run that just
@@ -201,17 +262,15 @@ func offerDelegateChoices(root string, run posemodel.ReviewRun, stdout, stderr i
 	menu := render(io.Discard, stderr)
 	keys := map[string]delegateNextAction{}
 	for _, action := range actions {
-		if !action.Available || action.Action == "resume" && hasAction(actions, "wait") {
+		if !action.Available || action.Action == "cancel" {
 			continue
 		}
 		key := action.Action[:1]
 		keys[key] = action
 		menu.Usage("[" + key + "] " + action.Command)
 	}
-	if len(keys) == 0 {
-		return 0, false
-	}
-	menu.Usage("[c] " + tr("stop here", "parar aqui"))
+	// Cancelling is always offered, even as the only choice.
+	menu.Usage("[c] " + tr("cancel: leave the run stopped", "cancelar: deixar o run parado"))
 	menu.Usage(tr("the run stopped; choose: ", "o run parou; escolha: "))
 	answer, _ := bufio.NewReader(delegateStdin).ReadString('\n')
 	chosen, ok := keys[strings.ToLower(strings.TrimSpace(answer))]
@@ -226,13 +285,4 @@ func offerDelegateChoices(root string, run posemodel.ReviewRun, stdout, stderr i
 		return cmdDelegateHandoff(root, fields[1:], stdout, stderr), true
 	}
 	return 0, false
-}
-
-func hasAction(actions []delegateNextAction, name string) bool {
-	for _, a := range actions {
-		if a.Action == name {
-			return true
-		}
-	}
-	return false
 }

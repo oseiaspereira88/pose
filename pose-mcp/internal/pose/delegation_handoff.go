@@ -65,23 +65,7 @@ func renderHandoffSection(prior ReviewRun, events []DelegationEvent, eventsErr e
 		}
 	}
 	b.WriteString("\n")
-	var commands []string
-	pending := ""
-	for _, e := range events {
-		switch e.Kind {
-		case DelegationEventToolCall:
-			pending = strings.Join(strings.Fields(e.Text), " ")
-		case DelegationEventToolOutput:
-			code := 0
-			if e.ExitCode != nil {
-				code = *e.ExitCode
-			}
-			if pending != "" {
-				commands = append(commands, fmt.Sprintf("> `%s` → exit %d", strings.ReplaceAll(pending, "`", "'"), code))
-				pending = ""
-			}
-		}
-	}
+	commands := handoffCommands(events)
 	listed := strings.Join(commands, "\n")
 	fmt.Fprintf(&b, "### Commands it ran (%s)\n\n", digestBytes([]byte(listed)))
 	switch {
@@ -105,9 +89,111 @@ func renderHandoffSection(prior ReviewRun, events []DelegationEvent, eventsErr e
 	return section
 }
 
+// handoffCommands lists the commands a run made with their exit status. A
+// call and an output are paired by the call identifier the stream recorded;
+// without one, only an output that directly follows the one call still
+// waiting for its output is paired, and anything else is listed with its
+// status unknown rather than guessed (R3).
+func handoffCommands(events []DelegationEvent) []string {
+	type call struct {
+		text string
+		exit string
+	}
+	var calls []*call
+	byID := map[string]*call{}
+	var waiting []*call // calls with no identifier and no output yet
+	// unclaimed counts outputs still owed to calls that became ambiguous:
+	// until they arrive, no anonymous output is paired by elimination.
+	unclaimed := 0
+	for _, e := range events {
+		switch e.Kind {
+		case DelegationEventToolCall:
+			c := &call{text: strings.ReplaceAll(strings.Join(strings.Fields(e.Text), " "), "`", "'"), exit: "unknown"}
+			calls = append(calls, c)
+			if e.Call != "" {
+				byID[e.Call] = c
+			} else {
+				waiting = append(waiting, c)
+			}
+		case DelegationEventToolOutput:
+			code := "unknown"
+			if e.ExitCode != nil {
+				code = fmt.Sprint(*e.ExitCode)
+			}
+			switch {
+			case e.Call != "" && byID[e.Call] != nil:
+				byID[e.Call].exit = code
+				delete(byID, e.Call)
+			case e.Call == "" && len(waiting) == 1 && unclaimed == 0:
+				waiting[0].exit = code
+				waiting = nil
+			default:
+				// Several calls wait, or the call was never recorded: which
+				// command this output belongs to is not known, and the calls
+				// it may answer stay unknown.
+				calls = append(calls, &call{text: "(an output whose command is not known)", exit: code})
+				if e.Call == "" {
+					unclaimed += len(waiting)
+					waiting = nil
+					if unclaimed > 0 {
+						unclaimed--
+					}
+				}
+			}
+		}
+	}
+	out := make([]string, 0, len(calls))
+	for _, c := range calls {
+		out = append(out, fmt.Sprintf("> `%s` → exit %s", c.text, c.exit))
+	}
+	return out
+}
+
 func firstLine(s string) string {
 	line, _, _ := strings.Cut(strings.TrimSpace(s), "\n")
 	return line
+}
+
+// attemptContinuationBudget is what attempt of prior has spent and may spend:
+// its ceiling is the resume budget of the agent that opened it, whichever agent
+// continues it, so changing agents never widens it (spec
+// pose-delegation-handoff R2, D1).
+func attemptContinuationBudget(runs []ReviewRun, prior ReviewRun, policy ReviewersPolicy) (int, time.Duration, int, time.Duration, error) {
+	var origin *ReviewRun
+	count, spent := 0, time.Duration(0)
+	for i, r := range runs {
+		if r.AttemptID != prior.AttemptID || r.SupersededBy != "" {
+			continue
+		}
+		start, e1 := time.Parse(time.RFC3339Nano, r.StartedAt)
+		end, e2 := time.Parse(time.RFC3339Nano, r.EndedAt)
+		if e1 != nil || e2 != nil || end.Before(start) {
+			return 0, 0, 0, 0, fmt.Errorf("invalid accumulated wall-clock evidence")
+		}
+		spent += end.Sub(start)
+		if r.continues() != "" {
+			count++
+		} else {
+			origin = &runs[i]
+		}
+	}
+	if origin == nil {
+		return 0, 0, 0, 0, fmt.Errorf("pose: the first run of attempt %s is not recorded, so its continuation budget cannot be read", prior.AttemptID)
+	}
+	config, ok := policy.Adapters[origin.Adapter]
+	if !ok {
+		return 0, 0, 0, 0, fmt.Errorf("pose: agent %s, which opened attempt %s, is no longer configured, so its continuation budget cannot be read", origin.Adapter, prior.AttemptID)
+	}
+	limit, total := 3, 60*time.Minute
+	if config.Resume != nil {
+		if config.Resume.MaxResumes > 0 {
+			limit = config.Resume.MaxResumes
+		}
+		if config.Resume.MaxWallTime != "" {
+			total, _ = time.ParseDuration(config.Resume.MaxWallTime)
+		}
+	}
+	return count, spent, limit, total, nil
 }
 
 // handoffSectionFor reads the predecessor's events and renders its section.
@@ -198,30 +284,9 @@ func (s Store) PlanReviewHandoff(id, agent string) (DispatchPlan, error) {
 		plan.Existing = existing
 		return plan, nil
 	}
-	// The attempt's continuation budget is the successor's resume budget, or
-	// the default: alternating agents cannot extend a run without bound (D1).
-	limit, total := 3, 60*time.Minute
-	if config.Resume != nil {
-		if config.Resume.MaxResumes > 0 {
-			limit = config.Resume.MaxResumes
-		}
-		if config.Resume.MaxWallTime != "" {
-			total, _ = time.ParseDuration(config.Resume.MaxWallTime)
-		}
-	}
-	spent, count := time.Duration(0), 0
-	for _, r := range runs {
-		if r.AttemptID == prior.AttemptID && r.SupersededBy == "" {
-			start, e1 := time.Parse(time.RFC3339Nano, r.StartedAt)
-			end, e2 := time.Parse(time.RFC3339Nano, r.EndedAt)
-			if e1 != nil || e2 != nil || end.Before(start) {
-				return DispatchPlan{}, fmt.Errorf("invalid accumulated wall-clock evidence")
-			}
-			spent += end.Sub(start)
-			if r.continues() != "" {
-				count++
-			}
-		}
+	count, spent, limit, total, e := attemptContinuationBudget(runs, *prior, policy)
+	if e != nil {
+		return DispatchPlan{}, e
 	}
 	if count >= limit || spent >= total {
 		return DispatchPlan{}, fmt.Errorf("pose: the attempt's continuation budget is spent: %d continuations, %s wall-clock", count, spent)

@@ -73,7 +73,8 @@ func TestDelegateHandoffContinuesTheAttemptWithAnotherAgent(t *testing.T) {
 }
 
 // R1, R2: a completed run and the same agent are refused, and alternating
-// agents stop at the attempt's continuation budget.
+// agents stop at the continuation budget of the agent that opened the
+// attempt, even when a successor declares a larger one or none.
 func TestDelegateHandoffRefusesAndIsBounded(t *testing.T) {
 	root := handoffInstance(t)
 	if code, out, _ := runPoseSplit(t, root, "delegate", "handoff", "stopped", "--to", "stopper"); code != 1 || !strings.Contains(out+"", "") {
@@ -81,15 +82,20 @@ func TestDelegateHandoffRefusesAndIsBounded(t *testing.T) {
 	}
 	second := strings.Replace(limitingAgent, `"stopper"`, `"stopper-b"`, 1)
 	second = strings.Replace(second, `"vendor": "test"`, `"vendor": "other"`, 1)
-	second = strings.Replace(second, `"max_resumes": 2`, `"max_resumes": 1`, 1)
+	second = strings.Replace(second, `"max_resumes": 2`, `"max_resumes": 10`, 1)
 	first := strings.Replace(limitingAgent, `"max_resumes": 2`, `"max_resumes": 1`, 1)
-	writeDelegation(t, root, delegationPolicy(first, second))
+	writeDelegation(t, root, delegationPolicy(first, second, continuingAgent))
 	if code, out, _ := runPoseSplit(t, root, "delegate", "handoff", "stopped", "--to", "stopper-b"); code != 1 || !strings.Contains(out, "interrupted") {
 		t.Fatalf("first handoff: %d %s", code, out)
 	}
-	code, _, errOut := runPoseSplit(t, root, "delegate", "handoff", "stopped", "--to", "stopper")
+	// continuer declares no budget and stopper-b ten; the attempt's is one.
+	code, _, errOut := runPoseSplit(t, root, "delegate", "handoff", "stopped", "--to", "continuer")
 	if code != 1 || !strings.Contains(errOut, "continuation budget is spent") {
 		t.Fatalf("a second handoff past the budget: %d %s", code, errOut)
+	}
+	if code, out, _ := runPoseSplit(t, root, "delegate", "ls", "stopped", "--json"); code != 0 || strings.Contains(out, `"available": true,
+          "command": "pose delegate handoff`) || !strings.Contains(out, "continuation budget is spent") {
+		t.Fatalf("an unexecutable handoff offered: %s", out)
 	}
 	writeDelegation(t, root, delegationPolicy(approvingAgent, continuingAgent))
 	runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--agent", "ok", "--label", "done", "--reason", "a concluded run")
@@ -116,5 +122,72 @@ func TestDelegateStoppedRunsOfferTheirWaysForward(t *testing.T) {
 	code, out, errOut := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--agent", "stopper", "--label", "asked", "--reason", "again")
 	if !strings.Contains(errOut, "[h] pose delegate handoff") || !strings.Contains(out, "hands_off_from") {
 		t.Fatalf("terminal choices: %d %s %s", code, out, errOut)
+	}
+}
+
+// R8, R9: the ways forward are judged as their commands would judge them —
+// a wait past the bound is not offered — cancelling is offered even as the
+// only choice, the stopping command's own JSON result carries them, and a
+// handoff that stops at a terminal asks again.
+func TestDelegateStoppedRunActionsAreExecutable(t *testing.T) {
+	root := handoffInstance(t)
+	code, out, _ := runPoseSplit(t, root, "delegate", "wait", "stopped", "--json")
+	var waited struct {
+		Next []delegateNextAction `json:"next_actions"`
+	}
+	if json.Unmarshal([]byte(out), &waited) != nil {
+		t.Fatalf("wait: %d %s", code, out)
+	}
+	byName := map[string]delegateNextAction{}
+	for _, a := range waited.Next {
+		byName[a.Action] = a
+	}
+	if w := byName["wait"]; w.Available || !strings.Contains(w.Why, "maximum wait") {
+		t.Fatalf("a wait past its bound offered: %+v", w)
+	}
+	if c := byName["cancel"]; !c.Available || c.Command != "" || !byName["handoff"].Available {
+		t.Fatalf("actions: %+v", waited.Next)
+	}
+	code, out, _ = runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--agent", "stopper", "--label", "again", "--reason", "again", "--json")
+	if code != 1 || !strings.Contains(out, `"next_actions"`) || !strings.Contains(out, `"action": "cancel"`) {
+		t.Fatalf("the stopping run's result: %d %s", code, out)
+	}
+	if code, out, _ := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--agent", "stopper", "--label", "plain", "--reason", "plain"); code != 1 || !strings.Contains(out, "delegate.next.handoff=pose delegate handoff") {
+		t.Fatalf("the plain result: %d %s", code, out)
+	}
+	saved, savedIn := delegateInteractive, delegateStdin
+	defer func() { delegateInteractive, delegateStdin = saved, savedIn }()
+	delegateInteractive = func() bool { return true }
+	other := strings.Replace(limitingAgent, `"stopper"`, `"stopper-b"`, 1)
+	writeDelegation(t, root, delegationPolicy(limitingAgent, strings.Replace(other, `"vendor": "test"`, `"vendor": "other"`, 1)))
+	delegateStdin = strings.NewReader("c\n")
+	if code, out, errOut := runPoseSplit(t, root, "delegate", "handoff", "stopped", "--to", "stopper-b"); code != 1 || !strings.Contains(out, "interrupted") || !strings.Contains(errOut, "[c] ") {
+		t.Fatalf("a stopped handoff did not ask: %d %s %s", code, out, errOut)
+	}
+	// One agent, no session to resume and none to hand off to: cancelling is
+	// still offered.
+	root = dispatchInstance(t)
+	lone := strings.Replace(limitingAgent, "echo 'session: sess-stop-001'; ", "", 1)
+	writeDelegation(t, root, delegationPolicy(lone))
+	delegateStdin = strings.NewReader("c\n")
+	if code, _, errOut := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--agent", "stopper", "--label", "lone"); code != 1 || !strings.Contains(errOut, "[c] ") {
+		t.Fatalf("cancelling not offered alone: %d %s", code, errOut)
+	}
+}
+
+// F01: repeating a handoff with --to auto returns the recorded continuation.
+func TestDelegateHandoffAutoRetryReturnsTheContinuation(t *testing.T) {
+	root := handoffInstance(t)
+	runs, _ := posemodel.Store{Root: root}.ListReviewRuns("")
+	first := runs[0].RunID
+	if code, out, errOut := runPoseSplit(t, root, "delegate", "handoff", first, "--to", "auto", "--json"); code != 0 {
+		t.Fatalf("handoff: %d %s %s", code, out, errOut)
+	}
+	code, out, errOut := runPoseSplit(t, root, "delegate", "handoff", first, "--to", "auto", "--json")
+	if code != 0 || !strings.Contains(out, `"hands_off_from": "`+first) {
+		t.Fatalf("an auto retry: %d %s %s", code, out, errOut)
+	}
+	if runs, _ := (posemodel.Store{Root: root}).ListReviewRuns(""); len(runs) != 2 {
+		t.Fatalf("runs: %d", len(runs))
 	}
 }

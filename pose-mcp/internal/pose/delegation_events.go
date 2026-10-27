@@ -48,6 +48,9 @@ type DelegationEvent struct {
 	Text     string `json:"text,omitempty"`
 	ExitCode *int   `json:"exit_code,omitempty"`
 	ResetAt  string `json:"reset_at,omitempty"`
+	// Call pairs a tool call with its output: the identifier the agent's
+	// stream gives the call, when it gives one.
+	Call string `json:"call,omitempty"`
 	// tail bounds Text by its end, for a tool's output.
 	tail bool
 }
@@ -152,7 +155,7 @@ func codexEvents(transcript []byte, field func(any) string) []DelegationEvent {
 			out = append(out, DelegationEvent{Kind: DelegationEventTurn})
 		case "item.started":
 			if itemType == "command_execution" {
-				out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: "shell", Text: unwrapShell(field(item["command"]))})
+				out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: "shell", Text: unwrapShell(field(item["command"])), Call: callID(item["id"])})
 			}
 		case "item.completed":
 			switch itemType {
@@ -160,7 +163,7 @@ func codexEvents(transcript []byte, field func(any) string) []DelegationEvent {
 				out = append(out, DelegationEvent{Kind: DelegationEventMessage, Text: field(item["text"])})
 			case "command_execution":
 				code := intOf(item["exit_code"])
-				out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: "shell", ExitCode: &code, Text: field(item["aggregated_output"]), tail: true})
+				out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: "shell", ExitCode: &code, Text: field(item["aggregated_output"]), tail: true, Call: callID(item["id"])})
 			case "file_change":
 				paths := []string{}
 				changes, _ := item["changes"].([]any)
@@ -219,13 +222,13 @@ func claudeEventsWith(transcript []byte, field func(any) string, tools map[strin
 						text = field(part["name"])
 					}
 					tools[str(part["id"])] = tool
-					out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: tool, Text: text})
+					out = append(out, DelegationEvent{Kind: DelegationEventToolCall, Tool: tool, Text: text, Call: callID(part["id"])})
 				case "tool_result":
 					code := 0
 					if b, _ := part["is_error"].(bool); b {
 						code = 1
 					}
-					out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: tools[str(part["tool_use_id"])], ExitCode: &code, Text: toolResultText(part["content"], field), tail: true})
+					out = append(out, DelegationEvent{Kind: DelegationEventToolOutput, Tool: tools[str(part["tool_use_id"])], ExitCode: &code, Text: toolResultText(part["content"], field), tail: true, Call: callID(part["tool_use_id"])})
 				}
 			}
 		case "rate_limit_event":
@@ -292,6 +295,16 @@ func unixInstant(v any) string {
 		return ""
 	}
 	return time.Unix(int64(f), 0).UTC().Format(time.RFC3339Nano)
+}
+
+// callID keeps a call identifier only when it looks like one: a short token,
+// never a value an event could carry content in.
+func callID(v any) string {
+	id := str(v)
+	if len(id) == 0 || len(id) > 128 || strings.ContainsAny(id, " \t\r\n") {
+		return ""
+	}
+	return id
 }
 
 func str(v any) string {

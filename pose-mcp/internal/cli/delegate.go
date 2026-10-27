@@ -490,7 +490,7 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	}
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	delegateTerminalHook(store, run, err, stdout, stderr, purpose)
-	code = delegatePrintRun(stdout, stderr, f.jsonOut, purpose, run, err)
+	code = delegatePrintRun(stdout, stderr, f.jsonOut, purpose, run, err, delegateRunNextActions(store, run, err)...)
 	if err == nil && !f.jsonOut && !delegateSupervised() {
 		if next, chose := offerDelegateChoices(root, run, stdout, stderr); chose {
 			return next
@@ -590,7 +590,7 @@ func delegatePrintPlan(stdout, stderr io.Writer, jsonOut bool, plan posemodel.Di
 	return 0
 }
 
-func delegatePrintRun(stdout, stderr io.Writer, jsonOut bool, command string, run posemodel.ReviewRun, err error) int {
+func delegatePrintRun(stdout, stderr io.Writer, jsonOut bool, command string, run posemodel.ReviewRun, err error, next ...delegateNextAction) int {
 	code := 0
 	if err != nil || run.Status != posemodel.ReviewRunCompleted {
 		code = 1
@@ -602,6 +602,9 @@ func delegatePrintRun(stdout, stderr io.Writer, jsonOut bool, command string, ru
 			"status": run.Status, "failure": run.Failure, "record": run.Path, "events": run.EventsDigest != "", "env_removed": run.EnvRemoved, "attestation": attestation}
 		if run.Interruption != nil {
 			doc["interruption"] = run.Interruption
+		}
+		if len(next) > 0 {
+			doc["next_actions"] = next
 		}
 		if err != nil {
 			doc["error"] = strings.TrimPrefix(err.Error(), "pose: ")
@@ -624,6 +627,16 @@ func delegatePrintRun(stdout, stderr io.Writer, jsonOut bool, command string, ru
 			out.Field("delegate.hands_off_from", run.HandsOffFrom)
 		}
 		out.Field("delegate.run", run.RunID)
+		// R9 outside a terminal: the ways forward of a stopped run.
+		for _, action := range next {
+			value := action.Command
+			if !action.Available {
+				value = tr("unavailable: ", "indisponível: ") + action.Why
+			} else if value == "" {
+				value = action.Why
+			}
+			out.Field("delegate.next."+action.Action, value)
+		}
 		out.Field("delegate.status", run.Status)
 		if run.Failure != "" {
 			out.Field("delegate.failure", run.Failure)
@@ -852,7 +865,7 @@ func cmdDelegateResume(root string, args []string, stdout, stderr io.Writer) int
 	defer stop()
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	delegateTerminalHook(store, run, err, stdout, stderr, "resume")
-	code = delegatePrintRun(stdout, stderr, f.jsonOut, "resume", run, err)
+	code = delegatePrintRun(stdout, stderr, f.jsonOut, "resume", run, err, delegateRunNextActions(store, run, err)...)
 	if err == nil && !f.jsonOut {
 		if next, chose := offerDelegateChoices(root, run, stdout, stderr); chose {
 			return next
