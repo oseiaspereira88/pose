@@ -145,8 +145,11 @@ type ReviewRun struct {
 	// HandsOffFrom names the run this one continues with another agent, and
 	// HandoffDigest the section its brief added (spec
 	// pose-delegation-handoff R4, R5).
-	HandsOffFrom     string              `json:"hands_off_from,omitempty"`
-	HandoffDigest    string              `json:"handoff_digest,omitempty"`
+	HandsOffFrom  string `json:"hands_off_from,omitempty"`
+	HandoffDigest string `json:"handoff_digest,omitempty"`
+	// HandoffRenderer is the version of the renderer that listed the
+	// predecessor's commands in the section; absent on runs recorded before it.
+	HandoffRenderer  int                 `json:"handoff_renderer,omitempty"`
 	Interruption     *ReviewInterruption `json:"interruption,omitempty"`
 	SessionDigest    string              `json:"session_digest,omitempty"`
 	TreeDigest       string              `json:"tree_digest,omitempty"`
@@ -648,7 +651,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		run.Provenance = fresh.provenance
 		run.AttemptID, run.Reason = fresh.predecessor.AttemptID, fresh.predecessor.Reason
 		if fresh.handoff {
-			run.HandsOffFrom, run.HandoffDigest = fresh.predecessor.RunID, digestBytes([]byte(fresh.handoffSection))
+			run.HandsOffFrom, run.HandoffDigest, run.HandoffRenderer = fresh.predecessor.RunID, digestBytes([]byte(fresh.handoffSection)), handoffRenderer
 		} else {
 			run.Resumes = fresh.predecessor.RunID
 		}

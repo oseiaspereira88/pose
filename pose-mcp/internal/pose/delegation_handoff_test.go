@@ -80,6 +80,30 @@ func TestHandoffCommandsPairOnlyWhatIsKnown(t *testing.T) {
 	}
 }
 
+// R4: a run verifies against the renderer version it recorded; one recorded
+// before versions existed verifies against either legacy renderer, and a
+// versioned run never against a legacy one.
+func TestHandoffSectionVerifiesByRecordedRenderer(t *testing.T) {
+	two := 2
+	events := []DelegationEvent{{Kind: DelegationEventToolCall, Text: "test-A", Call: "a"}, {Kind: DelegationEventToolCall, Text: "test-B"}, {Kind: DelegationEventToolOutput, ExitCode: &two}}
+	prior := ReviewRun{RunID: "rrn-0123456789abcdef", Adapter: "a", Status: ReviewRunInterrupted, Interruption: &ReviewInterruption{Cause: "usage-limit"}, EventsDigest: "sha256:x"}
+	legacy := renderHandoffSectionWith(prior, events, nil, handoffCommandsV1)
+	current := renderHandoffSection(prior, events, nil)
+	if legacy == current {
+		t.Fatal("the fixture does not tell the renderers apart")
+	}
+	for _, c := range []struct {
+		version int
+		section string
+		want    bool
+	}{{0, legacy, true}, {0, renderHandoffSectionWith(prior, events, nil, handoffCommandsV0), true}, {handoffRenderer, current, true}, {handoffRenderer, legacy, false}, {7, current, false}} {
+		run := ReviewRun{HandoffRenderer: c.version, HandoffDigest: digestBytes([]byte(c.section))}
+		if got := handoffSectionMatching(run, prior, events, nil); (got == c.section) != c.want {
+			t.Fatalf("version %d: matched=%v, want %v", c.version, got == c.section, c.want)
+		}
+	}
+}
+
 // R3 and the containment of the stream: a call identifier is written only as
 // its ordinal, so a value the transcript redacts never reaches the persisted
 // or the live events, and correlation survives.

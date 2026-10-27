@@ -443,8 +443,8 @@ func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time
 		if priorErr != nil {
 			return fail("the handoff predecessor cannot be read")
 		}
-		section := s.handoffSectionFor(prior)
-		if digestBytes([]byte(section)) != run.HandoffDigest {
+		section := s.recordedHandoffSection(run, prior)
+		if section == "" {
 			return fail("handoff section differs from the predecessor's record")
 		}
 		brief.Text += section

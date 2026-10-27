@@ -18,6 +18,17 @@ import (
 	"time"
 )
 
+// handoffRenderer is the version of the commands renderer a new handoff run
+// records; a verifier renders a run's section with the version it recorded.
+const handoffRenderer = 2
+
+// handoffRenderers are the commands renderers by version; 0 is a run recorded
+// before the version was, whose section either legacy renderer may have made.
+var handoffRenderers = map[int][]func([]DelegationEvent) []string{
+	0:               {handoffCommandsV1, handoffCommandsV0},
+	handoffRenderer: {handoffCommands},
+}
+
 // delegationHandoffBound bounds the handoff section; what does not fit is
 // cut, and the section says so.
 const delegationHandoffBound = 16 << 10
@@ -45,6 +56,10 @@ func handoffable(r ReviewRun) string {
 // derived only from the predecessor's recorded output and normalized events,
 // so a verifier derives the same bytes.
 func renderHandoffSection(prior ReviewRun, events []DelegationEvent, eventsErr error) string {
+	return renderHandoffSectionWith(prior, events, eventsErr, handoffCommands)
+}
+
+func renderHandoffSectionWith(prior ReviewRun, events []DelegationEvent, eventsErr error, render func([]DelegationEvent) []string) string {
 	var b strings.Builder
 	cause := prior.Status
 	if prior.Interruption != nil {
@@ -65,7 +80,7 @@ func renderHandoffSection(prior ReviewRun, events []DelegationEvent, eventsErr e
 		}
 	}
 	b.WriteString("\n")
-	commands := handoffCommands(events)
+	commands := render(events)
 	listed := strings.Join(commands, "\n")
 	fmt.Fprintf(&b, "### Commands it ran (%s)\n\n", digestBytes([]byte(listed)))
 	switch {
@@ -224,6 +239,23 @@ func attemptContinuationBudget(runs []ReviewRun, prior ReviewRun, policy Reviewe
 func (s Store) handoffSectionFor(prior ReviewRun) string {
 	events, err := s.ReadDelegationEvents(prior)
 	return renderHandoffSection(prior, events, err)
+}
+
+// recordedHandoffSection is the section run was sent, derived again from its
+// predecessor's record with the renderer run recorded, or "" when no renderer
+// of that version yields the digest run carries.
+func (s Store) recordedHandoffSection(run, prior ReviewRun) string {
+	events, err := s.ReadDelegationEvents(prior)
+	return handoffSectionMatching(run, prior, events, err)
+}
+
+func handoffSectionMatching(run, prior ReviewRun, events []DelegationEvent, err error) string {
+	for _, render := range handoffRenderers[run.HandoffRenderer] {
+		if section := renderHandoffSectionWith(prior, events, err, render); digestBytes([]byte(section)) == run.HandoffDigest {
+			return section
+		}
+	}
+	return ""
 }
 
 // PlanReviewHandoff plans the continuation of run id by agent, under the same

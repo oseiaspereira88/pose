@@ -536,7 +536,7 @@ func (s Store) reviewContinuationFindings(runs []ReviewRun) []string {
 				same = same && prior.Status == ReviewRunInterrupted && prior.Interruption != nil && prior.Interruption.Resumable && r.Adapter == prior.Adapter && r.TreeDigest == prior.TreeDigest
 			} else {
 				// A handoff continues another agent, of any stop short of a conclusion.
-				same = same && handoffable(prior) == "" && r.Adapter != prior.Adapter && r.HandoffDigest != "" && (prior.TreeDigest == "" || r.TreeDigest == prior.TreeDigest)
+				same = same && handoffable(prior) == "" && r.Adapter != prior.Adapter && r.HandoffDigest != "" && handoffRenderers[r.HandoffRenderer] != nil && (prior.TreeDigest == "" || r.TreeDigest == prior.TreeDigest)
 			}
 			if !same {
 				losses = append(losses, "invalid continuation chain "+r.RunID)
