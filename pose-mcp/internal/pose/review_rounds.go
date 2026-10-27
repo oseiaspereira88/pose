@@ -39,6 +39,8 @@ var (
 	reviewFindingID   = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`)
 	reviewRoundPrefix = regexp.MustCompile(`^R[0-9]+-`)
 	reviewCarriedID   = regexp.MustCompile(`^R[0-9]{1,6}-[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`)
+	// reviewDraftOpening is any fence line that names pose-draft.
+	reviewDraftOpening = regexp.MustCompile("^(`{3,}|~{3,})\\s*pose-draft")
 )
 
 // ReviewDraftFinding is one finding a draft reports.
@@ -90,19 +92,23 @@ func ParseReviewDraft(output string) (*ReviewDraft, error) {
 	open, close := -1, -1
 	for i, line := range lines {
 		trimmed := strings.TrimSpace(line)
+		// Any fence that names pose-draft — indented, spaced, longer, or
+		// with tildes — is an attempt at a block: only the exact form opens
+		// one, and any other is an error (review round 3, R3-B1).
+		attempt := reviewDraftOpening.MatchString(trimmed)
 		switch {
-		case open < 0 && strings.HasPrefix(trimmed, reviewDraftFence):
-			if line != reviewDraftFence {
-				return nil, fmt.Errorf("line %d opens a pose-draft block in a form the engine does not read: %q", i+1, quoteLedgerText(line))
+		case attempt && (open >= 0 || line != reviewDraftFence):
+			if close >= 0 || open >= 0 {
+				return nil, fmt.Errorf("the message carries more than one pose-draft block")
 			}
+			return nil, fmt.Errorf("line %d opens a pose-draft block in a form the engine does not read: %q", i+1, quoteLedgerText(line))
+		case attempt:
 			open = i
-		case open >= 0 && close < 0 && strings.HasPrefix(trimmed, "```"):
+		case open >= 0 && close < 0 && (strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~")):
 			if line != "```" {
 				return nil, fmt.Errorf("line %d inside the pose-draft block is not its closing fence: %q", i+1, quoteLedgerText(line))
 			}
 			close = i
-		case close >= 0 && strings.HasPrefix(trimmed, reviewDraftFence):
-			return nil, fmt.Errorf("the message carries more than one pose-draft block")
 		}
 	}
 	if open < 0 {
@@ -614,7 +620,16 @@ func reviewRoundMetrics(runs []ReviewRun) []ReviewRoundMetric {
 		if concluding[r.Scope] == nil {
 			concluding[r.Scope] = map[int]ReviewRun{}
 		}
-		concluding[r.Scope][r.Round] = r // the latest run of a round concludes it
+		// The run that ended last concludes the round, as concludingReviewRun
+		// decides (review round 3, R3-F1).
+		if prev, ok := concluding[r.Scope][r.Round]; ok {
+			ended, _ := time.Parse(time.RFC3339Nano, r.EndedAt)
+			before, _ := time.Parse(time.RFC3339Nano, prev.EndedAt)
+			if ended.Before(before) || ended.Equal(before) && r.RunID < prev.RunID {
+				continue
+			}
+		}
+		concluding[r.Scope][r.Round] = r
 	}
 	scopes := make([]string, 0, len(highest))
 	for scope := range highest {

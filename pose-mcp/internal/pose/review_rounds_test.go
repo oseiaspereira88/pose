@@ -237,3 +237,32 @@ func TestReviewRoundsHoldAgainstTheSecondReview(t *testing.T) {
 		t.Fatalf("per-kind figures: cold=%+v continued=%+v", m.Cold, m.Continued)
 	}
 }
+
+// Review round 3: every fence that names pose-draft is an attempt at a block
+// — indented, spaced, longer, tildes — so a second block or a malformed one
+// is an error, never ignored (R3-B1); metrics conclude a round with the run
+// that ended last (R3-F1).
+func TestReviewRoundsHoldAgainstTheThirdReview(t *testing.T) {
+	body := `{"schema":"pose.review.draft/v1","decision":"approved","findings":[]}`
+	rejected := `{"schema":"pose.review.draft/v1","decision":"rejected","findings":[]}`
+	for name, out := range map[string]string{
+		"spaced":          "``` pose-draft\n" + body + "\n```\n",
+		"four backticks":  "````pose-draft\n" + body + "\n````\n",
+		"tildes":          "~~~pose-draft\n" + body + "\n~~~\n",
+		"spaced second":   "```pose-draft\n" + body + "\n```\n``` pose-draft\n" + rejected + "\n```\n",
+		"four second":     "```pose-draft\n" + body + "\n```\n````pose-draft\n" + rejected + "\n````\n",
+		"indented second": "```pose-draft\n" + body + "\n```\n   ```pose-draft\n" + rejected + "\n```\n",
+	} {
+		if _, err := ParseReviewDraft(out); err == nil {
+			t.Fatalf("%s: read as a valid draft or as no draft", name)
+		}
+		if draftReviewDecision(out) == "approved" {
+			t.Fatalf("%s: decided approved", name)
+		}
+	}
+	early := ReviewRun{RunID: "z", Scope: "spec:s", Kind: ReviewBriefKindReview, Status: ReviewRunCompleted, Round: 1, StartedAt: "2026-10-27T01:10:00Z", EndedAt: "2026-10-27T01:20:00Z", Output: draftOutput("approved", body)}
+	late := ReviewRun{RunID: "a", Scope: "spec:s", Kind: ReviewBriefKindReview, Status: ReviewRunCompleted, Round: 1, StartedAt: "2026-10-27T01:00:00Z", EndedAt: "2026-10-27T01:30:00Z", Output: draftOutput("rejected", rejected)}
+	if m := reviewRoundMetrics([]ReviewRun{late, early})[0]; m.RoundsToApproval != nil {
+		t.Fatalf("metrics concluded the round with the run that ended first: %+v", m)
+	}
+}
