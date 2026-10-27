@@ -445,6 +445,9 @@ type ReviewBundleDelta struct {
 }
 
 type ReviewBundleVerification struct {
+	// Round is the round of the scope the bundle is in (spec
+	// pose-delegated-review-round-protocol R1, R7).
+	Round                  int                `json:"round,omitempty"`
 	DelegatedRuns          []ReviewRunSummary `json:"delegated_runs,omitempty"`
 	DelegatedHistoryLosses []string           `json:"delegated_history_losses,omitempty"`
 	Scope                  string             `json:"scope"`
@@ -2930,6 +2933,17 @@ func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error
 	}
 	if err == nil {
 		verification.DelegatedRuns, verification.DelegatedHistoryLosses = s.reviewRunSummaries(scope)
+	}
+	if err == nil && verification.Bundle != nil {
+		if round, rerr := s.ReviewRoundOf(*verification.Bundle); rerr != nil {
+			verification.DelegatedHistoryLosses = append(verification.DelegatedHistoryLosses, "the round cannot be derived: "+rerr.Error())
+		} else {
+			verification.Round = round.Number
+			policy, _, _, _ := s.LoadDelegationPolicy()
+			if threshold := policy.Routing.RoundThresholdOf(); round.Number >= threshold {
+				verification.Warnings = append(verification.Warnings, fmt.Sprintf("%s is in review round %d, at or past the round threshold %d: the rounds are not converging; consider a different agent or a human adjudication", scope, round.Number, threshold))
+			}
+		}
 	}
 	return verification, err
 }

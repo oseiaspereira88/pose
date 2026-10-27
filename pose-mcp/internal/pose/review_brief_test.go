@@ -33,7 +33,7 @@ func TestReviewBriefIsRenderedFromTheBundleDeterministically(t *testing.T) {
 	if first.Text != second.Text || first.Digest != second.Digest || !strings.HasPrefix(first.Digest, "sha256:") {
 		t.Fatal("the same bundle rendered different briefs")
 	}
-	for _, want := range []string{"template: review-brief/1", bundle.BundleID, bundle.BundleDigest, "## Boundaries", "Do not change the repository", "Do not record an attestation", "## Criteria to answer", "## Sealed evidence", "brief-digest: " + first.Digest} {
+	for _, want := range []string{"template: review-brief/2", bundle.BundleID, bundle.BundleDigest, "## Boundaries", "Do not change the repository", "Do not record an attestation", "## Criteria to answer", "## Sealed evidence", "brief-digest: " + first.Digest} {
 		if !strings.Contains(first.Text, want) {
 			t.Fatalf("brief lacks %q:\n%s", want, first.Text)
 		}

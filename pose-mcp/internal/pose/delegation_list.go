@@ -48,8 +48,11 @@ type DelegationAttempt struct {
 	StalledAt    string `json:"stalled_at,omitempty"`
 	// HookFailure is why the latest run's on_terminal hook failed (R7).
 	HookFailure string `json:"hook_failure,omitempty"`
-	sessions    []string
-	latest      *ReviewRun
+	// Round is the review round of the scope the latest run reviewed (spec
+	// pose-delegated-review-round-protocol R1).
+	Round    int `json:"round,omitempty"`
+	sessions []string
+	latest   *ReviewRun
 }
 
 // Latest is the latest recorded run of the attempt, if any.
@@ -123,6 +126,7 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 		if latest.Access != "" {
 			row.Access = latest.Access
 		}
+		row.Round = latest.Round
 		if hook := s.ReadDelegationHook(latest.RunID); hook != nil {
 			row.HookFailure = hook.Failure
 		}

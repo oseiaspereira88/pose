@@ -378,7 +378,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		DescriptionPtBR: "Gerencia reviews por componentes e bundles imutáveis. Escritas entre projetos exigem vínculo explícito e digest --expect-context atual.",
 		Subcommands: []SubcommandHelp{
 			{"bundle", "pose review bundle <scope|xref> [--seal] [--explain] [--expect-context <digest>]", "Prepare or seal an immutable review subject bundle", "Prepara ou sela o bundle imutável de revisão"},
-			{"brief", "pose review brief <bundle-id|scope> [--kind review|adjudication|smoke] [--note-file <path>] [--json]", "Render the request a delegated reviewer receives, from the sealed bundle alone", "Gera o pedido que um revisor delegado recebe, só a partir do bundle selado"},
+			{"brief", "pose review brief <bundle-id|scope> [--kind review|adjudication|smoke] [--note-file <path>] [--json]", "Render the request a delegated reviewer receives, from the sealed bundle and, from round 2, the previous round's open findings", "Gera o pedido que um revisor delegado recebe, a partir do bundle selado e, da rodada 2 em diante, dos findings abertos da rodada anterior"},
 			{"run-sign", "pose review run-sign <run-id> --issuer <name> [--ttl <duration>] [--apply] [--json]", "Sign captured run provenance with a pinned native issuer", "Assina a proveniência capturada com issuer nativo fixado"},
 			{"run-proof", "pose review run-proof <run-id> <proof-id> [--json]", "Verify current run proof and disclose executor assurance", "Verifica a prova atual e divulga assurance do executor"},
 			{"auto-attest", "pose review auto-attest <scope|bundle-id> [--apply]", "Extract validation results and automatically record attestation", "Extrai resultados de validação e registra atestação automaticamente"},

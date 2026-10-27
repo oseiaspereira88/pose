@@ -379,7 +379,7 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 	if !ok || config.Resume == nil || len(config.Resume.Command) == 0 {
 		return DispatchPlan{}, fmt.Errorf("resume adapter declaration missing")
 	}
-	brief, e := s.RenderReviewBrief(prior.BundleID, prior.Kind, prior.BriefNotes)
+	brief, e := s.RenderReviewBriefMatching(prior.BundleID, prior.Kind, prior.BriefNotes, prior.BriefDigest)
 	if e != nil {
 		return DispatchPlan{}, e
 	}

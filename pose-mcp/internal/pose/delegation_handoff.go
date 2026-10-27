@@ -301,7 +301,7 @@ func (s Store) PlanReviewHandoff(id, agent string) (DispatchPlan, error) {
 	if !ok {
 		return DispatchPlan{}, fmt.Errorf("pose: no agent %q can run this purpose", agent)
 	}
-	brief, e := s.RenderReviewBrief(prior.BundleID, prior.Kind, prior.BriefNotes)
+	brief, e := s.RenderReviewBriefMatching(prior.BundleID, prior.Kind, prior.BriefNotes, prior.BriefDigest)
 	if e != nil {
 		return DispatchPlan{}, e
 	}

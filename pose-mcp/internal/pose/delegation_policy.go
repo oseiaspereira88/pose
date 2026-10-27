@@ -186,6 +186,27 @@ type DelegationRouting struct {
 	// R2, D2); MaxWait bounds the wait step (R7).
 	LeadModels map[string]string `json:"lead_models,omitempty"`
 	MaxWait    string            `json:"max_wait,omitempty"`
+	// RoundThreshold is the round from which a scope opens a new session and
+	// verify recommends another agent or a person (spec
+	// pose-delegated-review-round-protocol R6, R7); 5 when unset.
+	RoundThreshold int `json:"round_threshold,omitempty"`
+}
+
+// RoundsMode is routing.rounds in force: continue-thread unless the policy
+// says cold-session.
+func (r *DelegationRouting) RoundsMode() string {
+	if r == nil || r.Rounds == "" {
+		return ReviewRoundsContinueThread
+	}
+	return r.Rounds
+}
+
+// RoundThresholdOf is the round threshold in force.
+func (r *DelegationRouting) RoundThresholdOf() int {
+	if r == nil || r.RoundThreshold == 0 {
+		return ReviewRoundThresholdDefault
+	}
+	return r.RoundThreshold
 }
 
 // DelegationPurposePolicy is the budget of one purpose.
@@ -466,6 +487,9 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 			if _, _, err := ParseLead(vendor + "/" + model); err != nil || strings.Contains(vendor, "/") || model == "" || vendor != strings.ToLower(vendor) || model != strings.ToLower(model) {
 				return fmt.Errorf("pose: routing.lead_models %q: %q is not a vendor and a model", vendor, model)
 			}
+		}
+		if r.RoundThreshold < 0 || r.RoundThreshold > 100 {
+			return fmt.Errorf("pose: routing.round_threshold must be 1..100; omit it for 5")
 		}
 		if r.MaxWait != "" {
 			if d, err := time.ParseDuration(r.MaxWait); err != nil || d < 0 || d > 24*time.Hour {

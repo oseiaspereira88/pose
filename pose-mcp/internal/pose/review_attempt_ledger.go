@@ -512,6 +512,11 @@ type ReviewRunSummary struct {
 	DraftDecision string                 `json:"draft_decision"`
 	Reason        string                 `json:"reason,omitempty"`
 	Assurance     string                 `json:"assurance"`
+	// Round, Thread and DraftProblems disclose the round protocol (spec
+	// pose-delegated-review-round-protocol R1, R4, R6).
+	Round         int           `json:"round,omitempty"`
+	Thread        *ReviewThread `json:"thread,omitempty"`
+	DraftProblems []string      `json:"draft_problems,omitempty"`
 }
 
 func (s Store) reviewRunSummaries(scope string) ([]ReviewRunSummary, []string) {
@@ -526,7 +531,10 @@ func (s Store) reviewRunSummaries(scope string) ([]ReviewRunSummary, []string) {
 			if run.Status == ReviewRunCompleted && reviewSafetyConflict(run) == "" {
 				decision = draftReviewDecision(run.Output)
 			}
-			out = append(out, ReviewRunSummary{Safety: run.Safety, Resumes: run.Resumes, LimitOf: run.LimitOf, Partial: run.Status == ReviewRunInterrupted, Interruption: run.Interruption, SupersededBy: run.SupersededBy, RunID: run.RunID, AttemptID: run.AttemptID, BundleID: run.BundleID, Adapter: run.Adapter, Status: run.Status, DraftDecision: decision, Reason: run.Reason, Assurance: "declared-draft-not-attestation"})
+			if len(run.DraftProblems) > 0 && decision != "unknown" {
+				decision = "invalid"
+			}
+			out = append(out, ReviewRunSummary{Safety: run.Safety, Resumes: run.Resumes, LimitOf: run.LimitOf, Partial: run.Status == ReviewRunInterrupted, Interruption: run.Interruption, SupersededBy: run.SupersededBy, RunID: run.RunID, AttemptID: run.AttemptID, BundleID: run.BundleID, Adapter: run.Adapter, Status: run.Status, DraftDecision: decision, Reason: run.Reason, Assurance: "declared-draft-not-attestation", Round: run.Round, Thread: run.Thread, DraftProblems: run.DraftProblems})
 		}
 	}
 	attempts, losses := s.allDelegatedReviewAttempts()
@@ -560,6 +568,9 @@ type DelegatedReviewInsights struct {
 	CoverageComplete bool                    `json:"coverage_complete"`
 	Losses           []string                `json:"losses,omitempty"`
 	Assurance        string                  `json:"assurance"`
+	// Rounds measures convergence per scope (spec
+	// pose-delegated-review-round-protocol R7, R10).
+	Rounds []ReviewRoundMetric `json:"rounds,omitempty"`
 }
 
 // allDelegatedReviewAttempts bounds the whole inventory, not just each bundle.
@@ -638,7 +649,7 @@ func (s Store) delegatedReviewInsights(sinceDays int) *DelegatedReviewInsights {
 	if len(runs) == 0 && len(attempts) == 0 && len(lost) == 0 {
 		return nil
 	}
-	result := &DelegatedReviewInsights{CoverageComplete: len(lost) == 0, Losses: uniqueSorted(lost), Assurance: "declared-draft-outcomes-not-verified-approvals"}
+	result := &DelegatedReviewInsights{CoverageComplete: len(lost) == 0, Losses: uniqueSorted(lost), Assurance: "declared-draft-outcomes-not-verified-approvals", Rounds: reviewRoundMetrics(runs)}
 	bundles, adapters := map[string]*DelegatedReviewMetric{}, map[string]*DelegatedReviewMetric{}
 	row := func(group map[string]*DelegatedReviewMetric, key string) *DelegatedReviewMetric {
 		r := group[key]

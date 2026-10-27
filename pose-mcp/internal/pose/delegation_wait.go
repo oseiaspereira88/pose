@@ -56,6 +56,11 @@ func DelegationWaitOutcome(a DelegationAttempt) (DelegationWaitResult, bool) {
 			break
 		}
 		result.Decision = draftReviewDecision(latest.Output)
+		if len(latest.DraftProblems) > 0 {
+			// A draft that does not account for its round decides nothing
+			// (spec pose-delegated-review-round-protocol R4).
+			result.Decision = "invalid"
+		}
 		switch result.Decision {
 		case "approved":
 			result.Code = DelegationWaitApproved

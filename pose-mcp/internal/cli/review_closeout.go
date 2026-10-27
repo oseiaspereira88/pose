@@ -611,6 +611,9 @@ func cmdReviewVerify(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	} else {
 		fmt.Fprintf(stdout, "review_verify.scope=%s\nreview_verify.state=%s\nreview_verify.fresh=%t\nreview_verify.approved=%t\nreview_verify.next_action=%s\n", verification.Scope, verification.State, verification.Fresh, verification.Approved, verification.NextAction)
+		if verification.Round > 0 {
+			render(stdout, stderr).Field("review_verify.round", fmt.Sprint(verification.Round))
+		}
 		if verification.Assurance != nil {
 			render(stdout, stderr).Field("review_verify.assurance", posemodel.RenderReviewAssurance(*verification.Assurance))
 		}
@@ -636,6 +639,19 @@ func cmdReviewVerify(root string, args []string, stdout, stderr io.Writer) int {
 				render(stdout, stderr).Field("review_verify.safety."+run.RunID, string(raw))
 			}
 			render(stdout, stderr).Field("review_verify.run."+run.RunID, run.Adapter+" "+run.Status+" draft="+run.DraftDecision+" bundle="+run.BundleID+" reason="+run.Reason+fmt.Sprintf(" partial=%t resumes=%s limit_of=%s; ", run.Partial, run.Resumes, run.LimitOf)+run.Assurance)
+			// The session lineage of a round (R6) and why a draft does not count (R4).
+			if run.Thread != nil {
+				lineage := fmt.Sprintf("round %d: %s session", run.Thread.Round, run.Thread.Mode)
+				if run.Thread.Mode == posemodel.ReviewThreadContinued {
+					lineage += " from " + run.Thread.From
+				} else if run.Thread.Reason != "" {
+					lineage += ": " + run.Thread.Reason
+				}
+				render(stdout, stderr).Field("review_verify.thread."+run.RunID, lineage)
+			}
+			for _, problem := range run.DraftProblems {
+				render(stdout, stderr).Field("review_verify.draft_problem."+run.RunID, problem)
+			}
 		}
 		for _, loss := range verification.DelegatedHistoryLosses {
 			render(stdout, stderr).Field("review_verify.delegated_history_loss", loss)

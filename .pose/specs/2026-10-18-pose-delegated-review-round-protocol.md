@@ -1,6 +1,6 @@
 ---
 slug: pose-delegated-review-round-protocol
-status: draft
+status: in-progress
 created_at: 2026-10-18
 completed_at:
 supersedes:
@@ -9,7 +9,7 @@ priority: 2
 components: pose-mcp
 task_type: feature
 changelog:
-delivers:
+delivers: capability:delegated-review-rounds
 ---
 
 # Spec: Each review round starts from the findings of the last one
@@ -69,7 +69,33 @@ Brief generator, draft schema and validation, supersession chain, verify disclos
 
 ### Artifacts
 
-Implementation artifacts are declared when the spec starts.
+- modified: .pose/specs/2026-10-18-pose-delegated-review-round-protocol.md
+- created: .pose/starts/pose-delegated-review-round-protocol.json
+- created: .pose/changelogs/unreleased/pose-delegated-review-round-protocol.md
+- created: pose-mcp/internal/pose/review_rounds.go
+- created: pose-mcp/internal/pose/review_rounds_test.go
+- modified: pose-mcp/internal/pose/review_brief.go
+- modified: pose-mcp/internal/pose/review_brief_test.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
+- modified: pose-mcp/internal/pose/review_run_provenance.go
+- modified: pose-mcp/internal/pose/review_run_continuity.go
+- modified: pose-mcp/internal/pose/delegation_handoff.go
+- modified: pose-mcp/internal/pose/delegation_policy.go
+- modified: pose-mcp/internal/pose/delegation_list.go
+- modified: pose-mcp/internal/pose/delegation_wait.go
+- modified: pose-mcp/internal/pose/review_attempt_ledger.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- created: pose-mcp/internal/cli/delegate_rounds_test.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+
+### Delivery targets
+
+- capability:delegated-review-rounds module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/review_rounds.go
 
 ### API/contract changes
 
@@ -77,12 +103,13 @@ Brief gains a prior-findings section; the draft gains `prior_findings` and `swee
 
 ## 4. Tasks
 
-- [ ] Round derivation and disclosure
-- [ ] Prior-findings section of the brief
-- [ ] Draft schema and validation
-- [ ] Thread session continuation, forced new sessions and lineage
-- [ ] Insights split between continued and cold rounds
-- [ ] Insights and the round threshold
+- [x] Round derivation and disclosure
+- [x] Prior-findings section of the brief
+- [x] Draft schema and validation
+- [x] Thread session continuation, forced new sessions and lineage
+- [x] Insights split between continued and cold rounds
+- [x] Insights and the round threshold
+- [ ] Independent review and closeout
 
 ## 5. Decisions
 
@@ -101,6 +128,30 @@ Brief gains a prior-findings section; the draft gains `prior_findings` and `swee
 - Rationale: the instruction was given in prose in round 2 of B06 and the next round still returned new medium findings of the same class
 - Consequences: a reviewer that stops early produces an invalid draft, not a quiet approval
 - Falsifier: an invalid draft accepted, or a valid draft that omitted an open finding
+
+### Decision D3
+- Basis: R2, R4
+- Minimal option: read findings from the draft's prose
+- Selected option: the draft is the fenced code block whose info string is `pose-draft`, at the end of the reviewer's final message: JSON with schema `pose.review.draft/v1`, `decision`, `findings` (`id`, `severity`, `disposition`, `file`, `line`, `summary`) and, from round 2, `prior_findings` and `sweep`, decoded strictly; the brief of every review round asks for it (template `review-brief/2`), and a decision line that contradicts the block makes the draft invalid. The maintainer chose this format on 2026-10-27, for this spec and for `pose-delegated-review-conclusions`
+- Rationale: an identity kept across rounds needs findings the engine can read without interpreting prose; the conclusions phase needs the same structure
+- Consequences: round 1 briefs change, against the compatibility note "Round 1 briefs are unchanged": they ask for the block so that round 2 has identified findings to carry. A round-1 draft without the block is still valid; it only leaves the next round with nothing to carry, which the next brief says. Runs briefed with `review-brief/1` keep verifying: the brief a run was sent is re-rendered with the template whose digest it recorded
+- Falsifier: a finding of round N absent from round N+1's brief while the draft of round N reported it
+
+### Decision D4
+- Basis: R1, R5
+- Minimal option: order the bundles of a scope by their seal time
+- Selected option: a round is a sealed bundle of the scope a completed, unsuperseded review run concluded on; the rounds before a bundle are those whose concluding run ended no later than the second the bundle was sealed in, ordered by when those runs ended. A finding first reported in round N is identified `R<N>-<id>`; a finding reported `partial` or `not-fixed` keeps that identifier, one reported `fixed` or `superseded` leaves the open set. A draft of the chain that cannot be read breaks it: the findings before it are not carried, the brief says why, and the next round opens a new session
+- Rationale: seals have second precision and runs nanoseconds, so two seals in one second cannot order rounds; a bundle is sealed after the rejection it answers
+- Consequences: a reseal of the same content is not a new round; a bundle a review never concluded on is not a round
+- Falsifier: two rounds in the wrong order, or a carried finding under a new identifier
+
+### Decision D5
+- Basis: R6
+- Minimal option: continue the session whenever the vendor is the same
+- Selected option: continue the session the previous round's concluding run ended with only when the same agent runs the next round; another agent of the same vendor opens a new session, as a vendor change, a broken chain, an unresumable session and the threshold do. The threshold applies from the round that reaches it (`routing.round_threshold`, 5 by default). After a handoff the session the handoff run captured is the one a later round continues, which delivers R10 of `pose-delegation-handoff`
+- Rationale: a session belongs to the CLI profile that opened it; resuming it from another profile of the same vendor could run another model or another configuration against it
+- Consequences: changing agents always costs a full read
+- Falsifier: a round that resumed a session another agent opened
 
 ## 6. Validation
 

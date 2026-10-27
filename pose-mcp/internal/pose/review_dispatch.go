@@ -207,7 +207,14 @@ type ReviewRun struct {
 	PromptDigest string   `json:"prompt_digest,omitempty"`
 	Effort       string   `json:"effort,omitempty"`
 	StderrDigest string   `json:"stderr_digest,omitempty"`
-	Path         string   `json:"-"`
+	// Round is the round of the scope the run reviewed, DraftProblems what
+	// keeps its draft from counting for that round, and Thread how its session
+	// relates to the previous round's (spec
+	// pose-delegated-review-round-protocol R1, R4, R6).
+	Round         int           `json:"round,omitempty"`
+	DraftProblems []string      `json:"draft_problems,omitempty"`
+	Thread        *ReviewThread `json:"thread,omitempty"`
+	Path          string        `json:"-"`
 	// eventsDir is where a task run's files are; a review run's are in
 	// reviewRunsDir.
 	eventsDir string
@@ -357,6 +364,9 @@ type DispatchPlan struct {
 	handoff        bool
 	handoffSection string
 	session        string
+	// thread is how a round after the first relates to the previous round's
+	// session.
+	thread *ReviewThread
 	// extraChannels are outputs the interruption classifier reads beside the
 	// transcript and the output, each on its own: a task's stderr.
 	extraChannels  []string
@@ -531,6 +541,11 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string, reason ..
 		return DispatchPlan{}, err
 	}
 	plan.PriorRuns = currentCount
+	if brief.Kind == ReviewBriefKindReview {
+		if err := s.planReviewThread(&plan); err != nil {
+			return DispatchPlan{}, err
+		}
+	}
 	s.planImplementation(&plan, "")
 	plan.provenance, err = s.prepareRunProvenance(plan, policy)
 	if err != nil {
@@ -582,7 +597,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	run := ReviewRun{Provenance: plan.provenance, BriefNotes: plan.notes, LimitOf: plan.LimitOf, SchemaVersion: 1, Scope: plan.Brief.Scope, BundleID: plan.Bundle.BundleID, BundleDigest: plan.Bundle.BundleDigest,
 		SealedCommit: plan.SealedCommit, Kind: plan.Brief.Kind, BriefDigest: plan.Brief.Digest, Adapter: plan.Adapter,
 		Vendor: plan.Config.Vendor, Model: plan.Config.Model, Reason: plan.Reason, PolicyDigest: plan.PolicyDigest, StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1,
-		Label: plan.Label, Purpose: plan.Purpose, Lead: plan.Lead, Events: plan.Config.Events, Routing: plan.Routing}
+		Label: plan.Label, Purpose: plan.Purpose, Lead: plan.Lead, Events: plan.Config.Events, Routing: plan.Routing, Thread: plan.thread}
 	impl := plan.Implementation()
 	run.IndependenceAchieved = AchievedIndependence(impl.Vendor, impl.Model, plan.Config.Vendor, plan.Config.Model)
 	safety, err := ResolveReviewerContainment(plan.Config)
@@ -803,7 +818,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	run.TreeDigest = digestBytes(rawTree)
 	outputFile := filepath.Join(tmp, "output.txt")
 	command := plan.Config.Command
-	if plan.predecessor != nil && !plan.handoff {
+	if plan.predecessor != nil && !plan.handoff || plan.thread.continued() {
 		command = plan.Config.Resume.Command
 	}
 	argv := ReviewerArgv(command, outputFile, plan.session, plan.Effort, plan.Config.Effort)
@@ -1032,6 +1047,15 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	}
 
 	events := run.eventsBytes
+	if run.Kind == ReviewBriefKindReview {
+		// The round and the draft's account of it are judged when the run
+		// completes, against the rounds before it (R1, R4).
+		round, err := s.ReviewRoundOf(plan.Bundle)
+		if err != nil {
+			return finish(ReviewRunFailed, "the round of the bundle cannot be derived: "+err.Error())
+		}
+		run.Round, run.DraftProblems = round.Number, ValidateRoundDraft(round, run.Output)
+	}
 	published, err := finish(ReviewRunCompleted, "")
 	if err != nil {
 		return published, err

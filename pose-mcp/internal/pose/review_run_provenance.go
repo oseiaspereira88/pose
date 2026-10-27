@@ -206,7 +206,7 @@ func (s Store) prepareRunProvenance(plan DispatchPlan, policy ReviewersPolicy) (
 	}
 	raw, _ := json.Marshal(plan.Config)
 	command := plan.Config.Command
-	if plan.predecessor != nil && !plan.handoff {
+	if plan.predecessor != nil && !plan.handoff || plan.thread.continued() {
 		command = plan.Config.Resume.Command
 	}
 	argv, _ := json.Marshal(command)
@@ -437,7 +437,7 @@ func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time
 	if e != nil || p.WorktreeDigest != digestBytes([]byte(origin)) {
 		return fail("origin worktree identity differs")
 	}
-	brief, e := s.RenderReviewBrief(run.BundleID, run.Kind, run.BriefNotes)
+	brief, e := s.RenderReviewBriefMatching(run.BundleID, run.Kind, run.BriefNotes, run.BriefDigest)
 	// A handoff run was sent the brief and the section its predecessor's
 	// record yields; the verifier derives the same bytes (spec
 	// pose-delegation-handoff R4).
@@ -456,7 +456,7 @@ func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time
 		return fail("brief/template/notes/transmitted bytes differ")
 	}
 	command := adapter.Command
-	if run.Resumes != "" {
+	if run.Resumes != "" || run.Thread.continued() {
 		if adapter.Resume == nil {
 			return fail("resume configuration missing")
 		}
@@ -525,6 +525,18 @@ func (s Store) verifyRunReviewReference(bundle ReviewBundle, att ReviewAttestati
 	approval := att.Decision == "approved" || att.Decision == "approved-with-reservations"
 	if approval && draft != "approved" {
 		return assurance, fmt.Errorf("run draft does not support an approval: decision is %s", draft)
+	}
+	if approval {
+		// A draft that does not account for the previous round is never an
+		// approval, whatever its decision line says (spec
+		// pose-delegated-review-round-protocol R4, R9, D2).
+		round, err := s.ReviewRoundOf(bundle)
+		if err != nil {
+			return assurance, err
+		}
+		if problems := ValidateRoundDraft(round, run.Output); len(problems) > 0 {
+			return assurance, fmt.Errorf("the run's draft is invalid for round %d: %s", round.Number, strings.Join(problems, "; "))
+		}
 	}
 	if !approval && (draft != "rejected" && draft != "changes-requested") {
 		return assurance, fmt.Errorf("run draft does not support a rejecting attestation: decision is %s", draft)

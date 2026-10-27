@@ -27,7 +27,7 @@ const (
 )
 
 var reviewBriefTemplates = map[string]string{
-	ReviewBriefKindReview:       "review-brief/1",
+	ReviewBriefKindReview:       reviewBriefTemplateRounds,
 	ReviewBriefKindAdjudication: "adjudication-brief/1",
 	ReviewBriefKindSmoke:        "smoke-brief/1",
 }
@@ -43,6 +43,14 @@ type ReviewBrief struct {
 	Text            string `json:"text"`
 }
 
+// The review template that briefs rounds and asks for a pose-draft block
+// (spec pose-delegated-review-round-protocol), and the one before it, kept so
+// a run briefed with it still verifies.
+const (
+	reviewBriefTemplateRounds = "review-brief/2"
+	reviewBriefTemplateFirst  = "review-brief/1"
+)
+
 // ReviewBriefKinds lists the accepted kinds.
 func ReviewBriefKinds() []string {
 	return []string{ReviewBriefKindReview, ReviewBriefKindAdjudication, ReviewBriefKindSmoke}
@@ -52,12 +60,34 @@ func ReviewBriefKinds() []string {
 // scope ref, from its current sealed bundle. A superseded bundle is refused:
 // a brief for it would ask a reviewer to judge content that has moved.
 func (s Store) RenderReviewBrief(target, kind string, notes string) (ReviewBrief, error) {
+	return s.renderReviewBriefAs(target, kind, notes, "")
+}
+
+// RenderReviewBriefMatching renders the brief a run was sent: the current
+// template, or the one before it when that is the one whose digest the run
+// recorded, so a run briefed before the round protocol still verifies and
+// continues.
+func (s Store) RenderReviewBriefMatching(target, kind, notes, digest string) (ReviewBrief, error) {
+	brief, err := s.renderReviewBriefAs(target, kind, notes, "")
+	if err != nil || brief.Digest == digest || kind != ReviewBriefKindReview && kind != "" {
+		return brief, err
+	}
+	if earlier, eerr := s.renderReviewBriefAs(target, kind, notes, reviewBriefTemplateFirst); eerr == nil && earlier.Digest == digest {
+		return earlier, nil
+	}
+	return brief, nil
+}
+
+func (s Store) renderReviewBriefAs(target, kind, notes, version string) (ReviewBrief, error) {
 	if kind == "" {
 		kind = ReviewBriefKindReview
 	}
 	template, ok := reviewBriefTemplates[kind]
 	if !ok {
 		return ReviewBrief{}, fmt.Errorf("pose: unknown brief kind %q; kinds: %s", kind, strings.Join(ReviewBriefKinds(), ", "))
+	}
+	if version != "" {
+		template = version
 	}
 	var bundle ReviewBundle
 	if strings.HasPrefix(target, "rvb-") {
@@ -91,7 +121,15 @@ func (s Store) RenderReviewBrief(target, kind string, notes string) (ReviewBrief
 		}
 		smoke = &script
 	}
-	body := renderReviewBriefBody(bundle, kind, template, notes, smoke)
+	var round *ReviewRound
+	if template == reviewBriefTemplateRounds {
+		derived, err := s.ReviewRoundOf(bundle)
+		if err != nil {
+			return ReviewBrief{}, err
+		}
+		round = &derived
+	}
+	body := renderReviewBriefBody(bundle, kind, template, notes, smoke, round)
 	sum := sha256.Sum256([]byte(body))
 	digest := "sha256:" + hex.EncodeToString(sum[:])
 	return ReviewBrief{Kind: kind, TemplateVersion: template, Scope: bundle.Payload.Scope.Ref, BundleID: bundle.BundleID,
@@ -136,7 +174,7 @@ func (s Store) smokeScriptFor(scope ReviewBundleScope) (smokeScript, error) {
 
 var requirementLine = regexp.MustCompile(`^- R[0-9]+:`)
 
-func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, smoke *smokeScript) string {
+func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, smoke *smokeScript, round *ReviewRound) string {
 	var b strings.Builder
 	line := func(format string, a ...any) { fmt.Fprintf(&b, format+"\n", a...) }
 	scope := bundle.Payload.Scope
@@ -291,6 +329,10 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 		line("")
 	}
 
+	if round != nil && round.Number >= 2 {
+		b.WriteString(renderPriorRound(*round))
+	}
+
 	line("## What to return")
 	line("")
 	if smoke != nil {
@@ -302,13 +344,26 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 	}
 	line("1. A decision: `approved` or `changes-requested`.")
 	line("2. For each criterion above: passed, failed or not-applicable, with your evidence (a sealed evidence ref, a command you ran, or file and line).")
+	next := 3
 	if plan.Structure != nil && len(plan.Structure.Material) > 0 {
 		line("3. For each structural fact: the requirement or decision it maps to.")
 		line("4. Every defect, with file, line and severity.")
+		next = 5
 	} else {
 		line("3. Every defect, with file, line and severity.")
+		next = 4
+	}
+	if round != nil {
+		line("%d. At the end, the draft POSE reads: one fenced block opened with ```pose-draft holding a JSON object with `schema` %q, `decision` (the decision above), `findings` (each with `id`, `severity` high|medium|low, `disposition` blocker|follow-up, `file`, `line` and `summary`)%s. Everything outside the block is yours and is not read.", next, ReviewDraftSchema, roundFields(*round))
 	}
 	return b.String()
+}
+
+func roundFields(round ReviewRound) string {
+	if round.Number < 2 {
+		return ""
+	}
+	return ", `prior_findings` (each with `id`, `status` and `evidence`, one for every finding of the previous round) and `sweep` (what you swept)"
 }
 
 func entryPath(e ReviewBundleSubjectEntry) string {
