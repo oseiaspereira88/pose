@@ -76,6 +76,7 @@ Continuation planner, brief renderer (handoff section), run record (`hands_off_f
 - modified: pose-mcp/internal/pose/review_run_continuity.go
 - modified: pose-mcp/internal/pose/review_run_provenance.go
 - modified: pose-mcp/internal/pose/review_attempt_ledger.go
+- modified: pose-mcp/internal/pose/delegation_events.go
 - created: pose-mcp/internal/cli/delegate_handoff.go
 - created: pose-mcp/internal/cli/delegate_handoff_test.go
 - modified: pose-mcp/internal/cli/delegate.go
