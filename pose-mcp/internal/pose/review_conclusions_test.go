@@ -177,41 +177,76 @@ func TestConcludeReviewRunConcurrently(t *testing.T) {
 	}
 }
 
-// Review round 1, B2: a reservation an interrupted conclusion left is
-// completed from the attestation it recorded, or taken over once stale; a
-// fresh one answers that a conclusion is in progress.
+// Review rounds 1 and 2: a reservation nobody holds was interrupted. A
+// conclusion completes it from an attestation that verifies as the run's
+// conclusion, never from one that does not; otherwise it concludes the run
+// in its place, once, however many take it over at a time. A preview writes
+// nothing.
 func TestConcludeReviewRunRecoversAReservation(t *testing.T) {
 	f, draftPath := conclusionFixture(t)
 	if err := os.WriteFile(draftPath, []byte(draftFrom(t, approvedBundleAttestation(f.bundle, "agent:reviewer"), nil)), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	run := dispatchConclusion(t, f, "interrupted")
-	now := time.Now()
-	pending := ReviewConclusion{SchemaVersion: 1, RunID: run.RunID, BundleID: run.BundleID, Scope: run.Scope, State: ReviewConclusionPending, ConcludedAt: now.UTC().Format(time.RFC3339Nano)}
+	pending := ReviewConclusion{SchemaVersion: 1, RunID: run.RunID, BundleID: run.BundleID, Scope: run.Scope, State: ReviewConclusionPending, Decision: "approved", ConcludedAt: time.Now().UTC().Format(time.RFC3339Nano)}
 	if _, err := f.store.writeReviewConclusion(pending, nil); err != nil {
 		t.Fatal(err)
 	}
-	if busy, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, now); err != nil || busy.State != ReviewConclusionPending || !busy.Replayed {
-		t.Fatalf("a fresh reservation: %+v %v", busy, err)
+	// An attestation that names the run but is not its signed conclusion is
+	// not adopted.
+	forged := approvedBundleAttestation(f.bundle, "agent:untrusted")
+	forged.Decision = "changes-requested"
+	forged.Run = &ReviewRunReference{RunID: run.RunID, ProofID: "rrp-" + strings.Repeat("0", 64)}
+	if _, err := f.store.RecordReviewAttestation(forged, time.Now()); err != nil {
+		t.Fatalf("the negative audit record: %v", err)
 	}
-	_, fresh, _ := f.store.readReviewConclusionRaw(run.RunID)
-	stale := pending
-	stale.ConcludedAt = now.Add(-reviewConclusionStale - time.Minute).UTC().Format(time.RFC3339Nano)
-	if _, err := f.store.writeReviewConclusion(stale, fresh); err != nil {
-		t.Fatal(err)
+	negative := pending
+	negative.Decision = "changes-requested"
+	if c, err := f.store.recoveredReviewConclusion(negative); err != nil || c != nil {
+		t.Fatalf("recovered from an unverified attestation: %+v %v", c, err)
 	}
-	taken, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now())
-	if err != nil || taken.State != ReviewConclusionRecorded || taken.Attestation == "" {
-		t.Fatalf("a stale reservation was not taken over: %+v %v", taken, err)
+	results := make(chan ReviewConclusion, 2)
+	for i := 0; i < 2; i++ {
+		go func() {
+			c, _ := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now())
+			results <- c
+		}()
 	}
-	// The record lost after the attestation was written is completed from it.
+	first, second := <-results, <-results
+	proofs, _ := os.ReadDir(filepath.Join(f.store.Root, filepath.FromSlash(reviewRunProofDir), run.RunID))
+	attestations, _ := f.store.ListReviewAttestations(f.bundle.BundleID)
+	if len(proofs) != 1 || len(attestations) != 2 || first.Attestation == "" || first.Attestation != second.Attestation {
+		t.Fatalf("taking over: %d proofs, %d attestations; %+v / %+v", len(proofs), len(attestations), first, second)
+	}
+	// The record lost after the attestation was written: a preview says so
+	// and writes nothing; apply completes it with that attestation.
 	_, raw, _ := f.store.readReviewConclusionRaw(run.RunID)
 	if _, err := f.store.writeReviewConclusion(pending, raw); err != nil {
 		t.Fatal(err)
 	}
+	_, before, _ := f.store.readReviewConclusionRaw(run.RunID)
+	preview, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, false, time.Now())
+	_, after, _ := f.store.readReviewConclusionRaw(run.RunID)
+	if err != nil || string(before) != string(after) || preview.Attestation != first.Attestation {
+		t.Fatalf("a preview wrote or answered wrongly: %+v %v", preview, err)
+	}
 	done, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now())
-	if err != nil || done.State != ReviewConclusionRecorded || done.Attestation != taken.Attestation {
+	attestations, _ = f.store.ListReviewAttestations(f.bundle.BundleID)
+	if err != nil || done.State != ReviewConclusionRecorded || done.Attestation != first.Attestation || len(attestations) != 2 {
 		t.Fatalf("an interrupted conclusion was not completed: %+v %v", done, err)
+	}
+}
+
+// Review round 2, F1: the order of a criterion's mappings states nothing.
+func TestRunConclusionMappingsCompareBySet(t *testing.T) {
+	a := []ReviewCriterion{{ID: "c", Mappings: []ReviewCriterionMapping{{Delta: "SD-1", Basis: "R1"}, {Delta: "SD-2", Basis: "R2"}}}}
+	b := []ReviewCriterion{{ID: "c", Mappings: []ReviewCriterionMapping{{Delta: "SD-2", Basis: "R2"}, {Delta: "SD-1", Basis: "R1"}}}}
+	if d := differingItems("criterion", mappingsByDelta(a), mappingsByDelta(b)); len(d) != 0 {
+		t.Fatal(d)
+	}
+	b[0].Mappings[0].Basis = "R9"
+	if d := differingItems("criterion", mappingsByDelta(a), mappingsByDelta(b)); len(d) != 1 {
+		t.Fatal("a changed mapping was not a difference")
 	}
 }
 

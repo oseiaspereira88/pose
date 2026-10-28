@@ -60,18 +60,26 @@ func (s Store) ReadReviewConclusion(runID string) (*ReviewConclusion, error) {
 	if !validAttemptFileName(runID) {
 		return nil, fmt.Errorf("pose: %q is not a run id", runID)
 	}
+	c, _, err := s.readReviewConclusionRaw(runID)
+	return c, err
+}
+
+// readReviewConclusionRaw is the conclusion record of run and the bytes it
+// was parsed from: one read, so what is judged is what a write expects
+// (review round 2, B4).
+func (s Store) readReviewConclusionRaw(runID string) (*ReviewConclusion, []byte, error) {
 	raw, err := readBoundedRegular(reviewConclusionPath(s.Root, runID), 1<<20)
 	if errors.Is(err, os.ErrNotExist) {
-		return nil, nil
+		return nil, nil, nil
 	}
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	var c ReviewConclusion
 	if err := json.Unmarshal(raw, &c); err != nil || c.RunID != runID {
-		return nil, fmt.Errorf("pose: the conclusion record of %s cannot be read", runID)
+		return nil, nil, fmt.Errorf("pose: the conclusion record of %s cannot be read", runID)
 	}
-	return &c, nil
+	return &c, raw, nil
 }
 
 // reviewConclusionChecks are the conditions a run must meet before its
@@ -212,13 +220,32 @@ func runConclusionDiffers(run ReviewRun, bundle ReviewBundle, att ReviewAttestat
 	}
 	want := reviewAttestationFromDraft(run, bundle, *draft, att.Reviewer)
 	var differ []string
-	differ = append(differ, differingItems("criterion", att.Criteria, want.Criteria)...)
+	differ = append(differ, differingItems("criterion", mappingsByDelta(att.Criteria), mappingsByDelta(want.Criteria))...)
 	differ = append(differ, differingItems("tool", concludingTools(bundle.Payload.Plan.Tools, att.Tools), concludingTools(bundle.Payload.Plan.Tools, want.Tools))...)
 	differ = append(differ, differingItems("finding", att.Findings, want.Findings)...)
 	if len(differ) > 0 {
 		return strings.Join(differ, "; ")
 	}
 	return ""
+}
+
+// mappingsByDelta is criteria with each one's mappings ordered by delta: the
+// order a writer lists them in states nothing (review round 2, F1).
+func mappingsByDelta(criteria []ReviewCriterion) []ReviewCriterion {
+	out := make([]ReviewCriterion, 0, len(criteria))
+	for _, c := range criteria {
+		c.Mappings = append([]ReviewCriterionMapping(nil), c.Mappings...)
+		sort.SliceStable(c.Mappings, func(i, j int) bool {
+			a, _ := json.Marshal(c.Mappings[i])
+			b, _ := json.Marshal(c.Mappings[j])
+			return c.Mappings[i].Delta < c.Mappings[j].Delta || c.Mappings[i].Delta == c.Mappings[j].Delta && string(a) < string(b)
+		})
+		if len(c.Mappings) == 0 {
+			c.Mappings = nil
+		}
+		out = append(out, c)
+	}
+	return out
 }
 
 // concludingTools are the dispositions of tools that state a conclusion:
@@ -283,34 +310,119 @@ func differingItems[T any](kind string, got, want []T) []string {
 	return differ
 }
 
-// reviewConclusionStale is how long a reservation may stand before another
-// conclusion of the same run takes it over: a conclusion signs and writes in
-// well under a minute, so one this old was interrupted.
-const reviewConclusionStale = 15 * time.Minute
+// reviewConclusionLockWait bounds how long a conclusion waits for another
+// conclusion of the same run to finish.
+const reviewConclusionLockWait = 2 * time.Minute
+
+// lockReviewConclusion holds run's conclusion lock: an exclusive lock on a
+// private file that the system releases when the process ends, so a
+// reservation nobody holds was interrupted, and two conclusions of one run
+// never decide at once (review round 2, B1).
+func (s Store) lockReviewConclusion(runID string) (func(), error) {
+	dir, err := s.DelegationPrivateDir("conclusion-locks")
+	if err != nil {
+		return nil, err
+	}
+	file, err := os.OpenFile(filepath.Join(dir, runID+".lock"), os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		return nil, err
+	}
+	deadline := time.Now().Add(reviewConclusionLockWait)
+	for {
+		unlock, err := lockSpecTransferFile(file)
+		if err == nil {
+			return func() { unlock(); file.Close() }, nil
+		}
+		if time.Now().After(deadline) {
+			file.Close()
+			return nil, fmt.Errorf("pose: another conclusion of %s holds its lock", runID)
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+}
 
 // ConcludeReviewRun records the conclusion of run id signed by issuer (R1),
 // or the reasons it records none (R3); a run that concluded before returns
-// its record (R4). The run is reserved before anything is signed, so two
-// conclusions of one run never both sign and record (review round 1, B2).
-// Without apply nothing is signed or written: the result says what the
-// checks found, and that the attestation preflight runs only on apply.
+// its record (R4). The run's conclusion lock is held from the first read to
+// the last write, so two conclusions of one run never both sign and record
+// (review rounds 1 and 2, B2/B1). Without apply nothing is written: the
+// result says what the checks found, and that the attestation preflight runs
+// only on apply.
 func (s Store) ConcludeReviewRun(id, issuer string, apply bool, now time.Time) (ReviewConclusion, error) {
+	if !validAttemptFileName(id) {
+		return ReviewConclusion{}, fmt.Errorf("pose: %q is not a run id", id)
+	}
+	if apply {
+		unlock, err := s.lockReviewConclusion(id)
+		if err != nil {
+			return ReviewConclusion{}, err
+		}
+		defer unlock()
+	}
 	existing, existingRaw, err := s.readReviewConclusionRaw(id)
 	if err != nil {
 		return ReviewConclusion{}, err
 	}
-	var takeOver []byte
+	var over []byte
 	if existing != nil {
 		if existing.State != ReviewConclusionPending {
 			existing.Replayed = true
 			return *existing, nil
 		}
-		recovered, stale, err := s.recoverReviewConclusion(*existing, existingRaw, now)
-		if err != nil || !stale || !apply {
-			return recovered, err
+		// Nobody holds the lock, so this reservation was interrupted: an
+		// attestation it recorded that verifies as this run's conclusion
+		// completes it; otherwise the run is concluded again in its place.
+		recovered, err := s.recoveredReviewConclusion(*existing)
+		if err != nil {
+			return ReviewConclusion{}, err
 		}
-		takeOver = existingRaw
+		if recovered != nil {
+			if !apply {
+				recovered.Reasons = append(recovered.Reasons, "preview: on apply the interrupted conclusion is completed with this attestation")
+				return *recovered, nil
+			}
+			out, err := s.publishReviewConclusion(*recovered, true, existingRaw)
+			out.Replayed = true
+			return out, err
+		}
+		over = existingRaw
 	}
+	return s.concludeReviewRun(id, issuer, apply, now, over)
+}
+
+// recoveredReviewConclusion is pending completed with the attestation an
+// interrupted conclusion recorded, when one verifies as this run's
+// conclusion: signed, run-backed by a proof that verifies, for the run's
+// bundle, stating its draft (review round 2, B3). A record that cannot be
+// read is an error, not an absence.
+func (s Store) recoveredReviewConclusion(pending ReviewConclusion) (*ReviewConclusion, error) {
+	if pending.BundleID == "" {
+		return nil, nil
+	}
+	bundle, err := s.LoadReviewBundle(pending.BundleID)
+	if err != nil {
+		return nil, err
+	}
+	read, err := s.ReadReviewAttestations(pending.BundleID)
+	if err != nil {
+		return nil, err
+	}
+	for _, att := range read.Attestations {
+		if att.Run == nil || att.Run.RunID != pending.RunID || att.Decision != pending.Decision {
+			continue
+		}
+		if blockers := s.runBackedReviewBlockers(bundle, att); len(blockers) > 0 {
+			continue
+		}
+		done := pending
+		done.State, done.Attestation, done.ProofID = ReviewConclusionRecorded, att.AttestationID, att.Run.ProofID
+		done.Reasons = []string{"completed from the attestation an interrupted conclusion recorded"}
+		return &done, nil
+	}
+	return nil, nil
+}
+
+func (s Store) concludeReviewRun(id, issuer string, apply bool, now time.Time, takeOver []byte) (ReviewConclusion, error) {
 	result := ReviewConclusion{SchemaVersion: 1, RunID: id, State: ReviewConclusionRefused, Issuer: issuer, ConcludedAt: now.UTC().Format(time.RFC3339Nano)}
 	run, err := s.LoadProvenanceReviewRun(id)
 	if errors.Is(err, errReviewRunHistoryIncomplete) {
@@ -343,16 +455,12 @@ func (s Store) ConcludeReviewRun(id, issuer string, apply bool, now time.Time) (
 		result.Reasons = []string{"preview: the run passes the conclusion checks; on apply its proof and its attestation are signed by " + issuer + " and recorded if the attestation preflight admits them, which a preview does not run"}
 		return result, nil
 	}
-	// Reserve the run before any effect; a reservation another conclusion
-	// holds answers this one.
+	// The reservation records that a conclusion started, for a later one to
+	// recover if this one is interrupted.
 	pending := result
 	pending.State, pending.Reasons = ReviewConclusionPending, nil
 	reservation, err := s.writeReviewConclusion(pending, takeOver)
 	if err != nil {
-		if current, _, rerr := s.readReviewConclusionRaw(id); rerr == nil && current != nil {
-			current.Replayed = true
-			return *current, nil
-		}
 		return result, err
 	}
 	finish := func(final ReviewConclusion) (ReviewConclusion, error) {
@@ -398,43 +506,6 @@ func (s Store) ConcludeReviewRun(id, issuer string, apply bool, now time.Time) (
 	}
 	result.State, result.ProofID, result.Attestation = ReviewConclusionRecorded, proof.ProofID, recorded.AttestationID
 	return finish(result)
-}
-
-// recoverReviewConclusion answers a reservation: one whose attestation was
-// recorded before it was interrupted is completed with that attestation; a
-// stale one is reported stale, for the caller to take over; any other is
-// another conclusion in progress.
-func (s Store) recoverReviewConclusion(pending ReviewConclusion, raw []byte, now time.Time) (ReviewConclusion, bool, error) {
-	if pending.BundleID != "" {
-		attestations, _ := s.ListReviewAttestations(pending.BundleID)
-		for _, att := range attestations {
-			if att.Run != nil && att.Run.RunID == pending.RunID && att.BundleID == pending.BundleID {
-				done := pending
-				done.State, done.Attestation, done.ProofID, done.Decision = ReviewConclusionRecorded, att.AttestationID, att.Run.ProofID, att.Decision
-				done.Reasons = []string{"completed from the attestation an interrupted conclusion recorded"}
-				out, err := s.publishReviewConclusion(done, true, raw)
-				out.Replayed = true
-				return out, false, err
-			}
-		}
-	}
-	reserved, err := time.Parse(time.RFC3339Nano, pending.ConcludedAt)
-	if err != nil || now.Sub(reserved) >= reviewConclusionStale {
-		return pending, true, nil
-	}
-	pending.Replayed = true
-	pending.Reasons = []string{"another conclusion of this run is in progress"}
-	return pending, false, nil
-}
-
-// readReviewConclusionRaw is the conclusion record of run and its bytes.
-func (s Store) readReviewConclusionRaw(runID string) (*ReviewConclusion, []byte, error) {
-	c, err := s.ReadReviewConclusion(runID)
-	if err != nil || c == nil {
-		return c, nil, err
-	}
-	raw, err := readBoundedRegular(reviewConclusionPath(s.Root, runID), 1<<20)
-	return c, raw, err
 }
 
 // writeReviewConclusion writes result where nothing is, or in place of the
