@@ -71,6 +71,7 @@ Action kind and satisfaction rule, the fulfilment command, and a CI example.
 - modified: pose-mcp/internal/cli/help_catalog.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - created: pose-mcp/internal/cli/review_request.go
+- modified: pose-mcp/internal/cli/review_run_provenance_test.go
 - created: pose-mcp/internal/mcpserver/action_fulfil_test.go
 - modified: pose-mcp/internal/mcpserver/catalog.go
 - modified: pose-mcp/internal/mcpserver/review_run_provenance_test.go
