@@ -3,9 +3,11 @@ package cli
 import (
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
@@ -70,6 +72,25 @@ func TestReviewRequestAsksAPersonWhenThePlanRequiresOne(t *testing.T) {
 	if code != 0 || !strings.Contains(out, "review_request.person_required=true") || !strings.Contains(out, "review_request.escalation=act-") {
 		t.Fatalf("a person-required review was asked of an agent: %d %s", code, out)
 	}
+	// Asked again a second later, as JSON: the same escalation (review round
+	// 1, F04, F09).
+	ask := func() string {
+		t.Helper()
+		code, out := runPose(t, root, "review", "request", "spec:alpha", "--kind", "delegated-review", "--apply", "--json")
+		var doc struct {
+			PersonRequired bool   `json:"person_required"`
+			Escalation     string `json:"escalation"`
+		}
+		if code != 0 || json.Unmarshal([]byte(out), &doc) != nil || !doc.PersonRequired || doc.Escalation == "" {
+			t.Fatalf("as JSON: %d %s", code, out)
+		}
+		return doc.Escalation
+	}
+	first := ask()
+	time.Sleep(1100 * time.Millisecond)
+	if again := ask(); again != first {
+		t.Fatalf("asked twice: %s then %s", first, again)
+	}
 }
 
 // R3 and R7 over pose delegate: a run asked for by a request runs only as
@@ -103,5 +124,53 @@ func TestDelegateRunsWhatTheRequestAsks(t *testing.T) {
 	delegateEscalateRefusal(store, &view, &posemodel.DelegationRefusal{Code: posemodel.DelegationReasonBudgetExhausted, Err: os.ErrPermission}, false, &stdout, &stderr)
 	if !strings.Contains(stdout.String()+stderr.String(), "asked of a person: act-") {
 		t.Fatalf("a spent budget asked nobody: %s %s", stdout.String(), stderr.String())
+	}
+}
+
+// R3, R11 (review round 1, F05): the CI journey the documentation shows,
+// run as written — in its own checkout the job runs the requested review
+// with an accepted agent, the engine concludes it and fulfils the request,
+// and the job commits .pose — and the repository that receives the commit
+// reads the request as fulfilled and the scope as approved.
+func TestDelegatedReviewCIJourneyAsDocumented(t *testing.T) {
+	root, draftPath, bundleID := cliProvenanceInstance(t, func(root, draftPath string) {
+		if err := os.Remove(filepath.Join(root, ".pose", "policy", "reviewers.json")); err != nil {
+			t.Fatal(err)
+		}
+		// Every checkout records the same project only when it is declared.
+		writeCloseoutCLIFile(t, root, ".pose/project.json", `{"schema_version":1,"project_id":"proj.fixture","name":"fixture"}`)
+		writeCloseoutCLIFile(t, root, ".pose/policy/delegation.json", `{"schema_version": 2,
+  "provenance": {"trust": "executor-attested", "implementation": {"principal": "agent:implementer", "execution": "implementation-fixture", "vendor": "openai", "model": "implementation-model"}},
+  "conclusions": {"issuer": "fixture-executor"},
+  "agents": {"ci-agent": {"vendor": "openai", "model": "review-model", "executor": "agent:reviewer", "timeout": "30s",
+    "commands": {"read": ["sh", "-c", "cat >/dev/null; cat '`+draftPath+`'"]}}},
+  "purposes": {"review": {"max_runs_per_bundle": 5}}}`)
+	})
+	code, out := runPose(t, root, "review", "request", "spec:alpha", "--kind", "delegated-review", "--agents", "ci-agent", "--apply", "--json")
+	var opened posemodel.ActionRequestView
+	if code != 0 || json.Unmarshal([]byte(out), &opened) != nil {
+		t.Fatalf("request: %d %s", code, out)
+	}
+	writeRunConclusion(t, posemodel.Store{Root: root}, bundleID, draftPath)
+	ci := filepath.Join(t.TempDir(), "ci-checkout")
+	if out, err := exec.Command("cp", "-a", root, ci).CombinedOutput(); err != nil {
+		t.Fatalf("%v %s", err, out)
+	}
+	// The job's steps.
+	if code, out, errOut := runPoseSplit(t, ci, "delegate", "review", "spec:alpha", "--request", opened.Request.ID, "--agent", "ci-agent"); code != 0 || !strings.Contains(out+errOut, "request "+opened.Request.ID+" fulfilled") {
+		t.Fatalf("delegate --request in CI: %d\nOUT:%s\nERR:%s", code, out, errOut)
+	}
+	if code, out := runPose(t, ci, "action", "show", opened.Request.ID); code != 0 || !strings.Contains(out, "action.state=fulfilled") {
+		t.Fatalf("action show in CI: %d %s", code, out)
+	}
+	// The commit lands in the repository.
+	if out, err := exec.Command("cp", "-a", filepath.Join(ci, ".pose")+"/.", filepath.Join(root, ".pose")).CombinedOutput(); err != nil {
+		t.Fatalf("%v %s", err, out)
+	}
+	if code, out := runPose(t, root, "action", "show", opened.Request.ID); code != 0 || !strings.Contains(out, "action.state=fulfilled") {
+		t.Fatalf("action show in the repository: %d %s", code, out)
+	}
+	if code, out := runPose(t, root, "review", "verify", "spec:alpha"); code != 0 {
+		t.Fatalf("review verify in the repository: %d %s", code, out)
 	}
 }

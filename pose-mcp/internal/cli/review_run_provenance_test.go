@@ -15,7 +15,7 @@ import (
 // cliProvenanceInstance is an instance whose fake reviewer returns the file
 // at draftPath, with spec:alpha sealed by a declared implementation and the
 // issuer fixture-executor pinned.
-func cliProvenanceInstance(t *testing.T) (root, draftPath, bundleID string) {
+func cliProvenanceInstance(t *testing.T, policies ...func(root, draftPath string)) (root, draftPath, bundleID string) {
 	t.Helper()
 	t.Setenv("POSE_ISSUER_HOME", filepath.Join(t.TempDir(), "issuers"))
 	key, e := posemodel.CreateIssuerKey("", "fixture-executor", time.Now())
@@ -30,6 +30,9 @@ func cliProvenanceInstance(t *testing.T) (root, draftPath, bundleID string) {
 		reviewers := posemodel.ReviewersPolicy{SchemaVersion: 1, Provenance: &posemodel.ReviewRunProvenancePolicy{Trust: "executor-attested", Implementation: posemodel.ModelIdentity{Principal: "agent:implementer", Execution: "implementation-fixture", Vendor: "openai", Model: "implementation-model"}}, Adapters: map[string]posemodel.ReviewerAdapter{"fake": {Executor: "agent:reviewer", Command: []string{"sh", "-c", "cat >/dev/null; cat '" + draftPath + "'"}, Vendor: "openai", Model: "review-model"}}}
 		raw, _ = json.Marshal(reviewers)
 		writeCloseoutCLIFile(t, root, ".pose/policy/reviewers.json", string(raw))
+		for _, write := range policies {
+			write(root, draftPath)
+		}
 		git("add", "-A")
 	})
 	// The fixture sealed in a session with no agent markers, so its bundle

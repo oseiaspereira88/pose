@@ -94,28 +94,47 @@ and nothing is approved: approval stays the attestation's. A superseded
 bundle or a policy change invalidates the request; it is asked again.
 
 The proof of a run verifies in any checkout of the project: the worktree it
-ran in is recorded, not required of the reader. A CI job therefore runs the
-review in its own checkout and commits what it wrote under `.pose/`:
+ran in is recorded, not required of the reader — the project must be
+declared in `.pose/project.json`, so every checkout is the same project. A
+CI job therefore runs the
+requested review in its own checkout — with `delegated_review` and
+`conclusions.issuer` set and the issuer key on the runner, the engine
+concludes the run and fulfils the request there — and commits what it wrote
+under `.pose/`, the request's journal included:
 
 ```yaml
 # .github/workflows/delegated-review.yml (example)
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      slug: {required: true}
+      request: {required: true}
+      agent: {required: true}
 jobs:
   review:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: pose delegate review spec:${{ inputs.slug }} --request ${{ inputs.request }} --agent ${{ inputs.agent }}
-      - run: pose action fulfil ${{ inputs.request }} --run "$(pose delegate ls --json | jq -r '.attempts[0].run')" --runner agent:ci --idempotency-key "ci-${{ github.run_id }}" --expected-revision 1 --channel ci --apply
-      - run: git add .pose && git commit -m "delegated review" && git push
+      - run: pose action show ${{ inputs.request }} | grep -q 'action.state=fulfilled'
+      - run: git add .pose && git commit -m "delegated review of ${{ inputs.slug }}" && git push
 ```
 
-Harne8's Conductor submits the same envelope — `pose action fulfil
---envelope <file>` or the MCP tool `pose_action_fulfil` — with the fields
-`request_id`, `request_digest`, `expected_revision`, `idempotency_key`,
-`run_id`, `runner` (an `agent:` principal: a fulfilment records no person)
-and `channel` (`conductor`). The runner chooses neither the authority nor the
-destination; a retry with the same key and run is a no-op.
+A runner that concludes a run itself — `pose review conclude <run> --issuer
+<name> --apply` — submits it with `pose action fulfil`, from a file:
+
+```json
+{"request_id": "act-…", "request_digest": "sha256:…", "expected_revision": 1,
+ "idempotency_key": "conductor-…", "run_id": "rrn-…", "runner": "agent:conductor", "channel": "conductor"}
+```
+
+`pose action fulfil --envelope <file> --apply` reads it, and the MCP tool
+`pose_action_fulfil` takes the same object as `envelope` (or the fields
+`id`, `run`, `runner`, `request_digest`, `expected_revision`,
+`idempotency_key`, recorded on the `mcp` channel). The runner is an `agent:`
+principal — a fulfilment records no person — and chooses neither the
+authority nor the destination; a retry with the same key and run is a
+no-op.
 
 A person is asked only by exception, each time as a decision request to the
 maintainer role with the question, its options and their consequences: a

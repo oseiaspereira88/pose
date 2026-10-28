@@ -1,6 +1,7 @@
 package pose
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
 	"os/exec"
@@ -245,7 +246,7 @@ func TestDelegatedReviewRequestEscalatesToAPerson(t *testing.T) {
 		t.Fatalf("questions: %v", questions)
 	}
 	// Asking again returns the one already open.
-	again, err := f.store.EscalateDelegatedReview(view.Request, EscalationConflict, "x", "", nil, time.Now())
+	again, err := f.store.EscalateDelegatedReview(view.Request, EscalationConflict, "Delegated reviewers disagree on spec:backend: which conclusion stands?", "", nil, time.Now())
 	if err != nil || !containsString(escalations, again) {
 		t.Fatalf("a retry asked again: %s %v", again, err)
 	}
@@ -360,5 +361,135 @@ func TestDelegatedReviewRequestRefusesOtherBriefsAndRefusedConclusions(t *testin
 	}
 	if _, err := fulfil(f, view, refusedRun.RunID, "refused"); err == nil || !strings.Contains(err.Error(), "refused") {
 		t.Fatalf("a refused conclusion fulfilled: %v", err)
+	}
+}
+
+// appendForgedEvent writes event at the end of a request's journal, as a
+// writer that bypasses the engine would.
+func appendForgedEvent(t *testing.T, s Store, id string, event ActionEvent) {
+	t.Helper()
+	view, err := s.LoadActionRequest(id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	event.SchemaVersion, event.Seq = ActionRequestSchemaVersion, view.Revision+1
+	if event.At == "" {
+		event.At = time.Now().UTC().Format(time.RFC3339)
+	}
+	raw, _ := json.Marshal(event)
+	file, err := os.OpenFile(actionJournalPath(s.Root, id), os.O_APPEND|os.O_WRONLY, 0o644)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+	if _, err := file.Write(append(raw, '\n')); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Review round 1, F01 and F02: a fulfilled event no engine wrote satisfies
+// nothing — neither while the request is current, nor once the scope moved
+// on — and on a request of another kind it is ignored without breaking the
+// read.
+func TestForgedFulfillmentsSatisfyNothing(t *testing.T) {
+	f, _ := conclusionFixture(t)
+	view := openReviewRequest(t, f, DelegationPurposeReview)
+	forged := ActionEvent{Type: ActionEventFulfilled, Actor: "agent:forger", Channel: "cli", RequestDigest: view.Request.RequestDigest, IdempotencyKey: "forged",
+		Fulfillment: &ActionFulfillment{RunID: "rrn-0000000000000000", ProofID: "rrp-" + strings.Repeat("0", 64), Decision: "approved", Destination: ReviewDestinationAttestation,
+			Recorded: ".pose/review-attestations/rva-0000000000000000.json", Runner: "agent:forger", Channel: "cli"}}
+	appendForgedEvent(t, f.store, view.Request.ID, forged)
+	if v, err := f.store.LoadActionRequest(view.Request.ID); err != nil || v.State == ActionStateFulfilled || v.Satisfaction == SatisfactionSatisfied {
+		t.Fatalf("a forged fulfilment counted while current: %+v %v", v.State, err)
+	}
+	policy := filepath.Join(f.store.Root, ".pose", "policy", "review.json")
+	raw, _ := os.ReadFile(policy)
+	if err := os.WriteFile(policy, append(raw, ' '), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if v, err := f.store.LoadActionRequest(view.Request.ID); err != nil || v.State == ActionStateFulfilled || v.Satisfaction == SatisfactionSatisfied {
+		t.Fatalf("a forged fulfilment counted once the scope moved on: %+v %v", v.State, err)
+	}
+	approval, err := f.store.OpenActionRequest(ActionRequest{Origin: "spec:backend", Kind: ActionApproval, Question: "Approve?", RequestedBy: ActionPrincipal{Principal: "agent:implementer"},
+		Recipient: ObligationActor{Role: "maintainer"}, Targets: []NodeRef{{}}, Effects: []ObligationEffect{{Phase: PhaseCloseout, Mode: EffectBlock}}}, time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	forged.RequestDigest = approval.Request.RequestDigest
+	appendForgedEvent(t, f.store, approval.Request.ID, forged)
+	if v, err := f.store.LoadActionRequest(approval.Request.ID); err != nil || v.State != ActionStateOpen {
+		t.Fatalf("a fulfilment on an approval: %+v %v", v.State, err)
+	}
+	if _, err := f.store.ListActionRequests(); err != nil {
+		t.Fatalf("the journals became unreadable: %v", err)
+	}
+}
+
+// Review round 1, F03: what a fulfilment records is read from the signed
+// effect and the run, not from the conclusion record, which is not signed.
+func TestFulfillmentReadsTheSignedDecision(t *testing.T) {
+	f, draftPath := conclusionFixture(t)
+	view := openReviewRequest(t, f, DelegationPurposeReview)
+	att := approvedBundleAttestation(f.bundle, "agent:reviewer")
+	att.Decision = "changes-requested"
+	findings := []ReviewDraftFinding{{ID: "B1", Severity: "high", Disposition: "blocker", File: "x.go", Line: 3, Summary: "a defect"}}
+	if err := os.WriteFile(draftPath, []byte(draftFrom(t, att, findings)), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	run := dispatchConclusion(t, f, "rewritten")
+	if _, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(f.store.Root, filepath.FromSlash(ReviewConclusionsDir), run.RunID+".json")
+	raw, _ := os.ReadFile(path)
+	if err := os.WriteFile(path, []byte(strings.Replace(string(raw), `"decision": "changes-requested"`, `"decision": "approved"`, 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	done, err := fulfil(f, view, run.RunID, "k")
+	if err != nil || done.Answer != "changes-requested" {
+		t.Fatalf("the rewritten conclusion decided: %+v %v", done.Answer, err)
+	}
+}
+
+// Review round 1, F06: every field of the review material is in the request
+// digest.
+func TestDelegatedReviewMaterialIsInTheDigest(t *testing.T) {
+	base := ActionRequest{Project: "p", Origin: "spec:x", Kind: ActionDelegatedReview, Question: "q", Review: &ActionReviewRequest{Purpose: "review", Scope: "spec:x",
+		BundleID: "b", BundleDigest: "d", BriefDigest: "f", BriefTemplate: "t", NotesDigest: "n", PolicyDigest: "p", Worktree: "w", Agents: []string{"a"}, Destination: "attestation"}}
+	digest := ActionRequestDigest(base)
+	for _, change := range []func(*ActionReviewRequest){
+		func(m *ActionReviewRequest) { m.Purpose = "smoke" }, func(m *ActionReviewRequest) { m.Scope = "spec:y" },
+		func(m *ActionReviewRequest) { m.BundleID = "c" }, func(m *ActionReviewRequest) { m.BundleDigest = "e" },
+		func(m *ActionReviewRequest) { m.BriefDigest = "g" }, func(m *ActionReviewRequest) { m.BriefTemplate = "u" },
+		func(m *ActionReviewRequest) { m.NotesDigest = "o" }, func(m *ActionReviewRequest) { m.PolicyDigest = "q" },
+		func(m *ActionReviewRequest) { m.Worktree = "x" }, func(m *ActionReviewRequest) { m.Agents = []string{"b"} },
+		func(m *ActionReviewRequest) { m.Destination = "smoke-evidence" },
+	} {
+		m := *base.Review
+		change(&m)
+		changed := base
+		changed.Review = &m
+		if ActionRequestDigest(changed) == digest {
+			t.Fatalf("a change of the material kept the digest: %+v", m)
+		}
+	}
+	plain := ActionRequest{Project: "p", Origin: "spec:x", Kind: ActionApproval, Question: "q"}
+	if ActionRequestDigest(plain) != func() string { plain.Review = nil; return ActionRequestDigest(plain) }() {
+		t.Fatal("the digest of another kind changed")
+	}
+}
+
+// Review round 1, F10: a different question for the same request and cause
+// is a new escalation; the same question returns the one already asked.
+func TestEscalationsDistinguishQuestions(t *testing.T) {
+	f, _ := conclusionFixture(t)
+	view := openReviewRequest(t, f, DelegationPurposeReview)
+	first, err := f.store.EscalateDelegatedReview(view.Request, EscalationBusiness, "Ship now?", "", nil, time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	again, _ := f.store.EscalateDelegatedReview(view.Request, EscalationBusiness, "Ship now?", "", nil, time.Now())
+	other, _ := f.store.EscalateDelegatedReview(view.Request, EscalationBusiness, "Price it?", "", nil, time.Now())
+	if again != first || other == first || other == "" {
+		t.Fatalf("first %s, again %s, other %s", first, again, other)
 	}
 }

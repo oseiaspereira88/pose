@@ -27,21 +27,39 @@ const (
 )
 
 // escalationMarker opens the context of an escalation, so the engine finds
-// the one it opened.
-func escalationMarker(requestID, cause string) string {
-	return "escalates " + requestID + " (" + cause + ")"
+// the one it opened: the request, or for a review reserved to a person the
+// scope and bundle, which no request exists for yet, and the cause.
+func escalationMarker(key, cause string) string {
+	return "escalates " + key + " (" + cause + ")"
+}
+
+func escalationKey(r ActionRequest, cause string) string {
+	if cause == EscalationPersonRequired && r.Review != nil {
+		return r.Review.Scope + "@" + r.Review.BundleID
+	}
+	return r.ID
 }
 
 // EscalateDelegatedReview opens the decision request cause asks of a person
-// about delegated-review request r, or returns the one already open.
+// about delegated-review request r, or returns the one that already asks
+// the same question — open or answered — under a lock, so neither a retry
+// nor a concurrent call asks twice; a different question is a new one
+// (review round 1, F04, F10).
 func (s Store) EscalateDelegatedReview(r ActionRequest, cause, question, context string, options []ActionOption, now time.Time) (string, error) {
-	marker := escalationMarker(r.ID, cause)
+	key := escalationKey(r, cause)
+	marker := escalationMarker(key, cause)
+	unlock, err := s.lockPrivateName("escalation-locks", digestBytes([]byte(marker)))
+	if err != nil {
+		return "", err
+	}
+	defer unlock()
 	existing, err := s.ListActionRequests()
 	if err != nil {
 		return "", err
 	}
 	for _, v := range existing {
-		if v.Request.Kind == ActionDecision && strings.HasPrefix(v.Request.Context, marker) && v.State != ActionStateCancelled && v.State != ActionStateSuperseded {
+		if v.Request.Kind == ActionDecision && strings.HasPrefix(v.Request.Context, marker) && strings.TrimSpace(v.Request.Question) == strings.TrimSpace(question) &&
+			v.State != ActionStateCancelled && v.State != ActionStateSuperseded && v.State != ActionStateInvalidated {
 			return v.Request.ID, nil
 		}
 	}
@@ -55,7 +73,7 @@ func (s Store) EscalateDelegatedReview(r ActionRequest, cause, question, context
 		Options: options, RequestedBy: ActionPrincipal{Principal: "agent:pose-engine"}, Recipient: ObligationActor{Role: "maintainer"},
 		Targets: r.Targets, Effects: r.Effects}, now)
 	if err != nil {
-		return "", fmt.Errorf("pose: the %s escalation of %s cannot be opened: %w", cause, r.ID, err)
+		return "", fmt.Errorf("pose: the %s escalation of %s cannot be opened: %w", cause, key, err)
 	}
 	return view.Request.ID, nil
 }

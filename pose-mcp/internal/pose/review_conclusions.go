@@ -319,6 +319,35 @@ func differingItems[T any](kind string, got, want []T) []string {
 // conclusion of the same run to finish.
 const reviewConclusionLockWait = 2 * time.Minute
 
+// lockPrivateName holds an exclusive lock on name in a private directory,
+// waiting while another process holds it.
+func (s Store) lockPrivateName(dir, name string) (func(), error) {
+	base, err := s.DelegationPrivateDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	path := filepath.Join(base, strings.TrimPrefix(name, "sha256:")+".lock")
+	if info, err := os.Lstat(path); err == nil && !info.Mode().IsRegular() {
+		return nil, fmt.Errorf("pose: the lock %s is not a regular file", name)
+	}
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		return nil, err
+	}
+	deadline := time.Now().Add(reviewConclusionLockWait)
+	for {
+		unlock, err := lockSpecTransferFile(file)
+		if err == nil {
+			return func() { unlock(); file.Close() }, nil
+		}
+		if errors.Is(err, errFileLockUnsupported) || time.Now().After(deadline) {
+			file.Close()
+			return nil, fmt.Errorf("pose: the lock %s cannot be taken: %w", name, err)
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+}
+
 // lockReviewConclusion holds run's conclusion lock: an exclusive lock on a
 // private file that the system releases when the process ends, so a
 // reservation nobody holds was interrupted, and two conclusions of one run

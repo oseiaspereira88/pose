@@ -55,6 +55,13 @@ func TestToolsCall_ActionFulfil(t *testing.T) {
 	if err != nil || v.State != pose.ActionStateFulfilled || v.Events[len(v.Events)-1].Channel != "mcp" {
 		t.Fatalf("after: %+v %v", v, err)
 	}
+	// The canonical envelope, as the Conductor writes it, replays the same
+	// fulfilment (review round 1, F08).
+	envelope := actionFulfilCall(t, ts, map[string]any{"apply": true, "envelope": map[string]any{"request_id": opened.Request.ID, "request_digest": opened.Request.RequestDigest,
+		"expected_revision": opened.Revision, "idempotency_key": "mcp-1", "run_id": run.RunID, "runner": "agent:conductor", "channel": "mcp"}})
+	if envelope.Error != nil || envelope.Result["isError"] != false {
+		t.Fatalf("the canonical envelope: %+v", envelope)
+	}
 	args["runner"] = "human:ada"
 	args["idempotency_key"] = "mcp-2"
 	if refused := actionFulfilCall(t, ts, args); refused.Result["isError"] != true {

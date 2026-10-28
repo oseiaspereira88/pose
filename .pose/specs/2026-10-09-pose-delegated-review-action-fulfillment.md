@@ -84,6 +84,7 @@ Action kind and satisfaction rule, the fulfilment command, and a CI example.
 - created: pose-mcp/internal/pose/delegated_review_request_test.go
 - modified: pose-mcp/internal/pose/journal_integrity.go
 - modified: pose-mcp/internal/pose/review_rounds.go
+- modified: pose-mcp/internal/pose/review_conclusions.go
 - modified: pose-mcp/internal/pose/review_run_provenance.go
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md

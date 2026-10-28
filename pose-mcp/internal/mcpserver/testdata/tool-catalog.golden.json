@@ -615,6 +615,10 @@
             "description": "Record the fulfilment; without it the call is a preview",
             "type": "boolean"
           },
+          "envelope": {
+            "description": "The canonical envelope (request_id, request_digest, expected_revision, idempotency_key, run_id, runner, channel) instead of the fields above; channel conductor is kept, any other is recorded as mcp",
+            "type": "object"
+          },
           "expected_revision": {
             "description": "The journal revision the fulfilment is written against",
             "type": "integer"
@@ -644,13 +648,6 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "run",
-          "runner",
-          "request_digest",
-          "idempotency_key"
-        ],
         "type": "object"
       },
       "name": "pose_action_fulfil"

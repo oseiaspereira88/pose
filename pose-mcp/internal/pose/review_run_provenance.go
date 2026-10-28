@@ -358,16 +358,48 @@ func (s Store) VerifyReviewRunProof(id, proofID string) (ReviewRunAssurance, err
 	}
 	return s.verifyRunProof(proof, run, s.reviewClock())
 }
-func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time) (ReviewRunAssurance, error) {
-	fail := func(message string) (ReviewRunAssurance, error) {
-		return ReviewRunAssurance{}, fmt.Errorf("run provenance: %s", message)
+
+// VerifyReviewRunProofRecord verifies what a proof of run says about it —
+// its signature under a pinned issuer, the project and audience, and the
+// exact run record, output, transcript and provenance it binds — without
+// asking whether the run still governs its scope or whether its adapter and
+// brief are the current ones: a reader of a record kept after its scope
+// moved on (spec pose-delegated-review-action-fulfillment, review round 1).
+func (s Store) VerifyReviewRunProofRecord(id, proofID string) (string, error) {
+	s = s.reviewOperation()
+	run, e := s.LoadProvenanceReviewRun(id)
+	if e != nil {
+		return "", e
+	}
+	rel, e := runProofPath(id, proofID)
+	if e != nil {
+		return "", e
+	}
+	var proof ReviewRunProof
+	if e = readLedgerJSON(filepath.Join(s.Root, rel), &proof); e != nil {
+		return "", e
+	}
+	if proof.ProofID != proofID {
+		return "", fmt.Errorf("run proof filename identity differs")
+	}
+	if _, e := s.verifyRunProofCore(proof, run); e != nil {
+		return "", e
+	}
+	return proof.Issuer, nil
+}
+
+// verifyRunProofCore is the part of a proof's verification that is about
+// the proof and the run record alone.
+func (s Store) verifyRunProofCore(proof ReviewRunProof, run ReviewRun) (ReviewPolicy, error) {
+	fail := func(message string) (ReviewPolicy, error) {
+		return ReviewPolicy{}, fmt.Errorf("run provenance: %s", message)
 	}
 	if proof.SchemaVersion != 1 || proof.Claim.SchemaVersion != 1 || proof.Algorithm != "ed25519" || proof.ProofID != runProofIdentity(proof) {
 		return fail("unsupported or rewritten proof")
 	}
 	policy, _, e := s.loadReviewPolicy()
 	if e != nil {
-		return ReviewRunAssurance{}, e
+		return ReviewPolicy{}, e
 	}
 	if !reviewIssuerHoldsGrant(policy.TrustedAttestationIssuers, proof.Issuer, proof.PublicKey) {
 		return fail("issuer is not trusted under current pins")
@@ -385,7 +417,7 @@ func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time
 		return fail("captured executor provenance is absent")
 	}
 	if err := s.runProvenanceProjectBinding(policy.AuthorityProject); err != nil {
-		return ReviewRunAssurance{}, err
+		return ReviewPolicy{}, err
 	}
 	if c.Project != policy.AuthorityProject || c.Project != p.Project || c.Audience == "" || c.Audience != policy.AuthorityAudience || c.Audience != p.Audience {
 		return fail("project or audience differs from protected policy")
@@ -397,6 +429,18 @@ func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time
 	if c.ProvenanceDigest != digestBytes(snapshot) {
 		return fail("captured provenance digest differs")
 	}
+	return policy, nil
+}
+
+func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time) (ReviewRunAssurance, error) {
+	fail := func(message string) (ReviewRunAssurance, error) {
+		return ReviewRunAssurance{}, fmt.Errorf("run provenance: %s", message)
+	}
+	_, e := s.verifyRunProofCore(proof, run)
+	if e != nil {
+		return ReviewRunAssurance{}, e
+	}
+	c, p := proof.Claim, run.Provenance
 	times := &ReviewAuthorityClaim{IssuedAt: c.IssuedAt, ExpiresAt: c.ExpiresAt}
 	if blocked := reviewClaimTimeBlockers(times, now, 0); len(blocked) > 0 {
 		return fail(strings.Join(blocked, "; "))

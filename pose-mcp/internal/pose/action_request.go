@@ -703,12 +703,23 @@ func (s Store) deriveActionView(events []ActionEvent) ActionRequestView {
 			// visible as the answer (R6). While the request's subject is
 			// current the fulfilment is verified again; once the bundle or the
 			// policies moved on it stands as recorded.
-			if request.Review != nil && request.Subject != nil && delegatedReviewSubjectReader(s, *request.Review) == request.Subject.Digest {
+			if request.Kind != ActionDelegatedReview || request.Review == nil || request.Subject == nil || event.Fulfillment == nil {
+				view.Limitations = append(view.Limitations, "a fulfilment recorded on a request that is not a delegated review is ignored")
+				continue
+			}
+			if delegatedReviewSubjectReader(s, *request.Review) == request.Subject.Digest {
 				if err := fulfillmentEventVerifier(s, request, event); err != nil {
 					view.Limitations = append(view.Limitations, "a recorded fulfilment does not verify, so it satisfies nothing: "+err.Error())
 					continue
 				}
 			} else {
+				// The scope or the policies moved on: what the fulfilment says
+				// of its run is still verified, all but whether the run governs
+				// a scope that has changed (review round 1, F01).
+				if err := recordedFulfillmentVerifier(s, request, *event.Fulfillment); err != nil {
+					view.Limitations = append(view.Limitations, "a recorded fulfilment does not verify, so it satisfies nothing: "+err.Error())
+					continue
+				}
 				view.Limitations = append(view.Limitations, "the fulfilment was verified against bundle "+request.Review.BundleID+" when it was recorded; the scope or the policies have changed since")
 			}
 			view.State, view.Satisfaction, view.Assurance = ActionStateFulfilled, SatisfactionSatisfied, ReviewIdentityAssuranceVerified

@@ -1335,9 +1335,20 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			ExpectedRevision int    `json:"expected_revision"`
 			IdempotencyKey   string `json:"idempotency_key"`
 			Apply            bool   `json:"apply"`
+			// Envelope is the canonical envelope `pose action fulfil
+			// --envelope` reads, as the Conductor writes it (review round 1,
+			// F08); its fields fill the call's.
+			Envelope *pose.ActionFulfillmentEnvelope `json:"envelope"`
 		}
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_action_fulfil: invalid arguments")
+		}
+		channel := "mcp"
+		if e := a.Envelope; e != nil {
+			a.ID, a.Run, a.Runner, a.RequestDigest, a.ExpectedRevision, a.IdempotencyKey = e.RequestID, e.RunID, e.Runner, e.RequestDigest, e.ExpectedRevision, e.IdempotencyKey
+			if e.Channel == "conductor" {
+				channel = "conductor"
+			}
 		}
 		for name, value := range map[string]string{"id": a.ID, "run": a.Run, "runner": a.Runner, "request_digest": a.RequestDigest, "idempotency_key": a.IdempotencyKey} {
 			if strings.TrimSpace(value) == "" {
@@ -1345,7 +1356,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			}
 		}
 		env := pose.ActionFulfillmentEnvelope{RequestID: a.ID, RequestDigest: a.RequestDigest, ExpectedRevision: a.ExpectedRevision, IdempotencyKey: a.IdempotencyKey,
-			RunID: a.Run, Runner: a.Runner, Channel: "mcp"}
+			RunID: a.Run, Runner: a.Runner, Channel: channel}
 		if !a.Apply {
 			_, event, err := store.PreflightFulfillment(env, time.Now())
 			if err != nil {
@@ -2637,9 +2648,9 @@ func baseToolDefinitions() []map[string]any {
 					"expected_revision": map[string]any{"type": "integer", "description": "The journal revision the fulfilment is written against"},
 					"idempotency_key":   map[string]any{"type": "string", "description": "Key that makes a retry a no-op"},
 					"apply":             map[string]any{"type": "boolean", "description": "Record the fulfilment; without it the call is a preview"},
+					"envelope":          map[string]any{"type": "object", "description": "The canonical envelope (request_id, request_digest, expected_revision, idempotency_key, run_id, runner, channel) instead of the fields above; channel conductor is kept, any other is recorded as mcp"},
 					"project_id":        map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
 				},
-				"required": []string{"id", "run", "runner", "request_digest", "idempotency_key"},
 			},
 		},
 		{

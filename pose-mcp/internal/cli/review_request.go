@@ -116,6 +116,9 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 		// The plan reserves this review for a person: no delegated run
 		// satisfies it, so the person is asked instead (R7).
 		if !apply {
+			if jsonOutput {
+				return writeJSON(stdout, map[string]any{"person_required": true, "scope": material.Scope, "bundle_id": material.BundleID, "apply": false})
+			}
 			out.Field("review_request.person_required", "true")
 			out.Field("review_request.apply", "false (rerun with --apply to ask the maintainer)")
 			return 0
@@ -130,6 +133,9 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 		if err != nil {
 			out.Failure("pose review request: " + err.Error())
 			return 1
+		}
+		if jsonOutput {
+			return writeJSON(stdout, map[string]any{"person_required": true, "scope": material.Scope, "bundle_id": material.BundleID, "escalation": id})
 		}
 		out.Field("review_request.person_required", "true")
 		out.Field("review_request.escalation", id)

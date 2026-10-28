@@ -264,11 +264,11 @@ func (s Store) verifyFulfillment(r ActionRequest, runID, runner, channel string)
 	if conclusion.State != ReviewConclusionRecorded {
 		return fail("the conclusion of run %s is %s: %s", run.RunID, conclusion.State, strings.Join(conclusion.Reasons, "; "))
 	}
-	assurance, err := s.VerifyReviewRunProof(run.RunID, conclusion.ProofID)
-	if err != nil || !assurance.CompleteReview {
-		return fail("the proof of run %s does not verify a complete run: %v", run.RunID, err)
-	}
-	recorded := conclusion.Destination
+	// The conclusion record says a conclusion was recorded; what was
+	// concluded, under which proof and where, is read from the signed effect
+	// and the run its proof binds, never from that record (review round 1,
+	// F03).
+	var proofID, recorded, decision string
 	switch m.Destination {
 	case ReviewDestinationAttestation:
 		bundle, err := s.LoadReviewBundle(run.BundleID)
@@ -279,23 +279,95 @@ func (s Store) verifyFulfillment(r ActionRequest, runID, runner, channel string)
 		if err != nil || !read.Coverage.Complete() {
 			return fail("the attestations of %s cannot be read whole", run.BundleID)
 		}
-		found := false
 		for _, att := range read.Attestations {
-			if att.AttestationID == conclusion.Attestation && att.Run != nil && att.Run.RunID == run.RunID && len(s.runBackedReviewBlockers(bundle, att)) == 0 {
-				found, recorded = true, att.Path
+			if att.Run != nil && att.Run.RunID == run.RunID && len(s.runBackedReviewBlockers(bundle, att)) == 0 {
+				proofID, recorded, decision = att.Run.ProofID, att.Path, att.Decision
 			}
 		}
-		if !found {
-			return fail("the attestation the conclusion of run %s names does not verify as its conclusion", run.RunID)
+		if proofID == "" {
+			return fail("no attestation verifies as the conclusion of run %s", run.RunID)
 		}
 	case ReviewDestinationAdjudication, ReviewDestinationSmoke:
-		if proof, why := s.verifiedVerdictProof(run.Kind, run.RunID); proof == "" {
+		proof, why := s.verifiedVerdictProof(run.Kind, run.RunID)
+		if proof == "" {
 			return fail("the verdict of run %s does not verify: %s", run.RunID, why)
 		}
+		proofID, recorded = proof, AdjudicationsDir+"/"+run.RunID+".json"
+		if m.Destination == ReviewDestinationSmoke {
+			recorded = SmokeResultsDir + "/" + run.RunID + ".json"
+		}
 	}
-	decision := conclusion.Decision
-	return ActionFulfillment{RunID: run.RunID, ProofID: conclusion.ProofID, AttemptID: run.AttemptID, Decision: decision, Destination: m.Destination,
+	assurance, err := s.VerifyReviewRunProof(run.RunID, proofID)
+	if err != nil || !assurance.CompleteReview {
+		return fail("the proof of run %s does not verify a complete run: %v", run.RunID, err)
+	}
+	if draft := draftReviewDecision(run.Output); decision == "" {
+		decision = draft
+	} else if decision != draft && !(decision == "changes-requested" && draft == "rejected" || decision == "rejected" && draft == "changes-requested") {
+		return fail("the recorded decision %s is not the run's %s", decision, draft)
+	}
+	return ActionFulfillment{RunID: run.RunID, ProofID: proofID, AttemptID: run.AttemptID, Decision: decision, Destination: m.Destination,
 		Recorded: recorded, Runner: runner, Channel: channel}, nil
+}
+
+// verifyRecordedFulfillment verifies a fulfilment kept after its request's
+// subject moved on: the run of the request's brief and bundle, of an
+// accepted agent, completed, whose proof — signed by a pinned issuer, of
+// this project — binds the exact record and output, whose decision the
+// fulfilment states, and whose effect is where the fulfilment says. It does
+// not ask whether the run still governs the scope: that is what moved on
+// (review round 1, F01).
+func (s Store) verifyRecordedFulfillment(r ActionRequest, f ActionFulfillment) error {
+	if r.Kind != ActionDelegatedReview || r.Review == nil {
+		return errors.New("a fulfilment is only of a delegated-review request")
+	}
+	m := *r.Review
+	run, err := s.LoadProvenanceReviewRun(f.RunID)
+	if err != nil {
+		return err
+	}
+	switch {
+	case run.Kind != DelegationKindForPurpose(m.Purpose) || run.BundleID != m.BundleID || run.BundleDigest != m.BundleDigest || run.BriefDigest != m.BriefDigest:
+		return errors.New("the run is not of the request's brief and bundle")
+	case len(m.Agents) > 0 && !slices.Contains(m.Agents, run.Adapter):
+		return errors.New("the run's agent is not one the request accepts")
+	case run.Status != ReviewRunCompleted:
+		return errors.New("the run did not complete")
+	case f.Destination != m.Destination:
+		return errors.New("the fulfilment names another destination")
+	}
+	if _, err := s.VerifyReviewRunProofRecord(run.RunID, f.ProofID); err != nil {
+		return err
+	}
+	draft := draftReviewDecision(run.Output)
+	if f.Decision != draft && !(f.Decision == "changes-requested" && draft == "rejected" || f.Decision == "rejected" && draft == "changes-requested") {
+		return errors.New("the fulfilment's decision is not the run's")
+	}
+	switch m.Destination {
+	case ReviewDestinationAttestation:
+		read, err := s.ReadReviewAttestations(run.BundleID)
+		if err != nil {
+			return err
+		}
+		for _, att := range read.Attestations {
+			if att.Path == f.Recorded && att.Run != nil && att.Run.RunID == run.RunID && att.Run.ProofID == f.ProofID && att.Decision == f.Decision {
+				return nil
+			}
+		}
+		return errors.New("the attestation the fulfilment names is not the run's")
+	default:
+		want := AdjudicationsDir + "/" + run.RunID + ".json"
+		if m.Destination == ReviewDestinationSmoke {
+			want = SmokeResultsDir + "/" + run.RunID + ".json"
+		}
+		if f.Recorded != want {
+			return errors.New("the fulfilment names another record")
+		}
+		if _, err := os.Stat(filepath.Join(s.Root, filepath.FromSlash(want))); err != nil {
+			return errors.New("the verdict record the fulfilment names is gone")
+		}
+		return nil
+	}
 }
 
 // FulfilActionRequest appends a verified fulfilment of request env names,
@@ -400,7 +472,12 @@ var fulfillmentEventVerifier func(Store, ActionRequest, ActionEvent) error
 // reason.
 var delegatedReviewSubjectReader func(Store, ActionReviewRequest) string
 
+// recordedFulfillmentVerifier verifies a fulfilment kept after its subject
+// moved on, assigned in init for the same reason.
+var recordedFulfillmentVerifier func(Store, ActionRequest, ActionFulfillment) error
+
 func init() {
+	recordedFulfillmentVerifier = func(s Store, r ActionRequest, f ActionFulfillment) error { return s.verifyRecordedFulfillment(r, f) }
 	fulfillmentEventVerifier = func(s Store, r ActionRequest, e ActionEvent) error { return s.verifyFulfillmentEvent(r, e) }
 	delegatedReviewSubjectReader = func(s Store, m ActionReviewRequest) string { return s.delegatedReviewSubjectDigest(m) }
 }
