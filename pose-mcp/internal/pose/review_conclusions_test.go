@@ -292,3 +292,46 @@ func TestConcludeReviewRunRecordsAnUnreadableRun(t *testing.T) {
 		t.Fatalf("an unreadable run: %+v %v %+v", refused, err, kept)
 	}
 }
+
+// Review round 3, B1: an interrupted conclusion is not recovered from an
+// attestation history read with losses; the reservation stays. F1: a link
+// in the lock's place is refused.
+func TestConcludeReviewRunRefusesAnIncompleteRecovery(t *testing.T) {
+	f, draftPath := conclusionFixture(t)
+	if err := os.WriteFile(draftPath, []byte(draftFrom(t, approvedBundleAttestation(f.bundle, "agent:reviewer"), nil)), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	run := dispatchConclusion(t, f, "incomplete history")
+	if c, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now()); err != nil || c.State != ReviewConclusionRecorded {
+		t.Fatalf("conclude: %+v %v", c, err)
+	}
+	_, raw, _ := f.store.readReviewConclusionRaw(run.RunID)
+	pending := ReviewConclusion{SchemaVersion: 1, RunID: run.RunID, BundleID: run.BundleID, Scope: run.Scope, State: ReviewConclusionPending, Decision: "approved", ConcludedAt: time.Now().UTC().Format(time.RFC3339Nano)}
+	if _, err := f.store.writeReviewConclusion(pending, raw); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(f.store.Root, ".pose", "review-attestations", "rva-ffffffffffffffff.json"), []byte("{"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if c, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now()); err == nil || !strings.Contains(err.Error(), "incomplete") {
+		t.Fatalf("recovered from an incomplete history: %+v %v", c, err)
+	}
+	if kept, _ := f.store.ReadReviewConclusion(run.RunID); kept == nil || kept.State != ReviewConclusionPending {
+		t.Fatalf("the reservation did not stay: %+v", kept)
+	}
+	dir, err := f.store.DelegationPrivateDir("conclusion-locks")
+	if err != nil {
+		t.Fatal(err)
+	}
+	other := filepath.Join(t.TempDir(), "unrelated")
+	if err := os.WriteFile(other, nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	lock := filepath.Join(dir, "rrn-0123456789abcdef.lock")
+	if err := os.Symlink(other, lock); err != nil {
+		t.Skip("no symlinks here")
+	}
+	if _, err := f.store.lockReviewConclusion("rrn-0123456789abcdef"); err == nil {
+		t.Fatal("a linked lock was taken")
+	}
+}

@@ -129,3 +129,7 @@ func lockTransferSpecs(stores map[string]Store, plan SpecTransferPlan) (func(), 
 	}
 	return release, nil
 }
+
+// errFileLockUnsupported is the lock of a platform that has none: waiting
+// cannot help, so a caller fails at once with this cause.
+var errFileLockUnsupported = errors.New("transfer locking unsupported on this platform")

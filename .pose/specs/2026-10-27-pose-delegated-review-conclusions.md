@@ -68,6 +68,8 @@ Conclusion validators per kind, destinations (attestation, decision record, smok
 - modified: pose-mcp/internal/pose/review_brief_test.go
 - modified: pose-mcp/internal/pose/delegation_policy.go
 - modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/spec_transfer_locks.go
+- modified: pose-mcp/internal/pose/spec_transfer_lock_other.go
 - modified: pose-mcp/internal/pose/review_run_provenance.go
 - modified: pose-mcp/internal/pose/review_run_provenance_test.go
 - modified: pose-mcp/internal/cli/review_run_provenance_test.go

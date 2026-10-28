@@ -323,15 +323,33 @@ func (s Store) lockReviewConclusion(runID string) (func(), error) {
 	if err != nil {
 		return nil, err
 	}
-	file, err := os.OpenFile(filepath.Join(dir, runID+".lock"), os.O_CREATE|os.O_RDWR, 0o600)
+	path := filepath.Join(dir, runID+".lock")
+	// The lock is this regular file and no other: a link planted in its
+	// place would lock what it points at (review round 3, F1).
+	if info, err := os.Lstat(path); err == nil && !info.Mode().IsRegular() {
+		return nil, fmt.Errorf("pose: the conclusion lock of %s is not a regular file", runID)
+	}
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0o600)
 	if err != nil {
 		return nil, err
+	}
+	opened, err := file.Stat()
+	named, lerr := os.Lstat(path)
+	if err != nil || lerr != nil || !named.Mode().IsRegular() || !os.SameFile(opened, named) {
+		file.Close()
+		return nil, fmt.Errorf("pose: the conclusion lock of %s changed while it was opened", runID)
 	}
 	deadline := time.Now().Add(reviewConclusionLockWait)
 	for {
 		unlock, err := lockSpecTransferFile(file)
 		if err == nil {
 			return func() { unlock(); file.Close() }, nil
+		}
+		// A platform without locks fails at once with that cause (review
+		// round 3, F2).
+		if errors.Is(err, errFileLockUnsupported) {
+			file.Close()
+			return nil, fmt.Errorf("pose: a conclusion needs a file lock: %w", err)
 		}
 		if time.Now().After(deadline) {
 			file.Close()
@@ -406,6 +424,12 @@ func (s Store) recoveredReviewConclusion(pending ReviewConclusion) (*ReviewConcl
 	read, err := s.ReadReviewAttestations(pending.BundleID)
 	if err != nil {
 		return nil, err
+	}
+	// A history read with losses may hide the attestation that is current:
+	// nothing is recovered from it, and the reservation stays (review round
+	// 3, B1).
+	if !read.Coverage.Complete() {
+		return nil, fmt.Errorf("pose: the attestation history of %s is incomplete, so the interrupted conclusion of %s cannot be recovered: %v", pending.BundleID, pending.RunID, read.Coverage.Losses)
 	}
 	for _, att := range read.Attestations {
 		if att.Run == nil || att.Run.RunID != pending.RunID || att.Decision != pending.Decision {
