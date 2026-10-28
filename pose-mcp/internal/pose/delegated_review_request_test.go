@@ -411,6 +411,10 @@ func TestForgedFulfillmentsSatisfyNothing(t *testing.T) {
 	if v, err := f.store.LoadActionRequest(view.Request.ID); err != nil || v.State == ActionStateFulfilled || v.Satisfaction == SatisfactionSatisfied {
 		t.Fatalf("a forged fulfilment counted while current: %+v %v", v.State, err)
 	}
+	// Nor does it end the wait (review round 4, R4-F03).
+	if waits, err := f.store.GovernanceWaits(time.Now()); err != nil || waits.Open != 1 || waits.Resolved != 0 {
+		t.Fatalf("a forged fulfilment ended the wait: %+v %v", waits, err)
+	}
 	policy := filepath.Join(f.store.Root, ".pose", "policy", "review.json")
 	raw, _ := os.ReadFile(policy)
 	if err := os.WriteFile(policy, append(raw, ' '), 0o644); err != nil {

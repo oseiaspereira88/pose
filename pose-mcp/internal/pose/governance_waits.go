@@ -62,6 +62,11 @@ func governanceWaitsFrom(report GovernanceWaitReport, views []ActionRequestView,
 		end := now
 		closed := false
 		for _, event := range view.Events[1:] {
+			// Only a fulfilment the view counts closes the wait: one that does
+			// not verify is no answer (review round 4, R4-F03).
+			if event.Type == ActionEventFulfilled && view.State != ActionStateFulfilled {
+				continue
+			}
 			if event.Type == ActionEventAnswered || event.Type == ActionEventCancelled || event.Type == ActionEventWaived || event.Type == ActionEventSuperseded || event.Type == ActionEventFulfilled {
 				if at, err := time.Parse(time.RFC3339, event.At); err == nil {
 					end, closed = at, true

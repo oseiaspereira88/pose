@@ -193,3 +193,90 @@ func TestReviewRequestSupersedes(t *testing.T) {
 		t.Fatalf("the predecessor was not retired: %s", old.State)
 	}
 }
+
+// Review round 4, R4-F01: the replacement carries the authority that
+// retires its predecessor — here a maintainer's role for a predecessor
+// another principal asked — and its preview shows the preflight.
+func TestReviewRequestSupersedesWithARole(t *testing.T) {
+	root, _, _ := cliProvenanceInstance(t)
+	writeCloseoutCLIFile(t, root, ".pose/policy/actions.json", `{"schema_version":1,"roles":{"maintainer":["human:ada"]}}`)
+	code, out := runPose(t, root, "review", "request", "spec:alpha", "--kind", "delegated-review", "--apply", "--json")
+	var first posemodel.ActionRequestView
+	if code != 0 || json.Unmarshal([]byte(out), &first) != nil {
+		t.Fatalf("request: %d %s", code, out)
+	}
+	replace := []string{"review", "request", "spec:alpha", "--kind", "delegated-review", "--question", "Review spec:alpha again", "--requested-by", "human:ada", "--supersedes", first.Request.ID}
+	if code, out := runPose(t, root, append(replace, "--apply")...); code == 0 {
+		t.Fatalf("another principal retired it without a role: %s", out)
+	}
+	code, out = runPose(t, root, append(replace, "--role", "maintainer", "--json")...)
+	if code != 0 || !strings.Contains(out, `"preflight"`) {
+		t.Fatalf("preview: %d %s", code, out)
+	}
+	if code, out := runPose(t, root, append(replace, "--role", "maintainer", "--apply")...); code != 0 {
+		t.Fatalf("a maintainer could not retire it: %d %s", code, out)
+	}
+	if old, _ := (posemodel.Store{Root: root}).LoadActionRequest(first.Request.ID); old.State != posemodel.ActionStateSuperseded {
+		t.Fatalf("the predecessor was not retired: %s", old.State)
+	}
+}
+
+// Review round 4, R4-F02: when the plan now reserves the review for a
+// person, the replacement is the person's escalation, which retires the
+// predecessor; nothing is left restricting beside it.
+func TestReviewRequestReplacementByAPerson(t *testing.T) {
+	root, _, _ := cliProvenanceInstance(t)
+	code, out := runPose(t, root, "review", "request", "spec:alpha", "--kind", "delegated-review", "--apply", "--json")
+	var first posemodel.ActionRequestView
+	if code != 0 || json.Unmarshal([]byte(out), &first) != nil {
+		t.Fatalf("request: %d %s", code, out)
+	}
+	path := filepath.Join(root, ".pose", "policy", "review.json")
+	raw, _ := os.ReadFile(path)
+	if err := os.WriteFile(path, []byte(strings.Replace(string(raw), `"spec":"different-actor"`, `"spec":"mandatory-human"`, 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if code, out := runPose(t, root, "review", "bundle", "spec:alpha", "--seal"); code != 0 {
+		t.Fatal(code, out)
+	}
+	code, out = runPose(t, root, "review", "request", "spec:alpha", "--kind", "delegated-review", "--supersedes", first.Request.ID, "--apply", "--json")
+	var doc struct {
+		Escalation string `json:"escalation"`
+	}
+	if code != 0 || json.Unmarshal([]byte(out), &doc) != nil || doc.Escalation == "" {
+		t.Fatalf("replacement: %d %s", code, out)
+	}
+	s := posemodel.Store{Root: root}
+	if old, _ := s.LoadActionRequest(first.Request.ID); old.State != posemodel.ActionStateSuperseded {
+		t.Fatalf("the predecessor was not retired: %s", old.State)
+	}
+	if e, _ := s.LoadActionRequest(doc.Escalation); e.Request.Supersedes != first.Request.ID || e.Request.Kind != posemodel.ActionDecision {
+		t.Fatalf("the escalation is not the successor: %+v", e.Request)
+	}
+}
+
+// Review round 4: a maintainer replaces, by role, a predecessor another
+// principal asked, when the plan now reserves the review for a person.
+func TestReviewRequestReplacementByAPersonWithARole(t *testing.T) {
+	root, _, _ := cliProvenanceInstance(t)
+	writeCloseoutCLIFile(t, root, ".pose/policy/actions.json", `{"schema_version":1,"roles":{"maintainer":["human:ada"]}}`)
+	code, out := runPose(t, root, "review", "request", "spec:alpha", "--kind", "delegated-review", "--apply", "--json")
+	var first posemodel.ActionRequestView
+	if code != 0 || json.Unmarshal([]byte(out), &first) != nil {
+		t.Fatalf("request: %d %s", code, out)
+	}
+	path := filepath.Join(root, ".pose", "policy", "review.json")
+	raw, _ := os.ReadFile(path)
+	if err := os.WriteFile(path, []byte(strings.Replace(string(raw), `"spec":"different-actor"`, `"spec":"mandatory-human"`, 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if code, out := runPose(t, root, "review", "bundle", "spec:alpha", "--seal"); code != 0 {
+		t.Fatal(code, out)
+	}
+	if code, out := runPose(t, root, "review", "request", "spec:alpha", "--kind", "delegated-review", "--requested-by", "human:ada", "--role", "maintainer", "--supersedes", first.Request.ID, "--apply"); code != 0 {
+		t.Fatalf("replacement by role: %d %s", code, out)
+	}
+	if old, _ := (posemodel.Store{Root: root}).LoadActionRequest(first.Request.ID); old.State != posemodel.ActionStateSuperseded {
+		t.Fatalf("the predecessor was not retired: %s", old.State)
+	}
+}

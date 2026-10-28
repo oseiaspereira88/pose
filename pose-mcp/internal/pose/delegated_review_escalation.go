@@ -59,10 +59,7 @@ func (s Store) EscalateDelegatedReview(r ActionRequest, cause, question, context
 		return "", err
 	}
 	if len(options) < 2 {
-		options = []ActionOption{
-			{ID: "person-reviews", Consequence: "a person reviews the scope and records the attestation; the delegated request is waived"},
-			{ID: "keep-blocked", Consequence: "the scope stays blocked until the bundle changes"},
-		}
+		options = defaultEscalationOptions()
 	}
 	asked := ActionRequest{Origin: r.Origin, Kind: ActionDecision, Question: question, Context: strings.TrimSpace(marker + "\n" + context),
 		Options: options, RequestedBy: ActionPrincipal{Principal: "agent:pose-engine"}, Recipient: ObligationActor{Role: "maintainer"},
@@ -91,6 +88,53 @@ func (s Store) EscalateDelegatedReview(r ActionRequest, cause, question, context
 		return "", fmt.Errorf("pose: the %s escalation of %s cannot be opened: %w", cause, key, err)
 	}
 	return view.Request.ID, nil
+}
+
+// EscalateDelegatedReviewReplacing opens the decision request cause asks of
+// a person as the successor of request supersedes, retiring it in the same
+// step under the supersession authority rules (review round 4, R4-F02). It
+// is EscalateDelegatedReview when there is nothing to replace.
+func (s Store) EscalateDelegatedReviewReplacing(r ActionRequest, cause, question, context string, options []ActionOption, supersedes string, authority *ActionResolution, role string, now time.Time) (string, error) {
+	if supersedes == "" {
+		return s.EscalateDelegatedReview(r, cause, question, context, options, now)
+	}
+	key := escalationKey(r, cause)
+	marker := escalationMarker(key, cause)
+	unlock, err := s.lockPrivateName("escalation-locks", digestBytes([]byte(marker)))
+	if err != nil {
+		return "", err
+	}
+	defer unlock()
+	if len(options) < 2 {
+		options = defaultEscalationOptions()
+	}
+	successor := ActionRequest{Origin: r.Origin, Kind: ActionDecision, Question: question, Context: strings.TrimSpace(marker + "\n" + context),
+		Options: options, RequestedBy: r.RequestedBy, Recipient: ObligationActor{Role: "maintainer"}, Targets: r.Targets, Effects: r.Effects,
+		Supersedes: supersedes, RequestedAt: r.RequestedAt}
+	if role != "" && authority == nil {
+		prepared, err := s.PrepareActionRequest(successor, now)
+		if err != nil {
+			return "", err
+		}
+		successor.RequestedAt = prepared.RequestedAt
+		if authority, err = s.RoleSupersessionAuthority(prepared, r.RequestedBy.Principal, role); err != nil {
+			return "", err
+		}
+	} else if role != "" {
+		authority.Role = role
+	}
+	view, err := s.OpenActionRequestAuthorized(successor, authority, now)
+	if err != nil {
+		return "", fmt.Errorf("pose: the %s escalation replacing %s cannot be opened: %w", cause, supersedes, err)
+	}
+	return view.Request.ID, nil
+}
+
+func defaultEscalationOptions() []ActionOption {
+	return []ActionOption{
+		{ID: "person-reviews", Consequence: "a person reviews the scope and records the attestation; the delegated request is waived"},
+		{ID: "keep-blocked", Consequence: "the scope stays blocked until the bundle changes"},
+	}
 }
 
 // PersonRequiredByPlan reports whether the plan of the request's bundle
@@ -156,4 +200,18 @@ func (s Store) conflictingConclusions(run ReviewRun, decision string) string {
 		return ""
 	}
 	return "Run " + run.RunID + " (" + run.Adapter + ") concluded " + decision + "; " + strings.Join(others, "; ") + "."
+}
+
+// RoleSupersessionAuthority is the declared authority with which actor, in
+// role, retires the predecessor of prepared: bound to the predecessor's
+// digest and revision and to the successor, as a supersession requires.
+// Proof, when the policy asks for it, is still asked by the domain.
+func (s Store) RoleSupersessionAuthority(prepared ActionRequest, actor, role string) (*ActionResolution, error) {
+	prior, err := s.LoadActionRequest(prepared.Supersedes)
+	if err != nil {
+		return nil, err
+	}
+	return &ActionResolution{Type: ActionEventSuperseded, RequestID: prepared.Supersedes, Actor: actor, Role: role, Channel: "cli",
+		RequestDigest: prior.Request.RequestDigest, ExpectedRevision: prior.Revision, IdempotencyKey: "supersede:" + prepared.ID,
+		Reason: "superseded by " + prepared.ID, SuccessorID: prepared.ID, SuccessorDigest: prepared.RequestDigest}, nil
 }

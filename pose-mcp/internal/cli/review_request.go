@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -14,7 +15,7 @@ import (
 )
 
 const reviewRequestUsage = "Usage: pose review request <scope|bundle-id> --kind delegated-review [--purpose review|adjudicate|smoke] [--agents <name,...>] [--note-file <path>] " +
-	"[--requested-by <principal>] [--target <kind:ID|self>]... [--effect <phase>:<block|advisory>]... [--question <text>] [--supersedes <act-id>] [--apply] [--json]"
+	"[--requested-by <principal>] [--target <kind:ID|self>]... [--effect <phase>:<block|advisory>]... [--question <text>] [--supersedes <act-id> [--authority <project-relative json>] [--role <role>] [--requested-at <RFC3339 from preview>]] [--apply] [--json]"
 
 // cmdReviewRequest opens a delegated-review action request (spec
 // pose-delegated-review-action-fulfillment R1, R4): the material is read
@@ -28,6 +29,8 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 	kind, purpose, agents, noteFile, requestedBy, question, supersedes := "", posemodel.DelegationPurposeReview, []string(nil), "", "agent:pose-cli", "", ""
 	var targets []posemodel.NodeRef
 	var effects []posemodel.ObligationEffect
+	var authority *posemodel.ActionResolution
+	role, requestedAt := "", ""
 	apply, jsonOutput := false, false
 	for i := 1; i < len(args); i++ {
 		flag := args[i]
@@ -63,6 +66,25 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 			question = value
 		case "--supersedes":
 			supersedes = value
+		case "--authority":
+			// The proof that retires the predecessor, as pose action open
+			// takes it (review round 4, R4-F01).
+			if err := posemodel.ValidateArtifactPath(root, value, false); err != nil {
+				return usageError(stderr, err.Error())
+			}
+			raw, err := os.ReadFile(filepath.Join(root, value))
+			if err != nil {
+				return usageError(stderr, err.Error())
+			}
+			authority = &posemodel.ActionResolution{}
+			if err := json.Unmarshal(raw, authority); err != nil {
+				return usageError(stderr, err.Error())
+			}
+			authority.Channel = "cli"
+		case "--role":
+			role = value
+		case "--requested-at":
+			requestedAt = value
 		case "--target":
 			ref, err := posemodel.ParseActionTarget(value)
 			if err != nil {
@@ -81,6 +103,12 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 	}
 	if kind != posemodel.ActionDelegatedReview {
 		return usageError(stderr, "pose review request: --kind delegated-review is the kind this command opens")
+	}
+	if (authority != nil || role != "") && supersedes == "" {
+		return usageError(stderr, "pose review request: --authority and --role retire a predecessor; they go with --supersedes")
+	}
+	if role != "" && authority != nil {
+		authority.Role = role
 	}
 	notes := ""
 	if noteFile != "" {
@@ -112,8 +140,23 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 		question = fmt.Sprintf("Have an accepted agent run the %s of %s from its sealed bundle %s, and record its conclusion", purpose, material.Scope, material.BundleID)
 	}
 	r := posemodel.ActionRequest{Origin: material.Scope, Kind: posemodel.ActionDelegatedReview, Question: question, RequestedBy: posemodel.ActionPrincipal{Principal: requestedBy},
-		Targets: targets, Effects: effects, Review: &material, Supersedes: supersedes}
+		Targets: targets, Effects: effects, Review: &material, Supersedes: supersedes, RequestedAt: requestedAt}
 	now := time.Now()
+	if role != "" && authority == nil && !store.PersonRequiredByPlan(material) {
+		// A role holder retires the predecessor in their role: the authority
+		// binds the successor, so the successor is prepared first and the
+		// same instant keeps its identity.
+		prepared, err := store.PrepareActionRequest(r, now)
+		if err != nil {
+			out.Failure("pose review request: " + err.Error())
+			return 1
+		}
+		r.RequestedAt = prepared.RequestedAt
+		if authority, err = store.RoleSupersessionAuthority(prepared, requestedBy, role); err != nil {
+			out.Failure("pose review request: " + err.Error())
+			return 1
+		}
+	}
 	if store.PersonRequiredByPlan(material) {
 		// The plan reserves this review for a person: no delegated run
 		// satisfies it, so the person is asked instead (R7).
@@ -130,8 +173,11 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 			out.Failure("pose review request: " + err.Error())
 			return 1
 		}
-		id, err := store.EscalateDelegatedReview(prepared, posemodel.EscalationPersonRequired, "The plan of "+material.Scope+" reserves its review for a person: who reviews it?",
-			"Bundle "+material.BundleID+" requires mandatory-human review; a delegated run cannot satisfy it.", nil, now)
+		// Asked to replace a request, the person's escalation is the
+		// successor: it retires the predecessor under the same authority
+		// rules (review round 4, R4-F02).
+		id, err := store.EscalateDelegatedReviewReplacing(prepared, posemodel.EscalationPersonRequired, "The plan of "+material.Scope+" reserves its review for a person: who reviews it?",
+			"Bundle "+material.BundleID+" requires mandatory-human review; a delegated run cannot satisfy it.", nil, supersedes, authority, role, now)
 		if err != nil {
 			out.Failure("pose review request: " + err.Error())
 			return 1
@@ -144,13 +190,16 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 		return 0
 	}
 	if !apply {
-		preflight, err := store.PreflightActionOpen(r, nil, now)
+		preflight, err := store.PreflightActionOpen(r, authority, now)
 		if err != nil {
 			out.Failure("pose review request: " + err.Error())
 			return 1
 		}
 		if jsonOutput {
-			return writeJSON(stdout, preflight.Request)
+			return writeJSON(stdout, struct {
+				posemodel.ActionRequest
+				Preflight posemodel.ActionOpenPreflight `json:"preflight"`
+			}{preflight.Request, preflight})
 		}
 		out.Field("review_request.preview", "true")
 		out.Field("review_request.id", preflight.Request.ID)
@@ -162,7 +211,7 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 	}
 	// A successor retires its predecessor in the same step, under the
 	// predecessor's lock and the same authority rules as any supersession.
-	view, err := store.OpenActionRequestAuthorized(r, nil, now)
+	view, err := store.OpenActionRequestAuthorized(r, authority, now)
 	if err != nil {
 		out.Failure("pose review request: " + err.Error())
 		return 1
