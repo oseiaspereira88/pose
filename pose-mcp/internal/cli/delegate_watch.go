@@ -233,7 +233,15 @@ func (w *watchPrinter) follow(store posemodel.Store, attempt posemodel.Delegatio
 		}
 		if !found || !current.Active {
 			// The record is published: what the live file did not carry —
-			// the final message, the end state — comes from it.
+			// the final message, the end state — comes from it. A loss read
+			// while the run was still writing its record is not one: what the
+			// watch ends on is the history read now, whole or not.
+			w.losses = map[string]bool{}
+			if _, final, err := store.ListDelegationAttempts(); err == nil {
+				w.lose(final)
+			} else {
+				return 1
+			}
 			if found {
 				w.replay(store, current, shown)
 			}

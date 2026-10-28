@@ -67,6 +67,7 @@ Action kind and satisfaction rule, the fulfilment command, and a CI example.
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/cli/action.go
 - modified: pose-mcp/internal/cli/delegate.go
+- modified: pose-mcp/internal/cli/delegate_watch.go
 - created: pose-mcp/internal/cli/delegated_review_request_test.go
 - modified: pose-mcp/internal/cli/help_catalog.go
 - modified: pose-mcp/internal/cli/review_closeout.go
