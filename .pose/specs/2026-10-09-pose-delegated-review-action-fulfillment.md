@@ -120,7 +120,7 @@ The contract is ADR `2026-10-09-delegated-review-is-an-adapter`, accepted on 202
 - Minimal option: only `pose delegate review --request` in the repository fulfils it
 - Selected option: a verified envelope — request, request digest, expected revision, idempotency key, run, an `agent:` runner and a channel (cli, mcp, ci, conductor) — submitted by `pose action fulfil` (flags or `--envelope`) or the MCP tool `pose_action_fulfil`, and by `pose delegate review --request` locally. The engine reads everything else from the run — its kind, bundle, brief, agent, completion and containment, its signed proof, the attempt ledger, and the conclusion it recorded at the request's destination — and records a `fulfilled` event; it verifies it again inside the request's lock, and again on read while the request's subject is current. A rejecting run fulfils without approving. The maintainer chose this on 2026-10-28
 - Rationale: one verifier for every runner keeps the local, CI and Harne8 paths equal; nothing the runner states decides the outcome
-- Consequences: a fulfilment that no longer verifies satisfies nothing but never makes a journal unreadable; once the subject moves on it stands as recorded
+- Consequences: a fulfilment that no longer verifies satisfies nothing but never makes a journal unreadable; the event's header must say what its payload says; once the subject moves on a fulfilled request, like an open one, satisfies nothing — it stays visible as history and the new bundle is asked with a new request (review rounds 1 and 2)
 - Falsifier: a fulfilment recorded or counted for a run the engine cannot verify against the request
 
 ### Decision D3

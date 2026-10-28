@@ -491,6 +491,11 @@ func (s Store) verifyFulfillmentEvent(r ActionRequest, e ActionEvent) error {
 	if e.RequestDigest != r.RequestDigest {
 		return fmt.Errorf("%w: fulfilment sequence %d binds another request version", ErrActionVerificationFailed, e.Seq)
 	}
+	// The event's header says what its payload says: who submitted it and
+	// through which channel (review round 2, R2-F02).
+	if e.Actor != e.Fulfillment.Runner || e.Channel != e.Fulfillment.Channel || e.Assurance != ReviewIdentityAssuranceVerified {
+		return fmt.Errorf("%w: fulfilment sequence %d names another submitter than its payload", ErrActionVerificationFailed, e.Seq)
+	}
 	f, err := s.verifyFulfillment(r, e.Fulfillment.RunID, e.Fulfillment.Runner, e.Fulfillment.Channel)
 	if err != nil {
 		return fmt.Errorf("%w: fulfilment sequence %d: %v", ErrActionVerificationFailed, e.Seq, err)

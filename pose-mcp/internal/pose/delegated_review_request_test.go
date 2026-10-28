@@ -246,7 +246,13 @@ func TestDelegatedReviewRequestEscalatesToAPerson(t *testing.T) {
 		t.Fatalf("questions: %v", questions)
 	}
 	// Asking again returns the one already open.
-	again, err := f.store.EscalateDelegatedReview(view.Request, EscalationConflict, "Delegated reviewers disagree on spec:backend: which conclusion stands?", "", nil, time.Now())
+	var conflict ActionRequest
+	for _, id := range escalations {
+		if e, _ := f.store.LoadActionRequest(id); strings.Contains(e.Request.Question, "disagree") {
+			conflict = e.Request
+		}
+	}
+	again, err := f.store.EscalateDelegatedReview(view.Request, EscalationConflict, conflict.Question, "", conflict.Options, time.Now())
 	if err != nil || !containsString(escalations, again) {
 		t.Fatalf("a retry asked again: %s %v", again, err)
 	}
@@ -321,7 +327,7 @@ func TestDelegatedReviewFulfillmentOnRead(t *testing.T) {
 	if err := os.WriteFile(policy, append(praw, ' '), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if v, err := f.store.LoadActionRequest(view.Request.ID); err != nil || v.State != ActionStateFulfilled || !strings.Contains(strings.Join(v.Limitations, ";"), "changed since") {
+	if v, err := f.store.LoadActionRequest(view.Request.ID); err != nil || v.State != ActionStateFulfilled || v.Satisfaction == SatisfactionSatisfied || !strings.Contains(strings.Join(v.Limitations, ";"), "changed since") {
 		t.Fatalf("a fulfilled request after the scope moved on: %+v %v", v, err)
 	}
 	if _, err := f.store.ListActionRequests(); err != nil {
@@ -472,8 +478,22 @@ func TestDelegatedReviewMaterialIsInTheDigest(t *testing.T) {
 			t.Fatalf("a change of the material kept the digest: %+v", m)
 		}
 	}
-	plain := ActionRequest{Project: "p", Origin: "spec:x", Kind: ActionApproval, Question: "q"}
-	if ActionRequestDigest(plain) != func() string { plain.Review = nil; return ActionRequestDigest(plain) }() {
+	// The digest of every other kind is the one computed before the review
+	// material existed (review round 2, R2-F04).
+	plain := ActionRequest{Project: "p", Origin: "spec:x", Kind: ActionApproval, Question: "q", Targets: []NodeRef{{}}, Effects: []ObligationEffect{{Phase: PhaseCloseout, Mode: EffectBlock}}}
+	legacy, _ := digestJSON(struct {
+		Project   string             `json:"project_id"`
+		Origin    string             `json:"origin"`
+		Recipient ObligationActor    `json:"recipient"`
+		Kind      string             `json:"kind"`
+		Question  string             `json:"question"`
+		Context   string             `json:"context,omitempty"`
+		Options   []ActionOption     `json:"options"`
+		Targets   []NodeRef          `json:"targets"`
+		Effects   []ObligationEffect `json:"effects"`
+		Subject   *ActionSubject     `json:"subject,omitempty"`
+	}{plain.Project, plain.Origin, plain.Recipient, plain.Kind, plain.Question, plain.Context, plain.Options, plain.Targets, plain.Effects, plain.Subject})
+	if ActionRequestDigest(plain) != legacy {
 		t.Fatal("the digest of another kind changed")
 	}
 }
@@ -491,5 +511,52 @@ func TestEscalationsDistinguishQuestions(t *testing.T) {
 	other, _ := f.store.EscalateDelegatedReview(view.Request, EscalationBusiness, "Price it?", "", nil, time.Now())
 	if again != first || other == first || other == "" {
 		t.Fatalf("first %s, again %s, other %s", first, again, other)
+	}
+}
+
+// Review round 2, R2-F02: a fulfilment whose header names another submitter
+// than its payload satisfies nothing, and the view names the runner.
+func TestFulfillmentHeaderIsBound(t *testing.T) {
+	f, draftPath := conclusionFixture(t)
+	view := openReviewRequest(t, f, DelegationPurposeReview)
+	if err := os.WriteFile(draftPath, []byte(draftFrom(t, approvedBundleAttestation(f.bundle, "agent:reviewer"), nil)), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	run := dispatchConclusion(t, f, "header")
+	if _, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	done, err := fulfil(f, view, run.RunID, "k")
+	if err != nil || done.AnsweredBy != "agent:runner" {
+		t.Fatalf("fulfil: %+v %v", done.AnsweredBy, err)
+	}
+	path := actionJournalPath(f.store.Root, view.Request.ID)
+	raw, _ := os.ReadFile(path)
+	if err := os.WriteFile(path, []byte(strings.Replace(string(raw), `"actor":"agent:runner"`, `"actor":"human:invented"`, 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if v, err := f.store.LoadActionRequest(view.Request.ID); err != nil || v.Satisfaction == SatisfactionSatisfied || v.AnsweredBy == "human:invented" {
+		t.Fatalf("a rewritten header counted: %+v %v", v.AnsweredBy, err)
+	}
+}
+
+// Review round 2, R2-F03: an escalation with other targets or effects is a
+// new one; nothing asked is dropped.
+func TestEscalationsKeepTheirTargetsAndEffects(t *testing.T) {
+	f, _ := conclusionFixture(t)
+	view := openReviewRequest(t, f, DelegationPurposeReview)
+	first, err := f.store.EscalateDelegatedReview(view.Request, EscalationBusiness, "Ship now?", "", nil, time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	other := view.Request
+	other.Effects = []ObligationEffect{{Phase: PhaseExecution, Mode: EffectBlock}}
+	second, err := f.store.EscalateDelegatedReview(other, EscalationBusiness, "Ship now?", "", nil, time.Now())
+	if err != nil || second == first {
+		t.Fatalf("other effects reused %s: %s %v", first, second, err)
+	}
+	e, _ := f.store.LoadActionRequest(second)
+	if len(e.Request.Effects) != 1 || e.Request.Effects[0].Phase != PhaseExecution {
+		t.Fatalf("the effects were dropped: %+v", e.Request.Effects)
 	}
 }

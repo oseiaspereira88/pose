@@ -13,6 +13,7 @@ package pose
 // one already open, so a retry never asks twice.
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -57,21 +58,35 @@ func (s Store) EscalateDelegatedReview(r ActionRequest, cause, question, context
 	if err != nil {
 		return "", err
 	}
-	for _, v := range existing {
-		if v.Request.Kind == ActionDecision && strings.HasPrefix(v.Request.Context, marker) && strings.TrimSpace(v.Request.Question) == strings.TrimSpace(question) &&
-			v.State != ActionStateCancelled && v.State != ActionStateSuperseded && v.State != ActionStateInvalidated {
-			return v.Request.ID, nil
-		}
-	}
 	if len(options) < 2 {
 		options = []ActionOption{
 			{ID: "person-reviews", Consequence: "a person reviews the scope and records the attestation; the delegated request is waived"},
 			{ID: "keep-blocked", Consequence: "the scope stays blocked until the bundle changes"},
 		}
 	}
-	view, err := s.OpenActionRequest(ActionRequest{Origin: r.Origin, Kind: ActionDecision, Question: question, Context: strings.TrimSpace(marker + "\n" + context),
+	asked := ActionRequest{Origin: r.Origin, Kind: ActionDecision, Question: question, Context: strings.TrimSpace(marker + "\n" + context),
 		Options: options, RequestedBy: ActionPrincipal{Principal: "agent:pose-engine"}, Recipient: ObligationActor{Role: "maintainer"},
-		Targets: r.Targets, Effects: r.Effects}, now)
+		Targets: r.Targets, Effects: r.Effects}
+	prepared, err := s.PrepareActionRequest(asked, now)
+	if err != nil {
+		return "", fmt.Errorf("pose: the %s escalation of %s cannot be opened: %w", cause, key, err)
+	}
+	// The same escalation asks the same question of the same authority with
+	// the same options, about the same targets, with the same effects; any
+	// other is a new one, so nothing asked is dropped (review round 2,
+	// R2-F03).
+	same := func(a, b ActionRequest) bool {
+		x, _ := json.Marshal([]any{a.Recipient, a.Options, a.Targets, a.Effects})
+		y, _ := json.Marshal([]any{b.Recipient, b.Options, b.Targets, b.Effects})
+		return string(x) == string(y)
+	}
+	for _, v := range existing {
+		if v.Request.Kind == ActionDecision && strings.HasPrefix(v.Request.Context, marker) && strings.TrimSpace(v.Request.Question) == strings.TrimSpace(question) &&
+			same(v.Request, prepared) && v.State != ActionStateCancelled && v.State != ActionStateSuperseded && v.State != ActionStateInvalidated {
+			return v.Request.ID, nil
+		}
+	}
+	view, err := s.OpenActionRequest(asked, now)
 	if err != nil {
 		return "", fmt.Errorf("pose: the %s escalation of %s cannot be opened: %w", cause, key, err)
 	}

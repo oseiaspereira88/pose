@@ -707,23 +707,26 @@ func (s Store) deriveActionView(events []ActionEvent) ActionRequestView {
 				view.Limitations = append(view.Limitations, "a fulfilment recorded on a request that is not a delegated review is ignored")
 				continue
 			}
-			if delegatedReviewSubjectReader(s, *request.Review) == request.Subject.Digest {
-				if err := fulfillmentEventVerifier(s, request, event); err != nil {
-					view.Limitations = append(view.Limitations, "a recorded fulfilment does not verify, so it satisfies nothing: "+err.Error())
-					continue
-				}
-			} else {
-				// The scope or the policies moved on: what the fulfilment says
-				// of its run is still verified, all but whether the run governs
-				// a scope that has changed (review round 1, F01).
+			if delegatedReviewSubjectReader(s, *request.Review) != request.Subject.Digest {
+				// The scope or the policies moved on: like an open request whose
+				// subject changed, a fulfilled one satisfies nothing any more,
+				// and a new bundle asks a new request (R8). What it records stays
+				// visible as history, labelled by what can still be read of it
+				// (review rounds 1 and 2, F01).
+				view.State, view.Satisfaction, view.Assurance = ActionStateFulfilled, SatisfactionInvalidated, ReviewIdentityAssuranceDeclared
 				if err := recordedFulfillmentVerifier(s, request, *event.Fulfillment); err != nil {
-					view.Limitations = append(view.Limitations, "a recorded fulfilment does not verify, so it satisfies nothing: "+err.Error())
-					continue
+					view.State = ActionStateInvalidated
+					view.Limitations = append(view.Limitations, "a recorded fulfilment does not verify: "+err.Error())
 				}
-				view.Limitations = append(view.Limitations, "the fulfilment was verified against bundle "+request.Review.BundleID+" when it was recorded; the scope or the policies have changed since")
+				view.Limitations = append(view.Limitations, "the scope or the policies changed since the request was fulfilled against bundle "+request.Review.BundleID+": it satisfies nothing now; ask the new bundle with a new request")
+				continue
+			}
+			if err := fulfillmentEventVerifier(s, request, event); err != nil {
+				view.Limitations = append(view.Limitations, "a recorded fulfilment does not verify, so it satisfies nothing: "+err.Error())
+				continue
 			}
 			view.State, view.Satisfaction, view.Assurance = ActionStateFulfilled, SatisfactionSatisfied, ReviewIdentityAssuranceVerified
-			view.AnsweredBy = event.Actor
+			view.AnsweredBy = event.Fulfillment.Runner
 			if event.Fulfillment != nil {
 				view.Answer = event.Fulfillment.Decision
 				if event.Fulfillment.Decision != "approved" {
