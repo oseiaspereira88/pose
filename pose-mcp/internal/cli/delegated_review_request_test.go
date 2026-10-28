@@ -280,3 +280,52 @@ func TestReviewRequestReplacementByAPersonWithARole(t *testing.T) {
 		t.Fatalf("the predecessor was not retired: %s", old.State)
 	}
 }
+
+// Review round 5, R5-F01 and R5-F02: a replacement by role, previewed and
+// applied with the preview's instant, replays as a no-op — to a delegated
+// successor and to a person's escalation — and the person's preview shows
+// the successor and its preflight.
+func TestReviewRequestReplacementReplays(t *testing.T) {
+	for _, person := range []bool{false, true} {
+		t.Run(map[bool]string{false: "delegated", true: "person"}[person], func(t *testing.T) {
+			root, _, _ := cliProvenanceInstance(t)
+			writeCloseoutCLIFile(t, root, ".pose/policy/actions.json", `{"schema_version":1,"roles":{"maintainer":["human:ada"]}}`)
+			code, out := runPose(t, root, "review", "request", "spec:alpha", "--kind", "delegated-review", "--apply", "--json")
+			var first posemodel.ActionRequestView
+			if code != 0 || json.Unmarshal([]byte(out), &first) != nil {
+				t.Fatalf("request: %d %s", code, out)
+			}
+			if person {
+				path := filepath.Join(root, ".pose", "policy", "review.json")
+				raw, _ := os.ReadFile(path)
+				if err := os.WriteFile(path, []byte(strings.Replace(string(raw), `"spec":"different-actor"`, `"spec":"mandatory-human"`, 1)), 0o644); err != nil {
+					t.Fatal(err)
+				}
+				if code, out := runPose(t, root, "review", "bundle", "spec:alpha", "--seal"); code != 0 {
+					t.Fatal(code, out)
+				}
+			}
+			replace := []string{"review", "request", "spec:alpha", "--kind", "delegated-review", "--question", "Review spec:alpha again", "--requested-by", "human:ada", "--role", "maintainer", "--supersedes", first.Request.ID}
+			code, out = runPose(t, root, append(replace, "--json")...)
+			var preview struct {
+				Request   posemodel.ActionRequest       `json:"request"`
+				Preflight posemodel.ActionOpenPreflight `json:"preflight"`
+			}
+			if code != 0 || json.Unmarshal([]byte(out), &preview) != nil || preview.Request.ID == "" && preview.Preflight.Request.ID == "" {
+				t.Fatalf("preview: %d %s", code, out)
+			}
+			at := preview.Preflight.Request.RequestedAt
+			if at == "" {
+				at = preview.Request.RequestedAt
+			}
+			apply := append(replace, "--requested-at", at, "--apply", "--json")
+			code, first2 := runPose(t, root, apply...)
+			if code != 0 {
+				t.Fatalf("apply: %d %s", code, first2)
+			}
+			if code, again := runPose(t, root, apply...); code != 0 || again != first2 {
+				t.Fatalf("a replay differed: %d %s\n%s", code, again, first2)
+			}
+		})
+	}
+}

@@ -72,14 +72,8 @@ func (s Store) EscalateDelegatedReview(r ActionRequest, cause, question, context
 	// the same options, about the same targets, with the same effects; any
 	// other is a new one, so nothing asked is dropped (review round 2,
 	// R2-F03).
-	same := func(a, b ActionRequest) bool {
-		x, _ := json.Marshal([]any{a.Recipient, a.Options, a.Targets, a.Effects})
-		y, _ := json.Marshal([]any{b.Recipient, b.Options, b.Targets, b.Effects})
-		return string(x) == string(y)
-	}
 	for _, v := range existing {
-		if v.Request.Kind == ActionDecision && strings.HasPrefix(v.Request.Context, marker) && strings.TrimSpace(v.Request.Question) == strings.TrimSpace(question) &&
-			same(v.Request, prepared) && v.State != ActionStateCancelled && v.State != ActionStateSuperseded && v.State != ActionStateInvalidated {
+		if sameEscalation(v, marker, prepared) {
 			return v.Request.ID, nil
 		}
 	}
@@ -90,44 +84,81 @@ func (s Store) EscalateDelegatedReview(r ActionRequest, cause, question, context
 	return view.Request.ID, nil
 }
 
-// EscalateDelegatedReviewReplacing opens the decision request cause asks of
-// a person as the successor of request supersedes, retiring it in the same
-// step under the supersession authority rules (review round 4, R4-F02). It
-// is EscalateDelegatedReview when there is nothing to replace.
-func (s Store) EscalateDelegatedReviewReplacing(r ActionRequest, cause, question, context string, options []ActionOption, supersedes string, authority *ActionResolution, role string, now time.Time) (string, error) {
-	if supersedes == "" {
-		return s.EscalateDelegatedReview(r, cause, question, context, options, now)
-	}
-	key := escalationKey(r, cause)
-	marker := escalationMarker(key, cause)
-	unlock, err := s.lockPrivateName("escalation-locks", digestBytes([]byte(marker)))
-	if err != nil {
-		return "", err
-	}
-	defer unlock()
+// PrepareDelegatedReviewReplacing is the decision request cause asks of a
+// person as the successor of request supersedes, and the authority that
+// retires the predecessor — the one given, or, for role, the declared
+// authority bound to this successor — without writing: what a preview shows
+// and a proof is signed over (review round 5, R5-F02).
+func (s Store) PrepareDelegatedReviewReplacing(r ActionRequest, cause, question, context string, options []ActionOption, supersedes string, authority *ActionResolution, role string, now time.Time) (ActionRequest, *ActionResolution, error) {
+	marker := escalationMarker(escalationKey(r, cause), cause)
 	if len(options) < 2 {
 		options = defaultEscalationOptions()
 	}
 	successor := ActionRequest{Origin: r.Origin, Kind: ActionDecision, Question: question, Context: strings.TrimSpace(marker + "\n" + context),
 		Options: options, RequestedBy: r.RequestedBy, Recipient: ObligationActor{Role: "maintainer"}, Targets: r.Targets, Effects: r.Effects,
 		Supersedes: supersedes, RequestedAt: r.RequestedAt}
-	if role != "" && authority == nil {
-		prepared, err := s.PrepareActionRequest(successor, now)
-		if err != nil {
-			return "", err
-		}
-		successor.RequestedAt = prepared.RequestedAt
+	prepared, err := s.PrepareActionRequest(successor, now)
+	if err != nil {
+		return ActionRequest{}, nil, err
+	}
+	switch {
+	case role != "" && authority == nil:
 		if authority, err = s.RoleSupersessionAuthority(prepared, r.RequestedBy.Principal, role); err != nil {
-			return "", err
+			return ActionRequest{}, nil, err
 		}
-	} else if role != "" {
+	case role != "":
 		authority.Role = role
 	}
-	view, err := s.OpenActionRequestAuthorized(successor, authority, now)
+	return prepared, authority, nil
+}
+
+// EscalateDelegatedReviewReplacing opens the decision request cause asks of
+// a person as the successor of request supersedes, retiring it in the same
+// step under the supersession authority rules (review round 4, R4-F02). An
+// equivalent escalation already open is not asked twice: the call is
+// refused, naming it (review round 5, R5-F04). It is EscalateDelegatedReview
+// when there is nothing to replace.
+func (s Store) EscalateDelegatedReviewReplacing(r ActionRequest, cause, question, context string, options []ActionOption, supersedes string, authority *ActionResolution, role string, now time.Time) (string, error) {
+	if supersedes == "" {
+		return s.EscalateDelegatedReview(r, cause, question, context, options, now)
+	}
+	marker := escalationMarker(escalationKey(r, cause), cause)
+	unlock, err := s.lockPrivateName("escalation-locks", digestBytes([]byte(marker)))
+	if err != nil {
+		return "", err
+	}
+	defer unlock()
+	prepared, authority, err := s.PrepareDelegatedReviewReplacing(r, cause, question, context, options, supersedes, authority, role, now)
+	if err != nil {
+		return "", fmt.Errorf("pose: the %s escalation replacing %s cannot be opened: %w", cause, supersedes, err)
+	}
+	if existing, err := s.ListActionRequests(); err == nil {
+		for _, v := range existing {
+			if v.Request.ID != prepared.ID && sameEscalation(v, marker, prepared) {
+				return "", fmt.Errorf("pose: escalation %s already asks this of a person; answer it, and retire %s with its authority (pose action waive or cancel)", v.Request.ID, supersedes)
+			}
+		}
+	}
+	view, err := s.OpenActionRequestAuthorized(prepared, authority, now)
 	if err != nil {
 		return "", fmt.Errorf("pose: the %s escalation replacing %s cannot be opened: %w", cause, supersedes, err)
 	}
 	return view.Request.ID, nil
+}
+
+// sameEscalation reports whether v asks what prepared asks: the same cause
+// and key, question, authority, options, targets and effects, and is still
+// open or answered.
+func sameEscalation(v ActionRequestView, marker string, prepared ActionRequest) bool {
+	if v.Request.Kind != ActionDecision || !strings.HasPrefix(v.Request.Context, marker) || strings.TrimSpace(v.Request.Question) != strings.TrimSpace(prepared.Question) {
+		return false
+	}
+	if v.State == ActionStateCancelled || v.State == ActionStateSuperseded || v.State == ActionStateInvalidated {
+		return false
+	}
+	x, _ := json.Marshal([]any{v.Request.Recipient, v.Request.Options, v.Request.Targets, v.Request.Effects})
+	y, _ := json.Marshal([]any{prepared.Recipient, prepared.Options, prepared.Targets, prepared.Effects})
+	return string(x) == string(y)
 }
 
 func defaultEscalationOptions() []ActionOption {
@@ -210,6 +241,15 @@ func (s Store) RoleSupersessionAuthority(prepared ActionRequest, actor, role str
 	prior, err := s.LoadActionRequest(prepared.Supersedes)
 	if err != nil {
 		return nil, err
+	}
+	// Retired by this very successor already: a replay presents the
+	// authority recorded with the retirement (review round 5, R5-F01).
+	if prior.State == ActionStateSuperseded && len(prior.Events) > 0 {
+		if last := prior.Events[len(prior.Events)-1]; last.SupersededBy == prepared.ID && last.SuccessorDigest == prepared.RequestDigest {
+			res := lifecycleResolution(last)
+			res.RequestID = prepared.Supersedes
+			return &res, nil
+		}
 	}
 	return &ActionResolution{Type: ActionEventSuperseded, RequestID: prepared.Supersedes, Actor: actor, Role: role, Channel: "cli",
 		RequestDigest: prior.Request.RequestDigest, ExpectedRevision: prior.Revision, IdempotencyKey: "supersede:" + prepared.ID,

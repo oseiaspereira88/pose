@@ -159,25 +159,47 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 	}
 	if store.PersonRequiredByPlan(material) {
 		// The plan reserves this review for a person: no delegated run
-		// satisfies it, so the person is asked instead (R7).
-		if !apply {
-			if jsonOutput {
-				return writeJSON(stdout, map[string]any{"person_required": true, "scope": material.Scope, "bundle_id": material.BundleID, "apply": false})
-			}
-			out.Field("review_request.person_required", "true")
-			out.Field("review_request.apply", "false (rerun with --apply to ask the maintainer)")
-			return 0
-		}
+		// satisfies it, so the person is asked instead (R7). Asked to
+		// replace a request, the person's escalation is the successor: it
+		// retires the predecessor under the same authority rules (review
+		// round 4, R4-F02).
 		prepared, err := store.PrepareActionRequest(r, now)
 		if err != nil {
 			out.Failure("pose review request: " + err.Error())
 			return 1
 		}
-		// Asked to replace a request, the person's escalation is the
-		// successor: it retires the predecessor under the same authority
-		// rules (review round 4, R4-F02).
-		id, err := store.EscalateDelegatedReviewReplacing(prepared, posemodel.EscalationPersonRequired, "The plan of "+material.Scope+" reserves its review for a person: who reviews it?",
-			"Bundle "+material.BundleID+" requires mandatory-human review; a delegated run cannot satisfy it.", nil, supersedes, authority, role, now)
+		question := "The plan of " + material.Scope + " reserves its review for a person: who reviews it?"
+		context := "Bundle " + material.BundleID + " requires mandatory-human review; a delegated run cannot satisfy it."
+		if !apply {
+			doc := map[string]any{"person_required": true, "scope": material.Scope, "bundle_id": material.BundleID, "apply": false}
+			if supersedes != "" {
+				// What a proof of the replacement is signed over (review
+				// round 5, R5-F02).
+				successor, auth, err := store.PrepareDelegatedReviewReplacing(prepared, posemodel.EscalationPersonRequired, question, context, nil, supersedes, authority, role, now)
+				if err != nil {
+					out.Failure("pose review request: " + err.Error())
+					return 1
+				}
+				preflight, err := store.PreflightActionOpen(successor, auth, now)
+				if err != nil {
+					out.Failure("pose review request: " + err.Error())
+					return 1
+				}
+				doc["request"], doc["preflight"] = successor, preflight
+			}
+			if jsonOutput {
+				return writeJSON(stdout, doc)
+			}
+			out.Field("review_request.person_required", "true")
+			if successor, ok := doc["request"].(posemodel.ActionRequest); ok {
+				out.Field("review_request.id", successor.ID)
+				out.Field("review_request.request_digest", successor.RequestDigest)
+				out.Field("review_request.requested_at", successor.RequestedAt)
+			}
+			out.Field("review_request.apply", "false (rerun with --apply to ask the maintainer)")
+			return 0
+		}
+		id, err := store.EscalateDelegatedReviewReplacing(prepared, posemodel.EscalationPersonRequired, question, context, nil, supersedes, authority, role, now)
 		if err != nil {
 			out.Failure("pose review request: " + err.Error())
 			return 1

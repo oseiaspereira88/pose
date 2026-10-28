@@ -512,6 +512,10 @@ type ActionRequestView struct {
 	// SubjectUnknown is true when the subject no longer resolves: the engine
 	// cannot tell whether the answer still applies, so it is not satisfied.
 	SubjectUnknown bool `json:"subject_unknown,omitempty"`
+	// FulfilledSeq is the sequence of the fulfilment the view counts, so a
+	// reader of the journal uses that one and no other (review round 5,
+	// R5-F03).
+	FulfilledSeq int `json:"fulfilled_seq,omitempty"`
 }
 
 func actionJournalPath(root, id string) string {
@@ -726,7 +730,7 @@ func (s Store) deriveActionView(events []ActionEvent) ActionRequestView {
 				continue
 			}
 			view.State, view.Satisfaction, view.Assurance = ActionStateFulfilled, SatisfactionSatisfied, ReviewIdentityAssuranceVerified
-			view.AnsweredBy = event.Fulfillment.Runner
+			view.AnsweredBy, view.FulfilledSeq = event.Fulfillment.Runner, event.Seq
 			if event.Fulfillment != nil {
 				view.Answer = event.Fulfillment.Decision
 				if event.Fulfillment.Decision != "approved" {

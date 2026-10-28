@@ -663,3 +663,35 @@ func TestAStaleFulfilledRequestIsReplaced(t *testing.T) {
 		t.Fatalf("still restricted: %+v %v", restrictions, err)
 	}
 }
+
+// Review round 5, R5-F03: the wait of a fulfilled request ends at the
+// fulfilment the view counts, not at an earlier event that did not verify.
+func TestGovernanceWaitsEndAtTheCountedFulfilment(t *testing.T) {
+	opened := time.Date(2026, 10, 28, 9, 0, 0, 0, time.UTC)
+	view := ActionRequestView{Request: ActionRequest{RequestedAt: opened.Format(time.RFC3339)}, State: ActionStateFulfilled, FulfilledSeq: 3, Events: []ActionEvent{
+		{Seq: 1, Type: ActionEventOpened, At: opened.Format(time.RFC3339)},
+		{Seq: 2, Type: ActionEventFulfilled, At: opened.Format(time.RFC3339)},
+		{Seq: 3, Type: ActionEventFulfilled, At: opened.Add(100 * time.Second).Format(time.RFC3339)},
+	}}
+	report := governanceWaitsFrom(GovernanceWaitReport{ByCause: map[string]float64{}}, []ActionRequestView{view}, opened.Add(time.Hour))
+	if report.Resolved != 1 || report.AgeSeconds.Max != 100 {
+		t.Fatalf("waits: %+v", report)
+	}
+}
+
+// Review round 5, R5-F04: replacing a request with a person's escalation
+// that is already open is refused, naming it, so nothing is asked twice.
+func TestReplacingWithAnOpenEscalationIsRefused(t *testing.T) {
+	f, _ := conclusionFixture(t)
+	view := openReviewRequest(t, f, DelegationPurposeReview)
+	open, err := f.store.EscalateDelegatedReview(view.Request, EscalationPersonRequired, "Who reviews it?", "", nil, time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	successorOf := view.Request
+	successorOf.RequestedAt = ""
+	_, err = f.store.EscalateDelegatedReviewReplacing(successorOf, EscalationPersonRequired, "Who reviews it?", "", nil, view.Request.ID, nil, "", time.Now())
+	if err == nil || !strings.Contains(err.Error(), open) {
+		t.Fatalf("a second escalation was opened: %v", err)
+	}
+}
