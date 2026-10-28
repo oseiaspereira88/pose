@@ -58,6 +58,13 @@ func actionResolutionStateAdmitted(v ActionRequestView, typ string) bool {
 	if v.State == ActionStateOpen {
 		return true
 	}
+	if typ == ActionEventWaived && v.State == ActionStateFulfilled && v.Satisfaction == SatisfactionInvalidated {
+		// Like an answer that no longer satisfies, a fulfilment for a bundle
+		// the scope no longer has can be waived by its authority: the
+		// retirement for when a person already answers the new bundle
+		// (review round 6, R6-F02).
+		return true
+	}
 	return typ == ActionEventWaived && v.State == ActionStateAnswered && v.Satisfaction == SatisfactionPending && !v.SubjectUnknown
 }
 
@@ -114,7 +121,8 @@ func nextActionStep(v ActionRequestView) *ActionNextStep {
 		// again for the new one, linked to it (spec
 		// pose-delegated-review-action-fulfillment R8; review round 3).
 		step.Kind, step.Operation = "replace-request", "supersede"
-		step.Reason = "the scope or the policies changed since this request was fulfilled; ask the new bundle with pose review request " + v.Request.Review.Scope + " --kind delegated-review --supersedes " + v.Request.ID
+		step.Reason = "the scope or the policies changed since this request was fulfilled; ask the new bundle with pose review request " + v.Request.Review.Scope + " --kind delegated-review --supersedes " + v.Request.ID +
+			", or, when a person's escalation already asks it, waive this one with its authority (pose action waive " + v.Request.ID + ")"
 		step.Required = []string{"new-current-bundle", "same-requester-or-authority"}
 	case v.State == ActionStateInvalidated:
 		step.Kind, step.Operation, step.Reason = "replace-request", "supersede", "open a materially updated request linked to this predecessor; do not answer its old digest"

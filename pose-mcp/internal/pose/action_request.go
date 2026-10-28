@@ -721,6 +721,10 @@ func (s Store) deriveActionView(events []ActionEvent) ActionRequestView {
 				if err := recordedFulfillmentVerifier(s, request, *event.Fulfillment); err != nil {
 					view.State = ActionStateInvalidated
 					view.Limitations = append(view.Limitations, "a recorded fulfilment does not verify: "+err.Error())
+				} else {
+					// The service was performed then: its wait ended here
+					// (review round 6, R6-F03).
+					view.FulfilledSeq = event.Seq
 				}
 				view.Limitations = append(view.Limitations, "the scope or the policies changed since the request was fulfilled against bundle "+request.Review.BundleID+": it satisfies nothing now; ask the new bundle with a new request")
 				continue

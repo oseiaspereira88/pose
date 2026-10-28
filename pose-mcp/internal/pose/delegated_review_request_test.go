@@ -632,6 +632,11 @@ func TestAStaleFulfilledRequestIsReplaced(t *testing.T) {
 	if stale.NextStep == nil || stale.NextStep.Kind != "replace-request" || !strings.Contains(stale.NextStep.Reason, "--supersedes "+view.Request.ID) {
 		t.Fatalf("the stale request has no way forward: %+v", stale.NextStep)
 	}
+	// The service was still performed: its wait ended (review round 6,
+	// R6-F03).
+	if waits, err := f.store.GovernanceWaits(time.Now()); stale.FulfilledSeq == 0 || err != nil || waits.Resolved != 1 {
+		t.Fatalf("a historical fulfilment reopened its wait: %d %+v %v", stale.FulfilledSeq, waits, err)
+	}
 	f.bundle = resealAfter(t, f)
 	m, err := f.store.PrepareDelegatedReviewMaterial("spec:backend", DelegationPurposeReview, "fixture labelled notes", nil)
 	if err != nil {
@@ -643,8 +648,8 @@ func TestAStaleFulfilledRequestIsReplaced(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if old, _ := f.store.LoadActionRequest(view.Request.ID); old.State != ActionStateSuperseded {
-		t.Fatalf("the predecessor was not retired: %s", old.State)
+	if old, _ := f.store.LoadActionRequest(view.Request.ID); old.State != ActionStateSuperseded || old.FulfilledSeq != stale.FulfilledSeq {
+		t.Fatalf("the predecessor was not retired, or lost its fulfilment: %s %d", old.State, old.FulfilledSeq)
 	}
 	// The second review is the bundle's second round: it states its sweep.
 	text := strings.Replace(draftFrom(t, approvedBundleAttestation(f.bundle, "agent:reviewer"), nil), `"decision":"approved"`, `"decision":"approved","sweep":"the whole change again"`, 1)
@@ -693,5 +698,38 @@ func TestReplacingWithAnOpenEscalationIsRefused(t *testing.T) {
 	_, err = f.store.EscalateDelegatedReviewReplacing(successorOf, EscalationPersonRequired, "Who reviews it?", "", nil, view.Request.ID, nil, "", time.Now())
 	if err == nil || !strings.Contains(err.Error(), open) {
 		t.Fatalf("a second escalation was opened: %v", err)
+	}
+}
+
+// Review round 6, R6-F03: a request fulfilled and then superseded waited
+// until its fulfilment, not until the supersession.
+func TestGovernanceWaitsOfASupersededFulfilment(t *testing.T) {
+	opened := time.Date(2026, 10, 28, 9, 0, 0, 0, time.UTC)
+	view := ActionRequestView{Request: ActionRequest{RequestedAt: opened.Format(time.RFC3339)}, State: ActionStateSuperseded, FulfilledSeq: 2, Events: []ActionEvent{
+		{Seq: 1, Type: ActionEventOpened, At: opened.Format(time.RFC3339)},
+		{Seq: 2, Type: ActionEventFulfilled, At: opened.Add(10 * time.Second).Format(time.RFC3339)},
+		{Seq: 3, Type: ActionEventSuperseded, At: opened.Add(100 * time.Second).Format(time.RFC3339)},
+	}}
+	report := governanceWaitsFrom(GovernanceWaitReport{ByCause: map[string]float64{}}, []ActionRequestView{view}, opened.Add(time.Hour))
+	if report.Resolved != 1 || report.AgeSeconds.Max != 10 {
+		t.Fatalf("waits: %+v", report)
+	}
+}
+
+// Review round 6, R6-F01: an inventory that cannot be read opens no
+// replacing escalation and retires nothing.
+func TestReplacingWithAnUnreadableInventoryIsRefused(t *testing.T) {
+	f, _ := conclusionFixture(t)
+	view := openReviewRequest(t, f, DelegationPurposeReview)
+	if err := os.WriteFile(filepath.Join(f.store.Root, filepath.FromSlash(actionDir), "act-unreadable.jsonl"), []byte("{not json\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	successorOf := view.Request
+	successorOf.RequestedAt = ""
+	if _, err := f.store.EscalateDelegatedReviewReplacing(successorOf, EscalationPersonRequired, "Who reviews it?", "", nil, view.Request.ID, nil, "", time.Now()); err == nil {
+		t.Fatal("an escalation was opened over an unreadable inventory")
+	}
+	if old, err := f.store.LoadActionRequest(view.Request.ID); err != nil || old.State != ActionStateOpen {
+		t.Fatalf("the predecessor changed: %s %v", old.State, err)
 	}
 }

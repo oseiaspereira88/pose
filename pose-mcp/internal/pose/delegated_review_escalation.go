@@ -132,11 +132,15 @@ func (s Store) EscalateDelegatedReviewReplacing(r ActionRequest, cause, question
 	if err != nil {
 		return "", fmt.Errorf("pose: the %s escalation replacing %s cannot be opened: %w", cause, supersedes, err)
 	}
-	if existing, err := s.ListActionRequests(); err == nil {
-		for _, v := range existing {
-			if v.Request.ID != prepared.ID && sameEscalation(v, marker, prepared) {
-				return "", fmt.Errorf("pose: escalation %s already asks this of a person; answer it, and retire %s with its authority (pose action waive or cancel)", v.Request.ID, supersedes)
-			}
+	// An inventory that cannot be read cannot show the escalation is not
+	// already asked (review round 6, R6-F01).
+	existing, err := s.ListActionRequests()
+	if err != nil {
+		return "", fmt.Errorf("pose: the %s escalation replacing %s cannot be opened: the action requests cannot be read: %w", cause, supersedes, err)
+	}
+	for _, v := range existing {
+		if v.Request.ID != prepared.ID && sameEscalation(v, marker, prepared) {
+			return "", fmt.Errorf("pose: escalation %s already asks this of a person; answer it, and waive %s with its authority (pose action waive %s)", v.Request.ID, supersedes, supersedes)
 		}
 	}
 	view, err := s.OpenActionRequestAuthorized(prepared, authority, now)

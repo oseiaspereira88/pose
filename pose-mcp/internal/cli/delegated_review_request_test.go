@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -327,5 +328,63 @@ func TestReviewRequestReplacementReplays(t *testing.T) {
 				t.Fatalf("a replay differed: %d %s\n%s", code, again, first2)
 			}
 		})
+	}
+}
+
+// Review round 6, R6-F02: a fulfilled request whose bundle aged into a
+// person's review, when the person is already asked, is retired by the
+// recovery the refusal names: the person answers, the predecessor is
+// waived by its authority, and nothing restricts closeout any more.
+func TestFulfilledPredecessorWithAPersonAlreadyAsked(t *testing.T) {
+	root, draftPath, bundleID := cliProvenanceInstance(t)
+	writeCloseoutCLIFile(t, root, ".pose/policy/actions.json", `{"schema_version":1,"roles":{"maintainer":["human:ada"]}}`)
+	code, out := runPose(t, root, "review", "request", "spec:alpha", "--kind", "delegated-review", "--apply", "--json")
+	var p posemodel.ActionRequestView
+	if code != 0 || json.Unmarshal([]byte(out), &p) != nil {
+		t.Fatalf("request: %d %s", code, out)
+	}
+	s := posemodel.Store{Root: root}
+	writeRunConclusion(t, s, bundleID, draftPath)
+	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--apply"); code != 0 {
+		t.Fatal(code, out)
+	}
+	runs, _, _ := s.ReadReviewRuns("")
+	if code, out := runPose(t, root, "review", "conclude", runs[0].RunID, "--issuer", "fixture-executor", "--apply"); code != 0 {
+		t.Fatal(code, out)
+	}
+	if code, out := runPose(t, root, "action", "fulfil", p.Request.ID, "--run", runs[0].RunID, "--runner", "agent:ci-runner", "--idempotency-key", "k", "--expected-revision", "1", "--apply"); code != 0 {
+		t.Fatal(code, out)
+	}
+	path := filepath.Join(root, ".pose", "policy", "review.json")
+	raw, _ := os.ReadFile(path)
+	if err := os.WriteFile(path, []byte(strings.Replace(string(raw), `"spec":"different-actor"`, `"spec":"mandatory-human"`, 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if code, out := runPose(t, root, "review", "bundle", "spec:alpha", "--seal"); code != 0 {
+		t.Fatal(code, out)
+	}
+	code, out = runPose(t, root, "review", "request", "spec:alpha", "--kind", "delegated-review", "--apply", "--json")
+	var doc struct {
+		Escalation string `json:"escalation"`
+	}
+	if code != 0 || json.Unmarshal([]byte(out), &doc) != nil || doc.Escalation == "" {
+		t.Fatalf("escalation: %d %s", code, out)
+	}
+	code, out = runPose(t, root, "review", "request", "spec:alpha", "--kind", "delegated-review", "--supersedes", p.Request.ID, "--apply")
+	if code == 0 || !strings.Contains(out, doc.Escalation) || !strings.Contains(out, "pose action waive "+p.Request.ID) {
+		t.Fatalf("the collision did not name its recovery: %d %s", code, out)
+	}
+	a, _ := s.LoadActionRequest(doc.Escalation)
+	if code, out := runPose(t, root, "action", "resolve", a.Request.ID, "--actor", "human:ada", "--answer", "person-reviews", "--request-digest", a.Request.RequestDigest,
+		"--expected-revision", "1", "--idempotency-key", "a1", "--apply"); code != 0 {
+		t.Fatalf("answer: %d %s", code, out)
+	}
+	old, _ := s.LoadActionRequest(p.Request.ID)
+	if code, out := runPose(t, root, "action", "waive", p.Request.ID, "--actor", "human:ada", "--role", "maintainer", "--request-digest", p.Request.RequestDigest,
+		"--expected-revision", strconv.Itoa(old.Revision), "--idempotency-key", "w1", "--reason", "a person reviews the new bundle", "--apply"); code != 0 {
+		t.Fatalf("the named recovery was refused: %d %s", code, out)
+	}
+	if left, err := s.GovernedEffectRestrictions(posemodel.PhaseCloseout, []string{"alpha"}); err != nil || len(left) != 0 {
+		t.Fatalf("restrictions remain: %+v %v", left, err)
 	}
 }
