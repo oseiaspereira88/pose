@@ -36,17 +36,21 @@ const (
 
 // ReviewConclusion is what the engine did with a run's conclusion.
 type ReviewConclusion struct {
-	SchemaVersion int      `json:"schema_version"`
-	RunID         string   `json:"run_id"`
-	BundleID      string   `json:"bundle_id"`
-	Scope         string   `json:"scope"`
-	State         string   `json:"state"`
-	Decision      string   `json:"decision,omitempty"`
-	Attestation   string   `json:"attestation,omitempty"`
-	ProofID       string   `json:"proof_id,omitempty"`
-	Issuer        string   `json:"issuer,omitempty"`
-	Reasons       []string `json:"reasons,omitempty"`
-	ConcludedAt   string   `json:"concluded_at"`
+	SchemaVersion int    `json:"schema_version"`
+	RunID         string `json:"run_id"`
+	BundleID      string `json:"bundle_id"`
+	Scope         string `json:"scope"`
+	State         string `json:"state"`
+	Decision      string `json:"decision,omitempty"`
+	Attestation   string `json:"attestation,omitempty"`
+	// Kind is the run's kind and Destination where an adjudication or a smoke
+	// verdict was recorded (spec pose-delegated-verdict-destinations).
+	Kind        string   `json:"kind,omitempty"`
+	Destination string   `json:"destination,omitempty"`
+	ProofID     string   `json:"proof_id,omitempty"`
+	Issuer      string   `json:"issuer,omitempty"`
+	Reasons     []string `json:"reasons,omitempty"`
+	ConcludedAt string   `json:"concluded_at"`
 	// Replayed is set on a result that returns an earlier record (R4).
 	Replayed bool `json:"replayed,omitempty"`
 }
@@ -86,8 +90,8 @@ func (s Store) readReviewConclusionRaw(runID string) (*ReviewConclusion, []byte,
 // conclusion is recorded, each a reason when it does not (R1, R3, R4).
 func (s Store) reviewConclusionChecks(run ReviewRun) ([]string, *ReviewBundle, *ReviewDraft) {
 	var reasons []string
-	if run.Kind != ReviewBriefKindReview || run.Purpose != "" && run.Purpose != DelegationPurposeReview {
-		reasons = append(reasons, "the run is not a review: an adjudication or a smoke run records its verdict elsewhere")
+	if run.Kind != ReviewBriefKindReview && run.Kind != ReviewBriefKindAdjudication && run.Kind != ReviewBriefKindSmoke || run.Purpose != "" && run.Purpose != DelegationPurposeForKind(run.Kind) {
+		reasons = append(reasons, "the run is not a review, an adjudication or a smoke run")
 	}
 	if run.Status != ReviewRunCompleted {
 		reasons = append(reasons, "the run did not complete: it is "+run.Status)
@@ -125,6 +129,7 @@ func (s Store) reviewConclusionChecks(run ReviewRun) ([]string, *ReviewBundle, *
 	if why := s.ReviewRunStillGoverns(run); why != "" {
 		reasons = append(reasons, "the run no longer governs: "+why)
 	}
+	reasons = append(reasons, s.verdictCoverageReasons(run, bundle, draft)...)
 	return reasons, &bundle, draft
 }
 
@@ -417,6 +422,22 @@ func (s Store) recoveredReviewConclusion(pending ReviewConclusion) (*ReviewConcl
 	if pending.BundleID == "" {
 		return nil, nil
 	}
+	if pending.Kind == ReviewBriefKindAdjudication || pending.Kind == ReviewBriefKindSmoke {
+		// The verdict an interrupted conclusion wrote completes it only when
+		// it verifies as this run's.
+		proof, _ := s.verifiedVerdictProof(pending.Kind, pending.RunID)
+		if proof == "" {
+			return nil, nil
+		}
+		done := pending
+		done.State, done.ProofID = ReviewConclusionRecorded, proof
+		done.Destination = AdjudicationsDir + "/" + pending.RunID + ".json"
+		if pending.Kind == ReviewBriefKindSmoke {
+			done.Destination = SmokeResultsDir + "/" + pending.RunID + ".json"
+		}
+		done.Reasons = []string{"completed from the verdict an interrupted conclusion recorded"}
+		return &done, nil
+	}
 	bundle, err := s.LoadReviewBundle(pending.BundleID)
 	if err != nil {
 		return nil, err
@@ -458,7 +479,7 @@ func (s Store) concludeReviewRun(id, issuer string, apply bool, now time.Time, t
 	if err != nil {
 		return ReviewConclusion{}, err
 	}
-	result.BundleID, result.Scope = run.BundleID, run.Scope
+	result.BundleID, result.Scope, result.Kind = run.BundleID, run.Scope, run.Kind
 	reasons, bundle, draft := s.reviewConclusionChecks(run)
 	if draft != nil {
 		result.Decision = draft.Decision
@@ -502,6 +523,17 @@ func (s Store) concludeReviewRun(id, issuer string, apply bool, now time.Time, t
 			why = "the signed proof does not verify: " + strings.TrimPrefix(err.Error(), "pose: ")
 		}
 		result.ProofID, result.Reasons = proof.ProofID, []string{why}
+		return finish(result)
+	}
+	if run.Kind != ReviewBriefKindReview {
+		// An adjudication or a smoke verdict is recorded where its origin
+		// reads it, never as an approval (spec pose-delegated-verdict-destinations).
+		destination, named, err := s.recordDelegatedVerdict(run, *bundle, *draft, proof.ProofID, issuer, now)
+		if err != nil {
+			result.ProofID, result.Reasons = proof.ProofID, []string{strings.TrimPrefix(err.Error(), "pose: ")}
+			return finish(result)
+		}
+		result.State, result.ProofID, result.Destination = ReviewConclusionRecorded, named, destination
 		return finish(result)
 	}
 	att := reviewAttestationFromDraft(run, *bundle, *draft, assurance.Reviewer.Principal)
@@ -570,7 +602,7 @@ func (s Store) publishReviewConclusion(result ReviewConclusion, apply bool, over
 // nothing and returns nil (spec compatibility: until the capability is
 // adopted, attestations stay as today).
 func (s Store) AutoConcludeReviewRun(run ReviewRun, now time.Time) (*ReviewConclusion, error) {
-	if run.Kind != ReviewBriefKindReview || run.Status != ReviewRunCompleted || run.RunID == "" {
+	if run.Kind != ReviewBriefKindReview && run.Kind != ReviewBriefKindAdjudication && run.Kind != ReviewBriefKindSmoke || run.Status != ReviewRunCompleted || run.RunID == "" {
 		return nil, nil
 	}
 	review, err := s.GetReviewPolicy()

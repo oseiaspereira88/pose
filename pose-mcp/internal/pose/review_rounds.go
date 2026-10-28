@@ -99,7 +99,41 @@ type ReviewDraft struct {
 	// attestation (spec pose-delegated-review-conclusions R1).
 	Criteria []ReviewDraftCriterion `json:"criteria,omitempty"`
 	Tools    []ReviewDraftTool      `json:"tools,omitempty"`
+	// Questions and Surfaces are the typed verdict of an adjudication and of
+	// a smoke run, recorded where their origin reads them (spec
+	// pose-delegated-verdict-destinations R1, R2).
+	Questions []ReviewDraftQuestion `json:"questions,omitempty"`
+	Surfaces  []ReviewDraftSurface  `json:"surfaces,omitempty"`
 }
+
+// ReviewDraftQuestion is an adjudication's verdict on one question the
+// scope records: a decision (D<n>) or a requirement (R<n>).
+type ReviewDraftQuestion struct {
+	ID        string `json:"id"`
+	Verdict   string `json:"verdict"`
+	Evidence  string `json:"evidence,omitempty"`
+	Rationale string `json:"rationale"`
+}
+
+// ReviewDraftSurface is what a smoke run observed on one delivery target.
+type ReviewDraftSurface struct {
+	Ref      string   `json:"ref"`
+	Outcome  string   `json:"outcome"`
+	Commands []string `json:"commands"`
+	Observed string   `json:"observed"`
+}
+
+// Adjudication verdicts and smoke outcomes.
+const (
+	AdjudicationHolds           = "holds"
+	AdjudicationDoesNotHold     = "does-not-hold"
+	AdjudicationCannotDetermine = "cannot-determine"
+	SmokeObserved               = "observed"
+	SmokeNotObserved            = "not-observed"
+	SmokeNotReachable           = "not-reachable"
+)
+
+var adjudicationQuestionID = regexp.MustCompile(`^[DR][0-9]{1,4}$`)
 
 // Prior finding statuses (R3).
 const (
@@ -244,8 +278,37 @@ func validateReviewDraft(d ReviewDraft) error {
 			return fmt.Errorf("finding %s exceeds its bounds", f.ID)
 		}
 	}
-	if len(d.Criteria) > reviewDraftMaxFindings || len(d.Tools) > reviewDraftMaxFindings {
+	if len(d.Criteria) > reviewDraftMaxFindings || len(d.Tools) > reviewDraftMaxFindings || len(d.Questions) > reviewDraftMaxFindings || len(d.Surfaces) > reviewDraftMaxFindings {
 		return fmt.Errorf("the draft exceeds its bounds")
+	}
+	asked := map[string]bool{}
+	for _, q := range d.Questions {
+		switch {
+		case !adjudicationQuestionID.MatchString(q.ID) || asked[q.ID]:
+			return fmt.Errorf("question %q is not a unique decision or requirement id", q.ID)
+		case q.Verdict != AdjudicationHolds && q.Verdict != AdjudicationDoesNotHold && q.Verdict != AdjudicationCannotDetermine:
+			return fmt.Errorf("question %s: verdict %q is not holds, does-not-hold or cannot-determine", q.ID, q.Verdict)
+		case strings.TrimSpace(q.Rationale) == "" || len(q.Rationale) > reviewDraftMaxText || len(q.Evidence) > reviewDraftMaxText:
+			return fmt.Errorf("question %s needs a bounded rationale", q.ID)
+		}
+		asked[q.ID] = true
+	}
+	observed := map[string]bool{}
+	for _, sf := range d.Surfaces {
+		switch {
+		case !deliveryRefRE.MatchString(sf.Ref) || observed[sf.Ref]:
+			return fmt.Errorf("surface %q is not a unique delivery target", sf.Ref)
+		case sf.Outcome != SmokeObserved && sf.Outcome != SmokeNotObserved && sf.Outcome != SmokeNotReachable:
+			return fmt.Errorf("surface %s: outcome %q is not observed, not-observed or not-reachable", sf.Ref, sf.Outcome)
+		case len(sf.Commands) == 0 || len(sf.Commands) > 64 || strings.TrimSpace(sf.Observed) == "" || len(sf.Observed) > reviewDraftMaxText:
+			return fmt.Errorf("surface %s needs the commands run and what was observed", sf.Ref)
+		}
+		for _, c := range sf.Commands {
+			if strings.TrimSpace(c) == "" || len(c) > 1024 {
+				return fmt.Errorf("surface %s: a command must be non-empty and bounded", sf.Ref)
+			}
+		}
+		observed[sf.Ref] = true
 	}
 	accounted := map[string]bool{}
 	for _, p := range d.PriorFindings {

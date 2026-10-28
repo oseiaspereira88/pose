@@ -12,15 +12,18 @@ import (
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
-func cliRunProvenanceFixture(t *testing.T) (string, posemodel.Store, posemodel.ReviewRun, posemodel.ReviewRunProof) {
+// cliProvenanceInstance is an instance whose fake reviewer returns the file
+// at draftPath, with spec:alpha sealed by a declared implementation and the
+// issuer fixture-executor pinned.
+func cliProvenanceInstance(t *testing.T) (root, draftPath, bundleID string) {
 	t.Helper()
 	t.Setenv("POSE_ISSUER_HOME", filepath.Join(t.TempDir(), "issuers"))
 	key, e := posemodel.CreateIssuerKey("", "fixture-executor", time.Now())
 	if e != nil {
 		t.Fatal(e)
 	}
-	draftPath := filepath.Join(t.TempDir(), "draft.txt")
-	root := dispatchInstanceWith(t, func(root string, git func(...string) string) {
+	draftPath = filepath.Join(t.TempDir(), "draft.txt")
+	root = dispatchInstanceWith(t, func(root string, git func(...string) string) {
 		policy := map[string]any{"schema_version": 2, "enabled": true, "adopted_at": "2026-08-02", "profiles": map[string]string{"spec": "spec-closeout@1"}, "review_bundles": true, "review_bundles_adopted_at": "2026-08-14", "delegated_review": true, "component_aware": true, "component_aware_adopted_at": "2026-08-13", "unmapped_component_behavior": "warning", "reviewer_independence": map[string]string{"spec": "different-actor"}, "identity_assurance": map[string]string{"spec": "verified"}, "authority_project": "proj.fixture", "authority_audience": "fixture-audience", "trusted_attestation_issuers": []string{key.Pin()}}
 		raw, _ := json.Marshal(policy)
 		writeCloseoutCLIFile(t, root, ".pose/policy/review.json", string(raw))
@@ -39,11 +42,17 @@ func cliRunProvenanceFixture(t *testing.T) (string, posemodel.Store, posemodel.R
 	if code, out := runPose(t, root, "review", "bundle", "spec:alpha", "--seal", "--lead", "openai/implementation-model"); code != 0 || !strings.Contains(out, "review_bundle.implementation=openai/implementation-model (declared)") {
 		t.Fatal(code, out)
 	}
-	if current, e := (posemodel.Store{Root: root}).CurrentReviewBundle("spec:alpha"); e != nil || current == nil {
+	current, e := (posemodel.Store{Root: root}).CurrentReviewBundle("spec:alpha")
+	if e != nil || current == nil {
 		t.Fatal(current, e)
-	} else {
-		writeRunConclusion(t, posemodel.Store{Root: root}, current.BundleID, draftPath)
 	}
+	return root, draftPath, current.BundleID
+}
+
+func cliRunProvenanceFixture(t *testing.T) (string, posemodel.Store, posemodel.ReviewRun, posemodel.ReviewRunProof) {
+	t.Helper()
+	root, draftPath, bundleID := cliProvenanceInstance(t)
+	writeRunConclusion(t, posemodel.Store{Root: root}, bundleID, draftPath)
 	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--apply"); code != 0 {
 		t.Fatal(code, out)
 	}

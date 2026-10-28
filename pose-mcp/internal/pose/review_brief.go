@@ -28,9 +28,18 @@ const (
 
 var reviewBriefTemplates = map[string]string{
 	ReviewBriefKindReview:       reviewBriefTemplateConclusions,
-	ReviewBriefKindAdjudication: "adjudication-brief/1",
-	ReviewBriefKindSmoke:        "smoke-brief/1",
+	ReviewBriefKindAdjudication: adjudicationBriefTemplateTyped,
+	ReviewBriefKindSmoke:        smokeBriefTemplateTyped,
 }
+
+// The adjudication and smoke templates that ask for a typed verdict (spec
+// pose-delegated-verdict-destinations), and the ones before them.
+const (
+	adjudicationBriefTemplateTyped = "adjudication-brief/2"
+	adjudicationBriefTemplateFirst = "adjudication-brief/1"
+	smokeBriefTemplateTyped        = "smoke-brief/2"
+	smokeBriefTemplateFirst        = "smoke-brief/1"
+)
 
 // ReviewBrief is a rendered brief and its identity.
 type ReviewBrief struct {
@@ -58,6 +67,14 @@ const (
 // never changes under it).
 var reviewBriefEarlierTemplates = []string{reviewBriefTemplateRounds, reviewBriefTemplateFirst}
 
+// briefEarlierTemplates are, per kind, the templates a run may have been
+// briefed with before the current one, newest first.
+var briefEarlierTemplates = map[string][]string{
+	ReviewBriefKindReview:       reviewBriefEarlierTemplates,
+	ReviewBriefKindAdjudication: {adjudicationBriefTemplateFirst},
+	ReviewBriefKindSmoke:        {smokeBriefTemplateFirst},
+}
+
 // ReviewBriefKinds lists the accepted kinds.
 func ReviewBriefKinds() []string {
 	return []string{ReviewBriefKindReview, ReviewBriefKindAdjudication, ReviewBriefKindSmoke}
@@ -76,10 +93,13 @@ func (s Store) RenderReviewBrief(target, kind string, notes string) (ReviewBrief
 // continues.
 func (s Store) RenderReviewBriefMatching(target, kind, notes, digest string) (ReviewBrief, error) {
 	brief, err := s.renderReviewBriefAs(target, kind, notes, "")
-	if err != nil || brief.Digest == digest || kind != ReviewBriefKindReview && kind != "" {
+	if err != nil || brief.Digest == digest {
 		return brief, err
 	}
-	for _, version := range reviewBriefEarlierTemplates {
+	if kind == "" {
+		kind = ReviewBriefKindReview
+	}
+	for _, version := range briefEarlierTemplates[kind] {
 		if earlier, eerr := s.renderReviewBriefAs(target, kind, notes, version); eerr == nil && earlier.Digest == digest {
 			return earlier, nil
 		}
@@ -138,7 +158,15 @@ func (s Store) renderReviewBriefAs(target, kind, notes, version string) (ReviewB
 		}
 		round = &derived
 	}
-	body := renderReviewBriefBody(bundle, kind, template, notes, smoke, round, template == reviewBriefTemplateConclusions)
+	var questions []AdjudicationQuestion
+	if template == adjudicationBriefTemplateTyped {
+		asked, err := s.AdjudicationQuestions(bundle.Payload.Scope)
+		if err != nil {
+			return ReviewBrief{}, err
+		}
+		questions = asked
+	}
+	body := renderReviewBriefBody(bundle, kind, template, notes, smoke, round, template == reviewBriefTemplateConclusions, questions)
 	sum := sha256.Sum256([]byte(body))
 	digest := "sha256:" + hex.EncodeToString(sum[:])
 	return ReviewBrief{Kind: kind, TemplateVersion: template, Scope: bundle.Payload.Scope.Ref, BundleID: bundle.BundleID,
@@ -183,7 +211,7 @@ func (s Store) smokeScriptFor(scope ReviewBundleScope) (smokeScript, error) {
 
 var requirementLine = regexp.MustCompile(`^- R[0-9]+:`)
 
-func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, smoke *smokeScript, round *ReviewRound, conclusion bool) string {
+func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, smoke *smokeScript, round *ReviewRound, conclusion bool, questions []AdjudicationQuestion) string {
 	var b strings.Builder
 	line := func(format string, a ...any) { fmt.Fprintf(&b, format+"\n", a...) }
 	scope := bundle.Payload.Scope
@@ -342,6 +370,18 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 		b.WriteString(renderPriorRound(*round))
 	}
 
+	if template == adjudicationBriefTemplateTyped {
+		line("## Questions to adjudicate")
+		line("")
+		if len(questions) == 0 {
+			line("The scope records no decision and no requirement. Report that there is nothing to adjudicate and stop.")
+		}
+		for _, q := range questions {
+			line("- %s: %s", q.ID, q.Text)
+		}
+		line("")
+	}
+
 	line("## What to return")
 	line("")
 	if smoke != nil {
@@ -349,6 +389,16 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 		line("2. For each surface: the commands you ran from its entrypoint and what they printed or did.")
 		line("3. For each expected observation: observed, not observed or not reachable, with the command and output that show it.")
 		line("4. Every defect, with file, line and severity.")
+		if template == smokeBriefTemplateTyped {
+			line("5. At the end, the verdict POSE records as each surface's smoke evidence: one fenced block opened with ```pose-draft holding a JSON object with `schema` %q, `decision` (the decision above), `findings` (each with `id`, `severity` high|medium|low, `disposition` blocker|follow-up, `file`, `line` and `summary`) and `surfaces` (one entry per surface above, each with `ref`, `outcome` observed|not-observed|not-reachable, `commands` you ran and what you `observed`). A surface you do not answer records no evidence. Everything outside the block is yours and is not read.", ReviewDraftSchema)
+		}
+		return b.String()
+	}
+	if template == adjudicationBriefTemplateTyped {
+		line("1. A decision: `approved` if every question holds, otherwise `changes-requested`.")
+		line("2. For each question above: whether the record holds, does not hold, or cannot be determined from the sealed evidence and what you can reproduce, and why.")
+		line("3. Every defect, with file, line and severity.")
+		line("4. At the end, the verdict POSE records for the scope: one fenced block opened with ```pose-draft holding a JSON object with `schema` %q, `decision` (the decision above), `findings` (each with `id`, `severity` high|medium|low, `disposition` blocker|follow-up, `file`, `line` and `summary`) and `questions` (one entry per question above, each with `id`, `verdict` holds|does-not-hold|cannot-determine, `evidence` and `rationale`). A question you do not answer is not answered for you. Everything outside the block is yours and is not read.", ReviewDraftSchema)
 		return b.String()
 	}
 	line("1. A decision: `approved` or `changes-requested`.")

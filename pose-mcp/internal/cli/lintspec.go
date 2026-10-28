@@ -517,6 +517,35 @@ func lintOneSpecWith(r *cliout.Renderer, fields bool, specPath string, requiredO
 		}
 	}
 
+	// The verdicts delegated adjudications recorded on this spec (spec
+	// pose-delegated-verdict-destinations R1): a question the current bundle's
+	// adjudication says does not hold fails the lint; one it cannot determine,
+	// and a record that does not verify, are warned about.
+	adjudicationFailures := 0
+	if root, err := projectRootAt(filepath.Dir(specPath)); err == nil {
+		if adjudications, err := (posepkg.Store{Root: root}).SpecAdjudications(slug); err == nil && len(adjudications) > 0 {
+			for _, a := range adjudications {
+				switch {
+				case !a.Verified:
+					lint.finding(cliout.StateWarning, "adjudication", fmt.Sprintf(cliText(locale, "%s does not verify: %s", "%s não verifica: %s"), a.Path, a.Why))
+				case !a.Current:
+					continue
+				default:
+					for _, q := range a.Record.Questions {
+						switch q.Verdict {
+						case posepkg.AdjudicationDoesNotHold:
+							lint.finding(cliout.StateError, "adjudication", fmt.Sprintf(cliText(locale, "%s does not hold, adjudicated by %s: %s", "%s não se sustenta, adjudicado por %s: %s"), q.ID, a.Record.RunID, q.Rationale))
+							adjudicationFailures++
+						case posepkg.AdjudicationCannotDetermine:
+							lint.finding(cliout.StateWarning, "adjudication", fmt.Sprintf(cliText(locale, "%s cannot be determined, adjudicated by %s: %s", "%s não pôde ser determinado, adjudicado por %s: %s"), q.ID, a.Record.RunID, q.Rationale))
+						}
+					}
+				}
+			}
+			field("spec.adjudications", strconv.Itoa(len(adjudications)))
+			field("spec.adjudications.failures", strconv.Itoa(adjudicationFailures))
+		}
+	}
 	if readyCheck {
 		failures := 0
 		for _, name := range []string{"Intent", "Requirements", "Technical Plan"} {
@@ -909,7 +938,7 @@ func lintOneSpecWith(r *cliout.Renderer, fields bool, specPath string, requiredO
 	field("spec.amendments.failures", strconv.Itoa(amendFailures))
 	emitDesignBasis()
 
-	if requiredMissing > 0 || lifecycle > 0 || ridFailures > 0 || traceFailures > 0 || amendFailures > 0 || designFailures > 0 || lineageFailures > 0 {
+	if requiredMissing > 0 || lifecycle > 0 || ridFailures > 0 || traceFailures > 0 || amendFailures > 0 || designFailures > 0 || lineageFailures > 0 || adjudicationFailures > 0 {
 		return 1
 	}
 	return 0

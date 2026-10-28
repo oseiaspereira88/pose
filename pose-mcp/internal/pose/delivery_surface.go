@@ -34,6 +34,10 @@ var ValidEvidenceClasses = map[string]bool{
 	// by a generic build. It remains a distinct class so structure is never
 	// mistaken for compilation or test evidence.
 	"structure": true,
+	// A delegated smoke run's observation of a delivered surface, recorded by
+	// the engine from the run's verified verdict (spec
+	// pose-delegated-verdict-destinations R2).
+	"smoke": true,
 }
 
 type DeliveryPolicy struct {

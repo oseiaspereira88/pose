@@ -80,6 +80,23 @@ func loadDeliveryValidationResultsIn(files posemodel.Files, root, relative strin
 	return posemodel.ParseDeliveryValidationRun(raw, relative)
 }
 
+// withSmokeResults adds the results of every verified smoke observation a
+// delegated smoke run recorded: evidence of class smoke for the delivery
+// targets it exercised (spec pose-delegated-verdict-destinations R2). A
+// document that does not verify yields nothing.
+func withSmokeResults(root string, results []posemodel.DeliveryValidationResult) []posemodel.DeliveryValidationResult {
+	smoke, err := posemodel.Store{Root: root}.SmokeResults()
+	if err != nil {
+		return results
+	}
+	for _, doc := range smoke {
+		if doc.Verified {
+			results = append(results, doc.Results...)
+		}
+	}
+	return results
+}
+
 // loadDeliveryValidationResults reads and writes the filesystem directly; loadDeliveryValidationResultsIn takes the
 // operation's files.
 func loadDeliveryValidationResults(root, relative string) ([]posemodel.DeliveryValidationResult, error) {
@@ -124,6 +141,7 @@ func extendCurrentDeliveryGraphIn(files posemodel.Files, root string, base posem
 		return base, err
 	}
 	results, err := loadDeliveryValidationResultsIn(files, root, policy.ResultsPath)
+	results = withSmokeResults(root, results)
 	if err != nil {
 		return base, err
 	}
@@ -206,6 +224,7 @@ func cmdSurfaceCheck(root string, args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	results, err := loadDeliveryValidationResults(root, policy.ResultsPath)
+	results = withSmokeResults(root, results)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose surface-check: %v\n", err)
 		return 1
