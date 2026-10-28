@@ -80,12 +80,18 @@ func loadDeliveryValidationResultsIn(files posemodel.Files, root, relative strin
 	return posemodel.ParseDeliveryValidationRun(raw, relative)
 }
 
+// loadSmokeResults reads the verified smoke documents of root; tests replace
+// it to exercise the surface check over results they choose.
+var loadSmokeResults = func(root string) ([]posemodel.SmokeResult, error) {
+	return posemodel.Store{Root: root}.SmokeResults()
+}
+
 // withSmokeResults adds the results of every verified smoke observation a
 // delegated smoke run recorded: evidence of class smoke for the delivery
 // targets it exercised (spec pose-delegated-verdict-destinations R2). A
 // document that does not verify yields nothing.
 func withSmokeResults(root string, results []posemodel.DeliveryValidationResult) []posemodel.DeliveryValidationResult {
-	smoke, err := posemodel.Store{Root: root}.SmokeResults()
+	smoke, err := loadSmokeResults(root)
 	if err != nil {
 		return results
 	}

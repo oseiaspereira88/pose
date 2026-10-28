@@ -54,6 +54,7 @@ Review conclusions (delivered by `pose-delegated-review-conclusions`); turning t
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/delivery_surface.go
 - modified: pose-mcp/internal/cli/surface_check.go
+- modified: pose-mcp/internal/cli/surface_check_test.go
 - modified: pose-mcp/internal/cli/lintspec.go
 - modified: pose-mcp/internal/cli/help_catalog.go
 - modified: pose-mcp/internal/cli/review_closeout.go

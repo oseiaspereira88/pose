@@ -133,3 +133,57 @@ func TestRoadmapCheckNamesAbsentCutCriteria(t *testing.T) {
 		t.Fatalf("human warning missing or on wrong channel: stdout=%s stderr=%s", &out, &errOut)
 	}
 }
+
+// Spec pose-delegated-verdict-destinations R2 over the surface check (review
+// rounds 1–4, F04): a verified smoke observation is evidence of class smoke
+// for the target and spec it observed, demanded as a required class or as
+// one of any; it covers no other target and no other spec, and a document
+// that did not verify yields nothing.
+func TestSurfaceCheckReadsSmokeObservationsPerTarget(t *testing.T) {
+	smokeResult := func(target, spec string) posemodel.DeliveryValidationResult {
+		return posemodel.DeliveryValidationResult{ID: "smoke-" + spec + "-" + target, Module: "web", Check: "delegated smoke of " + target, EvidenceClass: posemodel.SmokeEvidenceClass,
+			Severity: "required", Outcome: "pass", Target: target, TargetSpec: spec}
+	}
+	for _, list := range []string{"required", "any"} {
+		for _, c := range []struct {
+			name     string
+			smoke    []posemodel.SmokeResult
+			delivers bool
+		}{
+			{"no smoke", nil, false},
+			{"the observed target", []posemodel.SmokeResult{{Verified: true, Results: []posemodel.DeliveryValidationResult{smokeResult("surface:dashboard", "alpha")}}}, true},
+			{"another target", []posemodel.SmokeResult{{Verified: true, Results: []posemodel.DeliveryValidationResult{smokeResult("surface:other", "alpha")}}}, false},
+			{"another spec", []posemodel.SmokeResult{{Verified: true, Results: []posemodel.DeliveryValidationResult{smokeResult("surface:dashboard", "beta")}}}, false},
+			{"a document that did not verify", []posemodel.SmokeResult{{Verified: false, Results: []posemodel.DeliveryValidationResult{smokeResult("surface:dashboard", "alpha")}}}, false},
+		} {
+			t.Run(list+"/"+c.name, func(t *testing.T) {
+				root := surfaceFixture(t)
+				profile := `{"kind":"surface","requiredEvidenceClasses":["reachability","smoke"],"anyEvidenceClasses":["integration","e2e"]}`
+				if list == "any" {
+					profile = `{"kind":"surface","requiredEvidenceClasses":["reachability"],"anyEvidenceClasses":["smoke","e2e"]}`
+				}
+				writeArtifactTestFile(t, root, ".pose/indexes/validation-matrix.json", `{"defaults":{"mode":"strict"},"deliveryProfiles":{"web-ui":`+profile+`},"stacks":{},"moduleOverrides":{}}`)
+				digest := surfaceProvenance(t, root)
+				checks := []checkResult{{ID: "web/go/reach", Module: "web", Name: "web-reachability", EvidenceClass: "reachability", Severity: "required", Outcome: "pass"}}
+				if list == "required" {
+					checks = append(checks, checkResult{ID: "web/go/integration", Module: "web", Name: "web-integration", EvidenceClass: "integration", Severity: "required", Outcome: "pass"})
+				}
+				writeSurfaceResult(t, root, digest, checks)
+				for i := range c.smoke {
+					for j := range c.smoke[i].Results {
+						c.smoke[i].Results[j].ProvenanceDigest = digest
+					}
+				}
+				loadSmokeResults = func(string) ([]posemodel.SmokeResult, error) { return c.smoke, nil }
+				t.Cleanup(func() {
+					loadSmokeResults = func(root string) ([]posemodel.SmokeResult, error) { return posemodel.Store{Root: root}.SmokeResults() }
+				})
+				var out, errOut bytes.Buffer
+				code := cmdSurfaceCheck(root, []string{"--spec", "alpha", "--strict"}, &out, &errOut)
+				if c.delivers != (code == 0) || !c.delivers && !strings.Contains(out.String(), "smoke") {
+					t.Fatalf("code=%d out=%s err=%s", code, out.String(), errOut.String())
+				}
+			})
+		}
+	}
+}
