@@ -292,3 +292,36 @@ func TestAdjudicationBlocksTheCloseout(t *testing.T) {
 		t.Fatalf("the closeout state does not block: %+v", state.Diagnostics)
 	}
 }
+
+// Review round 2, R2-B02: a smoke document of a schema this engine does not
+// write yields nothing.
+func TestSmokeResultsRefuseAnUnsupportedSchema(t *testing.T) {
+	f, draftPath := conclusionFixture(t)
+	verdict := ReviewDraft{Decision: "approved", Surfaces: []ReviewDraftSurface{{Ref: "contract:backend-api", Outcome: SmokeObserved, Commands: []string{"go run ./api"}, Observed: "ok"}}}
+	if err := os.WriteFile(draftPath, []byte(verdictDraft(t, verdict)), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	run := dispatchKind(t, f, ReviewBriefKindSmoke, "schema")
+	recorded, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now())
+	if err != nil || recorded.State != ReviewConclusionRecorded {
+		t.Fatalf("conclude: %+v %v", recorded, err)
+	}
+	path := filepath.Join(f.store.Root, filepath.FromSlash(recorded.Destination))
+	original, _ := os.ReadFile(path)
+	for _, version := range []any{0, -1, 999, nil} {
+		var doc map[string]any
+		_ = json.Unmarshal(original, &doc)
+		if version == nil {
+			delete(doc, "schema_version")
+		} else {
+			doc["schema_version"] = version
+		}
+		raw, _ := json.Marshal(doc)
+		if err := os.WriteFile(path, raw, 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if results, _ := f.store.SmokeResults(); len(results) != 1 || results[0].Verified || len(results[0].Results) != 0 {
+			t.Fatalf("schema %v yielded: %+v", version, results)
+		}
+	}
+}

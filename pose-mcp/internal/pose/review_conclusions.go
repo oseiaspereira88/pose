@@ -432,7 +432,7 @@ func (s Store) recoveredReviewConclusion(pending ReviewConclusion) (*ReviewConcl
 			return nil, nil
 		}
 		done := pending
-		done.State, done.ProofID, done.BundleID, done.Scope, done.Decision, done.Attestation = ReviewConclusionRecorded, verdict.ProofID, verdict.BundleID, verdict.Scope, verdict.Decision, ""
+		done.State, done.ProofID, done.Issuer, done.BundleID, done.Scope, done.Decision, done.Attestation = ReviewConclusionRecorded, verdict.ProofID, verdict.Issuer, verdict.BundleID, verdict.Scope, verdict.Decision, ""
 		done.Destination = AdjudicationsDir + "/" + pending.RunID + ".json"
 		if pending.Kind == ReviewBriefKindSmoke {
 			done.Destination = SmokeResultsDir + "/" + pending.RunID + ".json"
@@ -463,6 +463,11 @@ func (s Store) recoveredReviewConclusion(pending ReviewConclusion) (*ReviewConcl
 		}
 		done := pending
 		done.State, done.Attestation, done.ProofID, done.BundleID, done.Scope, done.Decision, done.Destination = ReviewConclusionRecorded, att.AttestationID, att.Run.ProofID, att.BundleID, bundle.Payload.Scope.Ref, att.Decision, ""
+		// The issuer is the one that signed the run's proof, never the
+		// reservation's (review round 2, R2-F02).
+		if assurance, err := s.VerifyReviewRunProof(att.Run.RunID, att.Run.ProofID); err == nil {
+			done.Issuer = assurance.Issuer
+		}
 		done.Reasons = []string{"completed from the attestation an interrupted conclusion recorded"}
 		return &done, nil
 	}

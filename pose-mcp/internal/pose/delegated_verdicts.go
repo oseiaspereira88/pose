@@ -280,6 +280,15 @@ func (s Store) recordDelegatedVerdict(run ReviewRun, bundle ReviewBundle, draft 
 	var raw []byte
 	switch run.Kind {
 	case ReviewBriefKindAdjudication:
+		// An adjudication is published under the spec's lifecycle lock, the
+		// one close holds while it judges and publishes: a verdict lands
+		// either before close's locked re-check, which then refuses, or after
+		// the transition (review round 2, R2-B01).
+		unlock, err := lockSpecLifecycleWaiting(s.Root, bundle.Payload.Scope.Slug, "adjudication.record")
+		if err != nil {
+			return "", "", err
+		}
+		defer unlock()
 		rel = AdjudicationsDir + "/" + run.RunID + ".json"
 		raw, _ = json.MarshalIndent(adjudicationRecordFor(run, bundle, draft, proofID, issuer, now), "", "  ")
 	case ReviewBriefKindSmoke:
@@ -314,7 +323,7 @@ func (s Store) recordDelegatedVerdict(run ReviewRun, bundle ReviewBundle, draft 
 // verifiedVerdict is what a verified verdict record of a run says about
 // itself, for a conclusion completed from it.
 type verifiedVerdict struct {
-	ProofID, BundleID, Scope, Decision string
+	ProofID, Issuer, BundleID, Scope, Decision string
 }
 
 // verifiedVerdictOf is the verified verdict record of run, if any.
@@ -331,7 +340,25 @@ func (s Store) verifiedVerdictOf(kind, runID string) (*verifiedVerdict, string) 
 	if draft == nil {
 		return nil, "the run's draft cannot be read"
 	}
-	return &verifiedVerdict{ProofID: proof, BundleID: run.BundleID, Scope: run.Scope, Decision: draft.Decision}, ""
+	issuer := ""
+	if assurance, err := s.VerifyReviewRunProof(runID, proof); err == nil {
+		issuer = assurance.Issuer
+	}
+	return &verifiedVerdict{ProofID: proof, Issuer: issuer, BundleID: run.BundleID, Scope: run.Scope, Decision: draft.Decision}, ""
+}
+
+// lockSpecLifecycleWaiting holds slug's lifecycle lock, waiting while another
+// operation holds it.
+func lockSpecLifecycleWaiting(root, slug, operation string) (func(), error) {
+	deadline := time.Now().Add(reviewConclusionLockWait)
+	for {
+		unlock, err := LockSpecLifecycle(root, slug, operation)
+		var held *StartLockError
+		if err == nil || !errors.As(err, &held) || time.Now().After(deadline) {
+			return unlock, err
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
 }
 
 // verifiedVerdictProof is the proof the verdict record of run names, when
@@ -514,8 +541,10 @@ func LoadSmokeResultsIn(s Store, root string) ([]SmokeResult, error) {
 		r := SmokeResult{Path: rel}
 		raw, err := readBoundedRegular(filepath.Join(dir, e.Name()), 1<<20)
 		var doc smokeResultDocument
-		if err != nil || json.Unmarshal(raw, &doc) != nil {
-			r.Why = "the document cannot be read"
+		if err != nil || json.Unmarshal(raw, &doc) != nil || doc.SchemaVersion != DeliveryValidationResultSchema {
+			// A version this engine does not write yields nothing (review
+			// round 2, R2-B02).
+			r.Why = "the document cannot be read as a smoke result of this engine"
 			out = append(out, r)
 			continue
 		}

@@ -1890,7 +1890,7 @@ func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stder
 	if current, err := cliCloseoutState(root, ref); err != nil {
 		render(io.Discard, stderr).Failure("pose close: " + err.Error())
 		return 1
-	} else if !current.Review.Approved || hasActionRequestPending(current.Diagnostics) {
+	} else if !current.Review.Approved || hasActionRequestPending(current.Diagnostics) || hasDiagnostic(current.Diagnostics, posemodel.AdjudicationDoesNotHoldCode) {
 		render(io.Discard, stderr).Failure("pose close: the closeout authorization changed while its gates ran; next action: " + current.NextAction)
 		return 1
 	}
@@ -2158,6 +2158,16 @@ func replaceFrontmatterValue(content, key, value string) string {
 
 // hasActionRequestPending reports a governed action request that restricts
 // the closeout.
+// hasDiagnostic reports whether diagnostics carry code.
+func hasDiagnostic(diagnostics []posemodel.Diagnostic, code string) bool {
+	for _, d := range diagnostics {
+		if d.Code == code {
+			return true
+		}
+	}
+	return false
+}
+
 func hasActionRequestPending(diagnostics []posemodel.Diagnostic) bool {
 	for _, d := range diagnostics {
 		if d.Code == "action-request-pending" {
