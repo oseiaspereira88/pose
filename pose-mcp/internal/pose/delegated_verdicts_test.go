@@ -325,3 +325,43 @@ func TestSmokeResultsRefuseAnUnsupportedSchema(t *testing.T) {
 		}
 	}
 }
+
+// Review round 3, R3-B01: a lifecycle lock left by a process that died is not
+// waited for and never turns the conclusion into a refusal: the reservation
+// stays, the error names how to recover the lock, and once it is recovered
+// the run concludes.
+func TestAdjudicationSurvivesADeadLifecycleLock(t *testing.T) {
+	f, draftPath := conclusionFixture(t)
+	verdict := ReviewDraft{Decision: "approved", Questions: []ReviewDraftQuestion{{ID: "R1", Verdict: AdjudicationHolds, Rationale: "it does"}}}
+	if err := os.WriteFile(draftPath, []byte(verdictDraft(t, verdict)), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	run := dispatchKind(t, f, ReviewBriefKindAdjudication, "dead lock")
+	if _, err := LockSpecLifecycle(f.store.Root, "backend", "close.transition"); err != nil {
+		t.Fatal(err)
+	}
+	path := startLockPath(f.store.Root, "backend")
+	raw, _ := os.ReadFile(path)
+	var owner StartLockOwner
+	_ = json.Unmarshal(raw, &owner)
+	owner.PID, owner.ProcessStart = 2147483000, ""
+	raw, _ = json.Marshal(owner)
+	if err := os.WriteFile(path, append(raw, '\n'), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	started := time.Now()
+	held, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now())
+	if err == nil || held.State != ReviewConclusionPending || !strings.Contains(err.Error(), "--recover-lock") || time.Since(started) > 30*time.Second {
+		t.Fatalf("a dead lock: %+v %v after %s", held, err, time.Since(started))
+	}
+	if kept, _ := f.store.ReadReviewConclusion(run.RunID); kept == nil || kept.State != ReviewConclusionPending {
+		t.Fatalf("the reservation did not stay: %+v", kept)
+	}
+	if err := os.Remove(path); err != nil {
+		t.Fatal(err)
+	}
+	done, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now())
+	if err != nil || done.State != ReviewConclusionRecorded || done.Destination == "" {
+		t.Fatalf("after recovery: %+v %v", done, err)
+	}
+}

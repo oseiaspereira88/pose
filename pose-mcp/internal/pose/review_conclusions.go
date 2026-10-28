@@ -542,6 +542,12 @@ func (s Store) concludeReviewRun(id, issuer string, apply bool, now time.Time, t
 			return finish(result)
 		}
 		destination, named, err := s.recordDelegatedVerdict(run, *bundle, *draft, proof.ProofID, issuer, now)
+		if errors.Is(err, errVerdictDestinationBusy) {
+			// The reservation stays: the verdict is published by a later
+			// conclusion once the lock is free, never refused for it.
+			pending.Reasons = []string{strings.TrimPrefix(err.Error(), "pose: ")}
+			return pending, err
+		}
 		if err != nil {
 			result.ProofID, result.Reasons = proof.ProofID, []string{strings.TrimPrefix(err.Error(), "pose: ")}
 			return finish(result)

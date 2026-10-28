@@ -347,15 +347,28 @@ func (s Store) verifiedVerdictOf(kind, runID string) (*verifiedVerdict, string) 
 	return &verifiedVerdict{ProofID: proof, Issuer: issuer, BundleID: run.BundleID, Scope: run.Scope, Decision: draft.Decision}, ""
 }
 
-// lockSpecLifecycleWaiting holds slug's lifecycle lock, waiting while another
-// operation holds it.
+// errVerdictDestinationBusy is a verdict that could not be published because
+// the spec's lifecycle lock is held: the conclusion stays reserved, never
+// refused, and a later conclusion of the run publishes it (review round 3,
+// R3-B01).
+var errVerdictDestinationBusy = errors.New("the spec's lifecycle lock is held")
+
+// lockSpecLifecycleWaiting holds slug's lifecycle lock, waiting while a
+// running operation holds it. A lock whose owner is dead or unknown is not
+// waited for: it names how to recover it.
 func lockSpecLifecycleWaiting(root, slug, operation string) (func(), error) {
 	deadline := time.Now().Add(reviewConclusionLockWait)
 	for {
 		unlock, err := LockSpecLifecycle(root, slug, operation)
 		var held *StartLockError
-		if err == nil || !errors.As(err, &held) || time.Now().After(deadline) {
+		if err == nil || !errors.As(err, &held) {
 			return unlock, err
+		}
+		if held.State != LockOwnerActive {
+			return nil, fmt.Errorf("%w by an owner that is %s; recover it with pose start spec:%s --recover-lock %s, then conclude the run again", errVerdictDestinationBusy, held.State, slug, held.OwnerDigest)
+		}
+		if time.Now().After(deadline) {
+			return nil, fmt.Errorf("%w by a running operation; conclude the run again when it ends", errVerdictDestinationBusy)
 		}
 		time.Sleep(100 * time.Millisecond)
 	}
