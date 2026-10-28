@@ -33,6 +33,49 @@ const SmokeResultsDir = ".pose/results/smoke"
 // SmokeEvidenceClass is the evidence class of a smoke observation.
 const SmokeEvidenceClass = "smoke"
 
+// AdjudicationDoesNotHoldCode is the closeout diagnostic of a question the
+// current bundle's adjudication says does not hold.
+const AdjudicationDoesNotHoldCode = "adjudication-does-not-hold"
+
+// adjudicationBlockers are the questions of slug the current bundle's
+// verified adjudications say do not hold.
+func (s Store) adjudicationBlockers(slug string) []string {
+	adjudications, err := s.SpecAdjudications(slug)
+	if err != nil {
+		return []string{"the adjudications of " + slug + " cannot be read: " + err.Error()}
+	}
+	var out []string
+	for _, a := range adjudications {
+		if !a.Verified || !a.Current {
+			continue
+		}
+		for _, q := range a.Record.Questions {
+			if q.Verdict == AdjudicationDoesNotHold {
+				out = append(out, q.ID+" does not hold, adjudicated by "+a.Record.RunID+": "+q.Rationale)
+			}
+		}
+	}
+	return out
+}
+
+// verdictIndependenceReason is why a run's assurance does not meet the
+// independence its bundle's plan requires, or "": an adjudication or a smoke
+// verdict meets the same bar as a review (review round 1, B01).
+func verdictIndependenceReason(bundle ReviewBundle, assurance ReviewRunAssurance, runID string) string {
+	switch bundle.Payload.Plan.Independence {
+	case "mandatory-human":
+		return "a machine-attested run cannot satisfy mandatory-human"
+	case "different-actor":
+		if !assurance.VendorDifference && !assurance.ModelDifference {
+			return "the run's vendor and model both match the implementation"
+		}
+	}
+	if assurance.Implementation.Execution != "" && assurance.Implementation.Execution == runID {
+		return "the implementation and the run are the same execution"
+	}
+	return ""
+}
+
 // AdjudicationQuestion is one question an adjudication answers: a decision
 // or a requirement the scope's spec records.
 type AdjudicationQuestion struct {
@@ -218,7 +261,10 @@ func smokeDocumentFor(run ReviewRun, bundle ReviewBundle, draft ReviewDraft, tar
 		if sf.Outcome == SmokeObserved {
 			outcome = "pass"
 		}
-		target := byRef[sf.Ref]
+		target, ok := byRef[sf.Ref]
+		if !ok {
+			continue
+		}
 		doc.Checks = append(doc.Checks, smokeResultCheck{ID: "smoke-" + strings.TrimPrefix(run.RunID, "rrn-") + "-" + target.ID, Module: target.Module, Name: "delegated smoke of " + sf.Ref,
 			Severity: "required", EvidenceClass: SmokeEvidenceClass, Outcome: outcome, Target: sf.Ref})
 	}
@@ -265,6 +311,29 @@ func (s Store) recordDelegatedVerdict(run ReviewRun, bundle ReviewBundle, draft 
 	return rel, proofID, err
 }
 
+// verifiedVerdict is what a verified verdict record of a run says about
+// itself, for a conclusion completed from it.
+type verifiedVerdict struct {
+	ProofID, BundleID, Scope, Decision string
+}
+
+// verifiedVerdictOf is the verified verdict record of run, if any.
+func (s Store) verifiedVerdictOf(kind, runID string) (*verifiedVerdict, string) {
+	proof, why := s.verifiedVerdictProof(kind, runID)
+	if proof == "" {
+		return nil, why
+	}
+	run, err := s.LoadProvenanceReviewRun(runID)
+	if err != nil {
+		return nil, err.Error()
+	}
+	draft, _ := ParseReviewDraft(run.Output)
+	if draft == nil {
+		return nil, "the run's draft cannot be read"
+	}
+	return &verifiedVerdict{ProofID: proof, BundleID: run.BundleID, Scope: run.Scope, Decision: draft.Decision}, ""
+}
+
 // verifiedVerdictProof is the proof the verdict record of run names, when
 // that record verifies as the run's verdict; otherwise "" and why.
 func (s Store) verifiedVerdictProof(kind, runID string) (string, string) {
@@ -309,15 +378,21 @@ func (s Store) verifiedVerdictProof(kind, runID string) (string, string) {
 	return "", "no destination"
 }
 
-// verifiedVerdictRun is the run behind a verdict record, when its proof
-// verifies and the run is of kind, with its parsed draft.
-func (s Store) verifiedVerdictRun(runID, proofID, kind string) (ReviewRun, ReviewBundle, ReviewDraft, error) {
+// verifiedVerdictRun is the run behind a verdict record, with its parsed
+// draft, when everything a conclusion requires holds of it: its proof, signed
+// by issuer, verifies and establishes a complete run of kind; the run meets
+// the independence its plan requires; its verdict answers exactly what it
+// was asked (review round 1, B01, B04; F02).
+func (s Store) verifiedVerdictRun(runID, proofID, issuer, kind string) (ReviewRun, ReviewBundle, ReviewDraft, error) {
 	assurance, err := s.VerifyReviewRunProof(runID, proofID)
 	if err != nil {
 		return ReviewRun{}, ReviewBundle{}, ReviewDraft{}, err
 	}
 	if !assurance.CompleteReview {
 		return ReviewRun{}, ReviewBundle{}, ReviewDraft{}, fmt.Errorf("the run's proof does not establish a complete run")
+	}
+	if assurance.Issuer != issuer {
+		return ReviewRun{}, ReviewBundle{}, ReviewDraft{}, fmt.Errorf("the record names issuer %s, the run's proof was signed by %s", issuer, assurance.Issuer)
 	}
 	run, err := s.LoadProvenanceReviewRun(runID)
 	if err != nil {
@@ -333,6 +408,12 @@ func (s Store) verifiedVerdictRun(runID, proofID, kind string) (ReviewRun, Revie
 	bundle, err := s.LoadReviewBundle(run.BundleID)
 	if err != nil {
 		return ReviewRun{}, ReviewBundle{}, ReviewDraft{}, err
+	}
+	if why := verdictIndependenceReason(bundle, assurance, run.RunID); why != "" {
+		return ReviewRun{}, ReviewBundle{}, ReviewDraft{}, errors.New(why)
+	}
+	if reasons := s.verdictCoverageReasons(run, bundle, draft); len(reasons) > 0 {
+		return ReviewRun{}, ReviewBundle{}, ReviewDraft{}, errors.New(strings.Join(reasons, "; "))
 	}
 	return run, bundle, *draft, nil
 }
@@ -375,7 +456,7 @@ func (s Store) SpecAdjudications(slug string) ([]VerifiedAdjudication, error) {
 			continue
 		}
 		v := VerifiedAdjudication{Record: rec, Path: rel}
-		run, bundle, draft, err := s.verifiedVerdictRun(rec.RunID, rec.ProofID, ReviewBriefKindAdjudication)
+		run, bundle, draft, err := s.verifiedVerdictRun(rec.RunID, rec.ProofID, rec.Issuer, ReviewBriefKindAdjudication)
 		if err != nil {
 			v.Why = err.Error()
 		} else if want := adjudicationRecordFor(run, bundle, draft, rec.ProofID, rec.Issuer, time.Time{}); !sameAdjudication(want, rec) || e.Name() != rec.RunID+".json" {
@@ -438,7 +519,7 @@ func LoadSmokeResultsIn(s Store, root string) ([]SmokeResult, error) {
 			out = append(out, r)
 			continue
 		}
-		run, bundle, draft, err := s.verifiedVerdictRun(doc.Smoke.RunID, doc.Smoke.ProofID, ReviewBriefKindSmoke)
+		run, bundle, draft, err := s.verifiedVerdictRun(doc.Smoke.RunID, doc.Smoke.ProofID, doc.Smoke.Issuer, ReviewBriefKindSmoke)
 		if err != nil {
 			r.Why = err.Error()
 			out = append(out, r)
@@ -456,16 +537,33 @@ func LoadSmokeResultsIn(s Store, root string) ([]SmokeResult, error) {
 			out = append(out, r)
 			continue
 		}
-		results, err := ParseDeliveryValidationRun(raw, rel)
-		if err != nil {
-			r.Why = err.Error()
-			out = append(out, r)
-			continue
-		}
-		r.Results, r.Verified = results, true
+		r.Results, r.Verified = s.smokeResultsOf(want, run, bundle, rel), true
 		out = append(out, r)
 	}
 	return out, nil
+}
+
+// smokeResultsOf are the validation results a verified smoke document
+// yields, every field from the run, its bundle and the current index, none
+// from the document's bytes: the head is the commit the run's bundle sealed,
+// the time the run's end, and the scope provenance the current one only
+// while the run's bundle still governs its scope (review round 1, B02).
+func (s Store) smokeResultsOf(doc smokeResultDocument, run ReviewRun, bundle ReviewBundle, rel string) []DeliveryValidationResult {
+	var scoped map[string]string
+	if current, err := s.CurrentReviewBundle(bundle.Payload.Scope.Ref); err == nil && current != nil && current.BundleID == bundle.BundleID {
+		if graph, err := s.GetDeliveryIntegrity(""); err == nil {
+			if digest := ScopedDeliveryProvenanceDigest(graph, bundle.Payload.Scope.Slug); digest != "" {
+				scoped = map[string]string{bundle.Payload.Scope.Slug: digest}
+			}
+		}
+	}
+	var out []DeliveryValidationResult
+	for _, c := range doc.Checks {
+		out = append(out, DeliveryValidationResult{ID: c.ID, Module: c.Module, Check: c.Name, EvidenceClass: c.EvidenceClass, Severity: c.Severity, Outcome: c.Outcome,
+			GitHead: run.SealedCommit, GeneratedAt: run.EndedAt, Report: rel, ScopeProvenance: scoped, Target: c.Target, TargetSpec: bundle.Payload.Scope.Slug})
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out
 }
 
 func sameSmokeChecks(want, got smokeResultDocument) bool {

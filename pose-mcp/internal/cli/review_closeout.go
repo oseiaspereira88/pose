@@ -1768,6 +1768,22 @@ func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stder
 			governed = append(governed, d.Message)
 		}
 	}
+	// A current adjudication that says a question does not hold refuses the
+	// closeout (spec pose-delegated-verdict-destinations R1).
+	adjudicated := []string{}
+	for _, d := range state.Diagnostics {
+		if d.Code == posemodel.AdjudicationDoesNotHoldCode {
+			adjudicated = append(adjudicated, d.Message)
+		}
+	}
+	if len(adjudicated) > 0 {
+		out := render(stdout, stderr)
+		for _, message := range adjudicated {
+			out.Field("close.refused.adjudication", message)
+		}
+		out.Failure(fmt.Sprintf("pose close: %d adjudicated question(s) of %s do not hold", len(adjudicated), ref))
+		return 1
+	}
 	if len(governed) > 0 {
 		out := render(stdout, stderr)
 		for _, message := range governed {

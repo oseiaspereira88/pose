@@ -38,4 +38,8 @@ func TestAdjudicationVerdictFailsLintSpec(t *testing.T) {
 	if code, out := runPose(t, root, "lint-spec", "alpha"); code == 0 || !strings.Contains(out, "R1 does not hold") || !strings.Contains(out, "spec.adjudications.failures=1") {
 		t.Fatalf("lint-spec after: %d %s", code, out)
 	}
+	// The closeout refuses too (review round 1, B05).
+	if code, out := runPose(t, root, "close", "spec:alpha"); code == 0 || !strings.Contains(out, "close.refused.adjudication") {
+		t.Fatalf("close: %d %s", code, out)
+	}
 }

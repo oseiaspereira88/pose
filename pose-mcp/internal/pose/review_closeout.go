@@ -2389,6 +2389,12 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 			return state, err
 		}
 		state.LifecycleDone = sp.Status == "done"
+		// A question the current bundle's adjudication says does not hold
+		// blocks the closeout as it fails the lint (spec
+		// pose-delegated-verdict-destinations R1; review round 1, B05).
+		for _, message := range s.adjudicationBlockers(scope.Slug) {
+			block(OpaqueDiagnostic(AdjudicationDoesNotHoldCode, DiagnosticCloseout, message))
+		}
 		if _, findings, historyErr := s.InspectAmendmentHistory(*sp); historyErr != nil {
 			block(OpaqueDiagnostic("amendment-history-invalid", DiagnosticCloseout, "amendment history: "+historyErr.Error()))
 			state.Limitations = append(state.Limitations, "Amendment history could not be verified; inspect and repair it explicitly.")

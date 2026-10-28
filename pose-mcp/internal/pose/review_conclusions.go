@@ -425,12 +425,14 @@ func (s Store) recoveredReviewConclusion(pending ReviewConclusion) (*ReviewConcl
 	if pending.Kind == ReviewBriefKindAdjudication || pending.Kind == ReviewBriefKindSmoke {
 		// The verdict an interrupted conclusion wrote completes it only when
 		// it verifies as this run's.
-		proof, _ := s.verifiedVerdictProof(pending.Kind, pending.RunID)
-		if proof == "" {
+		// What the record states comes from the verified record and its
+		// run, never from the reservation (review round 1, F01).
+		verdict, _ := s.verifiedVerdictOf(pending.Kind, pending.RunID)
+		if verdict == nil {
 			return nil, nil
 		}
 		done := pending
-		done.State, done.ProofID = ReviewConclusionRecorded, proof
+		done.State, done.ProofID, done.BundleID, done.Scope, done.Decision, done.Attestation = ReviewConclusionRecorded, verdict.ProofID, verdict.BundleID, verdict.Scope, verdict.Decision, ""
 		done.Destination = AdjudicationsDir + "/" + pending.RunID + ".json"
 		if pending.Kind == ReviewBriefKindSmoke {
 			done.Destination = SmokeResultsDir + "/" + pending.RunID + ".json"
@@ -460,7 +462,7 @@ func (s Store) recoveredReviewConclusion(pending ReviewConclusion) (*ReviewConcl
 			continue
 		}
 		done := pending
-		done.State, done.Attestation, done.ProofID = ReviewConclusionRecorded, att.AttestationID, att.Run.ProofID
+		done.State, done.Attestation, done.ProofID, done.BundleID, done.Scope, done.Decision, done.Destination = ReviewConclusionRecorded, att.AttestationID, att.Run.ProofID, att.BundleID, bundle.Payload.Scope.Ref, att.Decision, ""
 		done.Reasons = []string{"completed from the attestation an interrupted conclusion recorded"}
 		return &done, nil
 	}
@@ -527,7 +529,13 @@ func (s Store) concludeReviewRun(id, issuer string, apply bool, now time.Time, t
 	}
 	if run.Kind != ReviewBriefKindReview {
 		// An adjudication or a smoke verdict is recorded where its origin
-		// reads it, never as an approval (spec pose-delegated-verdict-destinations).
+		// reads it, never as an approval, and only from a run that meets the
+		// independence its plan requires (spec
+		// pose-delegated-verdict-destinations; review round 1, B01).
+		if why := verdictIndependenceReason(*bundle, assurance, run.RunID); why != "" {
+			result.ProofID, result.Reasons = proof.ProofID, []string{why}
+			return finish(result)
+		}
 		destination, named, err := s.recordDelegatedVerdict(run, *bundle, *draft, proof.ProofID, issuer, now)
 		if err != nil {
 			result.ProofID, result.Reasons = proof.ProofID, []string{strings.TrimPrefix(err.Error(), "pose: ")}

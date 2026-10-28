@@ -56,6 +56,8 @@ Review conclusions (delivered by `pose-delegated-review-conclusions`); turning t
 - modified: pose-mcp/internal/cli/surface_check.go
 - modified: pose-mcp/internal/cli/lintspec.go
 - modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/cli/review_run_provenance_test.go
 - created: pose-mcp/internal/cli/delegated_verdicts_test.go
 - modified: POSE.md
@@ -81,7 +83,7 @@ Review conclusions (delivered by `pose-delegated-review-conclusions`); turning t
 - Minimal option: the engine writes the verdict into the adjudicated spec's Decisions or Validation section
 - Selected option: an immutable adjudication record per run in the `adjudications` directory of `.pose`, naming the run and the proof the issuer signed, holding the verdict per question — each decision `D<n>` and requirement `R<n>` the spec records, which the brief of template `adjudication-brief/2` lists and the pose-draft block answers in `questions`; `lint-spec` reads the records of the spec, verifies each against its run, and fails on a question the current bundle's adjudication says does not hold. The maintainer chose this on 2026-10-27
 - Rationale: the engine never edits a governed spec, so its change set stays the implementer's; a record verified against its run's proof and draft cannot say what the run did not
-- Consequences: a spec's adjudications are read beside it, not in it; an adjudication of an earlier bundle is kept but no longer gates the lint
+- Consequences: a spec's adjudications are read beside it, not in it; a question the current bundle's verified adjudication says does not hold fails `lint-spec` and refuses `close`; an adjudication of an earlier bundle is kept but no longer gates either. Every record is admitted on read under what its conclusion required: its proof signed by the issuer it names, the independence its plan requires, and a verdict answering exactly what was asked (review round 1)
 - Falsifier: an adjudication record that verifies while stating a verdict the run's draft did not give
 
 ### Decision D2
@@ -89,7 +91,7 @@ Review conclusions (delivered by `pose-delegated-review-conclusions`); turning t
 - Minimal option: a record of its own that the surface check gains a reader for
 - Selected option: validation results in the format `pose validate` writes, of the new evidence class `smoke`, one required check per delivery target the smoke run exercised, passing when it was observed, in the `results/smoke` directory of `.pose` beside the results path, which `surface-check` reads after verifying each document against its run; a delivery profile may then demand `smoke`. The maintainer chose this on 2026-10-27
 - Rationale: the surface check already decides delivery from validation results by class, module and provenance; a smoke observation is one more result, not a new kind of evidence
-- Consequences: `smoke` joins the closed vocabulary of evidence classes; no profile demands it until an instance adds it
+- Consequences: `smoke` joins the closed vocabulary of evidence classes; no profile demands it until an instance adds it. A smoke result names the target and the spec it observed and is evidence of that target only; its head, time and provenance come from the run, its bundle and the current index, never from the document's bytes, so it is current only while the run's bundle governs its scope (review round 1)
 - Falsifier: a smoke result the surface check counts that no verified smoke run observed
 
 ### Decision D3

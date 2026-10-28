@@ -84,6 +84,21 @@ type DeliveryValidationResult struct {
 	ProvenanceDigest string            `json:"provenance_digest,omitempty"`
 	Report           string            `json:"report,omitempty"`
 	ScopeProvenance  map[string]string `json:"scope_provenance,omitempty"`
+	// Target and TargetSpec name the one delivery target a result observed —
+	// a delegated smoke run's — which it is evidence of and of no other
+	// (spec pose-delegated-verdict-destinations R2; review round 1, B03).
+	Target     string `json:"target,omitempty"`
+	TargetSpec string `json:"target_spec,omitempty"`
+}
+
+// resultCoversTarget reports whether result may be evidence of target: a
+// result that names a target covers that target of that spec only, and a
+// smoke result always names one.
+func resultCoversTarget(result DeliveryValidationResult, target DeliveryTarget) bool {
+	if result.Target != "" || result.EvidenceClass == "smoke" {
+		return result.Target == target.Ref && result.TargetSpec == target.Spec
+	}
+	return true
 }
 
 type RoadmapCriterion struct {
@@ -452,7 +467,7 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 			passedExactly := false
 			staleCandidate := ""
 			for _, result := range graph.ValidationResults {
-				if result.EvidenceClass != class || !moduleMatchesTarget(result.Module, target.Module) {
+				if result.EvidenceClass != class || !moduleMatchesTarget(result.Module, target.Module) || !resultCoversTarget(result, target) {
 					continue
 				}
 				if result.Outcome == "pass" && result.Severity == "required" && deliveryEvidenceCurrent(result, target.Spec, specStatus[target.Spec], graph, setsBySpec[target.Spec]) {
@@ -488,7 +503,7 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 			any := false
 			for _, class := range profile.AnyEvidenceClasses {
 				for _, result := range graph.ValidationResults {
-					if result.EvidenceClass != class || !moduleMatchesTarget(result.Module, target.Module) {
+					if result.EvidenceClass != class || !moduleMatchesTarget(result.Module, target.Module) || !resultCoversTarget(result, target) {
 						continue
 					}
 					if result.Outcome == "pass" && result.Severity == "required" && deliveryEvidenceCurrent(result, target.Spec, specStatus[target.Spec], graph, setsBySpec[target.Spec]) {
