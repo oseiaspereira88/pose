@@ -162,8 +162,8 @@ func TestToolsList(t *testing.T) {
 	ts := newTestServer(t, "")
 	_, out := post(t, ts, `{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}`)
 	tools, _ := out.Result["tools"].([]any)
-	if len(tools) != 66 {
-		t.Fatalf("tools = %d, want 66", len(tools))
+	if len(tools) != 67 {
+		t.Fatalf("tools = %d, want 67", len(tools))
 	}
 	names := map[string]bool{}
 	for _, raw := range tools {

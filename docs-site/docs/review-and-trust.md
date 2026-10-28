@@ -65,6 +65,64 @@ and the [CLI reference](cli.md#component-aware-and-convergent-review). Finish
 with `pose review verify`, `pose review-check` and `pose closeout-check` for
 the scope. Changed semantic inputs require a fresh bundle and current evidence.
 
+## Request a delegated review any runner can fulfil
+
+A project can ask for a delegated review, adjudication or smoke run as an
+action request, and let whichever runner it uses — a developer's machine, a
+CI job or Harne8's Conductor — fulfil it through the same contract:
+
+```bash
+pose review request spec:<slug> --kind delegated-review [--purpose review|adjudicate|smoke] [--agents <name,...>] --apply
+# Locally: run the request's brief with an accepted agent; with
+# delegated_review and conclusions.issuer set, the engine concludes the run
+# and the request is fulfilled.
+pose delegate review spec:<slug> --request <act-id>
+# From any runner: submit the completed, concluded run.
+pose action fulfil <act-id> --run <run-id> --runner agent:<runner> --idempotency-key <key> --expected-revision <n> --channel ci --apply
+```
+
+The request binds the project, the worktree it was asked from, the scope,
+the sealed bundle, the brief, the notes, the policies, the agents it accepts
+and the destination of the conclusion — an attestation for a review, an
+adjudication record of the spec for an adjudication, smoke evidence for a
+smoke run. No actor answers it. A run fulfils it only when the engine reads,
+of that run: the request's brief and bundle, an accepted agent, a completed
+run whose containment completed, a signed proof that verifies, an intact
+attempt ledger, and the conclusion the engine recorded at the request's
+destination. A rejecting run fulfils the request — the review was performed —
+and nothing is approved: approval stays the attestation's. A superseded
+bundle or a policy change invalidates the request; it is asked again.
+
+The proof of a run verifies in any checkout of the project: the worktree it
+ran in is recorded, not required of the reader. A CI job therefore runs the
+review in its own checkout and commits what it wrote under `.pose/`:
+
+```yaml
+# .github/workflows/delegated-review.yml (example)
+on: workflow_dispatch
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pose delegate review spec:${{ inputs.slug }} --request ${{ inputs.request }} --agent ${{ inputs.agent }}
+      - run: pose action fulfil ${{ inputs.request }} --run "$(pose delegate ls --json | jq -r '.attempts[0].run')" --runner agent:ci --idempotency-key "ci-${{ github.run_id }}" --expected-revision 1 --channel ci --apply
+      - run: git add .pose && git commit -m "delegated review" && git push
+```
+
+Harne8's Conductor submits the same envelope — `pose action fulfil
+--envelope <file>` or the MCP tool `pose_action_fulfil` — with the fields
+`request_id`, `request_digest`, `expected_revision`, `idempotency_key`,
+`run_id`, `runner` (an `agent:` principal: a fulfilment records no person)
+and `channel` (`conductor`). The runner chooses neither the authority nor the
+destination; a retry with the same key and run is a no-op.
+
+A person is asked only by exception, each time as a decision request to the
+maintainer role with the question, its options and their consequences: a
+scope whose plan reserves its review for a person, an attempt budget spent
+without the review, delegated reviewers that disagree on one bundle, and a
+business decision a reviewer raised in its draft (`business_decision`).
+
 ## Sign reviews without a hosted service
 
 A native Ed25519 issuer stores its private key outside the repository. Inspect

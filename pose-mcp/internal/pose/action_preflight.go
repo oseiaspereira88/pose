@@ -115,6 +115,9 @@ func nextActionStep(v ActionRequestView) *ActionNextStep {
 	case v.State == ActionStateAnswered && v.Satisfaction == SatisfactionPending:
 		step.Kind, step.Operation, step.Reason = "remediate-or-waive", "supersede", "remediate or materially replace the declined condition, or obtain an authorized waiver; do not repeat it to seek approval"
 		step.Required = []string{"material-remediation-or-waiver-reason", "authorized-recipient-or-role"}
+	case v.State == ActionStateOpen && v.Request.Kind == ActionDelegatedReview:
+		step.Kind, step.Operation, step.Reason = "fulfil", ActionEventFulfilled, "run the requested brief with an accepted agent, have the engine record its conclusion, and submit the run with pose action fulfil"
+		step.Required = []string{"completed-run-of-the-brief", "recorded-conclusion", "request-digest-and-revision", "agent-runner"}
 	case v.State == ActionStateOpen:
 		step.Kind, step.Operation, step.Reason = "answer", "answered", "obtain an admitted answer from the authorized recipient for this request digest and revision"
 		step.Required = []string{"authorized-actor", "admitted-answer", "request-digest-and-revision", "proof-if-required"}

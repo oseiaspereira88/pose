@@ -13,7 +13,11 @@ import (
 	pose "github.com/harne8/pose-mcp/internal/pose"
 )
 
-func TestRunProvenanceMCPReadsCurrentMachineProof(t *testing.T) {
+// mcpRunFixture is an instance with spec:alpha sealed by a declared
+// implementation, an issuer the review policy trusts, and a completed review
+// run whose reviewer returned the conclusion writeRunConclusion writes.
+func mcpRunFixture(t *testing.T) (string, pose.Store, pose.IssuerKey, pose.ReviewBundle, pose.ReviewRun) {
+	t.Helper()
 	t.Setenv("POSE_ISSUER_HOME", filepath.Join(t.TempDir(), "issuers"))
 	t.Setenv("POSE_DEFAULT_PROJECT_ID", "proj.fixture")
 	key, e := pose.CreateIssuerKey("", "fixture-executor", time.Now())
@@ -75,6 +79,12 @@ func TestRunProvenanceMCPReadsCurrentMachineProof(t *testing.T) {
 	if e != nil || run.Status != pose.ReviewRunCompleted {
 		t.Fatal(run.Failure, e)
 	}
+	return root, s, key, bundle, run
+}
+
+func TestRunProvenanceMCPReadsCurrentMachineProof(t *testing.T) {
+	root, s, key, bundle, run := mcpRunFixture(t)
+	var e error
 	proof, e := s.SignReviewRunProof(run.RunID, key, time.Hour, time.Now(), true)
 	if e != nil {
 		t.Fatal(e)

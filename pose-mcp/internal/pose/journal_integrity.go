@@ -30,7 +30,7 @@ const (
 // read and then ignored by the view, so it is corrupt.
 var actionEventTypes = map[string]bool{
 	ActionEventOpened: true, ActionEventAnswered: true, ActionEventRefused: true, ActionEventCancelled: true,
-	ActionEventWaived: true, ActionEventSuperseded: true, ActionEventInvalidated: true,
+	ActionEventWaived: true, ActionEventSuperseded: true, ActionEventInvalidated: true, ActionEventFulfilled: true,
 }
 
 // maxActionJournalLine bounds one event; a longer line is corrupt.

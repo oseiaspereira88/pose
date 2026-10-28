@@ -51,6 +51,7 @@ var catalogGovernance = map[string]toolGovernance{
 	"pose_obligations":        {Risk: RiskRead},
 	"pose_action_open":        {Risk: RiskGovernanceWrite},
 	"pose_action_resolve":     {Risk: RiskGovernanceWrite},
+	"pose_action_fulfil":      {Risk: RiskGovernanceWrite},
 	"pose_review_attest":      {Risk: RiskGovernanceWrite},
 	// Delegated runs (spec pose-delegation-mcp): starting one runs an agent.
 	"pose_delegate_start":               {Risk: RiskExternal},

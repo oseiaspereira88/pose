@@ -60,6 +60,7 @@ func tr(english, portuguese string) string { return cliText(cliLocaleValue(), en
 
 type delegateFlags struct {
 	agent, access, label, lead, reason, noteFile string
+	request                                      string
 	to, cd, effort, promptFile                   string
 	addDirs                                      []string
 	noNetwork, record                            bool
@@ -153,6 +154,8 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 				}
 			case "--reason":
 				f.reason = value
+			case "--request":
+				f.request = value
 			case "--lines":
 				n, err := strconv.Atoi(value)
 				if err != nil || n < 1 || n > 1000 {
@@ -405,7 +408,7 @@ func waitForRoute(ctx context.Context, stderr io.Writer, record *posemodel.Deleg
 }
 
 func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.Writer) int {
-	f, problem := parseDelegateFlags(args, "--reason", "--note-file", "--detach")
+	f, problem := parseDelegateFlags(args, "--reason", "--note-file", "--detach", "--request")
 	if problem != "" {
 		return delegateUsage(stdout, stderr, args, purpose, problem)
 	}
@@ -438,6 +441,17 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
 		}
 		ref = resolved
+	}
+	// A run asked for by a delegated-review request runs the request's brief
+	// with an agent it accepts, and fulfils it (spec
+	// pose-delegated-review-action-fulfillment R3).
+	var request *posemodel.ActionRequestView
+	if f.request != "" {
+		view, err := delegateRequestFor(store, &f, purpose, ref, notes)
+		if err != nil {
+			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
+		}
+		request = &view
 	}
 	kind := posemodel.DelegationKindForPurpose(purpose)
 	agent, route, routedBundle, code, err := routeDelegateAgent(store, kind, ref, notes, f, time.Now())
@@ -482,7 +496,12 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 		return delegateNoAgent(stdout, stderr, f.jsonOut, purpose)
 	}
 	if err != nil {
+		delegateEscalateRefusal(store, request, err, f.dryRun, stdout, stderr)
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
+	}
+	if request != nil && plan.Brief.Digest != request.Request.Review.BriefDigest {
+		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the brief changed since request "+request.Request.ID+" was asked; ask it again",
+			"o brief mudou desde que o request "+request.Request.ID+" foi pedido; peça de novo")))
 	}
 	if plan.Bundle.BundleID != routedBundle {
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the bundle of the scope changed while the run was being routed; run pose delegate again",
@@ -516,6 +535,9 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	handBackExisting(run, err)
 	delegateAutoConclude(store, run, err, stdout, stderr)
+	if request != nil {
+		delegateFulfilRequest(store, *request, run, err, stdout, stderr)
+	}
 	delegateTerminalHook(store, run, err, stdout, stderr, purpose)
 	code = delegatePrintRun(stdout, stderr, f.jsonOut, purpose, run, err, delegateRunNextActions(store, run, err)...)
 	if err == nil && !f.jsonOut && !delegateSupervised() {

@@ -15,3 +15,23 @@ Recognize an opt-in `delegated_review` review-policy gate for agent different-ac
 
 ## Consequences
 Machine-attested identifies an authorized executor's signed declaration, not an independent vendor receipt, a human confirmation or cognitive independence. Private sessions and issuer keys never enter the proof; commands bind their policy template rather than interpolated session/output paths. Raw hashes record what the executor observed while retained redacted artifacts remain directly verifiable; truncated output cannot establish a completed review. Signature validity cannot erase rejection history, quota or supersession. Rejected alternatives: trusting configured strings without proof, signing today's configuration for old runs, a parallel issuer chain and automatic draft-to-attestation conversion.
+
+## Amendment (2026-10-28): a proof verifies in any checkout of the project
+
+The proof bound the origin worktree identity — the absolute path and the git
+directory the run was dispatched from — and verification required the reader
+to be in that worktree. A run therefore verified only where it ran: a run a
+CI job or Harne8's Conductor performed in its own checkout, and every
+run-backed attestation read in another clone, failed with "origin worktree
+identity differs". That made the runner parity of
+[`pose-delegated-review-action-fulfillment`](../specs/2026-10-09-pose-delegated-review-action-fulfillment.md)
+(R3, R9) impossible.
+
+The maintainer chose on 2026-10-28 to make the proof portable. The origin
+worktree stays recorded in the captured provenance and signed with it, as
+where the run happened; verification requires it to be recorded, not to be
+the reader's. What a proof is bound to otherwise is unchanged and portable:
+the project and audience review policy protects, the sealed scope, kind,
+bundle and commit, the adapter, the brief, the output and the transcript.
+A proof of one project's run cannot verify in another project, and a proof
+of one bundle cannot approve another.

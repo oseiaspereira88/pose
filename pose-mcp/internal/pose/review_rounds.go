@@ -104,6 +104,16 @@ type ReviewDraft struct {
 	// pose-delegated-verdict-destinations R1, R2).
 	Questions []ReviewDraftQuestion `json:"questions,omitempty"`
 	Surfaces  []ReviewDraftSurface  `json:"surfaces,omitempty"`
+	// BusinessDecision is a question the reviewer cannot answer from the
+	// code, for a person to decide (spec
+	// pose-delegated-review-action-fulfillment R7).
+	BusinessDecision *ReviewDraftBusinessDecision `json:"business_decision,omitempty"`
+}
+
+// ReviewDraftBusinessDecision is a business question and its options.
+type ReviewDraftBusinessDecision struct {
+	Question string         `json:"question"`
+	Options  []ActionOption `json:"options"`
 }
 
 // ReviewDraftQuestion is an adjudication's verdict on one question the
@@ -280,6 +290,18 @@ func validateReviewDraft(d ReviewDraft) error {
 	}
 	if len(d.Criteria) > reviewDraftMaxFindings || len(d.Tools) > reviewDraftMaxFindings || len(d.Questions) > reviewDraftMaxFindings || len(d.Surfaces) > reviewDraftMaxFindings {
 		return fmt.Errorf("the draft exceeds its bounds")
+	}
+	if b := d.BusinessDecision; b != nil {
+		if strings.TrimSpace(b.Question) == "" || len(b.Question) > reviewDraftMaxText || len(b.Options) < 2 || len(b.Options) > 8 {
+			return fmt.Errorf("a business decision needs a bounded question and two to eight options")
+		}
+		seen := map[string]bool{}
+		for _, o := range b.Options {
+			if ValidateSlug(o.ID) != nil || seen[o.ID] || strings.TrimSpace(o.Consequence) == "" || len(o.Consequence) > reviewDraftMaxText {
+				return fmt.Errorf("business decision option %q needs a unique slug and its consequence", o.ID)
+			}
+			seen[o.ID] = true
+		}
 	}
 	asked := map[string]bool{}
 	for _, q := range d.Questions {

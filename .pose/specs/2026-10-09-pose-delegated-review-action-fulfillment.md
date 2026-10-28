@@ -1,6 +1,6 @@
 ---
 slug: pose-delegated-review-action-fulfillment
-status: draft
+status: in-progress
 created_at: 2026-10-09
 completed_at:
 supersedes:
@@ -9,7 +9,7 @@ priority: 3
 components: pose-mcp
 task_type: feature
 changelog:
-delivers:
+delivers: capability:delegated-review-action-fulfillment
 ---
 
 # Spec: A delegated review requested as an action and fulfilled by any runner
@@ -57,19 +57,85 @@ Action kind and satisfaction rule, the fulfilment command, and a CI example.
 
 ### Artifacts
 
+- modified: .pose/adr/2026-10-25-bind-delegated-review-authority-to-native-signed-run-proofs.md
+- created: .pose/changelogs/unreleased/pose-delegated-review-action-fulfillment.md
 - created: .pose/specs/2026-10-09-pose-delegated-review-action-fulfillment.md
+- created: .pose/starts/pose-delegated-review-action-fulfillment.json
+- modified: POSE.md
+- modified: docs-site/docs/mcp.md
+- modified: docs-site/docs/review-and-trust.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/cli/action.go
+- modified: pose-mcp/internal/cli/delegate.go
+- created: pose-mcp/internal/cli/delegated_review_request_test.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- created: pose-mcp/internal/cli/review_request.go
+- created: pose-mcp/internal/mcpserver/action_fulfil_test.go
+- modified: pose-mcp/internal/mcpserver/catalog.go
+- modified: pose-mcp/internal/mcpserver/review_run_provenance_test.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/server_test.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- modified: pose-mcp/internal/pose/action_preflight.go
+- modified: pose-mcp/internal/pose/action_request.go
+- created: pose-mcp/internal/pose/delegated_review_escalation.go
+- created: pose-mcp/internal/pose/delegated_review_request.go
+- created: pose-mcp/internal/pose/delegated_review_request_test.go
+- modified: pose-mcp/internal/pose/journal_integrity.go
+- modified: pose-mcp/internal/pose/review_rounds.go
+- modified: pose-mcp/internal/pose/review_run_provenance.go
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
-Implementation artifacts are declared when the spec starts.
+### Delivery targets
+
+- capability:delegated-review-action-fulfillment module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/review_request.go
 
 ## 4. Tasks
 
-- [ ] Action kind
-- [ ] Fulfilment by run record
-- [ ] CI example and Conductor documentation
+- [x] Action kind
+- [x] Fulfilment by run record
+- [x] CI example and Conductor documentation
+- [x] Escalations to a person
+- [x] Portable run proofs
+- [ ] Independent review and closeout
 
 ## 5. Decisions
 
 The contract is ADR `2026-10-09-delegated-review-is-an-adapter`, accepted on 2026-10-09, amended by the [delegation ADR](../adr/2026-10-26-delegation-is-a-first-class-execution-surface.md) of 2026-10-26 (command names) and its amendment of 2026-10-27 (phase B19 as a spec). R4–R11 reconcile F1–F8 of batch 11 before the start, as the roadmap gate requires.
+
+### Decision D1
+- Basis: R1, R4
+- Minimal option: reuse the external-operation kind with review metadata
+- Selected option: a new action kind `delegated-review`, opened by `pose review request <scope|bundle> --kind delegated-review`, carrying its material — purpose, scope, bundle and digest, brief digest and template, notes digest, policy digest, worktree, accepted agents and the destination of the conclusion — in the request digest; its subject is the scope's current bundle and the policies, read by the engine, so a superseded bundle or a policy change invalidates it. It admits no answer. The maintainer chose this on 2026-10-28
+- Rationale: the generic satisfaction rule, an actor's answer, is exactly what must not satisfy it
+- Consequences: other kinds and their digests are unchanged; the request's next step is to fulfil, not to answer
+- Falsifier: a delegated-review request satisfied by an actor's answer
+
+### Decision D2
+- Basis: R2, R3, R5, R8, R9, R10
+- Minimal option: only `pose delegate review --request` in the repository fulfils it
+- Selected option: a verified envelope — request, request digest, expected revision, idempotency key, run, an `agent:` runner and a channel (cli, mcp, ci, conductor) — submitted by `pose action fulfil` (flags or `--envelope`) or the MCP tool `pose_action_fulfil`, and by `pose delegate review --request` locally. The engine reads everything else from the run — its kind, bundle, brief, agent, completion and containment, its signed proof, the attempt ledger, and the conclusion it recorded at the request's destination — and records a `fulfilled` event; it verifies it again inside the request's lock, and again on read while the request's subject is current. A rejecting run fulfils without approving. The maintainer chose this on 2026-10-28
+- Rationale: one verifier for every runner keeps the local, CI and Harne8 paths equal; nothing the runner states decides the outcome
+- Consequences: a fulfilment that no longer verifies satisfies nothing but never makes a journal unreadable; once the subject moves on it stands as recorded
+- Falsifier: a fulfilment recorded or counted for a run the engine cannot verify against the request
+
+### Decision D3
+- Basis: R3, R9
+- Minimal option: keep run proofs bound to the reader's worktree and let only the runner's checkout verify
+- Selected option: a run proof verifies in any checkout of the project: the origin worktree is recorded in the signed provenance, not required of the reader (the amendment of 2026-10-28 to ADR `2026-10-25-bind-delegated-review-authority-to-native-signed-run-proofs`). The maintainer chose this on 2026-10-28
+- Rationale: a run a CI job or the Conductor performs in its own checkout could not fulfil a request, and a run-backed attestation failed in every other clone
+- Consequences: what a proof binds otherwise — project, audience, sealed scope, kind, bundle and commit, adapter, brief, output and transcript — is unchanged and portable
+- Falsifier: a run proof of one project or bundle that verifies for another
+
+### Decision D4
+- Basis: R7
+- Minimal option: move R7 to `pose-delegated-review-capability`
+- Selected option: the minimum here — a run never satisfies a review the plan reserves for a person (`mandatory-human`), and each exception opens one decision request to the maintainer role with the question, options and their consequences, context and the request's targets and effects: a plan reserving the review for a person (asked when the request is opened), a spent attempt budget (asked when `pose delegate --request` is refused for it), delegated reviewers in conflict on the bundle and a `business_decision` the reviewer raised in its draft (asked when the request is fulfilled). Opening one again returns the one open. The capability's question format refines this later without breaking it. The maintainer chose this on 2026-10-28
+- Rationale: a person by exception, through policy, with the question ready, is the ADR's contract
+- Consequences: the draft gains an optional `business_decision`; escalations are ordinary decision requests
+- Falsifier: an agent's run satisfying a review reserved for a person, or an exception that reaches nobody
 
 ## 6. Validation
 

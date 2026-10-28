@@ -434,9 +434,14 @@ func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time
 	if e != nil || recordErr != nil || recorded != reviewer || reviewer != p.Reviewer {
 		return fail("reviewer identity differs or is unknown")
 	}
-	origin, e := dispatchWorktreeIdentity(s.Root)
-	if e != nil || p.WorktreeDigest != digestBytes([]byte(origin)) {
-		return fail("origin worktree identity differs")
+	// The worktree a run was dispatched from is recorded, not required of
+	// the reader: a run a CI job or Harne8's Conductor performed in its own
+	// checkout of the project verifies in any other, since the project, the
+	// audience, the sealed bundle and the brief it binds are the same there
+	// (spec pose-delegated-review-action-fulfillment R3, R9; the amendment
+	// of 2026-10-28 to the delegation ADR).
+	if !validProofDigest(p.WorktreeDigest) {
+		return fail("the origin worktree of the run is not recorded")
 	}
 	brief, e := s.RenderReviewBriefMatching(run.BundleID, run.Kind, run.BriefNotes, run.BriefDigest)
 	// A handoff run was sent the brief and the section its predecessor's

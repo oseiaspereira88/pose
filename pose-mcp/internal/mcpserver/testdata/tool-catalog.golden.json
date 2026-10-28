@@ -16,6 +16,9 @@
       "optional": true,
       "activation": "Conductor reporter configured (CONDUCTOR_URL, CONDUCTOR_RUN_TOKEN, CONDUCTOR_PROJECT_ID)"
     },
+    "pose_action_fulfil": {
+      "risk": "governance-write"
+    },
     "pose_action_open": {
       "risk": "governance-write"
     },
@@ -603,6 +606,54 @@
         "type": "object"
       },
       "name": "pose_action_resolve"
+    },
+    {
+      "description": "Fulfil a delegated-review action request with a completed run: the same envelope `pose action fulfil`, a CI job and Harne8's Conductor submit. The engine verifies the run — of the request's brief and bundle, of an accepted agent, its signed proof, its attempt ledger, its containment, and the conclusion the engine recorded at the destination the request names — and records nothing it cannot verify. A rejecting run fulfils the request without approving anything. A retry with the same idempotency key and run is a no-op. Without apply it previews the engine's reading of the run.",
+      "inputSchema": {
+        "properties": {
+          "apply": {
+            "description": "Record the fulfilment; without it the call is a preview",
+            "type": "boolean"
+          },
+          "expected_revision": {
+            "description": "The journal revision the fulfilment is written against",
+            "type": "integer"
+          },
+          "id": {
+            "description": "act-\u003c16 hex\u003e id of a delegated-review request",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "description": "Key that makes a retry a no-op",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "request_digest": {
+            "description": "The request digest the run was performed for",
+            "type": "string"
+          },
+          "run": {
+            "description": "The completed run (rrn-\u003c16 hex\u003e) whose conclusion the engine recorded",
+            "type": "string"
+          },
+          "runner": {
+            "description": "The runner's agent: principal; a fulfilment records no person",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "run",
+          "runner",
+          "request_digest",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "name": "pose_action_fulfil"
     },
     {
       "description": "Read-only auto-attest preparation of a sealed review bundle (the MCP form of `pose review auto-attest` without --apply): a draft attestation answering every criterion automation may answer from sealed evidence, and the judgment criteria still pending. It writes nothing; a person or reviewer completes the draft and records it with pose_review_attest inside a trusted issuer's envelope.",

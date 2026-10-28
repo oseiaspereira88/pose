@@ -39,6 +39,10 @@ type ActionRequest struct {
 	Supersedes    string             `json:"supersedes,omitempty"`
 	RequestedAt   string             `json:"requested_at"`
 	RequestDigest string             `json:"request_digest"`
+	// Review is the material of a delegated-review request (spec
+	// pose-delegated-review-action-fulfillment R4); absent on every other
+	// kind, so their digests are unchanged.
+	Review *ActionReviewRequest `json:"review,omitempty"`
 }
 
 // ActionPrincipal is who asked, and from which execution.
@@ -83,7 +87,7 @@ const (
 
 const ActionRequestSchemaVersion = 1
 
-var actionKinds = enumSet(ActionDecision, ActionApproval, ActionInput, ActionExternalOperation, ActionAcceptance)
+var actionKinds = enumSet(ActionDecision, ActionApproval, ActionInput, ActionExternalOperation, ActionAcceptance, ActionDelegatedReview)
 
 // fixedActionOptions are the answers kinds with a closed vocabulary admit;
 // the first one is the satisfying answer.
@@ -100,17 +104,18 @@ const actionDir = ".pose/actions"
 // share it; any material change produces a new one.
 func ActionRequestDigest(r ActionRequest) string {
 	material := struct {
-		Project   string             `json:"project_id"`
-		Origin    string             `json:"origin"`
-		Recipient ObligationActor    `json:"recipient"`
-		Kind      string             `json:"kind"`
-		Question  string             `json:"question"`
-		Context   string             `json:"context,omitempty"`
-		Options   []ActionOption     `json:"options"`
-		Targets   []NodeRef          `json:"targets"`
-		Effects   []ObligationEffect `json:"effects"`
-		Subject   *ActionSubject     `json:"subject,omitempty"`
-	}{r.Project, r.Origin, r.Recipient, r.Kind, strings.TrimSpace(r.Question), strings.TrimSpace(r.Context), r.Options, r.Targets, r.Effects, r.Subject}
+		Project   string               `json:"project_id"`
+		Origin    string               `json:"origin"`
+		Recipient ObligationActor      `json:"recipient"`
+		Kind      string               `json:"kind"`
+		Question  string               `json:"question"`
+		Context   string               `json:"context,omitempty"`
+		Options   []ActionOption       `json:"options"`
+		Targets   []NodeRef            `json:"targets"`
+		Effects   []ObligationEffect   `json:"effects"`
+		Subject   *ActionSubject       `json:"subject,omitempty"`
+		Review    *ActionReviewRequest `json:"review,omitempty"`
+	}{r.Project, r.Origin, r.Recipient, r.Kind, strings.TrimSpace(r.Question), strings.TrimSpace(r.Context), r.Options, r.Targets, r.Effects, r.Subject, r.Review}
 	digest, _ := digestJSON(material)
 	return digest
 }
@@ -130,6 +135,11 @@ func (s Store) PrepareActionRequest(r ActionRequest, now time.Time) (ActionReque
 	if r.Subject != nil {
 		subject := *r.Subject
 		r.Subject = &subject
+	}
+	if r.Review != nil {
+		review := *r.Review
+		review.Agents = slices.Clone(r.Review.Agents)
+		r.Review = &review
 	}
 
 	fail := func(format string, a ...any) (ActionRequest, error) {
@@ -159,7 +169,10 @@ func (s Store) PrepareActionRequest(r ActionRequest, now time.Time) (ActionReque
 	}
 	r.Origin = origin.String()
 	if !actionKinds[r.Kind] {
-		return fail("unknown kind %q (decision, approval, input, external-operation, acceptance)", r.Kind)
+		return fail("unknown kind %q (decision, approval, input, external-operation, acceptance, delegated-review)", r.Kind)
+	}
+	if r.Review != nil && r.Kind != ActionDelegatedReview {
+		return fail("only a delegated-review request carries review material")
 	}
 	if strings.TrimSpace(r.Question) == "" {
 		return fail("a question is required: the person must see what they decide")
@@ -243,7 +256,13 @@ func (s Store) PrepareActionRequest(r ActionRequest, now time.Time) (ActionReque
 			return fail("material approval or acceptance requires a subject under adopted agency readiness")
 		}
 	}
-	if r.Subject != nil {
+	if r.Kind == ActionDelegatedReview {
+		// The subject of a delegated review is its scope's current bundle and
+		// the policies, which the engine reads; it is never the caller's.
+		if err := s.prepareDelegatedReviewRequest(&r); err != nil {
+			return fail("%v", err)
+		}
+	} else if r.Subject != nil {
 		subject, err := s.resolveActionSubject(origin, *r.Subject)
 		if err != nil {
 			return fail("subject: %v", err)
@@ -384,6 +403,9 @@ func (s Store) currentSubjectDigest(r ActionRequest) string {
 	if r.Subject == nil {
 		return ""
 	}
+	if r.Kind == ActionDelegatedReview && r.Review != nil {
+		return delegatedReviewSubjectReader(s, *r.Review)
+	}
 	origin, err := ParseArtifactRef(r.Origin)
 	if err != nil {
 		return ""
@@ -457,6 +479,9 @@ type ActionEvent struct {
 	SSHSignature     *ActionSSHSignature   `json:"ssh_signature,omitempty"`
 	IdempotencyKey   string                `json:"idempotency_key,omitempty"`
 	SupersededBy     string                `json:"superseded_by,omitempty"`
+	// Fulfillment is the engine's reading of a run that fulfilled a
+	// delegated-review request (spec pose-delegated-review-action-fulfillment).
+	Fulfillment *ActionFulfillment `json:"fulfillment,omitempty"`
 }
 
 // Event types.
@@ -604,6 +629,12 @@ func (s Store) verifyActionAnswers(events []ActionEvent) error {
 	}
 	r := *events[0].Request
 	for _, event := range events[1:] {
+		if event.Type == ActionEventFulfilled {
+			// A fulfilment is judged when the view is derived: one that no
+			// longer verifies satisfies nothing, but never makes the journal
+			// unreadable.
+			continue
+		}
 		if event.Type != ActionEventAnswered {
 			if err := s.verifyLifecycleEvent(r, event); err != nil {
 				return err
@@ -665,6 +696,28 @@ func (s Store) deriveActionView(events []ActionEvent) ActionRequestView {
 			view.Satisfaction = SatisfactionPending
 			if actionAnswerSatisfies(request, event.Answer) {
 				view.Satisfaction = SatisfactionSatisfied
+			}
+		case ActionEventFulfilled:
+			// The requested run was performed and verified: the request is
+			// satisfied whatever the run concluded, and a rejection stays
+			// visible as the answer (R6). While the request's subject is
+			// current the fulfilment is verified again; once the bundle or the
+			// policies moved on it stands as recorded.
+			if request.Review != nil && request.Subject != nil && delegatedReviewSubjectReader(s, *request.Review) == request.Subject.Digest {
+				if err := fulfillmentEventVerifier(s, request, event); err != nil {
+					view.Limitations = append(view.Limitations, "a recorded fulfilment does not verify, so it satisfies nothing: "+err.Error())
+					continue
+				}
+			} else {
+				view.Limitations = append(view.Limitations, "the fulfilment was verified against bundle "+request.Review.BundleID+" when it was recorded; the scope or the policies have changed since")
+			}
+			view.State, view.Satisfaction, view.Assurance = ActionStateFulfilled, SatisfactionSatisfied, ReviewIdentityAssuranceVerified
+			view.AnsweredBy = event.Actor
+			if event.Fulfillment != nil {
+				view.Answer = event.Fulfillment.Decision
+				if event.Fulfillment.Decision != "approved" {
+					view.Limitations = append(view.Limitations, "the delegated run concluded "+event.Fulfillment.Decision+": the review was performed, nothing is approved")
+				}
 			}
 		case ActionEventCancelled:
 			view.Assurance = lifecycleAssurance(event)
@@ -870,6 +923,16 @@ func (s Store) appendActionEventLocked(file *os.File, events []ActionEvent, id s
 	}
 	if expected >= 0 && !actionResolutionStateAdmitted(current, event.Type) && event.Type != ActionEventInvalidated && event.Type != ActionEventSuperseded {
 		return ActionRequestView{}, fmt.Errorf("%w: request %s is %s; supersede it with a new request instead", ErrActionNotOpen, id, current.State)
+	}
+	// A fulfilment is verified again inside the lock: the run must verify at
+	// the write, not only when it was prepared.
+	if event.Type == ActionEventFulfilled {
+		if current.Request.Kind != ActionDelegatedReview || event.Fulfillment == nil {
+			return ActionRequestView{}, ErrActionFulfillmentInvalid
+		}
+		if _, err := s.verifyFulfillment(current.Request, event.Fulfillment.RunID, event.Fulfillment.Runner, event.Fulfillment.Channel); err != nil {
+			return ActionRequestView{}, err
+		}
 	}
 	if event.Type == ActionEventAnswered || event.LifecycleVersion != 0 && event.Type != ActionEventSuperseded {
 		res := resolutionFromEvent(event, expected)

@@ -1321,6 +1321,39 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_action_resolve: %w: an answer over MCP needs the principal's proof — a signature by a key registered to %s over the statement the preview returns, or a trusted issuer's claim; a principal name written by an agent is not one", pose.ErrActionVerificationFailed, a.Actor)
 		}
 		return store.ResolveActionRequest(res, time.Now())
+	case "pose_action_fulfil":
+		// The MCP channel of a delegated-review fulfilment (spec
+		// pose-delegated-review-action-fulfillment R9): the same envelope the
+		// CLI, a CI job and the Conductor submit, verified by the same engine;
+		// the channel is this one, and the engine reads everything else from
+		// the run.
+		var a struct {
+			ID               string `json:"id"`
+			Run              string `json:"run"`
+			Runner           string `json:"runner"`
+			RequestDigest    string `json:"request_digest"`
+			ExpectedRevision int    `json:"expected_revision"`
+			IdempotencyKey   string `json:"idempotency_key"`
+			Apply            bool   `json:"apply"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_action_fulfil: invalid arguments")
+		}
+		for name, value := range map[string]string{"id": a.ID, "run": a.Run, "runner": a.Runner, "request_digest": a.RequestDigest, "idempotency_key": a.IdempotencyKey} {
+			if strings.TrimSpace(value) == "" {
+				return nil, fmt.Errorf("pose_action_fulfil: required argument %q missing", name)
+			}
+		}
+		env := pose.ActionFulfillmentEnvelope{RequestID: a.ID, RequestDigest: a.RequestDigest, ExpectedRevision: a.ExpectedRevision, IdempotencyKey: a.IdempotencyKey,
+			RunID: a.Run, Runner: a.Runner, Channel: "mcp"}
+		if !a.Apply {
+			_, event, err := store.PreflightFulfillment(env, time.Now())
+			if err != nil {
+				return nil, err
+			}
+			return map[string]any{"preview": true, "fulfillment": event.Fulfillment, "apply": "false (call again with apply: true to record it)"}, nil
+		}
+		return store.FulfilActionRequest(env, time.Now())
 	case "pose_review_prepare":
 		// Read-only auto-attest preparation over MCP (spec
 		// pose-mcp-review-attest-signed-only R6): the criteria automation can
@@ -2586,6 +2619,27 @@ func baseToolDefinitions() []map[string]any {
 					"project_id":        map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
 				},
 				"required": []string{"id", "actor", "idempotency_key"},
+			},
+		},
+		{
+			"name": "pose_action_fulfil",
+			"description": "Fulfil a delegated-review action request with a completed run: the same envelope `pose action fulfil`, a CI job and Harne8's Conductor submit. " +
+				"The engine verifies the run — of the request's brief and bundle, of an accepted agent, its signed proof, its attempt ledger, its containment, and the conclusion " +
+				"the engine recorded at the destination the request names — and records nothing it cannot verify. A rejecting run fulfils the request without approving " +
+				"anything. A retry with the same idempotency key and run is a no-op. Without apply it previews the engine's reading of the run.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"id":                map[string]any{"type": "string", "description": "act-<16 hex> id of a delegated-review request"},
+					"run":               map[string]any{"type": "string", "description": "The completed run (rrn-<16 hex>) whose conclusion the engine recorded"},
+					"runner":            map[string]any{"type": "string", "description": "The runner's agent: principal; a fulfilment records no person"},
+					"request_digest":    map[string]any{"type": "string", "description": "The request digest the run was performed for"},
+					"expected_revision": map[string]any{"type": "integer", "description": "The journal revision the fulfilment is written against"},
+					"idempotency_key":   map[string]any{"type": "string", "description": "Key that makes a retry a no-op"},
+					"apply":             map[string]any{"type": "boolean", "description": "Record the fulfilment; without it the call is a preview"},
+					"project_id":        map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
+				},
+				"required": []string{"id", "run", "runner", "request_digest", "idempotency_key"},
 			},
 		},
 		{

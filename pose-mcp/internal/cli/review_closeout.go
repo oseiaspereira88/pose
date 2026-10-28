@@ -362,6 +362,8 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdReviewRunProof(root, args[1:], stdout, stderr)
 	case "conclude":
 		return cmdReviewConclude(root, args[1:], stdout, stderr)
+	case "request":
+		return cmdReviewRequest(root, args[1:], stdout, stderr)
 	// Deprecated aliases of pose delegate (spec pose-delegation-surface R5): same
 	// behaviour and exit codes, one line naming the replacement, absent from help.
 	case "resume":
