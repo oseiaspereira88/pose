@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-39b329bab795aac0",
+  "bundle_id": "rvb-f65774ef08fcf69c",
+  "bundle_digest": "sha256:f65774ef08fcf69c3f2607e3060bba14a220604bf8968e8b87f03277aa135b9c",
+  "reviewer": "agent:independent-codex-fulfillment-round8",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "This is a new Codex/OpenAI execution reviewing the original Claude/Anthropic implementation and its b17960c8 documentation correction. The original lead is declared anthropic/claude-opus-5-5; no original session is authenticated here. Claude review was attempted but unavailable due to weekly limit. The current instance requires same-actor-separate-execution and records unsigned attestations. This reviewer did not implement the change. Project identity and protected audience remain required across checkouts; no live Conductor delivery is claimed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed lock-time fulfillment reverification, immutable supersession intent and role replay. Current native validation exercises their regressions. Round 7 independently ran focused race and mutation controls on identical production code; those results are historical context, not fresh race execution in round 8. The current delta changes only eight requirement declaration prefixes."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "CLI and MCP carry the same fulfillment envelope into the domain verifier. Existing action kinds keep their serialized digests. Canonical envelope, detach and preview/apply contracts were exercised; fulfilled_seq is additive and limited to counted service history."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Wrong brief, project, audience, bundle, run status, proof and conclusion are refused. A forged fulfillment cannot satisfy the request or make another-kind journal panic. Stale fulfilled recovery names an authority-bound waiver and inventory errors fail closed."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "The CLI and MCP use the shared Store writer and verifier. The documented synthetic CI journey transfers native records between checkouts with a shared project identity and verifies the resulting review. Conductor is a documented boundary, not a claimed live integration."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Limitations disclose ignored invalid fulfillment and historical invalidation. FulfilledSeq anchors waits to the counted event, including history and supersession. Collision messages name the escalation and the executable stale-service waiver."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "No actor answer is admitted for delegated-review; actor answers, waiver and supersession for other kinds remain governed by existing authority and digest contracts. CLI help, scaffold manuals and MCP catalog agree with the new action and canonical envelope."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The corrected requirement prefixes match both native parser grammars and preserve all requirement text. The current native suite exercises fulfillment, signed decision binding, rejection, stale-subject invalidation, authorized waiver, replacement replay and escalation collision refusal. The unchanged behavioral implementation also has independent round-7 probes and mutation evidence; no new behavioral finding was found. The first native validation observed a Git status exit 128 in an unrelated retention fixture; the isolated check passed five times and the fresh full rerun passed 158 of 158. Its cause is undetermined and no fix is claimed."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "CLI, MCP and the core domain converge on the same admission and effect. The CI documentation is executed by a fixture; cross-project, cross-audience and cross-bundle negative probes still reject. No external Conductor runtime evidence is asserted."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-a857349b25c75ed0",
+      "rationale": "D1-D4 bind a new service request to existing native action authority and verified conclusions. The shared B19 dependency and the portable-proof amendment supply R5 and R3/R9 without creating a parallel approval or issuer path.",
+      "mappings": [
+        {
+          "delta": "SD-0526e208",
+          "basis": "D2",
+          "disposition": "mapped",
+          "rationale": "The shared delegation amendment makes the completed conclusions spec the B19 prerequisite, so fulfillment consumes verified native effects under D2 and R5 without claiming B19 implementation again."
+        },
+        {
+          "delta": "SD-0a977d5d",
+          "basis": "D2",
+          "disposition": "mapped",
+          "rationale": "The portability amendment answers R3 and R9 through D2: retain signed origin worktree provenance while enforcing all protected project, audience, bundle, brief, output and transcript bindings."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "The only new delta is colon placement in R4-R11, matching the documented stable requirement grammar. Verified the eight original texts and F1-F8 mapping are unchanged. Reviewed the existing CLI help, canonical MCP envelope and synthetic CI journey. Live Conductor deployment remains documentation only; no new runtime integration is claimed."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Current and historical service states expose actionable recovery. The previously blocked fulfilled predecessor can be waived by its authority after the person decision; the complete journey leaves zero closeout restrictions. Missing proof, missing authority and a satisfied subject remain refused without writes."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The native parser probe now recognizes R1 through R11 with zero orphan trace IDs. The prior clone reproduces eight orphan errors before the correction. Moving annotations after the colon preserves requirement text while making both trace and smoke-brief consumers recognize the IDs. Current native integration and unit results support the restored eleven-entry trace; prior behavioral review is retained as historical context."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Reviewed the B20 scope and the complete round-7 report, then the eight-line b17960c8 grammar correction. No production code, tests, policy, matrix, adoption or other spec changed in this review. Fulfillment is a service condition, not approval; broader capability adoption and live Conductor integration remain outside this delivery."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/action-lifecycle-authority-integration",
+      "rationale": "Portable proof verification removes only the reader worktree-path requirement. Signature, pins, project, audience, bundle, brief, output, transcript and provenance remain enforced. New waiver admission is stale-only and still requires lifecycle authority and policy proof; valid proof cannot waive a satisfied request or bypass a subject restored after preview."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-a857349b25c75ed0",
+      "rationale": "An actor label or documentation-only CI path would not prove service delivery. Reusing ActionRequest, the signed run proof, native conclusion and lifecycle verifier is the smallest sufficient route across runners. No new vendor dependency, authority chain or speculative Conductor integration was introduced."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Strict artifact-check reconciled this spec against attributed Git history with exit zero; unrelated global orphan warnings were reviewed and are not claimed fixed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-a857349b25c75ed0",
+      "rationale": "Executed assess design on this sealed subject; both governance-contract deltas are explicitly mapped to D2."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed discovery for docs-site and read the report. Generated assessment and state output is retained privately and excluded from the closeout commit."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed discovery for pose-mcp and read the report. Generated assessment and state output is retained privately and excluded from the closeout commit."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Executed assess integrate and reviewed providers and consumers; the delivered CLI/MCP domain boundary is covered by current integration evidence. Broad pre-existing consumer-discovery gaps are not claimed resolved."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed tech-debt: one covered marker and zero uncovered. Scan remains incomplete for two old invalid specs outside this delivery; all affected source paths were independently reviewed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate; execute after attestation and the required lifecycle transition, before publication."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate; execute after attestation and the required lifecycle transition, before publication."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed suggest review for docs-site and applied its applicable rules to this delivery."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed suggest review for pose-mcp and applied its applicable rules to this delivery."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Strict spec surface-check found one capability target, 158 current results and zero findings; containing-module integration coverage is inferred and the CI fixture separately exercises the service journey."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Strict validation passed: global 158 of 158 and pose-mcp 155 of 155, with current head and policy result provenance."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Invoked the planned command: SUCCESS with zero checks. The matrix declares no producer for docs-site; no sibling evidence is substituted for that missing producer."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Strict validation passed: global 158 of 158 and pose-mcp 155 of 155, with current head and policy result provenance."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "structure:design-a857349b25c75ed0",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-codex-fulfillment-round8",
+    "concluded_by": "agent:independent-codex-fulfillment-round8",
+    "applied_by": "agent:independent-codex-fulfillment-round8"
+  },
+  "attested_at": "2026-10-28T17:13:57Z",
+  "path": ".pose/review-attestations/rva-39b329bab795aac0.json"
+}

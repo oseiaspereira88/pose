@@ -1,8 +1,8 @@
 ---
 slug: pose-delegated-review-action-fulfillment
-status: in-progress
+status: done
 created_at: 2026-10-09
-completed_at:
+completed_at: 2026-10-28
 supersedes:
 depends_on: pose-delegated-review-dispatch, pose-delegated-review-conclusions, pose-delegated-review-run-provenance, pose-delegated-review-attempt-ledger, pose-delegated-adapter-containment, pose-action-target-and-node-scoping, pose-action-waiver-and-supersession-authority, pose-action-request-recovery-and-preflight, pose-review-approval-domain-preflight
 priority: 3
@@ -103,7 +103,7 @@ Action kind and satisfaction rule, the fulfilment command, and a CI example.
 - [x] CI example and Conductor documentation
 - [x] Escalations to a person
 - [x] Portable run proofs
-- [ ] Independent review and closeout
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -149,14 +149,38 @@ Fixture: a request fulfilled by a local run is satisfied; one answered without a
 
 ### Requirement trace
 
+- R1 [satisfied] The typed request opens from the current sealed bundle with brief digest and accepted agents: test:TestReviewRequestIsFulfilledOverTheCLI test:TestDelegatedReviewMaterialIsInTheDigest evidence:integration check:pose-mcp/go/delegation-surface-integration check:pose-mcp/go/test
+- R2 [satisfied] Only a verified matching run fulfils the service; wrong briefs, incomplete runs and actor answers are refused: test:TestDelegatedReviewRequestIsFulfilledByAVerifiedRun test:TestDelegatedReviewRequestRefusesOtherBriefsAndRefusedConclusions evidence:integration check:pose-mcp/go/delegation-surface-integration
+- R3 [satisfied] Local delegate and the documented synthetic CI job transfer verified records between checkouts with a shared project identity; Conductor is a documented MCP boundary: test:TestDelegatedReviewRequestIsFulfilledByACIRunner test:TestDelegatedReviewCIJourneyAsDocumented test:TestToolsCall_ActionFulfil evidence:integration check:pose-mcp/go/delegation-surface-integration check:pose-mcp/go/mcp-action-resolve-integration
+- R4 [satisfied] Review material, scope, targets, kind and policy bind to the request digest while other kinds retain their legacy digest: test:TestDelegatedReviewMaterialIsInTheDigest test:TestFulfillmentHeaderIsBound evidence:integration check:pose-mcp/go/delegation-surface-integration check:pose-mcp/go/test
+- R5 [satisfied] Run proof, ledger, containment, conclusion and destination verify at admission, locked append and read; forged journal events satisfy nothing: test:TestDelegatedReviewRequestRefusesOtherRuns test:TestForgedFulfillmentsSatisfyNothing test:TestDelegatedReviewFulfillmentOnRead evidence:integration check:pose-mcp/go/delegation-surface-integration check:pose-mcp/go/test
+- R6 [satisfied] A verified rejection fulfils the requested service without granting approval; the signed effect supplies its decision: test:TestDelegatedReviewRequestIsFulfilledByAVerifiedRun test:TestFulfillmentReadsTheSignedDecision evidence:integration check:pose-mcp/go/delegation-surface-integration check:pose-mcp/go/test
+- R7 [satisfied] Mandatory person, budget, conflict and business exceptions create authority-bound decisions with stable question, targets and effects; unreadable inventories fail closed: test:TestDelegatedReviewRequestEscalatesToAPerson test:TestEscalationsKeepTheirTargetsAndEffects test:TestReplacingWithAnUnreadableInventoryIsRefused evidence:integration check:pose-mcp/go/delegation-surface-integration check:pose-mcp/go/test
+- R8 [satisfied] Material changes invalidate satisfaction; exact replay is a no-op and authorized replacement or stale-service waiver retires the predecessor: test:TestReviewRequestReplacementReplays test:TestAStaleFulfilledRequestIsReplaced test:TestFulfilledPredecessorWithAPersonAlreadyAsked evidence:integration check:pose-mcp/go/delegation-surface-integration check:pose-mcp/go/action-lifecycle-authority-integration check:pose-mcp/go/test
+- R9 [satisfied] CLI, CI and MCP submit the same canonical envelope to one verifier; portability retains project, audience and bundle boundaries: test:TestReviewRequestIsFulfilledOverTheCLI test:TestDelegatedReviewCIJourneyAsDocumented test:TestToolsCall_ActionFulfil evidence:integration check:pose-mcp/go/delegation-surface-integration check:pose-mcp/go/mcp-action-resolve-integration
+- R10 [satisfied] Replay and incomplete-run recovery preserve one effect and the attempt budget; lifecycle authority remains required: test:TestDelegatedReviewRequestRevalidatesAndRefusesIncompleteRuns test:TestReviewRequestReplacementReplays test:TestReplacingWithAnUnreadableInventoryIsRefused evidence:integration check:pose-mcp/go/delegation-surface-integration check:pose-mcp/go/action-lifecycle-authority-integration check:pose-mcp/go/test
+- R11 [satisfied] Per-kind destinations, rejecting outcomes, exceptions and stale checkpoints resume through native surfaces; the fulfilled predecessor with an existing person decision reaches zero closeout restrictions: test:TestDelegatedReviewRequestPerKind test:TestAStaleFulfilledRequestIsReplaced test:TestFulfilledPredecessorWithAPersonAlreadyAsked test:TestDelegatedReviewCIJourneyAsDocumented evidence:integration check:pose-mcp/go/delegation-surface-integration check:pose-mcp/go/test
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: part of roadmap `delegated-review`, opened on 2026-10-09.
+Delivered delegated-review action requests, verified fulfillment through one canonical CLI/MCP envelope, portable native run proofs, per-kind conclusion destinations and authority-bound escalation, supersession and stale-service waiver. A verified rejection fulfills the requested service without approving the scope. Historical fulfillments cannot satisfy a changed subject.
+
+The local runner, CLI/MCP and documented synthetic CI journey are exercised by native integration tests. The Conductor boundary is documented; this delivery does not assert a live Conductor deployment or close the later capability, parity and adoption milestones.
+
+### Validation executed
+
+Independent round 8 reviewed implementation `b17960c835c9659d4b14f8b04e53c51dcc71d36d` on 2026-10-28, in a new Codex/OpenAI execution (`agent:independent-codex-fulfillment-round8`) distinct from the original Claude/Anthropic implementation. The review confirmed that R7-F01 is resolved: the native requirement parser recognizes eleven requirements and zero orphan trace entries, and all committed text outside the eight declaration prefixes is unchanged. The behavioral review and mutation evidence from round 7 concern identical production code and were read as historical context, not represented as new executions.
+
+Current `pose validate --strict` passed 158/158 checks. The explicit component validation, artifact-check and surface-check passed; the latter observes containing-module integration coverage as inferred coverage, with a separate native synthetic CI journey. Sealed bundle `rvb-f65774ef08fcf69c` and attestation `rva-39b329bab795aac0` record the explicit judgments and tool evidence. Review context: knowledge:action-answer-proof-and-historical-time; knowledge:action-recovery-intent-and-refusal. `pose review verify`, `review-check`, native `close`, strict spec lint and strict structure checks were required for this transition.
 
 ### Residual risks
 
-None yet.
+Native run proofs are signed executor declarations, not independent vendor receipts. The review identity and original lead are declared; this instance records unsigned attestations. Windows/Darwin runtime and a real Conductor deployment are not claimed by this closeout.
+
+The first fresh validation passed 157/158: a temporary Git status failure (exit 128) in `TestReviewCheckNamesANegativeVerdictOnAClosedScope` interrupted the unrelated retention fixture. The same test passed in the complete suite, the isolated check passed five consecutive repetitions, and the subsequent full native validation passed. Its cause remains undetermined; no code fix is claimed. The failed attempt and successful rerun are preserved in the local round-8 review logs.
 
 ### Follow-ups
+
+No new actionable product finding was identified in the final review. Existing work on capability composition, parity and adoption remains in its separately governed roadmap members.
