@@ -174,3 +174,22 @@ func TestDelegatedReviewCIJourneyAsDocumented(t *testing.T) {
 		t.Fatalf("review verify in the repository: %d %s", code, out)
 	}
 }
+
+// Review round 3, R3-F01 over the CLI: review request --supersedes opens a
+// successor linked to its predecessor and retires it in the same step.
+func TestReviewRequestSupersedes(t *testing.T) {
+	root, _, _ := cliProvenanceInstance(t)
+	code, out := runPose(t, root, "review", "request", "spec:alpha", "--kind", "delegated-review", "--apply", "--json")
+	var first posemodel.ActionRequestView
+	if code != 0 || json.Unmarshal([]byte(out), &first) != nil {
+		t.Fatalf("request: %d %s", code, out)
+	}
+	code, out = runPose(t, root, "review", "request", "spec:alpha", "--kind", "delegated-review", "--question", "Review spec:alpha again", "--supersedes", first.Request.ID, "--apply", "--json")
+	var second posemodel.ActionRequestView
+	if code != 0 || json.Unmarshal([]byte(out), &second) != nil || second.Request.Supersedes != first.Request.ID {
+		t.Fatalf("successor: %d %s", code, out)
+	}
+	if old, _ := (posemodel.Store{Root: root}).LoadActionRequest(first.Request.ID); old.State != posemodel.ActionStateSuperseded {
+		t.Fatalf("the predecessor was not retired: %s", old.State)
+	}
+}

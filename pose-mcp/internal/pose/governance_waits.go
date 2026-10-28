@@ -62,7 +62,7 @@ func governanceWaitsFrom(report GovernanceWaitReport, views []ActionRequestView,
 		end := now
 		closed := false
 		for _, event := range view.Events[1:] {
-			if event.Type == ActionEventAnswered || event.Type == ActionEventCancelled || event.Type == ActionEventWaived || event.Type == ActionEventSuperseded {
+			if event.Type == ActionEventAnswered || event.Type == ActionEventCancelled || event.Type == ActionEventWaived || event.Type == ActionEventSuperseded || event.Type == ActionEventFulfilled {
 				if at, err := time.Parse(time.RFC3339, event.At); err == nil {
 					end, closed = at, true
 				} else {

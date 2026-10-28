@@ -109,6 +109,13 @@ func nextActionStep(v ActionRequestView) *ActionNextStep {
 	case v.SubjectUnknown:
 		step.Kind, step.Reason = "repair-subject", "restore or explicitly replace the missing material subject before resolving the condition"
 		step.Required = []string{"readable-material-subject", "replacement-material-intent"}
+	case v.Request.Kind == ActionDelegatedReview && v.State == ActionStateFulfilled && v.Satisfaction == SatisfactionInvalidated:
+		// A request fulfilled for a bundle the scope no longer has is asked
+		// again for the new one, linked to it (spec
+		// pose-delegated-review-action-fulfillment R8; review round 3).
+		step.Kind, step.Operation = "replace-request", "supersede"
+		step.Reason = "the scope or the policies changed since this request was fulfilled; ask the new bundle with pose review request " + v.Request.Review.Scope + " --kind delegated-review --supersedes " + v.Request.ID
+		step.Required = []string{"new-current-bundle", "same-requester-or-authority"}
 	case v.State == ActionStateInvalidated:
 		step.Kind, step.Operation, step.Reason = "replace-request", "supersede", "open a materially updated request linked to this predecessor; do not answer its old digest"
 		step.Required = []string{"new-material-question", "current-subject", "predecessor-authority"}

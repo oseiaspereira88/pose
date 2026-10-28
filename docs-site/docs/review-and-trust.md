@@ -91,7 +91,8 @@ run whose containment completed, a signed proof that verifies, an intact
 attempt ledger, and the conclusion the engine recorded at the request's
 destination. A rejecting run fulfils the request — the review was performed —
 and nothing is approved: approval stays the attestation's. A superseded
-bundle or a policy change invalidates the request; it is asked again.
+bundle or a policy change invalidates the request, even once fulfilled; it is
+asked again with `pose review request ... --supersedes <act-id>`, which retires it.
 
 The proof of a run verifies in any checkout of the project: the worktree it
 ran in is recorded, not required of the reader — the project must be

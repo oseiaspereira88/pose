@@ -67,6 +67,10 @@ func TestDelegatedReviewRequestIsFulfilledByAVerifiedRun(t *testing.T) {
 	if verification, _ := f.store.VerifyReviewBundle(f.bundle.Payload.Scope.Ref); verification.Approved {
 		t.Fatal("a fulfilled rejection approved the scope")
 	}
+	// A fulfilled request is not waiting (review round 3, R3-F02).
+	if waits, err := f.store.GovernanceWaits(time.Now()); err != nil || waits.Open != 0 || waits.Resolved != 1 {
+		t.Fatalf("waits: %+v %v", waits, err)
+	}
 	again, err := fulfil(f, view, run.RunID, "k1")
 	if err != nil || again.Revision != done.Revision {
 		t.Fatalf("a retry was not a no-op: %+v %v", again, err)
@@ -558,5 +562,100 @@ func TestEscalationsKeepTheirTargetsAndEffects(t *testing.T) {
 	e, _ := f.store.LoadActionRequest(second)
 	if len(e.Request.Effects) != 1 || e.Request.Effects[0].Phase != PhaseExecution {
 		t.Fatalf("the effects were dropped: %+v", e.Request.Effects)
+	}
+}
+
+// resealAfter commits what changed in the fixture's checkout, aligns the
+// delivery index to the new head and seals a new bundle of the scope.
+func resealAfter(t *testing.T, f runProvenanceFixture) ReviewBundle {
+	t.Helper()
+	git := func(args ...string) string {
+		t.Helper()
+		out, err := exec.Command("git", append([]string{"-C", f.store.Root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false"}, args...)...).CombinedOutput()
+		if err != nil {
+			t.Fatalf("git %v: %v %s", args, err, out)
+		}
+		return strings.TrimSpace(string(out))
+	}
+	git("add", "-A")
+	git("commit", "-q", "-m", "change")
+	head := git("rev-parse", "HEAD")
+	path := filepath.Join(f.store.Root, ".pose/indexes/delivery-integrity.json")
+	raw, _ := os.ReadFile(path)
+	var graph DeliveryIntegrityGraph
+	_ = json.Unmarshal(raw, &graph)
+	for i := range graph.ChangeSets {
+		graph.ChangeSets[i].Base, graph.ChangeSets[i].Head, graph.ChangeSets[i].ResolvedBase, graph.ChangeSets[i].ResolvedHead = head, head, head, head
+		graph.ChangeSets[i].Selector = "range:" + head + ".." + head
+	}
+	for i := range graph.ValidationResults {
+		graph.ValidationResults[i].GitHead = head
+	}
+	raw, _ = json.Marshal(graph)
+	if err := os.WriteFile(path, raw, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	bundle, err := f.store.sealReviewBundle("spec:backend", nil, false, "", time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	return bundle
+}
+
+// Review round 3, R3-F01: a request fulfilled for a bundle the scope no
+// longer has keeps restricting until it is asked again; its next step says
+// how, and the successor — opened by its requester, linked to it — retires
+// it, so once the successor is fulfilled nothing restricts.
+func TestAStaleFulfilledRequestIsReplaced(t *testing.T) {
+	f, draftPath := conclusionFixture(t)
+	view := openReviewRequest(t, f, DelegationPurposeReview)
+	if err := os.WriteFile(draftPath, []byte(draftFrom(t, approvedBundleAttestation(f.bundle, "agent:reviewer"), nil)), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	run := dispatchConclusion(t, f, "first")
+	if _, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := fulfil(f, view, run.RunID, "k"); err != nil {
+		t.Fatal(err)
+	}
+	policy := filepath.Join(f.store.Root, ".pose", "policy", "review.json")
+	raw, _ := os.ReadFile(policy)
+	if err := os.WriteFile(policy, append(raw, ' '), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	stale, _ := f.store.LoadActionRequest(view.Request.ID)
+	if stale.NextStep == nil || stale.NextStep.Kind != "replace-request" || !strings.Contains(stale.NextStep.Reason, "--supersedes "+view.Request.ID) {
+		t.Fatalf("the stale request has no way forward: %+v", stale.NextStep)
+	}
+	f.bundle = resealAfter(t, f)
+	m, err := f.store.PrepareDelegatedReviewMaterial("spec:backend", DelegationPurposeReview, "fixture labelled notes", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	successor, err := f.store.OpenActionRequestAuthorized(ActionRequest{Origin: "spec:backend", Kind: ActionDelegatedReview, Question: "Review spec:backend again",
+		RequestedBy: ActionPrincipal{Principal: "agent:implementer"}, Targets: []NodeRef{{Kind: "requirement", ID: "R1"}},
+		Effects: []ObligationEffect{{Phase: PhaseCloseout, Mode: EffectBlock}}, Review: &m, Supersedes: view.Request.ID}, nil, time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if old, _ := f.store.LoadActionRequest(view.Request.ID); old.State != ActionStateSuperseded {
+		t.Fatalf("the predecessor was not retired: %s", old.State)
+	}
+	// The second review is the bundle's second round: it states its sweep.
+	text := strings.Replace(draftFrom(t, approvedBundleAttestation(f.bundle, "agent:reviewer"), nil), `"decision":"approved"`, `"decision":"approved","sweep":"the whole change again"`, 1)
+	if err := os.WriteFile(draftPath, []byte(text), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	second := dispatchConclusion(t, f, "second")
+	if c, err := f.store.ConcludeReviewRun(second.RunID, f.key.Name, true, time.Now()); err != nil || c.State != ReviewConclusionRecorded {
+		t.Fatalf("second conclusion: %+v %v", c, err)
+	}
+	done, err := fulfil(f, successor, second.RunID, "k2")
+	if err != nil || done.State != ActionStateFulfilled || done.Satisfaction != SatisfactionSatisfied {
+		t.Fatalf("the successor: %+v %v", done, err)
+	}
+	if restrictions, err := f.store.GovernedEffectRestrictions(PhaseCloseout, []string{"backend"}); err != nil || len(restrictions) != 0 {
+		t.Fatalf("still restricted: %+v %v", restrictions, err)
 	}
 }

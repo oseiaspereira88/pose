@@ -14,7 +14,7 @@ import (
 )
 
 const reviewRequestUsage = "Usage: pose review request <scope|bundle-id> --kind delegated-review [--purpose review|adjudicate|smoke] [--agents <name,...>] [--note-file <path>] " +
-	"[--requested-by <principal>] [--target <kind:ID|self>]... [--effect <phase>:<block|advisory>]... [--question <text>] [--apply] [--json]"
+	"[--requested-by <principal>] [--target <kind:ID|self>]... [--effect <phase>:<block|advisory>]... [--question <text>] [--supersedes <act-id>] [--apply] [--json]"
 
 // cmdReviewRequest opens a delegated-review action request (spec
 // pose-delegated-review-action-fulfillment R1, R4): the material is read
@@ -25,7 +25,7 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 		return usageError(stderr, reviewRequestUsage)
 	}
 	target := args[0]
-	kind, purpose, agents, noteFile, requestedBy, question := "", posemodel.DelegationPurposeReview, []string(nil), "", "agent:pose-cli", ""
+	kind, purpose, agents, noteFile, requestedBy, question, supersedes := "", posemodel.DelegationPurposeReview, []string(nil), "", "agent:pose-cli", "", ""
 	var targets []posemodel.NodeRef
 	var effects []posemodel.ObligationEffect
 	apply, jsonOutput := false, false
@@ -61,6 +61,8 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 			requestedBy = value
 		case "--question":
 			question = value
+		case "--supersedes":
+			supersedes = value
 		case "--target":
 			ref, err := posemodel.ParseActionTarget(value)
 			if err != nil {
@@ -110,7 +112,7 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 		question = fmt.Sprintf("Have an accepted agent run the %s of %s from its sealed bundle %s, and record its conclusion", purpose, material.Scope, material.BundleID)
 	}
 	r := posemodel.ActionRequest{Origin: material.Scope, Kind: posemodel.ActionDelegatedReview, Question: question, RequestedBy: posemodel.ActionPrincipal{Principal: requestedBy},
-		Targets: targets, Effects: effects, Review: &material}
+		Targets: targets, Effects: effects, Review: &material, Supersedes: supersedes}
 	now := time.Now()
 	if store.PersonRequiredByPlan(material) {
 		// The plan reserves this review for a person: no delegated run
@@ -158,7 +160,9 @@ func cmdReviewRequest(root string, args []string, stdout, stderr io.Writer) int 
 		out.Field("review_request.apply", "false (rerun with --apply to open it)")
 		return 0
 	}
-	view, err := store.OpenActionRequest(r, now)
+	// A successor retires its predecessor in the same step, under the
+	// predecessor's lock and the same authority rules as any supersession.
+	view, err := store.OpenActionRequestAuthorized(r, nil, now)
 	if err != nil {
 		out.Failure("pose review request: " + err.Error())
 		return 1
