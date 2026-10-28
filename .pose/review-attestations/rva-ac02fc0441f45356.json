@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-ac02fc0441f45356",
+  "bundle_id": "rvb-07212529dbde2aa2",
+  "bundle_digest": "sha256:07212529dbde2aa2f8e1c04648b6b7aa6876489a9816feaefe47f439f7a64252",
+  "reviewer": "agent:independent-gpt-6.1-sol-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Issuer signatures attest captured executor declarations, not vendor receipts or cognitive independence. Synthetic adversarial probes and direct review are distinguished from platform runtime proof. The agent:independent- prefix is an engine-required declaration; this is Codex/OpenAI reviewing Claude/Anthropic implementation from session f2a4d9f2-d557-4064-ae96-6ed52bb47cd2. Repository review identity is declared and this attestation is unsigned."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Per-run locking serializes initial conclusions and interrupted takeover. Separate-process and owner-death probes count one published proof and attestation. Coverage and lock mutations are detected."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "CLI review conclude and automatic delegate completion use the shared domain writer. Typed draft /3 bindings and /1 /2 compatibility are checked by native tests and independent forged-content probes."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Missing or malformed conclusions, corrupt records, changed scope, incomplete cleanup and incomplete recovery history refuse. f-r4-01 is a low diagnostic limitation, judged under operability."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Production CLI entrypoints reach ConcludeReviewRun and AutoConcludeReviewRun. Native composition and artifact checks pass for capability:delegated-review-conclusions, with current module integration evidence."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Refusal reasons and recovery losses are bounded and reported; automatic failure preserves delegate result and stdout. Permanent backend diagnostic limitation f-r4-01 is explicitly accepted under operability."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Review brief versions /1 and /2 still verify with their own templates and decision binding. Version /3 binds normalized criteria, concluding tools and findings, including structural mappings. Default deferred and recommended-not-used tools assert no conclusion. Automatic recording remains disabled without both explicit opt-ins. Windows and Darwin cross-builds pass; process-lock runtime was exercised on Linux."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Happy path, rejection, refusal, replay, supersession, recovery and /3 content binding regressions pass. Independent overlays exercise separate-process owner death and adversarial cases."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-522270754bd5ec13",
+      "rationale": "D1 satisfies R1 through the existing issuer, run proof, attestation writer and approval admission rather than a parallel approval path. The per-run OS lock spans first read through final write; interrupted reservations recover only authenticated matching conclusions and complete history. D2 assigns R2 destinations to their own draft spec, preserving the B19 boundary.",
+      "mappings": [
+        {
+          "delta": "SD-0526e208",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The shared ADR amendment makes B19 an independently reviewable spec so validated review conclusions become a native dependency checkpoint before fulfillment. This scope owns that split; D1 realizes R1 through the existing writer and D2 assigns the separate R2 destinations without capability adoption."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "The four manuals, help and changelog describe typed conclusions, issuer selection, dual opt-in, rejection/refusal behavior, process-owned locking, recovery and the separate verdict destinations. They match the reviewed runtime contracts."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "f-r4-01",
+      "rationale": "Refusals retain reasons and incomplete recovery history reports losses while preserving concluding. Unsupported-platform locking fails immediately with its cause and linked locks are refused. Preview recovery is read-only and discloses apply-only admission. Accept low follow-up f-r4-01: other permanent backend errors such as Unix EOPNOTSUPP still wait until the deadline and lose their cause as contention; injected probe produced no proofs or attestations. Distinguish genuine contention and preserve backend causes (owner:@oseiaspereira88 crit:low review:2026-11-27). Handoff knowledge:delegated-conclusions-round4 records the bounded risk."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 review attestation and rejection, R3 refusal and preserved incomplete recovery, and R4 replay and supersession are exercised. D2 assigns R2 delivery to pose-delegated-verdict-destinations without claiming those draft destinations implemented."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-522270754bd5ec13",
+      "rationale": "Native review conclusions implement R1, R3 and R4 under D1; R2 is assigned to pose-delegated-verdict-destinations under maintainer decision D2 and is not claimed delivered here. Implementation commit 153d54bb2690bbe6b96d8da9760b1f97b6502728 was reviewed independently by Codex/OpenAI against the Claude/Anthropic implementation. No production, policy, matrix, capability or adoption change was made by this reviewer."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Proof and attestation signatures, issuer pins, exact bundle/run/scope binding, required-human refusal and rejection barriers remain in shared verification and admission. Forged criteria, tools, components and findings are refused. Lock symlinks and incomplete history fail closed. Gitleaks found no secrets in the reviewed commit. f-r4-01 is limited to diagnostics and delay; permanent backend failure still records no proof or attestation."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-522270754bd5ec13",
+      "rationale": "A typed draft, shared writer and existing native signer are sufficient for automatic review conclusions; the manual run-sign and attest alternative would retain the step R1 removes. Reusing the OS file-lock primitive fixes inter-process exclusion and owner death without a new lease service. Verdict destinations and capability adoption remain outside this delivery. Unsigned recovery, duplicate governed effects or an undeclared typed conclusion would invalidate approval; adversarial probes now refuse or serialize those cases."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-10-28-delegated-conclusions-round4.md",
+      "rationale": "Executed strict reconciliation: 28 claims, 31 observed paths, five attributed commits; no errors. Broad orphan warnings and shared ADR provenance were read, not treated as exclusive range ownership."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-522270754bd5ec13",
+      "rationale": "Executed on current indexed implementation. The shared ADR structural fact is explicitly mapped to R1 rather than silently ignored."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-10-28-delegated-conclusions-round4.md",
+      "rationale": "Refreshed pose-mcp assessment for current committed content and matrix. Generated assessment/state output preserved locally and restored before closeout."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed for CLI, policy and typed draft contracts. Reviewed 69 observed contracts, including six active and 63 unobserved-consumer gaps; these broad observations are not asserted as new regressions."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-10-28-delegated-conclusions-round4.md",
+      "rationale": "Executed: one visible marker and zero uncovered, with INCOMPLETE coverage from two pre-existing invalid specs. This disposition records execution and bounded review, not a global no-debt claim."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate; will execute after recording the attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate; will execute after recording the attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-10-28-delegated-conclusions-round4.md",
+      "rationale": "Executed for pose-mcp: backend-go, security and documentation rules applied."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed strict spec composition for capability:delegated-review-conclusions against fresh 158/158 validation. Production entrypoint and module integration evidence are connected."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed global strict validation at implemented commit 153d54bb2690bbe6b96d8da9760b1f97b6502728: 158 of 158 passed, including every pose-mcp check. Global execution covers this component and the empty-component plan entry."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed global strict validation at implemented commit 153d54bb2690bbe6b96d8da9760b1f97b6502728: 158 of 158 passed, including every pose-mcp check. Global execution covers this component and the empty-component plan entry."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delegated-run-provenance-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "spec:pose-delegated-review-conclusions",
+    "structure:design-522270754bd5ec13",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "f-r4-01",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_conclusions.go:345",
+      "action": "Distinguish permanent filesystem/backend locking failures from contention and retain their cause",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "Injected EOPNOTSUPP waits to the deadline and loses its cause; failure remains closed with no proof or attestation. Accept the bounded diagnostic delay pending the owned follow-up and knowledge:delegated-conclusions-round4.",
+      "review_by": "2026-11-27"
+    }
+  ],
+  "attested_at": "2026-10-28T01:17:19Z",
+  "path": ".pose/review-attestations/rva-ac02fc0441f45356.json"
+}

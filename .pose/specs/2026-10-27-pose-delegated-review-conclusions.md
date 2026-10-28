@@ -1,8 +1,8 @@
 ---
 slug: pose-delegated-review-conclusions
-status: in-progress
+status: done
 created_at: 2026-10-27
-completed_at:
+completed_at: 2026-10-28
 supersedes:
 depends_on: pose-delegated-review-round-protocol, pose-delegated-review-run-provenance, pose-delegated-review-attempt-ledger, pose-delegated-adapter-containment, pose-review-approval-domain-preflight, pose-delegation-routing
 priority: 3
@@ -94,7 +94,7 @@ Conclusion validators per kind, destinations (attestation, decision record, smok
 - [x] Review conclusion recorded as the attestation
 - [ ] Adjudication and smoke destinations: moved to `pose-delegated-verdict-destinations` (D2)
 - [x] Refusals, idempotence and supersession
-- [ ] Independent review and closeout
+- [x] Independent review and native closeout: round 4 approved implementation 153d54bb2690bbe6b96d8da9760b1f97b6502728; bundle rvb-07212529dbde2aa2, attestation rva-ac02fc0441f45356.
 
 ## 5. Decisions
 
@@ -125,14 +125,31 @@ Fixtures for each kind: a passing run records its conclusion; each failed check,
 
 ### Requirement trace
 
+- R1 [satisfied] Native engine records the signed review attestation and rejecting conclusion through the shared admission: test:TestConcludeReviewRunRecordsTheAttestation test:TestConcludeReviewRunRecordsARejection check:pose-mcp/go/test commit:153d54bb2690bbe6b96d8da9760b1f97b6502728
+- R2 [deferred-integration: spec:pose-delegated-verdict-destinations] Delivered by `pose-delegated-verdict-destinations` under D2; adjudication and smoke destinations remain in that draft and are not claimed implemented by this spec.
+- R3 [satisfied] Invalid conclusions and unreadable records preserve refusal reasons; incomplete recovery history preserves concluding and reports losses: test:TestConcludeReviewRunRefusesWhatIsNotAConclusion test:TestConcludeReviewRunRecordsAnUnreadableRun test:TestConcludeReviewRunRefusesAnIncompleteRecovery check:pose-mcp/go/test
+- R4 [satisfied] Replay, supersession, concurrent conclusion and interrupted reservation recovery preserve one governed conclusion: test:TestConcludeReviewRunRecordsTheAttestation test:TestConcludeReviewRunConcurrently test:TestConcludeReviewRunRecoversAReservation check:pose-mcp/go/test report:2026-10-28-delegated-conclusions-round4.md
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: opened on 2026-10-27 under milestone `conclusions` of roadmap `delegation`.
+Delivered R1, R3 and R4 in implementation commit `153d54bb2690bbe6b96d8da9760b1f97b6502728`: the engine signs and records a review run's typed conclusion through the shared attestation writer and preflight, records rejecting conclusions, preserves refusal reasons, and serializes replay/recovery with a process-owned lock. Recovery requires an authenticated matching attestation and complete readable history. Explicit `review conclude` and the dual opt-in automatic delegate hook reach the production path for capability:delegated-review-conclusions. D2 assigns R2 delivery to `pose-delegated-verdict-destinations`; those draft destinations and capability adoption are not claimed delivered here.
+
+### Independent review and evidence
+
+Reviewer `agent:independent-gpt-6.1-sol-review`, declared Codex/OpenAI, reviewed the Claude/Anthropic implementation in a new execution. Identity is declared and the local attestation is unsigned; synthetic fixture signatures do not authenticate this review or prove cognitive independence. Knowledge consumed: knowledge:delegated-rounds-legacy-status and knowledge:module-metadata-discovery-invalidates-review-provenance.
+
+Sealed bundle `rvb-07212529dbde2aa2`, digest `sha256:07212529dbde2aa2f8e1c04648b6b7aa6876489a9816feaefe47f439f7a64252`; plan `sha256:3abb8224d37f53956931a291e816b8fe0fedd1a5b715979873bce2d3482585d4`; attestation `rva-ac02fc0441f45356` approved all required coverage with explicit judgment and accepted low finding `f-r4-01`. Native `review verify` and `review-check` reported fresh/approved, and `close` applied the guarded transition on 2026-10-28 UTC after the requirement trace was supplied.
+
+Current canonical strict validation passed 158/158 checks at the implemented commit. Independent full Go suites in C and pt_BR.UTF-8, vet, focused race tests, Windows/Darwin cross-builds and gitleaks passed. Reused rounds 1–3 probes include separate processes and actual SIGKILL recovery, repeated five times with one published proof and attestation per run; mutation counterexamples demonstrate the lock, reservation, typed-binding and Coverage protections. The obsolete preview/apply equality assertion remains intentionally in the historical probe source; current preview explicitly defers admission and recovery preview changes no bytes.
+
+Strict artifact-check reconciled 28 claims with 31 attributed paths and no errors; broad orphan warnings were reviewed. Strict surface-check connected the declared capability and production entrypoint to fresh module-wide integration evidence; the separate-process probes exercise the conclusion path on Linux. The shared ADR structural fact is explicitly mapped to R1. Assessment coverage losses and seal warnings are disclosed in report:2026-10-28-delegated-conclusions-round4.md. Native results: `.pose/results/delivery-validation.json`; local probes/overlays/logs: `.review-work/round4/` (untracked).
 
 ### Residual risks
 
-None yet.
+Accept the bounded low operability risk `f-r4-01` below. The unsupported-platform sentinel fails immediately, while other permanent backend errors can still wait two minutes and lose their cause as apparent contention. Failure remains closed; the injected EOPNOTSUPP probe published no proof or attestation. Linux process locking and owner death were exercised; Windows and Darwin were compiled, not run. Assessment tech-debt coverage remains incomplete for two pre-existing invalid specs, and broad integration consumer gaps are not asserted as new regressions. No production, tests, policy, matrix, capability or adoption configuration was changed by the reviewer. Handoff: knowledge:delegated-conclusions-round4.
 
 ### Follow-ups
+
+- [open] f-r4-01: distinguish permanent filesystem/backend lock errors from contention and retain the original cause; injected EOPNOTSUPP currently waits until the deadline and reports another owner, with no governed effects. See knowledge:delegated-conclusions-round4. (owner:@oseiaspereira88 crit:low review:2026-11-27)

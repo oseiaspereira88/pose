@@ -201,6 +201,14 @@
       "digest": "sha256:007df121af7eaa711fbe54d4977bad69babca4ba9ee568a8f43378ad48262551"
     },
     {
+      "spec": "pose-delegated-review-conclusions",
+      "category": "added",
+      "breaking": false,
+      "body": "Add `pose review conclude \u003crun\u003e`: the typed conclusion of a completed delegated review run (the pose-draft block's `criteria` and `tools`, asked for by brief template `review-brief/3`) is recorded as its signed, run-backed attestation by the native issuer named with `--issuer` or `conclusions.issuer` in `delegation.json`, through the same domain writer and preflight as `pose review attest`. A rejecting conclusion is recorded too; a run that fails a check records no attestation and its conclusion record in the `review-conclusions` directory of `.pose` keeps the reasons; a run concludes once. With `delegated_review: true` and `conclusions.issuer`, `pose delegate review` concludes the run as it completes.",
+      "path": "pose-delegated-review-conclusions.md",
+      "digest": "sha256:7ff7524a3943718f4b6ed332e873830d22cee45126d56d0004121215d3b12ac3"
+    },
+    {
       "spec": "pose-delegated-review-round-protocol",
       "category": "added",
       "breaking": false,
