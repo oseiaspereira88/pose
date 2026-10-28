@@ -1,8 +1,8 @@
 ---
 slug: pose-delegated-verdict-destinations
-status: in-progress
+status: done
 created_at: 2026-10-27
-completed_at:
+completed_at: 2026-10-28
 supersedes:
 depends_on: pose-delegated-review-conclusions
 priority: 3
@@ -75,7 +75,7 @@ Review conclusions (delivered by `pose-delegated-review-conclusions`); turning t
 - [x] Adjudication verdict as a decision record
 - [x] Smoke observation as surface evidence
 - [x] Refusals and idempotence
-- [ ] Independent review and closeout
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -112,14 +112,32 @@ Fixtures for each kind: a passing run records its verdict at its destination; ea
 
 ### Requirement trace
 
+- R1 [satisfied] Immutable per-run adjudication answers the exact decisions and requirements and is verified on read; current negative answers gate lint and serialized close: test:TestAdjudicationVerdictIsRecordedOnTheSpec test:TestAdjudicationVerdictFailsLintSpec test:TestAdjudicationBlocksTheCloseout test:TestCloseAndAdjudicationAreSerialized check:pose-mcp/go/test commit:7008d6d183f1a68f663980cb3e1d554218383ebf
+- R2 [satisfied] Verified smoke produces derived validation results for exactly the observed target and spec; CLI surface-check consumes them in both evidence lists and rejects unverified or differently targeted observations: test:TestSmokeVerdictIsRecordedAsSurfaceEvidence test:TestSmokeResultsAreDerivedAndTargeted test:TestSurfaceCheckReadsSmokeObservationsPerTarget check:pose-mcp/go/test
+- R3 [satisfied] Exact typed coverage, proof/issuer/kind, independence and supported schema are required; refusal publishes no effect and busy lifecycle reservations remain recoverable: test:TestSmokeVerdictRefusesAnUnaskedTarget test:TestVerdictsMeetThePlansIndependence test:TestVerdictRecordsVerifyLikeTheConclusion test:TestSmokeResultsRefuseAnUnsupportedSchema test:TestAdjudicationSurvivesADeadLifecycleLock check:pose-mcp/go/delegated-run-provenance-integration
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: split on 2026-10-27 from R2 of `pose-delegated-review-conclusions`.
+Delivered R1–R3 through implementation commit `7008d6d183f1a68f663980cb3e1d554218383ebf`: immutable per-run adjudications, exact decision/requirement coverage read by lint and closeout, and smoke validation results derived from verified run data for the observed target and spec only. Shared conclusion admission preserves proof, typed-content binding, independence, idempotence, serialized publication/close and recovery after a dead lifecycle-lock owner. Legacy /1 briefs remain byte-compatible and their runs verify; they do not gain typed verdict effects. Four manuals, help and changelog describe the distinct destinations. Capability adoption is not claimed.
+
+### Independent review and evidence
+
+Reviewer `agent:independent-gpt-6.1-sol-review`, maintainer-authorized Codex/OpenAI execution, reviewed the Claude/Anthropic implementation, Claude Opus 5.5 session `f2a4d9f2-d557-4064-ae96-6ed52bb47cd2`. The engine-required `agent:independent-` prefix is a declaration; local attestations are unsigned and synthetic fixture signatures do not authenticate vendor or cognitive independence. The bundle was sealed with explicit lead `anthropic/claude-opus-5-5`; the warning about the absent Anthropic session reference in this Codex environment is expected.
+
+Bundle `rvb-57cfad060c87c98c`, digest `sha256:57cfad060c87c98c276dccc710cad452a7e4d3b0e02a663971d2c17c2eef8f01`, plan `sha256:ada579c8ed38d9afb2242c9df934c7929e415080e315a1e5edac8d4660ad8b1c`; approved attestation `rva-89954037e256fc74`. Native verification and review-check confirmed a fresh approved review before the guarded close. Independent full Go suites passed in C without session markers and in pt_BR.UTF-8; vet, Windows/Darwin builds, focused race, gitleaks and govulncheck passed. Current global strict validation passed 158/158 checks; module validation passed 155/155 on the implemented commit.
+
+Independent adversarial probes and mutation counterexamples reconciled the prior independence, provenance/target, exact coverage, closeout, concurrency, schema, issuer and real-child-process crash-recovery findings. F04 is resolved by the native CLI regression: removing its consumer or either target-selection filter compiles but fails its assertions. That test substitutes the loader boundary; actual smoke-document verification remains covered in the pose package. Local review evidence, including real process exit after lock acquisition and native recovery followed by one verified same-run verdict, remains in `.review-work/round5/` as requested. The canonical committed validation results and sealed review records carry the native evidence.
+
+### Validation observations
+
+The first round-5 global validation passed 157/158 checks but failed the install/upgrade journey with `contract-nodes is not on after the answer was applied`. Its full output was preserved. The simultaneous module validation passed that check, the maintainer reported eleven successful focused runs, and the authorized fresh global validation passed all 158 checks. This is recorded as an intermittent check observation, not a finding attributed to this diff. No production or test fix was made by this reviewer.
 
 ### Residual risks
 
-None yet.
+No unresolved review finding remains for this spec. Evidence establishes admission, persistence, provenance and CLI composition over fixtures; it does not prove an external service was physically exercised. Windows and Darwin were compiled rather than executed. Integration's pre-existing observational consumer gaps and tech-debt's incomplete scan of two pre-existing invalid specs are disclosed without claiming complete source coverage or new regressions. Declared reviewer identity and unsigned attestation are existing assurance limits.
 
 ### Follow-ups
+
+- [done] F04 (medium in rounds 1–4): versioned CLI smoke regression now covers absent/present, another target/spec and unverified observations in both required and any evidence lists; three independent consumer/filter mutations fail its native assertions.
