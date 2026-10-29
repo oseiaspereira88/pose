@@ -178,3 +178,41 @@ func TestTaskStateDirRefusesAnotherUsersDirectory(t *testing.T) {
 		}
 	}
 }
+
+// F2F3-R4-01: the history is keyed by the resolved root; what an earlier
+// engine kept under a link's spelling is still read, never written.
+func TestTaskHistoryKeyedByTheResolvedRootReadsTheLegacyKey(t *testing.T) {
+	root := t.TempDir()
+	link := filepath.Join(t.TempDir(), "project")
+	if err := os.Symlink(root, link); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	viaLink, err := taskStateDir(link, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if viaRoot, err := taskStateDir(root, false); err != nil || viaRoot != viaLink {
+		t.Fatalf("two spellings, two histories: %q %q %v", viaLink, viaRoot, err)
+	}
+	legacy, ok, err := legacyTaskStateDir(link)
+	if !ok || err == nil {
+		t.Fatalf("an absent legacy directory: %q %v %v", legacy, ok, err)
+	}
+	if _, ok, _ := legacyTaskStateDir(root); ok {
+		t.Fatal("a resolved root has a legacy spelling")
+	}
+	abs, _ := filepath.Abs(link)
+	legacy, err = taskStateDirFor(abs, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	record := `{"run_id": "trn-legacy0000000001", "purpose": "task", "attempt_id": "tat-legacy"}`
+	if err := os.WriteFile(filepath.Join(legacy, "trn-legacy0000000001.json"), []byte(record), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	runs, lost := Store{Root: link}.ReadDelegationTaskRuns()
+	if len(lost) != 0 || len(runs) != 1 || runs[0].RunID != "trn-legacy0000000001" {
+		t.Fatalf("the legacy history: %v %v", runs, lost)
+	}
+}

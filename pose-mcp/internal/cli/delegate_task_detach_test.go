@@ -352,3 +352,64 @@ func TestDelegateTaskDetachStaysInTheCheckedRoot(t *testing.T) {
 		t.Fatalf("output: %q", got)
 	}
 }
+
+// R1, R10 (review round 4, F2F3-R4-01): through a stable link to the root,
+// a detached task and a foreground one keep one private history: the caller
+// waits on what it detached, and resumes a foreground task detached.
+func TestDelegateTaskHistoryIsOneThroughARootLink(t *testing.T) {
+	root, _, prompt := taskInstance(t)
+	link := filepath.Join(t.TempDir(), "project")
+	if err := os.Symlink(root, link); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv(posemodel.DelegateRootEnv, link)
+	code, out := runBuilt(t, root, "delegate", "task", prompt, "--agent", "worker", "--detach", "--json")
+	doc := detachedFrom(t, code, out)
+	if code, out := runBuilt(t, root, "delegate", "wait", doc.Attempt, "--json"); code != 0 || !strings.Contains(out, `"state":"completed"`) {
+		t.Fatalf("wait through the link: %d %s", code, out)
+	}
+	if code, out := runBuilt(t, root, "delegate", "task", prompt, "--agent", "limited", "--label", "half"); code != 75 {
+		t.Fatalf("a foreground task through the link: %d %s", code, out)
+	}
+	code, out = runBuilt(t, root, "delegate", "resume", "half", "--detach", "--json")
+	resumed := detachedFrom(t, code, out)
+	if code, out := runBuilt(t, root, "delegate", "wait", resumed.Attempt); code != 0 {
+		t.Fatalf("the detached resume through the link: %d %s", code, out)
+	}
+	t.Setenv(posemodel.DelegateRootEnv, root)
+	if code, out := runBuilt(t, root, "delegate", "ls", "half", "--json"); code != 0 || !strings.Contains(out, `"state": "completed"`) {
+		t.Fatalf("the same history from the resolved root: %d %s", code, out)
+	}
+}
+
+// R10 (F2F3-R4-02): a caller whose directory is gone is refused, never
+// started in the root or anywhere else.
+func TestDelegateTaskDetachRefusesAMissingCurrentDirectory(t *testing.T) {
+	root, _, prompt := taskInstance(t)
+	built := poseBinary(t)
+	saved := delegateExecutable
+	defer func() { delegateExecutable = saved }()
+	delegateExecutable = func() (string, error) { return built, nil }
+	gone := t.TempDir()
+	old, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.Chdir(old) }()
+	if err := os.Chdir(gone); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Remove(gone); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PWD", gone)
+	t.Setenv(posemodel.DelegateRootEnv, root)
+	var out, errB strings.Builder
+	code := Main([]string{"delegate", "task", prompt, "--agent", "worker", "--detach", "--json"}, &out, &errB)
+	if code != 1 || !strings.Contains(out.String(), "current directory cannot be read") {
+		t.Fatalf("a missing current directory: %d %s %s", code, out.String(), errB.String())
+	}
+	if runs, _ := (posemodel.Store{Root: root}).ReadDelegationTaskRuns(); len(runs) != 0 {
+		t.Fatalf("a task ran from a missing directory: %v", runs)
+	}
+}

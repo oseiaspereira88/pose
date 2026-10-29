@@ -207,18 +207,22 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 		}
 		piped = &prompt
 	}
+	// The run starts where the caller stands, so a relative --note-file or
+	// scope reads what the caller meant; a caller whose directory cannot be
+	// read is refused rather than started somewhere else (review round 4,
+	// F2F3-R4-02).
+	wd, err := os.Getwd()
+	if err != nil {
+		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the current directory cannot be read ("+err.Error()+"); detach from an existing directory",
+			"o diretório atual não pode ser lido ("+err.Error()+"); destaque a partir de um diretório existente")))
+	}
 	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
 	}
 	defer logFile.Close()
 	cmd := exec.Command(self, child...)
-	// The run starts where the caller stands, so a relative --note-file or
-	// scope reads what the caller meant.
-	cmd.Dir = root
-	if wd, err := os.Getwd(); err == nil {
-		cmd.Dir = wd
-	}
+	cmd.Dir = wd
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = nil, logFile, logFile
 	cmd.Env = append(os.Environ(), delegateHandback+"="+handback, posemodel.DelegateRootEnv+"="+pinned)
 	var pipe io.WriteCloser

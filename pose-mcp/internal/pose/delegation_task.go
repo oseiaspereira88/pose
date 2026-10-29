@@ -310,13 +310,38 @@ func taskStateBase() (string, error) {
 // is the person's own and may be reached through links; it is resolved once,
 // and it and every ancestor must be a directory no other user can rewrite
 // (R6). The directories POSE makes below it are real, owner-only and the
-// user's (R7).
+// user's (R7). The project is named by its resolved root, so every spelling
+// of the same project — a link, the detached run's pinned root — keeps one
+// history (review round 4, F2F3-R4-01).
 func taskStateDir(root string, create bool) (string, error) {
-	base, err := taskStateBase()
+	abs, err := filepath.Abs(root)
 	if err != nil {
 		return "", err
 	}
+	if resolved, err := filepath.EvalSymlinks(abs); err == nil {
+		abs = resolved
+	}
+	return taskStateDirFor(abs, create)
+}
+
+// legacyTaskStateDir is where a task recorded under a spelling of the root
+// that is not its resolved path was kept before the history was keyed by
+// the resolved root; it is read, never written, and ok is false when the two
+// spellings agree.
+func legacyTaskStateDir(root string) (dir string, ok bool, err error) {
 	abs, err := filepath.Abs(root)
+	if err != nil {
+		return "", false, nil
+	}
+	if resolved, err := filepath.EvalSymlinks(abs); err != nil || resolved == abs {
+		return "", false, nil
+	}
+	dir, err = taskStateDirFor(abs, false)
+	return dir, true, err
+}
+
+func taskStateDirFor(abs string, create bool) (string, error) {
+	base, err := taskStateBase()
 	if err != nil {
 		return "", err
 	}
@@ -466,8 +491,15 @@ func (s Store) DelegationTaskRecordDir(record bool) (string, error) {
 func (s Store) ReadDelegationTaskRuns() ([]ReviewRun, []string) {
 	var runs []ReviewRun
 	var lost []string
-	for _, record := range []bool{false, true} {
-		dir, err := s.taskRunsDir(record, false)
+	dirs := []func() (string, error){
+		func() (string, error) { return s.taskRunsDir(false, false) },
+		func() (string, error) { return s.taskRunsDir(true, false) },
+	}
+	if legacy, ok, err := legacyTaskStateDir(s.Root); ok {
+		dirs = append(dirs, func() (string, error) { return legacy, err })
+	}
+	for _, place := range dirs {
+		dir, err := place()
 		if err != nil {
 			if !errors.Is(err, os.ErrNotExist) {
 				lost = append(lost, "task runs: "+err.Error())
