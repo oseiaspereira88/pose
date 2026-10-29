@@ -16,6 +16,7 @@ Each `SKILL.md` uses YAML frontmatter with `name`, `description`, and
 | [pose-surface-closeout](pose-surface-closeout/SKILL.md) | Close composed delivery | [ui-surface.md](../../.pose/workflows/ui-surface.md) | delivery-surface, security |
 | [pose-release-closeout](pose-release-closeout/SKILL.md) | Close and verify a release | [release.md](../../.pose/workflows/release.md) | release-integrity, security |
 | [pose-bugfix](pose-bugfix/SKILL.md) | Defect correction | [bugfix.md](../../.pose/workflows/bugfix.md) | security, documentation-style, and domain rules |
+| [pose-delegate](pose-delegate/SKILL.md) | Governed delegation or general task | Native `pose delegate` | security and delivery-evidence |
 | [pose-review](pose-review/SKILL.md) | PR or code review | [review.md](../../.pose/workflows/review.md) | security, documentation-style, and domain rules |
 | [pose-adr](pose-adr/SKILL.md) | Architectural decision | Motivating workflow | security and documentation-style |
 | [pose-test-plan](pose-test-plan/SKILL.md) | Pre-implementation test plan | feature or bugfix | security, documentation-style, and domain rules |

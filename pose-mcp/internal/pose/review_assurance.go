@@ -114,8 +114,9 @@ func (s Store) DescribeReviewAssurance(bundle ReviewBundle, att *ReviewAttestati
 	return out
 }
 
-func (s Store) describeReviewAssurance(bundle ReviewBundle, att *ReviewAttestation) ReviewAssurance {
-	out := ReviewAssurance{
+func (s Store) describeReviewAssurance(bundle ReviewBundle, att *ReviewAttestation) (out ReviewAssurance) {
+	defer func() { out.Limitations = uniqueStable(append(out.Limitations, bundle.Payload.Plan.Limitations...)) }()
+	out = ReviewAssurance{
 		IdentityAssurance:     bundle.Payload.SealedGates().IdentityAssurance,
 		SeparationRequired:    firstNonempty(bundle.Payload.Plan.Independence, "none"),
 		SeparationVerified:    reviewAssuranceNotVerified,

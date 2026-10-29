@@ -33,6 +33,45 @@ baseline restores stronger obligations from the resolved base where supported;
 an unresolved base is disclosed as unprotected. Read the plan's reasons and
 coverage before recording a conclusion.
 
+## Adopt delegated review
+
+Run `pose init` in a new project for an interactive delegation offer (default
+yes). Acceptance detects Codex and Claude CLIs on PATH without starting them,
+creates read-only agent profiles, and provisions a project-specific native
+executor issuer outside the repository. Its pin grants attestation signing,
+never human authority. With no supported CLI, a refusal or a non-interactive
+init, delegation is explicitly off and no agent policy or key is created.
+An existing instance is preserved; `pose update` only suggests adoption.
+
+For an existing project, configure `.pose/policy/delegation.json`, including
+review-capable agents with explicit executor principals, executor-attested
+provenance and `conclusions.issuer`. Pin that exact local issuer for
+attestations; bind the authority project to `.pose/project.json` and configure
+its audience. Preview and apply:
+
+```bash
+pose adopt delegated-review
+pose adopt delegated-review --apply
+pose delegate agents --json
+```
+
+The B17 signed-run-proof barrier remains live: an old prefix-only approval
+can stop satisfying current verification after adoption; its record is preserved.
+
+With delegation on, a new plan requires a different actor. Automatic routing
+that cannot find another vendor or model opens a maintainer action request;
+mandatory-human review also escalates. Disable explicitly with
+`pose adopt delegated-review --off --apply` to allow new different-actor
+plans to use same-actor-separate-execution, disclosed as
+`delegated-review-disabled` in the plan, attestation, verification and closeout.
+Mandatory-human and a stronger protected baseline remain stronger. Absence of
+the policy key retains legacy behavior; decline/defer record configuration
+decisions without changing that policy. Disabling preserves pins and history.
+
+If init saves the policy or key but cannot activate, retain those artifacts,
+inspect the publication state, finish pinning the issuer and retry adoption.
+Inspect a durability-unconfirmed publication before retrying.
+
 ## Delegate a review
 
 ```bash
@@ -47,8 +86,11 @@ The brief is generated from the bundle. Implementer notes are labelled
 separately. Dispatch runs a configured command in a disposable worktree at the
 sealed commit and retains its outcome under `.pose/review-runs/`. File changes,
 timeouts, budget overruns and execution failures are failed runs. A completed
-run does not create an attestation or approve the spec. The agent is a local
-command, not a host security sandbox.
+run alone does not approve the spec. With delegation adopted and its issuer
+configured, the engine signs and records the completed run's verified typed
+conclusion automatically. An incomplete or invalid conclusion is refused with
+its reasons; a rejecting conclusion is recorded and blocks approval until the
+subject changes. The agent is a local command, not a host security sandbox.
 
 The bundle records who implemented it when it is sealed: the vendor detected
 from the sealing agent's session, or declared with `--seal --lead
@@ -60,10 +102,14 @@ achieved — another vendor, another model, or the same model, which never
 satisfies a review that requires a different actor. A model nobody declared is
 unknown and never counts as a difference.
 
-Read the returned work, complete every judgment, then use `pose review attest`
-and the [CLI reference](cli.md#component-aware-and-convergent-review). Finish
-with `pose review verify`, `pose review-check` and `pose closeout-check` for
-the scope. Changed semantic inputs require a fresh bundle and current evidence.
+Read the returned work and the engine's conclusion. Follow its `next_actions`;
+answer a rejection with a change, current evidence and a new sealed bundle.
+Preserve the rejection rather than rerunning the unchanged subject for a more
+favorable verdict. Finish with `pose review verify`, `pose review-check` and
+`pose closeout-check` for the scope. Use `pose delegate task <prompt-file>` for
+general work; a task never supplies a review or delivery evidence. See the
+[CLI reference](cli.md#component-aware-and-convergent-review) for explicit
+attestations when automatic conclusions do not apply.
 
 ## Request a delegated review any runner can fulfil
 

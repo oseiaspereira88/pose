@@ -40,6 +40,7 @@ func subOrError(source fs.FS, dir string) fs.FS {
 // ClaudeSkillLinks lists the .claude/skills symlinks to recreate at install
 // time (go:embed cannot carry symlinks). Name → relative target.
 var ClaudeSkillLinks = map[string]string{
+	"pose-delegate":              "../../.agents/skills/pose-delegate",
 	"pose-adr":                   "../../.agents/skills/pose-adr",
 	"pose-bugfix":                "../../.agents/skills/pose-bugfix",
 	"pose-doc-update":            "../../.agents/skills/pose-doc-update",

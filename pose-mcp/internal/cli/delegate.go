@@ -359,6 +359,13 @@ func routeDelegateAgent(store posemodel.Store, kind, ref, notes string, f delega
 	if err != nil {
 		return "", nil, "", 1, err
 	}
+	reviewPolicy, err := store.GetReviewPolicy()
+	if err != nil {
+		return "", nil, bundle.BundleID, 1, err
+	}
+	if reviewPolicy.DelegatedReview && bundle.Payload.Plan.Independence == "mandatory-human" {
+		return "", nil, bundle.BundleID, 1, &posemodel.ErrNoDelegationAgentAvailable{}
+	}
 	if f.agent != "" && f.agent != "auto" {
 		// A named agent is recorded by the plan itself (R9).
 		return f.agent, nil, bundle.BundleID, 0, nil
@@ -372,6 +379,16 @@ func routeDelegateAgent(store posemodel.Store, kind, ref, notes string, f delega
 		eligible = append(eligible, name)
 	}
 	avail := store.DelegationAvailabilityOf(policy, now, true)
+	if reviewPolicy.DelegatedReview && bundle.Payload.Plan.Independence == "different-actor" {
+		for name, candidate := range policy.Agents {
+			achieved := posemodel.AchievedIndependence(impl.Vendor, impl.Model, candidate.Vendor, candidate.Model)
+			if achieved != "different-vendor" && achieved != "different-model" {
+				a := avail[name]
+				a.State, a.Detail = posemodel.DelegationAgentIneligible, "cannot establish required vendor/model independence"
+				avail[name] = a
+			}
+		}
+	}
 	agent, record, err := posemodel.RouteDelegation(policy, eligible, impl, from, avail, now)
 	if err != nil {
 		return "", &record, bundle.BundleID, 1, err
@@ -455,6 +472,30 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	}
 	kind := posemodel.DelegationKindForPurpose(purpose)
 	agent, route, routedBundle, code, err := routeDelegateAgent(store, kind, ref, notes, f, time.Now())
+	var unavailable *posemodel.ErrNoDelegationAgentAvailable
+	if f.dryRun && f.jsonOut && (errors.Is(err, posemodel.ErrNoReviewerAdapter) || errors.As(err, &unavailable)) {
+		p, policyErr := store.GetReviewPolicy()
+		if policyErr != nil {
+			return delegateFail(stdout, stderr, true, purpose, 1, policyErr)
+		}
+		if p.DelegatedReview {
+			writeDelegateJSON(stdout, map[string]any{"schema": delegateErrorSchema, "command": purpose, "error": err.Error(), "routing": route, "reason_code": posemodel.DelegationReasonAgentUnavailable, "escalation_required": true})
+			return 1
+		}
+	}
+	if !f.dryRun && (errors.Is(err, posemodel.ErrNoReviewerAdapter) || errors.As(err, &unavailable)) {
+		id, escalationErr := store.EscalateUnavailableDelegation(ref, purpose, err.Error(), time.Now())
+		if escalationErr != nil {
+			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, fmt.Errorf("%w; escalation could not be recorded: %v", err, escalationErr))
+		}
+		if id != "" {
+			if f.jsonOut {
+				writeDelegateJSON(stdout, map[string]any{"schema": delegateErrorSchema, "command": purpose, "error": err.Error(), "escalation": id, "routing": route})
+				return 1
+			}
+			return delegateFail(stdout, stderr, false, purpose, 1, fmt.Errorf("%w; decision request %s asks the maintainer how to proceed", err, id))
+		}
+	}
 	if errors.Is(err, posemodel.ErrNoReviewerAdapter) {
 		return delegateNoAgent(stdout, stderr, f.jsonOut, purpose)
 	}

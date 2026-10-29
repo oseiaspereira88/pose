@@ -89,7 +89,20 @@ func cmdInitCommand(root string, args []string, stdout, stderr io.Writer) int {
 	if yes && !wizard {
 		return usageError(stderr, usage)
 	}
+	if err := posemodel.ValidateDelegationPaths(root); err != nil {
+		return initDelegationError(stderr, err)
+	}
+	existingGovernance := false
+	for _, name := range []string{"review.json", "reviewers.json", "delegation.json"} {
+		if _, err := os.Lstat(filepath.Join(root, ".pose", "policy", name)); err == nil {
+			existingGovernance = true
+		} else if !os.IsNotExist(err) {
+			return initDelegationError(stderr, err)
+		}
+	}
+	fresh := false
 	if _, err := os.Stat(filepath.Join(root, ".pose", "schema-version")); err != nil {
+		fresh = !existingGovernance
 		if code := cmdInstall(installArgs, stdout, stderr); code != 0 {
 			return code
 		}
@@ -100,6 +113,11 @@ func cmdInitCommand(root string, args []string, stdout, stderr io.Writer) int {
 		render(stdout, stderr).ContractLine(cliText(locale,
 			"[INFO] POSE is already installed here; `pose update` refreshes the machinery and nothing else was written.",
 			"[INFO] o POSE já está instalado aqui; `pose update` atualiza o maquinário e nada mais foi gravado."))
+	}
+	if fresh {
+		if code := initDelegation(root, stdout, stderr); code != 0 {
+			return code
+		}
 	}
 	if wizard {
 		wizardArgs := []string{}

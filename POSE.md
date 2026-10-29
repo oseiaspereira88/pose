@@ -807,6 +807,48 @@ Lifecycle `done` records the transition; terminal verification reads the applica
 
 For a done scope, `pose close --apply|--resume` is readonly: verified state returns `already-satisfied` with empty `steps_run` and `effects`, while missing required proof or invalid history returns blocked with a supported repair action. Neither outcome rewrites checkpoints, starts, amendments or lifecycle. Plain `pose close` also verifies instead of repeating the transition. An in-progress plan checks the existing amendment gate before sealing. No policy, review or historical receipt is created automatically.
 
+### Adopt delegated review
+
+Run `pose init` in a new project to receive an interactive delegation offer,
+with yes as the default. Accepting it detects Codex and Claude CLIs on PATH
+without executing them, creates their read-only profiles, and provisions a
+project-specific native executor issuer outside the repository. Its pin grants
+attestation signing only, never human authority. The decision is enabled last.
+No supported CLI, a refusal, EOF or non-interactive init leaves an explicit
+`delegated_review: false`, without an agent policy or signing key. Existing
+instances are preserved; `pose update` only suggests adoption.
+
+For an existing project, configure `.pose/policy/delegation.json` with a
+review-capable agent, an explicit executor, `provenance.trust` set to
+`executor-attested` and `conclusions.issuer`. Pin that exact local issuer for
+attestations and bind `authority_project` to the declared project and a nonempty
+`authority_audience`. Inspect `pose adopt delegated-review`, then apply with
+`--apply`. The command validates the signer and records the adoption date.
+`pose adopt delegated-review --off --apply` records an explicit disabled
+decision and date while preserving issuers, pins and execution history.
+`--decline` and `--defer` record configuration decisions; they do not implicitly
+change the review policy.
+
+The B17 signed-run-proof barrier stays live: adoption can invalidate an old
+prefix-only approval under current verification without rewriting its record.
+
+An adopted capability requires different-actor review: a verified run from
+another vendor or model. When automatic routing cannot obtain that separation,
+the engine opens a maintainer action request instead of weakening the plan.
+A mandatory-human plan also escalates. Only an explicit disabled decision
+allows new different-actor plans to use same-actor-separate-execution, disclosed
+as `delegated-review-disabled` in the sealed plan, attestation, verification and
+closeout. Legacy omission retains its previous behavior; mandatory-human and a
+stronger protected baseline remain stronger.
+
+If init fails after saving the agent policy or key, preserve those artifacts,
+inspect the reported publication state, finish pinning that issuer and retry
+`pose adopt delegated-review --apply`. A durability-unconfirmed publication
+requires inspection before retrying. An enabled decision never proves a vendor
+receipt, human identity or cognitive independence. Use the
+[pose-delegate skill](.agents/skills/pose-delegate/SKILL.md) to select review
+versus task and follow native next actions.
+
 ### Delegated executions (`pose delegate`)
 
 `pose review` governs the subject (bundle, brief, attestation, verify); `pose delegate` governs executions. An **agent** is a CLI profile configured in `.pose/policy/delegation.json`; a **run** is one execution; an **attempt** is a run and its continuations; a **thread** is the rounds of one scope. `pose delegate review`, `adjudicate` and `smoke` run the sealed bundle's generated brief on a disposable worktree at the sealed commit with read access only, under the attempt ledger and containment below; any other `--access` is refused. The agent never records an attestation: the engine records the conclusion of a completed review run only as the conclusions of delegated reviews below describe. Without `--agent` (or with `auto`) routing chooses among the agents of the purpose: first by `routing.prefer` (default `opposite-vendor-of-implementation`, in the order the policy declares its agents), then by the steps of `routing.on_unavailable` (default `same-vendor-other-model`, `wait`, `same-model`). `wait` applies only when every earlier candidate is limited with a known reset within `routing.max_wait` (default 5h) and starts the run after the first reset, without polling. The implementation routed against is the identity the bundle sealed; for a bundle sealed before bundles recorded it, the policy's `provenance.implementation`, else `--lead`. An agent named with `--agent` bypasses routing and warns when it shares the implementation's vendor. Every run records the decision (`routing`: the candidates, why each was skipped, the step taken) and `independence_achieved` (`different-vendor`, `different-model` or `same-model`); with no agent available the run does not start and the error carries the decision. `--label` names the run, `--lead <vendor>[/<model>]` declares the implementation when the bundle records none, `--dry-run` prints the resolved agent, purpose, access, working directory and argv (authorized credential values redacted) and reserves nothing, and `--json` prints one versioned document (`pose.delegate.run/v1`, `plan/v1`, `ls/v1`, `cancel/v1`, `agents/v1`, `error/v1`), usage errors included. On `ls`, `resume`, `cancel` and `agents` the same flags select: a run or an agent that does not match is not listed, or is refused when named; `--dry-run` changes nothing anywhere. Messages follow `POSE_LOCALE` (`en` or `pt-BR`). A run reference is a run id, an attempt id, a label or a session prefix of six characters or more; an ambiguous reference exits 2 and lists the candidates.

@@ -124,10 +124,11 @@ type ReviewPlan struct {
 	// Structure is the observed structural context, resolved only when an
 	// adopted profile selects on it. Unlike the summaries above it is an
 	// obligation input, so it enters the plan digest: see review_structure.go.
-	Structure *ReviewPlanStructure `json:"structure,omitempty"`
-	Warnings  []string             `json:"warnings,omitempty"`
-	Blockers  []string             `json:"blockers,omitempty"`
-	Explain   []string             `json:"explain"`
+	Structure   *ReviewPlanStructure `json:"structure,omitempty"`
+	Limitations []string             `json:"limitations,omitempty"`
+	Warnings    []string             `json:"warnings,omitempty"`
+	Blockers    []string             `json:"blockers,omitempty"`
+	Explain     []string             `json:"explain"`
 }
 
 type reviewRepoEntry struct {
@@ -268,6 +269,10 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 		Criteria: []ReviewPlanCriterion{}, Tools: []ReviewPlanTool{}, Explain: []string{},
 		Independence: normalizeReviewIndependence(policy.ReviewerIndependence[scope.Kind]),
 	}
+	if policy.DelegatedReview {
+		plan.Independence = stricterReviewIndependence(plan.Independence, "different-actor")
+		plan.Explain = append(plan.Explain, "adopted delegated review requires another vendor or model; a same-model run cannot approve")
+	}
 	profiles := []ReviewProfile{base}
 	plan.SelectedProfiles = append(plan.SelectedProfiles, ReviewPlanProfile{Ref: base.Ref(), Category: "base", Order: 0, Source: ".pose/review-profiles/" + base.ID + ".json", Rationale: "selected by terminal scope policy"})
 	plan.Explain = append(plan.Explain, "base profile "+base.Ref()+" selected by "+scope.Kind+" scope policy")
@@ -357,6 +362,11 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	plan.Explain = append(plan.Explain, reviewPolicyBaselineExplain(plan.PolicyBaseline)...)
 	if !plan.PolicyBaseline.Protected && len(guard.Paths) > 0 {
 		plan.Warnings = append(plan.Warnings, "unprotected review contract change "+strings.Join(guard.Paths, ",")+": "+firstNonempty(guard.Reason, "the base contract could not be resolved"))
+	}
+	if policy.DelegatedReviewConfigured && !policy.DelegatedReview && plan.Independence == "different-actor" && !plan.PolicyBaseline.Protected {
+		plan.Independence = "same-actor-separate-execution"
+		plan.Limitations = []string{ReviewLimitationDelegationDisabled}
+		plan.Explain = append(plan.Explain, ReviewLimitationDelegationDisabled+": explicit refusal allows a separate execution of the same actor; human requirements are unchanged")
 	}
 	plan.Tools, plan.Blockers, plan.Warnings = buildReviewTools(scope, context, profiles, plan.SelectedProfiles, plan.Criteria, plan.Blockers, plan.Warnings)
 	plan.Warnings = s.annotateReviewToolProducerCoverage(plan.Tools, plan.Warnings)
@@ -1334,7 +1344,8 @@ func digestReviewPlan(plan ReviewPlan) (string, error) {
 		Warnings, Blockers                            []string
 		Explain                                       []string
 		Structure                                     *[]ReviewStructuralFact `json:",omitempty"`
-	}{plan.SchemaVersion, plan.Scope, plan.ScopeDigest, plan.BaseProfile, plan.Independence, plan.PolicySchemaVersion, components, plan.SelectedProfiles, plan.Criteria, plan.Tools, plan.Warnings, plan.Blockers, plan.Explain, structure})
+		Limitations                                   []string                `json:",omitempty"`
+	}{plan.SchemaVersion, plan.Scope, plan.ScopeDigest, plan.BaseProfile, plan.Independence, plan.PolicySchemaVersion, components, plan.SelectedProfiles, plan.Criteria, plan.Tools, plan.Warnings, plan.Blockers, plan.Explain, structure, plan.Limitations})
 }
 
 func validateReviewPath(files Files, root, value string) error {

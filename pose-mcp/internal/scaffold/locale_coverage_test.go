@@ -50,7 +50,7 @@ var localeComparisons = map[string]comparison{
 func init() {
 	// Skills keep their shape difference; only the commands must match.
 	for _, slug := range []string{
-		"pose-adr", "pose-bugfix", "pose-doc-update", "pose-feature",
+		"pose-adr", "pose-bugfix", "pose-doc-update", "pose-feature", "pose-delegate",
 		"pose-knowledge", "pose-recurrence-escalation", "pose-release-closeout",
 		"pose-review", "pose-spec-closeout", "pose-surface-closeout",
 		"pose-test-plan",

@@ -120,7 +120,12 @@ func (u instanceUpdate) text(english, portuguese string) string {
 
 // apply runs the update through files; with a preview's files it writes
 // nothing.
-func (u instanceUpdate) apply(files posemodel.Files, stdout, stderr io.Writer) int {
+func (u instanceUpdate) apply(files posemodel.Files, stdout, stderr io.Writer) (result int) {
+	defer func() {
+		if result == 0 {
+			suggestDelegationUpdate(files, u.root, stdout)
+		}
+	}()
 	reads := &updateReadView{Files: files, seen: map[string]bool{}}
 	files = reads
 	defer func() {

@@ -138,6 +138,14 @@ func (s Store) EffectiveGovernance(scope string) (GovernanceProjection, error) {
 		}
 		return fmt.Sprint(v)
 	}
+	delegationValue := ""
+	if policy.DelegatedReviewConfigured {
+		delegationValue = fmt.Sprint(policy.DelegatedReview)
+	}
+	capability("delegated-review", "review.delegated_review", policy.DelegatedReview, delegationValue,
+		policy.DelegatedReview, nil,
+		pick(policy.DelegatedReview, "live signed-run-proof barrier is active; new plans require another vendor or model, unavailable agents escalate",
+			pick(policy.DelegatedReviewConfigured, "explicitly disabled: new eligible plans disclose delegated-review-disabled; human and protected-baseline requirements remain stronger", "no explicit adoption decision: legacy enforcement is preserved")))
 	capability("atomic-start", "review.atomic_start_version", policy.AtomicStartVersion == AtomicStartPolicyVersion, version(policy.AtomicStartVersion),
 		policy.AtomicStartVersion == AtomicStartPolicyVersion, nil,
 		pick(policy.AtomicStartVersion == AtomicStartPolicyVersion, "`pose start --apply` records the R/A/D baseline and moves draft to in-progress under a lock"+atomicStartCutoffNote(policy.AtomicStartAdoptedAt), "supported and not adopted: `pose start` previews, `--apply` is refused"))

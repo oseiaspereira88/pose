@@ -178,13 +178,13 @@ func TestSkillsCheckDiscoveryAndBoundedWorkflowFixture(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("this repository's own skills must pass conformance (dogfood): %s\n%s", out.String(), errB.String())
 	}
-	// 11 installed skills plus their pt-BR mirror: the locale trees are shipped
+	// 12 installed skills plus their pt-BR mirror: the locale trees are shipped
 	// machinery and are held to the same contract (spec
 	// pose-machinery-distribution-contract, R3). Before that they went
 	// unchecked, and the pt-BR pose-knowledge skill had drifted into linking a
 	// spec path that does not exist.
-	if !strings.Contains(out.String(), "skills.checked=22") {
-		t.Errorf("expected 11 installed skills plus 11 mirrored, got: %s", out.String())
+	if !strings.Contains(out.String(), "skills.checked=24") {
+		t.Errorf("expected 12 installed skills plus 12 mirrored, got: %s", out.String())
 	}
 	if !strings.Contains(out.String(), "locales/pt-BR") && strings.Contains(out.String(), "[ERROR]") {
 		t.Errorf("locale mirrors must be part of the checked set: %s", out.String())

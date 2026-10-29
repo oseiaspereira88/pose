@@ -2173,6 +2173,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "delegated-review-capability-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "./internal/cli", "./internal/mcpserver", "-run", "DelegatedReviewCapability|DelegationInit|ConcludeReviewRun|DelegatedReviewRequestPerKind|ActionFulfil|OnlyTheSigningGate|RunProvenanceLiveOptIn", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "delegated-run-provenance-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "./internal/cli", "./internal/mcpserver", "-run", "RunProvenance", "-count=1"],

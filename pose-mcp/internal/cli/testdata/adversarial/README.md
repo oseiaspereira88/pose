@@ -41,4 +41,5 @@ adopting project's features.
 | `deleted-reservation-resets-quota` | delegated | Deleting a reservation and receipt makes a surviving run stop consuming quota | pose-delegated-review-attempt-ledger |
 | `witness-bundle-filter-hides-loss` | delegated | Editing a witness bundle makes scoped readers skip its corruption | pose-delegated-review-attempt-ledger |
 | `window-erases-rerun` | delegated | Moving a prior run outside the time window turns a rerun into a first attempt | pose-delegated-review-attempt-ledger |
+| `canned-executor-approval-proves-cognition` | delegated | A complete canned approval from a trusted local command is presented as proof of review cognition or a vendor receipt (`cli/delegated_review_capability_test.go:TestDelegatedReviewCapabilityCannedApprovalDisclosesItsLimits` guards disclosure; the engine cannot detect canned judgments) | pose-delegated-review-capability |
 | `oversized-writer-publishes-unreadable-run` | delegated | A writer reports completion for a run its bounded reader immediately refuses | pose-delegated-review-attempt-ledger |

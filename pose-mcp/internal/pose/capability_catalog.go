@@ -118,7 +118,18 @@ func (d PolicyDocs) Write(root string, store Store) error {
 		return err
 	}
 	if reviewChanged {
-		if err := store.fsys().Publish(filepath.Join(root, ".pose", "policy", "review.json"), review, 0o644, PublishAuthoritative, d.reviewRead); err != nil {
+		if delegationDecisionChanged(d) {
+			if err := ValidateDelegationPaths(root); err != nil {
+				return err
+			}
+		}
+		publish := func() error {
+			if delegationActivation(d) {
+				return d.publishDelegationActivation(store, review)
+			}
+			return store.fsys().Publish(filepath.Join(root, ".pose", "policy", "review.json"), review, 0o644, PublishAuthoritative, d.reviewRead)
+		}
+		if err := publish(); err != nil {
 			return err
 		}
 	}
@@ -230,6 +241,7 @@ func catalogEntries() []CatalogEntry {
 		return ""
 	}
 	entries := []CatalogEntry{
+		delegatedReviewCatalogEntry(),
 		governedEntry(byID["agency-readiness"], "7.0.0", "an action request that is not satisfied refuses the start, close or release it restricts"),
 		governedEntry(byID["atomic-start"], "6.0.0", "a spec moves from draft to in-progress with `pose start --apply`, which records the baseline it is reconciled against"),
 		governedEntry(byID["causality-closeout"], "6.0.0", "a review that answers for observed structure maps each material fact to a requirement or decision, with its own reason", "overlay:structural-materiality"),

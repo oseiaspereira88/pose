@@ -213,6 +213,10 @@ type ReviewPolicy struct {
 	RequireSignedAttestations    bool     `json:"require_signed_attestations,omitempty"`
 	TrustedAttestationIssuers    []string `json:"trusted_attestation_issuers,omitempty"`
 	DelegatedReview              bool     `json:"delegated_review,omitempty"`
+	DelegatedReviewAdoptedAt     string   `json:"delegated_review_adopted_at,omitempty"`
+	// Missing in an old policy is not a new refusal of delegation.
+	DelegatedReviewConfigured bool   `json:"-"`
+	DelegatedReviewDisabledAt string `json:"delegated_review_disabled_at,omitempty"`
 	// IdentityAssurance is per scope kind and holds `declared` or `verified`.
 	//
 	// It is a second axis, not a stronger value of the first. Independence says
@@ -465,6 +469,22 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 	var p ReviewPolicy
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return ReviewPolicy{}, fmt.Errorf("pose: invalid review policy: %w", err)
+	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &fields); err != nil {
+		return ReviewPolicy{}, err
+	}
+	if value, found := fields["delegated_review"]; found {
+		if string(value) == "null" {
+			return ReviewPolicy{}, fmt.Errorf("pose: delegated_review must be a boolean")
+		}
+		p.DelegatedReviewConfigured = true
+	}
+	if err := ValidateDelegationAdoptionDate(p.DelegatedReviewAdoptedAt); err != nil {
+		return ReviewPolicy{}, err
+	}
+	if err := ValidateDelegationAdoptionDate(p.DelegatedReviewDisabledAt); err != nil {
+		return ReviewPolicy{}, err
 	}
 	qualifiedRefsRequired := p.SchemaVersion == QualifiedArtifactPolicySchemaVersion || p.SchemaVersion == SpecAuthorityTransferPolicySchemaVersion
 	if (qualifiedRefsRequired && p.QualifiedArtifactRefsVersion != 1) || (!qualifiedRefsRequired && p.QualifiedArtifactRefsVersion != 0) {

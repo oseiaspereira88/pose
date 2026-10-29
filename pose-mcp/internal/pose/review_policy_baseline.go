@@ -243,6 +243,9 @@ func applyProtectedPolicyBaseline(plan *ReviewPlan, baseline reviewPolicyBaselin
 	baselineCriteria, _ := composeReviewCriteria(profiles, nil)
 
 	floor := normalizeReviewIndependence(baseline.Policy.ReviewerIndependence[scope.Kind])
+	if baseline.Policy.DelegatedReview {
+		floor = stricterReviewIndependence(floor, "different-actor")
+	}
 	for _, profile := range profiles {
 		floor = stricterReviewIndependence(floor, profile.Independence)
 	}

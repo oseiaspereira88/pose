@@ -23,6 +23,7 @@ const (
 	DelegationAgentLimited     = "limited"
 	DelegationAgentMissing     = "missing"
 	DelegationAgentProbeFailed = "probe-failed"
+	DelegationAgentIneligible  = "ineligible"
 	// DelegationAgentUnknown means the run history could not be read whole:
 	// a run that cannot be read may be the limit that blocks the agent.
 	DelegationAgentUnknown = "unknown"
@@ -274,7 +275,9 @@ func RouteDelegation(policy DelegationPolicy, eligible []string, impl ReviewBund
 		for _, name := range groups[group] {
 			agent, a := policy.Agents[name], avail[name]
 			c := DelegationRoutingCandidate{Agent: name, Vendor: agent.Vendor, Model: agent.Model, Group: group, State: a.State}
-			considered = append(considered, name)
+			if a.State != DelegationAgentIneligible {
+				considered = append(considered, name)
+			}
 			if a.State == DelegationAgentAvailable {
 				record.Candidates = append(record.Candidates, c)
 				return name

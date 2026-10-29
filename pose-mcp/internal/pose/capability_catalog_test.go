@@ -38,7 +38,7 @@ func catalogFixture(t *testing.T) string {
 }
 
 func TestCapabilityCatalogDescribesEveryEntry(t *testing.T) {
-	want := []string{"agency-readiness", "atomic-start", "causality-closeout", "contract-nodes", "criterion-reuse", "definition-of-ready",
+	want := []string{"agency-readiness", "atomic-start", "causality-closeout", "contract-nodes", "criterion-reuse", "definition-of-ready", "delegated-review",
 		"overlay:backend-review", "overlay:engineering-judgment", "overlay:frontend-review", "overlay:high-criticality-review", "overlay:structural-materiality",
 		"qualified-artifact-refs", "signed-attestations", "spec-authority-transfer", "verified-identity"}
 	got := []string{}

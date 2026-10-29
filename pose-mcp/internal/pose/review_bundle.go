@@ -111,6 +111,7 @@ type ReviewBundleSubject struct {
 }
 
 type ReviewBundlePlan struct {
+	Limitations  []string              `json:"limitations,omitempty"`
 	PlanDigest   string                `json:"plan_digest"`
 	Independence string                `json:"independence"`
 	Components   []ReviewPlanComponent `json:"components"`
@@ -378,6 +379,7 @@ type ReviewAttestation struct {
 	BundleDigest  string                  `json:"bundle_digest"`
 	Reviewer      string                  `json:"reviewer"`
 	Decision      string                  `json:"decision"`
+	Limitations   []string                `json:"limitations,omitempty"`
 	Criteria      []ReviewCriterion       `json:"criteria"`
 	Tools         []ReviewToolDisposition `json:"tools,omitempty"`
 	EvidenceRefs  []string                `json:"evidence_refs,omitempty"`
@@ -492,7 +494,7 @@ func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (Re
 	if err != nil {
 		return ReviewBundle{}, err
 	}
-	bundle.Payload.Plan = ReviewBundlePlan{PlanDigest: bundlePlanDigest, Independence: plan.Independence, Components: append([]ReviewPlanComponent{}, plan.Components...), Criteria: append([]ReviewPlanCriterion{}, plan.Criteria...), Tools: append([]ReviewPlanTool{}, plan.Tools...), SelectedProfiles: append([]ReviewPlanProfile{}, plan.SelectedProfiles...), Structure: plan.Structure}
+	bundle.Payload.Plan = ReviewBundlePlan{Limitations: append([]string(nil), plan.Limitations...), PlanDigest: bundlePlanDigest, Independence: plan.Independence, Components: append([]ReviewPlanComponent{}, plan.Components...), Criteria: append([]ReviewPlanCriterion{}, plan.Criteria...), Tools: append([]ReviewPlanTool{}, plan.Tools...), SelectedProfiles: append([]ReviewPlanProfile{}, plan.SelectedProfiles...), Structure: plan.Structure}
 
 	scopeProjection, excluded, err := s.reviewBundleScopeProjection(scope)
 	if err != nil {
@@ -1636,7 +1638,8 @@ func reviewBundlePlanDigest(plan ReviewPlan) (string, error) {
 		SelectedProfiles    []ReviewPlanProfile   `json:"selected_profiles"`
 		Criteria            []ReviewPlanCriterion `json:"criteria"`
 		Tools               []ReviewPlanTool      `json:"tools"`
-	}{plan.SchemaVersion, plan.PolicySchemaVersion, plan.BaseProfile, plan.Independence, append([]ReviewPlanComponent{}, plan.Components...), append([]ReviewPlanProfile{}, plan.SelectedProfiles...), append([]ReviewPlanCriterion{}, plan.Criteria...), append([]ReviewPlanTool{}, plan.Tools...)}
+		Limitations         []string              `json:"limitations,omitempty"`
+	}{plan.SchemaVersion, plan.PolicySchemaVersion, plan.BaseProfile, plan.Independence, append([]ReviewPlanComponent{}, plan.Components...), append([]ReviewPlanProfile{}, plan.SelectedProfiles...), append([]ReviewPlanCriterion{}, plan.Criteria...), append([]ReviewPlanTool{}, plan.Tools...), plan.Limitations}
 	return digestJSON(contract)
 }
 
@@ -2583,6 +2586,12 @@ func (s Store) recordReviewAttestation(att ReviewAttestation, now time.Time, sig
 // preview share it, so an issuer that signs a previewed attestation signs the
 // bytes that will be recorded (spec pose-mcp-review-attest-signed-only).
 func completeReviewAttestation(bundle ReviewBundle, att ReviewAttestation, now time.Time) (ReviewAttestation, error) {
+	if att.Limitations == nil {
+		att.Limitations = append([]string(nil), bundle.Payload.Plan.Limitations...)
+	}
+	if strings.Join(att.Limitations, "\x00") != strings.Join(bundle.Payload.Plan.Limitations, "\x00") {
+		return ReviewAttestation{}, fmt.Errorf("pose: attestation must retain the sealed review limitations")
+	}
 	if att.BundleDigest == "" {
 		att.BundleDigest = bundle.BundleDigest
 	}
@@ -3131,6 +3140,9 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	policy, _, policyErr := s.loadReviewPolicy()
 	if policyErr != nil {
 		blockers = append(blockers, policyErr.Error())
+	}
+	if strings.Join(att.Limitations, "\x00") != strings.Join(bundle.Payload.Plan.Limitations, "\x00") {
+		blockers = append(blockers, "attestation does not retain the sealed review limitations")
 	}
 	if att.BundleDigest != bundle.BundleDigest || att.BundleID != bundle.BundleID {
 		blockers = append(blockers, "attestation does not reference the exact sealed bundle")

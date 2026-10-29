@@ -817,6 +817,47 @@ Lifecycle `done` registra a transição; a verificação terminal lê o contrato
 
 Para um scope done, `pose close --apply|--resume` é readonly: estado verificado retorna `already-satisfied`, com `steps_run` e `effects` vazios; prova obrigatória ausente ou histórico inválido retorna blocked com ação de reparo suportada. Nenhum resultado reescreve checkpoints, starts, amendments ou lifecycle. `pose close` simples também verifica em vez de repetir a transição. Um plano in-progress verifica o gate existente de amendments antes de selar. Nenhuma policy, review ou recibo histórico é criado automaticamente.
 
+### Adotar review delegado
+
+Execute `pose init` num projeto novo para receber a oferta interativa de
+review delegado, com sim como padrão. Aceitar detecta CLIs Codex e Claude no
+PATH sem executá-las, cria perfis de leitura e provisiona um issuer nativo do
+executor, específico do projeto, fora do repositório. O pin autoriza somente
+assinatura de atestações, nunca autoridade humana. A decisão é ativada por
+último. Sem CLI suportada, com recusa, EOF ou init não interativo, registra
+`delegated_review: false`, sem policy de agentes ou chave. Instâncias existentes
+são preservadas; `pose update` apenas sugere adoção.
+
+Num projeto existente, configure `.pose/policy/delegation.json` com agente de
+review, executor explícito, `provenance.trust: executor-attested` e
+`conclusions.issuer`. Fixe esse issuer local para atestações, vincule
+`authority_project` ao projeto declarado e informe `authority_audience`.
+Inspecione `pose adopt delegated-review` e aplique com `--apply`. O comando
+valida o assinante e data a adoção. `pose adopt delegated-review --off --apply`
+registra decisão explicitamente desligada e sua data, preservando issuers, pins
+e histórico. `--decline` e `--defer` registram decisões de configuração; não
+mudam implicitamente a policy de review.
+
+A barreira de prova de run de B17 continua viva: a adoção pode invalidar uma
+aprovação antiga baseada só em prefixo na verificação atual, sem reescrevê-la.
+
+A capacidade adotada exige review different-actor: run verificado de outro
+vendor ou modelo. Se o roteamento automático não conseguir essa separação,
+o motor abre uma action request ao maintainer em vez de enfraquecer o plano.
+Plano mandatory-human também escala. Só uma decisão explicitamente desligada
+permite que planos novos different-actor aceitem same-actor-separate-execution,
+com `delegated-review-disabled` no plano selado, atestação, verificação e
+closeout. Ausência legada da chave preserva o comportamento anterior;
+mandatory-human e baseline protegida mais forte continuam valendo.
+
+Se o init falhar depois de salvar policy ou chave, preserve esses artefatos,
+inspecione o estado de publicação informado, conclua o pin daquele issuer e
+repita `pose adopt delegated-review --apply`. Publicação sem confirmação de
+durabilidade exige inspeção antes de repetir. Decisão ativada não prova recibo
+do vendor, identidade humana ou independência cognitiva. Use a
+[skill pose-delegate](.agents/skills/pose-delegate/SKILL.md) para escolher review
+ou task e seguir próximas ações nativas.
+
 ### Execuções delegadas (`pose delegate`)
 
 `pose review` governa o sujeito (bundle, brief, atestação, verify); `pose delegate` governa as execuções. Um **agente** é um perfil de CLI configurado em `.pose/policy/delegation.json`; um **run** é uma execução; uma **tentativa** é um run e suas continuações; uma **thread** são as rodadas de um escopo. `pose delegate review`, `adjudicate` e `smoke` rodam o brief gerado do bundle selado num worktree descartável no commit selado, só com acesso de leitura, sob o ledger de tentativas e a contenção abaixo; qualquer outro `--access` é recusado. O agente nunca registra atestação: o motor registra a conclusão de um run de review concluído só como descrevem as conclusões de reviews delegadas abaixo. Sem `--agent` (ou com `auto`) o roteamento escolhe entre os agentes do propósito: primeiro por `routing.prefer` (padrão `opposite-vendor-of-implementation`, na ordem em que a policy declara seus agentes), depois pelos passos de `routing.on_unavailable` (padrão `same-vendor-other-model`, `wait`, `same-model`). `wait` só se aplica quando todo candidato anterior está limitado com reset conhecido dentro de `routing.max_wait` (padrão 5h) e inicia o run depois do primeiro reset, sem polling. A implementação contra a qual se roteia é a identidade que o bundle selou; para um bundle selado antes de os bundles a registrarem, o `provenance.implementation` da policy, senão `--lead`. Um agente nomeado com `--agent` dispensa o roteamento e avisa quando é do vendor da implementação. Todo run registra a decisão (`routing`: os candidatos, por que cada um foi ignorado, o passo tomado) e `independence_achieved` (`different-vendor`, `different-model` ou `same-model`); sem agente disponível o run não começa e o erro traz a decisão. `--label` nomeia o run, `--lead <vendor>[/<modelo>]` declara a implementação quando o bundle não registra nenhuma, `--dry-run` mostra agente, propósito, acesso, diretório de trabalho e argv resolvidos (com os valores de credenciais autorizadas ocultos) e não reserva nada, e `--json` imprime um documento versionado (`pose.delegate.run/v1`, `plan/v1`, `ls/v1`, `cancel/v1`, `agents/v1`, `error/v1`), inclusive erros de uso. Em `ls`, `resume`, `cancel` e `agents` as mesmas flags selecionam: um run ou agente que não corresponde não é listado, ou é recusado quando nomeado; `--dry-run` não altera nada em nenhum comando. As mensagens seguem `POSE_LOCALE` (`en` ou `pt-BR`). Uma referência de run é um id de run, um id de tentativa, um label ou um prefixo de sessão com seis caracteres ou mais; uma referência ambígua sai com 2 e lista os candidatos.

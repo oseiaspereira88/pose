@@ -74,7 +74,7 @@ func TestDelegateToolsProjectWhatTheyReturn(t *testing.T) {
 			"attempt": "rat-x", "active": false, "status": "failed", "failure": "the run changed files: [\"" + secret + ".log\"]",
 			"interruption": map[string]any{"cause": "/private/SYNTHETIC_LOG_PATH.log", "resumable": true, "reset_at": "soon"},
 		}}},
-		"handoff": {"schema": "pose.delegate.error/v1", "error": "agent unavailable: /private/SYNTHETIC_LOG_PATH.log", "reason_code": "agent-unavailable",
+		"handoff": {"schema": "pose.delegate.error/v1", "error": "agent unavailable: /private/SYNTHETIC_LOG_PATH.log", "reason_code": "agent-unavailable", "escalation": "/private/SYNTHETIC_LOG_PATH.log", "escalation_required": "/private/SYNTHETIC_LOG_PATH.log",
 			"routing": map[string]any{"requested": "auto", "step": "preferred", "candidates": []any{map[string]any{"agent": "b", "state": "unavailable", "skipped": "cli /private/SYNTHETIC_LOG_PATH.log missing"}}}},
 		"resume": {"schema": "pose.delegate.wait/v1", "state": "stopped", "next_actions": []any{
 			map[string]any{"action": "resume", "available": false, "why": "/private/SYNTHETIC_LOG_PATH.log", "command": "pose delegate resume rat-x"},

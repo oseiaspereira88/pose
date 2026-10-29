@@ -75,6 +75,7 @@ func DelegateEnv(root string) []string {
 // delegateSummaryKeys are the fields a delegate tool returns: the normalized
 // summary of a run, its attempt and its ways forward (R7).
 var delegateSummaryKeys = map[string]bool{
+	"escalation": true, "escalation_required": true,
 	"schema": true, "command": true, "purpose": true, "agent": true, "vendor": true, "model": true, "label": true, "lead": true,
 	"scope": true, "bundle": true, "attempt": true, "run": true, "runs": true, "latest_run": true, "resumes": true, "hands_off_from": true,
 	"status": true, "state": true, "failure": true, "interruption": true, "next_actions": true, "error": true, "reason_code": true,
@@ -89,6 +90,8 @@ var delegateSummaryKeys = map[string]bool{
 	"failed": true,
 }
 
+var delegateActionIDShape = regexp.MustCompile(`^act-[a-f0-9]{16}$`)
+
 // delegateSummary reduces a CLI document to the summary keys, and every
 // field that carries text the engine composed to a typed projection: codes,
 // identifiers, times, flags and counts (R7; review round 2, B02). An error, a
@@ -101,6 +104,14 @@ func delegateSummary(doc map[string]any) map[string]any {
 		if delegateSummaryKeys[k] {
 			out[k] = v
 		}
+	}
+	if id, exists := out["escalation"]; exists {
+		if value, ok := id.(string); !ok || !delegateActionIDShape.MatchString(value) {
+			delete(out, "escalation")
+		}
+	}
+	if required, exists := out["escalation_required"]; exists {
+		out["escalation_required"] = required == true
 	}
 	for _, k := range []string{"status", "state", "decision", "liveness", "access", "reason_code", "implementation_from", "purpose"} {
 		if v, ok := out[k]; ok {
@@ -276,7 +287,7 @@ func delegateRefused(tool string, doc map[string]any) (any, error) {
 	}
 	if msg, ok := doc["error"].(string); ok {
 		result := map[string]any{"refused": true, "error": msg}
-		for _, k := range []string{"reason_code", "routing", "candidates", "usage"} {
+		for _, k := range []string{"reason_code", "routing", "candidates", "usage", "escalation", "escalation_required"} {
 			if v, ok := doc[k]; ok && v != "" {
 				result[k] = v
 			}
@@ -367,7 +378,7 @@ func (s *Server) dispatchDelegate(ctx context.Context, root, name string, args j
 		if perr != nil {
 			return nil, perr
 		}
-		if pcode != 0 || !a.Apply {
+		if !a.Apply || pcode != 0 && plan["escalation_required"] != true {
 			if pcode != 0 {
 				return delegateRefused(name, plan)
 			}
