@@ -341,7 +341,9 @@ func TestDelegateTaskDetachStaysInTheCheckedRoot(t *testing.T) {
 	built := poseBinary(t)
 	delegateExecutable = func() (string, error) { return built, nil }
 	delegateStdin = &swappingReader{r: strings.NewReader("checked tree"), link: link, target: elsewhere}
-	code, out, errOut := runPoseSplit(t, root, "delegate", "task", "-", "--agent", "sink", "--detach", "--json")
+	// The caller stands outside the project, as an MCP host does: only the
+	// pinned root tells the run which project it is in.
+	code, out, errOut := runPoseSplit(t, t.TempDir(), "delegate", "task", "-", "--agent", "sink", "--detach", "--json")
 	doc := detachedFrom(t, code, out+errOut)
 	if entries, _ := os.ReadDir(elsewhere); len(entries) != 0 {
 		t.Fatalf("the retargeted tree was written: %v", entries)
