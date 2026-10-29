@@ -132,3 +132,49 @@ func TestTaskStateDirRefusesALinkedOrWritableComponent(t *testing.T) {
 		t.Fatal("a writable project directory was read without a loss")
 	}
 }
+
+// R6, R7: a base or an ancestor of another user is refused and one of root is
+// accepted; a component POSE makes is refused when root or another user owns
+// it.
+func TestTaskStateDirRefusesAnotherUsersDirectory(t *testing.T) {
+	root := t.TempDir()
+	parent := t.TempDir()
+	base := filepath.Join(parent, "state")
+	if err := os.Mkdir(base, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("XDG_STATE_HOME", base)
+	saved := taskStateOwner
+	defer func() { taskStateOwner = saved }()
+	owned := func(name string, user, byRoot bool) {
+		taskStateOwner = func(info os.FileInfo) (bool, bool) {
+			if info.Name() == name {
+				return user, byRoot
+			}
+			return saved(info)
+		}
+	}
+	if _, err := taskStateDir(root, true); err != nil {
+		t.Fatalf("baseline: %v", err)
+	}
+	owned(filepath.Base(parent), false, false)
+	if _, err := taskStateDir(root, true); err == nil || !strings.Contains(err.Error(), parent) || !strings.Contains(err.Error(), "another user") {
+		t.Fatalf("an ancestor of another user: %v", err)
+	}
+	owned("state", false, false)
+	if _, err := taskStateDir(root, false); err == nil || !strings.Contains(err.Error(), base) {
+		t.Fatalf("a base of another user: %v", err)
+	}
+	owned(filepath.Base(parent), false, true)
+	if _, err := taskStateDir(root, true); err != nil {
+		t.Fatalf("an ancestor of root: %v", err)
+	}
+	for _, name := range []string{"pose", "delegate"} {
+		for _, byRoot := range []bool{false, true} {
+			owned(name, false, byRoot)
+			if _, err := taskStateDir(root, true); err == nil || !strings.Contains(err.Error(), "belongs to another user") {
+				t.Fatalf("a %s component of another user (root %v): %v", name, byRoot, err)
+			}
+		}
+	}
+}

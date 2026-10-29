@@ -284,6 +284,10 @@ func (p DelegationTaskPlan) argv(output, session string) []string {
 	return ReviewerArgv(expanded, output, session, p.Effort, p.Config.Effort)
 }
 
+// taskStateOwner tells who owns a directory of the task-state path; tests
+// replace it to stand for another user's or root's directory.
+var taskStateOwner = stateDirOwner
+
 // taskStateBase is the user's state directory: XDG_STATE_HOME when it is an
 // absolute path, as the XDG Base Directory specification requires, else the
 // platform default (spec pose-delegation-task-detach-and-state R5).
@@ -330,7 +334,7 @@ func taskStateDir(root string, create bool) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		user, byRoot := stateDirOwner(info)
+		user, byRoot := taskStateOwner(info)
 		switch {
 		case !info.IsDir():
 			return "", fmt.Errorf("pose: the state directory %s is not a directory", dir)
@@ -356,7 +360,7 @@ func taskStateDir(root string, create bool) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		user, _ := stateDirOwner(info)
+		user, _ := taskStateOwner(info)
 		switch {
 		case !info.IsDir(): // Lstat: a link is not a directory
 			return "", fmt.Errorf("pose: %s is not a private directory", dir)

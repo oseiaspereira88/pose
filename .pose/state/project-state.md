@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-29T16:42:47Z
-baseline_commit: b184e14ed6b6c0afa38e9ccd638079036b02e233
+generated_at: 2026-10-29T18:02:41Z
+baseline_commit: f0faf21d7ac626a1e6602460b648e83933177688
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,9 +27,9 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:5c2a329f27c3 -->
+<!-- state:derived hash:ae1b59020f8f -->
 
-- specs: total=455 draft=19 in-progress=17 blocked=0 done=418 superseded=0 abandoned=1
+- specs: total=456 draft=19 in-progress=18 blocked=0 done=418 superseded=0 abandoned=1
 - roadmaps: total=23 active=3 done=11
 - últimos closeouts:
   - spec:pose-delegated-review-capability (2026-10-29)
@@ -65,15 +65,15 @@ capacidade.
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
-<!-- state:derived hash:32d1c74baf01 -->
+<!-- state:derived hash:9a109e7387b1 -->
 
-- ADRs: total=78
-  - adr:2026-10-22-update-preview-records-the-shared-execution-in-an-operation-scoped-view.md
-  - adr:2026-10-21-action-effects-select-material-destinations-independently-of-origin.md
-  - adr:2026-10-20-expose-the-closeout-execution-plan-as-an-opt-in-mcp-projection.md
-  - adr:2026-10-18-git-state-that-cannot-be-read-is-unknown-and-a-worktree-is-judged-by-its-content.md
-  - adr:2026-10-17-index-sets-are-published-as-verified-generations.md
-- knowledge: total=13 ativo=13 expirado=0
+- ADRs: total=90
+  - adr:2026-10-29-make-delegated-review-adoption-explicit-and-recoverable.md
+  - adr:2026-10-26-delegation-is-a-first-class-execution-surface.md
+  - adr:2026-10-25-reserve-delegated-attempts-before-launch-and-witness-immutable-runs.md
+  - adr:2026-10-25-continue-delegated-runs-under-one-immutable-attempt.md
+  - adr:2026-10-25-bound-trusted-reviewer-execution-and-disclose-unavailable-isolation.md
+- knowledge: total=18 ativo=18 expirado=0
 
 ## Validação & Evidência
 <!-- state:derived hash:9b28ebc983c6 -->

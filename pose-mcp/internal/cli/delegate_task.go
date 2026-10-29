@@ -81,14 +81,10 @@ func cmdDelegateTask(root string, args []string, stdout, stderr io.Writer) int {
 func readDelegatePrompt(path string) (string, error) {
 	var raw []byte
 	var err error
-	if path == "-" && delegateSupervised() {
-		// A detached run never reads its caller's stdin: the caller read it
-		// and handed it over in a private file (R2).
-		spool := os.Getenv(delegatePromptSpool)
-		if spool == "" {
-			return "", errors.New(tr("a detached run reads no stdin: its caller hands the prompt over", "um run destacado não lê stdin: quem o chama entrega o prompt"))
-		}
-		path = spool
+	if path == "-" && delegateSupervised() && os.Getenv(delegatePromptPiped) == "" {
+		// A detached run never reads its caller's stdin: its stdin is the
+		// pipe its caller hands the prompt over on, or nothing (R2).
+		return "", errors.New(tr("a detached run reads no stdin: its caller hands the prompt over", "um run destacado não lê stdin: quem o chama entrega o prompt"))
 	}
 	if path == "-" {
 		raw, err = io.ReadAll(io.LimitReader(delegateStdin, 1<<20+1))
@@ -116,7 +112,9 @@ func delegateTaskFail(stdout, stderr io.Writer, jsonOut bool, command string, er
 		code = 2
 	}
 	if route != nil && jsonOut {
-		writeDelegateJSON(stdout, map[string]any{"schema": delegateErrorSchema, "command": command, "error": strings.TrimPrefix(err.Error(), "pose: "), "routing": route, "reason_code": posemodel.DelegationReasonCode(err)})
+		doc := map[string]any{"schema": delegateErrorSchema, "command": command, "error": strings.TrimPrefix(err.Error(), "pose: "), "routing": route, "reason_code": posemodel.DelegationReasonCode(err)}
+		handBackRefusal(doc, code)
+		writeDelegateJSON(stdout, doc)
 		return code
 	}
 	return delegateFail(stdout, stderr, jsonOut, command, code, err)

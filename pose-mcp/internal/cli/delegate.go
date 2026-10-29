@@ -235,13 +235,19 @@ func delegateUsage(stdout, stderr io.Writer, args []string, command, msg string)
 			return 2
 		}
 	}
+	handBackRefusal(map[string]any{"schema": delegateErrorSchema, "command": command, "error": msg, "usage": true}, 2)
 	return usageError(stderr, "pose delegate "+command+": "+msg)
 }
 
 func writeDelegateJSON(stdout io.Writer, doc any) {
-	// Every error document a detached run writes is handed back (B03).
+	// Every error document a detached run writes is handed back (B03); a
+	// caller that knows its exit code hands it back first.
 	if m, ok := doc.(map[string]any); ok && m["schema"] == delegateErrorSchema {
-		handBackRefusal(m)
+		code := 1
+		if m["usage"] == true {
+			code = 2
+		}
+		handBackRefusal(m, code)
 	}
 	enc := json.NewEncoder(stdout)
 	enc.SetIndent("", "  ")
@@ -261,11 +267,11 @@ func delegateFail(stdout, stderr io.Writer, jsonOut bool, command string, code i
 	if errors.As(err, &ambiguous) {
 		doc["candidates"] = ambiguous.Candidates
 	}
+	handBackRefusal(doc, code)
 	if jsonOut {
 		writeDelegateJSON(stdout, doc)
 		return code
 	}
-	handBackRefusal(doc)
 	if code == 2 {
 		return usageError(stderr, "pose delegate "+command+": "+msg)
 	}

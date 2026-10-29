@@ -93,7 +93,7 @@ func TestDelegateTaskDetaches(t *testing.T) {
 		t.Fatalf("records of a detached --record task: %q", piped.Records)
 	}
 	if spools, _ := filepath.Glob(filepath.Join(root, ".pose", "review-private", "supervisors", "*.prompt")); len(spools) != 0 {
-		t.Fatalf("the prompt spool outlived the call: %v", spools)
+		t.Fatalf("the piped prompt was written to a file: %v", spools)
 	}
 	if code, out := runBuilt(t, root, "delegate", "wait", piped.Attempt); code != 0 {
 		t.Fatalf("wait piped: %d %s", code, out)
@@ -137,9 +137,20 @@ func TestDelegateTaskDetachRefusesWhatItCannotStart(t *testing.T) {
 		t.Fatalf("a task that must wait for a reset was detached: %d %s", code, out)
 	}
 	writeDelegation(t, root, taskPolicy(`"default_access": "read"`, taskWorker))
-	code, out = runBuilt(t, root, "delegate", "task", prompt, "--agent", "worker", "--access", "write", "--no-network", "--detach", "--json")
-	if code == 0 || !strings.Contains(out, "--no-network") || strings.Contains(out, "log") {
-		t.Fatalf("a refused detached task: %d %s", code, out)
+	refused := []string{"delegate", "task", prompt, "--agent", "worker", "--access", "write", "--no-network"}
+	for _, mode := range [][]string{{"--json"}, nil} {
+		fgCode, fgOut := runBuilt(t, root, append(append([]string{}, refused...), mode...)...)
+		code, out = runBuilt(t, root, append(append(append([]string{}, refused...), mode...), "--detach")...)
+		if fgCode != 2 || code != fgCode || out != fgOut || strings.Contains(out, ".log") {
+			t.Fatalf("a refused detached task %v: foreground %d %q, detached %d %q", mode, fgCode, fgOut, code, out)
+		}
+	}
+	writeDelegation(t, root, `{"schema_version": 2, "agents": {}}`)
+	none := []string{"delegate", "task", prompt, "--json"}
+	fgCode, fgOut := runBuilt(t, root, none...)
+	code, out = runBuilt(t, root, append(none, "--detach")...)
+	if fgCode != 1 || code != fgCode || out != fgOut {
+		t.Fatalf("no agent: foreground %d %q, detached %d %q", fgCode, fgOut, code, out)
 	}
 }
 

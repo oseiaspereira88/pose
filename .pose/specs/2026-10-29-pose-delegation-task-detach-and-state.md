@@ -37,9 +37,9 @@ Starting a task over MCP (`pose-delegation-mcp` keeps refusing it: its prompt an
 ### Functional
 
 - R1: `pose delegate task <prompt-file|-> --detach` shall start the task as a detached run, as the review purposes do, and return at once with its `tat-` attempt, the supervisor's process and log, and the place its record is kept; `wait`, `ls`, `watch` and `cancel` shall resolve the returned attempt.
-- R2: A prompt read from stdin by a detached `task` or by a detached `resume --prompt -` shall be read by the caller before it detaches, handed to the detached run through an owner-only file under the supervisor directory, and removed once the detached call returns; the detached run shall never read the caller's stdin.
-- R3: A detached task whose route must first wait for a usage-limit reset shall be refused, naming the reset, as decision D3 of `pose-delegated-review-completion-signal` requires for the review purposes.
-- R4: A detached task refused before it reserves an attempt shall return that refusal, with its reason code, as the foreground command does.
+- R2: A prompt read from stdin by a detached `task` or by a detached `resume --prompt -` shall be read by the caller before it detaches and written to the detached run's stdin through a pipe, never through a file; a detached run shall read stdin only when its caller hands a prompt over that way, and never the caller's own stdin.
+- R3: A detached task whose route must first wait for a usage-limit reset shall be refused, naming the reset, as the detach contract of `pose-delegated-review-completion-signal` (its milestone exit gate and manual) requires for the review purposes.
+- R4: A detached task, resume or handoff refused before it reserves an attempt shall return the refusal the foreground command returns: the same document or message, reason code and exit code (2 for a usage or policy refusal, 1 otherwise).
 - R5: `XDG_STATE_HOME` shall be used as the state base only when it is an absolute path; an empty or relative value shall fall back to the platform default, as the XDG Base Directory specification requires.
 - R6: The state base shall be resolved once, links included, and the resolved base and each of its ancestors shall be a directory owned by the user or by root and not writable by group or others unless sticky; a task shall refuse to record or read under a base that is not, naming the directory.
 - R7: Each directory POSE creates below the base (`pose`, `pose/delegate`, the project's directory) shall be created owner-only and accepted only as a real directory owned by the user and not writable by group or others; a link, another owner or a writable component shall be refused, naming the path, and never followed or tightened.
@@ -52,7 +52,7 @@ Starting a task over MCP (`pose-delegation-mcp` keeps refusing it: its prompt an
 
 ### Security
 
-- R2's spool file is owner-only, lives in the ignored private directory, and its path, not its content, is what reaches the detached run's argv.
+- R2's prompt travels only through an anonymous pipe between the caller and its detached run: no file, argv or environment variable carries it, so no directory permission can expose or replace it; the environment carries only the flag `POSE_DELEGATE_PROMPT_PIPED`.
 - On Windows, where ownership and mode bits are not the access model, R6 and R7 keep only the link refusal; the gap is stated in the manual.
 
 ### Compatibility
@@ -68,6 +68,7 @@ Task front end and detached supervisor (prompt spool, record place, reset refusa
 ### Artifacts
 
 - created: .pose/specs/2026-10-29-pose-delegation-task-detach-and-state.md
+- created: .pose/specs/2026-10-29-pose-delegation-task-detach-and-state.amendments.jsonl
 - created: .pose/changelogs/unreleased/pose-delegation-task-detach-and-state.md
 - created: .pose/starts/pose-delegation-task-detach-and-state.json
 - modified: .pose/roadmaps/delegation.md
@@ -78,6 +79,7 @@ Task front end and detached supervisor (prompt spool, record place, reset refusa
 - modified: pose-mcp/internal/cli/help_catalog.go
 - created: pose-mcp/internal/cli/delegate_task_detach_test.go
 - modified: pose-mcp/internal/mcpserver/delegate_tools.go
+- modified: pose-mcp/internal/cli/delegate_mcp_test.go
 - modified: pose-mcp/internal/pose/delegation_task.go
 - created: pose-mcp/internal/pose/delegation_task_state_unix.go
 - created: pose-mcp/internal/pose/delegation_task_state_windows.go
@@ -107,10 +109,10 @@ Task front end and detached supervisor (prompt spool, record place, reset refusa
 ### Decision D1
 - Basis: R2
 - Minimal option: refuse `--detach` with a stdin prompt
-- Selected option: the caller reads stdin and hands the detached run a private file
-- Rationale: piping a prompt is how the launchers are driven; refusing it would make the parity row true only for prompt files
-- Consequences: a prompt briefly exists as a file the caller removes; a crash of the caller can leave it in the ignored private directory
-- Falsifier: a detached run that ran with a prompt other than the caller's stdin, or a spool file readable by another user
+- Selected option: the caller reads stdin and writes it to the detached run's stdin through a pipe (amended in review round 1, F2F3-R1-01 and -02: a private file in the supervisor directory could be replaced by a writer of that directory, and survived a publication error)
+- Rationale: piping a prompt is how the launchers are driven; refusing it would make the parity row true only for prompt files; a pipe has no name to replace and nothing to clean up
+- Consequences: the run reads the whole prompt before it hands its attempt back, so the caller returns only after the prompt is through
+- Falsifier: a detached run that ran with a prompt other than the caller's stdin, or a prompt found in a file
 
 ### Decision D2
 - Basis: R5, R6, R7

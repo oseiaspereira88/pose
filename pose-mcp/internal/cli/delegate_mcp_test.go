@@ -122,7 +122,7 @@ func TestDelegateToolsOverMCPMatchTheCLI(t *testing.T) {
 	if done := call("pose_delegate_wait", map[string]any{"run": slowAttempt, "timeout_seconds": 60}); done["state"] != "completed" {
 		t.Fatalf("the slow run: %v", done)
 	}
-	if task := call("pose_delegate_start", map[string]any{"purpose": "task", "target": "x"}); !strings.Contains(string(mustJSON(task)), "a task is not started over MCP") {
+	if task := call("pose_delegate_start", map[string]any{"purpose": "task", "target": "x"}); !strings.Contains(string(mustJSON(task)), "a task is not started over MCP") || !strings.Contains(string(mustJSON(task)), "pose delegate task --detach") || strings.Contains(string(mustJSON(task)), "does not run detached") {
 		t.Fatalf("a task started over MCP: %v", task)
 	}
 }

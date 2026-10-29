@@ -29,10 +29,10 @@ const (
 	// which it hands its attempt back: a file, not an inherited descriptor,
 	// so the hand-back works on every platform.
 	delegateHandback = "POSE_DELEGATE_HANDBACK"
-	// delegatePromptSpool names, in a detached run's environment, the
-	// owner-only file holding the prompt its caller read from stdin (spec
-	// pose-delegation-task-detach-and-state R2).
-	delegatePromptSpool = "POSE_DELEGATE_PROMPT_SPOOL"
+	// delegatePromptPiped tells a detached run that its stdin is the pipe
+	// on which its caller hands over the prompt the caller read from its own
+	// stdin (spec pose-delegation-task-detach-and-state R2).
+	delegatePromptPiped = "POSE_DELEGATE_PROMPT_PIPED"
 	delegateWaitStep    = 500 * time.Millisecond
 )
 
@@ -77,10 +77,13 @@ func publishHandback(path, attempt string) error {
 }
 
 // handBackRefusal is how a detached run that refuses before it reserves an
-// attempt hands its error document back: in a file beside the hand-back, so
-// the caller returns that refusal with its reason code, never a log (spec
-// pose-delegation-mcp R5, R7; review rounds 1 and 2, B03).
-func handBackRefusal(doc map[string]any) {
+// attempt hands its error document back, with the exit code the foreground
+// command returns: in a file beside the hand-back, so the caller returns that
+// refusal with its reason code and exit code, never a log (spec
+// pose-delegation-mcp R5, R7; review rounds 1 and 2, B03; spec
+// pose-delegation-task-detach-and-state R4). The first refusal handed back is
+// the answer.
+func handBackRefusal(doc map[string]any, code int) {
 	path := os.Getenv(delegateHandback)
 	if path == "" {
 		return
@@ -89,28 +92,37 @@ func handBackRefusal(doc map[string]any) {
 	if _, err := os.Stat(path); err == nil {
 		return
 	}
-	raw, err := json.Marshal(doc)
+	raw, err := json.Marshal(delegateRefusal{ExitCode: code, Document: doc})
 	if err != nil {
 		return
 	}
 	_ = posemodel.PublishFile(path+".refusal", append(raw, '\n'), 0o600, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAbsent})
 }
 
+// delegateRefusal is what a detached run hands back when it refuses.
+type delegateRefusal struct {
+	ExitCode int            `json:"exit_code"`
+	Document map[string]any `json:"document"`
+}
+
 // readRefusal is the error document a detached run handed back, when it is
-// one: the error schema with an error.
-func readRefusal(path string) map[string]any {
+// one: the error schema with an error, and the exit code to return.
+func readRefusal(path string) (map[string]any, int) {
 	raw, err := os.ReadFile(path + ".refusal")
 	if err != nil {
-		return nil
+		return nil, 0
 	}
-	var doc map[string]any
-	if json.Unmarshal(raw, &doc) != nil || doc["schema"] != delegateErrorSchema {
-		return nil
+	var r delegateRefusal
+	if json.Unmarshal(raw, &r) != nil || r.Document["schema"] != delegateErrorSchema {
+		return nil, 0
 	}
-	if msg, ok := doc["error"].(string); !ok || msg == "" {
-		return nil
+	if msg, ok := r.Document["error"].(string); !ok || msg == "" {
+		return nil, 0
 	}
-	return doc
+	if r.ExitCode != 2 {
+		r.ExitCode = 1
+	}
+	return r.Document, r.ExitCode
 }
 
 // handBackExisting hands back the attempt of a run the dispatch answered
@@ -172,19 +184,15 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 	logPath := filepath.Join(logDir, stamp+".log")
 	handback := filepath.Join(logDir, stamp+".handback")
 	// A prompt piped to the caller is read here, before the run leaves the
-	// caller's stdin behind, and handed over in a private file the caller
-	// removes when it returns (R2, D1).
-	var spool string
+	// caller's stdin behind, and written to the run's stdin through a pipe no
+	// file or other user can reach (R2, D1).
+	var piped *string
 	if purpose == "task" && len(f.positional) == 1 && f.positional[0] == "-" || purpose == "resume" && f.promptFile == "-" {
 		prompt, err := readDelegatePrompt("-")
 		if err != nil {
 			return delegateFail(stdout, stderr, f.jsonOut, purpose, 2, err)
 		}
-		spool = filepath.Join(logDir, stamp+".prompt")
-		if err := posemodel.PublishFile(spool, []byte(prompt), 0o600, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAbsent}); err != nil {
-			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
-		}
-		defer os.Remove(spool)
+		piped = &prompt
 	}
 	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
 	if err != nil {
@@ -200,8 +208,11 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 	}
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = nil, logFile, logFile
 	cmd.Env = append(os.Environ(), delegateHandback+"="+handback)
-	if spool != "" {
-		cmd.Env = append(cmd.Env, delegatePromptSpool+"="+spool)
+	if piped != nil {
+		// The run reads the prompt before it hands its attempt back, so the
+		// whole prompt is through the pipe before this call returns.
+		cmd.Stdin = strings.NewReader(*piped)
+		cmd.Env = append(cmd.Env, delegatePromptPiped+"=1")
 	}
 	detachProcess(cmd)
 	if err := cmd.Start(); err != nil {
@@ -233,7 +244,7 @@ wait:
 		case <-time.After(100 * time.Millisecond):
 		}
 	}
-	refusal := readRefusal(handback)
+	refusal, refusalCode := readRefusal(handback)
 	_ = os.Remove(handback)
 	_ = os.Remove(handback + ".refusal")
 	if attempt == "" {
@@ -242,11 +253,14 @@ wait:
 		if refusal != nil {
 			if f.jsonOut {
 				writeDelegateJSON(stdout, refusal)
-				return 1
+				return refusalCode
 			}
 			msg, _ := refusal["error"].(string)
+			if refusalCode == 2 {
+				return usageError(stderr, "pose delegate "+purpose+": "+msg)
+			}
 			render(stdout, stderr).Failure("pose delegate " + purpose + ": " + msg)
-			return 1
+			return refusalCode
 		}
 		// A document carries no log: its tail is for the person at the
 		// terminal (R7).
