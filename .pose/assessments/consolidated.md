@@ -1,18 +1,18 @@
 # Project Assessment: pose-delegation-roadmaps
 
 > **Gerado por**: POSE Discovery Engine (`pose assess discover`)
-> **Data de Avaliação**: 2026-10-29T16:42:35Z
-> **Baseline Commit**: b184e14ed6b6
+> **Data de Avaliação**: 2026-10-29T22:10:07Z
+> **Baseline Commit**: 5963dee78247
 
 ---
 
 ## 1. Resumo Executivo do Projeto
 
 - **Total de Componentes Auditados**: 3
-- **Linhas de Código de Produção**: 99081
-- **Linhas de Código de Testes**: 85213
-- **Total Geral de Linhas de Código**: 184294
-- **Total de Arquivos Auditados**: 748
+- **Linhas de Código de Produção**: 99478
+- **Linhas de Código de Testes**: 85945
+- **Total Geral de Linhas de Código**: 185423
+- **Total de Arquivos Auditados**: 752
 - **Completude Dinâmica da Plataforma**: 0.0%
 - **Dívidas Técnicas em Aberto**: 1 TODOs | 0 FIXMEs | 0 Panics | 0 Stubs
 - **Especificações (Specs) em Aberto**: 36
@@ -26,7 +26,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 01 | `docs-site` | `docs-site` | `n/a` | 0 | 0 | 0 | 0 | 100% | `verified` |
 | 02 | `mcp-enforce` | `mcp-enforce` | `go` | 870 | 1029 | 17 | 0 | 100% | `verified` |
-| 03 | `pose-mcp` | `pose-mcp` | `go` | 98211 | 84184 | 731 | 1 | 100% | `verified` |
+| 03 | `pose-mcp` | `pose-mcp` | `go` | 98608 | 84916 | 735 | 1 | 100% | `verified` |
 
 ---
 

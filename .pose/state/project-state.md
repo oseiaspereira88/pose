@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-29T21:13:44Z
-baseline_commit: 86aac5e4b7a0bd942e70ff769cebe3bcb7689048
+generated_at: 2026-10-29T22:10:06Z
+baseline_commit: 5963dee7824774c573fbb8d3d3d3f5dd430e5c59
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:ae1b59020f8f -->
+<!-- state:derived hash:70654b22072f -->
 
-- specs: total=456 draft=19 in-progress=18 blocked=0 done=418 superseded=0 abandoned=1
+- specs: total=456 draft=19 in-progress=17 blocked=0 done=419 superseded=0 abandoned=1
 - roadmaps: total=23 active=3 done=11
 - últimos closeouts:
+  - spec:pose-delegation-task-detach-and-state (2026-10-29)
   - spec:pose-delegated-review-capability (2026-10-29)
   - spec:pose-delegated-review-action-fulfillment (2026-10-28)
-  - spec:pose-delegated-verdict-destinations (2026-10-28)
   - spec:pose-delegated-review-conclusions (2026-10-28)
-  - spec:pose-delegated-review-round-protocol (2026-10-27)
-  - ... e mais 413 (ver `pose_list_specs status:done`)
+  - spec:pose-delegated-verdict-destinations (2026-10-28)
+  - ... e mais 414 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:0a071a56c1c5 -->
@@ -88,10 +88,10 @@ capacidade.
   - report:pose-abm-capability-adoption.md
 
 ## Arquitetura
-<!-- state:derived hash:b6c9fab3f931 status:active -->
+<!-- state:derived hash:fbe5fd992a8a status:active -->
 
 - componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=99081 testes=85213 total=184294
+- linhas_de_codigo: producao=99478 testes=85945 total=185423
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63

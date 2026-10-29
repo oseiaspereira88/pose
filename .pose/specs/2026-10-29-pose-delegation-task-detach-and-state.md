@@ -1,8 +1,8 @@
 ---
 slug: pose-delegation-task-detach-and-state
-status: in-progress
+status: done
 created_at: 2026-10-29
-completed_at:
+completed_at: 2026-10-29
 supersedes:
 depends_on: pose-delegation-task, pose-delegated-review-completion-signal
 remediates:
