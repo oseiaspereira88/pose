@@ -9,7 +9,7 @@ remediates:
 priority: 3
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: capability:delegation-task
 ---
 
 # Spec: A delegated task detaches, and its private record lives on a path only its user controls
@@ -97,6 +97,10 @@ Task front end and detached supervisor (prompt pipe, trusted supervisor director
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+
+### Delivery targets
+
+- capability:delegation-task module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/delegate_task.go
 
 ### API/contract changes
 

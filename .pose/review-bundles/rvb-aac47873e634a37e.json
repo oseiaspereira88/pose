@@ -1,0 +1,2736 @@
+{
+  "schema_version": 1,
+  "bundle_id": "rvb-aac47873e634a37e",
+  "bundle_digest": "sha256:aac47873e634a37e52e14ec12cbdb8743ac4a1cbe1042aa2dd748ceca5cc16f7",
+  "state": "sealed",
+  "sealed_at": "2026-10-29T21:45:15Z",
+  "payload": {
+    "scope": {
+      "ref": "spec:pose-delegation-task-detach-and-state",
+      "kind": "spec",
+      "slug": "pose-delegation-task-detach-and-state",
+      "depends_on": [
+        "pose-delegated-review-completion-signal",
+        "pose-delegation-task"
+      ],
+      "components": [
+        "pose-mcp"
+      ],
+      "sections": [
+        {
+          "kind": "semantic-section",
+          "path": "decisions",
+          "digest": "sha256:4937689e6d5d0af6fa73dfd4e3eb2a8d18afccd674f02d2f7f519a10bb3d5e61",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "intent",
+          "digest": "sha256:8210349db8da840231f1a89372635f2cb949f0047c7027530f2887e51f0f0bca",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "requirements",
+          "digest": "sha256:e1890294e5f8a15e6a04140eca1e98e058573e03dad4a83b07647fbac598d675",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "technical plan",
+          "digest": "sha256:80ad1398ca175b23350c74340250df42fb078b582d9e9ca09effe1a3d5ab959a",
+          "reason": "governed semantic review input"
+        }
+      ]
+    },
+    "subject": {
+      "change_sets": [
+        "cs-3dbf016ed7f3"
+      ],
+      "base": "756347dfc8307397352f0b9e07561dc169e6a18b",
+      "head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+      "implementation_digest": "sha256:f95c0d9ab1fab38253a4f0388d0a801dafdb7e2f64ab922303a807bcc2589ac6",
+      "patch_digest": "sha256:f9ab8c9002e0e5d9e7dc451cbff6f804ff0353f066dc9298332108f2c6efa95b",
+      "tree_digest": "sha256:3585d4e76ca72ba047431fb0eee107679ccb2e7f7736b8ebe01e6bb2b2ddaf3c",
+      "entries": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-delegation-task-detach-and-state.md",
+          "class": "governance",
+          "digest": "sha256:4123f6d396bd16865f4d59fed56e7adc3283be8b6a2bf45417eb6224435a7d06",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-delegation-task-detach-and-state.json",
+          "class": "governance",
+          "digest": "sha256:780685b8cb3fe972aad884b85d7169f0ce6ef490ac3316f21c598cbf83ba4602",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/delegate_task_detach_test.go",
+          "class": "implementation",
+          "digest": "sha256:d35ff4da62f20606ac7190cda3aac8d5906bcd283fbd67817dba1ad1c6506c02",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delegation_task_state_test.go",
+          "class": "implementation",
+          "digest": "sha256:289635cba36dcc27a021158529e1bbfbe21e4cdea1c064bb58bcaeaab2d2dee2",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delegation_task_state_unix.go",
+          "class": "implementation",
+          "digest": "sha256:4112ce2e1a9d6b384847eb64af9a4a8e3e84d24337af2ad737a0d44e1fa9c530",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delegation_task_state_windows.go",
+          "class": "implementation",
+          "digest": "sha256:007e02a8a60c166acc8b84bf9fc4a07e3268cac99017ae4a1a64262b409cd795",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/roadmaps/delegation.md",
+          "class": "governance",
+          "digest": "sha256:0695a305b50ecb10711459efa571dbb2e5a9e49e3cfb7818af7d8eedd394bd94",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md",
+          "class": "documentation",
+          "digest": "sha256:964d0afc0ae3167eaaaf51d7150e31e2adbf97828f0ae74580e3e986cf216e83",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md",
+          "class": "documentation",
+          "digest": "sha256:02b14fd7c189f40e7ba27b6eb596fd728a0d2eee029d4c561b055fc31a462d76",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/cli.go",
+          "class": "implementation",
+          "digest": "sha256:886c789fcdc2e3eb2e437928832441d9d61ca61629ef21612d609417225547c5",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/delegate.go",
+          "class": "implementation",
+          "digest": "sha256:629039163b3642beae7c0a6595e428ad46a0742a0c78ce67cd367fbd06642e89",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/delegate_mcp_test.go",
+          "class": "implementation",
+          "digest": "sha256:5572208f1f0b71a394140f77f18bae0fc0e9509fd67baeb2487f4e926eefc767",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/delegate_task.go",
+          "class": "implementation",
+          "digest": "sha256:07a5c510a38adc9a5260108b54d68d667e2424492e4accdf9aa7368ee587f642",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/delegate_wait.go",
+          "class": "implementation",
+          "digest": "sha256:2892f5390b938d72efa905475357016327de3b111133f6e11229189275b693e7",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/help_catalog.go",
+          "class": "implementation",
+          "digest": "sha256:2848b8987a9a97600c04c24eb035a94b7d2a53e53ebfd3e86c31127c940d1153",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/delegate_tools.go",
+          "class": "implementation",
+          "digest": "sha256:1156ce70a29f9acc00483c1bd196dc891673878f54ae206ea2f9327dfa9ad902",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delegation_task.go",
+          "class": "implementation",
+          "digest": "sha256:3ea766cbfea49a873ea67bc4a4acc22cd660c84684be8ea2d567d17bc32e7d3c",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md",
+          "class": "implementation",
+          "digest": "sha256:558d4af06d6480ab681b43f56995242246a865aed585ba9729345dddec95e73d",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+          "class": "implementation",
+          "digest": "sha256:02b14fd7c189f40e7ba27b6eb596fd728a0d2eee029d4c561b055fc31a462d76",
+          "reason": "attributed implementation path in the immutable change set"
+        }
+      ],
+      "attribution": [
+        {
+          "path": ".pose/changelogs/unreleased/pose-delegation-task-detach-and-state.md",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "183d6df6635e6286f5b8c0c3ecfdbf40d4d4b194"
+            }
+          ]
+        },
+        {
+          "path": ".pose/roadmaps/delegation.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "9c14d80e999f4e99599488fbb34c4e9b57fed825",
+              "after_mode": "100644",
+              "after": "741388e8bfcb508c25a2030b63460233cf7f6938"
+            }
+          ]
+        },
+        {
+          "path": ".pose/starts/pose-delegation-task-detach-and-state.json",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "a2fd32052617ced59f5912a55f6041983266e80a"
+            }
+          ]
+        },
+        {
+          "path": "POSE.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "064fe40eaeed90dc9e7a357a5ea51e0c8a6e1194",
+              "after_mode": "100644",
+              "after": "b98452a3ef31324b44b65e425b4d4538cf47e84a"
+            }
+          ]
+        },
+        {
+          "path": "locales/pt-BR/POSE.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "ab41bf9d22282a7125a5c55a62d0100279622ff2",
+              "after_mode": "100644",
+              "after": "c1083bd4950bd05f6bf1dd670cf4db50621862b6"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/cli.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "69e342190163da1c38842c0f06bb728fa522a514",
+              "after_mode": "100644",
+              "after": "79dd6f9c9a371ae5a990a0ed963a85977299e1bd"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/delegate.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "dfac7d2fffcbbb751474254df981d69c87d3feef",
+              "after_mode": "100644",
+              "after": "1c1e6f3cfe93f5feeade33e186a4514e0c75c8d9"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/delegate_mcp_test.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "013a41b53c905f4b7c866f3989c00dd92c2ec079",
+              "after_mode": "100644",
+              "after": "df765fa8244dfdaa4ee5e2acf47384c191641120"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/delegate_task.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "289824643052a93b7c892734cbcc30080189ea03",
+              "after_mode": "100644",
+              "after": "596dff4ee866eb29bfd925129b9041a1ef219ea8"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/delegate_task_detach_test.go",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "81bd87875fdd00b4b3faa16b476a285febade372"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/delegate_wait.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "75604cca9dabd8bdb012c8ac54f4deeccdff9555",
+              "after_mode": "100644",
+              "after": "aa941e5db6721fac8a537deed221e32427e6b53d"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/cli/help_catalog.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "635d82724ed151d2604988bd36c06c9fef8108b0",
+              "after_mode": "100644",
+              "after": "01d389d752c4a65b135d97db133c7820b673dd9b"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/mcpserver/delegate_tools.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "c8f45bdd6b45fd9199e41974552f112a57c3ce19",
+              "after_mode": "100644",
+              "after": "969bf9aadde9fce3910f9fa320d60f3eb5496a20"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/pose/delegation_task.go",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "be3e4d766082687227d69e49d64232d4c70b062f",
+              "after_mode": "100644",
+              "after": "f249026bc07e0b74dba60aa13f73d6a7ba70a71d"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/pose/delegation_task_state_test.go",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "7a053db25fbc3ea62dec1ba405774a826e9ab6f3"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/pose/delegation_task_state_unix.go",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "f4c21d63e8087b5a51e91410466e5d96257df3cd"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/pose/delegation_task_state_windows.go",
+          "segments": [
+            {
+              "after_mode": "100644",
+              "after": "450d6ac1c7c523aab0ac73e6b5f5a9bd84a3e866"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "58cef72fab463092be4d9b25c26a53bc49abefc7",
+              "after_mode": "100644",
+              "after": "b0007f8dca45d4f4edb1303df9a4d442e89e4d70"
+            }
+          ]
+        },
+        {
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+          "segments": [
+            {
+              "before_mode": "100644",
+              "before": "ab41bf9d22282a7125a5c55a62d0100279622ff2",
+              "after_mode": "100644",
+              "after": "c1083bd4950bd05f6bf1dd670cf4db50621862b6"
+            }
+          ]
+        }
+      ]
+    },
+    "plan": {
+      "plan_digest": "sha256:e31bd06c3c7979b0fc636ca28424f6e7e26df1f40478a608a399da863b4573d7",
+      "independence": "same-actor-separate-execution",
+      "components": [
+        {
+          "id": "pose-mcp",
+          "path": "pose-mcp",
+          "kind": "package",
+          "language": "go",
+          "domain": "go",
+          "criticality": "high",
+          "validation_profile": "baseline",
+          "metadata_status": "partial",
+          "metadata_missing": [
+            "owner"
+          ],
+          "origin": "declared+observed",
+          "sources": [
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/cli.go",
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/delegate.go",
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/delegate_mcp_test.go",
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/delegate_task.go",
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/delegate_task_detach_test.go",
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/delegate_wait.go",
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/help_catalog.go",
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/mcpserver/delegate_tools.go",
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/pose/delegation_task.go",
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/pose/delegation_task_state_test.go",
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/pose/delegation_task_state_unix.go",
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/pose/delegation_task_state_windows.go",
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/scaffold/dist/POSE.md",
+            "artifact:pose-delegation-task-detach-and-state:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/cli.go",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/delegate.go",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/delegate_mcp_test.go",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/delegate_task.go",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/delegate_task_detach_test.go",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/delegate_wait.go",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/cli/help_catalog.go",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/mcpserver/delegate_tools.go",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/pose/delegation_task.go",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/pose/delegation_task_state_test.go",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/pose/delegation_task_state_unix.go",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/pose/delegation_task_state_windows.go",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/scaffold/dist/POSE.md",
+            "observed:pose-delegation-task-detach-and-state:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+            "spec:pose-delegation-task-detach-and-state:component:pose-mcp"
+          ]
+        }
+      ],
+      "criteria": [
+        {
+          "id": "backend-concurrency",
+          "description": "Concurrent access, cancellation and lifecycle behavior are safe where applicable.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-contracts",
+          "description": "Public API, event, file and tool contracts remain compatible or explicitly migrated.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-input-errors",
+          "description": "Inputs, validation failures and error paths are bounded, typed and actionable.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-integration-impact",
+          "description": "Providers, consumers and inter-component boundaries remain integrated.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-observability",
+          "description": "Failures are diagnosable through bounded, non-sensitive logs, metrics or returned context.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "compatibility",
+          "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "correctness",
+          "description": "Functional and negative behavior is correct.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "documentation",
+          "description": "Operational docs, templates and scaffold match runtime behavior.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "operability",
+          "description": "Errors, explanations and remediation are actionable.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "requirements",
+          "description": "Every requirement has current, relevant evidence.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "scope",
+          "description": "The implementation matches the approved spec scope.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "security",
+          "description": "Inputs, paths, evidence and authority boundaries are safe.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "security"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "id": "artifact-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "artifact-check",
+            "--spec",
+            "pose-delegation-task-detach-and-state",
+            "--strict"
+          ],
+          "rationale": "reconcile declared artifacts with Git-observed provenance",
+          "criteria": [
+            "requirements",
+            "scope"
+          ],
+          "preconditions": [
+            "artifacts-attributed"
+          ]
+        },
+        {
+          "id": "assess-design",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "design",
+            "--spec",
+            "pose-delegation-task-detach-and-state",
+            "--json"
+          ],
+          "rationale": "observe bounded structural deltas on the canonical review subject",
+          "evidence_classes": [
+            "structure"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "pose-mcp"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-integrate",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "integrate"
+          ],
+          "rationale": "inspect providers, consumers and inter-component contract gaps",
+          "evidence_classes": [
+            "integration"
+          ],
+          "criteria": [
+            "backend-contracts",
+            "backend-integration-impact"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-tech-debt",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "tech-debt"
+          ],
+          "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+          "criteria": [
+            "correctness"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "closeout-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "closeout-check",
+            "spec:pose-delegation-task-detach-and-state"
+          ],
+          "rationale": "verify remaining hierarchical closeout blockers",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "review-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "review-check",
+            "spec:pose-delegation-task-detach-and-state"
+          ],
+          "rationale": "verify exact review-plan coverage and freshness",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "pose-mcp"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "criteria": [
+            "backend-concurrency",
+            "backend-input-errors",
+            "backend-observability",
+            "correctness",
+            "requirements"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "component": "pose-mcp",
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        }
+      ],
+      "selected_profiles": [
+        {
+          "ref": "spec-closeout@1",
+          "category": "base",
+          "order": 0,
+          "source": ".pose/review-profiles/spec-closeout.json",
+          "rationale": "selected by terminal scope policy"
+        },
+        {
+          "ref": "backend-review@1",
+          "category": "language",
+          "order": 1,
+          "source": ".pose/review-profiles/backend-review.json",
+          "components": [
+            "pose-mcp"
+          ],
+          "rationale": "matched typed language selector"
+        }
+      ],
+      "structure": {
+        "observed": true,
+        "status": "observed",
+        "input_digest": "sha256:d510727a090e01957a304a091bbb17f5177d73c89eee527afa9b8578b95843dc",
+        "subject_digest": "sha256:f95c0d9ab1fab38253a4f0388d0a801dafdb7e2f64ab922303a807bcc2589ac6"
+      },
+      "band": "elevated"
+    },
+    "evidence": [
+      {
+        "id": "design-d510727a090e0195",
+        "check": "assess-design",
+        "evidence_class": "structure",
+        "outcome": "pass",
+        "subject_digest": "sha256:f95c0d9ab1fab38253a4f0388d0a801dafdb7e2f64ab922303a807bcc2589ac6",
+        "subject_observation": "observed",
+        "provenance_digest": "sha256:d510727a090e01957a304a091bbb17f5177d73c89eee527afa9b8578b95843dc",
+        "report": "derived:design-delta/d510727a090e01957a304a091bbb17f5177d73c89eee527afa9b8578b95843dc"
+      },
+      {
+        "id": "mcp-enforce/go/build",
+        "module": "mcp-enforce",
+        "check": "build",
+        "evidence_class": "build",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "mcp-enforce/go/test",
+        "module": "mcp-enforce",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-atomic-start-integration",
+        "module": "pose-mcp",
+        "check": "abm-atomic-start-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-causality-closeout-integration",
+        "module": "pose-mcp",
+        "check": "abm-causality-closeout-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-contract-nodes-integration",
+        "module": "pose-mcp",
+        "check": "abm-contract-nodes-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-progressive-review-integration",
+        "module": "pose-mcp",
+        "check": "abm-progressive-review-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-remediation-lineage-integration",
+        "module": "pose-mcp",
+        "check": "abm-remediation-lineage-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-replay-reachability",
+        "module": "pose-mcp",
+        "check": "abm-replay-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-retrospective-replay-integration",
+        "module": "pose-mcp",
+        "check": "abm-retrospective-replay-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/action-identity-integration",
+        "module": "pose-mcp",
+        "check": "action-identity-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/action-lifecycle-authority-integration",
+        "module": "pose-mcp",
+        "check": "action-lifecycle-authority-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/action-presentation-integration",
+        "module": "pose-mcp",
+        "check": "action-presentation-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/action-recovery-preflight-integration",
+        "module": "pose-mcp",
+        "check": "action-recovery-preflight-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/action-requests-integration",
+        "module": "pose-mcp",
+        "check": "action-requests-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/action-requests-reachability",
+        "module": "pose-mcp",
+        "check": "action-requests-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/action-resolution-integration",
+        "module": "pose-mcp",
+        "check": "action-resolution-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/action-resolution-reachability",
+        "module": "pose-mcp",
+        "check": "action-resolution-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/action-target-scoping-integration",
+        "module": "pose-mcp",
+        "check": "action-target-scoping-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/adversarial-corpus",
+        "module": "pose-mcp",
+        "check": "adversarial-corpus",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/adversarial-corpus-integration",
+        "module": "pose-mcp",
+        "check": "adversarial-corpus-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/amendment-history-before-close-integration",
+        "module": "pose-mcp",
+        "check": "amendment-history-before-close-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/artifact-claim-boundary-integration",
+        "module": "pose-mcp",
+        "check": "artifact-claim-boundary-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/assessment-freshness-integration",
+        "module": "pose-mcp",
+        "check": "assessment-freshness-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/atomic-start-cutoff-integration",
+        "module": "pose-mcp",
+        "check": "atomic-start-cutoff-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/attention-snapshot-integration",
+        "module": "pose-mcp",
+        "check": "attention-snapshot-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/attention-sources-integration",
+        "module": "pose-mcp",
+        "check": "attention-sources-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/attest-preflight-integration",
+        "module": "pose-mcp",
+        "check": "attest-preflight-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/authority-project-integration",
+        "module": "pose-mcp",
+        "check": "authority-project-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/blocked-semantics-integration",
+        "module": "pose-mcp",
+        "check": "blocked-semantics-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/blocked-semantics-reachability",
+        "module": "pose-mcp",
+        "check": "blocked-semantics-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/build",
+        "module": "pose-mcp",
+        "check": "build",
+        "evidence_class": "build",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/calendar-date-skew-integration",
+        "module": "pose-mcp",
+        "check": "calendar-date-skew-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/capability-catalog-integration",
+        "module": "pose-mcp",
+        "check": "capability-catalog-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/causality-cutoff-integration",
+        "module": "pose-mcp",
+        "check": "causality-cutoff-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/check-git-spawns-integration",
+        "module": "pose-mcp",
+        "check": "check-git-spawns-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/check-verdict-mode-integration",
+        "module": "pose-mcp",
+        "check": "check-verdict-mode-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/check-workers-integration",
+        "module": "pose-mcp",
+        "check": "check-workers-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/ci-release-obligations-integration",
+        "module": "pose-mcp",
+        "check": "ci-release-obligations-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/clean-activation-recording-integration",
+        "module": "pose-mcp",
+        "check": "clean-activation-recording-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/cli-mcp-operation-results-integration",
+        "module": "pose-mcp",
+        "check": "cli-mcp-operation-results-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/cli-profile-parity-integration",
+        "module": "pose-mcp",
+        "check": "cli-profile-parity-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/closeout-plan-integration",
+        "module": "pose-mcp",
+        "check": "closeout-plan-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/closeout-plan-reachability",
+        "module": "pose-mcp",
+        "check": "closeout-plan-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/closeout-terminal-verification-integration",
+        "module": "pose-mcp",
+        "check": "closeout-terminal-verification-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/completed-review-retention-integration",
+        "module": "pose-mcp",
+        "check": "completed-review-retention-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/configuration-review-integration",
+        "module": "pose-mcp",
+        "check": "configuration-review-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delegated-adapter-containment-integration",
+        "module": "pose-mcp",
+        "check": "delegated-adapter-containment-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delegated-attempt-ledger-integration",
+        "module": "pose-mcp",
+        "check": "delegated-attempt-ledger-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delegated-review-capability-integration",
+        "module": "pose-mcp",
+        "check": "delegated-review-capability-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delegated-run-continuity-integration",
+        "module": "pose-mcp",
+        "check": "delegated-run-continuity-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delegated-run-provenance-integration",
+        "module": "pose-mcp",
+        "check": "delegated-run-provenance-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delegation-surface-integration",
+        "module": "pose-mcp",
+        "check": "delegation-surface-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-graph-reuse-integration",
+        "module": "pose-mcp",
+        "check": "delivery-graph-reuse-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-integration",
+        "module": "pose-mcp",
+        "check": "delivery-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-integrity-index-compaction-integration",
+        "module": "pose-mcp",
+        "check": "delivery-integrity-index-compaction-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-reachability",
+        "module": "pose-mcp",
+        "check": "delivery-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/dependabot-runtime-repair-integration",
+        "module": "pose-mcp",
+        "check": "dependabot-runtime-repair-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/distributed-instructions-parity-integration",
+        "module": "pose-mcp",
+        "check": "distributed-instructions-parity-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/effective-governance-integration",
+        "module": "pose-mcp",
+        "check": "effective-governance-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/effective-governance-reachability",
+        "module": "pose-mcp",
+        "check": "effective-governance-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/extension-target-integration",
+        "module": "pose-mcp",
+        "check": "extension-target-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/falsifier-integration",
+        "module": "pose-mcp",
+        "check": "falsifier-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/federated-roadmap-acceptance-integration",
+        "module": "pose-mcp",
+        "check": "federated-roadmap-acceptance-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/federated-roadmap-negative-gates",
+        "module": "pose-mcp",
+        "check": "federated-roadmap-negative-gates",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/federated-spec-acceptance-integration",
+        "module": "pose-mcp",
+        "check": "federated-spec-acceptance-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/flat-spec-amendments-integration",
+        "module": "pose-mcp",
+        "check": "flat-spec-amendments-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/flat-spec-amendments-reachability",
+        "module": "pose-mcp",
+        "check": "flat-spec-amendments-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/followup-candidates-integration",
+        "module": "pose-mcp",
+        "check": "followup-candidates-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/followup-candidates-reachability",
+        "module": "pose-mcp",
+        "check": "followup-candidates-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/fresh-install-health-integration",
+        "module": "pose-mcp",
+        "check": "fresh-install-health-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+        "module": "pose-mcp",
+        "check": "git-and-dispatch-snapshot-integrity-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/git-dispatch-snapshot-integrity-integration",
+        "module": "pose-mcp",
+        "check": "git-dispatch-snapshot-integrity-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/git-repository-detection-locale-integration",
+        "module": "pose-mcp",
+        "check": "git-repository-detection-locale-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/governance-outcomes-v2-contract",
+        "module": "pose-mcp",
+        "check": "governance-outcomes-v2-contract",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/governance-waits-integration",
+        "module": "pose-mcp",
+        "check": "governance-waits-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/governance-waits-reachability",
+        "module": "pose-mcp",
+        "check": "governance-waits-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/governed-capabilities-integration",
+        "module": "pose-mcp",
+        "check": "governed-capabilities-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/governed-effects-integration",
+        "module": "pose-mcp",
+        "check": "governed-effects-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/governed-effects-reachability",
+        "module": "pose-mcp",
+        "check": "governed-effects-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/historical-trust-reuse-integration",
+        "module": "pose-mcp",
+        "check": "historical-trust-reuse-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/index-generation-integrity-integration",
+        "module": "pose-mcp",
+        "check": "index-generation-integrity-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/init-is-install-integration",
+        "module": "pose-mcp",
+        "check": "init-is-install-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/install-and-upgrade-journeys-integration",
+        "module": "pose-mcp",
+        "check": "install-and-upgrade-journeys-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+        "module": "pose-mcp",
+        "check": "journal-checkpoint-and-lock-recovery-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/legacy-contract-cutoffs-integration",
+        "module": "pose-mcp",
+        "check": "legacy-contract-cutoffs-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/legacy-contract-cutoffs-reachability",
+        "module": "pose-mcp",
+        "check": "legacy-contract-cutoffs-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/lint-spec-all-gate-contract",
+        "module": "pose-mcp",
+        "check": "lint-spec-all-gate-contract",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/locale-obligation-flags-integration",
+        "module": "pose-mcp",
+        "check": "locale-obligation-flags-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/machine-channel-integration",
+        "module": "pose-mcp",
+        "check": "machine-channel-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/material-reuse-integration",
+        "module": "pose-mcp",
+        "check": "material-reuse-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/mcp-action-resolve-integration",
+        "module": "pose-mcp",
+        "check": "mcp-action-resolve-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/mcp-review-attest-integration",
+        "module": "pose-mcp",
+        "check": "mcp-review-attest-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/migrate-dryrun-integration",
+        "module": "pose-mcp",
+        "check": "migrate-dryrun-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/migrate-dryrun-reachability",
+        "module": "pose-mcp",
+        "check": "migrate-dryrun-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/multi-repo-agent-context-integration",
+        "module": "pose-mcp",
+        "check": "multi-repo-agent-context-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/multi-repo-agent-context-reachability",
+        "module": "pose-mcp",
+        "check": "multi-repo-agent-context-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/multi-repo-agent-installed-journey",
+        "module": "pose-mcp",
+        "check": "multi-repo-agent-installed-journey",
+        "evidence_class": "e2e",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/multi-repo-agent-negative-gates",
+        "module": "pose-mcp",
+        "check": "multi-repo-agent-negative-gates",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/obligation-contract-integration",
+        "module": "pose-mcp",
+        "check": "obligation-contract-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/obligation-projection-integration",
+        "module": "pose-mcp",
+        "check": "obligation-projection-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/onboarding-spec-integration",
+        "module": "pose-mcp",
+        "check": "onboarding-spec-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/parallel-gate-integration",
+        "module": "pose-mcp",
+        "check": "parallel-gate-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/parse-memo-integration",
+        "module": "pose-mcp",
+        "check": "parse-memo-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/phase-readiness-integration",
+        "module": "pose-mcp",
+        "check": "phase-readiness-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/phase-readiness-reachability",
+        "module": "pose-mcp",
+        "check": "phase-readiness-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/policy-scope-validation-integration",
+        "module": "pose-mcp",
+        "check": "policy-scope-validation-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/premise-validity-integration",
+        "module": "pose-mcp",
+        "check": "premise-validity-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/project-id-derivation-integration",
+        "module": "pose-mcp",
+        "check": "project-id-derivation-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/project-identity-integration",
+        "module": "pose-mcp",
+        "check": "project-identity-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/proof-presence-channel-parity-integration",
+        "module": "pose-mcp",
+        "check": "proof-presence-channel-parity-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/public-claims-provenance-integration",
+        "module": "pose-mcp",
+        "check": "public-claims-provenance-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/public-claims-provenance-reachability",
+        "module": "pose-mcp",
+        "check": "public-claims-provenance-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/public-claims-release-line-integration",
+        "module": "pose-mcp",
+        "check": "public-claims-release-line-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/qualified-artifact-resolution-integration",
+        "module": "pose-mcp",
+        "check": "qualified-artifact-resolution-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/qualified-followup-integration",
+        "module": "pose-mcp",
+        "check": "qualified-followup-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/quickstart-real-lifecycle-integration",
+        "module": "pose-mcp",
+        "check": "quickstart-real-lifecycle-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/range-ownership-integration",
+        "module": "pose-mcp",
+        "check": "range-ownership-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/recurrence-cluster-integration",
+        "module": "pose-mcp",
+        "check": "recurrence-cluster-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/recurrence-flapping-integration",
+        "module": "pose-mcp",
+        "check": "recurrence-flapping-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/red-signal-contract",
+        "module": "pose-mcp",
+        "check": "red-signal-contract",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/release-manifest-tag-integrity-integration",
+        "module": "pose-mcp",
+        "check": "release-manifest-tag-integrity-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/release-needs-ci-contract",
+        "module": "pose-mcp",
+        "check": "release-needs-ci-contract",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/release-review-archive-integration",
+        "module": "pose-mcp",
+        "check": "release-review-archive-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/release-version-source-integration",
+        "module": "pose-mcp",
+        "check": "release-version-source-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/release-version-source-reachability",
+        "module": "pose-mcp",
+        "check": "release-version-source-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-approval-domain-preflight-integration",
+        "module": "pose-mcp",
+        "check": "review-approval-domain-preflight-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-assurance-disclosure-integration",
+        "module": "pose-mcp",
+        "check": "review-assurance-disclosure-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-assurance-disclosure-reachability",
+        "module": "pose-mcp",
+        "check": "review-assurance-disclosure-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-attribution-roles-integration",
+        "module": "pose-mcp",
+        "check": "review-attribution-roles-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-attribution-roles-reachability",
+        "module": "pose-mcp",
+        "check": "review-attribution-roles-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-bundle-convergence",
+        "module": "pose-mcp",
+        "check": "review-bundle-convergence",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-policy-adoption-integration",
+        "module": "pose-mcp",
+        "check": "review-policy-adoption-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-soundness-residuals-integration",
+        "module": "pose-mcp",
+        "check": "review-soundness-residuals-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-subject-capabilities-integration",
+        "module": "pose-mcp",
+        "check": "review-subject-capabilities-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/setup-command-integration",
+        "module": "pose-mcp",
+        "check": "setup-command-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/signed-action-answers-integration",
+        "module": "pose-mcp",
+        "check": "signed-action-answers-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/source-coverage-integrity-integration",
+        "module": "pose-mcp",
+        "check": "source-coverage-integrity-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/spec-authority-transfer-integration",
+        "module": "pose-mcp",
+        "check": "spec-authority-transfer-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/spec-authority-transfer-mcp-status",
+        "module": "pose-mcp",
+        "check": "spec-authority-transfer-mcp-status",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/spec-authority-transfer-negative-gates",
+        "module": "pose-mcp",
+        "check": "spec-authority-transfer-negative-gates",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/spec-facts-evidence-binding-integration",
+        "module": "pose-mcp",
+        "check": "spec-facts-evidence-binding-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/spec-surface-integration",
+        "module": "pose-mcp",
+        "check": "spec-surface-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/spec-surface-reachability",
+        "module": "pose-mcp",
+        "check": "spec-surface-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/state-attention-integration",
+        "module": "pose-mcp",
+        "check": "state-attention-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/state-attention-reachability",
+        "module": "pose-mcp",
+        "check": "state-attention-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/test",
+        "module": "pose-mcp",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/test-git-isolation-integration",
+        "module": "pose-mcp",
+        "check": "test-git-isolation-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/test-scripts-remove-their-temp-files-integration",
+        "module": "pose-mcp",
+        "check": "test-scripts-remove-their-temp-files-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/trace-test-refs-integration",
+        "module": "pose-mcp",
+        "check": "trace-test-refs-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/transfer-actions-integration",
+        "module": "pose-mcp",
+        "check": "transfer-actions-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/typed-diagnostics-integration",
+        "module": "pose-mcp",
+        "check": "typed-diagnostics-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/typed-diagnostics-reachability",
+        "module": "pose-mcp",
+        "check": "typed-diagnostics-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/update-preview-integration",
+        "module": "pose-mcp",
+        "check": "update-preview-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/usage-adjudication-integration",
+        "module": "pose-mcp",
+        "check": "usage-adjudication-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/usage-adjudication-reachability",
+        "module": "pose-mcp",
+        "check": "usage-adjudication-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/validation-check-materiality-integration",
+        "module": "pose-mcp",
+        "check": "validation-check-materiality-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+        "module": "pose-mcp",
+        "check": "writer-coordination-and-atomic-publication-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "observed",
+        "git_head": "6b6f27779c5f30c0a230d446f45f4b36f817350f",
+        "provenance_digest": "sha256:a3bc39f8da7a6d7fa7a9fcb06bad2bcfb4ccf5ee0ce929ccc879a3936b6bd730",
+        "report": ".pose/results/delivery-validation.json"
+      }
+    ],
+    "governing_contracts": [
+      "causality-closeout",
+      "component-aware",
+      "evidence-vocabulary",
+      "explicit-judgment",
+      "review-bundles",
+      "structural-causality"
+    ],
+    "basis": {
+      "pose-delegation-task-detach-and-state": "sha256:baa665180b78dd63059aeeca638b6497e0fc06821a08a08ea02d798bc61c556e"
+    },
+    "gates": {
+      "accepted_risk_severities": [
+        "low"
+      ],
+      "allow_criterion_reuse": true,
+      "identity_assurance": "declared"
+    },
+    "consumed_inputs": [
+      {
+        "kind": "governed-config",
+        "path": ".pose/indexes/validation-matrix.json",
+        "digest": "sha256:a7dfe87c331ae8f6aa3eef54044fc718641cf67dcb8567795245e5344b007ed2",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "governed-config",
+        "path": ".pose/policy/review.json",
+        "digest": "sha256:c1702a1a287889a35afcedc7d2adba0d5b8b435d5f00fe94cb90e657be1e013e",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "review-plan",
+        "path": "spec-closeout@1",
+        "digest": "sha256:e31bd06c3c7979b0fc636ca28424f6e7e26df1f40478a608a399da863b4573d7",
+        "reason": "effective component-aware plan contract"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/backend-review.json",
+        "digest": "sha256:71063c042b4e085bb9afc13e4ac675d0b51a0534b59787a437d1650c156cb5f1",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/spec-closeout.json",
+        "digest": "sha256:3d114c8cb6398ab16bd0a1daca8540728af282558ff37156aea878bcc9d238a5",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/backend-go.md",
+        "digest": "sha256:2289a86134e7d6667ae4dba4bfd68dee8acd59246912e32c35648d399e6d3e31",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/documentation-style.md",
+        "digest": "sha256:5c5c666fc6c796cf9ae3876d25d3fd4fa523d121892459dc0d681d73da1d60ae",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/security.md",
+        "digest": "sha256:1cbf29c12d09cad0799e2d8715e94f84a49ee8fa09867bb5f12a544f8df43774",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "schema",
+        "path": "review-bundle@1",
+        "digest": "sha256:e7c9643ec88eccb2a6dea3ee3291c351983d78e1d2fa44b61399514c5021bcb0",
+        "reason": "canonical bundle and attestation schema identity"
+      },
+      {
+        "kind": "tool-catalog",
+        "path": "native-review-tools@1",
+        "digest": "sha256:e31bd06c3c7979b0fc636ca28424f6e7e26df1f40478a608a399da863b4573d7",
+        "reason": "closed resolved native tool contract"
+      }
+    ],
+    "implementation": {
+      "principal": "agent:claude/unknown",
+      "vendor": "claude",
+      "model": "unknown",
+      "source": "declared",
+      "replaces": "rvb-66d987d63d4dc032"
+    }
+  },
+  "excluded_inputs": [
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/state/history.jsonl",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/state/project-state.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/state/refresh-log.jsonl",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-index",
+      "path": ".pose/indexes/delivery-integrity.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-index",
+      "path": ".pose/indexes/generation.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-section",
+      "path": "final report",
+      "digest": "sha256:abb82d84fb3bbe2567a8cb05ad80497fb5a7ab95add446dd6fddaf3070270c6b",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "tasks",
+      "digest": "sha256:9789c0819c5f94ac49d3d802cc2fd42d1004cd5508d3b8aeabce54c14208f6f0",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "validation",
+      "digest": "sha256:aa129d513494d9ae36289d2a0928423f2cb732fcf9caa06fd6149f010c0615d6",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "lifecycle",
+      "path": ".pose/specs/2026-10-29-pose-delegation-task-detach-and-state.md",
+      "reason": "status and completed_at do not define the reviewed semantic subject"
+    },
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/2026-10-26-pose-delegation-parity-gate.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/2026-10-26-pose-delegation-task.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/2026-10-29-pose-delegation-task-detach-and-state.amendments.jsonl",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/2026-10-29-pose-delegation-task-detach-and-state.md",
+      "reason": "attributed path is outside the semantic review subject"
+    }
+  ],
+  "range_observations": [
+    {
+      "change_set": "cs-3dbf016ed7f3",
+      "state": "clean",
+      "attributed_commits": 11,
+      "range_commits": 11
+    }
+  ],
+  "warnings": [
+    "metadata-incomplete review component pose-mcp missing:owner",
+    "the seal names no implementation execution (no claude session reference in the environment), so a review that must prove a different actor cannot be attested against it",
+    "unmapped review component path:.pose/changelogs/unreleased/pose-delegation-task-detach-and-state.md",
+    "unmapped review component path:.pose/roadmaps/delegation.md",
+    "unmapped review component path:.pose/specs/2026-10-26-pose-delegation-parity-gate.md",
+    "unmapped review component path:.pose/specs/2026-10-26-pose-delegation-task.md",
+    "unmapped review component path:.pose/specs/2026-10-29-pose-delegation-task-detach-and-state.amendments.jsonl",
+    "unmapped review component path:.pose/specs/2026-10-29-pose-delegation-task-detach-and-state.md",
+    "unmapped review component path:.pose/starts/pose-delegation-task-detach-and-state.json",
+    "unmapped review component path:.pose/state/history.jsonl",
+    "unmapped review component path:.pose/state/project-state.md",
+    "unmapped review component path:.pose/state/refresh-log.jsonl",
+    "unmapped review component path:POSE.md",
+    "unmapped review component path:locales/pt-BR/POSE.md"
+  ],
+  "path": ".pose/review-bundles/rvb-aac47873e634a37e.json"
+}
