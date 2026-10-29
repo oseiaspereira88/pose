@@ -111,16 +111,19 @@ grep -q "nothing to set up" <<<"$("$BIN" setup --no-input 2>&1)" || fail "setup 
 ok "journey 1b: the onboarding spec is started, driven by setup and closed through review"
 
 # Journey 2 — installed by the newest published release older than both the
-# engine under test and its newest governed capability, then updated. "Older"
+# engine under test and its newest reviewable capability, then updated. "Older"
 # matters: an update between releases that offer the same capabilities has
 # nothing to review, and the journey would test nothing (specs
 # pose-upgrade-journey-starts-below-current and
 # pose-upgrade-journey-starts-below-the-newest-capability).
+# A capability in needs-setup is not a configuration decision yet, as
+# CapabilitiesToReview defines. It must not move the bound past every
+# capability this journey can actually ask the maintainer to decide.
 if [ -z "$PREVIOUS" ]; then
   CURRENT="$("$BIN" version | sed -n '1s/^pose \([0-9][0-9.]*\).*/\1/p')"
   [ -n "$CURRENT" ] || fail "could not read the version of the engine under test"
-  NEWEST_CAPABILITY="$("$BIN" adopt --list --json | python3 -c 'import json,sys; v=[tuple(int(x) for x in c["introduced_in"].split(".")) for c in json.load(sys.stdin) if c.get("introduced_in")]; print(".".join(map(str,max(v))) if v else "")')"
-  [ -n "$NEWEST_CAPABILITY" ] || fail "could not read when the newest governed capability was introduced"
+  NEWEST_CAPABILITY="$("$BIN" adopt --list --json | python3 -c 'import json,sys; v=[tuple(int(x) for x in c["introduced_in"].split(".")) for c in json.load(sys.stdin) if c.get("introduced_in") and c.get("state") != "needs-setup"]; print(".".join(map(str,max(v))) if v else "")')"
+  [ -n "$NEWEST_CAPABILITY" ] || fail "could not read when the newest reviewable capability was introduced"
   if python3 -c 'import sys; a,b=(tuple(int(x) for x in v.split(".")) for v in sys.argv[1:3]); sys.exit(0 if b < a else 1)' "$CURRENT" "$NEWEST_CAPABILITY"; then
     CURRENT="$NEWEST_CAPABILITY"
   fi

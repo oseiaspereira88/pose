@@ -113,6 +113,9 @@ Catalog entry, `pose init` and `pose update` prompts, independence degradation i
 - modified: pose-mcp/internal/pose/review_conclusions.go
 - created: .pose/reports/delegation-adoption-review-round2.md
 
+- modified: tests/journeys/install-and-upgrade.sh
+- created: .pose/reports/delegation-adoption-review-round3.md
+
 ### Delivery targets
 
 - capability:delegated-review module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/delegated_review_adoption.go
@@ -158,6 +161,14 @@ The [adoption ADR](../adr/2026-10-29-make-delegated-review-adoption-explicit-and
 - Consequences: local keys are never versioned; refusal and non-interactive operation write no delegation policy; update only suggests. Existing files are never overwritten by the init offer. The decision is published last under compare-and-swap and configuration revalidation; partial setup retains artifacts for recovery and reports published-but-unsynced state distinctly
 - Falsifier: an init claims enabled delegation without a usable agent or trust configuration, overwrites policy, or records a human
 
+### Decision D4
+- Basis: R2, R9
+- Minimal option: use the newest catalog capability as the upgrade journey's version bound even when it needs setup
+- Selected option: bound the upgrade journey by the newest reviewable capability, excluding needs-setup, while retaining published checksum-verified releases, actual configuration decisions and idempotent update assertions
+- Rationale: CapabilitiesToReview deliberately does not ask a configuration decision before prerequisites exist; delegated-review introduces a newer needs-setup entry, not a new automatically decidable adoption
+- Consequences: the production adoption/update contract is unchanged; the registered journey continues exercising a real review instead of inventing a decision or falsely failing when none is owed
+- Falsifier: an upgrade journey passes without opening and answering an actual eligible configuration decision
+
 Review context: knowledge:delegation-routing-round3; knowledge:delegated-conclusions-round4; knowledge:delegation-mcp-round5. B19 conclusions and B20 fulfillment are already done. B21 qualifies their composition; no new phase checkpoint is introduced. The 2026-10-26 ADR's init offer supersedes the older batch-10 wording about off-by-default interactive opt-in. Disabling the capability preserves runs, attempts, rejections, issuer pins and earlier approvals; it does not cancel an execution or restore a spent budget.
 
 ## 6. Validation
@@ -200,12 +211,15 @@ Additional required checks: full Go suite and vet; focused race tests for delega
 
 ### Delivered scope
 
-Implementation and focused positive/negative journeys are prepared in the adoption milestone of roadmap `delegation`. Final validation and implementation review remain pending. Maintainer decision `act-31f0849a7ec6712c` selected the live B17 barrier; the adoption ADR records activation/recovery guarantees and the selected historical contract.
+Implementation and focused positive/negative journeys are prepared in the adoption milestone of roadmap `delegation`. Cross-vendor source review by Claude Opus 5.5 approved without blockers, with two low follow-ups. The first registered run passed 158 of 159 checks and exposed an upgrade-journey premise that counted a needs-setup capability; the corrected real-release journey passes. Final registered validation, native sealed review and publication remain pending. Maintainer decision `act-31f0849a7ec6712c` selected the live B17 barrier; the adoption ADR records activation/recovery guarantees and the selected historical contract.
 
 ### Residual risks
 
 A trusted local executor can emit a complete canned judgment. Native proof authenticates the executor declaration and bound artifacts, not substantive review cognition or a vendor receipt; the adversarial disclosure test guards that boundary. The technical-debt assessment has zero uncovered markers but reports incomplete coverage for two pre-existing legacy spec sources; it is not evidence of global completeness.
 
 ### Follow-ups
+
+- [open] F2: Improve the missing-agent diagnostic for a protected disabling review before any current bundle is sealed; it currently fails closed without opening an escalation in that off-capability case. (owner:@pose-maintainers crit:low review:2026-11-10)
+- [open] F3: Refine the automatic-conclusion hint for an off-capability legacy review run whose bundle is absent; preserve source-loss diagnostics without suggesting that ordinary off-capability work owed an automatic conclusion. (owner:@pose-maintainers crit:low review:2026-11-10)
 
 - [open] F1: Reconcile the empty follow-up bullets in the legacy specs pose-instance-engine-version-tracking and pose-knowledge-durable-reference-type; the current followups/technical-debt producers correctly report partial global coverage until those sources are repaired. This does not waive any B21 requirement or claim global completeness. (owner:@pose-maintainers crit:low review:2026-11-10)

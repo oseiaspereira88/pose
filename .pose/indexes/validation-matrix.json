@@ -2175,7 +2175,7 @@
         {
           "name": "delegated-review-capability-integration",
           "program": "go",
-          "args": ["test", "./internal/pose", "./internal/cli", "./internal/mcpserver", "-run", "DelegatedReviewCapability|DelegationInit|ConcludeReviewRun|DelegatedReviewRequestPerKind|ActionFulfil|OnlyTheSigningGate|RunProvenanceLiveOptIn", "-count=1"],
+          "args": ["test", "-race", "./internal/pose", "./internal/cli", "./internal/mcpserver", "-run", "DelegatedReviewCapability|DelegationInit|ConcludeReviewRun|DelegatedReviewRequestPerKind|ActionFulfil|OnlyTheSigningGate|RunProvenanceLiveOptIn", "-count=1"],
           "severity": "required",
           "evidenceClass": "integration"
         },
