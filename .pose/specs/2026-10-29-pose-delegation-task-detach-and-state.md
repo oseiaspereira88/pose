@@ -90,6 +90,9 @@ Task front end and detached supervisor (prompt pipe, trusted supervisor director
 - created: pose-mcp/internal/pose/delegation_task_state_unix.go
 - created: pose-mcp/internal/pose/delegation_task_state_windows.go
 - created: pose-mcp/internal/pose/delegation_task_state_test.go
+- modified: .pose/state/history.jsonl
+- modified: .pose/state/project-state.md
+- modified: .pose/state/refresh-log.jsonl
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
