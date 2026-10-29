@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-29T20:37:12Z
-baseline_commit: 8938058eec11650717abebbea0604c340d170eb5
+generated_at: 2026-10-29T21:13:44Z
+baseline_commit: 86aac5e4b7a0bd942e70ff769cebe3bcb7689048
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -40,10 +40,10 @@ capacidade.
   - ... e mais 413 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:f13b2fabc372 -->
+<!-- state:derived hash:0a071a56c1c5 -->
 
-- abertos: 179
-- por criticidade: high=4 medium=29 low=127 sem-classificação=19
+- abertos: 182
+- por criticidade: high=4 medium=28 low=131 sem-classificação=19
 - vencidos (review < hoje): 31
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
@@ -76,10 +76,10 @@ capacidade.
 - knowledge: total=18 ativo=18 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:9b28ebc983c6 -->
+<!-- state:derived hash:c8e4fdfc9614 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
-- últimos 30 dias: total=53 outcome_ok=33 outcome_outro=20
+- últimos 30 dias: total=52 outcome_ok=33 outcome_outro=19
 - reports revisados (.md): total=283
   - report:delegation-adoption-review-round4.md
   - report:delegation-adoption-review-round3.md

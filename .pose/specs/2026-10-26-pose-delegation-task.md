@@ -189,5 +189,5 @@ F2 is a future hardening item: the external state path accepts a symbolic ancest
 
 ### Follow-ups
 
-- [open] F2: harden traversal and ownership checks for symbolic or writable ancestors of the external task-state path, preserving an explicit contract for XDG_STATE_HOME. (owner:@oseiaspereira88 crit:medium review:2026-11-10)
-- [open] F3: implement task detach and reconcile its behavior with the delegation ADR before the launcher parity gate and retirement. (owner:@oseiaspereira88 crit:medium review:2026-11-10)
+- [spawned: pose-delegation-task-detach-and-state] F2: harden traversal and ownership checks for symbolic or writable ancestors of the external task-state path, preserving an explicit contract for XDG_STATE_HOME.
+- [spawned: pose-delegation-task-detach-and-state] F3: implement task detach and reconcile its behavior with the delegation ADR before the launcher parity gate and retirement.

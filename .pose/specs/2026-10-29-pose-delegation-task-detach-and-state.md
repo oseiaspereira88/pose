@@ -77,6 +77,7 @@ Task front end and detached supervisor (prompt pipe, trusted supervisor director
 - created: .pose/starts/pose-delegation-task-detach-and-state.json
 - modified: .pose/roadmaps/delegation.md
 - modified: .pose/specs/2026-10-26-pose-delegation-parity-gate.md
+- modified: .pose/specs/2026-10-26-pose-delegation-task.md
 - modified: pose-mcp/internal/cli/delegate.go
 - modified: pose-mcp/internal/cli/delegate_task.go
 - modified: pose-mcp/internal/cli/delegate_wait.go
@@ -100,15 +101,15 @@ Task front end and detached supervisor (prompt pipe, trusted supervisor director
 
 ## 4. Tasks
 
-- [ ] Detached task with prompt pipe and record place
-- [ ] Detached `resume --prompt -` through the same pipe
-- [ ] Supervisor directory trust and believed hand-back
-- [ ] State base contract and ancestor checks
-- [ ] Created components: owner, mode, no link
-- [ ] Manuals, help, MCP refusal text, changelog
-- [ ] A lone `-` read as stdin by the parser
-- [ ] Mutations that fail each new test
-- [ ] Independent review and closeout
+- [x] Detached task with prompt pipe and record place
+- [x] Detached `resume --prompt -` through the same pipe
+- [x] Supervisor directory trust and believed hand-back
+- [x] State base contract and ancestor checks
+- [x] Created components: owner, mode, no link
+- [x] Manuals, help, MCP refusal text, changelog
+- [x] A lone `-` read as stdin by the parser
+- [x] Mutations that fail each new test
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -136,14 +137,40 @@ A built binary detaches a task with a prompt file and with stdin, waits for it a
 
 ### Requirement trace
 
+- R1 [satisfied] check:delegation-surface-integration test:TestDelegateTaskDetaches test:TestDelegateTaskHistoryIsOneThroughARootLink report:.pose/results/delivery-validation.json commit:86aac5e4b7a0bd942e70ff769cebe3bcb7689048 — A task detaches with a prompt file or stdin, returns its tat- attempt, log and record place, and wait, ls and watch resolve it, through a root link too.
+- R2 [satisfied] check:delegation-surface-integration test:TestDelegateTaskDetachedPromptArrivesWhole test:TestDelegateTaskDetachedResumeTakesAPipedPrompt report:.pose/results/delivery-validation.json commit:86aac5e4b7a0bd942e70ff769cebe3bcb7689048 — A piped prompt of 1 MiB reaches the detached task and resume whole, through a pipe; no file holds it.
+- R3 [satisfied] check:delegation-surface-integration test:TestDelegateTaskDetachRefusesWhatItCannotStart report:.pose/results/delivery-validation.json commit:86aac5e4b7a0bd942e70ff769cebe3bcb7689048 — A route that must wait for a reset is refused detached, naming the reset.
+- R4 [satisfied] check:delegation-surface-integration test:TestDelegateTaskDetachRefusesWhatItCannotStart test:TestDelegateTaskDetachIgnoresAnInheritedLegacyRoot report:.pose/results/delivery-validation.json commit:86aac5e4b7a0bd942e70ff769cebe3bcb7689048 — Refusals before reservation return the foreground's document and exit code (2 and 1), JSON and text.
+- R5 [satisfied] check:test test:TestTaskStateBaseTakesOnlyAnAbsoluteXDGStateHome report:.pose/results/delivery-validation.json commit:86aac5e4b7a0bd942e70ff769cebe3bcb7689048 — Only an absolute XDG_STATE_HOME is the base; otherwise the platform default.
+- R6 [satisfied] check:test test:TestTaskStateDirTrustsOnlyAPrivateBase test:TestTaskStateDirRefusesAnotherUsersDirectory report:.pose/results/delivery-validation.json commit:86aac5e4b7a0bd942e70ff769cebe3bcb7689048 — A linked base is resolved; a base or ancestor another user owns or can write without sticky is refused, root ancestors accepted.
+- R7 [satisfied] check:test test:TestTaskStateDirRefusesALinkedOrWritableComponent test:TestTaskStateDirRefusesAnotherUsersDirectory report:.pose/results/delivery-validation.json commit:86aac5e4b7a0bd942e70ff769cebe3bcb7689048 — POSE-made components that are links, foreign or writable are refused, never followed or tightened.
+- R8 [satisfied] check:delegation-surface-integration test:TestDelegateToolsOverMCPMatchTheCLI report:.pose/results/delivery-validation.json commit:86aac5e4b7a0bd942e70ff769cebe3bcb7689048 — The MCP refusal of a task start gives the reason and the CLI detach guidance, not the obsolete claim.
+- R9 [satisfied] check:delegation-surface-integration test:TestDelegateTaskReadsAPromptFromStdin report:.pose/results/delivery-validation.json commit:86aac5e4b7a0bd942e70ff769cebe3bcb7689048 — A lone - is the task's prompt operand and the value of --prompt in the foreground.
+- R10 [satisfied] check:delegation-surface-integration test:TestDelegateTaskDetachRefusesAWritableSupervisorDirectory test:TestDelegateTaskDetachDoesNotBelieveAForgedHandback test:TestDelegateTaskDetachStaysInTheCheckedRoot test:TestDelegateTaskDetachRefusesAMissingCurrentDirectory report:.pose/results/delivery-validation.json commit:86aac5e4b7a0bd942e70ff769cebe3bcb7689048 — Private supervisor chain, pinned resolved root, hand-back believed only after the prompt is through and the attempt reserved, missing cwd refused.
+- R11 [satisfied] check:delegation-surface-integration test:TestDelegateTaskHistoryIsOneThroughARootLink test:TestDelegateTaskDetachedContinuationFindsTheLegacyHistory test:TestDelegateTaskDetachIgnoresAnInheritedLegacyRoot report:.pose/results/delivery-validation.json commit:86aac5e4b7a0bd942e70ff769cebe3bcb7689048 — One history per resolved root; legacy link-keyed history read by foreground and detached continuations; inherited or foreign spellings ignored (TestOnlyADetachedRunTakesItsCallersRootSpelling, TestADetachedRunInheritsNoControlVariable, TestTaskHistoryKeyedByTheResolvedRootReadsTheLegacyKey under check:test).
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: closes follow-ups F2 and F3 of `pose-delegation-task` before milestone `retirement` of roadmap `delegation`.
+Closes follow-ups F2 and F3 of `pose-delegation-task` on implementation head `86aac5e4b7a0bd942e70ff769cebe3bcb7689048`, ahead of milestone `retirement` of roadmap `delegation`: `pose delegate task --detach`, a piped prompt carried to a detached task or resume through a pipe, foreground refusal parity for detached calls, the `-` operand and `--prompt -` that `pose delegate task` and `resume` promised but never parsed (R9, a defect of the closed spec found here), an explicit `XDG_STATE_HOME` contract and ownership/permission checks on the task-state path, a private supervisor directory and a pinned resolved root for every detached purpose, and one task history per resolved root with legacy link-keyed history still read. The detach and supervisor rules apply to review, adjudicate, smoke, resume and handoff as well as task.
+
+Independent review: seven rounds by Codex `gpt-6.1-sol` (OpenAI, reasoning medium), principal `agent:independent-f2f3-sol-20261029-r1`, a different vendor than the implementer Claude Opus 5.5 (Anthropic). Rounds 1–6 requested changes (F2F3-R1-01..06, R2-01..02, R3-01..03, R4-01..04, R5-01, R6-01), each fixed in its own commit with a regression that fails when its production line is reverted, and recorded in the amendment journal; round 7 approved with no blocker. The reports are local review evidence under `/tmp/pose-roadmaps-evidence/f2f3/` (untracked); the native bundle and attestation are the sealed record.
+
+### Validation executed
+
+- `go test ./...` (pose-mcp, without agent session markers, `GOMAXPROCS=2 GOFLAGS=-p=1`): passed on the implementation head; `go test -race` over the delegation, detach, wait, task-state and handoff selections passed; `go vet` and Windows/Darwin builds passed.
+- Mutations: 30 production mutants (M1–M31, with M22+M23 and M30+M31 applied together because each alone is covered by the other layer) each fail an assertion after a passing baseline.
+- The native strict validation, index, seal, attestation and verify of the closeout are recorded by the bundle and attestation linked from the closeout commit.
 
 ### Residual risks
 
-None yet.
+On Windows, ownership, mode bits and ACLs of the task-state path and the supervisor directory are not checked (only links and non-directories are refused), and detached runs were build-checked, not run natively. A hand-back naming an attempt that exists is believed without proof that this run reserved it; inside a private supervisor chain only the user or root can write one. The user and root changing their own trusted tree are outside the guarantee. The observation and MCP residuals of knowledge:delegation-observation-round4 and knowledge:delegation-mcp-round5 are unchanged by this spec and keep their owners and review dates there.
 
 ### Follow-ups
+
+- [open] F1: on Windows, fold the names of the detached control variables before filtering them and check ACL privacy of the task-state and supervisor directories, with native Windows runs of a detached task, before Windows directory privacy is claimed (F2F3-R7-01 and the ACL boundary). (owner:@oseiaspereira88 crit:medium review:2026-11-26)
+- [open] F2: add a deterministic regression for the copy result arriving after the detached run exits, through a seam that holds the copy's report (F2F3-R4-03). (owner:@oseiaspereira88 crit:low review:2026-11-26)
+- [open] F3: authenticate that the detached run that hands an attempt back reserved it, instead of checking that the attempt exists. (owner:@oseiaspereira88 crit:low review:2026-11-26)
+- [open] F4: make history-check write an error verdict in its machine document on every early return, such as an unavailable Git repository, which now prints a default pass document with exit 2 (F2F3-R7-02, found by the review, not caused by this spec). (owner:@pose-maintainers crit:low review:2026-11-26)
+- [open] F5: let routing learn a usage limit from task runs as it does from review runs, so --agent auto skips an agent a task found limited. (owner:@oseiaspereira88 crit:low review:2026-11-26)
