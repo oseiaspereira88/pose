@@ -58,7 +58,7 @@ Catalog entry, `pose init` and `pose update` prompts, independence degradation i
 
 ### Artifacts
 
-- modified: .pose/specs/2026-10-09-pose-delegated-review-capability.md
+- created: .pose/specs/2026-10-09-pose-delegated-review-capability.md
 - created: .pose/changelogs/unreleased/pose-delegated-review-capability.md
 - created: .pose/starts/pose-delegated-review-capability.json
 - modified: .pose/indexes/validation-matrix.json
@@ -89,7 +89,6 @@ Catalog entry, `pose init` and `pose update` prompts, independence degradation i
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/README.md
 - modified: pose-mcp/internal/scaffold/scaffold.go
 - modified: pose-mcp/internal/cli/skills_check_test.go
-- created: .claude/skills/pose-delegate
 - created: locales/pt-BR/.agents/skills/pose-delegate/SKILL.md
 - created: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-delegate/SKILL.md
 
