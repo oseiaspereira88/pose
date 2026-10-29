@@ -195,15 +195,26 @@ func TestTaskHistoryKeyedByTheResolvedRootReadsTheLegacyKey(t *testing.T) {
 	if viaRoot, err := taskStateDir(root, false); err != nil || viaRoot != viaLink {
 		t.Fatalf("two spellings, two histories: %q %q %v", viaLink, viaRoot, err)
 	}
-	legacy, ok, err := legacyTaskStateDir(link)
-	if !ok || err == nil {
-		t.Fatalf("an absent legacy directory: %q %v %v", legacy, ok, err)
+	if dirs, errs := legacyTaskStateDirs(link); len(dirs) != 1 || errs[0] == nil {
+		t.Fatalf("an absent legacy directory: %v %v", dirs, errs)
 	}
-	if _, ok, _ := legacyTaskStateDir(root); ok {
+	if dirs, _ := legacyTaskStateDirs(root); len(dirs) != 0 {
 		t.Fatal("a resolved root has a legacy spelling")
 	}
+	// A detached run is pinned to the resolved root; its caller's spelling
+	// still names the legacy history.
+	t.Setenv(DelegateLegacyRootEnv, link)
+	if dirs, _ := legacyTaskStateDirs(root); len(dirs) != 0 {
+		t.Fatalf("a run that is not detached read its caller's spelling: %v", dirs)
+	}
+	t.Setenv("POSE_DELEGATE_HANDBACK", filepath.Join(t.TempDir(), "h"))
+	if dirs, _ := legacyTaskStateDirs(root); len(dirs) != 1 {
+		t.Fatalf("the caller's spelling was not read: %v", dirs)
+	}
+	t.Setenv(DelegateLegacyRootEnv, "")
+	t.Setenv("POSE_DELEGATE_HANDBACK", "")
 	abs, _ := filepath.Abs(link)
-	legacy, err = taskStateDirFor(abs, true)
+	legacy, err := taskStateDirFor(abs, true)
 	if err != nil {
 		t.Fatal(err)
 	}

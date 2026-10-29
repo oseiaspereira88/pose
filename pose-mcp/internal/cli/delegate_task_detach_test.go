@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"io"
 	"os"
@@ -412,4 +414,66 @@ func TestDelegateTaskDetachRefusesAMissingCurrentDirectory(t *testing.T) {
 	if runs, _ := (posemodel.Store{Root: root}).ReadDelegationTaskRuns(); len(runs) != 0 {
 		t.Fatalf("a task ran from a missing directory: %v", runs)
 	}
+}
+
+// R11 (review round 5, F2F3-R5-01): a task an earlier engine recorded under
+// a link's spelling of the root is continued through that link, detached as
+// in the foreground: resume and handoff find their predecessor, claim it
+// beside its record and record the new run under the resolved root.
+func TestDelegateTaskDetachedContinuationFindsTheLegacyHistory(t *testing.T) {
+	for _, verb := range []string{"resume", "handoff"} {
+		t.Run(verb, func(t *testing.T) {
+			root, state, prompt := taskInstance(t)
+			link := filepath.Join(t.TempDir(), "project")
+			if err := os.Symlink(root, link); err != nil {
+				t.Fatal(err)
+			}
+			t.Setenv(posemodel.DelegateRootEnv, link)
+			if code, out := runBuilt(t, root, "delegate", "task", prompt, "--agent", "limited", "--label", "half"); code != 75 {
+				t.Fatalf("a limited task: %d %s", code, out)
+			}
+			// Move the record where an earlier engine kept it: keyed by the
+			// link's spelling, not the resolved root.
+			resolvedSum := sha256.Sum256([]byte(mustResolve(t, root)))
+			linkSum := sha256.Sum256([]byte(link))
+			base := filepath.Join(mustResolve(t, state), "pose", "delegate")
+			current, legacy := filepath.Join(base, hex.EncodeToString(resolvedSum[:])[:16]), filepath.Join(base, hex.EncodeToString(linkSum[:])[:16])
+			if err := os.Rename(current, legacy); err != nil {
+				t.Fatal(err)
+			}
+			if code, out := runBuilt(t, root, "delegate", "ls", "half", "--json"); code != 0 || !strings.Contains(out, `"action": "`+verb+`"`) {
+				t.Fatalf("ls through the link: %d %s", code, out)
+			}
+			args := []string{"delegate", verb, "half", "--detach", "--json"}
+			if verb == "handoff" {
+				args = []string{"delegate", "handoff", "half", "--to", "worker", "--detach", "--json"}
+			}
+			code, out := runBuilt(t, root, args...)
+			doc := detachedFrom(t, code, out)
+			if code, out := runBuilt(t, root, "delegate", "wait", doc.Attempt); code != 0 {
+				t.Fatalf("wait: %d %s", code, out)
+			}
+			if claims, _ := filepath.Glob(filepath.Join(legacy, "*.continued")); len(claims) != 1 {
+				t.Fatalf("the claim beside the legacy predecessor: %v", claims)
+			}
+			if fresh, _ := filepath.Glob(filepath.Join(current, "trn-*.json")); len(fresh) != 1 {
+				t.Fatalf("the continuation under the resolved root: %v", fresh)
+			}
+			// A retry answers with the recorded continuation, or refuses; it
+			// never runs again.
+			runBuilt(t, root, args...)
+			if fresh, _ := filepath.Glob(filepath.Join(current, "trn-*.json")); len(fresh) != 1 {
+				t.Fatalf("a retried %s ran again: %v", verb, fresh)
+			}
+		})
+	}
+}
+
+func mustResolve(t *testing.T, path string) string {
+	t.Helper()
+	resolved, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return resolved
 }

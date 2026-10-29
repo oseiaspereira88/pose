@@ -324,20 +324,43 @@ func taskStateDir(root string, create bool) (string, error) {
 	return taskStateDirFor(abs, create)
 }
 
-// legacyTaskStateDir is where a task recorded under a spelling of the root
-// that is not its resolved path was kept before the history was keyed by
-// the resolved root; it is read, never written, and ok is false when the two
-// spellings agree.
-func legacyTaskStateDir(root string) (dir string, ok bool, err error) {
+// DelegateLegacyRootEnv names, in a detached run's environment, the
+// spelling of the root its caller used when that spelling is not the
+// resolved root the run is pinned to: only a key for reading the history an
+// earlier engine kept under that spelling, never a path anything is opened
+// through (spec pose-delegation-task-detach-and-state R11; review round 5,
+// F2F3-R5-01).
+const DelegateLegacyRootEnv = "POSE_DELEGATE_LEGACY_ROOT"
+
+// legacyTaskStateDirs are where tasks recorded under a spelling of the root
+// that is not its resolved path were kept before the history was keyed by
+// the resolved root — the store's own spelling and the one a detached run's
+// caller used. They are read, never written; each comes with the error
+// that kept it from being read.
+func legacyTaskStateDirs(root string) (dirs []string, errs []error) {
 	abs, err := filepath.Abs(root)
 	if err != nil {
-		return "", false, nil
+		return nil, nil
 	}
-	if resolved, err := filepath.EvalSymlinks(abs); err != nil || resolved == abs {
-		return "", false, nil
+	resolved, err := filepath.EvalSymlinks(abs)
+	if err != nil {
+		return nil, nil
 	}
-	dir, err = taskStateDirFor(abs, false)
-	return dir, true, err
+	seen := map[string]bool{resolved: true}
+	spellings := []string{abs}
+	if os.Getenv("POSE_DELEGATE_HANDBACK") != "" {
+		// Only a detached run is told its caller's spelling.
+		spellings = append(spellings, os.Getenv(DelegateLegacyRootEnv))
+	}
+	for _, spelling := range spellings {
+		if spelling == "" || !filepath.IsAbs(spelling) || seen[spelling] {
+			continue
+		}
+		seen[spelling] = true
+		dir, err := taskStateDirFor(filepath.Clean(spelling), false)
+		dirs, errs = append(dirs, dir), append(errs, err)
+	}
+	return dirs, errs
 }
 
 func taskStateDirFor(abs string, create bool) (string, error) {
@@ -495,8 +518,10 @@ func (s Store) ReadDelegationTaskRuns() ([]ReviewRun, []string) {
 		func() (string, error) { return s.taskRunsDir(false, false) },
 		func() (string, error) { return s.taskRunsDir(true, false) },
 	}
-	if legacy, ok, err := legacyTaskStateDir(s.Root); ok {
-		dirs = append(dirs, func() (string, error) { return legacy, err })
+	legacy, legacyErrs := legacyTaskStateDirs(s.Root)
+	for i := range legacy {
+		dir, err := legacy[i], legacyErrs[i]
+		dirs = append(dirs, func() (string, error) { return dir, err })
 	}
 	for _, place := range dirs {
 		dir, err := place()

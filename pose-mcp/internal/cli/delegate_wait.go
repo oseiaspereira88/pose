@@ -225,6 +225,12 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 	cmd.Dir = wd
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = nil, logFile, logFile
 	cmd.Env = append(os.Environ(), delegateHandback+"="+handback, posemodel.DelegateRootEnv+"="+pinned)
+	// The caller's spelling of the root still names the history an earlier
+	// engine kept under it; the run reads that history by it, and opens
+	// nothing through it (R11).
+	if spelling, err := filepath.Abs(root); err == nil && spelling != pinned {
+		cmd.Env = append(cmd.Env, posemodel.DelegateLegacyRootEnv+"="+spelling)
+	}
 	var pipe io.WriteCloser
 	if piped != nil {
 		if pipe, err = cmd.StdinPipe(); err != nil {
