@@ -841,6 +841,12 @@ as `delegated-review-disabled` in the sealed plan, attestation, verification and
 closeout. Legacy omission retains its previous behavior; mandatory-human and a
 stronger protected baseline remain stronger.
 
+For an agent review of the change that disables an adopted baseline, the
+sealed plan retains `delegated_run_proof_required`. Independent routing and
+automatic verified conclusion remain available for that protected review only;
+unrelated off-capability work stays off. A reviewer prefix alone cannot approve
+the disabling change.
+
 If init fails after saving the agent policy or key, preserve those artifacts,
 inspect the reported publication state, finish pinning that issuer and retry
 `pose adopt delegated-review --apply`. A durability-unconfirmed publication

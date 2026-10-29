@@ -47,7 +47,7 @@ Offered by `pose init`; an existing instance stays as it is until it adopts the 
 R5 and R7 are delivered by [`pose-delegated-review-conclusions`](2026-10-27-pose-delegated-review-conclusions.md) (phase B19, amendment of 2026-10-27 to the delegation ADR); this spec traces them to it and qualifies them in the integrated journeys of R4.
 - R8: A fresh `pose init` shall offer delegation with yes as the default answer; on yes with supported CLIs found on the path it shall provision project-specific native executor signing, pin it only for attestations, write `delegation.json` with those agents, and enable `delegated_review: true` last, dated that day. A refusal, EOF, non-interactive init or zero supported CLIs shall record false without a delegation policy, key or pin. Existing governance is preserved even if its schema stamp is missing; partial publication retains recoverable artifacts and distinguishes unconfirmed durability.
 - R9: `pose update` shall never turn the capability on; while it is off, it shall print one suggestion naming `pose adopt delegated-review`.
-- R10: An explicit false `delegated_review` decision shall allow new plans requiring `different-actor` to accept `same-actor-separate-execution`, with `delegated-review-disabled` sealed into the plan and attestation and disclosed by verification and closeout. Legacy omission preserves prior behavior; mandatory-human and stronger protected baselines are unchanged. Disabling preserves pins and history and does not reconstruct proof or erase rejection or budget state.
+- R10: An explicit false `delegated_review` decision shall allow new plans requiring `different-actor` to accept `same-actor-separate-execution`, with `delegated-review-disabled` sealed into the plan and attestation and disclosed by verification and closeout. Legacy omission preserves prior behavior; mandatory-human and stronger protected baselines are unchanged, including signed run proof for an agent review of the disabling change itself. Disabling preserves pins and history and does not reconstruct proof or erase rejection or budget state.
 - R11: While the capability is on and routing finds no available agent for a review after its fallback steps, the engine shall raise the escalation of R6 with the question ready, and shall not degrade as R10 does.
 
 ## 3. Technical Plan
@@ -109,18 +109,22 @@ Catalog entry, `pose init` and `pose update` prompts, independence degradation i
 - modified: pose-mcp/internal/cli/testdata/adversarial/README.md
 - created: .pose/reports/delegation-adoption-review-round1.md
 
+- modified: pose-mcp/internal/pose/delegated_review_escalation.go
+- modified: pose-mcp/internal/pose/review_conclusions.go
+- created: .pose/reports/delegation-adoption-review-round2.md
+
 ### Delivery targets
 
 - capability:delegated-review module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/delegated_review_adoption.go
 
 ## 4. Tasks
 
-- [ ] Catalog entry
-- [ ] Init offer and update suggestion
-- [ ] Degradation when off, escalation when no agent is available
-- [ ] Docs and agent examples
-- [ ] Skill
-- [ ] Journeys
+- [x] Catalog entry
+- [x] Init offer and update suggestion
+- [x] Degradation when off, escalation when no agent is available
+- [x] Docs and agent examples
+- [x] Skill
+- [x] Journeys
 
 ## 5. Decisions
 
@@ -143,7 +147,7 @@ The [adoption ADR](../adr/2026-10-29-make-delegated-review-adoption-explicit-and
 - Minimal option: treat a missing delegated_review key as a new refusal
 - Selected option: preserve the legacy policy when the key is absent; an explicit false decision on a new init or off adoption allows disclosed same-actor execution for new bundles. A protected baseline and mandatory-human remain stronger. An existing init never asks again or rewrites that decision. Adoption and off dates are recorded; existing sealed plans and records are immutable, while the B17 live run-proof trust bar still re-evaluates an older approval after adoption
 - Rationale: the accepted ADR changes new adoption, not history or an existing instance without a decision
-- Consequences: capture delegated-review-disabled in the sealed plan and derived record/closeout assurance; omission keeps previous digests unchanged
+- Consequences: capture delegated-review-disabled in the sealed plan and derived record/closeout assurance; omission keeps previous digests unchanged. The protected review of a disabling change seals delegated_run_proof_required, retains independent routing and automatic verified conclusion for that review only, and cannot accept a prefix-only agent approval merely because live delegation is now off
 - Falsifier: upgrading alone relaxes an old policy or a mandatory-human requirement
 
 ### Decision D3
@@ -183,7 +187,7 @@ Additional required checks: full Go suite and vet; focused race tests for delega
 - R1 [satisfied] Exact trust validation, dated idempotent adoption, protected floor and the retained live barrier: test:TestDelegatedReviewCapabilityValidatesTheExactExecutor test:TestDelegatedReviewCapabilityAdoptsAndExplicitlyTurnsOff test:TestDelegatedReviewCapabilityProtectsTheAdoptedFloor test:TestRunProvenanceLiveOptInDoesNotGrandfatherPrefix evidence:integration check:pose-mcp/go/delegated-review-capability-integration
 - R2 [satisfied] The operating manuals, native help and docs-site describe routing, signing, recovery and limitations; distributed locale/skill guards cover parity: test:TestLocaleCoverage test:TestSkillsCheckDiscoveryAndBoundedWorkflowFixture file:docs-site/docs/review-and-trust.md evidence:integration check:pose-mcp/go/test
 - R3 [satisfied] The distributed pose-delegate skill distinguishes governed review from task, native briefs from labelled notes, remediation from reruns and authorized next actions: file:.agents/skills/pose-delegate/SKILL.md test:TestClaudeSkillLinksMatchAgentsSkills test:TestSkillsCheckDiscoveryAndBoundedWorkflowFixture evidence:integration check:pose-mcp/go/test
-- R4 [satisfied] Native CLI journeys reject a source-seeded defect, preserve rejection, accept the changed bundle automatically and close; person/MCP and explicit-off journeys cover the exceptions: test:TestDelegatedReviewCapabilityRejectFixApproveAndClose test:TestDelegatedReviewCapabilityEscalatesThroughMCP test:TestDelegatedReviewCapabilityOffClosesWithDisclosure evidence:integration check:pose-mcp/go/delegated-review-capability-integration
+- R4 [satisfied] Native CLI journeys reject a source-seeded defect, preserve rejection, accept the changed bundle automatically and close; person/MCP and explicit-off journeys cover the exceptions: test:TestDelegatedReviewCapabilityRejectFixApproveAndClose test:TestDelegatedReviewCapabilityEscalatesThroughMCP test:TestDelegatedReviewCapabilityOffClosesWithDisclosure test:TestDelegatedReviewCapabilityDisablingChangeStillConcludes evidence:integration check:pose-mcp/go/delegated-review-capability-integration
 - R5 [satisfied] B19 conclusions compose through the same verified writer and rejection history: test:TestConcludeReviewRunRecordsTheAttestation test:TestConcludeReviewRunRecordsARejection test:TestDelegatedReviewCapabilityRejectFixApproveAndClose evidence:integration check:pose-mcp/go/delegated-review-capability-integration
 - R6 [satisfied] Person, unavailable/insufficiently independent agents and the B20 business/budget/conflict paths use native authority-bound decisions: test:TestDelegatedReviewCapabilityPersonAndSameModelEscalate test:TestDelegatedReviewCapabilityEscalatesThroughMCP test:TestDelegatedReviewRequestEscalatesToAPerson evidence:integration check:pose-mcp/go/delegated-review-capability-integration
 - R7 [satisfied] B19/B20 per-kind destinations remain distinct and runner-independent: test:TestDelegatedReviewRequestPerKind evidence:integration check:pose-mcp/go/delegated-review-capability-integration
@@ -203,3 +207,5 @@ Implementation and focused positive/negative journeys are prepared in the adopti
 A trusted local executor can emit a complete canned judgment. Native proof authenticates the executor declaration and bound artifacts, not substantive review cognition or a vendor receipt; the adversarial disclosure test guards that boundary. The technical-debt assessment has zero uncovered markers but reports incomplete coverage for two pre-existing legacy spec sources; it is not evidence of global completeness.
 
 ### Follow-ups
+
+- [open] F1: Reconcile the empty follow-up bullets in the legacy specs pose-instance-engine-version-tracking and pose-knowledge-durable-reference-type; the current followups/technical-debt producers correctly report partial global coverage until those sources are repaired. This does not waive any B21 requirement or claim global completeness. (owner:@pose-maintainers crit:low review:2026-11-10)

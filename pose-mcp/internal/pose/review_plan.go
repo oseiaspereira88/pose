@@ -126,9 +126,11 @@ type ReviewPlan struct {
 	// obligation input, so it enters the plan digest: see review_structure.go.
 	Structure   *ReviewPlanStructure `json:"structure,omitempty"`
 	Limitations []string             `json:"limitations,omitempty"`
-	Warnings    []string             `json:"warnings,omitempty"`
-	Blockers    []string             `json:"blockers,omitempty"`
-	Explain     []string             `json:"explain"`
+	// A change disabling an adopted baseline must still prove its review.
+	DelegatedRunProofRequired bool     `json:"delegated_run_proof_required,omitempty"`
+	Warnings                  []string `json:"warnings,omitempty"`
+	Blockers                  []string `json:"blockers,omitempty"`
+	Explain                   []string `json:"explain"`
 }
 
 type reviewRepoEntry struct {
@@ -1345,7 +1347,8 @@ func digestReviewPlan(plan ReviewPlan) (string, error) {
 		Explain                                       []string
 		Structure                                     *[]ReviewStructuralFact `json:",omitempty"`
 		Limitations                                   []string                `json:",omitempty"`
-	}{plan.SchemaVersion, plan.Scope, plan.ScopeDigest, plan.BaseProfile, plan.Independence, plan.PolicySchemaVersion, components, plan.SelectedProfiles, plan.Criteria, plan.Tools, plan.Warnings, plan.Blockers, plan.Explain, structure, plan.Limitations})
+		DelegatedRunProofRequired                     bool                    `json:",omitempty"`
+	}{plan.SchemaVersion, plan.Scope, plan.ScopeDigest, plan.BaseProfile, plan.Independence, plan.PolicySchemaVersion, components, plan.SelectedProfiles, plan.Criteria, plan.Tools, plan.Warnings, plan.Blockers, plan.Explain, structure, plan.Limitations, plan.DelegatedRunProofRequired})
 }
 
 func validateReviewPath(files Files, root, value string) error {

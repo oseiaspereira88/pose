@@ -62,6 +62,28 @@ func TestDelegationInitAcceptedOfferCreatesOnlyExecutorTrust(t *testing.T) {
 	if _, err := os.Stat(home); err != nil {
 		t.Fatal(err)
 	}
+	// A fresh checkout of this same project reuses the native key. It does
+	// not rotate it or turn the duplicate-key diagnostic into an init failure.
+	key, err := posemodel.LoadIssuerKey(root, policy.ConclusionsIssuer())
+	if err != nil {
+		t.Fatal(err)
+	}
+	keyBefore, err := os.ReadFile(key.Path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	second := newGitRepo(t)
+	if code := cmdInitCommand(second, []string{"--skip-mcp", "--project-id", "proj.init"}, &out, &errOut); code != 0 {
+		t.Fatal(code, errOut.String())
+	}
+	keyAfter, err := os.ReadFile(key.Path)
+	if err != nil || !bytes.Equal(keyBefore, keyAfter) {
+		t.Fatal("issuer was replaced", err)
+	}
+	secondPolicy, _, _, err := (posemodel.Store{Root: second}).LoadDelegationPolicy()
+	if err != nil || secondPolicy.ConclusionsIssuer() != policy.ConclusionsIssuer() {
+		t.Fatal(secondPolicy, err)
+	}
 	before, _ := os.ReadFile(filepath.Join(root, ".pose/policy/review.json"))
 	config, _ := os.ReadFile(filepath.Join(root, ".pose/policy/delegation.json"))
 	setupInput = func() (io.Reader, bool) { t.Fatal("existing init asked again"); return nil, false }
@@ -230,6 +252,7 @@ func TestDelegatedReviewCapabilityUnavailableAgentEscalatesWithoutSpawn(t *testi
 	if requests, err := (posemodel.Store{Root: root}).ListActionRequests(); err != nil || len(requests) != 0 {
 		t.Fatal("preview opened an escalation", requests, err)
 	}
+	var firstID string
 	for i := 0; i < 2; i++ {
 		code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--json")
 		var doc struct {
@@ -238,8 +261,18 @@ func TestDelegatedReviewCapabilityUnavailableAgentEscalatesWithoutSpawn(t *testi
 		if code == 0 || json.Unmarshal([]byte(out), &doc) != nil || doc.Escalation == "" {
 			t.Fatal(code, out)
 		}
+		if i == 0 {
+			firstID = doc.Escalation
+		} else if doc.Escalation != firstID {
+			t.Fatal("retry asked twice", firstID, doc.Escalation)
+		}
 	}
 	s := posemodel.Store{Root: root}
+	// Crossing a timestamp boundary must not create a second question from
+	// an ephemeral request whose ID changes with requested_at.
+	if id, err := s.EscalateUnavailableDelegation("spec:alpha", "review", "still unavailable", time.Now().Add(time.Minute)); err != nil || id != firstID {
+		t.Fatal("time changed the escalation identity", id, err)
+	}
 	requests, err := s.ListActionRequests()
 	if err != nil || len(requests) != 1 {
 		t.Fatal(requests, err)
@@ -399,6 +432,71 @@ func TestDelegatedReviewCapabilityCannedApprovalDisclosesItsLimits(t *testing.T)
 	}
 	if v.Assurance.CognitiveIndependence != "not-observable" || !strings.Contains(strings.Join(v.Assurance.Limitations, ","), "executor-declaration-not-independent-vendor-receipt") {
 		t.Fatal("canned output became proof of substantive review", v.Assurance)
+	}
+}
+
+func TestDelegatedReviewCapabilityDisablingChangeStillConcludes(t *testing.T) {
+	root, draft, _ := cliProvenanceInstance(t, func(root, _ string) {
+		writeCloseoutCLIFile(t, root, ".pose/project.json", `{"schema_version":1,"project_id":"proj.fixture","name":"fixture"}`)
+		raw, _ := os.ReadFile(filepath.Join(root, ".pose/policy/review.json"))
+		writeCloseoutCLIFile(t, root, ".pose/policy/review.json", strings.Replace(string(raw), `"spec":"different-actor"`, `"spec":"same-actor-separate-execution"`, 1))
+		s := posemodel.Store{Root: root}
+		p, _, _, err := s.LoadDelegationPolicy()
+		if err != nil {
+			t.Fatal(err)
+		}
+		p.Conclusions = &posemodel.DelegationConclusions{Issuer: "fixture-executor"}
+		raw, err = posemodel.CanonicalDelegationPolicy(p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Remove(filepath.Join(root, ".pose/policy/reviewers.json")); err != nil {
+			t.Fatal(err)
+		}
+		writeCloseoutCLIFile(t, root, ".pose/policy/delegation.json", string(raw))
+	})
+	raw, _ := os.ReadFile(filepath.Join(root, ".pose/policy/review.json"))
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", strings.Replace(string(raw), `"delegated_review":true`, `"delegated_review":false`, 1))
+	cmd := exec.Command("git", "-C", root, "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", "commit", "-am", "disable delegation")
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatal(err, string(out))
+	}
+	head, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output()
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(root, ".pose/indexes/delivery-integrity.json")
+	raw, _ = os.ReadFile(path)
+	var graph posemodel.DeliveryIntegrityGraph
+	if err := json.Unmarshal(raw, &graph); err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].ResolvedHead = strings.TrimSpace(string(head))
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths, posemodel.ObservedPath{Action: "modified", Path: ".pose/policy/review.json"})
+	for i := range graph.ValidationResults {
+		graph.ValidationResults[i].GitHead = strings.TrimSpace(string(head))
+	}
+	raw, _ = json.Marshal(graph)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	if code, out := runPose(t, root, "review", "bundle", "spec:alpha", "--seal", "--lead", "openai/implementation-model"); code != 0 {
+		t.Fatal(code, out)
+	}
+	s := posemodel.Store{Root: root}
+	b, err := s.CurrentReviewBundle("spec:alpha")
+	if err != nil || b == nil || !b.Payload.Plan.DelegatedRunProofRequired {
+		t.Fatal(b, err)
+	}
+	writeRunConclusion(t, s, b.BundleID, draft)
+	if code, out := runPose(t, root, "delegate", "review", b.BundleID); code != 0 {
+		t.Fatal(code, out)
+	}
+	v, err := s.VerifyReviewBundle("spec:alpha")
+	if err != nil || !v.Approved || v.Assurance == nil || v.Assurance.Run == nil {
+		t.Fatal(v.Blockers, err)
+	}
+	p, err := s.GetReviewPolicy()
+	if err != nil || p.DelegatedReview {
+		t.Fatal("protected review re-enabled the capability", err)
 	}
 }
 

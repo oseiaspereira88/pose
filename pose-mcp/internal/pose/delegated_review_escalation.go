@@ -21,10 +21,11 @@ import (
 
 // Escalation causes.
 const (
-	EscalationPersonRequired  = "person-required"
-	EscalationBudgetExhausted = "budget-exhausted"
-	EscalationConflict        = "reviewers-in-conflict"
-	EscalationBusiness        = "business-decision"
+	EscalationPersonRequired    = "person-required"
+	EscalationBudgetExhausted   = "budget-exhausted"
+	EscalationConflict          = "reviewers-in-conflict"
+	EscalationBusiness          = "business-decision"
+	EscalationAgentsUnavailable = "agents-unavailable"
 )
 
 // escalationMarker opens the context of an escalation, so the engine finds
@@ -37,6 +38,12 @@ func escalationMarker(key, cause string) string {
 func escalationKey(r ActionRequest, cause string) string {
 	if cause == EscalationPersonRequired && r.Review != nil {
 		return r.Review.Scope + "@" + r.Review.BundleID
+	}
+	if cause == EscalationAgentsUnavailable && r.Review != nil {
+		// No service request was persisted for an unavailable route. Its
+		// temporary request ID includes the current timestamp, so use the
+		// actual review material rather than asking again every second.
+		return r.Review.Scope + "@" + r.Review.BundleID + "#" + r.Review.Purpose + "@" + r.Review.PolicyDigest
 	}
 	return r.ID
 }

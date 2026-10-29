@@ -111,12 +111,13 @@ type ReviewBundleSubject struct {
 }
 
 type ReviewBundlePlan struct {
-	Limitations  []string              `json:"limitations,omitempty"`
-	PlanDigest   string                `json:"plan_digest"`
-	Independence string                `json:"independence"`
-	Components   []ReviewPlanComponent `json:"components"`
-	Criteria     []ReviewPlanCriterion `json:"criteria"`
-	Tools        []ReviewPlanTool      `json:"tools"`
+	DelegatedRunProofRequired bool                  `json:"delegated_run_proof_required,omitempty"`
+	Limitations               []string              `json:"limitations,omitempty"`
+	PlanDigest                string                `json:"plan_digest"`
+	Independence              string                `json:"independence"`
+	Components                []ReviewPlanComponent `json:"components"`
+	Criteria                  []ReviewPlanCriterion `json:"criteria"`
+	Tools                     []ReviewPlanTool      `json:"tools"`
 	// SelectedProfiles records which components each profile was selected for.
 	// A criterion names the profiles it came from, and without this mapping the
 	// sealed subject cannot say which components that criterion answers for —
@@ -494,7 +495,7 @@ func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (Re
 	if err != nil {
 		return ReviewBundle{}, err
 	}
-	bundle.Payload.Plan = ReviewBundlePlan{Limitations: append([]string(nil), plan.Limitations...), PlanDigest: bundlePlanDigest, Independence: plan.Independence, Components: append([]ReviewPlanComponent{}, plan.Components...), Criteria: append([]ReviewPlanCriterion{}, plan.Criteria...), Tools: append([]ReviewPlanTool{}, plan.Tools...), SelectedProfiles: append([]ReviewPlanProfile{}, plan.SelectedProfiles...), Structure: plan.Structure}
+	bundle.Payload.Plan = ReviewBundlePlan{DelegatedRunProofRequired: plan.DelegatedRunProofRequired, Limitations: append([]string(nil), plan.Limitations...), PlanDigest: bundlePlanDigest, Independence: plan.Independence, Components: append([]ReviewPlanComponent{}, plan.Components...), Criteria: append([]ReviewPlanCriterion{}, plan.Criteria...), Tools: append([]ReviewPlanTool{}, plan.Tools...), SelectedProfiles: append([]ReviewPlanProfile{}, plan.SelectedProfiles...), Structure: plan.Structure}
 
 	scopeProjection, excluded, err := s.reviewBundleScopeProjection(scope)
 	if err != nil {
@@ -1630,16 +1631,17 @@ func (s Store) reviewBundleConsumedInputs(plan ReviewPlan) []ReviewBundleInput {
 
 func reviewBundlePlanDigest(plan ReviewPlan) (string, error) {
 	contract := struct {
-		SchemaVersion       int                   `json:"schema_version"`
-		PolicySchemaVersion int                   `json:"policy_schema_version"`
-		BaseProfile         string                `json:"base_profile"`
-		Independence        string                `json:"independence"`
-		Components          []ReviewPlanComponent `json:"components"`
-		SelectedProfiles    []ReviewPlanProfile   `json:"selected_profiles"`
-		Criteria            []ReviewPlanCriterion `json:"criteria"`
-		Tools               []ReviewPlanTool      `json:"tools"`
-		Limitations         []string              `json:"limitations,omitempty"`
-	}{plan.SchemaVersion, plan.PolicySchemaVersion, plan.BaseProfile, plan.Independence, append([]ReviewPlanComponent{}, plan.Components...), append([]ReviewPlanProfile{}, plan.SelectedProfiles...), append([]ReviewPlanCriterion{}, plan.Criteria...), append([]ReviewPlanTool{}, plan.Tools...), plan.Limitations}
+		SchemaVersion             int                   `json:"schema_version"`
+		PolicySchemaVersion       int                   `json:"policy_schema_version"`
+		BaseProfile               string                `json:"base_profile"`
+		Independence              string                `json:"independence"`
+		Components                []ReviewPlanComponent `json:"components"`
+		SelectedProfiles          []ReviewPlanProfile   `json:"selected_profiles"`
+		Criteria                  []ReviewPlanCriterion `json:"criteria"`
+		Tools                     []ReviewPlanTool      `json:"tools"`
+		Limitations               []string              `json:"limitations,omitempty"`
+		DelegatedRunProofRequired bool                  `json:"delegated_run_proof_required,omitempty"`
+	}{plan.SchemaVersion, plan.PolicySchemaVersion, plan.BaseProfile, plan.Independence, append([]ReviewPlanComponent{}, plan.Components...), append([]ReviewPlanProfile{}, plan.SelectedProfiles...), append([]ReviewPlanCriterion{}, plan.Criteria...), append([]ReviewPlanTool{}, plan.Tools...), plan.Limitations, plan.DelegatedRunProofRequired}
 	return digestJSON(contract)
 }
 
@@ -3181,7 +3183,7 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	// (spec pose-abm-review-authority).
 	if att.Run != nil {
 		blockers = append(blockers, s.runBackedReviewBlockers(bundle, att)...)
-	} else if policy.DelegatedReview && strings.HasPrefix(att.Reviewer, "agent:") && bundle.Payload.Plan.Independence == "different-actor" {
+	} else if (policy.DelegatedReview || bundle.Payload.Plan.DelegatedRunProofRequired) && strings.HasPrefix(att.Reviewer, "agent:") && bundle.Payload.Plan.Independence == "different-actor" {
 		blockers = append(blockers, "delegated-review requires a signed run reference; reviewer prefix does not prove independence")
 	} else {
 		switch bundle.Payload.SealedGates().IdentityAssurance {

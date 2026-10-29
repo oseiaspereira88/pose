@@ -83,9 +83,13 @@ func initDelegation(root string, stdout, stderr io.Writer) int {
 	}
 	sum := sha256.Sum256([]byte(project))
 	name := fmt.Sprintf("delegation-%x", sum[:8])
-	key, err := posemodel.CreateIssuerKey(root, name, time.Now())
-	if os.IsExist(err) {
-		key, err = posemodel.LoadIssuerKey(root, name)
+	key, err := posemodel.LoadIssuerKey(root, name)
+	if err != nil {
+		loadErr := err
+		key, err = posemodel.CreateIssuerKey(root, name, time.Now())
+		if err != nil {
+			return initDelegationError(stderr, fmt.Errorf("load executor issuer: %v; create executor issuer: %w", loadErr, err))
+		}
 	}
 	if err != nil {
 		return initDelegationError(stderr, err)

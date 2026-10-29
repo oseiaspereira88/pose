@@ -68,6 +68,12 @@ Mandatory-human and a stronger protected baseline remain stronger. Absence of
 the policy key retains legacy behavior; decline/defer record configuration
 decisions without changing that policy. Disabling preserves pins and history.
 
+For an agent review of the change that disables an adopted baseline, the
+sealed plan retains `delegated_run_proof_required`. Independent routing and
+automatic verified conclusion remain available for that protected review only;
+unrelated off-capability work stays off. A reviewer prefix alone cannot approve
+the disabling change.
+
 If init saves the policy or key but cannot activate, retain those artifacts,
 inspect the publication state, finish pinning the issuer and retry adoption.
 Inspect a durability-unconfirmed publication before retrying.

@@ -850,6 +850,12 @@ com `delegated-review-disabled` no plano selado, atestação, verificação e
 closeout. Ausência legada da chave preserva o comportamento anterior;
 mandatory-human e baseline protegida mais forte continuam valendo.
 
+Na revisão por agente da mudança que desliga uma baseline já adotada, o plano
+selado mantém `delegated_run_proof_required`. Roteamento independente e conclusão
+automática verificada continuam disponíveis só para essa revisão protegida;
+trabalho alheio à mudança continua com a capacidade desligada. Prefixo de revisor
+sozinho não aprova o próprio desligamento.
+
 Se o init falhar depois de salvar policy ou chave, preserve esses artefatos,
 inspecione o estado de publicação informado, conclua o pin daquele issuer e
 repita `pose adopt delegated-review --apply`. Publicação sem confirmação de

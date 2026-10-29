@@ -15,6 +15,21 @@ import (
 
 const ReviewLimitationDelegationDisabled = "delegated-review-disabled"
 
+// DelegatedReviewExecutionRequired includes the protected review of a change
+// that disables an adopted baseline; unrelated off-capability work stays off.
+func (s Store) DelegatedReviewExecutionRequired(target string) (bool, error) {
+	p, err := s.GetReviewPolicy()
+	if err != nil || p.DelegatedReview {
+		return p.DelegatedReview, err
+	}
+	if strings.HasPrefix(target, "rvb-") {
+		bundle, err := s.LoadReviewBundle(target)
+		return bundle.Payload.Plan.DelegatedRunProofRequired, err
+	}
+	bundle, err := s.CurrentReviewBundle(target)
+	return bundle != nil && bundle.Payload.Plan.DelegatedRunProofRequired, err
+}
+
 func delegatedReviewCatalogEntry() CatalogEntry {
 	return CatalogEntry{
 		ID: "delegated-review", Summary: "independent review through a verified delegated run", IntroducedIn: "7.4.1",
@@ -202,8 +217,8 @@ func ValidateDelegationPaths(root string) error {
 // opening a run, consuming a slot or silently weakening an adopted contract.
 // Preview callers must not call it.
 func (s Store) EscalateUnavailableDelegation(target, purpose, reason string, now time.Time) (string, error) {
-	p, err := s.GetReviewPolicy()
-	if err != nil || !p.DelegatedReview {
+	required, err := s.DelegatedReviewExecutionRequired(target)
+	if err != nil || !required {
 		return "", err
 	}
 	m, err := s.PrepareDelegatedReviewMaterial(target, purpose, "", nil)
@@ -222,7 +237,7 @@ func (s Store) EscalateUnavailableDelegation(target, purpose, reason string, now
 	if s.PersonRequiredByPlan(m) {
 		return s.EscalateDelegatedReview(r, EscalationPersonRequired, "The plan of "+m.Scope+" reserves its review for a person: who reviews it?", "Bundle "+m.BundleID+" requires mandatory-human review; a delegated run cannot satisfy it.", nil, now)
 	}
-	return s.EscalateDelegatedReview(r, "agents-unavailable", "No agent is available for "+purpose+" of "+m.Scope+": how should the review proceed?", strings.TrimSpace(reason), defaultEscalationOptions(), now)
+	return s.EscalateDelegatedReview(r, EscalationAgentsUnavailable, "No agent is available for "+purpose+" of "+m.Scope+": how should the review proceed?", strings.TrimSpace(reason), defaultEscalationOptions(), now)
 }
 
 // ValidateDelegationAdoptionDate is shared by policy readers, including reads

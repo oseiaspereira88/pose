@@ -653,9 +653,9 @@ func (s Store) AutoConcludeReviewRun(run ReviewRun, now time.Time) (*ReviewConcl
 	if run.Kind != ReviewBriefKindReview && run.Kind != ReviewBriefKindAdjudication && run.Kind != ReviewBriefKindSmoke || run.Status != ReviewRunCompleted || run.RunID == "" {
 		return nil, nil
 	}
-	review, err := s.GetReviewPolicy()
-	if err != nil || !review.DelegatedReview {
-		return nil, nil
+	required, err := s.DelegatedReviewExecutionRequired(run.BundleID)
+	if err != nil || !required {
+		return nil, err
 	}
 	policy, _, found, err := s.LoadDelegationPolicy()
 	if err != nil || !found || policy.ConclusionsIssuer() == "" {

@@ -160,7 +160,7 @@ func (s Store) describeReviewAssurance(bundle ReviewBundle, att *ReviewAttestati
 		out.Limitations = proof.Limitations
 		return out
 	}
-	if policy, _, err := s.loadReviewPolicy(); err != nil || policy.DelegatedReview && strings.HasPrefix(att.Reviewer, "agent:") && bundle.Payload.Plan.Independence == "different-actor" {
+	if policy, _, err := s.loadReviewPolicy(); err != nil || (policy.DelegatedReview || bundle.Payload.Plan.DelegatedRunProofRequired) && strings.HasPrefix(att.Reviewer, "agent:") && bundle.Payload.Plan.Independence == "different-actor" {
 		out.ReviewerIdentity = reviewAssuranceNotVerified
 		out.Limitations = []string{"signed-run-proof-required", ReviewLimitationCognitive}
 		return out

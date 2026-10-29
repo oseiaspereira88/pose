@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -126,6 +127,22 @@ func TestDelegatedReviewCapabilityValidatesTheExactExecutor(t *testing.T) {
 	}
 }
 
+func TestDelegatedReviewCapabilityKeepsTheLegacyPlanDigest(t *testing.T) {
+	plan := ReviewPlan{SchemaVersion: 1, PolicySchemaVersion: 2, BaseProfile: "spec-closeout@1", Independence: "same-actor-separate-execution"}
+	got, err := reviewBundlePlanDigest(plan)
+	// Independent pre-B21 wire shape: neither optional addition may alter an
+	// old plan's digest when no refusal or protected-proof obligation applies.
+	legacy := `{"schema_version":1,"policy_schema_version":2,"base_profile":"spec-closeout@1","independence":"same-actor-separate-execution","components":[],"selected_profiles":[],"criteria":[],"tools":[]}`
+	if err != nil || got != digestBytes([]byte(legacy)) {
+		t.Fatal(got, err)
+	}
+	plan.DelegatedRunProofRequired = true
+	protected, err := reviewBundlePlanDigest(plan)
+	if err != nil || protected == got {
+		t.Fatal("proof obligation was not bound into the plan digest", err)
+	}
+}
+
 func TestDelegatedReviewCapabilityAdoptsAndExplicitlyTurnsOff(t *testing.T) {
 	s, docs, _ := adoptionFixture(t)
 	entry, _ := LookupCatalogEntry("delegated-review")
@@ -196,6 +213,38 @@ func TestDelegatedReviewCapabilityDisclosesOnlyAnExplicitRefusal(t *testing.T) {
 	}
 	p["delegated_review"] = false
 	write()
+	// Use a real repository for the sealing journey. A transient Git marker
+	// in an ancestor of a non-Git fixture must never be interpreted as clean.
+	git := func(args ...string) string {
+		t.Helper()
+		cmd := exec.Command("git", append([]string{"-C", root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false"}, args...)...)
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatal(args, err, string(out))
+		}
+		return strings.TrimSpace(string(out))
+	}
+	git("init", "-q")
+	git("add", "-A")
+	git("commit", "-qm", "disabled delegation fixture")
+	head := git("rev-parse", "HEAD")
+	graphPath := filepath.Join(root, ".pose/indexes/delivery-integrity.json")
+	graphRaw, err := os.ReadFile(graphPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var graph DeliveryIntegrityGraph
+	if err := json.Unmarshal(graphRaw, &graph); err != nil {
+		t.Fatal(err)
+	}
+	for i := range graph.ChangeSets {
+		graph.ChangeSets[i].ResolvedBase, graph.ChangeSets[i].ResolvedHead = head, head
+	}
+	for i := range graph.ValidationResults {
+		graph.ValidationResults[i].GitHead = head
+	}
+	graphRaw, _ = json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(graphRaw))
 	plan, err := s.ReviewPlan("spec:backend")
 	if err != nil || plan.Independence != "same-actor-separate-execution" || !containsString(plan.Limitations, ReviewLimitationDelegationDisabled) {
 		t.Fatal(plan, err)
@@ -246,6 +295,11 @@ func TestDelegatedReviewCapabilityDoesNotRelaxAProtectedBaseline(t *testing.T) {
 // floor. Disabling it cannot make that same change review itself.
 func TestDelegatedReviewCapabilityProtectsTheAdoptedFloor(t *testing.T) {
 	root, s := protectedBaselineFixture(t)
+	useIssuerHome(t)
+	key, err := CreateIssuerKey(root, "baseline-executor", time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
 	var p map[string]any
 	if err := json.Unmarshal([]byte(protectedBaselinePolicy), &p); err != nil {
 		t.Fatal(err)
@@ -253,7 +307,9 @@ func TestDelegatedReviewCapabilityProtectsTheAdoptedFloor(t *testing.T) {
 	p["delegated_review"] = true
 	p["authority_project"] = "proj.baseline"
 	p["authority_audience"] = "baseline-audience"
-	p["trusted_attestation_issuers"] = []string{"fixture#sha256:" + strings.Repeat("a", 64)}
+	p["trusted_attestation_issuers"] = []string{key.Pin()}
+	p["review_bundles"] = true
+	p["review_bundles_adopted_at"] = "2026-09-01"
 	p["reviewer_independence"] = map[string]string{"spec": "same-actor-separate-execution"}
 	p["overlay_profiles"] = []string{}
 	raw, _ := json.Marshal(p)
@@ -274,8 +330,40 @@ func TestDelegatedReviewCapabilityProtectsTheAdoptedFloor(t *testing.T) {
 	raw, _ = json.Marshal(p)
 	writeReviewFixture(t, root, ".pose/policy/review.json", string(raw))
 	plan, err := s.ReviewPlan("spec:governance")
-	if err != nil || !plan.PolicyBaseline.Protected || plan.Independence != "different-actor" || len(plan.Limitations) != 0 {
+	if err != nil || !plan.PolicyBaseline.Protected || plan.Independence != "different-actor" || len(plan.Limitations) != 0 || !plan.DelegatedRunProofRequired {
 		t.Fatal(plan, err)
+	}
+	// Commit the disabling change, preserving its adopted predecessor as the
+	// attributed base. Its approval needs a signed run even though live is off.
+	designDeltaGit(t, root, "add", ".pose/policy/review.json")
+	designDeltaGit(t, root, "commit", "-qm", "disable delegation")
+	graph.ChangeSets[0].ResolvedHead = strings.TrimSpace(string(mustDesignDeltaGitOutput(t, root, "rev-parse", "HEAD")))
+	raw, _ = json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	bundle, err := s.SealReviewBundle("spec:governance", time.Now())
+	if err != nil || !bundle.Payload.Plan.DelegatedRunProofRequired {
+		t.Fatal(bundle, err)
+	}
+	att := approvedBundleAttestation(bundle, "agent:independent-prefix-only")
+	envelope, err := s.SignReviewAttestation(att, key, nil, time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.RecordReviewAttestationEnvelope(envelope, true); err == nil || !strings.Contains(err.Error(), "signed run reference") {
+		t.Fatal("signed prefix-only disabling approval was admitted", err)
+	}
+	att, err = s.VerifyReviewAttestationEnvelope(envelope)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, _ = json.Marshal(att)
+	writeReviewFixture(t, root, ".pose/review-attestations/"+att.AttestationID+".json", string(raw))
+	v, err := s.VerifyReviewBundle("spec:governance")
+	if err != nil || v.Approved || !strings.Contains(strings.Join(v.Blockers, ";"), "signed run reference") {
+		t.Fatal("read accepted the disabling prefix", v, err)
+	}
+	if v.Assurance == nil || v.Assurance.ReviewerIdentity != "not-verified" || !containsString(v.Assurance.Limitations, "signed-run-proof-required") {
+		t.Fatal("read concealed required proof", v.Assurance)
 	}
 }
 

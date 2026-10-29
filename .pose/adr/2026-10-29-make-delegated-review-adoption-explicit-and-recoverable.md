@@ -27,7 +27,13 @@ Use the following composition of the accepted delegation contracts:
 - Preserve legacy behavior when `delegated_review` is absent. Treat explicit
   false as a disabled decision for new plans, sealing the
   `delegated-review-disabled` limitation into the plan and attestation. Keep
-  mandatory-human and stronger protected-baseline requirements intact.
+  mandatory-human and stronger protected-baseline requirements intact. An agent
+  review of the change that disables an adopted baseline retains that baseline's
+  signed-run-proof obligation as `delegated_run_proof_required` in its sealed
+  plan. Admission, verification and disclosure use it alongside the live B17
+  bar; this does not freeze the bar for arbitrary historical bundles. Routing,
+  escalation and automatic verified conclusions honor that protected review
+  only, without re-enabling the capability for unrelated off-capability work.
 - With the capability on, establish a different-actor floor for new plans.
   Automatic routing must obtain another vendor or model; otherwise open the
   existing authorized maintainer decision request without consuming a run.
@@ -50,6 +56,8 @@ Use the following composition of the accepted delegation contracts:
 - Let update only suggest adoption. Keep decline/defer as configuration
   decisions rather than silently weakening the review policy. Explicit off
   records false and its date, preserving trust pins and execution history.
+  Unavailable-route escalation deduplication binds scope, bundle, purpose and
+  policy digest rather than the timestamp of an unpersisted temporary request.
 
 Historical approval decision and alternatives:
 

@@ -245,6 +245,12 @@ func applyProtectedPolicyBaseline(plan *ReviewPlan, baseline reviewPolicyBaselin
 	floor := normalizeReviewIndependence(baseline.Policy.ReviewerIndependence[scope.Kind])
 	if baseline.Policy.DelegatedReview {
 		floor = stricterReviewIndependence(floor, "different-actor")
+		if !policy.DelegatedReview {
+			plan.DelegatedRunProofRequired = true
+			report.Weakened = append(report.Weakened, "delegated_review:false")
+			report.Restored = append(report.Restored, "delegated-run-proof:required")
+			plan.Explain = append(plan.Explain, "the protected baseline requires signed delegated-run proof for review of this disabling change")
+		}
 	}
 	for _, profile := range profiles {
 		floor = stricterReviewIndependence(floor, profile.Independence)

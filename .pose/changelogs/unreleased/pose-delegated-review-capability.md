@@ -12,7 +12,8 @@ key; existing instances are preserved and update only suggests adoption.
 Existing-project adoption validates the exact signer, pin and project binding.
 Explicit off allows new eligible plans to disclose same-actor execution as
 `delegated-review-disabled`, while human and protected-baseline requirements
-stay stronger. Adopted review requires another vendor or model and escalates
+stay stronger, including signed run proof for the agent review of the
+disabling change itself. Adopted review requires another vendor or model and escalates
 when none is available. The B17 live run-proof barrier continues to apply to
 older approvals without rewriting their records. Add the `pose-delegate`
 skill and integrated rejection, remediation, automatic conclusion and closeout

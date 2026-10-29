@@ -363,7 +363,8 @@ func routeDelegateAgent(store posemodel.Store, kind, ref, notes string, f delega
 	if err != nil {
 		return "", nil, bundle.BundleID, 1, err
 	}
-	if reviewPolicy.DelegatedReview && bundle.Payload.Plan.Independence == "mandatory-human" {
+	executionRequired := reviewPolicy.DelegatedReview || bundle.Payload.Plan.DelegatedRunProofRequired
+	if executionRequired && bundle.Payload.Plan.Independence == "mandatory-human" {
 		return "", nil, bundle.BundleID, 1, &posemodel.ErrNoDelegationAgentAvailable{}
 	}
 	if f.agent != "" && f.agent != "auto" {
@@ -379,7 +380,7 @@ func routeDelegateAgent(store posemodel.Store, kind, ref, notes string, f delega
 		eligible = append(eligible, name)
 	}
 	avail := store.DelegationAvailabilityOf(policy, now, true)
-	if reviewPolicy.DelegatedReview && bundle.Payload.Plan.Independence == "different-actor" {
+	if executionRequired && bundle.Payload.Plan.Independence == "different-actor" {
 		for name, candidate := range policy.Agents {
 			achieved := posemodel.AchievedIndependence(impl.Vendor, impl.Model, candidate.Vendor, candidate.Model)
 			if achieved != "different-vendor" && achieved != "different-model" {
@@ -474,11 +475,11 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	agent, route, routedBundle, code, err := routeDelegateAgent(store, kind, ref, notes, f, time.Now())
 	var unavailable *posemodel.ErrNoDelegationAgentAvailable
 	if f.dryRun && f.jsonOut && (errors.Is(err, posemodel.ErrNoReviewerAdapter) || errors.As(err, &unavailable)) {
-		p, policyErr := store.GetReviewPolicy()
+		required, policyErr := store.DelegatedReviewExecutionRequired(ref)
 		if policyErr != nil {
 			return delegateFail(stdout, stderr, true, purpose, 1, policyErr)
 		}
-		if p.DelegatedReview {
+		if required {
 			writeDelegateJSON(stdout, map[string]any{"schema": delegateErrorSchema, "command": purpose, "error": err.Error(), "routing": route, "reason_code": posemodel.DelegationReasonAgentUnavailable, "escalation_required": true})
 			return 1
 		}
