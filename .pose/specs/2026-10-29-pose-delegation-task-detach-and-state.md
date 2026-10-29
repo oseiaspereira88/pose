@@ -45,6 +45,7 @@ Starting a task over MCP (`pose-delegation-mcp` keeps refusing it: its prompt an
 - R7: Each directory POSE creates below the base (`pose`, `pose/delegate`, the project's directory) shall be created owner-only and accepted only as a real directory owned by the user and not writable by group or others; a link, another owner or a writable component shall be refused, naming the path, and never followed or tightened.
 - R8: The MCP refusal of a task start shall state why a task is not started over MCP without claiming that a task cannot run detached.
 - R9: The delegate flag parser shall take a lone `-` as the task's prompt operand and as the value of `--prompt`, never as an unknown flag or a missing value, so `pose delegate task -` and `pose delegate resume --prompt -` read stdin in the foreground as `pose-delegation-task` R1 and R8 describe.
+- R10: A detached call shall keep its log and hand-back only in a supervisor directory that, with every directory up to and including the project root, is a real directory of the user's writable by no group or other user, the root's ancestors meeting R6, and shall refuse to detach otherwise, naming the directory; it shall believe a hand-back only once a piped prompt has gone through whole and a run has reserved the attempt it names, and shall otherwise stop the run and report it.
 
 ### Non-functional
 
@@ -63,7 +64,7 @@ Starting a task over MCP (`pose-delegation-mcp` keeps refusing it: its prompt an
 
 ### Affected areas
 
-Task front end and detached supervisor (prompt spool, record place, reset refusal), the delegate flag parser's `-`, task-state path resolution, MCP task refusal text, help catalogue, the four manuals.
+Task front end and detached supervisor (prompt pipe, trusted supervisor directory, believed hand-back, record place, reset refusal), the delegate flag parser's `-`, task-state path resolution, MCP task refusal text, help catalogue, the four manuals.
 
 ### Artifacts
 
@@ -95,8 +96,9 @@ Task front end and detached supervisor (prompt spool, record place, reset refusa
 
 ## 4. Tasks
 
-- [ ] Detached task with prompt spool and record place
-- [ ] Detached `resume --prompt -` through the same spool
+- [ ] Detached task with prompt pipe and record place
+- [ ] Detached `resume --prompt -` through the same pipe
+- [ ] Supervisor directory trust and believed hand-back
 - [ ] State base contract and ancestor checks
 - [ ] Created components: owner, mode, no link
 - [ ] Manuals, help, MCP refusal text, changelog

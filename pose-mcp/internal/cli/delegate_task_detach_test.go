@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -64,7 +65,7 @@ func latestTaskOutput(t *testing.T, root, ref string) string {
 // spec pose-delegation-task-detach-and-state R1, R2: a task detaches with a
 // prompt file and with a piped prompt, returns its attempt and the place of
 // its record, and wait, ls and watch resolve it; the piped prompt reaches the
-// agent and its spool file is gone once the call returns.
+// agent and no file ever holds it.
 func TestDelegateTaskDetaches(t *testing.T) {
 	root, state, prompt := taskInstance(t)
 	started := time.Now()
@@ -170,5 +171,126 @@ func TestDelegateTaskReadsAPromptFromStdin(t *testing.T) {
 	delegateStdin = strings.NewReader("resume from stdin")
 	if code, out, errOut := runPoseSplit(t, root, "delegate", "resume", "half", "--prompt", "-"); code != 0 || !strings.Contains(out, "resumed:resume from stdin") {
 		t.Fatalf("resume --prompt -: %d %q %s", code, out, errOut)
+	}
+}
+
+// bigPrompt is larger than any pipe buffer.
+func bigPrompt() string {
+	return strings.Repeat("0123456789abcdef", 1<<16) // 1 MiB
+}
+
+// R2, R10 (review round 2, F2F3-R2-01): a piped prompt larger than a pipe
+// buffer reaches a detached task whole.
+func TestDelegateTaskDetachedPromptArrivesWhole(t *testing.T) {
+	root, _, _ := taskInstance(t)
+	writeDelegation(t, root, taskPolicy(`"default_access": "read"`, `"sink": {"vendor": "other", "model": "s-1", "timeout": "30s", "commands": {"read": ["sh", "-c", "cat >/dev/null; echo done"]}}`))
+	prompt := bigPrompt()[:1<<20-1]
+	code, out := runBuiltWithStdin(t, root, prompt, "delegate", "task", "-", "--agent", "sink", "--detach", "--json")
+	doc := detachedFrom(t, code, out)
+	if code, out := runBuilt(t, root, "delegate", "wait", doc.Attempt); code != 0 {
+		t.Fatalf("wait: %d %s", code, out)
+	}
+	store := posemodel.Store{Root: root}
+	runs, _ := store.ReadDelegationTaskRuns()
+	if len(runs) != 1 {
+		t.Fatalf("runs: %v", runs)
+	}
+	if got, err := store.ReadDelegationTaskPrompt(runs[0]); err != nil || got != prompt {
+		t.Fatalf("the detached task got %d of %d prompt bytes: %v", len(got), len(prompt), err)
+	}
+}
+
+// R10 (F2F3-R2-01): a supervisor directory another user could write is
+// refused before any run starts.
+func TestDelegateTaskDetachRefusesAWritableSupervisorDirectory(t *testing.T) {
+	root, _, prompt := taskInstance(t)
+	supervisors := filepath.Join(root, ".pose", "review-private", "supervisors")
+	if err := os.MkdirAll(supervisors, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	for _, dir := range []string{supervisors, filepath.Dir(supervisors)} {
+		if err := os.Chmod(dir, 0o777); err != nil {
+			t.Fatal(err)
+		}
+		code, out := runBuilt(t, root, "delegate", "task", prompt, "--agent", "worker", "--detach", "--json")
+		if code != 1 || !strings.Contains(out, "another user can write "+dir) {
+			t.Fatalf("a writable %s: %d %s", dir, code, out)
+		}
+		if err := os.Chmod(dir, 0o700); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if runs, _ := (posemodel.Store{Root: root}).ReadDelegationTaskRuns(); len(runs) != 0 {
+		t.Fatalf("a refused detach ran: %v", runs)
+	}
+}
+
+// R10 (F2F3-R2-01): a hand-back published before the run read its prompt —
+// what a writer of the supervisor directory could forge — is not believed:
+// the caller waits for the prompt to go through, finds no run reserved the
+// attempt, stops the run and reports it; no run completes on a cut prompt.
+func TestDelegateTaskDetachDoesNotBelieveAForgedHandback(t *testing.T) {
+	root, _, _ := taskInstance(t)
+	wrapper := filepath.Join(t.TempDir(), "pose-forging")
+	script := "#!/bin/sh\nprintf '%s\\n' '{\"attempt\":\"tat-forged\"}' > \"$POSE_DELEGATE_HANDBACK\"\nsleep 1\nexec '" + poseBinary(t) + "' \"$@\"\n"
+	if err := os.WriteFile(wrapper, []byte(script), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	savedExe, savedIn := delegateExecutable, delegateStdin
+	defer func() { delegateExecutable, delegateStdin = savedExe, savedIn }()
+	delegateExecutable = func() (string, error) { return wrapper, nil }
+	delegateStdin = strings.NewReader(bigPrompt()[:1<<20-1])
+	code, out, errOut := runPoseSplit(t, root, "delegate", "task", "-", "--agent", "worker", "--detach", "--json")
+	if code != 1 || !strings.Contains(out, "which no run reserved") || strings.Contains(out, delegateDetachSchema) {
+		t.Fatalf("a forged hand-back was believed: %d %s %s", code, out, errOut)
+	}
+	runs, _ := posemodel.Store{Root: root}.ReadDelegationTaskRuns()
+	for _, run := range runs {
+		if run.Status == posemodel.ReviewRunCompleted {
+			t.Fatalf("a run completed after a forged hand-back: %+v", run)
+		}
+	}
+
+	// A forged hand-back naming a real attempt is believed, but only once the
+	// prompt is through: the run it started never runs a cut prompt.
+	writeDelegation(t, root, taskPolicy(`"default_access": "read"`, `"sink": {"vendor": "other", "model": "s-1", "timeout": "30s", "commands": {"read": ["sh", "-c", "cat >/dev/null; echo done"]}}`))
+	delegateExecutable = savedExe
+	delegateStdin = strings.NewReader("first")
+	code, out, _ = runPoseSplit(t, root, "delegate", "task", "-", "--agent", "sink", "--json")
+	var first map[string]any
+	if code != 0 || json.Unmarshal([]byte(out), &first) != nil {
+		t.Fatalf("a first task: %d %s", code, out)
+	}
+	real, _ := first["attempt"].(string)
+	script = strings.Replace(script, "tat-forged", real, 1)
+	if err := os.WriteFile(wrapper, []byte(script), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	delegateExecutable = func() (string, error) { return wrapper, nil }
+	prompt := bigPrompt()[:1<<20-1]
+	delegateStdin = strings.NewReader(prompt)
+	started := time.Now()
+	runPoseSplit(t, root, "delegate", "task", "-", "--agent", "sink", "--detach", "--json")
+	// The run starts reading a second after the forged hand-back: a caller
+	// that returned sooner would have exited with the pipe cut short.
+	if elapsed := time.Since(started); elapsed < 900*time.Millisecond {
+		t.Fatalf("the caller returned %s after a forged hand-back, before the run read its prompt", elapsed)
+	}
+	store := posemodel.Store{Root: root}
+	deadline := time.Now().Add(30 * time.Second)
+	for {
+		runs, _ = store.ReadDelegationTaskRuns()
+		if len(runs) >= 2 && !store.DelegationActiveMarkerExists(runs[len(runs)-1].AttemptID) || time.Now().After(deadline) {
+			break
+		}
+		time.Sleep(200 * time.Millisecond)
+	}
+	for _, run := range runs {
+		if run.AttemptID == real || run.Status != posemodel.ReviewRunCompleted {
+			continue
+		}
+		if got, err := store.ReadDelegationTaskPrompt(run); err != nil || got != prompt {
+			t.Fatalf("a run completed on %d of %d prompt bytes: %v", len(got), len(prompt), err)
+		}
 	}
 }

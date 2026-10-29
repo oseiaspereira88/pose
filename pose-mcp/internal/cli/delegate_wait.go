@@ -176,7 +176,9 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 			child = append(child, arg)
 		}
 	}
-	logDir, err := posemodel.Store{Root: root}.DelegationPrivateDir("supervisors")
+	// The hand-back is trusted, so its directory must be one no other user
+	// can write (spec pose-delegation-task-detach-and-state R10).
+	logDir, err := posemodel.Store{Root: root}.DelegationSupervisorDir()
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
 	}
@@ -208,15 +210,31 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 	}
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = nil, logFile, logFile
 	cmd.Env = append(os.Environ(), delegateHandback+"="+handback)
+	var pipe io.WriteCloser
 	if piped != nil {
-		// The run reads the prompt before it hands its attempt back, so the
-		// whole prompt is through the pipe before this call returns.
-		cmd.Stdin = strings.NewReader(*piped)
+		if pipe, err = cmd.StdinPipe(); err != nil {
+			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
+		}
 		cmd.Env = append(cmd.Env, delegatePromptPiped+"=1")
 	}
 	detachProcess(cmd)
 	if err := cmd.Start(); err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
+	}
+	// The run reads the whole prompt before it hands its attempt back; this
+	// call returns only once the prompt is through, so its exit never cuts
+	// the pipe short (review round 2, F2F3-R2-01).
+	copied := make(chan error, 1)
+	if pipe != nil {
+		go func() {
+			_, werr := io.WriteString(pipe, *piped)
+			if cerr := pipe.Close(); werr == nil {
+				werr = cerr
+			}
+			copied <- werr
+		}()
+	} else {
+		copied <- nil
 	}
 	pid := cmd.Process.Pid
 	exited := make(chan struct{})
@@ -242,6 +260,32 @@ wait:
 			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the detached run did not reserve its attempt within "+delegateDetachBound.String()+" and was stopped; its log is "+rel,
 				"o run destacado não reservou a tentativa em "+delegateDetachBound.String()+" e foi parado; o log é "+rel)))
 		case <-time.After(100 * time.Millisecond):
+		}
+	}
+	if attempt != "" {
+		// A hand-back is believed only once the prompt is through and the
+		// attempt it names was reserved.
+		var werr error
+		select {
+		case werr = <-copied:
+		case <-exited:
+			select {
+			case werr = <-copied:
+			default:
+				werr = errors.New("the run ended before reading its prompt")
+			}
+		case <-time.After(delegateDetachBound):
+			werr = errors.New("the run did not read its prompt within " + delegateDetachBound.String())
+		}
+		if werr != nil || !delegateAttemptReserved(root, attempt) {
+			stopDetached(cmd, exited)
+			_ = os.Remove(handback)
+			why := "the hand-back names attempt " + attempt + ", which no run reserved"
+			if werr != nil {
+				why = "the prompt did not reach the run whole: " + werr.Error()
+			}
+			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the detached run was stopped: "+why+"; its log is "+rel,
+				"o run destacado foi parado: "+why+"; o log é "+rel)))
 		}
 	}
 	refusal, refusalCode := readRefusal(handback)
@@ -294,6 +338,25 @@ wait:
 	out.Field("delegate.record", records)
 	out.Field("delegate.next", "pose delegate wait "+attempt)
 	return 0
+}
+
+// delegateAttemptReserved reports whether a run reserved attempt: it is
+// running or recorded.
+func delegateAttemptReserved(root, attempt string) bool {
+	store := posemodel.Store{Root: root}
+	if store.DelegationActiveMarkerExists(attempt) {
+		return true
+	}
+	attempts, _, err := store.ListDelegationAttempts()
+	if err != nil {
+		return false
+	}
+	for _, a := range attempts {
+		if a.AttemptID == attempt {
+			return true
+		}
+	}
+	return false
 }
 
 // detachedTaskRecorded tells whether a detached task's attempt records under

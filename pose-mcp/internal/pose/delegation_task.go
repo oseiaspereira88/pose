@@ -329,23 +329,8 @@ func taskStateDir(root string, create bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	for dir := resolved; ; dir = filepath.Dir(dir) {
-		info, err := os.Lstat(dir)
-		if err != nil {
-			return "", err
-		}
-		user, byRoot := taskStateOwner(info)
-		switch {
-		case !info.IsDir():
-			return "", fmt.Errorf("pose: the state directory %s is not a directory", dir)
-		case !user && !byRoot:
-			return "", fmt.Errorf("pose: the state directory %s belongs to another user; set XDG_STATE_HOME to a directory of yours", dir)
-		case stateDirWritableByOthers(info, true):
-			return "", fmt.Errorf("pose: another user can write %s, above the state directory; remove its group and other write permission, or set XDG_STATE_HOME to a private directory", dir)
-		}
-		if filepath.Dir(dir) == dir {
-			break
-		}
+	if err := trustedStateAncestors(resolved); err != nil {
+		return "", err
 	}
 	sum := sha256.Sum256([]byte(abs))
 	dir := resolved
@@ -356,19 +341,91 @@ func taskStateDir(root string, create bool) (string, error) {
 				return "", err
 			}
 		}
-		info, err := os.Lstat(dir)
-		if err != nil {
+		if err := privateStateComponent(dir); err != nil {
 			return "", err
 		}
-		user, _ := taskStateOwner(info)
-		switch {
-		case !info.IsDir(): // Lstat: a link is not a directory
-			return "", fmt.Errorf("pose: %s is not a private directory", dir)
-		case !user:
-			return "", fmt.Errorf("pose: %s belongs to another user", dir)
-		case stateDirWritableByOthers(info, false):
-			return "", fmt.Errorf("pose: another user can write %s; remove its group and other write permission", dir)
+	}
+	return dir, nil
+}
+
+// trustedStateAncestors checks a resolved directory and every directory above
+// it: each must belong to the user or root and be writable by no group or
+// other user unless sticky, so no other user can rename what is below (R6).
+func trustedStateAncestors(resolved string) error {
+	for dir := resolved; ; dir = filepath.Dir(dir) {
+		info, err := os.Lstat(dir)
+		if err != nil {
+			return err
 		}
+		user, byRoot := taskStateOwner(info)
+		switch {
+		case !info.IsDir():
+			return fmt.Errorf("pose: the state directory %s is not a directory", dir)
+		case !user && !byRoot:
+			return fmt.Errorf("pose: the state directory %s belongs to another user; set XDG_STATE_HOME to a directory of yours", dir)
+		case stateDirWritableByOthers(info, true):
+			return fmt.Errorf("pose: another user can write %s, above the state directory; remove its group and other write permission, or set XDG_STATE_HOME to a private directory", dir)
+		}
+		if filepath.Dir(dir) == dir {
+			return nil
+		}
+	}
+}
+
+// privateStateComponent checks a directory POSE keeps private: a real
+// directory of the user's that no group or other user can write (R7).
+func privateStateComponent(dir string) error {
+	info, err := os.Lstat(dir)
+	if err != nil {
+		return err
+	}
+	user, _ := taskStateOwner(info)
+	switch {
+	case !info.IsDir(): // Lstat: a link is not a directory
+		return fmt.Errorf("pose: %s is not a private directory", dir)
+	case !user:
+		return fmt.Errorf("pose: %s belongs to another user", dir)
+	case stateDirWritableByOthers(info, false):
+		return fmt.Errorf("pose: another user can write %s; remove its group and other write permission", dir)
+	}
+	return nil
+}
+
+// DelegationSupervisorDir is where a detached run's log and hand-back live:
+// a run trusts what it finds there, so the directory, every directory
+// between it and the project root, and the root itself must be the user's
+// and writable by no one else, and the root's ancestors those of R6 (spec
+// pose-delegation-task-detach-and-state R10).
+func (s Store) DelegationSupervisorDir() (string, error) {
+	dir, err := s.DelegationPrivateDir("supervisors")
+	if err != nil {
+		return "", err
+	}
+	root, err := filepath.EvalSymlinks(s.Root)
+	if err != nil {
+		return "", err
+	}
+	if root, err = filepath.Abs(root); err != nil {
+		return "", err
+	}
+	resolved, err := filepath.EvalSymlinks(dir)
+	if err != nil {
+		return "", err
+	}
+	rel, err := filepath.Rel(root, resolved)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return "", fmt.Errorf("pose: %s is not inside the project", dir)
+	}
+	for d := resolved; ; d = filepath.Dir(d) {
+		if err := privateStateComponent(d); err != nil {
+			return "", fmt.Errorf("%w (a detached run trusts the files there)", err)
+		}
+		if d == root {
+			break
+		}
+	}
+	if err := trustedStateAncestors(filepath.Dir(root)); err != nil {
+		return "", fmt.Errorf("%w (a detached run trusts the files below it)", err)
 	}
 	return dir, nil
 }
