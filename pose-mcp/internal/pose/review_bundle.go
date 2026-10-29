@@ -1157,6 +1157,11 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if strings.HasPrefix(path, ".pose/indexes/") {
 		return "derived-index", false
 	}
+	// Client aliases are authored governance, not generated evidence. Only a
+	// single skill name is classified; its link is validated when hashed.
+	if reviewBundleClaudeSkillAlias(path) {
+		return "governance", true
+	}
 	// .pose/public/ holds the public claims contract (spec
 	// pose-public-claims-contract): what the project asserts about itself in
 	// public. It is authored policy, not derived output, so a change to it
@@ -1256,6 +1261,9 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 }
 
 func (s Store) reviewBundleFileDigest(rel string, set ChangeSet, graph DeliveryIntegrityGraph) (string, error) {
+	if reviewBundleClaudeSkillAlias(rel) {
+		return s.reviewBundleClaudeSkillDigest(rel)
+	}
 	if err := ValidateArtifactPathIn(s.fsys(), s.Root, rel, false); err != nil {
 		return "", fmt.Errorf("review subject path %s is invalid: %w", rel, err)
 	}
@@ -3882,4 +3890,35 @@ func foldJSONKey(key string) string {
 		b.WriteRune(least)
 	}
 	return b.String()
+}
+
+// Only the distributed directory-alias shape is supported. Hash the link's
+// own bytes, never read through a client alias to arbitrary filesystem content.
+func reviewBundleClaudeSkillAlias(path string) bool {
+	const prefix = ".claude/skills/"
+	name := strings.TrimPrefix(path, prefix)
+	return name != path && name != "" && name != "." && name != ".." && !strings.ContainsAny(name, "/\\")
+}
+
+func (s Store) reviewBundleClaudeSkillDigest(rel string) (string, error) {
+	fail := func() (string, error) {
+		return "", fmt.Errorf("review subject skill alias %s must link directly to its canonical project skill through real directories", rel)
+	}
+	files := s.fsys()
+	name := strings.TrimPrefix(rel, ".claude/skills/")
+	for _, parent := range []string{".claude", ".claude/skills", ".agents", ".agents/skills", ".agents/skills/" + name} {
+		info, err := files.Lstat(filepath.Join(s.Root, filepath.FromSlash(parent)))
+		if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
+			return fail()
+		}
+	}
+	target, err := files.Readlink(filepath.Join(s.Root, filepath.FromSlash(rel)))
+	if err != nil || target != "../../.agents/skills/"+name {
+		return fail()
+	}
+	info, err := files.Lstat(filepath.Join(s.Root, ".agents", "skills", name, "SKILL.md"))
+	if err != nil || !info.Mode().IsRegular() {
+		return fail()
+	}
+	return digestBytes([]byte(target)), nil
 }

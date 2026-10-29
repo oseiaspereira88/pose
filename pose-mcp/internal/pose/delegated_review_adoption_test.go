@@ -425,3 +425,74 @@ func TestDelegatedReviewCapabilityValidatesTheCapturedConfiguration(t *testing.T
 		t.Fatal("captured invalid configuration was enabled", err)
 	}
 }
+
+func TestDelegatedReviewCapabilitySkillAliasSubject(t *testing.T) {
+	for _, tc := range []string{"valid", "external", "other-skill", "regular-file", "client-parent-link", "canonical-parent-link", "skill-file-link"} {
+		t.Run(tc, func(t *testing.T) {
+			root := t.TempDir()
+			for _, dir := range []string{".claude/skills", ".agents/skills/pose-delegate"} {
+				if err := os.MkdirAll(filepath.Join(root, dir), 0755); err != nil {
+					t.Fatal(err)
+				}
+			}
+			skill := filepath.Join(root, ".agents/skills/pose-delegate/SKILL.md")
+			if err := os.WriteFile(skill, []byte("canonical skill"), 0644); err != nil {
+				t.Fatal(err)
+			}
+			rel := ".claude/skills/pose-delegate"
+			alias := filepath.Join(root, rel)
+			target := "../../.agents/skills/pose-delegate"
+			switch tc {
+			case "external":
+				target = t.TempDir()
+			case "other-skill":
+				target = "../../.agents/skills/other"
+			case "regular-file":
+				if err := os.WriteFile(alias, []byte(target), 0644); err != nil {
+					t.Fatal(err)
+				}
+			case "client-parent-link", "canonical-parent-link":
+				parent := filepath.Join(root, ".claude/skills")
+				if tc == "canonical-parent-link" {
+					parent = filepath.Join(root, ".agents/skills")
+				}
+				moved := parent + "-real"
+				if err := os.Rename(parent, moved); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.Symlink(moved, parent); err != nil {
+					t.Fatal(err)
+				}
+			case "skill-file-link":
+				if err := os.Rename(skill, skill+".real"); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.Symlink(skill+".real", skill); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if tc != "regular-file" {
+				if err := os.Symlink(target, alias); err != nil {
+					t.Fatal(err)
+				}
+			}
+			class, included := reviewBundlePathClass(rel, ScopeRef{}, nil)
+			if class != "governance" || !included {
+				t.Fatalf("alias omitted: %q %v", class, included)
+			}
+			got, err := (Store{Root: root}).reviewBundleFileDigest(rel, ChangeSet{}, DeliveryIntegrityGraph{})
+			if tc == "valid" {
+				if err != nil || got != digestBytes([]byte(target)) {
+					t.Fatalf("link bytes not sealed: %s %v", got, err)
+				}
+			} else if err == nil {
+				t.Fatalf("unsafe alias accepted: %s", got)
+			}
+		})
+	}
+	for _, path := range []string{".claude/settings.local.json", ".claude/other", ".claude/skills/pose-delegate/private.bin"} {
+		if class, _ := reviewBundlePathClass(path, ScopeRef{}, nil); class != "" {
+			t.Fatalf("broad client exclusion/classification: %s => %s", path, class)
+		}
+	}
+}

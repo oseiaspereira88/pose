@@ -161,6 +161,14 @@ The [adoption ADR](../adr/2026-10-29-make-delegated-review-adoption-explicit-and
 - Consequences: local keys are never versioned; refusal and non-interactive operation write no delegation policy; update only suggests. Existing files are never overwritten by the init offer. The decision is published last under compare-and-swap and configuration revalidation; partial setup retains artifacts for recovery and reports published-but-unsynced state distinctly
 - Falsifier: an init claims enabled delegation without a usable agent or trust configuration, overwrites policy, or records a human
 
+### Decision D5
+- Basis: R6, R10
+- Minimal option: exclude the client alias from the review subject
+- Selected option: classify a single `.claude/skills/<name>` alias as governance and seal its exact link bytes only when it points directly to the matching canonical `.agents/skills/<name>` directory through real directories with a regular SKILL.md
+- Rationale: the distributed client entrypoint must remain in the immutable subject without reading arbitrary alias destinations or ignoring all client configuration
+- Consequences: external, mismatched, non-link and linked-ancestor aliases fail closed; unrelated client files remain unclassified. Canonical skill content remains separately governed
+- Falsifier: an unsafe alias seals or the supported alias disappears from the review subject
+
 ### Decision D4
 - Basis: R2, R9
 - Minimal option: use the newest catalog capability as the upgrade journey's version bound even when it needs setup
@@ -188,6 +196,7 @@ Run Go checks sequentially with GOMAXPROCS=2 and GOFLAGS=-p=1. Use temporary fak
 | Interactive default yes/no, no CLI, non-interactive and repeated init | `go -C pose-mcp test ./internal/cli -run 'DelegationInit|DelegatedReviewCapability' -count=1` | Only an accepted fresh offer creates policy and issuer; refusals/headless record off; no vendor starts; existing instance unchanged |
 | Update preview/apply and capability-off suggestion | `go -C pose-mcp test ./internal/cli -run 'DelegatedReviewCapability|UpdatePreviewParity' -count=1` | One suggestion, never activation; preview and apply agree |
 | Review rejection, changed bundle round, automatic signed conclusion, person and unavailable-agent exceptions; existing adjudication/smoke destinations | `go -C pose-mcp test ./internal/pose ./internal/cli ./internal/mcpserver -run 'DelegatedReviewCapability|DelegationInit|AutoConclude|DelegatedReviewRequestPerKind|ActionFulfil' -count=1` | No manual attestation/conclude step; rejection remains restrictive; required-person and unavailable-agent requests carry authority/options; task runs never count |
+| Client skill alias sealing and unsafe links | `go -C pose-mcp test ./internal/pose -run DelegatedReviewCapabilitySkillAliasSubject -count=1` | Exact canonical link bytes included; external, wrong-target, regular-file, linked ancestor and linked skill file refused |
 | Registered composition | `pose validate --strict --json-out .pose/results/delivery-validation.json` | All registered checks pass with current provenance, including new capability integration check |
 | Final source and delivery contracts | `pose artifact-check --spec pose-delegated-review-capability --strict` and `pose surface-check --spec pose-delegated-review-capability --strict` | Attributed paths reconcile and production entrypoint has current integration evidence |
 
