@@ -329,7 +329,7 @@ func taskStateDir(root string, create bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if err := trustedStateAncestors(resolved); err != nil {
+	if err := trustedStateAncestors(resolved, "set XDG_STATE_HOME to a private directory of yours"); err != nil {
 		return "", err
 	}
 	sum := sha256.Sum256([]byte(abs))
@@ -351,7 +351,7 @@ func taskStateDir(root string, create bool) (string, error) {
 // trustedStateAncestors checks a resolved directory and every directory above
 // it: each must belong to the user or root and be writable by no group or
 // other user unless sticky, so no other user can rename what is below (R6).
-func trustedStateAncestors(resolved string) error {
+func trustedStateAncestors(resolved, remedy string) error {
 	for dir := resolved; ; dir = filepath.Dir(dir) {
 		info, err := os.Lstat(dir)
 		if err != nil {
@@ -360,11 +360,11 @@ func trustedStateAncestors(resolved string) error {
 		user, byRoot := taskStateOwner(info)
 		switch {
 		case !info.IsDir():
-			return fmt.Errorf("pose: the state directory %s is not a directory", dir)
+			return fmt.Errorf("pose: %s is not a directory", dir)
 		case !user && !byRoot:
-			return fmt.Errorf("pose: the state directory %s belongs to another user; set XDG_STATE_HOME to a directory of yours", dir)
+			return fmt.Errorf("pose: %s belongs to another user; %s", dir, remedy)
 		case stateDirWritableByOthers(info, true):
-			return fmt.Errorf("pose: another user can write %s, above the state directory; remove its group and other write permission, or set XDG_STATE_HOME to a private directory", dir)
+			return fmt.Errorf("pose: another user can write %s; remove its group and other write permission, or %s", dir, remedy)
 		}
 		if filepath.Dir(dir) == dir {
 			return nil
@@ -418,16 +418,17 @@ func (s Store) DelegationSupervisorDir() (string, error) {
 	}
 	for d := resolved; ; d = filepath.Dir(d) {
 		if err := privateStateComponent(d); err != nil {
-			return "", fmt.Errorf("%w (a detached run trusts the files there)", err)
+			return "", fmt.Errorf("%w (a detached run trusts the files there; detach from a checkout on a private path)", err)
 		}
 		if d == root {
 			break
 		}
 	}
-	if err := trustedStateAncestors(filepath.Dir(root)); err != nil {
-		return "", fmt.Errorf("%w (a detached run trusts the files below it)", err)
+	if err := trustedStateAncestors(filepath.Dir(root), "detach from a checkout on a private path (a detached run trusts the files below it)"); err != nil {
+		return "", err
 	}
-	return dir, nil
+	// The checked directory, not the spelling that reached it.
+	return resolved, nil
 }
 
 // taskRunsDir is the directory a task's record goes to; it is created private

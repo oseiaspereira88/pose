@@ -177,8 +177,19 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 		}
 	}
 	// The hand-back is trusted, so its directory must be one no other user
-	// can write (spec pose-delegation-task-detach-and-state R10).
-	logDir, err := posemodel.Store{Root: root}.DelegationSupervisorDir()
+	// can write; the root is resolved once and every later step — the
+	// supervisor directory, the run's own root, the reservation it is checked
+	// against — uses what was checked, never an alias someone could retarget
+	// (spec pose-delegation-task-detach-and-state R10; review round 3,
+	// F2F3-R3-01).
+	pinned, err := filepath.EvalSymlinks(root)
+	if err == nil {
+		pinned, err = filepath.Abs(pinned)
+	}
+	if err != nil {
+		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
+	}
+	logDir, err := posemodel.Store{Root: pinned}.DelegationSupervisorDir()
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
 	}
@@ -209,7 +220,7 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 		cmd.Dir = wd
 	}
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = nil, logFile, logFile
-	cmd.Env = append(os.Environ(), delegateHandback+"="+handback)
+	cmd.Env = append(os.Environ(), delegateHandback+"="+handback, posemodel.DelegateRootEnv+"="+pinned)
 	var pipe io.WriteCloser
 	if piped != nil {
 		if pipe, err = cmd.StdinPipe(); err != nil {
@@ -239,7 +250,7 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 	pid := cmd.Process.Pid
 	exited := make(chan struct{})
 	go func() { _ = cmd.Wait(); close(exited) }()
-	rel := filepath.ToSlash(strings.TrimPrefix(logPath, root+string(filepath.Separator)))
+	rel := filepath.ToSlash(strings.TrimPrefix(logPath, pinned+string(filepath.Separator)))
 	deadline := time.After(delegateDetachBound)
 	attempt := ""
 wait:
@@ -269,15 +280,17 @@ wait:
 		select {
 		case werr = <-copied:
 		case <-exited:
+			// The run's exit closes the pipe, so the copy reports at once;
+			// its result may still be on its way (F2F3-R3-03).
 			select {
 			case werr = <-copied:
-			default:
-				werr = errors.New("the run ended before reading its prompt")
+			case <-time.After(delegateStopGrace):
+				werr = errors.New("the run ended before its prompt was through")
 			}
 		case <-time.After(delegateDetachBound):
 			werr = errors.New("the run did not read its prompt within " + delegateDetachBound.String())
 		}
-		if werr != nil || !delegateAttemptReserved(root, attempt) {
+		if werr != nil || !delegateAttemptReserved(pinned, attempt) {
 			stopDetached(cmd, exited)
 			_ = os.Remove(handback)
 			why := "the hand-back names attempt " + attempt + ", which no run reserved"
@@ -320,10 +333,10 @@ wait:
 	records := ".pose/review-runs/"
 	if strings.HasPrefix(attempt, "tat-") {
 		// A task keeps its record apart from review runs (R1).
-		recorded := detachedTaskRecorded(root, attempt, f)
+		recorded := detachedTaskRecorded(pinned, attempt, f)
 		records = delegateTaskRecordPlace(recorded)
-		if dir, err := (posemodel.Store{Root: root}).DelegationTaskRecordDir(recorded); err == nil {
-			records = filepath.ToSlash(strings.TrimPrefix(dir, root+string(filepath.Separator))) + "/"
+		if dir, err := (posemodel.Store{Root: pinned}).DelegationTaskRecordDir(recorded); err == nil {
+			records = filepath.ToSlash(strings.TrimPrefix(dir, pinned+string(filepath.Separator))) + "/"
 		}
 	}
 	if f.jsonOut {

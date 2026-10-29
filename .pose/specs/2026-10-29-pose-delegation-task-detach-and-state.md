@@ -45,7 +45,7 @@ Starting a task over MCP (`pose-delegation-mcp` keeps refusing it: its prompt an
 - R7: Each directory POSE creates below the base (`pose`, `pose/delegate`, the project's directory) shall be created owner-only and accepted only as a real directory owned by the user and not writable by group or others; a link, another owner or a writable component shall be refused, naming the path, and never followed or tightened.
 - R8: The MCP refusal of a task start shall state why a task is not started over MCP without claiming that a task cannot run detached.
 - R9: The delegate flag parser shall take a lone `-` as the task's prompt operand and as the value of `--prompt`, never as an unknown flag or a missing value, so `pose delegate task -` and `pose delegate resume --prompt -` read stdin in the foreground as `pose-delegation-task` R1 and R8 describe.
-- R10: A detached call shall keep its log and hand-back only in a supervisor directory that, with every directory up to and including the project root, is a real directory of the user's writable by no group or other user, the root's ancestors meeting R6, and shall refuse to detach otherwise, naming the directory; it shall believe a hand-back only once a piped prompt has gone through whole and a run has reserved the attempt it names, and shall otherwise stop the run and report it.
+- R10: A detached call shall resolve the project root once and use only that resolved root for the supervisor directory, its own run and the reservation it checks; it shall keep its log and hand-back only in a supervisor directory that, with every directory up to and including the project root, is a real directory of the user's writable by no group or other user, the root's ancestors meeting R6, and shall refuse to detach otherwise, naming the directory; it shall believe a hand-back only once a piped prompt has gone through whole and a run has reserved the attempt it names, and shall otherwise stop the run and report it.
 
 ### Non-functional
 
@@ -54,10 +54,11 @@ Starting a task over MCP (`pose-delegation-mcp` keeps refusing it: its prompt an
 ### Security
 
 - R2's prompt travels only through an anonymous pipe between the caller and its detached run: no file, argv or environment variable carries it, so no directory permission can expose or replace it; the environment carries only the flag `POSE_DELEGATE_PROMPT_PIPED`.
-- On Windows, where ownership and mode bits are not the access model, R6 and R7 keep only the link refusal; the gap is stated in the manual.
+- On Windows, where ownership and mode bits are not the access model, R6, R7 and the directory part of R10 keep only the link and type refusal; ACL privacy is not checked, and the manual says so.
 
 ### Compatibility
 
+- Every detached `pose delegate` call, not only a task, now refuses a checkout whose root, `.pose`, `review-private` or `supervisors` another user could write, or whose root has an ancestor another non-root user owns or could write without the sticky bit; the foreground commands are unaffected, and the refusal names the directory and says to detach from a checkout on a private path.
 - A relative `XDG_STATE_HOME` previously placed task records relative to the working directory; those records are no longer listed (R5), and the changelog says so. A base or component that fails R6 or R7 makes `ls` report the loss instead of reading runs from it.
 
 ## 3. Technical Plan

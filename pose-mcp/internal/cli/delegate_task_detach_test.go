@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -292,5 +293,62 @@ func TestDelegateTaskDetachDoesNotBelieveAForgedHandback(t *testing.T) {
 		if got, err := store.ReadDelegationTaskPrompt(run); err != nil || got != prompt {
 			t.Fatalf("a run completed on %d of %d prompt bytes: %v", len(got), len(prompt), err)
 		}
+	}
+}
+
+// swappingReader retargets a link the first time it is read: the moment a
+// writer of the link's directory could choose, after the supervisor
+// directory was checked.
+type swappingReader struct {
+	r            io.Reader
+	link, target string
+	swapped      bool
+}
+
+func (s *swappingReader) Read(p []byte) (int, error) {
+	if !s.swapped {
+		s.swapped = true
+		if err := os.Remove(s.link); err == nil {
+			_ = os.Symlink(s.target, s.link)
+		}
+	}
+	return s.r.Read(p)
+}
+
+// R10 (review round 3, F2F3-R3-01): a root reached through a link that
+// another user could retarget is resolved once; the log, the hand-back, the
+// run's own root and the reservation all stay in the tree that was checked.
+func TestDelegateTaskDetachStaysInTheCheckedRoot(t *testing.T) {
+	root, _, _ := taskInstance(t)
+	writeDelegation(t, root, taskPolicy(`"default_access": "read"`, `"sink": {"vendor": "other", "model": "s-1", "timeout": "30s", "commands": {"read": ["sh", "-c", "cat >/dev/null; echo done"]}}`))
+	public := filepath.Join(t.TempDir(), "public")
+	if err := os.Mkdir(public, 0o777); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(public, 0o777); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(public, "project")
+	if err := os.Symlink(root, link); err != nil {
+		t.Fatal(err)
+	}
+	elsewhere := t.TempDir()
+	t.Setenv(posemodel.DelegateRootEnv, link)
+	savedExe, savedIn := delegateExecutable, delegateStdin
+	defer func() { delegateExecutable, delegateStdin = savedExe, savedIn }()
+	built := poseBinary(t)
+	delegateExecutable = func() (string, error) { return built, nil }
+	delegateStdin = &swappingReader{r: strings.NewReader("checked tree"), link: link, target: elsewhere}
+	code, out, errOut := runPoseSplit(t, root, "delegate", "task", "-", "--agent", "sink", "--detach", "--json")
+	doc := detachedFrom(t, code, out+errOut)
+	if entries, _ := os.ReadDir(elsewhere); len(entries) != 0 {
+		t.Fatalf("the retargeted tree was written: %v", entries)
+	}
+	t.Setenv(posemodel.DelegateRootEnv, root)
+	if code, out := runBuilt(t, root, "delegate", "wait", doc.Attempt); code != 0 {
+		t.Fatalf("the run in the checked root: %d %s", code, out)
+	}
+	if got := latestTaskOutput(t, root, doc.Attempt); !strings.Contains(got, "done") {
+		t.Fatalf("output: %q", got)
 	}
 }
