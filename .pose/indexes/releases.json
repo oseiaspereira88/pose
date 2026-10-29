@@ -209,6 +209,14 @@
       "digest": "sha256:007df121af7eaa711fbe54d4977bad69babca4ba9ee568a8f43378ad48262551"
     },
     {
+      "spec": "pose-delegated-review-capability",
+      "category": "added",
+      "breaking": false,
+      "body": "Add `delegated-review` to the capability catalog. Fresh interactive `pose init`\noffers it by default, detects supported agent CLIs without running them and\nprovisions native executor signing trust before activation. Refusal, headless\ninit or no supported CLI leaves it explicitly off without an agent policy or\nkey; existing instances are preserved and update only suggests adoption.\nExisting-project adoption validates the exact signer, pin and project binding.\nExplicit off allows new eligible plans to disclose same-actor execution as\n`delegated-review-disabled`, while human and protected-baseline requirements\nstay stronger, including signed run proof for the agent review of the\ndisabling change itself. Adopted review requires another vendor or model and escalates\nwhen none is available. The B17 live run-proof barrier continues to apply to\nolder approvals without rewriting their records. Add the `pose-delegate`\nskill and integrated rejection, remediation, automatic conclusion and closeout\njourneys.",
+      "path": "pose-delegated-review-capability.md",
+      "digest": "sha256:18db9a4988915b007d5f2c99be6bd9ee340cabfebdc49a64dea11a8d060bea99"
+    },
+    {
       "spec": "pose-delegated-review-conclusions",
       "category": "added",
       "breaking": false,

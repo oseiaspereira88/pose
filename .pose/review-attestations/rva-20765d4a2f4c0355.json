@@ -1,0 +1,302 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-20765d4a2f4c0355",
+  "bundle_id": "rvb-541e52f960dcffe4",
+  "bundle_digest": "sha256:541e52f960dcffe49f7bf7f79a886fc1df7588d12c52f4518d34a45f5ba5fc96",
+  "reviewer": "agent:independent-claude-opus-5-5-b21-alias-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-c50c41351f243583",
+      "rationale": "Verified facts: sealed subject head b184e14e equals the validation git_head. The alias digest equals sha256 of ../../.agents/skills/pose-delegate. There are no unclassified or dirty subject paths. Explicit assumptions: identity and independence are declared only. The change-set range is contaminated (7 attributed of 541), which bounds the range claim, but subject paths are attributed per entry. docs-site and tests have no registered validation producer. Accepted risks are low F1 to F5 only."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "The capability integration runs go test -race across pose, cli and mcpserver and passed at b184e14e."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Installed multi-repo journey and upgrade journeys pass. Legacy omission of delegated_review keeps prior digests and behavior."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Unsafe alias shapes, invalid trust configuration and refusal paths fail closed with bounded actionable messages, covered by unit and integration tests."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "CLI, MCP and engine composition is covered by the capability integration. Surface-check reports zero findings."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Escalations, disclosures and fail-closed alias errors return bounded, non-sensitive context. The low diagnostic refinements are tracked as F2 and F3."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "An absent delegated_review key preserves legacy policy. Update only suggests and never activates. Existing sealed plans and records are immutable. Protected and human floors remain stronger. The alias classification only changes a previously unclassified (blocking) path into governance."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "The reject-fix-approve journey, person escalation, unavailable agent and explicit-off journeys pass. The alias regression covers 7 shapes. Mutation removing target validation fails the external and other-skill cases."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Install, upgrade and installed-agent journeys exercise scaffold, CLI and engine boundaries at b184e14e."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-c50c41351f243583",
+      "rationale": "The selected designs follow from the requirements: R3 requires the distributed pose-delegate skill, R2 its documented catalog entry, and D3 the explicit and recoverable adoption recorded by the ADR. D5 narrowly classifies the client alias because the native seal refused it as unclassified.",
+      "mappings": [
+        {
+          "delta": "SD-185a9d94",
+          "basis": "R2",
+          "disposition": "mapped",
+          "rationale": "The skills catalog row documents the new pose-delegate entrypoint required by the documentation requirement."
+        },
+        {
+          "delta": "SD-6c6a7b93",
+          "basis": "D3",
+          "disposition": "mapped",
+          "rationale": "The ADR records the explicit, recoverable adoption decision whose consequences D3 states and which reaches R1, R5 and R8."
+        },
+        {
+          "delta": "SD-f547ed08",
+          "basis": "R3",
+          "disposition": "mapped",
+          "rationale": "R3 directly requires a distributed pose-delegate skill with the delegation, rerun and next_actions guidance this file adds."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "POSE.md, skills README, pose-delegate skill, pt-BR locale copies and scaffold dist copies match, as guarded by locale coverage and skills-check. The docs-site page builds strictly in the reviewer-inspected external build. Spec D5 and the test-plan row describe the alias contract."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "Partial setup is recoverable, refusal and headless runs write nothing, and unavailable agents escalate to a person with options. The Windows core.symlinks=false alias case fails closed and is tracked as F4."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "R1 to R11 are traced to named tests and sealed evidence in the spec validation section. R5 and R7 are delivered by the linked B19 conclusions spec and qualified in R4 journeys."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The subject contains only the 43 attributed B21 paths, artifact-check reports no scoped blocker, and b184e14e adds only the alias classifier, its regression and D5. There is no roadmap successor, gitlink adoption or broad .claude exclusion."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "The alias is sealed by link bytes without following arbitrary targets. It requires exactly ../../.agents/skills/\u003csame name\u003e through non-symlink directories and a regular SKILL.md. Local signing keys are never versioned. No human identity or authority pin is created. gitleaks passes. The two govulncheck advisories are module-only and unreachable."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The alias fix is a 39-line narrow classifier and validator plus one table test, chosen over excluding client configuration. Other client aliases and the cosmetic D5/D4 order are intentionally deferred."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Lead-run pose artifact-check --spec pose-delegated-review-capability --strict at b184e14e exited 0 with claims 49 and observed 50. The single extra observed path is the governed directory symlink .claude/skills/pose-delegate outside regular-file claims. The 779 orphan warnings are legacy and outside B21 attribution. No scoped blocker."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "The sealed race-enabled capability integration passed at b184e14e. The lead-run assess integrate reports only pre-existing unobserved-consumer gaps for MCP tools. b184e14e changes no inter-module contract."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-c50c41351f243583",
+      "rationale": "Sealed structural observation on the exact subject digest. Three governance-contract facts are mapped under design-causality."
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "check:skills-check",
+      "rationale": "Reviewer ran pose skills-check --strict using an engine built from b184e14e outside the repository: 24 checked, 0 errors, 0 warnings, exit 0. A stale installed 7.4.1-dev binary reports pose-delegate missing from ClaudeSkillLinks, which HEAD source contains."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "Lead-run surface-check --spec pose-delegated-review-capability --strict exited 0 with one target, 159 results and zero findings. Its provenance digest a0dfb186 equals the sealed validation provenance."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Registered strict validation at git_head b184e14e passed 159 of 159 with matrix a7dfe87c and provenance a0dfb186."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The sealed plan records producer_coverage none: the registered matrix has no docs-site check, so no component-owned validation evidence exists to cite. The reviewer instead inspected an unregistered external strict docs build. It passed after the last docs-site change in b4cdf0dd, and later commits touch no docs-site file. That build is reviewer-inspected context, not a registered producer, and is not claimed as validate evidence. A registered docs-site producer is outside B21 scope."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "All pose-mcp registered checks passed at b184e14e, including the capability integration under -race, unit, build, e2e and reachability."
+    },
+    {
+      "id": "validate",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "The sealed plan records producer_coverage none: the registered matrix has no check owned by the tests component. The changed tests/journeys/install-and-upgrade.sh is executed by the pose-mcp-owned Journeys integration check, which passed at b184e14e and is cited for pose-mcp and cross-component criteria. It is not claimed as tests-component validation. Registering a tests-owned producer is outside B21 scope."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+    "integration:pose-mcp/go/delegated-review-capability-integration",
+    "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+    "structure:design-c50c41351f243583",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "b21-f1",
+      "severity": "low",
+      "evidence": "spec:pose-delegated-review-capability#F1",
+      "action": "follow-up F1 open in spec",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Pre-existing empty follow-up bullets in two legacy specs make global coverage partial. This does not waive a B21 requirement.",
+      "review_by": "2026-11-10"
+    },
+    {
+      "id": "b21-f2",
+      "severity": "low",
+      "evidence": "spec:pose-delegated-review-capability#F2",
+      "action": "follow-up F2 open in spec",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The off-capability protected disabling review without a sealed bundle fails closed without an escalation. Diagnostic gap only.",
+      "review_by": "2026-11-10"
+    },
+    {
+      "id": "b21-f3",
+      "severity": "low",
+      "evidence": "spec:pose-delegated-review-capability#F3",
+      "action": "follow-up F3 open in spec",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Noisy automatic-conclusion hint for off-capability legacy runs. Truthful source-loss diagnostics must be preserved.",
+      "review_by": "2026-11-10"
+    },
+    {
+      "id": "b21-f4",
+      "severity": "low",
+      "evidence": "spec:pose-delegated-review-capability#F4",
+      "action": "follow-up F4 open in spec",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "On Windows checkouts with core.symlinks=false the alias materializes as a regular file and sealing fails closed. Not unsafe, but it needs a symlink-preserving checkout.",
+      "review_by": "2026-11-10"
+    },
+    {
+      "id": "b21-f5",
+      "severity": "low",
+      "evidence": "spec:pose-delegated-review-capability#F5",
+      "action": "follow-up F5 open in spec",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The alias regression calls the classifier and digest directly, not the subject builder (dirty, rename, removal). A future builder refactor could regress silently until a native seal.",
+      "review_by": "2026-11-10"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-claude-opus-5-5-b21-alias-review",
+    "concluded_by": "agent:independent-claude-opus-5-5-b21-alias-review",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-10-29T16:41:05Z",
+  "path": ".pose/review-attestations/rva-20765d4a2f4c0355.json"
+}

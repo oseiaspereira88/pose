@@ -1,7 +1,7 @@
 # Component Assessment: mcp-enforce (`mcp-enforce`)
 
 > **Mapeamento de Módulo POSE**: `mcp-enforce`
-> **Data de Avaliação**: 2026-10-26T03:32:32Z | **Baseline Commit**: 93bd35285e41
+> **Data de Avaliação**: 2026-10-29T16:42:34Z | **Baseline Commit**: b184e14ed6b6
 > **Métricas**: 870 LOC Produção | 1029 LOC Testes | 17 Arquivos Totais
 > **Linguagens**: go
 > **Saúde de Código**: 0 TODOs | 0 FIXMEs | 0 Panics | 0 Stubs
@@ -10,7 +10,7 @@
 
 ## 1. Visão Geral e Estrutura do Módulo
 
-O componente **mcp-enforce** reside no caminho `mcp-enforce` do projeto **pose-dist**.
+O componente **mcp-enforce** reside no caminho `mcp-enforce` do projeto **pose-delegation-roadmaps**.
 
 - **Status de Verificação POSE**: `verified`
 - **Pontuação de Completude**: 100%

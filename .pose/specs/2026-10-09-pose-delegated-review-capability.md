@@ -1,8 +1,8 @@
 ---
 slug: pose-delegated-review-capability
-status: in-progress
+status: done
 created_at: 2026-10-09
-completed_at:
+completed_at: 2026-10-29
 supersedes:
 depends_on: pose-delegated-review-conclusions, pose-delegated-review-run-provenance, pose-delegated-review-attempt-ledger, pose-delegation-routing, pose-delegation-handoff, pose-delegated-review-round-protocol, pose-delegated-review-action-fulfillment, pose-delegation-mcp
 priority: 3
@@ -220,11 +220,19 @@ Additional required checks: full Go suite and vet; focused race tests for delega
 
 ### Delivered scope
 
-Implementation and focused positive/negative journeys are prepared in the adoption milestone of roadmap `delegation`. Cross-vendor source review by Claude Opus 5.5 approved without blockers, with two low follow-ups. The first registered run passed 158 of 159 checks and exposed an upgrade-journey premise that counted a needs-setup capability; the corrected real-release journey passes. Final registered validation, native sealed review and publication remain pending. Maintainer decision `act-31f0849a7ec6712c` selected the live B17 barrier; the adoption ADR records activation/recovery guarantees and the selected historical contract.
+B21 composes catalog adoption, fresh-init consent and native machine signing, recoverable activation, explicit-off disclosure, protected-baseline proof, independent routing, authorized CLI/MCP escalation and verified automatic conclusions. Existing instances are not automatically adopted. Maintainer action act-31f0849a7ec6712c selected the live B17 proof barrier; the adoption ADR and amendments record that choice and its protected-disabling-review consequence.
+
+Source commits 22adc696, 24b75f3a, b4cdf0dd, 7d0d6cbd and b184e14e carry the POSE-Spec trailer. The registered strict matrix passed 159/159 checks on b184e14ed6b6c0afa38e9ccd638079036b02e233, including the capability integration with -race; Windows/Darwin cross-builds, govulncheck and the strict MkDocs build passed. Nine isolated correction mutations failed their intended behavioral regressions without compilation errors. Earlier failing runs are retained in the external evidence directory, including the 158/159 run whose upgrade-journey premise D4 corrects.
+
+Claude Opus 5.5 supplied cross-vendor source reviews and accepted the journey/matrix and narrow alias-sealing corrections without blockers. The additional alias is sealed as governance with exact canonical link bytes; external or mismatched targets and symbolic ancestors fail closed. Low source findings are F2–F5 below; F1 records the pre-existing global coverage limitation. Other client aliases remain intentionally unsupported until a concrete contract exists; the cosmetic D5/D4 ordering is retained. Neither observation justifies broadening this delivery. Native bundle, attestation and guarded closeout record the formal acceptance; publication and CI remain independently observable GitHub operations, not inferred from local validation. This delivery does not close either roadmap or retire the personal launchers.
+
+Native closeout sealed bundle rvb-541e52f960dcffe4, recorded reviewer-authored attestation rva-20765d4a2f4c0355 and applied the guarded transition to done on 2026-10-29. The first attestation preview refused two cross-component evidence references and wrote nothing; the same reviewer corrected those producer-less tool rows to not-used with substantive rationale. The strict external docs build and pose-mcp-owned upgrade journey remain truthful inspected context, not invented component producers. Identity and independence remain declared; attribution names the Claude reviewer as preparer/concluder and agent:codex as applier.
 
 ### Residual risks
 
 A trusted local executor can emit a complete canned judgment. Native proof authenticates the executor declaration and bound artifacts, not substantive review cognition or a vendor receipt; the adversarial disclosure test guards that boundary. The technical-debt assessment has zero uncovered markers but reports incomplete coverage for two pre-existing legacy spec sources; it is not evidence of global completeness.
+
+govulncheck exited successfully with no affected code or imported package, but reported two unreachable module-only advisories in x/net v0.60.0: GO-2026-6866 and GO-2026-6860, fixed in v0.62.0. The scan is not a claim of zero module advisories; no dependency upgrade is folded into this scope.
 
 ### Follow-ups
 
@@ -232,3 +240,6 @@ A trusted local executor can emit a complete canned judgment. Native proof authe
 - [open] F3: Refine the automatic-conclusion hint for an off-capability legacy review run whose bundle is absent; preserve source-loss diagnostics without suggesting that ordinary off-capability work owed an automatic conclusion. (owner:@pose-maintainers crit:low review:2026-11-10)
 
 - [open] F1: Reconcile the empty follow-up bullets in the legacy specs pose-instance-engine-version-tracking and pose-knowledge-durable-reference-type; the current followups/technical-debt producers correctly report partial global coverage until those sources are repaired. This does not waive any B21 requirement or claim global completeness. (owner:@pose-maintainers crit:low review:2026-11-10)
+
+- [open] F4: Document or support sealing tracked client skill aliases on Windows checkouts with core.symlinks=false; the current regular-file representation fails closed and requires a checkout that preserves symlinks. (owner:@pose-maintainers crit:low review:2026-11-10)
+- [open] F5: Add a subject-builder regression for client skill alias dirty changes, rename and removal; the current direct classification/digest regressions and native sealed delivery cover the present path, but not future builder refactors. (owner:@pose-maintainers crit:low review:2026-11-10)
