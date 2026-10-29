@@ -267,6 +267,7 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			render(stdout, stderr).Failure("pose delegate: " + err.Error())
 			return 2
 		}
+		readDetachedCallerRoot()
 		return cmdDelegate(root, args, stdout, stderr)
 	case "action":
 		root, err := projectRoot()

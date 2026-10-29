@@ -332,10 +332,13 @@ func taskStateDir(root string, create bool) (string, error) {
 // F2F3-R5-01).
 const DelegateLegacyRootEnv = "POSE_DELEGATE_LEGACY_ROOT"
 
+// DetachedCallerRoot is that spelling, set by the CLI in a detached run
+// only; elsewhere it is empty.
+var DetachedCallerRoot string
+
 // legacyTaskStateDirs are where tasks recorded under a spelling of the root
 // that is not its resolved path were kept before the history was keyed by
-// the resolved root — the store's own spelling and the one a detached run's
-// caller used. They are read, never written; each comes with the error
+// the resolved root — the store's own spelling and DetachedCallerRoot. They are read, never written; each comes with the error
 // that kept it from being read.
 func legacyTaskStateDirs(root string) (dirs []string, errs []error) {
 	abs, err := filepath.Abs(root)
@@ -347,12 +350,7 @@ func legacyTaskStateDirs(root string) (dirs []string, errs []error) {
 		return nil, nil
 	}
 	seen := map[string]bool{resolved: true}
-	spellings := []string{abs}
-	if os.Getenv("POSE_DELEGATE_HANDBACK") != "" {
-		// Only a detached run is told its caller's spelling.
-		spellings = append(spellings, os.Getenv(DelegateLegacyRootEnv))
-	}
-	for _, spelling := range spellings {
+	for _, spelling := range []string{abs, DetachedCallerRoot} {
 		if spelling == "" || !filepath.IsAbs(spelling) || seen[spelling] {
 			continue
 		}

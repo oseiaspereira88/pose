@@ -477,3 +477,20 @@ func mustResolve(t *testing.T, path string) string {
 	}
 	return resolved
 }
+
+// R11: only a detached run takes its caller's spelling of the root; a stray
+// value elsewhere is ignored.
+func TestOnlyADetachedRunTakesItsCallersRootSpelling(t *testing.T) {
+	defer func() { posemodel.DetachedCallerRoot = "" }()
+	t.Setenv(posemodel.DelegateLegacyRootEnv, "/elsewhere/project")
+	t.Setenv(delegateHandback, "")
+	readDetachedCallerRoot()
+	if posemodel.DetachedCallerRoot != "" {
+		t.Fatalf("a foreground command took %q", posemodel.DetachedCallerRoot)
+	}
+	t.Setenv(delegateHandback, filepath.Join(t.TempDir(), "h"))
+	readDetachedCallerRoot()
+	if posemodel.DetachedCallerRoot != "/elsewhere/project" {
+		t.Fatalf("a detached run did not take its caller's spelling: %q", posemodel.DetachedCallerRoot)
+	}
+}

@@ -50,6 +50,15 @@ var delegateExecutable = os.Executable
 // delegateSupervised reports whether this process is a detached run.
 func delegateSupervised() bool { return os.Getenv(delegateHandback) != "" }
 
+// readDetachedCallerRoot tells the engine, in a detached run only, its
+// caller's spelling of the root (spec pose-delegation-task-detach-and-state
+// R11).
+func readDetachedCallerRoot() {
+	if delegateSupervised() {
+		posemodel.DetachedCallerRoot = os.Getenv(posemodel.DelegateLegacyRootEnv)
+	}
+}
+
 // supervisorHandback publishes the attempt where the caller waits for it; a
 // hand-back that cannot be published stops the run before its agent starts.
 func supervisorHandback() func(attempt string) error {

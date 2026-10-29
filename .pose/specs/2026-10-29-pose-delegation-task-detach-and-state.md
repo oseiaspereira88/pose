@@ -81,6 +81,7 @@ Task front end and detached supervisor (prompt pipe, trusted supervisor director
 - modified: pose-mcp/internal/cli/delegate_task.go
 - modified: pose-mcp/internal/cli/delegate_wait.go
 - modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/cli.go
 - created: pose-mcp/internal/cli/delegate_task_detach_test.go
 - modified: pose-mcp/internal/mcpserver/delegate_tools.go
 - modified: pose-mcp/internal/cli/delegate_mcp_test.go

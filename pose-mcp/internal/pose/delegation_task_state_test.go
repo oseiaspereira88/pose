@@ -203,16 +203,12 @@ func TestTaskHistoryKeyedByTheResolvedRootReadsTheLegacyKey(t *testing.T) {
 	}
 	// A detached run is pinned to the resolved root; its caller's spelling
 	// still names the legacy history.
-	t.Setenv(DelegateLegacyRootEnv, link)
-	if dirs, _ := legacyTaskStateDirs(root); len(dirs) != 0 {
-		t.Fatalf("a run that is not detached read its caller's spelling: %v", dirs)
-	}
-	t.Setenv("POSE_DELEGATE_HANDBACK", filepath.Join(t.TempDir(), "h"))
+	DetachedCallerRoot = link
+	defer func() { DetachedCallerRoot = "" }()
 	if dirs, _ := legacyTaskStateDirs(root); len(dirs) != 1 {
 		t.Fatalf("the caller's spelling was not read: %v", dirs)
 	}
-	t.Setenv(DelegateLegacyRootEnv, "")
-	t.Setenv("POSE_DELEGATE_HANDBACK", "")
+	DetachedCallerRoot = ""
 	abs, _ := filepath.Abs(link)
 	legacy, err := taskStateDirFor(abs, true)
 	if err != nil {
