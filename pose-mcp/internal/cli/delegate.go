@@ -82,7 +82,8 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		name, inline, hasInline := strings.Cut(arg, "=")
-		if !strings.HasPrefix(arg, "-") {
+		// A lone - names stdin (spec pose-delegation-task R1).
+		if arg == "-" || !strings.HasPrefix(arg, "-") {
 			f.positional = append(f.positional, arg)
 			continue
 		}
@@ -124,7 +125,8 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 		default:
 			value := inline
 			if !hasInline {
-				if i+1 >= len(args) || strings.HasPrefix(args[i+1], "-") {
+				// --prompt - reads stdin (spec pose-delegation-task R8).
+				if i+1 >= len(args) || strings.HasPrefix(args[i+1], "-") && !(name == "--prompt" && args[i+1] == "-") {
 					return f, tr(name+" needs a value", name+" precisa de um valor")
 				}
 				value = args[i+1]

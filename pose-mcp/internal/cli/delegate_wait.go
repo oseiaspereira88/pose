@@ -29,7 +29,11 @@ const (
 	// which it hands its attempt back: a file, not an inherited descriptor,
 	// so the hand-back works on every platform.
 	delegateHandback = "POSE_DELEGATE_HANDBACK"
-	delegateWaitStep = 500 * time.Millisecond
+	// delegatePromptSpool names, in a detached run's environment, the
+	// owner-only file holding the prompt its caller read from stdin (spec
+	// pose-delegation-task-detach-and-state R2).
+	delegatePromptSpool = "POSE_DELEGATE_PROMPT_SPOOL"
+	delegateWaitStep    = 500 * time.Millisecond
 )
 
 // delegateDetachBound is how long a detached run has to reserve its attempt;
@@ -167,6 +171,21 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 	stamp := time.Now().UTC().Format("20060102T150405.000000000")
 	logPath := filepath.Join(logDir, stamp+".log")
 	handback := filepath.Join(logDir, stamp+".handback")
+	// A prompt piped to the caller is read here, before the run leaves the
+	// caller's stdin behind, and handed over in a private file the caller
+	// removes when it returns (R2, D1).
+	var spool string
+	if purpose == "task" && len(f.positional) == 1 && f.positional[0] == "-" || purpose == "resume" && f.promptFile == "-" {
+		prompt, err := readDelegatePrompt("-")
+		if err != nil {
+			return delegateFail(stdout, stderr, f.jsonOut, purpose, 2, err)
+		}
+		spool = filepath.Join(logDir, stamp+".prompt")
+		if err := posemodel.PublishFile(spool, []byte(prompt), 0o600, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAbsent}); err != nil {
+			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
+		}
+		defer os.Remove(spool)
+	}
 	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
@@ -181,6 +200,9 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 	}
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = nil, logFile, logFile
 	cmd.Env = append(os.Environ(), delegateHandback+"="+handback)
+	if spool != "" {
+		cmd.Env = append(cmd.Env, delegatePromptSpool+"="+spool)
+	}
 	detachProcess(cmd)
 	if err := cmd.Start(); err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)
@@ -237,17 +259,43 @@ wait:
 		}
 		return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, errors.New(tr("the detached run ended without handing back its attempt (an attempt it reserved is listed by pose delegate ls); its log ("+rel+") ends with:\n", "o run destacado terminou sem devolver a tentativa (uma tentativa que ele reservou aparece em pose delegate ls); o log ("+rel+") termina com:\n")+strings.TrimSpace(string(tail))))
 	}
+	records := ".pose/review-runs/"
+	if strings.HasPrefix(attempt, "tat-") {
+		// A task keeps its record apart from review runs (R1).
+		recorded := detachedTaskRecorded(root, attempt, f)
+		records = delegateTaskRecordPlace(recorded)
+		if dir, err := (posemodel.Store{Root: root}).DelegationTaskRecordDir(recorded); err == nil {
+			records = filepath.ToSlash(strings.TrimPrefix(dir, root+string(filepath.Separator))) + "/"
+		}
+	}
 	if f.jsonOut {
 		writeDelegateJSON(stdout, map[string]any{"schema": delegateDetachSchema, "attempt": attempt, "supervisor_pid": pid, "log": rel,
-			"marker": ".pose/review-private/active/" + attempt + ".json", "records": ".pose/review-runs/"})
+			"marker": ".pose/review-private/active/" + attempt + ".json", "records": records})
 		return 0
 	}
 	out := render(stdout, stderr)
 	out.Field("delegate.attempt", attempt)
 	out.Field("delegate.supervisor_pid", fmt.Sprint(pid))
 	out.Field("delegate.log", rel)
+	out.Field("delegate.record", records)
 	out.Field("delegate.next", "pose delegate wait "+attempt)
 	return 0
+}
+
+// detachedTaskRecorded tells whether a detached task's attempt records under
+// .pose: --record says so for a new task; a resume or handoff continues
+// where its attempt's first run recorded.
+func detachedTaskRecorded(root, attempt string, f delegateFlags) bool {
+	if f.record {
+		return true
+	}
+	runs, _ := posemodel.Store{Root: root}.ReadDelegationTaskRuns()
+	for _, run := range runs {
+		if run.AttemptID == attempt {
+			return run.Recorded
+		}
+	}
+	return false
 }
 
 // cmdDelegateWait blocks until the run is terminal (R2, R3, R8). While the

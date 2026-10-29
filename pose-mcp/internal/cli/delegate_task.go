@@ -21,15 +21,20 @@ import (
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
-const delegateTaskUsage = "pose delegate task <prompt-file|-> [--cd <dir>] [--agent auto|<name>] [--access read|sandboxed|write|full] [--add-dir <dir>]... [--effort <level>] [--no-network] [--record] [--label <name>] [--lead <vendor>] [--dry-run] [--json]"
+const delegateTaskUsage = "pose delegate task <prompt-file|-> [--cd <dir>] [--agent auto|<name>] [--access read|sandboxed|write|full] [--add-dir <dir>]... [--effort <level>] [--no-network] [--record] [--label <name>] [--lead <vendor>] [--detach] [--dry-run] [--json]"
 
 func cmdDelegateTask(root string, args []string, stdout, stderr io.Writer) int {
-	f, problem := parseDelegateFlags(args, "--cd", "--add-dir", "--effort", "--no-network", "--record")
+	f, problem := parseDelegateFlags(args, "--cd", "--add-dir", "--effort", "--no-network", "--record", "--detach")
 	if problem == "" && len(f.positional) != 1 {
 		problem = tr("name the prompt file, or - to read it from stdin", "nomeie o arquivo do prompt, ou - para lê-lo do stdin")
 	}
 	if problem != "" {
 		return delegateUsage(stdout, stderr, args, "task", problem+"\n"+tr("Usage: ", "Uso: ")+delegateTaskUsage)
+	}
+	// A detached task is this command run again in its own session, as a
+	// detached review is (spec pose-delegation-task-detach-and-state R1).
+	if f.detach && !f.dryRun && !delegateSupervised() {
+		return detachDelegateRun(root, "task", args, f, stdout, stderr)
 	}
 	prompt, err := readDelegatePrompt(f.positional[0])
 	if err != nil {
@@ -54,6 +59,12 @@ func cmdDelegateTask(root string, args []string, stdout, stderr io.Writer) int {
 		return delegateTaskFail(stdout, stderr, f.jsonOut, "task", err, route)
 	}
 	if !f.dryRun && route != nil && route.Step == posemodel.DelegationStepWait {
+		// A detached task hands its attempt back when it starts; one that
+		// would first wait for a reset has none to hand back (R3).
+		if delegateSupervised() {
+			return delegateFail(stdout, stderr, f.jsonOut, "task", 1, errors.New(tr("every agent is limited until "+route.WaitUntil+"; a detached run does not wait for a reset: run it without --detach, or after the reset",
+				"todos os agentes estão limitados até "+route.WaitUntil+"; um run destacado não espera um reset: rode sem --detach, ou depois do reset")))
+		}
 		if err := waitForRoute(ctx, stderr, route, agent); err != nil {
 			return delegateFail(stdout, stderr, f.jsonOut, "task", 1, err)
 		}
@@ -70,6 +81,15 @@ func cmdDelegateTask(root string, args []string, stdout, stderr io.Writer) int {
 func readDelegatePrompt(path string) (string, error) {
 	var raw []byte
 	var err error
+	if path == "-" && delegateSupervised() {
+		// A detached run never reads its caller's stdin: the caller read it
+		// and handed it over in a private file (R2).
+		spool := os.Getenv(delegatePromptSpool)
+		if spool == "" {
+			return "", errors.New(tr("a detached run reads no stdin: its caller hands the prompt over", "um run destacado não lê stdin: quem o chama entrega o prompt"))
+		}
+		path = spool
+	}
 	if path == "-" {
 		raw, err = io.ReadAll(io.LimitReader(delegateStdin, 1<<20+1))
 	} else {

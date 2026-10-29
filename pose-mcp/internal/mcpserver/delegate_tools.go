@@ -365,7 +365,7 @@ func (s *Server) dispatchDelegate(ctx context.Context, root, name string, args j
 		switch a.Purpose {
 		case "review", "adjudicate", "smoke":
 		case "task":
-			return nil, fmt.Errorf("%s: a task is not started over MCP: its prompt and access are the caller's, and pose delegate task does not run detached yet", name)
+			return nil, fmt.Errorf("%s: a task is not started over MCP: its prompt and its access are the caller's to choose; run pose delegate task --detach from the caller's terminal", name)
 		default:
 			return nil, fmt.Errorf("%s: purpose is review, adjudicate or smoke", name)
 		}

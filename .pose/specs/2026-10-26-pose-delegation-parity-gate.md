@@ -4,7 +4,7 @@ status: draft
 created_at: 2026-10-26
 completed_at:
 supersedes:
-depends_on: pose-delegation-task, pose-delegated-review-capability
+depends_on: pose-delegation-task, pose-delegated-review-capability, pose-delegation-task-detach-and-state
 priority: 3
 components: pose-mcp
 task_type: feature

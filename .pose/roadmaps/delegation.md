@@ -149,9 +149,11 @@ changes.
 - after: task, adoption
 - target_start:
 - target_due:
-- specs: pose-delegation-parity-gate
+- specs: pose-delegation-task-detach-and-state, pose-delegation-parity-gate
 
-**Exit gate:** the parity matrix maps every launcher capability listed in the
+**Exit gate:** `pose delegate task --detach` returns its attempt, a piped
+prompt included, and the task-state path refuses a link, a foreign owner or a
+writable directory where another user could swap it; the parity matrix maps every launcher capability listed in the
 ADR to a native command and a test; its check failed against a matrix with an
 uncovered row before passing; documentation, skills and help name only
 `pose delegate`; the launchers and the operational references to them are

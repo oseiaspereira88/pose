@@ -284,26 +284,89 @@ func (p DelegationTaskPlan) argv(output, session string) []string {
 	return ReviewerArgv(expanded, output, session, p.Effort, p.Config.Effort)
 }
 
-// taskStateDir is where the runs of a project live without --record: under
-// the user's state directory, one directory per project root (D1).
-func taskStateDir(root string) (string, error) {
-	base := os.Getenv("XDG_STATE_HOME")
-	if base == "" {
-		if runtime.GOOS == "windows" {
-			base = os.Getenv("LOCALAPPDATA")
-		} else if home, err := os.UserHomeDir(); err == nil {
-			base = filepath.Join(home, ".local", "state")
-		}
+// taskStateBase is the user's state directory: XDG_STATE_HOME when it is an
+// absolute path, as the XDG Base Directory specification requires, else the
+// platform default (spec pose-delegation-task-detach-and-state R5).
+func taskStateBase() (string, error) {
+	if base := os.Getenv("XDG_STATE_HOME"); filepath.IsAbs(base) {
+		return base, nil
 	}
-	if base == "" {
-		return "", fmt.Errorf("pose: no state directory: set XDG_STATE_HOME or HOME")
+	if runtime.GOOS == "windows" {
+		if base := os.Getenv("LOCALAPPDATA"); filepath.IsAbs(base) {
+			return base, nil
+		}
+	} else if home, err := os.UserHomeDir(); err == nil && filepath.IsAbs(home) {
+		return filepath.Join(home, ".local", "state"), nil
+	}
+	return "", fmt.Errorf("pose: no state directory: set XDG_STATE_HOME to an absolute path, or HOME")
+}
+
+// taskStateDir is where the runs of a project live without --record: under
+// the user's state directory, one directory per project root (D1). The base
+// is the person's own and may be reached through links; it is resolved once,
+// and it and every ancestor must be a directory no other user can rewrite
+// (R6). The directories POSE makes below it are real, owner-only and the
+// user's (R7).
+func taskStateDir(root string, create bool) (string, error) {
+	base, err := taskStateBase()
+	if err != nil {
+		return "", err
 	}
 	abs, err := filepath.Abs(root)
 	if err != nil {
 		return "", err
 	}
+	if create {
+		if err := os.MkdirAll(base, 0700); err != nil {
+			return "", err
+		}
+	}
+	resolved, err := filepath.EvalSymlinks(base)
+	if err != nil {
+		return "", err
+	}
+	for dir := resolved; ; dir = filepath.Dir(dir) {
+		info, err := os.Lstat(dir)
+		if err != nil {
+			return "", err
+		}
+		user, byRoot := stateDirOwner(info)
+		switch {
+		case !info.IsDir():
+			return "", fmt.Errorf("pose: the state directory %s is not a directory", dir)
+		case !user && !byRoot:
+			return "", fmt.Errorf("pose: the state directory %s belongs to another user; set XDG_STATE_HOME to a directory of yours", dir)
+		case stateDirWritableByOthers(info, true):
+			return "", fmt.Errorf("pose: another user can write %s, above the state directory; remove its group and other write permission, or set XDG_STATE_HOME to a private directory", dir)
+		}
+		if filepath.Dir(dir) == dir {
+			break
+		}
+	}
 	sum := sha256.Sum256([]byte(abs))
-	return filepath.Join(base, "pose", "delegate", hex.EncodeToString(sum[:])[:16]), nil
+	dir := resolved
+	for _, name := range []string{"pose", "delegate", hex.EncodeToString(sum[:])[:16]} {
+		dir = filepath.Join(dir, name)
+		if create {
+			if err := os.Mkdir(dir, 0700); err != nil && !errors.Is(err, os.ErrExist) {
+				return "", err
+			}
+		}
+		info, err := os.Lstat(dir)
+		if err != nil {
+			return "", err
+		}
+		user, _ := stateDirOwner(info)
+		switch {
+		case !info.IsDir(): // Lstat: a link is not a directory
+			return "", fmt.Errorf("pose: %s is not a private directory", dir)
+		case !user:
+			return "", fmt.Errorf("pose: %s belongs to another user", dir)
+		case stateDirWritableByOthers(info, false):
+			return "", fmt.Errorf("pose: another user can write %s; remove its group and other write permission", dir)
+		}
+	}
+	return dir, nil
 }
 
 // taskRunsDir is the directory a task's record goes to; it is created private
@@ -316,28 +379,24 @@ func (s Store) taskRunsDir(record, create bool) (string, error) {
 		}
 		return dir, err
 	}
-	dir, err := taskStateDir(s.Root)
+	dir, err := taskStateDir(s.Root, create)
 	if err != nil {
 		return "", err
 	}
-	if create {
-		if err := os.MkdirAll(dir, 0700); err != nil {
-			return "", err
-		}
-	}
-	info, err := os.Lstat(dir)
-	if err != nil {
+	if info, err := os.Lstat(dir); err != nil {
 		return "", err
-	}
-	if !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
-		return "", fmt.Errorf("pose: %s is not a private directory", dir)
-	}
-	if create && info.Mode().Perm() != 0700 {
+	} else if create && info.Mode().Perm() != 0700 {
 		if err := os.Chmod(dir, 0700); err != nil {
 			return "", err
 		}
 	}
 	return dir, nil
+}
+
+// DelegationTaskRecordDir is where a task records itself, --record or not;
+// nothing is created.
+func (s Store) DelegationTaskRecordDir(record bool) (string, error) {
+	return s.taskRunsDir(record, false)
 }
 
 // ReadDelegationTaskRuns reads the task runs of the project from both places
