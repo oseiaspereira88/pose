@@ -233,7 +233,10 @@ func detachDelegateRun(root, purpose string, args []string, f delegateFlags, std
 	cmd := exec.Command(self, child...)
 	cmd.Dir = wd
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = nil, logFile, logFile
-	cmd.Env = append(os.Environ(), delegateHandback+"="+handback, posemodel.DelegateRootEnv+"="+pinned)
+	// The variables that steer a detached run are this call's alone: none
+	// is inherited from the caller's environment (review round 6,
+	// F2F3-R6-01).
+	cmd.Env = append(withoutDelegateControl(os.Environ()), delegateHandback+"="+handback, posemodel.DelegateRootEnv+"="+pinned)
 	// The caller's spelling of the root still names the history an earlier
 	// engine kept under it; the run reads that history by it, and opens
 	// nothing through it (R11).
@@ -389,6 +392,20 @@ func delegateAttemptReserved(root, attempt string) bool {
 		}
 	}
 	return false
+}
+
+// withoutDelegateControl is env without the variables a detached call sets
+// for its run.
+func withoutDelegateControl(env []string) []string {
+	var kept []string
+	for _, kv := range env {
+		switch name, _, _ := strings.Cut(kv, "="); name {
+		case delegateHandback, delegatePromptPiped, posemodel.DelegateRootEnv, posemodel.DelegateLegacyRootEnv:
+		default:
+			kept = append(kept, kv)
+		}
+	}
+	return kept
 }
 
 // detachedTaskRecorded tells whether a detached task's attempt records under

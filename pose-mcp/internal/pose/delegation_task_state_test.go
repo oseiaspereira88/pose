@@ -208,6 +208,11 @@ func TestTaskHistoryKeyedByTheResolvedRootReadsTheLegacyKey(t *testing.T) {
 	if dirs, _ := legacyTaskStateDirs(root); len(dirs) != 1 {
 		t.Fatalf("the caller's spelling was not read: %v", dirs)
 	}
+	// Another project's root is not a spelling of this one.
+	DetachedCallerRoot = t.TempDir()
+	if dirs, _ := legacyTaskStateDirs(root); len(dirs) != 0 {
+		t.Fatalf("another project's history was read: %v", dirs)
+	}
 	DetachedCallerRoot = ""
 	abs, _ := filepath.Abs(link)
 	legacy, err := taskStateDirFor(abs, true)

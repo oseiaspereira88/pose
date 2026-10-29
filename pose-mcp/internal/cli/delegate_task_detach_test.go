@@ -494,3 +494,40 @@ func TestOnlyADetachedRunTakesItsCallersRootSpelling(t *testing.T) {
 		t.Fatalf("a detached run did not take its caller's spelling: %q", posemodel.DetachedCallerRoot)
 	}
 }
+
+// R4, R11 (review round 6, F2F3-R6-01): a legacy-root value inherited from
+// the caller's environment never reaches a detached run: another project's
+// task is refused detached as it is in the foreground.
+func TestDelegateTaskDetachIgnoresAnInheritedLegacyRoot(t *testing.T) {
+	other, _, prompt := taskInstance(t)
+	state := os.Getenv("XDG_STATE_HOME")
+	t.Setenv(posemodel.DelegateRootEnv, other)
+	if code, out := runBuilt(t, other, "delegate", "task", prompt, "--agent", "limited", "--label", "foreign"); code != 75 {
+		t.Fatalf("the other project's task: %d %s", code, out)
+	}
+	runs, _ := posemodel.Store{Root: other}.ReadDelegationTaskRuns()
+	if len(runs) != 1 {
+		t.Fatalf("runs: %v", runs)
+	}
+	foreign := runs[0].RunID
+	root, _, _ := taskInstance(t)
+	t.Setenv("XDG_STATE_HOME", state)
+	t.Setenv(posemodel.DelegateRootEnv, root)
+	t.Setenv(posemodel.DelegateLegacyRootEnv, other)
+	fgCode, fgOut := runBuilt(t, root, "delegate", "handoff", foreign, "--to", "worker", "--json")
+	code, out := runBuilt(t, root, "delegate", "handoff", foreign, "--to", "worker", "--detach", "--json")
+	if fgCode != 2 || code != fgCode || out != fgOut {
+		t.Fatalf("another project's task: foreground %d %q, detached %d %q", fgCode, fgOut, code, out)
+	}
+	if claims, _ := filepath.Glob(filepath.Join(filepath.Dir(runs[0].Path), "*.continued")); len(claims) != 0 {
+		t.Fatalf("another project's task was claimed: %v", claims)
+	}
+}
+
+// F2F3-R6-01: a detached run's control variables are never inherited.
+func TestADetachedRunInheritsNoControlVariable(t *testing.T) {
+	env := withoutDelegateControl([]string{"PATH=/bin", delegateHandback + "=x", delegatePromptPiped + "=1", posemodel.DelegateRootEnv + "=/a", posemodel.DelegateLegacyRootEnv + "=/b", "HOME=/h"})
+	if strings.Join(env, " ") != "PATH=/bin HOME=/h" {
+		t.Fatalf("inherited: %v", env)
+	}
+}

@@ -354,6 +354,11 @@ func legacyTaskStateDirs(root string) (dirs []string, errs []error) {
 		if spelling == "" || !filepath.IsAbs(spelling) || seen[spelling] {
 			continue
 		}
+		// A spelling counts only for this project: one that resolves to
+		// another root, or to nothing, names another history (F2F3-R6-01).
+		if same, err := filepath.EvalSymlinks(spelling); err != nil || same != resolved {
+			continue
+		}
 		seen[spelling] = true
 		dir, err := taskStateDirFor(filepath.Clean(spelling), false)
 		dirs, errs = append(dirs, dir), append(errs, err)
