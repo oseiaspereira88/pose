@@ -221,16 +221,40 @@ func TestRetainedChildFollowsItsVerification(t *testing.T) {
 func TestMilestoneSubjectRemovalHoldsForEveryMember(t *testing.T) {
 	// SR-R2-01: also when the member's commits are contained in the peer's,
 	// so that reduction keeps one set for both.
-	for _, c := range []struct {
+	// SR-R3-01: and whatever action the peer observed the path with.
+	type variant struct {
 		both     bool
 		id       string
 		subsumed bool
-	}{{false, "cs-a-peer", false}, {false, "cs-z-peer", false}, {true, "cs-a-peer", false}, {true, "cs-z-peer", false},
-		{false, "cs-a-peer", true}, {false, "cs-z-peer", true}, {true, "cs-a-peer", true}, {true, "cs-z-peer", true}} {
+		action   string
+		remover  bool
+		// backendOnly: the removal holds for backend, not for peer.
+		backendOnly bool
+	}
+	// The removing spec, a member too, observes the removal and owes none.
+	variants := []variant{{true, "cs-a-peer", false, "modified", true, false}, {true, "cs-z-peer", true, "created", true, false}}
+	for _, action := range []string{"modified", "created", "renamed"} {
+		for _, both := range []bool{false, true} {
+			for _, id := range []string{"cs-a-peer", "cs-z-peer"} {
+				for _, subsumed := range []bool{false, true} {
+					variants = append(variants, variant{both, id, subsumed, action, false, false})
+					if !both {
+						variants = append(variants, variant{false, id, subsumed, action, false, true})
+					}
+				}
+			}
+		}
+	}
+	for _, c := range variants {
 		both := c.both
 		root, store, _, _ := federatedTestMilestoneConsumer(t)
 		writeReviewFixture(t, root, ".pose/specs/peer/spec.md", "---\nslug: peer\nstatus: done\ncreated_at: 2026-08-13\ncomponents: api\n---\n\n# Spec: peer\n\n## 3. Technical Plan\n\n### Artifacts\n- modified: api/server.go\n")
-		writeReviewFixture(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\nconsumes: xref:source/roadmap:component\n---\n\n## Milestone: core\n- specs: backend, peer\n\n## Milestone: later\n- after: core\n- specs: pending\n")
+		members := "backend, peer"
+		if c.remover {
+			members = "backend, peer, later"
+			writeReviewFixture(t, root, ".pose/specs/later/spec.md", "---\nslug: later\nstatus: done\ncreated_at: 2026-08-13\ncomponents: api\n---\n\n# Spec: later\n\n## 3. Technical Plan\n\n### Artifacts\n- removed: api/server.go\n")
+		}
+		writeReviewFixture(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\nconsumes: xref:source/roadmap:component\n---\n\n## Milestone: core\n- specs: "+members+"\n\n## Milestone: later\n- after: core\n- specs: pending\n")
 		path := filepath.Join(root, ".pose", "indexes", "delivery-integrity.json")
 		raw, err := os.ReadFile(path)
 		if err != nil {
@@ -242,12 +266,24 @@ func TestMilestoneSubjectRemovalHoldsForEveryMember(t *testing.T) {
 		}
 		peerSet := graph.ChangeSets[0]
 		peerSet.ID, peerSet.Spec = c.id, "peer"
+		switch c.action {
+		case "created":
+			peerSet.Paths = []ObservedPath{{Action: "created", Path: "api/server.go"}}
+		case "renamed":
+			peerSet.Paths = []ObservedPath{{Action: "renamed", OldPath: "api/old.go", NewPath: "api/server.go"}}
+		}
 		if c.subsumed {
 			graph.ChangeSets[0].Commits = []string{"shared"}
 			peerSet.Commits = []string{"shared", "extra"}
 		}
 		graph.ChangeSets = append([]ChangeSet{peerSet}, graph.ChangeSets...)
+		if c.remover {
+			graph.ChangeSets = append(graph.ChangeSets, ChangeSet{ID: "cs-later", Spec: "later", Selector: "range:a..b", ResolvedBase: "a", ResolvedHead: "b", Paths: []ObservedPath{{Action: "removed", Path: "api/server.go"}}, DiffDigest: peerSet.DiffDigest})
+		}
 		removal := ArtifactRemoval{Spec: "later", Path: "api/server.go", Commit: "c1", Supersedes: map[string]string{"peer": "c1"}}
+		if c.backendOnly {
+			removal.Supersedes = map[string]string{"backend": "c1"}
+		}
 		if both {
 			removal.Supersedes["backend"] = "c1"
 		}
@@ -272,7 +308,7 @@ func TestMilestoneSubjectRemovalHoldsForEveryMember(t *testing.T) {
 			unreadable = unreadable || strings.HasPrefix(blocker, "review subject path api/server.go cannot be read")
 		}
 		if unreadable == both {
-			t.Fatalf("removal for every member %v, peer set %s, subsumed %v: unreadable %v; blockers %v; change sets %v", both, c.id, c.subsumed, unreadable, bundle.Blockers, bundle.Payload.Subject.ChangeSets)
+			t.Fatalf("removal for every member %v (backend only %v), peer set %s, subsumed %v, peer %s: unreadable %v; blockers %v; change sets %v", both, c.backendOnly, c.id, c.subsumed, c.action, unreadable, bundle.Blockers, bundle.Payload.Subject.ChangeSets)
 		}
 	}
 }

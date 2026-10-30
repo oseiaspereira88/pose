@@ -704,14 +704,22 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 			sets = append(sets, set)
 		}
 	}
-	// Every selected spec that observes an entry, read before reduction drops
-	// a set whose commits another contains: the entry is kept once, but a
-	// removal must hold for all of them (SR-R1-02, SR-R2-01).
+	// Every selected spec that observes a path the subject reads — whatever
+	// its action, and read before reduction drops a set whose commits
+	// another contains: an entry is kept once, but a removal must hold for
+	// all of them (SR-R1-02, SR-R2-01, SR-R3-01). The removing spec's own
+	// observation asks nothing of it.
 	observers := map[string][]string{}
 	for _, set := range sets {
 		for _, observed := range set.Paths {
-			key := observedKey(observed)
-			observers[key] = append(observers[key], set.Spec)
+			if observed.Action == "removed" {
+				continue
+			}
+			path := observed.Path
+			if observed.Action == "renamed" {
+				path = observed.NewPath
+			}
+			observers[path] = append(observers[path], set.Spec)
 		}
 	}
 	sets = reduceReviewBundleChangeSets(sets)
@@ -818,7 +826,7 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 					// pinned to. There is no file to read: the path is a directory
 					// in the working tree and a gitlink in the index.
 					entry.Digest = digestBytes([]byte(gitlinkSHA))
-				} else if digest, err := s.reviewBundleFileDigest(path, set, graph, observers[key]); err != nil {
+				} else if digest, err := s.reviewBundleFileDigest(path, set, graph, observers[path]); err != nil {
 					blockers = append(blockers, err.Error())
 				} else {
 					entry.Digest = digest
