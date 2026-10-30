@@ -1,8 +1,8 @@
 # Project Assessment: pose-delegation-roadmaps
 
 > **Gerado por**: POSE Discovery Engine (`pose assess discover`)
-> **Data de Avaliação**: 2026-10-30T21:27:57Z
-> **Baseline Commit**: dd5edd4cd2c3
+> **Data de Avaliação**: 2026-10-30T22:29:24Z
+> **Baseline Commit**: fe2856bd3af0
 
 ---
 
@@ -15,7 +15,7 @@
 - **Total de Arquivos Auditados**: 758
 - **Completude Dinâmica da Plataforma**: 0.0%
 - **Dívidas Técnicas em Aberto**: 1 TODOs | 0 FIXMEs | 0 Panics | 0 Stubs
-- **Especificações (Specs) em Aberto**: 39
+- **Especificações (Specs) em Aberto**: 38
 - **Gaps de Integração Identificados**: 64
 
 ---

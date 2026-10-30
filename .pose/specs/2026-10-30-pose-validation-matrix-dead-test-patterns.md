@@ -1,6 +1,6 @@
 ---
 slug: pose-validation-matrix-dead-test-patterns
-status: in-progress
+status: done
 created_at: 2026-10-30
 supersedes:
 depends_on:
@@ -9,6 +9,7 @@ priority: 2
 components: pose-mcp
 task_type: bugfix
 delivers: capability:validation-matrix-run-patterns
+completed_at: 2026-10-30
 ---
 
 # Spec: No validation check names a test that does not exist

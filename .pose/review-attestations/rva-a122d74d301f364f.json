@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-a122d74d301f364f",
+  "bundle_id": "rvb-fc64f595f3fe5b4c",
+  "bundle_digest": "sha256:fc64f595f3fe5b4c26f6d8047242fc4ec12fda68ee3b359fc438fbe75c1836dc",
+  "reviewer": "agent:independent-dead-patterns-sol-r8-20261030",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Approval carries the rounds 5-8 convergence contract: source declarations in go/build default context, narrow modeled flags and plain-alternation or exact listed exemptions; other inputs are refused. Runtime skips, short-mode decisions, TestMain flow, dynamic subtests and inherited operator environment remain excluded. Draft pose-validate-shared-go-test-run R3 covers future runtime enforcement; it is not delivered here. Supplied final-head validation was inspected, not independently replayed. Baseline Git-fixture isolation remains open F1, not a new patch defect. Re-attestation delta 06c0103a..fe2856bd adds only the accurate capability:validation-matrix-run-patterns composed-capability declaration for module pose-mcp through cmd/pose/main.go and a required integration-class matrix check selecting exactly the two existing guard tests. No implementation change. Independently rebuilt CLI and reran that exact command: both guard tests pass. Supplied current report at fe2856bd has 163 executed/passed, zero failures/errors/skips, provenance sha256:70d5cdd87a01bd3b51d8680ecb47d1052766240d6b785452e150e69abad2cf48; its persisted mode is tolerant, although the supplied execution summary says strict. No fresh full-matrix replay or independent strict invocation claimed. Reviewer continuity disclosure: this is the same Codex reviewer who wrote rounds 1–8 and attestation rva-05fe6a4794244877 under agent:codex-independent-reviewer. The principal agent:independent-dead-patterns-sol-r8-20261030 is used for this retry to match the sealed plan; it does not denote a new reviewer or independently authenticated identity. Prior technical conclusions and limitations are carried forward."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Test-only source discovery and matrix cleanup introduce no production concurrent state, cancellation or lifecycle changes. Sealed module unit evidence passes; prior synthetic race-tag probes test selection, not production race safety. No fresh application race run claimed. Prior attestation conclusions carried forward; no implementation change in the re-attestation delta."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus",
+      "rationale": "No public CLI, MCP, REST, event or results schema changed. Four matrix checks retain their selected package-qualified test sets, 52/9/17/3, independently compared through round 8. Sealed integration evidence passes. Prior attestation conclusions carried forward; no implementation change in the re-attestation delta."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Eight-round differential probes resolved flag spelling, runnable identity, build context, final values, module boundaries, tag/env refusals and count syntax/range/sign. Round 8 reran 203 differential cases and assertion-sensitive sign/negative-zero mutants. Unsupported grammar is refused rather than silently skipped; this does not prove arbitrary Go source/build/link validity. Prior attestation conclusions carried forward; no implementation change in the re-attestation delta."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus",
+      "rationale": "The four altered checks preserve selected test identities and other execution arguments. No provider/consumer contract changes. Current sealed integration results pass, including review-bundle-convergence and material-reuse-integration; historical external-TMPDIR failures remain baseline fixture debt F1. Prior attestation conclusions carried forward; no implementation change in the re-attestation delta."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Dead-alternative and refused-input diagnostics identify module/check and reason; failing-first restoration names all five original alternatives in round 8. No new production logs, metrics or sensitive diagnostic surface. Sealed unit evidence passes. Prior attestation conclusions carried forward; no implementation change in the re-attestation delta."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Five dead alternatives removed without lost or gained selected names: review-bundle 52, transfer-negative 9, material-reuse 17, atomic-start 3. Public interfaces and dependencies remain unchanged. Final delta 5d2e5d87..dd5edd4c changes only spec bookkeeping, trace and follow-ups; no new code. Prior attestation conclusions carried forward; no implementation change in the re-attestation delta."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Round 8 approved after R7-B1 correction. Saved review evidence records 203 differential executions, original bypass/source probes, five-name failing-first restoration, equal old/new selection sets, focused tests and vet. Earlier-negative and negative-zero mutants fail discriminating assertions. Current sealed unit/integration checks pass. This attestation reads the saved evidence and does not claim a fresh independent test replay. Re-attestation delta 06c0103a..fe2856bd adds only the accurate capability:validation-matrix-run-patterns composed-capability declaration for module pose-mcp through cmd/pose/main.go and a required integration-class matrix check selecting exactly the two existing guard tests. No implementation change. Independently rebuilt CLI and reran that exact command: both guard tests pass. Supplied current report at fe2856bd has 163 executed/passed, zero failures/errors/skips, provenance sha256:70d5cdd87a01bd3b51d8680ecb47d1052766240d6b785452e150e69abad2cf48; its persisted mode is tolerant, although the supplied execution summary says strict. No fresh full-matrix replay or independent strict invocation claimed."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus",
+      "rationale": "The cause is Go returning success when a run alternative matches no selected test. Remove five dead alternatives and test each plain alternative against eligible declarations, using go/build plus Go naming/signature/example rules. Conservatively refuse unmodeled flags, environment and package contexts instead of inventing broader execution semantics. Sealed structural observation SD-a95cd5e0 identifies validation-matrix delivery-metadata change, not behavioral proof. Cheapest known bypasses were equals spelling, excluded files, build-context mismatch and final zero count; run-pattern-names-no-test corpus plus independent differential/mutation evidence exercise these boundaries. Re-attestation delta 06c0103a..fe2856bd adds only the accurate capability:validation-matrix-run-patterns composed-capability declaration for module pose-mcp through cmd/pose/main.go and a required integration-class matrix check selecting exactly the two existing guard tests. No implementation change. Independently rebuilt CLI and reran that exact command: both guard tests pass. Supplied current report at fe2856bd has 163 executed/passed, zero failures/errors/skips, provenance sha256:70d5cdd87a01bd3b51d8680ecb47d1052766240d6b785452e150e69abad2cf48; its persisted mode is tolerant, although the supplied execution summary says strict. No fresh full-matrix replay or independent strict invocation claimed.",
+      "mappings": [
+        {
+          "delta": "SD-a95cd5e0",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "R1 removes only five alternatives selecting no tests; R2-R3 add bounded declaration eligibility and fail-closed refusal. Old/new sets 52/9/17/3 are identical; round-8 failing-first and differential probes establish behavioral relevance beyond the structural observation."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed entire 5d2e5d87..HEAD delta: tasks checked, R1-R3 satisfied trace to guard tests/report/reviewed code commit, final report and F1-F2 dispositions agree with bounded round-8 approval. Wording about what run executes is read as declaration eligibility, subject to explicit residual runtime exclusions. Shared-run remains draft. Checked closeout task does not itself establish lifecycle completion: status remains in-progress and no close is performed. Re-attestation delta 06c0103a..fe2856bd adds only the accurate capability:validation-matrix-run-patterns composed-capability declaration for module pose-mcp through cmd/pose/main.go and a required integration-class matrix check selecting exactly the two existing guard tests. No implementation change. Independently rebuilt CLI and reran that exact command: both guard tests pass. Supplied current report at fe2856bd has 163 executed/passed, zero failures/errors/skips, provenance sha256:70d5cdd87a01bd3b51d8680ecb47d1052766240d6b785452e150e69abad2cf48; its persisted mode is tolerant, although the supplied execution summary says strict. No fresh full-matrix replay or independent strict invocation claimed."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Refusal and missing-name diagnostics are actionable and preserve source-only operation without a Go subprocess. F1 remains open for componentReviewFixture/reviewBundleFixture to initialize Git, owner @oseiaspereira88, medium, review 2026-11-13; round 2 verified missing repository, not sandbox denial. Fresh strict supplied final-head evidence satisfies historical F4 validation obligation without resolving that fixture debt. F2 is covered by draft shared-run R3; runtime enforcement remains future work. Prior attestation conclusions carried forward; no implementation change in the re-attestation delta."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 selection equivalence 52/9/17/3 and R2 failing-first five-name restoration were independently established through round 8. R2/R3 supported discovery and conservative refusal were exercised across eight rounds. Inspected supplied strict delivery-validation at dd5edd4cd2c374df7f3a2b2786b1db762717ea46: pass, 162 executed/passed, zero failed/optional_failed/errored/skipped; provenance sha256:a1c1fe0bc12a4b488301f7d9de2b124be14b26a28e8172ab3465cfaa83f338f4. No fresh matrix replay claimed. Re-attestation delta 06c0103a..fe2856bd adds only the accurate capability:validation-matrix-run-patterns composed-capability declaration for module pose-mcp through cmd/pose/main.go and a required integration-class matrix check selecting exactly the two existing guard tests. No implementation change. Independently rebuilt CLI and reran that exact command: both guard tests pass. Supplied current report at fe2856bd has 163 executed/passed, zero failures/errors/skips, provenance sha256:70d5cdd87a01bd3b51d8680ecb47d1052766240d6b785452e150e69abad2cf48; its persisted mode is tolerant, although the supplied execution summary says strict. No fresh full-matrix replay or independent strict invocation claimed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed eight-round implementation approval and final spec-only delta. Scope remains five matrix alternatives, source declaration guard and regression/corpus documentation; no unrelated production refactor or dependency change. Runtime enforcement belongs to shared-run spec. This operation records native attestation and verification only. Re-attestation delta 06c0103a..fe2856bd adds only the accurate capability:validation-matrix-run-patterns composed-capability declaration for module pose-mcp through cmd/pose/main.go and a required integration-class matrix check selecting exactly the two existing guard tests. No implementation change. Independently rebuilt CLI and reran that exact command: both guard tests pass. Supplied current report at fe2856bd has 163 executed/passed, zero failures/errors/skips, provenance sha256:70d5cdd87a01bd3b51d8680ecb47d1052766240d6b785452e150e69abad2cf48; its persisted mode is tolerant, although the supplied execution summary says strict. No fresh full-matrix replay or independent strict invocation claimed."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus",
+      "rationale": "Input/path containment, module boundaries and matrix-owned Go/CGO build-environment refusals were tested in prior rounds; excluded or unrelated declarations cannot stand for selected package evidence in the reviewed cases. No new production authorization, dependency or secret boundary identified. No fresh vulnerability/secret scanner claimed. Identity assurance is declared; unknown implementation vendor is retained, not invented or cryptographically authenticated. Prior attestation conclusions carried forward; no implementation change in the re-attestation delta."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "A source-only test and removal of five inert alternatives are sufficient for the stated bounded guard; direct matching across every file was smaller but failed eligibility probes. Go subprocess execution or a generalized runtime engine would exceed this spec and is delegated to shared-run. No new framework, dependency or speculative production abstraction. Revisit this choice if arbitrary runtime environment, regex/subtests or execution success is claimed; refusals and explicit exclusions currently bound it. Re-attestation delta 06c0103a..fe2856bd adds only the accurate capability:validation-matrix-run-patterns composed-capability declaration for module pose-mcp through cmd/pose/main.go and a required integration-class matrix check selecting exactly the two existing guard tests. No implementation change. Independently rebuilt CLI and reran that exact command: both guard tests pass. Supplied current report at fe2856bd has 163 executed/passed, zero failures/errors/skips, provenance sha256:70d5cdd87a01bd3b51d8680ecb47d1052766240d6b785452e150e69abad2cf48; its persisted mode is tolerant, although the supplied execution summary says strict. No fresh full-matrix replay or independent strict invocation claimed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Round-8 artifact reconciliation exit 0, ten attributed commits through 5d2e5d87; current sealed range has eleven attributed commits through dd5edd4c. Final delta inspected. Attribution exists despite old preparation diagnostics; no fresh artifact-check run claimed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-98981719922dc873",
+      "rationale": "Inspected current sealed structural observation SD-a95cd5e0 and mapped it explicitly to R1-R3. Prior rounds skipped design for narrow test change; no fresh assess-design execution claimed."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Prior independent rounds skipped discovery for narrow parser/test correction. Direct source review and differential probes answer selected declaration eligibility; no completeness/state refresh claimed."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "No public inter-module contract changed; prior rounds skipped assessment. Current sealed integration checks pass; no assessment of every consumer claimed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed in round-8 disposable copy: one covered marker, zero uncovered; explicitly INCOMPLETE for two invalid legacy spec sources. No complete census or fresh scan claimed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate remains with closeout owner. Authorized task attests and verifies only, without lifecycle close."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate follows native attestation; read-only check will follow verify."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Round-8 selection executed. Applied backend-go for selection/flags/tests, security for input/evidence boundaries, documentation-style and delivery-evidence for bounded claims, knowledge-governance for follow-ups. Frontend/infrastructure not applicable."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Inspected current sealed report at fe2856bd: 163/163 pass, no failures/errors/skips; persisted mode tolerant, supplied summary says strict; no independent full matrix replay. Independently rebuilt CLI and ran exact new guard integration command, both tests pass. Historical conclusions and F1/F2 retained."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus",
+      "rationale": "Inspected current sealed report at fe2856bd: 163/163 pass, no failures/errors/skips; persisted mode tolerant, supplied summary says strict; no independent full matrix replay. Independently rebuilt CLI and ran exact new guard integration command, both tests pass. Historical conclusions and F1/F2 retained."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/validation-matrix-run-patterns-integration",
+      "rationale": "Current sealed integration check directly exercises the delivered guard and its adversarial selection behavior; delivery target is the existing production validation matrix consumed through pose-mcp/cmd/pose/main.go. Independent strict surface-check exited 0: one target, 163 results, zero findings."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/adversarial-corpus",
+    "integration:pose-mcp/go/material-reuse-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "integration:pose-mcp/go/validation-matrix-run-patterns-integration",
+    "structure:design-98981719922dc873",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "r1-b1",
+      "severity": "medium",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Recognize equals/split run flags and refuse unmodeled/stack bypasses; round-2 resolution retained through round 8",
+      "disposition": "resolved"
+    },
+    {
+      "id": "r1-b2",
+      "severity": "medium",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Use eligible Go files/packages and prune nested/vendor/ignored roots; round-2 resolution retained",
+      "disposition": "resolved"
+    },
+    {
+      "id": "r2-b1",
+      "severity": "medium",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Compose effective race build context and refuse matrix Go build environment; resolved round 3 and hardened through round 5",
+      "disposition": "resolved"
+    },
+    {
+      "id": "r2-b2",
+      "severity": "medium",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Mirror runnable function signatures and use go/doc example identity; resolved round 3",
+      "disposition": "resolved"
+    },
+    {
+      "id": "r2-b3",
+      "severity": "medium",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Enforce relative package containment and module boundaries; resolved round 3",
+      "disposition": "resolved"
+    },
+    {
+      "id": "r3-b1",
+      "severity": "medium",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Honor final tag/race values with Go boolean syntax and composition; resolved round 4",
+      "disposition": "resolved"
+    },
+    {
+      "id": "r4-b1",
+      "severity": "medium",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Refuse quoted/space tag values outside narrow grammar; regression-sensitive resolution round 5",
+      "disposition": "resolved"
+    },
+    {
+      "id": "r4-b2",
+      "severity": "medium",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Refuse GO/CGO_ matrix build environment including architecture features; regression-sensitive resolution round 5",
+      "disposition": "resolved"
+    },
+    {
+      "id": "r5-b1",
+      "severity": "medium",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Refuse final zero/nonpositive-decimal counts; regression-sensitive resolution round 6",
+      "disposition": "resolved"
+    },
+    {
+      "id": "r6-b1",
+      "severity": "medium",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Parse every count occurrence with native integer syntax/range; resolved round 7, command-error mismatch rather than silent-green",
+      "disposition": "resolved"
+    },
+    {
+      "id": "r7-b1",
+      "severity": "medium",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Refuse every parsed negative count while preserving negative zero; resolved round 8 with discriminating mutants",
+      "disposition": "resolved"
+    },
+    {
+      "id": "r5-f6",
+      "severity": "low",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Validate timeout and count values, including earlier occurrences; resolved across rounds 6-8",
+      "disposition": "resolved"
+    },
+    {
+      "id": "r5-f7",
+      "severity": "low",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Refuse explicit/recursive excluded roots; resolved round 6",
+      "disposition": "resolved"
+    },
+    {
+      "id": "historical-f4-validation",
+      "severity": "medium",
+      "evidence": "unit:pose-mcp/go/test",
+      "action": "Inspect fresh final-head strict report: dd5edd4c pass 162/162; validation obligation resolved, baseline Git-fixture isolation remains open spec F1",
+      "disposition": "resolved"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-dead-patterns-sol-r8-20261030",
+    "concluded_by": "agent:independent-dead-patterns-sol-r8-20261030",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-10-30T22:27:18Z",
+  "path": ".pose/review-attestations/rva-a122d74d301f364f.json"
+}
