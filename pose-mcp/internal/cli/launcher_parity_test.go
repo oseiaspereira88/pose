@@ -522,7 +522,9 @@ func goListedFiles(t *testing.T, dir string, target parityBuildTarget) map[strin
 	if target.cgo {
 		cgo = "1"
 	}
-	cmd.Env = append(os.Environ(), "GOOS="+target.goos, "GOARCH="+target.goarch, "CGO_ENABLED="+cgo)
+	// A workspace file could leave the module out; the module is read alone
+	// (review round 8, PG-R8-02).
+	cmd.Env = append(os.Environ(), "GOOS="+target.goos, "GOARCH="+target.goarch, "CGO_ENABLED="+cgo, "GOWORK=off")
 	out, err := cmd.Output()
 	if err != nil {
 		t.Fatalf("go list in %s for %+v: %v", dir, target, err)
@@ -533,12 +535,24 @@ func goListedFiles(t *testing.T, dir string, target parityBuildTarget) map[strin
 		var pkg struct {
 			Dir               string
 			GoFiles, CgoFiles []string
+			InvalidGoFiles    []string
+			Error             *struct{ Err string }
 		}
 		if err := dec.Decode(&pkg); err != nil {
 			if err == io.EOF {
 				break
 			}
 			t.Fatal(err)
+		}
+		// A file go list cannot even classify — a malformed build constraint,
+		// a package it cannot list — is not read, so it is refused rather than
+		// skipped (PG-R8-02); a missing dependency is not such an error.
+		if len(pkg.InvalidGoFiles) > 0 && len(pkg.GoFiles)+len(pkg.CgoFiles) == 0 || pkg.Dir == "" && pkg.Error != nil {
+			msg := ""
+			if pkg.Error != nil {
+				msg = pkg.Error.Err
+			}
+			t.Fatalf("go list in %s for %+v could not read %s %v: %s", dir, target, pkg.Dir, pkg.InvalidGoFiles, msg)
 		}
 		for _, name := range append(pkg.GoFiles, pkg.CgoFiles...) {
 			files[pkg.Dir] = append(files[pkg.Dir], filepath.Join(pkg.Dir, name))
@@ -614,9 +628,18 @@ func moduleStringValues(t *testing.T, dir string) map[string][]string {
 // removal note: usage strings, errors, MCP tool descriptions (PG-R1-04).
 func sourceStringProblems(t *testing.T, root, dir string) []string {
 	t.Helper()
+	// go list names files by absolute path; the root is made absolute too, so
+	// a finding keeps its file (review round 8, PG-R8-03).
+	root, err := filepath.Abs(root)
+	if err != nil {
+		t.Fatal(err)
+	}
 	var problems []string
 	for path, values := range moduleStringValues(t, filepath.Join(root, dir)) {
-		rel, _ := filepath.Rel(root, path)
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			t.Fatal(err)
+		}
 		for _, value := range values {
 			problems = append(problems, replacedNameProblems(filepath.ToSlash(rel), value)...)
 		}
@@ -839,7 +862,7 @@ func init() {
 
 // PG-R6-01: the reader reads every configuration the release builds, and
 // without cgo as the release builds it.
-func TestTheActiveDocumentReaderFollowsTheReleaseMatrix(t *testing.T) {
+func TestActiveDocumentReaderFollowsTheReleaseMatrix(t *testing.T) {
 	targets := parityBuildTargets(t)
 	seen := map[string]bool{}
 	for _, target := range targets {
@@ -854,7 +877,7 @@ func TestTheActiveDocumentReaderFollowsTheReleaseMatrix(t *testing.T) {
 
 // PG-R7-03: the release definition is read build by build; a tuple added in
 // a new build is read, and a construct that changes what builds is refused.
-func TestTheReleaseDefinitionIsReadBuildByBuild(t *testing.T) {
+func TestLauncherParityReadsTheReleaseDefinitionBuildByBuild(t *testing.T) {
 	yaml := "builds:\n  - id: a\n    env: [CGO_ENABLED=0]\n    goos: [linux]\n    goarch: [amd64, arm64]\n  - id: b\n    goos: [freebsd]\n    goarch: [amd64]\n\narchives:\n  - id: x\n"
 	targets, err := releaseBuildTargets(yaml)
 	if got := fmt.Sprint(targets); err != nil || got != "[{linux amd64 false} {linux arm64 false} {freebsd amd64 true}]" {
@@ -864,5 +887,24 @@ func TestTheReleaseDefinitionIsReadBuildByBuild(t *testing.T) {
 		if _, err := releaseBuildTargets(strings.Replace(yaml, "  - id: b\n", "  - id: b\n"+refused, 1)); err == nil {
 			t.Fatalf("the reader accepted %q", refused)
 		}
+	}
+}
+
+// PG-R8-03: through the relative root the gate itself uses, a finding names
+// its file.
+func TestActiveDocumentSourceFindingsNameTheirFile(t *testing.T) {
+	root := t.TempDir()
+	mustWrite(t, filepath.Join(root, "pose-mcp/go.mod"), "module example\n\ngo 1.22\n")
+	mustWrite(t, filepath.Join(root, "pose-mcp/internal/cli/u.go"), "package cli\n\nconst u = \"pose review dispatch spec:x\"\n")
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	rel, err := filepath.Rel(wd, root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if problems := sourceStringProblems(t, rel, "pose-mcp"); len(problems) != 1 || !strings.HasPrefix(problems[0], "pose-mcp/internal/cli/u.go:") {
+		t.Fatalf("a finding through a relative root: %v", problems)
 	}
 }
