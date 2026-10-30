@@ -403,6 +403,15 @@ func (g *goStringFolder) mark(e ast.Expr) {
 	}
 }
 
+func importsC(f *ast.File) bool {
+	for _, spec := range f.Imports {
+		if spec.Path.Value == `"C"` {
+			return true
+		}
+	}
+	return false
+}
+
 // noImports lets a package be type-checked alone: what comes from another
 // package has no constant value, so it stays a gap.
 type noImports struct{}
@@ -411,11 +420,47 @@ func (noImports) Import(path string) (*types.Package, error) {
 	return nil, fmt.Errorf("not imported: %s", path)
 }
 
-// parityBuildTargets are the configurations the distribution ships; a
-// package is read once per configuration, with the files Go would build for
-// it, so declarations of mutually exclusive files never meet in one check
-// (review round 5, PG-R5-01).
-var parityBuildTargets = []string{"linux", "darwin", "windows"}
+// parityBuildTarget is one configuration a package is read under.
+type parityBuildTarget struct {
+	goos, goarch string
+	cgo          bool
+}
+
+// parityBuildTargets are the configurations the distribution ships, read
+// from the release definition so they cannot drift from it — every goos and
+// goarch of .goreleaser.yaml with its CGO_ENABLED (review round 6,
+// PG-R6-01) — and, for development, each goos on amd64 with cgo. A package
+// is read once per configuration, with the files Go would build for it, so
+// declarations of mutually exclusive files never meet in one check (review
+// round 5, PG-R5-01). Other operating systems, architectures and custom tags
+// are not shipped and not read.
+func parityBuildTargets(t *testing.T) []parityBuildTarget {
+	t.Helper()
+	raw, err := os.ReadFile("../../../.goreleaser.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	list := func(key string) []string {
+		m := regexp.MustCompile(`(?m)^\s*` + key + `:\s*\[([^\]]*)\]`).FindSubmatch(raw)
+		if m == nil {
+			t.Fatalf(".goreleaser.yaml declares no %s list", key)
+		}
+		var out []string
+		for _, v := range strings.Split(string(m[1]), ",") {
+			out = append(out, strings.TrimSpace(v))
+		}
+		return out
+	}
+	cgo := !regexp.MustCompile(`CGO_ENABLED=0`).Match(raw)
+	var targets []parityBuildTarget
+	for _, goos := range list("goos") {
+		for _, goarch := range list("goarch") {
+			targets = append(targets, parityBuildTarget{goos, goarch, cgo})
+		}
+		targets = append(targets, parityBuildTarget{goos, "amd64", true})
+	}
+	return targets
+}
 
 // goPackageStringValues are the string values of the Go files of one
 // package directory, by the position of the expression that holds them: for
@@ -427,9 +472,9 @@ var parityBuildTargets = []string{"linux", "darwin", "windows"}
 func goPackageStringValues(t *testing.T, dir string, names []string) map[string][]string {
 	t.Helper()
 	byPosition := map[string]map[string]bool{}
-	for _, goos := range parityBuildTargets {
+	for _, target := range parityBuildTargets(t) {
 		ctx := build.Default
-		ctx.GOOS, ctx.GOARCH, ctx.CgoEnabled = goos, "amd64", true
+		ctx.GOOS, ctx.GOARCH, ctx.CgoEnabled = target.goos, target.goarch, target.cgo
 		fset := token.NewFileSet()
 		var parsed []*ast.File
 		for _, name := range names {
@@ -441,6 +486,11 @@ func goPackageStringValues(t *testing.T, dir string, names []string) map[string]
 			f, err := parser.ParseFile(fset, filepath.Join(dir, name), nil, 0)
 			if err != nil {
 				t.Fatalf("%s: %v", filepath.Join(dir, name), err)
+			}
+			// Without cgo, Go leaves out a file that imports "C", which
+			// MatchFile does not judge.
+			if !target.cgo && importsC(f) {
+				continue
 			}
 			parsed = append(parsed, f)
 		}
@@ -583,7 +633,13 @@ func TestActiveDocumentCheckFailsOnAReplacedCommand(t *testing.T) {
 	write("pose-mcp/internal/cli/y.go", "package cli\n\nconst r3Usage = \"Run pose review \" + r3Verb + \" spec:c\"\n")
 	write("pose-mcp/internal/cli/w_unix.go", "//go:build !windows\n\npackage cli\n\nconst r5Suffix = \" spec:r5\"\nconst r5Verb = \"dispatch\"\n")
 	write("pose-mcp/internal/cli/w_windows.go", "package cli\n\nconst r5Suffix = \", resume and status were removed\"\nconst r5Verb = \"bundle\"\n")
-	write("pose-mcp/internal/cli/w.go", "package cli\n\nconst r5Usage = \"pose review dispatch\" + r5Suffix\nconst r5Split = \"pose review \" + r5Verb + \" spec:s\"\n")
+	write("pose-mcp/internal/cli/w.go", "package cli\n\nconst r5BuildUsage = \"pose review dispatch\" + r5Suffix\nconst r5Split = \"pose review \" + r5Verb + \" spec:s\"\n")
+	// A literal in a file only the arm64 release builds, and one only a build
+	// without cgo — the release's — builds (review round 6, PG-R6-01).
+	write("pose-mcp/internal/cli/q_arm64.go", "package cli\n\nconst r7Arm = \"pose review dispatch spec:arm64\"\n")
+	write("pose-mcp/internal/cli/q_nocgo.go", "//go:build !cgo\n\npackage cli\n\nconst r7Suffix = \" spec:nocgo\"\n")
+	write("pose-mcp/internal/cli/q_cgo.go", "//go:build cgo\n\npackage cli\n\nconst r7Suffix = \", resume and status were removed\"\n")
+	write("pose-mcp/internal/cli/q.go", "package cli\n\nconst r7Usage = \"pose review dispatch\" + r7Suffix\n")
 	// The same, its Windows file first in name order.
 	write("pose-mcp/internal/cli/u_windows.go", "package cli\n\nconst r6Suffix = \", resume and status were removed\"\n")
 	write("pose-mcp/internal/cli/v_unix.go", "//go:build !windows\n\npackage cli\n\nconst r6Suffix = \" spec:r6\"\n")
@@ -600,18 +656,20 @@ func TestActiveDocumentCheckFailsOnAReplacedCommand(t *testing.T) {
 		"docs-site/docs/guide.mdx:1: Start it with secondary-agent --read-only prompt.md",
 		".pose/rules: stat " + filepath.Join(root, ".pose", "rules") + ": no such file or directory",
 		"pose-mcp/internal/cli/x.go:1: Usage: pose review dispatch <scope>",
-		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:x", // the escaped literal
-		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:x", // the folded concatenation
-		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:a", // a call inside a partial fold
-		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:b", // a function inside a partial fold
-		"pose-mcp/internal/cli/y.go:1: Run pose review dispatch spec:c", // a constant of another file
-		"pose-mcp/internal/cli/z.go:1: pose review dispatch\x00",        // a shadowed suffix is a gap, not a removal note
-		"pose-mcp/internal/cli/z.go:1: pose review dispatch spec:d",     // a chain of constants
-		"pose-mcp/internal/cli/z.go:1: pose review dispatch spec:e",     // an omitted value in a const group
-		"pose-mcp/internal/cli/z.go:1: pose review dispatch spec:f",     // a local constant
-		"pose-mcp/internal/cli/w.go:1: pose review dispatch spec:r5",    // a suffix of the build that ships it, not of another
-		"pose-mcp/internal/cli/w.go:1: pose review dispatch spec:s",     // a verb of one build
-		"pose-mcp/internal/cli/v.go:1: pose review dispatch spec:r6",    // whichever build file sorts first
+		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:x",       // the escaped literal
+		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:x",       // the folded concatenation
+		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:a",       // a call inside a partial fold
+		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:b",       // a function inside a partial fold
+		"pose-mcp/internal/cli/y.go:1: Run pose review dispatch spec:c",       // a constant of another file
+		"pose-mcp/internal/cli/z.go:1: pose review dispatch\x00",              // a shadowed suffix is a gap, not a removal note
+		"pose-mcp/internal/cli/z.go:1: pose review dispatch spec:d",           // a chain of constants
+		"pose-mcp/internal/cli/z.go:1: pose review dispatch spec:e",           // an omitted value in a const group
+		"pose-mcp/internal/cli/z.go:1: pose review dispatch spec:f",           // a local constant
+		"pose-mcp/internal/cli/w.go:1: pose review dispatch spec:r5",          // a suffix of the build that ships it, not of another
+		"pose-mcp/internal/cli/w.go:1: pose review dispatch spec:s",           // a verb of one build
+		"pose-mcp/internal/cli/v.go:1: pose review dispatch spec:r6",          // whichever build file sorts first
+		"pose-mcp/internal/cli/q_arm64.go:1: pose review dispatch spec:arm64", // a file of the arm64 release
+		"pose-mcp/internal/cli/q.go:1: pose review dispatch spec:nocgo",       // a suffix of the release, built without cgo
 	}
 	for _, w := range want {
 		if !containsString(problems, w) {
@@ -704,4 +762,19 @@ func init() {
 		problems := launcherParityProblems(fixture, adr, repositoryTestNames(t, "../.."))
 		return len(problems) == 0, strings.Join(problems, "; ")
 	}})
+}
+
+// PG-R6-01: the reader reads every configuration the release builds, and
+// without cgo as the release builds it.
+func TestTheActiveDocumentReaderFollowsTheReleaseMatrix(t *testing.T) {
+	targets := parityBuildTargets(t)
+	seen := map[string]bool{}
+	for _, target := range targets {
+		seen[fmt.Sprintf("%s/%s/%t", target.goos, target.goarch, target.cgo)] = true
+	}
+	for _, want := range []string{"linux/amd64/false", "linux/arm64/false", "darwin/amd64/false", "darwin/arm64/false", "windows/amd64/false", "windows/arm64/false"} {
+		if !seen[want] {
+			t.Fatalf("the reader does not read the release configuration %s: %v", want, targets)
+		}
+	}
 }
