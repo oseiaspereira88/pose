@@ -5,6 +5,7 @@ import (
 	"errors"
 	"go/ast"
 	"go/build"
+	"go/doc"
 	"go/parser"
 	"go/token"
 	"io/fs"
@@ -45,6 +46,10 @@ type matrixGoTest struct {
 	tags     []string
 }
 
+// buildEnvKeys are the environment keys that change which files a check
+// builds; a check setting one is not judged (review round 2, R2-B1).
+var buildEnvKeys = []string{"GOFLAGS", "GOOS", "GOARCH", "CGO_ENABLED", "GOEXPERIMENT"}
+
 // parseMatrixGoTest reads a go test check the way go test does, for the
 // flags it models: -flag value and -flag=value, packages as relative paths,
 // import paths or the module's own directory by default (review round 1, B1).
@@ -59,6 +64,10 @@ func parseMatrixGoTest(args []string) (matrixGoTest, error) {
 		flag, value, inline := strings.Cut(strings.Replace(arg, "-test.", "-", 1), "=")
 		switch {
 		case goTestBoolFlags[flag]:
+			// -race builds with the race tag (review round 2, R2-B1).
+			if flag == "-race" && (!inline || value == "true") {
+				check.tags = append(check.tags, "race")
+			}
 		case goTestValueFlags[flag]:
 			if !inline {
 				if i+1 >= len(args) {
@@ -71,7 +80,7 @@ func parseMatrixGoTest(args []string) (matrixGoTest, error) {
 			case "-run":
 				check.pattern = value
 			case "-tags":
-				check.tags = strings.FieldsFunc(value, func(r rune) bool { return r == ',' || r == ' ' })
+				check.tags = append(check.tags, strings.FieldsFunc(value, func(r rune) bool { return r == ',' || r == ' ' })...)
 			}
 		default:
 			return check, errors.New("flag " + arg + " is not modelled")
@@ -97,11 +106,25 @@ func packageDirs(moduleDir, modulePath, pkg string) ([]string, error) {
 	}
 	recursive := pkg == "./..." || strings.HasSuffix(pkg, "/...")
 	dir := filepath.Join(moduleDir, filepath.FromSlash(strings.TrimSuffix(strings.TrimSuffix(pkg, "..."), "/")))
+	// The directory must be inside the module and not inside a nested one
+	// (review round 2, R2-B3).
+	rel, err := filepath.Rel(moduleDir, dir)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return nil, errors.New("package " + pkg + " is outside the module")
+	}
+	for inner := dir; inner != filepath.Clean(moduleDir); inner = filepath.Dir(inner) {
+		if _, err := os.Stat(filepath.Join(inner, "go.mod")); err == nil {
+			return nil, errors.New("package " + pkg + " is in a nested module")
+		}
+		if filepath.Dir(inner) == inner {
+			break
+		}
+	}
 	if !recursive {
 		return []string{dir}, nil
 	}
 	var dirs []string
-	err := filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
+	err = filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -124,9 +147,10 @@ func packageDirs(moduleDir, modulePath, pkg string) ([]string, error) {
 }
 
 // runnableTests returns the names go test -run can run in dir under tags:
-// in the test files go/build selects, the functions Go treats as tests and
-// fuzz targets, and examples with an output comment (review round 1, B2,
-// F1). Benchmarks need -bench and do not count.
+// in the test files go/build selects, the functions Go's isTestFunc accepts
+// as tests and fuzz targets, and the examples go/doc finds with an output
+// comment (review rounds 1–2, B2, F1, R2-B2). Benchmarks need -bench, and
+// TestMain(*testing.M) is the hook, not a test.
 func runnableTests(dir string, tags []string) ([]string, error) {
 	ctx := build.Default
 	ctx.BuildTags = tags
@@ -139,19 +163,31 @@ func runnableTests(dir string, tags []string) ([]string, error) {
 		return nil, err
 	}
 	var names []string
-	for _, name := range append(append([]string{}, pkg.TestGoFiles...), pkg.XTestGoFiles...) {
-		file, err := parser.ParseFile(token.NewFileSet(), filepath.Join(dir, name), nil, parser.ParseComments|parser.SkipObjectResolution)
-		if err != nil {
-			return nil, err
-		}
-		for _, decl := range file.Decls {
-			fn, ok := decl.(*ast.FuncDecl)
-			if !ok || fn.Recv != nil || fn.Name.Name == "TestMain" {
-				continue
+	for _, group := range [][]string{pkg.TestGoFiles, pkg.XTestGoFiles} {
+		var files []*ast.File
+		for _, name := range group {
+			file, err := parser.ParseFile(token.NewFileSet(), filepath.Join(dir, name), nil, parser.ParseComments|parser.SkipObjectResolution)
+			if err != nil {
+				return nil, err
 			}
-			n := fn.Name.Name
-			if goTestName(n, "Test") && singleTestingParam(fn, "T") || goTestName(n, "Fuzz") && singleTestingParam(fn, "F") || goTestName(n, "Example") && hasOutputComment(file, fn) {
-				names = append(names, n)
+			files = append(files, file)
+			for _, decl := range file.Decls {
+				fn, ok := decl.(*ast.FuncDecl)
+				if !ok || fn.Recv != nil {
+					continue
+				}
+				n := fn.Name.Name
+				if n == "TestMain" && isTestFunc(fn, "M") {
+					continue
+				}
+				if goTestName(n, "Test") && isTestFunc(fn, "T") || goTestName(n, "Fuzz") && isTestFunc(fn, "F") {
+					names = append(names, n)
+				}
+			}
+		}
+		for _, example := range doc.Examples(files...) {
+			if example.Output != "" || example.EmptyOutput {
+				names = append(names, "Example"+example.Name)
 			}
 		}
 	}
@@ -171,41 +207,30 @@ func goTestName(name, prefix string) bool {
 	return !unicode.IsLower(r)
 }
 
-// singleTestingParam reports whether fn takes one *<pkg>.<kind> parameter
-// and returns nothing.
-func singleTestingParam(fn *ast.FuncDecl, kind string) bool {
-	params := fn.Type.Params.List
-	if len(params) != 1 || len(params[0].Names) > 1 || fn.Type.Results != nil {
+// isTestFunc mirrors cmd/go's: no results, one parameter of type *T —
+// written testing.T, or T under a dot import — for the given kind.
+func isTestFunc(fn *ast.FuncDecl, kind string) bool {
+	if fn.Type.Results != nil && len(fn.Type.Results.List) > 0 || fn.Type.Params.List == nil || len(fn.Type.Params.List) != 1 || len(fn.Type.Params.List[0].Names) > 1 {
 		return false
 	}
-	star, ok := params[0].Type.(*ast.StarExpr)
+	star, ok := fn.Type.Params.List[0].Type.(*ast.StarExpr)
 	if !ok {
 		return false
 	}
-	sel, ok := star.X.(*ast.SelectorExpr)
-	return ok && sel.Sel.Name == kind
-}
-
-func hasOutputComment(file *ast.File, fn *ast.FuncDecl) bool {
-	if fn.Body == nil {
-		return false
-	}
-	for _, group := range file.Comments {
-		if group.Pos() < fn.Body.Pos() || group.End() > fn.Body.End() {
-			continue
-		}
-		text := strings.TrimSpace(group.Text())
-		if strings.HasPrefix(text, "Output:") || strings.HasPrefix(text, "Unordered output:") {
-			return true
-		}
+	switch x := star.X.(type) {
+	case *ast.Ident:
+		return x.Name == kind
+	case *ast.SelectorExpr:
+		return x.Sel.Name == kind
 	}
 	return false
 }
 
 type matrixCheck struct {
-	Name    string   `json:"name"`
-	Program string   `json:"program"`
-	Args    []string `json:"args"`
+	Name    string            `json:"name"`
+	Program string            `json:"program"`
+	Args    []string          `json:"args"`
+	Env     map[string]string `json:"env"`
 }
 
 // deadRunPatterns returns, sorted and prefixed with the module, each
@@ -251,6 +276,17 @@ func deadRunPatterns(root string, raw []byte) ([]string, error) {
 			}
 			label := module + ": " + raw.Name
 			check, err := parseMatrixGoTest(raw.Args)
+			if err != nil {
+				problems = append(problems, label+": "+err.Error())
+				continue
+			}
+			if check.pattern != "" {
+				for _, key := range buildEnvKeys {
+					if _, set := raw.Env[key]; set {
+						err = errors.New("its environment sets " + key + ", which changes the files it builds")
+					}
+				}
+			}
 			if err != nil {
 				problems = append(problems, label+": "+err.Error())
 				continue
@@ -344,29 +380,48 @@ func TestDeadRunPatternGuardFollowsGoSelection(t *testing.T) {
 	write("m/vendor/v/v_test.go", "package v\n\nimport \"testing\"\n\nfunc TestVendored(t *testing.T) {}\n")
 	write("m/nested/go.mod", "module example.com/nested\n")
 	write("m/nested/n_test.go", "package nested\n\nimport \"testing\"\n\nfunc TestNested(t *testing.T) {}\n")
+	write("other/go.mod", "module example.com/other\n")
+	write("other/o_test.go", "package other\n\nimport \"testing\"\n\nfunc TestOther(t *testing.T) {}\n")
+	write("plain/p_test.go", "package plain\n\nimport \"testing\"\n\nfunc TestPlain(t *testing.T) {}\n")
+	// Round 2 (R2-B1, R2-B2): the race tag, and valid tests the first
+	// version missed.
+	write("m/r/norace_test.go", "//go:build !race\n\npackage r\n\nimport \"testing\"\n\nfunc TestNoRace(t *testing.T) {}\n")
+	write("m/r/race_test.go", "//go:build race\n\npackage r\n\nimport \"testing\"\n\nfunc TestRaceOnly(t *testing.T) {}\n")
+	write("m/d/d_test.go", "package d\n\nimport . \"testing\"\n\nfunc TestDot(t *T) {}\nfunc TestEmpty(t *T) () {}\nfunc TestMain(t *T) {}\nfunc Example_lower() {\n\t// output:\n}\n")
+	write("m/h/h_test.go", "package h\n\nimport \"testing\"\n\nfunc TestMain(m *testing.M) {}\n")
 	cases := []struct {
 		name string
 		args string
 		dead bool
+		env  string
 	}{
-		{"live", `"./a", "-run", "TestReal|WithOutput"`, false},
-		{"live recursive", `"./...", "-run", "TestReal"`, false},
-		{"live import path", `"example.com/m/a", "-run=TestReal"`, false},
-		{"default package is the module directory", `"-tags", "reviewnever", "-run", "TestTagged"`, true},
-		{"live tagged", `"./a", "-tags=reviewnever", "-run", "TestTagged"`, false},
-		{"equals spelling", `"./a", "-run=TestReal|Ghost"`, true},
-		{"excluded by build tag", `"./a", "-run", "TestTagged"`, true},
-		{"ignored file", `"./a", "-run", "TestIgnored"`, true},
-		{"vendor", `"./...", "-run", "TestVendored"`, true},
-		{"nested module", `"./...", "-run", "TestNested"`, true},
-		{"not a test name", `"./a", "-run", "Testhelper"`, true},
-		{"benchmark", `"./a", "-run", "BenchmarkBench"`, true},
-		{"example without output", `"./a", "-run", "ExampleNoOutput"`, true},
-		{"unmodelled flag", `"./a", "-bench", ".", "-run", "TestReal"`, true},
-		{"unlisted non-plain pattern", `"./a", "-run", "^TestReal$|Ghost()"`, true},
+		{"live", `"./a", "-run", "TestReal|WithOutput"`, false, ""},
+		{"live recursive", `"./...", "-run", "TestReal"`, false, ""},
+		{"live import path", `"example.com/m/a", "-run=TestReal"`, false, ""},
+		{"default package is the module directory", `"-tags", "reviewnever", "-run", "TestTagged"`, true, ""},
+		{"live tagged", `"./a", "-tags=reviewnever", "-run", "TestTagged"`, false, ""},
+		{"equals spelling", `"./a", "-run=TestReal|Ghost"`, true, ""},
+		{"excluded by build tag", `"./a", "-run", "TestTagged"`, true, ""},
+		{"ignored file", `"./a", "-run", "TestIgnored"`, true, ""},
+		{"vendor", `"./...", "-run", "TestVendored"`, true, ""},
+		{"nested module", `"./...", "-run", "TestNested"`, true, ""},
+		{"not a test name", `"./a", "-run", "Testhelper"`, true, ""},
+		{"benchmark", `"./a", "-run", "BenchmarkBench"`, true, ""},
+		{"example without output", `"./a", "-run", "ExampleNoOutput"`, true, ""},
+		{"unmodelled flag", `"./a", "-bench", ".", "-run", "TestReal"`, true, ""},
+		{"unlisted non-plain pattern", `"./a", "-run", "^TestReal$|Ghost()"`, true, ""},
+		{"race excludes a !race test", `"./r", "-race", "-run", "TestNoRace"`, true, ""},
+		{"race selects a race test", `"./r", "-race", "-run", "TestRaceOnly"`, false, ""},
+		{"no race selects the !race test", `"./r", "-run", "TestNoRace"`, false, ""},
+		{"dot-imported T, empty results, TestMain as a test, lower-case output", `"./d", "-run", "TestDot|TestEmpty|TestMain|Example_lower"`, false, ""},
+		{"TestMain hook is not a test", `"./h", "-run", "TestMain"`, true, ""},
+		{"build environment", `"./a", "-run", "TestReal"`, true, `"GOFLAGS": "-tags=x"`},
+		{"sibling module", `"../other", "-run", "TestOther"`, true, ""},
+		{"sibling directory outside the module", `"../plain", "-run", "TestPlain"`, true, ""},
+		{"explicit nested module", `"./nested", "-run", "TestNested"`, true, ""},
 	}
 	for _, c := range cases {
-		matrix := `{"moduleOverrides":{"m":{"checks":[{"name":"probe","program":"go","args":["test", ` + c.args + `]}]}}}`
+		matrix := `{"moduleOverrides":{"m":{"checks":[{"name":"probe","program":"go","args":["test", ` + c.args + `],"env":{` + c.env + `}}]}}}`
 		problems, err := deadRunPatterns(root, []byte(matrix))
 		if err != nil {
 			t.Fatalf("%s: %v", c.name, err)
