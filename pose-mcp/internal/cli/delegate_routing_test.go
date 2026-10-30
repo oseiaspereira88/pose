@@ -131,20 +131,20 @@ func TestDelegateWaitsForTheFirstReset(t *testing.T) {
 	}
 }
 
-// B05 and B06 of the first review: the deprecated alias records the agent it
+// B05 and B06 of the first review: a named agent records the agent it
 // names and warns as delegate does; --lead takes the <vendor>[/<model>] the
 // manuals document; the help no longer says auto is the only agent.
-func TestAliasRecordsRoutingAndLeadTakesAModel(t *testing.T) {
+func TestANamedAgentWarnsOfItsVendorAndLeadTakesAModel(t *testing.T) {
 	root := dispatchInstance(t)
 	writeDelegation(t, root, routedPolicy)
 	resealAs(t, root, "anthropic/claude-opus-5-5")
-	code, _, errOut := runPoseSplit(t, root, "review", "dispatch", "spec:alpha", "--via", "same", "--apply")
+	code, _, errOut := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--agent", "same")
 	if code != 0 || !strings.Contains(errOut, "shares the implementation's vendor") {
-		t.Fatalf("alias: %d %s", code, errOut)
+		t.Fatalf("a named agent of the implementation's vendor: %d %s", code, errOut)
 	}
 	runs, _ := posemodel.Store{Root: root}.ListReviewRuns("")
 	if len(runs) != 1 || runs[0].Routing == nil || runs[0].Routing.Step != posemodel.DelegationStepExplicit || runs[0].IndependenceAchieved != posemodel.IndependenceSameModel {
-		t.Fatalf("alias run: %+v", runs)
+		t.Fatalf("the named run: %+v", runs)
 	}
 	code, out, _ := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--lead", "Anthropic/Claude-Opus-5-5", "--reason", "again", "--dry-run", "--json")
 	if code != 0 || !strings.Contains(out, `"lead": "anthropic/claude-opus-5-5"`) {

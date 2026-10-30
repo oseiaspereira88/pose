@@ -345,7 +345,7 @@ func writeJSON(w io.Writer, value any) int {
 
 func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|dispatch|resume|status|attest|auto-attest|verify|record|attribution-supplement> ...")
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|attest|auto-attest|verify|record|attribution-supplement> ...")
 		return 2
 	}
 	if code, handled := routeQualifiedReviewScope(root, args, stdout, stderr); handled {
@@ -364,17 +364,12 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdReviewConclude(root, args[1:], stdout, stderr)
 	case "request":
 		return cmdReviewRequest(root, args[1:], stdout, stderr)
-	// Deprecated aliases of pose delegate (spec pose-delegation-surface R5): same
-	// behaviour and exit codes, one line naming the replacement, absent from help.
-	case "resume":
-		render(stdout, stderr).Hint("pose review resume is deprecated; use pose delegate resume <run>")
-		return cmdReviewResume(root, args[1:], stdout, stderr)
-	case "status":
-		render(stdout, stderr).Hint("pose review status is deprecated; use pose delegate ls")
-		return cmdReviewStatus(root, args[1:], stdout, stderr)
-	case "dispatch":
-		render(stdout, stderr).Hint("pose review dispatch is deprecated; use pose delegate review|adjudicate|smoke <scope|bundle-id>")
-		return cmdReviewDispatch(root, args[1:], stdout, stderr)
+	// The aliases pose-delegation-surface deprecated are removed (spec
+	// pose-delegation-parity-gate R6, D2): each names its replacement and runs
+	// nothing.
+	case "resume", "status", "dispatch":
+		replacement := map[string]string{"resume": "pose delegate resume <run>", "status": "pose delegate ls", "dispatch": "pose delegate review|adjudicate|smoke <scope|bundle-id>"}[args[0]]
+		return usageError(stderr, tr("pose review "+args[0]+" was removed; use "+replacement, "pose review "+args[0]+" foi removido; use "+replacement))
 	case "attest":
 		return cmdReviewAttest(root, args[1:], stdout, stderr)
 	case "auto-attest":
@@ -386,7 +381,7 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 	case "attribution-supplement":
 		return cmdReviewAttributionSupplement(root, args[1:], stdout, stderr)
 	default:
-		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|dispatch|resume|status|attest|auto-attest|verify|record|attribution-supplement> ...")
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|brief|attest|auto-attest|verify|record|attribution-supplement> ...")
 		return 2
 	}
 }

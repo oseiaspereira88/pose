@@ -1,6 +1,6 @@
 ---
 slug: pose-delegation-parity-gate
-status: draft
+status: in-progress
 created_at: 2026-10-26
 completed_at:
 supersedes:
@@ -62,11 +62,42 @@ Parity matrix and its check, documentation check, operating manual section, vali
 
 ### Artifacts
 
-Implementation artifacts are declared when the spec starts.
+- modified: .pose/specs/2026-10-26-pose-delegation-parity-gate.md
+- created: .pose/starts/pose-delegation-parity-gate.json
+- created: .pose/changelogs/unreleased/pose-delegation-parity-gate.md
+- created: .pose/parity/delegation-launchers.json
+- created: .pose/reports/2026-10-29-launcher-parity-failing-first.md
+- modified: .pose/indexes/validation-matrix.json
+- created: pose-mcp/internal/cli/launcher_parity_test.go
+- removed: pose-mcp/internal/cli/review_dispatch.go
+- modified: pose-mcp/internal/cli/review_run_continuity.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/delegate.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/b07_independent_probe_test.go
+- modified: pose-mcp/internal/cli/b07_r2_probe_test.go
+- modified: pose-mcp/internal/cli/b07_r3_probe_test.go
+- modified: pose-mcp/internal/cli/b07_r4b_probe_test.go
+- modified: pose-mcp/internal/cli/delegated_review_request_test.go
+- modified: pose-mcp/internal/cli/delegated_verdicts_test.go
+- modified: pose-mcp/internal/cli/delegate_routing_test.go
+- modified: pose-mcp/internal/cli/delegate_test.go
+- modified: pose-mcp/internal/cli/delegate_watch_test.go
+- modified: pose-mcp/internal/cli/git_snapshot_integrity_test.go
+- modified: pose-mcp/internal/cli/review_adapter_containment_test.go
+- modified: pose-mcp/internal/cli/review_attempt_ledger_test.go
+- modified: pose-mcp/internal/cli/review_dispatch_test.go
+- modified: pose-mcp/internal/cli/review_run_continuity_test.go
+- modified: pose-mcp/internal/cli/review_run_provenance_test.go
+- modified: docs-site/docs/cli.md
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### API/contract changes
 
-Parity matrix schema 1; removal of the deprecated aliases.
+Parity matrix schema 1 (`.pose/parity/delegation-launchers.json`); removal of `pose review dispatch|resume|status`, which now exit 2 naming their replacement; `pose delegate review|adjudicate|smoke` discloses the run's containment (`delegate.safety`, `safety` in `--json`); the `launcher-parity` check of the validation matrix.
 
 ## 4. Tasks
 
@@ -86,6 +117,14 @@ Parity matrix schema 1; removal of the deprecated aliases.
 - Consequences: each new launcher capability discovered later is a new row, not a note
 - Falsifier: a launcher capability found missing after retirement whose row the matrix accepted
 
+### Decision D2
+- Basis: R6
+- Minimal option: keep the aliases for the minor version `pose-delegation-surface` promised, and remove them in a later spec
+- Selected option: remove `pose review dispatch`, `resume` and `status` in this spec, so the release that carries the passing parity check is the one without them (the maintainer's decision of 2026-10-29)
+- Rationale: the deprecation and its replacement ship together; keeping aliases one more release keeps three commands documented only to say they are gone, and the launchers' retirement is the moment the vocabulary changes
+- Consequences: a user of 7.4.x who runs `pose review dispatch|resume|status` after the upgrade gets an unknown-command error with no release that printed a deprecation first; the changelog marks it breaking and names each replacement
+- Falsifier: an installed instance or a skill that still calls a removed alias after the upgrade, found without the changelog naming it
+
 ## 6. Validation
 
 ### Strategy
@@ -98,7 +137,7 @@ The check fails on a matrix with an empty test, a missing test and a missing ADR
 
 ### Delivered scope
 
-Not started: milestone `retirement` of roadmap `delegation`.
+Not started: milestone `retirement` of roadmap `delegation`, after `pose-delegation-task-detach-and-state`.
 
 ### Residual risks
 

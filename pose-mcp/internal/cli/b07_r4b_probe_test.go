@@ -55,7 +55,7 @@ func TestB07R4BSourceHeadUnknown(t *testing.T) {
 		t.Fatal("failure injection did not work")
 	}
 	t.Logf("code=%d output=%s", code, out)
-	if strings.Contains(out, "review_dispatch.status=completed") {
+	if strings.Contains(out, "delegate.status=completed") {
 		t.Error("source HEAD unknown accepted")
 	}
 }
@@ -65,7 +65,7 @@ func TestB07R4BSourceAncestor(t *testing.T) {
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; git -C '" + root + "' update-index --assume-unchanged pose-mcp/lib.go; mv '" + root + "/pose-mcp' '" + outside + "'; ln -s '" + outside + "' '" + root + "/pose-mcp'; echo decision: approved"}, Vendor: "test", Model: "probe", Timeout: "30s"}})
 	code, out := dispatchOnce(t, root, "probe")
 	t.Logf("code=%d output=%s", code, out)
-	if strings.Contains(out, "review_dispatch.status=completed") {
+	if strings.Contains(out, "delegate.status=completed") {
 		t.Error("source ancestor symlink accepted")
 	}
 }
@@ -89,7 +89,7 @@ func TestB07R4BSourceRemoved(t *testing.T) {
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; printf 'pose-mcp/gone.go\n' >> '" + root + "/.git/info/exclude'; echo reintroduced > '" + root + "/pose-mcp/gone.go'; echo decision: approved"}, Vendor: "test", Model: "probe", Timeout: "30s"}})
 	code, out := dispatchOnce(t, root, "probe")
 	t.Logf("code=%d output=%s", code, out)
-	if strings.Contains(out, "review_dispatch.status=completed") {
+	if strings.Contains(out, "delegate.status=completed") {
 		t.Error("removed subject restored in source still governs")
 	}
 }
@@ -107,7 +107,7 @@ func TestB07R4BLostBudget(t *testing.T) {
 	os.WriteFile(filepath.Join(root, runs[0].Path), []byte("{broken"), 0644)
 	code, out := dispatchOnce(t, root, "probe")
 	t.Logf("code=%d output=%s", code, out)
-	if strings.Contains(out, "review_dispatch.status=completed") {
+	if strings.Contains(out, "delegate.status=completed") {
 		t.Error("lost prior run converted into available budget")
 	}
 }
@@ -118,7 +118,7 @@ func TestB07R4BCheckoutIdentity(t *testing.T) {
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", command}, Vendor: "test", Model: "probe", Timeout: "30s"}})
 	code, out := dispatchOnce(t, root, "probe")
 	t.Logf("code=%d output=%s", code, out)
-	if strings.Contains(out, "review_dispatch.status=completed") {
+	if strings.Contains(out, "delegate.status=completed") {
 		t.Error("changed checkout certified using another clean worktree")
 	}
 }

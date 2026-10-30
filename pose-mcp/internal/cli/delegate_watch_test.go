@@ -149,3 +149,27 @@ func TestDelegateOnTerminalHook(t *testing.T) {
 		}
 	}
 }
+
+// toolingAgent runs one command whose output has five lines.
+const toolingAgent = `{"schema_version": 2, "agents": {
+  "tooler": {"vendor": "test", "model": "t-1", "cli": "sh", "events": "codex-jsonl", "commands": {"read": ["sh", "-c",
+    "cat >/dev/null; echo '{\"type\":\"item.completed\",\"item\":{\"id\":\"c1\",\"type\":\"command_execution\",\"command\":\"ls\",\"aggregated_output\":\"line-1\\nline-2\\nline-3\\nline-4\\nline-5\\n\",\"exit_code\":0,\"status\":\"completed\"}}'; echo '{\"type\":\"item.completed\",\"item\":{\"type\":\"agent_message\",\"text\":\"decision: approved\"}}'"]}}
+}, "purposes": {"review": {"max_runs_per_bundle": 9}}}`
+
+// Spec pose-delegation-parity-gate SW-05: -v adds the tail of each tool's
+// output, bounded by --lines; without -v only its exit status shows.
+func TestDelegateWatchShowsABoundedToolOutputTail(t *testing.T) {
+	root := dispatchInstance(t)
+	writeDelegation(t, root, toolingAgent)
+	if code, out, errOut := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--label", "tools"); code != 0 {
+		t.Fatalf("run: %d %s %s", code, out, errOut)
+	}
+	code, out, _ := runPoseSplit(t, root, "delegate", "watch", "tools", "--no-follow")
+	if code != 0 || !strings.Contains(out, "✓ exit 0") || strings.Contains(out, "line-5") {
+		t.Fatalf("without -v: %d %s", code, out)
+	}
+	code, out, _ = runPoseSplit(t, root, "delegate", "watch", "tools", "--no-follow", "-v", "--lines", "2")
+	if code != 0 || !strings.Contains(out, "    line-4") || !strings.Contains(out, "    line-5") || strings.Contains(out, "line-3") {
+		t.Fatalf("-v --lines 2: %d %s", code, out)
+	}
+}

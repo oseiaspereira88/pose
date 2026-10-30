@@ -577,8 +577,8 @@ run records the routing decision and the independence it achieved, and
 shows each agent as available, limited until a reset, missing or with a failed
 probe. `pose review bundle <scope> --seal --lead <vendor>[/<model>]` declares
 the implementation identity a seal records when the sealing session cannot be
-detected. `pose review dispatch`, `resume` and `status` remain
-as deprecated aliases for one minor version. The returned review remains subject to the
+detected. `pose review dispatch`, `resume` and `status` were removed;
+`pose delegate` replaces them. The returned review remains subject to the
 bundle's criteria, identity requirements and verification gates; dispatch
 does not itself approve or close the spec.
 

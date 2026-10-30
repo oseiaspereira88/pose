@@ -688,6 +688,13 @@ func delegatePrintPlan(stdout, stderr io.Writer, jsonOut bool, plan posemodel.Di
 	for k, v := range extra {
 		doc[k] = v
 	}
+	// The containment a run would run under is disclosed before it runs, as
+	// pose review dispatch did (spec pose-delegated-adapter-containment;
+	// pose-delegation-parity-gate R6).
+	safety, _ := posemodel.ResolveReviewerContainment(plan.Config)
+	if safety != nil {
+		doc["safety"] = safety
+	}
 	if jsonOut {
 		writeDelegateJSON(stdout, doc)
 		return 0
@@ -699,6 +706,10 @@ func delegatePrintPlan(stdout, stderr io.Writer, jsonOut bool, plan posemodel.Di
 	out.Field("delegate.workdir", workdir)
 	raw, _ := json.Marshal(argv)
 	out.Field("delegate.argv", string(raw))
+	if safety != nil {
+		raw, _ := json.Marshal(safety)
+		out.Field("delegate.safety", string(raw))
+	}
 	keys := make([]string, 0, len(extra))
 	for k := range extra {
 		keys = append(keys, k)
@@ -731,6 +742,9 @@ func delegatePrintRun(stdout, stderr io.Writer, jsonOut bool, command string, ru
 			"status": run.Status, "failure": run.Failure, "record": run.Path, "events": run.EventsDigest != "", "env_removed": run.EnvRemoved, "attestation": attestation}
 		if run.Interruption != nil {
 			doc["interruption"] = run.Interruption
+		}
+		if run.Safety != nil {
+			doc["safety"] = run.Safety
 		}
 		if len(next) > 0 {
 			doc["next_actions"] = next
@@ -772,6 +786,10 @@ func delegatePrintRun(stdout, stderr io.Writer, jsonOut bool, command string, ru
 		}
 		if run.Interruption != nil {
 			out.Field("delegate.interruption", fmt.Sprintf("cause=%s resumable=%t reset_at=%s", run.Interruption.Cause, run.Interruption.Resumable, run.Interruption.ResetAt))
+		}
+		if run.Safety != nil {
+			raw, _ := json.Marshal(run.Safety)
+			out.Field("delegate.safety", string(raw))
 		}
 		out.Field("delegate.record", run.Path)
 		out.Field("delegate.attestation", attestation)

@@ -20,23 +20,23 @@ func TestAttemptLedgerDispatchReasonBeforeLaunchAndDisclosure(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--apply"); code != 0 {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "fake"); code != 0 {
 		t.Fatalf("first %d %s", code, out)
 	}
 	if _, err := store.RunReviewDispatch(stale, time.Now); err == nil {
 		t.Fatal("stale preview bypassed rerun rule")
 	}
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--apply"); code == 0 || !strings.Contains(out, "--reason") {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "fake"); code == 0 || !strings.Contains(out, "--reason") {
 		t.Fatalf("rerun %d %s", code, out)
 	}
 	raw, _ := os.ReadFile(marker)
 	if string(raw) != "x" {
 		t.Fatalf("refusal launched adapter: %s", raw)
 	}
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--reason", "address recorded findings", "--apply"); code != 0 {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "fake", "--reason", "address recorded findings"); code != 0 {
 		t.Fatalf("reasoned %d %s", code, out)
 	}
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--reason", "quota cannot be bypassed", "--apply"); code == 0 || !strings.Contains(out, "budget exhausted") {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "fake", "--reason", "quota cannot be bypassed"); code == 0 || !strings.Contains(out, "budget exhausted") {
 		t.Fatalf("quota %d %s", code, out)
 	}
 	runs, err := store.ListReviewRuns("")
@@ -104,7 +104,7 @@ func TestAttemptLedgerDispatchReasonBeforeLaunchAndDisclosure(t *testing.T) {
 func TestAttemptLedgerHistoryCheckRejectsDeletedCommittedEvidence(t *testing.T) {
 	root := dispatchInstance(t)
 	writeReviewers(t, root, map[string]pose.ReviewerAdapter{"fake": {Command: []string{"sh", "-c", "cat >/dev/null; echo decision: rejected"}, Vendor: "synthetic", Model: "test"}})
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--apply"); code != 0 {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "fake"); code != 0 {
 		t.Fatal(out)
 	}
 	git := func(args ...string) {
@@ -138,7 +138,7 @@ func TestAttemptLedgerHistoryCheckRejectsDeletedCommittedEvidence(t *testing.T) 
 
 func TestAttemptLedgerDispatchMissingReasonValueIsUsageError(t *testing.T) {
 	root := dispatchInstance(t)
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--reason", "--apply"); code != 2 {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "fake", "--reason"); code != 2 {
 		t.Fatalf("flag swallowed as reason: %d %s", code, out)
 	}
 	if _, err := os.Stat(filepath.Join(root, ".pose/review-attempts")); !os.IsNotExist(err) {

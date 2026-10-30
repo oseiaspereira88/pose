@@ -15,7 +15,7 @@ func TestB07R3DispatchAncestorLink(t *testing.T) {
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; mv pose-mcp '" + outside + "'; ln -s '" + outside + "' pose-mcp; echo decision: approved"}, Vendor: "test", Model: "probe", Timeout: "30s"}})
 	code, out := dispatchOnce(t, root, "probe")
 	t.Logf("code=%d output=%s", code, out)
-	if strings.Contains(out, "review_dispatch.status=completed") {
+	if strings.Contains(out, "delegate.status=completed") {
 		t.Error("dispatch completed after ancestor escaped worktree")
 	}
 }
@@ -32,7 +32,7 @@ func TestB07R3SourceModeUnknown(t *testing.T) {
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; git -C '" + root + "' config core.filemode false; chmod +x '" + root + "/pose-mcp/lib.go'; echo decision: approved"}, Vendor: "test", Model: "probe", Timeout: "30s"}})
 	code, out := dispatchOnce(t, root, "probe")
 	t.Logf("code=%d output=%s", code, out)
-	if strings.Contains(out, "review_dispatch.status=completed") {
+	if strings.Contains(out, "delegate.status=completed") {
 		t.Error("unreadable source mode accepted")
 	}
 }
@@ -41,7 +41,7 @@ func TestB07R3SourceType(t *testing.T) {
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; git -C '" + root + "' update-index --assume-unchanged pose-mcp/lib.go; cp '" + root + "/pose-mcp/lib.go' '" + root + "/copy.txt'; printf '\\ncopy.txt\\n' >> '" + root + "/.git/info/exclude'; rm '" + root + "/pose-mcp/lib.go'; ln -s ../copy.txt '" + root + "/pose-mcp/lib.go'; echo decision: approved"}, Vendor: "test", Model: "probe", Timeout: "30s"}})
 	code, out := dispatchOnce(t, root, "probe")
 	t.Logf("code=%d output=%s", code, out)
-	if strings.Contains(out, "review_dispatch.status=completed") {
+	if strings.Contains(out, "delegate.status=completed") {
 		t.Error("source regular file replaced by symlink accepted")
 	}
 }
@@ -51,7 +51,7 @@ func TestB07R3DispatchIgnoredAncestorLink(t *testing.T) {
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; mv pose-mcp '" + outside + "'; ln -s '" + outside + "' pose-mcp; printf '\\npose-mcp\\n' >> .git-ignore-unused; rm .git-ignore-unused; git rev-parse --git-path info/exclude | xargs sh -c 'printf \"\\npose-mcp\\n\" >> \"$0\"'; echo decision: approved"}, Vendor: "test", Model: "probe", Timeout: "30s"}})
 	code, out := dispatchOnce(t, root, "probe")
 	t.Logf("code=%d output=%s", code, out)
-	if strings.Contains(out, "review_dispatch.status=completed") {
+	if strings.Contains(out, "delegate.status=completed") {
 		t.Error("ignored ancestor link escapes worktree")
 	}
 }

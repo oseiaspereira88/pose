@@ -25,7 +25,7 @@ func TestAdjudicationVerdictFailsLintSpec(t *testing.T) {
 	if err := os.WriteFile(draftPath, []byte("decision: changes-requested\n```pose-draft\n"+string(raw)+"\n```\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--kind", "adjudication", "--apply"); code != 0 {
+	if code, out := runPose(t, root, "delegate", "adjudicate", "spec:alpha", "--agent", "fake"); code != 0 {
 		t.Fatal(code, out)
 	}
 	runs, _, _ := posemodel.Store{Root: root}.ReadReviewRuns("")
@@ -66,13 +66,13 @@ func closableWithAdjudication(t *testing.T) (string, posemodel.Store, string) {
 	if err := os.WriteFile(draftPath, []byte("decision: changes-requested\n```pose-draft\n"+string(raw)+"\n```\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--kind", "adjudication", "--apply"); code != 0 {
+	if code, out := runPose(t, root, "delegate", "adjudicate", "spec:alpha", "--agent", "fake"); code != 0 {
 		t.Fatal(code, out)
 	}
 	runs, _, _ := s.ReadReviewRuns("")
 	adjudication := runs[0].RunID
 	writeRunConclusion(t, s, bundleID, draftPath)
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--reason", "the review", "--apply"); code != 0 {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "fake", "--reason", "the review"); code != 0 {
 		t.Fatal(code, out)
 	}
 	runs, _, _ = s.ReadReviewRuns("")

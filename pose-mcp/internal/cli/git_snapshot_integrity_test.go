@@ -55,8 +55,8 @@ func TestReviewDispatchOriginMutationDuringRunIsHistoricalFailure(t *testing.T) 
 	// The path is a synthetic temp directory with no shell metacharacters.
 	command := "cat >/dev/null; printf 'package changed\\n' > '" + filepath.Join(root, "pose-mcp/lib.go") + "'; echo reviewer-result"
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"edit": {Command: []string{"sh", "-c", command}, Vendor: "test", Model: "test"}})
-	code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "edit", "--apply")
-	if code == 0 || !strings.Contains(out, "review_dispatch.status=failed") {
+	code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "edit")
+	if code == 0 || !strings.Contains(out, "delegate.status=failed") {
 		t.Fatalf("origin changed: %d %s", code, out)
 	}
 	runs, err := (posemodel.Store{Root: root}).ListReviewRuns("")
@@ -77,8 +77,8 @@ func TestReviewDispatchRejectsHiddenChangesAndArbitraryEvidence(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			root := dispatchInstance(t)
 			writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"edit": {Command: []string{"sh", "-c", "cat >/dev/null; " + command}, Vendor: "test", Model: "test"}})
-			code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "edit", "--apply")
-			if code == 0 || !strings.Contains(out, "review_dispatch.status=failed") || !strings.Contains(out, "changed files") {
+			code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "edit")
+			if code == 0 || !strings.Contains(out, "delegate.status=failed") || !strings.Contains(out, "changed files") {
 				t.Fatalf("accepted: %d %s", code, out)
 			}
 		})
@@ -110,7 +110,7 @@ func TestGitSnapshotCloseoutFailsOnUnknownGitAndHiddenChanges(t *testing.T) {
 
 func dispatchOnce(t *testing.T, root, adapter string) (int, string) {
 	t.Helper()
-	return runPose(t, root, "review", "dispatch", "spec:alpha", "--via", adapter, "--apply")
+	return runPose(t, root, "delegate", "review", "spec:alpha", "--agent", adapter)
 }
 
 // V2 and V4 through the dispatch: a reviewer that hides an edit from Git, or that rewrites
@@ -127,11 +127,11 @@ func TestDispatchJudgesTheContentNotWhatGitWasToldToIgnore(t *testing.T) {
 	})
 	for adapter, want := range map[string]string{"hider": "pose-mcp/lib.go", "skip": "pose-mcp/lib.go", "matrix": "validation-matrix.json", "policy": "review.json", "mover": "pose-mcp/lib.go"} {
 		code, out := dispatchOnce(t, root, adapter)
-		if code == 0 || !strings.Contains(out, "review_dispatch.status=failed") || !strings.Contains(out, "changed files in the sealed worktree") || !strings.Contains(out, want) {
+		if code == 0 || !strings.Contains(out, "delegate.status=failed") || !strings.Contains(out, "changed files in the sealed worktree") || !strings.Contains(out, want) {
 			t.Fatalf("%s: %d %s", adapter, code, out)
 		}
 	}
-	if code, out := dispatchOnce(t, root, "ok"); code != 0 || !strings.Contains(out, "review_dispatch.status=completed") {
+	if code, out := dispatchOnce(t, root, "ok"); code != 0 || !strings.Contains(out, "delegate.status=completed") {
 		t.Fatalf("the intact control stopped being eligible: %d %s", code, out)
 	}
 }
@@ -143,7 +143,7 @@ func TestARunWhosePolicyChangedWhileItRanIsStale(t *testing.T) {
 		"racer": {Command: []string{"sh", "-c", "cat >/dev/null; echo '\n' >> '" + root + "/.pose/policy/review.json'; echo decision: approved"}, Vendor: "test", Model: "r-1", Timeout: "30s"},
 	})
 	code, out := dispatchOnce(t, root, "racer")
-	if code == 0 || !strings.Contains(out, "review_dispatch.status=failed") || !strings.Contains(out, "policy changed") {
+	if code == 0 || !strings.Contains(out, "delegate.status=failed") || !strings.Contains(out, "policy changed") {
 		t.Fatalf("%d %s", code, out)
 	}
 	runs, _ := posemodel.Store{Root: root}.ListReviewRuns("")
@@ -158,7 +158,7 @@ func TestAnUnrelatedCommitDuringTheRunDoesNotInvalidateIt(t *testing.T) {
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{
 		"committer": {Command: []string{"sh", "-c", "cat >/dev/null; cd '" + root + "' && echo docs > UNRELATED.md && git add UNRELATED.md && git -c user.name=t -c user.email=t@t -c commit.gpgsign=false commit -q -m docs; echo decision: approved"}, Vendor: "test", Model: "c-1", Timeout: "30s"},
 	})
-	if code, out := dispatchOnce(t, root, "committer"); code != 0 || !strings.Contains(out, "review_dispatch.status=completed") {
+	if code, out := dispatchOnce(t, root, "committer"); code != 0 || !strings.Contains(out, "delegate.status=completed") {
 		t.Fatalf("an independent documentation commit invalidated the run: %d %s", code, out)
 	}
 }

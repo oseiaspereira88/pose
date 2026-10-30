@@ -22,7 +22,7 @@ func runContinuityFixture(t *testing.T, changes ...func(*posemodel.ReviewerAdapt
 		change(&a)
 	}
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"fake": a, "other": {Command: []string{"sh", "-c", "printf 'decision: approved\\n'"}, Vendor: "other", Model: "fixture"}})
-	code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--apply")
+	code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "fake")
 	if code != 1 || !strings.Contains(out, "status=interrupted") {
 		t.Fatalf("interrupt: %d %s", code, out)
 	}
@@ -44,7 +44,7 @@ func TestRunContinuityInterruptedResumeAndAccounting(t *testing.T) {
 			t.Fatal("session leaked", path, e)
 		}
 	}
-	if code, out := runPose(t, root, "review", "status"); code != 0 || !strings.Contains(out, "cause=usage-limit") || !strings.Contains(out, "partial=true") || strings.Contains(out, "fixture-private-session") {
+	if code, out := runPose(t, root, "delegate", "ls"); code != 0 || !strings.Contains(out, "cause=usage-limit") || !strings.Contains(out, "partial=true") || strings.Contains(out, "fixture-private-session") {
 		t.Fatal(code, out)
 	}
 	metrics, e := s.Insights("workflow", 0)
@@ -54,7 +54,7 @@ func TestRunContinuityInterruptedResumeAndAccounting(t *testing.T) {
 	if _, e = s.PlanReviewResume(prior.RunID); e != nil {
 		t.Fatal(e)
 	}
-	code, out := runPose(t, root, "review", "resume", prior.RunID, "--apply")
+	code, out := runPose(t, root, "delegate", "resume", prior.RunID)
 	if code != 0 || !strings.Contains(out, "status=completed") {
 		t.Fatal(code, out)
 	}
@@ -71,7 +71,7 @@ func TestRunContinuityInterruptedResumeAndAccounting(t *testing.T) {
 	if completed.Resumes != prior.RunID || completed.AttemptID != prior.AttemptID || completed.BriefDigest != prior.BriefDigest || completed.TreeDigest != prior.TreeDigest {
 		t.Fatalf("chain: %+v", completed)
 	}
-	if code, out := runPose(t, root, "review", "resume", prior.RunID, "--apply"); code != 0 || !strings.Contains(out, completed.RunID) {
+	if code, out := runPose(t, root, "delegate", "resume", prior.RunID); code != 0 || !strings.Contains(out, completed.RunID) {
 		t.Fatal("idempotent", code, out)
 	}
 	runs, _ = s.ListReviewRuns("")
@@ -95,7 +95,7 @@ func TestRunContinuityInterruptedResumeAndAccounting(t *testing.T) {
 }
 func TestRunContinuityRefusalAndExplicitFallback(t *testing.T) {
 	root, s, prior := runContinuityFixture(t)
-	if code, out := runPose(t, root, "review", "resume", prior.RunID, "--wait-until-reset=1s", "--apply"); code != 1 || !strings.Contains(out, "maximum wait") {
+	if code, out := runPose(t, root, "delegate", "resume", prior.RunID, "--wait-until-reset=1s"); code != 1 || !strings.Contains(out, "maximum wait") {
 		t.Fatal(code, out)
 	}
 	plan, e := s.PlanReviewDispatch(prior.BundleID, "review", "", "other")
@@ -128,7 +128,7 @@ func TestRunContinuityOutputCaptureAndConflicts(t *testing.T) {
 	if !r.Interruption.Resumable || r.SessionDigest == "" || r.Interruption.ResetAt == "" || strings.Contains(r.Output, "fixture-private-session") {
 		t.Fatal("output channel not captured/redacted", r)
 	}
-	if code, out := runPose(t, root, "review", "resume", r.RunID, "--apply"); code != 0 {
+	if code, out := runPose(t, root, "delegate", "resume", r.RunID); code != 0 {
 		t.Fatal(code, out)
 	}
 	runs, lost, e := s.ReadReviewRuns("")
@@ -140,7 +140,7 @@ func TestRunContinuityOutputCaptureAndConflicts(t *testing.T) {
 		Command: []string{"sh", "-c", `printf 'session: one\n'; printf 'session: two\n' > "$1"; exit 75`, "sh", "{output}"}, Vendor: "fixture", Model: "fixture",
 		Limit: &posemodel.ReviewerLimit{ExitCodes: []int{75}}, Session: &posemodel.ReviewerSession{Pattern: `session: (\S+)`}, Resume: &posemodel.ReviewerResume{Command: []string{"fake", "{session}"}},
 	}})
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--apply"); code != 1 || !strings.Contains(out, "unredacted output withheld") {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "fake"); code != 1 || !strings.Contains(out, "unredacted output withheld") {
 		t.Fatal(code, out)
 	}
 	runs, lost, e = (posemodel.Store{Root: root}).ReadReviewRuns("")
@@ -158,7 +158,7 @@ func TestRunContinuityBudgetsAndChangedInputs(t *testing.T) {
 		a.Resume.Command = a.Command
 		a.Resume.Command = append(a.Resume.Command, "{session}")
 	})
-	if code, out := runPose(t, root, "review", "resume", r.RunID, "--apply"); code != 1 || !strings.Contains(out, "status=interrupted") {
+	if code, out := runPose(t, root, "delegate", "resume", r.RunID); code != 1 || !strings.Contains(out, "status=interrupted") {
 		t.Fatal(code, out)
 	}
 	runs, lost, e := s.ReadReviewRuns("")
@@ -197,7 +197,7 @@ func TestRunContinuityBudgetsAndChangedInputs(t *testing.T) {
 func TestRunContinuityLaunchFailureAndSessionRotation(t *testing.T) {
 	root := dispatchInstance(t)
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"missing": {Command: []string{"/nonexistent/pose-fixture-command"}, Vendor: "fixture", Model: "fixture"}})
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "missing", "--apply"); code != 1 || !strings.Contains(out, "status=failed") {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "missing"); code != 1 || !strings.Contains(out, "status=failed") {
 		t.Fatal(code, out)
 	}
 	runs, lost, e := (posemodel.Store{Root: root}).ReadReviewRuns("")
@@ -207,7 +207,7 @@ func TestRunContinuityLaunchFailureAndSessionRotation(t *testing.T) {
 	root, s, r := runContinuityFixture(t, func(a *posemodel.ReviewerAdapter) {
 		a.Resume.Command = []string{"sh", "-c", `printf 'session: different-reference\nold reference: %s\n' "$1"; exit 75`, "sh", "{session}"}
 	})
-	if code, out := runPose(t, root, "review", "resume", r.RunID, "--apply"); code != 1 || !strings.Contains(out, "status=failed") {
+	if code, out := runPose(t, root, "delegate", "resume", r.RunID); code != 1 || !strings.Contains(out, "status=failed") {
 		t.Fatal(code, out)
 	}
 	runs, lost, e = s.ReadReviewRuns("")
@@ -234,7 +234,7 @@ func TestRunContinuityDoctorStatusAndPending(t *testing.T) {
 	if warns != 1 {
 		t.Fatal("doctor missed interruption")
 	}
-	if code, out := runPose(t, root, "review", "status", "--json"); code != 0 || !strings.Contains(out, `"time_left"`) || !strings.Contains(out, `"partial":true`) {
+	if code, out := runPose(t, root, "delegate", "ls", "--json"); code != 0 || !strings.Contains(out, `"time_left"`) || !strings.Contains(out, `"partial": true`) {
 		t.Fatal(code, out)
 	}
 	raw, _ := json.Marshal(r)
@@ -248,7 +248,9 @@ func TestRunContinuityDoctorStatusAndPending(t *testing.T) {
 	if e := os.WriteFile(filepath.Join(dir, r.RunID+".json"), claimRaw, 0644); e != nil {
 		t.Fatal(e)
 	}
-	if code, out := runPose(t, root, "review", "resume", r.RunID, "--apply"); code != 0 || !strings.Contains(out, "status=pending") || !strings.Contains(out, "resume-of:"+r.RunID) {
+	// pose delegate resume refuses a pending continuation, naming it, and
+	// launches nothing (the removed pose review resume printed it pending).
+	if code, out := runPose(t, root, "delegate", "resume", r.RunID); code != 1 || !strings.Contains(out, "is pending") || !strings.Contains(out, "resume-of:"+r.RunID) {
 		t.Fatal("pending not returned", code, out)
 	}
 	runs, _ := s.ListReviewRuns("")

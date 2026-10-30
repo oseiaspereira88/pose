@@ -56,7 +56,7 @@ func cliRunProvenanceFixture(t *testing.T) (string, posemodel.Store, posemodel.R
 	t.Helper()
 	root, draftPath, bundleID := cliProvenanceInstance(t)
 	writeRunConclusion(t, posemodel.Store{Root: root}, bundleID, draftPath)
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--apply"); code != 0 {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "fake"); code != 0 {
 		t.Fatal(code, out)
 	}
 	s := posemodel.Store{Root: root}

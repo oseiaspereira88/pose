@@ -16,7 +16,7 @@ func TestB07IndependentSourceChangedDuringRun(t *testing.T) {
 		writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; " + script + "; echo decision: approved"}, Vendor: "test", Model: "probe", Timeout: "30s"}})
 		code, out := dispatchOnce(t, root, "probe")
 		t.Logf("mutation=%s code=%d output=%s", script, code, out)
-		if strings.Contains(out, "review_dispatch.status=completed") {
+		if strings.Contains(out, "delegate.status=completed") {
 			t.Errorf("source inputs lost or changed but run completed")
 		}
 	}
@@ -36,7 +36,7 @@ func TestB07IndependentPolicySymlink(t *testing.T) {
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; echo ' ' >> '" + target + "'; echo decision: approved"}, Vendor: "test", Model: "probe", Timeout: "30s"}})
 	code, out := dispatchOnce(t, root, "probe")
 	t.Logf("code=%d output=%s", code, out)
-	if strings.Contains(out, "review_dispatch.status=completed") {
+	if strings.Contains(out, "delegate.status=completed") {
 		t.Error("changed consumed policy symlink target ignored")
 	}
 }
@@ -62,7 +62,7 @@ func TestB07IndependentBundleInputsNotCommit(t *testing.T) {
 	code, out := dispatchOnce(t, root, "probe")
 	runs, _ := (posemodel.Store{Root: root}).ListReviewRuns("")
 	t.Logf("code=%d out=%s runs=%+v", code, out, runs)
-	if strings.Contains(out, "review_dispatch.status=completed") && len(runs) > 0 && !strings.Contains(runs[len(runs)-1].Output, "sealed-new-requirement") {
+	if strings.Contains(out, "delegate.status=completed") && len(runs) > 0 && !strings.Contains(runs[len(runs)-1].Output, "sealed-new-requirement") {
 		t.Error("reviewer consumed old commit requirements instead of sealed bundle inputs")
 	}
 }
@@ -100,7 +100,7 @@ func TestB07ASubmoduleTheBundleDoesNotNameIsLeftAloneBeforeAndAfterTheRun(t *tes
 	})
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; echo decision: approved"}, Vendor: "test", Model: "probe", Timeout: "30s"}})
 	code, out := dispatchOnce(t, root, "probe")
-	if !strings.Contains(out, "review_dispatch.status=completed") {
+	if !strings.Contains(out, "delegate.status=completed") {
 		t.Fatalf("a submodule that is not part of the bundle refused the run (%d): %s", code, out)
 	}
 }

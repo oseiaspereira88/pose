@@ -26,7 +26,7 @@ func TestReviewRequestIsFulfilledOverTheCLI(t *testing.T) {
 	}
 	s := posemodel.Store{Root: root}
 	writeRunConclusion(t, s, bundleID, draftPath)
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--apply"); code != 0 {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "fake"); code != 0 {
 		t.Fatal(code, out)
 	}
 	runs, _, _ := s.ReadReviewRuns("")
@@ -345,7 +345,7 @@ func TestFulfilledPredecessorWithAPersonAlreadyAsked(t *testing.T) {
 	}
 	s := posemodel.Store{Root: root}
 	writeRunConclusion(t, s, bundleID, draftPath)
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "fake", "--apply"); code != 0 {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "fake"); code != 0 {
 		t.Fatal(code, out)
 	}
 	runs, _, _ := s.ReadReviewRuns("")

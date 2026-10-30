@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -105,38 +106,30 @@ func TestDelegateAutoAgentAndDryRun(t *testing.T) {
 	}
 }
 
-// R5 and the validation strategy: the alias and pose delegate record the same
-// run apart from label and purpose; the alias names its replacement and is
-// absent from the help listing.
-func TestDelegateReviewRecordsWhatTheAliasRecords(t *testing.T) {
+// Spec pose-delegation-parity-gate R6, D2: the aliases pose-delegation-surface
+// deprecated are gone: each exits 2 naming its replacement, runs and records
+// nothing, and the help lists none of them.
+func TestTheRemovedReviewAliasesNameTheirReplacement(t *testing.T) {
 	root := dispatchInstance(t)
 	writeDelegation(t, root, delegationPolicy(approvingAgent))
-	code, out, errOut := runPoseSplit(t, root, "review", "dispatch", "spec:alpha", "--via", "ok", "--apply")
-	if code != 0 || !strings.Contains(out, "review_dispatch.status=completed") || !strings.Contains(errOut, "pose delegate review") {
-		t.Fatalf("alias: %d %s %s", code, out, errOut)
-	}
-	code, out, _ = runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--reason", "same subject again", "--label", "alpha-r1", "--json")
-	var doc map[string]any
-	if code != 0 || json.Unmarshal([]byte(out), &doc) != nil || doc["status"] != "completed" || doc["schema"] != delegateRunSchema {
-		t.Fatalf("delegate review: %d %s", code, out)
-	}
-	runs, _ := posemodel.Store{Root: root}.ListReviewRuns("")
-	if len(runs) != 2 {
-		t.Fatalf("runs: %+v", runs)
-	}
-	project := func(r posemodel.ReviewRun) [8]string {
-		return [8]string{r.Scope, r.BundleID, r.BundleDigest, r.Kind, r.BriefDigest, r.Adapter, r.Status, r.Output}
-	}
-	if project(runs[0]) != project(runs[1]) || runs[0].Label != "" || runs[1].Label != "alpha-r1" || runs[1].Purpose != "review" {
-		t.Fatalf("records differ beyond label and purpose:\n%+v\n%+v", runs[0], runs[1])
-	}
-	for _, sub := range []string{"dispatch", "resume", "status"} {
+	for sub, replacement := range map[string]string{
+		"dispatch": "pose delegate review|adjudicate|smoke <scope|bundle-id>",
+		"resume":   "pose delegate resume <run>",
+		"status":   "pose delegate ls",
+	} {
+		code, out, errOut := runPoseSplit(t, root, "review", sub, "spec:alpha", "--via", "ok", "--apply")
+		if code != 2 || out != "" || !strings.Contains(errOut, "pose review "+sub+" was removed; use "+replacement) {
+			t.Fatalf("pose review %s: %d %q %s", sub, code, out, errOut)
+		}
 		if _, help, _ := runPoseSplit(t, root, "help", "review"); strings.Contains(help, "pose review "+sub) {
 			t.Fatalf("the help still lists pose review %s", sub)
 		}
 	}
-	if code, _, errOut := runPoseSplit(t, root, "review", "status"); code != 0 || !strings.Contains(errOut, "pose delegate ls") {
-		t.Fatalf("status alias: %d %s", code, errOut)
+	if runs, _ := (posemodel.Store{Root: root}).ListReviewRuns(""); len(runs) != 0 {
+		t.Fatalf("a removed alias ran: %+v", runs)
+	}
+	if _, _, errOut := runPoseSplit(t, root, "review"); regexp.MustCompile(`\b(dispatch|resume|status)\b`).MatchString(errOut) {
+		t.Fatalf("the review usage still lists a removed alias: %s", errOut)
 	}
 }
 
@@ -486,7 +479,7 @@ func TestDelegateRunsRecordedBeforeTheConversionKeepGoverning(t *testing.T) {
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{
 		"ok": {Command: []string{"sh", "-c", "grep -q 'Independent review of spec:alpha' && echo decision: approved"}, Vendor: "test", Model: "ok-1", Timeout: "30s", MaxRunsPerBundle: 2},
 	})
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "ok", "--apply"); code != 0 {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "ok"); code != 0 {
 		t.Fatalf("run: %s", out)
 	}
 	store := posemodel.Store{Root: root}

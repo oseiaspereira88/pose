@@ -15,7 +15,7 @@ func TestB07R2UnreadableSourceStatus(t *testing.T) {
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; printf broken > '" + root + "/.git/index'; echo decision: approved"}, Vendor: "test", Model: "probe", Timeout: "30s"}})
 	code, out := dispatchOnce(t, root, "probe")
 	t.Logf("code=%d out=%s", code, out)
-	if strings.Contains(out, "review_dispatch.status=completed") {
+	if strings.Contains(out, "delegate.status=completed") {
 		t.Error("source Git status unknown but run completed")
 	}
 }
@@ -46,7 +46,7 @@ func TestB07R2SourceMode(t *testing.T) {
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; git -C '" + root + "' config core.filemode false; chmod +x '" + root + "/pose-mcp/lib.go'; echo decision: approved"}, Vendor: "test", Model: "probe", Timeout: "30s"}})
 	code, out := dispatchOnce(t, root, "probe")
 	t.Logf("code=%d out=%s", code, out)
-	if strings.Contains(out, "review_dispatch.status=completed") {
+	if strings.Contains(out, "delegate.status=completed") {
 		t.Error("source input mode changed but run completed")
 	}
 }
@@ -57,7 +57,7 @@ func TestB07R2PolicyChangeWithEqualDigest(t *testing.T) {
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{"probe": {Command: []string{"sh", "-c", "cat >/dev/null; printf x > '" + dir + "/zz-a'; printf '{}' > '" + dir + "/zz-z.json'; echo decision: approved"}, Vendor: "test", Model: "probe", Timeout: "30s"}})
 	code, out := dispatchOnce(t, root, "probe")
 	t.Logf("code=%d out=%s", code, out)
-	if strings.Contains(out, "review_dispatch.status=completed") {
+	if strings.Contains(out, "delegate.status=completed") {
 		t.Error("policy file set changed without stale because hash framing is ambiguous")
 	}
 }

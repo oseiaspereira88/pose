@@ -75,8 +75,8 @@ func writeReviewers(t *testing.T, root string, adapters map[string]posemodel.Rev
 func TestReviewDispatchRunsAndRecordsAdapters(t *testing.T) {
 	root := dispatchInstance(t)
 
-	// R6: no adapter → the brief and the configuration needed.
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "codex", "--reason", "regression control", "--apply"); code == 0 || !strings.Contains(out, "reviewers.json") || !strings.Contains(out, "# Independent review of spec:alpha") {
+	// R6: no adapter → the configuration needed.
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "codex", "--reason", "regression control"); code == 0 || !strings.Contains(out, "delegation.json") {
 		t.Fatalf("no adapter: %d %s", code, out)
 	}
 
@@ -88,13 +88,13 @@ func TestReviewDispatchRunsAndRecordsAdapters(t *testing.T) {
 		// Directory names do not authenticate an evidence producer.
 		"tools": {Command: []string{"sh", "-c", "cat >/dev/null; mkdir -p .pose/assessments .pose/state && echo x > .pose/assessments/technical-debt.md && echo {} > .pose/state/technical-debt.json && echo decision: approved"}, Vendor: "test", Model: "tools-1", Timeout: "30s"},
 	})
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "ok"); code != 0 || !strings.Contains(out, "review_dispatch.apply=false") {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "ok", "--dry-run"); code != 0 || !strings.Contains(out, "delegate.dry_run=true") {
 		t.Fatalf("preview: %s", out)
 	}
 	before, _ := hashTree(root, true)
 
-	code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "ok", "--reason", "regression control", "--apply")
-	if code != 0 || !strings.Contains(out, "review_dispatch.status=completed") || !strings.Contains(out, "attestation=not recorded") {
+	code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "ok", "--reason", "regression control")
+	if code != 0 || !strings.Contains(out, "delegate.status=completed") || !strings.Contains(out, "attestation=not recorded") {
 		t.Fatalf("ok run: %d %s", code, out)
 	}
 	runs, _ := posemodel.Store{Root: root}.ListReviewRuns("")
@@ -105,22 +105,22 @@ func TestReviewDispatchRunsAndRecordsAdapters(t *testing.T) {
 		t.Fatalf("the reviewer did not run at the sealed commit with the brief: %q", runs[0].Output)
 	}
 
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "tools", "--reason", "regression control", "--apply"); code == 0 || !strings.Contains(out, "review_dispatch.status=failed") {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "tools", "--reason", "regression control"); code == 0 || !strings.Contains(out, "delegate.status=failed") {
 		t.Fatalf("an unauthenticated derived writer was accepted: %d %s", code, out)
 	}
 	for adapter, want := range map[string]string{"fail": "the reviewer command failed", "slow": "timeout", "editor": "changed files in the sealed worktree"} {
-		code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", adapter, "--reason", "regression control", "--apply")
+		code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", adapter, "--reason", "regression control")
 		status := "failed"
 		if adapter == "slow" {
 			status = "interrupted"
 		}
-		if code == 0 || !strings.Contains(out, "review_dispatch.status="+status) || !strings.Contains(out, want) {
+		if code == 0 || !strings.Contains(out, "delegate.status="+status) || !strings.Contains(out, want) {
 			t.Fatalf("%s: %d %s", adapter, code, out)
 		}
 	}
 	// Budget: ok allows two runs on this bundle.
-	runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "ok", "--reason", "regression control", "--apply")
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "ok", "--reason", "regression control", "--apply"); code == 0 || !strings.Contains(out, "budget exhausted") {
+	runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "ok", "--reason", "regression control")
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "ok", "--reason", "regression control"); code == 0 || !strings.Contains(out, "budget exhausted") {
 		t.Fatalf("budget: %d %s", code, out)
 	}
 
@@ -152,8 +152,9 @@ func TestReviewDispatchRecordsEveryBriefKind(t *testing.T) {
 		"smoke": {Command: []string{"sh", "-c", "grep -q '## Surfaces to run' && echo decision: approved"}, Vendor: "test", Model: "smoke-1", Timeout: "30s", MaxRunsPerBundle: 3},
 		"adj":   {Command: []string{"sh", "-c", "grep -q 'Independent adjudication' && echo decision: approved"}, Vendor: "test", Model: "adj-1", Timeout: "30s"},
 	})
-	for adapter, kind := range map[string]string{"smoke": "smoke", "adj": "adjudication"} {
-		if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", adapter, "--kind", kind, "--reason", "regression control", "--apply"); code != 0 || !strings.Contains(out, "review_dispatch.kind="+kind) || !strings.Contains(out, "review_dispatch.status=completed") {
+	for adapter, purpose := range map[string]string{"smoke": "smoke", "adj": "adjudicate"} {
+		if code, out := runPose(t, root, "delegate", purpose, "spec:alpha", "--agent", adapter, "--reason", "regression control"); code != 0 || !strings.Contains(out, "delegate.purpose="+purpose) || !strings.Contains(out, "delegate.status=completed") {
+			kind := purpose
 			t.Fatalf("%s dispatch: %d %s", kind, code, out)
 		}
 	}
@@ -175,11 +176,11 @@ func TestReviewDispatchTimeoutKillsTheAdaptersChildren(t *testing.T) {
 		"spawner": {Command: []string{"sh", "-c", "cat >/dev/null; sleep 30; true"}, Vendor: "test", Model: "spawn-1", Timeout: "300ms"},
 	})
 	start := time.Now()
-	code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "spawner", "--reason", "regression control", "--apply")
+	code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "spawner", "--reason", "regression control")
 	if elapsed := time.Since(start); elapsed > 10*time.Second {
 		t.Fatalf("the timeout did not hold: %s", elapsed)
 	}
-	if code == 0 || !strings.Contains(out, "review_dispatch.status=interrupted") || !strings.Contains(out, "timeout") {
+	if code == 0 || !strings.Contains(out, "delegate.status=interrupted") || !strings.Contains(out, "timeout") {
 		t.Fatalf("spawner: %d %s", code, out)
 	}
 }
@@ -192,10 +193,10 @@ func TestReviewDispatchJudgesTheRunNotItsLeftovers(t *testing.T) {
 		"lingers": {Command: []string{"sh", "-c", "cat >/dev/null; echo decision: approved; sleep 8 & exit 0"}, Vendor: "test", Model: "linger-1", Timeout: "60s"},
 		"mover":   {Command: []string{"sh", "-c", "cat >/dev/null; mkdir -p .pose/state && git mv pose-mcp/lib.go .pose/state/lib.go"}, Vendor: "test", Model: "move-1", Timeout: "30s"},
 	})
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "lingers", "--reason", "regression control", "--apply"); code != 0 || !strings.Contains(out, "review_dispatch.status=completed") {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "lingers", "--reason", "regression control"); code != 0 || !strings.Contains(out, "delegate.status=completed") {
 		t.Fatalf("a finished run with a lingering child: %d %s", code, out)
 	}
-	if code, out := runPose(t, root, "review", "dispatch", "spec:alpha", "--via", "mover", "--reason", "regression control", "--apply"); code == 0 || !strings.Contains(out, "review_dispatch.status=failed") || !strings.Contains(out, "pose-mcp/lib.go") {
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "mover", "--reason", "regression control"); code == 0 || !strings.Contains(out, "delegate.status=failed") || !strings.Contains(out, "pose-mcp/lib.go") {
 		t.Fatalf("a rename out of the sealed content: %d %s", code, out)
 	}
 }
