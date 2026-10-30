@@ -1294,6 +1294,14 @@ func (s Store) reviewBundleFileDigest(rel string, set ChangeSet, graph DeliveryI
 			return "", fmt.Errorf("review subject path %s has no committed release archival: %s", rel, strings.Join(uniqueSorted(notes), "; "))
 		}
 	}
+	if os.IsNotExist(err) {
+		// A later spec's observed removal is the path's reviewable identity
+		// for the specs it supersedes, as the delivery graph already accepts
+		// it (spec pose-review-subject-later-removal R1–R2).
+		if witness, ok := reviewBundleRemovalWitness(graph, filepath.ToSlash(clean), s.reviewBundleFragmentOwners(set, graph, filepath.ToSlash(clean))); ok {
+			return digestBytes([]byte(witness)), nil
+		}
+	}
 	if err != nil {
 		return "", fmt.Errorf("review subject path %s cannot be read: %w", rel, err)
 	}
@@ -1303,6 +1311,23 @@ func (s Store) reviewBundleFileDigest(rel string, set ChangeSet, graph DeliveryI
 // A squash can attribute the same path to multiple specs. The owning release
 // witness can name one of those specs, but a dependency or matching filename
 // alone is not proof: require a shared attributed commit and observed path.
+// reviewBundleRemovalWitness is the identity of a path a later spec removed
+// for one of owners — the removing spec and the deleting commit the delivery
+// graph accepted for it — or false when no accepted removal applies.
+func reviewBundleRemovalWitness(graph DeliveryIntegrityGraph, path string, owners []string) (string, bool) {
+	for _, removal := range graph.Removals {
+		if removal.Path != path {
+			continue
+		}
+		for _, owner := range owners {
+			if commit := removal.Supersedes[owner]; owner != "" && commit != "" {
+				return "removed-by " + removal.Spec + " " + commit, true
+			}
+		}
+	}
+	return "", false
+}
+
 func (s Store) reviewBundleFragmentOwners(set ChangeSet, graph DeliveryIntegrityGraph, pending string) []string {
 	owners := []string{set.Spec}
 	commits := map[string]bool{}
@@ -1598,12 +1623,41 @@ func (s Store) reviewBundleChildren(scope ScopeRef) ([]ReviewBundleChild, []stri
 			return nil, nil, err
 		}
 		if sealed == nil {
-			blockers = append(blockers, "child "+ref+" has no sealed review bundle")
-			continue
+			retained, why := s.retainedChildReviewBundle(ref)
+			if retained == nil {
+				blockers = append(blockers, "child "+ref+" has no sealed review bundle"+why)
+				continue
+			}
+			sealed = retained
 		}
 		children = append(children, ReviewBundleChild{Scope: ref, BundleID: sealed.BundleID, BundleDigest: sealed.BundleDigest})
 	}
 	return children, blockers, nil
+}
+
+// retainedChildReviewBundle is the approved review the closeout gate retains
+// for a done child whose later commits changed what is prepared for it, or
+// nil and why not (spec pose-review-subject-later-removal R3).
+func (s Store) retainedChildReviewBundle(ref string) (*ReviewBundle, string) {
+	scope, err := ParseScopeRef(ref)
+	if err != nil {
+		return nil, ""
+	}
+	if done, err := s.scopeLifecycleDone(scope); err != nil || !done {
+		return nil, ""
+	}
+	policy, _, err := s.loadReviewPolicy()
+	if err != nil {
+		return nil, ": its review policy could not be read: " + err.Error()
+	}
+	bundle, att, lost := s.retainedCompletedReviewWithHistory(scope, ref, policy)
+	if len(lost) > 0 {
+		return nil, ": its approved review cannot be retained: " + (SourceCoverage{Losses: lost}).Describe("")
+	}
+	if bundle == nil || att == nil {
+		return nil, ""
+	}
+	return bundle, ""
 }
 
 func (s Store) reviewBundleConsumedInputs(plan ReviewPlan) []ReviewBundleInput {
