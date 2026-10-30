@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -383,9 +384,19 @@ func loadRecordedChangeSetsWithGapIn(files posemodel.Files, root string) ([]pose
 			gap = "the recorded change sets could not be read: " + fmt.Sprintf(format, args...)
 		}
 	}
-	paths, err := posemodel.GlobIn(files, filepath.Join(root, ".pose", "reports", "history", "*.jsonl"))
-	if err != nil {
+	// The directory is listed literally, and only its absence is an empty
+	// history: a glob would read the root as a pattern and drop the errors
+	// it meets (LR-R6-01).
+	dir := filepath.Join(root, ".pose", "reports", "history")
+	entries, err := files.ReadDir(dir)
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		note("%v", err)
+	}
+	var paths []string
+	for _, entry := range entries {
+		if strings.HasSuffix(entry.Name(), ".jsonl") {
+			paths = append(paths, filepath.Join(dir, entry.Name()))
+		}
 	}
 	sets := map[string]posemodel.ChangeSet{}
 	for _, path := range paths {

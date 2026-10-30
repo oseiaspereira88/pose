@@ -232,7 +232,7 @@ func TestLaterRemovalHistoryShapes(t *testing.T) {
 		bMain := r.commit("b removes after a")
 		// The deletion that a's change does not precede sorts first, so a
 		// check of only the first deletion would refuse.
-		for i := 0; bMain < bParallel && i < 64; i++ {
+		for i := 0; bMain < bParallel && i < 1024; i++ {
 			r.git("commit", "-q", "--amend", "-m", "b removes after a "+strings.Repeat(".", i+1))
 			bMain = r.git("rev-parse", "HEAD")
 		}

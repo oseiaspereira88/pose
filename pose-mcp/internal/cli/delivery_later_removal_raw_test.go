@@ -247,6 +247,50 @@ func TestLaterRemovalReviewRoundFive(t *testing.T) {
 			}
 		}
 	})
+	// LR-R6-01: a history directory that cannot be listed refuses every
+	// removal, a missing one is an empty history, and a root whose name
+	// reads as a pattern is still the root.
+	t.Run("history directory", func(t *testing.T) {
+		if os.Geteuid() == 0 {
+			t.Skip("permissions do not bind root")
+		}
+		for _, dir := range []string{".pose/reports/history", ".pose/reports"} {
+			root, a2 := recordedFixture(t)
+			writeRecorded(t, root, a2, 0)
+			locked := filepath.Join(root, filepath.FromSlash(dir))
+			if err := os.Chmod(locked, 0); err != nil {
+				t.Fatal(err)
+			}
+			t.Cleanup(func() { _ = os.Chmod(locked, 0o755) })
+			_, claims, sets, tracked, _, gaps, err := collectArtifactGraphInputsWithGapsIn(posemodel.NativeFiles(), root)
+			if err != nil || !strings.Contains(gaps[""], "recorded change sets could not be read") {
+				t.Fatalf("%s unreadable: %v %v", dir, gaps, err)
+			}
+			for _, removal := range artifactRemovals(root, claims, sets, tracked, gaps, posemodel.ChangeSet{ID: "range", Spec: "alpha"}) {
+				if len(removal.Supersedes) > 0 {
+					t.Fatalf("%s unreadable: an explicit range was satisfied: %+v", dir, removal)
+				}
+			}
+			if !alphaKept(t, root) {
+				t.Fatalf("%s unreadable: alpha's finding was dropped", dir)
+			}
+		}
+	})
+	t.Run("missing history and a pattern-like root", func(t *testing.T) {
+		root, _ := recordedFixture(t)
+		if _, _, _, _, _, gaps, err := collectArtifactGraphInputsWithGapsIn(posemodel.NativeFiles(), root); err != nil || gaps[""] != "" {
+			t.Fatalf("a missing history made a gap: %v %v", gaps, err)
+		}
+		root, a2 := recordedFixture(t)
+		writeRecorded(t, root, a2, 0)
+		literal := filepath.Join(t.TempDir(), "repo[literal]*")
+		if err := os.Rename(root, literal); err != nil {
+			t.Fatal(err)
+		}
+		if !alphaKept(t, literal) {
+			t.Fatal("a root named like a pattern lost its recorded history")
+		}
+	})
 	// A record without a change set is an ordinary report record.
 	t.Run("records without a change set", func(t *testing.T) {
 		root, a2 := recordedFixture(t)
