@@ -273,6 +273,14 @@
       "digest": "sha256:5804ac90cf1eff2821686a016a24cbc63d6ba8fdb55c28adc866e666b7785f7a"
     },
     {
+      "spec": "pose-delegation-parity-gate",
+      "category": "removed",
+      "breaking": true,
+      "body": "Remove `pose review dispatch`, `pose review resume` and `pose review status`, the aliases `pose-delegation-surface` deprecated: each now exits 2 and names its replacement — `pose delegate review|adjudicate|smoke \u003cscope|bundle-id\u003e --agent \u003cname\u003e` for `dispatch --via \u003cname\u003e` (`--kind adjudication` is `pose delegate adjudicate`, a run without `--apply` is `--dry-run`), `pose delegate resume \u003crun\u003e` for `resume --apply`, and `pose delegate ls` for `status`. This release is the first to carry their removal and no release printed their deprecation, so a script or skill that calls them must move to `pose delegate`. `pose delegate review|adjudicate|smoke` now discloses the containment a run runs under (`delegate.safety`, and `safety` in `--json`), as `dispatch` did. Add the launcher parity gate: `.pose/parity/delegation-launchers.json` maps every capability the delegation ADR lists for the personal launchers to its `pose delegate` command and covering tests, and the `launcher-parity` check fails while a row is uncovered or an active document, skill or help text names a replaced command or launcher; the operating manual describes how an operator retires a personal launcher. The `pose delegate task`, `resume` and `handoff` help now documents every flag they accept. `pose delegate task --session \u003cid\u003e --agent \u003cname\u003e` continues a session POSE never recorded, such as one a personal launcher opened, through the agent's resume command, the prompt optional. Without an agent `pose delegate review|adjudicate|smoke` hands over the brief a reviewer would receive, as `dispatch` did; it discloses the containment before a run starts; `pose delegate resume` answers an already reserved continuation with `status=pending` and exit 0, as `pose review resume` did.",
+      "path": "pose-delegation-parity-gate.md",
+      "digest": "sha256:d3d8e9e21d84e2844d402914fa18ac5c76f1f738b29b088ec3726c56af6ec48a"
+    },
+    {
       "spec": "pose-delegation-routing",
       "category": "added",
       "breaking": false,

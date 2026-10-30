@@ -1,8 +1,8 @@
 ---
 slug: pose-delegation-parity-gate
-status: in-progress
+status: done
 created_at: 2026-10-26
-completed_at:
+completed_at: 2026-10-30
 supersedes:
 depends_on: pose-delegation-task, pose-delegated-review-capability, pose-delegation-task-detach-and-state
 priority: 3

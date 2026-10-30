@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-29T22:10:06Z
-baseline_commit: 5963dee7824774c573fbb8d3d3d3f5dd430e5c59
+generated_at: 2026-10-30T06:51:33Z
+baseline_commit: 62ca671969c9eb41f6049119865ea7025669d04f
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,36 +27,36 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:70654b22072f -->
+<!-- state:derived hash:3e77443e2001 -->
 
-- specs: total=456 draft=19 in-progress=17 blocked=0 done=419 superseded=0 abandoned=1
+- specs: total=456 draft=18 in-progress=17 blocked=0 done=420 superseded=0 abandoned=1
 - roadmaps: total=23 active=3 done=11
 - últimos closeouts:
-  - spec:pose-delegation-task-detach-and-state (2026-10-29)
+  - spec:pose-delegation-parity-gate (2026-10-30)
   - spec:pose-delegated-review-capability (2026-10-29)
+  - spec:pose-delegation-task-detach-and-state (2026-10-29)
   - spec:pose-delegated-review-action-fulfillment (2026-10-28)
   - spec:pose-delegated-review-conclusions (2026-10-28)
-  - spec:pose-delegated-verdict-destinations (2026-10-28)
-  - ... e mais 414 (ver `pose_list_specs status:done`)
+  - ... e mais 415 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:0a071a56c1c5 -->
+<!-- state:derived hash:509bf930f1a5 -->
 
-- abertos: 182
-- por criticidade: high=4 medium=28 low=131 sem-classificação=19
-- vencidos (review < hoje): 31
+- abertos: 187
+- por criticidade: high=4 medium=28 low=136 sem-classificação=19
+- vencidos (review < hoje): 32
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
-  - spec:pose-review-root-binding-parity (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-verifier-assets-variable-fix (owner:@pose-maintainers review:2026-10-02)
-  - spec:pose-shellcheck-ci-gate (owner:@pose-maintainers review:2026-10-02)
+  - spec:pose-review-root-binding-parity (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-release-signing-rejection (owner:@pose-maintainers review:2026-10-02)
-  - spec:pose-federated-spec-dependency-acceptance (owner:@harne8-platform review:2026-10-03)
+  - spec:pose-shellcheck-ci-gate (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-spec-transfer-reconcile-terminal (owner:@harne8-platform review:2026-10-03)
-  - spec:pose-governance-gate-activation (owner:@pose-maintainers review:2026-10-08)
+  - spec:pose-federated-spec-dependency-acceptance (owner:@harne8-platform review:2026-10-03)
   - spec:pose-package-channel-install-repair (owner:@pose-maintainers review:2026-10-08)
-  - ... e mais 21 vencidos (ver `pose followups --open`)
+  - spec:pose-governance-gate-activation (owner:@pose-maintainers review:2026-10-08)
+  - ... e mais 22 vencidos (ver `pose followups --open`)
 
 ## Capabilities
 <!-- state:derived hash:e20a9224b717 -->
@@ -76,22 +76,22 @@ capacidade.
 - knowledge: total=18 ativo=18 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:c8e4fdfc9614 -->
+<!-- state:derived hash:58800a03e390 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
 - últimos 30 dias: total=52 outcome_ok=33 outcome_outro=19
-- reports revisados (.md): total=283
+- reports revisados (.md): total=284
+  - report:2026-10-29-launcher-parity-failing-first.md
   - report:delegation-adoption-review-round4.md
   - report:delegation-adoption-review-round3.md
   - report:delegation-adoption-review-round2.md
   - report:delegation-adoption-review-round1.md
-  - report:pose-abm-capability-adoption.md
 
 ## Arquitetura
-<!-- state:derived hash:fbe5fd992a8a status:active -->
+<!-- state:derived hash:dcb0971ffd1c status:active -->
 
 - componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=99478 testes=85945 total=185423
+- linhas_de_codigo: producao=99297 testes=87015 total=186312
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63
