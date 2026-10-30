@@ -74,6 +74,7 @@ type compactDeliveryGraph struct {
 	RoadmapCriteria   []RoadmapCriterion         `json:"roadmap_criteria,omitempty"`
 	Paths             map[string][]string        `json:"paths,omitempty"`
 	Archivals         []ArchivedFragment         `json:"archivals,omitempty"`
+	Removals          []ArtifactRemoval          `json:"removals,omitempty"`
 }
 
 // IndexJSON encodes the graph as the schema 2 index file, indented like every
@@ -151,7 +152,7 @@ func compactDeliveryIndex(g DeliveryIntegrityGraph) compactDeliveryGraph {
 	out := compactDeliveryGraph{
 		SchemaVersion: DeliveryIntegrityIndexSchemaVersion, InputDigest: g.InputDigest, ProvenanceDigest: g.ProvenanceDigest,
 		Claims: g.Claims, ChangeSets: g.ChangeSets, Reverse: g.Reverse, Findings: g.Findings, Deliveries: g.Deliveries,
-		RoadmapCriteria: g.RoadmapCriteria, Archivals: g.Archivals,
+		RoadmapCriteria: g.RoadmapCriteria, Archivals: g.Archivals, Removals: g.Removals,
 	}
 
 	out.Edges = []DeliveryIntegrityEdge{}
@@ -241,7 +242,7 @@ func expandDeliveryIndex(c compactDeliveryGraph) (DeliveryIntegrityGraph, error)
 	g := DeliveryIntegrityGraph{
 		SchemaVersion: DeliveryIntegritySchemaVersion, InputDigest: c.InputDigest, ProvenanceDigest: c.ProvenanceDigest,
 		Claims: c.Claims, ChangeSets: c.ChangeSets, Reverse: c.Reverse, Findings: c.Findings, Deliveries: c.Deliveries,
-		RoadmapCriteria: c.RoadmapCriteria, Archivals: c.Archivals,
+		RoadmapCriteria: c.RoadmapCriteria, Archivals: c.Archivals, Removals: c.Removals,
 	}
 	runs := map[string]compactValidationRun{}
 	for _, run := range c.ValidationRuns {

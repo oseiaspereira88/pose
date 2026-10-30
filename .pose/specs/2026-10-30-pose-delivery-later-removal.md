@@ -9,7 +9,7 @@ remediates:
 priority: 3
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: capability:delivery-later-removal
 ---
 
 # Spec: A file a later spec removes no longer has to exist for the specs that created it
@@ -68,6 +68,10 @@ Delivery-integrity graph (existence rule, removal witnesses, edges), the CLI tha
 - created: .pose/changelogs/unreleased/pose-delivery-later-removal.md
 - modified: .pose/specs/2026-10-26-pose-delegation-parity-gate.md
 - modified: pose-mcp/internal/pose/delivery_integrity.go
+- modified: pose-mcp/internal/pose/delivery_integrity_compact.go
+- modified: pose-mcp/internal/pose/delivery_integrity_cache.go
+- modified: pose-mcp/internal/pose/delivery_integrity_compact_test.go
+- modified: .pose/indexes/validation-matrix.json
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/surface_check.go
 - created: pose-mcp/internal/cli/delivery_later_removal_test.go
@@ -77,6 +81,10 @@ Delivery-integrity graph (existence rule, removal witnesses, edges), the CLI tha
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+
+### Delivery targets
+
+- capability:delivery-later-removal module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/artifact_integrity.go
 
 ### API/contract changes
 

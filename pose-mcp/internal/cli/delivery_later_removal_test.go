@@ -11,8 +11,8 @@ import (
 // laterRemovalFixture is a repository whose history is: alpha creates
 // internal/x.go and internal/y.go; beta removes x.go and declares it; gamma
 // declares x.go modified but recreates it after beta's removal, and an
-// unattributed commit deletes it again; eps declares y.go removed, but y.go
-// is deleted by an unattributed commit.
+// unattributed commit deletes it again; eps declares y.go removed but only
+// edits it, and an unattributed commit deletes it.
 func laterRemovalFixture(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
@@ -46,7 +46,8 @@ func laterRemovalFixture(t *testing.T) string {
 	artifactGit(t, root, "rm", "-q", "--", "internal/x.go")
 	commit("an unattributed deletion", "")
 	spec("eps", "- removed: internal/y.go\n")
-	commit("eps declares", "eps")
+	writeArtifactTestFile(t, root, "internal/y.go", "package internal\n// eps edits, never deletes\n")
+	commit("eps declares, and edits the file instead of deleting it", "eps")
 	artifactGit(t, root, "rm", "-q", "--", "internal/y.go")
 	commit("another unattributed deletion", "")
 	return root

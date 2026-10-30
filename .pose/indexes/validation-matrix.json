@@ -2173,6 +2173,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "delivery-later-removal-integration",
+          "program": "go",
+          "args": ["test", "./internal/cli", "./internal/pose", "-run", "LaterRemoval", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "launcher-parity",
           "program": "go",
           "args": ["test", "./internal/cli", "-run", "LauncherParity|ActiveDocument", "-count=1"],

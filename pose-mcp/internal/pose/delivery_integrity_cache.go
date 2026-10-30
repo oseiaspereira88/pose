@@ -111,6 +111,21 @@ func copyDeliveryIntegrityGraph(in DeliveryIntegrityGraph) DeliveryIntegrityGrap
 	out.ValidationResults = append([]DeliveryValidationResult{}, in.ValidationResults...)
 	out.RoadmapCriteria = append([]RoadmapCriterion{}, in.RoadmapCriteria...)
 	out.Archivals = append([]ArchivedFragment{}, in.Archivals...)
+	out.Removals = make([]ArtifactRemoval, len(in.Removals))
+	for i, r := range in.Removals {
+		r.Supersedes = append([]string(nil), r.Supersedes...)
+		if r.Refusals != nil {
+			refusals := make(map[string]string, len(r.Refusals))
+			for k, v := range r.Refusals {
+				refusals[k] = v
+			}
+			r.Refusals = refusals
+		}
+		out.Removals[i] = r
+	}
+	if in.Removals == nil {
+		out.Removals = nil
+	}
 
 	// ChangeSet carries slices of its own, so copying the outer slice is not enough.
 	out.ChangeSets = make([]ChangeSet, len(in.ChangeSets))
