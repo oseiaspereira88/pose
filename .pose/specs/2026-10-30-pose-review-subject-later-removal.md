@@ -68,6 +68,7 @@ Review bundle subject and child resolution in `internal/pose/review_bundle.go`.
 - modified: pose-mcp/internal/pose/review_bundle.go
 - created: pose-mcp/internal/pose/review_subject_later_removal_test.go
 - modified: pose-mcp/internal/pose/delegated_review_adoption_test.go
+- modified: pose-mcp/internal/cli/testdata/adversarial/README.md
 - created: .pose/specs/2026-10-30-pose-review-subject-later-removal.amendments.jsonl
 - modified: .pose/indexes/validation-matrix.json
 

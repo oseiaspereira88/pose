@@ -704,6 +704,16 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 			sets = append(sets, set)
 		}
 	}
+	// Every selected spec that observes an entry, read before reduction drops
+	// a set whose commits another contains: the entry is kept once, but a
+	// removal must hold for all of them (SR-R1-02, SR-R2-01).
+	observers := map[string][]string{}
+	for _, set := range sets {
+		for _, observed := range set.Paths {
+			key := observedKey(observed)
+			observers[key] = append(observers[key], set.Spec)
+		}
+	}
 	sets = reduceReviewBundleChangeSets(sets)
 	if len(sets) == 0 && s.milestoneOnlyExternal(scope) {
 		// Every member is owned by another project: the implementation is
@@ -743,15 +753,6 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 	gitlinks := reviewBundleGitlinksIn(s.fsys(), s.Root, uniqueSorted(candidatePaths))
 	// One status of the tree for the whole subject, taken on first need.
 	var status *workingTreeSnapshot
-	// Every selected spec that observes an entry; the entry is kept once, but
-	// a removal must hold for all of them (SR-R1-02).
-	observers := map[string][]string{}
-	for _, set := range sets {
-		for _, observed := range set.Paths {
-			key := observedKey(observed)
-			observers[key] = append(observers[key], set.Spec)
-		}
-	}
 	for _, set := range sets {
 		subject.ChangeSets = append(subject.ChangeSets, set.ID)
 		if subject.Base == "" {

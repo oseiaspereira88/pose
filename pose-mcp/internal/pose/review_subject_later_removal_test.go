@@ -219,10 +219,14 @@ func TestRetainedChildFollowsItsVerification(t *testing.T) {
 // SR-R1-02 through a milestone: two members observe the removed path, the
 // one whose change set sorts first with the accepted removal.
 func TestMilestoneSubjectRemovalHoldsForEveryMember(t *testing.T) {
+	// SR-R2-01: also when the member's commits are contained in the peer's,
+	// so that reduction keeps one set for both.
 	for _, c := range []struct {
-		both bool
-		id   string
-	}{{false, "cs-a-peer"}, {false, "cs-z-peer"}, {true, "cs-a-peer"}, {true, "cs-z-peer"}} {
+		both     bool
+		id       string
+		subsumed bool
+	}{{false, "cs-a-peer", false}, {false, "cs-z-peer", false}, {true, "cs-a-peer", false}, {true, "cs-z-peer", false},
+		{false, "cs-a-peer", true}, {false, "cs-z-peer", true}, {true, "cs-a-peer", true}, {true, "cs-z-peer", true}} {
 		both := c.both
 		root, store, _, _ := federatedTestMilestoneConsumer(t)
 		writeReviewFixture(t, root, ".pose/specs/peer/spec.md", "---\nslug: peer\nstatus: done\ncreated_at: 2026-08-13\ncomponents: api\n---\n\n# Spec: peer\n\n## 3. Technical Plan\n\n### Artifacts\n- modified: api/server.go\n")
@@ -238,6 +242,10 @@ func TestMilestoneSubjectRemovalHoldsForEveryMember(t *testing.T) {
 		}
 		peerSet := graph.ChangeSets[0]
 		peerSet.ID, peerSet.Spec = c.id, "peer"
+		if c.subsumed {
+			graph.ChangeSets[0].Commits = []string{"shared"}
+			peerSet.Commits = []string{"shared", "extra"}
+		}
 		graph.ChangeSets = append([]ChangeSet{peerSet}, graph.ChangeSets...)
 		removal := ArtifactRemoval{Spec: "later", Path: "api/server.go", Commit: "c1", Supersedes: map[string]string{"peer": "c1"}}
 		if both {
@@ -264,7 +272,7 @@ func TestMilestoneSubjectRemovalHoldsForEveryMember(t *testing.T) {
 			unreadable = unreadable || strings.HasPrefix(blocker, "review subject path api/server.go cannot be read")
 		}
 		if unreadable == both {
-			t.Fatalf("removal for every member %v, peer set %s: unreadable %v; blockers %v; change sets %v", both, c.id, unreadable, bundle.Blockers, bundle.Payload.Subject.ChangeSets)
+			t.Fatalf("removal for every member %v, peer set %s, subsumed %v: unreadable %v; blockers %v; change sets %v", both, c.id, c.subsumed, unreadable, bundle.Blockers, bundle.Payload.Subject.ChangeSets)
 		}
 	}
 }
