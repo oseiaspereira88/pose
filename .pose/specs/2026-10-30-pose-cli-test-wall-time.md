@@ -85,7 +85,7 @@ No public surface. Internal: `delegate wait` polls the run's marker every 100 ms
 - [x] Gates and events instead of waits in the slowest tests
 - [x] Why the package stays serial (R2)
 - [x] `-race` and `-count=3` stability
-- [ ] Independent review and closeout
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -97,14 +97,20 @@ Before/after `go test -json` timings of `internal/cli`; `-race -count=3` for fla
 
 ### Requirement trace
 
+- R1 [satisfied] check:cli-test-wall-time-integration test:TestDelegateToolsOverMCPHoldAgainstTheFirstReview test:TestDelegateDetachAndWait test:TestADetachedRunThatDoesNotHandBackIsStopped test:TestDelegateWatchFollowsLive test:TestTheWaitAcknowledgementNeverTouchesAnExistingEntry report:.pose/results/delivery-validation.json commit:1dc147707c59f910c2cc8bbae2e745cd041e714c — The slowest delegation tests hold their runs on gates and release them on observed events (live events, waiter acknowledgements, process exit, watch output) instead of sleeping; the reviewer's privacy and waiter mutants fail them.
+- R2 [satisfied] check:cli-test-wall-time-integration report:.pose/results/delivery-validation.json commit:1dc147707c59f910c2cc8bbae2e745cd041e714c — The package stays serial; the reason (inDir changes the process working directory) is recorded, and making Main take its directory is a follow-up.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+Real-time waits removed from the slowest `internal/cli` delegation tests: package time 191 s → 156 s on 1085 tests, serial, same machine (per-test timings kept outside the checkout). `delegate wait` polls every 100 ms. Independently reviewed by Codex over three rounds.
 
 ### Residual risks
 
-None yet.
+The package remains serial, so most of its time is the sum of many short tests. A pre-existing race in review dispatch (the active marker is removed before the continuation receipt is written) can make a wait refuse; it was observed once in about twenty race runs (F1).
 
 ### Follow-ups
+
+- [open] F1: write the continuation result receipt before removing a run's active marker, keeping the marker when the receipt fails, so a waiter never reads a terminal run without its receipt (review round 1, F01; reproduced on code before this spec). Next engine bugfix spec. (owner:@oseiaspereira88 crit:high review:2026-11-06)
+- [open] F2: make `Main` take its working directory instead of tests changing the process's, so `internal/cli` tests can run in parallel. (owner:@oseiaspereira88 crit:medium review:2026-11-27)
