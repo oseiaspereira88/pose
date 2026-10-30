@@ -1193,10 +1193,12 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	// .pose/policy-migrations/ keeps a policy file pose update converted, which
 	// still carries the baseline of runs recorded before it (spec
 	// pose-delegation-surface D7).
+	// .pose/parity/ holds the authored parity matrices a retirement is gated
+	// by (spec pose-delegation-parity-gate R1).
 	if path == ".pose/schema-version" {
 		return "governance", true
 	}
-	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/", ".pose/capabilities/", ".pose/actions/", ".pose/starts/", ".pose/review-ledgers/", ".pose/usage/", ".pose/policy-migrations/"} {
+	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/", ".pose/capabilities/", ".pose/actions/", ".pose/starts/", ".pose/review-ledgers/", ".pose/usage/", ".pose/policy-migrations/", ".pose/parity/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "governance", true
 		}

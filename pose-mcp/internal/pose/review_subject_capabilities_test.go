@@ -79,3 +79,45 @@ func TestCloseoutCheckpointsAreDerivedEvidence(t *testing.T) {
 		t.Fatalf("checkpoint classified as %q include=%v", class, include)
 	}
 }
+
+// Spec pose-delegation-parity-gate R1 (review round 2, PG-R2-04): the parity
+// matrix is authored governance a reviewer must see change: it is in the
+// subject, with a digest that follows its content, and never blocks the
+// bundle as an unclassified path.
+func TestReviewSubjectClassifiesTheParityMatrix(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	const matrix = ".pose/parity/delegation-launchers.json"
+	writeReviewFixture(t, root, matrix, `{"schema_version": 1, "rows": []}`+"\n")
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths, ObservedPath{Action: "created", Path: matrix})
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	digestOf := func() string {
+		t.Helper()
+		bundle, err := store.PrepareReviewBundle("spec:backend")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if blockers := strings.Join(bundle.Blockers, " "); strings.Contains(blockers, ".pose/parity/") {
+			t.Fatalf("the parity matrix blocked the bundle: %s", blockers)
+		}
+		for _, entry := range bundle.Payload.Subject.Entries {
+			if entry.Path == matrix {
+				if entry.Class != "governance" || entry.Digest == "" {
+					t.Fatalf("the parity matrix in the subject: %+v", entry)
+				}
+				return entry.Digest
+			}
+		}
+		t.Fatal("the parity matrix is not in the review subject")
+		return ""
+	}
+	before := digestOf()
+	writeReviewFixture(t, root, matrix, `{"schema_version": 1, "rows": [{"id": "SA-01"}]}`+"\n")
+	if after := digestOf(); after == before {
+		t.Fatal("an edit of the parity matrix did not change its subject digest")
+	}
+}

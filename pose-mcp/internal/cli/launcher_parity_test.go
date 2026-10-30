@@ -7,6 +7,9 @@ package cli
 
 import (
 	"encoding/json"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -34,6 +37,11 @@ type launcherParity struct {
 	Rows          []launcherParityRow `json:"rows"`
 }
 
+// adrRetirementRule is the one paragraph of the section that is not an
+// inventory, word for word: an edit to it, or a sentence added to it, is read
+// as an unrecognized paragraph (review round 2, PG-R2-03).
+const adrRetirementRule = "- Retire the personal launchers only when a versioned parity matrix maps every capability below to a native command and a test, and the matrix check fails while any row is uncovered."
+
 // adrLauncherCapabilities reads the capabilities the ADR's "Retirement by
 // parity" section enumerates: one paragraph per launcher, opened by its name
 // in backticks and a colon, its capabilities separated by semicolons. It
@@ -54,7 +62,7 @@ func adrLauncherCapabilities(adr string) (map[string][]string, []string) {
 	var unrecognized []string
 	for _, paragraph := range strings.Split(section, "\n\n") {
 		text := strings.Join(strings.Fields(paragraph), " ")
-		if text == "" || strings.HasPrefix(text, "- Retire the personal launchers only when ") && !strings.Contains(text, "\n- ") && strings.Count(text, " - ") == 0 {
+		if text == "" || text == adrRetirementRule {
 			continue
 		}
 		m := opener.FindStringSubmatch(text)
@@ -242,25 +250,32 @@ func TestLauncherParityCheckFailsOnEveryUncoveredRow(t *testing.T) {
 // review aliases and the personal launchers (R4).
 var replacedNames = regexp.MustCompile("pose review (dispatch|resume|status)\\b|secondary-agent")
 
-// removalNote marks a sentence that names a replaced command only to say it
-// is gone; stillThere marks one that says it is not (review round 1,
-// PG-R1-05): "remain as deprecated aliases" is not a removal note.
-var (
-	removalNote = regexp.MustCompile(`(?i)\b(was|were|is|are|been) removed\b|\bremoved in\b|\b(foi|foram|é|são) removid[oa]s?\b`)
-	stillThere  = regexp.MustCompile(`(?i)\b(remain|remains|still|available|keep|keeps|ficam|fica|continua|continuam|permanece|permanecem|disponíve(l|is))\b`)
-	sentenceEnd = regexp.MustCompile(`[.;!?](\s+|$)`)
-)
+// allowedRemovalNotes are the only sentences an active document may name a
+// replaced command in: each says the aliases were removed and names their
+// replacement. A note is allowed by being listed here, word for word, never
+// by containing a removal word (review rounds 1 and 2, PG-R1-05, PG-R2-01):
+// a new mention of a replaced command must be added here on purpose.
+var allowedRemovalNotes = map[string]bool{
+	"`pose review dispatch`, `resume` and `status`, the aliases this surface deprecated, were removed: each exits 2 and names its `pose delegate` replacement":           true,
+	"`pose review dispatch`, `resume` e `status`, os aliases que esta superfície depreciou, foram removidos: cada um sai com 2 e nomeia o substituto em `pose delegate`": true,
+	"`pose review dispatch`, `resume` and `status` were removed": true,
+	"pose review dispatch, resume and status were removed":       true,
+	"pose review dispatch, resume e status foram removidos":      true,
+}
+
+var sentenceEnd = regexp.MustCompile(`[.;!?](\s+|$)`)
 
 // replacedNameProblems are the sentences of text that name a replaced
-// command or a launcher outside a removal note.
+// command or a launcher and are not an allowed removal note.
 func replacedNameProblems(name, text string) []string {
 	var problems []string
 	line := 1
 	for _, paragraph := range strings.Split(text, "\n\n") {
 		joined := strings.Join(strings.Fields(paragraph), " ")
 		for _, sentence := range sentenceEnd.Split(joined, -1) {
-			if replacedNames.MatchString(sentence) && (!removalNote.MatchString(sentence) || stillThere.MatchString(sentence)) {
-				problems = append(problems, name+":"+strconv.Itoa(line)+": "+strings.TrimSpace(sentence))
+			sentence = strings.TrimSpace(sentence)
+			if replacedNames.MatchString(sentence) && !allowedRemovalNotes[sentence] {
+				problems = append(problems, name+":"+strconv.Itoa(line)+": "+sentence)
 			}
 		}
 		line += strings.Count(paragraph, "\n") + 2
@@ -317,12 +332,64 @@ func activeDocumentProblems(t *testing.T, root string) []string {
 	return problems
 }
 
-// goStringLiteral is a Go interpreted or raw string literal.
-var goStringLiteral = regexp.MustCompile("\"(?:[^\"\\\\\\n]|\\\\.)*\"|`[^`]*`")
+// goStringValues are the values of the string expressions in a Go file:
+// each literal unquoted, and each chain of + over literals folded into one
+// value, a non-literal operand standing as a gap; comments are not strings
+// (review round 2, PG-R2-02, PG-R2-05).
+func goStringValues(t *testing.T, path string, src []byte) []string {
+	t.Helper()
+	file, err := parser.ParseFile(token.NewFileSet(), path, src, 0)
+	if err != nil {
+		t.Fatalf("%s: %v", path, err)
+	}
+	var values []string
+	var fold func(ast.Expr) (string, bool)
+	fold = func(e ast.Expr) (string, bool) {
+		switch e := e.(type) {
+		case *ast.BasicLit:
+			if e.Kind == token.STRING {
+				v, err := strconv.Unquote(e.Value)
+				return v, err == nil
+			}
+		case *ast.ParenExpr:
+			return fold(e.X)
+		case *ast.BinaryExpr:
+			if e.Op == token.ADD {
+				left, lok := fold(e.X)
+				right, rok := fold(e.Y)
+				if lok || rok {
+					if !lok {
+						left = "\x00"
+					}
+					if !rok {
+						right = "\x00"
+					}
+					return left + right, true
+				}
+			}
+		}
+		return "", false
+	}
+	ast.Inspect(file, func(n ast.Node) bool {
+		switch n := n.(type) {
+		case *ast.BinaryExpr:
+			if v, ok := fold(n); ok && n.Op == token.ADD {
+				values = append(values, v)
+				return false
+			}
+		case *ast.BasicLit:
+			if v, ok := fold(n); ok {
+				values = append(values, v)
+			}
+		}
+		return true
+	})
+	return values
+}
 
-// sourceStringProblems are the string literals of the Go sources under dir,
-// tests aside, that name a replaced command or a launcher outside a removal
-// note: usage strings, errors, MCP tool descriptions (PG-R1-04).
+// sourceStringProblems are the string values of the Go sources under dir,
+// tests aside, that name a replaced command or a launcher outside an allowed
+// removal note: usage strings, errors, MCP tool descriptions (PG-R1-04).
 func sourceStringProblems(t *testing.T, root, dir string) []string {
 	t.Helper()
 	var problems []string
@@ -338,8 +405,8 @@ func sourceStringProblems(t *testing.T, root, dir string) []string {
 			return err
 		}
 		rel, _ := filepath.Rel(root, path)
-		for _, literal := range goStringLiteral.FindAllString(string(raw), -1) {
-			problems = append(problems, replacedNameProblems(filepath.ToSlash(rel), literal)...)
+		for _, value := range goStringValues(t, path, raw) {
+			problems = append(problems, replacedNameProblems(filepath.ToSlash(rel), value)...)
 		}
 		return nil
 	})
@@ -407,20 +474,24 @@ func TestActiveDocumentCheckFailsOnAReplacedCommand(t *testing.T) {
 			write(top.path+"/keep.md", "Use pose delegate review.\n")
 		}
 	}
-	write("POSE.md", "Run `pose review dispatch spec:x --via codex`.\n`pose review status` was removed; use `pose delegate ls`.\n\n`pose review dispatch`, `resume` and `status` remain as deprecated aliases.\n")
-	write("locales/pt-BR/POSE.md", "`pose review dispatch`, `resume` e `status` foram removidos.\n\n`pose review dispatch`, `resume` e `status` ficam como aliases depreciados.\n\n`pose review resume` foi removido, mas continua disponível como alias.\n")
-	write("docs-site/docs/guide.mdx", "The old alias was removed in 7.5. Start it with secondary-agent --read-only prompt.md\n")
+	write("POSE.md", "Run `pose review dispatch spec:x --via codex`.\n`pose review dispatch`, `resume` and `status` were removed; `pose delegate` replaces them.\n\n`pose review dispatch`, `resume` and `status` remain as deprecated aliases.\n\nThe old transport was removed, so run pose review dispatch spec:x.\n\npose review dispatch was removed from the retirement list and works as before.\n")
+	write("locales/pt-BR/POSE.md", "`pose review dispatch`, `resume` e `status`, os aliases que esta superfície depreciou, foram removidos: cada um sai com 2 e nomeia o substituto em `pose delegate`.\n\n`pose review dispatch`, `resume` e `status` ficam como aliases depreciados.\n\n`pose review resume` foi removido, mas continua disponível como alias.\n")
+	write("docs-site/docs/guide.mdx", "Start it with secondary-agent --read-only prompt.md\n")
 	write(".pose/adr/old.md", "The launchers secondary-agent and pose review resume were replaced.\n")
-	write("pose-mcp/internal/cli/x.go", "package cli\nconst usage = \"Usage: pose review dispatch <scope>\"\nconst gone = \"pose review dispatch was removed\"\n")
+	write("pose-mcp/internal/cli/x.go", "package cli\n\n// \"secondary-agent\" was an old launcher.\nconst usage = \"Usage: pose review dispatch <scope>\"\nconst escaped = \"Run pose review \\x64ispatch spec:x\"\nconst joined = \"Run pose review \" + \"dispatch spec:x\"\nconst gap = \"pose review \" + verb + \" was removed\"\nconst gone = \"pose review dispatch, resume and status were removed.\"\n\nvar verb = \"x\"\n")
 	problems := append(activeDocumentProblems(t, root), sourceStringProblems(t, root, "pose-mcp")...)
 	want := []string{
 		"POSE.md:1: Run `pose review dispatch spec:x --via codex`",
 		"POSE.md:4: `pose review dispatch`, `resume` and `status` remain as deprecated aliases",
+		"POSE.md:6: The old transport was removed, so run pose review dispatch spec:x",
+		"POSE.md:8: pose review dispatch was removed from the retirement list and works as before",
 		"locales/pt-BR/POSE.md:3: `pose review dispatch`, `resume` e `status` ficam como aliases depreciados",
 		"locales/pt-BR/POSE.md:5: `pose review resume` foi removido, mas continua disponível como alias",
 		"docs-site/docs/guide.mdx:1: Start it with secondary-agent --read-only prompt.md",
 		".pose/rules: stat " + filepath.Join(root, ".pose", "rules") + ": no such file or directory",
-		"pose-mcp/internal/cli/x.go:1: \"Usage: pose review dispatch <scope>\"",
+		"pose-mcp/internal/cli/x.go:1: Usage: pose review dispatch <scope>",
+		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:x", // the escaped literal
+		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:x", // the folded concatenation
 	}
 	for _, w := range want {
 		if !containsString(problems, w) {
@@ -454,7 +525,30 @@ func TestLauncherParityFollowsTheADRsText(t *testing.T) {
 			t.Fatalf("an inventory entry in another form was read as nothing: %q -> %v", added, unrecognized)
 		}
 	}
+	extended := strings.Replace(adr, "while any row is uncovered.", "while any row is uncovered. The secondary-agent launcher also supports automatic credential rotation.", 1)
+	if extended == adr {
+		t.Fatal("the fixture did not find the retirement rule")
+	}
+	if _, unrecognized := adrLauncherCapabilities(extended); len(unrecognized) != 1 {
+		t.Fatalf("a capability added to the retirement rule was read as nothing: %v", unrecognized)
+	}
 	if _, unrecognized := adrLauncherCapabilities(adr); len(unrecognized) != 0 {
 		t.Fatalf("the ADR as written: %v", unrecognized)
 	}
+}
+
+// The parity check proves that each row names a documented command and tests
+// that exist, not that they exercise the capability: a row citing an
+// unrelated existing test passes. Semantic review of the cited tests is the
+// defence; the corpus keeps the gap visible (review round 2, PG-R2-07).
+func init() {
+	adversarialCorpus = append(adversarialCorpus, adversarialCase{"parity-row-cites-an-unrelated-test", "known-gap", "pose-delegation-parity-gate", func(t *testing.T) (bool, string) {
+		m, adr, _ := loadLauncherParity(t)
+		fixture := m
+		fixture.Rows = append([]launcherParityRow(nil), m.Rows...)
+		fixture.Rows[0].Command = "pose delegate agents"
+		fixture.Rows[0].Tests = []string{"TestActiveDocumentCheckFailsOnAReplacedCommand"}
+		problems := launcherParityProblems(fixture, adr, repositoryTestNames(t, "../.."))
+		return len(problems) == 0, strings.Join(problems, "; ")
+	}})
 }

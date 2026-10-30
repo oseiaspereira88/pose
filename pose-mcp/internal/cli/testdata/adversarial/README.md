@@ -36,6 +36,7 @@ adopting project's features.
 | `unpinned-premise-trigger-reads-current` | enforced | A premise trigger without a pin can never go stale and nothing says so | pose-assumption-validity-scope |
 | `calendar-ttl-as-premise-trigger` | enforced | An arbitrary expiry date is accepted as the material trigger of a premise | pose-assumption-validity-scope |
 | `unobserved-falsifier-reads-uncontradicted` | known-gap | A falsifier check that no run produces raises nothing, and nothing says the falsifier was never observed | pose-falsifier-reconsideration |
+| `parity-row-cites-an-unrelated-test` | known-gap | A launcher parity row names a real but unrelated `pose delegate` command and an existing test that does not exercise the capability, and the parity check passes; the check proves existence, review of the cited tests proves coverage | pose-delegation-parity-gate |
 | `request-opened-after-preview-transfers` | delegated | A request opened after a transfer preview is moved with the spec (`pose/spec_transfer_actions_test.go:TestTransferRefusesARequestOpenedAfterThePreview`) | pose-transfer-preserves-obligations |
 
 | `deleted-reservation-resets-quota` | delegated | Deleting a reservation and receipt makes a surviving run stop consuming quota | pose-delegated-review-attempt-ledger |
