@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -139,4 +141,122 @@ func graftFixture(t *testing.T) (string, string, string) {
 		t.Fatal("without a graft the fixture does not keep alpha's finding")
 	}
 	return r.root, b, u
+}
+
+// recordedFixture is alpha creating internal/x.go (A1, trailer), beta
+// removing it (B, trailer), an untagged commit adding it back (A2) that only
+// a recorded report attributes to alpha, and an unattributed deletion; it
+// returns the root and A2.
+func recordedFixture(t *testing.T) (string, string) {
+	t.Helper()
+	r := newRemovalRepo(t)
+	spec := func(slug, artifacts string) {
+		r.write(".pose/specs/"+slug+"/spec.md", "---\nslug: "+slug+"\nstatus: done\ncreated_at: 2026-10-30\n---\n\n# Spec: "+slug+"\n\n## 3. Technical Plan\n\n### Artifacts\n"+artifacts+"\n## 4. Tasks\nwork\n")
+	}
+	r.write(".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-03","governed_roots":["internal"],"severities":{"action-mismatch":"error","undeclared":"error","existence":"error"}}`)
+	r.write("README.md", "fixture\n")
+	r.commit("baseline")
+	spec("alpha", "- created: internal/x.go\n")
+	r.write(removalPath, "package internal\n")
+	r.commit("alpha creates\n\nPOSE-Spec: alpha")
+	spec("beta", "- removed: internal/x.go\n")
+	r.rm(removalPath)
+	r.commit("beta removes\n\nPOSE-Spec: beta")
+	r.write(removalPath, "package internal\n// back\n")
+	a2 := r.commit("alpha adds it back, untagged")
+	r.rm(removalPath)
+	r.commit("an unattributed deletion")
+	return r.root, a2
+}
+
+// writeRecorded writes the report history of alpha: the given lines, then
+// a record of the change set of A2 whose paths are padded to size bytes.
+func writeRecorded(t *testing.T, root, a2 string, size int, before ...string) {
+	t.Helper()
+	set := posemodel.ChangeSet{ID: "cs-recorded-a2", Spec: "alpha", Selector: "range", Commits: []string{a2}, Paths: []posemodel.ObservedPath{{Action: "created", Path: removalPath}}}
+	for n := 0; len(set.Paths)*48 < size; n++ {
+		set.Paths = append(set.Paths, posemodel.ObservedPath{Action: "created", Path: fmt.Sprintf("other/a-long-generated-file-name-%06d.txt", n)})
+	}
+	record, err := json.Marshal(map[string]any{"task": "alpha", "change_set": set})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := strings.Join(append(before, string(record)), "\n") + "\n"
+	writeArtifactTestFile(t, root, ".pose/reports/history/report-alpha.jsonl", body)
+}
+
+func TestLaterRemovalReviewRoundFive(t *testing.T) {
+	alphaKept := func(t *testing.T, root string) bool {
+		t.Helper()
+		graph, err := buildCurrentDeliveryGraph(root)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, kept := existenceFindings(graph)["alpha internal/x.go"]
+		return kept
+	}
+	// LR-R5-01: a recorded change set wider than a scanner's default token
+	// is read, so alpha's later change keeps its finding.
+	t.Run("wide recorded change set", func(t *testing.T) {
+		root, a2 := recordedFixture(t)
+		writeRecorded(t, root, a2, 160*1024)
+		_, _, sets, _, _, gaps, err := collectArtifactGraphInputsWithGapsIn(posemodel.NativeFiles(), root)
+		recorded := false
+		for _, set := range sets {
+			recorded = recorded || set.ID == "cs-recorded-a2"
+		}
+		if err != nil || gaps[""] != "" || !recorded {
+			t.Fatalf("a wide recorded change set was not read: %v %v %v", recorded, gaps, err)
+		}
+		if !alphaKept(t, root) {
+			t.Fatal("a wide recorded change set was dropped and the removal accepted")
+		}
+	})
+	// What the loader cannot read refuses every removal, with its cause.
+	t.Run("unreadable records", func(t *testing.T) {
+		limit := recordedChangeSetLineLimit
+		t.Cleanup(func() { recordedChangeSetLineLimit = limit })
+		for name, setup := range map[string]func(root, a2 string){
+			"over the limit": func(root, a2 string) {
+				recordedChangeSetLineLimit = 64 * 1024
+				writeRecorded(t, root, a2, 160*1024)
+			},
+			"malformed line": func(root, a2 string) {
+				writeRecorded(t, root, a2, 0, `{"task":"alpha"}`, `{"change_set": {"id": `)
+			},
+			"unreadable file": func(root, a2 string) {
+				if err := os.MkdirAll(filepath.Join(root, ".pose", "reports", "history", "dir.jsonl"), 0o755); err != nil {
+					t.Fatal(err)
+				}
+			},
+		} {
+			recordedChangeSetLineLimit = limit
+			root, a2 := recordedFixture(t)
+			setup(root, a2)
+			_, claims, sets, tracked, _, gaps, err := collectArtifactGraphInputsWithGapsIn(posemodel.NativeFiles(), root)
+			if err != nil || !strings.Contains(gaps[""], "recorded change sets could not be read") {
+				t.Fatalf("%s: %v %v", name, gaps, err)
+			}
+			for _, removal := range artifactRemovals(root, claims, sets, tracked, gaps) {
+				if len(removal.Supersedes) > 0 || !strings.Contains(removal.Refusals["alpha"], "recorded change sets") {
+					t.Fatalf("%s: a removal was judged on part of the records: %+v", name, removal)
+				}
+			}
+			if !alphaKept(t, root) {
+				t.Fatalf("%s: alpha's finding was dropped", name)
+			}
+		}
+	})
+	// A record without a change set is an ordinary report record.
+	t.Run("records without a change set", func(t *testing.T) {
+		root, a2 := recordedFixture(t)
+		writeRecorded(t, root, a2, 0, `{"task":"alpha","sequence":1}`, "")
+		_, _, _, _, _, gaps, err := collectArtifactGraphInputsWithGapsIn(posemodel.NativeFiles(), root)
+		if err != nil || gaps[""] != "" {
+			t.Fatalf("ordinary records made a gap: %v %v", gaps, err)
+		}
+		if !alphaKept(t, root) {
+			t.Fatal("the recorded later change was not judged")
+		}
+	})
 }
