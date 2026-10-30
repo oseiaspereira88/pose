@@ -102,14 +102,15 @@ type DeliveryIntegrityGraph struct {
 // ArtifactRemoval is what Git says about a path a spec declares removed and
 // that is absent at the head (spec pose-delivery-later-removal R1–R3): the
 // commit of the removing spec's change set that deleted it, and, for each
-// other spec that declares the path created or modified, whether that spec's
-// latest change to the path is an ancestor of the deletion. Commit is empty
-// when the removing spec's change set deletes nothing at the path.
+// other spec that declares the path created or modified, the deletion that
+// all of that spec's changes to the path precede (Supersedes, spec to
+// deleting commit) or why none does (Refusals). Commit is the first deleting
+// commit, empty when the removing spec's change set deletes nothing there.
 type ArtifactRemoval struct {
 	Spec       string            `json:"spec"`
 	Path       string            `json:"path"`
 	Commit     string            `json:"commit,omitempty"`
-	Supersedes []string          `json:"supersedes,omitempty"`
+	Supersedes map[string]string `json:"supersedes,omitempty"`
 	Refusals   map[string]string `json:"refusals,omitempty"`
 }
 
@@ -684,15 +685,18 @@ func laterRemoval(removals []ArtifactRemoval, claim ArtifactClaim) (ArtifactRemo
 		if r.Path != claim.Path {
 			continue
 		}
+		refusal := r.Refusals[claim.Spec]
 		switch {
 		case r.Spec == claim.Spec:
 			notes = append(notes, "spec "+r.Spec+" removes the path it declares current")
+		case r.Supersedes[claim.Spec] != "":
+			return r, "", true
+		case refusal != "" && r.Commit == "":
+			notes = append(notes, "spec "+r.Spec+" declares the path removed, but "+refusal)
 		case r.Commit == "":
 			notes = append(notes, "spec "+r.Spec+" declares the path removed, but its change set deletes nothing there")
-		case containsString(r.Supersedes, claim.Spec):
-			return r, "", true
-		case r.Refusals[claim.Spec] != "":
-			notes = append(notes, "spec "+r.Spec+" removed the path at "+r.Commit+", but "+r.Refusals[claim.Spec])
+		case refusal != "":
+			notes = append(notes, "spec "+r.Spec+" removed the path at "+r.Commit+", but "+refusal)
 		default:
 			notes = append(notes, "spec "+r.Spec+" removed the path at "+r.Commit+", but this spec's change to it does not precede the removal")
 		}

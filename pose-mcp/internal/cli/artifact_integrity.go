@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"errors"
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
@@ -14,6 +15,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
@@ -459,7 +461,7 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 	// change sets (spec pose-delivery-later-removal R4).
 	var removals []posemodel.ArtifactRemoval
 	if _, allClaims, allSets, _, _, err := collectArtifactGraphInputs(root); err == nil {
-		removals = artifactRemovals(root, allClaims, allSets, tracked)
+		removals = artifactRemovals(root, allClaims, allSets, tracked, sets...)
 	}
 	graph := posemodel.BuildDeliveryIntegrityWithHistoryIn(posemodel.NativeFiles(), []posemodel.Spec{*full}, claims, sets, tracked, policy, posemodel.LoadArchivedFragments(root), removals)
 	for _, claim := range claims {
@@ -661,66 +663,315 @@ func appendUniqueArtifactString(values []string, value string) []string {
 	return append(values, value)
 }
 
+// removalCommitRE is a commit as change sets must name it: a full object
+// name, never a revision expression or anything Git could read as an option
+// (review round 1, LR-R1-11).
+var removalCommitRE = regexp.MustCompile(`^[0-9a-f]{40}([0-9a-f]{24})?$`)
+
+// removalHistory reads the Git facts a later removal is judged on, with every
+// path literal (never a pathspec, LR-R1-08) and every commit an immutable
+// object name; each answer is kept, and an error is an error, never a
+// negative answer (LR-R1-04, LR-R1-09).
+type removalHistory struct {
+	root    string
+	entries map[string]string
+	parents map[string][]string
+	renames map[string]map[string]bool
+	ancest  map[string]bool
+}
+
+func (h *removalHistory) git(limit int, args ...string) ([]byte, error) {
+	cmd := exec.Command("git", append([]string{"--literal-pathspecs", "-C", h.root}, args...)...)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &limitedBuffer{buf: &stdout, limit: limit}
+	cmd.Stderr = &limitedBuffer{buf: &stderr, limit: 64 * 1024}
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("git %s: %v: %s", args[0], err, strings.TrimSpace(stderr.String()))
+	}
+	return stdout.Bytes(), nil
+}
+
+// entry is the tree entry of path at commit — mode, type and object — or ""
+// when the path is absent there.
+func (h *removalHistory) entry(commit, path string) (string, error) {
+	key := commit + "\x00" + path
+	if v, ok := h.entries[key]; ok {
+		return v, nil
+	}
+	out, err := h.git(64*1024, "ls-tree", "-z", "--full-tree", commit, "--", path)
+	if err != nil {
+		return "", err
+	}
+	v := ""
+	for _, rec := range strings.Split(string(out), "\x00") {
+		if meta, name, ok := strings.Cut(rec, "\t"); ok && name == path {
+			v = meta
+		}
+	}
+	h.entries[key] = v
+	return v, nil
+}
+
+func (h *removalHistory) parentsOf(commit string) ([]string, error) {
+	if v, ok := h.parents[commit]; ok {
+		return v, nil
+	}
+	out, err := h.git(64*1024, "rev-list", "--parents", "-n", "1", commit)
+	if err != nil {
+		return nil, err
+	}
+	fields := strings.Fields(string(out))
+	if len(fields) == 0 || fields[0] != commit {
+		return nil, fmt.Errorf("git rev-list: %s is not a commit", commit)
+	}
+	h.parents[commit] = fields[1:]
+	return fields[1:], nil
+}
+
+// renamedAway reports whether commit, against parent, renames path away.
+func (h *removalHistory) renamedAway(parent, commit, path string) (bool, error) {
+	key := parent + "\x00" + commit
+	if set, ok := h.renames[key]; ok {
+		return set[path], nil
+	}
+	out, err := h.git(8*1024*1024, "diff-tree", "-r", "-M", "-z", "--name-status", "--no-commit-id", parent, commit)
+	if err != nil {
+		return false, err
+	}
+	set := map[string]bool{}
+	fields := strings.Split(string(out), "\x00")
+	for i := 0; i < len(fields); i++ {
+		if strings.HasPrefix(fields[i], "R") && i+2 < len(fields) {
+			set[fields[i+1]] = true
+			i += 2
+		}
+	}
+	h.renames[key] = set
+	return set[path], nil
+}
+
+// ancestor reports whether a is an ancestor of b; Git's exit 1 is "no", any
+// other failure an error (LR-R1-04).
+func (h *removalHistory) ancestor(a, b string) (bool, error) {
+	key := a + "\x00" + b
+	if v, ok := h.ancest[key]; ok {
+		return v, nil
+	}
+	cmd := exec.Command("git", "--literal-pathspecs", "-C", h.root, "merge-base", "--is-ancestor", a, b)
+	err := cmd.Run()
+	var exit *exec.ExitError
+	switch {
+	case err == nil:
+		h.ancest[key] = true
+	case errors.As(err, &exit) && exit.ExitCode() == 1:
+		h.ancest[key] = false
+	default:
+		return false, fmt.Errorf("git merge-base --is-ancestor: %v", err)
+	}
+	return h.ancest[key], nil
+}
+
+// touches reports whether commit changes path's entry against any of its
+// parents — a root commit against nothing — so a creation, a modification, a
+// type change, a deletion, a rename and a merge that changes it all count
+// (LR-R1-02, LR-R1-03).
+func (h *removalHistory) touches(commit, path string) (bool, error) {
+	here, err := h.entry(commit, path)
+	if err != nil {
+		return false, err
+	}
+	parents, err := h.parentsOf(commit)
+	if err != nil {
+		return false, err
+	}
+	if len(parents) == 0 {
+		return here != "", nil
+	}
+	for _, parent := range parents {
+		there, err := h.entry(parent, path)
+		if err != nil {
+			return false, err
+		}
+		if there != here {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// deletes reports whether commit removes path: absent there, present in a
+// parent that does not rename it away (a rename is not a removal, LR-R1-07).
+func (h *removalHistory) deletes(commit, path string) (bool, error) {
+	here, err := h.entry(commit, path)
+	if err != nil || here != "" {
+		return false, err
+	}
+	parents, err := h.parentsOf(commit)
+	if err != nil {
+		return false, err
+	}
+	for _, parent := range parents {
+		there, err := h.entry(parent, path)
+		if err != nil {
+			return false, err
+		}
+		if there == "" {
+			continue
+		}
+		renamed, err := h.renamedAway(parent, commit, path)
+		if err != nil {
+			return false, err
+		}
+		if !renamed {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 // artifactRemovals reads from Git what a later removal needs to satisfy the
-// existence of a declared artifact (spec pose-delivery-later-removal R1–R4):
-// for each path a spec declares removed that is absent at the head, the
-// commit of that spec's change set that deleted it, and which specs that
-// declare the path created or modified changed it in an ancestor of that
-// commit. Git is read only for such paths.
-func artifactRemovals(root string, claims []posemodel.ArtifactClaim, sets []posemodel.ChangeSet, tracked []string) []posemodel.ArtifactRemoval {
+// existence of a declared artifact (spec pose-delivery-later-removal R1–R4).
+// For each path a spec declares removed that is absent at the head: the
+// commits of that spec's change sets that delete it, and, for each other spec
+// that declares the path created or modified, a deletion that every commit of
+// that spec touching the path is an ancestor of. Commits are gathered from all
+// of a spec's change sets and judged by ancestry, never by the order the sets
+// come in (LR-R1-01, LR-R1-06); a commit that is not an immutable object name,
+// or history Git cannot read, refuses with its cause. overrides replaces the
+// change sets of a spec, as an explicit artifact-check range does (LR-R1-05).
+func artifactRemovals(root string, claims []posemodel.ArtifactClaim, sets []posemodel.ChangeSet, tracked []string, overrides ...posemodel.ChangeSet) []posemodel.ArtifactRemoval {
 	present := map[string]bool{}
 	for _, path := range tracked {
 		present[filepath.ToSlash(path)] = true
 	}
-	commitsOf := map[string][]string{}
-	for _, set := range sets {
-		commitsOf[set.Spec] = append(commitsOf[set.Spec], set.Commits...)
+	replaced := map[string]bool{}
+	for _, set := range overrides {
+		replaced[set.Spec] = true
 	}
-	// lastTouching is the latest of commits whose own change touches path
-	// with one of the name-status letters in letters.
-	lastTouching := func(commits []string, path, letters string) string {
-		for i := len(commits) - 1; i >= 0; i-- {
-			out, err := gitOutputBounded(root, 64*1024, "diff-tree", "--no-commit-id", "--name-status", "-r", commits[i], "--", path)
-			if err != nil {
+	commitsOf := map[string][]string{}
+	invalid := map[string]string{}
+	seen := map[string]bool{}
+	for _, set := range append(append([]posemodel.ChangeSet{}, overrides...), sets...) {
+		if replaced[set.Spec] && !containsChangeSet(overrides, set) {
+			continue
+		}
+		for _, commit := range set.Commits {
+			if !removalCommitRE.MatchString(commit) {
+				invalid[set.Spec] = "its change set names " + strconv.Quote(commit) + ", which is not an immutable commit"
 				continue
 			}
-			for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
-				if fields := strings.Split(line, "\t"); len(fields) >= 2 && strings.ContainsAny(fields[0][:1], letters) {
-					return commits[i]
-				}
+			if !seen[set.Spec+"\x00"+commit] {
+				seen[set.Spec+"\x00"+commit] = true
+				commitsOf[set.Spec] = append(commitsOf[set.Spec], commit)
 			}
 		}
-		return ""
 	}
+	for spec := range commitsOf {
+		sort.Strings(commitsOf[spec])
+	}
+	h := &removalHistory{root: root, entries: map[string]string{}, parents: map[string][]string{}, renames: map[string]map[string]bool{}, ancest: map[string]bool{}}
 	var removals []posemodel.ArtifactRemoval
 	for _, removed := range claims {
 		if removed.Action != "removed" || present[removed.Path] {
 			continue
 		}
-		r := posemodel.ArtifactRemoval{Spec: removed.Spec, Path: removed.Path, Commit: lastTouching(commitsOf[removed.Spec], removed.Path, "D"), Refusals: map[string]string{}}
+		r := posemodel.ArtifactRemoval{Spec: removed.Spec, Path: removed.Path, Supersedes: map[string]string{}, Refusals: map[string]string{}}
+		var deletions []string
+		var unreadable error
+		if why := invalid[removed.Spec]; why != "" {
+			unreadable = errors.New("spec " + removed.Spec + ": " + why)
+		}
+		for _, commit := range commitsOf[removed.Spec] {
+			if unreadable != nil {
+				break
+			}
+			deleted, err := h.deletes(commit, removed.Path)
+			if err != nil {
+				unreadable = err
+			} else if deleted {
+				deletions = append(deletions, commit)
+			}
+		}
+		if len(deletions) > 0 {
+			r.Commit = deletions[0]
+		}
 		for _, declared := range claims {
-			if declared.Path != removed.Path || declared.Spec == removed.Spec || (declared.Action != "created" && declared.Action != "modified") || r.Commit == "" {
+			if declared.Path != removed.Path || declared.Spec == removed.Spec || (declared.Action != "created" && declared.Action != "modified") {
 				continue
 			}
-			changed := lastTouching(commitsOf[declared.Spec], declared.Path, "AMR")
-			switch {
-			case changed == "":
-				r.Refusals[declared.Spec] = "this spec's change to it is not in its attributed change set"
-			case changed == r.Commit:
-				r.Refusals[declared.Spec] = "this spec's change to it is the removal itself"
-			default:
-				if _, err := gitOutputBounded(root, 1024, "merge-base", "--is-ancestor", changed, r.Commit); err == nil {
-					r.Supersedes = append(r.Supersedes, declared.Spec)
-				} else {
-					r.Refusals[declared.Spec] = "this spec's change to it (" + changed + ") does not precede the removal"
-				}
+			if unreadable != nil {
+				r.Refusals[declared.Spec] = "the history could not be read: " + unreadable.Error()
+				continue
 			}
+			if len(deletions) == 0 {
+				continue
+			}
+			if why := invalid[declared.Spec]; why != "" {
+				r.Refusals[declared.Spec] = why
+				continue
+			}
+			via, why := precedingDeletion(h, commitsOf[declared.Spec], declared.Path, deletions)
+			if via != "" {
+				r.Supersedes[declared.Spec] = via
+			} else {
+				r.Refusals[declared.Spec] = why
+			}
+		}
+		if len(r.Supersedes) == 0 {
+			r.Supersedes = nil
 		}
 		if len(r.Refusals) == 0 {
 			r.Refusals = nil
 		}
-		sort.Strings(r.Supersedes)
 		removals = append(removals, r)
 	}
 	return removals
+}
+
+// precedingDeletion is the first of deletions that every commit of commits
+// touching path is an ancestor of, or why none is.
+func precedingDeletion(h *removalHistory, commits []string, path string, deletions []string) (string, string) {
+	var touched []string
+	for _, commit := range commits {
+		ok, err := h.touches(commit, path)
+		if err != nil {
+			return "", "the history could not be read: " + err.Error()
+		}
+		if ok {
+			touched = append(touched, commit)
+		}
+	}
+	if len(touched) == 0 {
+		return "", "this spec's change to it is not in its attributed change set"
+	}
+	for _, deletion := range deletions {
+		all := true
+		for _, commit := range touched {
+			if commit == deletion {
+				all = false
+				break
+			}
+			ok, err := h.ancestor(commit, deletion)
+			if err != nil {
+				return "", "the history could not be read: " + err.Error()
+			}
+			if !ok {
+				all = false
+				break
+			}
+		}
+		if all {
+			return deletion, ""
+		}
+	}
+	return "", "this spec's change to it does not precede the removal"
+}
+
+func containsChangeSet(sets []posemodel.ChangeSet, set posemodel.ChangeSet) bool {
+	for _, s := range sets {
+		if s.ID == set.ID && s.Spec == set.Spec {
+			return true
+		}
+	}
+	return false
 }

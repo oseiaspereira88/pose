@@ -36,9 +36,9 @@ Inferring removals no spec declares; removals outside attributed change sets; re
 
 ### Functional
 
-- R1: When a path a spec declares `created` or `modified` is not tracked at the selected head, its existence shall be satisfied when another spec declares `removed:` for that path, the removing spec's attributed change set contains a commit that deletes the path, and the declaring spec's latest attributed commit that touches the path is an ancestor of that deleting commit.
+- R1: When a path a spec declares `created` or `modified` is not tracked at the selected head, its existence shall be satisfied when another spec declares `removed:` for that path and its attributed change sets contain a commit that deletes the path — absent there, present in a parent that does not rename it away — of which every attributed commit of the declaring spec that changes the path's entry against any of its parents (a root creation, a type change, a deletion and a merge included) is a Git ancestor; commits are gathered from all of a spec's change sets, an explicit range standing for that spec's, and judged by ancestry only.
 - R2: A satisfied claim shall be recorded in the delivery-integrity graph as an edge `removed-by` from the artifact to the removing spec, naming the deleting commit, and the removal witnesses shall be part of the graph's inputs.
-- R3: The existence finding shall remain when the declaring spec's change to the path follows the removal or is not its ancestor, when the declaring spec is the removing spec, when the removal claim is not observed as a deletion in the removing spec's change set, or when no spec declares the removal; its message shall say which of these kept the removal from applying when a removal claim exists.
+- R3: The existence finding shall remain when a change of the declaring spec to the path follows the removal or is not its ancestor, when the declaring spec is the removing spec, when the removal claim is not observed as a deletion in the removing spec's change sets, when a change set names a commit that is not an immutable object name, when Git cannot read the history it needs, or when no spec declares the removal; paths are read literally, never as pathspecs, and the message shall say which of these kept the removal from applying when a removal claim exists.
 - R4: `pose index`, `pose check --strict`, `pose artifact-check` and `pose surface-check` shall apply the same rule from one computation.
 - R5: `pose-mcp/internal/cli/review_dispatch.go` shall be removed, the removed aliases' answer moved back into the review command, and the five done specs that declare it shall pass `check --strict` through R1.
 - R6: The operating manual shall describe how a later spec removes a file earlier specs declare.
@@ -75,6 +75,8 @@ Delivery-integrity graph (existence rule, removal witnesses, edges), the CLI tha
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/surface_check.go
 - created: pose-mcp/internal/cli/delivery_later_removal_test.go
+- created: pose-mcp/internal/cli/delivery_later_removal_history_test.go
+- created: .pose/specs/2026-10-30-pose-delivery-later-removal.amendments.jsonl
 - modified: pose-mcp/internal/cli/review_closeout.go
 - removed: pose-mcp/internal/cli/review_dispatch.go
 - modified: POSE.md

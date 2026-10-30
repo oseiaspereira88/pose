@@ -370,18 +370,18 @@ func TestCompactIndexDerivesChangesEdgesFromTheChangeSets(t *testing.T) {
 // index file and the cache, each a copy of its own.
 func TestLaterRemovalsSurviveTheIndexFileAndCache(t *testing.T) {
 	graph := compactFixture(t, 2, 2)
-	graph.Removals = []ArtifactRemoval{{Spec: "b", Path: "p", Commit: "c", Supersedes: []string{"a"}, Refusals: map[string]string{"z": "after"}}}
+	graph.Removals = []ArtifactRemoval{{Spec: "b", Path: "p", Commit: "c", Supersedes: map[string]string{"a": "c"}, Refusals: map[string]string{"z": "after"}}}
 	expanded, err := expandDeliveryIndex(compactDeliveryIndex(graph))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(expanded.Removals) != 1 || expanded.Removals[0].Commit != "c" || expanded.Removals[0].Supersedes[0] != "a" || expanded.Removals[0].Refusals["z"] != "after" {
+	if len(expanded.Removals) != 1 || expanded.Removals[0].Commit != "c" || expanded.Removals[0].Supersedes["a"] != "c" || expanded.Removals[0].Refusals["z"] != "after" {
 		t.Fatalf("removals after the index file: %+v", expanded.Removals)
 	}
 	copied := copyDeliveryIntegrityGraph(graph)
-	copied.Removals[0].Supersedes[0] = "changed"
+	copied.Removals[0].Supersedes["a"] = "changed"
 	copied.Removals[0].Refusals["z"] = "changed"
-	if graph.Removals[0].Supersedes[0] != "a" || graph.Removals[0].Refusals["z"] != "after" {
+	if graph.Removals[0].Supersedes["a"] != "c" || graph.Removals[0].Refusals["z"] != "after" {
 		t.Fatal("a cached copy shares the removals")
 	}
 }
@@ -391,7 +391,7 @@ func TestLaterRemovalsSurviveTheIndexFileAndCache(t *testing.T) {
 func TestLaterRemovalsAreAnInputOfTheGraph(t *testing.T) {
 	claims := []ArtifactClaim{{Spec: "a", Action: "created", Path: "p"}, {Spec: "b", Action: "removed", Path: "p"}}
 	without := BuildDeliveryIntegrityWithHistoryIn(NativeFiles(), nil, claims, nil, []string{"q"}, ArtifactPolicy{}, nil, nil)
-	with := BuildDeliveryIntegrityWithHistoryIn(NativeFiles(), nil, claims, nil, []string{"q"}, ArtifactPolicy{}, nil, []ArtifactRemoval{{Spec: "b", Path: "p", Commit: "c", Supersedes: []string{"a"}}})
+	with := BuildDeliveryIntegrityWithHistoryIn(NativeFiles(), nil, claims, nil, []string{"q"}, ArtifactPolicy{}, nil, []ArtifactRemoval{{Spec: "b", Path: "p", Commit: "c", Supersedes: map[string]string{"a": "c"}}})
 	if without.InputDigest == with.InputDigest {
 		t.Fatal("the input digest does not follow the removal witnesses")
 	}
@@ -400,7 +400,7 @@ func TestLaterRemovalsAreAnInputOfTheGraph(t *testing.T) {
 // Spec pose-delivery-later-removal R3: a spec's own removal does not satisfy
 // its own claim on the path, and the note says so.
 func TestLaterRemovalOfAPathBySpecItselfSatisfiesNothing(t *testing.T) {
-	removals := []ArtifactRemoval{{Spec: "a", Path: "p", Commit: "c", Supersedes: []string{"a"}}}
+	removals := []ArtifactRemoval{{Spec: "a", Path: "p", Commit: "c", Supersedes: map[string]string{"a": "c"}}}
 	if _, note, ok := laterRemoval(removals, ArtifactClaim{Spec: "a", Action: "created", Path: "p"}); ok || !strings.Contains(note, "spec a removes the path it declares current") {
 		t.Fatalf("a spec's own removal: %v %q", ok, note)
 	}

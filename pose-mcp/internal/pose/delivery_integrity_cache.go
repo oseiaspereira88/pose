@@ -113,7 +113,13 @@ func copyDeliveryIntegrityGraph(in DeliveryIntegrityGraph) DeliveryIntegrityGrap
 	out.Archivals = append([]ArchivedFragment{}, in.Archivals...)
 	out.Removals = make([]ArtifactRemoval, len(in.Removals))
 	for i, r := range in.Removals {
-		r.Supersedes = append([]string(nil), r.Supersedes...)
+		if r.Supersedes != nil {
+			supersedes := make(map[string]string, len(r.Supersedes))
+			for k, v := range r.Supersedes {
+				supersedes[k] = v
+			}
+			r.Supersedes = supersedes
+		}
 		if r.Refusals != nil {
 			refusals := make(map[string]string, len(r.Refusals))
 			for k, v := range r.Refusals {
