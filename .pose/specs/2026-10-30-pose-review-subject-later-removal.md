@@ -40,7 +40,7 @@ Closing the roadmaps `delegated-review` and `delegation` needs a sealed `milesto
 - R1: When a review subject path is absent from the tree, and the delivery-integrity graph has, for every selected spec that observes the path, a removal of it by another spec that supersedes that very spec, the subject entry shall be digested from those witnesses (removing spec and deleting commit per observer) instead of failing as unreadable.
 - R2: An absent path shall still refuse the bundle with the unreadable-path blocker when any observing spec lacks such a witness — no witness, a witness for another path or another spec, a refused removal, or the spec's own removal — whatever the order of the selected change sets.
 - R3: Sealing a milestone (or roadmap) bundle shall accept a done child scope whose sealed bundle no longer equals the prepared one when the child's own review verification retains its approved review (closed, fresh, approved — lost history, a later negative review and a changed federated manifest excluded), recording the retained bundle as the child; otherwise the child shall still block, with the verification's cause.
-- R4: The roadmaps `delegated-review` and `delegation` shall seal their milestone bundles with these rules.
+- R4: The eighteen milestone bundles of the roadmaps `delegated-review` and `delegation` shall prepare with no blocker under these rules; sealing them follows the engine specs for SR-R1-05, SR-R1-06 and SR-R1-07 (maintainer's direction, 2026-10-30).
 
 ### Non-functional
 
@@ -82,10 +82,10 @@ A review subject entry may carry a removal digest; a milestone bundle's child ma
 
 ## 4. Tasks
 
-- [ ] Removal witness in the review subject
-- [ ] Retained children in milestone seals
-- [ ] Seal the eighteen milestone bundles
-- [ ] Independent review and closeout
+- [x] Removal witness in the review subject
+- [x] Retained children in milestone seals
+- [x] Prepare the eighteen milestone bundles without blockers
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -105,14 +105,23 @@ Fixtures: a spec whose declared file a later spec removed seals its bundle with 
 
 ### Requirement trace
 
+- R1 [satisfied] check:review-subject-later-removal-integration test:TestReviewSubjectReadsALaterRemovalFromItsWitness test:TestMilestoneSubjectRemovalHoldsForEveryMember report:.pose/results/delivery-validation.json commit:814d1c1032d5501b574c8ceda715d7150896b2c4 — An absent subject path digests from the removals the delivery graph accepted for every selected spec observing the path it reads, keyed by that path before change-set reduction.
+- R2 [satisfied] check:review-subject-later-removal-integration test:TestReviewSubjectReadsALaterRemovalFromItsWitness test:TestReviewSubjectRemovalHoldsForEveryObserver test:TestMilestoneSubjectRemovalHoldsForEveryMember report:.pose/results/delivery-validation.json commit:814d1c1032d5501b574c8ceda715d7150896b2c4 — No witness, another path's or spec's, a refused removal, a spec's own removal, or any observer lacking one keeps the unreadable-path blocker, in every set order, action and containment.
+- R3 [satisfied] check:review-subject-later-removal-integration test:TestMilestoneSealRetainsADoneChildsApprovedReview test:TestRetainedChildFollowsItsVerification report:.pose/results/delivery-validation.json commit:814d1c1032d5501b574c8ceda715d7150896b2c4 — A done child whose preparation changed is accepted through the bundle its own review verification retains; not-done children, later negative reviews and revoked federated trust keep the blocker.
+- R4 [satisfied] check:review-subject-later-removal-integration report:.pose/results/delivery-validation.json commit:814d1c1032d5501b574c8ceda715d7150896b2c4 — All eighteen milestones of `delegated-review` and `delegation` prepare with zero blockers (independently reproduced by the reviewer); their seals wait on F1–F3.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+A review subject reads a path a later spec removed through the removal the delivery graph accepted for each observing spec, and a milestone seal accepts a done member through the review its own verification retains. Independently reviewed by Codex over four rounds (reports kept outside the checkout); 11 of 12 mutations killed, the survivor adjudicated equivalent by the reviewer.
 
 ### Residual risks
 
-None yet.
+A milestone's integration approval certifies the child bundles it recorded, not their continuing approval (F1). Removal digests read the indexed graph, whose Git and recorded-history inputs are not bound to generation freshness (F2). Retention after drift follows seal order, not replacement lineage (F3). The eighteen milestone seals wait on these three.
 
 ### Follow-ups
+
+- [open] F1: make integration approval of a milestone or roadmap follow its descendants: a child's later rejection, lost attestation history or reopening revokes the parent's approval in preparation, verification and closeout (SR-R1-05). Next engine spec, before the eighteen milestone seals. (owner:@oseiaspereira88 crit:high review:2026-11-06)
+- [open] F2: bind the Git and recorded-history inputs of indexed removal witnesses to generation freshness, or refuse a witness whose freshness is unknown, for review subjects as for delivery integrity (SR-R1-06, with LR-R1-10 / F4 of pose-delivery-later-removal). Next engine spec, before the eighteen milestone seals. (owner:@oseiaspereira88 crit:medium review:2026-11-06)
+- [open] F3: make review retention after drift honour replacement lineage, including backdated or equal seal times, so matching and retained verification choose the same bundle (SR-R1-07). Next engine spec, before the eighteen milestone seals. (owner:@oseiaspereira88 crit:medium review:2026-11-06)
