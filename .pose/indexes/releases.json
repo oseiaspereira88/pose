@@ -313,6 +313,14 @@
       "digest": "sha256:7962470cd7484113cb83d24ca9b811a619c3266705189d1a6b3e9c1ebadb7f72"
     },
     {
+      "spec": "pose-delivery-later-removal",
+      "category": "added",
+      "breaking": false,
+      "body": "A spec can remove a file that earlier specs declare `created` or `modified`. Their existence check is satisfied — and the delivery-integrity graph records an edge `removed-by` — when the later spec declares `removed:` for the path, its attributed change sets contain a commit that deleted it, and every change the earlier spec made to the path is a Git ancestor of that commit; `pose index`, `check --strict`, `artifact-check` and `surface-check` apply the same rule. A change made after the removal, or a removal its spec never performed, keeps the existence finding, which now says why. `pose-mcp/internal/cli/review_dispatch.go`, kept only because of this gap, is removed.",
+      "path": "pose-delivery-later-removal.md",
+      "digest": "sha256:b26f6f6294abadc4610dd72cc1cbf2079f4711a2817044a5ee7719182ecc3401"
+    },
+    {
       "spec": "pose-distributed-instructions-parity",
       "category": "changed",
       "breaking": false,

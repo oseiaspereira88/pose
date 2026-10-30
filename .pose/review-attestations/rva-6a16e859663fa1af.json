@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-6a16e859663fa1af",
+  "bundle_id": "rvb-fa1d2164d30c1a99",
+  "bundle_digest": "sha256:fa1d2164d30c1a999ddaac70fab6551561e49b8b17a93e95517b92342240669a",
+  "reviewer": "agent:independent-later-removal-sol-r1-20261030",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Carried forward the seven independent reports, ending with round-7 implementation approval at f88e5ca8, and reviewed the complete f88e5ca8..68a3b1e8 delta: only spec tasks, trace, final report and follow-ups. Implementation digest remains b4efe415ea8a8be2b82e619e2e2836d1138b92ceffe529e3465d9dc549ad5c55. Current supplied sealed strict validation is 161/161 at HEAD, provenance df1dfe3554062a0fb879070394f0b1af7214234651fc6a26d9902eec772b60a1; it does not erase the independently failed earlier full suites/module gates. No fresh full-suite, scanner or full 37-mutation replay is claimed; 37/37 is the implementer summary. Identity assurance is declared; no cryptographically verified vendor/model or human confirmation is asserted. F1-F5 remain open closeout follow-ups, not resolved findings or maintainer risk acceptance."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Current sealed module tests pass. Seven-round source review found no introduced concurrent state or lifecycle change in this feature; per-computation success caches remain local. This conclusion does not claim a fresh race run or cancellation guarantee: cancellation, aggregate subprocess and memory budgets remain open F3."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "R1-R4 intentionally add removed-by edges and per-spec deleting-commit witnesses, preserved in compact/index/cache forms. Shared raw trailer/change-set attribution now reads raw object history engine-wide, suppressing replace refs and grafts; this can change attribution even without a removal claim. Other structural-review path/blob readers remain replacement-aware under F1. No released-client migration is inferred from intermediate unreleased witness shapes."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Retained independent probes and shipped regressions verify immutable commit-only IDs, literal paths, exact entry/type comparison against all parents, complete rename framing, selected-range replacement, Git/stderr failures and scoped/global collection gaps. Wide/native report records, scanner/decode/file failures, unreadable directory/parent, EIO, partial-list errors and ENOTDIR retain the finding. Aggregate work bounds remain F3."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Graph/index/check, artifact-check and surface-check share the gap-aware collector and removal computation. Round 7 covered current graph and CLI overrides, compact persistence and defensive caches; current sealed feature integration passes. Integration assessment observation gaps do not establish every consumer; indexed source freshness remains F4."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Refusals preserve causes for non-ancestor/later touches, invalid objects, Git failures, shallow history and unreadable recorded sources; bounded ancestry stderr was reconciled in round 3. Directory omissions now become explanatory global gaps instead of apparently complete empty input. No fresh logging/scanner certification is claimed."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Repositories without a declared removed claim retain existence behavior. Historical done-spec declarations stay unchanged; a different spec must demonstrate a genuine non-rename deletion after every attributed touch. Every shallow clone refuses every removal, even when selected A/B objects are present; use a full-history checkout. Raw trailer/change-set attribution changes engine-wide; replacement/graft-dependent users must regenerate evidence. F1 retains the mixed-policy structural-reader limitation. Removed aliases keep their replacement diagnostics without restoring execution."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Round 7 independently approved the implementation after literal error-preserving directory enumeration closed LR-R6-01. Earlier all-touch ancestry, root/merge/type/deletion entries, multiple deletion candidates, rename/literal paths, explicit overrides, immutable commit types and raw replace/graft/shallow completeness corrections remain covered. Targeted graft-only, collector-propagation and listing-error mutations discriminate the repairs. Current sealed feature integration passes; root trailer collection conservatively refuses under F2."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus",
+      "rationale": "D1 rejects the minimal unordered removed-claim shortcut: only observed deletions whose ancestry contains every attributed path touch can excuse existence. Collection completeness is part of that proof, so unreadable sources become gaps before judging ancestry. Cheapest formal bypass is omitting A2 while retaining A1 before deletion B; adversarial corpus later-removal-hides-a-later-touch, rename-read-as-removal and recorded-commit-is-an-option plus independent same-spec probes and propagation-only mutations exercise it. Sealed design observation binds the unchanged implementation digest and supplies structure, not behavioral proof."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Both manual locales and scaffold copies explain the ancestry rule, refusal causes, raw history and shallow policy; changelog and amended R3 match the reviewed intent. Reviewed final R1-R6 trace and F1-F5 mapping. Six real prior-spec claims are recorded for review_dispatch.go, despite the original goal saying five. The final report 37-mutation total remains supplied, not fully independently rerun in round 7 or here. The checked task does not establish lifecycle closure: spec remains in-progress and no close is authorized."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Errors remain actionable and conservative; a full-history checkout is required for the exemption. Open closeout follow-ups all have owner @oseiaspereira88 and review trigger 2026-11-27: F1=LR-R4-02 medium, align raw structural path/blob readers and caches with regeneration guidance; F2=LR-R4-03 medium, root-aware trailer collection with graph coverage; F3=LR-R1-09 medium, cancellation/batching/aggregate budgets plus stress and Git-call-count evidence; F4=LR-R1-10 medium, bind Git/recorded-history inputs or report unknown index freshness; F5=LR-R6-02 low, deterministic deletion-order fixture replacing finite SHA search. These are retained nonblocking follow-ups from round 7, not completed work or accepted-risk dispositions. Current index generation does not resolve F4."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Reviewed R1-R6 trace against seven-round conclusions: R1 all-touch ancestry with F2 root-collector limitation; R2 witness/edge/digest/persistence/cache; R3 conservative input/refusal policy; R4 shared collector/computation; R5 actual review_dispatch.go deletion 839a738767642caef0aea0432c28bdf96d886397 superseding six prior specs and retained alias diagnostics; R6 four manuals. Current sealed feature integration and module unit evidence pass at 68a3b1e8. Trace commit f88e5ca8 identifies the unchanged reviewed implementation."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Round-7 sweep covered the implementation, callers, persistence/cache, regressions/corpus, aliases, validation registration, manuals and governance. HEAD delta only records spec completion evidence and owned follow-ups; no new runtime behavior, dependency, unrelated refactor or lifecycle close is introduced. Raw attribution is an intentional engine-wide contract effect, qualified by F1; no claim that every Git reader now uses raw history."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus",
+      "rationale": "Original option-injection finding LR-R1-11 was corrected by full immutable object-name validation before Git invocation; retained independent probes preserve an external synthetic victim. Literal path handling, non-commit rejection, exact rename framing, replace/graft suppression and global incomplete-history refusal prevent reviewed gate bypasses. Latest omission bypass LR-R6-01 is resolved with permission and injected-error probes and a discriminating mutation. No dependency/authentication/network boundary added; no fresh vulnerability or secret-scanner pass is asserted. Declared principal and explicit prepared/concluded/applied roles do not imply authenticated identity."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Existing artifact graph plus one shared removal computation is sufficient; no historical spec rewrite, date ordering, rename inference, new daemon or dependency is needed. Earlier minimal ancestor-only helper was insufficient because omitted collected touches defeat it; fail-closed collection and raw-history protections directly repair reproduced causes. Per-run memoization is present. Revisit F1-F5 before relying on replacement-sensitive structural review, root trailer availability, large-history cost, history-bound index freshness or deterministic fixture reliability."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Round-7 independent strict artifact-check exited 0 with orphan warnings; current sealed subject has immutable attributed change set cs-c9ceafcc8fd2. No fresh artifact-check or index rewrite is claimed in this attestation."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "No separate assess-design execution in this attestation or round 7; the supplied sealed structural observation is consulted as context only. No platform-completeness claim."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Deferred by prior independent review: direct source/history and contract inspection addressed the correction. This operation does not close the spec or refresh assessment state."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Round-7 assessment exited 0 with 64 observation gaps across 70 contracts; current sealed feature integration passes. Inventory gaps are not certified consumers. No fresh assessment write is performed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Round-7 assessment exited 0 but was explicitly INCOMPLETE because two pre-existing specs could not be parsed. No complete debt census or fresh assessment is claimed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-review completion gate remains for the closeout owner; this task authorizes attestation and verification only, with no closure."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-review check follows native attestation; will be run read-only with review verify."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Round 7 ran component suggestion. Applied backend-go for Git/error/cache behavior, security for input/path/provenance boundaries, documentation-style and delivery-evidence for truthful spec/manual claims; knowledge-governance consulted for retained review-assurance decisions. No frontend/infrastructure or concurrent-state change."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Current sealed composed capability delivery-later-removal selects artifact_integrity.go and passing current feature integration. Round-7 standalone surface run refused stale evidence; current supplied HEAD structured results supersede that stale evidence, not the historical log. Native preview must independently accept the sealed current delivery subject; no fresh surface-check command is claimed."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Inspected supplied strict delivery-validation.json at HEAD 68a3b1e88d89954411e8bc2306bdfb190baf8efd: 161 executed/passed, zero failed/optional_failed/errored/skipped, sealed provenance df1dfe3554062a0fb879070394f0b1af7214234651fc6a26d9902eec772b60a1. Earlier independent full-suite and module failures remain disclosed. No fresh matrix replay."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "rationale": "Current sealed feature integration, adversarial corpus and module unit/build checks pass. CLI rebuilt from HEAD with required GOCACHE and project selectors unset; build exit 0. Seven rounds supply independent semantic evidence; no fresh full-suite replay is claimed."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/adversarial-corpus",
+    "integration:pose-mcp/go/delivery-later-removal-integration",
+    "structure:design-69e9243ef4e21d81",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "lr-r1-01",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Check every attributed touch by ancestry rather than change-set ID order; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r1-02",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Compare tree entries against all parents including roots and merges; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r1-03",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Include deletion and type-change touches; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r1-04",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Preserve unreadable history as a refusal without older fallback; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r1-05",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Replace global sets with the selected explicit range; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r1-06",
+      "severity": "medium",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Search all candidate deletions; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r1-07",
+      "severity": "medium",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Exclude rename-away witnesses; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r1-08",
+      "severity": "medium",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Read exact artifact paths literally; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r1-11",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Validate immutable object names before Git invocation; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r2-01",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Consume rename records by complete arity; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r2-02",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Refuse shallow-history omissions; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r2-03",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Propagate trailer and attribution collection gaps; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r2-04",
+      "severity": "medium",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Skip every global set for an overridden spec; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r2-05",
+      "severity": "low",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Preserve bounded ancestry stderr; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r3-01",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Suppress replacements and grafts across collection and removal; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r3-02",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Refuse every removal in shallow repositories; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r3-03",
+      "severity": "medium",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Reject non-commit object IDs; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r3-04",
+      "severity": "low",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Validate complete rename-stream syntax and framing; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r4-01",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Override both repository and environment graft sources independently of replacement suppression; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r5-01",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Read wide native records and propagate scanner/decode/file failures; enumeration completed under LR-R6-01; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    },
+    {
+      "id": "lr-r6-01",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/delivery-later-removal-integration",
+      "action": "Enumerate history literally with error-preserving reads and global gaps for unreadable directory or parent; retain the independent and shipped regressions as reconciled through round 7",
+      "disposition": "resolved"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-later-removal-sol-r1-20261030",
+    "concluded_by": "agent:independent-later-removal-sol-r1-20261030",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-10-30T15:19:03Z",
+  "path": ".pose/review-attestations/rva-6a16e859663fa1af.json"
+}

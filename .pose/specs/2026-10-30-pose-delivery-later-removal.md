@@ -1,8 +1,8 @@
 ---
 slug: pose-delivery-later-removal
-status: in-progress
+status: done
 created_at: 2026-10-30
-completed_at:
+completed_at: 2026-10-30
 supersedes:
 depends_on: pose-delegation-parity-gate
 remediates:
