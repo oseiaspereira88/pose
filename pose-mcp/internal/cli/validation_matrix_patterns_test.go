@@ -49,9 +49,18 @@ type matrixGoTest struct {
 	tags     []string
 }
 
-// buildEnvKeys are the environment keys that change which files a check
-// builds; a check setting one is not judged (review round 2, R2-B1).
-var buildEnvKeys = []string{"GOFLAGS", "GOOS", "GOARCH", "CGO_ENABLED", "GOEXPERIMENT"}
+// plainTagList is the -tags syntax judged here: comma-separated names. A
+// quoted or space-separated list, which Go unquotes, is refused rather than
+// modelled (review round 4, R4-B1).
+var plainTagList = regexp.MustCompile(`^[A-Za-z0-9_.]*(,[A-Za-z0-9_.]+)*$`)
+
+// buildEnvKey reports whether an environment key is one cmd/go reads — GO*
+// or CGO_* — and so may change which files a check builds (GOFLAGS, GOOS,
+// GOARCH, GOAMD64 and the other architecture levels, GOEXPERIMENT,
+// CGO_ENABLED); a check setting one is not judged (review rounds 2 and 4).
+func buildEnvKey(key string) bool {
+	return strings.HasPrefix(key, "GO") || strings.HasPrefix(key, "CGO_")
+}
 
 // parseMatrixGoTest reads a go test check the way go test does, for the
 // flags it models: -flag value and -flag=value, packages as relative paths,
@@ -95,7 +104,10 @@ func parseMatrixGoTest(args []string) (matrixGoTest, error) {
 				check.pattern = value
 			case "-tags":
 				// Each -tags replaces the list before it, as go's flag does.
-				tags = strings.FieldsFunc(value, func(r rune) bool { return r == ',' || r == ' ' })
+				if !plainTagList.MatchString(value) {
+					return check, errors.New("flag -tags=" + value + " is not a plain comma-separated list")
+				}
+				tags = strings.FieldsFunc(value, func(r rune) bool { return r == ',' })
 			}
 		default:
 			return check, errors.New("flag " + arg + " is not modelled")
@@ -300,9 +312,9 @@ func deadRunPatterns(root string, raw []byte) ([]string, error) {
 				continue
 			}
 			if check.pattern != "" {
-				for _, key := range buildEnvKeys {
-					if _, set := raw.Env[key]; set {
-						err = errors.New("its environment sets " + key + ", which changes the files it builds")
+				for key := range raw.Env {
+					if buildEnvKey(key) {
+						err = errors.New("its environment sets " + key + ", which can change the files it builds")
 					}
 				}
 			}
@@ -446,6 +458,11 @@ func TestDeadRunPatternGuardFollowsGoSelection(t *testing.T) {
 		{"dot-imported T, empty results, TestMain as a test, lower-case output", `"./d", "-run", "TestDot|TestEmpty|TestMain|Example_lower"`, false, ""},
 		{"TestMain hook is not a test", `"./h", "-run", "TestMain"`, true, ""},
 		{"build environment", `"./a", "-run", "TestReal"`, true, `"GOFLAGS": "-tags=x"`},
+		{"architecture level", `"./a", "-run", "TestReal"`, true, `"GOAMD64": "v3"`},
+		{"cgo setting", `"./a", "-run", "TestReal"`, true, `"CGO_CFLAGS": "-O0"`},
+		{"other environment", `"./a", "-run", "TestReal"`, false, `"POSE_X": "1"`},
+		{"quoted tags", `"./a", "-tags='reviewnever'", "-run", "TestTagged"`, true, ""},
+		{"space-separated tags", `"./a", "-tags", "reviewnever other", "-run", "TestTagged"`, true, ""},
 		{"sibling module", `"../other", "-run", "TestOther"`, true, ""},
 		{"sibling directory outside the module", `"../plain", "-run", "TestPlain"`, true, ""},
 		{"explicit nested module", `"./nested", "-run", "TestNested"`, true, ""},
