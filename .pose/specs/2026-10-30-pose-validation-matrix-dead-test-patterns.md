@@ -8,7 +8,7 @@ remediates:
 priority: 2
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: capability:validation-matrix-run-patterns
 ---
 
 # Spec: No validation check names a test that does not exist
@@ -68,6 +68,8 @@ Remove the alternatives of `-run` patterns in the validation matrix that match n
 - modified: .pose/specs/2026-10-30-pose-validate-shared-go-test-run.md
 
 ### Delivery targets
+
+- capability:validation-matrix-run-patterns module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### API/contract changes
 
