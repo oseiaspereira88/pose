@@ -75,9 +75,9 @@ None.
 
 ## 4. Tasks
 
-- [ ] Remove the dead alternatives
-- [ ] Guard test, shown failing before the removal
-- [ ] Independent review and closeout
+- [x] Remove the dead alternatives
+- [x] Guard test, shown failing before the removal
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -89,14 +89,21 @@ The guard first runs against the matrix with the dead alternatives and fails nam
 
 ### Requirement trace
 
+- R1 [satisfied] check:test test:TestValidationMatrixRunPatternsNameExistingTests report:.pose/results/delivery-validation.json commit:5d2e5d87e45dcaec699f986b663336b448e88f90 — The five dead alternatives are gone; each of the four checks selects the same tests as before (52, 9, 17, 3), confirmed independently by the reviewer.
+- R2 [satisfied] check:test test:TestValidationMatrixRunPatternsNameExistingTests test:TestDeadRunPatternGuardFollowsGoSelection report:.pose/results/delivery-validation.json commit:5d2e5d87e45dcaec699f986b663336b448e88f90 — The guard reads both flag spellings, final flag values, tags and race, module packages and go/build's file selection, and counts only what -run executes; it failed naming the five alternatives before their removal.
+- R3 [satisfied] check:test test:TestDeadRunPatternGuardFollowsGoSelection report:.pose/results/delivery-validation.json commit:5d2e5d87e45dcaec699f986b663336b448e88f90 — Unmodelled flags and values, packages outside the module or in excluded directories, Go build environment, stack checks selecting by name and unlisted or changed non-plain patterns are refused.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+Five -run alternatives that named no test removed from four checks, and a source-level guard that keeps new ones out under a narrow, explicitly modelled grammar and refuses the rest. Independently reviewed by Codex over eight rounds (203 differential cases against `go test` in the last sweeps; reports kept outside the checkout).
 
 ### Residual risks
 
-None yet.
+The guard judges declarations, not runs: skips, `-short`, `TestMain` control flow, dynamic subtests and the operator's inherited environment are judged at run time by `pose-validate-shared-go-test-run` R3. Two review fixtures fail outside a Git repository ancestry (F1).
 
 ### Follow-ups
+
+- [open] F1: make the review-bundle fixtures (`componentReviewFixture`, `reviewBundleFixture`) initialise their own Git repository, so `review-bundle-convergence` and `material-reuse-integration` do not depend on an enclosing repository of the temporary directory (reviewer F4, rounds 1–2). (owner:@oseiaspereira88 crit:medium review:2026-11-13)
+- [covered: pose-validate-shared-go-test-run] F2: judge at run time what the declaration guard cannot — non-plain patterns, subtests, skips and the inherited environment.
