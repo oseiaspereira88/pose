@@ -2,6 +2,7 @@ package pose
 
 import (
 	"bytes"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -35,12 +36,15 @@ func ParseSpecTrailerLog(out []byte) map[string][]string {
 }
 
 // RawHistoryGit is a git command on root's raw object history: replace refs
-// and grafts — --no-replace-objects disables both, a graft file the
-// repository's or the environment's — never change which commits carry a
-// trailer, what a change set holds, or what a later removal is judged on (spec
-// pose-delivery-later-removal R3).
+// (--no-replace-objects) and grafts (GIT_GRAFT_FILE at the always-empty null
+// device, which overrides both the repository's graft file and one the
+// environment names) never change which commits carry a trailer, what a change
+// set holds, or what a later removal is judged on (spec
+// pose-delivery-later-removal R3, review round 4 LR-R4-01).
 func RawHistoryGit(root string, args ...string) *exec.Cmd {
-	return exec.Command("git", append([]string{"--no-replace-objects", "-C", root}, args...)...)
+	cmd := exec.Command("git", append([]string{"--no-replace-objects", "-C", root}, args...)...)
+	cmd.Env = append(os.Environ(), "GIT_GRAFT_FILE="+os.DevNull)
+	return cmd
 }
 
 // SpecTrailerCommits reads the history of root and returns the commits that carry the trailer of

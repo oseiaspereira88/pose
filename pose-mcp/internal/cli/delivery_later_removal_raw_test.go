@@ -35,11 +35,12 @@ func TestLaterRemovalReviewRoundThree(t *testing.T) {
 			t.Fatal("a replace ref hid gamma's change after the removal")
 		}
 	})
-	t.Run("graft cuts a change out", func(t *testing.T) {
+	// LR-R4-01: a graft that cuts a's later change out of the history, while
+	// a's earlier change stays, changes no change set; the repository's
+	// graft file and one the environment names alike.
+	t.Run("graft cuts a later change out", func(t *testing.T) {
 		for _, where := range []string{"repository", "environment"} {
-			root := laterRemovalFixture(t)
-			beta := artifactGit(t, root, "log", "--format=%H", "-n", "1", "--grep", "^POSE-Spec: beta$")
-			after := artifactGit(t, root, "log", "--format=%H", "-n", "1", "--grep", "^an unattributed deletion$")
+			root, b, u := graftFixture(t)
 			graft := filepath.Join(root, ".git", "info", "grafts")
 			if where == "environment" {
 				graft = filepath.Join(t.TempDir(), "grafts")
@@ -48,11 +49,15 @@ func TestLaterRemovalReviewRoundThree(t *testing.T) {
 			if err := os.MkdirAll(filepath.Dir(graft), 0o755); err != nil {
 				t.Fatal(err)
 			}
-			if err := os.WriteFile(graft, []byte(after+" "+beta+"\n"), 0o644); err != nil {
+			if err := os.WriteFile(graft, []byte(u+" "+b+"\n"), 0o644); err != nil {
 				t.Fatal(err)
 			}
-			if !gammaKept(t, root) {
-				t.Fatalf("a graft in the %s hid gamma's change after the removal", where)
+			graph, err := buildCurrentDeliveryGraph(root)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, kept := existenceFindings(graph)["alpha internal/x.go"]; !kept {
+				t.Fatalf("a graft in the %s hid alpha's change after the removal", where)
 			}
 		}
 	})
@@ -102,4 +107,36 @@ func TestLaterRemovalReviewRoundThree(t *testing.T) {
 			t.Fatalf("an empty diff: %v %v", set, err)
 		}
 	})
+}
+
+// graftFixture is alpha creating internal/x.go (A1), beta removing it (B),
+// alpha adding it back (A2) and an unattributed commit deleting it (U); it
+// returns the root, B and U.
+func graftFixture(t *testing.T) (string, string, string) {
+	t.Helper()
+	r := newRemovalRepo(t)
+	spec := func(slug, artifacts string) {
+		r.write(".pose/specs/"+slug+"/spec.md", "---\nslug: "+slug+"\nstatus: done\ncreated_at: 2026-10-30\n---\n\n# Spec: "+slug+"\n\n## 3. Technical Plan\n\n### Artifacts\n"+artifacts+"\n## 4. Tasks\nwork\n")
+	}
+	r.write(".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-03","governed_roots":["internal"],"severities":{"action-mismatch":"error","undeclared":"error","existence":"error"}}`)
+	r.write("README.md", "fixture\n")
+	r.commit("baseline")
+	spec("alpha", "- created: internal/x.go\n")
+	r.write(removalPath, "package internal\n")
+	r.commit("alpha creates\n\nPOSE-Spec: alpha")
+	spec("beta", "- removed: internal/x.go\n")
+	r.rm(removalPath)
+	b := r.commit("beta removes\n\nPOSE-Spec: beta")
+	r.write(removalPath, "package internal\n// back\n")
+	r.commit("alpha adds it back\n\nPOSE-Spec: alpha")
+	r.rm(removalPath)
+	u := r.commit("an unattributed deletion")
+	graph, err := buildCurrentDeliveryGraph(r.root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, kept := existenceFindings(graph)["alpha internal/x.go"]; !kept {
+		t.Fatal("without a graft the fixture does not keep alpha's finding")
+	}
+	return r.root, b, u
 }
