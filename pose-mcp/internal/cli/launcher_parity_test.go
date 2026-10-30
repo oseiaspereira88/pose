@@ -7,9 +7,12 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"go/ast"
+	"go/constant"
 	"go/parser"
 	"go/token"
+	"go/types"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -335,25 +338,28 @@ func activeDocumentProblems(t *testing.T, root string) []string {
 	return problems
 }
 
-// goStringFolder folds the string expressions of one Go package: literals
-// unquoted, + chains folded, and the package's string constants resolved by
-// name; an operand it cannot fold stands as a gap (review rounds 2 and 3,
-// PG-R2-02, PG-R3-01, PG-R3-03).
+// goStringFolder folds the string expressions of one Go package with the
+// constant values the type checker gives them: literals unquoted, constants
+// resolved through the declarations their names denote — shadowing, groups,
+// local constants and any declaration order included — and + chains folded,
+// an operand with no constant value standing as a gap (review rounds 2–4,
+// PG-R2-02, PG-R3-01, PG-R3-03, PG-R4-01, PG-R4-02).
 type goStringFolder struct {
-	consts map[string]string
+	info   *types.Info
+	pkg    *types.Package
 	folded map[ast.Node]bool
 }
 
 func (g *goStringFolder) fold(e ast.Expr) (string, bool) {
+	if tv, ok := g.info.Types[e]; ok && tv.Value != nil && tv.Value.Kind() == constant.String {
+		return constant.StringVal(tv.Value), true
+	}
 	switch e := e.(type) {
 	case *ast.BasicLit:
 		if e.Kind == token.STRING {
 			v, err := strconv.Unquote(e.Value)
 			return v, err == nil
 		}
-	case *ast.Ident:
-		v, ok := g.consts[e.Name]
-		return v, ok
 	case *ast.ParenExpr:
 		return g.fold(e.X)
 	case *ast.BinaryExpr:
@@ -396,43 +402,37 @@ func (g *goStringFolder) mark(e ast.Expr) {
 	}
 }
 
+// noImports lets a package be type-checked alone: what comes from another
+// package has no constant value, so it stays a gap.
+type noImports struct{}
+
+func (noImports) Import(path string) (*types.Package, error) {
+	return nil, fmt.Errorf("not imported: %s", path)
+}
+
 // goPackageStringValues are the string values of the Go files of one
 // package: each expression folded once, at its widest, and every literal
 // inside an operand that did not fold — a call's argument, a function's
 // body — read as well; comments are not strings.
 func goPackageStringValues(t *testing.T, files map[string][]byte) map[string][]string {
 	t.Helper()
-	parsed := map[string]*ast.File{}
+	fset := token.NewFileSet()
+	var parsed []*ast.File
+	paths := map[*ast.File]string{}
 	for path, src := range files {
-		f, err := parser.ParseFile(token.NewFileSet(), path, src, 0)
+		f, err := parser.ParseFile(fset, path, src, 0)
 		if err != nil {
 			t.Fatalf("%s: %v", path, err)
 		}
-		parsed[path] = f
+		parsed = append(parsed, f)
+		paths[f] = path
 	}
-	g := &goStringFolder{consts: map[string]string{}, folded: map[ast.Node]bool{}}
-	for pass := 0; pass < 4; pass++ {
-		for _, f := range parsed {
-			for _, decl := range f.Decls {
-				gen, ok := decl.(*ast.GenDecl)
-				if !ok || gen.Tok != token.CONST {
-					continue
-				}
-				for _, spec := range gen.Specs {
-					vs := spec.(*ast.ValueSpec)
-					for i, name := range vs.Names {
-						if i < len(vs.Values) {
-							if v, ok := g.fold(vs.Values[i]); ok && !strings.Contains(v, "\x00") {
-								g.consts[name.Name] = v
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	info := &types.Info{Types: map[ast.Expr]types.TypeAndValue{}}
+	conf := types.Config{Importer: noImports{}, Error: func(error) {}}
+	pkg, _ := conf.Check("parity", fset, parsed, info)
+	g := &goStringFolder{info: info, pkg: pkg, folded: map[ast.Node]bool{}}
 	values := map[string][]string{}
-	for path, f := range parsed {
+	for _, f := range parsed {
 		ast.Inspect(f, func(n ast.Node) bool {
 			if g.folded[n] {
 				return true
@@ -440,7 +440,7 @@ func goPackageStringValues(t *testing.T, files map[string][]byte) map[string][]s
 			switch n := n.(type) {
 			case *ast.BinaryExpr, *ast.BasicLit:
 				if v, ok := g.fold(n.(ast.Expr)); ok {
-					values[path] = append(values[path], v)
+					values[paths[f]] = append(values[paths[f]], v)
 					g.mark(n.(ast.Expr))
 				}
 			}
@@ -554,6 +554,7 @@ func TestActiveDocumentCheckFailsOnAReplacedCommand(t *testing.T) {
 	write(".pose/adr/old.md", "The launchers secondary-agent and pose review resume were replaced.\n")
 	write("pose-mcp/internal/cli/x.go", "package cli\n\n// \"secondary-agent\" was an old launcher.\nconst usage = \"Usage: pose review dispatch <scope>\"\nconst escaped = \"Run pose review \\x64ispatch spec:x\"\nconst joined = \"Run pose review \" + \"dispatch spec:x\"\nconst gap = \"pose review \" + verb + \" was removed\"\nconst gone = \"pose review dispatch, resume and status were removed.\"\n\nvar verb = \"x\"\n\nfunc a() string { return \"Usage: \" + fmt.Sprint(\"Run pose review dispatch spec:a\") }\n\nfunc b() string { return \"Usage: \" + func() string { return \"Run pose review dispatch spec:b\" }() }\n\nconst r3Verb = \"dispatch\"\n")
 	write("pose-mcp/internal/cli/y.go", "package cli\n\nconst r3Usage = \"Run pose review \" + r3Verb + \" spec:c\"\n")
+	write("pose-mcp/internal/cli/z.go", "package cli\n\nconst r4Suffix = \", resume and status were removed\"\n\nfunc r4Usage() string {\n\tr4Suffix := \" spec:x\"\n\treturn \"pose review dispatch\" + r4Suffix\n}\n\nconst r4Verb = \"dispatch\"\n\nfunc r4Harmless() string {\n\tr4Verb := \"bundle\"\n\treturn \"pose review \" + r4Verb\n}\n\nconst r5Usage = \"pose review \" + r5A + \" spec:d\"\nconst r5A = r5B\nconst r5B = r5C\nconst r5C = r5D\nconst r5D = r5E\nconst r5E = \"dispatch\"\n\nconst (\n\tg1 = \"dispatch\"\n\tg2\n)\n\nconst gUsage = \"pose review \" + g2 + \" spec:e\"\n\nfunc h() string {\n\tconst lv = \"dispatch\"\n\treturn \"pose review \" + lv + \" spec:f\"\n}\n")
 	problems := append(activeDocumentProblems(t, root), sourceStringProblems(t, root, "pose-mcp")...)
 	want := []string{
 		"POSE.md:1: Run `pose review dispatch spec:x --via codex`",
@@ -570,6 +571,10 @@ func TestActiveDocumentCheckFailsOnAReplacedCommand(t *testing.T) {
 		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:a", // a call inside a partial fold
 		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:b", // a function inside a partial fold
 		"pose-mcp/internal/cli/y.go:1: Run pose review dispatch spec:c", // a constant of another file
+		"pose-mcp/internal/cli/z.go:1: pose review dispatch\x00",        // a shadowed suffix is a gap, not a removal note
+		"pose-mcp/internal/cli/z.go:1: pose review dispatch spec:d",     // a chain of constants
+		"pose-mcp/internal/cli/z.go:1: pose review dispatch spec:e",     // an omitted value in a const group
+		"pose-mcp/internal/cli/z.go:1: pose review dispatch spec:f",     // a local constant
 	}
 	for _, w := range want {
 		if !containsString(problems, w) {
