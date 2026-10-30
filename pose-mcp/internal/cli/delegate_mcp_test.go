@@ -151,11 +151,12 @@ type gate struct {
 
 func newGate(t *testing.T) *gate {
 	t.Helper()
-	path := filepath.Join(t.TempDir(), "gate")
-	g := &gate{t: t, path: path, wait: "while [ ! -e " + shellQuote(path) + " ]; do sleep 0.02; done"}
-	// A failing test still releases what it held (review round 1, F02).
-	t.Cleanup(func() { _ = os.WriteFile(path, nil, 0o600) })
-	return g
+	dir := t.TempDir()
+	path := filepath.Join(dir, "gate")
+	// The loop also ends when the test's directory is gone, so a fixture
+	// held by a failed or finished test does not outlive it (review rounds
+	// 1–2, F02).
+	return &gate{t: t, path: path, wait: "while [ ! -e " + shellQuote(path) + " ] && [ -d " + shellQuote(dir) + " ]; do sleep 0.02; done"}
 }
 
 func (g *gate) open() {

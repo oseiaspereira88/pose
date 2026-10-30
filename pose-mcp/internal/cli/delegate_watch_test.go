@@ -94,7 +94,7 @@ func streamingAgent(t *testing.T) (string, *gate) {
 	g := newGate(t)
 	script := `cat >/dev/null; echo '{"type":"turn.started"}'; echo '{"type":"item.completed","item":{"type":"agent_message","text":"looking at the bundle"}}'; ` + g.wait + `; echo '{"type":"item.completed","item":{"type":"agent_message","text":"decision: approved"}}'`
 	return `{"schema_version": 2, "agents": {
-  "streamer": {"vendor": "test", "model": "s-1", "cli": "sh", "events": "codex-jsonl", "commands": {"read": ["sh", "-c", ` + strconv.Quote(script) + `]}}
+  "streamer": {"vendor": "test", "model": "s-1", "cli": "sh", "timeout": "60s", "events": "codex-jsonl", "commands": {"read": ["sh", "-c", ` + strconv.Quote(script) + `]}}
 }, "purposes": {"review": {"max_runs_per_bundle": 9}}}`, g
 }
 
@@ -239,11 +239,13 @@ func runBuiltReleasing(t *testing.T, root, marker string, release *gate, args ..
 	if !released {
 		release.open()
 	}
-	if err := scanner.Err(); err != nil {
-		t.Fatalf("reading %v: %v (stderr: %s)", args, err, stderr.String())
+	scanErr := scanner.Err()
+	waitErr := cmd.Wait()
+	if scanErr != nil {
+		t.Fatalf("reading %v: %v (stderr: %s)", args, scanErr, stderr.String())
 	}
 	code := 0
-	if err := cmd.Wait(); err != nil {
+	if err := waitErr; err != nil {
 		exit, ok := err.(*exec.ExitError)
 		if !ok || ctx.Err() != nil {
 			t.Fatalf("%v: %v (stderr: %s)", args, err, stderr.String())

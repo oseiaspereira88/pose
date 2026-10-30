@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"os/exec"
@@ -71,7 +72,7 @@ func slowApprovingAgent(t *testing.T) (string, *gate) {
 	t.Helper()
 	g := newGate(t)
 	return `{"schema_version": 2, "agents": {
-  "slow": {"vendor": "test", "model": "s-1", "cli": "sh", "commands": {"read": ["sh", "-c", ` + strconv.Quote("cat >/dev/null; "+g.wait+"; echo decision: approved") + `]}}
+  "slow": {"vendor": "test", "model": "s-1", "cli": "sh", "timeout": "60s", "commands": {"read": ["sh", "-c", ` + strconv.Quote("cat >/dev/null; "+g.wait+"; echo decision: approved") + `]}}
 }, "purposes": {"review": {"max_runs_per_bundle": 9}}}`, g
 }
 
@@ -145,5 +146,61 @@ func TestDelegateDetachAndWait(t *testing.T) {
 	}
 	if status, _ := exec.Command("git", "-C", root, "status", "--porcelain", ".pose/review-private").Output(); len(status) != 0 {
 		t.Fatalf("the supervisor's log is not ignored: %s", status)
+	}
+}
+
+// Review round 2, B03: the wait acknowledgement creates its entry
+// exclusively — an entry already there under the waiter's pid, a regular
+// file, a link to one or a FIFO, is neither truncated, followed nor opened,
+// and the wait still ends at its timeout.
+func TestTheWaitAcknowledgementNeverTouchesAnExistingEntry(t *testing.T) {
+	root := dispatchInstance(t)
+	policy, held := slowApprovingAgent(t)
+	writeDelegation(t, root, policy)
+	code, out := runBuilt(t, root, "delegate", "review", "spec:alpha", "--detach", "--json")
+	var detached struct{ Attempt string }
+	if code != 0 || json.Unmarshal([]byte(out), &detached) != nil {
+		t.Fatalf("detach: %d %s", code, out)
+	}
+	defer held.open()
+	for _, kind := range []string{"file", "link", "fifo"} {
+		signals := t.TempDir()
+		kept := filepath.Join(t.TempDir(), "kept")
+		if err := os.WriteFile(kept, []byte("SYNTHETIC_KEEP"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		// The shell makes the entry under its own pid, then becomes the waiter.
+		var make string
+		switch kind {
+		case "file":
+			make = "printf SYNTHETIC_KEEP > \"$0/$$\""
+		case "link":
+			make = "ln -s " + shellQuote(kept) + " \"$0/$$\""
+		case "fifo":
+			make = "mkfifo \"$0/$$\""
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		cmd := exec.CommandContext(ctx, "sh", "-c", make+"; exec "+shellQuote(poseBinary(t))+" delegate wait "+detached.Attempt+" --timeout 200ms --json", signals)
+		cmd.Dir = root
+		cmd.Env = append(os.Environ(), delegateWaitSignal+"="+signals)
+		started := time.Now()
+		waitOut, err := cmd.Output()
+		cancel()
+		exit, _ := err.(*exec.ExitError)
+		if exit == nil || exit.ExitCode() != 50 || time.Since(started) > 10*time.Second || !strings.Contains(string(waitOut), `"state":"running"`) {
+			t.Fatalf("%s: the wait did not end at its timeout: %v %s after %s", kind, err, waitOut, time.Since(started))
+		}
+		if raw, _ := os.ReadFile(kept); string(raw) != "SYNTHETIC_KEEP" {
+			t.Fatalf("%s: the linked file was written: %q", kind, raw)
+		}
+		entries, _ := os.ReadDir(signals)
+		if len(entries) != 1 {
+			t.Fatalf("%s: entries %v", kind, entries)
+		}
+		if kind == "file" {
+			if raw, _ := os.ReadFile(filepath.Join(signals, entries[0].Name())); string(raw) != "SYNTHETIC_KEEP" {
+				t.Fatalf("file: the existing entry was truncated: %q", raw)
+			}
+		}
 	}
 }

@@ -38,11 +38,12 @@ const (
 	// marker: a stat, cheap enough that a wait returns within a tenth of a
 	// second of the run's end (spec pose-cli-test-wall-time R1).
 	delegateWaitStep = 100 * time.Millisecond
-	// delegateWaitSignal names a directory in which a waiter records its pid
-	// when it starts waiting on a running run: an acknowledgement for tests
-	// that must release a run only once its waiters wait (spec
-	// pose-cli-test-wall-time R1).
-	delegateWaitSignal = "POSE_DELEGATE_WAIT_SIGNAL"
+	// delegateWaitSignal is an unsupported test seam: it names a directory
+	// in which a waiter creates, once, an empty entry named after its pid
+	// when it starts waiting on a running run, so a test releases a run only
+	// once its waiters wait (spec pose-cli-test-wall-time R1). It controls
+	// nothing about the run; an entry that already exists is left untouched.
+	delegateWaitSignal = "POSE_TEST_DELEGATE_WAIT_SIGNAL"
 )
 
 // delegateDetachBound is how long a detached run has to reserve its attempt;
@@ -475,7 +476,12 @@ func cmdDelegateWait(root string, args []string, stdout, stderr io.Writer) int {
 		// Running: watch only the marker until it goes, or the heartbeat
 		// interval passes, so a stall is still noticed.
 		if dir := os.Getenv(delegateWaitSignal); dir != "" && !signalled {
-			_ = os.WriteFile(filepath.Join(dir, strconv.Itoa(os.Getpid())), nil, 0o600)
+			// Exclusive creation: never truncates, follows or opens an
+			// existing entry, so it cannot block on a FIFO (review round 2,
+			// B03); failure is ignored.
+			if file, err := os.OpenFile(filepath.Join(dir, strconv.Itoa(os.Getpid())), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600); err == nil {
+				_ = file.Close()
+			}
 			signalled = true
 		}
 		recheck := time.Now().Add(10 * time.Second)

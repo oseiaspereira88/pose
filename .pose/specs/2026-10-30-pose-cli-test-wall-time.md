@@ -11,7 +11,7 @@ task_type: refactor
 delivers:
 ---
 
-# Spec: The slowest CLI tests stop waiting on real time and run in parallel where they can
+# Spec: The slowest CLI tests stop waiting on real time
 
 ## 1. Intent
 
@@ -74,7 +74,7 @@ Cut the wall time of `internal/cli` tests, which dominates every validation, by 
 
 ### API/contract changes
 
-None.
+No public surface. Internal: `delegate wait` polls the run's marker every 100 ms instead of 500 ms; `posemodel.AdapterPipeGrace` (default 5 s, unchanged) holds the adapter pipe grace so a test can shorten it; and `POSE_TEST_DELEGATE_WAIT_SIGNAL`, an unsupported test seam, makes a waiter create — exclusively, once, empty — an entry named after its pid in the named directory when it starts waiting on a running run. It controls nothing about the run, and an existing entry is never truncated, followed or opened.
 
 ## 4. Tasks
 
