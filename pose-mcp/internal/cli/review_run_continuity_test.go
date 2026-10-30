@@ -248,9 +248,7 @@ func TestRunContinuityDoctorStatusAndPending(t *testing.T) {
 	if e := os.WriteFile(filepath.Join(dir, r.RunID+".json"), claimRaw, 0644); e != nil {
 		t.Fatal(e)
 	}
-	// pose delegate resume refuses a pending continuation, naming it, and
-	// launches nothing (the removed pose review resume printed it pending).
-	if code, out := runPose(t, root, "delegate", "resume", r.RunID); code != 1 || !strings.Contains(out, "is pending") || !strings.Contains(out, "resume-of:"+r.RunID) {
+	if code, out := runPose(t, root, "delegate", "resume", r.RunID); code != 0 || !strings.Contains(out, "delegate.status=pending") || !strings.Contains(out, "resume-of:"+r.RunID) {
 		t.Fatal("pending not returned", code, out)
 	}
 	runs, _ := s.ListReviewRuns("")

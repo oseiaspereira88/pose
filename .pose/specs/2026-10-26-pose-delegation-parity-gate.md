@@ -73,6 +73,10 @@ Parity matrix and its check, documentation check, operating manual section, vali
 - modified: pose-mcp/internal/cli/review_run_continuity.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/cli/delegate.go
+- modified: pose-mcp/internal/cli/delegate_task.go
+- modified: pose-mcp/internal/cli/delegate_task_detach_test.go
+- modified: pose-mcp/internal/pose/delegation_task.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
 - modified: pose-mcp/internal/cli/help_catalog.go
 - modified: pose-mcp/internal/cli/b07_independent_probe_test.go
 - modified: pose-mcp/internal/cli/b07_r2_probe_test.go

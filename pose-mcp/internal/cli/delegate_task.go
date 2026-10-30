@@ -21,11 +21,17 @@ import (
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
-const delegateTaskUsage = "pose delegate task <prompt-file|-> [--cd <dir>] [--agent auto|<name>] [--access read|sandboxed|write|full] [--add-dir <dir>]... [--effort <level>] [--no-network] [--record] [--label <name>] [--lead <vendor>] [--detach] [--dry-run] [--json]"
+const delegateTaskUsage = "pose delegate task <prompt-file|-> [--cd <dir>] [--agent auto|<name>] [--access read|sandboxed|write|full] [--add-dir <dir>]... [--effort <level>] [--no-network] [--record] [--session <id>] [--label <name>] [--lead <vendor>] [--detach] [--dry-run] [--json]"
 
 func cmdDelegateTask(root string, args []string, stdout, stderr io.Writer) int {
-	f, problem := parseDelegateFlags(args, "--cd", "--add-dir", "--effort", "--no-network", "--record", "--detach")
-	if problem == "" && len(f.positional) != 1 {
+	f, problem := parseDelegateFlags(args, "--cd", "--add-dir", "--effort", "--no-network", "--record", "--detach", "--session")
+	switch {
+	case problem != "":
+	case f.session != "" && (f.agent == "" || f.agent == "auto"):
+		// A session belongs to the agent that opened it (spec
+		// pose-delegation-parity-gate SA-07).
+		problem = tr("--session names a session of one agent: name it with --agent", "--session nomeia a sessão de um agente: nomeie-o com --agent")
+	case len(f.positional) > 1 || len(f.positional) == 0 && f.session == "":
 		problem = tr("name the prompt file, or - to read it from stdin", "nomeie o arquivo do prompt, ou - para lê-lo do stdin")
 	}
 	if problem != "" {
@@ -36,9 +42,14 @@ func cmdDelegateTask(root string, args []string, stdout, stderr io.Writer) int {
 	if f.detach && !f.dryRun && !delegateSupervised() {
 		return detachDelegateRun(root, "task", args, f, stdout, stderr)
 	}
-	prompt, err := readDelegatePrompt(f.positional[0])
-	if err != nil {
-		return delegateFail(stdout, stderr, f.jsonOut, "task", 2, err)
+	// A session continued without a prompt gets the default continuation
+	// message, as a resumed task does.
+	prompt := posemodel.DelegationTaskContinueMessage
+	if len(f.positional) == 1 {
+		var err error
+		if prompt, err = readDelegatePrompt(f.positional[0]); err != nil {
+			return delegateFail(stdout, stderr, f.jsonOut, "task", 2, err)
+		}
 	}
 	store := cliGovernedStore(root)
 	policy, _, found, err := store.LoadDelegationPolicy()
@@ -70,7 +81,7 @@ func cmdDelegateTask(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	plan, err := store.PlanDelegationTask(posemodel.DelegationTaskRequest{Agent: agent, Access: access, Dir: f.cd, Prompt: prompt, AddDirs: f.addDirs,
-		Effort: f.effort, NoNetwork: f.noNetwork, Record: f.record, Label: f.label, Lead: f.lead, Routing: route})
+		Effort: f.effort, NoNetwork: f.noNetwork, Record: f.record, Label: f.label, Lead: f.lead, Routing: route, Session: f.session})
 	if err != nil {
 		return delegateTaskFail(stdout, stderr, f.jsonOut, "task", err, nil)
 	}
@@ -229,7 +240,7 @@ func delegatePrintTask(stdout, stderr io.Writer, jsonOut bool, command string, r
 	}
 	if jsonOut {
 		doc := map[string]any{"schema": delegateRunSchema, "purpose": posemodel.DelegationPurposeTask, "agent": run.Adapter, "vendor": run.Vendor, "model": run.Model,
-			"access": run.Access, "workdir": run.Dir, "label": run.Label, "attempt": run.AttemptID, "run": run.RunID, "resumes": run.Resumes, "hands_off_from": run.HandsOffFrom,
+			"access": run.Access, "workdir": run.Dir, "label": run.Label, "attempt": run.AttemptID, "run": run.RunID, "resumes": run.Resumes, "resumes_session": run.ResumesSession, "hands_off_from": run.HandsOffFrom,
 			"status": run.Status, "failure": run.Failure, "exit_code": run.ExitCode, "final": run.Output, "record": run.Path, "env_removed": run.EnvRemoved}
 		if run.Interruption != nil {
 			doc["interruption"] = run.Interruption

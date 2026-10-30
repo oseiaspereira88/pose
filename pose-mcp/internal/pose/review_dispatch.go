@@ -142,6 +142,9 @@ type ReviewRun struct {
 	sessionForRedaction string
 	eventsBytes         []byte
 	Resumes             string `json:"resumes,omitempty"`
+	// ResumesSession marks a task that continued a session POSE never
+	// recorded, named by its caller (spec pose-delegation-parity-gate SA-07).
+	ResumesSession bool `json:"resumes_session,omitempty"`
 	// HandsOffFrom names the run this one continues with another agent, and
 	// HandoffDigest the section its brief added (spec
 	// pose-delegation-handoff R4, R5).

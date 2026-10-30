@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -531,5 +532,91 @@ func TestADetachedRunInheritsNoControlVariable(t *testing.T) {
 	env := withoutDelegateControl([]string{"PATH=/bin", delegateHandback + "=x", delegatePromptPiped + "=1", posemodel.DelegateRootEnv + "=/a", posemodel.DelegateLegacyRootEnv + "=/b", "HOME=/h"})
 	if strings.Join(env, " ") != "PATH=/bin HOME=/h" {
 		t.Fatalf("inherited: %v", env)
+	}
+}
+
+// Spec pose-delegation-parity-gate SA-04 (review round 1, PG-R1-02): write
+// access runs the agent's write command as declared, its automatic approver
+// included: the agent asks the approver before it writes, the approver
+// answers, and the record keeps the approver's invocation; read access
+// carries none of it.
+func TestDelegateTaskWriteRunsTheAgentsApprover(t *testing.T) {
+	root, _, prompt := taskInstance(t)
+	approver := filepath.Join(t.TempDir(), "approver")
+	asked := filepath.Join(t.TempDir(), "asked")
+	if err := os.WriteFile(approver, []byte("#!/bin/sh\necho \"$*\" >> '"+asked+"'\n[ \"$1\" = write ] && echo approved\n"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	approving := `"approving": {"vendor": "other", "model": "a-1", "timeout": "30s",
+      "commands": {
+        "read": ["sh", "-c", "cat >/dev/null; echo read-only"],
+        "write": ["sh", "-c", "cat >/dev/null; if [ \"$(\"$2\" write made.txt)\" = approved ]; then echo made > made.txt; echo wrote; else echo refused; fi", "x", "--approver", "` + approver + `"]}}`
+	writeDelegation(t, root, taskPolicy(`"default_access": "read"`, approving))
+	dir := t.TempDir()
+	code, out, errOut := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "approving", "--access", "write", "--cd", dir, "--json")
+	var doc map[string]any
+	if code != 0 || json.Unmarshal([]byte(out), &doc) != nil || !strings.Contains(fmt.Sprint(doc["final"]), "wrote") {
+		t.Fatalf("write with an approver: %d %s %s", code, out, errOut)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "made.txt")); err != nil {
+		t.Fatalf("the approved write did not happen: %v", err)
+	}
+	if raw, _ := os.ReadFile(asked); strings.TrimSpace(string(raw)) != "write made.txt" {
+		t.Fatalf("the approver was asked %q", raw)
+	}
+	runs, _ := posemodel.Store{Root: root}.ReadDelegationTaskRuns()
+	if len(runs) != 1 || !strings.Contains(strings.Join(runs[0].Argv, " "), "--approver "+approver) {
+		t.Fatalf("the record does not keep the approver's invocation: %+v", runs)
+	}
+	if code, out, _ := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "approving", "--dry-run", "--json"); code != 0 || strings.Contains(out, "--approver") {
+		t.Fatalf("read access carries the approver: %d %s", code, out)
+	}
+}
+
+// Spec pose-delegation-parity-gate SA-07 (review round 1, PG-R1-01): a task
+// continues a session POSE never recorded — one a personal launcher opened —
+// with the named agent's resume command for the access, the default
+// continuation message unless a prompt is given; the session never reaches
+// the record, and a session without a named agent, of the wrong shape or for
+// an agent with no resume command is refused with exit 2.
+func TestDelegateTaskContinuesASessionPOSENeverRecorded(t *testing.T) {
+	root, _, prompt := taskInstance(t)
+	got := filepath.Join(t.TempDir(), "session")
+	resuming := `"resuming": {"vendor": "test", "model": "r-1", "timeout": "30s",
+      "commands": {"read": ["sh", "-c", "cat >/dev/null; echo fresh"]},
+      "session": {"pattern": "session: (\\S+)"},
+      "resume": {"command": ["sh", "-c", "in=$(cat); printf %s \"$0\" > '` + got + `'; echo \"resumed:$in\"", "{session}"]}}`
+	writeDelegation(t, root, taskPolicy(`"default_access": "read"`, resuming, taskWorker))
+	code, out, errOut := runPoseSplit(t, root, "delegate", "task", "--session", "launcher-sess-0042", "--agent", "resuming", "--json")
+	var doc map[string]any
+	if code != 0 || json.Unmarshal([]byte(out), &doc) != nil || doc["resumes_session"] != true ||
+		!strings.Contains(fmt.Sprint(doc["final"]), "resumed:"+posemodel.DelegationTaskContinueMessage[:20]) {
+		t.Fatalf("a launcher's session: %d %s %s", code, out, errOut)
+	}
+	if raw, _ := os.ReadFile(got); string(raw) != "launcher-sess-0042" {
+		t.Fatalf("the agent resumed %q", raw)
+	}
+	if code, out, _ := runPoseSplit(t, root, "delegate", "task", prompt, "--session", "launcher-sess-0042", "--agent", "resuming"); code != 0 || !strings.Contains(out, "resumed:hello task") {
+		t.Fatalf("a session with a prompt: %d %s", code, out)
+	}
+	runs, _ := posemodel.Store{Root: root}.ReadDelegationTaskRuns()
+	if len(runs) != 2 {
+		t.Fatalf("runs: %+v", runs)
+	}
+	for _, run := range runs {
+		raw, _ := os.ReadFile(run.Path)
+		if strings.Contains(string(raw), "launcher-sess-0042") || !run.ResumesSession || !strings.Contains(strings.Join(run.Argv, " "), "{session}") {
+			t.Fatalf("the record of a continued session: %s", raw)
+		}
+	}
+	for _, args := range [][]string{
+		{"--session", "launcher-sess-0042"},
+		{"--session", "launcher-sess-0042", "--agent", "auto"},
+		{"--session", "bad session", "--agent", "resuming"},
+		{"--session", "launcher-sess-0042", "--agent", "worker"},
+	} {
+		if code, _, errOut := runPoseSplit(t, root, append([]string{"delegate", "task"}, args...)...); code != 2 {
+			t.Fatalf("%v: %d %s", args, code, errOut)
+		}
 	}
 }

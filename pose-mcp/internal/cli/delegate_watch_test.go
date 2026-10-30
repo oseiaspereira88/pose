@@ -173,3 +173,22 @@ func TestDelegateWatchShowsABoundedToolOutputTail(t *testing.T) {
 		t.Fatalf("-v --lines 2: %d %s", code, out)
 	}
 }
+
+// Spec pose-delegation-parity-gate SW-02 (review round 1, PG-R1-10): watch
+// selects an attempt by a unique prefix of its session, as by label, without
+// printing the session.
+func TestDelegateWatchSelectsBySessionPrefix(t *testing.T) {
+	root := dispatchInstance(t)
+	writeDelegation(t, root, delegationPolicy(resumableAgent))
+	if code, out, errOut := runPoseSplit(t, root, "delegate", "review", "spec:alpha", "--label", "chain"); code != 1 || !strings.Contains(out, "interrupted") {
+		t.Fatalf("first run: %d %s %s", code, out, errOut)
+	}
+	_, byLabel, _ := runPoseSplit(t, root, "delegate", "watch", "chain", "--no-follow")
+	code, byPrefix, errOut := runPoseSplit(t, root, "delegate", "watch", "sess-abcd", "--no-follow")
+	if code != 0 || byPrefix != byLabel || !strings.Contains(byPrefix, "▶ run ") {
+		t.Fatalf("by session prefix: %d %q (by label %q) %s", code, byPrefix, byLabel, errOut)
+	}
+	if strings.Contains(byPrefix+errOut, "sess-abcdef123") {
+		t.Fatalf("watch printed the session: %s%s", byPrefix, errOut)
+	}
+}

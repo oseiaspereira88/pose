@@ -61,7 +61,7 @@ func tr(english, portuguese string) string { return cliText(cliLocaleValue(), en
 type delegateFlags struct {
 	agent, access, label, lead, reason, noteFile string
 	request                                      string
-	to, cd, effort, promptFile                   string
+	to, cd, effort, promptFile, session          string
 	addDirs                                      []string
 	noNetwork, record                            bool
 	dryRun, jsonOut, active, wait, detach        bool
@@ -156,6 +156,8 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 				}
 			case "--reason":
 				f.reason = value
+			case "--session":
+				f.session = value
 			case "--request":
 				f.request = value
 			case "--lines":
@@ -506,7 +508,7 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 		}
 	}
 	if errors.Is(err, posemodel.ErrNoReviewerAdapter) {
-		return delegateNoAgent(stdout, stderr, f.jsonOut, purpose)
+		return delegateNoAgentWithBrief(store, ref, kind, notes, f, purpose, stdout, stderr)
 	}
 	if err != nil {
 		var none *posemodel.ErrNoDelegationAgentAvailable
@@ -543,7 +545,7 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	}
 	plan, err := store.PlanReviewDispatch(ref, kind, notes, agent, f.reason)
 	if errors.Is(err, posemodel.ErrNoReviewerAdapter) {
-		return delegateNoAgent(stdout, stderr, f.jsonOut, purpose)
+		return delegateNoAgentWithBrief(store, ref, kind, notes, f, purpose, stdout, stderr)
 	}
 	if err != nil {
 		delegateEscalateRefusal(store, request, err, f.dryRun, stdout, stderr)
@@ -582,6 +584,13 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	if delegateSupervised() {
 		plan.OnStart = supervisorHandback()
 	}
+	// The containment the run will run under is disclosed before it runs, as
+	// pose review dispatch disclosed it (spec pose-delegation-parity-gate R6;
+	// review round 1, PG-R1-08); the JSON document carries it with the run.
+	if safety, _ := posemodel.ResolveReviewerContainment(plan.Config); safety != nil && !f.jsonOut {
+		raw, _ := json.Marshal(safety)
+		render(stdout, stderr).Field("delegate.safety", string(raw))
+	}
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	handBackExisting(run, err)
 	delegateAutoConclude(store, run, err, stdout, stderr)
@@ -595,6 +604,33 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 			return next
 		}
 	}
+	return code
+}
+
+// delegateNoAgentWithBrief refuses a review-path run no agent can take and
+// hands over the brief a reviewer would receive, so the review can still be
+// run by hand, as pose review dispatch did (spec pose-delegation-parity-gate
+// R6; review round 1, PG-R1-06).
+func delegateNoAgentWithBrief(store posemodel.Store, ref, kind, notes string, f delegateFlags, command string, stdout, stderr io.Writer) int {
+	plan, _ := store.PlanReviewDispatch(ref, kind, notes, "", f.reason)
+	brief := plan.Brief.Text
+	if brief == "" {
+		return delegateNoAgent(stdout, stderr, f.jsonOut, command)
+	}
+	if f.jsonOut {
+		doc := map[string]any{"schema": delegateErrorSchema, "command": command, "error": strings.TrimPrefix(posemodel.ErrNoReviewerAdapter.Error(), "pose: "),
+			"brief": brief, "brief_digest": plan.Brief.Digest}
+		if code := posemodel.DelegationReasonCode(posemodel.ErrNoReviewerAdapter); code != "" {
+			doc["reason_code"] = code
+		}
+		handBackRefusal(doc, 1)
+		writeDelegateJSON(stdout, doc)
+		return 1
+	}
+	code := delegateNoAgent(stdout, stderr, false, command)
+	out := render(stdout, stderr)
+	out.Hint(tr("The brief a reviewer would receive follows.", "O brief que um revisor receberia vem a seguir."))
+	out.ContractLine(strings.TrimRight(brief, "\n"))
 	return code
 }
 
@@ -979,9 +1015,22 @@ func cmdDelegateResume(root string, args []string, stdout, stderr io.Writer) int
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, err)
 	}
-	if plan.PendingContinuation != nil {
-		return delegateFail(stdout, stderr, f.jsonOut, "resume", 1, errors.New(tr("a continuation of "+target+" is pending ("+plan.PendingContinuation.ID+")",
-			"uma continuação de "+target+" está pendente ("+plan.PendingContinuation.ID+")")))
+	if pending := plan.PendingContinuation; pending != nil {
+		// A continuation already reserved is answered, as pose review resume
+		// answered it: pending, with its ids, and no second process (spec
+		// pose-delegation-parity-gate R6; review round 1, PG-R1-07).
+		handBackAttempt(pending.AttemptID)
+		if f.jsonOut {
+			writeDelegateJSON(stdout, map[string]any{"schema": delegateRunSchema, "purpose": attempt.Purpose, "attempt": pending.AttemptID, "resumes": pending.Predecessor,
+				"continuation": pending.ID, "status": "pending"})
+			return 0
+		}
+		out := render(stdout, stderr)
+		out.Field("delegate.resumes", pending.Predecessor)
+		out.Field("delegate.continuation", pending.ID)
+		out.Field("delegate.attempt", pending.AttemptID)
+		out.Field("delegate.status", "pending")
+		return 0
 	}
 	var delay time.Duration
 	if f.wait && plan.Existing == nil {
@@ -1029,6 +1078,13 @@ func cmdDelegateResume(root string, args []string, stdout, stderr io.Writer) int
 	defer stop()
 	if delegateSupervised() {
 		plan.OnStart = supervisorHandback()
+	}
+	// The containment the run will run under is disclosed before it runs, as
+	// pose review dispatch disclosed it (spec pose-delegation-parity-gate R6;
+	// review round 1, PG-R1-08); the JSON document carries it with the run.
+	if safety, _ := posemodel.ResolveReviewerContainment(plan.Config); safety != nil && !f.jsonOut {
+		raw, _ := json.Marshal(safety)
+		render(stdout, stderr).Field("delegate.safety", string(raw))
 	}
 	run, err := store.RunReviewDispatchContext(ctx, plan, time.Now)
 	handBackExisting(run, err)

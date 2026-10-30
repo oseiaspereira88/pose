@@ -89,3 +89,37 @@ func TestAdapterContainmentCLIRunDocumentDisclosesIt(t *testing.T) {
 		t.Fatal(code, out)
 	}
 }
+
+// safetyOrderWriter records whether the run had started — its marker
+// existed — when the containment line was written.
+type safetyOrderWriter struct {
+	marker      string
+	written     strings.Builder
+	sawSafety   bool
+	afterTheRun bool
+}
+
+func (w *safetyOrderWriter) Write(p []byte) (int, error) {
+	if !w.sawSafety && strings.Contains(string(p), "delegate.safety=") {
+		w.sawSafety = true
+		_, err := os.Stat(w.marker)
+		w.afterTheRun = err == nil
+	}
+	return w.written.Write(p)
+}
+
+// Spec pose-delegation-parity-gate R6 (review round 1, PG-R1-08): a
+// foreground run discloses its containment before the agent runs, as
+// pose review dispatch did, not only once it has run.
+func TestAdapterContainmentCLIDisclosesItBeforeTheRun(t *testing.T) {
+	root := dispatchInstance(t)
+	marker := filepath.Join(t.TempDir(), "ran")
+	writeReviewers(t, root, map[string]pose.ReviewerAdapter{"fake": {Command: []string{"sh", "-c", `cat >/dev/null; : > '` + marker + `'; printf 'decision: approved\n'`}, Vendor: "fixture", Model: "fixture", Containment: &pose.ReviewerContainment{SchemaVersion: 1, Profile: "trusted-process"}}})
+	stdout := &safetyOrderWriter{marker: marker}
+	var stderr strings.Builder
+	var code int
+	inDir(t, root, func() { code = Main([]string{"delegate", "review", "spec:alpha", "--agent", "fake"}, stdout, &stderr) })
+	if code != 0 || !stdout.sawSafety || stdout.afterTheRun {
+		t.Fatalf("containment disclosed before the run: code=%d saw=%v after=%v\n%s%s", code, stdout.sawSafety, stdout.afterTheRun, stdout.written.String(), stderr.String())
+	}
+}

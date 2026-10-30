@@ -75,8 +75,8 @@ func writeReviewers(t *testing.T, root string, adapters map[string]posemodel.Rev
 func TestReviewDispatchRunsAndRecordsAdapters(t *testing.T) {
 	root := dispatchInstance(t)
 
-	// R6: no adapter → the configuration needed.
-	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "codex", "--reason", "regression control"); code == 0 || !strings.Contains(out, "delegation.json") {
+	// R6: no adapter → the brief and the configuration needed.
+	if code, out := runPose(t, root, "delegate", "review", "spec:alpha", "--agent", "codex", "--reason", "regression control"); code == 0 || !strings.Contains(out, "delegation.json") || !strings.Contains(out, "# Independent review of spec:alpha") {
 		t.Fatalf("no adapter: %d %s", code, out)
 	}
 

@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -62,6 +63,9 @@ type DelegationTaskRequest struct {
 	Label     string
 	Lead      string
 	Routing   *DelegationRoutingRecord
+	// Session is a session POSE never recorded that the task continues with
+	// the agent's resume command (spec pose-delegation-parity-gate SA-07).
+	Session string
 	// OnStart is called once the attempt's marker is written, as for every
 	// delegated run.
 	OnStart func(attempt string) error
@@ -131,6 +135,15 @@ func (s Store) PlanDelegationTask(req DelegationTaskRequest) (DelegationTaskPlan
 		return DelegationTaskPlan{}, taskUsage("no agent %q is configured", req.Agent)
 	}
 	template := agent.Commands[req.Access]
+	if req.Session != "" {
+		if !externalSessionRE.MatchString(req.Session) {
+			return DelegationTaskPlan{}, taskUsage("--session takes a session id of 6 to 256 letters, digits, '.', '_', ':' or '-'")
+		}
+		template = taskResumeTemplate(agent, req.Access)
+		if len(template) == 0 {
+			return DelegationTaskPlan{}, taskUsage("agent %s declares no resume command for --access %s", req.Agent, req.Access)
+		}
+	}
 	if len(template) == 0 {
 		return DelegationTaskPlan{}, taskUsage("agent %s declares no %s command", req.Agent, req.Access)
 	}
@@ -142,7 +155,7 @@ func (s Store) PlanDelegationTask(req DelegationTaskRequest) (DelegationTaskPlan
 		return DelegationTaskPlan{}, err
 	}
 	req.Dir = dir
-	plan := DelegationTaskPlan{DelegationTaskRequest: req, Config: agent, Template: template, envUnset: policy.EnvUnset}
+	plan := DelegationTaskPlan{DelegationTaskRequest: req, Config: agent, Template: template, envUnset: policy.EnvUnset, session: req.Session}
 	if err := plan.checkFlags(); err != nil {
 		return DelegationTaskPlan{}, err
 	}
@@ -200,6 +213,11 @@ func (p DelegationTaskPlan) checkOutsideGit() error {
 	}
 	return nil
 }
+
+// externalSessionRE is the shape of a session a caller names: an
+// identifier, never something a template could read as more than one
+// argument.
+var externalSessionRE = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._:-]{5,255}$`)
 
 // taskResumeTemplate is the command that resumes a task of access: the
 // agent's resume.commands for it, or resume.command for read.
@@ -620,7 +638,7 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 	if err != nil {
 		return ReviewRun{}, err
 	}
-	run := ReviewRun{SchemaVersion: 1, Scope: "task", Kind: DelegationPurposeTask, Purpose: DelegationPurposeTask, Adapter: plan.Agent,
+	run := ReviewRun{SchemaVersion: 1, Scope: "task", Kind: DelegationPurposeTask, Purpose: DelegationPurposeTask, Adapter: plan.Agent, ResumesSession: plan.Session != "" && plan.predecessor == nil,
 		Vendor: plan.Config.Vendor, Model: plan.Config.Model, Label: plan.Label, Lead: plan.Lead, Access: plan.Access, Dir: plan.Dir,
 		AddDirs: plan.AddDirs, NoNetwork: plan.NoNetwork, Recorded: plan.Record, Effort: plan.Effort, Events: plan.Config.Events, Routing: plan.Routing,
 		StartedAt: now().UTC().Format(time.RFC3339Nano), ExitCode: -1, PromptDigest: digestBytes([]byte(plan.Prompt)), Safety: safety}
