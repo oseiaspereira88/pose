@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 	"unicode"
@@ -27,10 +28,12 @@ var plainRunPattern = regexp.MustCompile(`^\^?[A-Za-z0-9_]+\$?(\|\^?[A-Za-z0-9_]
 // unjudgedRunPatterns are the checks whose -run pattern is not a plain
 // alternation, with why; a new one fails until it is listed here (review
 // round 1, F2/F3).
+// Each is bound to its exact pattern: changing the pattern needs a new look
+// (review round 3).
 var unjudgedRunPatterns = map[string]string{
-	"legacy-contract-cutoffs-integration":  "grouped alternation",
-	"legacy-contract-cutoffs-reachability": "grouped alternation",
-	"update-preview-integration":           "grouped alternation",
+	"legacy-contract-cutoffs-integration":  "TestContractAdopt|TestLegacyKeyCutoffs|TestLoadReviewPolicyRejectsAnUnparsableRegisteredAdoptionDate|TestDoctorReports(Legacy|AShadowed)",
+	"legacy-contract-cutoffs-reachability": "TestDoctorReports(Legacy|AShadowed)",
+	"update-preview-integration":           "^(TestUpdatePreview|TestUpdateDryRun|TestUpdateOperation|TestStaleInstanceEngine)",
 }
 
 // goTestValueFlags are the go test flags this guard models that take a
@@ -55,6 +58,8 @@ var buildEnvKeys = []string{"GOFLAGS", "GOOS", "GOARCH", "CGO_ENABLED", "GOEXPER
 // import paths or the module's own directory by default (review round 1, B1).
 func parseMatrixGoTest(args []string) (matrixGoTest, error) {
 	var check matrixGoTest
+	var tags []string
+	race := false
 	for i := 1; i < len(args); i++ {
 		arg := args[i]
 		if !strings.HasPrefix(arg, "-") {
@@ -64,9 +69,18 @@ func parseMatrixGoTest(args []string) (matrixGoTest, error) {
 		flag, value, inline := strings.Cut(strings.Replace(arg, "-test.", "-", 1), "=")
 		switch {
 		case goTestBoolFlags[flag]:
-			// -race builds with the race tag (review round 2, R2-B1).
-			if flag == "-race" && (!inline || value == "true") {
-				check.tags = append(check.tags, "race")
+			// A boolean flag takes Go's spellings and its last value counts;
+			// -race builds with the race tag (review rounds 2–3).
+			on := true
+			if inline {
+				parsed, err := strconv.ParseBool(value)
+				if err != nil {
+					return check, errors.New("flag " + arg + " has no boolean value")
+				}
+				on = parsed
+			}
+			if flag == "-race" {
+				race = on
 			}
 		case goTestValueFlags[flag]:
 			if !inline {
@@ -80,11 +94,16 @@ func parseMatrixGoTest(args []string) (matrixGoTest, error) {
 			case "-run":
 				check.pattern = value
 			case "-tags":
-				check.tags = append(check.tags, strings.FieldsFunc(value, func(r rune) bool { return r == ',' || r == ' ' })...)
+				// Each -tags replaces the list before it, as go's flag does.
+				tags = strings.FieldsFunc(value, func(r rune) bool { return r == ',' || r == ' ' })
 			}
 		default:
 			return check, errors.New("flag " + arg + " is not modelled")
 		}
+	}
+	check.tags = append([]string{}, tags...)
+	if race {
+		check.tags = append(check.tags, "race")
 	}
 	if len(check.packages) == 0 {
 		check.packages = []string{"."}
@@ -159,7 +178,7 @@ func runnableTests(dir string, tags []string) ([]string, error) {
 	if errors.As(err, &noGo) {
 		return nil, nil
 	}
-	if err != nil && pkg == nil {
+	if err != nil {
 		return nil, err
 	}
 	var names []string
@@ -295,8 +314,8 @@ func deadRunPatterns(root string, raw []byte) ([]string, error) {
 				continue
 			}
 			if !plainRunPattern.MatchString(check.pattern) {
-				if _, listed := unjudgedRunPatterns[raw.Name]; !listed {
-					problems = append(problems, label+": pattern "+check.pattern+" is not a plain alternation and is not listed as unjudged")
+				if unjudgedRunPatterns[raw.Name] != check.pattern {
+					problems = append(problems, label+": pattern "+check.pattern+" is not a plain alternation and is not listed, with this exact pattern, as unjudged")
 				}
 				continue
 			}
@@ -340,7 +359,10 @@ func deadRunPatterns(root string, raw []byte) ([]string, error) {
 
 // TestValidationMatrixRunPatternsNameExistingTests keeps a check from naming
 // a test that does not exist: go test -run exits 0 when an alternative
-// matches nothing (spec pose-validation-matrix-dead-test-patterns R2).
+// matches nothing (spec pose-validation-matrix-dead-test-patterns R2). It
+// judges declarations under the matrix's own arguments and go/build's
+// default context; an operator's inherited GOFLAGS or GOOS is outside it,
+// and what actually runs is judged by spec pose-validate-shared-go-test-run.
 func TestValidationMatrixRunPatternsNameExistingTests(t *testing.T) {
 	root := filepath.Join("..", "..", "..")
 	raw, err := os.ReadFile(filepath.Join(root, ".pose", "indexes", "validation-matrix.json"))
@@ -411,6 +433,14 @@ func TestDeadRunPatternGuardFollowsGoSelection(t *testing.T) {
 		{"unmodelled flag", `"./a", "-bench", ".", "-run", "TestReal"`, true, ""},
 		{"unlisted non-plain pattern", `"./a", "-run", "^TestReal$|Ghost()"`, true, ""},
 		{"race excludes a !race test", `"./r", "-race", "-run", "TestNoRace"`, true, ""},
+		{"race last value false", `"./r", "-race", "-race=false", "-run", "TestRaceOnly"`, true, ""},
+		{"race last value false selects !race", `"./r", "-race", "-race=false", "-run", "TestNoRace"`, false, ""},
+		{"race spelled 1", `"./r", "-race=1", "-run", "TestRaceOnly"`, false, ""},
+		{"race with tags keeps race", `"./r", "-race", "-tags=x", "-run", "TestRaceOnly"`, false, ""},
+		{"explicit race tag survives -race=false", `"./r", "-tags=race", "-race=false", "-run", "TestRaceOnly"`, false, ""},
+		{"race bad boolean", `"./r", "-race=maybe", "-run", "TestRaceOnly"`, true, ""},
+		{"tags last value wins", `"./a", "-tags=reviewnever", "-tags=other", "-run", "TestTagged"`, true, ""},
+		{"tags last value selects", `"./a", "-tags=other", "-tags=reviewnever", "-run", "TestTagged"`, false, ""},
 		{"race selects a race test", `"./r", "-race", "-run", "TestRaceOnly"`, false, ""},
 		{"no race selects the !race test", `"./r", "-run", "TestNoRace"`, false, ""},
 		{"dot-imported T, empty results, TestMain as a test, lower-case output", `"./d", "-run", "TestDot|TestEmpty|TestMain|Example_lower"`, false, ""},
@@ -429,6 +459,18 @@ func TestDeadRunPatternGuardFollowsGoSelection(t *testing.T) {
 		if (len(problems) > 0) != c.dead {
 			t.Errorf("%s: problems %v, want dead=%v", c.name, problems, c.dead)
 		}
+	}
+	// A listed non-plain check whose pattern changed is judged anew.
+	changed := `{"moduleOverrides":{"m":{"checks":[{"name":"update-preview-integration","program":"go","args":["test","./a","-run","^(TestReal|TestGhost)"]}]}}}`
+	if problems, err := deadRunPatterns(root, []byte(changed)); err != nil || len(problems) == 0 {
+		t.Fatalf("a listed check whose pattern changed was not refused: %v %v", problems, err)
+	}
+	// A directory go/build cannot load is an error, not an empty package.
+	write("m/mixed/x_test.go", "package x\n\nimport \"testing\"\n\nfunc TestX(t *testing.T) {}\n")
+	write("m/mixed/y_test.go", "package y\n\nimport \"testing\"\n\nfunc TestY(t *testing.T) {}\n")
+	mixed := `{"moduleOverrides":{"m":{"checks":[{"name":"probe","program":"go","args":["test","./mixed","-run","TestX"]}]}}}`
+	if _, err := deadRunPatterns(root, []byte(mixed)); err == nil {
+		t.Fatal("a directory go/build cannot load was read as a package")
 	}
 	stack := `{"stacks":{"go":{"checks":[{"name":"probe","program":"go","args":["test","./...","-run","TestReal"]}]}}}`
 	if problems, err := deadRunPatterns(root, []byte(stack)); err != nil || len(problems) == 0 {
