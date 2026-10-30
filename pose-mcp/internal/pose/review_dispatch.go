@@ -31,6 +31,11 @@ import (
 	"unicode/utf8"
 )
 
+// AdapterPipeGrace is how long a finished or killed adapter's children may
+// hold its pipes before they are released. Tests that exercise a lingering
+// child shorten it (spec pose-cli-test-wall-time R1).
+var AdapterPipeGrace = 5 * time.Second
+
 // ReviewersPolicySchemaVersion versions .pose/policy/reviewers.json.
 const ReviewersPolicySchemaVersion = 1
 
@@ -909,7 +914,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	// is killed on timeout and after the run, and pipes are released at most
 	// a few seconds after the kill.
 	isolateProcessGroup(cmd)
-	cmd.WaitDelay = 5 * time.Second
+	cmd.WaitDelay = AdapterPipeGrace
 	var runErr error
 	if run.Provenance == nil {
 		runErr = cmd.Run()

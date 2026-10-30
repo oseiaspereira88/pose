@@ -11,7 +11,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 
@@ -76,8 +78,9 @@ func delegateMCP(t *testing.T, root string) func(tool string, args map[string]an
 // transcript, a session or an environment value.
 func TestDelegateToolsOverMCPMatchTheCLI(t *testing.T) {
 	root := dispatchInstance(t)
+	hold, release := testGate(t)
 	slow := `"slow": {"vendor": "test", "model": "slow-1", "timeout": "30s",
-      "commands": {"read": ["sh", "-c", "cat >/dev/null; sleep 4; echo decision: approved"]}}`
+      "commands": {"read": ["sh", "-c", ` + strconv.Quote("cat >/dev/null; "+hold+"; echo decision: approved") + `]}}`
 	writeDelegation(t, root, delegationPolicy(approvingAgent, slow))
 	call := delegateMCP(t, root)
 	preview := call("pose_delegate_start", map[string]any{"purpose": "review", "target": "spec:alpha", "agent": "ok"})
@@ -119,12 +122,72 @@ func TestDelegateToolsOverMCPMatchTheCLI(t *testing.T) {
 	if live := call("pose_delegate_status", map[string]any{"run": slowAttempt}); live["state"] != "running" {
 		t.Fatalf("status of a running run: %v", live)
 	}
+	release()
 	if done := call("pose_delegate_wait", map[string]any{"run": slowAttempt, "timeout_seconds": 60}); done["state"] != "completed" {
 		t.Fatalf("the slow run: %v", done)
 	}
 	if task := call("pose_delegate_start", map[string]any{"purpose": "task", "target": "x"}); !strings.Contains(string(mustJSON(task)), "a task is not started over MCP") || !strings.Contains(string(mustJSON(task)), "pose delegate task --detach") || strings.Contains(string(mustJSON(task)), "does not run detached") {
 		t.Fatalf("a task started over MCP: %v", task)
 	}
+}
+
+// testGate is a file a fixture agent waits for, so a test holds a run open
+// exactly as long as it observes it, instead of a fixed sleep (spec
+// pose-cli-test-wall-time R1). wait is the shell loop the agent runs; open
+// releases it.
+func testGate(t *testing.T) (wait string, open func()) {
+	t.Helper()
+	g := newGate(t)
+	return g.wait, g.open
+}
+
+// gate is a test gate that can also be closed again, for a test that holds
+// several runs of the same agent in turn.
+type gate struct {
+	t    *testing.T
+	path string
+	wait string
+}
+
+func newGate(t *testing.T) *gate {
+	t.Helper()
+	path := filepath.Join(t.TempDir(), "gate")
+	return &gate{t: t, path: path, wait: "while [ ! -e " + shellQuote(path) + " ]; do sleep 0.02; done"}
+}
+
+func (g *gate) open() {
+	g.t.Helper()
+	if err := os.WriteFile(g.path, nil, 0o600); err != nil {
+		g.t.Fatal(err)
+	}
+}
+
+func (g *gate) close() {
+	g.t.Helper()
+	if err := os.Remove(g.path); err != nil && !os.IsNotExist(err) {
+		g.t.Fatal(err)
+	}
+}
+
+// waitForProcessGone waits until the process whose pid is in pidFile has
+// exited, within a bound.
+func waitForProcessGone(t *testing.T, pidFile string) {
+	t.Helper()
+	deadline := time.Now().Add(15 * time.Second)
+	for time.Now().Before(deadline) {
+		raw, err := os.ReadFile(pidFile)
+		if err == nil {
+			pid, perr := strconv.Atoi(strings.TrimSpace(string(raw)))
+			if perr != nil {
+				t.Fatalf("pid file: %v", perr)
+			}
+			if syscall.Kill(pid, 0) != nil {
+				return
+			}
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	t.Fatalf("the process in %s did not exit", pidFile)
 }
 
 func mustJSON(v any) []byte {
@@ -175,8 +238,9 @@ func TestDelegateToolsOverMCPContinueStoppedRuns(t *testing.T) {
 // (F04).
 func TestDelegateToolsOverMCPHoldAgainstTheFirstReview(t *testing.T) {
 	root := dispatchInstance(t)
+	hold, release := testGate(t)
 	chatty := `"chatty": {"vendor": "test", "model": "chatty-1", "timeout": "30s", "events": "codex-jsonl",
-      "commands": {"read": ["sh", "-c", "cat >/dev/null; printf '%s\\n' '{\"type\":\"item.completed\",\"item\":{\"type\":\"agent_message\",\"text\":\"SYNTHETIC_PRIVATE_PROMPT /private/x.log\"}}'; sleep 4; echo decision: approved"]}}`
+      "commands": {"read": ["sh", "-c", ` + strconv.Quote(`cat >/dev/null; printf '%s\n' '{"type":"item.completed","item":{"type":"agent_message","text":"SYNTHETIC_PRIVATE_PROMPT /private/x.log"}}'; `+hold+`; echo decision: approved`) + `]}}`
 	writeDelegation(t, root, delegationPolicy(chatty, limitingAgent, strings.Replace(strings.Replace(limitingAgent, `"stopper"`, `"stopper-b"`, 1), `"vendor": "test"`, `"vendor": "other"`, 1), continuingAgent))
 	call := delegateMCP(t, root)
 	started := call("pose_delegate_start", map[string]any{"purpose": "review", "target": "spec:alpha", "agent": "chatty", "apply": true})
@@ -184,14 +248,23 @@ func TestDelegateToolsOverMCPHoldAgainstTheFirstReview(t *testing.T) {
 	if attempt == "" {
 		t.Fatalf("start: %v", started)
 	}
-	deadline := time.Now().Add(3 * time.Second)
-	for time.Now().Before(deadline) {
+	// Read the status while the run is held open, after its message is in
+	// its events, then let it finish.
+	seen := 0
+	for deadline := time.Now().Add(10 * time.Second); seen < 3 && time.Now().Before(deadline); {
 		status := call("pose_delegate_status", map[string]any{"run": attempt})
 		if strings.Contains(string(mustJSON(status)), "SYNTHETIC_PRIVATE") {
 			t.Fatalf("a status carries the run's message: %v", status)
 		}
-		time.Sleep(300 * time.Millisecond)
+		if status["state"] == "running" {
+			seen++
+		}
+		time.Sleep(20 * time.Millisecond)
 	}
+	if seen < 3 {
+		t.Fatal("the held run was never read running")
+	}
+	release()
 	call("pose_delegate_wait", map[string]any{"run": attempt, "timeout_seconds": 60})
 	if bad := call("pose_delegate_wait", map[string]any{"run": attempt, "timeout_seconds": 99999}); !strings.Contains(string(mustJSON(bad)), "timeout_seconds") {
 		t.Fatalf("an unbounded wait was accepted: %v", bad)

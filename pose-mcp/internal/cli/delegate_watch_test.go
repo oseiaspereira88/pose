@@ -1,9 +1,12 @@
 package cli
 
 import (
+	"bufio"
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -82,23 +85,32 @@ func TestDelegateWatchPicksARun(t *testing.T) {
 	}
 }
 
-const streamingAgent = `{"schema_version": 2, "agents": {
-  "streamer": {"vendor": "test", "model": "s-1", "cli": "sh", "events": "codex-jsonl", "commands": {"read": ["sh", "-c",
-    "cat >/dev/null; echo '{\"type\":\"turn.started\"}'; sleep 1; echo '{\"type\":\"item.completed\",\"item\":{\"type\":\"agent_message\",\"text\":\"looking at the bundle\"}}'; sleep 2; echo '{\"type\":\"item.completed\",\"item\":{\"type\":\"agent_message\",\"text\":\"decision: approved\"}}'"]}}
-}, "purposes": {"review": {"max_runs_per_bundle": 9}}}`
+// streamingAgent is a policy whose agent streams a turn and a message, then
+// holds until its gate opens before its decision (spec
+// pose-cli-test-wall-time R1).
+func streamingAgent(t *testing.T) (string, *gate) {
+	t.Helper()
+	g := newGate(t)
+	script := `cat >/dev/null; echo '{"type":"turn.started"}'; echo '{"type":"item.completed","item":{"type":"agent_message","text":"looking at the bundle"}}'; ` + g.wait + `; echo '{"type":"item.completed","item":{"type":"agent_message","text":"decision: approved"}}'`
+	return `{"schema_version": 2, "agents": {
+  "streamer": {"vendor": "test", "model": "s-1", "cli": "sh", "events": "codex-jsonl", "commands": {"read": ["sh", "-c", ` + strconv.Quote(script) + `]}}
+}, "purposes": {"review": {"max_runs_per_bundle": 9}}}`, g
+}
 
 // R9: watch follows a running run's events live and stops by itself at the
 // end, adding from the record only what the live events did not carry.
 func TestDelegateWatchFollowsLive(t *testing.T) {
 	root := dispatchInstance(t)
-	writeDelegation(t, root, streamingAgent)
+	policy, held := streamingAgent(t)
+	writeDelegation(t, root, policy)
 	code, out := runBuilt(t, root, "delegate", "review", "spec:alpha", "--detach", "--json")
 	var detached struct{ Attempt string }
 	if code != 0 || json.Unmarshal([]byte(out), &detached) != nil {
 		t.Fatalf("detach: %d %s", code, out)
 	}
 	started := time.Now()
-	code, out = runBuilt(t, root, "delegate", "watch", detached.Attempt)
+	// The run ends only once watch has shown its live message.
+	code, out = runBuiltReleasing(t, root, "looking at the bundle", held, "delegate", "watch", detached.Attempt)
 	if code != 0 || !strings.Contains(out, "▶ live: streamer") || strings.Count(out, "looking at the bundle") != 1 || !strings.Contains(out, "■ completed") {
 		t.Fatalf("live watch: %d %s", code, out)
 	}
@@ -193,4 +205,42 @@ func TestDelegateWatchSelectsBySessionPrefix(t *testing.T) {
 	if strings.Contains(byPrefix+errOut, "sess-abcdef123") {
 		t.Fatalf("watch printed the session: %s%s", byPrefix, errOut)
 	}
+}
+
+// runBuiltReleasing runs the built pose command and opens release once its
+// standard output carries marker, so a held run ends after the command has
+// observed it live.
+func runBuiltReleasing(t *testing.T, root, marker string, release *gate, args ...string) (int, string) {
+	t.Helper()
+	cmd := exec.Command(poseBinary(t), args...)
+	cmd.Dir = root
+	pipe, err := cmd.StdoutPipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cmd.Start(); err != nil {
+		t.Fatal(err)
+	}
+	var out strings.Builder
+	scanner := bufio.NewScanner(pipe)
+	released := false
+	for scanner.Scan() {
+		out.WriteString(scanner.Text() + "\n")
+		if !released && strings.Contains(scanner.Text(), marker) {
+			release.open()
+			released = true
+		}
+	}
+	if !released {
+		release.open()
+	}
+	code := 0
+	if err := cmd.Wait(); err != nil {
+		exit, ok := err.(*exec.ExitError)
+		if !ok {
+			t.Fatal(err)
+		}
+		code = exit.ExitCode()
+	}
+	return code, out.String()
 }

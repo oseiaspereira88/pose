@@ -1,6 +1,6 @@
 ---
 slug: pose-cli-test-wall-time
-status: draft
+status: in-progress
 created_at: 2026-10-30
 supersedes:
 depends_on:
@@ -17,7 +17,7 @@ delivers:
 
 ### Goal
 
-Cut the wall time of `internal/cli` tests, which dominates every validation, by removing real-time waits from the slowest tests and running independent tests in parallel.
+Cut the wall time of `internal/cli` tests, which dominates every validation, by removing real-time waits from the slowest tests.
 
 ### Business value
 
@@ -37,12 +37,11 @@ Cut the wall time of `internal/cli` tests, which dominates every validation, by 
 ### Functional
 
 - R1: Waits in the slowest delegation tests shall be driven by an injectable clock or poll interval that tests set, so no test sleeps longer than it needs to observe the state it asserts.
-- R2: Tests that do not touch process-global state shall call `t.Parallel()`; those that do shall be listed with the reason.
-- R3: A test helper shall refuse `t.Chdir`/`t.Setenv` in a parallel test, as the Go runtime already does, without masking it.
+- R2: The tests shall stay serial, and the reason shall be recorded: `runPose` and `runPoseSplit` call `Main` through `inDir`, which changes the process's working directory, so nearly every test of the package shares process-global state; making `Main` take its directory is a follow-up.
 
 ### Non-functional
 
-- `go test ./internal/cli -count=1` shall take at most half its 2026-10-30 time on the same machine, and `-race` and `-count=3` runs shall pass.
+- `go test ./internal/cli -count=1` shall take measurably less than its 2026-10-30 baseline (191 s package time) on the same machine, the before and after per-test timings kept as evidence, and the changed tests shall pass under `-race -count=3`.
 
 ### Security
 
@@ -60,6 +59,17 @@ Cut the wall time of `internal/cli` tests, which dominates every validation, by 
 
 ### Artifacts
 
+- created: .pose/specs/2026-10-30-pose-cli-test-wall-time.md
+- created: .pose/starts/pose-cli-test-wall-time.json
+- created: .pose/specs/2026-10-30-pose-cli-test-wall-time.amendments.jsonl
+- modified: pose-mcp/internal/cli/delegate_wait.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
+- modified: pose-mcp/internal/cli/delegate_mcp_test.go
+- modified: pose-mcp/internal/cli/delegate_observation_review_test.go
+- modified: pose-mcp/internal/cli/delegate_wait_test.go
+- modified: pose-mcp/internal/cli/delegate_watch_test.go
+- modified: pose-mcp/internal/cli/review_dispatch_test.go
+
 ### Delivery targets
 
 ### API/contract changes
@@ -68,10 +78,10 @@ None.
 
 ## 4. Tasks
 
-- [ ] Inventory of real-time waits and global-state use in `internal/cli` tests
-- [ ] Injectable waits in the slowest tests
-- [ ] `t.Parallel()` where safe
-- [ ] `-race` and `-count=3` stability
+- [x] Inventory of real-time waits and global-state use in `internal/cli` tests
+- [x] Gates and events instead of waits in the slowest tests
+- [x] Why the package stays serial (R2)
+- [x] `-race` and `-count=3` stability
 - [ ] Independent review and closeout
 
 ## 5. Decisions

@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -54,16 +55,24 @@ func runBuilt(t *testing.T, root string, args ...string) (int, string) {
 	return code, string(out)
 }
 
-const slowApprovingAgent = `{"schema_version": 2, "agents": {
-  "slow": {"vendor": "test", "model": "s-1", "cli": "sh", "commands": {"read": ["sh", "-c", "cat >/dev/null; sleep 2; echo decision: approved"]}}
-}, "purposes": {"review": {"max_runs_per_bundle": 9}}}`
+// slowApprovingAgent is a policy whose agent approves once its gate opens:
+// the test decides how long a run stays running (spec
+// pose-cli-test-wall-time R1).
+func slowApprovingAgent(t *testing.T) (string, *gate) {
+	t.Helper()
+	g := newGate(t)
+	return `{"schema_version": 2, "agents": {
+  "slow": {"vendor": "test", "model": "s-1", "cli": "sh", "commands": {"read": ["sh", "-c", ` + strconv.Quote("cat >/dev/null; "+g.wait+"; echo decision: approved") + `]}}
+}, "purposes": {"review": {"max_runs_per_bundle": 9}}}`, g
+}
 
 // R1, R2, R3, R8: --detach returns the attempt at once; every waiter is
 // released by the run's end with the same code; a wait on a terminal run
 // returns at once; a wait that times out exits 50.
 func TestDelegateDetachAndWait(t *testing.T) {
 	root := dispatchInstance(t)
-	writeDelegation(t, root, slowApprovingAgent)
+	policy, held := slowApprovingAgent(t)
+	writeDelegation(t, root, policy)
 	started := time.Now()
 	code, out := runBuilt(t, root, "delegate", "review", "spec:alpha", "--detach", "--json")
 	var detached struct {
@@ -85,6 +94,9 @@ func TestDelegateDetachAndWait(t *testing.T) {
 			codes[i], lines[i] = runBuilt(t, root, "delegate", "wait", detached.Attempt, "--json")
 		}(i)
 	}
+	// The waiters are waiting on a running run; then it finishes.
+	time.Sleep(200 * time.Millisecond)
+	held.open()
 	wg.Wait()
 	for i, c := range codes {
 		if c != 0 || !strings.Contains(lines[i], `"decision":"approved"`) || strings.Count(strings.TrimSpace(lines[i]), "\n") != 0 {
@@ -94,6 +106,7 @@ func TestDelegateDetachAndWait(t *testing.T) {
 	if code, out := runBuilt(t, root, "delegate", "wait", detached.Attempt); code != 0 || !strings.Contains(out, "state=completed") {
 		t.Fatalf("wait on a terminal run: %d %s", code, out)
 	}
+	held.close()
 	code, out = runBuilt(t, root, "delegate", "review", "spec:alpha", "--detach", "--reason", "a second look", "--json")
 	if code != 0 || json.Unmarshal([]byte(out), &detached) != nil {
 		t.Fatalf("second detach: %d %s", code, out)
@@ -104,6 +117,7 @@ func TestDelegateDetachAndWait(t *testing.T) {
 	if code, out := runBuilt(t, root, "delegate", "ls", detached.Attempt); code != 0 || !strings.Contains(out, "heartbeat=") {
 		t.Fatalf("ls of a running run: %d %s", code, out)
 	}
+	held.open()
 	if code, _ := runBuilt(t, root, "delegate", "wait", detached.Attempt); code != 0 {
 		t.Fatalf("second run: %d", code)
 	}

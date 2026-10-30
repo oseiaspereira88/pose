@@ -55,9 +55,16 @@ func TestWaitReportsAnIncompleteHistory(t *testing.T) {
 // stopped, not left to run unannounced.
 func TestADetachedRunThatDoesNotHandBackIsStopped(t *testing.T) {
 	root := dispatchInstance(t)
-	writeDelegation(t, root, slowApprovingAgent)
+	policy, held := slowApprovingAgent(t)
+	held.open()
+	writeDelegation(t, root, policy)
+	// The wrapper records its pid and holds until released, so the test
+	// knows when the stopped supervisor is gone instead of sleeping past it
+	// (spec pose-cli-test-wall-time R1).
+	hold, release := testGate(t)
+	pidFile := filepath.Join(t.TempDir(), "pid")
 	wrapper := filepath.Join(t.TempDir(), "delayed-pose")
-	if err := os.WriteFile(wrapper, []byte("#!/bin/sh\nsleep 4\nexec "+shellQuote(poseBinary(t))+" \"$@\"\n"), 0o700); err != nil {
+	if err := os.WriteFile(wrapper, []byte("#!/bin/sh\necho $$ > "+shellQuote(pidFile)+"\n"+hold+"\nexec "+shellQuote(poseBinary(t))+" \"$@\"\n"), 0o700); err != nil {
 		t.Fatal(err)
 	}
 	savedExe, savedBound := delegateExecutable, delegateDetachBound
@@ -68,7 +75,10 @@ func TestADetachedRunThatDoesNotHandBackIsStopped(t *testing.T) {
 	if code != 1 || !strings.Contains(out, "was stopped") {
 		t.Fatalf("a hand-back past the bound: %d %s", code, out)
 	}
-	time.Sleep(6 * time.Second)
+	// Once released, a supervisor that survived the stop would run and
+	// reserve an attempt; one that was stopped is already gone.
+	release()
+	waitForProcessGone(t, pidFile)
 	if attempts, _, _ := (posemodel.Store{Root: root}).ListDelegationAttempts(); len(attempts) != 0 {
 		t.Fatalf("the stopped run reserved an attempt later: %+v", attempts)
 	}
@@ -89,14 +99,21 @@ func TestPreviewCarriesVerboseAndLsReadsLiveProgress(t *testing.T) {
 		t.Fatalf("the preview lost -v: %s", raw)
 	}
 	root := dispatchInstance(t)
-	writeDelegation(t, root, streamingAgent)
+	policy, held := streamingAgent(t)
+	writeDelegation(t, root, policy)
 	code, out := runBuilt(t, root, "delegate", "review", "spec:alpha", "--detach", "--json")
 	var detached struct{ Attempt string }
 	if code != 0 || json.Unmarshal([]byte(out), &detached) != nil {
 		t.Fatalf("detach: %d %s", code, out)
 	}
-	time.Sleep(1500 * time.Millisecond)
-	_, ls := runBuilt(t, root, "delegate", "ls", detached.Attempt, "--json")
+	// The run is held after its message: read ls until it has the message.
+	var ls string
+	for deadline := time.Now().Add(15 * time.Second); time.Now().Before(deadline); time.Sleep(50 * time.Millisecond) {
+		if _, ls = runBuilt(t, root, "delegate", "ls", detached.Attempt, "--json"); strings.Contains(ls, `"last_step": "message: looking at the bundle"`) {
+			break
+		}
+	}
+	held.open()
 	runBuilt(t, root, "delegate", "wait", detached.Attempt)
 	if !strings.Contains(ls, `"turns": 1`) || !strings.Contains(ls, `"last_step": "message: looking at the bundle"`) {
 		t.Fatalf("ls of a running run: %s", ls)
@@ -108,7 +125,9 @@ func TestPreviewCarriesVerboseAndLsReadsLiveProgress(t *testing.T) {
 // instead of leaving the agent running.
 func TestADetachedRunThatCannotHandBackDoesNotRun(t *testing.T) {
 	root := dispatchInstance(t)
-	writeDelegation(t, root, slowApprovingAgent)
+	policy, held := slowApprovingAgent(t)
+	held.open()
+	writeDelegation(t, root, policy)
 	// The hand-back file already exists, so its exclusive publication fails.
 	dir, err := posemodel.Store{Root: root}.DelegationPrivateDir("supervisors")
 	if err != nil {
@@ -130,7 +149,9 @@ func TestADetachedRunThatCannotHandBackDoesNotRun(t *testing.T) {
 // a relative --note-file is the caller's file.
 func TestADetachedRunReadsTheCallersFiles(t *testing.T) {
 	root := dispatchInstance(t)
-	writeDelegation(t, root, slowApprovingAgent)
+	policy, held := slowApprovingAgent(t)
+	held.open()
+	writeDelegation(t, root, policy)
 	sub := filepath.Join(root, "sub")
 	os.MkdirAll(sub, 0o755)
 	os.WriteFile(filepath.Join(root, "notes.md"), []byte("decoy at the root\n"), 0o644)

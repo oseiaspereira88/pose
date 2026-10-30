@@ -33,7 +33,10 @@ const (
 	// on which its caller hands over the prompt the caller read from its own
 	// stdin (spec pose-delegation-task-detach-and-state R2).
 	delegatePromptPiped = "POSE_DELEGATE_PROMPT_PIPED"
-	delegateWaitStep    = 500 * time.Millisecond
+	// delegateWaitStep is how often a waiter looks at a running run's
+	// marker: a stat, cheap enough that a wait returns within a tenth of a
+	// second of the run's end (spec pose-cli-test-wall-time R1).
+	delegateWaitStep = 100 * time.Millisecond
 )
 
 // delegateDetachBound is how long a detached run has to reserve its attempt;

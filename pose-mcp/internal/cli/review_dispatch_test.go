@@ -188,6 +188,11 @@ func TestReviewDispatchTimeoutKillsTheAdaptersChildren(t *testing.T) {
 // R4: a run that exits 0 leaving a child on its output completes, and a run
 // that renames sealed content into derived state fails (found in review).
 func TestReviewDispatchJudgesTheRunNotItsLeftovers(t *testing.T) {
+	// The lingering child holds the pipes until the grace releases them;
+	// the run's verdict does not depend on how long that is.
+	saved := posemodel.AdapterPipeGrace
+	posemodel.AdapterPipeGrace = 200 * time.Millisecond
+	t.Cleanup(func() { posemodel.AdapterPipeGrace = saved })
 	root := dispatchInstance(t)
 	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{
 		"lingers": {Command: []string{"sh", "-c", "cat >/dev/null; echo decision: approved; sleep 8 & exit 0"}, Vendor: "test", Model: "linger-1", Timeout: "60s"},
