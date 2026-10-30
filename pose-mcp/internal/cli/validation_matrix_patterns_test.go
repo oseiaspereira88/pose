@@ -116,7 +116,9 @@ func parseMatrixGoTest(args []string) (matrixGoTest, error) {
 				// Every value must parse as Go's flag does, and only a
 				// positive decimal last value is judged: zero runs no test
 				// (review rounds 5–6, R5-B1, R6-B1, F6).
-				if _, err := strconv.ParseInt(value, 0, strconv.IntSize); err != nil {
+				// The test binary reads every occurrence again as unsigned,
+				// so a negative one fails the run (review round 7, R7-B1).
+				if n, err := strconv.ParseInt(value, 0, strconv.IntSize); err != nil || n < 0 {
 					return check, errors.New("flag -count=" + value + " is not a count go test accepts")
 				}
 				count, counted = value, true
@@ -506,6 +508,9 @@ func TestDeadRunPatternGuardFollowsGoSelection(t *testing.T) {
 		{"count out of range", `"./a", "-run", "TestReal", "-count=9223372036854775808"`, true, ""},
 		{"earlier count out of range", `"./a", "-run", "TestReal", "-count=9223372036854775808", "-count=1"`, true, ""},
 		{"empty count", `"./a", "-run", "TestReal", "-count="`, true, ""},
+		{"earlier negative count", `"./a", "-run", "TestReal", "-count=-1", "-count=1"`, true, ""},
+		{"earlier negative count prefixed and split", `"./a", "-run", "TestReal", "-test.count", "-0x1", "-count=1"`, true, ""},
+		{"earlier negative zero", `"./a", "-run", "TestReal", "-count=-0", "-count=1"`, false, ""},
 		{"zero then positive count", `"./a", "-run", "TestReal", "-count=0", "-count=2"`, false, ""},
 		{"test-prefixed tags", `"./a", "-test.tags=x", "-run", "TestReal"`, true, ""},
 		{"test-prefixed race", `"./a", "-test.race=true", "-run", "TestReal"`, true, ""},
