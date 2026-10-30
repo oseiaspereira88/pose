@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"os"
 	"os/exec"
@@ -212,8 +213,12 @@ func TestDelegateWatchSelectsBySessionPrefix(t *testing.T) {
 // observed it live.
 func runBuiltReleasing(t *testing.T, root, marker string, release *gate, args ...string) (int, string) {
 	t.Helper()
-	cmd := exec.Command(poseBinary(t), args...)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, poseBinary(t), args...)
 	cmd.Dir = root
+	var stderr strings.Builder
+	cmd.Stderr = &stderr
 	pipe, err := cmd.StdoutPipe()
 	if err != nil {
 		t.Fatal(err)
@@ -234,11 +239,14 @@ func runBuiltReleasing(t *testing.T, root, marker string, release *gate, args ..
 	if !released {
 		release.open()
 	}
+	if err := scanner.Err(); err != nil {
+		t.Fatalf("reading %v: %v (stderr: %s)", args, err, stderr.String())
+	}
 	code := 0
 	if err := cmd.Wait(); err != nil {
 		exit, ok := err.(*exec.ExitError)
-		if !ok {
-			t.Fatal(err)
+		if !ok || ctx.Err() != nil {
+			t.Fatalf("%v: %v (stderr: %s)", args, err, stderr.String())
 		}
 		code = exit.ExitCode()
 	}

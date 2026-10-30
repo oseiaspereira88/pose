@@ -152,7 +152,10 @@ type gate struct {
 func newGate(t *testing.T) *gate {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "gate")
-	return &gate{t: t, path: path, wait: "while [ ! -e " + shellQuote(path) + " ]; do sleep 0.02; done"}
+	g := &gate{t: t, path: path, wait: "while [ ! -e " + shellQuote(path) + " ]; do sleep 0.02; done"}
+	// A failing test still releases what it held (review round 1, F02).
+	t.Cleanup(func() { _ = os.WriteFile(path, nil, 0o600) })
+	return g
 }
 
 func (g *gate) open() {
@@ -248,8 +251,18 @@ func TestDelegateToolsOverMCPHoldAgainstTheFirstReview(t *testing.T) {
 	if attempt == "" {
 		t.Fatalf("start: %v", started)
 	}
-	// Read the status while the run is held open, after its message is in
-	// its events, then let it finish.
+	// The run is held open after its message: wait until the message is in
+	// its live events on the host (review round 1, B01), then read the
+	// status while it runs, then let it finish.
+	livePath := filepath.Join(root, ".pose", "review-private", "live", attempt+".ndjson")
+	for deadline := time.Now().Add(15 * time.Second); ; time.Sleep(20 * time.Millisecond) {
+		if raw, _ := os.ReadFile(livePath); strings.Contains(string(raw), "SYNTHETIC_PRIVATE") {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("the held run's message never reached its live events")
+		}
+	}
 	seen := 0
 	for deadline := time.Now().Add(10 * time.Second); seen < 3 && time.Now().Before(deadline); {
 		status := call("pose_delegate_status", map[string]any{"run": attempt})

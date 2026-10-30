@@ -43,8 +43,17 @@ func poseBinary(t *testing.T) string {
 
 func runBuilt(t *testing.T, root string, args ...string) (int, string) {
 	t.Helper()
+	return runBuiltEnv(t, root, nil, args...)
+}
+
+// runBuiltEnv runs the built pose command with env added to the test's.
+func runBuiltEnv(t *testing.T, root string, env []string, args ...string) (int, string) {
+	t.Helper()
 	cmd := exec.Command(poseBinary(t), args...)
 	cmd.Dir = root
+	if env != nil {
+		cmd.Env = append(os.Environ(), env...)
+	}
 	out, err := cmd.Output()
 	code := 0
 	if exit, ok := err.(*exec.ExitError); ok {
@@ -86,16 +95,26 @@ func TestDelegateDetachAndWait(t *testing.T) {
 	}
 	codes := make([]int, 3)
 	lines := make([]string, 3)
+	signals := t.TempDir()
 	var wg sync.WaitGroup
 	for i := range codes {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			codes[i], lines[i] = runBuilt(t, root, "delegate", "wait", detached.Attempt, "--json")
+			codes[i], lines[i] = runBuiltEnv(t, root, []string{delegateWaitSignal + "=" + signals}, "delegate", "wait", detached.Attempt, "--json")
 		}(i)
 	}
-	// The waiters are waiting on a running run; then it finishes.
-	time.Sleep(200 * time.Millisecond)
+	// The run finishes only once every waiter has said it waits on it
+	// running (review round 1, B02).
+	for deadline := time.Now().Add(30 * time.Second); ; time.Sleep(20 * time.Millisecond) {
+		if entries, _ := os.ReadDir(signals); len(entries) == len(codes) {
+			break
+		}
+		if time.Now().After(deadline) {
+			held.open()
+			t.Fatal("the waiters did not all wait on the running run")
+		}
+	}
 	held.open()
 	wg.Wait()
 	for i, c := range codes {

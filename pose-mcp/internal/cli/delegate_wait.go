@@ -16,6 +16,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -37,6 +38,11 @@ const (
 	// marker: a stat, cheap enough that a wait returns within a tenth of a
 	// second of the run's end (spec pose-cli-test-wall-time R1).
 	delegateWaitStep = 100 * time.Millisecond
+	// delegateWaitSignal names a directory in which a waiter records its pid
+	// when it starts waiting on a running run: an acknowledgement for tests
+	// that must release a run only once its waiters wait (spec
+	// pose-cli-test-wall-time R1).
+	delegateWaitSignal = "POSE_DELEGATE_WAIT_SIGNAL"
 )
 
 // delegateDetachBound is how long a detached run has to reserve its attempt;
@@ -444,6 +450,7 @@ func cmdDelegateWait(root string, args []string, stdout, stderr io.Writer) int {
 	if f.timeout > 0 {
 		deadline = time.Now().Add(f.timeout)
 	}
+	signalled := false
 	for {
 		attempts, lost, err := store.ListDelegationAttempts()
 		if err != nil {
@@ -467,6 +474,10 @@ func cmdDelegateWait(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		// Running: watch only the marker until it goes, or the heartbeat
 		// interval passes, so a stall is still noticed.
+		if dir := os.Getenv(delegateWaitSignal); dir != "" && !signalled {
+			_ = os.WriteFile(filepath.Join(dir, strconv.Itoa(os.Getpid())), nil, 0o600)
+			signalled = true
+		}
 		recheck := time.Now().Add(10 * time.Second)
 		for store.DelegationActiveMarkerExists(attempt.AttemptID) && time.Now().Before(recheck) {
 			if !deadline.IsZero() && !time.Now().Before(deadline) {
