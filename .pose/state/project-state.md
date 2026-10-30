@@ -88,10 +88,10 @@ capacidade.
   - report:delegation-adoption-review-round1.md
 
 ## Arquitetura
-<!-- state:derived hash:9526d28c71e2 status:active -->
+<!-- state:derived hash:491e7a154ded status:active -->
 
 - componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=99858 testes=87882 total=187740
+- linhas_de_codigo: producao=99934 testes=88189 total=188123
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=64 ativos=1 gaps=63

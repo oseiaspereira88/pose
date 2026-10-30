@@ -409,6 +409,14 @@
       "digest": "sha256:45aed9aeb29c9cd0bd5c00b660520a6afbec4311de1e05b1de92f3ceeb7665c6"
     },
     {
+      "spec": "pose-review-subject-later-removal",
+      "category": "changed",
+      "breaking": false,
+      "body": "- A milestone review bundle now seals after its specs closed and a later spec removed their files: a review subject path that a later spec removed reads as that removal (the removing spec and deleting commit the delivery graph accepted), and a done member spec whose later commits changed its preparation contributes the approved review the closeout gate already retains. An absent path without an accepted removal, a member that is not done, or a member whose latest review is negative still blocks the seal.",
+      "path": "pose-review-subject-later-removal.md",
+      "digest": "sha256:2bf741b3be24e07e3504158d456f0fbf6f26caf503675a5251d75474d3076376"
+    },
+    {
       "spec": "pose-source-coverage-integrity",
       "category": "changed",
       "breaking": false,

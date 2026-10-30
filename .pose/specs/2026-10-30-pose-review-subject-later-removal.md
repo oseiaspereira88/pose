@@ -1,6 +1,6 @@
 ---
 slug: pose-review-subject-later-removal
-status: in-progress
+status: done
 created_at: 2026-10-30
 supersedes:
 depends_on: pose-delivery-later-removal
@@ -9,6 +9,7 @@ priority: 3
 components: pose-mcp
 task_type: feature
 delivers: capability:review-subject-later-removal
+completed_at: 2026-10-30
 ---
 
 # Spec: A milestone review can be sealed after its specs closed and a later spec removed their files

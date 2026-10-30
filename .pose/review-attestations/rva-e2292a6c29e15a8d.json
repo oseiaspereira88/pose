@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-e2292a6c29e15a8d",
+  "bundle_id": "rvb-1d2f3c40677174cf",
+  "bundle_digest": "sha256:1d2f3c40677174cf652773c32a552fd47dadc67901ba481fd083c751d4db4bd2",
+  "reviewer": "agent:independent-review-subject-codex-r1-20261030",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Four-round approval assumes the selected indexed delivery graph and stable verifier inputs, not transitively live parent approval. Every selected non-removal observer owes its own accepted witness. F1=SR-R1-05 high, F2=SR-R1-06 medium and F3=SR-R1-07 medium remain open next engine specs before any of the eighteen milestone seals. Current index generation does not resolve F2. S5 is equivalent only in the stable production fallback after CurrentReviewBundle returned nil: verification supplies a Bundle only on successful retained closed/fresh/approved verification. No arbitrary-helper, concurrent-input or future-verifier equivalence claimed; retain explicit guards."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No concurrent-state, cancellation or lifecycle concurrency path was introduced in the reviewed correction; selected-observer storage is linear and uses existing synchronous evaluation. Sealed unit results pass. No new race run or stress guarantee claimed; changing inputs between verifier reads is outside the S5 equivalence conclusion."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Existing bundle schema/signatures and unaffected subject identities are preserved. Intentional removal digest and retained-child semantics follow amended R1-R3; full child verification preserves federated authority. No public HTTP/event schema, dependency or MCP interface change identified."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Saved independent negative probes through round 4 preserve refusal for absent or refused witnesses, own removal, missing observer proof, negative/non-done children, lost history and revoked federated trust. Mixed created/modified/rename-destination observations cannot substitute peer proof. Existing path, non-ENOENT and working-tree blockers remain."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Native milestone/roadmap and retained-child probes, including revoked federation, pass in round 4. All eighteen real milestone preparations had zero blockers. This is preparation evidence; seals remain gated on F1-F3. Round-4 integration inventory had 70 contracts, six active and 64 observation gaps; no certification of all consumers."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Retained-child fallback propagates full verification causes; unreadable paths retain blockers when any selected observer lacks proof. Sorted/deduplicated witness lines make accepted identities deterministic. No new logging surface or sensitive diagnostic content identified."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Independent round-4 controls retain unaffected spec digest sha256:7d9afc68314a6040bd1dc1b0d0b6b74feef9ba8bfb49bf79131c4f0b01e6c001 and matching-child milestone digest sha256:dc087295e85a0703038e0e2d79fa29674465061ad2af9671f8e44ca9309ae227. Historical bundles are not rewritten. Retained-child/removal identities change as specified. HEAD delta 814d1c10..8aaa408c contains spec/amendment, follow-ups, state refresh, fragment frontmatter and closeout checkpoint only; runtime remains unchanged."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Round 4 resolved SR-R3-01 and approved implementation. Saved round-1/2/3 probes, 96-case containment sweep, 2592 mixed-action combinations, 768 classification/selection combinations and focused gitlink/rename/external-member boundaries pass. Production reverts fail by assertion; S11 and S12 killed. S5 remains a bounded equivalent survivor, not an unresolved blocker. Current sealed integration and module unit results pass; no fresh independent test replay in this attestation."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus",
+      "rationale": "D1 reuses accepted delivery graph removal witnesses and the child full verifier. The minimal sufficient correction collects every selected non-removal observation before reduction, keyed by the path actually read (rename NewPath), while action keys continue to represent entries. Cheapest formal bypass was a containing peer witness hiding a contained observer refusal; peer-removal-stands-for-a-member executable corpus row plus mixed-action/native sweeps stop it. Retained-child corpus/probes enforce federated verifier parity. Sealed structural observation supplies context, not behavioral proof."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Reviewed final R1-R4 trace, tasks, report and semantic R4 amendment. R4 now means all eighteen milestone preparations have no blockers, independently established in round 4; sealing follows SR-R1-05/06/07. F1-F3 explicitly map those IDs, owner @oseiaspereira88 and review 2026-11-06. Changelog frontmatter is corrected. Checked closeout task and committed interrupted checkpoint do not establish lifecycle closure: spec remains in-progress and no close is performed. Final report mutation aggregate is supplied; independent report records discriminating mutations/reverts and bounded S5 adjudication."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Errors remain actionable through verifier diagnostics and unreadable-path blockers; no extra owner Git read in the removal branch, independently traced in prior rounds. F1 high must enforce transitive parent approval on rejection/history loss/reopening; F2 medium must bind Git/report removal inputs or refuse unknown freshness (coordinate LR-R1-10); F3 medium must honor replacement lineage including backdated/equal seals. All are open next engine specs before eighteen seals, owned @oseiaspereira88 with triage review 2026-11-06, not completed or accepted indefinite debt."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Reviewed R1-R4 trace against four-round evidence. R1/R2 require each selected observer own witness before reduction and independent of action. R3 invokes child full verification with diagnostic/federated checks. Amended R4 requires blocker-free eighteen preparations only; prerequisite engine specs precede sealing. Current supplied strict delivery-validation at 8aaa408c reports 162/162 pass with no failed/optional_failed/errored/skipped. Earlier failed required gates remain historical facts; no fresh matrix replay claimed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Four-round review covers removal subjects, retained children, call boundaries, tests/corpus, validation registration and governing spec. Reviewed entire 814d1c10..HEAD delta: semantic R4 narrows delivery to preparation and records required next-spec sequencing; no new runtime code or unrelated refactor/dependency. Native attestation is authorized here; milestone seals and lifecycle closure are not part of this operation."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus",
+      "rationale": "Resolved shared-owner/aggregate proof substitution and retained-child revoked-authority bypass. Every selected observer must have its own accepted supersession by another spec; removed observations do not owe self-removal. Source/federated history causes remain enforced by full verification. No new dependency/command execution/authentication boundary identified. No fresh automated secret/vulnerability scanner claimed. Declared reviewer principal and prepared/concluded/applied attribution do not imply cryptographically authenticated vendor/model or cognitive independence."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "One pre-reduction path-keyed observer map and reuse of full child verification repair reproduced causes without a new schema, daemon, dependency, Git-owner read or historical bundle rewrite. First-owner, post-reduction and action-keyed alternatives failed independent probes and assertion-sensitive reverts. Scope exclusions and special identity handlers retain existing contracts. Revisit parent approval, index-history freshness and replacement ordering through F1-F3 before milestone seals; present approval does not solve them."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Round-4 independent strict artifact-check exit 0, orphan warnings retained. Current sealed attributed set cs-ddac9d764c34 inspected. No fresh artifact-check execution claimed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-ae10b0e380fae00e",
+      "rationale": "Round-4 assess design exited 0 observed. Current sealed structural observation binds unchanged reviewed implementation digest; no fresh assessment execution claimed."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed in round-4 disposable probe clone. Includes reviewer probes, not authoritative production completeness. No fresh scan or state update here."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Round-4 assessment exit 0; 70 contracts, six active, 64 observation gaps. Current sealed integration passes; no fresh assessment execution or all-consumer guarantee."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Round-4 exit 0, one covered TODO, explicitly INCOMPLETE because two pre-existing specs cannot parse. No complete debt census or fresh assessment claimed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate remains for closeout owner; authorized operation records and verifies attestation only, without lifecycle close."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only gate follows attestation and will be checked read-only after native verification."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed in round 4. Applied backend-go for deterministic proof/errors/tests; security for substitution/federation; documentation-style and delivery-evidence for truthful preparation/delivery; knowledge-governance for follow-up disposition. Frontend/infrastructure not applicable."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Historical round-4 standalone surface check refused stale scoped evidence/unconsumed capability. Supplied current sealed feature integration at HEAD passes and binds current provenance; preview must accept this evidence. No fresh standalone surface-check execution claimed."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Inspected supplied strict delivery-validation.json at HEAD 8aaa408c7b2f0f1bab45acfab4ae9bed80321336: 162 executed/passed, zero failed/optional_failed/errored/skipped, provenance sha256:1ac7052b2584165b8c237ef7c0e2e59e7ebfb982d5ea2a201c745e3ca53dba48. Prior independent failures remain disclosed; no fresh matrix replay."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "rationale": "Sealed current feature integration, adversarial corpus, module unit/build evidence pass. CLI rebuilt from HEAD with required GOCACHE and project selectors unset, exit 0. Earlier round-4 full-suite/module gates failed; current supplied results do not rewrite those logs or claim independent replay."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/adversarial-corpus",
+    "integration:pose-mcp/go/review-subject-later-removal-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "sr-r1-01",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "action": "Use each observing spec own accepted removal; reject shared-owner, self-removal and renamed-destination substitution; independently reconciled through approved round 4, with saved safety regressions and discriminating reverts/mutations",
+      "disposition": "resolved"
+    },
+    {
+      "id": "sr-r1-02",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "action": "Require every selected observer proof regardless of entry order; completion includes SR-R2-01 and SR-R3-01; independently reconciled through approved round 4, with saved safety regressions and discriminating reverts/mutations",
+      "disposition": "resolved"
+    },
+    {
+      "id": "sr-r1-03",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "action": "Resolve retained children through full own verification including federated authority and history diagnostics; independently reconciled through approved round 4, with saved safety regressions and discriminating reverts/mutations",
+      "disposition": "resolved"
+    },
+    {
+      "id": "sr-r1-04",
+      "severity": "medium",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "action": "Read accepted graph witnesses directly without an extra ownership Git read in the new removal branch; independently reconciled through approved round 4, with saved safety regressions and discriminating reverts/mutations",
+      "disposition": "resolved"
+    },
+    {
+      "id": "sr-r2-01",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "action": "Collect selected observer obligations before cross-spec change-set reduction; retain saved subject/native/history regressions; independently reconciled through approved round 4, with saved safety regressions and discriminating reverts/mutations",
+      "disposition": "resolved"
+    },
+    {
+      "id": "sr-r3-01",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/review-subject-later-removal-integration",
+      "action": "Key pre-reduction obligations by actual read path, independent of action and rename old identity; retain mixed-action/native/sweep regressions; independently reconciled through approved round 4, with saved safety regressions and discriminating reverts/mutations",
+      "disposition": "resolved"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-review-subject-codex-r1-20261030",
+    "concluded_by": "agent:independent-review-subject-codex-r1-20261030",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-10-30T19:25:58Z",
+  "path": ".pose/review-attestations/rva-e2292a6c29e15a8d.json"
+}
