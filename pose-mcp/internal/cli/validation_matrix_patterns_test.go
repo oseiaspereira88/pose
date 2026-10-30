@@ -72,14 +72,22 @@ func parseMatrixGoTest(args []string) (matrixGoTest, error) {
 	var check matrixGoTest
 	var tags []string
 	race := false
-	count := ""
+	count, counted := "", false
 	for i := 1; i < len(args); i++ {
 		arg := args[i]
 		if !strings.HasPrefix(arg, "-") {
 			check.packages = append(check.packages, arg)
 			continue
 		}
-		flag, value, inline := strings.Cut(strings.Replace(arg, "-test.", "-", 1), "=")
+		flag, value, inline := strings.Cut(arg, "=")
+		// -test. names a test-binary flag; the build flags -tags and -race
+		// have no such spelling (review round 6).
+		if name, ok := strings.CutPrefix(flag, "-test."); ok {
+			if name == "tags" || name == "race" {
+				return check, errors.New("flag " + arg + " is not a go test flag")
+			}
+			flag = "-" + name
+		}
 		switch {
 		case goTestBoolFlags[flag]:
 			// A boolean flag takes Go's spellings and its last value counts;
@@ -105,10 +113,13 @@ func parseMatrixGoTest(args []string) (matrixGoTest, error) {
 			}
 			switch flag {
 			case "-count":
-				// Only a positive decimal count runs each test; zero runs
-				// none and Go accepts other spellings (review round 5,
-				// R5-B1, F6). The last value counts.
-				count = value
+				// Every value must parse as Go's flag does, and only a
+				// positive decimal last value is judged: zero runs no test
+				// (review rounds 5–6, R5-B1, R6-B1, F6).
+				if _, err := strconv.ParseInt(value, 0, strconv.IntSize); err != nil {
+					return check, errors.New("flag -count=" + value + " is not a count go test accepts")
+				}
+				count, counted = value, true
 			case "-timeout":
 				if _, err := time.ParseDuration(value); err != nil {
 					return check, errors.New("flag -timeout=" + value + " is not a duration")
@@ -126,7 +137,7 @@ func parseMatrixGoTest(args []string) (matrixGoTest, error) {
 			return check, errors.New("flag " + arg + " is not modelled")
 		}
 	}
-	if count != "" && !positiveDecimal.MatchString(count) {
+	if counted && !positiveDecimal.MatchString(count) {
 		return check, errors.New("flag -count=" + count + " is not a positive decimal count")
 	}
 	check.tags = append([]string{}, tags...)
@@ -492,6 +503,13 @@ func TestDeadRunPatternGuardFollowsGoSelection(t *testing.T) {
 		{"zero count last", `"./a", "-run", "TestReal", "-count=1", "-count=0"`, true, ""},
 		{"positive count last", `"./a", "-run", "TestReal", "-count=0", "-count=1"`, false, ""},
 		{"count spelled in hex", `"./a", "-run", "TestReal", "-count=0x1"`, true, ""},
+		{"count out of range", `"./a", "-run", "TestReal", "-count=9223372036854775808"`, true, ""},
+		{"earlier count out of range", `"./a", "-run", "TestReal", "-count=9223372036854775808", "-count=1"`, true, ""},
+		{"empty count", `"./a", "-run", "TestReal", "-count="`, true, ""},
+		{"zero then positive count", `"./a", "-run", "TestReal", "-count=0", "-count=2"`, false, ""},
+		{"test-prefixed tags", `"./a", "-test.tags=x", "-run", "TestReal"`, true, ""},
+		{"test-prefixed race", `"./a", "-test.race=true", "-run", "TestReal"`, true, ""},
+		{"test-prefixed run", `"./a", "-test.run=TestReal"`, false, ""},
 		{"bad timeout", `"./a", "-run", "TestReal", "-timeout=bogus"`, true, ""},
 		{"good timeout", `"./a", "-run", "TestReal", "-timeout=30s"`, false, ""},
 		{"rooted in testdata", `"./a/testdata/...", "-run", "TestInTestdata"`, true, ""},
