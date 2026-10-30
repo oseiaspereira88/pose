@@ -34,11 +34,20 @@ func ParseSpecTrailerLog(out []byte) map[string][]string {
 	return specCommits
 }
 
+// RawHistoryGit is a git command on root's raw object history: replace refs
+// and grafts — --no-replace-objects disables both, a graft file the
+// repository's or the environment's — never change which commits carry a
+// trailer, what a change set holds, or what a later removal is judged on (spec
+// pose-delivery-later-removal R3).
+func RawHistoryGit(root string, args ...string) *exec.Cmd {
+	return exec.Command("git", append([]string{"--no-replace-objects", "-C", root}, args...)...)
+}
+
 // SpecTrailerCommits reads the history of root and returns the commits that carry the trailer of
 // slug, the way the attribution of change sets does. An error is a history that could not be
 // read, which is not a history without commits.
 func SpecTrailerCommits(root, slug string) ([]string, error) {
-	out, err := exec.Command("git", append([]string{"-C", root}, SpecTrailerLogArgs...)...).Output()
+	out, err := RawHistoryGit(root, SpecTrailerLogArgs...).Output()
 	if err != nil {
 		return nil, err
 	}

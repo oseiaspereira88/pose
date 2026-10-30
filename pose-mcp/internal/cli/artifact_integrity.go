@@ -30,8 +30,11 @@ func validateGitRevision(value string) error {
 	return nil
 }
 
+// gitOutputBounded reads raw object history (posemodel.RawHistoryGit), so the
+// change sets a later removal is judged on are the ones it judges (review
+// round 3 of spec pose-delivery-later-removal, LR-R3-01).
 func gitOutputBounded(root string, limit int, args ...string) ([]byte, error) {
-	cmd := exec.Command("git", append([]string{"-C", root}, args...)...)
+	cmd := posemodel.RawHistoryGit(root, args...)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &limitedBuffer{buf: &stdout, limit: limit}
 	cmd.Stderr = &limitedBuffer{buf: &stderr, limit: 64 * 1024}
@@ -302,6 +305,13 @@ func collectArtifactGraphInputsWithGapsIn(files posemodel.Files, root string) ([
 	specTrailers, err := allCommitsWithSpecTrailers(root)
 	if err != nil && gaps[""] == "" {
 		gaps[""] = "the commits carrying POSE-Spec trailers could not be read: " + err.Error()
+	}
+	// A shallow repository may hide commits carrying a trailer, and nothing
+	// read from it can show which (LR-R3-02).
+	if out, err := gitOutputBounded(root, 64, "rev-parse", "--is-shallow-repository"); err != nil || strings.TrimSpace(string(out)) != "false" {
+		if gaps[""] == "" {
+			gaps[""] = "the repository's history is shallow or its depth could not be read"
+		}
 	}
 	for _, spec := range specs {
 		if len(specTrailers[spec.Slug]) > 0 {
@@ -683,6 +693,10 @@ func appendUniqueArtifactString(values []string, value string) []string {
 // removalCommitRE is a commit as change sets must name it: a full object
 // name, never a revision expression or anything Git could read as an option
 // (review round 1, LR-R1-11).
+// diffStatusRE is a status of git diff-tree --name-status: a letter, and a
+// score for a rename or a copy (LR-R3-04).
+var diffStatusRE = regexp.MustCompile(`^([ADMTUX]|[RC][0-9]{1,3})$`)
+
 var removalCommitRE = regexp.MustCompile(`^[0-9a-f]{40}([0-9a-f]{24})?$`)
 
 // removalHistory reads the Git facts a later removal is judged on, with every
@@ -701,9 +715,7 @@ type removalHistory struct {
 // command runs Git on raw object history: replace refs and grafts do not
 // change what a removal is judged on (LR-R2-06).
 func (h *removalHistory) command(args ...string) *exec.Cmd {
-	cmd := exec.Command("git", append([]string{"--literal-pathspecs", "--no-replace-objects", "-C", h.root}, args...)...)
-	cmd.Env = append(os.Environ(), "GIT_GRAFT_FILE="+filepath.Join(h.root, ".pose-no-grafts"))
-	return cmd
+	return posemodel.RawHistoryGit(h.root, append([]string{"--literal-pathspecs"}, args...)...)
 }
 
 func (h *removalHistory) git(limit int, args ...string) ([]byte, error) {
@@ -766,6 +778,13 @@ func (h *removalHistory) parentsOf(commit string) ([]string, error) {
 	if h.shallow[commit] {
 		return nil, fmt.Errorf("the history is shallow at %s", commit)
 	}
+	kind, err := h.git(64, "cat-file", "-t", commit)
+	if err != nil {
+		return nil, err
+	}
+	if strings.TrimSpace(string(kind)) != "commit" {
+		return nil, fmt.Errorf("%s is a %s, not a commit", commit, strings.TrimSpace(string(kind)))
+	}
 	out, err := h.git(1024*1024, "cat-file", "commit", commit)
 	if err != nil {
 		return nil, err
@@ -791,26 +810,45 @@ func (h *removalHistory) renamedAway(parent, commit, path string) (bool, error) 
 	if err != nil {
 		return false, err
 	}
+	set, err := renamedAwayPaths(out)
+	if err != nil {
+		return false, err
+	}
+	h.renames[key] = set
+	return set[path], nil
+}
+
+// renamedAwayPaths reads the sources of the renames in a git diff-tree -z
+// --name-status stream.
+func renamedAwayPaths(out []byte) (map[string]bool, error) {
 	// Records are a status and its paths: two for a rename or a copy, one
 	// otherwise; a path is never read as a status (LR-R2-01).
 	set := map[string]bool{}
-	fields := strings.Split(strings.TrimSuffix(string(out), "\x00"), "\x00")
-	for i := 0; i < len(fields) && fields[i] != ""; {
+	if len(out) > 0 && out[len(out)-1] != 0 {
+		return nil, errors.New("git diff-tree: unterminated output")
+	}
+	fields := strings.Split(string(out), "\x00")
+	fields = fields[:len(fields)-1]
+	for i := 0; i < len(fields); {
 		status := fields[i]
 		arity := 1
-		if status[0] == 'R' || status[0] == 'C' {
+		if diffStatusRE.MatchString(status) && (status[0] == 'R' || status[0] == 'C') {
 			arity = 2
 		}
-		if !strings.Contains("ACDMRTUX", status[:1]) || i+arity >= len(fields) {
-			return false, fmt.Errorf("git diff-tree: malformed record %q", status)
+		if !diffStatusRE.MatchString(status) || i+arity >= len(fields) {
+			return nil, fmt.Errorf("git diff-tree: malformed record %q", status)
+		}
+		for _, path := range fields[i+1 : i+1+arity] {
+			if path == "" {
+				return nil, fmt.Errorf("git diff-tree: record %q without a path", status)
+			}
 		}
 		if status[0] == 'R' {
 			set[fields[i+1]] = true
 		}
 		i += 1 + arity
 	}
-	h.renames[key] = set
-	return set[path], nil
+	return set, nil
 }
 
 // ancestor reports whether a is an ancestor of b; Git's exit 1 is "no", any
