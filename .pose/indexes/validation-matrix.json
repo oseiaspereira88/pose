@@ -2194,6 +2194,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "cli-test-wall-time-integration",
+          "program": "go",
+          "args": ["test", "./internal/cli", "-run", "TestDelegateToolsOverMCPHoldAgainstTheFirstReview|TestDelegateToolsOverMCPMatchTheCLI|TestADetachedRun|TestDelegateDetachAndWait|TestTheWaitAcknowledgementNeverTouchesAnExistingEntry|TestReviewDispatchJudgesTheRunNotItsLeftovers|TestDelegateWatchFollowsLive|TestPreviewCarriesVerboseAndLsReadsLiveProgress", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "launcher-parity",
           "program": "go",
           "args": ["test", "./internal/cli", "-run", "LauncherParity|ActiveDocument", "-count=1"],

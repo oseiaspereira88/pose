@@ -8,7 +8,7 @@ remediates:
 priority: 3
 components: pose-mcp
 task_type: refactor
-delivers:
+delivers: capability:cli-test-wall-time
 ---
 
 # Spec: The slowest CLI tests stop waiting on real time
@@ -69,8 +69,11 @@ Cut the wall time of `internal/cli` tests, which dominates every validation, by 
 - modified: pose-mcp/internal/cli/delegate_wait_test.go
 - modified: pose-mcp/internal/cli/delegate_watch_test.go
 - modified: pose-mcp/internal/cli/review_dispatch_test.go
+- modified: .pose/indexes/validation-matrix.json
 
 ### Delivery targets
+
+- capability:cli-test-wall-time module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### API/contract changes
 
