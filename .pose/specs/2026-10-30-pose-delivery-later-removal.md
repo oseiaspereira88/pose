@@ -98,12 +98,12 @@ Edge type `removed-by` and removal witnesses in `delivery-integrity.json`; the e
 
 ## 4. Tasks
 
-- [ ] Removal witnesses computed from Git
-- [ ] Existence rule and graph edges
-- [ ] Same rule in index, check, artifact-check, surface-check
-- [ ] Remove review_dispatch.go
-- [ ] Manual
-- [ ] Independent review and closeout
+- [x] Removal witnesses computed from Git
+- [x] Existence rule and graph edges
+- [x] Same rule in index, check, artifact-check, surface-check
+- [x] Remove review_dispatch.go
+- [x] Manual
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -123,14 +123,27 @@ A Git fixture with spec A creating a file, spec B deleting it later and declarin
 
 ### Requirement trace
 
+- R1 [satisfied] check:delivery-later-removal-integration test:TestALaterRemovalSatisfiesOnlyWhatPrecedesIt test:TestLaterRemovalHistoryShapes report:.pose/results/delivery-validation.json commit:f88e5ca847d0233f9a88b950f87f789114430936 — A removal satisfies a claim only when every change of the claiming spec to the path, read from tree entries against each parent over all its change sets, is a Git ancestor of one of the removing spec's deletions; merges, root creations, type changes, renames and explicit ranges are covered.
+- R2 [satisfied] check:delivery-later-removal-integration test:TestALaterRemovalSatisfiesOnlyWhatPrecedesIt test:TestLaterRemovalsAreAnInputOfTheGraph test:TestLaterRemovalsSurviveTheIndexFileAndCache report:.pose/results/delivery-validation.json commit:f88e5ca847d0233f9a88b950f87f789114430936 — The graph records a `removed-by` edge naming the deleting commit; removal witnesses are graph inputs and survive the index file and cache.
+- R3 [satisfied] check:delivery-later-removal-integration test:TestLaterRemovalOfAPathBySpecItselfSatisfiesNothing test:TestLaterRemovalReviewRoundTwo test:TestLaterRemovalReviewRoundThree test:TestLaterRemovalReviewRoundFive report:.pose/results/delivery-validation.json commit:f88e5ca847d0233f9a88b950f87f789114430936 — Later changes, own-path removals, unobserved removals, non-commit values, unreadable, shallow, replaced or grafted history, and recorded history that cannot be read whole keep the finding with its cause.
+- R4 [satisfied] check:delivery-later-removal-integration test:TestALaterRemovalSatisfiesOnlyWhatPrecedesIt test:TestLaterRemovalReviewRoundTwo report:.pose/results/delivery-validation.json commit:f88e5ca847d0233f9a88b950f87f789114430936 — `pose index`, `check --strict`, `artifact-check` and `surface-check` take their witnesses from `artifactRemovals` over the gap-aware collection.
+- R5 [satisfied] check:delivery-later-removal-integration test:TestTheRemovedReviewAliasesNameTheirReplacement report:.pose/results/delivery-validation.json commit:f88e5ca847d0233f9a88b950f87f789114430936 — `review_dispatch.go` is removed at 839a738767642caef0aea0432c28bdf96d886397; the real index records that removal superseding the six specs that declare the file, and `check --strict` passes.
+- R6 [satisfied] check:test test:TestManualLocaleParity report:.pose/results/delivery-validation.json commit:f88e5ca847d0233f9a88b950f87f789114430936 — Both manuals and their scaffold copies describe how a later spec removes a file earlier specs declare, and what keeps the finding.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: follow-up F5 of `pose-delegation-parity-gate`.
+Follow-up F5 of `pose-delegation-parity-gate`: a later spec's observed removal satisfies the existence of a path earlier specs declare current, when every earlier change to the path precedes the deletion in Git; `review_dispatch.go` is removed. Attribution reads raw object history engine-wide (no replace refs or grafts). Independently reviewed by Codex over seven rounds (reports kept outside the checkout); 37 mutations of the rule killed.
 
 ### Residual risks
 
-None yet.
+Other history readers of structural review still honour replace refs (F1). A trailer change set beginning at the repository root does not resolve, so a valid removal of a root creation is refused (F2). Git work has no aggregate budget (F3). `index --verify` does not bind Git or recorded history, so an indexed witness is as fresh as its generation (F4). A shallow clone refuses every removal; a full-history checkout is required for the exemption.
 
 ### Follow-ups
+
+- [open] F1: align the history readers of structural review (`review_path_attribution.go`, `review_bundle.go`, `git_spawn_cache.go`, `git_batch.go`, `design_delta.go`) with raw object history, correct caches keyed by object ID, and say how to regenerate evidence (LR-R4-02). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F2: resolve a trailer change set whose first commit is the repository root without `root^`, with collector and graph coverage (LR-R4-03). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F3: give removal history reads cancellation, batching and an aggregate subprocess and memory budget, with a Git-call-count test and a wide-history benchmark (LR-R1-09). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F4: bind the Git and recorded-history inputs of removal witnesses to index generation freshness, or report their freshness as unknown (LR-R1-10). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F5: build the deletion-order fixture of `TestLaterRemovalHistoryShapes` deterministically instead of a bounded SHA search (LR-R6-02). (owner:@oseiaspereira88 crit:low review:2026-11-27)
