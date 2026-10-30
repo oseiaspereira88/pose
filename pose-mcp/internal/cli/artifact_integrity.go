@@ -365,7 +365,7 @@ func buildCurrentDeliveryGraphIn(files posemodel.Files, root string) (posemodel.
 	if err != nil {
 		return posemodel.DeliveryIntegrityGraph{}, err
 	}
-	return extendCurrentDeliveryGraphIn(files, root, posemodel.BuildDeliveryIntegrityWithReleasesIn(files, specs, claims, sets, tracked, policy, posemodel.LoadArchivedFragmentsIn(files, root)))
+	return extendCurrentDeliveryGraphIn(files, root, posemodel.BuildDeliveryIntegrityWithHistoryIn(files, specs, claims, sets, tracked, policy, posemodel.LoadArchivedFragmentsIn(files, root), artifactRemovals(root, claims, sets, tracked)))
 }
 
 // buildCurrentDeliveryGraph reads and writes the filesystem directly; buildCurrentDeliveryGraphIn takes the
@@ -455,7 +455,13 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 		fmt.Fprintf(stderr, "pose artifact-check: %v\n", err)
 		return 1
 	}
-	graph := posemodel.BuildDeliveryIntegrityWithReleases([]posemodel.Spec{*full}, claims, sets, tracked, policy, posemodel.LoadArchivedFragments(root))
+	// A later removal by another spec is read from every spec's claims and
+	// change sets (spec pose-delivery-later-removal R4).
+	var removals []posemodel.ArtifactRemoval
+	if _, allClaims, allSets, _, _, err := collectArtifactGraphInputs(root); err == nil {
+		removals = artifactRemovals(root, allClaims, allSets, tracked)
+	}
+	graph := posemodel.BuildDeliveryIntegrityWithHistoryIn(posemodel.NativeFiles(), []posemodel.Spec{*full}, claims, sets, tracked, policy, posemodel.LoadArchivedFragments(root), removals)
 	for _, claim := range claims {
 		if claim.Action == "none" {
 			continue
@@ -653,4 +659,68 @@ func appendUniqueArtifactString(values []string, value string) []string {
 		}
 	}
 	return append(values, value)
+}
+
+// artifactRemovals reads from Git what a later removal needs to satisfy the
+// existence of a declared artifact (spec pose-delivery-later-removal R1–R4):
+// for each path a spec declares removed that is absent at the head, the
+// commit of that spec's change set that deleted it, and which specs that
+// declare the path created or modified changed it in an ancestor of that
+// commit. Git is read only for such paths.
+func artifactRemovals(root string, claims []posemodel.ArtifactClaim, sets []posemodel.ChangeSet, tracked []string) []posemodel.ArtifactRemoval {
+	present := map[string]bool{}
+	for _, path := range tracked {
+		present[filepath.ToSlash(path)] = true
+	}
+	commitsOf := map[string][]string{}
+	for _, set := range sets {
+		commitsOf[set.Spec] = append(commitsOf[set.Spec], set.Commits...)
+	}
+	// lastTouching is the latest of commits whose own change touches path
+	// with one of the name-status letters in letters.
+	lastTouching := func(commits []string, path, letters string) string {
+		for i := len(commits) - 1; i >= 0; i-- {
+			out, err := gitOutputBounded(root, 64*1024, "diff-tree", "--no-commit-id", "--name-status", "-r", commits[i], "--", path)
+			if err != nil {
+				continue
+			}
+			for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+				if fields := strings.Split(line, "\t"); len(fields) >= 2 && strings.ContainsAny(fields[0][:1], letters) {
+					return commits[i]
+				}
+			}
+		}
+		return ""
+	}
+	var removals []posemodel.ArtifactRemoval
+	for _, removed := range claims {
+		if removed.Action != "removed" || present[removed.Path] {
+			continue
+		}
+		r := posemodel.ArtifactRemoval{Spec: removed.Spec, Path: removed.Path, Commit: lastTouching(commitsOf[removed.Spec], removed.Path, "D"), Refusals: map[string]string{}}
+		for _, declared := range claims {
+			if declared.Path != removed.Path || declared.Spec == removed.Spec || (declared.Action != "created" && declared.Action != "modified") || r.Commit == "" {
+				continue
+			}
+			changed := lastTouching(commitsOf[declared.Spec], declared.Path, "AMR")
+			switch {
+			case changed == "":
+				r.Refusals[declared.Spec] = "this spec's change to it is not in its attributed change set"
+			case changed == r.Commit:
+				r.Refusals[declared.Spec] = "this spec's change to it is the removal itself"
+			default:
+				if _, err := gitOutputBounded(root, 1024, "merge-base", "--is-ancestor", changed, r.Commit); err == nil {
+					r.Supersedes = append(r.Supersedes, declared.Spec)
+				} else {
+					r.Refusals[declared.Spec] = "this spec's change to it (" + changed + ") does not precede the removal"
+				}
+			}
+		}
+		if len(r.Refusals) == 0 {
+			r.Refusals = nil
+		}
+		sort.Strings(r.Supersedes)
+		removals = append(removals, r)
+	}
+	return removals
 }

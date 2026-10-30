@@ -94,6 +94,23 @@ type DeliveryIntegrityGraph struct {
 	// Archivals lists the release archivals that resolved a claim (spec
 	// pose-release-archival-attested-by-the-ledger).
 	Archivals []ArchivedFragment `json:"archivals,omitempty"`
+	// Removals lists the later removals that resolved a claim (spec
+	// pose-delivery-later-removal).
+	Removals []ArtifactRemoval `json:"removals,omitempty"`
+}
+
+// ArtifactRemoval is what Git says about a path a spec declares removed and
+// that is absent at the head (spec pose-delivery-later-removal R1–R3): the
+// commit of the removing spec's change set that deleted it, and, for each
+// other spec that declares the path created or modified, whether that spec's
+// latest change to the path is an ancestor of the deletion. Commit is empty
+// when the removing spec's change set deletes nothing at the path.
+type ArtifactRemoval struct {
+	Spec       string            `json:"spec"`
+	Path       string            `json:"path"`
+	Commit     string            `json:"commit,omitempty"`
+	Supersedes []string          `json:"supersedes,omitempty"`
+	Refusals   map[string]string `json:"refusals,omitempty"`
 }
 
 func LoadArtifactPolicyIn(files Files, root string) (ArtifactPolicy, error) {
@@ -306,6 +323,13 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 // manifests attest (LoadArchivedFragments) as a witness for claims on changelog
 // fragments a release archived.
 func BuildDeliveryIntegrityWithReleasesIn(files Files, specs []Spec, claims []ArtifactClaim, changeSets []ChangeSet, tracked []string, policy ArtifactPolicy, archived []ArchivedFragment) DeliveryIntegrityGraph {
+	return BuildDeliveryIntegrityWithHistoryIn(files, specs, claims, changeSets, tracked, policy, archived, nil)
+}
+
+// BuildDeliveryIntegrityWithHistoryIn builds the graph with the release
+// archivals and the later removals (spec pose-delivery-later-removal) that
+// can satisfy the existence of a declared artifact.
+func BuildDeliveryIntegrityWithHistoryIn(files Files, specs []Spec, claims []ArtifactClaim, changeSets []ChangeSet, tracked []string, policy ArtifactPolicy, archived []ArchivedFragment, removals []ArtifactRemoval) DeliveryIntegrityGraph {
 	graph := DeliveryIntegrityGraph{SchemaVersion: DeliveryIntegritySchemaVersion, Claims: append([]ArtifactClaim{}, claims...), ChangeSets: append([]ChangeSet{}, changeSets...), Reverse: map[string][]string{}, Nodes: []DeliveryIntegrityNode{}, Edges: []DeliveryIntegrityEdge{}, Findings: []DeliveryIntegrityFinding{}}
 	sort.Slice(graph.Claims, func(i, j int) bool { return claimKey(graph.Claims[i]) < claimKey(graph.Claims[j]) })
 	sort.Slice(graph.ChangeSets, func(i, j int) bool { return graph.ChangeSets[i].ID < graph.ChangeSets[j].ID })
@@ -340,6 +364,21 @@ func BuildDeliveryIntegrityWithReleasesIn(files Files, specs []Spec, claims []Ar
 			DeliveryIntegrityEdge{From: "artifact:" + a.Pending, To: "release:" + a.Version, Type: "archived-by"},
 			DeliveryIntegrityEdge{From: "release:" + a.Version, To: "artifact:" + a.Archived, Type: "archives"})
 	}
+	// recordRemoval records a later removal that satisfied a claim: the
+	// artifact is removed-by the removing spec, at the deleting commit.
+	recordRemoval := func(r ArtifactRemoval, claim ArtifactClaim) {
+		used := false
+		for _, have := range graph.Removals {
+			if have.Spec == r.Spec && have.Path == r.Path {
+				used = true
+			}
+		}
+		if !used {
+			graph.Removals = append(graph.Removals, r)
+		}
+		graph.Nodes = appendNode(graph.Nodes, DeliveryIntegrityNode{ID: "spec:" + r.Spec, Type: "spec"})
+		graph.Edges = append(graph.Edges, DeliveryIntegrityEdge{From: "artifact:" + claim.Path, To: "spec:" + r.Spec, Type: "removed-by"})
+	}
 	for _, claim := range graph.Claims {
 		claimBySpec[claim.Spec] = append(claimBySpec[claim.Spec], claim)
 		if claim.Action == "none" {
@@ -371,6 +410,15 @@ func BuildDeliveryIntegrityWithReleasesIn(files Files, specs []Spec, claims []Ar
 					continue
 				}
 				if note != "" {
+					message += "; " + note
+				}
+				// A later spec that removed the file, after this spec's
+				// change to it, is where it went (spec
+				// pose-delivery-later-removal R1–R3).
+				if r, note, ok := laterRemoval(removals, claim); ok {
+					recordRemoval(r, claim)
+					continue
+				} else if note != "" {
 					message += "; " + note
 				}
 			}
@@ -454,6 +502,12 @@ func BuildDeliveryIntegrityWithReleasesIn(files Files, specs []Spec, claims []Ar
 		sort.Strings(graph.Reverse[path])
 	}
 	sort.Slice(graph.Archivals, func(i, j int) bool { return graph.Archivals[i].Archived < graph.Archivals[j].Archived })
+	sort.Slice(graph.Removals, func(i, j int) bool {
+		if graph.Removals[i].Path != graph.Removals[j].Path {
+			return graph.Removals[i].Path < graph.Removals[j].Path
+		}
+		return graph.Removals[i].Spec < graph.Removals[j].Spec
+	})
 	// Archived is omitted when empty, so a repository with no releases keeps
 	// the digest it had before archivals were an input.
 	input := struct {
@@ -462,7 +516,8 @@ func BuildDeliveryIntegrityWithReleasesIn(files Files, specs []Spec, claims []Ar
 		Tracked    []string           `json:"tracked"`
 		Policy     ArtifactPolicy     `json:"policy"`
 		Archived   []ArchivedFragment `json:"archived,omitempty"`
-	}{graph.Claims, graph.ChangeSets, append([]string{}, tracked...), policy, archived}
+		Removals   []ArtifactRemoval  `json:"removals,omitempty"`
+	}{graph.Claims, graph.ChangeSets, append([]string{}, tracked...), policy, archived, removals}
 	sort.Strings(input.Tracked)
 	raw, _ := json.Marshal(input)
 	sum := sha256.Sum256(raw)
@@ -619,4 +674,28 @@ func governedPath(path string, policy ArtifactPolicy) bool {
 		}
 	}
 	return false
+}
+
+// laterRemoval finds the removal of claim's path by another spec that
+// supersedes claim's spec, or says why the removals of the path do not.
+func laterRemoval(removals []ArtifactRemoval, claim ArtifactClaim) (ArtifactRemoval, string, bool) {
+	var notes []string
+	for _, r := range removals {
+		if r.Path != claim.Path {
+			continue
+		}
+		switch {
+		case r.Spec == claim.Spec:
+			notes = append(notes, "spec "+r.Spec+" removes the path it declares current")
+		case r.Commit == "":
+			notes = append(notes, "spec "+r.Spec+" declares the path removed, but its change set deletes nothing there")
+		case containsString(r.Supersedes, claim.Spec):
+			return r, "", true
+		case r.Refusals[claim.Spec] != "":
+			notes = append(notes, "spec "+r.Spec+" removed the path at "+r.Commit+", but "+r.Refusals[claim.Spec])
+		default:
+			notes = append(notes, "spec "+r.Spec+" removed the path at "+r.Commit+", but this spec's change to it does not precede the removal")
+		}
+	}
+	return ArtifactRemoval{}, strings.Join(notes, "; "), false
 }
