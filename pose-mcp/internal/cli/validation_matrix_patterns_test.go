@@ -437,6 +437,9 @@ func TestDeadRunPatternGuardFollowsGoSelection(t *testing.T) {
 	write("m/vendor/v/v_test.go", "package v\n\nimport \"testing\"\n\nfunc TestVendored(t *testing.T) {}\n")
 	write("m/nested/go.mod", "module example.com/nested\n")
 	write("m/nested/n_test.go", "package nested\n\nimport \"testing\"\n\nfunc TestNested(t *testing.T) {}\n")
+	write("m/a/testdata/td/td_test.go", "package td\n\nimport \"testing\"\n\nfunc TestInTestdata(t *testing.T) {}\n")
+	write("m/.hidden/h_test.go", "package hidden\n\nimport \"testing\"\n\nfunc TestHidden(t *testing.T) {}\n")
+	write("m/_under/u_test.go", "package under\n\nimport \"testing\"\n\nfunc TestUnder(t *testing.T) {}\n")
 	write("other/go.mod", "module example.com/other\n")
 	write("other/o_test.go", "package other\n\nimport \"testing\"\n\nfunc TestOther(t *testing.T) {}\n")
 	write("plain/p_test.go", "package plain\n\nimport \"testing\"\n\nfunc TestPlain(t *testing.T) {}\n")
@@ -491,8 +494,9 @@ func TestDeadRunPatternGuardFollowsGoSelection(t *testing.T) {
 		{"count spelled in hex", `"./a", "-run", "TestReal", "-count=0x1"`, true, ""},
 		{"bad timeout", `"./a", "-run", "TestReal", "-timeout=bogus"`, true, ""},
 		{"good timeout", `"./a", "-run", "TestReal", "-timeout=30s"`, false, ""},
-		{"rooted in testdata", `"./a/testdata/...", "-run", "TestReal"`, true, ""},
-		{"rooted in a hidden directory", `"./.hidden/...", "-run", "TestReal"`, true, ""},
+		{"rooted in testdata", `"./a/testdata/...", "-run", "TestInTestdata"`, true, ""},
+		{"rooted in a hidden directory", `"./.hidden/...", "-run", "TestHidden"`, true, ""},
+		{"rooted in an underscore directory", `"./_under", "-run", "TestUnder"`, true, ""},
 		{"rooted in vendor", `"./vendor/v", "-run", "TestVendored"`, true, ""},
 		{"quoted tags", `"./a", "-tags='other'", "-run", "TestReal"`, true, ""},
 		{"space-separated tags", `"./a", "-tags", "one other", "-run", "TestReal"`, true, ""},
