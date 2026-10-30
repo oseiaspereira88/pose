@@ -213,12 +213,12 @@ func cmdSurfaceCheck(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		policy.ResultsPath = filepath.ToSlash(filepath.Clean(resultsPath))
 	}
-	baseSpecs, claims, sets, tracked, artifactPolicy, err := collectArtifactGraphInputs(root)
+	baseSpecs, claims, sets, tracked, artifactPolicy, gaps, err := collectArtifactGraphInputsWithGapsIn(posemodel.NativeFiles(), root)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose surface-check: %v\n", err)
 		return 1
 	}
-	base := posemodel.BuildDeliveryIntegrityWithHistoryIn(posemodel.NativeFiles(), baseSpecs, claims, sets, tracked, artifactPolicy, posemodel.LoadArchivedFragments(root), artifactRemovals(root, claims, sets, tracked))
+	base := posemodel.BuildDeliveryIntegrityWithHistoryIn(posemodel.NativeFiles(), baseSpecs, claims, sets, tracked, artifactPolicy, posemodel.LoadArchivedFragments(root), artifactRemovals(root, claims, sets, tracked, gaps))
 	profiles, err := loadDeliveryProfiles(root)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose surface-check: %v\n", err)

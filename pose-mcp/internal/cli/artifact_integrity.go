@@ -2,11 +2,11 @@ package cli
 
 import (
 	"bufio"
-	"errors"
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
@@ -262,16 +262,18 @@ func observedSortKey(path posemodel.ObservedPath) string {
 	return path.Action + "\x00" + path.Path + "\x00" + path.OldPath + "\x00" + path.NewPath
 }
 
-func collectArtifactGraphInputsIn(files posemodel.Files, root string) ([]posemodel.Spec, []posemodel.ArtifactClaim, []posemodel.ChangeSet, []string, posemodel.ArtifactPolicy, error) {
+// collectArtifactGraphInputsWithGapsIn also returns, by spec, why a part of
+// its history could not be read; the empty key is every spec.
+func collectArtifactGraphInputsWithGapsIn(files posemodel.Files, root string) ([]posemodel.Spec, []posemodel.ArtifactClaim, []posemodel.ChangeSet, []string, posemodel.ArtifactPolicy, map[string]string, error) {
 	store := posemodel.Store{Root: root, FS: files}
 	policy, err := posemodel.LoadArtifactPolicyIn(files, root)
 	if err != nil {
-		return nil, nil, nil, nil, policy, err
+		return nil, nil, nil, nil, policy, nil, err
 	}
 	specs, err := store.ListSpecs("", "")
 	if err != nil {
 		if _, statErr := files.Stat(filepath.Join(root, ".pose", "specs")); !os.IsNotExist(statErr) {
-			return nil, nil, nil, nil, policy, err
+			return nil, nil, nil, nil, policy, nil, err
 		}
 		specs = []posemodel.Spec{}
 	}
@@ -279,27 +281,34 @@ func collectArtifactGraphInputsIn(files posemodel.Files, root string) ([]posemod
 	for i := range specs {
 		full, err := store.GetSpec(specs[i].Slug)
 		if err != nil {
-			return nil, nil, nil, nil, policy, err
+			return nil, nil, nil, nil, policy, nil, err
 		}
 		parsed, _, err := posemodel.ParseArtifactClaims(*full, policy)
 		if err != nil {
-			return nil, nil, nil, nil, policy, err
+			return nil, nil, nil, nil, policy, nil, err
 		}
 		claims = append(claims, parsed...)
 	}
+	gaps := map[string]string{}
 	tracked, err := gitTrackedPaths(root)
 	if err != nil {
 		tracked = []string{}
+		gaps[""] = "the tracked paths could not be read: " + err.Error()
 	}
 	changeSetsMap := map[string]posemodel.ChangeSet{}
 	for _, recorded := range loadRecordedChangeSetsIn(files, root) {
 		changeSetsMap[recorded.ID] = recorded
 	}
-	specTrailers, _ := allCommitsWithSpecTrailers(root)
+	specTrailers, err := allCommitsWithSpecTrailers(root)
+	if err != nil && gaps[""] == "" {
+		gaps[""] = "the commits carrying POSE-Spec trailers could not be read: " + err.Error()
+	}
 	for _, spec := range specs {
 		if len(specTrailers[spec.Slug]) > 0 {
 			if set, err := resolveGitChangeSet(root, spec.Slug, "", ""); err == nil {
 				changeSetsMap[set.ID] = set
+			} else {
+				gaps[spec.Slug] = "its trailer change set could not be read: " + err.Error()
 			}
 		}
 	}
@@ -308,13 +317,21 @@ func collectArtifactGraphInputsIn(files posemodel.Files, root string) ([]posemod
 		changeSets = append(changeSets, set)
 	}
 	sort.Slice(changeSets, func(i, j int) bool { return changeSets[i].ID < changeSets[j].ID })
-	return specs, claims, changeSets, tracked, policy, nil
+	return specs, claims, changeSets, tracked, policy, gaps, nil
 }
 
 // collectArtifactGraphInputs reads and writes the filesystem directly; collectArtifactGraphInputsIn takes the
 // operation's files.
 func collectArtifactGraphInputs(root string) ([]posemodel.Spec, []posemodel.ArtifactClaim, []posemodel.ChangeSet, []string, posemodel.ArtifactPolicy, error) {
 	return collectArtifactGraphInputsIn(posemodel.NativeFiles(), root)
+}
+
+// collectArtifactGraphInputsIn drops what it could not read; a later removal,
+// which must judge every change of a spec, reads the gaps instead
+// (collectArtifactGraphInputsWithGapsIn, review round 2 LR-R2-03).
+func collectArtifactGraphInputsIn(files posemodel.Files, root string) ([]posemodel.Spec, []posemodel.ArtifactClaim, []posemodel.ChangeSet, []string, posemodel.ArtifactPolicy, error) {
+	specs, claims, sets, tracked, policy, _, err := collectArtifactGraphInputsWithGapsIn(files, root)
+	return specs, claims, sets, tracked, policy, err
 }
 
 func gitTrackedPaths(root string) ([]string, error) {
@@ -363,11 +380,11 @@ func loadRecordedChangeSets(root string) []posemodel.ChangeSet {
 }
 
 func buildCurrentDeliveryGraphIn(files posemodel.Files, root string) (posemodel.DeliveryIntegrityGraph, error) {
-	specs, claims, sets, tracked, policy, err := collectArtifactGraphInputsIn(files, root)
+	specs, claims, sets, tracked, policy, gaps, err := collectArtifactGraphInputsWithGapsIn(files, root)
 	if err != nil {
 		return posemodel.DeliveryIntegrityGraph{}, err
 	}
-	return extendCurrentDeliveryGraphIn(files, root, posemodel.BuildDeliveryIntegrityWithHistoryIn(files, specs, claims, sets, tracked, policy, posemodel.LoadArchivedFragmentsIn(files, root), artifactRemovals(root, claims, sets, tracked)))
+	return extendCurrentDeliveryGraphIn(files, root, posemodel.BuildDeliveryIntegrityWithHistoryIn(files, specs, claims, sets, tracked, policy, posemodel.LoadArchivedFragmentsIn(files, root), artifactRemovals(root, claims, sets, tracked, gaps)))
 }
 
 // buildCurrentDeliveryGraph reads and writes the filesystem directly; buildCurrentDeliveryGraphIn takes the
@@ -460,8 +477,8 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 	// A later removal by another spec is read from every spec's claims and
 	// change sets (spec pose-delivery-later-removal R4).
 	var removals []posemodel.ArtifactRemoval
-	if _, allClaims, allSets, _, _, err := collectArtifactGraphInputs(root); err == nil {
-		removals = artifactRemovals(root, allClaims, allSets, tracked, sets...)
+	if _, allClaims, allSets, _, _, gaps, err := collectArtifactGraphInputsWithGapsIn(posemodel.NativeFiles(), root); err == nil {
+		removals = artifactRemovals(root, allClaims, allSets, tracked, gaps, sets...)
 	}
 	graph := posemodel.BuildDeliveryIntegrityWithHistoryIn(posemodel.NativeFiles(), []posemodel.Spec{*full}, claims, sets, tracked, policy, posemodel.LoadArchivedFragments(root), removals)
 	for _, claim := range claims {
@@ -674,14 +691,23 @@ var removalCommitRE = regexp.MustCompile(`^[0-9a-f]{40}([0-9a-f]{24})?$`)
 // negative answer (LR-R1-04, LR-R1-09).
 type removalHistory struct {
 	root    string
+	shallow map[string]bool
 	entries map[string]string
 	parents map[string][]string
 	renames map[string]map[string]bool
 	ancest  map[string]bool
 }
 
+// command runs Git on raw object history: replace refs and grafts do not
+// change what a removal is judged on (LR-R2-06).
+func (h *removalHistory) command(args ...string) *exec.Cmd {
+	cmd := exec.Command("git", append([]string{"--literal-pathspecs", "--no-replace-objects", "-C", h.root}, args...)...)
+	cmd.Env = append(os.Environ(), "GIT_GRAFT_FILE="+filepath.Join(h.root, ".pose-no-grafts"))
+	return cmd
+}
+
 func (h *removalHistory) git(limit int, args ...string) ([]byte, error) {
-	cmd := exec.Command("git", append([]string{"--literal-pathspecs", "-C", h.root}, args...)...)
+	cmd := h.command(args...)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &limitedBuffer{buf: &stdout, limit: limit}
 	cmd.Stderr = &limitedBuffer{buf: &stderr, limit: 64 * 1024}
@@ -712,20 +738,47 @@ func (h *removalHistory) entry(commit, path string) (string, error) {
 	return v, nil
 }
 
+// parentsOf reads a commit's parents from the commit object itself; a commit
+// at a shallow boundary, whose parents the repository does not hold, is an
+// error, never a root (LR-R2-02).
 func (h *removalHistory) parentsOf(commit string) ([]string, error) {
 	if v, ok := h.parents[commit]; ok {
 		return v, nil
 	}
-	out, err := h.git(64*1024, "rev-list", "--parents", "-n", "1", commit)
+	if h.shallow == nil {
+		h.shallow = map[string]bool{}
+		out, err := h.git(4*1024, "rev-parse", "--git-path", "shallow")
+		if err != nil {
+			return nil, err
+		}
+		path := strings.TrimSpace(string(out))
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(h.root, path)
+		}
+		raw, err := os.ReadFile(path)
+		if err != nil && !os.IsNotExist(err) {
+			return nil, err
+		}
+		for _, line := range strings.Fields(string(raw)) {
+			h.shallow[line] = true
+		}
+	}
+	if h.shallow[commit] {
+		return nil, fmt.Errorf("the history is shallow at %s", commit)
+	}
+	out, err := h.git(1024*1024, "cat-file", "commit", commit)
 	if err != nil {
 		return nil, err
 	}
-	fields := strings.Fields(string(out))
-	if len(fields) == 0 || fields[0] != commit {
-		return nil, fmt.Errorf("git rev-list: %s is not a commit", commit)
+	header, _, _ := strings.Cut(string(out), "\n\n")
+	parents := []string{}
+	for _, line := range strings.Split(header, "\n") {
+		if parent, ok := strings.CutPrefix(line, "parent "); ok {
+			parents = append(parents, parent)
+		}
 	}
-	h.parents[commit] = fields[1:]
-	return fields[1:], nil
+	h.parents[commit] = parents
+	return parents, nil
 }
 
 // renamedAway reports whether commit, against parent, renames path away.
@@ -738,13 +791,23 @@ func (h *removalHistory) renamedAway(parent, commit, path string) (bool, error) 
 	if err != nil {
 		return false, err
 	}
+	// Records are a status and its paths: two for a rename or a copy, one
+	// otherwise; a path is never read as a status (LR-R2-01).
 	set := map[string]bool{}
-	fields := strings.Split(string(out), "\x00")
-	for i := 0; i < len(fields); i++ {
-		if strings.HasPrefix(fields[i], "R") && i+2 < len(fields) {
-			set[fields[i+1]] = true
-			i += 2
+	fields := strings.Split(strings.TrimSuffix(string(out), "\x00"), "\x00")
+	for i := 0; i < len(fields) && fields[i] != ""; {
+		status := fields[i]
+		arity := 1
+		if status[0] == 'R' || status[0] == 'C' {
+			arity = 2
 		}
+		if !strings.Contains("ACDMRTUX", status[:1]) || i+arity >= len(fields) {
+			return false, fmt.Errorf("git diff-tree: malformed record %q", status)
+		}
+		if status[0] == 'R' {
+			set[fields[i+1]] = true
+		}
+		i += 1 + arity
 	}
 	h.renames[key] = set
 	return set[path], nil
@@ -757,7 +820,9 @@ func (h *removalHistory) ancestor(a, b string) (bool, error) {
 	if v, ok := h.ancest[key]; ok {
 		return v, nil
 	}
-	cmd := exec.Command("git", "--literal-pathspecs", "-C", h.root, "merge-base", "--is-ancestor", a, b)
+	cmd := h.command("merge-base", "--is-ancestor", a, b)
+	var stderr bytes.Buffer
+	cmd.Stderr = &limitedBuffer{buf: &stderr, limit: 64 * 1024}
 	err := cmd.Run()
 	var exit *exec.ExitError
 	switch {
@@ -766,7 +831,7 @@ func (h *removalHistory) ancestor(a, b string) (bool, error) {
 	case errors.As(err, &exit) && exit.ExitCode() == 1:
 		h.ancest[key] = false
 	default:
-		return false, fmt.Errorf("git merge-base --is-ancestor: %v", err)
+		return false, fmt.Errorf("git merge-base --is-ancestor: %v: %s", err, strings.TrimSpace(stderr.String()))
 	}
 	return h.ancest[key], nil
 }
@@ -838,8 +903,10 @@ func (h *removalHistory) deletes(commit, path string) (bool, error) {
 // of a spec's change sets and judged by ancestry, never by the order the sets
 // come in (LR-R1-01, LR-R1-06); a commit that is not an immutable object name,
 // or history Git cannot read, refuses with its cause. overrides replaces the
-// change sets of a spec, as an explicit artifact-check range does (LR-R1-05).
-func artifactRemovals(root string, claims []posemodel.ArtifactClaim, sets []posemodel.ChangeSet, tracked []string, overrides ...posemodel.ChangeSet) []posemodel.ArtifactRemoval {
+// change sets of a spec, as an explicit artifact-check range does (LR-R1-05,
+// LR-R2-04); gaps says, by spec (the empty key for every spec), which history
+// the collection could not read, and refuses those specs (LR-R2-03).
+func artifactRemovals(root string, claims []posemodel.ArtifactClaim, sets []posemodel.ChangeSet, tracked []string, gaps map[string]string, overrides ...posemodel.ChangeSet) []posemodel.ArtifactRemoval {
 	present := map[string]bool{}
 	for _, path := range tracked {
 		present[filepath.ToSlash(path)] = true
@@ -851,10 +918,18 @@ func artifactRemovals(root string, claims []posemodel.ArtifactClaim, sets []pose
 	commitsOf := map[string][]string{}
 	invalid := map[string]string{}
 	seen := map[string]bool{}
-	for _, set := range append(append([]posemodel.ChangeSet{}, overrides...), sets...) {
-		if replaced[set.Spec] && !containsChangeSet(overrides, set) {
-			continue
+	judged := append([]posemodel.ChangeSet{}, overrides...)
+	for _, set := range sets {
+		if !replaced[set.Spec] {
+			judged = append(judged, set)
 		}
+	}
+	for spec, why := range gaps {
+		if spec != "" && !replaced[spec] {
+			invalid[spec] = why
+		}
+	}
+	for _, set := range judged {
 		for _, commit := range set.Commits {
 			if !removalCommitRE.MatchString(commit) {
 				invalid[set.Spec] = "its change set names " + strconv.Quote(commit) + ", which is not an immutable commit"
@@ -878,7 +953,9 @@ func artifactRemovals(root string, claims []posemodel.ArtifactClaim, sets []pose
 		r := posemodel.ArtifactRemoval{Spec: removed.Spec, Path: removed.Path, Supersedes: map[string]string{}, Refusals: map[string]string{}}
 		var deletions []string
 		var unreadable error
-		if why := invalid[removed.Spec]; why != "" {
+		if why := gaps[""]; why != "" {
+			unreadable = errors.New(why)
+		} else if why := invalid[removed.Spec]; why != "" {
 			unreadable = errors.New("spec " + removed.Spec + ": " + why)
 		}
 		for _, commit := range commitsOf[removed.Spec] {
@@ -965,13 +1042,4 @@ func precedingDeletion(h *removalHistory, commits []string, path string, deletio
 		}
 	}
 	return "", "this spec's change to it does not precede the removal"
-}
-
-func containsChangeSet(sets []posemodel.ChangeSet, set posemodel.ChangeSet) bool {
-	for _, s := range sets {
-		if s.ID == set.ID && s.Spec == set.Spec {
-			return true
-		}
-	}
-	return false
 }

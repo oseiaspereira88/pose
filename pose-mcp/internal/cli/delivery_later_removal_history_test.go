@@ -73,7 +73,7 @@ func TestLaterRemovalHistoryShapes(t *testing.T) {
 		r.rm(removalPath)
 		r.commit("unattributed removal")
 		sets := []posemodel.ChangeSet{{ID: "cs-0-late", Spec: "a", Commits: []string{a2}}, {ID: "cs-1-early", Spec: "a", Commits: []string{a1}}, {ID: "cs-b", Spec: "b", Commits: []string{b}}}
-		if ok, _ := superseded(artifactRemovals(r.root, removalClaims(removalPath), sets, nil)); ok {
+		if ok, _ := superseded(artifactRemovals(r.root, removalClaims(removalPath), sets, nil, nil)); ok {
 			t.Fatal("a change after the removal was hidden by the order of the sets")
 		}
 	})
@@ -91,7 +91,7 @@ func TestLaterRemovalHistoryShapes(t *testing.T) {
 		r.commit("main moves on")
 		r.git("merge", "-q", "--no-ff", "--no-edit", "side")
 		b := r.git("rev-parse", "HEAD")
-		if ok, why := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a}, []string{b}), nil)); !ok {
+		if ok, why := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a}, []string{b}), nil, nil)); !ok {
 			t.Fatalf("a merge removal after a root creation: %s", why)
 		}
 	})
@@ -119,7 +119,7 @@ func TestLaterRemovalHistoryShapes(t *testing.T) {
 		a2 := r.git("rev-parse", "HEAD")
 		r.rm(removalPath)
 		r.commit("unattributed removal")
-		if ok, _ := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a1, a2}, []string{b}), nil)); ok {
+		if ok, _ := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a1, a2}, []string{b}), nil, nil)); ok {
 			t.Fatal("a merge that brought the path back after the removal was not a change")
 		}
 	})
@@ -147,7 +147,7 @@ func TestLaterRemovalHistoryShapes(t *testing.T) {
 		if parents := strings.Fields(r.git("rev-list", "--parents", "-n", "1", "HEAD")); len(parents) != 3 {
 			t.Fatalf("the fixture's merge is not a merge: %v", parents)
 		}
-		if ok, _ := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a1, a2}, []string{b}), nil)); ok {
+		if ok, _ := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a1, a2}, []string{b}), nil, nil)); ok {
 			t.Fatal("a merge that undid the removal was not a change")
 		}
 	})
@@ -173,7 +173,7 @@ func TestLaterRemovalHistoryShapes(t *testing.T) {
 				r.rm(removalPath)
 				r.commit("unattributed removal")
 			}
-			if ok, _ := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a1, a3}, []string{b}), nil)); ok {
+			if ok, _ := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a1, a3}, []string{b}), nil, nil)); ok {
 				t.Fatalf("a later %s by a was not a change after the removal", later)
 			}
 		}
@@ -186,7 +186,7 @@ func TestLaterRemovalHistoryShapes(t *testing.T) {
 		r.rm(removalPath)
 		b := r.commit("b removes")
 		missing := strings.Repeat("0", 39) + "1"
-		ok, why := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a, missing}, []string{b}), nil))
+		ok, why := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a, missing}, []string{b}), nil, nil))
 		if ok || !strings.Contains(why, "could not be read") {
 			t.Fatalf("an unreadable commit of a: %v %q", ok, why)
 		}
@@ -203,13 +203,13 @@ func TestLaterRemovalHistoryShapes(t *testing.T) {
 		r.rm(removalPath)
 		r.commit("unattributed removal")
 		explicit := posemodel.ChangeSet{ID: "cs-range", Spec: "a", Commits: []string{a2}}
-		if ok, _ := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a1}, []string{b}), nil, explicit)); ok {
+		if ok, _ := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a1}, []string{b}), nil, nil, explicit)); ok {
 			t.Fatal("the explicit range of a was not the one judged")
 		}
 		// And the other way: a range of only the earlier change is judged as
 		// itself, not with a's other sets.
 		earlier := posemodel.ChangeSet{ID: "cs-range-early", Spec: "a", Commits: []string{a1}}
-		if ok, why := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a2}, []string{b}), nil, earlier)); !ok {
+		if ok, why := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a2}, []string{b}), nil, nil, earlier)); !ok {
 			t.Fatalf("a range before the removal was judged with a's other sets: %s", why)
 		}
 	})
@@ -239,7 +239,7 @@ func TestLaterRemovalHistoryShapes(t *testing.T) {
 		if bMain < bParallel {
 			t.Fatal("the fixture could not order the deletions")
 		}
-		if ok, why := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a}, []string{bParallel, bMain}), nil)); !ok {
+		if ok, why := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a}, []string{bParallel, bMain}), nil, nil)); !ok {
 			t.Fatalf("a deletion after a was hidden by another: %s", why)
 		}
 	})
@@ -250,7 +250,7 @@ func TestLaterRemovalHistoryShapes(t *testing.T) {
 		a := r.commit("a creates")
 		r.git("mv", "--", removalPath, "internal/y.go")
 		b := r.commit("b renames")
-		if ok, _ := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a}, []string{b}), nil)); ok {
+		if ok, _ := superseded(artifactRemovals(r.root, removalClaims(removalPath), removalSets([]string{a}, []string{b}), nil, nil)); ok {
 			t.Fatal("a rename was taken for the declared removal")
 		}
 	})
@@ -262,7 +262,7 @@ func TestLaterRemovalHistoryShapes(t *testing.T) {
 		r.rm(removalPath)
 		b := r.commit("b removes")
 		magic := ":(top)" + removalPath
-		if ok, _ := superseded(artifactRemovals(r.root, removalClaims(magic), removalSets([]string{a}, []string{b}), nil)); ok {
+		if ok, _ := superseded(artifactRemovals(r.root, removalClaims(magic), removalSets([]string{a}, []string{b}), nil, nil)); ok {
 			t.Fatal("a pathspec spelling resolved to another path")
 		}
 	})
@@ -279,7 +279,7 @@ func TestLaterRemovalHistoryShapes(t *testing.T) {
 			t.Fatal(err)
 		}
 		for _, sets := range [][]posemodel.ChangeSet{removalSets([]string{a}, []string{"--output=" + victim}), removalSets([]string{"--output=" + victim, a}, []string{b})} {
-			ok, why := superseded(artifactRemovals(r.root, removalClaims(removalPath), sets, nil))
+			ok, why := superseded(artifactRemovals(r.root, removalClaims(removalPath), sets, nil, nil))
 			if raw, _ := os.ReadFile(victim); string(raw) != "keep me" {
 				t.Fatal("a recorded commit was passed to Git as an option")
 			}
