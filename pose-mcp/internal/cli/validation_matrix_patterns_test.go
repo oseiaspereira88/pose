@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 	"unicode"
 	"unicode/utf8"
 )
@@ -49,6 +50,8 @@ type matrixGoTest struct {
 	tags     []string
 }
 
+var positiveDecimal = regexp.MustCompile(`^[1-9][0-9]*$`)
+
 // plainTagList is the -tags syntax judged here: comma-separated names. A
 // quoted or space-separated list, which Go unquotes, is refused rather than
 // modelled (review round 4, R4-B1).
@@ -69,6 +72,7 @@ func parseMatrixGoTest(args []string) (matrixGoTest, error) {
 	var check matrixGoTest
 	var tags []string
 	race := false
+	count := ""
 	for i := 1; i < len(args); i++ {
 		arg := args[i]
 		if !strings.HasPrefix(arg, "-") {
@@ -100,6 +104,15 @@ func parseMatrixGoTest(args []string) (matrixGoTest, error) {
 				value = args[i]
 			}
 			switch flag {
+			case "-count":
+				// Only a positive decimal count runs each test; zero runs
+				// none and Go accepts other spellings (review round 5,
+				// R5-B1, F6). The last value counts.
+				count = value
+			case "-timeout":
+				if _, err := time.ParseDuration(value); err != nil {
+					return check, errors.New("flag -timeout=" + value + " is not a duration")
+				}
 			case "-run":
 				check.pattern = value
 			case "-tags":
@@ -112,6 +125,9 @@ func parseMatrixGoTest(args []string) (matrixGoTest, error) {
 		default:
 			return check, errors.New("flag " + arg + " is not modelled")
 		}
+	}
+	if count != "" && !positiveDecimal.MatchString(count) {
+		return check, errors.New("flag -count=" + count + " is not a positive decimal count")
 	}
 	check.tags = append([]string{}, tags...)
 	if race {
@@ -134,6 +150,13 @@ func packageDirs(moduleDir, modulePath, pkg string) ([]string, error) {
 		pkg = "./" + strings.TrimPrefix(pkg, modulePath+"/")
 	case !strings.HasPrefix(pkg, "."):
 		return nil, errors.New("package " + pkg + " is outside the module")
+	}
+	// A package path through a directory go test does not match —
+	// testdata, vendor, _ or . names — is refused (review round 5, F7).
+	for _, element := range strings.Split(pkg, "/") {
+		if element == "testdata" || element == "vendor" || element != "." && element != ".." && element != "..." && (strings.HasPrefix(element, ".") || strings.HasPrefix(element, "_")) {
+			return nil, errors.New("package " + pkg + " is in a directory go test does not match")
+		}
 	}
 	recursive := pkg == "./..." || strings.HasSuffix(pkg, "/...")
 	dir := filepath.Join(moduleDir, filepath.FromSlash(strings.TrimSuffix(strings.TrimSuffix(pkg, "..."), "/")))
@@ -461,6 +484,16 @@ func TestDeadRunPatternGuardFollowsGoSelection(t *testing.T) {
 		{"architecture level", `"./a", "-run", "TestReal"`, true, `"GOAMD64": "v3"`},
 		{"cgo setting", `"./a", "-run", "TestReal"`, true, `"CGO_CFLAGS": "-O0"`},
 		{"other environment", `"./a", "-run", "TestReal"`, false, `"POSE_X": "1"`},
+		{"zero count", `"./a", "-run", "TestReal", "-count=0"`, true, ""},
+		{"zero count split and prefixed", `"./a", "-run", "TestReal", "-test.count", "0"`, true, ""},
+		{"zero count last", `"./a", "-run", "TestReal", "-count=1", "-count=0"`, true, ""},
+		{"positive count last", `"./a", "-run", "TestReal", "-count=0", "-count=1"`, false, ""},
+		{"count spelled in hex", `"./a", "-run", "TestReal", "-count=0x1"`, true, ""},
+		{"bad timeout", `"./a", "-run", "TestReal", "-timeout=bogus"`, true, ""},
+		{"good timeout", `"./a", "-run", "TestReal", "-timeout=30s"`, false, ""},
+		{"rooted in testdata", `"./a/testdata/...", "-run", "TestReal"`, true, ""},
+		{"rooted in a hidden directory", `"./.hidden/...", "-run", "TestReal"`, true, ""},
+		{"rooted in vendor", `"./vendor/v", "-run", "TestVendored"`, true, ""},
 		{"quoted tags", `"./a", "-tags='other'", "-run", "TestReal"`, true, ""},
 		{"space-separated tags", `"./a", "-tags", "one other", "-run", "TestReal"`, true, ""},
 		{"sibling module", `"../other", "-run", "TestOther"`, true, ""},
