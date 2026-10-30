@@ -743,6 +743,15 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 	gitlinks := reviewBundleGitlinksIn(s.fsys(), s.Root, uniqueSorted(candidatePaths))
 	// One status of the tree for the whole subject, taken on first need.
 	var status *workingTreeSnapshot
+	// Every selected spec that observes an entry; the entry is kept once, but
+	// a removal must hold for all of them (SR-R1-02).
+	observers := map[string][]string{}
+	for _, set := range sets {
+		for _, observed := range set.Paths {
+			key := observedKey(observed)
+			observers[key] = append(observers[key], set.Spec)
+		}
+	}
 	for _, set := range sets {
 		subject.ChangeSets = append(subject.ChangeSets, set.ID)
 		if subject.Base == "" {
@@ -808,7 +817,7 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 					// pinned to. There is no file to read: the path is a directory
 					// in the working tree and a gitlink in the index.
 					entry.Digest = digestBytes([]byte(gitlinkSHA))
-				} else if digest, err := s.reviewBundleFileDigest(path, set, graph); err != nil {
+				} else if digest, err := s.reviewBundleFileDigest(path, set, graph, observers[key]); err != nil {
 					blockers = append(blockers, err.Error())
 				} else {
 					entry.Digest = digest
@@ -1262,7 +1271,10 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	return "", false
 }
 
-func (s Store) reviewBundleFileDigest(rel string, set ChangeSet, graph DeliveryIntegrityGraph) (string, error) {
+// reviewBundleFileDigest reads rel for set; owners are the specs of every
+// selected change set that observes the path, all of which an absent path's
+// removal must supersede.
+func (s Store) reviewBundleFileDigest(rel string, set ChangeSet, graph DeliveryIntegrityGraph, owners []string) (string, error) {
 	if reviewBundleClaudeSkillAlias(rel) {
 		return s.reviewBundleClaudeSkillDigest(rel)
 	}
@@ -1298,7 +1310,7 @@ func (s Store) reviewBundleFileDigest(rel string, set ChangeSet, graph DeliveryI
 		// A later spec's observed removal is the path's reviewable identity
 		// for the specs it supersedes, as the delivery graph already accepts
 		// it (spec pose-review-subject-later-removal R1–R2).
-		if witness, ok := reviewBundleRemovalWitness(graph, filepath.ToSlash(clean), s.reviewBundleFragmentOwners(set, graph, filepath.ToSlash(clean))); ok {
+		if witness, ok := reviewBundleRemovalWitness(graph, filepath.ToSlash(clean), owners); ok {
 			return digestBytes([]byte(witness)), nil
 		}
 	}
@@ -1311,21 +1323,30 @@ func (s Store) reviewBundleFileDigest(rel string, set ChangeSet, graph DeliveryI
 // A squash can attribute the same path to multiple specs. The owning release
 // witness can name one of those specs, but a dependency or matching filename
 // alone is not proof: require a shared attributed commit and observed path.
-// reviewBundleRemovalWitness is the identity of a path a later spec removed
-// for one of owners — the removing spec and the deleting commit the delivery
-// graph accepted for it — or false when no accepted removal applies.
+// reviewBundleRemovalWitness is the identity of a path a later spec removed:
+// for each of owners, the removing spec and the deleting commit the delivery
+// graph accepted for that very spec, never another's (SR-R1-01). It is false
+// unless every owner has such a removal by a spec other than itself
+// (SR-R1-02).
 func reviewBundleRemovalWitness(graph DeliveryIntegrityGraph, path string, owners []string) (string, bool) {
-	for _, removal := range graph.Removals {
-		if removal.Path != path {
-			continue
-		}
-		for _, owner := range owners {
-			if commit := removal.Supersedes[owner]; owner != "" && commit != "" {
-				return "removed-by " + removal.Spec + " " + commit, true
+	var lines []string
+	for _, owner := range uniqueSorted(owners) {
+		found := ""
+		for _, removal := range graph.Removals {
+			if removal.Path == path && removal.Spec != owner && removal.Supersedes[owner] != "" {
+				found = "removed-by " + removal.Spec + " " + removal.Supersedes[owner]
+				break
 			}
 		}
+		if owner == "" || found == "" {
+			return "", false
+		}
+		lines = append(lines, found)
 	}
-	return "", false
+	if len(lines) == 0 {
+		return "", false
+	}
+	return strings.Join(uniqueSorted(lines), "\n"), true
 }
 
 func (s Store) reviewBundleFragmentOwners(set ChangeSet, graph DeliveryIntegrityGraph, pending string) []string {
@@ -1635,29 +1656,23 @@ func (s Store) reviewBundleChildren(scope ScopeRef) ([]ReviewBundleChild, []stri
 	return children, blockers, nil
 }
 
-// retainedChildReviewBundle is the approved review the closeout gate retains
-// for a done child whose later commits changed what is prepared for it, or
-// nil and why not (spec pose-review-subject-later-removal R3).
+// retainedChildReviewBundle is the approved review a done child keeps after
+// later commits changed what is prepared for it: the bundle the child's own
+// verification retains, with every condition that verification applies —
+// lost attestation history, a later negative review, a changed federated
+// manifest — or nil and why not (spec pose-review-subject-later-removal R3).
 func (s Store) retainedChildReviewBundle(ref string) (*ReviewBundle, string) {
-	scope, err := ParseScopeRef(ref)
+	verification, err := s.VerifyReviewBundle(ref)
 	if err != nil {
+		return nil, ": its review could not be verified: " + err.Error()
+	}
+	if verification.State != "closed" || !verification.Fresh || !verification.Approved || verification.Bundle == nil {
+		if len(verification.Blockers) > 0 {
+			return nil, ": " + strings.Join(uniqueSorted(verification.Blockers), "; ")
+		}
 		return nil, ""
 	}
-	if done, err := s.scopeLifecycleDone(scope); err != nil || !done {
-		return nil, ""
-	}
-	policy, _, err := s.loadReviewPolicy()
-	if err != nil {
-		return nil, ": its review policy could not be read: " + err.Error()
-	}
-	bundle, att, lost := s.retainedCompletedReviewWithHistory(scope, ref, policy)
-	if len(lost) > 0 {
-		return nil, ": its approved review cannot be retained: " + (SourceCoverage{Losses: lost}).Describe("")
-	}
-	if bundle == nil || att == nil {
-		return nil, ""
-	}
-	return bundle, ""
+	return verification.Bundle, ""
 }
 
 func (s Store) reviewBundleConsumedInputs(plan ReviewPlan) []ReviewBundleInput {

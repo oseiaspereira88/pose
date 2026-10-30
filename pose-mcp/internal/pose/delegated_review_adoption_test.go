@@ -480,7 +480,7 @@ func TestDelegatedReviewCapabilitySkillAliasSubject(t *testing.T) {
 			if class != "governance" || !included {
 				t.Fatalf("alias omitted: %q %v", class, included)
 			}
-			got, err := (Store{Root: root}).reviewBundleFileDigest(rel, ChangeSet{}, DeliveryIntegrityGraph{})
+			got, err := (Store{Root: root}).reviewBundleFileDigest(rel, ChangeSet{}, DeliveryIntegrityGraph{}, nil)
 			if tc == "valid" {
 				if err != nil || got != digestBytes([]byte(target)) {
 					t.Fatalf("link bytes not sealed: %s %v", got, err)

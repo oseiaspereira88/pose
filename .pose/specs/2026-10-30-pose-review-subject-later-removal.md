@@ -37,9 +37,9 @@ Closing the roadmaps `delegated-review` and `delegation` needs a sealed `milesto
 
 ### Functional
 
-- R1: When a review subject path of a change set is absent from the tree, and the delivery-integrity graph has a removal witness for that path that supersedes the change set's spec or another owner of the path in it, the subject entry shall be digested from the witness (removing spec and deleting commit) instead of failing as unreadable.
-- R2: An absent path with no such witness shall still refuse the bundle with the unreadable-path blocker, and a witness for another path or a refused removal shall not apply.
-- R3: Sealing a milestone (or roadmap) bundle shall accept a done child scope whose sealed bundle no longer equals the prepared one when the closeout gate retains that child's approved review, recording the retained bundle as the child; a child that is not done, or whose retained review is lost or not approved, shall still block.
+- R1: When a review subject path is absent from the tree, and the delivery-integrity graph has, for every selected spec that observes the path, a removal of it by another spec that supersedes that very spec, the subject entry shall be digested from those witnesses (removing spec and deleting commit per observer) instead of failing as unreadable.
+- R2: An absent path shall still refuse the bundle with the unreadable-path blocker when any observing spec lacks such a witness — no witness, a witness for another path or another spec, a refused removal, or the spec's own removal — whatever the order of the selected change sets.
+- R3: Sealing a milestone (or roadmap) bundle shall accept a done child scope whose sealed bundle no longer equals the prepared one when the child's own review verification retains its approved review (closed, fresh, approved — lost history, a later negative review and a changed federated manifest excluded), recording the retained bundle as the child; otherwise the child shall still block, with the verification's cause.
 - R4: The roadmaps `delegated-review` and `delegation` shall seal their milestone bundles with these rules.
 
 ### Non-functional
@@ -67,6 +67,8 @@ Review bundle subject and child resolution in `internal/pose/review_bundle.go`.
 - created: .pose/changelogs/unreleased/pose-review-subject-later-removal.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 - created: pose-mcp/internal/pose/review_subject_later_removal_test.go
+- modified: pose-mcp/internal/pose/delegated_review_adoption_test.go
+- created: .pose/specs/2026-10-30-pose-review-subject-later-removal.amendments.jsonl
 - modified: .pose/indexes/validation-matrix.json
 
 ### Delivery targets
