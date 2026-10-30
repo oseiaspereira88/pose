@@ -150,10 +150,12 @@ func TestDelegateOnTerminalHook(t *testing.T) {
 	}
 }
 
-// toolingAgent runs one command whose output has five lines.
+// toolingAgent runs one command whose output has five lines; it prints its
+// events with printf %s, since a POSIX sh such as dash expands the \n an echo
+// argument carries.
 const toolingAgent = `{"schema_version": 2, "agents": {
   "tooler": {"vendor": "test", "model": "t-1", "cli": "sh", "events": "codex-jsonl", "commands": {"read": ["sh", "-c",
-    "cat >/dev/null; echo '{\"type\":\"item.completed\",\"item\":{\"id\":\"c1\",\"type\":\"command_execution\",\"command\":\"ls\",\"aggregated_output\":\"line-1\\nline-2\\nline-3\\nline-4\\nline-5\\n\",\"exit_code\":0,\"status\":\"completed\"}}'; echo '{\"type\":\"item.completed\",\"item\":{\"type\":\"agent_message\",\"text\":\"decision: approved\"}}'"]}}
+    "cat >/dev/null; printf '%s\\n' '{\"type\":\"item.completed\",\"item\":{\"id\":\"c1\",\"type\":\"command_execution\",\"command\":\"ls\",\"aggregated_output\":\"line-1\\nline-2\\nline-3\\nline-4\\nline-5\\n\",\"exit_code\":0,\"status\":\"completed\"}}' '{\"type\":\"item.completed\",\"item\":{\"type\":\"agent_message\",\"text\":\"decision: approved\"}}'"]}}
 }, "purposes": {"review": {"max_runs_per_bundle": 9}}}`
 
 // Spec pose-delegation-parity-gate SW-05: -v adds the tail of each tool's
