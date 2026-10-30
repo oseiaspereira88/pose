@@ -37,6 +37,8 @@ adopting project's features.
 | `calendar-ttl-as-premise-trigger` | enforced | An arbitrary expiry date is accepted as the material trigger of a premise | pose-assumption-validity-scope |
 | `unobserved-falsifier-reads-uncontradicted` | known-gap | A falsifier check that no run produces raises nothing, and nothing says the falsifier was never observed | pose-falsifier-reconsideration |
 | `parity-row-cites-an-unrelated-test` | known-gap | A launcher parity row names a real but unrelated `pose delegate` command and an existing test that does not exercise the capability, and the parity check passes; the check proves existence, review of the cited tests proves coverage | pose-delegation-parity-gate |
+| `imported-fragment-completes-a-replaced-command` | known-gap | A usage or error string assembles a removed command from a constant of another package of the module, which the active-document check reads as a gap; review of assembled messages is the defence | pose-delegation-parity-gate |
+| `cgo-preamble-text-reaches-usage` | known-gap | Operator text written as a C string in a cgo preamble reaches a usage surface; the Go reader sees a comment, not a string | pose-delegation-parity-gate |
 | `request-opened-after-preview-transfers` | delegated | A request opened after a transfer preview is moved with the spec (`pose/spec_transfer_actions_test.go:TestTransferRefusesARequestOpenedAfterThePreview`) | pose-transfer-preserves-obligations |
 
 | `deleted-reservation-resets-quota` | delegated | Deleting a reservation and receipt makes a surviving run stop consuming quota | pose-delegated-review-attempt-ledger |

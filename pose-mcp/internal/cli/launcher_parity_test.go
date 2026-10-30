@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/ast"
+	"go/build"
 	"go/constant"
 	"go/parser"
 	"go/token"
@@ -410,42 +411,75 @@ func (noImports) Import(path string) (*types.Package, error) {
 	return nil, fmt.Errorf("not imported: %s", path)
 }
 
+// parityBuildTargets are the configurations the distribution ships; a
+// package is read once per configuration, with the files Go would build for
+// it, so declarations of mutually exclusive files never meet in one check
+// (review round 5, PG-R5-01).
+var parityBuildTargets = []string{"linux", "darwin", "windows"}
+
 // goPackageStringValues are the string values of the Go files of one
-// package: each expression folded once, at its widest, and every literal
-// inside an operand that did not fold — a call's argument, a function's
-// body — read as well; comments are not strings.
-func goPackageStringValues(t *testing.T, files map[string][]byte) map[string][]string {
+// package directory, by the position of the expression that holds them: for
+// each shipped configuration, the files it builds are type-checked alone
+// and each expression folded once, at its widest, with every literal inside
+// an operand that did not fold — a call's argument, a function's body —
+// read as well; comments are not strings. A position whose value differs
+// between configurations keeps every value.
+func goPackageStringValues(t *testing.T, dir string, names []string) map[string][]string {
 	t.Helper()
-	fset := token.NewFileSet()
-	var parsed []*ast.File
-	paths := map[*ast.File]string{}
-	for path, src := range files {
-		f, err := parser.ParseFile(fset, path, src, 0)
-		if err != nil {
-			t.Fatalf("%s: %v", path, err)
+	byPosition := map[string]map[string]bool{}
+	for _, goos := range parityBuildTargets {
+		ctx := build.Default
+		ctx.GOOS, ctx.GOARCH, ctx.CgoEnabled = goos, "amd64", true
+		fset := token.NewFileSet()
+		var parsed []*ast.File
+		for _, name := range names {
+			if ok, err := ctx.MatchFile(dir, name); err != nil {
+				t.Fatalf("%s: %v", filepath.Join(dir, name), err)
+			} else if !ok {
+				continue
+			}
+			f, err := parser.ParseFile(fset, filepath.Join(dir, name), nil, 0)
+			if err != nil {
+				t.Fatalf("%s: %v", filepath.Join(dir, name), err)
+			}
+			parsed = append(parsed, f)
 		}
-		parsed = append(parsed, f)
-		paths[f] = path
-	}
-	info := &types.Info{Types: map[ast.Expr]types.TypeAndValue{}}
-	conf := types.Config{Importer: noImports{}, Error: func(error) {}}
-	pkg, _ := conf.Check("parity", fset, parsed, info)
-	g := &goStringFolder{info: info, pkg: pkg, folded: map[ast.Node]bool{}}
-	values := map[string][]string{}
-	for _, f := range parsed {
-		ast.Inspect(f, func(n ast.Node) bool {
-			if g.folded[n] {
-				return true
-			}
-			switch n := n.(type) {
-			case *ast.BinaryExpr, *ast.BasicLit:
-				if v, ok := g.fold(n.(ast.Expr)); ok {
-					values[paths[f]] = append(values[paths[f]], v)
-					g.mark(n.(ast.Expr))
+		info := &types.Info{Types: map[ast.Expr]types.TypeAndValue{}}
+		conf := types.Config{Importer: noImports{}, Error: func(error) {}}
+		pkg, _ := conf.Check("parity", fset, parsed, info)
+		g := &goStringFolder{info: info, pkg: pkg, folded: map[ast.Node]bool{}}
+		for _, f := range parsed {
+			ast.Inspect(f, func(n ast.Node) bool {
+				if g.folded[n] {
+					return true
 				}
-			}
-			return true
-		})
+				switch n := n.(type) {
+				case *ast.BinaryExpr, *ast.BasicLit:
+					if v, ok := g.fold(n.(ast.Expr)); ok {
+						position := fset.Position(n.Pos())
+						key := position.Filename + "\x00" + strconv.Itoa(position.Offset)
+						if byPosition[key] == nil {
+							byPosition[key] = map[string]bool{}
+						}
+						byPosition[key][v] = true
+						g.mark(n.(ast.Expr))
+					}
+				}
+				return true
+			})
+		}
+	}
+	values := map[string][]string{}
+	keys := make([]string, 0, len(byPosition))
+	for key := range byPosition {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		path := key[:strings.IndexByte(key, 0)]
+		for v := range byPosition[key] {
+			values[path] = append(values[path], v)
+		}
 	}
 	return values
 }
@@ -455,7 +489,7 @@ func goPackageStringValues(t *testing.T, files map[string][]byte) map[string][]s
 // removal note: usage strings, errors, MCP tool descriptions (PG-R1-04).
 func sourceStringProblems(t *testing.T, root, dir string) []string {
 	t.Helper()
-	packages := map[string]map[string][]byte{}
+	packages := map[string][]string{}
 	var problems []string
 	err := filepath.WalkDir(filepath.Join(root, dir), func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -464,22 +498,15 @@ func sourceStringProblems(t *testing.T, root, dir string) []string {
 		if d.IsDir() || !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") {
 			return nil
 		}
-		raw, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		pkg := filepath.Dir(path)
-		if packages[pkg] == nil {
-			packages[pkg] = map[string][]byte{}
-		}
-		packages[pkg][path] = raw
+		packages[filepath.Dir(path)] = append(packages[filepath.Dir(path)], filepath.Base(path))
 		return nil
 	})
 	if err != nil {
 		problems = append(problems, dir+": "+err.Error())
 	}
-	for _, files := range packages {
-		for path, values := range goPackageStringValues(t, files) {
+	for pkg, names := range packages {
+		sort.Strings(names)
+		for path, values := range goPackageStringValues(t, pkg, names) {
 			rel, _ := filepath.Rel(root, path)
 			for _, value := range values {
 				problems = append(problems, replacedNameProblems(filepath.ToSlash(rel), value)...)
@@ -554,6 +581,13 @@ func TestActiveDocumentCheckFailsOnAReplacedCommand(t *testing.T) {
 	write(".pose/adr/old.md", "The launchers secondary-agent and pose review resume were replaced.\n")
 	write("pose-mcp/internal/cli/x.go", "package cli\n\n// \"secondary-agent\" was an old launcher.\nconst usage = \"Usage: pose review dispatch <scope>\"\nconst escaped = \"Run pose review \\x64ispatch spec:x\"\nconst joined = \"Run pose review \" + \"dispatch spec:x\"\nconst gap = \"pose review \" + verb + \" was removed\"\nconst gone = \"pose review dispatch, resume and status were removed.\"\n\nvar verb = \"x\"\n\nfunc a() string { return \"Usage: \" + fmt.Sprint(\"Run pose review dispatch spec:a\") }\n\nfunc b() string { return \"Usage: \" + func() string { return \"Run pose review dispatch spec:b\" }() }\n\nconst r3Verb = \"dispatch\"\n")
 	write("pose-mcp/internal/cli/y.go", "package cli\n\nconst r3Usage = \"Run pose review \" + r3Verb + \" spec:c\"\n")
+	write("pose-mcp/internal/cli/w_unix.go", "//go:build !windows\n\npackage cli\n\nconst r5Suffix = \" spec:r5\"\nconst r5Verb = \"dispatch\"\n")
+	write("pose-mcp/internal/cli/w_windows.go", "package cli\n\nconst r5Suffix = \", resume and status were removed\"\nconst r5Verb = \"bundle\"\n")
+	write("pose-mcp/internal/cli/w.go", "package cli\n\nconst r5Usage = \"pose review dispatch\" + r5Suffix\nconst r5Split = \"pose review \" + r5Verb + \" spec:s\"\n")
+	// The same, its Windows file first in name order.
+	write("pose-mcp/internal/cli/u_windows.go", "package cli\n\nconst r6Suffix = \", resume and status were removed\"\n")
+	write("pose-mcp/internal/cli/v_unix.go", "//go:build !windows\n\npackage cli\n\nconst r6Suffix = \" spec:r6\"\n")
+	write("pose-mcp/internal/cli/v.go", "package cli\n\nconst r6Usage = \"pose review dispatch\" + r6Suffix\n")
 	write("pose-mcp/internal/cli/z.go", "package cli\n\nconst r4Suffix = \", resume and status were removed\"\n\nfunc r4Usage() string {\n\tr4Suffix := \" spec:x\"\n\treturn \"pose review dispatch\" + r4Suffix\n}\n\nconst r4Verb = \"dispatch\"\n\nfunc r4Harmless() string {\n\tr4Verb := \"bundle\"\n\treturn \"pose review \" + r4Verb\n}\n\nconst r5Usage = \"pose review \" + r5A + \" spec:d\"\nconst r5A = r5B\nconst r5B = r5C\nconst r5C = r5D\nconst r5D = r5E\nconst r5E = \"dispatch\"\n\nconst (\n\tg1 = \"dispatch\"\n\tg2\n)\n\nconst gUsage = \"pose review \" + g2 + \" spec:e\"\n\nfunc h() string {\n\tconst lv = \"dispatch\"\n\treturn \"pose review \" + lv + \" spec:f\"\n}\n")
 	problems := append(activeDocumentProblems(t, root), sourceStringProblems(t, root, "pose-mcp")...)
 	want := []string{
@@ -575,6 +609,9 @@ func TestActiveDocumentCheckFailsOnAReplacedCommand(t *testing.T) {
 		"pose-mcp/internal/cli/z.go:1: pose review dispatch spec:d",     // a chain of constants
 		"pose-mcp/internal/cli/z.go:1: pose review dispatch spec:e",     // an omitted value in a const group
 		"pose-mcp/internal/cli/z.go:1: pose review dispatch spec:f",     // a local constant
+		"pose-mcp/internal/cli/w.go:1: pose review dispatch spec:r5",    // a suffix of the build that ships it, not of another
+		"pose-mcp/internal/cli/w.go:1: pose review dispatch spec:s",     // a verb of one build
+		"pose-mcp/internal/cli/v.go:1: pose review dispatch spec:r6",    // whichever build file sorts first
 	}
 	for _, w := range want {
 		if !containsString(problems, w) {
@@ -627,6 +664,30 @@ func TestLauncherParityFollowsTheADRsText(t *testing.T) {
 	if _, unrecognized := adrLauncherCapabilities(adr); len(unrecognized) != 0 {
 		t.Fatalf("the ADR as written: %v", unrecognized)
 	}
+}
+
+// The Go reader resolves the constants of one package; a fragment imported
+// from another package of the module is a gap, so a command assembled from
+// it is not read (review round 5, PG-R5-02). A string in a cgo preamble is C,
+// a comment to the Go parser, and is not read either (PG-R5-03). Review of
+// the messages a change assembles is the defence; the corpus keeps both
+// limits visible.
+func init() {
+	adversarialCorpus = append(adversarialCorpus,
+		adversarialCase{"imported-fragment-completes-a-replaced-command", "known-gap", "pose-delegation-parity-gate", func(t *testing.T) (bool, string) {
+			root := t.TempDir()
+			mustWrite(t, filepath.Join(root, "pose-mcp/internal/pose/verb.go"), "package pose\n\nconst Verb = \"dispatch\"\n")
+			mustWrite(t, filepath.Join(root, "pose-mcp/internal/cli/usage.go"), "package cli\n\nimport posemodel \"example/pose\"\n\nconst usage = \"pose review \" + posemodel.Verb + \" spec:x\"\n")
+			problems := sourceStringProblems(t, root, "pose-mcp")
+			return len(problems) == 0, strings.Join(problems, "; ")
+		}},
+		adversarialCase{"cgo-preamble-text-reaches-usage", "known-gap", "pose-delegation-parity-gate", func(t *testing.T) (bool, string) {
+			root := t.TempDir()
+			mustWrite(t, filepath.Join(root, "pose-mcp/internal/cli/c.go"), "package cli\n\n/*\nstatic const char* usage(void) { return \"pose review dispatch spec:x\"; }\n*/\nimport \"C\"\n\nfunc cUsage() string { return C.GoString(C.usage()) }\n")
+			problems := sourceStringProblems(t, root, "pose-mcp")
+			return len(problems) == 0, strings.Join(problems, "; ")
+		}},
+	)
 }
 
 // The parity check proves that each row names a documented command and tests
