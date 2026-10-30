@@ -54,8 +54,11 @@ func adrLauncherCapabilities(adr string) (map[string][]string, []string) {
 		return nil, []string{"the ADR has no \"Retirement by parity\" section"}
 	}
 	section := adr[start+len("### Retirement by parity"):]
-	if end := strings.Index(section, "\n#"); end >= 0 {
-		section = section[:end]
+	// The section ends at the next heading of its level or above; a deeper
+	// heading stays inside it and, not being an inventory paragraph, is read
+	// as unrecognized (review round 3, PG-R3-02).
+	if end := regexp.MustCompile(`\n#{1,3} `).FindStringIndex(section); end != nil {
+		section = section[:end[0]]
 	}
 	opener := regexp.MustCompile("^`([a-z-]+)`: ")
 	out := map[string][]string{}
@@ -332,58 +335,118 @@ func activeDocumentProblems(t *testing.T, root string) []string {
 	return problems
 }
 
-// goStringValues are the values of the string expressions in a Go file:
-// each literal unquoted, and each chain of + over literals folded into one
-// value, a non-literal operand standing as a gap; comments are not strings
-// (review round 2, PG-R2-02, PG-R2-05).
-func goStringValues(t *testing.T, path string, src []byte) []string {
-	t.Helper()
-	file, err := parser.ParseFile(token.NewFileSet(), path, src, 0)
-	if err != nil {
-		t.Fatalf("%s: %v", path, err)
-	}
-	var values []string
-	var fold func(ast.Expr) (string, bool)
-	fold = func(e ast.Expr) (string, bool) {
-		switch e := e.(type) {
-		case *ast.BasicLit:
-			if e.Kind == token.STRING {
-				v, err := strconv.Unquote(e.Value)
-				return v, err == nil
+// goStringFolder folds the string expressions of one Go package: literals
+// unquoted, + chains folded, and the package's string constants resolved by
+// name; an operand it cannot fold stands as a gap (review rounds 2 and 3,
+// PG-R2-02, PG-R3-01, PG-R3-03).
+type goStringFolder struct {
+	consts map[string]string
+	folded map[ast.Node]bool
+}
+
+func (g *goStringFolder) fold(e ast.Expr) (string, bool) {
+	switch e := e.(type) {
+	case *ast.BasicLit:
+		if e.Kind == token.STRING {
+			v, err := strconv.Unquote(e.Value)
+			return v, err == nil
+		}
+	case *ast.Ident:
+		v, ok := g.consts[e.Name]
+		return v, ok
+	case *ast.ParenExpr:
+		return g.fold(e.X)
+	case *ast.BinaryExpr:
+		if e.Op == token.ADD {
+			left, lok := g.fold(e.X)
+			right, rok := g.fold(e.Y)
+			if lok || rok {
+				if !lok {
+					left = "\x00"
+				}
+				if !rok {
+					right = "\x00"
+				}
+				return left + right, true
 			}
-		case *ast.ParenExpr:
-			return fold(e.X)
-		case *ast.BinaryExpr:
-			if e.Op == token.ADD {
-				left, lok := fold(e.X)
-				right, rok := fold(e.Y)
-				if lok || rok {
-					if !lok {
-						left = "\x00"
+		}
+	}
+	return "", false
+}
+
+// mark records the nodes a folded value already accounts for, so a literal
+// is not read twice; an operand that did not fold is left to be visited.
+func (g *goStringFolder) mark(e ast.Expr) {
+	switch e := e.(type) {
+	case *ast.BasicLit:
+		g.folded[e] = true
+	case *ast.ParenExpr:
+		g.folded[e] = true
+		g.mark(e.X)
+	case *ast.BinaryExpr:
+		if e.Op == token.ADD {
+			g.folded[e] = true
+			if _, ok := g.fold(e.X); ok {
+				g.mark(e.X)
+			}
+			if _, ok := g.fold(e.Y); ok {
+				g.mark(e.Y)
+			}
+		}
+	}
+}
+
+// goPackageStringValues are the string values of the Go files of one
+// package: each expression folded once, at its widest, and every literal
+// inside an operand that did not fold — a call's argument, a function's
+// body — read as well; comments are not strings.
+func goPackageStringValues(t *testing.T, files map[string][]byte) map[string][]string {
+	t.Helper()
+	parsed := map[string]*ast.File{}
+	for path, src := range files {
+		f, err := parser.ParseFile(token.NewFileSet(), path, src, 0)
+		if err != nil {
+			t.Fatalf("%s: %v", path, err)
+		}
+		parsed[path] = f
+	}
+	g := &goStringFolder{consts: map[string]string{}, folded: map[ast.Node]bool{}}
+	for pass := 0; pass < 4; pass++ {
+		for _, f := range parsed {
+			for _, decl := range f.Decls {
+				gen, ok := decl.(*ast.GenDecl)
+				if !ok || gen.Tok != token.CONST {
+					continue
+				}
+				for _, spec := range gen.Specs {
+					vs := spec.(*ast.ValueSpec)
+					for i, name := range vs.Names {
+						if i < len(vs.Values) {
+							if v, ok := g.fold(vs.Values[i]); ok && !strings.Contains(v, "\x00") {
+								g.consts[name.Name] = v
+							}
+						}
 					}
-					if !rok {
-						right = "\x00"
-					}
-					return left + right, true
 				}
 			}
 		}
-		return "", false
 	}
-	ast.Inspect(file, func(n ast.Node) bool {
-		switch n := n.(type) {
-		case *ast.BinaryExpr:
-			if v, ok := fold(n); ok && n.Op == token.ADD {
-				values = append(values, v)
-				return false
+	values := map[string][]string{}
+	for path, f := range parsed {
+		ast.Inspect(f, func(n ast.Node) bool {
+			if g.folded[n] {
+				return true
 			}
-		case *ast.BasicLit:
-			if v, ok := fold(n); ok {
-				values = append(values, v)
+			switch n := n.(type) {
+			case *ast.BinaryExpr, *ast.BasicLit:
+				if v, ok := g.fold(n.(ast.Expr)); ok {
+					values[path] = append(values[path], v)
+					g.mark(n.(ast.Expr))
+				}
 			}
-		}
-		return true
-	})
+			return true
+		})
+	}
 	return values
 }
 
@@ -392,6 +455,7 @@ func goStringValues(t *testing.T, path string, src []byte) []string {
 // removal note: usage strings, errors, MCP tool descriptions (PG-R1-04).
 func sourceStringProblems(t *testing.T, root, dir string) []string {
 	t.Helper()
+	packages := map[string]map[string][]byte{}
 	var problems []string
 	err := filepath.WalkDir(filepath.Join(root, dir), func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -404,15 +468,25 @@ func sourceStringProblems(t *testing.T, root, dir string) []string {
 		if err != nil {
 			return err
 		}
-		rel, _ := filepath.Rel(root, path)
-		for _, value := range goStringValues(t, path, raw) {
-			problems = append(problems, replacedNameProblems(filepath.ToSlash(rel), value)...)
+		pkg := filepath.Dir(path)
+		if packages[pkg] == nil {
+			packages[pkg] = map[string][]byte{}
 		}
+		packages[pkg][path] = raw
 		return nil
 	})
 	if err != nil {
 		problems = append(problems, dir+": "+err.Error())
 	}
+	for _, files := range packages {
+		for path, values := range goPackageStringValues(t, files) {
+			rel, _ := filepath.Rel(root, path)
+			for _, value := range values {
+				problems = append(problems, replacedNameProblems(filepath.ToSlash(rel), value)...)
+			}
+		}
+	}
+	sort.Strings(problems)
 	return problems
 }
 
@@ -478,7 +552,8 @@ func TestActiveDocumentCheckFailsOnAReplacedCommand(t *testing.T) {
 	write("locales/pt-BR/POSE.md", "`pose review dispatch`, `resume` e `status`, os aliases que esta superfície depreciou, foram removidos: cada um sai com 2 e nomeia o substituto em `pose delegate`.\n\n`pose review dispatch`, `resume` e `status` ficam como aliases depreciados.\n\n`pose review resume` foi removido, mas continua disponível como alias.\n")
 	write("docs-site/docs/guide.mdx", "Start it with secondary-agent --read-only prompt.md\n")
 	write(".pose/adr/old.md", "The launchers secondary-agent and pose review resume were replaced.\n")
-	write("pose-mcp/internal/cli/x.go", "package cli\n\n// \"secondary-agent\" was an old launcher.\nconst usage = \"Usage: pose review dispatch <scope>\"\nconst escaped = \"Run pose review \\x64ispatch spec:x\"\nconst joined = \"Run pose review \" + \"dispatch spec:x\"\nconst gap = \"pose review \" + verb + \" was removed\"\nconst gone = \"pose review dispatch, resume and status were removed.\"\n\nvar verb = \"x\"\n")
+	write("pose-mcp/internal/cli/x.go", "package cli\n\n// \"secondary-agent\" was an old launcher.\nconst usage = \"Usage: pose review dispatch <scope>\"\nconst escaped = \"Run pose review \\x64ispatch spec:x\"\nconst joined = \"Run pose review \" + \"dispatch spec:x\"\nconst gap = \"pose review \" + verb + \" was removed\"\nconst gone = \"pose review dispatch, resume and status were removed.\"\n\nvar verb = \"x\"\n\nfunc a() string { return \"Usage: \" + fmt.Sprint(\"Run pose review dispatch spec:a\") }\n\nfunc b() string { return \"Usage: \" + func() string { return \"Run pose review dispatch spec:b\" }() }\n\nconst r3Verb = \"dispatch\"\n")
+	write("pose-mcp/internal/cli/y.go", "package cli\n\nconst r3Usage = \"Run pose review \" + r3Verb + \" spec:c\"\n")
 	problems := append(activeDocumentProblems(t, root), sourceStringProblems(t, root, "pose-mcp")...)
 	want := []string{
 		"POSE.md:1: Run `pose review dispatch spec:x --via codex`",
@@ -492,6 +567,9 @@ func TestActiveDocumentCheckFailsOnAReplacedCommand(t *testing.T) {
 		"pose-mcp/internal/cli/x.go:1: Usage: pose review dispatch <scope>",
 		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:x", // the escaped literal
 		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:x", // the folded concatenation
+		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:a", // a call inside a partial fold
+		"pose-mcp/internal/cli/x.go:1: Run pose review dispatch spec:b", // a function inside a partial fold
+		"pose-mcp/internal/cli/y.go:1: Run pose review dispatch spec:c", // a constant of another file
 	}
 	for _, w := range want {
 		if !containsString(problems, w) {
@@ -531,6 +609,15 @@ func TestLauncherParityFollowsTheADRsText(t *testing.T) {
 	}
 	if _, unrecognized := adrLauncherCapabilities(extended); len(unrecognized) != 1 {
 		t.Fatalf("a capability added to the retirement rule was read as nothing: %v", unrecognized)
+	}
+	// A capability under a deeper heading is still inside the section, and
+	// is not read as nothing (PG-R3-02).
+	sub := strings.Replace(adr, "\n## Maintainer's decisions", "\n#### Additional launcher capabilities\n\n`secondary-agent`: automatic credential rotation.\n\n## Maintainer's decisions", 1)
+	if sub == adr {
+		t.Fatal("the fixture did not find the next section")
+	}
+	if inventory, unrecognized := adrLauncherCapabilities(sub); len(unrecognized) != 1 || !containsString(launcherParityProblems(m, inventory, tests), "secondary-agent: the ADR's capability \"automatic credential rotation\" has no row") {
+		t.Fatalf("a capability under a deeper heading: %v %v", unrecognized, launcherParityProblems(m, inventory, tests))
 	}
 	if _, unrecognized := adrLauncherCapabilities(adr); len(unrecognized) != 0 {
 		t.Fatalf("the ADR as written: %v", unrecognized)
