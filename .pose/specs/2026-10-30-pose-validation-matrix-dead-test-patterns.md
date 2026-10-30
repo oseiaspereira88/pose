@@ -36,7 +36,8 @@ Remove the alternatives of `-run` patterns in the validation matrix that match n
 ### Functional
 
 - R1: The five dead alternatives shall be removed from their four checks; each check shall run the same tests as before.
-- R2: A test shall read every Go test check of the matrix with a `-run` pattern that is a plain alternation and fail when an alternative matches no `Test`, `Example`, `Benchmark` or `Fuzz` function declared in that check's packages, naming the check and the alternative.
+- R2: A test shall read every Go test check of the matrix — `-run X` and `-run=X`, packages as relative paths, import paths or the module directory by default, `-tags` honoured — and fail, naming the module, check and alternative, when an alternative of a plain-alternation pattern matches no test Go would run under `-run` in the files `go/build` selects for those packages (tests and fuzz targets by Go's name and signature rule, examples with an output comment; not benchmarks; `./...` stopping at `testdata`, `vendor`, `_`/`.` directories and nested modules).
+- R3: The guard shall also fail on a check it cannot judge: an unmodelled flag, a package outside the module, a stack check that selects tests by name, or a non-plain pattern not listed with its reason.
 
 ### Non-functional
 
@@ -62,6 +63,8 @@ Remove the alternatives of `-run` patterns in the validation matrix that match n
 - created: .pose/starts/pose-validation-matrix-dead-test-patterns.json
 - modified: .pose/indexes/validation-matrix.json
 - created: pose-mcp/internal/cli/validation_matrix_patterns_test.go
+- modified: pose-mcp/internal/cli/testdata/adversarial/README.md
+- created: .pose/specs/2026-10-30-pose-validation-matrix-dead-test-patterns.amendments.jsonl
 - modified: .pose/specs/2026-10-30-pose-validate-shared-go-test-run.md
 
 ### Delivery targets

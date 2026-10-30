@@ -42,7 +42,7 @@ The same change closes a consistency gap: a check whose `-run` pattern matches n
 - R1: For each module, validate shall group `go test` checks by their execution flags, run `go test -json` once per group over the union of their packages, and record the run.
 - R2: Each grouped check's outcome shall be derived from the test events of its packages whose names match its `-run` pattern (Go's matching rules, subtests included), and its result shall name the shared run it was derived from.
 - R3: A check whose pattern matches no test in its packages, or whose pattern is a plain alternation (`A|B|…`) with an alternative that matches no test, shall fail with a message naming the pattern or the alternative.
-- R6: The four checks found with dead alternatives on 2026-10-30 shall be corrected before R3 is enforced — done by spec `pose-validation-matrix-dead-test-patterns`, whose source-level guard also keeps new ones out until R3 judges them at run time.
+- R6: The four checks found with dead alternatives on 2026-10-30 shall be corrected before R3 is enforced — done by spec `pose-validation-matrix-dead-test-patterns`, whose source-level guard keeps new dead alternatives out of plain-alternation patterns; non-plain patterns, subtests, `-skip` and run-time outcomes are left to R3.
 - R4: A check the grouping cannot model (unknown flags, `-c`, `-o`, custom `-exec`) shall run on its own as today.
 - R5: The full-suite check and the derived checks shall report the same per-test outcome for every test they share.
 
