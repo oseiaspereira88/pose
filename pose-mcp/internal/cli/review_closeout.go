@@ -364,12 +364,8 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdReviewConclude(root, args[1:], stdout, stderr)
 	case "request":
 		return cmdReviewRequest(root, args[1:], stdout, stderr)
-	// The aliases pose-delegation-surface deprecated are removed (spec
-	// pose-delegation-parity-gate R6, D2): each names its replacement and runs
-	// nothing.
 	case "resume", "status", "dispatch":
-		replacement := map[string]string{"resume": "pose delegate resume <run>", "status": "pose delegate ls", "dispatch": "pose delegate review|adjudicate|smoke <scope|bundle-id>"}[args[0]]
-		return usageError(stderr, tr("pose review "+args[0]+" was removed; use "+replacement, "pose review "+args[0]+" foi removido; use "+replacement))
+		return cmdReviewRemovedAlias(args[0], stderr)
 	case "attest":
 		return cmdReviewAttest(root, args[1:], stdout, stderr)
 	case "auto-attest":
