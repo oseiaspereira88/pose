@@ -8,7 +8,7 @@ depends_on: pose-delegation-task, pose-delegated-review-capability, pose-delegat
 priority: 3
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: capability:delegation-task
 ---
 
 # Spec: Personal launchers retire only at proven parity
@@ -102,17 +102,21 @@ Parity matrix and its check, documentation check, operating manual section, vali
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
+### Delivery targets
+
+- capability:delegation-task module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/delegate_task.go
+
 ### API/contract changes
 
 Parity matrix schema 1 (`.pose/parity/delegation-launchers.json`); removal of `pose review dispatch|resume|status`, which now exit 2 naming their replacement; `pose delegate review|adjudicate|smoke` discloses the run's containment (`delegate.safety`, `safety` in `--json`); the `launcher-parity` check of the validation matrix.
 
 ## 4. Tasks
 
-- [ ] Matrix seeded from the ADR inventory
-- [ ] Parity check, proven failing first
-- [ ] Documentation check
-- [ ] Operator retirement section
-- [ ] Alias removal in the following release
+- [x] Matrix seeded from the ADR inventory
+- [x] Parity check, proven failing first
+- [x] Documentation check
+- [x] Operator retirement section
+- [x] Alias removal in the following release
 
 ## 5. Decisions
 
@@ -140,14 +144,34 @@ The check fails on a matrix with an empty test, a missing test and a missing ADR
 
 ### Requirement trace
 
+- R1 [satisfied] check:launcher-parity test:TestLauncherParityMatrixCoversEveryLauncherCapability report:.pose/results/delivery-validation.json commit:badde66753299900be9f6d8f56b5ef8e346700a7 — `.pose/parity/delegation-launchers.json` schema 1 has one row per capability of the ADR's "Retirement by parity" section, 21 in all, each with its `pose delegate` command and covering tests.
+- R2 [satisfied] check:launcher-parity test:TestLauncherParityCheckFailsOnEveryUncoveredRow test:TestLauncherParityFollowsTheADRsText report:.pose/results/delivery-validation.json commit:badde66753299900be9f6d8f56b5ef8e346700a7 — The check fails on a row with no command or test, a test or a documented flag that does not exist, an ADR capability with no row, and inventory text it cannot read.
+- R3 [satisfied] check:launcher-parity test:TestLauncherParityCheckFailsOnEveryUncoveredRow report:.pose/reports/2026-10-29-launcher-parity-failing-first.md commit:badde66753299900be9f6d8f56b5ef8e346700a7 — Its first run failed on five real gaps, kept verbatim, before they were closed.
+- R4 [satisfied] check:launcher-parity test:TestActiveDocumentsNameOnlyPoseDelegate test:TestActiveDocumentCheckFailsOnAReplacedCommand report:.pose/results/delivery-validation.json commit:badde66753299900be9f6d8f56b5ef8e346700a7 — Manuals, docs-site, skills, workflows, rules, scaffold, help and the Go strings of every release configuration name a replaced command only in a listed removal note.
+- R5 [satisfied] check:test test:TestManualLocaleParity test:TestActiveDocumentsNameOnlyPoseDelegate report:.pose/results/delivery-validation.json commit:badde66753299900be9f6d8f56b5ef8e346700a7 — "Retiring a personal launcher" in both manuals and their scaffold copies: what to declare, replace, remove and keep, raw sessions included, historical records as written.
+- R6 [satisfied] check:delegation-surface-integration test:TestTheRemovedReviewAliasesNameTheirReplacement test:TestAdapterContainmentCLIDisclosesItBeforeTheRun test:TestRunContinuityDoctorStatusAndPending report:.pose/results/delivery-validation.json commit:badde66753299900be9f6d8f56b5ef8e346700a7 — `pose review dispatch|resume|status` are removed in this spec, ahead of the release that carries it (D2); `pose delegate` keeps what they gave: the brief without an agent, containment before the run, a pending continuation answered with exit 0.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started: milestone `retirement` of roadmap `delegation`, after `pose-delegation-task-detach-and-state`.
+Milestone `retirement` of roadmap `delegation`, on implementation head `badde66753299900be9f6d8f56b5ef8e346700a7`: the versioned parity matrix and its check (R1–R3), the active-document check (R4), the operator's retirement section (R5) and the removal of `pose review dispatch`, `resume` and `status` (R6, D2, the maintainer's decision of 2026-10-29: removed in this spec although no release printed their deprecation; the changelog marks it breaking). Closing the matrix took capabilities the launchers had and POSE lacked: `pose delegate task --session <id> --agent <name>` continues a session POSE never recorded, and the alias removal kept three guarantees of `dispatch` and `review resume` in `pose delegate` — the brief when no agent can run, the containment disclosed before a run starts, a reserved continuation answered as pending with exit 0. `.pose/parity/` is classified as review governance. The personal launchers outside the repository are not touched: retiring them is the operator's step the manual describes.
+
+Independent review: eight rounds by Codex `gpt-6.1-sol` (OpenAI, reasoning medium), a different vendor than the implementer Claude Opus 5.5 (Anthropic). Rounds 1–7 requested changes (PG-R1-01..10, R2-01..07, R3-01..03, R4-01..02, R5-01..03, R6-01..03, R7-01..03), each fixed in its own commit; most hardened the active-document reader, which ended reading Go strings through the type checker, under each release configuration's files as `go list` selects them. Round 8 approved. Reports are local review evidence under `/tmp/pose-roadmaps-evidence/parity/` (untracked); the native bundle and attestation are the sealed record.
+
+### Validation executed
+
+- `go test ./...` in pose-mcp without agent session markers (`GOMAXPROCS=2 GOFLAGS=-p=1`) passed on the implementation head; the `launcher-parity` lane passes in about 6 s.
+- Mutations: 30 production and check mutants, each failing an assertion after a passing baseline (`mutate.py`); two were dropped as equivalent when the code they targeted was replaced.
+- The native strict validation, index, seal, attestation and verify of the closeout are recorded by the bundle and attestation of the closeout commit.
 
 ### Residual risks
 
-None yet.
+The check proves that a row's command and tests exist, not that they exercise the capability; review of the cited tests is the defence (corpus known-gap `parity-row-cites-an-unrelated-test`). The Go reader resolves constants within a package: a fragment imported from another package, text in a cgo preamble, and configurations the release does not build are not read (known gaps `imported-fragment-completes-a-replaced-command`, `cgo-preamble-text-reaches-usage`). Exact removal notes are an allowlist kept by hand.
 
 ### Follow-ups
+
+- [open] F1: harden the release-definition reader before the release adopts another representation or a source-selecting setting: reject every unmodelled line, multiline lists and empty dimensions, and model or refuse source-selecting environment variables and build directories (PG-R8-01, consolidating PG-R7-03). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [open] F2: detect incomplete package enumeration beyond what the gate refuses today, document vendor, nested-module and generated-source boundaries, and pin or validate the toolchain whose version tags select files (PG-R8-02). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [open] F3: read configurations the release does not build (other GOOS/GOARCH, custom tags) before shipping one, and check generated operator output (PG-R6-02). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [open] F4: resolve string fragments imported from other packages of the module and add a reader or runtime check before a cgo preamble supplies operator text (PG-R5-02, PG-R5-03; corpus known gaps). (owner:@oseiaspereira88 crit:low review:2026-11-27)
