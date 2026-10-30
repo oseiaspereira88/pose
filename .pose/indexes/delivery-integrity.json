@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:6efc56f6116e2ff45ab205e11ca3b677d26e941ccd17c6943a1dbe320becf004",
-  "provenance_digest": "sha256:044ce7d631cc103c800ca8e6f0e4de354cc1c681652bb827145c6c524e5816d2",
+  "input_digest": "sha256:aa9c7018958b419efd87cd6eac2e88e0c300d96d83d5ed2add8061f510817b5a",
+  "provenance_digest": "sha256:404844e34de4687e66738aebcf2dc3edacf539550258b44ac762b40a58b2baed",
   "implied_edges": [
     "changes"
   ],
@@ -21413,6 +21413,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/2026-10-30-pose-cli-test-wall-time.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-10-30-pose-cli-test-wall-time.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/2026-10-30-pose-delivery-later-removal.amendments.jsonl",
       "type": "artifact",
       "attributes": {
@@ -21438,6 +21445,27 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/2026-10-30-pose-review-subject-later-removal.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/2026-10-30-pose-validate-concurrent-steps.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-10-30-pose-validate-concurrent-steps.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/2026-10-30-pose-validate-shared-go-test-run.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-10-30-pose-validate-shared-go-test-run.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/2026-10-30-pose-validation-matrix-dead-test-patterns.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-10-30-pose-validation-matrix-dead-test-patterns.md"
       }
     },
     {
@@ -22992,6 +23020,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/starts/pose-validation-check-additions-are-not-material.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/starts/pose-validation-matrix-dead-test-patterns.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/starts/pose-validation-matrix-dead-test-patterns.json"
       }
     },
     {
@@ -26086,6 +26121,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/cli/validate_root_and_nodemodules_test.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/cli/validation_matrix_patterns_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/cli/validation_matrix_patterns_test.go"
       }
     },
     {
@@ -33672,6 +33714,14 @@
       }
     },
     {
+      "id": "change-set:cs-2460cd87a3d2",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:50dea3b6b53362c6394c6acb36aef5e38ad0a943a2767e9abe1931e17e78aa45",
+        "selector": "trailers:pose-validate-concurrent-steps"
+      }
+    },
+    {
       "id": "change-set:cs-248eb05a21a8",
       "type": "change-set",
       "attributes": {
@@ -33709,6 +33759,14 @@
       "attributes": {
         "diff_digest": "sha256:bb7510e87c4a95543d4a3e6c0bcab1986b2e076eba5f80c9bd33242ba35368ba",
         "selector": "trailers:pose-contributor-mode-protocol"
+      }
+    },
+    {
+      "id": "change-set:cs-287425628e29",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:2644d922b901bd74e163340d25e595e1bef44741ef08f0dcebee470335f7b7fa",
+        "selector": "trailers:pose-cli-test-wall-time"
       }
     },
     {
@@ -34397,6 +34455,14 @@
       "attributes": {
         "diff_digest": "sha256:1cc3302aab1a98c56a667b284b7dc1fa7fe04cd7f09d2f6db2a4cf813389a50b",
         "selector": "range:d9256bd..04bf682"
+      }
+    },
+    {
+      "id": "change-set:cs-50d7fe1b2a14",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:ae073fe9e748c30694b0b9ca9b8ec721fad0d9906ecb14ad514e3e086c8755a9",
+        "selector": "trailers:pose-validate-shared-go-test-run"
       }
     },
     {
@@ -44285,6 +44351,13 @@
       "type": "spec",
       "attributes": {
         "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-validation-matrix-dead-test-patterns",
+      "type": "spec",
+      "attributes": {
+        "status": "draft"
       }
     },
     {
@@ -88791,6 +88864,11 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-cli-test-wall-time",
+      "to": "change-set:cs-287425628e29",
+      "type": "observed-by"
+    },
+    {
       "from": "spec:pose-cli-universal-help-and-subcommand-introspection",
       "to": "artifact:pose-mcp/internal/cli/cli.go",
       "type": "declares"
@@ -114081,6 +114159,11 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-validate-concurrent-steps",
+      "to": "change-set:cs-2460cd87a3d2",
+      "type": "observed-by"
+    },
+    {
       "from": "spec:pose-validate-report-carries-its-run",
       "to": "artifact:.agents/skills/pose-spec-closeout/SKILL.md",
       "type": "declares"
@@ -114156,6 +114239,11 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-validate-shared-go-test-run",
+      "to": "change-set:cs-50d7fe1b2a14",
+      "type": "observed-by"
+    },
+    {
       "from": "spec:pose-validation-check-additions-are-not-material",
       "to": "artifact:.pose/changelogs/unreleased/pose-validation-check-additions-are-not-material.md",
       "type": "declares"
@@ -114219,6 +114307,31 @@
       "from": "spec:pose-validation-check-additions-are-not-material",
       "to": "change-set:cs-262180ce23d8",
       "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-validation-matrix-dead-test-patterns",
+      "to": "artifact:.pose/indexes/validation-matrix.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-matrix-dead-test-patterns",
+      "to": "artifact:.pose/specs/2026-10-30-pose-validate-shared-go-test-run.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-matrix-dead-test-patterns",
+      "to": "artifact:.pose/specs/2026-10-30-pose-validation-matrix-dead-test-patterns.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-matrix-dead-test-patterns",
+      "to": "artifact:.pose/starts/pose-validation-matrix-dead-test-patterns.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-matrix-dead-test-patterns",
+      "to": "artifact:pose-mcp/internal/cli/validation_matrix_patterns_test.go",
+      "type": "declares"
     },
     {
       "from": "spec:pose-validation-scanner-consolidation",
@@ -144024,6 +144137,31 @@
       "new_path": ".pose/changelogs/v7.0.0/pose-validation-check-additions-are-not-material.md"
     },
     {
+      "spec": "pose-validation-matrix-dead-test-patterns",
+      "action": "created",
+      "path": ".pose/specs/2026-10-30-pose-validation-matrix-dead-test-patterns.md"
+    },
+    {
+      "spec": "pose-validation-matrix-dead-test-patterns",
+      "action": "created",
+      "path": ".pose/starts/pose-validation-matrix-dead-test-patterns.json"
+    },
+    {
+      "spec": "pose-validation-matrix-dead-test-patterns",
+      "action": "created",
+      "path": "pose-mcp/internal/cli/validation_matrix_patterns_test.go"
+    },
+    {
+      "spec": "pose-validation-matrix-dead-test-patterns",
+      "action": "modified",
+      "path": ".pose/indexes/validation-matrix.json"
+    },
+    {
+      "spec": "pose-validation-matrix-dead-test-patterns",
+      "action": "modified",
+      "path": ".pose/specs/2026-10-30-pose-validate-shared-go-test-run.md"
+    },
+    {
       "spec": "pose-validation-scanner-consolidation",
       "action": "created",
       "path": "pose-mcp/internal/cli/stack_manifest.go"
@@ -157977,6 +158115,25 @@
       "diff_digest": "sha256:e6a2dff7cc649b6fc62af1d0db11d23692f796dcbf13b3073f8deaf3d2706df1"
     },
     {
+      "id": "cs-2460cd87a3d2",
+      "spec": "pose-validate-concurrent-steps",
+      "selector": "trailers:pose-validate-concurrent-steps",
+      "base": "9329a36037817c2dbebf6201c84e8f0b204052dd^",
+      "head": "9329a36037817c2dbebf6201c84e8f0b204052dd",
+      "resolved_base": "e14a5e4440794f99cafaf751088df58338c6dc3a",
+      "resolved_head": "9329a36037817c2dbebf6201c84e8f0b204052dd",
+      "commits": [
+        "9329a36037817c2dbebf6201c84e8f0b204052dd"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-10-30-pose-validate-concurrent-steps.md"
+        }
+      ],
+      "diff_digest": "sha256:50dea3b6b53362c6394c6acb36aef5e38ad0a943a2767e9abe1931e17e78aa45"
+    },
+    {
       "id": "cs-248eb05a21a8",
       "spec": "pose-release-prepare-guards-claimed-fragments",
       "selector": "trailers:pose-release-prepare-guards-claimed-fragments",
@@ -159145,6 +159302,37 @@
         }
       ],
       "diff_digest": "sha256:bb7510e87c4a95543d4a3e6c0bcab1986b2e076eba5f80c9bd33242ba35368ba"
+    },
+    {
+      "id": "cs-287425628e29",
+      "spec": "pose-cli-test-wall-time",
+      "selector": "trailers:pose-cli-test-wall-time",
+      "base": "6262c462f14ddecb56c3dc6fc5914dfe38831d2c^",
+      "head": "6262c462f14ddecb56c3dc6fc5914dfe38831d2c",
+      "resolved_base": "cfb7b28f62a51d8b6e1738b25bbe4e6aa098f87b",
+      "resolved_head": "6262c462f14ddecb56c3dc6fc5914dfe38831d2c",
+      "commits": [
+        "6262c462f14ddecb56c3dc6fc5914dfe38831d2c"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-10-30-pose-cli-test-wall-time.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        }
+      ],
+      "diff_digest": "sha256:2644d922b901bd74e163340d25e595e1bef44741ef08f0dcebee470335f7b7fa"
     },
     {
       "id": "cs-28840e216f54",
@@ -173719,6 +173907,25 @@
         }
       ],
       "diff_digest": "sha256:1cc3302aab1a98c56a667b284b7dc1fa7fe04cd7f09d2f6db2a4cf813389a50b"
+    },
+    {
+      "id": "cs-50d7fe1b2a14",
+      "spec": "pose-validate-shared-go-test-run",
+      "selector": "trailers:pose-validate-shared-go-test-run",
+      "base": "cfb7b28f62a51d8b6e1738b25bbe4e6aa098f87b^",
+      "head": "cfb7b28f62a51d8b6e1738b25bbe4e6aa098f87b",
+      "resolved_base": "9329a36037817c2dbebf6201c84e8f0b204052dd",
+      "resolved_head": "cfb7b28f62a51d8b6e1738b25bbe4e6aa098f87b",
+      "commits": [
+        "cfb7b28f62a51d8b6e1738b25bbe4e6aa098f87b"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-10-30-pose-validate-shared-go-test-run.md"
+        }
+      ],
+      "diff_digest": "sha256:ae073fe9e748c30694b0b9ca9b8ec721fad0d9906ecb14ad514e3e086c8755a9"
     },
     {
       "id": "cs-51090c3b3255",
@@ -225062,6 +225269,7 @@
       "pose-v6-release-readiness",
       "pose-v7-legacy-cleanup-plan",
       "pose-validation-check-additions-are-not-material",
+      "pose-validation-matrix-dead-test-patterns",
       "pose-validation-scanner-consolidation",
       "pose-writer-coordination-and-atomic-publication",
       "project-id-from-any-directory-name",
@@ -227074,6 +227282,12 @@
     ".pose/specs/2026-10-30-pose-review-subject-later-removal.md": [
       "pose-review-subject-later-removal"
     ],
+    ".pose/specs/2026-10-30-pose-validate-shared-go-test-run.md": [
+      "pose-validation-matrix-dead-test-patterns"
+    ],
+    ".pose/specs/2026-10-30-pose-validation-matrix-dead-test-patterns.md": [
+      "pose-validation-matrix-dead-test-patterns"
+    ],
     ".pose/specs/pose-action-runtime-currency-gate/spec.md": [
       "pose-action-runtime-currency-gate"
     ],
@@ -227570,6 +227784,9 @@
     ],
     ".pose/starts/pose-validation-check-additions-are-not-material.json": [
       "pose-validation-check-additions-are-not-material"
+    ],
+    ".pose/starts/pose-validation-matrix-dead-test-patterns.json": [
+      "pose-validation-matrix-dead-test-patterns"
     ],
     ".pose/starts/pose-writer-coordination-and-atomic-publication.json": [
       "pose-writer-coordination-and-atomic-publication"
@@ -230344,6 +230561,9 @@
       "pose-update-reports-what-it-delivered",
       "pose-upgrade-path-audit-fixes",
       "pose-usage-findings-adjudication"
+    ],
+    "pose-mcp/internal/cli/validation_matrix_patterns_test.go": [
+      "pose-validation-matrix-dead-test-patterns"
     ],
     "pose-mcp/internal/cli/workspace_alias.go": [
       "pose-monorepo-validation-advisory"
@@ -234021,6 +234241,15 @@
       "remediation": "no Git change sets are attributed to spec pose-integrated-agency-and-runtime-pilot (ensure commits carry 'POSE-Spec: pose-integrated-agency-and-runtime-pilot' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-282cb9156f65",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-validation-matrix-dead-test-patterns",
+      "path": ".pose/specs/2026-10-30-pose-validation-matrix-dead-test-patterns.md",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-28dd01928067",
       "code": "action-mismatch",
       "severity": "error",
@@ -234147,6 +234376,15 @@
       "remediation": "no Git change sets are attributed to spec pose-residual-nature-commitment-and-effect (ensure commits carry 'POSE-Spec: pose-residual-nature-commitment-and-effect' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-2fba1d6c5bbb",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-matrix-dead-test-patterns",
+      "path": ".pose/indexes/validation-matrix.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-validation-matrix-dead-test-patterns (ensure commits carry 'POSE-Spec: pose-validation-matrix-dead-test-patterns' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-2fd39cf54f18",
       "code": "legacy-narrative",
       "severity": "info",
@@ -234207,6 +234445,15 @@
       "path": ".pose/roadmaps/agency-readiness.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-planning-and-release-narrative-reconciliation (ensure commits carry 'POSE-Spec: pose-planning-and-release-narrative-reconciliation' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-37048046c650",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-matrix-dead-test-patterns",
+      "path": "pose-mcp/internal/cli/validation_matrix_patterns_test.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-validation-matrix-dead-test-patterns (ensure commits carry 'POSE-Spec: pose-validation-matrix-dead-test-patterns' trailer or generate report with pose report)"
     },
     {
       "id": "dif-3805e9b13c9e",
@@ -234698,6 +234945,15 @@
       "remediation": "no Git change sets are attributed to spec pose-governance-operation-performance (ensure commits carry 'POSE-Spec: pose-governance-operation-performance' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-4fa62d001258",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-validation-matrix-dead-test-patterns",
+      "path": "pose-mcp/internal/cli/validation_matrix_patterns_test.go",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-4fba19bc752c",
       "code": "stale-evidence",
       "severity": "error",
@@ -234802,6 +235058,15 @@
       "path": ".pose/specs/2026-10-14-pose-release-prepare-record-recovery.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-prepare-record-recovery (ensure commits carry 'POSE-Spec: pose-release-prepare-record-recovery' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-5584567e8718",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-matrix-dead-test-patterns",
+      "path": ".pose/starts/pose-validation-matrix-dead-test-patterns.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-validation-matrix-dead-test-patterns (ensure commits carry 'POSE-Spec: pose-validation-matrix-dead-test-patterns' trailer or generate report with pose report)"
     },
     {
       "id": "dif-559fa35af770",
@@ -235186,6 +235451,15 @@
       "path": "capability:release-publication-evidence-replay",
       "message": "delivery target has no structured artifact provenance",
       "remediation": "declare and reconcile exact artifacts before asserting delivery"
+    },
+    {
+      "id": "dif-678abeca97f3",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-validation-matrix-dead-test-patterns",
+      "path": ".pose/starts/pose-validation-matrix-dead-test-patterns.json",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-67e61b8d2ffa",
@@ -237911,6 +238185,15 @@
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-e944398d5b0f",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-matrix-dead-test-patterns",
+      "path": ".pose/specs/2026-10-30-pose-validation-matrix-dead-test-patterns.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-validation-matrix-dead-test-patterns (ensure commits carry 'POSE-Spec: pose-validation-matrix-dead-test-patterns' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-e9c841279fc1",
       "code": "action-mismatch",
       "severity": "error",
@@ -237918,6 +238201,15 @@
       "path": "pose-mcp/internal/pose/techdebt.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-ea281a1baee6",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-matrix-dead-test-patterns",
+      "path": ".pose/specs/2026-10-30-pose-validate-shared-go-test-run.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-validation-matrix-dead-test-patterns (ensure commits carry 'POSE-Spec: pose-validation-matrix-dead-test-patterns' trailer or generate report with pose report)"
     },
     {
       "id": "dif-ea6728f4c0ef",
