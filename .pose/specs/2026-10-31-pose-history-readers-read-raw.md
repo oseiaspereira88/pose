@@ -99,8 +99,21 @@ The delivery graph ignores replace refs and grafts, while structural review hono
 
 ## 5. Decisions
 
-- D1: `gitCommand` carries the raw rule through its environment, so every caller gets it, and `RawHistoryGit` becomes a call of it.
-- D2: The empty tree is the base of a root change set: it is what Git itself diffs a root commit against, and it keeps `resolved_base` filled, which readers already require.
+### Decision D1
+- Basis: R1
+- Minimal option: pass `--no-replace-objects` and a graft setting at each reader
+- Selected option: `gitCommand` carries the raw rule through its environment, and `RawHistoryGit` becomes a call of it
+- Rationale: every caller gets the rule; the five readers that missed it show how a per-call flag ends
+- Consequences: a repository with replace refs or grafts gets other review inputs, settled by `pose index` and a reseal
+- Falsifier: a reader of structural review that sees a replaced commit
+
+### Decision D2
+- Basis: R2, R3
+- Minimal option: leave `resolved_base` empty for a root change set
+- Selected option: the empty tree of the object format, with rootness read from the commit object after `<first>^` fails
+- Rationale: it is what Git diffs a root against and keeps `resolved_base` filled, which readers require; only the object tells a shallow boundary from a root
+- Consequences: a reader of `resolved_base` that needs a commit asks `IsGitEmptyTree` first
+- Falsifier: a shallow boundary that resolves, or a commit with a parent whose identity changes
 
 ## 6. Validation
 
