@@ -39,7 +39,7 @@ Independent review of `pose-review-subject-later-removal` found two faults in wh
 ### Functional
 
 - R1: Preparing a milestone or roadmap shall report a blocker for each child whose review does not stand: not approved, not fresh, with lost attestation history, or, when the parent's lifecycle is done, not closed.
-- R2: Verification of a parent, current or retained, shall not report it approved while a child of its bundle does not stand, and shall name the child. Closeout and `pose review-check` shall agree.
+- R2: Verification of a parent, current or retained, shall not report it approved while a child of its bundle does not stand, and shall name the child. Closeout and `pose review-check` shall agree. A store without a federated resolver cannot judge a federated manifest and retains as closeout does; with a resolver a changed manifest still stales the scope.
 - R3: The rule shall be transitive: a roadmap does not stand over a milestone whose spec does not.
 - R4: Bundle selection shall honour replacement lineage everywhere a governing bundle is chosen — current and legacy coordinated matching, retention, the latest negative review, effective governance, the supersession delta and the governance replay: every replacement comes before what it replaces and takes the newest place of its chain, whatever the seal times, equal ones included. A `replaces` counts only between bundles of the same content.
 - R5: A replaced bundle's approval shall not be retained nor stop the search for a negative review; its negative review still counts.
@@ -115,7 +115,7 @@ Real sealed fixtures for each way a child stops standing, at spec, milestone and
 ### Requirement trace
 
 - R1 [satisfied] capability:review-approval-follows-children evidence:integration check:review-approval-follows-children-integration test:TestParentApprovalFollowsAChildsRejection test:TestChildMustBeClosedUnderADoneParent report:.pose/results/delivery-validation.json commit:5894a604f0700f63fda71578de62eb000035a6f9 — Preparation blocks on a child that does not stand.
-- R2 [satisfied] check:review-approval-follows-children-integration test:TestParentApprovalFollowsAChildsRejection test:TestParentApprovalRecoversWithItsChild test:TestParentApprovalFollowsLostChildHistory report:.pose/results/delivery-validation.json commit:5894a604f0700f63fda71578de62eb000035a6f9 — Verification, review-check and closeout refuse a parent over such a child and name it; it recovers with the child.
+- R2 [satisfied] check:review-approval-follows-children-integration test:TestParentApprovalFollowsAChildsRejection test:TestParentApprovalRecoversWithItsChild test:TestParentApprovalFollowsLostChildHistory test:TestParentStandsWithoutAResolverOverAFederatedChild report:.pose/results/delivery-validation.json commit:5894a604f0700f63fda71578de62eb000035a6f9 — Verification, review-check and closeout refuse a parent over such a child and name it; it recovers with the child.
 - R3 [satisfied] check:review-approval-follows-children-integration test:TestRoadmapApprovalFollowsItsDescendants report:.pose/results/delivery-validation.json commit:5894a604f0700f63fda71578de62eb000035a6f9 — A roadmap does not stand over a milestone whose spec does not.
 - R4 [satisfied] check:review-approval-follows-children-integration test:TestReviewBundleLineage test:TestRetentionHonoursReplacementLineage test:TestLegacyCoordinatedMatchingFollowsLineage test:TestSealedBranchLineage test:TestForgedReplacementRetiresNothing test:TestEffectiveGovernanceFollowsLineage test:TestGovernanceReplaySelectsAsVerificationDoes report:.pose/results/delivery-validation.json commit:5894a604f0700f63fda71578de62eb000035a6f9 — One lineage order serves every reader of a governing bundle.
 - R5 [satisfied] check:review-approval-follows-children-integration test:TestReplacedApprovalIsNotRetained test:TestReplacementsRejectionIsNotOverriddenByWhatItReplaced test:TestReplacedRejectionStillCounts test:TestLatestNegativeSkipsAReplacedApproval report:.pose/results/delivery-validation.json commit:5894a604f0700f63fda71578de62eb000035a6f9 — A replaced approval is not retained and stops no search; its negative review counts.
@@ -125,11 +125,11 @@ Real sealed fixtures for each way a child stops standing, at spec, milestone and
 
 ### Delivered scope
 
-A milestone's or roadmap's approval now stands only while each child's review does, in preparation, verification, `review-check` and closeout, transitively, and recovers with the child with no reseal. One lineage order serves every reader of a governing bundle, an edge counts only between bundles of the same content, and a sealed cycle ends in a refusal. Old and new verification agree on all 22 real milestone and roadmap scopes, and the 18 milestones about to be sealed prepare with no blocker. Independently reviewed by Codex over three rounds.
+A milestone's or roadmap's approval now stands only while each child's review does, in preparation, verification, `review-check` and closeout, transitively, and recovers with the child with no reseal. One lineage order serves every reader of a governing bundle, an edge counts only between bundles of the same content, and a sealed cycle ends in a refusal. Old and new verification agree on all 22 real milestone and roadmap scopes, `check --strict` passes, and the 18 milestones about to be sealed prepare with no blocker. Independently reviewed by Codex over four rounds.
 
 ### Residual risks
 
-The six Harne8 scopes compared were already superseded, so they say little about a closed parent there. External milestone members stay with federated acceptance, as declared.
+The six Harne8 scopes compared were already superseded, so they say little about a closed parent there. `pose check` reads closeout without a resolver, so a changed federated manifest is judged by closeout-check and verify, not by it. External milestone members stay with federated acceptance, as declared.
 
 ### Follow-ups
 

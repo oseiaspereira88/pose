@@ -3303,7 +3303,8 @@ func (s Store) computeReviewVerification(scope string) (ReviewBundleVerification
 					verification.NextAction = "restore the review of the children of " + scope
 					return verification, nil
 				}
-				if bundle != nil && sameFederatedManifest(bundle.Payload.FederatedManifest, prepared.Payload.FederatedManifest) {
+				// Without a resolver no manifest can be judged, here as in closeout.
+				if bundle != nil && (s.FederatedResolver == nil || sameFederatedManifest(bundle.Payload.FederatedManifest, prepared.Payload.FederatedManifest)) {
 					verification.Bundle, verification.Attestation = bundle, att
 					verification.Warnings = append(verification.Warnings, staleEvidenceWarnings(bundle.Payload.Subject, bundle.Payload.Evidence)...)
 					verification.Fresh, verification.Approved = true, true

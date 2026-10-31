@@ -619,6 +619,43 @@ func TestGovernanceReplaySelectsAsVerificationDoes(t *testing.T) {
 	}
 }
 
+// pose check reads closeout without a resolver: a roadmap over a milestone
+// sealed with its federated manifest stays terminal there.
+func TestParentStandsWithoutAResolverOverAFederatedChild(t *testing.T) {
+	root, s, _, _ := federatedTestMilestoneConsumer(t)
+	writeReviewFixture(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: done\n---\n\n## Milestone: core\n- specs: backend\n")
+	federatedTestGit(t, root, "add", "--all")
+	federatedTestGit(t, root, "commit", "-qm", "one done roadmap")
+	now := time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)
+	child, err := s.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err, child.Blockers)
+	}
+	attestChildReview(t, s, child, now.Add(time.Minute), "approved")
+	milestone, err := s.SealReviewBundle("milestone:program/core", now.Add(2*time.Minute))
+	if err != nil {
+		t.Fatal(err, milestone.Blockers)
+	}
+	if milestone.Payload.FederatedManifest == nil {
+		t.Fatal("the fixture has no federated manifest")
+	}
+	attestChildReview(t, s, milestone, now.Add(3*time.Minute), "approved")
+	roadmap, err := s.SealReviewBundle("roadmap:program", now.Add(4*time.Minute))
+	if err != nil {
+		t.Fatal(err, roadmap.Blockers)
+	}
+	attestChildReview(t, s, roadmap, now.Add(5*time.Minute), "approved")
+	s.FederatedResolver = nil
+	state, err := s.GetCloseoutState("roadmap:program")
+	if err != nil || !state.Terminal {
+		t.Fatalf("%+v %v", state, err)
+	}
+	attestChildReview(t, s, child, now.Add(6*time.Minute), "rejected")
+	if state, err := s.GetCloseoutState("roadmap:program"); err != nil || state.Terminal {
+		t.Fatalf("a rejection does not reach it: %+v %v", state, err)
+	}
+}
+
 // One public call verifies a scope once (AC-R1-08).
 func TestChildVerificationIsOncePerOperation(t *testing.T) {
 	root, s, child, _, now := approvedParentFixture(t, false)
