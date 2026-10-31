@@ -160,50 +160,58 @@ func (e *validationEntry) execute(parent context.Context, matrix validationMatri
 	}
 }
 
-// goFlagsTakingValues are the go test flags that take a value, build and test
-// alike, so the next argument is that value and not a flag.
-var goFlagsTakingValues = map[string]bool{
-	"C": true, "asmflags": true, "benchtime": true, "blockprofile": true, "blockprofilerate": true, "buildmode": true, "buildvcs": true,
-	"compiler": true, "count": true, "coverpkg": true, "covermode": true, "coverprofile": true, "cpu": true, "cpuprofile": true,
-	"fuzz": true, "fuzzcachedir": true, "fuzzminimizetime": true, "fuzztime": true, "gccgoflags": true, "gcflags": true,
-	"installsuffix": true, "ldflags": true, "memprofile": true, "memprofilerate": true, "mod": true, "modfile": true,
-	"mutexprofile": true, "mutexprofilefraction": true, "outputdir": true, "overlay": true, "p": true, "parallel": true, "pgo": true,
-	"pkgdir": true, "shuffle": true, "tags": true, "timeout": true, "toolexec": true, "trace": true, "vet": true,
-}
+// The flags of the plain go test grammar, by what they take and whether they
+// have a test. spelling: a short list of what checks use, each exactly as Go
+// registers it. Any other flag leaves a check unjudged.
+var (
+	goTestFlagsWithValue    = map[string]bool{"count": true, "timeout": true, "parallel": true, "cpu": true, "outputdir": true}
+	goTestFlagsWithoutValue = map[string]bool{"v": true, "short": true, "failfast": true}
+	goBuildFlagsWithValue   = map[string]bool{"tags": true, "p": true, "covermode": true, "coverpkg": true}
+	goBuildFlagsWithout     = map[string]bool{"race": true, "cover": true}
+)
 
-// goFlagsWithoutValues are the go test flags that take no separate value.
-var goFlagsWithoutValues = map[string]bool{
-	"a": true, "artifacts": true, "asan": true, "benchmem": true, "cover": true, "failfast": true, "fullpath": true, "linkshared": true, "modcacherw": true,
-	"msan": true, "n": true, "race": true, "short": true, "trimpath": true, "v": true, "work": true, "x": true,
+// goFlagName splits a flag into its name and inline value: one or two dashes,
+// nothing else.
+func goFlagName(arg string) (name, value string, inline, ok bool) {
+	rest := strings.TrimPrefix(strings.TrimPrefix(arg, "-"), "-")
+	if rest == "" || strings.HasPrefix(rest, "-") {
+		return "", "", false, false
+	}
+	name, value, inline = strings.Cut(rest, "=")
+	return name, value, inline, true
 }
 
 // goTestSelection says which flag and pattern select a go test check's tests
-// by name, reading the arguments as go test does within a plain grammar: -run
-// and -skip in one- and two-dash and test. spellings, with or without =, the
-// last value counting, the flags of goFlagsTakingValues taking theirs, and
-// GOFLAGS, the check's own over the inherited. Anything else — an unknown
-// flag, -args, --, quoted GOFLAGS, or a mode whose success says nothing about
-// tests (-bench, -list, -c, -o, -exec, -json) — leaves the check unjudged:
-// reading it wrong would fail a good check (spec
-// pose-validate-refuses-empty-go-checks R1-R2).
+// by name, within a plain grammar: packages, then the flags listed above and
+// -run and -skip, in GOFLAGS or the arguments, the last value counting. Any
+// other form — another flag, a missing value, -args, --, a positional argument
+// after the packages, quoted GOFLAGS — leaves the check unjudged: reading it
+// wrong would fail a good check (spec pose-validate-refuses-empty-go-checks
+// R1-R2).
 func goTestSelection(check validationCheck) (flag, pattern string, judged bool) {
 	if check.Program != "go" || len(check.Args) == 0 || check.Args[0] != "test" {
 		return "", "", false
 	}
 	selected := false
-	scan := func(args []string) bool {
+	scan := func(args []string, packagesAllowed bool) bool {
+		packages, afterPackages := false, false
 		for i := 0; i < len(args); i++ {
 			arg := args[i]
-			if arg == "--" {
-				return false
-			}
 			if !strings.HasPrefix(arg, "-") {
+				if !packagesAllowed || afterPackages {
+					return false
+				}
+				packages = true
 				continue
 			}
-			name, value, inline := strings.Cut(strings.TrimLeft(arg, "-"), "=")
-			name = strings.TrimPrefix(name, "test.")
+			afterPackages = packages
+			name, value, inline, ok := goFlagName(arg)
+			if !ok {
+				return false
+			}
+			testName, testSpelling := strings.CutPrefix(name, "test.")
 			switch {
-			case name == "run", name == "skip":
+			case testName == "run", testName == "skip":
 				if !inline {
 					if i+1 >= len(args) {
 						return false
@@ -211,12 +219,18 @@ func goTestSelection(check validationCheck) (flag, pattern string, judged bool) 
 					i++
 					value = args[i]
 				}
-				flag, pattern, selected = "-"+name, value, true
-			case goFlagsTakingValues[name]:
+				flag, pattern, selected = "-"+testName, value, true
+			case goTestFlagsWithValue[testName], !testSpelling && goBuildFlagsWithValue[name]:
 				if !inline {
+					if i+1 >= len(args) {
+						return false
+					}
 					i++
 				}
-			case goFlagsWithoutValues[name]:
+			case goTestFlagsWithoutValue[testName], !testSpelling && goBuildFlagsWithout[name]:
+				if inline && value != "true" && value != "false" {
+					return false
+				}
 			default:
 				return false
 			}
@@ -227,7 +241,7 @@ func goTestSelection(check validationCheck) (flag, pattern string, judged bool) 
 	if !set {
 		goflags = os.Getenv("GOFLAGS")
 	}
-	if strings.ContainsAny(goflags, `'"`) || !scan(strings.Fields(goflags)) || !scan(check.Args[1:]) || !selected {
+	if strings.ContainsAny(goflags, `'"`) || !scan(strings.Fields(goflags), false) || !scan(check.Args[1:], true) || !selected {
 		return "", "", false
 	}
 	if pattern == "" {
