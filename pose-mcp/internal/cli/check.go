@@ -538,7 +538,7 @@ func (checker *nativeChecker) validateMatrixObjects(document map[string]any, fie
 		checker.failOrWarn("validation-matrix.json: " + field + checker.message(": must be an object", ": deve ser objeto"))
 		return
 	}
-	allowedCheck := map[string]bool{"name": true, "command": true, "program": true, "args": true, "env": true, "severity": true, "when": true, "timeoutSeconds": true, "isolation": true, "evidenceClass": true}
+	allowedCheck := map[string]bool{"name": true, "command": true, "program": true, "args": true, "env": true, "severity": true, "when": true, "timeoutSeconds": true, "isolation": true, "evidenceClass": true, "exclusive": true}
 	for name, rawObject := range objects {
 		object, ok := rawObject.(map[string]any)
 		if !ok {
@@ -568,6 +568,11 @@ func (checker *nativeChecker) validateMatrixObjects(document map[string]any, fie
 			for key := range check {
 				if !allowedCheck[key] {
 					checker.failOrWarn(fmt.Sprintf(checker.message("validation-matrix.json: %s.%s.checks[%d]: unknown key '%s'", "validation-matrix.json: %s.%s.checks[%d]: chave desconhecida '%s'"), field, name, index, key))
+				}
+			}
+			if exclusive, set := check["exclusive"]; set {
+				if _, isBool := exclusive.(bool); !isBool {
+					checker.failOrWarn(fmt.Sprintf(checker.message("validation-matrix.json: %s.%s.checks[%d]: exclusive must be a boolean", "validation-matrix.json: %s.%s.checks[%d]: exclusive deve ser booleano"), field, name, index))
 				}
 			}
 		}

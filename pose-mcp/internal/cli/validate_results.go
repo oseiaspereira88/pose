@@ -39,7 +39,7 @@ type checkResult struct {
 	DurationSeconds float64           `json:"duration_seconds"`
 	Output          string            `json:"output,omitempty"` // bounded tail, redacted
 	// Runtime guardrails (spec pose-validation-runtime-guardrails), additive:
-	LimitState string `json:"limit_state,omitempty"` // timeout | output-limit
+	LimitState string `json:"limit_state,omitempty"` // timeout | output-limit | cancelled
 	Isolation  string `json:"isolation,omitempty"`   // required = delegated to Harness
 }
 

@@ -40,11 +40,12 @@ Measured on 2026-10-30, HEAD `8aaa408c` (`.pose/results/delivery-validation.json
 
 ### Functional
 
-- R1: `pose validate` shall run up to `--jobs N` checks at once (default: a bound derived from available cores and memory, never below 1), starting them in matrix order and recording each result in matrix order.
-- R2: A matrix check marked `exclusive: true` shall run with no other check running.
+- R1: `pose validate` shall run up to `--jobs N` checks at once (default: a bound derived from the cores and memory available to the process, cgroup limits included, never below 1, at most 8, and at most 4 when memory cannot be read), starting them in matrix order and recording every result, changed-scope skips included, in matrix order.
+- R2: A matrix check marked `exclusive: true`, a boolean key `pose check` accepts, shall run with no other check running, after every earlier check has ended.
 - R3: `--jobs 1` shall reproduce today's serial execution exactly, and the report shall record the concurrency used.
 - R4: At the end of a run, validate shall print the slowest checks with their durations and the run's wall time next to the sum of check durations.
-- R5: A failing, timed-out or output-limited check shall be reported exactly as in a serial run; cancelling the run stops every running check's process group.
+- R5: A failing, timed-out or output-limited check shall be reported exactly as in a serial run; cancelling the run stops every running check's process group and its preparatory commands, starts nothing more, records those checks `limit_state: cancelled`, makes the run `fail` with exit 1 whatever their severity, and leaves a second signal its default effect.
+- R6: A check's `when` shall be read as the check is about to start, so at `--jobs 1`, with `--verbose`, or past an exclusive barrier an earlier check can decide it.
 
 ### Non-functional
 
@@ -69,6 +70,8 @@ Measured on 2026-10-30, HEAD `8aaa408c` (`.pose/results/delivery-validation.json
 - created: .pose/specs/2026-10-30-pose-validate-concurrent-steps.md
 - created: .pose/starts/pose-validate-concurrent-steps.json
 - created: .pose/specs/2026-10-30-pose-validate-concurrent-steps.amendments.jsonl
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/validate_root_and_nodemodules_test.go
 - created: .pose/changelogs/unreleased/pose-validate-concurrent-steps.md
 - modified: .pose/indexes/validation-matrix.json
 - modified: pose-mcp/internal/cli/validate.go

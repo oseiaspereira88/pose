@@ -58,10 +58,21 @@ type validationEntry struct {
 	check     validationCheck
 	moduleDir string
 	severity  string
-	skip      string
-	isolated  bool
-	result    checkResult
-	done      chan struct{}
+	// skip is why the check does not run. silent marks a changed-scope skip,
+	// recorded in order without a step line.
+	skip     string
+	silent   bool
+	isolated bool
+	result   checkResult
+	done     chan struct{}
+}
+
+// resolveWhen evaluates the check's condition at the moment it would start,
+// so an earlier check, finished by then, can decide it (review round 1, B1).
+func (e *validationEntry) resolveWhen() {
+	if e.skip == "" {
+		e.skip = validationSkipReason(e.moduleDir, e.check.When)
+	}
 }
 
 // execute runs the check and records its outcome in the entry's result. It
@@ -82,7 +93,12 @@ func (e *validationEntry) execute(parent context.Context, matrix validationMatri
 	ctx, cancel := context.WithTimeout(parent, time.Duration(timeout)*time.Second)
 	capture := &tailBuffer{capacity: 4096}
 	limiter := &outputLimiter{limit: maxOutput, cancel: cancel}
-	execArgs := sanitizeGoCheckArgs(e.moduleDir, check.Program, check.Args)
+	execArgs := sanitizeGoCheckArgs(ctx, e.moduleDir, check.Program, check.Args)
+	if parent.Err() != nil {
+		cancel()
+		e.markCancelled()
+		return
+	}
 	cmd := exec.CommandContext(ctx, check.Program, execArgs...)
 	setProcessGroup(cmd)
 	cmd.Cancel = func() error { return killProcessGroup(cmd) }
@@ -148,47 +164,69 @@ func (e *validationEntry) markCancelled() {
 func dispatchValidationEntries(ctx context.Context, entries []*validationEntry, jobs int, matrix validationMatrix) {
 	slots := make(chan struct{}, jobs)
 	var running sync.WaitGroup
-	for _, entry := range entries {
-		if entry.note != "" || entry.skip != "" {
-			continue
+	cancelled := func(entry *validationEntry) bool {
+		if ctx.Err() == nil {
+			return false
 		}
-		if ctx.Err() != nil {
-			entry.markCancelled()
-			close(entry.done)
+		entry.markCancelled()
+		close(entry.done)
+		return true
+	}
+	for _, entry := range entries {
+		if entry.note != "" || entry.silent || entry.isolated {
 			continue
 		}
 		if entry.check.Exclusive {
 			running.Wait()
-			entry.execute(ctx, matrix, false, nil, nil, nil)
+			if cancelled(entry) {
+				continue
+			}
+			if entry.resolveWhen(); entry.skip == "" {
+				entry.execute(ctx, matrix, false, nil, nil, nil)
+			}
 			close(entry.done)
 			continue
 		}
 		select {
 		case slots <- struct{}{}:
 		case <-ctx.Done():
-			entry.markCancelled()
-			close(entry.done)
+			cancelled(entry)
+			continue
+		}
+		if cancelled(entry) {
+			<-slots
 			continue
 		}
 		running.Add(1)
 		go func(entry *validationEntry) {
 			defer running.Done()
 			defer func() { <-slots }()
-			entry.execute(ctx, matrix, false, nil, nil, nil)
+			if entry.resolveWhen(); entry.skip == "" {
+				entry.execute(ctx, matrix, false, nil, nil, nil)
+			}
 			close(entry.done)
 		}(entry)
 	}
 }
 
-// defaultValidationJobs is half the machine's cores, bounded by the memory
-// available at roughly 1.5 GiB per check — a Go test link is what filled a
-// small machine — and by 8, never below 1.
-func defaultValidationJobs() int {
-	jobs := runtime.NumCPU() / 2
-	if available := availableMemoryBytes(); available > 0 {
-		if byMemory := int(available / (3 << 29)); byMemory < jobs {
+// validationResources is what a run may use: cores and memory, 0 when
+// unknown.
+type validationResources struct {
+	cpus   float64
+	memory uint64
+}
+
+// defaultValidationJobs is half the cores, bounded by the memory available at
+// roughly 1.5 GiB per check — a Go test link is what filled a small machine —
+// and by 8, never below 1; with memory unknown it stays at 4 or below.
+func defaultValidationJobs(available validationResources) int {
+	jobs := int(available.cpus / 2)
+	if available.memory > 0 {
+		if byMemory := int(available.memory / (3 << 29)); byMemory < jobs {
 			jobs = byMemory
 		}
+	} else if jobs > 4 {
+		jobs = 4
 	}
 	if jobs > 8 {
 		jobs = 8
@@ -199,25 +237,95 @@ func defaultValidationJobs() int {
 	return jobs
 }
 
-// availableMemoryBytes reads MemAvailable from /proc/meminfo; 0 where there
-// is none to read.
-func availableMemoryBytes() uint64 {
-	raw, err := os.ReadFile("/proc/meminfo")
-	if err != nil {
-		return 0
-	}
-	for _, line := range strings.Split(string(raw), "\n") {
-		if rest, ok := strings.CutPrefix(line, "MemAvailable:"); ok {
-			fields := strings.Fields(rest)
-			if len(fields) > 0 {
-				kib, err := strconv.ParseUint(fields[0], 10, 64)
-				if err == nil {
-					return kib * 1024
+// effectiveValidationResources reads the machine's cores and available memory
+// and narrows them to the limits of the process's cgroup and its ancestors,
+// v2 and v1, so a container is judged by its budget (review round 1, B6).
+// read is os.ReadFile outside tests.
+func effectiveValidationResources(read func(string) ([]byte, error), cores int) validationResources {
+	found := validationResources{cpus: float64(cores)}
+	if raw, err := read("/proc/meminfo"); err == nil {
+		for _, line := range strings.Split(string(raw), "\n") {
+			if rest, ok := strings.CutPrefix(line, "MemAvailable:"); ok {
+				if fields := strings.Fields(rest); len(fields) > 0 {
+					if kib, err := strconv.ParseUint(fields[0], 10, 64); err == nil {
+						found.memory = kib * 1024
+					}
 				}
 			}
 		}
 	}
-	return 0
+	number := func(path string) (uint64, bool) {
+		raw, err := read(path)
+		if err != nil {
+			return 0, false
+		}
+		n, err := strconv.ParseUint(strings.TrimSpace(string(raw)), 10, 64)
+		return n, err == nil
+	}
+	limitMemory := func(limit, used uint64) {
+		headroom := uint64(0)
+		if limit > used {
+			headroom = limit - used
+		}
+		if found.memory == 0 || headroom < found.memory {
+			found.memory = headroom
+			if found.memory == 0 {
+				found.memory = 1 // known to be full, not unknown
+			}
+		}
+	}
+	limitCPU := func(quota, period float64) {
+		if quota > 0 && period > 0 && quota/period < found.cpus {
+			found.cpus = quota / period
+		}
+	}
+	raw, err := read("/proc/self/cgroup")
+	if err != nil {
+		return found
+	}
+	for _, line := range strings.Split(strings.TrimSpace(string(raw)), "\n") {
+		parts := strings.SplitN(line, ":", 3)
+		if len(parts) != 3 {
+			continue
+		}
+		path := strings.TrimRight(parts[2], "/")
+		for {
+			if parts[1] == "" {
+				base := "/sys/fs/cgroup" + path
+				if limit, ok := number(base + "/memory.max"); ok {
+					used, _ := number(base + "/memory.current")
+					limitMemory(limit, used)
+				}
+				if cpu, err := read(base + "/cpu.max"); err == nil {
+					if fields := strings.Fields(string(cpu)); len(fields) == 2 {
+						quota, errQ := strconv.ParseFloat(fields[0], 64)
+						period, errP := strconv.ParseFloat(fields[1], 64)
+						if errQ == nil && errP == nil {
+							limitCPU(quota, period)
+						}
+					}
+				}
+			}
+			if strings.Contains(","+parts[1]+",", ",memory,") {
+				if limit, ok := number("/sys/fs/cgroup/memory" + path + "/memory.limit_in_bytes"); ok && limit < 1<<62 {
+					used, _ := number("/sys/fs/cgroup/memory" + path + "/memory.usage_in_bytes")
+					limitMemory(limit, used)
+				}
+			}
+			if strings.Contains(","+parts[1]+",", ",cpu,") {
+				quota, okQ := number("/sys/fs/cgroup/cpu" + path + "/cpu.cfs_quota_us")
+				period, okP := number("/sys/fs/cgroup/cpu" + path + "/cpu.cfs_period_us")
+				if okQ && okP {
+					limitCPU(float64(quota), float64(period))
+				}
+			}
+			if path == "" {
+				break
+			}
+			path = path[:strings.LastIndex(path, "/")]
+		}
+	}
+	return found
 }
 
 // validationTimingNotes says where the run's time went: its wall time beside
@@ -820,13 +928,11 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 					if severity == "" {
 						severity = "required"
 					}
-					run.Counts.Skipped++
-					run.Checks = append(run.Checks, checkResult{
+					entries = append(entries, &validationEntry{check: check, severity: severity, skip: reason, silent: true, result: checkResult{
 						ID: module.Rel + "/" + stack + "/" + check.Name, Module: module.Rel,
 						Stack: stack, Name: check.Name, Program: check.Program,
 						Args: check.Args, Env: redactedEnv(check.Env), Severity: severity, EvidenceClass: check.EvidenceClass,
-						Outcome: "skipped", SkipReason: reason,
-					})
+					}})
 				}
 				continue
 			}
@@ -854,10 +960,6 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 				// execution is delegated to the Harness via --emit-plan.
 				entry.skip = "requires isolated execution (harness) — include via --emit-plan"
 				entry.isolated = true
-			} else if reason := validationSkipReason(module.Abs, check.When); reason != "" {
-				// A skipped check used to print nothing at all, so a reader
-				// could not tell it from one that never existed (R7).
-				entry.skip = reason
 			}
 			entries = append(entries, entry)
 		}
@@ -867,7 +969,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	// pose-validate-concurrent-steps R1). --verbose streams a check's output,
 	// so it runs them one at a time.
 	if jobs == 0 {
-		jobs = defaultValidationJobs()
+		jobs = defaultValidationJobs(effectiveValidationResources(os.ReadFile, runtime.NumCPU()))
 	}
 	if verbose {
 		jobs = 1
@@ -875,6 +977,12 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	run.Jobs = jobs
 	runCtx, stopSignals := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stopSignals()
+	// The first signal cancels the run; a second one acts as it always did,
+	// even while the run shuts down (review round 1, B4).
+	go func() {
+		<-runCtx.Done()
+		stopSignals()
+	}()
 	wallStart := time.Now()
 	if jobs > 1 {
 		go dispatchValidationEntries(runCtx, entries, jobs, matrix)
@@ -884,6 +992,15 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			steps.Note(entry.note)
 			continue
 		}
+		if !entry.silent && !entry.isolated {
+			if jobs > 1 {
+				<-entry.done
+			} else if runCtx.Err() != nil {
+				entry.markCancelled()
+			} else {
+				entry.resolveWhen()
+			}
+		}
 		if entry.skip != "" {
 			entry.result.Outcome, entry.result.SkipReason = "skipped", entry.skip
 			run.Counts.Skipped++
@@ -892,15 +1009,17 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 				isolationChecks = append(isolationChecks, entry.result)
 			}
 			run.Checks = append(run.Checks, entry.result)
-			steps.Start(entry.check.Name, "").Resolve(cliout.StateSkipped, entry.skip)
+			// A skipped check used to print nothing at all, so a reader
+			// could not tell it from one that never existed (R7).
+			if !entry.silent {
+				steps.Start(entry.check.Name, "").Resolve(cliout.StateSkipped, entry.skip)
+			}
 			continue
 		}
 		executed++
 		run.Counts.Executed++
 		step := steps.Start(entry.check.Name, strings.TrimSpace(entry.check.Program+" "+strings.Join(entry.check.Args, " ")))
-		if jobs > 1 {
-			<-entry.done
-		} else {
+		if jobs == 1 && entry.result.Outcome == "" {
 			entry.execute(runCtx, matrix, verbose, stdout, stderr, steps.Release)
 		}
 		result := &entry.result
@@ -937,6 +1056,12 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		run.Checks = append(run.Checks, *result)
 	}
 	run.WallSeconds = time.Since(wallStart).Seconds()
+	// A cancelled run never reads as a success, whatever the severity of the
+	// checks it stopped (review round 1, B5).
+	cancelled := false
+	for _, check := range run.Checks {
+		cancelled = cancelled || check.LimitState == "cancelled"
+	}
 	for _, line := range validationTimingNotes(run) {
 		steps.Note(line)
 	}
@@ -945,7 +1070,11 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stdout, "No modules/checks matched the matrix and filters.")
 	}
 	result := "pass"
-	if failures > 0 {
+	if cancelled {
+		failures++
+		result = "fail"
+		r.Verdict(cliout.Verdict{State: cliout.StateFail, Text: cliText(locale, "validation cancelled", "validação cancelada")})
+	} else if failures > 0 {
 		result = "fail"
 		r.Verdict(cliout.Verdict{State: cliout.StateFail, Text: cliText(locale, "required check failed", "check obrigatório falhou")})
 	} else {
@@ -1100,7 +1229,7 @@ func validationSummaryOf(run validationRunResult) *validationSummary {
 	return summary
 }
 
-func sanitizeGoCheckArgs(dir, program string, args []string) []string {
+func sanitizeGoCheckArgs(ctx context.Context, dir, program string, args []string) []string {
 	if program != "go" || len(args) == 0 {
 		return args
 	}
@@ -1128,8 +1257,11 @@ func sanitizeGoCheckArgs(dir, program string, args []string) []string {
 		return args
 	}
 
-	cmd := exec.Command("go", "list", "./...")
+	// Cancelling the run stops this too (review round 1, B4).
+	cmd := exec.CommandContext(ctx, "go", "list", "./...")
 	cmd.Dir = dir
+	setProcessGroup(cmd)
+	cmd.Cancel = func() error { return killProcessGroup(cmd) }
 	out, err := cmd.Output()
 	if err != nil {
 		return args

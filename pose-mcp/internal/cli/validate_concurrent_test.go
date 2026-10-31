@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"syscall"
@@ -157,10 +158,213 @@ func TestValidateCancelStopsRunningChecks(t *testing.T) {
 	}
 }
 
-// The default is bounded and at least one.
-func TestDefaultValidationJobsIsBounded(t *testing.T) {
-	if jobs := defaultValidationJobs(); jobs < 1 || jobs > 8 {
-		t.Fatalf("default jobs: %d", jobs)
+// Review round 1, B6: the default is judged by the budget in force — cgroup
+// memory headroom and CPU quota, v2 and v1, ancestors included — and stays
+// bounded when nothing can be read.
+func TestDefaultValidationJobsFollowsTheBudget(t *testing.T) {
+	const gib = uint64(1) << 30
+	meminfo := fmt.Sprintf("MemTotal: 1 kB\nMemAvailable: %d kB\n", 64*gib/1024)
+	cases := []struct {
+		name  string
+		files map[string]string
+		cores int
+		want  int
+	}{
+		{"unlimited host", map[string]string{"/proc/meminfo": meminfo}, 64, 8},
+		{"half the cores", map[string]string{"/proc/meminfo": meminfo}, 6, 3},
+		{"little memory", map[string]string{"/proc/meminfo": fmt.Sprintf("MemAvailable: %d kB\n", 4*gib/1024)}, 16, 2},
+		{"nothing readable", map[string]string{}, 64, 4},
+		{"small machine", map[string]string{"/proc/meminfo": meminfo}, 1, 1},
+		{"cgroup v2 memory", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "0::/a/b\n", "/sys/fs/cgroup/a/b/memory.max": fmt.Sprint(5 * gib), "/sys/fs/cgroup/a/b/memory.current": fmt.Sprint(2 * gib)}, 64, 2},
+		{"cgroup v2 ancestor", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "0::/a/b\n", "/sys/fs/cgroup/a/b/memory.max": "max", "/sys/fs/cgroup/a/memory.max": fmt.Sprint(2 * gib)}, 64, 1},
+		{"cgroup v2 cpu", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "0::/a\n", "/sys/fs/cgroup/a/cpu.max": "200000 100000"}, 64, 1},
+		{"cgroup v2 no cpu limit", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "0::/a\n", "/sys/fs/cgroup/a/cpu.max": "max 100000"}, 8, 4},
+		{"cgroup full", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "0::/a\n", "/sys/fs/cgroup/a/memory.max": fmt.Sprint(gib), "/sys/fs/cgroup/a/memory.current": fmt.Sprint(gib)}, 64, 1},
+		{"cgroup v1", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "4:memory:/a\n3:cpu,cpuacct:/a\n", "/sys/fs/cgroup/memory/a/memory.limit_in_bytes": fmt.Sprint(9 * gib), "/sys/fs/cgroup/memory/a/memory.usage_in_bytes": "0", "/sys/fs/cgroup/cpu/a/cpu.cfs_quota_us": "1000000", "/sys/fs/cgroup/cpu/a/cpu.cfs_period_us": "100000"}, 64, 5},
+		{"cgroup v1 unlimited", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "4:memory:/\n", "/sys/fs/cgroup/memory/memory.limit_in_bytes": "9223372036854771712"}, 16, 8},
+		{"malformed cgroup files", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "garbage\n0::/a\n", "/sys/fs/cgroup/a/memory.max": "x", "/sys/fs/cgroup/a/cpu.max": "y z w"}, 8, 4},
+	}
+	for _, c := range cases {
+		read := func(path string) ([]byte, error) {
+			if body, ok := c.files[path]; ok {
+				return []byte(body), nil
+			}
+			return nil, os.ErrNotExist
+		}
+		if got := defaultValidationJobs(effectiveValidationResources(read, c.cores)); got != c.want {
+			t.Errorf("%s: %d jobs, want %d", c.name, got, c.want)
+		}
+	}
+	if jobs := defaultValidationJobs(effectiveValidationResources(os.ReadFile, runtime.NumCPU())); jobs < 1 || jobs > 8 {
+		t.Fatalf("default jobs on this machine: %d", jobs)
+	}
+}
+
+// Review round 1, B1: when is read as the check is about to start, so an
+// earlier check decides it — serially, with --verbose, and past an exclusive
+// barrier.
+func TestValidateWhenIsReadBeforeTheCheckStarts(t *testing.T) {
+	when := func(check map[string]any, key string) map[string]any {
+		check["when"] = map[string]any{key: "generated"}
+		return check
+	}
+	for _, args := range [][]string{{"--jobs", "1"}, {"--verbose"}} {
+		root := checksFixture(t, shellCheck("generate", "touch generated"), when(shellCheck("consume", "test -f generated"), "fileExists"))
+		if code, out := runValidate(t, root, append(args, "--json", "result.json")...); code != 0 {
+			t.Fatalf("%v: %d %s", args, code, out)
+		}
+		if run := loadRun(t, root); run.Checks[1].Outcome != "pass" {
+			t.Fatalf("%v: a check enabled by an earlier one: %+v", args, run.Checks[1])
+		}
+		root = checksFixture(t, shellCheck("setup", "touch generated"), shellCheck("clean", "rm generated"), when(shellCheck("skipped", "exit 1"), "fileExists"))
+		if code, out := runValidate(t, root, append(args, "--json", "result.json")...); code != 0 {
+			t.Fatalf("%v: %d %s", args, code, out)
+		}
+		if run := loadRun(t, root); run.Checks[2].Outcome != "skipped" {
+			t.Fatalf("%v: a check disabled by an earlier one: %+v", args, run.Checks[2])
+		}
+	}
+	consume := when(shellCheck("consume", "test -f generated"), "fileExists")
+	consume["exclusive"] = true
+	root := checksFixture(t, shellCheck("generate", "sleep 0.2; touch generated"), consume)
+	if code, out := runValidate(t, root, "--jobs", "4", "--json", "result.json"); code != 0 {
+		t.Fatalf("exclusive: %d %s", code, out)
+	}
+	if run := loadRun(t, root); run.Checks[1].Outcome != "pass" {
+		t.Fatalf("past an exclusive barrier: %+v", run.Checks[1])
+	}
+}
+
+// Review round 1, B2: changed-scope skips keep matrix order among the checks
+// that ran.
+func TestChangedScopeSkipsKeepMatrixOrder(t *testing.T) {
+	for _, changed := range []string{"a", "b"} {
+		for _, jobs := range []string{"1", "4"} {
+			root := scopeFixture(t, false)
+			if err := os.WriteFile(filepath.Join(root, changed, "changed.go"), []byte("package x\n"), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			if code, out := runValidate(t, root, "--changed-from", "HEAD", "--jobs", jobs, "--json", "result.json"); code != 0 {
+				t.Fatalf("%d %s", code, out)
+			}
+			run := loadRun(t, root)
+			if len(run.Checks) != 2 || run.Checks[0].Module != "a" || run.Checks[1].Module != "b" {
+				t.Fatalf("changed %s, jobs %s: %+v", changed, jobs, run.Checks)
+			}
+			if run.Counts.Skipped != 1 || run.Counts.Executed != 1 {
+				t.Fatalf("changed %s, jobs %s: %+v", changed, jobs, run.Counts)
+			}
+		}
+	}
+}
+
+// Review round 1, B3: exclusive is a key of the matrix check accepts, as a
+// boolean.
+func TestCheckAcceptsExclusiveAsABoolean(t *testing.T) {
+	exclusive := shellCheck("alone", "true")
+	exclusive["exclusive"] = true
+	_, out := runPose(t, checksFixture(t, exclusive), "check", "--strict")
+	if strings.Contains(out, "unknown key 'exclusive'") || strings.Contains(out, "exclusive must be") {
+		t.Fatalf("a boolean exclusive was refused: %s", out)
+	}
+	exclusive["exclusive"] = "yes"
+	if _, out := runPose(t, checksFixture(t, exclusive), "check", "--strict"); !strings.Contains(out, "exclusive must be a boolean") {
+		t.Fatalf("a non-boolean exclusive was accepted: %s", out)
+	}
+}
+
+// Review round 1, B4: the preparatory go list stops with the run, and a second
+// signal is not swallowed while it shuts down.
+func TestValidateCancelStopsThePreparatoryGoList(t *testing.T) {
+	dir := t.TempDir()
+	bin := filepath.Join(dir, "bin")
+	if err := os.MkdirAll(bin, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	listing := filepath.Join(dir, "listing")
+	fake := "#!/bin/sh\necho $$ > " + shellQuote(listing) + "\nsleep 60\n"
+	if err := os.WriteFile(filepath.Join(bin, "go"), []byte(fake), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	root := checksFixture(t, map[string]any{"name": "t", "program": "go", "args": []string{"test", "./..."}, "severity": "required"})
+	if err := os.MkdirAll(filepath.Join(root, "mod", "node_modules"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	binary := poseBinary(t)
+	cmd := exec.Command(binary, "validate", "--jobs", "1", "--json", "result.json")
+	cmd.Dir = root
+	cmd.Env = append(os.Environ(), "PATH="+bin+string(os.PathListSeparator)+os.Getenv("PATH"))
+	if err := cmd.Start(); err != nil {
+		t.Fatal(err)
+	}
+	for deadline := time.Now().Add(15 * time.Second); ; time.Sleep(20 * time.Millisecond) {
+		if _, err := os.Stat(listing); err == nil {
+			break
+		}
+		if time.Now().After(deadline) {
+			_ = cmd.Process.Kill()
+			t.Fatal("go list did not start")
+		}
+	}
+	if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
+		t.Fatal(err)
+	}
+	done := make(chan error, 1)
+	go func() { done <- cmd.Wait() }()
+	select {
+	case err := <-done:
+		if err == nil {
+			t.Fatal("a cancelled validation exited 0")
+		}
+	case <-time.After(15 * time.Second):
+		_ = cmd.Process.Kill()
+		t.Fatal("the run hung on its preparatory go list")
+	}
+	waitForProcessGone(t, listing)
+}
+
+// Review round 1, B5: a cancelled run is never a success, whatever the
+// severity of what it stopped.
+func TestACancelledRunIsNeverASuccess(t *testing.T) {
+	for _, jobs := range []string{"1", "2"} {
+		dir := t.TempDir()
+		optional := shellCheck("optional", fmt.Sprintf(`echo $$ > %s/pid; sleep 60`, shellQuote(dir)))
+		optional["severity"] = "optional"
+		root := checksFixture(t, shellCheck("required", "true"), optional)
+		cmd := exec.Command(poseBinary(t), "validate", "--jobs", jobs, "--json", "result.json")
+		cmd.Dir = root
+		if err := cmd.Start(); err != nil {
+			t.Fatal(err)
+		}
+		pid := filepath.Join(dir, "pid")
+		for deadline := time.Now().Add(15 * time.Second); ; time.Sleep(20 * time.Millisecond) {
+			if _, err := os.Stat(pid); err == nil {
+				break
+			}
+			if time.Now().After(deadline) {
+				_ = cmd.Process.Kill()
+				t.Fatal("the check did not start")
+			}
+		}
+		if err := cmd.Process.Signal(syscall.SIGINT); err != nil {
+			t.Fatal(err)
+		}
+		err := cmd.Wait()
+		exit, _ := err.(*exec.ExitError)
+		if exit == nil || exit.ExitCode() != 1 {
+			t.Fatalf("jobs %s: a cancelled run: %v", jobs, err)
+		}
+		raw, err := os.ReadFile(filepath.Join(root, "result.json"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		var run validationRunResult
+		if err := json.Unmarshal(raw, &run); err != nil {
+			t.Fatal(err)
+		}
+		if run.Outcome != "fail" {
+			t.Fatalf("jobs %s: outcome %s", jobs, run.Outcome)
+		}
 	}
 }
 

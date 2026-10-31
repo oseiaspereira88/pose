@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -64,7 +65,7 @@ func TestSanitizeGoCheckArgs_FiltersNodeModules(t *testing.T) {
 	}
 
 	args := []string{"test", "./..."}
-	sanitized := sanitizeGoCheckArgs(root, "go", args)
+	sanitized := sanitizeGoCheckArgs(context.Background(), root, "go", args)
 
 	// Since go list will return packages or empty list for temp dir, verify node_modules is not in args
 	for _, arg := range sanitized {

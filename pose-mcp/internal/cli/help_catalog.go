@@ -117,7 +117,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "validate",
 		SummaryEN:       "Execute the deterministic validation matrix across all modules",
 		SummaryPtBR:     "Executa a matriz determinística de validação em todos os módulos",
-		Usage:           "pose validate [--strict|--tolerant] [--stack <s>] [--module <p>] [--report] [--json-out <path>] [--verbose]",
+		Usage:           "pose validate [--strict|--tolerant] [--stack <s>] [--module <p>] [--report] [--json-out <path>] [--jobs <n>] [--verbose]",
 		DescriptionEN:   "Executes deterministic verification commands (tests, linters, typechecks, builds) declared in .pose/indexes/validation-matrix.json.",
 		DescriptionPtBR: "Executa comandos de verificação determinísticos (testes, linters, checagens de tipo, builds) declarados em .pose/indexes/validation-matrix.json.",
 		Flags: []FlagHelp{
