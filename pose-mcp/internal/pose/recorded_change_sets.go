@@ -46,8 +46,17 @@ var RecordedChangeSetLineLimit = 64 * 1024 * 1024
 // limit, a line that is not a record — so that a later removal refuses
 // instead of judging the sets that were read (LR-R5-01).
 func LoadRecordedChangeSetsIn(files Files, root string) ([]ChangeSet, string) {
+	sets, gap, _ := readRecordedChangeSets(files, root)
+	return sets, gap
+}
+
+// readRecordedChangeSets also names each loss by what was lost, an entry of the
+// history or a line of it, in terms no checkout or filesystem error enters.
+func readRecordedChangeSets(files Files, root string) ([]ChangeSet, string, []string) {
 	gap := ""
-	note := func(format string, args ...any) {
+	losses := []string{}
+	note := func(lost, format string, args ...any) {
+		losses = append(losses, lost)
 		if gap == "" {
 			gap = "the recorded change sets could not be read: " + fmt.Sprintf(format, args...)
 		}
@@ -58,7 +67,7 @@ func LoadRecordedChangeSetsIn(files Files, root string) ([]ChangeSet, string) {
 	dir := filepath.Join(root, ".pose", "reports", "history")
 	entries, err := files.ReadDir(dir)
 	if err != nil && !errors.Is(err, fs.ErrNotExist) {
-		note("%v", err)
+		note("history", "%v", err)
 	}
 	var paths []string
 	for _, entry := range entries {
@@ -70,7 +79,7 @@ func LoadRecordedChangeSetsIn(files Files, root string) ([]ChangeSet, string) {
 	for _, path := range paths {
 		file, err := files.Open(path)
 		if err != nil {
-			note("%v", err)
+			note(filepath.Base(path), "%v", err)
 			continue
 		}
 		scanner := bufio.NewScanner(file)
@@ -83,7 +92,7 @@ func LoadRecordedChangeSetsIn(files Files, root string) ([]ChangeSet, string) {
 			}
 			var record ReportRecord
 			if err := json.Unmarshal(scanner.Bytes(), &record); err != nil {
-				note("%s:%d: %v", filepath.Base(path), line, err)
+				note(fmt.Sprintf("%s:%d", filepath.Base(path), line), "%s:%d: %v", filepath.Base(path), line, err)
 				continue
 			}
 			if record.ChangeSet != nil {
@@ -91,7 +100,7 @@ func LoadRecordedChangeSetsIn(files Files, root string) ([]ChangeSet, string) {
 			}
 		}
 		if err := scanner.Err(); err != nil {
-			note("%s:%d: %v", filepath.Base(path), line+1, err)
+			note(filepath.Base(path), "%s:%d: %v", filepath.Base(path), line+1, err)
 		}
 		_ = file.Close()
 	}
@@ -100,7 +109,7 @@ func LoadRecordedChangeSetsIn(files Files, root string) ([]ChangeSet, string) {
 		values = append(values, set)
 	}
 	sort.Slice(values, func(i, j int) bool { return values[i].ID < values[j].ID })
-	return values, gap
+	return values, gap, losses
 }
 
 // recordedChangeSetsDigest digests what the delivery graph reads from the
@@ -109,14 +118,14 @@ func LoadRecordedChangeSetsIn(files Files, root string) ([]ChangeSet, string) {
 // and a history with neither reads as absent (spec
 // pose-removal-witness-freshness R3, D2).
 func recordedChangeSetsDigest(files Files, root string) string {
-	sets, gap := LoadRecordedChangeSetsIn(files, root)
-	if len(sets) == 0 && gap == "" {
+	sets, _, losses := readRecordedChangeSets(files, root)
+	if len(sets) == 0 && len(losses) == 0 {
 		return "absent"
 	}
 	raw, err := json.Marshal(struct {
 		Sets []ChangeSet `json:"sets"`
-		Gap  string      `json:"gap"`
-	}{sets, strings.ReplaceAll(gap, root, "")})
+		Lost []string    `json:"lost"`
+	}{sets, losses})
 	if err != nil {
 		return "unreadable: " + err.Error()
 	}

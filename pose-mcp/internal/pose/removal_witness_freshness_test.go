@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func acceptedRemoval(t *testing.T) (string, Store, *ArtifactRemoval) {
@@ -235,6 +236,34 @@ func TestRecordedChangeSetsBindWhatTheReaderReads(t *testing.T) {
 	} {
 		if read(pair[0]) == read(pair[1]) {
 			t.Errorf("%s: the binding did not follow the reader", name)
+		}
+	}
+}
+
+// A history behind a link fails with its resolved location, which no binding
+// holds: nothing changed, so nothing is stale, whichever files read it (WF-R3-01).
+func TestRecordedChangeSetLossBindsAlikeThroughALink(t *testing.T) {
+	bindings := []string{}
+	for range 2 {
+		parent := t.TempDir()
+		root := filepath.Join(parent, "checkout")
+		if err := os.MkdirAll(filepath.Join(parent, "shared", "a.jsonl"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.MkdirAll(filepath.Join(root, ".pose", "reports"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Symlink(filepath.Join("..", "..", "..", "shared"), filepath.Join(root, ".pose", "reports", "history")); err != nil {
+			t.Fatal(err)
+		}
+		for _, files := range []Files{NativeFiles(), NewPreviewFiles(time.Now())} {
+			got, _ := IndexInputBindingIn(files, root, "recorded-change-sets")
+			bindings = append(bindings, got)
+		}
+	}
+	for _, got := range bindings {
+		if got == "absent" || got != bindings[0] {
+			t.Fatalf("%v", bindings)
 		}
 	}
 }

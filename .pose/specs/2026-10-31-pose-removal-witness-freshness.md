@@ -41,7 +41,7 @@ A review subject path that a later spec removed reads as the removal the indexed
 
 - R1: A removal witness shall count for a review subject only when its deleting commit is an ancestor of `HEAD` in raw, complete history and no commit after it on `HEAD` touches the path. A shallow clone cannot answer that.
 - R2: A witness that fails R1, or whose check cannot be answered, shall not count, and the refusal shall name the path, the commit and why, and ask for `pose index`, instead of saying the path cannot be read.
-- R3: A generation shall bind the result of the delivery graph's own reader of `.pose/reports/history`, its change sets and its read gap, so that facts report stale when either changes; a report that changes neither changes nothing, and a history holding neither reads as absent. The binding names no checkout.
+- R3: A generation shall bind the result of the delivery graph's own reader of `.pose/reports/history`, its change sets and which entries or lines it lost, so that facts report stale when either changes; a report that changes neither changes nothing, and a history holding neither reads as absent. No checkout location or filesystem error enters the binding.
 
 ### Non-functional
 
