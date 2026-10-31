@@ -164,6 +164,8 @@ func TestValidateCancelStopsRunningChecks(t *testing.T) {
 func TestDefaultValidationJobsFollowsTheBudget(t *testing.T) {
 	const gib = uint64(1) << 30
 	meminfo := fmt.Sprintf("MemTotal: 1 kB\nMemAvailable: %d kB\n", 64*gib/1024)
+	v2 := "30 20 0:26 / /sys/fs/cgroup rw - cgroup2 cgroup2 rw\n"
+	v1 := "31 20 0:27 / /sys/fs/cgroup/memory rw - cgroup cgroup rw,memory\n32 20 0:28 / /sys/fs/cgroup/cpu,cpuacct rw - cgroup cgroup rw,cpu,cpuacct\n"
 	cases := []struct {
 		name  string
 		files map[string]string
@@ -175,14 +177,19 @@ func TestDefaultValidationJobsFollowsTheBudget(t *testing.T) {
 		{"little memory", map[string]string{"/proc/meminfo": fmt.Sprintf("MemAvailable: %d kB\n", 4*gib/1024)}, 16, 2},
 		{"nothing readable", map[string]string{}, 64, 4},
 		{"small machine", map[string]string{"/proc/meminfo": meminfo}, 1, 1},
-		{"cgroup v2 memory", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "0::/a/b\n", "/sys/fs/cgroup/a/b/memory.max": fmt.Sprint(5 * gib), "/sys/fs/cgroup/a/b/memory.current": fmt.Sprint(2 * gib)}, 64, 2},
-		{"cgroup v2 ancestor", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "0::/a/b\n", "/sys/fs/cgroup/a/b/memory.max": "max", "/sys/fs/cgroup/a/memory.max": fmt.Sprint(2 * gib)}, 64, 1},
-		{"cgroup v2 cpu", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "0::/a\n", "/sys/fs/cgroup/a/cpu.max": "200000 100000"}, 64, 1},
-		{"cgroup v2 no cpu limit", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "0::/a\n", "/sys/fs/cgroup/a/cpu.max": "max 100000"}, 8, 4},
-		{"cgroup full", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "0::/a\n", "/sys/fs/cgroup/a/memory.max": fmt.Sprint(gib), "/sys/fs/cgroup/a/memory.current": fmt.Sprint(gib)}, 64, 1},
-		{"cgroup v1", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "4:memory:/a\n3:cpu,cpuacct:/a\n", "/sys/fs/cgroup/memory/a/memory.limit_in_bytes": fmt.Sprint(9 * gib), "/sys/fs/cgroup/memory/a/memory.usage_in_bytes": "0", "/sys/fs/cgroup/cpu/a/cpu.cfs_quota_us": "1000000", "/sys/fs/cgroup/cpu/a/cpu.cfs_period_us": "100000"}, 64, 5},
-		{"cgroup v1 unlimited", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "4:memory:/\n", "/sys/fs/cgroup/memory/memory.limit_in_bytes": "9223372036854771712"}, 16, 8},
-		{"malformed cgroup files", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "garbage\n0::/a\n", "/sys/fs/cgroup/a/memory.max": "x", "/sys/fs/cgroup/a/cpu.max": "y z w"}, 8, 4},
+		{"no memory left is not unknown memory", map[string]string{"/proc/meminfo": "MemAvailable: 0 kB\n"}, 64, 1},
+		{"cgroup v2 memory", map[string]string{"/proc/meminfo": meminfo, "/proc/self/mountinfo": v2, "/proc/self/cgroup": "0::/a/b\n", "/sys/fs/cgroup/a/b/memory.max": fmt.Sprint(5 * gib), "/sys/fs/cgroup/a/b/memory.current": fmt.Sprint(2 * gib)}, 64, 2},
+		{"cgroup v2 ancestor", map[string]string{"/proc/meminfo": meminfo, "/proc/self/mountinfo": v2, "/proc/self/cgroup": "0::/a/b\n", "/sys/fs/cgroup/a/b/memory.max": "max", "/sys/fs/cgroup/a/memory.max": fmt.Sprint(2 * gib)}, 64, 1},
+		{"cgroup v2 cpu", map[string]string{"/proc/meminfo": meminfo, "/proc/self/mountinfo": v2, "/proc/self/cgroup": "0::/a\n", "/sys/fs/cgroup/a/cpu.max": "200000 100000"}, 64, 1},
+		{"cgroup v2 no cpu limit", map[string]string{"/proc/meminfo": meminfo, "/proc/self/mountinfo": v2, "/proc/self/cgroup": "0::/a\n", "/sys/fs/cgroup/a/cpu.max": "max 100000"}, 8, 4},
+		{"cgroup full", map[string]string{"/proc/meminfo": meminfo, "/proc/self/mountinfo": v2, "/proc/self/cgroup": "0::/a\n", "/sys/fs/cgroup/a/memory.max": fmt.Sprint(gib), "/sys/fs/cgroup/a/memory.current": fmt.Sprint(gib)}, 64, 1},
+		{"cgroup v2 subtree mount", map[string]string{"/proc/meminfo": meminfo, "/proc/self/mountinfo": "30 20 0:26 /tenant /sys/fs/cgroup rw - cgroup2 cgroup2 rw\n", "/proc/self/cgroup": "0::/tenant/worker\n", "/sys/fs/cgroup/worker/memory.max": fmt.Sprint(2 * gib), "/sys/fs/cgroup/worker/memory.current": fmt.Sprint(gib)}, 64, 1},
+		{"cgroup v1", map[string]string{"/proc/meminfo": meminfo, "/proc/self/mountinfo": v1, "/proc/self/cgroup": "4:memory:/a\n3:cpu,cpuacct:/a\n", "/sys/fs/cgroup/memory/a/memory.limit_in_bytes": fmt.Sprint(9 * gib), "/sys/fs/cgroup/memory/a/memory.usage_in_bytes": "0", "/sys/fs/cgroup/cpu,cpuacct/a/cpu.cfs_quota_us": "1000000", "/sys/fs/cgroup/cpu,cpuacct/a/cpu.cfs_period_us": "100000"}, 64, 5},
+		{"cgroup v1 combined controller", map[string]string{"/proc/meminfo": meminfo, "/proc/self/mountinfo": v1, "/proc/self/cgroup": "3:cpu,cpuacct:/a\n", "/sys/fs/cgroup/cpu,cpuacct/a/cpu.cfs_quota_us": "200000", "/sys/fs/cgroup/cpu,cpuacct/a/cpu.cfs_period_us": "100000"}, 64, 1},
+		{"cgroup v1 unlimited", map[string]string{"/proc/meminfo": meminfo, "/proc/self/mountinfo": v1, "/proc/self/cgroup": "4:memory:/\n", "/sys/fs/cgroup/memory/memory.limit_in_bytes": "9223372036854771712"}, 16, 8},
+		{"malformed cgroup files", map[string]string{"/proc/meminfo": meminfo, "/proc/self/mountinfo": v2, "/proc/self/cgroup": "garbage\n0::/a\n", "/sys/fs/cgroup/a/memory.max": "x", "/sys/fs/cgroup/a/cpu.max": "y z w"}, 8, 4},
+		{"a cgroup whose mount cannot be found", map[string]string{"/proc/meminfo": meminfo, "/proc/self/cgroup": "0::/a\n"}, 64, 4},
+		{"a path outside the mounted subtree", map[string]string{"/proc/meminfo": meminfo, "/proc/self/mountinfo": "30 20 0:26 /tenant /sys/fs/cgroup rw - cgroup2 cgroup2 rw\n", "/proc/self/cgroup": "0::/other\n"}, 64, 4},
 	}
 	for _, c := range cases {
 		read := func(path string) ([]byte, error) {
@@ -216,7 +223,12 @@ func TestValidateWhenIsReadBeforeTheCheckStarts(t *testing.T) {
 		if run := loadRun(t, root); run.Checks[1].Outcome != "pass" {
 			t.Fatalf("%v: a check enabled by an earlier one: %+v", args, run.Checks[1])
 		}
-		root = checksFixture(t, shellCheck("setup", "touch generated"), shellCheck("clean", "rm generated"), when(shellCheck("skipped", "exit 1"), "fileExists"))
+		// The marker is there when the run is planned; an earlier check
+		// removes it.
+		root = checksFixture(t, shellCheck("setup", "true"), shellCheck("clean", "rm generated"), when(shellCheck("skipped", "exit 1"), "fileExists"))
+		if err := os.WriteFile(filepath.Join(root, "mod", "generated"), nil, 0o644); err != nil {
+			t.Fatal(err)
+		}
 		if code, out := runValidate(t, root, append(args, "--json", "result.json")...); code != 0 {
 			t.Fatalf("%v: %d %s", args, code, out)
 		}
@@ -273,8 +285,7 @@ func TestCheckAcceptsExclusiveAsABoolean(t *testing.T) {
 	}
 }
 
-// Review round 1, B4: the preparatory go list stops with the run, and a second
-// signal is not swallowed while it shuts down.
+// Review round 1, B4: the preparatory go list stops with the run.
 func TestValidateCancelStopsThePreparatoryGoList(t *testing.T) {
 	dir := t.TempDir()
 	bin := filepath.Join(dir, "bin")

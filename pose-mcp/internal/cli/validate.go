@@ -209,23 +209,40 @@ func dispatchValidationEntries(ctx context.Context, entries []*validationEntry, 
 	}
 }
 
-// validationResources is what a run may use: cores and memory, 0 when
-// unknown.
+// validationResources is what a run may use. memoryKnown separates an empty
+// reading from none; unresolved says a cgroup applies whose limits could not
+// be located.
 type validationResources struct {
-	cpus   float64
-	memory uint64
+	cpus        float64
+	memory      uint64
+	memoryKnown bool
+	unresolved  bool
+}
+
+func (r *validationResources) limitMemory(available uint64) {
+	if !r.memoryKnown || available < r.memory {
+		r.memory, r.memoryKnown = available, true
+	}
+}
+
+func (r *validationResources) limitCPU(quota, period float64) {
+	if quota > 0 && period > 0 && quota/period < r.cpus {
+		r.cpus = quota / period
+	}
 }
 
 // defaultValidationJobs is half the cores, bounded by the memory available at
 // roughly 1.5 GiB per check — a Go test link is what filled a small machine —
-// and by 8, never below 1; with memory unknown it stays at 4 or below.
+// and by 8, never below 1; while the budget is not established it stays at 4
+// or below.
 func defaultValidationJobs(available validationResources) int {
 	jobs := int(available.cpus / 2)
-	if available.memory > 0 {
+	if available.memoryKnown {
 		if byMemory := int(available.memory / (3 << 29)); byMemory < jobs {
 			jobs = byMemory
 		}
-	} else if jobs > 4 {
+	}
+	if (!available.memoryKnown || available.unresolved) && jobs > 4 {
 		jobs = 4
 	}
 	if jobs > 8 {
@@ -237,10 +254,61 @@ func defaultValidationJobs(available validationResources) int {
 	return jobs
 }
 
+// cgroupMount is one mounted cgroup hierarchy: the subtree root it exposes,
+// where, and, for v1, its controllers.
+type cgroupMount struct {
+	root, point string
+	controllers []string
+	unified     bool
+}
+
+// parseCgroupMounts reads the cgroup hierarchies of /proc/self/mountinfo.
+func parseCgroupMounts(raw string) []cgroupMount {
+	var mounts []cgroupMount
+	for _, line := range strings.Split(raw, "\n") {
+		before, after, ok := strings.Cut(line, " - ")
+		fields, tail := strings.Fields(before), strings.Fields(after)
+		if !ok || len(fields) < 5 || len(tail) < 3 {
+			continue
+		}
+		mount := cgroupMount{root: fields[3], point: fields[4]}
+		switch tail[0] {
+		case "cgroup2":
+			mount.unified = true
+		case "cgroup":
+			mount.controllers = strings.Split(tail[2], ",")
+		default:
+			continue
+		}
+		mounts = append(mounts, mount)
+	}
+	return mounts
+}
+
+// visibleCgroupDirs translates a cgroup path into the directories of mount,
+// innermost first, up to the mount's own root; false when the path is not in
+// that subtree.
+func (m cgroupMount) visibleCgroupDirs(path string) ([]string, bool) {
+	root := strings.TrimRight(m.root, "/")
+	if path != root && !strings.HasPrefix(path, root+"/") {
+		return nil, false
+	}
+	relative := strings.TrimPrefix(path, root)
+	var dirs []string
+	for {
+		dirs = append(dirs, strings.TrimRight(m.point, "/")+relative)
+		if relative == "" {
+			return dirs, true
+		}
+		relative = relative[:strings.LastIndex(relative, "/")]
+	}
+}
+
 // effectiveValidationResources reads the machine's cores and available memory
-// and narrows them to the limits of the process's cgroup and its ancestors,
-// v2 and v1, so a container is judged by its budget (review round 1, B6).
-// read is os.ReadFile outside tests.
+// and narrows them to the limits of the process's cgroup and its visible
+// ancestors, v2 and v1, located through the process's own mounts, so a
+// container is judged by its budget (review rounds 1–2, B6). read is
+// os.ReadFile outside tests.
 func effectiveValidationResources(read func(string) ([]byte, error), cores int) validationResources {
 	found := validationResources{cpus: float64(cores)}
 	if raw, err := read("/proc/meminfo"); err == nil {
@@ -248,11 +316,19 @@ func effectiveValidationResources(read func(string) ([]byte, error), cores int) 
 			if rest, ok := strings.CutPrefix(line, "MemAvailable:"); ok {
 				if fields := strings.Fields(rest); len(fields) > 0 {
 					if kib, err := strconv.ParseUint(fields[0], 10, 64); err == nil {
-						found.memory = kib * 1024
+						found.limitMemory(kib * 1024)
 					}
 				}
 			}
 		}
+	}
+	membership, err := read("/proc/self/cgroup")
+	if err != nil {
+		return found
+	}
+	var mounts []cgroupMount
+	if raw, err := read("/proc/self/mountinfo"); err == nil {
+		mounts = parseCgroupMounts(string(raw))
 	}
 	number := func(path string) (uint64, bool) {
 		raw, err := read(path)
@@ -262,67 +338,73 @@ func effectiveValidationResources(read func(string) ([]byte, error), cores int) 
 		n, err := strconv.ParseUint(strings.TrimSpace(string(raw)), 10, 64)
 		return n, err == nil
 	}
-	limitMemory := func(limit, used uint64) {
-		headroom := uint64(0)
-		if limit > used {
-			headroom = limit - used
+	memoryLimit := func(limitFile, usedFile string) {
+		if limit, ok := number(limitFile); ok && limit < 1<<62 {
+			used, _ := number(usedFile)
+			if used > limit {
+				used = limit
+			}
+			found.limitMemory(limit - used)
 		}
-		if found.memory == 0 || headroom < found.memory {
-			found.memory = headroom
-			if found.memory == 0 {
-				found.memory = 1 // known to be full, not unknown
+	}
+	// A hierarchy that applies but is not mounted where this process can see
+	// it leaves the budget unknown, not unlimited.
+	resolve := func(path string, match func(cgroupMount) bool) []string {
+		for _, mount := range mounts {
+			if match(mount) {
+				if dirs, ok := mount.visibleCgroupDirs(path); ok {
+					return dirs
+				}
 			}
 		}
+		found.unresolved = true
+		return nil
 	}
-	limitCPU := func(quota, period float64) {
-		if quota > 0 && period > 0 && quota/period < found.cpus {
-			found.cpus = quota / period
+	hasController := func(name string) func(cgroupMount) bool {
+		return func(m cgroupMount) bool {
+			for _, controller := range m.controllers {
+				if controller == name {
+					return true
+				}
+			}
+			return false
 		}
 	}
-	raw, err := read("/proc/self/cgroup")
-	if err != nil {
-		return found
-	}
-	for _, line := range strings.Split(strings.TrimSpace(string(raw)), "\n") {
+	for _, line := range strings.Split(strings.TrimSpace(string(membership)), "\n") {
 		parts := strings.SplitN(line, ":", 3)
 		if len(parts) != 3 {
 			continue
 		}
 		path := strings.TrimRight(parts[2], "/")
-		for {
-			if parts[1] == "" {
-				base := "/sys/fs/cgroup" + path
-				if limit, ok := number(base + "/memory.max"); ok {
-					used, _ := number(base + "/memory.current")
-					limitMemory(limit, used)
-				}
-				if cpu, err := read(base + "/cpu.max"); err == nil {
+		if parts[1] == "" {
+			for _, dir := range resolve(path, func(m cgroupMount) bool { return m.unified }) {
+				memoryLimit(dir+"/memory.max", dir+"/memory.current")
+				if cpu, err := read(dir + "/cpu.max"); err == nil {
 					if fields := strings.Fields(string(cpu)); len(fields) == 2 {
-						quota, errQ := strconv.ParseFloat(fields[0], 64)
-						period, errP := strconv.ParseFloat(fields[1], 64)
-						if errQ == nil && errP == nil {
-							limitCPU(quota, period)
+						quota, errQuota := strconv.ParseFloat(fields[0], 64)
+						period, errPeriod := strconv.ParseFloat(fields[1], 64)
+						if errQuota == nil && errPeriod == nil {
+							found.limitCPU(quota, period)
 						}
 					}
 				}
 			}
-			if strings.Contains(","+parts[1]+",", ",memory,") {
-				if limit, ok := number("/sys/fs/cgroup/memory" + path + "/memory.limit_in_bytes"); ok && limit < 1<<62 {
-					used, _ := number("/sys/fs/cgroup/memory" + path + "/memory.usage_in_bytes")
-					limitMemory(limit, used)
+			continue
+		}
+		controllers := "," + parts[1] + ","
+		if strings.Contains(controllers, ",memory,") {
+			for _, dir := range resolve(path, hasController("memory")) {
+				memoryLimit(dir+"/memory.limit_in_bytes", dir+"/memory.usage_in_bytes")
+			}
+		}
+		if strings.Contains(controllers, ",cpu,") {
+			for _, dir := range resolve(path, hasController("cpu")) {
+				quota, okQuota := number(dir + "/cpu.cfs_quota_us")
+				period, okPeriod := number(dir + "/cpu.cfs_period_us")
+				if okQuota && okPeriod {
+					found.limitCPU(float64(quota), float64(period))
 				}
 			}
-			if strings.Contains(","+parts[1]+",", ",cpu,") {
-				quota, okQ := number("/sys/fs/cgroup/cpu" + path + "/cpu.cfs_quota_us")
-				period, okP := number("/sys/fs/cgroup/cpu" + path + "/cpu.cfs_period_us")
-				if okQ && okP {
-					limitCPU(float64(quota), float64(period))
-				}
-			}
-			if path == "" {
-				break
-			}
-			path = path[:strings.LastIndex(path, "/")]
 		}
 	}
 	return found
