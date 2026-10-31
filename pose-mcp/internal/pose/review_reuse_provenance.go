@@ -29,18 +29,24 @@ type reviewReuseEvaluation struct {
 	disclosure []ReviewReuseDisclosure
 }
 
+type childVerificationResult struct {
+	verification ReviewBundleVerification
+	err          error
+}
+
 type reviewReuseTraversal struct {
 	evaluations         map[string]reviewReuseEvaluation
 	active              map[string]bool
 	memo                map[string][]string
 	attestations        map[string]ReviewAttestation
 	bundles             map[string]ReviewBundle
+	children            map[string]childVerificationResult
 	depth, nodes, edges int
 	bytes               int64
 }
 
 func newReviewReuseTraversal() *reviewReuseTraversal {
-	return &reviewReuseTraversal{evaluations: map[string]reviewReuseEvaluation{}, active: map[string]bool{}, memo: map[string][]string{}, attestations: map[string]ReviewAttestation{}, bundles: map[string]ReviewBundle{}}
+	return &reviewReuseTraversal{children: map[string]childVerificationResult{}, evaluations: map[string]reviewReuseEvaluation{}, active: map[string]bool{}, memo: map[string][]string{}, attestations: map[string]ReviewAttestation{}, bundles: map[string]ReviewBundle{}}
 }
 
 func (s Store) reserveReuseArtifact(dir, id string) error {

@@ -1646,6 +1646,8 @@ func (s Store) reviewBundleChildren(scope ScopeRef) ([]ReviewBundleChild, []stri
 	if err != nil {
 		return nil, nil, err
 	}
+	s = s.reviewOperation()
+	parentDone, _ := s.scopeLifecycleDone(scope)
 	children, blockers := []ReviewBundleChild{}, []string{}
 	for _, ref := range refs {
 		sealed, err := s.CurrentReviewBundle(ref)
@@ -1659,6 +1661,8 @@ func (s Store) reviewBundleChildren(scope ScopeRef) ([]ReviewBundleChild, []stri
 				continue
 			}
 			sealed = retained
+		} else if why := s.childReviewStanding(ref, parentDone); why != "" {
+			blockers = append(blockers, reviewChildPrefix+ref+" does not stand: "+why)
 		}
 		children = append(children, ReviewBundleChild{Scope: ref, BundleID: sealed.BundleID, BundleDigest: sealed.BundleDigest})
 	}
@@ -1671,7 +1675,7 @@ func (s Store) reviewBundleChildren(scope ScopeRef) ([]ReviewBundleChild, []stri
 // lost attestation history, a later negative review, a changed federated
 // manifest — or nil and why not (spec pose-review-subject-later-removal R3).
 func (s Store) retainedChildReviewBundle(ref string) (*ReviewBundle, string) {
-	verification, err := s.VerifyReviewBundle(ref)
+	verification, err := s.childVerification(ref)
 	if err != nil {
 		return nil, ": its review could not be verified: " + err.Error()
 	}
@@ -1682,6 +1686,63 @@ func (s Store) retainedChildReviewBundle(ref string) (*ReviewBundle, string) {
 		return nil, ""
 	}
 	return verification.Bundle, ""
+}
+
+// reviewChildPrefix opens every blocker that names a child of the scope.
+const reviewChildPrefix = "child "
+
+// childVerification is a child's own verification, once per operation.
+func (s Store) childVerification(ref string) (ReviewBundleVerification, error) {
+	s = s.reviewOperation()
+	memo := s.reviewReuse.children
+	if result, ok := memo[ref]; ok {
+		return result.verification, result.err
+	}
+	verification, err := s.verifyReviewBundle(ref)
+	memo[ref] = childVerificationResult{verification, err}
+	return verification, err
+}
+
+// childReviewStanding says why a child's review no longer stands under its
+// parent, or nothing when it does: the child's own verification decides, so
+// every way a review stops standing counts (spec
+// pose-review-approval-follows-children R1-R3, D1).
+func (s Store) childReviewStanding(ref string, parentDone bool) string {
+	verification, err := s.childVerification(ref)
+	if err != nil {
+		return "its review could not be verified: " + err.Error()
+	}
+	if !verification.Fresh || !verification.Approved {
+		if len(verification.Blockers) > 0 {
+			return strings.Join(uniqueSorted(verification.Blockers), "; ")
+		}
+		return "its review is " + verification.State
+	}
+	if parentDone && verification.State != "closed" {
+		return "it is not closed: " + verification.State
+	}
+	return ""
+}
+
+// reviewChildBlockers are the children a retained bundle integrated that no
+// longer stand. Only a done scope retains, so its children must be closed.
+func (s Store) reviewChildBlockers(children []ReviewBundleChild) []string {
+	blockers := []string{}
+	for _, child := range children {
+		if why := s.childReviewStanding(child.Scope, true); why != "" {
+			blockers = append(blockers, reviewChildPrefix+child.Scope+" does not stand: "+why)
+		}
+	}
+	return blockers
+}
+
+func blockedByAChild(blockers []string) bool {
+	for _, blocker := range blockers {
+		if strings.HasPrefix(blocker, reviewChildPrefix) {
+			return true
+		}
+	}
+	return false
 }
 
 func (s Store) reviewBundleConsumedInputs(plan ReviewPlan) []ReviewBundleInput {
@@ -1945,26 +2006,89 @@ func sealedBundleMatches(sealed, prepared ReviewBundle) bool {
 // among the bundles holding it, the newest whose identity no other of them
 // replaced. Bundles are in seal order.
 func governingSealedBundle(bundles []ReviewBundle, prepared ReviewBundle) *ReviewBundle {
-	replaced := map[string]bool{}
-	matching := []int{}
+	matching := []ReviewBundle{}
 	for i := range bundles {
 		if sealedBundleMatches(bundles[i], prepared) {
-			matching = append(matching, i)
-			if impl := bundles[i].Payload.Implementation; impl != nil && impl.Replaces != "" {
-				replaced[impl.Replaces] = true
+			matching = append(matching, bundles[i])
+		}
+	}
+	if len(matching) == 0 {
+		return nil
+	}
+	bundle := reviewBundleLineage(matching)[0]
+	return &bundle
+}
+
+func replacedReviewBundles(bundles []ReviewBundle) map[string]bool {
+	replaced := map[string]bool{}
+	for i := range bundles {
+		if impl := bundles[i].Payload.Implementation; impl != nil && impl.Replaces != "" {
+			replaced[impl.Replaces] = true
+		}
+	}
+	return replaced
+}
+
+// reviewBundleLineage orders bundles, given oldest first, newest first by
+// lineage: a replacement stands right before what it replaces and in the
+// newest place of its chain, since it was sealed after them whatever its seal
+// time says, and bundles in a replacement cycle follow newest first. Every
+// selection reads this one order, so none can disagree with another (spec
+// pose-review-approval-follows-children R4, D3).
+func reviewBundleLineage(bundles []ReviewBundle) []ReviewBundle {
+	position := make(map[string]int, len(bundles))
+	for i := range bundles {
+		position[bundles[i].BundleID] = i
+	}
+	chainOf := func(i int) []int {
+		chain, seen := []int{i}, map[int]bool{i: true}
+		for {
+			impl := bundles[chain[len(chain)-1]].Payload.Implementation
+			if impl == nil {
+				return chain
 			}
+			next, ok := position[impl.Replaces]
+			if !ok || seen[next] {
+				return chain
+			}
+			seen[next] = true
+			chain = append(chain, next)
 		}
 	}
-	for j := len(matching) - 1; j >= 0; j-- {
-		if bundle := bundles[matching[j]]; !replaced[bundle.BundleID] {
-			return &bundle
+	replaced := replacedReviewBundles(bundles)
+	type lineage struct {
+		chain  []int
+		newest int
+	}
+	lineages := []lineage{}
+	for i := len(bundles) - 1; i >= 0; i-- {
+		if replaced[bundles[i].BundleID] {
+			continue
+		}
+		chain := chainOf(i)
+		newest := i
+		for _, at := range chain {
+			newest = max(newest, at)
+		}
+		lineages = append(lineages, lineage{chain, newest})
+	}
+	sort.SliceStable(lineages, func(a, b int) bool { return lineages[a].newest > lineages[b].newest })
+	ordered, placed := make([]ReviewBundle, 0, len(bundles)), make(map[int]bool, len(bundles))
+	place := func(i int) {
+		if !placed[i] {
+			placed[i] = true
+			ordered = append(ordered, bundles[i])
 		}
 	}
-	if len(matching) > 0 {
-		bundle := bundles[matching[len(matching)-1]]
-		return &bundle
+	for _, l := range lineages {
+		for _, at := range l.chain {
+			place(at)
+		}
 	}
-	return nil
+	for i := len(bundles) - 1; i >= 0; i-- {
+		place(i)
+	}
+	return ordered
 }
 
 func sameImplementation(a, b ReviewBundleImplementation) bool {
@@ -3139,9 +3263,15 @@ func (s Store) verifyReviewBundle(scope string) (ReviewBundleVerification, error
 				// Only routine drift is retained. A changed federated manifest —
 				// revoked trust, a moved or unauthorized source — bears on the
 				// review's authority, so it stales a closed scope as it always did.
-				bundle, att, retainLost := s.retainedCompletedReviewWithHistory(scopeRef, scope, policy)
+				bundle, att, retainLost, childBlockers := s.retainedCompletedReviewWithHistory(scopeRef, scope, policy)
 				if len(retainLost) > 0 {
 					verification.Blockers = append(verification.Blockers, "the approval cannot be retained: the attestation history of its bundle is incomplete, so the latest readable attestation is not known to be the current one: "+(SourceCoverage{Losses: retainLost}).Describe("")+"; restore or remove the unreadable record")
+				}
+				if len(childBlockers) > 0 {
+					verification.State = "superseded"
+					verification.Blockers = uniqueSorted(append(verification.Blockers, childBlockers...))
+					verification.NextAction = "restore the review of the children of " + scope
+					return verification, nil
 				}
 				if bundle != nil && sameFederatedManifest(bundle.Payload.FederatedManifest, prepared.Payload.FederatedManifest) {
 					verification.Bundle, verification.Attestation = bundle, att
@@ -3208,6 +3338,8 @@ func (s Store) verifyReviewBundle(scope string) (ReviewBundleVerification, error
 	} else if att.Decision == "changes-requested" || att.Decision == "rejected" {
 		verification.State = "changes-requested"
 		verification.NextAction = "remediate findings and seal a superseding bundle"
+	} else if blockedByAChild(prepared.Blockers) {
+		verification.NextAction = "restore the review of the children of " + scope
 	} else {
 		verification.NextAction = "replace the invalid attestation for " + current.BundleID
 	}

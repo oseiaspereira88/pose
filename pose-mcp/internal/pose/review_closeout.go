@@ -1330,10 +1330,11 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 			return eval, nil
 		}
 		if done {
-			bundle, att, retainLost := s.retainedCompletedReviewWithHistory(scope, ref, policy)
+			bundle, att, retainLost, childBlockers := s.retainedCompletedReviewWithHistory(scope, ref, policy)
 			if len(retainLost) > 0 {
 				eval.Blockers = append(eval.Blockers, "the approval of "+ref+" cannot be retained: the attestation history of its bundle is incomplete, so the latest readable attestation is not known to be the current one: "+(SourceCoverage{Losses: retainLost}).Describe("")+"; restore or remove the unreadable record")
 			}
+			eval.Blockers = append(eval.Blockers, childBlockers...)
 			if bundle != nil {
 				eval.Fresh = true
 				eval.Approved = true
@@ -2180,7 +2181,7 @@ const retainedCompletedReviewWarning = "completed scope retains its approved sea
 // what it needs is a superseding attestation, which an operator can record
 // when the work is next touched.
 func (s Store) retainedCompletedReview(scope ScopeRef, ref string, policy ReviewPolicy) (*ReviewBundle, *ReviewAttestation) {
-	bundle, att, _ := s.retainedCompletedReviewWithHistory(scope, ref, policy)
+	bundle, att, _, _ := s.retainedCompletedReviewWithHistory(scope, ref, policy)
 	return bundle, att
 }
 
@@ -2188,38 +2189,45 @@ func (s Store) retainedCompletedReview(scope ScopeRef, ref string, policy Review
 // records of the bundle it would retain that could not be read. An approval is not
 // retained over a history with a hole: the record that was lost may be a rejection
 // made after it (spec pose-source-coverage-integrity), so the lost records are returned
-// for the caller to report and no approval is.
-func (s Store) retainedCompletedReviewWithHistory(scope ScopeRef, ref string, policy ReviewPolicy) (*ReviewBundle, *ReviewAttestation, []SourceLoss) {
+// for the caller to report and no approval is. Nor is one retained over a child that no
+// longer stands: those children are returned the same way, and a replaced bundle's
+// approval is not retained, though its negative review counts (spec
+// pose-review-approval-follows-children R2, R5).
+func (s Store) retainedCompletedReviewWithHistory(scope ScopeRef, ref string, policy ReviewPolicy) (*ReviewBundle, *ReviewAttestation, []SourceLoss, []string) {
 	bundlesRead, err := s.ReadReviewBundles(ref)
 	if err != nil {
-		return nil, nil, []SourceLoss{{Producer: "review-bundles", Artifact: ".pose/reviews", Kind: LossReadError, Detail: err.Error()}}
+		return nil, nil, []SourceLoss{{Producer: "review-bundles", Artifact: ".pose/reviews", Kind: LossReadError, Detail: err.Error()}}, nil
 	}
-	bundles := bundlesRead.Bundles
+	bundles := reviewBundleLineage(bundlesRead.Bundles)
+	replaced := replacedReviewBundles(bundles)
 	// A bundle of this scope that could not be read may hold a review made after any
 	// approval below it: nothing is retained over it. (The bundle of the current inputs
 	// is verified separately and does not come through here.)
 	if lost := bundlesRead.Coverage.LossesFor(ref); len(lost) > 0 {
-		return nil, nil, lost
+		return nil, nil, lost, nil
 	}
-	for i := len(bundles) - 1; i >= 0; i-- {
+	for i := range bundles {
 		read, attErr := s.ReadReviewAttestations(bundles[i].BundleID)
 		attestations := read.Attestations
 		if attErr != nil {
 			// A bundle whose attestations cannot be loaded may hold a rejection made
 			// after any approval below it: no approval is retained over it.
-			return nil, nil, []SourceLoss{{Producer: "review-attestations", Artifact: bundles[i].BundleID, Scope: ref, AttributedBy: "bundle", Kind: LossInvalid, Detail: attErr.Error()}}
+			return nil, nil, []SourceLoss{{Producer: "review-attestations", Artifact: bundles[i].BundleID, Scope: ref, AttributedBy: "bundle", Kind: LossInvalid, Detail: attErr.Error()}}, nil
 		}
 		if lost := read.Coverage.LossesFor(bundles[i].BundleID); len(lost) > 0 {
-			return nil, nil, lost
+			return nil, nil, lost, nil
 		}
 		if len(attestations) == 0 {
 			continue
 		}
 		att := attestations[len(attestations)-1]
 		waiveEvidence := s.bundleContractExempt(scope, policy, bundles[i], "evidence-vocabulary", att.AttestedAt)
-		if len(s.validateBundleAttestationWith(bundles[i], att, waiveEvidence)) == 0 {
+		if !replaced[bundles[i].BundleID] && len(s.validateBundleAttestationWith(bundles[i], att, waiveEvidence)) == 0 {
 			bundle := bundles[i]
-			return &bundle, &att, nil
+			if blockers := s.reviewChildBlockers(bundle.Payload.Children); len(blockers) > 0 {
+				return nil, nil, nil, blockers
+			}
+			return &bundle, &att, nil, nil
 		}
 		// A later review that rejected the work or requested changes is not
 		// overridden by an older approval. A later approval that no longer
@@ -2227,10 +2235,10 @@ func (s Store) retainedCompletedReviewWithHistory(scope ScopeRef, ref string, po
 		// is not a verdict against the work, so an older standing approval
 		// still counts, as it always did.
 		if att.Decision == "rejected" || att.Decision == "changes-requested" {
-			return nil, nil, nil
+			return nil, nil, nil, nil
 		}
 	}
-	return nil, nil, nil
+	return nil, nil, nil, nil
 }
 
 // latestNegativeReview returns the newest attested bundle of a scope when its
@@ -2240,7 +2248,8 @@ func (s Store) latestNegativeReview(ref string) (*ReviewBundle, *ReviewAttestati
 	if err != nil {
 		return nil, nil
 	}
-	for i := len(bundles) - 1; i >= 0; i-- {
+	bundles = reviewBundleLineage(bundles)
+	for i := range bundles {
 		attestations, attErr := s.ListReviewAttestations(bundles[i].BundleID)
 		if attErr != nil || len(attestations) == 0 {
 			continue
