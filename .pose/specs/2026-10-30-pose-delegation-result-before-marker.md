@@ -63,6 +63,7 @@ A waiter never sees a delegated run end without the receipt of its result.
 - created: .pose/starts/pose-delegation-result-before-marker.json
 - modified: pose-mcp/internal/pose/review_dispatch.go
 - created: pose-mcp/internal/pose/review_result_before_marker_test.go
+- created: pose-mcp/internal/pose/review_result_return_paths_test.go
 - modified: .pose/indexes/validation-matrix.json
 
 ### Delivery targets
