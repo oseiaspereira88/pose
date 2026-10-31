@@ -81,7 +81,7 @@ func (s Store) GovernanceReplay(limit int) (GovernanceReplayReport, error) {
 	}
 	report := GovernanceReplayReport{SchemaVersion: 1, Mode: "read-only-counterfactual", Complete: true, Limit: limit, RejectionReasons: map[string]int{}, Limitations: []string{"Frozen historical approvals are not rewritten or revoked by this report.", "Record-level checks do not apply lifecycle grandfathering or determine current scope approval.", "Counterfactual rejection does not establish reviewer utility or causal benefit.", "No costs, retries, task latency or external adoption are inferred.", "Structural coverage uses the newest available sealed subject of each spec."}}
 	bundles := map[string]ReviewBundle{}
-	latest := map[string]ReviewBundle{}
+	byScope := map[string][]ReviewBundle{}
 	latestAtt := map[string]ReviewAttestation{}
 	bytesLeft := int64(128 << 20)
 	for _, kind := range []string{"review-bundles", "review-attestations"} {
@@ -126,10 +126,7 @@ func (s Store) GovernanceReplay(limit int) (GovernanceReplayReport, error) {
 					continue
 				}
 				bundles[id] = bundle
-				old, ok := latest[bundle.Payload.Scope.Ref]
-				if !ok || reviewInstantLess(old.SealedAt, old.BundleID, bundle.SealedAt, bundle.BundleID) {
-					latest[bundle.Payload.Scope.Ref] = bundle
-				}
+				byScope[bundle.Payload.Scope.Ref] = append(byScope[bundle.Payload.Scope.Ref], bundle)
 				continue
 			}
 			att, err := s.LoadReviewAttestation(id)
@@ -183,6 +180,13 @@ func (s Store) GovernanceReplay(limit int) (GovernanceReplayReport, error) {
 		return report, err
 	}
 	report.Specs = len(specs)
+	latest := map[string]ReviewBundle{}
+	for ref, list := range byScope {
+		sort.Slice(list, func(i, j int) bool {
+			return reviewInstantLess(list[i].SealedAt, list[i].BundleID, list[j].SealedAt, list[j].BundleID)
+		})
+		latest[ref] = reviewBundleLineage(list)[0]
+	}
 	for i, spec := range specs {
 		if i >= limit {
 			report.Complete = false

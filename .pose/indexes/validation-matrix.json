@@ -2189,7 +2189,7 @@
         {
           "name": "review-approval-follows-children-integration",
           "program": "go",
-          "args": ["test", "./internal/pose", "-run", "TestParentApproval|TestRoadmapApprovalFollowsItsDescendants|TestChildMustBeClosedUnderADoneParent|TestReviewBundleLineage|TestRetentionHonoursReplacementLineage|TestReplacedApprovalIsNotRetained|TestReplacementsRejectionIsNotOverriddenByWhatItReplaced|TestReplacedRejectionStillCounts|TestReplacementStandsOverWhatItReplaced|TestChildVerificationIsOncePerOperation", "-count=1"],
+          "args": ["test", "./internal/pose", "-run", "TestParentApproval|TestRoadmapApprovalFollowsItsDescendants|TestChildMustBeClosedUnderADoneParent|TestReviewBundleLineage|TestRetentionHonoursReplacementLineage|TestReplacedApprovalIsNotRetained|TestReplacementsRejectionIsNotOverriddenByWhatItReplaced|TestReplacedRejectionStillCounts|TestReplacementStandsOverWhatItReplaced|TestChildVerificationIsOncePerOperation|TestChildCycleEndsInARefusal|TestLegacyCoordinatedMatchingFollowsLineage|TestSealedBranchLineage|TestLatestNegativeSkipsAReplacedApproval|TestForgedReplacementRetiresNothing|TestEffectiveGovernanceFollowsLineage", "-count=1"],
           "severity": "required",
           "evidenceClass": "integration"
         },

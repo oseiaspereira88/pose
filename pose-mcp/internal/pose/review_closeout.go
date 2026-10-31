@@ -1271,6 +1271,7 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 	if s.indexPin == nil {
 		s = s.PinIndexes()
 	}
+	s = s.reviewOperation()
 	scope, err := ParseScopeRef(ref)
 	if err != nil {
 		return ReviewEvaluation{}, err
@@ -2248,6 +2249,7 @@ func (s Store) latestNegativeReview(ref string) (*ReviewBundle, *ReviewAttestati
 	if err != nil {
 		return nil, nil
 	}
+	replaced := replacedReviewBundles(bundles)
 	bundles = reviewBundleLineage(bundles)
 	for i := range bundles {
 		attestations, attErr := s.ListReviewAttestations(bundles[i].BundleID)
@@ -2256,6 +2258,9 @@ func (s Store) latestNegativeReview(ref string) (*ReviewBundle, *ReviewAttestati
 		}
 		att := attestations[len(attestations)-1]
 		if att.Decision != "rejected" && att.Decision != "changes-requested" {
+			if replaced[bundles[i].BundleID] {
+				continue
+			}
 			return nil, nil
 		}
 		bundle := bundles[i]
@@ -2383,6 +2388,7 @@ func (s Store) GetCloseoutState(ref string) (CloseoutState, error) {
 }
 
 func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutState, error) {
+	s = s.reviewOperation()
 	scope, err := ParseScopeRef(ref)
 	if err != nil {
 		return CloseoutState{}, err

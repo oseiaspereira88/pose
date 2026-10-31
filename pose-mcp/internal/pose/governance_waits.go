@@ -205,6 +205,7 @@ func (s Store) GovernanceRework() (GovernanceReworkReport, error) {
 	}
 	report.Scopes = len(byScope)
 	for _, list := range byScope {
+		// Rework is counted in the order seals happened, not by lineage.
 		sort.Slice(list, func(i, j int) bool {
 			return reviewInstantLess(list[i].SealedAt, list[i].BundleID, list[j].SealedAt, list[j].BundleID)
 		})

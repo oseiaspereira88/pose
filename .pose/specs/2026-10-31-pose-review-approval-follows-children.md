@@ -39,14 +39,15 @@ Independent review of `pose-review-subject-later-removal` found two faults in wh
 ### Functional
 
 - R1: Preparing a milestone or roadmap shall report a blocker for each child whose review does not stand: not approved, not fresh, with lost attestation history, or, when the parent's lifecycle is done, not closed.
-- R2: Verification of a parent, current or retained, shall not report it approved while a child of its bundle does not stand, and shall name the child. Closeout and `pose review check` shall agree.
+- R2: Verification of a parent, current or retained, shall not report it approved while a child of its bundle does not stand, and shall name the child. Closeout and `pose review-check` shall agree.
 - R3: The rule shall be transitive: a roadmap does not stand over a milestone whose spec does not.
-- R4: Bundle selection shall honour replacement lineage everywhere: a replacement comes before what it replaces and takes its place in time, for current matching, retention and the latest negative review, whatever the seal times, equal ones included.
-- R5: A replaced bundle's approval shall not be retained; its negative review still counts.
+- R4: Bundle selection shall honour replacement lineage everywhere a governing bundle is chosen — current and legacy coordinated matching, retention, the latest negative review, effective governance, the supersession delta and the governance replay: every replacement comes before what it replaces and takes the newest place of its chain, whatever the seal times, equal ones included. A `replaces` counts only between bundles of the same content.
+- R5: A replaced bundle's approval shall not be retained nor stop the search for a negative review; its negative review still counts.
+- R6: Sealed children shall not make verification recurse without end: a scope reached again while being verified ends in a named refusal.
 
 ### Non-functional
 
-- A child is verified at most once per operation.
+- A public verification, `review-check` or closeout verifies each scope at most once. The memo lives for that call only and is keyed by project and resolver.
 
 ### Security
 
@@ -67,6 +68,7 @@ Independent review of `pose-review-subject-later-removal` found two faults in wh
 - created: .pose/specs/2026-10-31-pose-review-approval-follows-children.md
 - created: .pose/starts/pose-review-approval-follows-children.json
 - created: .pose/changelogs/unreleased/pose-review-approval-follows-children.md
+- created: .pose/specs/2026-10-31-pose-review-approval-follows-children.amendments.jsonl
 - modified: .pose/specs/2026-10-30-pose-review-subject-later-removal.md
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
@@ -76,6 +78,10 @@ Independent review of `pose-review-subject-later-removal` found two faults in wh
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/review_reuse_provenance.go
+- modified: pose-mcp/internal/pose/effective_governance.go
+- modified: pose-mcp/internal/pose/governance_replay.go
+- modified: pose-mcp/internal/pose/governance_waits.go
+- modified: pose-mcp/internal/cli/testdata/adversarial/README.md
 - created: pose-mcp/internal/pose/review_approval_follows_children_test.go
 
 ### Delivery targets
@@ -97,7 +103,7 @@ A parent's verification, review check and closeout report a child that no longer
 
 - D1: The rule reads the child's own verification, so every reason a child stops standing — rejection, lost history, reopening, revoked federation — counts without a list of its own.
 - D2: The check runs at verification, not in the bundle: a sealed parent records which children it integrated, and whether they stand is a fact of now.
-- D3: One lineage order serves every selection, so matching and retention cannot disagree. A replacement takes the newest position of its chain, since it was sealed after what it replaced whatever its seal time says.
+- D3: One lineage order serves every selection, so matching and retention cannot disagree. A replacement takes the newest position of its chain, since it was sealed after what it replaced whatever its seal time says. Rework analytics stay in seal order: they count what happened, not what governs.
 
 ## 6. Validation
 

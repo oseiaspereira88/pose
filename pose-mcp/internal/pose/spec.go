@@ -49,6 +49,7 @@ func ValidateSlug(slug string) error {
 type Store struct {
 	reviewTime         *time.Time
 	reviewReuse        *reviewReuseTraversal
+	onReviewVerify     func(scope string)
 	Root               string // project root containing .pose/
 	FederatedProjectID string
 	FederatedResolver  *ArtifactResolver

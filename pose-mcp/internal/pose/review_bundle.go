@@ -1675,7 +1675,7 @@ func (s Store) reviewBundleChildren(scope ScopeRef) ([]ReviewBundleChild, []stri
 // lost attestation history, a later negative review, a changed federated
 // manifest — or nil and why not (spec pose-review-subject-later-removal R3).
 func (s Store) retainedChildReviewBundle(ref string) (*ReviewBundle, string) {
-	verification, err := s.childVerification(ref)
+	verification, err := s.reviewOperation().verifyReviewBundle(ref)
 	if err != nil {
 		return nil, ": its review could not be verified: " + err.Error()
 	}
@@ -1691,24 +1691,12 @@ func (s Store) retainedChildReviewBundle(ref string) (*ReviewBundle, string) {
 // reviewChildPrefix opens every blocker that names a child of the scope.
 const reviewChildPrefix = "child "
 
-// childVerification is a child's own verification, once per operation.
-func (s Store) childVerification(ref string) (ReviewBundleVerification, error) {
-	s = s.reviewOperation()
-	memo := s.reviewReuse.children
-	if result, ok := memo[ref]; ok {
-		return result.verification, result.err
-	}
-	verification, err := s.verifyReviewBundle(ref)
-	memo[ref] = childVerificationResult{verification, err}
-	return verification, err
-}
-
 // childReviewStanding says why a child's review no longer stands under its
 // parent, or nothing when it does: the child's own verification decides, so
 // every way a review stops standing counts (spec
 // pose-review-approval-follows-children R1-R3, D1).
 func (s Store) childReviewStanding(ref string, parentDone bool) string {
-	verification, err := s.childVerification(ref)
+	verification, err := s.reviewOperation().verifyReviewBundle(ref)
 	if err != nil {
 		return "its review could not be verified: " + err.Error()
 	}
@@ -2019,74 +2007,92 @@ func governingSealedBundle(bundles []ReviewBundle, prepared ReviewBundle) *Revie
 	return &bundle
 }
 
+// replacementHolds says whether successor really replaced predecessor's
+// identity: the same content, under another identity. A sealed `replaces` is
+// data and names anything, so an edge between different content counts for no
+// selection (spec pose-review-approval-follows-children R4).
+func replacementHolds(successor, predecessor ReviewBundle) bool {
+	payload := predecessor.Payload
+	payload.Implementation = successor.Payload.Implementation
+	digest, err := reviewBundlePayloadDigest(payload)
+	return err == nil && digest == successor.BundleDigest
+}
+
+// reviewBundleReplacements maps each bundle's index to the index of the bundle
+// it holds a replacement of.
+func reviewBundleReplacements(bundles []ReviewBundle) map[int]int {
+	position := make(map[string]int, len(bundles))
+	for i := range bundles {
+		position[bundles[i].BundleID] = i
+	}
+	replacements := map[int]int{}
+	for i := range bundles {
+		impl := bundles[i].Payload.Implementation
+		if impl == nil || impl.Replaces == "" {
+			continue
+		}
+		if at, ok := position[impl.Replaces]; ok && at != i && replacementHolds(bundles[i], bundles[at]) {
+			replacements[i] = at
+		}
+	}
+	return replacements
+}
+
 func replacedReviewBundles(bundles []ReviewBundle) map[string]bool {
 	replaced := map[string]bool{}
-	for i := range bundles {
-		if impl := bundles[i].Payload.Implementation; impl != nil && impl.Replaces != "" {
-			replaced[impl.Replaces] = true
-		}
+	for _, at := range reviewBundleReplacements(bundles) {
+		replaced[bundles[at].BundleID] = true
 	}
 	return replaced
 }
 
 // reviewBundleLineage orders bundles, given oldest first, newest first by
-// lineage: a replacement stands right before what it replaces and in the
-// newest place of its chain, since it was sealed after them whatever its seal
-// time says, and bundles in a replacement cycle follow newest first. Every
-// selection reads this one order, so none can disagree with another (spec
-// pose-review-approval-follows-children R4, D3).
+// lineage: every replacement before what it replaces, and each bundle in the
+// newest place of the chain it replaced, since it was sealed after them
+// whatever its seal time says. Bundles in a replacement cycle follow newest
+// first. Every selection reads this one order, so none can disagree with
+// another (spec pose-review-approval-follows-children R4, D3).
 func reviewBundleLineage(bundles []ReviewBundle) []ReviewBundle {
-	position := make(map[string]int, len(bundles))
+	replacements := reviewBundleReplacements(bundles)
+	successors := make([]int, len(bundles))
+	newest := make([]int, len(bundles))
 	for i := range bundles {
-		position[bundles[i].BundleID] = i
+		newest[i] = i
+		seen := map[int]bool{i: true}
+		for at, ok := replacements[i]; ok && !seen[at]; at, ok = replacements[at] {
+			seen[at] = true
+			newest[i] = max(newest[i], at)
+		}
 	}
-	chainOf := func(i int) []int {
-		chain, seen := []int{i}, map[int]bool{i: true}
-		for {
-			impl := bundles[chain[len(chain)-1]].Payload.Implementation
-			if impl == nil {
-				return chain
+	for _, at := range replacements {
+		successors[at]++
+	}
+	placed := make([]bool, len(bundles))
+	ordered := make([]ReviewBundle, 0, len(bundles))
+	better := func(a, b int) bool {
+		return b < 0 || newest[a] > newest[b] || newest[a] == newest[b] && a > b
+	}
+	for len(ordered) < len(bundles) {
+		next, cycle := -1, -1
+		for i := range bundles {
+			if placed[i] {
+				continue
 			}
-			next, ok := position[impl.Replaces]
-			if !ok || seen[next] {
-				return chain
+			if successors[i] == 0 && better(i, next) {
+				next = i
 			}
-			seen[next] = true
-			chain = append(chain, next)
+			if better(i, cycle) {
+				cycle = i
+			}
 		}
-	}
-	replaced := replacedReviewBundles(bundles)
-	type lineage struct {
-		chain  []int
-		newest int
-	}
-	lineages := []lineage{}
-	for i := len(bundles) - 1; i >= 0; i-- {
-		if replaced[bundles[i].BundleID] {
-			continue
+		if next < 0 {
+			next = cycle
 		}
-		chain := chainOf(i)
-		newest := i
-		for _, at := range chain {
-			newest = max(newest, at)
+		placed[next] = true
+		ordered = append(ordered, bundles[next])
+		if at, ok := replacements[next]; ok && !placed[at] {
+			successors[at]--
 		}
-		lineages = append(lineages, lineage{chain, newest})
-	}
-	sort.SliceStable(lineages, func(a, b int) bool { return lineages[a].newest > lineages[b].newest })
-	ordered, placed := make([]ReviewBundle, 0, len(bundles)), make(map[int]bool, len(bundles))
-	place := func(i int) {
-		if !placed[i] {
-			placed[i] = true
-			ordered = append(ordered, bundles[i])
-		}
-	}
-	for _, l := range lineages {
-		for _, at := range l.chain {
-			place(at)
-		}
-	}
-	for i := len(bundles) - 1; i >= 0; i-- {
-		place(i)
 	}
 	return ordered
 }
@@ -2473,25 +2479,20 @@ func (s Store) matchSealedReviewBundle(scope string, prepared ReviewBundle, bund
 	if prepared.Payload.Scope.Kind != "milestone" || s.FederatedResolver == nil {
 		return nil, nil
 	}
-	var legacy *ReviewBundle
-	for i := len(bundles) - 1; i >= 0; i-- {
-		manifest := bundles[i].Payload.FederatedManifest
-		if manifest == nil || manifest.Coordinator.Kind != "roadmap" {
-			continue
-		}
-		if legacy == nil {
-			candidate, err := s.prepareReviewBundle(scope, true)
-			if err != nil {
-				return nil, err
-			}
-			legacy = &candidate
-		}
-		if sealedBundleMatches(bundles[i], *legacy) {
-			bundle := bundles[i]
-			return &bundle, nil
+	coordinated := []ReviewBundle{}
+	for i := range bundles {
+		if manifest := bundles[i].Payload.FederatedManifest; manifest != nil && manifest.Coordinator.Kind == "roadmap" {
+			coordinated = append(coordinated, bundles[i])
 		}
 	}
-	return nil, nil
+	if len(coordinated) == 0 {
+		return nil, nil
+	}
+	legacy, err := s.prepareReviewBundle(scope, true)
+	if err != nil {
+		return nil, err
+	}
+	return governingSealedBundle(coordinated, legacy), nil
 }
 
 // AutoAttestReviewBundle prepares an attestation from the bundle's validated
@@ -3174,7 +3175,31 @@ func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error
 	return verification, err
 }
 
+// verifyReviewBundle verifies scope once per operation of the same project and
+// resolver, and refuses a scope already being verified: sealed children are
+// data, and a cycle among them must end in a named refusal (spec
+// pose-review-approval-follows-children R6).
 func (s Store) verifyReviewBundle(scope string) (ReviewBundleVerification, error) {
+	s = s.reviewOperation()
+	state := s.reviewReuse
+	key := fmt.Sprintf("%s\x00%t\x00%s", s.Root, s.FederatedResolver != nil, scope)
+	if result, ok := state.children[key]; ok {
+		return result.verification, result.err
+	}
+	if state.verifying[key] {
+		return ReviewBundleVerification{}, fmt.Errorf("pose: the sealed children of %s form a cycle", scope)
+	}
+	state.verifying[key] = true
+	defer delete(state.verifying, key)
+	if s.onReviewVerify != nil {
+		s.onReviewVerify(scope)
+	}
+	verification, err := s.computeReviewVerification(scope)
+	state.children[key] = childVerificationResult{verification, err}
+	return verification, err
+}
+
+func (s Store) computeReviewVerification(scope string) (ReviewBundleVerification, error) {
 	policy, err := s.GetReviewPolicy()
 	if err != nil {
 		return ReviewBundleVerification{}, err
@@ -3247,7 +3272,7 @@ func (s Store) verifyReviewBundle(scope string) (ReviewBundleVerification, error
 	}
 	if current == nil {
 		if len(bundles) > 0 {
-			previous := bundles[len(bundles)-1]
+			previous := reviewBundleLineage(bundles)[0]
 			delta := ReviewBundleDiff(previous, prepared)
 			// The per-criterion explanation is computed only where a person
 			// reads it; analytics over many bundles use the plain diff.

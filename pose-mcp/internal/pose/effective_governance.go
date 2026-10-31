@@ -248,7 +248,7 @@ func (s Store) EffectiveGovernance(scope string) (GovernanceProjection, error) {
 		bundles := bundlesRead.Bundles
 		ctx.HistoryIncomplete = bundlesRead.Coverage.Describe(scope)
 		if len(bundles) > 0 {
-			latest := bundles[len(bundles)-1]
+			latest := reviewBundleLineage(bundles)[0]
 			ctx.BundleID, ctx.Sealed = latest.BundleID, latest.State == "sealed"
 			ctx.StampedContracts = append([]string(nil), latest.Payload.GoverningContracts...)
 			ctx.Unstamped = len(ctx.StampedContracts) == 0
