@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -93,6 +94,7 @@ func (e *validationEntry) execute(parent context.Context, matrix validationMatri
 	ctx, cancel := context.WithTimeout(parent, time.Duration(timeout)*time.Second)
 	capture := &tailBuffer{capacity: 4096}
 	limiter := &outputLimiter{limit: maxOutput, cancel: cancel}
+	packages := &goTestPackages{}
 	execArgs := sanitizeGoCheckArgs(ctx, e.moduleDir, check.Program, check.Args)
 	if parent.Err() != nil {
 		cancel()
@@ -110,10 +112,10 @@ func (e *validationEntry) execute(parent context.Context, matrix validationMatri
 	// (spec pose-cli-output-rendering-system R7).
 	if verbose {
 		beforeStream()
-		cmd.Stdout = io.MultiWriter(stdout, capture, limiter)
+		cmd.Stdout = io.MultiWriter(stdout, capture, limiter, packages)
 		cmd.Stderr = io.MultiWriter(stderr, capture, limiter)
 	} else {
-		cmd.Stdout = io.MultiWriter(capture, limiter)
+		cmd.Stdout = io.MultiWriter(capture, limiter, packages)
 		cmd.Stderr = io.MultiWriter(capture, limiter)
 	}
 	cmd.Env = os.Environ()
@@ -140,6 +142,12 @@ func (e *validationEntry) execute(parent context.Context, matrix validationMatri
 		e.markCancelled()
 	case err == nil:
 		result.Outcome = "pass"
+		// go test exits 0 when a pattern selects nothing: a check that ran
+		// no test has no evidence (spec pose-validate-refuses-empty-go-checks).
+		if pattern := goTestRunPattern(check); pattern != "" && packages.ranNone() {
+			result.Outcome, result.LimitState = "fail", "no-tests"
+			result.Output = fmt.Sprintf("no test ran: -run %s selected nothing in the check's packages\n%s", pattern, result.Output)
+		}
 	case errors.As(err, &exitErr):
 		code := exitErr.ExitCode()
 		result.Outcome, result.ExitCode = "fail", &code
@@ -149,6 +157,82 @@ func (e *validationEntry) execute(parent context.Context, matrix validationMatri
 		result.Outcome = "error"
 		result.Output = redactSecrets(err.Error(), check.Env)
 	}
+}
+
+// goTestRunPattern is the -run pattern of a go test check, "" for any other
+// check.
+func goTestRunPattern(check validationCheck) string {
+	if check.Program != "go" || len(check.Args) == 0 || check.Args[0] != "test" {
+		return ""
+	}
+	pattern := ""
+	for i, arg := range check.Args {
+		name, value, inline := strings.Cut(arg, "=")
+		if name != "-run" && name != "-test.run" && name != "--run" {
+			continue
+		}
+		if inline {
+			pattern = value
+		} else if i+1 < len(check.Args) {
+			pattern = check.Args[i+1]
+		}
+	}
+	return pattern
+}
+
+// goTestPackages reads go test's per-package result lines from a check's
+// standard output, a line at a time and in bounded memory.
+type goTestPackages struct {
+	partial   []byte
+	overflow  bool
+	withTests int
+	empty     int
+}
+
+// goTestLineLimit bounds a line kept across writes; a package result line is
+// far shorter, and a longer line is test output.
+const goTestLineLimit = 4096
+
+func (p *goTestPackages) Write(data []byte) (int, error) {
+	for rest := data; len(rest) > 0; {
+		i := bytes.IndexByte(rest, '\n')
+		if i < 0 {
+			if len(p.partial)+len(rest) > goTestLineLimit {
+				p.overflow = true
+				p.partial = p.partial[:0]
+			} else {
+				p.partial = append(p.partial, rest...)
+			}
+			break
+		}
+		if !p.overflow && len(p.partial)+i <= goTestLineLimit {
+			p.partial = append(p.partial, rest[:i]...)
+			p.line(string(p.partial))
+		}
+		p.partial, p.overflow = p.partial[:0], false
+		rest = rest[i+1:]
+	}
+	return len(data), nil
+}
+
+func (p *goTestPackages) line(line string) {
+	fields := strings.Fields(line)
+	if len(fields) < 2 {
+		return
+	}
+	switch {
+	case fields[0] == "ok" && strings.HasSuffix(line, "[no tests to run]"):
+		p.empty++
+	case fields[0] == "ok":
+		p.withTests++
+	case fields[0] == "?" && strings.HasSuffix(line, "[no test files]"):
+		p.empty++
+	}
+}
+
+// ranNone reports that the output named packages and none of them ran a test.
+func (p *goTestPackages) ranNone() bool {
+	return p.empty > 0 && p.withTests == 0
 }
 
 // markCancelled records a check the run's cancellation stopped or kept from

@@ -410,7 +410,7 @@ func deadRunPatterns(root string, raw []byte) ([]string, error) {
 // matches nothing (spec pose-validation-matrix-dead-test-patterns R2). It
 // judges declarations under the matrix's own arguments and go/build's
 // default context; an operator's inherited GOFLAGS or GOOS is outside it,
-// and what actually runs is judged by spec pose-validate-shared-go-test-run.
+// and what actually runs is judged by spec pose-validate-refuses-empty-go-checks.
 func TestValidationMatrixRunPatternsNameExistingTests(t *testing.T) {
 	root := filepath.Join("..", "..", "..")
 	raw, err := os.ReadFile(filepath.Join(root, ".pose", "indexes", "validation-matrix.json"))

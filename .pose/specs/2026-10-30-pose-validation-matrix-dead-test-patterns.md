@@ -30,7 +30,7 @@ Remove the alternatives of `-run` patterns in the validation matrix that match n
 
 ### Non-goals
 
-- Enforcing this at validation time from a shared test run (spec `pose-validate-shared-go-test-run` R3).
+- Enforcing this at validation time (spec `pose-validate-refuses-empty-go-checks`).
 
 ## 2. Requirements
 
@@ -104,9 +104,9 @@ Five -run alternatives that named no test removed from four checks, and a source
 
 ### Residual risks
 
-The guard judges declarations, not runs: skips, `-short`, `TestMain` control flow, dynamic subtests and the operator's inherited environment are judged at run time by `pose-validate-shared-go-test-run` R3. Two review fixtures fail outside a Git repository ancestry (F1).
+The guard judges declarations, not runs: skips, `-short`, `TestMain` control flow, dynamic subtests and the operator's inherited environment are judged at run time by `pose-validate-refuses-empty-go-checks`. Two review fixtures fail outside a Git repository ancestry (F1).
 
 ### Follow-ups
 
 - [open] F1: make the review-bundle fixtures (`componentReviewFixture`, `reviewBundleFixture`) initialise their own Git repository, so `review-bundle-convergence` and `material-reuse-integration` do not depend on an enclosing repository of the temporary directory (reviewer F4, rounds 1–2). (owner:@oseiaspereira88 crit:medium review:2026-11-13)
-- [covered: pose-validate-shared-go-test-run] F2: judge at run time what the declaration guard cannot — non-plain patterns, subtests, skips and the inherited environment.
+- [covered: pose-validate-refuses-empty-go-checks] F2: judge at run time what the declaration guard cannot — non-plain patterns, subtests, skips and the inherited environment.

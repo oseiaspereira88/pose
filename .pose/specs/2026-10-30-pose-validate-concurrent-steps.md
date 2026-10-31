@@ -34,7 +34,7 @@ Measured on 2026-10-30, HEAD `8aaa408c` (`.pose/results/delivery-validation.json
 
 ### Non-goals
 
-- Changing which tests a check runs or how its evidence is attributed (spec `pose-validate-shared-go-test-run`).
+- Changing which tests a check runs or how its evidence is attributed (spec `pose-validate-refuses-empty-go-checks` refuses a check that ran no test).
 - Making individual tests faster (spec `pose-cli-test-wall-time`).
 
 ## 2. Requirements

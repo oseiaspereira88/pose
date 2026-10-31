@@ -1,6 +1,6 @@
 ---
 slug: pose-validate-shared-go-test-run
-status: draft
+status: abandoned
 created_at: 2026-10-30
 supersedes:
 depends_on: pose-validate-concurrent-steps
@@ -83,6 +83,14 @@ Result field `derived_from` (shared run id); outcome rule of R2–R3.
 
 ## 5. Decisions
 
+### Decision D1
+- Basis: Business value, measured after `pose-validate-concurrent-steps`
+- Minimal option: run each module's Go tests once and derive every check from that run
+- Selected option: abandon the shared run; keep each check its own execution, and refuse a check that ran no test in `pose-validate-refuses-empty-go-checks`
+- Rationale: the proposal assumed a serial validation with 393 s duplicated. With `--jobs`, a strict validation takes 344 s and its floor is the full suite itself, so a shared run saves little wall time, while it would weaken the evidence: a check would stop being an execution of its own, and tests of one check could affect another's in one process (maintainer's decision, 2026-10-31)
+- Consequences: no ADR on derived evidence; total CPU stays higher than a shared run's
+- Falsifier: CPU or CI cost becoming the constraint, or the full suite no longer being the floor
+
 ## 6. Validation
 
 ### Strategy
@@ -95,7 +103,7 @@ Fixture modules with passing, failing, skipped, subtest and panicking tests; pat
 
 ### Delivered scope
 
-Not started.
+Nothing delivered: abandoned after measuring the premise (D1). The refusal of a check that ran no test moved to `pose-validate-refuses-empty-go-checks`.
 
 ### Residual risks
 
