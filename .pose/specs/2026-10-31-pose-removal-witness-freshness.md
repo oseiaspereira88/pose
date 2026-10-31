@@ -41,7 +41,7 @@ A review subject path that a later spec removed reads as the removal the indexed
 
 - R1: A removal witness shall count for a review subject only when its deleting commit is an ancestor of `HEAD` in raw, complete history and no commit after it on `HEAD` touches the path. A shallow clone cannot answer that.
 - R2: A witness that fails R1, or whose check cannot be answered, shall not count, and the refusal shall name the path, the commit and why, and ask for `pose index`, instead of saying the path cannot be read.
-- R3: A generation shall bind the change sets of `.pose/reports/history` as the delivery graph reads them, so that facts report stale when one changes or a record is lost; a report without a change set changes nothing, and a history holding none reads as absent. Each record is read within the graph reader's limit, and a longer one is a loss.
+- R3: A generation shall bind the result of the delivery graph's own reader of `.pose/reports/history`, its change sets and its read gap, so that facts report stale when either changes; a report that changes neither changes nothing, and a history holding neither reads as absent. The binding names no checkout.
 
 ### Non-functional
 
@@ -76,6 +76,10 @@ A review subject path that a later spec removed reads as the removal the indexed
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/index_generation.go
+- created: pose-mcp/internal/pose/recorded_change_sets.go
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/report.go
+- modified: pose-mcp/internal/cli/delivery_later_removal_raw_test.go
 - modified: pose-mcp/internal/pose/review_subject_later_removal_test.go
 - modified: pose-mcp/internal/cli/testdata/adversarial/README.md
 - created: pose-mcp/internal/pose/removal_witness_freshness_test.go
@@ -97,14 +101,14 @@ A new generation input, `recorded-change-sets`.
 ## 5. Decisions
 
 - D1: The witness carries what it needs: its deleting commit. Asking Git about that commit and path is exact, cheap and needs no new index field, unlike binding `HEAD`, which would change on every commit.
-- D2: Only top-level change sets are bound, decoded as the graph's reader decodes them, each with its file, so unrelated report writes do not stale every fact.
+- D2: The binding digests the reader's result, moved to `internal/pose` so both share it, because two rounds of review showed a second decoding keeps diverging. Unrelated report writes then stale nothing, and the same change sets from another file are the same input.
 - D3: A later touch refuses even if a new index would accept the removal again: the witness then names a commit the graph no longer stands on, and reindexing settles it.
 
 ## 6. Validation
 
 ### Strategy
 
-Real Git fixtures: a touch after the deletion, on `HEAD` and through a merge, a commit off `HEAD`, a rewritten history, an unknown commit, a shallow clone that lost a merge's side; a replace ref that hides a touch; binding tests for change sets in the spellings the reader accepts, unrelated reports, a moved file and an oversize record; the eighteen milestones still prepare.
+Real Git fixtures: a touch after the deletion, on `HEAD` and through a merge, a commit off `HEAD`, a rewritten history, an unknown commit, a shallow clone that lost a merge's side; a replace ref that hides a touch; binding tests for pairs the reader tells apart, unrelated reports and an oversize record; the eighteen milestones still prepare.
 
 ### Requirement trace
 

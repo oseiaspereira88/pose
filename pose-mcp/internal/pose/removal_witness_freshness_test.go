@@ -197,8 +197,8 @@ func TestRecordedChangeSetsAreBound(t *testing.T) {
 	if err := os.Rename(filepath.Join(dir, "a.jsonl"), filepath.Join(dir, "b.jsonl")); err != nil {
 		t.Fatal(err)
 	}
-	if got, _ := IndexInputBindingIn(files, root, "recorded-change-sets"); got == moved {
-		t.Fatal("a moved change set did not stale it")
+	if got, _ := IndexInputBindingIn(files, root, "recorded-change-sets"); got != moved {
+		t.Fatal("the same change sets from another file staled it")
 	}
 	if err := os.Remove(filepath.Join(dir, "b.jsonl")); err != nil {
 		t.Fatal(err)
@@ -211,11 +211,56 @@ func TestRecordedChangeSetsAreBound(t *testing.T) {
 	}
 }
 
+// The binding is the graph reader's result: each pair differs to the reader,
+// and so to the binding (WF-R2-01, WF-R2-02).
+func TestRecordedChangeSetsBindWhatTheReaderReads(t *testing.T) {
+	root := t.TempDir()
+	dir := filepath.Join(root, ".pose", "reports", "history")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	read := func(body string) string {
+		t.Helper()
+		if err := os.WriteFile(filepath.Join(dir, "a.jsonl"), []byte(body+"\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		got, _ := IndexInputBindingIn(NativeFiles(), root, "recorded-change-sets")
+		return got
+	}
+	for name, pair := range map[string][2]string{
+		"a duplicate merges":        {`{"change_set":{"id":"one","spec":"alpha"},"change_set":{"id":"two"}}`, `{"change_set":{"id":"one","spec":"beta"},"change_set":{"id":"two"}}`},
+		"another field is invalid":  {`{"sequence":1,"change_set":{"id":"two","spec":"alpha"}}`, `{"sequence":"bad","change_set":{"id":"two","spec":"alpha"}}`},
+		"a wrong type is shadowed":  {`{"change_set":7,"change_set":{"id":"two","spec":"alpha"}}`, `{"change_set":{"id":"two","spec":"alpha"}}`},
+		"no change set, a bad type": {`{"sequence":"bad"}`, `{"sequence":1}`},
+	} {
+		if read(pair[0]) == read(pair[1]) {
+			t.Errorf("%s: the binding did not follow the reader", name)
+		}
+	}
+}
+
+// The gap names no checkout: two clones of one history bind alike.
+func TestRecordedChangeSetLossBindsAlikeAcrossClones(t *testing.T) {
+	bindings := []string{}
+	for range 2 {
+		root := t.TempDir()
+		dir := filepath.Join(root, ".pose", "reports", "history", "a.jsonl")
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		got, _ := IndexInputBindingIn(NativeFiles(), root, "recorded-change-sets")
+		bindings = append(bindings, got)
+	}
+	if bindings[0] == "absent" || bindings[0] != bindings[1] {
+		t.Fatalf("%v", bindings)
+	}
+}
+
 // A record over the limit is a loss, not a partial read (WF-R1-04).
 func TestRecordedChangeSetRecordIsBounded(t *testing.T) {
-	limit := recordedChangeSetRecordLimit
-	recordedChangeSetRecordLimit = 64 * 1024
-	t.Cleanup(func() { recordedChangeSetRecordLimit = limit })
+	limit := RecordedChangeSetLineLimit
+	RecordedChangeSetLineLimit = 64 * 1024
+	t.Cleanup(func() { RecordedChangeSetLineLimit = limit })
 	root := t.TempDir()
 	dir := filepath.Join(root, ".pose", "reports", "history")
 	if err := os.MkdirAll(dir, 0o755); err != nil {

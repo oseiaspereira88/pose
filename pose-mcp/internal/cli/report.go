@@ -22,28 +22,7 @@ import (
 
 var reportSlugChars = regexp.MustCompile(`[^a-z0-9]+`)
 
-type reportRecord struct {
-	GeneratedAt       string               `json:"generated_at"`
-	Sequence          int                  `json:"sequence"`
-	Task              string               `json:"task"`
-	TaskSlug          string               `json:"task_slug"`
-	ReportType        string               `json:"report_type"`
-	Spec              string               `json:"spec"`
-	Workflow          string               `json:"workflow"`
-	Rules             string               `json:"rules"`
-	ValidationProfile string               `json:"validation_profile"`
-	Context           string               `json:"context"`
-	Risk              string               `json:"risk"`
-	Outcome           string               `json:"outcome"`
-	OutcomeSource     string               `json:"outcome_source"`
-	StableHash        string               `json:"stable_hash"`
-	ReportPath        string               `json:"report_path"`
-	ChangeSet         *posemodel.ChangeSet `json:"change_set,omitempty"`
-	// Optional telemetry (spec pose-recurrence-effectiveness); absent when
-	// not provided — downstream metrics stay partial, never fabricated.
-	DurationSeconds *float64 `json:"duration_seconds,omitempty"`
-	CostUSD         *float64 `json:"cost_usd,omitempty"`
-}
+type reportRecord = posemodel.ReportRecord
 
 // reportValueFlags are the flags `pose report` accepts with a value. `pose
 // report --help` is held to documenting every one of them: a flag the parser

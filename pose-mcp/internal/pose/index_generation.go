@@ -1,7 +1,6 @@
 package pose
 
 import (
-	"bufio"
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
@@ -9,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -870,69 +868,6 @@ func IndexInputBindingIn(files Files, root, name string) (string, bool) {
 		return recordedChangeSetsDigest(files, root), true
 	}
 	return "", false
-}
-
-// recordedChangeSetRecordLimit bounds one record of a report history, as the
-// reader of the delivery graph does; a longer one reads as a loss.
-var recordedChangeSetRecordLimit = 64 * 1024 * 1024
-
-// recordedChangeSetsDigest digests the change sets of the report history as the
-// delivery graph reads them, each with its file, so a report without one
-// changes nothing. What cannot be read is digested too, as a change, and a
-// history that holds no change set reads as absent (spec
-// pose-removal-witness-freshness R3, D2).
-func recordedChangeSetsDigest(files Files, root string) string {
-	dir := filepath.Join(root, filepath.FromSlash(".pose/reports/history"))
-	entries, err := files.ReadDir(dir)
-	if errors.Is(err, fs.ErrNotExist) {
-		return "absent"
-	}
-	hash, bound := sha256.New(), false
-	note := func(format string, args ...any) {
-		bound = true
-		fmt.Fprintf(hash, format, args...)
-	}
-	if err != nil {
-		note("unreadable\x00%v\n", err)
-	}
-	sort.Slice(entries, func(i, j int) bool { return entries[i].Name() < entries[j].Name() })
-	for _, entry := range entries {
-		if !strings.HasSuffix(entry.Name(), ".jsonl") {
-			continue
-		}
-		file, err := files.Open(filepath.Join(dir, entry.Name()))
-		if err != nil {
-			note("unreadable\x00%s\x00%v\n", entry.Name(), err)
-			continue
-		}
-		scanner := bufio.NewScanner(file)
-		scanner.Buffer(make([]byte, 0, 64*1024), recordedChangeSetRecordLimit)
-		line := 0
-		for scanner.Scan() {
-			line++
-			if len(bytes.TrimSpace(scanner.Bytes())) == 0 {
-				continue
-			}
-			var record struct {
-				ChangeSet json.RawMessage `json:"change_set"`
-			}
-			if err := json.Unmarshal(scanner.Bytes(), &record); err != nil {
-				note("unreadable\x00%s:%d\n", entry.Name(), line)
-				continue
-			}
-			if len(record.ChangeSet) > 0 && !bytes.Equal(record.ChangeSet, []byte("null")) {
-				note("change-set\x00%s\x00%s\n", entry.Name(), record.ChangeSet)
-			}
-		}
-		if err := scanner.Err(); err != nil {
-			note("unreadable\x00%s:%d\x00%v\n", entry.Name(), line+1, err)
-		}
-		_ = file.Close()
-	}
-	if !bound {
-		return "absent"
-	}
-	return "sha256:" + hex.EncodeToString(hash.Sum(nil))
 }
 
 // IndexInputBinding reads and writes the filesystem directly; IndexInputBindingIn takes the

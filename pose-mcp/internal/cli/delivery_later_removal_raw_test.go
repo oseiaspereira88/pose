@@ -214,11 +214,11 @@ func TestLaterRemovalReviewRoundFive(t *testing.T) {
 	})
 	// What the loader cannot read refuses every removal, with its cause.
 	t.Run("unreadable records", func(t *testing.T) {
-		limit := recordedChangeSetLineLimit
-		t.Cleanup(func() { recordedChangeSetLineLimit = limit })
+		limit := posemodel.RecordedChangeSetLineLimit
+		t.Cleanup(func() { posemodel.RecordedChangeSetLineLimit = limit })
 		for name, setup := range map[string]func(root, a2 string){
 			"over the limit": func(root, a2 string) {
-				recordedChangeSetLineLimit = 64 * 1024
+				posemodel.RecordedChangeSetLineLimit = 64 * 1024
 				writeRecorded(t, root, a2, 160*1024)
 			},
 			"malformed line": func(root, a2 string) {
@@ -230,7 +230,7 @@ func TestLaterRemovalReviewRoundFive(t *testing.T) {
 				}
 			},
 		} {
-			recordedChangeSetLineLimit = limit
+			posemodel.RecordedChangeSetLineLimit = limit
 			root, a2 := recordedFixture(t)
 			setup(root, a2)
 			_, claims, sets, tracked, _, gaps, err := collectArtifactGraphInputsWithGapsIn(posemodel.NativeFiles(), root)

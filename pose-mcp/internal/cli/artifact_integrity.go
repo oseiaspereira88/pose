@@ -5,12 +5,10 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
-	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -363,76 +361,13 @@ func gitTrackedPaths(root string) ([]string, error) {
 	return tracked, nil
 }
 
-// recordedChangeSetLineLimit bounds one record of a report history; a record
-// a native report writes for a wide change set is far larger than a scanner's
-// default token (review round 5 of spec pose-delivery-later-removal).
-var recordedChangeSetLineLimit = 64 * 1024 * 1024
-
 func loadRecordedChangeSetsIn(files posemodel.Files, root string) []posemodel.ChangeSet {
 	sets, _ := loadRecordedChangeSetsWithGapIn(files, root)
 	return sets
 }
 
-// loadRecordedChangeSetsWithGapIn also says why a part of the recorded
-// history could not be read — a file that did not open, a record over the
-// limit, a line that is not a record — so that a later removal refuses
-// instead of judging the sets that were read (LR-R5-01).
 func loadRecordedChangeSetsWithGapIn(files posemodel.Files, root string) ([]posemodel.ChangeSet, string) {
-	gap := ""
-	note := func(format string, args ...any) {
-		if gap == "" {
-			gap = "the recorded change sets could not be read: " + fmt.Sprintf(format, args...)
-		}
-	}
-	// The directory is listed literally, and only its absence is an empty
-	// history: a glob would read the root as a pattern and drop the errors
-	// it meets (LR-R6-01).
-	dir := filepath.Join(root, ".pose", "reports", "history")
-	entries, err := files.ReadDir(dir)
-	if err != nil && !errors.Is(err, fs.ErrNotExist) {
-		note("%v", err)
-	}
-	var paths []string
-	for _, entry := range entries {
-		if strings.HasSuffix(entry.Name(), ".jsonl") {
-			paths = append(paths, filepath.Join(dir, entry.Name()))
-		}
-	}
-	sets := map[string]posemodel.ChangeSet{}
-	for _, path := range paths {
-		file, err := files.Open(path)
-		if err != nil {
-			note("%v", err)
-			continue
-		}
-		scanner := bufio.NewScanner(file)
-		scanner.Buffer(make([]byte, 0, 64*1024), recordedChangeSetLineLimit)
-		line := 0
-		for scanner.Scan() {
-			line++
-			if len(bytes.TrimSpace(scanner.Bytes())) == 0 {
-				continue
-			}
-			var record reportRecord
-			if err := json.Unmarshal(scanner.Bytes(), &record); err != nil {
-				note("%s:%d: %v", filepath.Base(path), line, err)
-				continue
-			}
-			if record.ChangeSet != nil {
-				sets[record.ChangeSet.ID] = *record.ChangeSet
-			}
-		}
-		if err := scanner.Err(); err != nil {
-			note("%s:%d: %v", filepath.Base(path), line+1, err)
-		}
-		_ = file.Close()
-	}
-	values := make([]posemodel.ChangeSet, 0, len(sets))
-	for _, set := range sets {
-		values = append(values, set)
-	}
-	sort.Slice(values, func(i, j int) bool { return values[i].ID < values[j].ID })
-	return values, gap
+	return posemodel.LoadRecordedChangeSetsIn(files, root)
 }
 
 // loadRecordedChangeSets reads and writes the filesystem directly; loadRecordedChangeSetsIn takes the
