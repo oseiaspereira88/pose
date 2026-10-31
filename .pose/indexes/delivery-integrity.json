@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:07990a42180e2f588ef69eb2266614afe3656b3f1ca9fff5bbb026aee19e4d01",
-  "provenance_digest": "sha256:9508a80e5fac83925b210c478e4aee41409aa000d79ea35bd34e29fb641ff81b",
+  "input_digest": "sha256:09e78da99d2f853ac7c21d223e1f368e65f1f67f6becaf879b9f475be68a5e52",
+  "provenance_digest": "sha256:3c45179427bbad6f889ff4d42cce1b378548c52a6d9d669a76125e49c29b213a",
   "implied_edges": [
     "changes"
   ],
@@ -2391,6 +2391,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-remaining-command-surfaces-coverage.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-removal-witness-freshness.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-removal-witness-freshness.md"
       }
     },
     {
@@ -12474,6 +12481,13 @@
       }
     },
     {
+      "id": "artifact:.pose/review-attestations/rva-d14ab0c33ec2d59f.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/review-attestations/rva-d14ab0c33ec2d59f.json"
+      }
+    },
+    {
       "id": "artifact:.pose/review-attestations/rva-d15a791067e5f0d3.json",
       "type": "artifact",
       "attributes": {
@@ -16314,6 +16328,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/review-bundles/rvb-8e8932c7179bb09f.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/review-bundles/rvb-8f430a084546ef4b.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/review-bundles/rvb-8f430a084546ef4b.json"
       }
     },
     {
@@ -21630,6 +21651,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/2026-10-31-pose-removal-witness-freshness.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-10-31-pose-removal-witness-freshness.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/2026-10-31-pose-review-approval-follows-children.amendments.jsonl",
       "type": "artifact",
       "attributes": {
@@ -23055,6 +23083,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/starts/pose-release-shared-sufficiency-contract.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/starts/pose-removal-witness-freshness.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/starts/pose-removal-witness-freshness.json"
       }
     },
     {
@@ -28347,6 +28382,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/pose/remediation_lineage_test.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/pose/removal_witness_freshness_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/pose/removal_witness_freshness_test.go"
       }
     },
     {
@@ -34011,14 +34053,6 @@
       }
     },
     {
-      "id": "change-set:cs-25dbe84b5127",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:abf4a6e4916f0ab6dc3c58c0778103d7907b8d74a231641ba95ffcbad8beeafb",
-        "selector": "trailers:pose-review-approval-follows-children"
-      }
-    },
-    {
       "id": "change-set:cs-262180ce23d8",
       "type": "change-set",
       "attributes": {
@@ -36136,6 +36170,14 @@
       "attributes": {
         "diff_digest": "sha256:b25b59849975719194626f605b448f5b18004eafba3a8bd0c9fe41e3be519997",
         "selector": "trailers:pose-abm-contract-nodes"
+      }
+    },
+    {
+      "id": "change-set:cs-aa09a4b6689f",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:236328fbe70a42a25ec3d0591344f70b10b2eba4df68fdc774d9f0c7f6c88689",
+        "selector": "trailers:pose-review-approval-follows-children"
       }
     },
     {
@@ -38783,6 +38825,14 @@
       "type": "capability",
       "attributes": {
         "module": "pose-mcp/internal/pose",
+        "profile": "composed-capability"
+      }
+    },
+    {
+      "id": "delivery:capability:removal-witness-freshness",
+      "type": "capability",
+      "attributes": {
+        "module": "pose-mcp",
         "profile": "composed-capability"
       }
     },
@@ -41530,7 +41580,7 @@
       "id": "roadmap-criterion:delivery-integrity/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -41544,7 +41594,7 @@
       "id": "roadmap-criterion:delivery-integrity/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -41558,14 +41608,14 @@
       "id": "roadmap-criterion:delivery-integrity/C4",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
       "id": "roadmap-criterion:delivery-integrity/C5",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -41593,21 +41643,21 @@
       "id": "roadmap-criterion:delivery-integrity/C9",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
       "id": "roadmap-criterion:pose-multirepo-foundation/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
       "id": "roadmap-criterion:pose-multirepo-foundation/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -43890,6 +43940,13 @@
       }
     },
     {
+      "id": "spec:pose-removal-witness-freshness",
+      "type": "spec",
+      "attributes": {
+        "status": "draft"
+      }
+    },
+    {
       "id": "spec:pose-report-a-demanded-class-nothing-produces",
       "type": "spec",
       "attributes": {
@@ -43970,7 +44027,7 @@
       "id": "spec:pose-review-approval-follows-children",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -77843,11 +77900,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:bounded-isolated-graph-caches",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:bundle-findings-take-the-contract-the-legacy-path-had",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -77993,11 +78045,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:common-domain-and-cli-mcp-handoff",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:companion-artifact-preservation",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -78061,11 +78108,6 @@
       "from": "delivery:capability:condition-response-and-work-metrics",
       "to": "entrypoint:pose-mcp/internal/pose/governance_waits.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:condition-response-and-work-metrics",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:configuration-review",
@@ -78553,11 +78595,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:followup-metadata-and-routing-integrity",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:fresh-install-health",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -78571,11 +78608,6 @@
       "from": "delivery:capability:generation-bound-query-cursors",
       "to": "entrypoint:pose-mcp/internal/mcpserver/pagination.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:generation-bound-query-cursors",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:git-and-dispatch-snapshot-integrity",
@@ -78613,11 +78645,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:governance-operation-performance",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:governance-outcomes-v2",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -78631,11 +78658,6 @@
       "from": "delivery:capability:governance-read-view-generation",
       "to": "entrypoint:pose-mcp/internal/pose/obligation_projection.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:governance-read-view-generation",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:governance-residual-diagnostics",
@@ -78731,11 +78753,6 @@
       "from": "delivery:capability:integrated-agency-and-runtime-pilot",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:integrated-agency-and-runtime-pilot",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:java-rule-extension",
@@ -78923,11 +78940,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:optional-worktree-runtime",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:parity-reads-the-cli-surface",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -79023,11 +79035,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:proportional-next-action",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:python-rule-extension",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -79123,19 +79130,9 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:release-prepare-record-recovery",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:release-publication-evidence-replay",
       "to": "entrypoint:pose-mcp/internal/pose/release_lifecycle.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:release-publication-evidence-replay",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:release-scope-selection-and-exclusivity",
@@ -79143,19 +79140,9 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:release-scope-selection-and-exclusivity",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:release-shared-sufficiency-contract",
       "to": "entrypoint:pose-mcp/internal/pose/release_lifecycle.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:release-shared-sufficiency-contract",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:release-stability",
@@ -79178,6 +79165,11 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:capability:removal-witness-freshness",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
       "from": "delivery:capability:report-coverage-that-rests-on-inference",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -79193,29 +79185,14 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:residual-material-coverage-and-identity",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:residual-nature-commitment-and-effect",
       "to": "entrypoint:pose-mcp/internal/pose/obligation_projection.go",
       "type": "composes"
     },
     {
-      "from": "delivery:capability:residual-nature-commitment-and-effect",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:residual-triage-and-risk-acceptance",
       "to": "entrypoint:pose-mcp/internal/pose/followup_candidates.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:residual-triage-and-risk-acceptance",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:reuse-is-sealed-signing-stays-live",
@@ -80743,11 +80720,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:governance:release-publication-evidence-replay",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:governance:release-recovery-verification",
       "to": "entrypoint:.github/workflows/verify-release.yml",
       "type": "composes"
@@ -81948,11 +81920,6 @@
       "type": "validated-by"
     },
     {
-      "from": "entrypoint:pose-mcp/internal/cli/release_lifecycle.go",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "entrypoint:pose-mcp/internal/cli/review_closeout.go",
       "to": "validation-set:716374153d7e3d0d",
       "type": "validated-by"
@@ -81978,17 +81945,7 @@
       "type": "validated-by"
     },
     {
-      "from": "entrypoint:pose-mcp/internal/mcpserver/pagination.go",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "entrypoint:pose-mcp/internal/mcpserver/server.go",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/internal/pose/action_presentation.go",
       "to": "validation-set:716374153d7e3d0d",
       "type": "validated-by"
     },
@@ -82008,37 +81965,12 @@
       "type": "validated-by"
     },
     {
-      "from": "entrypoint:pose-mcp/internal/pose/cli.go",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
       "from": "entrypoint:pose-mcp/internal/pose/closeout_plan.go",
       "to": "validation-set:716374153d7e3d0d",
       "type": "validated-by"
     },
     {
       "from": "entrypoint:pose-mcp/internal/pose/delegated_review_adoption.go",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/internal/pose/delivery_integrity_cache.go",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/internal/pose/followup_candidates.go",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/internal/pose/git_batch.go",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/internal/pose/governance_waits.go",
       "to": "validation-set:716374153d7e3d0d",
       "type": "validated-by"
     },
@@ -82084,11 +82016,6 @@
     },
     {
       "from": "entrypoint:pose-mcp/internal/pose/spec_facts.go",
-      "to": "validation-set:716374153d7e3d0d",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/internal/pose/techdebt.go",
       "to": "validation-set:716374153d7e3d0d",
       "type": "validated-by"
     },
@@ -107543,6 +107470,81 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:.pose/changelogs/unreleased/pose-removal-witness-freshness.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:.pose/indexes/validation-matrix.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:.pose/specs/2026-10-30-pose-delivery-later-removal.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:.pose/specs/2026-10-30-pose-review-subject-later-removal.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:.pose/specs/2026-10-31-pose-removal-witness-freshness.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:.pose/starts/pose-removal-witness-freshness.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:POSE.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:locales/pt-BR/POSE.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:pose-mcp/internal/pose/index_generation.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:pose-mcp/internal/pose/removal_witness_freshness_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:pose-mcp/internal/pose/review_subject_later_removal_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-removal-witness-freshness",
+      "to": "delivery:capability:removal-witness-freshness",
+      "type": "delivers"
+    },
+    {
       "from": "spec:pose-report-a-demanded-class-nothing-produces",
       "to": "artifact:.pose/changelogs/unreleased/pose-report-a-demanded-class-nothing-produces.md",
       "type": "declares"
@@ -108249,7 +108251,7 @@
     },
     {
       "from": "spec:pose-review-approval-follows-children",
-      "to": "change-set:cs-25dbe84b5127",
+      "to": "change-set:cs-aa09a4b6689f",
       "type": "observed-by"
     },
     {
@@ -139327,6 +139329,76 @@
       "new_path": ".pose/changelogs/v4.0.0/pose-remaining-command-surfaces-coverage.md"
     },
     {
+      "spec": "pose-removal-witness-freshness",
+      "action": "created",
+      "path": ".pose/changelogs/unreleased/pose-removal-witness-freshness.md"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "action": "created",
+      "path": ".pose/specs/2026-10-31-pose-removal-witness-freshness.md"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "action": "created",
+      "path": ".pose/starts/pose-removal-witness-freshness.json"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "action": "created",
+      "path": "pose-mcp/internal/pose/removal_witness_freshness_test.go"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "action": "modified",
+      "path": ".pose/indexes/validation-matrix.json"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "action": "modified",
+      "path": ".pose/specs/2026-10-30-pose-delivery-later-removal.md"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "action": "modified",
+      "path": ".pose/specs/2026-10-30-pose-review-subject-later-removal.md"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "action": "modified",
+      "path": "POSE.md"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "action": "modified",
+      "path": "locales/pt-BR/POSE.md"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/index_generation.go"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/review_bundle.go"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/review_subject_later_removal_test.go"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+    },
+    {
       "spec": "pose-report-a-demanded-class-nothing-produces",
       "action": "created",
       "path": ".pose/specs/2026-09-10-pose-report-a-demanded-class-nothing-produces.md"
@@ -160899,125 +160971,6 @@
         }
       ],
       "diff_digest": "sha256:fc3af2318b2891fb3935636a3a64d733c636c70cf40eac0f69b737b5995b1d09"
-    },
-    {
-      "id": "cs-25dbe84b5127",
-      "spec": "pose-review-approval-follows-children",
-      "selector": "trailers:pose-review-approval-follows-children",
-      "base": "107cb1d8a362dc66a479347268879fcf9441dbab^",
-      "head": "489a6a867e282c2e833a55a95a3a534c9cc9090a",
-      "resolved_base": "b82d48002e60d7affcf516b8188b3cdcdc2a2564",
-      "resolved_head": "489a6a867e282c2e833a55a95a3a534c9cc9090a",
-      "commits": [
-        "107cb1d8a362dc66a479347268879fcf9441dbab",
-        "beb66942540950e712c3613fa593579f15f01422",
-        "5894a604f0700f63fda71578de62eb000035a6f9",
-        "508b406033f558b4aa0d5b5c19f7037cd8edbf9a",
-        "489a6a867e282c2e833a55a95a3a534c9cc9090a"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-review-approval-follows-children.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-10-31-pose-review-approval-follows-children.amendments.jsonl"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-10-31-pose-review-approval-follows-children.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-review-approval-follows-children.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_approval_follows_children_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/specs/2026-10-30-pose-review-subject-later-removal.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/history.jsonl"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/project-state.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/refresh-log.jsonl"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/testdata/adversarial/README.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/effective_governance.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_replay.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_waits.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_closeout.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_reuse_provenance.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/spec.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:abf4a6e4916f0ab6dc3c58c0778103d7907b8d74a231641ba95ffcbad8beeafb"
     },
     {
       "id": "cs-262180ce23d8",
@@ -200882,6 +200835,174 @@
       "diff_digest": "sha256:b25b59849975719194626f605b448f5b18004eafba3a8bd0c9fe41e3be519997"
     },
     {
+      "id": "cs-aa09a4b6689f",
+      "spec": "pose-review-approval-follows-children",
+      "selector": "trailers:pose-review-approval-follows-children",
+      "base": "107cb1d8a362dc66a479347268879fcf9441dbab^",
+      "head": "95e37c5ba122594df6e5bab8da5a90a06d78f00f",
+      "resolved_base": "b82d48002e60d7affcf516b8188b3cdcdc2a2564",
+      "resolved_head": "95e37c5ba122594df6e5bab8da5a90a06d78f00f",
+      "commits": [
+        "107cb1d8a362dc66a479347268879fcf9441dbab",
+        "beb66942540950e712c3613fa593579f15f01422",
+        "5894a604f0700f63fda71578de62eb000035a6f9",
+        "508b406033f558b4aa0d5b5c19f7037cd8edbf9a",
+        "489a6a867e282c2e833a55a95a3a534c9cc9090a",
+        "95e37c5ba122594df6e5bab8da5a90a06d78f00f"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-review-approval-follows-children.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-d14ab0c33ec2d59f.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-8f430a084546ef4b.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-10-31-pose-review-approval-follows-children.amendments.jsonl"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-10-31-pose-review-approval-follows-children.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-review-approval-follows-children.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_approval_follows_children_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/README.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/consolidated.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/docs-site.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/mcp-enforce.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/pose-mcp.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-10-30-pose-review-subject-later-removal.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/docs-site.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/mcp-enforce.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/pose-mcp.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/history.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/refresh-log.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/testdata/adversarial/README.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/effective_governance.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_replay.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_waits.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_reuse_provenance.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/spec.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:236328fbe70a42a25ec3d0591344f70b10b2eba4df68fdc774d9f0c7f6c88689"
+    },
+    {
       "id": "cs-aa9be85c6db6",
       "spec": "pose-closeout-regenerates-before-sealing",
       "selector": "trailers:pose-closeout-regenerates-before-sealing",
@@ -227139,6 +227260,9 @@
     ".pose/changelogs/unreleased/pose-remaining-command-surfaces-coverage.md": [
       "pose-remaining-command-surfaces-coverage"
     ],
+    ".pose/changelogs/unreleased/pose-removal-witness-freshness.md": [
+      "pose-removal-witness-freshness"
+    ],
     ".pose/changelogs/unreleased/pose-report-a-demanded-class-nothing-produces.md": [
       "pose-report-a-demanded-class-nothing-produces"
     ],
@@ -228100,6 +228224,7 @@
       "pose-release-scope-selection-and-exclusivity",
       "pose-release-shared-sufficiency-contract",
       "pose-release-version-source",
+      "pose-removal-witness-freshness",
       "pose-residual-material-coverage-and-identity",
       "pose-residual-nature-commitment-and-effect",
       "pose-residual-triage-and-risk-acceptance",
@@ -230147,12 +230272,14 @@
       "pose-delivery-later-removal"
     ],
     ".pose/specs/2026-10-30-pose-delivery-later-removal.md": [
-      "pose-delivery-later-removal"
+      "pose-delivery-later-removal",
+      "pose-removal-witness-freshness"
     ],
     ".pose/specs/2026-10-30-pose-review-subject-later-removal.amendments.jsonl": [
       "pose-review-subject-later-removal"
     ],
     ".pose/specs/2026-10-30-pose-review-subject-later-removal.md": [
+      "pose-removal-witness-freshness",
       "pose-review-approval-follows-children",
       "pose-review-subject-later-removal"
     ],
@@ -230172,6 +230299,9 @@
     ".pose/specs/2026-10-30-pose-validation-matrix-dead-test-patterns.md": [
       "pose-validate-refuses-empty-go-checks",
       "pose-validation-matrix-dead-test-patterns"
+    ],
+    ".pose/specs/2026-10-31-pose-removal-witness-freshness.md": [
+      "pose-removal-witness-freshness"
     ],
     ".pose/specs/2026-10-31-pose-review-approval-follows-children.amendments.jsonl": [
       "pose-review-approval-follows-children"
@@ -230622,6 +230752,9 @@
     ".pose/starts/pose-release-shared-sufficiency-contract.json": [
       "pose-release-shared-sufficiency-contract"
     ],
+    ".pose/starts/pose-removal-witness-freshness.json": [
+      "pose-removal-witness-freshness"
+    ],
     ".pose/starts/pose-residual-material-coverage-and-identity.json": [
       "pose-residual-material-coverage-and-identity"
     ],
@@ -231027,6 +231160,7 @@
       "pose-release-scope-selection-and-exclusivity",
       "pose-release-shared-sufficiency-contract",
       "pose-release-version-source",
+      "pose-removal-witness-freshness",
       "pose-residual-material-coverage-and-identity",
       "pose-residual-nature-commitment-and-effect",
       "pose-residual-triage-and-risk-acceptance",
@@ -231724,6 +231858,7 @@
       "pose-release-archival-attested-by-the-ledger",
       "pose-release-manifest-tag-integrity",
       "pose-release-version-source",
+      "pose-removal-witness-freshness",
       "pose-review-approval-domain-preflight",
       "pose-review-approval-follows-children",
       "pose-review-assurance-disclosure",
@@ -234513,6 +234648,7 @@
     ],
     "pose-mcp/internal/pose/index_generation.go": [
       "pose-index-generation-integrity",
+      "pose-removal-witness-freshness",
       "pose-update-dry-run-reports-the-whole-update"
     ],
     "pose-mcp/internal/pose/index_generation_test.go": [
@@ -234830,6 +234966,9 @@
       "pose-delegation-routing",
       "pose-governance-outcomes-v2"
     ],
+    "pose-mcp/internal/pose/removal_witness_freshness_test.go": [
+      "pose-removal-witness-freshness"
+    ],
     "pose-mcp/internal/pose/residual_identity_test.go": [
       "pose-residual-material-coverage-and-identity"
     ],
@@ -234985,6 +235124,7 @@
       "pose-public-claims-contract",
       "pose-range-names-its-other-work",
       "pose-recoverable-closeout-plan",
+      "pose-removal-witness-freshness",
       "pose-reuse-is-sealed-signing-stays-live",
       "pose-review-approval-domain-preflight",
       "pose-review-approval-follows-children",
@@ -235296,6 +235436,7 @@
       "review-subject-classifies-capabilities"
     ],
     "pose-mcp/internal/pose/review_subject_later_removal_test.go": [
+      "pose-removal-witness-freshness",
       "pose-review-subject-later-removal"
     ],
     "pose-mcp/internal/pose/review_trust_time.go": [
@@ -235805,6 +235946,7 @@
       "pose-release-archival-attested-by-the-ledger",
       "pose-release-manifest-tag-integrity",
       "pose-release-version-source",
+      "pose-removal-witness-freshness",
       "pose-review-approval-domain-preflight",
       "pose-review-approval-follows-children",
       "pose-review-assurance-disclosure",
@@ -236021,6 +236163,7 @@
       "pose-release-archival-attested-by-the-ledger",
       "pose-release-manifest-tag-integrity",
       "pose-release-version-source",
+      "pose-removal-witness-freshness",
       "pose-review-approval-domain-preflight",
       "pose-review-approval-follows-children",
       "pose-review-assurance-disclosure",
@@ -236593,6 +236736,16 @@
       "remediation": "no Git change sets are attributed to spec pose-bounded-isolated-graph-caches (ensure commits carry 'POSE-Spec: pose-bounded-isolated-graph-caches' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-0718de9692f4",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-bounded-isolated-graph-caches",
+      "path": "capability:bounded-isolated-graph-caches",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-07bf58948738",
       "code": "action-mismatch",
       "severity": "error",
@@ -236627,6 +236780,15 @@
       "path": ".pose/starts/pose-release-scope-selection-and-exclusivity.json",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-scope-selection-and-exclusivity (ensure commits carry 'POSE-Spec: pose-release-scope-selection-and-exclusivity' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-081d5873bcae",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": ".pose/changelogs/unreleased/pose-removal-witness-freshness.md",
+      "message": "declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-removal-witness-freshness.md",
+      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-087e383c478e",
@@ -236671,6 +236833,15 @@
       "path": "pose-mcp/internal/cli/release_lifecycle.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-shared-sufficiency-contract (ensure commits carry 'POSE-Spec: pose-release-shared-sufficiency-contract' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-0a594179425c",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": "locales/pt-BR/POSE.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
     },
     {
       "id": "dif-0a7f45a373bb",
@@ -236874,6 +237045,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-165be8217251",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-followup-metadata-and-routing-integrity",
+      "path": "capability:followup-metadata-and-routing-integrity",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-16d7751f8a88",
       "code": "action-mismatch",
       "severity": "error",
@@ -236963,6 +237144,25 @@
       "remediation": "no Git change sets are attributed to spec pose-condition-response-and-work-metrics (ensure commits carry 'POSE-Spec: pose-condition-response-and-work-metrics' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-1b2e260574e5",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-residual-nature-commitment-and-effect",
+      "path": "capability:residual-nature-commitment-and-effect",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
+      "id": "dif-1b6816758d72",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": ".pose/starts/pose-removal-witness-freshness.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-1b7cab6c2ed6",
       "code": "action-mismatch",
       "severity": "error",
@@ -237024,6 +237224,15 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-1e8fe04fce7f",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-governance-operation-performance",
+      "path": "capability:governance-operation-performance",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-1e94571c8b2c",
       "code": "action-mismatch",
       "severity": "error",
@@ -237031,6 +237240,15 @@
       "path": "pose-mcp/internal/mcpserver/residual_triage_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-triage-and-risk-acceptance (ensure commits carry 'POSE-Spec: pose-residual-triage-and-risk-acceptance' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-1e9ee391c2a2",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-condition-response-and-work-metrics",
+      "path": "capability:condition-response-and-work-metrics",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-1eb6c617a769",
@@ -237049,6 +237267,15 @@
       "path": ".pose/changelogs/unreleased/pose-residual-nature-commitment-and-effect.md",
       "message": "declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-residual-nature-commitment-and-effect.md",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-1fab381593e8",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": "pose-mcp/internal/pose/removal_witness_freshness_test.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
     },
     {
       "id": "dif-2137b27ad8dc",
@@ -237201,6 +237428,16 @@
       "path": "pose-mcp/internal/pose/readiness_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-2b3172ad654a",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-common-domain-and-cli-mcp-handoff",
+      "path": "capability:common-domain-and-cli-mcp-handoff",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-2ba0b1c49a2a",
@@ -237363,6 +237600,15 @@
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-387789d216b0",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-38e6c9ae4030",
       "code": "existence",
       "severity": "error",
@@ -237397,6 +237643,15 @@
       "path": "pose-mcp/internal/observability/observability_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-3acace1220e3",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-bounded-isolated-graph-caches",
+      "path": "capability:bounded-isolated-graph-caches",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-3bcddee25d8e",
@@ -237707,6 +237962,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-4aa55035aed6",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-generation-bound-query-cursors",
+      "path": "capability:generation-bound-query-cursors",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-4b12c00a58e1",
       "code": "action-mismatch",
       "severity": "error",
@@ -237725,6 +237990,25 @@
       "remediation": "no Git change sets are attributed to spec pose-planning-and-release-narrative-reconciliation (ensure commits carry 'POSE-Spec: pose-planning-and-release-narrative-reconciliation' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-4c382934127e",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-condition-response-and-work-metrics",
+      "path": "capability:condition-response-and-work-metrics",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
+      "id": "dif-4c6eb49dfe57",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-common-domain-and-cli-mcp-handoff",
+      "path": "capability:common-domain-and-cli-mcp-handoff",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-4ce441a9b798",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -237733,6 +238017,15 @@
       "change_set": "cs-a3a7991407a9",
       "message": "changed delivery root pose-mcp/internal/mcpserver has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-4d817bf22aeb",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": "capability:removal-witness-freshness",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-4e00cd523c99",
@@ -237785,6 +238078,16 @@
       "path": "pose-mcp/internal/pose/git_batch.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-governance-operation-performance (ensure commits carry 'POSE-Spec: pose-governance-operation-performance' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-4fba19bc752c",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "capability:optional-worktree-runtime",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-5024c2f9bbfc",
@@ -238160,6 +238463,15 @@
       "remediation": "no Git change sets are attributed to spec pose-release-scope-selection-and-exclusivity (ensure commits carry 'POSE-Spec: pose-release-scope-selection-and-exclusivity' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-628680dcf11e",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": "POSE.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-62fc35303f97",
       "code": "undeclared",
       "severity": "error",
@@ -238299,6 +238611,15 @@
       "path": "pose-mcp/internal/mcpserver/release_status_tool_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-695e8ee650d8",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-release-scope-selection-and-exclusivity",
+      "path": "capability:release-scope-selection-and-exclusivity",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-6a02cb19e7c8",
@@ -238442,6 +238763,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-6e501a4fba10",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-integrated-agency-and-runtime-pilot",
+      "path": "capability:integrated-agency-and-runtime-pilot",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-6e5dfd034356",
       "code": "inferred-coverage",
       "severity": "warning",
@@ -238497,6 +238827,15 @@
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-70af5cc4eb65",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": ".pose/specs/2026-10-31-pose-removal-witness-freshness.md",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-72939ca8ca92",
       "code": "orphan",
       "severity": "warning",
@@ -238529,6 +238868,15 @@
       "path": "pose-mcp/internal/mcpserver/governance_operation_performance_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-governance-operation-performance (ensure commits carry 'POSE-Spec: pose-governance-operation-performance' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-735f316a7d8d",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-residual-triage-and-risk-acceptance",
+      "path": "capability:residual-triage-and-risk-acceptance",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-74799ab7ceaf",
@@ -238600,6 +238948,15 @@
       "remediation": "no Git change sets are attributed to spec pose-common-domain-and-cli-mcp-handoff (ensure commits carry 'POSE-Spec: pose-common-domain-and-cli-mcp-handoff' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-790549df0a60",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-proportional-next-action",
+      "path": "capability:proportional-next-action",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-79471c44e05d",
       "code": "action-mismatch",
       "severity": "error",
@@ -238626,6 +238983,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-79c789e697e9",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": "pose-mcp/internal/pose/review_subject_later_removal_test.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
     },
     {
       "id": "dif-7a15564f63e5",
@@ -238679,6 +239045,15 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-7c0e9540c32f",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-release-publication-evidence-replay",
+      "path": "governance:release-publication-evidence-replay",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-7c9ffe745bd7",
       "code": "action-mismatch",
       "severity": "error",
@@ -238694,6 +239069,15 @@
       "spec": "pose-harne8-control-plane-integration",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-7ce407b55dfe",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": ".pose/changelogs/unreleased/pose-removal-witness-freshness.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
     },
     {
       "id": "dif-7d09a802251c",
@@ -238729,6 +239113,15 @@
       "path": ".pose/starts/pose-release-prepare-record-recovery.json",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-8019e6d3beb6",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": ".pose/specs/2026-10-30-pose-review-subject-later-removal.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
     },
     {
       "id": "dif-809061be8db7",
@@ -238776,6 +239169,15 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-822aa99f0b90",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": "pose-mcp/internal/pose/removal_witness_freshness_test.go",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-828635227719",
       "code": "existence",
       "severity": "error",
@@ -238800,6 +239202,16 @@
       "spec": "pose-mcp-project-scope-contract",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-829fad2fcf26",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": "capability:removal-witness-freshness",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-82e4d2d3e24d",
@@ -238829,6 +239241,15 @@
       "change_set": "cs-3997e5f3459b",
       "message": "Git observed a governed path not declared by the spec",
       "remediation": "declare the exact action or narrow the attributed change set"
+    },
+    {
+      "id": "dif-846816722220",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-residual-material-coverage-and-identity",
+      "path": "capability:residual-material-coverage-and-identity",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-859b8d7fdef6",
@@ -238873,6 +239294,15 @@
       "path": ".pose/starts/pose-integrated-agency-and-runtime-pilot.json",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-885f92bd5dfc",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "capability:optional-worktree-runtime",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-88bc7a35d847",
@@ -238944,6 +239374,16 @@
       "remediation": "no Git change sets are attributed to spec pose-optional-worktree-runtime (ensure commits carry 'POSE-Spec: pose-optional-worktree-runtime' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-8d119418d539",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-governance-read-view-generation",
+      "path": "capability:governance-read-view-generation",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-8d11a95391f5",
       "code": "action-mismatch",
       "severity": "error",
@@ -238969,6 +239409,15 @@
       "path": "pose-mcp/internal/cli/index_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-8d346aaf99e9",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": ".pose/indexes/validation-matrix.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
     },
     {
       "id": "dif-8dda46122a2e",
@@ -239016,6 +239465,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-90a434e84bc8",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": "pose-mcp/internal/scaffold/dist/POSE.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-91239b597844",
       "code": "existence",
       "severity": "error",
@@ -239040,6 +239498,15 @@
       "path": "POSE.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-926811f6618b",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-generation-bound-query-cursors",
+      "path": "capability:generation-bound-query-cursors",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-928865ff00dd",
@@ -239165,6 +239632,15 @@
       "remediation": "declare and reconcile exact artifacts before asserting delivery"
     },
     {
+      "id": "dif-97e6bb4fe015",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": ".pose/specs/2026-10-30-pose-delivery-later-removal.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-992d798fd245",
       "code": "orphan",
       "severity": "warning",
@@ -239216,6 +239692,15 @@
       "change_set": "cs-5ba3b2d3828c",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-9b5cd37796da",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-governance-read-view-generation",
+      "path": "capability:governance-read-view-generation",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-9b6143c43b4b",
@@ -239406,6 +239891,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-a2ac8e8172ae",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-release-shared-sufficiency-contract",
+      "path": "capability:release-shared-sufficiency-contract",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-a2f320b0c145",
       "code": "action-mismatch",
       "severity": "error",
@@ -239413,6 +239908,15 @@
       "path": ".github/workflows/verify-release.yml",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-a383b13b50ae",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-release-prepare-record-recovery",
+      "path": "capability:release-prepare-record-recovery",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-a4c9cb78f7b2",
@@ -239652,6 +240156,16 @@
       "remediation": "no Git change sets are attributed to spec pose-debt-marker-lexical-precision (ensure commits carry 'POSE-Spec: pose-debt-marker-lexical-precision' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-afce58c6042c",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-residual-triage-and-risk-acceptance",
+      "path": "capability:residual-triage-and-risk-acceptance",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-b004ac27d5c2",
       "code": "action-mismatch",
       "severity": "error",
@@ -239744,6 +240258,15 @@
       "remediation": "no Git change sets are attributed to spec pose-optional-worktree-runtime (ensure commits carry 'POSE-Spec: pose-optional-worktree-runtime' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-b23b4b0a6145",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": "pose-mcp/internal/pose/review_bundle.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-b2b975951bfb",
       "code": "action-mismatch",
       "severity": "error",
@@ -239795,6 +240318,15 @@
       "path": ".pose/changelogs/unreleased/pose-generation-bound-query-cursors.md",
       "message": "declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-generation-bound-query-cursors.md",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-b525a7159445",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-release-shared-sufficiency-contract",
+      "path": "capability:release-shared-sufficiency-contract",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-b54b67fadfa9",
@@ -239909,6 +240441,15 @@
       "spec": "pose-mcp-protocol-completeness",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-b86c6b772a2a",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-release-publication-evidence-replay",
+      "path": "capability:release-publication-evidence-replay",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-b96090a6852e",
@@ -240047,6 +240588,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-c08e2d7fca25",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-release-scope-selection-and-exclusivity",
+      "path": "capability:release-scope-selection-and-exclusivity",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-c29f39f96262",
       "code": "orphan",
       "severity": "warning",
@@ -240119,6 +240670,16 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
+      "id": "dif-c727af456ea5",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-release-publication-evidence-replay",
+      "path": "capability:release-publication-evidence-replay",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-c8541f93626b",
       "code": "action-mismatch",
       "severity": "error",
@@ -240163,6 +240724,26 @@
       "path": "pose-mcp/internal/pose/residual_identity_test.go",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-c9c75ce27dba",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-residual-material-coverage-and-identity",
+      "path": "capability:residual-material-coverage-and-identity",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
+      "id": "dif-ca7024ebaaaa",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-proportional-next-action",
+      "path": "capability:proportional-next-action",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-ca74de63dc2a",
@@ -240215,6 +240796,15 @@
       "path": "pose-mcp/internal/cli/capability_triggers.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-cb26c00a2122",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-residual-nature-commitment-and-effect",
+      "path": "capability:residual-nature-commitment-and-effect",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-cba603e65d71",
@@ -240290,6 +240880,16 @@
       "remediation": "no Git change sets are attributed to spec pose-bounded-isolated-graph-caches (ensure commits carry 'POSE-Spec: pose-bounded-isolated-graph-caches' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-cf72ba3fafcd",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-release-publication-evidence-replay",
+      "path": "governance:release-publication-evidence-replay",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-cfa5cd892805",
       "code": "action-mismatch",
       "severity": "error",
@@ -240297,6 +240897,15 @@
       "path": "pose-mcp/internal/pose/obligation_sources.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-cfae057c2d18",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": "pose-mcp/internal/pose/index_generation.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
     },
     {
       "id": "dif-cfbec4ddf2f7",
@@ -240442,6 +241051,16 @@
       "remediation": "no Git change sets are attributed to spec pose-generation-bound-query-cursors (ensure commits carry 'POSE-Spec: pose-generation-bound-query-cursors' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-d8767e86fdf9",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-integrated-agency-and-runtime-pilot",
+      "path": "capability:integrated-agency-and-runtime-pilot",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-d9363fc1d874",
       "code": "action-mismatch",
       "severity": "error",
@@ -240476,6 +241095,16 @@
       "path": "pose-mcp/internal/pose/release_selection_exclusivity_test.go",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-da96c3d52c5a",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-governance-operation-performance",
+      "path": "capability:governance-operation-performance",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-db28c2a7c90c",
@@ -240583,6 +241212,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-df831b82234e",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": ".pose/specs/2026-10-31-pose-removal-witness-freshness.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-removal-witness-freshness (ensure commits carry 'POSE-Spec: pose-removal-witness-freshness' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-dfa8fe508f33",
       "code": "action-mismatch",
       "severity": "error",
@@ -240683,6 +241321,15 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-e6182f61ea80",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-followup-metadata-and-routing-integrity",
+      "path": "capability:followup-metadata-and-routing-integrity",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-e65bb29b3cb2",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -240709,6 +241356,16 @@
       "path": ".pose/knowledge/2026-08-03-decision-log-project-agnostic-assessment-evidence.md",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-e6b701ca7717",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-release-prepare-record-recovery",
+      "path": "capability:release-prepare-record-recovery",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-e6f0fcdaa2e8",
@@ -240894,6 +241551,15 @@
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-f148e103e76a",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": ".pose/starts/pose-removal-witness-freshness.json",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-f1bd142bb591",
       "code": "action-mismatch",
       "severity": "error",
@@ -241036,6 +241702,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-f4838ad0dad8",
+      "code": "unconnected-artifact",
+      "severity": "error",
+      "spec": "pose-removal-witness-freshness",
+      "path": "capability:removal-witness-freshness",
+      "message": "delivery target has no structured artifact provenance",
+      "remediation": "declare and reconcile exact artifacts before asserting delivery"
     },
     {
       "id": "dif-f53804450ad3",
@@ -242006,7 +242681,7 @@
       "entrypoint": "pose-mcp/internal/cli/delegate_task.go"
     },
     {
-      "spec": "pose-delegation-parity-gate",
+      "spec": "pose-delegation-task-detach-and-state",
       "ref": "capability:delegation-task",
       "kind": "capability",
       "id": "delegation-task",
@@ -242015,7 +242690,7 @@
       "entrypoint": "pose-mcp/internal/cli/delegate_task.go"
     },
     {
-      "spec": "pose-delegation-task-detach-and-state",
+      "spec": "pose-delegation-parity-gate",
       "ref": "capability:delegation-task",
       "kind": "capability",
       "id": "delegation-task",
@@ -242573,7 +243248,7 @@
       "entrypoint": "pose-mcp/internal/pose/review_closeout.go"
     },
     {
-      "spec": "pose-upgrade-path-audit-fixes",
+      "spec": "pose-install-gate-failure-recovery-notice",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -242582,7 +243257,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-review-scope-trailer-check",
+      "spec": "pose-upgrade-path-audit-fixes",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -242600,25 +243275,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-update-instance-directory-completeness",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-install-gate-failure-recovery-notice",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-install-locale-autodetect",
+      "spec": "pose-review-scope-trailer-check",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -242628,15 +243285,6 @@
     },
     {
       "spec": "pose-derived-index-self-referential-leak",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-instance-engine-version-tracking",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -242655,6 +243303,33 @@
     },
     {
       "spec": "pose-discovery-gitignore-and-root-alias-fix",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-update-instance-directory-completeness",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-install-locale-autodetect",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-instance-engine-version-tracking",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -242850,6 +243525,15 @@
       "module": "pose-mcp/internal/pose",
       "profile": "composed-capability",
       "entrypoint": "pose-mcp/internal/pose/review_bundle.go"
+    },
+    {
+      "spec": "pose-removal-witness-freshness",
+      "ref": "capability:removal-witness-freshness",
+      "kind": "capability",
+      "id": "removal-witness-freshness",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
       "spec": "pose-report-coverage-that-rests-on-inference",
@@ -244193,7 +244877,7 @@
       "entrypoint": "scripts/release.sh"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -244202,7 +244886,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -244985,7 +245669,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-progressive-spec-surface",
+      "spec": "pose-spec-surface-single-key",
       "ref": "surface:progressive-spec-surface",
       "kind": "surface",
       "id": "progressive-spec-surface",
@@ -244994,7 +245678,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-spec-surface-single-key",
+      "spec": "pose-progressive-spec-surface",
       "ref": "surface:progressive-spec-surface",
       "kind": "surface",
       "id": "progressive-spec-surface",
@@ -247271,7 +247955,10 @@
         "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
       ],
       "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -247292,7 +247979,12 @@
         "check:delivery-reachability"
       ],
       "raw": "check:test check:delivery-integration check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test",
+        "check is missing, failing or stale: delivery-integration",
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -247312,7 +248004,10 @@
         "check:delivery-reachability"
       ],
       "raw": "surface:delivery-integrity-cli check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -247323,7 +248018,10 @@
         "check:delivery-integration"
       ],
       "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -247361,7 +248059,10 @@
         "check:delivery-integration"
       ],
       "raw": "governance:release-integrity check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     },
     {
       "roadmap": "pose-multirepo-foundation",
@@ -247371,7 +248072,10 @@
         "check:federated-roadmap-acceptance-integration"
       ],
       "raw": "governance:federated-roadmap-acceptance check:federated-roadmap-acceptance-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: federated-roadmap-acceptance-integration"
+      ]
     },
     {
       "roadmap": "pose-multirepo-foundation",
@@ -247380,7 +248084,10 @@
         "check:federated-roadmap-negative-gates"
       ],
       "raw": "check:federated-roadmap-negative-gates",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: federated-roadmap-negative-gates"
+      ]
     }
   ],
   "paths": {
@@ -247863,8 +248570,7 @@
     "capability:bounded-isolated-graph-caches": [
       "spec:pose-bounded-isolated-graph-caches",
       "delivery:capability:bounded-isolated-graph-caches",
-      "entrypoint:pose-mcp/internal/pose/delivery_integrity_cache.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/pose/delivery_integrity_cache.go"
     ],
     "capability:bundle-findings-take-the-contract-the-legacy-path-had": [
       "spec:pose-bundle-findings-take-the-contract-the-legacy-path-had",
@@ -248146,8 +248852,7 @@
     "capability:common-domain-and-cli-mcp-handoff": [
       "spec:pose-common-domain-and-cli-mcp-handoff",
       "delivery:capability:common-domain-and-cli-mcp-handoff",
-      "entrypoint:pose-mcp/internal/pose/cli.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/pose/cli.go"
     ],
     "capability:companion-artifact-preservation": [
       "spec:pose-spec-format-migration-command",
@@ -248234,8 +248939,7 @@
     "capability:condition-response-and-work-metrics": [
       "spec:pose-condition-response-and-work-metrics",
       "delivery:capability:condition-response-and-work-metrics",
-      "entrypoint:pose-mcp/internal/pose/governance_waits.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/pose/governance_waits.go"
     ],
     "capability:configuration-review": [
       "spec:pose-update-configuration-review",
@@ -248973,31 +249677,44 @@
       "validation-set:716374153d7e3d0d"
     ],
     "capability:delegation-task": [
-      "spec:pose-delegation-task-detach-and-state",
-      "artifact:.pose/changelogs/unreleased/pose-delegation-task-detach-and-state.md",
-      "artifact:.pose/specs/2026-10-29-pose-delegation-task-detach-and-state.md",
-      "artifact:.pose/specs/2026-10-29-pose-delegation-task-detach-and-state.amendments.jsonl",
-      "artifact:.pose/starts/pose-delegation-task-detach-and-state.json",
-      "artifact:pose-mcp/internal/cli/delegate_task_detach_test.go",
-      "artifact:pose-mcp/internal/pose/delegation_task_state_test.go",
-      "artifact:pose-mcp/internal/pose/delegation_task_state_unix.go",
-      "artifact:pose-mcp/internal/pose/delegation_task_state_windows.go",
-      "artifact:.pose/roadmaps/delegation.md",
+      "spec:pose-delegation-parity-gate",
+      "artifact:.pose/changelogs/unreleased/pose-delegation-parity-gate.md",
+      "artifact:.pose/parity/delegation-launchers.json",
+      "artifact:.pose/reports/2026-10-29-launcher-parity-failing-first.md",
+      "artifact:.pose/starts/pose-delegation-parity-gate.json",
+      "artifact:pose-mcp/internal/cli/launcher_parity_test.go",
+      "artifact:.pose/indexes/validation-matrix.json",
       "artifact:.pose/specs/2026-10-26-pose-delegation-parity-gate.md",
-      "artifact:.pose/specs/2026-10-26-pose-delegation-task.md",
-      "artifact:.pose/state/history.jsonl",
-      "artifact:.pose/state/project-state.md",
-      "artifact:.pose/state/refresh-log.jsonl",
       "artifact:POSE.md",
+      "artifact:docs-site/docs/cli.md",
       "artifact:locales/pt-BR/POSE.md",
-      "artifact:pose-mcp/internal/cli/cli.go",
+      "artifact:pose-mcp/internal/cli/b07_independent_probe_test.go",
+      "artifact:pose-mcp/internal/cli/b07_r2_probe_test.go",
+      "artifact:pose-mcp/internal/cli/b07_r3_probe_test.go",
+      "artifact:pose-mcp/internal/cli/b07_r4b_probe_test.go",
       "artifact:pose-mcp/internal/cli/delegate.go",
-      "artifact:pose-mcp/internal/cli/delegate_mcp_test.go",
+      "artifact:pose-mcp/internal/cli/delegate_routing_test.go",
       "artifact:pose-mcp/internal/cli/delegate_task.go",
-      "artifact:pose-mcp/internal/cli/delegate_wait.go",
+      "artifact:pose-mcp/internal/cli/delegate_task_detach_test.go",
+      "artifact:pose-mcp/internal/cli/delegate_test.go",
+      "artifact:pose-mcp/internal/cli/delegate_watch_test.go",
+      "artifact:pose-mcp/internal/cli/delegated_review_request_test.go",
+      "artifact:pose-mcp/internal/cli/delegated_verdicts_test.go",
+      "artifact:pose-mcp/internal/cli/git_snapshot_integrity_test.go",
       "artifact:pose-mcp/internal/cli/help_catalog.go",
-      "artifact:pose-mcp/internal/mcpserver/delegate_tools.go",
+      "artifact:pose-mcp/internal/cli/review_adapter_containment_test.go",
+      "artifact:pose-mcp/internal/cli/review_attempt_ledger_test.go",
+      "artifact:pose-mcp/internal/cli/review_closeout.go",
+      "artifact:pose-mcp/internal/cli/review_dispatch.go",
+      "artifact:pose-mcp/internal/cli/review_dispatch_test.go",
+      "artifact:pose-mcp/internal/cli/review_run_continuity.go",
+      "artifact:pose-mcp/internal/cli/review_run_continuity_test.go",
+      "artifact:pose-mcp/internal/cli/review_run_provenance_test.go",
+      "artifact:pose-mcp/internal/cli/testdata/adversarial/README.md",
       "artifact:pose-mcp/internal/pose/delegation_task.go",
+      "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "artifact:pose-mcp/internal/pose/review_dispatch.go",
+      "artifact:pose-mcp/internal/pose/review_subject_capabilities_test.go",
       "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "delivery:capability:delegation-task",
@@ -249413,8 +250130,7 @@
     "capability:followup-metadata-and-routing-integrity": [
       "spec:pose-followup-metadata-and-routing-integrity",
       "delivery:capability:followup-metadata-and-routing-integrity",
-      "entrypoint:pose-mcp/internal/pose/followup_candidates.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/pose/followup_candidates.go"
     ],
     "capability:fresh-install-health": [
       "spec:pose-fresh-install-doctor-is-clean",
@@ -249446,8 +250162,7 @@
     "capability:generation-bound-query-cursors": [
       "spec:pose-generation-bound-query-cursors",
       "delivery:capability:generation-bound-query-cursors",
-      "entrypoint:pose-mcp/internal/mcpserver/pagination.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/mcpserver/pagination.go"
     ],
     "capability:git-and-dispatch-snapshot-integrity": [
       "spec:pose-git-and-dispatch-snapshot-integrity",
@@ -249587,8 +250302,7 @@
     "capability:governance-operation-performance": [
       "spec:pose-governance-operation-performance",
       "delivery:capability:governance-operation-performance",
-      "entrypoint:pose-mcp/internal/pose/git_batch.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/pose/git_batch.go"
     ],
     "capability:governance-outcomes-v2": [
       "spec:pose-governance-outcomes-v2",
@@ -249633,8 +250347,7 @@
     "capability:governance-read-view-generation": [
       "spec:pose-governance-read-view-generation",
       "delivery:capability:governance-read-view-generation",
-      "entrypoint:pose-mcp/internal/pose/obligation_projection.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/pose/obligation_projection.go"
     ],
     "capability:governance-residual-diagnostics": [
       "spec:pose-governance-residual-diagnostics",
@@ -249855,8 +250568,7 @@
     "capability:integrated-agency-and-runtime-pilot": [
       "spec:pose-integrated-agency-and-runtime-pilot",
       "delivery:capability:integrated-agency-and-runtime-pilot",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "capability:java-rule-extension": [
       "spec:pose-stack-rule-extensions-expansion",
@@ -250211,8 +250923,7 @@
     "capability:optional-worktree-runtime": [
       "spec:pose-optional-worktree-runtime",
       "delivery:capability:optional-worktree-runtime",
-      "entrypoint:pose-mcp/internal/pose/cli.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/pose/cli.go"
     ],
     "capability:parity-reads-the-cli-surface": [
       "spec:pose-parity-reads-the-cli-surface",
@@ -250274,14 +250985,10 @@
       "validation-set:716374153d7e3d0d"
     ],
     "capability:pose-mcp": [
-      "spec:pose-discovery-gitignore-and-root-alias-fix",
-      "artifact:pose-mcp/internal/cli/index.go",
-      "artifact:pose-mcp/internal/cli/stack_seed.go",
-      "artifact:pose-mcp/internal/cli/stack_seed_test.go",
-      "artifact:pose-mcp/internal/cli/validate.go",
-      "artifact:pose-mcp/internal/cli/validate_root_and_nodemodules_test.go",
-      "artifact:pose-mcp/internal/pose/discovery.go",
-      "artifact:pose-mcp/internal/pose/discovery_test.go",
+      "spec:pose-instance-engine-version-tracking",
+      "artifact:pose-mcp/internal/cli/cli.go",
+      "artifact:pose-mcp/internal/cli/cli_test.go",
+      "artifact:pose-mcp/internal/cli/machinery.go",
       "delivery:capability:pose-mcp",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:716374153d7e3d0d"
@@ -250438,8 +251145,7 @@
     "capability:proportional-next-action": [
       "spec:pose-proportional-next-action",
       "delivery:capability:proportional-next-action",
-      "entrypoint:pose-mcp/internal/pose/action_presentation.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/pose/action_presentation.go"
     ],
     "capability:python-rule-extension": [
       "spec:pose-stack-rule-extensions-expansion",
@@ -250648,26 +251354,22 @@
     "capability:release-prepare-record-recovery": [
       "spec:pose-release-prepare-record-recovery",
       "delivery:capability:release-prepare-record-recovery",
-      "entrypoint:pose-mcp/internal/cli/release_lifecycle.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/cli/release_lifecycle.go"
     ],
     "capability:release-publication-evidence-replay": [
       "spec:pose-release-publication-evidence-replay",
       "delivery:capability:release-publication-evidence-replay",
-      "entrypoint:pose-mcp/internal/pose/release_lifecycle.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/pose/release_lifecycle.go"
     ],
     "capability:release-scope-selection-and-exclusivity": [
       "spec:pose-release-scope-selection-and-exclusivity",
       "delivery:capability:release-scope-selection-and-exclusivity",
-      "entrypoint:pose-mcp/internal/cli/release_lifecycle.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/cli/release_lifecycle.go"
     ],
     "capability:release-shared-sufficiency-contract": [
       "spec:pose-release-shared-sufficiency-contract",
       "delivery:capability:release-shared-sufficiency-contract",
-      "entrypoint:pose-mcp/internal/pose/release_lifecycle.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/pose/release_lifecycle.go"
     ],
     "capability:release-stability": [
       "spec:pose-v6-2-0-release-stability",
@@ -250716,6 +251418,11 @@
       "entrypoint:pose-mcp/internal/pose/review_bundle.go",
       "validation-set:716374153d7e3d0d"
     ],
+    "capability:removal-witness-freshness": [
+      "spec:pose-removal-witness-freshness",
+      "delivery:capability:removal-witness-freshness",
+      "entrypoint:pose-mcp/cmd/pose/main.go"
+    ],
     "capability:report-coverage-that-rests-on-inference": [
       "spec:pose-report-coverage-that-rests-on-inference",
       "artifact:.pose/specs/2026-09-10-pose-report-coverage-that-rests-on-inference.md",
@@ -250730,20 +251437,17 @@
     "capability:residual-material-coverage-and-identity": [
       "spec:pose-residual-material-coverage-and-identity",
       "delivery:capability:residual-material-coverage-and-identity",
-      "entrypoint:pose-mcp/internal/pose/techdebt.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/pose/techdebt.go"
     ],
     "capability:residual-nature-commitment-and-effect": [
       "spec:pose-residual-nature-commitment-and-effect",
       "delivery:capability:residual-nature-commitment-and-effect",
-      "entrypoint:pose-mcp/internal/pose/obligation_projection.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/pose/obligation_projection.go"
     ],
     "capability:residual-triage-and-risk-acceptance": [
       "spec:pose-residual-triage-and-risk-acceptance",
       "delivery:capability:residual-triage-and-risk-acceptance",
-      "entrypoint:pose-mcp/internal/pose/followup_candidates.go",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:pose-mcp/internal/pose/followup_candidates.go"
     ],
     "capability:reuse-is-sealed-signing-stays-live": [
       "spec:pose-reuse-is-sealed-signing-stays-live",
@@ -253647,7 +254351,18 @@
       "validation-set:716374153d7e3d0d"
     ],
     "governance:project-assessment": [
-      "spec:pose-debt-marker-lexical-precision",
+      "spec:pose-project-agnostic-assessment-engines",
+      "artifact:.pose/changelogs/v0.16.2/pose-project-agnostic-assessment-engines.md",
+      "artifact:.pose/knowledge/2026-08-03-decision-log-project-agnostic-assessment-evidence.md",
+      "artifact:.pose/specs/pose-project-agnostic-assessment-engines/spec.md",
+      "artifact:pose-mcp/internal/cli/assessment_agnostic_test.go",
+      "artifact:pose-mcp/internal/pose/assessment_agnostic_test.go",
+      "artifact:pose-mcp/internal/pose/assessment_scan.go",
+      "artifact:pose-mcp/internal/cli/assess.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/pose/discovery.go",
+      "artifact:pose-mcp/internal/pose/integration.go",
+      "artifact:pose-mcp/internal/pose/techdebt.go",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:716374153d7e3d0d"
@@ -253753,8 +254468,7 @@
     "governance:release-publication-evidence-replay": [
       "spec:pose-release-publication-evidence-replay",
       "delivery:governance:release-publication-evidence-replay",
-      "entrypoint:.github/workflows/verify-release.yml",
-      "validation-set:716374153d7e3d0d"
+      "entrypoint:.github/workflows/verify-release.yml"
     ],
     "governance:release-recovery-verification": [
       "spec:pose-release-recovery-verification",
@@ -255150,11 +255864,25 @@
       "validation-set:973d31731542984c"
     ],
     "surface:progressive-spec-surface": [
-      "spec:pose-spec-surface-single-key",
-      "artifact:.pose/specs/2026-10-05-pose-spec-surface-single-key.md",
-      "artifact:pose-mcp/internal/cli/scaffold.go",
+      "spec:pose-progressive-spec-surface",
+      "artifact:.pose/specs/2026-10-04-pose-progressive-spec-surface.md",
       "artifact:pose-mcp/internal/cli/spec_surface_test.go",
-      "artifact:.pose/changelogs/v7.0.0/pose-spec-surface-single-key.md",
+      "artifact:pose-mcp/internal/pose/spec_facts.go",
+      "artifact:pose-mcp/internal/pose/spec_facts_test.go",
+      "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:.pose/templates/spec.md",
+      "artifact:POSE.md",
+      "artifact:docs-site/docs/frontmatter.md",
+      "artifact:locales/pt-BR/.pose/templates/spec.md",
+      "artifact:locales/pt-BR/POSE.md",
+      "artifact:pose-mcp/internal/cli/lintspec.go",
+      "artifact:pose-mcp/internal/cli/scaffold.go",
+      "artifact:pose-mcp/internal/cli/specs_cmd.go",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/templates/spec.md",
+      "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/templates/spec.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "artifact:.pose/changelogs/v7.0.0/pose-progressive-spec-surface.md",
       "delivery:surface:progressive-spec-surface",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:973d31731542984c"

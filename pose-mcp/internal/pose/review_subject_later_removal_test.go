@@ -3,6 +3,7 @@ package pose
 import (
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -13,6 +14,26 @@ import (
 // the fixture's subject path removed from disk.
 func withRemoval(t *testing.T, root string, removal *ArtifactRemoval) {
 	t.Helper()
+	// The deleting commit is real: a witness counts against current history.
+	if removal != nil {
+		reviewFixtureGit(t, root, "init", "-q")
+		reviewFixtureGit(t, root, "add", "--all")
+		reviewFixtureGit(t, root, "commit", "-qm", "the fixture", "--allow-empty")
+	}
+	if err := os.Remove(filepath.Join(root, "api", "server.go")); err != nil && !os.IsNotExist(err) {
+		t.Fatal(err)
+	}
+	if removal != nil {
+		reviewFixtureGit(t, root, "add", "--all", "--", "api/server.go")
+		reviewFixtureGit(t, root, "commit", "-qm", "delete", "--allow-empty")
+		commit := reviewFixtureGit(t, root, "rev-parse", "HEAD")
+		if removal.Commit != "" {
+			removal.Commit = commit
+		}
+		for owner := range removal.Supersedes {
+			removal.Supersedes[owner] = commit
+		}
+	}
 	path := filepath.Join(root, ".pose", "indexes", "delivery-integrity.json")
 	raw, err := os.ReadFile(path)
 	if err != nil {
@@ -31,9 +52,15 @@ func withRemoval(t *testing.T, root string, removal *ArtifactRemoval) {
 		t.Fatal(err)
 	}
 	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
-	if err := os.Remove(filepath.Join(root, "api", "server.go")); err != nil && !os.IsNotExist(err) {
-		t.Fatal(err)
+}
+
+func reviewFixtureGit(t *testing.T, root string, args ...string) string {
+	t.Helper()
+	out, err := exec.Command("git", append([]string{"-C", root, "-c", "user.name=t", "-c", "user.email=t@t"}, args...)...).CombinedOutput()
+	if err != nil {
+		t.Fatalf("git %v: %v\n%s", args, err, out)
 	}
+	return strings.TrimSpace(string(out))
 }
 
 func TestReviewSubjectReadsALaterRemovalFromItsWitness(t *testing.T) {
@@ -47,7 +74,8 @@ func TestReviewSubjectReadsALaterRemovalFromItsWitness(t *testing.T) {
 	}
 	// R1: a removal the graph accepted for the spec is the path's identity.
 	root, store := reviewBundleFixture(t)
-	withRemoval(t, root, &ArtifactRemoval{Spec: "later", Path: "api/server.go", Commit: "c1", Supersedes: map[string]string{"backend": "c1"}})
+	removal := &ArtifactRemoval{Spec: "later", Path: "api/server.go", Commit: "c1", Supersedes: map[string]string{"backend": "c1"}}
+	withRemoval(t, root, removal)
 	bundle, err := store.PrepareReviewBundle("spec:backend")
 	if err != nil {
 		t.Fatal(err)
@@ -57,7 +85,7 @@ func TestReviewSubjectReadsALaterRemovalFromItsWitness(t *testing.T) {
 	}
 	found := false
 	for _, entry := range bundle.Payload.Subject.Entries {
-		found = found || entry.Path == "api/server.go" && entry.Digest == digestBytes([]byte("removed-by later c1"))
+		found = found || entry.Path == "api/server.go" && entry.Digest == digestBytes([]byte("removed-by later "+removal.Commit))
 	}
 	if !found {
 		t.Fatalf("the subject entry is not the removal witness: %+v", bundle.Payload.Subject.Entries)

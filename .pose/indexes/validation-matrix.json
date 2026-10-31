@@ -2194,6 +2194,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "removal-witness-freshness-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "-run", "TestRemovalWitnessHoldsOnCurrentHistory|TestLaterTouchRefusesTheWitness|TestTouchThroughAMergeRefusesTheWitness|TestDeletingCommitOffHeadRefusesTheWitness|TestUnknownDeletingCommitRefusesTheWitness|TestReplaceRefDoesNotHideALaterTouch|TestRecordedChangeSetsAreBound", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "validation-matrix-run-patterns-integration",
           "program": "go",
           "args": ["test", "./internal/cli", "-run", "TestValidationMatrixRunPatternsNameExistingTests|TestDeadRunPatternGuardFollowsGoSelection", "-count=1"],

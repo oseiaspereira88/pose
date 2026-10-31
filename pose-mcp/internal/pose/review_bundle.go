@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -1320,6 +1321,9 @@ func (s Store) reviewBundleFileDigest(rel string, set ChangeSet, graph DeliveryI
 		// for the specs it supersedes, as the delivery graph already accepts
 		// it (spec pose-review-subject-later-removal R1–R2).
 		if witness, ok := reviewBundleRemovalWitness(graph, filepath.ToSlash(clean), owners); ok {
+			if why := s.removalWitnessStale(filepath.ToSlash(clean), graph, owners); why != "" {
+				return "", fmt.Errorf("review subject path %s reads as a later removal that no longer holds: %s; run pose index", rel, why)
+			}
 			return digestBytes([]byte(witness)), nil
 		}
 	}
@@ -1356,6 +1360,50 @@ func reviewBundleRemovalWitness(graph DeliveryIntegrityGraph, path string, owner
 		return "", false
 	}
 	return strings.Join(uniqueSorted(lines), "\n"), true
+}
+
+// removalWitnessStale says why path's removal for owners no longer holds in
+// raw history, or nothing when it does: its deleting commit must be on HEAD,
+// with no commit after it touching the path. The graph that accepted the
+// removal is not bound to Git, so this is asked at the moment the witness
+// counts (spec pose-removal-witness-freshness R1-R2, D1).
+func (s Store) removalWitnessStale(path string, graph DeliveryIntegrityGraph, owners []string) string {
+	checked := map[string]bool{}
+	for _, removal := range graph.Removals {
+		if removal.Path != path {
+			continue
+		}
+		for _, owner := range owners {
+			commit := removal.Supersedes[owner]
+			if commit == "" || checked[commit] {
+				continue
+			}
+			checked[commit] = true
+			if why := s.removalCommitStale(path, commit); why != "" {
+				return why
+			}
+		}
+	}
+	return ""
+}
+
+func (s Store) removalCommitStale(path, commit string) string {
+	err := RawHistoryGit(s.Root, "merge-base", "--is-ancestor", commit, "HEAD").Run()
+	var exit *exec.ExitError
+	if errors.As(err, &exit) && exit.ExitCode() == 1 {
+		return "its deleting commit " + commit + " is not on HEAD"
+	}
+	if err != nil {
+		return "its deleting commit " + commit + " cannot be read: " + err.Error()
+	}
+	out, err := RawHistoryGit(s.Root, "--literal-pathspecs", "rev-list", "-1", "--full-history", commit+"..HEAD", "--", path).Output()
+	if err != nil {
+		return "the history after its deleting commit " + commit + " cannot be read: " + err.Error()
+	}
+	if later := strings.TrimSpace(string(out)); later != "" {
+		return "commit " + later + " touches it after its deleting commit " + commit
+	}
+	return ""
 }
 
 func (s Store) reviewBundleFragmentOwners(set ChangeSet, graph DeliveryIntegrityGraph, pending string) []string {

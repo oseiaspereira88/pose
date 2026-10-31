@@ -1,6 +1,7 @@
 package pose
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
@@ -8,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -846,8 +848,8 @@ func (s Store) pruneIndexGenerations(current string) error {
 // IndexInputNames are the bindings of a generation: the governed inputs `pose
 // index` computes the seven files from, besides the Git history that the
 // delivery graph reads and that a descriptor cannot pin without changing on every
-// commit.
-var IndexInputNames = []string{"specs", "roadmaps", "policy", "module-metadata", "validation-matrix"}
+// commit: what depends on that history asks Git when it is used.
+var IndexInputNames = []string{"specs", "roadmaps", "policy", "module-metadata", "validation-matrix", "recorded-change-sets"}
 
 // IndexInputBinding returns the current digest of one binding. A directory is
 // digested by the paths and bytes of the regular files under it, in path order;
@@ -864,8 +866,54 @@ func IndexInputBindingIn(files Files, root, name string) (string, bool) {
 		return fileDigest(files, root, ".pose/indexes/module-metadata.json"), true
 	case "validation-matrix":
 		return fileDigest(files, root, ".pose/indexes/validation-matrix.json"), true
+	case "recorded-change-sets":
+		return recordedChangeSetsDigest(files, root), true
 	}
 	return "", false
+}
+
+// recordedChangeSetLine finds the lines of a report history the delivery graph
+// reads; the rest of the history changes on writes that concern no index.
+var recordedChangeSetLine = []byte(`"change_set"`)
+
+// recordedChangeSetsDigest digests the change-set lines of the report history,
+// by file and in order; what cannot be read is digested too, as a change.
+func recordedChangeSetsDigest(files Files, root string) string {
+	dir := filepath.Join(root, filepath.FromSlash(".pose/reports/history"))
+	entries, err := files.ReadDir(dir)
+	if errors.Is(err, fs.ErrNotExist) {
+		return "absent"
+	}
+	hash := sha256.New()
+	if err != nil {
+		fmt.Fprintf(hash, "unreadable\x00%v\n", err)
+	}
+	for _, entry := range entries {
+		if !strings.HasSuffix(entry.Name(), ".jsonl") {
+			continue
+		}
+		fmt.Fprintf(hash, "file\x00%s\n", entry.Name())
+		file, err := files.Open(filepath.Join(dir, entry.Name()))
+		if err != nil {
+			fmt.Fprintf(hash, "unreadable\x00%v\n", err)
+			continue
+		}
+		reader := bufio.NewReader(file)
+		for {
+			line, err := reader.ReadBytes('\n')
+			if bytes.Contains(line, recordedChangeSetLine) {
+				hash.Write(line)
+			}
+			if err != nil {
+				if !errors.Is(err, io.EOF) {
+					fmt.Fprintf(hash, "unreadable\x00%v\n", err)
+				}
+				break
+			}
+		}
+		_ = file.Close()
+	}
+	return "sha256:" + hex.EncodeToString(hash.Sum(nil))
 }
 
 // IndexInputBinding reads and writes the filesystem directly; IndexInputBindingIn takes the
