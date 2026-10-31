@@ -1,6 +1,6 @@
 ---
 slug: pose-cli-test-wall-time
-status: in-progress
+status: done
 created_at: 2026-10-30
 supersedes:
 depends_on:
@@ -9,6 +9,7 @@ priority: 3
 components: pose-mcp
 task_type: refactor
 delivers: capability:cli-test-wall-time
+completed_at: 2026-10-31
 ---
 
 # Spec: The slowest CLI tests stop waiting on real time

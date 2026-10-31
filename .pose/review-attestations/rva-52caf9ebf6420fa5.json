@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-52caf9ebf6420fa5",
+  "bundle_id": "rvb-4255f6e0d2244893",
+  "bundle_digest": "sha256:4255f6e0d224489335b78dcd855a16bd765d43a5670ee1b1af8a3ba08cf013ec",
+  "reviewer": "agent:independent-walltime-sol-r3-20261030",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Prior independent broad Go runs had 193 baseline failing test names, reproduced on pre-change code, with ownership adaptation limited to probe copies; those were not green delivery evidence. Saved targeted race/mutation evidence supports the bounded approval. Timing 191 to 156 seconds remains implementer evidence; no fresh performance claim. F01 receipt ordering is pre-existing and separately assigned, not resolved or newly accepted by this attestation. Inspected supplied strict delivery-validation.json at f0ae0b639f0d83820cf4f2fcb958c0be910a1f2a: pass, 164 executed/passed, zero failed/optional_failed/errored/skipped, provenance sha256:0945339cc5d0feeb8a01549d67dfd2a197a3c30d3eebc53cc3c98baa5d831d0f. No fresh full matrix run claimed. I am the Codex reviewer of rounds 1–3, recorded in review-round1-report.md, review-round2-report.md and review-round3-report.md beside attest-prompt.md. Round 3 approved. This declared principal records that reviewer continuity; it is not authenticated identity proof. Saved evidence was read, not freshly replayed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Round 3 changed-test race batch passed three runs (34.223s); three waiter acknowledgements precede adapter release. F02 gate directory removal and scanner-error Wait ordering resolved; F01 pre-existing receipt publication ordering remains separate bugfix. Inspected supplied strict delivery-validation.json at f0ae0b639f0d83820cf4f2fcb958c0be910a1f2a: pass, 164 executed/passed, zero failed/optional_failed/errored/skipped, provenance sha256:0945339cc5d0feeb8a01549d67dfd2a197a3c30d3eebc53cc3c98baa5d831d0f. No fresh full matrix run claimed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-test-wall-time-integration",
+      "rationale": "CLI/MCP parity and timeout assertions retained; no new CLI flag, MCP field, persisted schema or adapter-policy field. Test signal is explicitly unsupported internal synchronization. Inspected supplied strict delivery-validation.json at f0ae0b639f0d83820cf4f2fcb958c0be910a1f2a: pass, 164 executed/passed, zero failed/optional_failed/errored/skipped, provenance sha256:0945339cc5d0feeb8a01549d67dfd2a197a3c30d3eebc53cc3c98baa5d831d0f. No fresh full matrix run claimed."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Round 3 regular-file, symlink, FIFO and absent-directory probes returned bounded running-state timeout without modifying targets. Exclusive creation refuses existing entries. Filesystem syscall latency is not a hard deadline guarantee. Inspected supplied strict delivery-validation.json at f0ae0b639f0d83820cf4f2fcb958c0be910a1f2a: pass, 164 executed/passed, zero failed/optional_failed/errored/skipped, provenance sha256:0945339cc5d0feeb8a01549d67dfd2a197a3c30d3eebc53cc3c98baa5d831d0f. No fresh full matrix run claimed."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-test-wall-time-integration",
+      "rationale": "Saved CLI/MCP, detach, live status/watch and dispatch regression coverage retained. MCP inherits test signal via DelegateEnv, manually reviewed across subprocess boundary. Current sealed dedicated integration check passes. Inspected supplied strict delivery-validation.json at f0ae0b639f0d83820cf4f2fcb958c0be910a1f2a: pass, 164 executed/passed, zero failed/optional_failed/errored/skipped, provenance sha256:0945339cc5d0feeb8a01549d67dfd2a197a3c30d3eebc53cc3c98baa5d831d0f. No fresh full matrix run claimed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Watch helper captures stderr, checks scanner errors and reaps before diagnostic read. Running, terminal, heartbeat, usage and privacy assertions retained in reviewed tests. Inspected supplied strict delivery-validation.json at f0ae0b639f0d83820cf4f2fcb958c0be910a1f2a: pass, 164 executed/passed, zero failed/optional_failed/errored/skipped, provenance sha256:0945339cc5d0feeb8a01549d67dfd2a197a3c30d3eebc53cc3c98baa5d831d0f. No fresh full matrix run claimed."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No public flag, MCP shape, run schema or authority change. Wait polling moves from 500ms to 100ms; AdapterPipeGrace keeps default five seconds and sole serial override restores it. Unsupported acknowledgement creates one empty exclusive PID entry after nonterminal observation, controls no run outcome. HEAD delta changes only spec and matrix metadata."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "B01 source sentinel observation, B02 nonterminal waiter handshake and B03 exclusive acknowledgement sink resolved across rounds 2–3. Privacy and running-refusal mutants fail in round 2; old sink mutant fails 3/3 in round 3. Round 3 race count=3 passes; no fresh mutant replay claimed. Inspected supplied strict delivery-validation.json at f0ae0b639f0d83820cf4f2fcb958c0be910a1f2a: pass, 164 executed/passed, zero failed/optional_failed/errored/skipped, provenance sha256:0945339cc5d0feeb8a01549d67dfd2a197a3c30d3eebc53cc3c98baa5d831d0f. No fresh full matrix run claimed."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-test-wall-time-integration",
+      "rationale": "Real-time holds caused cumulative package duration; gates released on observed live events, waiter handshakes, process exit and watch output remove those waits while preserving causal assertion windows. Smaller fixed sleeps failed the B01/B02 negative controls. SD-81df1689 observes only the added integration matrix check, mapped to R1; it does not prove runtime behavior. R2 preserves serial execution because inDir changes process cwd. No governance gate was added; adversarial gate-corpus bypass review is not applicable."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed complete git diff 8219dde0..f0ae0b63: capability target through pose-mcp/cmd/pose/main.go, required integration check, R1–R2 trace, checked tasks and final report. F1 accurately carries F01 to next bugfix with owner/date; F2 tracks Main receiving its directory. Checked closeout task is not lifecycle completion: spec remains in-progress and this operation does not close it. Timing remains supplied evidence."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "F02 fixture timeout, persistent directory-removal release and scanner-error reap resolved in round 3. F01 is high pre-existing active-marker-before-receipt ordering; F1 requires receipt before terminal visibility, preserving marker on receipt failure, owner @oseiaspereira88 review 2026-11-06. No retries or weakened receipt checks recommended. F2 serial cwd debt remains open with review 2026-11-27. Neither follow-up is claimed fixed."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 gate/event rewrites preserve all nine reviewed behavioral assertions after B01/B02 corrections, and added sink regression rejects old behavior. R2 retains serial execution with cwd rationale and F2. Dedicated integration check explicitly exercises rewritten tests. Inspected supplied strict delivery-validation.json at f0ae0b639f0d83820cf4f2fcb958c0be910a1f2a: pass, 164 executed/passed, zero failed/optional_failed/errored/skipped, provenance sha256:0945339cc5d0feeb8a01549d67dfd2a197a3c30d3eebc53cc3c98baa5d831d0f. No fresh full matrix run claimed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Cumulative rounds 1–3 approval covers delegation tests and narrow internal wait/pipe-grace seams. Entire post-round-3 delta inspected: only accurate delivery target/integration matrix and spec trace/report/follow-ups. No implementation change after reviewed 8219dde0. I am the Codex reviewer of rounds 1–3, recorded in review-round1-report.md, review-round2-report.md and review-round3-report.md beside attest-prompt.md. Round 3 approved. This declared principal records that reviewer continuity; it is not authenticated identity proof. Saved evidence was read, not freshly replayed."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "B03 uses O_WRONLY/O_CREATE/O_EXCL without check-then-open; existing file/symlink/FIFO not opened or truncated, demonstrated in round 3 with old-sink negative control. Parent directory resolution retains caller filesystem semantics, not a confined capability. Privacy sentinel precedes sanitized status assertions. No new dependency or authority boundary; no fresh vulnerability scanner claimed."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Gated fixtures plus an unsupported one-shot empty acknowledgement are the smallest demonstrated sufficient replacement for sleeps that lost coverage. Larger sleep constants leave scheduling dependence; a new scheduler framework or public signal feature exceeds scope. No t.Parallel while Main/inDir mutate process cwd; F2 owns future change. Revisit if public synchronization is offered, parallel execution introduced, or hard filesystem deadlines are required."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Inspected sealed attributed subject (nine entries) and final delta. Round-3 diagnostic artifact-check found four attributed commits; current subject includes final matrix metadata. No fresh strict artifact-check execution claimed; native auto-attest preparation succeeded."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-3781a6c42e07fc9f",
+      "rationale": "Read-only current assess design executed: observed nine of nine files, SD-81df1689 integration-check addition, input digest matches sealed structural evidence; mapped to R1."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Skipped in rounds 1–3: existing mapping and direct source/runtime review suffice for narrow internal test seams; no completeness/state refresh claimed."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-test-wall-time-integration",
+      "rationale": "Round-3 saved assessment executed: 70 contracts, six active, 64 consumer gaps; not a clean integration census. Inherited test signal reviewed manually. No fresh assessment run."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Round-3 saved assessment: one covered marker, zero uncovered, incomplete for two invalid existing specs; not a complete debt census. No fresh run."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate stays with lifecycle owner; no close authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate follows native recording; verification is next."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Round-3 selection executed: backend-Go, security, documentation-style; delivery-evidence and knowledge governance consulted for limits/follow-ups. Frontend/infrastructure inapplicable."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-test-wall-time-integration",
+      "rationale": "Current read-only strict surface-check passed: one target, 164 results, zero findings, matching sealed provenance sha256:0945339cc5d0feeb8a01549d67dfd2a197a3c30d3eebc53cc3c98baa5d831d0f. Target is composed capability through existing CLI entrypoint with dedicated sealed integration check."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-test-wall-time-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json at f0ae0b639f0d83820cf4f2fcb958c0be910a1f2a: pass, 164 executed/passed, zero failed/optional_failed/errored/skipped, provenance sha256:0945339cc5d0feeb8a01549d67dfd2a197a3c30d3eebc53cc3c98baa5d831d0f. No fresh full matrix run claimed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-test-wall-time-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json at f0ae0b639f0d83820cf4f2fcb958c0be910a1f2a: pass, 164 executed/passed, zero failed/optional_failed/errored/skipped, provenance sha256:0945339cc5d0feeb8a01549d67dfd2a197a3c30d3eebc53cc3c98baa5d831d0f. No fresh full matrix run claimed."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/cli-test-wall-time-integration",
+    "structure:design-3781a6c42e07fc9f",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-walltime-sol-r3-20261030",
+    "concluded_by": "agent:independent-walltime-sol-r3-20261030",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-10-31T00:13:49Z",
+  "path": ".pose/review-attestations/rva-52caf9ebf6420fa5.json"
+}
