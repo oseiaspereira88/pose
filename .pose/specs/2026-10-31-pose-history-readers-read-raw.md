@@ -95,7 +95,7 @@ The delivery graph ignores replace refs and grafts, while structural review hono
 
 - [x] One raw rule in gitCommand, used by the readers
 - [x] Resolve a change set from the root
-- [ ] Independent review and closeout
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -110,16 +110,20 @@ Real repositories: a replace ref and a graft that would change an attribution, a
 
 ### Requirement trace
 
+- R1 [satisfied] capability:history-readers-read-raw evidence:integration check:history-readers-read-raw-integration test:TestGitCommandReadsRawHistory test:TestReviewReadersReadRawHistory report:.pose/results/delivery-validation.json commit:f25846adf8b3489a4f77c97396a4bade42303cb4 — gitCommand and the readers of structural review read raw history.
+- R2 [satisfied] check:history-readers-read-raw-integration test:TestChangeSetResolvesFromTheFirstCommit test:TestChangeSetFromACommitWithAParentKeepsItsBase test:TestShallowBoundaryIsNotARoot test:TestRootCommitIsReadFromItsObject test:TestRootWithALargeMessageResolves test:TestUnreadableHeaderRefuses report:.pose/results/delivery-validation.json commit:f25846adf8b3489a4f77c97396a4bade42303cb4 — A root change set resolves from the commit object; a shallow boundary does not.
+- R3 [satisfied] check:history-readers-read-raw-integration test:TestRangeReadersTakeTheEmptyTree test:TestChangeSetRange test:TestExplicitEmptyTreeBaseResolves report:.pose/results/delivery-validation.json commit:f25846adf8b3489a4f77c97396a4bade42303cb4 — Readers of a range take the empty tree as a base.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+Structural review reads raw object history through one rule in `gitCommand`, and a trailer change set that starts at the repository's first commit resolves against the empty tree, read from the commit object so a shallow boundary is no root. A new project's first spec now has a change set; the ADR records the contract. Independently reviewed by Codex over three rounds.
 
 ### Residual risks
 
-None yet.
+Git callers outside structural review and the delivery graph still honour replace refs, as declared; they attribute no history to specs.
 
 ### Follow-ups
 
-None yet.
+None.
