@@ -1,6 +1,6 @@
 ---
 slug: pose-validate-concurrent-steps
-status: draft
+status: in-progress
 created_at: 2026-10-30
 supersedes:
 depends_on:
@@ -8,7 +8,7 @@ remediates:
 priority: 2
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: surface:validate-jobs
 ---
 
 # Spec: `pose validate` runs independent checks concurrently and says where its time went
@@ -48,7 +48,7 @@ Measured on 2026-10-30, HEAD `8aaa408c` (`.pose/results/delivery-validation.json
 
 ### Non-functional
 
-- On pose-dist, a strict run with `--jobs 4` shall take at most half the wall time of `--jobs 1` on the same machine and cache state, measured and recorded in the final report.
+- On pose-dist, a strict run with `--jobs 4` shall take about half the wall time of `--jobs 1` on the same machine, cache state and Go settings, measured and recorded in the final report; the slowest single check (the full suite) is its floor.
 
 ### Security
 
@@ -66,11 +66,27 @@ Measured on 2026-10-30, HEAD `8aaa408c` (`.pose/results/delivery-validation.json
 
 ### Artifacts
 
+- created: .pose/specs/2026-10-30-pose-validate-concurrent-steps.md
+- created: .pose/starts/pose-validate-concurrent-steps.json
+- created: .pose/specs/2026-10-30-pose-validate-concurrent-steps.amendments.jsonl
+- created: .pose/changelogs/unreleased/pose-validate-concurrent-steps.md
+- modified: .pose/indexes/validation-matrix.json
+- modified: pose-mcp/internal/cli/validate.go
+- modified: pose-mcp/internal/cli/validate_results.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- created: pose-mcp/internal/cli/validate_concurrent_test.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+
 ### Delivery targets
+
+- surface:validate-jobs module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### API/contract changes
 
-`--jobs`; matrix key `exclusive`; result fields `jobs` and `wall_seconds`.
+`--jobs`; matrix key `exclusive`; result fields `jobs` and `wall_seconds`; `limit_state: cancelled` for a check a cancelled run stopped or kept from starting. An interrupt or SIGTERM now stops running checks' process groups, serial runs included.
 
 ## 4. Tasks
 

@@ -2215,6 +2215,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "validate-concurrent-steps-integration",
+          "program": "go",
+          "args": ["test", "./internal/cli", "-run", "TestValidateRunsChecksConcurrentlyWithinJobs|TestValidateKeepsMatrixOrderAndOutcomes|TestValidateExclusiveCheckRunsAlone|TestValidateCancelStopsRunningChecks|TestDefaultValidationJobsIsBounded|TestValidateJobsFlagRefusesBadValues", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "validate-jobs-reachability",
+          "program": "go",
+          "args": ["test", "./internal/cli", "-run", "TestValidateCancelStopsRunningChecks", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "reachability"
+        },
+        {
           "name": "launcher-parity",
           "program": "go",
           "args": ["test", "./internal/cli", "-run", "LauncherParity|ActiveDocument", "-count=1"],

@@ -11,9 +11,14 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
+	"runtime"
 	"sort"
+	"strconv"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
@@ -41,6 +46,204 @@ type validationCheck struct {
 	// Runtime guardrails (spec pose-validation-runtime-guardrails).
 	TimeoutSeconds int    `json:"timeoutSeconds"` // 0 = defaults.timeoutSeconds (600)
 	Isolation      string `json:"isolation"`      // "" | "required" — required never runs locally
+	// Exclusive runs the check with no other check running (spec
+	// pose-validate-concurrent-steps R2).
+	Exclusive bool `json:"exclusive,omitempty"`
+}
+
+// validationEntry is one line of a validation run, in matrix order: a module
+// note, a skipped check or a check to execute.
+type validationEntry struct {
+	note      string
+	check     validationCheck
+	moduleDir string
+	severity  string
+	skip      string
+	isolated  bool
+	result    checkResult
+	done      chan struct{}
+}
+
+// execute runs the check and records its outcome in the entry's result. It
+// touches nothing else, so entries can run concurrently; the caller counts.
+func (e *validationEntry) execute(parent context.Context, matrix validationMatrix, verbose bool, stdout, stderr io.Writer, beforeStream func()) {
+	check, result := e.check, &e.result
+	timeout := check.TimeoutSeconds
+	if timeout <= 0 {
+		timeout = matrix.Defaults.TimeoutSeconds
+	}
+	if timeout <= 0 {
+		timeout = 600 // documented safe default
+	}
+	maxOutput := matrix.Defaults.MaxOutputBytes
+	if maxOutput <= 0 {
+		maxOutput = 1 << 20 // 1 MiB documented safe default
+	}
+	ctx, cancel := context.WithTimeout(parent, time.Duration(timeout)*time.Second)
+	capture := &tailBuffer{capacity: 4096}
+	limiter := &outputLimiter{limit: maxOutput, cancel: cancel}
+	execArgs := sanitizeGoCheckArgs(e.moduleDir, check.Program, check.Args)
+	cmd := exec.CommandContext(ctx, check.Program, execArgs...)
+	setProcessGroup(cmd)
+	cmd.Cancel = func() error { return killProcessGroup(cmd) }
+	cmd.Dir = e.moduleDir
+	// The renderer owns the terminal while a step is active: a child
+	// writing to it would fight the status line, and streaming every
+	// check's output is what buried the run's own verdict. The output is
+	// captured and shown when the check fails; --verbose streams it
+	// (spec pose-cli-output-rendering-system R7).
+	if verbose {
+		beforeStream()
+		cmd.Stdout = io.MultiWriter(stdout, capture, limiter)
+		cmd.Stderr = io.MultiWriter(stderr, capture, limiter)
+	} else {
+		cmd.Stdout = io.MultiWriter(capture, limiter)
+		cmd.Stderr = io.MultiWriter(capture, limiter)
+	}
+	cmd.Env = os.Environ()
+	for key, value := range check.Env {
+		cmd.Env = append(cmd.Env, key+"="+value)
+	}
+	started := time.Now()
+	err := cmd.Run()
+	deadline := ctx.Err()
+	cancel()
+	result.DurationSeconds = time.Since(started).Seconds()
+	result.Output = redactSecrets(capture.String(), check.Env)
+	var exitErr *exec.ExitError
+	switch {
+	case limiter.exceeded:
+		// Explicit guardrail state: the check flooded output and was
+		// cancelled (never conflated with a normal check failure).
+		result.Outcome, result.LimitState = "error", "output-limit"
+		result.Output = fmt.Sprintf("output limit exceeded (%d bytes) — process group terminated", maxOutput)
+	case deadline == context.DeadlineExceeded:
+		result.Outcome, result.LimitState = "error", "timeout"
+		result.Output = fmt.Sprintf("timeout after %ds — process group terminated", timeout)
+	case parent.Err() != nil:
+		e.markCancelled()
+	case err == nil:
+		result.Outcome = "pass"
+	case errors.As(err, &exitErr):
+		code := exitErr.ExitCode()
+		result.Outcome, result.ExitCode = "fail", &code
+	default:
+		// Infrastructure failure: the tool never ran (R3 keeps this
+		// distinguishable from a real check failure).
+		result.Outcome = "error"
+		result.Output = redactSecrets(err.Error(), check.Env)
+	}
+}
+
+// markCancelled records a check the run's cancellation stopped or kept from
+// starting.
+func (e *validationEntry) markCancelled() {
+	e.result.Outcome, e.result.LimitState = "error", "cancelled"
+	e.result.Output = "validation cancelled — process group terminated"
+}
+
+// dispatchValidationEntries starts the entries in matrix order, up to jobs at
+// a time; an exclusive check waits for the running ones and runs alone (spec
+// pose-validate-concurrent-steps R1–R2). A cancelled run starts nothing more.
+func dispatchValidationEntries(ctx context.Context, entries []*validationEntry, jobs int, matrix validationMatrix) {
+	slots := make(chan struct{}, jobs)
+	var running sync.WaitGroup
+	for _, entry := range entries {
+		if entry.note != "" || entry.skip != "" {
+			continue
+		}
+		if ctx.Err() != nil {
+			entry.markCancelled()
+			close(entry.done)
+			continue
+		}
+		if entry.check.Exclusive {
+			running.Wait()
+			entry.execute(ctx, matrix, false, nil, nil, nil)
+			close(entry.done)
+			continue
+		}
+		select {
+		case slots <- struct{}{}:
+		case <-ctx.Done():
+			entry.markCancelled()
+			close(entry.done)
+			continue
+		}
+		running.Add(1)
+		go func(entry *validationEntry) {
+			defer running.Done()
+			defer func() { <-slots }()
+			entry.execute(ctx, matrix, false, nil, nil, nil)
+			close(entry.done)
+		}(entry)
+	}
+}
+
+// defaultValidationJobs is half the machine's cores, bounded by the memory
+// available at roughly 1.5 GiB per check — a Go test link is what filled a
+// small machine — and by 8, never below 1.
+func defaultValidationJobs() int {
+	jobs := runtime.NumCPU() / 2
+	if available := availableMemoryBytes(); available > 0 {
+		if byMemory := int(available / (3 << 29)); byMemory < jobs {
+			jobs = byMemory
+		}
+	}
+	if jobs > 8 {
+		jobs = 8
+	}
+	if jobs < 1 {
+		jobs = 1
+	}
+	return jobs
+}
+
+// availableMemoryBytes reads MemAvailable from /proc/meminfo; 0 where there
+// is none to read.
+func availableMemoryBytes() uint64 {
+	raw, err := os.ReadFile("/proc/meminfo")
+	if err != nil {
+		return 0
+	}
+	for _, line := range strings.Split(string(raw), "\n") {
+		if rest, ok := strings.CutPrefix(line, "MemAvailable:"); ok {
+			fields := strings.Fields(rest)
+			if len(fields) > 0 {
+				kib, err := strconv.ParseUint(fields[0], 10, 64)
+				if err == nil {
+					return kib * 1024
+				}
+			}
+		}
+	}
+	return 0
+}
+
+// validationTimingNotes says where the run's time went: its wall time beside
+// the sum of its checks, and the slowest checks (spec
+// pose-validate-concurrent-steps R4).
+func validationTimingNotes(run validationRunResult) []string {
+	var total float64
+	ran := make([]checkResult, 0, len(run.Checks))
+	for _, check := range run.Checks {
+		if check.DurationSeconds > 0 {
+			total += check.DurationSeconds
+			ran = append(ran, check)
+		}
+	}
+	if len(ran) == 0 {
+		return nil
+	}
+	sort.SliceStable(ran, func(i, j int) bool { return ran[i].DurationSeconds > ran[j].DurationSeconds })
+	lines := []string{fmt.Sprintf("[time] wall %.1fs, checks %.1fs, jobs %d", run.WallSeconds, total, run.Jobs)}
+	for i, check := range ran {
+		if i == 5 {
+			break
+		}
+		lines = append(lines, fmt.Sprintf("[time] %.1fs %s/%s", check.DurationSeconds, check.Module, check.Name))
+	}
+	return lines
 }
 
 type validationStack struct {
@@ -337,6 +540,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	autoReport := false
 	rootOnly := false
 	workspaceFilter := ""
+	jobs := 0
 	var isolationChecks []checkResult
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -357,13 +561,20 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			// pose-monorepo-validation-advisory, R2) — sugar over the
 			// existing selector, no new selection logic.
 			rootOnly = true
-		case "--stack", "--module", "--workspace", "--report-task", "--json", "--json-out", "--junit", "--sarif", "--emit-plan", "--changed-from", "--changed-to":
+		case "--stack", "--module", "--workspace", "--report-task", "--json", "--json-out", "--junit", "--sarif", "--emit-plan", "--changed-from", "--changed-to", "--jobs":
 			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
 				fmt.Fprintf(stderr, cliText(locale, "Error: %s requires a value.\n", "Erro: %s exige um valor.\n"), args[i])
 				return 2
 			}
 			i++
 			switch args[i-1] {
+			case "--jobs":
+				n, err := strconv.Atoi(args[i])
+				if err != nil || n < 1 {
+					render(stdout, stderr).Failure(cliText(locale, "--jobs must be a positive integer", "--jobs deve ser um inteiro positivo"))
+					return 2
+				}
+				jobs = n
 			case "--stack":
 				stackFilter = args[i]
 			case "--module":
@@ -582,6 +793,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	steps := r.Steps(planned)
+	var entries []*validationEntry
 	for _, module := range modules {
 		override := matrix.ModuleOverrides[module.Rel]
 		stack := module.Stack
@@ -623,7 +835,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		if override.Mode != "" {
 			moduleMode = override.Mode
 		}
-		steps.Note(fmt.Sprintf("[module] %s (%s, mode=%s)", module.Rel, stack, moduleMode))
+		entries = append(entries, &validationEntry{note: fmt.Sprintf("[module] %s (%s, mode=%s)", module.Rel, stack, moduleMode)})
 		for _, check := range checks {
 			if check.Program == "" {
 				continue
@@ -632,135 +844,101 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			if severity == "" {
 				severity = "required"
 			}
-			result := checkResult{
+			entry := &validationEntry{check: check, moduleDir: module.Abs, severity: severity, done: make(chan struct{}), result: checkResult{
 				ID: module.Rel + "/" + stack + "/" + check.Name, Module: module.Rel,
 				Stack: stack, Name: check.Name, Program: check.Program,
 				Args: check.Args, Env: redactedEnv(check.Env), Severity: severity, EvidenceClass: check.EvidenceClass,
-			}
+			}}
 			if check.Isolation == "required" {
 				// The local CLI never weakens its boundary: isolated
 				// execution is delegated to the Harness via --emit-plan.
-				result.Outcome = "skipped"
-				result.Isolation = "required"
-				result.SkipReason = "requires isolated execution (harness) — include via --emit-plan"
-				run.Counts.Skipped++
-				run.Checks = append(run.Checks, result)
-				isolationChecks = append(isolationChecks, result)
-				steps.Start(check.Name, "").Resolve(cliout.StateSkipped, result.SkipReason)
-				continue
-			}
-			if reason := validationSkipReason(module.Abs, check.When); reason != "" {
-				result.Outcome, result.SkipReason = "skipped", reason
-				run.Counts.Skipped++
-				run.Checks = append(run.Checks, result)
+				entry.skip = "requires isolated execution (harness) — include via --emit-plan"
+				entry.isolated = true
+			} else if reason := validationSkipReason(module.Abs, check.When); reason != "" {
 				// A skipped check used to print nothing at all, so a reader
 				// could not tell it from one that never existed (R7).
-				steps.Start(check.Name, "").Resolve(cliout.StateSkipped, reason)
-				continue
+				entry.skip = reason
 			}
-			executed++
-			run.Counts.Executed++
-			step := steps.Start(check.Name, strings.TrimSpace(check.Program+" "+strings.Join(check.Args, " ")))
-			timeout := check.TimeoutSeconds
-			if timeout <= 0 {
-				timeout = matrix.Defaults.TimeoutSeconds
-			}
-			if timeout <= 0 {
-				timeout = 600 // documented safe default
-			}
-			maxOutput := matrix.Defaults.MaxOutputBytes
-			if maxOutput <= 0 {
-				maxOutput = 1 << 20 // 1 MiB documented safe default
-			}
-			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
-			capture := &tailBuffer{capacity: 4096}
-			limiter := &outputLimiter{limit: maxOutput, cancel: cancel}
-			execArgs := sanitizeGoCheckArgs(module.Abs, check.Program, check.Args)
-			cmd := exec.CommandContext(ctx, check.Program, execArgs...)
-			setProcessGroup(cmd)
-			cmd.Cancel = func() error { return killProcessGroup(cmd) }
-			cmd.Dir = module.Abs
-			// The renderer owns the terminal while a step is active: a child
-			// writing to it would fight the status line, and streaming every
-			// check's output is what buried the run's own verdict. The output is
-			// captured and shown when the check fails; --verbose streams it
-			// (spec pose-cli-output-rendering-system R7).
-			if verbose {
-				steps.Release()
-				cmd.Stdout = io.MultiWriter(stdout, capture, limiter)
-				cmd.Stderr = io.MultiWriter(stderr, capture, limiter)
-			} else {
-				cmd.Stdout = io.MultiWriter(capture, limiter)
-				cmd.Stderr = io.MultiWriter(capture, limiter)
-			}
-			cmd.Env = os.Environ()
-			for key, value := range check.Env {
-				cmd.Env = append(cmd.Env, key+"="+value)
-			}
-			started := time.Now()
-			err := cmd.Run()
-			cancel()
-			result.DurationSeconds = time.Since(started).Seconds()
-			result.Output = redactSecrets(capture.String(), check.Env)
-			var exitErr *exec.ExitError
-			switch {
-			case limiter.exceeded:
-				// Explicit guardrail state: the check flooded output and was
-				// cancelled (never conflated with a normal check failure).
-				result.Outcome, result.LimitState = "error", "output-limit"
-				result.Output = fmt.Sprintf("output limit exceeded (%d bytes) — process group terminated", maxOutput)
-				run.Counts.Errored++
-				if severity == "required" {
-					failures++
-				} else {
-					optionalFailures++
-				}
-			case ctx.Err() == context.DeadlineExceeded:
-				result.Outcome, result.LimitState = "error", "timeout"
-				result.Output = fmt.Sprintf("timeout after %ds — process group terminated", timeout)
-				run.Counts.Errored++
-				if severity == "required" {
-					failures++
-				} else {
-					optionalFailures++
-				}
-			case err == nil:
-				result.Outcome = "pass"
-				run.Counts.Passed++
-			case errors.As(err, &exitErr):
-				code := exitErr.ExitCode()
-				result.Outcome, result.ExitCode = "fail", &code
-				if severity == "required" {
-					failures++
-					run.Counts.Failed++
-				} else {
-					optionalFailures++
-					run.Counts.OptionalFailed++
-				}
-			default:
-				// Infrastructure failure: the tool never ran (R3 keeps this
-				// distinguishable from a real check failure).
-				result.Outcome = "error"
-				result.Output = redactSecrets(err.Error(), check.Env)
-				run.Counts.Errored++
-				if severity == "required" {
-					failures++
-				} else {
-					optionalFailures++
-				}
-			}
-			note := ""
-			if result.LimitState != "" {
-				note = result.LimitState
-			} else if result.ExitCode != nil {
-				note = fmt.Sprintf("exit=%d", *result.ExitCode)
-			}
-			step.Resolve(cliout.StateFromKey(result.Outcome), note)
-			if !verbose && (result.Outcome == "fail" || result.Outcome == "error") {
-				step.Detail(tailLines(result.Output, 10), jsonOut)
-			}
-			run.Checks = append(run.Checks, result)
+			entries = append(entries, entry)
 		}
+	}
+	// Checks run up to jobs at a time; results are shown and counted here,
+	// in matrix order, whatever order they finish in (spec
+	// pose-validate-concurrent-steps R1). --verbose streams a check's output,
+	// so it runs them one at a time.
+	if jobs == 0 {
+		jobs = defaultValidationJobs()
+	}
+	if verbose {
+		jobs = 1
+	}
+	run.Jobs = jobs
+	runCtx, stopSignals := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stopSignals()
+	wallStart := time.Now()
+	if jobs > 1 {
+		go dispatchValidationEntries(runCtx, entries, jobs, matrix)
+	}
+	for _, entry := range entries {
+		if entry.note != "" {
+			steps.Note(entry.note)
+			continue
+		}
+		if entry.skip != "" {
+			entry.result.Outcome, entry.result.SkipReason = "skipped", entry.skip
+			run.Counts.Skipped++
+			if entry.isolated {
+				entry.result.Isolation = "required"
+				isolationChecks = append(isolationChecks, entry.result)
+			}
+			run.Checks = append(run.Checks, entry.result)
+			steps.Start(entry.check.Name, "").Resolve(cliout.StateSkipped, entry.skip)
+			continue
+		}
+		executed++
+		run.Counts.Executed++
+		step := steps.Start(entry.check.Name, strings.TrimSpace(entry.check.Program+" "+strings.Join(entry.check.Args, " ")))
+		if jobs > 1 {
+			<-entry.done
+		} else {
+			entry.execute(runCtx, matrix, verbose, stdout, stderr, steps.Release)
+		}
+		result := &entry.result
+		severity := entry.severity
+		switch result.Outcome {
+		case "pass":
+			run.Counts.Passed++
+		case "fail":
+			if severity == "required" {
+				failures++
+				run.Counts.Failed++
+			} else {
+				optionalFailures++
+				run.Counts.OptionalFailed++
+			}
+		default:
+			run.Counts.Errored++
+			if severity == "required" {
+				failures++
+			} else {
+				optionalFailures++
+			}
+		}
+		note := ""
+		if result.LimitState != "" {
+			note = result.LimitState
+		} else if result.ExitCode != nil {
+			note = fmt.Sprintf("exit=%d", *result.ExitCode)
+		}
+		step.Resolve(cliout.StateFromKey(result.Outcome), note)
+		if !verbose && (result.Outcome == "fail" || result.Outcome == "error") {
+			step.Detail(tailLines(result.Output, 10), jsonOut)
+		}
+		run.Checks = append(run.Checks, *result)
+	}
+	run.WallSeconds = time.Since(wallStart).Seconds()
+	for _, line := range validationTimingNotes(run) {
+		steps.Note(line)
 	}
 	steps.Summary()
 	if executed == 0 {

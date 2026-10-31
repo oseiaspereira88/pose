@@ -129,6 +129,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 			{"--json-out <path>", "Write structured validation outcome to the specified JSON path", "Grava o resultado da validação no caminho JSON especificado"},
 			{"--json <path>", "Deprecated alias of --json-out <path>", "Alias depreciado de --json-out <path>"},
 			{"--changed-from <rev>", "Validate only modules affected between git revisions", "Valida apenas módulos afetados entre as revisões git"},
+			{"--jobs <n>", "Run up to n checks at once (default: from cores and available memory)", "Roda até n checks ao mesmo tempo (padrão: conforme núcleos e memória disponível)"},
 			{"--verbose", "Stream each check's output as it runs; by default it is captured and a failing check's tail is shown", "Transmite a saída de cada check durante a execução; por padrão ela é capturada e o final da saída de um check que falha é exibido"},
 		},
 		Examples: []string{

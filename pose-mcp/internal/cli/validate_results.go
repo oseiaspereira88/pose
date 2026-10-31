@@ -71,6 +71,10 @@ type validationRunResult struct {
 	MatrixSHA256     string            `json:"matrix_sha256,omitempty"`
 	ProvenanceDigest string            `json:"provenance_digest,omitempty"`
 	ScopeProvenance  map[string]string `json:"scope_provenance,omitempty"`
+	// Jobs is how many checks ran at once; WallSeconds the run's elapsed time
+	// (spec pose-validate-concurrent-steps R3–R4).
+	Jobs        int     `json:"jobs,omitempty"`
+	WallSeconds float64 `json:"wall_seconds,omitempty"`
 	// Outcome semantics (R3): fail = required check failed; partial =
 	// tolerated (optional or infra-only) failures; pass = everything green.
 	Outcome string        `json:"outcome"`
