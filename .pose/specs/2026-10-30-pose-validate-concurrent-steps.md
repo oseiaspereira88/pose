@@ -93,11 +93,11 @@ Measured on 2026-10-30, HEAD `8aaa408c` (`.pose/results/delivery-validation.json
 
 ## 4. Tasks
 
-- [ ] Bounded worker pool with ordered results
-- [ ] `exclusive` checks
-- [ ] Timing summary
-- [ ] Measure serial vs concurrent on pose-dist
-- [ ] Independent review and closeout
+- [x] Bounded worker pool with ordered results
+- [x] `exclusive` checks
+- [x] Timing summary
+- [x] Measure serial vs concurrent on pose-dist
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -109,14 +109,27 @@ Fixture matrices with sleeping and failing checks prove ordering, exclusivity, t
 
 ### Requirement trace
 
+- R1 [satisfied] check:validate-concurrent-steps-integration check:validate-jobs-reachability test:TestValidateRunsChecksConcurrentlyWithinJobs test:TestValidateKeepsMatrixOrderAndOutcomes test:TestChangedScopeSkipsKeepMatrixOrder test:TestDefaultValidationJobsFollowsTheBudget report:.pose/results/delivery-validation.json commit:b4da8dc222cee4957b705b4c237e2a5a34ae06c6 — Checks run up to --jobs at once, every result keeps matrix order, and the default follows the cores and memory available to the process through its mounted cgroups.
+- R2 [satisfied] check:validate-concurrent-steps-integration test:TestValidateExclusiveCheckRunsAlone test:TestCheckAcceptsExclusiveAsABoolean report:.pose/results/delivery-validation.json commit:b4da8dc222cee4957b705b4c237e2a5a34ae06c6 — An exclusive check runs after every earlier check has ended, with nothing else running, and `pose check` accepts the key as a boolean.
+- R3 [satisfied] check:validate-concurrent-steps-integration test:TestValidateRunsChecksConcurrentlyWithinJobs test:TestValidateKeepsMatrixOrderAndOutcomes report:.pose/results/delivery-validation.json commit:b4da8dc222cee4957b705b4c237e2a5a34ae06c6 — --jobs 1 runs serially, outcomes match a concurrent run, and the report records jobs and wall_seconds.
+- R4 [satisfied] check:validate-concurrent-steps-integration test:TestValidateRunsChecksConcurrentlyWithinJobs report:.pose/results/delivery-validation.json commit:b4da8dc222cee4957b705b4c237e2a5a34ae06c6 — The run ends with its wall time, the sum of its checks and the slowest checks.
+- R5 [satisfied] check:validate-concurrent-steps-integration check:validate-jobs-reachability test:TestValidateKeepsMatrixOrderAndOutcomes test:TestValidateCancelStopsRunningChecks test:TestValidateCancelStopsThePreparatoryGoList test:TestACancelledRunIsNeverASuccess report:.pose/results/delivery-validation.json commit:b4da8dc222cee4957b705b4c237e2a5a34ae06c6 — Failures, timeouts and output limits read as in a serial run; a cancelled run stops its process groups and preparatory commands, starts nothing more and fails with exit 1 whatever the severity.
+- R6 [satisfied] check:validate-concurrent-steps-integration test:TestValidateWhenIsReadBeforeTheCheckStarts report:.pose/results/delivery-validation.json commit:b4da8dc222cee4957b705b4c237e2a5a34ae06c6 — when is read as a check starts, so an earlier check decides it serially, with --verbose and past an exclusive barrier.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+`pose validate` runs independent checks concurrently within `--jobs`, keeps matrix order, runs `exclusive` checks alone, reports its timing and stops cleanly on a signal. Measured before the review's corrections, uncached, GOMAXPROCS=2 and GOFLAGS=-p=1: 825 s at --jobs 1, 400 s and 447 s at --jobs 4, 166/166 each, at least 6.4 GB free; 285 s at the default without those limits, a different setting and not a controlled comparison. The floor is the slowest check, the full suite. Independently reviewed by Codex over four rounds, which found no interference between pose-dist's checks.
 
 ### Residual risks
 
-None yet.
+A project's own checks can share mutable state that pose-dist's do not (generated files, coverage, build directories): `exclusive` is the remedy, and `--jobs 1` the old behaviour. The memory bound is a heuristic, not a reservation. Signal ownership is process-wide for in-process callers, and descendants that leave a process group can outlive a cancel.
 
 ### Follow-ups
+
+- [open] F1: discover resources natively off Linux and qualify other platforms; the memory bound stays a heuristic (review round 2, follow-up 1). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F2: give in-process callers an explicit context instead of a process-wide signal subscription, and bound shutdown against escaped descendants and inherited pipes (review round 2, follow-up 2). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F3: show live progress for the checks running at once, say that jobs is a maximum and that a cancelled check never started counts as executed, state what wall_seconds covers, and add --jobs to the website reference (review round 2, follow-up 3). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [open] F4: add repository regressions for cancellation around slots and barriers, concurrent output limits, the projection writers, a second signal and a comparison with the serial engine's output (review round 2, follow-up 4). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F5: record Go settings, effective resources, binary identity and cache policy with benchmark timings (review round 2, follow-up 5). (owner:@oseiaspereira88 crit:low review:2026-11-27)
