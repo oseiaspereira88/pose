@@ -262,6 +262,12 @@ type cgroupMount struct {
 	unified     bool
 }
 
+// decodeMountField undoes mountinfo's octal escapes of whitespace and
+// backslashes (review round 3, B6a).
+func decodeMountField(field string) string {
+	return strings.NewReplacer(`\040`, " ", `\011`, "\t", `\012`, "\n", `\134`, `\`).Replace(field)
+}
+
 // parseCgroupMounts reads the cgroup hierarchies of /proc/self/mountinfo.
 func parseCgroupMounts(raw string) []cgroupMount {
 	var mounts []cgroupMount
@@ -271,7 +277,7 @@ func parseCgroupMounts(raw string) []cgroupMount {
 		if !ok || len(fields) < 5 || len(tail) < 3 {
 			continue
 		}
-		mount := cgroupMount{root: fields[3], point: fields[4]}
+		mount := cgroupMount{root: decodeMountField(fields[3]), point: decodeMountField(fields[4])}
 		switch tail[0] {
 		case "cgroup2":
 			mount.unified = true
@@ -349,16 +355,21 @@ func effectiveValidationResources(read func(string) ([]byte, error), cores int) 
 	}
 	// A hierarchy that applies but is not mounted where this process can see
 	// it leaves the budget unknown, not unlimited.
+	// A hierarchy can be mounted more than once, a narrower view hiding the
+	// ancestors a fuller one shows: every view counts (review round 3, B6b).
 	resolve := func(path string, match func(cgroupMount) bool) []string {
+		var all []string
 		for _, mount := range mounts {
 			if match(mount) {
 				if dirs, ok := mount.visibleCgroupDirs(path); ok {
-					return dirs
+					all = append(all, dirs...)
 				}
 			}
 		}
-		found.unresolved = true
-		return nil
+		if len(all) == 0 {
+			found.unresolved = true
+		}
+		return all
 	}
 	hasController := func(name string) func(cgroupMount) bool {
 		return func(m cgroupMount) bool {
