@@ -70,6 +70,22 @@ func resolveGitRevision(root, revision string) (string, error) {
 	return resolved, nil
 }
 
+// commitHasNoParent reads the commit object itself: a shallow boundary also
+// has no parent to walk to, and only the object says it is not the root.
+func commitHasNoParent(root, commit string) bool {
+	raw, err := gitOutputBounded(root, 4*1024*1024, "cat-file", "commit", commit)
+	if err != nil {
+		return false
+	}
+	header, _, _ := bytes.Cut(raw, []byte("\n\n"))
+	for _, line := range bytes.Split(header, []byte("\n")) {
+		if bytes.HasPrefix(line, []byte("parent ")) {
+			return false
+		}
+	}
+	return true
+}
+
 func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, error) {
 	if spec == "" || posemodel.ValidateSlug(spec) != nil {
 		return posemodel.ChangeSet{}, fmt.Errorf("a valid spec slug is required")
@@ -88,22 +104,15 @@ func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, er
 		head = commits[len(commits)-1]
 		base = commits[0] + "^"
 		selector = "trailers:" + spec
-		parents, err := gitOutputBounded(root, 64*1024, "rev-list", "--parents", "-n", "1", commits[0], "--")
-		if err != nil {
-			return posemodel.ChangeSet{}, err
-		}
-		if len(strings.Fields(string(parents))) == 1 {
-			base = posemodel.GitEmptyTree(commits[0])
-		}
 	} else if base == "" || head == "" {
 		return posemodel.ChangeSet{}, fmt.Errorf("--from and --to must be supplied together")
 	}
-	resolvedBase := base
-	if !posemodel.IsGitEmptyTree(base) {
-		var err error
-		if resolvedBase, err = resolveGitRevision(root, base); err != nil {
-			return posemodel.ChangeSet{}, err
-		}
+	resolvedBase, err := resolveGitRevision(root, base)
+	if err != nil && len(trailerCommits) > 0 && commitHasNoParent(root, trailerCommits[0]) {
+		base, resolvedBase, err = posemodel.GitEmptyTree(trailerCommits[0]), posemodel.GitEmptyTree(trailerCommits[0]), nil
+	}
+	if err != nil {
+		return posemodel.ChangeSet{}, err
 	}
 	resolvedHead, err := resolveGitRevision(root, head)
 	if err != nil {
