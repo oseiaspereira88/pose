@@ -663,9 +663,14 @@ func (s Store) planReviewThread(plan *DispatchPlan) error {
 	if err != nil {
 		return err
 	}
+	runs, _, err := s.ReadReviewRuns(plan.Bundle.BundleID)
+	if err != nil {
+		return err
+	}
 	prior := round.Prior
 	thread := &ReviewThread{Round: round.Number, Mode: ReviewThreadNew, From: prior.RunID}
 	threshold := policy.Routing.RoundThresholdOf()
+	failed := FailedContinuation(runs, plan.Bundle.BundleID)
 	session := ""
 	switch {
 	case policy.Routing.RoundsMode() == ReviewRoundsColdSession:
@@ -680,6 +685,8 @@ func (s Store) planReviewThread(plan *DispatchPlan) error {
 		thread.Reason = fmt.Sprintf("round %d reached the round threshold %d", round.Number, threshold)
 	case prior.SessionDigest == "" || plan.Config.Resume == nil || len(plan.Config.Resume.Command) == 0:
 		thread.Reason = "the previous round's session cannot be resumed: it recorded no session or the agent declares no resume"
+	case failed != nil:
+		thread.Reason = FailedContinuationReason(failed)
 	default:
 		value, rerr := s.readReviewSession(prior.SessionDigest)
 		if rerr != nil {
@@ -690,6 +697,29 @@ func (s Store) planReviewThread(plan *DispatchPlan) error {
 	}
 	plan.thread, plan.session = thread, session
 	return nil
+}
+
+// FailedContinuation is a run of the bundle that failed while continuing a
+// session: nothing says why in terms common to every vendor, and resuming what
+// just failed is not worth an attempt (spec
+// pose-delegated-review-expired-session R1, D1).
+func FailedContinuation(runs []ReviewRun, bundleID string) *ReviewRun {
+	for i := range runs {
+		if runs[i].BundleID == bundleID && runs[i].Status == ReviewRunFailed && runs[i].Thread.continued() {
+			return &runs[i]
+		}
+	}
+	return nil
+}
+
+func FailedContinuationReason(run *ReviewRun) string {
+	reason := "the session could not be continued: run " + run.RunID + " failed"
+	if failure := []rune(run.Failure); len(failure) > 200 {
+		return reason + ": " + string(failure[:200]) + "…"
+	} else if len(failure) > 0 {
+		return reason + ": " + string(failure)
+	}
+	return reason
 }
 
 // continuationRound carries the round of a run's predecessor to its

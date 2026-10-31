@@ -55,10 +55,11 @@ section, and a review run from it finds a seeded defect in a fixture.
 - target_due:
 - specs: pose-delegated-review-dispatch
 
-**Exit gate:** `pose review dispatch` runs a configured adapter on a
-disposable worktree at the sealed commit, leaves the repository untouched,
-and records a run with transcript and draft; a run that edits files or
-exceeds its budget is recorded as failed, not as a review.
+**Exit gate:** `pose delegate review`, which replaced `pose review dispatch`,
+runs a configured adapter on a disposable worktree at the sealed commit, leaves
+the repository untouched, and records a run with transcript and draft; a run
+that edits files is recorded as failed and one that exceeds its budget as
+interrupted, neither as a review.
 
 ## Milestone: trust
 - after: dispatch, attempt-ledger, spec:pose-action-answers-reverify-on-read, spec:pose-review-disclosure-requires-proof, spec:pose-historical-trust-and-review-reuse

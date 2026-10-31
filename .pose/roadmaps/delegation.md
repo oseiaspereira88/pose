@@ -33,8 +33,9 @@ amended specs carry the ADR's changes before their milestones start.
 
 **Exit gate:** `pose delegate review|adjudicate|smoke|task|ls|watch|wait|resume|handoff|cancel|agents`
 parse with one vocabulary (`--agent`, `--access`, `--label`, `--lead`,
-`--json`); `pose review dispatch|resume|status` print their replacement and
-behave identically; `delegation.json` schema 2 loads, schema 1 migrates
+`--json`); `pose review dispatch|resume|status`, retired by
+`pose-delegation-parity-gate`, run nothing and name their replacement;
+`delegation.json` schema 2 loads, schema 1 migrates
 deterministically through `pose update`; the child environment carries none
 of the parent agent's session variables; both vendors' event streams normalize
 to one NDJSON shape.
@@ -79,11 +80,11 @@ wait, handoff and cancel in a terminal and as `next_actions` in `--json`.
 - after: continuity, spec:pose-delegated-review-brief, spec:pose-delegated-review-attempt-ledger
 - target_start:
 - target_due:
-- specs: pose-delegated-review-round-protocol
+- specs: pose-delegated-review-round-protocol, pose-delegated-review-expired-session
 
 **Exit gate:** with `continue-thread`, the round after a rejection resumes the
-thread's first session; a vendor change, a broken chain, an expired session or
-the round threshold opens a new session with the reason recorded; prior
+thread's first session; a vendor change, a broken chain, a session that failed
+to continue or the round threshold opens a new session with the reason recorded; prior
 findings are accounted for and swept as R2–R5 require; insights measure
 convergence.
 
@@ -152,8 +153,8 @@ changes.
 - specs: pose-delegation-task-detach-and-state, pose-delegation-parity-gate
 
 **Exit gate:** `pose delegate task --detach` returns its attempt, a piped
-prompt included, and the task-state path refuses a link, a foreign owner or a
-writable directory where another user could swap it; the parity matrix maps every launcher capability listed in the
+prompt included, and the task-state path refuses a link and, on POSIX, a foreign owner
+or a writable directory where another user could swap it; the parity matrix maps every launcher capability listed in the
 ADR to a native command and a test; its check failed against a matrix with an
 uncovered row before passing; documentation, skills and help name only
 `pose delegate`; the launchers and the operational references to them are
