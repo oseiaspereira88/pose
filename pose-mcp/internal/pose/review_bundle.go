@@ -2409,12 +2409,17 @@ func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 			bundles = append(bundles, bundle)
 		}
 	}
+	s.sortReviewBundles(bundles)
+	coverage.Normalize()
+	return ReviewBundlesRead{Bundles: bundles, Coverage: coverage}, nil
+}
+
+// sortReviewBundles puts bundles in the seal order every selection starts from.
+func (s Store) sortReviewBundles(bundles []ReviewBundle) {
 	sort.Slice(bundles, func(i, j int) bool {
 		return reviewInstantLess(bundles[i].SealedAt, bundles[i].BundleID, bundles[j].SealedAt, bundles[j].BundleID)
 	})
 	s.orderTiedBundlesNegativeLast(bundles)
-	coverage.Normalize()
-	return ReviewBundlesRead{Bundles: bundles, Coverage: coverage}, nil
 }
 
 // orderTiedBundlesNegativeLast settles bundles sealed in the same instant. Seal times have a

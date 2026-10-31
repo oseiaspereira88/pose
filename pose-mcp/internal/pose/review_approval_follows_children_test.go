@@ -567,6 +567,58 @@ func TestEffectiveGovernanceFollowsLineage(t *testing.T) {
 	}
 }
 
+// Two tied successors of one bundle: the replay reads the one verification
+// reads (AC-R2-01).
+func TestGovernanceReplaySelectsAsVerificationDoes(t *testing.T) {
+	root, s, _, _ := federatedTestMilestoneConsumer(t)
+	s.FederatedResolver = nil
+	now := time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)
+	a, err := s.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := s.SealReviewBundleLead("spec:backend", "openai/gpt-6.1-sol", now.Add(time.Minute))
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(root, ".pose/review-bundles", b.BundleID+".json")
+	hidden := filepath.Join(t.TempDir(), "hidden.json")
+	if err := os.Rename(path, hidden); err != nil {
+		t.Fatal(err)
+	}
+	c, err := s.SealReviewBundleLead("spec:backend", "anthropic/claude-opus-4", now.Add(time.Minute))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Rename(hidden, path); err != nil {
+		t.Fatal(err)
+	}
+	if b.Payload.Implementation.Replaces != a.BundleID || c.Payload.Implementation.Replaces != a.BundleID {
+		t.Fatal("not a branch")
+	}
+	negative, positive := b, c
+	if negative.BundleID > positive.BundleID {
+		negative, positive = positive, negative
+	}
+	attestChildReview(t, s, positive, now.Add(2*time.Minute), "approved")
+	attestChildReview(t, s, negative, now.Add(2*time.Minute), "rejected")
+	verification, err := s.VerifyReviewBundle("spec:backend")
+	if err != nil || verification.Approved || verification.Bundle.BundleID != negative.BundleID {
+		t.Fatalf("control: %+v %v", verification, err)
+	}
+	bundles, err := s.ListReviewBundles("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	shuffled := []ReviewBundle{}
+	for i := len(bundles) - 1; i >= 0; i-- {
+		shuffled = append(shuffled, bundles[i])
+	}
+	if got := s.governingBundles(map[string][]ReviewBundle{"spec:backend": shuffled})["spec:backend"]; got.BundleID != negative.BundleID {
+		t.Fatalf("the replay reads %s, verification %s", got.BundleID, negative.BundleID)
+	}
+}
+
 // One public call verifies a scope once (AC-R1-08).
 func TestChildVerificationIsOncePerOperation(t *testing.T) {
 	root, s, child, _, now := approvedParentFixture(t, false)

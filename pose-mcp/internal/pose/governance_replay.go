@@ -72,6 +72,17 @@ func (s Store) replayReviewBlockers(bundle ReviewBundle, att ReviewAttestation) 
 
 // GovernanceReplay scans all local records up to a declared bound. Invalid
 // records remain in coverage. It intentionally exports aggregates only.
+// governingBundles is the bundle that governs each scope, as verification
+// would order it.
+func (s Store) governingBundles(byScope map[string][]ReviewBundle) map[string]ReviewBundle {
+	latest := make(map[string]ReviewBundle, len(byScope))
+	for ref, list := range byScope {
+		s.sortReviewBundles(list)
+		latest[ref] = reviewBundleLineage(list)[0]
+	}
+	return latest
+}
+
 func (s Store) GovernanceReplay(limit int) (GovernanceReplayReport, error) {
 	if limit == 0 {
 		limit = 10000
@@ -180,13 +191,7 @@ func (s Store) GovernanceReplay(limit int) (GovernanceReplayReport, error) {
 		return report, err
 	}
 	report.Specs = len(specs)
-	latest := map[string]ReviewBundle{}
-	for ref, list := range byScope {
-		sort.Slice(list, func(i, j int) bool {
-			return reviewInstantLess(list[i].SealedAt, list[i].BundleID, list[j].SealedAt, list[j].BundleID)
-		})
-		latest[ref] = reviewBundleLineage(list)[0]
-	}
+	latest := s.governingBundles(byScope)
 	for i, spec := range specs {
 		if i >= limit {
 			report.Complete = false

@@ -81,6 +81,7 @@ Independent review of `pose-review-subject-later-removal` found two faults in wh
 - modified: pose-mcp/internal/pose/effective_governance.go
 - modified: pose-mcp/internal/pose/governance_replay.go
 - modified: pose-mcp/internal/pose/governance_waits.go
+- modified: pose-mcp/internal/pose/spec.go
 - modified: pose-mcp/internal/cli/testdata/adversarial/README.md
 - created: pose-mcp/internal/pose/review_approval_follows_children_test.go
 
