@@ -401,6 +401,14 @@
       "digest": "sha256:ff805b84a777ae37b2cab091f33b6e6d398e6dc531b23c56d409b1e704bfd320"
     },
     {
+      "spec": "pose-review-approval-follows-children",
+      "category": "changed",
+      "breaking": false,
+      "body": "A milestone or roadmap stops verifying approved while the review of a child no longer stands: rejected, with lost attestation history, stale, or reopened under a done parent. It recovers with the child, with no reseal. Selection of the governing bundle honours replacement lineage, so retention no longer returns a bundle its replacement superseded, whatever the seal times say, and a `replaces` naming other content counts for nothing.",
+      "path": "pose-review-approval-follows-children.md",
+      "digest": "sha256:e3b4a649a92bb02bd0750df835599b17da6b8095503bbfa681ebcba2dbe5d732"
+    },
+    {
       "spec": "pose-review-disclosure-requires-proof",
       "category": "fixed",
       "breaking": false,
