@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-2667f5ab7fc58031",
+  "bundle_id": "rvb-a43d77d4366b2b69",
+  "bundle_digest": "sha256:a43d77d4366b2b696adab29e0f9d8106a2e28a8164dccf446d52af7afbff4a0c",
+  "reviewer": "agent:independent-rawhistory-sol-r3-20261031",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Read all three saved reports. Round 3 fixes explicit empty-tree ranges and large-message roots, retains shallow-boundary refusal and octopus compatibility. SHA-1/SHA-256 probes and child-process fault tests are recorded there. Earlier broad suites had identical 249 failures across compared revisions; these are not independent green runs. No fresh replay of prior probes, no federated-root e2e, no unlimited-header or whole-Git timeout guarantee claimed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion with current sealed passing evidence. Round 3 report independently records raw-reader/root/range tests, consumer journeys, bounded reads and process cleanup; earlier suite limits remain explicit. Inspected supplied strict delivery-validation.json: git_head 33650dcf2b6a3d25d6fe2c5c9899e55fd812cd0c, outcome pass, 172 executed and passed, zero failed/optional_failed/errored/skipped. Actual matrix hash and sealed provenance match. Dedicated raw-history integration passes. No fresh matrix replay claimed; GitHub token purpose is user-reported, not independently observed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion with current sealed passing evidence. Round 3 report independently records raw-reader/root/range tests, consumer journeys, bounded reads and process cleanup; earlier suite limits remain explicit. Inspected supplied strict delivery-validation.json: git_head 33650dcf2b6a3d25d6fe2c5c9899e55fd812cd0c, outcome pass, 172 executed and passed, zero failed/optional_failed/errored/skipped. Actual matrix hash and sealed provenance match. Dedicated raw-history integration passes. No fresh matrix replay claimed; GitHub token purpose is user-reported, not independently observed."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion with current sealed passing evidence. Round 3 report independently records raw-reader/root/range tests, consumer journeys, bounded reads and process cleanup; earlier suite limits remain explicit. Inspected supplied strict delivery-validation.json: git_head 33650dcf2b6a3d25d6fe2c5c9899e55fd812cd0c, outcome pass, 172 executed and passed, zero failed/optional_failed/errored/skipped. Actual matrix hash and sealed provenance match. Dedicated raw-history integration passes. No fresh matrix replay claimed; GitHub token purpose is user-reported, not independently observed."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion with current sealed passing evidence. Round 3 report independently records raw-reader/root/range tests, consumer journeys, bounded reads and process cleanup; earlier suite limits remain explicit. Inspected supplied strict delivery-validation.json: git_head 33650dcf2b6a3d25d6fe2c5c9899e55fd812cd0c, outcome pass, 172 executed and passed, zero failed/optional_failed/errored/skipped. Actual matrix hash and sealed provenance match. Dedicated raw-history integration passes. No fresh matrix replay claimed; GitHub token purpose is user-reported, not independently observed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion with current sealed passing evidence. Round 3 report independently records raw-reader/root/range tests, consumer journeys, bounded reads and process cleanup; earlier suite limits remain explicit. Inspected supplied strict delivery-validation.json: git_head 33650dcf2b6a3d25d6fe2c5c9899e55fd812cd0c, outcome pass, 172 executed and passed, zero failed/optional_failed/errored/skipped. Actual matrix hash and sealed provenance match. Dedicated raw-history integration passes. No fresh matrix replay claimed; GitHub token purpose is user-reported, not independently observed."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Round 3 confirms explicit persisted empty-tree report ranges, first-commit lifecycle and later removal in both object formats. Ordinary parented identities retain the first-parent branch and no added Git call. ADR documents raw-history migration by reindex/reseal; arbitrary trees remain unsupported. Only closeout spec text and governed D1/D2 rewrite changed since approved f25846ad."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion with current sealed passing evidence. Round 3 report independently records raw-reader/root/range tests, consumer journeys, bounded reads and process cleanup; earlier suite limits remain explicit. Inspected supplied strict delivery-validation.json: git_head 33650dcf2b6a3d25d6fe2c5c9899e55fd812cd0c, outcome pass, 172 executed and passed, zero failed/optional_failed/errored/skipped. Actual matrix hash and sealed provenance match. Dedicated raw-history integration passes. No fresh matrix replay claimed; GitHub token purpose is user-reported, not independently observed."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Shared raw Git environment makes structural history readers agree on immutable objects despite replace refs/grafts. First-parent resolution preserves ordinary identity; raw-header fallback proves authentic rootness without shallow-walk inference or whole-message buffering. Recognized empty-tree base supports the first spec. Round 3 probes cover large roots, explicit records and terminate/reap paths; small-root-only checks would miss those. Independent corpus coverage is limited as stated in reports. SD-6eeadfe6: added ADR governs shared raw-history reads and the persistent resolved_base empty-tree contract, matching D1/D2 and round 3 verified source/probes; migration is reindex/reseal for replace/graft users.",
+      "mappings": [
+        {
+          "delta": "SD-6eeadfe6",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "ADR is one governance-contract observation. D1 governs its shared raw-history rule for R1; related D2 governs its object-format empty-tree resolved_base, first-parent-first fallback and raw-header rootness for R2/R3. Both governed decisions agree with round 3 verified source/probes and documented reindex/reseal migration. The native mapping has one basis per observation; D2 is assessed explicitly in this rationale and design-causality conclusion."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Inspected full git diff f25846ad..HEAD: only task checkbox, R1-R3 trace, final report and governed D1/D2 decision rewrite with amendment changed. Trace cites registered tests, current validation report and approved implementation commit. Round 3 found ADR accurate for raw history, supported empty-tree base and conservative unread-header refusal. Final residual scope preserves out-of-scope Git callers. Spec remains in-progress; lifecycle close is separate."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Round 3 reports prompt termination and reaping on parentless/parent headers, mid-header child death and oversized lines; scanner errors preserve object context. Bounded 1 MiB header lines and existing trailer limits remain. Existing collector may still collapse resolver failure into no-trailer diagnosis; no claim that all diagnostics are fixed. Optional inherited simplification/diagnostic follow-ups remain outside approval conditions."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion with current sealed passing evidence. Round 3 report independently records raw-reader/root/range tests, consumer journeys, bounded reads and process cleanup; earlier suite limits remain explicit. Inspected supplied strict delivery-validation.json: git_head 33650dcf2b6a3d25d6fe2c5c9899e55fd812cd0c, outcome pass, 172 executed and passed, zero failed/optional_failed/errored/skipped. Actual matrix hash and sealed provenance match. Dedicated raw-history integration passes. No fresh matrix replay claimed; GitHub token purpose is user-reported, not independently observed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "I am the Codex reviewer of all rounds, recorded in review-round1-report.md, review-round2-report.md and review-round3-report.md beside this file. Round 3 approved f25846ad. Reports were read; prior probes were not freshly replayed. This is declared reviewer continuity, not authenticated vendor identity. Inspected f25846ad..33650dcf: closeout text and governed D1/D2 rewrite only, no source or matrix delta."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Prior reports reviewed raw object identity, revision validation, command construction, subprocess bounds and sensitive-data exposure. Round 3 adds no dependency, endpoint, credential handling or sensitive logging. Current closeout-only diff contains no credential. No fresh dedicated secret/vulnerability scanner is claimed. Discovery and generic release/docs Git readers remain explicit non-goals."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "One shared raw-history rule, a first-parent-first resolver, a bounded streaming header fallback and a recognized empty-tree exception are sufficient for the stated cause. Rewriting all Git callers or accepting arbitrary trees would exceed scope. ChangeSetRange simplification remains optional; its exact-string test is not semantic proof against an equivalent range spelling. Revisit if arbitrary tree bases, unbounded headers or broader Git readers become requirements."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Native mechanical preparation resolves artifact evidence from sealed immutable change set cs-ff83c2d4c080. Prior strict reconciliation ran in synthetic fixtures as reported. No fresh repository-wide artifact-check execution claimed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Standalone assessment skipped as in round 3; source inspection, ADR and executable root/header/range probes answer bounded resolver design. No fresh assessment claimed."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Round 1 discovery context retained; round 3 did not repeat broad rescan for small resolver delta. No component lifecycle/state write authorized."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Saved round 3 assessment ran: 70 contracts, six active and 64 gaps. This is qualified assessment output, not certification of all consumers. No fresh run claimed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Saved round 3 assessment ran: one covered marker, incomplete due to two pre-existing invalid follow-up sources. No complete census or fresh run claimed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate remains for lifecycle owner; close not authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate follows native attestation; verify and review-check run next."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Saved reports record component rule selection: backend-go, security and documentation-style, plus delivery-evidence and knowledge-governance. Frontend/infrastructure inapplicable. No fresh suggestion run claimed."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Native mechanical preparation accepts current sealed composed-capability integration evidence at exact HEAD. Supplied zero findings is user-reported; no fresh completed surface-check result is claimed in this conclusion."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json: git_head 33650dcf2b6a3d25d6fe2c5c9899e55fd812cd0c, outcome pass, 172 executed and passed, zero failed/optional_failed/errored/skipped. Actual matrix hash and sealed provenance match. Dedicated raw-history integration passes. No fresh matrix replay claimed; GitHub token purpose is user-reported, not independently observed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json: git_head 33650dcf2b6a3d25d6fe2c5c9899e55fd812cd0c, outcome pass, 172 executed and passed, zero failed/optional_failed/errored/skipped. Actual matrix hash and sealed provenance match. Dedicated raw-history integration passes. No fresh matrix replay claimed; GitHub token purpose is user-reported, not independently observed."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/history-readers-read-raw-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-rawhistory-sol-r3-20261031",
+    "concluded_by": "agent:independent-rawhistory-sol-r3-20261031",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-10-31T18:58:57Z",
+  "path": ".pose/review-attestations/rva-2667f5ab7fc58031.json"
+}

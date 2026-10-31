@@ -1,6 +1,6 @@
 ---
 slug: pose-history-readers-read-raw
-status: in-progress
+status: done
 created_at: 2026-10-31
 supersedes:
 depends_on: pose-delivery-later-removal
@@ -9,6 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: capability:history-readers-read-raw
+completed_at: 2026-10-31
 ---
 
 # Spec: Review reads the same history as delivery, from its first commit
