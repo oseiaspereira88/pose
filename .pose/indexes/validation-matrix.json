@@ -2217,7 +2217,7 @@
         {
           "name": "validate-concurrent-steps-integration",
           "program": "go",
-          "args": ["test", "./internal/cli", "-run", "TestValidateRunsChecksConcurrentlyWithinJobs|TestValidateKeepsMatrixOrderAndOutcomes|TestValidateExclusiveCheckRunsAlone|TestValidateCancelStopsRunningChecks|TestDefaultValidationJobsIsBounded|TestValidateJobsFlagRefusesBadValues", "-count=1"],
+          "args": ["test", "./internal/cli", "-run", "TestValidateRunsChecksConcurrentlyWithinJobs|TestValidateKeepsMatrixOrderAndOutcomes|TestValidateExclusiveCheckRunsAlone|TestValidateCancelStopsRunningChecks|TestDefaultValidationJobsFollowsTheBudget|TestValidateJobsFlagRefusesBadValues|TestValidateWhenIsReadBeforeTheCheckStarts|TestChangedScopeSkipsKeepMatrixOrder|TestCheckAcceptsExclusiveAsABoolean|TestValidateCancelStopsThePreparatoryGoList|TestACancelledRunIsNeverASuccess", "-count=1"],
           "severity": "required",
           "evidenceClass": "integration"
         },
