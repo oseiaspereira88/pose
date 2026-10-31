@@ -96,7 +96,7 @@ A new generation input, `recorded-change-sets`.
 
 - [x] Check a witness against current history
 - [x] Bind the recorded change sets
-- [ ] Independent review and closeout
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -112,16 +112,22 @@ Real Git fixtures: a touch after the deletion, on `HEAD` and through a merge, a 
 
 ### Requirement trace
 
+- R1 [satisfied] capability:removal-witness-freshness evidence:integration check:removal-witness-freshness-integration test:TestRemovalWitnessHoldsOnCurrentHistory test:TestLaterTouchRefusesTheWitness test:TestTouchThroughAMergeRefusesTheWitness test:TestDeletingCommitOffHeadRefusesTheWitness test:TestReplaceRefDoesNotHideALaterTouch test:TestShallowHistoryRefusesTheWitness report:.pose/results/delivery-validation.json commit:2b7b670090f5237d0317c4cfa94c2948234b9903 — A witness counts only on raw, complete history with its deletion on HEAD and no later touch.
+- R2 [satisfied] check:removal-witness-freshness-integration test:TestLaterTouchRefusesTheWitness test:TestUnknownDeletingCommitRefusesTheWitness report:.pose/results/delivery-validation.json commit:2b7b670090f5237d0317c4cfa94c2948234b9903 — A refusal names the path, the commit and why, and asks for pose index.
+- R3 [satisfied] check:removal-witness-freshness-integration test:TestRecordedChangeSetsAreBound test:TestRecordedChangeSetRecordIsBounded test:TestRecordedChangeSetsBindWhatTheReaderReads test:TestRecordedChangeSetLossBindsAlikeAcrossClones test:TestRecordedChangeSetLossBindsAlikeThroughALink report:.pose/results/delivery-validation.json commit:2b7b670090f5237d0317c4cfa94c2948234b9903 — A generation binds the result of the graph's own reader.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+A review subject reads a later removal only while raw, complete history still shows it; otherwise preparation refuses and asks for `pose index`. Generations bind the result of the delivery graph's own reader of the report history, now shared from `internal/pose`. Independently reviewed by Codex over four rounds.
 
 ### Residual risks
 
-None yet.
+A shallow clone cannot use a removal witness until it fetches full history. The binding reads the whole report history on every facts freshness read.
 
 ### Follow-ups
 
 - [open] F1: facts of a spec named by an explicit record stay `unknown` with a reason that says the generation does not bind it, though a generation now does; read a bound, fresh record as fresh, keeping `unknown` for older generations and losses (WF-R1-05). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [open] F2: a refusal from a shallow clone should say to fetch the full history before `pose index`, which alone does not help (WF-R2-F2). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [open] F3: bound the allocation of a binding read over a large report history, or memoise it per operation (WF-R3-F1). (owner:@oseiaspereira88 crit:low review:2026-11-27)
