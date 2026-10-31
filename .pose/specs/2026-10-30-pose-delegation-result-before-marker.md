@@ -76,9 +76,9 @@ None. Internal test seam: `beforeRunResultPublished`, a package variable called 
 
 ## 4. Tasks
 
-- [ ] Publish the result inside the marker's deferred removal
-- [ ] Regression shown failing before the fix
-- [ ] Independent review and closeout
+- [x] Publish the result inside the marker's deferred removal
+- [x] Regression shown failing before the fix
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -90,14 +90,21 @@ A dispatch whose hook asserts, at the moment its result is published, that the r
 
 ### Requirement trace
 
+- R1 [satisfied] check:delegation-result-before-marker-integration test:TestARunsResultIsPublishedBeforeItsMarkerGoes test:TestARunsReturnPathsPublishOnceAndKeepTheirMarker test:TestAContinuationsReturnPathsPublishOnceAndKeepTheirMarker report:.pose/results/delivery-validation.json commit:8cb9d00db53ef6d1678a1274f193395fefc6997b — The result is published inside the marker's deferred removal, before it; a failed publication keeps the marker. The regression failed for a first attempt and a handoff on the old order; the reviewer's one-second receipt-delay probe no longer makes a wait refuse.
+- R2 [satisfied] check:delegation-result-before-marker-integration test:TestARunsReturnPathsPublishOnceAndKeepTheirMarker report:.pose/results/delivery-validation.json commit:8cb9d00db53ef6d1678a1274f193395fefc6997b — A run that ends before it is marked (marking fails) still publishes its result once; panics and record failures publish none and keep the marker.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+A delegated run's attempt result — attempt receipt or continuation receipt — is published before its active marker is removed, once, on every return path. Independently reviewed by Codex (approved in round 1), who found the defect.
 
 ### Residual risks
 
-None yet.
+A heartbeat in flight when a run stops can recreate the marker it removed (F1, pre-existing), leaving a false running or stalled state.
 
 ### Follow-ups
+
+
+- [open] F1: join a run's heartbeat watcher, or share its lock, before the active marker is removed, so an in-flight heartbeat cannot recreate a removed marker (review round 1, F04; reproduced with a scheduling probe on code before this spec). Next engine spec. (owner:@oseiaspereira88 crit:medium review:2026-11-06)
+- [open] F2: decide whether a run's private live events are kept, bounded, when its record cannot be published, or document them as ephemeral even then (review round 1, F03). (owner:@oseiaspereira88 crit:low review:2026-11-27)
