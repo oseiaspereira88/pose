@@ -1,6 +1,6 @@
 ---
 slug: pose-delegated-review-expired-session
-status: in-progress
+status: done
 created_at: 2026-10-31
 supersedes:
 depends_on: pose-delegated-review-round-protocol, pose-delegation-parity-gate
@@ -9,6 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: capability:delegated-review-expired-session
+completed_at: 2026-10-31
 ---
 
 # Spec: A session that cannot continue gives way to a new one
