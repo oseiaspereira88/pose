@@ -2208,6 +2208,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "delegation-marker-stop-joins-heartbeat-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "-run", "TestAStoppedRunsHeartbeatCannotBringItsMarkerBack", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "launcher-parity",
           "program": "go",
           "args": ["test", "./internal/cli", "-run", "LauncherParity|ActiveDocument", "-count=1"],

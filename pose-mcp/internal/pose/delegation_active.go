@@ -113,8 +113,9 @@ func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (s
 	if err := PublishFile(path, append(raw, '\n'), 0600, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
 		return func(...bool) {}, cancelled, fmt.Errorf("pose: another run of attempt %s is active: %w", run.AttemptID, err)
 	}
-	done := make(chan struct{})
+	done, exited := make(chan struct{}), make(chan struct{})
 	go func() {
+		defer close(exited)
 		ticker := time.NewTicker(250 * time.Millisecond)
 		defer ticker.Stop()
 		heartbeat := time.NewTicker(every)
@@ -138,6 +139,10 @@ func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (s
 	stop = func(keepMarker ...bool) {
 		once.Do(func() {
 			close(done)
+			// A heartbeat in flight finishes before the marker goes, so it
+			// cannot rename a new one into place after the removal (spec
+			// pose-delegation-marker-stop-joins-heartbeat R1).
+			<-exited
 			_ = os.Remove(request)
 			if len(keepMarker) == 0 || !keepMarker[0] {
 				_ = os.Remove(path)

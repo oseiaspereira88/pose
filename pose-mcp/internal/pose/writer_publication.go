@@ -100,6 +100,12 @@ var PublishSyncHook func(kind, path string) error
 // tests set it, to inject a failure at the publication point.
 var PublishFault func(path string) error
 
+// PublishBeforeReplace, when set, is called after an ExpectDigest publication
+// has checked the bytes it replaces and before it renames its own into
+// place: the window that only the caller's coordination closes. Only tests
+// set it (spec pose-delegation-marker-stop-joins-heartbeat).
+var PublishBeforeReplace func(path string)
+
 // PublishFile publishes data at path (R1/R2/R5). The bytes are staged in a
 // temporary file only this call creates, next to path, and published by a
 // rename (or, for ExpectAbsent, a hard link that fails if path exists); on
@@ -178,6 +184,9 @@ func PublishFile(path string, data []byte, perm os.FileMode, class string, expec
 		}
 		if found != expect.Digest {
 			return &PublishConflictError{Path: path, Expected: expect.Digest, Found: found}
+		}
+		if PublishBeforeReplace != nil {
+			PublishBeforeReplace(path)
 		}
 		fallthrough
 	default:
