@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strconv"
@@ -144,7 +145,7 @@ func (e *validationEntry) execute(parent context.Context, matrix validationMatri
 		result.Outcome = "pass"
 		// go test exits 0 when a pattern selects nothing: a check that ran
 		// no test has no evidence (spec pose-validate-refuses-empty-go-checks).
-		if pattern := goTestRunPattern(check); pattern != "" && packages.ranNone() {
+		if pattern, selected := goTestSelection(check); selected && packages.ranNone() {
 			result.Outcome, result.LimitState = "fail", "no-tests"
 			result.Output = fmt.Sprintf("no test ran: -run %s selected nothing in the check's packages\n%s", pattern, result.Output)
 		}
@@ -159,26 +160,72 @@ func (e *validationEntry) execute(parent context.Context, matrix validationMatri
 	}
 }
 
-// goTestRunPattern is the -run pattern of a go test check, "" for any other
-// check.
-func goTestRunPattern(check validationCheck) string {
+// goTestSelection says whether a go test check selects tests by name, as go
+// test reads its arguments: -run or -skip, spelled with one or two dashes and
+// the test. prefix, with or without =, until -- ends the flags; after -args
+// only a -test. flag reaches the test binary. GOFLAGS counts as well, the
+// check's own over the inherited. A mode whose success says nothing about
+// tests — -bench, -list, -c, -exec, -json — is not judged (spec
+// pose-validate-refuses-empty-go-checks R1).
+func goTestSelection(check validationCheck) (string, bool) {
 	if check.Program != "go" || len(check.Args) == 0 || check.Args[0] != "test" {
-		return ""
+		return "", false
 	}
-	pattern := ""
-	for i, arg := range check.Args {
-		name, value, inline := strings.Cut(arg, "=")
-		if name != "-run" && name != "-test.run" && name != "--run" {
-			continue
-		}
-		if inline {
-			pattern = value
-		} else if i+1 < len(check.Args) {
-			pattern = check.Args[i+1]
+	pattern, selected := "", false
+	notJudged := false
+	scan := func(args []string) {
+		binaryArgs := false
+		for i := 0; i < len(args); i++ {
+			arg := args[i]
+			if arg == "--" {
+				return
+			}
+			if arg == "-args" || arg == "--args" {
+				binaryArgs = true
+				continue
+			}
+			if !strings.HasPrefix(arg, "-") {
+				continue
+			}
+			name, value, inline := strings.Cut(strings.TrimLeft(arg, "-"), "=")
+			if binaryArgs && !strings.HasPrefix(name, "test.") {
+				continue
+			}
+			switch strings.TrimPrefix(name, "test.") {
+			case "run", "skip":
+				if !inline && i+1 < len(args) {
+					i++
+					value = args[i]
+				}
+				pattern, selected = value, true
+			case "bench", "list", "c", "exec", "json", "o":
+				notJudged = true
+			}
 		}
 	}
-	return pattern
+	goflags, set := check.Env["GOFLAGS"]
+	if !set {
+		goflags = os.Getenv("GOFLAGS")
+	}
+	scan(strings.Fields(goflags))
+	scan(check.Args[1:])
+	if notJudged || !selected {
+		return "", false
+	}
+	if pattern == "" {
+		pattern = `""`
+	}
+	return pattern, true
 }
+
+// A package's result line of go test: the tab-separated forms Go prints, not
+// any line of a test's output that starts with ok (review round 1, B2, B3).
+var (
+	goTestEmptyLine    = regexp.MustCompile(`^ok  \t\S+\t(\(cached\)|[0-9.]+s)(\tcoverage: [^\t]*)? ?\[no tests to run\]$`)
+	goTestRanLine      = regexp.MustCompile(`^ok  \t\S+\t(\(cached\)|[0-9.]+s)(\tcoverage: .*)?$`)
+	goTestNoFiles      = regexp.MustCompile(`^\?   \t\S+\t\[no test files\]$`)
+	goTestNoFilesCover = regexp.MustCompile(`^\s+\S+\t+coverage: [0-9.]+% of statements$`)
+)
 
 // goTestPackages reads go test's per-package result lines from a check's
 // standard output, a line at a time and in bounded memory.
@@ -216,21 +263,16 @@ func (p *goTestPackages) Write(data []byte) (int, error) {
 }
 
 func (p *goTestPackages) line(line string) {
-	fields := strings.Fields(line)
-	if len(fields) < 2 {
-		return
-	}
+	line = strings.TrimSuffix(line, "\r")
 	switch {
-	case fields[0] == "ok" && strings.HasSuffix(line, "[no tests to run]"):
+	case goTestEmptyLine.MatchString(line), goTestNoFiles.MatchString(line), goTestNoFilesCover.MatchString(line):
 		p.empty++
-	case fields[0] == "ok":
+	case goTestRanLine.MatchString(line):
 		p.withTests++
-	case fields[0] == "?" && strings.HasSuffix(line, "[no test files]"):
-		p.empty++
 	}
 }
 
-// ranNone reports that the output named packages and none of them ran a test.
+// ranNone reports that Go named packages and said of each that it ran no test.
 func (p *goTestPackages) ranNone() bool {
 	return p.empty > 0 && p.withTests == 0
 }
