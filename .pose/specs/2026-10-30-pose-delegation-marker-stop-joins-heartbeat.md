@@ -1,6 +1,6 @@
 ---
 slug: pose-delegation-marker-stop-joins-heartbeat
-status: in-progress
+status: done
 created_at: 2026-10-30
 supersedes:
 depends_on: pose-delegation-result-before-marker
@@ -9,6 +9,7 @@ priority: 2
 components: pose-mcp
 task_type: bugfix
 delivers: capability:delegation-marker-stop-joins-heartbeat
+completed_at: 2026-10-31
 ---
 
 # Spec: A stopped run's heartbeat cannot bring its marker back

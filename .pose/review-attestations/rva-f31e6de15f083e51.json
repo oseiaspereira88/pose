@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-f31e6de15f083e51",
+  "bundle_id": "rvb-c93c0f303005c66a",
+  "bundle_digest": "sha256:c93c0f303005c66a7bdd07e5e67410d26895f3778f3275dbaf31d1a5e25f7925",
+  "reviewer": "agent:independent-heartbeat-sol-r2-20261030",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Saved round-2 matrix failed: 111 pass, 52 fail; all 67 named failing tests also occurred in round 1, without proving a common environmental cause. Focused race/probe and mutant evidence supported scoped approval independently of those failed gates. One pending heartbeat is bounded in count, while OS I/O latency is unbounded. I am the Codex independent reviewer of both rounds, recorded in hb-review-round1-report.md and hb-review-round2-report.md beside this file. Round 1 requested changes; round 2 approved the scoped correction. This principal declares reviewer continuity, not authenticated identity proof. Saved review evidence was read, not freshly replayed. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
+      "rationale": "Saved round-2 owned watcher probes passed under race: join precedes marker removal; nested done recheck prevents another heartbeat admission after shutdown. Write-count probe observed zero violations in 90 trials, maximum one publication. sync.Once, stop(true), concurrent/immediate stop and already-cancelled watcher paths were audited and exercised. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
+      "rationale": "Saved two-round audit found no changed public CLI, MCP or file schema; internal test seams have no production setter. Stop joins only its owned watcher; arbitrary test-created writers are outside its contract. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
+      "rationale": "Saved injected publication-error, held-sync, marker-creation failure and caller return/panic paths preserve existing behavior. Watcher panic stays process-fatal; filesystem unlink errors remain unchanged. No new recovery or OS deadline is claimed. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
+      "rationale": "Saved audit inspected RunDelegationTask and DispatchDelegatedReview stop defers: ordinary context cancellation has no watcher-to-caller join cycle or held publication lock. Adjacent result-before-marker and return-path race regressions pass in saved focused selection. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
+      "rationale": "Marker removal follows watcher exit; incomplete-run retention through stop(true) is preserved. Existing filesystem-error handling remains unchanged. HB03 token-specific side files are ignored by listing and cannot recreate marker JSON. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Two-round audit preserves public CLI/MCP/file contracts and token ownership. Current bee95c6f..HEAD diff contains only tasks, R1-R2 trace, final report and follow-ups; runtime and tests unchanged. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
+      "rationale": "Saved round-2 owned heartbeat and shipped regression pass under race. Removing only join fails with marker resurrection; removing only shutdown recheck fails with three heartbeats. Literal extra-writer probe still resurrects a marker because that goroutine is outside watcher ownership, as explicitly disclosed. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-9c6f3b3b605bf0fb",
+      "rationale": "The original failure was an in-flight synchronous watcher rename after marker removal. Joining exited before removal closes that causal window; round-1 HB01 required a nested done recheck to prevent repeated writes when tick and shutdown are ready. Sealed structural evidence observes the subject; it does not prove runtime ordering. No governance gate is added, so a gate-bypass corpus extension is inapplicable. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Read full bee95c6f..HEAD diff: R1-R2 trace references the registered integration test and implementation commit; final report reflects scoped correction. F1 retains HB03 and F2 retains HB02 failure cleanup, both low, owned by @oseiaspereira88, review 2026-11-27. Checked closeout task is not a lifecycle transition; spec stays in-progress. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Stop safely waits for the one admitted heartbeat; permanently blocked filesystem operations can still block return indefinitely. HB03 late cancel side-file hygiene remains F1, and HB02 test failure cleanup remains F2; neither is claimed resolved. No new blocking finding from round-2 exhaustive writer/stop sweep. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
+      "rationale": "R1 has the held actual-watcher publication regression, positive shutdown handshake, exactly-one-write assertion, marker absence and both independent failing mutants. R2 exercises stop after cancellation already ended watcher. Current registered integration evidence is passed. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Scoped join plus shutdown admission recheck was approved in round 2. Inspected bee95c6f..HEAD: only closeout text changed; no runtime drift. I am the Codex independent reviewer of both rounds, recorded in hb-review-round1-report.md and hb-review-round2-report.md beside this file. Round 1 requested changes; round 2 approved the scoped correction. This principal declares reviewer continuity, not authenticated identity proof. Saved review evidence was read, not freshly replayed. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Two-round audit preserves marker token ownership, exclusive creation and filesystem checks. New test seams are internal/no-op in production and require joined users before hook restoration; HB02 retains failure-path cleanup debt. No new dependency, credentials, shell execution or authority boundary. No fresh vulnerability scan claimed. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Join plus done recheck is the smallest sufficient synchronous lifecycle correction. Sleeping cannot ensure writer exit; a timeout allowing removal before exit revives the defect. No new storage or retry protocol. Revisit if asynchronous marker writers or a watcher callback that waits on stop are introduced. Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed immutable subject records cs-83280ca3420b, three attributed commits and clean range observation. Saved round-2 strict artifact check exited 0 with 817 repository orphan warnings; not a warning-free governance claim. Current closeout delta inspected."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-9c6f3b3b605bf0fb",
+      "rationale": "Inspected sealed observed structural evidence design-9c6f3b3b605bf0fb, subject sha256:fa7e3005960040c85f8ba194378f824e8003b26bbfc3c6edc2f307413385bbd1; no fresh design command claimed."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Skipped as in saved rounds: bounded lifecycle correction directly audited; no new component or dependency, no completeness/state refresh claimed."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Skipped as in saved rounds: no Protobuf, Kafka, REST or MCP contract changes; caller/writer audit and adjacent focused regressions supply lifecycle integration reasoning."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Read saved hb-r2-debt.log: one covered TODO, zero uncovered, scan incomplete for two historical invalid specs. No new source changes since round 2; no fresh assessment or complete debt census claimed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Lifecycle completion gate remains with owner; close is outside authorized scope."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion tool follows native attestation; verify and review-check will be run after recording."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Read hb-r2-rules.log: security and documentation-style selected for Go module. Saved reports also apply backend-go, delivery-evidence and knowledge-governance; frontend/infrastructure inapplicable."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
+      "rationale": "Executed current strict surface-check: one target, 166 results, zero findings; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json at HEAD 2f7d951d543b46e501ad1f4959127a8e438d5c1e: 166 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:5616b3fef8e74f52972c582c9938a9cb6ad5ea4e739375da6fd18b62ad8853f8 matches sealed evidence. No fresh full matrix run claimed."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
+    "structure:design-9c6f3b3b605bf0fb",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-heartbeat-sol-r2-20261030",
+    "concluded_by": "agent:independent-heartbeat-sol-r2-20261030",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-10-31T03:08:08Z",
+  "path": ".pose/review-attestations/rva-f31e6de15f083e51.json"
+}
