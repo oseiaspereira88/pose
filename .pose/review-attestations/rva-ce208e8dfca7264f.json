@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-ce208e8dfca7264f",
+  "bundle_id": "rvb-f6674676ce62988e",
+  "bundle_digest": "sha256:f6674676ce62988ed788ab385f8474f27a14f4539486915e2cc0c86a542e8e86",
+  "reviewer": "agent:independent-marker-sol-r1-20261030",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Round-1 independent matrix was 110 pass and 52 fail, with only three sampled failures baseline-classified; it was not green. Saved targeted probes, race selection and delayed-receipt regression supported bounded code approval. The isolated CLI probe disclosed synthetic ownership adaptation and does not qualify host ownership enforcement. Inspected supplied strict delivery-validation.json at fb1395062a8a97b7efed8a6d7013624e9164ad6a: pass, 165 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:ef0ad8344d4bda4f6aac5bea20eb0d8f2d78e95e62419e4ba623991548fde88f matches sealed evidence. No fresh full matrix run claimed. I am the Codex reviewer of round 1, whose approved conclusion is recorded in review-round1-report.md beside this file in /tmp/pose-roadmaps-evidence/marker. This principal declares reviewer continuity; it is not authenticated identity proof. Saved review evidence was read, not freshly replayed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-result-before-marker-integration",
+      "rationale": "Round-1 path audit and race selection support single-goroutine ownership of the once-only closure, cancellation and marker preservation. F04 heartbeat recreation is pre-existing and remains separate F1, not claimed fixed. Inspected supplied strict delivery-validation.json at fb1395062a8a97b7efed8a6d7013624e9164ad6a: pass, 165 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:ef0ad8344d4bda4f6aac5bea20eb0d8f2d78e95e62419e4ba623991548fde88f matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-result-before-marker-integration",
+      "rationale": "Immutable attempt and continuation receipts, exclusive claims and missing-receipt refusals preserved. No new public CLI, MCP or persisted schema contract. Inspected supplied strict delivery-validation.json at fb1395062a8a97b7efed8a6d7013624e9164ad6a: pass, 165 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:ef0ad8344d4bda4f6aac5bea20eb0d8f2d78e95e62419e4ba623991548fde88f matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-result-before-marker-integration",
+      "rationale": "Saved seven-path dispatch and four-path continuation probes cover record failure, receipt failure, panic and pre-marker fallback; failed publication is attempted once and keeps an acquired marker. Early refusal creates no fabricated result. Inspected supplied strict delivery-validation.json at fb1395062a8a97b7efed8a6d7013624e9164ad6a: pass, 165 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:ef0ad8344d4bda4f6aac5bea20eb0d8f2d78e95e62419e4ba623991548fde88f matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-result-before-marker-integration",
+      "rationale": "Saved one-second continuation receipt-delay probe passed three runs with disclosed ownership adaptation; wait no longer observes missing receipt after marker removal. New repository integration check includes the original regression and adopted fault matrices. Inspected supplied strict delivery-validation.json at fb1395062a8a97b7efed8a6d7013624e9164ad6a: pass, 165 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:ef0ad8344d4bda4f6aac5bea20eb0d8f2d78e95e62419e4ba623991548fde88f matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-result-before-marker-integration",
+      "rationale": "Publication failure joins attempt result not confirmed and retains incomplete authority evidence. F03 optional live progress removal on unsuccessful record publication remains F2, not fixed. Inspected supplied strict delivery-validation.json at fb1395062a8a97b7efed8a6d7013624e9164ad6a: pass, 165 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:ef0ad8344d4bda4f6aac5bea20eb0d8f2d78e95e62419e4ba623991548fde88f matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Existing receipt verification, claim exclusivity, replay and authority refusals retained. No external flag, tool field or schema added. Entire 280dee52..fb139506 delta reviewed: tests, matrix registration and spec reporting only; runtime unchanged."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-result-before-marker-integration",
+      "rationale": "Round-1 audit verified publishResult runs inside marker-removal defer; resultPublished is set before hook/write, fallback cannot duplicate publication, and recording failure/panic cannot fabricate a receipt. Saved negative control fails old ordering and delayed-receipt probe passes corrected implementation. Inspected supplied strict delivery-validation.json at fb1395062a8a97b7efed8a6d7013624e9164ad6a: pass, 165 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:ef0ad8344d4bda4f6aac5bea20eb0d8f2d78e95e62419e4ba623991548fde88f matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The defect was LIFO defer order removing the marker before publishing the receipt. Calling the shared once-only publisher inside the marker defer removes that exact window while preserving the fallback when marking fails. Current assess design observes five of five subject files and SD-282cd852, the dedicated integration check addition; structural metadata does not prove runtime ordering. No new governance gate, so gate-bypass corpus extension is inapplicable."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed full 280dee52..fb139506 delta: adopted return-path coverage, required matrix selection, R1-R2 trace and delivered-scope report. F1 explicitly carries prior F04 with owner/date to next engine spec; F2 carries prior F03. Checked closeout task is not lifecycle completion; spec remains in-progress and this operation does not close it. Exactly-once applies to a returned recorded result, not early refusal or panic without a result; arbitrary filesystem failures do not imply a marker biconditional."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Receipt failure remains actionable and fail-closed without retry or reader weakening. Pre-existing F04 can recreate a removed marker and cause false running/stalled state; spec F1 assigns @oseiaspereira88, next engine spec, review 2026-11-06. Pre-existing F03 live data loss is F2, review 2026-11-27. These are separate follow-ups, neither resolved nor newly accepted risks in this attestation."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-result-before-marker-integration",
+      "rationale": "R1 is supported by original attempt/handoff regression and saved delayed-receipt negative control; R2 by seven dispatch paths including mark failure and four continuation paths including immutable replay. Compared adopted test file with reviewer probe: names, formatting and explanatory comments changed, assertions retained. F02 durability recommendation is incorporated. Inspected supplied strict delivery-validation.json at fb1395062a8a97b7efed8a6d7013624e9164ad6a: pass, 165 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:ef0ad8344d4bda4f6aac5bea20eb0d8f2d78e95e62419e4ba623991548fde88f matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Approved scoped receipt-before-marker correction at 280dee52 remains unchanged at HEAD. Full subsequent delta adds durable reviewer coverage, matrix selection and accurate spec trace/report/follow-ups. I am the Codex reviewer of round 1, whose approved conclusion is recorded in review-round1-report.md beside this file in /tmp/pose-roadmaps-evidence/marker. This principal declares reviewer continuity; it is not authenticated identity proof. Saved review evidence was read, not freshly replayed."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Round-1 audit preserves immutable fail-closed receipts, exclusive claims, containment and authority checks. No new dependency, credentials, shell interpolation or policy boundary introduced. Test-only hook is no-op in production and must not panic or be mutated concurrently. No fresh vulnerability scan claimed; synthetic host adaptation in saved CLI probe was isolated and disclosed."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "One shared once-only closure addresses the actual defer inversion without new storage, retries or weakened readers. Merely sleeping or relaxing missing-receipt checks cannot ensure the invariant. Broader heartbeat joining and live retention policy are separate follow-ups. Revisit for concurrent publisher ownership, crash-atomic multi-file requirements or a new recovery protocol."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Current strict artifact-check inspected: cs-c68847169a78, three attributed commits, claims 6, observed 9 (includes three generated indexes), diff sha256:314e5d934ca13019d07c218489644a22f8b10e3833131da0260018f6f1e16f91; 816 repository-wide orphan warnings. No claim of warning-free repository governance."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-bb67a4cd37f849c4",
+      "rationale": "Current read-only assess design executed; observed five of five subject files, SD-282cd852 integration-check addition, input digest matches sealed structural evidence."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Skipped as in round 1: narrow ordering correction directly audited across call sites and paths; no new component or dependency, no completeness/state refresh claimed."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-result-before-marker-integration",
+      "rationale": "Read saved round-1 integrate.log: 70 contracts, six active, 64 consumer gaps. This is not a clean integration census; CLI/MCP consumers manually reviewed and probed. No fresh assessment run."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Read saved round-1 tech-debt.log: one covered marker, zero uncovered; scan explicitly incomplete for two historical invalid specs. Not a complete debt census; no fresh assessment run."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate remains with lifecycle owner; no close authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate follows native attestation recording; verify and review-check are next."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Read saved round-1 rules.log selecting security/documentation-style for Go path; review report also applies backend-go, delivery-evidence and knowledge-governance. Frontend and infrastructure inapplicable."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-result-before-marker-integration",
+      "rationale": "Current strict surface-check passed: one target, 165 results, zero findings, provenance sha256:ef0ad8344d4bda4f6aac5bea20eb0d8f2d78e95e62419e4ba623991548fde88f matches sealed evidence. Capability uses existing CLI entrypoint and dedicated integration check."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-result-before-marker-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json at fb1395062a8a97b7efed8a6d7013624e9164ad6a: pass, 165 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:ef0ad8344d4bda4f6aac5bea20eb0d8f2d78e95e62419e4ba623991548fde88f matches sealed evidence. No fresh full matrix run claimed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-result-before-marker-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json at fb1395062a8a97b7efed8a6d7013624e9164ad6a: pass, 165 executed and passed, zero failed, optional_failed, errored or skipped; provenance sha256:ef0ad8344d4bda4f6aac5bea20eb0d8f2d78e95e62419e4ba623991548fde88f matches sealed evidence. No fresh full matrix run claimed."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delegation-result-before-marker-integration",
+    "structure:design-bb67a4cd37f849c4",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-marker-sol-r1-20261030",
+    "concluded_by": "agent:independent-marker-sol-r1-20261030",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-10-31T01:29:32Z",
+  "path": ".pose/review-attestations/rva-ce208e8dfca7264f.json"
+}

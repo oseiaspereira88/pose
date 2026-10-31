@@ -1,6 +1,6 @@
 ---
 slug: pose-delegation-result-before-marker
-status: in-progress
+status: done
 created_at: 2026-10-30
 supersedes:
 depends_on: pose-cli-test-wall-time
@@ -9,6 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: capability:delegation-result-before-marker
+completed_at: 2026-10-31
 ---
 
 # Spec: A run's active marker goes only after its attempt result is published
