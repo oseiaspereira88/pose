@@ -116,6 +116,28 @@ func TestReplaceRefDoesNotHideALaterTouch(t *testing.T) {
 	}
 }
 
+// A shallow clone that lost the side of a merge says nothing about it, and an
+// empty answer from it does not count (WF-R1-01).
+func TestShallowHistoryRefusesTheWitness(t *testing.T) {
+	root, store, _ := acceptedRemoval(t)
+	main := reviewFixtureGit(t, root, "branch", "--show-current")
+	reviewFixtureGit(t, root, "checkout", "-qb", "side")
+	touchAndDelete(t, root)
+	for i := 0; i < 5; i++ {
+		reviewFixtureGit(t, root, "commit", "--allow-empty", "-qm", "empty")
+	}
+	reviewFixtureGit(t, root, "checkout", "-q", main)
+	reviewFixtureGit(t, root, "merge", "-q", "--no-ff", "-m", "merge", "side")
+	if why := subjectRefusal(t, store); !strings.Contains(why, "no longer holds") {
+		t.Fatalf("the full history: %q", why)
+	}
+	shallow := filepath.Join(t.TempDir(), "shallow")
+	reviewFixtureGit(t, root, "clone", "-q", "--depth=3", "--no-local", "file://"+root, shallow)
+	if why := subjectRefusal(t, Store{Root: shallow}); !strings.Contains(why, "shallow") {
+		t.Fatalf("the shallow clone: %q", why)
+	}
+}
+
 func TestRecordedChangeSetsAreBound(t *testing.T) {
 	root := t.TempDir()
 	files := NativeFiles()
@@ -134,8 +156,23 @@ func TestRecordedChangeSetsAreBound(t *testing.T) {
 		got, _ := IndexInputBindingIn(files, root, "recorded-change-sets")
 		return got
 	}
+	empty := write(`{"task":"ordinary"}` + "\n")
+	if empty != "absent" {
+		t.Fatalf("a history with no change set: %s", empty)
+	}
+	for name, body := range map[string]string{
+		"null":   `{"change_set":null}`,
+		"nested": `{"note":{"change_set":"not attribution"}}`,
+	} {
+		if got := write(body + "\n"); got != "absent" {
+			t.Fatalf("%s reads as a change set: %s", name, got)
+		}
+	}
 	one := `{"change_set":{"id":"1"}}` + "\n"
 	first := write(one)
+	if first == "absent" {
+		t.Fatal("a change set is not bound")
+	}
 	if got := write(one + `{"note":"unrelated"}` + "\n"); got != first {
 		t.Fatal("an unrelated report line staled the binding")
 	}
@@ -145,11 +182,49 @@ func TestRecordedChangeSetsAreBound(t *testing.T) {
 	if got := write(`{"change_set":{"id":"3"}}` + "\n"); got == first {
 		t.Fatal("a changed change set did not stale it")
 	}
+	// The spellings the reader of the graph accepts.
+	for _, field := range []string{`"change_\u0073et"`, `"CHANGE_SET"`} {
+		a := write(`{` + field + `:{"id":"one"}}` + "\n")
+		b := write(`{` + field + `:{"id":"two"}}` + "\n")
+		if a == "absent" || a == b {
+			t.Fatalf("%s is not bound: %s %s", field, a, b)
+		}
+	}
+	if got := write("not json\n"); got == "absent" {
+		t.Fatal("an unreadable record reads as nothing")
+	}
 	moved := write(`{"change_set":{"id":"3"}}` + "\n")
 	if err := os.Rename(filepath.Join(dir, "a.jsonl"), filepath.Join(dir, "b.jsonl")); err != nil {
 		t.Fatal(err)
 	}
 	if got, _ := IndexInputBindingIn(files, root, "recorded-change-sets"); got == moved {
-		t.Fatal("a moved record did not stale it")
+		t.Fatal("a moved change set did not stale it")
+	}
+	if err := os.Remove(filepath.Join(dir, "b.jsonl")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "ordinary.jsonl"), []byte(`{"task":"ordinary"}`+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := IndexInputBindingIn(files, root, "recorded-change-sets"); got != "absent" {
+		t.Fatalf("a new report without a change set: %s", got)
+	}
+}
+
+// A record over the limit is a loss, not a partial read (WF-R1-04).
+func TestRecordedChangeSetRecordIsBounded(t *testing.T) {
+	limit := recordedChangeSetRecordLimit
+	recordedChangeSetRecordLimit = 64 * 1024
+	t.Cleanup(func() { recordedChangeSetRecordLimit = limit })
+	root := t.TempDir()
+	dir := filepath.Join(root, ".pose", "reports", "history")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "a.jsonl"), []byte(`{"note":"`+strings.Repeat("x", 200*1024)+`"}`+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := IndexInputBindingIn(NativeFiles(), root, "recorded-change-sets"); got == "absent" {
+		t.Fatal("an oversize record reads as nothing")
 	}
 }

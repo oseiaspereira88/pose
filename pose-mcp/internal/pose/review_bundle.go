@@ -1403,6 +1403,14 @@ func (s Store) removalCommitStale(path, commit string) string {
 	if later := strings.TrimSpace(string(out)); later != "" {
 		return "commit " + later + " touches it after its deleting commit " + commit
 	}
+	// An empty answer proves nothing about history a shallow clone lacks.
+	shallow, err := RawHistoryGit(s.Root, "rev-parse", "--is-shallow-repository").Output()
+	if err != nil {
+		return "the history after its deleting commit " + commit + " cannot be read: " + err.Error()
+	}
+	if strings.TrimSpace(string(shallow)) != "false" {
+		return "this clone is shallow, so the history after its deleting commit " + commit + " is incomplete"
+	}
 	return ""
 }
 
