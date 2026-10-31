@@ -39,7 +39,7 @@ The delivery graph ignores replace refs and grafts, while structural review hono
 
 - R1: `gitCommand`, and every Git read of `review_path_attribution.go`, `git_batch.go` and `design_delta.go`, shall read raw object history: no replace ref and no graft, from the environment or the repository.
 - R2: A trailer change set whose first commit object has no parent shall resolve, with the empty tree as base, its paths and diff taken from that commit. A shallow boundary, whose object names a parent the clone lacks, stays unresolved.
-- R3: Readers of a change set's range, the review subject, attribution and the policy baseline, shall accept a base that is the empty tree, reading it as the range up to the head.
+- R3: Readers of a change set's range, the review subject, attribution, the policy baseline and an explicit `--change-from`, shall accept a base that is the empty tree, reading it as the range up to the head.
 
 ### Non-functional
 
@@ -64,6 +64,7 @@ The delivery graph ignores replace refs and grafts, while structural review hono
 - created: .pose/specs/2026-10-31-pose-history-readers-read-raw.md
 - created: .pose/starts/pose-history-readers-read-raw.json
 - created: .pose/changelogs/unreleased/pose-history-readers-read-raw.md
+- created: .pose/adr/2026-10-31-review-reads-raw-history-and-roots-diff-from-the-empty-tree.md
 - modified: .pose/specs/2026-10-30-pose-delivery-later-removal.md
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md

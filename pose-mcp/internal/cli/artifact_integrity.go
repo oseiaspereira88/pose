@@ -71,19 +71,36 @@ func resolveGitRevision(root, revision string) (string, error) {
 }
 
 // commitHasNoParent reads the commit object itself: a shallow boundary also
-// has no parent to walk to, and only the object says it is not the root.
-func commitHasNoParent(root, commit string) bool {
-	raw, err := gitOutputBounded(root, 4*1024*1024, "cat-file", "commit", commit)
+// has no parent to walk to, and only the object says it is not the root. It
+// stops at the end of the header, whatever the size of the message.
+func commitHasNoParent(root, commit string) (bool, error) {
+	cmd := posemodel.RawHistoryGit(root, "cat-file", "commit", commit)
+	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return false
+		return false, err
 	}
-	header, _, _ := bytes.Cut(raw, []byte("\n\n"))
-	for _, line := range bytes.Split(header, []byte("\n")) {
+	if err := cmd.Start(); err != nil {
+		return false, err
+	}
+	defer func() {
+		_ = cmd.Process.Kill()
+		_ = cmd.Wait()
+	}()
+	scanner := bufio.NewScanner(stdout)
+	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+	for scanner.Scan() {
+		line := scanner.Bytes()
+		if len(line) == 0 {
+			return true, nil
+		}
 		if bytes.HasPrefix(line, []byte("parent ")) {
-			return false
+			return false, nil
 		}
 	}
-	return true
+	if err := scanner.Err(); err != nil {
+		return false, fmt.Errorf("reading the header of %s: %w", commit, err)
+	}
+	return false, fmt.Errorf("the object of %s has no complete header", commit)
 }
 
 func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, error) {
@@ -107,12 +124,21 @@ func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, er
 	} else if base == "" || head == "" {
 		return posemodel.ChangeSet{}, fmt.Errorf("--from and --to must be supplied together")
 	}
-	resolvedBase, err := resolveGitRevision(root, base)
-	if err != nil && len(trailerCommits) > 0 && commitHasNoParent(root, trailerCommits[0]) {
-		base, resolvedBase, err = posemodel.GitEmptyTree(trailerCommits[0]), posemodel.GitEmptyTree(trailerCommits[0]), nil
-	}
-	if err != nil {
-		return posemodel.ChangeSet{}, err
+	resolvedBase := base
+	if !posemodel.IsGitEmptyTree(base) {
+		var err error
+		if resolvedBase, err = resolveGitRevision(root, base); err != nil && len(trailerCommits) > 0 {
+			isRoot, headerErr := commitHasNoParent(root, trailerCommits[0])
+			if headerErr != nil {
+				return posemodel.ChangeSet{}, fmt.Errorf("%w; %v", err, headerErr)
+			}
+			if isRoot {
+				base, resolvedBase, err = posemodel.GitEmptyTree(trailerCommits[0]), posemodel.GitEmptyTree(trailerCommits[0]), nil
+			}
+		}
+		if err != nil {
+			return posemodel.ChangeSet{}, err
+		}
 	}
 	resolvedHead, err := resolveGitRevision(root, head)
 	if err != nil {

@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-31T17:47:51Z
-baseline_commit: 40f958349506325fbc09ad6f45c4484cc5b4e2d5
+generated_at: 2026-10-31T17:59:31Z
+baseline_commit: 0eeed23e809217947a18172aee92683877863416
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -65,14 +65,14 @@ capacidade.
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
-<!-- state:derived hash:9a109e7387b1 -->
+<!-- state:derived hash:b04782133c22 -->
 
-- ADRs: total=90
+- ADRs: total=91
+  - adr:2026-10-31-review-reads-raw-history-and-roots-diff-from-the-empty-tree.md
   - adr:2026-10-29-make-delegated-review-adoption-explicit-and-recoverable.md
   - adr:2026-10-26-delegation-is-a-first-class-execution-surface.md
   - adr:2026-10-25-reserve-delegated-attempts-before-launch-and-witness-immutable-runs.md
   - adr:2026-10-25-continue-delegated-runs-under-one-immutable-attempt.md
-  - adr:2026-10-25-bound-trusted-reviewer-execution-and-disclose-unavailable-isolation.md
 - knowledge: total=18 ativo=18 expirado=0
 
 ## Validação & Evidência

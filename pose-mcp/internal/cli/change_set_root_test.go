@@ -1,7 +1,9 @@
 package cli
 
 import (
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
@@ -87,5 +89,56 @@ func TestRootCommitIsReadFromItsObject(t *testing.T) {
 		if err != nil || set.ResolvedBase != posemodel.GitEmptyTree(first) {
 			t.Fatalf("%s: %+v %v", format, set, err)
 		}
+	}
+}
+
+// A persisted root base is a valid explicit base (RAW-R2-B1).
+func TestExplicitEmptyTreeBaseResolves(t *testing.T) {
+	for _, format := range []string{"sha1", "sha256"} {
+		repo := t.TempDir()
+		artifactGit(t, repo, "init", "-q", "-b", "main", "--object-format="+format)
+		artifactGit(t, repo, "config", "user.email", "pose@example.invalid")
+		artifactGit(t, repo, "config", "user.name", "POSE Tests")
+		writeArtifactTestFile(t, repo, "a.txt", "first\n")
+		artifactGit(t, repo, "add", "-A")
+		artifactGit(t, repo, "commit", "-qm", "first")
+		head := artifactGit(t, repo, "rev-parse", "HEAD")
+		set, err := resolveGitChangeSet(repo, "alpha", posemodel.GitEmptyTree(head), head)
+		if err != nil || set.ResolvedBase != posemodel.GitEmptyTree(head) || set.ResolvedHead != head || len(set.Commits) != 1 || len(set.Paths) != 1 {
+			t.Fatalf("%s: %+v %v", format, set, err)
+		}
+	}
+}
+
+// A message's size says nothing about the header (RAW-R2-B2).
+func TestRootWithALargeMessageResolves(t *testing.T) {
+	repo := t.TempDir()
+	artifactGit(t, repo, "init", "-q", "-b", "main")
+	artifactGit(t, repo, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, repo, "config", "user.name", "POSE Tests")
+	writeArtifactTestFile(t, repo, "a.txt", "first\n")
+	artifactGit(t, repo, "add", "-A")
+	message := filepath.Join(t.TempDir(), "message")
+	if err := os.WriteFile(message, []byte("first\n\n"+strings.Repeat("x", 5*1024*1024)+"\n\nPOSE-Spec: alpha\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	artifactGit(t, repo, "commit", "-q", "-F", message)
+	first := artifactGit(t, repo, "rev-parse", "HEAD")
+	isRoot, err := commitHasNoParent(repo, first)
+	if err != nil || !isRoot {
+		t.Fatalf("%v %v", isRoot, err)
+	}
+	set, err := resolveGitChangeSet(repo, "alpha", "", "")
+	if err != nil || set.ResolvedBase != posemodel.GitEmptyTree(first) {
+		t.Fatalf("%+v %v", set, err)
+	}
+}
+
+// A header that cannot be read says so, and refuses.
+func TestUnreadableHeaderRefuses(t *testing.T) {
+	repo := t.TempDir()
+	artifactGit(t, repo, "init", "-q", "-b", "main")
+	if isRoot, err := commitHasNoParent(repo, strings.Repeat("a", 40)); isRoot || err == nil {
+		t.Fatalf("%v %v", isRoot, err)
 	}
 }
