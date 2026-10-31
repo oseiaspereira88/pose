@@ -89,9 +89,9 @@ A validation check that selects Go tests by name and ran none of them fails, ins
 
 ## 4. Tasks
 
-- [ ] Read the check's output for packages that ran tests
-- [ ] Fail a check that ran none
-- [ ] Independent review and closeout
+- [x] Read the check's output for packages that ran tests
+- [x] Fail a check that ran none
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -103,14 +103,18 @@ Real `go test` fixtures: a pattern matching nothing fails, with and without `-v`
 
 ### Requirement trace
 
+- R1 [satisfied] capability:validate-refuses-empty-go-checks evidence:integration check:validate-refuses-empty-go-checks-integration test:TestValidateRefusesAGoCheckThatRanNoTest test:TestGoTestSelection test:TestGoTestPackagesReadsLinesInBoundedMemory report:.pose/results/delivery-validation.json commit:78c8a1b35b1269d594525ec7041367af281fe00c — A go test check in the plain form that selects by name fails with limit_state no-tests when Go's result lines report every package as having run nothing, including with coverage, cached, and through GOFLAGS.
+- R2 [satisfied] check:validate-refuses-empty-go-checks-integration test:TestValidateRefusesAGoCheckThatRanNoTest test:TestGoTestSelection report:.pose/results/delivery-validation.json commit:78c8a1b35b1269d594525ec7041367af281fe00c — A package reporting tests, no selection, a non-Go check, no result line and every form outside the plain grammar keep their outcome.
+- R3 [satisfied] check:validate-refuses-empty-go-checks-integration test:TestValidateRefusesAGoCheckThatRanNoTest report:.pose/results/delivery-validation.json commit:78c8a1b35b1269d594525ec7041367af281fe00c — An optional check is an optional failure.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+`pose validate` fails a `go test` check of the plain form that selects by name when Go reports that no package ran a test, instead of passing on Go's exit 0. pose-dist's matrix passes with the rule on. Independently reviewed by Codex over four rounds; it replaces the abandoned shared test run.
 
 ### Residual risks
 
-None yet.
+The rule reads Go's text summary: a test printing a line in the exact form of a result, or Go's own warning, can mislead it, and a check outside the plain grammar can pass empty. Both are stated in the manuals. The grammar's flag list follows the Go toolchain by hand.
 
 ### Follow-ups
