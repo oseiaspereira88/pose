@@ -2201,6 +2201,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "delegation-result-before-marker-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "-run", "TestARunsResultIsPublishedBeforeItsMarkerGoes", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "launcher-parity",
           "program": "go",
           "args": ["test", "./internal/cli", "-run", "LauncherParity|ActiveDocument", "-count=1"],

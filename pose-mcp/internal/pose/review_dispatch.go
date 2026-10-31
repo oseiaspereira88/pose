@@ -31,6 +31,10 @@ import (
 	"unicode/utf8"
 )
 
+// beforeRunResultPublished is a test seam called with a run just before its
+// attempt result is published (spec pose-delegation-result-before-marker).
+var beforeRunResultPublished = func(ReviewRun) {}
+
 // AdapterPipeGrace is how long a finished or killed adapter's children may
 // hold its pipes before they are released. Tests that exercise a lingering
 // child shorten it (spec pose-cli-test-wall-time R1).
@@ -717,26 +721,38 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 			return ReviewRun{}, err
 		}
 	}
-	defer func() {
-		if result.RunID != "" {
-			var err error
-			if plan.predecessor == nil {
-				err = s.finishDelegatedReviewAttempt(attempt, result)
-			} else {
-				err = s.finishReviewContinuation(result)
-			}
-			if err != nil {
-				resultErr = errors.Join(resultErr, fmt.Errorf("attempt result not confirmed: %w", err))
-			}
+	// The attempt result is published once: before the active marker goes
+	// when the run was marked, at return otherwise (spec
+	// pose-delegation-result-before-marker R1–R2).
+	resultPublished := false
+	publishResult := func() {
+		if resultPublished || result.RunID == "" {
+			return
 		}
-	}()
+		resultPublished = true
+		beforeRunResultPublished(result)
+		var err error
+		if plan.predecessor == nil {
+			err = s.finishDelegatedReviewAttempt(attempt, result)
+		} else {
+			err = s.finishReviewContinuation(result)
+		}
+		if err != nil {
+			resultErr = errors.Join(resultErr, fmt.Errorf("attempt result not confirmed: %w", err))
+		}
+	}
+	defer publishResult()
 	stopActive, cancelFlag, err := s.markDelegationActive(run, cancelRun)
 	if err != nil {
 		return finish(ReviewRunFailed, "the run was not started: "+err.Error())
 	}
-	// The marker goes only once the record is published: without a record it
-	// is the one trace of the reserved attempt.
-	defer func() { stopActive(resultErr != nil || result.Path == "") }()
+	// The marker goes only once the record and the attempt result are
+	// published: without them it is the one trace of the reserved attempt,
+	// and a waiter that sees it gone must find the receipt.
+	defer func() {
+		publishResult()
+		stopActive(resultErr != nil || result.Path == "")
+	}()
 	cancelled = cancelFlag
 	// A detached run that cannot hand its attempt back stops here: nobody
 	// would know which attempt runs (R1).
