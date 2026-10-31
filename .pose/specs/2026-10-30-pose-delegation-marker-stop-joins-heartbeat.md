@@ -35,7 +35,7 @@ Once a run's active marker is removed, nothing of that run writes it again.
 
 ### Functional
 
-- R1: `stop` shall return only after the run's heartbeat goroutine has ended, and remove the marker after that, so a heartbeat in flight cannot recreate it.
+- R1: `stop` shall return only after the run's heartbeat goroutine has ended, and remove the marker after that, so a heartbeat in flight cannot recreate it; once stop has asked, no further heartbeat shall start.
 - R2: A stop after the goroutine already ended — on a cancel request — shall not block.
 
 ### Non-functional
@@ -63,6 +63,7 @@ Once a run's active marker is removed, nothing of that run writes it again.
 - modified: pose-mcp/internal/pose/delegation_active.go
 - modified: pose-mcp/internal/pose/writer_publication.go
 - created: pose-mcp/internal/pose/delegation_marker_stop_test.go
+- created: .pose/specs/2026-10-30-pose-delegation-marker-stop-joins-heartbeat.amendments.jsonl
 - modified: .pose/indexes/validation-matrix.json
 
 ### Delivery targets
@@ -71,7 +72,7 @@ Once a run's active marker is removed, nothing of that run writes it again.
 
 ### API/contract changes
 
-None. Internal test seam: `PublishBeforeReplace`, beside `PublishFault` and `PublishSyncHook`, called by an ExpectDigest publication after its byte check and before its rename.
+None. Internal test seams: `PublishBeforeReplace`, beside `PublishFault` and `PublishSyncHook`, called by an ExpectDigest publication after its byte check and before its rename; `delegationStopRequested`, called once stop has asked the watcher to end.
 
 ## 4. Tasks
 

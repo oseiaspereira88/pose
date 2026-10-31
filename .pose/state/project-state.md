@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-30T23:06:03Z
-baseline_commit: 0f3b7fd1d440ef63f1a701dd294d503e9f4765bc
+generated_at: 2026-10-31T02:11:45Z
+baseline_commit: d434349870084928be17e658e5bbb55405aa0ee6
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:a6c8037faa9b -->
+<!-- state:derived hash:b14fe9051018 -->
 
-- specs: total=462 draft=20 in-progress=18 blocked=0 done=423 superseded=0 abandoned=1
+- specs: total=464 draft=20 in-progress=18 blocked=0 done=425 superseded=0 abandoned=1
 - roadmaps: total=23 active=3 done=11
 - últimos closeouts:
+  - spec:pose-cli-test-wall-time (2026-10-31)
+  - spec:pose-delegation-result-before-marker (2026-10-31)
   - spec:pose-delegation-parity-gate (2026-10-30)
   - spec:pose-review-subject-later-removal (2026-10-30)
   - spec:pose-validation-matrix-dead-test-patterns (2026-10-30)
-  - spec:pose-delivery-later-removal (2026-10-30)
-  - spec:pose-delegated-review-capability (2026-10-29)
-  - ... e mais 418 (ver `pose_list_specs status:done`)
+  - ... e mais 420 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:509bf930f1a5 -->

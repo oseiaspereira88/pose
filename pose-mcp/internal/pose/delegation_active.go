@@ -125,6 +125,14 @@ func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (s
 			case <-done:
 				return
 			case <-heartbeat.C:
+				// Select picks among ready cases at random: once stop has
+				// asked, no further heartbeat starts, so it waits for at
+				// most the one in flight (review round 1, HB01).
+				select {
+				case <-done:
+					return
+				default:
+				}
 				beatDelegationMarker(path, marker.RunToken)
 			case <-ticker.C:
 				if _, err := os.Lstat(request); err == nil {
@@ -139,6 +147,7 @@ func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (s
 	stop = func(keepMarker ...bool) {
 		once.Do(func() {
 			close(done)
+			delegationStopRequested()
 			// A heartbeat in flight finishes before the marker goes, so it
 			// cannot rename a new one into place after the removal (spec
 			// pose-delegation-marker-stop-joins-heartbeat R1).
@@ -151,6 +160,10 @@ func (s Store) markDelegationActive(run ReviewRun, cancel context.CancelFunc) (s
 	}
 	return stop, cancelled, nil
 }
+
+// delegationStopRequested is a test seam called once stop has asked the
+// watcher to end, before it waits for it.
+var delegationStopRequested = func() {}
 
 // delegationHeartbeatEvery is the interval a running attempt declares.
 var delegationHeartbeatEvery = 10 * time.Second
