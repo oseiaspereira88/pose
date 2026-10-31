@@ -1,6 +1,6 @@
 ---
 slug: pose-removal-witness-freshness
-status: in-progress
+status: done
 created_at: 2026-10-31
 supersedes:
 depends_on: pose-review-subject-later-removal
@@ -9,6 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: capability:removal-witness-freshness
+completed_at: 2026-10-31
 ---
 
 # Spec: A removal witness holds only against current history
