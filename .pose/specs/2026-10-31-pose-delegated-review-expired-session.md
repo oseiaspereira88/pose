@@ -82,9 +82,9 @@ A review thread's reason can name a failed continuation.
 
 ## 4. Tasks
 
-- [ ] Open a new session after a failed continuation
-- [ ] Reconcile the gates
-- [ ] Independent review and closeout
+- [x] Open a new session after a failed continuation
+- [x] Reconcile the gates
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -112,16 +112,20 @@ The reviewer's fake provider that rejects a resume, through two real attempts of
 
 ### Requirement trace
 
+- R1 [satisfied] capability:delegated-review-expired-session evidence:integration check:delegated-review-expired-session-integration test:TestFailedContinuationOpensANewSession test:TestFailedContinuationReasonIsBounded report:.pose/results/delivery-validation.json commit:c5eb59617874007d4b0dcbd337288ffa12176fb0 — The next attempt after a failed continuation opens a new session and names the run.
+- R2 [satisfied] check:delegated-review-expired-session-integration test:TestOnlyAFailedContinuationGivesWay test:TestContinuationAcrossRoundsKeepsItsSession report:.pose/results/delivery-validation.json commit:c5eb59617874007d4b0dcbd337288ffa12176fb0 — Cold, interrupted and other bundles' runs plan as before.
+- R3 [satisfied] check:delegated-review-expired-session-integration report:.pose/results/delivery-validation.json commit:c5eb59617874007d4b0dcbd337288ffa12176fb0 — The gates of dispatch, surface, rounds and retirement state what was delivered.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+A review attempt that failed while continuing a session gives way to a new session on the next attempt, with the reason recorded and no vendor text parsed. The gates of `dispatch`, `surface`, `rounds` and `retirement` now state what was delivered. Independently reviewed by Codex in one round, by the reviewer who found the gaps.
 
 ### Residual risks
 
-None yet.
+A transient failure of a continuation also costs its session; the full brief keeps the findings. Windows protection of the task state stays with `pose-delegation-task-detach-and-state` F1.
 
 ### Follow-ups
 
-None yet.
+- [open] F1: offer the next attempt at a failed run: `delegate ls` and the dispatch result show handoff and cancel, not how to run again (review F1). (owner:@oseiaspereira88 crit:low review:2026-11-27)
