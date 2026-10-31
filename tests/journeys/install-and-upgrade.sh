@@ -196,7 +196,9 @@ DIGEST="$(field action.request_digest <<<"$show")"
 "$BIN" action resolve "$REQUEST" --actor human:ada --answer adopt --request-digest "$DIGEST" --expected-revision 1 \
   --idempotency-key journey --sign "$KEYS/id_ed25519" --apply >/dev/null 2>&1 || fail "the signed answer was refused"
 out="$("$BIN" adopt --request "$REQUEST" --apply 2>&1)" || fail "adopt --request failed: $out"
-"$BIN" adopt --list | grep -q "^adopt.$CAP=on" || fail "$CAP is not on after the answer was applied"
+# Captured first: under pipefail, grep -q closing the pipe early kills the writer.
+listed="$("$BIN" adopt --list)"
+grep -q "^adopt.$CAP=on" <<<"$listed" || fail "$CAP is not on after the answer was applied"
 commit "$REPO" "Adopt $CAP"
 "$BIN" check --strict >/dev/null 2>&1 || fail "the instance fails the strict check after applying an answer"
 ok "journey 2b: a signed answer to a review request is applied with pose adopt --request"
