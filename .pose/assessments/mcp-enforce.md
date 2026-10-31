@@ -1,7 +1,7 @@
 # Component Assessment: mcp-enforce (`mcp-enforce`)
 
 > **Mapeamento de Módulo POSE**: `mcp-enforce`
-> **Data de Avaliação**: 2026-10-31T03:10:16Z | **Baseline Commit**: 2f7d951d543b
+> **Data de Avaliação**: 2026-10-31T06:15:36Z | **Baseline Commit**: fd51277a49f6
 > **Métricas**: 870 LOC Produção | 1029 LOC Testes | 17 Arquivos Totais
 > **Linguagens**: go
 > **Saúde de Código**: 0 TODOs | 0 FIXMEs | 0 Panics | 0 Stubs

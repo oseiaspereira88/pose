@@ -1,6 +1,6 @@
 ---
 slug: pose-validate-concurrent-steps
-status: in-progress
+status: done
 created_at: 2026-10-30
 supersedes:
 depends_on:
@@ -9,6 +9,7 @@ priority: 2
 components: pose-mcp
 task_type: feature
 delivers: surface:validate-jobs
+completed_at: 2026-10-31
 ---
 
 # Spec: `pose validate` runs independent checks concurrently and says where its time went
@@ -109,7 +110,7 @@ Fixture matrices with sleeping and failing checks prove ordering, exclusivity, t
 
 ### Requirement trace
 
-- R1 [satisfied] check:validate-concurrent-steps-integration check:validate-jobs-reachability test:TestValidateRunsChecksConcurrentlyWithinJobs test:TestValidateKeepsMatrixOrderAndOutcomes test:TestChangedScopeSkipsKeepMatrixOrder test:TestDefaultValidationJobsFollowsTheBudget report:.pose/results/delivery-validation.json commit:b4da8dc222cee4957b705b4c237e2a5a34ae06c6 — Checks run up to --jobs at once, every result keeps matrix order, and the default follows the cores and memory available to the process through its mounted cgroups.
+- R1 [satisfied] surface:validate-jobs evidence:integration check:validate-concurrent-steps-integration check:validate-jobs-reachability test:TestValidateRunsChecksConcurrentlyWithinJobs test:TestValidateKeepsMatrixOrderAndOutcomes test:TestChangedScopeSkipsKeepMatrixOrder test:TestDefaultValidationJobsFollowsTheBudget report:.pose/results/delivery-validation.json commit:b4da8dc222cee4957b705b4c237e2a5a34ae06c6 — Checks run up to --jobs at once, every result keeps matrix order, and the default follows the cores and memory available to the process through its mounted cgroups.
 - R2 [satisfied] check:validate-concurrent-steps-integration test:TestValidateExclusiveCheckRunsAlone test:TestCheckAcceptsExclusiveAsABoolean report:.pose/results/delivery-validation.json commit:b4da8dc222cee4957b705b4c237e2a5a34ae06c6 — An exclusive check runs after every earlier check has ended, with nothing else running, and `pose check` accepts the key as a boolean.
 - R3 [satisfied] check:validate-concurrent-steps-integration test:TestValidateRunsChecksConcurrentlyWithinJobs test:TestValidateKeepsMatrixOrderAndOutcomes report:.pose/results/delivery-validation.json commit:b4da8dc222cee4957b705b4c237e2a5a34ae06c6 — --jobs 1 runs serially, outcomes match a concurrent run, and the report records jobs and wall_seconds.
 - R4 [satisfied] check:validate-concurrent-steps-integration test:TestValidateRunsChecksConcurrentlyWithinJobs report:.pose/results/delivery-validation.json commit:b4da8dc222cee4957b705b4c237e2a5a34ae06c6 — The run ends with its wall time, the sum of its checks and the slowest checks.
