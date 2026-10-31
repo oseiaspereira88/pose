@@ -2,7 +2,6 @@ package pose
 
 import (
 	"bytes"
-	"os"
 	"os/exec"
 	"strings"
 )
@@ -42,9 +41,7 @@ func ParseSpecTrailerLog(out []byte) map[string][]string {
 // set holds, or what a later removal is judged on (spec
 // pose-delivery-later-removal R3, review round 4 LR-R4-01).
 func RawHistoryGit(root string, args ...string) *exec.Cmd {
-	cmd := exec.Command("git", append([]string{"--no-replace-objects", "-C", root}, args...)...)
-	cmd.Env = append(os.Environ(), "GIT_GRAFT_FILE="+os.DevNull)
-	return cmd
+	return gitCommand(append([]string{"--no-replace-objects", "-C", root}, args...)...)
 }
 
 // SpecTrailerCommits reads the history of root and returns the commits that carry the trailer of

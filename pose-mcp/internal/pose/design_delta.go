@@ -761,7 +761,7 @@ func (c *designDeltaCollector) readGitBlob(oid, mode string) ([]byte, string) {
 }
 
 func gitObjectExists(root, revision, path string) (bool, error) {
-	cmd := exec.Command("git", "-C", root, "cat-file", "-e", revision+":"+path)
+	cmd := gitCommand("-C", root, "cat-file", "-e", revision+":"+path)
 	err := cmd.Run()
 	if err == nil {
 		return true, nil
@@ -786,7 +786,7 @@ func (w *designDeltaBoundedWriter) Write(p []byte) (int, error) {
 
 func gitShowBounded(root, revision, path string, max int) ([]byte, error) {
 	writer := &designDeltaBoundedWriter{max: max}
-	cmd := exec.Command("git", "-C", root, "show", "--no-ext-diff", "--format=", revision+":"+path)
+	cmd := gitCommand("-C", root, "show", "--no-ext-diff", "--format=", revision+":"+path)
 	cmd.Stdout, cmd.Stderr = writer, io.Discard
 	if err := cmd.Run(); err != nil {
 		return nil, err

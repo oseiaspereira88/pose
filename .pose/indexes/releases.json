@@ -353,6 +353,14 @@
       "digest": "sha256:aad9235c2b97213efa318b5ec8196b1b59a9add20d55c750e84c4a6fed66882b"
     },
     {
+      "spec": "pose-history-readers-read-raw",
+      "category": "changed",
+      "breaking": false,
+      "body": "Structural review reads raw object history, as the delivery graph does, so a replace ref or graft cannot make it judge another history; a repository with either should rerun `pose index` and reseal. A trailer change set that starts at the repository's first commit now resolves, so a new project's first spec has a change set.",
+      "path": "pose-history-readers-read-raw.md",
+      "digest": "sha256:7c5fa1e1f0b6886c1d7119cab5380958e5de022de122791171b5b1c34bc3d9d6"
+    },
+    {
       "spec": "pose-index-generation-integrity",
       "category": "changed",
       "breaking": false,

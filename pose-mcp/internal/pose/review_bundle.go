@@ -941,7 +941,7 @@ func rangeUnattributedOwners(files Files, root string, set ChangeSet) ([]string,
 		attributed[commit] = true
 	}
 	var out bytes.Buffer
-	cmd := gitCommand("-C", root, "log", "--no-color", "--format=%x01%H%n%B%x02", set.ResolvedBase+".."+set.ResolvedHead, "--")
+	cmd := gitCommand("-C", root, "log", "--no-color", "--format=%x01%H%n%B%x02", ChangeSetRange(set.ResolvedBase, set.ResolvedHead), "--")
 	cmd.Stdout = &limitedWriter{buf: &out, limit: reviewAttributionMaxBytes}
 	if cmd.Run() != nil {
 		return nil, 0
@@ -975,7 +975,7 @@ func rangeUnattributedOwners(files Files, root string, set ChangeSet) ([]string,
 }
 
 func gitRevListCount(root, base, head string) (int, error) {
-	out, err := gitCommand("-C", root, "rev-list", "--count", base+".."+head, "--").Output()
+	out, err := gitCommand("-C", root, "rev-list", "--count", ChangeSetRange(base, head), "--").Output()
 	if err != nil {
 		return 0, err
 	}

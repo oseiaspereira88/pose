@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"os/exec"
 	"sort"
 	"strconv"
 	"strings"
@@ -133,7 +132,7 @@ func gitAttributionLog(root string, commits []string) ([]byte, error) {
 	defer cancel()
 	// --no-walk shows exactly the given commits; --no-renames splits a rename
 	// into a removal and an addition so each path's blobs stay on that path.
-	cmd := exec.CommandContext(ctx, "git", "-C", root, "-c", "core.quotePath=false", "log", "--no-walk", "--stdin",
+	cmd := gitCommandContext(ctx, "-C", root, "-c", "core.quotePath=false", "log", "--no-walk", "--stdin",
 		"--raw", "--no-abbrev", "--no-renames", "--no-color", "--format=%x01%H %ct%n%B%x02")
 	cmd.Stdin = strings.NewReader(strings.Join(commits, "\n") + "\n")
 	var out bytes.Buffer

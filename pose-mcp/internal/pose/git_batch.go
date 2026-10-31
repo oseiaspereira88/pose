@@ -33,7 +33,7 @@ func (r *gitBatchReader) start() error {
 		return nil
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-	cmd := exec.CommandContext(ctx, "git", "-C", r.root, "cat-file", "--batch")
+	cmd := gitCommandContext(ctx, "-C", r.root, "cat-file", "--batch")
 	input, err := cmd.StdinPipe()
 	if err != nil {
 		cancel()

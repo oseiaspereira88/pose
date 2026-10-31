@@ -2,6 +2,7 @@ package pose
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
@@ -443,16 +444,51 @@ func WorktreeDivergenceFor(root, commit string, allowed func(string, bool) bool,
 }
 
 func gitCommand(args ...string) *exec.Cmd {
-	cmd := exec.Command("git", args...)
-	env := make([]string, 0, len(os.Environ()))
+	return gitCommandContext(context.Background(), args...)
+}
+
+// gitCommandContext is gitCommand under ctx. Both read raw object history: a
+// replace ref or a graft changes what a commit is, and every gate has to judge
+// the same commit (spec pose-history-readers-read-raw R1, D1).
+func gitCommandContext(ctx context.Context, args ...string) *exec.Cmd {
+	cmd := exec.CommandContext(ctx, "git", args...)
+	env := make([]string, 0, len(os.Environ())+2)
 	for _, kv := range os.Environ() {
 		name, _, _ := strings.Cut(kv, "=")
 		if !gitRedirectingEnv[name] {
 			env = append(env, kv)
 		}
 	}
-	cmd.Env = env
+	cmd.Env = append(env, "GIT_NO_REPLACE_OBJECTS=1", "GIT_GRAFT_FILE="+os.DevNull)
 	return cmd
+}
+
+const (
+	gitEmptyTreeSHA1   = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+	gitEmptyTreeSHA256 = "6ef19b41225c5369f1c104d45d8d85efa9b057b53b14b4b9b939dd74decc5321"
+)
+
+// GitEmptyTree is the empty tree in commit's object format: the base of a change
+// set that starts at a repository's first commit (spec
+// pose-history-readers-read-raw R2, D2).
+func GitEmptyTree(commit string) string {
+	if len(commit) == len(gitEmptyTreeSHA256) {
+		return gitEmptyTreeSHA256
+	}
+	return gitEmptyTreeSHA1
+}
+
+// IsGitEmptyTree says that revision is the base of such a change set.
+func IsGitEmptyTree(revision string) bool {
+	return revision == gitEmptyTreeSHA1 || revision == gitEmptyTreeSHA256
+}
+
+// ChangeSetRange is the revision range of a change set for rev-list and log.
+func ChangeSetRange(base, head string) string {
+	if IsGitEmptyTree(base) {
+		return head
+	}
+	return base + ".." + head
 }
 
 func linkAbove(worktree, name string, checked map[string]bool) bool {

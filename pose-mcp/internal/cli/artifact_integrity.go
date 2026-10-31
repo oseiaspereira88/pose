@@ -88,18 +88,28 @@ func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, er
 		head = commits[len(commits)-1]
 		base = commits[0] + "^"
 		selector = "trailers:" + spec
+		parents, err := gitOutputBounded(root, 64*1024, "rev-list", "--parents", "-n", "1", commits[0], "--")
+		if err != nil {
+			return posemodel.ChangeSet{}, err
+		}
+		if len(strings.Fields(string(parents))) == 1 {
+			base = posemodel.GitEmptyTree(commits[0])
+		}
 	} else if base == "" || head == "" {
 		return posemodel.ChangeSet{}, fmt.Errorf("--from and --to must be supplied together")
 	}
-	resolvedBase, err := resolveGitRevision(root, base)
-	if err != nil {
-		return posemodel.ChangeSet{}, err
+	resolvedBase := base
+	if !posemodel.IsGitEmptyTree(base) {
+		var err error
+		if resolvedBase, err = resolveGitRevision(root, base); err != nil {
+			return posemodel.ChangeSet{}, err
+		}
 	}
 	resolvedHead, err := resolveGitRevision(root, head)
 	if err != nil {
 		return posemodel.ChangeSet{}, err
 	}
-	commitsRaw, err := gitOutputBounded(root, 4*1024*1024, "rev-list", "--reverse", resolvedBase+".."+resolvedHead, "--")
+	commitsRaw, err := gitOutputBounded(root, 4*1024*1024, "rev-list", "--reverse", posemodel.ChangeSetRange(resolvedBase, resolvedHead), "--")
 	if err != nil {
 		return posemodel.ChangeSet{}, err
 	}
@@ -112,7 +122,7 @@ func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, er
 		commitPathLists := make([][]posemodel.ObservedPath, 0, len(commits))
 		var diffBuf bytes.Buffer
 		for _, sha := range commits {
-			nameStatus, err := gitOutputBounded(root, 4*1024*1024, "diff-tree", "--no-commit-id", "--name-status", "-M", "-r", sha, "--")
+			nameStatus, err := gitOutputBounded(root, 4*1024*1024, "diff-tree", "--root", "--no-commit-id", "--name-status", "-M", "-r", sha, "--")
 			if err != nil {
 				return posemodel.ChangeSet{}, err
 			}

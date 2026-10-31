@@ -175,6 +175,11 @@ func (s Store) parseReviewProfileAt(revision, ref string) (ReviewProfile, error)
 // baseline that cannot be read is reported, never assumed permissive.
 func (s Store) resolveReviewPolicyBaseline(revision string, scopeKind string) (reviewPolicyBaseline, error) {
 	baseline := reviewPolicyBaseline{Revision: revision}
+	if IsGitEmptyTree(revision) {
+		// Before a repository's first commit no contract governed anything.
+		baseline.Resolved = true
+		return baseline, nil
+	}
 	policy, err := s.parseReviewPolicyAt(revision)
 	if err != nil {
 		return baseline, err
