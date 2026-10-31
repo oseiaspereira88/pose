@@ -76,9 +76,9 @@ None. Internal test seams: `PublishBeforeReplace`, beside `PublishFault` and `Pu
 
 ## 4. Tasks
 
-- [ ] Join the heartbeat goroutine in stop
-- [ ] Regression shown failing before the fix
-- [ ] Independent review and closeout
+- [x] Join the heartbeat goroutine in stop
+- [x] Regression shown failing before the fix
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -90,14 +90,20 @@ A heartbeat held between its read and its publication while stop runs: on the ol
 
 ### Requirement trace
 
+- R1 [satisfied] check:delegation-marker-stop-joins-heartbeat-integration test:TestAStoppedRunsHeartbeatCannotBringItsMarkerBack report:.pose/results/delivery-validation.json commit:bee95c6fc402db2f011f5ec9f5fe37e83140604f — stop waits for the watcher before removing the marker, and the heartbeat case rechecks stop's request, so at most the write in flight ends after it; the regression fails without the join and without the recheck.
+- R2 [satisfied] check:delegation-marker-stop-joins-heartbeat-integration test:TestAStoppedRunsHeartbeatCannotBringItsMarkerBack report:.pose/results/delivery-validation.json commit:bee95c6fc402db2f011f5ec9f5fe37e83140604f — A stop after a cancel request ended the watcher returns.
+
 ## 7. Final Report
 
 ### Delivered scope
 
-Not started.
+A run's stop joins its heartbeat watcher before removing the active marker, and starts no heartbeat once it has asked, so a finished run's marker cannot come back. Independently reviewed by Codex over two rounds, who found the defect.
 
 ### Residual risks
 
-None yet.
+A concurrent cancel request can leave a `.cancel` side file (F1); it is token-bound and ignored by listing.
 
 ### Follow-ups
+
+- [open] F1: remove a run's cancel request after its marker, or clean it by token, so a request published between the two unlinks leaves no side file (review round 1, HB03). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [open] F2: release and join a held writer in the regression's failure paths before restoring its global hooks (review round 2, HB02). (owner:@oseiaspereira88 crit:low review:2026-11-27)
