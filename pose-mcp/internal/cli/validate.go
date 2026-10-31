@@ -145,9 +145,9 @@ func (e *validationEntry) execute(parent context.Context, matrix validationMatri
 		result.Outcome = "pass"
 		// go test exits 0 when a pattern selects nothing: a check that ran
 		// no test has no evidence (spec pose-validate-refuses-empty-go-checks).
-		if pattern, selected := goTestSelection(check); selected && packages.ranNone() {
+		if flag, pattern, judged := goTestSelection(check); judged && packages.ranNone() {
 			result.Outcome, result.LimitState = "fail", "no-tests"
-			result.Output = fmt.Sprintf("no test ran: -run %s selected nothing in the check's packages\n%s", pattern, result.Output)
+			result.Output = fmt.Sprintf("no test ran: %s %s selected nothing in the check's packages\n%s", flag, pattern, result.Output)
 		}
 	case errors.As(err, &exitErr):
 		code := exitErr.ExitCode()
@@ -160,62 +160,80 @@ func (e *validationEntry) execute(parent context.Context, matrix validationMatri
 	}
 }
 
-// goTestSelection says whether a go test check selects tests by name, as go
-// test reads its arguments: -run or -skip, spelled with one or two dashes and
-// the test. prefix, with or without =, until -- ends the flags; after -args
-// only a -test. flag reaches the test binary. GOFLAGS counts as well, the
-// check's own over the inherited. A mode whose success says nothing about
-// tests — -bench, -list, -c, -exec, -json — is not judged (spec
-// pose-validate-refuses-empty-go-checks R1).
-func goTestSelection(check validationCheck) (string, bool) {
+// goFlagsTakingValues are the go test flags that take a value, build and test
+// alike, so the next argument is that value and not a flag.
+var goFlagsTakingValues = map[string]bool{
+	"C": true, "asmflags": true, "benchtime": true, "blockprofile": true, "blockprofilerate": true, "buildmode": true, "buildvcs": true,
+	"compiler": true, "count": true, "coverpkg": true, "covermode": true, "coverprofile": true, "cpu": true, "cpuprofile": true,
+	"fuzz": true, "fuzzcachedir": true, "fuzzminimizetime": true, "fuzztime": true, "gccgoflags": true, "gcflags": true,
+	"installsuffix": true, "ldflags": true, "memprofile": true, "memprofilerate": true, "mod": true, "modfile": true,
+	"mutexprofile": true, "mutexprofilefraction": true, "outputdir": true, "overlay": true, "p": true, "parallel": true, "pgo": true,
+	"pkgdir": true, "shuffle": true, "tags": true, "timeout": true, "toolexec": true, "trace": true, "vet": true,
+}
+
+// goFlagsWithoutValues are the go test flags that take no separate value.
+var goFlagsWithoutValues = map[string]bool{
+	"a": true, "artifacts": true, "asan": true, "benchmem": true, "cover": true, "failfast": true, "fullpath": true, "linkshared": true, "modcacherw": true,
+	"msan": true, "n": true, "race": true, "short": true, "trimpath": true, "v": true, "work": true, "x": true,
+}
+
+// goTestSelection says which flag and pattern select a go test check's tests
+// by name, reading the arguments as go test does within a plain grammar: -run
+// and -skip in one- and two-dash and test. spellings, with or without =, the
+// last value counting, the flags of goFlagsTakingValues taking theirs, and
+// GOFLAGS, the check's own over the inherited. Anything else — an unknown
+// flag, -args, --, quoted GOFLAGS, or a mode whose success says nothing about
+// tests (-bench, -list, -c, -o, -exec, -json) — leaves the check unjudged:
+// reading it wrong would fail a good check (spec
+// pose-validate-refuses-empty-go-checks R1-R2).
+func goTestSelection(check validationCheck) (flag, pattern string, judged bool) {
 	if check.Program != "go" || len(check.Args) == 0 || check.Args[0] != "test" {
-		return "", false
+		return "", "", false
 	}
-	pattern, selected := "", false
-	notJudged := false
-	scan := func(args []string) {
-		binaryArgs := false
+	selected := false
+	scan := func(args []string) bool {
 		for i := 0; i < len(args); i++ {
 			arg := args[i]
 			if arg == "--" {
-				return
-			}
-			if arg == "-args" || arg == "--args" {
-				binaryArgs = true
-				continue
+				return false
 			}
 			if !strings.HasPrefix(arg, "-") {
 				continue
 			}
 			name, value, inline := strings.Cut(strings.TrimLeft(arg, "-"), "=")
-			if binaryArgs && !strings.HasPrefix(name, "test.") {
-				continue
-			}
-			switch strings.TrimPrefix(name, "test.") {
-			case "run", "skip":
-				if !inline && i+1 < len(args) {
+			name = strings.TrimPrefix(name, "test.")
+			switch {
+			case name == "run", name == "skip":
+				if !inline {
+					if i+1 >= len(args) {
+						return false
+					}
 					i++
 					value = args[i]
 				}
-				pattern, selected = value, true
-			case "bench", "list", "c", "exec", "json", "o":
-				notJudged = true
+				flag, pattern, selected = "-"+name, value, true
+			case goFlagsTakingValues[name]:
+				if !inline {
+					i++
+				}
+			case goFlagsWithoutValues[name]:
+			default:
+				return false
 			}
 		}
+		return true
 	}
 	goflags, set := check.Env["GOFLAGS"]
 	if !set {
 		goflags = os.Getenv("GOFLAGS")
 	}
-	scan(strings.Fields(goflags))
-	scan(check.Args[1:])
-	if notJudged || !selected {
-		return "", false
+	if strings.ContainsAny(goflags, `'"`) || !scan(strings.Fields(goflags)) || !scan(check.Args[1:]) || !selected {
+		return "", "", false
 	}
 	if pattern == "" {
 		pattern = `""`
 	}
-	return pattern, true
+	return flag, pattern, true
 }
 
 // A package's result line of go test: the tab-separated forms Go prints, not

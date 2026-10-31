@@ -29,10 +29,11 @@ func TestValidateRefusesAGoCheckThatRanNoTest(t *testing.T) {
 		{"one package of two", goCheck("c", "./...", "-run", "TestReal", "-count=1"), "pass", ""},
 		{"no pattern", goCheck("c", "./notests", "-count=1"), "pass", ""},
 		{"two-dash spelling", goCheck("c", "./a", "--test.run=Ghost", "-count=1"), "fail", "no-tests"},
-		{"after -args a test flag still counts", goCheck("c", "./a", "-count=1", "-args", "-test.run=Ghost"), "fail", "no-tests"},
-		{"after -args another flag does not", goCheck("c", "./notests", "-count=1", "-args", "-run=Ghost"), "pass", ""},
-		{"past -- nothing is a flag", goCheck("c", "./notests", "-count=1", "--", "-run=Ghost"), "pass", ""},
-		{"the real pattern stands before --", goCheck("c", "./a", "-run=Ghost", "-count=1", "--", "-run="), "fail", "no-tests"},
+		{"-args is not judged", goCheck("c", "./notests", "-count=1", "-args", "-run=Ghost"), "pass", ""},
+		{"-- is not judged", goCheck("c", "./notests", "-count=1", "--", "-run=Ghost"), "pass", ""},
+		{"a flag's value is not a flag", goCheck("c", "./a", "-run=Ghost", "-outputdir", "-bench", "-count=1"), "fail", "no-tests"},
+		{"a flag's value is not a selection", goCheck("c", "./notests", "-outputdir", "-run=Ghost", "-count=1"), "pass", ""},
+		{"an unknown flag is not judged", goCheck("c", "./a", "-run=Ghost", "-brandnew=1"), "fail", ""},
 		{"an empty pattern selects", goCheck("c", "./notests", "-run=", "-count=1"), "fail", "no-tests"},
 		{"-skip removes every test", goCheck("c", "./a", "-skip=Test", "-count=1"), "fail", "no-tests"},
 		{"coverage, nothing selected", goCheck("c", "./a", "-cover", "-run=Ghost", "-count=1"), "fail", "no-tests"},
@@ -118,19 +119,36 @@ func TestGoTestSelection(t *testing.T) {
 		{[]string{"test", "./...", "-run="}, `""`, true},
 		{[]string{"test", "./..."}, "", false},
 		{[]string{"test", "./...", "--", "-run=X"}, "", false},
+		{[]string{"test", "./...", "-run=X", "--", "y"}, "", false},
 		{[]string{"test", "./...", "-args", "-run=X"}, "", false},
+		{[]string{"test", "./...", "-run=X", "-args", "-test.run=Y"}, "", false},
+		{[]string{"test", "./...", "-run=X", "-outputdir", "-bench"}, "X", true},
+		{[]string{"test", "./...", "-outputdir", "-run=X"}, "", false},
+		{[]string{"test", "./...", "-v", "-race", "-cover", "-count=1", "-timeout", "5s", "-run=X"}, "X", true},
+		{[]string{"test", "./...", "-skip", "X"}, "X", true},
 		{[]string{"test", "./...", "-run=X", "-c"}, "", false},
 		{[]string{"test", "./...", "-run=X", "-exec=true"}, "", false},
 		{[]string{"test", "-json", "./...", "-run=X"}, "", false},
 		{[]string{"vet", "./...", "-run=X"}, "", false},
 	} {
-		pattern, ok := goTestSelection(validationCheck{Program: "go", Args: c.args})
+		_, pattern, ok := goTestSelection(validationCheck{Program: "go", Args: c.args})
 		if pattern != c.pattern || ok != c.ok {
 			t.Errorf("%v: %q %v, want %q %v", c.args, pattern, ok, c.pattern, c.ok)
 		}
 	}
-	if _, ok := goTestSelection(validationCheck{Program: "sh", Args: []string{"test", "-run=X"}}); ok {
+	if _, _, ok := goTestSelection(validationCheck{Program: "sh", Args: []string{"test", "-run=X"}}); ok {
 		t.Error("a non-Go check was read")
+	}
+	if flag, _, _ := goTestSelection(validationCheck{Program: "go", Args: []string{"test", "-skip=X"}}); flag != "-skip" {
+		t.Errorf("the selecting flag: %q", flag)
+	}
+	for _, env := range []string{"'-run=X'", `"-run=X"`} {
+		if _, _, ok := goTestSelection(validationCheck{Program: "go", Args: []string{"test", "./..."}, Env: map[string]string{"GOFLAGS": env}}); ok {
+			t.Errorf("quoted GOFLAGS %s was judged", env)
+		}
+	}
+	if _, pattern, ok := goTestSelection(validationCheck{Program: "go", Args: []string{"test", "./...", "-run=B"}, Env: map[string]string{"GOFLAGS": "-run=A -count=1"}}); !ok || pattern != "B" {
+		t.Errorf("GOFLAGS then arguments: %q %v", pattern, ok)
 	}
 }
 

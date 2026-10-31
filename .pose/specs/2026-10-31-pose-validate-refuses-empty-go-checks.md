@@ -38,8 +38,8 @@ A validation check that selects Go tests by name and ran none of them fails, ins
 
 ### Functional
 
-- R1: A `go test` check that selects tests by name — `-run` or `-skip` in any spelling Go accepts, in its arguments or `GOFLAGS`, read as Go reads them — and whose command succeeded shall fail, with `limit_state: no-tests` and a message naming the pattern, when Go's result lines report packages and every one of them as having run nothing (`[no tests to run]`, `[no test files]`, or the coverage line of a package without test files), cached or not.
-- R2: A check where a package reported running tests, a check that selects nothing by name, a non-Go check, a check whose output has no result line, and a mode whose success says nothing about tests (`-bench`, `-list`, `-c`, `-o`, `-exec`, `-json`) shall keep their outcome.
+- R1: A `go test` check that selects tests by name — `-run` or `-skip` in any spelling Go accepts, in a plain argument list or unquoted `GOFLAGS`, known flags taking their values — and whose command succeeded shall fail, with `limit_state: no-tests` and a message naming the pattern, when Go's result lines report packages and every one of them as having run nothing (`[no tests to run]`, `[no test files]`, or the coverage line of a package without test files), cached or not.
+- R2: A check where a package reported running tests, a check that selects nothing by name, a non-Go check, a check whose output has no result line, a mode whose success says nothing about tests (`-bench`, `-list`, `-c`, `-o`, `-exec`, `-json`), and an argument list outside the plain grammar (an unknown flag, `-args`, `--`, quoted `GOFLAGS`) shall keep their outcome: a check that cannot be read for certain is not judged.
 - R3: The check's severity decides as for any failure: an optional check counts as an optional failure.
 
 ### Non-functional
@@ -70,6 +70,7 @@ A validation check that selects Go tests by name and ran none of them fails, ins
 - modified: .pose/indexes/validation-matrix.json
 - modified: pose-mcp/internal/cli/validate.go
 - modified: pose-mcp/internal/cli/validate_results.go
+- modified: pose-mcp/internal/cli/testdata/adversarial/README.md
 - modified: pose-mcp/internal/cli/validation_matrix_patterns_test.go
 - created: pose-mcp/internal/cli/validate_empty_go_checks_test.go
 - created: .pose/specs/2026-10-31-pose-validate-refuses-empty-go-checks.amendments.jsonl
