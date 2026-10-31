@@ -1,6 +1,6 @@
 ---
 slug: pose-validate-refuses-empty-go-checks
-status: in-progress
+status: done
 created_at: 2026-10-31
 supersedes:
 depends_on: pose-validate-concurrent-steps
@@ -9,6 +9,7 @@ priority: 2
 components: pose-mcp
 task_type: bugfix
 delivers: capability:validate-refuses-empty-go-checks
+completed_at: 2026-10-31
 ---
 
 # Spec: A Go check that ran no test does not pass

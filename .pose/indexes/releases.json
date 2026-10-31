@@ -449,6 +449,14 @@
       "digest": "sha256:ea19a2af90f55e08aa0b89c99b07f8b8816d5bb960c350a4f919cbac47fc3790"
     },
     {
+      "spec": "pose-validate-refuses-empty-go-checks",
+      "category": "changed",
+      "breaking": false,
+      "body": "`pose validate` fails a `go test` check that selects tests with `-run` or `-skip` when Go's result lines report every package as having run nothing, with `limit_state: no-tests`, instead of passing on Go's exit 0. A project with a check that selects nothing starts failing it.",
+      "path": "pose-validate-refuses-empty-go-checks.md",
+      "digest": "sha256:575feede1063611e9012e63bf6687062860c2602d2f6d14bca82a0716c5f8eb6"
+    },
+    {
       "spec": "pose-writer-coordination-and-atomic-publication",
       "category": "changed",
       "breaking": false,
