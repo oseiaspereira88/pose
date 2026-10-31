@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-6ba65e28ccb5b7c0",
+  "bundle_id": "rvb-e1a2b5fdfcca2400",
+  "bundle_digest": "sha256:e1a2b5fdfcca2400449b8e9772a2c1c304138f4bc5f263943e9276ad5e4db3e3",
+  "reviewer": "agent:independent-delegation-milestones-sol-20261031",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration"
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Inspected sealing, RoutingImplementation, RouteDelegation and run provenance at HEAD. Fresh native CLI tests for declared seal identity, routing by sealed implementation, unavailable agents, reset fallback, named-vendor warning and limited-state disclosure passed. Fresh model normalization, unknown candidate, ordered fallback and run provenance tests passed. New bundles read their sealed implementation; same-model never proves different-actor."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Roadmap membership matches the sealed children: spec:pose-delegation-routing. Independently checked status done and fresh pose review verify: closed, fresh=true, approved=true for each. Their purpose matches this milestone; no approval is inferred from status alone."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Compared HEAD with strict report revision 33650dcf: no changes to Go production/tests, docs-site, tests or the validation matrix. Inspected strict delivery-validation.json: 172 passed, zero failed/errored/skipped, matching matrix sha256:a3328ac100ea79bd2b532552b78cdc8b00407b0d2d298f48e71616d83b041f28. Fresh relevant native gate tests and go vet passed. Fresh broad/selected suites are NOT green: non-Git fixture exit-128 and foreign-owned sandbox ancestors are controlled validation limits, detailed in the independent report. No later-spec regression was found in the verified gate paths; no fresh green full-suite or strict matrix run is claimed."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Existing F08 unknown-vendor agents disclosure and F09 empty on_unavailable canonical serialization remain owned by @oseiaspereira88, low, review 2026-11-25. Neither drives recorded independence or approval; F09 must be revisited before a schema-2 rewrite consumer. Declared identity is not authenticated cognitive independence."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Recommended structural discovery skipped: review changes no component code and reads the committed component map."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended structural discovery skipped: review changes no component code and reads the committed component map."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Fresh assessment executed in scratch clone; heuristic provider/consumer gaps remain disclosed, not certified as complete integration."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Fresh assessment executed: one covered marker; incomplete due to two invalid legacy specs. No complete debt census claimed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate; verify and review-check follow recording. No close authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate; verify and review-check follow recording. No close authorized."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Fresh suggest review ran for this component; security, documentation-style and backend-go applied where mapped, with delivery-evidence and knowledge-governance."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Fresh suggest review ran for this component; security, documentation-style and backend-go applied where mapped, with delivery-evidence and knowledge-governance."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The sealed effective plan marks this component as producing no validation check; no unrelated component pass is substituted."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Compared HEAD with strict report revision 33650dcf: no changes to Go production/tests, docs-site, tests or the validation matrix. Inspected strict delivery-validation.json: 172 passed, zero failed/errored/skipped, matching matrix sha256:a3328ac100ea79bd2b532552b78cdc8b00407b0d2d298f48e71616d83b041f28. Fresh relevant native gate tests and go vet passed. Fresh broad/selected suites are NOT green: non-Git fixture exit-128 and foreign-owned sandbox ancestors are controlled validation limits, detailed in the independent report. No later-spec regression was found in the verified gate paths; no fresh green full-suite or strict matrix run is claimed."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delegation-surface-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-delegation-milestones-sol-20261031",
+    "concluded_by": "agent:independent-delegation-milestones-sol-20261031",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-10-31T20:49:10Z",
+  "path": ".pose/review-attestations/rva-6ba65e28ccb5b7c0.json"
+}
