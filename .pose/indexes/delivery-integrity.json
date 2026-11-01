@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:e60def19dfb25a147ffe8fa3475a8839a60318cede083c50a536b09247d2cbc3",
-  "provenance_digest": "sha256:0d3e808420d680074a993cefa6838ded0a642d15bd9f5f11466f96e3883c81b2",
+  "input_digest": "sha256:fcc0df52eb65b04e26d2822221db9a1a8d7252917ef62adaa28ab7c1e58e19f2",
+  "provenance_digest": "sha256:034a93fd6ab42e62311a5f72d3705947cc240fb6a4c70cb721ca8ad426669267",
   "implied_edges": [
     "changes"
   ],
@@ -36203,6 +36203,14 @@
       }
     },
     {
+      "id": "change-set:cs-9740be134753",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:dfa4c1b6745d870ceaf1a84b2acc03caded5b70fb8065a9f4417231541ec2ce5",
+        "selector": "trailers:pose-milestone-closes-when-reached"
+      }
+    },
+    {
       "id": "change-set:cs-982dd45efd8a",
       "type": "change-set",
       "attributes": {
@@ -43934,7 +43942,7 @@
       "id": "spec:pose-milestone-closes-when-reached",
       "type": "spec",
       "attributes": {
-        "status": "draft"
+        "status": "in-progress"
       }
     },
     {
@@ -48217,6 +48225,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/adr/2026-11-01-a-milestone-answers-to-its-own-edges.md",
+      "to": "delivery:capability:milestone-closes-when-reached",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/assessments/README.md",
       "to": "delivery:capability:action-answer-read-verification",
       "type": "implemented-by"
@@ -49960,6 +49973,11 @@
       "from": "artifact:.pose/changelogs/unreleased/pose-mcp-server-survives-self-update.md",
       "to": "release:v5.0.1",
       "type": "archived-by"
+    },
+    {
+      "from": "artifact:.pose/changelogs/unreleased/pose-milestone-closes-when-reached.md",
+      "to": "delivery:capability:milestone-closes-when-reached",
+      "type": "implemented-by"
     },
     {
       "from": "artifact:.pose/changelogs/unreleased/pose-native-attestation-issuer.md",
@@ -51744,6 +51762,11 @@
     {
       "from": "artifact:.pose/indexes/validation-matrix.json",
       "to": "delivery:capability:mcp-signed-review-attestation",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/validation-matrix.json",
+      "to": "delivery:capability:milestone-closes-when-reached",
       "type": "implemented-by"
     },
     {
@@ -55669,6 +55692,11 @@
     {
       "from": "artifact:.pose/specs/2026-11-01-pose-closeout-judges-the-manifest.md",
       "to": "delivery:capability:closeout-judges-the-manifest",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/specs/2026-11-01-pose-milestone-closes-when-reached.md",
+      "to": "delivery:capability:milestone-closes-when-reached",
       "type": "implemented-by"
     },
     {
@@ -104380,6 +104408,11 @@
       "from": "spec:pose-milestone-closes-when-reached",
       "to": "delivery:capability:milestone-closes-when-reached",
       "type": "delivers"
+    },
+    {
+      "from": "spec:pose-milestone-closes-when-reached",
+      "to": "change-set:cs-9740be134753",
+      "type": "observed-by"
     },
     {
       "from": "spec:pose-monorepo-validation-advisory",
@@ -196137,6 +196170,57 @@
       "diff_digest": "sha256:d90954d0e69701db2a8f9d15db2d734266abe5c45dce6be9cce1ee2b94007fc1"
     },
     {
+      "id": "cs-9740be134753",
+      "spec": "pose-milestone-closes-when-reached",
+      "selector": "trailers:pose-milestone-closes-when-reached",
+      "base": "5132e6ebb498e59936dc842c1ee4f429dba071a6^",
+      "head": "5132e6ebb498e59936dc842c1ee4f429dba071a6",
+      "resolved_base": "8182df0a6be4b65e1275eb8c956c72eec1cd72ac",
+      "resolved_head": "5132e6ebb498e59936dc842c1ee4f429dba071a6",
+      "commits": [
+        "5132e6ebb498e59936dc842c1ee4f429dba071a6"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-11-01-a-milestone-answers-to-its-own-edges.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-milestone-closes-when-reached.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-01-pose-milestone-closes-when-reached.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        }
+      ],
+      "diff_digest": "sha256:dfa4c1b6745d870ceaf1a84b2acc03caded5b70fb8065a9f4417231541ec2ce5"
+    },
+    {
       "id": "cs-982dd45efd8a",
       "spec": "pose-community-contribution-surfaces",
       "selector": "trailers:pose-community-contribution-surfaces",
@@ -239590,7 +239674,7 @@
       "spec": "pose-milestone-closes-when-reached",
       "path": "pose-mcp/internal/pose/roadmaps.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-09d352c49715",
@@ -239721,7 +239805,7 @@
       "spec": "pose-milestone-closes-when-reached",
       "path": "pose-mcp/internal/pose/obligation_projection.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-10891c7c5e19",
@@ -239864,15 +239948,6 @@
       "path": "pose-mcp/internal/mcpserver/read_view_parity_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-governance-read-view-generation (ensure commits carry 'POSE-Spec: pose-governance-read-view-generation' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-17f5786add7e",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": ".pose/specs/2026-11-01-pose-milestone-closes-when-reached.md",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-1840dc5ca7b4",
@@ -240338,7 +240413,7 @@
       "spec": "pose-milestone-closes-when-reached",
       "path": "pose-mcp/internal/cli/lintspec.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-31e06c7f3e31",
@@ -240374,15 +240449,6 @@
       "path": ".pose/roadmaps/agency-readiness.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-planning-and-release-narrative-reconciliation (ensure commits carry 'POSE-Spec: pose-planning-and-release-narrative-reconciliation' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-373f08a76d2c",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": ".pose/changelogs/unreleased/pose-milestone-closes-when-reached.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
     },
     {
       "id": "dif-3805e9b13c9e",
@@ -240862,7 +240928,7 @@
       "spec": "pose-milestone-closes-when-reached",
       "path": ".pose/starts/pose-milestone-closes-when-reached.json",
       "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-4e51756fc2b0",
@@ -241005,15 +241071,6 @@
       "path": ".pose/changelogs/unreleased/pose-residual-material-coverage-and-identity.md",
       "message": "declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-residual-material-coverage-and-identity.md",
       "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
-      "id": "dif-55b6f64421ed",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": ".pose/adr/2026-11-01-a-milestone-answers-to-its-own-edges.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
     },
     {
       "id": "dif-560de85bc83f",
@@ -241352,16 +241409,7 @@
       "spec": "pose-milestone-closes-when-reached",
       "path": "pose-mcp/internal/cli/start.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-669b71a806cd",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": ".pose/specs/2026-11-01-pose-milestone-closes-when-reached.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-66c700734e91",
@@ -241671,7 +241719,7 @@
       "spec": "pose-milestone-closes-when-reached",
       "path": "pose-mcp/internal/pose/federated_acceptance.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-733a4d8bb358",
@@ -241741,15 +241789,6 @@
       "path": "pose-mcp/internal/mcpserver/docs_tool_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-773fa19a6b07",
-      "code": "unconnected-artifact",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": "capability:milestone-closes-when-reached",
-      "message": "delivery target has no structured artifact provenance",
-      "remediation": "declare and reconcile exact artifacts before asserting delivery"
     },
     {
       "id": "dif-77444c23cc39",
@@ -242087,7 +242126,7 @@
       "spec": "pose-milestone-closes-when-reached",
       "path": "pose-mcp/internal/cli/review_closeout.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-87108fc84844",
@@ -242431,7 +242470,7 @@
       "spec": "pose-milestone-closes-when-reached",
       "path": "pose-mcp/internal/pose/review_bundle.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-97969338b615",
@@ -242727,24 +242766,6 @@
       "path": "pose-mcp/internal/cli/telemetry.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-a4ebaa3280bb",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": ".pose/changelogs/unreleased/pose-milestone-closes-when-reached.md",
-      "message": "declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-milestone-closes-when-reached.md",
-      "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
-      "id": "dif-a50bf3a6028d",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": ".pose/adr/2026-11-01-a-milestone-answers-to-its-own-edges.md",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-a5883faa368e",
@@ -243567,15 +243588,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-caa8e850136c",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": ".pose/indexes/validation-matrix.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-cac2c270dc0e",
       "code": "orphan",
       "severity": "warning",
@@ -243770,7 +243782,7 @@
       "spec": "pose-milestone-closes-when-reached",
       "path": "pose-mcp/internal/pose/milestone_closes_when_reached_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-d21a8351fff1",
@@ -244229,7 +244241,7 @@
       "spec": "pose-milestone-closes-when-reached",
       "path": "pose-mcp/internal/cli/milestone_closes_when_reached_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-milestone-closes-when-reached (ensure commits carry 'POSE-Spec: pose-milestone-closes-when-reached' trailer or generate report with pose report)"
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-ea6728f4c0ef",
@@ -253770,6 +253782,10 @@
     ],
     "capability:milestone-closes-when-reached": [
       "spec:pose-milestone-closes-when-reached",
+      "artifact:.pose/adr/2026-11-01-a-milestone-answers-to-its-own-edges.md",
+      "artifact:.pose/changelogs/unreleased/pose-milestone-closes-when-reached.md",
+      "artifact:.pose/specs/2026-11-01-pose-milestone-closes-when-reached.md",
+      "artifact:.pose/indexes/validation-matrix.json",
       "delivery:capability:milestone-closes-when-reached",
       "entrypoint:pose-mcp/cmd/pose/main.go"
     ],

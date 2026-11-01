@@ -1,6 +1,6 @@
 ---
 slug: pose-milestone-closes-when-reached
-status: draft
+status: in-progress
 created_at: 2026-11-01
 supersedes:
 depends_on: pose-closeout-judges-the-manifest
