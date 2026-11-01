@@ -93,6 +93,28 @@ func TestDelegateTaskRunsWithItsAccessAndRecordsPrivately(t *testing.T) {
 	}
 }
 
+// R1, R2: the sandboxed access runs, not only plans: its own command, with the
+// no-network fragment when asked, prints its final message and returns the
+// agent's exit code.
+func TestDelegateTaskRunsSandboxed(t *testing.T) {
+	root, _, prompt := taskInstance(t)
+	code, out, errOut := runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "worker", "--access", "sandboxed")
+	if code != 0 || strings.TrimSpace(out) != "sandboxed:" {
+		t.Fatalf("sandboxed: %d %q %s", code, out, errOut)
+	}
+	code, out, errOut = runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "worker", "--access", "sandboxed", "--no-network")
+	if code != 0 || strings.TrimSpace(out) != "sandboxed:--offline" {
+		t.Fatalf("sandboxed without network: %d %q %s", code, out, errOut)
+	}
+	failing := `"failing": {"vendor": "other", "model": "f-1", "timeout": "30s",
+      "commands": {"sandboxed": ["sh", "-c", "cat >/dev/null; echo 'no luck'; exit 7"]}}`
+	writeDelegation(t, root, taskPolicy(`"default_access": "sandboxed"`, failing))
+	code, out, errOut = runPoseSplit(t, root, "delegate", "task", prompt, "--agent", "failing")
+	if code != 7 || strings.TrimSpace(out) != "no luck" {
+		t.Fatalf("the agent's exit code: %d %q %s", code, out, errOut)
+	}
+}
+
 // R2, R3: --no-network is refused with write or full and reaches a
 // sandboxed command through its fragment; a flag an agent's template cannot
 // carry is refused with exit 2; full is never a default.
