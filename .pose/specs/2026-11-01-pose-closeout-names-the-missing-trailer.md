@@ -100,9 +100,9 @@ An integration test over a validation result pinned to a commit no change set at
 
 ### Requirement trace
 
-- R1 [planned] capability:closeout-names-the-missing-trailer evidence:integration check:closeout-names-trailer-integration test:TestCloseoutPlanNamesTheMissingTrailerOnce
+- R1 [planned] capability:closeout-names-the-missing-trailer evidence:integration check:closeout-names-trailer-integration test:TestCloseoutPlanNamesTheMissingTrailerOnce test:TestSpecWithoutAChangeSetStaysUnsealable
 - R2 [planned] check:closeout-names-trailer-integration test:TestCloseoutPlanNamesTheMissingTrailerOnce
-- R3 [planned] check:closeout-names-trailer-integration test:TestOnlyTheMissingChangeSetSilencesTheEvidenceGap
+- R3 [planned] check:closeout-names-trailer-integration test:TestOnlyTheMissingChangeSetSilencesTheEvidenceGap test:TestExternalMilestoneKeepsItsEvidenceGate
 
 ## 7. Final Report
 
