@@ -69,7 +69,7 @@ func declaredProjectName(files Files, root string) string {
 	return strings.TrimPrefix(id, "proj.")
 }
 
-var plainProjectName = regexp.MustCompile(`^[\p{L}\p{N}][\p{L}\p{N} ._-]*$`)
+var plainProjectName = regexp.MustCompile(`^[\p{L}\p{N}][\p{L}\p{N} .-]*$`)
 
 // ReadProjectFile reads and writes the filesystem directly; ReadProjectFileIn takes the
 // operation's files.

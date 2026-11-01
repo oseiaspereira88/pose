@@ -35,6 +35,7 @@ func TestProjectLabelIsTheDeclaredName(t *testing.T) {
 		"spaced name":     {`{"schema_version":1,"project_id":"proj.real","name":"Real Project 2"}`, "Real Project 2"},
 		"two lines":       {`{"schema_version":1,"project_id":"proj.real","name":"Good\n\n# Forged heading"}`, "real"},
 		"markdown":        {`{"schema_version":1,"project_id":"proj.real","name":"[x](http://example.invalid)"}`, "real"},
+		"emphasis":        {`{"schema_version":1,"project_id":"proj.real","name":"Real _Project_"}`, "real"},
 		"html":            {`{"schema_version":1,"project_id":"proj.real","name":"<b>x</b>"}`, "real"},
 	} {
 		if got := projectLabelOf(t, "work-clone", c.file); got != c.want {
