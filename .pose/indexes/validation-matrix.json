@@ -2229,6 +2229,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "milestone-closes-when-reached-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "./internal/cli", "-run", "TestMilestoneClosesBeforeTheDependencyOfItsRoadmap|TestRoadmapStillWaitsForItsDependency|TestSealedRoadmapEdgeKeepsTheApproval|TestOtherMissingEdgeStales|TestCloseNamesTheNextClose|TestAttentionListsReachedMilestones|TestStartWarnsOfAnUnclosedAfter|TestUncommittedSourceSaysSo|TestStrictLintFailsOnAnUnacknowledgedChange|TestCloseoutSkillNamesTheMilestoneClose", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "closeout-judges-manifest-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "-run", "TestCloseoutRefusesARoadmapEditVerifyRefused|TestCloseoutRefusesARoadmapEditWhenClosed|TestCloseoutKeepsWhatVerifyRetains|TestCloseoutRefusesRevokedTrust|TestCloseoutRefusesAFailedVerification|TestCloseoutRefusesALegacyAttemptOverAFailedVerification|TestRetainedApprovalIsNotJudgedWithoutAResolver|TestSealWithoutAManifestStales", "-count=1"],
