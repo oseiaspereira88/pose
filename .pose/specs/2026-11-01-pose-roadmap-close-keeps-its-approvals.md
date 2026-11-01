@@ -81,8 +81,8 @@ A closed scope stands over a lifecycle change of a same-project roadmap.
 
 ## 4. Tasks
 
-- [ ] Judge a manifest difference by what changed
-- [ ] Independent review and closeout
+- [x] Judge a manifest difference by what changed
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -110,14 +110,21 @@ Real seal and attestation in the federated fixture, committing the bytes `applyL
 
 ### Requirement trace
 
-- R1 [planned] capability:roadmap-close-keeps-its-approvals evidence:integration check:roadmap-close-keeps-approvals-integration test:TestClosingARoadmapKeepsItsMilestoneApproved test:TestClosingARoadmapKeepsItsParentAndAWaitingMilestone test:TestManifestStandsOverALifecycleChange — The transition leaves the approval standing.
-- R2 [planned] check:roadmap-close-keeps-approvals-integration test:TestManifestStandsOverACompletedDependency — A cleared not-done does not stale it.
-- R3 [planned] check:roadmap-close-keeps-approvals-integration test:TestManifestDifferencesThatStale test:TestEditingAClosedRoadmapStalesItsMilestone test:TestRoadmapStatusOtherThanDoneStales test:TestBodyBehindAPaddedDelimiterStales test:TestRoadmapClosedBetweenIsTheBytesOfTheClose — Anything else stales it.
+- R1 [satisfied] capability:roadmap-close-keeps-its-approvals evidence:integration check:roadmap-close-keeps-approvals-integration test:TestClosingARoadmapKeepsItsMilestoneApproved test:TestClosingARoadmapKeepsItsParentAndAWaitingMilestone test:TestManifestStandsOverALifecycleChange report:.pose/results/delivery-validation.json commit:79a4f31f0fe49d2949f805e45cb9aaf3fc6697b8 — The transition leaves the approval standing.
+- R2 [satisfied] check:roadmap-close-keeps-approvals-integration test:TestManifestStandsOverACompletedDependency report:.pose/results/delivery-validation.json commit:79a4f31f0fe49d2949f805e45cb9aaf3fc6697b8 — A cleared not-done does not stale it.
+- R3 [satisfied] check:roadmap-close-keeps-approvals-integration test:TestManifestDifferencesThatStale test:TestEditingAClosedRoadmapStalesItsMilestone test:TestRoadmapStatusOtherThanDoneStales test:TestBodyBehindAPaddedDelimiterStales test:TestRoadmapClosedBetweenIsTheBytesOfTheClose report:.pose/results/delivery-validation.json commit:79a4f31f0fe49d2949f805e45cb9aaf3fc6697b8 — Anything else stales it.
 
 ## 7. Final Report
 
 ### Delivered scope
 
+A closed scope keeps its approval across the guarded close of a roadmap of its project, proved by applying the close's own writer to the earlier revision and comparing bytes with the later one, and across a dependency reaching done. Everything else stales it as before. Independently reviewed by Codex in three rounds: two rounds found ways through filters of the file, and the third approved the byte comparison that replaced them.
+
 ### Residual risks
 
+The comparison reads the two endpoints, and no continuous history is promised. A close whose writer also rewrites body text, possible behind a padded delimiter, is refused rather than repaired. The guarded CLI close is exercised on `delegation` in this repository, not in the fixture.
+
 ### Follow-ups
+
+- [open] F1: `reviewCheck` restores an approval `review verify` refused, without judging the manifest, so `pose close milestone:` and the closeout state can read approved over a change that stales it (review F1). (owner:@oseiaspereira88 crit:high review:2026-11-08)
+- [open] F2: `replaceFrontmatterValue` scans for its delimiter differently from `SplitFrontmatter`, so on a padded delimiter a close rewrites a body `status:` line (review F4). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
