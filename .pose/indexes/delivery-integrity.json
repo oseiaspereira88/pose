@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:a65a61818b9fe5b053188d58f9977b6054bcf801fba1451522043812de4b3e35",
-  "provenance_digest": "sha256:fcc5c6f221cb46c8b2d3540750b081ce91a4b9e70d9c1b57cf1f3a6729d417a7",
+  "input_digest": "sha256:26c0a621beee3c4ca79de78abad9f85f92f851de5a387435c5ecc5e19f3b83ef",
+  "provenance_digest": "sha256:ba3b0e95a135cc15c60caf5053df93a36b2f695159316b06537bac4b5df9e61d",
   "implied_edges": [
     "changes"
   ],
@@ -2601,6 +2601,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-roadmap-check-reaches-its-gate.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md"
       }
     },
     {
@@ -21812,6 +21819,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/pose-action-runtime-currency-gate/spec.md",
       "type": "artifact",
       "attributes": {
@@ -23300,6 +23314,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/starts/pose-review-subject-later-removal.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/starts/pose-roadmap-close-keeps-its-approvals.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/starts/pose-roadmap-close-keeps-its-approvals.json"
       }
     },
     {
@@ -29012,6 +29033,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/pose/review_trust_time_test.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go"
       }
     },
     {
@@ -39203,6 +39231,14 @@
       }
     },
     {
+      "id": "delivery:capability:roadmap-close-keeps-its-approvals",
+      "type": "capability",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "composed-capability"
+      }
+    },
+    {
       "id": "delivery:capability:rule-extension-locale-parity",
       "type": "capability",
       "attributes": {
@@ -44455,6 +44491,13 @@
       "type": "spec",
       "attributes": {
         "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-roadmap-close-keeps-its-approvals",
+      "type": "spec",
+      "attributes": {
+        "status": "in-progress"
       }
     },
     {
@@ -79925,6 +79968,11 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:capability:roadmap-close-keeps-its-approvals",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
       "from": "delivery:capability:rule-extension-locale-parity",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -110548,6 +110596,41 @@
       "from": "spec:pose-roadmap-check-reaches-its-gate",
       "to": "change-set:cs-4acf5d428a1a",
       "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-roadmap-close-keeps-its-approvals",
+      "to": "artifact:.pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-roadmap-close-keeps-its-approvals",
+      "to": "artifact:.pose/indexes/validation-matrix.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-roadmap-close-keeps-its-approvals",
+      "to": "artifact:.pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-roadmap-close-keeps-its-approvals",
+      "to": "artifact:.pose/starts/pose-roadmap-close-keeps-its-approvals.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-roadmap-close-keeps-its-approvals",
+      "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-roadmap-close-keeps-its-approvals",
+      "to": "artifact:pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-roadmap-close-keeps-its-approvals",
+      "to": "delivery:capability:roadmap-close-keeps-its-approvals",
+      "type": "delivers"
     },
     {
       "from": "spec:pose-roadmap-gate-scopes-milestones-and-external-members",
@@ -142229,6 +142312,36 @@
       "action": "renamed",
       "old_path": ".pose/changelogs/unreleased/pose-roadmap-check-reaches-its-gate.md",
       "new_path": ".pose/changelogs/v4.0.0/pose-roadmap-check-reaches-its-gate.md"
+    },
+    {
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "action": "created",
+      "path": ".pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md"
+    },
+    {
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "action": "created",
+      "path": ".pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md"
+    },
+    {
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "action": "created",
+      "path": ".pose/starts/pose-roadmap-close-keeps-its-approvals.json"
+    },
+    {
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "action": "created",
+      "path": "pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go"
+    },
+    {
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "action": "modified",
+      "path": ".pose/indexes/validation-matrix.json"
+    },
+    {
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/review_bundle.go"
     },
     {
       "spec": "pose-roadmap-gate-scopes-milestones-and-external-members",
@@ -229028,6 +229141,9 @@
     ".pose/changelogs/unreleased/pose-roadmap-check-reaches-its-gate.md": [
       "pose-roadmap-check-reaches-its-gate"
     ],
+    ".pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md": [
+      "pose-roadmap-close-keeps-its-approvals"
+    ],
     ".pose/changelogs/unreleased/pose-roadmap-gate-scopes-milestones-and-external-members.md": [
       "pose-roadmap-gate-scopes-milestones-and-external-members"
     ],
@@ -229936,6 +230052,7 @@
       "pose-review-attribution-roles",
       "pose-review-bundle-convergence",
       "pose-review-subject-later-removal",
+      "pose-roadmap-close-keeps-its-approvals",
       "pose-setup-command",
       "pose-signed-action-answers",
       "pose-source-coverage-integrity",
@@ -232035,6 +232152,9 @@
     ".pose/specs/2026-11-01-pose-process-inventory-tolerates-exit.md": [
       "pose-process-inventory-tolerates-exit"
     ],
+    ".pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md": [
+      "pose-roadmap-close-keeps-its-approvals"
+    ],
     ".pose/specs/pose-action-runtime-currency-gate/spec.md": [
       "pose-action-runtime-currency-gate"
     ],
@@ -232507,6 +232627,9 @@
     ],
     ".pose/starts/pose-review-subject-later-removal.json": [
       "pose-review-subject-later-removal"
+    ],
+    ".pose/starts/pose-roadmap-close-keeps-its-approvals.json": [
+      "pose-roadmap-close-keeps-its-approvals"
     ],
     ".pose/starts/pose-same-actor-level-admits-a-different-actor.json": [
       "pose-same-actor-level-admits-a-different-actor"
@@ -236903,6 +237026,7 @@
       "pose-review-subject-later-removal",
       "pose-review-subject-submodule-classification",
       "pose-review-subject-unclassified-removals",
+      "pose-roadmap-close-keeps-its-approvals",
       "pose-same-actor-level-admits-a-different-actor",
       "pose-seal-names-carried-forward-evidence",
       "pose-signed-legacy-attestation-ledger",
@@ -237203,6 +237327,9 @@
     ],
     "pose-mcp/internal/pose/review_trust_time_test.go": [
       "pose-historical-trust-and-review-reuse"
+    ],
+    "pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go": [
+      "pose-roadmap-close-keeps-its-approvals"
     ],
     "pose-mcp/internal/pose/roadmaps.go": [
       "pose-federated-roadmap-acceptance",
@@ -238361,6 +238488,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-015222b8103b",
+      "code": "unconnected-artifact",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": "capability:roadmap-close-keeps-its-approvals",
+      "message": "delivery target has no structured artifact provenance",
+      "remediation": "declare and reconcile exact artifacts before asserting delivery"
+    },
+    {
       "id": "dif-01575cb0c68e",
       "code": "legacy-narrative",
       "severity": "info",
@@ -239005,6 +239141,15 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-202998b3cfd3",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": ".pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-roadmap-close-keeps-its-approvals (ensure commits carry 'POSE-Spec: pose-roadmap-close-keeps-its-approvals' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-2137b27ad8dc",
       "code": "action-mismatch",
       "severity": "error",
@@ -239039,6 +239184,15 @@
       "path": "pose-mcp/internal/mcpserver/proportional_next_action_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-234bb21e3d17",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": "pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-236d8ac552a6",
@@ -239355,6 +239509,15 @@
       "remediation": "no Git change sets are attributed to spec pose-planning-and-release-narrative-reconciliation (ensure commits carry 'POSE-Spec: pose-planning-and-release-narrative-reconciliation' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-39e06a40b0d5",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": ".pose/starts/pose-roadmap-close-keeps-its-approvals.json",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-3a51bdeb7fed",
       "code": "orphan",
       "severity": "warning",
@@ -239621,6 +239784,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-48534933ef8a",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": ".pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md",
+      "message": "declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-4861382293e6",
       "code": "legacy-narrative",
       "severity": "info",
@@ -239635,6 +239807,16 @@
       "path": "pose-mcp/internal/mcpserver/validate_orchestration.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-48957f365ef1",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": "capability:roadmap-close-keeps-its-approvals",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-48a5a11015a1",
@@ -239771,6 +239953,15 @@
       "remediation": "no Git change sets are attributed to spec pose-release-shared-sufficiency-contract (ensure commits carry 'POSE-Spec: pose-release-shared-sufficiency-contract' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-4ee3a86e0824",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": "capability:roadmap-close-keeps-its-approvals",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-4f7aad0b3dd0",
       "code": "action-mismatch",
       "severity": "error",
@@ -239814,6 +240005,15 @@
       "path": "pose-mcp/internal/pose/reports.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-504e8f79ecdb",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": ".pose/starts/pose-roadmap-close-keeps-its-approvals.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-roadmap-close-keeps-its-approvals (ensure commits carry 'POSE-Spec: pose-roadmap-close-keeps-its-approvals' trailer or generate report with pose report)"
     },
     {
       "id": "dif-511015c33859",
@@ -240552,6 +240752,15 @@
       "remediation": "no Git change sets are attributed to spec pose-release-prepare-record-recovery (ensure commits carry 'POSE-Spec: pose-release-prepare-record-recovery' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-7346b214e8ce",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": ".pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-roadmap-close-keeps-its-approvals (ensure commits carry 'POSE-Spec: pose-roadmap-close-keeps-its-approvals' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-734f314d8891",
       "code": "action-mismatch",
       "severity": "error",
@@ -241008,6 +241217,15 @@
       "path": "pose-mcp/internal/observability/redact.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-8cae772c52f5",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": ".pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-8cf96253f0f8",
@@ -242061,6 +242279,15 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
+      "id": "dif-b94d8f17bf70",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": "pose-mcp/internal/pose/review_bundle.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-roadmap-close-keeps-its-approvals (ensure commits carry 'POSE-Spec: pose-roadmap-close-keeps-its-approvals' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-b96090a6852e",
       "code": "existence",
       "severity": "error",
@@ -242250,6 +242477,15 @@
       "path": "pose-mcp/internal/worktreeruntime/runtime.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-optional-worktree-runtime (ensure commits carry 'POSE-Spec: pose-optional-worktree-runtime' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-c5be1445373b",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": "pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-roadmap-close-keeps-its-approvals (ensure commits carry 'POSE-Spec: pose-roadmap-close-keeps-its-approvals' trailer or generate report with pose report)"
     },
     {
       "id": "dif-c6080597ac13",
@@ -243077,6 +243313,15 @@
       "spec": "pose-localization-docs-contract",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-edcc688dd21e",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": ".pose/indexes/validation-matrix.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-roadmap-close-keeps-its-approvals (ensure commits carry 'POSE-Spec: pose-roadmap-close-keeps-its-approvals' trailer or generate report with pose report)"
     },
     {
       "id": "dif-edd603317832",
@@ -244254,7 +244499,7 @@
       "entrypoint": "pose-mcp/internal/cli/delegate.go"
     },
     {
-      "spec": "pose-delegation-task",
+      "spec": "pose-delegation-parity-gate",
       "ref": "capability:delegation-task",
       "kind": "capability",
       "id": "delegation-task",
@@ -244263,7 +244508,7 @@
       "entrypoint": "pose-mcp/internal/cli/delegate_task.go"
     },
     {
-      "spec": "pose-delegation-parity-gate",
+      "spec": "pose-delegation-task",
       "ref": "capability:delegation-task",
       "kind": "capability",
       "id": "delegation-task",
@@ -244839,34 +245084,7 @@
       "entrypoint": "pose-mcp/internal/pose/review_closeout.go"
     },
     {
-      "spec": "pose-derived-index-self-referential-leak",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-scaffold-self-referential-policy-fix",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-install-locale-autodetect",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-update-instance-directory-completeness",
+      "spec": "pose-review-bundle-root-file-classification",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -244893,6 +245111,42 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-scaffold-self-referential-policy-fix",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-review-scope-trailer-check",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-derived-index-self-referential-leak",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-update-instance-directory-completeness",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-instance-engine-version-tracking",
       "ref": "capability:pose-mcp",
       "kind": "capability",
@@ -244911,16 +245165,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-review-bundle-root-file-classification",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-review-scope-trailer-check",
+      "spec": "pose-install-locale-autodetect",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -245275,6 +245520,15 @@
       "ref": "capability:review-subject-unclassified-removals",
       "kind": "capability",
       "id": "review-subject-unclassified-removals",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "ref": "capability:roadmap-close-keeps-its-approvals",
+      "kind": "capability",
+      "id": "roadmap-close-keeps-its-approvals",
       "module": "pose-mcp",
       "profile": "composed-capability",
       "entrypoint": "pose-mcp/cmd/pose/main.go"
@@ -246477,7 +246731,7 @@
       "entrypoint": "scripts/release.sh"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -246486,7 +246740,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -246531,7 +246785,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-lifecycle-closure",
+      "spec": "pose-release-evidence-trigger-fix",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -246540,7 +246794,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-evidence-trigger-fix",
+      "spec": "pose-release-lifecycle-closure",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -252653,9 +252907,9 @@
       "validation-set:ad37deba5b28955c"
     ],
     "capability:pose-mcp": [
-      "spec:pose-review-scope-trailer-check",
-      "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
-      "artifact:pose-mcp/internal/cli/doctor.go",
+      "spec:pose-install-locale-autodetect",
+      "artifact:pose-mcp/internal/cli/install.go",
+      "artifact:pose-mcp/internal/cli/localization_docs_test.go",
       "delivery:capability:pose-mcp",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:ad37deba5b28955c"
@@ -253335,6 +253589,11 @@
       "delivery:capability:review-subject-unclassified-removals",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:ad37deba5b28955c"
+    ],
+    "capability:roadmap-close-keeps-its-approvals": [
+      "spec:pose-roadmap-close-keeps-its-approvals",
+      "delivery:capability:roadmap-close-keeps-its-approvals",
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "capability:rule-extension-locale-parity": [
       "spec:pose-rule-extension-locale-parity",
@@ -256052,7 +256311,18 @@
       "validation-set:ad37deba5b28955c"
     ],
     "governance:project-assessment": [
-      "spec:pose-debt-marker-lexical-precision",
+      "spec:pose-project-agnostic-assessment-engines",
+      "artifact:.pose/changelogs/v0.16.2/pose-project-agnostic-assessment-engines.md",
+      "artifact:.pose/knowledge/2026-08-03-decision-log-project-agnostic-assessment-evidence.md",
+      "artifact:.pose/specs/pose-project-agnostic-assessment-engines/spec.md",
+      "artifact:pose-mcp/internal/cli/assessment_agnostic_test.go",
+      "artifact:pose-mcp/internal/pose/assessment_agnostic_test.go",
+      "artifact:pose-mcp/internal/pose/assessment_scan.go",
+      "artifact:pose-mcp/internal/cli/assess.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/pose/discovery.go",
+      "artifact:pose-mcp/internal/pose/integration.go",
+      "artifact:pose-mcp/internal/pose/techdebt.go",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:ad37deba5b28955c"
@@ -256101,13 +256371,43 @@
       "validation-set:ad37deba5b28955c"
     ],
     "governance:release-integrity": [
-      "spec:pose-release-evidence-trigger-fix",
-      "artifact:.pose/specs/pose-release-evidence-trigger-fix/spec.md",
+      "spec:pose-release-lifecycle-closure",
+      "artifact:.agents/skills/pose-release-closeout/SKILL.md",
+      "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
+      "artifact:.pose/indexes/releases.json",
+      "artifact:.pose/policy/changelog.json",
+      "artifact:.pose/release-policy.json",
+      "artifact:.pose/rules/release-integrity.md",
+      "artifact:.pose/workflows/release.md",
+      "artifact:locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md",
+      "artifact:locales/pt-BR/.pose/rules/release-integrity.md",
+      "artifact:locales/pt-BR/.pose/workflows/release.md",
+      "artifact:pose-mcp/internal/cli/release_lifecycle.go",
+      "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
+      "artifact:pose-mcp/internal/mcpserver/release_status_tool_test.go",
+      "artifact:pose-mcp/internal/pose/release_lifecycle.go",
+      "artifact:pose-mcp/internal/pose/release_lifecycle_test.go",
+      "artifact:.agents/skills/README.md",
       "artifact:.github/workflows/release.yml",
-      "artifact:.github/workflows/verify-release.yml",
-      "artifact:docs-site/docs/ci.md",
-      "artifact:pose-mcp/internal/version/contract_test.go",
-      "artifact:pose-mcp/internal/version/version.go",
+      "artifact:.pose/indexes/task-map.json",
+      "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:.pose/specs/pose-release-lifecycle-closure/spec.md",
+      "artifact:POSE.md",
+      "artifact:docs-site/docs/cli.md",
+      "artifact:docs-site/docs/mcp.md",
+      "artifact:pose-mcp/internal/cli/check.go",
+      "artifact:pose-mcp/internal/cli/cli.go",
+      "artifact:pose-mcp/internal/cli/index.go",
+      "artifact:pose-mcp/internal/cli/maintenance.go",
+      "artifact:pose-mcp/internal/cli/native_only_test.go",
+      "artifact:pose-mcp/internal/cli/skills_check_test.go",
+      "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "artifact:pose-mcp/internal/pose/changelogs.go",
+      "artifact:pose-mcp/internal/scaffold/scaffold.go",
+      "artifact:scripts/release.sh",
       "delivery:governance:release-integrity",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:ad37deba5b28955c"

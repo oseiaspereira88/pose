@@ -3360,7 +3360,7 @@ func (s Store) computeReviewVerification(scope string) (ReviewBundleVerification
 					return verification, nil
 				}
 				// Without a resolver no manifest can be judged, here as in closeout.
-				if bundle != nil && (s.FederatedResolver == nil || sameFederatedManifest(bundle.Payload.FederatedManifest, prepared.Payload.FederatedManifest)) {
+				if bundle != nil && (s.FederatedResolver == nil || s.federatedManifestStands(bundle.Payload.FederatedManifest, prepared.Payload.FederatedManifest)) {
 					verification.Bundle, verification.Attestation = bundle, att
 					verification.Warnings = append(verification.Warnings, staleEvidenceWarnings(bundle.Payload.Subject, bundle.Payload.Evidence)...)
 					verification.Fresh, verification.Approved = true, true
@@ -4173,6 +4173,91 @@ func sameFederatedManifest(a, b *FederatedRoadmapManifest) bool {
 	left, errA := json.Marshal(a)
 	right, errB := json.Marshal(b)
 	return errA == nil && errB == nil && bytes.Equal(left, right)
+}
+
+// federatedManifestStands reports whether a closed scope's sealed manifest still
+// holds against the current one. It is sameFederatedManifest, less the one thing a
+// guarded close itself changes: the lifecycle of a roadmap of this project, and the
+// not-done blocker of a dependency that reached done. Anything not proved to be that
+// is a difference (spec pose-roadmap-close-keeps-its-approvals R1-R3).
+func (s Store) federatedManifestStands(sealed, current *FederatedRoadmapManifest) bool {
+	if sameFederatedManifest(sealed, current) {
+		return true
+	}
+	if sealed == nil || current == nil || len(sealed.Dependencies) != len(current.Dependencies) {
+		return false
+	}
+	was := *sealed
+	if was.CoordinatorRevision != current.CoordinatorRevision {
+		if !s.sameRoadmapApartFromLifecycle(was.Coordinator, was.CoordinatorRevision, current.CoordinatorRevision) {
+			return false
+		}
+		was.CoordinatorRevision = current.CoordinatorRevision
+	}
+	was.Dependencies = append([]FederatedDependency{}, sealed.Dependencies...)
+	met := map[string]bool{}
+	for i := range was.Dependencies {
+		then, now := &was.Dependencies[i], current.Dependencies[i]
+		if then.SourceRevision == now.SourceRevision && then.SourceDigest == now.SourceDigest && then.Status == now.Status {
+			continue
+		}
+		if now.Identity.Project != was.Coordinator.Project || then.Status != now.Status && now.Status != "done" {
+			return false
+		}
+		if !s.sameRoadmapApartFromLifecycle(now.Identity, then.SourceRevision, now.SourceRevision) {
+			return false
+		}
+		if then.Status != now.Status {
+			met[now.Ref+":not-done"] = true
+		}
+		then.SourceRevision, then.SourceDigest, then.Status = now.SourceRevision, now.SourceDigest, now.Status
+	}
+	blockers := []string{}
+	for _, blocker := range sealed.Blockers {
+		if !met[blocker] {
+			blockers = append(blockers, blocker)
+		}
+	}
+	was.Blockers, was.Ready, was.Digest = blockers, current.Ready, current.Digest
+	return sameFederatedManifest(&was, current)
+}
+
+// sameRoadmapApartFromLifecycle reports whether a roadmap's committed file differs
+// between two revisions only in the fields the guarded transition writes.
+func (s Store) sameRoadmapApartFromLifecycle(identity ArtifactRef, from, to string) bool {
+	if identity.Kind != "roadmap" && identity.Kind != "milestone" {
+		return false
+	}
+	rm, err := s.GetRoadmap(identity.Slug)
+	if err != nil {
+		return false
+	}
+	rel, err := filepath.Rel(s.Root, rm.Path)
+	if err != nil {
+		return false
+	}
+	rel = filepath.ToSlash(rel)
+	then, err := gitCommand("-C", s.Root, "show", from+":"+rel).Output()
+	if err != nil {
+		return false
+	}
+	now, err := gitCommand("-C", s.Root, "show", to+":"+rel).Output()
+	return err == nil && withoutLifecycleFields(string(then)) == withoutLifecycleFields(string(now))
+}
+
+// withoutLifecycleFields drops status and completed_at from a roadmap's front matter.
+func withoutLifecycleFields(raw string) string {
+	front, body, ok := strings.Cut(strings.TrimPrefix(raw, "---\n"), "\n---\n")
+	if !ok || !strings.HasPrefix(raw, "---\n") {
+		return raw
+	}
+	kept := []string{}
+	for _, line := range strings.Split(front, "\n") {
+		if !strings.HasPrefix(line, "status:") && !strings.HasPrefix(line, "completed_at:") {
+			kept = append(kept, line)
+		}
+	}
+	return strings.Join(kept, "\n") + "\n---\n" + body
 }
 
 // foldJSONKey maps a key to one representative of its case-folding class,
