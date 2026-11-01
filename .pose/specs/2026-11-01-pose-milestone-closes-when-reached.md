@@ -106,12 +106,12 @@ A milestone's manifest no longer lists the `depends_on` of its roadmap. `pose cl
 
 ## 4. Tasks
 
-- [ ] Narrow the milestone manifest and keep what was sealed wider
-- [ ] Name the next close, list reached milestones, warn at start
-- [ ] Say what the revision mismatch means
-- [ ] Make strict lint fail on an unacknowledged change
-- [ ] Update the closeout skill
-- [ ] Independent review and closeout
+- [x] Narrow the milestone manifest and keep what was sealed wider
+- [x] Name the next close, list reached milestones, warn at start
+- [x] Say what the revision mismatch means
+- [x] Make strict lint fail on an unacknowledged change
+- [x] Update the closeout skill
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -155,19 +155,26 @@ Integration tests over real roadmaps and commits, with each gate seen failing fi
 
 ### Requirement trace
 
-- R1 [planned] capability:milestone-closes-when-reached evidence:integration check:milestone-closes-when-reached-integration test:TestMilestoneClosesBeforeTheDependencyOfItsRoadmap test:TestRoadmapStillWaitsForItsDependency test:TestAfterStillBindsAMilestoneToARoadmap
-- R2 [planned] check:milestone-closes-when-reached-integration test:TestSealedRoadmapEdgeKeepsTheApproval test:TestSealedRoadmapEdgeStandsWhenTheDependencyCloses test:TestOtherMissingEdgeStales
-- R3 [planned] check:milestone-closes-when-reached-integration test:TestCloseNamesTheNextClose test:TestCloseOfTheLastMilestoneNamesTheRoadmap test:TestRoadmapIsReachedWhenEveryMilestoneIsApproved
-- R4 [planned] check:milestone-closes-when-reached-integration test:TestAttentionListsReachedMilestones test:TestReachedMilestoneOfADoneRoadmapIsNotListed test:TestReachedListRunsNoReview test:TestAStaleApprovalIsLeftToTheClose test:TestAnUnreadableApprovalIsNotReached test:TestALaterRejectionIsNotAnApproval test:TestAReservedApprovalIsAnApproval test:TestAnAmbiguousRecordIsNotAnApproval test:TestDecisionsAreOrderedByInstant test:TestABundleTiedInstantHasToApproveToo test:TestABundleWithoutASealTimeIsNotAnAnswer
-- R5 [planned] check:milestone-closes-when-reached-integration test:TestStartWarnsOfAnUnclosedAfter test:TestStartPrintsItsWarning test:TestAStartWarningNeverRefuses
-- R6 [planned] check:milestone-closes-when-reached-integration test:TestUncommittedSourceSaysSo
-- R7 [planned] check:milestone-closes-when-reached-integration test:TestStrictLintFailsOnAnUnacknowledgedChange test:TestAmendmentHistoryInProgressWarnsBeforeDone
-- R8 [planned] check:milestone-closes-when-reached-integration test:TestCloseoutSkillNamesTheMilestoneClose
+- R1 [satisfied] capability:milestone-closes-when-reached evidence:integration check:milestone-closes-when-reached-integration test:TestMilestoneClosesBeforeTheDependencyOfItsRoadmap test:TestRoadmapStillWaitsForItsDependency test:TestAfterStillBindsAMilestoneToARoadmap report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
+- R2 [satisfied] check:milestone-closes-when-reached-integration test:TestSealedRoadmapEdgeKeepsTheApproval test:TestSealedRoadmapEdgeStandsWhenTheDependencyCloses test:TestOtherMissingEdgeStales report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
+- R3 [satisfied] check:milestone-closes-when-reached-integration test:TestCloseNamesTheNextClose test:TestCloseOfTheLastMilestoneNamesTheRoadmap test:TestRoadmapIsReachedWhenEveryMilestoneIsApproved report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
+- R4 [satisfied] check:milestone-closes-when-reached-integration test:TestAttentionListsReachedMilestones test:TestReachedMilestoneOfADoneRoadmapIsNotListed test:TestReachedListRunsNoReview test:TestAStaleApprovalIsLeftToTheClose test:TestAnUnreadableApprovalIsNotReached test:TestALaterRejectionIsNotAnApproval test:TestAReservedApprovalIsAnApproval test:TestAnAmbiguousRecordIsNotAnApproval test:TestDecisionsAreOrderedByInstant test:TestABundleTiedInstantHasToApproveToo test:TestABundleWithoutASealTimeIsNotAnAnswer report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
+- R5 [satisfied] check:milestone-closes-when-reached-integration test:TestStartWarnsOfAnUnclosedAfter test:TestStartPrintsItsWarning test:TestAStartWarningNeverRefuses report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
+- R6 [satisfied] check:milestone-closes-when-reached-integration test:TestUncommittedSourceSaysSo report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
+- R7 [satisfied] check:milestone-closes-when-reached-integration test:TestStrictLintFailsOnAnUnacknowledgedChange test:TestAmendmentHistoryInProgressWarnsBeforeDone report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
+- R8 [satisfied] check:milestone-closes-when-reached-integration test:TestCloseoutSkillNamesTheMilestoneClose report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
 
 ## 7. Final Report
 
 ### Delivered scope
 
+A milestone answers to its own edges: the `depends_on` of a roadmap binds the close of that roadmap, as the ADR records, and the eleven closed milestones of `delegation` keep their approval without a reseal. `pose close`, `pose start` and `pose state --attention` say when a milestone is reached, the uncommitted-source blocker says what it means, and strict lint fails on an unacknowledged change. Independently reviewed by Codex in four rounds: the first found that attention had gone from 4 to 212 seconds, that a warning could refuse start and that a lost read reported a milestone as reached; the next two moved attention onto the canonical reader of attestations, with decisions ordered by instant. Of 171 milestone and roadmap scopes of this repository, none changed between the old reader and the new one, and a binary without the compatibility retry drops the milestones of `delegation`, so the measure exercises it.
+
 ### Residual risks
 
+Attention verifies nothing, so an approval gone stale is reported by the close of the milestone and not there. A bundle is read for its scope and seal time without canonical validation, so a record edited by hand can still hide an advisory, never approve a close. R3 of `pose-amendment-history-holds-before-close` is reversed by D4: that spec stays closed as a record, and the test its trace cites now measures the failure.
+
 ### Follow-ups
+
+- [open] F1: `pose state --attention` lists 42 reached milestones on roadmaps not yet done. Close them through their gates, or record why they stay open (review R2-F8). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F2: Annotate the historical R3 of `pose-amendment-history-holds-before-close` and name the test after the present contract (review R2-F7). (owner:@oseiaspereira88 crit:low review:2026-11-27)
