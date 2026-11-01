@@ -26,12 +26,13 @@ completed_at:
 
 ### Constraints
 
-- What `review verify` retains stays retained; the only addition to it is R5.
+- What `review verify` retains stays retained: this spec changes the reader that was wrong, not the rule.
 - A verification that failed cannot show the manifest stands, so it does not retain under a resolver.
 - A scope with no resolver is read as before: no manifest can be judged there.
 
 ### Non-goals
 
+- Waiving bundles sealed before manifests existed. Three review rounds found ways through such a waiver, and nothing depends on those approvals; they are resealed instead.
 - A matching sealed bundle awaiting its attestation, where closeout may still retain an earlier approval that verify does not. Its manifest is judged by R1, and the retention of approvals given under older rules is deliberate.
 - Legacy review attempts of scopes closed before bundles were adopted: they have no bundle, so no manifest, and closeout reads them under the policy's exemption while verify does not. 55 scopes of this repository read that way, before and after this spec.
 - Roadmap `depends_on` and the reach of milestones, which go to `pose-milestone-closes-when-reached`.
@@ -44,7 +45,6 @@ completed_at:
 - R2: When that function refuses, closeout shall not read the scope approved or fresh, shall report the state `review verify` reports, and shall carry a blocker naming the bundle and the manifest change.
 - R3: When a verification fails under a resolver and the scope has a retained bundle, closeout shall return that failure, and no legacy attempt shall stand in for the bundle.
 - R4: A closed scope `review verify` retains shall stay approved in closeout, including over the guarded close of its roadmap.
-- R5: A bundle with no manifest, sealed before the engine began to seal manifests on 2026-09-24, shall stand against a current manifest that is ready, has no blockers and names no other project, while every artifact that manifest names has the bytes it had at the seal, wherever it lived then, and against no other. A later bundle with no manifest shall not.
 
 ### Non-functional
 
@@ -52,7 +52,7 @@ completed_at:
 
 ### Security
 
-- R1 to R3 only remove a path to approval. R5 adds one, for seals that bound nothing, and only where the scope answers to its own project alone.
+- The change only removes a path to approval.
 
 ### Compatibility
 
@@ -106,27 +106,18 @@ completed_at:
 - Consequences: a closed scope whose preparation fails reports that failure instead of an approval, and the exemption keeps serving only scopes with no retained bundle
 - Falsifier: a closed scope in this repository that a verification failure turns unapproved with nothing wrong with its review
 
-### Decision D3
-- Basis: R5
-- Minimal option: let the old seals stale, as verify already read them
-- Selected option: a seal with no manifest, dated before manifests entered the engine, stands where the current manifest binds only its own project and each artifact it names is, byte for byte, in the tree at the seal
-- Rationale: applying R1 turned nine milestones of two August roadmaps unapproved for a field that did not exist when they were sealed, while their current manifests name only their own done specs; the difference bears on no authority. The absent field alone is not proof of age, since a store with no resolver seals none today (review round 1), so the date bounds it, fail-closed for an instance that adopted later. A commit date does not serve: the migration of the specs to the flat layout on 2026-08-22 is newer than these seals, yet moved no bytes. Child verification does not serve either, since a done spec keeps its approval over an edit (review round 2). Bytes tell the two apart
-- Consequences: both readers keep those milestones approved, and their two roadmaps, which verify refused through them, now read closed; a manifest naming another project still stales them
-- Falsifier: a seal with no manifest standing over a manifest that names another project, carries a blocker or is not ready, over a later edit of an artifact it names, or sealed after 2026-09-24
-
 ## 6. Validation
 
 ### Strategy
 
-Real seal and attestation in the federated fixture, each case asserted through both readers, with the closeout tests shown failing without the change. The old and new CLI compared over all 602 scopes of this repository: no approval lost, two roadmaps gained through R5. `check --strict` passes.
+Real seal and attestation in the federated fixture, each case asserted through both readers, with the closeout tests shown failing without the change. The old and new CLI compared over all 602 scopes of this repository: nine milestones of two August roadmaps lose the approval closeout restored for them, which verify already refused, and nothing else changes. `check --strict` passes.
 
 ### Requirement trace
 
-- R1 [planned] capability:closeout-judges-the-manifest evidence:integration check:closeout-judges-manifest-integration test:TestCloseoutRefusesARoadmapEditVerifyRefused test:TestCloseoutRefusesRevokedTrust test:TestRetainedApprovalIsNotJudgedWithoutAResolver — readers agree
+- R1 [planned] capability:closeout-judges-the-manifest evidence:integration check:closeout-judges-manifest-integration test:TestCloseoutRefusesARoadmapEditVerifyRefused test:TestCloseoutRefusesRevokedTrust test:TestRetainedApprovalIsNotJudgedWithoutAResolver test:TestSealWithoutAManifestStales — readers agree
 - R2 [planned] check:closeout-judges-manifest-integration test:TestCloseoutRefusesARoadmapEditVerifyRefused test:TestCloseoutRefusesARoadmapEditWhenClosed — refusal and state
 - R3 [planned] check:closeout-judges-manifest-integration test:TestCloseoutRefusesAFailedVerification test:TestCloseoutRefusesALegacyAttemptOverAFailedVerification — no judgment, no approval
 - R4 [planned] check:closeout-judges-manifest-integration test:TestCloseoutKeepsWhatVerifyRetains — retention kept
-- R5 [planned] check:closeout-judges-manifest-integration test:TestOldSealStandsWhileNothingMoved test:TestOldSealStalesOverALaterEdit test:TestOldSealStalesOverAMemberEdit test:TestOldSealStandsOverAMemberMove test:TestSealWithoutAManifestAfterTheyExistedStales test:TestOldSealRefusesWhatItCouldNotHaveBound — old seals
 
 ## 7. Final Report
 

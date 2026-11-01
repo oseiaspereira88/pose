@@ -135,15 +135,14 @@ func TestCloseoutRefusesALegacyAttemptOverAFailedVerification(t *testing.T) {
 	}
 }
 
-// A milestone of one project sealed with no manifest at the given instant, its history
-// committed before it.
-func sealedWithoutManifest(t *testing.T, at time.Time) (string, Store) {
-	t.Helper()
-	t.Setenv("GIT_COMMITTER_DATE", at.Add(-time.Hour).Format(time.RFC3339))
+// A seal with no manifest has nothing to compare, whenever it was made: absence proves
+// no age, since a store with no resolver seals none today.
+func TestSealWithoutAManifestStales(t *testing.T) {
 	root, s, _, _ := federatedTestMilestoneConsumer(t)
 	editRoadmapFixture(t, root, "consumes: xref:source/roadmap:component", "created_at: 2026-08-01")
 	local := s
 	local.FederatedResolver = nil
+	at := time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC)
 	for i, ref := range []string{"spec:backend", "milestone:program/core"} {
 		sealed := at.Add(time.Duration(i) * 2 * time.Minute)
 		bundle, err := local.SealReviewBundle(ref, sealed)
@@ -155,85 +154,7 @@ func sealedWithoutManifest(t *testing.T, at time.Time) (string, Store) {
 		}
 		attestChildReview(t, local, bundle, sealed.Add(time.Minute), "approved")
 	}
-	return root, s
-}
-
-func TestOldSealStandsWhileNothingMoved(t *testing.T) {
-	_, s := sealedWithoutManifest(t, time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC))
-	if eval := verifyAndCloseoutAgree(t, s, "milestone:program/core"); !eval.Approved {
-		t.Fatalf("a seal older than manifests was staled by their absence: %+v", eval)
-	}
-}
-
-func TestOldSealStalesOverALaterEdit(t *testing.T) {
-	root, s := sealedWithoutManifest(t, time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC))
-	t.Setenv("GIT_COMMITTER_DATE", "2026-10-01T12:00:00Z")
-	editRoadmapFixture(t, root, "## Milestone: core", "Edited.\n\n## Milestone: core")
 	if eval := verifyAndCloseoutAgree(t, s, "milestone:program/core"); eval.Approved {
-		t.Fatalf("a seal older than manifests stood over a later edit: %+v", eval)
-	}
-}
-
-func TestOldSealStalesOverAMemberEdit(t *testing.T) {
-	root, s := sealedWithoutManifest(t, time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC))
-	t.Setenv("GIT_COMMITTER_DATE", "2026-10-01T12:00:00Z")
-	spec, err := s.GetSpec("backend")
-	if err != nil {
-		t.Fatal(err)
-	}
-	raw, err := os.ReadFile(spec.Path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(spec.Path, append(raw, []byte("\nEdited.\n")...), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	federatedTestGit(t, root, "add", "--all")
-	federatedTestGit(t, root, "commit", "-q", "-m", "edit the member")
-	if eval := verifyAndCloseoutAgree(t, s, "milestone:program/core"); eval.Approved {
-		t.Fatalf("a seal older than manifests stood over an edit of its member: %+v", eval)
-	}
-}
-
-func TestOldSealStandsOverAMemberMove(t *testing.T) {
-	root, s := sealedWithoutManifest(t, time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC))
-	t.Setenv("GIT_COMMITTER_DATE", "2026-10-01T12:00:00Z")
-	spec, err := s.GetSpec("backend")
-	if err != nil {
-		t.Fatal(err)
-	}
-	moved := filepath.Join(filepath.Dir(filepath.Dir(spec.Path)), "2026-08-15-backend.md")
-	if err := os.Rename(spec.Path, moved); err != nil {
-		t.Fatal(err)
-	}
-	federatedTestGit(t, root, "add", "--all")
-	federatedTestGit(t, root, "commit", "-q", "-m", "move the member")
-	if eval := verifyAndCloseoutAgree(t, s, "milestone:program/core"); !eval.Approved {
-		t.Fatalf("moving a member with its bytes staled a seal older than manifests: %+v", eval)
-	}
-}
-
-func TestSealWithoutAManifestAfterTheyExistedStales(t *testing.T) {
-	_, s := sealedWithoutManifest(t, time.Date(2026, 11, 1, 12, 0, 0, 0, time.UTC))
-	if eval := verifyAndCloseoutAgree(t, s, "milestone:program/core"); eval.Approved {
-		t.Fatalf("a recent seal with no manifest read as an old one: %+v", eval)
-	}
-}
-
-func TestOldSealRefusesWhatItCouldNotHaveBound(t *testing.T) {
-	s := Store{Root: t.TempDir(), FederatedResolver: &ArtifactResolver{}}
-	bundle := &ReviewBundle{SealedAt: "2026-09-01T12:00:00Z"}
-	here, there := ArtifactRef{Project: "here"}, ArtifactRef{Project: "there"}
-	for name, current := range map[string]*FederatedRoadmapManifest{
-		"another project": {Coordinator: here, Ready: true, Dependencies: []FederatedDependency{{Identity: there, Status: "done"}}},
-		"a blocker":       {Coordinator: here, Ready: true, Blockers: []string{"xref:here/spec:a:not-done"}},
-		"not ready":       {Coordinator: here},
-	} {
-		if s.retainedApprovalStands(bundle, current) {
-			t.Errorf("a seal older than manifests stood over %s", name)
-		}
-	}
-	if s.federatedManifestStands(&FederatedRoadmapManifest{}, nil) {
-		t.Error("a manifest gone from the current scope stood")
+		t.Fatalf("a seal with no manifest stood against one: %+v", eval)
 	}
 }
