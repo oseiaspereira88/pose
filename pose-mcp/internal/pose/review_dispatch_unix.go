@@ -75,7 +75,7 @@ func verifyReviewProcessGroup(pid int) error {
 				continue
 			}
 			raw, err := os.ReadFile("/proc/" + entry.Name() + "/stat")
-			if errors.Is(err, os.ErrNotExist) {
+			if processGone(err) {
 				continue
 			}
 			if err != nil {
@@ -106,6 +106,12 @@ func verifyReviewProcessGroup(pid int) error {
 		}
 		time.Sleep(10 * time.Millisecond)
 	}
+}
+
+// processGone reports the two ways a process exiting during the walk answers:
+// the open finds no entry, or the read of an open entry finds no process.
+func processGone(err error) bool {
+	return errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ESRCH)
 }
 
 func reviewProcessGroupAvailable() error { return verifyReviewProcessGroup(-1) }

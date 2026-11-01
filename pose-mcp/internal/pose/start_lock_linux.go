@@ -46,7 +46,7 @@ func probeStartLockOwner(owner StartLockOwner) (string, string) {
 		return LockOwnerUnknown, "the lock does not record the owner's process start"
 	}
 	started, err := processStartTime(owner.PID)
-	if os.IsNotExist(err) {
+	if processGone(err) {
 		return LockOwnerDead, fmt.Sprintf("pid %d is not running", owner.PID)
 	}
 	if err != nil {
