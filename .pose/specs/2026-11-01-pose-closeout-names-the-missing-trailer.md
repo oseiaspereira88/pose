@@ -79,8 +79,8 @@ The text of the blocker gains its fix after the same prefix.
 
 ## 4. Tasks
 
-- [ ] Report the cause alone, with its fix
-- [ ] Independent review and closeout
+- [x] Report the cause alone, with its fix
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -100,14 +100,20 @@ An integration test over a validation result pinned to a commit no change set at
 
 ### Requirement trace
 
-- R1 [planned] capability:closeout-names-the-missing-trailer evidence:integration check:closeout-names-trailer-integration test:TestCloseoutPlanNamesTheMissingTrailerOnce test:TestSpecWithoutAChangeSetStaysUnsealable
-- R2 [planned] check:closeout-names-trailer-integration test:TestCloseoutPlanNamesTheMissingTrailerOnce
-- R3 [planned] check:closeout-names-trailer-integration test:TestOnlyTheMissingChangeSetSilencesTheEvidenceGap test:TestExternalMilestoneKeepsItsEvidenceGate
+- R1 [satisfied] capability:closeout-names-the-missing-trailer evidence:integration check:closeout-names-trailer-integration test:TestCloseoutPlanNamesTheMissingTrailerOnce test:TestSpecWithoutAChangeSetStaysUnsealable report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
+- R2 [satisfied] check:closeout-names-trailer-integration test:TestCloseoutPlanNamesTheMissingTrailerOnce report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
+- R3 [satisfied] check:closeout-names-trailer-integration test:TestOnlyTheMissingChangeSetSilencesTheEvidenceGap test:TestExternalMilestoneKeepsItsEvidenceGate report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
 
 ## 7. Final Report
 
 ### Delivered scope
 
+With no attributed change set the bundle reports that cause alone, with its fix: the `POSE-Spec:` line, `pose index` and `pose artifact-check`. The evidence gap that follows from it is no longer a second reason, as issue #208 asked. The test was seen failing with both messages on the previous code. A bundle with no change set stays unsealable, and a milestone of external members keeps its evidence gate. Independently reviewed by Codex in four rounds, with no blocker.
+
 ### Residual risks
 
+The evidence blocker depends on the prefix of another blocker, through one constant.
+
 ### Follow-ups
+
+- [open] F1: For a spec with a change set, `assess-design` evidence fills the list, so the empty-evidence blocker does not establish that validation ran. Decide whether it should distinguish them (review R2-F9). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
