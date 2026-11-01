@@ -1,6 +1,6 @@
 ---
 slug: pose-milestone-closes-when-reached
-status: in-progress
+status: done
 created_at: 2026-11-01
 supersedes:
 depends_on: pose-closeout-judges-the-manifest
@@ -9,7 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: feature
 delivers: capability:milestone-closes-when-reached
-completed_at:
+completed_at: 2026-11-01
 ---
 
 # Spec: A milestone closes when it is reached
