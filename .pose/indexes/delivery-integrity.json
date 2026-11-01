@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:fcc0df52eb65b04e26d2822221db9a1a8d7252917ef62adaa28ab7c1e58e19f2",
-  "provenance_digest": "sha256:034a93fd6ab42e62311a5f72d3705947cc240fb6a4c70cb721ca8ad426669267",
+  "input_digest": "sha256:b5c197331917bd93a6d640158f7b3b81ba297a51fe0e5216438a443cf7a75bd1",
+  "provenance_digest": "sha256:b67b134939e93bd77203ee35275f5cf71134c0bc5acd50918c3b4b29cd0a095c",
   "implied_edges": [
     "changes"
   ],
@@ -2468,6 +2468,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-report-help-names-every-flag.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-reports-name-the-declared-project.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-reports-name-the-declared-project.md"
       }
     },
     {
@@ -21903,6 +21910,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/2026-11-01-pose-milestone-closes-when-reached.amendments.jsonl",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-11-01-pose-milestone-closes-when-reached.amendments.jsonl"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/2026-11-01-pose-milestone-closes-when-reached.md",
       "type": "artifact",
       "attributes": {
@@ -21914,6 +21928,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/2026-11-01-pose-process-inventory-tolerates-exit.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/2026-11-01-pose-reports-name-the-declared-project.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-11-01-pose-reports-name-the-declared-project.md"
       }
     },
     {
@@ -23370,6 +23391,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/starts/pose-removal-witness-freshness.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/starts/pose-reports-name-the-declared-project.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/starts/pose-reports-name-the-declared-project.json"
       }
     },
     {
@@ -26684,6 +26712,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/cli/validate_guardrails_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/cli/validate_guardrails_test.go"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/cli/validate_progress_test.go",
       "type": "artifact",
       "attributes": {
@@ -28508,6 +28543,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/pose/project_file_test.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/pose/project_label_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/pose/project_label_test.go"
       }
     },
     {
@@ -33931,6 +33973,14 @@
       }
     },
     {
+      "id": "change-set:cs-08ecfeab653d",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:fb9d8c2d51cbd647da7f2d98d0251421b482dab29dfdfe0e4c9de07797302a64",
+        "selector": "trailers:pose-milestone-closes-when-reached"
+      }
+    },
+    {
       "id": "change-set:cs-097f19b42397",
       "type": "change-set",
       "attributes": {
@@ -36200,14 +36250,6 @@
       "attributes": {
         "diff_digest": "sha256:d90954d0e69701db2a8f9d15db2d734266abe5c45dce6be9cce1ee2b94007fc1",
         "selector": "trailers:pose-extension-signing-clean-tree"
-      }
-    },
-    {
-      "id": "change-set:cs-9740be134753",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:dfa4c1b6745d870ceaf1a84b2acc03caded5b70fb8065a9f4417231541ec2ce5",
-        "selector": "trailers:pose-milestone-closes-when-reached"
       }
     },
     {
@@ -39284,6 +39326,14 @@
     },
     {
       "id": "delivery:capability:report-coverage-that-rests-on-inference",
+      "type": "capability",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "composed-capability"
+      }
+    },
+    {
+      "id": "delivery:capability:reports-name-the-declared-project",
       "type": "capability",
       "attributes": {
         "module": "pose-mcp",
@@ -44457,6 +44507,13 @@
       }
     },
     {
+      "id": "spec:pose-reports-name-the-declared-project",
+      "type": "spec",
+      "attributes": {
+        "status": "draft"
+      }
+    },
+    {
       "id": "spec:pose-reproducible-release-verification",
       "type": "spec",
       "attributes": {
@@ -47282,6 +47339,11 @@
     {
       "from": "artifact:.agents/skills/pose-spec-closeout/SKILL.md",
       "to": "delivery:capability:assessment-freshness",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.agents/skills/pose-spec-closeout/SKILL.md",
+      "to": "delivery:capability:milestone-closes-when-reached",
       "type": "implemented-by"
     },
     {
@@ -56265,6 +56327,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/starts/pose-milestone-closes-when-reached.json",
+      "to": "delivery:capability:milestone-closes-when-reached",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/starts/pose-native-attestation-issuer.json",
       "to": "delivery:capability:native-attestation-issuer",
       "type": "implemented-by"
@@ -60566,6 +60633,11 @@
     },
     {
       "from": "artifact:locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+      "to": "delivery:capability:milestone-closes-when-reached",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
       "to": "delivery:governance:skill-closeout-gate-parity",
       "type": "implemented-by"
     },
@@ -61965,6 +62037,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/cli/amendment_history_close_test.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
       "to": "delivery:capability:artifact-check-none-tolerance",
       "type": "implemented-by"
@@ -63017,6 +63094,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/closeout_plan.go",
       "to": "delivery:capability:journal-checkpoint-and-lock-recovery",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/closeout_plan.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
       "type": "implemented-by"
     },
     {
@@ -65161,6 +65243,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/lintspec.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/lintspec.go",
       "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
     },
@@ -65772,6 +65859,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/migrate_dryrun_test.go",
       "to": "delivery:surface:migrate-v7-dry-run",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/milestone_closes_when_reached_test.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
       "type": "implemented-by"
     },
     {
@@ -66527,6 +66619,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/review_closeout.go",
       "to": "delivery:capability:material-equivalence-reuse",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/review_closeout.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
       "type": "implemented-by"
     },
     {
@@ -67697,6 +67794,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/start.go",
       "to": "delivery:capability:journal-checkpoint-and-lock-recovery",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/start.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
       "type": "implemented-by"
     },
     {
@@ -71166,6 +71268,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/diagnostic_codes.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/diagnostic_codes.go",
       "to": "delivery:surface:governed-effects",
       "type": "implemented-by"
     },
@@ -71457,6 +71564,11 @@
     {
       "from": "artifact:pose-mcp/internal/pose/federated_acceptance.go",
       "to": "delivery:capability:git-and-dispatch-snapshot-integrity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/federated_acceptance.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
       "type": "implemented-by"
     },
     {
@@ -71955,6 +72067,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/pose/milestone_closes_when_reached_test.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/pose/module_scope_direction_test.go",
       "to": "delivery:capability:component-evidence-is-not-inherited-upward",
       "type": "implemented-by"
@@ -72027,6 +72144,11 @@
     {
       "from": "artifact:pose-mcp/internal/pose/obligation_projection.go",
       "to": "delivery:capability:index-generation-integrity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/obligation_projection.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
       "type": "implemented-by"
     },
     {
@@ -73057,6 +73179,11 @@
     {
       "from": "artifact:pose-mcp/internal/pose/review_bundle.go",
       "to": "delivery:capability:mcp-signed-review-attestation",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
       "type": "implemented-by"
     },
     {
@@ -74536,7 +74663,17 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go",
       "to": "delivery:capability:roadmap-close-keeps-its-approvals",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/roadmaps.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
       "type": "implemented-by"
     },
     {
@@ -74926,6 +75063,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/start.go",
+      "to": "delivery:capability:milestone-closes-when-reached",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/start.go",
       "to": "delivery:capability:update-dry-run-reports-the-whole-update",
       "type": "implemented-by"
     },
@@ -75282,6 +75424,11 @@
     {
       "from": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md",
       "to": "delivery:capability:assessment-freshness",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md",
+      "to": "delivery:capability:milestone-closes-when-reached",
       "type": "implemented-by"
     },
     {
@@ -76582,6 +76729,11 @@
     {
       "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
       "to": "delivery:capability:assessment-freshness",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+      "to": "delivery:capability:milestone-closes-when-reached",
       "type": "implemented-by"
     },
     {
@@ -80153,6 +80305,11 @@
       "from": "delivery:capability:report-coverage-that-rests-on-inference",
       "to": "validation-set:137932bb9b94912c",
       "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:reports-name-the-declared-project",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
     },
     {
       "from": "delivery:capability:residual-material-coverage-and-identity",
@@ -104336,6 +104493,11 @@
     },
     {
       "from": "spec:pose-milestone-closes-when-reached",
+      "to": "artifact:.agents/skills/pose-spec-closeout/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-milestone-closes-when-reached",
       "to": "artifact:.pose/adr/2026-11-01-a-milestone-answers-to-its-own-edges.md",
       "type": "declares"
     },
@@ -104361,6 +104523,21 @@
     },
     {
       "from": "spec:pose-milestone-closes-when-reached",
+      "to": "artifact:locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-milestone-closes-when-reached",
+      "to": "artifact:pose-mcp/internal/cli/amendment_history_close_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-milestone-closes-when-reached",
+      "to": "artifact:pose-mcp/internal/cli/closeout_plan.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-milestone-closes-when-reached",
       "to": "artifact:pose-mcp/internal/cli/lintspec.go",
       "type": "declares"
     },
@@ -104377,6 +104554,11 @@
     {
       "from": "spec:pose-milestone-closes-when-reached",
       "to": "artifact:pose-mcp/internal/cli/start.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-milestone-closes-when-reached",
+      "to": "artifact:pose-mcp/internal/pose/diagnostic_codes.go",
       "type": "declares"
     },
     {
@@ -104401,7 +104583,27 @@
     },
     {
       "from": "spec:pose-milestone-closes-when-reached",
+      "to": "artifact:pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-milestone-closes-when-reached",
       "to": "artifact:pose-mcp/internal/pose/roadmaps.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-milestone-closes-when-reached",
+      "to": "artifact:pose-mcp/internal/pose/start.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-milestone-closes-when-reached",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-milestone-closes-when-reached",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
       "type": "declares"
     },
     {
@@ -104411,7 +104613,7 @@
     },
     {
       "from": "spec:pose-milestone-closes-when-reached",
-      "to": "change-set:cs-9740be134753",
+      "to": "change-set:cs-08ecfeab653d",
       "type": "observed-by"
     },
     {
@@ -109048,6 +109250,56 @@
       "from": "spec:pose-report-help-names-every-flag",
       "to": "change-set:cs-6c8083350cb8",
       "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-reports-name-the-declared-project",
+      "to": "artifact:.pose/changelogs/unreleased/pose-reports-name-the-declared-project.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-reports-name-the-declared-project",
+      "to": "artifact:.pose/indexes/validation-matrix.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-reports-name-the-declared-project",
+      "to": "artifact:.pose/specs/2026-11-01-pose-reports-name-the-declared-project.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-reports-name-the-declared-project",
+      "to": "artifact:.pose/starts/pose-reports-name-the-declared-project.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-reports-name-the-declared-project",
+      "to": "artifact:pose-mcp/internal/cli/validate.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-reports-name-the-declared-project",
+      "to": "artifact:pose-mcp/internal/cli/validate_guardrails_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-reports-name-the-declared-project",
+      "to": "artifact:pose-mcp/internal/pose/assessment_scan.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-reports-name-the-declared-project",
+      "to": "artifact:pose-mcp/internal/pose/project_file.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-reports-name-the-declared-project",
+      "to": "artifact:pose-mcp/internal/pose/project_label_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-reports-name-the-declared-project",
+      "to": "delivery:capability:reports-name-the-declared-project",
+      "type": "delivers"
     },
     {
       "from": "spec:pose-residual-material-coverage-and-identity",
@@ -137401,7 +137653,27 @@
     {
       "spec": "pose-milestone-closes-when-reached",
       "action": "modified",
+      "path": ".agents/skills/pose-spec-closeout/SKILL.md"
+    },
+    {
+      "spec": "pose-milestone-closes-when-reached",
+      "action": "modified",
       "path": ".pose/indexes/validation-matrix.json"
+    },
+    {
+      "spec": "pose-milestone-closes-when-reached",
+      "action": "modified",
+      "path": "locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md"
+    },
+    {
+      "spec": "pose-milestone-closes-when-reached",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/amendment_history_close_test.go"
+    },
+    {
+      "spec": "pose-milestone-closes-when-reached",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/closeout_plan.go"
     },
     {
       "spec": "pose-milestone-closes-when-reached",
@@ -137421,6 +137693,11 @@
     {
       "spec": "pose-milestone-closes-when-reached",
       "action": "modified",
+      "path": "pose-mcp/internal/pose/diagnostic_codes.go"
+    },
+    {
+      "spec": "pose-milestone-closes-when-reached",
+      "action": "modified",
       "path": "pose-mcp/internal/pose/federated_acceptance.go"
     },
     {
@@ -137436,7 +137713,27 @@
     {
       "spec": "pose-milestone-closes-when-reached",
       "action": "modified",
+      "path": "pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go"
+    },
+    {
+      "spec": "pose-milestone-closes-when-reached",
+      "action": "modified",
       "path": "pose-mcp/internal/pose/roadmaps.go"
+    },
+    {
+      "spec": "pose-milestone-closes-when-reached",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/start.go"
+    },
+    {
+      "spec": "pose-milestone-closes-when-reached",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md"
+    },
+    {
+      "spec": "pose-milestone-closes-when-reached",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md"
     },
     {
       "spec": "pose-monorepo-validation-advisory",
@@ -141285,6 +141582,51 @@
       "action": "renamed",
       "old_path": ".pose/changelogs/unreleased/pose-report-help-names-every-flag.md",
       "new_path": ".pose/changelogs/v5.0.1/pose-report-help-names-every-flag.md"
+    },
+    {
+      "spec": "pose-reports-name-the-declared-project",
+      "action": "created",
+      "path": ".pose/changelogs/unreleased/pose-reports-name-the-declared-project.md"
+    },
+    {
+      "spec": "pose-reports-name-the-declared-project",
+      "action": "created",
+      "path": ".pose/specs/2026-11-01-pose-reports-name-the-declared-project.md"
+    },
+    {
+      "spec": "pose-reports-name-the-declared-project",
+      "action": "created",
+      "path": ".pose/starts/pose-reports-name-the-declared-project.json"
+    },
+    {
+      "spec": "pose-reports-name-the-declared-project",
+      "action": "created",
+      "path": "pose-mcp/internal/pose/project_label_test.go"
+    },
+    {
+      "spec": "pose-reports-name-the-declared-project",
+      "action": "modified",
+      "path": ".pose/indexes/validation-matrix.json"
+    },
+    {
+      "spec": "pose-reports-name-the-declared-project",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/validate.go"
+    },
+    {
+      "spec": "pose-reports-name-the-declared-project",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/validate_guardrails_test.go"
+    },
+    {
+      "spec": "pose-reports-name-the-declared-project",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/assessment_scan.go"
+    },
+    {
+      "spec": "pose-reports-name-the-declared-project",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/project_file.go"
     },
     {
       "spec": "pose-residual-material-coverage-and-identity",
@@ -153821,6 +154163,151 @@
         }
       ],
       "diff_digest": "sha256:af09884d33dcc006c96bbd21e527bafdea9ba1650b926765ae07921e9e064149"
+    },
+    {
+      "id": "cs-08ecfeab653d",
+      "spec": "pose-milestone-closes-when-reached",
+      "selector": "trailers:pose-milestone-closes-when-reached",
+      "base": "5132e6ebb498e59936dc842c1ee4f429dba071a6^",
+      "head": "3f1a23a9902aa109deb6a70f3d7d6d22c684620f",
+      "resolved_base": "8182df0a6be4b65e1275eb8c956c72eec1cd72ac",
+      "resolved_head": "3f1a23a9902aa109deb6a70f3d7d6d22c684620f",
+      "commits": [
+        "5132e6ebb498e59936dc842c1ee4f429dba071a6",
+        "3b60cc9fbfe1d19edeb77f242deb6bf6222a5af0",
+        "3f1a23a9902aa109deb6a70f3d7d6d22c684620f"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-11-01-a-milestone-answers-to-its-own-edges.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-milestone-closes-when-reached.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-01-pose-milestone-closes-when-reached.amendments.jsonl"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-01-pose-milestone-closes-when-reached.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-milestone-closes-when-reached.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/milestone_closes_when_reached_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/milestone_closes_when_reached_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".agents/skills/pose-spec-closeout/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/history.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/refresh-log.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/amendment_history_close_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/closeout_plan.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/lintspec.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/start.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/diagnostic_codes.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/federated_acceptance.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/obligation_projection.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/roadmaps.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/start.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md"
+        }
+      ],
+      "diff_digest": "sha256:fb9d8c2d51cbd647da7f2d98d0251421b482dab29dfdfe0e4c9de07797302a64"
     },
     {
       "id": "cs-097f19b42397",
@@ -196170,57 +196657,6 @@
       "diff_digest": "sha256:d90954d0e69701db2a8f9d15db2d734266abe5c45dce6be9cce1ee2b94007fc1"
     },
     {
-      "id": "cs-9740be134753",
-      "spec": "pose-milestone-closes-when-reached",
-      "selector": "trailers:pose-milestone-closes-when-reached",
-      "base": "5132e6ebb498e59936dc842c1ee4f429dba071a6^",
-      "head": "5132e6ebb498e59936dc842c1ee4f429dba071a6",
-      "resolved_base": "8182df0a6be4b65e1275eb8c956c72eec1cd72ac",
-      "resolved_head": "5132e6ebb498e59936dc842c1ee4f429dba071a6",
-      "commits": [
-        "5132e6ebb498e59936dc842c1ee4f429dba071a6"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/adr/2026-11-01-a-milestone-answers-to-its-own-edges.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-milestone-closes-when-reached.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-01-pose-milestone-closes-when-reached.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/roadmaps.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        }
-      ],
-      "diff_digest": "sha256:dfa4c1b6745d870ceaf1a84b2acc03caded5b70fb8065a9f4417231541ec2ce5"
-    },
-    {
       "id": "cs-982dd45efd8a",
       "spec": "pose-community-contribution-surfaces",
       "selector": "trailers:pose-community-contribution-surfaces",
@@ -228932,6 +229368,7 @@
       "pose-contributor-mode-workflow-and-cli-hints",
       "pose-docs-and-manuals-match-5-0-2",
       "pose-locale-obligation-flags",
+      "pose-milestone-closes-when-reached",
       "pose-one-follow-up-format",
       "pose-proportional-next-action",
       "pose-recoverable-closeout-plan",
@@ -230028,6 +230465,9 @@
     ".pose/changelogs/unreleased/pose-report-help-names-every-flag.md": [
       "pose-report-help-names-every-flag"
     ],
+    ".pose/changelogs/unreleased/pose-reports-name-the-declared-project.md": [
+      "pose-reports-name-the-declared-project"
+    ],
     ".pose/changelogs/unreleased/pose-residual-material-coverage-and-identity.md": [
       "pose-residual-material-coverage-and-identity"
     ],
@@ -230989,6 +231429,7 @@
       "pose-release-shared-sufficiency-contract",
       "pose-release-version-source",
       "pose-removal-witness-freshness",
+      "pose-reports-name-the-declared-project",
       "pose-residual-material-coverage-and-identity",
       "pose-residual-nature-commitment-and-effect",
       "pose-residual-triage-and-risk-acceptance",
@@ -233104,6 +233545,9 @@
     ".pose/specs/2026-11-01-pose-process-inventory-tolerates-exit.md": [
       "pose-process-inventory-tolerates-exit"
     ],
+    ".pose/specs/2026-11-01-pose-reports-name-the-declared-project.md": [
+      "pose-reports-name-the-declared-project"
+    ],
     ".pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md": [
       "pose-roadmap-close-keeps-its-approvals"
     ],
@@ -233561,6 +234005,9 @@
     ],
     ".pose/starts/pose-removal-witness-freshness.json": [
       "pose-removal-witness-freshness"
+    ],
+    ".pose/starts/pose-reports-name-the-declared-project.json": [
+      "pose-reports-name-the-declared-project"
     ],
     ".pose/starts/pose-residual-material-coverage-and-identity.json": [
       "pose-residual-material-coverage-and-identity"
@@ -234484,6 +234931,7 @@
       "pose-closeout-regenerates-before-sealing",
       "pose-contributor-mode-workflow-and-cli-hints",
       "pose-docs-and-manuals-match-5-0-2",
+      "pose-milestone-closes-when-reached",
       "pose-one-follow-up-format",
       "pose-recoverable-closeout-plan",
       "pose-skill-closeout-gate-parity",
@@ -234808,7 +235256,8 @@
       "pose-cli-output-rendering-system"
     ],
     "pose-mcp/internal/cli/amendment_history_close_test.go": [
-      "pose-amendment-history-holds-before-close"
+      "pose-amendment-history-holds-before-close",
+      "pose-milestone-closes-when-reached"
     ],
     "pose-mcp/internal/cli/artifact_integrity.go": [
       "pose-artifact-provenance-ledger",
@@ -235029,6 +235478,7 @@
       "pose-closeout-terminal-verification",
       "pose-common-domain-and-cli-mcp-handoff",
       "pose-journal-checkpoint-and-lock-recovery",
+      "pose-milestone-closes-when-reached",
       "pose-quickstart-real-lifecycle",
       "pose-recoverable-closeout-plan"
     ],
@@ -236429,6 +236879,7 @@
       "pose-lint-spec-all-is-a-gate",
       "pose-monorepo-validation-advisory",
       "pose-one-follow-up-format",
+      "pose-reports-name-the-declared-project",
       "pose-review-bundle-convergence",
       "pose-stdio-server-honours-sigterm",
       "pose-update-dry-run-reports-the-whole-update",
@@ -236446,6 +236897,9 @@
     ],
     "pose-mcp/internal/cli/validate_empty_go_checks_test.go": [
       "pose-validate-refuses-empty-go-checks"
+    ],
+    "pose-mcp/internal/cli/validate_guardrails_test.go": [
+      "pose-reports-name-the-declared-project"
     ],
     "pose-mcp/internal/cli/validate_progress_test.go": [
       "pose-cli-output-rendering-system"
@@ -236924,6 +237378,7 @@
     ],
     "pose-mcp/internal/pose/assessment_scan.go": [
       "pose-project-agnostic-assessment-engines",
+      "pose-reports-name-the-declared-project",
       "pose-source-coverage-integrity",
       "pose-update-dry-run-reports-the-whole-update"
     ],
@@ -237271,6 +237726,7 @@
       "pose-action-request-recovery-and-preflight",
       "pose-closeout-terminal-verification",
       "pose-governed-effect-enforcement",
+      "pose-milestone-closes-when-reached",
       "pose-typed-producer-diagnostics"
     ],
     "pose-mcp/internal/pose/diagnostic_codes_test.go": [
@@ -237677,11 +238133,15 @@
     ],
     "pose-mcp/internal/pose/project_file.go": [
       "pose-project-identity-file",
+      "pose-reports-name-the-declared-project",
       "pose-update-dry-run-reports-the-whole-update"
     ],
     "pose-mcp/internal/pose/project_file_test.go": [
       "pose-project-binding-consistency",
       "pose-project-identity-file"
+    ],
+    "pose-mcp/internal/pose/project_label_test.go": [
+      "pose-reports-name-the-declared-project"
     ],
     "pose-mcp/internal/pose/proportional_next_action_test.go": [
       "pose-proportional-next-action"
@@ -238305,6 +238765,7 @@
       "pose-historical-trust-and-review-reuse"
     ],
     "pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go": [
+      "pose-milestone-closes-when-reached",
       "pose-roadmap-close-keeps-its-approvals"
     ],
     "pose-mcp/internal/pose/roadmaps.go": [
@@ -238440,6 +238901,7 @@
       "pose-governed-effect-enforcement",
       "pose-index-generation-integrity",
       "pose-journal-checkpoint-and-lock-recovery",
+      "pose-milestone-closes-when-reached",
       "pose-typed-producer-diagnostics",
       "pose-update-dry-run-reports-the-whole-update",
       "pose-writer-coordination-and-atomic-publication"
@@ -238575,6 +239037,7 @@
       "pose-contributor-mode-workflow-and-cli-hints",
       "pose-docs-and-manuals-match-5-0-2",
       "pose-locale-obligation-flags",
+      "pose-milestone-closes-when-reached",
       "pose-one-follow-up-format",
       "pose-recoverable-closeout-plan",
       "pose-skills-harmonization",
@@ -238885,6 +239348,7 @@
       "pose-closeout-regenerates-before-sealing",
       "pose-contributor-mode-workflow-and-cli-hints",
       "pose-docs-and-manuals-match-5-0-2",
+      "pose-milestone-closes-when-reached",
       "pose-one-follow-up-format",
       "pose-recoverable-closeout-plan",
       "pose-skills-harmonization",
@@ -239458,6 +239922,15 @@
       "remediation": "no Git change sets are attributed to spec pose-optional-worktree-runtime (ensure commits carry 'POSE-Spec: pose-optional-worktree-runtime' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-00c645f4f3c5",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": "pose-mcp/internal/pose/project_label_test.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-reports-name-the-declared-project (ensure commits carry 'POSE-Spec: pose-reports-name-the-declared-project' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-00f2b48b3bbd",
       "code": "orphan",
       "severity": "warning",
@@ -239668,15 +240141,6 @@
       "remediation": "register a check for pose-mcp/internal/cli, or accept that a run of the containing module is what this target is gated on"
     },
     {
-      "id": "dif-09a7a277b606",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": "pose-mcp/internal/pose/roadmaps.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-09d352c49715",
       "code": "existence",
       "severity": "error",
@@ -239797,15 +240261,6 @@
       "path": "capability:remediation-lineage",
       "message": "evidence for integration comes only from a module containing pose-mcp/internal/pose, so covering it is inferred rather than reported",
       "remediation": "register a check for pose-mcp/internal/pose, or accept that a run of the containing module is what this target is gated on"
-    },
-    {
-      "id": "dif-1062c852c0a9",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": "pose-mcp/internal/pose/obligation_projection.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-10891c7c5e19",
@@ -240225,6 +240680,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-271e957a0246",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": "pose-mcp/internal/pose/project_file.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-reports-name-the-declared-project (ensure commits carry 'POSE-Spec: pose-reports-name-the-declared-project' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-27b2da531c6c",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -240294,6 +240758,16 @@
       "severity": "error",
       "spec": "pose-common-domain-and-cli-mcp-handoff",
       "path": "capability:common-domain-and-cli-mcp-handoff",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
+      "id": "dif-2b4a31874a15",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": "capability:reports-name-the-declared-project",
       "change_set": "pose-mcp/go/abm-atomic-start-integration",
       "message": "passed integration evidence is bound to a different scoped provenance digest",
       "remediation": "rerun the registered validation check for this delivery scope"
@@ -240405,15 +240879,6 @@
       "change_set": "cs-5ba3b2d3828c",
       "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-317d0f3f7fd5",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": "pose-mcp/internal/cli/lintspec.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-31e06c7f3e31",
@@ -240630,6 +241095,15 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
+      "id": "dif-41d3d7bbccff",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": "pose-mcp/internal/cli/validate_guardrails_test.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-reports-name-the-declared-project (ensure commits carry 'POSE-Spec: pose-reports-name-the-declared-project' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-42538f51f711",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -240730,15 +241204,6 @@
       "remediation": "no Git change sets are attributed to spec pose-followup-metadata-and-routing-integrity (ensure commits carry 'POSE-Spec: pose-followup-metadata-and-routing-integrity' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-46eb82bbdf75",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": ".pose/starts/pose-milestone-closes-when-reached.json",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
       "id": "dif-470b47494e4a",
       "code": "orphan",
       "severity": "warning",
@@ -240797,6 +241262,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-4886be95c3d1",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": ".pose/specs/2026-11-01-pose-reports-name-the-declared-project.md",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-48a5a11015a1",
       "code": "action-mismatch",
       "severity": "error",
@@ -240813,6 +241287,15 @@
       "path": "pose-mcp/internal/pose/followups_parse.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-triage-and-risk-acceptance (ensure commits carry 'POSE-Spec: pose-residual-triage-and-risk-acceptance' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-4929fe7b479b",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": ".pose/specs/2026-11-01-pose-reports-name-the-declared-project.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-reports-name-the-declared-project (ensure commits carry 'POSE-Spec: pose-reports-name-the-declared-project' trailer or generate report with pose report)"
     },
     {
       "id": "dif-4978c6898438",
@@ -240920,15 +241403,6 @@
       "spec": "pose-safe-validate-orchestration",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-4e515ed871ae",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": ".pose/starts/pose-milestone-closes-when-reached.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-4e51756fc2b0",
@@ -241053,6 +241527,15 @@
       "path": "pose-mcp/internal/cli/release_temporal_evidence_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-55234c86031d",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": ".pose/starts/pose-reports-name-the-declared-project.json",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-5550285d55d9",
@@ -241403,15 +241886,6 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
-      "id": "dif-6649bab88eb0",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": "pose-mcp/internal/cli/start.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-66c700734e91",
       "code": "action-mismatch",
       "severity": "error",
@@ -241713,15 +242187,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-72d1a606996c",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": "pose-mcp/internal/pose/federated_acceptance.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-733a4d8bb358",
       "code": "legacy-narrative",
       "severity": "info",
@@ -241789,15 +242254,6 @@
       "path": "pose-mcp/internal/mcpserver/docs_tool_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-77444c23cc39",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": "pose-mcp/internal/cli/milestone_closes_when_reached_test.go",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-7807e58d2c91",
@@ -241895,6 +242351,15 @@
       "path": "capability:condition-response-and-work-metrics",
       "message": "delivery target has no structured artifact provenance",
       "remediation": "declare and reconcile exact artifacts before asserting delivery"
+    },
+    {
+      "id": "dif-7abe38358a09",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": "pose-mcp/internal/cli/validate.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-reports-name-the-declared-project (ensure commits carry 'POSE-Spec: pose-reports-name-the-declared-project' trailer or generate report with pose report)"
     },
     {
       "id": "dif-7acac67049ac",
@@ -242120,15 +242585,6 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
-      "id": "dif-86b612710440",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": "pose-mcp/internal/cli/review_closeout.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-87108fc84844",
       "code": "legacy-narrative",
       "severity": "info",
@@ -242181,6 +242637,15 @@
       "remediation": "no Git change sets are attributed to spec pose-residual-nature-commitment-and-effect (ensure commits carry 'POSE-Spec: pose-residual-nature-commitment-and-effect' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-8a19b641cf97",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": "capability:reports-name-the-declared-project",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-8ae5386b5c0f",
       "code": "action-mismatch",
       "severity": "error",
@@ -242213,15 +242678,6 @@
       "path": "pose-mcp/internal/observability/redact.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-8c8bb6dbf976",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": "pose-mcp/internal/pose/milestone_closes_when_reached_test.go",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-8cf96253f0f8",
@@ -242464,15 +242920,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-971d48c77f0b",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": "pose-mcp/internal/pose/review_bundle.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-97969338b615",
       "code": "unconnected-artifact",
       "severity": "error",
@@ -242614,6 +243061,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-9e53cac7eb57",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": ".pose/changelogs/unreleased/pose-reports-name-the-declared-project.md",
+      "message": "declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-reports-name-the-declared-project.md",
+      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-9ec8af77b424",
@@ -242890,6 +243346,15 @@
       "path": ".pose/starts/pose-governance-read-view-generation.json",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-governance-read-view-generation (ensure commits carry 'POSE-Spec: pose-governance-read-view-generation' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-aadbaaa6ad4a",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": ".pose/changelogs/unreleased/pose-reports-name-the-declared-project.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-reports-name-the-declared-project (ensure commits carry 'POSE-Spec: pose-reports-name-the-declared-project' trailer or generate report with pose report)"
     },
     {
       "id": "dif-ab424d815861",
@@ -243367,6 +243832,15 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-be5402885a9b",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": "pose-mcp/internal/pose/project_label_test.go",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-be97ca987973",
       "code": "existence",
       "severity": "error",
@@ -243748,6 +244222,24 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-d0456f024c20",
+      "code": "unconnected-artifact",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": "capability:reports-name-the-declared-project",
+      "message": "delivery target has no structured artifact provenance",
+      "remediation": "declare and reconcile exact artifacts before asserting delivery"
+    },
+    {
+      "id": "dif-d0496586a156",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": "pose-mcp/internal/pose/assessment_scan.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-reports-name-the-declared-project (ensure commits carry 'POSE-Spec: pose-reports-name-the-declared-project' trailer or generate report with pose report)"
+    },
+    {
       "id": "dif-d0bf6e087d3c",
       "code": "action-mismatch",
       "severity": "error",
@@ -243774,15 +244266,6 @@
       "change_set": "cs-a3a7991407a9",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-d218aed2b22a",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": "pose-mcp/internal/pose/milestone_closes_when_reached_test.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-d21a8351fff1",
@@ -244235,15 +244718,6 @@
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-ea19b30cfcd7",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-milestone-closes-when-reached",
-      "path": "pose-mcp/internal/cli/milestone_closes_when_reached_test.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-ea6728f4c0ef",
       "code": "orphan",
       "severity": "warning",
@@ -244615,14 +245089,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-f7be58b24200",
-      "code": "orphan",
-      "severity": "warning",
-      "path": "pose-mcp/internal/cli/validate_guardrails_test.go",
-      "message": "governed tracked path has no spec provenance claim",
-      "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
       "id": "dif-f85d551fe1ca",
       "code": "orphan",
       "severity": "warning",
@@ -244655,6 +245121,15 @@
       "path": "docs-site/docs/assets/demo.tape",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-f9e3708dc3d8",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": ".pose/starts/pose-reports-name-the-declared-project.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-reports-name-the-declared-project (ensure commits carry 'POSE-Spec: pose-reports-name-the-declared-project' trailer or generate report with pose report)"
     },
     {
       "id": "dif-fa04c484b372",
@@ -244728,6 +245203,15 @@
       "path": "pose-mcp/internal/cli/release_temporal_evidence_test.go",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-fc0618e24ea6",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-reports-name-the-declared-project",
+      "path": ".pose/indexes/validation-matrix.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec pose-reports-name-the-declared-project (ensure commits carry 'POSE-Spec: pose-reports-name-the-declared-project' trailer or generate report with pose report)"
     },
     {
       "id": "dif-fc1fcbfe2b47",
@@ -246404,6 +246888,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-reports-name-the-declared-project",
+      "ref": "capability:reports-name-the-declared-project",
+      "kind": "capability",
+      "id": "reports-name-the-declared-project",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-residual-material-coverage-and-identity",
       "ref": "capability:residual-material-coverage-and-identity",
       "kind": "capability",
@@ -247745,7 +248238,7 @@
       "entrypoint": "scripts/release.sh"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -247754,7 +248247,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -247799,7 +248292,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-lifecycle-closure",
+      "spec": "pose-release-evidence-trigger-fix",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -247808,7 +248301,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-evidence-trigger-fix",
+      "spec": "pose-release-lifecycle-closure",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -248780,7 +249273,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-attention-federated-parity",
+      "spec": "pose-state-attention",
       "ref": "surface:state-attention",
       "kind": "surface",
       "id": "state-attention",
@@ -248789,7 +249282,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-state-attention",
+      "spec": "pose-attention-federated-parity",
       "ref": "surface:state-attention",
       "kind": "surface",
       "id": "state-attention",
@@ -253785,7 +254278,26 @@
       "artifact:.pose/adr/2026-11-01-a-milestone-answers-to-its-own-edges.md",
       "artifact:.pose/changelogs/unreleased/pose-milestone-closes-when-reached.md",
       "artifact:.pose/specs/2026-11-01-pose-milestone-closes-when-reached.md",
+      "artifact:.pose/starts/pose-milestone-closes-when-reached.json",
+      "artifact:pose-mcp/internal/cli/milestone_closes_when_reached_test.go",
+      "artifact:pose-mcp/internal/pose/milestone_closes_when_reached_test.go",
+      "artifact:.agents/skills/pose-spec-closeout/SKILL.md",
       "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+      "artifact:pose-mcp/internal/cli/amendment_history_close_test.go",
+      "artifact:pose-mcp/internal/cli/closeout_plan.go",
+      "artifact:pose-mcp/internal/cli/lintspec.go",
+      "artifact:pose-mcp/internal/cli/review_closeout.go",
+      "artifact:pose-mcp/internal/cli/start.go",
+      "artifact:pose-mcp/internal/pose/diagnostic_codes.go",
+      "artifact:pose-mcp/internal/pose/federated_acceptance.go",
+      "artifact:pose-mcp/internal/pose/obligation_projection.go",
+      "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "artifact:pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go",
+      "artifact:pose-mcp/internal/pose/roadmaps.go",
+      "artifact:pose-mcp/internal/pose/start.go",
+      "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
       "delivery:capability:milestone-closes-when-reached",
       "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
@@ -254457,6 +254969,11 @@
       "delivery:capability:report-coverage-that-rests-on-inference",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:137932bb9b94912c"
+    ],
+    "capability:reports-name-the-declared-project": [
+      "spec:pose-reports-name-the-declared-project",
+      "delivery:capability:reports-name-the-declared-project",
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "capability:residual-material-coverage-and-identity": [
       "spec:pose-residual-material-coverage-and-identity",
@@ -257389,7 +257906,18 @@
       "validation-set:137932bb9b94912c"
     ],
     "governance:project-assessment": [
-      "spec:pose-debt-marker-lexical-precision",
+      "spec:pose-project-agnostic-assessment-engines",
+      "artifact:.pose/changelogs/v0.16.2/pose-project-agnostic-assessment-engines.md",
+      "artifact:.pose/knowledge/2026-08-03-decision-log-project-agnostic-assessment-evidence.md",
+      "artifact:.pose/specs/pose-project-agnostic-assessment-engines/spec.md",
+      "artifact:pose-mcp/internal/cli/assessment_agnostic_test.go",
+      "artifact:pose-mcp/internal/pose/assessment_agnostic_test.go",
+      "artifact:pose-mcp/internal/pose/assessment_scan.go",
+      "artifact:pose-mcp/internal/cli/assess.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/pose/discovery.go",
+      "artifact:pose-mcp/internal/pose/integration.go",
+      "artifact:pose-mcp/internal/pose/techdebt.go",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:137932bb9b94912c"
@@ -257438,13 +257966,43 @@
       "validation-set:137932bb9b94912c"
     ],
     "governance:release-integrity": [
-      "spec:pose-release-evidence-trigger-fix",
-      "artifact:.pose/specs/pose-release-evidence-trigger-fix/spec.md",
+      "spec:pose-release-lifecycle-closure",
+      "artifact:.agents/skills/pose-release-closeout/SKILL.md",
+      "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
+      "artifact:.pose/indexes/releases.json",
+      "artifact:.pose/policy/changelog.json",
+      "artifact:.pose/release-policy.json",
+      "artifact:.pose/rules/release-integrity.md",
+      "artifact:.pose/workflows/release.md",
+      "artifact:locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md",
+      "artifact:locales/pt-BR/.pose/rules/release-integrity.md",
+      "artifact:locales/pt-BR/.pose/workflows/release.md",
+      "artifact:pose-mcp/internal/cli/release_lifecycle.go",
+      "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
+      "artifact:pose-mcp/internal/mcpserver/release_status_tool_test.go",
+      "artifact:pose-mcp/internal/pose/release_lifecycle.go",
+      "artifact:pose-mcp/internal/pose/release_lifecycle_test.go",
+      "artifact:.agents/skills/README.md",
       "artifact:.github/workflows/release.yml",
-      "artifact:.github/workflows/verify-release.yml",
-      "artifact:docs-site/docs/ci.md",
-      "artifact:pose-mcp/internal/version/contract_test.go",
-      "artifact:pose-mcp/internal/version/version.go",
+      "artifact:.pose/indexes/task-map.json",
+      "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:.pose/specs/pose-release-lifecycle-closure/spec.md",
+      "artifact:POSE.md",
+      "artifact:docs-site/docs/cli.md",
+      "artifact:docs-site/docs/mcp.md",
+      "artifact:pose-mcp/internal/cli/check.go",
+      "artifact:pose-mcp/internal/cli/cli.go",
+      "artifact:pose-mcp/internal/cli/index.go",
+      "artifact:pose-mcp/internal/cli/maintenance.go",
+      "artifact:pose-mcp/internal/cli/native_only_test.go",
+      "artifact:pose-mcp/internal/cli/skills_check_test.go",
+      "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "artifact:pose-mcp/internal/pose/changelogs.go",
+      "artifact:pose-mcp/internal/scaffold/scaffold.go",
+      "artifact:scripts/release.sh",
       "delivery:governance:release-integrity",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:137932bb9b94912c"
@@ -259402,25 +259960,12 @@
       "validation-set:973d31731542984c"
     ],
     "surface:state-attention": [
-      "spec:pose-state-attention",
-      "artifact:.pose/specs/2026-10-04-pose-state-attention.md",
+      "spec:pose-attention-federated-parity",
+      "artifact:.pose/specs/2026-10-05-pose-attention-federated-parity.md",
+      "artifact:.pose/indexes/validation-matrix.json",
       "artifact:pose-mcp/internal/cli/state_attention.go",
       "artifact:pose-mcp/internal/cli/state_attention_test.go",
-      "artifact:pose-mcp/internal/mcpserver/obligations_test.go",
-      "artifact:pose-mcp/internal/pose/attention.go",
-      "artifact:.pose/indexes/validation-matrix.json",
-      "artifact:POSE.md",
-      "artifact:docs-site/docs/mcp.md",
-      "artifact:docs-site/docs/obligations.md",
-      "artifact:locales/pt-BR/POSE.md",
-      "artifact:pose-mcp/internal/cli/state.go",
-      "artifact:pose-mcp/internal/mcpserver/catalog.go",
-      "artifact:pose-mcp/internal/mcpserver/server.go",
-      "artifact:pose-mcp/internal/mcpserver/server_test.go",
-      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
-      "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
-      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
-      "artifact:.pose/changelogs/v7.0.0/pose-state-attention.md",
+      "artifact:.pose/changelogs/v7.0.0/pose-attention-federated-parity.md",
       "delivery:surface:state-attention",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:973d31731542984c"
