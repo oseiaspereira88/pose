@@ -1,6 +1,6 @@
 ---
 slug: pose-roadmap-close-keeps-its-approvals
-status: in-progress
+status: done
 created_at: 2026-11-01
 supersedes:
 depends_on: pose-review-approval-follows-children
@@ -9,6 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: capability:roadmap-close-keeps-its-approvals
+completed_at: 2026-11-01
 ---
 
 # Spec: Closing a roadmap keeps the approvals that closed it
