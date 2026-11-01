@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -441,6 +442,65 @@ func TestAReservedApprovalIsAnApproval(t *testing.T) {
 	}
 	if attentionListsCore(t, s) {
 		t.Fatal("an approval with reservations read as none")
+	}
+}
+
+func TestDecisionsAreOrderedByInstant(t *testing.T) {
+	_, s := roadmapDependencyFixture(t)
+	now := time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)
+	approveMember(t, s, now)
+	bundle, err := s.SealReviewBundle("milestone:program/core", now.Add(2*time.Minute))
+	if err != nil {
+		t.Fatal(err, bundle.Blockers)
+	}
+	attestChildReview(t, s, bundle, now.Add(3*time.Minute), "approved")
+	// Later as an instant, earlier as text.
+	attestChildReview(t, s, bundle, now.Add(4*time.Minute).In(time.FixedZone("west", -7*3600)), "rejected")
+	if !attentionListsCore(t, s) {
+		t.Fatal("the order of the text hid a later rejection")
+	}
+}
+
+func approvedCoreBundleFile(t *testing.T, s Store) (string, []byte) {
+	t.Helper()
+	now := time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)
+	approveMember(t, s, now)
+	approveCore(t, s, now.Add(2*time.Minute))
+	bundles, err := s.ListReviewBundles("milestone:program/core")
+	if err != nil || len(bundles) != 1 {
+		t.Fatalf("bundles: %v %v", bundles, err)
+	}
+	path := filepath.Join(s.reviewBundlesDir(), bundles[0].BundleID+".json")
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return path, raw
+}
+
+func TestABundleTiedInstantHasToApproveToo(t *testing.T) {
+	_, s := roadmapDependencyFixture(t)
+	path, raw := approvedCoreBundleFile(t, s)
+	sibling := filepath.Join(filepath.Dir(path), "rvb-0000000000000000.json")
+	if err := os.WriteFile(sibling, raw, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if !attentionListsCore(t, s) {
+		t.Fatal("a bundle of the same instant with no approval was hidden by its sibling")
+	}
+}
+
+func TestABundleWithoutASealTimeIsNotAnAnswer(t *testing.T) {
+	_, s := roadmapDependencyFixture(t)
+	path, raw := approvedCoreBundleFile(t, s)
+	edited := regexp.MustCompile(`"sealed_at": "[^"]*",?\n`).ReplaceAll(raw, nil)
+	if err := os.WriteFile(path, edited, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	cov := &Coverage{Producer: "closeout", State: CoverageStateCurrent}
+	items, err := s.milestoneReachedObligations("coordinator", "", cov)
+	if err != nil || len(items) != 0 || cov.State != CoverageStateIncomplete {
+		t.Fatalf("a bundle with no seal time read as an answer: %v %v %+v", items, err, cov)
 	}
 }
 

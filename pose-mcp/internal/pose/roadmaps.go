@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 )
 
 // Roadmap is the parsed view of a governed roadmap artifact
@@ -141,24 +142,29 @@ func (s Store) milestonesWithRecordedApproval(refs []string) (map[string]bool, e
 	}
 	decided := map[string]ReviewAttestation{}
 	for _, att := range attestations.Attestations {
-		if att.AttestedAt >= decided[att.BundleID].AttestedAt {
+		if current, seen := decided[att.BundleID]; !seen || attestationLess(current, att) {
 			decided[att.BundleID] = att
 		}
 	}
-	for ref, bundle := range latest {
-		if !attestations.Coverage.CompleteFor(bundle) {
-			return nil, fmt.Errorf("pose: the attestations of %s could not all be read", ref)
+	for ref, bundles := range latest {
+		approved := true
+		for _, bundle := range bundles {
+			if !attestations.Coverage.CompleteFor(bundle) {
+				return nil, fmt.Errorf("pose: the attestations of %s could not all be read", ref)
+			}
+			approved = approved && reviewDecisionApproves(decided[bundle].Decision)
 		}
-		decision := decided[bundle].Decision
-		recorded[ref] = decision == "approved" || decision == "approved-with-reservations"
+		recorded[ref] = approved
 	}
 	return recorded, nil
 }
 
-// latestBundlesOf names the latest bundle sealed for each of refs, from the header of
-// each record: reading every bundle whole is most of a minute here. A header that
-// cannot be read may be any scope's, so it is an error.
-func (s Store) latestBundlesOf(refs []string) (map[string]string, error) {
+// latestBundlesOf names the bundles sealed last for each of refs, more than one when
+// they share the instant: seal times have a resolution of a second, so all of them
+// have to approve, as attestationLess reads a tie. It takes scope and seal time from
+// each record without materializing it, which would take most of a minute here. A
+// record that does not settle them may be any scope's, so it is an error.
+func (s Store) latestBundlesOf(refs []string) (map[string][]string, error) {
 	wanted := map[string]bool{}
 	for _, ref := range refs {
 		wanted[ref] = true
@@ -166,12 +172,12 @@ func (s Store) latestBundlesOf(refs []string) (map[string]string, error) {
 	dir := s.reviewBundlesDir()
 	entries, err := s.fsys().ReadDir(dir)
 	if os.IsNotExist(err) {
-		return map[string]string{}, nil
+		return map[string][]string{}, nil
 	}
 	if err != nil {
 		return nil, err
 	}
-	latest, sealed := map[string]string{}, map[string]string{}
+	latest, sealed := map[string][]string{}, map[string]time.Time{}
 	for _, entry := range entries {
 		id, isBundle := strings.CutSuffix(entry.Name(), ".json")
 		if !isBundle {
@@ -188,8 +194,16 @@ func (s Store) latestBundlesOf(refs []string) (map[string]string, error) {
 		if !wanted[ref] {
 			continue
 		}
-		if at, _, _ := sniffJSONString(raw, "sealed_at"); at >= sealed[ref] {
-			latest[ref], sealed[ref] = id, at
+		text, found, ambiguous := sniffJSONString(raw, "sealed_at")
+		at, valid := reviewInstant(text)
+		if !found || ambiguous || !valid {
+			return nil, fmt.Errorf("pose: bundle %s has no valid sealed_at", id)
+		}
+		switch current, seen := sealed[ref]; {
+		case !seen || at.After(current):
+			latest[ref], sealed[ref] = []string{id}, at
+		case at.Equal(current):
+			latest[ref] = append(latest[ref], id)
 		}
 	}
 	return latest, nil
