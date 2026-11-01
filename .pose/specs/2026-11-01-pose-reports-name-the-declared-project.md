@@ -38,7 +38,7 @@ Agents work in clones and worktrees named after their task. `pose assess discove
 
 ### Functional
 
-- R1: A generated report shall name the project by the `name` of `.pose/project.json`, by its `project_id` without the `proj.` prefix when it has no `name`, and by the directory only when the file is absent or invalid.
+- R1: A generated report shall name the project by the `name` of a valid `.pose/project.json`, by its `project_id` without the `proj.` prefix when the `name` is absent or is not plain text on one line, and by the directory only when the file is absent or invalid.
 - R2: `pose assess discover` run from a checkout under another name shall write no report that contains that name.
 - R3: The isolation plan of `pose validate` shall carry the project id, not the directory name.
 - R4: The assessments committed in this repository shall name `pose-dist`.
@@ -49,7 +49,7 @@ Agents work in clones and worktrees named after their task. `pose assess discove
 
 ### Security
 
-- A malformed file falls back to the label it replaced, and grants nothing: the label is text in a report.
+- A malformed file falls back to the label it replaced, and grants nothing: the label is text in a report, and a name that could add structure to it is not used.
 
 ### Compatibility
 

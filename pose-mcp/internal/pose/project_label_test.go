@@ -29,6 +29,13 @@ func TestProjectLabelIsTheDeclaredName(t *testing.T) {
 		"no file":         {"", "work-clone"},
 		"malformed":       {`{not json`, "work-clone"},
 		"other schema":    {`{"schema_version":9,"project_id":"proj.pose-dist","name":"pose-dist"}`, "work-clone"},
+		"invalid id":      {`{"schema_version":1,"project_id":"invalid/id","name":"claimed"}`, "work-clone"},
+		"empty id":        {`{"schema_version":1,"project_id":"","name":"claimed"}`, "work-clone"},
+		"missing id":      {`{"schema_version":1,"name":"claimed"}`, "work-clone"},
+		"spaced name":     {`{"schema_version":1,"project_id":"proj.real","name":"Real Project 2"}`, "Real Project 2"},
+		"two lines":       {`{"schema_version":1,"project_id":"proj.real","name":"Good\n\n# Forged heading"}`, "real"},
+		"markdown":        {`{"schema_version":1,"project_id":"proj.real","name":"[x](http://example.invalid)"}`, "real"},
+		"html":            {`{"schema_version":1,"project_id":"proj.real","name":"<b>x</b>"}`, "real"},
 	} {
 		if got := projectLabelOf(t, "work-clone", c.file); got != c.want {
 			t.Errorf("%s: label %q, want %q", name, got, c.want)

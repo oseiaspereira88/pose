@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -51,25 +52,24 @@ func ReadProjectFileIn(files Files, root string) (string, bool, error) {
 	return doc.ProjectID, true, nil
 }
 
-// declaredProjectName is the name .pose/project.json gives the project, else its
-// id without the proj. prefix, else empty.
+// declaredProjectName is the name a valid .pose/project.json gives the project, else
+// its id without the proj. prefix, else empty. The name lands in Markdown headings,
+// so one that is not plain text on one line is not used.
 func declaredProjectName(files Files, root string) string {
-	raw, err := files.ReadFile(projectFilePath(root))
-	if err != nil {
+	id, ok, err := ReadProjectFileIn(files, root)
+	if !ok || err != nil {
 		return ""
 	}
 	var doc ProjectFile
-	if json.Unmarshal(raw, &doc) != nil || doc.SchemaVersion != ProjectFileSchemaVersion {
-		return ""
+	if raw, err := files.ReadFile(projectFilePath(root)); err == nil && json.Unmarshal(raw, &doc) == nil {
+		if name := strings.TrimSpace(doc.Name); plainProjectName.MatchString(name) {
+			return name
+		}
 	}
-	if name := strings.TrimSpace(doc.Name); name != "" {
-		return name
-	}
-	if ValidateSlug(doc.ProjectID) != nil {
-		return ""
-	}
-	return strings.TrimPrefix(doc.ProjectID, "proj.")
+	return strings.TrimPrefix(id, "proj.")
 }
+
+var plainProjectName = regexp.MustCompile(`^[\p{L}\p{N}][\p{L}\p{N} ._-]*$`)
 
 // ReadProjectFile reads and writes the filesystem directly; ReadProjectFileIn takes the
 // operation's files.
