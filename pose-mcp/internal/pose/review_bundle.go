@@ -4200,8 +4200,8 @@ const federatedManifestsIntroducedAt = "2026-09-24T00:00:00Z"
 
 // manifestUnchangedSinceOldSeal reports whether a bundle sealed before manifests
 // existed holds against the manifest its scope resolves to now: nothing was sealed to
-// compare, so the scope must answer to its own project alone and its own artifact must
-// be no newer than the seal. Its member specs answer for themselves as children (spec
+// compare, so the scope must answer to its own project alone, and every artifact the
+// manifest names must have the bytes it had at the seal, wherever it lived then (spec
 // pose-closeout-judges-the-manifest R5).
 func (s Store) manifestUnchangedSinceOldSeal(bundle *ReviewBundle, current *FederatedRoadmapManifest) bool {
 	sealed, ok := reviewInstant(bundle.SealedAt)
@@ -4209,17 +4209,59 @@ func (s Store) manifestUnchangedSinceOldSeal(bundle *ReviewBundle, current *Fede
 	if !ok || !sealed.Before(introduced) || !current.Ready || len(current.Blockers) > 0 {
 		return false
 	}
+	sources := []ArtifactRef{current.Coordinator}
 	for _, dependency := range current.Dependencies {
 		if dependency.Identity.Project != current.Coordinator.Project {
 			return false
 		}
+		sources = append(sources, dependency.Identity)
 	}
-	out, err := gitCommand("-C", s.Root, "show", "-s", "--format=%ct", current.CoordinatorRevision).Output()
+	commit, err := gitCommand("-C", s.Root, "rev-list", "-1", "--before="+strconv.FormatInt(sealed.Unix(), 10), "HEAD").Output()
+	if err != nil || len(bytes.TrimSpace(commit)) == 0 {
+		return false
+	}
+	tree, err := gitCommand("-C", s.Root, "ls-tree", "-r", strings.TrimSpace(string(commit))).Output()
 	if err != nil {
 		return false
 	}
-	committed, err := strconv.ParseInt(strings.TrimSpace(string(out)), 10, 64)
-	return err == nil && !time.Unix(committed, 0).After(sealed)
+	for _, source := range sources {
+		blob, ok := s.committedBlobOf(source)
+		if !ok || !bytes.Contains(tree, []byte(" blob "+blob+"\t")) {
+			return false
+		}
+	}
+	return true
+}
+
+// committedBlobOf returns the object name of the file behind a spec, roadmap or
+// milestone at HEAD.
+func (s Store) committedBlobOf(identity ArtifactRef) (string, bool) {
+	var path string
+	switch identity.Kind {
+	case "spec":
+		spec, err := s.GetSpec(identity.Slug)
+		if err != nil {
+			return "", false
+		}
+		path = spec.Path
+	case "roadmap", "milestone":
+		roadmap, err := s.GetRoadmap(identity.Slug)
+		if err != nil {
+			return "", false
+		}
+		path = roadmap.Path
+	default:
+		return "", false
+	}
+	rel, err := filepath.Rel(s.Root, path)
+	if err != nil {
+		return "", false
+	}
+	out, err := gitCommand("-C", s.Root, "rev-parse", "HEAD:"+filepath.ToSlash(rel)).Output()
+	if err != nil {
+		return "", false
+	}
+	return strings.TrimSpace(string(out)), true
 }
 
 func retainedManifestChanged(bundle *ReviewBundle, scope string) string {

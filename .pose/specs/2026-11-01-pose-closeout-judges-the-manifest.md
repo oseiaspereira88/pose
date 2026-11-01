@@ -44,7 +44,7 @@ completed_at:
 - R2: When that function refuses, closeout shall not read the scope approved or fresh, shall report the state `review verify` reports, and shall carry a blocker naming the bundle and the manifest change.
 - R3: When a verification fails under a resolver and the scope has a retained bundle, closeout shall return that failure, and no legacy attempt shall stand in for the bundle.
 - R4: A closed scope `review verify` retains shall stay approved in closeout, including over the guarded close of its roadmap.
-- R5: A bundle with no manifest, sealed before the engine began to seal manifests on 2026-09-24, shall stand against a current manifest that is ready, has no blockers and names no other project, while the scope's own artifact is no newer than the seal, and against no other. A later bundle with no manifest shall not.
+- R5: A bundle with no manifest, sealed before the engine began to seal manifests on 2026-09-24, shall stand against a current manifest that is ready, has no blockers and names no other project, while every artifact that manifest names has the bytes it had at the seal, wherever it lived then, and against no other. A later bundle with no manifest shall not.
 
 ### Non-functional
 
@@ -109,10 +109,10 @@ completed_at:
 ### Decision D3
 - Basis: R5
 - Minimal option: let the old seals stale, as verify already read them
-- Selected option: a seal with no manifest, dated before manifests entered the engine, stands where the current manifest binds only its own project and the scope's own artifact is no newer than the seal
-- Rationale: applying R1 turned nine milestones of two August roadmaps unapproved for a field that did not exist when they were sealed, while their current manifests name only their own done specs; the difference bears on no authority. The absent field alone is not proof of age, since a store with no resolver seals none today (review round 1), so the date bounds it, fail-closed for an instance that adopted later. Member specs are not dated: the migration of the specs to the flat layout on 2026-08-22 is newer than these seals, and they answer for themselves as children
+- Selected option: a seal with no manifest, dated before manifests entered the engine, stands where the current manifest binds only its own project and each artifact it names is, byte for byte, in the tree at the seal
+- Rationale: applying R1 turned nine milestones of two August roadmaps unapproved for a field that did not exist when they were sealed, while their current manifests name only their own done specs; the difference bears on no authority. The absent field alone is not proof of age, since a store with no resolver seals none today (review round 1), so the date bounds it, fail-closed for an instance that adopted later. A commit date does not serve: the migration of the specs to the flat layout on 2026-08-22 is newer than these seals, yet moved no bytes. Child verification does not serve either, since a done spec keeps its approval over an edit (review round 2). Bytes tell the two apart
 - Consequences: both readers keep those milestones approved, and their two roadmaps, which verify refused through them, now read closed; a manifest naming another project still stales them
-- Falsifier: a seal with no manifest standing over a manifest that names another project, carries a blocker or is not ready, over a later edit of its own artifact, or sealed after 2026-09-24
+- Falsifier: a seal with no manifest standing over a manifest that names another project, carries a blocker or is not ready, over a later edit of an artifact it names, or sealed after 2026-09-24
 
 ## 6. Validation
 
@@ -126,7 +126,7 @@ Real seal and attestation in the federated fixture, each case asserted through b
 - R2 [planned] check:closeout-judges-manifest-integration test:TestCloseoutRefusesARoadmapEditVerifyRefused test:TestCloseoutRefusesARoadmapEditWhenClosed — refusal and state
 - R3 [planned] check:closeout-judges-manifest-integration test:TestCloseoutRefusesAFailedVerification test:TestCloseoutRefusesALegacyAttemptOverAFailedVerification — no judgment, no approval
 - R4 [planned] check:closeout-judges-manifest-integration test:TestCloseoutKeepsWhatVerifyRetains — retention kept
-- R5 [planned] check:closeout-judges-manifest-integration test:TestOldSealStandsWhileNothingMoved test:TestOldSealStalesOverALaterEdit test:TestSealWithoutAManifestAfterTheyExistedStales test:TestOldSealRefusesWhatItCouldNotHaveBound — old seals
+- R5 [planned] check:closeout-judges-manifest-integration test:TestOldSealStandsWhileNothingMoved test:TestOldSealStalesOverALaterEdit test:TestOldSealStalesOverAMemberEdit test:TestOldSealStandsOverAMemberMove test:TestSealWithoutAManifestAfterTheyExistedStales test:TestOldSealRefusesWhatItCouldNotHaveBound — old seals
 
 ## 7. Final Report
 

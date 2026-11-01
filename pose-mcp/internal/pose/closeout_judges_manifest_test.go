@@ -174,6 +174,45 @@ func TestOldSealStalesOverALaterEdit(t *testing.T) {
 	}
 }
 
+func TestOldSealStalesOverAMemberEdit(t *testing.T) {
+	root, s := sealedWithoutManifest(t, time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC))
+	t.Setenv("GIT_COMMITTER_DATE", "2026-10-01T12:00:00Z")
+	spec, err := s.GetSpec("backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(spec.Path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(spec.Path, append(raw, []byte("\nEdited.\n")...), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	federatedTestGit(t, root, "add", "--all")
+	federatedTestGit(t, root, "commit", "-q", "-m", "edit the member")
+	if eval := verifyAndCloseoutAgree(t, s, "milestone:program/core"); eval.Approved {
+		t.Fatalf("a seal older than manifests stood over an edit of its member: %+v", eval)
+	}
+}
+
+func TestOldSealStandsOverAMemberMove(t *testing.T) {
+	root, s := sealedWithoutManifest(t, time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC))
+	t.Setenv("GIT_COMMITTER_DATE", "2026-10-01T12:00:00Z")
+	spec, err := s.GetSpec("backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	moved := filepath.Join(filepath.Dir(filepath.Dir(spec.Path)), "2026-08-15-backend.md")
+	if err := os.Rename(spec.Path, moved); err != nil {
+		t.Fatal(err)
+	}
+	federatedTestGit(t, root, "add", "--all")
+	federatedTestGit(t, root, "commit", "-q", "-m", "move the member")
+	if eval := verifyAndCloseoutAgree(t, s, "milestone:program/core"); !eval.Approved {
+		t.Fatalf("moving a member with its bytes staled a seal older than manifests: %+v", eval)
+	}
+}
+
 func TestSealWithoutAManifestAfterTheyExistedStales(t *testing.T) {
 	_, s := sealedWithoutManifest(t, time.Date(2026, 11, 1, 12, 0, 0, 0, time.UTC))
 	if eval := verifyAndCloseoutAgree(t, s, "milestone:program/core"); eval.Approved {
@@ -189,7 +228,6 @@ func TestOldSealRefusesWhatItCouldNotHaveBound(t *testing.T) {
 		"another project": {Coordinator: here, Ready: true, Dependencies: []FederatedDependency{{Identity: there, Status: "done"}}},
 		"a blocker":       {Coordinator: here, Ready: true, Blockers: []string{"xref:here/spec:a:not-done"}},
 		"not ready":       {Coordinator: here},
-		"no source":       {Coordinator: here, Ready: true},
 	} {
 		if s.retainedApprovalStands(bundle, current) {
 			t.Errorf("a seal older than manifests stood over %s", name)
