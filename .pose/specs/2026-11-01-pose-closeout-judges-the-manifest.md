@@ -84,9 +84,9 @@ completed_at:
 
 ## 4. Tasks
 
-- [ ] Share the judgment between verify and closeout
-- [ ] Measure every closed scope of this repository, old reader against new
-- [ ] Independent review and closeout
+- [x] Share the judgment between verify and closeout
+- [x] Measure every closed scope of this repository, old reader against new
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -106,6 +106,15 @@ completed_at:
 - Consequences: a closed scope whose preparation fails reports that failure instead of an approval, and the exemption keeps serving only scopes with no retained bundle
 - Falsifier: a closed scope in this repository that a verification failure turns unapproved with nothing wrong with its review
 
+### Decision D3
+- Status: withdrawn
+- Basis: R1
+- Minimal option: let the old seals stale, as verify already read them
+- Selected option: a seal with no manifest, dated before manifests entered the engine, stands where the current manifest binds only its own project and each artifact it names is, byte for byte, in the tree at the seal
+- Rationale: applying R1 turned nine milestones of two August roadmaps unapproved for a field that did not exist when they were sealed, while their current manifests name only their own done specs; the difference bears on no authority. The absent field alone is not proof of age, since a store with no resolver seals none today (review round 1), so the date bounds it, fail-closed for an instance that adopted later. A commit date does not serve: the migration of the specs to the flat layout on 2026-08-22 is newer than these seals, yet moved no bytes. Child verification does not serve either, since a done spec keeps its approval over an edit (review round 2). Bytes tell the two apart
+- Consequences: both readers keep those milestones approved, and their two roadmaps, which verify refused through them, now read closed; a manifest naming another project still stales them
+- Falsifier: a seal with no manifest standing over a manifest that names another project, carries a blocker or is not ready, over a later edit of an artifact it names, or sealed after 2026-09-24
+
 ## 6. Validation
 
 ### Strategy
@@ -114,15 +123,21 @@ Real seal and attestation in the federated fixture, each case asserted through b
 
 ### Requirement trace
 
-- R1 [planned] capability:closeout-judges-the-manifest evidence:integration check:closeout-judges-manifest-integration test:TestCloseoutRefusesARoadmapEditVerifyRefused test:TestCloseoutRefusesRevokedTrust test:TestRetainedApprovalIsNotJudgedWithoutAResolver test:TestSealWithoutAManifestStales — readers agree
-- R2 [planned] check:closeout-judges-manifest-integration test:TestCloseoutRefusesARoadmapEditVerifyRefused test:TestCloseoutRefusesARoadmapEditWhenClosed — refusal and state
-- R3 [planned] check:closeout-judges-manifest-integration test:TestCloseoutRefusesAFailedVerification test:TestCloseoutRefusesALegacyAttemptOverAFailedVerification — no judgment, no approval
-- R4 [planned] check:closeout-judges-manifest-integration test:TestCloseoutKeepsWhatVerifyRetains — retention kept
+- R1 [satisfied] capability:closeout-judges-the-manifest evidence:integration check:closeout-judges-manifest-integration test:TestCloseoutRefusesARoadmapEditVerifyRefused test:TestCloseoutRefusesRevokedTrust test:TestRetainedApprovalIsNotJudgedWithoutAResolver test:TestSealWithoutAManifestStales report:.pose/results/delivery-validation.json commit:cc6203a8d3d761961a76336ba62a823b11b9d033 — readers agree
+- R2 [satisfied] check:closeout-judges-manifest-integration test:TestCloseoutRefusesARoadmapEditVerifyRefused test:TestCloseoutRefusesARoadmapEditWhenClosed report:.pose/results/delivery-validation.json commit:cc6203a8d3d761961a76336ba62a823b11b9d033 — refusal and state
+- R3 [satisfied] check:closeout-judges-manifest-integration test:TestCloseoutRefusesAFailedVerification test:TestCloseoutRefusesALegacyAttemptOverAFailedVerification report:.pose/results/delivery-validation.json commit:cc6203a8d3d761961a76336ba62a823b11b9d033 — no judgment, no approval
+- R4 [satisfied] check:closeout-judges-manifest-integration test:TestCloseoutKeepsWhatVerifyRetains report:.pose/results/delivery-validation.json commit:cc6203a8d3d761961a76336ba62a823b11b9d033 — retention kept
 
 ## 7. Final Report
 
 ### Delivered scope
 
+`review verify` and closeout now share one judgment of a retained approval against the current manifest, and a failed verification ends closeout ahead of the exemption for legacy attempts. Independently reviewed by Codex in four rounds: the first found a legacy attempt restoring approval over a failed verification, and rounds one to three each broke a waiver for seals older than manifests, which was withdrawn.
+
 ### Residual risks
 
+Nine milestones of `adaptive-instance-provisioning` and `agentic-onboarding` were sealed before manifests existed and now read superseded in closeout as they always did in verify; `check --strict` still passes. Closeout may still retain an approval verify does not where a matching bundle awaits attestation, its manifest judged. The 55 scopes closed before bundles read approved in closeout only, under the policy's exemption.
+
 ### Follow-ups
+
+- [open] F1: Reseal the nine August milestones sealed before manifests existed, then recheck `adaptive-instance-provisioning` and `agentic-onboarding` (review F7). (owner:@oseiaspereira88 crit:low review:2026-11-27)

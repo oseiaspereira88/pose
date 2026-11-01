@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:981fab141ca31270ade07cabb611a141ea1ed54a888df2a01e5f95fa45a85980",
-  "provenance_digest": "sha256:f5aed99693998273dd7c8025f5c365191e103ff587dd1de59dd660af8ac9e1a5",
+  "input_digest": "sha256:3d408cccfc579b489c11e1f06d709ab57758feff8aa7db0ab48e20c813394c70",
+  "provenance_digest": "sha256:ba8bc31ed47e5395290d4de2c493f7880a14b5b1642db975843bd9a2416dda83",
   "implied_edges": [
     "changes"
   ],
@@ -34037,6 +34037,14 @@
       }
     },
     {
+      "id": "change-set:cs-1500c8841527",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:bc18eec2f3b0d6e0043236aeb7c4870ee1a5028c49002cc12ecf61425d991a60",
+        "selector": "trailers:pose-closeout-judges-the-manifest"
+      }
+    },
+    {
       "id": "change-set:cs-1538afb360eb",
       "type": "change-set",
       "attributes": {
@@ -35626,14 +35634,6 @@
       "attributes": {
         "diff_digest": "sha256:d09106b53278b237be79668cdcaea688f0fd04c742dcc808f40ecd6be776cff3",
         "selector": "range:671d316bdc1c5ba6944886b11830f08974c42140..cb1acb918f517978c4676bcddc86f30740bf17a0"
-      }
-    },
-    {
-      "id": "change-set:cs-732bf8c62802",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:2d4a08513ec846c47b7bd334501b9f4eff37098264d2415975ddfd41fafeda4f",
-        "selector": "trailers:pose-closeout-judges-the-manifest"
       }
     },
     {
@@ -90914,7 +90914,7 @@
     },
     {
       "from": "spec:pose-closeout-judges-the-manifest",
-      "to": "change-set:cs-732bf8c62802",
+      "to": "change-set:cs-1500c8841527",
       "type": "observed-by"
     },
     {
@@ -156799,6 +156799,84 @@
       "diff_digest": "sha256:24cfb1e1f89849bf12ba363336c981749aaa94498360c9601712acd9ec56780f"
     },
     {
+      "id": "cs-1500c8841527",
+      "spec": "pose-closeout-judges-the-manifest",
+      "selector": "trailers:pose-closeout-judges-the-manifest",
+      "base": "f230c0d50191f3a285194c2b72686b13cd8b8895^",
+      "head": "cc6203a8d3d761961a76336ba62a823b11b9d033",
+      "resolved_base": "fd0bf8755fb974407c810c9d45471ea778abadec",
+      "resolved_head": "cc6203a8d3d761961a76336ba62a823b11b9d033",
+      "commits": [
+        "f230c0d50191f3a285194c2b72686b13cd8b8895",
+        "3751ca4fc61f6180ebe9751f382e65267f68fe62",
+        "b8f1d056167460e6673be4e49d45b06233ec28e5",
+        "cc6203a8d3d761961a76336ba62a823b11b9d033"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-closeout-judges-the-manifest.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-01-pose-closeout-judges-the-manifest.amendments.jsonl"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-01-pose-closeout-judges-the-manifest.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-closeout-judges-the-manifest.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/closeout_judges_manifest_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/history.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/refresh-log.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_closeout.go"
+        }
+      ],
+      "diff_digest": "sha256:bc18eec2f3b0d6e0043236aeb7c4870ee1a5028c49002cc12ecf61425d991a60"
+    },
+    {
       "id": "cs-1538afb360eb",
       "spec": "pose-consolidation-batch-15-authoring",
       "selector": "trailers:pose-consolidation-batch-15-authoring",
@@ -187235,83 +187313,6 @@
         }
       ],
       "diff_digest": "sha256:d09106b53278b237be79668cdcaea688f0fd04c742dcc808f40ecd6be776cff3"
-    },
-    {
-      "id": "cs-732bf8c62802",
-      "spec": "pose-closeout-judges-the-manifest",
-      "selector": "trailers:pose-closeout-judges-the-manifest",
-      "base": "f230c0d50191f3a285194c2b72686b13cd8b8895^",
-      "head": "b8f1d056167460e6673be4e49d45b06233ec28e5",
-      "resolved_base": "fd0bf8755fb974407c810c9d45471ea778abadec",
-      "resolved_head": "b8f1d056167460e6673be4e49d45b06233ec28e5",
-      "commits": [
-        "f230c0d50191f3a285194c2b72686b13cd8b8895",
-        "3751ca4fc61f6180ebe9751f382e65267f68fe62",
-        "b8f1d056167460e6673be4e49d45b06233ec28e5"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-closeout-judges-the-manifest.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-01-pose-closeout-judges-the-manifest.amendments.jsonl"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-01-pose-closeout-judges-the-manifest.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-closeout-judges-the-manifest.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/closeout_judges_manifest_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/history.jsonl"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/project-state.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/refresh-log.jsonl"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_closeout.go"
-        }
-      ],
-      "diff_digest": "sha256:2d4a08513ec846c47b7bd334501b9f4eff37098264d2415975ddfd41fafeda4f"
     },
     {
       "id": "cs-739c971d423a",
