@@ -38,7 +38,13 @@ func shouldSkipAssessmentDir(name string) bool {
 	return skippedAssessmentDirs[name] || strings.HasPrefix(name, ".")
 }
 
+// projectLabel names the project in generated reports. A report is committed, so
+// it says what the project declares and not where this checkout happens to live:
+// the same project is reached through clones and worktrees of any name.
 func (s Store) projectLabel() string {
+	if name := declaredProjectName(s.fsys(), s.Root); name != "" {
+		return name
+	}
 	abs, err := filepath.Abs(s.Root)
 	if err != nil {
 		return "project"

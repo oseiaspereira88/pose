@@ -119,3 +119,28 @@ func TestGuardrailIsolationDelegation(t *testing.T) {
 		t.Error("plan must bind the project id")
 	}
 }
+
+func TestIsolationPlanCarriesTheProjectID(t *testing.T) {
+	root := guardrailFixture(t, map[string]any{
+		"defaults": map[string]any{"mode": "strict"},
+		"stacks": map[string]any{"go": map[string]any{"checks": []map[string]any{
+			{"name": "trusted", "program": "true", "severity": "required"},
+			{"name": "hostile", "program": "true", "severity": "required", "isolation": "required"},
+		}}},
+	})
+	mustWrite(t, filepath.Join(root, ".pose", "project.json"), `{"schema_version":1,"project_id":"proj.declared","name":"declared"}`)
+	if code, out := runValidate(t, root, "--json", "result.json", "--emit-plan", "plan.json"); code != 0 {
+		t.Fatalf("exit=%d output=%s", code, out)
+	}
+	raw, err := os.ReadFile(filepath.Join(root, "plan.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var plan executionPlan
+	if err := json.Unmarshal(raw, &plan); err != nil {
+		t.Fatal(err)
+	}
+	if plan.ProjectID != "proj.declared" {
+		t.Fatalf("the plan names the checkout: %q", plan.ProjectID)
+	}
+}

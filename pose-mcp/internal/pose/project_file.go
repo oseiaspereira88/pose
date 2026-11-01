@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const ProjectFileSchemaVersion = 1
@@ -48,6 +49,26 @@ func ReadProjectFileIn(files Files, root string) (string, bool, error) {
 		return "", true, fmt.Errorf("invalid-project-id: .pose/project.json declares %q, which is not a valid project id", doc.ProjectID)
 	}
 	return doc.ProjectID, true, nil
+}
+
+// declaredProjectName is the name .pose/project.json gives the project, else its
+// id without the proj. prefix, else empty.
+func declaredProjectName(files Files, root string) string {
+	raw, err := files.ReadFile(projectFilePath(root))
+	if err != nil {
+		return ""
+	}
+	var doc ProjectFile
+	if json.Unmarshal(raw, &doc) != nil || doc.SchemaVersion != ProjectFileSchemaVersion {
+		return ""
+	}
+	if name := strings.TrimSpace(doc.Name); name != "" {
+		return name
+	}
+	if ValidateSlug(doc.ProjectID) != nil {
+		return ""
+	}
+	return strings.TrimPrefix(doc.ProjectID, "proj.")
 }
 
 // ReadProjectFile reads and writes the filesystem directly; ReadProjectFileIn takes the

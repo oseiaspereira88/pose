@@ -1380,7 +1380,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		plan := executionPlan{
 			SchemaVersion: validationResultSchema,
 			GeneratedAt:   run.GeneratedAt,
-			ProjectID:     filepath.Base(root),
+			ProjectID:     posemodel.DefaultProjectID(root),
 			Spec:          reportTask,
 			GitHead:       head,
 			MatrixSHA256:  hex.EncodeToString(digest[:]),

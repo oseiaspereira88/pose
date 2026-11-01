@@ -72,6 +72,15 @@ Agents work in clones and worktrees named after their task. `pose assess discove
 - modified: pose-mcp/internal/cli/validate.go
 - created: pose-mcp/internal/pose/project_label_test.go
 - modified: pose-mcp/internal/cli/validate_guardrails_test.go
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/docs-site.md
+- modified: .pose/assessments/mcp-enforce.md
+- modified: .pose/assessments/pose-mcp.md
+- modified: .pose/state/components/docs-site.json
+- modified: .pose/state/components/mcp-enforce.json
+- modified: .pose/state/components/pose-mcp.json
+- modified: .pose/state/project-state.md
 
 ### Delivery targets
 
