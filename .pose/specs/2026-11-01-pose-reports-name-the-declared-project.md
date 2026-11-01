@@ -1,6 +1,6 @@
 ---
 slug: pose-reports-name-the-declared-project
-status: in-progress
+status: done
 created_at: 2026-11-01
 supersedes:
 depends_on:
@@ -9,7 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: capability:reports-name-the-declared-project
-completed_at:
+completed_at: 2026-11-01
 ---
 
 # Spec: Generated reports name the declared project
