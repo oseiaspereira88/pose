@@ -21,7 +21,7 @@ Confirming that an adapter's process group has ended is not disturbed by unrelat
 
 ### Business value
 
-After killing an adapter's group, the engine walks `/proc` to confirm nothing of it remains. A process that exits between opening its `stat` and reading it answers `ESRCH`, not "not found", and the walk took that for an incomplete inventory. The run then failed as "process group termination failed; descendants may remain" and its cleanup was withheld, though nothing remained. Security failed on `main` at `ff50c49b` this way: `TestAdapterContainmentCallerCancellation`, 84 ms into a run, with a real reviewer dispatch exposed to the same race on any busy machine.
+After killing an adapter's group, the engine walks `/proc` to confirm nothing of it remains. A process that exits between opening its `stat` and reading it answers `ESRCH`, not "not found", and the walk took that for an incomplete inventory, failing the run as "process group termination failed; descendants may remain" and withholding its cleanup. Security failed on `main` at `ff50c49b` with that message: `TestAdapterContainmentCallerCancellation`, 84 ms into a run, too early for the one-second wait. The race is reproduced directly; that it caused that failure is an inference, because the original error is discarded.
 
 ### Constraints
 
@@ -78,8 +78,8 @@ None.
 
 ## 4. Tasks
 
-- [ ] Treat a vanished process as gone
-- [ ] Independent review and closeout
+- [x] Treat a vanished process as gone
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -99,13 +99,20 @@ The real sequence on a real process: open its `stat`, kill and reap it, read. Th
 
 ### Requirement trace
 
-- R1 [planned] capability:process-inventory-tolerates-exit evidence:integration check:process-inventory-tolerates-exit-integration test:TestProcessThatExitedBeforeItsReadIsGone test:TestInventoryHoldsWhileProcessesExit — A process gone before its read does not fail the inventory.
-- R2 [planned] check:process-inventory-tolerates-exit-integration test:TestProcessGoneIsOnlyThoseTwoAnswers — Other errors still fail it.
+- R1 [satisfied] capability:process-inventory-tolerates-exit evidence:integration check:process-inventory-tolerates-exit-integration test:TestProcessThatExitedBeforeItsReadIsGone test:TestInventoryHoldsWhileProcessesExit report:.pose/results/delivery-validation.json commit:123d73ade63abaa4a67be2d10af3fefbe04df388 — A process gone before its read does not fail the inventory.
+- R2 [satisfied] check:process-inventory-tolerates-exit-integration test:TestProcessGoneIsOnlyThoseTwoAnswers report:.pose/results/delivery-validation.json commit:123d73ade63abaa4a67be2d10af3fefbe04df388 — Other errors still fail it.
 
 ## 7. Final Report
 
 ### Delivered scope
 
+A process that exits between opening its `stat` and reading it reads as gone, in the group inventory and in the probe of a lock's owner. Other read errors still fail closed. Independently reviewed by Codex in one round: the predicate and the lock change hold, and all three new tests fail without the fix.
+
 ### Residual risks
 
+The inventory keeps its existing limits: PID and group races and coverage only on Linux. That this race caused the failure at `ff50c49b` is an inference, not an established fact.
+
 ### Follow-ups
+
+- [open] F1: keep the underlying termination error in the failure, so that the next incident can be told apart from the other causes that fit within a second (review finding 1). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [open] F2: force the read error through both call sites with a seam, including an active owner and unknown on permission (review finding 2). (owner:@oseiaspereira88 crit:low review:2026-11-27)
