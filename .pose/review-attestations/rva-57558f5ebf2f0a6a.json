@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-57558f5ebf2f0a6a",
+  "bundle_id": "rvb-ae517575df29a26f",
+  "bundle_digest": "sha256:ae517575df29a26f074c48dd4d69b4c300d78232199168259c2d73f8f838432d",
+  "reviewer": "agent:independent-delegation-milestones-sol-20261031",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/launcher-parity"
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/launcher-parity",
+      "rationale": "Accept explicit POSIX owner/writability gate qualification, consistent with member Windows F1, without asserting Windows ACL protection. CI whole pose-mcp/test covers TestDelegateTaskDetaches including piped prompt, attempt return/wait/output; POSIX task-state tests reject linked/writable components and injected foreign-owner predicates. First-pass parity positive/uncovered-row negative, active-doc and release readers carry over; CI launcher-parity passes. Historical records are preserved, operational launchers/references retired."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/launcher-parity"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/launcher-parity",
+      "rationale": "Exact ordered sealed members match roadmap: spec:pose-delegation-task-detach-and-state, spec:pose-delegation-parity-gate. Each member status done and freshly native verified closed/fresh=true/approved=true; purpose checked against this gate. A child approval alone does not establish runtime delivery."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/launcher-parity",
+      "rationale": "Cumulative validation established by sealed strict delivery-validation.json at ea6c1772: 173 executed/passed, zero failed/errored/skipped; matrix sha256:119647864a08e572776824bad8b0ee87f2a7f5d09260c4e94f5ff55ed628777d recomputed. The single subsequent commit 2c642d52 is spec closeout; production/tests/matrix diff empty. Supplied CI security-41251618714.log independently records checkout 2c642d52, tolerant validation 173/173 SUCCESS including whole pose-mcp/test go test ./..., vet and selected race integration. Log is aggregate evidence, mapped to inspected tests; not per-test raw output. Earlier sandbox failures are retained as environmental limits, not relabelled passing local tests."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/launcher-parity",
+      "rationale": "Earlier B3 contract conflict resolved by explicit platform qualification; Windows medium F1 remains open with its existing owner/date and is not repaired or tested by Ubuntu CI. Retain task-state F2-F5 and parity F1-F4 within their recorded bounds; spawned parity F5 is done. POSIX foreign-owner test injects owner classification, not a real multi-user exploit; no Windows or Darwin native run claimed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Recommended discovery reused from committed assessment. Review changes no component; no lifecycle refresh authorized."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended discovery reused from committed assessment. Review changes no component; no lifecycle refresh authorized."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/launcher-parity",
+      "rationale": "Executed fresh in scratch clone; heuristic provider/consumer gaps do not certify external integrations."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/launcher-parity",
+      "rationale": "Executed fresh in scratch clone; inspect transcript and report for incomplete census and historical spec limitations."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-attestation check; verify and review-check follow application. No close authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-attestation check; verify and review-check follow application. No close authorized."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/launcher-parity",
+      "rationale": "Fresh per-component suggestion; backend-go, security, documentation-style, delivery-evidence and knowledge governance selected as applicable."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/launcher-parity",
+      "rationale": "Fresh per-component suggestion; backend-go, security, documentation-style, delivery-evidence and knowledge governance selected as applicable."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "No registered producer for this component in the effective plan; no invented component validation."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/launcher-parity",
+      "rationale": "Cumulative validation established by sealed strict delivery-validation.json at ea6c1772: 173 executed/passed, zero failed/errored/skipped; matrix sha256:119647864a08e572776824bad8b0ee87f2a7f5d09260c4e94f5ff55ed628777d recomputed. The single subsequent commit 2c642d52 is spec closeout; production/tests/matrix diff empty. Supplied CI security-41251618714.log independently records checkout 2c642d52, tolerant validation 173/173 SUCCESS including whole pose-mcp/test go test ./..., vet and selected race integration. Log is aggregate evidence, mapped to inspected tests; not per-test raw output. Earlier sandbox failures are retained as environmental limits, not relabelled passing local tests."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/launcher-parity"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-delegation-milestones-sol-20261031",
+    "concluded_by": "agent:independent-delegation-milestones-sol-20261031",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-01T00:25:37Z",
+  "path": ".pose/review-attestations/rva-57558f5ebf2f0a6a.json"
+}

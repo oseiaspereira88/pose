@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-02f0bb49a1b495cc",
+  "bundle_id": "rvb-dab17dbc1c469e55",
+  "bundle_digest": "sha256:dab17dbc1c469e55bafa293e7e440282459f91f4b873f4685e8b6a7636460c82",
+  "reviewer": "agent:independent-delegated-review-milestones-sol-20261031",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Carried forward from my first report at 0d2e7069: gate, ordered member and member-specific source/spec artifacts are unchanged. Shared roadmap changes only dispatch; shared validation matrix appends exactly one required expired-session check without altering existing checks. All seven sealed child references are identical to the first-pass bundles. Earlier judgment and its evidence: Inspected verifyRunProof and verifyRunReviewReference: native issuer pins, live configuration/input/transcript/lineage verification, normalized vendor OR model difference and opted-in rejection of prefix-only assurance. Executed RunProvenance tests except the known non-Git LiveOptIn fixture (identically fails control); CLI/MCP signed proof, same-model/unknown/prefix refusal, tampering/revocation/expiry, partial output and rejecting drafts are exercised. AttemptLedger exercises visible rejections and rerun admission. A signed executor declaration is not a provider receipt or proof of cognition."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Sealed passing integration evidence delegated-run-provenance-integration and unchanged single-member composition; native auto-attest resolves mechanical integration, leaving four judgments to me. CI corroborates current execution; earlier approvals are evidence, not substitute judgments."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Carried forward from my first report at 0d2e7069: gate, ordered member and member-specific source/spec artifacts are unchanged. Shared roadmap changes only dispatch; shared validation matrix appends exactly one required expired-session check without altering existing checks. All seven sealed child references are identical to the first-pass bundles. Earlier judgment and its evidence: Roadmap assigns exactly one owner member, spec:pose-delegated-review-run-provenance; sealed children match that assignment with prerequisites represented as dependencies rather than duplicate owners. Read its done status, requirement trace, final report and risks. Fresh native review verify returned state=closed, fresh=true, approved=true; no child attestation findings. Identity assurance is declared and historical person/cognitive independence is not authenticated."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Inspected sealed strict delivery-validation.json: 173 executed/passed, zero failed/optional-failed/errored/skipped, at ea6c1772140050b39006367e319f5da90f7c385f; matrix sha256:119647864a08e572776824bad8b0ee87f2a7f5d09260c4e94f5ff55ed628777d matches actual bytes. git log ea6c1772..2c642d52 has only the spec closeout; git diff for pose-mcp and validation matrix is empty. Saved Security run 41251618714 validation-findings checks out 2c642d520c4271ddded2420dc2d6ad0ea114aefb and logs 173/173 passes including pose-mcp/test (go test ./...). CI command is tolerant, not strict; zero nonpasses corroborate the sealed strict result. Earlier sandbox failures remain actual failed executions; this independent host evidence supplies their missing synthetic journey coverage, without certifying providers or Windows runtime. No probes rerun in this pass. CI specifically logs delegated-run-provenance-integration pass."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Carried forward from my first report at 0d2e7069: gate, ordered member and member-specific source/spec artifacts are unchanged. Shared roadmap changes only dispatch; shared validation matrix appends exactly one required expired-session check without altering existing checks. All seven sealed child references are identical to the first-pass bundles. Earlier judgment and its evidence: Member has no open follow-up or child-attestation finding. Executor truthfulness and local trust anchors remain trusted; raw bytes are executor-hashed with redacted artifacts retained. Legacy runs remain declared and people requirements never become machine authority. Later fulfillment deliberately permits cross-checkout reading under the same project; this does not authenticate a remote vendor. Adjacent expired-session spec F1 remains open, low, owner @oseiaspereira88, review 2026-11-27: expose how to start the next attempt after failure; it does not block these foundation gates."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Reused closeout assessment; no source change after strict baseline, no refresh or closure requested."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Fresh scratch scan; actual limitations recorded in report."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Selected security, documentation-style, delivery-evidence and knowledge-governance; referenced Go rule absent as in first pass."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Reused sealed strict 173/173 result with unchanged source/matrix through HEAD; independent saved CI logs whole suite and named integration passes. No local green rerun claimed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "No closure authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Run after recording attestation."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delegated-run-provenance-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-delegated-review-milestones-sol-20261031",
+    "concluded_by": "agent:independent-delegated-review-milestones-sol-20261031",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-01T00:14:53Z",
+  "path": ".pose/review-attestations/rva-02f0bb49a1b495cc.json"
+}

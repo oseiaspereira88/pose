@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-e7a32fd2cd176406",
+  "bundle_id": "rvb-8d3215468e8eb457",
+  "bundle_digest": "sha256:8d3215468e8eb4571550b8769232c661f2d4644cf366d66e21133097e034b6e7",
+  "reviewer": "agent:independent-delegation-milestones-sol-20261031",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration"
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Accept amended alias gate: retired review dispatch/resume/status execute nothing and name their replacement, matching the retirement decision and TestTheRemovedReviewAliasesNameTheirReplacement. Reuse first-pass parsing, schema migration, environment stripping and vendor event normalization tests/source judgments. CI delegation-surface-integration and whole go test ./... establish current composition; no restored alias behavior claimed."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Exact ordered sealed members match roadmap: spec:pose-delegation-surface. Each member status done and freshly native verified closed/fresh=true/approved=true; purpose checked against this gate. A child approval alone does not establish runtime delivery."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Cumulative validation established by sealed strict delivery-validation.json at ea6c1772: 173 executed/passed, zero failed/errored/skipped; matrix sha256:119647864a08e572776824bad8b0ee87f2a7f5d09260c4e94f5ff55ed628777d recomputed. The single subsequent commit 2c642d52 is spec closeout; production/tests/matrix diff empty. Supplied CI security-41251618714.log independently records checkout 2c642d52, tolerant validation 173/173 SUCCESS including whole pose-mcp/test go test ./..., vet and selected race integration. Log is aggregate evidence, mapped to inspected tests; not per-test raw output. Earlier sandbox failures are retained as environmental limits, not relabelled passing local tests."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Earlier B1 resolved by the explicit governed gate correction in the expired-session member spec. Surface has no open actionable member follow-up. Trusted-process containment and real vendor/platform limits carry over."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Recommended discovery reused from committed assessment. Review changes no component; no lifecycle refresh authorized."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended discovery reused from committed assessment. Review changes no component; no lifecycle refresh authorized."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed fresh in scratch clone; heuristic provider/consumer gaps do not certify external integrations."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed fresh in scratch clone; inspect transcript and report for incomplete census and historical spec limitations."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-attestation check; verify and review-check follow application. No close authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-attestation check; verify and review-check follow application. No close authorized."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Fresh per-component suggestion; backend-go, security, documentation-style, delivery-evidence and knowledge governance selected as applicable."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Fresh per-component suggestion; backend-go, security, documentation-style, delivery-evidence and knowledge governance selected as applicable."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "No registered producer for this component in the effective plan; no invented component validation."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Cumulative validation established by sealed strict delivery-validation.json at ea6c1772: 173 executed/passed, zero failed/errored/skipped; matrix sha256:119647864a08e572776824bad8b0ee87f2a7f5d09260c4e94f5ff55ed628777d recomputed. The single subsequent commit 2c642d52 is spec closeout; production/tests/matrix diff empty. Supplied CI security-41251618714.log independently records checkout 2c642d52, tolerant validation 173/173 SUCCESS including whole pose-mcp/test go test ./..., vet and selected race integration. Log is aggregate evidence, mapped to inspected tests; not per-test raw output. Earlier sandbox failures are retained as environmental limits, not relabelled passing local tests."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delegation-surface-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-delegation-milestones-sol-20261031",
+    "concluded_by": "agent:independent-delegation-milestones-sol-20261031",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-01T00:23:15Z",
+  "path": ".pose/review-attestations/rva-e7a32fd2cd176406.json"
+}
