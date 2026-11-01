@@ -139,17 +139,26 @@ func TestManifestDifferencesThatStale(t *testing.T) {
 	}
 }
 
-func TestStatusIsOnlyTheOneInFrontMatter(t *testing.T) {
-	raw := "---\nslug: a\nstatus: done\ncompleted_at: 2026-11-01\n---\n\nstatus: body\n"
-	if got := withoutStatus(raw); got != "---\nslug: a\ncompleted_at: 2026-11-01\n---\n\nstatus: body\n" {
-		t.Fatalf("%q", got)
+func TestRoadmapClosedBetweenIsTheBytesOfTheClose(t *testing.T) {
+	open := "---\nslug: a\nstatus: active\n---\n\n# A\n"
+	closed := "---\nslug: a\nstatus: done\n---\n\n# A\n"
+	if !roadmapClosedBetween(open, closed) {
+		t.Fatal("the close itself was refused")
 	}
-	if got := withoutStatus("status: done\n"); got != "status: done\n" {
-		t.Fatalf("no front matter: %q", got)
-	}
-	padded := "---\nslug: a\n ---\nstatus: reviewed\n---\n"
-	if got := withoutStatus(padded); got != padded {
-		t.Fatalf("the parser's delimiter was not honoured: %q", got)
+	for name, change := range map[string][2]string{
+		"reopened":         {closed, open},
+		"already done":     {closed, closed},
+		"blocked":          {open, strings.Replace(open, "active", "blocked", 1)},
+		"a date added":     {open, strings.Replace(closed, "status: done", "status: done\ncompleted_at: 2026-11-01", 1)},
+		"a colonless line": {strings.Replace(open, "status: active", "status: active\nstatus", 1), closed},
+		"a field removed":  {strings.Replace(open, "slug: a\n", "slug: a\nowner: b\n", 1), closed},
+		"the body":         {open, strings.Replace(closed, "# A", "# B", 1)},
+		"status in a body": {"---\nslug: a\n ---\nstatus: reviewed\n---\n", "---\nslug: a\n ---\nstatus: done\n---\n"},
+		"no front matter":  {"# A\n", "status: done\n"},
+	} {
+		if roadmapClosedBetween(change[0], change[1]) {
+			t.Errorf("%s read as the close", name)
+		}
 	}
 }
 

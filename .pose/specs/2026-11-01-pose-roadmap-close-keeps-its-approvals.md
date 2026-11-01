@@ -38,7 +38,7 @@ A sealed federated manifest binds the revision and digest of the roadmap file, a
 
 ### Functional
 
-- R1: A closed scope whose current federated manifest differs from the sealed one only by the revision, digest or status of a same-project roadmap or milestone, where that roadmap's file differs between the two revisions only by its `status` becoming done, read as `SplitFrontmatter` reads it, shall keep its approval.
+- R1: A closed scope whose current federated manifest differs from the sealed one only by the revision, digest or status of a same-project roadmap or milestone, where that roadmap's file at the later revision is exactly the earlier one with the bytes its guarded close writes, on a roadmap that was not done, shall keep its approval.
 - R2: A sealed `not-done` blocker of a dependency that is now done shall not stop the approval from standing.
 - R3: Any other difference, including any status change other than to done, a new blocker, a change of trust, another project's source, a spec's source or a roadmap edit outside its status, shall stale the closed scope as before.
 
@@ -58,7 +58,7 @@ A sealed federated manifest binds the revision and digest of the roadmap file, a
 
 ### Affected areas
 
-`internal/pose/review_bundle.go`.
+`internal/pose/review_bundle.go`, `internal/pose/spec.go`, `internal/cli/review_closeout.go`.
 
 ### Artifacts
 
@@ -67,6 +67,8 @@ A sealed federated manifest binds the revision and digest of the roadmap file, a
 - created: .pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md
 - modified: .pose/indexes/validation-matrix.json
 - modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/spec.go
+- modified: pose-mcp/internal/cli/review_closeout.go
 - created: pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go
 
 ### Delivery targets
@@ -87,7 +89,7 @@ A closed scope stands over a lifecycle change of a same-project roadmap.
 ### Decision D1
 - Basis: R1
 - Minimal option: drop revisions and digests from the comparison
-- Selected option: keep the byte comparison and excuse one difference, proved by reading both revisions of the roadmap
+- Selected option: keep the byte comparison and excuse one difference, proved by applying the writer of the close to the earlier revision of the roadmap and comparing with the later one
 - Rationale: the rule that a changed manifest stales a closed scope protects authority, and a lifecycle field carries none; anything not proved to be that stays stale
 - Consequences: sealed manifests keep meaning what they meant, at the cost of two Git reads when they differ
 - Falsifier: a closed scope that stands over a manifest differing in anything but those fields
@@ -110,7 +112,7 @@ Real seal and attestation in the federated fixture, committing the bytes `applyL
 
 - R1 [planned] capability:roadmap-close-keeps-its-approvals evidence:integration check:roadmap-close-keeps-approvals-integration test:TestClosingARoadmapKeepsItsMilestoneApproved test:TestClosingARoadmapKeepsItsParentAndAWaitingMilestone test:TestManifestStandsOverALifecycleChange — The transition leaves the approval standing.
 - R2 [planned] check:roadmap-close-keeps-approvals-integration test:TestManifestStandsOverACompletedDependency — A cleared not-done does not stale it.
-- R3 [planned] check:roadmap-close-keeps-approvals-integration test:TestManifestDifferencesThatStale test:TestEditingAClosedRoadmapStalesItsMilestone test:TestRoadmapStatusOtherThanDoneStales test:TestBodyBehindAPaddedDelimiterStales — Anything else stales it.
+- R3 [planned] check:roadmap-close-keeps-approvals-integration test:TestManifestDifferencesThatStale test:TestEditingAClosedRoadmapStalesItsMilestone test:TestRoadmapStatusOtherThanDoneStales test:TestBodyBehindAPaddedDelimiterStales test:TestRoadmapClosedBetweenIsTheBytesOfTheClose — Anything else stales it.
 
 ## 7. Final Report
 

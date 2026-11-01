@@ -2094,9 +2094,9 @@ func applyLifecycleDone(path string, spec bool, judged string) error {
 	if !strings.HasPrefix(text, "---\n") {
 		return fmt.Errorf("artifact has no flat frontmatter")
 	}
-	text = replaceFrontmatterValue(text, "status", "done")
+	text = posemodel.ReplaceFrontmatterValue(text, "status", "done")
 	if spec {
-		text = replaceFrontmatterValue(text, "completed_at", time.Now().UTC().Format("2006-01-02"))
+		text = posemodel.ReplaceFrontmatterValue(text, "completed_at", time.Now().UTC().Format("2006-01-02"))
 	}
 	expect := posemodel.ExpectBytes(raw, true)
 	if judged != "" {
@@ -2130,27 +2130,6 @@ func closeTargetDigest(root string, store posemodel.Store, ref string) string {
 		return ""
 	}
 	return posemodel.ExpectBytes(raw, true).Digest
-}
-
-func replaceFrontmatterValue(content, key, value string) string {
-	end := strings.Index(content[4:], "\n---")
-	if end < 0 {
-		return content
-	}
-	end += 4
-	head, tail := content[:end], content[end:]
-	lines := strings.Split(head, "\n")
-	found := false
-	for i, line := range lines {
-		if strings.HasPrefix(line, key+":") {
-			lines[i] = key + ": " + value
-			found = true
-		}
-	}
-	if !found {
-		lines = append(lines, key+": "+value)
-	}
-	return strings.Join(lines, "\n") + tail
 }
 
 // hasActionRequestPending reports a governed action request that restricts

@@ -473,6 +473,29 @@ func SplitFrontmatter(content string) (map[string]string, string) {
 	return fm, "" // unterminated frontmatter: no body
 }
 
+// ReplaceFrontmatterValue sets a key of the leading frontmatter, adding it when it
+// is absent.
+func ReplaceFrontmatterValue(content, key, value string) string {
+	end := strings.Index(content[4:], "\n---")
+	if end < 0 {
+		return content
+	}
+	end += 4
+	head, tail := content[:end], content[end:]
+	lines := strings.Split(head, "\n")
+	found := false
+	for i, line := range lines {
+		if strings.HasPrefix(line, key+":") {
+			lines[i] = key + ": " + value
+			found = true
+		}
+	}
+	if !found {
+		lines = append(lines, key+": "+value)
+	}
+	return strings.Join(lines, "\n") + tail
+}
+
 // FrontmatterRepeats reports the keys among names that the frontmatter of content declares
 // more than once. SplitFrontmatter keeps the last, so a reader that selects by one of them
 // would otherwise read a record as the owner of its last line and ignore the first.

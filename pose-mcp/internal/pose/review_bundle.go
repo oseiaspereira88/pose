@@ -4245,34 +4245,15 @@ func (s Store) sameRoadmapApartFromLifecycle(identity ArtifactRef, from, to stri
 	if err != nil {
 		return false
 	}
-	if bytes.Equal(then, now) {
-		return true
-	}
-	before, _ := SplitFrontmatter(string(then))
-	after, _ := SplitFrontmatter(string(now))
-	return before["status"] != "done" && after["status"] == "done" && withoutStatus(string(then)) == withoutStatus(string(now))
+	return bytes.Equal(then, now) || roadmapClosedBetween(string(then), string(now))
 }
 
-// withoutStatus drops the status from the front matter that SplitFrontmatter reads,
-// the one field the guarded transition of a roadmap writes, and leaves the rest byte
-// for byte.
-func withoutStatus(content string) string {
-	first, rest, _ := strings.Cut(content, "\n")
-	if strings.TrimSpace(first) != "---" {
-		return content
-	}
-	kept := first + "\n"
-	for rest != "" {
-		line, tail, _ := strings.Cut(rest, "\n")
-		if strings.TrimSpace(line) == "---" {
-			return kept + rest
-		}
-		if key, _, _ := strings.Cut(line, ":"); strings.TrimSpace(key) != "status" {
-			kept += line + "\n"
-		}
-		rest = tail
-	}
-	return content
+// roadmapClosedBetween reports whether now is then and the bytes the guarded close
+// of a roadmap writes, on a roadmap that was not done, and no others.
+func roadmapClosedBetween(then, now string) bool {
+	before, bodyBefore := SplitFrontmatter(then)
+	after, bodyAfter := SplitFrontmatter(now)
+	return before["status"] != "done" && after["status"] == "done" && bodyBefore == bodyAfter && ReplaceFrontmatterValue(then, "status", "done") == now
 }
 
 // foldJSONKey maps a key to one representative of its case-folding class,

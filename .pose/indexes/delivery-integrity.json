@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:d2d037d789c3ba6ec2dba8e28ee0dadd1f64aa28a209d0163f0eaa54ac6eeb7f",
-  "provenance_digest": "sha256:4e05a6e3cdfdf4063faf9440aa361059364106f5364502742dba50469f1e939f",
+  "input_digest": "sha256:b5e8391863545607ee04bd29a909999811916d204dfe8626ab0241c938f2f6f1",
+  "provenance_digest": "sha256:2380c8aa6252aeec06861d08ae4488411578bfe3d889c6c0cd27cb71be190fc6",
   "implied_edges": [
     "changes"
   ],
@@ -21819,6 +21819,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.amendments.jsonl",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.amendments.jsonl"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md",
       "type": "artifact",
       "attributes": {
@@ -34855,14 +34862,6 @@
       }
     },
     {
-      "id": "change-set:cs-49313a78d7a0",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:d9ada249b52b4b7a4fc4318ab466e1a7a650d931dd172394c3f329dfbf4bab42",
-        "selector": "trailers:pose-roadmap-close-keeps-its-approvals"
-      }
-    },
-    {
       "id": "change-set:cs-497d6acdf6d8",
       "type": "change-set",
       "attributes": {
@@ -35524,6 +35523,14 @@
       "attributes": {
         "diff_digest": "sha256:e4724ed350da01146d5b1e9c3f180dd083080e745b1a73fc42f821ddcafa2ea9",
         "selector": "trailers:pose-retire-unused-first-party-action-exception"
+      }
+    },
+    {
+      "id": "change-set:cs-6f88b803ea2c",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:be4b7decfbb54cd834a1554bc0fe7dbad578ec1634ec715534f31ef3dea0eed6",
+        "selector": "trailers:pose-roadmap-close-keeps-its-approvals"
       }
     },
     {
@@ -110657,6 +110664,11 @@
     },
     {
       "from": "spec:pose-roadmap-close-keeps-its-approvals",
+      "to": "artifact:pose-mcp/internal/cli/review_closeout.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-roadmap-close-keeps-its-approvals",
       "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
       "type": "declares"
     },
@@ -110667,12 +110679,17 @@
     },
     {
       "from": "spec:pose-roadmap-close-keeps-its-approvals",
+      "to": "artifact:pose-mcp/internal/pose/spec.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-roadmap-close-keeps-its-approvals",
       "to": "delivery:capability:roadmap-close-keeps-its-approvals",
       "type": "delivers"
     },
     {
       "from": "spec:pose-roadmap-close-keeps-its-approvals",
-      "to": "change-set:cs-49313a78d7a0",
+      "to": "change-set:cs-6f88b803ea2c",
       "type": "observed-by"
     },
     {
@@ -142384,7 +142401,17 @@
     {
       "spec": "pose-roadmap-close-keeps-its-approvals",
       "action": "modified",
+      "path": "pose-mcp/internal/cli/review_closeout.go"
+    },
+    {
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "action": "modified",
       "path": "pose-mcp/internal/pose/review_bundle.go"
+    },
+    {
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/spec.go"
     },
     {
       "spec": "pose-roadmap-gate-scopes-milestones-and-external-members",
@@ -175362,65 +175389,6 @@
       "diff_digest": "sha256:5d558b335b37cbf9308abee550a13adadb2205fbade8d4179347ef6dca97adfb"
     },
     {
-      "id": "cs-49313a78d7a0",
-      "spec": "pose-roadmap-close-keeps-its-approvals",
-      "selector": "trailers:pose-roadmap-close-keeps-its-approvals",
-      "base": "310db69bc51249927de166e1153c8667bdc69295^",
-      "head": "310db69bc51249927de166e1153c8667bdc69295",
-      "resolved_base": "808ff57aa6a394b4caba995c7ccc96646280261f",
-      "resolved_head": "310db69bc51249927de166e1153c8667bdc69295",
-      "commits": [
-        "310db69bc51249927de166e1153c8667bdc69295"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-roadmap-close-keeps-its-approvals.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/roadmaps.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        }
-      ],
-      "diff_digest": "sha256:d9ada249b52b4b7a4fc4318ab466e1a7a650d931dd172394c3f329dfbf4bab42"
-    },
-    {
       "id": "cs-497d6acdf6d8",
       "spec": "pose-abm-review-soundness",
       "selector": "trailers:pose-abm-review-soundness",
@@ -186154,6 +186122,82 @@
         }
       ],
       "diff_digest": "sha256:e4724ed350da01146d5b1e9c3f180dd083080e745b1a73fc42f821ddcafa2ea9"
+    },
+    {
+      "id": "cs-6f88b803ea2c",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "selector": "trailers:pose-roadmap-close-keeps-its-approvals",
+      "base": "310db69bc51249927de166e1153c8667bdc69295^",
+      "head": "05b1ad48312d6455d0b9815af29d3e5ce4b44168",
+      "resolved_base": "808ff57aa6a394b4caba995c7ccc96646280261f",
+      "resolved_head": "05b1ad48312d6455d0b9815af29d3e5ce4b44168",
+      "commits": [
+        "310db69bc51249927de166e1153c8667bdc69295",
+        "05b1ad48312d6455d0b9815af29d3e5ce4b44168"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.amendments.jsonl"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-roadmap-close-keeps-its-approvals.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/history.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/refresh-log.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        }
+      ],
+      "diff_digest": "sha256:be4b7decfbb54cd834a1554bc0fe7dbad578ec1634ec715534f31ef3dea0eed6"
     },
     {
       "id": "cs-6fd37fd66ce1",
@@ -235151,6 +235195,7 @@
       "pose-review-attribution-roles",
       "pose-review-bundle-convergence",
       "pose-review-bundle-doc-only-specs",
+      "pose-roadmap-close-keeps-its-approvals",
       "pose-roadmap-gate-scopes-milestones-and-external-members",
       "pose-source-coverage-integrity",
       "pose-trace-test-refs-resolve",
@@ -237485,6 +237530,7 @@
       "pose-index-generation-integrity",
       "pose-qualified-artifact-resolution",
       "pose-review-approval-follows-children",
+      "pose-roadmap-close-keeps-its-approvals",
       "pose-source-coverage-integrity",
       "pose-specs-ergonomics-and-discovery",
       "pose-update-dry-run-reports-the-whole-update"
@@ -240606,6 +240652,15 @@
       "remediation": "no Git change sets are attributed to spec pose-planning-and-release-narrative-reconciliation (ensure commits carry 'POSE-Spec: pose-planning-and-release-narrative-reconciliation' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-6b76d8e66862",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": "pose-mcp/internal/pose/spec.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-6bc7f24712f2",
       "code": "legacy-narrative",
       "severity": "info",
@@ -242150,6 +242205,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-b34d1e941777",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "path": "pose-mcp/internal/cli/review_closeout.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-b3dfbead859e",
