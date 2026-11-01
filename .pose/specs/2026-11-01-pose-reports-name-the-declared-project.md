@@ -92,10 +92,10 @@ Agents work in clones and worktrees named after their task. `pose assess discove
 
 ## 4. Tasks
 
-- [ ] Read the label from the declared identity
-- [ ] Carry the project id in the isolation plan
-- [ ] Regenerate the committed assessments
-- [ ] Independent review and closeout
+- [x] Read the label from the declared identity
+- [x] Carry the project id in the isolation plan
+- [x] Regenerate the committed assessments
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -115,15 +115,21 @@ Tests that run from a directory under another name, seen failing on the code bef
 
 ### Requirement trace
 
-- R1 [planned] capability:reports-name-the-declared-project evidence:integration check:reports-name-declared-project-integration test:TestProjectLabelIsTheDeclaredName
-- R2 [planned] check:reports-name-declared-project-integration test:TestReportsDoNotNameTheCheckout
-- R3 [planned] check:reports-name-declared-project-integration test:TestIsolationPlanCarriesTheProjectID
-- R4 [planned] check:reports-name-declared-project-integration test:TestCommittedAssessmentsNameTheProject
+- R1 [satisfied] capability:reports-name-the-declared-project evidence:integration check:reports-name-declared-project-integration test:TestProjectLabelIsTheDeclaredName report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
+- R2 [satisfied] check:reports-name-declared-project-integration test:TestReportsDoNotNameTheCheckout report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
+- R3 [satisfied] check:reports-name-declared-project-integration test:TestIsolationPlanCarriesTheProjectID report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
+- R4 [satisfied] check:reports-name-declared-project-integration test:TestCommittedAssessmentsNameTheProject report:.pose/results/delivery-validation.json commit:b73681d347fc11c923fbbbc6f3f563a394a92ca9
 
 ## 7. Final Report
 
 ### Delivered scope
 
+Generated reports name the project as a valid `.pose/project.json` declares it, and the isolation plan of `pose validate` carries the project id. The committed assessments of this repository are regenerated and name `pose-dist`. Reports run from a directory under another name were seen naming it before the fix. Independently reviewed by Codex in four rounds: the first found that an invalid identity could still supply the name and that a name could add Markdown structure.
+
 ### Residual risks
 
+Directory names remain where they are the right answer: the identity fallback of a project with no file, and the name proposed at adoption. `resolveComponentsHitCaller` keeps its fallback, an id in another system.
+
 ### Follow-ups
+
+None.
