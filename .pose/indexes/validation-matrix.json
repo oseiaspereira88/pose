@@ -2229,6 +2229,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "closeout-judges-manifest-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "-run", "TestCloseoutRefusesARoadmapEditVerifyRefused|TestCloseoutRefusesARoadmapEditWhenClosed|TestCloseoutKeepsWhatVerifyRetains|TestCloseoutRefusesRevokedTrust|TestCloseoutRefusesAFailedVerification|TestRetainedApprovalIsNotJudgedWithoutAResolver|TestManifestAbsentFromAnOldSeal", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "validation-matrix-run-patterns-integration",
           "program": "go",
           "args": ["test", "./internal/cli", "-run", "TestValidationMatrixRunPatternsNameExistingTests|TestDeadRunPatternGuardFollowsGoSelection", "-count=1"],

@@ -467,6 +467,9 @@ type ReviewBundleVerification struct {
 	// Assurance discloses what this record proves about its reviewer (spec
 	// pose-review-assurance-disclosure).
 	Assurance *ReviewAssurance `json:"assurance,omitempty"`
+	// currentManifest is the manifest the scope resolves to now, which a retained
+	// approval is judged against.
+	currentManifest *FederatedRoadmapManifest
 }
 
 // PrepareReviewBundle resolves a deterministic bundle without writing it.
@@ -3318,7 +3321,7 @@ func (s Store) computeReviewVerification(scope string) (ReviewBundleVerification
 	if err != nil {
 		return ReviewBundleVerification{}, err
 	}
-	verification := ReviewBundleVerification{Scope: scope, State: "needs-validation", Fresh: false, Approved: false, Warnings: append([]string{}, prepared.Warnings...), Blockers: append([]string{}, prepared.Blockers...)}
+	verification := ReviewBundleVerification{Scope: scope, State: "needs-validation", Fresh: false, Approved: false, Warnings: append([]string{}, prepared.Warnings...), Blockers: append([]string{}, prepared.Blockers...), currentManifest: prepared.Payload.FederatedManifest}
 	if bundleLosses := bundlesRead.Coverage.LossesFor(scope); len(bundleLosses) > 0 {
 		// A sealed bundle that could not be read may belong to this scope: the history
 		// below is the readable part of it.
@@ -3359,8 +3362,9 @@ func (s Store) computeReviewVerification(scope string) (ReviewBundleVerification
 					verification.NextAction = "restore the review of the children of " + scope
 					return verification, nil
 				}
-				// Without a resolver no manifest can be judged, here as in closeout.
-				if bundle != nil && (s.FederatedResolver == nil || s.federatedManifestStands(bundle.Payload.FederatedManifest, prepared.Payload.FederatedManifest)) {
+				if bundle != nil && !s.retainedApprovalStands(bundle, prepared.Payload.FederatedManifest) {
+					verification.Blockers = append(verification.Blockers, retainedManifestChanged(bundle, scope))
+				} else if bundle != nil {
 					verification.Bundle, verification.Attestation = bundle, att
 					verification.Warnings = append(verification.Warnings, staleEvidenceWarnings(bundle.Payload.Subject, bundle.Payload.Evidence)...)
 					verification.Fresh, verification.Approved = true, true
@@ -4175,6 +4179,19 @@ func sameFederatedManifest(a, b *FederatedRoadmapManifest) bool {
 	return errA == nil && errB == nil && bytes.Equal(left, right)
 }
 
+// retainedApprovalStands reports whether a bundle retained for a closed scope holds
+// against the manifest the scope resolves to now. It is the one judgment of that, so
+// that `review verify` and closeout give the same answer (spec
+// pose-closeout-judges-the-manifest R1, R2). Without a resolver no manifest can be
+// judged.
+func (s Store) retainedApprovalStands(bundle *ReviewBundle, current *FederatedRoadmapManifest) bool {
+	return s.FederatedResolver == nil || s.federatedManifestStands(bundle.Payload.FederatedManifest, current)
+}
+
+func retainedManifestChanged(bundle *ReviewBundle, scope string) string {
+	return "the approval of bundle " + bundle.BundleID + " is not retained: the federated manifest of " + scope + " changed in a way that bears on its authority"
+}
+
 // federatedManifestStands reports whether a closed scope's sealed manifest still
 // holds against the current one. It is sameFederatedManifest, less the one thing a
 // guarded close itself changes: the lifecycle of a roadmap of this project, and the
@@ -4183,6 +4200,11 @@ func sameFederatedManifest(a, b *FederatedRoadmapManifest) bool {
 func (s Store) federatedManifestStands(sealed, current *FederatedRoadmapManifest) bool {
 	if sameFederatedManifest(sealed, current) {
 		return true
+	}
+	if sealed == nil && current != nil {
+		// Sealed before manifests existed: it bound nothing, and stands while the scope
+		// answers to no other project (spec pose-closeout-judges-the-manifest R5).
+		return bindsOnlyItsProject(current)
 	}
 	if sealed == nil || current == nil || len(sealed.Dependencies) != len(current.Dependencies) {
 		return false
@@ -4220,6 +4242,19 @@ func (s Store) federatedManifestStands(sealed, current *FederatedRoadmapManifest
 	}
 	was.Blockers, was.Ready, was.Digest = blockers, current.Ready, current.Digest
 	return sameFederatedManifest(&was, current)
+}
+
+// bindsOnlyItsProject reports whether a manifest is ready and names no other project.
+func bindsOnlyItsProject(manifest *FederatedRoadmapManifest) bool {
+	if !manifest.Ready || len(manifest.Blockers) > 0 {
+		return false
+	}
+	for _, dependency := range manifest.Dependencies {
+		if dependency.Identity.Project != manifest.Coordinator.Project {
+			return false
+		}
+	}
+	return true
 }
 
 // sameRoadmapApartFromLifecycle reports whether a roadmap's committed file holds
