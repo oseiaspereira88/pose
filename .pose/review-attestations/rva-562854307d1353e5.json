@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-562854307d1353e5",
+  "bundle_id": "rvb-4f119d0df2e2b5a6",
+  "bundle_digest": "sha256:4f119d0df2e2b5a6d5c7cf97b7b608690273aaa0bfdca202772181cdef6955e6",
+  "reviewer": "agent:independent-delegation-milestones-sol-20261031",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "V2 resolved for the actual gate: R2 selects the matching agent command template; the spec explicitly leaves filesystem/network isolation to that agent. TestDelegateTaskRunsSandboxed now invokes the native CLI Main through taskInstance/runPoseSplit for sandboxed, sandboxed --no-network, and default sandboxed exit 7, checking final stdout and exit codes. Contrary to the supplied bwrap description, checked-in taskWorker is sh, not a bwrap stand-in: it consumes stdin and echoes sandboxed:$*, with --offline fragment when requested. There is no bwrap invocation in this fixture or supplied CI log. This establishes engine execution at the selected access, not kernel containment. Prior pass evidence for read/write/full, outside-Git, private/--record records and task exclusion carries over; only this test and the inspected processGone delta changed Go source since that pass. Exact-HEAD delegation-surface-integration selector TestDelegate includes the new test and passes."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Sealed delegation-surface-integration passes; explicit template execution composes native task command, policy, process lifecycle, private recording and output. Native auto-attest prepared this mechanical criterion, leaving four judgments pending."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The roadmap task section and sealed ordered child list both name only spec:pose-delegation-task. Fresh native child verification is closed, fresh=true, approved=true; no member substitution. The unchanged gate is evaluated independently above."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Sealed strict delivery-validation at f9857da3 has 174 executed/passed and zero nonpasses; its matrix sha256:7582633ff333ff15f287c6c6a8eca7fdc77224862dbeb6a9551c64794e898e1f matches current bytes. Source and matrix diff f9857da3..7c0033a8 is empty. Saved Security 41267884018 validation-findings logs exact HEAD 7c0033a827707cccca52ce61cd4aee47bad2003e, whole go test ./... and named integration passes, 174/174. CI mode is tolerant, corroborating retained strict evidence; not a fresh local full-suite pass. Local sandboxed-task probe failed before spawn on /var/tmp ownership; neutral exact-HEAD CI supplies this synthetic journey. No real vendor or kernel sandbox certified."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "No new blocker to the task gate. Real vendor access enforcement and real bwrap containment remain unestablished and outside its declared synthetic/template gate. Task state/detach follow-ups are spawned into pose-delegation-task-detach-and-state as in pass two. Preserve prior privacy, platform and trusted-executable limits. New process-inventory spec F1/F2 are low follow-ups owned by @oseiaspereira88, review 2026-11-27; they do not alter task/review evidence separation."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Reused committed closeout assessments; review changes no source and closure not requested."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Fresh scratch scan, two invalid historical sources disclosed."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Applied backend-go, security, documentation-style, delivery-evidence and knowledge-governance."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Retained strict 174/174 with identical source/matrix, corroborated by saved exact-HEAD CI 174/174. Local failure retained."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "No closure authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Run after application."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delegation-surface-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-delegation-milestones-sol-20261031",
+    "concluded_by": "agent:independent-delegation-milestones-sol-20261031",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-01T03:57:02Z",
+  "path": ".pose/review-attestations/rva-562854307d1353e5.json"
+}
