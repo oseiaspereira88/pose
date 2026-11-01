@@ -1,6 +1,6 @@
 ---
 slug: pose-closeout-judges-the-manifest
-status: in-progress
+status: done
 created_at: 2026-11-01
 supersedes:
 depends_on: pose-roadmap-close-keeps-its-approvals
@@ -9,7 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: capability:closeout-judges-the-manifest
-completed_at:
+completed_at: 2026-11-01
 ---
 
 # Spec: Closeout judges a retained approval as review verify does
