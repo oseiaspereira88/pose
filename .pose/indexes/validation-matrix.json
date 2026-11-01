@@ -2231,7 +2231,7 @@
         {
           "name": "closeout-judges-manifest-integration",
           "program": "go",
-          "args": ["test", "./internal/pose", "-run", "TestCloseoutRefusesARoadmapEditVerifyRefused|TestCloseoutRefusesARoadmapEditWhenClosed|TestCloseoutKeepsWhatVerifyRetains|TestCloseoutRefusesRevokedTrust|TestCloseoutRefusesAFailedVerification|TestRetainedApprovalIsNotJudgedWithoutAResolver|TestManifestAbsentFromAnOldSeal", "-count=1"],
+          "args": ["test", "./internal/pose", "-run", "TestCloseoutRefusesARoadmapEditVerifyRefused|TestCloseoutRefusesARoadmapEditWhenClosed|TestCloseoutKeepsWhatVerifyRetains|TestCloseoutRefusesRevokedTrust|TestCloseoutRefusesAFailedVerification|TestCloseoutRefusesALegacyAttemptOverAFailedVerification|TestRetainedApprovalIsNotJudgedWithoutAResolver|TestOldSealStandsWhileNothingMoved|TestOldSealStalesOverALaterEdit|TestSealWithoutAManifestAfterTheyExistedStales|TestOldSealRefusesWhatItCouldNotHaveBound", "-count=1"],
           "severity": "required",
           "evidenceClass": "integration"
         },

@@ -42,9 +42,9 @@ completed_at:
 
 - R1: Whether a closed scope's retained bundle stands against its current manifest shall be decided by one function, called by `review verify` and by closeout.
 - R2: When that function refuses, closeout shall not read the scope approved or fresh, shall report the state `review verify` reports, and shall carry a blocker naming the bundle and the manifest change.
-- R3: When a verification fails under a resolver, closeout shall not retain the approval.
+- R3: When a verification fails under a resolver and the scope has a retained bundle, closeout shall return that failure, and no legacy attempt shall stand in for the bundle.
 - R4: A closed scope `review verify` retains shall stay approved in closeout, including over the guarded close of its roadmap.
-- R5: A bundle sealed before manifests existed shall stand against a current manifest that is ready, has no blockers and names no other project, and against no other.
+- R5: A bundle with no manifest, sealed before the engine began to seal manifests on 2026-09-24, shall stand against a current manifest that is ready, has no blockers and names no other project, while the scope's own artifact is no newer than the seal, and against no other. A later bundle with no manifest shall not.
 
 ### Non-functional
 
@@ -101,32 +101,32 @@ completed_at:
 ### Decision D2
 - Basis: R3
 - Minimal option: keep retaining when the verification failed
-- Selected option: refuse under a resolver and return the failure
+- Selected option: return the failure under a resolver, ahead of the exemption for legacy attempts
 - Rationale: an approval cannot be shown to stand against a manifest that was not read
-- Consequences: a closed scope whose preparation fails reports that failure instead of an approval
+- Consequences: a closed scope whose preparation fails reports that failure instead of an approval, and the exemption keeps serving only scopes with no retained bundle
 - Falsifier: a closed scope in this repository that a verification failure turns unapproved with nothing wrong with its review
 
 ### Decision D3
 - Basis: R5
 - Minimal option: let the old seals stale, as verify already read them
-- Selected option: a seal with no manifest stands where the current manifest binds only its own project
-- Rationale: applying R1 turned nine milestones of two August roadmaps unapproved for a field that did not exist when they were sealed, while their current manifests name only their own done specs; the difference bears on no authority, and a seal older than the mechanism is the case the retention rule already keeps
+- Selected option: a seal with no manifest, dated before manifests entered the engine, stands where the current manifest binds only its own project and the scope's own artifact is no newer than the seal
+- Rationale: applying R1 turned nine milestones of two August roadmaps unapproved for a field that did not exist when they were sealed, while their current manifests name only their own done specs; the difference bears on no authority. The absent field alone is not proof of age, since a store with no resolver seals none today (review round 1), so the date bounds it, fail-closed for an instance that adopted later. Member specs are not dated: the migration of the specs to the flat layout on 2026-08-22 is newer than these seals, and they answer for themselves as children
 - Consequences: both readers keep those milestones approved, and their two roadmaps, which verify refused through them, now read closed; a manifest naming another project still stales them
-- Falsifier: a seal with no manifest standing over a manifest that names another project, carries a blocker or is not ready
+- Falsifier: a seal with no manifest standing over a manifest that names another project, carries a blocker or is not ready, over a later edit of its own artifact, or sealed after 2026-09-24
 
 ## 6. Validation
 
 ### Strategy
 
-Real seal and attestation in the federated fixture, each case asserted through both readers, with the closeout tests shown failing without the change. The old and new CLI compared over all 602 scopes of this repository: 435 approved, no approval lost, two roadmaps gained through R5. `check --strict` passes.
+Real seal and attestation in the federated fixture, each case asserted through both readers, with the closeout tests shown failing without the change. The old and new CLI compared over all 602 scopes of this repository: no approval lost, two roadmaps gained through R5. `check --strict` passes.
 
 ### Requirement trace
 
 - R1 [planned] capability:closeout-judges-the-manifest evidence:integration check:closeout-judges-manifest-integration test:TestCloseoutRefusesARoadmapEditVerifyRefused test:TestCloseoutRefusesRevokedTrust test:TestRetainedApprovalIsNotJudgedWithoutAResolver — readers agree
 - R2 [planned] check:closeout-judges-manifest-integration test:TestCloseoutRefusesARoadmapEditVerifyRefused test:TestCloseoutRefusesARoadmapEditWhenClosed — refusal and state
-- R3 [planned] check:closeout-judges-manifest-integration test:TestCloseoutRefusesAFailedVerification — no judgment, no approval
+- R3 [planned] check:closeout-judges-manifest-integration test:TestCloseoutRefusesAFailedVerification test:TestCloseoutRefusesALegacyAttemptOverAFailedVerification — no judgment, no approval
 - R4 [planned] check:closeout-judges-manifest-integration test:TestCloseoutKeepsWhatVerifyRetains — retention kept
-- R5 [planned] check:closeout-judges-manifest-integration test:TestManifestAbsentFromAnOldSeal — old seals
+- R5 [planned] check:closeout-judges-manifest-integration test:TestOldSealStandsWhileNothingMoved test:TestOldSealStalesOverALaterEdit test:TestSealWithoutAManifestAfterTheyExistedStales test:TestOldSealRefusesWhatItCouldNotHaveBound — old seals
 
 ## 7. Final Report
 

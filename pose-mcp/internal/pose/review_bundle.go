@@ -4185,7 +4185,41 @@ func sameFederatedManifest(a, b *FederatedRoadmapManifest) bool {
 // pose-closeout-judges-the-manifest R1, R2). Without a resolver no manifest can be
 // judged.
 func (s Store) retainedApprovalStands(bundle *ReviewBundle, current *FederatedRoadmapManifest) bool {
-	return s.FederatedResolver == nil || s.federatedManifestStands(bundle.Payload.FederatedManifest, current)
+	if s.FederatedResolver == nil {
+		return true
+	}
+	if bundle.Payload.FederatedManifest == nil && current != nil {
+		return s.manifestUnchangedSinceOldSeal(bundle, current)
+	}
+	return s.federatedManifestStands(bundle.Payload.FederatedManifest, current)
+}
+
+// federatedManifestsIntroducedAt is when the engine began to seal manifests. A bundle
+// sealed later with none, by a store with no resolver, is not an old seal.
+const federatedManifestsIntroducedAt = "2026-09-24T00:00:00Z"
+
+// manifestUnchangedSinceOldSeal reports whether a bundle sealed before manifests
+// existed holds against the manifest its scope resolves to now: nothing was sealed to
+// compare, so the scope must answer to its own project alone and its own artifact must
+// be no newer than the seal. Its member specs answer for themselves as children (spec
+// pose-closeout-judges-the-manifest R5).
+func (s Store) manifestUnchangedSinceOldSeal(bundle *ReviewBundle, current *FederatedRoadmapManifest) bool {
+	sealed, ok := reviewInstant(bundle.SealedAt)
+	introduced, _ := reviewInstant(federatedManifestsIntroducedAt)
+	if !ok || !sealed.Before(introduced) || !current.Ready || len(current.Blockers) > 0 {
+		return false
+	}
+	for _, dependency := range current.Dependencies {
+		if dependency.Identity.Project != current.Coordinator.Project {
+			return false
+		}
+	}
+	out, err := gitCommand("-C", s.Root, "show", "-s", "--format=%ct", current.CoordinatorRevision).Output()
+	if err != nil {
+		return false
+	}
+	committed, err := strconv.ParseInt(strings.TrimSpace(string(out)), 10, 64)
+	return err == nil && !time.Unix(committed, 0).After(sealed)
 }
 
 func retainedManifestChanged(bundle *ReviewBundle, scope string) string {
@@ -4200,11 +4234,6 @@ func retainedManifestChanged(bundle *ReviewBundle, scope string) string {
 func (s Store) federatedManifestStands(sealed, current *FederatedRoadmapManifest) bool {
 	if sameFederatedManifest(sealed, current) {
 		return true
-	}
-	if sealed == nil && current != nil {
-		// Sealed before manifests existed: it bound nothing, and stands while the scope
-		// answers to no other project (spec pose-closeout-judges-the-manifest R5).
-		return bindsOnlyItsProject(current)
 	}
 	if sealed == nil || current == nil || len(sealed.Dependencies) != len(current.Dependencies) {
 		return false
@@ -4242,19 +4271,6 @@ func (s Store) federatedManifestStands(sealed, current *FederatedRoadmapManifest
 	}
 	was.Blockers, was.Ready, was.Digest = blockers, current.Ready, current.Digest
 	return sameFederatedManifest(&was, current)
-}
-
-// bindsOnlyItsProject reports whether a manifest is ready and names no other project.
-func bindsOnlyItsProject(manifest *FederatedRoadmapManifest) bool {
-	if !manifest.Ready || len(manifest.Blockers) > 0 {
-		return false
-	}
-	for _, dependency := range manifest.Dependencies {
-		if dependency.Identity.Project != manifest.Coordinator.Project {
-			return false
-		}
-	}
-	return true
 }
 
 // sameRoadmapApartFromLifecycle reports whether a roadmap's committed file holds

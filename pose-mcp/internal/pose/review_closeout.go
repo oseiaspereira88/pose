@@ -1375,10 +1375,10 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 				eval.Blockers = uniqueSorted(eval.Blockers)
 				return eval, nil
 			}
-			if !s.reviewBundlesLegacyAttemptExempt(scope, policy) && verifyErr != nil {
+			if verifyErr != nil && (refused || !s.reviewBundlesLegacyAttemptExempt(scope, policy)) {
 				return eval, verifyErr
 			}
-			if refused && verifyErr == nil {
+			if refused {
 				eval.BundleState = verification.State
 				eval.Blockers = uniqueSorted(append(append(eval.Blockers, verification.Blockers...), retainedManifestChanged(bundle, ref)))
 				eval.Warnings = uniqueSorted(append(eval.Warnings, verification.Warnings...))
