@@ -31,16 +31,16 @@ A sealed federated manifest binds the revision and digest of the roadmap file, a
 
 ### Non-goals
 
-- Reviewing whether `pose close milestone` should judge the manifest as `review verify` does.
+- The closeout fallback that restores an approval `review verify` refused, which goes to `pose-closeout-judges-the-manifest`.
 - Narrowing `depends_on` between roadmaps, which goes with `pose-milestone-closes-when-reached`.
 
 ## 2. Requirements
 
 ### Functional
 
-- R1: A closed scope whose current federated manifest differs from the sealed one only by the revision, digest or status of a same-project roadmap or milestone, where that roadmap's file differs between the two revisions only in its `status` and `completed_at`, shall keep its approval.
+- R1: A closed scope whose current federated manifest differs from the sealed one only by the revision, digest or status of a same-project roadmap or milestone, where that roadmap's file differs between the two revisions only by its `status` becoming done, read as `SplitFrontmatter` reads it, shall keep its approval.
 - R2: A sealed `not-done` blocker of a dependency that is now done shall not stop the approval from standing.
-- R3: Any other difference, including a status that left done, a new blocker, a change of trust, another project's source, a spec's source or a roadmap edit outside those two fields, shall stale the closed scope as before.
+- R3: Any other difference, including any status change other than to done, a new blocker, a change of trust, another project's source, a spec's source or a roadmap edit outside its status, shall stale the closed scope as before.
 
 ### Non-functional
 
@@ -104,13 +104,13 @@ A closed scope stands over a lifecycle change of a same-project roadmap.
 
 ### Strategy
 
-Real seal, attestation and close of a roadmap in the federated fixture, verifying the milestone and its parent after the transition, and each refused difference over a real two-commit history. The gate fails on the byte comparison.
+Real seal and attestation in the federated fixture, committing the bytes `applyLifecycleDone` writes to a roadmap, then verifying its parent and a milestone that waited on another roadmap; each refused difference over a real history. The guarded `pose close roadmap:` itself runs on `delegation` in this repository, not in the fixture. The gate fails on the byte comparison.
 
 ### Requirement trace
 
-- R1 [planned] capability:roadmap-close-keeps-its-approvals evidence:integration check:roadmap-close-keeps-approvals-integration test:TestClosingARoadmapKeepsItsMilestoneApproved test:TestManifestStandsOverALifecycleChange — The transition leaves the approval standing.
+- R1 [planned] capability:roadmap-close-keeps-its-approvals evidence:integration check:roadmap-close-keeps-approvals-integration test:TestClosingARoadmapKeepsItsMilestoneApproved test:TestClosingARoadmapKeepsItsParentAndAWaitingMilestone test:TestManifestStandsOverALifecycleChange — The transition leaves the approval standing.
 - R2 [planned] check:roadmap-close-keeps-approvals-integration test:TestManifestStandsOverACompletedDependency — A cleared not-done does not stale it.
-- R3 [planned] check:roadmap-close-keeps-approvals-integration test:TestManifestDifferencesThatStale test:TestEditingAClosedRoadmapStalesItsMilestone — Anything else stales it.
+- R3 [planned] check:roadmap-close-keeps-approvals-integration test:TestManifestDifferencesThatStale test:TestEditingAClosedRoadmapStalesItsMilestone test:TestRoadmapStatusOtherThanDoneStales test:TestBodyBehindAPaddedDelimiterStales — Anything else stales it.
 
 ## 7. Final Report
 

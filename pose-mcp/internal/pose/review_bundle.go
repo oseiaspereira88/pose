@@ -4222,8 +4222,8 @@ func (s Store) federatedManifestStands(sealed, current *FederatedRoadmapManifest
 	return sameFederatedManifest(&was, current)
 }
 
-// sameRoadmapApartFromLifecycle reports whether a roadmap's committed file differs
-// between two revisions only in the fields the guarded transition writes.
+// sameRoadmapApartFromLifecycle reports whether a roadmap's committed file holds
+// the same between two revisions, but for its transition to done.
 func (s Store) sameRoadmapApartFromLifecycle(identity ArtifactRef, from, to string) bool {
 	if identity.Kind != "roadmap" && identity.Kind != "milestone" {
 		return false
@@ -4242,22 +4242,37 @@ func (s Store) sameRoadmapApartFromLifecycle(identity ArtifactRef, from, to stri
 		return false
 	}
 	now, err := gitCommand("-C", s.Root, "show", to+":"+rel).Output()
-	return err == nil && withoutLifecycleFields(string(then)) == withoutLifecycleFields(string(now))
+	if err != nil {
+		return false
+	}
+	if bytes.Equal(then, now) {
+		return true
+	}
+	before, _ := SplitFrontmatter(string(then))
+	after, _ := SplitFrontmatter(string(now))
+	return before["status"] != "done" && after["status"] == "done" && withoutStatus(string(then)) == withoutStatus(string(now))
 }
 
-// withoutLifecycleFields drops status and completed_at from a roadmap's front matter.
-func withoutLifecycleFields(raw string) string {
-	front, body, ok := strings.Cut(strings.TrimPrefix(raw, "---\n"), "\n---\n")
-	if !ok || !strings.HasPrefix(raw, "---\n") {
-		return raw
+// withoutStatus drops the status from the front matter that SplitFrontmatter reads,
+// the one field the guarded transition of a roadmap writes, and leaves the rest byte
+// for byte.
+func withoutStatus(content string) string {
+	first, rest, _ := strings.Cut(content, "\n")
+	if strings.TrimSpace(first) != "---" {
+		return content
 	}
-	kept := []string{}
-	for _, line := range strings.Split(front, "\n") {
-		if !strings.HasPrefix(line, "status:") && !strings.HasPrefix(line, "completed_at:") {
-			kept = append(kept, line)
+	kept := first + "\n"
+	for rest != "" {
+		line, tail, _ := strings.Cut(rest, "\n")
+		if strings.TrimSpace(line) == "---" {
+			return kept + rest
 		}
+		if key, _, _ := strings.Cut(line, ":"); strings.TrimSpace(key) != "status" {
+			kept += line + "\n"
+		}
+		rest = tail
 	}
-	return strings.Join(kept, "\n") + "\n---\n" + body
+	return content
 }
 
 // foldJSONKey maps a key to one representative of its case-folding class,

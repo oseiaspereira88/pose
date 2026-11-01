@@ -45,7 +45,7 @@ func editRoadmapFixture(t *testing.T, root, from, to string) {
 
 func TestClosingARoadmapKeepsItsMilestoneApproved(t *testing.T) {
 	root, s := closedMilestoneFixture(t)
-	editRoadmapFixture(t, root, "status: active", "status: done\ncompleted_at: 2026-11-01")
+	editRoadmapFixture(t, root, "status: active", "status: done")
 	verification, err := s.VerifyReviewBundle("milestone:program/core")
 	if err != nil {
 		t.Fatal(err)
@@ -73,7 +73,7 @@ func lifecycleManifests(t *testing.T) (Store, string, FederatedRoadmapManifest, 
 	t.Helper()
 	root, s, _, _ := federatedTestMilestoneConsumer(t)
 	before := gitHeadAtRoot(root)
-	editRoadmapFixture(t, root, "status: active", "status: done\ncompleted_at: 2026-11-01")
+	editRoadmapFixture(t, root, "status: active", "status: done")
 	after := gitHeadAtRoot(root)
 	coordinator := ArtifactRef{Project: "coordinator", Kind: "milestone", Slug: "program", Milestone: "core"}
 	dependency := func(revision, digest, status string) FederatedDependency {
@@ -139,12 +139,116 @@ func TestManifestDifferencesThatStale(t *testing.T) {
 	}
 }
 
-func TestLifecycleFieldsAreOnlyThoseInFrontMatter(t *testing.T) {
+func TestStatusIsOnlyTheOneInFrontMatter(t *testing.T) {
 	raw := "---\nslug: a\nstatus: done\ncompleted_at: 2026-11-01\n---\n\nstatus: body\n"
-	if got := withoutLifecycleFields(raw); got != "slug: a\n---\n\nstatus: body\n" {
+	if got := withoutStatus(raw); got != "---\nslug: a\ncompleted_at: 2026-11-01\n---\n\nstatus: body\n" {
 		t.Fatalf("%q", got)
 	}
-	if got := withoutLifecycleFields("status: done\n"); got != "status: done\n" {
+	if got := withoutStatus("status: done\n"); got != "status: done\n" {
 		t.Fatalf("no front matter: %q", got)
 	}
+	padded := "---\nslug: a\n ---\nstatus: reviewed\n---\n"
+	if got := withoutStatus(padded); got != padded {
+		t.Fatalf("the parser's delimiter was not honoured: %q", got)
+	}
+}
+
+func TestRoadmapStatusOtherThanDoneStales(t *testing.T) {
+	root, s := closedMilestoneFixture(t)
+	editRoadmapFixture(t, root, "status: active", "status: blocked")
+	verification, err := s.VerifyReviewBundle("milestone:program/core")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if verification.Approved {
+		t.Fatalf("active to blocked kept the approval: %+v", verification)
+	}
+	root, s = closedMilestoneFixture(t)
+	editRoadmapFixture(t, root, "status: active", "status: done")
+	editRoadmapFixture(t, root, "status: done", "status: active")
+	if verification, err = s.VerifyReviewBundle("milestone:program/core"); err != nil {
+		t.Fatal(err)
+	}
+	if !verification.Approved {
+		t.Fatalf("the sealed bytes again must stand: %+v", verification)
+	}
+	identity := ArtifactRef{Kind: "roadmap", Slug: "program"}
+	before := gitHeadAtRoot(root)
+	editRoadmapFixture(t, root, "status: active", "status: done")
+	closed := gitHeadAtRoot(root)
+	if s.sameRoadmapApartFromLifecycle(identity, closed, before) {
+		t.Fatal("reopening a roadmap read as its transition to done")
+	}
+	editRoadmapFixture(t, root, "status: done", "status: active\ncompleted_at: 2026-11-01")
+	if s.sameRoadmapApartFromLifecycle(identity, before, gitHeadAtRoot(root)) {
+		t.Fatal("a field the transition does not write was excused")
+	}
+}
+
+func TestBodyBehindAPaddedDelimiterStales(t *testing.T) {
+	root, s := closedMilestoneFixture(t)
+	editRoadmapFixture(t, root, "\n---\n", "\n ---\nstatus: the outcome is restricted\n---\n")
+	before := gitHeadAtRoot(root)
+	editRoadmapFixture(t, root, "status: active", "status: done")
+	editRoadmapFixture(t, root, "the outcome is restricted", "the outcome is unrestricted")
+	if s.sameRoadmapApartFromLifecycle(ArtifactRef{Kind: "roadmap", Slug: "program"}, before, gitHeadAtRoot(root)) {
+		t.Fatal("a body edit behind a padded delimiter read as the transition")
+	}
+}
+
+// A milestone waits on another roadmap, and its own roadmap's approval rests on
+// it: both stand across the bytes the guarded transition writes to each roadmap.
+func TestClosingARoadmapKeepsItsParentAndAWaitingMilestone(t *testing.T) {
+	root, s, _, _ := federatedTestMilestoneConsumer(t)
+	federatedTestWrite(t, root, ".pose/roadmaps/base.md", "---\nslug: base\nstatus: active\n---\n\n## Milestone: ground\n- exit: the ground holds\n")
+	federatedTestWrite(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\ndepends_on: base\nconsumes: xref:source/roadmap:component\n---\n\n## Milestone: core\n- specs: backend\n")
+	federatedTestGit(t, root, "add", "--all")
+	federatedTestGit(t, root, "commit", "-q", "-m", "two roadmaps")
+	now := time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)
+	for i, scope := range []string{"spec:backend", "milestone:program/core"} {
+		at := now.Add(time.Duration(i) * time.Minute)
+		bundle, err := s.SealReviewBundle(scope, at)
+		if err != nil {
+			t.Fatal(scope, err, bundle.Blockers)
+		}
+		if scope != "spec:backend" && !federatedTestHasBlocker(bundle.Payload.FederatedManifest.Blockers, "roadmap:base:not-done") {
+			t.Fatalf("the milestone does not wait on base: %+v", bundle.Payload.FederatedManifest.Blockers)
+		}
+		attestChildReview(t, s, bundle, at.Add(30*time.Second), "approved")
+	}
+	stands := func(scope string) {
+		t.Helper()
+		verification, err := s.VerifyReviewBundle(scope)
+		if err != nil {
+			t.Fatal(scope, err)
+		}
+		if verification.State != "closed" || !verification.Fresh || !verification.Approved {
+			t.Fatalf("%s fell: %+v", scope, verification)
+		}
+	}
+	closeRoadmap := func(name string) {
+		t.Helper()
+		path := filepath.Join(root, ".pose/roadmaps", name+".md")
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		// The bytes of applyLifecycleDone: a roadmap's close writes its status alone.
+		if err := os.WriteFile(path, []byte(strings.Replace(string(raw), "status: active", "status: done", 1)), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		federatedTestGit(t, root, "add", "--all")
+		federatedTestGit(t, root, "commit", "-q", "-m", "close "+name)
+	}
+	closeRoadmap("base")
+	stands("milestone:program/core")
+	at := now.Add(time.Hour)
+	bundle, err := s.SealReviewBundle("roadmap:program", at)
+	if err != nil {
+		t.Fatal(err, bundle.Blockers)
+	}
+	attestChildReview(t, s, bundle, at.Add(time.Minute), "approved")
+	closeRoadmap("program")
+	stands("milestone:program/core")
+	stands("roadmap:program")
 }

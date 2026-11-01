@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:26c0a621beee3c4ca79de78abad9f85f92f851de5a387435c5ecc5e19f3b83ef",
-  "provenance_digest": "sha256:ba3b0e95a135cc15c60caf5053df93a36b2f695159316b06537bac4b5df9e61d",
+  "input_digest": "sha256:d2d037d789c3ba6ec2dba8e28ee0dadd1f64aa28a209d0163f0eaa54ac6eeb7f",
+  "provenance_digest": "sha256:4e05a6e3cdfdf4063faf9440aa361059364106f5364502742dba50469f1e939f",
   "implied_edges": [
     "changes"
   ],
@@ -34855,6 +34855,14 @@
       }
     },
     {
+      "id": "change-set:cs-49313a78d7a0",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:d9ada249b52b4b7a4fc4318ab466e1a7a650d931dd172394c3f329dfbf4bab42",
+        "selector": "trailers:pose-roadmap-close-keeps-its-approvals"
+      }
+    },
+    {
       "id": "change-set:cs-497d6acdf6d8",
       "type": "change-set",
       "attributes": {
@@ -50058,6 +50066,11 @@
       "type": "archived-by"
     },
     {
+      "from": "artifact:.pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md",
+      "to": "delivery:capability:roadmap-close-keeps-its-approvals",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/changelogs/unreleased/pose-roadmap-gate-scopes-milestones-and-external-members.md",
       "to": "release:v6.0.0",
       "type": "archived-by"
@@ -51625,6 +51638,11 @@
     {
       "from": "artifact:.pose/indexes/validation-matrix.json",
       "to": "delivery:capability:review-subject-later-removal",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/validation-matrix.json",
+      "to": "delivery:capability:roadmap-close-keeps-its-approvals",
       "type": "implemented-by"
     },
     {
@@ -55448,6 +55466,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md",
+      "to": "delivery:capability:roadmap-close-keeps-its-approvals",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/specs/pose-action-runtime-currency-gate/spec.md",
       "to": "delivery:governance:action-runtime-currency-gate",
       "type": "implemented-by"
@@ -56075,6 +56098,11 @@
     {
       "from": "artifact:.pose/starts/pose-review-subject-later-removal.json",
       "to": "delivery:capability:review-subject-later-removal",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/starts/pose-roadmap-close-keeps-its-approvals.json",
+      "to": "delivery:capability:roadmap-close-keeps-its-approvals",
       "type": "implemented-by"
     },
     {
@@ -72854,6 +72882,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "to": "delivery:capability:roadmap-close-keeps-its-approvals",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/review_bundle.go",
       "to": "delivery:capability:seal-names-carried-forward-evidence",
       "type": "implemented-by"
     },
@@ -74235,6 +74268,11 @@
     {
       "from": "artifact:pose-mcp/internal/pose/review_trust_time_test.go",
       "to": "delivery:capability:historical-trust-and-review-reuse",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go",
+      "to": "delivery:capability:roadmap-close-keeps-its-approvals",
       "type": "implemented-by"
     },
     {
@@ -110631,6 +110669,11 @@
       "from": "spec:pose-roadmap-close-keeps-its-approvals",
       "to": "delivery:capability:roadmap-close-keeps-its-approvals",
       "type": "delivers"
+    },
+    {
+      "from": "spec:pose-roadmap-close-keeps-its-approvals",
+      "to": "change-set:cs-49313a78d7a0",
+      "type": "observed-by"
     },
     {
       "from": "spec:pose-roadmap-gate-scopes-milestones-and-external-members",
@@ -175319,6 +175362,65 @@
       "diff_digest": "sha256:5d558b335b37cbf9308abee550a13adadb2205fbade8d4179347ef6dca97adfb"
     },
     {
+      "id": "cs-49313a78d7a0",
+      "spec": "pose-roadmap-close-keeps-its-approvals",
+      "selector": "trailers:pose-roadmap-close-keeps-its-approvals",
+      "base": "310db69bc51249927de166e1153c8667bdc69295^",
+      "head": "310db69bc51249927de166e1153c8667bdc69295",
+      "resolved_base": "808ff57aa6a394b4caba995c7ccc96646280261f",
+      "resolved_head": "310db69bc51249927de166e1153c8667bdc69295",
+      "commits": [
+        "310db69bc51249927de166e1153c8667bdc69295"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-roadmap-close-keeps-its-approvals.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        }
+      ],
+      "diff_digest": "sha256:d9ada249b52b4b7a4fc4318ab466e1a7a650d931dd172394c3f329dfbf4bab42"
+    },
+    {
       "id": "cs-497d6acdf6d8",
       "spec": "pose-abm-review-soundness",
       "selector": "trailers:pose-abm-review-soundness",
@@ -238488,15 +238590,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-015222b8103b",
-      "code": "unconnected-artifact",
-      "severity": "error",
-      "spec": "pose-roadmap-close-keeps-its-approvals",
-      "path": "capability:roadmap-close-keeps-its-approvals",
-      "message": "delivery target has no structured artifact provenance",
-      "remediation": "declare and reconcile exact artifacts before asserting delivery"
-    },
-    {
       "id": "dif-01575cb0c68e",
       "code": "legacy-narrative",
       "severity": "info",
@@ -239141,15 +239234,6 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
-      "id": "dif-202998b3cfd3",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-roadmap-close-keeps-its-approvals",
-      "path": ".pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-roadmap-close-keeps-its-approvals (ensure commits carry 'POSE-Spec: pose-roadmap-close-keeps-its-approvals' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-2137b27ad8dc",
       "code": "action-mismatch",
       "severity": "error",
@@ -239184,15 +239268,6 @@
       "path": "pose-mcp/internal/mcpserver/proportional_next_action_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-234bb21e3d17",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-roadmap-close-keeps-its-approvals",
-      "path": "pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-236d8ac552a6",
@@ -239509,15 +239584,6 @@
       "remediation": "no Git change sets are attributed to spec pose-planning-and-release-narrative-reconciliation (ensure commits carry 'POSE-Spec: pose-planning-and-release-narrative-reconciliation' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-39e06a40b0d5",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-roadmap-close-keeps-its-approvals",
-      "path": ".pose/starts/pose-roadmap-close-keeps-its-approvals.json",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
       "id": "dif-3a51bdeb7fed",
       "code": "orphan",
       "severity": "warning",
@@ -239784,15 +239850,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-48534933ef8a",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-roadmap-close-keeps-its-approvals",
-      "path": ".pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md",
-      "message": "declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md",
-      "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
       "id": "dif-4861382293e6",
       "code": "legacy-narrative",
       "severity": "info",
@@ -240005,15 +240062,6 @@
       "path": "pose-mcp/internal/pose/reports.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-504e8f79ecdb",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-roadmap-close-keeps-its-approvals",
-      "path": ".pose/starts/pose-roadmap-close-keeps-its-approvals.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-roadmap-close-keeps-its-approvals (ensure commits carry 'POSE-Spec: pose-roadmap-close-keeps-its-approvals' trailer or generate report with pose report)"
     },
     {
       "id": "dif-511015c33859",
@@ -240752,15 +240800,6 @@
       "remediation": "no Git change sets are attributed to spec pose-release-prepare-record-recovery (ensure commits carry 'POSE-Spec: pose-release-prepare-record-recovery' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-7346b214e8ce",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-roadmap-close-keeps-its-approvals",
-      "path": ".pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-roadmap-close-keeps-its-approvals (ensure commits carry 'POSE-Spec: pose-roadmap-close-keeps-its-approvals' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-734f314d8891",
       "code": "action-mismatch",
       "severity": "error",
@@ -241217,15 +241256,6 @@
       "path": "pose-mcp/internal/observability/redact.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-8cae772c52f5",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-roadmap-close-keeps-its-approvals",
-      "path": ".pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-8cf96253f0f8",
@@ -242279,15 +242309,6 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
-      "id": "dif-b94d8f17bf70",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-roadmap-close-keeps-its-approvals",
-      "path": "pose-mcp/internal/pose/review_bundle.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-roadmap-close-keeps-its-approvals (ensure commits carry 'POSE-Spec: pose-roadmap-close-keeps-its-approvals' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-b96090a6852e",
       "code": "existence",
       "severity": "error",
@@ -242477,15 +242498,6 @@
       "path": "pose-mcp/internal/worktreeruntime/runtime.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-optional-worktree-runtime (ensure commits carry 'POSE-Spec: pose-optional-worktree-runtime' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-c5be1445373b",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-roadmap-close-keeps-its-approvals",
-      "path": "pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-roadmap-close-keeps-its-approvals (ensure commits carry 'POSE-Spec: pose-roadmap-close-keeps-its-approvals' trailer or generate report with pose report)"
     },
     {
       "id": "dif-c6080597ac13",
@@ -243313,15 +243325,6 @@
       "spec": "pose-localization-docs-contract",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-edcc688dd21e",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-roadmap-close-keeps-its-approvals",
-      "path": ".pose/indexes/validation-matrix.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-roadmap-close-keeps-its-approvals (ensure commits carry 'POSE-Spec: pose-roadmap-close-keeps-its-approvals' trailer or generate report with pose report)"
     },
     {
       "id": "dif-edd603317832",
@@ -253592,6 +253595,12 @@
     ],
     "capability:roadmap-close-keeps-its-approvals": [
       "spec:pose-roadmap-close-keeps-its-approvals",
+      "artifact:.pose/changelogs/unreleased/pose-roadmap-close-keeps-its-approvals.md",
+      "artifact:.pose/specs/2026-11-01-pose-roadmap-close-keeps-its-approvals.md",
+      "artifact:.pose/starts/pose-roadmap-close-keeps-its-approvals.json",
+      "artifact:pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go",
+      "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:pose-mcp/internal/pose/review_bundle.go",
       "delivery:capability:roadmap-close-keeps-its-approvals",
       "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
