@@ -1,6 +1,6 @@
 ---
 slug: delegation
-status: draft
+status: done
 created_at: 2026-10-26
 depends_on: delegated-review
 ---
