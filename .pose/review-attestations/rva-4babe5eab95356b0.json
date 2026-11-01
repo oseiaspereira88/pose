@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-4babe5eab95356b0",
+  "bundle_id": "rvb-65517af75e6b83e0",
+  "bundle_digest": "sha256:65517af75e6b83e0bea7e83f5c106a13dc8b08a665f90f6599bbf5384dd4652f",
+  "reviewer": "agent:independent-inventory-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Read round-one report and saved positive/mutation/lock-test logs. ESRCH race reproduced there; historical CI causation remains inference, now qualified in spec. Inventory/PID/group limits and timing-dependent stress coverage remain. No fresh replay of prior probes is claimed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from sealed passing evidence. Inspected supplied strict validation at exact HEAD f9857da3822cad2e0dff99b72ad0ab70d8c31da6: 174 executed/passed; zero failed, optional_failed, errored or skipped. Actual matrix sha256:7582633ff333ff15f287c6c6a8eca7fdc77224862dbeb6a9551c64794e898e1f matches recorded hash. Dedicated integration passes. This matrix was inspected, not independently rerun; token use for release listing is user-reported."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from sealed passing evidence. Inspected supplied strict validation at exact HEAD f9857da3822cad2e0dff99b72ad0ab70d8c31da6: 174 executed/passed; zero failed, optional_failed, errored or skipped. Actual matrix sha256:7582633ff333ff15f287c6c6a8eca7fdc77224862dbeb6a9551c64794e898e1f matches recorded hash. Dedicated integration passes. This matrix was inspected, not independently rerun; token use for release listing is user-reported."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from sealed passing evidence. Inspected supplied strict validation at exact HEAD f9857da3822cad2e0dff99b72ad0ab70d8c31da6: 174 executed/passed; zero failed, optional_failed, errored or skipped. Actual matrix sha256:7582633ff333ff15f287c6c6a8eca7fdc77224862dbeb6a9551c64794e898e1f matches recorded hash. Dedicated integration passes. This matrix was inspected, not independently rerun; token use for release listing is user-reported."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from sealed passing evidence. Inspected supplied strict validation at exact HEAD f9857da3822cad2e0dff99b72ad0ab70d8c31da6: 174 executed/passed; zero failed, optional_failed, errored or skipped. Actual matrix sha256:7582633ff333ff15f287c6c6a8eca7fdc77224862dbeb6a9551c64794e898e1f matches recorded hash. Dedicated integration passes. This matrix was inspected, not independently rerun; token use for release listing is user-reported."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from sealed passing evidence. Inspected supplied strict validation at exact HEAD f9857da3822cad2e0dff99b72ad0ab70d8c31da6: 174 executed/passed; zero failed, optional_failed, errored or skipped. Actual matrix sha256:7582633ff333ff15f287c6c6a8eca7fdc77224862dbeb6a9551c64794e898e1f matches recorded hash. Dedicated integration passes. This matrix was inspected, not independently rerun; token use for release listing is user-reported."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Implementation diff changes only vanished-process classification at group inventory and Linux lock-owner probe. Other errors remain incomplete/unknown. No public CLI, file, REST, Kafka, Protobuf or MCP contract changed."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from sealed passing evidence. Inspected supplied strict validation at exact HEAD f9857da3822cad2e0dff99b72ad0ab70d8c31da6: 174 executed/passed; zero failed, optional_failed, errored or skipped. Actual matrix sha256:7582633ff333ff15f287c6c6a8eca7fdc77224862dbeb6a9551c64794e898e1f matches recorded hash. Dedicated integration passes. This matrix was inspected, not independently rerun; token use for release listing is user-reported."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Naming ENOENT and ESRCH handles an entry absent at open or a task gone at read. Other failures are not retried or hidden. Saved mutation logs show all three new tests fail without ESRCH. Historical incident cause is unproven because underlying error is discarded."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Read full diff 123d73ad..f9857da3: spec-only task completion, R1/R2 trace, qualified incident narrative and final report. F1/F2 preserve low findings with owner and review date. No implementation or validation-matrix delta since approved subject."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Vanished unrelated tasks no longer spuriously defeat inventory; permission, I/O and parse errors remain fail closed. Generic termination diagnostic is a pre-existing gap tracked as F1; deterministic caller seams tracked as F2. No diagnostic improvement claimed."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from sealed passing evidence. Inspected supplied strict validation at exact HEAD f9857da3822cad2e0dff99b72ad0ab70d8c31da6: 174 executed/passed; zero failed, optional_failed, errored or skipped. Actual matrix sha256:7582633ff333ff15f287c6c6a8eca7fdc77224862dbeb6a9551c64794e898e1f matches recorded hash. Dedicated integration passes. This matrix was inspected, not independently rerun; token use for release listing is user-reported."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "I am the Codex reviewer of all rounds (rounds 1-1), recorded in review-round1-report.md beside this file. That report approved 123d73ad with low follow-ups. Read its conclusions and logs; prior tests were not freshly rerun. Reviewer continuity is declared, not authenticated vendor identity. Current closeout-only delta preserves bounded scope; sealed attribution is clean, two commits of two."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Round-one review covers containment and guarded lock-owner identity. ESRCH identifies the opened task as gone; live members are not newly excused and non-gone errors remain fail closed. Inspected current code delta and closeout text; no credentials or new dependency/authentication surface. No fresh secret or vulnerability scan claimed."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "One shared predicate at the two arbitrary-PID readers is sufficient; broad retries would hide real inventory failures and add reads. Existing wait, bounds and PID/group races remain outside scope. Revisit if a live task can produce the classified vanished-task answers or inventory coverage requirements expand."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Native mechanical preparation succeeded; sealed attribution reports clean two-of-two commits. Fresh strict artifact command still running at preparation; no fresh completed strict pass claimed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Standalone assessment not run; bounded code review and mutation evidence support design judgment. Sealed structure observation is not runtime proof."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "No lifecycle refresh in attestation-only scope; no code modified."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "No MCP/API/inter-module contract changed; inapplicable as recorded in round one."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Read saved round-one assessment log: one covered TODO, zero uncovered; INCOMPLETE on two pre-existing unknown-scope specs. No fresh run or full census claimed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate left to lifecycle owner; no close authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate follows attestation; review verify and review-check will run next."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Executed now: pose-mcp maps backend-go; selected security, documentation-style and backend-go. Delivery-evidence consulted; knowledge-governance consulted, no knowledge edits. Frontend/infrastructure inapplicable."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Native mechanical preparation succeeds with current sealed integration evidence. Fresh strict surface command is pending at preparation; user reports zero findings, not yet independently observed."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from sealed passing evidence. Inspected supplied strict validation at exact HEAD f9857da3822cad2e0dff99b72ad0ab70d8c31da6: 174 executed/passed; zero failed, optional_failed, errored or skipped. Actual matrix sha256:7582633ff333ff15f287c6c6a8eca7fdc77224862dbeb6a9551c64794e898e1f matches recorded hash. Dedicated integration passes. This matrix was inspected, not independently rerun; token use for release listing is user-reported."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from sealed passing evidence. Inspected supplied strict validation at exact HEAD f9857da3822cad2e0dff99b72ad0ab70d8c31da6: 174 executed/passed; zero failed, optional_failed, errored or skipped. Actual matrix sha256:7582633ff333ff15f287c6c6a8eca7fdc77224862dbeb6a9551c64794e898e1f matches recorded hash. Dedicated integration passes. This matrix was inspected, not independently rerun; token use for release listing is user-reported."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/process-inventory-tolerates-exit-integration"
+  ],
+  "findings": [
+    {
+      "id": "f1",
+      "severity": "low",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "action": "Preserve underlying termination error in a diagnostic follow-up",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "Pre-existing observability gap; no correctness blocker. Spec now qualifies historical causation.",
+      "review_by": "2026-11-27"
+    },
+    {
+      "id": "f2",
+      "severity": "low",
+      "evidence": "integration:pose-mcp/go/process-inventory-tolerates-exit-integration",
+      "action": "Force ESRCH through inventory and lock-owner call sites with controlled read-error tests, active-owner and permission assertions",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "Current code inspection, saved real-process mutation and existing lock tests support safety; direct caller coverage remains follow-up.",
+      "review_by": "2026-11-27"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-inventory-sol-20261101",
+    "concluded_by": "agent:independent-inventory-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-01T02:52:53Z",
+  "path": ".pose/review-attestations/rva-4babe5eab95356b0.json"
+}

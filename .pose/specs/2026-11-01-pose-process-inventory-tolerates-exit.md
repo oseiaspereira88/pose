@@ -1,6 +1,6 @@
 ---
 slug: pose-process-inventory-tolerates-exit
-status: in-progress
+status: done
 created_at: 2026-11-01
 supersedes:
 depends_on: pose-delegated-adapter-containment
@@ -9,6 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: capability:process-inventory-tolerates-exit
+completed_at: 2026-11-01
 ---
 
 # Spec: A process that exits during the inventory is not a failure
